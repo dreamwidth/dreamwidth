@@ -1262,6 +1262,10 @@ sub rename_usertag {
     my $newname = LJ::Tags::validate_tag($newkw);
     return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $newkw ) } ) )
         unless $newname;
+    return $err->( LJ::Lang::ml( 'taglib.error.notcanonical',
+                                 { beforetag => LJ::ehtml( $newkw ),
+                                   aftertag => LJ::ehtml( $newname ) } ) )
+        unless $newkw eq $newname; # Far from ideal UX-wise.
 
     # get a list of keyword ids to operate on
     my $kwid;
