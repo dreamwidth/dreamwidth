@@ -170,7 +170,7 @@
     # store any blobs (images, userpics, media, etc) that need storage. For small
     # sites/single servers, the localdisk mode is useful. For production
     # systems S3 should be used.
-    # %BLOBSTORE = (
+    # @BLOBSTORES = (
     #     # Local disk configuration, can be used to store everything on one machine
     #     localdisk => {
     #         path => "$LJ::HOME/var/blobstore",
