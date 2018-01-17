@@ -241,15 +241,12 @@ sub get_usage_for_user {
     return $usage;  # in bytes
 }
 
-
-package LJ::User;
-
 sub can_upload_media {
-    my ( $u ) = @_;
+    my ( $class, $u ) = @_;
     return 0 if $u->is_expunged || $u->is_identity;
 
-    my $quota = DW::Media->get_quota_for_user( $u );
-    my $usage = DW::Media->get_usage_for_user( $u );
+    my $quota = $class->get_quota_for_user( $u );
+    my $usage = $class->get_usage_for_user( $u );
     return $usage > $quota ? 0 : 1;
 }
 
