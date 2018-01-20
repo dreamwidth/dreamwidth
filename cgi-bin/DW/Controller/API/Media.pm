@@ -7,7 +7,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2013-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -63,7 +63,7 @@ sub file_new_handler {
         if $rv->{u}->is_identity;
 
     return api_error( $r->HTTP_BAD_REQUEST, 'Quota exceeded' )
-        unless $rv->{u}->can_upload_media;
+        unless DW::Media->can_upload_media( $rv->{u} );
 
     my $uploads = $r->uploads;
     return api_error( $r->HTTP_BAD_REQUEST, 'No uploads found' )
