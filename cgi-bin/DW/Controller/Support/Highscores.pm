@@ -111,9 +111,10 @@ sub highscores_handler {
         
         my $count = 0;
         foreach my $row ( @rows[$first..$shown] ) {
-            $count++;
             my $userid = $row->{'userid'};
             my $user = LJ::load_user( $row->{'user'} );
+            next if $user->is_expunged;
+            $count++;
             my $ljname = $user->ljuser_display;
             my $name = $user->name_html;   
             if ($row->{'points'} != $lastpoints) {
