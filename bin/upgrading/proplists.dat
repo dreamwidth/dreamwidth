@@ -230,14 +230,6 @@ userproplist.dismissed_page_notices:
   multihomed: 0
   prettyname: Dismissed Page Notices
 
-userproplist.dogeartime:
-  cldversion: 4
-  datatype: num
-  des: unixtime of most recently read friends item.  anything greater is new.
-  indexed: 0
-  multihomed: 0
-  prettyname: dog ear time
-
 userproplist.dont_load_members:
   cldversion: 4
   datatype: bool
