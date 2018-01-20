@@ -3,7 +3,7 @@
 Authors:
     Mark Smith <mark@dreamwidth.org>
 
-Copyright (c) 2015 by Dreamwidth Studios, LLC.
+Copyright (c) 2015-2018 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -74,7 +74,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             </td></tr>
             [% IF can_have_reason %]
                 <tr><td>[% '.buying.note' | ml %]</td><td>
-                [% form.textarea(name = 'reason', rows = '6', cols = '60', wrap = 'soft') %]
+                [% form.textarea( name = 'reason', rows = '6', cols = '60', wrap = 'soft', value = reason ) %]
                 </td></tr>
             [% END %]
             <tr><td></td><td><input type='checkbox' name='anon' id='anon'> <label for='anon'>[% '.anon' | ml %]</label></td></tr>

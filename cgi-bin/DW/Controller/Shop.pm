@@ -7,7 +7,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2010-2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -98,6 +98,7 @@ sub shop_transfer_points_handler {
 
         if ( !$u ) {
             $errs{foruser} = LJ::Lang::ml( 'shop.item.points.canbeadded.notauser' );
+            $rv->{can_have_reason} = DW::Shop::Item::Points->can_have_reason;
 
         } elsif ( my $item = DW::Shop::Item::Points->new( target_userid => $u->id, from_userid => $remote->id, points => $points, transfer => 1 ) ) {
             # provisionally create the item to access object methods
@@ -125,6 +126,7 @@ sub shop_transfer_points_handler {
 
         } else {
             $errs{foruser} = LJ::Lang::ml( 'shop.item.points.canbeadded.itemerror' );
+            $rv->{can_have_reason} = DW::Shop::Item::Points->can_have_reason;
         }
 
         # copy down anon value and reason
