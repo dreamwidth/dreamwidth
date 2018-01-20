@@ -30,6 +30,8 @@ To manage your communities please visit [your community management page]([[commu
 
 .find.label=Username:
 
+.manage.membership.queue=You are currently managing existing members. <a [[aopts]]>Moderate membership requests?</a>
+
 .members.button=Save Membership Settings
 
 .msg.invite=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a href="[[invite_url]]">Community Invitation Page</a> to rejoin.

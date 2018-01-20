@@ -4,6 +4,8 @@
 
 .error.notmoderated=This community is not set to moderated posting.
 
+.manage.membership.requests=You are currently moderating entries. <a [[aopts]]>Moderate membership requests?</a>
+
 .no_subject=(no subject)
 
 .title=Entry Moderation Queue

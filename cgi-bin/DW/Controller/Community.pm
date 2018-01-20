@@ -3,7 +3,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2013-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -993,6 +993,8 @@ sub entry_queue_handler {
         entries => \@entries,
 
         linkbar => _community_menu( LJ::get_remote(), $cu, current_page => 'queue', path => '/communities/queue/entries' ),
+
+        community => $cu,
     };
 
     return DW::Template->render_template( 'communities/queue/entries.tt', $vars );
