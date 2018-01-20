@@ -34,14 +34,6 @@
 
 <themeid> moodthemedata:<themeid> = { $moodid => { 'pic' => $pic, 'w' => $w, 'h' => $h } }
 
-<uid> s1overr:<uid> == overrides for a given user
-<uid> s1uc:<uid> == s1usercache row hashref
-      s1pubstyc == hashref keyed on styleid with values being rows from s1style table
-<styleid> s1styc:<styleid> == s1stylecache row hashref, 30 minutes
-<styleid> s1style:<styleid> == hashref of s1style row, without formatdata
-<styleid> s1style_all:<styleid> == hashref of s1style row, including formatdata
-<styleid> s1stylemap: <styleid> == userid who owns the given styleid
-
 <styleid> s2sl:<styleid> == hashref of s2stylelayers { type => s2lid }
 <styleid> s2s:<styleid> == hashref of s2styles row
           s2publayers == memoize LJ::S2::get_public_layers for 10 mins
