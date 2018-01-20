@@ -129,7 +129,9 @@
 
 .details.title=[[user]]'s Journal
 
-.details.userpics=[[num_comma]] <a [[aopts]]>[[?num_raw|Icon|Icons]]</a>
+.details.userpics.others=[[uploaded_comma]] <a [[aopts]]>[[?uploaded_raw|Icon|Icons]] Uploaded</a>
+
+.details.userpics.self=[[uploaded_comma]] <a [[aopts]]>[[?uploaded_raw|Icon|Icons]] Uploaded</a> ([[slots_comma]] icon [[?slots_raw|slot|slots]] active, [[bonus_comma]] bonus [[?bonus_raw|icon|icons]])
 
 .details.viewlinkssep=, 
 

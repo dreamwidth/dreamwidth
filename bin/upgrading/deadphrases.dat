@@ -1847,3 +1847,5 @@ general /views/media/index.tt.intro.edit
 general email.newacct5.body
 
 general widget.createaccount.error.birthdate.invalid
+
+general /profile.bml.details.userpics

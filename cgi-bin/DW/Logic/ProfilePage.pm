@@ -9,7 +9,7 @@
 #      Mark Smith <mark@dreamwidth.org>
 #      Janine Smith <janine@netrophic.com>
 #
-# Copyright (c) 2009-2014 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -228,7 +228,7 @@ sub support_stats {
 }
 
 
-# return array of statistic strings
+# return array of entry statistic strings
 sub entry_stats {
     my $self = $_[0];
 
@@ -247,7 +247,7 @@ sub entry_stats {
 }
 
 
-# return array of statistic strings
+# return array of tag statistic strings
 sub tag_stats {
     my $self = $_[0];
 
@@ -266,7 +266,7 @@ sub tag_stats {
 }
 
 
-# return array of statistic strings
+# return array of memory statistic strings
 sub memory_stats {
     my $self = $_[0];
 
@@ -285,20 +285,35 @@ sub memory_stats {
 }
 
 
-# return array of statistic strings
+# return array of userpic statistic strings
 sub userpic_stats {
     my $self = $_[0];
 
     my $u = $self->{u};
-    my @ret;
+    return () if $u->is_syndicated;
+
+    my @ret = ();
 
     my $ct = $u->get_userpic_count;
-    push @ret, LJ::Lang::ml( '.details.userpics', {
-        num_raw => $ct,
-        num_comma => LJ::commafy( $ct ),
-        aopts => "href='" . $u->allpics_base . "'",
-    } )
-        unless $u->is_syndicated;
+    if ( $u->equals( $self->{remote} ) ) {
+        my $slots = $u->userpic_quota;
+        my $bonus = $u->prop('bonus_icons') || 0;
+        push @ret, LJ::Lang::ml( '.details.userpics.self', {
+                                 uploaded_raw => $ct,
+                                 uploaded_comma => LJ::commafy( $ct ),
+                                 slots_raw => $slots,
+                                 slots_comma => LJ::commafy( $slots ),
+                                 bonus_raw => $bonus,
+                                 bonus_comma => LJ::commafy( $bonus ),
+                                 aopts => "href='" . $u->allpics_base . "'",
+                               } );
+    } else {
+        push @ret, LJ::Lang::ml( '.details.userpics.others', {
+                                 uploaded_raw => $ct,
+                                 uploaded_comma => LJ::commafy( $ct ),
+                                 aopts => "href='" . $u->allpics_base . "'",
+                               } );
+    }
 
     return @ret;
 }
