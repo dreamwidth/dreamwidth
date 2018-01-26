@@ -3,20 +3,6 @@
 
 .betafeature.btn.on=Turn ON beta testing
 
-.betafeature.httpseverywhere.cantadd=Sorry, your account is not eligible to test this feature.
-
-.betafeature.httpseverywhere.off<<
-<p>Activate HTTPS Everywhere. This will force your account to use a secure connection whenever
-you're logged in and browsing.</p>
-.
-
-.betafeature.httpseverywhere.on<<
-<p>You currently have HTTPS Everywhere enabled. Toggle off if you wish to resume browsing
-the site normally (unencrypted).</p>
-.
-
-.betafeature.httpseverywhere.title=HTTPS Everywhere
-
 .betafeature.updatepage.cantadd=Sorry, your account is not eligible to test this feature.
 
 .betafeature.updatepage.off<<
