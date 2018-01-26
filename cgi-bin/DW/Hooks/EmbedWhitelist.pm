@@ -86,6 +86,7 @@ my %host_path_match = (
     "www.kickstarter.com"   => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
     "www.mixcloud.com"      => [ qr!^/widget/iframe/$!, 1 ],
+    "my.mail.ru"            => [ qr!^/video/embed/\d+!, 1 ],
 
     "ext.nicovideo.jp"      => [ qr!^/thumb/!, 0 ],
     "noisetrade.com"        => [ qr!^/service/widgetv2/!, 1 ],
