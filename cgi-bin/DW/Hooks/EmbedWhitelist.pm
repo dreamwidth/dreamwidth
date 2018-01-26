@@ -106,6 +106,7 @@ my %host_path_match = (
 
     "embed.ted.com"         => [ qr!^/talks/!, 1 ],
 
+    "vk.com"                => [ qr!^/video_ext\.php$!, 1 ],
     "vid.me"                => [ qr!^/e/!, 1 ],
     "player.vimeo.com"      => [ qr!^/video/\d+$!, 1 ],
     "vine.co"               => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],

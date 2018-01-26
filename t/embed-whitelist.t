@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 71;
+use Test::More tests => 72;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -155,6 +155,7 @@ note( "misc" );
 
     # V
     test_good_url( "https://vid.me/e/v63?stats=1&amp;tools=1" );
+    test_good_url( "https://vk.com/video_ext.php?oid=-49280571&id=165718332&hash=5eb26e7a4cd9982d" );
 
     test_good_url( "http://player.vimeo.com/video/123123123?title=0&byline=0&portrait=0" );
     test_bad_url( "http://player.vimeo.com/video/123abc?title=0&byline=0&portrait=0" );
