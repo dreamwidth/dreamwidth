@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 80;
+use Test::More tests => 81;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -177,6 +177,8 @@ note( "misc" );
     # W
     test_good_url( "http://commons.wikimedia.org/wiki/File:somethingsomethingsomething.ogv?withJS=MediaWiki:MwEmbed.js&embedplayer=yes" );
     test_bad_url( "http://commons.wikimedia.org/wiki/File:1903_Burnley_Ironworks_company_steam_engine_in_use.ogv?withJS=MediaWiki:MwEmbed.js" );
+
+    test_good_url( "https://fast.wistia.com/embed/iframe/k1akcpc0ik" );
 
     # Y
     test_good_url( "https://screen.yahoo.com/fashion-photographer-life-changed-chance-193621376.html?format=embed" );

@@ -114,6 +114,8 @@ my %host_path_match = (
     "vine.co"               => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],
     # Videos seemed to use an 11-character identification; may need to be changed
 
+    "fast.wistia.com"       => [ qr!^/embed/iframe/\w+$!, 1 ],
+
     "video.yandex.ru"       => [ qr!^/iframe/[\-\w]+/[a-z0-9]+\.\d{4}/?$!, 1 ], #don't think the last part can include caps; amend if necessary
 
     "www.zippcast.com"      => [ qr!^/videoview\.php$!, 0 ],
