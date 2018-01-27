@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 77;
+use Test::More tests => 79;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -154,6 +154,8 @@ note( "misc" );
     test_good_url( "http://www.slideshare.net/slideshow/embed_code/12312312" );
     test_good_url( "http://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F23318382&show_artwork=true" );
     test_good_url( "https://embed.spotify.com/?uri=spotify:track:1DeuZgn99eUC1hreXTWBvY" );
+    test_good_url( "https://open.spotify.com/embed/track/5IsdA6g8IFKGmC1xl37OG1" );
+    test_good_url( "https://open.spotify.com/?uri=spotify:track:1DeuZgn99eUC1hreXTWBvY" );
 
     # T
     test_good_url( "http://embed.ted.com/talks/handpring_puppet_co_the_genius_puppetry_behind_war_horse.html" );

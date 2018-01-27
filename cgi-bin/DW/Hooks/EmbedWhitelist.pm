@@ -103,6 +103,7 @@ my %host_path_match = (
     "www.slideshare.net"    => [ qr!^/slideshow/embed_code/!, 1 ],
     "w.soundcloud.com"      => [ qr!^/player/!, 1 ],
     "embed.spotify.com"     => [ qr!^/$!, 1 ],
+    "open.spotify.com"      => [ qr!^/($)|(embed/track/\w+$)!, 1 ],
 
     "embed.ted.com"         => [ qr!^/talks/!, 1 ],
 
