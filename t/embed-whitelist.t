@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 83;
+use Test::More tests => 84;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -149,6 +149,9 @@ note( "misc" );
     # P
     test_good_url( "https://playmoss.com/embed/wingedbeastie/the-swamp-witch-nix-s-playlist" );
     test_good_url( "http://www.plurk.com/getWidget?uid=123123123&h=375&w=200&u_info=2&bg=cf682f&tl=cae7fd" );
+
+    # R
+    test_good_url( "https://www.reverbnation.com/widget_code/html_widget/artist_299962?widget_id=55&pwc[song_ids]=4189683&context_type=song&pwc[size]=small&pwc[color]=dark" );
 
     # S
     test_good_url( "http://www.sbs.com.au/yourlanguage//player/embed/id/163111" );

@@ -100,6 +100,8 @@ my %host_path_match = (
     "playmoss.com"          => [ qr!^/embed/!, 1 ],
     "www.plurk.com"         => [ qr!^/getWidget$!, 1 ],
 
+    "www.reverbnation.com"  => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
+
     "www.sbs.com.au"        => [ qr!/player/embed/!, 0 ],  # best guess; language parameter before /player may vary
     "scratch.mit.edu"       => [ qr!^/projects/embed/!, 1 ],
     "www.scribd.com"        => [ qr!^/embeds/!, 1 ],
