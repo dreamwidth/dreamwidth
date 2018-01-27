@@ -170,6 +170,10 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
         return ( 1, 1 ) if match_full_path( qr!/\d+\.html!, $uri_path ) && $parsed_uri->query =~ m/embed/;
     }
 
+    if ( $uri_host eq "music.yandex.ru" ) {
+        return ( 1, 1 ) if $parsed_uri->fragment =~ m!track/\d+/\d+!;
+    }
+
     return 0;
 
 } );
