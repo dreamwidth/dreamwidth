@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 82;
+use Test::More tests => 83;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -114,6 +114,7 @@ note( "misc" );
     # I
     test_good_url( "//imgur.com/a/J4OKE/embed" );
     test_good_url( "//instagram.com/p/cA1pRXKGBT/embed/" );
+    test_good_url( "http://www.imdb.com/videoembed/vi1743501593" );
 
     # J
     test_good_url( "//www.jigsawplanet.com/?rc=play&amp;pid=35458f1355c4&amp;view=iframe" );
