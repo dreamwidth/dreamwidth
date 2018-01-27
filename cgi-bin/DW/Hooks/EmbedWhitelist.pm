@@ -69,6 +69,7 @@ my %host_path_match = (
     "www.flickr.com"        => [ qr!/player/$!, 1 ],
 
     "www.goodreads.com"     => [ qr!^/widgets/!, 1 ],
+    "giphy.com"             => [ qr!^/embed/\w+!, 1 ],
 
     "maps.google.com"       => [ qr!^/maps!, 1 ],
     "www.google.com"        => [ qr!^/calendar/!, 1 ],
