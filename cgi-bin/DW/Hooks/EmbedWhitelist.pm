@@ -166,6 +166,10 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
         return ( 1, 1 ) if $parsed_uri->query =~ m/format=embed/;
     }
 
+    if ( match_subdomain( "livejournal.com", $uri_host ) ) {
+        return ( 1, 1 ) if match_full_path( qr!/\d+\.html!, $uri_path ) && $parsed_uri->query =~ m/embed/;
+    }
+
     return 0;
 
 } );

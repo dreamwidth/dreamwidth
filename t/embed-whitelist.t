@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 72;
+use Test::More tests => 76;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -120,6 +120,12 @@ note( "misc" );
     # K
     test_good_url( "http://www.kickstarter.com/projects/25352323/arrival-a-short-film-by-alex-myung/widget/video.html" );
     test_good_url( "http://www.kickstarter.com/projects/25352323/arrival-a-short-film-by-alex-myung/widget/card.html" );
+
+    # L
+    test_good_url( "https://shad-tkhom.livejournal.com/1244088.html?embed" );
+    test_bad_url( "https://shad-tkhom.livejournal.com/1244088.html", "missing embed flag" );
+    test_bad_url( "https://shad-tkhom.livejournal.com/1244sd088.html?embed", "invalid item id" );
+    test_bad_url( "https://shad_tkhom.livejournal.com/1244sd088.html?embed", "bad username" );
 
     # M
     test_good_url( "https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2Fvladmradio%2F25-podcast-from-august-24-2016%2F&hide_cover=1&light=1" );
