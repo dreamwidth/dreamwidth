@@ -63,6 +63,7 @@ my %host_path_match = (
 
     "www.dailymotion.com"   => [ qr!^/embed/video/!, 1 ],
     "dotsub.com"            => [ qr!^/media/!, 1 ],
+    "discordapp.com"        => [ qr!^/widget$!, 1 ],
 
     "episodecalendar.com"   => [ qr!^/icalendar/!, 0 ],
 
