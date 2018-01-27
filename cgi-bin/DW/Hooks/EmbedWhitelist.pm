@@ -73,7 +73,7 @@ my %host_path_match = (
     "giphy.com"             => [ qr!^/embed/\w+!, 1 ],
 
     "maps.google.com"       => [ qr!^/maps!, 1 ],
-    "www.google.com"        => [ qr!^/calendar/!, 1 ],
+    "www.google.com"        => [ qr!^/(calendar/|maps/embed)!, 1 ],
     "calendar.google.com"   => [ qr!^/calendar/!, 1 ],
     # drawings do not need to be whitelisted as they are images.
     # forms arent being allowed for security concerns.
