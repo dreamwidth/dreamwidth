@@ -70,7 +70,7 @@ sub option {
         id       => "${key}ctrl",
         selected => $ctrlval,
                            });
-    $ret .+ " <label for='${key}ctrl'>";
+    $ret .= " <label for='${key}ctrl'>";
     $ret .=  "Ctrl";
     $ret .= "</label>";
 
@@ -80,7 +80,7 @@ sub option {
         id       => "${key}alt",
         selected => $altval,
                            });
-    $ret .+ " <label for='${key}alt'>";
+    $ret .= " <label for='${key}alt'>";
     $ret .=  "Alt";
     $ret .= "</label>";
 
@@ -90,7 +90,7 @@ sub option {
         id       => "${key}meta",
         selected => $metaval,
                            });
-    $ret .+ " <label for='${key}meta'>";
+    $ret .= " <label for='${key}meta'>";
     $ret .=  "Meta";
     $ret .= "</label>";
 
