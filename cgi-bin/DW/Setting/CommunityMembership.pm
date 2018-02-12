@@ -74,9 +74,8 @@ sub save {
 
     my $remote = LJ::get_remote();
 
-    my ( $current_comm_membership, $current_comm_postlevel ) = $u->get_comm_settings;
     my $val = $class->get_arg( $args, "communitymembership" );
-    $u->set_comm_settings( $remote, { membership => $val, postlevel => $current_comm_postlevel });
+    $u->set_comm_settings( $remote, { membership => $val });
 
     return 1;
 }
