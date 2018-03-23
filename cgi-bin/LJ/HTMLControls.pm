@@ -26,6 +26,7 @@ use strict;
 # des-:
 # returns:
 # </LJFUNC>
+# It's the caller's responsibility to leave appropriate gaps if using tabindex
 sub html_datetime
 {
     my $opts = shift;
@@ -35,9 +36,12 @@ sub html_datetime
     my $name = $opts->{name} || '';
     my $id = $opts->{id} || '';
     my $disabled = $opts->{'disabled'} ? 1 : 0;
+    my $tabindex = $opts->{tabindex};
+    my @tabindex_arg = ();
+    @tabindex_arg = ( tabindex => $tabindex ) if defined $tabindex;
 
     my %extra_opts;
-    foreach (grep { ! /^(name|id|disabled|seconds|notime|lang|default)$/ } keys %$opts) {
+    foreach (grep { ! /^(name|id|disabled|seconds|notime|lang|default|tabindex)$/ } keys %$opts) {
         $extra_opts{$_} = $opts->{$_};
     }
 
@@ -55,9 +59,10 @@ sub html_datetime
                            selected => $mm,
                            class => 'select',
                            title => 'month',
-                           disabled => $disabled, %extra_opts,
+                           disabled => $disabled, @tabindex_arg, %extra_opts,
                          },
                          map { $_, LJ::Lang::month_long_ml($_) } (1..12) );
+    ++$tabindex_arg[1] if defined $tabindex;
     $ret .= html_text( { name => "${name}_dd",
                          id => "${id}_dd",
                          size => '2',
@@ -65,8 +70,9 @@ sub html_datetime
                          maxlength => '2',
                          value => $dd,
                          title => 'day',
-                         disabled => $disabled, %extra_opts,
+                         disabled => $disabled, @tabindex_arg, %extra_opts,
                        } );
+    ++$tabindex_arg[1] if defined $tabindex;
     $ret .= html_text( { name => "${name}_yyyy",
                          id => "${id}_yyyy",
                          size => '4',
@@ -74,35 +80,38 @@ sub html_datetime
                          maxlength => '4',
                          value => $yyyy,
                          title => 'year',
-                         disabled => $disabled, %extra_opts,
+                         disabled => $disabled, @tabindex_arg, %extra_opts,
                        } );
     unless ( $opts->{notime} ) {
         $ret .= ' ';
+        ++$tabindex_arg[1] if defined $tabindex;
         $ret .= html_text( { name => "${name}_hh",
                              id => "${id}_hh",
                              size => '2',
                              maxlength => '2',
                              value => $hh,
                              title => 'hour',
-                             disabled => $disabled,
+                             disabled => $disabled, @tabindex_arg,
                            } ) . ':';
+        ++$tabindex_arg[1] if defined $tabindex;
         $ret .= html_text( { name => "${name}_nn",
                              id => "${id}_nn",
                              size => '2',
                              maxlength => '2',
                              value => $nn,
                              title => 'minutes',
-                             disabled => $disabled,
+                             disabled => $disabled, @tabindex_arg,
                            } );
         if ( $opts->{seconds} ) {
             $ret .= ':';
+            ++$tabindex_arg[1] if defined $tabindex;
             $ret .= html_text( { name => "${name}_ss",
                                  id => "${id}_ss",
                                  size => '2',
                                  maxlength => '2',
                                  value => $ss,
                                  title => 'seconds',
-                                 disabled => $disabled,
+                                 disabled => $disabled, @tabindex_arg,
                                } );
         }
     }
@@ -224,8 +233,10 @@ sub _html_option {
 
     # are there additional data-attributes?
     my $data_attribute = '';
-    if ( $item->{data} ) {
-        $data_attribute .= " data-$_='$item->{data}->{$_}'" foreach keys %{$item->{data} || {}};
+    my %item_data = $item->{data} ? %{$item->{data}} : ();
+    foreach ( keys %item_data ) {
+        my $val = $item_data{$_} // '';
+        $data_attribute .= " data-$_='$val'";
     }
 
     return "<option value=\"$value\"$id$sel$dis$data_attribute>" .

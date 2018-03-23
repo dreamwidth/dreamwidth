@@ -866,7 +866,7 @@ sub create_qr_div {
     {
         my %res;
         LJ::do_request({ mode => "login",
-                         ver => ($LJ::UNICODE ? "1" : "0"),
+                         ver => $LJ::PROTOCOL_VER,
                          user => $remote->user,
                          getpickws => 1,
                          getpickwurls => 1,
@@ -1069,6 +1069,7 @@ ssl -- use ssl
 fragment -- add fragment identifier
 cur_args -- hashref of current GET arguments to the page
 keep_args -- arguments to keep
+keep_query_string -- keep the raw query string (ignores keep_args)
 no_blank -- remove keys with null values from GET args
 viewing_style -- include viewing style args
 =cut
@@ -1088,51 +1089,43 @@ sub create_url {
     my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
     my $url = $proto . "://$host$path";
 
-    my $orig_args = $opts{cur_args} || DW::Request->get->get_args( preserve_case => 1 );
+    # TWO PATHS: if keep_query_string is used, we simply preserve that
+    # with no further logic. If not, however, we perform arguments logic.
+    my $args;
+    if ( $opts{keep_query_string} ) {
+        $args = $r->query_string;
 
-    # Mimic previous behavior of lowercasing keys unless they start with Widget
-    # FIXME: this should eventually go away - see #1742
-    unless ( $opts{cur_args} ) {
-        foreach my $k ( keys %$orig_args ) {
-            next if $k eq lc $k;
-            next if $k =~ /^Widget\b/;
-            # already found another unintended side effect in /endpoints/draft
-            next if $k eq 'getProperties';
+    } else {
+        my $orig_args = $opts{cur_args} || $r->get_args( preserve_case => 1 );
 
-            # don't complain about hand-typed arguments, but do convert them (for now)
-            my $referer = DW::Request->get->header_in("Referer");
-            warn "[#1742] lowercasing $k, url: $url (referer: $referer)\n"
-                if $referer;
-            $orig_args->{lc $k} = $orig_args->{$k};
-            delete $orig_args->{$k};
+        # Move over viewing style arguments
+        if( $opts{viewing_style} ) {
+            my $vs_args = LJ::viewing_style_opts( %$orig_args );
+            foreach my $k ( keys %$vs_args ) {
+                $out_args{$k} = $vs_args->{$k} unless exists $out_args{$k};
+            }
         }
-    }
 
-    # Move over viewing style arguments
-    if( $opts{viewing_style} ) {
-        my $vs_args = LJ::viewing_style_opts( %$orig_args );
-        foreach my $k ( keys %$vs_args ) {
-            $out_args{$k} = $vs_args->{$k} unless exists $out_args{$k};
+        $opts{keep_args} = [ keys %$orig_args ]
+            if defined $opts{keep_args} and $opts{keep_args} == 1;
+        $opts{keep_args} = [] if ref $opts{keep_args} ne 'ARRAY';
+
+        # Move over arguments that we need to keep
+        foreach my $k ( @{$opts{keep_args}} ) {
+            $out_args{$k} = $orig_args->{$k}
+                if exists $orig_args->{$k} && ! exists $out_args{$k};
         }
-    }
 
-    $opts{keep_args} = [ keys %$orig_args ] if defined $opts{keep_args} and $opts{keep_args} == 1;
-    $opts{keep_args} = [] if ref $opts{keep_args} ne 'ARRAY';
-
-    # Move over arguments that we need to keep
-    foreach my $k ( @{$opts{keep_args}} ) {
-        $out_args{$k} = $orig_args->{$k} if exists $orig_args->{$k} && ! exists $out_args{$k};
-    }
-
-    foreach my $k ( keys %out_args ) {
-        if ( ! defined $out_args{$k} ) {
-            delete $out_args{$k};
-        } elsif ( ! length $out_args{$k} ) {
-            delete $out_args{$k} if $opts{no_blank};
+        foreach my $k ( keys %out_args ) {
+            if ( ! defined $out_args{$k} ) {
+                delete $out_args{$k};
+            } elsif ( ! length $out_args{$k} ) {
+                delete $out_args{$k} if $opts{no_blank};
+            }
         }
-    }
 
-    my $args = LJ::encode_url_string( \%out_args, [ sort keys %out_args ] );
+        $args = LJ::encode_url_string( \%out_args, [ sort keys %out_args ] );
+    }
 
     $url .= "?$args" if $args;
     $url .= "#" . $opts{fragment} if $opts{fragment};
@@ -1178,7 +1171,8 @@ sub entry_form {
 
     $opts->{'richtext'} = $opts->{'richtext_default'};
     my $tabnum = 10; #make allowance for username and password
-    my $tabindex = sub { return $tabnum++; };
+    # Leave gaps for interpolated fields eg date/time
+    my $tabindex = sub { return ( $tabnum += 10 ) - 10; };
     $opts->{'event'} = LJ::durl($opts->{'event'}) if $opts->{'mode'} eq "edit";
 
     # 1 hour auth token, should be adequate
@@ -1251,7 +1245,7 @@ sub entry_form {
             my ($year, $mon, $mday, $hour, $min) = split( /\D/, $opts->{'datetime'});
             my $monthlong = LJ::Lang::month_long($mon);
             # date entry boxes / formatting note
-            my $datetime = LJ::html_datetime({ 'name' => "date_ymd", 'notime' => 1, 'default' => "$year-$mon-$mday", 'disabled' => $opts->{'disabled_save'}});
+            my $datetime = LJ::html_datetime( { name => 'date_ymd', notime => 1, default => "$year-$mon-$mday", tabindex => $tabindex->(), disabled => $opts->{'disabled_save'} } );
             $datetime .= "<span class='float-left'>&nbsp;&nbsp;</span>";
             $datetime .=   LJ::html_text({ size => 2, class => 'text', maxlength => 2, value => $hour, name => "hour", tabindex => $tabindex->(), disabled => $opts->{'disabled_save'} }) . "<span class='float-left'>:</span>";
             $datetime .=   LJ::html_text({ size => 2, class => 'text', maxlength => 2, value => $min, name => "min", tabindex => $tabindex->(), disabled => $opts->{'disabled_save'} });
@@ -1329,8 +1323,9 @@ sub entry_form {
     $out .= "<ul class='pkg'>\n";
     $out .= "<li class='image'><a href='javascript:void(0);' onclick='InOb.handleInsertImage();' title='"
         . BML::ml('fckland.ljimage') . "'>" . BML::ml('entryform.insert.image2') . "</a></li>\n";
-    $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='Embed Media'>"
-        . "Embed Media</a></li>\n" if LJ::is_enabled('embed_module');
+    $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='"
+        . BML::ml('fcklang.ljvideo2') . "'>" . BML::ml('fcklang.ljvideo2') . "</a></li>\n"
+            if LJ::is_enabled('embed_module');
     $out .= "</ul>\n";
     my $format_selected = ( $opts->{mode} eq "update" && $remote && $remote->disable_auto_formatting ) || $opts->{'prop_opt_preformatted'} || $opts->{'event_format'} ? "checked='checked'" : "";
     $out .= "<span id='linebreaks'><input type='checkbox' class='check' value='preformatted' name='event_format' id='event_format' $format_selected  />
@@ -1375,8 +1370,9 @@ RTE
     $out .= "FCKLang.UserPrompt_SiteList =" . LJ::js_dumper( \@sitevalues ) . ";\n";
     $out .= "FCKLang.InvalidChars = \"".LJ::ejs(BML::ml('fcklang.invalidchars'))."\";\n";
     $out .= "FCKLang.LJUser = \"".LJ::ejs(BML::ml('fcklang.ljuser'))."\";\n";
-    $out .= "FCKLang.VideoPrompt = \"".LJ::ejs(BML::ml('fcklang.videoprompt'))."\";\n";
     $out .= "FCKLang.LJVideo = \"".LJ::ejs(BML::ml('fcklang.ljvideo2'))."\";\n";
+    $out .= "FCKLang.EmbedContents = \"".LJ::ejs(BML::ml('fcklang.embedcontents'))."\";\n";
+    $out .= "FCKLang.EmbedPrompt = \"".LJ::ejs(BML::ml('fcklang.embedprompt'))."\";\n";
     $out .= "FCKLang.CutPrompt = \"".LJ::ejs(BML::ml('fcklang.cutprompt'))."\";\n";
     $out .= "FCKLang.ReadMore = \"".LJ::ejs(BML::ml('fcklang.readmore'))."\";\n";
     $out .= "FCKLang.CutContents = \"".LJ::ejs(BML::ml('fcklang.cutcontents'))."\";\n";
@@ -2359,7 +2355,6 @@ sub res_includes {
     # TODO: automatic dependencies from external map and/or content of files,
     # currently it's limited to dependencies on the order you call LJ::need_res();
     my $ret = "";
-    my $do_concat = $LJ::IS_SSL ? $LJ::CONCAT_RES_SSL : $LJ::CONCAT_RES;
 
     # use correct root and prefixes for SSL pages
     my ($siteroot, $imgprefix, $statprefix, $jsprefix, $wstatprefix, $iconprefix);
@@ -2459,7 +2454,6 @@ sub res_includes {
             # the modtime, but rather do one global max modtime at the
             # end, which is done later in the tags function.
             $modtime = '' unless defined $modtime;
-            $what .= "?v=$modtime" unless $do_concat;
 
             $list{$type} ||= [];
             push @{$list{$type}[$order] ||= []}, $what;
@@ -2518,18 +2512,10 @@ sub res_includes {
                 my $template_order = $template;
                 next unless $list = $list{$type}[$o];
 
-                if ($do_concat) {
-                    my $csep = join(',', @$list);
-                    $csep .= "?v=" . $oldest{$type}[$o];
-                    $template_order =~ s/__+/??$csep/;
-                    $ret .= $template_order;
-                } else {
-                    foreach my $item (@$list) {
-                        my $inc = $template;
-                        $inc =~ s/__+/$item/;
-                        $ret .= $inc;
-                    }
-                }
+                my $csep = join(',', @$list);
+                $csep .= "?v=" . $oldest{$type}[$o];
+                $template_order =~ s/__+/??$csep/;
+                $ret .= $template_order;
             }
         };
 
@@ -2731,7 +2717,7 @@ sub control_strip
         my $userpic = $remote->userpic;
         if ( $userpic ) {
             my $wh = $userpic->img_fixedsize( width => 43, height => 43 );
-            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/editicons'>";
+            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/manage/icons'>";
             $ret .= "<img src='" . $userpic->url . "' alt=\"$BML::ML{'web.controlstrip.userpic.alt'}\" title=\"$BML::ML{'web.controlstrip.userpic.title'}\" $wh /></a></td>";
         } else {
             my $tinted_nouserpic_img = "";
@@ -2748,7 +2734,7 @@ sub control_strip
                     }
                 }
             }
-            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/editicons'>";
+            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/manage/icons'>";
             if ($tinted_nouserpic_img eq "") {
                 $ret .= "<img src='$LJ::IMGPREFIX/controlstrip/nouserpic.gif' ";
             } else {

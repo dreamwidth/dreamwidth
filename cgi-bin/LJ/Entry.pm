@@ -985,7 +985,7 @@ sub visible_to
     }
 
     # public is okay
-    return 1 if $self->{'security'} eq "public";
+    return 1 if $self->security eq "public";
 
     # must be logged in otherwise
     return 0 unless $remote;
@@ -998,7 +998,7 @@ sub visible_to
 
     # should be 'usemask' or 'private' security from here out, otherwise
     # assume it's something new and return 0
-    return 0 unless $self->{security} eq "usemask" || $self->{security} eq "private";
+    return 0 unless $self->security eq "usemask" || $self->security eq "private";
 
     return 0 unless $remote->is_individual;
 
@@ -1104,8 +1104,11 @@ sub userpic_kw {
 sub can_tellafriend {
     my ($entry, $u) = @_;
 
-    return 1 if $entry->security eq 'public';
-    return 0 if $entry->security eq 'private';
+    # this is undefined in preview
+    my $seclevel = $entry->security // '';
+
+    return 1 if $seclevel eq 'public';
+    return 0 if $seclevel eq 'private';
 
     # friends only
     return 0 unless $entry->journal->is_person;
@@ -1513,7 +1516,7 @@ sub get_posts
 
 
     while (my ($id, $rp) = each %$rawposts) {
-        if ($LJ::UNICODE && $rp->{props}{unknown8bit}) {
+        if ( $rp->{props}{unknown8bit} ) {
             #LJ::item_toutf8($u, \$rp->{text}[0], \$rp->{text}[1], $rp->{props});
         }
     }
@@ -2207,15 +2210,9 @@ sub delete_comments {
         $u->do( "DELETE FROM talkprop2 $where" );
     }
 
-    my @jobs;
     foreach my $talkid ( @talkids ) {
-        my $cmt = LJ::Comment->new( $u, jtalkid => $talkid );
-        push @jobs, LJ::EventLogRecord::DeleteComment->new( $cmt )->fire_job;
         LJ::Hooks::run_hooks( 'delete_comment', $jid, $nodeid, $talkid ); # jitemid, jtalkid
     }
-
-    my $sclient = LJ::theschwartz();
-    $sclient->insert_jobs( @jobs ) if @jobs;
 
     $u->memc_delete( 'activeentries' );
     LJ::MemCache::delete( [ $jid, "screenedcount:$jid:$nodeid" ] );
@@ -2617,7 +2614,6 @@ sub expand_embedded {
 sub item_toutf8
 {
     my ($u, $subject, $text, $props) = @_;
-    return unless $LJ::UNICODE;
     $props ||= {};
 
     my $convert = sub {

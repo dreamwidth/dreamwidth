@@ -22,14 +22,6 @@ userproplist.ao3:
   multihomed: 0
   prettyname: Archive of Our Own user account name
 
-userproplist.aolim:
-  cldversion: 0
-  datatype: char
-  des: AOL IM ScreenName
-  indexed: 1
-  multihomed: 1
-  prettyname: AOL Instant Messanger
-
 userproplist.badpassword:
   cldversion: 4
   datatype: num
@@ -53,14 +45,6 @@ userproplist.bonus_icons:
   indexed: 0
   multihomed: 0
   prettyname: How many bonus icon slots the user has purchased
-
-userproplist.browselang:
-  cldversion: 4
-  datatype: char
-  des: LJ lang code in ml_langs
-  indexed: 1
-  multihomed: 0
-  prettyname: Language to browse with
 
 userproplist.captcha:
   cldversion: 4
@@ -246,14 +230,6 @@ userproplist.dismissed_page_notices:
   multihomed: 0
   prettyname: Dismissed Page Notices
 
-userproplist.dogeartime:
-  cldversion: 4
-  datatype: num
-  des: unixtime of most recently read friends item.  anything greater is new.
-  indexed: 0
-  multihomed: 0
-  prettyname: dog ear time
-
 userproplist.dont_load_members:
   cldversion: 4
   datatype: bool
@@ -406,14 +382,6 @@ userproplist.exclude_from_own_stats:
   multihomed: 0
   prettyname: Exclude from self journal stats
 
-userproplist.external_foaf_url:
-  cldversion: 4
-  datatype: char
-  des: Location of External FOAF file
-  indexed: 0
-  multihomed: 0
-  prettyname: FOAF address
-
 userproplist.ffnet:
   cldversion: 4
   datatype: char
@@ -550,6 +518,22 @@ userproplist.interest_ids_blob:
   multihomed: 0
   prettyname: Interest IDs blob
 
+userproplist.imzy:
+  cldversion: 4
+  datatype: char
+  des: Imzy account name for user profile
+  indexed: 0
+  multihomed: 0
+  prettyname: Imzy Account
+
+userproplist.instagram:
+  cldversion: 4
+  datatype: char
+  des: Instagram account name for user profile
+  indexed: 0
+  multihomed: 0
+  prettyname: Instagram Account
+
 userproplist.jabber:
   cldversion: 0
   datatype: char
@@ -613,14 +597,6 @@ userproplist.latest_optout:
   indexed: 0
   multihomed: 0
   prettyname: Latest Updates Opt Out
-
-userproplist.mailencoding:
-  cldversion: 4
-  datatype: num
-  des: Encoding in which to mail comments to the user. Defaults to UTF-8.
-  indexed: 0
-  multihomed: 0
-  prettyname: Mail Encoding
 
 userproplist.moderated:
   cldversion: 4
@@ -753,10 +729,10 @@ userproplist.opt_echi_display:
 userproplist.opt_embedplaceholders:
   cldversion: 4
   datatype: char
-  des: Y/N choice regarding whether lj-template tag embedded object should be hidden behind a placeholder.
+  des: Y/N choice regarding whether site-embed content should be hidden behind a placeholder.
   indexed: 0
   multihomed: 0
-  prettyname: Use Placeholders for lj-template embedded objects
+  prettyname: Use Placeholders for site-embed content
 
 userproplist.opt_findbyemail:
   cldversion: 4
@@ -870,14 +846,6 @@ userproplist.opt_nctalklinks:
   multihomed: 0
   prettyname: Show number of comments in URL
 
-userproplist.opt_nomodemail:
-  cldversion: 4
-  datatype: bool
-  des: 1: do not send moderation emails, 0: default, send them
-  indexed: 0
-  multihomed: 0
-  prettyname: No Moderation Email
-
 userproplist.opt_notalkicons:
   cldversion: 4
   datatype: bool
@@ -910,6 +878,14 @@ userproplist.opt_randompaidgifts:
   multihomed: 0
   prettyname: Random Paid Gifts
 
+userproplist.opt_rpacct:
+  cldversion: 4
+  datatype: bool
+  des: Roleplaying account self-identification flag
+  indexed: 0
+  multihomed: 0
+  prettyname: RP flag
+
 userproplist.opt_sharebday:
   cldversion: 4
   datatype: char
@@ -917,6 +893,54 @@ userproplist.opt_sharebday:
   indexed: 0
   multihomed: 0
   prettyname: Share Birthday
+
+userproplist.opt_shortcuts:
+  cldversion: 4
+  datatype: bool
+  des: Enable keyboard shortcuts
+  indexed: 0
+  multihomed: 0
+  prettyname: Keyboard Shortcuts
+
+userproplist.opt_shortcuts_next:
+  cldversion: 4
+  datatype: char
+  des: Keyboard shortcut for next entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Keyboard Shortcut Next
+
+userproplist.opt_shortcuts_prev:
+  cldversion: 4
+  datatype: char
+  des: Keyboard shortcut for previous entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Keyboard Shortcut Previous
+
+userproplist.opt_shortcuts_touch:
+  cldversion: 4
+  datatype: bool
+  des: Enable touch shortcuts
+  indexed: 0
+  multihomed: 0
+  prettyname: Touch Shortcuts
+
+userproplist.opt_shortcuts_touch_next:
+  cldversion: 4
+  datatype: char
+  des: Touch shortcut for next entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Touch Shortcut Next
+
+userproplist.opt_shortcuts_touch_prev:
+  cldversion: 4
+  datatype: char
+  des: Touch shortcut for previous entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Touch Shortcut Previous
 
 userproplist.opt_showbday:
   cldversion: 4

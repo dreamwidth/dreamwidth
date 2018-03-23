@@ -6,8 +6,9 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2017 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -18,13 +19,108 @@ package DW::Controller::OpenID;
 
 use strict;
 use warnings;
+
 use DW::Routing;
 use DW::Controller;
 use DW::Template;
 
+use LJ::OpenID;
+
+DW::Routing->register_string( '/openid/index', \&openid_index_handler, app => 1 );
+DW::Routing->register_string( '/openid/options', \&openid_options_handler, app => 1 );
+
+# for responding to OpenID authentication requests
+DW::Routing->register_string( '/openid/server', \&openid_server_handler,
+                                                app => 1, no_cache => 1 );
+
+# for claiming imported comments
 DW::Routing->register_string( '/openid/claim', \&openid_claim_handler, app => 1 );
 DW::Routing->register_string( '/openid/claimed', \&openid_claimed_handler, app => 1 );
 DW::Routing->register_string( '/openid/claim_confirm', \&openid_claim_confirm_handler, app => 1 );
+
+sub openid_index_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $vars = { continue_to => $r->get_args->{returnto}
+                             || $r->header_in( "Referer" ) };
+
+    return DW::Template->render_template( 'openid/index.tt', $vars );
+}
+
+sub openid_options_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    return error_ml( LJ::Lang::ml( '/openid/options.tt.error.no_support' ) )
+        unless LJ::OpenID::server_enabled();
+
+    my $r = $rv->{r};
+    my $u = $rv->{remote};
+
+    my $dbh = LJ::get_db_writer();
+    my $trusted = {};
+
+    my $load_trusted = sub {
+        $trusted = $dbh->selectall_hashref( q{
+            SELECT ye.endpoint_id as 'endid', ye.url
+            FROM openid_endpoint ye, openid_trust yt
+            WHERE yt.endpoint_id=ye.endpoint_id
+            AND yt.userid=? }, 'endid', undef, $u->userid );
+    };
+
+    $load_trusted->();
+
+    # check for deletions
+    if ( $r->did_post ) {
+        foreach my $endid ( keys %$trusted ) {
+            next unless $r->post_args->{"delete:$endid"};
+            $dbh->do(
+                "DELETE FROM openid_trust WHERE userid=? AND endpoint_id=?",
+                undef, $u->userid, $endid );
+        }
+
+        $load_trusted->();
+    }
+
+    # construct row data
+    my @rows;
+    my $url_sort = sub { $trusted->{$a}->{url} cmp $trusted->{$b}->{url} };
+    foreach my $endid ( sort $url_sort keys %$trusted ) {
+        push @rows, [ "delete:$endid", $trusted->{$endid}->{url} ];
+    }
+
+    $rv->{rows} = \@rows;
+
+    return DW::Template->render_template( 'openid/options.tt', $rv );
+}
+
+sub openid_server_handler {
+    return LJ::Lang::ml( '/openid/options.tt.error.no_support' )
+        unless LJ::OpenID::server_enabled();
+
+    my $r = DW::Request->get;
+    my $get = $r->get_args;
+
+    my $trust_root = $get->{'openid.trust_root'} // '';
+    my $return_to  = $get->{'openid.return_to'} // '';
+
+    ## Non-OpenID-compliant section: rewrite LiveJournal's trust_root to
+    ## https so that it will match their return_to URL and pass validation.
+    $get->{'openid.trust_root'} = 'https://www.livejournal.com/'
+        if ( $trust_root eq 'http://www.livejournal.com/' &&
+             $return_to =~ m|^https://www\.livejournal\.com/| );
+
+    my $nos = LJ::OpenID::server( $get, $r->post_args );
+    my ( $type, $data ) = $nos->handle_page( redirect_for_setup => 1 );
+
+    return $r->redirect( $data ) if $type eq "redirect";
+
+    $r->content_type( $type ) if $type;
+    $r->print( $data );
+    return $r->OK;
+}
 
 sub openid_claim_handler {
     my $opts = shift;
@@ -112,6 +208,13 @@ sub openid_claimed_handler {
 
     my $ou = LJ::User::load_identity_user( 'O', $url, $vident );
     return $err->( '.error.failed_vivification' ) unless $ou;
+    return $err->( LJ::Lang::ml( '/openid/claim.tt.error.account_deleted',
+                                 { sitename => $LJ::SITENAMESHORT,
+                                   aopts1 => '/openid',
+                                   aopts2 => '/accountstatus',
+                                 }
+                               )
+                 ) if $ou->is_deleted;
 
     # generate the authaction
     my $aa = LJ::register_authaction( $u->id, 'claimopenid', $ou->id )
@@ -167,11 +270,20 @@ sub openid_claim_confirm_handler {
     my $ou = LJ::load_userid( $aa->{arg1}+0 );
     return $err->( '.error.invalid_account' )
         unless $ou && $ou->is_identity;
+
     if ( my $cbu = $ou->claimed_by ) {
         return $err->( '.error.already_claimed_self' )
             if $cbu->equals( $u );
         return $err->( '.error.already_claimed_other' );
     }
+
+    return $err->( LJ::Lang::ml( '/openid/claim.tt.error.account_deleted',
+                                 { sitename => $LJ::SITENAMESHORT,
+                                   aopts1 => '/openid',
+                                   aopts2 => '/accountstatus',
+                                 }
+                               )
+                 ) if $ou->is_deleted;
 
     # now start the claim process
     $u->claim_identity( $ou );

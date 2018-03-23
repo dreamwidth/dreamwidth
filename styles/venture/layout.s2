@@ -1,0 +1,2663 @@
+layerinfo type = "layout";
+layerinfo name = "Venture";
+layerinfo redist_uniq = "venture/layout";
+layerinfo author_name = "onlyembers";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "onlyembers", "type" => "user" } ];
+
+
+##----------------------------------------------------------------------- PRESENTATION PROPERTIES ----------##
+propgroup presentation {
+    property use layout_type;
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
+    property use use_journalstyle_entry_page;
+    property use margins_size;
+    property use margins_unit;
+    property use sidebar_width;
+    property use sidebar_width_doubled;
+    property use custom_control_strip_colors;
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
+    property use tags_page_type;
+    property use num_items_icons;
+    property use icons_page_sort;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
+    property use entry_datetime_format_group;
+    property use comment_datetime_format_group;
+    property use userpics_style_group;
+    property use userpics_position;
+    property use entry_metadata_position;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
+}
+
+
+##---------- PRESENTATION CHILD PROPERTIES (CUSTOM) ----------##
+propgroup presentation_child {
+
+## DISABLE/ENABLE ENTRY/CALENDAR TOPNAV ##
+    property bool link_display_topnav {
+        des = "Enable navigation above entry content, calendar, etc.";
+        }
+
+## CUSTOM MARGIN WITH BETWEEN ENTRIES & MODULES ##
+    property string margins_between_size {
+        des = "Size of margins between entries & modules";
+        size = 5;
+    }
+    property string margins_between_unit {
+        des = "Unit for margin size between entries & modules";
+        values = "em|em|%|%|px|px";
+    }
+
+## FULL WIDTH OR HORIZONTAL MODULES IN ONE-COL MODE##
+    property string modules_layout_mode {
+        des = "Full width or horizontal modules in one column mode";
+        values = "full|Full Width|horizontal|Horizontal";
+    }
+}
+
+
+##---------- PRESENTATION DEFAULTS ----------##
+set layout_type = "two-columns-right";
+set margins_size = "8";
+set margins_unit = "em";
+set margins_between_size ="1.8";
+set margins_between_unit ="em";
+set sidebar_width = "18em";
+set sidebar_width_doubled = "36em";
+set userpics_position = "right";
+set modules_layout_mode = "horizontal";
+set custom_control_strip_colors = "on";
+set custom_foreground_element = "custom";
+set custom_background_element = "custom";
+set custom_colors_template = "%%new%% .metatime_wrapper { border-right: solid 3px %%foreground%%; color: %%foreground%%; background-color: %%background%%; }";
+##----------------------------------------------------------------------------------------------------------##
+
+
+
+
+
+##------------------------------------------------------------------------------ COLOR PROPERTIES ----------##
+propgroup colors {
+    property use color_page_background;
+    property use color_page_text;
+    property use color_page_link;
+    property use color_page_link_active;
+    property use color_page_link_hover;
+    property use color_page_link_visited;
+    property use color_page_border;
+    property use color_module_background;
+    property use color_module_text;
+    property use color_module_link;
+    property use color_module_link_active;
+    property use color_module_link_hover;
+    property use color_module_link_visited;
+    property use color_module_title_background;
+    property use color_module_title;
+    property use color_module_border;
+    property use color_header_background;
+    property use color_page_title;
+    property use color_footer_background;
+    property use color_footer_link;
+    property use color_footer_link_active;
+    property use color_footer_link_hover;
+    property use color_footer_link_visited;
+    property use color_entry_background;
+    property use color_entry_text;
+    property use color_entry_link;
+    property use color_entry_link_active;
+    property use color_entry_link_hover;
+    property use color_entry_link_visited;
+    property use color_entry_title_background;
+    property use color_entry_title;
+    property use color_entry_interaction_links;
+    property use color_entry_border;
+    property use color_comment_title_background;
+    property use color_comment_title;
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
+}
+
+
+##---------- COLOR CHILD PROPERTIES (CUSTOM) ----------##
+propgroup colors_child {
+
+## HEADER NAVIGATION COLOR PROPS ##
+    property Color color_header_navigation_background { des = "Header navigation bar background color"; }
+    property Color color_header_navigation_link_background { des = "Header navigation link background color"; }
+    property Color color_header_navigation_link_background_current { des = "Header navigation link background color (current page)"; }
+    property Color color_header_navigation_link { des = "Header navigation link color"; }
+    property Color color_header_navigation_link_current { des = "Header navigation link color (current page)"; }
+    property Color color_header_navigation_link_active { des = "Header navigation active link color"; }
+    property Color color_header_navigation_link_hover { des = "Header navigation hover link color"; }
+    property Color color_header_navigation_link_visited { des = "Header navigation visited link color"; }
+
+## HEADER SUBTITLE & PAGETITLE COLOR PROPS ##
+    property Color color_page_header_gradient { des = "Page header gradient background color"; }
+    property Color color_page_subtitle { des = "Page header subtitle color"; }
+    property Color color_page_pagetitle { des = "Page header page-title color"; }
+
+## ENTRY EXTENSION COLOR PROPS ##
+    property Color color_entry_title_rightborder { des = "Entry title right border color"; }
+    property Color color_entry_datetime_background { des = "Entry date/time header background color"; }
+    property Color color_entry_datetime_sub_background { des = "Entry date/time sub-header background color (behind text)"; }
+    property Color color_entry_datetime_text { des = "Entry date/time text color"; }
+    property Color color_entry_datetime_link { des = "Entry date/time link color"; }
+    property Color color_entry_datetime_link_active { des = "Entry date/time active link color"; }
+    property Color color_entry_datetime_link_hover { des = "Entry date/time hover link color"; }
+    property Color color_entry_datetime_link_visited { des = "Entry date/time visited link color"; }
+    property Color color_entry_metadata { des = "Metadata text color"; }
+    property Color color_entry_quote_background { des = "Quote background color"; }
+    property Color color_entry_quote_border { des = "Quote border color"; }
+    property Color color_entry_quote_text { des = "Quote text color"; }
+    property Color color_entry_userpic_background { des = "Entry userpic background color"; }
+    property Color color_entry_userpic_border { des = "Entry userpic border color"; }
+
+## MODULE EXTENSION COLOR PROPS ##
+    property Color color_module_title_rightborder { des = "Module title right border color"; }
+    property Color color_module_title_link { des = "Module title link color"; }
+    property Color color_module_title_link_active { des = "Module title active link color"; }
+    property Color color_module_title_link_hover { des = "Module title hover link color"; }
+    property Color color_module_title_link_visited { des = "Module title visited link color"; }
+    property Color color_module_link_alt { des = "Alternate module link color"; }
+    property Color color_module_link_alt_active { des = "Alternate module active link color"; }
+    property Color color_module_link_alt_hover { des = "Alternate module hover link color"; }
+    property Color color_module_link_alt_visited { des = "Alternate module visited link color"; }
+    property Color color_module_list_border { des = "Module lists bottom border color"; }
+    property Color color_module_navigation_background { des = "Navigation module link background color"; }
+    property Color color_module_navigation_background_current { des = "Navigation module link background color (current page)"; }
+    property Color color_module_navigation_link { des = "Navigation module link color"; }
+    property Color color_module_navigation_link_current { des = "Navigation module link color (current page)"; }
+    property Color color_module_navigation_link_active { des = "Navigation module active link color"; }
+    property Color color_module_navigation_link_hover { des = "Navigation module hover link color"; }
+    property Color color_module_navigation_link_visited { des = "Navigation module visited link color"; }
+
+## CALENDAR COLOR PROPS ##
+    property Color color_calendar_background { des = "Calendar background color (module & page)"; }
+    property Color color_calendar_foreground { des = "Calendar foreground color (module & page)"; }
+}
+##----------------------------------------------------------------------------------------------------------##
+
+
+
+
+##------------------------------------------------------------------------------- FONT PROPERTIES ----------##
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
+    property use font_sources;
+}
+
+
+##---------- FONTS CHILD PROPERTIES (CUSTOM) ----------##
+propgroup fonts_child {
+
+## DISABLES ALL CAPITALIZATION IN HEADERS & SUCH ##
+    property bool font_display_allcaps {
+        des = "Display all-capitalized headers?";
+        }
+
+## HEADER NAVIGATION ##
+    property string font_header_navigation {
+        des = "Preferred font for header navigation";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+    property string font_header_navigation_size {
+        des = "Size of header navigation font";
+        size = 3;
+        }
+    property string font_header_navigation_units {
+        des = "Units for header navigation size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+## JOURNAL PAGE TITLE ##
+    property string font_journal_pagetitle {
+        des = "Preferred font for journal page-title";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+    property string font_journal_pagetitle_size {
+        des = "Size of page-title font";
+        size = 3;
+        }
+    property string font_journal_pagetitle_units {
+        des = "Units for page-title size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+## JOURNAL ENTRY FONT ##
+    property string font_entry_text {
+        des = "Preferred font for entry text";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+    property string font_entry_text_size {
+        des = "Size of entry text font";
+        size = 3;
+        }
+    property string font_entry_text_units {
+        des = "Units for entry text size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+## JOURNAL ENTRY DATETIME ##
+    property string font_entry_datetime {
+        des = "Preferred font for entry date/time";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+    property string font_entry_datetime_size {
+        des = "Size of entry date/time font";
+        size = 3;
+        }
+    property string font_entry_datetime_units {
+        des = "Units for entry date/time size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+## JOURNAL ENTRY METADATA ##
+    property string font_entry_metadata {
+        des = "Preferred font for entry metadata";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+    property string font_entry_metadata_size {
+        des = "Size of entry metadata font";
+        size = 3;
+        }
+    property string font_entry_metadata_units {
+        des = "Units for entry metadata size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+## JOURNAL ENTRY TAGS FONT ##
+    property string font_entry_tags {
+        des = "Preferred font for entry tag list";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+    property string font_entry_tags_size {
+        des = "Size of entry tag list font";
+        size = 3;
+        }
+    property string font_entry_tags_units {
+        des = "Units for entry tag list size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+## JOURNAL ENTRY MANAGE & INTERACT TEXT LINKS ##
+    property string font_entry_manageinteract {
+        des = "Preferred font for entry interaction links";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+    property string font_entry_manageinteract_size {
+        des = "Size of entry interaction link font";
+        size = 3;
+        }
+    property string font_entry_manageinteract_units {
+        des = "Units for entry interaction link size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+## MODULE NAVIGATION FONT OPTION ##
+    property string font_module_navigation {
+        des = "Preferred font for navigation module text";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+    property string font_module_navigation_size {
+        des = "Size of navigation module text font";
+        size = 3;
+        }
+    property string font_module_navigation_units {
+        des = "Units for navigation module text size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+## MODULE CUSTOMTEXT FONT OPTION ##
+    property string font_module_customtext {
+        des = "Preferred font for custom text module";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+    property string font_module_customtext_size {
+        des = "Size of custom text module font";
+        size = 3;
+        }
+    property string font_module_customtext_units {
+        des = "Units for custom text module size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+}
+
+
+##---------- FONT DEFAULTS ----------##
+set font_display_allcaps = true;
+
+set font_base = "Sintony, Helvetica, Arial";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_sources = "https://fonts.googleapis.com/css?family=Sintony";
+
+set font_journal_subtitle = "Cambria, Georgia, Times, 'Times New Roman', serif";
+set font_journal_pagetitle_size = "1";
+set font_journal_pagetitle_units = "em";
+
+set font_module_heading_size = "1.1875";
+set font_module_heading_units = "em";
+set font_module_text_size = ".875";
+set font_module_text_units = "em";
+set font_module_navigation_size = "1.357";
+set font_module_navigation_units = "em";
+
+set font_entry_title_size = "1.1875";
+set font_entry_title_units = "em";
+set font_entry_text = "Cambria, Georgia, Times, 'Times New Roman', serif";
+set font_entry_datetime = "Cambria, Georgia, Times, 'Times New Roman', serif";
+set font_entry_manageinteract_size = ".875";
+set font_entry_manageinteract_units = "em";
+set font_entry_metadata_size = ".875";
+set font_entry_metadata_units = "em";
+set font_entry_tags_size = ".875";
+set font_entry_tags_units = "em";
+
+set font_comment_title_size = "1.1875";
+set font_comment_title_units = "em";
+##----------------------------------------------------------------------------------------------------------##
+
+
+
+
+##------------------------------------------------------------------------------ IMAGE PROPERTIES ----------##
+propgroup images {
+    property use image_background_page_group;
+    property use image_background_module_group;
+    property use image_background_header_group;
+    property use image_background_header_height;
+    property use image_background_entry_group;
+}
+
+
+##---------- IMAGES CHILD PROPERTIES (CUSTOM) ----------##
+propgroup images_child {
+
+## HEADER NAVIGATION STRIP BACKGROUND ##
+    property string[] image_background_header_navigation_group {
+        des = "Header navigation background image";
+        grouptype = "image";
+        }
+    set image_background_header_navigation_group = [ "image_background_header_navigation_url", "image_background_header_navigation_repeat", "image_background_header_navigation_position" ];
+    property string image_background_header_navigation_url {
+        grouped = 1;
+        }
+    property string image_background_header_navigation_repeat {
+        values = "repeat|tile|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_header_navigation_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+## HEADER NAVIGATION LINK BACKGROUND IMAGE ##
+    property string[] image_background_header_navigation_link_group {
+        des = "Header navigation link background image";
+        grouptype = "image";
+        }
+    set image_background_header_navigation_link_group = [ "image_background_header_navigation_link_url", "image_background_header_navigation_link_repeat", "image_background_header_navigation_link_position" ];
+    property string image_background_header_navigation_link_url {
+        grouped = 1;
+        }
+    property string image_background_header_navigation_link_repeat {
+        values = "repeat|tile|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_header_navigation_link_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+## HEADER NAVIGATION LINK BACKGROUND IMAGE (CURRENT) ##
+    property string[] image_background_header_navigation_link_current_group {
+        des = "Header navigation link background image (current page)";
+        grouptype = "image";
+        }
+    set image_background_header_navigation_link_current_group = [ "image_background_header_navigation_link_current_url", "image_background_header_navigation_link_current_repeat", "image_background_header_navigation_link_current_position" ];
+    property string image_background_header_navigation_link_current_url {
+        grouped = 1;
+        }
+    property string image_background_header_navigation_link_current_repeat {
+        values = "repeat|tile|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_header_navigation_link_current_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+## ENTRY TITLE BACKGROUND IMAGE ##
+    property string[] image_background_entry_title_group {
+        des = "Entry title background image";
+        grouptype = "image";
+        }
+    set image_background_entry_title_group = [ "image_background_entry_title_url", "image_background_entry_title_repeat", "image_background_entry_title_position" ];
+    property string image_background_entry_title_url {
+        grouped = 1;
+        }
+    property string image_background_entry_title_repeat {
+        values = "repeat|tile|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_entry_title_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+## ENTRY DATE & TIME HEADER BACKGROUND BAR IMAGE ##
+    property string[] image_background_entry_datetime_group {
+        des = "Entry date/time header background image";
+        grouptype = "image";
+        }
+    set image_background_entry_datetime_group = [ "image_background_entry_datetime_url", "image_background_entry_datetime_repeat", "image_background_entry_datetime_position" ];
+    property string image_background_entry_datetime_url {
+        grouped = 1;
+        }
+    property string image_background_entry_datetime_repeat {
+        values = "repeat|tile|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_entry_datetime_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+
+## ENTRY DATE & TIME SUB-BAR BACKGROUND IMAGE ##
+    property string[] image_background_entry_datetime_sub_group {
+        des = "Entry date/time sub-header background image (behind text) ";
+        grouptype = "image";
+        }
+    set image_background_entry_datetime_sub_group = [ "image_background_entry_datetime_sub_url", "image_background_entry_datetime_sub_repeat", "image_background_entry_datetime_sub_position" ];
+    property string image_background_entry_datetime_sub_url {
+        grouped = 1;
+        }
+    property string image_background_entry_datetime_sub_repeat {
+        values = "repeat|tile|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_entry_datetime_sub_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+
+## MODULE TITLE BACKGROUND IMAGE ##
+    property string[] image_background_module_title_group {
+        des = "Module title background image";
+        grouptype = "image";
+        }
+    set image_background_module_title_group = [ "image_background_module_title_url", "image_background_module_title_repeat", "image_background_module_title_position" ];
+    property string image_background_module_title_url {
+        grouped = 1;
+        }
+    property string image_background_module_title_repeat {
+        values = "repeat|tile|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_module_title_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+}
+##----------------------------------------------------------------------------------------------------------##
+
+
+
+
+##----------------------------------------------------------------------------- MODULE PROPERTIES ----------##
+propgroup modules {
+    property use module_userprofile_group;
+    property use module_navlinks_group;
+    property use module_calendar_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_tags_group;
+    property use module_pagesummary_group;
+    property use module_active_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+    property use module_customtext_group;
+    property use module_credit_group;
+    property use module_search_group;
+    property use module_cuttagcontrols_group;
+    property use module_subscriptionfilters_group;
+}
+
+
+##---------- MODULE CHILD PROPERTIES (CUSTOM) ----------##
+propgroup modules_child {
+
+## HEADER NAVIGATION MODULE SETTINGS IN LAYOUT UI ##
+    property string[] module_headernavigation_group {
+        des = "Header Navigation";
+        grouptype = "module";
+         }
+    set module_headernavigation_group = ["module_headernavigation_show", "module_headernavigation_order", "module_headernavigation_section"];
+    property bool module_headernavigation_show { grouped = 1; }
+    property int  module_headernavigation_order { grouped = 1; }
+    property string module_headernavigation_section { grouped = 1; }
+}
+
+## DEFINE SECTIONS AVALIABLE TO ALL MODULES ##
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
+
+## DEFINE OVERRIDE FOR OPTIONAL NAVIGATION HEADER ##
+    property string module_headernavigation_section_override {
+    values = "headernavigation|Header";
+    grouped = 1;
+    }
+set grouped_property_override = { "module_headernavigation_section" => "module_headernavigation_section_override" };
+
+
+##---------- MODULE DEFAULTS ----------####
+set module_headernavigation_show = true;
+set module_headernavigation_order = 1;
+set module_headernavigation_section = "headernavigation";
+##----------------------------------------------------------------------------------------------------------##
+
+
+
+
+##------------------------------------------------------------------------------- TEXT PROPERTIES ----------##
+propgroup text {
+    property use text_module_userprofile;
+    property use text_module_links;
+    property use text_module_syndicate;
+    property use text_module_tags;
+    property use text_module_popular_tags;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
+    property use text_module_customtext;
+    property use text_module_customtext_url;
+    property use text_module_customtext_content;
+    property use text_module_credit;
+    property use text_module_search;
+    property use text_module_cuttagcontrols;
+    property use text_module_subscriptionfilters;
+    property use text_view_recent;
+    property use text_view_archive;
+    property use text_view_friends;
+    property use text_view_friends_comm;
+    property use text_view_network;
+    property use text_view_tags;
+    property use text_view_memories;
+    property use text_view_userinfo;
+    property use text_entry_prev;
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_mem_add;
+    property use text_tell_friend;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
+    property use text_read_comments;
+    property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
+    property use text_post_comment;
+    property use text_post_comment_friends;
+    property use text_permalink;
+    property use text_meta_location;
+    property use text_meta_mood;
+    property use text_meta_music;
+    property use text_meta_xpost;
+    property use text_tags;
+    property use text_stickyentry_subject;
+    property use text_max_comments;
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+}
+##----------------------------------------------------------------------------------------------------------##
+
+
+
+
+
+##---------------------------------------------------------- LAYOUT PROPERTIES & CUSTOM FUNCTIONS ----------##
+
+##---------- HEADER NAVIGATION CUSTOM FUNCTION ----------##
+function print_module_headernavigation( bool apply_class_to_link ) {
+    var Page p = get_page();
+    open_module("headernavigation", "", "");
+
+    if ( $apply_class_to_link ) {
+        var string[] links = [];
+        foreach var string k ($p.views_order) {
+            var string css = """ class="$k" """;
+            if ($p.view == $k) { $css = """ class="current $k" """; }
+            $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+
+        }
+        print_module_list($links);
+    } else {
+        var string{}[] links = [];
+
+        foreach var string k ($p.views_order) {
+            var string class = $k;
+            if ($p.view == $k) { $class = "current $k"; }
+            $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""" };
+        }
+        print_module_list($links);
+    }
+
+    close_module();
+
+}
+
+function print_module_headernavigation() {
+    print_module_headernavigation( true );
+}
+
+##---------- OVERRIDES SO HEADERNAV SHOWS UP ;D ----------##
+function modules_init()
+{
+    if ( $*module_userprofile_show ) { $*module_sections{$*module_userprofile_section}[$*module_userprofile_order]=["userprofile"]; }
+    if ( $*module_headernavigation_show ) { $*module_sections{$*module_headernavigation_section}[$*module_headernavigation_order]=["headernavigation"]; }
+    if ( $*module_navlinks_show ) { $*module_sections{$*module_navlinks_section}[$*module_navlinks_order]=["navlinks"]; }
+    if ( $*module_calendar_show ) { $*module_sections{$*module_calendar_section}[$*module_calendar_order]=["calendar"]; }
+    if ( $*module_links_show ) { $*module_sections{$*module_links_section}[$*module_links_order]=["links"]; }
+    if ( $*module_active_show ) { $*module_sections{$*module_active_section}[$*module_active_order]=["active"]; }
+    if ( $*module_syndicate_show ) { $*module_sections{$*module_syndicate_section}[$*module_syndicate_order]=["syndicate"]; }
+    if ( $*module_tags_show ) { $*module_sections{$*module_tags_section}[$*module_tags_order]=["tags"]; }
+    if ( $*module_pagesummary_show ) { $*module_sections{$*module_pagesummary_section}[$*module_pagesummary_order]=["pagesummary"]; }
+    if ( $*module_time_show ) { $*module_sections{$*module_time_section}[$*module_time_order]=["time"]; }
+    if ( $*module_poweredby_show ) { $*module_sections{$*module_poweredby_section}[$*module_poweredby_order]=["poweredby"]; }
+    if ( $*module_customtext_show ) { $*module_sections{$*module_customtext_section}[$*module_customtext_order]=["customtext"]; }
+    if ( $*module_credit_show ) { $*module_sections{$*module_credit_section}[$*module_credit_order]=["credit"]; }
+    if ( $*module_search_show ) { $*module_sections{$*module_search_section}[$*module_search_order]=["search"]; }
+    if ( $*module_cuttagcontrols_show ) { $*module_sections{$*module_cuttagcontrols_section}[$*module_cuttagcontrols_order]=["cuttagcontrols"]; }
+    if ( $*module_subscriptionfilters_show ) { $*module_sections{$*module_subscriptionfilters_section}[$*module_subscriptionfilters_order]=["subscriptionfilters"]; }
+}
+
+
+function handle_module_group_array(string[][] list) {
+    foreach var string[] item ($list) {
+        var string module = $item[0];
+
+        # we can have blank modulenames because the ordering will not necessarily be consecutive
+        if ($module == "") {
+            continue;
+        }
+        elseif ($module == "userprofile") {
+            print_module_userprofile();
+        }
+        elseif ($module == "headernavigation") {
+            print_module_headernavigation();
+        }
+        elseif ($module == "navlinks") {
+            print_module_navlinks();
+        }
+        elseif ($module == "time") {
+            print_module_time();
+        }
+        elseif ($module == "poweredby") {
+            print_module_poweredby();
+        }
+        elseif ($module == "pagesummary") {
+            print_module_pagesummary();
+        }
+        elseif ($module == "tags") {
+            print_module_tags();
+        }
+        elseif ($module == "active") {
+            print_module_active();
+        }
+        elseif ($module == "calendar") {
+            print_module_calendar();
+        }
+        elseif ($module == "syndicate") {
+            print_module_syndicate();
+        }
+        elseif ($module == "customtext") {
+            print_module_customtext();
+        }
+        elseif ($module == "links") {
+            print_module_links();
+        }
+        elseif ($module == "credit") {
+            print_module_credit();
+        }
+        elseif ($module == "search") {
+            print_module_search();
+        }
+        elseif ($module == "cuttagcontrols") {
+            print_module_cuttagcontrols();
+        }
+        elseif ($module == "subscriptionfilters") {
+            print_module_subscriptionfilters();
+        }
+    }
+}
+
+
+##---------- OVERRIDE TO INSERT HEADER NAV & WRAPPERS ----------##
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    """<div id="header_navwrapper">""";
+                    $this->print_module_section("headernavigation");
+                    """</div>\n""";
+                    """<div id="header_titlewrapper">""";
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+                    """</div>\n""";
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+    """;
+
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="primary"><div class="inner">
+                        """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+
+##---------- OVERRIDE  TO BUMP USERPIC INTO ENTRY & COMMENTS HEADER (BUT NOT BEFORE OTHER INFO) ----------##
+function Page::print_entry(Entry e) {
+    $e->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    $e->print_subject();
+    """<div class="metatime_wrapper">\n""";
+    $e->print_metatypes();
+    $e->print_time();
+    """</div>\n""";
+    $e->print_userpic();
+    """</div>\n""";
+    """</div>\n""";
+    """<div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $e->print_poster();
+    if ($*entry_metadata_position == "top") { $e->print_metadata(); }
+    $e->print_text();
+    if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
+    $e->print_tags();
+    """</div>\n""";
+    """</div>\n""";
+    """</div>\n""";
+
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $this->print_entry_footer($e);
+    "</div>\n</div>\n";
+
+    $e->print_wrapper_end();
+}
+
+function ReplyPage::print_comment (Comment c) {
+    $c->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    $c->print_subject();
+    $c->print_metatypes();
+    $c->print_time();
+    $c->print_userpic();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    """<div class="poster-information">\n""";
+    $c->print_poster();
+    $c->print_metadata();
+    """</div>\n""";
+    $c->print_text();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $c->print_management_links();
+    $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();
+}
+
+function EntryPage::print_comment (Comment c) {
+    $c->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    $c->print_subject();
+    $c->print_metatypes();
+    $c->print_time();
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'><span>$*text_comment_posted</span></div>";
+     }
+    $c->print_userpic();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $c->print_poster();
+    $c->print_metadata();
+    $c->print_text();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    if ($this.multiform_on) {
+        """<span class="multiform-checkbox">""";
+        print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
+        $c->print_multiform_check();
+    "</span>";
+    }
+    $c->print_management_links();
+    $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();
+}
+##----------------------------------------------------------------------------------------------------------##
+
+
+
+
+
+##--------------------------------------------------------------- CUSTOM CSS & RELATED PROPERTIES ----------##
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+function Page::print_default_stylesheet() {
+    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    if ($*image_background_header_height > 0) {
+        $header_background = """
+            $header_background
+            height: """ + $*image_background_header_height + """px;""";
+    }
+
+    var string header_navigation_background = generate_background_css ($*image_background_header_navigation_url, $*image_background_header_navigation_repeat, $*image_background_header_navigation_position, $*color_header_navigation_background);
+    var string header_navigation_link_background = generate_background_css ($*image_background_header_navigation_link_url, $*image_background_header_navigation_link_repeat, $*image_background_header_navigation_link_position, $*color_header_navigation_link_background);
+    var string header_navigation_link_background_current = generate_background_css ($*image_background_header_navigation_link_current_url, $*image_background_header_navigation_link_current_repeat, $*image_background_header_navigation_link_current_position, $*color_header_navigation_link_background_current);
+
+    var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
+    var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
+    var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
+    var string footer_link_hover_colors = generate_color_css( $*color_footer_link_hover, new Color, new Color );
+    var string footer_link_visited_colors = generate_color_css( $*color_footer_link_visited, new Color, new Color );
+
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+    var string entry_datetime_background = generate_background_css ($*image_background_entry_datetime_url, $*image_background_entry_datetime_repeat, $*image_background_entry_datetime_position, $*color_entry_datetime_background);
+    var string entry_datetime_sub_background = generate_background_css ($*image_background_entry_datetime_sub_url, $*image_background_entry_datetime_sub_repeat, $*image_background_entry_datetime_sub_position, $*color_entry_datetime_sub_background);
+    var string entry_title_background = generate_background_css ($*image_background_entry_title_url, $*image_background_entry_title_repeat, $*image_background_entry_title_position, $*color_entry_title_background);
+
+    var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
+    var string module_title_background = generate_background_css ($*image_background_module_title_url, $*image_background_module_title_repeat, $*image_background_module_title_position, $*color_module_title_background);
+
+    var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string module_colors = generate_color_css($*color_module_text, $*color_module_background, $*color_module_border);
+
+    var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string comment_title_colors = generate_color_css($*color_comment_title, $*color_comment_title_background, new Color);
+    var string module_title_colors = generate_color_css($*color_module_title, $*color_module_title_background, new Color);
+
+    var string entry_userpic_colors = generate_color_css(new Color, $*color_entry_userpic_background, $*color_entry_userpic_border);
+
+    var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
+    var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
+    var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
+    var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+
+    var string entry_link_colors = generate_color_css($*color_entry_link, new Color, new Color);
+    var string entry_link_active_colors = generate_color_css($*color_entry_link_active, new Color, new Color);
+    var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, new Color, new Color);
+    var string entry_link_visited_colors = generate_color_css($*color_entry_link_visited, new Color, new Color);
+    var string entry_interaction_link_colors = generate_color_css($*color_entry_interaction_links, new Color, new Color);
+    var string entry_quote_colors = generate_color_css($*color_entry_quote_text, $*color_entry_quote_background, $*color_entry_quote_border);
+
+    var string module_link_colors = generate_color_css($*color_module_link, new Color, new Color);
+    var string module_link_active_colors = generate_color_css($*color_module_link_active, new Color, new Color);
+    var string module_link_hover_colors = generate_color_css($*color_module_link_hover, new Color, new Color);
+    var string module_link_visited_colors = generate_color_css($*color_module_link_visited, new Color, new Color);
+
+    var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_header_navigation_font = generate_font_css($*font_header_navigation, $*font_base, $*font_header_navigation_size, $*font_header_navigation_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string page_pagetitle_font = generate_font_css($*font_journal_pagetitle, $*font_base, $*font_journal_pagetitle_size, $*font_journal_pagetitle_units);
+
+    var string entry_font = generate_font_css($*font_entry_text, $*font_base, $*font_fallback, $*font_entry_text_size, $*font_entry_text_units);
+    var string entry_datetime_font = generate_font_css($*font_entry_datetime, $*font_base, $*font_fallback, $*font_entry_datetime_size, $*font_entry_datetime_units);
+    var string entry_manageinteract_font = generate_font_css($*font_entry_manageinteract, $*font_base, $*font_fallback, $*font_entry_manageinteract_size, $*font_entry_manageinteract_units);
+    var string entry_metadata_font = generate_font_css($*font_entry_metadata, $*font_base, $*font_fallback, $*font_entry_metadata_size, $*font_entry_metadata_units);
+    var string entry_tags_font = generate_font_css($*font_entry_tags, $*font_base, $*font_fallback, $*font_entry_tags_size, $*font_entry_tags_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+
+    var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
+
+    var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+    var string module_customtext_font = generate_font_css($*font_module_customtext, $*font_base, $*font_fallback, $*font_module_customtext_size, $*font_module_customtext_units);
+    var string module_navigation_font = generate_font_css($*font_module_navigation, $*font_base, $*font_fallback, $*font_module_navigation_size, $*font_module_navigation_units);
+
+    var string userpicpadding = "";
+        if ($*color_entry_userpic_background) { $userpicpadding = "padding: 0 3px 3px;"; }
+        else { $userpicpadding = ""; }
+
+    var string calendar_dayheader_border = "";
+        if ($*color_entry_datetime_sub_background) { $calendar_dayheader_border = """border-color: $*color_entry_datetime_sub_background;"""; }
+        else { $calendar_dayheader_border = """border-color: $*color_entry_datetime_background;"""; }
+
+    var string userpic_css = "";
+        if ($*userpics_position == "right") {
+        $userpic_css = """
+        .entry .userpic,
+        .comment .userpic {
+            text-align: right;
+            float: right;
+            margin: 0 0 .8em 1em;
+            $userpicpadding
+            $entry_userpic_colors
+            border-width: 0 8px 0 0;
+            }
+        """;
+        }
+        elseif ($*userpics_position == "left") {
+        $userpic_css = """
+        .entry .userpic,
+        .comment .userpic {
+            text-align: left;
+            float: left;
+            margin: 0 1em .8em 0;
+            $userpicpadding
+            $entry_userpic_colors
+            border-width: 0 0 0 8px;
+            }
+        .metatime_wrapper { position: relative; left: -1em; }
+        .comment-wrapper .datetime, .comment-wrapper .comment-posted { position: relative; left: -1em; }
+        .comment .poster { margin: 1.2em 0 1em; }
+        .comment .poster-ip { margin: 1.2em 0 1em .5em; }
+        """;
+        }
+
+    var string font_allcaps_css = "";
+        if ($*font_display_allcaps) { $font_allcaps_css = ""; }
+        else { $font_allcaps_css = """* {text-transform: none !important;}"""; }
+
+    var string display_topnav_css = "";
+        if ($*link_display_topnav) { $display_topnav_css = ""; }
+        else { $display_topnav_css = """.topnav { display: none; }"""; }
+
+    var string headernavigation_minheight = "";
+        if ($*module_headernavigation_show) { $headernavigation_minheight = ""; }
+        else { $headernavigation_minheight = """height: 1.8em;"""; }
+
+    var string header_gradient = "";
+        if ($*color_page_header_gradient) {
+        $header_gradient = """
+        background: -moz-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$*color_header_background), color-stop(100%,$*color_page_header_gradient));
+        background: -webkit-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        background: -o-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        background: -ms-linear-gradient(top, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        background: linear-gradient(to bottom, $*color_header_background 0%, $*color_page_header_gradient 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$*color_header_background', endColorstr='$*color_page_header_gradient',GradientType=0 );
+        """;
+        }
+        else { $header_gradient = ""; }
+
+    var string entry_right_border = "";
+        if ($*color_entry_title_rightborder) { $entry_right_border = """border-right: solid 8px $*color_entry_title_rightborder;"""; }
+        else { $entry_right_border = ""; }
+
+    var string module_right_border = "";
+        if ($*color_module_title_rightborder) { $module_right_border = """border-right: solid 8px $*color_module_title_rightborder;"""; }
+        else { $module_right_border = ""; }
+
+    var string module_layout_css = "";
+        if ($*modules_layout_mode == "full") { $module_layout_css = ".one-column #content .module { margin: 0 0 $*margins_between_size$*margins_between_unit; }"; }
+        else { $module_layout_css = """
+            .one-column #content .module {
+            display: inline-block;
+            margin: 0 0 $*margins_between_size$*margins_between_unit;
+            vertical-align: top;
+            width: 24%;
+            }
+        """; }
+
+
+print_custom_control_strip_css();
+
+"""
+
+/* ----------------------------------------------------------------------------- BASIC PAGE DEFS ---------- */
+$font_allcaps_css
+
+body {
+    $page_font
+    $footer_background
+    margin: 0;
+    padding: 0;
+    }
+
+*+html body{ $page_background }
+
+html body { margin: 0; padding: 0; }
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    }
+
+.header h2, .module h2, .header h3 { font-size: $*font_base_size$*font_base_units; }
+
+/* .entry-content h1, .entry-content h2,
+.entry-content h3, .entry-content h4,
+.entry-content h5, .entry-content h6 { margin: 0 0 .8em; } */
+
+img { border: none; }
+
+hr { display: none; }
+
+q, blockquote {
+    $entry_quote_colors
+    display: block;
+    font-style: italic;
+    margin: 1em 1.5em;
+    padding: 1.5em;
+    }
+
+code, pre {
+    white-space: pre-wrap;
+    word-bread: break-word;
+    }
+
+.has-navstrip #header_navwrapper { padding: 2.8175em $*margins_size$*margins_unit 0; }
+
+#header_navwrapper, #content, #footer { padding: 0 $*margins_size$*margins_unit 0 $*margins_size$*margins_unit; }
+
+#header_titlewrapper { padding: 2.4em $*margins_size$*margins_unit 2.1em $*margins_size$*margins_unit; }
+
+a { $page_link_colors; text-decoration: none; }
+a:visited { $page_link_visited_colors }
+a:hover { $page_link_hover_colors }
+a:active { $page_link_active_colors }
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* --------------------------------------------------------------------------------- LAYOUT DEFS ---------- */
+
+/* ---------- COLUMN LAYOUT BASICS ---------- */
+.one-column #content { float: none; }
+
+$module_layout_css
+
+.one-column #content .module-content { text-align: left;}
+
+.two-columns-left #content,
+.three-columns-sides #content { border-left: $*sidebar_width solid transparent; }
+
+.two-columns-right #content,
+.three-columns-sides #content { border-right: $*sidebar_width solid transparent; }
+
+.three-columns-left #content { border-left: $*sidebar_width_doubled solid transparent; }
+
+.three-columns-right #content { border-right: $*sidebar_width_doubled solid transparent; }
+
+.column-right #content { min-width: $*sidebar_width; }
+
+
+/* ---------- PRIMARY COLUMN ---------- */
+#primary {
+    float: left;
+    margin-right:-100%;
+    margin-left: 0;
+    width:100%;
+    }
+
+.one-column #primary { float: none; }
+
+.two-columns-left #primary {
+    float: right;
+    margin-left:-100%;
+    margin-right: 0;
+    }
+
+#primary > .inner:first-child { padding: 0; }
+
+
+/* ---------- SECONDARY COLUMN ---------- */
+.one-column #secondary { width: auto; text-align: center; }
+
+.two-columns-left #secondary,
+.three-columns-sides #secondary,
+.two-columns-left #tertiary {
+    float: left;
+    margin-left: -$*sidebar_width;
+    padding: 0;
+    width: $*sidebar_width;
+    }
+
+.two-columns-right #secondary {
+    float: right;
+    margin-right: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.three-columns-left #secondary {
+    float: left;
+    margin-left: -$*sidebar_width_doubled;
+    width: $*sidebar_width;
+    }
+
+.three-columns-right #secondary {
+    float: right;
+    margin-right: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.two-columns-right #secondary > .inner:first-child,
+.three-columns-right #secondary > .inner:first-child  { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
+
+.two-columns-left #secondary > .inner:first-child,
+.three-columns-left #secondary > .inner:first-child,
+.three-columns-sides #secondary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
+
+
+/* ---------- TERTIARY COLUMN ---------- */
+.one-column #tertiary { text-align: center; width: auto; overflow: hidden; }
+
+.two-columns-left #tertiary {
+    clear: left;
+    margin-left: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.two-columns-right #tertiary {
+    clear: right;
+    float: right;
+    margin-right: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.three-columns-left #tertiary {
+    float: left;
+    margin-left: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.three-columns-right #tertiary {
+    float: right;
+    margin-right: -$*sidebar_width_doubled;
+    margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
+    width: $*sidebar_width;
+    }
+
+.three-columns-sides #tertiary {
+    float: right;
+    margin-right: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.two-columns-right #tertiary > .inner:first-child,
+.three-columns-right #tertiary > .inner:first-child,
+.three-columns-sides #tertiary > .inner:first-child { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
+
+.two-columns-left #tertiary > .inner:first-child,
+.three-columns-left #tertiary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
+
+.one-column-split #tertiary > .inner:first-child { padding: 0; }
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* --------------------------------------------------------------------------------- HEADER DEFS ---------- */
+#header {
+    margin: 0;
+    padding: 0;
+    }
+
+h1#title {
+    $page_title_colors
+    $page_title_font
+    line-height: 1em;
+    text-transform: uppercase;
+    }
+
+h2#subtitle
+    {
+    $page_subtitle_font
+    color: $*color_page_subtitle;
+    display: block;
+    font-style: italic;
+    margin: 0;
+    text-transform: lowercase;
+    }
+
+h2#pagetitle {
+   $page_pagetitle_font
+   color: $*color_page_pagetitle;
+   display: block;
+   margin: 3px 0 0;
+   text-transform: lowercase;
+   }
+
+#header_titlewrapper {
+    $header_background
+    $header_gradient
+    }
+
+#header_navwrapper {
+    $header_navigation_background
+    $headernavigation_minheight
+    margin: 0;
+    text-align: right;
+    }
+
+/* RESET SO LATER DEFS DONT HOSE TOPNAV */
+#header .module-content {
+    background-color: transparent;
+    border: none;
+    font-size: $*font_base_size$*font_base_units;
+    padding: 0;
+    }
+
+#header .module-headernavigation ul {
+    display: inline-block;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    }
+
+#header .module-headernavigation li {
+    border: 0;
+    display: inline-block;
+    float: left;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    }
+
+#header .module-headernavigation li a {
+    $header_navigation_link_background
+    $page_header_navigation_font
+    border: solid transparent;
+    border-color: $*color_header_navigation_background;
+    border-width: 1px 1px 0;
+    color: $*color_header_navigation_link;
+    display: block;
+    line-height: 1em;
+    margin: 3px 0 0 3px;
+    padding: .5em .6em .4em;
+    transition: all .5s ease 0s;
+    }
+
+#header .module-headernavigation li a.current,
+#header .module-headernavigation li a.current:visited {
+    $header_navigation_link_background_current
+    color: $*color_header_navigation_link_current;
+    }
+
+#header .module-headernavigation li a:hover,
+#header .module-headernavigation li a:hover:visited {
+    $header_navigation_link_background_current
+    color: $*color_header_navigation_link_hover;
+    }
+
+#header .module-headernavigation li a:visited { color: $*color_header_navigation_link_visited; }
+
+/* ugly !important fix, but makes active work as intended w/ other defs */
+#header .module-headernavigation li a:active { color: $*color_header_navigation_link_active !important; }
+
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* -------------------------------------------------------------------------------- CONTENT DEFS ---------- */
+#content {
+    $page_background
+    $page_colors
+    padding-top: $*margins_between_size$*margins_between_unit;
+    }
+
+#content-footer { clear: both; height: 0; }
+
+.navigation ul { margin: 0; padding: 0; }
+
+.navigation li {
+    $entry_title_colors
+    $entry_right_border
+    display: inline-block;
+    margin: 0 0 $*margins_between_size$*margins_between_unit .3em;
+    padding: .4em;
+    text-transform: uppercase;
+    }
+
+.navigation .active {
+    $entry_colors
+    }
+
+.navigation li a { $entry_title_colors }
+.navigation li a:visited { color: $*color_module_title_link_visited }
+.navigation li a:hover { color: $*color_module_title_link_hover }
+.navigation li a:active { color: $*color_module_title_link_active }
+
+.topnav, .bottomnav {
+    display: block;
+    margin: 0;
+    overflow: hidden;
+    text-align: right;
+    }
+
+.bottomnav.empty, .topnav.empty { display: none; }
+
+.page-read .bottomnav.empty,
+.page-network .bottomnav.empty { display: block; }
+
+$display_topnav_css
+
+.day-date { display: none; }
+
+.page-separator { display: none !important; }
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* ---------------------------------------------------------------------------------- FOOTER DEFS ---------- */
+#footer { $footer_background }
+
+.page-top { padding: .8em 0; text-transform: uppercase; }
+
+#footer a { $footer_link_colors }
+#footer a:visited { $footer_link_visited_colors }
+#footer a:hover { $footer_link_hover_colors }
+#footer a:active { $footer_link_active_colors }
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* ---------------------------------------------------------------------------------- ENTRY DEFS ---------- */
+
+/* ---------- BASIC ENTRY STYLES ---------- */
+
+.entry > .inner:first-child { display: inline; overflow: hidden; }
+
+.entry-wrapper { margin: 0 0 $*margins_between_size$*margins_between_unit; }
+
+.entry .entry-title,
+.tags-container .header,
+.icons-container .header,
+#archive-year h3,
+#archive-month dt {
+    $entry_title_font
+    $entry_right_border
+    min-height: 1.2em;
+    padding: .3em .3em .2em;
+    text-transform: uppercase;
+    }
+
+.entry .entry-title, .entry .entry-title a,
+.tags-container .header,
+.icons-container .header,
+#archive-year h3,
+#archive-month dt, #archive-month dt a {
+    $entry_title_colors
+    $entry_title_background
+    }
+
+.entry .contents {
+    $entry_background
+    $entry_colors
+    border-width: 0 1px;
+    padding: 1.2em 1.4em .6em;
+    }
+
+.entry .contents p { margin: .5em 0 1em; }
+
+.entry-content, .tags-container .contents {
+    $entry_font
+    line-height: 1.3em;
+    margin-bottom: 1.4em;
+    min-height: 60px;
+    text-align: left;
+    }
+
+.entry .contents a { $entry_link_colors }
+.entry .contents a:visited { $entry_link_visited_colors }
+.entry .contents a:hover { $entry_link_hover_colors }
+.entry .contents a:active { $entry_link_active_colors }
+
+.poster.entry-poster.empty {display: none;}
+
+
+/* ---------- POSTER, DATE/TIME STYLES ---------- */
+.entry .header > .inner:first-child,
+.sorting-options { $entry_datetime_background }
+
+.metatime_wrapper {
+    $entry_datetime_sub_background
+    display: inline-block;
+    padding: 0 0 0 5px;
+    }
+
+.entry .datetime {
+    $entry_datetime_font
+    color: $*color_entry_datetime_text;
+    display: inline-block;
+    font-style: italic;
+    line-height: 1.5em;
+    margin: 0 10px 0 3px;
+    padding: 2px 0;
+    vertical-align: middle;
+    }
+
+.month .datetime {
+    color: $*color_entry_datetime_text;
+    font-style: italic;
+    }
+
+.entry .datetime a { color: $*color_entry_datetime_link; }
+.entry .datetime a:visited { color: $*color_entry_datetime_link_visited; }
+.entry .datetime a:hover { color: $*color_entry_datetime_link_hover; }
+.entry .datetime a:active { color: $*color_entry_datetime_link_active; }
+
+.access-filter, .restrictions {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+    }
+
+.poster, .poster-ip {
+    $entry_font
+    display: inline-block;
+    margin-bottom: 1.2em;
+    }
+
+.poster a b, .ljuser a b { font-weight: normal; font-style: italic; }
+
+
+/* ---------- METADATA STYLES ---------- */
+.entry .bottom-metadata {
+    $entry_metadata_font
+    color: $*color_entry_metadata;
+    margin: 1.5em 0 1em;
+    }
+
+.entry .top-metadata {
+    $entry_metadata_font
+    color: $*color_entry_metadata;
+    margin: 0 0 1.5em;
+    }
+
+.metadata ul {
+    display: inline;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    }
+
+.metadata li { margin-bottom: 0; }
+
+.entry .metadata-label { text-transform: uppercase; }
+
+
+/* ---------- ENTRY TAG STYLES ---------- */
+.tag {
+    $entry_tags_font
+    clear: both;
+    }
+
+.tag ul {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    }
+
+.tag ul li { display: inline; }
+
+.tag-text { text-transform: uppercase; }
+
+
+/* ---------- ENTRY USER MANAGEMENT & INTERACTION --------- */
+.entry-management-links {
+    float: left;
+    margin: 0;
+    padding: 0;
+    }
+
+.entry-management-links li {
+    display: inline;
+    list-style: none;
+    padding: 0 .5em 0 0;
+    text-transform: uppercase;
+    }
+
+.entry-interaction-links {
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    }
+
+.entry-interaction-links li {
+    display: inline;
+    list-style: none;
+    padding: 0 0 0 .5em;
+    text-transform: uppercase;
+    }
+
+.entry-interaction-links a,
+.entry-management-links a {
+    $entry_interaction_link_colors
+    $entry_manageinteract_font
+    vertical-align: middle;
+    }
+
+.entry-interaction-links a:visited, .entry-management-links a:visited { $entry_link_visited_colors }
+.entry-interaction-links a:hover, .entry-management-links a:hover { $entry_link_hover_colors }
+.entry-interaction-links a:active, .entry-management-links a:active { $entry_link_active_colors }
+
+
+.no-userpic .userpic {display: none;}
+
+
+/* ---------- OTHER ENTRY STYLES ---------- */
+.entry-content li,
+.comment-content li {
+    list-style-position: outside;
+    margin: 1em 0;
+    }
+
+.entry-content ul, .entry-content ol, .entry-content dl {
+    margin: 1em 0;
+    padding: 0 0 0 2em;
+    }
+
+.entry-content img { max-width: 100%; }
+
+.entry ol { list-style: decimal-leading-zero; }
+
+.entry .footer {
+    $entry_colors
+    clear: both;
+    border-width: 0 1px 1px;
+    margin: 0;
+    overflow: hidden;
+    padding: 0 1.4em 1em;
+    }
+
+.noentries {
+    $entry_colors
+    $entry_font
+    display: block;
+    margin: 0 0 $*margins_between_size$*margins_between_unit;
+    padding: 1.4em;
+    text-align: left;
+    }
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* -------------------------------------------------------------------------------- COMMENT DEFS ---------- */
+.comment-wrapper {
+    margin: 0 0 $*margins_between_size$*margins_between_unit;
+    min-width: 15em;
+    padding: 0;
+    }
+
+.comment {
+    margin: 0;
+    padding: 0;
+    background-color: $*color_entry_background;
+    }
+
+.comment .comment-title {
+    $comment_title_font
+    $entry_right_border
+    margin: 0;
+    min-height: 1.2em;
+    padding: .3em .3em .2em;
+    text-transform: uppercase;
+    }
+
+.comment .comment-title { $comment_title_colors }
+
+.comment .comment-title a { color: $*color_comment_title; }
+
+.comment-wrapper .header {
+    $entry_datetime_background
+    }
+
+.comment-wrapper.partial .comment-title {
+    $entry_background
+    font-size: $*font_base_size$*font_base_units;
+    border: none;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    }
+.comment-wrapper.partial .comment-title:after { content: " - "; color: $*color_entry_text; }
+
+.comment-wrapper.partial .comment-title a { color: $*color_entry_link }
+.comment-wrapper.partial .comment-title a:hover { color: $*color_entry_link_hover }
+.comment-wrapper.partial .comment-title a:active { color: $*color_entry_link_active }
+.comment-wrapper.partial .comment-title a:visited { color: $*color_entry_link_visited }
+
+
+.comment-wrapper.partial .poster { margin: 0; padding: 0; display: inline; }
+
+.comment-wrapper .header .datetime,
+.comment-posted {
+    $entry_datetime_sub_background
+    color: $*color_entry_datetime_text;
+    display: inline-block;
+    font-style: italic;
+    line-height: 1.5em;
+    padding: .1em .5em;
+    vertical-align: middle;
+    }
+
+.comment-wrapper .datetime span,
+.comment-wrapper .comment-posted span { $entry_datetime_font }
+
+.comment .poster {
+    margin: 1.2em 0 1em 1.4em;
+    }
+
+.comment .poster-ip {
+    margin: 1.2em 0 1em .5em;
+    font-style: italic;
+    }
+
+.comment .comment-from-text { text-transform: uppercase; }
+.comment .comment-ip-text { font-style: normal; text-transform: uppercase; }
+
+.comment-wrapper .contents {
+    $entry_colors
+    $entry_background
+    border-width: 0px 1px;
+    min-height: 100px;
+    }
+
+.comment-content {
+    $entry_font
+    margin: 0;
+    padding: 0 1.4em 1.2em;
+    }
+
+.comment-wrapper .footer {
+    $entry_colors
+    border-width: 0 1px 1px;
+    overflow: hidden;
+    padding: 0 1.4em 1em;
+    clear: both;
+    }
+
+.comment-wrapper .footer > .inner { $entry_manageinteract_font }
+
+.comment-thread .partial .comment > .inner {
+    $entry_colors
+    border-width: 1px;
+    padding: .5em;
+    }
+
+.comment-management-links {
+    float: left;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    }
+
+.comment-management-links li {
+    display: inline-block;
+    margin: 0 .4em 0 0;
+    padding: 0;
+    }
+
+.comment-interaction-links {
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+.comment-interaction-links li {
+    display: inline-block;
+    margin: 0 0 0 .4em;
+    padding: 0;
+    }
+
+.comment-interaction-links a, .comment-management-links a { $entry_interaction_link_colors }
+
+.comment-depth-10 .dwexpcomment { /* fix for long comment threads */
+    min-width: 25em;
+    float: right;
+    clear: right;
+    }
+
+#comments .footer .multiform-checkbox {
+    $entry_manageinteract_font
+    display: block;
+    margin: 0 0 .8em;
+    text-transform: uppercase;
+    }
+
+.comment-pages {
+    $entry_title_colors
+    $entry_title_font
+    $entry_right_border
+    margin: 0 0 $*margins_between_size$*margins_between_unit;
+    padding: .3em .4em;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+.comment-pages + .comment-pages { color: $*color_entry_title_background; }
+
+.bottompages { margin-top: $*margins_between_size$*margins_between_unit; }
+
+.comment-pages .view-flat, .comment-pages .view-threaded { float: left; }
+
+.comment-pages .comment-page-current { color: $*color_module_title_link_active; }
+
+.comment-pages .comment-page-current b { font-weight: normal; }
+
+.comment-pages a { color: $*color_entry_title; }
+.comment-pages a:recent { color: $*color_module_title_link_visited; }
+.comment-pages a:hover { color: $*color_module_title_link_hover; }
+.comment-pages a:active { color: $*color_module_title_link_active; }
+
+.comment-pages b { font-weight: normal; }
+
+.comment-pages a b { font-weight: normal; }
+
+.pagesummary-subject em { font-style: normal; }
+
+.bottomcomment {
+    $entry_colors
+    margin: 0 0 1.3em;
+    overflow: hidden;
+    padding: 0.6em 1em;
+    clear: both;
+    }
+
+.bottomcomment .entry-interaction-links,
+.bottomcomment .entry-management-links { margin: 0.2em 0; }
+
+.bottomcomment label { $entry_font }
+
+.bottomcomment #qrform {
+    margin-bottom: 1.4em;
+    }
+
+#postform {
+    $entry_colors
+    border-width: 0 1px 1px;
+    margin: -$*margins_between_size$*margins_between_unit 0 $*margins_between_size$*margins_between_unit;
+    padding: 0 1.4em 1.4em;
+    position: relative;
+    top: -1px;
+    }
+
+#postform .talkform {
+    $entry_quote_colors
+    $entry_font
+    }
+
+.talkform tr > td:first-child {
+    text-align: left;
+    text-transform: uppercase;
+    }
+
+.talkform td {
+    padding: .5em .5em 0;
+    }
+
+.talkform td td {
+    padding: 0 0 .3em;
+    }
+
+.talkform #subject { margin-bottom: .5em; }
+
+.talkform #prop_picture_keyword, .talkform #randomicon, .talkform #quotebuttonspan {
+    display: inline-block;
+    margin-top: 0.4em;
+    }
+
+.talkform tr:last-child td + td {
+    padding: .5em .5em 1.4em;
+    }
+
+.talkform blockquote {
+    background-color: transparent;
+    border: 0 none;
+    margin: 0.5em 0;
+    padding: 0;
+    }
+
+#qrform {
+    $entry_font
+    $entry_quote_colors
+    margin: 1.4em 0 0;
+    }
+
+#qrform td {
+    padding: .5em;
+    text-align: left;
+    }
+
+#qrform td b {
+    font-weight: normal;
+    text-transform: uppercase;
+    }
+
+#qrform input, #qrform select, #qrform textarea,
+.talkform input, .talkform select, .talkform textarea,
+.bottomcomment select, .bottomcomment input {
+    padding: .25em;
+    }
+
+#prop_picture_keyword, #randomicon, #quotebuttonspan {
+    margin-right: .5em;
+    }
+
+#qrform .de {
+  display: block;
+  margin: 1em 0 .8em;
+}
+
+textarea#commenttext { width: 97%; }
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* --------------------------------------------------------------------------- ARCHIVE PAGE DEFS ---------- */
+
+/* ---------- ARCHIVE YEAR ---------- */
+table.month {
+    border-collapse: collapse;
+    margin: 0 auto;
+    width: 100%;
+    }
+
+table.month tbody tr { $entry_colors }
+
+table.month td {
+    $entry_font
+    $entry_colors
+    height: 3.5em;
+    padding: 0.5em;
+    text-align: right;
+    vertical-align: top;
+    width: 14%;
+    }
+
+table.month thead {
+    $entry_datetime_background
+    border: solid 1px transparent;
+    $calendar_dayheader_border
+    }
+
+table.month th {
+    $entry_datetime_font
+    $entry_datetime_sub_background
+    background-position: right;
+    color: $*color_entry_datetime_text;
+    font-style: italic;
+    font-weight: normal;
+    line-height: 1.5em;
+    padding: 0.2em 0.4em;
+    text-align: right;
+    vertical-align: middle;
+    }
+
+table.month td p { margin: .3em 0 0; padding: 0; text-align: center; }
+
+table.month .day { background-color: $*color_calendar_foreground; }
+
+table.month .day-empty { background-color: $*color_calendar_background; }
+
+table.month caption { display: none; }
+
+#archive-year .footer {
+    $entry_colors
+    border-width: 0 1px 1px;
+    margin: 0 0 $*margins_between_size$*margins_between_unit 0;
+    padding: .5em;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+#archive-year .footer a {
+    $entry_interaction_link_colors
+    $entry_manageinteract_font
+    }
+
+#archive-year .footer a:visited { color: $*color_entry_link_visited; }
+#archive-year .footer a:hover { color: $*color_entry_link_hover; }
+#archive-year .footer a:active { color: $*color_entry_link_active; }
+
+.page-month .month .entry-poster { margin: 0; }
+
+.month dl dt { font-weight: normal; }
+
+.month dl .time {
+    display: inline-block;
+    $entry_datetime_font
+    margin-right: .3em;
+    padding-right: 0;
+    }
+
+.month dl h3 {
+    display: inline;
+    $entry_title_font
+    text-transform: uppercase;
+    }
+
+.month dl .tag ul { margin: 0; }
+
+
+/* ---------- ARCHIVE MONTH ---------- */
+#archive-month dl { margin: 0; padding: 0; }
+
+#archive-month dd {
+    $entry_background
+    $entry_colors;
+    margin: 0 0 $*margins_between_size$*margins_between_unit;
+    padding: 1.4em 1.4em 0;
+    }
+
+.navigation li.page-back { float: left; margin: 0 0 $*margins_between_size$*margins_between_unit; }
+.navigation li.page-forward { }
+
+#archive-month .navigation ul {
+    $entry_title_colors
+    $entry_right_border
+    display: inline-block;
+    padding: .2em .5em .2em;
+    }
+
+#archive-month .navigation li {
+    border: none;
+    padding:0;
+    }
+
+#archive-month .navigation input {
+    $entry_title_colors
+    $entry_title_font
+    border: none;
+    text-transform: uppercase;
+    vertical-align: middle;
+    }
+
+#archive-month .navigation select {
+    $entry_title_colors
+    $entry_title_font
+    border: none;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    vertical-align: middle;
+    }
+
+.month-back, .month-forward { $entry_title_font }
+
+#archive-month .tag a { $entry_interaction_link_colors }
+#archive-month .tag a:hover { $page_link_hover_colors }
+#archive-month .tag a:active { $page_link_active_colors }
+
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* --------------------------------------------------------------------------- MODULE STYLE DEFS ---------- */
+
+/* ---------- BASIC MODULE DEFS ---------- */
+#content .module { margin-bottom: $*margins_between_size$*margins_between_unit; }
+
+.module-content a { $module_link_colors }
+.module-content a:visited { $module_link_visited_colors }
+.module-content a:hover { $module_link_hover_colors }
+.module-content a:active { $module_link_active_colors }
+
+.module h2 {
+    $module_title_background
+    $module_title_colors
+    $module_title_font
+    $module_right_border
+    padding: .3em .3em .2em;
+    text-transform: uppercase;
+    }
+
+.module h2 a { color: $*color_module_title_link; }
+.module h2 a:visited { color: $*color_module_title_link_visited; }
+.module h2 a:hover { color: $*color_module_title_link_hover; }
+.module h2 a:active { color: $*color_module_title_link_active; }
+
+.module-content {
+    $module_background
+    $module_colors
+    $module_font
+    border-width: 0 1px 1px;
+    overflow: hidden;
+    padding: 1.1em 1.2em 1em;
+    }
+
+.module-navlinks .module-content,
+.module-calendar .module-content { border: none; }
+
+.module-time .module-content,
+.module-powered .module-content,
+.module-calendar.calendar-horizontal .module-content { border-width: 1px; }
+
+.module-content ul {
+    list-style: inside none;
+    margin: 0;
+    padding: 0;
+    }
+
+.module-content li {
+    border-bottom: solid 1px transparent;
+    border-color: $*color_module_list_border;
+    margin: 0;
+    padding: 0;
+    }
+
+.module-customtext .module-content { $module_customtext_font }
+
+
+/* ---------- USERPROFILE MODULE ---------- */
+.module-userprofile .userpic {
+    background-color: $*color_entry_userpic_background;
+    border: solid transparent;
+    border-color: $*color_entry_userpic_border;
+    border-width: 0 0 0 8px;
+    margin: 0 auto .4em;
+    padding: 3px;
+    text-align: center;
+    width: 100px;
+    }
+
+.module-userprofile .journal-name { text-align: center; text-transform: uppercase; }
+.module-userprofile .journal-website-name { text-align: center; }
+
+ul.userlite-interaction-links.icon-links {
+    margin: .8em 0 0 !important;
+    padding: 0;
+    text-align: center;
+    }
+
+ul.userlite-interaction-links.icon-links li {
+    border: none !important;
+    display: inline;
+    padding: 0;
+    }
+
+ul.userlite-interaction-links.text-links {
+    margin: .8em 0 0 !important;
+    padding: 0;
+    text-align: left;
+    }
+
+.journal-website-name a,
+.module .manage-link a { color: $*color_module_link_alt; }
+
+.journal-website-name a:visited,
+.module .manage-link a:visited { color: $*color_module_link_alt_visited; }
+
+.journal-website-name a:hover,
+.module .manage-link a:hover { color: $*color_module_link_alt_hover; }
+
+.journal-website-name a:active,
+.module .manage-link a:active { color: $*color_module_link_alt_active; }
+
+
+
+/* ---------- TAG MODULE ---------- */
+.module-tags_multilevel li,
+.ljtaglist li { border: none; list-style: inside square; margin: 0; }
+
+.module-tags_multilevel li li,
+.ljtaglist li li { border: none; list-style: outside circle; margin: 0 0 0 2.5em; }
+
+.module-tags_multilevel li li li,
+.ljtaglist li li li { border: none; list-style: none; margin: 0 0 0 1em; }
+
+.module-tags_multilevel ul li + li > span,
+.ljtaglist li + li > span  { display: inline-block; margin: .5em 0 0; }
+
+.module-tags_multilevel ul li > ul:last-child,
+.ljtaglist li > ul:last-child { display: block; margin: 0 0 .4em; }
+
+.non-link-tag { text-transform: uppercase; }
+
+.module .manage-link {
+    margin: .8em 0 0;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+
+/* ---------- CALENDAR MODULE ---------- */
+
+.module-calendar .module-content {
+    background-color: transparent;
+    padding: 0;
+    text-align: center;
+    }
+
+.one-column .module-calendar .module-content { text-align: left; }
+
+.module-calendar table {
+    border-collapse: collapse;
+    margin: 0 auto;
+    width: 100%;
+    }
+
+.module-calendar tr:first-child {
+    $entry_datetime_background
+    border: solid transparent;
+    $calendar_dayheader_border
+    border-width: 0 1px;
+    }
+
+.module-calendar th {
+    $entry_datetime_sub_background
+    color: $*color_entry_datetime_text;
+    font-weight: normal;
+    height: 1.8em;
+    padding: 1px 0;
+    text-align: center;
+    vertical-align: middle;
+    width: 14%;
+    }
+
+.module-calendar td {
+    $module_colors
+    background-color: $*color_calendar_background;
+    text-align: center;
+    vertical-align: middle;
+    }
+
+.module-calendar .empty-day,
+.module-calendar .entry-day { background-color: $*color_calendar_foreground; }
+
+.module-calendar td a { display: block; padding: 0; }
+
+.one-column .module-calendar table { margin: 0; }
+
+#content .module-calendar.calendar-horizontal .module-content {
+    $module_colors
+    padding: 1.1em 1.2em 1.2em;
+    }
+
+
+/* ---------- SEARCH MODULE ---------- */
+.search-box {
+    margin: 0em auto;
+    max-width: 100%;
+    }
+
+.search-box input { margin-right: .25em; }
+
+/* ---------- PAGE SUMMARY MODULE ---------- */
+.module-pagesummary .ljuser { white-space: normal !important; }
+
+.module-pagesummary .module-content { word-wrap: break-word; }
+
+#content .module-pagesummary li,
+#content .module-typelist li,
+#content .module-userprofile li,
+#content .module-active li { padding: .2em .2em .1em !important; }
+
+
+/* ---------- LAYOUT CREDIT MODULE ---------- */
+.module-credit .module-content { overflow: hidden; }
+
+.module-credit dl { margin: 0; padding: 0; }
+
+.module-credit dt, .module-credit dd {
+    display: inline;
+    float: left;
+    margin: 0;
+    padding: 0;
+    }
+
+.module-credit dt {
+    clear: left;
+    font-weight: normal;
+    margin-right: .2em;
+    text-transform: uppercase;
+    }
+
+.module-credit a b {font-weight: normal;}
+
+
+/* ---------- TAGS MODULE ---------- */
+.tags_cloud li, .module-tags_cloud li,
+.module-tags_cloud li, .ljtaglist ul {
+    border-bottom: none !important;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    }
+
+.tags_list li, .module-tags_list li { padding: 0.2em 0.2em 0.1em !important; }
+
+
+/* ---------- SYNDICATE MODULE ---------- */
+.module-syndicate .module-content { text-align: center; }
+
+.one-column .module-syndicate .module-content { text-align: left; }
+
+
+/* ---------- NAVIGATION MODULE ---------- */
+#content .module-navlinks .module-content { background-color: transparent; padding: 0; }
+#content .module-navlinks ul { list-style: none; }
+#content .module-navlinks li {
+    border: none;
+    margin-bottom: 3px;
+    $module_right_border
+    }
+
+#content .module-navlinks li a {
+    $module_navigation_font
+    background-color: $*color_module_navigation_background;
+    border: solid 1px transparent;
+    border-color: $*color_module_border;
+    border-width: 1px 0 1px 1px;
+    color: $*color_module_navigation_link;
+    display: block;
+    padding: .25em .4em;
+    text-transform: uppercase;
+    transition: all .5s ease 0s;
+    }
+
+#content .module-navlinks li a.current,
+#content .module-navlinks li a.current:visited {
+    background-color: $*color_module_navigation_background_current;
+    border-color: $*color_module_navigation_background_current;
+    color: $*color_module_navigation_link_current;
+    }
+
+#content .module-navlinks li a:hover,
+#content .module-navlinks li a:hover:visited {
+    background-color: $*color_module_navigation_background_current;
+    border-color: $*color_module_navigation_background_current;
+    color: $*color_module_navigation_link_hover;
+    }
+
+#content .module-navlinks li a:active { color: $*color_module_navigation_link_active !important; }
+#content .module-navlinks li a:visited { color: $*color_module_navigation_link_visited; }
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* ------------------------------------------------------------------------------ TAGS PAGE DEFS ---------- */
+.ljtaglist { list-style: none; margin: 0; padding: 0; }
+
+.tags-container .contents {
+    $entry_colors
+    border-width: 0 1px 1px;
+    margin: 0;
+    overflow: hidden;
+    padding: 1.2em 1.4em;
+    }
+
+.tags-container .manage-link {
+    $entry_colors
+    border-width: 0 1px 1px;
+    padding: 0 1.4em 1.2em;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+.tags-container .manage-link a,
+.icons-container .manage-link a {
+    $entry_interaction_link_colors
+    $entry_manageinteract_font
+    }
+
+.tags-container .manage-link a:hover, .icons-container .manage-link a:hover { $page_link_hover_colors }
+.tags-container .manage-link a:active, .icons-container .manage-link a:active { $page_link_active_colors }
+
+
+.tags-container .footer { margin-bottom: $*margins_between_size$*margins_between_unit; margin-top: -1px; }
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* ------------------------------------------------------------------------------ ICON PAGE DEFS ---------- */
+
+.icons-container .contents {
+    overflow: hidden;
+    text-align: center;
+    }
+
+.icons-container .footer { margin: 0 0 $*margins_between_size$*margins_between_unit; margin-top: -1px; }
+
+.sorting-options {text-align: left; margin: 0;}
+
+.icon-keywords ul {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    }
+
+.icon-keywords ul li { display: inline; }
+
+.sorting-options ul {
+    $entry_datetime_sub_background
+    display: inline-block;
+    margin: 0;
+    padding: .2em .6em .3em;
+    }
+
+.sorting-options li {
+    $entry_datetime_font
+    color: $*color_entry_datetime_text;
+    display: inline;
+    font-style: italic;
+    margin: 0;
+    padding: 0;
+    }
+
+.icon {
+    $entry_colors
+    border-width: 0 1px;
+    clear: both;
+    margin: 0;
+    overflow: hidden;
+    padding: 1.5em 1.5em 0;
+    text-align: left;
+    vertical-align: top;
+    }
+
+.icon:last-child { padding-bottom: 1.5em; }
+
+.icon .icon-image {
+    background-color: $*color_entry_userpic_background;
+    border: solid transparent;
+    border-color: $*color_entry_userpic_border;
+    border-width: 0 0 0 8px;
+    float: left;
+    margin: 15px;
+    padding: 3px;
+    }
+
+.icon .icon-info {
+    $entry_metadata_font
+    $entry_quote_colors
+    min-height: 100px;
+    padding: 15px;
+    }
+
+.icon-pages {
+    text-align: left;
+    $entry_font
+    }
+
+.icon-pages b { font-weight: normal; }
+
+.icon-pages p {
+    display: inline-block;
+    margin: 0 0.5em;
+    text-transform: uppercase;
+    }
+
+.icons-container .toppages {
+    $entry_colors
+    border-width: 0 1px;
+    margin: 0;
+    padding: 1.5em 1.5em 0;
+    }
+
+.icons-container .bottompages {
+    $entry_colors
+    border-width: 0 1px 1px;
+    margin: 0;
+    padding: 1.5em;
+    }
+
+
+.tags-container .manage-link, .icons-container .manage-link {
+    $entry_colors
+    border-width: 0 1px 1px;
+    padding: 0 1.4em 1.2em;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+
+.default,
+.keywords-label, .description-text, .comment-text { text-transform: uppercase; }
+
+.sorting-options a { color: $*color_entry_datetime_link; }
+.sorting-options a:hover { color: $*color_entry_datetime_link_hover; }
+.sorting-options a:active { color: $*color_entry_datetime_link_active; }
+.sorting-options a:visited { color: $*color_entry_datetime_link_visited; }
+/* -------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+/* ------------------------------------------------------------------------------ ICON PAGE DEFS ---------- */
+
+.ui-widget-content {
+    $page_background
+    width: auto;
+    min-width: 20em;
+    }
+
+.ui-widget-content a { color: $*color_page_link; }
+.ui-widget-content a:visited { color: $*color_page_link_visited; }
+.ui-widget-content a:hover { color: $*color_page_link_hover; }
+.ui-widget-content a:active { color: $*color_page_link_active; }
+
+.ContextualPopup .ui-tooltip-content {
+    border: solid $*color_entry_title_background;
+    border-width: 10px 0 0;
+    overflow: hidden;
+    }
+
+div.ContextualPopup div.Inner {width: 25em;}
+
+div.ContextualPopup .Userpic {
+    $entry_right_border
+    border-width: 0 8px 0 0;
+    padding: 0;
+    position: relative;
+    z-index: 2000;
+    }
+
+div.ContextualPopup .Userpic img {
+    border: solid $*color_entry_userpic_background;
+    border-width: 0 2px 2px;
+    max-width: 100px;
+    max-height: 100px;
+    }
+
+div.ContextualPopup .Content {
+    $entry_colors
+    border-width: 0 1px 1px;
+    margin-right: 0;
+    padding: 0 !important;
+    }
+
+div.ContextualPopup .Content > span { display: inline-block; margin: 0 5px 3px; }
+
+div.ContextualPopup .Relation {
+    $entry_datetime_background
+    color: $*color_entry_datetime_text;
+    font-family: $*font_entry_datetime;
+    font-size: $*font_base_size$*font_base_units;
+    margin-bottom: .4em;
+    overflow: hidden;
+    }
+
+div.ContextualPopup .Relation div {
+    $entry_datetime_sub_background
+    display: inline-block;
+    font-weight: normal;
+    font-style: italic;
+    padding: 4px 5px;
+    float: left;
+    clear: left;
+    }
+
+.ContextualPopup .Actions {
+    $entry_font
+    min-height: 75px;
+    padding: 0 0 5px .4em;
+    clear: left;
+    }
+
+
+#lj_controlstrip .ljuser a b { font-style: normal; font-weight: bold; }
+/* -------------------------------------------------------------------------------------------------------- */
+
+$userpic_css
+
+""";
+}
+##----------------------------------------------------------------------------------------------------------##
+

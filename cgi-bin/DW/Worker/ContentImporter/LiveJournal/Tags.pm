@@ -58,8 +58,9 @@ sub try_work {
 
     # get tags
     my $r = $class->call_xmlrpc( $data, 'getusertags' );
-    return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )
-        if ! $r || $r->{fault};
+    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
+    $xmlrpc_fail .=  " (community: $data->{usejournal})" if $data->{usejournal};
+    return $temp_fail->( $xmlrpc_fail ) if ! $r || $r->{fault};
 
     DW::Worker::ContentImporter::Local::Tags->merge_tags( $u, $r->{tags} );
 

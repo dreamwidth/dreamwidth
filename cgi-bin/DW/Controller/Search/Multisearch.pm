@@ -5,10 +5,13 @@
 # Conversion of LJ's multisearch.bml, used for handling redirects
 # from sitewide search bar (LJ::Widget::Search).
 #
+# Also includes handler for /tools/search which simply renders
+# the search widget on a separate page.
+#
 # Authors:
 #      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2016 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -25,14 +28,15 @@ use DW::Controller;
 use Locale::Codes::Country;
 
 DW::Routing->register_string( '/multisearch', \&multisearch_handler, app => 1 );
+DW::Routing->register_string( '/tools/search', \&toolsearch_handler, app => 1 );
 
 sub multisearch_handler {
     my $r = DW::Request->get;
     my $args = $r->did_post ? $r->post_args : $r->get_args;
 
-    my $type   = lc $args->{'type'}   || '';
-    my $q      = lc $args->{'q'}      || '';
-    my $output = lc $args->{'output'} || '';
+    my $type   = lc( $args->{'type'}   || '' );
+    my $q      = lc( $args->{'q'}      || '' );
+    my $output = lc( $args->{'output'} || '' );
 
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
@@ -228,6 +232,15 @@ sub multisearch_handler {
 
     # No type specified - redirect them somewhere useful.
     return $r->redirect( "$LJ::SITEROOT/tools/search" );
+}
+
+sub toolsearch_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    $rv->{widget} = LJ::Widget::Search->render;
+    $rv->{sitename} = $LJ::SITENAMESHORT;
+    return DW::Template->render_template( 'tools/search.tt', $rv );
 }
 
 

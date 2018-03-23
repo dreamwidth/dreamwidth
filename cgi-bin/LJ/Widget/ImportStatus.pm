@@ -73,7 +73,9 @@ sub render_body {
             $ret .= "<a href='$LJ::SITEROOT/tools/importer?authas=" . $u->user . "'>" . $class->ml( 'widget.importstatus.refresh' ) . "</a></td></tr>";
             foreach my $item ( sort keys %{$import_item->{items}} ) {
                 my $i = $import_item->{items}->{$item};
-                my $color = { init => '#333333', ready => '#3333aa', queued => '#33aa33', failed => '#aa3333', succeeded => '#00ff00' }->{$i->{status}};
+                my $color = { init => '#333', ready => '#33a', queued => '#3a3',
+                              failed => '#a33', succeeded => '#0f0',
+                              aborted => '#f00' }->{$i->{status}};
                 my $ago_text = $i->{last_touch} ? LJ::diff_ago_text( $i->{last_touch} ) : "";
                 my $status = "<span style='color: $color;'>";
                 if ( $i->{status} eq 'init' ) {

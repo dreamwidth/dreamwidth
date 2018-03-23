@@ -101,6 +101,9 @@ sub handle_post {
         return ( error => $class->ml( 'widget.shopitemoptions.error.invalidusername' ) )
             unless LJ::isu( $target_u );
 
+        return ( error => $class->ml( 'widget.shopitemoptions.error.expungedusername' ) )
+            if $target_u->is_expunged;
+
         return ( error => $class->ml( 'widget.shopitemoptions.error.banned' ) )
             if $remote && $target_u->has_banned( $remote );
 

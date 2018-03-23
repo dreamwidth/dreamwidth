@@ -100,7 +100,11 @@ sub search_handler {
         my $sby = $post_args->{sort_by} || 'new';
         $sby = 'new' unless $sby =~ /^(?:new|old|rel)$/;
 
+        # see if the user wants to include comments, then verify that they are
+        # allowed to do so; if not, just ignore that they checked the checkbox
         my $wc = $post_args->{with_comments} ? 1 : 0;
+        my $wc_u = $su || $remote;
+        $wc &&= $wc_u->is_paid;  # comment search is a paid account feature
 
         $rv->{sort_by} = $sby;
         $rv->{wc} = $wc;

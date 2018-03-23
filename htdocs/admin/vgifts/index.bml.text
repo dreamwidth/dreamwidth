@@ -17,7 +17,7 @@
 
 .error.upload.badtype=Files of type [[filetype]] are not supported.  You can only upload GIF, PNG or JPG files.
 
-.error.upload.badurl=The address for the picture to be uploaded does not look correct. It should start with <b>http://</b>
+.error.upload.badurl2=The address for the picture to be uploaded does not look correct. It should start with <b>http://</b> or <b>https://</b>
 
 .error.upload.dimstoolarge=The dimensions of your image ([[imagesize]]) exceed maximum size.  Your picture can't be larger than [[maxsize]] pixels.
 
@@ -26,8 +26,6 @@
 .error.upload.nofile=You must choose a file to upload
 
 .error.upload.noheader=No content-length header: can't upload
-
-.error.upload.nomogilefs=Couldn't load MogileFS: can't upload
 
 .error.upload.nourl=You must enter the URL of an image
 

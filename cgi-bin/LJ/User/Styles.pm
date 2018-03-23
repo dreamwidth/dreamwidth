@@ -257,7 +257,7 @@ sub meta_discovery_links {
 
     # FOAF autodiscovery
     if ( $opts{foaf} ) {
-        my $foafurl = $u->{external_foaf_url} ? LJ::eurl( $u->{external_foaf_url} ) : "$journalbase/data/foaf";
+        my $foafurl = "$journalbase/data/foaf";
         $ret .= qq{<link rel="meta" type="application/rdf+xml" title="FOAF" href="$foafurl" />\n};
 
         if ($u->email_visible($opts{remote})) {
@@ -457,7 +457,7 @@ sub make_journal {
 
     my @needed_props = ("stylesys", "s2_style", "url", "urlname", "opt_nctalklinks",
                         "renamedto",  "opt_blockrobots", "opt_usesharedpic", "icbm",
-                        "journaltitle", "journalsubtitle", "external_foaf_url",
+                        "journaltitle", "journalsubtitle",
                         "adult_content", "opt_viewjournalstyle", "opt_viewentrystyle");
 
     # preload props the view creation code will need later (combine two selects)

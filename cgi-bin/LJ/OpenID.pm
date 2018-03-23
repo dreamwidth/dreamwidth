@@ -37,10 +37,10 @@ sub server_enabled {
 sub server {
     my ($get, $post) = @_;
 
+    my %args = ( %{ $get || {} }, %{ $post || {} } );
+
     return Net::OpenID::Server->new(
-                                    compat       => $LJ::OPENID_COMPAT,
-                                    get_args     => $get  || {},
-                                    post_args    => $post || {},
+                                    args         => \%args,
 
                                     get_user     => \&LJ::get_remote,
                                     is_identity  => sub {
@@ -103,10 +103,6 @@ sub is_trusted {
     my ($u, $trust_root, $is_identity) = @_;
     return 0 unless $u;
     # we always look up $is_trusted, even if $is_identity is false, to avoid timing attacks
-
-    # let certain hostnames be trusted at a site-to-site level, per policy.
-    my ($base_domain) = $trust_root =~ m!^https?://([^/]+)!;
-    return 1 if $LJ::OPENID_DEST_DOMAIN_TRUSTED{$base_domain};
 
     my $dbh = LJ::get_db_writer();
     my ($endpointid, $duration) = $dbh->selectrow_array("SELECT t.endpoint_id, t.duration ".

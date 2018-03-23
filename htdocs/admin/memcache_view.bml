@@ -54,7 +54,6 @@ _c?>
      'talksubject:' => 3,
      'talkbody:' => 3,
      'logtext:' => 3,
-     's1pubstyc:' => 0,
      'popsyn:' => 0,
      'rate_eperr:' => 0,
      'rate:' => 0,

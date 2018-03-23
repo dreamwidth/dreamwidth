@@ -51,9 +51,13 @@ body<=
         unless $row && $row->{cctransid} == $cctransid &&
                $row->{cartid} == $cart->id;
 
-    # if it failed, redirect back to the cart
-    return BML::redirect( "$LJ::SITEROOT/shop/cart?failed=1" )
-        if $row->{jobstate} eq 'failed';
+    # if it failed, redirect back to the cart, but print
+    # a different error message if it was flagged as a duplicate
+    if ( $row->{jobstate} eq 'failed' ) {
+        my $errtype = $row->{responsetext} =~ /^Duplicate transaction /
+                      ? 'duplicate' : 'failed';
+        return BML::redirect( "$LJ::SITEROOT/shop/cart?$errtype=1" );
+    }
 
     # if we're still queued, set the refresh
     $head = q{<meta http-equiv="refresh" content="3" />}
@@ -61,8 +65,16 @@ body<=
 
     # looks good, see what status things are in...
     $title = $ML{'.title.' . $row->{jobstate}} || $ML{'Error'};
-    return $ML{'.state.' . $row->{jobstate}}
+    my $msg = '';
+    $msg = $ML{'.state.' . $row->{jobstate}}
         if $row->{jobstate} =~ /^(?:paid|queued|internal_failure)$/;
+    # need a different message if paid but wasn't logged in
+    if ( $row->{jobstate} eq 'paid' && ! $cart->userid ) {
+        my $rcpt = LJ::create_url( '/shop/receipt',
+                                   args => { ordernum => $onum } );
+        $msg = LJ::Lang::ml( '.state.paid.noemail', { url => $rcpt } );
+    }
+    return $msg if $msg;
 
     # another state??
     die "Sorry, unknown state: $row->{jobstate}.\n";

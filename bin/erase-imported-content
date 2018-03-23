@@ -1,0 +1,222 @@
+#!/usr/bin/perl
+
+use v5.10;
+use strict;
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+
+use LJ::Entry;
+use LJ::Talk;
+use DW::Worker::ContentImporter::LiveJournal;
+use DW::Worker::ContentImporter::Local::Entries;
+use DW::Worker::ContentImporter::Local::Comments;
+
+use Digest::MD5 qw/ md5_hex /;
+use Getopt::Long;
+
+my ( $user, $confirm, $dupes );
+GetOptions(
+    'user=s' => \$user,
+    'confirm=s' => \$confirm,
+    'dupes-only' => \$dupes,
+);
+
+my $u = LJ::load_user( $user )
+    or die "Usage: $0 -u USER -c CODEWORD [ --dupes-only ]\n";
+$confirm = $confirm && $confirm eq 'b00p' ? 1 : 0;
+
+# Select posts that were imported
+my %map = %{ DW::Worker::ContentImporter::Local::Entries->get_entry_map( $u ) || {} };
+unless ( scalar keys %map > 0 ) {
+    say 'Account has no imported entries, nothing to do.';
+    exit 0;
+}
+my %rmap;
+foreach my $key ( keys %map ) {
+    $rmap{$map{$key}} = $key;
+}
+
+# Nuke all entries that have been imported.
+my %csrc_in = %{ DW::Worker::ContentImporter::Local::Comments->get_comment_map( $u ) || {} };
+my %csrc;
+$csrc{$csrc_in{$_}} = $_ foreach keys %csrc_in; # Invert it.
+
+# If we're in dupes mode, select out all entries to calculate dupes. Does not use entry body
+# because sometimes that differs due to <user> vs <lj> tag changes as we updated the importer
+# over the years.
+my $dbcr = LJ::get_cluster_reader( $u ) or die;
+my $entries = $dbcr->selectall_hashref(q{
+        SELECT log2.jitemid, posterid, eventtime, replycount, subject, event, security, allowmask
+        FROM log2 INNER JOIN logtext2
+            ON log2.journalid = logtext2.journalid AND log2.jitemid = logtext2.jitemid
+        WHERE log2.journalid = ?
+    }, 'jitemid', undef, $u->id );
+
+for my $jitemid ( keys %$entries ) {
+    $entries->{$jitemid}->{subject} = md5_hex( $entries->{$jitemid}->{subject} );
+    $entries->{$jitemid}->{event} = md5_hex( $entries->{$jitemid}->{event} );
+
+    my %cmts = %{ LJ::Talk::get_talk_data( $u, 'L', $jitemid ) || {} };
+    foreach my $jtalkid ( keys %cmts ) {
+        next if $cmts{$jtalkid}->{state} =~ /^[DSB]$/;
+
+        $entries->{$jitemid}->{replycount}--
+            if exists $csrc{$jtalkid};
+        if ( $entries->{$jitemid}->{replycount} < 0 ) {
+            die "Invalid accounting! $jitemid replycount went negative!\n";
+        }
+    }
+}
+
+sub entry_key {
+    my $jitemid = $_[0] + 0;
+
+    # Remap content, just in case (this only works for LJ; given that's the vast majority
+    # of things, I don't care for now)
+    if ( $entries->{$jitemid}->{subject} =~ /<lj/i ) {
+        $entries->{$jitemid}->{subject} =
+            DW::Worker::ContentImporter::LiveJournal->remap_lj_user(
+                { hostname => 'livejournal.com' },
+                $entries->{$jitemid}->{subject}
+            );
+    }
+
+    die 'not found in list' unless exists $entries->{$jitemid};
+    return join '.', map { $entries->{$jitemid}->{$_} } qw/ posterid eventtime subject /;
+}
+my %dupects;
+foreach my $jitemid ( keys %$entries ) {
+    my $key = entry_key( $jitemid );
+    push @{$dupects{$key} ||= []}, $jitemid;
+}
+if ( $dupes ) {
+    say 'Possible duplicates:';
+    foreach my $key ( sort keys %dupects ) {
+        print " * $key: " . join(', ', map { "$_($entries->{$_}->{replycount})" } @{$dupects{$key}}) . "\n"
+            if scalar @{$dupects{$key}} > 1;
+    }
+}
+
+# Iterate each imported entry and see if we can delete it
+ENTRY: foreach my $jitemid ( sort { $b <=> $a } keys %rmap ) {
+    # Load entry and attempt to canonicalize source if we need to; if we can't
+    # canonicalize the source then we must delete this entry
+    my $o_entry = LJ::Entry->new( $u, jitemid => $jitemid );
+    goto DELETE unless canonicalize_source( $o_entry );
+
+    # Handle duplicate stuff first
+    my $key = entry_key( $jitemid );
+    if ( $dupes ) {
+        next ENTRY unless 
+            exists $dupects{$key} && scalar @{$dupects{$key}} > 1;
+
+        # If we get here, this means there are duplicates of this entry --
+        # at least two still remain (this one + one more). Possibly more.
+        my %tmp_entries;
+
+        # Now iterate dupes
+        foreach my $dupeid ( @{$dupects{$key}} ) {
+            next if $dupeid == $jitemid;
+
+            my $entry = LJ::Entry->new( $u, jitemid => $dupeid );
+
+            if ( $o_entry->security eq "public" ) {
+                my ( $domain, $user, $ditemid ) = split( m!/!, $rmap{$jitemid} );
+                print "$jitemid ( $rmap{$jitemid} ) $dupeid: " . $entry->prop( 'import_source' ) . "\n";
+                print " * imported: " . $o_entry->url . "\n";
+                print " * dupe:     " . $entry->url . "\n";
+                print " * original: http://$user.$domain/$ditemid.html\n";
+            }
+
+            # MAGICAL EDGE CASE: find "imported entries" that aren't marked with
+            # an import_source. This happened to one user, one time...
+            unless ( $entry->prop( 'import_source' ) ) {
+                $entry->set_prop( import_source => $o_entry->prop( 'import_source' ) );
+            }
+
+            # Another possibility: we got dupes because one entry isn't using the
+            # canonical form, so let's try to canonicalize
+            canonicalize_source( $entry );
+        }
+
+        # If any organic comments, skip this entry
+        next ENTRY if $entries->{$jitemid}->{replycount} > 0;
+
+        # Has no comments, or only imported comments
+        goto DELETE;
+    }
+
+    # See if there are any non-imported contents on the entry
+    next ENTRY if $entries->{$jitemid}->{replycount} > 0;
+
+    # If we get here, the entry is destined for the shredder
+DELETE:
+    print "$rmap{$jitemid} (jitemid $jitemid) scheduled for deletion";
+    if ( $confirm ) {
+        my $rv = LJ::delete_entry( $u, $jitemid, 0, undef );
+        if ( $rv ) {
+            say ' ... deleted';
+        } else {
+            say ' ... FAILED TO DELETE';
+        }
+    } else {
+        say ' ... confirmation not set';
+    }
+
+    # Paperwork: since we deleted this entry we need to remove it from the
+    # duplicates tracking, as it can no longer 'cause' duplicates
+    $dupects{$key} = [ grep { $_ != $jitemid } @{$dupects{$key}} ];
+}
+
+# Delete comments with a nodeid of 0. This should never happen, but has been
+# known to happen to some imported comments.
+if ( $confirm ) {
+    LJ::delete_all_comments( $u, 'L', 0 );
+}
+
+
+exit 0;
+
+
+
+sub canonicalize_source {
+    my $entry = $_[0];
+    my $source = $entry->prop( 'import_source' );
+    return 1 if $source =~ m!^(?:livejournal|insanejournal)\.com/[a-z0-9_]+/\d+$!;
+
+    # The dupe fixer had a bug in it 5 minutes ago where this could happen...
+    if ( $source =~ m!^livejournal\.com//(\d+)$! ) {
+        my $new_source = "livejournal.com/$user/$1";
+        say "Fixing import_source: $source => $new_source";
+        $entry->set_prop( import_source => $new_source );
+        return 1;
+    }
+
+    # http://runpunkrun.livejournal.com/334.html
+    if ( $source =~ m!http://([a-z0-9_-]*)\.((?:livejournal|insanejournal)\.com)/(\d+)\.html$! ) {
+        my ( $host, $loc_user, $ditemid ) = ( $2, $1, $3 );
+        $loc_user =~ s/-/_/g;
+
+        # If the source didn't have a user, this was one class of issues where we
+        # had an undefined variable ages ago. Add it.
+        $loc_user ||= $user;
+
+        my $new_source = "$host/$loc_user/$ditemid";
+        say "Fixing import_source: $source => $new_source";
+        $entry->set_prop( import_source => $new_source );
+        return 1;
+    }
+
+    # There was, at one point, a bad bug that showed up with the following source,
+    # since there are 90 LJ imports for every IJ import (or more) let's just assume
+    # that it's LJ... and the same username
+    if ( $source =~ m!^#/(\d+)\.html$! ) {
+        my ( $ditemid ) = ( $1 );
+        my $new_source = "livejournal.com/$user/$ditemid";
+        say "Fixing import_source: $source => $new_source";
+        $entry->set_prop( import_source => $new_source );
+        return 1;
+    }
+
+    say "UNKNOWN SOURCE FORMAT: $source";
+    return 0;
+}

@@ -505,7 +505,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         // ban / unban
 
         var ban;
-        if (data.is_logged_in && ! data.is_requester && ! data.is_syndicated) {
+        if (data.is_logged_in && ! data.is_requester && ! data.is_syndicated && ! data.is_comm ) {
             ban = document.createElement("span");
 
             if(!data.is_banned) {

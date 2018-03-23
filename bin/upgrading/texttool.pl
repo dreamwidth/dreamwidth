@@ -442,10 +442,18 @@ sub poptext {
         }
     }
     $out->("Removing dead phrases...", '+');
+    my @dp_files;
     foreach my $file ("deadphrases.dat", "deadphrases-local.dat") {
-        my $ffile = "$ENV{'LJHOME'}/bin/upgrading/$file";
+        foreach my $lang (@langs) {
+            my $fn = $lang_dir_map{$lang} . "/$DATA_DIR/$file";
+            next unless -e $fn;
+            push @dp_files, $fn;
+        }
+    }
+    foreach my $ffile ( @dp_files ) {
         next unless -s $ffile;
-        $out->("File: $file");
+        my ($fn) = ( $ffile =~ /^\Q$ENV{LJHOME}\E\/(.*)$/ );
+        $out->("File: $fn");
         open (DP, $ffile) or die;
         while (my $li = <DP>) {
             $li =~ s/\#.*//;
@@ -525,7 +533,7 @@ sub dumptext {
             my $fh = $fh_map{$langdat_file};
             unless ($fh) {
                 my $langdat_path = $lang_dir . '/' . $langdat_file;
- 
+
                 # the dir might not exist in some cases
                 my $d = File::Basename::dirname($langdat_file);
                 File::Path::mkpath($d) unless -e $d;

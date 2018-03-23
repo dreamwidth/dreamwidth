@@ -7,7 +7,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2013-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -59,13 +59,19 @@ sub file_new_handler {
     LJ::isu( $rv->{u} )
         or return api_error( $r->HTTP_UNAUTHORIZED, 'Not logged in' );
 
+    return api_error( $r->HTTP_UNAUTHORIZED, 'Invalid account type' )
+        if $rv->{u}->is_identity;
+
+    return api_error( $r->HTTP_BAD_REQUEST, 'Quota exceeded' )
+        unless DW::Media->can_upload_media( $rv->{u} );
+
     my $uploads = $r->uploads;
     return api_error( $r->HTTP_BAD_REQUEST, 'No uploads found' )
         unless ref $uploads eq 'ARRAY' && scalar @$uploads;
 
     foreach my $upload ( @$uploads ) {
         my ( $type, $ext ) = DW::Media->get_upload_type( $upload->{'content-type' } );
-        next unless $type == DW::Media::TYPE_PHOTO;
+        next unless defined $type && $type == DW::Media::TYPE_PHOTO;
 
         # Try to upload this item since we know it's a photo.
         my $obj = DW::Media->upload_media(
@@ -124,8 +130,15 @@ sub file_edit_handler {
     # First pass to check arguments.
     my %media;
     foreach my $id ( keys %$args ) {
-        $media{$id} = DW::Media->new( user => $rv->{u}, mediaid => int( $id / 256 ) )
-            or return api_error( $r->NOT_FOUND, 'Media ID not found or invalid' );
+        # sometimes JS sends us the string 'null' so let's make sure $id is OK
+        return api_error( $r->HTTP_BAD_REQUEST, 'Media ID not provided' )
+            unless defined $id && $id ne 'null';
+
+        # use eval to catch croaks
+        $media{$id} = eval { DW::Media->new( user => $rv->{u},
+                                             mediaid => int( $id / 256 ) ) };
+        return api_error( $r->NOT_FOUND, 'Media ID not found or invalid' )
+            unless $media{$id};
 
         return api_error( $r->HTTP_BAD_REQUEST, 'Security invalid' )
             if $args->{$id}->{security} &&

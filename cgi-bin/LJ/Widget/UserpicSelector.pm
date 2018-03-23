@@ -103,7 +103,7 @@ sub render_body {
                             userpic_preview_image.alt = alttext[userpic_select.selectedIndex];
                         } else {
                             userpic_preview.className += " userpic_preview_border";
-                            userpic_preview.innerHTML = '<a href="$LJ::SITEROOT/editicons"><img src="" alt="selected userpic" id="userpic_preview_image" style="display: none;" /><span id="userpic_msg">' + userpic_msg + '</span></a>';
+                            userpic_preview.innerHTML = '<a href="$LJ::SITEROOT/manage/icons"><img src="" alt="selected userpic" id="userpic_preview_image" style="display: none;" /><span id="userpic_msg">' + userpic_msg + '</span></a>';
                         }
                     }
                 }
@@ -201,7 +201,7 @@ sub render_body {
     } elsif ( !$u || $opts->{altlogin} )  {
         $$pic .= "<div id='userpic'><p id='userpic_preview'><img src='/img/nouserpic.png' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout'  /></p></div>";
     } else {
-        $$pic .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/editicons'>$userpic_msg_upload</a></p></div>";
+        $$pic .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/manage/icons'>$userpic_msg_upload</a></p></div>";
     }
 
     if ( $has_icons ) {

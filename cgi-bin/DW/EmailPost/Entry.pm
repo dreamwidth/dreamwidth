@@ -3,7 +3,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2013-2018 by Dreamwidth Studios, LLC.
 #
 # This code is a refactoring and extension of code originally forked
 # from the LiveJournal project owned and operated by Live Journal, Inc.
@@ -32,6 +32,7 @@ use LJ::Protocol;
 use Date::Parse;
 use IO::Handle;
 use XML::Simple;
+use DW::Media;
 
 my $workdir = "/tmp";
 
@@ -204,30 +205,61 @@ sub _set_props {
     $props->{opt_noemail} = 1
       if $post_headers{comments}    =~ /noemail/i
       || $u->{emailpost_comments} =~ /noemail/i;
+    if ( exists $post_headers{screenlevel} ) {
+        if ( $post_headers{screenlevel} =~ /^all$/i ) {
+            $props->{opt_screening} = 'A';
+        } elsif ( $post_headers{screenlevel} =~ /^untrusted$/i ) {
+            $props->{opt_screening} = 'F';
+        } elsif ( $post_headers{screenlevel} =~ /^(anonymous|anon)$/i ) {
+            $props->{opt_screening} = 'R'; # needs-Remote
+        } elsif ( $post_headers{screenlevel} =~ /^(disabled|none)$/i ) {
+            $props->{opt_screening} = 'N';
+        } elsif ( $post_headers{screenlevel} ne '' ) {
+            $props->{opt_screening} = 'A';
+            $self->send_error( "Unrecognized screening keyword. Your entry was posted with all comments screened.",
+                               { nolog => 1 } );
+        } else { # blank
+            $props->{opt_screening} = ''; # User default
+        }
+    } else { # unspecified
+        $props->{opt_screening} = ''; # User default
+    }
 
     my $security;
     my $amask;
+    # "lc" is right here because groupnames are forcibly lowercased in
+    # LJ::User->trust_groups;
     $security = lc $post_headers{security} ||
-        $u->emailpost_security;
+        $u->emailpost_security; # FIXME: relies on emailpost_security ne 'usemask'?
 
     if ( $security =~ /^(public|private|friends|access)$/ ) {
         if ( $1 eq 'friends' or $1 eq 'access' ) {
             $security = 'usemask';
             $amask = 1;
         }
-    } elsif ( $security ) { # Assume a friendgroup if unknown security mode.
-        # Get the mask for the requested friends group, or default to private.
-        my $group = $u->trust_groups( name => $security );
-        if ($group) {
-            $amask = (1 << $group->{groupnum});
-            $security = 'usemask';
-        } else {
+    } elsif ( $security ) { # Assume a trust group list if unknown security.
+        # Get the mask for the requested trust group list, discarding those
+        # that don't exist.
+        $amask = 0;
+        my @unrecognized = ();
+        foreach my $groupname ( split( /\s*,\s*/, $security ) ) {
+            my $group = $u->trust_groups( name => $groupname );
+            if ( $group ) {
+                $amask |= ( 1 << $group->{groupnum} )
+            } else {
+                push @unrecognized, $groupname;
+            }
+        }
+
+        $security = 'usemask';
+
+        if ( @unrecognized ) {
             # send the error, but not shortcircuiting the posting process
             # probably the only time that we call $self->send_error inside of a convenience sub
-            $self->send_error( "Access group \"$security\" not found.  Your journal entry was posted privately.",
+            my $unrecognized = join( ', ', @unrecognized );
+            $self->send_error( "Access group(s) \"$unrecognized\" not found. Your journal entry was posted to the other groups, or privately if no groups exist.",
                    { nolog => 1 }
             );
-            $security = 'private';
         }
     }
 
@@ -296,6 +328,8 @@ sub _upload_images {
 
     my @imgs = $self->get_entity( $self->{_entity}, 'image' );
     return 1 unless scalar @imgs;
+
+    return 1401 unless DW::Media->can_upload_media( $self->{u} );  # error code from insert_images
 
     my @images;
     foreach my $img_entity ( @imgs ) {

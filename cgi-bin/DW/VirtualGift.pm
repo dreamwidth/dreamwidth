@@ -32,6 +32,8 @@ sub _memcache_stored_props { return ( '1', PROPLIST ) }  #
 # end MemCacheable methods ###############################
 
 use Digest::MD5 qw/ md5_hex /;
+use DW::BlobStore;
+
 use LJ::Global::Constants;
 
 # Because events use this module, Perl warns about redefined subroutines.
@@ -87,7 +89,7 @@ sub create {
     # opts are values for object properties as defined in PROPLIST.
     # also allowed: 'error' which should be a scalar reference;
     # 'img_small' & 'img_large' which should contain raw
-    # image data to be stored in MogileFS.
+    # image data to be stored in media storage (blobstore).
     my ( $class, %opts ) = @_;
     my %vg;  # hash for storing row data
     foreach ( PROPLIST ) {
@@ -169,8 +171,8 @@ sub _savepic {
     my ( undef, undef, $filetype ) = Image::Size::imgsize( $data );
     return undef unless $mime{$filetype};
 
-    return undef unless my $mc = LJ::mogclient();
-    return undef unless $mc->store_content( $key, 'vgifts', $data );
+    return undef unless
+        DW::BlobStore->store( vgifts => $key, $data );
 
     return $mime{$filetype};
 }
@@ -202,7 +204,7 @@ sub edit {
     # opts are values for object properties as defined in PROPLIST.
     # also allowed: 'error' which should be a scalar reference;
     # 'img_small' & 'img_large' which should contain raw
-    # image data to be stored in MogileFS.
+    # image data to be stored in media storage (blobstore).
     my ( $self, %opts ) = @_;
     return undef unless $self->id;
 
@@ -458,11 +460,9 @@ sub delete {
     $u = $self->creator unless LJ::isu( $u );
     return undef unless $self->can_be_deleted_by( $u );
 
-    # delete pictures from mogilefs
-    if ( $LJ::MOGILEFS_CONFIG{hosts} ) {
-        LJ::mogclient()->delete( $self->img_mogkey( 'large' ) );
-        LJ::mogclient()->delete( $self->img_mogkey( 'small' ) );
-    }
+    # delete pictures from storage
+    DW::BlobStore->delete( vgifts => $self->img_mogkey( 'large' ) );
+    DW::BlobStore->delete( vgifts => $self->img_mogkey( 'small' ) );
 
     # wipe the relevant rows from the database
     $self->_tagwipe;
@@ -648,11 +648,9 @@ sub checksum {
         push @attrvals, $self->{$prop} || 'NULL';
     }
 
-    if ( my $mc = LJ::mogclient() ) {
-        foreach my $size ( qw( large small ) ) {
-            my $data = $mc->get_file_data( $self->img_mogkey( $size ) );
-            push @attrvals, $data ? $$data : 'NULL';
-        }
+    foreach my $size ( qw( large small ) ) {
+        my $data = DW::BlobStore->retrieve( vgifts => $self->img_mogkey( $size ) );
+        push @attrvals, ref $data eq 'SCALAR' ? $$data : 'NULL';
     }
 
     return md5_hex( join ' ', @attrvals );

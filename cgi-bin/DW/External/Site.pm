@@ -46,7 +46,7 @@ $domaintosite{"tumblr.com"} = DW::External::Site->new("10", "tumblr.com", "tumbl
 $domaintosite{"etsy.com"} = DW::External::Site->new("11", "www.etsy.com", "etsy.com", "Etsy", "Etsy");
 $domaintosite{"diigo.com"} = DW::External::Site->new("12", "www.diigo.com", "diigo.com", "Diigo", "Diigo");
 $domaintosite{"blogspot.com"} = DW::External::Site->new("13", "blogspot.com", "blogspot.com", "Blogspot", "blogspot");
-$domaintosite{"delicious.com"} = DW::External::Site->new("14", "delicious.com", "delicious.com", "Delicious", "delicious");
+$domaintosite{"delicious.com"} = DW::External::Site->new("14", "delicious.com", "delicious.com", "Delicious", "delicious"); 
 $domaintosite{"deviantart.com"} = DW::External::Site->new("15", "deviantart.com", "deviantart.com", "DeviantArt", "da");
 $domaintosite{"last.fm"} = DW::External::Site->new("16", "last.fm", "last.fm", "LastFM", "lastfm");
 $domaintosite{"ravelry.com"} = DW::External::Site->new("17", "www.ravelry.com", "ravelry.com", "Ravelry", "ravelry");
@@ -56,10 +56,15 @@ $domaintosite{"pinboard.in"} = DW::External::Site->new("20", "www.pinboard.in", 
 $domaintosite{"fanfiction.net"} = DW::External::Site->new("21", "www.fanfiction.net", "fanfiction.net", "FanFiction", "FanFiction");
 $domaintosite{"pinterest.com"} = DW::External::Site->new("22", "www.pinterest.com", "pinterest.com", "Pinterest", "pinterest");
 $domaintosite{"youtube.com"} = DW::External::Site->new("23", "www.youtube.com", "youtube.com", "YouTube", "yt");
-$domaintosite{"github.com"} = DW::External::Site->new("24", "www.github.com", "github.com", "GitHub", "gh"); 
+$domaintosite{"github.com"} = DW::External::Site->new("24", "www.github.com", "github.com", "GitHub", "gh");
 # three-part domain name
-$domaintosite{"lj.rossia.org"} = DW::External::Site->new("25", "lj.rossia.org", "lj.rossia.org", "LJRossia", "lj"); 
-
+$domaintosite{"lj.rossia.org"} = DW::External::Site->new("25", "lj.rossia.org", "lj.rossia.org", "LJRossia", "lj");
+# more two-part sites
+$domaintosite{"medium.com"} = DW::External::Site->new("26", "medium.com", "medium.com", "Medium", "medium");
+$domaintosite{"imzy.com"} = DW::External::Site->new("27", "www.imzy.com", "imzy.com", "Imzy", "imzy");
+$domaintosite{"facebook.com"} = DW::External::Site->new("28", "www.facebook.com", "facebook.com", "Facebook", "FB");
+$domaintosite{"instagram.com"} = DW::External::Site->new("29", "www.instagram.com", "instagram.com", "Instagram", "instagram");
+$domaintosite{"del.icio.us"} = DW::External::Site->new("30", "del.icio.us", "del.icio.us", "Delicious", "delicious");
 
 @all_sites_without_alias = values %domaintosite;
 
@@ -87,7 +92,8 @@ $domaintosite{"diigo"} = $domaintosite{"diigo.com"};
 $domaintosite{"blogspot"} = $domaintosite{"blogspot.com"};
 $domaintosite{"blogger.com"} = $domaintosite{"blogspot.com"};
 $domaintosite{"blogger"} = $domaintosite{"blogspot.com"};
-$domaintosite{"delicious"} = $domaintosite{"delicious.com"};
+$domaintosite{"delicious"} = $domaintosite{"del.icio.us"};
+$domaintosite{"delicious.com"} = $domaintosite{"del.icio.us"};
 $domaintosite{"deviantart"} = $domaintosite{"deviantart.com"};
 $domaintosite{"ravelry"} = $domaintosite{"ravelry.com"};
 $domaintosite{"wordpress"} = $domaintosite{"wordpress.com"};
@@ -99,6 +105,13 @@ $domaintosite{"youtube"} = $domaintosite{"youtube.com"};
 $domaintosite{"github"} = $domaintosite{"github.com"};
 $domaintosite{"lj.rossia"} = $domaintosite{"lj.rossia.org"};
 $domaintosite{"ljr"} = $domaintosite{"lj.rossia.org"};
+$domaintosite{"medium"} = $domaintosite{"medium.com"};
+$domaintosite{"imzy"} = $domaintosite{"imzy.com"};
+$domaintosite{"facebook"} = $domaintosite{"facebook.com"};
+$domaintosite{"fb"} = $domaintosite{"facebook.com"};
+$domaintosite{"instagram"} = $domaintosite{"instagram.com"};
+$domaintosite{"ig"} = $domaintosite{"instagram.com"};
+
 foreach my $value (@all_sites_without_alias) {
     $idtosite{$value->{siteid}} = $value;
 }
@@ -146,7 +159,7 @@ sub get_site {
                     split( /\./, $site );
 
         $mapped = $domaintosite{"$parts[-2].$parts[-1]"};
-        # if two-part domain not matched, try three-part (for e.g. lj.rossia.org) 
+        # if two-part domain not matched, try three-part (for e.g. lj.rossia.org)
         $mapped ||= $domaintosite{"$parts[-3].$parts[-2].$parts[-1]"};
         $mapped ||= DW::External::Site::Unknown->accepts( \@parts );
     }
@@ -204,6 +217,24 @@ sub journal_url {
 
     # override this on a site-by-site basis if needed
     return "http://$self->{hostname}/users/" . $u->user . '/';
+}
+
+# returns an entry link for this user on this site.
+sub entry_url {
+    my ( $self, $u, %opts ) = @_;
+    croak 'need a DW::External::User'
+        unless $u && ref $u eq 'DW::External::User';
+
+    # override this on a site-by-site basis if needed
+    my $base = $self->journal_url( $u );
+
+    # several possible options for specifying an entry;
+    # for now we just support itemid + anum
+    return unless exists $opts{itemid} && exists $opts{anum};
+
+    my $pagenum = $opts{itemid} * 256 + $opts{anum};
+
+    return $base . $pagenum . ".html";
 }
 
 # returns the profile_url for this user on this site.

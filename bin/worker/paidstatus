@@ -25,6 +25,7 @@ use LJ::Sendmail;
 use LJ::Lang;
 use DW::Shop;
 use DW::Shop::Cart;
+use DW::Pay;
 
 
 ################################################################################
@@ -240,6 +241,11 @@ sub warn_user {
 
     DW::Stats::increment( 'dw.shop.paid_account.warn_' . $mail, 1 );
 
+    # alter warning message body for premium paid accounts
+    my $bodytype = $mail;
+    my $status = DW::Pay::get_account_type( $u );
+    $bodytype = "$status.$mail" if $status eq "premium";
+
     if ( $u->is_community ) {
         # send an email to every maintainer
         my $maintus = LJ::load_userids( $u->maintainer_userids );
@@ -249,7 +255,7 @@ sub warn_user {
                 fromname => $LJ::SITENAME,
                 from => $LJ::ACCOUNTS_EMAIL,
                 subject => LJ::Lang::ml( "shop.expiration.comm.$mail.subject", { sitename => $LJ::SITENAME } ),
-                body => LJ::Lang::ml( "shop.expiration.comm.$mail.body", {
+                body => LJ::Lang::ml( "shop.expiration.comm.$bodytype.body", {
                     touser   => $maintu->display_name,
                     commname => $u->display_name,
                     shopurl  => "$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user,
@@ -263,7 +269,7 @@ sub warn_user {
             fromname => $LJ::SITENAME,
             from => $LJ::ACCOUNTS_EMAIL,
             subject => LJ::Lang::ml( "shop.expiration.user.$mail.subject", { sitename => $LJ::SITENAME } ),
-            body => LJ::Lang::ml( "shop.expiration.user.$mail.body", {
+            body => LJ::Lang::ml( "shop.expiration.user.$bodytype.body", {
                 touser => $u->display_name,
                 shopurl => "$LJ::SITEROOT/shop/account?for=self",
                 sitename => $LJ::SITENAME,

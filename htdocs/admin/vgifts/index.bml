@@ -64,18 +64,13 @@
         my ( $id, $loaderr ) = @_;
         my $data;
 
-        unless ( LJ::mogclient() ) {
-            $$loaderr = $ML{'.error.upload.nomogilefs'};
-            return undef;
-        }
-
         if ( $POST{$id} eq 'url' ) {
             $data = $POST{"url_$id"};
 
             if ( length( $data ) == 0 ) {
                 $$loaderr = $ML{'.error.upload.nourl'};
             } elsif ( $data !~ m!^https?://! ) {
-                $$loaderr = $ML{'.error.upload.badurl'};
+                $$loaderr = $ML{'.error.upload.badurl2'};
             } else {
                 my $ua = LJ::get_useragent( role => 'vgift' );
                 my $res = $ua->get( $data );
@@ -277,10 +272,12 @@
         my $size = $r->header_in( "Content-Length" );
         return $error->( $ML{'.error.upload.noheader'} ) unless $size;
 
-        my $errparse;
-        BML::parse_multipart( \%POST, \$errparse );
-        return $error->( $errparse ) if $errparse;
+        my $uploads = eval { $r->uploads };
+        return $error->( $@ ) if $@;
 
+        foreach my $h ( @$uploads ) {
+            $POST{$h->{name}} = $h->{body};
+        }
         # now %POST is set, we can continue
     }
 

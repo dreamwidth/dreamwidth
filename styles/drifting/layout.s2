@@ -478,11 +478,15 @@ function Page::print_default_stylesheet()
         min-height: 4.7em;
     }
 
+    #header h1#title, #header h1#title a {
+        color: $*color_page_title;
+        text-decoration: none;
+    }
+
     #header h1#title {
         $page_title_font
         font-weight: bold;
         font-style: italic;
-        color: $*color_page_title;
         line-height: 0.9em;
         width: 100%;
         margin: 0;
@@ -1203,11 +1207,14 @@ function Page::print_entry (Entry e)
         $e->print_text();
         if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
         $e->print_tags();
-        $e->print_management_links();
-        $e->print_interaction_links("topcomment");
-        $this->print_reply_container({ "target" => "topcomment" });
-
+        $this->print_entry_footer($e);
     $e->print_wrapper_end();
+}
+
+function Page::print_entry_footer(Entry e) {
+    $e->print_management_links();
+    $e->print_interaction_links();
+    $e->print_reply_container({ "target" => $e.dom_id + "-reply" });
 }
 
 ## Entry Page
@@ -1254,6 +1261,12 @@ function EntryPage::print_comment (Comment c)
         println "</div>";
 
     $c->print_wrapper_end();
+}
+
+function EntryPage::print_entry_footer(Entry e) {
+    $e->print_management_links();
+    $e->print_interaction_links("topcomment");
+    $this->print_reply_container({ "target" => "topcomment" });
 }
 
 ## Reply Page

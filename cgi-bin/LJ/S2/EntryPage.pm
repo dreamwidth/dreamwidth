@@ -62,9 +62,8 @@ sub EntryPage
     if ($u->should_block_robots || $entry->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
-    if ($LJ::UNICODE) {
-        $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
-    }
+
+    $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
 
     my $prev_url = S2::Builtin::LJ::Entry__get_link( $opts->{ctx}, $s2entry, "nav_prev" )->{url};
     $p->{head_content} .= qq{<link rel="prev" href="$prev_url" />\n} if $prev_url;
@@ -409,6 +408,9 @@ sub EntryPage
             stc/jquery.commentmanage.css
         ) );
     LJ::need_res( LJ::S2::tracking_popup_js() );
+
+    # init shortcut js if selected
+    LJ::Talk::init_s2journal_shortcut_js( $remote, $p );
 
     $p->{'_picture_keyword'} = $get->{'prop_picture_keyword'};
 

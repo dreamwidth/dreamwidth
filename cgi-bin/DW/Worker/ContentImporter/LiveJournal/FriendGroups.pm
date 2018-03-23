@@ -58,8 +58,9 @@ sub try_work {
         or return $temp_fail->( 'Unable to get global master database handle' );
 
     my $r = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
-    return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )
-        if ! $r || $r->{fault};
+    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
+    $xmlrpc_fail .=  " (community: $data->{usejournal})" if $data->{usejournal};
+    return $temp_fail->( $xmlrpc_fail ) if ! $r || $r->{fault};
 
     my $map = DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $u, $r->{friendgroups} );
 

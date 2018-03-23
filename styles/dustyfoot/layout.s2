@@ -406,10 +406,13 @@ h2#pagetitle {
     padding: 10px;
     }
 
+#header h1#title a { color: $*color_page_title; }
 #header .module-navlinks li a { color: $*color_header_link; }
 #header .module-navlinks li a:visited { color: $*color_header_link_visited ; }
-#header .module-navlinks li a:hover { color: $*color_header_link_hover; }
-#header .module-navlinks li a:active { color: $*color_header_link_active ; }
+#header h1#title a:hover, #header .module-navlinks li a:hover {
+    color: $*color_header_link_hover; }
+#header h1#title a:active, #header .module-navlinks li a:active {
+    color: $*color_header_link_active; }
 
 /* Navigation
 ***************************************************************************/

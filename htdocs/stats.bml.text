@@ -27,6 +27,14 @@
 
 .gender.unspecified=Rather not say
 
+.graphs.desc=Pretty graphs are the most fun, aren't they?
+
+.graphs.header=Data Visualization
+
+.graphs.newbyday.desc=How fast are we growing?
+
+.graphs.newbyday.header=New accounts &mdash; last 60 days
+
 .new.desc.community=These are the 10 most recently created community accounts.  Their creators probably haven't made many entries in them yet.
 
 .new.desc.feeds=These are the 10 most recently created feeds.

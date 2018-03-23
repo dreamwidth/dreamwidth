@@ -142,11 +142,13 @@ class="bargraph" />
         <td class='stats'>[% n %]</td>
         <td class='stats'>
         [%- 100 * n / accounts_by_type.total_PC | format "%.1f"
-            IF accounts_by_type.total_PC != 0 -%]
+            IF accounts_by_type.total_PC.defined &&
+               accounts_by_type.total_PC != 0 -%]
         </td>
         <td class='stats'>
         [%- 100 * n / active_accounts.active_PC | format "%.1f"
-            IF active_accounts.active_PC != 0 -%]
+            IF active_accounts.active_PC.defined &&
+               active_accounts.active_PC != 0 -%]
         </td></tr>
     [% END %]
     <tr><th>[% '.paid.rowhdr.activepaid' | ml %]</th><td class='stats'>

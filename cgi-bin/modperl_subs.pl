@@ -57,10 +57,8 @@ use DateTime::TimeZone;
 use LJ::OpenID;
 use LJ::Location;
 use LJ::SpellCheck;
-use LJ::TextMessage;
 use LJ::ModuleCheck;
 use LJ::Widget;
-use MogileFS::Client;
 use DDLockClient;
 use LJ::BetaFeatures;
 use DW::InviteCodes;
@@ -70,7 +68,7 @@ use DW::InviteCodeRequests;
 # force XML::Atom::* to be brought in (if we have it, it's optional),
 # unless we're in a test.
 BEGIN {
-    LJ::ModuleCheck->have_xmlatom unless LJ::is_from_test();
+    LJ::ModuleCheck->have_xmlatom unless LJ::in_test();
 }
 
 # this loads MapUTF8.
@@ -107,7 +105,7 @@ require "$LJ::HOME/cgi-bin/modperl_subs-local.pl"
 # defer loading of hooks, better that in the future, the hook loader
 # will be smarter and only load in the *.pm files it needs to fulfill
 # the hooks to be run
-LJ::Hooks::_load_hooks_dir() unless LJ::is_from_test();
+LJ::Hooks::_load_hooks_dir() unless LJ::in_test();
 
 package LJ::ModPerl;
 

@@ -114,8 +114,9 @@ sub try_work {
         }
     );
 
-    return $temp_fail->( 'XMLRPC failure: ' . $last->{faultString} )
-        if ! $last || $last->{fault};
+    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $last ? $last->{faultString} : '[unknown]' );
+    $xmlrpc_fail .=  " (community: $data->{usejournal})" if $data->{usejournal};
+    return $temp_fail->( $xmlrpc_fail ) if ! $last || $last->{fault};
 
     # we weren't able to get any data. Maybe weren't able to connect to remote server?
     # we want to try again
@@ -155,11 +156,21 @@ sub try_work {
     my $count = 0;
     my $process_entry = sub {
         my $evt = $_[0];
+        my $user = $data->{usejournal} // $data->{username};
 
-        # URL remapping. We know the username and the site, so we set this to
+        # Key for entry_map. We know the username and the site, so we set this to
         # something that is dependable.
-        $evt->{key} = $evt->{url} = $data->{hostname} . '/' . ( $data->{usejournal} // $data->{username} ) . '/' .
+        $evt->{key} = $data->{hostname} . '/' . $user . '/' .
             ( $evt->{itemid} * 256 + $evt->{anum} );
+
+        # We also need to calculate the remote URL for ESN purposes.
+        my $ext_u = DW::External::User->new( user => $user,
+                                             site => $data->{hostname} );
+
+        # Although I don't think this is likely to ever croak,
+        # I'm being extra-cautious and using an eval here to
+        # make sure this can't interrupt the import process.
+        $evt->{url} = eval { $ext_u->site->entry_url( $ext_u, %$evt ) };
 
         $count++;
         $log->( '    %d %s %s; mapped = %d (import_source) || %d (xpost).',
@@ -186,18 +197,15 @@ sub try_work {
         # but first clean subject to make sure it matches what we actually inserted into the db
         # separate condition from above so that we can log that we guessed these are similar
         $evt->{subject} = $class->remap_lj_user( $data, $evt->{subject} || "" );
-        my $dupecheck_key = LJ::mysqldate_to_time($evt->{logtime}) . "-$evt->{subject}";
+        my $dupecheck_key = $evt->{eventtime} . '-' . $evt->{subject};
         if ( $duplicates_map->{$dupecheck_key} ) {
-            $log->( "Skipping import of '%s' posted on %d. Remote entry jitemid %d looks similar to local entry jitemid %d.",
-                        $evt->{subject}, $evt->{logtime},
-                        $evt->{itemid}, $duplicates_map->{$dupecheck_key}
+            $log->( "Skipping entry on %s. Remote entry jitemid %d similar to local jitemid %d.",
+                        $evt->{eventtime}, $evt->{itemid}, $duplicates_map->{$dupecheck_key}
                     );
             $has{$evt->{itemid}} = 1;
 
             return;
         }
-
-
 
         # clean up event for LJ and remap friend groups
         my @item_errors;
@@ -266,7 +274,8 @@ sub try_work {
 
     };
 
-    # helper to load some events
+    # helper to load some events -- if this function does not return a true value,
+    # the caller must exit (errors were encountered).
     my $fetch_events = sub {
         # let them know we're still working
         $job->grabbed_until( time() + 3600 );
@@ -286,12 +295,17 @@ sub try_work {
         );
 
         # if we get an error, then we have to abort the import
-        return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
-            if ! $hash || $hash->{fault};
+        my $xmlrpc_fail = 'XMLRPC failure: ' . ( $hash ? $hash->{faultString} : '[unknown]' );
+        $xmlrpc_fail .=  " (community: $data->{usejournal})" if $data->{usejournal};
+        if ( ! $hash || $hash->{fault} ) {
+            $temp_fail->( $xmlrpc_fail );
+            return 0;
+        }
 
         # good, import this event
         $process_entry->( $_ )
             foreach @{ $hash->{events} || [] };
+        return 1;
     };
 
     # now get the actual events
@@ -300,12 +314,13 @@ sub try_work {
         push @toload, $jid
             unless exists $has{$jid} && $has{$jid};
         if ( scalar @toload == 100 ) {
-            $fetch_events->( @toload );
+            return unless $fetch_events->( @toload );
             @toload = ();
         }
     }
-    $fetch_events->( @toload )
-        if scalar @toload > 0;
+    if ( scalar @toload > 0 ) {
+        return unless $fetch_events->( @toload );
+    }
 
     # mark the comments mode as ready to schedule
     my $dbh = LJ::get_db_writer();

@@ -1,0 +1,2519 @@
+layerinfo type = "layout";
+layerinfo name = "Gold Leaf";
+layerinfo redist_uniq = "goldleaf/layout";
+layerinfo author_name = "rosecarmine";
+layerinfo lang = "en";
+
+
+set layout_authors = [ { "name" => "rosecarmine", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+propgroup presentation {
+
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
+    property use use_journalstyle_entry_page;
+
+    property use margins_size;
+    property use margins_unit;
+    property use medium_breakpoint_width;
+    property use large_breakpoint_width;
+
+    property string primary_width_size {
+        des = "Set the width of the entries";
+        size = 3;
+    }
+
+    property string primary_width_units{
+        des = "Units for entry width";
+        values = "%|%|px|px";
+    }
+
+    property string topbar_width_size {
+        des = "Set the width of the topbar content";
+        size = 3;
+    }
+
+    property string topbar_width_units{
+        des = "Units for topbar content width";
+        values = "%|%|px|px";
+    }
+
+
+    property string bottombar_width_size {
+        des = "Set the width of the bottombar content";
+        size = 3;
+    }
+
+    property string bottombar_width_units{
+        des = "Units for bottombar content width";
+        values = "%|%|px|px";
+    }
+
+    property use custom_control_strip_colors;
+
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
+    property use tags_page_type;
+    property use num_items_icons;
+    property use icons_page_sort;
+
+    property use all_entrysubjects;
+    property use all_commentsubjects;
+    property use entry_datetime_format_group;
+    property use comment_datetime_format_group;
+    property use userpics_style_group;
+
+    property string entry_comment_text_align {
+    des = "Set the text alignment in entries and comments";
+    values = "left|Left|justify|Justify";
+    }
+
+    property use entry_metadata_position;
+
+    property bool metadata_label_images{
+    des = "Display the metadata labels as images";
+    }
+
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
+
+    property bool topnav_show {
+    des = "Display the top navigation links";
+    }
+
+    property bool page_top_image {
+    des = "Display the 'Top of page' link as an image";
+    }
+
+}
+
+set layout_type = "one-column-split";
+set sidebar_width = "10em";
+set userpics_position = "left";
+set use_custom_friend_colors = false;
+set custom_foreground_element = "postername";
+set custom_background_element = "entry_border";
+set primary_width_size ="89";
+set primary_width_units ="%";
+set topbar_width_size ="100";
+set topbar_width_units ="%";
+set bottombar_width_size ="100";
+set bottombar_width_units ="%";
+set entry_management_links = "text";
+set comment_management_links = "text";
+set userlite_interaction_links = "text";
+set custom_control_strip_colors = "on_no_gradient";
+set tags_page_type = "list";
+set page_top_image = true;
+set metadata_label_images = true;
+set entry_userpic_style = "small";
+set comment_userpic_style = "small";
+set entry_comment_text_align = "justify";
+set all_commentsubjects = true;
+set topnav_show = false;
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors {
+
+    property Color color_canvas_background { des = "Main background color"; }
+    property Color color_topbar_background { des = "Topbar (main module section) background color"; }
+    property Color color_bottombar_background { des = "Bottombar (secondary module section) background color"; }
+    property Color color_topbar_border_top { des = "Topbar border-top color"; }
+    property Color color_topbar_border_bottom { des = "Topbar border-bottom color"; }
+    property Color color_bottombar_border_top { des = "Bottombar border color"; }
+
+    property Color color_entry_shadow { des = "Entry shadow color"; }
+    property Color color_entry_datetime_text {des = "Entry date and time color";}
+    property Color color_metadata_text {des = "Metadata color";}
+
+    property Color color_module_tag_link {des = "Main module section tags link color";}
+    property Color color_module_tag_link_visited {des = "Main module section tags visited link color";}
+    property Color color_module_tag_link_hover {des = "Main module section tags hover link color";}
+    property Color color_module_tag_link_active {des = "Main module section tags active link color";}
+
+    property use color_page_background;
+    property use color_page_text;
+    property use color_page_link;
+    property use color_page_link_active;
+    property use color_page_link_hover;
+    property use color_page_link_visited;
+    property use color_page_border;
+
+    property use color_module_background;
+    property use color_module_text;
+    property use color_module_link;
+    property use color_module_link_active;
+    property use color_module_link_hover;
+    property use color_module_link_visited;
+    property use color_module_title_background;
+    property use color_module_title;
+    property use color_module_border;
+
+    property use color_page_title;
+
+    property use color_footer_link;
+    property use color_footer_link_active;
+    property use color_footer_link_hover;
+    property use color_footer_link_visited;
+
+    property use color_entry_background;
+    property use color_entry_text;
+    property use color_entry_link;
+    property use color_entry_link_active;
+    property use color_entry_link_hover;
+    property use color_entry_link_visited;
+    property use color_entry_title_background;
+    property use color_entry_title;
+    property use color_entry_interaction_links;
+    property use color_entry_interaction_links_active;
+    property use color_entry_interaction_links_hover;
+    property use color_entry_interaction_links_visited;
+    property use color_entry_border;
+
+    property use color_comment_title_background;
+    property use color_comment_title;
+
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_linkcolor;
+    property use control_strip_bordercolor;
+
+}
+
+##===============================
+## Fonts
+##===============================
+
+propgroup fonts {
+
+    property string font_journal_pagetitle {
+        des = "Preferred font for page title";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+
+    property string font_journal_pagetitle_size {
+        des = "Size of page title font";
+        size = 3;
+    }
+
+    property string font_journal_pagetitle_units{
+        des = "Units for page title font size ";
+        values = "em|em|%|%|px|px";
+    }
+
+    property string font_entry_datetime {
+        des = "Preferred font for entry date and time";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+
+    property string font_entry_datetime_size {
+        des = "Size of date and time font";
+        size = 3;
+    }
+
+    property string font_entry_datetime_units{
+        des = "Units for entry date and time size ";
+        values = "em|em|%|%|px|px";
+    }
+
+    property string font_entry_management {
+        des = "Preferred font for entry management, interaction and navigation links";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+    }
+
+    property string font_entry_management_size {
+        des = "Size of entry management, interaction and page navigation font";
+        size = 3;
+    }
+
+    property string font_entry_management_units{
+        des = "Units for entry management, interaction and page navigation size ";
+        values = "em|em|%|%|px|px";
+    }
+
+    property string font_module_management {
+        des = "Preferred font for module management and user interaction links";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+    }
+
+    property string font_module_management_size {
+        des = "Size of module management and user interaction font";
+        size = 3;
+    }
+
+    property string font_module_management_units{
+        des = "Units for module management and user interaction size ";
+        values = "em|em|%|%|px|px";
+    }
+
+    property string font_navigation {
+        des = "Preferred font for the navigation module";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+
+    property string font_navigation_size {
+        des = "Size of navigation font";
+        size = 3;
+    }
+
+    property string font_navigation_units{
+        des = "Units for navigation size ";
+        values = "em|em|%|%|px|px";
+    }
+
+    property string font_linkslist {
+        des = "Preferred font for the links list";
+        maxlength = 50;
+        size = 25;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+
+    property string font_linkslist_size {
+        des = "Size of links list font";
+        size = 3;
+    }
+
+    property string font_linkslist_units{
+        des = "Units for links list size ";
+        values = "em|em|%|%|px|px";
+    }
+
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
+    property use font_sources;
+}
+
+set font_sources = "https://fonts.googleapis.com/css?family=Sofia";
+
+set font_base = "'Times New Roman', Times";
+set font_fallback = "serif";
+set font_base_size = "1";
+set font_base_units = "em";
+
+set font_journal_title = "Sofia, Palatino, 'Palatino Linotype', 'Times New Roman', Times";
+set font_journal_title_size = "1.375";
+set font_journal_title_units = "em";
+
+set font_journal_subtitle = "Sofia, Palatino, 'Palatino Linotype', 'Times New Roman', Times";
+set font_journal_subtitle_size = "1.12";
+set font_journal_subtitle_units = "em";
+
+set font_journal_pagetitle = "Palatino, 'Palatino Linotype', 'Times New Roman', Times";
+set font_journal_pagetitle_size = "1.12";
+set font_journal_pagetitle_units = "em";
+
+set font_entry_title = "Palatino, 'Palatino Linotype', 'Times New Roman', Times";
+set font_entry_title_size = "1.5";
+set font_entry_title_units = "em";
+
+set font_entry_datetime = "Palatino, 'Palatino Linotype', 'Times New Roman', Times";
+set font_entry_datetime_size = ".75";
+set font_entry_datetime_units = "em";
+
+set font_comment_title = "Palatino, 'Palatino Linotype', 'Times New Roman', Times";
+set font_comment_title_size = "1";
+set font_comment_title_units = "em";
+
+set font_module_heading = "Palatino, 'Palatino Linotype', 'Times New Roman', Times";
+set font_module_heading_size = "1";
+set font_module_heading_units = "em";
+
+set font_entry_management = "sans-serif";
+set font_entry_management_size = ".75";
+set font_entry_management_units = "em";
+
+set font_module_management = "sans-serif";
+set font_module_management_size = ".625";
+set font_module_management_units = "em";
+
+set font_navigation = "Sofia, Palatino, 'Palatino Linotype', 'Times New Roman', Times";
+set font_navigation_size = "1.375";
+set font_navigation_units = "em";
+
+set font_linkslist = "Palatino, 'Palatino Linotype', 'Times New Roman', Times";
+set font_linkslist_size = "1.12";
+set font_linkslist_units = "em";
+
+##===============================
+## Images
+##===============================
+
+propgroup images {
+
+    property string[] image_background_canvas_group {
+        des = "Main background image";
+        grouptype = "image";
+}
+    set image_background_canvas_group = [ "image_background_canvas_url", "image_background_canvas_repeat", "image_background_canvas_position" ];
+    property string image_background_canvas_url {
+        grouped = 1;
+}
+    property string image_background_canvas_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+}
+    property string image_background_canvas_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+}
+
+    property string[] image_background_topbar_group {
+        des = "Topbar background image";
+        grouptype = "image";
+}
+    set image_background_topbar_group = [ "image_background_topbar_url", "image_background_topbar_repeat", "image_background_topbar_position" ];
+    property string image_background_topbar_url {
+        grouped = 1;
+}
+    property string image_background_topbar_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+}
+    property string image_background_topbar_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+}
+
+    property string[] image_background_bottombar_group {
+        des = "Bottombar background image";
+        grouptype = "image";
+}
+    set image_background_bottombar_group = [ "image_background_bottombar_url", "image_background_bottombar_repeat", "image_background_bottombar_position" ];
+    property string image_background_bottombar_url {
+        grouped = 1;
+}
+    property string image_background_bottombar_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+}
+    property string image_background_bottombar_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+}
+
+    property string[] image_background_entry_header_group {
+        des = "Entry header background image";
+        grouptype = "image";
+        }
+    set image_background_entry_header_group = [ "image_background_entry_header_url", "image_background_entry_header_repeat", "image_background_entry_header_position" ];
+    property string image_background_entry_header_url {
+        grouped = 1;
+        }
+    property string image_background_entry_header_repeat {
+        values = "repeat|tile image|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_entry_header_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+}
+
+    property string[] image_background_comment_header_group {
+        des = "Comment header background image";
+        grouptype = "image";
+        }
+    set image_background_comment_header_group = [ "image_background_comment_header_url", "image_background_comment_header_repeat", "image_background_comment_header_position" ];
+    property string image_background_comment_header_url {
+        grouped = 1;
+        }
+    property string image_background_comment_header_repeat {
+        values = "repeat|tile image|no-repeat|no tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_comment_header_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+}
+
+    property string[] image_background_footer_group {
+        des = "Footer background image";
+        grouptype = "image";
+}
+    set image_background_footer_group = [ "image_background_footer_url", "image_background_footer_repeat", "image_background_footer_position" ];
+    property string image_background_footer_url {
+        grouped = 1;
+}
+    property string image_background_footer_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+}
+    property string image_background_footer_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+}
+
+    property string image_metadata_mood {
+        des = "Icon for 'Current mood'";
+}
+
+    property string image_metadata_location {
+        des = "Icon for 'Current location'";
+}
+
+    property string image_metadata_music {
+        des = "Icon for 'Current music'";
+}
+
+    property string image_metadata_groups {
+        des = "Icon for 'Custom access filters'";
+}
+
+    property string image_metadata_xpost {
+        des = "Icon for 'Crosspost'";
+}
+
+    property string image_entry_tag {
+        des = "Icon for entry tags";
+}
+
+    property string image_list_bullet {
+        des = "Custom list bullet";
+}
+
+    property string image_module_list_bullet {
+        des = "Custom list bullet for modules";
+}
+
+    property string image_page_top {
+        des = "Image for the 'Top of page' link";
+}
+
+    property use image_background_page_group;
+    property use image_background_module_group;
+    property use image_background_header_group;
+    property use image_background_header_height;
+    property use image_background_entry_group;
+}
+
+##===============================
+## Modules
+##===============================
+
+propgroup modules {
+
+    property string module_time_section_override {
+       values = "none|(none)|footer|Footer";
+       grouped = 1;
+       }
+    property string module_poweredby_section_override {
+       values = "none|(none)|footer|Footer";
+       grouped = 1;
+       }
+    property string module_pagesummary_section_override {
+       values = "none|(none)|two|Secondary Module Section";
+       grouped = 1;
+       }
+    property string module_active_section_override {
+       values = "none|(none)|two|Secondary Module Section";
+       grouped = 1;
+       }
+    property string module_subscriptionfilters_section_override {
+       values = "none|(none)|two|Secondary Module Section";
+       grouped = 1;
+       }
+    property string module_syndicate_section_override {
+       values = "none|(none)|two|Secondary Module Section";
+       grouped = 1;
+       }
+    property string module_cuttagcontrols_section_override {
+       values = "none|(none)|two|Secondary Module Section";
+       grouped = 1;
+       }
+    property string module_search_section_override {
+       values = "none|(none)|two|Secondary Module Section";
+       grouped = 1;
+       }
+    property string module_credit_section_override {
+       values = "none|(none)|two|Secondary Module Section";
+       grouped = 1;
+       }
+
+    property use module_userprofile_group;
+    property use module_calendar_group;
+    property use module_navlinks_group;
+    property use module_links_group;
+    property use module_customtext_group;
+    property use module_tags_group;
+    property use module_pagesummary_group;
+    property use module_active_group;
+    property use module_subscriptionfilters_group;
+    property use module_syndicate_group;
+    property use module_cuttagcontrols_group;
+    property use module_search_group;
+    property use module_credit_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+
+}
+
+# Explicitly define what sections the layout has available
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary Module Section";
+
+set grouped_property_override = {
+
+        "module_time_section" => "module_time_section_override",
+        "module_poweredby_section" => "module_poweredby_section_override",
+        "module_pagesummary_section" => "module_pagesummary_section_override",
+        "module_active_section" => "module_active_section_override",
+        "module_subscriptionfilters_section" => "module_subscriptionfilters_section_override",
+        "module_syndicate_section" => "module_syndicate_section_override",
+        "module_cuttagcontrols_section" => "module_cuttagcontrols_section_override",
+        "module_search_section" => "module_search_section_override",
+        "module_credit_section" => "module_credit_section_override"
+    };
+
+set module_tags_opts_limit = 15;
+set module_tags_opts_type = "cloud";
+set module_customtext_show = true;
+
+set module_pagesummary_section = "two";
+set module_syndicate_section = "two";
+set module_cuttagcontrols_section = "two";
+set module_active_section = "two";
+set module_subscriptionfilters_section = "two";
+set module_search_section = "two";
+set module_credit_section = "two";
+
+set module_time_section = "footer";
+set module_poweredby_section = "footer";
+
+set module_calendar_order = 2;
+set module_navlinks_order = 3;
+set module_customtext_order = 5;
+set module_syndicate_order = 10;
+set module_cuttagcontrols_order = 11;
+set module_search_order = 12;
+set module_credit_order = 13;
+set module_time_order = 14;
+set module_poweredby_order = 15;
+
+set module_subscriptionfilters_show = true;
+set module_subscriptionfilters_order = 9;
+
+##===============================
+## Text
+##===============================
+
+propgroup text {
+
+    property use text_module_customtext_content;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
+    property use text_module_subscriptionfilters;
+    property use text_module_syndicate;
+    property use text_module_cuttagcontrols;
+    property use text_module_search;
+    property use text_module_credit;
+
+    property use text_view_recent;
+    property use text_view_archive;
+    property use text_view_friends;
+    property use text_view_friends_comm;
+    property use text_view_network;
+    property use text_view_tags;
+    property use text_view_memories;
+    property use text_view_userinfo;
+
+    property use text_entry_prev;
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_mem_add;
+    property use text_tell_friend;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
+
+    property use text_read_comments;
+    property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
+    property use text_post_comment;
+    property use text_post_comment_friends;
+    property use text_permalink;
+
+    property use text_meta_location;
+    property use text_meta_mood;
+    property use text_meta_music;
+    property use text_meta_xpost;
+    property use text_tags;
+
+    property use text_stickyentry_subject;
+
+    property use text_max_comments;
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+
+}
+
+##===============================
+##Layout
+##===============================
+
+function Page::print() {
+    $*image_page_top = generate_image_url($*image_page_top);
+
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_meta_tags();
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+    """;
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+    """
+                    <div id="primary"><div class="inner">
+    """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+
+    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+
+            $this->print_module_section("footer");
+
+            print safe """
+                <div class="page-top"><a href="#">""";
+                    if ($*page_top_image) {
+                        print safe """
+                        <img title="$*text_page_top" alt="$*text_page_top" src="$*image_page_top">""";
+                    }
+                    else{
+                        print safe $*text_page_top;
+                    }"""
+                    </a>
+                </div>
+            """;
+    """
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+##===============================
+## Custom CSS
+##===============================
+
+function Page::print_entry(Entry e){
+
+    $e->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    """<div class="subjecttime-wrapper">\n""";
+    $e->print_subject();
+    """<div class="metatime">\n""";
+    $e->print_metatypes();
+    $e->print_time();
+    """</div>\n""";
+    """</div>\n""";
+    $e->print_userpic();
+    $e->print_poster();
+    """</div>\n""";
+    """</div>\n""";
+    """<div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    if ($*entry_metadata_position == "top") { $e->print_metadata(); }
+    $e->print_text();
+    if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
+    $e->print_tags();
+    """</div>\n""";
+    """</div>\n""";
+    """</div>\n""";
+
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $this->print_entry_footer($e);
+    "</div>\n</div>\n";
+
+    $e->print_wrapper_end();
+
+}
+
+function EntryPage::print_comment (Comment c) {
+
+    $c->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    """<div class="subjecttime-wrapper">\n""";
+    $c->print_subject();
+    $c->print_metatypes();
+    $c->print_time();
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
+    """</div>\n""";
+    $c->print_userpic();
+    $c->print_poster();
+    $c->print_metadata();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $c->print_text();
+    if ($this.multiform_on) {
+        """<span class="multiform-checkbox">""";
+        print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
+        $c->print_multiform_check();
+    "</span>";
+    }
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $c->print_management_links();
+    $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();
+
+}
+
+function ReplyPage::print_comment (Comment c) {
+
+    $c->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    """<div class="subjecttime-wrapper">\n""";
+    $c->print_subject();
+    $c->print_metatypes();
+    $c->print_time();
+     if ( $c.comment_posted ) {
+         print safe "<div class='comment-posted'>$*text_comment_posted</div>";
+     }
+    """</div>\n""";
+    $c->print_userpic();
+    $c->print_poster();
+    $c->print_metadata();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $c->print_text();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $c->print_management_links();
+    $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();
+
+}
+
+function print_secondary_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to full text"
+{
+    var string list_class = $opts{"list-class"} ? """class="$opts{"list-class"}" """ : "";
+    var string item_class = $opts{"item-class"} ? $opts{"item-class"} : "";
+    var string print_uses = $opts{"print_uses"} ? $opts{"print_uses"} : "text";
+    if (size $tagslist) {
+        println """<ul $list_class>""";
+
+        foreach var TagDetail t ($tagslist) {
+            var string tag_class = """class="visibility-$t.visibility $item_class" """;
+            if ($print_uses == "title") {
+                var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
+                println """<li $tag_class><a href="$t.url" title="$uses">$t.name</a></li>\n""";
+            } elseif ($print_uses == "number") {
+                println """<li $tag_class ><a rel="tag" href="$t.url">$t.name</a> [$t.use_count]</li>\n""";
+            } else {
+                var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
+                 println """<li $tag_class>""";
+                 println """<a rel="tag" href="$t.url" title="$uses">$t.name</a> """;
+                 println """<span class ="invisible">$uses</span></li>\n""";
+            }
+        }
+        println """</ul>""";
+    }
+}
+
+function print_module_tags() {
+    var Page p = get_page();
+    var string title = "";
+    var TagDetail[] tags = $p->visible_tag_list($*module_tags_opts_limit);
+    if ($*module_tags_opts_limit == 0) {
+       $title = $*text_module_tags;
+    }
+    else {
+       $title = $*text_module_popular_tags;
+    }
+    if (size($tags) < 1) {
+        return;
+    }
+    elseif ($*module_tags_opts_type == "multi" and $*module_tags_section =="two") {
+        open_module("tags_multilevel", $title, $p.view_url{"tags"});
+        print_multilevel_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item", "print_uses" => $*module_tags_opts_count_type });
+        print_tag_manage_link();
+        close_module();
+    }
+    elseif ($*module_tags_opts_type == "" and $*module_tags_section =="two") {
+        open_module("tags_list", $title, $p.view_url{"tags"});
+        print_list_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item", "print_uses" => $*module_tags_opts_count_type });
+        print_tag_manage_link();
+        close_module();
+    }
+    elseif ($*module_tags_opts_type == "cloud" and $*module_tags_section =="two") {
+        open_module("tags_cloud", $title, $p.view_url{"tags"});
+        print_cloud_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item", "print_uses" => $*module_tags_opts_count_type });
+        print_tag_manage_link();
+        close_module();
+    }
+    else{
+        open_module("tags_cloud", $title, $p.view_url{"tags"});
+        print_secondary_cloud_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item", "print_uses" => $*module_tags_opts_count_type });
+        print_tag_manage_link();
+        close_module();
+    }
+}
+
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+function Page::print_default_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
+
+    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    if ($*image_background_header_height > 0) {
+        $header_background = """
+            $header_background
+            height: """ + $*image_background_header_height + """px;""";
+    }
+
+    var string canvas_background = generate_background_css ($*image_background_canvas_url, $*image_background_canvas_repeat, $*image_background_canvas_position, $*color_canvas_background);
+    var string topbar_background = generate_background_css ($*image_background_topbar_url, $*image_background_topbar_repeat, $*image_background_topbar_position, $*color_topbar_background);
+    var string bottombar_background = generate_background_css ($*image_background_bottombar_url, $*image_background_bottombar_repeat, $*image_background_bottombar_position, $*color_bottombar_background);
+    var string footer_background = generate_background_css ($*image_background_footer_url, $*image_background_footer_repeat, $*image_background_footer_position, $*color_footer_background);
+    var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
+    var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
+    var string footer_link_hover_colors = generate_color_css( $*color_footer_link_hover, new Color, new Color );
+    var string footer_link_visited_colors = generate_color_css( $*color_footer_link_visited, new Color, new Color );
+
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+    var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
+    var string entry_header_background = generate_background_css ($*image_background_entry_header_url, $*image_background_entry_header_repeat, $*image_background_entry_header_position, $*color_entry_title_background);
+
+    $*image_metadata_location = generate_image_url($*image_metadata_location);
+    $*image_metadata_mood = generate_image_url($*image_metadata_mood);
+    $*image_metadata_music = generate_image_url($*image_metadata_music);
+    $*image_metadata_groups = generate_image_url($*image_metadata_groups);
+    $*image_metadata_xpost = generate_image_url($*image_metadata_xpost);
+    $*image_entry_tag = generate_image_url($*image_entry_tag);
+    $*image_list_bullet = generate_image_url($*image_list_bullet);
+    $*image_module_list_bullet = generate_image_url($*image_module_list_bullet);
+
+    var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string module_colors = generate_color_css($*color_module_text, $*color_module_background, $*color_module_border);
+
+    var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
+    var string entry_title_colors = generate_color_css($*color_entry_title, new Color, new Color);
+    var string comment_title_colors = generate_color_css($*color_comment_title, new Color, new Color);
+    var string module_title_colors = generate_color_css($*color_module_title, $*color_module_title_background, new Color);
+
+    var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
+    var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
+    var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
+    var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+
+    var string entry_link_colors = generate_color_css($*color_entry_link, new Color, new Color);
+    var string entry_link_active_colors = generate_color_css($*color_entry_link_active, new Color, new Color);
+    var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, new Color, new Color);
+    var string entry_link_visited_colors = generate_color_css($*color_entry_link_visited, new Color, new Color);
+    var string entry_interaction_link_colors = generate_color_css($*color_entry_interaction_links, new Color, new Color);
+    var string entry_interaction_link_active_colors = generate_color_css($*color_entry_interaction_links_active, new Color, new Color);
+    var string entry_interaction_link_hover_colors = generate_color_css($*color_entry_interaction_links_hover, new Color, new Color);
+    var string entry_interaction_link_visited_colors = generate_color_css($*color_entry_interaction_links_visited, new Color, new Color);
+
+    var string module_link_colors = generate_color_css($*color_module_link, new Color, new Color);
+    var string module_link_active_colors = generate_color_css($*color_module_link_active, new Color, new Color);
+    var string module_link_hover_colors = generate_color_css($*color_module_link_hover, new Color, new Color);
+    var string module_link_visited_colors = generate_color_css($*color_module_link_visited, new Color, new Color);
+
+    var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string page_pagetitle_font = generate_font_css($*font_journal_pagetitle, $*font_base, $*font_fallback, $*font_journal_pagetitle_size, $*font_journal_pagetitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string entry_datetime_font = generate_font_css($*font_entry_datetime, $*font_base, $*font_fallback, $*font_entry_datetime_size, $*font_entry_datetime_units);
+    var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+    var string entry_management_font = generate_font_css($*font_entry_management, $*font_base, $*font_fallback, $*font_entry_management_size, $*font_entry_management_units);
+    var string module_management_font = generate_font_css($*font_module_management, $*font_base, $*font_fallback, $*font_module_management_size, $*font_module_management_units);
+    var string navigation_font = generate_font_css($*font_navigation, $*font_base, $*font_fallback, $*font_navigation_size, $*font_navigation_units);
+    var string linkslist_font = generate_font_css($*font_linkslist, $*font_base, $*font_fallback, $*font_linkslist_size, $*font_linkslist_units);
+
+    var string topnav_display = "";
+         if ($*topnav_show == false) {
+            $topnav_display = """
+            .topnav {
+                 display:none;
+            }
+            """;
+         }
+
+    var string entry_header_padding = "";
+    if ( $*entry_userpic_style == "" ) { $entry_header_padding = "101px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_header_padding = "76px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_header_padding = "51px"; }
+
+    var string comment_header_padding = "";
+    if ( $*comment_userpic_style == "" ) { $comment_header_padding = "100px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_header_padding = "75px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_header_padding = "50px"; }
+
+    var string entry_metatag_css = "";
+         if ($*metadata_label_images) {
+             $entry_metatag_css = """
+             .tag ul li:before{
+                 padding-right: 2px;
+                 content: url($*image_entry_tag);
+             }
+
+             .tag-text{
+                 display:none;
+             }
+
+             .metadata-label{
+                 display:none;
+             }
+
+             #metadata-mood:before{
+                 content:url($*image_metadata_mood);
+                 padding-right:2px;
+             }
+
+             .metadata-item-location:before{
+                 content:url($*image_metadata_location);
+                 padding-right:2px;
+             }
+
+             .metadata-item-music:before {
+                 content:url($*image_metadata_music);
+                 padding-right:2px;
+             }
+
+             .metadata-item-groups:before {
+                 content:url($*image_metadata_groups);
+                 padding-right:2px;
+             }
+
+             .metadata-item-xpost:before {
+                 content:url($*image_metadata_xpost);
+                 padding-right:2px;
+             }
+             """;
+         }
+
+    var string controlstrip_css = "";
+         if ($*custom_control_strip_colors == "on_gradient" or $*custom_control_strip_colors == "on_no_gradient") {
+         $controlstrip_css = """
+             #lj_controlstrip td {
+                 border:none;
+             }
+
+             #lj_controlstrip input{
+                 background:$*control_strip_bgcolor;
+                 border:1px solid $*control_strip_bordercolor;
+                 font-weight:bold;
+                 color:$*control_strip_fgcolor;
+             }
+
+             #lj_controlstrip_userpic img{
+                 border-radius:50%;
+                -webkit-border-radius:50%;
+             }
+             """;
+         }
+
+
+    print_custom_control_strip_css();
+
+    """
+
+/*--------------- general ---------------*/
+
+H1, H2, H3 {
+    margin: .25em 0;
+    padding: .25em 0;
+}
+
+img {
+    border: none;
+}
+
+hr {
+    display: none;
+}
+
+.entry-content hr,
+.comment-content hr {
+    display: block;
+    margin: 1em 10%;
+}
+
+body {
+    $page_font
+    margin: 0;
+    padding: 0;
+    $page_background
+    $page_colors
+}
+
+html body {
+    margin-left: $*margins_size$*margins_unit;
+    margin-right: $*margins_size$*margins_unit;
+}
+
+q { font-style: italic; }
+
+#content-footer {
+    height: 0;
+    font-size: 0; /*to make IE happy*/
+    clear: both;
+}
+
+#header, #footer {
+    margin: 0;
+    clear: both;
+}
+
+blockquote{
+    font-style:italic;
+}
+
+blockquote:first-letter{
+    font-size:3.6em;
+    float:left;
+    padding:0 .1em 0 0;
+    line-height:.5;
+}
+
+#canvas{
+    $canvas_background
+}
+
+#primary, #secondary, #tertiary { width: 100%; }
+
+/*--------------- header ---------------*/
+
+#header {
+    $header_background
+    $page_title_colors
+    font-style:italic;
+}
+
+#header .inner{
+    padding:.25em 1.5em;
+}
+
+@media $medium_media_query {
+    #header .inner{
+        box-sizing: border-box;
+        width: $*topbar_width_size$*topbar_width_units;
+        margin: 0 auto;
+    }
+}
+
+h1#title {
+    $page_title_font
+}
+
+h2#subtitle {
+    $page_subtitle_font
+    margin-top:-1.25em;
+    text-align:center;
+}
+
+h2#pagetitle {
+    $page_pagetitle_font
+    text-align:right;
+    margin-top:-1em;
+}
+
+/*--------------- links ---------------*/
+
+a { $page_link_colors }
+a:visited { $page_link_visited_colors }
+a:hover { $page_link_hover_colors }
+a:active { $page_link_active_colors }
+
+a, a:link, a:visited, a:active, a:hover{
+    text-decoration:none;
+    transition:color 0.4s ease;
+    -webkit-transition:color 0.4s ease;
+}
+
+/*--------------- primary & entries ---------------*/
+
+@media $medium_media_query {
+    #primary {
+        width: $*primary_width_size$*primary_width_units;
+        margin: 0 auto;
+    }
+}
+
+#primary > .inner:first-child {
+    padding: 1em;
+}
+
+.entry {
+    $entry_background
+    $entry_colors
+    margin: 1.75em 0;
+    border-radius: 40px 0 40px 0;
+    -webkit-border-radius: 40px 0 40px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+    padding:1.25em;
+    border:0;
+}
+
+.entry .header {
+    $entry_header_background
+    margin:-1.25em -1.25em 0;
+    border-radius: 40px 0 0 0;
+    -webkit-border-radius: 40px 0 0 0;
+    padding:8px;
+}
+
+.has-userpic .entry .header .inner{
+    padding-left:$entry_header_padding;
+}
+
+.entry .subjecttime-wrapper{
+    text-align:right;
+}
+
+.entry .entry-title {
+    $entry_title_font
+    $entry_title_colors
+    font-weight: normal;
+    font-style:italic;
+    margin: 0 .313em;
+    padding:.313em;
+    float:right;
+}
+
+.entry .entry-title, .entry .entry-title a {
+    $entry_title_colors
+}
+
+.no-subject .entry-title {
+    background: none;
+    border: none;
+}
+
+.entry .entry-title .ljuser img {
+    display:none;
+}
+
+.metatime{
+    float:right;
+    clear:right;
+    margin: 0 .313em;
+    padding: 0 .313em;
+}
+
+.entry .datetime {
+    $entry_datetime_font
+    color:$*color_entry_datetime_text;
+    text-transform:uppercase;
+}
+
+.entry .datetime a {
+    color:$*color_entry_datetime_text;
+}
+
+.access-filter img, .restrictions img {
+    vertical-align: top;
+}
+
+.header .inner:after{
+    content:"";
+    display:block;
+    clear:both;
+    height:0;
+    line-height:0;
+    font-size:0;
+}
+
+.entry a { $entry_link_colors }
+.entry a:visited { $entry_link_visited_colors }
+.entry a:hover { $entry_link_hover_colors }
+.entry a:active { $entry_link_active_colors }
+
+.has-userpic .entry .userpic{
+    margin-left:-$entry_header_padding;
+}
+
+.entry .userpic img {
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+}
+
+.entry .poster{
+    color:$*color_entry_datetime_text;
+    margin:0 .625em;
+    float:left;
+}
+
+.has-userpic .entry .userpic, .has-userpic .entry .poster{
+    display:inline-block;
+    vertical-align:bottom;
+    float:none;
+}
+
+.has-userpic .entry .poster{
+    margin-left:0;
+}
+
+.entry .poster a{
+    color:$*color_entry_datetime_text;
+}
+
+.entry .poster img {
+    display:none;
+}
+
+.entry-content {
+    padding:1.25em 0;
+    text-align:$*entry_comment_text_align;
+}
+
+.cuttag_container img{
+    vertical-align:bottom;
+}
+
+.entry-content li, .comment-content li {
+    list-style-position: inside;
+}
+
+/* To constrain the width and prevent layout breaking */
+.entry-content img, .comment-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media $large_media_query {
+    .entry-content img, .comment-content img { max-width: none; }
+}
+
+.metadata ul {
+    display: inline;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.metadata li{
+    margin-bottom: .5em;
+}
+
+.metadata.top-metadata {
+    padding-top:1em;
+}
+
+.metadata{
+    margin:0;
+}
+
+.metadata-item{
+    color:$*color_metadata_text;
+    font-style:italic;
+}
+
+.tag ul {
+    display: inline;
+    margin-left: 0;
+    padding: 0;
+}
+
+.tag ul li {
+    display: inline;
+} /* same for month view */
+
+$entry_metatag_css
+
+.entry .footer{
+    clear:both;
+    margin-top:.625em;
+    text-align:right;
+}
+
+.entry .footer:after{
+    content:"";
+    display:block;
+    clear:both;
+    height:0;
+    font-size:0;
+    line-height:0;
+}
+
+ul.entry-management-links.text-links, ul.entry-interaction-links {
+    padding-left:0;
+    margin-left:0;
+    display:inline;
+}
+
+ul.entry-management-links.icon-links{
+    margin:0;
+    padding-left:0;
+    float:left;
+}
+
+.entry-interaction-links a, .entry-management-links a { $entry_interaction_link_colors }
+.entry-interaction-links a:visited, .entry-management-links a:visited { $entry_interaction_link_visited_colors }
+.entry-interaction-links a:hover, .entry-management-links a:hover { $entry_interaction_link_hover_colors }
+.entry-interaction-links a:active, .entry-management-links a:active { $entry_interaction_link_active_colors }
+
+ul.entry-management-links li{
+    display: inline;
+    padding:0 .25em;
+}
+
+ul.entry-management-links.text-links li, ul.entry-interaction-links li {
+    $entry_management_font
+    $entry_interaction_link_colors
+    display: inline;
+    background: $*color_entry_title_background;
+    padding: 8px;
+    border-radius: 20px 0 20px 0;
+    -webkit-border-radius: 20px 0 20px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    line-height:2.6;
+}
+
+ul.entry-management-links.text-links li:hover, ul.entry-interaction-links li:hover {
+    padding: 10px;
+}
+
+/*------------ comments ------------*/
+
+.bottomcomment{
+    text-align:center;
+}
+
+.bottomcomment ul.entry-management-links, .bottomcomment ul.entry-interaction-links {
+    display:block;
+    float:none;
+    margin:.5em;
+}
+
+.bottomcomment ul.entry-management-links.text-links li, .bottomcomment ul.entry-interaction-links li {
+    padding:7px;
+    line-height:2.5;
+}
+
+.bottomcomment ul.entry-management-links.text-links li:hover, .bottomcomment ul.entry-interaction-links li:hover {
+    padding:9px;
+}
+
+.comment-pages{
+    padding:.25em;
+    text-align:center;
+}
+
+.comment-posted {
+    font-weight:bold;
+}
+
+.comment-wrapper {
+    min-width: 15em;
+}
+
+.comment {
+    $entry_background
+    $entry_colors
+    margin: 1.25em 0;
+    border-radius: 40px 0 40px 0;
+    -webkit-border-radius: 40px 0 40px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+    padding:.625em;
+}
+
+.comment a { $entry_link_colors }
+.comment a:visited { $entry_link_visited_colors }
+.comment a:hover { $entry_link_hover_colors }
+.comment a:active { $entry_link_active_colors }
+
+.comment .header {
+    $comment_title_font
+    $comment_title_colors
+    $entry_header_background
+    text-align:right;
+    padding:8px;
+    border-radius: 40px 0 0 0;
+    -webkit-border-radius: 40px 0 0 0;
+    margin:-.625em;
+    font-weight:normal;
+}
+
+.comment .subjecttime-wrapper{
+    float:right;
+    padding: .25em .25em 0;
+}
+
+.comment .header a{
+    $comment_title_colors
+}
+
+.has-userpic .comment .header .inner{
+    padding-left:$comment_header_padding;
+}
+
+.comment .comment-title {
+    margin: 0;
+}
+
+.no-subject .comment .comment-title {
+    background: none;
+    border: none;
+}
+
+.comment .userpic{
+    float:left;
+    margin-left:-$comment_header_padding;
+}
+
+.comment-content{
+    padding:2em .625em .625em;
+    text-align:$*entry_comment_text_align;
+}
+
+.comment .userpic img {
+    background: transparent;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+}
+
+.comment .poster {
+    background: transparent;
+    text-transform:lowercase;
+    padding:0 .25em .25em;
+}
+
+.full .comment .poster {
+    display:block;
+    float:right;
+    clear:right;
+}
+
+.full .comment .poster a {
+    color:$*color_entry_title;
+}
+
+.poster-ip{
+    float:left;
+    $comment_title_font
+    $comment_title_colors
+    margin:0 .625em;
+}
+
+.partial .comment .comment-title {
+    margin: 0 0 .313em .625em;
+}
+
+.comment .footer {
+    margin:.5em;
+    text-align:right;
+}
+
+.multiform-checkbox {
+    margin:0 .625em;
+}
+
+ul.comment-management-links, ul.comment-interaction-links {
+    padding-left:0;
+    margin-left:0;
+    display:inline;
+}
+
+ul.comment-management-links li{
+    display: inline;
+    padding:0 .25em;
+}
+
+ul.comment-management-links.icon-links{
+    float:left;
+    margin:0;
+    padding-left:0;
+}
+
+ul.comment-management-links.text-links li, ul.comment-interaction-links li {
+    display: inline;
+    padding:7px;
+    border-radius: 20px 0 20px 0;
+    -webkit-border-radius: 20px 0 20px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    background: $*color_entry_title_background;
+    $entry_management_font
+    line-height:2.5;
+}
+
+ul.comment-management-links.text-links li:hover, ul.comment-interaction-links li:hover {
+    padding: 9px;
+}
+
+.comment-interaction-links a, .comment-management-links a { $entry_interaction_link_colors  }
+.comment-interaction-links a:visited, .comment-management-links a:visited { $entry_interaction_link_visited_colors }
+.comment-interaction-links a:hover, .comment-management-links a:hover { $entry_interaction_link_hover_colors }
+.comment-interaction-links a:active, .comment-management-links a:active { $entry_interaction_link_active_colors }
+
+#qrform{
+    margin-top:1.5em;
+    clear:both;
+}
+
+#postform {
+    clear:both;
+    margin: 1.5em 0 1em;
+}
+
+textarea#commenttext {
+    width: 100%; /* fix for FF form width glitch */
+}
+
+
+/*------------ tag page ------------*/
+
+.tags-container{
+    $entry_background
+    $entry_colors
+    margin: 1.75em 0;
+    padding:1.25em;
+    border-radius: 40px 0 40px 0;
+    -webkit-border-radius: 40px 0 40px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+}
+
+.tags-container a { $entry_link_colors }
+.tags-container a:visited { $entry_link_visited_colors }
+.tags-container a:hover { $entry_link_hover_colors }
+.tags-container a:active { $entry_link_active_colors }
+
+.tags-container .header{
+    $entry_header_background
+    text-align:left;
+    border-radius: 40px 0 0 0;
+    -webkit-border-radius: 40px 0 0 0;
+    padding: 1.875em;
+    margin:-1.25em -1.25em 1.25em;
+    padding:.313em .313em .313em 1.875em;
+}
+
+.tags-container h2, .icons-container h2{
+    $entry_title_font
+    $entry_title_colors
+    font-weight:normal;
+    font-style:italic;
+}
+
+ul.ljtaglist{
+    list-style:circle;
+    list-style-position: inside;
+    list-style-image:url($*image_list_bullet);
+}
+
+ul.ljtaglist li{
+    margin: .3em 0;
+}
+
+.tags_cloud ul{
+    padding:0;
+    margin:.5em;
+}
+
+/*------------ archive------------*/
+
+.month-wrapper{
+    $entry_background
+    $entry_colors
+    margin: 1.75em 0;
+    padding:1.25em;
+    border-radius: 40px 0 40px 0;
+    -webkit-border-radius: 40px 0 40px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+}
+
+.month a { $entry_link_colors }
+.month a:visited { $entry_link_visited_colors }
+.month a:hover { $entry_link_hover_colors }
+.month a:active { $entry_link_active_colors }
+
+.month-wrapper .header{
+    $entry_header_background
+    text-align:left;
+    border-radius: 40px 0 0 0;
+    -webkit-border-radius: 40px 0 0 0;
+    padding:.313em .313em .313em 1.875em;
+    margin:-1.25em -1.25em 1.25em;
+}
+
+.month-wrapper h3{
+    $entry_title_font
+    $entry_title_colors
+    font-weight:normal;
+    font-style:italic;
+}
+
+#archive-month .month{
+    $entry_background
+    $entry_colors
+    padding:.625em 1.25em;
+    border-radius: 40px 0 40px 0;
+    -webkit-border-radius: 40px 0 40px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+    margin: 1.25em 0;
+}
+
+.month caption {
+    display: none;
+}
+
+.month table {
+    width: 30em;
+}
+
+.month thead{
+    text-align:center;
+    text-transform:uppercase;
+    background:$*color_entry_title_background;
+    color:$*color_entry_title;
+}
+
+.day-has-entries .label{
+    font-weight:bold;
+}
+
+table.month {
+    margin: 0 auto;
+    border-collapse: separate;
+    border-spacing: 3px;
+    text-align:center;
+}
+
+table.month td {
+    height: 3.25em;
+}
+table.month td {
+    padding: 3px;
+}
+
+table.month td.day{
+    border: 1px solid $*color_entry_border;
+}
+
+table.month td p {
+    margin: 0;
+    padding: 3px;
+}
+
+table.month th {
+    padding:6px 3px;
+    width:3.25em;
+    border: 1px solid $*color_entry_border;
+}
+
+.month dl dt {
+    font-weight: bold;
+}
+.month dl .time {
+    padding-right: .5em;
+}
+
+.month dl h3 {
+    display: inline;
+    font-size: 1em;
+}
+
+.page-month .month .entry-poster {
+    margin-right: .5em;
+}
+
+.month dl .tag, .month dl .tag ul {
+    margin: 0;
+}
+
+.month dt{
+    padding:.313em 0 .313em 1em;
+    margin-bottom:.313em;
+    background: $*color_entry_title_background;
+}
+
+.month dt a{
+    font-family:$*font_entry_title;
+    color:$*color_entry_title;
+}
+
+.month dt:first-child{
+    border-radius: 30px 0 0 0;
+    -webkit-border-radius: 30px 0 0 0;
+}
+
+.day-date{
+    font-size:1em;
+    font-family:$*font_entry_title;
+    text-align:center;
+}
+
+.month-wrapper .footer {
+    padding-top:.625em;
+    text-align:center;
+}
+
+#archive-year .navigation li{
+    line-height:2.6;
+}
+
+#archive-year .navigation li a {
+    background: $*color_entry_title_background;
+    padding: 8px;
+    border-radius: 20px 0 20px 0;
+    -webkit-border-radius: 20px 0 20px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+#archive-year .navigation li a:hover  {
+    padding: 10px;
+}
+
+#archive-year .navigation li.active{
+    font-weight:bold;
+    padding:0 .5em;
+}
+
+/*------------ icons ------------*/
+
+.icons-container{
+    $entry_background
+    $entry_colors
+    margin: 1.75em 0;
+    padding:1.25em;
+    border-radius: 40px 0 40px 0;
+    -webkit-border-radius: 40px 0 40px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+}
+
+.icons-container .header{
+    $entry_header_background
+    text-align:left;
+    border-radius: 40px 0 0 0;
+    -webkit-border-radius: 40px 0 0 0;
+    padding: 1.875em;
+    margin:-1.25em -1.25em 1.25em;
+    padding:.313em .313em .313em 1.875em;
+}
+
+.icons-container a { $entry_link_colors }
+.icons-container a:visited { $entry_link_visited_colors }
+.icons-container a:hover { $entry_link_hover_colors }
+.icons-container a:active { $entry_link_active_colors }
+
+.icon{
+    border:1px solid $*color_entry_border;
+    padding:.625em;
+    margin:.5em;
+    min-height: 100px;
+}
+
+@media $medium_media_query {
+    .icon{
+        width:45%;
+        display:inline-block;
+        vertical-align:top;
+    }
+}
+
+.page-icons .toppages{
+    text-align:center;
+}
+
+.page-icons .bottompages{
+    text-align:center;
+    margin-top:.625em;
+}
+
+.icon-image{
+    float:left;
+    margin-right: .625em;
+}
+
+.sorting-options ul {
+    margin-left: 0;
+    padding-left:.5em;
+}
+
+.sorting-options ul li {
+    display: inline;
+}
+
+.icon-keywords ul {
+    display: inline;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.icon-keywords ul li {
+    display: inline;
+}
+
+.icon-pages.toppages p{
+    margin:.625em 0;
+}
+
+.icon-pages.bottompages p{
+    margin:.625em 0 0;
+}
+
+.icon span{
+    font-weight:bold;
+}
+
+/*------------ navigation ------------*/
+
+.navigation {
+    text-align:center;
+}
+
+.navigation:after{
+    content:"";
+    display:block;
+    clear:both;
+    height:0;
+    line-height:0;
+    font-size:0;
+}
+
+.navigation ul {
+    margin-left: 0;
+    padding-left: 0;
+    $entry_management_font
+}
+
+.navigation li {
+    display:inline-block;
+}
+
+.navigation .page-separator{
+    display:none;
+}
+
+.noentries {
+    padding: 0 .5em;
+}
+
+.navigation a { $entry_interaction_link_colors }
+.navigation a:active { $entry_interaction_link_active_colors }
+.navigation a:visited { $entry_interaction_link_visited_colors }
+.navigation a:hover { $entry_interaction_link_hover_colors }
+
+li.page-back{
+    background: $*color_entry_title_background;
+    float:left;
+    padding:7px 20px 7px 30px;
+    border-radius: 0 0 0 100px;
+    -webkit-border-radius: 0 0 0 100px;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+}
+
+li.page-forward{
+    background: $*color_entry_title_background;
+    float: right;
+    padding:7px 30px 7px 20px;
+    border-radius: 0 0 100px 0;
+    -webkit-border-radius: 0 0 100px 0;
+    -webkit-box-shadow:2px 2px 6px $*color_entry_shadow;
+    box-shadow:2px 2px 6px $*color_entry_shadow;
+}
+
+$topnav_display
+
+.topnav li.page-back{
+    border-radius: 100px 0 0 0;
+    -webkit-border-radius: 100px 0 0 0;
+}
+
+.topnav li.page-forward{
+    border-radius: 0 100px 0 0;
+    -webkit-border-radius: 0 100px 0 0;
+}
+
+.bottomnav li.page-back{
+    border-radius: 0 0 0 100px;
+    -webkit-border-radius: 0 0 0 100px;
+}
+
+.bottomnav li.page-forward{
+    border-radius: 0 0 100px 0;
+    -webkit-border-radius: 0 0 100px 0;
+}
+
+.bottomnav{
+    margin-bottom:1.25em;
+}
+
+/*------------ secondary ------------*/
+
+#secondary {
+    $topbar_background
+    -webkit-box-shadow:0px 8px 6px -4px $*color_entry_shadow;
+    box-shadow:0px 8px 6px -4px $*color_entry_shadow;
+    border-top: $*color_topbar_border_top 5px solid;
+    border-bottom: $*color_topbar_border_bottom 5px solid;
+
+}
+
+#secondary .separator-after{
+    clear:both;
+}
+
+#secondary > .inner:first-child{
+    padding:.5em .75em;
+}
+
+@media $medium_media_query {
+    #secondary > .inner:first-child{
+        width: $*topbar_width_size$*topbar_width_units;
+        box-sizing: border-box;
+        margin: 0 auto;
+    }
+}
+
+.module {
+    $module_background
+    $module_colors
+    padding: 0;
+    margin:.5em;
+    vertical-align:top;
+}
+
+h1#title a, .module a { $module_link_colors }
+h1#title a:visited, .module a:visited { $module_link_visited_colors }
+h1#title a:hover, .module a:hover { $module_link_hover_colors }
+h1#title a:active, .module a:active { $module_link_active_colors }
+
+.module h2 {
+    $module_title_font
+    $module_title_colors
+    font-style:italic;
+    font-weight:bold;
+}
+
+.module-content {
+    $module_font
+}
+
+.module-content ul {
+    list-style:circle;
+    list-style-position: inside;
+    list-style-image:url($*image_module_list_bullet);
+    text-align:left;
+    margin: 0 0 0 1em;
+    padding: 0;
+}
+
+.module-content ul:first-child{
+    margin-left: 0;
+}
+
+.module-content li {
+    margin: .3em 0;
+}
+
+@media $medium_media_query {
+    .module-section-one{
+        text-align:center;
+    }
+
+    .module h2{
+        text-align:center;
+    }
+}
+
+@media $medium_media_query {
+    .module-userprofile{
+        float: left;
+        width: 150px;
+    }
+
+    .module-userprofile .userpic{
+        margin:0 auto;
+    }
+}
+
+.module-userprofile .userpic img{
+    padding:8px;
+    background: $*color_topbar_border_bottom;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    border: 2px solid  $*color_topbar_border_top;
+}
+
+.journal-name{
+    font-family:$*font_journal_title;
+}
+
+ul.userlite-interaction-links{
+    margin-left: 0;
+    padding-left: 0;
+}
+
+ul.userlite-interaction-links.icon-links li{
+    display:inline;
+    padding:0 .25em;
+}
+
+@media $medium_media_query {
+    ul.userlite-interaction-links{
+        text-align: center;
+    }
+
+    ul.userlite-interaction-links li {
+        display: inline;
+        padding: 0 .25em;
+    }
+
+    ul.userlite-interaction-links.text-links li{
+        $module_management_font
+        transition:all 0.4s ease;
+        -webkit-transition:all 0.4s ease;
+    }
+}
+
+@media $medium_media_query {
+    .module-calendar h2 {
+        font-size:1.25em;
+        font-weight:normal;
+        margin:0;
+        padding-top:0;
+    }
+
+    .module-calendar {
+        float:right;
+    }
+
+    .module-calendar .module-content {
+        text-align: center;
+    }
+
+    .module-calendar table {
+        margin: 0 auto;
+    }
+
+    .calendar-horizontal{
+        float:none;
+        text-align:right;
+    }
+}
+
+.module-calendar table {
+    margin: 0;
+    text-align:center;
+}
+
+.module-calendar th{
+    text-align:center;
+    color:$*color_module_title;
+}
+
+.module-calendar td {
+    padding:0 2px;
+}
+
+.empty-day{
+    text-align:center;
+}
+
+.entry-day{
+    font-family:$*font_navigation;
+}
+
+@media $medium_media_query {
+    .module-navlinks{
+        text-align:left;
+    }
+
+    .module-navlinks ul.module-list li{
+        display:inline;
+        $navigation_font
+        font-style:italic;
+        padding:0 .25em;
+    }
+
+    .module-typelist, .module-typelist .module-content ul{
+        text-align: right;
+    }
+
+    .module-typelist ul.module-list li {
+        $linkslist_font
+        display:inline;
+        font-style:italic;
+        text-align:right;
+        padding:0 .25em;
+    }
+
+    .module-typelist .manage-link{
+        text-align:right;
+    }
+}
+
+.tags_cloud li, .module-tags_cloud li {
+    display: inline;
+    padding:0 .25em;
+}
+
+@media $medium_media_query {
+    .module-tags_cloud .module-content ul{
+        text-align: center;
+    }
+
+    .module-userprofile h2,.module-typelist h2, .module-tags_cloud h2, .module-customtext h2 {
+        display:none;
+    }
+}
+
+.module-tags_cloud li a {
+    color:$*color_module_tag_link;
+}
+
+.module-tags_cloud li a:visited {
+    color:$*color_module_tag_link_visited;
+}
+
+.module-tags_cloud li a:hover, .module-tags_cloud ul.module-list li a:hover{
+    color:$*color_module_tag_link_hover;
+}
+
+.module-tags_cloud li a:active {
+    color:$*color_module_tag_link_active;
+}
+
+.module-customtext{
+    text-align: left;
+    font-style: italic;
+}
+
+@media $medium_media_query {
+    .manage-link {
+        text-align:center;
+    }
+}
+
+.module .manage-link {
+    $module_management_font
+    display:block;
+}
+
+/*------------ tertiary ------------*/
+
+#tertiary{
+    width:auto;
+    $bottombar_background
+    border-top: 5px solid $*color_bottombar_border_top;
+    overflow:hidden;
+}
+
+#tertiary > .inner:first-child{
+    padding:.5em .75em 0;
+}
+
+@media $medium_media_query {
+    #tertiary > .inner:first-child{
+        width: $*bottombar_width_size$*bottombar_width_units;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+}
+
+#tertiary .separator-after{
+    clear:both;
+}
+
+@media $medium_media_query {
+    .module-section-two{
+        text-align:center;
+    }
+
+    .module-syndicate .module-content{
+        text-align: center;
+    }
+
+    .module-tags_list, .module-tags_multilevel, .module-pagesummary, .module-active, .module-subscriptionfilters{
+        float:left;
+        max-width:48%;
+    }
+
+    .module-syndicate, .module-cuttagcontrols, .module-search, .module-credit{
+        display:inline-block;
+    }
+}
+
+.search-box {
+    display:block;
+    margin: .2em;
+    max-width: 100%;
+}
+
+.search-button{
+    display:block;
+}
+
+/* wrap long content, particularly openid usernames */
+.module-pagesummary .ljuser {
+    white-space: normal !important;
+}
+
+.module-pagesummary .module-content {
+    word-wrap: break-word;
+}
+
+.module-credit .category-title {
+    font-weight: bold;
+}
+
+.module-active ul, .module-credit ul{
+    list-style:none;
+}
+
+/*------------ footer ------------*/
+
+#footer{
+    $footer_background
+    position:relative;
+    min-height:20px;
+}
+
+#footer > .inner{
+    padding: .5em .75em;
+}
+
+@media $medium_media_query {
+    #footer > .inner{
+        width: $*bottombar_width_size$*bottombar_width_units;
+        margin: 0 auto;
+    }
+}
+
+#footer .separator-after{
+    clear:both;
+}
+
+#footer .module{
+    margin:0 .5em .5em;
+}
+
+@media $medium_media_query {
+    .module-time{
+        float:left;
+    }
+
+    .module-powered{
+        float:right;
+    }
+}
+
+.page-top{
+    text-align:center;
+}
+
+.page-top img{
+    opacity:0.5;
+    transition:all 0.4s ease;
+    -webkit-transition:all 0.4s ease;
+}
+
+.page-top img:hover {
+    opacity:1;
+}
+
+@media $medium_media_query {
+    .page-top{
+        position:absolute;
+        left:50%;
+        -webkit-transform: translateX(-50%);
+        -ms-transform: translateX(-50%);
+        transform: translateX(-50%);
+        top:.5em;
+    }
+}
+
+#footer a { $footer_link_colors }
+#footer a:visited { $footer_link_visited_colors }
+#footer a:hover { $footer_link_hover_colors }
+#footer a:active { $footer_link_active_colors }
+
+/*------------ contextual pop-up ------------*/
+
+.ContextualPopup{
+    $page_font
+    padding: 10px;
+    margin: 4px 59px 4px 4px;
+    border-radius: 40px 0 40px 0;
+    -webkit-border-radius: 40px 0 40px 0;
+    border:0;
+}
+
+.ContextualPopup .Relation {
+    font-family:$*font_entry_title;
+    color: $*color_entry_title;
+    font-weight: normal;
+    text-transform:uppercase;
+    margin: -10px -10px 7px;
+    $entry_header_background
+    padding:10px 0 10px 20px;
+    -webkit-border-radius: 40px 0 0 0;
+    border-radius: 40px 0 0 0;
+}
+
+.ContextualPopup .Userpic{
+    padding:5px;
+    border:0;
+    background:$*color_topbar_border_bottom;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    margin:0 -10px 0 0;
+}
+
+.ContextualPopup .Userpic img {
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+}
+
+.ContextualPopup li {
+    list-style:circle;
+    list-style-position: inside;
+    list-style-image:url($*image_list_bullet);
+}
+
+/*------------ control strip ------------*/
+
+$controlstrip_css
+
+#lj_controlstrip{
+    text-align: center;
+}
+
+#lj_controlstrip_actionlinks {
+    text-align: center;
+}
+
+#lj_controlstrip_search {
+    text-align: right;
+}
+
+""";
+}
+
+

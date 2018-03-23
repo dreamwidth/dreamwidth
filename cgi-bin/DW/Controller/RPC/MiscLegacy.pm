@@ -154,12 +154,12 @@ sub ctxpopup_handler {
         # three ways to load a user:
 
         # username:
-        if ( my $user = LJ::canonical_username( $get->{user} ) ) {
+        if ( defined $get->{user} && ( my $user = LJ::canonical_username( $get->{user} ) ) ) {
             return LJ::load_user( $user );
         }
 
         # identity:
-        if ( my $userid = $get->{userid} ) {
+        if ( defined $get->{userid} && ( my $userid = $get->{userid} ) ) {
             return undef unless $userid =~ /^\d+$/;
             my $u = LJ::load_userid( $userid );
             return undef unless $u && $u->identity;
@@ -167,7 +167,7 @@ sub ctxpopup_handler {
         }
 
         # based on userpic url
-        if ( my $upurl = $get->{userpic_url} ) {
+        if ( defined $get->{userpic_url} && ( my $upurl = $get->{userpic_url} ) ) {
             return undef unless $upurl =~ m!(\d+)/(\d+)!;
             my ( $picid, $userid ) = ( $1, $2 );
             my $u = LJ::load_userid( $userid );
@@ -694,7 +694,8 @@ sub widget_handler {
         # just a normal post request, handle it and then return status
 
         local $LJ::WIDGET_NO_AUTH_CHECK = 1 if
-            $remote->check_ajax_auth_token( "/_widget", auth_token => delete $post->{auth_token} );
+            LJ::Auth->check_ajax_auth_token( $remote, "/_widget",
+                                             auth_token => delete $post->{auth_token} );
 
         my %res;
 
@@ -709,7 +710,8 @@ sub widget_handler {
         $ret{_widget_post} = 1;
 
         # generate new auth token for future requests if succesfully checked auth token
-        $ret{auth_token} = $remote->ajax_auth_token( "/_widget" ) if $LJ::WIDGET_NO_AUTH_CHECK;
+        $ret{auth_token} = LJ::Auth->ajax_auth_token( $remote, "/_widget" )
+            if $LJ::WIDGET_NO_AUTH_CHECK;
     }
 
     if ( delete $post->{_widget_update} ) {

@@ -15,7 +15,6 @@ package LJ::Session;
 use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
-use LJ::EventLogRecord::SessionExpired;
 
 use constant VERSION => 1;
 
@@ -275,7 +274,7 @@ sub update_master_cookie {
                http_only       => 1,
                @expires,);
 
-    $sess->owner->preload_props('schemepref', 'browselang');
+    $sess->owner->preload_props( 'schemepref' );
 
     if (my $scheme = $sess->owner->prop('schemepref')) {
         set_cookie(BMLschemepref   => $scheme,
@@ -285,19 +284,6 @@ sub update_master_cookie {
                    @expires,);
     } else {
         set_cookie(BMLschemepref   => "",
-                   domain          => $LJ::DOMAIN,
-                   path            => '/',
-                   delete          => 1);
-    }
-
-    if (my $lang = $sess->owner->prop('browselang')) {
-        set_cookie(langpref        => $lang . "/" . time(),
-                   domain          => $LJ::DOMAIN,
-                   path            => '/',
-                   http_only       => 1,
-                   @expires,);
-    } else {
-        set_cookie(langpref        => "",
                    domain          => $LJ::DOMAIN,
                    path            => '/',
                    delete          => 1);
@@ -355,8 +341,6 @@ sub destroy {
     my $sess = shift;
     my $id = $sess->id;
     my $u = $sess->owner;
-
-    LJ::EventLogRecord::SessionExpired->new($sess)->fire;
 
     return LJ::Session->destroy_sessions($u, $id);
 }

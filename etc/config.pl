@@ -221,9 +221,6 @@
       @LANGS = qw( en_DW ) if -d "$HOME/ext/dw-nonfree";
     }
 
-    # support unicode (posts in multiple languages)?  leave enabled.
-    $UNICODE = 1;
-
 
     ###
     ### Database Configuration
@@ -309,6 +306,7 @@
             'makepoll' => 0,
             'maxcomments' => 10000,
             'maxfriends' => 500,
+            'media_file_quota' => 500, # megabytes
             'mod_queue' => 50,
             'mod_queue_per_poster' => 5,
             'moodthemecreate' => 0,
@@ -325,7 +323,6 @@
             's2viewreply' => 1,
             'staff_headicon' => 0,
             'styles' => 0,
-            'textmessaging' => 0,
             'thread_expand_all' => 0,
             'thread_expander' => 0,
             'track_all_comments' => 0,
@@ -366,7 +363,6 @@
             'security_filter' => 1,
             'stickies' => 5,
             'synd_create' => 1,
-            'textmessaging' => 1,
             'thread_expand_all' => 1,
             'thread_expander' => 1,
             'track_defriended' => 1,
@@ -392,6 +388,7 @@
             'tags_max' => 2000,
             'tools_recent_comments_display' => 150,
             'track_all_comments' => 1,
+            'userlinks' => 100,
             'userpics' => 150,
             'xpost_accounts' => 5,
     );
@@ -419,7 +416,7 @@
             'checkfriends_interval' => 0,
             'directory' => 1,
             'edit_comments' => 0,
-            'emailpost' => 0,
+            'emailpost' => 1,
             'findsim' => 0,
             'friendsfriendsview' => 0,
             'friendspage_per_day' => 0,
@@ -446,7 +443,6 @@
             'subscriptions' => 25,
             'synd_create' => 1,
             'tags_max' => 1000,
-            'textmessaging' => 0,
             'thread_expand_all' => 0,
             'thread_expander' => 0,
             'tools_recent_comments_display' => 10,
@@ -543,11 +539,6 @@
     # kept in memcache and the database by doing:
     # %FILEEDIT_VIA_DB = ( 'support_links' => 1, );
 
-    ### S2 Style Options
-
-    # which users' s2 layers should always run trusted un-cleaned?
-    #%S2_TRUSTED = ( '2' => 'whitaker' ); # userid => username
-
 
     # Setup support email address to not accept new emails.  Basically if an
     # address is specified below, any user who emails it out of the blue will
@@ -584,18 +575,6 @@
     #    },
     #);
 
-    # If you have multiple internal networks and would like the MogileFS libraries
-    # to pick one network over the other, you can set the preferred IP list...
-    #%MOGILEFS_PREF_IP = (
-    #    10.0.0.1 => 10.10.0.1,
-    #);
-    #That says "if we try to connect to 10.0.0.1, instead try 10.10.0.1 first and
-    #then fall back to 10.0.0.1".
-
-    # In addition to setting up MogileFS above, you need to enable some options
-    # if you want to use MogileFS.
-    #$USERPIC_MOGILEFS = 1; # uncomment to put new userpics in MogileFS
-
     # Some people on portable devices may have troubles viewing the nice site
     # scheme you've setup, so you can specify that some user-agent prefixes
     # should instead use fallback presentation information.
@@ -612,6 +591,14 @@
     # if you know that your installation is behind a proxy or other fence that inserts
     # X-Forwarded-For headers that you can trust (eg Perlbal), enable this.  otherwise, don't!
     # $TRUST_X_HEADERS = 1;
+
+    # By default, when using TRUST_X_HEADERS, all proxies using X-Forwarded-For
+    # are trusted and the real client IP is found first in the list. To trust
+    # only specific proxy IPs, write a sub that returns true when its input
+    # is a trusted proxy IP. In that case, trusted proxies will be removed from
+    # the end of X-Forwarded-For (or if supplied as the remote IP), and the
+    # real client IP will be found last in the resulting list.
+    # $IS_TRUSTED_PROXY = sub { $_[0] eq '192.168.1.1'; };
 
     # the following values allow you to control enabling your OpenID server and consumer
     # support.

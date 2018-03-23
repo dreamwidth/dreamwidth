@@ -22,7 +22,6 @@ use LJ::Global::Constants;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;
 use LJ::Comment;
-use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
 use LJ::S2;
 use DW::Captcha;
@@ -259,7 +258,7 @@ sub get_journal_item
     LJ::load_log_props2($u->{'userid'}, [ $itemid ], \%logprops);
     $item->{'props'} = $logprops{$itemid} || {};
 
-    if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
+    if ( $logprops{$itemid}->{'unknown8bit'} ) {
         LJ::item_toutf8($u, \$item->{'subject'}, \$item->{'event'},
                         $item->{'logprops'}->{$itemid});
     }
@@ -1234,14 +1233,12 @@ sub load_comments
         }
     }
 
-    if ($LJ::UNICODE) {
-        foreach (@posts_to_load) {
-            if ($posts->{$_}->{'props'}->{'unknown8bit'}) {
-                LJ::item_toutf8($u, \$posts->{$_}->{'subject'},
-                                \$posts->{$_}->{'body'},
-                                {});
-              }
-        }
+    foreach (@posts_to_load) {
+        if ($posts->{$_}->{'props'}->{'unknown8bit'}) {
+            LJ::item_toutf8($u, \$posts->{$_}->{'subject'},
+                            \$posts->{$_}->{'body'},
+                            {});
+          }
     }
 
     # load users who posted
@@ -1582,6 +1579,7 @@ sub talkform {
     $ret .= "<td>";
     $ret .= "<table summary=''>"; # Internal for "From" options
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
+    $screening = 'A' if $journalu->has_autoscreen( $remote );
 
     if ($editid) {
 
@@ -1643,7 +1641,7 @@ sub talkform {
                 $ret .= "<strong>$logged_in</strong>";
 
                 # show willscreen if a) all comments are screened b) anonymous is screened and OpenID user not validated, c) non-access is screened and OpenID user
-                # is not on access list
+                # is not on access list d) this user is being automatically screened (in which case $screening has been forced to 'A')
                 $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A' || ( $screening eq 'R' && !$remote->is_validated )
                     || ( $screening eq 'F' && !$journalu->trusts($remote) ) ;
                 $ret .= "</td></tr>\n";
@@ -2129,7 +2127,7 @@ sub icon_dropdown {
     my %res;
     if ( $remote ) {
         LJ::do_request({ mode => "login",
-                         ver  => ($LJ::UNICODE ? "1" : "0"),
+                         ver  => $LJ::PROTOCOL_VER,
                          user => $remote->{'user'},
                          getpickws => 1,
                        }, \%res, { "noauth" => 1, "userid" => $remote->{'userid'} });
@@ -2258,6 +2256,40 @@ sub init_s2journal_js {
         ) ) if $opts{lastn};
 }
 
+# convenience function for keyboard shortcuts
+# args: $remote and $p for adding javascript to header
+# returns: nothing, just calls need_res
+sub init_s2journal_shortcut_js {
+    my ( $remote, $p ) = @_;
+
+    # skip everything if there's no remote user, or if neither opt_shortcuts
+    # nor opt_shortcuts_touch is set.
+    return unless $remote && ( $remote->prop( "opt_shortcuts" ) ||  $remote->prop( "opt_shortcuts_touch") );
+    
+    my $connect_string = "";
+    
+    LJ::need_res( { group => "jquery" }, "js/shortcuts.js" );
+    LJ::need_res( { group => "jquery" }, "js/jquery.shortcuts.nextentry.js" );
+    
+    $p->{'head_content'} .= "  <script type='text/javascript'>\n  var dw_shortcuts = {\n";
+    if ( $remote->prop( "opt_shortcuts" ) ) {
+        LJ::need_res( { group => "jquery" }, "js/mousetrap.js" );
+        $p->{'head_content'} .= "    keyboard: {\n";
+        
+        my $nextKey = $remote->prop( "opt_shortcuts_next" );
+        my $prevKey = $remote->prop( "opt_shortcuts_prev" );
+        $p->{'head_content'} .= "      nextEntry: '$nextKey',\n      prevEntry: '$prevKey'\n    }\n";
+        $connect_string = ",";
+    }
+    if ( $remote->prop( "opt_shortcuts_touch" ) ) {
+        LJ::need_res( { group => "jquery" }, "js/jquery.touchSwipe.js" );
+        my $nextTouch = $remote->prop( "opt_shortcuts_touch_next" );
+        my $prevTouch = $remote->prop( "opt_shortcuts_touch_prev" );
+        $p->{'head_content'} .= "$connect_string\n    touch: {\n      nextEntry: '$nextTouch',\n      prevEntry: '$prevTouch'\n    }\n";
+    }
+    $p->{'head_content'} .= "  };\n  </script>\n";
+}
+
 # generate the javascript code for the icon browser
 sub js_iconbrowser_button {
     my $remote = LJ::get_remote();
@@ -2382,8 +2414,8 @@ sub mark_comment_as_spam {
 
     # step 2a: if it's a suspended user, don't add, but pretend that we were successful
     if ($posterid) {
-    	my $posteru = LJ::want_user($posterid);
-    	return 1 if $posteru->is_suspended;
+        my $posteru = LJ::want_user($posterid);
+        return 1 if $posteru->is_suspended;
     }
 
     # step 2b: if it was an anonymous comment, attempt to get comment IP to make some use of the report
@@ -2645,7 +2677,6 @@ package LJ::Talk::Post;
 
 use Text::Wrap;
 use LJ::Entry;
-use LJ::EventLogRecord::NewComment;
 
 sub indent {
     my $a = shift;
@@ -2817,8 +2848,6 @@ sub enter_comment {
         if ( LJ::is_enabled('esn') ) {
             my $cmtobj = LJ::Comment->new($journalu, jtalkid => $jtalkid);
             push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
-            push @jobs, LJ::EventLogRecord::NewComment->new($cmtobj)->fire_job;
-
         }
 
         if ( @LJ::SPHINX_SEARCHD ) {
@@ -3299,15 +3328,6 @@ sub init {
     return $err->("<?badinput?>") unless LJ::text_in($form);
 
     $init->{unknown8bit} = 0;
-    unless (LJ::is_ascii($form->{'body'}) && LJ::is_ascii($form->{'subject'})) {
-        if ($LJ::UNICODE) {
-            # no need to check if they're well-formed, we did that above
-        } else {
-            # so rest of site can change chars to ? marks until
-            # default user's encoding is set.  (legacy support)
-            $init->{unknown8bit} = 1;
-        }
-    }
 
     my ($bl, $cl) = LJ::text_length($form->{'body'});
     if ($cl > LJ::CMAX_COMMENT) {
@@ -3329,6 +3349,7 @@ sub init {
     # figure out whether to post this comment screened
     my $state = 'A';
     my $screening = LJ::Talk::screening_level($journalu, $ditemid >> 8) || "";
+    $screening = 'A' if $journalu->has_autoscreen( $up );
     if ($screening eq 'A' ||
         ($screening eq 'R' && ! $up) ||
         ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up )))) {
@@ -3609,7 +3630,6 @@ sub edit_comment {
 
         if ( LJ::is_enabled('esn') ) {
             push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj)->fire_job;
-            push @jobs, LJ::EventLogRecord::NewComment->new($comment_obj)->fire_job;
         }
 
         if ( @LJ::SPHINX_SEARCHD ) {

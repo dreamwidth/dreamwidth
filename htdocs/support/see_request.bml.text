@@ -13,6 +13,8 @@
 
 .betatesting=Beta testing
 
+.no-beta=(none)
+
 .birthday=birthday
 
 .change.cat=Change Category
@@ -75,13 +77,13 @@
 
 .internal.comment=Internal Comment
 
-.language=Language
-
 .lock.request=Lock Request
 
 .manualset=manual set 
 
 .mast.login=You must <a [[loginlink]]>log in</a> to answer Support requests.
+
+.media=Media storage used
 
 .message=Message
 
@@ -92,6 +94,8 @@
 .no.html.allowed2=There's no HTML allowed, so don't worry about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
 
 .none=None
+
+.noquota=no quota
 
 .not.have.access=You don't have authorization to answer people's support requests in this category.
 

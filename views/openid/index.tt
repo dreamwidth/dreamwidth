@@ -1,0 +1,104 @@
+[%# index.tt
+
+The index for OpenID pages.
+
+Authors:
+    Jen Griffin <kareila@livejournal.com>
+
+Copyright (c) 2017 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it
+under the same terms as Perl itself.  For a copy of the license, please
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+    input.shiny {
+        background: url("[% site.imgroot %]/openid-inputicon.gif") no-repeat;
+        background-color: #fff;
+        background-position: 3px 50%;
+        padding-left: 21px;
+    }
+    input.button {
+        background: #ff6200;
+        color: #fff;
+        padding: 0.25rem 1rem;
+        margin-bottom: 0.25rem;
+    }
+    div.formdiv {
+        padding: 0.4em;
+        margin-left: 25px;
+        margin-right: 25px;
+        margin-bottom: 0.75rem;
+        width: auto;
+        text-align: center;
+        background: #ccc;
+        border: #000;
+    }
+    div.formdiv form {
+        display: inline;
+        width: auto;
+    }
+    h2 {
+        font-size: 125%;
+    }
+    p.expository {
+        font-size: 85%;
+    }
+    </style>
+
+    <script type="text/javascript">
+    function regEvent (target, evt, func) {
+        if (! target) return;
+        if (target.attachEvent)
+            target.attachEvent("on"+evt, func);
+        if (target.addEventListener)
+            target.addEventListener(evt, func, false);
+    }
+
+    function initPage () {
+        if (document.getElementById) {
+            var ur = document.getElementById('openid_url');
+            if (ur) ur.focus();
+        }
+    }
+
+    regEvent(window, "load", initPage);
+
+    </script>
+[% END %]
+
+<h2>[% '.main.what_is_openid' | ml %]</h2>
+
+<p class="expository">[% ".main.what_is_openid.content" | ml( sitename => site.nameshort ) %]</p>
+
+<h2>[% '.main.using_your_openid_here' | ml %]</h2>
+
+<p class="expository">[% ".main.using_your_openid_here.content" | ml( sitename => site.nameshort ) %]</p>
+
+[%- uselinks = [ "$site.root/changeemail", "$site.root/register" ] %]
+<p class="expository">[% ".main.using_your_openid_here.email" | ml( aopts1 =>
+        "href='$uselinks.0'", aopts2 => "href='$uselinks.1'" ) %]</p>
+
+<div class='formdiv'>
+  <form method="post" action="[% site.root %]/openid/login">
+    [% dw.form_auth() %]
+    <nobr>
+      <b>[% '.login.openid_url' | ml %]</b>
+      <input class='shiny' id='openid_url' name="openid_url" size='30' />
+      [% IF continue_to;
+            form.hidden( name = "continue_to", value = continue_to );
+         END %]
+      <input class="button" type="submit" value="[% '.login.submit' | ml %]" />
+    </nobr><br />[% '.login.example' | ml %]
+  </form>
+</div>
+
+<h2>[% '.main.openid_other_sites' | ml %]</h2>
+
+<p class="expository">[% ".main.openid_other_sites.content" | ml( sitename => site.nameshort,
+                                               domain => site.domain ) %]</p>

@@ -21,6 +21,8 @@ use Carp qw/ croak confess /;
 use Image::Magick;
 use Image::ExifTool qw/ :Public /;
 
+use DW::BlobStore;
+
 use DW::Media::Base;
 use base 'DW::Media::Base';
 
@@ -42,6 +44,11 @@ sub new_from_row {
         if ( $vid == $self->id ) {
             $self->{width} = $self->{versions}->{$vid}->{width};
             $self->{height} = $self->{versions}->{$vid}->{height};
+
+            # save the original values of these for reference in case we resize later
+            $self->{orig_width} = $self->{width};
+            $self->{orig_height} = $self->{height};
+            $self->{orig_filesize} = $self->{filesize};
             last;
         }
     }
@@ -96,7 +103,9 @@ sub _resize {
         int($height * $ratio + 0.5) );
 
     # Load the image data, then scale it.
-    my $dataref = LJ::mogclient()->get_file_data( $self->mogkey );
+    my ( $username, $mediaid ) = ( $self->u->user, $self->{mediaid} );
+    my $dataref = DW::BlobStore->retrieve( media => $self->mogkey )
+        or croak "Failed to load image file $mediaid for $username.";
     my $timage = Image::Magick->new()
         or croak 'Failed to instantiate Image::Magick object.';
     $timage->BlobToImage( $$dataref );
@@ -109,12 +118,9 @@ sub _resize {
     $self->{height} = $timage->Get( 'height' );
     $self->{filesize} = length $blob;
 
-    # Now save to MogileFS first, before adding it to the database.
-    my $fh = LJ::mogclient()->new_file( $self->mogkey, 'media' )
-        or croak 'Unable to instantiate resized file in MogileFS.';
-    $fh->print( $blob ); # Aww, deref...
-    $fh->close
-        or croak 'Unable to save resized file to MogileFS.';
+    # Now save to file storage first, before adding it to the database.
+    DW::BlobStore->store( media => $self->mogkey, \$blob )
+        or croak 'Unable to save resized file to storage.';
 
     # Insert into the database, then we're done.
     my $u = $self->u;
@@ -172,5 +178,32 @@ sub _select_version {
     # The _resize call also updates our internal data, so this image is now
     # the resized image.
 }
+
+# this adds on to the base method by also deleting any associated thumbnails
+sub delete {
+    my $self = $_[0];
+    my $deleted = $self->SUPER::delete;  # this deletes the original as before
+    return 0 unless $deleted;  # was already deleted
+
+    # at this point the image has just been deleted - look for thumbnails
+    my $u = $self->u or croak 'Sorry, unable to load the user.';
+    my @mv = $u->selectrow_array(
+        "SELECT versionid FROM media_versions WHERE userid=? AND mediaid=?" .
+        " AND versionid != ?", undef, $u->id, $self->versionid, $self->versionid );
+
+    return $deleted unless @mv;
+
+    foreach my $id ( @mv ) {
+        # create a fake object to get the mogkey
+        my $fakeobj = bless { userid => $u->id, versionid => $id },
+                            'DW::Media::Photo';
+        # we aren't concerned whether the file existed or not,
+        # and the associated media row is already in a deleted state
+        DW::BlobStore->delete( media => $fakeobj->mogkey );
+    }
+
+    return 1;  # done
+}
+
 
 1;

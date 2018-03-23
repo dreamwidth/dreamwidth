@@ -1,7 +1,18 @@
 ;; -*- coding: utf-8 -*-
 
-.intro=Below are the files you have uploaded to the site.
+.intro2=Below are the images you have uploaded to the site. <a href="[[aopts1]]">Manage your images</a> or <a href="[[aopts2]]">upload new images</a>.
 
-.intro.edit=Manage your files
+.title2=Your Images
 
-.title=Your Files
+.embed.full=Image Embed:
+
+.embed.thumbnail=Thumbnail Embed:
+
+.embed.short=Embed:
+
+.usage=You have used [[usage]] ([[percentage]]) of your [[quota]] quota.
+
+.view.list=List View
+
+.view.grid=Grid View
+

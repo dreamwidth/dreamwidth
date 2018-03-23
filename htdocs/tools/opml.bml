@@ -34,7 +34,7 @@ _c?><?_code
     # will use watched accounts for personal accounts
     # and identity accounts
     # and members for communities
-    if( $u->is_person || $u->is_identity ) {  
+    if( $u->is_person || $u->is_identity ) {
         @uids = $u->watched_userids;
     } elsif( $u->is_community ) {
         @uids = $u->member_userids;
@@ -43,6 +43,8 @@ _c?><?_code
     }
 
     my $us  = LJ::load_userids( @uids );
+
+    DW::Stats::increment( 'dw.opml.used', 1 );
 
     BML::set_content_type( "text/plain" );
     my $x = "<?" . "xml version='1.0'?>
@@ -70,11 +72,11 @@ _c?><?_code
         next if $w->is_identity;
         # filter by account type
         next if $GET{show} && ! ( $GET{show} =~ /[P]/ && $w->is_person
-                    || $GET{show} =~ /[C]/ && $w->is_community 
+                    || $GET{show} =~ /[C]/ && $w->is_community
                     || $GET{show} =~ /[YF]/ && $w->is_syndicated );
-                    
+
         my $title;
-        
+
         # use the username + site abbreviation for each feed's title if we have that
         # option set
         if( $GET{title} eq "username" ) {
@@ -87,12 +89,12 @@ _c?><?_code
 
         my $feed;
 
-        if ( $w->is_syndicated ) { 
+        if ( $w->is_syndicated ) {
             my $synd = $w->get_syndicated;
             $feed = $synd->{synurl};
         } else {
             $feed = $w->journal_base;
-        
+
             if( $GET{feed} eq "atom" ) {
                 $feed .= "/data/atom";
             } else {

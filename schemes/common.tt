@@ -72,7 +72,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- userpic_class = 'account-links-userpic' -%]
 [%- BLOCK block.userpic -%]
-<div id='[% userpic_class %]'><a href='[% site.root %]/editicons'>
+<div id='[% userpic_class %]'><a href='[% site.root %]/manage/icons'>
     [%- IF remote -%][%- userpic = remote.userpic -%]
         [%- IF userpic -%]
             <img src='[% userpic.url %]' [% userpic.img_fixedsize( 'width', 80, 'height', 80 ) %] alt='[% 'sitescheme.accountlinks.userpic.alt' | ml %]' />
@@ -135,7 +135,7 @@ the table based way can be removed when the entire site is Foundation-based.
     [%- chal = dw_scheme.challenge_generate(300) -%]
     <div class="row" id='account-links'>
     <div class="columns show-for-medium-up small-12" role="navigation" aria-label="[% 'sitescheme.navigation.accountlinks' | ml %]">
-    <a href="/login" class="button radius" data-reveal-id="nav-login-form">Log In</a>
+    <a href="[% site.root %]/login" class="button radius" data-reveal-id="nav-login-form">[% 'sitescheme.accountlinks.btn.login' | ml %]</a>
     <div id='nav-login-form' class="reveal-modal" data-reveal>
       <div class="row"><div class="columns">
       <form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>

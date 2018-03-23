@@ -506,10 +506,6 @@ sub get_effective_lang {
     if (LJ::is_web_context()) {
         $lang = BML::get_language();
     }
-    if (my $remote = LJ::get_remote()) {
-        # we have a user; try their browse language
-        $lang ||= $remote->prop("browselang");
-    }
 
     # did we get a valid language code?
     if ($lang && $LN_CODE{$lang}) {
@@ -612,6 +608,20 @@ sub get_text
     $LJ::_ML_USED_STRINGS{$code} = $text if $LJ::IS_DEV_SERVER;
 
     return $text || ($LJ::IS_DEV_SERVER ? "[uhhh: $code]" : "");
+}
+
+# Sometimes we want to force $lang to be the default, because the user
+# generating the text display isn't the same user who will receive the
+# rendered text.  These helper functions make that easier.
+
+sub get_default_text {
+    my ( $code, $vars ) = @_;
+    return LJ::Lang::get_text( undef, $code, undef, $vars );
+}
+
+sub get_default_text_multi {
+    my ( $codes ) = @_;
+    return LJ::Lang::get_text_multi( undef, undef, $codes );
 }
 
 # Loads multiple language strings at once.  These strings
@@ -738,31 +748,13 @@ sub get_lang_names {
     return \@list;
 }
 
+# FIXME: this isn't used anywhere; just falls through to BML::set_language,
+# which only affects the BML code package in the active process. Keeping this
+# as a stub to assist with the gradual transition to non-BML functions.
 sub set_lang {
     my $lang = shift;
 
     my $l = LJ::Lang::get_lang($lang);
-    my $remote = LJ::get_remote();
-    my $r = DW::Request->get;
-
-    # default cookie value to set
-    my $cval = $l->{lncode} . "/" . time();
-
-    # if logged in, change userprop and make cookie expiration
-    # the same as their login expiration
-    my $expires = undef;
-    if ($remote) {
-        $remote->set_prop("browselang", $l->{lncode});
-
-        $expires = $remote->{_session}->{timeexpire} if $remote->{_session}->{exptype} eq 'long';
-    }
-
-    # set cookie
-    $r->add_cookie(
-        name    => 'langpref',
-        value   => $cval,
-        expires => $expires,
-    );
 
     # set language through BML so it will apply immediately
     BML::set_language($l->{lncode});

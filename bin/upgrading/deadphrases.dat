@@ -6,6 +6,10 @@ general /allpics.bml.nopics.text
 general /allpics.bml.nopics.text.other
 general /allpics.bml.pics
 
+general BML.parse_multipart.parse
+general BML.parse_multipart.toolarge
+general BML.parse_multipart.unknowntype
+
 general /changeemail.bml.label.password
 
 general /community/join.bml.label.authpost
@@ -50,11 +54,39 @@ general /editinfo.bml.schools.title
 general /editinfo.bml.topicdir.about
 general /editinfo.bml.topicdir.header
 
+general /editicons.bml.error.badurl
+general /editicons.bml.error.filetoolarge
+general /editicons.bml.error.giffiledimensions
+general /editicons.bml.error.giffiletoolarge
+general /editicons.bml.error.imagetoolarge
+general /editicons.bml.error.invalidimage
+general /editicons.bml.error.keywords
+general /editicons.bml.error.multipleresize
+general /editicons.bml.error.nofile
+general /editicons.bml.error.nomediauploads.delete
+general /editicons.bml.error.nourl
+general /editicons.bml.error.rename.blankkw
+general /editicons.bml.error.rename.keywordexists
+general /editicons.bml.error.rename.keywords
+general /editicons.bml.error.rename.mismatchedlength
+general /editicons.bml.error.toomanykeywords
+general /editicons.bml.error.unknowntype
+general /editicons.bml.error.unsupportedtype
+general /editicons.bml.error.urlerror
+general /editicons.bml.error.urlfiletoolarge
+general /editicons.bml.imagesize.by
+general /editicons.bml.kilobytes
+general /editicons.bml.label.rename.disabled
+general /editicons.bml.noneupload
 general /editicons.bml.restriction.fileformat
 general /editicons.bml.restriction.filesize
 general /editicons.bml.restriction.imagesize2
 general /editicons.bml.restriction.keywords
 general /editicons.bml.restriction.keywords.faq
+general /editicons.bml.title
+general /editicons.bml.uploaddesc.userpicfactory
+general /editicons.bml.warning.keywords
+general /editicons.bml.warning.keywords.faq
 
 general /editpics.bml.error.toomanypics2
 general /editpics.bml.error.toomanypics3
@@ -117,15 +149,36 @@ general /logout.bml.loggedout.success
 
 general /manage/comments/index.bml.disablecomment2
 
+general /manage/index.bml.about
+general /manage/index.bml.customization.modify.about
+general /manage/index.bml.customization.moodtheme.header
+general /manage/index.bml.customization.s1.header
+general /manage/index.bml.customization.s2.header
+general /manage/index.bml.deleteaccount
+general /manage/index.bml.friends
+general /manage/index.bml.friends.edit.about
+general /manage/index.bml.friends.filter
+general /manage/index.bml.friends.filter.about
+general /manage/index.bml.friends.groups.about
+general /manage/index.bml.friends.header
 general /manage/index.bml.information.editinfo.about
+general /manage/index.bml.information.header
 general /manage/index.bml.information.setlang.about
 general /manage/index.bml.information.setscheme.about
 general /manage/index.bml.information.siteopts.about
+general /manage/index.bml.information.status
+general /manage/index.bml.login2
+general /manage/index.bml.mobile.settings
+general /manage/index.bml.undeleteaccount
+general /manage/index.bml.userpics
+general /manage/index.bml.userpics.comm
+general /manage/index.bml.userpics.header
 general /manage/index.bml.userpictures
 general /manage/index.bml.userpictures.edit.about
 general /manage/index.bml.userpictures.header
 general /manage/index.bml.information.emailpost
 general /manage/index.bml.information.emailpost.about
+general /manage/index.bml.youraccount.validated
 
 general /manage/invitecodes.bml.code.use
 general /manage/invitecodes.bml.form.request.header
@@ -179,6 +232,16 @@ general /modify.bml.modify.head
 general /modify.bml.modify.text
 general /modify.bml.title
 
+general /modify_do.bml.availablestyles.disabledstyles
+general /modify_do.bml.availablestyles.head
+general /modify_do.bml.availablestyles.userstyles
+general /modify_do.bml.colortheme.about
+general /modify_do.bml.colortheme.area.head
+general /modify_do.bml.colortheme.color.head1
+general /modify_do.bml.colortheme.color.head2
+general /modify_do.bml.colortheme.customcolors
+general /modify_do.bml.colortheme.defaulttheme
+general /modify_do.bml.colortheme.head
 general /modify_do.bml.domainalias.about
 general /modify_do.bml.domainalias.about.comm
 general /modify_do.bml.domainalias.domainname
@@ -186,9 +249,40 @@ general /modify_do.bml.domainalias.example
 general /modify_do.bml.domainalias.example.comm
 general /modify_do.bml.domainalias.head
 general /modify_do.bml.domainalias.helptext
+general /modify_do.bml.done.btn.savechanges
+general /modify_do.bml.done.head
+general /modify_do.bml.done.text
 general /modify_do.bml.error.dupdomainalias
 general /modify_do.bml.error.samedomainalias
+general /modify_do.bml.error.stylenotavailable
+general /modify_do.bml.friends.about
+general /modify_do.bml.friends.head
+general /modify_do.bml.friends.opt.usesharedpic.about
+general /modify_do.bml.friends.opt.usesharedpic.head
+general /modify_do.bml.journaloptions.about2
+general /modify_do.bml.journaloptions.head
+general /modify_do.bml.journalstatus.about
+general /modify_do.bml.journalstatus.head
+general /modify_do.bml.journalstatus.select.activated
+general /modify_do.bml.journalstatus.select.deleted
+general /modify_do.bml.journalstatus.select.head
+general /modify_do.bml.journalstatus.select.suspended
+general /modify_do.bml.moodicons.about
+general /modify_do.bml.moodicons.head
+general /modify_do.bml.moodicons.opt.forcefriends.about
+general /modify_do.bml.moodicons.personal
+general /modify_do.bml.moodicons.preview
+general /modify_do.bml.moodicons.select
+general /modify_do.bml.overrides.about2
+general /modify_do.bml.overrides.box.head
+general /modify_do.bml.overrides.head
+general /modify_do.bml.overrides.note2
+general /modify_do.bml.overrides.warning
+general /modify_do.bml.pagelayoutstyle.about
+general /modify_do.bml.pagelayoutstyle.head
+general /modify_do.bml.pagelayoutstyle.warning
 general /modify_do.bml.success.head
+general /modify_do.bml.success.text2
 general /modify_do.bml.title
 
 general /multisearch.bml.formaterror
@@ -205,7 +299,13 @@ general /multisearch.bml.region.head
 general /multisearch.bml.region.text
 general /multisearch.bml.title.results
 
+general /profile.bml.contact.txtmsg
+general /profile.bml.im.aol.status
+general /profile.bml.im.icq.status
+general /profile.bml.im.skype.status
+general /profile.bml.im.yim.status
 general /profile.bml.label.feedchange
+general /profile.bml.label.textmessage
 
 general /register.bml.new.body
 general /register.bml.new.modify2
@@ -234,6 +334,11 @@ general /talkpost_do.bml.opt.spellcheck
 
 general /talkread.bml.pageofpages
 
+general /tools/endpoints/extacct_auth.bml.error.authfailed
+general /tools/endpoints/extacct_auth.bml.error.nochallenge
+general /tools/endpoints/extacct_auth.bml.error.nosuchaccount
+general /tools/endpoints/extacct_auth.bml.error.nouser
+
 general /tools/memadd.bml.body.added.body
 
 general /update.bml.update.about
@@ -250,6 +355,7 @@ general /uploadpic.bml.error.invalidauth
 general /uploadpic.bml.error.invalidimage
 general /uploadpic.bml.error.toomanypics
 general /uploadpic.bml.error.unknownmode
+general /uploadpic.bml.error.unsupportedtype
 general /uploadpic.bml.error.urlerror
 general /uploadpic.bml.fromfile
 general /uploadpic.bml.fromfile.key
@@ -523,7 +629,6 @@ general cprod.friendsfriends.link.v3
 general cprod.friendsfriends.link.v4
 general cprod.friendsfriends.link.v5
 general cprod.friendsfriends.link2.v1
-general /tools/textmessage.bml.enter.user.text
 general cprod.friendsfriendsinline.link2.v1
 general cprod.friendsfriendsinline.link2.v2
 general cprod.friendsfriendsinline.link2.v3
@@ -749,9 +854,17 @@ general /allpics.bml.pics2
 general /allpics.bml.sort.default
 general /allpics.bml.sort.keyword
 general /allpics.bml.title
+general /approve.bml.comm.success
 general /approve.bml.comm.text
+general /approve.bml.commjoin.text
+general /approve.bml.error.actionperformed
+general /approve.bml.error.approving
+general /approve.bml.error.internerr.invalidaction
+general /approve.bml.error.invalidargument
+general /approve.bml.error.unknownactiontype
 general /approve.bml.shared.success
 general /approve.bml.shared.text
+general /approve.bml.title
 general /changeemail.bml.newemail.body2
 general /changeemail.bml.error.lj_domain
 general /changepassword.bml.changepassword.header
@@ -874,6 +987,8 @@ general /manage/profile/index.bml.error.contact.child
 general /manage/profile/index.bml.error.email.lj_domain
 general /manage/profile/index.bml.error.locale.zip_ne_state
 general /manage/profile/index.bml.error.locale.zip_requires_us
+general /manage/profile/index.bml.error.txt.require.number
+general /manage/profile/index.bml.error.txt.require_provider
 general /manage/profile/index.bml.fn.contactinfo
 general /manage/profile/index.bml.fn.email
 general /manage/profile/index.bml.fn.emaildisplay
@@ -887,6 +1002,8 @@ general /manage/profile/index.bml.fn.mutualfriends
 general /manage/profile/index.bml.fn.name
 general /manage/profile/index.bml.fn.schools
 general /manage/profile/index.bml.fn.sitename
+general /manage/profile/index.bml.fn.txtmsg
+general /manage/profile/index.bml.fn.txtnum
 general /manage/profile/index.bml.fn.userpic
 general /manage/profile/index.bml.fn.zip
 general /manage/profile/index.bml.friendof
@@ -900,6 +1017,7 @@ general /manage/profile/index.bml.section.description
 general /manage/profile/index.bml.section.friends
 general /manage/profile/index.bml.section.location
 general /manage/profile/index.bml.section.members
+general /manage/profile/index.bml.section.textmsg
 general /manage/profile/index.bml.section.theme
 general /manage/profile/index.bml.section.usermessaging
 general /manage/profile/index.bml.section.web
@@ -916,6 +1034,7 @@ general /manage/profile/index.bml.success.editpics
 general /manage/profile/index.bml.theme
 general /manage/profile/index.bml.zip.usonly
 general /manage/settings/index.bml.fn.gettingstarted
+general /manage/settings/index.bml.fn.language
 general /manage/settings/index.bml.fn.navstrip
 general /manage/settings/index.bml.fn.stylealwaysmine
 general /manage/settings/index.bml.fn.verticalincl
@@ -956,6 +1075,15 @@ general /openid/approve.bml.form.request
 general /openid/approve.bml.form.title
 general /openid/index.bml.beta.content
 general /openid/index.bml.beta.heading
+general /openid/options.bml.error.form_tampering
+general /openid/options.bml.error.login
+general /openid/options.bml.error.no_support
+general /openid/options.bml.error.title
+general /openid/options.bml.main.delete
+general /openid/options.bml.main.none
+general /openid/options.bml.main.trust.content
+general /openid/options.bml.main.trust.heading
+general /openid/options.bml.title
 general /poll/index.bml.gotocreate2
 general /register.bml.ask.header
 general /register.bml.email.body
@@ -964,7 +1092,15 @@ general /register.bml.new.101.friends.question
 general /register.bml.new.bodyuser
 general /register.bml.validate.human.submit
 general /register.bml.validate.human.title
+general /reject.bml.comm.success
+general /reject.bml.commreject.text
+general /reject.bml.error.actionperformed
+general /reject.bml.error.internerr.invalidaction
+general /reject.bml.error.invalidargument
+general /reject.bml.error.rejecting
+general /reject.bml.error.unknownactiontype
 general /reject.bml.shared.success
+general /reject.bml.title
 general /shop/account.bml.footnote.prices
 general /shop/gifts.bml.buy
 general /shop/gifts.bml.paid.about
@@ -978,7 +1114,8 @@ general /support/faq.bml.cannotfind.note
 general /support/faqbrowse.bml.title_num
 general /support/help.bml.interim
 general /support/see_request.bml.email.validared
-general /support/see_rquest.bml.important.notes.text
+general /support/see_request.bml.important.notes.text
+general /support/see_request.bml.language
 general /talkpost.bml.opt.ljuser
 general /talkpost.bml.opt.ljuser2
 general /talkpost.bml.warnscreened
@@ -1011,7 +1148,6 @@ general customize.cats.modern
 general customize.cats.nature
 general customize.cats.occasions
 general customize.cats.pattern
-general customize.cats.special
 general customize.cats.sponsors
 general customize.cats.sup
 general customize.cats.tech
@@ -1154,6 +1290,7 @@ general event.befriended.user
 general event.defriended.me
 general event.defriended.user
 general fcklang.ljvideo
+general fcklang.videoprompt
 general img.flag_btn
 general img.us_map
 general inbox.menu.friend_updates
@@ -1238,6 +1375,8 @@ general setting.display.smshistory.label
 general setting.display.smshistory.option
 general setting.gettingstarted.label
 general setting.gettingstarted.option
+general setting.language.error.invalid
+general setting.language.label
 general setting.minsecurity.option.select.admin
 general setting.minsecurity.option.select.friends
 general setting.minsecurity.option.select.members
@@ -1261,6 +1400,15 @@ general setting.stickyentry.error.invalid
 general setting.stickyentry.label
 general setting.stylealwaysmine.label
 general setting.stylealwaysmine.option
+general setting.txtmsgsetup.details
+general setting.txtmsgsetup.error.notsecured
+general setting.txtmsgsetup.error.number
+general setting.txtmsgsetup.error.provider
+general setting.txtmsgsetup.error.security
+general setting.txtmsgsetup.label
+general setting.txtmsgsetup.phone
+general setting.txtmsgsetup.select.provider
+general setting.txtmsgsetup.vis
 general setting.xpost.option.footer.vars.comment_image.alttext
 general settings.error.locale.zip_ne_state
 general settings.error.locale.zip_requires_us
@@ -1353,6 +1501,7 @@ general widget.createaccount.error.username.reserved
 general widget.createaccount.field.captcha
 general widget.createaccountnextsteps.steps.explore
 general widget.friendbirthdays.paidtime_link
+general widget.friendinterests.intro
 general widget.gettingstarted.entry.link
 general widget.gettingstarted.entry.note
 general widget.gettingstarted.expires
@@ -1685,3 +1834,17 @@ contentflag.viewingexplicit.byposter
 
 general /customize/options.bml.widget.navstripchooser.option.color.control_strip_borderc
 general /customize/options.bml.widget.navstripchooser.option.color.control_strip_linkcol
+
+general /views/media/edit.tt.title
+general /views/media/edit.tt.intro
+general /views/media/home.tt.title
+general /views/media/home.tt.edit
+general /views/media/index.tt.title
+general /views/media/index.tt.intro
+general /views/media/index.tt.intro.edit
+
+general email.newacct5.body
+
+general widget.createaccount.error.birthdate.invalid
+
+general /profile.bml.details.userpics

@@ -53,6 +53,9 @@ sub FriendsPage
   </script>
     ];
 
+    # init shortcut js if selected
+    LJ::Talk::init_s2journal_shortcut_js( $remote, $p );
+
     my $sth;
     my $user = $u->{'user'};
 
@@ -276,7 +279,7 @@ sub FriendsPage
     # these are the same for both previous and next links
     my %linkvars;
     $linkvars{show} = $get->{show} if defined $get->{show} && $get->{show} =~ /^\w+$/;
-    $linkvars{date} = $get->{date} if $get->{date};
+    $linkvars{date} = $get->{date} if $get->{date} && $u->can_use_daily_readpage;
     $linkvars{filter} = $get->{filter} + 0 if defined $get->{filter};
 
     # if we've skipped down, then we can skip back up
@@ -288,6 +291,15 @@ sub FriendsPage
         $nav->{'forward_skip'} = $newskip;
         $nav->{'forward_count'} = $itemshow;
         $p->{head_content} .= qq#<link rel="next" href="$nav->{forward_url}" />\n#;
+    } elsif ( $linkvars{date} ) {
+        # next day when viewing by date
+        my %nextvars = %linkvars;
+        my $nexttime = LJ::mysqldate_to_time( $linkvars{date} ) + 86400;
+        unless ( $nexttime > time ) {
+            $nextvars{date} = LJ::mysql_date( $nexttime );
+            $nav->{'forward_url'} = LJ::S2::make_link( $base, \%nextvars );
+            $p->{head_content} .= qq#<link rel="next" href="$nav->{forward_url}" />\n#;
+        }
     }
 
     ## unless we didn't even load as many as we were expecting on this
@@ -300,6 +312,14 @@ sub FriendsPage
         $nav->{'backward_url'} = LJ::S2::make_link( $base, \%linkvars );
         $nav->{'backward_skip'} = $newskip;
         $nav->{'backward_count'} = $itemshow;
+        $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#;
+    } elsif ( $linkvars{date} ) {
+        # prev day when viewing by date
+        my %prevvars = %linkvars;
+        my $prevtime = LJ::mysqldate_to_time( $linkvars{date} ) - 86400;
+        $prevvars{date} = LJ::mysql_date( $prevtime );
+        delete $prevvars{skip};  # from forward case; not used here
+        $nav->{'backward_url'} = LJ::S2::make_link( $base, \%prevvars );
         $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#;
     }
 

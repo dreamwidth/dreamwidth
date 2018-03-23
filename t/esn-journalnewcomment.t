@@ -167,7 +167,7 @@ test_esn_flow(sub {
     ######## S3 (watching a thread)
 
     # make sure we can track threads
-    $LJ::CAP{0...15}->{track_thread} = 1;
+    $LJ::CAP{$_}->{track_thread} = 1 foreach (0..15);
 
     # subscribe to replies to a thread
     $subsc = $u1->subscribe(
@@ -205,7 +205,7 @@ test_esn_flow(sub {
     $email = $got_notified->($u1);
     ok(! $email, "didn't get notified");
 
-    $LJ::CAP{0...15}->{track_thread} = 0;
+    $LJ::CAP{$_}->{track_thread} = 0 foreach (0..15);
     $subsc->delete;
 
     if ( ( LJ::Event::JournalNewComment->zero_journalid_subs_means // "" ) eq "friends") {

@@ -1,4 +1,23 @@
-.intro=Here are all the files you've uploaded from mobile.
+.intro2=Here are all the images you've uploaded. <a href="[[aopts1]]">View all your images</a> or <a href="[[aopts2]]">upload new images</a>.
 
-.title=Bulk Edit Files
+.title2=Bulk Edit Images
 
+.intro.empty=You haven't uploaded anything.
+
+.new=Upload Images
+
+.edit.title=Title
+
+.edit.alt=Short Description
+
+.edit.desc=Full Description
+
+.edit.security=Security
+
+.edit.delete=Delete?
+
+.submit.save=Save Changes
+
+.submit.delete=Delete Selected
+
+.usage=You have used [[usage]] ([[percentage]]) of your [[quota]] quota.

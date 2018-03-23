@@ -26,14 +26,16 @@ use Carp qw/ croak /;
 sub new { croak 'cannot build with new'; }
 
 
-# returns an object if we allow this domain; else undef
+# returns 1/0 if we allow this domain
 sub accepts {
     my ( $class, $parts ) = @_;
 
-    # let's just assume the last two parts are good if we have them
-    return undef unless scalar( @$parts ) >= 2;
+    # allows anything at del.icio.us
+    return 0 unless $parts->[-1] eq 'us'    &&
+                    $parts->[-2] eq 'icio'  &&
+                    $parts->[-3] eq 'del';
 
-    return bless { hostname => "$parts->[-2].$parts->[-1]" }, $class;
+    return bless { hostname => 'del.icio.us' }, $class;
 }
 
 
@@ -68,7 +70,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url     => "http://delicious.com/favicon.ico",
+        url     => "https://del.icio.us/favicon.ico",
         width   => 16,
         height  => 16,
     }

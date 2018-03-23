@@ -62,16 +62,11 @@ sub helper_preload
 
 
 # this treats normal characters and &entities; as single characters
-# also treats UTF-8 chars as single characters if $LJ::UNICODE
+# also treats UTF-8 chars as single characters
 my $onechar;
 {
     my $utf_longchar = '[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xef][\x80-\xbf][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf][\x80-\xbf]|[\xf1-\xf7][\x80-\xbf][\x80-\xbf][\x80-\xbf]';
-    my $match;
-    if (not $LJ::UNICODE) {
-        $match = '[^&\s]|(&\#?\w{1,7};)';
-    } else {
-        $match = $utf_longchar . '|[^&\s\x80-\xff]|(?:&\#?\w{1,7};)';
-    }
+    my $match = $utf_longchar . '|[^&\s\x80-\xff]|(?:&\#?\w{1,7};)';
     $onechar = qr/$match/o;
 }
 
@@ -91,7 +86,7 @@ my %tag_substitute = (
 # slash and get the proper behavior from a browser.
 #
 # In HTML5 these are called "void elements".
-my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|lj-embed|site-embed)$/i;
+my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|wbr|lj-embed|site-embed)$/i;
 
 # <LJFUNC>
 # name: LJ::CleanHTML::clean
@@ -276,7 +271,6 @@ sub clean
             'poll-question' => 'lj-pq',
             'raw-code'      => 'lj-raw',
             'site-embed'    => 'lj-embed',
-            'site-template' => 'lj-template',
             'user'          => 'lj',
         }->{$_[0]} || $_[0];
     };
@@ -328,12 +322,9 @@ sub clean
                 $name =~ s/-/_/g;
 
                 my $run_template_hook = sub {
-                    # can pass in tokens to override passing the hook the @capture array
-                    my ($token, $override_capture) = @_;
-                    my $capture = $override_capture ? [$token] : \@capture;
-                    my $expanded = ($name =~ /^\w+$/) ? LJ::Hooks::run_hook("expand_template_$name", $capture) : "";
-                    my $template = LJ::ehtml( $name );
-                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template', { aopts => $template } ) . "</strong>";
+                     # deprecated - will always print an error msg (see #1869)
+                    $newdata .= "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template',
+                                { aopts => LJ::ehtml( $name ) } ) . "</strong>";
                 };
 
                 if ($attr->{'/'}) {
@@ -383,10 +374,10 @@ sub clean
                 next TOKEN;
             }
 
+            # deprecated - will always print an error msg (see #1869)
             if (($tag eq "div" || $tag eq "span") && lc $attr->{class} eq "ljvideo") {
                 $start_capture->($tag, $token, sub {
-                    my $expanded = LJ::Hooks::run_hook("expand_template_video", \@capture);
-                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template.video' ) . "</strong>";
+                    $newdata .= "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template.video' ) . "</strong>";
                 });
                 next TOKEN;
             }
@@ -827,7 +818,7 @@ sub clean
 
                     my $sanitize_url = sub {
                         my $url = canonical_url( $_[0], 1 );
-                        return $url unless $LJ::IS_SSL;
+                        return $url unless $LJ::IS_SSL && ! $to_external_site;
                         return https_url( $url, journal => $journal, ditemid => $ditemid );
                     };
 
@@ -1420,7 +1411,7 @@ my $subject_remove = [qw[bgsound embed object caption link font noscript]];
 sub clean_subject
 {
     my $ref = shift;
-    return unless $$ref =~ /[\<\>]/;
+    return unless defined $$ref and $$ref =~ /[\<\>]/;
     clean($ref, {
         'wordlength' => 40,
         'addbreaks' => 0,
@@ -1655,13 +1646,6 @@ sub canonical_url {
         $url = "$pref://$url";
     }
 
-    if ($LJ::DEBUG{'aol_http_to_ftp'}) {
-        # aol blocks http referred from lj, but ftp has no referer header.
-        if ($url =~ m!^http://(?:www\.)?(?:members|hometown|users)\.aol\.com/!) {
-            $url =~ s!^http!ftp!;
-        }
-    }
-
     return $url;
 }
 
@@ -1674,9 +1658,11 @@ sub https_url {
     # https:// and the relative // protocol don't need proxying
     return $url if $url =~ m!^(?:https://|//)!;
 
-    # if this link is on our site, let's just switch it to https
-    if ( $url =~ $LJ::DOMAIN || defined $LJ::HTTPS_UPGRADE_REGEX
-                             && $url =~ $LJ::HTTPS_UPGRADE_REGEX ) {
+    # if this link is on a site that supports HTTPS, upgrade the protocol
+    my $https_ok = %LJ::KNOWN_HTTPS_SITES ? \%LJ::KNOWN_HTTPS_SITES : {};
+    my ( $domain ) = ( $url =~ m!^http://[^/]*?([^.]+\.\w{2,3})/! );
+
+    if ( $domain && ( $domain eq $LJ::DOMAIN || $https_ok->{$domain} ) ) {
         $url =~ s!^http:!https:!;
         return $url;
     }
@@ -1691,8 +1677,40 @@ sub break_word {
     my ($word, $at) = @_;
     return $word unless $at;
 
-    $word =~ s/((?:$onechar){$at})\B/$1<wbr \/>/g;
-    return $word;
+    my $ret = '';
+    my $chunk;
+
+    # This while loop splits up $word into chunks that are each $at characters
+    # long.  If the chunk contains punctuation (here defined as anything that
+    # isn't a word character or digit), the word break tag will be placed at
+    # the last punctuation point; otherwise it will be placed at the maximum
+    # length of the unbroken word as defined by $at.
+
+    while ( $word =~ s/^((?:$onechar){$at})// ) {
+        $chunk = $1;
+
+        # Edge case: if the next character would be whitespace, we
+        # don't want to insert a word break tag at the end of a word.
+
+        if ( $word eq '' ) {
+            $ret .= $chunk;
+            next;
+        }
+
+        # Here we shift the breakpoint if the chunk contains punctuation,
+        # unless the punctuation occurs as the first character of the chunk,
+        # since it would be immediately preceded by either whitespace or the
+        # previous word break tag.
+
+        if ( $chunk =~ /([^\d\w])([\d\w]+)$/p && $-[1] != 0 ) {
+            $chunk = "${^PREMATCH}$1";
+            $word = "$2$word";
+        }
+
+        $ret .= "$chunk<wbr />";
+    }
+
+    return "$ret$word";
 }
 
 sub quote_html {
@@ -1711,13 +1729,17 @@ sub clean_as_markdown {
     die "Attempted to use Markdown without the Text::Markdown module.\n"
         unless $rv;
 
-    # first, markdown-ize the world
-    $$ref = Text::Markdown::markdown( $$ref );
-    $opts->{preformatted} = 1;
+    # First, convert @-style addressing to <user> tags, ignoring escaped '@'s.
+    # We're relying on the fact that Markdown generally passes HTML-like
+    # elements--even pseudo-elements like <user>--thru unscathed.
+    #
+    # Note that we HAVE to do this first to avoid issues with escaped '@'s.  If
+    # we wait until AFTER the markdown has been converted to HTML, we won't be
+    # able to tell the difference between "\@foo" and "\\@foo", since
+    # Text::Markdown will helpfully un-escape the double backslash.
 
-    # second, convert @-style addressing to user tags
     my $usertag = sub {
-        my ($user, $site) = ($1, $2 || $LJ::DOMAIN);
+        my ($user, $site) = ($_[0], $_[1] || $LJ::DOMAIN);
         my $siteobj = DW::External::Site->get_site( site => $site );
 
         if ( $site eq $LJ::DOMAIN ) {
@@ -1732,7 +1754,19 @@ sub clean_as_markdown {
             return qq|\@$user.$site|;
         }
     };
-    $$ref =~ s/(?<=\W)\@([\w\d_-]+)(?:\.([\w\d\.]+))?(?=$|\W)/$usertag->($1, $2)/mge;
+
+    # We also have to look for (and explicitly ignore) Markdown-supported escape
+    # sequences here, to avoid parsing edge cases like '\\@foo' incorrectly
+    # (note that's two user-supplied backslashes).  That's why the (\\.) case is
+    # actually (\\.) and not (\\\@).
+    $$ref =~ s!(\\.)|(?<=[^\w/])\@([\w\d_-]+)(?:\.([\w\d\.]+))?(?=$|\W)!
+        defined($1) ? $1 : $usertag->($2, $3)
+        !mge;
+
+    # Second, markdown-ize the result, complete with <user> tags.
+
+    $$ref = Text::Markdown::markdown( $$ref );
+    $opts->{preformatted} = 1;
 
     return 1;
 }

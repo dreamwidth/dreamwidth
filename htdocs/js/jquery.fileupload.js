@@ -27,6 +27,10 @@ $(function() {
                 data[file_id] = {};
 
             data[file_id][form_field.name] = form_field.value;
+
+            if (form_field.name == "security" && form_field.value == "usemask")
+                data[file_id]["allowmask"] = 1;
+
         });
 
         $.ajax( Site.siteroot + '/api/v1/file/edit', {
@@ -69,7 +73,7 @@ $(function() {
     if ( ! Modernizr.touch ) {
         $(".upload-form-file-inputs")
             .find('.row')
-                .append('<div class="large-12 columns"><div class="drop_zone">or drop images here</div></div>')
+                .prepend('<div class="large-12 columns"><div class="drop_zone">or drop images here</div></div>')
             .end()
     }
     $(".upload-form-file-inputs")
@@ -92,7 +96,7 @@ $(function() {
 
             // show the file preview and let the user upload metadata
             data.context = $($('#template-file-metadata').html())
-                .appendTo( $output );
+                .prependTo( $output );
 
             data.context
                 .find("label").attr( "for", function() {
@@ -132,7 +136,8 @@ $(function() {
                     return file_id;
                 }).end()
                 .find(".progress").toggleClass( "secondary success" ).end()
-                .find("input[name=generated-code]").trigger("imagecodeupdate", [ response.result ]).end();
+                .find("input[name=generated-code]").trigger("imagecodeupdate", [ response.result ]).end()
+                .find(".success").attr("style", "").end();
         } else {
             $(data.context).trigger( "uploaderror", [ { error : data.error } ] );
         }
@@ -208,13 +213,19 @@ $(function() {
         $.extend( image, data );
         $field.data( "image-attributes", image );
 
-        var text = [];
-        text.push( "<figure>", "<a href='" + image.url + "'><img src='" + image.thumbnail_url + "'" );
-        if ( image.title ) text.push( " alt='" + image.title + "' " );
-        text.push( " /></a>" );
-        if ( image.description ) text.push("<figcaption>" + image.description + "</figcaption>");
-        text.push( "</figure>" );
+        var escape_titletext = '';
+        if ( image.title ) escape_titletext = image.title
+            .replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
 
+        var escape_alttext = '';
+        if ( image.alttext ) escape_alttext = image.alttext
+            .replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( /'/g, "&apos;" );
+
+        var text = [];
+        text.push( "<a href='" + image.url + "'><img src='" + image.thumbnail_url + "'" );
+        if ( escape_titletext ) text.push( " title='" + escape_titletext + "' " );
+        if ( escape_alttext ) text.push(" alt='" + escape_alttext + "' ");
+        text.push( " /></a>" );
         $field.val(text.join(""));
     });
 

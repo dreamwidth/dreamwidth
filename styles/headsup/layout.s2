@@ -390,6 +390,11 @@ $header_margintop }
     text-align: $*image_foreground_header_alignment;
     }
 
+h1#title a {
+    color: $*color_page_title;
+    text-decoration: none;
+    }
+
 /*--- Journal Navigation ---*/
 
 .navigation {

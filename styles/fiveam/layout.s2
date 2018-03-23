@@ -397,7 +397,7 @@ a, a:link, a:active, a:visited {
     text-transform: lowercase;
     }
 
-h1#title {
+h1#title, h1#title a {
     border-top: 2px solid $*color_header_border;
     color: $*color_page_title;
     padding-top: 1.3em;

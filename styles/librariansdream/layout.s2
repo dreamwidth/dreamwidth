@@ -391,6 +391,11 @@ body {
     padding: .15em 0;
 }
 
+#header h1 a {
+    color: $*color_page_title;
+    text-decoration: none;
+}
+
 .one-column #header .module-navlinks {width:100%;}
 
 /* entry */

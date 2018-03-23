@@ -262,7 +262,6 @@ CREATE TABLE moodthemedata (
     width tinyint(3) unsigned NOT NULL default '0',
     height tinyint(3) unsigned NOT NULL default '0',
 
-    KEY (moodthemeid),
     PRIMARY KEY  (moodthemeid,moodid)
 )
 EOC
@@ -498,17 +497,6 @@ CREATE TABLE talkproplist (
 )
 EOC
 
-register_tablecreate("txtmsg", <<'EOC');
-CREATE TABLE txtmsg (
-    userid int(10) unsigned NOT NULL default '0',
-    provider varchar(25) default NULL,
-    number varchar(60) default NULL,
-    security enum('all','reg','friends') NOT NULL default 'all',
-
-    PRIMARY KEY  (userid)
-)
-EOC
-
 register_tablecreate("user", <<'EOC');
 CREATE TABLE user (
     userid int(10) unsigned NOT NULL auto_increment,
@@ -535,7 +523,6 @@ CREATE TABLE user (
     useoverrides char(1) NOT NULL default 'N',
     defaultpicid int(10) unsigned default NULL,
     has_bio enum('Y','N') NOT NULL default 'N',
-    txtmsg_status enum('none','on','off') NOT NULL default 'none',
     is_system enum('Y','N') NOT NULL default 'N',
     journaltype char(1) NOT NULL default 'P',
     lang char(2) NOT NULL default 'EN',
@@ -612,9 +599,9 @@ CREATE TABLE userpic2 (
     picdate datetime default NULL,
     md5base64 char(22) NOT NULL default '',
     comment varchar(255) BINARY NOT NULL default '',
-    description varchar(255) BINARY NOT NULL default '',
+    description varchar(600) BINARY NOT NULL default '',
     flags tinyint(1) unsigned NOT NULL default 0,
-    location enum('blob','disk','mogile') default NULL,
+    location enum('blob','disk','mogile','blobstore') default NULL,
 
     PRIMARY KEY  (userid, picid)
 )
@@ -678,15 +665,6 @@ CREATE TABLE userpropblob (
     value blob,
 
     PRIMARY KEY (userid,upropid)
-)
-EOC
-
-register_tablecreate("backupdirty", <<'EOC');
-CREATE TABLE backupdirty (
-    userid INT(10) unsigned NOT NULL default '0',
-    marktime INT(10) unsigned NOT NULL default '0',
-
-    PRIMARY KEY (userid)
 )
 EOC
 
@@ -926,6 +904,12 @@ register_tabledrop("domains");
 register_tabledrop("pollprop2");
 register_tabledrop("pollproplist2");
 register_tabledrop("dirsearchres2");
+register_tabledrop("txtmsg");
+register_tabledrop("comm_promo_list");
+register_tabledrop("incoming_email_handle");
+register_tabledrop("backupdirty");
+register_tabledrop("actionhistory");
+register_tabledrop("recentactions");
 
 
 register_tablecreate("infohistory", <<'EOC');
@@ -1383,6 +1367,7 @@ EOC
 # 'M' means targetid can moderate the community userid
 # 'N' means targetid is preapproved to post to community userid w/o moderation
 # 'I' means targetid invited userid to the site
+# 'S' means targetid will have comments automatically screened in userid
 # new types to be added here
 
 register_tablecreate("reluser", <<'EOC');
@@ -1785,7 +1770,7 @@ CREATE TABLE userlog (
     action        VARCHAR(30) NOT NULL,
     actiontarget  INT UNSIGNED,
     remoteid      INT UNSIGNED,
-    ip            VARCHAR(15),
+    ip            VARCHAR(45),
     uniq          VARCHAR(15),
     extra         VARCHAR(255),
 
@@ -1855,25 +1840,6 @@ CREATE TABLE logkwsum (
     PRIMARY KEY (journalid, kwid, security),
     KEY (journalid, security)
 )
-EOC
-
-# action history tables
-register_tablecreate("actionhistory", <<'EOC');
-CREATE TABLE actionhistory (
-    time      INT UNSIGNED NOT NULL,
-    clusterid TINYINT UNSIGNED NOT NULL,
-    what      CHAR(2) NOT NULL,
-    count     INT UNSIGNED NOT NULL DEFAULT 0,
-
-    INDEX(time)
-)
-EOC
-
-# TODO: why is this myisam?
-register_tablecreate("recentactions", <<'EOC');
-CREATE TABLE recentactions (
-    what CHAR(2) NOT NULL
-) ENGINE=MYISAM
 EOC
 
 # external identities
@@ -2206,16 +2172,6 @@ CREATE TABLE sch_exitstatus (
 )
 EOC
 
-register_tablecreate("comm_promo_list", <<'EOC');
-CREATE TABLE comm_promo_list (
-    journalid INT UNSIGNED NOT NULL,
-    r_start INT UNSIGNED NOT NULL,
-    r_end INT UNSIGNED NOT NULL,
-
-    INDEX (r_start)
-)
-EOC
-
 register_tablecreate("usersearch_packdata", <<'EOC');
 CREATE TABLE usersearch_packdata (
     userid      INT UNSIGNED NOT NULL PRIMARY KEY,
@@ -2264,15 +2220,6 @@ CREATE TABLE dirmogsethandles (
     exptime  INT UNSIGNED NOT NULL,
 
     INDEX    (exptime)
-)
-EOC
-
-register_tablecreate("incoming_email_handle", <<'EOC');
-CREATE TABLE incoming_email_handle (
-    ieid     INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    timerecv INT UNSIGNED NOT NULL DEFAULT '0',
-
-    PRIMARY KEY  (ieid)
 )
 EOC
 
@@ -3452,14 +3399,6 @@ register_alter(sub {
                  "ALTER TABLE includetext MODIFY COLUMN inctext MEDIUMTEXT");
     }
 
-    foreach my $table (qw(recentactions actionhistory)) {
-
-        if (column_type($table, "what") =~ /^char/i) {
-            do_alter($table,
-                     "ALTER TABLE $table MODIFY COLUMN what VARCHAR(20) NOT NULL");
-        }
-    }
-
     # table format totally changed, we'll just truncate and modify
     # all of the columns since the data is just summary anyway
     if (index_name("active_user", "INDEX:time")) {
@@ -4072,7 +4011,7 @@ EOF
                         userid => $row->{userid},
                         versionid => $row->{mediaid}
                 );
-                my $imagedata = LJ::mogclient()->get_file_data( $media_file->mogkey );
+                my $imagedata = DW::BlobStore->retrieve( media => $media_file->mogkey );
                 my ( $width, $height ) = Image::Size::imgsize( $imagedata );
                 unless (defined $width && defined $height) {
                     $failed++;
@@ -4114,6 +4053,31 @@ EOF
     unless ( column_type( 'ml_items', 'itcode' ) =~ /120/ ) {
         do_alter( 'ml_items',
                   "ALTER TABLE ml_items MODIFY COLUMN itcode VARCHAR(120) CHARACTER SET ascii NOT NULL" );
+    }
+
+    if ( column_type( 'user', 'txtmsg_status' ) ) {
+        do_alter( 'user',
+                  "ALTER TABLE user DROP COLUMN txtmsg_status" );
+    }
+
+    unless ( column_type( 'userpic2', 'location' ) =~ /blobstore/ ) {
+        do_alter( 'userpic2',
+            q{ALTER TABLE userpic2
+            MODIFY COLUMN location ENUM('blob', 'disk', 'mogile', 'blobstore')
+            DEFAULT NULL}
+        );
+    }
+
+    # widen the description field for userpics
+    if ( column_type( 'userpic2', 'description' ) eq "varchar(255)" ) {
+        do_alter( 'userpic2',
+            "ALTER TABLE userpic2 MODIFY COLUMN description VARCHAR(600) BINARY NOT NULL default ''");
+    }
+
+    # widen ip column for IPv6 addresses
+    if ( column_type("userlog", "ip") eq "varchar(15)" ) {
+        do_alter( "spamreports",
+                  "ALTER TABLE userlog MODIFY ip VARCHAR(45)" );
     }
 
 });

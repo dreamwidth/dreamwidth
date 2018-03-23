@@ -1,0 +1,110 @@
+[%# TT conversion of tools/userpicfactory.bml
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2017 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- dw.need_res( "js/6alib/core.js", "js/6alib/dom.js",
+                 "js/6alib/image-region-select.js" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        div#picContainer {
+            float: left;
+            margin-bottom: 15px;
+            width: [% scaledSizeMax %]px;
+            height: [% scaledSizeMax %]px;
+            border: 2px solid #EEEEEE;
+            padding: 2px;
+        }
+        div#prevcon {
+            width: 100px;
+            height: 100px;
+            overflow: hidden;
+            display: inline;
+            float:left;
+            border: 1px solid transparent;
+        }
+        ul.previewbox {
+            list-style-type: none;
+            margin-left: 0;
+        }
+        ul.previewbox li {
+            white-space: nowrap;
+        }
+    </style>
+    <script type="text/javascript">
+        var origW = [% upf_w %];
+        var origH = [% upf_h %];
+        var scaledSizeMax = [% scaledSizeMax %];
+    </script>
+
+    <script type="text/javascript" src='[% site.jsroot %]/userpicfactory.js'></script>
+[% END %]
+
+[%- IF successcount -%]
+    <p>[% '.success' | ml( num = successcount ) %]</p>
+[%- END -%]
+
+<a href="/manage/icons">[% '.backtext' | ml %]</a>
+
+[%- IF no_index -%]
+    <p>[% '.error.noindex' | ml( pagelink = dw.create_url( '/manage/icons' ) ) %]</p>
+[%- ELSE -%]
+    <noscript><p style="font-weight: bold;">[% '.noscript' | ml %]</p></noscript>
+    <p>[% '.howtouse' | ml %]</p>
+
+[%- picpath = dw.create_url( "/misc/mogupic", keep_args => [ 'authas', 'index' ] ) -%]
+
+    <div id="picContainer">
+      <img src="[% picpath %]" id="userpic" style="display: none;" />
+    </div>
+
+    <div class='highlight-box' style='float: right;'>
+    <form action="[% dw.create_url( '/manage/icons', keep_args => [ 'authas' ] ) %]"
+          method="POST" enctype='multipart/form-data'>
+    <ul class="previewbox"><li>
+      <nobr><input type="checkbox" id="constrain" onchange="setConstrain();" />
+      <label for="constrain">[% '.preview.label.constrain' | ml %]</label></nobr>
+      <br /><small>[% '.preview.label.constrain.shift' | ml %]</small>
+    </li><li>
+      <nobr><input type="checkbox" id="borderToggle" name="border" />
+      <label for="borderToggle">[% '.preview.label.bordertoggle' | ml %]</label></nobr>
+    </li></ul>
+    <p style="margin: 0.5em 0 0 0.5em;">
+      <small>[% '.preview.label.icon' | ml %]</small></p>
+    <div style="width: 102px; height: 102px; overflow: hidden; padding: 0 5px;">
+      <div id="prevcon">
+        <img src="[% picpath %]" id="userpicpreview" />
+      </div>
+    </div>
+
+[% form.hidden( name = "create", value = 1 ) %]
+
+[%- x1 = 20; y1 = 20; x2 = upf_w - 20; y2 = upf_h - 20 -%]
+
+[% form.hidden( id = "x1", name = "x1", value = x1 ) %]
+[% form.hidden( id = "y1", name = "y1", value = y1 ) %]
+[% form.hidden( id = "x2", name = "x2", value = x2 ) %]
+[% form.hidden( id = "y2", name = "y2", value = y2 ) %]
+
+[% form.hidden( id = "scaledSizeMax", name = "scaledSizeMax", value = scaledSizeMax ) %]
+
+[% form.hidden( name = "src", value = "factory" ) %]
+[% dw.form_auth %]
+
+[% form.submit( id = "createbtn", value = dw.ml( ".title" ) ) %]
+[% form_keepargs %]
+
+    </form></div>
+
+[%- END -%]

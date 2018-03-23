@@ -40,13 +40,13 @@ LJUserCommand.Execute=function() {
         };
 
         if (username == null) return;
-    
+
         var url = window.parent.Site.siteroot + "/tools/endpoints/ljuser";
-    
+
         var gotError = function(err) {
             alert(err);
         }
-    
+
         var gotInfo = function (data) {
             if (data.error) {
                 alert(data.error);
@@ -55,9 +55,9 @@ LJUserCommand.Execute=function() {
 
             if (!data.success) return;
 
-            if ( site ) 
+            if ( site )
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser" site="' + site + '">');
-            else 
+            else
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
 
             data.ljuser = data.ljuser.replace(/<\/span>/,'</div>');
@@ -67,7 +67,7 @@ LJUserCommand.Execute=function() {
             if (selection != '') FCKSelection.Collapse();
             FCK.Focus();
         }
-    
+
         if ( UserTagCache[postData.username+"_"+postData.site] ) {
             FCK.InsertHtml(UserTagCache[postData.username+"_"+postData.site] + "&nbsp;");
             if (selection != '') FCKSelection.Collapse();
@@ -80,7 +80,7 @@ LJUserCommand.Execute=function() {
                 "onError": gotError,
                 "onData": gotInfo
             };
-        
+
             window.parent.HTTPReq.getJSON(opts);
         }
     }
@@ -146,11 +146,11 @@ LJUserCommand.Execute=function() {
         userPopup.show();
         username.focus();
 
-        DOM.addEventListener( window.parent.document, "keyup", function(userPopup) { 
+        DOM.addEventListener( window.parent.document, "keyup", function(userPopup) {
             return  LJUserCommand.KeyUpHandler = function(e) {
                 var code = e.keyCode || e.which;
                 // enter
-                if ( code == 13 ) {            
+                if ( code == 13 ) {
                     userPopup.hide();
                     do_insert( username.value, siteList.value );
                     return;
@@ -181,65 +181,6 @@ oLJUserLink.IconPath = FCKConfig.PluginsPath + 'livejournal/dwuser.png' ;
 // Register the button to use in the config
 FCKToolbarItems.RegisterItem('LJUserLink', oLJUserLink) ;
 
-
-//////////  LJ Video Button //////////////
-var LJVideoCommand=function(){
-};
-LJVideoCommand.prototype.Execute=function(){
-}
-LJVideoCommand.GetState=function() {
-    return FCK_TRISTATE_OFF; //we dont want the button to be toggled
-}
-
-LJVideoCommand.Execute=function() {
-    var url;
-    var selection = '';
-
-    if (FCK.EditorWindow.getSelection) {
-        selection = FCK.EditorWindow.getSelection();
-        // Create a new div to clone the selection's content into
-        var d = FCK.EditorDocument.createElement('DIV');
-        for (var i = 0; i < selection.rangeCount; i++) {
-            d.appendChild(selection.getRangeAt(i).cloneContents());
-        }
-        selection = d.innerHTML;
-    } else if (FCK.EditorDocument.selection) {
-        var range = FCK.EditorDocument.selection.createRange();
-        var type = FCKSelection.GetType();
-        if (type == 'Control') {
-            selection = range.item(0).outerHTML;
-        } else if (type == 'None') {
-            selection = '';
-        } else {
-            selection = range.htmlText;
-        }
-    }
-
-    if (selection != '') {
-        url = selection;
-    } else {
-        url = prompt(window.parent.FCKLang.VideoPrompt,'');
-    }
-
-    if (url != null && url != '') {
-        // Make the tag like the editor would
-        var html = "<div url=\""+url+"\" class=\"ljvideo\"><img src=\""+FCKConfig.PluginsPath + "livejournal/ljvideo.gif\" /></div>";
-
-        FCK.InsertHtml(html);
-        FCKSelection.Collapse();
-        FCK.Focus();
-    }
-    return;
-}
-
-FCKCommands.RegisterCommand('LJVideoLink', LJVideoCommand); //otherwise our command will not be found
-
-// Create the toolbar button.
-var oLJVideoLink = new FCKToolbarButton('LJVideoLink', window.parent.FCKLang.LJVideo);
-oLJVideoLink.IconPath = FCKConfig.PluginsPath + 'livejournal/ljvideo.gif';
-
-// Register the button to use in the config
-FCKToolbarItems.RegisterItem('LJVideoLink', oLJVideoLink);
 //////////  LJ Embed Media Button //////////////
 var LJEmbedCommand=function(){};
 LJEmbedCommand.prototype.Execute=function(){};
@@ -269,8 +210,8 @@ LJEmbedCommand.Execute=function() {
         html = selection;
         do_embed(html);
     } else {
-        var prompt = "Add media from other websites by copying and pasting their embed code here. ";
-        top.LJ_IPPU.textPrompt("Insert Embedded Content", prompt, do_embed);
+        var prompt = window.parent.FCKLang.EmbedContents;
+        top.LJ_IPPU.textPrompt(window.parent.FCKLang.EmbedPrompt, prompt, do_embed);
     }
 
     return;
@@ -279,7 +220,7 @@ LJEmbedCommand.Execute=function() {
 FCKCommands.RegisterCommand('LJEmbedLink', LJEmbedCommand ); //otherwise our command will not be found
 
 // Create embed media button
-var oLJEmbedLink = new FCKToolbarButton('LJEmbedLink', "Embed Media");
+var oLJEmbedLink = new FCKToolbarButton('LJEmbedLink', window.parent.FCKLang.LJVideo);
 oLJEmbedLink.IconPath = FCKConfig.PluginsPath + 'livejournal/ljvideo.gif' ;
 
 // Register the button to use in the config

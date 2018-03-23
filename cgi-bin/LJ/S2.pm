@@ -78,8 +78,8 @@ sub make_journal
         return;
     }
 
-    my $lang = $remote && $remote->prop( "browselang" );
-    LJ::Hooks::run_hook('set_s2bml_lang', $ctx, \$lang);
+    # see also Apache/LiveJournal.pm
+    my $lang = $LJ::DEFAULT_LANG;
 
     # note that's it's very important to pass LJ::Lang::get_text here explicitly
     # rather than relying on BML::set_language's fallback mechanism, which won't
@@ -296,6 +296,7 @@ sub s2_run
     };
     my $out_clean = sub {
         my $text = shift;
+        $text = '' unless defined $text;
 
         $cleaner->parse($text);
 
@@ -1388,7 +1389,7 @@ sub layer_compile
     }
 
     my $is_system = $layer->{userid} == LJ::get_userid( "system" );
-    my $untrusted = ! $LJ::S2_TRUSTED{$layer->{userid}} && ! $is_system;
+    my $untrusted = ! $is_system;
 
     # system writes go to global.  otherwise to user clusters.
     my $dbcm;
@@ -2132,7 +2133,7 @@ sub Entry_from_entryobj
     #load and prepare subject and text of entry
     my $subject = LJ::CleanHTML::quote_html( $entry_obj->subject_html, $get->{nohtml} );
     my $text = $no_entry_body ? "" : LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
-    LJ::item_toutf8( $journal, \$subject, \$text, $entry_obj->props ) if $LJ::UNICODE && $entry_obj->props->{unknown8bit};
+    LJ::item_toutf8( $journal, \$subject, \$text, $entry_obj->props ) if $entry_obj->props->{unknown8bit};
 
     my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
 
@@ -2355,7 +2356,7 @@ sub Page
         include_meta_viewport => $r->cookie( 'no_mobile' ) ? 0 : 1,
     };
 
-    if ($LJ::UNICODE && $opts && $opts->{'saycharset'}) {
+    if ( $opts && $opts->{'saycharset'} ) {
         $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset=' . $opts->{'saycharset'} . "\" />\n";
     }
 
@@ -2678,6 +2679,8 @@ sub curr_page_supports_ebox { 0 }
 sub has_quickreply
 {
     my ($page) = @_;
+    return 0 if $page->{_type} eq 'EntryPreviewPage';
+
     my $view = $page->{view};
     # Also needs adding to the list in core2.s2
     return $view eq 'entry' || $view eq 'read' || $view eq 'day' || $view eq 'recent' || $view eq 'network';

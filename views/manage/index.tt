@@ -1,0 +1,305 @@
+[%# manage/index.tt
+
+Authors:
+    Jen Griffin <kareila@livejournal.com>
+
+Copyright (c) 2017 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        .linklist {
+          margin-left: 2em;
+        }
+        .linklist ul {
+          padding-left: 2em;
+          margin-bottom: 0.75em;
+          font-weight: bold;
+        }
+        ul.accountinfo {
+          list-style-type: none;
+        }
+        ul.accountinfo li {
+          padding-bottom: 0.5em;
+        }
+        ul.accountinfo li b {
+          padding-right: 0.5em;
+        }
+        .left {
+          float: left;
+        }
+        .right {
+          float: right;
+        }
+        .column {
+          width: 48%;
+          padding: 0.5em;
+        }
+    </style>
+[% END %]
+
+<form method="get">[% authas_html %]</form>
+
+[% iscomm = u.is_community ? '.comm' : '' %]
+
+<h1>[% '.youraccount.header' _ iscomm | ml %]</h1>
+<div style="margin-left: 2em;">
+<ul class=accountinfo>
+  <li><b>[% '.youraccount.user' | ml %]</b> [% u.ljuser_display %]</li>
+  <li><b>[% '.youraccount.name' | ml %]</b> [% u.name_html %]</li>
+  <li><b>[% '.youraccount.email' | ml %]</b>
+  [%- IF u.is_identity && ! u.email_raw -%]
+    <a href='[% dw.create_url( '/changeemail', keep_args => [ 'authas' ] ) %]'>
+    [%- '.youraccount.setemail' | ml %]</a>
+  [%- ELSE -%]
+    [% u.email_raw %] (<em>
+    [%- IF u.is_validated -%]
+      [%- '.youraccount.validated.yes' | ml -%]
+    [%- ELSE -%]
+      <a href='[% dw.create_url( '/register', keep_args => [ 'authas' ] ) %]'>
+      [%- '.youraccount.validated.no' | ml %]</a>
+    [%- END -%]
+    </em>)
+  [%- END -%]
+  </li>
+</ul>
+</div>
+
+<div class="left column">
+
+[%- infoitems = [
+  {
+    href = dw.create_url( '/manage/profile/', keep_args => [ 'authas' ] )
+    title = dw.ml( '.information.profile.about' )
+    text = dw.ml( '/manage/profile/index.bml.title' )
+  },
+  {
+    href = dw.create_url( '/manage/icons', keep_args => [ 'authas' ] )
+    title = dw.ml( '.userpics.edit.about' )
+    text = dw.ml( '/edit/icons.tt.title' )
+  },
+  {
+    href = dw.create_url( '/manage/comments/', keep_args => [ 'authas' ] )
+    title = dw.ml( '.information.comments.about' )
+    text = dw.ml( '.information.comments' )
+  },
+  {
+    href = dw.create_url( '/manage/settings/', keep_args => [ 'authas' ] )
+    title = dw.ml( '.information.settings.about' )
+    text = dw.ml( '/manage/settings/index.bml.title' )
+  } ];
+
+IF u.email_raw; infoitems.push(
+  {
+    href = dw.create_url( '/changeemail', keep_args => [ 'authas' ] )
+    title = dw.ml( '.information.changeemail.about' )
+    text = dw.ml( '.information.changeemail' )
+  } ); END;
+
+IF u.is_personal; infoitems.push(
+  {
+    href = dw.create_url( '/changepassword' )
+    title = dw.ml( '.information.changepass.about' )
+    text = dw.ml( '.information.changepass' )
+  },
+  {
+    href = dw.create_url( '/manage/emailpost' )
+    title = dw.ml( '.information.mobilepost.about' )
+    text = dw.ml( '.information.mobilepost' )
+  } );
+
+  IF use_pubkey; infoitems.push(
+    {
+      href = dw.create_url( '/manage/pubkey' )
+      title = dw.ml( '.information.pubkey.about' )
+      text = dw.ml( '.information.pubkey' )
+    } ); END;
+
+  IF remote.can_use_esn; infoitems.push(
+    {
+      href = dw.create_url( '/manage/settings/?cat=notifications' )
+      title = dw.ml( '.manage.notifications.about' )
+      text = dw.ml( '.manage.notifications' )
+    } ); END;
+
+  infoitems.push(
+    {
+      href = dw.create_url( '/manage/logins' )
+      title = dw.ml( '.manage.logins' )
+      text = dw.ml( '.manage.logins' )
+    } );
+END;
+
+delstatus = u.is_deleted ? 'undelete' : 'delete';
+
+infoitems.push(
+  {
+    href = dw.create_url( '/accountstatus', keep_args => [ 'authas' ] )
+    title = dw.ml( '.information.status.about' )
+    text = dw.ml( '.information.status.' _ delstatus  )
+  } );
+
+INCLUDE linklist header=dw.ml( '.settings_pref' )
+                 about=dw.ml( '.information' _ iscomm )
+                 items=infoitems -%]
+
+[%- styleitems = [
+  {
+    href = dw.create_url( '/customize/', keep_args => [ 'authas' ] )
+    title = dw.ml( '.customization.customize.about' )
+    text = dw.ml( '.customization.customize' )
+  } ];
+
+IF use_s2; styleitems.push(
+  {
+    href = dw.create_url( '/customize/advanced/', keep_args => [ 'authas' ] )
+    title = dw.ml( '.customization.advanced.about' )
+    text = dw.ml( '.customization.advanced' )
+  },
+  {
+    href = dw.create_url( '/customize/options', keep_args => [ 'authas' ],
+                          args => { group => 'linkslist' } )
+    title = dw.ml( '.customization.links.about' )
+    text = dw.ml( '.customization.links' )
+  } ); END;
+
+styleitems.push(
+  {
+    href = dw.create_url( '/customize/options', keep_args => [ 'authas' ],
+                          args => { group => 'display' } )
+    title = dw.ml( '.customization.moodtheme.set' )
+    text = dw.ml( '.customization.moodtheme.set.header' )
+  } );
+
+IF u.can_create_moodthemes; styleitems.push(
+  {
+    href = dw.create_url( '/manage/moodthemes', keep_args => [ 'authas' ] )
+    title = dw.ml( '.customization.moodtheme.editor' )
+    text = dw.ml( '.customization.moodtheme.editor.header' )
+  } ); END;
+
+styleitems.push(
+  {
+    href = dw.create_url( '/customize/options', keep_args => [ 'authas' ],
+                          args => { group => 'display' } )
+    title = dw.ml( '.customization.navstrip' )
+    text = dw.ml( '.customization.navstrip' )
+  } );
+
+INCLUDE linklist header=dw.ml( '.customization.header' )
+                 about=dw.ml( '.customization' _ iscomm )
+                 items=styleitems -%]
+
+</div>
+
+<div class="right column">
+
+[%- entryitems = [
+  {
+    href = dw.create_url( '/tools/memories', keep_args => [ 'authas' ] )
+    title = dw.ml( '.entries.memories.about' )
+    text = dw.ml( '/tools/memories.bml.title.memorable' )
+  } ];
+
+UNLESS u.is_identity; entryitems.unshift(
+  {
+    href = dw.create_url( '/editjournal', args => { usejournal => u.user } )
+    title = dw.ml( '.entries.edit.about' )
+    text = dw.ml( '/editjournal.bml.title' )
+  } ); END;
+
+IF use_tags && ! u.is_identity; entryitems.push(
+  {
+    href = dw.create_url( '/manage/tags', keep_args => [ 'authas' ] )
+    title = dw.ml( '.entries.tags.about' )
+    text = dw.ml( '/manage/tags.bml.title2' )
+  } ); END;
+
+IF u.is_personal; entryitems.push(
+  {
+    href = dw.create_url( '/file/edit' )
+    title = dw.ml( '.entries.media.about' )
+    text = dw.ml( '.entries.media' )
+  } ); END;
+
+INCLUDE linklist header=dw.ml( '.entries.header' )
+                 about=dw.ml( '.entries' _ iscomm )
+                 items=entryitems -%]
+
+[%- circleitems = [
+  {
+    href = dw.create_url( '/manage/circle/editfilters', keep_args => [ 'authas' ] )
+    title = dw.ml( '.friends.groups.about' )
+    text = dw.ml( '/manage/circle/editfilters.bml.title2' )
+  } ];
+
+UNLESS u.is_community; circleitems.unshift(
+  {
+    href = dw.create_url( '/manage/circle/edit' )
+    title = dw.ml( '.circle.edit.about' )
+    text = dw.ml( '/manage/circle/edit.bml.title2' )
+  } ); END;
+
+UNLESS u.is_community; circleitems.push(
+  {
+    href = dw.create_url( '/manage/circle/filter' )
+    title = dw.ml( '.circle.filter.about' )
+    text = dw.ml( '.circle.filter' )
+  } ); END;
+
+IF use_invites && remote.is_personal; circleitems.push(
+  {
+    href = dw.create_url( '/invite' )
+    title = dw.ml( '.invites.manage.about' )
+    text = dw.ml( '.invites.manage' )
+  } ); END;
+
+INCLUDE linklist header=dw.ml( '.circle.header' )
+                 about=dw.ml( '.circle' )
+                 items=circleitems -%]
+
+[%- commitems = [
+  {
+    href = dw.create_url( '/communities/list' )
+    title = dw.ml( '.communities.manage.about' )
+    text = dw.ml( '/communities/list.tt.title' )
+  },
+  {
+    href = dw.create_url( '/manage/invites' )
+    title = dw.ml( '.communities.invites.about ' )
+    text = dw.ml( '/manage/invites.bml.title2' )
+  } ];
+
+UNLESS remote.is_identity; commitems.unshift(
+  {
+    href = dw.create_url( '/communities/new' )
+    title = dw.ml( '.communities.create.about' )
+    text = dw.ml( '/communities/new.tt.title' )
+  } ); END;
+
+INCLUDE linklist header=dw.ml( '.communities.header' )
+                 about=dw.ml( '.communities' )
+                 items=commitems -%]
+
+</div>
+
+[%- BLOCK linklist header='' about='' -%]
+  [%- IF items.size -%]
+  <h2>[% header %]</h2>
+  <div class="linklist">
+    <p style="margin: 0">[% about %]</p>
+    <ul>
+    [% FOREACH row IN items %]
+      <li><a href="[% row.href %]" title="[% row.title %]">[% row.text %]</a></li>
+    [% END %]
+    </ul>
+  </div>
+  [%- END -%]
+[%- END -%]

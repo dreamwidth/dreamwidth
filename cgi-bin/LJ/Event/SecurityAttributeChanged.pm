@@ -31,16 +31,19 @@ sub new {
 
         die "Missing credentials" unless $ip && $action;
 
+        # We can't be sure which order the keys were saved in,
+        # so search for both possibilities (old/new or new/old).
+
         # $action == 1 -- deleted
-        my $extra = (1 == $action) ? 'new=D&old=V' : 'new=V&old=D';
+        my $extra = (1 == $action) ? "'old=V&new=D', 'new=D&old=V'"
+                                   : "'old=D&new=V', 'new=V&old=D'";
 
         my $dbcr = LJ::get_cluster_reader($u);
         my $sth = $dbcr->prepare(
-            "SELECT logtime, ip".
-            " FROM userlog".
-            " WHERE userid=? AND extra=?".
+            "SELECT logtime, ip FROM userlog" .
+            " WHERE userid=? AND extra IN ($extra)" .
             " ORDER BY logtime DESC LIMIT 2");
-        $sth->execute($u->{userid},$extra);
+        $sth->execute( $u->{userid} );
         my ($logtime, $logip) = $sth->fetchrow_array;
 
         # Check for errors
@@ -164,9 +167,8 @@ sub _arg1_to_mlkey {
 
 sub as_email_subject {
     my ($self, $u) = @_;
-    my $lang    = $u->prop('browselang');
-    return LJ::Lang::get_text($lang, _arg1_to_mlkey($self->arg1) . 'email_subject2',
-        undef,
+
+    return LJ::Lang::get_default_text( _arg1_to_mlkey( $self->arg1 ) . 'email_subject2',
         {
             'user' => $u->{user}
         });
@@ -175,7 +177,6 @@ sub as_email_subject {
 sub _as_email {
     my ($self, $u, $is_html) = @_;
 
-    my $lang    = $u->prop('browselang');
     my $action  = $self->arg1;
     my $logtime = $self->arg2;
 
@@ -255,8 +256,8 @@ sub _as_email {
 
     my $iscomm = $u->is_community ? '.comm' : '';
 
-    return LJ::Lang::get_text($lang, _arg1_to_mlkey($action) .
-        'email_text2' . $iscomm, undef, $vars);
+    return LJ::Lang::get_default_text( _arg1_to_mlkey( $action ) .
+        'email_text2' . $iscomm, $vars );
 }
 
 sub as_email_string {

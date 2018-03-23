@@ -51,6 +51,9 @@ sub get_entry_map {
 
     my %map;
     while ( my ( $jitemid, $value ) = $sth->fetchrow_array ) {
+        while ( exists $map{$value} ) {
+            $value .= "/x";
+        }
         $map{$value} = $jitemid;
     }
     return \%map;

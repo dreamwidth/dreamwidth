@@ -12,12 +12,18 @@
 # part of this distribution.
 
 package LJ::Userpic;
+
 use strict;
-use Carp qw(croak);
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger( __PACKAGE__ );
+
 use Digest::MD5;
+use Storable;
+
+use DW::BlobStore;
 use LJ::Event::NewUserpic;
 use LJ::Global::Constants;
-use Storable;
 
 ##
 ## Potential properties of an LJ::Userpic object
@@ -95,6 +101,7 @@ sub get {
     my ( $class, $u, $picid, $opts ) = @_;
     return unless LJ::isu( $u );
     return if $u->is_expunged || $u->is_suspended;
+    return unless defined $picid;
 
     my $obj = ref $class ? $class : $class->new( $u, $picid );
     my @cache = $class->load_user_userpics( $u );
@@ -315,10 +322,27 @@ sub location {
     return $self->{location};
 }
 
+sub storage_key {
+    my ( $self, $userid, $picid ) = @_;
+
+    # If called on LJ::Userpic...
+    return 'up:' . $self->userid . ':' . $self->picid
+        if ref $self;
+
+    # Else...
+    $log->logcroak( 'Invalid usage of storage_key.' )
+        unless defined $userid && defined $picid;
+    return 'up:' . ( $userid + 0 ) . ':' . ( $picid + 0 );
+}
+
 sub in_mogile {
     my $self = $_[0];
-    my $loc = defined $self->location ? $self->location : '';
-    return $loc eq 'mogile';
+    return ( $self->location // '' ) eq 'mogile';
+}
+
+sub in_blobstore {
+    my $self = $_[0];
+    return ( $self->location // '' ) eq 'blobstore';
 }
 
 # returns (width, height)
@@ -500,7 +524,8 @@ sub keywords {
 
     my $raw = delete $opts{raw} || undef;
 
-    croak "Invalid opts passed to LJ::Userpic::keywords" if keys %opts;
+    $log->logcroak( "Invalid opts passed to LJ::Userpic::keywords" )
+        if keys %opts;
 
     my $u = $self->owner;
 
@@ -524,27 +549,11 @@ sub keywords {
 
 sub imagedata {
     my $self = $_[0];
-
     $self->load_row or return undef;
-    my $u = $self->owner;
-
     return undef if $self->expunged;
 
-    # check mogile
-    if ( $self->in_mogile ) {
-        my $key = $u->mogfs_userpic_key( $self->picid );
-        my $data = LJ::mogclient()->get_file_data( $key );
-        return $$data;
-    }
-
-    # check userpicblob2 table
-    my $dbb = LJ::get_cluster_reader($u)
-        or return undef;
-
-    my $data = $dbb->selectrow_array( "SELECT imagedata FROM userpicblob2 WHERE ".
-                                      "userid=? AND picid=?", undef, $self->userid,
-                                      $self->picid );
-    return $data ? $data : undef;
+    my $data = DW::BlobStore->retrieve( userpics => $self->storage_key );
+    return $data ? $$data : undef;
 }
 
 # get : class :: load_row : object
@@ -638,22 +647,22 @@ sub create {
     my $dataref = delete $opts{data};
     my $maxbytesize = delete $opts{maxbytesize};
     my $nonotify = delete $opts{nonotify};
-    croak("dataref not a scalarref") unless ref $dataref eq 'SCALAR';
-
-    croak("Unknown options: " . join(", ", scalar keys %opts)) if %opts;
+    $log->logcroak( "dataref not a scalarref" )
+        unless ref $dataref eq 'SCALAR';
+    $log->logcroak( "Unknown extra options: " . join( ", ", scalar keys %opts ) )
+        if %opts;
 
     my $err = sub {
         my $msg = $_[0];
     };
 
-    eval "use Image::Size;";
-    # FIXME the filetype is supposed to be returned intthe next call
+    # FIXME the filetype is supposed to be returned in the next call
     # but according to the docs of Image::Size v3.2 it does not return that value
+    eval "use Image::Size;";
     my ($w, $h, $filetype) = Image::Size::imgsize($dataref);
     my $MAX_UPLOAD = $maxbytesize || LJ::Userpic->max_allowed_bytes($u);
 
     my $size = length $$dataref;
-
     my $fmterror = 0;
 
     my @errors;
@@ -671,20 +680,15 @@ sub create {
 
     # don't throw a dimensions error if it's the wrong file type because its dimensions will always
     # be 0x0
-    unless ($w >= 1 && $w <= 100 && $h >= 1 && $h <= 100) {
+    unless ( $w && $w >= 1 && $w <= 100 && $h && $h >= 1 && $h <= 100 ) {
         push @errors, LJ::errobj("Userpic::Dimensions",
                                  w => $w, h => $h) unless $fmterror;
     }
 
     LJ::throw(@errors);
 
-    my $base64 = Digest::MD5::md5_base64($$dataref);
-
-    my $target = $LJ::USERPIC_MOGILEFS ? 'mogile' : undef;
-
-    my $dbh = LJ::get_db_writer();
-
     # see if it's a duplicate, return it if it is
+    my $base64 = Digest::MD5::md5_base64($$dataref);
     if (my $dup_up = LJ::Userpic->new_from_md5($u, $base64)) {
         return $dup_up;
     }
@@ -700,53 +704,35 @@ sub create {
 
     @errors = (); # TEMP: FIXME: remove... using exceptions
 
-    my $dberr = 0;
-    $u->do( "INSERT INTO userpic2 (picid, userid, fmt, width, height, " .
-            "picdate, md5base64, location) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
-            undef, $picid, $u->userid, $contenttype, $w, $h, $base64, $target );
-    if ( $u->err ) {
-        push @errors, $err->( $u->errstr );
-        $dberr = 1;
+    $u->do(
+        q{INSERT INTO userpic2 (
+            picid, userid, fmt, width, height, picdate, md5base64, location)
+        VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)},
+        undef, $picid, $u->userid, $contenttype, $w, $h, $base64, 'blobstore'
+    );
+    push @errors, $err->( $u->errstr )
+        if $u->err;
+
+    # All pictures are now stored to blobstore
+    my $storage_key = LJ::Userpic->storage_key( $u->userid, $picid );
+    unless ( DW::BlobStore->store( userpics => $storage_key, $dataref ) ) {
+        $u->do(
+            q{DELETE FROM userpic2 WHERE userid=? AND picid=?},
+            undef, $u->userid, $picid
+        );
+        push @errors, 'Failed to store userpic in blobstore.';
     }
-
-    my $clean_err = sub {
-        $u->do( "DELETE FROM userpic2 WHERE userid=? AND picid=?",
-                undef, $u->userid, $picid ) if $picid;
-        return $err->(@_);
-    };
-
-    if ( $target && $target eq 'mogile' && !$dberr ) {
-        my $fh = LJ::mogclient()->new_file($u->mogfs_userpic_key($picid), 'userpics');
-        if (defined $fh) {
-            $fh->print($$dataref);
-            my $rv = $fh->close;
-            push @errors, $clean_err->("Error saving to storage server: $@") unless $rv;
-        } else {
-            # fatal error, we couldn't get a filehandle to use
-            push @errors, $clean_err->("Unable to contact storage server.  Your picture has not been saved.");
-        }
-
-    } elsif ( !$dberr ) {  # use userpicblob2 table in database
-        my $dbcm = LJ::get_cluster_master($u);
-        return $err->($BML::ML{'error.nodb'}) unless $dbcm;
-        $u->do("INSERT INTO userpicblob2 (userid, picid, imagedata) " .
-               "VALUES (?, ?, ?)",
-               undef, $u->{'userid'}, $picid, $$dataref);
-        push @errors, $clean_err->($u->errstr) if $u->err;
-
-    } else { # We should never get here!
-        push @errors, "User picture uploading failed for unknown reason";
-    }
-
     LJ::throw(@errors);
 
     # now that we've created a new pic, invalidate the user's memcached userpic info
     LJ::Userpic->delete_cache( $u );
 
-    my $upic = LJ::Userpic->new( $u, $picid ) or die "Error insantiating userpic";
-    LJ::Event::NewUserpic->new( $upic )->fire if LJ::is_enabled('esn') && !$nonotify;
-
-    return $upic;
+    # Fire ESN and return
+    my $pic = LJ::Userpic->new( $u, $picid )
+        or $log->logcroak( 'Error insantiating userpic after creation' );
+    LJ::Event::NewUserpic->new( $pic )->fire
+        if LJ::is_enabled( 'esn' ) && !$nonotify;
+    return $pic;
 }
 
 # this will return a user's userpicfactory image stored in mogile scaled down.
@@ -762,42 +748,6 @@ sub create {
 #
 # note: this will always keep the image's original aspect ratio and not distort it.
 sub get_upf_scaled {
-    my ( $class, @args ) = @_;
-
-    my $gc = LJ::gearman_client();
-
-    # no gearman, do this in-process
-    return $class->_get_upf_scaled( @args ) unless $gc;
-
-    # invoke gearman
-    my $u = LJ::get_remote() or die "No remote user";
-    unshift @args, "userid" => $u->id;
-
-    my $result;
-    my $arg = Storable::nfreeze(\@args);
-    my $task = Gearman::Task->new('lj_upf_resize', \$arg,
-                                  {
-                                      uniq => '-',
-                                      on_complete => sub {
-                                          my $res = shift;
-                                          return unless $res;
-                                          $result = Storable::thaw($$res);
-                                      }
-                                  });
-
-    my $ts = $gc->new_task_set();
-    $ts->add_task($task);
-    $ts->wait(timeout => 30); # 30 sec timeout;
-
-    # job failed ... error reporting?
-    die "Could not resize image down\n" unless $result;
-
-    return $result;
-}
-
-# actual method
-sub _get_upf_scaled
-{
     my ( $class, %opts ) = @_;
     my $size = delete $opts{size} || 640;
     my $x1 = delete $opts{x1};
@@ -809,11 +759,13 @@ sub _get_upf_scaled
     my $u = LJ::want_user(delete $opts{userid} || delete $opts{u}) || LJ::get_remote();
     my $mogkey = delete $opts{mogkey};
     my $downsize_only = delete $opts{downsize_only};
-    croak "No userid or remote" unless $u || $mogkey;
+    $log->logcroak( "No userid or remote" )
+        unless $u || $mogkey;
 
     $maxfilesize *= 1024;
 
-    croak "Invalid parameters to get_upf_scaled\n" if scalar keys %opts;
+    $log->logcroak( "Invalid parameters to get_upf_scaled" )
+        if scalar keys %opts;
 
     my $mode = ($x1 || $y1 || $x2 || $y2) ? "crop" : "scale";
 
@@ -824,7 +776,8 @@ sub _get_upf_scaled
         or return undef;
 
     $mogkey ||= 'upf:' . $u->{userid};
-    my $dataref = LJ::mogclient()->get_file_data($mogkey) or return undef;
+    my $dataref = DW::BlobStore->retrieve( temp => $mogkey )
+        or return undef;
 
     # original width/height
     my ($ow, $oh) = Image::Size::imgsize($dataref);
@@ -931,10 +884,11 @@ sub make_default {
     $u->{'defaultpicid'} = $self->id;
 }
 
-# returns true if this picture if the default userpic
+# returns true if this picture is the default userpic
 sub is_default {
-    my $self = shift;
+    my $self = $_[0];
     my $u = $self->owner;
+    return unless defined $u->{'defaultpicid'};
 
     return $u->{'defaultpicid'} == $self->id;
 }
@@ -988,20 +942,7 @@ sub delete {
     $fail->() if $@;
 
     $u->log_event('delete_userpic', { picid => $picid });
-
-    # best-effort on deleteing the blobs
-    # TODO: we could fire warnings if they fail, then if $LJ::DIE_ON_WARN is set,
-    # the ->warn methods on errobjs are actually dies.
-    eval {
-        if ( $self->in_mogile ) {
-            LJ::mogclient()->delete($u->mogfs_userpic_key($picid));
-        } else {
-            $u->do( "DELETE FROM userpicblob2 WHERE ".
-                    "userid=? AND picid=?", undef,
-                    $u->userid, $picid );
-        }
-    };
-
+    DW::BlobStore->delete( userpics => $self->storage_key );
     LJ::Userpic->delete_cache($u);
 
     return 1;
@@ -1379,12 +1320,11 @@ sub lost_keywords_as_html {
 
 sub as_html {
     my $self = $_[0];
-    my $num_words = $self->number_lost;
-    return BML::ml("/editicons.bml.error.toomanykeywords", {
+    return LJ::Lang::ml( "error.editicons.toomanykeywords", {
         numwords => $self->number_lost,
         words    => $self->lost_keywords_as_html,
         max      => $LJ::MAX_USERPIC_KEYWORDS,
-    });
+    } );
 }
 
 package LJ::Error::Userpic::Bytesize;
@@ -1392,9 +1332,9 @@ sub user_caused { 1 }
 sub fields      { qw(size max); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml('/editicons.bml.error.filetoolarge',
-                   { 'maxsize' => $self->{'max'} .
-                         BML::ml('/editicons.bml.kilobytes')} );
+    return LJ::Lang::ml( 'error.editicons.filetoolarge',{
+        maxsize => $self->{'max'},
+    } );
 }
 
 package LJ::Error::Userpic::Dimensions;
@@ -1402,9 +1342,9 @@ sub user_caused { 1 }
 sub fields      { qw(w h); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml('/editicons.bml.error.imagetoolarge', {
-        imagesize => $self->{'w'} . 'x' . $self->{'h'}
-        });
+    return LJ::Lang::ml( 'error.editicons.imagetoolarge', {
+        imagesize => $self->{'w'} . 'x' . $self->{'h'},
+    } );
 }
 
 package LJ::Error::Userpic::FileType;
@@ -1412,8 +1352,9 @@ sub user_caused { 1 }
 sub fields      { qw(type); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.unsupportedtype",
-                          { 'filetype' => $self->{'type'} });
+    return LJ::Lang::ml( "error.editicons.unsupportedtype", {
+        filetype => $self->{'type'},
+    } );
 }
 
 package LJ::Error::Userpic::MismatchRenameKeywords;
@@ -1421,9 +1362,10 @@ sub user_caused { 1 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.rename.mismatchedlength",
-                          { 'origkw' => $self->{'origkw'},
-                            'newkw' => $self->{'newkw'} });
+    return LJ::Lang::ml( "error.iconkw.rename.mismatchedlength", {
+        origkw => $self->{'origkw'},
+        newkw  => $self->{'newkw'},
+    } );
 }
 
 package LJ::Error::Userpic::RenameBlankKeywords;
@@ -1431,9 +1373,10 @@ sub user_caused { 1 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.rename.blankkw",
-                          { 'origkw' => $self->{'origkw'},
-                            'newkw' => $self->{'newkw'} });
+    return LJ::Lang::ml( "error.iconkw.rename.blankkw", {
+        origkw => $self->{'origkw'},
+        newkw  => $self->{'newkw'},
+    } );
 }
 
 package LJ::Error::Userpic::RenameKeywordExisting;
@@ -1441,8 +1384,9 @@ sub user_caused { 1 }
 sub fields      { qw(keyword); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.rename.keywordexists",
-                          { 'keyword' => $self->{'keyword'} });
+    return LJ::Lang::ml( "error.iconkw.rename.keywordexists", {
+        keyword => $self->{'keyword'},
+    } );
 }
 
 package LJ::Error::Userpic::RenameKeywords;
@@ -1450,9 +1394,10 @@ sub user_caused { 0 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
     my $self = $_[0];
-    return BML::ml("/editicons.bml.error.rename.keywords",
-                          { 'origkw' => $self->{'origkw'},
-                            'newkw' => $self->{'newkw'} });
+    return LJ::Lang::ml( "error.iconkw.rename.keywords", {
+        origkw => $self->{'origkw'},
+        newkw  => $self->{'newkw'},
+    } );
 }
 
 package LJ::Error::Userpic::DeleteFailed;

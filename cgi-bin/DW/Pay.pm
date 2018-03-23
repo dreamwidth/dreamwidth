@@ -405,11 +405,14 @@ sub expire_user {
     DW::Pay::update_paid_status( $u, _expire => 1 );
     DW::Pay::sync_caps( $u );
 
-    # inactivate userpics (yes, this method does inactivation too)
-    $u->activate_userpics;
-
-    # disable email alias
-    $u->delete_email_alias;
+    my $rv = eval {
+        # activate also does inactivations
+        $u->activate_userpics;
+        $u->delete_email_alias;
+        1;
+    };
+    warn "Failed to perform one or more payment postflight tasks!\n"
+        unless $rv;
 
     # happy times
     DW::Stats::increment( 'dw.shop.paid_account.expired', 1 );
@@ -525,11 +528,15 @@ sub add_paid_time {
     DW::Pay::sync_caps( $u )
         if $rv;
 
-    # activate userpics
-    $u->activate_userpics;
-
-    # enable email alias
-    $u->update_email_alias;
+    # the following updates can error, and if they do then we don't want to break the
+    # whole payment flow
+    my $do_postflight = eval {
+        $u->activate_userpics;
+        $u->update_email_alias;
+        1;
+    };
+    warn "Failed to perform one or more payment postflight tasks!\n"
+        unless $do_postflight;
 
     # all good, we hope :-)
     return $rv;

@@ -1,11 +1,11 @@
-[%# communities/queue.tt
+[%# communities/queue/entries.tt
 
 Lists the pending entries in the moderation queue
 
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2015 by Dreamwidth Studios, LLC.
+Copyright (c) 2015-2018 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -20,6 +20,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
 ) -%]
 
 [%- linkbar -%]
+
+<div class="row"><div class="large-12 columns"><div class='highlight-box'>
+[% '.manage.membership.requests' | ml( aopts = "href='$site.root/communities/$community.user/queue/members'" ) %]
+</div></div></div>
 
 [%- IF entries.size > 0 -%]
     <ul class="queue">

@@ -324,10 +324,10 @@ sub extract_src_info {
         $sclient->insert($job)
                 or croak "Can't queue youtube api job: $@";
 
-    } elsif ( $contents =~ /src="http:\/\/.*vimeo\.com/ ) {
+    } elsif ( $contents =~ /src="https?:\/\/.*vimeo\.com/ ) {
         # Vimeo's default c/p embed code contains a link to the
         # video by title. If that's present, don't build a link.
-        my $host = "http://vimeo.com/";
+        my $host = "https://vimeo.com/";
 
         # get the video ID
         $contents =~ /.*src="[^"]*vimeo\.com\/video\/([^"]*)".*/;
@@ -413,7 +413,7 @@ sub contact_external_sites {
 
         # put together the  GET request to get the video title
         my $ua = LJ::get_useragent( role => 'vimeo', timeout => 60 );
-        my $api_url = "http://vimeo.com/api/v2/video/"
+        my $api_url = "https://vimeo.com/api/v2/video/"
                     . $vid_id
                     . ".json";
 
@@ -519,24 +519,9 @@ sub module_iframe_tag {
                     my $src;
                     next unless $src = $attr->{src};
 
-                    # we have an object/embed tag with src, make a fake lj-template object
-                    my @tags = (
-                                ['S', 'lj-template', {
-                                    name => 'video',
-                                    (defined $elewidth     ? ( width  => $width  ) : ()),
-                                    (defined $eleheight    ? ( height => $height ) : ()),
-                                    (defined $flashvars ? ( flashvars => $flashvars ) : ()),
-                                }],
-                                [ 'T', $src, {}],
-                                ['E', 'lj-template', {}],
-                                );
+                    # RIP lj-template (#1869)
+                    $no_whitelist = 1;
 
-                    $embedcodes = LJ::Hooks::run_hook('expand_template_video', \@tags);
-
-                    $found_embed = 1 if $embedcodes;
-                    $found_embed &&= $embedcodes !~ /Invalid video/i;
-
-                    $no_whitelist = !$found_embed;
                 } elsif ($tag ne 'param') {
                     $no_whitelist = 1;
                 }

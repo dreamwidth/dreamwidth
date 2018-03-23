@@ -47,7 +47,7 @@ _c?>
         my @error_codes = @_;
 
         if ($POST{ret_fail} && $POST{ret_fail} =~ m!^https?://([\.:\w-]+)!i &&
-            $LJ::REDIRECT_ALLOWED{$1}) 
+            $LJ::REDIRECT_ALLOWED{$1})
         {
             BML::redirect($POST{ret_fail} . LJ::eurl(join(',', @error_codes)));
             return 1;
@@ -204,7 +204,7 @@ _c?>
             $body .= "<div class='login-create-account'>\n";
             $body .= "<hr class='hr' />\n";
             $body .= "<h4>$ML{'.createaccount.header'}</h4>\n";
-            $body .= "<form action='<?siteroot?>/create' method='get'><input type='submit' value='$ML{'.createaccount.button'}' class='submit' /></form>\n";
+            $body .= "<form action='/create' method='get'><input type='submit' value='$ML{'.createaccount.button'}' class='submit' /></form>\n";
             $body .= "<ul>\n";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit1'}</li>";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit2'}</li>";
@@ -222,7 +222,7 @@ _c?>
     my $logout_remote = sub {
         $remote->kill_session if $remote;
         my $r = DW::Request->get;
-        foreach ( qw(langpref BMLschemepref) ) {
+        foreach ( qw(BMLschemepref) ) {
             $r->delete_cookie( name => $_ ) if $r->cookie( $_ );
         }
         $remote  = undef;
@@ -330,7 +330,7 @@ _c?>
             }
 
             # at this point, $u is known good
-            $u->preload_props( "browselang", "schemepref" );
+            $u->preload_props( "schemepref" );
 
             my $exptype = ($POST{'expire'} eq "never" || $POST{'remember_me'}) ? "long" : "short";
             my $bindip  = ($POST{'bindip'} eq "yes") ? BML::get_remote_ip() : "";

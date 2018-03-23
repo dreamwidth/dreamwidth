@@ -59,8 +59,6 @@ my @_ml_strings_en = (
 sub as_email_from_name {
     my ($self, $u) = @_;
 
-    my $lang = $u->prop('browselang');
-
     my $vars = {
         user            => $self->comment->poster ? $self->comment->poster->display_username : '',
         sitenameabbrev  => $LJ::SITENAMEABBREV,
@@ -74,7 +72,7 @@ sub as_email_from_name {
         $key .= 'anonymous';
     }
 
-    return LJ::Lang::get_text($lang, $key, undef, $vars);
+    return LJ::Lang::get_default_text( $key, $vars );
 }
 
 sub as_email_headers {
@@ -112,7 +110,6 @@ sub as_email_subject {
     my ($self, $u) = @_;
 
     my $edited = $self->comment->is_edited;
-    my $lang = $u->prop('browselang');
 
     my $entry_details = '';
     if ( $self->comment->journal && $self->comment->entry ) {
@@ -136,7 +133,7 @@ sub as_email_subject {
         $key .= $edited ? 'edit_reply_to_an_entry' : 'reply_to_an_entry';
     }
 
-    return LJ::Lang::get_text( $lang, $key ) . $entry_details;
+    return LJ::Lang::get_default_text( $key ) . $entry_details;
 }
 
 sub as_email_string {
@@ -197,15 +194,24 @@ sub content {
 
     if ( $comment->is_edited ) {
         my $reason = LJ::ehtml( $comment->edit_reason );
-        $comment_body .= "<br /><br /><div class='edittime'>" . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_comment.edit_reason", undef, { reason => $reason } ) . "</div>"
+        $comment_body .= "<br /><br /><div class='edittime'>"
+                      . LJ::Lang::get_default_text(
+                            "esn.journal_new_comment.edit_reason",
+                            { reason => $reason }
+                        )
+                      . "</div>"
             if $reason;
     }
 
     my $admin_post = "";
 
     if ( $comment->admin_post ) {
-        $admin_post = '<div class="AdminPost">' .
-            LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_comment.admin_post", undef, { img => LJ::img('admin-post') } ) . '</div>';
+        $admin_post = '<div class="AdminPost">'
+                    . LJ::Lang::get_default_text(
+                          "esn.journal_new_comment.admin_post",
+                          { img => LJ::img('admin-post') }
+                      )
+                    . '</div>';
     }
 
     my $ret = qq {
@@ -260,7 +266,12 @@ sub content_summary {
 
     if ( $comment->is_edited ) {
         my $reason = LJ::ehtml( $comment->edit_reason );
-        $ret .= "<br /><br /><div class='edittime'>" . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_comment.edit_reason", undef, { reason => $reason } ) . "</div>"
+        $ret .= "<br /><br /><div class='edittime'>"
+                . LJ::Lang::get_default_text(
+                      "esn.journal_new_comment.edit_reason",
+                      { reason => $reason }
+                  )
+                . "</div>"
             if $reason;
     }
 
@@ -576,7 +587,7 @@ sub available_for_user {
 sub raw_info {
     my ($self, $target, $flags) = @_;
     my $extended = ($flags and $flags->{extended}) ? 1 : 0; # add comments body
-    
+
     my $res = $self->SUPER::raw_info;
 
     my $comment = $self->comment;

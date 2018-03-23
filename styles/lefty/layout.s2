@@ -393,6 +393,10 @@ padding: 0.625em 1.25em 0.625em 4.5em;
 margin:0;
 }
 
+#header h1 a {
+color: $*color_page_title;
+}
+
 #header h2 {
 text-decoration: none;
 display: inline-block;

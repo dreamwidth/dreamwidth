@@ -191,6 +191,11 @@ h1, h2, h3, h4 {
     font-family: $*font_journal_title;
     }
 
+h1#title a {
+    color: $*color_page_title;
+    }
+
+h1#title a,
 .entry-title a,
 .comment-title a { text-decoration: none; }
 

@@ -244,6 +244,11 @@ dl dt {
     padding: .5em 1em;
     }
 
+#header a {
+    color: $*color_page_title;
+    text-decoration: none;
+    }
+
 /*--- Journal Navigation ---*/
 
 .navigation {

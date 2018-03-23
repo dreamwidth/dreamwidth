@@ -53,13 +53,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
             [%- END -%]
             </td>
 
-            <td>[%- IF comm.pending_members_count > 0 OR ( comm.moderator AND comm.show_mod_queue_count ) -%]
+            [%- pend_mem_count = comm.pending_members_count || 0 -%]
+            <td>[%- IF pend_mem_count > 0 OR ( comm.moderator AND comm.show_mod_queue_count ) -%]
             <ul class="inline-list">
                 [%- IF comm.moderator AND comm.show_mod_queue_count -%]
                     <li><a href="[%- comm.moderation_queue_url -%]">[%- '.actions.moderation.entries' | ml( num = "<span class='round label'>$comm.mod_queue_count</span>" ) -%]</a></li>
                 [%- END -%]
 
-                [%- IF comm.pending_members_count > 0 -%]
+                [%- IF pend_mem_count > 0 -%]
                     <li><a href="[% comm.member_queue_url %]">[%- '.actions.moderation.members' | ml( num = "<span class='round label'>$comm.pending_members_count</span>" ) -%]</a></li>
                 [%- END -%]
             </ul>

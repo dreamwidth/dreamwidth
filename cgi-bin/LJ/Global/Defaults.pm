@@ -47,8 +47,6 @@ no strict "vars";
 
     $SERVER_NAME ||= Sys::Hostname::hostname();
 
-    $UNICODE = 1 unless defined $UNICODE;
-
     @LANGS = ("en") unless @LANGS;
     $DEFAULT_LANG ||= $LANGS[0];
 
@@ -120,7 +118,6 @@ no strict "vars";
                       's2viewreply' => 1,
                       's2stylesmax' => 10,
                       's2layersmax' => 50,
-                      'textmessaging' => 1,
                       'userdomain' => 0,
                       'useremail' => 0,
                       'userpics' => 5,
@@ -266,9 +263,6 @@ no strict "vars";
     my %ajaxmapping = (
                        delcomment     => "delcomment.bml",
                        talkscreen     => "talkscreen.bml",
-                       dirsearch      => "tools/endpoints/directorysearch.bml",
-                       jobstatus      => "tools/endpoints/jobstatus.bml",
-                       multisearch    => "tools/endpoints/multisearch.bml",
                        );
 
     foreach my $src (keys %ajaxmapping) {
@@ -354,6 +348,9 @@ no strict "vars";
         /latest
         /edittags
     );
+    
+    # Selective screening limit. No user can have more than this.
+    $LJ::SEL_SCREEN_LIMIT ||= 500;
 }
 
 

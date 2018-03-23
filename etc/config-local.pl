@@ -110,7 +110,7 @@
     $EMBED_MODULE_DOMAIN = "embed.my-other-domain.net";
 
     # merchandise link
-    # $MERCH_URL = "http://www.zazzle.com/dreamwidth*";
+    # $MERCH_URL = "https://www.zazzle.com/dreamwidth*";
 
     # shop/pricing configuration
     # %SHOP = (
@@ -174,7 +174,12 @@
 
     # Domains that are known to support HTTPS. This is an optimization to
     # reduce traffic to our proxy and improve the user experience.
-    $HTTPS_UPGRADE_REGEX = qr!\.(?:photobucket\.com|imgur\.com|yandex\.ru|xkcd\.com)/!;
+    %KNOWN_HTTPS_SITES = map { $_ => 1 }
+                         qw/ imgur.com yandex.ru xkcd.com abload.de tumblr.com
+                             flickr.com staticflickr.com blogspot.com feedburner.com
+                             imageshack.us levkonoe.com wikimedia.org plurk.com
+                           /;
+
 }
 
 1;

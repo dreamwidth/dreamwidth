@@ -53,6 +53,7 @@ body<=
         community
         notifications
         mobile
+        shortcuts
         privacy
         history
         othersites
@@ -106,7 +107,23 @@ body<=
                 DW::Setting::ExcludeOwnStats
                 DW::Setting::StickyEntry
                 DW::Setting::MobileView
+                DW::Setting::RPAccount
                 LJ::Setting::SiteScheme
+            )],
+        },
+        shortcuts => {
+            name => $ML{'.cat.shortcuts'},
+            visible => 1,
+            disabled => !$u || $u->is_community ? 1 : 0,
+            form => 1,
+            desc => $ML{'.cat.shortcuts.desc2'},
+            settings => [qw(
+                DW::Setting::Shortcuts
+                DW::Setting::ShortcutsNext
+                DW::Setting::ShortcutsPrev
+                DW::Setting::ShortcutsTouch
+                DW::Setting::ShortcutsTouchNext
+                DW::Setting::ShortcutsTouchPrev
             )],
         },
         notifications => {
@@ -122,10 +139,9 @@ body<=
             visible => 1,
             disabled => !$u || $u->is_community ? 1 : 0,
             form => 1,
-            desc => $ML{'.cat.mobile.desc'},
+            desc => $ML{'.cat.mobile.desc2'},
             settings => [qw(
                 LJ::Setting::EmailPosting
-                DW::Setting::TxtMsgSetup
             )],
         },
         privacy => {
@@ -548,16 +564,7 @@ body<=
         }
 
         # Translate legacy pre-ESN notifs to ESN notifs
-        {
-            LJ::Event::JournalNewComment::Reply->migrate_user( $u );
-
-            $u->migrate_prop_to_esn( "opt_nomodemail", "CommunityModeratedEntryNew",
-                                        check_enabled => sub {
-                                                my ( $prop ) = @_;
-                                                # opt_nomodemail is a negative prop
-                                                return $prop eq "1" ? 0 : 1;
-                                        });
-        }
+        LJ::Event::JournalNewComment::Reply->migrate_user( $u );
 
         my @categories = (
             {

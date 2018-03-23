@@ -58,17 +58,6 @@ sub reload {
         #
         $LJ::DBIRole->set_sources(\%LJ::DBINFO);
         LJ::MemCache::reload_conf();
-
-        # reload MogileFS config
-        if (LJ::mogclient()) {
-            LJ::mogclient()->reload
-                ( domain => $LJ::MOGILEFS_CONFIG{domain},
-                  root   => $LJ::MOGILEFS_CONFIG{root},
-                  hosts  => $LJ::MOGILEFS_CONFIG{hosts},
-                  readonly => $LJ::DISABLE_MEDIA_UPLOADS, );
-              LJ::mogclient()->set_pref_ip(\%LJ::MOGILEFS_PREF_IP)
-                  if %LJ::MOGILEFS_PREF_IP;
-          }
     };
 
     warn "Errors reloading config: $@" if $@;

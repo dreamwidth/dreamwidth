@@ -77,10 +77,14 @@ sub migrate_user {
     # Cannot use $u->migrate_prop_to_esn
     #  * opt_gettalkemail isn't really a prop
     #  * ->migrate_prop_to_esn won't take arg1/arg2
+    #  * it no longer exists following https://github.com/dreamwidth/dw-free/issues/2052
 
+    my $opt_gettalkemail = $u->prop('opt_gettalkemail') // '';
+    my $opt_getselfemail = $u->prop('opt_getselfemail') // '';
     my @pending_subscriptions;
-    if ( $u->prop('opt_gettalkemail') ne 'X' ) {
-        if ( $u->prop('opt_gettalkemail') eq 'Y' ) {
+
+    if ( $opt_gettalkemail ne 'X' ) {
+        if ( $opt_gettalkemail eq 'Y' ) {
             push @pending_subscriptions, map { (
                 # FIXME(dre): Remove when ESN can bypass inbox
                 LJ::Subscription::Pending->new($u,
@@ -97,8 +101,8 @@ sub migrate_user {
         }
         $u->update_self( { 'opt_gettalkemail' => 'X' } );
     }
-    if ( $u->prop('opt_getselfemail') ne 'X' ) {
-        if ( $u->prop('opt_getselfemail') eq '1' ) {
+    if ( $opt_getselfemail ne 'X' ) {
+        if ( $opt_getselfemail eq '1' ) {
             push @pending_subscriptions, (
                 # FIXME(dre): Remove when ESN can bypass inbox
                 LJ::Subscription::Pending->new($u,

@@ -772,20 +772,26 @@ sub update_logtags {
         $opts->{"${verb}_ids"} ||= [];
         foreach my $kw (@{$opts->{$verb} || []}) {
             my $kwid = $u->get_keyword_id( $kw, $can_control );
-            if ($can_control) {
-                # error if we failed to create
-                return undef unless $kwid;
-            } else {
-                # if we're not creating, who cares, just skip; also skip if the keyword
-                # is not really a tag (don't promote it)
-                unless ( $kwid && $utags->{$kwid} ) {
+
+            # error if we should have been able to create a kwid and didn't
+            return undef if $can_control && ! $kwid;
+
+            # skip if the tag isn't used in the journal and either
+            # (a) we can't add it or (b) we are using force:
+            # we only use force if we are clearing all tags or importing, so
+            # we will have already added all the canonical tags in the journal,
+            # and any additional tags would be bogus
+            unless ( $kwid && $utags->{$kwid} ) {
+                if ( ! $can_control || $opts->{force} ) {
                     push @unauthorized_add, $kw;
                     next;
+                } else {
+                    # we need to create this tag later
+                    push @to_create, $kw;
                 }
             }
 
-            # add the ids to the list, and save to create later if needed
-            push @to_create, $kw unless $utags->{$kwid};
+            # add the id to the list
             push @{$opts->{"${verb}_ids"}}, $kwid;
         }
     }
@@ -819,8 +825,10 @@ sub update_logtags {
     delete $add{$_} foreach keys %{$tags};
 
     my @add_delete_errors;
-    push @add_delete_errors, LJ::Lang::ml( "taglib.error.add", { tags => join( ", ", @unauthorized_add ) } ) if @unauthorized_add;
-    push @add_delete_errors, LJ::Lang::ml( "taglib.error.delete2", { tags => join( ", ", map { $utags->{$_}->{name} } keys %{$tags} ) } ) if %delete && ! $can_control && ! $opts->{force};
+    push @add_delete_errors, LJ::Lang::ml( "taglib.error.add", { tags => join( ", ", @unauthorized_add ) } )
+        if @unauthorized_add && ! $opts->{force};
+    push @add_delete_errors, LJ::Lang::ml( "taglib.error.delete2", { tags => join( ", ", map { $utags->{$_}->{name} } keys %{$tags} ) } )
+        if %delete && ! $can_control && ! $opts->{force};
     return $err->( join "\n\n", @add_delete_errors ) if @add_delete_errors;
 
     # bail out if nothing needs to be done
@@ -1254,6 +1262,10 @@ sub rename_usertag {
     my $newname = LJ::Tags::validate_tag($newkw);
     return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $newkw ) } ) )
         unless $newname;
+    return $err->( LJ::Lang::ml( 'taglib.error.notcanonical',
+                                 { beforetag => LJ::ehtml( $newkw ),
+                                   aftertag => LJ::ehtml( $newname ) } ) )
+        unless $newkw eq $newname; # Far from ideal UX-wise.
 
     # get a list of keyword ids to operate on
     my $kwid;

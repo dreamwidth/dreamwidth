@@ -35,7 +35,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <li><div class="panel radius">
     [%- INCLUDE "components/icon-link-decorative.tt"
           link = {
-            url = "$site.root/editicons"
+            url = "$site.root/manage/icons"
           }
           icon = "photo"
           text = dw.ml( 'widget.createaccountnextsteps.steps.userpics' )

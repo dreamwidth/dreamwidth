@@ -5,7 +5,7 @@ Page to upload new files
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
-Copyright (c) 2013 by Dreamwidth Studios, LLC.
+Copyright (c) 2013-2018 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -29,6 +29,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/pages/media/new.css"
 ) -%]
 
+<p>[% dw.ml(".intro" {aopts1 => '/file/list', aopts2 => '/file/edit'}) %]</p>
 
 <div class="row">
     <div class="large-12 columns">
@@ -83,6 +84,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% ELSIF type == "select" %]
             [%- form.select( "items"   = items
                              "name"    = name
+                             "selected" = selected
                            )
             -%]
         [% END %]
@@ -95,6 +97,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <div class="progress secondary"><span class="meter" style="width:0"></span></div>
     </div>
     <div class="large-9 columns">
+        <div class="alert-box success" style="display:none;">[% dw.ml(".success") %]</div>
         <div class="row">
             <div class="large-8 columns">
                 [%- INCLUDE row_with_field(
@@ -111,12 +114,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
                     type  = "select"
                     items = security
+                    selected = default_security
 
                     labelSize = 4
                 ) -%]
             </div>
         </div>
-
+        [%- INCLUDE row_with_field( label = dw.ml( ".label.alttext" ), name = "alttext", type = "text" ) %]
         [%- INCLUDE row_with_field( label = dw.ml( ".label.description" ), name = "description", type = "textarea" ) %]
         [%- INCLUDE row_with_field( label = "Image Code", name="generated-code" ) -%]
     </div>

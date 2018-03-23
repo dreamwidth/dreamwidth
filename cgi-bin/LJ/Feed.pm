@@ -193,7 +193,7 @@ sub make_feed
         next ENTRY if $posteru{$it->{'posterid'}} && $posteru{$it->{'posterid'}}->is_suspended;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
-        if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
+        if ( $logprops{$itemid}->{'unknown8bit'} ) {
             LJ::item_toutf8($u, \$logtext->{$itemid}->[0],
                             \$logtext->{$itemid}->[1], $logprops{$itemid});
         }
@@ -207,13 +207,12 @@ sub make_feed
 
         # an HTML link to the entry. used if we truncate or summarize
         my $entry_url = $entry_obj->url;
-        my $readmore = q{<b>(<a href="$entry_url">Read more ...</a>)</b>};
+        my $readmore = qq{<b>(<a href="$entry_url">Read more ...</a>)</b>};
 
         # empty string so we don't waste time cleaning an entry that won't be used
         my $event = $u->{'opt_synlevel'} eq 'title' ? '' : $logtext->{$itemid}->[1];
 
         # clean the event, if non-empty
-        my $ppid = 0;
         if ($event) {
 
             # users without 'full_rss' get their logtext bodies truncated
@@ -253,18 +252,13 @@ sub make_feed
                 $event =~ s!<(lj-)?poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
             }
 
-            my %args = LJ::parse_args( $r->query_string );
-            LJ::EmbedModule->expand_entry($u, \$event, expand_full => 1)
-                if %args && $args{'unfold_embed'};
-
-            $ppid = $1
-                if $event =~ m!<lj-phonepost journalid=[\'\"]\d+[\'\"] dpid=[\'\"](\d+)[\'\"]( /)?>!;
+            LJ::EmbedModule->expand_entry( $u, \$event, expand_full => 1 );
         }
 
         # include comment count image at bottom of event (for readers
         # that don't understand the commentcount)
         $event .= "<br /><br />" . $entry_obj->comment_imgtag . " comments"
-            unless $opts->{'apilinks'};
+            unless $opts->{'apilinks'} || $r->get_args->{no_comment_count};
 
         my $mood;
         if ($logprops{$itemid}->{'current_mood'}) {
@@ -287,7 +281,6 @@ sub make_feed
             comments   => $can_comment,
             music      => $logprops{$itemid}->{'current_music'},
             mood       => $mood,
-            ppid       => $ppid,
             tags       => [ values %{$logtags->{$itemid} || {}} ],
             security   => $it->{security},
             posterid   => $it->{posterid},
@@ -392,9 +385,6 @@ sub create_view_rss {
             $ret .= "  <comments>$it->{url}</comments>\n";
         }
         $ret .= "  <category>$_</category>\n" foreach map { LJ::exml($_) } @{$it->{tags} || []};
-        # support 'podcasting' enclosures
-        $ret .= LJ::Hooks::run_hook( "pp_rss_enclosure",
-                { userid => $u->{userid}, ppid => $it->{ppid} }) if $it->{ppid};
         # TODO: add author field with posterid's email address, respect communities
         $ret .= "  <lj:music>" . LJ::exml($it->{music}) . "</lj:music>\n" if $it->{music};
         $ret .= "  <lj:mood>" . LJ::exml($it->{mood}) . "</lj:mood>\n" if $it->{mood};
@@ -615,7 +605,7 @@ sub create_view_foaf {
 
     # setup userprops we will need
     $u->preload_props( qw{
-        aolim icq yahoo jabber icbm url urlname external_foaf_url country city journaltitle
+        aolim icq yahoo jabber icbm url urlname country city journaltitle
     } );
 
     # create bare foaf document, for now
@@ -672,15 +662,6 @@ sub create_view_foaf {
     $ret .= "        <dc:description>Full $LJ::SITENAME profile, including information such as interests and bio.</dc:description>\n";
     $ret .= "      </foaf:Document>\n";
     $ret .= "    </foaf:page>\n";
-
-    # we want to bail out if they have an external foaf file, because
-    # we want them to be able to provide their own information.
-    if ($u->{external_foaf_url}) {
-        $ret .= "    <rdfs:seeAlso rdf:resource=\"" . LJ::eurl($u->{external_foaf_url}) . "\" />\n";
-        $ret .= ($comm ? "  </foaf:Group>\n" : "  </foaf:Person>\n");
-        $ret .= "</rdf:RDF>\n";
-        return $ret;
-    }
 
     # contact type information
     my %types = (
@@ -814,7 +795,7 @@ sub create_view_yadis {
         # Only people (not communities, etc) can be OpenID authenticated
         if ($person && LJ::OpenID->server_enabled) {
             $println->('    <Service>');
-            $println->('        <Type>http://openid.net/signon/1.0</Type>');
+            $println->('        <Type>http://openid.net/signon/1.1</Type>');
             $println->('        <URI>'.LJ::ehtml($LJ::OPENID_SERVER).'</URI>');
             $println->('    </Service>');
         }

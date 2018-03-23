@@ -221,13 +221,11 @@ span.expandcollapse {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.external_services div.im_icon,
-.external_services div.im_status {
+.external_services div.im_icon {
     text-align: center;
     display: inline;
     width: 19px;
 }
-.external_services div.im_icon img,
-.external_services div.im_status img {
+.external_services div.im_icon img {
     border: 0;
 }

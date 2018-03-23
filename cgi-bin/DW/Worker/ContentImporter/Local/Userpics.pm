@@ -52,12 +52,6 @@ sub import_userpics {
 
     $log->( 'User has=%d, max=%d, importing=%d', $count, $max, $pending );
 
-    # but do nothing if we have no room...
-    if ( $left <= 0 ) {
-        $log->( 'User has no room left, bailing.' );
-        return ();
-    }
-
     my ( @imported, %skip_ids );
 
     # import helper
@@ -90,13 +84,12 @@ sub import_userpics {
     $import_userpic->( $default )
         if $default && $default->{src};
 
-    # now bail out if we don't have room for everything
-    return @imported
-        unless $left >= $pending;
-
     # now import the list, or try
     $import_userpic->( $_ )
         foreach @{ $upics || [] };
+
+    $log->( 'Activating/inactivating userpics.' );
+    $u->activate_userpics;
 
     $log->( 'Local userpic import complete.' );
 

@@ -1,0 +1,23 @@
+;; -*- coding: utf-8 -*-
+.login.example=For example: <tt>username.someblog.com</tt> (if your host supports OpenID)
+
+.login.openid_url=Your OpenID URL:
+
+.login.submit=Login
+
+.main.openid_other_sites=Using your OpenID on another site.
+
+.main.openid_other_sites.content=If another site says it supports OpenID and you want to use your [[sitename]] identity there, just enter your journal URL.  (You don't need the http:// part, either).  For example,  enter <b>username.[[domain]]</b>, replacing <b>username</b> with your own username.  After you do so, you'll be sent to [[sitename]] briefly to ask if you want to trust that site to know who you are.  You can either trust them once or forever.  You can change your <a href="/openid/options">OpenID settings and trust</a> at any time.
+
+.main.using_your_openid_here=Using your OpenID here.
+
+.main.using_your_openid_here.content=If you don't have a [[sitename]] account, you can use your OpenID identity from another site to subscribe to journals, use a Reading Page, and receive access to protected content in journals. You can also leave comments on others' entries, but you can't post entries of your own or join communities.
+
+.main.using_your_openid_here.email=You can also <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> an email address where you can receive notification of replies to your comments.
+
+.main.what_is_openid=What is OpenID?
+
+.main.what_is_openid.content=[[sitename]] supports the <a href="http://openid.net/">OpenID</a> distributed identity system, letting you bring your [[sitename]] identity to other sites, and letting non-[[sitename]] users bring their identity here.  OpenID simplifies your online experience by eliminating the need for multiple usernames and multiple logins across multiple sites. For more information about OpenID on [[sitename]], you can view the FAQ <a href="https://www.dreamwidth.org/support/faqbrowse?faqid=62">"What is an OpenID Account?"</a>.
+
+.title=OpenID
+

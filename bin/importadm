@@ -1,0 +1,168 @@
+#!/usr/bin/perl
+#
+# importadm
+#
+# Administrative tool for managing the importer.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2016-2017 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use v5.10;
+use strict;
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+
+use Carp qw/ croak /;
+use Getopt::Long;
+
+$LJ::LOG_GTOP = 1;
+
+use DW::Logic::Importer;
+use DW::Worker::ContentImporter::LiveJournal::Comments;
+use DW::Worker::ContentImporter::LiveJournal::Entries;
+use DW::Worker::ContentImporter::LiveJournal::Userpics;
+use DW::Worker::ContentImporter::LiveJournal::Verify;
+
+
+my ( $user, $list, $run, $type, $import_id, $schedule_copy );
+GetOptions(
+    'user=s' => \$user,
+    'list' => \$list,
+    'run' => \$run,
+    'type=s' => \$type,
+    'import-id=i' => \$import_id,
+    'schedule-search-copy' => \$schedule_copy,
+);
+
+my $u = LJ::load_user( $user )
+    or croak "Usage: $0 -u USER [ --list | --run --type lj_entries [--import-id N] | --schedule-search-copy ]";
+my $dbh = LJ::get_db_writer();
+my $dbcm = LJ::get_cluster_master( $u )
+    or croak "No DB!";
+
+if ( $list ) {
+    my $rows = $dbh->selectall_arrayref(q{
+            SELECT i.userid, i.item, i.status, i.created, i.last_touch, i.import_data_id,
+                   i.priority, d.hostname, d.username, d.usejournal
+            FROM import_items i INNER JOIN import_data d
+                ON i.userid = d.userid AND i.import_data_id = d.import_data_id
+            WHERE i.userid = ?
+            ORDER BY i.import_data_id, i.item
+        }, undef, $u->id);
+    croak $dbh->errstr if $dbh->err;
+
+    my $last_id;
+    foreach my $r ( @$rows ) {
+        if ( defined $last_id && $last_id != $r->[5] ) {
+            print "\n";
+        }
+        $last_id = $r->[5];
+        printf "%-3d %25s %-16s %-10s %-5s %-5s\n",
+            $r->[5], "$r->[8]\@$r->[7]:$r->[9]", $r->[1], $r->[2], ago( $r->[3] ), ago( $r->[4] );
+    }
+    print "\n";
+    printf "/mnt/import-logs/%d/\n", $u->id;
+    exit 0;
+}
+
+if ( $schedule_copy ) {
+    LJ::theschwartz()->insert_jobs(
+        TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            { userid => $u->id, source => "importen" } )
+    );
+    print "Scheduled copier job.\n";
+    exit 0;
+}
+
+if ( $run ) {
+    if ( ! defined $type || $type !~ /^lj_(?:entries|comments|verify|userpics)$/ ) {
+        croak "--type must be one of: lj_entries, lj_comments, lj_verify, lj_userpics";
+    }
+
+    my $class = "DW::Worker::ContentImporter::LiveJournal::" . {
+        lj_comments => 'Comments',
+        lj_entries  => 'Entries',
+        lj_verify   => 'Verify',
+        lj_userpics => 'Userpics',
+    }->{$type};
+
+    my $tmpdata;
+    if ( defined $import_id ) {
+        $tmpdata = DW::Logic::Importer->get_import_data( $u, $import_id );
+    } else {
+        $tmpdata = DW::Logic::Importer->get_import_data_for_user( $u );
+    }
+    croak "No imports found for user"
+        unless $tmpdata && scalar @$tmpdata == 1;
+    my $data = {
+        userid         => $u->id,
+        import_data_id => $tmpdata->[0]->[0],
+        hostname       => $tmpdata->[0]->[1],
+        username       => $tmpdata->[0]->[2],
+        usejournal     => $tmpdata->[0]->[3],
+        password_md5   => $tmpdata->[0]->[4],
+        options        => $tmpdata->[0]->[5],
+    };
+
+    my $opts = {
+        userid         => $u->id,
+        import_data_id => $tmpdata->[0]->[0],
+    };
+
+    # Attempt to actually run the import now
+    $class->try_work( FakeJob->new, $opts, $data );
+    exit 0;
+}
+
+sub ago {
+    my $delta = time() - $_[0];
+    if ( $delta > 86400 * 28 ) {
+        return int($delta / (86400 * 7)) . 'w';
+    } elsif ( $delta > 86400 ) {
+        return int($delta / 86400) . 'd';
+    } elsif ( $delta > 3600 ) {
+        return int($delta / 3600) . 'h';
+    } elsif ( $delta > 60 ) {
+        return int($delta / 60) . 'm';
+    }
+    return $delta . 's';
+}
+
+
+################################################################################
+## FakeJob class for pretending we have a real job
+##
+
+package FakeJob;
+
+sub new {
+    my $class = $_[0];
+    my %self = ( @_ );
+    return bless \%self, $class;
+}
+
+sub grabbed_until {}
+sub save {}
+sub completed {}
+sub failures { 0 }
+sub funcname { $_[0] }
+sub max_retries { 5 }
+
+sub permanent_failure {
+    failed(@_);
+}
+
+sub failed {
+    say "Failed: $_[1]";
+}
+
+sub debug {
+   print $_[1]; 
+}
+
