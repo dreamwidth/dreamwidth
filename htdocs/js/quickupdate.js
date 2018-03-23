@@ -16,31 +16,31 @@
 */
 
 
-jQuery( function($) {
-    var security = $('#security');
-    security.find('option').each(function() {
-        $(this).data('journallabel', $(this).text());
-    });
-    $('#usejournal').change(function() {
-        var journal = $(this).find('option:selected');
-        var min = journal.data('minsecurity');
-        var isComm = journal.data('iscomm');
-        function tooPublic(actual) {
-            return min && actual && ((min == 'private' && actual != 'private')
-                    || (min == 'friends' && actual == 'public'));
+jQuery( function( $ ) {
+    var security = $( '#security' );
+    security.find( 'option' ).each( function() {
+        $( this ).data( 'journallabel', $( this ).text() );
+    } );
+    $( '#usejournal' ).change( function() {
+        var journal = $( this ).find( 'option:selected' );
+        var min = journal.data( 'minsecurity' );
+        var isComm = journal.data( 'iscomm' );
+        function tooPublic( actual ) {
+            return min && actual && ( ( min == 'private' && actual != 'private' )
+                    || ( min == 'friends' && actual == 'public' ) );
         }
-        if (tooPublic(security.val())) {
-            security.val(min);
+        if ( tooPublic( security.val() ) ) {
+            security.val( min );
         }
-        security.find('option').each(function() {
-            var opt = $(this);
-            if (isComm && opt.data('commlabel')) {
-                opt.text(opt.data('commlabel'));
-            } else if (opt.data('journallabel')) {
-                opt.text(opt.data('journallabel'));
+        security.find( 'option' ).each( function() {
+            var opt = $( this );
+            if ( isComm && opt.data( 'commlabel' ) ) {
+                opt.text( opt.data( 'commlabel' ) );
+            } else if ( opt.data( 'journallabel' ) ) {
+                opt.text( opt.data( 'journallabel' ) );
             }
-            opt.prop('disabled', tooPublic(opt.val()));
-            opt.css('color', '');  // server side greys out initial disabled items
-        });
-    });
+            opt.prop( 'disabled', tooPublic( opt.val() ) );
+            opt.css( 'color', '' );  // server side greys out initial disabled items
+        } );
+    } );
 } );

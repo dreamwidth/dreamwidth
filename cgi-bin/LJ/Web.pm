@@ -1998,11 +1998,11 @@ sub entry_form_entry_widget {
 
 
 sub minsec_for_user {
-    my $user = LJ::load_user(shift);
+    my $user = LJ::load_user( shift );
     if ( ! $user ) {
         return undef;
     }
-    return $user->prop('newpost_minsecurity');
+    return $user->prop( 'newpost_minsecurity' );
 }
 
 
@@ -2028,14 +2028,24 @@ sub entry_form_postto_widget {
 
     LJ::need_res( { group => 'jquery' }, 'js/quickupdate.js' );
 
-    my @journals = map { { value => $_, text => $_, data => { minsecurity => minsec_for_user($_), iscomm => 1 } } } @{$res->{'usejournals'}};
+    my @journals = map { {
+            value => $_,
+            text => $_,
+            data => { minsecurity => minsec_for_user( $_ ), iscomm => 1 }
+        } } @{$res->{'usejournals'}};
 
     return undef unless @journals;
 
-    my $journal_minsec = $remote && $remote->prop('newpost_minsecurity');
-    push @journals, { value => $remote->{'user'}, text => $remote->{'user'}, data => { minsecurity => $journal_minsec, iscomm => 0 } };
+    my $journal_minsec = $remote && $remote->prop( 'newpost_minsecurity' );
+    push @journals, {
+            value => $remote->{'user'},
+            text => $remote->{'user'},
+            data => { minsecurity => $journal_minsec, iscomm => 0 } };
     @journals = sort { $a->{'value'} cmp $b->{'value'} } @journals;
-    $ret .= LJ::html_select( { name => 'usejournal', id => 'usejournal', selected => $remote->user }, @journals ) . "\n";
+    $ret .= LJ::html_select( {
+            name => 'usejournal',
+            id => 'usejournal',
+            selected => $remote->user }, @journals ) . "\n";
     return $ret;
 }
 
@@ -2045,9 +2055,16 @@ sub entry_form_security_widget {
     my $minsec = $remote && $remote->prop('newpost_minsecurity');
 
     my @secs;
-    push @secs, { value => 'public',  text => BML::ml( 'label.security.public2' ), disabled => $minsec && ( $minsec eq 'private' || $minsec eq 'friends' ) };
-    push @secs, { value => 'friends', text => BML::ml( 'label.security.accesslist' ), data => { commlabel => BML::ml( 'label.security.members' ) }, disabled => $minsec && $minsec eq 'private' };
-    push @secs, { value => 'private', text => BML::ml( 'label.security.private2' ), data => { commlabel => BML::ml( 'label.security.maintainers' ) } };
+    push @secs, { value => 'public',
+            text => BML::ml( 'label.security.public2' ),
+            disabled => $minsec && ( $minsec eq 'private' || $minsec eq 'friends' ) };
+    push @secs, { value => 'friends',
+            text => BML::ml( 'label.security.accesslist' ),
+            data => { commlabel => BML::ml( 'label.security.members' ) },
+            disabled => $minsec && $minsec eq 'private' };
+    push @secs, { value => 'private',
+            text => BML::ml( 'label.security.private2' ),
+            data => { commlabel => BML::ml( 'label.security.maintainers' ) } };
 
     $ret .= LJ::html_select( { name => 'security', id => 'security' },
                             @secs );
