@@ -1842,6 +1842,10 @@ general /views/media/home.tt.edit
 general /views/media/index.tt.title
 general /views/media/index.tt.intro
 general /views/media/index.tt.intro.edit
+general /views/beta.tt.betafeature.httpseverywhere.cantadd
+general /views/beta.tt.betafeature.httpseverywhere.on
+general /views/beta.tt.betafeature.httpseverywhere.off
+general /views/beta.tt.betafeature.httpseverywhere.title
 
 general email.newacct5.body
 

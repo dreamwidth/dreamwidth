@@ -481,15 +481,7 @@ sub trans {
         }
     }
 
-    # force SSL if not currently and user is in httpseverywhere beta
     my $remote = LJ::get_remote();
-    if ( $apache_r->is_initial_req && $LJ::USE_SSL && ! $is_ssl && $remote &&
-            ( $apache_r->method eq 'GET' || $apache_r->method eq 'HEAD' ) &&
-            $remote->is_in_beta( 'httpseverywhere' ) ) {
-
-        my $url = LJ::create_url( $uri, keep_query_string => 1, ssl => 1 );
-        return redir( $apache_r, $url );
-    }
 
     # block on IP address for anonymous users but allow users to log in,
     # and logged in users to go through
