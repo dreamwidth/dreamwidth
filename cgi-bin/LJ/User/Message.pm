@@ -489,6 +489,8 @@ sub check_email
 
     my $use_errcode = $opts{errcode};
 
+    my $force_spelling = $opts{force_spelling};
+
     # Trim off whitespace and force to lowercase.
     $email =~ s/^\s+//;
     $email =~ s/\s+$//;
@@ -535,17 +537,20 @@ sub check_email
                          "Your email address domain is invalid.");
     }
 
-    # Catch misspellings of gmail.com, yahoo.com, hotmail.com, outlook.com,
-    # aol.com, live.com.
-    # https://github.com/dreamwidth/dw-free/issues/993#issuecomment-357466645
-    # explains where 3 comes from.
-    my $tf_domain = Text::Fuzzy->new( $domain, max => 3, trans => 1 );
-    my @common_domains = ( 'gmail.com', 'yahoo.com', 'hotmail.com',
-                           'outlook.com', 'aol.com', 'live.com' );
-    my $nearest = $tf_domain->nearest( \@common_domains );
-    return $reject->( "bad_spelling",
-                      "You gave $email as your email address. Are you sure you didn't mean $common_domains[$nearest]?" )
-        if defined $nearest && $tf_domain->last_distance > 0;
+    unless ( $force_spelling ) {
+        # Catch misspellings of gmail.com, yahoo.com, hotmail.com, outlook.com,
+        # aol.com, live.com.
+        # https://github.com/dreamwidth/dw-free/issues/993#issuecomment-357466645
+        # explains where 3 comes from.
+        my $tf_domain = Text::Fuzzy->new( $domain, max => 3, trans => 1 );
+        my @common_domains = ( 'gmail.com', 'yahoo.com', 'hotmail.com',
+                               'outlook.com', 'aol.com', 'live.com',
+                               'mail.com', 'ymail.com' );
+        my $nearest = $tf_domain->nearest( \@common_domains );
+        return $reject->( "bad_spelling",
+                          "You gave $email as your email address. Are you sure you didn't mean $common_domains[$nearest]?" )
+            if defined $nearest && $tf_domain->last_distance > 0;
+    }
 
     # Catch web addresses (two or more w's followed by a dot)
     if ($username =~ /^www*\./)
