@@ -63,15 +63,17 @@ my %host_path_match = (
 
     "www.dailymotion.com"   => [ qr!^/embed/video/!, 1 ],
     "dotsub.com"            => [ qr!^/media/!, 1 ],
+    "discordapp.com"        => [ qr!^/widget$!, 1 ],
 
     "episodecalendar.com"   => [ qr!^/icalendar/!, 0 ],
 
     "www.flickr.com"        => [ qr!/player/$!, 1 ],
 
     "www.goodreads.com"     => [ qr!^/widgets/!, 1 ],
+    "giphy.com"             => [ qr!^/embed/\w+!, 1 ],
 
     "maps.google.com"       => [ qr!^/maps!, 1 ],
-    "www.google.com"        => [ qr!^/calendar/!, 1 ],
+    "www.google.com"        => [ qr!^/(calendar/|maps/embed)!, 1 ],
     "calendar.google.com"   => [ qr!^/calendar/!, 1 ],
     # drawings do not need to be whitelisted as they are images.
     # forms arent being allowed for security concerns.
@@ -80,12 +82,14 @@ my %host_path_match = (
 
     "imgur.com"             => [ qr!^/a/.+?/embed!, 1 ],
     "instagram.com"         => [ qr!^/p/.*/embed/$!, 1 ],
+    "www.imdb.com"         => [ qr!^/videoembed/\w+$!, 0 ],
 
     "jsfiddle.net"          => [ qr!/embedded/$!, 1 ],
 
     "www.kickstarter.com"   => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
     "www.mixcloud.com"      => [ qr!^/widget/iframe/$!, 1 ],
+    "my.mail.ru"            => [ qr!^/video/embed/\d+!, 1 ],
 
     "ext.nicovideo.jp"      => [ qr!^/thumb/!, 0 ],
     "noisetrade.com"        => [ qr!^/service/widgetv2/!, 1 ],
@@ -96,19 +100,25 @@ my %host_path_match = (
     "playmoss.com"          => [ qr!^/embed/!, 1 ],
     "www.plurk.com"         => [ qr!^/getWidget$!, 1 ],
 
+    "www.reverbnation.com"  => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
+
     "www.sbs.com.au"        => [ qr!/player/embed/!, 0 ],  # best guess; language parameter before /player may vary
     "scratch.mit.edu"       => [ qr!^/projects/embed/!, 1 ],
     "www.scribd.com"        => [ qr!^/embeds/!, 1 ],
     "www.slideshare.net"    => [ qr!^/slideshow/embed_code/!, 1 ],
     "w.soundcloud.com"      => [ qr!^/player/!, 1 ],
     "embed.spotify.com"     => [ qr!^/$!, 1 ],
+    "open.spotify.com"      => [ qr!^/($)|(embed/track/\w+$)!, 1 ],
 
     "embed.ted.com"         => [ qr!^/talks/!, 1 ],
 
+    "vk.com"                => [ qr!^/video_ext\.php$!, 1 ],
     "vid.me"                => [ qr!^/e/!, 1 ],
     "player.vimeo.com"      => [ qr!^/video/\d+$!, 1 ],
     "vine.co"               => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],
     # Videos seemed to use an 11-character identification; may need to be changed
+
+    "fast.wistia.com"       => [ qr!^/embed/iframe/\w+$!, 1 ],
 
     "video.yandex.ru"       => [ qr!^/iframe/[\-\w]+/[a-z0-9]+\.\d{4}/?$!, 1 ], #don't think the last part can include caps; amend if necessary
 
@@ -162,6 +172,14 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
 
     if ( $uri_host eq "screen.yahoo.com" ) {
         return ( 1, 1 ) if $parsed_uri->query =~ m/format=embed/;
+    }
+
+    if ( match_subdomain( "livejournal.com", $uri_host ) ) {
+        return ( 1, 1 ) if match_full_path( qr!/\d+\.html!, $uri_path ) && $parsed_uri->query =~ m/embed/;
+    }
+
+    if ( $uri_host eq "music.yandex.ru" ) {
+        return ( 1, 1 ) if $parsed_uri->fragment =~ m!track/\d+/\d+!;
     }
 
     return 0;
