@@ -60,7 +60,7 @@ no strict "vars";
     $MSG_READONLY_USER ||= "Database temporarily in read-only mode during maintenance.";
 
     $DOMAIN_WEB ||= "www.$DOMAIN";
-    $SITEROOT ||= "http://$DOMAIN_WEB";
+    $SITEROOT ||= "https://$DOMAIN_WEB";
     $IMGPREFIX ||= "$SITEROOT/img";
     $STATPREFIX ||= "$SITEROOT/stc";
     $WSTATPREFIX ||= "$SITEROOT/stc";
