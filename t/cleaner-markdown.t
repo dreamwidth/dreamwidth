@@ -5,7 +5,7 @@
 # Authors:
 #      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2017 by Dreamwidth Studios, LLC.
+# Copyright (c) 2017-2018 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
@@ -36,6 +36,14 @@ my $clean = sub {
 # plain text user tag
 is( $clean->('@system'), "<p>$lju_sys</p>",
     "user tag in plain text converted" );
+
+# escaped plain text user tag
+is( $clean->('\@system'), '<p>@system</p>',
+    "escaped user tag in plain text not converted, backslash removed" );
+
+# plain text user tag with escape character escaped
+is( $clean->('\\\@system'), "<p>\\$lju_sys</p>",
+    "user tag in plain text converted when escape character is escaped" );
 
 # plain URL containing user tag
 # (Markdown conversion sets preformatted flag, so this won't linkify)
