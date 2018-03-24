@@ -2054,20 +2054,24 @@ sub entry_form_security_widget {
     my $remote = LJ::get_remote();
     my $minsec = $remote && $remote->prop('newpost_minsecurity');
 
+    # Don't disable options here: they may be valid to post to a community.
+    # quickupdate.js will dynamically disable/enable options according to the
+    # post-to dropdown, if JS is on.
     my @secs;
     push @secs, { value => 'public',
-            text => BML::ml( 'label.security.public2' ),
-            disabled => $minsec && ( $minsec eq 'private' || $minsec eq 'friends' ) };
+            text => BML::ml( 'label.security.public2' ) };
     push @secs, { value => 'friends',
             text => BML::ml( 'label.security.accesslist' ),
-            data => { commlabel => BML::ml( 'label.security.members' ) },
-            disabled => $minsec && $minsec eq 'private' };
+            data => { commlabel => BML::ml( 'label.security.members' ) } };
     push @secs, { value => 'private',
             text => BML::ml( 'label.security.private2' ),
             data => { commlabel => BML::ml( 'label.security.maintainers' ) } };
 
-    $ret .= LJ::html_select( { name => 'security', id => 'security' },
-                            @secs );
+    $ret .= LJ::html_select( {
+            name => 'security',
+            id => 'security',
+            selected => $minsec },
+            @secs );
 
     return $ret;
 }

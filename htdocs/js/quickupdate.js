@@ -18,29 +18,38 @@
 
 jQuery( function( $ ) {
     var security = $( '#security' );
+    var usejournal = $( '#usejournal' );
+
     security.find( 'option' ).each( function() {
         $( this ).data( 'journallabel', $( this ).text() );
     } );
-    $( '#usejournal' ).change( function() {
+
+    usejournal.change( function() {
         var journal = $( this ).find( 'option:selected' );
         var min = journal.data( 'minsecurity' );
         var isComm = journal.data( 'iscomm' );
+
         function tooPublic( actual ) {
             return min && actual && ( ( min == 'private' && actual != 'private' )
                     || ( min == 'friends' && actual == 'public' ) );
         }
+
         if ( tooPublic( security.val() ) ) {
             security.val( min );
         }
+
         security.find( 'option' ).each( function() {
             var opt = $( this );
+            opt.prop( 'disabled', tooPublic( opt.val() ) );
+
+            // 'friends' and 'private' are labelled differently for communities
             if ( isComm && opt.data( 'commlabel' ) ) {
                 opt.text( opt.data( 'commlabel' ) );
             } else if ( opt.data( 'journallabel' ) ) {
                 opt.text( opt.data( 'journallabel' ) );
             }
-            opt.prop( 'disabled', tooPublic( opt.val() ) );
-            opt.css( 'color', '' );  // server side greys out initial disabled items
         } );
     } );
+
+    usejournal.trigger( 'change' );
 } );
