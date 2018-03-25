@@ -62,6 +62,7 @@ _c?>
         @invitecodes = sort { ( $a->timesent || 0 ) <=> ( $b->timesent || 0 ) } @invitecodes;
     }
 
+    my $email_checkbox;
     my $validate_form = sub {
         my $rv = 1;
         my $bogus = sub {
@@ -75,7 +76,7 @@ _c?>
 
         if ($email) {
             my @errs;
-            LJ::check_email($email, \@errs);
+            LJ::check_email($email, \@errs, \%POST, \$email_checkbox);
             $bogus->("email", BML::ml('.error.bademail2', {'errormsg' => @errs})) if @errs;
 
             if ($LJ::USER_EMAIL && $email =~ /$LJ::USER_DOMAIN$/) {
@@ -219,6 +220,9 @@ _c?>
     $body .= LJ::html_submit($ML{'.btn.invite2'});
     if ($inerr->("email")) {
         $body .= "<br />" . $inerr->("email");
+    }
+    if ( $email_checkbox ) {
+        $body .= "<br />" . $email_checkbox;
     }
 
     if ( $LJ::USE_ACCT_CODES ) {
