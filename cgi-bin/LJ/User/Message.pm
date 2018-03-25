@@ -505,7 +505,7 @@ sub check_email
     # Empty email addresses are not good.
     unless ($email) {
         return $reject->("empty",
-                         "Your email address cannot be blank.");
+                         "The email address cannot be blank.");
     }
 
     # Check that the address is of the form username@some.domain.
@@ -521,7 +521,7 @@ sub check_email
     # Check the username for invalid characters.
     unless ($username =~ /^[^\s\",;\(\)\[\]\{\}\<\>]+$/) {
         return $reject->("bad_username",
-                         "You have invalid characters in your email address username.");
+                         "You have invalid characters in the email address username.");
     }
 
     # Check the domain name.
@@ -529,7 +529,7 @@ sub check_email
     unless ($domain =~ /^[\w-]+(?:\.[\w-]+)*\.(\w+)$/ && $valid_tlds->{$1})
     {
         return $reject->("bad_domain",
-                         "Your email address domain is invalid.");
+                         "The email address domain is invalid.");
     }
 
     # Catch misspellings of gmail.com, yahoo.com, hotmail.com, outlook.com,
@@ -548,18 +548,18 @@ sub check_email
     if ( ref( $checkbox ) && ( $bad_spelling || $force_spelling ) ) {
         $$checkbox = "<input type=\"checkbox\" name=\"force_spelling\" id=\"force_spelling\" "
                    . ( $force_spelling ? "checked=\"checked\" " : "" ) . "/>&nbsp;"
-                   . "<label for=\"force_spelling\">Yes I'm sure, override spell-check</label>";
+                   . "<label for=\"force_spelling\">Yes I'm sure this is correct</label>";
     }
     if ( $bad_spelling && ! $force_spelling ) {
         return $reject->( "bad_spelling",
-                "You gave $email as your email address. Are you sure you didn't mean $common_domains[$nearest]?" );
+                "You gave $email as the email address. Are you sure you didn't mean $common_domains[$nearest]?" );
     }
 
     # Catch web addresses (two or more w's followed by a dot)
     if ($username =~ /^www*\./)
     {
         return $reject->("web_address",
-                         "You gave $email as your email address, but it looks more like a web address to me.");
+                         "You gave $email as the email address, but it looks more like a web address to me.");
     }
 }
 
