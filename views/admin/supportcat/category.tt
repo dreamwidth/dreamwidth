@@ -37,7 +37,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <div class="row"><div class="medium-4 large-4 column">[% form.checkbox_nested( label=dw.ml( ".field.${checkbox}.label2" ), name=checkbox, value=1, selected=formdata.$checkbox ) %]</div>
         <div class="medium-8 large-8 column"><small>[% ".field.${checkbox}.note" | ml %]</small></div></div>
     [% END %]
-    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.replyaddress.label2' ), name="replyaddress", maxlength=50 ) %]</div>
+    <div class="row"><div class="medium-4 large-4 column">[% form.textbox( label=dw.ml( '.field.replyaddress.label2' ), name="replyaddress", maxlength=50, hint = email_checkbox ) %]</div>
     <div class="medium-8 large-8 column"><small>[% '.field.replyaddress.note' | ml %]</small></div></div>
     <div class="row"><div class="medium-4 large-4 column">[% form.checkbox_nested( label=dw.ml( '.field.no_autoreply.label2' ), name="no_autoreply", value=1, selected=formdata.no_autoreply ) %]</div>
     <div class="medium-8 large-8 column"><small>[% '.field.no_autoreply.note' | ml %]</small></div></div>
