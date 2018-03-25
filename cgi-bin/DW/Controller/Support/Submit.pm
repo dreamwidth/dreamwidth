@@ -55,7 +55,7 @@ sub submit_handler {
         }
 
         if ( $post_args->{email} ) {
-            my @errors;
+            my @errors = ();
             LJ::check_email( $post_args->{email}, \@errors, $post_args, \( $vars->{email_checkbox} ) );
             $errors->add_string( 'email', $_ ) foreach @errors;
         } elsif ( $req{reqtype} eq 'email' ) {

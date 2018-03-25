@@ -497,10 +497,6 @@ sub check_email
     my $reject = sub {
         my $errcode = shift;
         my $errmsg = shift;
-        # TODO: add $opts to end of check_email and make option
-        #       to either return error codes, or let caller supply
-        #       a subref to resolve error codes into native language
-        #       error messages (probably via BML::ML hash, or something)
         push @$errors, $errmsg if ref( $errors );
         push @$errorcodes, $errcode if ref( $errorcodes );
         return;
