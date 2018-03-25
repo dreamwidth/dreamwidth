@@ -76,8 +76,8 @@ _c?>
 
         if ($email) {
             my @errs;
-            LJ::check_email($email, \@errs, \%POST, \$email_checkbox);
-            $bogus->("email", BML::ml('.error.bademail2', {'errormsg' => @errs})) if @errs;
+            LJ::check_email( $email, \@errs, \%POST, \$email_checkbox );
+            $bogus->( "email", @errs ) if @errs;
 
             if ($LJ::USER_EMAIL && $email =~ /$LJ::USER_DOMAIN$/) {
                 $bogus->("email", $ML{'.error.useralreadyhasaccount'});
