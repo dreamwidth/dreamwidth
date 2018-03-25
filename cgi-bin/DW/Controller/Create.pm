@@ -65,6 +65,7 @@ sub create_handler {
     my $rate_ok = 1;
 
     my $errors = DW::FormErrors->new;
+    my $email_checkbox;
     if ( $r->did_post ) {
         $post = $r->post_args;
 
@@ -162,7 +163,7 @@ sub create_handler {
 
         # check the email address
         my @email_errors;
-        LJ::check_email( $email, \@email_errors );
+        LJ::check_email( $email, \@email_errors, $post, \$email_checkbox );
         $errors->add_string( 'email', $_ ) foreach @email_errors;
         $errors->add( 'email', 'widget.createaccount.error.email.lj_domain', { domain => $LJ::USER_DOMAIN } )
             if $LJ::USER_EMAIL and $email =~ /\@\Q$LJ::USER_DOMAIN\E$/i;
@@ -291,6 +292,7 @@ sub create_handler {
 
         formdata        => $post,
         errors          => $errors,
+        email_checkbox  => $email_checkbox,
     };
 
     if ( $code_valid && $rate_ok ) {

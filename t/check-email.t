@@ -51,7 +51,7 @@ sub check_email {
     $expected_error ||= "";
 
     my @email_errors;
-    LJ::check_email( $email, \@email_errors, errcode => 1 );
+    LJ::check_email( $email, undef, undef, undef, \@email_errors );
     is_deeply( \@email_errors, $expected_error ? [ $expected_error ] : [], "checked '$email' with error '$expected_error'" );
 }
 
