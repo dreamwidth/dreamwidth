@@ -63,7 +63,7 @@ sub changeemail_handler {
     
         my @errors = ();
 
-        LJ::check_email( $post->{email}, \@errors );
+        LJ::check_email( $post->{email}, \@errors, $post, \( $vars->{email_checkbox} ) );
 
         my $blocked = 0;
 
