@@ -535,8 +535,8 @@ sub set_comm_settings {
         unless $u->can_manage_other( $c );
 
     my @settings = qw/membership postlevel/;
-    my $updates = join(', ', map { $opts->{$_} ? "$_=?" : () } @settings);
-    my @update_values = map { $opts->{$_} || () } @settings;
+    my $updates = join(', ', map { $opts{$_} ? "$_=?" : () } @settings);
+    my @update_values = map { $opts{$_} || () } @settings;
 
     die "Membership or posting level is not available"
         unless @update_values;
