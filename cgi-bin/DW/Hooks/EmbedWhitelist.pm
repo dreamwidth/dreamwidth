@@ -56,6 +56,7 @@ my %host_path_match = (
 
     "bandcamp.com"          => [ qr!^/EmbeddedPlayer/!, 1 ],
     "blip.tv"               => [ qr!^/play/!, 1 ],
+    "app.box.com"           => [ qr!^/embed/s/!, 1 ],
 
     "codepen.io"            => [ qr!^/enxaneta/embed/!, 1 ],
     "coub.com"              => [ qr!^/embed/!, 1 ],
@@ -88,6 +89,8 @@ my %host_path_match = (
 
     "www.kickstarter.com"   => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
+    "lichess.org"           => [ qr!/study/embed/!, 1 ],
+
     "www.mixcloud.com"      => [ qr!^/widget/iframe/$!, 1 ],
     "my.mail.ru"            => [ qr!^/video/embed/\d+!, 1 ],
 
@@ -112,11 +115,11 @@ my %host_path_match = (
 
     "embed.ted.com"         => [ qr!^/talks/!, 1 ],
 
-    "vk.com"                => [ qr!^/video_ext\.php$!, 1 ],
     "vid.me"                => [ qr!^/e/!, 1 ],
     "player.vimeo.com"      => [ qr!^/video/\d+$!, 1 ],
     "vine.co"               => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],
     # Videos seemed to use an 11-character identification; may need to be changed
+    "vk.com"                => [ qr!^/video_ext\.php$!, 1 ],
 
     "fast.wistia.com"       => [ qr!^/embed/iframe/\w+$!, 1 ],
 
@@ -160,6 +163,10 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
 
     if ( $uri_host eq "i.cdn.turner.com" ) {
         return ( 1, 1 ) if $uri_path =~ '/cnn_\d+x\d+_embed.swf$' && $parsed_uri->query =~ m/^context=embed&videoId=/;
+    }
+
+    if ( $uri_host eq "player.theplatform.com" ) {
+        return ( 1, 1 ) if $uri_path =~ 'MSNBCEmbeddedOffSite' && $parsed_uri->query =~ m/^guid=/;
     }
 
     if ( $uri_host eq "www.facebook.com" ) {
