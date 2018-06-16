@@ -590,6 +590,14 @@ userproplist.last_fm_user:
   multihomed: 0
   prettyname: LastFM user account name
 
+userproplist.livejournal:
+  cldversion: 4
+  datatype: char
+  des: LiveJournal user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: LiveJournal user account name
+
 userproplist.latest_optout:
   cldversion: 4
   datatype: bool

@@ -864,6 +864,17 @@ sub external_services {
         };
     }
 
+    if ( my $livejournal = $u->prop( 'livejournal' ) ) {
+        my $elivejournal = LJ::eurl( $livejournal );
+        push @ret, {
+            type => 'livejournal',
+            text => LJ::ehtml( $livejournal ),
+            url => "http://$livejournal.livejournal.com",
+            image => 'livejournal.gif',
+            title_ml => '.service.livejournal',
+        };
+    }
+
     if ( my $pinboard = $u->prop( 'pinboard' ) ) {
         my $pinboard = LJ::eurl( $pinboard );
         push @ret, {
