@@ -282,7 +282,9 @@ sub region_options {
     LJ::load_codes ({$country_region_cfg->{'type'} => \%states});
 
     my $options = ['' => $class->ml('states.head.defined'),
-                   map { $_ , $states{$_} } sort keys %states];
+                   map { $_, $states{$_} }
+                        sort { $states{$a} cmp $states{$b} }
+                        keys %states ];
     return $options;
 }
 

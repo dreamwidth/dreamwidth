@@ -1043,16 +1043,6 @@ sub _do_post {
                 ml_string => ".new.links.view" }
         );
 
-        if ( $form_req->{props}->{opt_backdated} ) {
-            # we have to do some gymnastics to figure out the entry date
-            my $e = LJ::Entry->new_from_url( $itemlink );
-            my ( $y, $m, $d ) = ( $e->{eventtime} =~ /^(\d+)-(\d+)-(\d+)/ );
-            push @links, {
-                url => $ju->journal_base . "/$y/$m/$d/",
-                ml_string => ".new.links.backdated",
-            }
-        }
-
         push @links, (
             { url => $edititemlink,
                 ml_string => ".new.links.edit" },

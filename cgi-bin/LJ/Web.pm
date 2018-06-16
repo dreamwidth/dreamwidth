@@ -1997,6 +1997,15 @@ sub entry_form_entry_widget {
 }
 
 
+sub minsec_for_user {
+    my $user = LJ::load_user( shift );
+    if ( ! $user ) {
+        return undef;
+    }
+    return $user->prop( 'newpost_minsecurity' );
+}
+
+
 # entry form "journals can post to" dropdown
 # NOTE!!! returns undef if no other journals user can post to
 sub entry_form_postto_widget {
@@ -2017,26 +2026,52 @@ sub entry_form_postto_widget {
 
     return undef unless $res;
 
-    my @journals = map { $_, $_ } @{$res->{'usejournals'}};
+    LJ::need_res( { group => 'jquery' }, 'js/quickupdate.js' );
+
+    my @journals = map { {
+            value => $_,
+            text => $_,
+            data => { minsecurity => minsec_for_user( $_ ), iscomm => 1 }
+        } } @{$res->{'usejournals'}};
 
     return undef unless @journals;
 
-    push @journals, $remote->{'user'};
-    push @journals, $remote->{'user'};
-    @journals = sort @journals;
-    $ret .= LJ::html_select( { name => 'usejournal', id => 'usejournal', selected => $remote->user }, @journals ) . "\n";
+    my $journal_minsec = $remote && $remote->prop( 'newpost_minsecurity' );
+    push @journals, {
+            value => $remote->{'user'},
+            text => $remote->{'user'},
+            data => { minsecurity => $journal_minsec, iscomm => 0 } };
+    @journals = sort { $a->{'value'} cmp $b->{'value'} } @journals;
+    $ret .= LJ::html_select( {
+            name => 'usejournal',
+            id => 'usejournal',
+            selected => $remote->user }, @journals ) . "\n";
     return $ret;
 }
 
 sub entry_form_security_widget {
     my $ret = '';
+    my $remote = LJ::get_remote();
+    my $minsec = $remote && $remote->prop('newpost_minsecurity');
 
-    my @secs = ( "public", BML::ml( 'label.security.public2' ),
-                 "friends", BML::ml( 'label.security.accesslist' ),
-                 "private", BML::ml( 'label.security.private2' ) );
+    # Don't disable options here: they may be valid to post to a community.
+    # quickupdate.js will dynamically disable/enable options according to the
+    # post-to dropdown, if JS is on.
+    my @secs;
+    push @secs, { value => 'public',
+            text => BML::ml( 'label.security.public2' ) };
+    push @secs, { value => 'friends',
+            text => BML::ml( 'label.security.accesslist' ),
+            data => { commlabel => BML::ml( 'label.security.members' ) } };
+    push @secs, { value => 'private',
+            text => BML::ml( 'label.security.private2' ),
+            data => { commlabel => BML::ml( 'label.security.maintainers' ) } };
 
-    $ret .= LJ::html_select( { name => 'security', id => 'security' },
-                            @secs );
+    $ret .= LJ::html_select( {
+            name => 'security',
+            id => 'security',
+            selected => $minsec },
+            @secs );
 
     return $ret;
 }

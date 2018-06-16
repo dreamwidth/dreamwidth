@@ -534,13 +534,17 @@ sub set_comm_settings {
     die "User cannot modify this community"
         unless $u->can_manage_other( $c );
 
-    die "Membership and posting levels are not available"
-        unless $opts->{membership} && $opts->{postlevel};
+    my @settings = qw/membership postlevel/;
+    my $updates = join(', ', map { $opts->{$_} ? "$_=?" : () } @settings);
+    my @update_values = map { $opts->{$_} || () } @settings;
+
+    die "Membership or posting level is not available"
+        unless @update_values;
 
     my $cid = $c->userid;
 
     my $dbh = LJ::get_db_writer();
-    $dbh->do("REPLACE INTO community (userid, membership, postlevel) VALUES (?,?,?)" , undef, $cid, $opts->{membership}, $opts->{postlevel});
+    $dbh->do("INSERT INTO community (userid, membership, postlevel) VALUES (?,?,?) ON DUPLICATE KEY UPDATE $updates" , undef, $cid, $opts->{membership} || 'open', $opts->{postlevel} || 'members', @update_values);
 
     my $memkey = [ $cid, "commsettings:$cid" ];
     LJ::MemCache::delete($memkey);
