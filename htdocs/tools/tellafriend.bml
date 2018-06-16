@@ -26,6 +26,7 @@ _c?>
                   body         => '.',
                   body_start   => '.',
                   url          => '.',
+                  force_spelling => '.',
                   );
 
  my $user = $POST{'user'} || $GET{'user'};
@@ -72,6 +73,8 @@ _c?>
  my $msg_footer = BML::ml( ".email.body.footer1", { user => $u->{user}, sitename => $LJ::SITENAME, sitenameshort => $LJ::SITENAMESHORT, domain =>$LJ::DOMAIN } );
  my $custom_msg = "\n\n" . BML::ml( ".email.body.custom", { user => $u->{user} } );
 
+ my $email_checkbox;
+
  # Tell a friend form submitted
  if ($POST{'mode'} eq "mail")
  {
@@ -80,7 +83,7 @@ _c?>
 
      push @errors, BML::ml( ".error.noemail" ) unless (scalar @emails);
      foreach my $em ( @emails ) {
-        LJ::check_email($em, \@errors);
+        LJ::check_email( $em, \@errors, \%POST, \$email_checkbox );
      }
      # Check for images
      if ($POST{'body'} =~ /<(img|image)\s+src/i) {
@@ -150,7 +153,11 @@ _c?>
                                    value => $toemail,
                                    size => 60,
                                    maxlength => 150 }) .
-          "<br /><span class='detail'>" . BML::ml( ".email.formatinfo" ) . "</span></td></tr>\n";
+          "<br /><span class='detail'>" . BML::ml( ".email.formatinfo" ) . "</span>";
+ if ( $email_checkbox ) {
+    $body .= "<br />" . $email_checkbox;
+ }
+ $body .= "</td></tr>\n";
 
  my ($subject, $msg);
  $subject = BML::ml( ".email.subject.noentry" );
