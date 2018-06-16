@@ -235,7 +235,7 @@ RETURN
         return $err->("Invalid form") unless LJ::check_form_auth();
 
         $ret = "<form method='post' action='sysban'> " . LJ::form_auth() . 
-                "<select name='bantype'>";
+                "<select name='bantype' onchange=\"\$('spelling').style.display = ( this.value.endsWith('email') ? 'block' : 'none' )\">";
         foreach my $type ( sort @sysban_privs ) {
             if ( $type eq $bantype ) {
                 $ret .=  "<option selected value='$type'>$type</option>\n";
@@ -243,6 +243,7 @@ RETURN
                 $ret .=  "<option value='$type'>$type</option>\n";
             }
         }
+        my $spellstyle = ( $bantype =~ /email$/ ) ? "" : "display: none";
         $ret .= <<FORM;
 </select>
 Value: <input type='text' name='value'>
@@ -252,7 +253,11 @@ Duration: <select name='bandays'>
 <option value='30'>1 month</option>
 <option value='0'>forever</option>
 </select>
-Note (required): <textarea name='note' rows='3' cols='80'></textarea> 
+<div id="spelling" style="$spellstyle">
+<input type="checkbox" name="force_spelling" id="force_spelling">&nbsp;<label for="force_spelling">Override email spell-check</label>
+</div>
+Note (required):<br />
+<textarea name='note' rows='3' cols='80'></textarea>
 <br />
 <input type='submit' name='add' value='Add'>
 </form>
@@ -273,7 +278,7 @@ FORM
         return $err->("You do not have the correct privileges") unless 
             $remote && $remote->has_priv( $priv, $bantype );
 
-        my $notvalid = LJ::Sysban::validate( $bantype, $value );
+        my $notvalid = LJ::Sysban::validate( $bantype, $value, undef, \%POST );
         return $err->("Ban not valid: $notvalid") if $notvalid;
 
         my $create = LJ::Sysban::create(

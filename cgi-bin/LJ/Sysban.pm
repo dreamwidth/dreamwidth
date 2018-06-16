@@ -528,7 +528,7 @@ sub create {
 # returns: nothing on success, error message on failure
 # </LJFUNC>
 sub validate {
-    my ($what, $value, $opts) = @_;
+    my ($what, $value, $opts, $post) = @_;
 
     # bail early if the ban already exists
     return "This is already banned"
@@ -555,7 +555,7 @@ sub validate {
             my $email = shift;
 
             my @err;
-            LJ::check_email($email, \@err);
+            LJ::check_email($email, \@err, $post);
             return @err ? shift @err : 0;
         },
         'email_domain' => sub {
