@@ -22,12 +22,16 @@ _c?>
                   itemid       => 'digits',
                   mode         => '.',
                   toemail      => '.',
-                  fromname     => '.',
                   subject      => '.',
                   body         => '.',
                   body_start   => '.',
                   url          => '.',
                   );
+
+ my $user = $POST{'user'} || $GET{'user'};
+ my $journal = $POST{'journal'} || $GET{'journal'};
+ my $itemid = $POST{'itemid'} || $GET{'itemid'};
+ my $toemail = $POST{'toemail'};
 
  $title = BML::ml( ".title" );
  $body = "";
@@ -71,9 +75,8 @@ _c?>
  # Tell a friend form submitted
  if ($POST{'mode'} eq "mail")
  {
-     my $email = $POST{'toemail'};
      my @errors;
-     my @emails = split /,/, $email;
+     my @emails = split /,/, $toemail;
 
      push @errors, BML::ml( ".error.noemail" ) unless (scalar @emails);
      foreach my $em ( @emails ) {
@@ -91,45 +94,51 @@ _c?>
      }
      push @errors, "<?requirepost?>" unless LJ::did_post();
      push @errors, BML::ml( ".error.maximumemails" ) unless ($u->rate_log('tellafriend', scalar @emails));
-     push @errors, BML::ml( ".error.characterlimit" ) if (length($POST{'toemail'}) > 150);
+     push @errors, BML::ml( ".error.characterlimit" ) if (length($toemail) > 150);
      if (@errors) {
          # This piece left uncommented causes the Error page to have two titles displaying "Error"
          # Without the line, it displays "Tell a friend!" first, then "Error" which seems more helpful.
          # $title = BML::ml( ".errorpage.title" );
          $body = LJ::bad_input(@errors);
+
+         # Fall through and show form below
+     } else {
+         # All valid, go ahead and send
+
+         my $msg_body = $POST{'body_start'};
+         if ($POST{'body'} ne '') {
+             $msg_body .= $custom_msg . "\n-----\n" .
+                          $POST{'body'} . "\n-----";
+         }
+         $msg_body .= $msg_footer;
+
+         LJ::send_mail({
+             'to' => $toemail,
+             'from' => $u->{'emailpref'},
+             'fromname' => $u->user . BML::ml( ".via" ) . " $LJ::SITENAMESHORT",
+             'charset' => 'utf-8',
+             'subject' => $POST{'subject'},
+             'body' => $msg_body,
+         });
+
+         my $referer = BML::get_client_header('Referer');
+         my $tolist = $toemail;
+         $tolist =~ s/(,\s*)/<br \/>/g;
+         $body .= "<?h1 " . BML::ml( ".sentpage.title" ) . " h1?>";
+         $body .= "<?p <a href='$referer'>" . BML::ml( ".sentpage.body.tellanother" ) . "</a> p?>\n";
+         $body .= "<?p " . BML::ml( ".sentpage.body.mailedlist" ) . "<br />"
+                  . $tolist . " p?>";
          return;
      }
-
-     my $msg_body = $POST{'body_start'};
-     if ($POST{'body'} ne '') {
-         $msg_body .= $custom_msg . "\n-----\n" .
-                      $POST{'body'} . "\n-----";
-     }
-     $msg_body .= $msg_footer;
-
-     LJ::send_mail({
-         'to' => $POST{'toemail'},
-         'from' => $u->{'emailpref'},
-         'fromname' => $u->user . BML::ml( ".via" ) . " $LJ::SITENAMESHORT",
-         'charset' => 'utf-8',
-         'subject' => $POST{'subject'},
-         'body' => $msg_body,
-     });
-
-     my $referer = BML::get_client_header('Referer');
-     my $tolist = $POST{'toemail'};
-     $tolist =~ s/(,\s*)/<br \/>/g;
-     $body .= "<?h1 " . BML::ml( ".sentpage.title" ) . " h1?>";
-     $body .= "<?p <a href='$referer'>" . BML::ml( ".sentpage.body.tellanother" ) . "</a> p?>\n";
-     $body .= "<?p " . BML::ml( ".sentpage.body.mailedlist" ) . "<br />"
-              . $tolist . " p?>";
-     return;
  }
 
  my @warn;
  # Display form with info filled in
  $body .= "<form method='post' action='tellafriend'>";
  $body .= LJ::html_hidden({ name => 'mode', value => 'mail' });
+ $body .= LJ::html_hidden({ name => 'user', value => $user });
+ $body .= LJ::html_hidden({ name => 'journal', value => $journal });
+ $body .= LJ::html_hidden({ name => 'itemid', value => $itemid });
  $body .= "<table summary='' cellpadding=3 border=0>";
 
  $body .= "<tr><td align=right nowrap>" . BML::ml( ".email.fromfield" ) . "</td><td>" .
@@ -138,25 +147,21 @@ _c?>
 
  $body .= "<tr><td align=right valign='top'>" . BML::ml( ".email.recipientfield" ) . "</td>" .
           "<td>" . LJ::html_text({ name => 'toemail',
+                                   value => $toemail,
                                    size => 60,
                                    maxlength => 150 }) .
           "<br /><span class='detail'>" . BML::ml( ".email.formatinfo" ) . "</span></td></tr>\n";
 
  my ($subject, $msg);
  $subject = BML::ml( ".email.subject.noentry" );
- if ($GET{'itemid'} =~ /^\d+$/)
+ if ($itemid =~ /^\d+$/)
  {
-     my $journal = $GET{'journal'};
-     my $itemid = $GET{'itemid'}+0;
-     my $ditemid = $itemid;
-     my $uj;
-
-     $itemid = int($itemid / 256);
-
-     $uj = LJ::load_user($journal);
+     my $uj = LJ::load_user( $journal );
      return $err->(BML::ml( ".error.unknownjournal" )) unless $uj;
 
-     my $entry = LJ::Entry->new($uj->{'userid'}, jitemid => $itemid);
+     my $jitemid = $itemid + 0;
+     $jitemid = int( $jitemid / 256 );
+     my $entry = LJ::Entry->new($uj->{'userid'}, jitemid => $jitemid);
 
      my $entry_subject = $entry->subject_text;
      my $pu = $entry->poster;
@@ -188,7 +193,6 @@ _c?>
  }
 
  if ($GET{'user'} =~ /^\w{1,15}$/) {
-     my $user = $GET{'user'};
      my $uj = LJ::load_user($user);
      my $url = $uj->journal_base;
 
@@ -218,8 +222,8 @@ _c?>
  $body .= LJ::html_hidden({ name => 'subject', value => "$subject" });
  $body .= LJ::html_hidden({ name => 'body_start', value => $msg });
  $body .= "<tr><td valign=top colspan='2'>" . BML::ml( ".email.body.boxtitle" ) . "<br />" .
-          "<div class='message'><blockquote>" . $display_msg .
-          "<br /><textarea name=body rows=6 cols=55 wrap=soft></textarea>" .
+          "<div class='message'><blockquote>" . $display_msg . "<br />" .
+          LJ::html_textarea({ name => 'body', rows => 6, cols => 55, wrap => 'soft', value => $POST{'body'} }) .
           "$display_msg_footer</blockquote></div></td></tr>\n";
 
  $body .= "<tr><td colspan='2' align='center'><div class='action-box'><div class='inner'>" .
