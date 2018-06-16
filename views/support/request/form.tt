@@ -107,7 +107,8 @@ END -%]
         <div id='bounce_email' style='display: none'>
         [%- form.textbox( label = dw.ml( '.email.user' )
                 name = 'bounce_email'
-                size = 25
+                size = 25,
+                hint = '<div><input type="checkbox" name="force_spelling" id="force_spelling">&nbsp;<label for="force_spelling" style="float: none">Override email spell-check</label></div>'
         )
         -%]
         </div>
