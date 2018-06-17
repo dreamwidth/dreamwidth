@@ -60,11 +60,14 @@ sub save {
     # ensure a valid email address is given.
     my @errors;
     if ( $email ) {
-        LJ::check_email( $email, \@errors );
+        # force_spelling because /manage/profile can't present unsaved edits
+        # back to you (nor hold them out of sight), so there's no opportunity
+        # to show an override checkbox
+        LJ::check_email( $email, \@errors, { force_spelling => 1 } );
     }
 
     if ( @errors ) {
-        $class->errors( "email" => $class->ml( 'setting.profileemail.error.email.invalid' ) ) ;
+        $class->errors( "email" => join( '<br />', @errors ) ) ;
     } else {
         $u->profile_email( $email );
     }

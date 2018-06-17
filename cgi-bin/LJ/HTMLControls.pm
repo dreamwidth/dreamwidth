@@ -56,12 +56,12 @@ sub html_datetime
 
     $ret .= html_select( { name => "${name}_mm",
                            id => "${id}_mm",
-                           selected => $mm,
+                           selected => sprintf( '%02d', $mm ),
                            class => 'select',
                            title => 'month',
                            disabled => $disabled, @tabindex_arg, %extra_opts,
                          },
-                         map { $_, LJ::Lang::month_long_ml($_) } (1..12) );
+                         map { sprintf( '%02d', $_ ), LJ::Lang::month_long_ml($_) } (1..12) );
     ++$tabindex_arg[1] if defined $tabindex;
     $ret .= html_text( { name => "${name}_dd",
                          id => "${id}_dd",

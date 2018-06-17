@@ -24,7 +24,7 @@ sub desc { "View and edit email aliases. Requires priv: reset_email." }
 sub args_desc { [
                       action        => "One of: 'show' (to view recipient), 'delete' (to delete), or 'set' (to set a value)",
                       alias         => "The first portion of the email alias (eg, just the username)",
-                      value         => "Value to set the email alias to, if using 'set'.",
+                      value         => "Value to set the email alias to, if using 'set'. Append '!' to override spell-check.",
                  ] }
 
 sub usage { '<action> <alias> [ <value> ]' }
@@ -59,11 +59,17 @@ sub execute {
         return $self->error("Total length of recipient addresses cannot exceed 200 characters.")
             if length $value > 200;
 
-        # "lj" as a recipient is magical
         my @errors;
-        LJ::check_email($_, \@errors) foreach grep { $_ ne "lj" } @emails;
-        return $self->error("One or more of the email addresses you have specified is invalid.")
-            if @errors;
+        for ( @emails ) {
+            my $force_spelling = s/!$//;
+            # "lj" as a recipient is magical
+            next if $_ eq 'lj';
+            my ( $bad_spelling, @errors_here );
+            LJ::check_email($_, \@errors_here, { force_spelling => $force_spelling }, \$bad_spelling );
+            push @errors_here, "Append '!' to override spell-check." if ( $bad_spelling && ! $force_spelling );
+            @errors = ( @errors, @errors_here );
+        }
+        return $self->error( join( "\n", @errors ) ) if @errors;
 
         $dbh->do("REPLACE INTO email_aliases VALUES (?, ?)", undef, $alias, $value);
         return $self->error("Database error: " . $dbh->errstr)

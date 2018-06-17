@@ -638,6 +638,14 @@ body<=
         }
 
         my $save_rv = LJ::Setting->save_all( $u, \%POST, \@settings );
+        if ( LJ::Setting->save_had_errors( $save_rv ) ) {
+            my @save_errors;
+            for ( keys %$save_rv ) {
+                my $e = $save_rv->{$_}->{save_errors};
+                push @save_errors, $e->{(keys $e)[0]};
+            }
+            return LJ::error_list( @save_errors );
+        }
 
         $u->update_self( \%update );
 

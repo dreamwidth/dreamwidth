@@ -113,7 +113,7 @@ sub category_controller {
             if $cat->{basepoints} < 0 || $cat->{basepoints} > 255;
         if ( $cat->{replyaddress} ) {
             my @errors = ();
-            LJ::check_email( $cat->{replyaddress}, \@errors );
+            LJ::check_email( $cat->{replyaddress}, \@errors, $post_args, \( $vars->{email_checkbox} ) );
             $errors->add_string( 'replyaddress', $_ ) foreach @errors;
         }
 

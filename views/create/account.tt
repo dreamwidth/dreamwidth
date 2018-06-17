@@ -73,6 +73,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         maxlength = 50
 
         "aria-required" = "true"
+
+        hint = email_checkbox
     ) -%]
 </div>
 

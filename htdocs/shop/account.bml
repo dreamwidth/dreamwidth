@@ -68,6 +68,7 @@ body<=
     }
 
     my $post_fields = {};
+    my $email_checkbox;
     if ( LJ::did_post() ) {
         return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
             unless LJ::check_form_auth();
@@ -78,8 +79,8 @@ body<=
             # need to do this because all of these form fields are in the BML page instead of in the widget
             LJ::Widget->use_specific_form_fields( post => \%POST,
                                                   widget => "ShopItemOptions",
-                                                  fields => [ qw( for username email deliverydate_mm deliverydate_dd deliverydate_yyyy anonymous reason alreadyposted ) ] );
-            my %from_post = LJ::Widget->handle_post( \%POST, ( 'ShopItemOptions' ) );
+                                                  fields => [ qw( for username email deliverydate_mm deliverydate_dd deliverydate_yyyy anonymous reason alreadyposted force_spelling ) ] );
+            my %from_post = LJ::Widget->handle_post( \%POST, 'ShopItemOptions' => { email_checkbox => \$email_checkbox } );
             $error = $from_post{error} if $from_post{error};
         } else {
             $error = $ML{'.error.noselection'};
@@ -128,12 +129,14 @@ body<=
                 $ret .= LJ::html_hidden( username => '(random)' );
             }
         } else { # $for eq 'new'
-            $ret .= "<tr><td>$ML{'.giftfor.email'}</td><td>" . LJ::html_text( { name => 'email', value => LJ::ehtml( $POST{email} ) } ) . "</td></tr>";
+            $ret .= "<tr><td>$ML{'.giftfor.email'}</td><td>" . LJ::html_text( { name => 'email', value => LJ::ehtml( $POST{email} ) } );
+            $ret .= "<br />$email_checkbox" if $email_checkbox;
+            $ret .= "</td></tr>";
         }
 
         $ret .= "<tr><td>$ML{'.giftfor.deliverydate'}</td>";
         my $deliverydate = $POST{deliverydate_mm} && $POST{deliverydate_dd} && $POST{deliverydate_yyyy}
-                    ? "$POST{deliverydate_yyyy}-$POST{deliverydate_mm}-$POST{deliverydate_dd}"
+                    ? sprintf( '%04d-%02d-%02d', $POST{deliverydate_yyyy}, $POST{deliverydate_mm}, $POST{deliverydate_dd} )
                     : DateTime->today->date;
         $ret .= "<td>" . LJ::html_datetime( {
             name => 'deliverydate',
@@ -144,9 +147,8 @@ body<=
         $ret .= "<td>" . LJ::html_check( {
             name => 'anonymous',
             value => 1,
-            selected => $remote ? 0 : 1,
             disabled => $remote ? 0 : 1,
-            selected => $POST{anonymous},
+            selected => $POST{anonymous} || ! $remote,
         } ) . "</td></tr>";
 
         if ( DW::Shop::Item::Account->can_have_reason ) {

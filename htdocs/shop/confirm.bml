@@ -63,8 +63,14 @@ body<=
     return BML::redirect( "$LJ::SITEROOT/shop/receipt?ordernum=$ordernum" )
         unless $cart->state == $DW::Shop::STATE_OPEN;
 
+    # check email early so we can re-render the form on error
+    my ( $email_checkbox, @email_errors );
+    if ( LJ::did_post() ) {
+        LJ::check_email( $POST{email}, \@email_errors, \%POST, \$email_checkbox );
+    }
+
     # if they didn't post, give them a form
-    unless ( LJ::did_post() ) {
+    if ( ! LJ::did_post() || @email_errors ) {
         # set the payerid for later
         $eng->payerid( $payerid )
             if $payerid;
@@ -83,7 +89,14 @@ body<=
         # get their email address if they're not logged in
         unless ( $cart->userid ) {
             $ret .= "<?p $ML{'.confirm.email'} p?>";
-            $ret .= "<?p $ML{'.confirm.email.label'} " . LJ::html_text( { name => 'email' } ) . " p?>";
+            $ret .= "<?p $ML{'.confirm.email.label'} " . LJ::html_text( { name => 'email', value => $POST{email} } ) . " p?>";
+            if ( @email_errors ) {
+                $ret .= "<div class='error-box'><?p " . join( '<br />', @email_errors ) . " p?>";
+                if ( $email_checkbox ) {
+                    $ret .= "<?p $email_checkbox p?>";
+                }
+                $ret .= "</div>";
+            }
         }
 
         $ret .= "<?p " . LJ::html_submit( confirm => $ML{'.btn.confirm'} );
@@ -100,10 +113,7 @@ body<=
         my $u = LJ::load_userid( $cart->userid );
         $cart->email( $u->email_raw );
     } else {
-        my @email_errors;
-        LJ::check_email( $POST{email}, \@email_errors );
-        return join( ", ", @email_errors ) if @email_errors;
-
+        # email checked above
         $cart->email( $POST{email} );
     }
 
