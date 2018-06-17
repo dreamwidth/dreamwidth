@@ -820,17 +820,6 @@ sub external_services {
         };
     }
 
-    if ( my $imzy = $u->prop( 'imzy' ) ) {
-        my $eimzy = LJ::eurl( $imzy );
-        push @ret, {
-            type => 'imzy',
-            text => LJ::ehtml( $imzy ),
-            url => "https://www.imzy.com/\@$eimzy",
-            image => 'imzy.png',
-            title_ml => '.service.imzy',
-        };
-    }
-
     if ( my $instagram = $u->prop( 'instagram' ) ) {
         my $einstagram = LJ::eurl( $instagram );
         push @ret, {
