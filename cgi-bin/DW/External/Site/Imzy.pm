@@ -64,10 +64,10 @@ sub badge_image {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
-
+    
     # for lack of anything better, let's use the favicon
     return {
-        url => "https://www.imzy.com/favicon.ico",
+        url => $LJ::IMGPREFIX . '/external/imzy.png',
         width => 16,
         height => 16,
     }
