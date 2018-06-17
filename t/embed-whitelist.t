@@ -84,6 +84,8 @@ note( "misc" );
 
     test_good_url( "http://blip.tv/play/x11Xx11Xx.html" );
 
+    test_good_url( "https://app.box.com/embed/s/eqbvgyrj6uqftb6k8vz2wcdzu4wx7yy4" );
+
     # C
     test_good_url( "https://chirb.it/wp/pnC9Kh" );
     test_good_url( "//codepen.io/enxaneta/embed/gPeZdP/?height=268&theme-id=0&default-tab=result" );
@@ -128,6 +130,8 @@ note( "misc" );
     test_good_url( "http://www.kickstarter.com/projects/25352323/arrival-a-short-film-by-alex-myung/widget/card.html" );
 
     # L
+    test_good_url( "https://lichess.org/study/embed/JYjprYmJ/CeyjnPCj" );
+    
     test_good_url( "https://shad-tkhom.livejournal.com/1244088.html?embed" );
     test_bad_url( "https://shad-tkhom.livejournal.com/1244088.html", "missing embed flag" );
     test_bad_url( "https://shad-tkhom.livejournal.com/1244sd088.html?embed", "invalid item id" );
@@ -137,6 +141,7 @@ note( "misc" );
     test_good_url( "https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2Fvladmradio%2F25-podcast-from-august-24-2016%2F&hide_cover=1&light=1" );
     test_good_url( "https://mixstep.co/embed/20v1uter690o" );
     test_good_url( "https://my.mail.ru/video/embed/420151911556087230" );
+    test_good_url( "http://player.theplatform.com/p/7wvmTC/MSNBCEmbeddedOffSite?guid=n_hayes_cmerkleyimmig_180604" );
 
     # N
     test_good_url( "http://ext.nicovideo.jp/thumb/sm123123123" );
