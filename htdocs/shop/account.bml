@@ -147,9 +147,8 @@ body<=
         $ret .= "<td>" . LJ::html_check( {
             name => 'anonymous',
             value => 1,
-            selected => $remote ? 0 : 1,
             disabled => $remote ? 0 : 1,
-            selected => $POST{anonymous},
+            selected => $POST{anonymous} || ! $remote,
         } ) . "</td></tr>";
 
         if ( DW::Shop::Item::Account->can_have_reason ) {
