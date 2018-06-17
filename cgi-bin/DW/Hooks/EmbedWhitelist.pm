@@ -71,6 +71,7 @@ my %host_path_match = (
     "episodecalendar.com"   => [ qr!^/icalendar/!, 0 ],
 
     "www.flickr.com"        => [ qr!/player/$!, 1 ],
+    "funnyordie.com"        => [ qr!/embed/!, 1 ],
 
     "www.goodreads.com"     => [ qr!^/widgets/!, 1 ],
     "giphy.com"             => [ qr!^/embed/\w+!, 1 ],

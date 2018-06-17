@@ -103,6 +103,7 @@ note( "misc" );
     # F
     test_good_url( "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2FSenegocom%2Fvideos%2F775953559125595%2F&width=500&show_text=false&height=283&appId" );
     test_good_url( "https://www.flickr.com/photos/cards_by_krisso/13983859958/player/" );
+    test_good_url( "//www.funnyordie.com/embed/7156588dc7" );
 
     # G
     test_good_url( "http://www.goodreads.com/widgets/user_update_widget?height=400&num_updates=3&user=12345&width=250" );
