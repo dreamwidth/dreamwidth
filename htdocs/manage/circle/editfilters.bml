@@ -59,6 +59,16 @@ _c?>
             return;
         }
 
+        # check all creations/renames first
+        for ( my $i = 1; $i <= 60; $i++ ) {
+            my $name = $POST{"efg_set_${i}_name"};
+            if ( $name && ( ref $trust_groups->{$i} ne 'HASH' || $name ne $trust_groups->{$i}->{groupname} ) ) {
+                if ( $name =~ /,/ ) {
+                    return $err->($ML{'.error.comma'});
+                }
+            }
+        }
+
         # add/edit/delete groups
         for ( my $i = 1; $i <= 60; $i++ ) {
             if ( $POST{"efg_delete_$i"} ) {
@@ -169,6 +179,7 @@ _c?>
                newname .prompt.newname
                delete  .confirm.delete
                max60   .error.max60
+               comma   .error.comma
                );
     foreach (keys %T) { $T{$_} = LJ::ejs($ML{$T{$_}}); }
     
@@ -365,6 +376,10 @@ _c?>
      var newtext = realName(item.text);
      newtext = prompt("$T{'rename'}", newtext);
      if (newtext==null || newtext == "") { return; }
+     if ( newtext.includes( ',' ) ) {
+         alert("$T{'comma'}");
+         return;
+     }
 
      var gnum = item.value;
      document.fg["efg_set_"+gnum+"_name"].value = newtext;     
@@ -465,6 +480,10 @@ _c?>
      var gnum = i;
      var groupname = prompt("$T{'newname'}", "");
      if (groupname==null || groupname=="") { return; }
+     if ( groupname.includes( ',' ) ) {
+         alert("$T{'comma'}");
+         return;
+     }
 
      form["efg_set_"+gnum+"_name"].value = groupname;
      var item = new Option(groupname, gnum, false, true);

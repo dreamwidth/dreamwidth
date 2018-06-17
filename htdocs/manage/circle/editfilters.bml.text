@@ -39,6 +39,8 @@
 
 .prompt.rename=Rename this access filter to:
 
+.error.comma=It is not possible to create new filter names containing commas.
+
 .saved.action.post=Post an entry
 
 .saved.action.subscription=Manage subscription filters
