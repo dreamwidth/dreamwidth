@@ -75,7 +75,7 @@ sub new {
     } elsif ( my $email = $args{target_email} ) {
         # email address must be valid
         my @email_errors;
-        LJ::check_email( $email, \@email_errors );
+        LJ::check_email( $email, \@email_errors, { force_spelling => delete $args{force_spelling} } );
         return undef if @email_errors;
     } else {
         return undef;
