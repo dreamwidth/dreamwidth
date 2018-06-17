@@ -201,6 +201,8 @@
 
 .services.last_fm=Last.fm Username
 
+.services.livejournal=LiveJournal Username
+
 .services.pinboard=Pinboard Username
 
 .services.pinterest=Pinterest Username
