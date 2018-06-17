@@ -76,6 +76,7 @@ note( "misc" );
     # A
     test_good_url( "https://airtable.com/embed/shr5l5zt9nyBVMj4L" );
     test_good_url( "https://archive.org/embed/LeonardNimoy15Oct2013YiddishBookCenter" );
+    text_good_url( "https://audiomack.com/embed/song/ariox-1/faded" );
 
     # B
     test_good_url( "http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123/size=venti/bgcol=FFFFFF/linkcol=4285BB/" );
@@ -84,6 +85,7 @@ note( "misc" );
     test_good_url( "http://blip.tv/play/x11Xx11Xx.html" );
 
     # C
+    test_good_url( "https://chirb.it/wp/pnC9Kh" );
     test_good_url( "//codepen.io/enxaneta/embed/gPeZdP/?height=268&theme-id=0&default-tab=result" );
     test_good_url( "http://coub.com/embed/x1xx2xxxxxX" );
     test_good_url( "http://www.criticalcommons.org/Members/china_shop/clips/handle-with-care-white-collar-fanvid/embed_view" );
@@ -133,6 +135,7 @@ note( "misc" );
 
     # M
     test_good_url( "https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2Fvladmradio%2F25-podcast-from-august-24-2016%2F&hide_cover=1&light=1" );
+    test_good_url( "https://mixstep.co/embed/20v1uter690o" );
     test_good_url( "https://my.mail.ru/video/embed/420151911556087230" );
 
     # N
