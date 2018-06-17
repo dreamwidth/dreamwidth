@@ -60,11 +60,11 @@ sub save {
     # ensure a valid email address is given.
     my @errors;
     if ( $email ) {
-        LJ::check_email( $email, \@errors );
+        LJ::check_email( $email, \@errors, { force_spelling => 1 } );
     }
 
     if ( @errors ) {
-        $class->errors( "email" => $class->ml( 'setting.profileemail.error.email.invalid' ) ) ;
+        $class->errors( "email" => join( '<br />', @errors ) ) ;
     } else {
         $u->profile_email( $email );
     }
