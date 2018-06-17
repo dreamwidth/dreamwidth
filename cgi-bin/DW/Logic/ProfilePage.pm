@@ -865,7 +865,7 @@ sub external_services {
     }
 
     if ( my $livejournal = $u->prop( 'livejournal' ) ) {
-        my $elivejournal = LJ::eurl( $livejournal );
+        my $livejournal = LJ::eurl( $livejournal );
         push @ret, {
             type => 'livejournal',
             text => LJ::ehtml( $livejournal ),
