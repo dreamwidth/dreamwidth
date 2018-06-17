@@ -83,7 +83,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
             </p></div>
 
             <p><label class='emphasis' for='question'>[% '.question' | ml %]</label></p>
-            <p id='question_note' class='compressed'>[% '.question.note' | ml %]</p>
+            <p id='question_note' class='compressed'>[% '.question.note2' | ml %]</p>
             <div style='margin-left: 30px'><p>
             <textarea aria-describedby='question_note' id='question' name='message' rows='15' cols='70' wrap='soft'>[% message | html %]</textarea>
             </p></div>

@@ -91,7 +91,7 @@
 
 .no=No
 
-.no.html.allowed2=There's no HTML allowed, so don't worry about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
+.no.html.allowed3=Any HTML in your submission will be escaped, not rendered. Don't worry about escaping &lt; and &gt; if you're including example code.<br />URLs are automatically link-ified, so just reference those.
 
 .none=None
 

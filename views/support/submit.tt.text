@@ -33,7 +33,7 @@ If you have any additional questions or comments, you can add them to your reque
 
 .summary=Summary
 
-.question.note=Don't include confidential information like your password or phone number. Don't use HTML in your submission.
+.question.note2=Don't include confidential information like your password or phone number. Any HTML in your submission will be escaped, not rendered. Don't worry about escaping &lt; and &gt; if you're including sample code.
 
 .title=Submit Support Request
 
