@@ -25,7 +25,7 @@
 
 .more.info=More Information:
 
-.no.html.allowed2=No HTML is allowed.  Don't worry about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
+.no.html.allowed3=Any HTML in your submission will be escaped, not rendered. Don't worry about escaping &lt; and &gt; if you're includnig sample code.<br />URLs are automatically link-ified, so just reference those.
 
 .not.allowed.request=You aren't allowed to lock this request.
 
