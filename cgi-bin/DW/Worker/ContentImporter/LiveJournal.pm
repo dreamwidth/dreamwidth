@@ -535,7 +535,6 @@ sub get_foaf_from {
     my %wanted_text_items = (
         'foaf:name' => 'name',
         'foaf:icqChatID' => 'icq',
-        'foaf:aimChatID' => 'aolim',
         'foaf:jabberID' => 'jabber',
         'foaf:yahooChatID' => 'yahoo',
         'ya:bio' => 'bio',

@@ -49,8 +49,8 @@ sub matching_uids {
     my $dbr = LJ::get_dbh("directory") || LJ::get_db_reader();
 
     my @propids;
-    # FIRST: check whether we get maches based on IM services
-    foreach my $service (qw(aolim icq yahoo jabber skype google_talk)) {
+    # FIRST: check whether we get matches based on IM services
+    foreach my $service (qw(icq yahoo jabber skype google_talk)) {
         my $p = LJ::get_prop("user", $service);
         push @propids, $p->{upropid};
     }
