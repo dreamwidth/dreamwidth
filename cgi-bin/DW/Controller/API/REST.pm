@@ -26,13 +26,9 @@ use DW::API::Parameter;
 use DW::API::Method;
 use JSON;
 use YAML::XS qw'LoadFile';
-use Data::Dumper;
 
 use Carp qw/ croak /;
-require Exporter;
 
-our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(path);
 our %API_DOCS = ();
 our %TYPE_REGEX = (
     string => '([^/]*)',
@@ -47,7 +43,7 @@ our $API_PATH = "$ENV{LJHOME}/api/";
 #resource definitions from a OpenAPI-compliant YAML file and handler sub references
 
 sub path {
-    my ($source, $ver, $handlers) = @_;
+    my ($class, $source, $ver, $handlers) = @_;
 
     my $config = LoadFile($API_PATH . $source);
 
@@ -60,11 +56,11 @@ sub path {
         $path = $key;
     }
 
-    bless $route;
+    bless $route, $class;
 
     if (exists $config->{paths}->{$path}->{parameters}) {
         for my $param (@{$config->{paths}->{$path}->{parameters}}) {
-            my $new_param = DW::API::Parameter::define_parameter($param);
+            my $new_param = DW::API::Parameter->define_parameter($param);
             $route->{path}{params}{$param->{name}} = $new_param;
             }
         delete $config->{paths}->{$path}->{parameters};
@@ -85,7 +81,7 @@ sub path {
 
 sub _add_method {
     my ($self, $method, $handler, $config) = @_;
-        my $new_method = DW::API::Method::define_method($method, $handler, $config->{description}, $config->{summary});
+        my $new_method = DW::API::Method->define_method($method, $handler, $config->{description}, $config->{summary});
 
         # add method params
         if (exists $config->{parameters}){
@@ -143,7 +139,6 @@ sub register_rest_controller {
 sub _dispatcher {
 
     my ( $self, @args ) = @_;
-    warn Dumper(@args);
 
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;

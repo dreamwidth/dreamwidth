@@ -32,7 +32,7 @@ my @LOCATIONS = qw(path formData body header query);
 # resource definitions.
 
 sub define_parameter {
-    my $args = $_[0];
+    my ( $class, $args ) = @_;
     my $parameter = {
         name => $args->{name},
         desc => $args->{description},
@@ -40,7 +40,7 @@ sub define_parameter {
         type => $args->{type},
         required => $args->{required}
     };
-    return bless $parameter;
+    return bless $parameter, $class;
 }
 
 # Usage: validate ( Parameter object ) 

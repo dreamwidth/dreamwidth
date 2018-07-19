@@ -15,7 +15,7 @@
 #
 
 package DW::Controller::API::Comments;
-use DW::Controller::API::REST qw(path);
+use DW::Controller::API::REST;
 
 use strict;
 use warnings;
@@ -32,7 +32,7 @@ use DW::Mood;
 # Get a list of possible comment screening options.
 ################################################
 # Define route and associated params
-my $screening = path('comments/screening.yaml', 1, {'get' => \&get_screening});
+my $screening = DW::Controller::API::REST->path('comments/screening.yaml', 1, {'get' => \&get_screening});
 
 
 sub get_screening {

@@ -15,7 +15,7 @@
 #
 
 package DW::Controller::API::Rest::Icons;
-use DW::Controller::API::REST qw(path);
+use DW::Controller::API::REST;
 use strict;
 use warnings;
 use DW::Routing;
@@ -23,7 +23,7 @@ use DW::Request;
 use DW::Controller;
 use JSON;
 
-my $icons_all = path('icons_all.yaml', 1, {'get' => \&rest_get});
+my $icons_all = DW::Controller::API::REST->path('icons_all.yaml', 1, {'get' => \&rest_get});
 
 sub rest_get {
     my ( $self, $opts, $username, $picid ) = @_;

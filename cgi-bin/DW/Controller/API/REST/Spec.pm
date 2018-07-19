@@ -15,7 +15,7 @@
 #
 
 package DW::Controller::API::REST::Spec;
-use DW::Controller::API::REST qw(path);
+use DW::Controller::API::REST;
 
 use strict;
 use warnings;
@@ -25,7 +25,7 @@ use DW::Controller;
 use JSON;
 
 # Define route and associated params
-my $spec = path('spec.yaml', 1, {'get' => \&rest_get});
+my $spec = DW::Controller::API::REST->path('spec.yaml', 1, {'get' => \&rest_get});
 
 sub rest_get {
     my $self = $_[0];
@@ -45,7 +45,7 @@ sub _spec_20 {
     my $ver = $spec->{ver};
 
     my @content_types = qw(application/json);
-    my @schemes = qw(http);
+    my @schemes = qw(https);
 
     my %spec = (
         swagger => '2.0',

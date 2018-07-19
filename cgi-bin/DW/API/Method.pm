@@ -31,7 +31,7 @@ my @HTTP_VERBS = qw(GET POST DELETE PUT);
 # in DW::Controller::API::REST resource definitions.
 
 sub define_method {
-    my ($action, $handler, $desc, $summary) = @_;
+    my ($class, $action, $handler, $desc, $summary) = @_;
 
     my $method = {
         name => $action,
@@ -42,7 +42,7 @@ sub define_method {
         responses => {},
         };
 
-    return bless $method;
+    return bless $method, $class;
 }
 
 # Usage: param ( @args ) 
@@ -53,7 +53,7 @@ sub define_method {
 sub param {
     my ($self, @args) = @_;
 
-    my $param = DW::API::Parameter::define_parameter(@args);
+    my $param = DW::API::Parameter->define_parameter(@args);
     my $name = $param->{name};
     $self->{params}{$name} = $param;
 }
