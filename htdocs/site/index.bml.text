@@ -57,6 +57,8 @@
 
 .maplinks.gethelp-title=...get help using [[sitename]]:
 
+.maplinks.images-all=View all your images
+
 .maplinks.inbox=Inbox
 
 .maplinks.invite-friend=Invite someone
@@ -82,6 +84,10 @@
 .maplinks.manage-comments=Manage Comments
 
 .maplinks.manage-groups=Manage Custom Filters
+
+.maplinks.manage-images-title=...use [[sitename]] image hosting:
+
+.maplinks.manage-images=Manage Images
 
 .maplinks.manage-invite-friend-title=...invite someone to join [[sitename]]:
 
@@ -150,6 +156,8 @@
 .maplinks.transfer-points=Transfer points
 
 .maplinks.upgrade=Upgrade Account
+
+.maplinks.upload-images=Upload Images
 
 .title=Site Map
 

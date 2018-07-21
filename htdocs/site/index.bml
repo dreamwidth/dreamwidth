@@ -46,6 +46,15 @@ body<=
   </ul></dd>
  </dt></dl>
 
+ <dl><dt><?_code return BML::ml('.maplinks.manage-images-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/file/new'><?_ml .maplinks.upload-images _ml?></a></li>
+   <li><a href='/file/edit'><?_ml .maplinks.manage-images _ml?></a></li>
+   <li><a href='/file/list'><?_ml .maplinks.images-all _ml?></a></li>
+  </ul></dd>
+ </dt></dl>
+
+
  <dl><dt><?_code return BML::ml('.maplinks.manage-readlist-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
    <li><a href='/manage/circle/'><?_ml .maplinks.manage-readlist _ml?></a></li>
