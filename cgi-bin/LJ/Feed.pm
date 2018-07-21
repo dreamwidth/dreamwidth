@@ -605,7 +605,7 @@ sub create_view_foaf {
 
     # setup userprops we will need
     $u->preload_props( qw{
-        aolim icq yahoo jabber icbm url urlname country city journaltitle
+        icq yahoo jabber icbm url urlname country city journaltitle
     } );
 
     # create bare foaf document, for now
@@ -665,7 +665,6 @@ sub create_view_foaf {
 
     # contact type information
     my %types = (
-        aolim => 'aimChatID',
         icq => 'icqChatID',
         yahoo => 'yahooChatID',
         jabber => 'jabberID',
