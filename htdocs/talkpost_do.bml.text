@@ -7,6 +7,10 @@
 
 .error.banned.comm=You are not allowed to post in this community.
 
+.error.banned.reply=You have been banned from replying to this user's comments.
+
+.error.banned.entryowner=You have been banned from commenting on entries by this user.
+
 .error.blankmessage=Your message is blank.  Please enter something in the message field.
 
 .error.confused_identity=You entered an account name but selected "post anonymously" or as the currently logged in account.  Please clear the textbox or select the correct posting mode and try again.
