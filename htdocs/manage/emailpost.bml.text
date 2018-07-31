@@ -158,11 +158,17 @@
 
 .api.header=Manage API Keys
 
-.api.status.error=Problem generating a new API key. Please try again.
+.api.status.error=Problem generating new API key. Please try again later, or contact support if the problem persists.
 
 .api.status.success=New API key has been generated.
 
+.api.delete.error=Problem deleting API key <b>[[key]]</b>. Please try again later, or contact support if the problem persists.
+
+.api.delete.success=API key <b>[[key]]</b> has been deleted.
+
 .api.text=You can use these keys with the Dreamwidth API to authenticate youself. Anyone with access to a key can act as you, so keys should not be shared. Deleting a key here will make it unusable.
+
+.api.none=You have no API keys generated yet!
 
 .save=Save Settings
 
@@ -237,6 +243,8 @@
 .settings.text=These settings apply to all journal updates made by email. If you leave these options alone your journal defaults will take over, or you can override them on a message by message basis using post-headers. <a [[aopts]]>More information about email settings and post-header overrides</a>.
 
 .sorry.acct=Updating your journal by email isn't available for your account type.
+
+.success.apigen=You've successfully generated a new API key! Your new key is <b>[[key]]</b>.
 
 .success.header=Success.
 

@@ -24,6 +24,7 @@ use LJ::Identity;
 use DW::Pay;
 use DW::User::OpenID;
 use DW::InviteCodes::Promo;
+use DW::API::Key;
 
 ########################################################################
 ### 1. Creating and Deleting Accounts
