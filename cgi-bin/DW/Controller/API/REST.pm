@@ -24,6 +24,7 @@ use DW::Controller;
 use DW::Controller::API;
 use DW::API::Parameter;
 use DW::API::Method;
+use DW::API::Key;
 use JSON;
 use YAML::XS qw'LoadFile';
 
@@ -144,6 +145,14 @@ sub _dispatcher {
     return $rv unless $ok;
     
     my $r = $rv->{r};
+    my $apikey = DW::API::Key->get_key($r->header_in('api_key'));
+
+    unless ($apikey) {
+        $r->print( to_json({ success => 0, error => "Missing or invalid API key"}) );
+        $r->status( '401' );
+        return;
+    }
+
     my $method = lc $r->method;
     my $handler = $self->{path}{methods}->{$method}->{handler};
 

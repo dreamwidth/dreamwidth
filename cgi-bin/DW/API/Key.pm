@@ -22,67 +22,84 @@ use strict;
 use warnings;
 use Carp;
 
-# Usage: new ( user ) 
+# Usage: new_for_user ( user ) 
 # Creates a new API key for a given user, saves it to DB, 
 # and returns the new key object.
-sub new {
-    my $user = LJ::want_user( $_[0] )
+sub new_for_user {
+    my ($self, $u) = @_;
+    my $user = LJ::want_user( $u )
         or die "need a user!\n";
 
     my $id = LJ::alloc_user_counter( $user, 'B' )
         or croak 'Unable to allocate user counter for API key.';
 
     my $key = LJ::rand_chars( 32 );
-    $user->do(
+    my $dbw = LJ::get_db_writer() or die "Failed to get database";
+    $dbw->do(
         q{INSERT INTO api_key (userid, keyid, hash, state)
          VALUES (?, ?, ?, 'A')},
         undef, $user->id, $id, $key
     );
 
-    if ($user->err) {
-       carp "Failed to insert key row: " . $user->errstr . ".";
+    if ($dbw->err) {
+       carp "Failed to insert key row: " . $dbw->errstr . ".";
         return undef;
     }
 
-    return _create($user, $id, $key);
+    return $self->_create($user, $id, $key);
 }
 
 # Usage: lookup ( user, key ) 
 # Looks for a given key for a user. Returns the key object
 # if it's valid, or undef otherwise.
-sub lookup {
-    my ($u, $hash) = @_;
+sub get_key {
+    my ($class, $hash) = @_;
+
+    return undef unless $hash;
+    # my $memkey = [ $userid, "user_oauth_access:" . $userid ];
+    my $data = undef; # LJ::MemCache::get( $memkey );
+    my $key;
+
+    if ( $data ) {
+        $key = $data;
+        return $key;
+    } else {
+        my $dbr = LJ::get_db_reader() or die "Failed to get database";
+        my $keydata = $dbr->selectrow_hashref( "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'", undef, $hash );
+        carp $dbr->errstr if $dbr->err;
+
+        if ($keydata) {
+            my $user = LJ::want_user( $keydata->{userid} );
+            $key = $class->_create($user, $keydata->{keyid}, $keydata->{hash});
+            #LJ::MemCache::set( $memkey, $key );
+            return $key
+        }
+
+    }
+
+    return undef;
+}
+
+# Usage: get_keys_for_user ( user ) 
+# Looks up all API keys for a given user. Returns an arrayef of key objects,
+# or undef if the user has no API keys yet.
+sub get_keys_for_user {
+    my ($self, $u) = @_;
     my $user = LJ::want_user( $u )
         or die "need a user!\n";
 
-    my $key = $user->selectrow_hashref(
-            q{SELECT keyid, hash FROM api_key WHERE userid = ? AND hash = ? AND state = 'A'},
-            undef, $user->{userid}, $hash
-        );
-    carp $user->errstr if $user->err;
-
-    return undef unless $key;
-    return _create($user, $key->{keyid}, $key->{hash});
-}
-
-# Usage: lookup_all ( user ) 
-# Looks up all API keys for a given user. Returns an arrayef of key objects,
-# or undef if the user has no API keys yet.
-sub lookup_all {
-    my $user = LJ::want_user( $_[0] )
-        or die "need a user!\n";
-
-    my $keys = $user->selectall_hashref(
+    my $dbr = LJ::get_db_reader() or die "Failed to get database";
+    my $keys = $dbr->selectall_hashref( 
             q{SELECT keyid, hash FROM api_key WHERE userid = ? AND state = 'A'},
-            'keyid', undef, $user->{userid}
+            'keyid', undef, $user->{userid} 
         );
-    carp $user->errstr if $user->err;
+    carp $dbr->errstr if $dbr->err;
 
     return undef unless $keys;
     my @keylist;
 
     for my $key (sort (keys %$keys)) {
-        my $new = _create($user, $keys->{$key}->{keyid}, $keys->{$key}->{hash});
+        my $new = $self->_create($user, $keys->{$key}->{keyid}, $keys->{$key}->{hash});
         push @keylist, ($new);
     }
 
@@ -96,7 +113,7 @@ sub lookup_all {
 # Don't call this directly, as it neither verifies nor saves keys.
 # new() or lookup() is probably what you want instead. 
 sub _create {
-    my ($user, $keyid, $keyhash) = @_;
+    my ($class, $user, $keyid, $keyhash) = @_;
 
     my %key = (
         user => $user,
@@ -104,7 +121,7 @@ sub _create {
         keyhash => $keyhash
         );
 
-    bless \%key;
+    bless \%key, $class;
     return \%key;
 }
 
@@ -116,7 +133,7 @@ sub can_read {
     my ($self, $resource) = @_;
 
     #TODO: Once key scoping is implemented, actually check this
-    return "true";
+    return 1;
 }
 
 # Usage: $key->can_write( resource ) 
@@ -127,26 +144,30 @@ sub can_write {
     my ($self, $resource) = @_;
 
     #TODO: Once key scoping is implemented, actually check this
-    return "true";
+    return 1;
 }
 
-# Usage: delete ( user, key ) 
+# Usage: $key->delete () 
 # Marks a key as deleted in the DB
 sub delete {
     my $self = $_[0];
     my $user = LJ::want_user( $self-> {user} )
         or die "need a user!\n";
 
-    $user->do(
+    my $dbw = LJ::get_db_writer() or die "Failed to get database";
+    $dbw->do(
         q{UPDATE api_key SET state = 'D' WHERE hash = ?},
         undef, $self->{keyhash}
     );
 
-    return 'true' unless $user->err;
-    carp $user->errstr if $user->err;
+    return 1 unless $dbw->err;
+    carp $dbw->errstr if $dbw->err;
     return undef;
 }
 
-*LJ::User::generate_apikey = \&new;
-*LJ::User::get_all_keys = \&lookup_all;
-*LJ::User::get_key = \&lookup;
+sub valid_for_user{
+    my ($self, $u) = @_;
+    return $self->{user}->equals($u);
+}
+
+1;

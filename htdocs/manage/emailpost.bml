@@ -43,6 +43,7 @@ body<=
 {
     use strict;
     use vars qw(%POST %GET);
+    use DW::API::Key;
 
     return $ML{'.error.sitenotconfigured'} unless $LJ::EMAIL_POST_DOMAIN;
 
@@ -379,8 +380,8 @@ body<=
         foreach (split(/\0/, $deleted_keys)) {            
             s/\s+//g;
             next unless $_;
-            my $key = $u->get_key($_);
-            if (%{$key}) {
+            my $key = DW::API::Key->get_key($_);
+            if (%{$key} && $key->valid_for_user($u)) {
                 $ret .= $key->delete() 
                     ? "<div class='highlight-box'>" . BML::ml('.api.delete.success', {'key' => $key->{keyhash}}) . "</div>"
                     : "<div class='highlight-box'>" . BML::ml('.api.delete.error', {'key' => $key->{keyhash}}) . "</div>";
@@ -407,7 +408,7 @@ body<=
         { "noauth" => 1, }
     );
 
-    my $apikeys = $u->get_all_keys();
+    my $apikeys = DW::API::Key->get_keys_for_user($u);
     my @trusted = $u->trust_groups;
     my @groups = map { $_->{'groupname'} } @trusted;
     my @userpics = @{ $res->{'pickws'} };

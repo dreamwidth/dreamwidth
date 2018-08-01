@@ -46,7 +46,8 @@ sub _spec_20 {
 
     my @content_types = qw(application/json);
     my @schemes = qw(https);
-
+    my $security_defs = { "api_key" => {"type" => "apiKey", "name" => "api_key", "in" => "header" }};
+ 
     my %spec = (
         swagger => '2.0',
         info => {
@@ -60,6 +61,8 @@ sub _spec_20 {
         schemes => \@schemes,
         consumes => \@content_types,
         produces => \@content_types,
+        security => keys( %$security_defs),
+        securityDefinitions => $security_defs,
     );
 
     return \%spec;
