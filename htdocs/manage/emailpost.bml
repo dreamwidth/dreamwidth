@@ -370,7 +370,7 @@ body<=
     }
 
     if ( LJ::did_post() && $POST{"action:apikey"}) {
-        $ret .= $u->generate_apikey
+        $ret .= DW::API::Key->new_for_user($u)
                     ? "<div class='highlight-box'>$ML{'.api.status.success'}</div>"
                     : "<div class='error-box'>$ML{'.api.status.error'}</div>";
     }
@@ -381,8 +381,9 @@ body<=
             s/\s+//g;
             next unless $_;
             my $key = DW::API::Key->get_key($_);
-            if (%{$key} && $key->valid_for_user($u)) {
-                $ret .= $key->delete() 
+            
+            if (defined $key) {
+                $ret .= $key->delete($u) 
                     ? "<div class='highlight-box'>" . BML::ml('.api.delete.success', {'key' => $key->{keyhash}}) . "</div>"
                     : "<div class='highlight-box'>" . BML::ml('.api.delete.error', {'key' => $key->{keyhash}}) . "</div>";
             }

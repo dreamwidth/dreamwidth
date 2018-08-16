@@ -127,3 +127,6 @@ pop_interests == array of interest keywords and counts
 poll:<pollid> = arrayref of poll properties, see cgi-bin/LJ/Poll.pm for details (section under "use base 'LJ::MemCacheable'")
 
 invite_code_try_ip:<ip> = stores a value of 1 for the IP address of the person who tried an invalid invite code (for rate limiting)
+
+<keyhash> api_key:<keyhash> = hashref of keyid, hash, and owning userid
+<uid> api_keys_list:<uid> = arrayref of all keyhashes owned by a given userid

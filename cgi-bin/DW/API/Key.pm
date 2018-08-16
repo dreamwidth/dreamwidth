@@ -46,6 +46,9 @@ sub new_for_user {
         return undef;
     }
 
+    # with a new key added, our cached api_keys_list for the user is out of date
+    LJ::MemCache::delete( [ $user->id, "api_keys_list:" . $user->id ]);
+
     return $self->_create($user, $id, $key);
 }
 
@@ -56,28 +59,22 @@ sub get_key {
     my ($class, $hash) = @_;
 
     return undef unless $hash;
-    # my $memkey = [ $userid, "user_oauth_access:" . $userid ];
-    my $data = undef; # LJ::MemCache::get( $memkey );
-    my $key;
+    my $memkey = [ $hash, "api_key:" . $hash ];
+    my $keydata = LJ::MemCache::get( $memkey );
 
-    if ( $data ) {
-        $key = $data;
-        return $key;
-    } else {
+    unless ( defined $keydata ) {
         my $dbr = LJ::get_db_reader() or die "Failed to get database";
-        my $keydata = $dbr->selectrow_hashref( "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'", undef, $hash );
+        $keydata = $dbr->selectrow_hashref( "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'", undef, $hash );
         carp $dbr->errstr if $dbr->err;
-
-        if ($keydata) {
-            my $user = LJ::want_user( $keydata->{userid} );
-            $key = $class->_create($user, $keydata->{keyid}, $keydata->{hash});
-            #LJ::MemCache::set( $memkey, $key );
-            return $key
-        }
-
+        LJ::MemCache::set( $memkey, $keydata );
     }
 
-    return undef;
+    if ($keydata) {
+        my $user = LJ::want_user( $keydata->{userid} );
+        return $class->_create($user, $keydata->{keyid}, $keydata->{hash});
+    } else {
+        return undef;
+    }
 }
 
 # Usage: get_keys_for_user ( user ) 
@@ -87,20 +84,33 @@ sub get_keys_for_user {
     my ($self, $u) = @_;
     my $user = LJ::want_user( $u )
         or die "need a user!\n";
-
-    my $dbr = LJ::get_db_reader() or die "Failed to get database";
-    my $keys = $dbr->selectall_hashref( 
-            q{SELECT keyid, hash FROM api_key WHERE userid = ? AND state = 'A'},
-            'keyid', undef, $user->{userid} 
-        );
-    carp $dbr->errstr if $dbr->err;
-
-    return undef unless $keys;
+    my $memkey = [ $user->id, "api_keys_list:" . $user->id ];
+    my $keydata = LJ::MemCache::get( $memkey );
     my @keylist;
 
-    for my $key (sort (keys %$keys)) {
-        my $new = $self->_create($user, $keys->{$key}->{keyid}, $keys->{$key}->{hash});
-        push @keylist, ($new);
+    if ( defined $keydata ) {
+        for my $keyhash (@$keydata) {
+            push @keylist, ($self->get_key($keyhash));
+        }
+
+    } else {
+        my $dbr = LJ::get_db_reader() or die "Failed to get database";
+        my $keys = $dbr->selectall_hashref( 
+                q{SELECT keyid, hash FROM api_key WHERE userid = ? AND state = 'A'},
+                'keyid', undef, $user->{userid} 
+            );
+        carp $dbr->errstr if $dbr->err;
+        return undef unless $keys;
+        my @hashlist;
+
+        for my $key (sort (keys %$keys)) {
+            my $new = $self->_create($user, $keys->{$key}->{keyid}, $keys->{$key}->{hash});
+            push @hashlist, ($keys->{$key}->{hash});
+            push @keylist, ($new);
+            my $cachekey = [ $new->{keyhash}, "api_key:" . $new->{keyhash} ];
+            LJ::MemCache::set( $cachekey, { userid => $user->id, keyid => $new->{keyid}, hash => $new->{keyhash}} );
+        }
+        LJ::MemCache::set( $memkey, \@hashlist );
     }
 
     return \@keylist;
@@ -147,18 +157,26 @@ sub can_write {
     return 1;
 }
 
-# Usage: $key->delete () 
-# Marks a key as deleted in the DB
+# Usage: $key->delete ($user) 
+# Marks a key as deleted in the DB. A user is required to guarantee
+# that the key is being deleted by someone with the permission to do so.
 sub delete {
-    my $self = $_[0];
-    my $user = LJ::want_user( $self-> {user} )
+    my ($self, $u) = @_;
+    my $user = LJ::want_user( $u )
         or die "need a user!\n";
+    my $memkey = [ $self->{keyhash}, "api_key:" . $self->{keyhash} ];
+
+    $self->valid_for_user($user) or die "key doesn't belong to user";
 
     my $dbw = LJ::get_db_writer() or die "Failed to get database";
     $dbw->do(
         q{UPDATE api_key SET state = 'D' WHERE hash = ?},
         undef, $self->{keyhash}
     );
+
+    LJ::MemCache::delete( $memkey );
+    # with a new key added, our cached api_keys_list for the user is out of date
+    LJ::MemCache::delete( [ $user->id, "api_keys_list:" . $user->id ]);
 
     return 1 unless $dbw->err;
     carp $dbw->errstr if $dbw->err;
