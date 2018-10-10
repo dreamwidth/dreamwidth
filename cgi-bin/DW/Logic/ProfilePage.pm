@@ -772,7 +772,6 @@ sub external_services {
         push @ret, {
             type => 'discord',
             text => LJ::ehtml( $discord ),
-            url => "https://discordapp.com/channels/\@me/$diigo",
             image => 'discord.png',
             title_ml => '.service.discord',
         };
