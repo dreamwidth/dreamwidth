@@ -1,6 +1,9 @@
+dist: trusty
 language: perl
 perl:
     - "5.18"
+env:
+    - LJHOME=$TRAVIS_BUILD_DIR
 install:
     - sudo apt-get update
     - cat doc/dependencies-system | xargs sudo apt-get install -y
