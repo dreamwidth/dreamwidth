@@ -34,13 +34,13 @@ unless (defined $readonly_bit) {
     die "Won't move user without %LJ::CAP capability class named '_moveinprogress' with readonly => 1\n";
 }
 
-my $logpropid = LJ::get_prop( log => 'picture_keyword' )->{id};
-my $talkpropid = LJ::get_prop( talk => 'picture_keyword' )->{id};
-
-my $logpropid_map = LJ::get_prop( log => 'picture_mapid' )->{id};
-my $talkpropid_map = LJ::get_prop( talk => 'picture_mapid' )->{id};
-
 sub do_upgrade {
+    my $logpropid = LJ::get_prop( log => 'picture_keyword' )->{id};
+    my $talkpropid = LJ::get_prop( talk => 'picture_keyword' )->{id};
+
+    my $logpropid_map = LJ::get_prop( log => 'picture_mapid' )->{id};
+    my $talkpropid_map = LJ::get_prop( talk => 'picture_mapid' )->{id};
+
     my $BLOCK_INSERT =   25;
 
     my ( $u ) = @_;

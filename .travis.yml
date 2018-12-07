@@ -1,0 +1,11 @@
+dist: trusty
+language: generic
+install:
+    - sudo apt-get update
+    - cat doc/dependencies-system | xargs sudo apt-get install -y
+    - cat doc/dependencies-cpanm | xargs cpanm -n -L extlib
+before_script:
+    - perl -v
+    - env LJHOME=$TRAVIS_BUILD_DIR bin/checkconfig.pl --only=modules
+script:
+    - env LJHOME=$TRAVIS_BUILD_DIR perl -Iextlib/lib/perl5 t/00-compile.t

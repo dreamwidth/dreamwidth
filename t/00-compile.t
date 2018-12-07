@@ -72,7 +72,7 @@ foreach my $file (@scripts) {
         next;
     }
 
-    system qq($^X -c -I$lib $file > $out 2>$err);
+    system qq($^X -c -I$lib -I$ENV{LJHOME}/extlib/lib/perl5 $file > $out 2>$err);
     my $err_data = slurp($err);
     is($err_data, "$file syntax OK\n", "STDERR of $file");
 }
