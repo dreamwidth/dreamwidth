@@ -1,0 +1,10 @@
+language: perl
+perl:
+    - "5.18"
+install:
+    - sudo apt-get update
+    - cat doc/dependencies-system | xargs sudo apt-get install -y
+    - curl -L https://cpanmin.us | sudo perl - App::cpanminus
+    - cat doc/dependencies-perl | xargs cpanm -n -L extlib
+script:
+    - perl -Iextlib/lib/perl5 t/00-compile.t

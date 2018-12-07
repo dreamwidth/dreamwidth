@@ -1,0 +1,17 @@
+apache2-mpm-prefork
+libexpat1-dev
+g++
+make
+libgtop2-dev
+libgmp3-dev
+libxml2-dev
+libdbi-perl
+libdbd-mysql-perl
+libgd-gd2-perl
+libgd-graph-perl
+perlmagick
+libapache2-mod-perl2
+libapache2-request-perl
+libdbd-sqlite3-perl
+libdatetime-perl
+libio-aio-perl
