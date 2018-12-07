@@ -15,4 +15,3 @@ libapache2-request-perl
 libdbd-sqlite3-perl
 libdatetime-perl
 libio-aio-perl
-libdigest-hmac-perl
