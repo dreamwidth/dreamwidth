@@ -2,12 +2,10 @@ dist: trusty
 language: perl
 perl:
     - "5.18"
-env:
-    - LJHOME=$TRAVIS_BUILD_DIR
 install:
     - sudo apt-get update
     - cat doc/dependencies-system | xargs sudo apt-get install -y
     - curl -L https://cpanmin.us | sudo perl - App::cpanminus
     - cat doc/dependencies-cpanm | xargs cpanm -n -L extlib
 script:
-    - perl -Iextlib/lib/perl5 t/00-compile.t
+    - env LJHOME=$TRAVIS_BUILD_DIR perl -Iextlib/lib/perl5 t/00-compile.t
