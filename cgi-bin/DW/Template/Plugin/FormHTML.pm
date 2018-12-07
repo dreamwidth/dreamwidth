@@ -26,11 +26,15 @@ with preset values
 
 =head1 SYNOPSIS
 
-The form plugin generates HTML elements with attributes suitably escaped, and values automatically prepopulated, depending on the form's data field.
+The form plugin generates HTML elements with attributes suitably escaped, and values
+automatically prepopulated, depending on the form's data field.
 
-The "data" field is a hashref, with the keys being the form element's name, and the values being the form element's desired value.
+The "data" field is a hashref, with the keys being the form element's name, and the values
+being the form element's desired value.
 
-If a "formdata" property is available via the context, this is used to automatically populate the plugin's data field. It may be either a hashref or an instance of Hash::MultiValue.
+If a "formdata" property is available via the context, this is used to automatically
+populate the plugin's data field. It may be either a hashref or an instance of Hash::MultiValue.
+
 =cut
 
 sub load {
