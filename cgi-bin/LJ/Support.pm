@@ -23,7 +23,6 @@ use LJ::Faq;
 my $SECONDS_IN_DAY = 3600 * 24;
 our @SUPPORT_PRIVS = ( qw/supportclose
                           supporthelp
-                          supportdelete
                           supportread
                           supportviewinternal
                           supportmakeinternal
