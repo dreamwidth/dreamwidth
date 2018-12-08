@@ -7,8 +7,8 @@ Authors:
 
 Copyright (c) 2018 by Dreamwidth Studios, LLC.
 
-This program is free software; you may redistribute it and/or modify it 
-under the same terms as Perl itself.  For a copy of the license, please 
+This program is free software; you may redistribute it and/or modify it
+under the same terms as Perl itself.  For a copy of the license, please
 reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
@@ -34,15 +34,15 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 		<div class='latest-entry usercontent'>
 		<div class='header'>
 		    <div class='tags'>
-		    [% FOREACH tag IN item.tags.sort%]
-		    <a href="[%site.root %]/latest?tag=[% eurl(tag) %]">[% ehtml(tag) %]</a>
+		    [% FOREACH tag IN item.tags.sort %]
+		    <a href="[%site.root %]/latest?tag=[% tag | uri %]">[% tag | html %]</a>
 		    [%- ", " UNLESS loop.last %]
 		    [% END %]</div>
 		    <div class='author'>[% item.poster.ljuser_display %]
-		    		[% IF NOT item.poster.equals(item.journal) %] 
-		    			in [% item.journal.ljuser_display %]
-		    		[% END %]
-		    		([% time_diff(item.logtime_unix, now) %])</div>
+		          [% IF NOT item.poster.equals(item.journal) %]
+		              in [% item.journal.ljuser_display %]
+		          [% END %]
+		              ([% time_diff(item.logtime_unix, now) %])</div>
 		    <div class='subject'><a href="[% item.url %]">[% item.subject_html || 'no subject' %]</a></div>
 		    </div>
 		    <div class='event'>[% make_short_entry(item) %]</div>

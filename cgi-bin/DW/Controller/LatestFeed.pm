@@ -43,7 +43,7 @@ sub index_handler {
     my $now = time();
 
     $type = { entries => 'entry', comments => 'comment' }->{$type}  || 'entry';
-    $max = 100 if $max > 1000;
+    $max = 100 if $max < 0 || 1000 < $max;
     $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
     $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
     $tag = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
@@ -55,30 +55,48 @@ sub index_handler {
     # see if somebody has asked for this particular feed in the last minute or so, in
     # which case it is going to be in memcache
     my $mckey = "latest_src:$type:$max:$fmt" . ( $feed ? ":$feed" : '' ) . ( $tag ? ":$tag" : '' );
-    my $page = LJ::MemCache::get( $mckey );
 
-    # return from the cache
-    if ( $page && $page->[0] > time ) {
-        LJ::text_uncompress( \$page->[1] );
-        return $page->[1];
-    }
+    my $cache_opts = {
+        expire => 60,
+    };
 
-    # now we need a lock to make sure we're allowed to generate this data
-    my $lock = LJ::locker()->trylock( $mckey );
-    unless ( $lock ) {
-        # no lock, someone else is updating this.  let's try to print out the stale memcache
-        # page if possible, we know that next time it will be updated
-        if ( $page && $page->[1] > 0 ) {
-            LJ::text_uncompress( \$page->[1] );
-            return $page->[1];
-        }
 
-        # if we get here, we don't have any data, and we don't have the lock so we can't
-        # construct any data.  this should only happen in the rare case of a memcache
-        # flush when multiple people are hitting the page.
-        return "Sorry, something happened.  Please refresh and try again!";
-    }
-    
+    my $ret = DW::Template->render_cached_template( $mckey, 'latest/index.tt', \&generate_vars, $cache_opts );
+    #my $ret = DW::Template->render_template('latest/index.tt', $vars);
+    return $ret;
+}
+
+sub make_short_entry {
+    my $entry = $_[0];
+    my $url = $entry->url;
+    my $truncated;
+    my $evt = $entry->event_html_summary( 2000, { cuturl => $url, preformatted => $entry->prop( 'opt_preformatted' ) }, \$truncated );
+    # put a "(Read more)" link at the end of the text if the entry had to be shortened
+    $evt .= ' <a href="' . $url . '">(Read more)</a>' if $truncated;
+    return $evt;
+}
+
+sub generate_vars {
+
+   my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $GET = $r->get_args;
+    my ( $type, $max, $fmt, $feed, $tag ) = ( $GET->{type}, ($GET->{max}+0)||100, $GET->{fmt}, $GET->{feed}, $GET->{tag} );
+    my $tagname = $tag;
+    my $now = time();
+
+    $type = { entries => 'entry', comments => 'comment' }->{$type}  || 'entry';
+    $max = 100 if $max < 0 || 1000 < $max;
+    $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
+    $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
+    $tag = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
+
+    # if they want a format we don't support ... FIXME: implement all formats
+    return "Sorry, that format is not supported yet."
+        if $fmt ne 'html';
+
     # ask for the items from the latest feed
     my $items = DW::LatestFeed->get_items( feed => $feed, tagkwid => $tag );
     return "Failed to get latest items."
@@ -116,7 +134,7 @@ sub index_handler {
     my $tagfeeds = '';
         unless ( $tag || $feed ) {
             $tagfeeds = join ' ', map { $feed eq $_ ? $LJ::LATEST_TAG_FEEDS{group_names}->{$_}
-                                                    : qq(<a href="$LJ::SITEROOT/latest?feed=$_">$LJ::LATEST_TAG_FEEDS{group_names}->{$_}</a>) } 
+                                                    : qq(<a href="$LJ::SITEROOT/latest?feed=$_">$LJ::LATEST_TAG_FEEDS{group_names}->{$_}</a>) }
                                   sort { $a cmp $b } keys %{$LJ::LATEST_TAG_FEEDS{group_names}};
             if ( $feed ) {
                 $tagfeeds = qq{[<a href="$LJ::SITEROOT/latest">show all</a>] } . $tagfeeds;
@@ -150,25 +168,9 @@ sub index_handler {
         time_diff => \&LJ::diff_ago_text,
         now => $now,
         make_short_entry => \&make_short_entry,
-        eurl => \&LJ::eurl,
-        ehtml => \&LJ::ehtml,
     };
 
-    my $ret = DW::Template->render_template( 'latest/index.tt', $vars );
-    my $out = $ret;
-    LJ::text_compress( \$out );
-    LJ::MemCache::set( $mckey, [ time() + 60, $out ], 90 );
-    return $ret;
-}
-
-sub make_short_entry {
-	my $entry = $_[0];
-	my $url = $entry->url;
-    my $truncated;
-    my $evt = $entry->event_html_summary( 2000, { cuturl => $url, preformatted => $entry->prop( 'opt_preformatted' ) }, \$truncated );
-    # put a "(Read more)" link at the end of the text if the entry had to be shortened
-	$evt .= ' <a href="' . $url . '">(Read more)</a>' if $truncated; 
-	return $evt;
+    return $vars;
 }
 
 1;
