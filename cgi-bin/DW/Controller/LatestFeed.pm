@@ -60,8 +60,8 @@ sub index_handler {
         expire => 60,
     };
 
-    my $ret = DW::Template->render_cached_template( $mckey, 'latest/index.tt', \&generate_vars, $cache_opts );
-    return $ret;
+    LJ::need_res("stc/latest.css");
+    return DW::Template->render_cached_template( $mckey, 'latest/index.tt', \&generate_vars, $cache_opts );
 }
 
 sub make_short_entry {
