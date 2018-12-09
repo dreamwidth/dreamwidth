@@ -370,7 +370,7 @@ _changeRelation: function($link) {
 
             beforeSend: function ( jqxhr, data ) {
                 if ( action == "setBan" || action == "setUnban" ) {
-                    var username = info.username;
+                    var username = info.display_name;
                     var message = action == "setUnban" ? "Are you sure you wish to unban " + username + "?"
                                                        : "Are you sure you wish to ban " + username + "?";
                     if ( confirm( message ) ) {

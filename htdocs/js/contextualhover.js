@@ -612,7 +612,7 @@ ContextualPopup.changeRelation = function (info, ctxPopupId, action, evt) {
     if (!info) return true;
 
     if ( action == "setBan" || action == "setUnban" ) {
-       var username = info.username;
+       var username = info.display_name;
        var message = action == "setUnban" ? "Are you sure you wish to unban " + username + "?"
                                           : "Are you sure you wish to ban " + username + "?";
        if ( ! confirm( message ) )
@@ -635,7 +635,7 @@ ContextualPopup.changeRelation = function (info, ctxPopupId, action, evt) {
     // callback from changing relation request
     var changedRelation = function (data) {
         if ( action == "setBan" || action == "setUnban" ) {
-           var username = info.username;
+           var username = info.display_name;
            var message = action == "setUnban" ? "Are you sure you wish to unban " + username + "?"
                                               : "Are you sure you wish to ban " + username + "?";
            if ( confirm( message ) ) {
@@ -796,4 +796,3 @@ ContextualPopup.gotError = function (err) {
 
 // when page loads, set up contextual popups
 LiveJournal.register_hook("page_load", ContextualPopup.setup);
-
