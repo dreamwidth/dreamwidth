@@ -60,9 +60,7 @@ sub index_handler {
         expire => 60,
     };
 
-
     my $ret = DW::Template->render_cached_template( $mckey, 'latest/index.tt', \&generate_vars, $cache_opts );
-    #my $ret = DW::Template->render_template('latest/index.tt', $vars);
     return $ret;
 }
 
@@ -77,8 +75,7 @@ sub make_short_entry {
 }
 
 sub generate_vars {
-
-   my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
     my $r = $rv->{r};
@@ -132,36 +129,36 @@ sub generate_vars {
     }
 
     my $tagfeeds = '';
-        unless ( $tag || $feed ) {
-            $tagfeeds = join ' ', map { $feed eq $_ ? $LJ::LATEST_TAG_FEEDS{group_names}->{$_}
-                                                    : qq(<a href="$LJ::SITEROOT/latest?feed=$_">$LJ::LATEST_TAG_FEEDS{group_names}->{$_}</a>) }
-                                  sort { $a cmp $b } keys %{$LJ::LATEST_TAG_FEEDS{group_names}};
-            if ( $feed ) {
-                $tagfeeds = qq{[<a href="$LJ::SITEROOT/latest">show all</a>] } . $tagfeeds;
-            }
-        }
-
-        # but if we are filtering to a tag, let them unfilter
+    unless ( $tag || $feed ) {
+        $tagfeeds = join ' ', map { $feed eq $_ ? $LJ::LATEST_TAG_FEEDS{group_names}->{$_}
+                                                : qq(<a href="$LJ::SITEROOT/latest?feed=$_">$LJ::LATEST_TAG_FEEDS{group_names}->{$_}</a>) }
+                              sort { $a cmp $b } keys %{$LJ::LATEST_TAG_FEEDS{group_names}};
         if ( $feed ) {
-            $tagfeeds .= qq|Currently viewing posts about <strong>$LJ::LATEST_TAG_FEEDS{group_names}->{$feed}</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>|;
+            $tagfeeds = qq{[<a href="$LJ::SITEROOT/latest">show all</a>] } . $tagfeeds;
         }
-        if ( $tag ) {
-            $tagfeeds .= qq{Currently viewing posts tagged <strong>} . LJ::ehtml( $tagname ) . qq{</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>};
-        }
+    }
 
-        # and now, tag cloud!
-        my $tfmap = DW::LatestFeed->get_popular_tags( count => 100 ) || {};
-        if ( ! $tag && ! $feed && scalar keys %$tfmap ) {
-            my $taghr = {
-                map {
-                    $tfmap->{$_}->{tag} => {
-                        url   => "$LJ::SITEROOT/latest?tag=" . LJ::eurl( $tfmap->{$_}->{tag} ),
-                        value => $tfmap->{$_}->{count}
-                    }
-                } keys %$tfmap
-            };
-            $tagfeeds .= "<br /><br />" . LJ::tag_cloud( $taghr ) . "\n";
-        }
+    # but if we are filtering to a tag, let them unfilter
+    if ( $feed ) {
+        $tagfeeds .= qq|Currently viewing posts about <strong>$LJ::LATEST_TAG_FEEDS{group_names}->{$feed}</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>|;
+    }
+    if ( $tag ) {
+        $tagfeeds .= qq{Currently viewing posts tagged <strong>} . LJ::ehtml( $tagname ) . qq{</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>};
+    }
+
+    # and now, tag cloud!
+    my $tfmap = DW::LatestFeed->get_popular_tags( count => 100 ) || {};
+    if ( ! $tag && ! $feed && scalar keys %$tfmap ) {
+        my $taghr = {
+            map {
+                $tfmap->{$_}->{tag} => {
+                    url   => "$LJ::SITEROOT/latest?tag=" . LJ::eurl( $tfmap->{$_}->{tag} ),
+                    value => $tfmap->{$_}->{count}
+                }
+            } keys %$tfmap
+        };
+        $tagfeeds .= "<br /><br />" . LJ::tag_cloud( $taghr ) . "\n";
+    }
     my $vars = {
         items => \@objs,
         tagfeeds => $tagfeeds,
