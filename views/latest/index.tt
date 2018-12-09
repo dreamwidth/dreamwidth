@@ -13,7 +13,6 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
 [% sections.title = 'Latest Things' %]
-[% dw.need_res('stc/latest.css') %]
 
 <p>Latest things on [% site.name %].  This page shows you a sample of the most recently posted things that are available on the site.  The feed is updated every minute or two.  Also, new posts and comments won't show up until five (5) minutes after they are posted.  Just in case they are accidentally posted public. </p>
 
