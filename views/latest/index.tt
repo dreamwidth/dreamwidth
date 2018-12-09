@@ -1,0 +1,52 @@
+[%# latest/index.tt
+
+Tag cloud and feed for latest things page.
+
+Authors:
+    RSH <ruth.s.hatch@gmail.com>
+
+Copyright (c) 2018 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it
+under the same terms as Perl itself.  For a copy of the license, please
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% sections.title = 'Latest Things' %]
+[% dw.need_res('stc/latest.css') %]
+
+<p>Latest things on [% site.name %].  This page shows you a sample of the most recently posted things that are available on the site.  The feed is updated every minute or two.  Also, new posts and comments won't show up until five (5) minutes after they are posted.  Just in case they are accidentally posted public. </p>
+
+<p>Other things you can do with the latest entries: find out the <a href="[% site.root %]/latest/mood">general mood of [% site.nameshort %]</a>.</p>
+
+[% IF tagfeeds %]
+	<div class='highlight-box' id='tagfeeds'>[% tagfeeds %]</div>
+[% END %]
+
+
+[% FOREACH item IN items %]
+	[% IF item.isa('LJ::Comment') %]
+		[%# FIXME: fill this out some day %]
+	[% ELSIF item.isa('LJ::Entry') %]
+		[% NEXT UNLESS item.security == 'public'  && item.poster.is_visible %]
+		[% comment = item.reply_count == 1 ? "1 comment" : ( item.reply_count > 0 ? "$item.reply_count comments" : 'no comments' ) %]
+
+		<div class='latest-entry usercontent'>
+		<div class='header'>
+		    <div class='tags'>
+		    [% FOREACH tag IN item.tags.sort %]
+		    <a href="[%site.root %]/latest?tag=[% tag | uri %]">[% tag | html %]</a>
+		    [%- ", " UNLESS loop.last %]
+		    [% END %]</div>
+		    <div class='author'>[% item.poster.ljuser_display %]
+		          [% IF NOT item.poster.equals(item.journal) %]
+		              in [% item.journal.ljuser_display %]
+		          [% END %]
+		              ([% time_diff(item.logtime_unix, now) %])</div>
+		    <div class='subject'><a href="[% item.url %]">[% item.subject_html || 'no subject' %]</a></div>
+		    </div>
+		    <div class='event'>[% make_short_entry(item) %]</div>
+		    <div class='comments'>(<a href='[% item.url %]'>[% comment %]</a>) (<a href='[% item.reply_url %]'>reply</a>)</div>
+		</div>
+	[% END %]
+[% END %]

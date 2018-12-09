@@ -16,20 +16,28 @@
 .latest-entry {
     border: solid 1px #ddd;
     margin-bottom: 1.5em;
-    padding: 0.3em;
 }
 
+.latest-entry .header {
+
+    padding: 1em;
+}
 .latest-entry .subject {
     font-weight: bold;
-    margin-bottom: 0.3em;
+    margin: 0.3em 0;
+    font-size:1.25em;
 }
 
 .latest-entry .author {
     
 }
 
+.latest-entry .event img {
+    max-width:100%;
+}
+
 .latest-entry .event {
-    margin-top: 1em;
+    padding: 1em;
 }
 
 .latest-entry .tags {
@@ -38,10 +46,16 @@
 }
 
 .latest-entry .comments {
-    margin-top: 1em;
     clear: both;
+    padding: 1em;
 }
 
 #tagfeeds {
     text-align: center;
+    line-height: 1;
+    padding: 1.5em;
+}
+
+#tagfeeds a {
+    padding: 0 0.5em;
 }
