@@ -1,0 +1,249 @@
+    [%# start of content %]
+    [% dw.ml("Backlink", {
+        'link' => "$site.root/customize/advanced/",
+        'text' => dw.ml('.back2'),
+    }) %]
+
+
+    [%# show the public layers %]
+    [% UNLESS id %]
+        [%- sections.title = '.title' | ml -%]
+
+        [% BLOCK recurse %]
+            [% lay = pub.$lid %]
+            [% RETURN UNLESS lay > 0 %]
+
+
+            [%# set to true if the layer is not core and is not a layout %]
+            [% is_child = lay.type != 'core' && lay.type != 'layout' %]
+            
+            [%# show link to detailed view %]
+            <li><a href='layerbrowse?id=[% lay.uniq %]' name='[% lay.uniq %]' id='[% lay.uniq %]'>[% layerinfo.$lid.name | html %]
+            </a> ([% lay.type %][% NOT is_child ? ": <b>$lid</b>" : '' %])</li>
+
+            [%# done unless there are children to recurse through %]
+            [% RETURN UNLESS NOT is_child && lay.children %]
+
+            [%# if we're not expanding these children, stop and show a link %]
+            [% IF lay.type == 'layout' && expand != lid %]
+                [% num_children = 0 %]
+                [% FOREACH child IN lay.children.list() %]
+                    [% is_active = layer_is_active(child) %]
+                    [% num_children = num_children + 1 IF NOT defined(is_active) || is_active %]
+                [% END %]
+                <ul><li>[<a href='layerbrowse?expand=[% lid %]#[% lay.uniq %]'>
+                [% dw.ml('.layerchildren', {'numchildren' => num_children}) %]</a>]</li></ul>
+                [% RETURN %]
+            [% END %]
+
+            [%# This sorts first by type backwards (so that layout and theme sort before %]
+            [%# i18nc and i18n) and then by name, thus causing the layouts to group by type %]
+            [%# and then be alphabetical within their type. %]
+            [% children = childsort (lay.children) %]
+
+            [%# expand children %]
+            <ul>
+            [% FOREACH child IN children %]
+                [% is_active = layer_is_active(child) %]
+                [% is_active %]
+                [% NEXT UNLESS NOT defined(is_active) || is_active %]
+                [% PROCESS recurse lid = child %]
+            [% END %]
+            </ul>
+
+        [% END %]
+
+        [% # iterate through core layers %]
+        <ul>
+        [% FOREACH key IN s2_keys.sort %]
+            [% is_active = layer_is_active(key) %]
+            [% NEXT UNLESS NOT defined(is_active) || is_active %]
+            [% PROCESS recurse lid = key %]
+        [% END %]
+        </ul>
+        [% RETURN %]
+    [% END %]
+
+    [%### details on a specific layer ### %]
+    
+    [%# public styles are pulled from the system account, so we don't %]
+    [%# want to check privileges in case they're private styles %]
+    [% UNLESS srcview == 1 || isadmin || can_manage || pub.$id %]
+            return $err->($ML{'.error.cantviewlayer'})
+    [% END %]
+
+    <br />
+    [%# link to layer list if this is a public layer, otherwise user's layer list %]
+    [% IF pub.$id.size %]
+        [% dw.ml('Backlink', { 'link' => "$site.root/customize/advanced/layerbrowse", 'text' => dw.ml('.nav.publiclayers') }) %]
+    [% ELSE %]
+        [% dw.ml('Backlink', { 'link' => "$site.root/customize/advanced/layers", 'text' => dw.ml('.nav.yourlayers') }) %]
+        [% dw.ml('Actionlink', { 'link' => "<a href='$site.root/customize/advanced/layeredit?id=$id'>" _ dw.ml('.nav.editlayer') _ "</a>" }) %]
+    [% END %]
+
+    [% IF layer.b2lid.size %]
+        [% dw.ml('Actionlink', { 'link' => "<a href=\"$site.root/customize/advanced/layerbrowse?id=$layer->{'b2lid'}\">" _ dw.ml('.nav.parentlayer') _ "</a>" }) %]
+    [% END %]
+
+    [% IF pub.$id.size && (! srcview || srcview != 0) %]
+        [% dw.ml('Actionlink', { 'link' => dw.ml('.nav.viewsource') _ " <a href=\"$site.root/customize/advanced/layersource?id=$id\">" _ dw.ml('.nav.viewsource.raw') _ "</a> | <a href=\"$site.root/customize/advanced/layersource?id=$id&fmt=html\">" _ dw.ml('.nav.viewsource.highlighted') _ "</a>" }) %]
+    [% END %]
+
+    [%# layerinfo %]
+    [% IF s2info.info %]
+        [% info = s2info.info %]
+        <h1>[% dw.ml('.layerinfo.header') %]</h1>
+        <table summary='' id='table_layerbrowse_layerinfo' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2'>
+        [% FOREACH k IN info.keys.sort %]
+        [% IF k == "name" %]
+            [%- sections.title = info.$k -%]
+            [% END %]
+            <tr><td><b>[% k | html %]</b></td><td>[% info.$k | html %]</td></tr>
+        [% END %]
+        </table>
+    [% END %]
+
+
+    [%# sets %]
+    [% IF s2info.set %]
+        [% set = s2info.set %]
+        <h1>[% dw.ml ('.propertiesset.header') %]</h1>
+        <table summary='' id='table_layerbrowse_properties' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>
+        [% FOREACH k IN set.keys.sort %]
+            <tr><td><b>[% k %]</b></td><td>[% format_value(set.$k) %]</td></tr>
+        
+        [% END %]
+        </table>
+    [% END %]
+
+    [%# global functions %]
+
+    [% gb = s2info.global %]
+    [% IF gb.keys %]
+        <h1>[% dw.ml('.globalfunctions.header') %]</h1>
+        <table summary='' id='table_layerbrowse_global' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>
+
+        [% FOREACH fname IN gb.keys.sort %]
+            [% rt = gb.$fname.returntype %]
+            [% IF defined(class.rt) %]
+                [% rt = "[class[$rt]]" %]
+            [% END %]
+            [% ds = ehtml(gb.$fname.docstring) || "&nbsp;" %]
+            
+            [% args = gb.$fname.args %]
+            
+            <tr><td class='func'><a name='func.[% fname %]'><tt>[% xlink_args(args) %] : [% xlink(rt) %]</tt></a></td><td>[% xlink(ds) %]</td></tr>
+        
+        [% END %]
+        </table>
+    [% END %]
+        
+
+    [% IF class.size > 0 %]
+        [%# class index %]
+        <h1>[% dw.ml('.classes.header') %]</h1>
+        <table summary='' id='table_layerbrowse_classes' class='table_layerbrowse' style='margin-bottom: 10px'><tr valign='top' align='left'>
+        <td width='50%'>[% dw.ml('.classes.sort.alphabetical') %]
+        <ul>
+        [% FOREACH cname IN class.keys.sort %]
+            <li><a href='#class.[% cname %]'><b>[% cname %]</b></a></li>
+        [% END %]
+        </ul>
+        </td>
+        <td width='50%'>[% dw.ml('.classes.sort.hierarchical') %]
+        [% BLOCK dumpsub %]
+            [% "<li><a href='#class.$parentclass'><b>$parentclass</b></a></li>" IF parentclass != "" %]
+            [% didul = 0 %]
+            [% FOREACH cname IN class.keys.sort %]
+                [% NEXT UNLESS class.$cname.parent == parentclass %]
+                [% UNLESS didul > 0 %]
+                    <ul>
+                    [% didul = didul + 1 %]
+                [% END %]
+                [% INCLUDE dumpsub parentclass = cname %]
+            [% END %]
+            [% "</ul>" IF didul > 0 %]
+
+        [% END %]
+        [% INCLUDE dumpsub parentclass = "" %]
+        </td></tr></table>
+
+        [%# classes %]
+        [% FOREACH cname IN class.keys.sort %]
+            <a name='class.[% cname %]'><h1>[% dw.ml('.classname.header', {'name' => cname}) %]</h1></a>
+            [% ds = ehtml(class.$cname.docstring) %]
+            [% IF class.$cname.parent %]
+            [% name = "[class[" _ class.$cname.parent _ "]]" %]
+                [% ds = dw.ml('.classname.childclass', {'name' => name}) _ " $ds" %]
+            [% END %]
+            [% IF ds && ds != '' %]
+                <p>[% xlink(ds) %]</p>
+            [% END %]
+
+            [%# build functions & methods %]
+            [% BLOCK add %]
+                [% FOREACH k IN class.$aname.funcs.keys %]
+                    [% func.$k = class.$aname.funcs.$k %]
+                    [% func.$k._declclass = aname %]
+                [% END %]
+                [% FOREACH k IN class.$aname.vars.keys %]
+                    [% var.$k = class.$aname.vars.$k %]
+                    [% var.$k._declclass = aname %]
+                [% END %]
+                [% parentclass = class.$aname.parent %]
+                [% PROCESS add aname = parentclass IF parentclass %]
+
+            [% END %]
+            [% PROCESS add aname = cname %]
+
+            [% IF var.size > 0 %]
+                <table summary='' id='table_layerbrowse_members' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><h2>[% dw.ml ('.members.header') %]</h2>
+            [% END %]
+            [% FOREACH k IN var.keys.sort %]
+                [% type = var.$k.type %]
+                [% cleantype = type.remove('\W+') %]
+                [% type = type.replace('(\w+)', '[class[$1]]') IF class.$cleantype.defined %]
+
+                [% ds = ehtml(var.$k.docstring) || "&nbsp;" %]
+
+                [% IF var.$k.readonly %]
+                    [% ds = xlink(ds) _ " <i>" _ dw.ml('.members.readonly') _ "</i>" %]
+                [% END %]
+
+                <tr><td><nobr><a name='member.[% cname %].[% k %]'><tt>[% xlink(type) %] [% k %]</tt></a></nobr></td><td>[% ds %]</td></tr>
+            [% END %]
+            [% "</table>" IF var %]
+            
+            [% IF func.size > 0 %]
+            <table summary='' id='table_layerbrowse_methods' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><h2>[% dw.ml ('.methods.header') %]</h2>
+            [% END %]
+            [% FOREACH k IN func.keys.sort %]
+
+                [% rt = func.$k.returntype %]
+                [% IF defined(rt) %]
+                    [% rt = "[class[$rt]]" %]
+                [% END %]
+
+                [% ds = ehtml(func.$k.docstring) || "&nbsp;" %]
+
+               [% args = k %]
+
+                <tr><td class='method'><a name='meth.[% cname %]::[% k %]'><tt>[% xlink_args(args) %] : [% xlink(rt) %]</tt></a></td><td>[% xlink(ds) %]</td></tr>
+            [% END %]
+            [% "</table>" IF func.size > 0 %]
+            [% func = {} %]
+            [% var = {} %]
+        [% END %]
+    [% END %]
+    
+
+[% sections.head = BLOCK %]
+<style type='text/css'>
+table.table_layerbrowse td.func, table.table_layerbrowse td.method {
+    padding-left: 1.7em;
+    text-indent: -1.5em;
+}
+</style>
+[% END %]
+
+    

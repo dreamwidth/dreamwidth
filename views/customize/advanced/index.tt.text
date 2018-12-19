@@ -1,4 +1,3 @@
-;; -*- coding: utf-8 -*-
 .advancedoptions.header=Advanced Options
 
 .disclaimer.header=Disclaimer
@@ -28,4 +27,3 @@
 .yourstyles.desc=create/manage your styles
 
 .yourstyles.link=Your Styles
-
