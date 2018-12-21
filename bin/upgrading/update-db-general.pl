@@ -3060,7 +3060,7 @@ register_tablecreate("api_key", <<'EOC');
 CREATE TABLE `api_key` (
   `userid` int(10) unsigned NOT NULL,
   `keyid` int(10) unsigned NOT NULL,
-  `hash` varchar(32) UNIQUE NOT NULL,
+  `hash` char(32) UNIQUE NOT NULL,
   `state` char(1) NOT NULL DEFAULT 'A',
   PRIMARY KEY (`userid`,`keyid`),
   INDEX(`hash`)

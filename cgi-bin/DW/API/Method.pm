@@ -20,6 +20,7 @@ package DW::API::Method;
 use strict;
 use warnings;
 use JSON;
+use JSON::Validator 'validate_json';
 
 use DW::API::Parameter;
 
@@ -31,18 +32,20 @@ my @HTTP_VERBS = qw(GET POST DELETE PUT);
 # in DW::Controller::API::REST resource definitions.
 
 sub define_method {
-    my ($class, $action, $handler, $desc, $summary) = @_;
+    my ($class, $action, $handler, $config) = @_;
 
     my $method = {
         name => $action,
-        summary => $summary,
-        desc => $desc,
+        summary => $config->{summary},
+        desc => $config->{description},
         handler => $handler,
         tags => [], 
         responses => {},
         };
 
-    return bless $method, $class;
+    bless $method, $class;
+    $method->_responses($config->{responses});
+    return $method;
 }
 
 # Usage: param ( @args ) 
@@ -75,10 +78,35 @@ sub success {
 # to the responses hash of the calling method object
 # FIXME: Register a sprintf string to use as well?
 
-sub response {
-    my ($self, $code, $desc) = @_;
+sub _responses {
+    my ($self, $resp_config) = @_;
+
+    # add response descriptions
+        for my $code (keys %$resp_config) {
+            my $desc = $resp_config->{$code}->{description};
+            $self->{responses}{$code} = { desc => $desc };
+
+            # for every content type we provide as response, see if we have a valid schema
+            for my $content_type (keys %{$resp_config->{$code}->{content}}) {
+                my $content = $resp_config->{$code}->{content}->{$content_type};
+                if (defined $content->{schema}) {
+                    # Make sure we've been provided a valid schema to validate against
+                    my @errors = validate_json($content->{schema});
+                    die "Invalid schema!" if @errors;
+
+                    # make a validator against the schema
+                    my $validator = JSON::Validator->new->schema($content->{schema});
+                    $content->{validator} = $validator;
+                }
+
+                $self->{responses}{$code}{content}{$content_type} = $content;
+            }
+        
 
     $self->{responses}{$code} = { desc => $desc };
+
+}
+
 }
 
 # Usage: _validate ( Method object ) 

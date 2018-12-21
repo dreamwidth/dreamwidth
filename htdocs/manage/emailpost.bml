@@ -364,18 +364,30 @@ body<=
 
     # if we just reset the token, add a header but show the original page still
     if ( LJ::did_post() && $POST{"action:token"}) {
+        my @errors;
+
+        push @errors, $ML{'error.invalidform'} unless LJ::check_form_auth();
+
         $ret .= $u->generate_emailpost_auth
                     ? "<div class='highlight-box'>$ML{'.reply.status.success'}</div>"
                     : "<div class='error-box'>$ML{'.reply.status.error'}</div>";
     }
 
     if ( LJ::did_post() && $POST{"action:apikey"}) {
+        my @errors;
+
+        push @errors, $ML{'error.invalidform'} unless LJ::check_form_auth();
+
         $ret .= DW::API::Key->new_for_user($u)
                     ? "<div class='highlight-box'>$ML{'.api.status.success'}</div>"
                     : "<div class='error-box'>$ML{'.api.status.error'}</div>";
     }
 
     if ( LJ::did_post() && $POST{"action:delete"}) {
+        my @errors;
+
+        push @errors, $ML{'error.invalidform'} unless LJ::check_form_auth();
+
         my $deleted_keys .= $POST{"delete"};
         foreach (split(/\0/, $deleted_keys)) {            
             s/\s+//g;

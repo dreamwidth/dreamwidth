@@ -32,8 +32,8 @@ use Carp qw/ croak /;
 
 our %API_DOCS = ();
 our %TYPE_REGEX = (
-    string => '([^/]*)',
-    integer => '(\d*)',
+    string => '([^/]+)',
+    integer => '(\d+)',
     boolean => '(true|false)',
 );
 our %METHODS = (get => 1, post => 1, delete => 1);
@@ -82,7 +82,7 @@ sub path {
 
 sub _add_method {
     my ($self, $method, $handler, $config) = @_;
-        my $new_method = DW::API::Method->define_method($method, $handler, $config->{description}, $config->{summary});
+        my $new_method = DW::API::Method->define_method($method, $handler, $config);
 
         # add method params
         if (exists $config->{parameters}){
@@ -90,13 +90,6 @@ sub _add_method {
                 $new_method->param($param);
             }
         }
-
-        # add response descriptions
-        for my $response (keys %{$config->{responses}}) {
-            my $desc = $config->{responses}->{$response}->{description};
-            $new_method->response($response, $desc);
-        }
-
 
     $self->{path}->{methods}->{$method} = $new_method;
 
@@ -112,6 +105,7 @@ sub _add_method {
 
 sub register_rest_controller {
     my ( $info ) = shift;
+    print "registering controller";
     my $path = $info->{path}{name};
     my $parameters = $info->{path}{params};
     my $ver = $info->{ver};
@@ -123,11 +117,10 @@ sub register_rest_controller {
 
     foreach my $param (@params) {
         die "Parameter $param is not defined." unless exists $parameters->{$param};
-        my $type = $parameters->{$param}->{type};
+        my $type = $parameters->{$param}->{schema}->{type};
         $path =~ s/{$param}/$TYPE_REGEX{$type}/;
         
         }
-
 
     DW::Routing->register_api_rest_endpoint( $path . '$', "_dispatcher", $info, version => $ver);
 }
@@ -145,9 +138,10 @@ sub _dispatcher {
     return $rv unless $ok;
     
     my $r = $rv->{r};
-    my $apikey = DW::API::Key->get_key($r->header_in('api_key'));
+    my $apikey = DW::API::Key->get_key($r->header_in('Authorization'));
 
-    unless ($apikey) {
+    # all paths require an API key except the spec (which informs users that they need a key and where to put it)
+    unless ($apikey || $self->{path}{name} eq "/spec") {
         $r->print( to_json({ success => 0, error => "Missing or invalid API key"}) );
         $r->status( '401' );
         return;
@@ -194,7 +188,7 @@ sub rest_error {
     return;
 }
 
-# Usage: return api_ok( SCALAR )
+# Usage: return rest_ok( SCALAR )
 # Takes a scalar as input, then constructs an output JSON object. The output
 # object is always of the format:
 #   { success => 0/1, result => SCALAR }

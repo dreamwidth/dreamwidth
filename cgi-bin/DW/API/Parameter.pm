@@ -20,6 +20,7 @@ package DW::API::Parameter;
 use strict;
 use warnings;
 use JSON;
+use JSON::Validator 'validate_json';
 
 use Carp qw(croak);
 
@@ -37,8 +38,8 @@ sub define_parameter {
         name => $args->{name},
         desc => $args->{description},
         in => $args->{in},
-        type => $args->{type},
-        required => $args->{required}
+        required => $args->{required},
+        schema => $args->{schema},
     };
     return bless $parameter, $class;
 }
@@ -51,10 +52,20 @@ sub define_parameter {
 sub validate {
     my $self = $_[0];
     for my $field (@ATTRIBUTES) {
-        die "$self is missing required field $field" unless defined $self->{$field};
+        croak "$self is missing required field $field" unless defined $self->{$field};
     }
     my $location = $self->{in};
-    die "$location isn't a valid parameter location" unless grep($location, @LOCATIONS);
+    croak "$location isn't a valid parameter location" unless grep($location, @LOCATIONS);
+
+    if (defined $self->{schema}) {
+        # Make sure we've been provided a valid schema to validate against
+        my @errors = validate_json($self->{schema});
+        croak "Invalid schema!" if @errors;
+
+        # make a validator against the schema
+        my $validator = JSON::Validator->new->schema($self->{schema});
+        $self->{validator} = $validator;
+    }
 
     return;
 }
@@ -67,8 +78,8 @@ sub TO_JSON {
     my $json = {
         name => $self->{name},
         description => $self->{desc},
-        type => $self->{type},
-        in => $self->{in}
+        in => $self->{in},
+        schema => $self->{schema},
     };
         $json->{required} = $JSON::true if defined $self->{required} && $self->{required};
     return $json;

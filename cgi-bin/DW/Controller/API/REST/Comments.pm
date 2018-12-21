@@ -19,11 +19,7 @@ use DW::Controller::API::REST;
 
 use strict;
 use warnings;
-use DW::Routing;
-use DW::Request;
-use DW::Controller;
 use JSON;
-use DW::Mood;
 
 
 ################################################
@@ -38,12 +34,6 @@ my $screening = DW::Controller::API::REST->path('comments/screening.yaml', 1, {'
 sub get_screening {
     my $self = $_[0];
     
-    # we want to handle the not logged in case ourselves
-    my ( $ok, $rv ) = controller( anonymous => 1 );
-    return $rv unless $ok;
-
-    my $r = $rv->{r};
-
     my $settings = {""   =>   "Journal Default",
                 	"N"  =>   "No comments are screened.",
                 	"R"  =>   "Screen anonymous comments",

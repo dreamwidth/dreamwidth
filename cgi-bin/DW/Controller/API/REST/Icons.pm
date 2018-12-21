@@ -18,29 +18,23 @@ package DW::Controller::API::Rest::Icons;
 use DW::Controller::API::REST;
 use strict;
 use warnings;
-use DW::Routing;
-use DW::Request;
-use DW::Controller;
 use JSON;
 
 my $icons_all = DW::Controller::API::REST->path('icons_all.yaml', 1, {'get' => \&rest_get});
+my $icons = DW::Controller::API::REST->path('icons.yaml', 1, {'get' => \&rest_get});
 
 sub rest_get {
     my ( $self, $opts, $username, $picid ) = @_;
 
     my $u = LJ::load_user( $username );
 
-    # we want to handle the not logged in case ourselves
-    my ( $ok, $rv ) = controller( anonymous => 1 );
-    return $rv unless $ok;
-
     # if we're given a picid, try to load that userpic
-    if ($picid != "") {
-        my $userpic = LJ::Userpic->new( $u, $picid );
-        if ( $userpic ) {
+    if ($picid ne "") {
+        my $userpic = LJ::Userpic->get( $u, $picid );
+        if ( defined $userpic ) {
             return $self->rest_ok( $userpic );
         } else {
-            return $self->rest_error("404");
+            return $self->rest_error("get", "404");
         }
     } else {
         # otherwise, load all userpics.    
