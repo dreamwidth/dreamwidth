@@ -34,7 +34,7 @@ sub rest_get {
         if ( defined $userpic ) {
             return $self->rest_ok( $userpic );
         } else {
-            return $self->rest_error("get", "404");
+            return $self->rest_error("404");
         }
     } else {
         # otherwise, load all userpics.    

@@ -21,8 +21,10 @@ use strict;
 use warnings;
 use JSON;
 use JSON::Validator 'validate_json';
+use Carp qw/ croak /;
 
 use DW::API::Parameter;
+use DW::Request;
 
 my @ATTRIBUTES = qw(name desc handler responses);
 my @HTTP_VERBS = qw(GET POST DELETE PUT);
@@ -121,6 +123,58 @@ sub _validate {
     return;
 
 }
+
+# Usage: return rest_ok( response, content-type )
+# takes a scalar or scalar ref to a response object, and an
+# optional content-type - default is JSON if not specified.
+# Returns the response object with the given content type.
+sub rest_ok {
+    croak 'too many arguments to api_ok!'
+        unless scalar @_ <= 3;
+    
+    my ( $self, $response, $content_type ) = @_;
+    my $r = DW::Request->get;
+
+    $content_type = defined $content_type ? $content_type : 'application/json';
+    my $validator = $self->{responses}{200}{content}{$content_type}{validator};
+
+    # guarantee that we're returning what we say we return.
+    if (defined $validator) {
+        my @errors = $validator->validate($response);
+        if (@errors) {
+            croak "Invalid response format! Validator errors: @errors";
+        }
+    }
+
+    $r->print( to_json( $response, { convert_blessed => 1 , pretty => 1} ) );
+    $r->status( 200 );
+    return;
+}
+
+# Usage: return rest_error( $r->STATUS_CODE_CONSTANT,
+#                          'format/message', [arg, arg, arg...] )
+# Returns a standard format JSON error message.
+# The first argument is the status code
+# The second argument is a string that might be a format string:
+# it's passed to sprintf with the rest of the
+# arguments.
+sub rest_error {
+    my ($self, $status_code, @args) = @_;
+    my $status_desc = $self->{responses}{$status_code}{desc};
+    my $message = defined $status_desc ?
+        sprintf( $status_desc ) : 'Unknown error.';
+
+    my $res = {
+        success => 0,
+        error   => $message,
+    };
+
+    my $r = DW::Request->get;
+    $r->print( to_json( $res ) );
+    $r->status( $status_code );
+    return;
+}
+
 
 # Formatter method for the JSON package to output method objects as JSON.
 

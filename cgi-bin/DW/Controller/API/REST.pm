@@ -29,7 +29,6 @@ use JSON;
 use YAML::XS qw'LoadFile';
 
 use Carp qw/ croak /;
-use Data::Dumper;
 
 our %API_DOCS = ();
 our %TYPE_REGEX = (
@@ -150,74 +149,16 @@ sub _dispatcher {
 
     my $method = lc $r->method;
     my $handler = $self->{path}{methods}->{$method}->{handler};
+    my $method_self = $self->{path}{methods}->{$method};
 
     if (defined $handler) {
-        return $handler->($self, @args);
+        return $handler->($method_self, @args);
     } else {
-        return $self->_rest_unimplemented($method);
+        # Generic response for unimplemented API methods.
+        $r->print( to_json({ success => 0, error => "Not Implemented"}) );
+        $r->status( '501' );
+        return;
     }
-}
-
-# Generic response handler for unimplemented API methods.
-     
-sub _rest_unimplemented {
-
-    return api_error( { error => $_[0] . " Not Implemented"  } );
-}
-
-# Usage: return rest_error( $r->STATUS_CODE_CONSTANT,
-#                          'format/message', [arg, arg, arg...] )
-# Returns a standard format JSON error message.
-# The first argument is the status code
-# The second argument is a string that might be a format string:
-# it's passed to sprintf with the rest of the
-# arguments.
-sub rest_error {
-    my ($self, $action, $status_code, @args) = @_;
-    my $status_desc = $self->{path}{methods}{$action}->{responses}{$status_code}{desc};
-    my $message = defined $status_desc ?
-        sprintf( $status_desc ) : 'Unknown error.';
-
-    my $res = {
-        success => 0,
-        error   => $message,
-    };
-
-    my $r = DW::Request->get;
-    $r->print( to_json( $res ) );
-    $r->status( $status_code );
-    return;
-}
-
-# Usage: return rest_ok( SCALAR )
-# Takes a scalar as input, then constructs an output JSON object. The output
-# object is always of the format:
-#   { success => 0/1, result => SCALAR }
-# SCALAR can of course be a hashref, arrayref, or value.
-sub rest_ok {
-    croak 'api_ok takes one argument only'
-        unless scalar @_ == 2;
-    
-    my ( $self, $response, $content_type ) = @_;
-    my $r = DW::Request->get;
-
-    $content_type = defined $content_type ? $content_type : 'application/json';
-    my $validator = $self->{path}{methods}{get}{responses}{200}{content}{$content_type}{validator};
-
-    print Dumper($validator);
-    # guarantee that we're returning what we say we return.
-    if (defined $validator) {
-        print "we have a validator!";
-        my @errors = $validator->validate($response);
-        if (@errors) {
-            croak "Invalid response format! Validator errors: @errors";
-        }
-
-    }
-
-    $r->print( to_json( $response, { convert_blessed => 1 , pretty => 1} ) );
-    $r->status( 200 );
-    return;
 }
 
 
