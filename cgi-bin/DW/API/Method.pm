@@ -91,22 +91,17 @@ sub _responses {
                 my $content = $resp_config->{$code}->{content}->{$content_type};
                 if (defined $content->{schema}) {
                     # Make sure we've been provided a valid schema to validate against
-                    my @errors = validate_json($content->{schema});
-                    die "Invalid schema!" if @errors;
+                    my @errors = validate_json($content->{schema}, 'http://json-schema.org/draft-07/schema#');
+                    die "Invalid schema! Errors: @errors" if @errors;
 
                     # make a validator against the schema
                     my $validator = JSON::Validator->new->schema($content->{schema});
                     $content->{validator} = $validator;
                 }
-
-                $self->{responses}{$code}{content}{$content_type} = $content;
+                 $self->{responses}{$code}{content}->{$content_type} = $content;
             }
-        
 
-    $self->{responses}{$code} = { desc => $desc };
-
-}
-
+        }
 }
 
 # Usage: _validate ( Method object ) 

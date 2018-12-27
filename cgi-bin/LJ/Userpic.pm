@@ -1305,18 +1305,14 @@ sub TO_JSON {
     my $self = shift;
 
     my $remote = LJ::get_remote();
+    my @keywords = $self->keywords;
     my $returnval = { 
         username => $self->u->user,
         picid => $self->picid,
         url => $self->url,
         comment => $self->comment,
+        keywords => \@keywords,
     };
-
-    if (ref($self->keywords) eq 'ARRAY') {
-        $returnval->{keywords} =  @{$self->keywords};
-    } else {
-        $returnval->{keywords} = $self->keywords;
-    }
 
     if ( $remote && $remote eq $self->u ) {
         $returnval->{inactive} = $self->inactive;

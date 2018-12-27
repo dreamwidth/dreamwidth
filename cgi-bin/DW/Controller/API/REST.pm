@@ -29,6 +29,7 @@ use JSON;
 use YAML::XS qw'LoadFile';
 
 use Carp qw/ croak /;
+use Data::Dumper;
 
 our %API_DOCS = ();
 our %TYPE_REGEX = (
@@ -105,7 +106,7 @@ sub _add_method {
 
 sub register_rest_controller {
     my ( $info ) = shift;
-    print "registering controller";
+
     my $path = $info->{path}{name};
     my $parameters = $info->{path}{params};
     my $ver = $info->{ver};
@@ -197,10 +198,23 @@ sub rest_ok {
     croak 'api_ok takes one argument only'
         unless scalar @_ == 2;
     
-    my ( $self, $response ) = @_;
-
-
+    my ( $self, $response, $content_type ) = @_;
     my $r = DW::Request->get;
+
+    $content_type = defined $content_type ? $content_type : 'application/json';
+    my $validator = $self->{path}{methods}{get}{responses}{200}{content}{$content_type}{validator};
+
+    print Dumper($validator);
+    # guarantee that we're returning what we say we return.
+    if (defined $validator) {
+        print "we have a validator!";
+        my @errors = $validator->validate($response);
+        if (@errors) {
+            croak "Invalid response format! Validator errors: @errors";
+        }
+
+    }
+
     $r->print( to_json( $response, { convert_blessed => 1 , pretty => 1} ) );
     $r->status( 200 );
     return;

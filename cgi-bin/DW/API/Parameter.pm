@@ -59,7 +59,7 @@ sub validate {
 
     if (defined $self->{schema}) {
         # Make sure we've been provided a valid schema to validate against
-        my @errors = validate_json($self->{schema});
+        my @errors = validate_json($self->{schema}, 'http://json-schema.org/draft-04/schema#');
         croak "Invalid schema!" if @errors;
 
         # make a validator against the schema

@@ -15,20 +15,26 @@ paths:
           description: a list of icons
           content:
             application/json:
-            schema:
-              type: array
-              properties:
-                type: object
-                properties:
-                  comment:
-                    type: string
-                  picid:
-                    type: integer
-                  username:
-                    type: string
-                  url:
-                    type: string
-                  keywords:
-                    type: array
-                    items:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                  - comment
+                  - picid
+                  - username
+                  - url
+                  - keywords
+                  properties:
+                    comment:
                       type: string
+                    picid:
+                      type: integer
+                    username:
+                      type: string
+                    url:
+                      type: string
+                    keywords:
+                      type: array
+                      items:
+                        type: string
