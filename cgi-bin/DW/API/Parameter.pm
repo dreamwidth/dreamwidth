@@ -24,8 +24,9 @@ use JSON::Validator 'validate_json';
 
 use Carp qw(croak);
 
-my @ATTRIBUTES = qw(name type in desc);
-my @LOCATIONS = qw(path formData body header query);
+my @REQ_ATTRIBUTES = qw(name in desc);
+my @OPT_ATTRIBUTES = qw(required example examples style schema content);
+my @LOCATIONS = qw(path cookie header query requestBody);
 
 # Usage: define_parameter ( \%args ) where arg keys are
 # name, desc, in, type, or required. Creates and returns
@@ -39,8 +40,8 @@ sub define_parameter {
         desc => $args->{description},
         in => $args->{in},
         required => $args->{required},
-        schema => $args->{schema},
     };
+
     return bless $parameter, $class;
 }
 
@@ -49,22 +50,34 @@ sub define_parameter {
 # Makes sure required fields are present, and that the 
 # location given is a valid one.
 
-sub validate {
+sub _validate {
     my $self = $_[0];
-    for my $field (@ATTRIBUTES) {
+    for my $field (@REQ_ATTRIBUTES) {
         croak "$self is missing required field $field" unless defined $self->{$field};
     }
     my $location = $self->{in};
     croak "$location isn't a valid parameter location" unless grep($location, @LOCATIONS);
 
-    if (defined $self->{schema}) {
-        # Make sure we've been provided a valid schema to validate against
-        my @errors = validate_json($self->{schema}, 'http://json-schema.org/draft-04/schema#');
-        croak "Invalid schema!" if @errors;
+    my $has_schema = defined( $self->{schema});
+    my $has_content = defined( $self->{content});
 
-        # make a validator against the schema
-        my $validator = JSON::Validator->new->schema($self->{schema});
-        $self->{validator} = $validator;
+    croak "Can only define one of content or schema!" if $has_schema && $has_content;
+    croak "Must define at least one of content or schema!" unless $has_content || $has_schema;
+
+    # requestBody is a special instance of Parameter and has stricter rules
+    if ($location eq "requestBody") {
+        if (not defined (keys %{$self->{content}})) {
+            croak "requestBody must have at least one content-type!";
+        }
+    }
+
+    # Run schema validators
+    DW::Controller::API::REST::schema($self) if (defined $self->{schema});
+
+    if (defined $self->{content}) {
+        for my $content_type (keys %{$self->{content}}) {
+            DW::Controller::API::REST::schema($self->{content}->{$content_type});
+        }
     }
 
     return;

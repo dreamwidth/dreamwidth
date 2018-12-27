@@ -25,6 +25,7 @@ use Carp qw/ croak /;
 
 use DW::API::Parameter;
 use DW::Request;
+use Data::Dumper;
 
 my @ATTRIBUTES = qw(name desc handler responses);
 my @HTTP_VERBS = qw(GET POST DELETE PUT);
@@ -63,6 +64,16 @@ sub param {
     $self->{params}{$name} = $param;
 }
 
+# Usage: param ( @args ) 
+# Creates a special instance of DW::API::Parameter object and
+# adds it as the requestBody definition for the calling method
+sub body {
+    my ($self, @args) = @_;
+    my $param = DW::API::Parameter->define_parameter(@args);
+    $self->{requestBody} = $param;
+
+}
+
 # Usage: success ( desc, schema ) 
 # Adds a 200 response description and optional schema
 # to the responses hash of the calling method object
@@ -91,16 +102,8 @@ sub _responses {
             # for every content type we provide as response, see if we have a valid schema
             for my $content_type (keys %{$resp_config->{$code}->{content}}) {
                 my $content = $resp_config->{$code}->{content}->{$content_type};
-                if (defined $content->{schema}) {
-                    # Make sure we've been provided a valid schema to validate against
-                    my @errors = validate_json($content->{schema}, 'http://json-schema.org/draft-07/schema#');
-                    die "Invalid schema! Errors: @errors" if @errors;
-
-                    # make a validator against the schema
-                    my $validator = JSON::Validator->new->schema($content->{schema});
-                    $content->{validator} = $validator;
-                }
-                 $self->{responses}{$code}{content}->{$content_type} = $content;
+                DW::Controller::API::REST::schema($content);
+                $self->{responses}{$code}{content}->{$content_type} = $content;
             }
 
         }
@@ -124,19 +127,22 @@ sub _validate {
 
 }
 
-# Usage: return rest_ok( response, content-type )
-# takes a scalar or scalar ref to a response object, and an
-# optional content-type - default is JSON if not specified.
-# Returns the response object with the given content type.
+# Usage: return rest_ok( response, content-type, status code )
+# takes a scalar or scalar ref to a response, an
+# optional content-type, and optional status code - default
+# content-type is JSON if not specified, and default status is
+# Returns a response object with the given content, content-type,
+# and status code.
 sub rest_ok {
     croak 'too many arguments to api_ok!'
-        unless scalar @_ <= 3;
+        unless scalar @_ <= 4;
     
-    my ( $self, $response, $content_type ) = @_;
+    my ( $self, $response, $content_type, $status_code ) = @_;
     my $r = DW::Request->get;
 
     $content_type = defined $content_type ? $content_type : 'application/json';
-    my $validator = $self->{responses}{200}{content}{$content_type}{validator};
+    $status_code = defined $status_code ? $status_code : 200;
+    my $validator = $self->{responses}{$status_code}{content}{$content_type}{validator};
 
     # guarantee that we're returning what we say we return.
     if (defined $validator) {
@@ -146,30 +152,38 @@ sub rest_ok {
         }
     }
 
-    $r->print( to_json( $response, { convert_blessed => 1 , pretty => 1} ) );
-    $r->status( 200 );
+    # if we have JSON, call the formatter to pretty-print it. Otherwise, we assume
+    # other content-types have already been properly formatted for us.
+    if ($content_type eq "application/json") {
+        $r->print( to_json( $response, { convert_blessed => 1 , pretty => 1} ) );
+    } else {
+        $r->print($response);
+    }
+    
+    $r->status( $status_code );
+    $r->content_type($content_type);
     return;
 }
 
-# Usage: return rest_error( $r->STATUS_CODE_CONSTANT,
-#                          'format/message', [arg, arg, arg...] )
+# Usage: return rest_error( $status_code, $msg )
 # Returns a standard format JSON error message.
-# The first argument is the status code
-# The second argument is a string that might be a format string:
-# it's passed to sprintf with the rest of the
-# arguments.
+# The first argument is the status code, the second optional
+# argument is an error message to be returned. If no message is
+# provided, it will pull from the route configuration instead,
+# and if there's no route configuration, will return a generic error.
 sub rest_error {
-    my ($self, $status_code, @args) = @_;
+    my ($self, $status_code, $msg) = @_;
     my $status_desc = $self->{responses}{$status_code}{desc};
-    my $message = defined $status_desc ?
-        sprintf( $status_desc ) : 'Unknown error.';
+    my $default_msg = defined $status_desc ? $status_desc : 'Unknown error.';
+    $msg = defined $msg ? $msg : $default_msg;
 
     my $res = {
         success => 0,
-        error   => $message,
+        error   => $msg,
     };
 
     my $r = DW::Request->get;
+    $r->content_type("application/json");
     $r->print( to_json( $res ) );
     $r->status( $status_code );
     return;

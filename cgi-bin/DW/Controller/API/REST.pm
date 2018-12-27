@@ -27,8 +27,10 @@ use DW::API::Method;
 use DW::API::Key;
 use JSON;
 use YAML::XS qw'LoadFile';
+use JSON::Validator 'validate_json';
 
 use Carp qw/ croak /;
+use Data::Dumper;
 
 our %API_DOCS = ();
 our %TYPE_REGEX = (
@@ -76,6 +78,8 @@ sub path {
         $route->_add_method($method, $handlers->{$method}, $method_config);
 
     }
+
+    print Dumper($route);
     register_rest_controller($route);
     return $route;
 }
@@ -89,6 +93,10 @@ sub _add_method {
             for my $param (@{$config->{parameters}}) {
                 $new_method->param($param);
             }
+        }
+
+        if (exists $config->{requestBody}){
+
         }
 
     $self->{path}->{methods}->{$method} = $new_method;
@@ -159,6 +167,28 @@ sub _dispatcher {
         $r->status( '501' );
         return;
     }
+}
+
+# Usage: schema ($object_ref)
+# Validates a JSON Schema attached to an object, and adds a validator
+# for that schema to the object. Used at multiple levels of API defs,
+# which is why it's in this package.
+sub schema {
+    my ($self) = @_;
+
+    if (defined $self->{schema}) {
+        # Make sure we've been provided a valid schema to validate against
+        my @errors = validate_json($self->{schema}, 'http://json-schema.org/draft-07/schema#');
+        croak "Invalid schema! Errors: @errors" if @errors;
+
+        # make a validator against the schema
+        my $validator = JSON::Validator->new->schema($self->{schema});
+        $self->{validator} = $validator;
+    } else {
+        croak "No schema defined!";
+    }
+
+
 }
 
 
