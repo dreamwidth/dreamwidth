@@ -20,12 +20,10 @@ package DW::API::Method;
 use strict;
 use warnings;
 use JSON;
-use JSON::Validator 'validate_json';
 use Carp qw/ croak /;
 
 use DW::API::Parameter;
 use DW::Request;
-use Data::Dumper;
 
 my @ATTRIBUTES = qw(name desc handler responses);
 my @HTTP_VERBS = qw(GET POST DELETE PUT);
@@ -64,7 +62,7 @@ sub param {
     $self->{params}{$name} = $param;
 }
 
-# Usage: param ( @args ) 
+# Usage: body ( @args ) 
 # Creates a special instance of DW::API::Parameter object and
 # adds it as the requestBody definition for the calling method
 sub body {
@@ -80,33 +78,31 @@ sub body {
 # FIXME: In the future, we may want 'successes' that aren't
 # 200 responses. This will need to be changed accordingly.
 
-sub success {
-    my ($self, $desc, $schema) = @_;
+# sub success {
+#     my ($self, $desc, $schema) = @_;
 
-    $self->{responses}{200} = { desc => $desc, schema => $schema};
-}
+#     $self->{responses}{200} = { desc => $desc, schema => $schema};
+# }
 
-# Usage: error ( code, desc ) 
-# Adds an error response status code and 
-# to the responses hash of the calling method object
-# FIXME: Register a sprintf string to use as well?
+# Usage: _responses ( method, config ) 
+# Registers various response types, and validates any with a schema.
 
 sub _responses {
     my ($self, $resp_config) = @_;
 
     # add response descriptions
-        for my $code (keys %$resp_config) {
-            my $desc = $resp_config->{$code}->{description};
-            $self->{responses}{$code} = { desc => $desc };
+    for my $code (keys %$resp_config) {
+        my $desc = $resp_config->{$code}->{description};
+        $self->{responses}{$code} = { desc => $desc };
 
-            # for every content type we provide as response, see if we have a valid schema
-            for my $content_type (keys %{$resp_config->{$code}->{content}}) {
-                my $content = $resp_config->{$code}->{content}->{$content_type};
-                DW::Controller::API::REST::schema($content);
-                $self->{responses}{$code}{content}->{$content_type} = $content;
-            }
-
+        # for every content type we provide as response, see if we have a valid schema
+        for my $content_type (keys %{$resp_config->{$code}->{content}}) {
+            my $content = $resp_config->{$code}->{content}->{$content_type};
+            DW::Controller::API::REST::schema($content);
+            $self->{responses}{$code}{content}->{$content_type} = $content;
         }
+
+    }
 }
 
 # Usage: _validate ( Method object ) 

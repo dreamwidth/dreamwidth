@@ -30,7 +30,6 @@ use YAML::XS qw'LoadFile';
 use JSON::Validator 'validate_json';
 
 use Carp qw/ croak /;
-use Data::Dumper;
 
 our %API_DOCS = ();
 our %TYPE_REGEX = (
@@ -79,25 +78,24 @@ sub path {
 
     }
 
-    print Dumper($route);
     register_rest_controller($route);
     return $route;
 }
 
 sub _add_method {
     my ($self, $method, $handler, $config) = @_;
-        my $new_method = DW::API::Method->define_method($method, $handler, $config);
+    my $new_method = DW::API::Method->define_method($method, $handler, $config);
 
-        # add method params
-        if (exists $config->{parameters}){
-            for my $param (@{$config->{parameters}}) {
-                $new_method->param($param);
-            }
+    # add method params
+    if (exists $config->{parameters}){
+        for my $param (@{$config->{parameters}}) {
+            $new_method->param($param);
         }
+    }
 
-        if (exists $config->{requestBody}){
-
-        }
+    if (exists $config->{requestBody}){
+        $new_method->body($config->{requestBody});
+    }
 
     $self->{path}->{methods}->{$method} = $new_method;
 
@@ -129,7 +127,6 @@ sub register_rest_controller {
         $path =~ s/{$param}/$TYPE_REGEX{$type}/;
         
         }
-
     DW::Routing->register_api_rest_endpoint( $path . '$', "_dispatcher", $info, version => $ver);
 }
 
@@ -158,6 +155,9 @@ sub _dispatcher {
     my $method = lc $r->method;
     my $handler = $self->{path}{methods}->{$method}->{handler};
     my $method_self = $self->{path}{methods}->{$method};
+
+    # some handlers need to know what version they are
+    $method_self->{ver} = $self->{ver};
 
     if (defined $handler) {
         return $handler->($method_self, @args);

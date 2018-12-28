@@ -20,7 +20,6 @@ package DW::API::Parameter;
 use strict;
 use warnings;
 use JSON;
-use JSON::Validator 'validate_json';
 
 use Carp qw(croak);
 
@@ -42,7 +41,16 @@ sub define_parameter {
         required => $args->{required},
     };
 
-    return bless $parameter, $class;
+    if (defined $args->{schema}) {
+        $parameter->{schema} = $args->{schema};
+    } elsif (defined $args->{content}) {
+        $parameter->{content} = $args->{content};
+    };
+
+    bless $parameter, $class;
+    $parameter->_validate;
+    return $parameter;
+
 }
 
 # Usage: validate ( Parameter object ) 
@@ -79,7 +87,6 @@ sub _validate {
             DW::Controller::API::REST::schema($self->{content}->{$content_type});
         }
     }
-
     return;
 }
 
@@ -92,8 +99,18 @@ sub TO_JSON {
         name => $self->{name},
         description => $self->{desc},
         in => $self->{in},
-        schema => $self->{schema},
     };
+
+    if (defined $self->{schema}) {
+        $json->{schema} = $self->{schema};
+    } elsif (defined $self->{content}) {
+        $json->{content} = $self->{content};
+        # content type is just a hash, but we don't want to print the validator too
+        for my $content_type (keys %{$json->{content}}) {
+            delete $json->{content}->{$content_type}{validator};
+        }
+    };
+
         $json->{required} = $JSON::true if defined $self->{required} && $self->{required};
     return $json;
 
