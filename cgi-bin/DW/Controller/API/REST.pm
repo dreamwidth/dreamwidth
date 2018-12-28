@@ -143,7 +143,9 @@ sub _dispatcher {
     return $rv unless $ok;
     
     my $r = $rv->{r};
-    my $apikey = DW::API::Key->get_key($r->header_in('Authorization'));
+    my $keystr = ($r->header_in('Authorization'));
+    $keystr =~ s/Bearer (\w+)/$1/;
+    my $apikey = DW::API::Key->get_key($keystr);
 
     # all paths require an API key except the spec (which informs users that they need a key and where to put it)
     unless ($apikey || $self->{path}{name} eq "/spec") {
