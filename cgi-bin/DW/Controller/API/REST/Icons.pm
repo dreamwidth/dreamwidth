@@ -24,13 +24,13 @@ my $icons_all = DW::Controller::API::REST->path('icons_all.yaml', 1, {'get' => \
 my $icons = DW::Controller::API::REST->path('icons.yaml', 1, {'get' => \&rest_get});
 
 sub rest_get {
-    my ( $self, $opts, $username, $picid ) = @_;
+    my ( $self, $args) = @_;
 
-    my $u = LJ::load_user( $username );
+    my $u = LJ::load_user( $args->{path}{username});
 
     # if we're given a picid, try to load that userpic
-    if ($picid ne "") {
-        my $userpic = LJ::Userpic->get( $u, $picid );
+    if ($args->{path}{picid} ne "") {
+        my $userpic = LJ::Userpic->get( $u, $args->{path}{picid} );
         if ( defined $userpic ) {
             return $self->rest_ok( $userpic );
         } else {

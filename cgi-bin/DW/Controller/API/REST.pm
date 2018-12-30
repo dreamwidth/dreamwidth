@@ -28,6 +28,7 @@ use DW::API::Key;
 use JSON;
 use YAML::XS qw'LoadFile';
 use JSON::Validator 'validate_json';
+use Hash::MultiValue;
 
 use Carp qw/ croak /;
 
@@ -131,19 +132,20 @@ sub register_rest_controller {
 }
 
 # A generic API method dispatcher, for use in registering API
-# endpoints to the routing table. When called, looks up the handler
+# endpoints to the routing table. When called, it validates credentials
+# and parameters, and if successful, looks up the handler
 # defined in the resource object for that HTTP action and calls it
 # or returns an error response if it's not implemented.
 
 sub _dispatcher {
 
-    my ( $self, @args ) = @_;
+    my ( $self, $callinfo, @path_args ) = @_;
 
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
     
     my $r = $rv->{r};
-    my $keystr = ($r->header_in('Authorization'));
+    my $keystr = $r->header_in('Authorization');
     $keystr =~ s/Bearer (\w+)/$1/;
     my $apikey = DW::API::Key->get_key($keystr);
 
@@ -154,21 +156,146 @@ sub _dispatcher {
         return;
     }
 
+    # match path parameters to their names
+    my $path = $self->{path}{name};
+    my $path_params = {};
+    my @path_names = ($path =~ /{([\w]+)}/);
+    for (my $i = 0; $i < @path_names; $i++) {
+        $path_params->{$path_names[$i]} = $path_args[$i];
+    }
+
+    my $args = {};
+    $args->{user} = $apikey->{user} if $apikey;
+
+    # check path-level parameters.
+    for my $param (keys %{$self->{path}{params}}) {
+        _validate_param($param, $self->{path}{params}{$param}, $r, $path_params, $args);
+    }
+
     my $method = lc $r->method;
     my $handler = $self->{path}{methods}->{$method}->{handler};
     my $method_self = $self->{path}{methods}->{$method};
+
+    # check method-level parameters
+    for my $param (keys %{$method_self->{params}}) {
+        _validate_param($param, $self->{params}{$param}, $r, $args);
+    }
+
+    # if we accept a request body, validate that too.
+    if (defined $method_self->{requestBody}) {
+        _validate_body($method_self->{requestBody}, $r, $args)
+    }
 
     # some handlers need to know what version they are
     $method_self->{ver} = $self->{ver};
 
     if (defined $handler) {
-        return $handler->($method_self, @args);
+        return $handler->($method_self, $args);
     } else {
         # Generic response for unimplemented API methods.
         $r->print( to_json({ success => 0, error => "Not Implemented"}) );
         $r->status( '501' );
         return;
     }
+}
+
+# Usage: _validate_param (param, param config, request, path params, arg object)
+# Helper function to provide formatting and validation of parameters
+# Will return an error message to user on error, or update the given arg
+# hash on success.
+
+# NOTE query/header/cookie params are not well-tested yet
+# so if you're trying to implement an api route that uses them
+# and weird things are happening, it may be this, not you.
+
+sub _validate_param {
+    my ($param, $config, $r, $path_params, $arg_obj) = @_;
+
+    my $ploc = $config->{in};
+    my $preq = $config->{required};
+    my $pval = $config->{validator};
+    my $p;
+
+    if ($ploc eq 'query') {
+        $p = $r->{get_args}{$param};
+    } elsif ($ploc eq 'header') {
+        $p = $r->header_in($param);
+    } elsif ($ploc eq 'cookie') {
+        $p = $r->cookie($param);
+    } elsif ($ploc eq 'path') {
+        $p = $path_params->{$param};
+    } 
+
+    # make sure that required parameters are supplied
+    if ($preq) {
+        unless (defined $p) {
+            $r->print( to_json({ success => 0, error => "Missing required parameter $param"}) );
+            $r->status( '400' );
+            return;
+        }
+    }
+
+    # run the schema validator
+    my @errors = $pval->validate($p);
+    if (@errors) {
+        my $err_str = join(', ', map {$_->{message}} @errors);
+        $r->print( to_json({ success => 0, error => "Bad format for $param. Errors: $err_str"}) );
+        $r->status( '400' );
+        return;
+    }
+
+    $arg_obj->{$ploc}{$param} = $p;
+}
+
+# Usage: _validate_body (requestBody config, request, arg object)
+# Helper function to provide formatting and validation of request bodies
+# Will return an error message to user on error, or update the given arg
+# hash on success.
+
+# NOTE requestBody params are not well-tested yet
+# so if you're trying to implement an api route that uses them
+# and weird things are happening, it may be this, not you.
+
+sub _validate_body {
+    my ($config, $r, $arg_obj) = @_;
+
+    my $preq = $config->{required};
+    my $content_type = lc $r->header_in('Content-Type');
+    my $p;
+
+    if ($content_type eq 'application/json') {
+        $p = $r->json;
+    } elsif ($content_type eq 'application/x-www-form-urlencoded') {
+        $p = $r->post_args;
+    } elsif ($content_type eq 'multipart/form-data') {
+        # uploads are an array of hashrefs, so we convert to Hash::MultiValue for simplicty
+        my @uploads = $r->uploads;
+        my $upload_hash = Hash::MultiValue->new();
+        for my $item (@uploads) {
+            $upload_hash->add($item->{name} => $item->{body});
+        }
+        $p = $upload_hash;
+    }    
+
+    # make sure that required parameters are supplied
+    if ($preq) {
+        unless (defined $p) {
+            $r->print( to_json({ success => 0, error => "Missing or badly formatted request!"}) );
+            $r->status( '400' );
+            return;
+        }
+    }
+
+    # run the schema validator
+    my @errors = $config->{content}->{$content_type}{validator}->validate($p);
+    if (@errors) {
+        my $err_str = join(', ', map {$_->{message}} @errors);
+        $r->print( to_json({ success => 0, error => "Bad format for request body. Errors: $err_str"}) );
+        $r->status( '400' );
+        return;
+    }
+
+    $arg_obj->{body} = $p;
 }
 
 # Usage: schema ($object_ref)
