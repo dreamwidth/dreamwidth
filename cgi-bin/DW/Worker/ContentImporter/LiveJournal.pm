@@ -536,7 +536,6 @@ sub get_foaf_from {
         'foaf:name' => 'name',
         'foaf:icqChatID' => 'icq',
         'foaf:jabberID' => 'jabber',
-        'foaf:yahooChatID' => 'yahoo',
         'ya:bio' => 'bio',
         'lj:journaltitle' => 'journaltitle',
         'lj:journalsubtitle' => 'journalsubtitle',

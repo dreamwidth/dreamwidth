@@ -59,7 +59,7 @@ sub merge_bio_items {
 
     $u->set_bio( $items->{'bio'} ) if defined( $items->{'bio'} );
 
-    foreach my $prop ( qw/ icq jabber yahoo journaltitle journalsubtitle / ) {
+    foreach my $prop ( qw/ icq jabber journaltitle journalsubtitle / ) {
         $u->set_prop( $prop => $items->{$prop} )
             if defined $items->{$prop};
     }
