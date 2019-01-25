@@ -1,0 +1,4 @@
+.advancedlayerlink=Back to layers list
+.error.layerunauthorized=You are not authorized to edit this layer.
+.error.stylesunauthorized=You are not authorized to edit styles.
+.error.nolayer=You have not specified a layer to edit.

@@ -44,80 +44,6 @@ function s2setCode(to)
 	xGetElementById('main').innerHTML = to;
 }
 
-function s2getNav()
-{
-	return xGetElementById('nav');
-}
-
-function s2updateNav()
-{
-	var i = 0;
-	var html = '';
-	
-	while (s2index["" + i] != null) {
-		var symbols = s2index["" + i];
-		for (var j = 0; j < symbols.length; j++) {
-			var sym = symbols[j];
-			html += '<div class="';
-			switch (sym.type) {
-				case 0:		html += 'navfunction';		break;
-				case 1:		html += 'navmethod';		break;
-				case 2:		html += 'navpropgroup';		break;
-			}
-			html += '"><a href="javascript:s2jumpToPos(' + sym.loc;
-			html += ',' + sym.line + ')">' + sym.name + "</a></div>\n";
-		}
-		
-		i++;
-	}
-	
-	s2getNav().innerHTML = html;
-}
-
-function s2keyPressed(e)
-{
-	s2dirty = 1;
-	
-	var area = s2getCodeArea();
-	
-	if (e) {
-		if (e.keyCode == 9) {
-			if (!s2acceptCompletion()) {
-				nxinsertText(area, "\t");
-				area.focus();
-			}
-			Event.preventDefault(e);
-			return false;
-		} else
-			s2sense(e.charCode);
-	}
-	
-	return true;
-}
-
-function s2IETabKeyPressedHandler(e)
-{
-	var area = s2getCodeArea();
-
-	if (( nxIE || navigator.userAgent.toLowerCase().indexOf('safari') ) && e) {
-		if (e.keyCode == 9) {
-			if (!s2acceptCompletion()) {
-				nxinsertText(area, "\t");
-				area.focus();
-			}
-			Event.preventDefault(e);
-			return false;
-		}
-	}
-}
-
-function s2jumpToPos(pos, line)
-{
-	var main = s2getCodeArea();
-
-	nxpositionCursor(main, pos);
-	nxscrollObject(main, line, s2lineCount);
-}
 
 // ---------------------------------------------------------------------------
 //   Reference pane interactivity
@@ -190,8 +116,7 @@ function s2buildClasses()
 		
 	var html = "";
 	for (var i = 0; i < s2classlib.length; i++) {
-		var classURL = s2docBaseURL + '/core1.class.' + s2classlib[i].name +
-			'.html';
+		var classURL = s2docBaseURL + '#class.' + s2classlib[i].name;
 	
 		html += '<div id="treenodeheader' + i + '" class="treenode" ' +
 			'onClick="s2toggleTreeNode(' + i + ')">' + '<a href="' +
@@ -200,14 +125,14 @@ function s2buildClasses()
 		html += '<div id="treenode' + i + '" class="refinvisible">\n';
 		
 		for (var j = 0; j < s2classlib[i].members.length; j++)
-			html += '<div class="treevar"><a href="' + classURL +
-				'#core1.member.' + s2classlib[i].name + '.' +
+			html += '<div class="treevar"><a href="' + s2docBaseURL +
+				'#member.' + s2classlib[i].name + '.' +
 				s2classlib[i].members[j].name + '" target="_blank">' +
 				s2classlib[i].members[j].type +
 				' ' + s2classlib[i].members[j].name + '</a></div>\n';
 				
 		for (var j = 0; j < s2classlib[i].methods.length; j++)
-			html += '<div class="treemethod"><a href="' + classURL + '#core1.meth.' + s2classlib[i].name + '.' +
+			html += '<div class="treemethod"><a href="' + s2docBaseURL + '#meth.' + s2classlib[i].name + '::' +
 				escape(s2classlib[i].methods[j].name) + '" target="_blank">' +
 				s2classlib[i].methods[j].name +
 				(s2classlib[i].methods[j].type == 'void' ? '' : ' : ' +
@@ -226,7 +151,7 @@ function s2buildFunctions()
 		
 	var html = "";
 	for (var i = 0; i < s2funclib.length; i++) {
-		var funcURL = s2docBaseURL + '/siteapi.core1.html#core1.func.' +
+		var funcURL = s2docBaseURL + '#func.' +
 			s2funclib[i].name;
 	
 		html += '<div class="treefunction"><a href="' + funcURL +
@@ -245,7 +170,7 @@ function s2buildProperties()
 		
 	var html = "";
 	for (var i = 0; i < s2proplib.length; i++) {
-		var propURL = s2docBaseURL + '/siteapi.core1.html#core1.prop.' +
+		var propURL = s2docBaseURL + '#prop.' +
 			s2proplib[i].name;
 	
 		html += '<div class="treeproperty"><a href="' + propURL +
@@ -300,7 +225,6 @@ function s2resizeOutput(force)
 		return false;
 	
 	var output = xGetElementById('out');
-	var maindiv = xGetElementById('maindiv');
 	var maindiv = xGetElementById('maindiv');
 	var main    = xGetElementById('main');
 	var divider = xGetElementById('outputdivider');
@@ -440,10 +364,6 @@ function s2endDrag(e)
 
 function s2initDrag()
 {
-	if (nxIE) {
-		document.onmousemove = s2processDrag;
-		document.onmouseup = s2endDrag;
-	}
 	
 	var prefs = xGetCookie('s2editprefs');
 	if (prefs != null) {
@@ -458,11 +378,4 @@ function s2initDrag()
 	}
 		
 	return true;
-}
-
-function s2submit()
-{
-	// save position textarea, where reload page
-	var textarea = s2getCodeArea();
-	window.name = textarea.scrollTop + ':' + nxgetPositionCursor(textarea);
 }

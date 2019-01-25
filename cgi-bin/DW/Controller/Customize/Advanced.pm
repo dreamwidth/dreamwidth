@@ -33,7 +33,8 @@ DW::Routing->register_string( '/customize/advanced/styles', \&styles_handler,
     app => 1 );
 DW::Routing->register_string( '/customize/advanced/layersource', \&layersource_handler, 
     app => 1 );
-
+DW::Routing->register_string( '/customize/advanced/layeredit', \&layeredit_handler, 
+    app => 1 );
 
 sub advanced_handler {
     my ( $ok, $rv ) = controller( );
@@ -241,7 +242,7 @@ sub layers_handler {
     $vars->{authas} = $authas;
     $vars->{authas_html} = $rv->{authas_html};
 
-    return ml_error('/customize/advanced/index.tt.error.advanced.editing.denied')
+    return error_ml('/customize/advanced/index.tt.error.advanced.editing.denied')
         if $no_layer_edit;
 
     # if we don't have a u, maybe they're an admin and can view stuff anyway?
@@ -249,11 +250,11 @@ sub layers_handler {
     my $viewall = $remote && $remote->has_priv( 'siteadmin', 'styleview' );
 
     if ($GET->{user} && $viewall) {
-        return ml_error('/customize/advanced/layers.tt.error.cantuseonsystem')
+        return error_ml('/customize/advanced/layers.tt.error.cantuseonsystem')
             if $GET->{user} eq 'system';
         $noactions = 1; # don't let admins change anything
     }    
-    return ml_error('.error.cantbeauthenticated')
+    return error_ml('.error.cantbeauthenticated')
         unless $u;
 
     return error_ml(($remote->{user} eq $u->{user} ?
@@ -264,12 +265,12 @@ sub layers_handler {
 
     if ($POST->{'action:create'} && !$noactions) {
 
-        return ml_error('/customize/advanced/layers.tt.error.maxlayers')
+        return error_ml('/customize/advanced/layers.tt.error.maxlayers')
             if keys %$ulay >= $u->count_s2layersmax;
 
-        my $type = $POST->{'type'} or return ml_error('/customize/advanced/layers.tt.error.nolayertypeselected');
+        my $type = $POST->{'type'} or return error_ml('/customize/advanced/layers.tt.error.nolayertypeselected');
         my $parid = $POST->{'parid'}+0 or return error_ml('/customize/advanced/layers.tt.error.badparentid');
-        return ml_error('/customize/advanced/layers.tt.error.invalidlayertype') unless $type =~ /^layout|theme|user|i18nc?$/;
+        return error_ml('/customize/advanced/layers.tt.error.invalidlayertype') unless $type =~ /^layout|theme|user|i18nc?$/;
         my $parent_type = ($type eq "theme" || $type eq "i18n" || $type eq "user") ? "layout" : "core";
         
         # parent ID is public layer
@@ -284,7 +285,7 @@ sub layers_handler {
         }
 
         my $id = LJ::S2::create_layer($u, $parid, $type);
-        return ml_error('/customize/advanced/layers.tt.error.cantcreatelayer') unless $id;
+        return error_ml('/customize/advanced/layers.tt.error.cantcreatelayer') unless $id;
 
         my $lay = { 
             'userid' => $u->userid,
@@ -310,10 +311,10 @@ sub layers_handler {
 
         my $id = $POST->{'id'}+0;
         my $lay = LJ::S2::load_layer($id);
-        return ml_error('/customize/advanced/layers.tt.error.layerdoesntexist')
+        return error_ml('/customize/advanced/layers.tt.error.layerdoesntexist')
             unless $lay;
 
-        return ml_error('/customize/advanced/layers.tt.error.notyourlayer')
+        return error_ml('/customize/advanced/layers.tt.error.notyourlayer')
             unless $lay->{userid} == $u->userid;
 
         LJ::S2::delete_layer($u, $id);
@@ -799,6 +800,110 @@ sub layersource_handler {
     }
 
     return $r->print($s2code);
+
+}
+
+sub layeredit_handler {
+    my ( $ok, $rv ) = controller( );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    my $POST = $r->post_args;
+    my $GET = $r->get_args;
+    my $u = $rv->{u};
+    my $remote = $rv->{remote};
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
+
+
+    my $vars;
+
+    # we need a valid id
+    my $id;
+    $id = $GET->{'id'} if $GET->{'id'} =~ /^\d+$/;
+    return error_ml('/customize/advanced/layeredit.tt.error.nolayer')
+        unless $id;
+   
+    return error_ml('/customize/advanced/index.tt.error.advanced.editing.denied')
+        if $no_layer_edit;
+
+    # load layer
+    my $lay = LJ::S2::load_layer($id);
+    return error_ml('/customize/advanced/layers.tt.error.layerdoesntexist')
+        unless $lay;
+
+    # if the b2lid of this layer has been remapped to a new layerid
+    # then update the b2lid mapping for this layer
+    my $b2lid = $lay->{b2lid};
+    if ($b2lid && $LJ::S2LID_REMAP{$b2lid}) {
+        LJ::S2::b2lid_remap($remote, $id, $b2lid);
+        $lay->{b2lid} = $LJ::S2LID_REMAP{$b2lid};
+    }
+
+    # get u of user they are acting as
+    my $u = LJ::load_userid( $lay->{userid} );
+
+    # is authorized admin for this layer?
+   return error_ml('/customize/advanced/layeredit.tt.error.layerunauthorized')
+        unless $u && $remote->can_manage( $u );
+
+    # check priv and ownership
+    return error_ml('/customize/advanced/layeredit.tt.error.stylesunauthorized')
+        unless $u->can_create_s2_styles;
+
+    # at this point, they are authorized, allow viewing & editing
+
+    # get s2 code from db - use writer so we know it's up-to-date
+    my $dbh = LJ::get_db_writer();
+    my $s2code = LJ::S2::load_layer_source($lay->{s2lid});
+
+    # we tried to compile something
+        my $build;
+    if ($POST->{'action'} eq "compile") {
+        return error_ml( "error.invalidform" ) unless LJ::check_form_auth( $POST->{lj_form_auth});
+
+        $build = "<b>S2 Compiler Output</b> <em>at " . scalar(localtime) . "</em><br />\n";
+
+        my $error;
+        $POST->{'s2code'} =~ tr/\r//d;  # just in case
+        unless (LJ::S2::layer_compile($lay, \$error, { 's2ref' => \$POST->{'s2code'} })) {
+
+            $error =~ s/LJ::S2,.+//s;
+            $error =~ s!, .+?(src/s2|cgi-bin)/!, !g;
+
+            $error =~ s/^Compile error: line (\d+), column (\d+)/Compile error: <a href="javascript:moveCursor($1,$2)">line $1, column $2<\/a>/;
+
+            $build .= "Error compiling layer:\n<pre style=\"border-left: 1px red solid\">$error</pre>";
+
+        } else {
+            $build .= "Compiled with no errors.\n";
+        }
+        $r->print($build);
+        return $r->OK;
+    } 
+
+    # load layer info
+    my $layinf = {};
+    LJ::S2::load_layer_info($layinf, [ $id ]);
+
+    # find a title to display on this page
+    my $type = $layinf->{$id}->{'type'};
+    my $name = $layinf->{$id}->{'name'};
+
+    # find name of parent layer if this is a child layer
+    if (! $name && $type =~ /^(user|theme|i18n)$/) {
+        my $par = $lay->{'b2lid'} + 0;
+        LJ::S2::load_layer_info($layinf, [$par]);
+        $name =  $layinf->{$par}->{'name'};
+    }
+
+    # Only use the layer name if there is one and it's more than just whitespace
+    my $title = "[$type] ";
+    $title .= $name && $name =~ /[^\s]/ ? "$name [\#$id]" : "Layer \#$id";
+    $vars->{build} = "Loaded layer $id.";
+    $vars->{title} = $title;
+    $vars->{s2code} = $s2code;
+
+    return DW::Template->render_template( 'customize/advanced/layeredit.tt', $vars, {no_sitescheme => 1} );
 
 }
 
