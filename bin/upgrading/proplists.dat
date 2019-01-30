@@ -214,6 +214,14 @@ userproplist.disable_comm_promo:
   multihomed: 0
   prettyname: Administratively disable community promo features for a user
 
+userproplist.discord:
+  cldversion: 4
+  datatype: char
+  des: Discord user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Discord user account name
+
 userproplist.displaydate_check:
   cldversion: 4
   datatype: bool

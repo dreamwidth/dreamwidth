@@ -1,0 +1,22 @@
+[%- sections.title = '.title' | ml -%]
+
+[% IF no_layer_edit %]
+    [% dw.ml('.error.advanced.editing.denied') %]
+[% ELSE %]
+
+<h1> [% dw.ml('.disclaimer.header') %] </h1>
+<p> [% dw.ml('.disclaimer.text', {"aopts" => "href=\"$site.root/customize/\""}) %] </p>
+
+<h1> [% dw.ml('.documentation.header') %] </h1>
+<p> [% dw.ml('.documentation.text') %] </p>
+<ul>
+<li><a href="[% site.root %]/doc/s2/">[% dw.ml('.s2doc.link') %]</a> -- [% dw.ml('.s2doc.desc') %]</li>
+<li><a href="[% site.root %]/customize/advanced/layerbrowse">[% dw.ml('.publiclayers.link') %]</a> -- [% dw.ml('.publiclayers.desc') %]</li>
+</ul>
+
+<h1> [% dw.ml('.advancedoptions.header') %]</h1>
+<ul>
+<li><a href="[% site.root %]/customize/advanced/layers">[% dw.ml('.yourlayers.link') %]</a> -- [% dw.ml('.yourlayers.desc') %]</li>
+<li><a href="[% site.root %]/customize/advanced/styles">[% dw.ml('.yourstyles.link') %]</a> -- [% dw.ml('.yourstyles.desc') %]</li>
+</ul>
+[% END %]
