@@ -1852,3 +1852,6 @@ general email.newacct5.body
 general widget.createaccount.error.birthdate.invalid
 
 general /profile.bml.details.userpics
+
+general /manage/profile/index.bml.services.delicious
+general /profile.bml.service.delicious

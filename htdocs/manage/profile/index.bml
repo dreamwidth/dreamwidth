@@ -54,7 +54,7 @@ body<=
     # props in this list will be preloaded on page load and saved on post
     my @uprops = qw/
         opt_whatemailshow comm_theme
-        ao3 delicious deviantart diigo discord etsy ffnet github google_talk
+        ao3 deviantart diigo discord etsy ffnet github google_talk
         icq instagram jabber last_fm_user livejournal pinboard pinterest
         plurk ravelry skype tumblr twitter yahoo
         url urlname gender
@@ -404,7 +404,6 @@ body<=
 
             foreach my $p (
                            ["ao3", $ML{ '.services.ao3' }, 40],
-                           ["delicious", $ML{ '.services.delicious' }, 40],
                            ["deviantart", $ML{'.services.deviantart'}, 20],
                            ["diigo", $ML{ '.services.diigo' }, 16],
                            ["discord", $ML{ '.services.discord' }, 40],
