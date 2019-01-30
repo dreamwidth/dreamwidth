@@ -529,7 +529,6 @@ sub start_request
             'js/jquery/jquery-1.8.3.js',
             'js/foundation/vendor/custom.modernizr.js',
             'js/foundation/foundation/foundation.js',
-            'js/foundation/vendor/fastclick.js',
             'js/foundation/foundation/foundation.topbar.js',
             'js/dw/dw-core.js'
         );

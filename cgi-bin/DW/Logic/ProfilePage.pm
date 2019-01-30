@@ -734,17 +734,6 @@ sub external_services {
         };
     }
 
-    if ( my $delicious = $u->prop( 'delicious' ) ) {
-        my $delicious = LJ::eurl( $delicious );
-        push @ret, {
-            type => 'delicious',
-            text => LJ::ehtml( $delicious ),
-            url => "https://del.icio.us/$delicious",
-            image => 'delicious.png',
-            title_ml => '.service.delicious',
-        };
-    }
-
     if ( my $deviantart = $u->prop( 'deviantart' ) ) {
         my $deviantart = LJ::eurl( $deviantart );
         push @ret, {
@@ -764,6 +753,16 @@ sub external_services {
             url => "http://www.diigo.com/user/$diigo",
             image => 'diigo.png',
             title_ml => '.service.diigo',
+        };
+    }
+
+    if ( my $discord = $u->prop( 'discord' ) ) {
+        my $discord = LJ::eurl( $discord );
+        push @ret, {
+            type => 'discord',
+            text => LJ::ehtml( $discord ),
+            image => 'discord.png',
+            title_ml => '.service.discord',
         };
     }
 

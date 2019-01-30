@@ -181,11 +181,11 @@
 
 .services.ao3=AO3 Username
 
-.services.delicious=Delicious Username
-
 .services.deviantart=DeviantArt Username
 
 .services.diigo=Diigo Username
+
+.services.discord=Discord Username
 
 .services.etsy=Etsy Username
 

@@ -1,0 +1,201 @@
+
+    [% sections.title = '.title' | ml %]
+    [% dw.ml("Backlink", { 'link' => "$site.root/customize/advanced/",'text' => dw.ml('.back2'),}) %]
+    [% dw.ml("Actionlink", {'link' => "<a href='$site.root/customize/advanced/layers$getextra'>" _ dw.ml('.nav.yourlayers') _ "</a>", }) %]
+
+
+<form method="get">
+    [%- authas_html -%]
+</form>
+
+    [%# edit mode %]
+    [% IF id %]
+
+
+        [%# set up start of output %]
+        [% sections.title = '.editstyle.title' | ml %]
+        <br />[% dw.ml("Backlink", {'text' => dw.ml('.back2styles'), 'link' => "$site.root/customize/advanced/styles$getextra" }) %]
+
+
+
+    [%# no style id, process actions for non-edit mode %]
+    [%# and load in data necessary for style list %]
+    [% ELSE %]
+
+        [%# set up page header %]
+        [% authas_html UNLESS noactions %]
+
+        <div><h1>[% dw.ml('.yourstyles.header') %] </h1></div>
+
+        [%# show style listing %]
+        <table summary='' style='margin-left: 40px'>
+        [% IF ustyle.keys %]
+            [% journalbase = u.journal_base %]
+            [% FOREACH styleid IN sortedustyles %]
+                <tr><td><form style='display:inline' method='post' action='styles?id=[% "$styleid$getextra_amp" %]'>
+                [% dw.form_auth() %]
+                [% styleid == u.s2_style ? 
+                    "<b>" _ dw.ml('.yourstyles.layername', {'name' => ehtml(ustyle.$styleid), 'aopts' => "href='$journalbase/?s2id=$styleid'", 'id' => styleid}) _ "</b>" : 
+                     dw.ml('.yourstyles.layername', {'name' => ehtml(ustyle.$styleid), 'aopts' => "href='$journalbase/?s2id=$styleid'", 'id' => styleid}) 
+                 %]
+                </td><td>
+                [% form.submit(name = 'action:edit', value = dw.ml('.btn.edit')) %]
+
+                [% confirm_msg = dw.ml('.delete.confirm', {'id' => styleid}) %]
+
+                [% form.submit(name = 'action:delete', value = dw.ml('.btn.delete') , 'onclick' => "return confirm('$confirm_msg')", disabled => noactions ) %]
+                [% form.submit(name = 'action:usestyle', value = dw.ml('.btn.use'), 'disabled' => (styleid == u.s2_style || noactions)) %]
+                </form></td></tr>
+            [% END %]
+        [% ELSE %]
+            <tr><td><i>[% dw.ml('.yourstyles.none') %]</i></td></tr>
+        [% END %]
+        </table>
+    [% END %]
+
+
+    [%### show create / edit form %]
+
+    [% extra = id ? "?id=$id" : '' %]
+    [% extra = extra != '' ? extra _ getextra_amp : extra _ getextra %]
+    <form name='styleForm' method='post' action='styles[% extra %]'>
+    [% dw.form_auth() %]
+
+    [%# create a new style, or change the name of the style currently being edited %]
+    [%# note: this little bit of code appears whether there is an id passed or not. %]
+    [%#       the textbox just has a different purpose depending on the context. %]
+    <h1>[% id ? dw.ml('.styleoptions.header') : dw.ml('.createstyle.header') %]</h1>
+    <table summary='' style='margin-bottom: 10px'>
+    <tr><td>[% dw.ml('.createstyle.label.name') %] </td><td>
+
+    [% form.textbox('name' => 'stylename', 'size' => '30', 'maxlength' => '255', 
+                             'value' => (post.stylename.defined ? post.stylename : style.name) ) %]
+     [% form.submit(name = 'action:create', value = dw.ml('.btn.create'),  disabled = noactions ) UNLESS id %]
+    </td></tr>
+    </table>
+
+    [%# if no id to edit, we're finished %]
+    [% UNLESS id %]
+        </form>
+        [% RETURN %]
+    [% END %]
+
+    [%# from here on we have $pub, $ulay, and $style filled in %]
+
+    [%# sub to take a layer type, core, and parent layout %]
+    [%# and return a list of options to feed to LJ::html_select() %]
+   
+    [% BLOCK layerselect %]
+        [% results = layerselect_sub(type, b2lid) %]
+
+        [% lid = results.lid %]
+        [% opts = results.opts %]
+
+        [% dis = opts.size > 2 ? 0 : 1 %]
+        [% sel = ( lid && ! ( pub.$lid && pub.$lid.s2lid ) && ! ulay.$lid ) ? "_other" : lid %]
+
+        [%# returns html_select to caller %]
+        [% form.select( 'name' => type, 'id' => "select_$type",
+                                   'onChange' => "showOther('$type')",
+                                   'selected' => sel,
+                                   'disabled' => dis , items => opts) %]
+    [% END %]
+
+    [% BLOCK layerother %]
+        [% actionchange = "action:change" %]
+        [% other_name = "other_$name" %]
+
+        [% olid = post.actionchange ? post.other_name : style.layer.$name %]
+
+        [% disp = 'none' %]
+        [% IF olid && ! pub.$olid && ! ulay.$olid %]
+            [% disp = 'inline' %]
+            [% val = olid %]
+        [% END %]
+
+        <div id='layer_[% name %]' style='margin-left: 5px; display: [% disp %];'>[% dw.ml('.stylelayers.label.layerid') %]
+            [% form.textbox( 'name' => "other_$name", 'id' => "other_$name",
+                            'size' => 6, 'value' => val ) %]</div>
+    [% END %]
+
+    [%### core version %]
+
+    <h1>[% dw.ml('.stylelayers.header') %] </h1>
+    <table summary=''>
+    <tr><td>[% dw.ml('.stylelayers.label.coreversion') %] </td><td>
+    [% PROCESS layerselect type = 'core', b2lid = 0 %]
+    [% form.hidden( name = 'core_hidden', value = core) %]
+     [% form.submit(name = 'action:change', value = dw.ml('.btn.change'), disabled = dis) %]</td></tr>
+    </table>
+
+    [%### i18nc / layout %]
+
+    <table summary='' style='margin: 10px 0 0 40px'>
+
+    [%# i18nc %]
+    <tr><td>[% dw.ml('.stylelayers.label.corelanguage') %] </td><td>
+    [% PROCESS layerselect type = 'i18nc', b2lid = core %]
+    [% PROCESS layerother name = 'i18nc' %]
+    </td></tr>
+
+    [%# layout %]
+    <tr><td>[% dw.ml('.stylelayers.label.layout') %] </td><td>
+    [% PROCESS layerselect type = 'layout', b2lid = core %]
+    [% PROCESS layerother name ='layout' %]
+    [% form.submit(name = "action:change", value = dw.ml('.btn.change'), disabled = dis) %]</td></tr>
+    </table>
+
+    [%# do we need to show the rest of the form? %]
+    [% UNLESS layout %]
+        </form>
+        [% RETURN %]
+    [% END %]
+
+    [%### theme / i18n / user %]
+
+    [%# theme %]
+    <table summary='' style='margin: 10px 0 0 80px'>
+    <tr><td>[% dw.ml('.stylelayers.label.language') %]</td><td>
+    [% PROCESS layerselect type = 'i18n', b2lid = layout %]    
+    [% PROCESS layerother name = 'i18n' %]</td></tr>
+    <tr><td>[% dw.ml('.stylelayers.label.theme') %]</td><td>
+    [% PROCESS layerselect type = 'theme', b2lid = layout %] 
+    [% PROCESS layerother name = 'theme' %]</td></tr>
+    <tr><td>[% dw.ml('.stylelayers.label.user2') %]</td><td>
+    [% PROCESS layerselect type = 'user', b2lid = layout %] 
+    [% PROCESS layerother name = 'user' %]</td></tr>
+    <tr><td>&nbsp;</td><td>
+    [% form.submit(name = 'action:savechanges', value = dw.ml('.btn.savechanges'), disabled = noactions) %]</td></tr>
+    </table>
+
+    [%# end edit form %]
+    </form>
+
+[% sections.head = BLOCK %]
+<script language="JavaScript">
+    function showOther (name) {
+        if (! document.getElementById) return false;
+        var box = document.getElementById("other_" + name);
+        var list = document.getElementById("select_" + name);
+        var div = document.getElementById("layer_" + name);
+        if (div && box) {
+            div.style.display =
+                (list.value == "_other" && box.value != '' || list.value == "_other")
+                ? "inline" : "none";
+        }
+        return false;
+    }
+    function pageload () {
+        if (!document.getElementById) return false;
+
+        var layers = new Array('i18nc', 'layout', 'i18n', 'theme', 'user');
+        for (var i=0; i<layers.length; i++) {
+            showOther(layers[i]);
+        }
+
+        return false;
+    }
+</script>
+[% END %]
+
+

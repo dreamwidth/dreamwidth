@@ -16,7 +16,6 @@
 package DW::Template::Plugin::FormHTML;
 use base 'Template::Plugin';
 use strict;
-
 use Hash::MultiValue;
 
 =head1 NAME
@@ -343,6 +342,30 @@ sub textarea {
     return $ret;
 }
 
+=head2 [% form.color( label=... ) %]
+Return a color picker with a matching label, if provided. Values are prepopulated
+by the plugin's datasource.
+=cut
+
+sub color {
+    my ( $self, $args ) = @_;
+
+    $args->{class} ||= "color-picker";
+    $args->{id} ||= $self->generate_id( $args );
+
+    my $errors = $self->_process_errors( $args );
+    my $hint = $self->_process_hint( $args );
+
+    my $ret = "";
+    $ret .= $self->_process_value_and_label( $args, use_as_value => "default" );
+    $ret .= LJ::html_color( $args );
+
+    $ret .= $errors;
+    $ret .= $hint;
+
+    return $ret;
+}
+
 
 =head2 [% form.textbox( label="A Label", id="elementid", name="elementname", ... ) %]
 
@@ -410,7 +433,7 @@ sub _process_value_and_label {
     my ( $self, $args, %opts ) = @_;
 
     my $valuekey = $opts{use_as_value} || "value";
-    my $default = delete $args->{default};
+    my $default =  $args->{default};
 
     if ( defined $args->{$valuekey} ) {
         # explicitly override with a value when we created the form element

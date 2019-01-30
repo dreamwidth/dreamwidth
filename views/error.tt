@@ -10,4 +10,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 [%- sections.title = 'error' | ml -%]
+[% IF opts.defined('authas') %]
+<form method="get">
+    [%- opts.authas -%]
+</form>
+[% END %]
 <p>[% message %]</p>

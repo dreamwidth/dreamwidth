@@ -367,11 +367,11 @@
 
 .service.ao3=Archive of Our Own
 
-.service.delicious=Delicious
-
 .service.deviantart=DeviantArt
 
 .service.diigo=Diigo
+
+.service.discord=Discord
 
 .service.etsy=Etsy
 
