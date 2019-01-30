@@ -57,3 +57,4 @@ XML::RSS
 XML::Simple@2.12
 XMLRPC::Lite
 YAML
+List::Util@1.45

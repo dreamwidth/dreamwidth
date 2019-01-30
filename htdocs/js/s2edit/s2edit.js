@@ -96,6 +96,7 @@ buildnav();
 
 // Event listeners
 $("#compilelink").click(function () {
+  codeMirror.save();
 	$.post(window.location.href, $( "#s2build" ).serialize(), function(data){
 		$("#out").html(data);});
     });

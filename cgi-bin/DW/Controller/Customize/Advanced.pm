@@ -870,7 +870,7 @@ sub layeredit_handler {
             $error =~ s/LJ::S2,.+//s;
             $error =~ s!, .+?(src/s2|cgi-bin)/!, !g;
 
-            $error =~ s/^Compile error: line (\d+), column (\d+)/Compile error: <a href="javascript:moveCursor($1,$2)">line $1, column $2<\/a>/;
+            $error =~ s/^Compile error: line (\d+), column (\d+)/Compile error: <a href="javascript:moveCursor($1-1,$2)">line $1, column $2<\/a>/;
 
             $build .= "Error compiling layer:\n<pre style=\"border-left: 1px red solid\">$error</pre>";
 

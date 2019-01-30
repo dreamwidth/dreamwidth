@@ -12,6 +12,11 @@ CodeMirror.defineSimpleMode("s2", {
     {regex: /(var)(\s+)(readonly)(\s+)([\[\]\(\){}\w]+)(\s+)([\w$]+)/, token: ["keyword", null, "property", null, "type", null, "variable-3"]},
     {regex: /(var)(\s+)([\[\]\(\)\{\}\w]+)(\s+)([\w$]+)/, token: ["keyword", null, "type", null, "variable-2"]},
 
+    // try and shift into CSS or XML mode in blockquoted content, because it's
+    // usually one of the two.
+    {regex: /"""(?=<)/, token: "string", mode: {spec: "xml", end: /"""/}},
+    {regex: /"""/, token: "string", mode: {spec: "css", end: /"""/}},
+
     // Highlighting for various reserved words.
     {regex: /(?:class|else|elseif|function|if|builtin|property|var|while|foreach|while|for|not|and|or|xor|extends|return|delete|defined|new|true|false|reverse|size|isnull|instanceof|as|isa|break|continue)\b/,
       token: "keyword"},
@@ -32,10 +37,7 @@ CodeMirror.defineSimpleMode("s2", {
     {regex: /[\{\[\(]/, indent: true},
     {regex: /[\}\]\)]/, dedent: true},
 
-    // try and shift into CSS or XML mode in blockquoted content, because it's
-    // usually one of the two.
-    {regex: /"""(?=<)/, token: "string", mode: {spec: "xml", end: /"""/}},
-    {regex: /"""/, token: "string", mode: {spec: "css", end: /"""/}}
+
   ],
 
   // The meta property contains global information about the mode. It
