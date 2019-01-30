@@ -1855,3 +1855,7 @@ general /profile.bml.details.userpics
 
 general /manage/profile/index.bml.services.delicious
 general /profile.bml.service.delicious
+
+general /profile.bml.im.yim
+general /profile.bml.label.yahooid
+general /manage/profile/index.bml.chat.yahooid

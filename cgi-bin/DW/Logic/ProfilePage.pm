@@ -941,17 +941,6 @@ sub external_services {
         };
     }
 
-    if ( my $yahoo = $u->prop( 'yahoo' ) ) {
-        my $eyahoo = LJ::eurl( $yahoo );
-        push @ret, {
-            type => 'yahoo',
-            text => LJ::ehtml( $yahoo ),
-            url => "http://profiles.yahoo.com/$eyahoo",
-            image => 'yahoo.gif',
-            title_ml => '.im.yim',
-        };
-    }
-
     return @ret;
 }
 

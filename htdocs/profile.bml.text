@@ -165,8 +165,6 @@
 
 .im.skype=Skype
 
-.im.yim=Yahoo!
-
 .label.addbuddy=Add Buddy
 
 .label.adduser=Add User
@@ -278,8 +276,6 @@
 .label.viewmembers=View Members
 
 .label.website=Website:
-
-.label.yahooid=Yahoo! ID:
 
 .linking.about=To link to this user, copy this code:
 
