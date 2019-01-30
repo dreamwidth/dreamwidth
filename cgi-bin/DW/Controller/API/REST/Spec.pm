@@ -20,7 +20,6 @@ use DW::Controller::API::REST;
 use strict;
 use warnings;
 use JSON;
-use Data::Dumper;
 
 # Define route and associated params
 my $spec = DW::Controller::API::REST->path('spec.yaml', 1, {'get' => \&rest_get});

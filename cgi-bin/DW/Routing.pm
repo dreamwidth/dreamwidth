@@ -592,9 +592,6 @@ sub register_api_endpoints {
 
 sub register_api_rest_endpoint {
     my ( $class, $string, $sub, $controller_class, %opts ) = @_;
-
-    # this is dev only for now -akp
-    return unless $LJ::IS_DEV_SERVER;
     
     croak 'register_api_rest_endpoint must have version option'
         unless exists $opts{version};

@@ -28,13 +28,13 @@ use Carp;
 sub new_for_user {
     my ($self, $u) = @_;
     my $user = LJ::want_user( $u )
-        or die "need a user!\n";
+        or croak "need a user!\n";
 
     my $id = LJ::alloc_user_counter( $user, 'B' )
         or croak 'Unable to allocate user counter for API key.';
 
     my $key = LJ::rand_chars( 32 );
-    my $dbw = LJ::get_db_writer() or die "Failed to get database";
+    my $dbw = LJ::get_db_writer() or croak "Failed to get database";
     $dbw->do(
         q{INSERT INTO api_key (userid, keyid, hash, state)
          VALUES (?, ?, ?, 'A')},
@@ -63,7 +63,7 @@ sub get_key {
     my $keydata = LJ::MemCache::get( $memkey );
 
     unless ( defined $keydata ) {
-        my $dbr = LJ::get_db_reader() or die "Failed to get database";
+        my $dbr = LJ::get_db_reader() or croak "Failed to get database";
         $keydata = $dbr->selectrow_hashref( "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'", undef, $hash );
         carp $dbr->errstr if $dbr->err;
         LJ::MemCache::set( $memkey, $keydata );
@@ -83,7 +83,7 @@ sub get_key {
 sub get_keys_for_user {
     my ($self, $u) = @_;
     my $user = LJ::want_user( $u )
-        or die "need a user!\n";
+        or croak "need a user!\n";
     my $memkey = [ $user->id, "api_keys_list:" . $user->id ];
     my $keydata = LJ::MemCache::get( $memkey );
     my @keylist;
@@ -94,7 +94,7 @@ sub get_keys_for_user {
         }
 
     } else {
-        my $dbr = LJ::get_db_reader() or die "Failed to get database";
+        my $dbr = LJ::get_db_reader() or croak "Failed to get database";
         my $keys = $dbr->selectall_hashref( 
                 q{SELECT keyid, hash FROM api_key WHERE userid = ? AND state = 'A'},
                 'keyid', undef, $user->{userid} 
@@ -163,14 +163,14 @@ sub can_write {
 sub delete {
     my ($self, $u) = @_;
     my $user = LJ::want_user( $u )
-        or die "need a user!\n";
+        or croak "need a user!\n";
     my $memkey = [ $self->{keyhash}, "api_key:" . $self->{keyhash} ];
 
-    $self->valid_for_user($user) or die "key doesn't belong to user";
+    $self->valid_for_user($user) or croak "key doesn't belong to user";
 
-    my $dbw = LJ::get_db_writer() or die "Failed to get database";
+    my $dbw = LJ::get_db_writer() or croak "Failed to get database";
     $dbw->do(
-        q{UPDATE api_key SET state = 'D' WHERE hash = ?},
+        q{UPDATE api_key SET state = 'D' WHERE state = 'A' hash = ?},
         undef, $self->{keyhash}
     );
 

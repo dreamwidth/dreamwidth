@@ -298,7 +298,8 @@ body<=
     if (LJ::did_post() && $POST{"save"}) {	    
         my @errors;
 
-        push @errors, $ML{'error.invalidform'} unless LJ::check_form_auth();
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+             unless LJ::check_form_auth();
 
         my $addresses = $POST{addresses};
         my $pin = $POST{pin};
@@ -364,9 +365,9 @@ body<=
 
     # if we just reset the token, add a header but show the original page still
     if ( LJ::did_post() && $POST{"action:token"}) {
-        my @errors;
 
-        push @errors, $ML{'error.invalidform'} unless LJ::check_form_auth();
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
 
         $ret .= $u->generate_emailpost_auth
                     ? "<div class='highlight-box'>$ML{'.reply.status.success'}</div>"
@@ -374,9 +375,9 @@ body<=
     }
 
     if ( LJ::did_post() && $POST{"action:apikey"}) {
-        my @errors;
-
-        push @errors, $ML{'error.invalidform'} unless LJ::check_form_auth();
+        
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+             unless LJ::check_form_auth();
 
         $ret .= DW::API::Key->new_for_user($u)
                     ? "<div class='highlight-box'>$ML{'.api.status.success'}</div>"
@@ -384,9 +385,9 @@ body<=
     }
 
     if ( LJ::did_post() && $POST{"action:delete"}) {
-        my @errors;
-
-        push @errors, $ML{'error.invalidform'} unless LJ::check_form_auth();
+        
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
 
         my $deleted_keys .= $POST{"delete"};
         foreach (split(/\0/, $deleted_keys)) {            
