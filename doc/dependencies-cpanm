@@ -11,6 +11,7 @@ Digest::HMAC_SHA1
 Digest::SHA1
 File::Type
 GTop
+List::Util@1.45
 Gearman::Client
 GnuPG::Interface
 Hash::MultiValue@0.10
@@ -19,7 +20,6 @@ Image::ExifTool
 Image::Size
 JSON@2.53
 LWP::UserAgent::Paranoid
-List::Util@1.45
 Locale::Country@3.32
 Log::Log4perl
 MIME::Base64::URLSafe
@@ -57,4 +57,3 @@ XML::RSS
 XML::Simple@2.12
 XMLRPC::Lite
 YAML
-List::Util@1.45
