@@ -840,7 +840,7 @@ sub layeredit_handler {
     }
 
     # get u of user they are acting as
-    my $u = LJ::load_userid( $lay->{userid} );
+    $u = LJ::load_userid( $lay->{userid} );
 
     # is authorized admin for this layer?
    return error_ml('/customize/advanced/layeredit.tt.error.layerunauthorized')
