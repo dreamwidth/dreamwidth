@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 85;
+use Test::More tests => 99;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -76,7 +76,7 @@ note( "misc" );
     # A
     test_good_url( "https://airtable.com/embed/shr5l5zt9nyBVMj4L" );
     test_good_url( "https://archive.org/embed/LeonardNimoy15Oct2013YiddishBookCenter" );
-    text_good_url( "https://audiomack.com/embed/song/ariox-1/faded" );
+    test_good_url( "https://audiomack.com/embed/song/ariox-1/faded" );
 
     # B
     test_good_url( "http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123/size=venti/bgcol=FFFFFF/linkcol=4285BB/" );
@@ -116,6 +116,8 @@ note( "misc" );
     test_good_url( "https://docs.google.com/spreadsheets/d/1P84CUNTo5O4ZW7R58Gl1ksCknFx3p59XzzQa7y67IaI/pubhtml?gid=23737011&single=true&widget=true&headers=false" );
     test_good_url( "https://docs.google.com/document/d/1Bo38jRzUWrEAHT6oaNyeGLlluscRY6TS2lE2E1T94dQ/pub?embedded=true" );
     test_good_url( "https://docs.google.com/presentation/d/1AxZkO9k4ISxku0__jRD8Im6mJC9xv5i4MgETEJ_MnA8/embed?start=false&loop=false&delayms=3000" );
+
+    test_good_url( "https://player.gimletmedia.com/awhk76" );
 
     # I
     test_good_url( "//imgur.com/a/J4OKE/embed" );
@@ -159,9 +161,11 @@ note( "misc" );
     # P
     test_good_url( "https://playmoss.com/embed/wingedbeastie/the-swamp-witch-nix-s-playlist" );
     test_good_url( "http://www.plurk.com/getWidget?uid=123123123&h=375&w=200&u_info=2&bg=cf682f&tl=cae7fd" );
+    test_good_url( "https://pastebin.com/embed_iframe/Juks92Y2" );
 
     # R
     test_good_url( "https://www.reverbnation.com/widget_code/html_widget/artist_299962?widget_id=55&pwc[song_ids]=4189683&context_type=song&pwc[size]=small&pwc[color]=dark" );
+    test_good_url( "https://www.random.org/widgets/integers/iframe.php?title=True+Random+Number+Generator&buttontxt=Generate&width=160&height=200&border=on&bgcolor=%23FFFFFF&txtcolor=%23777777&altbgcolor=%23CCCCFF&alttxtcolor=%23000000&defaultmin=&defaultmax=&fixed=off" );
 
     # S
     test_good_url( "http://www.sbs.com.au/yourlanguage//player/embed/id/163111" );
@@ -172,6 +176,10 @@ note( "misc" );
     test_good_url( "https://embed.spotify.com/?uri=spotify:track:1DeuZgn99eUC1hreXTWBvY" );
     test_good_url( "https://open.spotify.com/embed/track/5IsdA6g8IFKGmC1xl37OG1" );
     test_good_url( "https://open.spotify.com/?uri=spotify:track:1DeuZgn99eUC1hreXTWBvY" );
+    test_good_url( "https://open.spotify.com/embed/album/2aE3VcIiNPqqo4VzOXiDoR" );
+    test_good_url( "https://open.spotify.com/embed/user/64f31rn6hwblzmssibjvs75e8/playlist/1ACvcMYSJoqa3gwOw6j0NR" );
+    test_good_url( "https://www.strava.com/activities/1997053955/embed/54dd7dc49efe8f9b00b8fceb01fa822fcc7de662" );
+    test_good_url( "https://streamable.com/s/asq5b/knxvuf" );
 
     # T
     test_good_url( "http://embed.ted.com/talks/handpring_puppet_co_the_genius_puppetry_behind_war_horse.html" );
