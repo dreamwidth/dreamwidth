@@ -1126,10 +1126,12 @@ function print_module_navlinks()
 {
     var Page p = get_page();
     open_module("navlinks", $*text_navigation_header, "");
-    var string[] links = [];
+
+    var string{}[] links = [];
     foreach var string k ($p.views_order)
-    {
-        $links[size $links] = """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""";
+    { 
+        var string class = "list-item-$k";
+        $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""" };
     }
     print_module_list($links);
     close_module();
