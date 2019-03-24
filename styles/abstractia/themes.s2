@@ -81,6 +81,21 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/aulait
 layerinfo type = "theme";
 layerinfo name = "Au Lait";
@@ -174,6 +189,7 @@ function Page::print_theme_stylesheet () {
 var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
 
     """
+    body {background-size:cover;}  # make background image cover large screens
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
@@ -607,6 +623,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/blacklace
 layerinfo type = "theme";
 layerinfo name = "Black Lace";
@@ -875,6 +906,7 @@ function Page::print_theme_stylesheet () {
 var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
 
     """
+    body {background-size:cover;}  # make background image cover large screens
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
@@ -1047,6 +1079,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/burnished
 layerinfo type = "theme";
 layerinfo name = "Burnished";
@@ -1128,6 +1175,21 @@ set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
 set image_background_calendar_and_form_position = "top left";
 set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/catchthesun
@@ -1299,6 +1361,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/darkcarnival
 layerinfo type = "theme";
 layerinfo name = "Dark Carnival";
@@ -1380,6 +1457,21 @@ set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
 set image_background_calendar_and_form_position = "top left";
 set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/darkromance
@@ -1621,6 +1713,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/dreamscape
 layerinfo type = "theme";
 layerinfo name = "Dreamscape";
@@ -1774,6 +1881,21 @@ set image_background_sidebar_url = "abstractia/sidebar.png";
 set image_background_userpic_position = "top left";
 set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/duskmagic
@@ -2198,6 +2320,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/eternalsunshine
 layerinfo type = "theme";
 layerinfo name = "Eternal Sunshine";
@@ -2284,6 +2421,21 @@ set image_background_sidebar_url = "abstractia/sidebar.png";
 set image_background_userpic_position = "top left";
 set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/evergreen
@@ -2374,6 +2526,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/fabulosity
 layerinfo type = "theme";
 layerinfo name = "Fabulosity";
@@ -2460,6 +2627,21 @@ set image_background_sidebar_url = "abstractia/sidebar.png";
 set image_background_userpic_position = "top left";
 set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
 
 
 
@@ -2670,6 +2852,101 @@ set color_calendar_and_form_background = "#ffbc73";
 
 set color_comment_title = "#a63100";
 
+#NEWLAYER: abstractia/indigo
+layerinfo type = "theme";
+layerinfo name = "Indigo";
+layerinfo redist_uniq = "abstractia/indigo";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_link = "#3c058f";
+set color_page_link_hover = "#1000a4";
+set color_page_link_visited = "#3c058f";
+set color_page_text = "#8578c1";
+set color_page_title = "#5402b9";
+set color_footer_link = "#3c058f";
+set color_footer_link_hover = "#1000a4";
+set color_footer_link_visited = "#3c058f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_link = "#3c058f";
+set color_entry_link_hover = "#1000a4";
+set color_entry_link_visited = "#3c058f";
+set color_entry_text = "#8578c1";
+set color_entry_title = "#3c058f";
+set color_comment_title = "#3c058f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#3c058f";
+set color_module_link_hover = "#1000a4";
+set color_module_link_visited = "#3c058f";
+set color_module_text = "#8578c1";
+set color_module_title = "#3c058f";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/content.png";
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "abstractia/indigo.jpg";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/sidebar.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/userpic.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
+
 
 #NEWLAYER: abstractia/joy
 layerinfo type = "theme";
@@ -2757,87 +3034,6 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/joy_bg1.png";
 
 
-#NEWLAYER: abstractia/indigo
-layerinfo type = "theme";
-layerinfo name = "Indigo";
-layerinfo redist_uniq = "abstractia/indigo";
-layerinfo author_name = "nornoriel";
-
-set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
-
-##===============================
-## Page Colors
-##===============================
-
-set color_page_link = "#3c058f";
-set color_page_link_hover = "#1000a4";
-set color_page_link_visited = "#3c058f";
-set color_page_text = "#8578c1";
-set color_page_title = "#5402b9";
-set color_footer_link = "#3c058f";
-set color_footer_link_hover = "#1000a4";
-set color_footer_link_visited = "#3c058f";
-
-##===============================
-## Entry Colors
-##===============================
-
-set color_entry_link = "#3c058f";
-set color_entry_link_hover = "#1000a4";
-set color_entry_link_visited = "#3c058f";
-set color_entry_text = "#8578c1";
-set color_entry_title = "#3c058f";
-set color_comment_title = "#3c058f";
-
-##===============================
-## Module Colors
-##===============================
-
-set color_module_link = "#3c058f";
-set color_module_link_hover = "#1000a4";
-set color_module_link_visited = "#3c058f";
-set color_module_text = "#8578c1";
-set color_module_title = "#3c058f";
-
-##===============================
-## Fonts
-##===============================
-
-set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_fallback = "serif";
-
-##===============================
-## Images
-##===============================
-
-set image_background_archive_calendar_position = "top left";
-set image_background_archive_calendar_repeat = "repeat";
-set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
-set image_background_calendar_and_form_position = "top left";
-set image_background_calendar_and_form_repeat = "repeat";
-set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
-set image_background_content_footer_position = "top left";
-set image_background_content_footer_repeat = "repeat";
-set image_background_content_footer_url = "abstractia/content-footer.png";
-set image_background_content_header_position = "top left";
-set image_background_content_header_repeat = "repeat";
-set image_background_content_header_url = "abstractia/content-header.png";
-set image_background_content_position = "top left";
-set image_background_content_repeat = "repeat";
-set image_background_content_url = "abstractia/content.png";
-set image_background_header_position = "top left";
-set image_background_header_repeat = "repeat";
-set image_background_page_position = "top left";
-set image_background_page_repeat = "repeat";
-set image_background_page_url = "abstractia/indigo.jpg";
-set image_background_sidebar_position = "top left";
-set image_background_sidebar_repeat = "repeat";
-set image_background_sidebar_url = "abstractia/sidebar.png";
-set image_background_userpic_position = "top left";
-set image_background_userpic_repeat = "repeat";
-set image_background_userpic_url = "abstractia/userpic.png";
-
-
 #NEWLAYER: abstractia/loveless
 layerinfo type = "theme";
 layerinfo name = "Loveless";
@@ -2921,6 +3117,21 @@ set image_background_sidebar_url = "abstractia/sidebar.png";
 set image_background_userpic_position = "top left";
 set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  #make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/lucky
@@ -3016,6 +3227,7 @@ function Page::print_theme_stylesheet () {
 var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
 
     """
+    body {background-size:cover;}  # make background image cover large screens
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
@@ -3114,6 +3326,7 @@ function Page::print_theme_stylesheet () {
 var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
 
     """
+    body {background-size:cover;}  # make background image cover large screens
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
@@ -3202,6 +3415,21 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/midnightpeacock
 layerinfo type = "theme";
 layerinfo name = "Midnight Peacock";
@@ -3282,6 +3510,21 @@ set image_background_sidebar_url = "abstractia/sidebar.png";
 set image_background_userpic_position = "top left";
 set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/morningdew
@@ -3454,6 +3697,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/nightfall
 layerinfo type = "theme";
 layerinfo name = "Nightfall";
@@ -3539,6 +3797,21 @@ set image_background_sidebar_url = "abstractia/sidebar.png";
 set image_background_userpic_position = "top left";
 set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/northernlights
@@ -3712,6 +3985,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/oceanfloor
 layerinfo type = "theme";
 layerinfo name = "Ocean Floor";
@@ -3793,6 +4081,21 @@ set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
 set image_background_calendar_and_form_position = "top left";
 set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/oceanic
@@ -3881,6 +4184,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/oceanicii
 layerinfo type = "theme";
 layerinfo name = "Oceanic II";
@@ -3967,6 +4285,21 @@ set image_background_sidebar_url = "abstractia/sidebar.png";
 set image_background_userpic_position = "top left";
 set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/peacockfringe
@@ -4130,6 +4463,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/pulse
 layerinfo type = "theme";
 layerinfo name = "Pulse";
@@ -4211,6 +4559,21 @@ set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
 set image_background_calendar_and_form_position = "top left";
 set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/purplehaze
@@ -4301,6 +4664,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/radioactive
 layerinfo type = "theme";
 layerinfo name = "Radioactive";
@@ -4382,6 +4760,21 @@ set image_background_archive_calendar_url = "abstractia/archive-calendar.png";
 set image_background_calendar_and_form_position = "top left";
 set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/rainbowinthedark
@@ -4555,6 +4948,21 @@ set image_background_sidebar_url = "abstractia/seaglasstspt2.png";
 set image_background_userpic_position = "top left";
 set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/seaglasstspt1.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/seaglassii
@@ -4996,6 +5404,7 @@ function Page::print_theme_stylesheet () {
 var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
 
     """
+    body {background-size:cover;}  # make background image cover large screens
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
@@ -5094,6 +5503,7 @@ function Page::print_theme_stylesheet () {
 var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
 
     """
+    body {background-size:cover;}  # make background image cover large screens
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
@@ -5267,6 +5677,21 @@ set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/tropicalsunset
 layerinfo type = "theme";
 layerinfo name = "Tropical Sunset";
@@ -5360,6 +5785,7 @@ function Page::print_theme_stylesheet () {
 var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
 
     """
+    body {background-size:cover;}  # make background image cover large screens
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
@@ -5458,6 +5884,7 @@ function Page::print_theme_stylesheet () {
 var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
 
     """
+    body {background-size:cover;}  # make background image cover large screens
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
@@ -5628,6 +6055,7 @@ function Page::print_theme_stylesheet () {
 var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
 
     """
+    body {background-size:cover;}  # make background image cover large screens
     .module-navlinks .current { $calendar_and_form_image }
     """;
 }
@@ -5892,6 +6320,21 @@ set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
 
 
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
+
+
 #NEWLAYER: abstractia/vision
 layerinfo type = "theme";
 layerinfo name = "Vision";
@@ -5978,6 +6421,21 @@ set image_background_sidebar_url = "abstractia/sidebar.png";
 set image_background_userpic_position = "top left";
 set image_background_userpic_repeat = "repeat";
 set image_background_userpic_url = "abstractia/userpic.png";
+
+
+
+##===============================
+## CSS
+##===============================
+
+# Edit for dark-on-light styles
+
+function Page::print_theme_stylesheet () {
+
+    """
+     body {background-size:cover;}  # make background image cover large screens
+    """;
+}
 
 
 #NEWLAYER: abstractia/whitelace
