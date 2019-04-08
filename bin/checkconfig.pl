@@ -17,6 +17,7 @@
 use strict;
 use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use Getopt::Long;
+use version;
 
 my $debs_only = 0;
 my ($only_check, $no_check, $opt_nolocal);
@@ -107,23 +108,7 @@ sub check_modules {
         # assumes there will never be a version part prepended
         # only appended
         if ( $ver_want && $ver_got ) {
-            my @parts_want = split( /\./, $ver_want );
-            my @parts_got  = split( /\./, $ver_got  );
-            my $invalid = 0;
-
-            while ( scalar @parts_want ) {
-                my $want_part = shift @parts_want || 0;
-                my $got_part = shift @parts_got || 0;
-
-                # If want_part is greater then got_part, older
-                # If got_part is greater then want_part, newer
-                # If they are the same, look at the next part pair
-                if ( $want_part != $got_part ) {
-                    $invalid = $want_part > $got_part ? 1 : 0;
-                    last;
-                }
-            }
-            if ( $invalid ) {
+            if ( version->parse($ver_want) > version->parse($ver_got) ) {
                 if ( $modules{$mod}->{opt} ) {
                     print STDERR "Out of date optional module: $mod (need $ver_want, $ver_got installed)\n";
                 } else {
