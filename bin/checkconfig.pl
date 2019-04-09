@@ -108,7 +108,7 @@ sub check_modules {
         # assumes there will never be a version part prepended
         # only appended
         if ( $ver_want && $ver_got ) {
-            if ( version->parse($ver_want) > version->parse($ver_got) ) {
+            if ( version->parse( $ver_want ) > version->parse( $ver_got ) ) {
                 if ( $modules{$mod}->{opt} ) {
                     print STDERR "Out of date optional module: $mod (need $ver_want, $ver_got installed)\n";
                 } else {
