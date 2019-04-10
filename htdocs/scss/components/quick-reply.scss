@@ -65,10 +65,42 @@
 
     .qr-meta {
         margin-left: 55px;
+        display: -webkit-flex;
+        -webkit-flex-direction: row;
+        -webkit-flex-wrap: wrap;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        &>* {
+            -webkit-flex-grow: 1;
+            -webkit-flex-shrink: 1;
+
+            flex-grow: 1;
+            flex-shrink: 1;
+        }
+    }
+
+    .qr-footer {
+        display: -webkit-flex;
+        -webkit-flex-direction: row;
+        -webkit-flex-wrap: wrap;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    span#quotebuttonspan {
+        // This only exists to get something appended to it by jQuery. Its child
+        // input is the real flex item.
+        display: contents;
     }
 
     textarea, select, input[type="text"] {
-        width: 100%;
+        max-width: 100%;
+        flex-basis: 20%;
     }
 
     select, input, textarea {
@@ -78,16 +110,6 @@
 @media only screen and (min-width: 40em) {
 
     #qrform {
-        display: table;
-
-        .qr-meta {
-            display: -webkit-flex;
-            -webkit-flex-direction: row;
-
-            display: flex;
-            flex-direction: row;
-        }
-
         .qr-body, .qr-footer {
             margin-left: 55px;
         }
