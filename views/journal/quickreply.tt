@@ -130,11 +130,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         placeholder = dw.ml( '/talkpost.bml.opt.subject2' )
   ) -%]
 
-  <input type='button' id='randomicon' value='[%- '/talkpost.bml.userpic.random2' | ml -%]' />
-
   [%- help.icon -%]
-
-  <span id='quotebuttonspan'></span>
 </div>
 
 <div class="qr-body">
@@ -160,6 +156,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
       class = post_button_class,
       id = 'submitpost'
   ) -%]
+  <span id='quotebuttonspan'></span>
+  <input type='button' id='randomicon' value='[%- '/talkpost.bml.userpic.random2' | ml -%]' />
   [%- form.submit(
       name = 'submitpview'
       value = dw.ml( 'talk.btn.preview' ),
