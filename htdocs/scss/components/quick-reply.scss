@@ -103,6 +103,10 @@
         flex-basis: 20%;
     }
 
+    textarea#body {
+        width: 100%;
+    }
+
     select, input, textarea {
         padding: .25em;
     }
@@ -110,8 +114,9 @@
 @media only screen and (min-width: 40em) {
 
     #qrform {
-        .qr-body, .qr-footer {
+        .qr-meta, .qr-body, .qr-footer {
             margin-left: 55px;
+            max-width: 38rem;
         }
 
         select, input, textarea {
