@@ -156,19 +156,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
       class = post_button_class,
       id = 'submitpost'
   ) -%]
-  <span id='quotebuttonspan'></span>
-  <input type='button' id='randomicon' value='[%- '/talkpost.bml.userpic.random2' | ml -%]' />
   [%- form.submit(
       name = 'submitpview'
       value = dw.ml( 'talk.btn.preview' ),
       id = 'submitpview'
   ) -%]
   [%- form.hidden( name = 'submitpreview', value = 0 ) -%]
-  [%- form.submit(
-      name = 'submitmoreopts'
-      value = dw.ml( '/talkread.bml.button.more' ),
-      id = 'submitmoreopts'
-  ) -%]
   [%- IF can_checkspell -%]
     [%- form.checkbox(
       label = dw.ml( '/talkread.bml.qr.spellcheck' )
@@ -176,6 +169,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
       id = 'do_spellcheck'
     ) -%]
   [%- END -%]
+  <span id='quotebuttonspan'></span>
+  <input type='button' id='randomicon' value='[%- '/talkpost.bml.userpic.random2' | ml -%]' />
+  [%- form.submit(
+      name = 'submitmoreopts'
+      value = dw.ml( '/talkread.bml.button.more' ),
+      id = 'submitmoreopts'
+  ) -%]
   [%- IF journal.is_iplogging -%]
     <div class='de'>[%- '/talkpost.bml.logyourip' | ml -%]</div>
     [%- help.iplogging -%]
