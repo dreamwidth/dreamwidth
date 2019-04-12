@@ -129,8 +129,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         id = 'subject'
         placeholder = dw.ml( '/talkpost.bml.opt.subject2' )
   ) -%]
-
-  [%- help.icon -%]
 </div>
 
 <div class="qr-body">
@@ -176,6 +174,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
       value = dw.ml( '/talkread.bml.button.more' ),
       id = 'submitmoreopts'
   ) -%]
+
+  [%- help.icon -%]
   [%- IF journal.is_iplogging -%]
     <div class='de'>[%- '/talkpost.bml.logyourip' | ml -%]</div>
     [%- help.iplogging -%]
