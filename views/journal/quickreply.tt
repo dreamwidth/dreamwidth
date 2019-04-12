@@ -163,11 +163,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
   ) -%]
   [%- form.hidden( name = 'submitpreview', value = 0 ) -%]
   [%- IF can_checkspell -%]
-    [%- form.checkbox(
+    <div>[%- form.checkbox(
       label = dw.ml( '/talkread.bml.qr.spellcheck' )
       name = 'do_spellcheck'
       id = 'do_spellcheck'
-    ) -%]
+    ) -%]</div>
   [%- END -%]
   <span id='quotebuttonspan'></span>
   <input type='button' id='randomicon' value='[%- '/talkpost.bml.userpic.random2' | ml -%]' />
