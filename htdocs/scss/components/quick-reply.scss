@@ -9,6 +9,17 @@
     padding: 0 1em;
     clear: both;
 
+    // Consistent initial font size for every descendent, so we can use ems
+    // for reliable relative sizing later.
+    * {
+        font-size: .75rem;
+        @media (pointer: coarse) {
+            // Appease mobile Webkit so it won't *dramatic woodchuck* zoom on
+            // input focus. Minimum font-size to Not Do That: 16px.
+            font-size: 16px;
+        }
+    }
+
     .de {
         font-size: small;
     }
@@ -18,8 +29,9 @@
     }
 
     .qr-icon {
-        width: 50px;
-        height: 50px;
+        // Same height as qr-meta's stacked select and input = 2em + 2em + .2em
+        width: 4.2em;
+        height: 4.2em;
         float: left;
         position: relative;
 
@@ -65,7 +77,8 @@
     }
 
     .qr-meta {
-        margin-left: 55px;
+        margin-left: 4.5em;
+
         display: -webkit-flex;
         -webkit-flex-direction: row;
         -webkit-flex-wrap: wrap;
@@ -74,7 +87,9 @@
         flex-direction: row;
         flex-wrap: wrap;
 
-        &>* {
+        & > * {
+            height: 2em;
+
             -webkit-flex-grow: 1;
             -webkit-flex-shrink: 1;
 
@@ -115,7 +130,7 @@
     }
 
     select, input, textarea {
-        padding: .25em;
+        padding: .15em;
     }
 }
 
@@ -129,12 +144,12 @@
 @media #{$medium-up} {
     #qrform {
         .qr-meta, .qr-body, .qr-footer {
-            margin-left: 55px;
+            margin-left: 4.5em;
             max-width: 38rem;
         }
 
         select, input, textarea {
-            padding: .5em;
+            padding: .3em;
         }
     }
 }
