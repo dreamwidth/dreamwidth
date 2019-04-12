@@ -117,8 +117,15 @@
         padding: .25em;
     }
 }
-@media only screen and (min-width: 40em) {
 
+// When we're down to ~two buttons per row, avoid messy clumping:
+@media #{$small-only} {
+    .qr-footer > *, #quotebuttonspan input {
+        flex-grow: 1;
+    }
+}
+
+@media #{$medium-up} {
     #qrform {
         .qr-meta, .qr-body, .qr-footer {
             margin-left: 55px;
