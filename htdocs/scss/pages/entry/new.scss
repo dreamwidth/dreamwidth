@@ -182,6 +182,7 @@
 .current-entry {
     textarea {
         font-family: monospace;
+        font-size: 16px;
     }
 }
 
@@ -197,13 +198,22 @@
         font-size: 1rem;
     }
 
-    p, label, input, legend, ul, select, textarea {
+    p, label, legend, ul {
         font-size: .8rem;
     }
 
+    input, select, textarea {
+        font-size: .8rem;
+        @media (pointer: coarse) {
+            // Appease mobile Webkit so it won't *dramatic woodchuck* zoom on
+            // input focus. Minimum font-size to Not Do That: 16px.
+            font-size: 16px;
+        }
+    }
+
     input[type=text], input[type=password], select {
-        height: 2rem;
-        padding: .4rem;
+        height: 2.2em;
+        padding: .4em;
     }
 
     .postfix {
