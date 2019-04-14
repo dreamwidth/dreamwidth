@@ -33,4 +33,8 @@ $regular-select-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1))
     z-index: 9;
     text-align: left;
     height: $regular-select-height;     // ensures consistent height for the visual overlay
+    output {
+        display: inline-block;
+        white-space: nowrap;
+    }
 }
