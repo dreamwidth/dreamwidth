@@ -123,6 +123,13 @@
     textarea, select, input[type="text"] {
         max-width: 100%;
         flex-basis: 20%;
+        margin-right: 0; // Fix for site scheme.
+        &:hover {
+            // Fix for site scheme. Too distracting.
+            -moz-box-shadow: inherit;
+            -webkit-box-shadow: inherit;
+            box-shadow: inherit;
+        }
     }
 
     textarea#body {
@@ -131,6 +138,11 @@
 
     select, input, textarea {
         padding: .15em;
+    }
+
+    .invisible {
+        // Fix for site scheme; a ".comment .invisible" rule was setting position: relative.
+        position: absolute;
     }
 }
 
