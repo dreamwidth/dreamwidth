@@ -2174,11 +2174,9 @@ sub talkform {
 
         # only show quick quote button on initial composition
         my $hidebutton = ( $opts->{errors} && @{ $opts->{errors} } );
-        unless ($hidebutton) {
-            $ret .= "<span id='quotebuttonspan'></span>";
-            $ret .= "<script type='text/javascript' language='JavaScript'>\n<!--\n";
-            $ret .= LJ::Talk::js_quote_button('commenttext');
-            $ret .= "-->\n</script>\n";
+        unless ( $hidebutton ) {
+            my $alerttext = LJ::Lang::ml( 'talk.error.quickquote' );
+            $ret .= "<span id='quotebuttonspan' data-quote-error=\"$alerttext\"></span>";
         }
     }
 
@@ -2422,6 +2420,11 @@ sub init_iconbrowser_js {
 sub init_s2journal_js {
     my %opts = @_;
 
+    # load for everywhere you can reply (ReplyPage, lastn, AND entries)
+    LJ::need_res( { group => "jquery" }, qw(
+            js/jquery.quotebutton.js
+        ) );
+
     # load for quick reply (every view except ReplyPage)
     LJ::need_res(
         { group => "jquery" }, qw(
@@ -2511,58 +2514,6 @@ sub js_iconbrowser_button {
         })
         </script>
     };
-}
-
-# generate the javascript code for the quick quote button
-# arg1: element corresponds to textarea of caller (body or commenttext)
-# arg2: boolean to hide the button HTML (optional)
-sub js_quote_button {
-    my ($element) = @_;
-    return '' unless $element;
-
-    my $alerttext  = LJ::Lang::ml('talk.error.quickquote');
-    my $quote_func = <<"QUOTE";
-    var helped = 0; var pasted = 0;
-    function quote(e) {
-        var text = '';
-
-        if (document.getSelection) {
-            text = document.getSelection();
-        } else if (document.selection) {
-            text = document.selection.createRange().text;
-        } else if (window.getSelection) {
-            text = window.getSelection();
-        }
-
-        text = text.toString().replace(/^\\s+/, '').replace(/\\s+\$/, '');
-
-        if (text == '') {
-            if (helped != 1 && pasted != 1) {
-                helped = 1;
-                alert("$alerttext");
-            }
-        } else {
-            pasted = 1;
-        }
-
-        var element = text.search(/\\n/) == -1 ? 'q' : 'blockquote';
-        var textarea = document.getElementById('$element');
-        textarea.focus();
-        textarea.value = textarea.value + "<" + element + ">" + text + "</" + element + ">";
-        textarea.caretPos = textarea.value;
-        textarea.focus();
-    }
-QUOTE
-
-    return <<"QQ";
-jQuery(function(jQ){
-    $quote_func
-
-    jQ("<input type='button' value='Quote' />")
-        .appendTo("#quotebuttonspan")
-        .click(quote);
-    });
-QQ
 }
 
 # <LJFUNC>

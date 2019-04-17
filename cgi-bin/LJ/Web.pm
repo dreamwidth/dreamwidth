@@ -935,7 +935,6 @@ sub create_qr_div {
             post_disabled        => $post_disabled,
             post_button_class    => $post_disabled ? 'ui-state-disabled' : '',
 
-            quote_button_js => LJ::Talk::js_quote_button('body'),
             iconbrowser_js  => $remote->can_use_userpic_select
             ? LJ::Talk::js_iconbrowser_button()
             : "",

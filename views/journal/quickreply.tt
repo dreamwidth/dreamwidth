@@ -88,7 +88,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
       id = 'do_spellcheck'
     ) -%]</div>
   [%- END -%]
-  <span id='quotebuttonspan'></span>
+  <span id='quotebuttonspan' data-quote-error="[%- 'talk.error.quickquote' | ml -%]"></span>
   <input type='button' id='randomicon' value='[%- '/talkpost.bml.userpic.random2' | ml -%]' />
   [%- END -%]
 
@@ -115,6 +115,5 @@ the same terms as Perl itself.  For a copy of the license, please reference
 jQuery(function(jQ){
   jQ("body").append(jQ("<div id='qrdiv'></div>").html("[% ejs(quickreply) %]").hide());
 });
-[%- quote_button_js -%]
 </script>
 [%- iconbrowser_js -%]
