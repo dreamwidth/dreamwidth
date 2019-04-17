@@ -935,10 +935,6 @@ sub create_qr_div {
             post_disabled        => $post_disabled,
             post_button_class    => $post_disabled ? 'ui-state-disabled' : '',
 
-            iconbrowser_js  => $remote->can_use_userpic_select
-            ? LJ::Talk::js_iconbrowser_button()
-            : "",
-
             current_icon_kw => $userpic_kw,
             current_icon    => LJ::Userpic->new_from_keyword( $remote, $userpic_kw ),
 
@@ -946,9 +942,11 @@ sub create_qr_div {
                 ljuser => $remote->ljuser_display,
                 user   => $remote->user,
 
-                icons_url           => $remote->allpics_base,
-                icons               => \@pics,
-                can_use_iconbrowser => $remote->can_use_userpic_select,
+                icons_url               => $remote->allpics_base,
+                icons                   => \@pics,
+                can_use_iconbrowser     => $remote->can_use_userpic_select,
+                iconbrowser_metatext    => $remote->iconbrowser_metatext ? "true" : "false",
+                iconbrowser_smallicons  => $remote->iconbrowser_smallicons ? "true" : "false",
             },
 
             journal => {

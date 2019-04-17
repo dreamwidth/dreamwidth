@@ -2341,8 +2341,9 @@ sub icon_dropdown {
 
         # userpic browse button
         if ( $remote && $remote->can_use_userpic_select ) {
-            $ret .= '<input type="button" id="lj_userpicselect" value="Browse" />';
-            $ret .= LJ::Talk::js_iconbrowser_button();
+            my $metatext = $remote->iconbrowser_metatext ? "true" : "false";
+            my $smallicons = $remote->iconbrowser_smallicons ? "true" : "false";
+            $ret .= '<input type="button" id="lj_userpicselect" value="Browse" data-iconbrowser-metatext="' . $metatext . '" data-iconbrowser-smallicons="' . $smallicons . '"/>';
         }
 
         # random icon button - hidden for non-JS
@@ -2494,26 +2495,6 @@ sub init_s2journal_shortcut_js {
 "$connect_string\n    touch: {\n      nextEntry: '$nextTouch',\n      prevEntry: '$prevTouch'\n    }\n";
     }
     $p->{'head_content'} .= "  };\n  </script>\n";
-}
-
-# generate the javascript code for the icon browser
-sub js_iconbrowser_button {
-    my $remote           = LJ::get_remote();
-    my $iconbrowser_opts = to_json(
-        {
-            selectorButtons => "#lj_userpicselect",
-            metatext        => LJ::JSON->to_boolean( $remote->iconbrowser_metatext ),
-            smallicons      => LJ::JSON->to_boolean( $remote->iconbrowser_smallicons ),
-        }
-    );
-
-    return qq {
-        <script type="text/javascript">
-        jQuery(function(jQ){
-            jQ("#prop_picture_keyword").iconselector($iconbrowser_opts);
-        })
-        </script>
-    };
 }
 
 # <LJFUNC>

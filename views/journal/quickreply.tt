@@ -19,7 +19,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div class='qr-icon'>
     [%- IF current_icon -%]
       [%- IF remote.can_use_iconbrowser -%]
-        <button id="lj_userpicselect">[%- current_icon.imgtag -%]</button>
+        <button id="lj_userpicselect" data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
+            [%- current_icon.imgtag -%]
+        </button>
       [%- ELSE -%]
         [%- current_icon.imgtag -%]
       [%- END -%]
@@ -116,4 +118,3 @@ jQuery(function(jQ){
   jQ("body").append(jQ("<div id='qrdiv'></div>").html("[% ejs(quickreply) %]").hide());
 });
 </script>
-[%- iconbrowser_js -%]
