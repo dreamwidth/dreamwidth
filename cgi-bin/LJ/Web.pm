@@ -959,8 +959,6 @@ sub create_qr_div {
                 icon      => LJ::help_icon_html( "userpics",  " " ),
                 iplogging => LJ::help_icon_html( "iplogging", " " ),
             },
-
-            ejs => sub { return LJ::ejs(@_) },
         }
     );
 }
