@@ -2707,7 +2707,7 @@ sub control_strip
             $links{'queue'} = "<a href='" . $journal->moderation_queue_url . "'>$BML::ML{'web.controlstrip.links.queue'}</a>";
         }
     }
-    my $journal_display = LJ::ljuser($journal);
+    my $journal_display = $journal->ljuser_display;
     my %statustext = (
                     'yourjournal'       => $BML::ML{'web.controlstrip.status.yourjournal'},
                     'yourfriendspage'   => $BML::ML{'web.controlstrip.status.yourreadingpage'},
@@ -2738,19 +2738,47 @@ sub control_strip
                     'trusted_by'        => BML::ml('web.controlstrip.status.trustedby', {'user' => $journal_display}),
                     'watched_by'        => BML::ml('web.controlstrip.status.watchedby', {'user' => $journal_display}),
                     );
-    # Style the status text
-    foreach my $key (keys %statustext) {
-        $statustext{$key} = "<span id='lj_controlstrip_statustext'>" . $statustext{$key} . "</span>";
-    }
 
-    my $ret;
+    # Vars for controlstrip.tt
+    my $template_args = {
+        'view' => $view,
+        'userpic_html' => '',
+        'userpic_class' => 'lj_controlstrip_userpic',
+        'logo_html' => ( LJ::Hooks::run_hook( 'control_strip_logo', $remote, $journal ) || '' ),
+        'show_login_form' => 0,
+        'login_chal' => '',
+        'links' => \%links,
+        'statustext' => '',
+        # remote # only set if logged in
+            # .user
+            # .sessid
+            # .display
+            # .is_validated
+            # .is_identity
+        'actionlinks' => [],
+        # filters # only set if viewing reading or network page
+            # .all => []
+            # .selected => ""
+        'viewoptions' => [],
+        'search_html' => LJ::Widget::Search->render,
+    };
+
+    # Shortcuts for the two nested array refs that get repeatedly dereferenced later
+    my $actionlinks = $template_args->{'actionlinks'};
+    my $viewoptions = $template_args->{'viewoptions'};
+
     if ($remote) {
-        my $remote_display  = LJ::ljuser($remote);
         my $userpic = $remote->userpic;
+        $template_args->{'remote'} = {
+            'sessid' => $remote->session->id || 0,
+            'user' => $remote->user,
+            'display' => $remote->ljuser_display,
+            'is_validated' => $remote->is_validated,
+            'is_identity' => $remote->is_identity,
+        };
         if ( $userpic ) {
             my $wh = $userpic->img_fixedsize( width => 43, height => 43 );
-            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/manage/icons'>";
-            $ret .= "<img src='" . $userpic->url . "' alt=\"$BML::ML{'web.controlstrip.userpic.alt'}\" title=\"$BML::ML{'web.controlstrip.userpic.title'}\" $wh /></a></td>";
+            $template_args->{'userpic_html'} = "<a href='$LJ::SITEROOT/manage/icons'><img src='" . $userpic->url . "' alt=\"$BML::ML{'web.controlstrip.userpic.alt'}\" title=\"$BML::ML{'web.controlstrip.userpic.title'}\" $wh /></a>";
         } else {
             my $tinted_nouserpic_img = "";
 
@@ -2766,37 +2794,21 @@ sub control_strip
                     }
                 }
             }
-            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/manage/icons'>";
             if ($tinted_nouserpic_img eq "") {
-                $ret .= "<img src='$LJ::IMGPREFIX/controlstrip/nouserpic.gif' ";
-            } else {
-                $ret .= "<img src='$tinted_nouserpic_img' ";
+                $tinted_nouserpic_img = "$LJ::IMGPREFIX/controlstrip/nouserpic.gif";
             }
-            $ret .= "alt=\"$BML::ML{'web.controlstrip.nouserpic.alt'}\" title=\"$BML::ML{'web.controlstrip.nouserpic.title'}\" height='43' width='43' />";
-            $ret .= "</a></td>";
+            $template_args->{'userpic_html'} = "<a href='$LJ::SITEROOT/manage/icons'><img src='$tinted_nouserpic_img' alt=\"$BML::ML{'web.controlstrip.nouserpic.alt'}\" title=\"$BML::ML{'web.controlstrip.nouserpic.title'}\" height='43' width='43' /></a>";
         }
-        $ret .= "<td id='lj_controlstrip_user' nowrap='nowrap'><form id='Greeting' class='nopic' action='$LJ::SITEROOT/logout?ret=1' method='post'><div>";
-        $ret .= "<input type='hidden' name='user' value='$remote->{'user'}' />";
-        $ret .= "<input type='hidden' name='sessid' value='$remote->{'_session'}->{'sessid'}' />"
-            if $remote->session;
-        my $logout = "<input type='submit' value=\"$BML::ML{'web.controlstrip.btn.logout'}\" id='Logout' />";
-        $ret .= "$remote_display $logout";
-        $ret .= "&nbsp;&nbsp; $links{confirm}" unless $remote->is_validated;
-        $ret .= "</div></form>\n";
-        $ret .= "$links{home}&nbsp;&nbsp; $links{post_journal}&nbsp;&nbsp;" unless $remote->is_identity;
-        $ret .= "$links{view_friends_page}&nbsp;&nbsp;$links{settings}&nbsp;&nbsp;$links{inbox}";
-        $ret .= "</td>\n";
 
-        $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
         if ( $remote->equals( $journal ) ) {
             if ( $view_is->( "read" ) ) {
-                $ret .= $statustext{'yourfriendspage'};
+                $template_args->{'statustext'} = $statustext{'yourfriendspage'};
             } elsif ( $view_is->( "network" ) ) {
-                $ret .= $statustext{'yourfriendsfriendspage'};
+                $template_args->{'statustext'} = $statustext{'yourfriendsfriendspage'};
             } else {
-                $ret .= $statustext{'yourjournal'};
+                $template_args->{'statustext'} = $statustext{'yourjournal'};
             }
-            $ret .= "<br />";
+
             if ( $view_is->( "read" ) || $view_is->( "network" ) ) {
                 my @filters = ("all", $BML::ML{'web.controlstrip.select.friends.all'}, "showpeople", $BML::ML{'web.controlstrip.select.friends.journals'}, "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'}, "showsyndicated", $BML::ML{'web.controlstrip.select.friends.feeds'});
                 # content_filters returns an array of content filters this user had, sorted by sortorder
@@ -2836,15 +2848,16 @@ sub control_strip
                     $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
                 }
 
-                $ret .= "$links{'manage_friends'}&nbsp;&nbsp; ";
-                $ret .= "$BML::ML{'web.controlstrip.select.friends.label'} <form method='post' style='display: inline;' action='$LJ::SITEROOT/manage/circle/filter'>\n";
-                $ret .= LJ::html_hidden( "user", $remote->{'user'}, "mode", "view", "type", "allfilters", "pageview", $view );
-                $ret .= LJ::html_select({'name' => "view", 'selected' => $selected }, @filters) . " ";
-                $ret .= LJ::html_submit($BML::ML{'web.controlstrip.btn.view'});
-                $ret .= "</form>";
-                # drop down for various groups and show values
+                push( @$actionlinks, $links{'manage_friends'} );
+
+                # Data for the reading list filter drop-down:
+                $template_args->{'filters'} = {
+                    'all' => \@filters,
+                    'selected' => $selected,
+                };
+
             } else {
-                $ret .= "$links{'recent_comments'}&nbsp;&nbsp; $links{'manage_entries'}&nbsp;&nbsp; $links{'invite_friends'}";
+                push( @$actionlinks, $links{'recent_comments'}, $links{'manage_entries'}, $links{'invite_friends'} );
             }
         } elsif ($journal->is_personal || $journal->is_identity) {
             my $trusted = $remote->trusts( $journal );
@@ -2855,61 +2868,61 @@ sub control_strip
             my $mutual_watch = $watched && $watched_by ? 1 : 0;
 
             if ( $mutual_trust && $mutual_watch ) {
-                $ret .= "$statustext{mutualtrust_mutualwatch}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{mutualtrust_mutualwatch};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $mutual_trust && $watched ) {
-                $ret .= "$statustext{mutualtrust_watch}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{mutualtrust_watch};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $mutual_trust && $watched_by ) {
-                $ret .= "$statustext{mutualtrust_watchedby}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{mutualtrust_watchedby};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $trusted && $mutual_watch ) {
-                $ret .= "$statustext{trust_mutualwatch}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{trust_mutualwatch};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $trusted_by && $mutual_watch ) {
-                $ret .= "$statustext{trustedby_mutualwatch}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{trustedby_mutualwatch};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $mutual_trust ) {
-                $ret .= "$statustext{mutualtrust}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{mutualtrust};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $mutual_watch ) {
-                $ret .= "$statustext{mutualwatch}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{mutualwatch};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $trusted && $watched ) {
-                $ret .= "$statustext{trust_watch}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{trust_watch};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $trusted && $watched_by ) {
-                $ret .= "$statustext{trust_watchedby}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{trust_watchedby};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $trusted_by && $watched ) {
-                $ret .= "$statustext{trustedby_watch}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{trustedby_watch};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $trusted_by && $watched_by ) {
-                $ret .= "$statustext{trustedby_watchedby}<br />";
-                $ret .= "$links{add_friend}";
+                $template_args->{'statustext'} = $statustext{trustedby_watchedby};
+                push( @$actionlinks, $links{add_friend} );
             } elsif ( $trusted ) {
-                $ret .= "$statustext{trusted}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{trusted};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $trusted_by ) {
-                $ret .= "$statustext{trusted_by}<br />";
-                $ret .= "$links{add_friend}";
+                $template_args->{'statustext'} = $statustext{trusted_by};
+                push( @$actionlinks, $links{add_friend} );
             } elsif ( $watched ) {
-                $ret .= "$statustext{watched}<br />";
-                $ret .= "$links{edit_friend}";
+                $template_args->{'statustext'} = $statustext{watched};
+                push( @$actionlinks, $links{edit_friend} );
             } elsif ( $watched_by ) {
-                $ret .= "$statustext{watched_by}<br />";
-                $ret .= "$links{add_friend}";
+                $template_args->{'statustext'} = $statustext{watched_by};
+                push( @$actionlinks, $links{add_friend} );
             } else {
                 if ( $view_is->( "read" ) ) {
-                    $ret .= $statustext{'personalfriendspage'};
+                    $template_args->{'statustext'} = $statustext{'personalfriendspage'};
                 } elsif ( $view_is->( "network" ) ) {
-                    $ret .= $statustext{'personalfriendsfriendspage'};
+                    $template_args->{'statustext'} = $statustext{'personalfriendsfriendspage'};
                 } else {
-                    $ret .= $statustext{'personal'};
+                    $template_args->{'statustext'} = $statustext{'personal'};
                 }
-                $ret .= "<br />$links{'add_friend'}";
+                push( @$actionlinks, $links{'add_friend'} );
             }
-            $ret .= "&nbsp;&nbsp; $links{'track_user'}";
+            push( @$actionlinks, $links{'track_user'} );
         } elsif ($journal->is_community) {
             my $watching = $remote->watches( $journal );
             my $memberof = $remote->member_of( $journal );
@@ -2917,129 +2930,101 @@ sub control_strip
             my $isclosedcommunity = $journal->is_closed_membership;
 
             if ( $remote->can_manage_other( $journal ) ) {
-                $ret .= "$statustext{maintainer}<br />";
-                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                $template_args->{'statustext'} = "$statustext{maintainer}";
+                push( @$actionlinks, $links{post_to_community} )
                     if $haspostingaccess;
 
                 if ( $journal->prop( 'moderated' ) ) {
-                    $ret .= "$links{queue} [" . $journal->get_mod_queue_count . "]&nbsp;&nbsp;";
+                    push( @$actionlinks, "$links{queue} [" . $journal->get_mod_queue_count . "]");
                 } else {
-                    $ret .= "$links{edit_community_profile}&nbsp;&nbsp;";
+                    push( @$actionlinks, $links{edit_community_profile} );
                 }
 
-                $ret .= "$links{edit_community_invites}&nbsp;&nbsp;$links{edit_community_members}";
+                push( @$actionlinks, $links{edit_community_invites}, $links{edit_community_members} );
 
             } elsif ($watching && $memberof) {
-                $ret .= "$statustext{memberwatcher}<br />";
-                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                $template_args->{'statustext'} = $statustext{memberwatcher};
+                push( @$actionlinks, $links{post_to_community} )
                     if $haspostingaccess;
-                $ret .= $links{leave_community};
-                $ret .= "&nbsp;&nbsp;" . $links{track_community};
+                push( @$actionlinks, $links{leave_community} );
+                push( @$actionlinks, $links{track_community} );
 
             } elsif ($watching) {
-                $ret .= "$statustext{watcher}<br />";
-                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                $template_args->{'statustext'} = $statustext{watcher};
+                push( @$actionlinks, $links{post_to_community} )
                     if $haspostingaccess;
-                $ret .= $isclosedcommunity ? "This is a closed community&nbsp;&nbsp; " :
-                     "$links{join_community}&nbsp;&nbsp; ";
-                $ret .= $links{unwatch_community};
-                $ret .= "&nbsp;&nbsp;" . $links{track_community};
+                push( @$actionlinks, $isclosedcommunity ?
+                    "This is a closed community" :
+                     $links{join_community}
+                );
+                push( @$actionlinks, $links{unwatch_community} );
+                push( @$actionlinks, $links{track_community} );
 
             } elsif ($memberof) {
-                $ret .= "$statustext{member}<br />";
-                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                $template_args->{'statustext'} = $statustext{member};
+                push( @$actionlinks, $links{post_to_community} )
                     if $haspostingaccess;
-                $ret .= "$links{watch_community}&nbsp;&nbsp; $links{'leave_community'}";
-                $ret .= "&nbsp;&nbsp;" . $links{track_community};
+                push( @$actionlinks, $links{watch_community}, $links{'leave_community'}, $links{track_community} );
 
             } else {
-                $ret .= "$statustext{community}<br />";
-                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                $template_args->{'statustext'} = $statustext{community};
+                push( @$actionlinks, $links{post_to_community} )
                     if $haspostingaccess;
-                $ret .= $isclosedcommunity ? "This is a closed community&nbsp;&nbsp; " :
-                    "$links{join_community}&nbsp;&nbsp; ";
-                $ret .= $links{watch_community};
-                $ret .= "&nbsp;&nbsp;" . $links{track_community};
+                push( @$actionlinks, $isclosedcommunity ?
+                    "This is a closed community" :
+                    $links{join_community}
+                );
+                push( @$actionlinks, $links{watch_community}, $links{track_community} );
             }
         } elsif ($journal->is_syndicated) {
-            $ret .= "$statustext{syn}<br />";
+            $template_args->{'statustext'} = $statustext{syn};
             if ( $remote && !$remote->watches( $journal ) ) {
-                $ret .= "$links{add_friend}&nbsp;&nbsp; ";
+                push( @$actionlinks, $links{add_friend} );
             } elsif ( $remote && $remote->watches( $journal ) ) {
-                $ret .= "$links{remove_friend}&nbsp;&nbsp; ";
+                push( @$actionlinks, $links{remove_friend} );
             }
-            $ret .= $links{syndicated_list};
+            push( @$actionlinks, $links{syndicated_list} );
         } else {
-            $ret .= "$statustext{other}<br />";
-            $ret .= "&nbsp;";
+            $template_args->{'statustext'} = $statustext{other};
         }
 
-        $ret .= LJ::Hooks::run_hook('control_strip_logo', $remote, $journal) || '';
-        $ret .= "</td>";
 
     } else {
 
         my $show_login_form = LJ::Hooks::run_hook("show_control_strip_login_form", $journal);
         $show_login_form = 1 if !defined $show_login_form;
 
+        $template_args->{'show_login_form'} = $show_login_form;
+
         if ($show_login_form) {
-            my $chal = LJ::challenge_generate(300);
-            my $contents = LJ::Hooks::run_hook('control_strip_userpic_contents', $euri) || "&nbsp;";
-            $ret .= <<"LOGIN_BAR";
-                <td id='lj_controlstrip_userpic'>$contents</td>
-                <td id='lj_controlstrip_login' style='background-image: none;' nowrap='nowrap'><form id="login" class="lj_login_form" action="$LJ::SITEROOT/login?ret=1" method="post"><div>
-                <input type="hidden" name="mode" value="login" />
-                <input type='hidden' name='chal' id='login_chal' class='lj_login_chal' value='$chal' />
-                <input type='hidden' name='response' id='login_response' class='lj_login_response' value='' />
-                <table summary='' cellspacing="0" cellpadding="0" style="margin-right: 1em;"><tr><td>
-                <label for="xc_user">$BML::ML{'/login.bml.login.username'}</label> <input type="text" name="user" size="7" maxlength="27" tabindex="1" id="xc_user" value="" />
-                </td><td>
-                <label style="margin-left: 3px;" for="xc_password">$BML::ML{'/login.bml.login.password'}</label> <input type="password" name="password" size="7" tabindex="2" id="xc_password" class='lj_login_password' />
-LOGIN_BAR
-            $ret .= "<input type='submit' value=\"$BML::ML{'web.controlstrip.btn.login'}\" tabindex='4' />";
-            $ret .= "</td></tr>";
-
-            $ret .= "<tr><td valign='top'>";
-            $ret .= "<a href='$LJ::SITEROOT/openid/' tabindex='5'>$BML::ML{'web.controlstrip.login.openid'}</a>";
-            $ret .= " <a href='$LJ::SITEROOT/lostinfo' tabindex='6'>$BML::ML{'web.controlstrip.login.forgot'}</a>";
-            $ret .= "</td><td style='font: 10px Arial, Helvetica, sans-serif;' valign='top' colspan='2' align='right'>";
-            $ret .= "<input type='checkbox' id='xc_remember' name='remember_me' style='height: 10px; width: 10px;' tabindex='3' />";
-            $ret .= "<label for='xc_remember'>$BML::ML{'web.controlstrip.login.remember'}</label>";
-            $ret .= "</td></tr></table>";
-
-            $ret .= '</div></form></td>';
+            $template_args->{'userpic_html'} = LJ::Hooks::run_hook('control_strip_userpic_contents', $euri) || "&nbsp;";
+            $template_args->{'login_chal'} = LJ::challenge_generate(300);
         } else {
-            my $contents = LJ::Hooks::run_hook('control_strip_loggedout_userpic_contents', $euri) || "&nbsp;";
-            $ret .= "<td id='lj_controlstrip_loggedout_userpic'>$contents</td>";
+            $template_args->{'userpic_class'} = 'lj_controlstrip_loggedout_userpic'; # NF: ugh, WHY.
+            $template_args->{'userpic_html'} = LJ::Hooks::run_hook('control_strip_loggedout_userpic_contents', $euri) || "&nbsp;";
         }
-
-        $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
 
         if ($journal->is_personal || $journal->is_identity) {
             if ( $view_is->( "read" ) ) {
-                $ret .= $statustext{'personalfriendspage'};
+                $template_args->{'statustext'} = $statustext{'personalfriendspage'};
             } elsif ( $view_is->( "network" )  ){
-                $ret .= $statustext{'personalfriendsfriendspage'};
+                $template_args->{'statustext'} = $statustext{'personalfriendsfriendspage'};
             } else {
-                $ret .= $statustext{'personal'};
+                $template_args->{'statustext'} = $statustext{'personal'};
             }
         } elsif ($journal->is_community) {
-            $ret .= $statustext{'community'};
+            $template_args->{'statustext'} = $statustext{'community'};
         } elsif ($journal->is_syndicated) {
-            $ret .= $statustext{'syn'};
+            $template_args->{'statustext'} = $statustext{'syn'};
         } else {
-            $ret .= $statustext{'other'};
+            $template_args->{'statustext'} = $statustext{'other'};
         }
 
-        $ret .= "<br />";
-        $ret .= "$links{'login'}&nbsp;&nbsp; " unless $show_login_form;
-        $ret .= "$links{'create_account'}&nbsp;&nbsp; $links{'learn_more'}";
-        $ret .= LJ::Hooks::run_hook( 'control_strip_logo', $remote, $journal ) || '';
-        $ret .= "</td>";
+        push( @$actionlinks, $links{'login'} ) unless $show_login_form;
+        push( @$actionlinks, $links{'create_account'}, $links{'learn_more'} );
     }
 
     # search box and ?style=mine/?style=light/?style=original/?style=site options
-    my @view_options;
     # determine whether style is "mine", and define new uri variable to manipulate
     # note: all expressions case-insensitive
     my $current_style = determine_viewing_style( $r->get_args, $view, $remote );
@@ -3062,32 +3047,25 @@ LOGIN_BAR
         # only want to offer this option if user is logged in and it's not their own journal, since
         # original will take care of that
         if ( $view_type eq "mine" and $current_style ne $view_type and $remote and not $remote->equals( $journal ) ) {
-            push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
+            push @$viewoptions, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle2' ) . "</a>";
         } elsif ( $view_type eq "site" and $current_style ne $view_type and defined $view and {
                 entry => 1,
                 reply => 1,
                 icons => 1,
             }->{$view} ) {
-            push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
+            push @$viewoptions, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.sitestyle' ) . "</a>";
         } elsif ( $view_type eq "light" and $current_style ne $view_type ) {
-            push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
+            push @$viewoptions, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle2' ) . "</a>";
         } elsif ( $view_type eq "original" and $current_style ne $view_type ) {
-            push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
+            push @$viewoptions, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.origstyle2' ) . "</a>";
         }
     }
 
-    $ret .= "<td id='lj_controlstrip_search'>";
-    $ret .= LJ::Widget::Search->render;
-    $ret .= LJ::Lang::ml( 'web.controlstrip.reloadpage2' ) . "&nbsp;&nbsp; "
-        if @view_options;
-    $ret .= join( "&nbsp;&nbsp; ", @view_options );
-    $ret .= "</td>";
-
-    return "<table summary='' id='lj_controlstrip' cellpadding='0' cellspacing='0'><tr valign='top'>$ret</tr></table>";
+    return DW::Template->template_string( 'journal/controlstrip.tt', $template_args );
 }
 
 sub control_strip_js_inject

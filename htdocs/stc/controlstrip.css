@@ -105,6 +105,18 @@ html body
     margin: 0;
 }
 
+/* Fussy nonsense: */
+label[for="xc_password"]
+{
+    margin-left: 3px;
+}
+
+#lj_controlstrip input#xc_remember
+{
+    height: 10px;
+    width: 10px;
+}
+
 /* First cell */
 #lj_controlstrip_userpic
 {
@@ -152,6 +164,12 @@ html body
     padding-left: 1em;
     width: 28em; 
     white-space: nowrap;
+}
+
+/* Read/network page filter form */
+#lj_controlstrip_readfilter
+{
+    display: inline;
 }
 
 /* First cell logged out */

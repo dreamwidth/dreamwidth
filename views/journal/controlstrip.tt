@@ -1,0 +1,126 @@
+<table summary='' id='lj_controlstrip' cellpadding='0' cellspacing='0'><tr valign='top'>
+
+<td id='[% userpic_class %]'>[% userpic_html %]</td>
+
+[%- IF remote -%]
+  <td id='lj_controlstrip_user' nowrap='nowrap'>
+    <form id='Greeting' class='nopic' action='[%- site.root -%]/logout?ret=1' method='post'>
+      <div>
+        [%- form.hidden( name = "user", value = remote.user ) -%]
+        [%- IF remote.sessid -%]
+          [%- form.hidden( name = "sessid", value = remote.sessid ) -%]
+        [%- END -%]
+        [% remote.display %]
+        [% form.submit(
+            id = "Logout",
+            value = dw.ml( 'web.controlstrip.btn.logout' )
+        ) %]
+        [%- UNLESS remote.is_validated -%]
+          &nbsp;&nbsp; [% links.confirm %]
+        [%- END -%]
+      </div>
+    </form>
+    [%- UNLESS remote.is_identity -%]
+      [%- links.home -%]&nbsp;&nbsp; [%- links.post_journal -%]&nbsp;&nbsp;
+    [%- END -%]
+    [%- links.view_friends_page -%]&nbsp;&nbsp;[%- links.settings -%]&nbsp;&nbsp;[%- links.inbox -%]
+  </td>
+[%- ELSIF show_login_form -%]
+  <td id='lj_controlstrip_login' style='background-image: none;' nowrap='nowrap'>
+    <form id="login" class="lj_login_form" action="[%- site.root -%]/login?ret=1" method="post">
+      <div>
+        [%- form.hidden( name = "mode", value = "login" ) -%]
+        [%- form.hidden(
+            name = "chal",
+            value = login_chal,
+            class = "lj_login_chal",
+            id = "login_chal"
+        ) -%]
+        [%- form.hidden(
+            name = "response",
+            value = "",
+            id = "login_response",
+            class = "lj_login_response"
+        ) -%]
+
+        <table summary='' cellspacing="0" cellpadding="0" style="margin-right: 1em;">
+          <tr>
+            <td>
+              [% form.textbox(
+                  name = "user",
+                  label = dw.ml( '/login.bml.login.username' ),
+                  size = "7",
+                  maxlength = "27",
+                  tabindex = "1",
+                  id = "xc_user",
+                  value = ""
+              ) %]
+            </td>
+            <td>
+              [% form.password(
+                  name = "password",
+                  label = dw.ml( '/login.bml.login.password' ),
+                  size = "7",
+                  tabindex = "2",
+                  id = "xc_password",
+                  class = "lj_login_password"
+              ) %]
+              [% form.submit(
+                  value = dw.ml( 'web.controlstrip.btn.login' ),
+                  tabindex = "4"
+              ) %]
+            </td>
+          </tr>
+          <tr>
+            <td valign='top'>
+              <a href='[%- site.root -%]/openid/' tabindex='5'>[%- 'web.controlstrip.login.openid' | ml -%]</a>
+              <a href='[%- site.root -%]/lostinfo' tabindex='6'>[%- 'web.controlstrip.login.forgot' | ml -%]</a>
+            </td>
+            <td style='font: 10px Arial, Helvetica, sans-serif;' valign='top' colspan='2' align='right'>
+              [% form.checkbox(
+                  name = "remember_me",
+                  label = dw.ml( 'web.controlstrip.login.remember' ),
+                  id = "xc_remember",
+                  tabindex = "3"
+              ) %]
+            </td>
+          </tr>
+        </table>
+      </div>
+    </form>
+  </td>
+[%- END -%]
+
+<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>
+  <span id='lj_controlstrip_statustext'>[%- statustext -%]</span>
+  <br />
+  [%- actionlinks.join("&nbsp;&nbsp;") -%]
+
+  [%- IF filters -%]
+      &nbsp;&nbsp; [% 'web.controlstrip.select.friends.label' | ml %] <form method='post' id='lj_controlstrip_readfilter' action='[%- site.root -%]/manage/circle/filter'>
+      [%- form.hidden( name = "user", value = remote.user ) -%]
+      [%- form.hidden( name = "mode", value = "view" ) -%]
+      [%- form.hidden( name = "type", value = "allfilters" ) -%]
+      [%- form.hidden( name = "pageview", value = view ) -%]
+
+      [%- form.select(
+          name = "view",
+          selected = filters.selected,
+          items = filters.all
+      ) %]
+      [% form.submit( value = dw.ml( 'web.controlstrip.btn.view' ) ) %]
+      </form>
+  [%- END -%]
+
+  [%- logo_html -%]
+</td>
+
+<td id='lj_controlstrip_search'>
+[%- search_html -%]
+[%- IF viewoptions -%]
+  [%- 'web.controlstrip.reloadpage2' | ml -%]&nbsp;&nbsp;
+  [%- viewoptions.join("&nbsp;&nbsp; ") -%]
+[%- END -%]
+</td>
+
+</tr></table>
