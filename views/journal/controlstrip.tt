@@ -4,8 +4,9 @@
 
 [%- IF remote -%]
   <td id='lj_controlstrip_user' nowrap='nowrap'>
-    <form id='Greeting' class='nopic' action='[%- site.root -%]/logout?ret=1' method='post'>
+    <form id='Greeting' class='nopic' action='[%- site.root -%]/logout' method='post'>
       <div>
+        [%- dw.form_auth -%]
         [%- form.hidden( name = "user", value = remote.user ) -%]
         [%- IF remote.sessid -%]
           [%- form.hidden( name = "sessid", value = remote.sessid ) -%]
@@ -13,6 +14,7 @@
         [% remote.display %]
         [% form.submit(
             id = "Logout",
+            name = "logout_one",
             value = dw.ml( 'web.controlstrip.btn.logout' )
         ) %]
         [%- UNLESS remote.is_validated -%]
