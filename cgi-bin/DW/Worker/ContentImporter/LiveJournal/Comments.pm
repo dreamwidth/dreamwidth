@@ -573,7 +573,7 @@ sub try_work {
 sub do_authed_comment_fetch {
     my ( $class, $data, $mode, $startid, $numitems, $log ) = @_;
     my $authas = $data->{usejournal} ? "&authas=$data->{usejournal}" : '';
-    my $url = "http://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems&props=1$authas";
+    my $url = "https://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems&props=1$authas";
 
     # see if the file is cached and recent. this is mostly a hack useful for debugging
     # when something goes bad, or if we somehow get stuck in a loop. at least we won't
