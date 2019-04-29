@@ -56,6 +56,20 @@ sub init_call_opts {
     $self->{subpatterns} = $args;
 }
 
+=head2 C<< $self->init_class_call_opts( $hash, $class, $subpatterns ) >>
+
+Initalizes the call opts.
+
+=cut
+
+sub init_class_call_opts {
+    my ($self, $hash, $class, $args) = @_;
+
+    $self->{__hash} = $hash;
+    $self->{__class} = $class;
+    $self->{subpatterns} = $args;
+}
+
 =head2 C<< $self->prepare_for_call >>
 
 Prepares this CallInfo for being called.
@@ -79,7 +93,15 @@ sub call {
 
     my @args;
     @args = @{$opts->subpatterns} if ( $opts->subpatterns );
-    $opts->{__hash}->{sub}->( $opts, @args );
+    my $hash = $opts->{__hash};
+    # FIXME comment this
+    if ( $hash->{class} ) {
+        my $class = $hash->{class};
+        my $sub = $hash->{sub};
+        $class->$sub( $opts, @args );
+    } else {
+        $hash->{sub}->( $opts, @args );
+    }
 }
 
 =head1 Controller API
@@ -132,7 +154,9 @@ Returns the API version requested.
 
 =cut
 
-sub apiver { return $_[0]->{apiver}; }
+sub apiver { 
+    return $_[0]->{apiver};
+ }
 
 =head2 C<< $self->role >>
 
