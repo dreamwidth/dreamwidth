@@ -71,7 +71,7 @@ my %host_path_match = (
     "episodecalendar.com"   => [ qr!^/icalendar/!, 0 ],
 
     "www.flickr.com"        => [ qr!/player/$!, 1 ],
-    "funnyordie.com"        => [ qr!/embed/!, 1 ],
+    "www.funnyordie.com"        => [ qr!/embed/!, 1 ],
 
     "www.goodreads.com"     => [ qr!^/widgets/!, 1 ],
     "giphy.com"             => [ qr!^/embed/\w+!, 1 ],
@@ -83,6 +83,7 @@ my %host_path_match = (
     # forms arent being allowed for security concerns.
     "docs.google.com"       => [ qr!^/(document|spreadsheets?|presentation)/!, 1 ],
     "books.google.com"      => [ qr!^/ngrams/!, 1 ],
+    "player.gimletmedia.com"=> [qr!^/\w+$!, 1],
 
     "imgur.com"             => [ qr!^/a/.+?/embed!, 1 ],
     "instagram.com"         => [ qr!^/p/.*/embed/$!, 1 ],
@@ -106,8 +107,10 @@ my %host_path_match = (
 
     "playmoss.com"          => [ qr!^/embed/!, 1 ],
     "www.plurk.com"         => [ qr!^/getWidget$!, 1 ],
+    "pastebin.com"			=> [ qr!^/embed_iframe/\w+$!, 1 ],
 
     "www.reverbnation.com"  => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
+    "www.random.org"		=> [ qr!^/widgets/integers/iframe.php$!, 1 ],
 
     "www.sbs.com.au"        => [ qr!/player/embed/!, 0 ],  # best guess; language parameter before /player may vary
     "scratch.mit.edu"       => [ qr!^/projects/embed/!, 1 ],
@@ -115,7 +118,9 @@ my %host_path_match = (
     "www.slideshare.net"    => [ qr!^/slideshow/embed_code/!, 1 ],
     "w.soundcloud.com"      => [ qr!^/player/!, 1 ],
     "embed.spotify.com"     => [ qr!^/$!, 1 ],
-    "open.spotify.com"      => [ qr!^/($)|(embed/track/\w+$)!, 1 ],
+    "open.spotify.com"      => [ qr!^/($)|(embed/[/\w]+)!, 1 ],
+    "www.strava.com"       => [ qr!^/activities/\d+/embed/\w+$!, 1 ],
+    "streamable.com"        => [ qr!^/s/!, 1 ],
 
     "embed.ted.com"         => [ qr!^/talks/!, 1 ],
 
