@@ -3056,6 +3056,40 @@ CREATE TABLE `logslugs` (
 )
 EOC
 
+register_tablecreate("api_key", <<'EOC');
+CREATE TABLE `api_key` (
+  `userid` int(10) unsigned NOT NULL,
+  `keyid` int(10) unsigned NOT NULL,
+  `hash` char(32) UNIQUE NOT NULL,
+  `state` char(1) NOT NULL DEFAULT 'A',
+  PRIMARY KEY (`userid`,`keyid`),
+  INDEX(`hash`)
+)
+EOC
+
+register_tablecreate("key_props", <<'EOC');
+CREATE TABLE `key_props` (
+  `userid` int(10) unsigned NOT NULL,
+  `keyid` int(10) unsigned NOT NULL,
+  `propid` tinyint(3) unsigned NOT NULL,
+  `value` MEDIUMBLOB NOT NULL,
+  PRIMARY KEY (`userid`, `keyid`, `propid`)
+)
+EOC
+
+register_tablecreate("key_prop_list", <<'EOC');
+CREATE TABLE `key_prop_list` (
+  `propid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  `prettyname` varchar(60) DEFAULT NULL,
+  `ownership` enum('system','user') NOT NULL DEFAULT 'user',
+  `scope` enum('general','local') NOT NULL DEFAULT 'general',
+  `des` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`propid`),
+  UNIQUE KEY `name` (`name`)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes

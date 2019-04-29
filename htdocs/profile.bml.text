@@ -165,8 +165,6 @@
 
 .im.skype=Skype
 
-.im.yim=Yahoo!
-
 .label.addbuddy=Add Buddy
 
 .label.adduser=Add User
@@ -279,8 +277,6 @@
 
 .label.website=Website:
 
-.label.yahooid=Yahoo! ID:
-
 .linking.about=To link to this user, copy this code:
 
 .linking.anywhere=Elsewhere:
@@ -370,8 +366,6 @@
 .sendmessage.body2=<a [[aopts]]>Send [[user]] a text message</a><br />on his/her cellphone/pager.
 
 .service.ao3=Archive of Our Own
-
-.service.delicious=Delicious
 
 .service.deviantart=DeviantArt
 

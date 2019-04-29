@@ -1,0 +1,40 @@
+---
+paths:
+  /users/{username}/icons:
+    parameters:
+      - name: username
+        in: path
+        description: The username you want icon information for
+        required: true
+        schema:
+          type: string
+    get:
+      description: Returns all icons for a specified username.
+      responses:
+        200:
+          description: a list of icons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                  - comment
+                  - picid
+                  - username
+                  - url
+                  - keywords
+                  properties:
+                    comment:
+                      type: string
+                    picid:
+                      type: integer
+                    username:
+                      type: string
+                    url:
+                      type: string
+                    keywords:
+                      type: array
+                      items:
+                        type: string

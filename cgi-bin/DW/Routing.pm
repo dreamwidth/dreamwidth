@@ -39,6 +39,7 @@ our %regex_choices = (
     api  => []
 );
 our %api_endpoints; # ver => { string => hash }
+our %api_rest_endpoints; # ver => { string => hash }
 
 our $T_TESTING_ERRORS;
 
@@ -132,11 +133,30 @@ sub get_call_opts {
     # APIs are versioned, so we only want to check for endpoints that match
     # the version the user is requesting.
     if ( $call_opts->role eq 'api' ) {
-        return unless exists $api_endpoints{$call_opts->apiver};
-        my $hash = $api_endpoints{$call_opts->apiver}->{$uri}
-            or return;
-        $call_opts->init_call_opts( $hash );
-        return $call_opts;
+        # check the static endpoints for this api version first
+        if ( exists $api_endpoints{$call_opts->apiver} ) {
+            my $hash = $api_endpoints{$call_opts->apiver}->{$uri};
+            if ( $hash ) {
+                $call_opts->init_call_opts( $hash );
+                return $call_opts;
+            }
+        }
+        # if there's no static match, check the regexes
+        my $endpoints_for_version = $api_rest_endpoints{$call_opts->apiver};
+        if ( $endpoints_for_version ) {
+            # check for a match for each regex in this version
+            foreach my $regex ( keys %{$endpoints_for_version} ) {
+                # this actually checks the regex and, if there's a match,
+                # populates the @args with matched groups
+                if ( ( my @args = $uri =~ $regex ) ) {
+                    my $call_def = $endpoints_for_version->{ $regex };
+                    $call_opts->init_call_opts( $call_def, \@args );
+                    return $call_opts;
+                }
+            }
+        }
+        # if it's not found in either, just return.
+        return;
     }
 
     # try the string options first as they're fast
@@ -553,6 +573,50 @@ sub register_api_endpoints {
     my $class = shift;
     foreach my $row ( @_ ) {
         $class->register_api_endpoint( $row->[0], $row->[1], version => $row->[2] );
+    }
+}
+
+=head2 C<< $class->register_api_rest_endpoint( $string, $sub, %opts ) >>
+
+=over
+
+=item string
+
+=item sub - sub
+
+=item opts (see register_regex)
+
+=back
+
+=cut
+
+sub register_api_rest_endpoint {
+    my ( $class, $string, $sub, $controller_class, %opts ) = @_;
+    
+    croak 'register_api_rest_endpoint must have version option'
+        unless exists $opts{version};
+
+    my $hash = _apply_defaults( \%opts, {
+        class  => $controller_class,
+        sub    => $sub,
+        format => 'json',
+    });
+
+    my $vers = ref $opts{version} eq 'ARRAY' ? $opts{version} :
+        [ $opts{version} + 0 ];
+    croak 'register_api_version requires all versions >= 1'
+        if grep { $_ <= 0 } @$vers;
+
+    # Now register this string at all versions that they gave us.
+    $api_rest_endpoints{$_}->{$string} = $hash
+        foreach @$vers;
+}
+
+# internal helper for speed construction ...
+sub register_api_rest_endpoints {
+    my $class = shift;
+    foreach my $row ( @_ ) {
+        $class->register_api_rest_endpoint( $row->[0], $row->[1], $row->[2], version => $row->[3] );
     }
 }
 

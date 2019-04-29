@@ -7,8 +7,6 @@
 
 .chat.skype=Skype
 
-.chat.yahooid=Yahoo! ID
-
 .comms2=Display communities of which you are a member or administrator.
 
 .display.title=Display Settings for [[name]]
@@ -182,8 +180,6 @@
 .select.provider=-- Select Carrier --
 
 .services.ao3=AO3 Username
-
-.services.delicious=Delicious Username
 
 .services.deviantart=DeviantArt Username
 

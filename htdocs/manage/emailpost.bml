@@ -43,6 +43,7 @@ body<=
 {
     use strict;
     use vars qw(%POST %GET);
+    use DW::API::Key;
 
     return $ML{'.error.sitenotconfigured'} unless $LJ::EMAIL_POST_DOMAIN;
 
@@ -294,10 +295,11 @@ body<=
 #--------------------------------------------------------------------------
 
     # Update settings
-    if (LJ::did_post() && ! $POST{"action:token"}) {
+    if (LJ::did_post() && $POST{"save"}) {	    
         my @errors;
 
-        push @errors, $ML{'error.invalidform'} unless LJ::check_form_auth();
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+             unless LJ::check_form_auth();
 
         my $addresses = $POST{addresses};
         my $pin = $POST{pin};
@@ -354,7 +356,8 @@ body<=
             $ret .= "<?p FIXME: link to helpurl p?>";
         }
         return $ret;
-    }
+
+	}
 
 #--------------------------------------------------------------------------
 
@@ -362,9 +365,43 @@ body<=
 
     # if we just reset the token, add a header but show the original page still
     if ( LJ::did_post() && $POST{"action:token"}) {
+
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
         $ret .= $u->generate_emailpost_auth
                     ? "<div class='highlight-box'>$ML{'.reply.status.success'}</div>"
                     : "<div class='error-box'>$ML{'.reply.status.error'}</div>";
+    }
+
+    if ( LJ::did_post() && $POST{"action:apikey"}) {
+        
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+             unless LJ::check_form_auth();
+
+        $ret .= DW::API::Key->new_for_user($u)
+                    ? "<div class='highlight-box'>$ML{'.api.status.success'}</div>"
+                    : "<div class='error-box'>$ML{'.api.status.error'}</div>";
+    }
+
+    if ( LJ::did_post() && $POST{"action:delete"}) {
+        
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
+        my $deleted_keys .= $POST{"delete"};
+        foreach (split(/\0/, $deleted_keys)) {            
+            s/\s+//g;
+            next unless $_;
+            my $key = DW::API::Key->get_key($_);
+            
+            if (defined $key) {
+                $ret .= $key->delete($u) 
+                    ? "<div class='highlight-box'>" . BML::ml('.api.delete.success', {'key' => $key->{keyhash}}) . "</div>"
+                    : "<div class='highlight-box'>" . BML::ml('.api.delete.error', {'key' => $key->{keyhash}}) . "</div>";
+            }
+
+        }
     }
 
     # Initial page
@@ -385,6 +422,7 @@ body<=
         { "noauth" => 1, }
     );
 
+    my $apikeys = DW::API::Key->get_keys_for_user($u);
     my @trusted = $u->trust_groups;
     my @groups = map { $_->{'groupname'} } @trusted;
     my @userpics = @{ $res->{'pickws'} };
@@ -429,8 +467,30 @@ body<=
     $ret .= '</div><br />';
 
     $ret .= "<h1>$ML{'.reply.header'}</h1>";
-    $ret.= "<p>$ML{'.reply.text'}</p>";
+    $ret .= "<p>$ML{'.reply.text'}</p>";
     $ret .= "<input type='submit' value='$ML{'.reply.button'}' name='action:token'></input>";
+
+    $ret .= "<h1>$ML{'.api.header'}</h1>";
+    $ret .= "<p>$ML{'.api.text'}</p>";
+    if (@{ $apikeys }) {
+        $ret .= "<table border=\"0\">";
+        my $count = 0;
+        for my $key (@$apikeys) {
+            $ret .= '<tr><td>';
+            $ret .= $key->{keyhash};
+            $ret .= '</td><td>';
+            # TODO: actually support delete
+            $ret .= LJ::html_check({ name => 'delete', value => $key->{keyhash} });
+            $ret .= '</td></tr>';
+            $count++;
+        }
+        $ret .= '</table><br />';
+    } else {
+    	$ret .= "<p><b>$ML{ '.api.none'}</b></p>";
+    }
+    $ret .= "<input type='submit' value='$ML{'.api.button'}' name='action:apikey'></input>";
+    $ret .= "<input type='submit' value='$ML{'.api.button.delete'}' name='action:delete'></input>";
+
 
     $ret .= "<?h1 $ML{'.settings.header'} h1?>";
     $ret .= "<?p " . BML::ml('.settings.text', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?>";
@@ -464,7 +524,7 @@ body<=
 
 
     $ret .= qq{<div class='action-box'><ul class='inner nostyle'>};
-    $ret .= "<li>" . LJ::html_submit( $ML{'.save'} ) . "</li>";
+    $ret .= "<li>" . LJ::html_submit( 'save', $ML{'.save'}, { raw => "action=save"} ) . "</li>";
     $ret .= "</div><div class='clear-floats'></div>";
     $ret .= "</form>";
     $ret .= LJ::Hooks::run_hook('sms_footer');
