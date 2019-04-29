@@ -267,6 +267,13 @@ else { $navlinks_css = ""; }
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    if ($*image_background_header_height > 0) {
+    var int header_height = $*image_background_header_height - 2;
+        $header_background = """
+            $header_background
+            height: """ + $header_height + """px;""";
+    }
 
 
 
@@ -356,9 +363,9 @@ body {
     padding: 1px;
     background: none;}
 
-#header .inner {
+#header > .inner {
     padding: 1px 1em;
-    background: $*color_header_background;
+    $header_background
     }
 
 #content { border-color: $*color_page_background !important; }
