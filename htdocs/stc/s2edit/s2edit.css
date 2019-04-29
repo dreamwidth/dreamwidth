@@ -3,7 +3,6 @@ body {
 	margin: 0px;
 	padding: 0px;
 	font-family: Tahoma, sans-serif;
-	font-size: 8pt;
 	overflow: auto;
 }
 
@@ -32,7 +31,7 @@ div.header a, div.tools a {
 	padding: 0px 6px 0px 6px;
 }
 
-div.header .compilelink {
+div.header #compilelink {
 	color: #0000ff;
 	height: 16px;
 	font-size: 7pt;
@@ -125,7 +124,6 @@ textarea.maintext {
 	position: absolute;
 	border: solid #808080 1px;
 	font-family: monospace;
-	font-size: 8pt;
 	bottom: 0px;
 	right: 0px;
 	top: 0px;
@@ -192,6 +190,16 @@ div.statusbar {
 
 div.gutter {
 	float: right;
+}
+
+#out a {
+	text-decoration: underline;
+	color: #f44;
+}
+
+#out a:hover {
+	text-decoration: none;
+	color: #000000;
 }
 
 a {
@@ -274,3 +282,6 @@ a:hover {
 	white-space: nowrap;
 }
 
+body .CodeMirror {
+	height: 100%;
+}

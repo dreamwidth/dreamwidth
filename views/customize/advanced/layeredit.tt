@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[% title %] - S2 Designer</title>
+<link rel="stylesheet" href="/stc/s2edit/s2edit.css">
+<link rel="stylesheet" href="/stc/s2edit/codemirror.css">
+<link rel="stylesheet" href="/stc/s2edit/show-hint.css">
+
+<script type="text/javascript" src="/js/s2edit/xlib.js"></script>
+<script type="text/javascript" src="/js/jquery/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/js/s2edit/s2edit.js"></script>
+<script type="text/javascript" src="/js/s2edit/s2gui.js"></script>
+<script type="text/javascript" src="/js/s2edit/s2library.js"></script>
+<script type="text/javascript" src="/js/vendor/codemirror/codemirror.js"></script>
+<script src="/js/vendor/codemirror/modes/css.js"></script>
+<script src="/js/vendor/codemirror/modes/xml.js"></script>
+<script src="/js/vendor/codemirror/addon/simple.js"></script>
+<script src="/js/s2edit/s2.js"></script>
+<script src="/js/s2edit/s2-hint.js"></script>
+<script src="/js/vendor/codemirror/addon/show-hint.js"></script>
+
+</head>
+<body onMouseMove="s2processDrag(event)" onMouseUp="s2endDrag(event)">
+    <form method="post" name="s2" action="" id="s2build">
+    [% dw.form_auth() %]
+    <input type="hidden" name="action" value="compile" />
+
+    <div class="header">
+        <h1>[% title %]</h1>
+
+        <div class="tools">
+            <a href="[% site.root %]/doc/s2" target="_blank">Documentation</a>
+        </div>
+
+        <input type="button" value="Save & Compile" id="compilelink" />
+
+        [% dw.ml("Actionlink", {'link' => "<a href='$site.root/customize/advanced/layers'>" _ dw.ml('.advancedlayerlink') _ "</a>"}) %]
+    </div>
+
+    <div class="main" id="maindiv">
+        <textarea id="main" class="maintext" name="s2code">[% s2code | html %]</textarea>
+    </div>
+        <div class="divider" id="outputdivider" onMouseDown="s2startDrag(event)"
+                onMouseUp="s2endDrag(event)"
+                onMouseMove="s2processDrag(event)">&nbsp;</div>
+    <div class="tabs" id="outputtabs">
+        <h2>Build</h2>
+    </div>
+    <div id="out" class="output">
+                [% build %]
+    </div>
+
+    <div class="tabs" id="reftabs">
+                <span id="navtabs" class="refvisible">
+                        <h2>Nav.</h2>
+                        <a href="javascript:s2switchRefTab(0)">Classes</a>
+                        <a href="javascript:s2switchRefTab(1)">Funcs.</a>
+                        <a href="javascript:s2switchRefTab(2)">Props.</a>
+                </span>
+                <span id="classtabs" class="refinvisible">
+                        <a href="javascript:s2switchRefTab(-1)">Nav.</a>
+                        <h2>Classes</h2>
+                        <a href="javascript:s2switchRefTab(1)">Funcs.</a>
+                        <a href="javascript:s2switchRefTab(2)">Props.</a>
+                </span>
+                <span id="functabs" class="refinvisible">
+                        <a href="javascript:s2switchRefTab(-1)">Nav.</a>
+                        <a href="javascript:s2switchRefTab(0)">Classes</a>
+                        <h2>Funcs.</h2>
+                        <a href="javascript:s2switchRefTab(2)">Props.</a>
+                </span>
+                <span id="proptabs" class="refinvisible">
+                        <a href="javascript:s2switchRefTab(-1)">Nav.</a>
+                        <a href="javascript:s2switchRefTab(0)">Classes</a>
+                        <a href="javascript:s2switchRefTab(1)">Funcs.</a>
+                        <h2>Props.</h2>
+                </span>
+</div>
+    <div id="ref" class="reference">
+        <div id="nav" class="refvisible">
+                &nbsp;
+        </div>
+        <div id="classref" class="refinvisible">
+                (Classes)
+        </div>
+        <div id="funcref" class="refinvisible">
+                (Functions)
+        </div>
+        <div id="propref" class="refinvisible">
+                (Properties)
+        </div>
+</div>
+
+        <div class="divider" id="refdivider" onMouseDown="s2startDragRef(event)"
+                onMouseUp="s2endDrag(event)"
+                onMouseMove="s2processDrag(event)">&nbsp;</div>
+
+    <div class="statusbar" id="statusbar">
+        <div class="gutter"> </div>
+        <div id="status">Ready.</div>
+    </div>
+    
+    </form>
+
+<script type="text/javascript">
+
+
+
+<!--
+        var s2docBaseURL = "[% site.root %]/customize/advanced/layerbrowse?id=core2";
+
+// -->
+</script>
+
+
+</body>
+</html>

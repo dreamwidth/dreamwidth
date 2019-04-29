@@ -26,7 +26,7 @@ my ($filename, $layerid, $query, $outputpath, $help);
 GetOptions(
 	'help|h' => \$help,
 	'filename|f=s' => \$filename,
-	'layerid|l=i' => $layerid,
+	'layerid|l=i' => \$layerid,
 	'query|q' => \$query,
 	'output|o=s' => \$outputpath) or pod2usage(1);
 pod2usage(0) if $help;
@@ -35,7 +35,7 @@ my $home = $ENV{LJHOME} or die "You'll have to set \$LJHOME first.\n";
 require "$home/cgi-bin/ljlib.pl";
 require "$home/cgi-bin/LJ/S2.pm";
 
-$outputpath ||= "$home/htdocs/customize/advanced/s2edit/s2library.js";
+$outputpath ||= "$home/htdocs/js/s2edit/s2library.js";
 
 my $info;
 if ($filename) {
