@@ -528,6 +528,7 @@ sub alloc_global_counter
 #       'F' == filter id, 'Y' = pic/keYword mapping id
 #       'A' == mediA item id, 'O' == cOllection id,
 #       'N' == collectioN item id
+#       'B' == api key id
 #
 sub alloc_user_counter
 {
@@ -536,7 +537,7 @@ sub alloc_user_counter
 
     ##################################################################
     # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFYA]$/;          #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFYAB]$/;          #
     ##################################################################
 
     my $dbh = LJ::get_db_writer();
@@ -659,6 +660,9 @@ sub alloc_user_counter
                                       undef, $uid);
     } elsif ($dom eq "O") {
         $newmax = $u->selectrow_array("SELECT MAX(colid) FROM collections WHERE userid = ?",
+                                      undef, $uid);
+    } elsif ($dom eq "B") {
+        $newmax = $u->selectrow_array("SELECT MAX(keyid) FROM api_key WHERE userid = ?",
                                       undef, $uid);
     } elsif ($dom eq "N") {
         $newmax = $u->selectrow_array("SELECT MAX(colitemid) FROM collection_items WHERE userid = ?",

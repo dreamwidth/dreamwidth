@@ -231,3 +231,14 @@ sub _set_state {
     LJ::MemCache::delete($memkey);
 }
 
+# JSON output implementation for NotificationItem objects
+sub TO_JSON {
+    my $self = shift;
+    my $json = {
+        title => $self->title,
+        content => $self->as_html,
+        unread => $self->unread,
+        timestamp => $self->when_unixtime
+
+    }
+}

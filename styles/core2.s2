@@ -3792,9 +3792,7 @@ function generate_large_media_query(): string {
 }
 
 function Page::print_meta_tags() {
-    # they're using their own stylesheets which probably won't work with the initial scale
-    # (things will just look smooshed together)
-    if ($this.include_meta_viewport and $*include_default_stylesheet) {
+    if ($this.include_meta_viewport) {
         print """<meta name="viewport" content="width=device-width, initial-scale=1.0"/>""";
     }
 
