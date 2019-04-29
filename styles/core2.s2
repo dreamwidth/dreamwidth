@@ -4278,25 +4278,23 @@ function print_module_navlinks( bool apply_class_to_link ) {
     var Page p = get_page();
     open_module("navlinks", "", "");
 
-    if ( $apply_class_to_link ) {
-        var string[] links = [];
-        foreach var string k ($p.views_order) {
+      var string{}[] links = [];
+
+      foreach var string k ($p.views_order) {
+          var string class = "list-item-$k";
+          var string css = "";
+
+          if ($apply_class_to_link ) {
             var string css = """ class="$k" """;
             if ($p.view == $k) { $css = """ class="current $k" """; }
-            $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
-
-        }
-        print_module_list($links);
-    } else {
-        var string{}[] links = [];
-
-        foreach var string k ($p.views_order) {
-            var string class = $k;
-            if ($p.view == $k) { $class = "current $k"; }
-            $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""" };
-        }
-        print_module_list($links);
-    }
+          } else {
+            $class = "$k " + $class;
+            if ($p.view == $k) { $class = "current " + $class; }
+          }
+          
+          $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""" };
+      }
+    print_module_list($links);
 
     close_module();
 

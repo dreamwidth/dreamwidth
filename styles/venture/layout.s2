@@ -679,11 +679,12 @@ function print_module_headernavigation( bool apply_class_to_link ) {
     open_module("headernavigation", "", "");
 
     if ( $apply_class_to_link ) {
-        var string[] links = [];
+        var string{}[] links = [];
         foreach var string k ($p.views_order) {
+            var string class = "list-item-$k";
             var string css = """ class="$k" """;
             if ($p.view == $k) { $css = """ class="current $k" """; }
-            $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+            $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""" };
 
         }
         print_module_list($links);
