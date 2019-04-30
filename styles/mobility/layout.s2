@@ -159,13 +159,13 @@ function print_stylesheet () {
     var string navstrip_css = "";
         if ($*control_strip_reduced == true) {
             $navstrip_css = """
-                td#lj_controlstrip_actionlinks,
-                td#lj_controlstrip_search { display: none; }
+                div#lj_controlstrip_actionlinks,
+                div#lj_controlstrip_search { display: none; }
             """;
         }
         else {
             $navstrip_css = """
-                #lj_controlstrip td { float: left; }
+                #lj_controlstrip div { float: left; }
             """;
         }
 

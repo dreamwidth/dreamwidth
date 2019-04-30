@@ -309,7 +309,7 @@ set font_page_navigation = "Georgia";
 
 
 function Page::print_theme_stylesheet() { """
-    #lj_controlstrip, #lj_controlstrip span, #lj_controlstrip td {    background: #D8F4C3;
+    #lj_controlstrip, #lj_controlstrip span {    background: #D8F4C3;
     border-color: #2B0919; 
     color: #77594F;
     }

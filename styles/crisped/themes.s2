@@ -213,7 +213,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -458,7 +458,7 @@ function Page::print_theme_stylesheet() { """
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -668,7 +668,7 @@ set color_module_title_background = "#6e0000";
 
 function Page::print_theme_stylesheet() { """
      /* REMOVING ALL THE UPPERCASE */
-    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
 """; }
 
 ##===============================
@@ -1155,7 +1155,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -2149,7 +2149,7 @@ function Page::print_theme_stylesheet () {
         box-shadow: 0px 1px 2px $*color_entry_border;
     }
 
-    #lj_controlstrip td {
+    #lj_controlstrip div {
         border: 1px solid $*color_entry_title_background;
     }
 
@@ -2461,7 +2461,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -2984,7 +2984,7 @@ function Page::print_theme_stylesheet () {
         box-shadow: 0px 1px 2px $*color_entry_border;
     }
 
-    #lj_controlstrip td {
+    #lj_controlstrip div {
         border: 1px solid $*color_entry_title_background;
     }
 
@@ -3068,7 +3068,7 @@ set image_background_page_url = "crisped/fallingflames.png";
 
 function Page::print_theme_stylesheet() { """
      /* REMOVING ALL THE UPPERCASE */
-    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
 """; }
 
 
@@ -3336,7 +3336,7 @@ function Page::print_theme_stylesheet () {
         box-shadow: 0px 1px 2px $*color_entry_border;
     }
 
-    #lj_controlstrip td {
+    #lj_controlstrip div {
         border: 1px solid $*color_entry_title_background;
     }
 
@@ -3609,7 +3609,7 @@ function Page::print_theme_stylesheet () {
         box-shadow: 0px 1px 2px $*color_entry_border;
     }
 
-    #lj_controlstrip td {
+    #lj_controlstrip div {
         border: 1px solid $*color_entry_title_background;
     }
 
@@ -3845,7 +3845,7 @@ function Page::print_theme_stylesheet() { """
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -4288,7 +4288,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -4845,7 +4845,7 @@ set image_background_page_url = "crisped/igetmisty.png";
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -4865,7 +4865,7 @@ set image_background_page_url = "crisped/igetmisty.png";
                 box-shadow: 1px 2px 3px $*color_entry_border;
             }
     
-/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
     
 """; }
 
@@ -5253,7 +5253,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -5551,7 +5551,7 @@ function Page::print_theme_stylesheet() { """
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -5794,7 +5794,7 @@ set image_background_page_url = "crisped/lawlessspeckles.png";
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -5814,7 +5814,7 @@ set image_background_page_url = "crisped/lawlessspeckles.png";
                 box-shadow: 1px 2px 3px $*color_entry_border;
             }
     
-/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
     
     
 """; }
@@ -6132,7 +6132,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -6220,7 +6220,7 @@ set image_background_page_url = "crisped/lovelyflowersbloom.png";
 
 function Page::print_theme_stylesheet() { """
      /* REMOVING ALL THE UPPERCASE */
-    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
 """; }
 
 
@@ -6512,7 +6512,7 @@ function Page::print_theme_stylesheet() { """
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -6532,7 +6532,7 @@ function Page::print_theme_stylesheet() { """
                 box-shadow: 1px 2px 3px $*color_entry_border;
             }
     
-/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
     
     
     
@@ -6754,7 +6754,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -7106,7 +7106,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -7314,7 +7314,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -7574,7 +7574,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -7783,7 +7783,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -8113,7 +8113,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -8396,7 +8396,7 @@ set image_background_page_url = "crisped/pastelonplum.png";
 
 function Page::print_theme_stylesheet() { """
      /* REMOVING ALL THE UPPERCASE */
-    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
 """; }
 
 
@@ -8614,7 +8614,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -8830,7 +8830,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -9188,7 +9188,7 @@ function Page::print_theme_stylesheet() { """
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -9208,7 +9208,7 @@ function Page::print_theme_stylesheet() { """
                 box-shadow: 1px 2px 3px $*color_entry_border;
             }
     
-/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }";
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }";
     
     
 """; }
@@ -9516,7 +9516,7 @@ set image_background_page_url = "crisped/rosewood.png";
 
 function Page::print_theme_stylesheet() { """
      /* REMOVING ALL THE UPPERCASE */
-    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
 """; }
 
 
@@ -9846,7 +9846,7 @@ function Page::print_theme_stylesheet () {
         box-shadow: 0px 1px 2px $*color_entry_border;
     }
 
-    #lj_controlstrip td {
+    #lj_controlstrip div {
         border: 1px solid $*color_entry_title_background;
     }
 
@@ -10082,7 +10082,7 @@ set image_background_page_url = "crisped/seatheflowers.png";
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -10102,7 +10102,7 @@ set image_background_page_url = "crisped/seatheflowers.png";
                 box-shadow: 1px 2px 3px $*color_entry_border;
             }
     
- /* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }";
+ /* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }";
     
     
 """; }
@@ -10305,7 +10305,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -10476,7 +10476,7 @@ set image_background_page_url = "crisped/skygarden.png";
 
 function Page::print_theme_stylesheet() { """
      /* REMOVING ALL THE UPPERCASE */
-    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
 """; }
 
 
@@ -10699,7 +10699,7 @@ set image_background_page_url = "crisped/softestflowers.png";
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -10719,7 +10719,7 @@ set image_background_page_url = "crisped/softestflowers.png";
                 box-shadow: 1px 2px 3px $*color_entry_border;
             }
     
-/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
 
 """; }
 
@@ -10943,7 +10943,7 @@ set image_background_page_url = "crisped/softoliveflowers.png";
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -10963,7 +10963,7 @@ set image_background_page_url = "crisped/softoliveflowers.png";
                 box-shadow: 1px 2px 3px $*color_entry_border;
             }
     
-     /* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; } 
+     /* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
     
     
     
@@ -11104,7 +11104,7 @@ set image_background_page_url = "crisped/speckles.png";
 
 function Page::print_theme_stylesheet() { """
      /* REMOVING ALL THE UPPERCASE */
-    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
 """; }
 
 #NEWLAYER: crisped/springtimeflowers
@@ -11328,7 +11328,7 @@ set image_background_page_url = "crisped/springtimeflowers.png";
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -11348,7 +11348,7 @@ set image_background_page_url = "crisped/springtimeflowers.png";
                 box-shadow: 1px 2px 3px $*color_entry_border;
             }
     
-/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+/* REMOVING ALL THE UPPERCASE */ h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
     
     
 """; }
@@ -11740,7 +11740,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -11904,7 +11904,7 @@ set image_background_page_url = "crisped/tropic.png";
 
 function Page::print_theme_stylesheet() { """
      /* REMOVING ALL THE UPPERCASE */
-    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip td, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
+    h1#title, h2.module-header, h3.entry-title, div.ContextualPopup, div.ContextualPopup .Relation, div.tag ul, span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, span.tag-text, table.month th, ul.entry-interaction-links li, .comment .footer, .comment-poster, .datetime, .journal-name, .journal-website-name, .manage-link, .manage-tags-link, .metadata, .module-calendar th, .module-calendar td.empty-day, .module-calendar td.entry-day, .module-navlinks ul.module-list, .month h3, .navigation, .page-icons .icons-container h2, .page-tags .tags-container h2, .tag, #lj_controlstrip, #lj_controlstrip_input, ul.entry-management-links { text-transform: none; }
 """; }
 
 
@@ -12301,7 +12301,7 @@ function Page::print_theme_stylesheet() { """
                 box-shadow: 0px 1px 2px $*color_entry_border;
             }
     
-            #lj_controlstrip td {
+            #lj_controlstrip div {
                 border: 1px solid $*color_entry_title_background;
             }
     
@@ -12523,7 +12523,7 @@ function Page::print_theme_stylesheet () {
         box-shadow: 0px 1px 2px $*color_entry_border;
     }
 
-    #lj_controlstrip td {
+    #lj_controlstrip div {
         border: 1px solid $*color_entry_title_background;
     }
 
@@ -12753,7 +12753,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
@@ -13044,7 +13044,7 @@ function Page::print_theme_stylesheet() {
             box-shadow: 0px 1px 2px $*color_entry_border;
         }
 
-        #lj_controlstrip td {
+        #lj_controlstrip div {
             border: 1px solid $*color_entry_title_background;
         }
 
