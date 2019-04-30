@@ -3294,7 +3294,6 @@ sub control_strip {
     my $template_args = {
         'view'          => $view,
         'userpic_html'  => '',
-        'userpic_class' => 'lj_controlstrip_userpic',
         'logo_html'     => ( LJ::Hooks::run_hook( 'control_strip_logo', $remote, $journal ) || '' ),
         'show_login_form' => 0,
         'login_chal'      => '',
@@ -3598,7 +3597,6 @@ sub control_strip {
 
     }
     else {
-        $template_args->{'userpic_class'} = 'lj_controlstrip_loggedout_userpic';
         $template_args->{'userpic_html'} = LJ::Hooks::run_hook('control_strip_loggedout_userpic_contents', $euri) || "";
 
 

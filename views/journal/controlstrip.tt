@@ -1,6 +1,8 @@
 <div id='lj_controlstrip'>
 
-<div id='[% userpic_class %]'>[% userpic_html %]</div>
+<div id='[%- IF remote -%]lj_controlstrip_userpic[%- ELSE -%]lj_controlstrip_loggedout_userpic[%- END -%]'>
+  [% userpic_html %]
+</div>
 
 [%- IF remote -%]
   <div id='lj_controlstrip_user'>
