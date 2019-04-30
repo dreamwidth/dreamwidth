@@ -319,7 +319,7 @@ function Page::print_default_stylesheet()
         color:$*color_page_text;
         }
 
-    html body {
+    #canvas {
         margin-left: $*margins_size$*margins_unit;
         margin-right: $*margins_size$*margins_unit;
         }

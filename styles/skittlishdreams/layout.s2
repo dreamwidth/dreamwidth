@@ -689,7 +689,7 @@ q { font-style: italic; }
 
 body { $page_background $page_font margin: 0; padding: 0; }
 
-html body {
+#canvas {
     margin-left: $*margins_size$*margins_unit;
     margin-right: $*margins_size$*margins_unit;
     }
