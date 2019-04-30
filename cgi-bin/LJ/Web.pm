@@ -3598,22 +3598,17 @@ sub control_strip {
 
     }
     else {
+        $template_args->{'userpic_class'} = 'lj_controlstrip_loggedout_userpic';
+        $template_args->{'userpic_html'} = LJ::Hooks::run_hook('control_strip_loggedout_userpic_contents', $euri) || "";
 
-        my $show_login_form = LJ::Hooks::run_hook( "show_control_strip_login_form", $journal );
+
+        my $show_login_form = LJ::Hooks::run_hook("show_control_strip_login_form", $journal);
         $show_login_form = 1 if !defined $show_login_form;
 
         $template_args->{'show_login_form'} = $show_login_form;
 
         if ($show_login_form) {
-            $template_args->{'userpic_html'} =
-                LJ::Hooks::run_hook( 'control_strip_userpic_contents', $euri ) || "&nbsp;";
             $template_args->{'login_chal'} = LJ::challenge_generate(300);
-        }
-        else {
-            $template_args->{'userpic_class'} = 'lj_controlstrip_loggedout_userpic'; # NF: ugh, WHY.
-            $template_args->{'userpic_html'} =
-                LJ::Hooks::run_hook( 'control_strip_loggedout_userpic_contents', $euri )
-                || "&nbsp;";
         }
 
         if ( $journal->is_personal || $journal->is_identity ) {
