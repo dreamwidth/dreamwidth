@@ -3302,16 +3302,16 @@ sub control_strip {
         'statustext'      => '',
 
         # remote # only set if logged in
-        # .user
-        # .sessid
-        # .display
-        # .is_validated
-        # .is_identity
+        #     .user => "plainname"
+        #     .sessid => integer
+        #     .display => "<span class="ljuser">..."
+        #     .is_validated => bool
+        #     .is_identity => bool
         'actionlinks' => [],
 
         # filters # only set if viewing reading or network page
-        # .all => []
-        # .selected => ""
+        #     .all => []
+        #     .selected => ""
         'viewoptions' => [],
         'search_html' => LJ::Widget::Search->render,
     };
