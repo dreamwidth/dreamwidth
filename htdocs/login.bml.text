@@ -59,7 +59,7 @@
 
 .login.otheropts=Other Options:
 
-.login.password=Password:
+.login.password=Password
 
 .login.remember=Remember me
 
@@ -69,7 +69,7 @@
 
 .login.title=Log in
 
-.login.username=Account name:
+.login.username=Username
 
 .login.welcome=Welcome to [[sitename]]!
 
