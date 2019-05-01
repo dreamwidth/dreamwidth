@@ -1308,7 +1308,7 @@ sub TO_JSON {
     my @keywords = $self->keywords;
     my $returnval = { 
         username => $self->u->user,
-        picid => $self->picid,
+        picid => $self->picid + 0, # so we return an int, not a string
         url => $self->url,
         comment => $self->comment,
         keywords => \@keywords,
