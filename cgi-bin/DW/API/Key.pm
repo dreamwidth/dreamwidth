@@ -170,7 +170,7 @@ sub delete {
 
     my $dbw = LJ::get_db_writer() or croak "Failed to get database";
     $dbw->do(
-        q{UPDATE api_key SET state = 'D' WHERE state = 'A' hash = ?},
+        q{UPDATE api_key SET state = 'D' WHERE state = 'A' AND hash = ?},
         undef, $self->{keyhash}
     );
 

@@ -159,7 +159,7 @@ sub _dispatcher {
     # match path parameters to their names
     my $path = $self->{path}{name};
     my $path_params = {};
-    my @path_names = ($path =~ /{([\w]+)}/);
+    my @path_names = ($path =~ /{([\w]+)}/g);
     for (my $i = 0; $i < @path_names; $i++) {
         $path_params->{$path_names[$i]} = $path_args[$i];
     }
@@ -312,6 +312,13 @@ sub schema {
 
         # make a validator against the schema
         my $validator = JSON::Validator->new->schema($self->{schema});
+        
+        # turn on coercion for params, because perl doesn't care about scalar types but JSON does
+        # so we're more flexible on input than output
+        if (ref($self) eq 'DW::API::Parameter') {
+            $validator = $validator->coerce({'booleans' => 1, 'numbers' => 1, 'strings' => 1});
+        }
+
         $self->{validator} = $validator;
     } else {
         croak "No schema defined!";
