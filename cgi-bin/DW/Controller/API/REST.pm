@@ -28,7 +28,6 @@ use DW::API::Key;
 use JSON;
 use YAML::XS qw'LoadFile';
 use JSON::Validator 'validate_json';
-use Scalar::Util 'blessed';
 use Hash::MultiValue;
 
 use Carp qw/ croak /;
@@ -316,7 +315,7 @@ sub schema {
         
         # turn on coercion for params, because perl doesn't care about scalar types but JSON does
         # so we're more flexible on input than output
-        if (defined(blessed($self)) && blessed($self) eq 'DW::API::Parameter') {
+        if (ref($self) eq 'DW::API::Parameter') {
             $validator = $validator->coerce({'booleans' => 1, 'numbers' => 1, 'strings' => 1});
         }
 
