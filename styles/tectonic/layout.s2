@@ -448,13 +448,20 @@ ol {
 #header {
     margin: 0 .25em .5em;
     padding: 0;
-    position: relative;
+    display: flex;
+    flex-direction: column;
     }
 
-#header .inner {
-    position: absolute;
+#header > .inner {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     bottom: 0;
+}
+
+#pagetitle {
+    flex-grow: 1;
 }
 
 h1#title,
