@@ -54,7 +54,7 @@ sub path {
         ver => $ver};
 
     my $path;
-    for my $key (keys $config->{paths}) {
+    for my $key (keys %{$config->{paths}}) {
         $route->{'path'}{'name'} = $key;
         $path = $key;
     }
@@ -69,7 +69,7 @@ sub path {
         delete $config->{paths}->{$path}->{parameters};
     }
 
-    for my $method (keys $config->{paths}->{$path}) {
+    for my $method (keys %{$config->{paths}->{$path}}) {
         # make sure that it's a valid HTTP method, and we have a handler for it
         die "$method isn't a valid HTTP method" unless $METHODS{$method};
         die "No handler sub was passed for $method" unless $handlers->{$method};
