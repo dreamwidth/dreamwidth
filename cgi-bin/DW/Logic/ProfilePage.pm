@@ -757,7 +757,6 @@ sub external_services {
     }
 
     if ( my $discord = $u->prop( 'discord' ) ) {
-        my $discord = LJ::eurl( $discord );
         push @ret, {
             type => 'discord',
             text => LJ::ehtml( $discord ),
