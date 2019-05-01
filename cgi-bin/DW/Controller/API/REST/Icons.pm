@@ -29,7 +29,7 @@ sub rest_get {
     my $u = LJ::load_user( $args->{path}{username});
 
     # if we're given a picid, try to load that userpic
-    if ($args->{path}{picid} ne "") {
+    if (defined($args->{path}{picid}) && $args->{path}{picid} ne "") {
         my $userpic = LJ::Userpic->get( $u, $args->{path}{picid} );
         if ( defined $userpic ) {
             return $self->rest_ok( $userpic );
