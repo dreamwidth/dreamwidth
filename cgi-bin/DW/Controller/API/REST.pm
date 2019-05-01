@@ -316,7 +316,7 @@ sub schema {
         
         # turn on coercion for params, because perl doesn't care about scalar types but JSON does
         # so we're more flexible on input than output
-        if (blessed($self) eq 'DW::API::Parameter') {
+        if (defined(blessed($self)) && blessed($self) eq 'DW::API::Parameter') {
             $validator = $validator->coerce(1);
         }
 
