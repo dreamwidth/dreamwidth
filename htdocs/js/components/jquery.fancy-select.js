@@ -39,19 +39,23 @@ function updateSelected(e) {
     $(e.target).next().find("output").html(displayHTML);
 }
 
-function setMinWidth($ele, newMin, padding) {
-    newMin = parseInt(newMin) || 0;
-    padding = parseInt(padding) || 0;
-    var mw = parseInt( $ele.css("min-width") ) || 0;
-
-    $ele.css("min-width", Math.max(mw, newMin) + padding + "px")
+// Don't shrink below the current width the next time the select is changed (but
+// if it blew past the window size at some point, allow it to come back inside).
+function setMinWidth(e) {
+    var $fancyOutput = $(this).next(".fancy-select-output");
+    var nowMin = parseInt( $fancyOutput.css("min-width") ) || 0;
+    var newMin = parseInt( $(this).parent(".fancy-select-select").css("width") ) || 0;
+    var realMin = Math.min(
+        Math.max(nowMin, newMin),
+        $(window).width() * 0.95
+    );
+    $fancyOutput.css("min-width", realMin + "px");
 }
 
 $.fn.extend({
     fancySelect: function() {
         $(this).find(".fancy-select select").each(function() {
-            var $select = $(this);
-            $select
+            $(this)
                 .wrap("<div class='fancy-select-select'/>")
                 .after("<span class='fancy-select-output split button secondary' aria-hidden='true'><output></output><span class='fancy-select-arrow'></span></span>")
                 .focus(function() {
@@ -61,19 +65,8 @@ $.fn.extend({
                     $(this).next(".fancy-select-output").removeClass("focus");
                 })
                 .change(updateSelected)
-                .change(function() {
-                    setMinWidth(
-                        $(this).next(".fancy-select-output"),
-                        $(this).parent(".fancy-select-select").width()
-                    );
-                })
+                .change(setMinWidth)
                 .trigger("change");
-
-            setMinWidth(
-                $select.next(".fancy-select-output"),
-                $select.width(),
-                30
-            );
         });
 
     }
