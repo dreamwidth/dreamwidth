@@ -288,7 +288,7 @@ sub try_work {
         my $hash = $class->call_xmlrpc( $data, 'getevents',
             {
                 ver         => 1,
-                itemids     => join( ',', @_ ),
+                itemids     => join( ',', @_ ) . ",",
                 selecttype  => 'multiple',
                 lineendings => 'unix',
             }
@@ -301,7 +301,6 @@ sub try_work {
             $temp_fail->( $xmlrpc_fail );
             return 0;
         }
-
         # good, import this event
         $process_entry->( $_ )
             foreach @{ $hash->{events} || [] };
