@@ -260,7 +260,7 @@ sub layers_handler {
     return error_ml(($remote->{user} eq $u->{user} ?
             '/customize/advanced/layers.tt.error.youcantuseadvanced' :
             '/customize/advanced/layers.tt.error.usercantuseadvanced' ),
-            {authas => $rv->{authas_html} })
+            undef, { authas => $rv->{authas_html} })
         unless $u->can_create_s2_styles || $viewall;
 
     if ($POST->{'action:create'} && !$noactions) {
@@ -432,7 +432,7 @@ sub styles_handler {
     return error_ml( ($remote->{user} eq $u->{user} ?
             '/customize/advanced/styles.tt.error.youcantuseadvanced' :
             '/customize/advanced/styles.tt.error.usercantuseadvanced'),
-            { authas => $rv->{authas_html} } )
+            undef, { authas => $rv->{authas_html} } )
         unless $u->can_create_s2_styles || $viewall;
 
     return error_ml('/customize/advanced/index.tt.error.advanced.editing.denied')
