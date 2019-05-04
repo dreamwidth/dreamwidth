@@ -487,6 +487,9 @@ class Comment extends EntryLite
 
     function print_edit_text () "Print the text that says when this comment was edited.";
 
+    function depth_zones () : string[] "Returns an array of all the thread depth zones that apply to the comment, based on the configured nesting limits. Available depth zones are 'mobile', 'desktop', and 'none'.";
+    function print_depth_indicator () "Prints a span indicating the comment's depth, with CSS classes to allow different styling at different widths.";
+
 }
 
 class Icon
@@ -1380,6 +1383,23 @@ property string comment_time_format {
     grouped = 1;
 }
 
+property string comment_indent_style {
+    des = "Indentation for nested comment threads";
+    values = "responsive|Responsive|static|Static (25px)";
+    note = "PREVIEW FEATURE. Responsive indentation is much nicer on mobile, but in very deep threads it stops indenting and uses more compact styling to show thread depth. Static indentation will keep indenting indefinitely, but is often unusable on mobile.";
+}
+
+property int comment_indent_limit_mobile {
+    des = "Beyond this depth, use compact styling to indicate thread depth (mobile). Ignored for static indentation.";
+}
+property int comment_indent_limit_desktop {
+    des = "Beyond this depth, use compact styling to indicate thread depth (desktop). Ignored for static indentation.";
+    max = 180;
+}
+property string comment_indent_depth_caption {
+    des = "Caption for thread depth indicators";
+}
+
 property string[] userpics_style_group {
     des = "Select the size of icons";
     grouptype = "datetime";
@@ -1447,6 +1467,10 @@ set entry_date_format = "med";
 set entry_time_format = "short";
 set comment_date_format = "iso";
 set comment_time_format = "short";
+set comment_indent_style = "static";
+set comment_indent_limit_mobile = 8;
+set comment_indent_limit_desktop = 180;
+set comment_indent_depth_caption = "Depth: ";
 set entry_userpic_style = "";
 set comment_userpic_style = "";
 set userpics_position = "left";
@@ -4309,7 +4333,7 @@ function print_module_navlinks( bool apply_class_to_link ) {
             $class = "$k " + $class;
             if ($p.view == $k) { $class = "current " + $class; }
           }
-          
+
           $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""" };
       }
     print_module_list($links);
@@ -5098,6 +5122,28 @@ function Comment::print_edit_text() {
         print "<div class='edittime'><em>$*text_comment_edittime $editreason";
         $this->print_edittime();
         print "</em></div>";
+    }
+}
+
+function Comment::depth_zones() : string[] {
+    if ($this.depth <= $*comment_indent_limit_mobile) {
+        return ["desktop", "mobile"];
+    }
+    elseif ($this.depth <= $*comment_indent_limit_desktop) {
+        return ["desktop"];
+    }
+    else {
+        return ["none"];
+    }
+}
+
+function Comment::print_depth_indicator() {
+    if ($*comment_indent_style == "responsive") {
+        "<span class='thread-depth";
+        foreach var string zone ($this->depth_zones()) {
+            " indent-$zone";
+        }
+        "'>$*comment_indent_depth_caption$this.depth</span>";
     }
 }
 
@@ -6303,9 +6349,17 @@ function EntryPage::print_comments (Comment[] cs) {
 
         # actually print the comment
         var string parity = $c.depth % 2 ? "odd" : "even";
-        var int indent = ($c.depth - 1) * 25;
-        "<div class='comment-thread comment-depth-$parity comment-depth-$c.depth'>\n";
-        "<div id='$c.dom_id' class='dwexpcomment' style='margin-left: ${indent}px; margin-top: 5px;";
+        var int mod5 = $c.depth % 5;
+        "<div data-comment-depth='$c.depth' style='--comment-depth: $c.depth; --comment-indent-limit-mobile: ${*comment_indent_limit_mobile}' class='comment-thread";
+        foreach var string zone ($c->depth_zones()) {
+            " comment-depth-indent-$zone";
+        }
+        " comment-depth-$parity comment-depth-mod5-$mod5 comment-depth-$c.depth'>\n";
+        "<div id='$c.dom_id' class='dwexpcomment' style='";
+        if ($*comment_indent_style == "static") {
+            var int indent = ($c.depth - 1) * 25;
+            "margin-left: ${indent}px; margin-top: 5px;";
+        }
         if ($c.hidden_child) {
             " display: none;";
         }
@@ -6367,6 +6421,7 @@ function EntryPage::print_comment (Comment c) {
     $c->print_wrapper_start();
     """<div class="header">\n""";
     """<div class="inner">\n""";
+    $c->print_depth_indicator();
     $c->print_subject();
     $c->print_metatypes();
     $c->print_time();
@@ -6401,6 +6456,7 @@ function EntryPage::print_comment (Comment c) {
 function EntryPage::print_comment_partial (Comment c) {
     $c->print_wrapper_start();
     if ($c.deleted) {
+        $c->print_depth_indicator();
         print $*text_deleted;
         if ($c.hide_children) {
             var Link expand_link = $c->get_link("expand_comments");
@@ -6412,6 +6468,7 @@ function EntryPage::print_comment_partial (Comment c) {
         }
     }
     elseif ($c.fromsuspended) {
+        $c->print_depth_indicator();
         print $*text_fromsuspended;
         if ($c.hide_children) {
             var Link expand_link = $c->get_link("expand_comments");
@@ -6423,6 +6480,7 @@ function EntryPage::print_comment_partial (Comment c) {
         }
     }
     elseif ($c.screened_noshow) {
+        $c->print_depth_indicator();
         print $*text_screened;
         if ($c.hide_children) {
             var Link expand_link = $c->get_link("expand_comments");
@@ -6435,6 +6493,7 @@ function EntryPage::print_comment_partial (Comment c) {
     }
     else {
         var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
+        $c->print_depth_indicator();
         $c->print_subject();
         $c->print_poster(); " - ";
         $c->print_time();
