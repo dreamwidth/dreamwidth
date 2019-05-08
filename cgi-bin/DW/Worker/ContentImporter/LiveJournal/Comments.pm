@@ -19,7 +19,7 @@ package DW::Worker::ContentImporter::LiveJournal::Comments;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use Carp qw/ croak confess /;
+use Carp qw/ carp croak confess /;
 use Digest::MD5 qw/ md5_hex /;
 use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
@@ -48,6 +48,9 @@ use constant C_local_posterid  => 16;
 # these come from LJ
 our $COMMENTS_FETCH_META = 10000;
 our $COMMENTS_FETCH_BODY = 500;
+
+# if we add more encoding maps, update this!
+our @ENCODINGS = ( 'UTF-8', 'ISO-8859-1', 'UTF-16' );
 
 sub work {
 
@@ -319,9 +322,26 @@ sub try_work {
                 Start => $meta_handler,
                 Char  => $meta_content,
                 End   => $meta_closer
-            }
+            },
         );
-        $parser->parse($content);
+
+        # This hideous loop is here because LJ lies and claims to return utf-8 when sometimes
+        # it's actually Latin-1, so we have to brute-force the encodings.
+        eval {
+            # try to run with the encoding the XML gives us
+            $parser->parse($content);
+        } or do {
+
+            # that didn't work, let's force encodings to see if one of them does.
+            my $result;
+            foreach my $encoding (@ENCODINGS) {
+                eval { $result = $parser->parse( $content, ProtocolEncoding => $encoding ); };
+                last if $result;
+            }
+
+            # if we couldn't parse it with any encoding, just die with the parser error.
+            carp "$@" unless $result;
+        };
 
         return $temp_fail->( join( "\n", map { " * $_" } @fail_errors ) )
             if @fail_errors;
