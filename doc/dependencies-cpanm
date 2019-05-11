@@ -1,6 +1,6 @@
 Business::CreditCard
 Cache::Memcached
-Captcha::reCAPTCHA
+Captcha::reCAPTCHA@0.99
 Class::Autouse
 Class::Data::Inheritable
 Class::Trigger

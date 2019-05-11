@@ -49,7 +49,7 @@ USE
 sub name { return "recaptcha" }
 
 # object methods
-sub form_fields { qw( recaptcha_response_field recaptcha_challenge_field ) }
+sub form_fields { qw( g-recaptcha-response) }
 sub _implementation_enabled {
     return 0 unless $DW::Captcha::reCAPTCHA::MODULES_INSTALLED;
     return LJ::is_enabled( 'captcha', 'recaptcha' ) && _public_key() && _private_key() ? 1 : 0;
@@ -57,21 +57,15 @@ sub _implementation_enabled {
 
 sub _print {
     my $captcha = Captcha::reCAPTCHA->new;
-    return $captcha->get_options_setter( { theme => 'white' } ) .
-    $captcha->get_html(
-        _public_key(),              # public key
-        '',                         # error (optional)
-        $LJ::IS_SSL                 # page uses ssl
-    );
+    return $captcha->get_html_v2( _public_key(), { theme => 'light' } );
 }
 
 sub _validate {
     my $self = $_[0];
-
     my $captcha = Captcha::reCAPTCHA->new;
-    my $result = $captcha->check_answer(
-        _private_key(), $ENV{REMOTE_ADDR},
-        $self->challenge, $self->response
+    my $result = $captcha->check_answer_v2(
+        _private_key(), $self->response, $ENV{REMOTE_ADDR},
+		
     );
 
     return 1 if $result->{is_valid} eq '1';
@@ -80,8 +74,8 @@ sub _validate {
 sub _init_opts {
     my ( $self, %opts ) = @_;
 
-    $self->{challenge} ||= $opts{recaptcha_challenge_field};
-    $self->{response} ||= $opts{recaptcha_response_field};
+    $self->{challenge} = 1; # Parent class checks for a challenge, but reCAPTCHAv2 doesn't use this field any more
+    $self->{response} ||= $opts{'g-recaptcha-response'};
 }
 
 # recaptcha-specific methods
