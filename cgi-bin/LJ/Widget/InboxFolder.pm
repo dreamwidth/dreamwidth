@@ -190,7 +190,13 @@ sub render_body {
                   . LJ::img( $bookmark, "", { class => 'InboxItem_Bookmark' } )
                   . "</a>";
 
-        my $when = LJ::diff_ago_text( $inbox_item->when_unixtime );
+        # For clarity, we display both a relative time (e.g. "5 days ago")
+        # and an absolute time (e.g. "2019-05-11 14:34 UTC") in the
+        # notification list.
+        my $event_time = $inbox_item->when_unixtime;
+        my $relative_time = LJ::diff_ago_text( $event_time );
+        my $absolute_time = LJ::S2::sitescheme_secs_to_iso( $event_time, { tz => "UTC" } );
+
         my $contents = $inbox_item->as_html || '';
 
         my $row_class = ($rownum++ % 2 == 0) ? "InboxItem_Meta odd" : "InboxItem_Meta even";
@@ -228,7 +234,7 @@ sub render_body {
                     <span class="$read_class" id="${name}_Title_$qid">$title</span>
                     $content_div
                     </td>
-                    <td class="time detail">$when</td>
+                    <td class="time detail">$absolute_time<br>$relative_time</td>
                 </tr>
         };
     }
