@@ -135,6 +135,19 @@ _info?><?_code
     my $itemlink = $e->url;
     my $linktext = BML::ml( '.link', { aopts => "href='$itemlink'" } );
 
+    my $commentlink = LJ::Talk::talkargs( $itemlink, "view=" . $talkid, "", "" ) . LJ::Talk::comment_anchor( $talkid );
+
+    $body .= "==AWLC==";
+
+    $body .= "<span class=\"ljuser\" lj:user=\"lexie\" style=\"white-space: nowrap;\">lexie</span>";
+    $body .= $post->{'posterid'};
+
+    $body .= "post->parenttalkid = " . $post->{'parenttalkid'} . "; post->itemid = " . $post->{'itemid'} . "; post->journalid = " . $post->{'journalid'};
+    $body .= "; post->posterid = " . $post->{'posterid'};
+    $body .= "; itemlink = " . $itemlink;
+    $body .= "; talkid = " . $talkid;
+    $body .= "Comment link is " . $commentlink;
+
     if ($mode eq 'screen') {
         my $can_screen = LJ::Talk::can_screen($remote, $u, $up, $post->{'userpost'});
         return $error->($ML{'.error.privs.screen'}) unless $can_screen;
