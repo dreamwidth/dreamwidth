@@ -7,7 +7,7 @@
 
 .options.header=Options
 
-.options.logged_in=<a [[aopts]]>Log in</a> -- you're currently logged in as 
+.options.logged_in=<a [[aopts]]>Log out</a> -- you're currently logged in as
 
 .options.login_prompt=<a [[aopts]]>Log in</a> -- required
 
