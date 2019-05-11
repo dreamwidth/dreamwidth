@@ -11,7 +11,7 @@
 
 .freeze.doit=Yes, freeze this thread
 
-.freeze.sure.body=Are you sure you want to freeze this thread?  No further responses will be allowed to it or any of the comments underneath it.
+.freeze.sure.body=Are you sure you want to freeze <a [[aopts]]>this thread</a>?  No further responses will be allowed to it or any of the comments underneath it.
 
 .freeze.sure.title=Freeze this thread?
 
@@ -23,7 +23,7 @@
 
 .screen.doit=Yes, screen this comment
 
-.screen.sure.body=Are you sure you want to screen this comment?
+.screen.sure.body=Are you sure you want to screen <a [[aopts]]>this comment</a>?
 
 .screen.sure.title=Screen this comment?
 
@@ -35,7 +35,7 @@
 
 .unfreeze.doit=Yes, unfreeze this thread
 
-.unfreeze.sure.body=Are you sure you want to unfreeze this thread?
+.unfreeze.sure.body=Are you sure you want to unfreeze <a [[aopts]]>this thread</a>?
 
 .unfreeze.sure.title=Unfreeze this thread?
 
@@ -45,7 +45,7 @@
 
 .unscreen.doit=Yes, unscreen this comment
 
-.unscreen.sure.body=Are you sure you want to unscreen this comment?
+.unscreen.sure.body=Are you sure you want to unscreen <a [[aopts]]>this comment</a>?
 
 .unscreen.sure.title=Unscreen this comment?
 
