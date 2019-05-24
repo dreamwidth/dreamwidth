@@ -29,6 +29,7 @@ html body
     line-height: 16.5px;
     letter-spacing: normal;
     padding: 5px 10px;
+    display: inline-block; /* Do u even flex, bro?? */
     flex-grow: 1;
 }
 
