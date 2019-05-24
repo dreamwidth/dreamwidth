@@ -788,7 +788,8 @@ sub layersource_handler {
             $dbh->do("REPLACE INTO blobcache (bckey, dateupdate, value) VALUES (?,NOW(),?)",
                      undef, "s2html-$id", "[$md5]$html");
         }
-        return $r->print($html);
+        $r->print($html);
+        return $r->OK;
     }
 
     # return text version
@@ -799,7 +800,8 @@ sub layersource_handler {
         $r->header_out('Content-Disposition' => "attachment; filename=$filename");
     }
 
-    return $r->print($s2code);
+    $r->print($s2code);
+    return $r->OK;
 
 }
 
