@@ -24,7 +24,7 @@ use base qw/ LJ::Widget /;
 # section, since the queries are mostly taken from those queries
 # anyway. disable this feature in config.pl if you start having
 # load issues, or if you just don't want this widget to render.
-sub should_render { LJ::is_enabled( 'stats-recentupdates' ) }
+sub should_render { LJ::is_enabled('stats-recentupdates') }
 
 sub need_res { qw( stc/widgets/commlanding.css ) }
 
@@ -39,10 +39,12 @@ sub render_body {
 
     # prep the stats we're interested in using here
 
-    $sth = $dbr->prepare( "SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) AND u.journaltype = 'C' ORDER BY uu.timeupdate DESC LIMIT 10" );
+    $sth = $dbr->prepare(
+"SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) AND u.journaltype = 'C' ORDER BY uu.timeupdate DESC LIMIT 10"
+    );
     $sth->execute;
 
-    $ret .= "<h2>" . $class->ml( 'widget.comms.recentactive' ) . "</h2>";
+    $ret .= "<h2>" . $class->ml('widget.comms.recentactive') . "</h2>";
     $ret .= "<ul>";
 
     # build the list
@@ -51,12 +53,12 @@ sub render_body {
     my $targetu;
 
     while ( my ( $iuser, $iname, $itime ) = $sth->fetchrow_array ) {
-        $targetu = LJ::load_user( $iuser );
+        $targetu = LJ::load_user($iuser);
         $ret .= "<li>" . $targetu->ljuser_display . ": " . $iname . ", " . $itime . "</li>\n";
         $ct++;
     }
 
-    $ret .= "<li><em> " . BML::ml( 'widget.comms.notavailable' ) . "</em></li>" unless $ct;
+    $ret .= "<li><em> " . BML::ml('widget.comms.notavailable') . "</em></li>" unless $ct;
     $ret .= "</ul>\n";
 
     return $ret;

@@ -40,7 +40,7 @@ sub define_edge {
     die "Attempt to define edge with bad name: $name.\n"
         unless $name =~ /^[\w\d-]+$/;
     die "Attempt to re-define edge $name.\n"
-        if exists $VALID_EDGES{$name} && ! $LJ::IS_DEV_SERVER;
+        if exists $VALID_EDGES{$name} && !$LJ::IS_DEV_SERVER;
     die "Defined edge $name contains no type.\n"
         unless $opts->{type};
     die "Defined edge $name contains invalid type: $opts->{type}.\n"
@@ -69,7 +69,7 @@ sub define_edge {
         }
     }
 
-    foreach ( qw/ add_sub del_sub / ) {
+    foreach (qw/ add_sub del_sub /) {
         die "Defined edge $name does not define $_.\n"
             unless $opts->{$_};
         die "Defined edge $name not given a code reference for $_.\n"
@@ -89,15 +89,16 @@ sub validate_edges {
         warn "validate_edges: " . shift() . "\n";
         return 0;
     };
-    return $err->( 'Invalid parameter' )
+    return $err->('Invalid parameter')
         unless ref $edges eq 'ARRAY' || ref $edges eq 'HASH';
 
     # iterate over each edge in the hash and validate
     my @iter = ref $edges eq 'HASH' ? keys %$edges : @$edges;
-    foreach my $edge ( @iter ) {
+    foreach my $edge (@iter) {
+
         # if it's not in valid edges, it's bunk
         my $er = $VALID_EDGES{$edge};
-        return $err->( "Edge '$edge' unknown." ) unless $er;
+        return $err->("Edge '$edge' unknown.") unless $er;
 
         # at this point, if they gave us an array of items to check (as opposed to a hash) then we
         # assume it's good.  the array behavior is used in cases where they are deleting edges and
@@ -105,34 +106,38 @@ sub validate_edges {
         next if ref $edges eq 'ARRAY';
 
         # type assurance
-        return $err->( "Edge $edge of type bool with invalid value [$edges->{$edge}]." )
+        return $err->("Edge $edge of type bool with invalid value [$edges->{$edge}].")
             if $er->{type} eq 'bool' && $edges->{$edge} !~ /^(?:0|1)$/;
-        return $err->( "Edge $edge of type int with invalid value [$edges->{$edge}]." )
-            if $er->{type} eq 'int'  && $edges->{$edge} !~ /^\d+$/;
+        return $err->("Edge $edge of type int with invalid value [$edges->{$edge}].")
+            if $er->{type} eq 'int' && $edges->{$edge} !~ /^\d+$/;
 
         # if it's a hashref/subopt/complex type, check the options
         if ( $er->{type} eq 'hashref' ) {
-            return $err->( "Edge $edge of type hashref with invalid value." )
+            return $err->("Edge $edge of type hashref with invalid value.")
                 unless ref $edges->{$edge} eq 'HASH';
 
 ## FIXME: we don't assert all of the 'required' options are passed yet
 
             my $opts = $er->{options};
             foreach my $opt ( keys %$opts ) {
+
                 # set default if we've been given one
                 $edges->{$edge}->{$opt} = $opts->{$opt}->{default}
-                    if ! exists $edges->{$edge}->{$opt} &&
-                       exists $opts->{$opt}->{default};
+                    if !exists $edges->{$edge}->{$opt}
+                    && exists $opts->{$opt}->{default};
 
                 # skip the edge if they didn't provide and it's not required
-                next unless exists $edges->{$edge}->{$opt} ||
-                            $opts->{$opt}->{required};
+                next
+                    unless exists $edges->{$edge}->{$opt}
+                    || $opts->{$opt}->{required};
 
                 # now error check
-                return $err->( "Edge $edge option $opt of type bool with invalid value [$edges->{$edge}->{$opt}]." )
-                    if $opts->{$opt}->{type} eq 'bool' && $edges->{$edge}->{$opt} !~ /^(?:0|1)$/;
-                return $err->( "Edge $edge option $opt of type int with invalid value [$edges->{$edge}->{$opt}]." )
-                    if $opts->{$opt}->{type} eq 'int' && $edges->{$edge}->{$opt} !~ /^\d+$/;
+                return $err->(
+"Edge $edge option $opt of type bool with invalid value [$edges->{$edge}->{$opt}]."
+                ) if $opts->{$opt}->{type} eq 'bool' && $edges->{$edge}->{$opt} !~ /^(?:0|1)$/;
+                return $err->(
+"Edge $edge option $opt of type int with invalid value [$edges->{$edge}->{$opt}]."
+                ) if $opts->{$opt}->{type} eq 'int' && $edges->{$edge}->{$opt} !~ /^\d+$/;
             }
         }
     }
@@ -158,8 +163,8 @@ sub add_edge {
     my ( $from_u, $to_u, %edges ) = @_;
 
     # need u objects
-    $from_u = LJ::want_user( $from_u );
-    $to_u = LJ::want_user( $to_u );
+    $from_u = LJ::want_user($from_u);
+    $to_u   = LJ::want_user($to_u);
 
     # error check inputs
     return 0 unless $from_u && $to_u;
@@ -168,7 +173,7 @@ sub add_edge {
     # now we try to add these edges.  note that we do this in this way so that
     # multiple edges can be consumed by one add sub.
     my @to_add = keys %edges;
-    my $ok = 1;
+    my $ok     = 1;
     while ( my $key = shift @to_add ) {
 
         # some modules will define multiple edges, and so one call to add_sub might
@@ -179,7 +184,7 @@ sub add_edge {
         # simply calls an add_sub to handle the edge.  we expect them to remove the
         # edge from the hashref if they process it.
         my $success = $DW::User::Edges::VALID_EDGES{$key}->{add_sub}->( $from_u, $to_u, \%edges );
-        $ok &&= $success;  # will zero out if any edges fail
+        $ok &&= $success;    # will zero out if any edges fail
     }
 
     # all good
@@ -191,8 +196,8 @@ sub remove_edge {
     my ( $from_u, $to_u, %edges ) = @_;
 
     # need u objects
-    $from_u = LJ::want_user( $from_u );
-    $to_u = LJ::want_user( $to_u );
+    $from_u = LJ::want_user($from_u);
+    $to_u   = LJ::want_user($to_u);
 
     # error check inputs
     return 0 unless $from_u && $to_u;
@@ -201,7 +206,7 @@ sub remove_edge {
     # now we try to remove these edges.  note that we do this in this way so that
     # multiple edges can be consumed by one remove sub.
     my @to_del = keys %edges;
-    my $ok = 1;
+    my $ok     = 1;
     while ( my $key = shift @to_del ) {
 
         # some modules will define multiple edges, and so one call to add_sub might
@@ -212,7 +217,7 @@ sub remove_edge {
         # simply calls an add_sub to handle the edge.  we expect them to remove the
         # edge from the hashref if they process it.
         my $success = $DW::User::Edges::VALID_EDGES{$key}->{del_sub}->( $from_u, $to_u, \%edges );
-        $ok &&= $success;  # will zero out if any edges fail
+        $ok &&= $success;    # will zero out if any edges fail
     }
 
     # all good
@@ -220,7 +225,7 @@ sub remove_edge {
 }
 
 # and now we link these into the LJ::User namespace for backwards compatibility
-*LJ::User::add_edge = \&add_edge;
+*LJ::User::add_edge    = \&add_edge;
 *LJ::User::remove_edge = \&remove_edge;
 
 1;

@@ -18,22 +18,22 @@ use base qw(LJ::Widget);
 use Carp qw(croak);
 use LJ::Customize;
 
-sub authas { 1 }
+sub authas   { 1 }
 sub need_res { qw( stc/widgets/customizetheme.css ) }
 
 sub render_body {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
-    my $remote = LJ::get_remote();
+    my $remote   = LJ::get_remote();
     my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
-    my $getsep = $getextra ? "&" : "?";
+    my $getsep   = $getextra ? "&" : "?";
 
     my $headextra = $opts{headextra};
-    my $group = $opts{group} ? $opts{group} : "display";
+    my $group     = $opts{group} ? $opts{group} : "display";
 
     my $ret;
     $ret .= "<h2 class='widget-header'>" . $class->ml('widget.customizetheme.title') . "</h2>";
@@ -43,14 +43,14 @@ sub render_body {
     $ret .= "<div class='customize-inner-wrapper section-nav-inner-wrapper'>";
     $ret .= "<div class='customize-nav section-nav'>";
 
-    my $style = LJ::S2::load_style($u->prop('s2_style'));
+    my $style = LJ::S2::load_style( $u->prop('s2_style') );
     die "Style not found." unless $style && $style->{userid} == $u->id;
 
     my $nav_class = sub {
-        my $g = shift;
+        my $g       = shift;
         my $classes = "";
 
-        if ($g eq $group) {
+        if ( $g eq $group ) {
             $classes .= " class='on";
             $classes .= "'";
         }
@@ -58,40 +58,50 @@ sub render_body {
         return $classes;
     };
 
-    my %groups = LJ::Customize->get_propgroups($u, $style);
+    my %groups      = LJ::Customize->get_propgroups( $u, $style );
     my $group_names = $groups{groups};
-    my %has_group = map { $_ => 1 } @$group_names;
+    my %has_group   = map { $_ => 1 } @$group_names;
 
     ### Navigation ###
 
     $ret .= "<ul class='customize-nav nostyle' id='customize_theme_nav_links'>";
-    $ret .= "<li" . $nav_class->("display") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=display'>" . $class->ml('widget.customizetheme.nav.display') . "</a>";
+    $ret .= "<li"
+        . $nav_class->("display")
+        . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=display'>"
+        . $class->ml('widget.customizetheme.nav.display') . "</a>";
     $ret .= "</li>";
 
     foreach my $g (@$group_names) {
         next if $g eq "customcss";
 
-        my $name = LJ::Customize->propgroup_name($g, $u, $style);
-        $ret .= "<li" . $nav_class->($g) . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=$g'>$name</a></li>";
+        my $name = LJ::Customize->propgroup_name( $g, $u, $style );
+        $ret .= "<li"
+            . $nav_class->($g)
+            . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=$g'>$name</a></li>";
     }
 
-    $ret .= "<li" . $nav_class->("linkslist") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=linkslist'>" . $class->ml('widget.customizetheme.nav.linkslist') . "</a></li>";
+    $ret .= "<li"
+        . $nav_class->("linkslist")
+        . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=linkslist'>"
+        . $class->ml('widget.customizetheme.nav.linkslist')
+        . "</a></li>";
 
-    if ($has_group{customcss}) {
-        my $name = LJ::Customize->propgroup_name("customcss", $u, $style);
-        $ret .= "<li" . $nav_class->("customcss") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=customcss'>$name</a></li>";
+    if ( $has_group{customcss} ) {
+        my $name = LJ::Customize->propgroup_name( "customcss", $u, $style );
+        $ret .= "<li"
+            . $nav_class->("customcss")
+            . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=customcss'>$name</a></li>";
     }
 
     $ret .= "</ul>";
     $ret .= "</div>";
-
 
     ### Content ###
 
     $ret .= "<div class='customize-content section-nav-content'>";
 
     # Display Group
-    if ($group eq "display") {
+    if ( $group eq "display" ) {
         $ret .= "<div id='display-group' class='customize-group'>";
 
         my $mood_theme_chooser = LJ::Widget::MoodThemeChooser->new;
@@ -112,7 +122,7 @@ sub render_body {
     }
 
     # Presentation Group
-    elsif ($group eq "presentation") {
+    elsif ( $group eq "presentation" ) {
         $ret .= "<div id='presentation-group' class='customize-group'>";
 
         my $s2_propgroup = LJ::Widget::S2PropGroup->new;
@@ -120,9 +130,9 @@ sub render_body {
 
         $ret .= "<div class='pkg'>";
         $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "presentation",
-            groupprops => $groups{groupprops}->{presentation},
+            props             => $groups{props},
+            propgroup         => "presentation",
+            groupprops        => $groups{groupprops}->{presentation},
             show_lang_chooser => 0,
         );
         $ret .= "</div>";
@@ -131,15 +141,15 @@ sub render_body {
     }
 
     # Colors Group
-    elsif ($group eq "colors") {
+    elsif ( $group eq "colors" ) {
         $ret .= "<div id='colors-group' class='customize-group'>";
 
         my $s2_propgroup = LJ::Widget::S2PropGroup->new;
         $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
 
         $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "colors",
+            props      => $groups{props},
+            propgroup  => "colors",
             groupprops => $groups{groupprops}->{colors},
         );
 
@@ -147,15 +157,15 @@ sub render_body {
     }
 
     # Fonts Group
-    elsif ($group eq "fonts") {
+    elsif ( $group eq "fonts" ) {
         $ret .= "<div id='fonts-group' class='customize-group'>";
 
         my $s2_propgroup = LJ::Widget::S2PropGroup->new;
         $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
 
         $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "fonts",
+            props      => $groups{props},
+            propgroup  => "fonts",
             groupprops => $groups{groupprops}->{fonts},
         );
 
@@ -163,15 +173,15 @@ sub render_body {
     }
 
     # Images Group
-    elsif ($group eq "images") {
+    elsif ( $group eq "images" ) {
         $ret .= "<div id='images-group' class='customize-group'>";
 
         my $s2_propgroup = LJ::Widget::S2PropGroup->new;
         $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
 
         $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "images",
+            props      => $groups{props},
+            propgroup  => "images",
             groupprops => $groups{groupprops}->{images},
         );
 
@@ -179,15 +189,15 @@ sub render_body {
     }
 
     # Text Group
-    elsif ($group eq "text") {
+    elsif ( $group eq "text" ) {
         $ret .= "<div id='text-group' class='customize-group'>";
 
         my $s2_propgroup = LJ::Widget::S2PropGroup->new;
         $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
 
         $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "text",
+            props      => $groups{props},
+            propgroup  => "text",
             groupprops => $groups{groupprops}->{text},
         );
 
@@ -195,21 +205,21 @@ sub render_body {
     }
 
     # Links List Group
-    elsif ($group eq "linkslist") {
+    elsif ( $group eq "linkslist" ) {
         $ret .= "<div id='linkslist-group' class='customize-group'>";
         $ret .= LJ::Widget::LinksList->render( post => $opts{post} );
         $ret .= "</div>";
     }
 
     # Custom CSS Group
-    elsif ($group eq "customcss") {
+    elsif ( $group eq "customcss" ) {
         my $s2_propgroup = LJ::Widget::S2PropGroup->new;
         $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
 
         $ret .= "<div id='customcss-group' class='customize-group pkg'>";
         $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => "customcss",
+            props      => $groups{props},
+            propgroup  => "customcss",
             groupprops => $groups{groupprops}->{customcss},
         );
         $ret .= "</div>";
@@ -222,16 +232,22 @@ sub render_body {
 
         $ret .= "<div id='$group-group' class='customize-group pkg'>";
         $ret .= $s2_propgroup->render(
-            props => $groups{props},
-            propgroup => $group,
+            props      => $groups{props},
+            propgroup  => $group,
             groupprops => $groups{groupprops}->{$group},
         );
         $ret .= "</div>";
     }
 
     $ret .= "<div class='customize-buttons action-bar'>";
-    $ret .= $class->html_submit( save => $class->ml('widget.customizetheme.btn.save'), { raw => "class='customize-button'" } ) . " ";
-    $ret .= $class->html_submit( reset => $class->ml('widget.customizetheme.btn.reset'), { raw => "class='customize-button' id='reset_btn_bottom'" } );
+    $ret .= $class->html_submit(
+        save => $class->ml('widget.customizetheme.btn.save'),
+        { raw => "class='customize-button'" }
+    ) . " ";
+    $ret .= $class->html_submit(
+        reset => $class->ml('widget.customizetheme.btn.reset'),
+        { raw => "class='customize-button' id='reset_btn_bottom'" }
+    );
     $ret .= "</div>";
 
     $ret .= "</div><!-- end .customize-content -->";

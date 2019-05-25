@@ -17,16 +17,16 @@ use Carp qw(croak);
 use base 'LJ::Event';
 
 sub new {
-    my ($class, $u, $friendu) = @_;
-    foreach ($u, $friendu) {
+    my ( $class, $u, $friendu ) = @_;
+    foreach ( $u, $friendu ) {
         croak 'Not an LJ::User' unless LJ::isu($_);
     }
 
-    return $class->SUPER::new($u, $friendu->{userid});
+    return $class->SUPER::new( $u, $friendu->{userid} );
 }
 
 sub arg_list {
-    return ( "Friend userid" );
+    return ("Friend userid");
 }
 
 sub is_common { 0 }
@@ -40,19 +40,19 @@ my @_ml_strings = (
     'esn.invite_another_friend',        # '[[openlink]]Invite another friend[[closelink]]",
     'esn.invited_friend_joins.email',   # 'Hi [[user]],
                                         #
-                                        # Your friend [[newuser]] has created a journal on [[sitenameshort]]!
-                                        #
-                                        # You can:'
+        # Your friend [[newuser]] has created a journal on [[sitenameshort]]!
+        #
+        # You can:'
 );
 
 sub as_email_subject {
-    my ($self, $u) = @_;
+    my ( $self, $u ) = @_;
     return LJ::Lang::get_default_text( 'esn.invited_friend_joins.subject',
         { who => $self->friend->display_username } );
 }
 
 sub _as_email {
-    my ($self, $u, $is_html) = @_;
+    my ( $self, $u, $is_html ) = @_;
 
     return '' unless $u && $self->friend;
 
@@ -66,34 +66,35 @@ sub _as_email {
     LJ::Lang::get_default_text_multi( \@_ml_strings );
 
     my $vars = {
-            user            => $user,
-            who             => $newuser,
-            newuser         => $newuser,
-            postername      => $newusername,
-            journal         => $newusername,
-            sitenameshort   => $LJ::SITENAMESHORT,
+        user          => $user,
+        who           => $newuser,
+        newuser       => $newuser,
+        postername    => $newusername,
+        journal       => $newusername,
+        sitenameshort => $LJ::SITENAMESHORT,
     };
 
-    return LJ::Lang::get_default_text( 'esn.invited_friend_joins.email', $vars ) .
-        $self->format_options( $is_html, undef, $vars,
+    return LJ::Lang::get_default_text( 'esn.invited_friend_joins.email', $vars )
+        . $self->format_options(
+        $is_html, undef, $vars,
         {
-            'esn.add_trust'             => [ 1, "$LJ::SITEROOT/circle/$newusername/edit?action=access" ],
-            'esn.add_watch'             => [ 2, "$LJ::SITEROOT/circle/$newusername/edit?action=subscribe" ],
-            'esn.read_journal'          => [ 3, $newuser_url ],
-            'esn.view_profile'          => [ 4, $newuser_profile ],
+            'esn.add_trust'    => [ 1, "$LJ::SITEROOT/circle/$newusername/edit?action=access" ],
+            'esn.add_watch'    => [ 2, "$LJ::SITEROOT/circle/$newusername/edit?action=subscribe" ],
+            'esn.read_journal' => [ 3, $newuser_url ],
+            'esn.view_profile' => [ 4, $newuser_profile ],
             'esn.invite_another_friend' => [ 5, "$LJ::SITEROOT/manage/circle/invite" ],
         }
-    );
+        );
 }
 
 sub as_email_string {
-    my ($self, $u) = @_;
-    return _as_email($self, $u, 0);
+    my ( $self, $u ) = @_;
+    return _as_email( $self, $u, 0 );
 }
 
 sub as_email_html {
-    my ($self, $u) = @_;
-    return _as_email($self, $u, 1);
+    my ( $self, $u ) = @_;
+    return _as_email( $self, $u, 1 );
 }
 
 sub as_html {
@@ -102,15 +103,16 @@ sub as_html {
     return 'A friend you invited has created a journal.'
         unless $self->friend;
 
-    return sprintf "A friend you invited has created the journal %s.", $self->friend->ljuser_display;
+    return sprintf "A friend you invited has created the journal %s.",
+        $self->friend->ljuser_display;
 }
 
 sub as_html_actions {
     my ($self) = @_;
 
     my $ret .= "<div class='actions'>";
-    $ret .= " <a href='" . $self->friend->journal_base . "'>View Journal</a>";
-    $ret .= "</div>";
+    $ret    .= " <a href='" . $self->friend->journal_base . "'>View Journal</a>";
+    $ret    .= "</div>";
 
     return $ret;
 }
@@ -126,23 +128,22 @@ sub as_string {
 
 sub friend {
     my $self = shift;
-    return LJ::load_userid($self->arg1);
+    return LJ::load_userid( $self->arg1 );
 }
 
-
 sub subscription_as_html {
-    my ($class, $subscr) = @_;
-    return BML::ml('event.invited_friend_joins'); # "Someone I invited creates a new journal";
+    my ( $class, $subscr ) = @_;
+    return BML::ml('event.invited_friend_joins');    # "Someone I invited creates a new journal";
 }
 
 sub content {
-    my ($self, $target) = @_;
+    my ( $self, $target ) = @_;
 
     return $self->as_html_actions;
 }
 
 sub available_for_user {
-    my ($class, $u, $subscr) = @_;
+    my ( $class, $u, $subscr ) = @_;
 
     return $u->is_identity ? 0 : 1;
 }

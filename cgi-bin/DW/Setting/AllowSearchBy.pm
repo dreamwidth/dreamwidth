@@ -24,7 +24,7 @@ sub should_render {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.allowsearchby.label' );
+    return $_[0]->ml('setting.allowsearchby.label');
 }
 
 sub option {
@@ -34,7 +34,7 @@ sub option {
     # the selection values are opposite the text, since the property is an
     # opt-out property, it basically negates what we're trying to display to
     # the user ... yes, it's confusing, sorry
-    my $sel = $class->get_arg( $args, "allowsearchby" ) ||  $u->prop( 'opt_allowsearchby' ) || 'F';
+    my $sel = $class->get_arg( $args, "allowsearchby" ) || $u->prop('opt_allowsearchby') || 'F';
 
     my $ret .= LJ::html_select(
         {
@@ -43,9 +43,9 @@ sub option {
             selected => $sel,
         },
 
-        'A' => $class->ml( 'setting.allowsearchby.sel.a' ),
-        'F' => $class->ml( 'setting.allowsearchby.sel.f' ),
-        'N' => $class->ml( 'setting.allowsearchby.sel.n' ),
+        'A' => $class->ml('setting.allowsearchby.sel.a'),
+        'F' => $class->ml('setting.allowsearchby.sel.f'),
+        'N' => $class->ml('setting.allowsearchby.sel.n'),
     );
 
     my $errdiv = $class->errdiv( $errs, 'allowsearchby' );

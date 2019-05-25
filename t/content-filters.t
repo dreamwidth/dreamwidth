@@ -30,11 +30,11 @@ my ( $filter, $fid, $data, @f );
 # reset, delete, etc
 sub rst {
     foreach my $u ( $u1, $u2 ) {
-        foreach my $tbl ( qw/ content_filters content_filter_data / ) {
+        foreach my $tbl (qw/ content_filters content_filter_data /) {
             $u->do( "DELETE FROM $tbl WHERE userid = ?", undef, $u->id );
         }
 
-        foreach my $mc ( qw/ content_filters / ) {
+        foreach my $mc (qw/ content_filters /) {
             LJ::memcache_kill( $u, $mc );
         }
     }
@@ -43,7 +43,7 @@ sub rst {
 ################################################################################
 rst();
 @f = $u1->content_filters;
-ok( $#f == -1, 'no filters' );  # empty list
+ok( $#f == -1, 'no filters' );    # empty list
 
 $fid = $u1->create_content_filter( name => 'foob', public => 1, sortorder => 13 );
 ok( $fid > 0, 'make empty filter' );
@@ -63,35 +63,33 @@ is( $filter->name, 'isfd', 'lookup filter 2 by name' );
 
 ################################################################################
 $filter = $u1->content_filters( name => 'sodf' );
-ok( ! defined $filter, 'get bogus filter' );
+ok( !defined $filter, 'get bogus filter' );
 
 @f = $u1->content_filters;
 ok( $#f == 1, 'get both filters' );
 
 ################################################################################
 $filter = $u1->content_filters( name => 'foob' );
-$data = $filter->data;
-ok( defined $data && ref $data eq 'HASH' && scalar keys %$data == 0,
-    'get data, is empty' );
+$data   = $filter->data;
+ok( defined $data && ref $data eq 'HASH' && scalar keys %$data == 0, 'get data, is empty' );
 
 ################################################################################
 $filter = $u1->content_filters( name => 'foob' );
 ok( $filter->add_row( userid => $u2->id ) == 1, 'add a row' );
 
 $filter = $u1->content_filters( name => 'foob' );
-$data = $filter->data;
-ok( $data && exists $data->{$u2->id}, 'get data, has u2' );
+$data   = $filter->data;
+ok( $data && exists $data->{ $u2->id }, 'get data, has u2' );
 
 ################################################################################
 $fid = $u1->delete_content_filter( name => 'foob' );
 ok( $fid > 0, 'delete filter' );
 
-
 ################################################################################
-note( "in default filter after accepting a community invite" );
+note("in default filter after accepting a community invite");
 {
-    my $admin_u = temp_user();
-    my $comm_u = temp_comm();
+    my $admin_u  = temp_user();
+    my $comm_u   = temp_comm();
     my $invite_u = temp_user();
 
     LJ::set_rel( $comm_u, $admin_u, 'A' );
@@ -103,17 +101,20 @@ note( "in default filter after accepting a community invite" );
     $filter = $invite_u->content_filters( name => 'default' );
 
     $invite_u->send_comm_invite( $comm_u, $admin_u, [qw ( member )] );
-    ok( ! $filter->contains_userid( $comm_u->userid ), "not in filter yet because invite hasen't been accepted" );
+    ok(
+        !$filter->contains_userid( $comm_u->userid ),
+        "not in filter yet because invite hasen't been accepted"
+    );
 
-    $invite_u->accept_comm_invite( $comm_u );
+    $invite_u->accept_comm_invite($comm_u);
     ok( $filter->contains_userid( $comm_u->userid ), "accepted invite, now in filter" );
 }
 
 ################################################################################
-note( "in default filter after creating a community");
+note("in default filter after creating a community");
 {
     my $admin_u = temp_user();
-    LJ::set_remote( $admin_u );
+    LJ::set_remote($admin_u);
 
     $admin_u->create_content_filter( name => 'default' );
 
@@ -121,11 +122,12 @@ note( "in default filter after creating a community");
     $filter = $admin_u->content_filters( name => 'default' );
 
     my $comm_u = LJ::User->create_community(
-        user        => "t_". LJ::rand_chars( 15 - 2 ),
-        membership  => 'open',
-        postlevel   => 'members',
+        user       => "t_" . LJ::rand_chars( 15 - 2 ),
+        membership => 'open',
+        postlevel  => 'members',
     );
-    ok( $filter->contains_userid( $comm_u->userid ), "newly created community should go into the admin's default filters" );
+    ok( $filter->contains_userid( $comm_u->userid ),
+        "newly created community should go into the admin's default filters" );
 }
 
 ################################################################################

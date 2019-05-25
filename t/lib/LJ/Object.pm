@@ -51,46 +51,43 @@ package LJ::Object;
 use strict;
 use warnings qw{all};
 
-
 ###############################################################################
 ###  I N I T I A L I Z A T I O N
 ###############################################################################
 BEGIN {
     ### Versioning stuff and custom includes
     use vars qw{$VERSION $RCSID};
-    $VERSION    = do { my @r = (q$Revision: 4628 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
-    $RCSID  = q$Id: Object.pm 4628 2004-10-30 02:07:22Z deveiant $;
+    $VERSION = do { my @r = ( q$Revision: 4628 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
+    $RCSID = q$Id: Object.pm 4628 2004-10-30 02:07:22Z deveiant $;
 
     # Human-readable constants
-    use constant TRUE => 1;
+    use constant TRUE  => 1;
     use constant FALSE => 0;
 
     # Modules
-    use Carp                qw{carp croak confess};
-    use Scalar::Util        qw{blessed};
-    use Danga::Exceptions   qw{:syntax};
+    use Carp qw{carp croak confess};
+    use Scalar::Util qw{blessed};
+    use Danga::Exceptions qw{:syntax};
 
     # Superclass + class template
-    use Class::Translucent ({
-        debugFunction   => undef,
-        logFunction     => undef,
+    use Class::Translucent (
+        {
+            debugFunction => undef,
+            logFunction   => undef,
 
-        debugLevel      => 0,
-    });
-
+            debugLevel => 0,
+        }
+    );
 
     # Inheritance
     use base qw{Class::Translucent};
 }
 
-
 #####################################################################
 ### C L A S S   V A R I A B L E S
 #####################################################################
 
-our ( $AUTOLOAD );
-
-
+our ($AUTOLOAD);
 
 ###############################################################################
 ### P U B L I C   M E T H O D S
@@ -102,8 +99,8 @@ our ( $AUTOLOAD );
 ### C<@args>. If the debug level would allow the message, but no debugFunction
 ### is defined, the LogMsg() method is called instead at the 'debug' priority.
 sub DebugMsg {
-    my $self = shift        or throw Danga::MethodError;
-    my $level = shift;
+    my $self       = shift or throw Danga::MethodError;
+    my $level      = shift;
     my $debugLevel = $self->debugLevel;
     return unless $level && $debugLevel >= abs $level;
 
@@ -114,27 +111,22 @@ sub DebugMsg {
         $message = "<$caller> $message";
     }
 
-    if (( my $debugFunction = $self->debugFunction )) {
+    if ( ( my $debugFunction = $self->debugFunction ) ) {
         $debugFunction->( $message, @_ );
-    } else {
+    }
+    else {
         $self->LogMsg( 'debug', $message, @_ );
     }
 }
-
 
 ### (CLASS) METHOD: LogMsg( $level, $format, @args )
 ### Call the log function (if defined) at the specified level with the given
 ### printf C<$format> and C<@args>.
 sub LogMsg {
-    my $self = shift        or throw Danga::MethodError;
+    my $self = shift or throw Danga::MethodError;
     my $logFunction = $self->logFunction or return ();
 
-    my (
-        @args,
-        $level,
-        $objectName,
-        $format,
-       );
+    my ( @args, $level, $objectName, $format, );
 
     ### Massage the format a bit to include the object it's coming from.
     $level = shift;
@@ -142,12 +134,13 @@ sub LogMsg {
     $format = sprintf( '%s: %s', $objectName, shift() );
 
     # Turn any references or undefined values in the arglist into dumped strings
-    @args = map { defined $_ ? (ref $_ ? Data::Dumper->Dumpxs([$_], [ref $_]) : $_) : '(undef)' } @_;
+    @args =
+        map { defined $_ ? ( ref $_ ? Data::Dumper->Dumpxs( [$_], [ ref $_ ] ) : $_ ) : '(undef)' }
+        @_;
 
     # Call the logging callback
     $logFunction->( $level, $format, @args );
 }
-
 
 ### (PROXY) METHOD: AUTOLOAD( @args )
 ### Proxy method to build (non-translucent) object accessors.
@@ -161,14 +154,14 @@ sub AUTOLOAD {
 
         ### Define an accessor for this attribute
         my $method = sub : lvalue {
-            my $closureSelf = shift     or throw Danga::MethodError;
+            my $closureSelf = shift or throw Danga::MethodError;
 
             $closureSelf->{$name} = shift if @_;
             return $closureSelf->{$name};
         };
 
         ### Install the new method in the symbol table
-      NO_STRICT_REFS: {
+    NO_STRICT_REFS: {
             no strict 'refs';
             *{$AUTOLOAD} = $method;
         }
@@ -181,16 +174,14 @@ sub AUTOLOAD {
 
     ### Try to delegate to our parent's version of the method
     my $parentMethod = "SUPER::$name";
-    return $self->$parentMethod( @_ );
+    return $self->$parentMethod(@_);
 }
 
-
 ### Destructors
-END {}
+END { }
 
 ### The package return value (required)
 1;
-
 
 ###############################################################################
 ### D O C U M E N T A T I O N

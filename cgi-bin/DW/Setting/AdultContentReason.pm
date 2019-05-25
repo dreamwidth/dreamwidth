@@ -7,11 +7,11 @@ use LJ::Global::Constants;
 sub should_render {
     my ( $class, $u ) = @_;
 
-    return !LJ::is_enabled( 'adult_content' ) || !$u || $u->is_identity ? 0 : 1;
+    return !LJ::is_enabled('adult_content') || !$u || $u->is_identity ? 0 : 1;
 }
 
 sub label {
-    return $_[0]->ml( 'setting.adultcontentreason.label' );
+    return $_[0]->ml('setting.adultcontentreason.label');
 }
 
 sub option {
@@ -20,14 +20,16 @@ sub option {
     my $key = $class->pkgkey;
     my $ret;
 
-    $ret .= LJ::html_text({
-        name  => "${key}reason",
-        id    => "${key}reason",
-        class => "text",
-        value => $errs ? $class->get_arg( $args, "reason" ) : $u->adult_content_reason,
-        size  => 60,
-        maxlength => 255,
-    });
+    $ret .= LJ::html_text(
+        {
+            name      => "${key}reason",
+            id        => "${key}reason",
+            class     => "text",
+            value     => $errs ? $class->get_arg( $args, "reason" ) : $u->adult_content_reason,
+            size      => 60,
+            maxlength => 255,
+        }
+    );
 
     my $errdiv = $class->errdiv( $errs, "reason" );
     $ret .= "<br />$errdiv" if $errdiv;
@@ -37,7 +39,7 @@ sub option {
 
 sub save {
     my ( $class, $u, $args ) = @_;
- 
+
     my $txt = $class->get_arg( $args, "reason" ) || '';
     $txt = LJ::text_trim( $txt, 0, 255 );
     $u->set_prop( "adult_content_reason", $txt );

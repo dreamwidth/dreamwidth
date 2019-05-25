@@ -31,7 +31,7 @@ sub work {
     my $opts = $job->arg;
     my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
 
-    return $class->decline( $job ) unless $class->enabled( $data );
+    return $class->decline($job) unless $class->enabled($data);
 
     eval { try_work( $class, $job, $opts, $data ); };
     if ( my $msg = $@ ) {
@@ -54,13 +54,13 @@ sub try_work {
     $0 = sprintf( 'content-importer [tags: %s(%d)]', $u->user, $u->id );
 
     my $dbh = LJ::get_db_writer()
-        or return $temp_fail->( 'Unable to get global master database handle' );
+        or return $temp_fail->('Unable to get global master database handle');
 
     # get tags
     my $r = $class->call_xmlrpc( $data, 'getusertags' );
     my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-    $xmlrpc_fail .=  " (community: $data->{usejournal})" if $data->{usejournal};
-    return $temp_fail->( $xmlrpc_fail ) if ! $r || $r->{fault};
+    $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
+    return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};
 
     DW::Worker::ContentImporter::Local::Tags->merge_tags( $u, $r->{tags} );
 
@@ -76,6 +76,5 @@ sub try_work {
 
     return $ok->();
 }
-
 
 1;

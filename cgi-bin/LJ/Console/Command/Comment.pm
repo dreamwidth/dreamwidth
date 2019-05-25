@@ -21,26 +21,30 @@ sub cmd { "comment" }
 
 sub desc { "Manage comments in an account. Requires priv: deletetalk." }
 
-sub args_desc { [
-                 'action' => 'One of: screen, unscreen, freeze, unfreeze, delete, delete_thread.',
-                 'url' => 'The URL to the comment. (Use the permanent link that shows this comment topmost.)',
-                 'reason' => 'Reason this action is being taken.',
-                 ] }
+sub args_desc {
+    [
+        'action' => 'One of: screen, unscreen, freeze, unfreeze, delete, delete_thread.',
+        'url' =>
+            'The URL to the comment. (Use the permanent link that shows this comment topmost.)',
+        'reason' => 'Reason this action is being taken.',
+    ]
+}
 
 sub usage { '<action> <url> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "deletetalk" );
+    return $remote && $remote->has_priv("deletetalk");
 }
 
 sub execute {
-    my ($self, $action, $uri, $reason, @args) = @_;
+    my ( $self, $action, $uri, $reason, @args ) = @_;
 
     return $self->error("This command takes three arguments. Consult the reference.")
         unless $action && $uri && $reason && scalar(@args) == 0;
 
-    return $self->error("Action must be one of: screen, unscreen, freeze, unfreeze, delete, delete_thread.")
+    return $self->error(
+        "Action must be one of: screen, unscreen, freeze, unfreeze, delete, delete_thread.")
         unless $action =~ /^(?:screen|unscreen|freeze|unfreeze|delete|delete_thread)$/;
 
     return $self->error("You must provide a reason to action a comment.")
@@ -53,38 +57,44 @@ sub execute {
         if $comment->is_deleted;
 
     my $u = $comment->journal;
-    my ($ditemid, $dtalkid) = ($comment->entry->ditemid, $comment->dtalkid);
-    my ($jitemid, $jtalkid) = ($comment->entry->jitemid, $comment->jtalkid);
+    my ( $ditemid, $dtalkid ) = ( $comment->entry->ditemid, $comment->dtalkid );
+    my ( $jitemid, $jtalkid ) = ( $comment->entry->jitemid, $comment->jtalkid );
 
-    if ($action eq 'freeze') {
+    if ( $action eq 'freeze' ) {
         return $self->error("Comment is already frozen.")
             if $comment->is_frozen;
-        LJ::Talk::freeze_thread($u, $jitemid, $jtalkid);
+        LJ::Talk::freeze_thread( $u, $jitemid, $jtalkid );
 
-    } elsif ($action eq 'unfreeze') {
+    }
+    elsif ( $action eq 'unfreeze' ) {
         return $self->error("Comment is not frozen.")
             unless $comment->is_frozen;
-        LJ::Talk::unfreeze_thread($u, $jitemid, $jtalkid);
+        LJ::Talk::unfreeze_thread( $u, $jitemid, $jtalkid );
 
-    } elsif ($action eq 'screen') {
+    }
+    elsif ( $action eq 'screen' ) {
         return $self->error("Comment is already screened.")
             if $comment->is_screened;
-        LJ::Talk::screen_comment($u, $jitemid, $jtalkid);
+        LJ::Talk::screen_comment( $u, $jitemid, $jtalkid );
 
-    } elsif ($action eq 'unscreen') {
+    }
+    elsif ( $action eq 'unscreen' ) {
         return $self->error("Comment is not screened.")
             unless $comment->is_screened;
-        LJ::Talk::unscreen_comment($u, $jitemid, $jtalkid);
+        LJ::Talk::unscreen_comment( $u, $jitemid, $jtalkid );
 
-    } elsif ($action eq 'delete') {
-        LJ::Talk::delete_comment($u, $jitemid, $jtalkid, $comment->state);
+    }
+    elsif ( $action eq 'delete' ) {
+        LJ::Talk::delete_comment( $u, $jitemid, $jtalkid, $comment->state );
 
-    } elsif ($action eq 'delete_thread') {
-        LJ::Talk::delete_thread($u, $jitemid, $jtalkid);
+    }
+    elsif ( $action eq 'delete_thread' ) {
+        LJ::Talk::delete_thread( $u, $jitemid, $jtalkid );
     }
 
     my $remote = LJ::get_remote();
-    LJ::statushistory_add($u, $remote, 'comment_action', "$action (entry $ditemid comment $dtalkid): $reason");
+    LJ::statushistory_add( $u, $remote, 'comment_action',
+        "$action (entry $ditemid comment $dtalkid): $reason" );
 
     return $self->print("Comment action taken.");
 }

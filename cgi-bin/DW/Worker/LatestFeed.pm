@@ -31,10 +31,9 @@ sub work {
 
     # all we do is pass this back to the proper module, this keeps the logic in
     # one place so we don't have to track it down through four files :)
-    DW::LatestFeed->_process_item( $opts );
+    DW::LatestFeed->_process_item($opts);
 
     $job->completed;
 }
-
 
 1;

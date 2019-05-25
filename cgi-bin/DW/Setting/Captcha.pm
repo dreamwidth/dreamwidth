@@ -27,7 +27,7 @@ sub should_render {
 
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.captcha.label' );
+    return $class->ml('setting.captcha.label');
 }
 
 sub option {
@@ -37,19 +37,23 @@ sub option {
     my $captcha_type = $class->get_arg( $args, "captcha" ) || $u->captcha_type;
 
     my @opts = (
-        "T" => $class->ml( "setting.captcha.option.select.text" ),
-        "I" => $class->ml( "setting.captcha.option.select.image" ),
+        "T" => $class->ml("setting.captcha.option.select.text"),
+        "I" => $class->ml("setting.captcha.option.select.image"),
     );
 
     my $ret;
     $ret .= "<label for='${key}captcha'>";
-    $ret .= $class->ml( 'setting.captcha.option' );
+    $ret .= $class->ml('setting.captcha.option');
     $ret .= "</label> ";
 
-    $ret .= LJ::html_select( { name => "${key}captcha",
-                               id   => "${key}captcha",
-                               selected => $captcha_type },
-                             @opts );
+    $ret .= LJ::html_select(
+        {
+            name     => "${key}captcha",
+            id       => "${key}captcha",
+            selected => $captcha_type
+        },
+        @opts
+    );
 
     my $errdiv = $class->errdiv( $errs, "captcha" );
     $ret .= "<br />$errdiv" if $errdiv;
@@ -63,7 +67,7 @@ sub save {
     my $val = $class->get_arg( $args, "captcha" );
     $val = undef unless $val =~ /^[IT]$/;
 
-    $u->captcha_type( $val );
+    $u->captcha_type($val);
 
     return 1;
 }

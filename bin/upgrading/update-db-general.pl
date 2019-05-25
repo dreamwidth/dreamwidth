@@ -18,7 +18,7 @@ use strict;
 
 mark_clustered(@LJ::USER_TABLES);
 
-register_tablecreate("vgift_ids", <<'EOC');
+register_tablecreate( "vgift_ids", <<'EOC');
 CREATE TABLE vgift_ids (
     vgiftid      INT UNSIGNED NOT NULL PRIMARY KEY,
     name         VARCHAR(255) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE vgift_ids (
 )
 EOC
 
-register_tablecreate("vgift_counts", <<'EOC');
+register_tablecreate( "vgift_counts", <<'EOC');
 CREATE TABLE vgift_counts (
     vgiftid    INT UNSIGNED NOT NULL,
     count      INT UNSIGNED NOT NULL DEFAULT 0,
@@ -48,7 +48,7 @@ CREATE TABLE vgift_counts (
 )
 EOC
 
-register_tablecreate("vgift_tags", <<'EOC');
+register_tablecreate( "vgift_tags", <<'EOC');
 CREATE TABLE vgift_tags (
     tagid      INT UNSIGNED NOT NULL,
     vgiftid    INT UNSIGNED NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE vgift_tags (
 )
 EOC
 
-register_tablecreate("vgift_tagpriv", <<'EOC');
+register_tablecreate( "vgift_tagpriv", <<'EOC');
 CREATE TABLE vgift_tagpriv (
     tagid      INT UNSIGNED NOT NULL,
     prlid      SMALLINT UNSIGNED NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE vgift_tagpriv (
 )
 EOC
 
-register_tablecreate("vgift_trans", <<'EOC');
+register_tablecreate( "vgift_trans", <<'EOC');
 CREATE TABLE vgift_trans (
     transid    INT UNSIGNED NOT NULL,
     buyerid    INT UNSIGNED NOT NULL DEFAULT 0,
@@ -88,7 +88,7 @@ CREATE TABLE vgift_trans (
 )
 EOC
 
-register_tablecreate("authactions", <<'EOC');
+register_tablecreate( "authactions", <<'EOC');
 CREATE TABLE authactions (
     aaid int(10) unsigned NOT NULL auto_increment,
     userid int(10) unsigned NOT NULL default '0',
@@ -101,7 +101,7 @@ CREATE TABLE authactions (
 )
 EOC
 
-register_tablecreate("birthdays", <<'EOC');
+register_tablecreate( "birthdays", <<'EOC');
 CREATE TABLE birthdays (
     userid INT UNSIGNED NOT NULL,
     nextbirthday INT UNSIGNED,
@@ -111,7 +111,7 @@ CREATE TABLE birthdays (
 )
 EOC
 
-register_tablecreate("clients", <<'EOC');
+register_tablecreate( "clients", <<'EOC');
 CREATE TABLE clients (
     clientid smallint(5) unsigned NOT NULL auto_increment,
     client varchar(40) default NULL,
@@ -121,7 +121,7 @@ CREATE TABLE clients (
 )
 EOC
 
-register_tablecreate("clientusage", <<'EOC');
+register_tablecreate( "clientusage", <<'EOC');
 CREATE TABLE clientusage (
     userid int(10) unsigned NOT NULL default '0',
     clientid smallint(5) unsigned NOT NULL default '0',
@@ -132,7 +132,7 @@ CREATE TABLE clientusage (
 )
 EOC
 
-register_tablecreate("codes", <<'EOC');
+register_tablecreate( "codes", <<'EOC');
 CREATE TABLE codes (
     type varchar(10) NOT NULL default '',
     code varchar(7) NOT NULL default '',
@@ -143,7 +143,7 @@ CREATE TABLE codes (
 ) PACK_KEYS=1
 EOC
 
-register_tablecreate("community", <<'EOC');
+register_tablecreate( "community", <<'EOC');
 CREATE TABLE community (
     userid int(10) unsigned NOT NULL default '0',
     ownerid int(10) unsigned NOT NULL default '0',
@@ -154,7 +154,7 @@ CREATE TABLE community (
 )
 EOC
 
-register_tablecreate("duplock", <<'EOC');
+register_tablecreate( "duplock", <<'EOC');
 CREATE TABLE duplock (
     realm enum('support','log','comment') NOT NULL default 'support',
     reid int(10) unsigned NOT NULL default '0',
@@ -167,7 +167,7 @@ CREATE TABLE duplock (
 )
 EOC
 
-register_tablecreate("faq", <<'EOC');
+register_tablecreate( "faq", <<'EOC');
 CREATE TABLE faq (
     faqid mediumint(8) unsigned NOT NULL auto_increment,
     question text,
@@ -181,7 +181,7 @@ CREATE TABLE faq (
 )
 EOC
 
-register_tablecreate("faqcat", <<'EOC');
+register_tablecreate( "faqcat", <<'EOC');
 CREATE TABLE faqcat (
     faqcat varchar(20) NOT NULL default '',
     faqcatname varchar(100) default NULL,
@@ -191,7 +191,7 @@ CREATE TABLE faqcat (
 )
 EOC
 
-register_tablecreate("faquses", <<'EOC');
+register_tablecreate( "faquses", <<'EOC');
 CREATE TABLE faquses (
     faqid MEDIUMINT UNSIGNED NOT NULL,
     userid INT UNSIGNED NOT NULL,
@@ -203,7 +203,7 @@ CREATE TABLE faquses (
 )
 EOC
 
-register_tablecreate("wt_edges", <<'EOC');
+register_tablecreate( "wt_edges", <<'EOC');
 CREATE TABLE wt_edges (
     from_userid int(10) unsigned NOT NULL default '0',
     to_userid int(10) unsigned NOT NULL default '0',
@@ -217,7 +217,7 @@ CREATE TABLE wt_edges (
 )
 EOC
 
-register_tablecreate("interests", <<'EOC');
+register_tablecreate( "interests", <<'EOC');
 CREATE TABLE interests (
     intid int(10) unsigned NOT NULL,
     intcount mediumint(8) unsigned default NULL,
@@ -226,7 +226,7 @@ CREATE TABLE interests (
 )
 EOC
 
-register_tablecreate("logproplist", <<'EOC');
+register_tablecreate( "logproplist", <<'EOC');
 CREATE TABLE logproplist (
     propid tinyint(3) unsigned NOT NULL auto_increment,
     name varchar(50) default NULL,
@@ -242,7 +242,7 @@ CREATE TABLE logproplist (
 )
 EOC
 
-register_tablecreate("moods", <<'EOC');
+register_tablecreate( "moods", <<'EOC');
 CREATE TABLE moods (
     moodid int(10) unsigned NOT NULL auto_increment,
     mood varchar(40) default NULL,
@@ -254,7 +254,7 @@ CREATE TABLE moods (
 )
 EOC
 
-register_tablecreate("moodthemedata", <<'EOC');
+register_tablecreate( "moodthemedata", <<'EOC');
 CREATE TABLE moodthemedata (
     moodthemeid int(10) unsigned NOT NULL default '0',
     moodid int(10) unsigned NOT NULL default '0',
@@ -266,7 +266,7 @@ CREATE TABLE moodthemedata (
 )
 EOC
 
-register_tablecreate("moodthemes", <<'EOC');
+register_tablecreate( "moodthemes", <<'EOC');
 CREATE TABLE moodthemes (
     moodthemeid int(10) unsigned NOT NULL auto_increment,
     ownerid int(10) unsigned NOT NULL default '0',
@@ -280,7 +280,7 @@ CREATE TABLE moodthemes (
 )
 EOC
 
-register_tablecreate("noderefs", <<'EOC');
+register_tablecreate( "noderefs", <<'EOC');
 CREATE TABLE noderefs (
     nodetype char(1) NOT NULL default '',
     nodeid int(10) unsigned NOT NULL default '0',
@@ -291,7 +291,7 @@ CREATE TABLE noderefs (
 )
 EOC
 
-register_tablecreate("pendcomments", <<'EOC');
+register_tablecreate( "pendcomments", <<'EOC');
 CREATE TABLE pendcomments (
     jid int(10) unsigned NOT NULL,
     pendcid int(10) unsigned NOT NULL,
@@ -303,7 +303,7 @@ CREATE TABLE pendcomments (
 )
 EOC
 
-register_tablecreate("priv_list", <<'EOC');
+register_tablecreate( "priv_list", <<'EOC');
 CREATE TABLE priv_list (
     prlid smallint(5) unsigned NOT NULL auto_increment,
     privcode varchar(20) NOT NULL default '',
@@ -316,7 +316,7 @@ CREATE TABLE priv_list (
 )
 EOC
 
-register_tablecreate("priv_map", <<'EOC');
+register_tablecreate( "priv_map", <<'EOC');
 CREATE TABLE priv_map (
     prmid mediumint(8) unsigned NOT NULL auto_increment,
     userid int(10) unsigned NOT NULL default '0',
@@ -329,7 +329,7 @@ CREATE TABLE priv_map (
 )
 EOC
 
-register_tablecreate("random_user_set", <<'EOC');
+register_tablecreate( "random_user_set", <<'EOC');
 CREATE TABLE random_user_set (
     posttime INT UNSIGNED NOT NULL,
     userid INT UNSIGNED NOT NULL,
@@ -340,7 +340,7 @@ CREATE TABLE random_user_set (
 )
 EOC
 
-register_tablecreate("statkeylist", <<'EOC');
+register_tablecreate( "statkeylist", <<'EOC');
 CREATE TABLE statkeylist (
     statkeyid  int unsigned NOT NULL auto_increment,
     name       varchar(255) default NULL,
@@ -350,7 +350,7 @@ CREATE TABLE statkeylist (
 )
 EOC
 
-register_tablecreate("site_stats", <<'EOC');
+register_tablecreate( "site_stats", <<'EOC');
 CREATE TABLE site_stats (
     category_id INT UNSIGNED NOT NULL,
     key_id INT UNSIGNED NOT NULL,
@@ -364,7 +364,7 @@ CREATE TABLE site_stats (
 )
 EOC
 
-register_tablecreate("stats", <<'EOC');
+register_tablecreate( "stats", <<'EOC');
 CREATE TABLE stats (
     statcat varchar(30) NOT NULL,
     statkey varchar(150) NOT NULL,
@@ -374,7 +374,7 @@ CREATE TABLE stats (
 )
 EOC
 
-register_tablecreate("blobcache", <<'EOC');
+register_tablecreate( "blobcache", <<'EOC');
 CREATE TABLE blobcache (
     bckey VARCHAR(40) NOT NULL,
     PRIMARY KEY (bckey),
@@ -383,7 +383,7 @@ CREATE TABLE blobcache (
 )
 EOC
 
-register_tablecreate("support", <<'EOC');
+register_tablecreate( "support", <<'EOC');
 CREATE TABLE support (
     spid int(10) unsigned NOT NULL auto_increment,
     reqtype enum('user','email') default NULL,
@@ -406,7 +406,7 @@ CREATE TABLE support (
 )
 EOC
 
-register_tablecreate("supportcat", <<'EOC');
+register_tablecreate( "supportcat", <<'EOC');
 CREATE TABLE supportcat (
     spcatid int(10) unsigned NOT NULL auto_increment,
     catkey VARCHAR(25) NOT NULL,
@@ -428,7 +428,7 @@ CREATE TABLE supportcat (
 )
 EOC
 
-register_tablecreate("supportlog", <<'EOC');
+register_tablecreate( "supportlog", <<'EOC');
 CREATE TABLE supportlog (
     splid int(10) unsigned NOT NULL auto_increment,
     spid int(10) unsigned NOT NULL default '0',
@@ -443,7 +443,7 @@ CREATE TABLE supportlog (
 )
 EOC
 
-register_tablecreate("supportnotify", <<'EOC');
+register_tablecreate( "supportnotify", <<'EOC');
 CREATE TABLE supportnotify (
     spcatid int(10) unsigned NOT NULL default '0',
     userid int(10) unsigned NOT NULL default '0',
@@ -455,7 +455,7 @@ CREATE TABLE supportnotify (
 )
 EOC
 
-register_tablecreate("supportpoints", <<'EOC');
+register_tablecreate( "supportpoints", <<'EOC');
 CREATE TABLE supportpoints (
     spid int(10) unsigned NOT NULL default '0',
     userid int(10) unsigned NOT NULL default '0',
@@ -466,7 +466,7 @@ CREATE TABLE supportpoints (
 )
 EOC
 
-register_tablecreate("supportpointsum", <<'EOC');
+register_tablecreate( "supportpointsum", <<'EOC');
 CREATE TABLE supportpointsum (
     userid INT UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (userid),
@@ -478,11 +478,11 @@ CREATE TABLE supportpointsum (
 )
 EOC
 
-post_create("supportpointsum",
-            "sqltry" => "INSERT IGNORE INTO supportpointsum (userid, totpoints, lastupdate) " .
-            "SELECT userid, SUM(points), 0 FROM supportpoints GROUP BY userid");
+post_create( "supportpointsum",
+          "sqltry" => "INSERT IGNORE INTO supportpointsum (userid, totpoints, lastupdate) "
+        . "SELECT userid, SUM(points), 0 FROM supportpoints GROUP BY userid" );
 
-register_tablecreate("talkproplist", <<'EOC');
+register_tablecreate( "talkproplist", <<'EOC');
 CREATE TABLE talkproplist (
     tpropid smallint(5) unsigned NOT NULL auto_increment,
     name varchar(50) default NULL,
@@ -497,7 +497,7 @@ CREATE TABLE talkproplist (
 )
 EOC
 
-register_tablecreate("user", <<'EOC');
+register_tablecreate( "user", <<'EOC');
 CREATE TABLE user (
     userid int(10) unsigned NOT NULL auto_increment,
     user char(25) default NULL,
@@ -535,7 +535,7 @@ CREATE TABLE user (
 )  PACK_KEYS=1
 EOC
 
-register_tablecreate("userbio", <<'EOC');
+register_tablecreate( "userbio", <<'EOC');
 CREATE TABLE userbio (
     userid int(10) unsigned NOT NULL default '0',
     bio text,
@@ -544,7 +544,7 @@ CREATE TABLE userbio (
 )
 EOC
 
-register_tablecreate("userinterests", <<'EOC');
+register_tablecreate( "userinterests", <<'EOC');
 CREATE TABLE userinterests (
     userid int(10) unsigned NOT NULL default '0',
     intid int(10) unsigned NOT NULL default '0',
@@ -554,7 +554,7 @@ CREATE TABLE userinterests (
 )
 EOC
 
-register_tablecreate("userpicblob2", <<'EOC');
+register_tablecreate( "userpicblob2", <<'EOC');
 CREATE TABLE userpicblob2 (
     userid int unsigned not null,
     picid int unsigned not null,
@@ -564,7 +564,7 @@ CREATE TABLE userpicblob2 (
 ) max_rows=10000000
 EOC
 
-register_tablecreate("userpicmap2", <<'EOC');
+register_tablecreate( "userpicmap2", <<'EOC');
 CREATE TABLE userpicmap2 (
     userid int(10) unsigned NOT NULL default '0',
     kwid int(10) unsigned NOT NULL default '0',
@@ -574,7 +574,7 @@ CREATE TABLE userpicmap2 (
 )
 EOC
 
-register_tablecreate("userpicmap3", <<'EOC');
+register_tablecreate( "userpicmap3", <<'EOC');
 CREATE TABLE userpicmap3 (
     userid int(10) unsigned NOT NULL default '0',
     mapid int(10) unsigned NOT NULL,
@@ -588,7 +588,7 @@ CREATE TABLE userpicmap3 (
 )
 EOC
 
-register_tablecreate("userpic2", <<'EOC');
+register_tablecreate( "userpic2", <<'EOC');
 CREATE TABLE userpic2 (
     picid int(10) unsigned NOT NULL,
     userid int(10) unsigned NOT NULL default '0',
@@ -607,7 +607,7 @@ CREATE TABLE userpic2 (
 )
 EOC
 
-register_tablecreate("userproplist", <<'EOC');
+register_tablecreate( "userproplist", <<'EOC');
 CREATE TABLE userproplist (
     upropid smallint(5) unsigned NOT NULL auto_increment,
     name varchar(50) default NULL,
@@ -622,7 +622,7 @@ CREATE TABLE userproplist (
 EOC
 
 # global, indexed
-register_tablecreate("userprop", <<'EOC');
+register_tablecreate( "userprop", <<'EOC');
 CREATE TABLE userprop (
     userid int(10) unsigned NOT NULL default '0',
     upropid smallint(5) unsigned NOT NULL default '0',
@@ -634,7 +634,7 @@ CREATE TABLE userprop (
 EOC
 
 # global, not indexed
-register_tablecreate("userproplite", <<'EOC');
+register_tablecreate( "userproplite", <<'EOC');
 CREATE TABLE userproplite (
     userid int(10) unsigned NOT NULL default '0',
     upropid smallint(5) unsigned NOT NULL default '0',
@@ -646,7 +646,7 @@ CREATE TABLE userproplite (
 EOC
 
 # clustered, not indexed
-register_tablecreate("userproplite2", <<'EOC');
+register_tablecreate( "userproplite2", <<'EOC');
 CREATE TABLE userproplite2 (
     userid int(10) unsigned NOT NULL default '0',
     upropid smallint(5) unsigned NOT NULL default '0',
@@ -658,7 +658,7 @@ CREATE TABLE userproplite2 (
 EOC
 
 # clustered
-register_tablecreate("userpropblob", <<'EOC');
+register_tablecreate( "userpropblob", <<'EOC');
 CREATE TABLE userpropblob (
     userid INT(10) unsigned NOT NULL default '0',
     upropid SMALLINT(5) unsigned NOT NULL default '0',
@@ -670,7 +670,7 @@ EOC
 
 ################# above was a snapshot.  now, changes:
 
-register_tablecreate("log2", <<'EOC');
+register_tablecreate( "log2", <<'EOC');
 CREATE TABLE log2 (
     journalid INT UNSIGNED NOT NULL default '0',
     jitemid MEDIUMINT UNSIGNED NOT NULL,
@@ -696,7 +696,7 @@ CREATE TABLE log2 (
 )
 EOC
 
-register_tablecreate("logtext2", <<'EOC');
+register_tablecreate( "logtext2", <<'EOC');
 CREATE TABLE logtext2 (
     journalid INT UNSIGNED NOT NULL,
     jitemid MEDIUMINT UNSIGNED NOT NULL,
@@ -707,7 +707,7 @@ CREATE TABLE logtext2 (
 ) max_rows=100000000
 EOC
 
-register_tablecreate("logprop2", <<'EOC');
+register_tablecreate( "logprop2", <<'EOC');
 CREATE TABLE logprop2 (
     journalid  INT UNSIGNED NOT NULL,
     jitemid MEDIUMINT UNSIGNED NOT NULL,
@@ -718,7 +718,7 @@ CREATE TABLE logprop2 (
 )
 EOC
 
-register_tablecreate("logsec2", <<'EOC');
+register_tablecreate( "logsec2", <<'EOC');
 CREATE TABLE logsec2 (
     journalid INT UNSIGNED NOT NULL,
     jitemid MEDIUMINT UNSIGNED NOT NULL,
@@ -728,7 +728,7 @@ CREATE TABLE logsec2 (
 )
 EOC
 
-register_tablecreate("talk2", <<'EOC');
+register_tablecreate( "talk2", <<'EOC');
 CREATE TABLE talk2 (
     journalid INT UNSIGNED NOT NULL,
     jtalkid INT UNSIGNED NOT NULL,
@@ -746,7 +746,7 @@ CREATE TABLE talk2 (
 )
 EOC
 
-register_tablecreate("talkprop2", <<'EOC');
+register_tablecreate( "talkprop2", <<'EOC');
 CREATE TABLE talkprop2 (
     journalid INT UNSIGNED NOT NULL,
     jtalkid INT UNSIGNED NOT NULL,
@@ -757,7 +757,7 @@ CREATE TABLE talkprop2 (
 )
 EOC
 
-register_tablecreate("talktext2", <<'EOC');
+register_tablecreate( "talktext2", <<'EOC');
 CREATE TABLE talktext2 (
     journalid INT UNSIGNED NOT NULL,
     jtalkid INT UNSIGNED NOT NULL,
@@ -768,7 +768,7 @@ CREATE TABLE talktext2 (
 ) max_rows=100000000
 EOC
 
-register_tablecreate("talkleft", <<'EOC');
+register_tablecreate( "talkleft", <<'EOC');
 CREATE TABLE talkleft (
     userid    INT UNSIGNED NOT NULL,
     posttime  INT UNSIGNED NOT NULL,
@@ -782,7 +782,7 @@ CREATE TABLE talkleft (
 )
 EOC
 
-register_tablecreate("talkleft_xfp", <<'EOC');
+register_tablecreate( "talkleft_xfp", <<'EOC');
 CREATE TABLE talkleft_xfp (
     userid    INT UNSIGNED NOT NULL,
     posttime  INT UNSIGNED NOT NULL,
@@ -911,8 +911,7 @@ register_tabledrop("backupdirty");
 register_tabledrop("actionhistory");
 register_tabledrop("recentactions");
 
-
-register_tablecreate("infohistory", <<'EOC');
+register_tablecreate( "infohistory", <<'EOC');
 CREATE TABLE infohistory (
     userid int(10) unsigned NOT NULL default '0',
     what varchar(15) NOT NULL default '',
@@ -924,7 +923,7 @@ CREATE TABLE infohistory (
 )
 EOC
 
-register_tablecreate("useridmap", <<'EOC');
+register_tablecreate( "useridmap", <<'EOC');
 CREATE TABLE useridmap (
     userid int(10) unsigned NOT NULL,
     user char(25) NOT NULL,
@@ -934,10 +933,10 @@ CREATE TABLE useridmap (
 )
 EOC
 
-post_create("useridmap",
-            "sqltry" => "REPLACE INTO useridmap (userid, user) SELECT userid, user FROM user");
+post_create( "useridmap",
+    "sqltry" => "REPLACE INTO useridmap (userid, user) SELECT userid, user FROM user" );
 
-register_tablecreate("userusage", <<'EOC');
+register_tablecreate( "userusage", <<'EOC');
 CREATE TABLE userusage (
     userid INT UNSIGNED NOT NULL,
     PRIMARY KEY (userid),
@@ -950,11 +949,14 @@ CREATE TABLE userusage (
 )
 EOC
 
-post_create("userusage",
-            "sqltry" => "INSERT IGNORE INTO userusage (userid, timecreate, timeupdate, timecheck, lastitemid) SELECT userid, timecreate, timeupdate, timecheck, lastitemid FROM user",
-            "sqltry" => "ALTER TABLE user DROP timecreate, DROP timeupdate, DROP timecheck, DROP lastitemid");
+post_create(
+    "userusage",
+    "sqltry" =>
+"INSERT IGNORE INTO userusage (userid, timecreate, timeupdate, timecheck, lastitemid) SELECT userid, timecreate, timeupdate, timecheck, lastitemid FROM user",
+    "sqltry" => "ALTER TABLE user DROP timecreate, DROP timeupdate, DROP timecheck, DROP lastitemid"
+);
 
-register_tablecreate("acctcode", <<'EOC');
+register_tablecreate( "acctcode", <<'EOC');
 CREATE TABLE acctcode (
     acid    INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     userid  INT UNSIGNED NOT NULL,
@@ -970,7 +972,7 @@ CREATE TABLE acctcode (
 )
 EOC
 
-register_tablecreate("acctcode_request", <<'EOC');
+register_tablecreate( "acctcode_request", <<'EOC');
 CREATE TABLE acctcode_request (
     reqid   INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     userid  INT UNSIGNED NOT NULL,
@@ -983,7 +985,7 @@ CREATE TABLE acctcode_request (
 )
 EOC
 
-register_tablecreate("statushistory", <<'EOC');
+register_tablecreate( "statushistory", <<'EOC');
 CREATE TABLE statushistory (
     userid    INT UNSIGNED NOT NULL,
     adminid   INT UNSIGNED NOT NULL,
@@ -998,7 +1000,7 @@ CREATE TABLE statushistory (
 )
 EOC
 
-register_tablecreate("includetext", <<'EOC');
+register_tablecreate( "includetext", <<'EOC');
 CREATE TABLE includetext (
     incname  VARCHAR(80) NOT NULL PRIMARY KEY,
     inctext  TEXT,
@@ -1008,7 +1010,7 @@ CREATE TABLE includetext (
 )
 EOC
 
-register_tablecreate("dudata", <<'EOC');
+register_tablecreate( "dudata", <<'EOC');
 CREATE TABLE dudata (
     userid   INT UNSIGNED NOT NULL,
     area     CHAR(1) NOT NULL,
@@ -1019,7 +1021,7 @@ CREATE TABLE dudata (
 )
 EOC
 
-register_tablecreate("dbinfo", <<'EOC');
+register_tablecreate( "dbinfo", <<'EOC');
 CREATE TABLE dbinfo (
     dbid    TINYINT UNSIGNED NOT NULL,
     name    VARCHAR(25),
@@ -1032,7 +1034,7 @@ CREATE TABLE dbinfo (
 )
 EOC
 
-register_tablecreate("dbweights", <<'EOC');
+register_tablecreate( "dbweights", <<'EOC');
 CREATE TABLE dbweights (
     dbid    TINYINT UNSIGNED NOT NULL,
     role    VARCHAR(25) NOT NULL,
@@ -1043,7 +1045,7 @@ CREATE TABLE dbweights (
 EOC
 
 # Begin S2 Stuff
-register_tablecreate("s2layers", <<'EOC'); # global
+register_tablecreate( "s2layers", <<'EOC');    # global
 CREATE TABLE s2layers (
     s2lid INT UNSIGNED NOT NULL AUTO_INCREMENT,
     PRIMARY KEY (s2lid),
@@ -1056,7 +1058,7 @@ CREATE TABLE s2layers (
 )
 EOC
 
-register_tablecreate("s2info", <<'EOC'); # global
+register_tablecreate( "s2info", <<'EOC');    # global
 CREATE TABLE s2info (
     s2lid INT UNSIGNED NOT NULL,
     infokey   VARCHAR(80) NOT NULL,
@@ -1066,7 +1068,7 @@ CREATE TABLE s2info (
 )
 EOC
 
-register_tablecreate("s2source_inno", <<'EOC'); # global
+register_tablecreate( "s2source_inno", <<'EOC');    # global
 CREATE TABLE s2source_inno (
     s2lid INT UNSIGNED NOT NULL,
     PRIMARY KEY (s2lid),
@@ -1074,7 +1076,7 @@ CREATE TABLE s2source_inno (
 ) ENGINE=InnoDB
 EOC
 
-register_tablecreate("s2checker", <<'EOC'); # global
+register_tablecreate( "s2checker", <<'EOC');        # global
 CREATE TABLE s2checker (
     s2lid INT UNSIGNED NOT NULL,
     PRIMARY KEY (s2lid),
@@ -1083,7 +1085,7 @@ CREATE TABLE s2checker (
 EOC
 
 # the original global s2compiled table.  see comment below for new version.
-register_tablecreate("s2compiled", <<'EOC'); # global (compdata is not gzipped)
+register_tablecreate( "s2compiled", <<'EOC');       # global (compdata is not gzipped)
 CREATE TABLE s2compiled (
     s2lid INT UNSIGNED NOT NULL,
     PRIMARY KEY (s2lid),
@@ -1095,7 +1097,7 @@ EOC
 # s2compiled2 is only for user S2 layers (not system) and is lazily
 # migrated.  new saves go here.  loads try this table first (unless
 # system) and if miss, then try the s2compiled table on the global.
-register_tablecreate("s2compiled2", <<'EOC'); # clustered (compdata is gzipped)
+register_tablecreate( "s2compiled2", <<'EOC');    # clustered (compdata is gzipped)
 CREATE TABLE s2compiled2 (
     userid INT UNSIGNED NOT NULL,
     s2lid INT UNSIGNED NOT NULL,
@@ -1106,7 +1108,7 @@ CREATE TABLE s2compiled2 (
 )
 EOC
 
-register_tablecreate("s2styles", <<'EOC'); # global
+register_tablecreate( "s2styles", <<'EOC');       # global
 CREATE TABLE s2styles (
     styleid INT UNSIGNED NOT NULL AUTO_INCREMENT,
     PRIMARY KEY (styleid),
@@ -1118,7 +1120,7 @@ CREATE TABLE s2styles (
 )
 EOC
 
-register_tablecreate("s2stylelayers2", <<'EOC'); # clustered
+register_tablecreate( "s2stylelayers2", <<'EOC'); # clustered
 CREATE TABLE s2stylelayers2 (
     userid  INT UNSIGNED NOT NULL,
     styleid INT UNSIGNED NOT NULL,
@@ -1128,7 +1130,7 @@ CREATE TABLE s2stylelayers2 (
 )
 EOC
 
-register_tablecreate("s2categories", <<'EOC'); # global
+register_tablecreate( "s2categories", <<'EOC');   # global
 CREATE TABLE s2categories (
     s2lid INT UNSIGNED NOT NULL,
     kwid INT(10) UNSIGNED NOT NULL,
@@ -1138,7 +1140,7 @@ CREATE TABLE s2categories (
 )
 EOC
 
-register_tablecreate("ml_domains", <<'EOC');
+register_tablecreate( "ml_domains", <<'EOC');
 CREATE TABLE ml_domains (
     dmid TINYINT UNSIGNED NOT NULL,
     PRIMARY KEY (dmid),
@@ -1149,7 +1151,7 @@ CREATE TABLE ml_domains (
 )
 EOC
 
-register_tablecreate("ml_items", <<'EOC');
+register_tablecreate( "ml_items", <<'EOC');
 CREATE TABLE ml_items (
     dmid    TINYINT UNSIGNED NOT NULL,
     itid    MEDIUMINT UNSIGNED AUTO_INCREMENT NOT NULL,
@@ -1165,7 +1167,7 @@ CREATE TABLE ml_items (
 ) ENGINE=MYISAM
 EOC
 
-register_tablecreate("ml_langs", <<'EOC');
+register_tablecreate( "ml_langs", <<'EOC');
 CREATE TABLE ml_langs (
     lnid      SMALLINT UNSIGNED NOT NULL,
     UNIQUE (lnid),
@@ -1178,7 +1180,7 @@ CREATE TABLE ml_langs (
 )
 EOC
 
-register_tablecreate("ml_langdomains", <<'EOC');
+register_tablecreate( "ml_langdomains", <<'EOC');
 CREATE TABLE ml_langdomains (
     lnid   SMALLINT UNSIGNED NOT NULL,
     dmid   TINYINT UNSIGNED NOT NULL,
@@ -1191,7 +1193,7 @@ CREATE TABLE ml_langdomains (
 )
 EOC
 
-register_tablecreate("ml_latest", <<'EOC');
+register_tablecreate( "ml_latest", <<'EOC');
 CREATE TABLE ml_latest (
     lnid     SMALLINT UNSIGNED NOT NULL,
     dmid     TINYINT UNSIGNED NOT NULL,
@@ -1207,7 +1209,7 @@ CREATE TABLE ml_latest (
 )
 EOC
 
-register_tablecreate("ml_text", <<'EOC');
+register_tablecreate( "ml_text", <<'EOC');
 CREATE TABLE ml_text (
     dmid  TINYINT UNSIGNED NOT NULL,
     txtid  INT UNSIGNED AUTO_INCREMENT NOT NULL,
@@ -1220,7 +1222,7 @@ CREATE TABLE ml_text (
 ) ENGINE=MYISAM
 EOC
 
-register_tablecreate("procnotify", <<'EOC');
+register_tablecreate( "procnotify", <<'EOC');
 CREATE TABLE procnotify (
     nid   INT UNSIGNED NOT NULL AUTO_INCREMENT,
     PRIMARY KEY (nid),
@@ -1229,7 +1231,7 @@ CREATE TABLE procnotify (
 )
 EOC
 
-register_tablecreate("syndicated", <<'EOC');
+register_tablecreate( "syndicated", <<'EOC');
 CREATE TABLE syndicated (
     userid  INT UNSIGNED NOT NULL,
     synurl  VARCHAR(255),
@@ -1246,7 +1248,7 @@ CREATE TABLE syndicated (
 )
 EOC
 
-register_tablecreate("synitem", <<'EOC');
+register_tablecreate( "synitem", <<'EOC');
 CREATE TABLE synitem (
     userid  INT UNSIGNED NOT NULL,
     item   CHAR(22),    # base64digest of rss $item
@@ -1257,7 +1259,7 @@ CREATE TABLE synitem (
 )
 EOC
 
-register_tablecreate("ratelist", <<'EOC');
+register_tablecreate( "ratelist", <<'EOC');
 CREATE TABLE ratelist (
     rlid TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name  varchar(50) not null,
@@ -1268,7 +1270,7 @@ CREATE TABLE ratelist (
 )
 EOC
 
-register_tablecreate("ratelog", <<'EOC');
+register_tablecreate( "ratelog", <<'EOC');
 CREATE TABLE ratelog (
     userid   INT UNSIGNED NOT NULL,
     rlid  TINYINT UNSIGNED NOT NULL,
@@ -1279,7 +1281,7 @@ CREATE TABLE ratelog (
 )
 EOC
 
-register_tablecreate("rateabuse", <<'EOC');
+register_tablecreate( "rateabuse", <<'EOC');
 CREATE TABLE rateabuse (
     rlid     TINYINT UNSIGNED NOT NULL,
     userid   INT UNSIGNED NOT NULL,
@@ -1293,7 +1295,7 @@ CREATE TABLE rateabuse (
 )
 EOC
 
-register_tablecreate("loginstall", <<'EOC');
+register_tablecreate( "loginstall", <<'EOC');
 CREATE TABLE loginstall (
     userid   INT UNSIGNED NOT NULL,
     ip       INT UNSIGNED NOT NULL,
@@ -1308,7 +1310,7 @@ EOC
 # created over 30 days ago.  a live session can't change email address
 # or password.  digest authentication will be required for that,
 # or javascript md5 challenge/response.
-register_tablecreate("sessions", <<'EOC'); # user cluster
+register_tablecreate( "sessions", <<'EOC');    # user cluster
 CREATE TABLE sessions (
     userid     MEDIUMINT UNSIGNED NOT NULL,
     sessid     MEDIUMINT UNSIGNED NOT NULL,
@@ -1321,7 +1323,7 @@ CREATE TABLE sessions (
 )
 EOC
 
-register_tablecreate("sessions_data", <<'EOC');  # user cluster
+register_tablecreate( "sessions_data", <<'EOC');    # user cluster
 CREATE TABLE sessions_data (
     userid     MEDIUMINT UNSIGNED NOT NULL,
     sessid     MEDIUMINT UNSIGNED NOT NULL,
@@ -1333,7 +1335,7 @@ EOC
 
 # what:  ip, email, ljuser, ua, emailnopay
 # emailnopay means don't allow payments from that email
-register_tablecreate("sysban", <<'EOC');
+register_tablecreate( "sysban", <<'EOC');
 CREATE TABLE sysban (
     banid     MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
     PRIMARY KEY (banid),
@@ -1349,7 +1351,7 @@ EOC
 
 # clustered relationship types are defined in ljlib.pl and ljlib-local.pl in
 # the LJ::get_reluser_id function
-register_tablecreate("reluser2", <<'EOC');
+register_tablecreate( "reluser2", <<'EOC');
 CREATE TABLE reluser2 (
     userid    INT UNSIGNED NOT NULL,
     type      SMALLINT UNSIGNED NOT NULL,
@@ -1370,7 +1372,7 @@ EOC
 # 'S' means targetid will have comments automatically screened in userid
 # new types to be added here
 
-register_tablecreate("reluser", <<'EOC');
+register_tablecreate( "reluser", <<'EOC');
 CREATE TABLE reluser (
     userid     INT UNSIGNED NOT NULL,
     targetid   INT UNSIGNED NOT NULL,
@@ -1380,40 +1382,45 @@ CREATE TABLE reluser (
 )
 EOC
 
-post_create("reluser",
-            "sqltry" => "INSERT IGNORE INTO reluser (userid, targetid, type) SELECT userid, banneduserid, 'B' FROM ban",
-            "sqltry" => "INSERT IGNORE INTO reluser (userid, targetid, type) SELECT u.userid, p.userid, 'A' FROM priv_map p, priv_list l, user u WHERE l.privcode='sharedjournal' AND l.prlid=p.prlid AND p.arg=u.user AND p.arg<>'all'",
-            "code" => sub {
+post_create(
+    "reluser",
+    "sqltry" =>
+"INSERT IGNORE INTO reluser (userid, targetid, type) SELECT userid, banneduserid, 'B' FROM ban",
+    "sqltry" =>
+"INSERT IGNORE INTO reluser (userid, targetid, type) SELECT u.userid, p.userid, 'A' FROM priv_map p, priv_list l, user u WHERE l.privcode='sharedjournal' AND l.prlid=p.prlid AND p.arg=u.user AND p.arg<>'all'",
+    "code" => sub {
 
-                # logaccess has been dead for a long time.  In fact, its table
-                # definition has been removed from this file.  No need to try
-                # and upgrade if the source table doesn't even exist.
-                unless (column_type('logaccess', 'userid')) {
-                    print "# No logaccess source table found, skipping...\n";
-                    return;
-                }
+        # logaccess has been dead for a long time.  In fact, its table
+        # definition has been removed from this file.  No need to try
+        # and upgrade if the source table doesn't even exist.
+        unless ( column_type( 'logaccess', 'userid' ) ) {
+            print "# No logaccess source table found, skipping...\n";
+            return;
+        }
 
-                my $dbh = shift;
-                print "# Converting logaccess rows to reluser...\n";
-                my $sth = $dbh->prepare("SELECT MAX(userid) FROM user");
-                $sth->execute;
-                my ($maxid) = $sth->fetchrow_array;
-                return unless $maxid;
+        my $dbh = shift;
+        print "# Converting logaccess rows to reluser...\n";
+        my $sth = $dbh->prepare("SELECT MAX(userid) FROM user");
+        $sth->execute;
+        my ($maxid) = $sth->fetchrow_array;
+        return unless $maxid;
 
-                my $from = 1; my $to = $from + 10000 - 1;
-                while ($from <= $maxid) {
-                    printf "#  logaccess status: (%0.1f%%)\n", ($from * 100 / $maxid);
-                    do_sql("INSERT IGNORE INTO reluser (userid, targetid, type) ".
-                           "SELECT ownerid, posterid, 'P' ".
-                           "FROM logaccess ".
-                           "WHERE ownerid BETWEEN $from AND $to");
-                    $from += 10000;
-                    $to += 10000;
-                }
-                print "# Finished converting logaccess.\n";
-            });
+        my $from = 1;
+        my $to   = $from + 10000 - 1;
+        while ( $from <= $maxid ) {
+            printf "#  logaccess status: (%0.1f%%)\n", ( $from * 100 / $maxid );
+            do_sql(   "INSERT IGNORE INTO reluser (userid, targetid, type) "
+                    . "SELECT ownerid, posterid, 'P' "
+                    . "FROM logaccess "
+                    . "WHERE ownerid BETWEEN $from AND $to" );
+            $from += 10000;
+            $to   += 10000;
+        }
+        print "# Finished converting logaccess.\n";
+    }
+);
 
-register_tablecreate("clustermove", <<'EOC');
+register_tablecreate( "clustermove", <<'EOC');
 CREATE TABLE clustermove (
     cmid      INT UNSIGNED NOT NULL AUTO_INCREMENT,
     PRIMARY KEY (cmid),
@@ -1428,7 +1435,7 @@ CREATE TABLE clustermove (
 EOC
 
 # moderated community post summary info
-register_tablecreate("modlog", <<'EOC');
+register_tablecreate( "modlog", <<'EOC');
 CREATE TABLE modlog (
     journalid  INT UNSIGNED NOT NULL,
     modid      MEDIUMINT UNSIGNED NOT NULL,
@@ -1442,7 +1449,7 @@ CREATE TABLE modlog (
 EOC
 
 # moderated community post Storable object (all props/options)
-register_tablecreate("modblob", <<'EOC');
+register_tablecreate( "modblob", <<'EOC');
 CREATE TABLE modblob (
     journalid  INT UNSIGNED NOT NULL,
     modid      INT UNSIGNED NOT NULL,
@@ -1452,7 +1459,7 @@ CREATE TABLE modblob (
 EOC
 
 # user counters
-register_tablecreate("counter", <<'EOC');
+register_tablecreate( "counter", <<'EOC');
 CREATE TABLE counter (
     journalid  INT UNSIGNED NOT NULL,
     area       CHAR(1) NOT NULL,
@@ -1462,7 +1469,7 @@ CREATE TABLE counter (
 EOC
 
 # user counters on the global (contrary to the name)
-register_tablecreate("usercounter", <<'EOC');
+register_tablecreate( "usercounter", <<'EOC');
 CREATE TABLE usercounter (
     journalid  INT UNSIGNED NOT NULL,
     area       CHAR(1) NOT NULL,
@@ -1472,7 +1479,7 @@ CREATE TABLE usercounter (
 EOC
 
 # community interests
-register_tablecreate("comminterests", <<'EOC');
+register_tablecreate( "comminterests", <<'EOC');
 CREATE TABLE comminterests (
     userid int(10) unsigned NOT NULL default '0',
     intid int(10) unsigned NOT NULL default '0',
@@ -1483,7 +1490,7 @@ CREATE TABLE comminterests (
 EOC
 
 # links
-register_tablecreate("links", <<'EOC'); # clustered
+register_tablecreate( "links", <<'EOC');    # clustered
 CREATE TABLE links (
     journalid int(10) unsigned NOT NULL default '0',
     ordernum tinyint(4) unsigned NOT NULL default '0',
@@ -1497,7 +1504,7 @@ CREATE TABLE links (
 EOC
 
 # supportprop
-register_tablecreate("supportprop", <<'EOC');
+register_tablecreate( "supportprop", <<'EOC');
 CREATE TABLE supportprop (
     spid int(10) unsigned NOT NULL default '0',
     prop varchar(30) NOT NULL,
@@ -1507,30 +1514,33 @@ CREATE TABLE supportprop (
 )
 EOC
 
-post_create("comminterests",
-            "code" => sub {
-                my $dbh = shift;
-                print "# Populating community interests...\n";
+post_create(
+    "comminterests",
+    "code" => sub {
+        my $dbh = shift;
+        print "# Populating community interests...\n";
 
-                my $BLOCK = 1_000;
+        my $BLOCK = 1_000;
 
-                my @ids = @{ $dbh->selectcol_arrayref("SELECT userid FROM community") || [] };
-                my $total = @ids;
+        my @ids   = @{ $dbh->selectcol_arrayref("SELECT userid FROM community") || [] };
+        my $total = @ids;
 
-                while (@ids) {
-                    my @set = grep { $_ } splice(@ids, 0, $BLOCK);
+        while (@ids) {
+            my @set = grep { $_ } splice( @ids, 0, $BLOCK );
 
-                    printf ("# community interests status: (%0.1f%%)\n",
-                            ((($total - @ids) / $total) * 100)) if $total > $BLOCK;
+            printf( "# community interests status: (%0.1f%%)\n",
+                ( ( ( $total - @ids ) / $total ) * 100 ) )
+                if $total > $BLOCK;
 
-                    local $" = ",";
-                    do_sql("INSERT IGNORE INTO comminterests (userid, intid) ".
-                           "SELECT userid, intid FROM userinterests " .
-                           "WHERE userid IN (@set)");
-                }
+            local $" = ",";
+            do_sql(   "INSERT IGNORE INTO comminterests (userid, intid) "
+                    . "SELECT userid, intid FROM userinterests "
+                    . "WHERE userid IN (@set)" );
+        }
 
-                print "# Finished converting community interests.\n";
-            });
+        print "# Finished converting community interests.\n";
+    }
+);
 
 # tracking where users are active
 # accountlevel is the account level at time of activity
@@ -1538,7 +1548,7 @@ post_create("comminterests",
 # accounts that were active earlier - but not all inactive accounts will be in
 # there, so we won't be looking here for their account levels anyway, so this
 # shouldn't be a problem)
-register_tablecreate("clustertrack2", <<'EOC'); # clustered
+register_tablecreate( "clustertrack2", <<'EOC');    # clustered
 CREATE TABLE clustertrack2 (
     userid INT UNSIGNED NOT NULL,
     PRIMARY KEY (userid),
@@ -1552,7 +1562,7 @@ CREATE TABLE clustertrack2 (
 EOC
 
 # rotating site secret values
-register_tablecreate("secrets", <<'EOC'); # global
+register_tablecreate( "secrets", <<'EOC');    # global
 CREATE TABLE secrets  (
     stime   INT UNSIGNED NOT NULL,
     secret  CHAR(32) NOT NULL,
@@ -1562,7 +1572,7 @@ CREATE TABLE secrets  (
 EOC
 
 # Challenges table (for non-memcache support)
-register_tablecreate("challenges", <<'EOC');
+register_tablecreate( "challenges", <<'EOC');
 CREATE TABLE challenges (
     ctime int(10) unsigned NOT NULL DEFAULT 0,
     challenge char(80) NOT NULL DEFAULT '',
@@ -1571,7 +1581,7 @@ CREATE TABLE challenges (
 )
 EOC
 
-register_tablecreate("clustermove_inprogress", <<'EOC');
+register_tablecreate( "clustermove_inprogress", <<'EOC');
 CREATE TABLE clustermove_inprogress (
     userid      INT UNSIGNED NOT NULL,
     locktime    INT UNSIGNED NOT NULL,
@@ -1584,7 +1594,7 @@ CREATE TABLE clustermove_inprogress (
 )
 EOC
 
-register_tablecreate("spamreports", <<'EOC'); # global
+register_tablecreate( "spamreports", <<'EOC');    # global
 CREATE TABLE spamreports (
     reporttime  INT(10) UNSIGNED NOT NULL,
     ip          VARCHAR(15),
@@ -1601,7 +1611,7 @@ CREATE TABLE spamreports (
 )
 EOC
 
-register_tablecreate("tempanonips", <<'EOC'); # clustered
+register_tablecreate( "tempanonips", <<'EOC');    # clustered
 CREATE TABLE tempanonips (
     reporttime  INT(10) UNSIGNED NOT NULL,
     ip          VARCHAR(15) NOT NULL,
@@ -1617,7 +1627,7 @@ EOC
 #    jobname = 'calc_country'
 #    clusterid = '1'
 #    calctime = time()
-register_tablecreate("partialstats", <<'EOC');
+register_tablecreate( "partialstats", <<'EOC');
 CREATE TABLE partialstats (
     jobname  VARCHAR(50) NOT NULL,
     clusterid MEDIUMINT NOT NULL DEFAULT 0,
@@ -1632,7 +1642,7 @@ EOC
 #    arg = 'US'
 #    clusterid = '1'
 #    value = '500'
-register_tablecreate("partialstatsdata", <<'EOC');
+register_tablecreate( "partialstatsdata", <<'EOC');
 CREATE TABLE partialstatsdata (
     statname  VARCHAR(50) NOT NULL,
     arg       VARCHAR(50) NOT NULL,
@@ -1644,7 +1654,7 @@ CREATE TABLE partialstatsdata (
 EOC
 
 # inviterecv -- stores community invitations received
-register_tablecreate("inviterecv", <<'EOC');
+register_tablecreate( "inviterecv", <<'EOC');
 CREATE TABLE inviterecv (
     userid      INT(10) UNSIGNED NOT NULL,
     commid      INT(10) UNSIGNED NOT NULL,
@@ -1657,7 +1667,7 @@ CREATE TABLE inviterecv (
 EOC
 
 # invitesent -- stores community invitations sent
-register_tablecreate("invitesent", <<'EOC');
+register_tablecreate( "invitesent", <<'EOC');
 CREATE TABLE invitesent (
     commid      INT(10) UNSIGNED NOT NULL,
     userid      INT(10) UNSIGNED NOT NULL,
@@ -1671,7 +1681,7 @@ CREATE TABLE invitesent (
 EOC
 
 # memorable2 -- clustered memories
-register_tablecreate("memorable2", <<'EOC');
+register_tablecreate( "memorable2", <<'EOC');
 CREATE TABLE memorable2 (
     userid      INT(10) UNSIGNED NOT NULL DEFAULT '0',
     memid       INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -1686,7 +1696,7 @@ CREATE TABLE memorable2 (
 EOC
 
 # memkeyword2 -- clustered memory keyword map
-register_tablecreate("memkeyword2", <<'EOC');
+register_tablecreate( "memkeyword2", <<'EOC');
 CREATE TABLE memkeyword2 (
     userid      INT(10) UNSIGNED NOT NULL DEFAULT '0',
     memid       INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -1698,7 +1708,7 @@ CREATE TABLE memkeyword2 (
 EOC
 
 # userkeywords -- clustered keywords
-register_tablecreate("userkeywords", <<'EOC');
+register_tablecreate( "userkeywords", <<'EOC');
 CREATE TABLE userkeywords (
     userid      INT(10) UNSIGNED NOT NULL DEFAULT '0',
     kwid        INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -1710,7 +1720,7 @@ CREATE TABLE userkeywords (
 EOC
 
 # trust_groups -- clustered
-register_tablecreate("trust_groups", <<'EOC');
+register_tablecreate( "trust_groups", <<'EOC');
 CREATE TABLE trust_groups (
     userid      INT(10) UNSIGNED NOT NULL DEFAULT '0',
     groupnum    TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
@@ -1722,7 +1732,7 @@ CREATE TABLE trust_groups (
 )
 EOC
 
-register_tablecreate("readonly_user", <<'EOC');
+register_tablecreate( "readonly_user", <<'EOC');
 CREATE TABLE readonly_user (
     userid      INT(10) UNSIGNED NOT NULL DEFAULT '0',
 
@@ -1730,7 +1740,7 @@ CREATE TABLE readonly_user (
 )
 EOC
 
-register_tablecreate("underage", <<'EOC');
+register_tablecreate( "underage", <<'EOC');
 CREATE TABLE underage (
     uniq        CHAR(15) NOT NULL,
     timeof      INT(10) NOT NULL,
@@ -1740,7 +1750,7 @@ CREATE TABLE underage (
 )
 EOC
 
-register_tablecreate("support_youreplied", <<'EOC');
+register_tablecreate( "support_youreplied", <<'EOC');
 CREATE TABLE support_youreplied (
     userid  INT UNSIGNED NOT NULL,
     spid    INT UNSIGNED NOT NULL,
@@ -1749,7 +1759,7 @@ CREATE TABLE support_youreplied (
 )
 EOC
 
-register_tablecreate("support_answers", <<'EOC');
+register_tablecreate( "support_answers", <<'EOC');
 CREATE TABLE support_answers (
     ansid INT UNSIGNED NOT NULL,
     spcatid INT UNSIGNED NOT NULL,
@@ -1763,7 +1773,7 @@ CREATE TABLE support_answers (
 )
 EOC
 
-register_tablecreate("userlog", <<'EOC');
+register_tablecreate( "userlog", <<'EOC');
 CREATE TABLE userlog (
     userid        INT UNSIGNED NOT NULL,
     logtime       INT UNSIGNED NOT NULL,
@@ -1782,7 +1792,7 @@ EOC
 # note: extuser/extuserid are expected to sometimes be NULL, even
 # though they are keyed.  (Null values are not taken into account when
 # using indexes)
-register_tablecreate("extuser", <<'EOC');
+register_tablecreate( "extuser", <<'EOC');
 CREATE TABLE extuser (
     userid  INT UNSIGNED NOT NULL PRIMARY KEY,
     siteid  INT UNSIGNED NOT NULL,
@@ -1795,7 +1805,7 @@ CREATE TABLE extuser (
 EOC
 
 # table showing what tags a user has; parentkwid can be null
-register_tablecreate("usertags", <<'EOC');
+register_tablecreate( "usertags", <<'EOC');
 CREATE TABLE usertags (
     journalid   INT UNSIGNED NOT NULL,
     kwid        INT UNSIGNED NOT NULL,
@@ -1807,7 +1817,7 @@ CREATE TABLE usertags (
 EOC
 
 # mapping of tags applied to an entry
-register_tablecreate("logtags", <<'EOC');
+register_tablecreate( "logtags", <<'EOC');
 CREATE TABLE logtags (
     journalid INT UNSIGNED NOT NULL,
     jitemid   MEDIUMINT UNSIGNED NOT NULL,
@@ -1819,7 +1829,7 @@ CREATE TABLE logtags (
 EOC
 
 # logtags but only for the most recent 100 tags-to-entry
-register_tablecreate("logtagsrecent", <<'EOC');
+register_tablecreate( "logtagsrecent", <<'EOC');
 CREATE TABLE logtagsrecent (
     journalid INT UNSIGNED NOT NULL,
     jitemid   MEDIUMINT UNSIGNED NOT NULL,
@@ -1830,7 +1840,7 @@ CREATE TABLE logtagsrecent (
 EOC
 
 # summary counts for security on entry keywords
-register_tablecreate("logkwsum", <<'EOC');
+register_tablecreate( "logkwsum", <<'EOC');
 CREATE TABLE logkwsum (
     journalid INT UNSIGNED NOT NULL,
     kwid      INT UNSIGNED NOT NULL,
@@ -1849,7 +1859,7 @@ EOC
 #      "L" - LID (netmesh)
 #      "T" - TypeKey
 #       ?  - etc
-register_tablecreate("identitymap", <<'EOC');
+register_tablecreate( "identitymap", <<'EOC');
 CREATE TABLE identitymap (
     idtype    CHAR(1) NOT NULL,
     identity  VARCHAR(255) BINARY NOT NULL,
@@ -1860,7 +1870,7 @@ CREATE TABLE identitymap (
 )
 EOC
 
-register_tablecreate("openid_trust", <<'EOC');
+register_tablecreate( "openid_trust", <<'EOC');
 CREATE TABLE openid_trust (
     userid int(10) unsigned NOT NULL default '0',
     endpoint_id int(10) unsigned NOT NULL default '0',
@@ -1874,7 +1884,7 @@ CREATE TABLE openid_trust (
 )
 EOC
 
-register_tablecreate("openid_endpoint", <<'EOC');
+register_tablecreate( "openid_endpoint", <<'EOC');
 CREATE TABLE openid_endpoint (
     endpoint_id int(10) unsigned NOT NULL auto_increment,
     url varchar(255) BINARY NOT NULL default '',
@@ -1886,7 +1896,7 @@ CREATE TABLE openid_endpoint (
 )
 EOC
 
-register_tablecreate("oauth_consumer", <<'EOC');
+register_tablecreate( "oauth_consumer", <<'EOC');
 CREATE TABLE oauth_consumer (
     consumer_id int(10) UNSIGNED NOT NULL,
     userid int(10) UNSIGNED NOT NULL,
@@ -1912,7 +1922,7 @@ CREATE TABLE oauth_consumer (
 )
 EOC
 
-register_tablecreate("oauth_access_token", <<'EOC');
+register_tablecreate( "oauth_access_token", <<'EOC');
 CREATE TABLE oauth_access_token (
     consumer_id int(10) UNSIGNED NOT NULL,
     userid int(10) UNSIGNED NOT NULL,
@@ -1929,7 +1939,7 @@ CREATE TABLE oauth_access_token (
 )
 EOC
 
-register_tablecreate("priv_packages", <<'EOC');
+register_tablecreate( "priv_packages", <<'EOC');
 CREATE TABLE priv_packages (
     pkgid int(10) unsigned NOT NULL auto_increment,
     name varchar(255) NOT NULL default '',
@@ -1941,7 +1951,7 @@ CREATE TABLE priv_packages (
 )
 EOC
 
-register_tablecreate("priv_packages_content", <<'EOC');
+register_tablecreate( "priv_packages_content", <<'EOC');
 CREATE TABLE priv_packages_content (
     pkgid int(10) unsigned NOT NULL auto_increment,
     privname varchar(20) NOT NULL,
@@ -1951,7 +1961,7 @@ CREATE TABLE priv_packages_content (
 )
 EOC
 
-register_tablecreate("active_user", <<'EOC');
+register_tablecreate( "active_user", <<'EOC');
 CREATE TABLE active_user (
     userid INT UNSIGNED NOT NULL,
     type   CHAR(1) NOT NULL,
@@ -1962,7 +1972,7 @@ CREATE TABLE active_user (
 )
 EOC
 
-register_tablecreate("active_user_summary", <<'EOC');
+register_tablecreate( "active_user_summary", <<'EOC');
 CREATE TABLE active_user_summary (
     year      SMALLINT NOT NULL,
     month     TINYINT NOT NULL,
@@ -1976,7 +1986,7 @@ CREATE TABLE active_user_summary (
 )
 EOC
 
-register_tablecreate("loginlog", <<'EOC');
+register_tablecreate( "loginlog", <<'EOC');
 CREATE TABLE loginlog (
     userid    INT UNSIGNED NOT NULL,
     logintime INT UNSIGNED NOT NULL,
@@ -1988,7 +1998,7 @@ CREATE TABLE loginlog (
 EOC
 
 # global
-register_tablecreate("usertrans", <<'EOC');
+register_tablecreate( "usertrans", <<'EOC');
 CREATE TABLE `usertrans` (
     `userid` int(10) unsigned NOT NULL default '0',
     `time` int(10) unsigned NOT NULL default '0',
@@ -2002,7 +2012,7 @@ CREATE TABLE `usertrans` (
 EOC
 
 # global
-register_tablecreate("eventtypelist", <<'EOC');
+register_tablecreate( "eventtypelist", <<'EOC');
 CREATE TABLE eventtypelist (
     etypeid  SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     class    VARCHAR(100),
@@ -2012,7 +2022,7 @@ CREATE TABLE eventtypelist (
 EOC
 
 # global
-register_tablecreate("notifytypelist", <<'EOC');
+register_tablecreate( "notifytypelist", <<'EOC');
 CREATE TABLE notifytypelist (
     ntypeid   SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     class     VARCHAR(100),
@@ -2028,7 +2038,7 @@ EOC
 # is still accurate and people do in fact still subscribe to this.
 # then maintenance tasks can background prune this table and fix
 # up verifytimes.
-register_tablecreate("has_subs", <<'EOC');
+register_tablecreate( "has_subs", <<'EOC');
 CREATE TABLE has_subs (
     journalid  INT UNSIGNED NOT NULL,
     etypeid    INT UNSIGNED NOT NULL,
@@ -2051,7 +2061,7 @@ EOC
 #  flags is a bitmask of flags, where:
 #     bit 0 = is digest?  (off means live?)
 #     rest undefined for now.
-register_tablecreate("subs", <<'EOC');
+register_tablecreate( "subs", <<'EOC');
 CREATE TABLE subs (
     userid   INT UNSIGNED NOT NULL,
     subid    INT UNSIGNED NOT NULL,
@@ -2074,7 +2084,7 @@ CREATE TABLE subs (
 EOC
 
 # unlike other *proplist tables, this one is auto-populated by app
-register_tablecreate("subsproplist", <<'EOC');
+register_tablecreate( "subsproplist", <<'EOC');
 CREATE TABLE subsproplist (
     subpropid  SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name       VARCHAR(255) DEFAULT NULL,
@@ -2085,7 +2095,7 @@ CREATE TABLE subsproplist (
 EOC
 
 # partitioned:  ESN subscriptions:  metadata on a user's subscriptions
-register_tablecreate("subsprop", <<'EOC');
+register_tablecreate( "subsprop", <<'EOC');
 CREATE TABLE subsprop (
     userid    INT      UNSIGNED NOT NULL,
     subid     INT      UNSIGNED NOT NULL,
@@ -2096,7 +2106,7 @@ CREATE TABLE subsprop (
 EOC
 
 # partitioned:  ESN event queue notification method
-register_tablecreate("notifyqueue", <<'EOC');
+register_tablecreate( "notifyqueue", <<'EOC');
 CREATE TABLE notifyqueue (
     userid     INT UNSIGNED NOT NULL,
     qid        INT UNSIGNED NOT NULL,
@@ -2114,7 +2124,7 @@ CREATE TABLE notifyqueue (
 )
 EOC
 
-register_tablecreate("sch_funcmap", <<'EOC');
+register_tablecreate( "sch_funcmap", <<'EOC');
 CREATE TABLE sch_funcmap (
     funcid         INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     funcname       VARCHAR(255) NOT NULL,
@@ -2123,7 +2133,7 @@ CREATE TABLE sch_funcmap (
 )
 EOC
 
-register_tablecreate("sch_job", <<'EOC');
+register_tablecreate( "sch_job", <<'EOC');
 CREATE TABLE sch_job (
     jobid           BIGINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     funcid          INT UNSIGNED NOT NULL,
@@ -2141,7 +2151,7 @@ CREATE TABLE sch_job (
 )
 EOC
 
-register_tablecreate("sch_note", <<'EOC');
+register_tablecreate( "sch_note", <<'EOC');
 CREATE TABLE sch_note (
     jobid           BIGINT UNSIGNED NOT NULL,
     notekey         VARCHAR(255),
@@ -2150,7 +2160,7 @@ CREATE TABLE sch_note (
 )
 EOC
 
-register_tablecreate("sch_error", <<'EOC');
+register_tablecreate( "sch_error", <<'EOC');
 CREATE TABLE sch_error (
     error_time      INTEGER UNSIGNED NOT NULL,
     jobid           BIGINT UNSIGNED NOT NULL,
@@ -2161,7 +2171,7 @@ CREATE TABLE sch_error (
 )
 EOC
 
-register_tablecreate("sch_exitstatus", <<'EOC');
+register_tablecreate( "sch_exitstatus", <<'EOC');
 CREATE TABLE sch_exitstatus (
     jobid           BIGINT UNSIGNED PRIMARY KEY NOT NULL,
     status          SMALLINT UNSIGNED,
@@ -2172,7 +2182,7 @@ CREATE TABLE sch_exitstatus (
 )
 EOC
 
-register_tablecreate("usersearch_packdata", <<'EOC');
+register_tablecreate( "usersearch_packdata", <<'EOC');
 CREATE TABLE usersearch_packdata (
     userid      INT UNSIGNED NOT NULL PRIMARY KEY,
     packed      CHAR(8) BINARY,
@@ -2184,7 +2194,7 @@ CREATE TABLE usersearch_packdata (
 )
 EOC
 
-register_tablecreate("debug_notifymethod", <<'EOC');
+register_tablecreate( "debug_notifymethod", <<'EOC');
 CREATE TABLE debug_notifymethod (
     userid       int unsigned not null,
     subid        int unsigned,
@@ -2198,14 +2208,14 @@ CREATE TABLE debug_notifymethod (
 )
 EOC
 
-register_tablecreate("password", <<'EOC');
+register_tablecreate( "password", <<'EOC');
 CREATE TABLE password (
     userid    INT UNSIGNED NOT NULL PRIMARY KEY,
     password  VARCHAR(50)
 )
 EOC
 
-register_tablecreate("email", <<'EOC');
+register_tablecreate( "email", <<'EOC');
 CREATE TABLE email (
     userid    INT UNSIGNED NOT NULL PRIMARY KEY,
     email     VARCHAR(50),
@@ -2214,7 +2224,7 @@ CREATE TABLE email (
 )
 EOC
 
-register_tablecreate("dirmogsethandles", <<'EOC');
+register_tablecreate( "dirmogsethandles", <<'EOC');
 CREATE TABLE dirmogsethandles (
     conskey  char(40) PRIMARY KEY,
     exptime  INT UNSIGNED NOT NULL,
@@ -2224,7 +2234,7 @@ CREATE TABLE dirmogsethandles (
 EOC
 
 # global pollid -> userid map
-register_tablecreate("pollowner", <<'EOC');
+register_tablecreate( "pollowner", <<'EOC');
 CREATE TABLE pollowner (
     pollid    INT UNSIGNED NOT NULL PRIMARY KEY,
     journalid INT UNSIGNED NOT NULL,
@@ -2234,7 +2244,7 @@ CREATE TABLE pollowner (
 EOC
 
 # clustereds
-register_tablecreate("poll2", <<'EOC');
+register_tablecreate( "poll2", <<'EOC');
 CREATE TABLE poll2 (
     journalid INT UNSIGNED NOT NULL,
     pollid INT UNSIGNED NOT NULL,
@@ -2249,7 +2259,7 @@ CREATE TABLE poll2 (
 )
 EOC
 
-register_tablecreate("pollitem2", <<'EOC');
+register_tablecreate( "pollitem2", <<'EOC');
 CREATE TABLE pollitem2 (
     journalid INT UNSIGNED NOT NULL,
     pollid INT UNSIGNED NOT NULL,
@@ -2262,7 +2272,7 @@ CREATE TABLE pollitem2 (
 )
 EOC
 
-register_tablecreate("pollquestion2", <<'EOC');
+register_tablecreate( "pollquestion2", <<'EOC');
 CREATE TABLE pollquestion2 (
     journalid INT UNSIGNED NOT NULL,
     pollid INT UNSIGNED NOT NULL,
@@ -2276,7 +2286,7 @@ CREATE TABLE pollquestion2 (
 )
 EOC
 
-register_tablecreate("pollresult2", <<'EOC');
+register_tablecreate( "pollresult2", <<'EOC');
 CREATE TABLE pollresult2 (
     journalid INT UNSIGNED NOT NULL,
     pollid INT UNSIGNED NOT NULL,
@@ -2289,7 +2299,7 @@ CREATE TABLE pollresult2 (
 )
 EOC
 
-register_tablecreate("pollsubmission2", <<'EOC');
+register_tablecreate( "pollsubmission2", <<'EOC');
 CREATE TABLE pollsubmission2 (
     journalid INT UNSIGNED NOT NULL,
     pollid INT UNSIGNED NOT NULL,
@@ -2303,7 +2313,7 @@ EOC
 
 # clustered
 # clustered
-register_tablecreate("embedcontent", <<'EOC');
+register_tablecreate( "embedcontent", <<'EOC');
 CREATE TABLE embedcontent (
     userid     INT UNSIGNED NOT NULL,
     moduleid   INT UNSIGNED NOT NULL,
@@ -2315,7 +2325,7 @@ CREATE TABLE embedcontent (
 )
 EOC
 
-register_tablecreate("jobstatus", <<'EOC');
+register_tablecreate( "jobstatus", <<'EOC');
 CREATE TABLE jobstatus (
     handle VARCHAR(100) PRIMARY KEY,
     result BLOB,
@@ -2327,7 +2337,7 @@ CREATE TABLE jobstatus (
 )
 EOC
 
-register_tablecreate("expunged_users", <<'EOC');
+register_tablecreate( "expunged_users", <<'EOC');
 CREATE TABLE `expunged_users` (
     user varchar(25) NOT NULL default '',
     expunge_time int(10) unsigned NOT NULL default '0',
@@ -2337,7 +2347,7 @@ CREATE TABLE `expunged_users` (
 )
 EOC
 
-register_tablecreate("uniqmap", <<'EOC');
+register_tablecreate( "uniqmap", <<'EOC');
 CREATE TABLE uniqmap (
     uniq VARCHAR(15) NOT NULL,
     userid INT UNSIGNED NOT NULL,
@@ -2350,7 +2360,7 @@ CREATE TABLE uniqmap (
 EOC
 
 # clustered
-register_tablecreate("usermsg", <<'EOC');
+register_tablecreate( "usermsg", <<'EOC');
 CREATE TABLE usermsg (
     journalid    INT UNSIGNED NOT NULL,
     msgid        INT UNSIGNED NOT NULL,
@@ -2367,7 +2377,7 @@ CREATE TABLE usermsg (
 EOC
 
 # clustered
-register_tablecreate("usermsgtext", <<'EOC');
+register_tablecreate( "usermsgtext", <<'EOC');
 CREATE TABLE usermsgtext (
     journalid    INT UNSIGNED NOT NULL,
     msgid        INT UNSIGNED NOT NULL,
@@ -2379,7 +2389,7 @@ CREATE TABLE usermsgtext (
 EOC
 
 # clustered
-register_tablecreate("usermsgprop", <<'EOC');
+register_tablecreate( "usermsgprop", <<'EOC');
 CREATE TABLE usermsgprop (
     journalid    INT UNSIGNED NOT NULL,
     msgid        INT UNSIGNED NOT NULL,
@@ -2390,7 +2400,7 @@ CREATE TABLE usermsgprop (
 )
 EOC
 
-register_tablecreate("usermsgproplist", <<'EOC');
+register_tablecreate( "usermsgproplist", <<'EOC');
 CREATE TABLE usermsgproplist (
     propid  SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name    VARCHAR(255) DEFAULT NULL,
@@ -2401,7 +2411,7 @@ CREATE TABLE usermsgproplist (
 EOC
 
 # clustered
-register_tablecreate("notifyarchive", <<'EOC');
+register_tablecreate( "notifyarchive", <<'EOC');
 CREATE TABLE notifyarchive (
     userid     INT UNSIGNED NOT NULL,
     qid        INT UNSIGNED NOT NULL,
@@ -2418,7 +2428,7 @@ CREATE TABLE notifyarchive (
 EOC
 
 # clustered
-register_tablecreate("notifybookmarks", <<'EOC');
+register_tablecreate( "notifybookmarks", <<'EOC');
 CREATE TABLE notifybookmarks (
     userid     INT UNSIGNED NOT NULL,
     qid        INT UNSIGNED NOT NULL,
@@ -2428,7 +2438,7 @@ CREATE TABLE notifybookmarks (
 EOC
 
 # global table for persistent queues
-register_tablecreate("persistent_queue", <<'EOC');
+register_tablecreate( "persistent_queue", <<'EOC');
 CREATE TABLE persistent_queue (
     qkey VARCHAR(255) NOT NULL,
     idx INTEGER UNSIGNED NOT NULL,
@@ -2441,7 +2451,7 @@ EOC
 ## --
 ## -- embedconten previews
 ## --
-register_tablecreate("embedcontent_preview", <<'EOC');
+register_tablecreate( "embedcontent_preview", <<'EOC');
 CREATE TABLE embedcontent_preview (
     userid      int(10) unsigned NOT NULL default '0',
     moduleid    int(10) NOT NULL default '0',
@@ -2453,7 +2463,7 @@ CREATE TABLE embedcontent_preview (
 ) ENGINE=InnoDB
 EOC
 
-register_tablecreate("dw_paidstatus", <<'EOC');
+register_tablecreate( "dw_paidstatus", <<'EOC');
 CREATE TABLE dw_paidstatus (
     userid int unsigned NOT NULL,
     typeid smallint unsigned NOT NULL,
@@ -2466,7 +2476,7 @@ CREATE TABLE dw_paidstatus (
 )
 EOC
 
-register_tablecreate("logprop_history", <<'EOC');
+register_tablecreate( "logprop_history", <<'EOC');
 CREATE TABLE logprop_history (
     journalid  INT UNSIGNED NOT NULL,
     jitemid    MEDIUMINT UNSIGNED NOT NULL,
@@ -2480,7 +2490,7 @@ CREATE TABLE logprop_history (
 )
 EOC
 
-register_tablecreate("sch_mass_funcmap", <<'EOC');
+register_tablecreate( "sch_mass_funcmap", <<'EOC');
 CREATE TABLE sch_mass_funcmap (
     funcid         INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     funcname       VARCHAR(255) NOT NULL,
@@ -2489,7 +2499,7 @@ CREATE TABLE sch_mass_funcmap (
 )
 EOC
 
-register_tablecreate("sch_mass_job", <<'EOC');
+register_tablecreate( "sch_mass_job", <<'EOC');
 CREATE TABLE sch_mass_job (
     jobid           BIGINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     funcid          INT UNSIGNED NOT NULL,
@@ -2507,7 +2517,7 @@ CREATE TABLE sch_mass_job (
 )
 EOC
 
-register_tablecreate("sch_mass_note", <<'EOC');
+register_tablecreate( "sch_mass_note", <<'EOC');
 CREATE TABLE sch_mass_note (
     jobid           BIGINT UNSIGNED NOT NULL,
     notekey         VARCHAR(255),
@@ -2516,7 +2526,7 @@ CREATE TABLE sch_mass_note (
 )
 EOC
 
-register_tablecreate("sch_mass_error", <<'EOC');
+register_tablecreate( "sch_mass_error", <<'EOC');
 CREATE TABLE sch_mass_error (
     error_time      INTEGER UNSIGNED NOT NULL,
     jobid           BIGINT UNSIGNED NOT NULL,
@@ -2527,7 +2537,7 @@ CREATE TABLE sch_mass_error (
 )
 EOC
 
-register_tablecreate("sch_mass_exitstatus", <<'EOC');
+register_tablecreate( "sch_mass_exitstatus", <<'EOC');
 CREATE TABLE sch_mass_exitstatus (
     jobid           BIGINT UNSIGNED PRIMARY KEY NOT NULL,
     status          SMALLINT UNSIGNED,
@@ -2538,7 +2548,7 @@ CREATE TABLE sch_mass_exitstatus (
 )
 EOC
 
-register_tablecreate("import_items", <<'EOC');
+register_tablecreate( "import_items", <<'EOC');
 CREATE TABLE import_items (
     userid INT UNSIGNED NOT NULL,
     item VARCHAR(255) NOT NULL,
@@ -2553,7 +2563,7 @@ CREATE TABLE import_items (
 )
 EOC
 
-register_tablecreate("import_data", <<'EOC');
+register_tablecreate( "import_data", <<'EOC');
 CREATE TABLE import_data (
     userid INT UNSIGNED NOT NULL,
     import_data_id INT UNSIGNED NOT NULL,
@@ -2571,7 +2581,7 @@ EOC
 
 # we don't store this in userprops because we need to index this
 # backwards and load it easily...
-register_tablecreate("import_usermap", <<'EOC');
+register_tablecreate( "import_usermap", <<'EOC');
 CREATE TABLE import_usermap (
     hostname VARCHAR(255),
     username VARCHAR(255),
@@ -2586,7 +2596,7 @@ EOC
 
 # whenever we fire off a status event we have to store this in a table
 # for the user so they can get the data later
-register_tablecreate("import_status", <<'EOC');
+register_tablecreate( "import_status", <<'EOC');
 CREATE TABLE import_status (
     userid INT UNSIGNED NOT NULL,
     import_status_id INT UNSIGNED NOT NULL,
@@ -2596,7 +2606,7 @@ CREATE TABLE import_status (
 )
 EOC
 
-register_tablecreate('email_aliases', <<'EOC');
+register_tablecreate( 'email_aliases', <<'EOC');
 CREATE TABLE email_aliases (
     alias VARCHAR(255) NOT NULL,
     rcpt VARCHAR(255) NOT NULL,
@@ -2606,7 +2616,7 @@ CREATE TABLE email_aliases (
 EOC
 
 # shopping cart list
-register_tablecreate('shop_carts', <<'EOC');
+register_tablecreate( 'shop_carts', <<'EOC');
 CREATE TABLE shop_carts (
     cartid INT UNSIGNED NOT NULL,
     starttime INT UNSIGNED NOT NULL,
@@ -2627,7 +2637,7 @@ CREATE TABLE shop_carts (
 EOC
 
 # invite code->shopping cart list
-register_tablecreate('shop_codes', <<'EOC');
+register_tablecreate( 'shop_codes', <<'EOC');
 CREATE TABLE shop_codes (
     acid INT UNSIGNED NOT NULL,
     cartid INT UNSIGNED NOT NULL,
@@ -2639,7 +2649,7 @@ CREATE TABLE shop_codes (
 EOC
 
 # received check/money order payment info
-register_tablecreate('shop_cmo', <<'EOC');
+register_tablecreate( 'shop_cmo', <<'EOC');
 CREATE TABLE shop_cmo (
     cartid INT UNSIGNED NOT NULL,
     paymentmethod VARCHAR(255) NOT NULL,
@@ -2649,7 +2659,7 @@ CREATE TABLE shop_cmo (
 )
 EOC
 
-register_tablecreate('externalaccount', << 'EOC');
+register_tablecreate( 'externalaccount', << 'EOC');
 CREATE table externalaccount (
     userid int unsigned NOT NULL,
     acctid int unsigned NOT NULL,
@@ -2668,7 +2678,7 @@ CREATE table externalaccount (
 )
 EOC
 
-register_tablecreate('gco_log', <<'EOC');
+register_tablecreate( 'gco_log', <<'EOC');
 CREATE TABLE gco_log (
     gcoid bigint unsigned not null,
     ip varchar(15) not null,
@@ -2679,7 +2689,7 @@ CREATE TABLE gco_log (
 )
 EOC
 
-register_tablecreate('gco_map', <<'EOC');
+register_tablecreate( 'gco_map', <<'EOC');
 CREATE TABLE gco_map (
     gcoid bigint unsigned not null,
     cartid int unsigned not null,
@@ -2692,7 +2702,7 @@ CREATE TABLE gco_map (
 )
 EOC
 
-register_tablecreate('pp_tokens', <<'EOC');
+register_tablecreate( 'pp_tokens', <<'EOC');
 CREATE TABLE pp_tokens (
     ppid int unsigned not null auto_increment,
     inittime int unsigned not null,
@@ -2712,7 +2722,7 @@ CREATE TABLE pp_tokens (
 )
 EOC
 
-register_tablecreate('pp_log', <<'EOC');
+register_tablecreate( 'pp_log', <<'EOC');
 CREATE TABLE pp_log (
     ppid int unsigned not null,
     ip varchar(15) not null,
@@ -2724,7 +2734,7 @@ CREATE TABLE pp_log (
 )
 EOC
 
-register_tablecreate('pp_trans', <<'EOC');
+register_tablecreate( 'pp_trans', <<'EOC');
 CREATE TABLE pp_trans (
     ppid int unsigned not null,
     cartid int unsigned not null,
@@ -2750,7 +2760,7 @@ CREATE TABLE pp_trans (
 )
 EOC
 
-register_tablecreate('external_site_moods', <<'EOC');
+register_tablecreate( 'external_site_moods', <<'EOC');
 CREATE TABLE external_site_moods (
     siteid int unsigned not null,
     mood varchar(40) not null,
@@ -2760,7 +2770,7 @@ CREATE TABLE external_site_moods (
 )
 EOC
 
-register_tablecreate('acctcode_promo', <<'EOC');
+register_tablecreate( 'acctcode_promo', <<'EOC');
 CREATE TABLE acctcode_promo (
     code varchar(20) not null,
     max_count int(10) unsigned not null default 0,
@@ -2775,7 +2785,7 @@ CREATE TABLE acctcode_promo (
 )
 EOC
 
-register_tablecreate('users_for_paid_accounts', <<'EOC');
+register_tablecreate( 'users_for_paid_accounts', <<'EOC');
 CREATE TABLE users_for_paid_accounts (
     userid int unsigned not null,
     time_inserted int unsigned not null default 0,
@@ -2788,7 +2798,7 @@ CREATE TABLE users_for_paid_accounts (
 )
 EOC
 
-register_tablecreate('content_filters', <<'EOC');
+register_tablecreate( 'content_filters', <<'EOC');
 CREATE TABLE content_filters (
   userid int(10) unsigned NOT NULL,
   filterid int(10) unsigned NOT NULL,
@@ -2801,7 +2811,7 @@ CREATE TABLE content_filters (
 )
 EOC
 
-register_tablecreate('content_filter_data', <<'EOC');
+register_tablecreate( 'content_filter_data', <<'EOC');
 CREATE TABLE content_filter_data (
   userid int(10) unsigned NOT NULL,
   filterid int(10) unsigned NOT NULL,
@@ -2811,7 +2821,7 @@ CREATE TABLE content_filter_data (
 )
 EOC
 
-register_tablecreate('sitekeywords', <<'EOC');
+register_tablecreate( 'sitekeywords', <<'EOC');
 CREATE TABLE sitekeywords (
     kwid INT(10) UNSIGNED NOT NULL,
     keyword VARCHAR(255) BINARY NOT NULL,
@@ -2824,7 +2834,7 @@ EOC
 # this table is included, even though it's not used in the stock dw-free
 # installation.  but if you want to use it, you can, or you can ignore it
 # and make your own which you might have to do.
-register_tablecreate('cc_trans', <<'EOC');
+register_tablecreate( 'cc_trans', <<'EOC');
 CREATE TABLE cc_trans (
     cctransid int unsigned not null auto_increment,
     cartid int unsigned not null,
@@ -2862,7 +2872,7 @@ CREATE TABLE cc_trans (
 EOC
 
 # same as the above
-register_tablecreate('cc_log', <<'EOC');
+register_tablecreate( 'cc_log', <<'EOC');
 CREATE TABLE cc_log (
     cartid int unsigned not null,
     ip varchar(15),
@@ -2874,7 +2884,7 @@ CREATE TABLE cc_log (
 )
 EOC
 
-register_tablecreate('externaluserinfo', <<'EOC');
+register_tablecreate( 'externaluserinfo', <<'EOC');
 CREATE TABLE externaluserinfo (
     site INT UNSIGNED NOT NULL,
     user VARCHAR(50) NOT NULL,
@@ -2885,7 +2895,7 @@ CREATE TABLE externaluserinfo (
 )
 EOC
 
-register_tablecreate('renames', <<'EOC');
+register_tablecreate( 'renames', <<'EOC');
 CREATE TABLE renames (
     renid INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     auth CHAR(13) NOT NULL,
@@ -2901,7 +2911,7 @@ CREATE TABLE renames (
 )
 EOC
 
-register_tablecreate("bannotes", <<'EOC');
+register_tablecreate( "bannotes", <<'EOC');
 CREATE TABLE bannotes (
     journalid    INT UNSIGNED NOT NULL,
     banid        INT UNSIGNED NOT NULL,
@@ -2912,7 +2922,7 @@ CREATE TABLE bannotes (
 )
 EOC
 
-register_tablecreate("openid_claims", <<'EOC');
+register_tablecreate( "openid_claims", <<'EOC');
 CREATE TABLE openid_claims (
     userid          INT UNSIGNED NOT NULL,
     claimed_userid  INT UNSIGNED NOT NULL,
@@ -2922,7 +2932,7 @@ CREATE TABLE openid_claims (
 )
 EOC
 
-register_tablecreate("siteadmin_email_history", <<'EOC');
+register_tablecreate( "siteadmin_email_history", <<'EOC');
 CREATE TABLE siteadmin_email_history (
     msgid        INT UNSIGNED NOT NULL,
     remoteid     INT UNSIGNED NOT NULL,
@@ -2941,7 +2951,7 @@ CREATE TABLE siteadmin_email_history (
 EOC
 
 # FIXME: add alt text, etc. mediaprops?
-register_tablecreate("media", <<'EOC');
+register_tablecreate( "media", <<'EOC');
 CREATE TABLE `media` (
   `userid` int(10) unsigned NOT NULL,
   `mediaid` int(10) unsigned NOT NULL,
@@ -2959,7 +2969,7 @@ CREATE TABLE `media` (
 EOC
 
 # versionid = is a mediaid, same numberspace
-register_tablecreate("media_versions", <<'EOC');
+register_tablecreate( "media_versions", <<'EOC');
 CREATE TABLE `media_versions` (
   `userid` int(10) unsigned NOT NULL,
   `mediaid` int(10) unsigned NOT NULL,
@@ -2971,7 +2981,7 @@ CREATE TABLE `media_versions` (
 )
 EOC
 
-register_tablecreate("media_props", <<'EOC');
+register_tablecreate( "media_props", <<'EOC');
 CREATE TABLE `media_props` (
   `userid` int(10) unsigned NOT NULL,
   `mediaid` int(10) unsigned NOT NULL,
@@ -2981,7 +2991,7 @@ CREATE TABLE `media_props` (
 )
 EOC
 
-register_tablecreate("media_prop_list", <<'EOC');
+register_tablecreate( "media_prop_list", <<'EOC');
 CREATE TABLE `media_prop_list` (
   `propid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) DEFAULT NULL,
@@ -2994,7 +3004,7 @@ CREATE TABLE `media_prop_list` (
 )
 EOC
 
-register_tablecreate("collections", <<'EOC');
+register_tablecreate( "collections", <<'EOC');
 CREATE TABLE `collections` (
   `userid` int(10) unsigned NOT NULL,
   `colid` int(10) unsigned NOT NULL,
@@ -3011,7 +3021,7 @@ CREATE TABLE `collections` (
 EOC
 
 # FIXME: the indexes here are totally whack
-register_tablecreate("collection_items", <<'EOC');
+register_tablecreate( "collection_items", <<'EOC');
 CREATE TABLE `collection_items` (
   `userid` int(10) unsigned NOT NULL,
   `colitemid` int(10) unsigned NOT NULL,
@@ -3026,7 +3036,7 @@ CREATE TABLE `collection_items` (
 )
 EOC
 
-register_tablecreate("dbnotes", <<'EOC');
+register_tablecreate( "dbnotes", <<'EOC');
 CREATE TABLE dbnotes (
     dbnote VARCHAR(40) NOT NULL,
     PRIMARY KEY (dbnote),
@@ -3034,7 +3044,7 @@ CREATE TABLE dbnotes (
 )
 EOC
 
-register_tablecreate("captcha_cache", <<'EOC');
+register_tablecreate( "captcha_cache", <<'EOC');
 CREATE TABLE captcha_cache (
     `captcha_id` INT UNSIGNED NOT NULL auto_increment,
     `question`   VARCHAR(255) NOT NULL,
@@ -3046,7 +3056,7 @@ CREATE TABLE captcha_cache (
 )
 EOC
 
-register_tablecreate("logslugs", <<'EOC');
+register_tablecreate( "logslugs", <<'EOC');
 CREATE TABLE `logslugs` (
   `journalid` int(10) unsigned NOT NULL DEFAULT '0',
   `jitemid` mediumint(8) unsigned NOT NULL,
@@ -3056,7 +3066,7 @@ CREATE TABLE `logslugs` (
 )
 EOC
 
-register_tablecreate("api_key", <<'EOC');
+register_tablecreate( "api_key", <<'EOC');
 CREATE TABLE `api_key` (
   `userid` int(10) unsigned NOT NULL,
   `keyid` int(10) unsigned NOT NULL,
@@ -3067,7 +3077,7 @@ CREATE TABLE `api_key` (
 )
 EOC
 
-register_tablecreate("key_props", <<'EOC');
+register_tablecreate( "key_props", <<'EOC');
 CREATE TABLE `key_props` (
   `userid` int(10) unsigned NOT NULL,
   `keyid` int(10) unsigned NOT NULL,
@@ -3077,7 +3087,7 @@ CREATE TABLE `key_props` (
 )
 EOC
 
-register_tablecreate("key_prop_list", <<'EOC');
+register_tablecreate( "key_prop_list", <<'EOC');
 CREATE TABLE `key_prop_list` (
   `propid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) DEFAULT NULL,
@@ -3094,639 +3104,656 @@ EOC
 
 ### changes
 
-register_alter(sub {
+register_alter(
+    sub {
 
-    my $dbh = shift;
-    my $runsql = shift;
+        my $dbh    = shift;
+        my $runsql = shift;
 
-    if (column_type("users_for_paid_accounts", "journaltype") eq "") {
-        do_alter("users_for_paid_accounts",
-                 "ALTER TABLE users_for_paid_accounts ADD journaltype CHAR(1) NOT NULL DEFAULT 'P', ".
-                 "ADD INDEX(journaltype)");
-    }
+        if ( column_type( "users_for_paid_accounts", "journaltype" ) eq "" ) {
+            do_alter( "users_for_paid_accounts",
+                "ALTER TABLE users_for_paid_accounts ADD journaltype CHAR(1) NOT NULL DEFAULT 'P', "
+                    . "ADD INDEX(journaltype)" );
+        }
 
-    if (column_type("supportcat", "is_selectable") eq "") {
-        do_alter("supportcat",
-                 "ALTER TABLE supportcat ADD is_selectable ENUM('1','0') ".
-                 "NOT NULL DEFAULT '1', ADD public_read  ENUM('1','0') NOT ".
-                 "NULL DEFAULT '1', ADD public_help ENUM('1','0') NOT NULL ".
-                 "DEFAULT '1', ADD allow_screened ENUM('1','0') NOT NULL ".
-                 "DEFAULT '0', ADD replyaddress VARCHAR(50), ADD hide_helpers ".
-                 "ENUM('1','0') NOT NULL DEFAULT '0' AFTER allow_screened");
+        if ( column_type( "supportcat", "is_selectable" ) eq "" ) {
+            do_alter( "supportcat",
+                      "ALTER TABLE supportcat ADD is_selectable ENUM('1','0') "
+                    . "NOT NULL DEFAULT '1', ADD public_read  ENUM('1','0') NOT "
+                    . "NULL DEFAULT '1', ADD public_help ENUM('1','0') NOT NULL "
+                    . "DEFAULT '1', ADD allow_screened ENUM('1','0') NOT NULL "
+                    . "DEFAULT '0', ADD replyaddress VARCHAR(50), ADD hide_helpers "
+                    . "ENUM('1','0') NOT NULL DEFAULT '0' AFTER allow_screened" );
 
-    }
+        }
 
-    if (column_type("supportlog", "type") =~ /faqref/) {
-        do_alter("supportlog",
-                 "ALTER TABLE supportlog MODIFY type ENUM('req', 'answer', ".
-                 "'custom', 'faqref', 'comment', 'internal', 'screened') ".
-                 "NOT NULL");
-        do_sql("UPDATE supportlog SET type='answer' WHERE type='custom'");
-        do_sql("UPDATE supportlog SET type='answer' WHERE type='faqref'");
-        do_alter("supportlog",
-                 "ALTER TABLE supportlog MODIFY type ENUM('req', 'answer', ".
-                 "'comment', 'internal', 'screened') NOT NULL");
+        if ( column_type( "supportlog", "type" ) =~ /faqref/ ) {
+            do_alter( "supportlog",
+                      "ALTER TABLE supportlog MODIFY type ENUM('req', 'answer', "
+                    . "'custom', 'faqref', 'comment', 'internal', 'screened') "
+                    . "NOT NULL" );
+            do_sql("UPDATE supportlog SET type='answer' WHERE type='custom'");
+            do_sql("UPDATE supportlog SET type='answer' WHERE type='faqref'");
+            do_alter( "supportlog",
+                      "ALTER TABLE supportlog MODIFY type ENUM('req', 'answer', "
+                    . "'comment', 'internal', 'screened') NOT NULL" );
 
-    }
+        }
 
-    if (table_relevant("supportcat") && column_type("supportcat", "catkey") eq "") {
-        do_alter("supportcat",
-                 "ALTER TABLE supportcat ADD catkey VARCHAR(25) AFTER spcatid");
-        do_sql("UPDATE supportcat SET catkey=spcatid WHERE catkey IS NULL");
-        do_alter("supportcat",
-                 "ALTER TABLE supportcat MODIFY catkey VARCHAR(25) NOT NULL");
-    }
+        if ( table_relevant("supportcat") && column_type( "supportcat", "catkey" ) eq "" ) {
+            do_alter( "supportcat", "ALTER TABLE supportcat ADD catkey VARCHAR(25) AFTER spcatid" );
+            do_sql("UPDATE supportcat SET catkey=spcatid WHERE catkey IS NULL");
+            do_alter( "supportcat", "ALTER TABLE supportcat MODIFY catkey VARCHAR(25) NOT NULL" );
+        }
 
-    if (column_type("supportcat", "no_autoreply") eq "") {
-        do_alter("supportcat",
-                 "ALTER TABLE supportcat ADD no_autoreply ENUM('1', '0') ".
-                 "NOT NULL DEFAULT '0'");
-    }
+        if ( column_type( "supportcat", "no_autoreply" ) eq "" ) {
+            do_alter( "supportcat",
+                      "ALTER TABLE supportcat ADD no_autoreply ENUM('1', '0') "
+                    . "NOT NULL DEFAULT '0'" );
+        }
 
-    if (column_type("support", "timelasthelp") eq "") {
-        do_alter("supportlog",
-                 "ALTER TABLE supportlog ADD INDEX (userid)");
-        do_alter("support",
-                 "ALTER TABLE support ADD timelasthelp INT UNSIGNED");
-    }
+        if ( column_type( "support", "timelasthelp" ) eq "" ) {
+            do_alter( "supportlog", "ALTER TABLE supportlog ADD INDEX (userid)" );
+            do_alter( "support",    "ALTER TABLE support ADD timelasthelp INT UNSIGNED" );
+        }
 
-    if (column_type("duplock", "realm") !~ /payments/) {
-        do_alter("duplock",
-                 "ALTER TABLE duplock MODIFY realm ENUM('support','log',".
-                 "'comment','payments') NOT NULL default 'support'");
-    }
+        if ( column_type( "duplock", "realm" ) !~ /payments/ ) {
+            do_alter( "duplock",
+                      "ALTER TABLE duplock MODIFY realm ENUM('support','log',"
+                    . "'comment','payments') NOT NULL default 'support'" );
+        }
 
-    # upgrade people to the new capabilities system.  if they're
-    # using the paidfeatures column already, we'll assign them
-    # the same capability bits that ljcom will be using.
-    if (table_relevant("user") && column_type("user", "caps") eq "") {
-        do_alter("user",
-                 "ALTER TABLE user ADD ".
-                 "caps SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER user");
-        try_sql("UPDATE user SET caps=16|8|2 WHERE paidfeatures='on'");
-        try_sql("UPDATE user SET caps=8|2    WHERE paidfeatures='paid'");
-        try_sql("UPDATE user SET caps=4|2    WHERE paidfeatures='early'");
-        try_sql("UPDATE user SET caps=2      WHERE paidfeatures='off'");
-    }
+        # upgrade people to the new capabilities system.  if they're
+        # using the paidfeatures column already, we'll assign them
+        # the same capability bits that ljcom will be using.
+        if ( table_relevant("user") && column_type( "user", "caps" ) eq "" ) {
+            do_alter( "user",
+                "ALTER TABLE user ADD " . "caps SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER user" );
+            try_sql("UPDATE user SET caps=16|8|2 WHERE paidfeatures='on'");
+            try_sql("UPDATE user SET caps=8|2    WHERE paidfeatures='paid'");
+            try_sql("UPDATE user SET caps=4|2    WHERE paidfeatures='early'");
+            try_sql("UPDATE user SET caps=2      WHERE paidfeatures='off'");
+        }
 
-    # axe this column (and its two related ones) if it exists.
-    if (column_type("user", "paidfeatures")) {
-        try_sql("REPLACE INTO paiduser (userid, paiduntil, paidreminder) ".
-                "SELECT userid, paiduntil, paidreminder FROM user WHERE paidfeatures='paid'");
-        try_sql("REPLACE INTO paiduser (userid, paiduntil, paidreminder) ".
-                "SELECT userid, COALESCE(paiduntil,'0000-00-00'), NULL FROM user WHERE paidfeatures='on'");
-        do_alter("user",
-                 "ALTER TABLE user DROP paidfeatures, DROP paiduntil, DROP paidreminder");
-    }
+        # axe this column (and its two related ones) if it exists.
+        if ( column_type( "user", "paidfeatures" ) ) {
+            try_sql(  "REPLACE INTO paiduser (userid, paiduntil, paidreminder) "
+                    . "SELECT userid, paiduntil, paidreminder FROM user WHERE paidfeatures='paid'"
+            );
+            try_sql(  "REPLACE INTO paiduser (userid, paiduntil, paidreminder) "
+                    . "SELECT userid, COALESCE(paiduntil,'0000-00-00'), NULL FROM user WHERE paidfeatures='on'"
+            );
+            do_alter( "user",
+                "ALTER TABLE user DROP paidfeatures, DROP paiduntil, DROP paidreminder" );
+        }
 
-    # add scope columns to proplist tables
-    if (column_type("userproplist", "scope") eq "") {
-        do_alter("userproplist",
-                 "ALTER TABLE userproplist ADD scope ENUM('general', 'local') ".
-                 "DEFAULT 'general' NOT NULL");
-    }
+        # add scope columns to proplist tables
+        if ( column_type( "userproplist", "scope" ) eq "" ) {
+            do_alter( "userproplist",
+                      "ALTER TABLE userproplist ADD scope ENUM('general', 'local') "
+                    . "DEFAULT 'general' NOT NULL" );
+        }
 
-    if (column_type("logproplist", "scope") eq "") {
-        do_alter("logproplist",
-                 "ALTER TABLE logproplist ADD scope ENUM('general', 'local') ".
-                 "DEFAULT 'general' NOT NULL");
-    }
+        if ( column_type( "logproplist", "scope" ) eq "" ) {
+            do_alter( "logproplist",
+                      "ALTER TABLE logproplist ADD scope ENUM('general', 'local') "
+                    . "DEFAULT 'general' NOT NULL" );
+        }
 
-    if (column_type("talkproplist", "scope") eq "") {
-        do_alter("talkproplist",
-                 "ALTER TABLE talkproplist ADD scope ENUM('general', 'local') ".
-                 "DEFAULT 'general' NOT NULL");
-    }
+        if ( column_type( "talkproplist", "scope" ) eq "" ) {
+            do_alter( "talkproplist",
+                      "ALTER TABLE talkproplist ADD scope ENUM('general', 'local') "
+                    . "DEFAULT 'general' NOT NULL" );
+        }
 
-    if (column_type("priv_list", "scope") eq "") {
-        do_alter("priv_list",
-                 "ALTER TABLE priv_list ADD scope ENUM('general', 'local') ".
-                 "DEFAULT 'general' NOT NULL");
-    }
+        if ( column_type( "priv_list", "scope" ) eq "" ) {
+            do_alter( "priv_list",
+                      "ALTER TABLE priv_list ADD scope ENUM('general', 'local') "
+                    . "DEFAULT 'general' NOT NULL" );
+        }
 
-    # change size of stats table to accomodate meme data, and shrink statcat,
-    # since it's way too big
-    if (column_type("stats", "statcat") eq "varchar(100)") {
-        do_alter("stats",
-                 "ALTER TABLE stats ".
-                 "MODIFY statcat VARCHAR(30) NOT NULL, ".
-                 "MODIFY statkey VARCHAR(150) NOT NULL, ".
-                 "MODIFY statval INT UNSIGNED NOT NULL, ".
-                 "DROP INDEX statcat");
-    }
+        # change size of stats table to accomodate meme data, and shrink statcat,
+        # since it's way too big
+        if ( column_type( "stats", "statcat" ) eq "varchar(100)" ) {
+            do_alter( "stats",
+                      "ALTER TABLE stats "
+                    . "MODIFY statcat VARCHAR(30) NOT NULL, "
+                    . "MODIFY statkey VARCHAR(150) NOT NULL, "
+                    . "MODIFY statval INT UNSIGNED NOT NULL, "
+                    . "DROP INDEX statcat" );
+        }
 
-    if (column_type("priv_list", "is_public") eq "") {
-        do_alter("priv_list",
-                 "ALTER TABLE priv_list ".
-                 "ADD is_public ENUM('1', '0') DEFAULT '1' NOT NULL");
-    }
+        if ( column_type( "priv_list", "is_public" ) eq "" ) {
+            do_alter( "priv_list",
+                "ALTER TABLE priv_list " . "ADD is_public ENUM('1', '0') DEFAULT '1' NOT NULL" );
+        }
 
-    if (column_type("user", "clusterid") eq "") {
-        do_alter("user", "ALTER TABLE user ".
-                 "ADD clusterid TINYINT UNSIGNED NOT NULL AFTER caps, ".
-                 "ADD dversion TINYINT UNSIGNED NOT NULL AFTER clusterid, ".
-                 "ADD INDEX idxcluster (clusterid), ".
-                 "ADD INDEX idxversion (dversion)");
-    }
+        if ( column_type( "user", "clusterid" ) eq "" ) {
+            do_alter( "user",
+                      "ALTER TABLE user "
+                    . "ADD clusterid TINYINT UNSIGNED NOT NULL AFTER caps, "
+                    . "ADD dversion TINYINT UNSIGNED NOT NULL AFTER clusterid, "
+                    . "ADD INDEX idxcluster (clusterid), "
+                    . "ADD INDEX idxversion (dversion)" );
+        }
 
-    # add the default encoding field, for recoding older pre-Unicode stuff
+        # add the default encoding field, for recoding older pre-Unicode stuff
 
-    if (column_type("user", "oldenc") eq "") {
-        do_alter("user", "ALTER TABLE user ".
-                 "ADD oldenc TINYINT DEFAULT 0 NOT NULL, ".
-                 "MODIFY name CHAR(80) NOT NULL");
-    }
+        if ( column_type( "user", "oldenc" ) eq "" ) {
+            do_alter( "user",
+                      "ALTER TABLE user "
+                    . "ADD oldenc TINYINT DEFAULT 0 NOT NULL, "
+                    . "MODIFY name CHAR(80) NOT NULL" );
+        }
 
-    if (column_type("user", "allow_getpromos") ne "") {
-        do_alter("user", "ALTER TABLE user DROP allow_getpromos");
-    }
+        if ( column_type( "user", "allow_getpromos" ) ne "" ) {
+            do_alter( "user", "ALTER TABLE user DROP allow_getpromos" );
+        }
 
-    #allow longer moodtheme pic URLs
-    if (column_type("moodthemedata", "picurl") eq "varchar(100)") {
-        do_alter("moodthemedata",
-                 "ALTER TABLE moodthemedata MODIFY picurl VARCHAR(200)");
-    }
+        #allow longer moodtheme pic URLs
+        if ( column_type( "moodthemedata", "picurl" ) eq "varchar(100)" ) {
+            do_alter( "moodthemedata", "ALTER TABLE moodthemedata MODIFY picurl VARCHAR(200)" );
+        }
 
-    # change interest.interest key to being unique, if it's not already
-    {
-        my $sth = $dbh->prepare("SHOW INDEX FROM interests");
-        $sth->execute;
-        while (my $i = $sth->fetchrow_hashref) {
-            if ($i->{'Key_name'} eq "interest" && $i->{'Non_unique'}) {
-                do_alter("interests", "ALTER IGNORE TABLE interests ".
-                         "DROP INDEX interest, ADD UNIQUE interest (interest)");
-                last;
+        # change interest.interest key to being unique, if it's not already
+        {
+            my $sth = $dbh->prepare("SHOW INDEX FROM interests");
+            $sth->execute;
+            while ( my $i = $sth->fetchrow_hashref ) {
+                if ( $i->{'Key_name'} eq "interest" && $i->{'Non_unique'} ) {
+                    do_alter( "interests",
+                              "ALTER IGNORE TABLE interests "
+                            . "DROP INDEX interest, ADD UNIQUE interest (interest)" );
+                    last;
+                }
             }
         }
-    }
 
-    if (column_type("supportcat", "scope") eq "") {
-        do_alter("supportcat",
-                 "ALTER IGNORE TABLE supportcat ADD scope ENUM('general', 'local') ".
-                 "NOT NULL DEFAULT 'general', ADD UNIQUE (catkey)");
-    }
-
-    # convert 'all' arguments to '*'
-    if (table_relevant("priv_map") && !check_dbnote("privcode_all_to_*")) {
-
-        # arg isn't keyed, but this table is only a couple thousand rows
-        do_sql("UPDATE priv_map SET arg='*' WHERE arg='all'");
-
-        set_dbnote("privcode_all_to_*", 1);
-    }
-
-    # this never ended up being useful, and just freaked people out unnecessarily.
-    if (column_type("user", "track")) {
-        do_alter("user", "ALTER TABLE user DROP track");
-    }
-
-    # need more choices (like "Y" for sYndicated journals)
-    if (column_type("user", "journaltype") =~ /enum/i) {
-        do_alter("user", "ALTER TABLE user MODIFY journaltype CHAR(1) NOT NULL DEFAULT 'P'");
-    }
-
-    unless (column_type("syndicated", "laststatus")) {
-        do_alter("syndicated",
-                 "ALTER TABLE syndicated ADD laststatus VARCHAR(80), ADD lastnew DATETIME");
-    }
-
-    unless (column_type("syndicated", "numreaders")) {
-        do_alter("syndicated",
-                 "ALTER TABLE syndicated ".
-                 "ADD numreaders MEDIUMINT, ADD INDEX (numreaders)");
-    }
-
-    if (column_type("community", "ownerid")) {
-        do_alter("community",
-                 "ALTER TABLE community DROP ownerid");
-    }
-
-    unless (column_type("userproplist", "cldversion")) {
-        do_alter("userproplist",
-                 "ALTER TABLE userproplist ADD cldversion TINYINT UNSIGNED NOT NULL AFTER indexed");
-    }
-
-    unless (column_type("authactions", "used") &&
-            index_name("authactions", "INDEX:userid") &&
-            index_name("authactions", "INDEX:datecreate")) {
-
-        do_alter("authactions",
-                 "ALTER TABLE authactions " .
-                 "ADD used enum('Y', 'N') DEFAULT 'N' AFTER arg1, " .
-                 "ADD INDEX(userid), ADD INDEX(datecreate)");
-    }
-
-    unless (column_type("s2styles", "modtime")) {
-        do_alter("s2styles",
-                 "ALTER TABLE s2styles ADD modtime INT UNSIGNED NOT NULL AFTER name");
-    }
-
-    # Add BLOB flag to proplist
-    unless (column_type("userproplist", "datatype") =~ /blobchar/) {
-        if (column_type("userproplist", "is_blob")) {
-            do_alter("userproplist",
-                     "ALTER TABLE userproplist DROP is_blob");
+        if ( column_type( "supportcat", "scope" ) eq "" ) {
+            do_alter( "supportcat",
+                      "ALTER IGNORE TABLE supportcat ADD scope ENUM('general', 'local') "
+                    . "NOT NULL DEFAULT 'general', ADD UNIQUE (catkey)" );
         }
-        do_alter("userproplist",
-                 "ALTER TABLE userproplist MODIFY datatype ENUM('char','num','bool','blobchar') NOT NULL DEFAULT 'char'");
-    }
 
-    if (column_type("challenges", "count") eq "") {
-        do_alter("challenges",
-                 "ALTER TABLE challenges ADD ".
-                 "count int(5) UNSIGNED NOT NULL DEFAULT 0 AFTER challenge");
-    }
+        # convert 'all' arguments to '*'
+        if ( table_relevant("priv_map") && !check_dbnote("privcode_all_to_*") ) {
 
-    unless (index_name("support", "INDEX:requserid")) {
-        do_alter("support", "ALTER IGNORE TABLE support ADD INDEX (requserid), ADD INDEX (reqemail)");
-    }
+            # arg isn't keyed, but this table is only a couple thousand rows
+            do_sql("UPDATE priv_map SET arg='*' WHERE arg='all'");
 
-    unless (column_type("community", "membership") =~ /moderated/i) {
-        do_alter("community", "ALTER TABLE community MODIFY COLUMN " .
-                 "membership ENUM('open','closed','moderated') DEFAULT 'open' NOT NULL");
-    }
+            set_dbnote( "privcode_all_to_*", 1 );
+        }
 
-    if (column_type("userproplist", "multihomed") eq '') {
-        do_alter("userproplist", "ALTER TABLE userproplist " .
-                 "ADD multihomed ENUM('1', '0') NOT NULL DEFAULT '0' AFTER cldversion");
-    }
+        # this never ended up being useful, and just freaked people out unnecessarily.
+        if ( column_type( "user", "track" ) ) {
+            do_alter( "user", "ALTER TABLE user DROP track" );
+        }
 
-    if (index_name("moodthemedata", "INDEX:moodthemeid")) {
-        do_alter("moodthemedata", "ALTER IGNORE TABLE moodthemedata DROP KEY moodthemeid");
-    }
+        # need more choices (like "Y" for sYndicated journals)
+        if ( column_type( "user", "journaltype" ) =~ /enum/i ) {
+            do_alter( "user", "ALTER TABLE user MODIFY journaltype CHAR(1) NOT NULL DEFAULT 'P'" );
+        }
 
-    if (column_type("userpic2", "flags") eq '') {
-        do_alter("userpic2", "ALTER TABLE userpic2 " .
-                 "ADD flags tinyint(1) unsigned NOT NULL default 0 AFTER comment, " .
-                 "ADD location enum('blob','disk','mogile') default NULL AFTER flags");
-    }
+        unless ( column_type( "syndicated", "laststatus" ) ) {
+            do_alter( "syndicated",
+                "ALTER TABLE syndicated ADD laststatus VARCHAR(80), ADD lastnew DATETIME" );
+        }
 
-    if (column_type("counter", "max") =~ /mediumint/) {
-        do_alter("counter", "ALTER TABLE counter MODIFY max INT UNSIGNED NOT NULL DEFAULT 0");
-    }
+        unless ( column_type( "syndicated", "numreaders" ) ) {
+            do_alter( "syndicated",
+                "ALTER TABLE syndicated " . "ADD numreaders MEDIUMINT, ADD INDEX (numreaders)" );
+        }
 
-    if (column_type("userpic2", "url") eq '') {
-        do_alter("userpic2", "ALTER TABLE userpic2 " .
-                 "ADD url VARCHAR(255) default NULL AFTER location");
-    }
+        if ( column_type( "community", "ownerid" ) ) {
+            do_alter( "community", "ALTER TABLE community DROP ownerid" );
+        }
 
-    unless (column_type("spamreports", "posttime") ne '') {
-        do_alter("spamreports", "ALTER TABLE spamreports ADD COLUMN posttime INT(10) UNSIGNED " .
-                 "NOT NULL AFTER reporttime, ADD COLUMN state ENUM('open', 'closed') DEFAULT 'open' " .
-                 "NOT NULL AFTER posttime");
-    }
+        unless ( column_type( "userproplist", "cldversion" ) ) {
+            do_alter( "userproplist",
+                "ALTER TABLE userproplist ADD cldversion TINYINT UNSIGNED NOT NULL AFTER indexed" );
+        }
 
-    if (column_type("spamreports", "report_type") eq '') {
-        do_alter("spamreports", "ALTER TABLE spamreports " .
-                 "ADD report_type ENUM('entry','comment') NOT NULL DEFAULT 'comment' " .
-                 "AFTER posterid");
-    }
+        unless ( column_type( "authactions", "used" )
+            && index_name( "authactions", "INDEX:userid" )
+            && index_name( "authactions", "INDEX:datecreate" ) )
+        {
 
-    if (column_type("sessions", "exptype") !~ /once/) {
-        do_alter("sessions",
-                 "ALTER TABLE sessions CHANGE COLUMN exptype ".
-                 "exptype ENUM('short', 'long', 'once') NOT NULL");
-    }
+            do_alter( "authactions",
+                      "ALTER TABLE authactions "
+                    . "ADD used enum('Y', 'N') DEFAULT 'N' AFTER arg1, "
+                    . "ADD INDEX(userid), ADD INDEX(datecreate)" );
+        }
 
-    # TODO: fix initial definition to match this, make table innodb
-    if (column_type("ml_items", "itid") =~ /auto_increment/) {
-        do_alter("ml_items",
-                 "ALTER TABLE ml_items MODIFY COLUMN " .
-                 "itid MEDIUMINT UNSIGNED NOT NULL DEFAULT 0");
-    }
+        unless ( column_type( "s2styles", "modtime" ) ) {
+            do_alter( "s2styles",
+                "ALTER TABLE s2styles ADD modtime INT UNSIGNED NOT NULL AFTER name" );
+        }
 
-    # TODO: fix initial definition to match this, make table innodb
-    if (column_type("ml_text", "txtid") =~ /auto_increment/) {
-        do_alter("ml_text",
-                 "ALTER TABLE ml_text MODIFY COLUMN " .
-                 "txtid MEDIUMINT UNSIGNED NOT NULL DEFAULT 0");
-    }
-
-    unless (column_type("syndicated", "oldest_ourdate")) {
-        do_alter("syndicated",
-                 "ALTER TABLE syndicated ADD oldest_ourdate DATETIME AFTER lastnew");
-    }
-
-    if (column_type("sessions", "userid") =~ /mediumint/) {
-        do_alter("sessions",
-                 "ALTER TABLE sessions MODIFY COLUMN userid INT UNSIGNED NOT NULL");
-    }
-
-    if (column_type("faq", "summary") eq '') {
-        do_alter("faq",
-                 "ALTER TABLE faq ADD summary TEXT AFTER question");
-    }
-
-    if (column_type("spamreports", "srid") eq '') {
-        do_alter("spamreports",
-                 "ALTER TABLE spamreports DROP PRIMARY KEY");
-
-        do_alter("spamreports",
-                 "ALTER TABLE spamreports ADD srid MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT FIRST");
-
-        do_alter("spamreports",
-                 "ALTER TABLE spamreports ADD INDEX (reporttime, journalid)");
-    }
-
-    if (column_type("includetext", "inctext") !~ /mediumtext/) {
-        do_alter("includetext",
-                 "ALTER TABLE includetext MODIFY COLUMN inctext MEDIUMTEXT");
-    }
-
-    # table format totally changed, we'll just truncate and modify
-    # all of the columns since the data is just summary anyway
-    if (index_name("active_user", "INDEX:time")) {
-        do_sql("TRUNCATE TABLE active_user");
-        do_alter("active_user",
-                 "ALTER TABLE active_user " .
-                 "DROP time, DROP KEY userid, " .
-                 "ADD year SMALLINT NOT NULL FIRST, " .
-                 "ADD month TINYINT NOT NULL AFTER year, " .
-                 "ADD day TINYINT NOT NULL AFTER month, " .
-                 "ADD hour TINYINT NOT NULL AFTER day, " .
-                 "ADD PRIMARY KEY (year, month, day, hour, userid)");
-    }
-
-    if (index_name("active_user_summary", "UNIQUE:year-month-day-hour-clusterid-type")) {
-        do_alter("active_user_summary",
-                 "ALTER TABLE active_user_summary DROP PRIMARY KEY, " .
-                 "ADD INDEX (year, month, day, hour)");
-    }
-
-    if (column_type("blobcache", "bckey") =~ /40/) {
-        do_alter("blobcache",
-                 "ALTER TABLE blobcache MODIFY bckey VARCHAR(255) NOT NULL");
-    }
-
-    if (column_type("eventtypelist", "eventtypeid")) {
-        do_alter("eventtypelist",
-                 "ALTER TABLE eventtypelist CHANGE eventtypeid etypeid SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT");
-    }
-
-    # add index on journalid, etypeid to subs
-    unless (index_name("subs", "INDEX:etypeid-journalid") || index_name("subs", "INDEX:etypeid-journalid-userid")) {
-        # This one is deprecated by the one below, which adds a userid
-        # at the end.  hence the double if above.
-        do_alter("subs", "ALTER TABLE subs ".
-                 "ADD INDEX (etypeid, journalid)");
-    }
-
-    unless (column_type("sch_error", "funcid")) {
-        do_alter("sch_error", "alter table sch_error add funcid int(10) unsigned NOT NULL default 0, add index (funcid, error_time)");
-    }
-
-    unless (column_type("sch_exitstatus", "funcid")) {
-        do_alter("sch_exitstatus", "alter table sch_exitstatus add funcid INT UNSIGNED NOT NULL DEFAULT 0, add index (funcid)");
-    }
-
-    # add an index
-    unless (index_name("subs", "INDEX:etypeid-journalid-userid")) {
-        do_alter("subs",
-                 "ALTER TABLE subs DROP INDEX etypeid, ADD INDEX etypeid (etypeid, journalid, userid)");
-    }
-
-    # fix primary key
-    unless (index_name("pollresult2", "UNIQUE:journalid-pollid-pollqid-userid")) {
-        do_alter("pollresult2",
-                 "ALTER TABLE pollresult2 DROP PRIMARY KEY, ADD PRIMARY KEY (journalid,pollid,pollqid,userid)");
-    }
-
-    # fix primary key
-    unless (index_name("pollsubmission2", "UNIQUE:journalid-pollid-userid")) {
-        do_alter("pollsubmission2",
-                 "ALTER TABLE pollsubmission2 DROP PRIMARY KEY, ADD PRIMARY KEY (journalid,pollid,userid)");
-    }
-
-    # add an indexed 'userid' column
-    unless (column_type("expunged_users", "userid")) {
-        do_alter("expunged_users",
-                 "ALTER TABLE expunged_users ADD userid INT UNSIGNED NOT NULL FIRST, " .
-                 "ADD INDEX (userid)");
-    }
-
-    unless (column_type("usermsgproplist", "scope")) {
-        do_alter("usermsgproplist",
-                 "ALTER TABLE usermsgproplist ADD scope ENUM('general', 'local') "
-                 . "DEFAULT 'general' NOT NULL");
-    }
-
-
-    if (table_relevant("spamreports") && column_type("spamreports", "report_type") !~ /message/) {
-        # cache table by running select
-        do_sql("SELECT COUNT(*) FROM spamreports");
-        # add 'message' enum
-        do_alter("spamreports", "ALTER TABLE spamreports " .
-                 "CHANGE COLUMN report_type report_type " .
-                 "ENUM('entry','comment','message') NOT NULL DEFAULT 'comment'");
-    }
-
-    if (column_type("supportcat", "user_closeable") eq "") {
-        do_alter("supportcat",
-                 "ALTER TABLE supportcat ADD " .
-                 "user_closeable ENUM('1', '0') NOT NULL DEFAULT '1' " .
-                 "AFTER hide_helpers");
-    }
-
-    # add a status column to polls
-    unless (column_type("poll2", "status")) {
-        do_alter("poll2",
-                 "ALTER TABLE poll2 ADD status CHAR(1) AFTER name, " .
-                 "ADD INDEX (status)");
-    }
-
-    unless (column_type("log2", "allowmask") =~ /^bigint/) {
-        do_alter("log2",
-                 q{ ALTER TABLE log2 MODIFY COLUMN allowmask BIGINT UNSIGNED NOT NULL });
-    }
-
-    unless (column_type("logsec2", "allowmask") =~ /^bigint/) {
-        do_alter("logsec2",
-                 q{ ALTER TABLE logsec2 MODIFY COLUMN allowmask BIGINT UNSIGNED NOT NULL });
-    }
-
-    unless (column_type("logkwsum", "security") =~ /^bigint/) {
-        do_alter("logkwsum",
-                 q{ ALTER TABLE logkwsum MODIFY COLUMN security BIGINT UNSIGNED NOT NULL });
-    }
-
-    unless ( column_type("logproplist", "ownership") ) {
-        do_alter("logproplist",
-                 "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') ".
-                 "DEFAULT 'user' NOT NULL");
-    }
-
-    unless (column_type("jobstatus", "userid")) {
-        do_alter("jobstatus",
-                 "ALTER TABLE jobstatus " .
-                 "ADD userid INT UNSIGNED DEFAULT NULL"); # yes, we allow userid to be NULL - it means no userid checking
-    }
-
-    unless (column_type("supportlog", "tier")) {
-        do_alter("supportlog",
-                 "ALTER TABLE supportlog " .
-                 "ADD tier TINYINT UNSIGNED DEFAULT NULL");
-    }
-
-    unless ( column_type("logproplist", "ownership") ) {
-        do_alter("logproplist",
-                 "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') ".
-                 "DEFAULT 'user' NOT NULL");
-    }
-
-    if ( column_type( "acctcode", "auth" ) =~ /^\Qchar(5)\E/ ) {
-        do_alter( "acctcode",
-                  "ALTER TABLE acctcode MODIFY auth CHAR(13)" );
-    }
-
-    unless ( column_type( "acctcode", "reason" ) ) {
-        do_alter( "acctcode",
-                  "ALTER TABLE acctcode ADD reason VARCHAR(255)" );
-    }
-
-    unless ( column_type( "acctcode", "timegenerate" ) ) {
-        do_alter( "acctcode",
-                  "ALTER TABLE acctcode ADD timegenerate TIMESTAMP");
-    }
-
-    unless ( column_type ("userpic2", "description" ) ) {
-        do_alter( "userpic2",
-                  "ALTER TABLE userpic2 ADD description varchar(255) BINARY NOT NULL default ''" );
-
-    }
-
-    unless ( column_type( 'user', 'user' ) =~ /25/ ) {
-        do_alter( 'user',
-                  "ALTER TABLE user MODIFY COLUMN user CHAR(25)" );
-    }
-
-    unless ( column_type( 'useridmap', 'user' ) =~ /25/ ) {
-        do_alter( 'useridmap',
-                  "ALTER TABLE useridmap MODIFY COLUMN user CHAR(25) NOT NULL" );
-    }
-
-    unless ( column_type( 'expunged_users', 'user' ) =~ /25/ ) {
-        do_alter( 'expunged_users',
-                  "ALTER TABLE expunged_users MODIFY COLUMN user VARCHAR(25) NOT NULL" );
-    }
-
-    unless ( column_type( "acctcode", "timegenerate" ) =~ /^\Qint(10) unsigned\E/ ) {
-        do_alter( "acctcode",
-                  "ALTER TABLE acctcode MODIFY COLUMN timegenerate INT UNSIGNED");
-    }
-
-    unless ( column_type( "logtext2", "event" ) =~ /^mediumtext/ ) {
-        do_alter( "logtext2",
-                  "ALTER TABLE logtext2 MODIFY COLUMN event MEDIUMTEXT");
-    }
-
-    if ( column_type( "random_user_set", "journaltype") eq '' ) {
-        do_code("changing random_user_set primary key",sub {
-            # We're changing the primary key, so we need to make sure we don't have
-            # any duplicates of the old primary key lying around to trip us up.
-            my $sth = $dbh->prepare("SELECT posttime, userid FROM random_user_set ORDER BY posttime desc");
-            $sth->execute();
-            my %found = ();
-            while (my $rowh = $sth->fetchrow_hashref) {
-                $dbh->do("DELETE FROM random_user_set WHERE userid=? AND posttime=?", undef,
-                    $rowh->{'userid'}, $rowh->{'posttime'}) if  $found{$rowh->{'userid'}}++;
+        # Add BLOB flag to proplist
+        unless ( column_type( "userproplist", "datatype" ) =~ /blobchar/ ) {
+            if ( column_type( "userproplist", "is_blob" ) ) {
+                do_alter( "userproplist", "ALTER TABLE userproplist DROP is_blob" );
             }
-        });
+            do_alter( "userproplist",
+"ALTER TABLE userproplist MODIFY datatype ENUM('char','num','bool','blobchar') NOT NULL DEFAULT 'char'"
+            );
+        }
 
-        do_alter("random_user_set",
-                 "ALTER TABLE random_user_set ADD COLUMN journaltype CHAR(1) NOT NULL DEFAULT 'P'");
-        do_alter("random_user_set",
-                 "ALTER TABLE random_user_set DROP PRIMARY KEY, ADD PRIMARY KEY (userid)");
-        do_alter("random_user_set",
-                 "ALTER TABLE random_user_set ADD INDEX (posttime)");
-    }
+        if ( column_type( "challenges", "count" ) eq "" ) {
+            do_alter( "challenges",
+                      "ALTER TABLE challenges ADD "
+                    . "count int(5) UNSIGNED NOT NULL DEFAULT 0 AFTER challenge" );
+        }
 
-    unless ( column_type( "acctcode", "timesent" ) ) {
-        do_alter( "acctcode",
-                  "ALTER TABLE acctcode ADD timesent INT UNSIGNED");
-    }
+        unless ( index_name( "support", "INDEX:requserid" ) ) {
+            do_alter( "support",
+                "ALTER IGNORE TABLE support ADD INDEX (requserid), ADD INDEX (reqemail)" );
+        }
 
-    unless ( column_type( "poll2", "whovote" ) =~ /trusted/ ) {
-        do_alter("poll2",
-                 "ALTER TABLE poll2 MODIFY COLUMN whovote ENUM('all','trusted','ofentry') NOT NULL default 'all'" );
-        do_alter("poll2",
-                 "ALTER TABLE poll2 MODIFY COLUMN whoview ENUM('all','trusted','ofentry','none') NOT NULL default 'all'" );
-    }
+        unless ( column_type( "community", "membership" ) =~ /moderated/i ) {
+            do_alter( "community",
+                      "ALTER TABLE community MODIFY COLUMN "
+                    . "membership ENUM('open','closed','moderated') DEFAULT 'open' NOT NULL" );
+        }
 
-    unless ( column_type( 'ml_items', 'proofed' ) ) {
-        do_alter( 'ml_items',
-                  "ALTER TABLE ml_items ADD COLUMN proofed TINYINT NOT NULL DEFAULT 0 AFTER itcode" );
-        do_alter( 'ml_items',
-                  "ALTER TABLE ml_items ADD INDEX (proofed)" );
-        do_alter( 'ml_items',
-                  "ALTER TABLE ml_items ADD COLUMN updated TINYINT NOT NULL DEFAULT 0 AFTER proofed" );
-        do_alter( 'ml_items',
-                  "ALTER TABLE ml_items ADD INDEX (updated)" );
-    }
+        if ( column_type( "userproplist", "multihomed" ) eq '' ) {
+            do_alter( "userproplist",
+                      "ALTER TABLE userproplist "
+                    . "ADD multihomed ENUM('1', '0') NOT NULL DEFAULT '0' AFTER cldversion" );
+        }
 
-    unless ( column_type( 'ml_items', 'visible' ) ) {
-        do_alter( 'ml_items',
-                  "ALTER TABLE ml_items ADD COLUMN visible TINYINT NOT NULL DEFAULT 0 AFTER updated" );
-    }
+        if ( index_name( "moodthemedata", "INDEX:moodthemeid" ) ) {
+            do_alter( "moodthemedata", "ALTER IGNORE TABLE moodthemedata DROP KEY moodthemeid" );
+        }
 
-    unless ( column_type( 'import_items', 'status' ) =~ /aborted/ ) {
-        do_alter( 'import_items',
-                  q{ALTER TABLE import_items MODIFY COLUMN
+        if ( column_type( "userpic2", "flags" ) eq '' ) {
+            do_alter( "userpic2",
+                      "ALTER TABLE userpic2 "
+                    . "ADD flags tinyint(1) unsigned NOT NULL default 0 AFTER comment, "
+                    . "ADD location enum('blob','disk','mogile') default NULL AFTER flags" );
+        }
+
+        if ( column_type( "counter", "max" ) =~ /mediumint/ ) {
+            do_alter( "counter", "ALTER TABLE counter MODIFY max INT UNSIGNED NOT NULL DEFAULT 0" );
+        }
+
+        if ( column_type( "userpic2", "url" ) eq '' ) {
+            do_alter( "userpic2",
+                "ALTER TABLE userpic2 " . "ADD url VARCHAR(255) default NULL AFTER location" );
+        }
+
+        unless ( column_type( "spamreports", "posttime" ) ne '' ) {
+            do_alter( "spamreports",
+                      "ALTER TABLE spamreports ADD COLUMN posttime INT(10) UNSIGNED "
+                    . "NOT NULL AFTER reporttime, ADD COLUMN state ENUM('open', 'closed') DEFAULT 'open' "
+                    . "NOT NULL AFTER posttime" );
+        }
+
+        if ( column_type( "spamreports", "report_type" ) eq '' ) {
+            do_alter( "spamreports",
+                      "ALTER TABLE spamreports "
+                    . "ADD report_type ENUM('entry','comment') NOT NULL DEFAULT 'comment' "
+                    . "AFTER posterid" );
+        }
+
+        if ( column_type( "sessions", "exptype" ) !~ /once/ ) {
+            do_alter( "sessions",
+                      "ALTER TABLE sessions CHANGE COLUMN exptype "
+                    . "exptype ENUM('short', 'long', 'once') NOT NULL" );
+        }
+
+        # TODO: fix initial definition to match this, make table innodb
+        if ( column_type( "ml_items", "itid" ) =~ /auto_increment/ ) {
+            do_alter( "ml_items",
+                      "ALTER TABLE ml_items MODIFY COLUMN "
+                    . "itid MEDIUMINT UNSIGNED NOT NULL DEFAULT 0" );
+        }
+
+        # TODO: fix initial definition to match this, make table innodb
+        if ( column_type( "ml_text", "txtid" ) =~ /auto_increment/ ) {
+            do_alter( "ml_text",
+                      "ALTER TABLE ml_text MODIFY COLUMN "
+                    . "txtid MEDIUMINT UNSIGNED NOT NULL DEFAULT 0" );
+        }
+
+        unless ( column_type( "syndicated", "oldest_ourdate" ) ) {
+            do_alter( "syndicated",
+                "ALTER TABLE syndicated ADD oldest_ourdate DATETIME AFTER lastnew" );
+        }
+
+        if ( column_type( "sessions", "userid" ) =~ /mediumint/ ) {
+            do_alter( "sessions",
+                "ALTER TABLE sessions MODIFY COLUMN userid INT UNSIGNED NOT NULL" );
+        }
+
+        if ( column_type( "faq", "summary" ) eq '' ) {
+            do_alter( "faq", "ALTER TABLE faq ADD summary TEXT AFTER question" );
+        }
+
+        if ( column_type( "spamreports", "srid" ) eq '' ) {
+            do_alter( "spamreports", "ALTER TABLE spamreports DROP PRIMARY KEY" );
+
+            do_alter( "spamreports",
+"ALTER TABLE spamreports ADD srid MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT FIRST"
+            );
+
+            do_alter( "spamreports", "ALTER TABLE spamreports ADD INDEX (reporttime, journalid)" );
+        }
+
+        if ( column_type( "includetext", "inctext" ) !~ /mediumtext/ ) {
+            do_alter( "includetext", "ALTER TABLE includetext MODIFY COLUMN inctext MEDIUMTEXT" );
+        }
+
+        # table format totally changed, we'll just truncate and modify
+        # all of the columns since the data is just summary anyway
+        if ( index_name( "active_user", "INDEX:time" ) ) {
+            do_sql("TRUNCATE TABLE active_user");
+            do_alter( "active_user",
+                      "ALTER TABLE active_user "
+                    . "DROP time, DROP KEY userid, "
+                    . "ADD year SMALLINT NOT NULL FIRST, "
+                    . "ADD month TINYINT NOT NULL AFTER year, "
+                    . "ADD day TINYINT NOT NULL AFTER month, "
+                    . "ADD hour TINYINT NOT NULL AFTER day, "
+                    . "ADD PRIMARY KEY (year, month, day, hour, userid)" );
+        }
+
+        if ( index_name( "active_user_summary", "UNIQUE:year-month-day-hour-clusterid-type" ) ) {
+            do_alter( "active_user_summary",
+                      "ALTER TABLE active_user_summary DROP PRIMARY KEY, "
+                    . "ADD INDEX (year, month, day, hour)" );
+        }
+
+        if ( column_type( "blobcache", "bckey" ) =~ /40/ ) {
+            do_alter( "blobcache", "ALTER TABLE blobcache MODIFY bckey VARCHAR(255) NOT NULL" );
+        }
+
+        if ( column_type( "eventtypelist", "eventtypeid" ) ) {
+            do_alter( "eventtypelist",
+"ALTER TABLE eventtypelist CHANGE eventtypeid etypeid SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT"
+            );
+        }
+
+        # add index on journalid, etypeid to subs
+        unless ( index_name( "subs", "INDEX:etypeid-journalid" )
+            || index_name( "subs", "INDEX:etypeid-journalid-userid" ) )
+        {
+            # This one is deprecated by the one below, which adds a userid
+            # at the end.  hence the double if above.
+            do_alter( "subs", "ALTER TABLE subs " . "ADD INDEX (etypeid, journalid)" );
+        }
+
+        unless ( column_type( "sch_error", "funcid" ) ) {
+            do_alter( "sch_error",
+"alter table sch_error add funcid int(10) unsigned NOT NULL default 0, add index (funcid, error_time)"
+            );
+        }
+
+        unless ( column_type( "sch_exitstatus", "funcid" ) ) {
+            do_alter( "sch_exitstatus",
+"alter table sch_exitstatus add funcid INT UNSIGNED NOT NULL DEFAULT 0, add index (funcid)"
+            );
+        }
+
+        # add an index
+        unless ( index_name( "subs", "INDEX:etypeid-journalid-userid" ) ) {
+            do_alter( "subs",
+"ALTER TABLE subs DROP INDEX etypeid, ADD INDEX etypeid (etypeid, journalid, userid)"
+            );
+        }
+
+        # fix primary key
+        unless ( index_name( "pollresult2", "UNIQUE:journalid-pollid-pollqid-userid" ) ) {
+            do_alter( "pollresult2",
+"ALTER TABLE pollresult2 DROP PRIMARY KEY, ADD PRIMARY KEY (journalid,pollid,pollqid,userid)"
+            );
+        }
+
+        # fix primary key
+        unless ( index_name( "pollsubmission2", "UNIQUE:journalid-pollid-userid" ) ) {
+            do_alter( "pollsubmission2",
+"ALTER TABLE pollsubmission2 DROP PRIMARY KEY, ADD PRIMARY KEY (journalid,pollid,userid)"
+            );
+        }
+
+        # add an indexed 'userid' column
+        unless ( column_type( "expunged_users", "userid" ) ) {
+            do_alter( "expunged_users",
+                      "ALTER TABLE expunged_users ADD userid INT UNSIGNED NOT NULL FIRST, "
+                    . "ADD INDEX (userid)" );
+        }
+
+        unless ( column_type( "usermsgproplist", "scope" ) ) {
+            do_alter( "usermsgproplist",
+                      "ALTER TABLE usermsgproplist ADD scope ENUM('general', 'local') "
+                    . "DEFAULT 'general' NOT NULL" );
+        }
+
+        if (   table_relevant("spamreports")
+            && column_type( "spamreports", "report_type" ) !~ /message/ )
+        {
+            # cache table by running select
+            do_sql("SELECT COUNT(*) FROM spamreports");
+
+            # add 'message' enum
+            do_alter( "spamreports",
+                      "ALTER TABLE spamreports "
+                    . "CHANGE COLUMN report_type report_type "
+                    . "ENUM('entry','comment','message') NOT NULL DEFAULT 'comment'" );
+        }
+
+        if ( column_type( "supportcat", "user_closeable" ) eq "" ) {
+            do_alter( "supportcat",
+                      "ALTER TABLE supportcat ADD "
+                    . "user_closeable ENUM('1', '0') NOT NULL DEFAULT '1' "
+                    . "AFTER hide_helpers" );
+        }
+
+        # add a status column to polls
+        unless ( column_type( "poll2", "status" ) ) {
+            do_alter( "poll2",
+                "ALTER TABLE poll2 ADD status CHAR(1) AFTER name, " . "ADD INDEX (status)" );
+        }
+
+        unless ( column_type( "log2", "allowmask" ) =~ /^bigint/ ) {
+            do_alter( "log2",
+                q{ ALTER TABLE log2 MODIFY COLUMN allowmask BIGINT UNSIGNED NOT NULL } );
+        }
+
+        unless ( column_type( "logsec2", "allowmask" ) =~ /^bigint/ ) {
+            do_alter( "logsec2",
+                q{ ALTER TABLE logsec2 MODIFY COLUMN allowmask BIGINT UNSIGNED NOT NULL } );
+        }
+
+        unless ( column_type( "logkwsum", "security" ) =~ /^bigint/ ) {
+            do_alter( "logkwsum",
+                q{ ALTER TABLE logkwsum MODIFY COLUMN security BIGINT UNSIGNED NOT NULL } );
+        }
+
+        unless ( column_type( "logproplist", "ownership" ) ) {
+            do_alter( "logproplist",
+                      "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') "
+                    . "DEFAULT 'user' NOT NULL" );
+        }
+
+        unless ( column_type( "jobstatus", "userid" ) ) {
+            do_alter( "jobstatus",
+                "ALTER TABLE jobstatus " . "ADD userid INT UNSIGNED DEFAULT NULL" )
+                ;    # yes, we allow userid to be NULL - it means no userid checking
+        }
+
+        unless ( column_type( "supportlog", "tier" ) ) {
+            do_alter( "supportlog",
+                "ALTER TABLE supportlog " . "ADD tier TINYINT UNSIGNED DEFAULT NULL" );
+        }
+
+        unless ( column_type( "logproplist", "ownership" ) ) {
+            do_alter( "logproplist",
+                      "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') "
+                    . "DEFAULT 'user' NOT NULL" );
+        }
+
+        if ( column_type( "acctcode", "auth" ) =~ /^\Qchar(5)\E/ ) {
+            do_alter( "acctcode", "ALTER TABLE acctcode MODIFY auth CHAR(13)" );
+        }
+
+        unless ( column_type( "acctcode", "reason" ) ) {
+            do_alter( "acctcode", "ALTER TABLE acctcode ADD reason VARCHAR(255)" );
+        }
+
+        unless ( column_type( "acctcode", "timegenerate" ) ) {
+            do_alter( "acctcode", "ALTER TABLE acctcode ADD timegenerate TIMESTAMP" );
+        }
+
+        unless ( column_type( "userpic2", "description" ) ) {
+            do_alter( "userpic2",
+                "ALTER TABLE userpic2 ADD description varchar(255) BINARY NOT NULL default ''" );
+
+        }
+
+        unless ( column_type( 'user', 'user' ) =~ /25/ ) {
+            do_alter( 'user', "ALTER TABLE user MODIFY COLUMN user CHAR(25)" );
+        }
+
+        unless ( column_type( 'useridmap', 'user' ) =~ /25/ ) {
+            do_alter( 'useridmap', "ALTER TABLE useridmap MODIFY COLUMN user CHAR(25) NOT NULL" );
+        }
+
+        unless ( column_type( 'expunged_users', 'user' ) =~ /25/ ) {
+            do_alter( 'expunged_users',
+                "ALTER TABLE expunged_users MODIFY COLUMN user VARCHAR(25) NOT NULL" );
+        }
+
+        unless ( column_type( "acctcode", "timegenerate" ) =~ /^\Qint(10) unsigned\E/ ) {
+            do_alter( "acctcode", "ALTER TABLE acctcode MODIFY COLUMN timegenerate INT UNSIGNED" );
+        }
+
+        unless ( column_type( "logtext2", "event" ) =~ /^mediumtext/ ) {
+            do_alter( "logtext2", "ALTER TABLE logtext2 MODIFY COLUMN event MEDIUMTEXT" );
+        }
+
+        if ( column_type( "random_user_set", "journaltype" ) eq '' ) {
+            do_code(
+                "changing random_user_set primary key",
+                sub {
+                    # We're changing the primary key, so we need to make sure we don't have
+                    # any duplicates of the old primary key lying around to trip us up.
+                    my $sth = $dbh->prepare(
+                        "SELECT posttime, userid FROM random_user_set ORDER BY posttime desc");
+                    $sth->execute();
+                    my %found = ();
+                    while ( my $rowh = $sth->fetchrow_hashref ) {
+                        $dbh->do( "DELETE FROM random_user_set WHERE userid=? AND posttime=?",
+                            undef, $rowh->{'userid'}, $rowh->{'posttime'} )
+                            if $found{ $rowh->{'userid'} }++;
+                    }
+                }
+            );
+
+            do_alter( "random_user_set",
+                "ALTER TABLE random_user_set ADD COLUMN journaltype CHAR(1) NOT NULL DEFAULT 'P'" );
+            do_alter( "random_user_set",
+                "ALTER TABLE random_user_set DROP PRIMARY KEY, ADD PRIMARY KEY (userid)" );
+            do_alter( "random_user_set", "ALTER TABLE random_user_set ADD INDEX (posttime)" );
+        }
+
+        unless ( column_type( "acctcode", "timesent" ) ) {
+            do_alter( "acctcode", "ALTER TABLE acctcode ADD timesent INT UNSIGNED" );
+        }
+
+        unless ( column_type( "poll2", "whovote" ) =~ /trusted/ ) {
+            do_alter( "poll2",
+"ALTER TABLE poll2 MODIFY COLUMN whovote ENUM('all','trusted','ofentry') NOT NULL default 'all'"
+            );
+            do_alter( "poll2",
+"ALTER TABLE poll2 MODIFY COLUMN whoview ENUM('all','trusted','ofentry','none') NOT NULL default 'all'"
+            );
+        }
+
+        unless ( column_type( 'ml_items', 'proofed' ) ) {
+            do_alter( 'ml_items',
+                "ALTER TABLE ml_items ADD COLUMN proofed TINYINT NOT NULL DEFAULT 0 AFTER itcode" );
+            do_alter( 'ml_items', "ALTER TABLE ml_items ADD INDEX (proofed)" );
+            do_alter( 'ml_items',
+                "ALTER TABLE ml_items ADD COLUMN updated TINYINT NOT NULL DEFAULT 0 AFTER proofed"
+            );
+            do_alter( 'ml_items', "ALTER TABLE ml_items ADD INDEX (updated)" );
+        }
+
+        unless ( column_type( 'ml_items', 'visible' ) ) {
+            do_alter( 'ml_items',
+                "ALTER TABLE ml_items ADD COLUMN visible TINYINT NOT NULL DEFAULT 0 AFTER updated"
+            );
+        }
+
+        unless ( column_type( 'import_items', 'status' ) =~ /aborted/ ) {
+            do_alter(
+                'import_items',
+                q{ALTER TABLE import_items MODIFY COLUMN
                     status ENUM('init', 'ready', 'queued', 'failed', 'succeeded', 'aborted')
-                    NOT NULL DEFAULT 'init'} );
-    }
+                    NOT NULL DEFAULT 'init'}
+            );
+        }
 
-    unless ( column_type( 'shop_carts', 'nextscan' ) =~ /int/ ) {
-        do_alter( 'shop_carts',
-                  q{ALTER TABLE shop_carts ADD COLUMN nextscan INT UNSIGNED NOT NULL DEFAULT 0 AFTER state} );
-    }
+        unless ( column_type( 'shop_carts', 'nextscan' ) =~ /int/ ) {
+            do_alter( 'shop_carts',
+q{ALTER TABLE shop_carts ADD COLUMN nextscan INT UNSIGNED NOT NULL DEFAULT 0 AFTER state}
+            );
+        }
 
-    unless ( column_type( 'shop_carts', 'authcode' ) =~ /varchar/ ) {
-        do_alter( 'shop_carts',
-                  q{ALTER TABLE shop_carts ADD COLUMN authcode VARCHAR(20) NOT NULL AFTER nextscan} );
-    }
+        unless ( column_type( 'shop_carts', 'authcode' ) =~ /varchar/ ) {
+            do_alter( 'shop_carts',
+                q{ALTER TABLE shop_carts ADD COLUMN authcode VARCHAR(20) NOT NULL AFTER nextscan} );
+        }
 
-    unless ( column_type( 'shop_carts', 'paymentmethod' ) =~ /int/ ) {
-        do_alter( 'shop_carts',
-                  q{ALTER TABLE shop_carts ADD COLUMN paymentmethod INT UNSIGNED NOT NULL AFTER state} );
-    }
+        unless ( column_type( 'shop_carts', 'paymentmethod' ) =~ /int/ ) {
+            do_alter( 'shop_carts',
+                q{ALTER TABLE shop_carts ADD COLUMN paymentmethod INT UNSIGNED NOT NULL AFTER state}
+            );
+        }
 
-    unless ( column_type( 'shop_carts', 'email' ) =~ /varchar/ ) {
-        do_alter( 'shop_carts',
-                  q{ALTER TABLE shop_carts ADD COLUMN email VARCHAR(255) AFTER userid} );
-    }
+        unless ( column_type( 'shop_carts', 'email' ) =~ /varchar/ ) {
+            do_alter( 'shop_carts',
+                q{ALTER TABLE shop_carts ADD COLUMN email VARCHAR(255) AFTER userid} );
+        }
 
-    unless ( column_type( 'pp_log', 'ip' ) =~ /varchar/ ) {
-        do_alter( 'pp_log',
-                  q{ALTER TABLE pp_log ADD COLUMN ip VARCHAR(15) NOT NULL AFTER ppid} );
-    }
+        unless ( column_type( 'pp_log', 'ip' ) =~ /varchar/ ) {
+            do_alter( 'pp_log',
+                q{ALTER TABLE pp_log ADD COLUMN ip VARCHAR(15) NOT NULL AFTER ppid} );
+        }
 
-    unless ( column_type( 'acctcode', 'email' ) ) {
-        do_alter( 'acctcode',
-                  q{ALTER TABLE acctcode ADD COLUMN email VARCHAR(255) AFTER timesent} );
-    }
+        unless ( column_type( 'acctcode', 'email' ) ) {
+            do_alter( 'acctcode',
+                q{ALTER TABLE acctcode ADD COLUMN email VARCHAR(255) AFTER timesent} );
+        }
 
-    # convert 'ljcut' userprops
-    if ( table_relevant( "userproplist" ) && ! check_dbnote( "userprop_ljcut_to_cut" ) ) {
-        do_sql( "UPDATE userproplist SET name='opt_cut_disable_reading' WHERE name='opt_ljcut_disable_friends'" );
-        do_sql( "UPDATE userproplist SET name='opt_cut_disable_journal' WHERE name='opt_ljcut_disable_lastn'" );
-        set_dbnote( "userprop_ljcut_to_cut", 1 );
-    }
+        # convert 'ljcut' userprops
+        if ( table_relevant("userproplist") && !check_dbnote("userprop_ljcut_to_cut") ) {
+            do_sql(
+"UPDATE userproplist SET name='opt_cut_disable_reading' WHERE name='opt_ljcut_disable_friends'"
+            );
+            do_sql(
+"UPDATE userproplist SET name='opt_cut_disable_journal' WHERE name='opt_ljcut_disable_lastn'"
+            );
+            set_dbnote( "userprop_ljcut_to_cut", 1 );
+        }
 
-    unless ( column_type( 'import_data', 'usejournal' ) ) {
-        do_alter( 'import_data',
-                  q{ALTER TABLE import_data ADD COLUMN usejournal VARCHAR(255) AFTER username} );
-    }
+        unless ( column_type( 'import_data', 'usejournal' ) ) {
+            do_alter( 'import_data',
+                q{ALTER TABLE import_data ADD COLUMN usejournal VARCHAR(255) AFTER username} );
+        }
 
-    # FIXME: This should be moved into a maint script or something,
-    #   but if someone ever does remove the " 0 && " from here, this whole body needs to be wrapped
-    #   in a do_code block ( To prevent the warning message from delaying things )
-    if ( 0 && table_relevant( "logkwsum" ) && ! check_dbnote( "logkwsum_fix_filtered_counts_2010" ) ) {
-        # this is a very, very racy situation ... we want to do an update of this data, but if anybody
-        # else is actively using this table, they're going to be inserting bad data on top of us which
-        # will leave SOMEONE in an inconsistent state.  let's warn the user that they should have the site
-        # turned off for this update.
-        unless ( $::_warn_logkwsum++ > 0 ) {
-            warn <<EOF;
+     # FIXME: This should be moved into a maint script or something,
+     #   but if someone ever does remove the " 0 && " from here, this whole body needs to be wrapped
+     #   in a do_code block ( To prevent the warning message from delaying things )
+        if ( 0 && table_relevant("logkwsum") && !check_dbnote("logkwsum_fix_filtered_counts_2010") )
+        {
+  # this is a very, very racy situation ... we want to do an update of this data, but if anybody
+  # else is actively using this table, they're going to be inserting bad data on top of us which
+  # will leave SOMEONE in an inconsistent state.  let's warn the user that they should have the site
+  # turned off for this update.
+            unless ( $::_warn_logkwsum++ > 0 ) {
+                warn <<EOF;
 
 * * * * * * * * * WARNING * * * * * * * *
 
@@ -3742,14 +3769,14 @@ Press Ctrl+C to cancel this operation now.
 
 * * * * * * * * * WARNING * * * * * * * *
 EOF
-            $_ = <>;
-        }
+                $_ = <>;
+            }
 
-        do_sql( 'LOCK TABLES logkwsum WRITE, logtags WRITE, log2 WRITE' );
-        do_sql( 'DELETE FROM logkwsum' );
+            do_sql('LOCK TABLES logkwsum WRITE, logtags WRITE, log2 WRITE');
+            do_sql('DELETE FROM logkwsum');
 
-        do_sql(
-            q{INSERT INTO logkwsum
+            do_sql(
+                q{INSERT INTO logkwsum
                   SELECT logtags.journalid, logtags.kwid, log2.allowmask, COUNT(*)
                   FROM log2, logtags
                   WHERE logtags.journalid = log2.journalid
@@ -3758,10 +3785,10 @@ EOF
                     AND log2.allowmask > 0
                   GROUP BY journalid, kwid, allowmask
             }
-        );
+            );
 
-        do_sql(
-            q{INSERT INTO logkwsum
+            do_sql(
+                q{INSERT INTO logkwsum
                   SELECT logtags.journalid, logtags.kwid, 0, COUNT(*)
                   FROM log2, logtags
                   WHERE logtags.journalid = log2.journalid
@@ -3771,10 +3798,10 @@ EOF
                                AND log2.allowmask = 0 ) )
                   GROUP BY journalid, kwid
             }
-        );
+            );
 
-        do_sql(
-            q{INSERT INTO logkwsum
+            do_sql(
+                q{INSERT INTO logkwsum
                   SELECT logtags.journalid, logtags.kwid, 1 << 63, COUNT(*)
                   FROM log2, logtags
                   WHERE logtags.journalid = log2.journalid
@@ -3782,339 +3809,368 @@ EOF
                     AND log2.security = 'public'
                   GROUP BY journalid, kwid
             }
-        );
+            );
 
-        do_sql( 'UNLOCK TABLES' );
-        set_dbnote( "logkwsum_fix_filtered_counts_2010", 1 );
-    }
+            do_sql('UNLOCK TABLES');
+            set_dbnote( "logkwsum_fix_filtered_counts_2010", 1 );
+        }
 
-    unless ( column_type( 'clustertrack2', 'accountlevel' ) ) {
-        do_alter( 'clustertrack2',
-                  q{ALTER TABLE clustertrack2 ADD COLUMN accountlevel SMALLINT UNSIGNED AFTER clusterid} );
-    }
+        unless ( column_type( 'clustertrack2', 'accountlevel' ) ) {
+            do_alter( 'clustertrack2',
+q{ALTER TABLE clustertrack2 ADD COLUMN accountlevel SMALLINT UNSIGNED AFTER clusterid}
+            );
+        }
 
-    unless ( column_type( 'clustertrack2', 'journaltype' ) ) {
-        do_alter( 'clustertrack2',
-                  q{ALTER TABLE clustertrack2 ADD COLUMN journaltype char(1) AFTER accountlevel} );
-    }
+        unless ( column_type( 'clustertrack2', 'journaltype' ) ) {
+            do_alter( 'clustertrack2',
+                q{ALTER TABLE clustertrack2 ADD COLUMN journaltype char(1) AFTER accountlevel} );
+        }
 
-    unless ( column_type( 'acctcode_promo', 'suggest_journalid' ) ) {
-        do_alter( 'acctcode_promo',
-                  q{ALTER TABLE acctcode_promo ADD COLUMN suggest_journalid INT UNSIGNED} );
-    }
+        unless ( column_type( 'acctcode_promo', 'suggest_journalid' ) ) {
+            do_alter( 'acctcode_promo',
+                q{ALTER TABLE acctcode_promo ADD COLUMN suggest_journalid INT UNSIGNED} );
+        }
 
-    # migrate interest names to sitekeywords
-    if ( table_relevant( "sitekeywords" ) && table_relevant( "interests" )
-          && column_type( "interests", "interest" ) ) {
-        do_sql( 'LOCK TABLES sitekeywords WRITE, interests WRITE' );
-        do_sql( "REPLACE INTO sitekeywords (kwid, keyword) ".
-                "SELECT intid, interest FROM interests" );
-        do_alter( "interests",
-                  "ALTER TABLE interests DROP interest" );
-        do_sql( 'UNLOCK TABLES' );
-    }
+        # migrate interest names to sitekeywords
+        if (   table_relevant("sitekeywords")
+            && table_relevant("interests")
+            && column_type( "interests", "interest" ) )
+        {
+            do_sql('LOCK TABLES sitekeywords WRITE, interests WRITE');
+            do_sql(   "REPLACE INTO sitekeywords (kwid, keyword) "
+                    . "SELECT intid, interest FROM interests" );
+            do_alter( "interests", "ALTER TABLE interests DROP interest" );
+            do_sql('UNLOCK TABLES');
+        }
 
-    # convert xpost-footer-update from char to blobchar
-    if ( table_relevant( 'userproplite2' ) ) {
-        my $uprop = LJ::get_prop( user => 'crosspost_footer_text' );
-        if ( defined( $uprop ) ) {
-            my $upropid = $uprop->{upropid};
+        # convert xpost-footer-update from char to blobchar
+        if ( table_relevant('userproplite2') ) {
+            my $uprop = LJ::get_prop( user => 'crosspost_footer_text' );
+            if ( defined($uprop) ) {
+                my $upropid = $uprop->{upropid};
 
-            my $testresult = $dbh->selectrow_array( "SELECT upropid FROM userproplite2 WHERE upropid = $upropid LIMIT 1" );
-            if ( $testresult > 0 ) {
-                do_sql( "INSERT IGNORE INTO userpropblob (userid, upropid, value) " .
-                        "    SELECT userid, upropid, value FROM userproplite2 WHERE upropid = $upropid" );
-                do_sql( "DELETE FROM userproplite2 WHERE upropid = $upropid" );
+                my $testresult = $dbh->selectrow_array(
+                    "SELECT upropid FROM userproplite2 WHERE upropid = $upropid LIMIT 1");
+                if ( $testresult > 0 ) {
+                    do_sql(   "INSERT IGNORE INTO userpropblob (userid, upropid, value) "
+                            . "    SELECT userid, upropid, value FROM userproplite2 WHERE upropid = $upropid"
+                    );
+                    do_sql("DELETE FROM userproplite2 WHERE upropid = $upropid");
+                }
             }
         }
-    }
-    if ( table_relevant( "userproplist" ) && ! check_dbnote("xpost_footer_update") ) {
-        do_sql("UPDATE userproplist SET datatype = 'blobchar' WHERE name = 'crosspost_footer_text'");
-        set_dbnote( "xpost_footer_update", 1 );
-    }
+        if ( table_relevant("userproplist") && !check_dbnote("xpost_footer_update") ) {
+            do_sql(
+                "UPDATE userproplist SET datatype = 'blobchar' WHERE name = 'crosspost_footer_text'"
+            );
+            set_dbnote( "xpost_footer_update", 1 );
+        }
 
-    unless ( column_type( 'externalaccount', 'recordlink' ) ) {
-        do_alter( 'externalaccount',
-                  "ALTER TABLE externalaccount ADD COLUMN recordlink enum('1','0') NOT NULL default '0'");
-    }
+        unless ( column_type( 'externalaccount', 'recordlink' ) ) {
+            do_alter( 'externalaccount',
+"ALTER TABLE externalaccount ADD COLUMN recordlink enum('1','0') NOT NULL default '0'"
+            );
+        }
 
-    unless ( column_type( 'import_data', 'options' ) ) {
-        do_alter( 'import_data',
-                  q{ALTER TABLE import_data ADD COLUMN options BLOB} );
-    }
+        unless ( column_type( 'import_data', 'options' ) ) {
+            do_alter( 'import_data', q{ALTER TABLE import_data ADD COLUMN options BLOB} );
+        }
 
-    unless ( column_type( 'moods', 'weight' ) ) {
-        do_alter( 'moods',
-                  q{ALTER TABLE moods ADD COLUMN weight tinyint unsigned default NULL} );
-    }
+        unless ( column_type( 'moods', 'weight' ) ) {
+            do_alter( 'moods',
+                q{ALTER TABLE moods ADD COLUMN weight tinyint unsigned default NULL} );
+        }
 
-    unless ( column_type( 'poll2', 'isanon' ) ) {
-        do_alter( 'poll2',
-                  "ALTER TABLE poll2 ADD COLUMN isanon enum('yes','no') NOT NULL default 'no'");
-    }
+        unless ( column_type( 'poll2', 'isanon' ) ) {
+            do_alter( 'poll2',
+                "ALTER TABLE poll2 ADD COLUMN isanon enum('yes','no') NOT NULL default 'no'" );
+        }
 
-    # Merge within-category split timestamps
-    if ( table_relevant( "site_stats" )
-         && !check_dbnote( "unsplit_stats_timestamps" ) ) {
-        # Because category+key+time is a UNIQUE key, there's no need to check
-        # for duplicates or inconsistencies. Instead, just rely on mysql
-        # complaining. Update is idempotent, interruptible, and restartable.
-        my $stats = $dbh->selectall_hashref(
-                              qq{ SELECT category_id, insert_time, COUNT(*)
+        # Merge within-category split timestamps
+        if ( table_relevant("site_stats")
+            && !check_dbnote("unsplit_stats_timestamps") )
+        {
+            # Because category+key+time is a UNIQUE key, there's no need to check
+            # for duplicates or inconsistencies. Instead, just rely on mysql
+            # complaining. Update is idempotent, interruptible, and restartable.
+            my $stats = $dbh->selectall_hashref(
+                qq{ SELECT category_id, insert_time, COUNT(*)
                                       FROM site_stats
                                       GROUP BY category_id, insert_time
                                       ORDER BY category_id ASC,
                                                insert_time ASC; },
-                              [ qw( category_id insert_time ) ] );
-        die $dbh->errstr if $dbh->err || !defined $stats;
-        foreach my $cat ( keys %$stats ) {
-            my $lasttime;
-            foreach my $time ( sort { $a <=> $b } keys %{$stats->{$cat}} ) {
-                # Arbitrary limit is arbitrary
-                if ( defined $lasttime and $time - $lasttime < 60 ) {
-                    do_sql( qq{ UPDATE site_stats SET insert_time = $lasttime
+                [qw( category_id insert_time )]
+            );
+            die $dbh->errstr if $dbh->err || !defined $stats;
+            foreach my $cat ( keys %$stats ) {
+                my $lasttime;
+                foreach my $time ( sort { $a <=> $b } keys %{ $stats->{$cat} } ) {
+
+                    # Arbitrary limit is arbitrary
+                    if ( defined $lasttime and $time - $lasttime < 60 ) {
+                        do_sql(
+                            qq{ UPDATE site_stats SET insert_time = $lasttime
                                      WHERE category_id = $cat
-                                           AND insert_time = $time } );
-                } else {
-                    $lasttime = $time;
+                                           AND insert_time = $time }
+                        );
+                    }
+                    else {
+                        $lasttime = $time;
+                    }
                 }
             }
+            set_dbnote( "unsplit_stats_timestamps", 1 );
         }
-        set_dbnote( "unsplit_stats_timestamps", 1 )
-    }
 
-    unless ( column_type( 'externalaccount', 'options' ) ) {
-        do_alter( 'externalaccount',
-                  "ALTER TABLE externalaccount ADD COLUMN options blob");
-    }
-
-    unless ( column_type( 'acctcode_promo', 'paid_class' ) ) {
-        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN paid_class varchar(100)" );
-    }
-
-    unless ( column_type( 'acctcode_promo', 'paid_months' ) ) {
-        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN paid_months tinyint unsigned" );
-    }
-
-    unless ( column_type( 'acctcode_promo', 'expiry_date' ) ) {
-        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN expiry_date int(10) unsigned NOT NULL default '0'" );
-    }
-
-    if ( $LJ::IS_DEV_SERVER ) {
-        # strip constant definitions from user layers
-        if ( table_relevant( "s2compiled2" ) && ! check_dbnote( "no_layer_constants" ) ) {
-            my $uses = q{ 'use constant VTABLE => 0;\nuse constant STATIC => 1;\nuse constant PROPS => 2;\n' };
-            do_sql( "UPDATE s2compiled2 SET compdata = REPLACE(compdata,$uses,'')" );
-            set_dbnote( "no_layer_constants", 1 );
+        unless ( column_type( 'externalaccount', 'options' ) ) {
+            do_alter( 'externalaccount', "ALTER TABLE externalaccount ADD COLUMN options blob" );
         }
-    }
 
-    unless ( check_dbnote( 'sitekeywords_binary' ) ) {
-        do_alter( 'sitekeywords',
-                  q{ALTER TABLE sitekeywords MODIFY keyword VARCHAR(255) BINARY NOT NULL} );
-        set_dbnote( "sitekeywords_binary", 1 )
-    }
+        unless ( column_type( 'acctcode_promo', 'paid_class' ) ) {
+            do_alter( 'acctcode_promo',
+                "ALTER TABLE acctcode_promo ADD COLUMN paid_class varchar(100)" );
+        }
 
-    if ( table_relevant( "vgift_counts" ) && ! check_dbnote("init_vgift_counts") ) {
-        do_sql( "INSERT IGNORE INTO vgift_counts (vgiftid) SELECT vgiftid FROM vgift_ids" );
-        set_dbnote( "init_vgift_counts", 1 );
-    }
+        unless ( column_type( 'acctcode_promo', 'paid_months' ) ) {
+            do_alter( 'acctcode_promo',
+                "ALTER TABLE acctcode_promo ADD COLUMN paid_months tinyint unsigned" );
+        }
 
-    unless ( column_type( 'acctcode_promo', 'paid_class' ) =~ /^\Qvarchar(100)\E/ ) {
-        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo MODIFY COLUMN paid_class varchar(100)" );
-    }
-# Add the hover text field in 'links' for existing installations
+        unless ( column_type( 'acctcode_promo', 'expiry_date' ) ) {
+            do_alter( 'acctcode_promo',
+"ALTER TABLE acctcode_promo ADD COLUMN expiry_date int(10) unsigned NOT NULL default '0'"
+            );
+        }
 
-    unless ( column_type( 'links', 'hover' ) ) {
-        do_alter( 'links', "ALTER TABLE links ADD COLUMN hover varchar(255) default NULL" );
-    }
+        if ($LJ::IS_DEV_SERVER) {
 
-    if ( table_relevant( "wt_edges" ) && ! check_dbnote( "fix_redirect_edges" ) ) {
-        do_code("fixing edges leading to a redirect account", sub {
-            my $sth = $dbh->prepare(
-                              qq{ SELECT from_userid, to_userid FROM wt_edges INNER JOIN user
+            # strip constant definitions from user layers
+            if ( table_relevant("s2compiled2") && !check_dbnote("no_layer_constants") ) {
+                my $uses =
+q{ 'use constant VTABLE => 0;\nuse constant STATIC => 1;\nuse constant PROPS => 2;\n' };
+                do_sql("UPDATE s2compiled2 SET compdata = REPLACE(compdata,$uses,'')");
+                set_dbnote( "no_layer_constants", 1 );
+            }
+        }
+
+        unless ( check_dbnote('sitekeywords_binary') ) {
+            do_alter( 'sitekeywords',
+                q{ALTER TABLE sitekeywords MODIFY keyword VARCHAR(255) BINARY NOT NULL} );
+            set_dbnote( "sitekeywords_binary", 1 );
+        }
+
+        if ( table_relevant("vgift_counts") && !check_dbnote("init_vgift_counts") ) {
+            do_sql("INSERT IGNORE INTO vgift_counts (vgiftid) SELECT vgiftid FROM vgift_ids");
+            set_dbnote( "init_vgift_counts", 1 );
+        }
+
+        unless ( column_type( 'acctcode_promo', 'paid_class' ) =~ /^\Qvarchar(100)\E/ ) {
+            do_alter( 'acctcode_promo',
+                "ALTER TABLE acctcode_promo MODIFY COLUMN paid_class varchar(100)" );
+        }
+
+        # Add the hover text field in 'links' for existing installations
+
+        unless ( column_type( 'links', 'hover' ) ) {
+            do_alter( 'links', "ALTER TABLE links ADD COLUMN hover varchar(255) default NULL" );
+        }
+
+        if ( table_relevant("wt_edges") && !check_dbnote("fix_redirect_edges") ) {
+            do_code(
+                "fixing edges leading to a redirect account",
+                sub {
+                    my $sth = $dbh->prepare(
+                        qq{ SELECT from_userid, to_userid FROM wt_edges INNER JOIN user
                                     ON user.journaltype="R" AND user.userid=wt_edges.to_userid;
-                                    } );
-            $sth->execute();
-            die $sth->errstr if $sth->err;
+                                    }
+                    );
+                    $sth->execute();
+                    die $sth->errstr if $sth->err;
 
-            while ( my ( $from_userid, $to_userid ) = $sth->fetchrow_array ) {
-                my $from_u = LJ::load_userid( $from_userid );
-                my $to_u = LJ::load_userid( $to_userid );
+                    while ( my ( $from_userid, $to_userid ) = $sth->fetchrow_array ) {
+                        my $from_u = LJ::load_userid($from_userid);
+                        my $to_u   = LJ::load_userid($to_userid);
 
-                my $redir_u = $to_u->get_renamed_user;
+                        my $redir_u = $to_u->get_renamed_user;
 
-                warn "transferring edge of $from_u->{user}=>$to_u->{user} to $from_u->{user}=>$redir_u->{user}";
-                if ( $from_u->trusts( $to_u ) ) {
-                    if ( $from_u->trusts( $redir_u ) ) {
-                        warn "...already trusted";
-                    } else {
-                        warn "...adding trust edge";
-                        $from_u->add_edge( $redir_u, trust => { nonotify => 1 } )
-                     }
+                        warn
+"transferring edge of $from_u->{user}=>$to_u->{user} to $from_u->{user}=>$redir_u->{user}";
+                        if ( $from_u->trusts($to_u) ) {
+                            if ( $from_u->trusts($redir_u) ) {
+                                warn "...already trusted";
+                            }
+                            else {
+                                warn "...adding trust edge";
+                                $from_u->add_edge( $redir_u, trust => { nonotify => 1 } );
+                            }
 
-                    $from_u->remove_edge( $to_u, trust => { nonotify => 1 } );
-                }
-                if ( $from_u->watches( $to_u ) ) {
-                    if ( $from_u->watches( $redir_u ) ) {
-                        warn "...already watched";
-                    } else {
-                        warn "...adding trust edge";
-                       $from_u->add_edge( $redir_u, watch => { nonotify => 1 } )
+                            $from_u->remove_edge( $to_u, trust => { nonotify => 1 } );
+                        }
+                        if ( $from_u->watches($to_u) ) {
+                            if ( $from_u->watches($redir_u) ) {
+                                warn "...already watched";
+                            }
+                            else {
+                                warn "...adding trust edge";
+                                $from_u->add_edge( $redir_u, watch => { nonotify => 1 } );
+                            }
+
+                            $from_u->remove_edge( $to_u, watch => { nonotify => 1 } );
+                        }
                     }
 
-                     $from_u->remove_edge( $to_u, watch => { nonotify => 1 } );
+                    set_dbnote( "fix_redirect_edges", 1 );
                 }
-            }
+            );
+        }
 
-            set_dbnote( "fix_redirect_edges", 1 );
-        });
-    }
+        # accommodate more poll answers by widening value
+        if ( column_type( "pollresult2", "value" ) eq "varchar(255)" ) {
+            do_alter( "pollresult2",
+                "ALTER TABLE pollresult2 " . "MODIFY COLUMN value VARCHAR(1024) DEFAULT NULL" );
+        }
 
-    # accommodate more poll answers by widening value
-    if ( column_type("pollresult2", "value") eq "varchar(255)" ) {
-        do_alter("pollresult2",
-                 "ALTER TABLE pollresult2 " .
-                 "MODIFY COLUMN value VARCHAR(1024) DEFAULT NULL");
-    }
+        # changes opts size of pollquestion2 to 255 in order to accommodate labels
+        if ( column_type( 'pollquestion2', 'opts' ) eq "varchar(20)" ) {
+            do_alter( 'pollquestion2',
+                "ALTER TABLE pollquestion2 MODIFY COLUMN opts VARCHAR(255) DEFAULT NULL" );
+        }
 
-    # changes opts size of pollquestion2 to 255 in order to accommodate labels
-    if ( column_type( 'pollquestion2', 'opts' ) eq "varchar(20)" ) {
-        do_alter( 'pollquestion2',
-            "ALTER TABLE pollquestion2 MODIFY COLUMN opts VARCHAR(255) DEFAULT NULL");
-    }
+        if ( column_type( "syndicated", "fuzzy_token" ) eq '' ) {
+            do_alter( 'syndicated',
+                      "ALTER TABLE syndicated "
+                    . "ADD COLUMN fuzzy_token VARCHAR(255), "
+                    . "ADD INDEX (fuzzy_token);" );
+        }
 
-    if (column_type("syndicated", "fuzzy_token") eq '') {
-        do_alter( 'syndicated',
-            "ALTER TABLE syndicated ".
-            "ADD COLUMN fuzzy_token VARCHAR(255), " .
-            "ADD INDEX (fuzzy_token);" );
-    }
+        if ( column_type( "support", "timemodified" ) eq '' ) {
+            do_alter( 'support',
+                "ALTER TABLE support ADD COLUMN timemodified int(10) unsigned default NULL" );
+        }
 
-    if ( column_type( "support", "timemodified" ) eq '' ) {
-        do_alter( 'support', "ALTER TABLE support ADD COLUMN timemodified int(10) unsigned default NULL" );
-    }
+        if ( column_type( "externalaccount", "active" ) eq '' ) {
+            do_alter( 'externalaccount',
+                      "ALTER TABLE externalaccount "
+                    . "ADD COLUMN active enum('1', '0') NOT NULL default '1'" );
+        }
 
-    if ( column_type( "externalaccount", "active" ) eq '' ) {
-        do_alter( 'externalaccount',
-            "ALTER TABLE externalaccount " .
-            "ADD COLUMN active enum('1', '0') NOT NULL default '1'" );
-    }
+        if ( column_type( "spamreports", "client" ) eq '' ) {
+            do_alter( "spamreports",
+                      "ALTER TABLE spamreports "
+                    . "ADD COLUMN client VARCHAR(255), "
+                    . "ADD INDEX (client)" );
+        }
 
+        # Needed to cache embed linktext to minimize external API calls
+        if ( column_type( "embedcontent", "linktext" ) eq '' ) {
+            do_alter( 'embedcontent',
+                      "ALTER TABLE embedcontent "
+                    . "ADD COLUMN linktext VARCHAR(255), "
+                    . "ADD COLUMN url VARCHAR(255);" );
+        }
 
-    if ( column_type( "spamreports", "client" ) eq '' ) {
-        do_alter( "spamreports",
-            "ALTER TABLE spamreports " .
-            "ADD COLUMN client VARCHAR(255), " .
-            "ADD INDEX (client)"
-        );
-    }
+        if ( column_type( "embedcontent_preview", "linktext" ) eq '' ) {
+            do_alter( 'embedcontent_preview',
+                      "ALTER TABLE embedcontent_preview "
+                    . "ADD COLUMN linktext VARCHAR(255), "
+                    . "ADD COLUMN url VARCHAR(255);" );
 
-    # Needed to cache embed linktext to minimize external API calls
-    if ( column_type( "embedcontent", "linktext" ) eq '' ) {
-        do_alter( 'embedcontent',
-                  "ALTER TABLE embedcontent "
-                . "ADD COLUMN linktext VARCHAR(255), "
-                . "ADD COLUMN url VARCHAR(255);" );
-    }
+        }
 
-    if ( column_type( "embedcontent_preview", "linktext" ) eq '' ) {
-        do_alter( 'embedcontent_preview',
-                  "ALTER TABLE embedcontent_preview "
-                . "ADD COLUMN linktext VARCHAR(255), "
-                . "ADD COLUMN url VARCHAR(255);" );
+        if ( table_relevant("media_versions") && !check_dbnote("init_media_versions_dimensions") ) {
+            do_sql('LOCK TABLES media_versions WRITE, media WRITE');
 
-    }
-
-    if ( table_relevant( "media_versions" ) && !check_dbnote( "init_media_versions_dimensions" ) ) {
-        do_sql( 'LOCK TABLES media_versions WRITE, media WRITE' );
-
-        do_code("populate media_versions using existing data in media", sub {
-            my $sth = $dbh->prepare(q{SELECT media.userid, media.mediaid, media.filesize
+            do_code(
+                "populate media_versions using existing data in media",
+                sub {
+                    my $sth = $dbh->prepare(
+                        q{SELECT media.userid, media.mediaid, media.filesize
                                     FROM media LEFT JOIN media_versions
                                         ON media.userid=media_versions.userid AND media.mediaid=media_versions.mediaid
                                         WHERE media_versions.mediaid IS NULL}
-                                    );
-            $sth->execute;
-            die $sth->errstr if $sth->err;
+                    );
+                    $sth->execute;
+                    die $sth->errstr if $sth->err;
 
-            eval "use DW::Media::Photo; use Image::Size; 1;" or die "Unable to load media libraries";
-            my $failed = 0;
-            while ( my $row = $sth->fetchrow_hashref ) {
-                my $media_file = DW::Media::Photo->new_from_row(
-                        userid => $row->{userid},
-                        versionid => $row->{mediaid}
-                );
-                my $imagedata = DW::BlobStore->retrieve( media => $media_file->mogkey );
-                my ( $width, $height ) = Image::Size::imgsize( $imagedata );
-                unless (defined $width && defined $height) {
-                    $failed++;
-                    next;
-                }
+                    eval "use DW::Media::Photo; use Image::Size; 1;"
+                        or die "Unable to load media libraries";
+                    my $failed = 0;
+                    while ( my $row = $sth->fetchrow_hashref ) {
+                        my $media_file = DW::Media::Photo->new_from_row(
+                            userid    => $row->{userid},
+                            versionid => $row->{mediaid}
+                        );
+                        my $imagedata = DW::BlobStore->retrieve( media => $media_file->mogkey );
+                        my ( $width, $height ) = Image::Size::imgsize($imagedata);
+                        unless ( defined $width && defined $height ) {
+                            $failed++;
+                            next;
+                        }
 
-                $dbh->do(q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesize)
+                        $dbh->do(
+q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesize)
                     VALUES (?, ?, ?, ?, ?, ?)},
-                    undef, $row->{userid}, $row->{mediaid}, $row->{mediaid}, $width, $height, $row->{filesize}
-                );
-                die $dbh->errstr if $dbh->err;
-            }
-            warn "Failed: $failed" if $failed;
-        });
+                            undef,   $row->{userid}, $row->{mediaid}, $row->{mediaid}, $width,
+                            $height, $row->{filesize}
+                        );
+                        die $dbh->errstr if $dbh->err;
+                    }
+                    warn "Failed: $failed" if $failed;
+                }
+            );
 
-        do_sql( 'UNLOCK TABLES' );
-        set_dbnote( "init_media_versions_dimensions", 1 );
-    }
+            do_sql('UNLOCK TABLES');
+            set_dbnote( "init_media_versions_dimensions", 1 );
+        }
 
-    if ( table_relevant("renames") && column_type( "renames", "status" ) eq '' ) {
-        do_alter( 'renames',
-            "ALTER TABLE renames " .
-            "ADD COLUMN status CHAR(1) NOT NULL DEFAULT 'A'" );
-        do_sql( 'UPDATE renames SET status="U" WHERE renuserid = 0' );
-    }
+        if ( table_relevant("renames") && column_type( "renames", "status" ) eq '' ) {
+            do_alter( 'renames',
+                "ALTER TABLE renames " . "ADD COLUMN status CHAR(1) NOT NULL DEFAULT 'A'" );
+            do_sql('UPDATE renames SET status="U" WHERE renuserid = 0');
+        }
 
-    if ( table_relevant("codes") && !check_dbnote( 'remove_countries_from_codes' ) ) {
-        do_sql( 'DELETE FROM codes WHERE type = "country"' );
-        set_dbnote( 'remove_countries_from_codes', 1 );
-    }
+        if ( table_relevant("codes") && !check_dbnote('remove_countries_from_codes') ) {
+            do_sql('DELETE FROM codes WHERE type = "country"');
+            set_dbnote( 'remove_countries_from_codes', 1 );
+        }
 
-    # widen ip column for IPv6 addresses
-    if ( column_type("spamreports", "ip") eq "varchar(15)" ) {
-        do_alter( "spamreports",
-                  "ALTER TABLE spamreports ".
-                  "MODIFY ip VARCHAR(45)" );
-    }
+        # widen ip column for IPv6 addresses
+        if ( column_type( "spamreports", "ip" ) eq "varchar(15)" ) {
+            do_alter( "spamreports", "ALTER TABLE spamreports " . "MODIFY ip VARCHAR(45)" );
+        }
 
-    unless ( column_type( 'ml_items', 'itcode' ) =~ /120/ ) {
-        do_alter( 'ml_items',
-                  "ALTER TABLE ml_items MODIFY COLUMN itcode VARCHAR(120) CHARACTER SET ascii NOT NULL" );
-    }
+        unless ( column_type( 'ml_items', 'itcode' ) =~ /120/ ) {
+            do_alter( 'ml_items',
+"ALTER TABLE ml_items MODIFY COLUMN itcode VARCHAR(120) CHARACTER SET ascii NOT NULL"
+            );
+        }
 
-    if ( column_type( 'user', 'txtmsg_status' ) ) {
-        do_alter( 'user',
-                  "ALTER TABLE user DROP COLUMN txtmsg_status" );
-    }
+        if ( column_type( 'user', 'txtmsg_status' ) ) {
+            do_alter( 'user', "ALTER TABLE user DROP COLUMN txtmsg_status" );
+        }
 
-    unless ( column_type( 'userpic2', 'location' ) =~ /blobstore/ ) {
-        do_alter( 'userpic2',
-            q{ALTER TABLE userpic2
+        unless ( column_type( 'userpic2', 'location' ) =~ /blobstore/ ) {
+            do_alter(
+                'userpic2',
+                q{ALTER TABLE userpic2
             MODIFY COLUMN location ENUM('blob', 'disk', 'mogile', 'blobstore')
             DEFAULT NULL}
-        );
+            );
+        }
+
+        # widen the description field for userpics
+        if ( column_type( 'userpic2', 'description' ) eq "varchar(255)" ) {
+            do_alter( 'userpic2',
+"ALTER TABLE userpic2 MODIFY COLUMN description VARCHAR(600) BINARY NOT NULL default ''"
+            );
+        }
+
+        # widen ip column for IPv6 addresses
+        if ( column_type( "userlog", "ip" ) eq "varchar(15)" ) {
+            do_alter( "spamreports", "ALTER TABLE userlog MODIFY ip VARCHAR(45)" );
+        }
+
     }
+);
 
-    # widen the description field for userpics
-    if ( column_type( 'userpic2', 'description' ) eq "varchar(255)" ) {
-        do_alter( 'userpic2',
-            "ALTER TABLE userpic2 MODIFY COLUMN description VARCHAR(600) BINARY NOT NULL default ''");
-    }
-
-    # widen ip column for IPv6 addresses
-    if ( column_type("userlog", "ip") eq "varchar(15)" ) {
-        do_alter( "spamreports",
-                  "ALTER TABLE userlog MODIFY ip VARCHAR(45)" );
-    }
-
-});
-
-
-1; # return true
+1;    # return true

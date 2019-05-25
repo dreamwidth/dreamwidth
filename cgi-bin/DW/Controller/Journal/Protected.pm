@@ -32,35 +32,38 @@ sub protected_handler {
     return $rv unless $ok;
 
     # set the status to 403
-    $r->status( 403 );
+    $r->status(403);
 
-    # returnto will either have been set as a request note or passed in as 
+    # returnto will either have been set as a request note or passed in as
     # a query argument.  if neither of those work, we can reconstruct it
     # using the current request url
-    my $returnto = $r->note( 'returnto' ) || LJ::ehtml( $r->get_args->{returnto} );
-    if ( ( ! $returnto ) && ( $r->uri ne '/protected' ) ) {
+    my $returnto = $r->note('returnto') || LJ::ehtml( $r->get_args->{returnto} );
+    if ( ( !$returnto ) && ( $r->uri ne '/protected' ) ) {
         $returnto = LJ::ehtml( LJ::create_url( undef, keep_args => 1 ) );
     }
 
     my $vars = {
         returnto => $returnto,
-        message => $r->get_args->{posted} ? '.message.comment.posted' : '',
+        message  => $r->get_args->{posted} ? '.message.comment.posted' : '',
     };
 
     my $remote = $rv->{remote};
 
-    if ( $remote ) {
+    if ($remote) {
         $vars->{remote} = $remote;
-        if ( $r->note( 'error_key' ) ) {
-            my $journalname = $r->note( 'journalname' );
+        if ( $r->note('error_key') ) {
+            my $journalname = $r->note('journalname');
             $vars->{journalname} = $journalname;
-            $vars->{'error_key'} = '.protected.error.notauthorised' . $r->note( 'error_key' );
-        } else {
-            $vars->{'error_key'} = '.protected.message.user';
+            $vars->{'error_key'} = '.protected.error.notauthorised' . $r->note('error_key');
+        }
+        else {
+            $vars->{'error_key'}   = '.protected.message.user';
             $vars->{'journalname'} = "";
         }
-    } else {
+    }
+    else {
         $vars->{chal} = LJ::challenge_generate(300);
+
         # include SSL if it's an option
         $vars->{'usessl'} = $LJ::USE_SSL;
     }

@@ -48,7 +48,7 @@ my $testfeed = sub {
         </feed>
     };
 
-    my ($feed, $error) = LJ::ParseFeed::parse_feed($contents);
+    my ( $feed, $error ) = LJ::ParseFeed::parse_feed($contents);
     return $feed->{'items'}->[0];
 
 };
@@ -81,32 +81,66 @@ my $testcontent = sub {
 
 # When type="html", the contents should be escaped HTML
 # The correct result is the content with one level of escaping removed
-is($testtitle->(qq{<title type="html"><![CDATA[&lt;title>]]></title>}), "&lt;title>", "Title: HTML + CDATA");
-is($testtitle->(qq{<title type="html">&amp;lt;title></title>}), "&lt;title>", "Title: HTML + Entities");
-is($testtitle->(qq{<title type="html">&#38;lt;title></title>}), "&lt;title>", "Title: HTML + Numeric character references");
+is( $testtitle->(qq{<title type="html"><![CDATA[&lt;title>]]></title>}),
+    "&lt;title>", "Title: HTML + CDATA" );
+is( $testtitle->(qq{<title type="html">&amp;lt;title></title>}),
+    "&lt;title>", "Title: HTML + Entities" );
+is( $testtitle->(qq{<title type="html">&#38;lt;title></title>}),
+    "&lt;title>", "Title: HTML + Numeric character references" );
 
 # When type="text", the contents are escaped plain text
 # Since Dreamwidth expects HTML in the subject field, parsefeed should
 # be returning the text with HTML escaping applied.
 # Except now it's apparently removing the escaping, and no-one's complained in 6 years, so we assume that's right
-is($testtitle->(qq{<title type="text"><![CDATA[<title>]]></title>}), "<title>", "Title: Text + CDATA");
-is($testtitle->(qq{<title type="text">&lt;title></title>}), "<title>", "Title: Text + Entity");
-is($testtitle->(qq{<title type="text">&#60;title></title>}), "<title>", "Title: Text + Numeric character references");
+is( $testtitle->(qq{<title type="text"><![CDATA[<title>]]></title>}),
+    "<title>", "Title: Text + CDATA" );
+is( $testtitle->(qq{<title type="text">&lt;title></title>}), "<title>", "Title: Text + Entity" );
+is( $testtitle->(qq{<title type="text">&#60;title></title>}),
+    "<title>", "Title: Text + Numeric character references" );
 
 # When type="xhtml" the content is interpreted as normal XML with no special
 # escaping. Therefore it should be returned basically verbatim, with no
 # extra escaping or de-escaping.
 # Except now it's apparently removing the escaping, and no-one's complained in 6 years, so we assume that's right
-is($testtitle->(qq{<title type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">&lt;title></div></title>}), qq{<div><title></div>}, "Title: XHTML + Entities");
-is($testtitle->(qq{<title type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">&#60;title></div></title>}), qq{<div><title></div>}, "Title: XHTML + Numeric character references");
+is(
+    $testtitle->(
+        qq{<title type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">&lt;title></div></title>}),
+    qq{<div><title></div>},
+    "Title: XHTML + Entities"
+);
+is(
+    $testtitle->(
+        qq{<title type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">&#60;title></div></title>}
+    ),
+    qq{<div><title></div>},
+    "Title: XHTML + Numeric character references"
+);
 
 # Now do the same eight tests but on the entry content instead
-is($testcontent->(qq{<content type="html"><![CDATA[&lt;content>]]></content>}), "&lt;content>", "Content: HTML + CDATA");
-is($testcontent->(qq{<content type="html">&amp;lt;content></content>}), "&lt;content>", "Content: HTML + Entities");
-is($testcontent->(qq{<content type="html">&#38;lt;content></content>}), "&lt;content>", "Content: HTML + Numeric character references");
-is($testcontent->(qq{<content type="text"><![CDATA[<content>]]></content>}), "<content>", "Content: Text + CDATA");
-is($testcontent->(qq{<content type="text">&lt;content></content>}), "<content>", "Content: Text + Entity");
-is($testcontent->(qq{<content type="text">&#60;content></content>}), "<content>", "Content: Text + Numeric character references");
-is($testcontent->(qq{<content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">&lt;content></div></content>}), qq{<div><content></div>}, "Content: XHTML + Entities");
-is($testcontent->(qq{<content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">&#60;content></div></content>}), qq{<div><content></div>}, "Content: XHTML + Numeric character references");
+is( $testcontent->(qq{<content type="html"><![CDATA[&lt;content>]]></content>}),
+    "&lt;content>", "Content: HTML + CDATA" );
+is( $testcontent->(qq{<content type="html">&amp;lt;content></content>}),
+    "&lt;content>", "Content: HTML + Entities" );
+is( $testcontent->(qq{<content type="html">&#38;lt;content></content>}),
+    "&lt;content>", "Content: HTML + Numeric character references" );
+is( $testcontent->(qq{<content type="text"><![CDATA[<content>]]></content>}),
+    "<content>", "Content: Text + CDATA" );
+is( $testcontent->(qq{<content type="text">&lt;content></content>}),
+    "<content>", "Content: Text + Entity" );
+is( $testcontent->(qq{<content type="text">&#60;content></content>}),
+    "<content>", "Content: Text + Numeric character references" );
+is(
+    $testcontent->(
+qq{<content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">&lt;content></div></content>}
+    ),
+    qq{<div><content></div>},
+    "Content: XHTML + Entities"
+);
+is(
+    $testcontent->(
+qq{<content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">&#60;content></div></content>}
+    ),
+    qq{<div><content></div>},
+    "Content: XHTML + Numeric character references"
+);
 

@@ -25,35 +25,38 @@ use DW::OAuth::Consumer;
 use DW::OAuth::Access;
 
 # User facing
-DW::Routing->register_string(  "/oauth/index", \&index_handler, app => 1 );
-DW::Routing->register_regex( qr!^/oauth/token/(\d+)$!, \&token_handler, app => 1 );
+DW::Routing->register_string( "/oauth/index", \&index_handler, app => 1 );
+DW::Routing->register_regex( qr!^/oauth/token/(\d+)$!,             \&token_handler,  app => 1 );
 DW::Routing->register_regex( qr!^/oauth/token/(\d+)/deauthorize$!, \&delete_handler, app => 1 );
 
 sub index_handler {
-    my ( $ok, $rv ) = controller( );
+    my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
-    my $r = $rv->{r};
+    my $r    = $rv->{r};
     my $args = $r->get_args;
 
-    my $u = $rv->{u};
+    my $u      = $rv->{u};
     my $view_u = $u;
 
-    my $view_other = DW::OAuth->can_view_other( $u );
+    my $view_other = DW::OAuth->can_view_other($u);
     $view_u = LJ::load_user( $args->{user} )
         if ( $view_other && $args->{user} );
-    my $tokens = DW::OAuth::Access->tokens_for_user( $view_u );
-    DW::OAuth::Access->load_all_lastaccess( $tokens );
+    my $tokens = DW::OAuth::Access->tokens_for_user($view_u);
+    DW::OAuth::Access->load_all_lastaccess($tokens);
 
     $tokens = [ sort { $b->lastaccess <=> $a->lastaccess } @$tokens ];
 
-    return DW::Template->render_template( 'oauth/index.tt', {
-        %$rv,
-        viewother   => ! $u->equals( $view_u ),
-        view_u      => $view_u,
-        tokens      => $tokens,
-        can_view_other => $view_other,
-    });
+    return DW::Template->render_template(
+        'oauth/index.tt',
+        {
+            %$rv,
+            viewother      => !$u->equals($view_u),
+            view_u         => $view_u,
+            tokens         => $tokens,
+            can_view_other => $view_other,
+        }
+    );
 }
 
 sub token_handler {
@@ -62,26 +65,29 @@ sub token_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
-    my $r = $rv->{r};
-    my $u = $rv->{u};
+    my $r    = $rv->{r};
+    my $u    = $rv->{u};
     my $args = $r->get_args;
 
     my $view_u = $u;
 
-    my $view_other = DW::OAuth->can_view_other( $u );
+    my $view_other = DW::OAuth->can_view_other($u);
     $view_u = LJ::load_user( $args->{user} )
         if ( $view_other && $args->{user} );
     my $token = DW::OAuth::Access->from_consumer( $view_u, $consumer_id );
     return $r->NOT_FOUND
         unless $token;
 
-    return DW::Template->render_template( 'oauth/token.tt', {
-        %$rv,
-        viewother       => ! $u->equals( $view_u ),
-        view_consumer   => $view_other || $token->consumer->owner->equals( $u ),
-        view_u          => $view_u,
-        token           => $token,
-    });
+    return DW::Template->render_template(
+        'oauth/token.tt',
+        {
+            %$rv,
+            viewother     => !$u->equals($view_u),
+            view_consumer => $view_other || $token->consumer->owner->equals($u),
+            view_u        => $view_u,
+            token         => $token,
+        }
+    );
 }
 
 sub delete_handler {
@@ -93,21 +99,21 @@ sub delete_handler {
     my $r = $rv->{r};
     my $u = $rv->{u};
 
-    my $redir_dest = LJ::create_url( "/oauth/token/$consumer_id", keep_args=>qw/ user / );
-    
-    return $r->redirect( $redir_dest )
+    my $redir_dest = LJ::create_url( "/oauth/token/$consumer_id", keep_args => qw/ user / );
+
+    return $r->redirect($redir_dest)
         unless $r->did_post;
 
     my $token = DW::OAuth::Access->from_consumer( $u, $consumer_id );
-    
+
     return $r->NOT_FOUND
         unless $token;
-    
-    return $r->redirect( $redir_dest )
-        unless $token->user->equals( $u );
+
+    return $r->redirect($redir_dest)
+        unless $token->user->equals($u);
 
     $token->delete if $token;
-    return $r->redirect( "/oauth/" );
+    return $r->redirect("/oauth/");
 }
 
 1;

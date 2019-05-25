@@ -20,8 +20,9 @@ use Carp qw(croak);
 use LJ::Talk;
 
 sub need_res {
-   # force to not use beta, because this is not used in journal spaces
-   return LJ::Talk::init_iconbrowser_js( 0, 'stc/entry.css' );
+
+    # force to not use beta, because this is not used in journal spaces
+    return LJ::Talk::init_iconbrowser_js( 0, 'stc/entry.css' );
 }
 
 sub handle_post {
@@ -31,45 +32,51 @@ sub handle_post {
 sub render_body {
     my ( $class, %opts ) = @_;
     my ( $u, $head, $pic, $picform ) = @{ $opts{picargs} };
-    my $opts = \%opts;  # to avoid rewriting below
+    my $opts = \%opts;    # to avoid rewriting below
 
-    return "" unless LJ::isu( $u );
+    return "" unless LJ::isu($u);
     return "" unless LJ::is_enabled('userpicselect') || $u->can_use_userpic_select;
 
     my $res;
-    $res = LJ::Protocol::do_request( "login", {
-               ver => $LJ::PROTOCOL_VER,
-               username => $u->user,
-               getpickws => 1,
-               getpickwurls => 1,
-           }, undef, {
-               noauth => 1,
-               u => $u,
-           } ) unless $opts->{no_auth};
+    $res = LJ::Protocol::do_request(
+        "login",
+        {
+            ver          => $LJ::PROTOCOL_VER,
+            username     => $u->user,
+            getpickws    => 1,
+            getpickwurls => 1,
+        },
+        undef,
+        {
+            noauth => 1,
+            u      => $u,
+        }
+    ) unless $opts->{no_auth};
 
     my $has_icons = $res && ref $res->{pickws} eq 'ARRAY' && scalar @{ $res->{pickws} } > 0;
 
-    my $userpic_msg_default = LJ::Lang::ml( 'entryform.userpic.default' );
-    my $userpic_msg_upload  = LJ::Lang::ml( 'entryform.userpic.upload' );
-    my $defpic = LJ::Lang::ml( 'entryform.opt.defpic' );
-    my $onload = $opts->{onload};
+    my $userpic_msg_default = LJ::Lang::ml('entryform.userpic.default');
+    my $userpic_msg_upload  = LJ::Lang::ml('entryform.userpic.upload');
+    my $defpic              = LJ::Lang::ml('entryform.opt.defpic');
+    my $onload              = $opts->{onload};
 
-    if ( ! $opts->{altlogin} && $has_icons ) {
+    if ( !$opts->{altlogin} && $has_icons ) {
+
         # start with default picture info
         my $num = 0;
         my $userpics .= "    userpics[$num] = \"$res->{defaultpicurl}\";\n";
-        my $altcode .= "     alttext[$num] = \"$defpic\";\n";
+        my $altcode  .= "     alttext[$num] = \"$defpic\";\n";
 
         foreach ( @{ $res->{pickwurls} } ) {
             $num++;
             $userpics .= "    userpics[$num] = \"$_\";\n";
         }
 
-        $num = 0;  # reset
+        $num = 0;    # reset
 
         foreach ( @{ $res->{pickws} } ) {
-           $num++;
-           $altcode .= "     alttext[$num] = \"" . LJ::ejs($_) . "\";\n";
+            $num++;
+            $altcode .= "     alttext[$num] = \"" . LJ::ejs($_) . "\";\n";
         }
 
         $$onload .= " userpic_preview();" if $onload;
@@ -112,7 +119,7 @@ sub render_body {
 
         my $viewthumbnails_link = '';
         if ( $opts->{entry_js} ) {
-            my $thumbnail_text = LJ::Lang::ml( '/update.bml.link.view_thumbnails' );
+            my $thumbnail_text = LJ::Lang::ml('/update.bml.link.view_thumbnails');
             $viewthumbnails_link = qq {
                 var ml = new Object();
                 ml.viewthumbnails_link = "$thumbnail_text";
@@ -196,15 +203,19 @@ sub render_body {
         $$pic .= "<a href='javascript:void(0);' id='lj_userpicselect_img'>";
         $$pic .= "<img src='' alt='selected userpic' id='userpic_preview_image' />";
         $$pic .= "<span id='lj_userpicselect_img_txt'>";
-        $$pic .= LJ::Lang::ml( 'entryform.userpic.choose' );
+        $$pic .= LJ::Lang::ml('entryform.userpic.choose');
         $$pic .= "</span></a></p></div>\n";
-    } elsif ( !$u || $opts->{altlogin} )  {
-        $$pic .= "<div id='userpic'><p id='userpic_preview'><img src='/img/nouserpic.png' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout'  /></p></div>";
-    } else {
-        $$pic .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/manage/icons'>$userpic_msg_upload</a></p></div>";
+    }
+    elsif ( !$u || $opts->{altlogin} ) {
+        $$pic .=
+"<div id='userpic'><p id='userpic_preview'><img src='/img/nouserpic.png' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout'  /></p></div>";
+    }
+    else {
+        $$pic .=
+"<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/manage/icons'>$userpic_msg_upload</a></p></div>";
     }
 
-    if ( $has_icons ) {
+    if ($has_icons) {
 
         my @pickws = map { ( $_, $_ ) } @{ $res->{pickws} };
 
@@ -217,24 +228,30 @@ sub render_body {
 
         $$picform .= "<p id='userpic_select_wrapper' class='pkg'$display>\n";
         $$picform .= "<label for='prop_picture_keyword' class='left'>";
-        $$picform .= LJ::Lang::ml( 'entryform.userpic' ) . " </label>\n" ;
-        $$picform .= LJ::html_select( {
-                         name => 'prop_picture_keyword',
-                         id => 'prop_picture_keyword',
-                         class => 'select',
-                         selected => $opts->{prop_picture_keyword},
-                         onchange => "userpic_preview()",
-                         tabindex => $tabindex,
-                     }, "", $defpic, @pickws ) . "\n";
+        $$picform .= LJ::Lang::ml('entryform.userpic') . " </label>\n";
+        $$picform .= LJ::html_select(
+            {
+                name     => 'prop_picture_keyword',
+                id       => 'prop_picture_keyword',
+                class    => 'select',
+                selected => $opts->{prop_picture_keyword},
+                onchange => "userpic_preview()",
+                tabindex => $tabindex,
+            },
+            "", $defpic, @pickws
+        ) . "\n";
         $$picform .= "<a href='javascript:void(0);' id='lj_userpicselect'> </a>";
+
         # userpic browse button
-        if ( $onload ) {
+        if ($onload) {
             $$onload .= " insertViewThumbs();" if $u->can_use_userpic_select;
+
             # random icon button
             $$picform .= "<a href='javascript:void(0)' onclick='randomicon();' id='randomicon'>";
-            $$picform .= LJ::Lang::ml( 'entryform.userpic.random' ) . "</a>";
-            $$onload .= " showRandomIcon();";
-        } else {
+            $$picform .= LJ::Lang::ml('entryform.userpic.random') . "</a>";
+            $$onload  .= " showRandomIcon();";
+        }
+        else {
             $$picform .= q {
                            <script type="text/javascript" language="JavaScript">
                            userpic_preview();
@@ -245,7 +262,6 @@ sub render_body {
         $$picform .= LJ::help_icon_html( "userpics", "", " " );
         $$picform .= "</p>\n\n";
     }
-
 
     return;
 }

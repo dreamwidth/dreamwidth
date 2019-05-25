@@ -21,11 +21,12 @@ use Carp qw(croak);
 
 sub render_body {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
     my $ret;
     $ret .= "This widget just renders something.<br />";
-    $ret .= "Call it with: <code>LJ::Widget::ExampleRenderWidget->render( word => 'foo' );</code><br />";
+    $ret .=
+"Call it with: <code>LJ::Widget::ExampleRenderWidget->render( word => 'foo' );</code><br />";
     $ret .= "The word you passed in was: $opts{word}";
 
     return $ret;

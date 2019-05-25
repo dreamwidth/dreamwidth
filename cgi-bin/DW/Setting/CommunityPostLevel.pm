@@ -25,7 +25,7 @@ sub should_render {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.communitypostlevel.label' );
+    return $_[0]->ml('setting.communitypostlevel.label');
 }
 
 sub option {
@@ -33,24 +33,27 @@ sub option {
     my $key = $class->pkgkey;
 
     my ( $current_comm_membership, $current_comm_postlevel ) = $u->get_comm_settings;
-    my $communitypostlevel = $class->get_arg( $args, "communitypostlevel" ) || $current_comm_postlevel || "members";
-    $communitypostlevel = "anybody" if $u->prop( "nonmember_posting" );
-
+    my $communitypostlevel =
+        $class->get_arg( $args, "communitypostlevel" ) || $current_comm_postlevel || "members";
+    $communitypostlevel = "anybody" if $u->prop("nonmember_posting");
 
     my @options = (
-        "anybody"   => $class->ml( 'setting.communitypostlevel.option.select.anybody' ),
-        "members"   => $class->ml( 'setting.communitypostlevel.option.select.members' ),
-        "select"    => $class->ml( 'setting.communitypostlevel.option.select.select' ),
+        "anybody" => $class->ml('setting.communitypostlevel.option.select.anybody'),
+        "members" => $class->ml('setting.communitypostlevel.option.select.members'),
+        "select"  => $class->ml('setting.communitypostlevel.option.select.select'),
     );
 
-    my $select = LJ::html_select( {
-        name => "${key}communitypostlevel",
-        id => "${key}communitypostlevel",
-        selected => $communitypostlevel,
-        class => "js-related-setting",
-        "data-related-setting-id" => DW::Setting::CommunityPostLevelNew->pkgkey,
-        "data-related-setting-on" => "select",
-    }, @options );
+    my $select = LJ::html_select(
+        {
+            name                      => "${key}communitypostlevel",
+            id                        => "${key}communitypostlevel",
+            selected                  => $communitypostlevel,
+            class                     => "js-related-setting",
+            "data-related-setting-id" => DW::Setting::CommunityPostLevelNew->pkgkey,
+            "data-related-setting-on" => "select",
+        },
+        @options
+    );
 
     my $ret;
     $ret .= " <label for='${key}communitypostlevel'>";
@@ -67,7 +70,7 @@ sub error_check {
     my ( $class, $u, $args ) = @_;
     my $val = $class->get_arg( $args, "communitypostlevel" );
 
-    $class->errors( communitypostlevel => $class->ml( 'setting.communitypostlevel.error.invalid' ) )
+    $class->errors( communitypostlevel => $class->ml('setting.communitypostlevel.error.invalid') )
         unless $val =~ /^(?:anybody|members|select)$/;
 
     return 1;
@@ -81,20 +84,20 @@ sub save {
 
     my $val = $class->get_arg( $args, "communitypostlevel" );
 
-    # postlevel and nonmember_posting are a single setting in the UI, but separate options in the backend
-    # split them out so we can save them properly
+# postlevel and nonmember_posting are a single setting in the UI, but separate options in the backend
+# split them out so we can save them properly
     my $nonmember_posting = 0;
     if ( $val eq "anybody" ) {
-        $val = "members";
+        $val               = "members";
         $nonmember_posting = 1;
     }
 
-    $u->set_comm_settings( $remote, { postlevel => $val });
-    $u->set_prop({ nonmember_posting => $nonmember_posting });
+    $u->set_comm_settings( $remote, { postlevel => $val } );
+    $u->set_prop( { nonmember_posting => $nonmember_posting } );
 
     # unconditionally give posting access to all members
     my $cid = $u->userid;
-    LJ::set_rel_multi( (map { [$cid, $_, 'P'] } $u->member_userids ) );
+    LJ::set_rel_multi( ( map { [ $cid, $_, 'P' ] } $u->member_userids ) );
     return 1;
 }
 

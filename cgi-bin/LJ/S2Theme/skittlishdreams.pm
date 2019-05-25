@@ -6,7 +6,7 @@ sub layouts { ( "2r" => "two-columns-right", "2l" => "two-columns-left" ) }
 sub layout_prop { "layout_type" }
 
 sub page_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         image_background_container_group
     );
@@ -14,7 +14,7 @@ sub page_props {
 }
 
 sub navigation_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         image_background_navigation_group
     );
@@ -22,13 +22,13 @@ sub navigation_props {
 }
 
 sub header_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw( color_header_link_hover_background );
     return $self->_append_props( "header_props", @props );
 }
 
 sub footer_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_footer_text
         color_footer_link_hover_background
@@ -38,7 +38,7 @@ sub footer_props {
 }
 
 sub entry_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_entry_title_border
         color_entry_title_border_alt

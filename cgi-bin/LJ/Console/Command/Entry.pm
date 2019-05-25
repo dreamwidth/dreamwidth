@@ -21,21 +21,23 @@ sub cmd { "entry" }
 
 sub desc { "Manage entries in an account. Requires priv: deletetalk." }
 
-sub args_desc { [
-                 'action' => "Currently only 'delete'",
-                 'url' => 'The URL to the entry',
-                 'reason' => 'Reason this action is being taken',
-                 ] }
+sub args_desc {
+    [
+        'action' => "Currently only 'delete'",
+        'url'    => 'The URL to the entry',
+        'reason' => 'Reason this action is being taken',
+    ]
+}
 
 sub usage { '<action> <url> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "deletetalk" );
+    return $remote && $remote->has_priv("deletetalk");
 }
 
 sub execute {
-    my ($self, $action, $uri, $reason, @args) = @_;
+    my ( $self, $action, $uri, $reason, @args ) = @_;
 
     return $self->error("This command takes three arguments. Consult the reference.")
         unless $action && $uri && $reason && scalar(@args) == 0;
@@ -50,13 +52,14 @@ sub execute {
     return $self->error("URL provided does not appear to link to a valid entry.")
         unless $entry && $entry->valid;
 
-    if ($action eq "delete") {
-        LJ::delete_entry($entry->journal, $entry->jitemid)
+    if ( $action eq "delete" ) {
+        LJ::delete_entry( $entry->journal, $entry->jitemid )
             or return $self->error("There was a problem deleting this entry.");
     }
 
     my $remote = LJ::get_remote();
-    LJ::statushistory_add($entry->journal, $remote, 'entry_action', "$action (entry " . $entry->ditemid . "): $reason");
+    LJ::statushistory_add( $entry->journal, $remote, 'entry_action',
+        "$action (entry " . $entry->ditemid . "): $reason" );
 
     return $self->print("Entry action taken.");
 }

@@ -12,13 +12,13 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-
 # This script goes through all of the files in your include directory
 # (LJHOME/htdocs/inc) and then imports ones that are specified by your
 # etc/config.pl file (%LJ::FILEEDIT_VIA_DB) into your database if the file
 # on disk is newer than the one in the database.
 
 use strict;
+
 BEGIN {
     require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
 }
@@ -26,12 +26,11 @@ BEGIN {
 # create list of files to check
 my $dir = "$ENV{'LJHOME'}/htdocs/inc";
 print "searching for files to check against database...";
-opendir DIR, $dir 
+opendir DIR, $dir
     or die "Unable to open $ENV{'LJHOME'}/htdocs/inc for searching.\n";
-my @files = grep { $LJ::FILEEDIT_VIA_DB || 
-                   $LJ::FILEEDIT_VIA_DB{$_} } readdir(DIR);
+my @files = grep { $LJ::FILEEDIT_VIA_DB || $LJ::FILEEDIT_VIA_DB{$_} } readdir(DIR);
 my $count = scalar(@files);
-print $count+0 . " found.\n";
+print $count+ 0 . " found.\n";
 
 # now iterate through and check times
 my $dbh = LJ::get_db_writer();
@@ -40,23 +39,30 @@ foreach my $file (@files) {
     next unless -f $path;
 
     # now get filetime
-    my $ftimedisk = (stat($path))[9];
-    my $ftimedb = $dbh->selectrow_array("SELECT updatetime
-                    FROM includetext WHERE incname=?", undef, $file)+0;
-    
+    my $ftimedisk = ( stat($path) )[9];
+    my $ftimedb   = $dbh->selectrow_array(
+        "SELECT updatetime
+                    FROM includetext WHERE incname=?", undef, $file
+    ) + 0;
+
     # check
-    if ($ftimedisk > $ftimedb) {
+    if ( $ftimedisk > $ftimedb ) {
+
         # load file
         open FILE, "<$path";
-        my $content = join("", <FILE>);
+        my $content = join( "", <FILE> );
         close FILE;
-    
+
         # now do SQL
         print "$file newer on disk...updating database...";
-        $dbh->do("REPLACE INTO includetext (incname, inctext, updatetime)" .
-                 "VALUES (?,?,UNIX_TIMESTAMP())", undef, $file, $content);
+        $dbh->do(
+            "REPLACE INTO includetext (incname, inctext, updatetime)"
+                . "VALUES (?,?,UNIX_TIMESTAMP())",
+            undef, $file, $content
+        );
         print $dbh->err ? "error: " . $dbh->errstr . ".\n" : "done.\n";
-    } else {
+    }
+    else {
         print "$file newer in database, ignored.\n";
     }
 }

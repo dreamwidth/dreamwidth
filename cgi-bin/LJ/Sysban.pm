@@ -13,7 +13,6 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-
 use strict;
 
 package LJ::Sysban;
@@ -31,31 +30,36 @@ package LJ::Sysban;
 # returns: 1 if a ban exists, 0 otherwise
 # </LJFUNC>
 sub sysban_check {
-    my ($what, $value) = @_;
+    my ( $what, $value ) = @_;
 
     # cache if noanon_ip ban
-    if ($what eq 'noanon_ip') {
+    if ( $what eq 'noanon_ip' ) {
 
-        my $now = time();
+        my $now          = time();
         my $ip_ban_delay = $LJ::SYSBAN_IP_REFRESH || 120;
 
         # check memcache first if not loaded
         $LJ::NOANON_IP_BANNED_LOADED = 0 unless defined $LJ::NOANON_IP_BANNED_LOADED;
-        unless ($LJ::NOANON_IP_BANNED_LOADED + $ip_ban_delay > $now) {
+        unless ( $LJ::NOANON_IP_BANNED_LOADED + $ip_ban_delay > $now ) {
             my $memval = LJ::MemCache::get("sysban:noanon_ip");
             if ($memval) {
-                *LJ::NOANON_IP_BANNED = $memval;
+                *LJ::NOANON_IP_BANNED        = $memval;
                 $LJ::NOANON_IP_BANNED_LOADED = $now;
-            } else {
+            }
+            else {
                 $LJ::NOANON_IP_BANNED_LOADED = 0;
             }
         }
 
         # is it already cached in memory?
         if ($LJ::NOANON_IP_BANNED_LOADED) {
-            return (defined $LJ::NOANON_IP_BANNED{$value} &&
-                    ($LJ::NOANON_IP_BANNED{$value} == 0 ||     # forever
-                     $LJ::NOANON_IP_BANNED{$value} > time())); # not-expired
+            return (
+                defined $LJ::NOANON_IP_BANNED{$value}
+                    && (
+                    $LJ::NOANON_IP_BANNED{$value} == 0 ||    # forever
+                    $LJ::NOANON_IP_BANNED{$value} > time()
+                    )
+            );                                               # not-expired
         }
 
         # set this before the query
@@ -65,35 +69,40 @@ sub sysban_check {
             or return undef $LJ::NOANON_IP_BANNED_LOADED;
 
         # set in memcache
-        LJ::MemCache::set("sysban:noanon_ip", \%LJ::NOANON_IP_BANNED, $ip_ban_delay);
+        LJ::MemCache::set( "sysban:noanon_ip", \%LJ::NOANON_IP_BANNED, $ip_ban_delay );
 
         # return value to user
         return $LJ::NOANON_IP_BANNED{$value};
     }
 
     # cache if ip ban
-    if ($what eq 'ip') {
+    if ( $what eq 'ip' ) {
 
-        my $now = time();
+        my $now          = time();
         my $ip_ban_delay = $LJ::SYSBAN_IP_REFRESH || 120;
 
         # check memcache first if not loaded
         $LJ::IP_BANNED_LOADED = 0 unless defined $LJ::IP_BANNED_LOADED;
-        unless ($LJ::IP_BANNED_LOADED + $ip_ban_delay > $now) {
+        unless ( $LJ::IP_BANNED_LOADED + $ip_ban_delay > $now ) {
             my $memval = LJ::MemCache::get("sysban:ip");
             if ($memval) {
-                *LJ::IP_BANNED = $memval;
+                *LJ::IP_BANNED        = $memval;
                 $LJ::IP_BANNED_LOADED = $now;
-            } else {
+            }
+            else {
                 $LJ::IP_BANNED_LOADED = 0;
             }
         }
 
         # is it already cached in memory?
         if ($LJ::IP_BANNED_LOADED) {
-            return (defined $LJ::IP_BANNED{$value} &&
-                    ($LJ::IP_BANNED{$value} == 0 ||     # forever
-                     $LJ::IP_BANNED{$value} > time())); # not-expired
+            return (
+                defined $LJ::IP_BANNED{$value}
+                    && (
+                    $LJ::IP_BANNED{$value} == 0 ||    # forever
+                    $LJ::IP_BANNED{$value} > time()
+                    )
+            );                                        # not-expired
         }
 
         # set this before the query
@@ -103,14 +112,14 @@ sub sysban_check {
             or return undef $LJ::IP_BANNED_LOADED;
 
         # set in memcache
-        LJ::MemCache::set("sysban:ip", \%LJ::IP_BANNED, $ip_ban_delay);
+        LJ::MemCache::set( "sysban:ip", \%LJ::IP_BANNED, $ip_ban_delay );
 
         # return value to user
         return $LJ::IP_BANNED{$value};
     }
 
     # cache if uniq ban
-    if ($what eq 'uniq') {
+    if ( $what eq 'uniq' ) {
 
         # check memcache first if not loaded
         $LJ::UNIQ_BANNED_LOADED = 0 unless defined $LJ::UNIQ_BANNED_LOADED;
@@ -124,9 +133,13 @@ sub sysban_check {
 
         # is it already cached in memory?
         if ($LJ::UNIQ_BANNED_LOADED) {
-            return (defined $LJ::UNIQ_BANNED{$value} &&
-                    ($LJ::UNIQ_BANNED{$value} == 0 ||     # forever
-                     $LJ::UNIQ_BANNED{$value} > time())); # not-expired
+            return (
+                defined $LJ::UNIQ_BANNED{$value}
+                    && (
+                    $LJ::UNIQ_BANNED{$value} == 0 ||    # forever
+                    $LJ::UNIQ_BANNED{$value} > time()
+                    )
+            );                                          # not-expired
         }
 
         # set this now before the query
@@ -136,8 +149,8 @@ sub sysban_check {
             or return undef $LJ::UNIQ_BANNED_LOADED;
 
         # set in memcache
-        my $exp = 60*15; # 15 minutes
-        LJ::MemCache::set("sysban:uniq", \%LJ::UNIQ_BANNED, $exp);
+        my $exp = 60 * 15;                              # 15 minutes
+        LJ::MemCache::set( "sysban:uniq", \%LJ::UNIQ_BANNED, $exp );
 
         # return value to user
         return $LJ::UNIQ_BANNED{$value};
@@ -145,22 +158,27 @@ sub sysban_check {
 
     # cache if spamreport ban
     if ( $what eq 'spamreport' ) {
+
         # check memcache first if not loaded
         $LJ::SPAM_BANNED_LOADED = 0
             unless defined $LJ::SPAMREPORT_BANNED_LOADED;
-        unless ( $LJ::SPAMREPORT_BANNED_LOADED ) {
-            my $memval = LJ::MemCache::get( "sysban:spamreport" );
-            if ( $memval ) {
+        unless ($LJ::SPAMREPORT_BANNED_LOADED) {
+            my $memval = LJ::MemCache::get("sysban:spamreport");
+            if ($memval) {
                 *LJ::SPAMREPORT_BANNED = $memval;
                 $LJ::SPAMREPORT_BANNED_LOADED++;
             }
         }
 
         # is it already cached in memory?
-        if ( $LJ::SPAMREPORT_BANNED_LOADED ) {
-            return ( defined $LJ::SPAMREPORT_BANNED{$value} &&
-                    ( $LJ::SPAMREPORT_BANNED{$value} == 0 ||        # forever
-                      $LJ::SPAMREPORT_BANNED{$value} > time() ) );  # not expired
+        if ($LJ::SPAMREPORT_BANNED_LOADED) {
+            return (
+                defined $LJ::SPAMREPORT_BANNED{$value}
+                    && (
+                    $LJ::SPAMREPORT_BANNED{$value} == 0 ||    # forever
+                    $LJ::SPAMREPORT_BANNED{$value} > time()
+                    )
+            );                                                # not expired
         }
 
         # set this now before the query
@@ -170,7 +188,7 @@ sub sysban_check {
             or return undef $LJ::SPAMREPORT_BANNED_LOADED;
 
         # set in memcache
-        my $exp = 60 * 30; # 30 minutes
+        my $exp = 60 * 30;                                    # 30 minutes
         LJ::MemCache::set( "sysban:spamreport", \%LJ::SPAMREPORT_BANNED, $exp );
 
         # return value to user
@@ -183,9 +201,10 @@ sub sysban_check {
 
     # standard check helper
     my $check = sub {
-        my ($wh, $vl) = @_;
+        my ( $wh, $vl ) = @_;
 
-        return $dbr->selectrow_array(qq{
+        return $dbr->selectrow_array(
+            qq{
                 SELECT COUNT(*)
                 FROM sysban
                 WHERE status = 'active'
@@ -195,19 +214,21 @@ sub sysban_check {
                   AND (NOW() < banuntil
                        OR banuntil = 0
                        OR banuntil IS NULL)
-            }, undef, $wh, $vl);
+            }, undef, $wh, $vl
+        );
     };
 
     # helper variation for wildcard match of domain bans
     my $check_subdomains = sub {
-        my ( $host ) = @_;
+        my ($host) = @_;
         return 0 unless $host && $host =~ /\./;
 
         # very similar to above, except in addition to exact match
         # we also check for wildcard matches of larger banned domains
         # e.g. foo.bar.org will match ban for "%.bar.org"
 
-        return $dbr->selectrow_array( qq{
+        return $dbr->selectrow_array(
+            qq{
                 SELECT COUNT(*) FROM sysban
                 WHERE status = 'active'
                   AND what = ?
@@ -216,29 +237,31 @@ sub sysban_check {
                   AND (NOW() < banuntil
                        OR banuntil = 0
                        OR banuntil IS NULL)
-            }, undef, 'email_domain', $host, $host );
+            }, undef, 'email_domain', $host, $host
+        );
     };
 
     # check both ban by email and ban by domain if we have an email address
-    if ($what eq 'email') {
+    if ( $what eq 'email' ) {
+
         # short out if this email really is banned directly, or if we can't parse it
-        return 1 if $check->('email', $value);
+        return 1 if $check->( 'email', $value );
         return 0 unless $value =~ /@(.+)$/;
 
         # see if this domain is banned, either directly
         # or else as part of a larger domain ban
-        return 1 if $check_subdomains->( $1 );
+        return 1 if $check_subdomains->($1);
 
         # account for GMail troll tricks
-        my @domains = split(/\./, $1);
+        my @domains = split( /\./, $1 );
         return 0 unless scalar @domains >= 2;
         my $domain = "$domains[-2].$domains[-1]";
 
         if ( $domain eq "gmail.com" ) {
-        	my ($user) = ($value =~ /^(.+)@/);
-        	$user =~ s/\.//g;    # strip periods
-        	$user =~ s/\+.*//g;  # strip plus tags
-        	return 1 if $check->('email', "$user\@$domain");
+            my ($user) = ( $value =~ /^(.+)@/ );
+            $user =~ s/\.//g;      # strip periods
+            $user =~ s/\+.*//g;    # strip plus tags
+            return 1 if $check->( 'email', "$user\@$domain" );
         }
 
         # must not be banned
@@ -246,7 +269,7 @@ sub sysban_check {
     }
 
     # non-ip bans come straight from the db
-    return $check->($what, $value);
+    return $check->( $what, $value );
 }
 *LJ::sysban_check = \&sysban_check;
 
@@ -254,7 +277,7 @@ sub sysban_check {
 # takes a 'what' to populate the hashref with sysbans of that type
 # returns undef on failure, hashref on success
 sub sysban_populate {
-    my ($where, $what) = @_;
+    my ( $where, $what ) = @_;
 
     # call normally if no gearman/not wanted
     my $gc = LJ::gearman_client();
@@ -262,42 +285,45 @@ sub sysban_populate {
         unless $gc && LJ::conf_test($LJ::LOADSYSBAN_USING_GEARMAN);
 
     # invoke gearman
-    my $args = Storable::nfreeze({what => $what});
-    my $task = Gearman::Task->new("sysban_populate", \$args,
-                                  {
-                                      uniq => $what,
-                                      on_complete => sub {
-                                          my $res = shift;
-                                          return unless $res;
+    my $args = Storable::nfreeze( { what => $what } );
+    my $task = Gearman::Task->new(
+        "sysban_populate",
+        \$args,
+        {
+            uniq        => $what,
+            on_complete => sub {
+                my $res = shift;
+                return unless $res;
 
-                                          my $rv = Storable::thaw($$res);
-                                          return unless $rv;
+                my $rv = Storable::thaw($$res);
+                return unless $rv;
 
-                                          $where->{$_} = $rv->{$_} foreach keys %$rv;
-                                      }
-                                  });
+                $where->{$_} = $rv->{$_} foreach keys %$rv;
+            }
+        }
+    );
     my $ts = $gc->new_task_set();
     $ts->add_task($task);
-    $ts->wait(timeout => 30); # 30 sec timeout
+    $ts->wait( timeout => 30 );    # 30 sec timeout
 
     return $where;
 }
 
-
 sub _db_sysban_populate {
-    my ($where, $what) = @_;
+    my ( $where, $what ) = @_;
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
     # build cache from db
-    my $sth = $dbh->prepare("SELECT value, UNIX_TIMESTAMP(banuntil) " .
-                            "FROM sysban " .
-                            "WHERE status='active' AND what=? " .
-                            "AND NOW() > bandate " .
-                            "AND (NOW() < banuntil OR banuntil IS NULL)");
+    my $sth =
+        $dbh->prepare( "SELECT value, UNIX_TIMESTAMP(banuntil) "
+            . "FROM sysban "
+            . "WHERE status='active' AND what=? "
+            . "AND NOW() > bandate "
+            . "AND (NOW() < banuntil OR banuntil IS NULL)" );
     $sth->execute($what);
     return undef if $sth->err;
-    while (my ($val, $exp ) = $sth->fetchrow_array) {
+    while ( my ( $val, $exp ) = $sth->fetchrow_array ) {
         $where->{$val} = $exp || 0;
     }
 
@@ -316,7 +342,7 @@ sub _db_sysban_populate {
 # returns: hashref on success, undef on failure
 # </LJFUNC>
 sub populate_full {
-    return _db_sysban_populate_full( @_ );
+    return _db_sysban_populate_full(@_);
 }
 
 sub _db_sysban_populate_full {
@@ -326,16 +352,17 @@ sub _db_sysban_populate_full {
 
     # build cache from db
     my $limitsql = $limit ? " ORDER BY banid DESC LIMIT ? OFFSET ?" : "";
-    my $sth = $dbh->prepare( "SELECT banid, value, " .
-                             "UNIX_TIMESTAMP(banuntil), note " .
-                             "FROM sysban " .
-                             "WHERE status='active' AND what=? " .
-                             "AND NOW() > bandate " .
-                             "AND (NOW() < banuntil OR banuntil IS NULL)" .
-                             $limitsql );
+    my $sth =
+        $dbh->prepare( "SELECT banid, value, "
+            . "UNIX_TIMESTAMP(banuntil), note "
+            . "FROM sysban "
+            . "WHERE status='active' AND what=? "
+            . "AND NOW() > bandate "
+            . "AND (NOW() < banuntil OR banuntil IS NULL)"
+            . $limitsql );
     $sth->execute( $what, $limit, $skip );
     return undef if $sth->err;
-    while (my ($banid, $val, $exp, $note) = $sth->fetchrow_array) {
+    while ( my ( $banid, $val, $exp, $note ) = $sth->fetchrow_array ) {
         $where->{$val}->{banid}  = $banid || 0;
         $where->{$val}->{expire} = $exp   || 0;
         $where->{$val}->{note}   = $note  || 0;
@@ -344,7 +371,6 @@ sub _db_sysban_populate_full {
     return $where;
 
 }
-
 
 =head2 C<< LJ::Sysban::populate_full_by_value( $value, @types ) >>
 
@@ -367,7 +393,7 @@ sub _db_sysban_populate_full_by_value {
     my $in_what = "";
     my $has_all = 0;
 
-    $in_what = join ", ", map { $dbh->quote( $_ ) } @types
+    $in_what = join ", ", map { $dbh->quote($_) } @types
         unless $has_all;
     $in_what = " AND what IN ( $in_what )"
         if $in_what;
@@ -383,19 +409,18 @@ sub _db_sysban_populate_full_by_value {
                  AND ( NOW() < banuntil OR banuntil IS NULL )
         }
     );
-    $sth->execute( $value );
+    $sth->execute($value);
     return undef if $sth->err;
 
     my $where;
     while ( my ( $banid, $what, $exp, $note ) = $sth->fetchrow_array ) {
-        $where->{$what}->{banid} = $banid || 0;
-        $where->{$what}->{expire} = $exp || 0;
-        $where->{$what}->{note} = $note || 0;
+        $where->{$what}->{banid}  = $banid || 0;
+        $where->{$what}->{expire} = $exp   || 0;
+        $where->{$what}->{note}   = $note  || 0;
     }
 
     return $where;
 }
-
 
 # <LJFUNC>
 # name: LJ::Sysban::note
@@ -406,13 +431,12 @@ sub _db_sysban_populate_full_by_value {
 # des-vars: A hashref of helpful variables to log, keys being variable name and values being values.
 # returns: nothing
 # </LJFUNC>
-sub note
-{
-    my ($userid, $notes, $vars) = @_;
+sub note {
+    my ( $userid, $notes, $vars ) = @_;
 
     $notes .= ":";
     map { $notes .= " $_=$vars->{$_};" if $vars->{$_} } sort keys %$vars;
-    LJ::statushistory_add($userid, 0, 'sysban_trig', $notes);
+    LJ::statushistory_add( $userid, 0, 'sysban_trig', $notes );
 
     return;
 }
@@ -426,9 +450,8 @@ sub note
 # des-vars: A hashref of helpful variables to log, keys being variable name and values being values.
 # returns: nothing
 # </LJFUNC>
-sub block
-{
-    my ($userid, $notes, $vars) = @_;
+sub block {
+    my ( $userid, $notes, $vars ) = @_;
 
     note( $userid, $notes, $vars );
 
@@ -445,7 +468,7 @@ The service you have requested is temporarily unavailable.
 EOM
 
     # may not run from web context (e.g. mailgated.pl -> supportlib -> ..)
-    eval { BML::http_response(200, $msg); };
+    eval { BML::http_response( 200, $msg ); };
 
     return;
 }
@@ -466,42 +489,38 @@ sub create {
     my %opts = @_;
 
     unless ( $opts{what} && $opts{value} && defined $opts{bandays} ) {
-        return bless {
-            message => "Wrong arguments passed; should be a hash\n",
-        }, 'ERROR';
+        return bless { message => "Wrong arguments passed; should be a hash\n", }, 'ERROR';
     }
 
     if ( $opts{note} && length( $opts{note} ) > 255 ) {
-        return bless {
-            message => "Note too long; must be less than 256 characters\n",
-        }, 'ERROR';
+        return bless { message => "Note too long; must be less than 256 characters\n", }, 'ERROR';
     }
-
 
     my $dbh = LJ::get_db_writer();
 
     my $banuntil = "NULL";
-    if ($opts{'bandays'}) {
-        $banuntil = "NOW() + INTERVAL " . $dbh->quote($opts{'bandays'}) . " DAY";
+    if ( $opts{'bandays'} ) {
+        $banuntil = "NOW() + INTERVAL " . $dbh->quote( $opts{'bandays'} ) . " DAY";
     }
 
     # strip out leading/trailing whitespace
-    $opts{'value'} = LJ::trim($opts{'value'});
+    $opts{'value'} = LJ::trim( $opts{'value'} );
 
     # do insert
-    $dbh->do( "INSERT INTO sysban (what, value, note, bandate, banuntil)
+    $dbh->do(
+        "INSERT INTO sysban (what, value, note, bandate, banuntil)
               VALUES (?, ?, ?, NOW(), $banuntil)",
-              undef, $opts{what}, $opts{value}, $opts{note} );
+        undef, $opts{what}, $opts{value}, $opts{note}
+    );
 
     if ( $dbh->err ) {
-        return bless {
-            message => $dbh->errstr,
-        }, 'ERROR';
+        return bless { message => $dbh->errstr, }, 'ERROR';
     }
 
     my $banid = $dbh->{'mysql_insertid'};
 
-    my $exptime = $opts{bandays} ? time() + 86400*$opts{bandays} : 0;
+    my $exptime = $opts{bandays} ? time() + 86400 * $opts{bandays} : 0;
+
     # special case: creating ip/uniq/spamreport ban
     ban_do( $opts{what}, $opts{value}, $exptime );
 
@@ -509,15 +528,16 @@ sub create {
     my $remote = LJ::get_remote();
     $banuntil = $opts{'bandays'} ? LJ::mysql_time($exptime) : "forever";
 
-    LJ::statushistory_add(0, $remote, 'sysban_add',
-                              "banid=$banid; status=active; " .
-                              "bandate=" . LJ::mysql_time() . "; banuntil=$banuntil; " .
-                              "what=$opts{'what'}; value=$opts{'value'}; " .
-                              "note=$opts{'note'};");
+    LJ::statushistory_add( 0, $remote, 'sysban_add',
+              "banid=$banid; status=active; "
+            . "bandate="
+            . LJ::mysql_time()
+            . "; banuntil=$banuntil; "
+            . "what=$opts{'what'}; value=$opts{'value'}; "
+            . "note=$opts{'note'};" );
 
     return $banid;
 }
-
 
 # <LJFUNC>
 # name: LJ::Sysban::validate
@@ -528,7 +548,7 @@ sub create {
 # returns: nothing on success, error message on failure
 # </LJFUNC>
 sub validate {
-    my ($what, $value, $opts, $post) = @_;
+    my ( $what, $value, $opts, $post ) = @_;
 
     # bail early if the ban already exists
     return "This is already banned"
@@ -538,32 +558,33 @@ sub validate {
         'ip' => sub {
             my $ip = shift;
 
-            while (my ($ip_re, $reason) = each %LJ::UNBANNABLE_IPS) {
+            while ( my ( $ip_re, $reason ) = each %LJ::UNBANNABLE_IPS ) {
                 next unless $ip =~ $ip_re;
                 return "Cannot ban IP $ip: " . LJ::ehtml($reason);
             }
 
-            return $ip =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/ ?
-                0 : "Format: xxx.xxx.xxx.xxx (ip address)";
+            return $ip =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
+                ? 0
+                : "Format: xxx.xxx.xxx.xxx (ip address)";
         },
         'uniq' => sub {
             my $uniq = shift;
-            return $uniq =~ /^[a-zA-Z0-9]{15}$/ ?
-                0 : "Invalid uniq: must be 15 digits/chars";
+            return $uniq =~ /^[a-zA-Z0-9]{15}$/ ? 0 : "Invalid uniq: must be 15 digits/chars";
         },
         'email' => sub {
             my $email = shift;
 
             my @err;
-            LJ::check_email($email, \@err, $post);
+            LJ::check_email( $email, \@err, $post );
             return @err ? shift @err : 0;
         },
         'email_domain' => sub {
             my $email_domain = shift;
 
-            if ($email_domain =~ /^[^@]+\.[^@]+$/) {
+            if ( $email_domain =~ /^[^@]+\.[^@]+$/ ) {
                 return 0;
-            } else {
+            }
+            else {
                 return "Invalid email domain: $email_domain";
             }
         },
@@ -576,37 +597,36 @@ sub validate {
         'pay_cc' => sub {
             my $cc = shift;
 
-            return $cc =~ /^\d{4}-\d{4}$/ ?
-                0 : "Format: xxxx-xxxx (first four-last four)";
+            return $cc =~ /^\d{4}-\d{4}$/ ? 0 : "Format: xxxx-xxxx (first four-last four)";
 
         },
     };
 
     # aliases to handlers above
-    my @map = ('pay_user' => 'user',
-               'pay_email' => 'email',
-               'pay_uniq' => 'uniq',
-               'support_user' => 'user',
-               'oauth_consumer' => 'user',
-               'support_email' => 'email',
-               'support_uniq' => 'uniq',
-               'lostpassword' => 'user',
-               'talk_ip_test' => 'ip',
-               'invite_user' => 'user',
-               'invite_email' => 'email',
-               'noanon_ip' => 'ip',
-               'spamreport' => 'user',
-               oauth_consumer => 'user',
-               );
+    my @map = (
+        'pay_user'       => 'user',
+        'pay_email'      => 'email',
+        'pay_uniq'       => 'uniq',
+        'support_user'   => 'user',
+        'oauth_consumer' => 'user',
+        'support_email'  => 'email',
+        'support_uniq'   => 'uniq',
+        'lostpassword'   => 'user',
+        'talk_ip_test'   => 'ip',
+        'invite_user'    => 'user',
+        'invite_email'   => 'email',
+        'noanon_ip'      => 'ip',
+        'spamreport'     => 'user',
+        oauth_consumer   => 'user',
+    );
 
-    while (my ($new, $existing) = splice(@map, 0, 2)) {
+    while ( my ( $new, $existing ) = splice( @map, 0, 2 ) ) {
         $validate->{$new} = $validate->{$existing};
     }
 
     my $check = $validate->{$what} or return "Invalid sysban type";
     return $check->($value);
 }
-
 
 # <LJFUNC>
 # name: LJ::Sysban::modify
@@ -626,54 +646,59 @@ sub modify {
         return bless {
             message => "Arguments must be passed as a hash; ban ID and
                         old expiry are required\n",
-        }, 'ERROR';
+            },
+            'ERROR';
     }
 
     if ( $opts{note} && length( $opts{note} ) > 255 ) {
-        return bless {
-            message => "Note too long; must be less than 256 characters\n",
-        }, 'ERROR';
+        return bless { message => "Note too long; must be less than 256 characters\n", }, 'ERROR';
     }
 
     my $dbh = LJ::get_db_writer();
 
-    my $banid    = $dbh->quote($opts{'banid'});
-    my $expire   = $opts{'expire'};
-    my $bandays  = $opts{'bandays'};
+    my $banid   = $dbh->quote( $opts{'banid'} );
+    my $expire  = $opts{'expire'};
+    my $bandays = $opts{'bandays'};
 
     my $banuntil = "NULL";
     if ($bandays) {
-        if ($bandays eq "E") {
+        if ( $bandays eq "E" ) {
             $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . ")"
-                unless ($expire==0);
-        } elsif ($bandays eq "X") {
+                unless ( $expire == 0 );
+        }
+        elsif ( $bandays eq "X" ) {
             $banuntil = "NOW()";
-        } else {
-            $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) .
-                        ") + INTERVAL " . $dbh->quote($bandays) . " DAY";
+        }
+        else {
+            $banuntil =
+                  "FROM_UNIXTIME("
+                . $dbh->quote($expire)
+                . ") + INTERVAL "
+                . $dbh->quote($bandays) . " DAY";
         }
     }
 
-    $dbh->do("UPDATE sysban SET banuntil=$banuntil,note=?
+    $dbh->do(
+        "UPDATE sysban SET banuntil=$banuntil,note=?
              WHERE banid=$banid",
-             undef, $opts{note} );
+        undef, $opts{note}
+    );
 
     if ( $dbh->err ) {
-        return bless {
-            message => $dbh->errstr,
-        }, 'ERROR';
+        return bless { message => $dbh->errstr, }, 'ERROR';
     }
 
     # log in statushistory
     my $remote = LJ::get_remote();
     $banuntil = $opts{'bandays'} ? LJ::mysql_time($expire) : "forever";
 
-    LJ::statushistory_add(0, $remote, 'sysban_modify',
-                              "banid=$banid; status=active; " .
-                              "bandate=" . LJ::mysql_time() . "; banuntil=$banuntil; " .
-                              "what=$opts{'what'}; value=$opts{'value'}; " .
-                              "note=$opts{'note'};");
-
+    LJ::statushistory_add( 0, $remote, 'sysban_modify',
+              "banid=$banid; status=active; "
+            . "bandate="
+            . LJ::mysql_time()
+            . "; banuntil=$banuntil; "
+            . "what=$opts{'what'}; value=$opts{'value'}; "
+            . "note=$opts{'note'};" );
 
     return $dbh->{'mysql_insertid'};
 
@@ -687,7 +712,7 @@ sub ban_do {
     my $procopts = { $what => $value, exptime => $until };
 
     LJ::Procnotify::add( "ban_$what", $procopts );
-    LJ::MemCache::delete( "sysban:$what" );
+    LJ::MemCache::delete("sysban:$what");
 
     return 1;
 }
@@ -700,10 +725,9 @@ sub ban_undo {
     my $procopts = { $what => $value };
 
     LJ::Procnotify::add( "unban_$what", $procopts );
-    LJ::MemCache::delete( "sysban:$what" );
+    LJ::MemCache::delete("sysban:$what");
 
     return 1;
 }
-
 
 1;

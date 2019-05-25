@@ -19,22 +19,27 @@ use Carp qw(croak);
 
 sub cmd { "moodtheme_setpic" }
 
-sub desc { "Change data for a mood theme. If picurl, width, or height is empty or zero, the data is deleted. Requires priv: none." }
+sub desc {
+"Change data for a mood theme. If picurl, width, or height is empty or zero, the data is deleted. Requires priv: none.";
+}
 
-sub args_desc { [
-                 'themeid' => "Mood theme ID number.",
-                 'moodid' => "Mood ID number.",
-                 'picurl' => "URL of picture for this mood. Use /img/mood/themename/file.gif for public mood images",
-                 'width' => "Width of picture",
-                 'height' => "Height of picture",
-                 ] }
+sub args_desc {
+    [
+        'themeid' => "Mood theme ID number.",
+        'moodid'  => "Mood ID number.",
+        'picurl' =>
+            "URL of picture for this mood. Use /img/mood/themename/file.gif for public mood images",
+        'width'  => "Width of picture",
+        'height' => "Height of picture",
+    ]
+}
 
 sub usage { '<themeid> <moodid> <picurl> <width> <height>' }
 
 sub can_execute { 1 }
 
 sub execute {
-    my ($self, $themeid, $moodid, $picurl, $width, $height, @args) = @_;
+    my ( $self, $themeid, $moodid, $picurl, $width, $height, @args ) = @_;
 
     return $self->error("This command takes five arguments. Consult the reference.")
         unless scalar(@args) == 0;
@@ -43,18 +48,24 @@ sub execute {
     return $self->error("Sorry, your account type doesn't let you create new mood themes")
         unless $remote->can_create_moodthemes;
 
-    my $theme = DW::Mood->new( $themeid );
-    return $self->error( "You do not own this mood theme." )
+    my $theme = DW::Mood->new($themeid);
+    return $self->error("You do not own this mood theme.")
         unless $theme && $theme->ownerid == $remote->id;
 
     my $err;
-    return $self->error( $err ) unless
-        $theme->set_picture( $moodid, { picurl => $picurl,
-                                        width  => $width,
-                                        height => $height }, \$err );
+    return $self->error($err)
+        unless $theme->set_picture(
+        $moodid,
+        {
+            picurl => $picurl,
+            width  => $width,
+            height => $height
+        },
+        \$err
+        );
 
     my $verb = ( $picurl && $width && $height ) ? 'inserted' : 'deleted';
-    $self->print( "Data $verb for theme #$themeid, mood #$moodid." );
+    $self->print("Data $verb for theme #$themeid, mood #$moodid.");
 
     return 1;
 }

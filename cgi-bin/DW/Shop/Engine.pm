@@ -27,16 +27,15 @@ use DW::Shop::Engine::CreditCard;
 #
 # returns the proper subclass for the given payment method, if one exists
 sub get {
-    return DW::Shop::Engine::PayPal->new( $_[2] ) if $_[1] eq 'paypal';
-    return DW::Shop::Engine::GoogleCheckout->new( $_[2] ) if $_[1] eq 'gco';
-    return DW::Shop::Engine::CreditCardPP->new( $_[2] ) if $_[1] eq 'creditcardpp';
+    return DW::Shop::Engine::PayPal->new( $_[2] )          if $_[1] eq 'paypal';
+    return DW::Shop::Engine::GoogleCheckout->new( $_[2] )  if $_[1] eq 'gco';
+    return DW::Shop::Engine::CreditCardPP->new( $_[2] )    if $_[1] eq 'creditcardpp';
     return DW::Shop::Engine::CheckMoneyOrder->new( $_[2] ) if $_[1] eq 'checkmoneyorder';
-    return DW::Shop::Engine::CreditCard->new( $_[2] ) if $_[1] eq 'creditcard';
+    return DW::Shop::Engine::CreditCard->new( $_[2] )      if $_[1] eq 'creditcard';
 
     warn "Payment method '$_[1]' not supported.\n";
     return undef;
 }
-
 
 # temp_error( $str )
 #
@@ -49,7 +48,6 @@ sub temp_error {
     return undef;
 }
 
-
 # error( $ml_str )
 #
 # returns permanent error.
@@ -61,7 +59,6 @@ sub error {
     return undef;
 }
 
-
 # errstr()
 #
 # returns the text of the last error
@@ -69,14 +66,12 @@ sub errstr {
     return $_[0]->{errmsg};
 }
 
-
 # err()
 #
 # returns 1/0 if we had an error
 sub err {
     return defined $_[0]->{errtemp} ? 1 : 0;
 }
-
 
 # err_is_temporary()
 #
@@ -86,7 +81,6 @@ sub err_is_temporary {
     return $_[0]->{errtemp};
 }
 
-
 # fail_transaction()
 #
 # this is a 'something bad has happened, consider this cart and transaction
@@ -94,7 +88,6 @@ sub err_is_temporary {
 sub fail_transaction {
     die "Please implement $_[0]" . "->fail_transaction.\n";
 }
-
 
 # called when someone wants us to try to capture the points
 # FIXME: should move the 'cart' accessor and logic up to this base class ...
@@ -107,14 +100,14 @@ sub try_capture_points {
     # else, we need to try to capture them
     my $u = LJ::load_userid( $self->cart->userid )
         or die "Failed to load user to deduct points from.\n";
-    $u->give_shop_points( amount => -$self->cart->total_points,
-                          reason => sprintf( 'order %d confirmed', $self->cart->id ) )
-        or die "Failed to deduct points from account.\n";
+    $u->give_shop_points(
+        amount => -$self->cart->total_points,
+        reason => sprintf( 'order %d confirmed', $self->cart->id )
+    ) or die "Failed to deduct points from account.\n";
 
     # we're a happy clam
     return 1;
 }
-
 
 # called to give back the points that we took from the user in case another
 # part of the transaction has failed
@@ -127,13 +120,13 @@ sub refund_captured_points {
     # else, we need to try to capture them
     my $u = LJ::load_userid( $self->cart->userid )
         or die "Failed to load user to restore points to; contact site administrators.\n";
-    $u->give_shop_points( amount => $self->cart->total_points,
-                          reason => sprintf( 'order %d failed', $self->cart->id ) )
-        or die "Failed to add points to account.\n";
+    $u->give_shop_points(
+        amount => $self->cart->total_points,
+        reason => sprintf( 'order %d failed', $self->cart->id )
+    ) or die "Failed to add points to account.\n";
 
     # we're a happy clam
     return 1;
 }
-
 
 1;

@@ -16,15 +16,15 @@ use strict;
 use warnings;
 use Carp qw (croak);
 
-
 sub new {
-    my ($class, $filename) = @_;
+    my ( $class, $filename ) = @_;
 
     my $self = {
+
         # initialize
         filename => $filename,
-        values    => {},          # string -> value mapping
-        meta      => {},          # string -> {metakey => metaval}
+        values   => {},          # string -> value mapping
+        meta     => {},          # string -> {metakey => metaval}
     };
 
     bless $self, $class;
@@ -34,43 +34,48 @@ sub new {
 }
 
 sub parse {
-    my $self = shift;
+    my $self     = shift;
     my $filename = $self->filename;
 
     open my $datfile, $filename
         or croak "Could not open file $filename: $!";
 
     my $lnum = 0;
-    my ($code, $text);
+    my ( $code, $text );
     while ( my $line = <$datfile> ) {
         $lnum++;
         my $del;
         my $action_line;
 
-        if ($line =~ /^[\#\;]/) {
+        if ( $line =~ /^[\#\;]/ ) {
+
             # comment line
             next;
-        } elsif ($line =~ /^(\S+?)=(.*)/) {
-            ($code, $text) = ($1, $2);
+        }
+        elsif ( $line =~ /^(\S+?)=(.*)/ ) {
+            ( $code, $text ) = ( $1, $2 );
             $action_line = 1;
-        } elsif ($line =~ /^\!\s*(\S+)/) {
-            $del = $code;
+        }
+        elsif ( $line =~ /^\!\s*(\S+)/ ) {
+            $del         = $code;
             $action_line = 1;
-        } elsif ($line =~ /^(\S+?)\<\<\s*$/) {
-            ($code, $text) = ($1, "");
-            while (my $ln = <$datfile>) {
+        }
+        elsif ( $line =~ /^(\S+?)\<\<\s*$/ ) {
+            ( $code, $text ) = ( $1, "" );
+            while ( my $ln = <$datfile> ) {
                 $lnum++;
                 last if $ln eq ".\n";
                 $ln =~ s/^\.//;
                 $text .= $ln;
             }
-            chomp $text;  # remove file new-line (we added it)
+            chomp $text;    # remove file new-line (we added it)
             $action_line = 1;
-        } elsif ($line =~ /\S/) {
+        }
+        elsif ( $line =~ /\S/ ) {
             croak "$filename:$lnum: Bogus format.";
         }
 
-        if ($code && $code =~ s/\|(.+)//) {
+        if ( $code && $code =~ s/\|(.+)// ) {
             $self->{meta}->{$code} ||= {};
             $self->{meta}->{$code}->{$1} = $text;
             $action_line = 1;
@@ -85,38 +90,39 @@ sub parse {
 sub filename { $_[0]->{filename} }
 
 sub meta {
-    my ($self, $code) = @_;
-    return %{$self->{meta}->{$code} || {}};
+    my ( $self, $code ) = @_;
+    return %{ $self->{meta}->{$code} || {} };
 }
 
 sub value {
-    my ($self, $key) = @_;
+    my ( $self, $key ) = @_;
 
     return undef unless $key;
     return $self->{values}->{ lc($key) };
 }
 
 sub foreach_key {
-    my ($self, $callback) = @_;
+    my ( $self, $callback ) = @_;
 
-    foreach my $k ($self->keys) {
+    foreach my $k ( $self->keys ) {
         $callback->($k);
     }
 }
 
 sub keys {
     my $self = shift;
-    my @keys = CORE::keys(%{$self->{values}});
+    my @keys = CORE::keys( %{ $self->{values} } );
     return sort @keys;
 }
+
 sub values {
     my $self = shift;
-    return CORE::values(%{$self->{values}});
+    return CORE::values( %{ $self->{values} } );
 }
 
 # set a key/value pair
 sub set {
-    my ($self, $k, $v) = @_;
+    my ( $self, $k, $v ) = @_;
 
     return 0 unless $k;
     $v ||= '';
@@ -138,28 +144,31 @@ sub save {
     print $save ";; -*- coding: utf-8 -*-\n\n";
 
     # write out strings to file
-    $self->foreach_key(sub {
-        my $key = shift;
-        return unless $key; # just to make sure
+    $self->foreach_key(
+        sub {
+            my $key = shift;
+            return unless $key;    # just to make sure
 
-        my $val = $self->value($key) || '';
+            my $val = $self->value($key) || '';
 
-        # is there metadata?
-        my $meta = $self->{meta}->{$key};
-        if ($meta) {
-            while ( my ($metakey, $metaval) = each %$meta ) {
-                print $save "$key|$metakey=$metaval\n";
+            # is there metadata?
+            my $meta = $self->{meta}->{$key};
+            if ($meta) {
+                while ( my ( $metakey, $metaval ) = each %$meta ) {
+                    print $save "$key|$metakey=$metaval\n";
+                }
+            }
+
+            # is it multiline?
+            if ( $val =~ /\n/ ) {
+                print $save "$key<<\n$val\n.\n\n";
+            }
+            else {
+                # normal key-value pair
+                print $save "$key=$val\n\n";
             }
         }
-
-        # is it multiline?
-        if ($val =~ /\n/) {
-            print $save "$key<<\n$val\n.\n\n";
-        } else {
-            # normal key-value pair
-            print $save "$key=$val\n\n";
-        }
-    });
+    );
 
     close $save;
 

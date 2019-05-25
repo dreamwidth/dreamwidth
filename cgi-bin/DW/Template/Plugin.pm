@@ -35,20 +35,18 @@ sub load {
 sub new {
     my ( $class, $context, @params ) = @_;
 
-    my $self = bless {
-        _CONTEXT => $context,
-    }, $class;
+    my $self = bless { _CONTEXT => $context, }, $class;
 
     $context->define_filter( 'ml', [ \&DW::Template::Filters::ml, 1 ] );
     $context->define_filter( 'js', [ \&DW::Template::Filters::js, 1 ] );
     $context->define_filter( 'time_to_http', [ \&DW::Template::Filters::time_to_http ] );
 
-    # refresh on each page load, because this changes depending on whether you're using HTTP or HTTPS
+   # refresh on each page load, because this changes depending on whether you're using HTTP or HTTPS
     $context->stash->{site} = {
-        root => $LJ::SITEROOT,
-        imgroot => $LJ::IMGPREFIX,
-        jsroot  => $LJ::JSPREFIX,
-        statroot=> $LJ::STATPREFIX,
+        root     => $LJ::SITEROOT,
+        imgroot  => $LJ::IMGPREFIX,
+        jsroot   => $LJ::JSPREFIX,
+        statroot => $LJ::STATPREFIX,
     };
 
     return $self;
@@ -67,7 +65,7 @@ Render a template to a string.
 sub need_res {
     my $self = shift;
     my $opts = ref $_[0] eq 'HASH' ? shift : {};
-    my @res = ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
+    my @res  = ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
     return LJ::need_res( $opts, @res );
 }
 
@@ -96,7 +94,7 @@ Get or set the ML scope of the template
 
 sub ml_scope {
     my $r = DW::Request->get;
-    return $#_ == 1 ? $r->note( 'ml_scope', $_[1] ) : $r->note( 'ml_scope' );
+    return $#_ == 1 ? $r->note( 'ml_scope', $_[1] ) : $r->note('ml_scope');
 }
 
 =head2 form_auth
@@ -140,16 +138,18 @@ Use this when the translation string needs to be used as an argument.
         label = dw.ml( '.key', arg1 = 'arg1' )
     ) %]
 =cut
+
 sub ml {
     my $self = shift;
-    my $rv = DW::Template::Filters::ml( @_ );
+    my $rv   = DW::Template::Filters::ml(@_);
 
-    return $rv->($_[0]);
+    return $rv->( $_[0] );
 }
 
 =head2 img
 
 =cut
+
 sub img {
     my $self = shift;
     return LJ::img(@_);
@@ -168,7 +168,7 @@ sub scoped_include {
     my $old_scope = $self->ml_scope;
     $self->ml_scope( '/' . $page );
     my $rv = $self->{_CONTEXT}->include( $page, $args || {} );
-    $self->ml_scope( $old_scope );
+    $self->ml_scope($old_scope);
     return $rv;
 }
 
@@ -186,7 +186,7 @@ sub scoped_process {
     my $old_scope = $self->ml_scope;
     $self->ml_scope( '/' . $page );
     my $rv = $self->{_CONTEXT}->process( $page, $args || {} );
-    $self->ml_scope( $old_scope );
+    $self->ml_scope($old_scope);
     return $rv;
 }
 

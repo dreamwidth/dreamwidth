@@ -20,22 +20,20 @@ use strict;
 use base 'DW::External::Site';
 use Carp qw/ croak /;
 
-
 # new does nothing for these classes
 sub new { croak 'cannot build with new'; }
-
 
 # returns 1/0 if we allow this domain
 sub accepts {
     my ( $class, $parts ) = @_;
 
     # allows anything at inksome.com
-    return 0 unless $parts->[-1] eq 'com' &&
-                    $parts->[-2] eq 'inksome';
+    return 0
+        unless $parts->[-1] eq 'com'
+        && $parts->[-2] eq 'inksome';
 
     return bless { hostname => 'inksome.com' }, $class;
 }
-
 
 # argument: DW::External::User
 # returns URL to this account's journal
@@ -50,7 +48,6 @@ sub journal_url {
     return "http://$user.$self->{domain}/";
 }
 
-
 # argument: DW::External::User
 # returns info for the badge image (head icon) for this user
 sub badge_image {
@@ -60,11 +57,10 @@ sub badge_image {
 
     # Inksome went away, so just assume every account is personal
     return {
-        url => "$LJ::IMGPREFIX/external/ink-userinfo.gif",
-        width => 17,
+        url    => "$LJ::IMGPREFIX/external/ink-userinfo.gif",
+        width  => 17,
         height => 17,
-    }
+    };
 }
-
 
 1;

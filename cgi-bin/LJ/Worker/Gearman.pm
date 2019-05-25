@@ -28,34 +28,36 @@ $SIG{TERM} = sub {
 };
 
 my $opt_verbose;
-die "Unknown options" unless
-    GetOptions("verbose|v" => \$opt_verbose);
+die "Unknown options"
+    unless GetOptions( "verbose|v" => \$opt_verbose );
 
 our @EXPORT = qw(gearman_decl gearman_work gearman_set_idle_handler gearman_set_requester_id);
 
 my $worker = Gearman::Worker->new;
 my $idle_handler;
-my $requester_id; # userid, who requested job, optional
+my $requester_id;    # userid, who requested job, optional
 
 sub gearman_set_requester_id { $requester_id = $_[0]; }
 
 sub gearman_decl {
     my $name = shift;
-    my ($subref, $timeout);
+    my ( $subref, $timeout );
 
-    if (ref $_[0] eq 'CODE') {
-        $subref = shift;
-    } else {
-        $timeout = shift;
+    if ( ref $_[0] eq 'CODE' ) {
         $subref = shift;
     }
+    else {
+        $timeout = shift;
+        $subref  = shift;
+    }
 
-    $subref = wrapped_verbose($name, $subref) if $opt_verbose;
+    $subref = wrapped_verbose( $name, $subref ) if $opt_verbose;
 
-    if (defined $timeout) {
-        $worker->register_function($name => $timeout => $subref);
-    } else {
-        $worker->register_function($name => $subref);
+    if ( defined $timeout ) {
+        $worker->register_function( $name => $timeout => $subref );
+    }
+    else {
+        $worker->register_function( $name => $subref );
     }
 }
 
@@ -67,17 +69,18 @@ sub gearman_set_idle_handler {
 }
 
 sub gearman_work {
-    my %opts = @_;
+    my %opts        = @_;
     my $save_result = delete $opts{save_result} || 0;
 
-    croak "unknown opts passed to gearman_work: " . join(', ', keys %opts)
+    croak "unknown opts passed to gearman_work: " . join( ', ', keys %opts )
         if keys %opts;
 
     if ($LJ::IS_DEV_SERVER) {
         die "DEVSERVER help: No gearmand servers listed in \@LJ::GEARMAN_SERVERS.\n"
             unless @LJ::GEARMAN_SERVERS;
-        IO::Socket::INET->new(PeerAddr => $LJ::GEARMAN_SERVERS[0])
-            or die "First gearmand server in \@LJ::GEARMAN_SERVERS ($LJ::GEARMAN_SERVERS[0]) isn't responding.\n";
+        IO::Socket::INET->new( PeerAddr => $LJ::GEARMAN_SERVERS[0] )
+            or die
+"First gearmand server in \@LJ::GEARMAN_SERVERS ($LJ::GEARMAN_SERVERS[0]) isn't responding.\n";
     }
 
     LJ::Worker->setup_mother();
@@ -92,12 +95,13 @@ sub gearman_work {
 
         # check to see if we should die
         my $now = time();
-        if ($now != $last_death_check) {
+        if ( $now != $last_death_check ) {
             $last_death_check = $now;
             exit 0 if -e "/var/run/gearman/$$.please_die" || -e "/var/run/ljworker/$$.please_die";
         }
 
-        $worker->job_servers(@LJ::GEARMAN_SERVERS); # TODO: don't do this everytime, only when config changes?
+        $worker->job_servers(@LJ::GEARMAN_SERVERS)
+            ;    # TODO: don't do this everytime, only when config changes?
 
         exit 0 if $quit_flag;
     };
@@ -110,7 +114,7 @@ sub gearman_work {
 
         # save to db that we are starting the job
         if ($save_result) {
-            $storage = LJ::WorkerResultStorage->new(handle => $handle);
+            $storage = LJ::WorkerResultStorage->new( handle => $handle );
             $storage->init_job;
         }
     };
@@ -123,13 +127,15 @@ sub gearman_work {
     # create callbacks to save job status
     my $complete_cb = sub {
         $end_work->();
-        my ($handle, $res) = @_;
+        my ( $handle, $res ) = @_;
         $res ||= '';
 
-        if ($save_result && $storage) {
-            my %row = (result   => $res,
-                       status   => 'success',
-                       end_time => 1);
+        if ( $save_result && $storage ) {
+            my %row = (
+                result   => $res,
+                status   => 'success',
+                end_time => 1
+            );
             $row{userid} = $requester_id if defined $requester_id;
             $storage->save_status(%row);
         }
@@ -137,13 +143,15 @@ sub gearman_work {
 
     my $fail_cb = sub {
         $end_work->();
-        my ($handle, $err) = @_;
+        my ( $handle, $err ) = @_;
         $err ||= '';
 
-        if ($save_result && $storage) {
-            my %row = (result   => $err,
-                       status   => 'error',
-                       end_time => 1);
+        if ( $save_result && $storage ) {
+            my %row = (
+                result   => $err,
+                status   => 'error',
+                end_time => 1
+            );
             $row{userid} = $requester_id if defined $requester_id;
             $storage->save_status(%row);
         }
@@ -166,7 +174,7 @@ sub gearman_work {
         warn $@ if $@;
 
         if ($idle_handler) {
-            eval { 
+            eval {
                 LJ::start_request();
                 $idle_handler->();
                 LJ::end_request();
@@ -179,17 +187,18 @@ sub gearman_work {
 # --------------
 
 sub wrapped_verbose {
-    my ($name, $subref) = @_;
+    my ( $name, $subref ) = @_;
     return sub {
         warn "  executing '$name'...\n";
         my $ans = eval { $subref->(@_) };
         if ($@) {
             warn "   -> ERR: $@\n";
-            die $@; # re-throw
-        } elsif (! ref $ans && $ans !~ /^[\0\x7f-\xff]/) {
+            die $@;    # re-throw
+        }
+        elsif ( !ref $ans && $ans !~ /^[\0\x7f-\xff]/ ) {
             my $cleanans = $ans;
             $cleanans =~ s/[^[:print:]]+//g;
-            $cleanans = substr($cleanans, 0, 1024) . "..." if length $cleanans > 1024;
+            $cleanans = substr( $cleanans, 0, 1024 ) . "..." if length $cleanans > 1024;
             warn "   -> answer: $cleanans\n";
         }
         return $ans;

@@ -35,7 +35,7 @@ my $pie_ref = {
 my $gd = DW::Graphs::pie( $pie_ref, "example.yaml" );
 
 # Print the graph to a file
-open(IMG, '>pie.png') or die $!;
+open( IMG, '>pie.png' ) or die $!;
 binmode IMG;
 print IMG $gd->png;
 
@@ -45,14 +45,25 @@ my $bar_ref = [ 13.377, 15.9, 145.67788, 123.1111, 0.1, 44.03455, 33.3, 43, 123 
 
 # Labels - one label per bar. If labels are not wanted pass empty strings.
 # Optinally put "\n" in front of every 2nd label to stop them crowding each-other.
-my $bar_labels = [ ( "label 1", "\nlabel 2", "label 3", "\nlabel 4", "label 5",
-    "\nlabel 6", "label 7", "\nlabel 8", "label 9" ) ];
+my $bar_labels = [
+    (
+        "label 1",
+        "\nlabel 2",
+        "label 3",
+        "\nlabel 4",
+        "label 5",
+        "\nlabel 6",
+        "label 7",
+        "\nlabel 8",
+        "label 9"
+    )
+];
 
-my $bar_gd = DW::Graphs::bar( $bar_ref, $bar_labels, 'x-axis label',
-                              'y-axis label', "example.yaml" );
+my $bar_gd =
+    DW::Graphs::bar( $bar_ref, $bar_labels, 'x-axis label', 'y-axis label', "example.yaml" );
 
 # Print the graph to a file
-open(IMG, '>bar.png') or die $!;
+open( IMG, '>bar.png' ) or die $!;
 binmode IMG;
 print IMG $bar_gd->png;
 
@@ -64,7 +75,7 @@ my @values2 = ( 4243, 12901, 11188 );
 
 # Dataset names to distinguish the datasets, used in the legend. The number
 # of dataset names must be the same as the number of datasets!
-my $names_ref = [ ( "Dataset 1",  "Dataset 2" ) ];
+my $names_ref = [ ( "Dataset 1", "Dataset 2" ) ];
 
 # labels - one label per bar. The number of labels must be the same as the
 # number of values per dataset. If labels are not wanted pass empty strings.
@@ -73,11 +84,11 @@ my @bar2_labels = ( "Bar 1", "Bar 2", "Bar 3" );
 # Package the input
 my $bar2_input = [ [@bar2_labels], [@values1], [@values2] ];
 
-my $bar2_gd = DW::Graphs::bar2( $bar2_input, 'x-axis label', 'y-axis label',
-                                $names_ref, "example.yaml" );
+my $bar2_gd =
+    DW::Graphs::bar2( $bar2_input, 'x-axis label', 'y-axis label', $names_ref, "example.yaml" );
 
 # Print the graph to a file
-open(IMG, '>bar2.png') or die $!;
+open( IMG, '>bar2.png' ) or die $!;
 binmode IMG;
 print IMG $bar2_gd->png;
 
@@ -85,7 +96,7 @@ print IMG $bar2_gd->png;
 
 # Define labels to go along the horizontal axis under the graph.
 # If labels are not wanted use empty strings
-my @line_labels = ( "1st","2nd","3rd","4th","5th","6th","7th", "8th" );
+my @line_labels = ( "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th" );
 
 # Define the datasets - each dataset will form one line on the graph
 # Each dataset should have the same length as the number of labels
@@ -99,10 +110,10 @@ my $line_names = [ "1st dataset", "2nd dataset", "3rd dataset" ];
 # Put the data in a format DW::Graphs can deal with
 my $line_ref = [ [@line_labels], [@dataset1], [@dataset2], [@dataset3] ];
 
-my $line_gd = DW::Graphs::lines( $line_ref, 'x-axis label', 'y-axis label',
-   $line_names, "example.yaml" );
+my $line_gd =
+    DW::Graphs::lines( $line_ref, 'x-axis label', 'y-axis label', $line_names, "example.yaml" );
 
 # Print the graph to a file
-open(IMG, '>lines.png') or die $!;
+open( IMG, '>lines.png' ) or die $!;
 binmode IMG;
 print IMG $line_gd->png;

@@ -21,7 +21,8 @@ use base 'CSS::Cleaner';
 
 sub new {
     my $class = shift;
-    return $class->SUPER::new( @_,
+    return $class->SUPER::new(
+        @_,
         pre_hook => sub {
             my $rref = shift;
 

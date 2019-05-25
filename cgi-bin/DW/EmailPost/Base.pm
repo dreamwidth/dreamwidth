@@ -17,7 +17,7 @@ require 'ljlib.pl';
 use LJ::Emailpost::Web;
 
 use Encode;
-use MIME::Words ();
+use MIME::Words      ();
 use Unicode::MapUTF8 ();
 
 my $workdir = "/tmp";
@@ -47,15 +47,16 @@ This is the basic email posting behavior. Subclasses should implement the follow
 Create an instance of DW::EmailPost::Base
 
 =cut
+
 sub new {
     my ( $class, $mime_entity ) = @_;
 
     my $self = bless {
 
-        _entity        => $mime_entity,
-        _entity_head   => $mime_entity->head,
+        _entity      => $mime_entity,
+        _entity_head => $mime_entity->head,
 
-        dequeue        => 1,
+        dequeue => 1,
 
     }, $class;
 
@@ -72,13 +73,13 @@ Given a mime entity object, return the scalar $user journal
 Subclasses must implement a _find_destination sub
 
 =cut
+
 sub find_destination {
     my ( $class, $mime_entity ) = @_;
 
-    my @to_addresses = map { $_->address }
-                Mail::Address->parse( $mime_entity->head->get( 'To' ) );
+    my @to_addresses = map { $_->address } Mail::Address->parse( $mime_entity->head->get('To') );
 
-    return $class->_find_destination( @to_addresses );
+    return $class->_find_destination(@to_addresses);
 }
 
 =head2 C<< $class->should_handle( $mime_entity ) >>
@@ -87,9 +88,10 @@ Given a mime entity object, return 1 if we're interested in handling this.
 Return 0 if not.
 
 =cut
+
 sub should_handle {
     my ( $class, $mime_entity ) = @_;
-    return $class->find_destination( $mime_entity ) ? 1 : 0;
+    return $class->find_destination($mime_entity) ? 1 : 0;
 }
 
 =head1 INSTANCE METHODS
@@ -106,7 +108,7 @@ Subclasses must implement a _process sub for subclass-specific handling
 =cut
 
 sub process {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     # pull out the head, and remove extra newlines
     $self->{_entity_head}->unfold;
@@ -118,7 +120,7 @@ sub process {
     $self->{destination} ||= $self->find_destination( $self->{_entity} );
     $self->parse_destination( $self->{destination} ) or return $self->send_error;
 
-    return $self->send_error( "Email gateway access denied for your account type." )
+    return $self->send_error("Email gateway access denied for your account type.")
         unless $LJ::T_ALLOW_EMAILPOST || $self->{u}->can_emailpost;
 
     # metadata that's not strictly needed, but could be useful later
@@ -127,7 +129,7 @@ sub process {
     # get the body and subject from the email
     # processed character encoding, but not cleaned up further than that
     # will probably need further processing before using as entry/comment text
-    $self->_extract_text or return $self->send_error;
+    $self->_extract_text         or return $self->send_error;
     $self->_extract_post_headers or return $self->send_error;
 
     return $self->_process;
@@ -141,10 +143,11 @@ Must set: u, journal
 
 Subclasses must implement a _parse_destination sub
 =cut
+
 sub parse_destination {
     my ( $self, $auth_string ) = @_;
 
-    $self->_parse_destination( $auth_string ) or return 0;
+    $self->_parse_destination($auth_string) or return 0;
 
     return 0 unless $self->{u} && $self->{u}->is_visible;
 
@@ -157,17 +160,20 @@ Final cleanup of the body text: remove signatures, adjust whitespace, etc.
 Subclass should call this when doing _process
 
 =cut
+
 sub cleanup_body_final {
     my $self = $_[0];
 
-    $self->{body} =~ s/^(?:\- )?[\-_]{2,}(\s|&nbsp;)*\r?\n.*//ms; # trim sigs
+    $self->{body} =~ s/^(?:\- )?[\-_]{2,}(\s|&nbsp;)*\r?\n.*//ms;    # trim sigs
 
     my $content_type = $self->{content_type};
+
     # respect flowed text
-    if (lc $content_type->{format} eq 'flowed') {
-        if ( $content_type->{delsp} && lc $content_type->{delsp} eq 'yes') {
+    if ( lc $content_type->{format} eq 'flowed' ) {
+        if ( $content_type->{delsp} && lc $content_type->{delsp} eq 'yes' ) {
             $self->{body} =~ s/ \n//g;
-        } else {
+        }
+        else {
             $self->{body} =~ s/ \n/ /g;
         }
     }
@@ -176,14 +182,14 @@ sub cleanup_body_final {
     $self->{body} =~ s/\n+$/\n/;
 }
 
-
 # convenience methods
 # discover the from/user to post as/journal to post to
 sub _init_required {
     my $self = $_[0];
 
     # from address
-    $self->{from} = ${ (Mail::Address->parse( $self->{_entity_head}->get( 'From:' ) ))[0] || []}[1];
+    $self->{from} =
+        ${ ( Mail::Address->parse( $self->{_entity_head}->get('From:') ) )[0] || [] }[1];
 }
 
 sub _init_optional {
@@ -193,9 +199,9 @@ sub _init_optional {
 
     # The return path should normally not ever be messed up enough to require this,
     # but some mailers nowadays do some very strange things.
-    $self->{return_path} = ${(Mail::Address->parse( $head->get( 'Return-Path' ) ))[0] || []}[1];
+    $self->{return_path} = ${ ( Mail::Address->parse( $head->get('Return-Path') ) )[0] || [] }[1];
 
-    $self->{email_date} = $head->get( 'Date:' );
+    $self->{email_date} = $head->get('Date:');
 }
 
 # body / subject / content_type
@@ -204,17 +210,16 @@ sub _extract_text {
 
     # Use text/plain piece first - if it doesn't exist, then fallback to text/html
     my $tent = $self->get_entity( $self->{_entity} )
-            || $self->get_entity( $self->{_entity}, 'html' );
+        || $self->get_entity( $self->{_entity}, 'html' );
     $self->{_tent} = $tent;
 
     # $self->{content_type}
-    $self->_parse_content_type( $tent ? $tent->head->get( 'Content-type:' ) : '' );
+    $self->_parse_content_type( $tent ? $tent->head->get('Content-type:') : '' );
 
     # $self->{body}, $self->{subject}
-    $self->_clean_body_and_subject(
-            $tent ? $tent->bodyhandle->as_string : "",
-            $self->{_entity_head}->get( 'Subject:' )
-    ) or return;
+    $self->_clean_body_and_subject( $tent ? $tent->bodyhandle->as_string : "",
+        $self->{_entity_head}->get('Subject:') )
+        or return;
 
     return 1;
 }
@@ -228,13 +233,13 @@ sub _extract_post_headers {
 
     # first look for old style lj headers
     while ( $self->{body} =~ s/(?:^|\n)lj-(.+?):\s*(.+?)(?:$|\n)//is ) {
-        $post_headers{lc($1)} = LJ::trim($2);
+        $post_headers{ lc($1) } = LJ::trim($2);
     }
 
     # next look for new style post headers
     # so if both are specified, this value will be retained
-    while ($self->{body} =~ s/(?:^|\n)post-(.+?):\s*(.+?)(?:$|\n)//is) {
-        $post_headers{lc($1)} = LJ::trim($2);
+    while ( $self->{body} =~ s/(?:^|\n)post-(.+?):\s*(.+?)(?:$|\n)//is ) {
+        $post_headers{ lc($1) } = LJ::trim($2);
     }
 
     # remove any whitespace between post headers and body
@@ -273,7 +278,7 @@ sub _clean_body_and_subject {
     my $content_type = $self->{content_type};
 
     # set before processing to original version
-    $self->{body} = $body;
+    $self->{body}    = $body;
     $self->{subject} = $subject;
 
     # remove leading and trailing whitespace
@@ -282,44 +287,50 @@ sub _clean_body_and_subject {
 
     # do utf-8 conversion
     my $body_charset = $content_type->{charset};
-    if ( defined( $body_charset )
-        && $body_charset !~ /^UTF-?8$/i ) { # no charset? assume us-ascii
+    if ( defined($body_charset)
+        && $body_charset !~ /^UTF-?8$/i )
+    {    # no charset? assume us-ascii
 
-        unless ( Unicode::MapUTF8::utf8_supported_charset( $body_charset ) ) {
+        unless ( Unicode::MapUTF8::utf8_supported_charset($body_charset) ) {
             $self->{error} = "Unknown charset encoding type. ($body_charset)";
             return;
         }
 
-        $body = Unicode::MapUTF8::to_utf8({
-            -string  => $body,
-            -charset => $body_charset,
-        });
+        $body = Unicode::MapUTF8::to_utf8(
+            {
+                -string  => $body,
+                -charset => $body_charset,
+            }
+        );
     }
 
     # check subject for rfc-1521 junk
     chomp $subject;
-    if ($subject =~ /^=\?/) {
-        my @subj_data = MIME::Words::decode_mimewords( $subject );
+    if ( $subject =~ /^=\?/ ) {
+        my @subj_data = MIME::Words::decode_mimewords($subject);
         my ( $string, $subject_charset ) = ( $subj_data[0][0], $subj_data[0][1] );
-        if ( @subj_data ) {
-            if ($subject =~ /utf-8/i) {
+        if (@subj_data) {
+            if ( $subject =~ /utf-8/i ) {
                 $subject = $string;
-            } else {
-                unless ( Unicode::MapUTF8::utf8_supported_charset( $subject_charset ) ) {
+            }
+            else {
+                unless ( Unicode::MapUTF8::utf8_supported_charset($subject_charset) ) {
                     $self->{error} = "Unknown charset encoding type. ($subject_charset)";
                     return;
                 }
 
-                $subject = Unicode::MapUTF8::to_utf8({
-                    -string  => $string,
-                    -charset => $subject_charset,
-                });
+                $subject = Unicode::MapUTF8::to_utf8(
+                    {
+                        -string  => $string,
+                        -charset => $subject_charset,
+                    }
+                );
             }
         }
     }
 
     # set after processing to processed version
-    $self->{body} = $body;
+    $self->{body}    = $body;
     $self->{subject} = $subject;
 
     return 1;
@@ -330,8 +341,7 @@ sub _clean_body_and_subject {
 # of that type. (image, application, etc)
 # Specifying a type of 'all' will return all MIME::Entities,
 # regardless of type.
-sub get_entity
-{
+sub get_entity {
     my ( $self, $entity, $type ) = @_;
 
     # old arguments were a hashref
@@ -340,7 +350,7 @@ sub get_entity
     # default to text
     $type ||= 'text';
 
-    my $head = $entity->head;
+    my $head      = $entity->head;
     my $mime_type = $head->mime_type;
 
     return $entity if $type eq 'text' && $mime_type eq "text/plain";
@@ -351,29 +361,32 @@ sub get_entity
     my $mimeattach_re = qr{ m|^multipart/(?:alternative|signed|mixed|related)$| };
     if ( $mime_type =~ $mimeattach_re ) {
         my $partcount = $entity->parts;
-        for (my $i=0; $i<$partcount; $i++) {
+        for ( my $i = 0 ; $i < $partcount ; $i++ ) {
             my $alte = $entity->parts($i);
 
             return $alte if $type eq 'text' && $alte->mime_type eq "text/plain";
             return $alte if $type eq 'html' && $alte->mime_type eq "text/html";
             push @entities, $alte if $type eq 'all';
 
-            if ($type eq 'image' &&
-                $alte->mime_type =~ m#^application/octet-stream#) {
+            if (   $type eq 'image'
+                && $alte->mime_type =~ m#^application/octet-stream# )
+            {
                 my $alte_head = $alte->head;
-                my $filename = $alte_head->recommended_filename;
+                my $filename  = $alte_head->recommended_filename;
                 push @entities, $alte if $filename =~ /\.(?:gif|png|tiff?|jpe?g)$/;
             }
-            push @entities, $alte if $alte->mime_type =~ /^$type/ &&
-                                     $type ne 'all';
+            push @entities, $alte
+                if $alte->mime_type =~ /^$type/
+                && $type ne 'all';
 
             # Recursively search through nested MIME for various pieces
             if ( $alte->mime_type =~ $mimeattach_re ) {
                 if ( $type =~ /^(?:text|html)$/ ) {
-                    my $text_entity = $self->get_entity( $entity->parts( $i ), $type );
+                    my $text_entity = $self->get_entity( $entity->parts($i), $type );
                     return $text_entity if $text_entity;
-                } else {
-                    push @entities, $self->get_entity( $entity->parts( $i ), $type );
+                }
+                else {
+                    push @entities, $self->get_entity( $entity->parts($i), $type );
                 }
             }
         }
@@ -386,7 +399,7 @@ sub get_entity
 # sets the error message
 sub err {
     my ( $self, $error, $error_args ) = @_;
-    $self->{error} = $error;
+    $self->{error}      = $error;
     $self->{error_args} = $error_args;
     return;
 }
@@ -396,10 +409,7 @@ sub send_error {
     my ( $self, $msg, %opt ) = @_;
 
     $msg ||= $self->{error};
-    %opt = (
-        %{ $self->{error_args} || {} },
-        %opt
-    );
+    %opt = ( %{ $self->{error_args} || {} }, %opt );
 
     my $errbody;
     $errbody .= "There was an error during your email posting:\n\n";
@@ -413,16 +423,21 @@ sub send_error {
     my $err_addr = $self->find_error_address;
 
     # Rate limit email to 1/5min/address
-    if ( ! $opt{nomail} && ! $opt{retry} && $err_addr
-        && LJ::MemCache::add( "rate_eperr:$err_addr", 5, 300 ) ) {
+    if (   !$opt{nomail}
+        && !$opt{retry}
+        && $err_addr
+        && LJ::MemCache::add( "rate_eperr:$err_addr", 5, 300 ) )
+    {
 
-        LJ::send_mail({
-            to       => $err_addr,
-            from     => $LJ::BOGUS_EMAIL,
-            fromname => "$LJ::SITENAME Error",
-            subject  => "$LJ::SITENAME posting error: $self->{subject}",
-            body     => $errbody
-        });
+        LJ::send_mail(
+            {
+                to       => $err_addr,
+                from     => $LJ::BOGUS_EMAIL,
+                fromname => "$LJ::SITENAME Error",
+                subject  => "$LJ::SITENAME posting error: $self->{subject}",
+                body     => $errbody
+            }
+        );
     }
 
     $self->{dequeue} = 0 if $opt{retry};
@@ -430,13 +445,12 @@ sub send_error {
     $opt{m} = $msg;
     $opt{s} = $self->{subject};
     $opt{e} = 1;
-    $self->dblog( %opt ) unless $opt{nolog};
+    $self->dblog(%opt) unless $opt{nolog};
 
     return ( 0, $msg );
 }
 
-sub dblog
-{
+sub dblog {
     my ( $self, %info ) = @_;
     return unless $self->{u};
 
@@ -452,6 +466,7 @@ sub dblog
 Class-specific options
 
 =cut
+
 sub dblog_opts { (); }
 
 =head2 C<< $self->set_error_address >>
@@ -462,16 +477,18 @@ to send any error messages to.
 Fallback to raw address if no explicit allowed senders.
 
 =cut
+
 sub find_error_address {
-    my ( $self ) = $_[0];
+    my ($self) = $_[0];
     return unless $self->{u};
 
     my $err_addr;
     my $addrlist = LJ::Emailpost::Web::get_allowed_senders( $self->{u} );
-    my $from = $self->{from};
+    my $from     = $self->{from};
     foreach my $allowed_sender ( keys %$addrlist ) {
-        if ( lc $from eq lc $allowed_sender &&
-                $addrlist->{$allowed_sender}->{get_errors} ) {
+        if ( lc $from eq lc $allowed_sender
+            && $addrlist->{$allowed_sender}->{get_errors} )
+        {
             $err_addr = $from;
             last;
         }
@@ -488,6 +505,7 @@ sub find_error_address {
 Get/set the destination this was sent to (left part of the To:)
 
 =cut
+
 sub destination {
     my ( $self, $destination ) = @_;
 
@@ -502,6 +520,7 @@ sub destination {
 Returns whether this email post should be dequeued (1) or retried (0).
 
 =cut
+
 sub dequeue {
     return $_[0]->{dequeue};
 }

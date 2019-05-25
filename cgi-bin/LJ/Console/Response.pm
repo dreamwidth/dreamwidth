@@ -30,7 +30,7 @@ sub new {
     croak "invalid parameter: status"
         unless $self->{status} =~ /^(?:info|success|error)$/;
 
-    croak "invalid parameters: ", join(",", keys %opts)
+    croak "invalid parameters: ", join( ",", keys %opts )
         if %opts;
 
     return bless $self, $class;
@@ -63,22 +63,24 @@ sub is_info {
 
 sub as_string {
     my $self = shift;
-    return join(": ", $self->status, $self->text);
+    return join( ": ", $self->status, $self->text );
 }
 
 sub as_html {
     my $self = shift;
 
     my $color;
-    if ($self->is_error) {
+    if ( $self->is_error ) {
         $color = "#FF0000";
-    } elsif ($self->is_success) {
+    }
+    elsif ( $self->is_success ) {
         $color = "#008800";
-    } else {
+    }
+    else {
         $color = "#000000";
     }
 
-    return "<span style='color:$color;'>" . LJ::eall($self->text) . "</span>";
+    return "<span style='color:$color;'>" . LJ::eall( $self->text ) . "</span>";
 }
 
 1;

@@ -27,7 +27,7 @@ DW::Controller::Redirect - Redirects to a specific page given parameters
 DW::Routing->register_string( "/go", \&go_handler, app => 1 );
 
 sub go_handler {
-    my ( $opts ) = @_;
+    my ($opts) = @_;
 
     my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 0 );
     return $rv unless $ok;
@@ -39,15 +39,16 @@ sub go_handler {
     if ( $r->did_post ) {
         my $post = $r->post_args;
 
-        %status = monthview_url( $post )
+        %status = monthview_url($post)
             if $post->{redir_type} eq "monthview";
-    } else {
+    }
+    else {
         my $get = $r->get_args;
 
-        %status = threadroot_url( $get )
-            if ($get->{redir_type} || "") eq "threadroot";
+        %status = threadroot_url($get)
+            if ( $get->{redir_type} || "" ) eq "threadroot";
 
-        %status = entry_nav_url( $get )
+        %status = entry_nav_url($get)
             if $get->{itemid};
     }
 
@@ -59,11 +60,12 @@ sub go_handler {
 
 # S2 monthview
 sub monthview_url {
-    my ( $args ) = @_;
+    my ($args) = @_;
     my $user = LJ::canonical_username( $args->{redir_user} );
     my $vhost;
     $vhost = $args->{redir_vhost} if $args->{redir_vhost} =~ /users|tilde|community|front|other/;
     if ( $vhost eq "other" ) {
+
         # FIXME: lookup their domain alias, and make vhost be "other:domain.com";
     }
     my $base = LJ::journal_base( $user, vhost => $vhost );
@@ -74,12 +76,12 @@ sub monthview_url {
 
 # comment thread root
 sub threadroot_url {
-    my ( $args ) = @_;
+    my ($args) = @_;
     my $talkid = $args->{talkid} + 0;
     return unless $talkid;
 
     my $journal = $args->{journal};
-    my $u = LJ::load_user( $journal );
+    my $u       = LJ::load_user($journal);
     return unless $u;
 
     my $comment = eval { LJ::Comment->new( $u, dtalkid => $talkid ) };
@@ -88,7 +90,7 @@ sub threadroot_url {
     return ( error => ".error.noentry" ) unless $comment->entry && $comment->entry->valid;
 
     my $threadroot = LJ::Comment->new( $u, jtalkid => $comment->threadrootid );
-    my $url = eval { $threadroot->url( LJ::viewing_style_args( %$args ) ) };
+    my $url        = eval { $threadroot->url( LJ::viewing_style_args(%$args) ) };
     return if $@;
 
     return ( url => $url );
@@ -96,17 +98,17 @@ sub threadroot_url {
 
 # prev/next entry links
 sub entry_nav_url {
-    my ( $args ) = @_;
+    my ($args) = @_;
 
     my $itemid = $args->{itemid} + 0;
     return unless $itemid;
 
     my $journal = $args->{journal};
-    my $u = LJ::load_user( $journal );
+    my $u       = LJ::load_user($journal);
     return ( error => ".error.usernotfound" ) unless $u;
 
     my $journalid = $u->userid + 0;
-    $itemid = int ( $itemid / 256 );
+    $itemid = int( $itemid / 256 );
 
     my $jumpid = 0;
 
@@ -117,7 +119,8 @@ sub entry_nav_url {
         $jumpid = LJ::get_itemid_after2( $u, $itemid, $tagnav );
         return ( error => '.error.noentry.next2', error_args => { journal => $u->ljuser_display } )
             unless $jumpid;
-    } elsif ( $args->{dir} eq "prev" ) {
+    }
+    elsif ( $args->{dir} eq "prev" ) {
         $jumpid = LJ::get_itemid_before2( $u, $itemid, $tagnav );
         return ( error => '.error.noentry.prev2', error_args => { journal => $u->ljuser_display } )
             unless $jumpid;
@@ -126,7 +129,7 @@ sub entry_nav_url {
 
     my $e = LJ::Entry->new( $u, ditemid => $jumpid );
     my $anchor = $tagnav ? "tagnav-" . LJ::eurl( $args->{redir_key} ) : "";
-    return ( url => $e->url( style_opts => LJ::viewing_style_opts( %$args ), anchor => $anchor ) );
+    return ( url => $e->url( style_opts => LJ::viewing_style_opts(%$args), anchor => $anchor ) );
 }
 
 1;

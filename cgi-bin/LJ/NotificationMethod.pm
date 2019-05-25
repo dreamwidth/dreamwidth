@@ -29,27 +29,27 @@ sub title  { croak "can't call title on LJ::NotificationMethod base class" }
 sub can_digest { 0 }
 
 # subclasses have to override
-sub configured          { 0 }  # system-wide configuration
-sub configured_for_user { my ($class, $u) = @_; return 0; }
+sub configured { 0 }                                            # system-wide configuration
+sub configured_for_user { my ( $class, $u ) = @_; return 0; }
 
 # override where applicable
 sub disabled_url { undef }
-sub url { undef }
-sub help_url { undef }
+sub url          { undef }
+sub help_url     { undef }
 
 # run a hook to see if a user can receive these kinds of notifications
-sub available_for_user  {
-    my ($class, $u) = @_;
+sub available_for_user {
+    my ( $class, $u ) = @_;
 
-    my $available = LJ::Hooks::run_hook('notificationmethod_available_for_user', $class, $u);
+    my $available = LJ::Hooks::run_hook( 'notificationmethod_available_for_user', $class, $u );
 
     return defined $available ? $available : 1;
 }
 
 sub new_from_subscription {
-    my ($class, $subscription) = @_;
+    my ( $class, $subscription ) = @_;
 
-    my $sub_class = $class->class($subscription->ntypeid)
+    my $sub_class = $class->class( $subscription->ntypeid )
         or return undef;
 
     return $sub_class->new_from_subscription($subscription);
@@ -70,15 +70,15 @@ sub unique {
 # get the typemap for the notifytype classes (class/instance method)
 sub typemap {
     return LJ::Typemap->new(
-        table       => 'notifytypelist',
-        classfield  => 'class',
-        idfield     => 'ntypeid',
+        table      => 'notifytypelist',
+        classfield => 'class',
+        idfield    => 'ntypeid',
     );
 }
 
 # returns the class name, given an ntypid
 sub class {
-    my ($class, $typeid) = @_;
+    my ( $class, $typeid ) = @_;
     my $tm = $class->typemap
         or return undef;
 
@@ -104,23 +104,22 @@ sub ntypeid {
 # Class method
 # Returns ntypeid given an event name
 sub method_to_ntypeid {
-    my ($class, $meth_name) = @_;
+    my ( $class, $meth_name ) = @_;
 
-    $meth_name = "LJ::NotificationMethod::$meth_name" unless $meth_name =~ /^LJ::NotificationMethod::/;
+    $meth_name = "LJ::NotificationMethod::$meth_name"
+        unless $meth_name =~ /^LJ::NotificationMethod::/;
     return eval { $meth_name->ntypeid };
 }
 
 # this returns a list of all possible notification method classes
 # class method
 *all_classes = \&all_available_methods;
+
 sub all_available_methods {
     my $class = shift;
     croak "all_classes is a class method" unless $class;
 
-    return grep {
-        LJ::is_enabled($_) &&
-        $_->configured
-    } @LJ::NOTIFY_TYPES;
+    return grep { LJ::is_enabled($_) && $_->configured } @LJ::NOTIFY_TYPES;
 }
 
 1;

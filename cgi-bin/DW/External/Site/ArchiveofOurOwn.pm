@@ -21,23 +21,21 @@ use strict;
 use base 'DW::External::Site';
 use Carp qw/ croak /;
 
-
 # new does nothing for these classes
 sub new { croak 'cannot build with new'; }
-
 
 # returns 1/0 if we allow this domain
 sub accepts {
     my ( $class, $parts ) = @_;
 
     # allows anything at archiveofourown.org and ao3.org
-    return 0 unless $parts->[-1] eq 'org' &&
-                    ( $parts->[-2] eq 'archiveofourown' ||
-                      $parts->[-2] eq 'ao3' );
+    return 0
+        unless $parts->[-1] eq 'org'
+        && ( $parts->[-2] eq 'archiveofourown'
+        || $parts->[-2] eq 'ao3' );
 
     return bless { hostname => 'archiveofourown.org' }, $class;
 }
-
 
 # argument: DW::External::User
 # returns info for the to the badge image (head icon) for this user
@@ -47,11 +45,10 @@ sub badge_image {
         unless $u && ref $u eq 'DW::External::User';
 
     return {
-        url => 'http://archiveofourown.org/favicon.ico',
-        width => 16,
+        url    => 'http://archiveofourown.org/favicon.ico',
+        width  => 16,
         height => 16,
-    }
-        ;
+    };
 }
 
 1;

@@ -38,37 +38,40 @@ sub index_handler {
     my $user_url;
 
     my $vars = {};
-    
-    my $currentproblems = LJ::load_include( "support-currentproblems" );
-    LJ::CleanHTML::clean_event( \$currentproblems, {} );    
+
+    my $currentproblems = LJ::load_include("support-currentproblems");
+    LJ::CleanHTML::clean_event( \$currentproblems, {} );
     $vars->{currentproblems} = $currentproblems;
-    
+
     # Get remote username and journal URL, or example user's username and journal URL
-    if ( $remote ) {
-        $user = $remote->user;
+    if ($remote) {
+        $user     = $remote->user;
         $user_url = $remote->journal_base;
-    } else {
-        my $u = LJ::load_user( $LJ::EXAMPLE_USER_ACCOUNT );
-        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+    }
+    else {
+        my $u = LJ::load_user($LJ::EXAMPLE_USER_ACCOUNT);
+        $user     = $u ? $u->user         : "<b>[Unknown or undefined example username]</b>";
         $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
-    }    
-    
+    }
+
     my $dbr = LJ::get_db_reader();
-    my $sth = $dbr->prepare( "SELECT statkey FROM stats WHERE statcat='pop_faq' ORDER BY statval DESC LIMIT 10" );
-    $sth->execute;    
+    my $sth = $dbr->prepare(
+        "SELECT statkey FROM stats WHERE statcat='pop_faq' ORDER BY statval DESC LIMIT 10");
+    $sth->execute;
 
     while ( my $f = $sth->fetchrow_hashref ) {
         $f = LJ::Faq->load( $f->{statkey}, lang => LJ::Lang::get_effective_lang() );
-        $f->render_in_place( {user => $user, url => $user_url} );
+        $f->render_in_place( { user => $user, url => $user_url } );
         my $q = $f->question_html;
-        push @{ $vars->{f} }, {
-            q => $q,
+        push @{ $vars->{f} },
+            {
+            q     => $q,
             faqid => $f->faqid
-        };
+            };
     }
-   
+
     return DW::Template->render_template( 'support/index.tt', $vars );
-    
+
 }
-    
+
 1;

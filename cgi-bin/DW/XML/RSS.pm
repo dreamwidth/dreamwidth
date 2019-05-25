@@ -30,10 +30,11 @@ sub _get_parser {
         NoExpand      => 1,
         ParseParamEnt => 0,
         Handlers      => {
-            Char    => sub {
-                my ($parser, $cdata) = @_;
+            Char => sub {
+                my ( $parser, $cdata ) = @_;
                 $self->_parser($parser);
                 $self->_handle_char($cdata);
+
                 # Detach the parser to avoid reference loops.
                 $self->_parser(undef);
             },
@@ -41,20 +42,23 @@ sub _get_parser {
                 my $parser = shift;
                 $self->_parser($parser);
                 $self->_handle_dec(@_);
+
                 # Detach the parser to avoid reference loops.
                 $self->_parser(undef);
             },
-            Start   => sub {
+            Start => sub {
                 my $parser = shift;
                 $self->_parser($parser);
                 $self->_handle_start(@_);
+
                 # Detach the parser to avoid reference loops.
                 $self->_parser(undef);
             },
-            End     => sub {
+            End => sub {
                 my $parser = shift;
                 $self->_parser($parser);
                 $self->_handle_end(@_);
+
                 # Detach the parser to avoid reference loops.
                 $self->_parser(undef);
             },

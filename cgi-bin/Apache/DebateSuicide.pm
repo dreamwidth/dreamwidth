@@ -22,30 +22,29 @@ use LJ::ModuleCheck;
 our ( $gtop, %known_parent, $ppid );
 
 # oh btw, this is totally linux-specific.  gtop didn't work, so so much for portability.
-sub handler
-{
+sub handler {
     my $apache_r = shift;
     return OK if $apache_r->main;
     return OK unless $LJ::SUICIDE && LJ::ModuleCheck->have("GTop");
 
     my $meminfo;
-    return OK unless open (MI, "/proc/meminfo");
-    $meminfo = join('', <MI>);
+    return OK unless open( MI, "/proc/meminfo" );
+    $meminfo = join( '', <MI> );
     close MI;
 
     my %meminfo;
-    while ($meminfo =~ m/(\w+):\s*(\d+)\skB/g) {
+    while ( $meminfo =~ m/(\w+):\s*(\d+)\skB/g ) {
         $meminfo{$1} = $2;
     }
 
     my $memfree = $meminfo{'MemFree'} + $meminfo{'Cached'};
     return OK unless $memfree;
 
-    my $goodfree = $LJ::SUICIDE_UNDER{$LJ::SERVER_NAME} || $LJ::SUICIDE_UNDER ||   150_000;
+    my $goodfree = $LJ::SUICIDE_UNDER{$LJ::SERVER_NAME} || $LJ::SUICIDE_UNDER || 150_000;
     my $is_under = $memfree < $goodfree;
 
-    my $maxproc  = $LJ::SUICIDE_OVER{$LJ::SERVER_NAME}  || $LJ::SUICIDE_OVER  || 1_000_000;
-    my $is_over  = 0;
+    my $maxproc = $LJ::SUICIDE_OVER{$LJ::SERVER_NAME} || $LJ::SUICIDE_OVER || 1_000_000;
+    my $is_over = 0;
 
     $gtop ||= GTop->new;
 
@@ -54,8 +53,8 @@ sub handler
     unless ($is_under) {
 
         # find out how much memory we are using
-        my $pm = $gtop->proc_mem($$);
-        my $proc_size_k = ($pm->rss - $pm->share) >> 10; # config is in KB
+        my $pm          = $gtop->proc_mem($$);
+        my $proc_size_k = ( $pm->rss - $pm->share ) >> 10;    # config is in KB
 
         $is_over = $proc_size_k > $maxproc;
     }
@@ -80,13 +79,13 @@ sub handler
         $sum_uniq += $stats{$pid}->[0];
     }
 
-    @pids = (sort { $stats{$b}->[0] <=> $stats{$a}->[0] } @pids, 0, 0);
+    @pids = ( sort { $stats{$b}->[0] <=> $stats{$a}->[0] } @pids, 0, 0 );
 
-    if (grep { $$ == $_ } @pids[0,1]) {
+    if ( grep { $$ == $_ } @pids[ 0, 1 ] ) {
         my $my_use_k = $stats{$$}[0] >> 10;
-        if ($LJ::DEBUG{'suicide'}) {
-            $apache_r->log_error("Suicide [$$]: system memory free = ${memfree}k; " .
-                          "i'm big, using ${my_use_k}k");
+        if ( $LJ::DEBUG{'suicide'} ) {
+            $apache_r->log_error( "Suicide [$$]: system memory free = ${memfree}k; "
+                    . "i'm big, using ${my_use_k}k" );
         }
 
         # we should have logged by here, but be paranoid in any case
@@ -115,7 +114,7 @@ sub handler
 sub pid_info {
     my $pid = shift;
 
-    open (F, "/proc/$pid/stat") or next;
+    open( F, "/proc/$pid/stat" ) or next;
     $_ = <F>;
     close(F);
     my @f = split;
@@ -124,15 +123,15 @@ sub pid_info {
 
 sub child_info {
     my $ppid = shift;
-    opendir(D, "/proc") or return undef;
+    opendir( D, "/proc" ) or return undef;
     my @pids = grep { /^\d+$/ } readdir(D);
     closedir(D);
 
     my %ret;
     foreach my $p (@pids) {
-        next if (defined $known_parent{$p} &&
-                 $known_parent{$p} != $ppid);
-        my $ary = pid_info($p);
+        next if ( defined $known_parent{$p}
+            && $known_parent{$p} != $ppid );
+        my $ary       = pid_info($p);
         my $this_ppid = $ary->[3];
         $known_parent{$p} = $this_ppid;
         next unless $this_ppid == $ppid;

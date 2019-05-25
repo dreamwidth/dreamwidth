@@ -38,13 +38,12 @@ use Carp qw/ confess /;
 #           - events_date: date to load events for ($u must have friendspage_per_day)
 #           - content_filter: object of type DW::User::ContentFilters::Filter
 # returns: Array of item hashrefs containing the same elements
-sub watch_items
-{
+sub watch_items {
     my ( $u, %args ) = @_;
-    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    $u = LJ::want_user($u) or confess 'invalid user object';
 
     # bail very, very early for accounts that are too big for a reading page
-    return () if $LJ::FORCE_EMPTY_SUBSCRIPTIONS{$u->id};
+    return () if $LJ::FORCE_EMPTY_SUBSCRIPTIONS{ $u->id };
 
     # not sure where best to do this, so we're doing it here: don't allow
     # content filters for community reading pages.
@@ -56,9 +55,9 @@ sub watch_items
     $remote = undef if $remote && $remote->id != $u->id;
 
     # prepare some variables for later... many variables
-    my @items = ();
-    my $itemshow = $args{itemshow}+0;
-    my $skip = $args{skip}+0;
+    my @items    = ();
+    my $itemshow = $args{itemshow} + 0;
+    my $skip     = $args{skip} + 0;
     $skip = 0 if $skip < 0;
     my $getitems = $itemshow + $skip;
 
@@ -67,9 +66,10 @@ sub watch_items
     $events_date = '' unless $remote && $u->can_use_daily_readpage;
 
     my $filter  = $args{content_filter};
-    my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600*24*14;  # 2 week default.
-    my $lastmax = $LJ::EndOfTime - ($events_date || (time() - $max_age));
-    my $lastmax_cutoff = 0; # if nonzero, never search for entries with rlogtime higher than this (set when cache in use)
+    my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600 * 24 * 14;                  # 2 week default.
+    my $lastmax = $LJ::EndOfTime - ( $events_date || ( time() - $max_age ) );
+    my $lastmax_cutoff = 0
+        ; # if nonzero, never search for entries with rlogtime higher than this (set when cache in use)
 
     # given a hash of friends rows, strip out rows with invalid journaltype
     my $filter_journaltypes = sub {
@@ -81,14 +81,15 @@ sub watch_items
         $valid_types =~ s/F/Y/g if defined $valid_types;
 
         # load u objects for all the given
-        LJ::load_userids_multiple([ map { $_, \$friends_u->{$_} } keys %$friends ], [$remote],
-                                  $memcache_only);
+        LJ::load_userids_multiple( [ map { $_, \$friends_u->{$_} } keys %$friends ],
+            [$remote], $memcache_only );
 
         # delete u objects based on 'showtypes'
         foreach my $fid ( keys %$friends_u ) {
             my $fu = $friends_u->{$fid};
-            if ( ! $fu || ! $fu->is_visible ||
-                 $valid_types && index(uc($valid_types), $fu->{journaltype}) == -1 )
+            if (   !$fu
+                || !$fu->is_visible
+                || $valid_types && index( uc($valid_types), $fu->{journaltype} ) == -1 )
             {
                 delete $friends_u->{$fid};
                 delete $friends->{$fid};
@@ -100,7 +101,7 @@ sub watch_items
     };
 
     my @friends_buffer = ();
-    my $fr_loaded = 0;  # flag:  have we loaded friends?
+    my $fr_loaded      = 0;    # flag:  have we loaded friends?
 
     # normal friends mode
     my $get_next_friend = sub {
@@ -114,32 +115,33 @@ sub watch_items
         my %friends_u;
 
         # strip out people who aren't in the filter, if we have one
-        if ( $filter ) {
+        if ($filter) {
             foreach my $fid ( keys %$friends ) {
                 delete $friends->{$fid}
-                    unless $filter->contains_userid( $fid );
+                    unless $filter->contains_userid($fid);
             }
         }
 
         # strip out rows with invalid journal types
-        $filter_journaltypes->($friends, \%friends_u);
+        $filter_journaltypes->( $friends, \%friends_u );
 
         # get update times for all the friendids
         my $tu_opts = {};
-        my $fcount = scalar keys %$friends;
-        if ($LJ::SLOPPY_FRIENDS_THRESHOLD && $fcount > $LJ::SLOPPY_FRIENDS_THRESHOLD) {
+        my $fcount  = scalar keys %$friends;
+        if ( $LJ::SLOPPY_FRIENDS_THRESHOLD && $fcount > $LJ::SLOPPY_FRIENDS_THRESHOLD ) {
             $tu_opts->{memcache_only} = 1;
         }
 
-        my $times = $events_date
-                        ? LJ::get_times_multi($tu_opts, keys %$friends)
-                        : {updated => LJ::get_timeupdate_multi($tu_opts, keys %$friends)};
+        my $times =
+            $events_date
+            ? LJ::get_times_multi( $tu_opts, keys %$friends )
+            : { updated => LJ::get_timeupdate_multi( $tu_opts, keys %$friends ) };
         my $timeupdate = $times->{updated};
 
         # now push a properly formatted @friends_buffer row
-        foreach my $fid (keys %$timeupdate) {
-            my $fu = $friends_u{$fid};
-            my $rupdate = $LJ::EndOfTime - ( $timeupdate->{$fid} || 0 );
+        foreach my $fid ( keys %$timeupdate ) {
+            my $fu        = $friends_u{$fid};
+            my $rupdate   = $LJ::EndOfTime - ( $timeupdate->{$fid} || 0 );
             my $clusterid = $fu->{'clusterid'};
             push @friends_buffer, [ $fid, $rupdate, $clusterid, $friends->{$fid}, $fu ];
         }
@@ -147,13 +149,13 @@ sub watch_items
         @friends_buffer =
             sort { $a->[1] <=> $b->[1] }
             grep {
-                ( $timeupdate->{$_->[0]} || 0 ) >= $lastmax and # reverse index
-                ($events_date
-                    ? $times->{created}->{$_->[0]} < $events_date
-                    : 1
+            ( $timeupdate->{ $_->[0] } || 0 ) >= $lastmax and    # reverse index
+                (
+                  $events_date
+                ? $times->{created}->{ $_->[0] } < $events_date
+                : 1
                 )
-            }
-            @friends_buffer;
+            } @friends_buffer;
 
         # note that we've already loaded the friends
         $fr_loaded = 1;
@@ -177,29 +179,29 @@ sub watch_items
         # fill %allfriends with all friendids and cut $friends
         # down to only include those that match $filter
         my %allfriends = ();
-        foreach my $fid (keys %$friends) {
+        foreach my $fid ( keys %$friends ) {
             $allfriends{$fid}++;
 
             # if the person is in an active filter, allow them, else delete them
-            next unless $filter && ! $filter->contains_userid( $fid );
+            next unless $filter && !$filter->contains_userid($fid);
             delete $friends->{$fid};
         }
 
         # strip out invalid friend journaltypes
-        $filter_journaltypes->($friends, \%friends_u, "memcache_only", "P");
+        $filter_journaltypes->( $friends, \%friends_u, "memcache_only", "P" );
 
         # get update times for all the friendids
-        my $f_tu = LJ::get_timeupdate_multi({'memcache_only' => 1}, keys %$friends);
+        my $f_tu = LJ::get_timeupdate_multi( { 'memcache_only' => 1 }, keys %$friends );
 
         # get friends of friends
-        my $ffct = 0;
+        my $ffct     = 0;
         my %ffriends = ();
-        foreach my $fid (sort { $f_tu->{$b} <=> $f_tu->{$a} } keys %$friends) {
+        foreach my $fid ( sort { $f_tu->{$b} <=> $f_tu->{$a} } keys %$friends ) {
             last if $ffct > 50;
             my $fu = $friends_u{$fid};
             my $ff = $fu->watch_list( community_okay => 1, memcache_only => 1 );
             my $ct = 0;
-            while (my $ffid = each %$ff) {
+            while ( my $ffid = each %$ff ) {
                 last if $ct > 100;
                 next if $allfriends{$ffid} || $ffid == $u->id;
                 $ffriends{$ffid} = $ff->{$ffid};
@@ -210,21 +212,22 @@ sub watch_items
 
         # strip out invalid friendsfriends journaltypes
         my %ffriends_u;
-        $filter_journaltypes->(\%ffriends, \%ffriends_u, "memcache_only");
+        $filter_journaltypes->( \%ffriends, \%ffriends_u, "memcache_only" );
 
         # get update times for all the friendids
-        my $ff_tu = LJ::get_timeupdate_multi({'memcache_only' => 1}, keys %ffriends);
+        my $ff_tu = LJ::get_timeupdate_multi( { 'memcache_only' => 1 }, keys %ffriends );
 
         # build friends buffer
-        foreach my $ffid (sort { $ff_tu->{$b} <=> $ff_tu->{$a} } keys %$ff_tu) {
-            my $rupdate = $LJ::EndOfTime - $ff_tu->{$ffid};
+        foreach my $ffid ( sort { $ff_tu->{$b} <=> $ff_tu->{$a} } keys %$ff_tu ) {
+            my $rupdate   = $LJ::EndOfTime - $ff_tu->{$ffid};
             my $clusterid = $ffriends_u{$ffid}->{'clusterid'};
 
             # since this is ff mode, we'll force colors to ffffff on 000000
             $ffriends{$ffid}->{'fgcolor'} = "#000000";
             $ffriends{$ffid}->{'bgcolor'} = "#ffffff";
 
-            push @friends_buffer, [ $ffid, $rupdate, $clusterid, $ffriends{$ffid}, $ffriends_u{$ffid} ];
+            push @friends_buffer,
+                [ $ffid, $rupdate, $clusterid, $ffriends{$ffid}, $ffriends_u{$ffid} ];
         }
 
         @friends_buffer = sort { $a->[1] <=> $b->[1] } @friends_buffer;
@@ -236,44 +239,45 @@ sub watch_items
         # out and there's nobody else to load.
         return @friends_buffer ? $friends_buffer[0] : undef;
 
-    } if $args{friendsoffriends} && @LJ::MEMCACHE_SERVERS;
+        }
+        if $args{friendsoffriends} && @LJ::MEMCACHE_SERVERS;
 
     # friends of friends disabled w/o memcache
     confess 'friends of friends mode requires memcache'
-        if $args{friendsoffriends} && ! @LJ::MEMCACHE_SERVERS;
+        if $args{friendsoffriends} && !@LJ::MEMCACHE_SERVERS;
 
-    my $loop = 1;
-    my $itemsleft = $getitems;  # even though we got a bunch, potentially, they could be old
+    my $loop      = 1;
+    my $itemsleft = $getitems;    # even though we got a bunch, potentially, they could be old
     my $fr;
 
-    while ($loop && ($fr = $get_next_friend->()))
-    {
+    while ( $loop && ( $fr = $get_next_friend->() ) ) {
         shift @friends_buffer;
 
         # load the next recent updating friend's recent items
         my $friendid = $fr->[0];
 
-        $args{friends}->{$friendid} = $fr->[3];  # friends row
-        $args{friends_u}->{$friendid} = $fr->[4]; # friend u object
+        $args{friends}->{$friendid}   = $fr->[3];    # friends row
+        $args{friends_u}->{$friendid} = $fr->[4];    # friend u object
 
-        my @newitems = LJ::get_log2_recent_user({
-            clusterid   => $fr->[2],
-            userid      => $friendid,
-            remote      => $remote,
-            itemshow    => $itemsleft,
-            filter      => $filter,
-            notafter    => $lastmax,
-            dateformat  => $args{dateformat},
-            update      => $LJ::EndOfTime - $fr->[1], # reverse back to normal
-            events_date => $events_date,
-            security    => $args{security},
-        });
+        my @newitems = LJ::get_log2_recent_user(
+            {
+                clusterid   => $fr->[2],
+                userid      => $friendid,
+                remote      => $remote,
+                itemshow    => $itemsleft,
+                filter      => $filter,
+                notafter    => $lastmax,
+                dateformat  => $args{dateformat},
+                update      => $LJ::EndOfTime - $fr->[1],    # reverse back to normal
+                events_date => $events_date,
+                security    => $args{security},
+            }
+        );
 
         # stamp each with clusterid if from cluster, so ljviews and other
         # callers will know which items are old (no/0 clusterid) and which
         # are new
-        $_->{clusterid} = $fr->[2]
-            foreach @newitems;
+        $_->{clusterid} = $fr->[2] foreach @newitems;
 
         if (@newitems) {
             push @items, @newitems;
@@ -288,15 +292,17 @@ sub watch_items
             # the higher jitemid, which means nothing if the posts aren't in
             # the same journal, but means everything if they are (which happens
             # almost never for a human, but all the time for RSS feeds)
-            @items = sort { $a->{rlogtime}  <=> $b->{rlogtime}  ||
-                            $evtime->($b)   <=> $evtime->($a) ||
-                            $b->{jitemid}   <=> $a->{jitemid}     } @items;
+            @items = sort {
+                       $a->{rlogtime} <=> $b->{rlogtime}
+                    || $evtime->($b) <=> $evtime->($a)
+                    || $b->{jitemid} <=> $a->{jitemid}
+            } @items;
 
             # cut the list down to what we need.
-            @items = splice(@items, 0, $getitems) if (@items > $getitems);
+            @items = splice( @items, 0, $getitems ) if ( @items > $getitems );
         }
 
-        if (@items == $getitems) {
+        if ( @items == $getitems ) {
             $lastmax = $items[-1]->{'rlogtime'};
             $lastmax = $lastmax_cutoff if $lastmax_cutoff && $lastmax > $lastmax_cutoff;
 
@@ -304,23 +310,23 @@ sub watch_items
             # is greater (older) than the oldest one we've already
             # loaded.
             my $nextfr = $get_next_friend->();
-            $loop = 0 if ($nextfr && $nextfr->[1] > $lastmax);
+            $loop = 0 if ( $nextfr && $nextfr->[1] > $lastmax );
         }
     }
 
     # remove skipped ones
-    splice(@items, 0, $skip) if $skip;
+    splice( @items, 0, $skip ) if $skip;
 
     # get items
     foreach (@items) {
-        $args{owners}->{$_->{'ownerid'}} = 1;
+        $args{owners}->{ $_->{'ownerid'} } = 1;
     }
 
     # return the itemids grouped by clusters, if callers wants it.
-    if (ref $args{idsbycluster} eq "HASH") {
+    if ( ref $args{idsbycluster} eq "HASH" ) {
         foreach (@items) {
-            push @{$args{idsbycluster}->{$_->{'clusterid'}}},
-            [ $_->{'ownerid'}, $_->{'itemid'} ];
+            push @{ $args{idsbycluster}->{ $_->{'clusterid'} } },
+                [ $_->{'ownerid'}, $_->{'itemid'} ];
         }
     }
 
@@ -328,7 +334,6 @@ sub watch_items
 }
 *LJ::User::watch_items = \&watch_items;
 *DW::User::watch_items = \&watch_items;
-
 
 # name: $u->recent_items
 # des: Returns journal entries for a given account.
@@ -357,34 +362,33 @@ sub watch_items
 #          -- system_alldatepart (same as above, but for the system time)
 #          -- ownerid (if in 'friendsview' mode)
 #          -- rlogtime (if in 'friendsview' mode)
-sub recent_items
-{
+sub recent_items {
     my ( $u, %args ) = @_;
-    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    $u = LJ::want_user($u) or confess 'invalid user object';
 
     my $userid = $u->id;
 
-    my @items = ();             # what we'll return
-    my $err = $args{err};
+    my @items = ();           # what we'll return
+    my $err   = $args{err};
 
-    my $remote = LJ::want_user( delete $args{remote} );
+    my $remote   = LJ::want_user( delete $args{remote} );
     my $remoteid = $remote ? $remote->id : 0;
 
-    my $max_hints = $LJ::MAX_SCROLLBACK_LASTN;  # temporary
-    my $sort_key = "revttime";
+    my $max_hints = $LJ::MAX_SCROLLBACK_LASTN;    # temporary
+    my $sort_key  = "revttime";
 
-    my $clusterid = $args{'clusterid'}+0;
-    my @sources = ("cluster$clusterid");
-    if (my $ab = $LJ::CLUSTER_PAIR_ACTIVE{$clusterid}) {
+    my $clusterid = $args{'clusterid'} + 0;
+    my @sources   = ("cluster$clusterid");
+    if ( my $ab = $LJ::CLUSTER_PAIR_ACTIVE{$clusterid} ) {
         @sources = ("cluster${clusterid}${ab}");
     }
-    unshift @sources, ("cluster${clusterid}lite", "cluster${clusterid}slave")
+    unshift @sources, ( "cluster${clusterid}lite", "cluster${clusterid}slave" )
         if $args{'clustersource'} eq "slave";
     my $logdb = LJ::get_dbh(@sources);
 
     # community/friend views need to post by log time, not event time
-    $sort_key = "rlogtime" if ($args{'order'} eq "logtime" ||
-                               $args{'friendsview'});
+    $sort_key = "rlogtime" if ( $args{'order'} eq "logtime"
+        || $args{'friendsview'} );
 
     # 'notafter':
     #   the friends view doesn't want to load things that it knows it
@@ -400,45 +404,51 @@ sub recent_items
     my $notafter = $args{notafter} ? $args{notafter} + 0 : 0;
     $notafter ||= $args{friendsview} ? $LJ::EndOfTime - 1 : $LJ::EndOfTime;
 
-    my $skip = $args{skip} ? $args{skip} + 0 : 0;
+    my $skip     = $args{skip}     ? $args{skip} + 0     : 0;
     my $itemshow = $args{itemshow} ? $args{itemshow} + 0 : 0;
     $itemshow = $max_hints if $itemshow > $max_hints;
 
     my $maxskip = $max_hints - $itemshow;
-    if ($skip < 0) { $skip = 0; }
-    if ($skip > $maxskip) { $skip = $maxskip; }
+    if ( $skip < 0 )        { $skip = 0; }
+    if ( $skip > $maxskip ) { $skip = $maxskip; }
     my $itemload = $itemshow + $skip;
 
     my $mask = 0;
     if ( $remote && ( $remote->is_person || $remote->is_identity ) && $remoteid != $userid ) {
+
         # if this is a community we're viewing, fake the mask to select on, as communities
         # no longer have masks to users
         if ( $u->is_community ) {
-            $mask = $remote->member_of( $u ) ? 1 : 0;
-        } else {
-            $mask = $u->trustmask( $remote );
+            $mask = $remote->member_of($u) ? 1 : 0;
+        }
+        else {
+            $mask = $u->trustmask($remote);
         }
     }
 
     # decide what level of security the remote user can see
     my $secwhere = "";
-    if ( $userid == $remoteid
-        || ( $remote && $remote->can_manage( $u ) )
-        || $args{'viewall'} ) {
+    if (   $userid == $remoteid
+        || ( $remote && $remote->can_manage($u) )
+        || $args{'viewall'} )
+    {
         # no extra where restrictions... user can see all their own stuff
         # community administrators can also see everything in their comms
         # alternatively, if 'viewall' opt flag is set, security is off.
-    } elsif ($mask) {
+    }
+    elsif ($mask) {
+
         # can see public or things with them in the mask
         $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $mask != 0))";
-    } else {
+    }
+    else {
         # not a friend?  only see public.
         $secwhere = "AND security='public' ";
     }
 
     # because LJ::get_friend_items needs rlogtime for sorting.
     my $extra_sql = '';
-    if ($args{'friendsview'}) {
+    if ( $args{'friendsview'} ) {
         $extra_sql .= "journalid AS 'ownerid', rlogtime, ";
     }
 
@@ -458,14 +468,15 @@ sub recent_items
             my $need = scalar @{ $args{tagids} };
             $#{ $args{tagids} } = $limit - 1 if $need > $limit;
 
-            my $in = join( ',', map { $_+0 } @{ $args{tagids} } );
-            my $sth = $logdb->prepare( "SELECT jitemid, kwid FROM logtagsrecent WHERE journalid = ? AND kwid IN ($in)" );
-            $sth->execute( $userid );
+            my $in  = join( ',', map { $_ + 0 } @{ $args{tagids} } );
+            my $sth = $logdb->prepare(
+                "SELECT jitemid, kwid FROM logtagsrecent WHERE journalid = ? AND kwid IN ($in)");
+            $sth->execute($userid);
             die $logdb->errstr if $logdb->err;
 
             my %mix;
             while ( my $row = $sth->fetchrow_arrayref ) {
-                my ( $jitemid ) = @$row;
+                my ($jitemid) = @$row;
                 $mix{$jitemid}++;
             }
 
@@ -475,21 +486,23 @@ sub recent_items
 
             $jitemids = [ keys %mix ];
 
-        } else { # mode: 'or'
-            # select jitemids uniquely
-            my $in = join( ',', map { $_+0 } @{ $args{tagids} } );
-            $jitemids = $logdb->selectcol_arrayref( qq{
+        }
+        else {    # mode: 'or'
+                  # select jitemids uniquely
+            my $in = join( ',', map { $_ + 0 } @{ $args{tagids} } );
+            $jitemids = $logdb->selectcol_arrayref(
+                qq{
                     SELECT DISTINCT jitemid FROM logtagsrecent WHERE journalid = ? AND kwid IN ($in)
-                }, undef, $userid );
+                }, undef, $userid
+            );
             die $logdb->errstr if $logdb->err;
         }
 
         # set $jitemidwhere iff we have jitemids
         if (@$jitemids) {
-            $jitemidwhere = " AND jitemid IN (" .
-                            join(',', map { $_+0 } @$jitemids) .
-                            ")";
-        } else {
+            $jitemidwhere = " AND jitemid IN (" . join( ',', map { $_ + 0 } @$jitemids ) . ")";
+        }
+        else {
             # no items, so show no entries
             return ();
         }
@@ -497,7 +510,7 @@ sub recent_items
 
     # if we need to filter by security, build up the where clause for that too
     my $securitywhere = '';
-    if ($args{'security'}) {
+    if ( $args{'security'} ) {
         my $security = $args{'security'};
         if ( ( $security eq "public" ) || ( $security eq "private" ) ) {
             $securitywhere = " AND security = \"$security\"";
@@ -505,39 +518,52 @@ sub recent_items
         elsif ( $security eq "access" ) {
             $securitywhere = " AND security = \"usemask\" AND allowmask = 1";
         }
-        elsif ( $security=~/^\d+$/ ) {
-            $securitywhere = " AND security = \"usemask\" AND (allowmask & " . (1 << $security) . ")";
+        elsif ( $security =~ /^\d+$/ ) {
+            $securitywhere =
+                " AND security = \"usemask\" AND (allowmask & " . ( 1 << $security ) . ")";
         }
     }
 
     my $sql;
 
     my $dateformat = "%a %W %b %M %y %Y %c %m %e %d %D %p %i %l %h %k %H";
-    if ($args{'dateformat'} eq "S2") {
-        $dateformat = "%Y %m %d %H %i %s %w"; # yyyy mm dd hh mm ss day_of_week
+    if ( $args{'dateformat'} eq "S2" ) {
+        $dateformat = "%Y %m %d %H %i %s %w";    # yyyy mm dd hh mm ss day_of_week
     }
 
-    my ($sql_limit, $sql_select) = ('', '');
-    if ($args{'ymd'}) {
-        my ($year, $month, $day);
-        if ($args{'ymd'} =~ m!^(\d\d\d\d)/(\d\d)/(\d\d)\b!) {
-            ($year, $month, $day) = ($1, $2, $3);
+    my ( $sql_limit, $sql_select ) = ( '', '' );
+    if ( $args{'ymd'} ) {
+        my ( $year, $month, $day );
+        if ( $args{'ymd'} =~ m!^(\d\d\d\d)/(\d\d)/(\d\d)\b! ) {
+            ( $year, $month, $day ) = ( $1, $2, $3 );
+
             # check
-            if ($year !~ /^\d+$/) { $$err = "Corrupt or non-existant year."; return (); }
-            if ($month !~ /^\d+$/) { $$err = "Corrupt or non-existant month." ; return (); }
-            if ($day !~ /^\d+$/) { $$err = "Corrupt or non-existant day." ; return (); }
-            if ($month < 1 || $month > 12 || int($month) != $month) { $$err = "Invalid month." ; return (); }
-            if ($year < 1970 || $year > 2038 || int($year) != $year) { $$err = "Invalid year: $year"; return (); }
-            if ($day < 1 || $day > 31 || int($day) != $day) { $$err = "Invalid day."; return (); }
-            if ($day > LJ::days_in_month($month, $year)) { $$err = "That month doesn't have that many days."; return (); }
-        } else {
+            if ( $year  !~ /^\d+$/ ) { $$err = "Corrupt or non-existant year.";  return (); }
+            if ( $month !~ /^\d+$/ ) { $$err = "Corrupt or non-existant month."; return (); }
+            if ( $day   !~ /^\d+$/ ) { $$err = "Corrupt or non-existant day.";   return (); }
+            if ( $month < 1 || $month > 12 || int($month) != $month ) {
+                $$err = "Invalid month.";
+                return ();
+            }
+            if ( $year < 1970 || $year > 2038 || int($year) != $year ) {
+                $$err = "Invalid year: $year";
+                return ();
+            }
+            if ( $day < 1 || $day > 31 || int($day) != $day ) { $$err = "Invalid day."; return (); }
+            if ( $day > LJ::days_in_month( $month, $year ) ) {
+                $$err = "That month doesn't have that many days.";
+                return ();
+            }
+        }
+        else {
             $$err = "wrong date: " . $args{'ymd'};
             return ();
         }
         $sql_limit  = "LIMIT 2000";
         $sql_select = "AND year=$year AND month=$month AND day=$day";
         $extra_sql .= "allowmask, ";
-    } else {
+    }
+    else {
         $sql_limit  = "LIMIT $skip,$itemshow";
         $sql_select = "AND $sort_key <= $notafter";
     }
@@ -545,7 +571,8 @@ sub recent_items
     my $posterwhere;
     if ( $args{posterid} && $args{posterid} =~ /^(\d+)$/ ) {
         $posterwhere = " AND posterid=$1";
-    } else {
+    }
+    else {
         $posterwhere = "";
     }
 
@@ -567,7 +594,7 @@ sub recent_items
 
     my $sth = $logdb->prepare($sql);
     $sth->execute;
-    if ($logdb->err) { die $logdb->errstr; }
+    if ( $logdb->err ) { die $logdb->errstr; }
 
     # keep track of the last alldatepart, and a per-minute buffer
     my $last_time;
@@ -578,19 +605,22 @@ sub recent_items
         @buf = ();
     };
 
-    while (my $li = $sth->fetchrow_hashref) {
-        push @{$args{'itemids'}}, $li->{'itemid'};
+    while ( my $li = $sth->fetchrow_hashref ) {
+        push @{ $args{'itemids'} }, $li->{'itemid'};
 
-        my $sortdate = { rlogtime => 'system_alldatepart',
-                         revttime => 'alldatepart' }->{$sort_key};
+        my $sortdate = {
+            rlogtime => 'system_alldatepart',
+            revttime => 'alldatepart'
+        }->{$sort_key};
 
-        $flush->() unless defined $last_time &&
-                          $li->{$sortdate} eq $last_time;
+        $flush->()
+            unless defined $last_time
+            && $li->{$sortdate} eq $last_time;
         push @buf, $li;
         $last_time = $li->{$sortdate};
 
         # construct an LJ::Entry singleton
-        my $entry = LJ::Entry->new($userid, jitemid => $li->{itemid});
+        my $entry = LJ::Entry->new( $userid, jitemid => $li->{itemid} );
         $entry->absorb_row(%$li);
     }
     $flush->();
@@ -603,9 +633,8 @@ sub recent_items
 # name: $u->active_entries
 # des: Returns 10 last active entries for an account
 # returns: array of itemids
-sub active_entries
-{
-    my ( $u ) = @_;
+sub active_entries {
+    my ($u) = @_;
     my $uid = $u->userid;
 
     # check memcache first

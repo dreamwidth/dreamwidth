@@ -41,15 +41,14 @@ USE
     our $MODULES_INSTALLED = $rv;
 }
 
-
 # implemented as overrides for the base class
-
 
 # class methods
 sub name { return "recaptcha" }
 
 # object methods
 sub form_fields { qw( recaptcha_response_field recaptcha_challenge_field ) }
+
 sub _implementation_enabled {
     return 0 unless $DW::Captcha::reCAPTCHA::MODULES_INSTALLED;
     return LJ::is_enabled( 'captcha', 'recaptcha' ) && _public_key() && _private_key() ? 1 : 0;
@@ -57,11 +56,10 @@ sub _implementation_enabled {
 
 sub _print {
     my $captcha = Captcha::reCAPTCHA->new;
-    return $captcha->get_options_setter( { theme => 'white' } ) .
-    $captcha->get_html(
-        _public_key(),              # public key
-        '',                         # error (optional)
-        $LJ::IS_SSL                 # page uses ssl
+    return $captcha->get_options_setter( { theme => 'white' } ) . $captcha->get_html(
+        _public_key(),    # public key
+        '',               # error (optional)
+        $LJ::IS_SSL       # page uses ssl
     );
 }
 
@@ -69,10 +67,8 @@ sub _validate {
     my $self = $_[0];
 
     my $captcha = Captcha::reCAPTCHA->new;
-    my $result = $captcha->check_answer(
-        _private_key(), $ENV{REMOTE_ADDR},
-        $self->challenge, $self->response
-    );
+    my $result  = $captcha->check_answer( _private_key(), $ENV{REMOTE_ADDR},
+        $self->challenge, $self->response );
 
     return 1 if $result->{is_valid} eq '1';
 }
@@ -81,7 +77,7 @@ sub _init_opts {
     my ( $self, %opts ) = @_;
 
     $self->{challenge} ||= $opts{recaptcha_challenge_field};
-    $self->{response} ||= $opts{recaptcha_response_field};
+    $self->{response}  ||= $opts{recaptcha_response_field};
 }
 
 # recaptcha-specific methods

@@ -15,16 +15,15 @@
 
 use strict;
 our ( %maint, %maintinfo );
-require "$ENV{'LJHOME'}/cgi-bin/LJ/Directories.pm";  # extra XML::Encoding files in cgi-bin/XML/*
+require "$ENV{'LJHOME'}/cgi-bin/LJ/Directories.pm";    # extra XML::Encoding files in cgi-bin/XML/*
 use LJ::SynSuck;
 
 $maintinfo{'synsuck'}{opts}{locking} = "per_host";
-$maint{'synsuck'} = sub
-{
+$maint{'synsuck'} = sub {
     my $maxcount = shift || 0;
-    my $verbose = $LJ::LJMAINT_VERBOSE;
+    my $verbose  = $LJ::LJMAINT_VERBOSE;
 
-    my %child_jobs; # child pid => [ userid, lock ]
+    my %child_jobs;                                    # child pid => [ userid, lock ]
 
     # get the next user to be processed
     my @all_users;
@@ -32,17 +31,18 @@ $maint{'synsuck'} = sub
         return shift @all_users if @all_users;
 
         # need to get some more rows
-        my $dbh = LJ::get_db_writer();
-        my $current_jobs = join(",", map { $dbh->quote($_->[0]) } values %child_jobs);
-        my $in_sql = $current_jobs ? " AND u.userid NOT IN ($current_jobs)" : "";
-        my $sth = $dbh->prepare("SELECT u.user, s.userid, s.synurl, s.lastmod, " .
-                                "       s.etag, s.numreaders, s.checknext " .
-                                "FROM user u, syndicated s " .
-                                "WHERE u.userid=s.userid AND u.statusvis='V' " .
-                                "AND s.checknext < NOW()$in_sql " .
-                                "LIMIT 500");
+        my $dbh          = LJ::get_db_writer();
+        my $current_jobs = join( ",", map { $dbh->quote( $_->[0] ) } values %child_jobs );
+        my $in_sql       = $current_jobs ? " AND u.userid NOT IN ($current_jobs)" : "";
+        my $sth =
+            $dbh->prepare( "SELECT u.user, s.userid, s.synurl, s.lastmod, "
+                . "       s.etag, s.numreaders, s.checknext "
+                . "FROM user u, syndicated s "
+                . "WHERE u.userid=s.userid AND u.statusvis='V' "
+                . "AND s.checknext < NOW()$in_sql "
+                . "LIMIT 500" );
         $sth->execute;
-        while (my $urow = $sth->fetchrow_hashref) {
+        while ( my $urow = $sth->fetchrow_hashref ) {
             push @all_users, $urow;
         }
 
@@ -54,12 +54,12 @@ $maint{'synsuck'} = sub
     my $max_threads = $LJ::SYNSUCK_MAX_THREADS || 1;
     print "[$$] PARENT -- using $max_threads workers\n" if $verbose;
 
-    my $threads = 0;
-    my $userct = 0;
+    my $threads      = 0;
+    my $userct       = 0;
     my $keep_forking = 1;
     while ( $maxcount == 0 || $userct < $maxcount ) {
 
-        if ($threads < $max_threads && $keep_forking) {
+        if ( $threads < $max_threads && $keep_forking ) {
             my $urow = $get_next_user->();
             unless ($urow) {
                 $keep_forking = 0;
@@ -67,25 +67,28 @@ $maint{'synsuck'} = sub
             }
 
             my $lockname = "synsuck-user-" . $urow->{user};
-            my $lock = LJ::locker()->trylock($lockname);
+            my $lock     = LJ::locker()->trylock($lockname);
             next unless $lock;
             print "Got lock on '$lockname'. Running\n" if $verbose;
 
             # spawn a new process
-            if (my $pid = fork) {
+            if ( my $pid = fork ) {
+
                 # we are a parent, nothing to do?
-                $child_jobs{$pid} = [$urow->{'userid'}, $lock];
+                $child_jobs{$pid} = [ $urow->{'userid'}, $lock ];
                 $threads++;
                 $userct++;
-            } else {
+            }
+            else {
                 # handles won't survive the fork
                 LJ::DB::disconnect_dbs();
-                LJ::SynSuck::update_feed($urow, $verbose);
+                LJ::SynSuck::update_feed( $urow, $verbose );
                 exit 0;
             }
 
-        # wait for child(ren) to die
-        } else {
+            # wait for child(ren) to die
+        }
+        else {
             my $child = wait();
             last if $child == -1;
             delete $child_jobs{$child};
@@ -94,10 +97,10 @@ $maint{'synsuck'} = sub
     }
 
     # Now wait on any remaining children so we don't leave zombies behind.
-    while ( %child_jobs ) {
+    while (%child_jobs) {
         my $child = wait();
         last if $child == -1;
-        delete $child_jobs{ $child };
+        delete $child_jobs{$child};
         $threads--;
     }
 

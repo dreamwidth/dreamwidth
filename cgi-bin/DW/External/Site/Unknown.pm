@@ -20,21 +20,18 @@ use strict;
 use base 'DW::External::Site';
 use Carp qw/ croak /;
 
-
 # new does nothing for these classes
 sub new { croak 'cannot build with new'; }
-
 
 # returns an object if we allow this domain; else undef
 sub accepts {
     my ( $class, $parts ) = @_;
 
     # let's just assume the last two parts are good if we have them
-    return undef unless scalar( @$parts ) >= 2;
+    return undef unless scalar(@$parts) >= 2;
 
     return bless { hostname => "$parts->[-2].$parts->[-1]" }, $class;
 }
-
 
 # argument: DW::External::User
 # returns URL to this account's journal
@@ -46,7 +43,6 @@ sub journal_url {
     return 'http://www.' . $self->{hostname} . '/users/' . $u->user . '/';
 }
 
-
 # argument: DW::External::User
 # returns info for the badge image (head icon) for this user
 sub badge_image {
@@ -56,11 +52,10 @@ sub badge_image {
 
     # since we don't know what site this is, they can have an "unknown" icon
     return {
-        url => "$LJ::IMGPREFIX/silk/identity/user_other.png",
-        width => 16,
+        url    => "$LJ::IMGPREFIX/silk/identity/user_other.png",
+        width  => 16,
         height => 16,
     };
 }
-
 
 1;

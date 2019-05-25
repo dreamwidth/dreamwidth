@@ -17,7 +17,7 @@ use base 'LJ::Event';
 use Carp qw(croak);
 
 sub new {
-    my ($class, $u) = @_;
+    my ( $class, $u ) = @_;
     croak "No $u" unless $u;
 
     return $class->SUPER::new($u);
@@ -41,16 +41,16 @@ sub as_html_actions {
     my $self = shift;
 
     my $ret .= "<div class='actions'>";
-    $ret .= " <a href='$LJ::SITEROOT/rename/'>Rename my account</a>";
-    $ret .= "</div>";
+    $ret    .= " <a href='$LJ::SITEROOT/rename/'>Rename my account</a>";
+    $ret    .= "</div>";
 
     return $ret;
 }
 
 sub as_email_string {
-    my ($self, $u) = @_;
+    my ( $self, $u ) = @_;
 
-    my $username = $u->display_username;
+    my $username   = $u->display_username;
     my $purgedname = $self->event_journal->display_username;
 
     my $email = qq {Hi $username,
@@ -66,9 +66,9 @@ You can:
 }
 
 sub as_email_html {
-    my ($self, $u) = @_;
+    my ( $self, $u ) = @_;
 
-    my $username = $u->ljuser_display;
+    my $username   = $u->ljuser_display;
     my $purgedname = $self->event_journal->ljuser_display;
 
     my $email = qq {Hi $username,
@@ -84,23 +84,23 @@ You can:<ul>};
 }
 
 sub as_email_subject {
-    my $self = shift;
+    my $self     = shift;
     my $username = $self->event_journal->user;
 
     return sprintf "The username '$username' is now available!";
 }
 
 sub subscription_as_html {
-    my ($class, $subscr) = @_;
+    my ( $class, $subscr ) = @_;
 
     my $journal = $subscr->journal;
 
     my $ljuser = $subscr->journal->ljuser_display;
-    return BML::ml('event.user_expunged', { user => $ljuser }); # "$ljuser has been purged";
+    return BML::ml( 'event.user_expunged', { user => $ljuser } );    # "$ljuser has been purged";
 }
 
 sub content {
-    my ($self, $target) = @_;
+    my ( $self, $target ) = @_;
 
     return $self->as_html_actions;
 }

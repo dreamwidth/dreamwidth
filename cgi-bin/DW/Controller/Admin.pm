@@ -41,58 +41,115 @@ my $admin_pages = {};
 DW::Controller::Admin->register_admin_scope( '/', title_ml => '.admin.title' );
 
 # DO NOT add anything to here
-DW::Controller::Admin->_register_admin_pages_legacy( '/', 
-    [ 'faq/',
-        '.admin.faq.link', '.admin.faq.text', [ 'faqadd', 'faqedit', 'faqcat' ] ],
-    [ 'fileedit/',
-        '.admin.file_edit.link', '.admin.file_edit.text', [ 'fileedit' ] ],
-    [ 'invites/', '.admin.invites.link', '.admin.invites.text', [ 'finduser:codetrace', 'finduser:*', 'payments' ] ],
-    [ 'memcache',
-        '.admin.memcache.link', '.admin.memcache.text', [ 'siteadmin:memcacheview', 'siteadmin:*' ] ],
-    [ 'memcache_view',
-        '.admin.memcache_view.link', '.admin.memcache_view.text', [ 'siteadmin:memcacheview', 'siteadmin:*', sub {
-            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
-        } ] ],
-    [ 'pay/',
-        '.admin.pay.link', '.admin.pay.text', [ 'payments' ] ],
-    [ 'priv/',
-        '.admin.priv.link', '.admin.priv.text' ],
-    [ 'recent_comments',
-        '.admin.recent_comments.link', '.admin.recent_comments.text', [ 'siteadmin:commentview', 'siteadmin:*' ] ],
-    [ 'statushistory',
-        '.admin.statushistory.link', '.admin.statushistory.text', [ 'historyview', sub {
-            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
-        } ] ],
-    [ 'styleinfo',
-        '.admin.styleinfo.link', '.admin.styleinfo.text', [ sub {
-            return ( LJ::Support::has_any_support_priv($_[0]->{remote}),
-                LJ::Lang::ml( "/admin/index.tt.anysupportpriv" ) );
-        }, sub {
-            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
-        } ] ],
-    [ 'sysban',
-        '.admin.sysban.link', '.admin.sysban.text', [ 'sysban' ] ],
-    [ 'translate/',
-        '.admin.translate.link', '.admin.translate.text' ],
-    [ 'userlog',
-        '.admin.userlog.link', '.admin.userlog.text', [ 'canview:userlog', 'canview:*' ] ],
-    [ 'vgifts/',
-        '.admin.vgifts.link', '.admin.vgifts.text', [ 'siteadmin:vgifts', 'vgifts', sub {
-            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
-        } ] ],
+DW::Controller::Admin->_register_admin_pages_legacy(
+    '/',
+    [ 'faq/', '.admin.faq.link', '.admin.faq.text', [ 'faqadd', 'faqedit', 'faqcat' ] ],
+    [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
+    [
+        'invites/', '.admin.invites.link',
+        '.admin.invites.text', [ 'finduser:codetrace', 'finduser:*', 'payments' ]
+    ],
+    [
+        'memcache', '.admin.memcache.link',
+        '.admin.memcache.text', [ 'siteadmin:memcacheview', 'siteadmin:*' ]
+    ],
+    [
+        'memcache_view',
+        '.admin.memcache_view.link',
+        '.admin.memcache_view.text',
+        [
+            'siteadmin:memcacheview',
+            'siteadmin:*',
+            sub {
+                return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
+            }
+        ]
+    ],
+    [
+        'pay/',
+        '.admin.pay.link',
+        '.admin.pay.text',
+        ['payments']
+    ],
+    [
+        'priv/',
+        '.admin.priv.link',
+        '.admin.priv.text'
+    ],
+    [
+        'recent_comments',
+        '.admin.recent_comments.link',
+        '.admin.recent_comments.text',
+        [ 'siteadmin:commentview', 'siteadmin:*' ]
+    ],
+    [
+        'statushistory',
+        '.admin.statushistory.link',
+        '.admin.statushistory.text',
+        [
+            'historyview',
+            sub {
+                return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
+            }
+        ]
+    ],
+    [
+        'styleinfo',
+        '.admin.styleinfo.link',
+        '.admin.styleinfo.text',
+        [
+            sub {
+                return (
+                    LJ::Support::has_any_support_priv( $_[0]->{remote} ),
+                    LJ::Lang::ml("/admin/index.tt.anysupportpriv")
+                );
+            },
+            sub {
+                return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
+            }
+        ]
+    ],
+    [
+        'sysban',
+        '.admin.sysban.link',
+        '.admin.sysban.text',
+        ['sysban']
+    ],
+    [
+        'translate/',
+        '.admin.translate.link',
+        '.admin.translate.text'
+    ],
+    [
+        'userlog',
+        '.admin.userlog.link',
+        '.admin.userlog.text',
+        [ 'canview:userlog', 'canview:*' ]
+    ],
+    [
+        'vgifts/',
+        '.admin.vgifts.link',
+        '.admin.vgifts.text',
+        [
+            'siteadmin:vgifts',
+            'vgifts',
+            sub {
+                return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
+            }
+        ]
+    ],
 );
-
 
 sub admin_handler {
     my $opts = shift @_;
-    my $r = DW::Request->get;
+    my $r    = DW::Request->get;
 
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
     my $remote = $rv->{remote};
 
-    my $args = $opts->args || {};
+    my $args  = $opts->args    || {};
     my $scope = $args->{scope} || "/";
 
     my $data = $admin_pages->{$scope};
@@ -110,16 +167,18 @@ sub admin_handler {
         my $haspriv = 0;
         foreach my $priv ( @{$privs} ) {
             my $code_result;
-            $code_result = [
-                $priv->( { remote => $remote } )
-            ] if ref( $priv ) eq "CODE";
+            $code_result = [ $priv->( { remote => $remote } ) ] if ref($priv) eq "CODE";
 
-            my $result = ( $code_result ?
-                             $code_result->[0] :
-                             $remote && $remote->has_priv( split( /:/, $priv ) ) );
-            my $displayedpriv = ( $code_result ?
-                                        $code_result->[1] :
-                                        $priv );
+            my $result = (
+                  $code_result
+                ? $code_result->[0]
+                : $remote && $remote->has_priv( split( /:/, $priv ) )
+            );
+            my $displayedpriv = (
+                  $code_result
+                ? $code_result->[1]
+                : $priv
+            );
             push( @gotprivs,   $displayedpriv ) if $result;
             push( @needsprivs, $displayedpriv ) if !$result;
             $haspriv  = 1 if $result;
@@ -130,15 +189,16 @@ sub admin_handler {
             $haspriv  = 1;
         }
         $path = "/admin$scope$path" unless $path =~ m!^((https?://)|/)!;
-        if ( $showpage ) {
-            push @pages, {
-                path => $path,
-                link_ml => $link_ml,
+        if ($showpage) {
+            push @pages,
+                {
+                path           => $path,
+                link_ml        => $link_ml,
                 description_ml => $description_ml,
-                haspriv => $haspriv,
-                gotprivs => \@gotprivs,
-                needsprivs => \@needsprivs,
-            };
+                haspriv        => $haspriv,
+                gotprivs       => \@gotprivs,
+                needsprivs     => \@needsprivs,
+                };
         }
     }
     $vars->{pages} = \@pages;
@@ -239,19 +299,19 @@ sub register_admin_page {
 
     my ( $path, $link_ml, $desc_ml, $privs );
 
-    $path = $args{path};
+    $path  = $args{path};
     $privs = $args{privs};
 
-    $link_ml = $args{link_ml} || ".admin.link";
+    $link_ml = $args{link_ml}        || ".admin.link";
     $desc_ml = $args{description_ml} || ".admin.text";
 
     if ( $args{ml_scope} ) {
         $link_ml = $args{ml_scope} . $link_ml;
         $desc_ml = $args{ml_scope} . $desc_ml;
-    } 
+    }
 
     $scope ||= "/";
-    push @{$admin_pages->{$scope}->{pages}}, [ $path, $link_ml, $desc_ml, $privs ];
+    push @{ $admin_pages->{$scope}->{pages} }, [ $path, $link_ml, $desc_ml, $privs ];
 }
 
 # DO NOT USE OUTSIDE THIS FILE!
@@ -260,8 +320,8 @@ sub _register_admin_pages_legacy {
     my ( $class, $scope, @pages ) = @_;
 
     $scope ||= "/";
-    foreach my $part ( @pages ) {
-        push @{$admin_pages->{$scope}->{pages}}, $part;
+    foreach my $part (@pages) {
+        push @{ $admin_pages->{$scope}->{pages} }, $part;
     }
 }
 

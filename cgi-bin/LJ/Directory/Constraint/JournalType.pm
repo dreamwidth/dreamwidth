@@ -20,7 +20,7 @@ use Carp qw(croak);
 use LJ::Directory::SetHandle::JournalType;
 
 sub new {
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
     my $self = bless {}, $pkg;
     $self->{$_} = delete $args{$_} foreach qw(journaltype);
     croak "unknown args" if %args;
@@ -28,10 +28,11 @@ sub new {
 }
 
 sub new_from_formargs {
-    my ($pkg, $args) = @_;
-    return undef unless $args->{journaltype}
+    my ( $pkg, $args ) = @_;
+    return undef
+        unless $args->{journaltype}
         && $args->{journaltype} =~ /^\w$/;
-    return $pkg->new(journaltype => $args->{journaltype});
+    return $pkg->new( journaltype => $args->{journaltype} );
 }
 
 sub cache_for { 86400 }
@@ -43,7 +44,7 @@ sub cached_sethandle {
 
 sub sethandle {
     my ($self) = @_;
-    return LJ::Directory::SetHandle::JournalType->new($self->{journaltype});
+    return LJ::Directory::SetHandle::JournalType->new( $self->{journaltype} );
 }
 
 1;

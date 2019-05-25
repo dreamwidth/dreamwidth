@@ -23,19 +23,19 @@ use CGI::Util qw( unescape );
 use LJ::JSON;
 
 use fields (
-            'cookies_in',
-            'cookies_in_multi',
+    'cookies_in',
+    'cookies_in_multi',
 
-            # If you use post_args, then you must not use content. If you use
-            # content, you must not use post_args. Mutually exclusive.
-            'content',   # raw content of the request (POST only!)
-            'post_args', # hashref of POST arguments (form encoding)
-            'json_obj',  # JSON object that was posted (application/json)
-            'uploads',   # arrayref of hashrefs of uploaded files
+    # If you use post_args, then you must not use content. If you use
+    # content, you must not use post_args. Mutually exclusive.
+    'content',      # raw content of the request (POST only!)
+    'post_args',    # hashref of POST arguments (form encoding)
+    'json_obj',     # JSON object that was posted (application/json)
+    'uploads',      # arrayref of hashrefs of uploaded files
 
-            # Query string arguments, every request might have these.
-            'get_args',
-        );
+    # Query string arguments, every request might have these.
+    'get_args',
+);
 
 sub new {
     my $self = $_[0];
@@ -58,24 +58,25 @@ sub host {
 sub cookie {
     my DW::Request::Base $self = $_[0];
 
-    $self->parse( $self->header_in( 'Cookie' ) ) unless defined $self->{cookies_in};
-    my $val = $self->{cookies_in}->{$_[1]} || [];
+    $self->parse( $self->header_in('Cookie') ) unless defined $self->{cookies_in};
+    my $val = $self->{cookies_in}->{ $_[1] } || [];
     return wantarray ? @$val : $val->[0];
 }
 
 sub cookie_multi {
     my DW::Request::Base $self = $_[0];
 
-    $self->parse( $self->header_in( 'Cookie' ) ) unless defined $self->{cookies_in_multi};
-    return @{ $self->{cookies_in_multi}->{$_[1]} || [] };
+    $self->parse( $self->header_in('Cookie') ) unless defined $self->{cookies_in_multi};
+    return @{ $self->{cookies_in_multi}->{ $_[1] } || [] };
 }
 
 sub add_cookie {
     my DW::Request::Base $self = shift;
-    my %args = ( @_ );
+    my %args = (@_);
 
     confess "Must provide name" unless $args{name};
-    confess "Must provide value (try delete_cookie if you really mean this)" unless exists $args{value};
+    confess "Must provide value (try delete_cookie if you really mean this)"
+        unless exists $args{value};
 
     # extraneous parenthesis inside map {} needed to force BLOCK mode map
     my $cookie = CGI::Cookie->new( map { ( "-$_" => $args{$_} ) } keys %args );
@@ -86,14 +87,14 @@ sub add_cookie {
 
 sub delete_cookie {
     my DW::Request::Base $self = shift;
-    my %args = ( @_ );
+    my %args = (@_);
 
     confess "Must provide name" unless $args{name};
 
-    $args{value}    = '';
-    $args{expires}  = "-1d";
+    $args{value}   = '';
+    $args{expires} = "-1d";
 
-    return $self->add_cookie( %args );
+    return $self->add_cookie(%args);
 }
 
 # Per RFC, method must be GET, POST, etc. We don't allow lowercase or any other
@@ -113,31 +114,34 @@ sub uploads {
     return $self->{uploads} = []
         unless $body && $self->method eq 'POST';
 
-    my $sep = ( $self->header_in( 'Content-Type' ) =~ m!^multipart/form-data;\s*boundary=(\S+)! ) ? $1 : undef;
+    my $sep =
+        ( $self->header_in('Content-Type') =~ m!^multipart/form-data;\s*boundary=(\S+)! )
+        ? $1
+        : undef;
     croak 'Unknown content type in upload.' unless defined $sep;
 
     my @lines = split /\r\n/, $body;
-    my $line = shift @lines;
+    my $line  = shift @lines;
     croak 'Error parsing upload, it looks invalid.'
         unless $line eq "--$sep";
 
     my $ret = [];
-    while ( @lines ) {
+    while (@lines) {
         $line = shift @lines;
 
         my %h;
-        while (defined $line && $line ne "") {
+        while ( defined $line && $line ne "" ) {
             $line =~ /^(\S+?):\s*(.+)/;
-            $h{lc($1)} = $2;
+            $h{ lc($1) } = $2;
             $line = shift @lines;
         }
-        while (defined $line && $line ne "--$sep") {
+        while ( defined $line && $line ne "--$sep" ) {
             last if $line eq "--$sep--";
             $h{body} .= "\r\n" if $h{body};
             $h{body} .= $line;
             $line = shift @lines;
         }
-        if ($h{'content-disposition'} =~ /name="(\S+?)"/) {
+        if ( $h{'content-disposition'} =~ /name="(\S+?)"/ ) {
             $h{name} = $1 || $2;
             push @$ret, \%h;
         }
@@ -155,11 +159,10 @@ sub post_args {
     # Requires a POST with the proper content type for us to parse it, else just
     # bail and return empty.
     return Hash::MultiValue->new
-        unless $self->method eq 'POST' &&
-               $self->header_in( 'Content-Type' ) =~ m!^application/x-www-form-urlencoded(?:;.+)?$!;
+        unless $self->method eq 'POST'
+        && $self->header_in('Content-Type') =~ m!^application/x-www-form-urlencoded(?:;.+)?$!;
 
-    return $self->{post_args} =
-        $self->_string_to_multivalue( $self->content );
+    return $self->{post_args} = $self->_string_to_multivalue( $self->content );
 }
 
 # returns a Hash::MultiValue of query string arguments
@@ -188,15 +191,13 @@ sub json {
     # Content type must start with "application/json" and may have a semi-colon
     # followed by charset, etc. It must also be a POST.
     return undef
-        unless $self->method eq 'POST' &&
-               $self->header_in( 'Content-Type' ) =~ m!^application/json(?:;.+)?$!;
+        unless $self->method eq 'POST'
+        && $self->header_in('Content-Type') =~ m!^application/json(?:;.+)?$!;
 
     # If they submit bad JSON, we want to ignore the error and not crash. Just
     # let the caller know it wasn't a valid input.
     my $obj;
-    eval {
-        $obj = from_json( $self->content );
-    };
+    eval { $obj = from_json( $self->content ); };
     return undef if $@;
 
     # Temporarily caches it, in case someone tries to ask for it again.
@@ -208,16 +209,16 @@ sub json {
 #   up at the same point parse_args is.
 sub _string_to_multivalue {
     my ( $class, $input, %opts ) = @_;
-    my %gets = LJ::parse_args( $input );
+    my %gets = LJ::parse_args($input);
 
     my @out;
     foreach my $key ( keys %gets ) {
 
-        my @parts = defined $gets{$key} ? split(/\0/, $gets{$key}): '' ;
+        my @parts = defined $gets{$key} ? split( /\0/, $gets{$key} ) : '';
         push @out, map { $opts{lowercase} ? lc $key : $key => $_ } @parts;
     }
 
-    return Hash::MultiValue->new( @out );
+    return Hash::MultiValue->new(@out);
 }
 
 # simply sets the location header and returns REDIRECT
@@ -232,19 +233,19 @@ sub redirect {
 sub OK { return 0; }
 
 # HTTP status codes that we return in other methods
-sub HTTP_OK { return 200; }
-sub HTTP_CREATED { return 201; }
-sub MOVED_PERMANENTLY { return 301; }
-sub REDIRECT  { return 302; }
-sub NOT_FOUND { return 404; }
-sub HTTP_GONE { return 410; }
-sub SERVER_ERROR { return 500; }
-sub HTTP_UNAUTHORIZED { return 401; }
-sub HTTP_BAD_REQUEST { return 400; }
+sub HTTP_OK                     { return 200; }
+sub HTTP_CREATED                { return 201; }
+sub MOVED_PERMANENTLY           { return 301; }
+sub REDIRECT                    { return 302; }
+sub NOT_FOUND                   { return 404; }
+sub HTTP_GONE                   { return 410; }
+sub SERVER_ERROR                { return 500; }
+sub HTTP_UNAUTHORIZED           { return 401; }
+sub HTTP_BAD_REQUEST            { return 400; }
 sub HTTP_UNSUPPORTED_MEDIA_TYPE { return 415; }
-sub HTTP_SERVER_ERROR { return 500; }
-sub HTTP_METHOD_NOT_ALLOWED { return 405; }
-sub FORBIDDEN { return 403; }
+sub HTTP_SERVER_ERROR           { return 500; }
+sub HTTP_METHOD_NOT_ALLOWED     { return 405; }
+sub FORBIDDEN                   { return 403; }
 
 # Unimplemented method block. These are things that the derivative classes must
 # implement. In the future, it'd be nice to roll as many of these up to the base
@@ -252,14 +253,14 @@ sub FORBIDDEN { return 403; }
 sub header_out {
     confess 'Unimplemented call on base class.';
 }
-*header_out_add = \&header_out;
-*err_header_out = \&header_out;
+*header_out_add     = \&header_out;
+*err_header_out     = \&header_out;
 *err_header_out_add = \&header_out;
-*header_in = \&header_out;
-*header_in_add = \&header_out;
-*err_header_in = \&header_out;
-*err_header_in_add = \&header_out;
-*method = \&header_out;
+*header_in          = \&header_out;
+*header_in_add      = \&header_out;
+*err_header_in      = \&header_out;
+*err_header_in_add  = \&header_out;
+*method             = \&header_out;
 
 #
 # Following sub was copied from CGI::Cookie and modified.
@@ -276,24 +277,24 @@ sub parse {
     my %results_multi;
 
     my @pairs = split( "[;,] ?", defined $_[1] ? $_[1] : '' );
-    foreach ( @pairs ) {
+    foreach (@pairs) {
         $_ =~ s/\s*(.*?)\s*/$1/;
         my ( $key, $value ) = split( "=", $_, 2 );
 
         # Some foreign cookies are not in name=value format, so ignore
         # them.
-        next unless defined( $value );
+        next unless defined($value);
         my @values = ();
         if ( $value ne '' ) {
-          @values = map unescape( $_ ), split( /[&;]/, $value . '&dmy' );
-          pop @values;
+            @values = map unescape($_), split( /[&;]/, $value . '&dmy' );
+            pop @values;
         }
-        $key = unescape( $key );
+        $key = unescape($key);
         $results{$key} ||= \@values;
         push @{ $results_multi{$key} }, \@values;
     }
 
-    $self->{cookies_in} = \%results;
+    $self->{cookies_in}       = \%results;
     $self->{cookies_in_multi} = \%results_multi;
 }
 

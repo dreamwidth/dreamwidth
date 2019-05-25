@@ -17,18 +17,18 @@ use strict;
 
 use lib qw{lib};
 
-use LJ::Test::Unit          qw{+autorun};
-use LJ::Test::Assertions    qw{:all};
+use LJ::Test::Unit qw{+autorun};
+use LJ::Test::Assertions qw{:all};
 
 sub test_00_packages {
-    assert( 1 );
-    assert_undef( undef );
-    assert_defined( 1 );
+    assert(1);
+    assert_undef(undef);
+    assert_defined(1);
     assert_no_exception { my $foo = 1; };
 }
 
 sub test_01_fail {
-    fail( "Intentional failure." );
+    fail("Intentional failure.");
 }
 
 sub test_02_fail2 {

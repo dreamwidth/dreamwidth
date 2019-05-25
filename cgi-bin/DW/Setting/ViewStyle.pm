@@ -46,24 +46,27 @@ sub should_render {
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
-    my $key = $class->pkgkey;
+    my $key  = $class->pkgkey;
     my $name = $class->prop_name;
 
-    my $viewjournalstyle = $class->get_arg( $args, "viewjournalstyle" ) || $u->prop( $name ) || 'O';
+    my $viewjournalstyle = $class->get_arg( $args, "viewjournalstyle" ) || $u->prop($name) || 'O';
 
     my @options = (
-        O => $class->ml( 'setting.display.viewstyle.original' ),
-        M => $class->ml( 'setting.display.viewstyle.mine' ),
-        S => $class->ml( 'setting.display.viewstyle.site' ),
-        L => $class->ml( 'setting.display.viewstyle.light' ),
+        O => $class->ml('setting.display.viewstyle.original'),
+        M => $class->ml('setting.display.viewstyle.mine'),
+        S => $class->ml('setting.display.viewstyle.site'),
+        L => $class->ml('setting.display.viewstyle.light'),
     );
 
     my $ret = "<label for='${key}style'>" . $class->option_ml . "</label> ";
-    $ret .= LJ::html_select({
-        name => "${key}style",
-        id => "${key}style",
-        selected => $viewjournalstyle,
-    }, @options );
+    $ret .= LJ::html_select(
+        {
+            name     => "${key}style",
+            id       => "${key}style",
+            selected => $viewjournalstyle,
+        },
+        @options
+    );
 
     return $ret;
 }
@@ -72,7 +75,8 @@ sub error_check {
     my ( $class, $u, $args ) = @_;
     my $val = uc( $class->get_arg( $args, "style" ) );
 
-    $class->error( style => $class->ml( '.setting.display.viewstyle.invalid' ) ) unless $val =~ /^[OMSL]$/;
+    $class->error( style => $class->ml('.setting.display.viewstyle.invalid') )
+        unless $val =~ /^[OMSL]$/;
 
     return 1;
 }
@@ -86,7 +90,7 @@ sub save {
     my $val = $class->get_arg( $args, "style" );
 
     # don't save if this is the value we are already using
-    return 1 if $u->prop( $name ) and $val eq $u->prop( $name );
+    return 1 if $u->prop($name) and $val eq $u->prop($name);
 
     # delete if we are turning it back to the default
     $val = "" if $val eq "O";

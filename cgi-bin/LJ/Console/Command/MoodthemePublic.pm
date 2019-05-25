@@ -21,20 +21,22 @@ sub cmd { "moodtheme_public" }
 
 sub desc { "Mark a mood theme as public or not. Requires priv: moodthememanager." }
 
-sub args_desc { [
-                 'themeid' => "Mood theme ID number.",
-                 'setting' => "Either 'Y' or 'N' to make it public or not public, respectively.",
-                 ] }
+sub args_desc {
+    [
+        'themeid' => "Mood theme ID number.",
+        'setting' => "Either 'Y' or 'N' to make it public or not public, respectively.",
+    ]
+}
 
 sub usage { '<themeid> <setting>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "moodthememanager" );
+    return $remote && $remote->has_priv("moodthememanager");
 }
 
 sub execute {
-    my ($self, $themeid, $public, @args) = @_;
+    my ( $self, $themeid, $public, @args ) = @_;
 
     return $self->error("This command takes three arguments. Consult the reference.")
         unless $themeid && $public && scalar(@args) == 0;
@@ -42,7 +44,7 @@ sub execute {
     return $self->error("Setting must be either 'Y' or 'N'")
         unless $public =~ /^[YN]$/;
 
-    my $theme = DW::Mood->new( $themeid );
+    my $theme = DW::Mood->new($themeid);
     return $self->error("This theme doesn't seem to exist.")
         unless $theme;
 
@@ -50,7 +52,7 @@ sub execute {
     return $self->error("This theme is already marked as $msg.")
         if $theme->is_public eq $public;
 
-    return $self->error( "Failed to update theme." )
+    return $self->error("Failed to update theme.")
         unless $theme->update( 'is_public' => $public );
 
     return $self->print("Theme #$themeid marked as $msg.");

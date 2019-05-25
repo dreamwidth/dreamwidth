@@ -53,8 +53,7 @@ sub strip_request_auth {
 # des-text: Text from which to return extra URLs.
 # returns: list of URLs
 # </LJFUNC>
-sub get_urls
-{
+sub get_urls {
     return ( $_[0] =~ m!https?://[^\s\"\'\<\>]+!g );
 }
 
@@ -70,12 +69,13 @@ sub parse_args {
 
     my %GET;
     foreach my $pair ( split /&/, $args ) {
-        my ($name, $value) = split /=/, $pair;
+        my ( $name, $value ) = split /=/, $pair;
 
         if ( defined $value ) {
             $value =~ tr/+/ /;
             $value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
-        } else {
+        }
+        else {
             $value = '';
         }
 
@@ -96,24 +96,22 @@ sub parse_args {
 # des-hashref: Hashref to populate.
 # returns: boolean; true.
 # </LJFUNC>
-sub decode_url_string
-{
-    my $a = shift;
-    my $buffer = ref $a ? $a : \$a;
-    my $hashref = shift;  # output hash
-    my $keyref  = shift;  # array of keys as they were found
+sub decode_url_string {
+    my $a       = shift;
+    my $buffer  = ref $a ? $a : \$a;
+    my $hashref = shift;               # output hash
+    my $keyref  = shift;               # array of keys as they were found
 
     my $pair;
-    my @pairs = split(/&/, $$buffer);
+    my @pairs = split( /&/, $$buffer );
     @$keyref = @pairs;
-    my ($name, $value);
-    foreach $pair (@pairs)
-    {
-        ($name, $value) = split(/=/, $pair);
+    my ( $name, $value );
+    foreach $pair (@pairs) {
+        ( $name, $value ) = split( /=/, $pair );
         $value =~ tr/+/ /;
         $value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
-        $name =~ tr/+/ /;
-        $name =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+        $name  =~ tr/+/ /;
+        $name  =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
         $hashref->{$name} .= $hashref->{$name} ? "\0$value" : $value;
     }
     return 1;
@@ -123,10 +121,11 @@ sub decode_url_string
 #       arrayref of keys in order (optional)
 # returns: urlencoded string
 sub encode_url_string {
-    my ($hashref, $keyref) = @_;
+    my ( $hashref, $keyref ) = @_;
 
-    return join('&', map { LJ::eurl($_) . '=' . LJ::eurl($hashref->{$_}) }
-                (ref $keyref ? @$keyref : keys %$hashref));
+    return join( '&',
+        map { LJ::eurl($_) . '=' . LJ::eurl( $hashref->{$_} ) }
+            ( ref $keyref ? @$keyref : keys %$hashref ) );
 }
 
 # <LJFUNC>
@@ -177,6 +176,7 @@ sub exml {
 
     # fast path for the commmon case:
     return $a unless $a =~ /[&\"\'<>\x00-\x08\x0B\x0C\x0E-\x1F]/;
+
     # what are those character ranges? XML 1.0 allows:
     # #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
 
@@ -212,7 +212,7 @@ sub ehtml {
     $a =~ s/>/&gt;/g;
     return $a;
 }
-*eall = \&ehtml;  # old BML syntax required eall to also escape BML.  not anymore.
+*eall = \&ehtml;    # old BML syntax required eall to also escape BML.  not anymore.
 
 # <LJFUNC>
 # name: LJ::dhtml
@@ -226,7 +226,7 @@ sub dhtml {
     my $a = $_[0];
     return '' unless defined $a;
 
-    return HTML::Entities::decode_entities( $a );
+    return HTML::Entities::decode_entities($a);
 }
 
 # <LJFUNC>
@@ -274,7 +274,7 @@ sub ejs {
 # including protecting against closing </script> tags in the entry.
 # does the double quotes for ya.
 sub ejs_string {
-    my $str = ejs($_[0]);
+    my $str = ejs( $_[0] );
     $str =~ s!</script!</scri\" + \"pt!gi;
     return "\"" . $str . "\"";
 }
@@ -290,13 +290,13 @@ sub ejs_all {
     return $a;
 }
 
-
 # strip all HTML tags from a string
 sub strip_html {
     my $str = $_[0];
     return '' unless defined $str;
 
-    $str =~ s/\<(?:lj(?: site=[^\s]+)? user|user(?: site=[^\s]+)? name)\=['"]?([\w-]+)['"]?[^>]*\>/$1/g;
+    $str =~
+        s/\<(?:lj(?: site=[^\s]+)? user|user(?: site=[^\s]+)? name)\=['"]?([\w-]+)['"]?[^>]*\>/$1/g;
     $str =~ s/\<([^\<])+\>//g;
     return $str;
 }
@@ -311,7 +311,7 @@ sub strip_html {
 sub is_ascii {
     my $text = $_[0];
     return 1 unless defined $text;
-    return ($text !~ m/[^\x01-\x7f]/);
+    return ( $text !~ m/[^\x01-\x7f]/ );
 }
 
 # <LJFUNC>
@@ -324,8 +324,8 @@ sub is_ascii {
 sub is_utf8 {
     my $text = shift;
 
-    if (LJ::Hooks::are_hooks("is_utf8")) {
-        return LJ::Hooks::run_hook("is_utf8", $text);
+    if ( LJ::Hooks::are_hooks("is_utf8") ) {
+        return LJ::Hooks::run_hook( "is_utf8", $text );
     }
 
     require Unicode::CheckUTF8;
@@ -336,7 +336,7 @@ sub is_utf8 {
         undef $stab{is_utf8};
     }
     *LJ::is_utf8 = \&LJ::is_utf8_wrapper;
-    return LJ::is_utf8_wrapper( $text );
+    return LJ::is_utf8_wrapper($text);
 }
 
 # <LJFUNC>
@@ -349,10 +349,12 @@ sub is_utf8 {
 sub is_utf8_wrapper {
     my $text = $_[0];
 
-    if ( defined $text && ! ref $text && $text )  {
+    if ( defined $text && !ref $text && $text ) {
+
         # we need to make sure $text values are treated as strings
         return Unicode::CheckUTF8::is_utf8( '' . $text );
-    } else {
+    }
+    else {
         # all possible "false" values for $text are valid unicode
         return 1;
     }
@@ -370,7 +372,7 @@ sub is_utf8_wrapper {
 sub has_too_many {
     my ( $text, %opts ) = @_;
 
-    return 1 if exists $opts{chars} && length( $text ) > $opts{chars};
+    return 1 if exists $opts{chars} && length($text) > $opts{chars};
 
     if ( exists $opts{linebreaks} ) {
         my @breaks = $text =~ m/(<br \/>|\n)/g;
@@ -380,19 +382,18 @@ sub has_too_many {
     return 0;
 }
 
-
 # alternate version of "lc" that handles UTF-8
 # args: text string for lowercasing
 # returns: lowercase string
 sub utf8_lc {
-    use Encode;  # Perl 5.8 or higher
+    use Encode;    # Perl 5.8 or higher
 
     # get the encoded text to work with
     my $text = decode( "UTF-8", $_[0] );
+
     # return the lowercased text
     return encode( "UTF-8", lc $text );
 }
-
 
 # <LJFUNC>
 # name: LJ::text_out
@@ -401,8 +402,7 @@ sub utf8_lc {
 # des-text: reference to text to pass to output. Text if modified in-place.
 # returns: nothing.
 # </LJFUNC>
-sub text_out
-{
+sub text_out {
     my $rtext = shift;
 
     # is this valid UTF-8 already?
@@ -421,15 +421,14 @@ sub text_out
 # des-text: text to check
 # returns: 1 if the text is valid, 0 if not.
 # </LJFUNC>
-sub text_in
-{
+sub text_in {
     my $text = shift;
 
-    if (ref ($text) eq "HASH") {
-        return ! (grep { !LJ::is_utf8($_) } values %{$text});
+    if ( ref($text) eq "HASH" ) {
+        return !( grep { !LJ::is_utf8($_) } values %{$text} );
     }
-    if (ref ($text) eq "ARRAY") {
-        return ! (grep { !LJ::is_utf8($_) } @{$text});
+    if ( ref($text) eq "ARRAY" ) {
+        return !( grep { !LJ::is_utf8($_) } @{$text} );
     }
     return LJ::is_utf8($text);
 }
@@ -447,31 +446,31 @@ sub text_in
 # returns: converted text or undef on error
 # </LJFUNC>
 sub text_convert {
-    my ($text, $u, $error) = @_;
+    my ( $text, $u, $error ) = @_;
 
     # maybe it's pure ASCII?
     return $text if LJ::is_ascii($text);
 
     # load encoding id->name mapping if it's not loaded yet
-    LJ::load_codes({ "encoding" => \%LJ::CACHE_ENCODINGS } )
+    LJ::load_codes( { "encoding" => \%LJ::CACHE_ENCODINGS } )
         unless %LJ::CACHE_ENCODINGS;
 
-    if ($u->{'oldenc'} == 0 ||
-        not defined $LJ::CACHE_ENCODINGS{$u->{'oldenc'}}) {
-        $$error = 1;
-        return undef;
-    };
-
-    # convert!
-    my $name = $LJ::CACHE_ENCODINGS{$u->{'oldenc'}};
-    unless (LJ::ConvUTF8->supported_charset($name)) {
+    if ( $u->{'oldenc'} == 0
+        || not defined $LJ::CACHE_ENCODINGS{ $u->{'oldenc'} } )
+    {
         $$error = 1;
         return undef;
     }
 
-    return LJ::ConvUTF8->to_utf8($name, $text);
-}
+    # convert!
+    my $name = $LJ::CACHE_ENCODINGS{ $u->{'oldenc'} };
+    unless ( LJ::ConvUTF8->supported_charset($name) ) {
+        $$error = 1;
+        return undef;
+    }
 
+    return LJ::ConvUTF8->to_utf8( $name, $text );
+}
 
 # <LJFUNC>
 # name: LJ::text_length
@@ -482,15 +481,14 @@ sub text_convert {
 # returns: a list of two values, (byte_length, char_length).
 # </LJFUNC>
 
-sub text_length
-{
-    my $text = shift;
-    my $bl = length($text);
-    my $cl = 0;
+sub text_length {
+    my $text     = shift;
+    my $bl       = length($text);
+    my $cl       = 0;
     my $utf_char = "([\x00-\x7f]|[\xc0-\xdf].|[\xe0-\xef]..|[\xf0-\xf7]...)";
 
-    while ($text =~ m/$utf_char/go) { $cl++; }
-    return ($bl, $cl);
+    while ( $text =~ m/$utf_char/go ) { $cl++; }
+    return ( $bl, $cl );
 }
 
 # <LJFUNC>
@@ -503,13 +501,12 @@ sub text_length
 # des-char_max: maximum allowed length in chars; if 0, there's no restriction
 # returns: the truncated string.
 # </LJFUNC>
-sub text_trim
-{
+sub text_trim {
     my ( $text, $byte_max, $char_max, $didtrim_ref ) = @_;
-    $text = defined $text ? LJ::trim( $text ) : '';
+    $text = defined $text ? LJ::trim($text) : '';
     return $text unless $byte_max or $char_max;
 
-    my $cur = 0;
+    my $cur      = 0;
     my $utf_char = "([\x00-\x7f]|[\xc0-\xdf].|[\xe0-\xef]..|[\xf0-\xf7]...)";
 
     # if we don't have a character limit, assume it's the same as the byte limit.
@@ -520,8 +517,8 @@ sub text_trim
     my $fake_scalar;
     my $ref = ref $didtrim_ref ? $didtrim_ref : \$fake_scalar;
 
-    while ($text =~ m/$utf_char/gco) {
-        unless ( $char_max ) {
+    while ( $text =~ m/$utf_char/gco ) {
+        unless ($char_max) {
             $$ref = 1;
             last;
         }
@@ -546,18 +543,17 @@ sub text_trim
 # returns: nothing if given a scalarref (to compress in-place), or original/compressed value,
 #          depending on site config.
 # </LJFUNC>
-sub text_compress
-{
+sub text_compress {
     my $text = shift;
-    my $ref = ref $text;
+    my $ref  = ref $text;
     return $ref ? undef : $text unless $LJ::COMPRESS_TEXT;
     die "Invalid reference" if $ref && $ref ne "SCALAR";
 
-    my $tref = $ref ? $text : \$text;
+    my $tref    = $ref ? $text : \$text;
     my $pre_len = length($$tref);
-    unless (substr($$tref,0,2) eq "\037\213" || $pre_len < 100) {
+    unless ( substr( $$tref, 0, 2 ) eq "\037\213" || $pre_len < 100 ) {
         my $gz = Compress::Zlib::memGzip($$tref);
-        if (length($gz) < $pre_len) {
+        if ( length($gz) < $pre_len ) {
             $$tref = $gz;
         }
     }
@@ -575,15 +571,14 @@ sub text_compress
 # returns: nothing if given a scalarref (to uncompress in-place), or original/uncompressed value,
 #          depending on if test was compressed or not
 # </LJFUNC>
-sub text_uncompress
-{
+sub text_uncompress {
     my $text = shift;
-    my $ref = ref $text;
+    my $ref  = ref $text;
     die "Invalid reference" if $ref && $ref ne "SCALAR";
     my $tref = $ref ? $text : \$text;
 
     # check for gzip's magic number
-    if (substr($$tref,0,2) eq "\037\213") {
+    if ( substr( $$tref, 0, 2 ) eq "\037\213" ) {
         $$tref = Compress::Zlib::memGunzip($$tref);
     }
 
@@ -597,18 +592,18 @@ sub html_trim {
 
     return $text unless $char_max;
 
-    my $p = HTML::TokeParser->new(\$text);
-    my @open_tags; # keep track of what tags are open
-    my $out = '';
+    my $p = HTML::TokeParser->new( \$text );
+    my @open_tags;    # keep track of what tags are open
+    my $out         = '';
     my $content_len = 0;
 
-  TOKEN:
-    while (my $token = $p->get_token) {
+TOKEN:
+    while ( my $token = $p->get_token ) {
         my $type = $token->[0];
         my $tag  = $token->[1];
-        my $attr = $token->[2];  # hashref
+        my $attr = $token->[2];    # hashref
 
-        if ($type eq "S") {
+        if ( $type eq "S" ) {
             my $selfclose;
 
             # start tag
@@ -619,28 +614,29 @@ sub html_trim {
 
             # preserve order of attributes. the original order is
             # in element 4 of $token
-            foreach my $attrname (@{$token->[3]}) {
-                if ($attrname eq '/') {
+            foreach my $attrname ( @{ $token->[3] } ) {
+                if ( $attrname eq '/' ) {
                     $selfclose = 1;
                     next;
                 }
 
                 # FIXME: neaten
-                $attr->{$attrname} = LJ::no_utf8_flag($attr->{$attrname});
-                $out .= " $attrname=\"" . LJ::ehtml($attr->{$attrname}) . "\"";
+                $attr->{$attrname} = LJ::no_utf8_flag( $attr->{$attrname} );
+                $out .= " $attrname=\"" . LJ::ehtml( $attr->{$attrname} ) . "\"";
             }
 
             $out .= $selfclose ? " />" : ">";
 
             push @open_tags, $tag unless $selfclose;
 
-        } elsif ($type eq 'T' || $type eq 'D') {
+        }
+        elsif ( $type eq 'T' || $type eq 'D' ) {
             my $content = $token->[1];
 
-            if (length($content) + $content_len > $char_max) {
+            if ( length($content) + $content_len > $char_max ) {
 
                 # truncate and stop parsing
-                $content = LJ::text_trim($content, undef, ($char_max - $content_len));
+                $content = LJ::text_trim( $content, undef, ( $char_max - $content_len ) );
                 $out .= $content;
                 $$truncated = 1 if ref $truncated;
                 last;
@@ -650,11 +646,15 @@ sub html_trim {
 
             $out .= $content;
 
-        } elsif ($type eq 'C') {
+        }
+        elsif ( $type eq 'C' ) {
+
             # comment, don't care
             $out .= $token->[1];
 
-        } elsif ($type eq 'E') {
+        }
+        elsif ( $type eq 'E' ) {
+
             # end tag
             if ( $open_tags[-1] eq $tag ) {
                 pop @open_tags;
@@ -663,7 +663,7 @@ sub html_trim {
         }
     }
 
-    $out .= join("\n", map { "</$_>" } reverse @open_tags);
+    $out .= join( "\n", map { "</$_>" } reverse @open_tags );
 
     return $out;
 }
@@ -703,6 +703,5 @@ sub markdown_blockquote {
     $text =~ s/(^.*)/\> $1/gm;
     return $text;
 }
-
 
 1;

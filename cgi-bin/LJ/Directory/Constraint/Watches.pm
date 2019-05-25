@@ -32,8 +32,10 @@ sub new {
 sub new_from_formargs {
     my ( $pkg, $args ) = @_;
     return undef unless $args->{user_watches} xor $args->{userid_watches};
-    return $pkg->new( user   => $args->{user_watches},
-                      userid => $args->{userid_watches} );
+    return $pkg->new(
+        user   => $args->{user_watches},
+        userid => $args->{userid_watches}
+    );
 }
 
 sub cache_for { 5 * 60 }
@@ -41,12 +43,13 @@ sub cache_for { 5 * 60 }
 sub u {
     my $self = shift;
     return $self->{u} if $self->{u};
-    $self->{u} = $self->{userid} ? LJ::load_userid( $self->{userid} ) : LJ::load_user( $self->{user} );
+    $self->{u} =
+        $self->{userid} ? LJ::load_userid( $self->{userid} ) : LJ::load_user( $self->{user} );
 }
 
 sub matching_uids {
     my $self = shift;
-    my $u = $self->u or return ();
+    my $u    = $self->u or return ();
     return $u->watched_by_userids;
 }
 

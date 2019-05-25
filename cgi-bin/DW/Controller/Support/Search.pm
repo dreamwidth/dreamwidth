@@ -30,7 +30,7 @@ sub search_handler {
     my $remote = $rv->{remote};
 
     my $r = DW::Request->get;
-    return DW::Template->render_template( 'support/search.tt' )
+    return DW::Template->render_template('support/search.tt')
         unless $r->did_post;
 
     # POST logic, for doing the actual search.
@@ -38,9 +38,11 @@ sub search_handler {
     die "Invalid form auth.\n"
         unless LJ::check_form_auth( $args->{lj_form_auth} );
 
-    $rv = do_search( remoteid => $remote->id,
-                        query => $args->{query},
-                       offset => $args->{offset} );
+    $rv = do_search(
+        remoteid => $remote->id,
+        query    => $args->{query},
+        offset   => $args->{offset}
+    );
 
     return DW::Template->render_template( 'support/search.tt', $rv );
 }
@@ -51,8 +53,8 @@ sub do_search {
     my %args = @_;
 
     my $remoteid = delete $args{remoteid} or die "No remoteid";
-    my $q = LJ::strip_html( LJ::trim( delete $args{query} ) );
-    my $offset = ( delete $args{offset} // 0 ) + 0;
+    my $q        = LJ::strip_html( LJ::trim( delete $args{query} ) );
+    my $offset   = ( delete $args{offset} // 0 ) + 0;
     die "Unknown opts to do_search" if %args;
 
     my $gc = LJ::gearman_client();
@@ -60,45 +62,55 @@ sub do_search {
         unless $gc && @LJ::SPHINX_SEARCHD;
 
     my $error = sub { return { query => $q, error => $_[0] } };
-    my $ok    = sub { return { query => $q, offset => $offset,
-                               result => $_[0] } };
+    my $ok    = sub {
+        return {
+            query  => $q,
+            offset => $offset,
+            result => $_[0]
+        };
+    };
 
-    return $error->( "Please specify a shorter search string." )
+    return $error->("Please specify a shorter search string.")
         if length $q > 255;
-    return $error->( "Please specify a search string." )
+    return $error->("Please specify a search string.")
         unless length $q > 0;
-    return $error->( "Offset must be between 0 and 1000." )
+    return $error->("Offset must be between 0 and 1000.")
         unless $offset >= 0 && $offset <= 1000;
 
     # Gearman worker takes a blob, we send it a frozen hash.
-    my $search_args = { remoteid => $remoteid, query => $q,
-        offset => $offset, support => 1 };
-    my $arg = Storable::nfreeze( $search_args );
+    my $search_args = {
+        remoteid => $remoteid,
+        query    => $q,
+        offset   => $offset,
+        support  => 1
+    };
+    my $arg = Storable::nfreeze($search_args);
 
     # Build the actual task we're sending to Gearman for searching.
     my $result;
     my $task = Gearman::Task->new(
-        'sphinx_search', \$arg,
+        'sphinx_search',
+        \$arg,
         {
-            uniq => '-',
+            uniq        => '-',
             on_complete => sub {
                 my $res = $_[0] or return undef;
-                $result = Storable::thaw( $$res );
+                $result = Storable::thaw($$res);
             },
         }
     );
 
     # Fire the job and wait a bit. Times out if we don't get a response.
     my $ts = $gc->new_task_set();
-    $ts->add_task( $task );
+    $ts->add_task($task);
     $ts->wait( timeout => 20 );
 
-    return $error->( "Sorry, the request timed out or search is down." )
+    return $error->("Sorry, the request timed out or search is down.")
         unless ref $result eq 'HASH';
-    return $error->( "Sorry, there were no results found for that search." )
+    return $error->("Sorry, there were no results found for that search.")
         if $result->{total} <= 0;
 
-    return $ok->( $result );
+    return $ok->($result);
 }
 
 1;

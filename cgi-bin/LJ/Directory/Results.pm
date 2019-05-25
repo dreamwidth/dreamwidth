@@ -17,16 +17,16 @@ use warnings;
 use Carp qw(croak);
 
 sub new {
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
     my $self = bless {}, $pkg;
-    $self->{page_size} = int(delete $args{page_size} || 100);
-    $self->{pages} = int(delete $args{pages} || 0);
-    $self->{page} = int(delete $args{page} || 1);
+    $self->{page_size} = int( delete $args{page_size} || 100 );
+    $self->{pages}     = int( delete $args{pages}     || 0 );
+    $self->{page}      = int( delete $args{page}      || 1 );
     $self->{userids} = delete $args{userids} || [];
 
     $self->{format} = delete $args{format};
-    $self->{format} = "pics" unless
-        $self->{format} && $self->{format} =~ /^(pics|simple)$/;
+    $self->{format} = "pics"
+        unless $self->{format} && $self->{format} =~ /^(pics|simple)$/;
 
     return $self;
 }
@@ -43,7 +43,7 @@ sub pages {
 
 sub userids {
     my $self = shift;
-    return @{$self->{userids}};
+    return @{ $self->{userids} };
 }
 
 sub format {
@@ -52,8 +52,8 @@ sub format {
 }
 
 sub users {
-    my $self = shift;
-    my $us = LJ::load_userids($self->userids);
+    my $self   = shift;
+    my $us     = LJ::load_userids( $self->userids );
     my $remote = LJ::get_remote();
 
     # gotta do this to preserve the ordering we got
@@ -67,28 +67,29 @@ sub users {
 sub as_string {
     my $self = shift;
     my @uids = $self->userids;
-    return join(',', @uids);
+    return join( ',', @uids );
 }
 
 sub render {
     my $self = shift;
 
     return $self->render_simple if $self->format eq "simple";
-    return $self->render_pics if $self->format eq "pics";
+    return $self->render_pics   if $self->format eq "pics";
 }
 
 sub render_simple {
-    my $self = shift;
+    my $self  = shift;
     my @users = $self->users;
 
-    my $updated = LJ::get_timeupdate_multi($self->userids);
+    my $updated = LJ::get_timeupdate_multi( $self->userids );
 
     my $ret = "<ul>";
     foreach my $u (@users) {
         $ret .= "<li>";
         $ret .= $u->ljuser_display . " - " . $u->name_html;
+
         # FIXME: consider replacing this with $u->last_updated
-        $ret .= " <small>(Last updated: ". LJ::diff_ago_text( $updated->{$u->id} ) . ")</small>";
+        $ret .= " <small>(Last updated: " . LJ::diff_ago_text( $updated->{ $u->id } ) . ")</small>";
         $ret .= "</li>";
     }
     $ret .= "</ul>";
@@ -96,17 +97,17 @@ sub render_simple {
 }
 
 sub render_pics {
-    my $self = shift;
+    my $self  = shift;
     my @users = $self->users;
 
     my $tablecols = 5;
-    my $col = 0;
+    my $col       = 0;
 
-    my $updated = LJ::get_timeupdate_multi($self->userids);
+    my $updated = LJ::get_timeupdate_multi( $self->userids );
 
     my $ret = "<table summary='' id='SearchResults' cellspacing='1'>";
     foreach my $u (@users) {
-        $ret .= "</tr>\n<tr>\n" if ($col++ % $tablecols == 0);
+        $ret .= "</tr>\n<tr>\n" if ( $col++ % $tablecols == 0 );
 
         my $userpic = $u->userpic ? $u->userpic->imgtag : '';
 
@@ -118,10 +119,12 @@ sub render_pics {
 
         $ret .= "<small>";
 
-        if ( $updated->{$u->id} ) {
-            $ret .= LJ::Lang::ml( 'search.user.update.last', { time => LJ::diff_ago_text( $updated->{$u->id} ) } );
-        } else {
-            $ret .= LJ::Lang::ml( 'search.user.update.never' );
+        if ( $updated->{ $u->id } ) {
+            $ret .= LJ::Lang::ml( 'search.user.update.last',
+                { time => LJ::diff_ago_text( $updated->{ $u->id } ) } );
+        }
+        else {
+            $ret .= LJ::Lang::ml('search.user.update.never');
         }
 
         $ret .= "</small></td>";

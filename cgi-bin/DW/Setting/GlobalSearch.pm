@@ -24,7 +24,7 @@ sub should_render {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.globalsearch.label' );
+    return $_[0]->ml('setting.globalsearch.label');
 }
 
 sub option {
@@ -47,8 +47,8 @@ sub option {
             selected => $sel,
         },
 
-        'N' => $class->ml( "setting.globalsearch.sel.yes$iscomm" ),
-        'Y' => $class->ml( "setting.globalsearch.sel.no$iscomm" ),
+        'N' => $class->ml("setting.globalsearch.sel.yes$iscomm"),
+        'Y' => $class->ml("setting.globalsearch.sel.no$iscomm"),
     );
 
     my $errdiv = $class->errdiv( $errs, 'globalsearch' );

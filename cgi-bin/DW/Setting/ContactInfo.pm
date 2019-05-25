@@ -26,7 +26,7 @@ sub should_render {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.contactinfo.label' );
+    return $_[0]->ml('setting.contactinfo.label');
 }
 
 sub option {
@@ -37,37 +37,39 @@ sub option {
 
     my $iscomm = $u->is_community ? '.comm' : '';
 
-    my @options = $iscomm ? 
-    (
-        "Y" => $class->ml( 'setting.usermessaging.opt.a' ),
-        "R" => $class->ml( 'setting.usermessaging.opt.y' ),
-        "F" => $class->ml( 'setting.usermessaging.opt.members' ),
-        "N" => $class->ml( 'setting.usermessaging.opt.admins' ),
-    )
-    :
-    (
-        "Y" => $class->ml( 'setting.usermessaging.opt.a' ),
-        "R" => $class->ml( 'setting.usermessaging.opt.y' ),
-        "F" => $class->ml( 'setting.usermessaging.opt.f' ),
-        "N" => $class->ml( 'setting.usermessaging.opt.n' ),
-    );
+    my @options =
+        $iscomm
+        ? (
+        "Y" => $class->ml('setting.usermessaging.opt.a'),
+        "R" => $class->ml('setting.usermessaging.opt.y'),
+        "F" => $class->ml('setting.usermessaging.opt.members'),
+        "N" => $class->ml('setting.usermessaging.opt.admins'),
+        )
+        : (
+        "Y" => $class->ml('setting.usermessaging.opt.a'),
+        "R" => $class->ml('setting.usermessaging.opt.y'),
+        "F" => $class->ml('setting.usermessaging.opt.f'),
+        "N" => $class->ml('setting.usermessaging.opt.n'),
+        );
 
     my $ret;
 
     $ret .= " <label for='${key}contactinfo'>";
-    $ret .= $class->ml( "setting.contactinfo.option$iscomm" );
+    $ret .= $class->ml("setting.contactinfo.option$iscomm");
     $ret .= "</label> ";
 
-    $ret .= LJ::html_select( {
-        name => "${key}contactinfo",
-        id => "${key}contactinfo",
-        selected => $contactinfo,
-    }, @options );
-    
-    $ret .= "<p class='details'>";
-    $ret .= $class->ml( "setting.contactinfo.option.note$iscomm" );
-    $ret .= "</p>";
+    $ret .= LJ::html_select(
+        {
+            name     => "${key}contactinfo",
+            id       => "${key}contactinfo",
+            selected => $contactinfo,
+        },
+        @options
+    );
 
+    $ret .= "<p class='details'>";
+    $ret .= $class->ml("setting.contactinfo.option.note$iscomm");
+    $ret .= "</p>";
 
     my $errdiv = $class->errdiv( $errs, "contactinfo" );
     $ret .= "<br />$errdiv" if $errdiv;
@@ -79,8 +81,8 @@ sub error_check {
     my ( $class, $u, $args ) = @_;
     my $val = $class->get_arg( $args, "contactinfo" );
 
-    $class->errors( contactinfo => $class->ml( 'setting.contactinfo.error.invalid' ) )
-        unless ! $val || $val =~ /^[YRFN]$/;
+    $class->errors( contactinfo => $class->ml('setting.contactinfo.error.invalid') )
+        unless !$val || $val =~ /^[YRFN]$/;
 
     return 1;
 }

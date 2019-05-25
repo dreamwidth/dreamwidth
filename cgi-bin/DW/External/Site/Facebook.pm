@@ -20,21 +20,18 @@ use strict;
 use base 'DW::External::Site';
 use Carp qw/ croak /;
 
-
 # new does nothing for these classes
 sub new { croak 'cannot build with new'; }
-
 
 # returns an object if we allow this domain; else undef
 sub accepts {
     my ( $class, $parts ) = @_;
 
     # let's just assume the last two parts are good if we have them
-    return undef unless scalar( @$parts ) >= 2;
+    return undef unless scalar(@$parts) >= 2;
 
     return bless { hostname => "$parts->[-2].$parts->[-1]" }, $class;
 }
-
 
 # argument: DW::External::User
 # returns URL to this account's page
@@ -46,7 +43,6 @@ sub journal_url {
     return 'https://' . $self->{hostname} . "/" . $u->user;
 }
 
-
 # argument: DW::External::User
 # returns URL to this account's profile
 sub profile_url {
@@ -57,7 +53,6 @@ sub profile_url {
     return 'https://' . $self->{hostname} . "/" . $u->user;
 }
 
-
 # argument: DW::External::User
 # returns info for the badge image (userhead icon) for this user
 sub badge_image {
@@ -67,23 +62,21 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url => "https://www.facebook.com/favicon.ico",
-        width => 16,
+        url    => "https://www.facebook.com/favicon.ico",
+        width  => 16,
         height => 16,
-    }
+    };
 }
-
 
 # returns a cleaned version of the username
 sub canonical_username {
     my $input = $_[1];
-    my $user = "";
+    my $user  = "";
 
-    if ( $input =~ /^\s*([a-zA-Z0-9.]+)\s*$/ ) {  # good username
+    if ( $input =~ /^\s*([a-zA-Z0-9.]+)\s*$/ ) {    # good username
         $user = $1;
     }
     return $user;
 }
-
 
 1;

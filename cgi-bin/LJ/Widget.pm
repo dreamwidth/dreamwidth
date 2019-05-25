@@ -19,8 +19,8 @@ use LJ::ModuleLoader;
 use LJ::Auth;
 
 # FIXME: don't really need all widgets now
-LJ::ModuleLoader->require_subclasses( "LJ::Widget" );
-LJ::ModuleLoader->require_subclasses( "DW::Widget" );
+LJ::ModuleLoader->require_subclasses("LJ::Widget");
+LJ::ModuleLoader->require_subclasses("DW::Widget");
 
 our $currentId = 1;
 
@@ -28,10 +28,10 @@ our $currentId = 1;
 # useful for when a widget will be created more than once but we want to keep its ID the same.
 sub new {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
     my $id = $opts{id} ? $opts{id} : $currentId++;
-    return bless {id => $id}, $class;
+    return bless { id => $id }, $class;
 }
 
 sub need_res {
@@ -48,32 +48,33 @@ sub render_body {
 
 sub start_form {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
     croak "Cannot call start_form on parent widget class" if $class eq "LJ::Widget";
 
     my $eopts = "";
     my $ehtml = $opts{noescape} ? 0 : 1;
-    foreach my $attr (grep { ! /^(noescape)$/ && ! /^(authas)$/ } keys %opts) {
-        $eopts .= " $attr=\"" . ($ehtml ? LJ::ehtml($opts{$attr}) : $opts{$_}) . "\"";
+    foreach my $attr ( grep { !/^(noescape)$/ && !/^(authas)$/ } keys %opts ) {
+        $eopts .= " $attr=\"" . ( $ehtml ? LJ::ehtml( $opts{$attr} ) : $opts{$_} ) . "\"";
     }
 
     my $ret = "<form method='POST'$eopts>";
     $ret .= LJ::form_auth();
 
-    if ($class->authas) {
+    if ( $class->authas ) {
         my $u = $opts{authas} || $BMLCodeBlock::GET{authas} || $BMLCodeBlock::POST{authas};
         $u = LJ::load_user($u) unless LJ::isu($u);
         my $authas = LJ::isu($u) ? $u->user : undef;
 
-        if ($authas && !$LJ::REQ_GLOBAL{widget_authas_form}) {
-            $ret .= $class->html_hidden({ name => "authas", value => $authas, id => "_widget_authas" });
+        if ( $authas && !$LJ::REQ_GLOBAL{widget_authas_form} ) {
+            $ret .= $class->html_hidden(
+                { name => "authas", value => $authas, id => "_widget_authas" } );
             $LJ::REQ_GLOBAL{widget_authas_form} = 1;
         }
     }
 
     return $ret;
-};
+}
 
 sub end_form {
     my $class = shift;
@@ -101,12 +102,13 @@ sub widget_ele_id {
 
 # render a widget, including its content wrapper
 sub render {
-    my ($class, @opts) = @_;
+    my ( $class, @opts ) = @_;
 
-    my $subclass = $class->subclass;
+    my $subclass     = $class->subclass;
     my $css_subclass = lc($subclass);
+
     # figure out where "Odd number of elements in hash assignment" warning is coming from
-    if ( scalar( @opts ) % 2 == 1 ) {
+    if ( scalar(@opts) % 2 == 1 ) {
         carp "Odd number of \@opts passed from $subclass";
     }
     my %opt_hash = @opts;
@@ -123,21 +125,22 @@ sub render {
         my $opts = { $widget->need_res_opts };
 
         # include any resources that this widget declares
-        if (defined $opt_hash{stylesheet_override}) {
-            LJ::need_res($opt_hash{stylesheet_override}) if $opt_hash{stylesheet_override};
+        if ( defined $opt_hash{stylesheet_override} ) {
+            LJ::need_res( $opt_hash{stylesheet_override} ) if $opt_hash{stylesheet_override};
 
             # include non-CSS files (we used stylesheet_override above)
-            foreach my $file ($widget->need_res) {
-                if ($file =~ m!^[^/]+\.(js|css)$!i) {
+            foreach my $file ( $widget->need_res ) {
+                if ( $file =~ m!^[^/]+\.(js|css)$!i ) {
                     next if $1 eq 'css';
                     LJ::need_res( $opts, "js/widgets/$subclass/$file" );
                     next;
                 }
                 LJ::need_res( $opts, $file ) unless $file =~ /\.css$/i;
             }
-        } else {
-            foreach my $file ($widget->need_res) {
-                if ($file =~ m!^[^/]+\.(js|css)$!i) {
+        }
+        else {
+            foreach my $file ( $widget->need_res ) {
+                if ( $file =~ m!^[^/]+\.(js|css)$!i ) {
                     my $prefix = $1 eq 'js' ? "js" : "stc";
                     LJ::need_res( $opts, "$prefix/widgets/$subclass/$file" );
                     next;
@@ -145,16 +148,18 @@ sub render {
                 LJ::need_res( $opts, $file );
             }
         }
-        LJ::need_res($opt_hash{stylesheet}) if $opt_hash{stylesheet};
+        LJ::need_res( $opt_hash{stylesheet} ) if $opt_hash{stylesheet};
 
         return $widget->render_body(@opts);
     };
 
     if ( defined $rv && $rv =~ /\w/ ) {
         $ret .= $rv;
-    } elsif ( $@ ) {
+    }
+    elsif ($@) {
         $ret .= "<strong>[Error: $@]</strong";
-#        $class->handle_error;
+
+        #        $class->handle_error;
     }
 
     $ret .= "</div><!-- end .appwidget-$css_subclass -->\n";
@@ -164,11 +169,11 @@ sub render {
 
 sub post_fields_by_widget {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
-    my $post = $opts{post};
+    my $post    = $opts{post};
     my $widgets = $opts{widgets};
-    my $errors = $opts{errors};
+    my $errors  = $opts{errors};
 
     my %per_widget = map { /^(?:LJ::Widget::)?(.+)$/; $1 => {} } @$widgets;
     my $eff_submit = undef;
@@ -184,11 +189,11 @@ sub post_fields_by_widget {
         return 0;
     };
 
-    foreach my $key (keys %$post) {
+    foreach my $key ( keys %$post ) {
         next unless $key;
 
         # FIXME: this is currently unused, but might be useful
-        if ($key =~ /^Widget_Submit_(.+)$/) {
+        if ( $key =~ /^Widget_Submit_(.+)$/ ) {
             die "Multiple effective submits?  class=$1"
                 if $eff_submit;
 
@@ -199,7 +204,7 @@ sub post_fields_by_widget {
             next;
         }
 
-        my ($subclass, $field) = $key =~ /^Widget(?:\[([\w]+)\])?_(.+)$/;
+        my ( $subclass, $field ) = $key =~ /^Widget(?:\[([\w]+)\])?_(.+)$/;
         next unless $subclass && $field;
 
         $subclass =~ s/_/::/g;
@@ -211,7 +216,7 @@ sub post_fields_by_widget {
     }
 
     # now let's remove empty hashref placeholders from %per_widget
-    while (my ($k, $v) = each %per_widget) {
+    while ( my ( $k, $v ) = each %per_widget ) {
         delete $per_widget{$k} unless %$v;
     }
 
@@ -219,23 +224,25 @@ sub post_fields_by_widget {
 }
 
 sub post_fields_of_widget {
-    my $class = shift;
+    my $class  = shift;
     my $widget = shift;
-    my $post = shift() || \%BMLCodeBlock::POST;
+    my $post   = shift() || \%BMLCodeBlock::POST;
 
     my $errors = [];
-    my $per_widget = LJ::Widget->post_fields_by_widget( post => $post, widgets => [ $widget ], errors => $errors );
+    my $per_widget =
+        LJ::Widget->post_fields_by_widget( post => $post, widgets => [$widget], errors => $errors );
     return $per_widget->{$widget} || {};
 }
 
 sub post_fields {
     my $class = shift;
-    my $post = shift() || \%BMLCodeBlock::POST;
+    my $post  = shift() || \%BMLCodeBlock::POST;
 
     my @widgets = ( $class->subclass );
-    my $errors = [];
-    my $per_widget = LJ::Widget->post_fields_by_widget( post => $post, widgets => \@widgets, errors => $errors );
-    return $per_widget->{$class->subclass} || {};
+    my $errors  = [];
+    my $per_widget =
+        LJ::Widget->post_fields_by_widget( post => $post, widgets => \@widgets, errors => $errors );
+    return $per_widget->{ $class->subclass } || {};
 }
 
 sub get_args {
@@ -246,7 +253,7 @@ sub get_args {
 sub get_effective_remote {
     my $class = shift;
 
-    if ($class->authas) {
+    if ( $class->authas ) {
         return LJ::get_effective_remote();
     }
 
@@ -258,18 +265,20 @@ sub get_effective_remote {
 # returns hash returned from the last processed widget
 # pushes any errors onto @BMLCodeBlock::errors
 sub handle_post {
-    my $class   = shift;
-    my $post    = shift;
+    my $class = shift;
+    my $post  = shift;
     my @widgets;
+
     # support for per-widget handle_post() options
     my %widget_opts = ();
     while (@_) {
         my $w = shift;
-        if (@_ && ref $_[0]) {
+        if ( @_ && ref $_[0] ) {
             $widget_opts{$w} = shift(@_);
         }
         push @widgets, $w;
     }
+
     # no errors, return empty list
     return () unless LJ::did_post() && @widgets;
 
@@ -279,17 +288,20 @@ sub handle_post {
     # require form auth for widget submissions
     my $errorsref = \@BMLCodeBlock::errors;
 
-    unless (LJ::check_form_auth($post->{lj_form_auth}) || $LJ::WIDGET_NO_AUTH_CHECK) {
+    unless ( LJ::check_form_auth( $post->{lj_form_auth} ) || $LJ::WIDGET_NO_AUTH_CHECK ) {
         push @$errorsref, LJ::Lang::ml('error.invalidform');
     }
 
-    my $per_widget = $class->post_fields_by_widget( post => $post, widgets => \@widgets, errors => $errorsref );
+    my $per_widget =
+        $class->post_fields_by_widget( post => $post, widgets => \@widgets, errors => $errorsref );
 
     my %res;
 
-    while (my ($class, $fields) = each %$per_widget) {
-        eval { %res = "LJ::Widget::$class"->handle_post($fields, %{$widget_opts{$class} or {}}) } or
-            "LJ::Widget::$class"->handle_error($@ => $errorsref);
+    while ( my ( $class, $fields ) = each %$per_widget ) {
+        eval {
+            %res = "LJ::Widget::$class"->handle_post( $fields, %{ $widget_opts{$class} or {} } );
+        }
+            or "LJ::Widget::$class"->handle_error( $@ => $errorsref );
     }
 
     return %res;
@@ -297,29 +309,31 @@ sub handle_post {
 
 # handles post vars for a widget, passes result of handle_post to render
 sub handle_post_and_render {
-    my ($class, $post, $widgetclass, %opts) = @_;
+    my ( $class, $post, $widgetclass, %opts ) = @_;
 
-    my %post_result = LJ::Widget->handle_post($post, $widgetclass);
-    my $subclass = LJ::Widget::subclass($widgetclass);
+    my %post_result = LJ::Widget->handle_post( $post, $widgetclass );
+    my $subclass    = LJ::Widget::subclass($widgetclass);
 
     $opts{$_} = $post_result{$_} foreach keys %post_result;
     return "LJ::Widget::$subclass"->render(%opts);
 }
 
 *error = \&handle_error;
+
 sub handle_error {
-    my ($class, $errstr, $errref) = @_;
+    my ( $class, $errstr, $errref ) = @_;
     $errstr ||= $@;
     $errref ||= \@BMLCodeBlock::errors;
     return 0 unless $errstr;
 
-    $errstr =~ s/\s+at\s+.+line \d+.*$//ig unless $LJ::IS_DEV_SERVER || $LJ::DEBUG{"full_widget_error"};
+    $errstr =~ s/\s+at\s+.+line \d+.*$//ig
+        unless $LJ::IS_DEV_SERVER || $LJ::DEBUG{"full_widget_error"};
     push @$errref, $errstr;
     return 1;
 }
 
 sub error_list {
-    my ($class, @errors) = @_;
+    my ( $class, @errors ) = @_;
 
     if (@errors) {
         $class->error($_) foreach @errors;
@@ -340,7 +354,7 @@ sub subclass {
     my $class = shift;
     $class = ref $class if ref $class;
     return $class unless $class =~ /::/;
-    return ($class =~ /(?:LJ|DW)::Widget::([\w:]+)$/)[0];
+    return ( $class =~ /(?:LJ|DW)::Widget::([\w:]+)$/ )[0];
 }
 
 # wrapper around BML... for now
@@ -378,16 +392,16 @@ sub wrapped_js {
 
     croak "wrapped_js is an instance method" unless ref $self;
 
-    my $widgetid = $self->widget_ele_id or return '';
+    my $widgetid    = $self->widget_ele_id or return '';
     my $widgetclass = $self->subclass;
-    my $js = $self->js or return '';
+    my $js          = $self->js or return '';
 
-    my $authtoken = LJ::Auth->ajax_auth_token(LJ::get_remote(), "/_widget");
+    my $authtoken = LJ::Auth->ajax_auth_token( LJ::get_remote(), "/_widget" );
     $authtoken = LJ::ejs($authtoken);
 
     LJ::need_res(qw(js/ljwidget.js));
 
-    my $widgetvar = "LJWidget.widgets[\"$widgetid\"]";
+    my $widgetvar     = "LJWidget.widgets[\"$widgetid\"]";
     my $widget_js_obj = $opts{page_js_obj} ? "$opts{page_js_obj}.$widgetclass = $widgetvar;" : "";
 
     return qq {
@@ -404,11 +418,11 @@ sub wrapped_js {
 # this is needed for recaptcha modules in widgets
 sub use_specific_form_fields {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
-    my $post = $opts{post};
-    my $widget = $opts{widget};
-    my %given_fields = map { $_ => 1 } @{$opts{fields}};
+    my $post         = $opts{post};
+    my $widget       = $opts{widget};
+    my %given_fields = map { $_ => 1 } @{ $opts{fields} };
 
     foreach my $field (%$post) {
         $post->{"Widget[$widget]_$field"} = $post->{$field} if $given_fields{$field};
@@ -426,7 +440,7 @@ sub fields { qw(errstr) }
 
 sub new {
     my $class = shift;
-    my ($errstr, %opts) = @_;
+    my ( $errstr, %opts ) = @_;
 
     my $self = { errstr => $errstr };
 
@@ -449,13 +463,14 @@ use strict;
 sub _html_star {
     my $class = shift;
     my $func  = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
-    croak "Cannot call htmlcontrols-like utility method on parent widget class" if $class eq "LJ::Widget";
+    croak "Cannot call htmlcontrols-like utility method on parent widget class"
+        if $class eq "LJ::Widget";
 
     my $prefix = $class->input_prefix;
     $opts{name} = "${prefix}_$opts{name}";
-    return $func->(\%opts);
+    return $func->( \%opts );
 }
 
 sub _html_star_list {
@@ -463,24 +478,26 @@ sub _html_star_list {
     my $func   = shift;
     my @params = @_;
 
-    croak "Cannot call htmlcontrols-like utility method on parent widget class" if $class eq "LJ::Widget";
+    croak "Cannot call htmlcontrols-like utility method on parent widget class"
+        if $class eq "LJ::Widget";
 
     # If there's only one (non-ref) element in @params, then there
     # is no name for the field and nothing should be changed.
-    unless (@params == 1 && !ref $params[0]) {
+    unless ( @params == 1 && !ref $params[0] ) {
         my $prefix = $class->input_prefix;
 
-        my $is_name = 1; # if true, the next element we'll check is a name (not a value)
+        my $is_name = 1;    # if true, the next element we'll check is a name (not a value)
         foreach my $el (@params) {
-            if (ref $el) {
+            if ( ref $el ) {
                 $el->{name} = "${prefix}_$el->{name}" if $el->{name};
                 $is_name = 1;
                 next;
             }
             if ($is_name) {
-                $el = "${prefix}_$el";
+                $el      = "${prefix}_$el";
                 $is_name = 0;
-            } else {
+            }
+            else {
                 $is_name = 1;
             }
         }
@@ -491,26 +508,26 @@ sub _html_star_list {
 
 sub html_text {
     my $class = shift;
-    return $class->_html_star(\&LJ::html_text, @_);
+    return $class->_html_star( \&LJ::html_text, @_ );
 }
 
 sub html_check {
     my $class = shift;
-    return $class->_html_star(\&LJ::html_check, @_);
+    return $class->_html_star( \&LJ::html_check, @_ );
 }
 
 sub html_textarea {
     my $class = shift;
-    return $class->_html_star(\&LJ::html_textarea, @_);
+    return $class->_html_star( \&LJ::html_textarea, @_ );
 }
 
 sub html_color {
     my $class = shift;
-    return $class->_html_star(\&LJ::html_color, @_);
+    return $class->_html_star( \&LJ::html_color, @_ );
 }
 
 sub input_prefix {
-    my $class = shift;
+    my $class    = shift;
     my $subclass = $class->subclass;
     $subclass =~ s/::/_/g;
     return 'Widget[' . $subclass . ']';
@@ -519,39 +536,40 @@ sub input_prefix {
 sub html_select {
     my $class = shift;
 
-    croak "Cannot call htmlcontrols-like utility method on parent widget class" if $class eq "LJ::Widget";
+    croak "Cannot call htmlcontrols-like utility method on parent widget class"
+        if $class eq "LJ::Widget";
 
     my $prefix = $class->input_prefix;
 
     # old calling method, exact wrapper around html_select
-    if (ref $_[0]) {
+    if ( ref $_[0] ) {
         my $opts = shift;
         $opts->{name} = "${prefix}_$opts->{name}";
-        return LJ::html_select($opts, @_);
+        return LJ::html_select( $opts, @_ );
     }
 
     # newer calling method, no hashref w/ list as list => [ ... ]
     my %opts = @_;
     my $list = delete $opts{list};
     $opts{name} = "${prefix}_$opts{name}";
-    return LJ::html_select(\%opts, @$list);
+    return LJ::html_select( \%opts, @$list );
 }
 
 sub html_datetime {
     my $class = shift;
-    return $class->_html_star(\&LJ::html_datetime, @_);
+    return $class->_html_star( \&LJ::html_datetime, @_ );
 }
 
 sub html_hidden {
     my $class = shift;
 
-    return $class->_html_star_list(\&LJ::html_hidden, @_);
+    return $class->_html_star_list( \&LJ::html_hidden, @_ );
 }
 
 sub html_submit {
     my $class = shift;
 
-    return $class->_html_star_list(\&LJ::html_submit, @_);
+    return $class->_html_star_list( \&LJ::html_submit, @_ );
 }
 
 ##################################################
@@ -562,7 +580,7 @@ sub html_submit {
 
 sub ml_key {
     my $class = shift;
-    my $key = shift;
+    my $key   = shift;
 
     croak "invalid key: $key"
         unless $key;
@@ -572,17 +590,17 @@ sub ml_key {
 }
 
 sub ml_remove_text {
-    my $class = shift;
+    my $class  = shift;
     my $ml_key = shift;
 
     my $ml_dmid     = $class->ml_dmid;
     my $root_lncode = $class->ml_root_lncode;
-    return LJ::Lang::remove_text($ml_dmid, $ml_key, $root_lncode);
+    return LJ::Lang::remove_text( $ml_dmid, $ml_key, $root_lncode );
 }
 
 sub ml_set_text {
     my $class = shift;
-    my ($ml_key, $text) = @_;
+    my ( $ml_key, $text ) = @_;
 
     # create new translation system entry
     my $ml_dmid     = $class->ml_dmid;
@@ -590,9 +608,8 @@ sub ml_set_text {
 
     # call web_set_text, though there shouldn't be any
     # commits going on since this is the 'widget' dmid
-    return LJ::Lang::web_set_text
-        ($ml_dmid, $root_lncode, $ml_key, $text,
-         { changeseverity => 1, childrenlatest => 1 });
+    return LJ::Lang::web_set_text( $ml_dmid, $root_lncode, $ml_key, $text,
+        { changeseverity => 1, childrenlatest => 1 } );
 }
 
 sub ml_dmid {
@@ -605,7 +622,7 @@ sub ml_dmid {
 sub ml_root_lncode {
     my $class = shift;
 
-    my $ml_dom = LJ::Lang::get_dom("widget");
+    my $ml_dom    = LJ::Lang::get_dom("widget");
     my $root_lang = LJ::Lang::get_root_lang($ml_dom);
     return $root_lang->{lncode};
 }
@@ -614,7 +631,7 @@ sub ml_root_lncode {
 # if the string equals the class name (the fallthrough
 # for LJ::Widget->ml)
 sub ml_is_missing_string {
-    my $class = shift;
+    my $class  = shift;
     my $string = shift;
 
     $class =~ /.+::(\w+)$/;
@@ -627,7 +644,7 @@ sub ml_is_missing_string {
 # -- also allows getting of strings from the 'widget' ML domain
 #    for text which was dynamically defined by an admin
 sub ml {
-    my ($class, $code, $vars) = @_;
+    my ( $class, $code, $vars ) = @_;
 
     # can pass in a string and check 3 places in order:
     # 1) widget.foo.text => general .widget.foo.text (overridden by current page)
@@ -639,16 +656,16 @@ sub ml {
 
     # 1) try with a ., for current page override in 'general' domain
     # 2) try without a ., for global version in 'general' domain
-    foreach my $curr_code (".$code", $code) {
-        my $string = LJ::Lang::ml($curr_code, $vars);
+    foreach my $curr_code ( ".$code", $code ) {
+        my $string = LJ::Lang::ml( $curr_code, $vars );
         return "" if $string eq "_none";
         return $string unless LJ::Lang::is_missing_string($string);
     }
 
     # 3) now try with "widget" domain for user-entered translation string
-    my $dmid = $class->ml_dmid;
+    my $dmid   = $class->ml_dmid;
     my $lncode = LJ::Lang::get_effective_lang();
-    my $string = LJ::Lang::get_text($lncode, $code, $dmid, $vars);
+    my $string = LJ::Lang::get_text( $lncode, $code, $dmid, $vars );
     return "" if $string eq "_none";
     return $string unless LJ::Lang::is_missing_string($string);
 

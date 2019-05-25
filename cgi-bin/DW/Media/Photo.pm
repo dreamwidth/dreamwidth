@@ -36,18 +36,18 @@ sub new_from_row {
     my $self = bless \%opts, $class;
 
     # Save the URL width/height, since we'll need that for later.
-    $self->{url_width} = $width;
+    $self->{url_width}  = $width;
     $self->{url_height} = $height;
 
     # Now pull out width and height for the default version.
-    foreach my $vid ( keys %{$self->{versions}} ) {
+    foreach my $vid ( keys %{ $self->{versions} } ) {
         if ( $vid == $self->id ) {
-            $self->{width} = $self->{versions}->{$vid}->{width};
+            $self->{width}  = $self->{versions}->{$vid}->{width};
             $self->{height} = $self->{versions}->{$vid}->{height};
 
             # save the original values of these for reference in case we resize later
-            $self->{orig_width} = $self->{width};
-            $self->{orig_height} = $self->{height};
+            $self->{orig_width}    = $self->{width};
+            $self->{orig_height}   = $self->{height};
             $self->{orig_filesize} = $self->{filesize};
             last;
         }
@@ -70,14 +70,14 @@ sub preprocess {
     # Extract EXIF orientation data to calculate our operations.
     my $timage = Image::Magick->new()
         or croak 'Failed to instantiate Image::Magick object.';
-    $timage->BlobToImage( $$dataref );
+    $timage->BlobToImage($$dataref);
     $timage->AutoOrient();
     $$dataref = $timage->ImageToBlob;
 
     # The orientation should now be reset to 1 to prevent browser rotating.
     my $exif = Image::ExifTool->new;
     $exif->SetNewValue( Orientation => 1, Type => 'Raw' );
-    $exif->WriteInfo( $dataref );
+    $exif->WriteInfo($dataref);
 }
 
 sub _resize {
@@ -96,11 +96,9 @@ sub _resize {
 
     # Scale the sizes.
     my ( $width, $height ) = ( $self->{width}, $self->{height} );
-    my ( $horiz_ratio, $vert_ratio ) = ( $want_width / $width,
-            $want_height / $height );
+    my ( $horiz_ratio, $vert_ratio ) = ( $want_width / $width, $want_height / $height );
     my $ratio = $horiz_ratio < $vert_ratio ? $horiz_ratio : $vert_ratio;
-    ( $width, $height ) = ( int($width * $ratio + 0.5),
-        int($height * $ratio + 0.5) );
+    ( $width, $height ) = ( int( $width * $ratio + 0.5 ), int( $height * $ratio + 0.5 ) );
 
     # Load the image data, then scale it.
     my ( $username, $mediaid ) = ( $self->u->user, $self->{mediaid} );
@@ -108,15 +106,15 @@ sub _resize {
         or croak "Failed to load image file $mediaid for $username.";
     my $timage = Image::Magick->new()
         or croak 'Failed to instantiate Image::Magick object.';
-    $timage->BlobToImage( $$dataref );
+    $timage->BlobToImage($$dataref);
     $timage->Scale( width => $width, height => $height );
     my $blob = $timage->ImageToBlob;
 
     # Fix up this object's internal representation.
     $self->{versionid} = $versionid;
-    $self->{width} = $timage->Get( 'width' );
-    $self->{height} = $timage->Get( 'height' );
-    $self->{filesize} = length $blob;
+    $self->{width}     = $timage->Get('width');
+    $self->{height}    = $timage->Get('height');
+    $self->{filesize}  = length $blob;
 
     # Now save to file storage first, before adding it to the database.
     DW::BlobStore->store( media => $self->mogkey, \$blob )
@@ -127,7 +125,7 @@ sub _resize {
     $u->do(
         q{INSERT INTO media_versions (userid, mediaid, versionid, height, width, filesize)
           VALUES (?, ?, ?, ?, ?, ?)},
-        undef, $self->{userid}, $self->{mediaid}, $versionid, $self->{height},
+        undef,          $self->{userid}, $self->{mediaid}, $versionid, $self->{height},
         $self->{width}, $self->{filesize}
     );
     croak $u->errstr if $u->err;
@@ -147,7 +145,7 @@ sub _select_version {
     croak 'Extra options to _select_version.' if %opts;
 
     my ( $width, $height ) = ( $self->{width}, $self->{height} );
-    croak 'Image has no internal width/height!' # Should never fire...
+    croak 'Image has no internal width/height!'    # Should never fire...
         unless defined $width && $width > 0 && defined $height && $height > 0;
 
     # If we want larger than we are (and this is the original), accept it.
@@ -156,16 +154,15 @@ sub _select_version {
     # We have a simple algorithm: we look at our existing versions and try to
     # find one that has an edge match where the other side is within bounds. If
     # that is true, we trust it and return it.
-    foreach my $vid ( keys %{$self->{versions}} ) {
-        my ( $ver_width, $ver_height ) = ( $self->{versions}->{$vid}->{width},
-            $self->{versions}->{$vid}->{height} );
+    foreach my $vid ( keys %{ $self->{versions} } ) {
+        my ( $ver_width, $ver_height ) =
+            ( $self->{versions}->{$vid}->{width}, $self->{versions}->{$vid}->{height} );
 
-        if ( ( $ver_width == $want_width && $ver_height <= $want_height ) ||
-            ( $ver_height == $want_height && $ver_width <= $want_width ) )
+        if (   ( $ver_width == $want_width && $ver_height <= $want_height )
+            || ( $ver_height == $want_height && $ver_width <= $want_width ) )
         {
             $self->{versionid} = $vid;
-            $self->{$_} = $self->{versions}->{$vid}->{$_}
-                foreach qw/ width height filesize /;
+            $self->{$_} = $self->{versions}->{$vid}->{$_} foreach qw/ width height filesize /;
             return;
         }
     }
@@ -181,29 +178,30 @@ sub _select_version {
 
 # this adds on to the base method by also deleting any associated thumbnails
 sub delete {
-    my $self = $_[0];
-    my $deleted = $self->SUPER::delete;  # this deletes the original as before
-    return 0 unless $deleted;  # was already deleted
+    my $self    = $_[0];
+    my $deleted = $self->SUPER::delete;    # this deletes the original as before
+    return 0 unless $deleted;              # was already deleted
 
     # at this point the image has just been deleted - look for thumbnails
-    my $u = $self->u or croak 'Sorry, unable to load the user.';
+    my $u  = $self->u or croak 'Sorry, unable to load the user.';
     my @mv = $u->selectrow_array(
-        "SELECT versionid FROM media_versions WHERE userid=? AND mediaid=?" .
-        " AND versionid != ?", undef, $u->id, $self->versionid, $self->versionid );
+        "SELECT versionid FROM media_versions WHERE userid=? AND mediaid=?" . " AND versionid != ?",
+        undef, $u->id, $self->versionid, $self->versionid
+    );
 
     return $deleted unless @mv;
 
-    foreach my $id ( @mv ) {
+    foreach my $id (@mv) {
+
         # create a fake object to get the mogkey
-        my $fakeobj = bless { userid => $u->id, versionid => $id },
-                            'DW::Media::Photo';
+        my $fakeobj = bless { userid => $u->id, versionid => $id }, 'DW::Media::Photo';
+
         # we aren't concerned whether the file existed or not,
         # and the associated media row is already in a deleted state
         DW::BlobStore->delete( media => $fakeobj->mogkey );
     }
 
-    return 1;  # done
+    return 1;    # done
 }
-
 
 1;

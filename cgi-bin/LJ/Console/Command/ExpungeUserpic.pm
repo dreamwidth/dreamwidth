@@ -21,9 +21,9 @@ sub cmd { "expunge_userpic" }
 
 sub desc { "Expunge a userpic from the site. Requires priv: siteadmin:userpics." }
 
-sub args_desc { [
-                 'url' => "URL of the userpic to expunge",
-                 ] }
+sub args_desc {
+    [ 'url' => "URL of the userpic to expunge", ]
+}
 
 sub usage { '<url>' }
 
@@ -33,14 +33,14 @@ sub can_execute {
 }
 
 sub execute {
-    my ($self, $url, @args) = @_;
+    my ( $self, $url, @args ) = @_;
 
     return $self->error("This command takes one argument. Consult the reference.")
         unless $url && scalar(@args) == 0;
 
-    my ($userid, $picid);
-    if ($url =~ m!(\d+)/(\d+)/?$!) {
-        $picid = $1;
+    my ( $userid, $picid );
+    if ( $url =~ m!(\d+)/(\d+)/?$! ) {
+        $picid  = $1;
         $userid = $2;
     }
 
@@ -48,19 +48,19 @@ sub execute {
     return $self->error("Invalid userpic URL.")
         unless $u;
 
-    my ( $rval, @hookval ) = $u->expunge_userpic( $picid );
+    my ( $rval, @hookval ) = $u->expunge_userpic($picid);
 
     return $self->error("Error expunging userpic.") unless $rval;
 
     foreach my $hv (@hookval) {
-        my ($type, $msg) = @$hv;
+        my ( $type, $msg ) = @$hv;
         $self->$type($msg);
     }
 
     my $remote = LJ::get_remote();
-    LJ::statushistory_add($u, $remote, 'expunge_userpic', "expunged userpic; id=$picid");
+    LJ::statushistory_add( $u, $remote, 'expunge_userpic', "expunged userpic; id=$picid" );
 
-    return $self->print("Userpic '$picid' for '" . $u->user . "' expunged.");
+    return $self->print( "Userpic '$picid' for '" . $u->user . "' expunged." );
 }
 
 1;

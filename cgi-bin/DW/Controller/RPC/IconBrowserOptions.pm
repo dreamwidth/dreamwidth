@@ -23,8 +23,9 @@ DW::Routing->register_rpc( "iconbrowser_save", \&iconbrowser_save, format => 'js
 
 # saves the metatext / smallicons options (Y/N)
 sub iconbrowser_save {
+
     # gets the request and args
-    my $r = DW::Request->get;
+    my $r    = DW::Request->get;
     my $post = $r->post_args;
 
     my $remote = LJ::get_remote();

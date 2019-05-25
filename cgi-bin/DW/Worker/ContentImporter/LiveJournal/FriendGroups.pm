@@ -32,7 +32,7 @@ sub work {
     my $opts = $job->arg;
     my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
 
-    return $class->decline( $job ) unless $class->enabled( $data );
+    return $class->decline($job) unless $class->enabled($data);
 
     eval { try_work( $class, $job, $opts, $data ); };
     if ( my $msg = $@ ) {
@@ -55,24 +55,25 @@ sub try_work {
     $0 = sprintf( 'content-importer [friendgroups: %s(%d)]', $u->user, $u->id );
 
     my $dbh = LJ::get_db_writer()
-        or return $temp_fail->( 'Unable to get global master database handle' );
+        or return $temp_fail->('Unable to get global master database handle');
 
     my $r = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
     my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-    $xmlrpc_fail .=  " (community: $data->{usejournal})" if $data->{usejournal};
-    return $temp_fail->( $xmlrpc_fail ) if ! $r || $r->{fault};
+    $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
+    return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};
 
-    my $map = DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $u, $r->{friendgroups} );
+    my $map = DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $u,
+        $r->{friendgroups} );
 
     # store the merged map
     $dbh->do(
         q{UPDATE import_data SET groupmap = ?
           WHERE userid = ? AND import_data_id = ?},
-        undef, nfreeze( $map ), $u->id, $opts->{import_data_id}
+        undef, nfreeze($map), $u->id, $opts->{import_data_id}
     );
 
     # mark lj_friends item as able to be scheduled now, and save the map
-# FIXME: what do we do on error case? well, hopefully that will be rare...
+    # FIXME: what do we do on error case? well, hopefully that will be rare...
     $dbh->do(
         q{UPDATE import_items SET status = 'ready'
           WHERE userid = ? AND item IN ('lj_friends', 'lj_entries')
@@ -82,6 +83,5 @@ sub try_work {
 
     return $ok->();
 }
-
 
 1;

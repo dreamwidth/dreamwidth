@@ -58,47 +58,46 @@ use constant DEFAULT_PORT => 7002;
 
 use fields qw( name sockets pid client hooks );
 
-
 ### (CONSTRUCTOR) METHOD: new( $client, $name, @socket_names )
 ### Create a new lock object that corresponds to the specified I<name> and is
 ### held by the given I<sockets>.
 sub new {
     my DDLock $self = shift;
-    $self = fields::new( $self ) unless ref $self;
+    $self = fields::new($self) unless ref $self;
 
     $self->{client}  = shift;
     $self->{name}    = shift;
     $self->{pid}     = $$;
     $self->{sockets} = $self->getlocks(@_);
-    $self->{hooks}   = {}; # hookname -> coderef
+    $self->{hooks}   = {};                    # hookname -> coderef
     return $self;
 }
-
 
 ### (PROTECTED) METHOD: getlocks( @servers )
 ### Try to obtain locks with the specified I<lockname> from one or more of the
 ### given I<servers>.
 sub getlocks {
     my DDLock $self = shift;
-    my $lockname = $self->{name};
-    my @servers = @_;
+    my $lockname    = $self->{name};
+    my @servers     = @_;
 
     my @addrs = ();
 
     my $fail = sub {
         my $msg = shift;
+
         # release any locks that we did get:
         foreach my $addr (@addrs) {
             my $sock = $self->{client}->get_sock($addr)
                 or next;
-            $sock->printf("releaselock lock=%s%s", eurl($self->{name}), CRLF);
+            $sock->printf( "releaselock lock=%s%s", eurl( $self->{name} ), CRLF );
             warn scalar(<$sock>);
         }
         die $msg;
     };
 
     # First create connected sockets to all the lock hosts
-  SERVER: foreach my $server ( @servers ) {
+SERVER: foreach my $server (@servers) {
         my ( $host, $port ) = split /:/, $server;
         $port ||= DEFAULT_PORT;
         my $addr = "$host:$port";
@@ -128,7 +127,8 @@ sub set_hook {
 
     if (@_) {
         $self->{hooks}->{$hookname} = shift;
-    } else {
+    }
+    else {
         delete $self->{hooks}->{$hookname};
     }
 }
@@ -137,7 +137,7 @@ sub run_hook {
     my DDLock $self = shift;
     my $hookname = shift || return;
 
-    if (my $hook = $self->{hooks}->{$hookname}) {
+    if ( my $hook = $self->{hooks}->{$hookname} ) {
         local $@;
         eval { $hook->($self) };
         warn "DDLock hook '$hookname' threw error: $@" if $@;
@@ -181,12 +181,12 @@ sub _release_lock {
         my $res;
 
         eval {
-            $sock->printf("releaselock lock=%s%s", eurl($self->{name}), CRLF);
+            $sock->printf( "releaselock lock=%s%s", eurl( $self->{name} ), CRLF );
             $res = <$sock>;
             chomp $res;
         };
 
-        if ($res && $res !~ m/ok\b/i) {
+        if ( $res && $res !~ m/ok\b/i ) {
             my $port = $sock->peerport;
             my $addr = $sock->peerhost;
             die "releaselock ($addr): $res\n";
@@ -198,11 +198,9 @@ sub _release_lock {
     return $count;
 }
 
-
 ### FUNCTION: eurl( $arg )
 ### URL-encode the given I<arg> and return it.
-sub eurl
-{
+sub eurl {
     my $a = $_[0];
     $a =~ s/([^a-zA-Z0-9_,.\\: -])/uc sprintf("%%%02x",ord($1))/eg;
     $a =~ tr/ /+/;
@@ -223,20 +221,20 @@ BEGIN {
     use fields qw{name path tmpfile pid hooks};
 }
 
-
 our $TmpDir = File::Spec->tmpdir;
 
 ### (CONSTRUCTOR) METHOD: new( $lockname )
 ### Createa a new file-based lock with the specified I<lockname>.
 sub new {
     my DDFileLock $self = shift;
-    $self = fields::new( $self ) unless ref $self;
+    $self = fields::new($self) unless ref $self;
     my ( $name, $lockdir ) = @_;
 
     $self->{pid} = $$;
 
     $lockdir ||= $TmpDir;
-    if ( ! -d $lockdir ) {
+    if ( !-d $lockdir ) {
+
         # Croaks if it fails, so no need for error-checking
         mkpath $lockdir;
     }
@@ -249,7 +247,7 @@ sub new {
         unlink $tmpfile or die "unlink: $tmpfile: $!";
     }
 
-    my $fh = new IO::File $tmpfile, O_WRONLY|O_CREAT|O_EXCL
+    my $fh = new IO::File $tmpfile, O_WRONLY | O_CREAT | O_EXCL
         or die "open: $tmpfile: $!";
     $fh->close;
     undef $fh;
@@ -259,9 +257,9 @@ sub new {
         or die "link: $tmpfile -> $lockfile: $!";
     unlink $tmpfile or die "unlink: $tmpfile: $!";
 
-    $self->{path} = $lockfile;
+    $self->{path}    = $lockfile;
     $self->{tmpfile} = $tmpfile;
-    $self->{hooks} = {};
+    $self->{hooks}   = {};
 
     return $self;
 }
@@ -277,7 +275,8 @@ sub set_hook {
 
     if (@_) {
         $self->{hooks}->{$hookname} = shift;
-    } else {
+    }
+    else {
         delete $self->{hooks}->{$hookname};
     }
 }
@@ -286,7 +285,7 @@ sub run_hook {
     my DDFileLock $self = shift;
     my $hookname = shift || return;
 
-    if (my $hook = $self->{hooks}->{$hookname}) {
+    if ( my $hook = $self->{hooks}->{$hookname} ) {
         local $@;
         eval { $hook->($self) };
         warn "DDFileLock hook '$hookname' threw error: $@" if $@;
@@ -303,24 +302,20 @@ sub release {
     unlink $self->{tmpfile};
 }
 
-
 ### FUNCTION: eurl( $arg )
 ### URL-encode the given I<arg> and return it.
-sub eurl
-{
+sub eurl {
     my $a = $_[0];
     $a =~ s/([^a-zA-Z0-9_,.\\: -])/sprintf("%%%02X",ord($1))/eg;
     $a =~ tr/ /+/;
     return $a;
 }
 
-
 DESTROY {
     my $self = shift;
     $self->run_hook('DESTROY');
     $self->release if $$ == $self->{pid};
 }
-
 
 #####################################################################
 ###     D D L O C K C L I E N T   C L A S S
@@ -339,44 +334,43 @@ $Error = undef;
 our $Debug = 0;
 
 sub get_sock_onlycache {
-    my ($self, $addr) = @_;
+    my ( $self, $addr ) = @_;
     return $self->{sockcache}{$addr};
 }
 
 sub get_sock {
-    my ($self, $addr) = @_;
+    my ( $self, $addr ) = @_;
     my $sock = $self->{sockcache}{$addr};
     return $sock if $sock && getpeername($sock);
+
     # TODO: cache unavailability for 'n' seconds?
-    return $self->{sockcache}{$addr} =
-        IO::Socket::INET->new(
-                              PeerAddr    => $addr,
-                              Proto       => "tcp",
-                              Type        => SOCK_STREAM,
-                              ReuseAddr   => 1,
-                              Blocking    => 1,
-                              );
+    return $self->{sockcache}{$addr} = IO::Socket::INET->new(
+        PeerAddr  => $addr,
+        Proto     => "tcp",
+        Type      => SOCK_STREAM,
+        ReuseAddr => 1,
+        Blocking  => 1,
+    );
 }
 
 ### (CLASS) METHOD: DebugLevel( $level )
 sub DebugLevel {
     my $class = shift;
 
-    if ( @_ ) {
+    if (@_) {
         $Debug = shift;
-        if ( $Debug ) {
+        if ($Debug) {
             *DebugMsg = *RealDebugMsg;
-        } else {
-            *DebugMsg = sub {};
+        }
+        else {
+            *DebugMsg = sub { };
         }
     }
 
     return $Debug;
 }
 
-
-sub DebugMsg {}
-
+sub DebugMsg { }
 
 ### (CLASS) METHOD: DebugMsg( $level, $format, @args )
 ### Output a debugging messages formed sprintf-style with I<format> and I<args>
@@ -389,24 +383,22 @@ sub RealDebugMsg {
     printf STDERR ">>> $fmt\n", @args;
 }
 
-
 ### (CONSTRUCTOR) METHOD: new( %args )
 ### Create a new DDLockClient
 sub new {
     my DDLockClient $self = shift;
     my %args = @_;
 
-    $self = fields::new( $self ) unless ref $self;
+    $self = fields::new($self) unless ref $self;
     die "Servers argument must be an arrayref if specified"
         unless !exists $args{servers} || ref $args{servers} eq 'ARRAY';
     $self->{servers} = $args{servers} || [];
     $self->{lockdir} = $args{lockdir} || '';
-    $self->{sockcache} = {};  # "host:port" -> IO::Socket::INET
-    $self->{hooks} = {};      # hookname -> coderef
+    $self->{sockcache} = {};    # "host:port" -> IO::Socket::INET
+    $self->{hooks}     = {};    # hookname -> coderef
 
     return $self;
 }
-
 
 sub set_hook {
     my DDLockClient $self = shift;
@@ -414,7 +406,8 @@ sub set_hook {
 
     if (@_) {
         $self->{hooks}->{$hookname} = shift;
-    } else {
+    }
+    else {
         delete $self->{hooks}->{$hookname};
     }
 }
@@ -423,7 +416,7 @@ sub run_hook {
     my DDLockClient $self = shift;
     my $hookname = shift || return;
 
-    if (my $hook = $self->{hooks}->{$hookname}) {
+    if ( my $hook = $self->{hooks}->{$hookname} ) {
         local $@;
         eval { $hook->($self) };
         warn "DDLockClient hook '$hookname' threw error: $@" if $@;
@@ -437,36 +430,35 @@ sub trylock {
     my DDLockClient $self = shift;
     my $lockname = shift;
 
-    $self->run_hook('trylock', $lockname);
+    $self->run_hook( 'trylock', $lockname );
 
     my $lock;
     local $@;
 
     # If there are servers to connect to, use a network lock
-    if ( @{$self->{servers}} ) {
+    if ( @{ $self->{servers} } ) {
         $self->DebugMsg( 2, "Creating a new DDLock object." );
-        $lock = eval { DDLock->new($self, $lockname, @{$self->{servers}}) };
+        $lock = eval { DDLock->new( $self, $lockname, @{ $self->{servers} } ) };
     }
 
     # Otherwise use a file lock
     else {
         $self->DebugMsg( 2, "No servers configured: Creating a new DDFileLock object." );
-        $lock = eval { DDFileLock->new($lockname, $self->{lockdir}) };
+        $lock = eval { DDFileLock->new( $lockname, $self->{lockdir} ) };
     }
 
     # If no lock was acquired, fail and put the reason in $Error.
-    unless ( $lock ) {
+    unless ($lock) {
         my $eval_error = $@;
         $self->run_hook('trylock_failure');
-        return $self->lock_fail( $eval_error ) if $eval_error;
-        return $self->lock_fail( "Unknown failure." );
+        return $self->lock_fail($eval_error) if $eval_error;
+        return $self->lock_fail("Unknown failure.");
     }
 
-    $self->run_hook('trylock_success', $lockname, $lock);
+    $self->run_hook( 'trylock_success', $lockname, $lock );
 
     return $lock;
 }
-
 
 ### (PROTECTED) METHOD: lock_fail( $msg )
 ### Set C<$!> to the specified message and return undef.
@@ -478,9 +470,7 @@ sub lock_fail {
     return undef;
 }
 
-
 1;
-
 
 # Local Variables:
 # mode: perl

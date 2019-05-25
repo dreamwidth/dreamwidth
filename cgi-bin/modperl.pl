@@ -13,7 +13,6 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-
 package LJ::ModPerl;
 
 use strict;
@@ -57,11 +56,11 @@ delete $INC{"$LJ::HOME/cgi-bin/modperl.pl"};
 
 # remember modtime of all loaded libraries
 %LJ::LIB_MOD_TIME = ();
-while (my ($k, $file) = each %INC) {
-    next unless defined $file; # Happens if require caused a runtime error
+while ( my ( $k, $file ) = each %INC ) {
+    next unless defined $file;    # Happens if require caused a runtime error
     next if $LJ::LIB_MOD_TIME{$file};
     next unless $file =~ m!^\Q$LJ::HOME\E!;
-    my $mod = (stat($file))[9];
+    my $mod = ( stat($file) )[9];
     $LJ::LIB_MOD_TIME{$file} = $mod;
 }
 

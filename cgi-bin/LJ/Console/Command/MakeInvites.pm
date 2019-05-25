@@ -25,21 +25,23 @@ sub cmd { "make_invites" }
 
 sub desc { "Make invite codes. Requires priv: payments." }
 
-sub args_desc { [
-                 owner => "The username of the account on whose behalf the invite codes are generated",
-                 count => "Number of invite codes to generate",
-                 reason => "Why you're generating those invite codes",
-                 ] }
+sub args_desc {
+    [
+        owner  => "The username of the account on whose behalf the invite codes are generated",
+        count  => "Number of invite codes to generate",
+        reason => "Why you're generating those invite codes",
+    ]
+}
 
 sub usage { '<username> <count> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "payments" );
+    return $remote && $remote->has_priv("payments");
 }
 
 sub execute {
-    my ($self, $username, $count, $reason, @args) = @_;
+    my ( $self, $username, $count, $reason, @args ) = @_;
 
     return $self->error("This command takes three arguments. Consult the reference.")
         unless $username && $count && $reason && scalar(@args) == 0;
@@ -52,7 +54,7 @@ sub execute {
         unless $owner->is_visible && $owner->is_person;
 
     return $self->error("'$count' isn't a positive integer")
-        unless ($count =~ /^\s*\d+\s*$/) && ($count += 0);
+        unless ( $count =~ /^\s*\d+\s*$/ ) && ( $count += 0 );
 
     my $remote = LJ::get_remote();
     $reason = $remote->user . " ran make_invites $username $count '$reason'";

@@ -25,7 +25,7 @@ sub prop_name {
 
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.shortcuts.prev.label' );
+    return $class->ml('setting.shortcuts.prev.label');
 }
 
 sub prop_key {

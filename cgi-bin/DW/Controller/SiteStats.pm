@@ -36,19 +36,26 @@ use DW::StatStore;
 use DW::StatData;
 use DW::Controller::Admin;
 
-LJ::ModuleLoader::require_subclasses( 'DW::StatData' );
+LJ::ModuleLoader::require_subclasses('DW::StatData');
 
-DW::Routing->register_string( '/stats/site', \&stats_page, app => 1,
-                              args => [ 'stats/site.tt', \&public_data, 1 ] );
-
-DW::Routing->register_string( '/admin/stats', \&stats_page, app => 1,
-                              args => [ 'admin/stats.tt', \&admin_data, 0,
-                                        'payments' ] );
-DW::Controller::Admin->register_admin_page( '/',
-    path => '/admin/stats',
-    ml_scope => '/admin/stats.tt',
-    privs => [ 'payments' ]
+DW::Routing->register_string(
+    '/stats/site', \&stats_page,
+    app  => 1,
+    args => [ 'stats/site.tt', \&public_data, 1 ]
 );
+
+DW::Routing->register_string(
+    '/admin/stats', \&stats_page,
+    app  => 1,
+    args => [ 'admin/stats.tt', \&admin_data, 0, 'payments' ]
+);
+DW::Controller::Admin->register_admin_page(
+    '/',
+    path     => '/admin/stats',
+    ml_scope => '/admin/stats.tt',
+    privs    => ['payments']
+);
+
 =head1 Internals
 
 =head2 C<< DW::Controller::SiteStats::stats_page( $opts ) >>
@@ -118,26 +125,24 @@ sub public_data {
     my $vars = {};
 
     # Accounts by type
-    my $accounts_by_type = DW::StatData::AccountsByType->load_latest( DW::StatStore->get( "accounts" ) );
+    my $accounts_by_type =
+        DW::StatData::AccountsByType->load_latest( DW::StatStore->get("accounts") );
     if ( defined $accounts_by_type ) {
-        $vars->{accounts_by_type}
-            = { map { _dashes_to_underlines( $_ )
-                      => _make_a_number( $accounts_by_type->value( $_ ) ) }
-                    @{$accounts_by_type->keylist} };
+        $vars->{accounts_by_type} =
+            { map { _dashes_to_underlines($_) => _make_a_number( $accounts_by_type->value($_) ) }
+                @{ $accounts_by_type->keylist } };
 
         # Computed: total personal and community accounts
         $vars->{accounts_by_type}->{total_PC} =
-            $vars->{accounts_by_type}->{personal} +
-            $vars->{accounts_by_type}->{community};
+            $vars->{accounts_by_type}->{personal} + $vars->{accounts_by_type}->{community};
     }
 
     # Active accounts by time since last active, level, and type
-    my $active_accounts = DW::StatData::ActiveAccounts->load_latest( DW::StatStore->get( "active" ) );
+    my $active_accounts = DW::StatData::ActiveAccounts->load_latest( DW::StatStore->get("active") );
     if ( defined $active_accounts ) {
-        $vars->{active_accounts}
-            = { map { _dashes_to_underlines( $_ )
-                      => _make_a_number( $active_accounts->value( $_ ) ) }
-                    @{$active_accounts->keylist} };
+        $vars->{active_accounts} =
+            { map { _dashes_to_underlines($_) => _make_a_number( $active_accounts->value($_) ) }
+                @{ $active_accounts->keylist } };
 
         # Computed: total active personal and community accounts
         $vars->{active_accounts}->{active_PC} =
@@ -182,15 +187,12 @@ sub public_data {
     }
 
     # Paid accounts by level
-    my $paid = DW::StatData::PaidAccounts->load_latest( DW::StatStore->get( "paid" ) );
+    my $paid = DW::StatData::PaidAccounts->load_latest( DW::StatStore->get("paid") );
     if ( defined $paid ) {
-        $vars->{paid}
-            = { map { _dashes_to_underlines( $_ )
-                      => _make_a_number( $paid->value( $_ ) ) }
-                    @{$paid->keylist} };
+        $vars->{paid} = { map { _dashes_to_underlines($_) => _make_a_number( $paid->value($_) ) }
+                @{ $paid->keylist } };
         $vars->{paid}->{allpaid} = 0;
-        $vars->{paid}->{allpaid} += $vars->{paid}->{$_}
-            foreach @{$paid->keylist};
+        $vars->{paid}->{allpaid} += $vars->{paid}->{$_} foreach @{ $paid->keylist };
     }
 
     return $vars;
@@ -206,9 +208,9 @@ or care whether user should have access. That's for the caller to do.
 =cut
 
 sub admin_data {
-    my $vars = public_data( @_ ); # Just in case it gets arguments someday.
+    my $vars = public_data(@_);    # Just in case it gets arguments someday.
 
-<<COMMENT;
+    <<COMMENT;
 
 FIXME: remove this when you have implemented them all
 

@@ -27,19 +27,20 @@ use Carp qw (croak);
 #   %postvars: the expected post variables
 # Returns: Auth token good for the current hour
 sub ajax_auth_token {
-    my ($class, $remote, $uri, %postvars) = @_;
+    my ( $class, $remote, $uri, %postvars ) = @_;
 
     $remote = LJ::want_user($remote) || LJ::get_remote();
 
     croak "No URI specified" unless $uri;
 
-    my ($stime, $secret) = LJ::get_secret();
-    my $postvars = join('&', map { $postvars{$_} } sort keys %postvars);
-    my $remote_session_id = $remote && $remote->session ? $remote->session->id : LJ::UniqCookie->current_uniq;
+    my ( $stime, $secret ) = LJ::get_secret();
+    my $postvars = join( '&', map { $postvars{$_} } sort keys %postvars );
+    my $remote_session_id =
+        $remote && $remote->session ? $remote->session->id : LJ::UniqCookie->current_uniq;
     my $remote_userid = $remote ? $remote->id : 0;
 
     my $chalbare = qq {ajax:$stime:$remote_userid:$remote_session_id:$uri:$postvars};
-    my $chalsig = sha1_hex($chalbare, $secret);
+    my $chalsig  = sha1_hex( $chalbare, $secret );
     return qq{$chalbare:$chalsig};
 }
 
@@ -47,7 +48,7 @@ sub ajax_auth_token {
 # Arguments: $remote, $uri, %POST variables
 # Returns: bool whether or not key is good
 sub check_ajax_auth_token {
-    my ($class, $remote, $uri, %postvars) = @_;
+    my ( $class, $remote, $uri, %postvars ) = @_;
 
     $remote = LJ::want_user($remote) || LJ::get_remote();
 
@@ -55,10 +56,11 @@ sub check_ajax_auth_token {
     my $auth_token = delete $postvars{auth_token} or return 0;
 
     # recompute post vars
-    my $postvars = join('&', map { $postvars{$_} } sort keys %postvars);
+    my $postvars = join( '&', map { $postvars{$_} } sort keys %postvars );
 
     # get vars out of token string
-    my ($c_ver, $stime, $remoteid, $sessid, $chal_uri, $chal_postvars, $chalsig) = split(':', $auth_token);
+    my ( $c_ver, $stime, $remoteid, $sessid, $chal_uri, $chal_postvars, $chalsig ) =
+        split( ':', $auth_token );
 
     # get secret based on $stime
     my $secret = LJ::get_secret($stime);
@@ -70,40 +72,39 @@ sub check_ajax_auth_token {
     return 0 unless $c_ver eq 'ajax';
 
     # in logged-out case $remoteid is 0 and $sessid is uniq_cookie
-    my $req_remoteid = $remoteid > 0 ? $remote->id : 0;
+    my $req_remoteid = $remoteid > 0 ? $remote->id          : 0;
     my $req_sessid   = $remoteid > 0 ? $remote->session->id : LJ::UniqCookie->current_uniq;
-
 
     # do signitures match?
     my $chalbare = qq {$c_ver:$stime:$remoteid:$sessid:$chal_uri:$chal_postvars};
-    my $realsig = sha1_hex($chalbare, $secret);
+    my $realsig  = sha1_hex( $chalbare, $secret );
     return 0 unless $realsig eq $chalsig;
 
-    return 0 unless
-        $remoteid == $req_remoteid && # remote id matches or logged-out 0=0
-        $sessid == $req_sessid &&     # remote sessid or logged-out uniq cookie match
-        $uri eq $chal_uri &&          # uri matches
-        $postvars eq $chal_postvars;  # post vars to uri
+    return 0
+        unless $remoteid == $req_remoteid &&    # remote id matches or logged-out 0=0
+        $sessid == $req_sessid            &&    # remote sessid or logged-out uniq cookie match
+        $uri eq $chal_uri                 &&    # uri matches
+        $postvars eq $chal_postvars;            # post vars to uri
 
     return 1;
 }
 
 # this is similar to the above methods but doesn't require a session or remote
 sub sessionless_auth_token {
-    my ($class, $uri, %reqvars) = @_;
+    my ( $class, $uri, %reqvars ) = @_;
 
     croak "No URI specified" unless $uri;
 
-    my ($stime, $secret) = LJ::get_secret();
-    my $reqvars = join('&', map { $reqvars{$_} } sort keys %reqvars);
+    my ( $stime, $secret ) = LJ::get_secret();
+    my $reqvars = join( '&', map { $reqvars{$_} } sort keys %reqvars );
 
     my $chalbare = qq {sessionless:$stime:$uri:$reqvars};
-    my $chalsig = sha1_hex($chalbare, $secret);
+    my $chalsig  = sha1_hex( $chalbare, $secret );
     return qq{$chalbare:$chalsig};
 }
 
 sub check_sessionless_auth_token {
-    my ($class, $uri, %reqvars) = @_;
+    my ( $class, $uri, %reqvars ) = @_;
 
     # get auth token out of post vars
     my $auth_token = delete $reqvars{auth_token} or return 0;
@@ -112,7 +113,7 @@ sub check_sessionless_auth_token {
     my $reqvars = join( '&', map { $reqvars{$_} // '' } qw(journalid moduleid preview) );
 
     # get vars out of token string
-    my ($c_ver, $stime, $chal_uri, $chal_reqvars, $chalsig) = split(':', $auth_token);
+    my ( $c_ver, $stime, $chal_uri, $chal_reqvars, $chalsig ) = split( ':', $auth_token );
 
     # get secret based on $stime
     my $secret = LJ::get_secret($stime);
@@ -125,7 +126,7 @@ sub check_sessionless_auth_token {
 
     # do signitures match?
     my $chalbare = qq {$c_ver:$stime:$chal_uri:$chal_reqvars};
-    my $realsig = sha1_hex($chalbare, $secret);
+    my $realsig  = sha1_hex( $chalbare, $secret );
     return 0 unless $realsig eq $chalsig;
 
     # do other vars match?
@@ -170,10 +171,11 @@ sub auth_okay {
     # set the IP banned flag, if it was provided.
     my $fake_scalar;
     my $ref = ref $ip_banned ? $ip_banned : \$fake_scalar;
-    if (LJ::login_ip_banned($u)) {
+    if ( LJ::login_ip_banned($u) ) {
         $$ref = 1;
         return 0;
-    } else {
+    }
+    else {
         $$ref = 0;
     }
 
@@ -199,48 +201,52 @@ sub auth_okay {
 #   'dont_check_count' => if true, won't return a count field
 # the return value is 1 if 'valid' and not 'expired' and 'count'==1
 sub challenge_check {
-    my ($chal, $opts) = @_;
-    my ($valid, $expired, $count) = (1, 0, 0);
+    my ( $chal, $opts ) = @_;
+    my ( $valid, $expired, $count ) = ( 1, 0, 0 );
 
-    my ($c_ver, $stime, $s_age, $goodfor, $rand, $chalsig) = split /:/, $chal;
-    my $secret = LJ::get_secret($stime);
+    my ( $c_ver, $stime, $s_age, $goodfor, $rand, $chalsig ) = split /:/, $chal;
+    my $secret   = LJ::get_secret($stime);
     my $chalbare = "$c_ver:$stime:$s_age:$goodfor:$rand";
 
     # Validate token
     $valid = 0
-        unless $secret && $c_ver eq 'c0'; # wrong version
+        unless $secret && $c_ver eq 'c0';    # wrong version
     $valid = 0
-        unless Digest::MD5::md5_hex($chalbare . $secret) eq $chalsig;
+        unless Digest::MD5::md5_hex( $chalbare . $secret ) eq $chalsig;
 
     $expired = 1
-        unless (not $valid) or time() - ($stime + $s_age) < $goodfor;
+        unless ( not $valid )
+        or time() - ( $stime + $s_age ) < $goodfor;
 
     # Check for token dups
-    if ($valid && !$expired && !$opts->{dont_check_count}) {
+    if ( $valid && !$expired && !$opts->{dont_check_count} ) {
         if (@LJ::MEMCACHE_SERVERS) {
-            $count = LJ::MemCache::incr("chaltoken:$chal", 1);
+            $count = LJ::MemCache::incr( "chaltoken:$chal", 1 );
             unless ($count) {
-                LJ::MemCache::add("chaltoken:$chal", 1, $goodfor);
+                LJ::MemCache::add( "chaltoken:$chal", 1, $goodfor );
                 $count = 1;
             }
-        } else {
+        }
+        else {
             my $dbh = LJ::get_db_writer();
-            my $rv = $dbh->do("SELECT GET_LOCK(?,5)", undef, $chal);
+            my $rv  = $dbh->do( "SELECT GET_LOCK(?,5)", undef, $chal );
             if ($rv) {
-                $count = $dbh->selectrow_array("SELECT count FROM challenges WHERE challenge=?",
-                                               undef, $chal);
+                $count = $dbh->selectrow_array( "SELECT count FROM challenges WHERE challenge=?",
+                    undef, $chal );
                 if ($count) {
-                    $dbh->do("UPDATE challenges SET count=count+1 WHERE challenge=?",
-                             undef, $chal);
+                    $dbh->do( "UPDATE challenges SET count=count+1 WHERE challenge=?",
+                        undef, $chal );
                     $count++;
-                } else {
-                    $dbh->do("INSERT INTO challenges SET ctime=?, challenge=?, count=1",
-                         undef, $stime + $s_age, $chal);
+                }
+                else {
+                    $dbh->do( "INSERT INTO challenges SET ctime=?, challenge=?, count=1",
+                        undef, $stime + $s_age, $chal );
                     $count = 1;
                 }
             }
-            $dbh->do("SELECT RELEASE_LOCK(?)", undef, $chal);
+            $dbh->do( "SELECT RELEASE_LOCK(?)", undef, $chal );
         }
+
         # if we couldn't get the count (means we couldn't store either)
         # , consider it invalid
         $valid = 0 unless $count;
@@ -248,17 +254,17 @@ sub challenge_check {
 
     if ($opts) {
         $opts->{'expired'} = $expired;
-        $opts->{'valid'} = $valid;
-        $opts->{'count'} = $count;
+        $opts->{'valid'}   = $valid;
+        $opts->{'count'}   = $count;
     }
 
-    return ($valid && !$expired && ($count==1 || $opts->{dont_check_count}));
+    return ( $valid && !$expired && ( $count == 1 || $opts->{dont_check_count} ) );
 }
 
 # Validate login/talk md5 responses.
 # Return 1 on valid, 0 on invalid.
 sub challenge_check_login {
-    my ($u, $chal, $res, $banned, $opts) = @_;
+    my ( $u, $chal, $res, $banned, $opts ) = @_;
     return 0 unless $u;
     my $pass = $u->password;
     return 0 if $pass eq "";
@@ -266,21 +272,23 @@ sub challenge_check_login {
     # set the IP banned flag, if it was provided.
     my $fake_scalar;
     my $ref = ref $banned ? $banned : \$fake_scalar;
-    if (LJ::login_ip_banned($u)) {
+    if ( LJ::login_ip_banned($u) ) {
         $$ref = 1;
         return 0;
-    } else {
+    }
+    else {
         $$ref = 0;
     }
 
     # check the challenge string validity
-    return 0 unless LJ::challenge_check($chal, $opts);
+    return 0 unless LJ::challenge_check( $chal, $opts );
 
     # Validate password
-    my $hashed = Digest::MD5::md5_hex($chal . Digest::MD5::md5_hex($pass));
-    if ($hashed eq $res) {
+    my $hashed = Digest::MD5::md5_hex( $chal . Digest::MD5::md5_hex($pass) );
+    if ( $hashed eq $res ) {
         return 1;
-    } else {
+    }
+    else {
         LJ::handle_bad_login($u);
         return 0;
     }
@@ -288,35 +296,37 @@ sub challenge_check_login {
 
 # Create a challenge token for secure logins
 sub challenge_generate {
-    my ($goodfor, $attr) = @_;
+    my ( $goodfor, $attr ) = @_;
 
     $goodfor ||= 60;
-    $attr ||= LJ::rand_chars(20);
+    $attr    ||= LJ::rand_chars(20);
 
-    my ($stime, $secret) = LJ::get_secret();
+    my ( $stime, $secret ) = LJ::get_secret();
 
     # challenge version, secret time, secret age, time in secs token is good for, random chars.
-    my $s_age = time() - $stime;
+    my $s_age    = time() - $stime;
     my $chalbare = "c0:$stime:$s_age:$goodfor:$attr";
-    my $chalsig = Digest::MD5::md5_hex($chalbare . $secret);
-    my $chal = "$chalbare:$chalsig";
+    my $chalsig  = Digest::MD5::md5_hex( $chalbare . $secret );
+    my $chal     = "$chalbare:$chalsig";
 
     return $chal;
 }
 
 sub get_authaction {
-    my ($id, $action, $arg1, $opts) = @_;
+    my ( $id, $action, $arg1, $opts ) = @_;
 
     my $dbh = $opts->{force} ? LJ::get_db_writer() : LJ::get_db_reader();
-    return $dbh->selectrow_hashref("SELECT aaid, authcode, datecreate FROM authactions " .
-                                   "WHERE userid=? AND arg1=? AND action=? AND used='N' LIMIT 1",
-                                   undef, $id, $arg1, $action);
+    return $dbh->selectrow_hashref(
+        "SELECT aaid, authcode, datecreate FROM authactions "
+            . "WHERE userid=? AND arg1=? AND action=? AND used='N' LIMIT 1",
+        undef, $id, $arg1, $action
+    );
 }
 
 # Return challenge info.
 # This could grow later - for now just return the rand chars used.
 sub get_challenge_attributes {
-    return (split /:/, shift)[4];
+    return ( split /:/, shift )[4];
 }
 
 # <LJFUNC>
@@ -329,12 +339,13 @@ sub get_challenge_attributes {
 # des-auth: String; the auth string. (random chars the client already got)
 # </LJFUNC>
 sub is_valid_authaction {
+
     # we use the master db to avoid races where authactions could be
     # used multiple times
     my $dbh = LJ::get_db_writer();
-    my ($aaid, $auth) = @_;
-    return $dbh->selectrow_hashref("SELECT * FROM authactions WHERE aaid=? AND authcode=?",
-                                   undef, $aaid, $auth);
+    my ( $aaid, $auth ) = @_;
+    return $dbh->selectrow_hashref( "SELECT * FROM authactions WHERE aaid=? AND authcode=?",
+        undef, $aaid, $auth );
 }
 
 # <LJFUNC>
@@ -349,7 +360,7 @@ sub make_auth_code {
     my $length = shift;
     my $digits = "abcdefghjkmnpqrstvwxyz23456789";
     my $auth;
-    for (1..$length) { $auth .= substr($digits, int(rand(30)), 1); }
+    for ( 1 .. $length ) { $auth .= substr( $digits, int( rand(30) ), 1 ); }
     return $auth;
 }
 
@@ -361,11 +372,11 @@ sub make_auth_code {
 # returns: 1 on success, undef on error.
 # </LJFUNC>
 sub mark_authaction_used {
-    my $aaid = ref $_[0] ? $_[0]->{aaid}+0 : $_[0]+0
+    my $aaid = ref $_[0] ? $_[0]->{aaid} + 0 : $_[0] + 0
         or return undef;
     my $dbh = LJ::get_db_writer()
         or return undef;
-    $dbh->do("UPDATE authactions SET used='Y' WHERE aaid = ?", undef, $aaid);
+    $dbh->do( "UPDATE authactions SET used='Y' WHERE aaid = ?", undef, $aaid );
     return undef if $dbh->err;
     return 1;
 }
@@ -390,21 +401,23 @@ sub mark_authaction_used {
 sub register_authaction {
     my $dbh = LJ::get_db_writer();
 
-    my $userid = shift;  $userid += 0;
+    my $userid = shift;
+    $userid += 0;
     my $action = $dbh->quote(shift);
-    my $arg1 = $dbh->quote(shift);
+    my $arg1   = $dbh->quote(shift);
 
     # make the authcode
-    my $authcode = LJ::make_auth_code(15);
+    my $authcode  = LJ::make_auth_code(15);
     my $qauthcode = $dbh->quote($authcode);
 
-    $dbh->do("INSERT INTO authactions (aaid, userid, datecreate, authcode, action, arg1) ".
-             "VALUES (NULL, $userid, NOW(), $qauthcode, $action, $arg1)");
+    $dbh->do( "INSERT INTO authactions (aaid, userid, datecreate, authcode, action, arg1) "
+            . "VALUES (NULL, $userid, NOW(), $qauthcode, $action, $arg1)" );
 
     return 0 if $dbh->err;
-    return { 'aaid' => $dbh->{'mysql_insertid'},
-             'authcode' => $authcode,
-         };
+    return {
+        'aaid'     => $dbh->{'mysql_insertid'},
+        'authcode' => $authcode,
+    };
 }
 
 1;

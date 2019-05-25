@@ -3,7 +3,7 @@
 # DW::OAuth::LocalProtectedResourceRequest
 #
 # Add some extension specs.
-# 
+#
 #   Request Body Hash:
 #       http://oauth.googlecode.com/svn/spec/ext/body_hash/1.0/oauth-bodyhash.html
 #

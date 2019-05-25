@@ -27,34 +27,34 @@ sub new {
     return undef unless $url;
 
     my $ua = LJ::get_useragent( role => 'share' );
-    $ua->agent( $LJ::SITENAME );
-    my $res = $ua->get( $url );
+    $ua->agent($LJ::SITENAME);
+    my $res     = $ua->get($url);
     my $content = $res && $res->is_success ? $res->content : undef;
     return undef unless $content;
 
     my $p = HTML::TokeParser->new( \$content );
 
     my $title;
-    if ( $p->get_tag( 'title' ) ) {
+    if ( $p->get_tag('title') ) {
         $title = $p->get_trimmed_text;
     }
 
     my $description;
-    while ( my $token = $p->get_tag( 'meta' ) ) {
+    while ( my $token = $p->get_tag('meta') ) {
         next unless $token->[1]{name} && $token->[1]{name} eq 'description';
         $description = LJ::trim( $token->[1]{content} )
             if $token->[1]{content};
     }
 
     return bless {
-        url => $url,
-        title => $title || '',
+        url         => $url,
+        title       => $title || '',
         description => $description || '',
     }, $class;
 }
 
-sub url { $_[0]->{url} }
-sub title { $_[0]->{title} }
+sub url         { $_[0]->{url} }
+sub title       { $_[0]->{title} }
 sub description { $_[0]->{description} }
 
 1;

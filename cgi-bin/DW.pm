@@ -40,5 +40,4 @@ sub home {
     return $LJ::HOME || $ENV{LJHOME};
 }
 
-
 1;

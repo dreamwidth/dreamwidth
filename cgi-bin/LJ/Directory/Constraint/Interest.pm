@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 # wants intid
 sub new {
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
     my $self = bless {}, $pkg;
     $self->{$_} = delete $args{$_} foreach qw(intid interest);
     croak "unknown args" if %args;
@@ -27,15 +27,16 @@ sub new {
 }
 
 sub new_from_formargs {
-    my ($pkg, $args) = @_;
-    return undef unless ($args->{int_like} xor $args->{intid});
+    my ( $pkg, $args ) = @_;
+    return undef unless ( $args->{int_like} xor $args->{intid} );
 
     # handle possibility of multiple specified interests
     my @ints = LJ::interest_string_to_list( $args->{int_like} );
 
     if ( $args->{int_like} ) {
         return [ map { $pkg->new( interest => $_ ) } @ints ];
-    } else {
+    }
+    else {
         return $pkg->new( intid => $args->{intid} );
     }
 }
@@ -52,7 +53,7 @@ sub load_row {
     my $self = shift;
     $self->{_loaded_row} = 1;
 
-    if ( $self->{interest} && ! $self->{intid} ) {
+    if ( $self->{interest} && !$self->{intid} ) {
         $self->{intid} = LJ::get_sitekeyword_id( $self->{interest}, 0 );
     }
     return unless $self->{intid};
@@ -67,12 +68,19 @@ sub matching_uids {
     my $db = LJ::get_dbh("directory") || LJ::get_db_reader();
 
     # user interests
-    my @ids = @{ $db->selectcol_arrayref("SELECT userid FROM userinterests WHERE intid=?",
-                                         undef, $self->intid) || [] };
+    my @ids = @{
+        $db->selectcol_arrayref( "SELECT userid FROM userinterests WHERE intid=?",
+            undef, $self->intid )
+            || []
+    };
 
     # community interests
-    push @ids, @{ $db->selectcol_arrayref("SELECT userid FROM comminterests WHERE intid=?",
-                                          undef, $self->intid) || [] };
+    push @ids,
+        @{
+        $db->selectcol_arrayref( "SELECT userid FROM comminterests WHERE intid=?",
+            undef, $self->intid )
+            || []
+        };
 
     # deal with the case where a journal
     # has interests in both tables ... ew

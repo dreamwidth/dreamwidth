@@ -17,7 +17,7 @@ use Carp qw(croak);
 use LJ::Customize;
 use LJ::ModuleLoader;
 
-LJ::ModuleLoader->require_subclasses( "LJ::S2Theme" );
+LJ::ModuleLoader->require_subclasses("LJ::S2Theme");
 
 sub init {
     1;
@@ -34,63 +34,64 @@ sub default_themes {
     my %default_themes;
 
     %default_themes = (
-        abstractia => 'abstractia/darkcarnival',
-        bases => 'bases/tropical',
-        basicboxes => 'basicboxes/green',
-        bannering => 'bannering/overthehills',
-        blanket => 'blanket/peach',
-        boxesandborders => 'boxesandborders/gray',
-        brittle => 'brittle/rust',
-        ciel => 'ciel/cloudydays',
+        abstractia       => 'abstractia/darkcarnival',
+        bases            => 'bases/tropical',
+        basicboxes       => 'basicboxes/green',
+        bannering        => 'bannering/overthehills',
+        blanket          => 'blanket/peach',
+        boxesandborders  => 'boxesandborders/gray',
+        brittle          => 'brittle/rust',
+        ciel             => 'ciel/cloudydays',
         compartmentalize => 'compartmentalize/poppyfields',
-        core2base => 'core2base/testing',
-        corinthian => 'corinthian/deepseas',
-        crisped => 'crisped/freshcotton',
-        crossroads => 'crossroads/lettuce',
-        database => 'database/blue',
-        drifting => 'drifting/blue',
-        dustyfoot => 'dustyfoot/dreamer',
-        easyread => 'easyread/green',
-        goldleaf => 'goldleaf/elegantnotebook',
-        fantaisie => 'fantaisie/unrelentingroutine',
-        fiveam => 'fiveam/earlyedition',
-        fluidmeasure => 'fluidmeasure/spice',
-        forthebold => 'forthebold/tealeaves',
-        funkycircles => 'funkycircles/darkpurple',
-        hibiscus => 'hibiscus/tropical',
-        headsup => 'headsup/caturdaygreytabby',
-        leftovers => 'leftovers/fruitsalad',
-        lefty => 'lefty/greenmachine',
-        librariansdream => 'librariansdream/grayscalelight',
-        lineup => 'lineup/modernity',
-        marginless => 'marginless/mars',
-        mobility => 'mobility/ivoryalcea',
-        modular => 'modular/mediterraneanpeach',
-        motion => 'motion/blue',
-        negatives => 'negatives/black',
+        core2base        => 'core2base/testing',
+        corinthian       => 'corinthian/deepseas',
+        crisped          => 'crisped/freshcotton',
+        crossroads       => 'crossroads/lettuce',
+        database         => 'database/blue',
+        drifting         => 'drifting/blue',
+        dustyfoot        => 'dustyfoot/dreamer',
+        easyread         => 'easyread/green',
+        goldleaf         => 'goldleaf/elegantnotebook',
+        fantaisie        => 'fantaisie/unrelentingroutine',
+        fiveam           => 'fiveam/earlyedition',
+        fluidmeasure     => 'fluidmeasure/spice',
+        forthebold       => 'forthebold/tealeaves',
+        funkycircles     => 'funkycircles/darkpurple',
+        hibiscus         => 'hibiscus/tropical',
+        headsup          => 'headsup/caturdaygreytabby',
+        leftovers        => 'leftovers/fruitsalad',
+        lefty            => 'lefty/greenmachine',
+        librariansdream  => 'librariansdream/grayscalelight',
+        lineup           => 'lineup/modernity',
+        marginless       => 'marginless/mars',
+        mobility         => 'mobility/ivoryalcea',
+        modular          => 'modular/mediterraneanpeach',
+        motion           => 'motion/blue',
+        negatives        => 'negatives/black',
         nouveauoleanders => 'nouveauoleanders/sienna',
-        paletteable => 'paletteable/descending',
-        paperme => 'paperme/newleaf',
-        patsy => 'patsy/retro',
-        pattern => 'pattern/foundinthedesert',
-        planetcaravan => 'planetcaravan/cheerfully',
-        practicality => 'practicality/warmth',
-        refriedtablet => 'refriedtablet/refriedclassic',
-        seamless => 'seamless/pinkenvy',
-        skittlishdreams => 'skittlishdreams/orange',
-        snakesandboxes => 'snakesandboxes/pinkedout',
-        steppingstones => 'steppingstones/purple',
-        strata => 'strata/springmorning',
-        summertime => 'summertime/tenniscourt',
-        tectonic => 'tectonic/fission',
-        tranquilityiii => 'tranquilityiii/nightsea',
-        trifecta => 'trifecta/handlewithcare',
-        wideopen => 'wideopen/koi',
-        venture => 'venture/radiantaqua',
-        zesty => 'zesty/white',
+        paletteable      => 'paletteable/descending',
+        paperme          => 'paperme/newleaf',
+        patsy            => 'patsy/retro',
+        pattern          => 'pattern/foundinthedesert',
+        planetcaravan    => 'planetcaravan/cheerfully',
+        practicality     => 'practicality/warmth',
+        refriedtablet    => 'refriedtablet/refriedclassic',
+        seamless         => 'seamless/pinkenvy',
+        skittlishdreams  => 'skittlishdreams/orange',
+        snakesandboxes   => 'snakesandboxes/pinkedout',
+        steppingstones   => 'steppingstones/purple',
+        strata           => 'strata/springmorning',
+        summertime       => 'summertime/tenniscourt',
+        tectonic         => 'tectonic/fission',
+        tranquilityiii   => 'tranquilityiii/nightsea',
+        trifecta         => 'trifecta/handlewithcare',
+        wideopen         => 'wideopen/koi',
+        venture          => 'venture/radiantaqua',
+        zesty            => 'zesty/white',
     );
 
-    my %local_default_themes = eval "use LJ::S2Theme_local; 1;"
+    my %local_default_themes =
+        eval "use LJ::S2Theme_local; 1;"
         ? $class->local_default_themes
         : ();
 
@@ -101,13 +102,13 @@ sub default_themes {
 
 # returns the uniq of the default theme for the given layout id or uniq (for lazy migration)
 sub default_theme {
-    my $class = shift;
+    my $class  = shift;
     my $layout = shift;
-    my %opts = @_;
+    my %opts   = @_;
 
     # turn the given $layout into a uniq if it's an id
     my $pub = LJ::S2::get_public_layers();
-    if ($layout =~ /^\d+$/) {
+    if ( $layout =~ /^\d+$/ ) {
         $layout = $pub->{$layout}->{uniq};
     }
 
@@ -118,78 +119,88 @@ sub default_theme {
     $layout =~ s/\/layout$//;
 
     my %default_themes = $class->default_themes;
-    my $default_theme = $default_themes{$layout};
+    my $default_theme  = $default_themes{$layout};
     die "Default theme for layout $layout does not exist." unless $default_theme;
     return $default_theme;
 }
 
 sub load {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
     # load a single given theme by theme id
     # will check user themes if user opt is specified and themeid is not a system theme
-    if ($opts{themeid}) {
-        return $class->load_by_themeid($opts{themeid}, $opts{user});
+    if ( $opts{themeid} ) {
+        return $class->load_by_themeid( $opts{themeid}, $opts{user} );
 
-    # load all themes of a single given layout id
-    # will check user themes in addition to system themes if user opt is specified
-    } elsif ($opts{layoutid}) {
-        return $class->load_by_layoutid($opts{layoutid}, $opts{user});
+        # load all themes of a single given layout id
+        # will check user themes in addition to system themes if user opt is specified
+    }
+    elsif ( $opts{layoutid} ) {
+        return $class->load_by_layoutid( $opts{layoutid}, $opts{user} );
 
-    # load the default theme of a single given layout id
-    } elsif ($opts{default_of}) {
-        return $class->load_default_of($opts{default_of});
+        # load the default theme of a single given layout id
+    }
+    elsif ( $opts{default_of} ) {
+        return $class->load_default_of( $opts{default_of} );
 
-    # load all themes of a single given uniq (layout or theme)
-    } elsif ($opts{uniq}) {
-        return $class->load_by_uniq($opts{uniq});
+        # load all themes of a single given uniq (layout or theme)
+    }
+    elsif ( $opts{uniq} ) {
+        return $class->load_by_uniq( $opts{uniq} );
 
-    # load all themes of a single given category
-    } elsif ($opts{cat}) {
-        return $class->load_by_cat($opts{cat});
+        # load all themes of a single given category
+    }
+    elsif ( $opts{cat} ) {
+        return $class->load_by_cat( $opts{cat} );
 
-    # load all themes by a particular designer
-    } elsif ($opts{designer}) {
-        return $class->load_by_designer($opts{designer});
+        # load all themes by a particular designer
+    }
+    elsif ( $opts{designer} ) {
+        return $class->load_by_designer( $opts{designer} );
 
-    # load all custom themes of the user
-    } elsif ($opts{user}) {
-        return $class->load_by_user($opts{user});
+        # load all custom themes of the user
+    }
+    elsif ( $opts{user} ) {
+        return $class->load_by_user( $opts{user} );
 
-    # load all themes that match a particular search term
-    } elsif ($opts{search}) {
-        return $class->load_by_search($opts{search}, $opts{user});
+        # load all themes that match a particular search term
+    }
+    elsif ( $opts{search} ) {
+        return $class->load_by_search( $opts{search}, $opts{user} );
 
-    # load custom layout with themeid of 0
-    } elsif ($opts{custom_layoutid}) {
-        return $class->load_custom_layoutid($opts{custom_layoutid}, $opts{user});
+        # load custom layout with themeid of 0
+    }
+    elsif ( $opts{custom_layoutid} ) {
+        return $class->load_custom_layoutid( $opts{custom_layoutid}, $opts{user} );
 
-    # load all themes
-    # will load user themes in addition to system themes if user opt is specified
-    } elsif ($opts{all}) {
-        return $class->load_all($opts{user});
+        # load all themes
+        # will load user themes in addition to system themes if user opt is specified
+    }
+    elsif ( $opts{all} ) {
+        return $class->load_all( $opts{user} );
     }
 
     # no valid option given
-    die "Must pass one or more of the following options to theme loader: themeid, layoutid, default_of, uniq, cat, designer, user, custom_layoutid, all";
+    die
+"Must pass one or more of the following options to theme loader: themeid, layoutid, default_of, uniq, cat, designer, user, custom_layoutid, all";
 }
 
 sub load_by_themeid {
-    my $class = shift;
+    my $class   = shift;
     my $themeid = shift;
-    my $u = shift;
+    my $u       = shift;
 
     return $class->new( themeid => $themeid, user => $u );
 }
 
 sub load_by_layoutid {
-    my $class = shift;
+    my $class    = shift;
     my $layoutid = shift;
-    my $u = shift;
+    my $u        = shift;
 
     my @themes;
-    my $pub = LJ::S2::get_public_layers();
+    my $pub      = LJ::S2::get_public_layers();
     my $children = $pub->{$layoutid}->{children};
     foreach my $themeid (@$children) {
         next unless $pub->{$themeid}->{type} eq "theme";
@@ -198,15 +209,16 @@ sub load_by_layoutid {
 
     if ($u) {
         my $userlay = LJ::S2::get_layers_of_user($u);
-        foreach my $layer (keys %$userlay) {
+        foreach my $layer ( keys %$userlay ) {
             my $layer_type = $userlay->{$layer}->{type};
 
             # custom themes of the given layout
-            if ($layer_type eq "theme" && $userlay->{$layer}->{b2lid} == $layoutid) {
+            if ( $layer_type eq "theme" && $userlay->{$layer}->{b2lid} == $layoutid ) {
                 push @themes, $class->new( themeid => $layer, user => $u );
 
-            # custom layout that is the given layout (no theme)
-            } elsif ($layer_type eq "layout" && $userlay->{$layer}->{s2lid} == $layoutid) {
+                # custom layout that is the given layout (no theme)
+            }
+            elsif ( $layer_type eq "layout" && $userlay->{$layer}->{s2lid} == $layoutid ) {
                 push @themes, $class->new_custom_layout( layoutid => $layer, user => $u );
             }
         }
@@ -216,11 +228,11 @@ sub load_by_layoutid {
 }
 
 sub load_default_of {
-    my $class = shift;
+    my $class    = shift;
     my $layoutid = shift;
-    my %opts = @_;
+    my %opts     = @_;
 
-    my $default_theme = $class->default_theme($layoutid, %opts);
+    my $default_theme = $class->default_theme( $layoutid, %opts );
     return $default_theme ? $class->load_by_uniq($default_theme) : undef;
 }
 
@@ -244,34 +256,36 @@ sub load_by_uniq {
     my ( $class, $uniq, %opts ) = @_;
 
     my $pub = LJ::S2::get_public_layers();
-    if ($pub->{$uniq} && $pub->{$uniq}->{type} eq "theme") {
-        return $class->load_by_themeid($pub->{$uniq}->{s2lid});
-    } elsif ($pub->{$uniq} && $pub->{$uniq}->{type} eq "layout") {
-        return $class->load_by_layoutid($pub->{$uniq}->{s2lid});
+    if ( $pub->{$uniq} && $pub->{$uniq}->{type} eq "theme" ) {
+        return $class->load_by_themeid( $pub->{$uniq}->{s2lid} );
+    }
+    elsif ( $pub->{$uniq} && $pub->{$uniq}->{type} eq "layout" ) {
+        return $class->load_by_layoutid( $pub->{$uniq}->{s2lid} );
     }
 
     my $msg = "Given uniq is not a valid layout or theme: $uniq";
     if ( $opts{silent_failure} ) {
         warn $msg;
         return undef;
-    } else {
+    }
+    else {
         die $msg;
     }
 }
 
 sub load_by_cat {
     my $class = shift;
-    my $cat = shift;
+    my $cat   = shift;
 
     my @themes;
     my $pub = LJ::S2::get_public_layers();
-    foreach my $layer (keys %$pub) {
+    foreach my $layer ( keys %$pub ) {
         next unless $layer =~ /^\d+$/;
         next unless $pub->{$layer}->{type} eq "theme";
         my $theme = $class->new( themeid => $layer );
 
         # we have a theme, now see if it's in the given category
-        foreach my $possible_cat ($theme->cats) {
+        foreach my $possible_cat ( $theme->cats ) {
             next unless $possible_cat eq $cat;
             push @themes, $theme;
             last;
@@ -282,7 +296,7 @@ sub load_by_cat {
 }
 
 sub load_by_designer {
-    my $class = shift;
+    my $class    = shift;
     my $designer = shift;
 
     # decode and lowercase and remove spaces
@@ -292,7 +306,7 @@ sub load_by_designer {
 
     my @themes;
     my $pub = LJ::S2::get_public_layers();
-    foreach my $layer (keys %$pub) {
+    foreach my $layer ( keys %$pub ) {
         next unless $layer =~ /^\d+$/;
         next unless $pub->{$layer}->{type} eq "theme";
         my $theme = $class->new( themeid => $layer );
@@ -308,17 +322,18 @@ sub load_by_designer {
 
 sub load_by_user {
     my $class = shift;
-    my $u = shift;
+    my $u     = shift;
 
     die "Invalid user object." unless LJ::isu($u);
 
     my @themes;
     my $userlay = LJ::S2::get_layers_of_user($u);
-    foreach my $layer (keys %$userlay) {
+    foreach my $layer ( keys %$userlay ) {
         my $layer_type = $userlay->{$layer}->{type};
-        if ($layer_type eq "theme") {
+        if ( $layer_type eq "theme" ) {
             push @themes, $class->new( themeid => $layer, user => $u );
-        } elsif ($layer_type eq "layout") {
+        }
+        elsif ( $layer_type eq "layout" ) {
             push @themes, $class->new_custom_layout( layoutid => $layer, user => $u );
         }
     }
@@ -328,8 +343,8 @@ sub load_by_user {
 
 sub load_by_search {
     my $class = shift;
-    my $term = shift;
-    my $u = shift;
+    my $term  = shift;
+    my $u     = shift;
 
     # decode and lowercase and remove spaces
     $term = LJ::durl($term);
@@ -346,7 +361,10 @@ sub load_by_search {
         my $designer_name = lc $theme->designer;
         $designer_name =~ s/\s//g;
 
-        if ($theme_name =~ /\Q$term\E/ || $layout_name =~ /\Q$term\E/ || $designer_name =~ /\Q$term\E/) {
+        if (   $theme_name =~ /\Q$term\E/
+            || $layout_name =~ /\Q$term\E/
+            || $designer_name =~ /\Q$term\E/ )
+        {
             push @themes_ret, $theme;
         }
     }
@@ -355,20 +373,20 @@ sub load_by_search {
 }
 
 sub load_custom_layoutid {
-    my $class = shift;
+    my $class    = shift;
     my $layoutid = shift;
-    my $u = shift;
+    my $u        = shift;
 
     return $class->new_custom_layout( layoutid => $layoutid, user => $u );
 }
 
 sub load_all {
     my $class = shift;
-    my $u = shift;
+    my $u     = shift;
 
     my @themes;
     my $pub = LJ::S2::get_public_layers();
-    foreach my $layer (keys %$pub) {
+    foreach my $layer ( keys %$pub ) {
         next unless $layer =~ /^\d+$/;
         next unless $pub->{$layer}->{type} eq "theme";
         next if LJ::S2::is_public_internal_layer($layer);
@@ -385,10 +403,10 @@ sub load_all {
 # custom layouts without themes need special treatment when creating an S2Theme object
 sub new_custom_layout {
     my $class = shift;
-    my $self = {};
-    my %opts = @_;
+    my $self  = {};
+    my %opts  = @_;
 
-    my $layoutid = $opts{layoutid}+0;
+    my $layoutid = $opts{layoutid} + 0;
     die "No layout id given." unless $layoutid;
 
     my $u = $opts{user};
@@ -396,29 +414,32 @@ sub new_custom_layout {
 
     my %outhash = ();
     my $userlay = LJ::S2::get_layers_of_user($u);
-    unless (ref $userlay->{$layoutid}) {
-        LJ::S2::load_layer_info(\%outhash, [ $layoutid ]);
+    unless ( ref $userlay->{$layoutid} ) {
+        LJ::S2::load_layer_info( \%outhash, [$layoutid] );
 
-        die "Given layout id does not correspond to a layer usable by the given user." unless $outhash{$layoutid}->{is_public};
+        die "Given layout id does not correspond to a layer usable by the given user."
+            unless $outhash{$layoutid}->{is_public};
     }
 
     my $using_layer_info = scalar keys %outhash;
 
     die "Given layout id does not correspond to a layout."
-        unless $using_layer_info ? $outhash{$layoutid}->{type} eq "layout" : $userlay->{$layoutid}->{type} eq "layout";
+        unless $using_layer_info
+        ? $outhash{$layoutid}->{type} eq "layout"
+        : $userlay->{$layoutid}->{type} eq "layout";
 
     my $layer;
     if ($using_layer_info) {
         $layer = LJ::S2::load_layer($layoutid);
     }
 
-    $self->{s2lid}       = 0;
-    $self->{b2lid}       = $layoutid;
-    $self->{name}        = LJ::Lang::ml('s2theme.themename.notheme');
-    $self->{uniq}        = undef;
-    $self->{is_custom}   = 1;
-    $self->{coreid}      = $using_layer_info ? $layer->{b2lid}+0 : $userlay->{$layoutid}->{b2lid}+0;
-    $self->{layout_name} = LJ::Customize->get_layout_name($layoutid, user => $u);
+    $self->{s2lid}     = 0;
+    $self->{b2lid}     = $layoutid;
+    $self->{name}      = LJ::Lang::ml('s2theme.themename.notheme');
+    $self->{uniq}      = undef;
+    $self->{is_custom} = 1;
+    $self->{coreid} = $using_layer_info ? $layer->{b2lid} + 0 : $userlay->{$layoutid}->{b2lid} + 0;
+    $self->{layout_name} = LJ::Customize->get_layout_name( $layoutid, user => $u );
     $self->{layout_uniq} = undef;
 
     bless $self, $class;
@@ -427,31 +448,33 @@ sub new_custom_layout {
 
 sub new {
     my $class = shift;
-    my $self = {};
-    my %opts = @_;
+    my $self  = {};
+    my %opts  = @_;
 
-    my $themeid = $opts{themeid}+0;
+    my $themeid = $opts{themeid} + 0;
     die "No theme id given." unless $themeid;
 
     return $LJ::CACHE_S2THEME{$themeid} if exists $LJ::CACHE_S2THEME{$themeid};
 
-    my $layers = LJ::S2::get_public_layers();
+    my $layers    = LJ::S2::get_public_layers();
     my $is_custom = 0;
-    my %outhash = ();
-    unless ($layers->{$themeid} && $layers->{$themeid}->{uniq}) {
-        if ($opts{user}) {
+    my %outhash   = ();
+    unless ( $layers->{$themeid} && $layers->{$themeid}->{uniq} ) {
+        if ( $opts{user} ) {
             my $u = $opts{user};
             die "Invalid user object." unless LJ::isu($u);
 
             $layers = LJ::S2::get_layers_of_user($u);
-            unless (ref $layers->{$themeid}) {
-                LJ::S2::load_layer_info(\%outhash, [ $themeid ]);
-                return undef if $opts{undef_if_missing} && ! exists $outhash{$themeid};
+            unless ( ref $layers->{$themeid} ) {
+                LJ::S2::load_layer_info( \%outhash, [$themeid] );
+                return undef if $opts{undef_if_missing} && !exists $outhash{$themeid};
 
-                die "Given theme id does not correspond to a layer usable by the given user." unless $outhash{$themeid}->{is_public};
+                die "Given theme id does not correspond to a layer usable by the given user."
+                    unless $outhash{$themeid}->{is_public};
             }
             $is_custom = 1;
-        } else {
+        }
+        else {
             die "Given theme id does not correspond to a system layer.";
         }
     }
@@ -460,11 +483,15 @@ sub new {
 
     if ( $opts{undef_if_missing} ) {
         return undef
-            unless $using_layer_info ? exists $outhash{$themeid} : exists $layers->{$themeid}->{type};
+            unless $using_layer_info
+            ? exists $outhash{$themeid}
+            : exists $layers->{$themeid}->{type};
     }
 
     die "Given theme id does not correspond to a theme."
-        unless $using_layer_info ? $outhash{$themeid}->{type} eq "theme" : $layers->{$themeid}->{type} eq "theme";
+        unless $using_layer_info
+        ? $outhash{$themeid}->{type} eq "theme"
+        : $layers->{$themeid}->{type} eq "theme";
 
     my $layer;
     if ($using_layer_info) {
@@ -472,33 +499,37 @@ sub new {
     }
 
     $self->{s2lid}     = $themeid;
-    $self->{b2lid}     = $using_layer_info ? $layer->{b2lid}+0 : $layers->{$themeid}->{b2lid}+0;
+    $self->{b2lid}     = $using_layer_info ? $layer->{b2lid} + 0 : $layers->{$themeid}->{b2lid} + 0;
     $self->{name}      = $using_layer_info ? $layer->{name} : $layers->{$themeid}->{name};
     $self->{uniq}      = $is_custom ? undef : $layers->{$themeid}->{uniq};
     $self->{is_custom} = $is_custom;
 
-    $self->{name} = LJ::Lang::ml('s2theme.themename.default', {themeid => "#$themeid"}) unless $self->{name};
+    $self->{name} = LJ::Lang::ml( 's2theme.themename.default', { themeid => "#$themeid" } )
+        unless $self->{name};
 
     # get the coreid by first checking the user layers and then the public layers for the layout
-    my $pub = LJ::S2::get_public_layers();
-    my $userlay = $opts{user} ? LJ::S2::get_layers_of_user($opts{user}) : "";
+    my $pub     = LJ::S2::get_public_layers();
+    my $userlay = $opts{user} ? LJ::S2::get_layers_of_user( $opts{user} ) : "";
     if ($using_layer_info) {
-        my $layout_layer = LJ::S2::load_layer($self->{b2lid});
+        my $layout_layer = LJ::S2::load_layer( $self->{b2lid} );
         $self->{coreid} = $layout_layer->{b2lid};
-    } else {
-        $self->{coreid} = $userlay->{$self->{b2lid}}->{b2lid}+0 if ref $userlay && $userlay->{$self->{b2lid}};
-        $self->{coreid} = $pub->{$self->{b2lid}}->{b2lid}+0 unless $self->{coreid};
+    }
+    else {
+        $self->{coreid} = $userlay->{ $self->{b2lid} }->{b2lid} + 0
+            if ref $userlay && $userlay->{ $self->{b2lid} };
+        $self->{coreid} = $pub->{ $self->{b2lid} }->{b2lid} + 0 unless $self->{coreid};
     }
 
     # layout name
-    $self->{layout_name} = LJ::Customize->get_layout_name($self->{b2lid}, user => $opts{user});
+    $self->{layout_name} = LJ::Customize->get_layout_name( $self->{b2lid}, user => $opts{user} );
 
     # layout uniq
-    $self->{layout_uniq} = $pub->{$self->{b2lid}}->{uniq} if $pub->{$self->{b2lid}} && $pub->{$self->{b2lid}}->{uniq};
+    $self->{layout_uniq} = $pub->{ $self->{b2lid} }->{uniq}
+        if $pub->{ $self->{b2lid} } && $pub->{ $self->{b2lid} }->{uniq};
 
     # package name for the theme
     my $theme_class = $self->{uniq};
-    if ( $theme_class ) {
+    if ($theme_class) {
         $theme_class =~ s/-/_/g;
         $theme_class =~ s/\//::/;
         $theme_class = "LJ::S2Theme::$theme_class";
@@ -513,9 +544,11 @@ sub new {
     # make this theme an object of the lowest level class that's defined
     if ( $theme_class && eval { $theme_class->init } ) {
         bless $self, $theme_class;
-    } elsif (eval { $layout_class->init }) {
+    }
+    elsif ( eval { $layout_class->init } ) {
         bless $self, $layout_class;
-    } else {
+    }
+    else {
         bless $self, $class;
     }
 
@@ -523,7 +556,6 @@ sub new {
 
     return $self;
 }
-
 
 ##################################################
 # Object Methods
@@ -558,7 +590,7 @@ sub uniq {
 sub layout_uniq {
     return $_[0]->{layout_uniq};
 }
-*is_system_layout = \&layout_uniq; # if the theme's layout has a uniq, then it's a system layout
+*is_system_layout = \&layout_uniq;    # if the theme's layout has a uniq, then it's a system layout
 
 sub is_custom {
     return $_[0]->{is_custom};
@@ -576,43 +608,44 @@ sub preview_imgurl {
 
 sub available_to {
     my $self = shift;
-    my $u = shift;
+    my $u    = shift;
 
     # theme isn't available to $u if the layout isn't
-    return LJ::S2::can_use_layer($u, $self->uniq) && LJ::S2::can_use_layer($u, $self->layout_uniq);
+    return LJ::S2::can_use_layer( $u, $self->uniq )
+        && LJ::S2::can_use_layer( $u, $self->layout_uniq );
 }
 
 # wizard-layoutname
 sub old_style_name_for_theme {
     my $self = shift;
 
-    return "wizard-" . ((split("/", $self->uniq))[0] || $self->layoutid);
+    return "wizard-" . ( ( split( "/", $self->uniq ) )[0] || $self->layoutid );
 }
 
 # wizard-layoutname/themename
 sub new_style_name_for_theme {
     my $self = shift;
 
-    return "wizard-" . ($self->uniq || $self->themeid || $self->layoutid);
+    return "wizard-" . ( $self->uniq || $self->themeid || $self->layoutid );
 }
 
 # find the appropriate styleid for this theme
 # if a style for the layout but not the theme exists, rename it to match the theme
 sub get_styleid_for_theme {
     my $self = shift;
-    my $u = shift;
+    my $u    = shift;
 
     my $style_name_old = $self->old_style_name_for_theme;
     my $style_name_new = $self->new_style_name_for_theme;
 
     my $userstyles = LJ::S2::load_user_styles($u);
-    foreach my $styleid (keys %$userstyles) {
+    foreach my $styleid ( keys %$userstyles ) {
         my $style_name = $userstyles->{$styleid};
 
         next unless $style_name eq $style_name_new || $style_name eq $style_name_old;
 
         # lazy migration of style names from wizard-layoutname to wizard-layoutname/themename
-        LJ::S2::rename_user_style($u, $styleid, $style_name_new)
+        LJ::S2::rename_user_style( $u, $styleid, $style_name_new )
             if $style_name eq $style_name_old;
 
         return $styleid;
@@ -623,18 +656,18 @@ sub get_styleid_for_theme {
 
 sub get_custom_i18n_layer_for_theme {
     my $self = shift;
-    my $u = shift;
+    my $u    = shift;
 
-    my $userlay = LJ::S2::get_layers_of_user($u);
-    my $layoutid = $self->layoutid;
+    my $userlay    = LJ::S2::get_layers_of_user($u);
+    my $layoutid   = $self->layoutid;
     my $i18n_layer = 0;
 
     # scan for a custom i18n layer
-    foreach my $layer (values %$userlay) {
-        last if
-            $layer->{b2lid} == $layoutid &&
-            $layer->{type} eq 'i18n' &&
-            ($i18n_layer = $layer->{s2lid});
+    foreach my $layer ( values %$userlay ) {
+        last
+            if $layer->{b2lid} == $layoutid
+            && $layer->{type} eq 'i18n'
+            && ( $i18n_layer = $layer->{s2lid} );
     }
 
     return $i18n_layer;
@@ -642,20 +675,20 @@ sub get_custom_i18n_layer_for_theme {
 
 sub get_custom_user_layer_for_theme {
     my $self = shift;
-    my $u = shift;
+    my $u    = shift;
 
-    my $userlay = LJ::S2::get_layers_of_user($u);
-    my $layoutid = $self->layoutid;
+    my $userlay    = LJ::S2::get_layers_of_user($u);
+    my $layoutid   = $self->layoutid;
     my $user_layer = 0;
 
     # scan for a custom user layer
     # ignore auto-generated user layers, since they're not custom layers
-    foreach my $layer (values %$userlay) {
-        last if
-            $layer->{b2lid} == $layoutid &&
-            $layer->{type} eq 'user' &&
-            $layer->{name} ne 'Auto-generated Customizations' &&
-            ($user_layer = $layer->{s2lid});
+    foreach my $layer ( values %$userlay ) {
+        last
+            if $layer->{b2lid} == $layoutid
+            && $layer->{type} eq 'user'
+            && $layer->{name} ne 'Auto-generated Customizations'
+            && ( $user_layer = $layer->{s2lid} );
     }
 
     return $user_layer;
@@ -663,14 +696,14 @@ sub get_custom_user_layer_for_theme {
 
 sub get_preview_styleid {
     my $self = shift;
-    my $u = shift;
+    my $u    = shift;
 
     # get the styleid of the _for_preview style
     my $styleid = $u->prop('theme_preview_styleid');
-    my $style = $styleid ? LJ::S2::load_style( $styleid ) : undef;
-    if (!$styleid || !$style) {
-        $styleid = LJ::S2::create_style($u, "_for_preview");
-        $u->set_prop('theme_preview_styleid', $styleid);
+    my $style   = $styleid ? LJ::S2::load_style($styleid) : undef;
+    if ( !$styleid || !$style ) {
+        $styleid = LJ::S2::create_style( $u, "_for_preview" );
+        $u->set_prop( 'theme_preview_styleid', $styleid );
     }
     return "" unless $styleid;
 
@@ -685,13 +718,13 @@ sub get_preview_styleid {
             $layers{$layer} = $style->{layer}->{$layer};
         }
         $layers{theme} = $self->themeid;
-        LJ::S2::set_style_layers($u, $styleid, %layers);
+        LJ::S2::set_style_layers( $u, $styleid, %layers );
 
         return $styleid;
     }
 
-    # we don't have a style for this theme, so get the new layers and set them to _for_preview directly
-    my %style = LJ::S2::get_style($u);
+ # we don't have a style for this theme, so get the new layers and set them to _for_preview directly
+    my %style      = LJ::S2::get_style($u);
     my $i18n_layer = $self->get_custom_i18n_layer_for_theme($u);
 
     # for the i18nc layer, match the user's preferences if they're not switching cores
@@ -706,7 +739,7 @@ sub get_preview_styleid {
         theme  => $self->themeid,
         user   => 0,
     );
-    LJ::S2::set_style_layers($u, $styleid, %layers);
+    LJ::S2::set_style_layers( $u, $styleid, %layers );
 
     return $styleid;
 }
@@ -721,34 +754,33 @@ sub all_categories {
         my %data = map { $_ => 1 } @_;
         $data{featured} = 1 if $args{special};
         delete $data{featured} unless $args{special};
-        my %order = (
-            featured => -1
-        );
-        return sort {
-            ( $order{$a} || 0 ) <=> ( $order{$b} || 0 ) ||
-            $a cmp $b
-        } keys %data;
+        my %order = ( featured => -1 );
+        return sort { ( $order{$a} || 0 ) <=> ( $order{$b} || 0 ) || $a cmp $b } keys %data;
     };
 
     my $memkey = "s2categories" . ( $all ? ":all" : "" );
-    my $minfo = LJ::MemCache::get( $memkey );
-    return $post_filter->( @$minfo ) if $minfo;
+    my $minfo  = LJ::MemCache::get($memkey);
+    return $post_filter->(@$minfo) if $minfo;
 
-    my $dbr = LJ::get_db_reader();
-    my $cats = $dbr->selectall_arrayref( "SELECT k.keyword AS keyword " .
-                                            "FROM s2categories AS c, sitekeywords AS k WHERE " .
-                                            "c.kwid = k.kwid " . ( $all ? "" : "AND c.active = 1 " ) .
-                                            "GROUP BY keyword", undef );
+    my $dbr  = LJ::get_db_reader();
+    my $cats = $dbr->selectall_arrayref(
+        "SELECT k.keyword AS keyword "
+            . "FROM s2categories AS c, sitekeywords AS k WHERE "
+            . "c.kwid = k.kwid "
+            . ( $all ? "" : "AND c.active = 1 " )
+            . "GROUP BY keyword",
+        undef
+    );
 
     my @rv = map { $_->[0] } @$cats;
 
     LJ::MemCache::set( $memkey, \@rv );
-    return $post_filter->( @rv );
+    return $post_filter->(@rv);
 }
 
 sub clear_global_cache {
-    LJ::MemCache::delete( "s2categories" );
-    LJ::MemCache::delete( "s2categories:all" );
+    LJ::MemCache::delete("s2categories");
+    LJ::MemCache::delete("s2categories:all");
 }
 
 sub metadata {
@@ -758,25 +790,27 @@ sub metadata {
 
     my $VERSION_DATA = 1;
 
-    my $memkey = [ $self->s2lid, "s2meta:".$self->s2lid ];
+    my $memkey = [ $self->s2lid, "s2meta:" . $self->s2lid ];
     my ( $info, $minfo );
 
     my $load_info_from_cats = sub {
         my $cats = $_[0];
 
-        $cats->{featured}->{order} = -1;
+        $cats->{featured}->{order}   = -1;
         $cats->{featured}->{special} = 1;
 
-        $info->{cats} = $cats;
+        $info->{cats}        = $cats;
         $info->{active_cats} = [ grep { $cats->{$_}->{active} } keys %$cats ];
     };
 
-    if ( $minfo = LJ::MemCache::get( $memkey ) ) {
-        if ( ref $minfo eq 'HASH' ||
-            $minfo->[0] != $VERSION_DATA ) {
+    if ( $minfo = LJ::MemCache::get($memkey) ) {
+        if ( ref $minfo eq 'HASH'
+            || $minfo->[0] != $VERSION_DATA )
+        {
             # old data in the cache.  delete.
-            LJ::MemCache::delete( $memkey );
-        } else {
+            LJ::MemCache::delete($memkey);
+        }
+        else {
             my ( undef, $catstr, $cat_active ) = @$minfo;
 
             my %id_map;
@@ -784,48 +818,53 @@ sub metadata {
             my ( $pos, $nulpos );
             $pos = $nulpos = 0;
             while ( ( $nulpos = index( $catstr, "\0", $pos ) ) > 0 ) {
-                my $kw = substr( $catstr, $pos, $nulpos-$pos );
-                my $id = unpack("N", substr( $catstr, $nulpos+1, 4 ) );
-                $pos = $nulpos + 5; # skip NUL + 4 bytes.
+                my $kw = substr( $catstr, $pos, $nulpos - $pos );
+                my $id = unpack( "N", substr( $catstr, $nulpos + 1, 4 ) );
+                $pos = $nulpos + 5;    # skip NUL + 4 bytes.
                 $cats->{$kw} = {
-                    kwid => $id,
+                    kwid    => $id,
                     keyword => $kw,
                 };
                 $id_map{$id} = $cats->{$kw};
             }
 
             while ( length $cat_active >= 4 ) {
-                my ( $id ) = unpack "N", substr( $cat_active, 0, 4, '' );
+                my ($id) = unpack "N", substr( $cat_active, 0, 4, '' );
                 $id_map{$id}->{active} = 1;
             }
 
-            $load_info_from_cats->( $cats );
+            $load_info_from_cats->($cats);
         }
     }
 
-    unless ( $info ) {
+    unless ($info) {
         my $dbr = LJ::get_db_reader();
 
-        my $cats = $dbr->selectall_hashref( "SELECT c.kwid AS kwid, k.keyword AS keyword, c.active AS active " .
-                                            "FROM s2categories AS c, sitekeywords AS k WHERE " .
-                                            "s2lid = ? AND c.kwid = k.kwid",
-                                        'keyword', undef, $self->s2lid );
+        my $cats = $dbr->selectall_hashref(
+            "SELECT c.kwid AS kwid, k.keyword AS keyword, c.active AS active "
+                . "FROM s2categories AS c, sitekeywords AS k WHERE "
+                . "s2lid = ? AND c.kwid = k.kwid",
+            'keyword', undef, $self->s2lid
+        );
 
         $cats->{featured} ||= {
             keyword => 'featured',
-            kwid => LJ::get_sitekeyword_id( 'featured', 1 ),
-            active => 0,
+            kwid    => LJ::get_sitekeyword_id( 'featured', 1 ),
+            active  => 0,
         };
 
-        $load_info_from_cats->( $cats );
+        $load_info_from_cats->($cats);
 
         $minfo = [
             $VERSION_DATA,
             join( '', map { pack( "Z*N", $_, $cats->{$_}->{kwid} ) } keys %$cats ) || "",
-            join( '', map { pack( "N", $cats->{$_}->{kwid} ) } grep { $cats->{$_}->{active} } keys %$cats ) || "",
+            join( '',
+                map { pack( "N", $cats->{$_}->{kwid} ) }
+                grep { $cats->{$_}->{active} } keys %$cats )
+                || "",
         ];
 
-       LJ::MemCache::set( $memkey, $minfo );
+        LJ::MemCache::set( $memkey, $minfo );
     }
 
     return $self->{metadata} = $info;
@@ -838,14 +877,14 @@ sub metadata {
 sub clear_cache {
     my $self = $_[0];
     delete $self->{metadata};
-    LJ::MemCache::delete( [ $self->s2lid, "s2meta:".$self->s2lid ] );
+    LJ::MemCache::delete( [ $self->s2lid, "s2meta:" . $self->s2lid ] );
 }
 
 ##################################################
 # Methods that return data from DB, *DO NOT OVERIDE*
 ##################################################
 
-sub cats { # categories that the theme is in
+sub cats {    # categories that the theme is in
     return @{ $_[0]->metadata->{active_cats} };
 }
 
@@ -853,17 +892,18 @@ sub cats { # categories that the theme is in
 # Can be overriden if required
 ##################################################
 
-sub designer { # designer of the theme
+sub designer {    # designer of the theme
     return $_[0]->{designer} if exists $_[0]->{designer};
 
-    my $id = $_[0]->s2lid;
+    my $id  = $_[0]->s2lid;
     my $bid = $_[0]->b2lid;
-    my $li = {};
+    my $li  = {};
     LJ::S2::load_layer_info( $li, [ $id, $bid ] );
 
-    my $rv = $li->{$id}->{author_name} ||
-        $li->{$bid}->{author_name} ||
-        "";
+    my $rv =
+           $li->{$id}->{author_name}
+        || $li->{$bid}->{author_name}
+        || "";
 
     $_[0]->{designer} = $rv;
     return $rv;
@@ -872,19 +912,24 @@ sub designer { # designer of the theme
 # Methods that get overridden by child packages
 ##################################################
 
-sub layouts { ( "1" => 1 ) } # theme layout/sidebar placement options ( layout type => property value or 1 if no property )
-sub layout_prop { "" } # property that controls the layout/sidebar placement
-sub show_sidebar_prop { "" } # property that controls whether a sidebar shows or not
-sub linklist_support_tab { "" } # themes that don't use the linklist_support prop will have copy pointing them to the correct tab
+sub layouts {
+    ( "1" => 1 )
+}    # theme layout/sidebar placement options ( layout type => property value or 1 if no property )
+sub layout_prop       { "" }    # property that controls the layout/sidebar placement
+sub show_sidebar_prop { "" }    # property that controls whether a sidebar shows or not
+
+sub linklist_support_tab {
+    "";
+}  # themes that don't use the linklist_support prop will have copy pointing them to the correct tab
 
 # for appending layout-specific props to global props
 sub _append_props {
-    my $self = shift;
+    my $self   = shift;
     my $method = shift;
-    my @props = @_;
+    my @props  = @_;
 
     my @defaults = eval "LJ::S2Theme->$method";
-    return (@defaults, @props);
+    return ( @defaults, @props );
 }
 
 # props that shouldn't be shown in the wizard UI
@@ -895,7 +940,7 @@ sub hidden_props {
         control_strip_fgcolor
         control_strip_bordercolor
         control_strip_linkcolor
-    )
+    );
 }
 
 # props by category heading
@@ -910,7 +955,7 @@ sub display_option_props {
         use_journalstyle_entry_page
         use_shared_pic
         linklist_support
-    )
+    );
 }
 
 sub page_props {
@@ -931,7 +976,7 @@ sub page_props {
         image_background_page_url
         image_background_page_repeat
         image_background_page_position
-    )
+    );
 }
 
 sub module_props {
@@ -969,7 +1014,7 @@ sub module_props {
         text_module_search
         text_module_cuttagcontrols
         text_module_subscriptionfilters
-    )
+    );
 }
 
 sub navigation_props {
@@ -983,7 +1028,7 @@ sub navigation_props {
         text_view_tags
         text_view_memories
         text_view_userinfo
-    )
+    );
 }
 
 sub header_props {
@@ -1005,7 +1050,7 @@ sub header_props {
         image_background_header_repeat
         image_background_header_position
         image_background_header_height
-    )
+    );
 }
 
 sub footer_props {
@@ -1015,7 +1060,7 @@ sub footer_props {
         color_footer_link_active
         color_footer_link_hover
         color_footer_link_visited
-    )
+    );
 }
 
 sub entry_props {
@@ -1064,7 +1109,7 @@ sub entry_props {
         text_tags
         text_stickyentry_subject
         text_nosubject
-    )
+    );
 }
 
 sub comment_props {
@@ -1074,12 +1119,12 @@ sub comment_props {
         font_comment_title
         font_comment_title_size
         font_comment_title_units
-    )
+    );
 }
 
 sub archive_props {
     qw (
-    )
+    );
 }
 
 1;

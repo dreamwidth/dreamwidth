@@ -22,9 +22,9 @@ sub need_res { qw( stc/widgets/createaccounttheme.css ) }
 
 sub render_body {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
-    my $u = LJ::get_effective_remote();
+    my $u             = LJ::get_effective_remote();
     my $current_theme = LJ::Customize->get_current_theme($u);
 
     my $ret;
@@ -34,7 +34,7 @@ sub render_body {
     my $count = 0;
     $ret .= "<table summary='' cellspacing='3' cellpadding='0' align='center'>\n";
     foreach my $uniq (@LJ::CREATE_ACCOUNT_THEMES) {
-        my $theme = LJ::S2Theme->load_by_uniq($uniq);
+        my $theme       = LJ::S2Theme->load_by_uniq($uniq);
         my $image_class = $theme->uniq;
         $image_class =~ s/\//_/;
         my $name = $theme->name . ", " . $theme->layout_name;
@@ -45,13 +45,21 @@ sub render_body {
         $ret .= "<tr>" if $count % 3 == 0;
         $ret .= "<td class='theme-box'>";
         $ret .= "<div class='theme-box-inner'>";
-        $ret .= "<label for='theme_$image_class'><img src='" . $theme->preview_imgurl . "' width='90' height='68' class='theme-image' alt='$name' title='$name' /></label><br />";
-        $ret .= "<a href='$LJ::SITEROOT/customize/preview_redirect?themeid=" . $theme->themeid . "' target='_blank' onclick='window.open(href, \"theme_preview\", \"resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes\"); return false;' class='theme-preview-link' title='" . $class->ml('widget.createaccounttheme.preview') . "'>";
-        $ret .= "<img src='$LJ::IMGPREFIX/customize/preview-theme.gif' class='theme-preview-image' /></a>";
+        $ret .=
+              "<label for='theme_$image_class'><img src='"
+            . $theme->preview_imgurl
+            . "' width='90' height='68' class='theme-image' alt='$name' title='$name' /></label><br />";
+        $ret .=
+              "<a href='$LJ::SITEROOT/customize/preview_redirect?themeid="
+            . $theme->themeid
+            . "' target='_blank' onclick='window.open(href, \"theme_preview\", \"resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes\"); return false;' class='theme-preview-link' title='"
+            . $class->ml('widget.createaccounttheme.preview') . "'>";
+        $ret .=
+"<img src='$LJ::IMGPREFIX/customize/preview-theme.gif' class='theme-preview-image' /></a>";
         $ret .= $class->html_check(
-            name => 'theme',
-            id => "theme_$image_class",
-            type => 'radio',
+            name  => 'theme',
+            id    => "theme_$image_class",
+            type  => 'radio',
             value => $uniq,
             style => "margin-bottom: 5px;",
             @checked,
@@ -69,16 +77,16 @@ sub render_body {
 
 sub handle_post {
     my $class = shift;
-    my $post = shift;
-    my %opts = @_;
+    my $post  = shift;
+    my %opts  = @_;
 
     my $u = LJ::get_effective_remote();
 
-    if ($post->{theme}) {
-        my $theme = LJ::S2Theme->load_by_uniq($post->{theme});
+    if ( $post->{theme} ) {
+        my $theme = LJ::S2Theme->load_by_uniq( $post->{theme} );
         die "Invalid theme selection" unless $theme;
 
-        LJ::Customize->apply_theme($u, $theme);
+        LJ::Customize->apply_theme( $u, $theme );
     }
 
     return;

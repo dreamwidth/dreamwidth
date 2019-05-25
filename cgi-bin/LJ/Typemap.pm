@@ -18,6 +18,7 @@
 # Mischa Spiegelmock, 4/21/06
 
 use strict;
+
 package LJ::Typemap;
 use Carp qw/croak/;
 
@@ -29,7 +30,7 @@ my %singletons = ();
 # table is the typemap table
 # the fields are the names of the fields in the table
 sub instance {
-    my ($class, %opts) = @_;
+    my ( $class, %opts ) = @_;
 
     my $table      = delete $opts{table}      or croak "No table";
     my $classfield = delete $opts{classfield} or croak "No class field";
@@ -40,7 +41,7 @@ sub instance {
     return $singletons{$table} if $singletons{$table};
 
     croak "Invalid arguments passed to LJ::Typemap->new"
-        unless ($class && $table !~ /\W/g && $idfield !~/\W/g && $classfield !~/\W/g);
+        unless ( $class && $table !~ /\W/g && $idfield !~ /\W/g && $classfield !~ /\W/g );
 
     my $self = {
         table      => $table,
@@ -56,7 +57,7 @@ sub instance {
 # just what it says
 # errors hard if you look up a typeid that isn't mapped
 sub typeid_to_class {
-    my ($self, $typeid) = @_;
+    my ( $self, $typeid ) = @_;
 
     $self->_load unless $self->{loaded};
     my $proc_cache = $self->{cache};
@@ -72,33 +73,34 @@ sub typeid_to_class {
 # if there is no typeid for this class, it will create one.
 # returns undef on failure
 sub class_to_typeid {
-    my ($self, $class) = @_;
+    my ( $self, $class ) = @_;
 
     croak "No class specified in class_to_typeid" unless $class;
 
     $self->_load unless $self->{loaded};
     my $proc_cache = $self->{cache};
-    my $classid = $proc_cache->{$class};
+    my $classid    = $proc_cache->{$class};
     return $classid if defined $classid;
 
     # this class does not have a typeid. create one.
     my $dbh = LJ::get_db_writer();
 
-    my $table = $self->{table} or croak "No table";
+    my $table      = $self->{table}      or croak "No table";
     my $classfield = $self->{classfield} or croak "No class field";
-    my $idfield = $self->{idfield} or croak "No id field";
+    my $idfield    = $self->{idfield}    or croak "No id field";
 
     # try to insert
-    $dbh->do("INSERT INTO $table ($classfield) VALUES (?)",
-             undef, $class);
+    $dbh->do( "INSERT INTO $table ($classfield) VALUES (?)", undef, $class );
 
-    unless ($dbh->err) {
+    unless ( $dbh->err ) {
+
         # inserted fine, get ID
         $classid = $dbh->{'mysql_insertid'};
-    } else {
+    }
+    else {
         # race condition, try to select again
-        $classid = $dbh->selectrow_array("SELECT $idfield FROM $table WHERE $classfield = ?",
-                                         undef, $class)
+        $classid = $dbh->selectrow_array( "SELECT $idfield FROM $table WHERE $classfield = ?",
+            undef, $class )
             or die "Typemap could not generate ID after race condition";
     }
 
@@ -116,13 +118,14 @@ sub class_to_typeid {
 # given a list of classes, create an ID for each if no ID exists
 # returns list of corresponding IDs
 sub map_classes {
-    my ($self, @classes) = @_;
+    my ( $self, @classes ) = @_;
 
     $self->_load or die;
 
     my @ids;
 
     foreach my $class (@classes) {
+
         # just ask for the typeid of this class
         push @ids, $self->class_to_typeid($class);
     }
@@ -133,14 +136,14 @@ sub map_classes {
 # delete a class->id map
 # returns not undef on success
 sub delete_class {
-    my ($self, $class) = @_;
+    my ( $self, $class ) = @_;
 
     my $dbh = LJ::get_db_writer() or die "No DB writer";
 
-    my $table = $self->{table} or die "No table";
+    my $table      = $self->{table}      or die "No table";
     my $classfield = $self->{classfield} or return undef;
 
-    $dbh->do("DELETE FROM $table WHERE $classfield=?", undef, $class) or return undef;
+    $dbh->do( "DELETE FROM $table WHERE $classfield=?", undef, $class ) or return undef;
 
     delete $self->{cache}->{$class};
     $self->proc_cache_to_memcache;
@@ -150,10 +153,11 @@ sub delete_class {
 
 # save the process cache to memcache
 sub proc_cache_to_memcache {
-    my $self = shift;
+    my $self  = shift;
     my $table = $self->{table};
+
     # memcache typeids
-    LJ::MemCache::set("typemap_$table", $self->{cache}, 120);
+    LJ::MemCache::set( "typemap_$table", $self->{cache}, 120 );
 }
 
 # returns an array of all of the classes in the table
@@ -161,7 +165,7 @@ sub all_classes {
     my $self = shift;
 
     $self->_load or die;
-    return keys %{$self->{cache}};
+    return keys %{ $self->{cache} };
 }
 
 # makes sure typemap cache is loaded
@@ -170,15 +174,16 @@ sub _load {
 
     $self->{loaded} = 1;
 
-    my $table = $self->{table} or die "No table";
+    my $table      = $self->{table}      or die "No table";
     my $classfield = $self->{classfield} or die "No class field";
-    my $idfield = $self->{idfield} or die "No id field";
+    my $idfield    = $self->{idfield}    or die "No id field";
 
     my $proc_cache = $self->{cache};
 
     # is it memcached?
     my $memcached_typemap = LJ::MemCache::get("typemap_$table");
     if ($memcached_typemap) {
+
         # process-cache it
         $proc_cache = $memcached_typemap;
     }
@@ -194,8 +199,8 @@ sub _load {
     $sth->execute;
     die $dbr->errstr if $dbr->errstr;
 
-    while (my $idmap = $sth->fetchrow_hashref) {
-        $proc_cache->{$idmap->{$classfield}} = $idmap->{$idfield};
+    while ( my $idmap = $sth->fetchrow_hashref ) {
+        $proc_cache->{ $idmap->{$classfield} } = $idmap->{$idfield};
     }
 
     # save in memcache

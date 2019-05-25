@@ -18,7 +18,7 @@ use warnings;
 use LJ::Global::Constants;
 
 sub current_value {
-    my ($class, $u) = @_;
+    my ( $class, $u ) = @_;
     return $u->{name} || "";
 }
 
@@ -31,24 +31,24 @@ sub question {
 }
 
 sub error_check {
-    my ($class, $u, $args) = @_;
+    my ( $class, $u, $args ) = @_;
     my $val = $class->get_arg($args);
 
     # for testing:
-    if ($LJ::T_FAKE_SETTINGS_RULES && $val =~ /\`bad/) {
-        $class->errors("txt" => "T-FAKE-ERROR: bogus value");
+    if ( $LJ::T_FAKE_SETTINGS_RULES && $val =~ /\`bad/ ) {
+        $class->errors( "txt" => "T-FAKE-ERROR: bogus value" );
     }
 
-    unless (length $val) {
-        $class->errors("txt" => "You must specify a name");
+    unless ( length $val ) {
+        $class->errors( "txt" => "You must specify a name" );
     }
 
     1;
 }
 
 sub save_text {
-    my ($class, $u, $txt) = @_;
-    $txt = LJ::text_trim($txt, LJ::BMAX_NAME, LJ::CMAX_NAME);
+    my ( $class, $u, $txt ) = @_;
+    $txt = LJ::text_trim( $txt, LJ::BMAX_NAME, LJ::CMAX_NAME );
     return 0 unless $u && $u->update_self( { name => $txt } );
     LJ::load_userid( $u->userid, "force" );
     return 1;

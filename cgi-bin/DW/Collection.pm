@@ -19,7 +19,6 @@
 # lets you put together various things and do stuff. Yeah, isn't that vague?
 #
 
-
 package DW::Collection;
 
 use strict;
@@ -39,23 +38,23 @@ sub new {
           FROM collections WHERE userid = ? AND colid = ?},
         undef, $opts{user}->id, $opts{colid}
     );
-    return if $opts{user}->err || ! $hr;
+    return if $opts{user}->err || !$hr;
 
     return bless $hr, $class;
 }
 
 # accessors for our internal data
 sub u { $_[0]->{_u} ||= LJ::load_userid( $_[0]->{userid} ) }
-sub userid { $_[0]->{userid} }
-sub id { $_[0]->{colid} }
+sub userid        { $_[0]->{userid} }
+sub id            { $_[0]->{colid} }
 sub parent_userid { $_[0]->{paruserid} }
-sub parent_id { $_[0]->{parcolid} }
-sub anum { $_[0]->{anum} }
-sub displayid { $_[0]->{colid} * 256 + $_[0]->{anum} }
-sub state { $_[0]->{state} }
-sub security { $_[0]->{security} }
-sub allowmask { $_[0]->{allowmask} }
-sub logtime { $_[0]->{logtime} }
+sub parent_id     { $_[0]->{parcolid} }
+sub anum          { $_[0]->{anum} }
+sub displayid     { $_[0]->{colid} * 256 + $_[0]->{anum} }
+sub state         { $_[0]->{state} }
+sub security      { $_[0]->{security} }
+sub allowmask     { $_[0]->{allowmask} }
+sub logtime       { $_[0]->{logtime} }
 
 # instantiate and load our parent collection
 sub parent {
@@ -72,10 +71,10 @@ sub is_active { $_[0]->state eq 'A' }
 # load items for the collection
 sub items {
     my $self = $_[0];
-    return wantarray ? @{$self->{_items}} : $self->{_items}
+    return wantarray ? @{ $self->{_items} } : $self->{_items}
         if exists $self->{_items};
 
-    my $u = $self->u;
+    my $u  = $self->u;
     my $hr = $u->selectall_hashref(
         q{SELECT userid, colitemid, colid, itemtype, itemownerid, itemid, logtime
           FROM collection_items WHERE userid = ? AND colid = ?},
@@ -85,9 +84,9 @@ sub items {
     return () unless $hr;
 
     my @res;
-    foreach my $colitemid (keys %$hr) {
+    foreach my $colitemid ( keys %$hr ) {
         my $item = $hr->{$colitemid};
-        push @res, DW::Collection::Item->new_from_row( %$item );
+        push @res, DW::Collection::Item->new_from_row(%$item);
     }
     $self->{_items} = \@res;
 
@@ -107,15 +106,15 @@ sub visible_to {
     return 1 if $self->security eq 'public';
 
     # at this point, if we don't have a remote user, fail
-    return 0 unless LJ::isu( $other_u );
+    return 0 unless LJ::isu($other_u);
 
     # private check.  if it's us, allow, else fail.
-    return 1 if $u->equals( $other_u );
+    return 1 if $u->equals($other_u);
     return 0 if $self->security eq 'private';
 
     # simple usemask checking...
     if ( $self->security eq 'usemask' ) {
-        my $gmask = $u->trustmask( $other_u );
+        my $gmask = $u->trustmask($other_u);
 
         my $allowed = int $gmask & int $self->allowmask;
         return $allowed ? 1 : 0;

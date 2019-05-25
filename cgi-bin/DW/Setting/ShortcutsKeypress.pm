@@ -20,7 +20,7 @@ use strict;
 use warnings;
 
 sub error_check {
-    my ($class, $u, $args) = @_;
+    my ( $class, $u, $args ) = @_;
     my $val = $class->get_arg( $args, $class->prop_key );
 
     unless ( length $val < 2 ) {
@@ -41,62 +41,71 @@ sub option {
     my $key = $class->pkgkey;
 
     my ( $keyval, $ctrlval, $altval, $metaval );
-    if ( $errs ) {
-        $keyval = $class->get_arg( $args, $class->prop_key);
-        $ctrlval = $class->get_arg( $args, $class->prop_key . 'ctrl');
-        $altval = $class->get_arg( $args, $class->prop_key . 'alt');
-        $metaval = $class->get_arg( $args, $class->prop_key . 'meta');
-    } else {
-        $keyval = $u->prop( $class->prop_name );
+    if ($errs) {
+        $keyval  = $class->get_arg( $args, $class->prop_key );
+        $ctrlval = $class->get_arg( $args, $class->prop_key . 'ctrl' );
+        $altval  = $class->get_arg( $args, $class->prop_key . 'alt' );
+        $metaval = $class->get_arg( $args, $class->prop_key . 'meta' );
+    }
+    else {
+        $keyval  = $u->prop( $class->prop_name );
         $ctrlval = $keyval =~ m/ctrl\+/;
-        $altval = $keyval =~ m/alt\+/;
+        $altval  = $keyval =~ m/alt\+/;
         $metaval = $keyval =~ m/meta\+/;
         $keyval =~ s/.*\+//g;
     }
     my $ret;
-    
-    $ret .= LJ::html_text({
-        name  => "${key}" . $class->prop_key ,
-        id    => "${key}" . $class->prop_key,
-        class => "text",
-        value => $keyval,
-        size  => 1,
-        maxlength => 1 || undef
-    });
 
-    $ret .= LJ::html_check({
-        name     => "${key}" . $class->prop_key . "ctrl",
-        value    => 1,
-        id       => "${key}ctrl",
-        selected => $ctrlval,
-                           });
+    $ret .= LJ::html_text(
+        {
+            name      => "${key}" . $class->prop_key,
+            id        => "${key}" . $class->prop_key,
+            class     => "text",
+            value     => $keyval,
+            size      => 1,
+            maxlength => 1 || undef
+        }
+    );
+
+    $ret .= LJ::html_check(
+        {
+            name     => "${key}" . $class->prop_key . "ctrl",
+            value    => 1,
+            id       => "${key}ctrl",
+            selected => $ctrlval,
+        }
+    );
     $ret .= " <label for='${key}ctrl'>";
-    $ret .=  "Ctrl";
+    $ret .= "Ctrl";
     $ret .= "</label>";
 
-    $ret .= LJ::html_check({
-        name     => "${key}" . $class->prop_key . "alt",
-        value    => 1,
-        id       => "${key}alt",
-        selected => $altval,
-                           });
+    $ret .= LJ::html_check(
+        {
+            name     => "${key}" . $class->prop_key . "alt",
+            value    => 1,
+            id       => "${key}alt",
+            selected => $altval,
+        }
+    );
     $ret .= " <label for='${key}alt'>";
-    $ret .=  "Alt";
+    $ret .= "Alt";
     $ret .= "</label>";
 
-    $ret .= LJ::html_check({
-        name     => "${key}" . $class->prop_key . "meta",
-        value    => 1,
-        id       => "${key}meta",
-        selected => $metaval,
-                           });
+    $ret .= LJ::html_check(
+        {
+            name     => "${key}" . $class->prop_key . "meta",
+            value    => 1,
+            id       => "${key}meta",
+            selected => $metaval,
+        }
+    );
     $ret .= " <label for='${key}meta'>";
-    $ret .=  "Meta";
+    $ret .= "Meta";
     $ret .= "</label>";
 
     my $errdiv = $class->errdiv( $errs, "code" );
     $ret .= "<br />$errdiv" if $errdiv;
-    
+
     return $ret;
 }
 
@@ -105,6 +114,7 @@ sub save {
     $class->error_check( $u, $args );
 
     my $val = $class->get_arg( $args, $class->prop_key );
+
     # prepend any modifiers
     if ( $class->get_arg( $args, $class->prop_key . 'ctrl' ) ) {
         $val = 'ctrl+' . $val;
@@ -120,6 +130,5 @@ sub save {
 
     return 1;
 }
-
 
 1;

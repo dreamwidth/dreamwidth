@@ -21,23 +21,21 @@ use strict;
 use base 'DW::External::Site';
 use Carp qw/ croak /;
 
-
 # new does nothing for these classes
 sub new { croak 'cannot build with new'; }
-
 
 # returns 1/0 if we allow this domain
 sub accepts {
     my ( $class, $parts ) = @_;
 
     # allows anything at del.icio.us
-    return 0 unless $parts->[-1] eq 'us'    &&
-                    $parts->[-2] eq 'icio'  &&
-                    $parts->[-3] eq 'del';
+    return 0
+        unless $parts->[-1] eq 'us'
+        && $parts->[-2] eq 'icio'
+        && $parts->[-3] eq 'del';
 
     return bless { hostname => 'del.icio.us' }, $class;
 }
-
 
 # argument: DW::External::User
 # returns URL to this account's bookmarks
@@ -49,7 +47,6 @@ sub journal_url {
     return 'http://' . $self->{hostname} . '/' . $u->user;
 }
 
-
 # argument: DW::External::User
 # returns URL to this account's stacks list
 sub profile_url {
@@ -60,7 +57,6 @@ sub profile_url {
     return 'http://' . $self->{hostname} . '/stacks/' . $u->user;
 }
 
-
 # argument: DW::External::User
 # returns info for the badge image (userhead icon) for this user
 sub badge_image {
@@ -70,11 +66,10 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url     => "https://del.icio.us/favicon.ico",
-        width   => 16,
-        height  => 16,
-    }
+        url    => "https://del.icio.us/favicon.ico",
+        width  => 16,
+        height => 16,
+    };
 }
-
 
 1;

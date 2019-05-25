@@ -21,26 +21,33 @@ sub cmd { "change_journal_type" }
 
 sub desc { "Change a journal's type. Requires priv: changejournaltype." }
 
-sub args_desc { [
-                 'journal' => "The username of the journal that type is changing.",
-                 'type' => "Either 'person' or 'community'.",
-                 'owner' => "The person to become the maintainer of the community journal. If changing to type 'person', the account will adopt the email address and password of the owner.",
-                 'force' => "Specify this to create a community from a non-empty journal. The maintainer of the community will be the owner of the journal's entries."
-                 ] }
+sub args_desc {
+    [
+        'journal' => "The username of the journal that type is changing.",
+        'type'    => "Either 'person' or 'community'.",
+        'owner' =>
+"The person to become the maintainer of the community journal. If changing to type 'person', the account will adopt the email address and password of the owner.",
+        'force' =>
+"Specify this to create a community from a non-empty journal. The maintainer of the community will be the owner of the journal's entries."
+    ]
+}
 
 sub usage { '<journal> <type> <owner> [force]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return ( $remote && $remote->has_priv( "changejournaltype" ) );
+    return ( $remote && $remote->has_priv("changejournaltype") );
 }
 
 sub execute {
-    my ($self, $user, $type, $owner, @args) = @_;
+    my ( $self, $user, $type, $owner, @args ) = @_;
     my $remote = LJ::get_remote();
 
     return $self->error("This command takes from three to four arguments. Consult the reference.")
-        unless $user && $type && $owner && (@args==0 || @args==1 && $args[0] eq 'force' && $type eq 'community');
+        unless $user
+        && $type
+        && $owner
+        && ( @args == 0 || @args == 1 && $args[0] eq 'force' && $type eq 'community' );
 
     return $self->error("Type argument must be 'person' or 'community'.")
         unless $type =~ /^(?:person|community)$/;
@@ -56,7 +63,7 @@ sub execute {
         unless $u->is_person || $u->is_community;
 
     return $self->error("You cannot convert your own account.")
-        if $remote && $remote->equals( $u );
+        if $remote && $remote->equals($u);
 
     my $typemap = { 'community' => 'C', 'person' => 'P' };
     return $self->error("This account is already a $type account")
@@ -76,37 +83,46 @@ sub execute {
 
     #############################
     # going to a personal journal. do they have any entries posted by other users?
-    if ($type eq "person") {
-        my $dbcr = LJ::get_cluster_def_reader($u);
-        my $count = $dbcr->selectrow_array('SELECT COUNT(*) FROM log2 WHERE journalid = ? AND posterid <> journalid',
-                                           undef, $u->id);
+    if ( $type eq "person" ) {
+        my $dbcr  = LJ::get_cluster_def_reader($u);
+        my $count = $dbcr->selectrow_array(
+            'SELECT COUNT(*) FROM log2 WHERE journalid = ? AND posterid <> journalid',
+            undef, $u->id );
 
-        return $self->error("Account contains $count entries posted by other users and cannot be converted.")
+        return $self->error(
+            "Account contains $count entries posted by other users and cannot be converted.")
             if $count;
 
-    # going to a community. do they have any entries posted by themselves?
-    # if so, make the new owner of the community to be the owner of these entries
-    } else {
-        my $dbcr = LJ::get_cluster_def_reader($u);
-        my $count = $dbcr->selectrow_array('SELECT COUNT(*) FROM log2 WHERE journalid = ? AND posterid = journalid',
-                                           undef, $u->id);
+        # going to a community. do they have any entries posted by themselves?
+        # if so, make the new owner of the community to be the owner of these entries
+    }
+    else {
+        my $dbcr  = LJ::get_cluster_def_reader($u);
+        my $count = $dbcr->selectrow_array(
+            'SELECT COUNT(*) FROM log2 WHERE journalid = ? AND posterid = journalid',
+            undef, $u->id );
         if ($count) {
-            if ($args[0] eq 'force') {
-                $u->do("UPDATE log2 SET posterid = ? WHERE journalid = ? AND posterid = journalid", undef, $ou->id, $u->id)
+            if ( $args[0] eq 'force' ) {
+                $u->do( "UPDATE log2 SET posterid = ? WHERE journalid = ? AND posterid = journalid",
+                    undef, $ou->id, $u->id )
                     or return $self->error($DBI::errstr);
                 $self->info("$count entries of user '$u->{user}' belong to '$ou->{user}' now");
-            } else {
-                return $self->error("Account contains $count entries posted by the account itself. Use 'force' option if you want to convert it anyway.");
+            }
+            else {
+                return $self->error(
+"Account contains $count entries posted by the account itself. Use 'force' option if you want to convert it anyway."
+                );
             }
         }
     }
 
     #############################
     # update the 'community' row, as necessary.
-    if ($type eq "community") {
-        $dbh->do("INSERT INTO community VALUES (?, 'open', 'members')", undef, $u->id);
-    } else {
-        $dbh->do("DELETE FROM community WHERE userid = ?", undef, $u->id);
+    if ( $type eq "community" ) {
+        $dbh->do( "INSERT INTO community VALUES (?, 'open', 'members')", undef, $u->id );
+    }
+    else {
+        $dbh->do( "DELETE FROM community WHERE userid = ?", undef, $u->id );
     }
 
     #############################
@@ -114,25 +130,26 @@ sub execute {
     # the owner can log in and read those users' entries.
     if ( $type eq "person" ) {
         foreach ( $u->trusted_by_users ) {
-            $_->remove_edge( $u, trust => { nonotify => 1 } ) ;
+            $_->remove_edge( $u, trust => { nonotify => 1 } );
         }
     }
 
     #############################
     # clear out relations as necessary
-    if ($type eq "person") {
-        LJ::clear_rel($u, '*', $_) foreach qw(N M A P);
+    if ( $type eq "person" ) {
+        LJ::clear_rel( $u, '*', $_ ) foreach qw(N M A P);
 
-    # give the owner access
-    } else {
-        LJ::set_rel_multi( [$u->id, $ou->id, 'A'], [$u->id, $ou->id, 'P'] );
+        # give the owner access
+    }
+    else {
+        LJ::set_rel_multi( [ $u->id, $ou->id, 'A' ], [ $u->id, $ou->id, 'P' ] );
     }
 
-    LJ::Hooks::run_hook("change_journal_type", $u);
+    LJ::Hooks::run_hook( "change_journal_type", $u );
 
     #############################
     # update the user info
-    my $extra = {};  # aggregates all the changes we're making
+    my $extra = {};    # aggregates all the changes we're making
 
     # update the password
     $extra->{password} = $type eq "community" ? '' : $ou->password;
@@ -147,8 +164,8 @@ sub execute {
     $extra->{journaltype} = $typemap->{$type};
 
     # do the update!
-    $u->reset_email( $ou->email_raw, \ my $update_err, undef, $extra );
-    $self->error( $update_err ) if $update_err;
+    $u->reset_email( $ou->email_raw, \my $update_err, undef, $extra );
+    $self->error($update_err) if $update_err;
 
     # journaltype, birthday changed
     $u->invalidate_directory_record;
@@ -159,9 +176,9 @@ sub execute {
     # register this action in statushistory
     my $msg = "account '" . $u->user . "' converted to $type";
     $msg .= " (owner/parent is '" . $ou->user . "')";
-    LJ::statushistory_add($u, $remote, "change_journal_type", $msg);
+    LJ::statushistory_add( $u, $remote, "change_journal_type", $msg );
 
-    return $self->print("User " . $u->user . " converted to a $type account.");
+    return $self->print( "User " . $u->user . " converted to a $type account." );
 }
 
 1;

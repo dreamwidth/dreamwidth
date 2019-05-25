@@ -22,49 +22,45 @@ use Test::More tests => 13;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-ok(LJ::assert_is("foo", "foo"));
-ok(! eval { LJ::assert_is("foo", "bar") });
+ok( LJ::assert_is( "foo", "foo" ) );
+ok( !eval { LJ::assert_is( "foo", "bar" ) } );
 
 my $u = LJ::load_user("system");
-ok($u->selfassert);
+ok( $u->selfassert );
 {
     local $u->{userid} = 9999;
-    ok(! eval { $u->selfassert });
+    ok( !eval { $u->selfassert } );
 }
-ok($u->selfassert);
+ok( $u->selfassert );
 {
     local $u->{user} = "systemNOT";
-    ok(! eval { $u->selfassert });
+    ok( !eval { $u->selfassert } );
 }
-ok($u->selfassert);
+ok( $u->selfassert );
 {
     local $u->{user} = "systemNOT";
     eval {
-        my $u2 = LJ::DB::require_master( sub { LJ::load_userid($u->{userid}) } );
+        my $u2 = LJ::DB::require_master( sub { LJ::load_userid( $u->{userid} ) } );
     };
-    like($@, qr/AssertIs/);
+    like( $@, qr/AssertIs/ );
 }
 
 {
     local $u->{user} = "systemNOT";
-    eval {
-        my $u2 = LJ::load_userid($u->{userid});
-    };
-    like($@, qr/AssertIs/);
+    eval { my $u2 = LJ::load_userid( $u->{userid} ); };
+    like( $@, qr/AssertIs/ );
 }
 
 {
     local $u->{userid} = 5555;
-    eval {
-        my $u2 = LJ::load_user("system");
-    };
-    like($@, qr/AssertIs/);
+    eval { my $u2 = LJ::load_user("system"); };
+    like( $@, qr/AssertIs/ );
 }
 
 my $empty;
-LJ::load_userids_multiple([ $u->{userid} => \$empty ]);
-ok($empty == $u, "load multiple worked");
+LJ::load_userids_multiple( [ $u->{userid} => \$empty ] );
+ok( $empty == $u, "load multiple worked" );
 
 my $bogus = bless { userid => $u->{userid} + 1 }, 'LJ::User';
-ok(! eval { LJ::load_userids_multiple([ $u->{userid} => \$bogus ]) });
-like($@, qr/AssertIs/, "failed on blowing away existing user record");
+ok( !eval { LJ::load_userids_multiple( [ $u->{userid} => \$bogus ] ) } );
+like( $@, qr/AssertIs/, "failed on blowing away existing user record" );

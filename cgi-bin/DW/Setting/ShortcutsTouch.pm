@@ -39,7 +39,7 @@ sub should_render {
 
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.shortcuts_touch.label' );
+    return $class->ml('setting.shortcuts_touch.label');
 }
 
 sub option {
@@ -50,7 +50,7 @@ sub option {
 sub des {
     my $class = $_[0];
 
-    return $class->ml( 'setting.shortcuts_touch.des' );
+    return $class->ml('setting.shortcuts_touch.des');
 }
 
 1;

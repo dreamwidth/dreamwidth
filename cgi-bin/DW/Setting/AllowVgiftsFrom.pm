@@ -28,61 +28,74 @@ sub should_render {
 
 sub label {
     my $class = $_[0];
-    return $class->ml( 'setting.allowvgiftsfrom.label' );
+    return $class->ml('setting.allowvgiftsfrom.label');
 }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $allowed = $class->get_arg( $args, "allowvgiftsfrom" )
-               || $u->prop( 'opt_allowvgiftsfrom' ) || 'all';
+    my $allowed =
+           $class->get_arg( $args, "allowvgiftsfrom" )
+        || $u->prop('opt_allowvgiftsfrom')
+        || 'all';
     my $anonopt = $class->get_arg( $args, "anonvgift_optout" )
-               || ! $u->prop( 'opt_anonvgift_optout' );
+        || !$u->prop('opt_anonvgift_optout');
 
     my %menu_items = (
-        all         => [ qw( all a ) ],
-        registered  => [ qw( registered r ) ],
-        circle      => [ qw( circle c ) ],
-        access      => [ qw( access t ) ],
-        members     => [ qw( access m ) ],
-        none        => [ qw( none n ) ],
+        all        => [qw( all a )],
+        registered => [qw( registered r )],
+        circle     => [qw( circle c )],
+        access     => [qw( access t )],
+        members    => [qw( access m )],
+        none       => [qw( none n )],
     );
 
     my @opts;
     if ( $u->is_community ) {
-        @opts = map { $menu_items{$_}->[0], $class->ml( "setting.allowvgiftsfrom.sel.$menu_items{$_}->[1]" ) }
-            qw( all registered members none );
-    } else {
-        @opts = map { $menu_items{$_}->[0], $class->ml( "setting.allowvgiftsfrom.sel.$menu_items{$_}->[1]" ) }
-            qw( all registered circle access none );
+        @opts = map {
+            $menu_items{$_}->[0], $class->ml("setting.allowvgiftsfrom.sel.$menu_items{$_}->[1]")
+        } qw( all registered members none );
+    }
+    else {
+        @opts = map {
+            $menu_items{$_}->[0], $class->ml("setting.allowvgiftsfrom.sel.$menu_items{$_}->[1]")
+        } qw( all registered circle access none );
 
         # trust group selection
-        my @groups = sort { $a->{sortorder} <=> $b->{sortorder} }
-                          $u->trust_groups;
-        if ( @groups ) {
+        my @groups = sort { $a->{sortorder} <=> $b->{sortorder} } $u->trust_groups;
+        if (@groups) {
             my @items;
-            push @items, { value => $_->{groupnum}, text => $_->{groupname} }
-                foreach @groups;
+            push @items, { value => $_->{groupnum}, text => $_->{groupname} } foreach @groups;
 
-            push @opts, { optgroup => $class->ml( 'setting.allowvgiftsfrom.sel.g' ), items => \@items };
+            push @opts,
+                { optgroup => $class->ml('setting.allowvgiftsfrom.sel.g'), items => \@items };
         }
     }
 
-    my $ret = LJ::html_select( { name => "${key}allowvgiftsfrom",
-                                 id   => "${key}allowvgiftsfrom",
-                                 selected => $allowed },
-                               @opts );
+    my $ret = LJ::html_select(
+        {
+            name     => "${key}allowvgiftsfrom",
+            id       => "${key}allowvgiftsfrom",
+            selected => $allowed
+        },
+        @opts
+    );
 
     my $errdiv = $class->errdiv( $errs, "allowvgiftsfrom" );
     $ret .= $errdiv if $errdiv;
 
     $ret .= "<br />\n";
+
     # anonymous optout
-    $ret .= LJ::html_check( { name => "${key}anonvgift_optout",
-                              id   => "${key}anonvgift_optout",
-                              label => $class->ml( 'setting.allowvgiftsfrom.anon' ),
-                              selected => $anonopt } );
+    $ret .= LJ::html_check(
+        {
+            name     => "${key}anonvgift_optout",
+            id       => "${key}anonvgift_optout",
+            label    => $class->ml('setting.allowvgiftsfrom.anon'),
+            selected => $anonopt
+        }
+    );
     return $ret;
 }
 
@@ -90,7 +103,7 @@ sub error_check {
     my ( $class, $u, $args ) = @_;
 
     my $allowed = $class->get_arg( $args, "allowvgiftsfrom" );
-    $class->errors( allowvgiftsfrom => $class->ml( 'setting.allowvgiftsfrom.error' ) )
+    $class->errors( allowvgiftsfrom => $class->ml('setting.allowvgiftsfrom.error') )
         if $allowed && $allowed !~ /^(?:all|registered|circle|access|none|\d+)$/;
 
     return 1;

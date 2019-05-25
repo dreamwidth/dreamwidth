@@ -41,8 +41,8 @@ sub merge_interests {
 
     my @all_ints = keys %$old_interests;
 
-    foreach my $int ( @$ints ) {
-        push @all_ints, lc( $int ) unless defined( $old_interests->{$int} );
+    foreach my $int (@$ints) {
+        push @all_ints, lc($int) unless defined( $old_interests->{$int} );
     }
 
     $u->set_interests( \@all_ints );
@@ -59,13 +59,13 @@ sub merge_bio_items {
 
     $u->set_bio( $items->{'bio'} ) if defined( $items->{'bio'} );
 
-    foreach my $prop ( qw/ icq jabber journaltitle journalsubtitle / ) {
+    foreach my $prop (qw/ icq jabber journaltitle journalsubtitle /) {
         $u->set_prop( $prop => $items->{$prop} )
             if defined $items->{$prop};
     }
 
     if ( defined $items->{homepage} ) {
-        $u->set_prop( url => $items->{'homepage'}->{'url'} );
+        $u->set_prop( url     => $items->{'homepage'}->{'url'} );
         $u->set_prop( urlname => $items->{'homepage'}->{'title'} );
     }
 }
@@ -89,6 +89,5 @@ the same terms as Perl itself. For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 =cut
-
 
 1;

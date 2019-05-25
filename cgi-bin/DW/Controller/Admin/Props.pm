@@ -26,37 +26,50 @@ DW::Controller::Admin::Props - Viewing and editing user and logprops
 =cut
 
 DW::Routing->register_string( "/admin/propedit", \&propedit_handler );
-DW::Controller::Admin->register_admin_page( '/',
-    path => 'propedit',
+DW::Controller::Admin->register_admin_page(
+    '/',
+    path     => 'propedit',
     ml_scope => '/admin/propedit.tt',
-    privs => [ 'canview:userprops', 'canview:*' ]
+    privs    => [ 'canview:userprops', 'canview:*' ]
 );
 
 DW::Routing->register_string( "/admin/entryprops", \&entryprops_handler );
-DW::Controller::Admin->register_admin_page( '/',
-    path => 'entryprops',
+DW::Controller::Admin->register_admin_page(
+    '/',
+    path     => 'entryprops',
     ml_scope => '/admin/entryprops.tt',
-    privs => [ 'canview:entryprops', 'canview:*', sub {
-            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
-    } ]
+    privs    => [
+        'canview:entryprops',
+        'canview:*',
+        sub {
+            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
+        }
+    ]
 );
 
 sub entryprops_handler {
-    my ( $opts ) = @_;
+    my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( privcheck => [ 'canview:entryprops', 'canview:*', sub {
-            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
-    } ], form_auth => 0 );
+    my ( $ok, $rv ) = controller(
+        privcheck => [
+            'canview:entryprops',
+            'canview:*',
+            sub {
+                return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
+            }
+        ],
+        form_auth => 0
+    );
     return $rv unless $ok;
 
-    my $r = $rv->{r};
+    my $r      = $rv->{r};
     my $remote = $rv->{remote};
     my %entry_info;
     my @props;
 
     my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
-        my $post = $r->post_args;
+        my $post  = $r->post_args;
         my $entry = LJ::Entry->new_from_url( $post->{url} );
 
         my $url = LJ::ehtml( $post->{url} );
@@ -64,12 +77,14 @@ sub entryprops_handler {
             unless $entry && $entry->valid;
 
         unless ( $errors->exist ) {
+
             # WE HAEV ENTRY!!
 
             my $subject;
-            if ( $entry->visible_to( $remote ) ) {
+            if ( $entry->visible_to($remote) ) {
                 $subject = $entry->subject_html ? $entry->subject_html : "<em>no subject</em>";
-            } else {
+            }
+            else {
                 $subject = "<em>hidden</em>";
             }
 
@@ -77,30 +92,31 @@ sub entryprops_handler {
             if ( $security eq "usemask" ) {
                 if ( $entry->allowmask == 1 ) {
                     $security = "friends";
-                } else {
+                }
+                else {
                     $security = "custom";
                 }
             }
 
-            my $pu = $entry->poster;
+            my $pu      = $entry->poster;
             my $journal = $entry->journal;
             %entry_info = (
-                subject => $subject,
-                security => $security,
-                url => $entry->url,
-                poster => $pu->ljuser_display,
-                journal => $journal->ljuser_display,
-                minsecurity => $journal->prop("newpost_minsecurity") || "public",
-                user_time => $entry->eventtime_mysql,
-                server_time => $entry->logtime_mysql,
+                subject       => $subject,
+                security      => $security,
+                url           => $entry->url,
+                poster        => $pu->ljuser_display,
+                journal       => $journal->ljuser_display,
+                minsecurity   => $journal->prop("newpost_minsecurity") || "public",
+                user_time     => $entry->eventtime_mysql,
+                server_time   => $entry->logtime_mysql,
                 adult_content => $journal->adult_content || "none",
             );
 
-            my %entry_props = %{$entry->props || {}};
+            my %entry_props = %{ $entry->props || {} };
             foreach my $prop_name ( sort keys %entry_props ) {
                 my %prop = (
-                    name => $prop_name,
-                    value => $entry_props{$prop_name},
+                    name        => $prop_name,
+                    value       => $entry_props{$prop_name},
                     description => "",
                 );
                 if ( my $prop_meta = LJ::get_prop( "log", $prop_name ) ) {
@@ -111,32 +127,46 @@ sub entryprops_handler {
 
                     # render xpost prop into human readable form
                     if ( $prop_name eq "xpost" || $prop_name eq "xpostdetail" ) {
-                        my %external_accounts_map = map { $_->acctid => $_->servername . ( $_->active ? "" : " (deleted)" ) } DW::External::Account->get_external_accounts( $pu, show_inactive => 1 );
+                        my %external_accounts_map = map {
+                            $_->acctid => $_->servername . ( $_->active ? "" : " (deleted)" )
+                        } DW::External::Account->get_external_accounts( $pu,
+                            show_inactive => 1 );
 
                         # FIXME: temporary; trying to figure out when this is undef
                         my $xpost_prop = $prop{value};
-                        my $xpost_hash = DW::External::Account->xpost_string_to_hash( $prop{value} );
+                        my $xpost_hash =
+                            DW::External::Account->xpost_string_to_hash( $prop{value} );
                         my %xpost_map = %{ $xpost_hash || {} };
 
                         if ( $prop_name eq "xpost" ) {
-                            $prop{value} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => $xpost_map{$_}" } keys %xpost_map;
+                            $prop{value} = join ", ", map {
+                                ( $external_accounts_map{$_} || "unknown" ) . " => $xpost_map{$_}"
+                            } keys %xpost_map;
                             $prop{description} .= " (site name => itemid)";
-                        } else {
-                            $prop{value} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => { $xpost_map{$_}->{itemid}, $xpost_map{$_}->{url} }" } keys %xpost_map;
+                        }
+                        else {
+                            $prop{value} = join ", ", map {
+                                ( $external_accounts_map{$_} || "unknown" )
+                                    . " => { $xpost_map{$_}->{itemid}, $xpost_map{$_}->{url} }"
+                            } keys %xpost_map;
                             $prop{description} .= " (site name => { itemid, url })";
                         }
 
-                    } elsif ( $prop_name eq 'picture_mapid' && $pu->userpic_have_mapid ) {
+                    }
+                    elsif ( $prop_name eq 'picture_mapid' && $pu->userpic_have_mapid ) {
                         my $result = "$prop{value} -> ";
-                        my $kw = $pu->get_keyword_from_mapid( $prop{value},
-                                    redir_callback => sub {
-                                        $result .= "$_[2] -> ";
-                                    });
+                        my $kw     = $pu->get_keyword_from_mapid(
+                            $prop{value},
+                            redir_callback => sub {
+                                $result .= "$_[2] -> ";
+                            }
+                        );
                         $result .= $kw;
                         my $picid = $pu->get_picid_from_keyword( $kw, -1 );
                         if ( $picid == -1 ) {
                             $result .= " ( not assigned to an icon )";
-                        } else {
+                        }
+                        else {
                             $result .= " ( assigned to an icon )";
                         }
                         $prop{value} = $result;
@@ -155,12 +185,13 @@ sub entryprops_handler {
 }
 
 sub propedit_handler {
-    my ( $opts ) = @_;
+    my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( privcheck => [ 'canview:userprops', 'canview:*' ], form_auth => 1 );
+    my ( $ok, $rv ) =
+        controller( privcheck => [ 'canview:userprops', 'canview:*' ], form_auth => 1 );
     return $rv unless $ok;
 
-    my $r = $rv->{r};
+    my $r      = $rv->{r};
     my $remote = $rv->{remote};
     my $u;
     my @props;
@@ -168,14 +199,14 @@ sub propedit_handler {
     my $can_save = $remote && $remote->has_priv( "siteadmin", "propedit" );
 
     my $errors = DW::FormErrors->new;
-    if ( $r->did_post && LJ::check_referer( '/admin/propedit' ) ) {
+    if ( $r->did_post && LJ::check_referer('/admin/propedit') ) {
         my $post = $r->post_args;
 
         $u = LJ::load_user( $post->{username} );
         my $username = LJ::ehtml( $post->{username} );
         $errors->add_string( 'username', "$username is not a valid username" ) unless $u;
 
-        if ( ! $errors->exist && $can_save && $post->{_save} ) {
+        if ( !$errors->exist && $can_save && $post->{_save} ) {
             foreach my $key ( $post->keys ) {
                 next if $key eq 'username';
                 next if $key eq '_save';
@@ -188,16 +219,17 @@ sub propedit_handler {
         }
 
         my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare( "SELECT * from userproplist ORDER BY name;" );
+        my $sth = $dbr->prepare("SELECT * from userproplist ORDER BY name;");
         $sth->execute;
 
         while ( my $p = $sth->fetchrow_hashref ) {
-            push @props, {
-                name => $p->{name},
-                value => $u->raw_prop( $p->{name} ),
+            push @props,
+                {
+                name        => $p->{name},
+                value       => $u->raw_prop( $p->{name} ),
                 description => $p->{des},
-                is_text => $p->{des} !~ /Storable hashref/,
-            };
+                is_text     => $p->{des} !~ /Storable hashref/,
+                };
         }
     }
 
@@ -215,14 +247,16 @@ sub propedit_handler {
 
     my $vars = {
         can_save => $can_save,
-        u => $u ? {
-                username => $u->username,
-                userid => $u->userid,
-                clusterid => $u->clusterid,
-                dversion => $u->dversion,
-                statusvis => $u->statusvis,
-                statusvis_display => $statusvis_map{$u->statusvis} || "???",
-            } : undef,
+        u        => $u
+        ? {
+            username          => $u->username,
+            userid            => $u->userid,
+            clusterid         => $u->clusterid,
+            dversion          => $u->dversion,
+            statusvis         => $u->statusvis,
+            statusvis_display => $statusvis_map{ $u->statusvis } || "???",
+            }
+        : undef,
         props => \@props,
     };
     return DW::Template->render_template( "admin/propedit.tt", $vars );

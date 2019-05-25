@@ -48,10 +48,11 @@ sub new {
     return unless $self;
 
     if ( $args{transfer} ) {
-        $self->{cost_cash} = 0;
+        $self->{cost_cash}   = 0;
         $self->{cost_points} = $self->{points};
-    } else {
-        $self->{cost_cash} = $self->{points} / 10;
+    }
+    else {
+        $self->{cost_cash}   = $self->{points} / 10;
         $self->{cost_points} = 0;
     }
 
@@ -62,7 +63,6 @@ sub new {
 
     return $self;
 }
-
 
 # override
 sub _apply {
@@ -75,7 +75,6 @@ sub _apply {
     return 1;
 }
 
-
 # internal application sub, do not call
 sub _apply_userid {
     my $self = $_[0];
@@ -83,7 +82,7 @@ sub _apply_userid {
 
     # will need this later
     my $fu = LJ::load_userid( $self->from_userid );
-    unless ( $fu ) {
+    unless ($fu) {
         warn "Failed to apply: invalid from_userid!\n";
         return 0;
     }
@@ -96,36 +95,38 @@ sub _apply_userid {
     $u->give_shop_points( amount => $self->points, reason => 'ordered; item #' . $self->id );
 
     DW::Stats::increment( 'dw.shop.points.applied', $self->points,
-            [ 'gift:' . ( $fu->equals( $u ) ? 'no' : 'yes' ) ] );
+        [ 'gift:' . ( $fu->equals($u) ? 'no' : 'yes' ) ] );
 
     # we're applied now, regardless of what happens with the email
     $self->{applied} = 1;
 
     # now we have to mail this code
-    my $word = $fu->equals( $u ) ? 'self' : 'other';
-    my $body = LJ::Lang::ml( "shop.email.gift.$word.body",
+    my $word = $fu->equals($u) ? 'self' : 'other';
+    my $body = LJ::Lang::ml(
+        "shop.email.gift.$word.body",
         {
-            touser => $u->display_name,
+            touser   => $u->display_name,
             fromuser => $fu->display_name,
             sitename => $LJ::SITENAME,
-            gift => sprintf( '%d %s Points', $self->points, $LJ::SITENAMESHORT ),
+            gift     => sprintf( '%d %s Points', $self->points, $LJ::SITENAMESHORT ),
         }
     );
     my $subj = LJ::Lang::ml( "shop.email.gift.$word.subject", { sitename => $LJ::SITENAME } );
 
     # send the email to the user
-    LJ::send_mail( {
-        to       => $u->email_raw,
-        from     => $LJ::ACCOUNTS_EMAIL,
-        fromname => $LJ::SITENAME,
-        subject  => $subj,
-        body     => $body
-    } );
+    LJ::send_mail(
+        {
+            to       => $u->email_raw,
+            from     => $LJ::ACCOUNTS_EMAIL,
+            fromname => $LJ::SITENAME,
+            subject  => $subj,
+            body     => $body
+        }
+    );
 
     # tell the caller we're happy
     return 1;
 }
-
 
 # override
 sub unapply {
@@ -140,13 +141,12 @@ sub unapply {
     return 1;
 }
 
-
 # override
 sub can_be_added {
     my ( $self, %opts ) = @_;
 
-    return 0 unless $self->can_be_added_user( %opts );
-    return 0 unless $self->can_be_added_points( %opts );
+    return 0 unless $self->can_be_added_user(%opts);
+    return 0 unless $self->can_be_added_points(%opts);
 
     return 1;
 }
@@ -158,21 +158,21 @@ sub can_be_added_user {
 
     # if not a valid account, error
     my $target_u = LJ::load_userid( $self->t_userid );
-    if ( ! LJ::isu( $target_u ) ) {
-        $$errref = LJ::Lang::ml( 'shop.item.points.canbeadded.notauser' );
+    if ( !LJ::isu($target_u) ) {
+        $$errref = LJ::Lang::ml('shop.item.points.canbeadded.notauser');
         return 0;
     }
 
     # the receiving user must be a person for now
     unless ( $target_u->is_personal && $target_u->is_visible ) {
-        $$errref = LJ::Lang::ml( 'shop.item.points.canbeadded.invalidjournaltype' );
+        $$errref = LJ::Lang::ml('shop.item.points.canbeadded.invalidjournaltype');
         return 0;
     }
 
     # make sure no sysban is in effect here
     my $fromu = LJ::load_userid( $self->from_userid );
-    if ( $fromu && $target_u->has_banned( $fromu ) ) {
-        $$errref = LJ::Lang::ml( 'shop.item.points.canbeadded.banned' );
+    if ( $fromu && $target_u->has_banned($fromu) ) {
+        $$errref = LJ::Lang::ml('shop.item.points.canbeadded.banned');
         return 0;
     }
 
@@ -186,28 +186,27 @@ sub can_be_added_points {
 
     # sanity check that the points are positive and not more than 5000
     unless ( $self->points > 0 && $self->points <= 5000 ) {
-        $$errref = LJ::Lang::ml( 'shop.item.points.canbeadded.outofrange' );
+        $$errref = LJ::Lang::ml('shop.item.points.canbeadded.outofrange');
         return 0;
     }
 
     # sanity check that the points are above the purchase minimum, but only
     # if they're being purchased.  we allow small point transfers at no cost.
     if ( $self->cost_cash > 0.00 && $self->points < 30 ) {
-        $$errref = LJ::Lang::ml( 'shop.item.points.canbeadded.outofrange' );
+        $$errref = LJ::Lang::ml('shop.item.points.canbeadded.outofrange');
         return 0;
     }
 
     return 1;
 }
 
-
 # override
 sub name_text {
     my $self = $_[0];
 
-    return LJ::Lang::ml( 'shop.item.points.name', { num => $self->points, sitename => $LJ::SITENAMESHORT } );
+    return LJ::Lang::ml( 'shop.item.points.name',
+        { num => $self->points, sitename => $LJ::SITENAMESHORT } );
 }
-
 
 =head2 C<< $self->points >>
 
@@ -216,6 +215,5 @@ Return how many points this item is worth.
 =cut
 
 sub points { $_[0]->{points} }
-
 
 1;

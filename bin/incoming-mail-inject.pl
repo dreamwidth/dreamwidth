@@ -14,12 +14,13 @@
 
 use strict;
 use v5.10;
+
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 
 use Log::Log4perl;
-my $log = Log::Log4perl->get_logger( __PACKAGE__ );
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5 qw/ md5_hex /;
 use DW::BlobStore;
@@ -29,6 +30,7 @@ my $sclient = LJ::theschwartz() or die "No schwartz config.\n";
 my $tempfail = sub {
     my $msg = shift;
     warn "Failure: $msg\n" if $msg;
+
     # makes postfix do temporary failure:
     exit 75;
 };
@@ -36,36 +38,35 @@ my $tempfail = sub {
 # below this size, we put in database directly.  if over,
 # we put in mogile.
 sub IN_MEMORY_THRES () {
-    return
-        $ENV{T_MAILINJECT_THRES_SIZE} ||
-        768 * 1024;
+    return $ENV{T_MAILINJECT_THRES_SIZE}
+        || 768 * 1024;
 }
 
-my $msg = '';  # in-memory message
-my $len = 0;   # length of message
+my $msg = '';    # in-memory message
+my $len = 0;     # length of message
 
 eval {
     my ( $buf, $rv );
-    while ( $rv = sysread STDIN, $buf, 1024*64 ) {
+    while ( $rv = sysread STDIN, $buf, 1024 * 64 ) {
         $len += $rv;
         $msg .= $buf;
     }
-    $tempfail->( "Error reading: $!" )
+    $tempfail->("Error reading: $!")
         unless defined $rv;
 
-    if ( should_ignore( $msg ) ) {
-        $log->info( "Received probable spam message of $len bytes, dropping" );
+    if ( should_ignore($msg) ) {
+        $log->info("Received probable spam message of $len bytes, dropping");
         exit 0;
     }
 
-    $log->info( "Received email of $len bytes, saving for handling" );
+    $log->info("Received email of $len bytes, saving for handling");
 };
-$tempfail->( $@ ) if $@;
+$tempfail->($@) if $@;
 
 if ( $len > IN_MEMORY_THRES ) {
-    my $md5 = md5_hex( $msg );
+    my $md5 = md5_hex($msg);
     DW::BlobStore->store( temp => "ie:$md5", \$msg );
-    $log->info( "Storing email in blobstore at key: ie:$md5");
+    $log->info("Storing email in blobstore at key: ie:$md5");
 
     # Overwrite $msg so that the incoming-email worker knows that this
     # is a key it should look up in the storage system
@@ -79,7 +80,7 @@ my $h = $sclient->insert(
     ),
 );
 exit 0 if $h;
-exit 75;  # temporary error
+exit 75;    # temporary error
 
 # it pays to get rid of as many bounces and gibberish now, before we
 # have to put it in the database, mogile, allocate ids, run workers,
@@ -91,9 +92,10 @@ sub should_ignore {
 
     my ($subject) = $msg =~ /^Subject: (.+)/im;
     if ($subject) {
-        return 1 if
-            $subject =~ /auto.?(response|reply)/i
-            || $subject =~ /^(Undelive|Mail System Error - |ScanMail Message: |\+\s*SPAM|Norton AntiVirus)/i
+        return 1
+            if $subject =~ /auto.?(response|reply)/i
+            || $subject =~
+            /^(Undelive|Mail System Error - |ScanMail Message: |\+\s*SPAM|Norton AntiVirus)/i
             || $subject =~ /^(Mail Delivery Problem|Mail delivery failed)/i
             || $subject =~ /^failure notice$/i
             || $subject =~ /\[BOUNCED SPAM\]/i

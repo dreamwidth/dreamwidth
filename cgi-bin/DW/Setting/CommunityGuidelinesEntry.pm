@@ -24,7 +24,7 @@ sub should_render {
 }
 
 sub prop_name { "posting_guidelines_entry" }
-sub label { $_[0]->ml( 'setting.communityguidelinesentry.label' ) }
+sub label     { $_[0]->ml('setting.communityguidelinesentry.label') }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
@@ -33,16 +33,19 @@ sub option {
     my $ret;
 
     my $e = $u->get_posting_guidelines_entry;
-    $ret .= LJ::html_text({
-        name  => "${key}communityguidelinesentry",
-        id    => "${key}communityguidelinesentry",
-        class => "text",
-        value => $errs ? $class->get_arg( $args, "communityguidelinesentry" ) :
-                 $e    ? $e->url : '',
-        size  => 50,
-        maxlength => 100,
-        placeholder => _example_url(),
-    });
+    $ret .= LJ::html_text(
+        {
+            name  => "${key}communityguidelinesentry",
+            id    => "${key}communityguidelinesentry",
+            class => "text",
+            value => $errs ? $class->get_arg( $args, "communityguidelinesentry" )
+            : $e ? $e->url
+            : '',
+            size        => 50,
+            maxlength   => 100,
+            placeholder => _example_url(),
+        }
+    );
 
     my $errdiv = $class->errdiv( $errs, "communityguidelinesentry" );
     $ret .= "<br />$errdiv" if $errdiv;
@@ -56,12 +59,16 @@ sub save {
 
     my $postingguidelines_loc = $u->posting_guidelines_location;
     if ( $postingguidelines_loc eq "E" ) {
-        my $e = $u->posting_guidelines_entry( $val );
-        $class->errors( "communityguidelinesentry" => LJ::Lang::ml( 'setting.communityguidelinesentry.invalid', {
-                example_url => _example_url(),
-                example_id  => "1234",
-            } ) )
-            unless $e;
+        my $e = $u->posting_guidelines_entry($val);
+        $class->errors(
+            "communityguidelinesentry" => LJ::Lang::ml(
+                'setting.communityguidelinesentry.invalid',
+                {
+                    example_url => _example_url(),
+                    example_id  => "1234",
+                }
+            )
+        ) unless $e;
     }
 
     return 1;

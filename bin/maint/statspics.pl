@@ -18,41 +18,42 @@ use GD::Graph::bars;
 
 our %maint;
 
-$maint{'genstatspics'} = sub
-{
+$maint{'genstatspics'} = sub {
     my $dbh = LJ::get_db_writer();
     my $sth;
 
     ### get posts by day data from summary table
     print "-I- new accounts by day.\n";
-    $sth = $dbh->prepare("SELECT DATE_FORMAT(statkey, '%m-%d') AS 'day', statval AS 'new' FROM stats WHERE statcat='newbyday' ORDER BY statkey DESC LIMIT 60");
+    $sth = $dbh->prepare(
+"SELECT DATE_FORMAT(statkey, '%m-%d') AS 'day', statval AS 'new' FROM stats WHERE statcat='newbyday' ORDER BY statkey DESC LIMIT 60"
+    );
     $sth->execute;
-    if ($dbh->err) { die $dbh->errstr; }
+    if ( $dbh->err ) { die $dbh->errstr; }
 
     my @data;
     my $i;
     my $max;
-    while ($_ = $sth->fetchrow_hashref)
-    {
+    while ( $_ = $sth->fetchrow_hashref ) {
         my $val = $_->{'new'};
-        unshift @{$data[0]}, ($i++ % 5 == 0 ? $_->{'day'} : "");
-        unshift @{$data[1]}, $val;
-        if ($val > $max) { $max = $val; }
+        unshift @{ $data[0] }, ( $i++ % 5 == 0 ? $_->{'day'} : "" );
+        unshift @{ $data[1] }, $val;
+        if ( $val > $max ) { $max = $val; }
     }
 
-    if ( @data ) {
+    if (@data) {
+
         # posts by day graph
-        my $g = GD::Graph::bars->new(520, 350);
+        my $g = GD::Graph::bars->new( 520, 350 );
         $g->set(
-            x_label           => 'Day',
-            y_label           => 'Accounts',
-            title             => 'New accounts per day',
-            tranparent        => 0,
-            y_max_value       => $max,
+            x_label     => 'Day',
+            y_label     => 'Accounts',
+            title       => 'New accounts per day',
+            tranparent  => 0,
+            y_max_value => $max,
         );
 
-        my $gd = $g->plot(\@data) or die $g->error;
-        open(IMG, ">$LJ::HTDOCS/stats/newbyday.png") or die $!;
+        my $gd = $g->plot( \@data ) or die $g->error;
+        open( IMG, ">$LJ::HTDOCS/stats/newbyday.png" ) or die $!;
         binmode IMG;
         print IMG $gd->png;
         close IMG;

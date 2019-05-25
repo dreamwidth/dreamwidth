@@ -26,42 +26,50 @@ sub should_render {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.synlevel.label' );
+    return $_[0]->ml('setting.synlevel.label');
 }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $synlevel = $class->get_arg( $args, "synlevel" ) || $u->prop( "opt_synlevel" );
+    my $synlevel = $class->get_arg( $args, "synlevel" ) || $u->prop("opt_synlevel");
 
     my @options = (
-        "cut"  => $class->ml( 'setting.synlevel.option.select.cut' ),
-        "full" => $class->ml( 'setting.synlevel.option.select.full' ),
-        "summary" => $class->ml( 'setting.synlevel.option.select.summary' ),
-        "title"   => $class->ml( 'setting.synlevel.option.select.title' ),
+        "cut"     => $class->ml('setting.synlevel.option.select.cut'),
+        "full"    => $class->ml('setting.synlevel.option.select.full'),
+        "summary" => $class->ml('setting.synlevel.option.select.summary'),
+        "title"   => $class->ml('setting.synlevel.option.select.title'),
     );
 
     my $ret;
 
     $ret .= " <label for='${key}synlevel'>";
-    $ret .= $u->is_community ? 
-        $class->ml( 'setting.synlevel.option.comm' ) : 
-        $class->ml( 'setting.synlevel.option' );
+    $ret .=
+          $u->is_community
+        ? $class->ml('setting.synlevel.option.comm')
+        : $class->ml('setting.synlevel.option');
     $ret .= "</label>";
 
-    $ret .= LJ::html_select( {
-        name => "${key}synlevel",
-        id => "${key}synlevel",
-        selected => $synlevel,
-    }, @options );
-    
+    $ret .= LJ::html_select(
+        {
+            name     => "${key}synlevel",
+            id       => "${key}synlevel",
+            selected => $synlevel,
+        },
+        @options
+    );
+
     my $userdomain = $u->journal_base;
-    
-    $ret .= "<br />" . $class->ml( 'setting.synlevel.option.note', {
-        aopts_atom => "href='$userdomain/data/atom'",
-        aopts_rss  => "href='$userdomain/data/rss'",
-    } );
+
+    $ret .= "<br />"
+        . $class->ml(
+        'setting.synlevel.option.note',
+        {
+            aopts_atom => "href='$userdomain/data/atom'",
+            aopts_rss  => "href='$userdomain/data/rss'",
+        }
+        );
 
     my $errdiv = $class->errdiv( $errs, "synlevel" );
     $ret .= "<br />$errdiv" if $errdiv;
@@ -73,8 +81,8 @@ sub error_check {
     my ( $class, $u, $args ) = @_;
     my $val = $class->get_arg( $args, "synlevel" );
 
-    $class->errors( synlevel => $class->ml( 'setting.synlevel.error.invalid' ) )
-        unless ! $val || $val =~ /^(cut|full|summary|title)$/;
+    $class->errors( synlevel => $class->ml('setting.synlevel.error.invalid') )
+        unless !$val || $val =~ /^(cut|full|summary|title)$/;
 
     return 1;
 }

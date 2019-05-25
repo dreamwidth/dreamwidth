@@ -19,15 +19,17 @@ use base 'LJ::Event::JournalNewEntry';
 
 sub content {
     my ( $self, $target, %opts ) = @_;
-    # force uncut for certain views (e-mail)
-    my $args = $opts{full}
-            ? {}
-            : { # double negatives, ouch!
-                ljcut_disable => ! $target->cut_inbox,
-                cuturl => $self->entry->url
-              };
 
-    return $self->entry->event_html( $args );
+    # force uncut for certain views (e-mail)
+    my $args =
+        $opts{full}
+        ? {}
+        : {    # double negatives, ouch!
+        ljcut_disable => !$target->cut_inbox,
+        cuturl        => $self->entry->url
+        };
+
+    return $self->entry->event_html($args);
 }
 
 sub zero_journalid_subs_means { 'all' }
@@ -35,43 +37,46 @@ sub zero_journalid_subs_means { 'all' }
 sub _construct_prefix {
     my $self = shift;
     return $self->{'prefix'} if $self->{'prefix'};
-    my ($classname) = (ref $self) =~ /Event::(.+?)$/;
+    my ($classname) = ( ref $self ) =~ /Event::(.+?)$/;
     return $self->{'prefix'} = 'esn.' . lc($classname);
 }
 
 sub matches_filter {
-    my ($self, $subscr) = @_;
+    my ( $self, $subscr ) = @_;
 
     return 0 unless $subscr->available_for_user;
     return 1;
 }
 
 sub as_email_subject {
-    my $self = shift;
-    my $u = shift;
+    my $self  = shift;
+    my $u     = shift;
     my $label = _construct_prefix($self);
 
     # construct label
 
-    if ($self->entry->subject_text) {
+    if ( $self->entry->subject_text ) {
         $label .= '.subject';
-    } else {
+    }
+    else {
         $label .= '.nosubject';
     }
 
-    return LJ::Lang::get_default_text( $label,
+    return LJ::Lang::get_default_text(
+        $label,
         {
-            siteroot        => $LJ::SITEROOT,
-            sitename        => $LJ::SITENAME,
-            sitenameshort   => $LJ::SITENAMESHORT,
-            subject         => $self->entry->subject_text || '',
-            username        => $self->entry->journal->display_username,
-        });
+            siteroot      => $LJ::SITEROOT,
+            sitename      => $LJ::SITENAME,
+            sitenameshort => $LJ::SITENAMESHORT,
+            subject       => $self->entry->subject_text || '',
+            username      => $self->entry->journal->display_username,
+        }
+    );
 }
 
 sub as_email_html {
     my $self = shift;
-    my $u = shift;
+    my $u    = shift;
 
     return sprintf "%s<br />
 <br />
@@ -80,7 +85,7 @@ sub as_email_html {
 
 sub as_email_string {
     my $self = shift;
-    my $u = shift;
+    my $u    = shift;
 
     my $text = $self->content( $u, full => 1 );
     $text =~ s/\n+/ /g;
@@ -93,42 +98,47 @@ sub as_email_string {
 }
 
 sub as_html {
-    my $self = shift;
-    my $u = shift;
+    my $self  = shift;
+    my $u     = shift;
     my $entry = $self->entry or return "(Invalid entry)";
 
-    return LJ::Lang::get_default_text( _construct_prefix($self) . '.html2',
+    return LJ::Lang::get_default_text(
+        _construct_prefix($self) . '.html2',
         {
-            siteroot        => $LJ::SITEROOT,
-            sitename        => $LJ::SITENAME,
-            sitenameshort   => $LJ::SITENAMESHORT,
-            subject         => $self->entry->subject_text || '',
-            username        => $entry->journal->ljuser_display,
-            url             => $entry->url,
-            poster          => $self->entry->poster->ljuser_display,
-        });
+            siteroot      => $LJ::SITEROOT,
+            sitename      => $LJ::SITENAME,
+            sitenameshort => $LJ::SITENAMESHORT,
+            subject       => $self->entry->subject_text || '',
+            username      => $entry->journal->ljuser_display,
+            url           => $entry->url,
+            poster        => $self->entry->poster->ljuser_display,
+        }
+    );
 }
 
 sub as_string {
-    my $self = shift;
-    my $u = shift;
+    my $self  = shift;
+    my $u     = shift;
     my $entry = $self->entry or return "(Invalid entry)";
 
-    return LJ::Lang::get_default_text( _construct_prefix($self) . '.string2',
+    return LJ::Lang::get_default_text(
+        _construct_prefix($self) . '.string2',
         {
-            siteroot        => $LJ::SITEROOT,
-            sitename        => $LJ::SITENAME,
-            sitenameshort   => $LJ::SITENAMESHORT,
-            subject         => $self->entry->subject_text || '',
-            username        => $self->entry->journal->display_username,
-            url             => $entry->url,
-            poster          => $self->entry->poster->display_username,
-        });
+            siteroot      => $LJ::SITEROOT,
+            sitename      => $LJ::SITENAME,
+            sitenameshort => $LJ::SITENAMESHORT,
+            subject       => $self->entry->subject_text || '',
+            username      => $self->entry->journal->display_username,
+            url           => $entry->url,
+            poster        => $self->entry->poster->display_username,
+        }
+    );
 }
 
 sub subscription_as_html {
-    my ($class, $subscr) = @_;
-    return BML::ml('event.officialpost', { sitename => $LJ::SITENAME }); # $LJ::SITENAME makes a new announcement
+    my ( $class, $subscr ) = @_;
+    return BML::ml( 'event.officialpost', { sitename => $LJ::SITENAME } )
+        ;    # $LJ::SITENAME makes a new announcement
 }
 
 sub schwartz_role { 'mass' }

@@ -44,16 +44,16 @@ my $testfeed = sub {
 </feed>
 };
 
-    my ($feed, $error) = LJ::ParseFeed::parse_feed($contents);
+    my ( $feed, $error ) = LJ::ParseFeed::parse_feed($contents);
     my $item = $feed->{'items'}->[0];
     return $item->{'link'};
 };
 
-is($testfeed->("<link rel=\"alternate\" type=\"text/html\" href=\"$LJ::SITEROOT\" />"),
-   $LJ::SITEROOT, "rel=alternate is fine");
+is( $testfeed->("<link rel=\"alternate\" type=\"text/html\" href=\"$LJ::SITEROOT\" />"),
+    $LJ::SITEROOT, "rel=alternate is fine" );
 
-is($testfeed->("<link type=\"text/html\" href=\"$LJ::SITEROOT\" />"),
-   $LJ::SITEROOT, "no explicit rel attribute is also fine");
+is( $testfeed->("<link type=\"text/html\" href=\"$LJ::SITEROOT\" />"),
+    $LJ::SITEROOT, "no explicit rel attribute is also fine" );
 
-ok(!$testfeed->("<link rel=\"bananas\" type=\"text/html\" href=\"$LJ::SITEROOT\" />"),
-   "rel that isn't 'alternate' not okay");
+ok( !$testfeed->("<link rel=\"bananas\" type=\"text/html\" href=\"$LJ::SITEROOT\" />"),
+    "rel that isn't 'alternate' not okay" );

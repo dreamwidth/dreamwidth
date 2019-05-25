@@ -23,10 +23,9 @@ use LJ::Test qw( temp_user );
 use LJ::Feed;
 use LJ::ParseFeed;
 
-my $u = temp_user();
+my $u      = temp_user();
 my $remote = $u;
-my $r = DW::Request::Standard->new(
-            HTTP::Request->new( GET => $u->journal_base . "/data/atom" ) );
+my $r = DW::Request::Standard->new( HTTP::Request->new( GET => $u->journal_base . "/data/atom" ) );
 my $site_ns = lc $LJ::SITENAMEABBREV;
 
 sub event_with_commentimage {
@@ -34,101 +33,120 @@ sub event_with_commentimage {
     return $e->event_raw . "<br /><br />" . $e->comment_imgtag . " comments";
 }
 
-note( "Empty feed" );
+note("Empty feed");
 {
-    my ( $feed, $error ) = LJ::ParseFeed::parse_feed(
-                LJ::Feed::make_feed( $r, $u, $remote, { pathextra => "/atom" } ),
-                "atom" );
+    my ( $feed, $error ) =
+        LJ::ParseFeed::parse_feed( LJ::Feed::make_feed( $r, $u, $remote, { pathextra => "/atom" } ),
+        "atom" );
     is( $feed->{link}, $u->journal_base . "/" );
     is( $feed->{type}, "atom" );
     is_deeply( $feed->{items}, [], "Empty, but parseable, feed" );
 }
 
-my $e1 = $u->t_post_fake_entry( subject => "test post in feed (subject)", event => "test post in feed (body)" );
+my $e1 = $u->t_post_fake_entry(
+    subject => "test post in feed (subject)",
+    event   => "test post in feed (body)"
+);
 my $e2 = $u->t_post_fake_entry;
 {
-    note( "Posted entry: entire feed" );
+    note("Posted entry: entire feed");
     my $feed_xml = LJ::Feed::make_feed( $r, $u, $remote, { pathextra => "/atom" } );
 
     my $parser = new XML::Parser( Style => 'Objects' );
-    my $parsed = $parser->parse( $feed_xml );
+    my $parsed = $parser->parse($feed_xml);
     $parsed = $parsed->[0];
     delete $parsed->{Kids};
-    is_deeply( $parsed,
+    is_deeply(
+        $parsed,
         {
             'xmlns'          => "http://www.w3.org/2005/Atom",
             "xmlns:$site_ns" => $LJ::SITEROOT,
-        }, "Check namespaces for feed" );
+        },
+        "Check namespaces for feed"
+    );
 
     my ( $feed, $error ) = LJ::ParseFeed::parse_feed( $feed_xml, "atom" );
 
     my $userid = $u->userid;
-    my $e1id = $e1->ditemid;
+    my $e1id   = $e1->ditemid;
 
     my $feed_entryid = delete $feed->{items}->[1]->{id};
     delete $feed->{items}->[0]->{id};
     like( $feed_entryid, qr/tag:$LJ::DOMAIN,\d{4}-\d{2}-\d{2}:$userid:$e1id/, "Feed entry id" );
 
-    is_deeply( $feed->{items}, [{
-        link    => $e2->url,
-        subject => $e2->subject_raw,
-        text    => event_with_commentimage( $e2 ),
-        time    => substr( $e2->eventtime_mysql, 0, -3 ),
-        author  => $u->name_raw,
-    }, {
-        link    => $e1->url,
-        subject => $e1->subject_raw,
-        text    => event_with_commentimage( $e1 ),
-        time    => substr( $e1->eventtime_mysql, 0, -3 ),
-        author  => $u->name_raw,
-    }], "Check entries from feed" );
+    is_deeply(
+        $feed->{items},
+        [
+            {
+                link    => $e2->url,
+                subject => $e2->subject_raw,
+                text    => event_with_commentimage($e2),
+                time    => substr( $e2->eventtime_mysql, 0, -3 ),
+                author  => $u->name_raw,
+            },
+            {
+                link    => $e1->url,
+                subject => $e1->subject_raw,
+                text    => event_with_commentimage($e1),
+                time    => substr( $e1->eventtime_mysql, 0, -3 ),
+                author  => $u->name_raw,
+            }
+        ],
+        "Check entries from feed"
+    );
 
-
-    note( "Posted entry: individual item" );
+    note("Posted entry: individual item");
     my $e2id = $e2->ditemid;
-    my $r2 = DW::Request::Standard->new(
-            HTTP::Request->new( GET => $u->journal_base . "/data/atom?itemid=$e2id" ) );
+    my $r2   = DW::Request::Standard->new(
+        HTTP::Request->new( GET => $u->journal_base . "/data/atom?itemid=$e2id" ) );
 
     $feed_xml = LJ::Feed::make_feed( $r2, $u, $remote, { pathextra => "/atom" } );
     ( $feed, $error ) = LJ::ParseFeed::parse_feed( $feed_xml, "atom" );
     delete $feed->{items}->[0]->{id};
-    is_deeply( $feed->{items}->[0], {
-        link    => $e2->url,
-        subject => $e2->subject_raw,
-        text    => event_with_commentimage( $e2 ),
-        time    => substr( $e2->eventtime_mysql, 0, -3 ),
-        author  => $u->name_raw,
-    }, "Check individual entry from feed" );
+    is_deeply(
+        $feed->{items}->[0],
+        {
+            link    => $e2->url,
+            subject => $e2->subject_raw,
+            text    => event_with_commentimage($e2),
+            time    => substr( $e2->eventtime_mysql, 0, -3 ),
+            author  => $u->name_raw,
+        },
+        "Check individual entry from feed"
+    );
 }
 
-note( "Icon feed" );
+note("Icon feed");
 SKIP: {
     my $num_tests = 1;
 
     use FindBin qw($Bin);
     chdir "$Bin/data/userpics" or skip "Failed to chdir to t/data/userpics", $num_tests;
-    open ( my $fh, 'good.png' ) or skip "No icon", $num_tests;
+    open( my $fh, 'good.png' ) or skip "No icon", $num_tests;
 
     my $ICON = do { local $/; <$fh> };
     my $icon = LJ::Userpic->create( $u, data => \$ICON );
 
     my $icons_r = DW::Request::Standard->new(
-            HTTP::Request->new( GET => $u->journal_base . "/data/userpics" ) );
+        HTTP::Request->new( GET => $u->journal_base . "/data/userpics" ) );
 
     my $feed_xml = LJ::Feed::make_feed( $icons_r, $u, $remote, { pathextra => "/userpics" } );
 
     my $parser = new XML::Parser( Style => 'Objects' );
-    my $parsed = $parser->parse( $feed_xml );
+    my $parsed = $parser->parse($feed_xml);
     $parsed = $parsed->[0];
     delete $parsed->{Kids};
-    is_deeply( $parsed,
+    is_deeply(
+        $parsed,
         {
-            'xmlns'     => "http://www.w3.org/2005/Atom",
-        }, "Check namespaces for feed" );
+            'xmlns' => "http://www.w3.org/2005/Atom",
+        },
+        "Check namespaces for feed"
+    );
 
 }
 
-note( "No bot crawling" );
+note("No bot crawling");
 {
     # block robots from crawling, but normal feed readers
     # should still be able to read the feed
@@ -137,31 +155,41 @@ note( "No bot crawling" );
     my $feed_xml = LJ::Feed::make_feed( $r, $u, $remote, { pathextra => "/atom" } );
 
     my $parser = new XML::Parser( Style => 'Objects' );
-    my $parsed = $parser->parse( $feed_xml );
+    my $parsed = $parser->parse($feed_xml);
     $parsed = $parsed->[0];
     delete $parsed->{Kids};
-    is_deeply( $parsed,
+    is_deeply(
+        $parsed,
         {
             'xmlns'          => "http://www.w3.org/2005/Atom",
             "xmlns:$site_ns" => $LJ::SITEROOT,
             'xmlns:idx'      => 'urn:atom-extension:indexing',
             'idx:index'      => 'no',
-        }, "Atom indexing extension" );
+        },
+        "Atom indexing extension"
+    );
 
     my ( $feed, $error ) = LJ::ParseFeed::parse_feed( $feed_xml, "atom" );
-    delete $_->{id} foreach @{$feed->{items} || []};
-    is_deeply( $feed->{items}, [{
-        link    => $e2->url,
-        subject => $e2->subject_raw,
-        text    => event_with_commentimage( $e2 ),
-        time    => substr( $e2->eventtime_mysql, 0, -3 ),
-        author  => $u->name_raw,
-    }, {
-        link    => $e1->url,
-        subject => $e1->subject_raw,
-        text    => event_with_commentimage( $e1 ),
-        time    => substr( $e1->eventtime_mysql, 0, -3 ),
-        author  => $u->name_raw,
-    }], "Check entries from feed" );
+    delete $_->{id} foreach @{ $feed->{items} || [] };
+    is_deeply(
+        $feed->{items},
+        [
+            {
+                link    => $e2->url,
+                subject => $e2->subject_raw,
+                text    => event_with_commentimage($e2),
+                time    => substr( $e2->eventtime_mysql, 0, -3 ),
+                author  => $u->name_raw,
+            },
+            {
+                link    => $e1->url,
+                subject => $e1->subject_raw,
+                text    => event_with_commentimage($e1),
+                time    => substr( $e1->eventtime_mysql, 0, -3 ),
+                author  => $u->name_raw,
+            }
+        ],
+        "Check entries from feed"
+    );
 }
 

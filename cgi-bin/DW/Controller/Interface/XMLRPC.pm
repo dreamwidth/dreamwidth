@@ -20,16 +20,19 @@ use strict;
 use DW::Routing;
 use DW::Request::XMLRPCTransport;
 
-DW::Routing->register_string( '/interface/xmlrpc', \&interface_handler, app => 1, format => 'xml',
-    methods => { POST => 1 } );
+DW::Routing->register_string(
+    '/interface/xmlrpc', \&interface_handler,
+    app     => 1,
+    format  => 'xml',
+    methods => { POST => 1 }
+);
 
 sub interface_handler {
     my $r = DW::Request->get;
 
-    my $server = DW::Request::XMLRPCTransport
-        -> on_action(sub { die "Access denied\n" if $_[2] =~ /:|\'/ })
-        -> dispatch_to('LJ::XMLRPC')
-        -> handle();
+    my $server =
+        DW::Request::XMLRPCTransport->on_action( sub { die "Access denied\n" if $_[2] =~ /:|\'/ } )
+        ->dispatch_to('LJ::XMLRPC')->handle();
     return $r->OK;
 }
 

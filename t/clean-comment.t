@@ -27,82 +27,88 @@ my $clean_comment;
 my $clean = sub {
     my $opts = shift;
 
-    LJ::CleanHTML::clean_comment(\$orig_comment, $opts);
+    LJ::CleanHTML::clean_comment( \$orig_comment, $opts );
 };
 
 # remove various positioning and display rules
-$orig_comment = qq{<span style="display: none; display:none; display : none; display: inline">};
+$orig_comment  = qq{<span style="display: none; display:none; display : none; display: inline">};
 $clean_comment = qq{<span style="\\s*display: inline\\s*"><\\/span>};
-$clean->({ remove_positioning => 1 });
-ok($orig_comment =~ /^$clean_comment$/, "Removed display:none ($orig_comment)");
+$clean->( { remove_positioning => 1 } );
+ok( $orig_comment =~ /^$clean_comment$/, "Removed display:none ($orig_comment)" );
 
-$orig_comment = qq{<span style="margin-top: 10px;">};
+$orig_comment  = qq{<span style="margin-top: 10px;">};
 $clean_comment = qq{<span style="\\s*"><\\/span>};
-$clean->({ remove_positioning => 1 });
-ok($orig_comment =~ /^$clean_comment$/, "Removed margin ($orig_comment)");
+$clean->( { remove_positioning => 1 } );
+ok( $orig_comment =~ /^$clean_comment$/, "Removed margin ($orig_comment)" );
 
-$orig_comment = qq{<span style="height: 150px;">};
+$orig_comment  = qq{<span style="height: 150px;">};
 $clean_comment = qq{<span style="\\s*"><\\/span>};
-$clean->({ remove_positioning => 1 });
-ok($orig_comment =~ /^$clean_comment$/, "Removed height");
+$clean->( { remove_positioning => 1 } );
+ok( $orig_comment =~ /^$clean_comment$/, "Removed height" );
 
 # handle unreasonably large padding values
-$orig_comment = qq{<span style="padding-top: 9999999px; padding-left: 9999999px; padding-top: 9999999px; padding-bottom: 9999999px"></span>};
+$orig_comment =
+qq{<span style="padding-top: 9999999px; padding-left: 9999999px; padding-top: 9999999px; padding-bottom: 9999999px"></span>};
 $clean_comment = qq{<span style="\\s*"><\\/span>};
-$clean->({ remove_positioning => 1 });
-ok($orig_comment =~/^$clean_comment$/, "All padding removed. (Multiple rules, all too large)");
+$clean->( { remove_positioning => 1 } );
+ok( $orig_comment =~ /^$clean_comment$/, "All padding removed. (Multiple rules, all too large)" );
 
-$orig_comment = qq{<span style="padding: 999px 999px 999px 999px"></span>};
+$orig_comment  = qq{<span style="padding: 999px 999px 999px 999px"></span>};
 $clean_comment = qq{<span style="\\s*"><\\/span>};
-$clean->({ remove_positioning => 1 });
-ok($orig_comment =~/^$clean_comment$/, "All padding removed. (Combined into one rule, all too large)");
+$clean->( { remove_positioning => 1 } );
+ok( $orig_comment =~ /^$clean_comment$/,
+    "All padding removed. (Combined into one rule, all too large)" );
 
-$orig_comment = qq{<span style="padding-left: 999px; padding-right: 200px;"></span>};
+$orig_comment  = qq{<span style="padding-left: 999px; padding-right: 200px;"></span>};
 $clean_comment = qq{<span style="\\s*"><\\/span>};
-$clean->({ remove_positioning => 1 });
-ok($orig_comment =~/^$clean_comment$/, "All padding removed. (Multiple rules, mixed too large and small enough)");
+$clean->( { remove_positioning => 1 } );
+ok( $orig_comment =~ /^$clean_comment$/,
+    "All padding removed. (Multiple rules, mixed too large and small enough)" );
 
-$orig_comment = qq{<span style="padding: 999px 200px;"></span>};
+$orig_comment  = qq{<span style="padding: 999px 200px;"></span>};
 $clean_comment = qq{<span style="\\s*"><\\/span>};
-$clean->({ remove_positioning => 1 });
-ok($orig_comment =~/^$clean_comment$/, "All padding removed. (One dimension in a combined rule, mixed too large and small enough)");
+$clean->( { remove_positioning => 1 } );
+ok( $orig_comment =~ /^$clean_comment$/,
+    "All padding removed. (One dimension in a combined rule, mixed too large and small enough)" );
 
-$orig_comment = qq{<span style="padding-top: 200px; padding-left: 200px; padding-right: 150px; padding-bottom: 150px;"></span>};
-$clean_comment = qq{<span style="\\s*padding-top: 200px;\\s*padding-left: 200px;\\s*padding-right: 150px;\\s*padding-bottom: 150px;\\s*"><\\/span>};
-$clean->({ remove_positioning => 1 });
-ok($orig_comment =~ /^$clean_comment$/, "Padding not removed; of reasonable size.");
+$orig_comment =
+qq{<span style="padding-top: 200px; padding-left: 200px; padding-right: 150px; padding-bottom: 150px;"></span>};
+$clean_comment =
+qq{<span style="\\s*padding-top: 200px;\\s*padding-left: 200px;\\s*padding-right: 150px;\\s*padding-bottom: 150px;\\s*"><\\/span>};
+$clean->( { remove_positioning => 1 } );
+ok( $orig_comment =~ /^$clean_comment$/, "Padding not removed; of reasonable size." );
 
-$orig_comment = qq{<font color="red">test};
+$orig_comment  = qq{<font color="red">test};
 $clean_comment = qq{<font color="red">test</font>};
 $clean->();
-ok($orig_comment eq $clean_comment, "Font tag closed.");
+ok( $orig_comment eq $clean_comment, "Font tag closed." );
 
-$orig_comment = qq{<font color="red"></div>test};
+$orig_comment  = qq{<font color="red"></div>test};
 $clean_comment = qq{<font color="red">test</font>};
 $clean->();
-ok($orig_comment eq $clean_comment, "Spurious closing div stripped.");
+ok( $orig_comment eq $clean_comment, "Spurious closing div stripped." );
 
-$orig_comment = qq{<font color="red"><div>test</font>};
+$orig_comment  = qq{<font color="red"><div>test</font>};
 $clean_comment = qq{<font color="red"><div>test</div></font>};
 $clean->();
-ok($orig_comment eq $clean_comment, "Closing div inserted.");
+ok( $orig_comment eq $clean_comment, "Closing div inserted." );
 
-$orig_comment = qq{<div><font color="red"></div>test</font>};
+$orig_comment  = qq{<div><font color="red"></div>test</font>};
 $clean_comment = qq{<div><font color="red"></font></div>test};
 $clean->();
-ok($orig_comment eq $clean_comment, "Bad open/closes fixed.");
+ok( $orig_comment eq $clean_comment, "Bad open/closes fixed." );
 
-$orig_comment = qq{<h1><h2><h3><h1><h2><h3>};
+$orig_comment  = qq{<h1><h2><h3><h1><h2><h3>};
 $clean_comment = qq{<h1><h2><h3><h1><h2><h3></h3></h2></h1></h3></h2></h1>};
 $clean->();
-ok($orig_comment eq $clean_comment, "Aggressively close things.");
+ok( $orig_comment eq $clean_comment, "Aggressively close things." );
 
-$orig_comment = qq{<h1><h2><h3><h1></h2><h2></h3><h3>};
+$orig_comment  = qq{<h1><h2><h3><h1></h2><h2></h3><h3>};
 $clean_comment = qq{<h1><h2><h3><h1></h1></h3></h2><h2><h3></h3></h2></h1>};
 $clean->();
-ok($orig_comment eq $clean_comment, "Aggressive close with eaten extra close.");
+ok( $orig_comment eq $clean_comment, "Aggressive close with eaten extra close." );
 
-note( "Remove absolute sizes when logged out" );
+note("Remove absolute sizes when logged out");
 {
     $orig_comment  = qq{<span style="font-size: larger">foo</span>};
     $clean_comment = qq{<span style="font-size: larger">foo</span>};
@@ -120,7 +126,7 @@ note( "Remove absolute sizes when logged out" );
     is( $orig_comment, $clean_comment, "Strip absolute font sizes" );
 }
 
-note( "Don't remove absolute sizes when logged in" );
+note("Don't remove absolute sizes when logged in");
 {
     $orig_comment  = qq{<span style="font-size: larger">foo</span>};
     $clean_comment = $orig_comment;
@@ -137,37 +143,37 @@ note( "Don't remove absolute sizes when logged in" );
     $clean->();
     is( $orig_comment, $clean_comment, "Retain absolute font sizes" );
 
-
 }
 
 # remove background urls from logged out users
 $orig_comment = qq{<span style="background: url('http://www.example.com/example.gif');"></span>};
-$clean_comment = qq{<span style="\\s*background: url\\(&\\#39;http://www.example.com/example.gif&\\#39;\\);\\s*"><\\/span>};
+$clean_comment =
+qq{<span style="\\s*background: url\\(&\\#39;http://www.example.com/example.gif&\\#39;\\);\\s*"><\\/span>};
 $clean->();
-ok($orig_comment =~ /^$clean_comment$/, "Background URL not cleaned: logged-in user");
+ok( $orig_comment =~ /^$clean_comment$/, "Background URL not cleaned: logged-in user" );
 
-$orig_comment = qq{<span style="background: url('http://www.example.com/example.gif');"></span>};
+$orig_comment  = qq{<span style="background: url('http://www.example.com/example.gif');"></span>};
 $clean_comment = qq{<span style="background:\\s*;\\s*"><\\/span>};
-$clean->({ anon_comment => 1 });
-ok($orig_comment =~ /^$clean_comment$/, "Background URL removed: anonymous comment");
+$clean->( { anon_comment => 1 } );
+ok( $orig_comment =~ /^$clean_comment$/, "Background URL removed: anonymous comment" );
 
-$orig_comment = qq{pre<a href="asdf"> post};
+$orig_comment  = qq{pre<a href="asdf"> post};
 $clean_comment = qq{pre<b> post</b> (asdf)};
-$clean->({ anon_comment => 1 });
+$clean->( { anon_comment => 1 } );
 is( $orig_comment, $clean_comment, "Full href bold escape" );
 
-$orig_comment = qq{pre<a href=""> post};
+$orig_comment  = qq{pre<a href=""> post};
 $clean_comment = qq{pre<b> post</b> ()};
-$clean->({ anon_comment => 1 });
+$clean->( { anon_comment => 1 } );
 is( $orig_comment, $clean_comment, "Empty href bold escape" );
 
 # another table exploit involving a tags.
 $orig_comment  = q{<a href=mailto:blah@blah.com><table>};
 $clean_comment = q{<b></b> (mailto:blah@blah.com)};
-$clean->({ anon_comment => 1 });
+$clean->( { anon_comment => 1 } );
 is( $orig_comment, $clean_comment, "Anonymous comment bold escape" );
 
-note( "various allowed/disallowed tags" );
+note("various allowed/disallowed tags");
 {
     $orig_comment  = qq{<em>abc</em>};
     $clean_comment = qq{<em>abc</em>};

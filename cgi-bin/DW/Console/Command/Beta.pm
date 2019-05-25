@@ -23,33 +23,33 @@ sub cmd { "beta" }
 
 sub desc { "Displays beta features a user opted into. Requires any support priv." }
 
-sub args_desc { [
-                 'user' => "The username to display beta features for.",
-                 ] }
+sub args_desc {
+    [ 'user' => "The username to display beta features for.", ]
+}
 
 sub usage { '<user>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && LJ::Support::has_any_support_priv( $remote );
+    return $remote && LJ::Support::has_any_support_priv($remote);
 }
 
 sub execute {
-    my ($self, $username, @args) = @_;
+    my ( $self, $username, @args ) = @_;
 
-    return $self->error( 'This command takes one argument. Consult the reference.' )
-        unless $username && scalar( @args ) == 0;
+    return $self->error('This command takes one argument. Consult the reference.')
+        unless $username && scalar(@args) == 0;
 
-    return $self->error( 'No beta features defined.' )
+    return $self->error('No beta features defined.')
         unless %LJ::BETA_FEATURES;
 
-    my $u = LJ::load_user( $username );
-    return $self->error( "Invalid user $username" )
+    my $u = LJ::load_user($username);
+    return $self->error("Invalid user $username")
         unless $u;
 
     my $betafeatures = join( ', ', $u->prop( LJ::BetaFeatures->prop_name ) )
-                       || '(none)';
-    return $self->print( "Beta testing: $betafeatures" );
+        || '(none)';
+    return $self->print("Beta testing: $betafeatures");
 }
 
 1;

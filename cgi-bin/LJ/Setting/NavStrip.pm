@@ -39,40 +39,45 @@ sub helpurl {
 sub label {
     my $class = shift;
 
-    return $class->ml( 'setting.navstrip.label' );
+    return $class->ml('setting.navstrip.label');
 }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my @pageoptions = LJ::Hooks::run_hook( 'page_control_strip_options' );
+    my @pageoptions = LJ::Hooks::run_hook('page_control_strip_options');
     return undef unless @pageoptions;
-    
-    my %pagemask = map { $pageoptions[$_] => 1 << $_ } 0..$#pageoptions;
+
+    my %pagemask = map { $pageoptions[$_] => 1 << $_ } 0 .. $#pageoptions;
 
     # choose where to display/see it
 
     my $val = $class->get_arg( $args, "navstrip" );
     my $navstrip;
-    $navstrip |= $_+0 foreach split( /\0/, $val );
+    $navstrip |= $_ + 0 foreach split( /\0/, $val );
 
     my $display = $navstrip || $u->control_strip_display;
 
-    my $ret = $class->ml( 'setting.navstrip.option' );
-    foreach my $pageoption ( @pageoptions ) {
+    my $ret = $class->ml('setting.navstrip.option');
+    foreach my $pageoption (@pageoptions) {
         my $for_html = $pageoption;
         $for_html =~ tr/\./_/;
 
-        $ret .= LJ::html_check({
-            name => "${key}navstrip",
-            id => "${key}navstrip_${for_html}",
-            selected => $display & $pagemask{$pageoption} ? 1 : 0,
-            value => $pagemask{$pageoption},
-        });
-        
-        $ret .= " <label for='${key}navstrip_${for_html}'>" . $class->ml( "setting.navstrip.option.$pageoption" ) . "</label>";
-   }
+        $ret .= LJ::html_check(
+            {
+                name     => "${key}navstrip",
+                id       => "${key}navstrip_${for_html}",
+                selected => $display & $pagemask{$pageoption} ? 1 : 0,
+                value    => $pagemask{$pageoption},
+            }
+        );
+
+        $ret .=
+              " <label for='${key}navstrip_${for_html}'>"
+            . $class->ml("setting.navstrip.option.$pageoption")
+            . "</label>";
+    }
 
     return $ret;
 }
@@ -83,7 +88,7 @@ sub save {
     my $val = $class->get_arg( $args, "navstrip" );
 
     my $navstrip;
-    $navstrip |= $_+0 foreach split( /\0/, $val );
+    $navstrip |= $_ + 0 foreach split( /\0/, $val );
     $navstrip ||= 'none';
 
     $u->set_prop( control_strip_display => $navstrip );

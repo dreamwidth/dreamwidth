@@ -28,37 +28,60 @@ sub render_body {
     my $remote = LJ::get_remote()
         or return;
 
-    my $news_journal = LJ::load_user( $LJ::NEWS_JOURNAL )
+    my $news_journal = LJ::load_user($LJ::NEWS_JOURNAL)
         or return;
 
-    my $ret = "<h2>" . $class->ml( 'widget.latestnews.title', { sitename => $LJ::SITENAMESHORT } ) . "</h2>";
+    my $ret = "<h2>"
+        . $class->ml( 'widget.latestnews.title', { sitename => $LJ::SITENAMESHORT } ) . "</h2>";
 
     # do getevents request
     my %res = ();
-    LJ::do_request( { mode => 'getevents',
-                      selecttype => 'one',
-                      ver => $LJ::PROTOCOL_VER,
-                      user => $news_journal->user,
-                      itemid => -1 },
-                      \%res,
-                      { noauth => 1 }
-                   );
+    LJ::do_request(
+        {
+            mode       => 'getevents',
+            selecttype => 'one',
+            ver        => $LJ::PROTOCOL_VER,
+            user       => $news_journal->user,
+            itemid     => -1
+        },
+        \%res,
+        { noauth => 1 }
+    );
 
     return unless $res{success} eq 'OK';
 
-    my $entry = LJ::Entry->new( $news_journal, ditemid => ( $res{events_1_itemid} << 8) + $res{events_1_anum} );
+    my $entry = LJ::Entry->new( $news_journal,
+        ditemid => ( $res{events_1_itemid} << 8 ) + $res{events_1_anum} );
 
     $ret .= "<div class='sidebar'>";
-    $ret .= "<p><a href='" . $entry->url . "#comments'>" . $class->ml( 'widget.latestnews.comments', { num_comments => $entry->reply_count } ) . "</a></p>";
+    $ret .=
+          "<p><a href='"
+        . $entry->url
+        . "#comments'>"
+        . $class->ml( 'widget.latestnews.comments', { num_comments => $entry->reply_count } )
+        . "</a></p>";
 
-    if ( $remote->watches( $news_journal ) ) {
-        $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe.modify', { 
-            aopts => "href='$LJ::SITEROOT/circle/" . $news_journal->user . "/edit'",
-            news => LJ::ljuser( $news_journal ) } ) . "</p>";
-    } else {
-        $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe.add2', { 
-            aopts => "href='$LJ::SITEROOT/circle/" . $news_journal->user. "/edit?action=subscribe'",
-            news => LJ::ljuser( $news_journal ) } ) . "</p>";
+    if ( $remote->watches($news_journal) ) {
+        $ret .= "<p>"
+            . $class->ml(
+            'widget.latestnews.subscribe.modify',
+            {
+                aopts => "href='$LJ::SITEROOT/circle/" . $news_journal->user . "/edit'",
+                news  => LJ::ljuser($news_journal)
+            }
+            ) . "</p>";
+    }
+    else {
+        $ret .= "<p>"
+            . $class->ml(
+            'widget.latestnews.subscribe.add2',
+            {
+                aopts => "href='$LJ::SITEROOT/circle/"
+                    . $news_journal->user
+                    . "/edit?action=subscribe'",
+                news => LJ::ljuser($news_journal)
+            }
+            ) . "</p>";
     }
 
     $ret .= "</div>";
@@ -67,9 +90,11 @@ sub render_body {
     $ret .= "<p><a href='" . $entry->url . "'>" . $entry->subject_html . "</a></p>";
 
     if ( $entry->event_raw =~ /<(?:lj-)?cut/ ) {
+
         # if we have a cut, then use it
         $ret .= $entry->event_html( { cuturl => $entry->url } );
-    } else {
+    }
+    else {
         # if we don't have a cut, we want to output in summary mode
         $ret .= $entry->event_summary;
     }

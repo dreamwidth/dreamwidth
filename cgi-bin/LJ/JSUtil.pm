@@ -25,12 +25,12 @@ sub autocomplete {
     my %opts = @_;
 
     my $fieldid = $opts{field};
-    my @list = @{$opts{list}};
+    my @list    = @{ $opts{list} };
 
     # create formatted string to use as a javascript list
     @list = sort { lc $a cmp lc $b } @list;
     @list = map { $_ = "\"$_\"" } @list;
-    my $formatted_list = join(",", @list);
+    my $formatted_list = join( ",", @list );
 
     return qq{
     <script type="text/javascript" language="JavaScript">
