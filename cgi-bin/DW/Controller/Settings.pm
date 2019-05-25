@@ -129,7 +129,8 @@ sub account_status_handler {
             elsif ( $new_statusvis eq 'V' ) {
                 ## Restore previous statusvis of journal. It may be different
                 ## from 'V', it may be read-only, or locked, or whatever.
-                my @previous_status = grep { $_ ne 'D' } $u->get_previous_statusvis;
+                my @previous_status =
+                    grep { $_ ne 'D' } $u->get_previous_statusvis;
                 my $new_status = $previous_status[0] || 'V';
                 my $method     = {
                     V => 'set_visible',
@@ -167,14 +168,18 @@ sub account_status_handler {
             unless ( $errors->exist ) {
                 $messages->add(
                     "",
-                    $u->is_community ? '.message.success.comm' : '.message.success',
+                    $u->is_community
+                    ? '.message.success.comm'
+                    : '.message.success',
                     { statusvis => $statusvis_map{$new_statusvis} }
                 );
 
                 if ( $new_statusvis eq 'D' ) {
                     $messages->add(
                         "",
-                        $u->is_community ? ".message.deleted.comm" : ".message.deleted2",
+                        $u->is_community
+                        ? ".message.deleted.comm"
+                        : ".message.deleted2",
                         { sitenameshort => $LJ::SITENAMESHORT }
                     );
 
@@ -273,7 +278,8 @@ sub changepassword_handler {
         return error_ml( "$ml_scope.error.emailchanged", { url => $lostinfo_url } )
             unless $authu->can_receive_password( $aa->{arg1} );
     }
-    return error_ml("$ml_scope.error.identity") if $remote && $remote->is_identity;
+    return error_ml("$ml_scope.error.identity")
+        if $remote && $remote->is_identity;
 
     my $errors = DW::FormErrors->new;
     if ( $r->did_post && $r->post_args->{mode} eq 'submit' ) {
@@ -287,13 +293,16 @@ sub changepassword_handler {
         my $u = LJ::load_user($user);
         $errors->add( "user", ".error.invaliduser" ) unless $u;
         $errors->add( "user", ".error.identity" ) if $u && $u->is_identity;
-        $errors->add( "user", ".error.changetestaccount" ) if grep { $user eq $_ } @LJ::TESTACCTS;
+        $errors->add( "user", ".error.changetestaccount" )
+            if grep { $user eq $_ } @LJ::TESTACCTS;
 
         unless ( $errors->exist ) {
             if ( LJ::login_ip_banned($u) ) {
                 $errors->add( "user", "error.ipbanned" );
             }
-            elsif ( !$authu && ( $u->password eq "" || $u->password ne $password ) ) {
+            elsif ( !$authu
+                && ( $u->password eq "" || $u->password ne $password ) )
+            {
                 $errors->add( "password", ".error.badoldpassword" );
                 LJ::handle_bad_login($u);
             }
@@ -306,7 +315,10 @@ sub changepassword_handler {
             $errors->add( "newpass2", ".error.badnewpassword" );
         }
         else {
-            my $checkpass = LJ::CreatePage->verify_password( password => $newpass1, u => $u );
+            my $checkpass = LJ::CreatePage->verify_password(
+                password => $newpass1,
+                u        => $u
+            );
             $errors->add( "newpass1", ".error.badcheck", { error => $checkpass } )
                 if $checkpass;
         }
@@ -331,7 +343,8 @@ sub changepassword_handler {
             LJ::mark_authaction_used($aa) if $authu;
 
             # If we forced them to change their password, mark them as now being good
-            $u->set_prop( 'badpassword', 0 ) if LJ::is_enabled('force_pass_change');
+            $u->set_prop( 'badpassword', 0 )
+                if LJ::is_enabled('force_pass_change');
 
             # Kill all sessions, forcing user to relogin
             $u->kill_all_sessions;
@@ -355,7 +368,9 @@ sub changepassword_handler {
             );
 
             my $success_ml =
-                $remote ? "settings/changepassword.tt.withremote" : "settings/changepassword.tt";
+                $remote
+                ? "settings/changepassword.tt.withremote"
+                : "settings/changepassword.tt";
             return DW::Controller->render_success(
                 $success_ml,
                 {
@@ -377,7 +392,8 @@ sub changepassword_handler {
     }
 
     my $vars = {
-        bad_password     => $remote && $remote->prop('badpassword'),
+        bad_password => $remote
+            && $remote->prop('badpassword'),
         needs_validation => !$authu
             && $remote
             && !$remote->prop('badpassword')

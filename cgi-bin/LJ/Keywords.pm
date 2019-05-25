@@ -456,7 +456,8 @@ sub set_interests {
 # returns: hashref with number of ints added (or toomany) and deleted
 sub sync_interests {
     my ( $u, $args, @intids ) = @_;
-    warn "sync_interests: invalid arguments" and return undef
+    warn "sync_interests: invalid arguments"
+        and return undef
         unless LJ::isu($u)
         and ref $args eq "HASH";
     @intids = grep /^\d+$/, @intids;    # numeric

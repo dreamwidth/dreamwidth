@@ -280,7 +280,8 @@ sub _as_email {
     LJ::Lang::get_text_multi( $lang, undef, \@_ml_strings_en );
 
     my $email = LJ::Lang::get_text( $lang, 'esn.hi', undef, { username => $username } ) . "\n\n";
-    my $about = $subject_text
+    my $about =
+        $subject_text
         ? (
         LJ::Lang::get_text(
             $lang, 'esn.journal_new_entry.about',

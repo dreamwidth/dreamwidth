@@ -3144,9 +3144,8 @@ sub control_strip {
     my $baseuri = "$protocol://$host$uri";
 
     $baseuri .= $args ? "?$args" : "";
-    my $euri = LJ::eurl($baseuri);
-    my $create_link =
-        LJ::Hooks::run_hook( "override_create_link_on_navstrip", $journal )
+    my $euri        = LJ::eurl($baseuri);
+    my $create_link = LJ::Hooks::run_hook( "override_create_link_on_navstrip", $journal )
         || "<a href='$LJ::SITEROOT/create'>"
         . BML::ml( 'web.controlstrip.links.create', { 'sitename' => $LJ::SITENAMESHORT } ) . "</a>";
 
@@ -4385,11 +4384,13 @@ sub subscribe_interface {
         $ret .=
               '<div class="action-box"><ul class="inner nostyle">' . "<li>"
             . LJ::html_submit( BML::ml('subscribe_interface.save') ) . '</li>'
-            . ( $referer && $referer ne $uri
+            . (
+            $referer && $referer ne $uri
             ? "<li><input type='button' value='"
                 . BML::ml('subscribe_interface.cancel')
                 . "' onclick='window.location=\"$referer\"' /></li>"
-            : '' );
+            : ''
+            );
         $ret .= "</div><div class='clear-floats'></div>";
     }
 

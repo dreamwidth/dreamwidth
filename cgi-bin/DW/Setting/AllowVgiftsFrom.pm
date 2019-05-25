@@ -54,12 +54,14 @@ sub option {
     my @opts;
     if ( $u->is_community ) {
         @opts = map {
-            $menu_items{$_}->[0], $class->ml("setting.allowvgiftsfrom.sel.$menu_items{$_}->[1]")
+            $menu_items{$_}->[0],
+                $class->ml("setting.allowvgiftsfrom.sel.$menu_items{$_}->[1]")
         } qw( all registered members none );
     }
     else {
         @opts = map {
-            $menu_items{$_}->[0], $class->ml("setting.allowvgiftsfrom.sel.$menu_items{$_}->[1]")
+            $menu_items{$_}->[0],
+                $class->ml("setting.allowvgiftsfrom.sel.$menu_items{$_}->[1]")
         } qw( all registered circle access none );
 
         # trust group selection

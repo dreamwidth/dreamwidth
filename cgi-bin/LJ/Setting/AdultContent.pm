@@ -46,12 +46,12 @@ sub option {
         explicit => $class->ml('setting.adultcontent.option.select.explicit'),
     );
 
-    my $ret =
-        "<label for='${key}adultcontent'>"
-        . ( $u->is_community
+    my $ret = "<label for='${key}adultcontent'>"
+        . (
+          $u->is_community
         ? $class->ml('setting.adultcontent.option.comm')
-        : $class->ml('setting.adultcontent.option.self') )
-        . "</label> ";
+        : $class->ml('setting.adultcontent.option.self')
+        ) . "</label> ";
     $ret .= LJ::html_select(
         {
             name     => "${key}adultcontent",

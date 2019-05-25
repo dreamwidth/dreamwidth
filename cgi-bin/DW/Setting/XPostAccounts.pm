@@ -364,9 +364,11 @@ sub save {
     }
 
     # reset disable comments
-    $u->set_prop( opt_xpost_disable_comments => $class->get_arg( $args, "xpostdisablecomments" )
+    $u->set_prop(
+        opt_xpost_disable_comments => $class->get_arg( $args, "xpostdisablecomments" )
         ? "1"
-        : "0" );
+        : "0"
+    );
 
     # change footer text
     $u->set_prop( crosspost_footer_text =>

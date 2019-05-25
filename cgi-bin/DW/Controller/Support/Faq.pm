@@ -83,8 +83,10 @@ sub faq_handler {
             faqcat     => $faqcat,
             faqcatname => $faqcat{$faqcat}->{faqcatname},
             };
-        foreach my $faqid ( sort { $faqq{$a}->sortorder <=> $faqq{$b}->sortorder }
-            grep { $faqq{$_}->faqcat eq $faqcat } keys %faqq )
+        foreach my $faqid (
+            sort { $faqq{$a}->sortorder <=> $faqq{$b}->sortorder }
+            grep { $faqq{$_}->faqcat eq $faqcat } keys %faqq
+            )
         {
             my $q = $faqq{$faqid}->question_html;
             next unless $q;

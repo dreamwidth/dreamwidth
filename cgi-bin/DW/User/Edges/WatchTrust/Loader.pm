@@ -346,7 +346,8 @@ sub _trust_groups {
         else {              # ref to hash keyed by bitnum
             return {
                 map { $_->[1] => LJ::MemCache::array_to_hash( 'trust_group', [ $memver, @$_ ] ) }
-                    @$fg };
+                    @$fg
+            };
         }
     };
 

@@ -164,9 +164,11 @@ sub individual_edit_handler {
 
         # populate content filters
         my @content_filters;
-        foreach my $filter ( $can_watch
+        foreach my $filter (
+            $can_watch
             ? sort { $a->{sortorder} <=> $b->{sortorder} } $remote->content_filters
-            : () )
+            : ()
+            )
         {
             my $ck = $filter->contains_userid( $target_u->userid )
                 || ( $filter->is_default && !$edge->{on} );

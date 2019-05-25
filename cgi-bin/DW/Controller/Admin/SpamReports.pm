@@ -290,7 +290,8 @@ sub main_controller {
         }
 
         # now the general info gathering
-        my $res = $by
+        my $res =
+            $by
             ? $dbr->selectall_arrayref(
             "SELECT reporttime, journalid, subject, body, posttime, report_type,"
                 . " srid, client FROM spamreports WHERE state=? AND $by=?"

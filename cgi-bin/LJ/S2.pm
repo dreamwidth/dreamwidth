@@ -2458,7 +2458,8 @@ sub Page {
         $p->{head_content} .= LJ::Hooks::run_hook( 's2_head_content_extra', $remote, $opts->{r} );
     }
 
-    my %meta_opts = $opts
+    my %meta_opts =
+        $opts
         ? (
         feeds  => $opts->{addfeeds},
         tags   => $opts->{tags},
@@ -4420,7 +4421,8 @@ sub _Entry__get_link {
     my $etypeid          = 'LJ::Event::JournalNewComment'->etypeid;
     my $newentry_etypeid = 'LJ::Event::JournalNewEntry'->etypeid;
 
-    my ($newentry_sub) = $remote
+    my ($newentry_sub) =
+        $remote
         ? $remote->has_subscription(
         journalid      => $journalu->id,
         event          => "JournalNewEntry",
@@ -4666,8 +4668,10 @@ sub Page__get_latest_month {
         $year = $years[-1];
 
         # we'll take any month of previous years, or anything up to the current month
-        $month = ( grep { $year < $curyear || $_ <= $curmonth }
-                sort { $a <=> $b } keys %{ $counts->{$year} } )[-1];
+        $month = (
+            grep { $year < $curyear || $_ <= $curmonth }
+            sort { $a <=> $b } keys %{ $counts->{$year} }
+        )[-1];
     }
 
     return $this->{'_latest_month'} = LJ::S2::YearMonth(

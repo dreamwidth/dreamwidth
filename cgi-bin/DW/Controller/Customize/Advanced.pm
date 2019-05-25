@@ -91,7 +91,7 @@ sub layerbrowse_handler {
     $vars->{childsort} = sub {
         my $unsortedchildren = shift;
         my @sortedchildren   = sort {
-            ( $layerinfo{$b}{type} cmp $layerinfo{$a}{type} )
+                   ( $layerinfo{$b}{type} cmp $layerinfo{$a}{type} )
                 || ( $layerinfo{$a}{name} cmp $layerinfo{$b}{name} )
         } @$unsortedchildren;
 
@@ -172,7 +172,7 @@ sub layerbrowse_handler {
                         . join(
                         "\n",
                         map {
-                            "<li><b>"
+                                  "<li><b>"
                                 . LJ::ehtml($_)
                                 . "</b> &rarr; "
                                 . $format_value->( $v->{$_} )

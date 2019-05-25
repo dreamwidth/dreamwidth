@@ -96,8 +96,10 @@ sub login_handler {
     if ( scalar @$oauth_tokens ) {
         DW::OAuth::Access->load_all_lastaccess($oauth_tokens);
         my $time_threshold = time() - 86400;    # 24 hours
-        foreach my $token ( sort { $b->lastaccess <=> $a->lastaccess }
-            grep { $_->lastaccess >= $time_threshold } @$oauth_tokens )
+        foreach my $token (
+            sort { $b->lastaccess <=> $a->lastaccess }
+            grep { $_->lastaccess >= $time_threshold } @$oauth_tokens
+            )
         {
             push @oauth_data,
                 {

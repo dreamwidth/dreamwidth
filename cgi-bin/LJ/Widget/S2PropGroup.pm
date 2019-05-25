@@ -72,8 +72,11 @@ sub render_body {
         $ret .= $class->language_chooser($u) if $opts{show_lang_chooser};
         foreach my $prop_name (@basic_props) {
             next
-                if $class->skip_prop( $props->{$prop_name}, $prop_name, theme => $theme,
-                user => $u );
+                if $class->skip_prop(
+                $props->{$prop_name}, $prop_name,
+                theme => $theme,
+                user  => $u
+                );
 
             if ( $opts{show_lang_chooser} ) {
 
@@ -769,8 +772,11 @@ sub group_exists_with_props {
     my $theme = LJ::Customize->get_current_theme($u);
     foreach my $prop_name (@$groupprops) {
         return 1
-            unless $class->skip_prop( $props->{$prop_name}, $prop_name, theme => $theme,
-            user => $u );
+            unless $class->skip_prop(
+            $props->{$prop_name}, $prop_name,
+            theme => $theme,
+            user  => $u
+            );
     }
 
     return 0;

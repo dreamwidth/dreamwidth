@@ -1330,11 +1330,9 @@ sub members_queue_handler {
     @users = _items_for_this_page( $page, $page_size, @users );
 
     my $vars = {
-        user_list => [
-            map { { userid => $_->userid, ljuser => $_->ljuser_display, } } @users
-        ],
-        pages    => { current => $page, total_pages => $total_pages },
-        messages => \@success_msgs,
+        user_list => [ map { { userid => $_->userid, ljuser => $_->ljuser_display, } } @users ],
+        pages     => { current => $page, total_pages => $total_pages },
+        messages  => \@success_msgs,
 
         form_queue_action_url => LJ::create_url( undef, keep_args => [qw( page )] ),
 

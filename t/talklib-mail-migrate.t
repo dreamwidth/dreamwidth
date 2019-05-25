@@ -207,8 +207,10 @@ sub run_tests {
                                             $targetu == $commentu ? "targetu=commentu"
                                             : (
                                                 $targetu == $entryu ? "targetu=entryu"
-                                                : ( $targetu == $otheru ? "targetu=otheru"
-                                                    : "targetu=unknown!" )
+                                                : (
+                                                    $targetu == $otheru ? "targetu=otheru"
+                                                    : "targetu=unknown!"
+                                                )
                                             )
                                             )
                                             . ", "

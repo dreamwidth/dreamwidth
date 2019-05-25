@@ -131,7 +131,8 @@ sub render_body {
                 $ret .= "<tr>";
                 $ret .= "<td><em>" . $class->ml("widget.importstatus.item.$item") . "</em></td>";
                 $ret .= "<td>";
-                $ret .= $ago_text
+                $ret .=
+                    $ago_text
                     ? $class->ml( 'widget.importstatus.statusasof',
                     { status => $status, timeago => $ago_text } )
                     : $status;

@@ -1003,12 +1003,10 @@ sub render {
         $ret .=
 "<div class='poll-control'>[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results' class='LJ_PollDisplayLink'
             id='LJ_PollDisplayLink_${pollid}' lj_pollid='$pollid' >"
-            . LJ::Lang::ml('poll.seeresults')
-            . "</a> ]  ";
+            . LJ::Lang::ml('poll.seeresults') . "</a> ]  ";
         $ret .= "&nbsp&nbsp;[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=clear'
             class='LJ_PollClearLink' id='LJ_PollClearLink_${pollid}' lj_pollid='$pollid'>  "
-            . BML::ml('poll.clear')
-            . "</a> ]</div>";
+            . BML::ml('poll.clear') . "</a> ]</div>";
     }
     elsif ( $mode eq 'results' ) {
 
