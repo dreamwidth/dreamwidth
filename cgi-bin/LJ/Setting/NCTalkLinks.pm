@@ -24,7 +24,6 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-
 package LJ::Setting::NCTalkLinks;
 use base 'LJ::Setting';
 use strict;
@@ -34,9 +33,10 @@ sub should_render {
     my ( $class, $u ) = @_;
     return $u && $u->is_individual;
 }
+
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.nctalklinks.header' );
+    return $class->ml('setting.nctalklinks.header');
 }
 
 sub option {
@@ -46,13 +46,16 @@ sub option {
 
     my $nctalklinks = $class->get_arg( $args, "nctalklinks" ) || $u->opt_nctalklinks;
 
-    my $ret = LJ::html_check({
-        name => "${key}nctalklinks",
-        id => "${key}nctalklinks",
-        value => 1,
-        selected => $nctalklinks ? 1 : 0,
-    });
-    $ret .= " <label for='${key}nctalklinks'>" . $class->ml( 'setting.nctalklinks.option' ) . "</label>";
+    my $ret = LJ::html_check(
+        {
+            name     => "${key}nctalklinks",
+            id       => "${key}nctalklinks",
+            value    => 1,
+            selected => $nctalklinks ? 1 : 0,
+        }
+    );
+    $ret .=
+        " <label for='${key}nctalklinks'>" . $class->ml('setting.nctalklinks.option') . "</label>";
 
     return $ret;
 }
@@ -61,7 +64,7 @@ sub save {
     my ( $class, $u, $args ) = @_;
 
     my $value = $class->get_arg( $args, "nctalklinks" ) ? "1" : "0";
-    $u->opt_nctalklinks( $value );
+    $u->opt_nctalklinks($value);
 
     return 1;
 }

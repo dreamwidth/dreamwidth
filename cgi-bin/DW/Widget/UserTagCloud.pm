@@ -29,7 +29,7 @@ sub render_body {
     return "" unless $tags;
 
     my $limit = $opts{limit} || 10;
-    my $ret = "<h2>" . $class->ml( 'widget.usertagcloud.title' ) . "</h2>";
+    my $ret   = "<h2>" . $class->ml('widget.usertagcloud.title') . "</h2>";
 
     my @by_size = sort { $tags->{$b}->{uses} <=> $tags->{$a}->{uses} } keys %$tags;
     @by_size = splice @by_size, 0, $limit;
@@ -39,13 +39,13 @@ sub render_body {
     my $tag_base_url = $remote->journal_base . "/tag/";
     while ( my ( $id, $tag ) = each %$tags ) {
         next unless $popular_tags{$id};
-        $tag_items->{$tag->{name}} = {
-            url => $tag_base_url. LJ::eurl( $tag->{name} ),
+        $tag_items->{ $tag->{name} } = {
+            url   => $tag_base_url . LJ::eurl( $tag->{name} ),
             value => $tag->{uses},
         };
     }
 
-    $ret .= LJ::tag_cloud( $tag_items );
+    $ret .= LJ::tag_cloud($tag_items);
     return $ret;
 }
 

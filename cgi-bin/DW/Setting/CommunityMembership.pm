@@ -25,7 +25,7 @@ sub should_render {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.communitymembership.label' );
+    return $_[0]->ml('setting.communitymembership.label');
 }
 
 sub option {
@@ -33,19 +33,23 @@ sub option {
     my $key = $class->pkgkey;
 
     my ( $current_comm_membership, $current_comm_postlevel ) = $u->get_comm_settings;
-    my $communitymembership = $class->get_arg( $args, "communitymembership" ) || $current_comm_membership || "open";
+    my $communitymembership =
+        $class->get_arg( $args, "communitymembership" ) || $current_comm_membership || "open";
 
     my @options = (
-        "open"      => $class->ml( 'setting.communitymembership.option.select.open' ),
-        "moderated" => $class->ml( 'setting.communitymembership.option.select.moderated' ),
-        "closed"    => $class->ml( 'setting.communitymembership.option.select.closed' ),
+        "open"      => $class->ml('setting.communitymembership.option.select.open'),
+        "moderated" => $class->ml('setting.communitymembership.option.select.moderated'),
+        "closed"    => $class->ml('setting.communitymembership.option.select.closed'),
     );
 
-    my $select = LJ::html_select( {
-        name => "${key}communitymembership",
-        id => "${key}communitymembership",
-        selected => $communitymembership,
-    }, @options );
+    my $select = LJ::html_select(
+        {
+            name     => "${key}communitymembership",
+            id       => "${key}communitymembership",
+            selected => $communitymembership,
+        },
+        @options
+    );
 
     my $ret;
     $ret .= " <label for='${key}communitymembership'>";
@@ -62,7 +66,7 @@ sub error_check {
     my ( $class, $u, $args ) = @_;
     my $val = $class->get_arg( $args, "communitymembership" );
 
-    $class->errors( communitymembership => $class->ml( 'setting.communitymembership.error.invalid' ) )
+    $class->errors( communitymembership => $class->ml('setting.communitymembership.error.invalid') )
         unless $val =~ /^(?:open|moderated|closed)$/;
 
     return 1;
@@ -75,7 +79,7 @@ sub save {
     my $remote = LJ::get_remote();
 
     my $val = $class->get_arg( $args, "communitymembership" );
-    $u->set_comm_settings( $remote, { membership => $val });
+    $u->set_comm_settings( $remote, { membership => $val } );
 
     return 1;
 }

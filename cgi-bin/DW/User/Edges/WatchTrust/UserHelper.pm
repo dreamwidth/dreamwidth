@@ -25,15 +25,15 @@ sub new {
     my ( $pkg, $u, %args ) = @_;
 
     my $self = bless {
-        u             => $u,
+        u => $u,
 
-        t_rev_userids => undef, # if loaded, arrayref of userids that trust this user.
-        t_userids     => {},    # hashref of userid => 1, for users that $u trusts.
-        t_mut_userids => undef, # once loaded, arrayref of mutually trusted userids
+        t_rev_userids => undef,    # if loaded, arrayref of userids that trust this user.
+        t_userids     => {},       # hashref of userid => 1, for users that $u trusts.
+        t_mut_userids => undef,    # once loaded, arrayref of mutually trusted userids
 
-        w_rev_userids => undef, # if loaded, arrayref of userids that watch this user.
-        w_userids     => {},    # hashref of userid => 1, for users that $u watches.
-        w_mut_userids => undef, # once loaded, arrayref of mutually watched userids
+        w_rev_userids => undef,    # if loaded, arrayref of userids that watch this user.
+        w_userids     => {},       # hashref of userid => 1, for users that $u watches.
+        w_mut_userids => undef,    # once loaded, arrayref of mutually watched userids
     }, $pkg;
 
     # whether or not we can be sloppy with results on things that would
@@ -96,14 +96,15 @@ sub watched_by_users {
 
     # scalar context
     my $ct = scalar @{ $fom->_watched_by_users };
-    if ($fom->{sloppy_load}) {
+    if ( $fom->{sloppy_load} ) {
+
         # we got sloppy results, so scalar $ct above isn't good.
         # skip all filtering and just set their friend-of count to
         # total edges in, less their mutual friend count if necessary
         # (which generally includes all communities they're a member of,
         # as people watch those)
         $ct = scalar @{ $fom->_watched_by_userids };
-        if ($fom->{mutualsep}) {
+        if ( $fom->{mutualsep} ) {
             $ct -= scalar @{ $fom->_mutually_watched_userids };
         }
 
@@ -144,13 +145,12 @@ sub _mutually_trusted_users {
 
     # because outbound relationships are capped, so then is this load_userids call
     my @ids = @{ $fom->_mutually_trusted_userids };
-    my $us = LJ::load_userids(@ids);
+    my $us  = LJ::load_userids(@ids);
     return $fom->{t_mut_users} = [
-                                  sort { $a->display_name cmp $b->display_name }
-                                  grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
-                                  map  { $us->{$_} ? ($us->{$_}) : () }
-                                  @ids
-                                 ];
+        sort { $a->display_name cmp $b->display_name }
+        grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
+        map { $us->{$_} ? ( $us->{$_} ) : () } @ids
+    ];
 }
 
 # returns arrayref of LJ::User mutually watched, filter (visible people), and sorted by display name
@@ -159,14 +159,13 @@ sub _mutually_watched_users {
     return $fom->{w_mut_users} if $fom->{w_mut_users};
 
     # because outbound relationships are capped, so then is this load_userids call
-    my @ids = grep { ! $fom->{hide_watch_test}->($_) } @{ $fom->_mutually_watched_userids };
-    my $us = LJ::load_userids(@ids);
+    my @ids = grep { !$fom->{hide_watch_test}->($_) } @{ $fom->_mutually_watched_userids };
+    my $us  = LJ::load_userids(@ids);
     return $fom->{w_mut_users} = [
-                                  sort { $a->display_name cmp $b->display_name }
-                                  grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
-                                  map  { $us->{$_} ? ($us->{$_}) : () }
-                                  @ids
-                                 ];
+        sort { $a->display_name cmp $b->display_name }
+        grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
+        map { $us->{$_} ? ( $us->{$_} ) : () } @ids
+    ];
 }
 
 # returns arrayref of mutually trusted userids.  sorted by username
@@ -177,7 +176,7 @@ sub _mutually_trusted_userids {
         unless $fom->{t_userids};
 
     my @mut;
-    foreach my $uid (@{ $fom->_trusted_by_userids }) {
+    foreach my $uid ( @{ $fom->_trusted_by_userids } ) {
         push @mut, $uid if $fom->{t_userids}{$uid};
     }
     @mut = sort { $a <=> $b } @mut;
@@ -193,7 +192,7 @@ sub _mutually_watched_userids {
         unless $fom->{w_userids};
 
     my @mut;
-    foreach my $uid (@{ $fom->_watched_by_userids }) {
+    foreach my $uid ( @{ $fom->_watched_by_userids } ) {
         push @mut, $uid if $fom->{w_userids}{$uid};
     }
     @mut = sort { $a <=> $b } @mut;
@@ -211,30 +210,31 @@ sub _trusted_by_users {
     # load all users and just look.  b) it's too many, so we load at
     # least the mutual friends + whatever's left in the load cap space
     my @to_load;
-    my @uids = grep { ! $fom->{hide_watch_test}->($_) } @{ $fom->_trusted_by_userids };
+    my @uids = grep { !$fom->{hide_watch_test}->($_) } @{ $fom->_trusted_by_userids };
 
     # remove mutuals now, if mutual separation has been required
-    if ($fom->{mutualsep}) {
-        @uids = grep { ! $fom->{trusted_users}{$_} } @uids;
+    if ( $fom->{mutualsep} ) {
+        @uids = grep { !$fom->{trusted_users}{$_} } @uids;
     }
 
-    if (@uids <= $fom->{load_cap} || !$fom->{sloppy}) {
+    if ( @uids <= $fom->{load_cap} || !$fom->{sloppy} ) {
         @to_load = @uids;
-    } else {
+    }
+    else {
         # too big.  we have to only load some.  result will be limited.
         # we'll always include mutual friends in our inbound load, unless we're
         # separating them out anyway, in which case it's not important to make
         # sure they're not forgotten, as they'll be included in the other list.
         my %is_mutual;
-        unless ($fom->{mutualsep}) {
+        unless ( $fom->{mutualsep} ) {
             @to_load = @{ $fom->_mutually_trusted_userids };
             $is_mutual{$_} = 1 foreach @to_load;
         }
 
         my $remain = $fom->{load_cap} - @to_load;
-        while ($remain > 0 && @uids) {
+        while ( $remain > 0 && @uids ) {
             my $uid = shift @uids;
-            next if $is_mutual{$uid};  # already in mutual list
+            next if $is_mutual{$uid};    # already in mutual list
             push @to_load, $uid;
             $remain--;
         }
@@ -243,13 +243,11 @@ sub _trusted_by_users {
 
     my $us = LJ::load_userids(@to_load);
     return $fom->{_trusted_by_users} = [
-                                        sort { $a->display_name cmp $b->display_name }
-                                        grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
-                                        map  { $us->{$_} ? ($us->{$_}) : () }
-                                        @to_load
-                                       ];
+        sort { $a->display_name cmp $b->display_name }
+        grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
+        map { $us->{$_} ? ( $us->{$_} ) : () } @to_load
+    ];
 
 }
-
 
 1;

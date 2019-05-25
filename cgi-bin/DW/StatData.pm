@@ -57,7 +57,6 @@ sub category {
     confess "'category' should be implemented by subclass";
 }
 
-
 =head2 C<< $self->name >>
 
 Returns the pretty name of this category. Subclasses should override this.
@@ -68,7 +67,6 @@ sub name {
     confess "'name' should be implemented by subclass";
 }
 
-
 =head2 C<< $self->keylist >>
 
 Returns an array of available keys within this category. Subclasses should override this.
@@ -76,9 +74,8 @@ Returns an array of available keys within this category. Subclasses should overr
 =cut
 
 sub keylist {
-    confess "'keylist' should be implemented by subclass"; 
+    confess "'keylist' should be implemented by subclass";
 }
-
 
 =head2 C<< $self->value( $key ) >>
 
@@ -90,7 +87,6 @@ sub value {
     my ( $self, $key ) = @_;
     return $self->data->{$key};
 }
-
 
 =head2 C<< $self->data >>
 
@@ -112,7 +108,7 @@ implement this.
 =cut
 
 sub collect {
-    confess "'collect' should be implemented by subclass"; 
+    confess "'collect' should be implemented by subclass";
 }
 
 =head2 C<< $class->new( $key1 => $value, ... ) >>
@@ -123,9 +119,9 @@ Initialize this row of stat data, given a hash of statkey-value pairs
 
 sub new {
     my ( $self, %data ) = @_;
-    
+
     unless ( ref $self ) {
-        $self = fields::new( $self );
+        $self = fields::new($self);
     }
     while ( my ( $k, $v ) = each %data ) {
         $self->{$k} = $v;
@@ -148,9 +144,10 @@ sub load {
     };
 
     my $ret;
-    while ( my ( $timestamp, $data )  = each %$rows ) {
+    while ( my ( $timestamp, $data ) = each %$rows ) {
+
         # does not protect against multiple versions of the data collected on the same day?
-        $ret->{$days_ago->( $timestamp )} = $class->new( data => $data );
+        $ret->{ $days_ago->($timestamp) } = $class->new( data => $data );
     }
     return $ret;
 }
@@ -163,11 +160,11 @@ Accepts the same arguments as $class->load, but returns only the latest row
 
 sub load_latest {
     my $self = shift;
-    my $rows = $self->load( @_ );
+    my $rows = $self->load(@_);
     my @sorted;
     if ( defined $rows && %$rows ) {
         @sorted = sort { $a <=> $b } keys %$rows;
-        return $rows->{$sorted[0]};
+        return $rows->{ $sorted[0] };
     }
 
     return undef;

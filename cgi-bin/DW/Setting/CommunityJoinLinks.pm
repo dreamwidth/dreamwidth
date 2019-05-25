@@ -20,17 +20,17 @@ use strict;
 
 sub should_render { return $_[1]->is_community }
 
-sub label { $_[0]->ml( 'setting.communityjoinlinks.label' ) }
-sub des { $_[0]->ml( 'setting.communityjoinlinks.option' ) }
+sub label { $_[0]->ml('setting.communityjoinlinks.label') }
+sub des   { $_[0]->ml('setting.communityjoinlinks.option') }
 
-sub prop_name { "hide_join_post_link" }
-sub checked_value { undef }
+sub prop_name       { "hide_join_post_link" }
+sub checked_value   { undef }
 sub unchecked_value { 1 }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $ret = $class->as_html( $u, $errs, $args );
-    $ret .= "<p class='note'>" . LJ::Lang::ml( "setting.communityjoinlinks.desc" ) . "</p>";
+    $ret .= "<p class='note'>" . LJ::Lang::ml("setting.communityjoinlinks.desc") . "</p>";
 }
 
 1;

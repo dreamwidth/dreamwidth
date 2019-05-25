@@ -24,26 +24,31 @@ use LJ::Hooks;
 # Currently used to return paid status, expiration date, and number of
 # unused invite codes.
 
-LJ::Hooks::register_hook( 'finduser_extrainfo', sub {
-    my $u = shift;
+LJ::Hooks::register_hook(
+    'finduser_extrainfo',
+    sub {
+        my $u = shift;
 
-    my $ret;
+        my $ret;
 
-    my $paidstatus = DW::Pay::get_paid_status( $u );
-    my $numinvites = DW::InviteCodes->unused_count( userid => $u->id );
+        my $paidstatus = DW::Pay::get_paid_status($u);
+        my $numinvites = DW::InviteCodes->unused_count( userid => $u->id );
 
-    unless ( DW::Pay::is_default_type( $paidstatus ) ) {
-        $ret .= "  " . DW::Pay::type_name( $paidstatus->{typeid} );
-        $ret .= $paidstatus->{permanent} ? ", never expires" :
-            ", expiring " . LJ::mysql_time( $paidstatus->{expiretime} );
-        $ret .= "\n";
+        unless ( DW::Pay::is_default_type($paidstatus) ) {
+            $ret .= "  " . DW::Pay::type_name( $paidstatus->{typeid} );
+            $ret .=
+                $paidstatus->{permanent}
+                ? ", never expires"
+                : ", expiring " . LJ::mysql_time( $paidstatus->{expiretime} );
+            $ret .= "\n";
+        }
+
+        if ($numinvites) {
+            $ret .= "  Unused invites: " . $numinvites . "\n";
+        }
+
+        return $ret;
     }
-
-    if ( $numinvites ) {
-        $ret .= "  Unused invites: " . $numinvites . "\n";
-    }
-
-    return $ret;
-});
+);
 
 1;

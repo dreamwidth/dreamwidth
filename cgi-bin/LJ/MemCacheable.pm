@@ -39,48 +39,48 @@ use String::CRC32 qw/crc32/;
 sub _store_to_memcache {
     my $self = shift;
 
-    my ($version, @props) = $self->_memcache_stored_props; 
+    my ( $version, @props ) = $self->_memcache_stored_props;
     my @data = $version;
     foreach my $key (@props) {
         push @data, $self->{$key};
     }
-    LJ::MemCache::set($self->_memcache_key, \@data, $self->_memcache_expires);
+    LJ::MemCache::set( $self->_memcache_key, \@data, $self->_memcache_expires );
 }
 
 sub _load_from_memcache {
     my $class = shift;
-    my $id = shift;
+    my $id    = shift;
 
-    my $data = LJ::MemCache::get($class->_memcache_key($id));
+    my $data = LJ::MemCache::get( $class->_memcache_key($id) );
     return unless $data && ref $data eq 'ARRAY';
-    
-    my ($version, @props) = $class->_memcache_stored_props;
+
+    my ( $version, @props ) = $class->_memcache_stored_props;
     ## check if memcache contains data with actual version
-    return unless $data->[0]==$version;
+    return unless $data->[0] == $version;
     my %hash;
-    foreach my $i (0..$#props) {
-        $hash{ $props[$i] } = $data->[$i+1];
+    foreach my $i ( 0 .. $#props ) {
+        $hash{ $props[$i] } = $data->[ $i + 1 ];
     }
-    return $class->_memcache_hashref_to_object(\%hash);
+    return $class->_memcache_hashref_to_object( \%hash );
 }
 
 ## warning: instance or class method.
 ## $id may be absent when calling on instance.
 sub _remove_from_memcache {
     my $class = shift;
-    my $id = shift;
-    LJ::MemCache::delete($class->_memcache_key($id));
+    my $id    = shift;
+    LJ::MemCache::delete( $class->_memcache_key($id) );
 }
 
 sub _memcache_key {
-    my $class = shift;
-    my $id = shift || $class->_memcache_id;
+    my $class  = shift;
+    my $id     = shift || $class->_memcache_id;
     my $prefix = $class->_memcache_key_prefix;
-    if ($id =~ /^\d+$/) {
-        return [$id, "$prefix:$id"];
+    if ( $id =~ /^\d+$/ ) {
+        return [ $id, "$prefix:$id" ];
     }
-    else{
-        return [(crc32($id) >> 16) & 0x7fff, "$prefix:$id"];
+    else {
+        return [ ( crc32($id) >> 16 ) & 0x7fff, "$prefix:$id" ];
     }
 }
 

@@ -6,7 +6,7 @@ sub layouts { ( "2l" => "two-columns-left", "2r" => "two-columns-right" ) }
 sub layout_prop { "layout_type" }
 
 sub module_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_navigation_module_background
         color_navigation_module_link
@@ -23,7 +23,7 @@ sub module_props {
 }
 
 sub entry_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         font_entry_text
         font_entry_text_size

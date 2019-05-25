@@ -34,29 +34,34 @@ use LJ::Directory::Constraint::Test;
 use DW::BlobStore;
 
 sub constraints_from_formargs {
-    my ($pkg, $postargs) = @_;
+    my ( $pkg, $postargs ) = @_;
 
     my @ret;
-    foreach my $type (qw(Age Location UpdateTime Interest Trusts TrustedBy Watches WatchedBy MemberOf JournalType)) {
-       my $class = "LJ::Directory::Constraint::$type";
-       my $con = eval { $class->new_from_formargs($postargs) };
-       if ( ref $con eq 'ARRAY' ) {
-           push @ret, @$con;
-       } elsif ( $con ) {
-           push @ret, $con;
-       } elsif ($@) {
-           warn "Error loading constraint $type: $@";
-       }
+    foreach my $type (
+        qw(Age Location UpdateTime Interest Trusts TrustedBy Watches WatchedBy MemberOf JournalType)
+        )
+    {
+        my $class = "LJ::Directory::Constraint::$type";
+        my $con   = eval { $class->new_from_formargs($postargs) };
+        if ( ref $con eq 'ARRAY' ) {
+            push @ret, @$con;
+        }
+        elsif ($con) {
+            push @ret, $con;
+        }
+        elsif ($@) {
+            warn "Error loading constraint $type: $@";
+        }
 
     }
     return @ret;
 }
 
 sub deserialize {
-    my ($pkg, $str) = @_;
+    my ( $pkg, $str ) = @_;
     $str =~ s/^(.+?):// or return undef;
     my $type = $1;
-    my %args = map { LJ::durl($_) } split(/[=&]/, $str);
+    my %args = map { LJ::durl($_) } split( /[=&]/, $str );
     return bless \%args, "LJ::Directory::Constraint::$type";
 }
 
@@ -64,11 +69,12 @@ sub serialize {
     my $self = shift;
     my $type = ref $self;
     $type =~ s/^LJ::Directory::Constraint:://;
-    return "$type:" . join("&",
-                           map { LJ::eurl($_) . "=" . LJ::eurl($self->{$_}) }
-                           grep { /^[a-z]/ && $self->{$_} }
-                           sort
-                           keys %$self);
+    return "$type:"
+        . join( "&",
+        map { LJ::eurl($_) . "=" . LJ::eurl( $self->{$_} ) }
+            grep { /^[a-z]/ && $self->{$_} }
+            sort
+            keys %$self );
 }
 
 # default is one minute, should override in subclasses
@@ -80,7 +86,7 @@ sub cache_for {
 # digest of canonicalized $self
 sub cache_key {
     my $self = shift;
-    return $self->{cache_key} ||= sha1_hex($self->serialize);
+    return $self->{cache_key} ||= sha1_hex( $self->serialize );
 }
 
 # returns memcache key to find this's constraint's sethandle, if cached
@@ -94,7 +100,7 @@ sub cached_sethandle {
     my $self = shift;
 
     # check memcache to see if there is a sethandle
-    my $seth_serialized = LJ::MemCache::get($self->memkey);
+    my $seth_serialized = LJ::MemCache::get( $self->memkey );
     if ($seth_serialized) {
         my $seth = LJ::Directory::SetHandle->new_from_string($seth_serialized);
         return $seth;
@@ -103,16 +109,18 @@ sub cached_sethandle {
     # no handle in memcache, check dirmogsethandles table to see if there
     # is a mogile handle for us
     my $dbr = LJ::get_db_reader() or die "Could not get DB reader";
-    my ($exptime) = $dbr->selectrow_array("SELECT exptime FROM dirmogsethandles WHERE conskey=?",
-                                          undef, $self->cache_key);
+    my ($exptime) = $dbr->selectrow_array( "SELECT exptime FROM dirmogsethandles WHERE conskey=?",
+        undef, $self->cache_key );
     die "For $self: " . $dbr->errstr if $dbr->err;
 
     if ($exptime) {
+
         # there is an entry for this, make sure it isn't expired
-        if ($exptime > time()) {
+        if ( $exptime > time() ) {
+
             # not expired, return mogile sethandle, should be valid
-            return LJ::Directory::SetHandle::Mogile->new($self->cache_key);
-        } # otherwise it's expired, ignore it
+            return LJ::Directory::SetHandle::Mogile->new( $self->cache_key );
+        }    # otherwise it's expired, ignore it
     }
 
     return undef;
@@ -130,27 +138,26 @@ sub sethandle {
     my @uids = $self->matching_uids;
     my $seth;
 
-    if (@uids <= 4000) {
+    if ( @uids <= 4000 ) {
         $seth = LJ::Directory::SetHandle::Inline->new(@uids);
-    } else {
+    }
+    else {
         my $dbh = LJ::get_db_writer()
             or die "Could not get db writer";
 
         # register this mogile key
-        $dbh->do("REPLACE INTO dirmogsethandles (conskey, exptime) VALUES (?, UNIX_TIMESTAMP()+?)",
-                 undef, $cachekey, ($self->cache_for || 0));
+        $dbh->do( "REPLACE INTO dirmogsethandles (conskey, exptime) VALUES (?, UNIX_TIMESTAMP()+?)",
+            undef, $cachekey, ( $self->cache_for || 0 ) );
         die $dbh->errstr if $dbh->err;
 
-        my $content = join( '', map { pack("N*", $_) } @uids );
+        my $content = join( '', map { pack( "N*", $_ ) } @uids );
         DW::BlobStore->store( directorysearch => "dsh:$cachekey", \$content );
 
         $seth = LJ::Directory::SetHandle::Mogile->new($cachekey);
     }
 
     # put in memcache:
-    LJ::MemCache::set($self->memkey,
-                      $seth->as_string,
-                      $self->cache_for);
+    LJ::MemCache::set( $self->memkey, $seth->as_string, $self->cache_for );
 
     return $seth;
 }

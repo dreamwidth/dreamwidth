@@ -26,55 +26,59 @@ use Socket qw(SO_BROADCAST);
 
 our %udp_sock;
 
-sub handler
-{
+sub handler {
     my $apache_r = shift;
     return OK if $apache_r->main;
     return OK unless $LJ::HAVE_AVAIL && $LJ::FREECHILDREN_BCAST;
 
-    my $callback = $apache_r ? $apache_r->current_callback() : "";
-    my $cleanup = $callback eq "PerlCleanupHandler";
+    my $callback  = $apache_r ? $apache_r->current_callback() : "";
+    my $cleanup   = $callback eq "PerlCleanupHandler";
     my $childinit = $callback eq "PerlChildInitHandler";
 
-    if ($LJ::TRACK_URL_ACTIVE)
-    {
+    if ($LJ::TRACK_URL_ACTIVE) {
         my $key = "url_active:$LJ::SERVER_NAME:$$";
         if ($cleanup) {
             LJ::MemCache::delete($key);
-        } else {
-            LJ::MemCache::set($key, $apache_r->header_in("Host") . $apache_r->uri . "(" . $apache_r->method . "/" . scalar($apache_r->args) . ")");
-          }
+        }
+        else {
+            LJ::MemCache::set( $key,
+                      $apache_r->header_in("Host")
+                    . $apache_r->uri . "("
+                    . $apache_r->method . "/"
+                    . scalar( $apache_r->args )
+                    . ")" );
+        }
     }
 
-    my ($active, $free) = count_servers();
+    my ( $active, $free ) = count_servers();
 
     $free += $cleanup;
     $free += $childinit;
     $active -= $cleanup if $active;
 
-    my $list = ref $LJ::FREECHILDREN_BCAST ?
-        $LJ::FREECHILDREN_BCAST : [ $LJ::FREECHILDREN_BCAST ];
+    my $list = ref $LJ::FREECHILDREN_BCAST ? $LJ::FREECHILDREN_BCAST : [$LJ::FREECHILDREN_BCAST];
 
     foreach my $host (@$list) {
         next unless $host =~ /^(\S+):(\d+)$/;
         my $bcast = $1;
-        my $port = $2;
-        my $sock = $udp_sock{$host};
+        my $port  = $2;
+        my $sock  = $udp_sock{$host};
         unless ($sock) {
-            $udp_sock{$host} = $sock = IO::Socket::INET->new(Proto => 'udp');
+            $udp_sock{$host} = $sock = IO::Socket::INET->new( Proto => 'udp' );
             if ($sock) {
-                $sock->sockopt(SO_BROADCAST, 1)
+                $sock->sockopt( SO_BROADCAST, 1 )
                     if $LJ::SENDSTATS_BCAST;
-            } else {
+            }
+            else {
                 $apache_r->log_error("SendStats: couldn't create socket: $host");
                 next;
             }
         }
 
-        my $ipaddr = inet_aton($bcast);
-        my $portaddr = sockaddr_in($port, $ipaddr);
-        my $message = "bcast_ver=1\nfree=$free\nactive=$active\n";
-        my $res = $sock->send($message, 0, $portaddr);
+        my $ipaddr   = inet_aton($bcast);
+        my $portaddr = sockaddr_in( $port, $ipaddr );
+        my $message  = "bcast_ver=1\nfree=$free\nactive=$active\n";
+        my $res      = $sock->send( $message, 0, $portaddr );
         $apache_r->log_error("SendStats: couldn't broadcast")
             unless $res;
     }

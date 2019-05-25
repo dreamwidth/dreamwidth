@@ -35,8 +35,8 @@ GetOptions(
     'num-workers=i'     => \$max_workers,
     'mogilefs-config=s' => \$conf,
 );
-$startfid ||= 0;
-$endfid ||= 1_000_000_000;
+$startfid    ||= 0;
+$endfid      ||= 1_000_000_000;
 $max_workers ||= 10;
 
 die "Must provide valid --mogilefs-config=FILEPATH argument.\n"
@@ -44,10 +44,10 @@ die "Must provide valid --mogilefs-config=FILEPATH argument.\n"
 
 my $mogc = get_mogilefs_client();
 
-my $queue = [];
+my $queue       = [];
 my $cur_workers = 0;
 my $num_workers = 0;
-my $enqueued = 0;
+my $enqueued    = 0;
 while ( $startfid <= $endfid ) {
     my $files = get_files( $startfid, $startfid + ( BLOCK_SIZE - 1 ) );
     $startfid += BLOCK_SIZE;
@@ -58,15 +58,14 @@ while ( $startfid <= $endfid ) {
         push @$queue, $files->{$fid};
         next if scalar @$queue < BLOCK_SIZE;
 
-        $0 = sprintf( 'migrate-mogilefs: enqueued %d, workers %d',
-                $enqueued, $num_workers );
+        $0 = sprintf( 'migrate-mogilefs: enqueued %d, workers %d', $enqueued, $num_workers );
 
         if ( $cur_workers >= $max_workers ) {
             wait;
             $cur_workers--;
         }
 
-        make_worker( $queue );
+        make_worker($queue);
 
         $num_workers++;
         $cur_workers++;
@@ -75,7 +74,7 @@ while ( $startfid <= $endfid ) {
 }
 
 if ( $queue && @$queue ) {
-    make_worker( $queue );
+    make_worker($queue);
     $cur_workers++;
 }
 
@@ -92,12 +91,11 @@ sub make_worker {
         return;
     }
 
-    my $pos = 0;
+    my $pos  = 0;
     my $llen = scalar @$queue;
-    foreach my $file ( @$queue ) {
+    foreach my $file (@$queue) {
         $pos++;
-        $0 = sprintf( 'migrate-mogilefs [%d/%d] = %0.2f%%',
-            $pos, $llen, 100*($pos/$llen) );
+        $0 = sprintf( 'migrate-mogilefs [%d/%d] = %0.2f%%', $pos, $llen, 100 * ( $pos / $llen ) );
 
         # Quick check to make sure this file isn't already in BlobStore
         if ( DW::BlobStore->exists( $file->{class} => $file->{key} ) ) {
@@ -106,7 +104,7 @@ sub make_worker {
         }
 
         my $data = $mogc->get_file_data( $file->{key} );
-        unless ( $data ) {
+        unless ($data) {
             say "$file->{fid}: ERR NODATA";
             next;
         }
@@ -120,9 +118,10 @@ sub make_worker {
         # It's a file and the length is write, let's store it to BlobStore with the
         # right data...
         my $rv = DW::BlobStore->store( $file->{class} => $file->{key}, $data );
-        if ( $rv ) {
+        if ($rv) {
             say "$file->{fid}: OK STORE";
-        } else {
+        }
+        else {
             say "$file->{fid}: ERR STORE";
         }
     }
@@ -146,8 +145,8 @@ sub get_files {
     return undef unless $rows && scalar @$rows;
 
     my $out = {};
-    foreach my $row ( @$rows ) {
-        $out->{$row->[0]} = {
+    foreach my $row (@$rows) {
+        $out->{ $row->[0] } = {
             fid    => $row->[0],
             key    => $row->[1],
             size   => $row->[2],
@@ -161,7 +160,7 @@ sub get_files {
 sub get_mogilefs_dbh {
     my %config;
     open FILE, "<$conf" or die;
-    foreach my $line ( <FILE> ) {
+    foreach my $line (<FILE>) {
         my ( $key, $val ) = ( $1, $2 )
             if $line =~ /^db_(\w+)\s*=\s*(.+?)$/;
         next unless $key && $val;
@@ -170,18 +169,17 @@ sub get_mogilefs_dbh {
     }
     close FILE;
 
-    my $dbh = DBI->connect($config{dsn}, $config{user}, $config{pass})
+    my $dbh = DBI->connect( $config{dsn}, $config{user}, $config{pass} )
         or die "Failed to connect to MogileFS.\n";
     return $dbh;
 }
 
 sub get_mogilefs_client {
     my $mogclient = MogileFS::Client->new(
-       domain   => $LJ::MOGILEFS_CONFIG{domain},
-       root     => $LJ::MOGILEFS_CONFIG{root},
-       hosts    => $LJ::MOGILEFS_CONFIG{hosts},
-       timeout  => $LJ::MOGILEFS_CONFIG{timeout},
-   )
-        or die "Failed to create MogileFS::Client!\n";
+        domain  => $LJ::MOGILEFS_CONFIG{domain},
+        root    => $LJ::MOGILEFS_CONFIG{root},
+        hosts   => $LJ::MOGILEFS_CONFIG{hosts},
+        timeout => $LJ::MOGILEFS_CONFIG{timeout},
+    ) or die "Failed to create MogileFS::Client!\n";
     return $mogclient;
 }

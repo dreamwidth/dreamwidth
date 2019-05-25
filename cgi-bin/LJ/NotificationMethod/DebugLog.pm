@@ -19,7 +19,7 @@ use base 'LJ::NotificationMethod';
 
 use LJ::Web;
 
-sub can_digest { 1 };
+sub can_digest { 1 }
 
 # takes a $subscr and $orig_class
 sub new {
@@ -43,11 +43,11 @@ sub new {
 }
 
 sub new_from_subscription {
-    my $class = shift;
-    my $subscr = shift;
+    my $class      = shift;
+    my $subscr     = shift;
     my $orig_class = shift;
 
-    return $class->new($subscr, $orig_class);
+    return $class->new( $subscr, $orig_class );
 }
 
 sub title { 'DebugLog' }
@@ -71,22 +71,22 @@ sub notify {
 
     foreach my $ev (@events) {
         my %logrow = (
-                      userid      => $self->subscr->owner->userid,
-                      subid       => $self->subscr->id,
-                      ntfytime    => time(),
-                      origntypeid => $orig_ntypeid,
-                      etypeid     => $ev->etypeid,
-                      ejournalid  => $ev->event_journal->userid,
-                      earg1       => $ev->arg1,
-                      earg2       => $ev->arg2,
-                      schjobid    => $debug_headers->{'X-ESN_Debug-sch_jobid'},
-                      );
+            userid      => $self->subscr->owner->userid,
+            subid       => $self->subscr->id,
+            ntfytime    => time(),
+            origntypeid => $orig_ntypeid,
+            etypeid     => $ev->etypeid,
+            ejournalid  => $ev->event_journal->userid,
+            earg1       => $ev->arg1,
+            earg2       => $ev->arg2,
+            schjobid    => $debug_headers->{'X-ESN_Debug-sch_jobid'},
+        );
 
-        my $cols = join(',', keys %logrow);
+        my $cols = join( ',', keys %logrow );
         my @vals = values %logrow;
-        my $bind = join(',', map {'?'} @vals);
+        my $bind = join( ',', map { '?' } @vals );
 
-        $db->do("INSERT INTO debug_notifymethod ($cols) VALUES ($bind)", undef, @vals);
+        $db->do( "INSERT INTO debug_notifymethod ($cols) VALUES ($bind)", undef, @vals );
 
         die $db->errstr if $db->err;
     }
@@ -101,7 +101,7 @@ sub configured {
 
 sub configured_for_user {
     my $class = shift;
-    my $u = shift;
+    my $u     = shift;
     return 1;
 }
 

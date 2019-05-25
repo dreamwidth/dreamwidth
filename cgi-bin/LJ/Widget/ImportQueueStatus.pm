@@ -26,13 +26,14 @@ sub need_res { qw( stc/importer.css ) }
 sub render_body {
     my ( $class, %opts ) = @_;
 
-    my $depth = LJ::MemCache::get( 'importer_queue_depth' );
-    unless ( $depth ) {
+    my $depth = LJ::MemCache::get('importer_queue_depth');
+    unless ($depth) {
+
         # FIXME: don't make this slam the db with people asking the same question, use a lock
         # FIXME: we don't have ddlockd, maybe we should
-        
+
         # do manual connection
-        my $db = $LJ::THESCHWARTZ_DBS[0];
+        my $db  = $LJ::THESCHWARTZ_DBS[0];
         my $dbr = DBI->connect( $db->{dsn}, $db->{user}, $db->{pass} )
             or return "Unable to manually connect to TheSchwartz database.";
 
@@ -49,10 +50,10 @@ sub render_body {
                   WHERE funcid = ?
                     AND run_after < UNIX_TIMESTAMP()},
                 undef, $tmpmap->{$map}->{funcid}
-            )+0;
+            ) + 0;
 
             $map =~ s/^.+::(\w+)$/$1/;
-            $cts{lc $map} = $ct;
+            $cts{ lc $map } = $ct;
         }
 
         LJ::MemCache::set( 'importer_queue_depth', \%cts, 300 );
@@ -61,7 +62,7 @@ sub render_body {
 
     # return a very boring little box... this could be improved a lot :)
     my $ret = q{<div class="importer-queue"><strong>Importer Queue Depth:</strong><br />};
-    $ret .= join( ', ', map { "$_: " . ($depth->{lc $_}+0) } sort keys %$depth );
+    $ret .= join( ', ', map { "$_: " . ( $depth->{ lc $_ } + 0 ) } sort keys %$depth );
     $ret .= q{</div>};
     return $ret;
 }

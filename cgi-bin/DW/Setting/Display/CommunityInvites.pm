@@ -23,13 +23,15 @@ sub should_render {
 sub label {
     my $class = shift;
 
-    return $class->ml( 'setting.display.communityinvites.label' );
+    return $class->ml('setting.display.communityinvites.label');
 }
 
 sub option {
-    my ($class, $u, $errs, $args) = @_;
+    my ( $class, $u, $errs, $args ) = @_;
 
-    return "<a href='$LJ::SITEROOT/manage/invites'>" . $class->ml( 'setting.display.communityinvites.option' ) . "</a>";
+    return
+        "<a href='$LJ::SITEROOT/manage/invites'>"
+        . $class->ml('setting.display.communityinvites.option') . "</a>";
 }
 
 1;

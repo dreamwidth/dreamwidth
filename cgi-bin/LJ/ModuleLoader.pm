@@ -12,7 +12,6 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-
 package LJ::ModuleLoader;
 
 use strict;
@@ -28,24 +27,24 @@ use LJ::Directories;
 # given a module name, looks under cgi-bin/ for its patch and, if valid,
 # returns (assumed) package names of all modules in the directory
 sub module_subclasses {
-    shift if @_ > 1; # get rid of classname
+    shift if @_ > 1;    # get rid of classname
     my $base_class = shift;
-    my $base_path  = join("/", 'cgi-bin', split("::", $base_class));
+    my $base_path  = join( "/", 'cgi-bin', split( "::", $base_class ) );
 
-    my @dirs = LJ::get_all_directories( $base_path );
+    my @dirs = LJ::get_all_directories($base_path);
 
     my @files;
     while (@dirs) {
         my $dir = shift @dirs;
-        my $d = IO::Dir->new($dir);
-        while (my $file = $d->read) {
-            if ($file =~ /^\./) {
+        my $d   = IO::Dir->new($dir);
+        while ( my $file = $d->read ) {
+            if ( $file =~ /^\./ ) {
                 next;
             }
-            elsif ($file =~ /\.pm$/) {
+            elsif ( $file =~ /\.pm$/ ) {
                 push @files, "$dir/$file";
             }
-            elsif (-d "$dir/$file") {
+            elsif ( -d "$dir/$file" ) {
                 push @dirs, "$dir/$file";
             }
         }
@@ -61,27 +60,27 @@ sub module_subclasses {
 }
 
 sub autouse_subclasses {
-    shift if @_ > 1; # get rid of classname
+    shift if @_ > 1;    # get rid of classname
     my $base_class = shift;
 
-    foreach my $class (LJ::ModuleLoader->module_subclasses($base_class)) {
+    foreach my $class ( LJ::ModuleLoader->module_subclasses($base_class) ) {
         eval "use Class::Autouse qw($class)";
         die "Error loading $class: $@" if $@;
     }
 }
 
 sub require_subclasses {
-    shift if @_ > 1; # get rid of classname
+    shift if @_ > 1;    # get rid of classname
     my $base_class = shift;
 
-    foreach my $class (LJ::ModuleLoader->module_subclasses($base_class)) {
+    foreach my $class ( LJ::ModuleLoader->module_subclasses($base_class) ) {
         eval "use $class";
         die "Error loading $class: $@" if $@;
     }
 }
 
 sub require_if_exists {
-    shift if @_ > 1; # get rid of classname
+    shift if @_ > 1;    # get rid of classname
 
     my $req_file = shift;
 
@@ -91,7 +90,7 @@ sub require_if_exists {
         unless $req_file =~ m!/!;
 
     # lib should return 1
-    if (-e $req_file) {
+    if ( -e $req_file ) {
         my $rv = do $req_file;
         warn $@ if $@;
         return $rv;

@@ -16,7 +16,7 @@ use strict;
 
 sub class_bit {
     my ($class) = @_;
-    foreach my $bit (0..15) {
+    foreach my $bit ( 0 .. 15 ) {
         my $def = $LJ::CAP{$bit};
         next unless $def->{_key} && $def->{_key} eq $class;
         return $bit;
@@ -34,8 +34,8 @@ sub classes_from_mask {
     my $caps = shift;
 
     my @classes = ();
-    foreach my $bit (0..15) {
-        my $class = class_of_bit( $bit );
+    foreach my $bit ( 0 .. 15 ) {
+        my $class = class_of_bit($bit);
         next unless $class && caps_in_group( $caps, $class );
         push @classes, $class;
     }
@@ -48,8 +48,8 @@ sub mask_from_classes {
 
     my $mask = 0;
     foreach my $class (@classes) {
-        my $bit = class_bit( $class );
-        $mask |= (1 << $bit);
+        my $bit = class_bit($class);
+        $mask |= ( 1 << $bit );
     }
 
     return $mask;
@@ -60,16 +60,16 @@ sub mask_from_bits {
 
     my $mask = 0;
     foreach my $bit (@bits) {
-        $mask |= (1 << $bit);
+        $mask |= ( 1 << $bit );
     }
 
     return $mask;
 }
 
 sub caps_in_group {
-    my ($caps, $class) = @_;
+    my ( $caps, $class ) = @_;
     $caps = $caps ? $caps + 0 : 0;
-    my $bit = class_bit( $class );
+    my $bit = class_bit($class);
     die "unknown class '$class'" unless defined $bit;
     return ( $caps & ( 1 << $bit ) ) ? 1 : 0;
 }
@@ -81,14 +81,14 @@ sub caps_in_group {
 # args: caps
 # des-caps: 16 bit capability bitmask
 # </LJFUNC>
-sub name_caps
-{
-    my $bit = shift;
+sub name_caps {
+    my $bit  = shift;
     my @caps = caps_string( $bit, '_visible_name' );
-    if ( @caps ) {
+    if (@caps) {
         return join( ', ', @caps );
-    } else {
-        return name_caps_short( $bit );
+    }
+    else {
+        return name_caps_short($bit);
     }
 }
 
@@ -99,8 +99,7 @@ sub name_caps
 # args: caps
 # des-caps: 16 bit capability bitmask
 # </LJFUNC>
-sub name_caps_short
-{
+sub name_caps_short {
     my $bit = shift;
     return join( ', ', caps_string( $bit, '_name' ) );
 }
@@ -113,11 +112,11 @@ sub name_caps_short
 # des-caps: bitfield
 # des-name_value: string (_name for short name, _visible_name for long)
 sub caps_string {
-    my ($caps, $name_value) = @_;
+    my ( $caps, $name_value ) = @_;
 
     my @classes = ();
-    foreach my $bit (0..15) {
-        my $class = class_of_bit( $bit );
+    foreach my $bit ( 0 .. 15 ) {
+        my $class = class_of_bit($bit);
         next unless $class && caps_in_group( $caps, $class );
         my $name = $LJ::CAP{$bit}->{$name_value} // "";
         push @classes, $name if $name ne "";
@@ -133,11 +132,10 @@ sub caps_string {
 # args: caps
 # des-caps: 16 bit capability bitmask
 # </LJFUNC>
-sub user_caps_icon
-{
+sub user_caps_icon {
     return undef unless LJ::Hooks::are_hooks("user_caps_icon");
     my $caps = shift;
-    return LJ::Hooks::run_hook("user_caps_icon", $caps);
+    return LJ::Hooks::run_hook( "user_caps_icon", $caps );
 }
 
 # <LJFUNC>
@@ -151,11 +149,10 @@ sub user_caps_icon
 #            bitmask could be obtained
 # des-capname: the name of a limit, defined in [special[caps]].
 # </LJFUNC>
-sub get_cap
-{
-    my $caps = shift;   # capability bitmask (16 bits), cap key or user object
-    my $cname = shift;  # capability limit name
-    my $opts  = shift;  # { no_hook => 1/0 }
+sub get_cap {
+    my $caps  = shift;    # capability bitmask (16 bits), cap key or user object
+    my $cname = shift;    # capability limit name
+    my $opts  = shift;    # { no_hook => 1/0 }
     $opts ||= {};
 
     # If caps is a reference
@@ -164,11 +161,14 @@ sub get_cap
     # If caps is a reference get caps from User object
     if ($u) {
         $caps = $u->{'caps'};
-    # If it is not all digits assume it is a key
-    } elsif ($caps && $caps !~ /^\d+$/) {
-        my $bit = class_bit( $caps ) || 0;
+
+        # If it is not all digits assume it is a key
+    }
+    elsif ( $caps && $caps !~ /^\d+$/ ) {
+        my $bit = class_bit($caps) || 0;
         $caps = 1 << $bit;
     }
+
     # The caps is the cap mask already or undef, force it to be a number
     $caps += 0;
 
@@ -176,54 +176,59 @@ sub get_cap
 
     # allow a way for admins to force-set the read-only cap
     # to lower writes on a cluster.
-    if ($cname eq "readonly" && $u &&
-        ($LJ::READONLY_CLUSTER{$u->{clusterid}} ||
-         $LJ::READONLY_CLUSTER_ADVISORY{$u->{clusterid}} &&
-         ! LJ::get_cap($u, "avoid_readonly"))) {
+    if (
+           $cname eq "readonly"
+        && $u
+        && (   $LJ::READONLY_CLUSTER{ $u->{clusterid} }
+            || $LJ::READONLY_CLUSTER_ADVISORY{ $u->{clusterid} }
+            && !LJ::get_cap( $u, "avoid_readonly" ) )
+        )
+    {
 
         # HACK for desperate moments.  in when_needed mode, see if
         # database is locky first
         my $cid = $u->{clusterid};
-        if ($LJ::READONLY_CLUSTER_ADVISORY{$cid} eq "when_needed") {
+        if ( $LJ::READONLY_CLUSTER_ADVISORY{$cid} eq "when_needed" ) {
             my $now = time();
             return 1 if $LJ::LOCKY_CACHE{$cid} > $now - 15;
 
-            my $dbcm = LJ::get_cluster_master($u->{clusterid});
+            my $dbcm = LJ::get_cluster_master( $u->{clusterid} );
             return 1 unless $dbcm;
             my $sth = $dbcm->prepare("SHOW PROCESSLIST");
             $sth->execute;
             return 1 if $dbcm->err;
-            my $busy = 0;
+            my $busy     = 0;
             my $too_busy = $LJ::WHEN_NEEDED_THRES || 300;
-            while (my $r = $sth->fetchrow_hashref) {
+            while ( my $r = $sth->fetchrow_hashref ) {
                 $busy++ if $r->{Command} ne "Sleep";
             }
-            if ($busy > $too_busy) {
+            if ( $busy > $too_busy ) {
                 $LJ::LOCKY_CACHE{$cid} = $now;
                 return 1;
             }
-        } else {
+        }
+        else {
             return 1;
         }
     }
 
     # is there a hook for this cap name?
-    if (! $opts->{no_hook} && LJ::Hooks::are_hooks("check_cap_$cname")) {
+    if ( !$opts->{no_hook} && LJ::Hooks::are_hooks("check_cap_$cname") ) {
         die "Hook 'check_cap_$cname' requires full user object"
             unless LJ::isu($u);
 
-        my $val = LJ::Hooks::run_hook("check_cap_$cname", $u);
+        my $val = LJ::Hooks::run_hook( "check_cap_$cname", $u );
         return $val if defined $val;
 
         # otherwise fall back to standard means
     }
 
     # otherwise check via other means
-    foreach my $bit (keys %LJ::CAP) {
-        next unless ($caps & (1 << $bit));
+    foreach my $bit ( keys %LJ::CAP ) {
+        next unless ( $caps & ( 1 << $bit ) );
         my $v = $LJ::CAP{$bit}->{$cname};
-        next unless (defined $v);
-        next if (defined $max && $max > $v);
+        next unless ( defined $v );
+        next if ( defined $max && $max > $v );
         $max = $v;
     }
     return defined $max ? $max : $LJ::CAP_DEF{$cname};
@@ -242,18 +247,17 @@ sub get_cap
 #            bitmask could be obtained
 # des-capname: the name of a limit, defined in [special[caps]].
 # </LJFUNC>
-sub get_cap_min
-{
-    my $caps = shift;   # capability bitmask (16 bits), or user object
-    my $cname = shift;  # capability name
-    if (! defined $caps) { $caps = 0; }
-    elsif ( LJ::isu( $caps ) ) { $caps = $caps->{'caps'}; }
+sub get_cap_min {
+    my $caps  = shift;    # capability bitmask (16 bits), or user object
+    my $cname = shift;    # capability name
+    if    ( !defined $caps ) { $caps = 0; }
+    elsif ( LJ::isu($caps) ) { $caps = $caps->{'caps'}; }
     my $min = undef;
-    foreach my $bit (keys %LJ::CAP) {
-        next unless ($caps & (1 << $bit));
+    foreach my $bit ( keys %LJ::CAP ) {
+        next unless ( $caps & ( 1 << $bit ) );
         my $v = $LJ::CAP{$bit}->{$cname};
-        next unless (defined $v);
-        next if (defined $min && $min < $v);
+        next unless ( defined $v );
+        next if ( defined $min && $min < $v );
         $min = $v;
     }
     return defined $min ? $min : $LJ::CAP_DEF{$cname};

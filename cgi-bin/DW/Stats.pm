@@ -30,7 +30,7 @@ my $sock;
 # actually do anything.
 sub setup {
     die "Not enough arguments to setup\n"
-        unless scalar( @_ ) == 2;
+        unless scalar(@_) == 2;
 
     $sock = IO::Socket::INET->new(
         Proto    => 'udp',
@@ -52,7 +52,7 @@ sub increment {
     if ( !defined $sample_rate || rand() < $sample_rate ) {
         $sample_rate = defined $sample_rate ? "|\@$sample_rate" : "";
         $tags = ref $tags eq 'ARRAY' ? '|#' . join( ',', @$tags ) : '';
-        $sock->send( "$metric:$incrby|c$sample_rate$tags" );
+        $sock->send("$metric:$incrby|c$sample_rate$tags");
     }
 }
 

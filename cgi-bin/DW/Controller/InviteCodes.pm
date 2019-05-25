@@ -38,35 +38,38 @@ sub management_handler {
     # check whether we requested more invite codes
     if ( $r->did_post ) {
         my $args = $r->post_args;
-        return error_ml( 'error.invalidform' )
+        return error_ml('error.invalidform')
             unless LJ::check_form_auth( $args->{lj_form_auth} );
 
         if ( DW::InviteCodeRequests->create( userid => $remote->id, reason => $args->{reason} ) ) {
             $rv->{req_yes} = 1;
-        } else {
+        }
+        else {
             $rv->{req_no} = 1;
         }
     }
 
     $rv->{print_req_form} = DW::BusinessRules::InviteCodeRequests::can_request( user => $remote );
-    $rv->{view_full} = $r->get_args->{full};
+    $rv->{view_full}      = $r->get_args->{full};
 
     my @invitecodes = DW::InviteCodes->by_owner( userid => $remote->id );
 
     my @recipient_ids;
-    foreach my $code ( @invitecodes ) {
+    foreach my $code (@invitecodes) {
         push @recipient_ids, $code->recipient if $code->recipient;
     }
 
-    my $recipient_users = LJ::load_userids( @recipient_ids );
+    my $recipient_users = LJ::load_userids(@recipient_ids);
 
     unless ( $rv->{view_full} ) {
+
         # filter out codes that were used over two weeks ago
         my $two_weeks_ago = time() - ( 14 * 24 * 60 * 60 );
         @invitecodes = grep {
-            my $u = $recipient_users->{$_->recipient};
+            my $u = $recipient_users->{ $_->recipient };
+
             # if it's used, we should always have a recipient, but...
-            ! $_->is_used || ( $u && $u->timecreate ) > $two_weeks_ago
+            !$_->is_used || ( $u && $u->timecreate ) > $two_weeks_ago
         } @invitecodes;
     }
 
@@ -79,12 +82,12 @@ sub management_handler {
         return ( $a->timesent // 0 ) <=> ( $b->timesent // 0 );
     } @invitecodes;
 
-    $rv->{has_codes} = scalar @invitecodes;
+    $rv->{has_codes}   = scalar @invitecodes;
     $rv->{invitecodes} = \@invitecodes;
-    $rv->{users} = $recipient_users;
+    $rv->{users}       = $recipient_users;
 
     $rv->{create_link} = sub {
-        my ( $code ) = @_;
+        my ($code) = @_;
         my $root = $LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT;
         return "$root/create?from=$remote->{user}&code=$code";
     };

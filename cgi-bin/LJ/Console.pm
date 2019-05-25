@@ -32,24 +32,24 @@ use strict;
 use Carp qw(croak);
 use LJ::ModuleLoader;
 
-my @CLASSES = LJ::ModuleLoader->module_subclasses("LJ::Console::Command");
+my @CLASSES   = LJ::ModuleLoader->module_subclasses("LJ::Console::Command");
 my @DWCLASSES = LJ::ModuleLoader->module_subclasses("DW::Console::Command");
 
 my %cmd2class;
-foreach my $class (@CLASSES, @DWCLASSES) {
+foreach my $class ( @CLASSES, @DWCLASSES ) {
     eval "use $class";
     die "Error loading class '$class': $@" if $@;
-    $cmd2class{$class->cmd} = $class;
+    $cmd2class{ $class->cmd } = $class;
 }
 
 # takes a set of console commands, returns command objects
 sub parse_text {
     my $class = shift;
-    my $text = shift;
+    my $text  = shift;
 
     my @ret;
 
-    foreach my $line (split(/\n/, $text)) {
+    foreach my $line ( split( /\n/, $text ) ) {
         my @args = LJ::Console->parse_line($line);
         push @ret, LJ::Console->parse_array(@args);
     }
@@ -60,7 +60,7 @@ sub parse_text {
 # takes an array including a command name and its arguments
 # returns the corresponding command object
 sub parse_array {
-    my ($class, $cmd, @args) = @_;
+    my ( $class, $cmd, @args ) = @_;
     return unless $cmd;
 
     $cmd = lc($cmd);
@@ -72,7 +72,7 @@ sub parse_array {
 # parses each console command, parses out the arguments
 sub parse_line {
     my $class = shift;
-    my $cmd = shift;
+    my $cmd   = shift;
 
     return () unless $cmd =~ /\S/;
 
@@ -80,59 +80,60 @@ sub parse_line {
     $cmd =~ s/\s+$//;
     $cmd =~ s/\t/ /g;
 
-    my $state = 'a';  # w=whitespace, a=arg, q=quote, e=escape (next quote isn't closing)
+    my $state = 'a';    # w=whitespace, a=arg, q=quote, e=escape (next quote isn't closing)
 
     my @args;
     my $argc = 0;
-    my $len = length($cmd);
-    my ($lastchar, $char);
+    my $len  = length($cmd);
+    my ( $lastchar, $char );
 
-    for (my $i=0; $i < $len; $i++) {
+    for ( my $i = 0 ; $i < $len ; $i++ ) {
         $lastchar = $char;
-        $char = substr($cmd, $i, 1);
+        $char     = substr( $cmd, $i, 1 );
 
         ### jump out of quots
-        if ($state eq "q" && $char eq '"') {
+        if ( $state eq "q" && $char eq '"' ) {
             $state = "w";
             next;
         }
 
         ### keep ignoring whitespace
-        if ($state eq "w" && $char eq " ") {
+        if ( $state eq "w" && $char eq " " ) {
             next;
         }
 
         ### finish arg if space found
-        if ($state eq "a" && $char eq " ") {
+        if ( $state eq "a" && $char eq " " ) {
             $state = "w";
             next;
         }
 
         ### if non-whitespace encountered, move to next arg
-        if ($state eq "w") {
+        if ( $state eq "w" ) {
             $argc++;
-            if ($char eq '"') {
+            if ( $char eq '"' ) {
                 $state = "q";
                 next;
-            } else {
+            }
+            else {
                 $state = "a";
             }
         }
 
         ### don't count this character if it's a quote
-        if ($state eq "q" && $char eq '"') {
+        if ( $state eq "q" && $char eq '"' ) {
             $state = "w";
             next;
         }
 
         ### respect backslashing quotes inside quotes
-        if ($state eq "q" && $char eq "\\") {
+        if ( $state eq "q" && $char eq "\\" ) {
             $state = "e";
             next;
         }
 
         ### after an escape, next character is literal
-        if ($state eq "e") {
+        if ( $state eq "e" ) {
             $state = "q";
         }
 
@@ -144,39 +145,38 @@ sub parse_line {
 
 # takes a set of response objects and returns string implementation
 sub run_commands_text {
-    my ($pkg, $text) = @_;
+    my ( $pkg, $text ) = @_;
 
     my $out;
-    foreach my $c (LJ::Console->parse_text($text)) {
+    foreach my $c ( LJ::Console->parse_text($text) ) {
         $out .= $c->as_string . "\n" unless $LJ::T_NO_COMMAND_PRINT;
         $c->execute_safely;
-        $out .= join("\n", map { $_->as_string } $c->responses);
+        $out .= join( "\n", map { $_->as_string } $c->responses );
     }
 
     return $out;
 }
 
 sub run_commands_html {
-    my ($pkg, $text) = @_;
+    my ( $pkg, $text ) = @_;
 
     my $out;
-    foreach my $c (LJ::Console->parse_text($text)) {
+    foreach my $c ( LJ::Console->parse_text($text) ) {
         $out .= $c->as_html;
         $out .= "<pre><span class='console_text'>";
         $c->execute_safely;
-        $out .= join("\n", map { $_->as_html } $c->responses);
+        $out .= join( "\n", map { $_->as_html } $c->responses );
         $out .= "</span></pre>";
     }
 
     return $out;
 }
 
-
 sub command_list_html {
     my $pkg = shift;
 
     my $ret = "<ul>";
-    foreach (sort keys %cmd2class) {
+    foreach ( sort keys %cmd2class ) {
         next if $cmd2class{$_}->is_hidden;
         next unless $cmd2class{$_}->can_execute;
 
@@ -191,12 +191,12 @@ sub command_reference_html {
 
     my $ret;
 
-    foreach my $cmd (sort keys %cmd2class) {
+    foreach my $cmd ( sort keys %cmd2class ) {
         my $class = $cmd2class{$cmd};
         my $style = $class->can_execute ? "enabled" : "disabled";
 
         $ret .= "<hr /><div class='$style'><h2 id='cmd.$cmd'><code><b>$cmd</b> ";
-        $ret .= LJ::ehtml($class->usage);
+        $ret .= LJ::ehtml( $class->usage );
         $ret .= "</code>";
         $ret .= " (unavailable)" unless $class->can_execute;
         $ret .= "</h2>\n";
@@ -204,17 +204,16 @@ sub command_reference_html {
 
         $ret .= $class->desc;
 
-        if ($class->args_desc) {
+        if ( $class->args_desc ) {
             my $args = $class->args_desc;
             $ret .= "<dl>";
-            while (my ($arg, $des) = splice(@$args, 0, 2)) {
+            while ( my ( $arg, $des ) = splice( @$args, 0, 2 ) ) {
                 $ret .= "<dt><strong><em>$arg</em></strong></dt><dd>$des</dd>\n";
             }
             $ret .= "</dl>";
         }
         $ret .= "</div>";
     }
-
 
     return $ret;
 }

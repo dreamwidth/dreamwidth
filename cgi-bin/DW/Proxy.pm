@@ -23,7 +23,7 @@ use v5.10;
 use Digest::MD5 qw/ md5_hex /;
 
 sub get_url_signature {
-    my ( $url ) = @_;
+    my ($url) = @_;
     state $salt;
 
     unless ( defined $salt ) {
@@ -34,12 +34,12 @@ sub get_url_signature {
         close FILE;
     }
 
-    return substr(md5_hex($salt . $url), 0, 12);
+    return substr( md5_hex( $salt . $url ), 0, 12 );
 }
 
 sub get_proxy_url {
     my ( $url, %opts ) = @_;
-    return undef unless $LJ::PROXY_URL && substr($url, 0, 7) eq 'http://';
+    return undef unless $LJ::PROXY_URL && substr( $url, 0, 7 ) eq 'http://';
 
     # replace any space characters with %20 before calculating checksum
     $url =~ s/ /%20/g;
@@ -49,13 +49,13 @@ sub get_proxy_url {
 
     my $source = "-";
     if ( $opts{journal} && $opts{ditemid} ) {
-        my $journalu = LJ::load_user($opts{journal});
-        if ( $journalu ) {
+        my $journalu = LJ::load_user( $opts{journal} );
+        if ($journalu) {
             $source = "$journalu->{userid}-$opts{ditemid}";
         }
     }
 
-    return join('/', $LJ::PROXY_URL, $signature, $source, substr($url, 7));
+    return join( '/', $LJ::PROXY_URL, $signature, $source, substr( $url, 7 ) );
 }
 
 1;

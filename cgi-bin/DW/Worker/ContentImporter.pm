@@ -53,7 +53,7 @@ $friends is a reference to an array of hashrefs, with each hashref with the foll
 
 sub merge_trust {
     my ( $class, $u, $opts, $friends ) = @_;
-    foreach my $friend ( @$friends ) {
+    foreach my $friend (@$friends) {
         my $to_u = LJ::load_userid( $friend->{userid} );
         $u->add_edge( $to_u, trust => { mask => $friend->{groupmask}, nonotify => 1, } );
     }
@@ -73,16 +73,18 @@ $friends is a reference to an array of hashrefs, with each hashref with the foll
 
 sub merge_watch {
     my ( $class, $u, $opts, $friends ) = @_;
-    foreach my $friend ( @$friends ) {
+    foreach my $friend (@$friends) {
         my $to_u = LJ::load_userid( $friend->{userid} );
-        $u->add_edge( $to_u, watch => {
-            nonotify => 1,
-            fgcolor => LJ::color_todb( $friend->{fgcolor} ),
-            bgcolor => LJ::color_todb( $friend->{bgcolor} ),
-        } );
+        $u->add_edge(
+            $to_u,
+            watch => {
+                nonotify => 1,
+                fgcolor  => LJ::color_todb( $friend->{fgcolor} ),
+                bgcolor  => LJ::color_todb( $friend->{bgcolor} ),
+            }
+        );
     }
 }
-
 
 =head1 Helper Functions
 
@@ -97,8 +99,11 @@ sub import_data {
 
     my $dbh = LJ::get_db_writer()
         or croak 'unable to get global database master';
-    my $hr = $dbh->selectrow_hashref( 'SELECT userid, hostname, username, usejournal, password_md5, import_data_id, options ' .
-                                      'FROM import_data WHERE userid = ? AND import_data_id = ?', undef, $userid, $impid );
+    my $hr = $dbh->selectrow_hashref(
+        'SELECT userid, hostname, username, usejournal, password_md5, import_data_id, options '
+            . 'FROM import_data WHERE userid = ? AND import_data_id = ?',
+        undef, $userid, $impid
+    );
     croak $dbh->errstr if $dbh->err;
 
     $hr->{options} = Storable::thaw( $hr->{options} ) || {}
@@ -117,8 +122,8 @@ happened with their import.
 sub userids_to_message {
     my ( $class, $uid ) = @_;
 
-    my $u = LJ::load_userid( $uid )
-        or return $uid; # fail?
+    my $u = LJ::load_userid($uid)
+        or return $uid;    # fail?
     return $uid unless $u->is_community;
 
     return $u->maintainer_userids;
@@ -135,9 +140,11 @@ sub fail {
     $0 = 'content-importer [bored]';
 
     if ( my $dbh = LJ::get_db_writer() ) {
-        $dbh->do( "UPDATE import_items SET status = 'failed', last_touch = UNIX_TIMESTAMP() ".
-                  "WHERE userid = ? AND item = ? AND import_data_id = ?",
-                  undef, $imp->{userid}, $item, $imp->{import_data_id} );
+        $dbh->do(
+            "UPDATE import_items SET status = 'failed', last_touch = UNIX_TIMESTAMP() "
+                . "WHERE userid = ? AND item = ? AND import_data_id = ?",
+            undef, $imp->{userid}, $item, $imp->{import_data_id}
+        );
         warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
     }
 
@@ -150,7 +157,7 @@ sub fail {
         LJ::Event::ImportStatus->new( $uid, $item, { type => 'fail', msg => $msg } )->fire;
     }
 
-    $job->permanent_failure( $msg );
+    $job->permanent_failure($msg);
     return;
 }
 
@@ -166,7 +173,7 @@ sub temp_fail {
 
     # Check if we are out of failures
     my $max_fails = $class->max_retries;
-    my $this_fail = $job->failures + 1; # Add this failure on.
+    my $this_fail = $job->failures + 1;    # Add this failure on.
     return $class->fail( $imp, $item, $job, $msgt, @args ) if $this_fail >= $max_fails;
 
     my $msg = sprintf( $msgt, @args );
@@ -175,7 +182,8 @@ sub temp_fail {
 
     # fire an event for the user to know that it failed (temporarily)
     foreach my $uid ( $class->userids_to_message( $imp->{userid} ) ) {
-        LJ::Event::ImportStatus->new( $uid, $item,
+        LJ::Event::ImportStatus->new(
+            $uid, $item,
             {
                 type     => 'temp_fail',
                 msg      => $msg,
@@ -185,7 +193,7 @@ sub temp_fail {
         )->fire;
     }
 
-    $job->failed( $msg );
+    $job->failed($msg);
     return;
 }
 
@@ -200,16 +208,18 @@ sub ok {
     $0 = 'content-importer [bored]';
 
     if ( my $dbh = LJ::get_db_writer() ) {
-        $dbh->do( "UPDATE import_items SET status = 'succeeded', last_touch = UNIX_TIMESTAMP() " .
-                  "WHERE userid = ? AND item = ? AND import_data_id = ?",
-                  undef, $imp->{userid}, $item, $imp->{import_data_id} );
+        $dbh->do(
+            "UPDATE import_items SET status = 'succeeded', last_touch = UNIX_TIMESTAMP() "
+                . "WHERE userid = ? AND item = ? AND import_data_id = ?",
+            undef, $imp->{userid}, $item, $imp->{import_data_id}
+        );
         warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
     }
 
     # advise the user this finished
     unless ( defined $show && $show == 0 ) {
         foreach my $uid ( $class->userids_to_message( $imp->{userid} ) ) {
-            LJ::Event::ImportStatus->new( $uid, $item, { type => 'ok' } )->fire
+            LJ::Event::ImportStatus->new( $uid, $item, { type => 'ok' } )->fire;
         }
     }
 
@@ -228,7 +238,7 @@ sub decline {
 
     $opts{delay} ||= 3600 * 24;
     $job->run_after( time() + $opts{delay} );
-    $job->declined( 1 );
+    $job->declined(1);
     $job->save();
 
     return;
@@ -245,7 +255,6 @@ sub enabled {
     return LJ::is_enabled( "importing", $data->{hostname} );
 }
 
-
 =head2 C<< $class->status( $import_data, $item, $args ) >>
 
 This creates an LJ::Event::ImportStatus item for the user to look at.  Note that $args
@@ -259,6 +268,5 @@ sub status {
         LJ::Event::ImportStatus->new( $uid, $item, { type => 'status', %{ $args || {} } } )->fire;
     }
 }
-
 
 1;

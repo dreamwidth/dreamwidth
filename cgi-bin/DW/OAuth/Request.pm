@@ -3,7 +3,7 @@
 # DW::OAuth
 #
 # OAuth Request Token
-# 
+#
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #
@@ -26,13 +26,13 @@ use DW::OAuth;
 # These are so short lived that there is no point to put them in the database.
 
 sub from_token {
-    my ($class, $token) = @_;
+    my ( $class, $token ) = @_;
     return undef unless $token;
-    return undef unless DW::OAuth->validate_token( $token );
+    return undef unless DW::OAuth->validate_token($token);
 
     {
         my $ar = LJ::MemCache::get( [ $token, "oauth_request_token:" . $token ] );
-        my $row = $ar ? LJ::MemCache::array_to_hash("oauth_request", $ar) : undef;
+        my $row = $ar ? LJ::MemCache::array_to_hash( "oauth_request", $ar ) : undef;
         return $class->new_from_row($row) if $row;
     }
 
@@ -40,7 +40,7 @@ sub from_token {
 }
 
 sub want {
-    my ($class, $thing) = @_;
+    my ( $class, $thing ) = @_;
 
     return undef unless $thing;
     return $thing if ref $thing eq $class;
@@ -50,13 +50,13 @@ sub want {
 sub _make_simple {
     my $rv = 0;
 
-    map { $rv += $_ } unpack("LLLLL",$_[0]);
+    map { $rv += $_ } unpack( "LLLLL", $_[0] );
 
-    return sprintf("%08i",$rv % 100000000);
+    return sprintf( "%08i", $rv % 100000000 );
 }
 
 sub new {
-    my ($class, $consumer, %opts) = @_;
+    my ( $class, $consumer, %opts ) = @_;
 
     my $c = DW::OAuth::Consumer->want($consumer);
     $opts{consumer_id} = $c->id if $c;
@@ -65,25 +65,28 @@ sub new {
     die "Invalid consumer" unless $opts{consumer_id};
 
     $opts{callback} ||= 'oob';
+
     # Set some default options:
     if ( $opts{callback} eq 'oob' ) {
         $opts{simple_verifier} = 1 unless defined $opts{simple_verifier};
     }
 
-    my ( $token, $secret ) = DW::OAuth->make_token_pair( 'request' );
+    my ( $token, $secret ) = DW::OAuth->make_token_pair('request');
 
-    $opts{token} = $token;
+    $opts{token}  = $token;
     $opts{secret} = $secret;
 
     $opts{createtime} = time();
 
     my $verifier_string = sha1( $opts{token} . LJ::rand_chars(32) );
     if ( $opts{simple_verifier} ) {
+
         # this is a roundabout way to get a good 8-digit number
         # these don't have to be unique, just very hard to guess.
-        $opts{verifier} = _make_simple( $verifier_string );
-    } else {
-        $opts{verifier} = urlsafe_b64encode( $verifier_string );
+        $opts{verifier} = _make_simple($verifier_string);
+    }
+    else {
+        $opts{verifier} = urlsafe_b64encode($verifier_string);
     }
 
     # change token into a simple token if that's requested
@@ -93,13 +96,13 @@ sub new {
 
     delete $opts{user_id};
 
-    my $rv = $class->new_from_row(\%opts);
+    my $rv = $class->new_from_row( \%opts );
     $rv->save;
     return $rv;
 }
 
 sub new_from_row {
-    my ($class, $row) = @_;
+    my ( $class, $row ) = @_;
 
     my $c = bless $row, $class;
 
@@ -111,8 +114,8 @@ sub save {
 
     # This is intentionally only good for 600 seconds.
     my $expire = time() + 600;
-    my $ar = LJ::MemCache::hash_to_array("oauth_request", $c);
-    LJ::MemCache::set( [ $c->token, "oauth_request_token:" . $c->token ] , $ar, $expire );
+    my $ar     = LJ::MemCache::hash_to_array( "oauth_request", $c );
+    LJ::MemCache::set( [ $c->token, "oauth_request_token:" . $c->token ], $ar, $expire );
 }
 
 sub consumer_id {
@@ -120,19 +123,20 @@ sub consumer_id {
 }
 
 sub consumer {
-    return DW::OAuth::Consumer->from_id($_[0]->consumer_id);
+    return DW::OAuth::Consumer->from_id( $_[0]->consumer_id );
 }
 
 sub userid {
     if ( exists $_[1] ) {
         $_[0]->{userid} = $_[1];
-    } else {
+    }
+    else {
         return $_[0]->{userid};
     }
 }
 
 sub user {
-    return $_[0]->userid ? LJ::load_userid($_[0]->userid) : undef;
+    return $_[0]->userid ? LJ::load_userid( $_[0]->userid ) : undef;
 }
 
 sub token {

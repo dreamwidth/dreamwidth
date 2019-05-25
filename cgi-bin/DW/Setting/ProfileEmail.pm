@@ -27,7 +27,7 @@ sub should_render {
 
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.profileemail.label' );
+    return $class->ml('setting.profileemail.label');
 }
 
 sub option {
@@ -36,14 +36,16 @@ sub option {
     my $key = $class->pkgkey;
     my $ret;
 
-    $ret .= LJ::html_text({
-        name      => "${key}email",
-        id        => "${key}email",
-        class     => "text",
-        value     => $errs ? $class->get_arg( $args, "email" ) : $u->profile_email,
-        size      => 70,
-        maxlength => 255,
-    });
+    $ret .= LJ::html_text(
+        {
+            name      => "${key}email",
+            id        => "${key}email",
+            class     => "text",
+            value     => $errs ? $class->get_arg( $args, "email" ) : $u->profile_email,
+            size      => 70,
+            maxlength => 255,
+        }
+    );
 
     my $errdiv = $class->errdiv( $errs, "email" );
     $ret .= "<br />$errdiv" if $errdiv;
@@ -59,17 +61,19 @@ sub save {
 
     # ensure a valid email address is given.
     my @errors;
-    if ( $email ) {
+    if ($email) {
+
         # force_spelling because /manage/profile can't present unsaved edits
         # back to you (nor hold them out of sight), so there's no opportunity
         # to show an override checkbox
         LJ::check_email( $email, \@errors, { force_spelling => 1 } );
     }
 
-    if ( @errors ) {
-        $class->errors( "email" => join( '<br />', @errors ) ) ;
-    } else {
-        $u->profile_email( $email );
+    if (@errors) {
+        $class->errors( "email" => join( '<br />', @errors ) );
+    }
+    else {
+        $u->profile_email($email);
     }
 
     return 1;

@@ -85,26 +85,26 @@ caller module, just as for Exporter-style import.
 =cut
 
 sub install_overrides {
-    my ($callpkg, @funs) = @_;
+    my ( $callpkg, @funs ) = @_;
     my $selfpkg = __PACKAGE__;
-    Carp::croak( "$callpkg not a descendent of $selfpkg" )
+    Carp::croak("$callpkg not a descendent of $selfpkg")
         unless $callpkg =~ /^\Q${selfpkg}::\E/;
 
     my $pkgpath = $callpkg;
     $pkgpath =~ s!::!/!g;
-    my @dirs = LJ::get_all_directories( "cgi-bin/$pkgpath" );
+    my @dirs = LJ::get_all_directories("cgi-bin/$pkgpath");
     return unless @dirs;
 
     my %seen;
-    foreach my $dpkg ( LJ::ModuleLoader->module_subclasses( $callpkg ) ) {
+    foreach my $dpkg ( LJ::ModuleLoader->module_subclasses($callpkg) ) {
         $pkgpath = $dpkg;
         $pkgpath =~ s!::!/!g;
         require "${pkgpath}.pm";
-        foreach my $fname ( @funs ) {
+        foreach my $fname (@funs) {
             no strict 'refs';
             my $subref = "${dpkg}::${fname}";
             next unless defined &$subref;
-            Carp::croak( "$fname defined in both $dpkg and $seen{$fname}" )
+            Carp::croak("$fname defined in both $dpkg and $seen{$fname}")
                 if $seen{$fname};
             $seen{$fname} = $dpkg;
             no warnings 'redefine';

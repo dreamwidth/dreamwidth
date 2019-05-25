@@ -24,14 +24,13 @@ use Test::More tests => 7;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Lang;
 
-is(LJ::commafy("lalala"), "lalala");
-is(LJ::commafy("1"), "1");
-is(LJ::commafy("12"), "12");
-is(LJ::commafy("123"), "123");
-is(LJ::commafy("1234"), "1,234");
-is(LJ::commafy("123456"), "123,456");
-is(LJ::commafy("1234567"), "1,234,567");
-
+is( LJ::commafy("lalala"),  "lalala" );
+is( LJ::commafy("1"),       "1" );
+is( LJ::commafy("12"),      "12" );
+is( LJ::commafy("123"),     "123" );
+is( LJ::commafy("1234"),    "1,234" );
+is( LJ::commafy("123456"),  "123,456" );
+is( LJ::commafy("1234567"), "1,234,567" );
 
 1;
 

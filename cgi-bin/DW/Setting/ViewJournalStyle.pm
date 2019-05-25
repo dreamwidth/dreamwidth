@@ -22,11 +22,11 @@ use strict;
 use warnings;
 
 sub label {
-    return $_[0]->ml( 'setting.display.viewjournalstyle.label' );
+    return $_[0]->ml('setting.display.viewjournalstyle.label');
 }
 
 sub option_ml {
-    return $_[0]->ml( 'setting.display.viewjournalstyle.option' );
+    return $_[0]->ml('setting.display.viewjournalstyle.option');
 }
 
 sub prop_name {

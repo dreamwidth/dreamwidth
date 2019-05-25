@@ -23,26 +23,26 @@ use base 'DW::Request::Base';
 use Apache2::Const -compile => qw/ :common :http /;
 use Apache2::Log ();
 use Apache2::Request;
-use Apache2::Response ();
-use Apache2::RequestRec ();
+use Apache2::Response    ();
+use Apache2::RequestRec  ();
 use Apache2::RequestUtil ();
-use Apache2::RequestIO ();
-use Apache2::SubProcess ();
+use Apache2::RequestIO   ();
+use Apache2::SubProcess  ();
 use Hash::MultiValue;
 
 use fields (
-            'r',         # The Apache2::Request object
-        );
+    'r',    # The Apache2::Request object
+);
 
 # creates a new DW::Request object, based on what type of server environment we
 # are running under
 sub new {
     my DW::Request::Apache2 $self = $_[0];
-    $self = fields::new( $self ) unless ref $self;
+    $self = fields::new($self) unless ref $self;
     $self->SUPER::new;
 
     # setup object
-    $self->{r}         = $_[1];
+    $self->{r} = $_[1];
 
     # done
     return $self;
@@ -96,75 +96,80 @@ sub content {
 # searches for a given note and returns the value, or sets it
 sub note {
     my DW::Request::Apache2 $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
-        return $self->{r}->notes->{$_[1]};
-    } else {
-        return $self->{r}->notes->{$_[1]} = $_[2];
+    if ( scalar(@_) == 2 ) {
+        return $self->{r}->notes->{ $_[1] };
+    }
+    else {
+        return $self->{r}->notes->{ $_[1] } = $_[2];
     }
 }
 
 # searches for a given pnote and returns the value, or sets it
 sub pnote {
     my DW::Request::Apache2 $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
-        return $self->{r}->pnotes->{$_[1]};
-    } else {
-        return $self->{r}->pnotes->{$_[1]} = $_[2];
+    if ( scalar(@_) == 2 ) {
+        return $self->{r}->pnotes->{ $_[1] };
+    }
+    else {
+        return $self->{r}->pnotes->{ $_[1] } = $_[2];
     }
 }
 
 # searches for a given header and returns the value, or sets it
 sub header_in {
     my DW::Request::Apache2 $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
-        return $self->{r}->headers_in->{$_[1]};
-    } else {
-        return $self->{r}->headers_in->{$_[1]} = $_[2];
+    if ( scalar(@_) == 2 ) {
+        return $self->{r}->headers_in->{ $_[1] };
+    }
+    else {
+        return $self->{r}->headers_in->{ $_[1] } = $_[2];
     }
 }
 
 # Do not want to return an APR::Table here
 sub headers_in {
     my DW::Request::Apache2 $self = $_[0];
-    return %{$self->{r}->headers_in};
+    return %{ $self->{r}->headers_in };
 }
 
 # searches for a given header and returns the value, or sets it
 sub header_out {
     my DW::Request::Apache2 $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
-        return $self->{r}->headers_out->{$_[1]};
-    } else {
-        return $self->{r}->headers_out->{$_[1]} = $_[2];
+    if ( scalar(@_) == 2 ) {
+        return $self->{r}->headers_out->{ $_[1] };
+    }
+    else {
+        return $self->{r}->headers_out->{ $_[1] } = $_[2];
     }
 }
 
 # Do not want to return an APR::Table here
 sub headers_out {
     my DW::Request::Apache2 $self = $_[0];
-    return %{$self->{r}->headers_out};
+    return %{ $self->{r}->headers_out };
 }
 
 # appends a value to a header
 sub header_out_add {
     my DW::Request::Apache2 $self = $_[0];
-    return $self->{r}->headers_out->add( $_[1] , $_[2] );
+    return $self->{r}->headers_out->add( $_[1], $_[2] );
 }
 
 # searches for a given header and returns the value, or sets it
 sub err_header_out {
     my DW::Request::Apache2 $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
-        return $self->{r}->err_headers_out->{$_[1]};
-    } else {
-        return $self->{r}->err_headers_out->{$_[1]} = $_[2];
+    if ( scalar(@_) == 2 ) {
+        return $self->{r}->err_headers_out->{ $_[1] };
+    }
+    else {
+        return $self->{r}->err_headers_out->{ $_[1] } = $_[2];
     }
 }
 
 # appends a value to a header
 sub err_header_out_add {
     my DW::Request::Apache2 $self = $_[0];
-    return $self->{r}->err_headers_out->add( $_[1] , $_[2] );
+    return $self->{r}->err_headers_out->add( $_[1], $_[2] );
 }
 
 # returns the ip address of the connected person
@@ -176,26 +181,29 @@ sub get_remote_ip {
 # sets last modified
 sub set_last_modified {
     my DW::Request::Apache2 $self = $_[0];
-    return $self->{r}->set_last_modified($_[1]);
+    return $self->{r}->set_last_modified( $_[1] );
 }
 
 sub status {
     my DW::Request::Apache2 $self = $_[0];
-    if (scalar(@_) == 2) {
-        $self->{r}->status($_[1]+0);
-    } else {
+    if ( scalar(@_) == 2 ) {
+        $self->{r}->status( $_[1] + 0 );
+    }
+    else {
         return $self->{r}->status();
     }
 }
 
 sub status_line {
     my DW::Request::Apache2 $self = $_[0];
-    if (scalar(@_) == 2) {
+    if ( scalar(@_) == 2 ) {
+
         # If we set status_line, we must also set status.
         my ($status) = $_[1] =~ m/^(\d+)/;
         $self->{r}->status($status);
-        return $self->{r}->status_line($_[1]);
-    } else {
+        return $self->{r}->status_line( $_[1] );
+    }
+    else {
         return $self->{r}->status_line();
     }
 }
@@ -227,7 +235,7 @@ sub r {
 sub call_response_handler {
     my DW::Request::Apache2 $self = shift;
 
-    $self->{r}->handler( 'perl-script' );
+    $self->{r}->handler('perl-script');
     $self->{r}->push_handlers( PerlResponseHandler => $_[0] );
 
     return Apache2::Const::OK;
@@ -238,9 +246,9 @@ sub call_response_handler {
 sub call_bml {
     my DW::Request::Apache2 $self = shift;
 
-    $self->note(bml_filename => $_[0]);
+    $self->note( bml_filename => $_[0] );
 
-    return Apache::BML::handler($self->{r});
+    return Apache::BML::handler( $self->{r} );
 }
 
 # constants
@@ -307,12 +315,12 @@ sub FORBIDDEN {
 # spawn a process for an external program
 sub spawn {
     my DW::Request::Apache2 $self = shift;
-    return $self->{r}->spawn_proc_prog( @_ );
+    return $self->{r}->spawn_proc_prog(@_);
 }
 
 sub no_cache {
     my DW::Request::Apache2 $self = shift;
-    return $self->{r}->no_cache( 1 );
+    return $self->{r}->no_cache(1);
 }
 
 1;

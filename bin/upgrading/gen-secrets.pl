@@ -27,13 +27,13 @@ sub usage {
     die "Usage: gen-secrets.pl BLAH";
 }
 
-my $regen = 0;
-my $no_rec= 0;
+my $regen  = 0;
+my $no_rec = 0;
 
 usage() unless GetOptions(
-                          'regen'       => \$regen,
-                          'required'    => \$no_rec,
-                          );
+    'regen'    => \$regen,
+    'required' => \$no_rec,
+);
 
 my %sec_use;
 %sec_use = %LJ::SECRETS unless $regen;
@@ -44,7 +44,7 @@ foreach my $secret ( sort keys %LJ::Secrets::secret ) {
     my $def = $LJ::Secrets::secret{$secret};
 
     next if defined $sec_use{$secret} && $sec_use{$secret};
-    next if $no_rec && ! $def->{required};
+    next if $no_rec && !$def->{required};
 
     if ( $def->{max_len} && $def->{min_len} && $def->{max_len} < $def->{min_len} ) {
         warn "Invalid required length specifications ( max < min ) for '$secret'.\n";
@@ -65,7 +65,7 @@ foreach my $secret ( sort keys %LJ::Secrets::secret ) {
     }
 
     my $gen_len = ceil( $len / 2 );
-    my $data = substr( `openssl rand -hex $gen_len`, 0, $len );
+    my $data    = substr( `openssl rand -hex $gen_len`, 0, $len );
     chomp $data;
     die "Unable to get $len bytes of data from OpenSSL\n"
         if length($data) < $len;
@@ -73,29 +73,32 @@ foreach my $secret ( sort keys %LJ::Secrets::secret ) {
     $sec_out{$secret} = $data;
 }
 
-unless ( %sec_out ) {
+unless (%sec_out) {
     print "Your secrets are up to date.\n";
     exit;
 }
 
-if ( ! %LJ::SECRETS ) {
+if ( !%LJ::SECRETS ) {
     print "\nPlease add the following section to your etc/config-private.pl file,\n";
     print "inside the LJ package:\n\n";
     print "%LJ::SECRETS = (\n";
-} else {
+}
+else {
     print "\nPlease add or replace the following sections in LJ::SECRETS in your config\n";
     print "file (probably etc/config-private.pl):\n\n";
 }
 
 foreach my $secret ( sort keys %sec_out ) {
     my $value = $sec_out{$secret};
+
     # FIXME: There has to be a better way to do this.
     $value =~ s/\\/\\\\/g;
     $value =~ s/'/\\'/g;
 
     if ( $secret =~ m/^[a-zA-Z0-9_]+$/ ) {
         print "    $secret => '$value',\n";
-    } else {
+    }
+    else {
         $secret =~ s/\\/\\\\/g;
         $secret =~ s/'/\\'/g;
         print "    '$secret' => '$value',\n";

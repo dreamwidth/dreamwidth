@@ -36,7 +36,7 @@ use constant SECS_IN_DAY => 86400;
 #
 # ARGUMENTS: from_type, dest_type, months, days, seconds
 #
-#   from_type   optional    type of paid time being converted; ignored 
+#   from_type   optional    type of paid time being converted; ignored
 #   dest_type   optional    destination account type; ignored
 #
 # At least one of months, days, or seconds must be supplied. If more than one

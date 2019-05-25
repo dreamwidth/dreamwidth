@@ -31,7 +31,7 @@ sub checked_value {
 sub unchecked_value {
     return "";
 }
-    
+
 sub should_render {
     my ( $class, $u ) = @_;
     return $u && $u->is_individual;
@@ -39,18 +39,18 @@ sub should_render {
 
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.shortcuts.label' );
+    return $class->ml('setting.shortcuts.label');
 }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
     return $class->as_html( $u, $errs );
 }
-    
+
 sub des {
     my $class = $_[0];
-    
-    return $class->ml( 'setting.shortcuts.des' );
+
+    return $class->ml('setting.shortcuts.des');
 }
 
 1;

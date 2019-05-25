@@ -24,14 +24,16 @@ use DW::Template;
 use LJ::Hooks;
 
 my @pages = qw( tos privacy );
-LJ::Hooks::run_hook( 'modify_legal_index', \@pages );  # add nonfree pages
+LJ::Hooks::run_hook( 'modify_legal_index', \@pages );    # add nonfree pages
 my $args = { index => [] };
 
-foreach my $page ( @pages ) {
+foreach my $page (@pages) {
+
     # register the page view
-    DW::Routing->register_static( "/legal/$page",  "legal/$page.tt", app => 1 );
+    DW::Routing->register_static( "/legal/$page", "legal/$page.tt", app => 1 );
+
     # add the page to the index list
-    push @{ $args->{index} }, { page => $page, header => ".$page-header", text => ".$page" }
+    push @{ $args->{index} }, { page => $page, header => ".$page-header", text => ".$page" };
 }
 
 # register the index view
@@ -40,6 +42,5 @@ DW::Routing->register_string( '/legal/index', \&index_handler, app => 1 );
 sub index_handler {
     return DW::Template->render_template( 'legal/index.tt', $args );
 }
-
 
 1;

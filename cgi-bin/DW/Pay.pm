@@ -27,7 +27,7 @@ our $error_code = undef;
 our $error_text = undef;
 
 use constant ERR_FATAL => 1;
-use constant ERR_TEMP => 2;
+use constant ERR_TEMP  => 2;
 
 ################################################################################
 # DW::Pay::type_is_valid
@@ -39,8 +39,10 @@ use constant ERR_TEMP => 2;
 # RETURN: 1/0 if the type is a valid type
 #
 sub type_is_valid {
-    return 1 if $LJ::CAP{$_[0]} && $LJ::CAP{$_[0]}->{_account_type}
-        && $LJ::CAP{$_[0]}->{_visible_name};
+    return 1
+        if $LJ::CAP{ $_[0] }
+        && $LJ::CAP{ $_[0] }->{_account_type}
+        && $LJ::CAP{ $_[0] }->{_visible_name};
     return 0;
 }
 
@@ -56,7 +58,7 @@ sub type_is_valid {
 sub type_name {
     confess "invalid typeid $_[0]"
         unless DW::Pay::type_is_valid( $_[0] );
-    return $LJ::CAP{$_[0]}->{_visible_name};
+    return $LJ::CAP{ $_[0] }->{_visible_name};
 }
 
 ################################################################################
@@ -71,7 +73,7 @@ sub type_name {
 sub type_shortname {
     confess "invalid typeid $_[0]"
         unless DW::Pay::type_is_valid( $_[0] );
-    return $LJ::CAP{$_[0]}->{_account_type};
+    return $LJ::CAP{ $_[0] }->{_account_type};
 }
 
 ################################################################################
@@ -84,9 +86,10 @@ sub type_shortname {
 sub all_shortnames {
     my %names;
     while ( my ( $typeid, $data ) = each %LJ::CAP ) {
+
         # Avoid calling DW::Pay::type_is_valid a zillion times for the same typeid
         $names{$typeid} = $data->{_account_type}
-            if DW::Pay::type_is_valid( $typeid );
+            if DW::Pay::type_is_valid($typeid);
     }
     return \%names;
 }
@@ -113,9 +116,9 @@ sub get_paid_status {
     my ( $uuid, %opts ) = @_;
     my $uid;
 
-    my $use_cache = ! $opts{no_cache};
+    my $use_cache = !$opts{no_cache};
 
-    $uid = LJ::want_userid( $uuid ) if defined $uuid;
+    $uid = LJ::want_userid($uuid) if defined $uuid;
     return error( ERR_FATAL, "Invalid user object/userid passed in." )
         unless defined $uid && $uid > 0;
 
@@ -123,11 +126,13 @@ sub get_paid_status {
 
     my $dbr = DW::Pay::get_db_reader()
         or return error( ERR_TEMP, "Failed acquiring database reader handle." );
-    my $row = $dbr->selectrow_hashref( q{
+    my $row = $dbr->selectrow_hashref(
+        q{
             SELECT IFNULL(expiretime, 0) - UNIX_TIMESTAMP() AS 'expiresin', typeid, expiretime, permanent
             FROM dw_paidstatus
             WHERE userid = ?
-        }, undef, $uid );
+        }, undef, $uid
+    );
     return error( ERR_FATAL, "Database error: " . $dbr->errstr )
         if $dbr->err;
 
@@ -141,13 +146,14 @@ sub get_paid_status {
 # RETURN: typeid of the default account type.
 #
 sub default_typeid {
+
     # try to get the default cap class.  note that we confess here because
     # these errors are bad enough to warrant bailing whoever is calling us.
     my @defaults = grep { $LJ::CAP{$_}->{_account_default} } keys %LJ::CAP;
     confess 'must have one %LJ::CAP class set _account_default to use the payment system'
-        if scalar( @defaults ) < 1;
+        if scalar(@defaults) < 1;
     confess 'only one %LJ::CAP class can be set as _account_default'
-        if scalar( @defaults ) > 1;
+        if scalar(@defaults) > 1;
 
     # There Can Be Only One
     return $defaults[0];
@@ -186,15 +192,14 @@ sub get_current_account_status {
 
     # check memcache first
     my $memkey = [ $uid, "accttype:$uid" ];
-    my $typeid = LJ::MemCache::get( $memkey );
+    my $typeid = LJ::MemCache::get($memkey);
     return $typeid if defined $typeid;
 
     # try to get current paid status if not in memcache
-    my $stat = DW::Pay::get_paid_status( @_ );
+    my $stat = DW::Pay::get_paid_status(@_);
 
     # default check
-    $typeid = DW::Pay::is_default_type( $stat )
-        ? DW::Pay::default_typeid() : $stat->{typeid};
+    $typeid = DW::Pay::is_default_type($stat) ? DW::Pay::default_typeid() : $stat->{typeid};
 
     # store in memcache for 15 minutes
     LJ::MemCache::set( $memkey, $typeid, 900 );
@@ -216,7 +221,7 @@ sub expire_status_cache {
     return undef unless $uid;
 
     my $memkey = [ $uid, "accttype:$uid" ];
-    LJ::MemCache::delete( $memkey );
+    LJ::MemCache::delete($memkey);
     delete $LJ::PAID_STATUS{$uid};
 
     return 1;
@@ -235,13 +240,14 @@ sub expire_status_cache {
 # yes, this function has a very weird return value.  :(
 #
 sub get_account_expiration_time {
+
     # try to get current paid status
-    my $stat = DW::Pay::get_paid_status( @_ );
+    my $stat = DW::Pay::get_paid_status(@_);
 
     # free accounts: no row, or expired
     # perm accounts: no expiration
     return -1 if !defined $stat || $stat->{permanent};
-    return  0 unless $stat->{expiresin} > 0;
+    return 0 unless $stat->{expiresin} > 0;
 
     # valid row, return whatever the expiration time is
     return time() + $stat->{expiresin};
@@ -257,11 +263,11 @@ sub get_account_expiration_time {
 # RETURN: value defined as _account_type in %LJ::CAP.
 #
 sub get_account_type {
-    my $typeid = DW::Pay::get_current_account_status( @_ );
+    my $typeid = DW::Pay::get_current_account_status(@_);
     confess 'account has no valid typeid'
         unless $typeid && $typeid > 0;
     confess "typeid $typeid not a valid account level"
-        unless DW::Pay::type_is_valid( $typeid );
+        unless DW::Pay::type_is_valid($typeid);
     return $LJ::CAP{$typeid}->{_account_type};
 }
 
@@ -275,14 +281,13 @@ sub get_account_type {
 # RETURN: value defined as _refund_points in %LJ::CAP.
 #
 sub get_refund_points_rate {
-    my $typeid = DW::Pay::get_current_account_status( @_ );
+    my $typeid = DW::Pay::get_current_account_status(@_);
     confess 'account has no valid typeid'
         unless $typeid && $typeid > 0;
     confess "typeid $typeid not a valid account level"
-        unless DW::Pay::type_is_valid( $typeid );
+        unless DW::Pay::type_is_valid($typeid);
     return $LJ::CAP{$typeid}->{_refund_points} || 0;
 }
-
 
 ################################################################################
 # DW::Pay::can_refund_points
@@ -295,9 +300,9 @@ sub get_refund_points_rate {
 #
 sub can_refund_points {
     my $u = LJ::want_user( $_[0] );
-    return 0 unless LJ::isu( $u );
+    return 0 unless LJ::isu($u);
 
-    my $secs_since_refund = time() - ( $u->prop( "shop_refund_time" ) || 0 );
+    my $secs_since_refund = time() - ( $u->prop("shop_refund_time") || 0 );
     return $secs_since_refund > 86400 * 30 ? 1 : 0;
 }
 
@@ -311,11 +316,11 @@ sub can_refund_points {
 # RETURN: value defined as _visible_name in %LJ::CAP.
 #
 sub get_account_type_name {
-    my $typeid = DW::Pay::get_current_account_status( @_ );
+    my $typeid = DW::Pay::get_current_account_status(@_);
     confess 'account has no valid typeid'
         unless $typeid && $typeid > 0;
     confess "typeid $typeid not a valid account level"
-        unless DW::Pay::type_is_valid( $typeid );
+        unless DW::Pay::type_is_valid($typeid);
     return $LJ::CAP{$typeid}->{_visible_name};
 }
 
@@ -343,15 +348,16 @@ sub get_current_paid_userids {
 
     if ( exists $opts{permanent} ) {
         push @where, 'permanent = ?';
-        push @values, ($opts{permanent} ? 1 : 0);
+        push @values, ( $opts{permanent} ? 1 : 0 );
         push @where, 'expiretime > UNIX_TIMESTAMP(NOW())'
             unless $opts{permanent};
-    } else {
+    }
+    else {
         push @where, '(permanent = 1 OR expiretime > UNIX_TIMESTAMP(NOW()))';
     }
 
     if ( exists $opts{typeid} ) {
-        push @where, 'typeid = ?';
+        push @where,  'typeid = ?';
         push @values, $opts{typeid};
     }
 
@@ -370,7 +376,6 @@ sub get_current_paid_userids {
     return $uids;
 }
 
-
 ################################################################################
 # DW::Pay::expire_user
 #
@@ -388,12 +393,12 @@ sub expire_user {
     DW::Pay::clear_error();
 
     my ( $u, %opts ) = @_;
-    $u = LJ::want_user( $u )
+    $u = LJ::want_user($u)
         or return error( ERR_FATAL, "Invalid/not a user object." );
 
     unless ( $opts{force} ) {
-        my $ps = DW::Pay::get_paid_status( $u );
-        return 1 unless $ps; # free already
+        my $ps = DW::Pay::get_paid_status($u);
+        return 1 unless $ps;    # free already
         return error( ERR_FATAL, "Cannot expire a permanent account." )
             if $ps->{permanent};
         return error( ERR_FATAL, "Account not ready for expiration." )
@@ -401,11 +406,13 @@ sub expire_user {
     }
 
     # so we have to update their status now
-    LJ::statushistory_add( $u, undef, 'paidstatus', 'Expiring account; forced=' . ( $opts{force} ? 1 : 0 ) . '.' );
+    LJ::statushistory_add( $u, undef, 'paidstatus',
+        'Expiring account; forced=' . ( $opts{force} ? 1 : 0 ) . '.' );
     DW::Pay::update_paid_status( $u, _expire => 1 );
-    DW::Pay::sync_caps( $u );
+    DW::Pay::sync_caps($u);
 
     my $rv = eval {
+
         # activate also does inactivations
         $u->activate_userpics;
         $u->delete_email_alias;
@@ -418,7 +425,6 @@ sub expire_user {
     DW::Stats::increment( 'dw.shop.paid_account.expired', 1 );
     return 1;
 }
-
 
 ################################################################################
 # DW::Pay::add_paid_time
@@ -441,9 +447,8 @@ sub add_paid_time {
         or return error( ERR_FATAL, "Invalid/not a user object." );
 
     my $type = shift();
-    my ( $typeid ) = grep { $LJ::CAP{$_}->{_account_type} &&
-                            $LJ::CAP{$_}->{_account_type} eq $type }
-                          keys %LJ::CAP;
+    my ($typeid) = grep { $LJ::CAP{$_}->{_account_type} && $LJ::CAP{$_}->{_account_type} eq $type }
+        keys %LJ::CAP;
     return error( ERR_FATAL, 'Invalid type, no typeid found.' )
         unless $typeid;
 
@@ -454,8 +459,8 @@ sub add_paid_time {
     return error( ERR_FATAL, 'Invalid value for days.' )
         unless $days >= 0 && $days <= 31;
 
-    return error( ERR_FATAL, 'Empty time increment')
-        unless $months > 0 || $days > 0 ;
+    return error( ERR_FATAL, 'Empty time increment' )
+        unless $months > 0 || $days > 0;
 
     # okay, let's see what the user is right now to decide what to do
     my $permanent = $months == 99 ? 1 : 0;
@@ -465,6 +470,7 @@ sub add_paid_time {
 
     # if they have a $ps hashref, they have or had paid time at some point
     if ( my $ps = DW::Pay::get_paid_status( $u, no_cache => 1 ) ) {
+
         # easy bail if they're permanent
         return error( ERR_FATAL, 'User is already permanent, cannot apply more time.' )
             if $ps->{permanent};
@@ -477,36 +483,44 @@ sub add_paid_time {
             if ( $ps->{typeid} == $typeid ) {
                 $asecs = $ps->{expiresin};
 
-            # but if they're going permanent...
-            } elsif ( $permanent ) {
+                # but if they're going permanent...
+            }
+            elsif ($permanent) {
                 $asecs = $ps->{expiresin};
 
-            # but the types are different...
-            } else {
+                # but the types are different...
+            }
+            else {
                 # FIXME: this needs to not be dw-nonfree logic
-                my $from_type = $LJ::CAP{$ps->{typeid}}->{_account_type};
-                my $to_type = $LJ::CAP{$typeid}->{_account_type};
+                my $from_type = $LJ::CAP{ $ps->{typeid} }->{_account_type};
+                my $to_type   = $LJ::CAP{$typeid}->{_account_type};
 
                 # paid->premium, we convert any existing time to premium
                 #   ($amonths are already premium and are added later)
                 if ( $from_type eq 'paid' && $to_type eq 'premium' ) {
-                    $asecs = DW::BusinessRules::Pay::convert( $from_type, $to_type, undef, undef, $ps->{expiresin} );
+                    $asecs = DW::BusinessRules::Pay::convert( $from_type, $to_type, undef, undef,
+                        $ps->{expiresin} );
 
-                # premium->paid, upgrade the new buy to premium.  we give them 21
-                #   days of premium time for every month of paid time they were buying.
-                #   We also need to convert any day value provided, for use from /admin/pay
-                } elsif ( $from_type eq 'premium' && $to_type eq 'paid' ) {
+                    # premium->paid, upgrade the new buy to premium.  we give them 21
+                    #   days of premium time for every month of paid time they were buying.
+                    #   We also need to convert any day value provided, for use from /admin/pay
+                }
+                elsif ( $from_type eq 'premium' && $to_type eq 'paid' ) {
                     $newtypeid = $ps->{typeid};
 
                     # we are not sending their current time to the conversion function
                     #   because it is already premium. just convert the newly purchased time.
                     #   But, we do include any value in $adays to accomodate arbitrary additions.
-                    $asecs = $ps->{expiresin} + DW::BusinessRules::Pay::convert( $to_type, $from_type, $amonths, $adays, undef );
+                    $asecs =
+                        $ps->{expiresin} +
+                        DW::BusinessRules::Pay::convert( $to_type, $from_type, $amonths, $adays,
+                        undef );
                     $amonths = 0;
-                    $adays = 0;
+                    $adays   = 0;
 
-                } else {
-                    return error( ERR_FATAL, 'Invalid conversion.' )
+                }
+                else {
+                    return error( ERR_FATAL, 'Invalid conversion.' );
                 }
             }
         }
@@ -517,15 +531,16 @@ sub add_paid_time {
     $asecs += $adays * 86400;
 
     # so at this point, we can do whatever we're supposed to do
-    my $rv = DW::Pay::update_paid_status( $u,
-        typeid => $newtypeid,
-        permanent => $permanent,
+    my $rv = DW::Pay::update_paid_status(
+        $u,
+        typeid      => $newtypeid,
+        permanent   => $permanent,
         _set_months => $amonths,
-        _add_secs => $asecs,
+        _add_secs   => $asecs,
     );
 
     # and make sure caps are always in sync
-    DW::Pay::sync_caps( $u )
+    DW::Pay::sync_caps($u)
         if $rv;
 
     # the following updates can error, and if they do then we don't want to break the
@@ -541,7 +556,6 @@ sub add_paid_time {
     # all good, we hope :-)
     return $rv;
 }
-
 
 ################################################################################
 # DW::Pay::update_paid_status
@@ -569,7 +583,7 @@ sub update_paid_status {
 
     my $u = LJ::want_user( shift() )
         or return error( ERR_FATAL, "Invalid/not a user object." );
-    my %cols = ( @_ )
+    my %cols = (@_)
         or return error( ERR_FATAL, "Nothing to change!" );
     DW::Pay::expire_status_cache( $u->id );
 
@@ -580,18 +594,21 @@ sub update_paid_status {
     if ( $cols{_add_months} ) {
         my $row = DW::Pay::get_paid_status( $u, no_cache => 1 );
         if ( $row && $row->{expiresin} > 0 ) {
-            my $time = $dbh->selectrow_array( "SELECT UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME($row->{expiretime}), " .
-                                              "INTERVAL $cols{_add_months} MONTH))" );
+            my $time = $dbh->selectrow_array(
+                      "SELECT UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME($row->{expiretime}), "
+                    . "INTERVAL $cols{_add_months} MONTH))" );
             $cols{expiretime} = $time;
             delete $cols{_add_months};
 
-        } else {
+        }
+        else {
             $cols{_set_months} = delete $cols{_add_months};
         }
     }
 
     if ( exists $cols{_set_months} ) {
-        $cols{expiretime} = $dbh->selectrow_array( "SELECT UNIX_TIMESTAMP(DATE_ADD(NOW(), INTERVAL $cols{_set_months} MONTH))" );
+        $cols{expiretime} = $dbh->selectrow_array(
+            "SELECT UNIX_TIMESTAMP(DATE_ADD(NOW(), INTERVAL $cols{_set_months} MONTH))");
         delete $cols{_set_months};
     }
 
@@ -604,30 +621,36 @@ sub update_paid_status {
     return error( ERR_FATAL, "Permanent must be 0/1." )
         if exists $cols{permanent} && $cols{permanent} !~ /^(?:0|1)$/;
     return error( ERR_FATAL, "Typeid must be some number and valid." )
-        if exists $cols{typeid} && !( $cols{typeid} =~ /^(?:\d+)$/ && DW::Pay::type_is_valid( $cols{typeid} ) );
+        if exists $cols{typeid}
+        && !( $cols{typeid} =~ /^(?:\d+)$/ && DW::Pay::type_is_valid( $cols{typeid} ) );
     return error( ERR_FATAL, "Expiretime must be some number." )
         if exists $cols{expiretime} && $cols{expiretime} !~ /^(?:\d+)$/;
     return error( ERR_FATAL, "Lastemail must be 0, 3, or 14." )
-        if exists $cols{lastemail} && defined $cols{lastemail} && $cols{lastemail} !~ /^(?:0|3|14)$/;
+        if exists $cols{lastemail}
+        && defined $cols{lastemail}
+        && $cols{lastemail} !~ /^(?:0|3|14)$/;
 
     if ( delete $cols{_expire} ) {
-        $cols{typeid} = DW::Pay::default_typeid();
-        $cols{lastemail} = undef;
+        $cols{typeid}     = DW::Pay::default_typeid();
+        $cols{lastemail}  = undef;
         $cols{expiretime} = undef;
-        $cols{permanent} = 0; # has to be!
+        $cols{permanent}  = 0;                           # has to be!
     }
 
     my $cols = join( ', ', map { "$_ = ?" } sort keys %cols );
     my @bind = map { $cols{$_} } sort keys %cols;
 
-    my $ct = $dbh->do( qq{
+    my $ct = $dbh->do(
+        qq{
             UPDATE dw_paidstatus SET $cols WHERE userid = ?
-        }, undef, @bind, $u->id );
+        }, undef, @bind, $u->id
+    );
     return error( ERR_FATAL, "Database error: " . $dbh->errstr )
         if $dbh->err;
 
     # if we got 0 rows edited, we have to insert a new row
     if ( $ct == 0 ) {
+
         # fail if we don't have some valid values
         return error( ERR_FATAL, "Typeid must be some number and valid." )
             unless $cols{typeid} =~ /^(?:\d+)$/ && DW::Pay::type_is_valid( $cols{typeid} );
@@ -636,7 +659,7 @@ sub update_paid_status {
         $dbh->do(
             q{INSERT INTO dw_paidstatus (userid, typeid, expiretime, permanent, lastemail)
               VALUES (?, ?, ?, ?, ?)},
-            undef, $u->id, $cols{typeid}, $cols{expiretime}, $cols{permanent}+0, $cols{lastemail}
+            undef, $u->id, $cols{typeid}, $cols{expiretime}, $cols{permanent} + 0, $cols{lastemail}
         );
         return error( ERR_FATAL, "Database error: " . $dbh->errstr )
             if $dbh->err;
@@ -646,8 +669,9 @@ sub update_paid_status {
     # needs to have their search index setup/messed with.
     if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
         $sclient->insert_jobs(
-                TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
-                    { userid => $u->id, source => "paidstat" } )
+            TheSchwartz::Job->new_from_array(
+                'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "paidstat" }
+            )
         );
     }
 
@@ -679,13 +703,16 @@ sub edit_expiration_datetime {
     my $dbh = DW::Pay::get_db_writer()
         or return error( ERR_TEMP, "Unable to get db writer." );
 
-    my $row = $dbh->selectrow_hashref( "SELECT UNIX_TIMESTAMP(?) AS datetime, ? < NOW() AS expired", undef, $datetime, $datetime );
+    my $row = $dbh->selectrow_hashref( "SELECT UNIX_TIMESTAMP(?) AS datetime, ? < NOW() AS expired",
+        undef, $datetime, $datetime );
 
-    return error ( ERR_FATAL, "Invalid expiration date/time" ) unless $row->{datetime} ;
-    return error ( ERR_FATAL, "Expiration date/time is in the past" ) if $row->{expired};
-    return error ( ERR_FATAL, "Expiration date/time is unchanged" ) if $row->{datetime} == $ps->{expiretime};
+    return error( ERR_FATAL, "Invalid expiration date/time" ) unless $row->{datetime};
+    return error( ERR_FATAL, "Expiration date/time is in the past" ) if $row->{expired};
+    return error( ERR_FATAL, "Expiration date/time is unchanged" )
+        if $row->{datetime} == $ps->{expiretime};
 
-    $dbh->do( q{UPDATE dw_paidstatus SET expiretime=? WHERE userid=?}, undef, $row->{datetime}, $u->id );
+    $dbh->do( q{UPDATE dw_paidstatus SET expiretime=? WHERE userid=?},
+        undef, $row->{datetime}, $u->id );
     return error( ERR_FATAL, "Database error: " . $dbh->errstr )
         if $dbh->err;
     DW::Pay::expire_status_cache( $u->id );
@@ -710,14 +737,15 @@ sub num_permanent_accounts_available {
     # 1. figure out how many permanent accounts have been purchased
 
     # try memcache first
-    my $ct = LJ::MemCache::get( 'numpermaccts' );
+    my $ct = LJ::MemCache::get('numpermaccts');
 
     unless ( defined $ct ) {
+
         # not in memcache, so let's hit the database
         # FIXME: add ddlockd so we don't hit the db in waves every 60 seconds
         my $dbh = DW::Pay::get_db_writer()
             or return error( ERR_TEMP, "Unable to get db writer." );
-        $ct = $dbh->selectrow_array( 'SELECT COUNT(*) FROM dw_paidstatus WHERE permanent = 1' )+0;
+        $ct = $dbh->selectrow_array('SELECT COUNT(*) FROM dw_paidstatus WHERE permanent = 1') + 0;
         LJ::MemCache::set( 'numpermaccts', $ct, 60 );
     }
 
@@ -765,33 +793,35 @@ sub num_permanent_accounts_available_estimated {
 #
 sub get_random_active_free_user {
     my $journaltype = shift || 'P';
-    my $for_u = shift || LJ::get_remote();
+    my $for_u       = shift || LJ::get_remote();
 
-    my $dbr = LJ::get_db_reader();
+    my $dbr  = LJ::get_db_reader();
     my $rows = $dbr->selectall_arrayref(
         q{SELECT userid, points FROM users_for_paid_accounts
           WHERE journaltype = ? ORDER BY RAND() LIMIT 10},
-        { Slice => {} }, $journaltype );
+        { Slice => {} }, $journaltype
+    );
 
     my @active_us;
     my $us = LJ::load_userids( map { $_->{userid} } @$rows );
-    foreach my $row ( @$rows ) {
+    foreach my $row (@$rows) {
         my $userid = $row->{userid};
         my $points = $row->{points};
-        my $u = $us->{$userid};
+        my $u      = $us->{$userid};
 
         next unless $u && $u->is_visible;
         next if $u->is_paid;
         next unless $u->opt_randompaidgifts;
         next if LJ::sysban_check( 'pay_user', $u->user );
         if ( $journaltype eq 'P' ) {
-            next if $for_u && $u->equals( $for_u );
-            next if $for_u && $u->has_banned( $for_u );
+            next if $for_u && $u->equals($for_u);
+            next if $for_u && $u->has_banned($for_u);
         }
+
         # each point that a user has gives them an extra chance of being chosen out of the array
         push @active_us, $u;
-        if ( $points ) {
-            foreach my $point ( 1..$points ) {
+        if ($points) {
+            foreach my $point ( 1 .. $points ) {
                 push @active_us, $u;
             }
         }
@@ -799,7 +829,7 @@ sub get_random_active_free_user {
 
     return undef unless scalar @active_us;
 
-    my @shuffled_us = List::Util::shuffle( @active_us );
+    my @shuffled_us = List::Util::shuffle(@active_us);
 
     return $shuffled_us[0];
 }
@@ -812,22 +842,24 @@ sub get_random_active_free_user {
 # of what caps and things a user should have) and then updates their caps.  i.e.,
 # this method is used to make the user's actual caps reflect reality.
 sub sync_caps {
-    my $u = LJ::want_user( shift )
+    my $u = LJ::want_user(shift)
         or return error( ERR_FATAL, "Must provide a user to sync caps for." );
-    my $ps = DW::Pay::get_paid_status( $u );
+    my $ps = DW::Pay::get_paid_status($u);
 
     # calculate list of caps that we care about
-    my @bits = grep { $LJ::CAP{$_}->{_account_type} } keys %LJ::CAP;
+    my @bits    = grep { $LJ::CAP{$_}->{_account_type} } keys %LJ::CAP;
     my $default = DW::Pay::default_typeid();
 
     # either they're free, or they expired (not permanent)
-    if ( DW::Pay::is_default_type( $ps ) ) {
+    if ( DW::Pay::is_default_type($ps) ) {
+
         # reset back to the default, and turn off all other bits; then set the
         # email count to defined-but-0
-        $u->modify_caps( [ $default ], [ grep { $_ != $default } @bits ] );
+        $u->modify_caps( [$default], [ grep { $_ != $default } @bits ] );
         DW::Pay::update_paid_status( $u, lastemail => 0 );
 
-    } else {
+    }
+    else {
         # this is a really bad error we should never have... we can't
         # handle this user
         # FIXME: candidate for email-site-admins
@@ -844,7 +876,7 @@ sub sync_caps {
 }
 
 sub error {
-    $DW::Pay::error_code = $_[0]+0;
+    $DW::Pay::error_code = $_[0] + 0;
     $DW::Pay::error_text = $_[1] || "Unknown error.";
     return undef;
 }
@@ -866,6 +898,7 @@ sub clear_error {
 }
 
 sub get_db_reader {
+
     # we always use the master, but perhaps we want to use a specific role for
     # payments later?  so we abstracted this...
     return LJ::get_db_writer();

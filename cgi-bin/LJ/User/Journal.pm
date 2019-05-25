@@ -27,13 +27,15 @@ use LJ::Keywords;
 =cut
 
 sub can_manage {
+
     # true if the first user is an admin for the target user.
     my ( $u, $target ) = @_;
+
     # backward compatibility: allow $target to be a userid
-    $target = LJ::want_user( $target ) or return undef;
+    $target = LJ::want_user($target) or return undef;
 
     # is same user?
-    return 1 if $u->equals( $target );
+    return 1 if $u->equals($target);
 
     # people/syn/rename accounts can only be managed by the one account
     return 0 if $target->journaltype =~ /^[PYR]$/;
@@ -45,38 +47,39 @@ sub can_manage {
     return 0;
 }
 
-
 sub can_manage_other {
+
     # true if the first user is an admin for the target user,
     # UNLESS the two users are the same.
     my ( $u, $target ) = @_;
+
     # backward compatibility: allow $target to be a userid
-    $target = LJ::want_user( $target ) or return undef;
+    $target = LJ::want_user($target) or return undef;
 
-    return 0 if $u->equals( $target );
-    return $u->can_manage( $target );
+    return 0 if $u->equals($target);
+    return $u->can_manage($target);
 }
-
 
 sub can_moderate {
+
     # true if the first user can moderate the target user.
     my ( $u, $target ) = @_;
-    # backward compatibility: allow $target to be a userid
-    $target = LJ::want_user( $target ) or return undef;
 
-    return 1 if $u->can_manage_other( $target );
+    # backward compatibility: allow $target to be a userid
+    $target = LJ::want_user($target) or return undef;
+
+    return 1 if $u->can_manage_other($target);
     return LJ::check_rel( $target, $u, 'M' );
 }
-
 
 # can $u post to $targetu?
 sub can_post_to {
     my ( $u, $targetu ) = @_;
     croak "Invalid users passed to LJ::User->can_post_to."
-        unless LJ::isu( $u ) && LJ::isu( $targetu );
+        unless LJ::isu($u) && LJ::isu($targetu);
 
     # if it's you, and you're a person, you can post to it
-    return 1 if $u->is_person && $u->equals( $targetu );
+    return 1 if $u->is_person && $u->equals($targetu);
 
     # else, you have to be an individual and the target has to be a comm
     return 0 unless $u->is_individual && $targetu->is_community;
@@ -91,43 +94,41 @@ sub can_post_to {
     }
 
     # is the poster an admin for this community?  admins can always post
-    return 1 if $u->can_manage( $targetu );
+    return 1 if $u->can_manage($targetu);
 
     return 0;
 }
 
 # list of communities that $u manages
 sub communities_managed_list {
-    my ( $u ) = @_;
+    my ($u) = @_;
 
     croak "Invalid users passed to LJ::User->communities_managed_list"
-        unless LJ::isu( $u );
+        unless LJ::isu($u);
 
     my $cids = LJ::load_rel_target( $u, 'A' );
     return undef unless $cids;
 
-    my %users = %{ LJ::load_userids( @$cids ) };
+    my %users = %{ LJ::load_userids(@$cids) };
 
-    return  map { $_ }
-                grep { $_ && ( $_->is_visible || $_->is_readonly ) }
-            values %users;
+    return map { $_ }
+        grep { $_ && ( $_->is_visible || $_->is_readonly ) } values %users;
 }
 
 # list of communities that $u moderates
 sub communities_moderated_list {
-    my ( $u ) = @_;
+    my ($u) = @_;
 
     croak "Invalid users passed to LJ::User->communities_moderated_list"
-        unless LJ::isu( $u );
+        unless LJ::isu($u);
 
     my $cids = LJ::load_rel_target( $u, 'M' );
     return undef unless $cids;
 
-    my %users = %{ LJ::load_userids( @$cids ) };
+    my %users = %{ LJ::load_userids(@$cids) };
 
-    return  map { $_ }
-                grep { $_ && ( $_->is_visible || $_->is_readonly ) }
-            values %users;
+    return map { $_ }
+        grep { $_ && ( $_->is_visible || $_->is_readonly ) } values %users;
 }
 
 # Get an array of usernames a given user can authenticate as.
@@ -143,23 +144,22 @@ sub get_authas_list {
 
     my $ids = LJ::load_rel_target( $u, 'A' );
     return undef unless $ids;
-    my %users = %{ LJ::load_userids( @$ids ) };
+    my %users = %{ LJ::load_userids(@$ids) };
 
     return map { $_->user }
-           grep { ! $opts->{cap}  || $_->get_cap( $opts->{cap} ) }
-           grep { ! $opts->{type} || $opts->{type} eq $_->journaltype }
+        grep { !$opts->{cap}  || $_->get_cap( $opts->{cap} ) }
+        grep { !$opts->{type} || $opts->{type} eq $_->journaltype }
 
-           # unless overridden, hide non-visible/non-read-only journals.
-           # always display the user's acct
-           grep { $opts->{showall} || $_->is_visible || $_->is_readonly || $_->equals( $u ) }
+        # unless overridden, hide non-visible/non-read-only journals.
+        # always display the user's acct
+        grep { $opts->{showall} || $_->is_visible || $_->is_readonly || $_->equals($u) }
 
-           # can't work as an expunged account
-           grep { ! $_->is_expunged && $_->clusterid > 0 }
+        # can't work as an expunged account
+        grep { !$_->is_expunged && $_->clusterid > 0 }
 
-           # put $u at the top of the list, then sort the rest
-           ( $u,  sort { $a->user cmp $b->user } values %users );
+        # put $u at the top of the list, then sort the rest
+        ( $u, sort { $a->user cmp $b->user } values %users );
 }
-
 
 # What journals can this user post to?
 sub posting_access_list {
@@ -167,9 +167,9 @@ sub posting_access_list {
 
     my @res;
 
-    my $ids = LJ::load_rel_target($u, 'P');
-    my $us = LJ::load_userids(@$ids);
-    foreach (values %$us) {
+    my $ids = LJ::load_rel_target( $u, 'P' );
+    my $us  = LJ::load_userids(@$ids);
+    foreach ( values %$us ) {
         next unless $_->is_visible;
         push @res, $_;
     }
@@ -183,8 +183,8 @@ sub relevant_communities {
     my $u = shift;
 
     my %comms;
-    my @ids = $u->member_of_userids;
-    my $memberships = LJ::load_userids( @ids );
+    my @ids         = $u->member_of_userids;
+    my $memberships = LJ::load_userids(@ids);
 
     # get all communities that $u is a member of that aren't closed membership
     # and that wish to be included in the community promo
@@ -196,7 +196,7 @@ sub relevant_communities {
         next unless $membershipu->is_visible;
         next if $membershipu->is_closed_membership;
 
-        $comms{$membershipid}->{u} = $membershipu;
+        $comms{$membershipid}->{u}       = $membershipu;
         $comms{$membershipid}->{istatus} = 'normal';
     }
 
@@ -220,40 +220,41 @@ sub relevant_communities {
     # * $u is a maint or mod of it OR
     # * it was updated in the past 30 days
     my $over30 = 0;
-    my $now = time();
+    my $now    = time();
 
-    COMMUNITY:
-        foreach my $commid ( sort { $comms{$b}->{updated} <=> $comms{$a}->{updated} } keys %comms ) {
-            my $commu = $comms{$commid}->{u};
+COMMUNITY:
+    foreach my $commid ( sort { $comms{$b}->{updated} <=> $comms{$a}->{updated} } keys %comms ) {
+        my $commu = $comms{$commid}->{u};
 
-            if ( $now - $comms{$commid}->{created} <= 60*60*24*10 ) { # 10 days
-                $comms{$commid}->{istatus} = 'new';
+        if ( $now - $comms{$commid}->{created} <= 60 * 60 * 24 * 10 ) {    # 10 days
+            $comms{$commid}->{istatus} = 'new';
+            next COMMUNITY;
+        }
+
+        my @maintainers = $commu->maintainer_userids;
+        my @moderators  = $commu->moderator_userids;
+        foreach my $mid ( @maintainers, @moderators ) {
+            if ( $mid == $u->id ) {
+                $comms{$commid}->{istatus} = 'mm';
                 next COMMUNITY;
-            }
-
-            my @maintainers = $commu->maintainer_userids;
-            my @moderators  = $commu->moderator_userids;
-            foreach my $mid ( @maintainers, @moderators ) {
-                if ( $mid == $u->id ) {
-                    $comms{$commid}->{istatus} = 'mm';
-                    next COMMUNITY;
-                }
-            }
-
-            if ( $over30 ) {
-                delete $comms{$commid};
-                next COMMUNITY;
-            } else {
-                if ( $now - $comms{$commid}->{updated} > 60*60*24*30 ) { # 30 days
-                    delete $comms{$commid};
-
-                    # since we're going through the communities in timeupdate order,
-                    # we know every community in %comms after this one was updated
-                    # more than 30 days ago
-                    $over30 = 1;
-                }
             }
         }
+
+        if ($over30) {
+            delete $comms{$commid};
+            next COMMUNITY;
+        }
+        else {
+            if ( $now - $comms{$commid}->{updated} > 60 * 60 * 24 * 30 ) {    # 30 days
+                delete $comms{$commid};
+
+                # since we're going through the communities in timeupdate order,
+                # we know every community in %comms after this one was updated
+                # more than 30 days ago
+                $over30 = 1;
+            }
+        }
+    }
 
     # if we still have more than 20 comms, delete any with fewer than five members
     # as long as it's not new and $u isn't a maint/mod
@@ -273,15 +274,14 @@ sub relevant_communities {
     return %comms;
 }
 
-
 sub trusts_or_has_member {
     my ( $u, $target_u ) = @_;
-    $target_u = LJ::want_user( $target_u ) or return 0;
+    $target_u = LJ::want_user($target_u) or return 0;
 
-    return $target_u->member_of( $u ) ? 1 : 0
+    return $target_u->member_of($u) ? 1 : 0
         if $u->is_community;
 
-    return $u->trusts( $target_u ) ? 1 : 0;
+    return $u->trusts($target_u) ? 1 : 0;
 }
 
 ########################################################################
@@ -293,11 +293,10 @@ sub trusts_or_has_member {
 # true if u1 restricts commenting to trusted and u2 is not trusted
 sub does_not_allow_comments_from {
     my ( $u1, $u2 ) = @_;
-    return unless LJ::isu( $u1 ) && LJ::isu( $u2 );
+    return unless LJ::isu($u1) && LJ::isu($u2);
     return $u1->prop('opt_whocanreply') eq 'friends'
-        && ! $u1->trusts_or_has_member( $u2 );
+        && !$u1->trusts_or_has_member($u2);
 }
-
 
 # true if u1 restricts comments to registered users and u2 is a
 # non-circled OpenID with an unconfirmed email
@@ -305,44 +304,44 @@ sub does_not_allow_comments_from {
 # QuickReply in that situation due to S2.pm:3677
 sub does_not_allow_comments_from_unconfirmed_openid {
     my ( $u1, $u2 ) = @_;
-    return unless LJ::isu( $u1 ) && LJ::isu( $u2 );
-    return $u1->{'opt_whocanreply'} eq 'reg'
+    return unless LJ::isu($u1) && LJ::isu($u2);
+    return
+           $u1->{'opt_whocanreply'} eq 'reg'
         && $u2->is_identity
-        && ! ( $u2->is_validated || $u1->trusts( $u2 ));
+        && !( $u2->is_validated || $u1->trusts($u2) );
 }
-
 
 # get recent talkitems posted to this user
 # args: maximum number of comments to retrieve
 # returns: array of hashrefs with jtalkid, nodetype, nodeid, parenttalkid, posterid, state
 sub get_recent_talkitems {
-    my ($u, $maxshow, %opts) = @_;
+    my ( $u, $maxshow, %opts ) = @_;
 
     $maxshow ||= 15;
-    my $max_fetch = int($LJ::TOOLS_RECENT_COMMENTS_MAX*1.5) || 150;
+    my $max_fetch = int( $LJ::TOOLS_RECENT_COMMENTS_MAX * 1.5 ) || 150;
+
     # We fetch more items because some may be screened
     # or from suspended users, and we weed those out later
 
-    my $remote   = $opts{remote} || LJ::get_remote();
+    my $remote = $opts{remote} || LJ::get_remote();
     return undef unless LJ::isu($u);
 
     ## $raw_talkitems - contains DB rows that are not filtered
     ## to match remote user's permissions to see
     my $raw_talkitems;
-    my $memkey = [$u->userid, 'rcntalk:' . $u->userid ];
+    my $memkey = [ $u->userid, 'rcntalk:' . $u->userid ];
     $raw_talkitems = LJ::MemCache::get($memkey);
-    if (!$raw_talkitems) {
-        my $sth = $u->prepare(
-            "SELECT jtalkid, nodetype, nodeid, parenttalkid, ".
-            "       posterid, UNIX_TIMESTAMP(datepost) as 'datepostunix', state ".
-            "FROM talk2 ".
-            "WHERE journalid=? AND state <> 'D' " .
-            "ORDER BY jtalkid DESC ".
-            "LIMIT $max_fetch"
-        );
+    if ( !$raw_talkitems ) {
+        my $sth =
+            $u->prepare( "SELECT jtalkid, nodetype, nodeid, parenttalkid, "
+                . "       posterid, UNIX_TIMESTAMP(datepost) as 'datepostunix', state "
+                . "FROM talk2 "
+                . "WHERE journalid=? AND state <> 'D' "
+                . "ORDER BY jtalkid DESC "
+                . "LIMIT $max_fetch" );
         $sth->execute( $u->userid );
-        $raw_talkitems = $sth->fetchall_arrayref({});
-        LJ::MemCache::set($memkey, $raw_talkitems, 60*5);
+        $raw_talkitems = $sth->fetchall_arrayref( {} );
+        LJ::MemCache::set( $memkey, $raw_talkitems, 60 * 5 );
     }
 
     ## Check remote's permission to see the comment, and create singletons
@@ -351,7 +350,7 @@ sub get_recent_talkitems {
         last if @recv >= $maxshow;
 
         # construct an LJ::Comment singleton
-        my $comment = LJ::Comment->new($u, jtalkid => $r->{jtalkid});
+        my $comment = LJ::Comment->new( $u, jtalkid => $r->{jtalkid} );
         $comment->absorb_row(%$r);
         next unless $comment->visible_to($remote);
         push @recv, $r;
@@ -362,48 +361,45 @@ sub get_recent_talkitems {
     return reverse @recv;
 }
 
-
 # return the number of comments a user has posted
 sub num_comments_posted {
-    my $u = shift;
+    my $u    = shift;
     my %opts = @_;
 
-    my $dbcr = $opts{dbh} || LJ::get_cluster_reader($u);
+    my $dbcr   = $opts{dbh} || LJ::get_cluster_reader($u);
     my $userid = $u->id;
 
-    my $memkey = [$userid, "talkleftct:$userid"];
-    my $count = LJ::MemCache::get($memkey);
+    my $memkey = [ $userid, "talkleftct:$userid" ];
+    my $count  = LJ::MemCache::get($memkey);
     unless ($count) {
-        my $expire = time() + 3600*24*2; # 2 days;
-        $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM talkleft " .
-                                        "WHERE userid=?", undef, $userid);
-        LJ::MemCache::set($memkey, $count, $expire) if defined $count;
+        my $expire = time() + 3600 * 24 * 2;    # 2 days;
+        $count = $dbcr->selectrow_array( "SELECT COUNT(*) FROM talkleft " . "WHERE userid=?",
+            undef, $userid );
+        LJ::MemCache::set( $memkey, $count, $expire ) if defined $count;
     }
 
     return $count;
 }
-
 
 # return the number of comments a user has received
 sub num_comments_received {
-    my $u = shift;
+    my $u    = shift;
     my %opts = @_;
 
-    my $dbcr = $opts{dbh} || LJ::get_cluster_reader($u);
+    my $dbcr   = $opts{dbh} || LJ::get_cluster_reader($u);
     my $userid = $u->id;
 
-    my $memkey = [$userid, "talk2ct:$userid"];
-    my $count = LJ::MemCache::get($memkey);
+    my $memkey = [ $userid, "talk2ct:$userid" ];
+    my $count  = LJ::MemCache::get($memkey);
     unless ($count) {
-        my $expire = time() + 3600*24*2; # 2 days;
-        $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM talk2 ".
-                                        "WHERE journalid=?", undef, $userid);
-        LJ::MemCache::set($memkey, $count, $expire) if defined $count;
+        my $expire = time() + 3600 * 24 * 2;    # 2 days;
+        $count = $dbcr->selectrow_array( "SELECT COUNT(*) FROM talk2 " . "WHERE journalid=?",
+            undef, $userid );
+        LJ::MemCache::set( $memkey, $count, $expire ) if defined $count;
     }
 
     return $count;
 }
-
 
 ########################################################################
 ###  15. Entry-Related Functions
@@ -419,95 +415,96 @@ sub all_recent_entries {
     return $u->recent_entries(%opts);
 }
 
-
 sub draft_text {
     my ($u) = @_;
     return $u->prop('entry_draft');
 }
 
 sub entryform_width {
-    my ( $u ) = @_;
+    my ($u) = @_;
 
-    if ( $u->raw_prop( 'entryform_width' ) =~ /^(F|P)$/ ) {
-        return $u->raw_prop( 'entryform_width' )
-    } else {
+    if ( $u->raw_prop('entryform_width') =~ /^(F|P)$/ ) {
+        return $u->raw_prop('entryform_width');
+    }
+    else {
         return 'F';
     }
 }
 
 # getter/setter
 sub default_entryform_panels {
-    my ( %opts ) = @_;
-    my $anonymous = $opts{anonymous} ? 1 : 0;
+    my (%opts) = @_;
+    my $anonymous  = $opts{anonymous} ? 1 : 0;
     my $force_show = $anonymous;
 
     return {
-        order => $anonymous ?
-                [   [ "tags", "displaydate", "slug" ],
-                    [ "currents" ],
-                    [ "comments", "age_restriction" ],
-                ] :
-                [   [ "tags", "displaydate", "slug" ],
+        order => $anonymous
+        ? [ [ "tags", "displaydate", "slug" ], ["currents"], [ "comments", "age_restriction" ], ]
+        : [
+            [ "tags", "displaydate", "slug" ],
 
-                    # FIXME: should be [ "status" ... ] %]
-                    [ "currents", "comments", "age_restriction" ],
+            # FIXME: should be [ "status" ... ] %]
+            [ "currents", "comments", "age_restriction" ],
 
-                    # FIXME: should be [ ... "scheduled" ]
-                    [ "icons", "crosspost", "sticky" ],
-                ],
+            # FIXME: should be [ ... "scheduled" ]
+            [ "icons", "crosspost", "sticky" ],
+        ],
         show => {
-            "tags"          => 1,
-            "currents"      => 1,
-            "slug"          => 1,
-            "displaydate"   => $force_show,
-            "comments"      => $force_show,
+            "tags"            => 1,
+            "currents"        => 1,
+            "slug"            => 1,
+            "displaydate"     => $force_show,
+            "comments"        => $force_show,
             "age_restriction" => $force_show,
-            "icons"         => 1,
+            "icons"           => 1,
 
-            "crosspost"     => $force_show,
+            "crosspost" => $force_show,
+
             #"scheduled"     => $force_show,
 
-            "sticky"        => 1,
+            "sticky" => 1,
 
             #"status"        => 1,
         },
-        collapsed => {
-        }
+        collapsed => {}
     };
 }
+
 sub entryform_panels {
     my ( $u, $val ) = @_;
 
     if ( defined $val ) {
-        $u->set_prop( entryform_panels => Storable::nfreeze( $val ) );
+        $u->set_prop( entryform_panels => Storable::nfreeze($val) );
         return $val;
     }
 
-    my $prop = $u->prop( "entryform_panels" );
-    my $default = LJ::User::default_entryform_panels();
+    my $prop     = $u->prop("entryform_panels");
+    my $default  = LJ::User::default_entryform_panels();
     my %obsolete = (
-        access => 1,
+        access  => 1,
         journal => 1,
-        flags => 1,
+        flags   => 1,
     );
 
-    my %need_panels = map { $_ => 1 } keys %{$default->{show}};
+    my %need_panels = map { $_ => 1 } keys %{ $default->{show} };
 
     my $ret;
-    $ret = Storable::thaw( $prop ) if $prop;
+    $ret = Storable::thaw($prop) if $prop;
 
-    if ( $ret ) {
+    if ($ret) {
+
         # remove any obsolete panels from "show" and "collapse"
         foreach my $panel ( keys %obsolete ) {
             delete $ret->{show}->{$panel};
             delete $ret->{collapsed}->{$panel};
         }
 
-        foreach my $column ( @{$ret->{order}} ) {
+        foreach my $column ( @{ $ret->{order} } ) {
+
             # remove any obsolete panels from "order"
-            my @col = @{$column};
-            my @del_indexes = grep { $obsolete{$col[$_]} } 0..$#col;
-            if ( @del_indexes ) {
+            my @col         = @{$column};
+            my @del_indexes = grep { $obsolete{ $col[$_] } } 0 .. $#col;
+            if (@del_indexes) {
                 foreach my $del ( reverse @del_indexes ) {
                     splice @col, $del, 1;
                 }
@@ -520,14 +517,16 @@ sub entryform_panels {
             }
         }
 
-        my @col = @{$ret->{order}->[2]};
+        my @col = @{ $ret->{order}->[2] };
         foreach ( keys %need_panels ) {
+
             # add back into last column, but respect user's option to show/not-show
             push @col, $_;
             $ret->{show}->{$_} = 0 unless defined $ret->{show}->{$_};
         }
         $ret->{order}->[2] = \@col;
-    } else {
+    }
+    else {
         $ret = $default;
     }
 
@@ -541,7 +540,7 @@ sub entryform_panels_order {
 
     if ( defined $val ) {
         $panels->{order} = $val;
-        $panels = $u->entryform_panels( $panels );
+        $panels = $u->entryform_panels($panels);
     }
 
     return $panels->{order};
@@ -553,7 +552,7 @@ sub entryform_panels_visibility {
     my $panels = $u->entryform_panels;
     if ( defined $val ) {
         $panels->{show} = $val;
-        $panels = $u->entryform_panels( $panels );
+        $panels = $u->entryform_panels($panels);
     }
 
     return $panels->{show};
@@ -565,13 +564,11 @@ sub entryform_panels_collapsed {
     my $panels = $u->entryform_panels;
     if ( defined $val ) {
         $panels->{collapsed} = $val;
-        $panels = $u->entryform_panels( $panels );
+        $panels = $u->entryform_panels($panels);
     }
 
     return $panels->{collapsed};
 }
-
-
 
 # <LJFUNC>
 # name: LJ::get_post_ids
@@ -588,26 +585,29 @@ sub entryform_panels_collapsed {
 #           FIXME: Add caching?
 # </LJFUNC>
 sub get_post_ids {
-    my ($u, %opts) = @_;
+    my ( $u, %opts ) = @_;
 
     my $query = 'SELECT';
-    my @vals; # parameters to query
+    my @vals;    # parameters to query
 
-    if ($opts{'start_date'} || $opts{'end_date'}) {
+    if ( $opts{'start_date'} || $opts{'end_date'} ) {
         croak "start or end date not defined"
-            if (!$opts{'start_date'} || !$opts{'end_date'});
+            if ( !$opts{'start_date'} || !$opts{'end_date'} );
 
-        if (!($opts{'start_date'} >= 0) || !($opts{'end_date'} >= 0) ||
-            !($opts{'start_date'} <= $LJ::EndOfTime) ||
-            !($opts{'end_date'} <= $LJ::EndOfTime) ) {
+        if (   !( $opts{'start_date'} >= 0 )
+            || !( $opts{'end_date'} >= 0 )
+            || !( $opts{'start_date'} <= $LJ::EndOfTime )
+            || !( $opts{'end_date'} <= $LJ::EndOfTime ) )
+        {
             return undef;
         }
     }
 
     # return count or jitemids
-    if ($opts{'return'} eq 'count') {
+    if ( $opts{'return'} eq 'count' ) {
         $query .= " COUNT(*)";
-    } else {
+    }
+    else {
         $query .= " jitemid";
     }
 
@@ -616,37 +616,39 @@ sub get_post_ids {
     push( @vals, $u->userid );
 
     # filter by security
-    if ($opts{'security'}) {
+    if ( $opts{'security'} ) {
         $query .= " AND security=?";
-        push(@vals, $opts{'security'});
+        push( @vals, $opts{'security'} );
+
         # If friends-only or custom
-        if ($opts{'security'} eq 'usemask' && $opts{'allowmask'}) {
+        if ( $opts{'security'} eq 'usemask' && $opts{'allowmask'} ) {
             $query .= " AND allowmask=?";
-            push(@vals, $opts{'allowmask'});
+            push( @vals, $opts{'allowmask'} );
         }
     }
 
     # filter by date, use revttime as it is indexed
-    if ($opts{'start_date'} && $opts{'end_date'}) {
+    if ( $opts{'start_date'} && $opts{'end_date'} ) {
+
         # revttime is reverse event time
         my $s_date = $LJ::EndOfTime - $opts{'start_date'};
         my $e_date = $LJ::EndOfTime - $opts{'end_date'};
         $query .= " AND revttime<?";
-        push(@vals, $s_date);
+        push( @vals, $s_date );
         $query .= " AND revttime>?";
-        push(@vals, $e_date);
+        push( @vals, $e_date );
     }
 
     # return count or jitemids
-    if ($opts{'return'} eq 'count') {
-        return $u->selectrow_array($query, undef, @vals);
-    } else {
-        my $jitemids = $u->selectcol_arrayref($query, undef, @vals) || [];
+    if ( $opts{'return'} eq 'count' ) {
+        return $u->selectrow_array( $query, undef, @vals );
+    }
+    else {
+        my $jitemids = $u->selectcol_arrayref( $query, undef, @vals ) || [];
         die $u->errstr if $u->err;
         return @$jitemids;
     }
 }
-
 
 # Returns 'rich' or 'plain' depending on user's
 # setting of which editor they would like to use
@@ -655,30 +657,30 @@ sub new_entry_editor {
     my $u = shift;
 
     my $editor = $u->prop('entry_editor');
-    return 'plain' if $editor eq 'always_plain'; # They said they always want plain
-    return 'rich' if $editor eq 'always_rich'; # They said they always want rich
-    return $editor if $editor =~ /(rich|plain)/; # What did they last use?
-    return $LJ::DEFAULT_EDITOR; # Use config default
+    return 'plain' if $editor eq 'always_plain';    # They said they always want plain
+    return 'rich'  if $editor eq 'always_rich';     # They said they always want rich
+    return $editor if $editor =~ /(rich|plain)/;    # What did they last use?
+    return $LJ::DEFAULT_EDITOR;                     # Use config default
 }
 
 # What security level to use for new posts. This magic flag is used to give
 # user's the ability to specify that "if I try to post public, don't let me".
 # To override this, you have to go back and edit your post.
 sub newpost_minsecurity {
-    return $_[0]->prop( 'newpost_minsecurity' ) || 'public';
+    return $_[0]->prop('newpost_minsecurity') || 'public';
 }
 
 # This loads the user's specified post-by-email security. If they haven't
 # set that up, then we fall back to the standard new post minimum security.
 sub emailpost_security {
-    return $_[0]->prop( 'emailpost_security' ) ||
-        $_[0]->newpost_minsecurity;
+    return $_[0]->prop('emailpost_security')
+        || $_[0]->newpost_minsecurity;
 }
 
-
 *get_post_count = \&number_of_posts;
+
 sub number_of_posts {
-    my ($u, %opts) = @_;
+    my ( $u, %opts ) = @_;
 
     # to count only a subset of all posts
     if (%opts) {
@@ -687,18 +689,21 @@ sub number_of_posts {
     }
 
     my $userid = $u->userid;
-    my $memkey = [$userid, "log2ct:$userid"];
-    my $expire = time() + 3600*24*2; # 2 days
-    return LJ::MemCache::get_or_set($memkey, sub {
-        return $u->selectrow_array( "SELECT COUNT(*) FROM log2 WHERE journalid=?",
-                                    undef, $userid );
-    }, $expire);
+    my $memkey = [ $userid, "log2ct:$userid" ];
+    my $expire = time() + 3600 * 24 * 2;          # 2 days
+    return LJ::MemCache::get_or_set(
+        $memkey,
+        sub {
+            return $u->selectrow_array( "SELECT COUNT(*) FROM log2 WHERE journalid=?",
+                undef, $userid );
+        },
+        $expire
+    );
 }
-
 
 # returns array of LJ::Entry objects, ignoring security
 sub recent_entries {
-    my ($u, %opts) = @_;
+    my ( $u, %opts ) = @_;
     my $remote = delete $opts{'filtered_for'} || LJ::get_remote();
     my $count  = delete $opts{'count'}        || 50;
     my $order  = delete $opts{'order'}        || "";
@@ -716,37 +721,38 @@ sub recent_entries {
 
     my @objs;
     foreach my $ri (@recent) {
-        my $entry = LJ::Entry->new($u, jitemid => $ri->{itemid});
+        my $entry = LJ::Entry->new( $u, jitemid => $ri->{itemid} );
         push @objs, $entry;
+
         # FIXME: populate the $entry with security/posterid/alldatepart/ownerid/rlogtime
     }
     return @objs;
 }
 
-
 sub security_group_display {
     my ( $u, $allowmask ) = @_;
-    return '' unless LJ::isu( $u );
+    return '' unless LJ::isu($u);
     return '' unless defined $allowmask;
 
     my $remote = LJ::get_remote() or return '';
-    my $use_urls = $remote->get_cap( "security_filter" ) || $u->get_cap( "security_filter" );
+    my $use_urls = $remote->get_cap("security_filter") || $u->get_cap("security_filter");
 
     # see which group ids are in the security mask
-    my %group_ids = ( map { $_ => 1 } grep { $allowmask & ( 1 << $_ ) } 1..60 );
+    my %group_ids = ( map { $_ => 1 } grep { $allowmask & ( 1 << $_ ) } 1 .. 60 );
     return '' unless scalar( keys %group_ids ) > 0;
 
     my @ret;
 
     my @groups = $u->trust_groups;
-    foreach my $group ( @groups ) {
-        next unless $group_ids{$group->{groupnum}};  # not in mask
+    foreach my $group (@groups) {
+        next unless $group_ids{ $group->{groupnum} };    # not in mask
 
         my $name = LJ::ehtml( $group->{groupname} );
-        if ( $use_urls ) {
+        if ($use_urls) {
             my $url = LJ::eurl( $u->journal_base . "/security/group:$name" );
             push @ret, "<a href='$url'>$name</a>";
-        } else {
+        }
+        else {
             push @ret, $name;
         }
     }
@@ -754,33 +760,32 @@ sub security_group_display {
     return join( ', ', @ret );
 }
 
-
-
 sub set_draft_text {
-    my ($u, $draft) = @_;
+    my ( $u, $draft ) = @_;
     my $old = $u->draft_text;
 
     $LJ::_T_DRAFT_RACE->() if $LJ::_T_DRAFT_RACE;
 
     # try to find a shortcut that makes the SQL shorter
-    my @methods;  # list of [ $subref, $cost ]
+    my @methods;    # list of [ $subref, $cost ]
 
     # one method is just setting it all at once.  which incurs about
     # 75 bytes of SQL overhead on top of the length of the draft,
     # not counting the escaping
-    push @methods, [ "set", sub { $u->set_prop('entry_draft', $draft); 1 },
-                     75 + length $draft ];
+    push @methods, [ "set", sub { $u->set_prop( 'entry_draft', $draft ); 1 }, 75 + length $draft ];
 
     # stupid case, setting the same thing:
     push @methods, [ "noop", sub { 1 }, 0 ] if $draft eq $old;
 
     # simple case: appending
-    if (length $old && $draft =~ /^\Q$old\E(.+)/s) {
-        my $new = $1;
+    if ( length $old && $draft =~ /^\Q$old\E(.+)/s ) {
+        my $new       = $1;
         my $appending = sub {
-            my $prop = LJ::get_prop("user", "entry_draft") or die; # FIXME: use exceptions
-            my $rv = $u->do("UPDATE userpropblob SET value = CONCAT(value, ?) WHERE userid=? AND upropid=? AND LENGTH(value)=?",
-                            undef, $new, $u->userid, $prop->{id}, length $old);
+            my $prop = LJ::get_prop( "user", "entry_draft" ) or die;    # FIXME: use exceptions
+            my $rv   = $u->do(
+"UPDATE userpropblob SET value = CONCAT(value, ?) WHERE userid=? AND upropid=? AND LENGTH(value)=?",
+                undef, $new, $u->userid, $prop->{id}, length $old
+            );
             return 0 unless $rv > 0;
             $u->uncache_prop("entry_draft");
             return 1;
@@ -792,10 +797,10 @@ sub set_draft_text {
     # well as appending, wihch we could then get rid of
 
     # try the methods in increasing order
-    foreach my $m (sort { $a->[2] <=> $b->[2] } @methods) {
+    foreach my $m ( sort { $a->[2] <=> $b->[2] } @methods ) {
         my $func = $m->[1];
-        if ($func->()) {
-            $LJ::_T_METHOD_USED->($m->[0]) if $LJ::_T_METHOD_USED; # for testing
+        if ( $func->() ) {
+            $LJ::_T_METHOD_USED->( $m->[0] ) if $LJ::_T_METHOD_USED;    # for testing
             return 1;
         }
     }
@@ -805,12 +810,11 @@ sub set_draft_text {
 sub third_party_notify_list {
     my $u = shift;
 
-    my $val = $u->prop('third_party_notify_list');
-    my @services = split(',', $val);
+    my $val      = $u->prop('third_party_notify_list');
+    my @services = split( ',', $val );
 
     return @services;
 }
-
 
 # Add a service to a user's notify list
 sub third_party_notify_list_add {
@@ -823,19 +827,18 @@ sub third_party_notify_list_add {
     # Create the new list of services
     my @cur_services = $u->third_party_notify_list;
     push @cur_services, $svc;
-    my $svc_list = join(',', @cur_services);
+    my $svc_list = join( ',', @cur_services );
 
     # Trim a service from the list if it is too long
-    if (length $svc_list > 255) {
+    if ( length $svc_list > 255 ) {
         shift @cur_services;
-        $svc_list = join(',', @cur_services)
+        $svc_list = join( ',', @cur_services );
     }
 
     # Set it
-    $u->set_prop('third_party_notify_list', $svc_list);
+    $u->set_prop( 'third_party_notify_list', $svc_list );
     return 1;
 }
-
 
 # Check if the user's notify list contains a particular service
 sub third_party_notify_list_contains {
@@ -846,7 +849,6 @@ sub third_party_notify_list_contains {
     return 0;
 }
 
-
 # Remove a service to a user's notify list
 sub third_party_notify_list_remove {
     my ( $u, $svc ) = @_;
@@ -856,14 +858,10 @@ sub third_party_notify_list_remove {
     return 1 unless $u->third_party_notify_list_contains($svc);
 
     # Remove it!
-    $u->set_prop('third_party_notify_list',
-                 join(',',
-                      grep { $_ ne $svc } $u->third_party_notify_list
-                      )
-                 );
+    $u->set_prop( 'third_party_notify_list',
+        join( ',', grep { $_ ne $svc } $u->third_party_notify_list ) );
     return 1;
 }
-
 
 ########################################################################
 ###  27. Tag-Related Functions
@@ -873,16 +871,16 @@ sub third_party_notify_list_remove {
 
 # can $u add existing tags to $targetu's entries?
 sub can_add_tags_to {
-    my ($u, $targetu) = @_;
+    my ( $u, $targetu ) = @_;
 
-    return LJ::Tags::can_add_tags($targetu, $u);
+    return LJ::Tags::can_add_tags( $targetu, $u );
 }
 
 # can $u control (add, delete, edit) the tags of $targetu?
 sub can_control_tags {
-   my ($u, $targetu) = @_;
+    my ( $u, $targetu ) = @_;
 
-   return LJ::Tags::can_control_tags($targetu, $u);
+    return LJ::Tags::can_control_tags( $targetu, $u );
 }
 
 # <LJFUNC>
@@ -901,7 +899,7 @@ sub can_control_tags {
 # </LJFUNC>
 sub get_keyword_id {
     my ( $u, $kw, $autovivify ) = @_;
-    $u = LJ::want_user( $u );
+    $u = LJ::want_user($u);
     return undef unless $u;
     $autovivify = 1 unless defined $autovivify;
 
@@ -910,36 +908,37 @@ sub get_keyword_id {
     $kw = LJ::text_trim( $kw, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
 
     # get the keyword and insert it if necessary
-    my $kwid = $u->selectrow_array( 'SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
-                                    undef, $u->userid, $kw ) + 0;
-    if ( $autovivify && ! $kwid ) {
+    my $kwid =
+        $u->selectrow_array( 'SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
+        undef, $u->userid, $kw ) + 0;
+    if ( $autovivify && !$kwid ) {
+
         # create a new keyword
         $kwid = LJ::alloc_user_counter( $u, 'K' );
         return undef unless $kwid;
 
         # attempt to insert the keyword
         my $rv = $u->do( "INSERT IGNORE INTO userkeywords (userid, kwid, keyword) VALUES (?, ?, ?)",
-                         undef, $u->userid, $kwid, $kw ) + 0;
+            undef, $u->userid, $kwid, $kw ) + 0;
         return undef if $u->err;
 
         # at this point, if $rv is 0, the keyword is already there so try again
-        unless ( $rv ) {
-            $kwid = $u->selectrow_array( 'SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
-                                         undef, $u->userid, $kw ) + 0;
+        unless ($rv) {
+            $kwid = $u->selectrow_array(
+                'SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
+                undef, $u->userid, $kw ) + 0;
         }
 
         # nuke cache
-        $u->memc_delete( 'kws' );
+        $u->memc_delete('kws');
     }
     return $kwid;
 }
-
 
 sub tags {
     my $u = shift;
 
     return LJ::Tags::get_usertags($u);
 }
-
 
 1;

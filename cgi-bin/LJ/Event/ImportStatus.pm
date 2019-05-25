@@ -25,7 +25,7 @@ use base 'LJ::Event';
 sub new {
     my ( $class, $u, $type, $optref ) = @_;
 
-    $u = LJ::want_user( $u )
+    $u = LJ::want_user($u)
         or croak 'Not an LJ::User';
 
     croak 'second argument not a hashref'
@@ -33,6 +33,7 @@ sub new {
 
     # isn't this sort of thing what LJ::Typemap is for?
     my $typeid = {
+
         # things that we import from livejournal based sites
         lj_entries      => 0,
         lj_tags         => 1,
@@ -51,9 +52,9 @@ sub new {
 
     # now store this item
     my $sid = LJ::alloc_user_counter( $u, 'Z' );
-    if ( $sid ) {
+    if ($sid) {
         $u->do( 'INSERT INTO import_status (userid, import_status_id, status) VALUES (?, ?, ?)',
-                undef, $u->id, $sid, nfreeze( $optref ) );
+            undef, $u->id, $sid, nfreeze($optref) );
         return $class->SUPER::new( $u, $typeid, $sid );
     }
 
@@ -65,7 +66,6 @@ sub arg_list {
     return ( "Type id", "Import status id" );
 }
 
-
 # always subscribed, you can't unsubscribe, send to everybody, and don't
 # give the user any options.  (we assume that if they're importing things,
 # they want to know how it went.)
@@ -76,15 +76,15 @@ sub always_checked { 1 }
 
 # this is the header line that shows up on the event
 sub as_html {
-    my $self = $_[0];
-    my $opts = $self->_optsref;
+    my $self   = $_[0];
+    my $opts   = $self->_optsref;
     my $status = $opts->{type};
 
     # status items are special
     return "A status update about your import."
         if $status eq 'status';
 
-# FIXME: strip these strings into status strings
+    # FIXME: strip these strings into status strings
     my $item_has = {
         0 => 'entries have',
         1 => 'tags have',
@@ -94,14 +94,16 @@ sub as_html {
         5 => 'friend groups have',
         6 => 'usericons have',
         7 => 'import has',
-    }->{$self->arg1} || 'ERROR, INVALID TYPE';
+    }->{ $self->arg1 }
+        || 'ERROR, INVALID TYPE';
 
     # now success message
     my $succeeded = {
         ok        => 'been imported successfully',
         temp_fail => 'failed to import',
         fail      => 'failed to import and will not be retried',
-    }->{$status} || 'ERROR, UNKNOWN STATUS';
+    }->{$status}
+        || 'ERROR, UNKNOWN STATUS';
 
     # put the string together
     return "Your $item_has $succeeded.";
@@ -109,8 +111,8 @@ sub as_html {
 
 # content is the main body of the event
 sub content {
-    my $self = $_[0];
-    my $opts = $self->_optsref;
+    my $self   = $_[0];
+    my $opts   = $self->_optsref;
     my $status = $opts->{type};
 
     if ( $status eq 'status' ) {
@@ -119,20 +121,22 @@ sub content {
 
         if ( $self->arg1 == 0 ) {
             my $msg = qq(Original post: <a href="$opts->{remote_url}">$opts->{remote_url}</a>\n);
-            $msg .= qq(Local post: <a href="$opts->{post_res}->{url}">$opts->{post_res}->{url}</a>\n)
+            $msg .=
+                qq(Local post: <a href="$opts->{post_res}->{url}">$opts->{post_res}->{url}</a>\n)
                 if $opts->{post_res} && $opts->{post_res}->{url};
             $msg .= "\n" . join( "\n", map { " * $_" } @{ $opts->{errors} || [] } ) . "\n";
-            return LJ::html_newlines( $msg );
+            return LJ::html_newlines($msg);
         }
 
         return 'Unknown status update.';
 
-    } elsif ( $status eq 'fail' || $status eq 'temp_fail' ) {
+    }
+    elsif ( $status eq 'fail' || $status eq 'temp_fail' ) {
         my $msg = $opts->{msg} || 'Unknown error or error not recorded.';
         if ( $status eq 'temp_fail' ) {
-            $msg .= "\n\nThis was failure #" . ($opts->{failures}+1) . ".";
+            $msg .= "\n\nThis was failure #" . ( $opts->{failures} + 1 ) . ".";
         }
-        return LJ::html_newlines( $msg );
+        return LJ::html_newlines($msg);
 
     }
 
@@ -141,7 +145,7 @@ sub content {
 
 # short enough that we can just use this the normal content as the summary
 sub content_summary {
-    return $_[0]->content( @_ );
+    return $_[0]->content(@_);
 }
 
 # load our options hashref
@@ -149,15 +153,14 @@ sub _optsref {
     my $self = $_[0];
     return $self->{_optsref} if $self->{_optsref};
 
-    my $u = $self->u;
+    my $u    = $self->u;
     my $item = $u->selectrow_array(
         'SELECT status FROM import_status WHERE userid = ? AND import_status_id = ?',
-        undef, $u->id, $self->arg2
-    );
+        undef, $u->id, $self->arg2 );
     return undef
-        if $u->err || ! $item;
+        if $u->err || !$item;
 
-    return $self->{_optsref} = thaw( $item );
+    return $self->{_optsref} = thaw($item);
 }
 
 # override parent class subscriptions method to always return
@@ -165,7 +168,7 @@ sub _optsref {
 sub raw_subscriptions {
     my ( $class, $self, %args ) = @_;
 
-    $args{ntypeid} = LJ::NotificationMethod::Inbox->ntypeid; # Inbox
+    $args{ntypeid} = LJ::NotificationMethod::Inbox->ntypeid;    # Inbox
 
     return $class->_raw_always_subscribed( $self, %args );
 }
@@ -174,14 +177,15 @@ sub get_subscriptions {
     my ( $self, $u, $subid ) = @_;
 
     unless ($subid) {
-        my $row = { userid  => $u->{userid},
-                    ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
-                  };
+        my $row = {
+            userid  => $u->{userid},
+            ntypeid => LJ::NotificationMethod::Inbox->ntypeid,    # Inbox
+        };
 
         return LJ::Subscription->new_from_row($row);
     }
 
-    return $self->SUPER::get_subscriptions($u, $subid);
+    return $self->SUPER::get_subscriptions( $u, $subid );
 }
 
 1;

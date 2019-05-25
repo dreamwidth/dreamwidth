@@ -23,7 +23,7 @@ use strict;
 use LJ::S2;
 
 sub label {
-    return $_[0]->ml( 'setting.display.journalentrystyle.label2' );
+    return $_[0]->ml('setting.display.journalentrystyle.label2');
 }
 
 sub option_ml {
@@ -36,7 +36,7 @@ sub option_ml {
 sub note_ml {
     my ( $class, $u ) = @_;
     return $_[0]->ml('setting.display.journalentrystyle.note.comm')
-        if $u && $u->is_community; 
+        if $u && $u->is_community;
     return $_[0]->ml('setting.display.journalentrystyle.note');
 }
 

@@ -23,8 +23,8 @@ use LJ::NotificationMethod;
 
 sub new {
     my $class = shift;
-    my $u = shift;
-    my %opts = @_;
+    my $u     = shift;
+    my %opts  = @_;
 
     die "No user" unless LJ::isu($u);
 
@@ -44,21 +44,23 @@ sub new {
 
     $journalu = LJ::want_user($journalu) if $journalu;
 
-    croak "Invalid user object passed to LJ::Subscription::Pending->new" if $journalu && ! LJ::isu($journalu);
+    croak "Invalid user object passed to LJ::Subscription::Pending->new"
+        if $journalu && !LJ::isu($journalu);
 
     # force autoload of LJ::Event and it's subclasses
     LJ::Event->can('');
 
     # optional journalid arg
-    $journalu ||= LJ::want_user(delete $opts{journalid});
+    $journalu ||= LJ::want_user( delete $opts{journalid} );
 
     # don't care about disabled for pending
     # FIXME: care
     delete $opts{disabled};
 
-    croak "Invalid params passed to LJ::Subscription::Pending->new: " . join(',', keys %opts) if scalar keys %opts;
+    croak "Invalid params passed to LJ::Subscription::Pending->new: " . join( ',', keys %opts )
+        if scalar keys %opts;
 
-    croak "etypeid or event required" unless ($etypeid xor $event);
+    croak "etypeid or event required" unless ( $etypeid xor $event );
     if ($event) {
         $etypeid = LJ::Event::etypeid("LJ::Event::$event") or croak "Invalid event: $event";
     }
@@ -66,7 +68,8 @@ sub new {
 
     $method = 'Inbox' unless $ntypeid || $method;
     if ($method) {
-        $ntypeid = LJ::NotificationMethod::ntypeid("LJ::NotificationMethod::$method") or croak "Invalid method: $method";
+        $ntypeid = LJ::NotificationMethod::ntypeid("LJ::NotificationMethod::$method")
+            or croak "Invalid method: $method";
     }
     croak "No ntypeid" unless $ntypeid;
 
@@ -86,22 +89,22 @@ sub new {
     return bless $self, $class;
 }
 
-sub delete {}
+sub delete  { }
 sub pending { 1 }
 
-sub journal           { $_[0]->{journal}}
-sub journalid         { $_[0]->{journal} ? $_[0]->{journal}->{userid} : 0 }
-sub entry             { $_[0]->{entry} };
-sub default_selected  { $_[0]->{default_selected} && ! $_[0]->disabled }
+sub journal   { $_[0]->{journal} }
+sub journalid { $_[0]->{journal} ? $_[0]->{journal}->{userid} : 0 }
+sub entry     { $_[0]->{entry} }
+sub default_selected { $_[0]->{default_selected} && !$_[0]->disabled }
 
 sub disabled {
     my $self = shift;
-    return ! $self->available_for_user;
+    return !$self->available_for_user;
 }
 
 sub enabled {
     my $self = shift;
-    return ! $self->disabled;
+    return !$self->disabled;
 }
 
 # overload create because you should never be calling it on this object
@@ -114,20 +117,21 @@ sub commit {
     return if $self->disabled;
 
     return $self->{u}->subscribe(
-                                 etypeid => $self->{etypeid},
-                                 ntypeid => $self->{ntypeid},
-                                 journal => $self->{journal},
-                                 arg1    => $self->{arg1},
-                                 arg2    => $self->{arg2},
-                                 flags   => $self->flags,
-                                 );
+        etypeid => $self->{etypeid},
+        ntypeid => $self->{ntypeid},
+        journal => $self->{journal},
+        arg1    => $self->{arg1},
+        arg2    => $self->{arg2},
+        flags   => $self->flags,
+    );
 }
 
 # class method
 sub thaw {
-    my ($class, $data, $u, $POST) = @_;
+    my ( $class, $data, $u, $POST ) = @_;
 
-    my ($type, $userid, $journalid, $etypeid, $flags, $ntypeid, $arg1, $arg2) = split('-', $data);
+    my ( $type, $userid, $journalid, $etypeid, $flags, $ntypeid, $arg1, $arg2 ) =
+        split( '-', $data );
 
     die "Invalid thawed data" unless $type eq 'pending';
 
@@ -140,18 +144,19 @@ sub thaw {
         die "Invalid user $subuser->{user}" unless $u;
     }
 
-    if ($arg1 && $arg1 eq '?') {
+    if ( $arg1 && $arg1 eq '?' ) {
         die "Arg1 option passed without POST data" unless $POST;
 
         my $arg1_postkey = "$type-$userid-$journalid-$etypeid-0-0-$arg1-$arg2.arg1";
 
-        die "No input data for $arg1_postkey ntypeid: $ntypeid" unless defined $POST->{$arg1_postkey};
+        die "No input data for $arg1_postkey ntypeid: $ntypeid"
+            unless defined $POST->{$arg1_postkey};
 
         my $arg1value = $POST->{$arg1_postkey};
         $arg1 = int($arg1value);
     }
 
-    if ($arg2 && $arg2 eq '?') {
+    if ( $arg2 && $arg2 eq '?' ) {
         die "Arg2 option passed without POST data" unless $POST;
 
         my $arg2_postkey = "$type-$userid-$journalid-$etypeid-0-0-$arg1-$arg2.arg2";
@@ -164,14 +169,14 @@ sub thaw {
 
     return undef unless $etypeid;
     return $class->new(
-                       $u,
-                       journal => $journalid,
-                       ntypeid => $ntypeid,
-                       etypeid => $etypeid,
-                       arg1    => $arg1 || 0,
-                       arg2    => $arg2 || 0,
-                       flags   => $flags || 0,
-                       );
+        $u,
+        journal => $journalid,
+        ntypeid => $ntypeid,
+        etypeid => $etypeid,
+        arg1  => $arg1  || 0,
+        arg2  => $arg2  || 0,
+        flags => $flags || 0,
+    );
 }
 
 # instance method
@@ -179,26 +184,26 @@ sub freeze {
     my $self = shift;
     my $arg  = shift;
 
-    my $userid = $self->{u}->id;
+    my $userid    = $self->{u}->id;
     my $journalid = $self->journalid;
-    my $etypeid = $self->{etypeid};
-    my $flags = $self->flags;
-    my $ntypeid = $self->{ntypeid};
+    my $etypeid   = $self->{etypeid};
+    my $flags     = $self->flags;
+    my $ntypeid   = $self->{ntypeid};
 
     # if this is for an argument, ntypeid is 0
     $ntypeid = 0 if $arg;
-    $flags = 0 if $arg;
+    $flags   = 0 if $arg;
 
-    my @args = ($userid,$journalid,$etypeid,$flags,$ntypeid);
+    my @args = ( $userid, $journalid, $etypeid, $flags, $ntypeid );
 
     push @args, $self->{arg1} if defined $self->{arg1};
 
     # if arg2 is defined but not arg1, put a zero in arg1
-    push @args, 0 if ! defined $self->{arg1} && defined $self->{arg2};
+    push @args, 0 if !defined $self->{arg1} && defined $self->{arg2};
 
     push @args, $self->{arg2} if defined $self->{arg2};
 
-    my $frozen = join('-', ('pending', @args));
+    my $frozen = join( '-', ( 'pending', @args ) );
     $frozen .= '.' . $arg if $arg;
 
     return $frozen;

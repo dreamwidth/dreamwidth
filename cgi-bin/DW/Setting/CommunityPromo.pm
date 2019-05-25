@@ -2,7 +2,7 @@
 #
 # DW::Setting::CommunityPromo
 #
-# DW::Setting module for choosing whether a community should appear on the list of 
+# DW::Setting module for choosing whether a community should appear on the list of
 # promoted communities, on account creation
 #
 # Authors:
@@ -29,7 +29,7 @@ sub should_render {
 sub label {
     my $class = $_[0];
 
-    return $class->ml( 'setting.communitypromo.label' );
+    return $class->ml('setting.communitypromo.label');
 }
 
 sub option {
@@ -37,15 +37,17 @@ sub option {
     my $key = $class->pkgkey;
 
     my $communitypromo = $class->get_arg( $args, 'communitypromo' ) || $u->optout_community_promo;
-    
-    my $ret = LJ::html_check({
-        name => "${key}communitypromo",
-        id => "${key}communitypromo",
-        value => 1,
-        selected => $communitypromo,
-    });
+
+    my $ret = LJ::html_check(
+        {
+            name     => "${key}communitypromo",
+            id       => "${key}communitypromo",
+            value    => 1,
+            selected => $communitypromo,
+        }
+    );
     $ret .= " <label for='${key}communitypromo'>";
-    $ret .= $class->ml( 'setting.communitypromo.option' );
+    $ret .= $class->ml('setting.communitypromo.option');
     $ret .= "</label>";
 
     return $ret;

@@ -42,22 +42,27 @@ use base 'DW::StatData';
 
 sub category { "accounts" }
 sub name     { "Accounts by Type" }
-sub keylist  { [ qw( redirect identity personal syndicated community total ) ] }
+sub keylist  { [qw( redirect identity personal syndicated community total )] }
 
 sub collect {
     my $class = shift;
-    my %opts = map { $_ => 1 } @_;
+    my %opts  = map { $_ => 1 } @_;
 
     my %data;
-    my $dbslow = LJ::get_dbh( 'slow' ) or die "Can't get slow role";
-    
+    my $dbslow = LJ::get_dbh('slow') or die "Can't get slow role";
+
     # FIXME: look into using a count(*) ... group by. Efficiency?
-    $data{redirect} = $dbslow->selectrow_array( "SELECT COUNT(*) FROM user WHERE journaltype='R'" ) if $opts{redirect};
-    $data{identity} = $dbslow->selectrow_array( "SELECT COUNT(*) FROM user WHERE journaltype='I'" ) if $opts{identity};
-    $data{personal} = $dbslow->selectrow_array( "SELECT COUNT(*) FROM user WHERE journaltype='P'" ) if $opts{personal};
-    $data{syndicated} = $dbslow->selectrow_array( "SELECT COUNT(*) FROM user WHERE journaltype='Y'" ) if $opts{syndicated};
-    $data{community} = $dbslow->selectrow_array( "SELECT COUNT(*) FROM user WHERE journaltype='C'" ) if $opts{community};
-    
+    $data{redirect} = $dbslow->selectrow_array("SELECT COUNT(*) FROM user WHERE journaltype='R'")
+        if $opts{redirect};
+    $data{identity} = $dbslow->selectrow_array("SELECT COUNT(*) FROM user WHERE journaltype='I'")
+        if $opts{identity};
+    $data{personal} = $dbslow->selectrow_array("SELECT COUNT(*) FROM user WHERE journaltype='P'")
+        if $opts{personal};
+    $data{syndicated} = $dbslow->selectrow_array("SELECT COUNT(*) FROM user WHERE journaltype='Y'")
+        if $opts{syndicated};
+    $data{community} = $dbslow->selectrow_array("SELECT COUNT(*) FROM user WHERE journaltype='C'")
+        if $opts{community};
+
     return \%data;
 }
 
@@ -67,6 +72,7 @@ sub collect {
 
 sub data {
     my $data = $_[0]->{data};
+
     # don't double-calculate the total
     return $data if $data->{total};
 

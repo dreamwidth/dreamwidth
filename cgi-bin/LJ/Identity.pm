@@ -16,13 +16,13 @@ package LJ::Identity;
 use strict;
 
 use fields (
-            'typeid',  # character defining identity type
-            'value',   # Identity string
-            );
+    'typeid',    # character defining identity type
+    'value',     # Identity string
+);
 
 sub new {
     my LJ::Identity $self = shift;
-    $self = fields::new( $self ) unless ref $self;
+    $self = fields::new($self) unless ref $self;
     my %opts = @_;
 
     $self->{typeid} = $opts{'typeid'};

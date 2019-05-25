@@ -20,23 +20,27 @@ use LJ::Feed;
 
 sub cmd { "syn_merge" }
 
-sub desc { "Merge two syndicated accounts into one, setting up a redirect and using one account's URL. Requires priv: syn_edit." }
+sub desc {
+"Merge two syndicated accounts into one, setting up a redirect and using one account's URL. Requires priv: syn_edit.";
+}
 
-sub args_desc { [
-                 'from_user' => "Syndicated account to merge into another.",
-                 'to_user'   => "Syndicated account to merge 'from_user' into.",
-                 'url'       => "Source feed URL to use for 'to_user'. Specify the direct URL to the feed.",
-                 ] }
+sub args_desc {
+    [
+        'from_user' => "Syndicated account to merge into another.",
+        'to_user'   => "Syndicated account to merge 'from_user' into.",
+        'url'       => "Source feed URL to use for 'to_user'. Specify the direct URL to the feed.",
+    ]
+}
 
 sub usage { '<from_user> "to" <to_user> "using" <url>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "syn_edit" );
+    return $remote && $remote->has_priv("syn_edit");
 }
 
 sub execute {
-    my ($self, $from_user, $to, $to_user, $using, $url, @args) = @_;
+    my ( $self, $from_user, $to, $to_user, $using, $url, @args ) = @_;
 
     return $self->error("This command takes five arguments. Consult the reference.")
         unless $from_user && $to_user && $url && scalar(@args) == 0;
@@ -47,7 +51,8 @@ sub execute {
     return $self->error("Fourth argument must be 'using'.")
         if $using ne 'using';
 
-    my ( $ok,$msg ) = LJ::Feed::merge_feed( from_name => $from_user, to_name => $to_user, url => $url );
+    my ( $ok, $msg ) =
+        LJ::Feed::merge_feed( from_name => $from_user, to_name => $to_user, url => $url );
     return $self->error($msg) unless $ok;
     return $self->print($msg);
 }

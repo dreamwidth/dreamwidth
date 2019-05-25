@@ -59,18 +59,20 @@ sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $use_s2 = $class->get_arg( $args, "style" ) ||
-        $class->current_value( $u );
+    my $use_s2 = $class->get_arg( $args, "style" )
+        || $class->current_value($u);
 
-    my $ret = LJ::html_check( {
-        name => "${key}style",
-        id => "${key}style",
-        value => 1,
-        selected => $use_s2 ? 1 : 0,
-    } );
-    $ret .= " <label for='${key}style'>" . $class->option_ml( $u ) . "</label>";
+    my $ret = LJ::html_check(
+        {
+            name     => "${key}style",
+            id       => "${key}style",
+            value    => 1,
+            selected => $use_s2 ? 1 : 0,
+        }
+    );
+    $ret .= " <label for='${key}style'>" . $class->option_ml($u) . "</label>";
 
-    my $note = $class->note_ml( $u );
+    my $note = $class->note_ml($u);
     $ret .= "<br /><i>$note</i>" if $note;
 
     return $ret;
@@ -79,13 +81,14 @@ sub option {
 sub save {
     my ( $class, $u, $args ) = @_;
 
-    my $name = $class->prop_name;
+    my $name  = $class->prop_name;
     my $value = $class->get_arg( $args, "style" );
-    my $out = undef;
+    my $out   = undef;
 
-    if ( $class->store_negative) {
+    if ( $class->store_negative ) {
         $out = $value ? 'Y' : 'N';
-    } elsif ( $value ) {
+    }
+    elsif ($value) {
         $out = 'Y';
     }
 

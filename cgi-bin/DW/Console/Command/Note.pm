@@ -23,57 +23,65 @@ use strict;
 use base qw/ LJ::Console::Command /;
 
 sub cmd { 'note' }
-sub desc { 'Sets and clears notes that will display when you try to suspend an account. Intended for the antispam team to make notes on accounts frequently reported for spam that are actually legit. Requires priv: suspend.' }
+
+sub desc {
+'Sets and clears notes that will display when you try to suspend an account. Intended for the antispam team to make notes on accounts frequently reported for spam that are actually legit. Requires priv: suspend.';
+}
+
 sub args_desc {
     [
-        'command' => 'Subcommand: add, remove.',
+        'command'  => 'Subcommand: add, remove.',
         'username' => 'Username to act on.',
-        'note' => 'Text of note to add. To remove, leave blank.',
+        'note'     => 'Text of note to add. To remove, leave blank.',
     ]
 }
 sub usage { '<username> [<subcommand> <note>]' }
+
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( 'suspend' );
+    return $remote && $remote->has_priv('suspend');
 }
 
 sub execute {
     my ( $self, $user, $cmd, $note ) = @_;
 
     my $remote = LJ::get_remote();
-    return $self->error( 'You must be logged in!' )
+    return $self->error('You must be logged in!')
         unless $remote;
-    return $self->error( 'I\'m afraid I can\'t let you do that.' )
-        unless $remote->has_priv( 'suspend' );
+    return $self->error('I\'m afraid I can\'t let you do that.')
+        unless $remote->has_priv('suspend');
 
-    my $u = LJ::load_user( $user );
-    return $self->error( 'Invalid user.' )
+    my $u = LJ::load_user($user);
+    return $self->error('Invalid user.')
         unless $u;
 
     my $currnote = $u->get_suspend_note;
 
     unless ( defined $cmd ) {
+
         # No subcommand to add or remove = print current note
-        if ( $currnote ) {
+        if ($currnote) {
             return $self->print( $u->user . "'s current note: " . $currnote );
-        } else {
+        }
+        else {
             return $self->print( $u->user . " has no note." );
         }
     }
 
-    return $self->error( 'Invalid subcommand. Must be one of: add, remove.' )
+    return $self->error('Invalid subcommand. Must be one of: add, remove.')
         if $cmd && $cmd !~ /^(?:add|remove)$/;
 
     if ( $cmd eq 'add' ) {
-        return $self->error( 'Must specify a note to add.' ) unless $note;
+        return $self->error('Must specify a note to add.') unless $note;
         $u->set_prop( "suspendmsg", $note );
         $self->print( $u->user . "'s note added: " . $note );
-        LJ::statushistory_add($u, $remote, "note_add", $note);
+        LJ::statushistory_add( $u, $remote, "note_add", $note );
 
-    } elsif ( $cmd eq 'remove' ) {
-        $u->clear_prop( "suspendmsg" );
+    }
+    elsif ( $cmd eq 'remove' ) {
+        $u->clear_prop("suspendmsg");
         $self->print( $u->user . "'s note cleared." );
-        LJ::statushistory_add($u, $remote, "note_remove", $note);
+        LJ::statushistory_add( $u, $remote, "note_remove", $note );
     }
 
     return 1;

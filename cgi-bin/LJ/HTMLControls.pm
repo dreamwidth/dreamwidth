@@ -27,92 +27,117 @@ use strict;
 # returns:
 # </LJFUNC>
 # It's the caller's responsibility to leave appropriate gaps if using tabindex
-sub html_datetime
-{
+sub html_datetime {
     my $opts = shift;
     my $lang = $opts->{'lang'} || "EN";
-    my ($yyyy, $mm, $dd, $hh, $nn, $ss);
+    my ( $yyyy, $mm, $dd, $hh, $nn, $ss );
     my $ret;
     my $name = $opts->{name} || '';
-    my $id = $opts->{id} || '';
-    my $disabled = $opts->{'disabled'} ? 1 : 0;
-    my $tabindex = $opts->{tabindex};
+    my $id   = $opts->{id}   || '';
+    my $disabled     = $opts->{'disabled'} ? 1 : 0;
+    my $tabindex     = $opts->{tabindex};
     my @tabindex_arg = ();
     @tabindex_arg = ( tabindex => $tabindex ) if defined $tabindex;
 
     my %extra_opts;
-    foreach (grep { ! /^(name|id|disabled|seconds|notime|lang|default|tabindex)$/ } keys %$opts) {
+    foreach ( grep { !/^(name|id|disabled|seconds|notime|lang|default|tabindex)$/ } keys %$opts ) {
         $extra_opts{$_} = $opts->{$_};
     }
 
-    if ($opts->{'default'} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)(?: (\d\d):(\d\d):(\d\d))?/) {
-        ( $yyyy, $mm, $dd, $hh, $nn, $ss ) = ( $1 > 0 ? $1   : "",
-                                               $2+0,
-                                               $3 > 0 ? $3+0 : "",
-                                 defined $4 && $4 > 0 ? $4   : "",
-                                 defined $5 && $5 > 0 ? $5   : "",
-                                 defined $6 && $6 > 0 ? $6   : "" );
+    if ( $opts->{'default'} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)(?: (\d\d):(\d\d):(\d\d))?/ ) {
+        ( $yyyy, $mm, $dd, $hh, $nn, $ss ) = (
+            $1 > 0 ? $1 : "",
+            $2 + 0,
+            $3 > 0 ? $3 + 0 : "",
+            defined $4 && $4 > 0 ? $4 : "",
+            defined $5 && $5 > 0 ? $5 : "",
+            defined $6 && $6 > 0 ? $6 : ""
+        );
     }
 
-    $ret .= html_select( { name => "${name}_mm",
-                           id => "${id}_mm",
-                           selected => sprintf( '%02d', $mm ),
-                           class => 'select',
-                           title => 'month',
-                           disabled => $disabled, @tabindex_arg, %extra_opts,
-                         },
-                         map { sprintf( '%02d', $_ ), LJ::Lang::month_long_ml($_) } (1..12) );
+    $ret .= html_select(
+        {
+            name     => "${name}_mm",
+            id       => "${id}_mm",
+            selected => sprintf( '%02d', $mm ),
+            class    => 'select',
+            title    => 'month',
+            disabled => $disabled,
+            @tabindex_arg, %extra_opts,
+        },
+        map { sprintf( '%02d', $_ ), LJ::Lang::month_long_ml($_) } ( 1 .. 12 )
+    );
     ++$tabindex_arg[1] if defined $tabindex;
-    $ret .= html_text( { name => "${name}_dd",
-                         id => "${id}_dd",
-                         size => '2',
-                         class => 'text',
-                         maxlength => '2',
-                         value => $dd,
-                         title => 'day',
-                         disabled => $disabled, @tabindex_arg, %extra_opts,
-                       } );
+    $ret .= html_text(
+        {
+            name      => "${name}_dd",
+            id        => "${id}_dd",
+            size      => '2',
+            class     => 'text',
+            maxlength => '2',
+            value     => $dd,
+            title     => 'day',
+            disabled  => $disabled,
+            @tabindex_arg, %extra_opts,
+        }
+    );
     ++$tabindex_arg[1] if defined $tabindex;
-    $ret .= html_text( { name => "${name}_yyyy",
-                         id => "${id}_yyyy",
-                         size => '4',
-                         class => 'text',
-                         maxlength => '4',
-                         value => $yyyy,
-                         title => 'year',
-                         disabled => $disabled, @tabindex_arg, %extra_opts,
-                       } );
+    $ret .= html_text(
+        {
+            name      => "${name}_yyyy",
+            id        => "${id}_yyyy",
+            size      => '4',
+            class     => 'text',
+            maxlength => '4',
+            value     => $yyyy,
+            title     => 'year',
+            disabled  => $disabled,
+            @tabindex_arg, %extra_opts,
+        }
+    );
     unless ( $opts->{notime} ) {
         $ret .= ' ';
         ++$tabindex_arg[1] if defined $tabindex;
-        $ret .= html_text( { name => "${name}_hh",
-                             id => "${id}_hh",
-                             size => '2',
-                             maxlength => '2',
-                             value => $hh,
-                             title => 'hour',
-                             disabled => $disabled, @tabindex_arg,
-                           } ) . ':';
+        $ret .= html_text(
+            {
+                name      => "${name}_hh",
+                id        => "${id}_hh",
+                size      => '2',
+                maxlength => '2',
+                value     => $hh,
+                title     => 'hour',
+                disabled  => $disabled,
+                @tabindex_arg,
+            }
+        ) . ':';
         ++$tabindex_arg[1] if defined $tabindex;
-        $ret .= html_text( { name => "${name}_nn",
-                             id => "${id}_nn",
-                             size => '2',
-                             maxlength => '2',
-                             value => $nn,
-                             title => 'minutes',
-                             disabled => $disabled, @tabindex_arg,
-                           } );
+        $ret .= html_text(
+            {
+                name      => "${name}_nn",
+                id        => "${id}_nn",
+                size      => '2',
+                maxlength => '2',
+                value     => $nn,
+                title     => 'minutes',
+                disabled  => $disabled,
+                @tabindex_arg,
+            }
+        );
         if ( $opts->{seconds} ) {
             $ret .= ':';
             ++$tabindex_arg[1] if defined $tabindex;
-            $ret .= html_text( { name => "${name}_ss",
-                                 id => "${id}_ss",
-                                 size => '2',
-                                 maxlength => '2',
-                                 value => $ss,
-                                 title => 'seconds',
-                                 disabled => $disabled, @tabindex_arg,
-                               } );
+            $ret .= html_text(
+                {
+                    name      => "${name}_ss",
+                    id        => "${id}_ss",
+                    size      => '2',
+                    maxlength => '2',
+                    value     => $ss,
+                    title     => 'seconds',
+                    disabled  => $disabled,
+                    @tabindex_arg,
+                }
+            );
         }
     }
 
@@ -128,18 +153,19 @@ sub html_datetime
 # des-:
 # returns:
 # </LJFUNC>
-sub html_datetime_decode
-{
+sub html_datetime_decode {
     my $opts = shift;
     my $hash = shift;
     my $name = $opts->{name} || '';
-    return sprintf("%04d-%02d-%02d %02d:%02d:%02d",
-                   $hash->{"${name}_yyyy"} || 0,
-                   $hash->{"${name}_mm"}   || 0,
-                   $hash->{"${name}_dd"}   || 0,
-                   $hash->{"${name}_hh"}   || 0,
-                   $hash->{"${name}_nn"}   || 0,
-                   $hash->{"${name}_ss"}   || 0 );
+    return sprintf(
+        "%04d-%02d-%02d %02d:%02d:%02d",
+        $hash->{"${name}_yyyy"} || 0,
+        $hash->{"${name}_mm"}   || 0,
+        $hash->{"${name}_dd"}   || 0,
+        $hash->{"${name}_hh"}   || 0,
+        $hash->{"${name}_nn"}   || 0,
+        $hash->{"${name}_ss"}   || 0
+    );
 }
 
 # <LJFUNC>
@@ -161,9 +187,8 @@ sub html_datetime_decode
 #           All other options will be treated as HTML attribute/value pairs.
 # returns: The generated HTML.
 # </LJFUNC>
-sub html_select
-{
-    my $opts = shift;
+sub html_select {
+    my $opts  = shift;
     my @items = @_;
     my $ehtml = $opts->{'noescape'} ? 0 : 1;
     my $ret;
@@ -172,39 +197,41 @@ sub html_select
     $ret .= " $opts->{'raw'}" if $opts->{'raw'};
     $ret .= " disabled='disabled'" if $opts->{'disabled'};
     $ret .= " multiple='multiple'" if $opts->{'multiple'};
-    foreach (grep { ! /^(raw|disabled|selected|noescape|multiple)$/ } keys %$opts) {
+    foreach ( grep { !/^(raw|disabled|selected|noescape|multiple)$/ } keys %$opts ) {
         my $opt = $opts->{$_} || '';
-        $ret .= " $_=\"" . ( $ehtml ? ehtml( $opt ) : $opt ) . "\"";
+        $ret .= " $_=\"" . ( $ehtml ? ehtml($opt) : $opt ) . "\"";
     }
     $ret .= ">\n";
 
     # build hashref from arrayref if multiple selected
     my $selref;
-    $selref = { map { $_, 1 } @{$opts->{'selected'}} }
+    $selref = { map { $_, 1 } @{ $opts->{'selected'} } }
         if $opts->{'multiple'} && ref $opts->{'selected'} eq 'ARRAY';
 
     my $did_sel = 0;
-    while (defined (my $value = shift @items)) {
+    while ( defined( my $value = shift @items ) ) {
 
         # items can be either pairs of $value, $text or a list of $it hashrefs (or a mix)
         my $it = {};
         my $text;
-        if (ref $value) {
-            $it = $value;
+        if ( ref $value ) {
+            $it    = $value;
             $value = $it->{value};
-            $text = $it->{text};
-        } else {
+            $text  = $it->{text};
+        }
+        else {
             $text = shift @items;
         }
 
         if ( $it->{optgroup} ) {
             $ret .= "<optgroup label='$it->{optgroup}'>";
-            $ret .= LJ::_html_option( $_->{value}, $_->{text}, {}, $opts, $ehtml, $selref, \$did_sel )
-                foreach @{$it->{items} || []};
+            $ret .=
+                LJ::_html_option( $_->{value}, $_->{text}, {}, $opts, $ehtml, $selref, \$did_sel )
+                foreach @{ $it->{items} || [] };
             $ret .= "</optgroup>";
-        } else {
-            $ret .= LJ::_html_option( $value, $text, $it, $opts, $ehtml,
-                $selref, \$did_sel );
+        }
+        else {
+            $ret .= LJ::_html_option( $value, $text, $it, $opts, $ehtml, $selref, \$did_sel );
         }
     }
     $ret .= "</select>";
@@ -215,13 +242,15 @@ sub _html_option {
     my ( $value, $text, $item, $opts, $ehtml, $selref, $did_sel ) = @_;
 
     my $sel = "";
+
     # multiple-mode or single-mode?
-    if ( $selref && ( ref $selref eq 'HASH' ) && $selref->{$value} ||
-        defined $opts->{selected}  && ( $opts->{selected} eq $value ) && ! $$did_sel++ ) {
+    if ( $selref && ( ref $selref eq 'HASH' ) && $selref->{$value}
+        || defined $opts->{selected} && ( $opts->{selected} eq $value ) && !$$did_sel++ )
+    {
 
         $sel = " selected='selected'";
     }
-    $value  = $ehtml ? ehtml( $value ) : $value;
+    $value = $ehtml ? ehtml($value) : $value;
 
     my $id = '';
     if ( $opts->{include_ids} && $opts->{name} ne "" && $value ne "" ) {
@@ -233,14 +262,16 @@ sub _html_option {
 
     # are there additional data-attributes?
     my $data_attribute = '';
-    my %item_data = $item->{data} ? %{$item->{data}} : ();
+    my %item_data      = $item->{data} ? %{ $item->{data} } : ();
     foreach ( keys %item_data ) {
         my $val = $item_data{$_} // '';
         $data_attribute .= " data-$_='$val'";
     }
 
-    return "<option value=\"$value\"$id$sel$dis$data_attribute>" .
-             ( $ehtml ? ehtml( $text ) : $text ) . "</option>\n";
+    return
+          "<option value=\"$value\"$id$sel$dis$data_attribute>"
+        . ( $ehtml ? ehtml($text) : $text )
+        . "</option>\n";
 }
 
 # <LJFUNC>
@@ -260,8 +291,7 @@ sub _html_option {
 #           'label' - label for checkbox;
 # returns:
 # </LJFUNC>
-sub html_check
-{
+sub html_check {
     my $opts = shift;
 
     my $disabled = $opts->{'disabled'} ? " disabled='disabled'" : "";
@@ -269,17 +299,18 @@ sub html_check
     my $ret;
     if ( $opts->{type} && $opts->{type} eq "radio" ) {
         $ret .= "<input type='radio'";
-    } else {
+    }
+    else {
         $ret .= "<input type='checkbox'";
     }
-    if ($opts->{'selected'}) { $ret .= " checked='checked'"; }
-    if ($opts->{'raw'}) { $ret .= " $opts->{'raw'}"; }
-    foreach (grep { ! /^(disabled|type|selected|raw|noescape|label)$/ } keys %$opts) {
-        $ret .= " $_=\"" . ($ehtml ? ehtml($opts->{$_}) : $opts->{$_}) . "\"";
+    if ( $opts->{'selected'} ) { $ret .= " checked='checked'"; }
+    if ( $opts->{'raw'} )      { $ret .= " $opts->{'raw'}"; }
+    foreach ( grep { !/^(disabled|type|selected|raw|noescape|label)$/ } keys %$opts ) {
+        $ret .= " $_=\"" . ( $ehtml ? ehtml( $opts->{$_} ) : $opts->{$_} ) . "\"";
     }
     $ret .= "$disabled />";
-    my $e_label = ($ehtml ? ehtml($opts->{'label'}) : $opts->{'label'});
-    $e_label = LJ::labelfy($opts->{id}, $e_label);
+    my $e_label = ( $ehtml ? ehtml( $opts->{'label'} ) : $opts->{'label'} );
+    $e_label = LJ::labelfy( $opts->{id}, $e_label );
     $ret .= $e_label if $opts->{'label'};
     return $ret;
 }
@@ -287,8 +318,8 @@ sub html_check
 # given a string and an id, return the string
 # in a label, respecting HTML
 sub labelfy {
-    my ($id, $text, $class) = @_;
-    $id = '' unless defined $id;
+    my ( $id, $text, $class ) = @_;
+    $id   = '' unless defined $id;
     $text = '' unless defined $text;
 
     $class = LJ::ehtml( $class || "" );
@@ -314,23 +345,23 @@ sub labelfy {
 # des-:
 # returns: The generated HTML.
 # </LJFUNC>
-sub html_text
-{
+sub html_text {
     my $opts = shift;
 
     my $disabled = $opts->{'disabled'} ? " disabled='disabled'" : "";
-    my $ehtml = $opts->{'noescape'} ? 0 : 1;
-    my $type = 'text';
-    $type = $opts->{type} if $opts->{type} &&
-                             ( $opts->{type} eq 'password' ||
-                               $opts->{type} eq 'search' );
+    my $ehtml    = $opts->{'noescape'} ? 0                      : 1;
+    my $type     = 'text';
+    $type = $opts->{type}
+        if $opts->{type}
+        && ( $opts->{type} eq 'password'
+        || $opts->{type} eq 'search' );
     my $ret = '';
     $ret .= "<input type=\"$type\"";
-    foreach (grep { ! /^(type|disabled|raw|noescape)$/ } keys %$opts) {
+    foreach ( grep { !/^(type|disabled|raw|noescape)$/ } keys %$opts ) {
         my $val = defined $opts->{$_} ? $opts->{$_} : '';
-        $ret .= " $_=\"" . ( $ehtml ? LJ::ehtml( $val ) : $val ) . "\"";
+        $ret .= " $_=\"" . ( $ehtml ? LJ::ehtml($val) : $val ) . "\"";
     }
-    if ($opts->{'raw'}) { $ret .= " $opts->{'raw'}"; }
+    if ( $opts->{'raw'} ) { $ret .= " $opts->{'raw'}"; }
     $ret .= "$disabled />";
     return $ret;
 }
@@ -344,18 +375,17 @@ sub html_text
 # des-:
 # returns: The generated HTML.
 # </LJFUNC>
-sub html_textarea
-{
+sub html_textarea {
     my $opts = $_[0];
 
     my $disabled = $opts->{disabled} ? " disabled='disabled'" : "";
     my $ehtml = $opts->{noescape} ? 0 : 1;
     my $value = $opts->{value} || '';
-    $value = ehtml( $value ) if $ehtml;
+    $value = ehtml($value) if $ehtml;
 
     my $ret = "<textarea";
-    foreach (grep { ! /^(disabled|raw|value|noescape)$/ } keys %$opts) {
-        $ret .= " $_=\"" . ($ehtml ? ehtml($opts->{$_}) : $opts->{$_}) . "\"";
+    foreach ( grep { !/^(disabled|raw|value|noescape)$/ } keys %$opts ) {
+        $ret .= " $_=\"" . ( $ehtml ? ehtml( $opts->{$_} ) : $opts->{$_} ) . "\"";
     }
     $ret .= " $opts->{raw}" if $opts->{raw};
     $ret .= "$disabled>$value</textarea>";
@@ -373,48 +403,58 @@ sub html_textarea
 #           'disabled'; and 'raw' , for unescaped input.
 # returns:
 # </LJFUNC>
-sub html_color
-{
+sub html_color {
     my $opts = shift;
 
-    my $htmlname = ehtml($opts->{'name'});
-    my $des = ehtml($opts->{'des'}) || "Pick a Color";
+    my $htmlname = ehtml( $opts->{'name'} );
+    my $des      = ehtml( $opts->{'des'} ) || "Pick a Color";
     my $ret;
 
     ## Output the preview box and picker button with script so that
     ## they don't appear when JavaScript is unavailable.
-    $ret .= "<script language=\"JavaScript\"><!--\n".
-            "document.write('<span style=\"border: 1px solid #000000; ".
-            "padding-left: 2em; background-color: " . ehtml($opts->{'default'} || "") . ";\" ".
-            "id=\"${htmlname}_disp\"";
-            if ($opts->{no_btn}) {
-                $ret .= " onclick=\"spawnPicker(findel(\\'${htmlname}\\')," .
-                        "findel(\\'${htmlname}_disp\\'),\\'$des\\'); " .
-                        LJ::ejs($opts->{'onchange'}) .
-                        " return false;\"";
-            }
-    $ret .= ">&nbsp;</span>'); ".
-            "\n--></script>\n";
+    $ret .=
+          "<script language=\"JavaScript\"><!--\n"
+        . "document.write('<span style=\"border: 1px solid #000000; "
+        . "padding-left: 2em; background-color: "
+        . ehtml( $opts->{'default'} || "" ) . ";\" "
+        . "id=\"${htmlname}_disp\"";
+    if ( $opts->{no_btn} ) {
+        $ret .=
+              " onclick=\"spawnPicker(findel(\\'${htmlname}\\'),"
+            . "findel(\\'${htmlname}_disp\\'),\\'$des\\'); "
+            . LJ::ejs( $opts->{'onchange'} )
+            . " return false;\"";
+    }
+    $ret .= ">&nbsp;</span>'); " . "\n--></script>\n";
 
     # 'onchange' argument happens when color picker button is clicked,
     # or when focus is changed to text box
 
-    $ret .= html_text({ 'size' => 8, 'maxlength' => 7, 'name' => $htmlname, 'id' => $htmlname,
-                        'onchange' => "setBGColorWithId(findel('${htmlname}_disp'),'${htmlname}');",
-                        'onfocus' => $opts->{'onchange'},
-                        'disabled' => $opts->{'disabled'}, 'value' => $opts->{'default'},
-                        'noescape' => 1, 'raw' => $opts->{'raw'},
-                      });
+    $ret .= html_text(
+        {
+            'size'      => 8,
+            'maxlength' => 7,
+            'name'      => $htmlname,
+            'id'        => $htmlname,
+            'onchange'  => "setBGColorWithId(findel('${htmlname}_disp'),'${htmlname}');",
+            'onfocus'   => $opts->{'onchange'},
+            'disabled'  => $opts->{'disabled'},
+            'value'     => $opts->{'default'},
+            'noescape'  => 1,
+            'raw'       => $opts->{'raw'},
+        }
+    );
 
-    unless ($opts->{no_btn}) {
+    unless ( $opts->{no_btn} ) {
         my $disabled = $opts->{'disabled'} ? "disabled=\'disabled\'" : '';
-        $ret .= "<script language=\"JavaScript\"><!--\n".
-                "document.write('<button ".
-                "onclick=\"spawnPicker(findel(\\'${htmlname}\\')," .
-                "findel(\\'${htmlname}_disp\\'),\\'$des\\'); " .
-                LJ::ejs($opts->{'onchange'}) .
-                " return false;\"$disabled>Choose...</button>'); ".
-                "\n--></script>\n";
+        $ret .=
+              "<script language=\"JavaScript\"><!--\n"
+            . "document.write('<button "
+            . "onclick=\"spawnPicker(findel(\\'${htmlname}\\'),"
+            . "findel(\\'${htmlname}_disp\\'),\\'$des\\'); "
+            . LJ::ejs( $opts->{'onchange'} )
+            . " return false;\"$disabled>Choose...</button>'); "
+            . "\n--></script>\n";
     }
 
     # A little help for the non-JavaScript folks
@@ -435,8 +475,7 @@ sub html_color
 #           mixed with the older style key/value array calling format.
 # returns: HTML
 # </LJFUNC>
-sub html_hidden
-{
+sub html_hidden {
     my $ret;
 
     while (@_) {
@@ -444,27 +483,29 @@ sub html_hidden
         my $val;
         my $ehtml = 1;
         my $extra = '';
-        if (ref $name eq 'HASH') {
+        if ( ref $name eq 'HASH' ) {
             my $opts = $name;
 
-            $val = $opts->{value};
+            $val  = $opts->{value};
             $name = $opts->{name};
 
             $ehtml = $opts->{'noescape'} ? 0 : 1;
-            foreach (grep { ! /^(name|value|raw|noescape)$/ } keys %$opts) {
-                $extra .= " $_=\"" . ($ehtml ? ehtml($opts->{$_}) : $opts->{$_}) . "\"";
+            foreach ( grep { !/^(name|value|raw|noescape)$/ } keys %$opts ) {
+                $extra .= " $_=\"" . ( $ehtml ? ehtml( $opts->{$_} ) : $opts->{$_} ) . "\"";
             }
 
             $extra .= " $opts->{'raw'}" if $opts->{'raw'};
 
-        } else {
+        }
+        else {
             $val = shift;
         }
 
         $ret .= "<input type='hidden'";
+
         # allow override of these in 'raw'
-        $ret .= " name=\"" . ($ehtml ? ehtml($name) : $name) . "\"" if $name;
-        $ret .= " value=\"" . ($ehtml ? ehtml($val) : $val) . "\"" if defined $val;
+        $ret .= " name=\"" .  ( $ehtml ? ehtml($name) : $name ) . "\"" if $name;
+        $ret .= " value=\"" . ( $ehtml ? ehtml($val)  : $val ) . "\""  if defined $val;
         $ret .= "$extra />";
     }
     return $ret;
@@ -487,34 +528,34 @@ sub html_hidden
 # des-type: Optional. Value format is type =&gt; (submit|reset). Defaults to submit.
 # returns: HTML
 # </LJFUNC>
-sub html_submit
-{
-    my ($name, $val, $opts) = @_;
+sub html_submit {
+    my ( $name, $val, $opts ) = @_;
 
     # if one argument, assume (undef, $val)
-    if (@_ == 1) {
-        $val = $name;
+    if ( @_ == 1 ) {
+        $val  = $name;
         $name = undef;
     }
 
-    my ( $eopts, $disabled, $raw ) = ( '','','' );
+    my ( $eopts, $disabled, $raw ) = ( '', '', '' );
     my $type = 'submit';
 
     my $ehtml;
-    if ($opts && ref $opts eq 'HASH') {
+    if ( $opts && ref $opts eq 'HASH' ) {
         $disabled = " disabled='disabled'" if $opts->{'disabled'};
-        $raw = " $opts->{'raw'}" if $opts->{'raw'};
-        $type = 'reset' if $opts->{type} && $opts->{type} eq 'reset';
+        $raw      = " $opts->{'raw'}"      if $opts->{'raw'};
+        $type     = 'reset'                if $opts->{type} && $opts->{type} eq 'reset';
 
         $ehtml = $opts->{'noescape'} ? 0 : 1;
-        foreach (grep { ! /^(raw|disabled|noescape|type)$/ } keys %$opts) {
-            $eopts .= " $_=\"" . ($ehtml ? ehtml($opts->{$_}) : $opts->{$_}) . "\"";
+        foreach ( grep { !/^(raw|disabled|noescape|type)$/ } keys %$opts ) {
+            $eopts .= " $_=\"" . ( $ehtml ? ehtml( $opts->{$_} ) : $opts->{$_} ) . "\"";
         }
     }
     my $ret = "<input type='$type'";
+
     # allow override of these in 'raw'
-    $ret .= " name=\"" . ($ehtml ? ehtml($name) : $name) . "\"" if $name;
-    $ret .= " value=\"" . ($ehtml ? ehtml($val) : $val) . "\"" if defined $val;
+    $ret .= " name=\"" .  ( $ehtml ? ehtml($name) : $name ) . "\"" if $name;
+    $ret .= " value=\"" . ( $ehtml ? ehtml($val)  : $val ) . "\""  if defined $val;
     $ret .= "$eopts$raw$disabled />";
     return $ret;
 }

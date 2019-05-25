@@ -21,21 +21,23 @@ sub cmd { "reset_email" }
 
 sub desc { "Resets the email address of a given account. Requires priv: reset_email." }
 
-sub args_desc { [
-                 'user' => "The account to reset the email address for.",
-                 'value' => "Email address to set the account to.",
-                 'reason' => "Reason for the reset",
-                 ] }
+sub args_desc {
+    [
+        'user'   => "The account to reset the email address for.",
+        'value'  => "Email address to set the account to.",
+        'reason' => "Reason for the reset",
+    ]
+}
 
 sub usage { '<user> <value> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "reset_email" );
+    return $remote && $remote->has_priv("reset_email");
 }
 
 sub execute {
-    my ($self, $username, $newemail, $reason, @args) = @_;
+    my ( $self, $username, $newemail, $reason, @args ) = @_;
 
     return $self->error("This command takes three arguments. Consult the reference.")
         unless $username && $newemail && $reason && scalar(@args) == 0;
@@ -44,12 +46,12 @@ sub execute {
     return $self->error("Invalid user $username")
         unless $u;
 
-    $u->reset_email( $newemail, \ my $update_err, \ my $esucc );
-    return $self->error( $update_err ) if $update_err;
-    $self->info( "Confirmation email could not be sent." ) unless $esucc;
+    $u->reset_email( $newemail, \my $update_err, \my $esucc );
+    return $self->error($update_err) if $update_err;
+    $self->info("Confirmation email could not be sent.") unless $esucc;
 
     my $remote = LJ::get_remote();
-    LJ::statushistory_add($u, $remote, "reset_email", $reason);
+    LJ::statushistory_add( $u, $remote, "reset_email", $reason );
 
     return $self->print("Email address for '$username' reset.");
 }

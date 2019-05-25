@@ -42,28 +42,23 @@ Class method; initializes the panels with their settings, etc, for this user.
 
 sub init {
     my ( $class, %opts ) = @_;
+
     # my $dbh = LJ::get_db_reader();
 
     my $u = $opts{u} || LJ::get_remote();
     return unless $u;
 
-    my $ret = fields::new( $class );
+    my $ret = fields::new($class);
 
     # TODO: store/retrieve user settings from database
     # possible settings: display or not, position, possibly per-widget config
-    $ret->{primary} = [
-        "DW::Widget::LatestNews",
-        "DW::Widget::QuickUpdate",
-        "DW::Widget::LatestInbox",
-    ];
+    $ret->{primary} =
+        [ "DW::Widget::LatestNews", "DW::Widget::QuickUpdate", "DW::Widget::LatestInbox", ];
 
     $ret->{secondary} = [
-        "DW::Widget::SiteSearch",
-        "DW::Widget::ReadingList",
-        "LJ::Widget::FriendBirthdays",
-        "DW::Widget::AccountStatistics",
-        "DW::Widget::UserTagCloud",
-        "DW::Widget::CommunityManagement",
+        "DW::Widget::SiteSearch",      "DW::Widget::ReadingList",
+        "LJ::Widget::FriendBirthdays", "DW::Widget::AccountStatistics",
+        "DW::Widget::UserTagCloud",    "DW::Widget::CommunityManagement",
         "LJ::Widget::CurrentTheme",
     ];
 
@@ -76,10 +71,10 @@ Render the widgets that belong in the primary column
 
 sub render_primary {
     my $self = shift;
-    
+
     my $ret;
     foreach my $widget ( @{ $self->{primary} } ) {
-        $ret .= DW::Panel->_render( $widget );
+        $ret .= DW::Panel->_render($widget);
     }
 
     return $ret;
@@ -91,10 +86,10 @@ Render the widgets that belong in the secondary column
 
 sub render_secondary {
     my $self = shift;
-    
+
     my $ret;
     foreach my $widget ( @{ $self->{secondary} } ) {
-        $ret .= DW::Panel->_render( $widget );
+        $ret .= DW::Panel->_render($widget);
     }
 
     return $ret;
@@ -107,12 +102,13 @@ Render the widget and its container.
 sub _render {
     my ( $object, $widget ) = @_;
 
-    eval "use $widget; 1"  or return "";
+    eval "use $widget; 1" or return "";
 
     my $widget_body = $widget->render;
     return "" unless $widget_body;
 
     my $css_subclass = lc $widget->subclass;
+
     # TODO: this can contain the non-js controls to enable customization of display
     return "<div class='panel' id='panel-$css_subclass' >$widget_body</div>";
 }

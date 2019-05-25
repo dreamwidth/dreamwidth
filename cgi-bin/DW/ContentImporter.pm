@@ -41,26 +41,25 @@ the user, otherwise returns the new job handle.
 
 sub queue_import {
     my ( $class, $u, $importer, $data ) = @_;
-    $u = LJ::want_user( $u )
+    $u = LJ::want_user($u)
         or croak 'invalid user object passed to queue_import';
 
     # job is already in progress
     return undef
-        if $class->current_job( $u );
+        if $class->current_job($u);
 
     my $sh = LJ::theschwartz()
         or croak 'content importer requires TheSchwartz';
 
     my $new_job = TheSchwartz::Job->new(
         funcname => $importer,
-        uniqkey => "import-" . $u->id,
-        arg => {
-            %$data,
-            target => $u->id
+        uniqkey  => "import-" . $u->id,
+        arg      => {
+            %$data, target => $u->id
         }
     ) or croak 'unable to create importer job';
 
-    my $h = $sh->insert( $new_job )
+    my $h = $sh->insert($new_job)
         or croak 'unable to insert importer job';
 
     my $jobid = $h->dsn_hashed . "-" . $h->jobid;
@@ -76,15 +75,15 @@ This function returns the current import job for the user.
 
 sub current_job {
     my ( $class, $u ) = @_;
-    $u = LJ::want_user( $u )
+    $u = LJ::want_user($u)
         or croak 'invalid user object passed to queue_import';
 
-    my $jobid = $u->prop( 'import_job' )
+    my $jobid = $u->prop('import_job')
         or return undef;
 
     my $sh = LJ::theschwartz()
         or croak 'unable to contact TheSchwartz';
-    my $job = eval { $sh->lookup_job( $jobid ); };
+    my $job = eval { $sh->lookup_job($jobid); };
     return $job if $job;
 
     # Job seems to not exist

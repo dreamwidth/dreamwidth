@@ -19,34 +19,41 @@ use Carp qw(croak);
 
 sub cmd { "get_maintainer" }
 
-sub desc { "Given a community username, lists all maintainers. Given a user account, lists all communities that the user maintains. Requires priv: finduser." }
+sub desc {
+"Given a community username, lists all maintainers. Given a user account, lists all communities that the user maintains. Requires priv: finduser.";
+}
 
-sub args_desc { [
-                 'user' => "The username of the account you want to look up.",
-                 ] }
+sub args_desc {
+    [ 'user' => "The username of the account you want to look up.", ]
+}
 
 sub usage { '<user>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "finduser" );
+    return $remote && $remote->has_priv("finduser");
 }
 
 sub execute {
-    my ($self, $user, @args) = @_;
+    my ( $self, $user, @args ) = @_;
 
     return $self->error("This command takes exactly one argument. Consult the reference.")
         unless $user && scalar(@args) == 0;
 
-    my $relation = LJ::Console::Command::GetRelation->new( command => 'get_maintainer', args => [ $user, 'A' ] );
-    $relation->execute($relation->args);
+    my $relation = LJ::Console::Command::GetRelation->new(
+        command => 'get_maintainer',
+        args    => [ $user, 'A' ]
+    );
+    $relation->execute( $relation->args );
     if ( $relation->responses ) {
-        $self->add_responses($relation->responses);
-    } else {
+        $self->add_responses( $relation->responses );
+    }
+    else {
         my $u = LJ::load_user_or_identity($user);
         if ( $u->is_community ) {
             return $self->error("No admins");
-        } else {
+        }
+        else {
             return $self->error("No communities adminned");
         }
     }

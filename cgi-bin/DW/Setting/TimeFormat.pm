@@ -26,7 +26,7 @@ sub should_render {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.timeformat.label' );
+    return $_[0]->ml('setting.timeformat.label');
 }
 
 sub option {
@@ -34,24 +34,35 @@ sub option {
 
     my $key = $class->pkgkey;
     my $ret;
-    my $timeformat_24 = $errs ? $class->get_arg( $args, "timeformat_24" ) : $u->prop( "timeformat_24" ); 
+    my $timeformat_24 =
+        $errs ? $class->get_arg( $args, "timeformat_24" ) : $u->prop("timeformat_24");
 
-    $ret .= LJ::html_check( {
-        type => "radio",
-        name => "${key}timeformat",
-        id => "${key}timeformat_12",
-        value => 0,
-        selected => !$timeformat_24,
-    } );
-    $ret .= "<label for='${key}timeformat_12' class='radiotext'>" . $class->ml( 'setting.timeformat.option.12hour' ) . "</label>";
-    $ret .= LJ::html_check( {
-        type => "radio",
-        name => "${key}timeformat",
-        id => "${key}timeformat_24",
-        value => 1,
-        selected => $timeformat_24,
-    } );
-    $ret .= "<label for='${key}timeformat_24' class='radiotext'>" . $class->ml('setting.timeformat.option.24hour') . "</label>";
+    $ret .= LJ::html_check(
+        {
+            type     => "radio",
+            name     => "${key}timeformat",
+            id       => "${key}timeformat_12",
+            value    => 0,
+            selected => !$timeformat_24,
+        }
+    );
+    $ret .=
+          "<label for='${key}timeformat_12' class='radiotext'>"
+        . $class->ml('setting.timeformat.option.12hour')
+        . "</label>";
+    $ret .= LJ::html_check(
+        {
+            type     => "radio",
+            name     => "${key}timeformat",
+            id       => "${key}timeformat_24",
+            value    => 1,
+            selected => $timeformat_24,
+        }
+    );
+    $ret .=
+          "<label for='${key}timeformat_24' class='radiotext'>"
+        . $class->ml('setting.timeformat.option.24hour')
+        . "</label>";
 
     return $ret;
 
@@ -61,7 +72,7 @@ sub error_check {
     my ( $class, $u, $args ) = @_;
     my $val = $class->get_arg( $args, "timeformat" );
 
-    $class->errors( timeformat => $class->ml( 'setting.timeformat.error.invalid' ) )
+    $class->errors( timeformat => $class->ml('setting.timeformat.error.invalid') )
         unless $val =~ /^[01]$/;
 
     return 1;

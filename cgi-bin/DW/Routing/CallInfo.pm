@@ -50,9 +50,9 @@ Initalizes the call opts.
 =cut
 
 sub init_call_opts {
-    my ($self, $hash, $args) = @_;
+    my ( $self, $hash, $args ) = @_;
 
-    $self->{__hash} = $hash;
+    $self->{__hash}      = $hash;
     $self->{subpatterns} = $args;
 }
 
@@ -63,10 +63,10 @@ Initalizes the call opts.
 =cut
 
 sub init_class_call_opts {
-    my ($self, $hash, $class, $args) = @_;
+    my ( $self, $hash, $class, $args ) = @_;
 
-    $self->{__hash} = $hash;
-    $self->{__class} = $class;
+    $self->{__hash}      = $hash;
+    $self->{__class}     = $class;
     $self->{subpatterns} = $args;
 }
 
@@ -89,17 +89,19 @@ Calls the sub.
 =cut
 
 sub call {
-    my ( $opts ) = @_;
+    my ($opts) = @_;
 
     my @args;
-    @args = @{$opts->subpatterns} if ( $opts->subpatterns );
+    @args = @{ $opts->subpatterns } if ( $opts->subpatterns );
     my $hash = $opts->{__hash};
+
     # FIXME comment this
     if ( $hash->{class} ) {
         my $class = $hash->{class};
-        my $sub = $hash->{sub};
+        my $sub   = $hash->{sub};
         $class->$sub( $opts, @args );
-    } else {
+    }
+    else {
         $hash->{sub}->( $opts, @args );
     }
 }
@@ -133,7 +135,7 @@ Returns if the format is valid for this CallInfo
 sub format_valid {
     my $formats = $_[0]->{__hash}->{formats};
     return 1 if $formats == 1;
-    return $formats->{$_[0]->format} || 0;
+    return $formats->{ $_[0]->format } || 0;
 }
 
 =head2 C<< $self->method_valid( $method ) >>
@@ -145,7 +147,7 @@ Returns if the method is valid for the callinfo
 sub method_valid {
     my $methods = $_[0]->{__hash}->{methods};
     return 1 if $methods == 1;
-    return $methods->{$_[1]} || 0;
+    return $methods->{ $_[1] } || 0;
 }
 
 =head2 C<< $self->apiver >>
@@ -154,9 +156,9 @@ Returns the API version requested.
 
 =cut
 
-sub apiver { 
+sub apiver {
     return $_[0]->{apiver};
- }
+}
 
 =head2 C<< $self->role >>
 
@@ -187,6 +189,7 @@ sub prefer_ssl { return $_[0]->{__hash}->{prefer_ssl} // $LJ::USE_HTTPS_EVERYWHE
 Return whether we should prevent caching or not.
 
 =cut
+
 sub no_cache { return $_[0]->{__hash}->{no_cache} || 0; }
 
 =head2 C<< $self->subpatterns >>

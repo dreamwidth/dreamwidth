@@ -41,6 +41,7 @@ Arguments:
 =item vgiftid => id of virtual gift being purchased,
 
 =cut
+
 sub new {
     my ( $class, %args ) = @_;
 
@@ -65,7 +66,7 @@ sub conflicts {
     my ( $self, $item ) = @_;
 
     # check parent method first
-    my $rv = $self->SUPER::conflicts( $item );
+    my $rv = $self->SUPER::conflicts($item);
     return $rv if $rv;
 
     # subclasses can add additional logic here
@@ -77,10 +78,11 @@ sub conflicts {
 # override
 sub name_text {
     my $vg = $_[0]->vgift
-        or return LJ::Lang::ml( 'shop.item.vgift.name.notfound' );
+        or return LJ::Lang::ml('shop.item.vgift.name.notfound');
     return $vg->name;
-    # FIXME: syntax below looks to come from short_desc instead;
-    # need to hook into shop before determining how to best display these
+
+# FIXME: syntax below looks to come from short_desc instead;
+# need to hook into shop before determining how to best display these
 #     return ( my $u = LJ::load_userid( $_[0]->t_userid ) )
 #         ? LJ::Lang::ml( 'shop.item.vgift.name.foruser.text', { name => $vg->name, user => $u->display_name } )
 #         : LJ::Lang::ml( 'shop.item.vgift.name.text', { name => $vg->name } );
@@ -89,8 +91,9 @@ sub name_text {
 # override
 sub name_html {
     my $vg = $_[0]->vgift
-        or return LJ::Lang::ml( 'shop.item.vgift.name.notfound' );
+        or return LJ::Lang::ml('shop.item.vgift.name.notfound');
     return $vg->name_ehtml;
+
 #     return ( my $u = LJ::load_userid( $_[0]->t_userid ) )
 #         ? LJ::Lang::ml( 'shop.item.vgift.name.foruser.html', { name => $vg->name_ehtml, user => $u->ljuser_display } )
 #         : LJ::Lang::ml( 'shop.item.vgift.name.html', { name => $vg->name_ehtml } );
@@ -98,6 +101,7 @@ sub name_html {
 
 # override
 sub note {
+
     # show the mini image
     my $vg = $_[0]->vgift or return '';
     return $vg->img_small_html;
@@ -111,7 +115,7 @@ sub _apply {
     my ( $self, %opts ) = @_;
     my %args = ( user => $self->t_userid, id => $self->vgift_transid );
 
-    my $trans = DW::VirtualGiftTransaction->load( %args )
+    my $trans = DW::VirtualGiftTransaction->load(%args)
         or return 0;
 
     # abort if already delivered
@@ -127,7 +131,6 @@ sub _apply {
     return $self->{applied} = 1;
 }
 
-
 # override
 sub can_be_added {
     my ( $self, %opts ) = @_;
@@ -138,32 +141,37 @@ sub can_be_added {
     my $anon     = $self->anonymous;
 
     # check the preferences of the receiving user
-    return 1 if LJ::isu( $target_u ) && $target_u->can_receive_vgifts_from( $from_u, $anon );
+    return 1 if LJ::isu($target_u) && $target_u->can_receive_vgifts_from( $from_u, $anon );
 
     # not allowed; error message depends on anonymity
-    $$errref = $anon ? LJ::Lang::ml( 'shop.item.vgift.canbeadded.noanon' )
-                     : LJ::Lang::ml( 'shop.item.vgift.canbeadded.refused' );
+    $$errref =
+        $anon
+        ? LJ::Lang::ml('shop.item.vgift.canbeadded.noanon')
+        : LJ::Lang::ml('shop.item.vgift.canbeadded.refused');
     return 0;
 }
 
 # override
 sub cart_state_changed {
     my ( $self, $newstate ) = @_;
-    return unless $newstate == $DW::Shop::STATE_PAID  && ! $self->vgift_transid;
+    return unless $newstate == $DW::Shop::STATE_PAID && !$self->vgift_transid;
 
     # cart has just been paid for, so we need to create a new transaction row
 
     my $u = LJ::load_userid( $self->t_userid ) or return 0;
 
-    my %opts = ( user => $u, vgift => $self->vgift,
-                 buyer => $self->from_userid, cartid => $self->cartid );
+    my %opts = (
+        user   => $u,
+        vgift  => $self->vgift,
+        buyer  => $self->from_userid,
+        cartid => $self->cartid
+    );
 
-    my $transid = DW::VirtualGiftTransaction->save( %opts );
+    my $transid = DW::VirtualGiftTransaction->save(%opts);
     return undef unless $transid;
 
     return $self->{vgift_transid} = $transid;
 }
-
 
 =head2 C<< $self->vgift >>
 
@@ -178,6 +186,5 @@ Returns the transaction ID associated with this purchase.
 sub vgift { DW::VirtualGift->new( $_[0]->{vgiftid} ) }
 
 sub vgift_transid { $_[0]->{vgift_transid} }
-
 
 1;

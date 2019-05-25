@@ -29,7 +29,5 @@ my $run = sub {
     return LJ::Console->run_commands_text($cmd);
 };
 
-is($run->("print one"),
-   "info: Welcome to 'print'!\nsuccess: one");
-is($run->("print one !two"),
-   "info: Welcome to 'print'!\nsuccess: one\nerror: !two");
+is( $run->("print one"),      "info: Welcome to 'print'!\nsuccess: one" );
+is( $run->("print one !two"), "info: Welcome to 'print'!\nsuccess: one\nerror: !two" );

@@ -21,22 +21,22 @@ use LJ::Console::Response;
 
 sub new {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
     my $self = {
         command => delete $opts{command},
         args    => delete $opts{args} || [],
-        output  => [ ],
+        output  => [],
     };
 
     # args can be arrayref, or just one arg
-    if ($self->{args} && ! ref $self->{args}) {
+    if ( $self->{args} && !ref $self->{args} ) {
         $self->{args} = [ $self->{args} ];
     }
     croak "invalid argument: args"
-        if $self->{args} && ! ref $self->{args} eq 'ARRAY';
+        if $self->{args} && !ref $self->{args} eq 'ARRAY';
 
-    croak "invalid parameters: ", join(",", keys %opts)
+    croak "invalid parameters: ", join( ",", keys %opts )
         if %opts;
 
     return bless $self, $class;
@@ -44,7 +44,7 @@ sub new {
 
 sub args {
     my $self = shift;
-    return @{$self->{args} || []};
+    return @{ $self->{args} || [] };
 }
 
 ## *command = \&cmd is invalid, since derived clases don't
@@ -95,7 +95,7 @@ sub is_hidden {
 
 sub as_string {
     my $self = shift;
-    my $ret = join(" ", $self->cmd, $self->args);
+    my $ret  = join( " ", $self->cmd, $self->args );
     return LJ::ehtml($ret);
 }
 
@@ -103,13 +103,12 @@ sub as_html {
     my $self = shift;
 
     my $out = "<table class='console_command' summary='' border='1' cellpadding='5'><tr>";
-    $out .= "<td><strong>" . LJ::ehtml($self->cmd) . "</strong></td>";
+    $out .= "<td><strong>" . LJ::ehtml( $self->cmd ) . "</strong></td>";
     $out .= "<td>" . LJ::ehtml($_) . "</td>" foreach $self->args;
     $out .= "</tr></table>";
 
     return $out;
 }
-
 
 # return 1 on success.  on failure, return 0 or die.  (will be caught)
 sub execute {
@@ -118,7 +117,7 @@ sub execute {
 }
 
 sub execute_safely {
-    my $cmd = shift;
+    my $cmd    = shift;
     my $remote = LJ::get_remote();
 
     eval {
@@ -131,13 +130,13 @@ sub execute_safely {
         return $cmd->error("You are not authorized to run this command.")
             unless $cmd->can_execute;
 
-        my $rv = $cmd->execute($cmd->args);
-        return $cmd->error("Command " . $cmd->command . "' didn't execute successfully.")
+        my $rv = $cmd->execute( $cmd->args );
+        return $cmd->error( "Command " . $cmd->command . "' didn't execute successfully." )
             unless $rv;
     };
 
     if ($@) {
-        return $cmd->error("Died executing '" . $cmd->command . "': $@");
+        return $cmd->error( "Died executing '" . $cmd->command . "': $@" );
     }
 
     return 1;
@@ -145,21 +144,21 @@ sub execute_safely {
 
 sub responses {
     my $self = shift;
-    return @{$self->{output} || []};
+    return @{ $self->{output} || [] };
 }
 
 sub add_responses {
-    my $self = shift;
+    my $self      = shift;
     my @responses = @_;
 
-    push @{$self->{output}}, @responses;
+    push @{ $self->{output} }, @responses;
 }
 
 sub print {
     my $self = shift;
     my $text = shift;
 
-    push @{$self->{output}}, LJ::Console::Response->new( status => 'success', text => $text );
+    push @{ $self->{output} }, LJ::Console::Response->new( status => 'success', text => $text );
 
     return 1;
 }
@@ -168,7 +167,7 @@ sub error {
     my $self = shift;
     my $text = shift;
 
-    push @{$self->{output}}, LJ::Console::Response->new( status => 'error', text => $text );
+    push @{ $self->{output} }, LJ::Console::Response->new( status => 'error', text => $text );
 
     return 1;
 }
@@ -177,7 +176,7 @@ sub info {
     my $self = shift;
     my $text = shift;
 
-    push @{$self->{output}}, LJ::Console::Response->new( status => 'info', text => $text );
+    push @{ $self->{output} }, LJ::Console::Response->new( status => 'info', text => $text );
 
     return 1;
 }

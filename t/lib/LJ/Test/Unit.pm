@@ -105,7 +105,6 @@ package LJ::Test::Unit;
 use strict;
 use warnings qw{all};
 
-
 ###############################################################################
 ###  I N I T I A L I Z A T I O N
 ###############################################################################
@@ -113,21 +112,21 @@ BEGIN {
 
     # Versioning
     use vars qw{$VERSION $RCSID};
-    $VERSION    = 1.21;
-    $RCSID      = q$Id: Unit.pm 4628 2004-10-30 02:07:22Z deveiant $;
+    $VERSION = 1.21;
+    $RCSID   = q$Id: Unit.pm 4628 2004-10-30 02:07:22Z deveiant $;
 
     # More readable constants
-    use constant TRUE   => 1;
-    use constant FALSE  => 0;
+    use constant TRUE  => 1;
+    use constant FALSE => 0;
 
     # Main unit-testing modules
-    use LJ::Test::Assertions    qw{:all};
-    use LJ::Test::Result        qw{};
+    use LJ::Test::Assertions qw{:all};
+    use LJ::Test::Result qw{};
 
     # Load other modules
-    use Carp            qw{croak confess};
-    use Time::HiRes     qw{gettimeofday tv_interval};
-    use Data::Dumper    qw{};
+    use Carp qw{croak confess};
+    use Time::HiRes qw{gettimeofday tv_interval};
+    use Data::Dumper qw{};
 
     # Export the 'runTests' function
     use vars qw{@EXPORT @EXPORT_OK %EXPORT_TAGS};
@@ -136,13 +135,12 @@ BEGIN {
     use base qw{Exporter};
 }
 
-
 our @AutorunPackages = ();
 
 ### Exporter callback -- support :autorun tag
 sub import {
-    my $package = shift;
-    my @args = @_;
+    my $package  = shift;
+    my @args     = @_;
     my @pureargs = grep { !/\+autorun/ } @args;
 
     if ( @args != @pureargs ) {
@@ -152,7 +150,6 @@ sub import {
     __PACKAGE__->export_to_level( 1, $package, @pureargs );
 }
 
-
 ### FUNCTION: extractTestFunctions( @packages )
 ### Iterate over the specified I<packages>' symbol tables and return a list of
 ### coderefs that point to functions contained in those packages that are named
@@ -161,19 +158,19 @@ sub extractTestFunctions {
     my @packages = @_ or croak "No package given.";
 
     my (
-        $glob,                   # Iterated glob for symbol table traversal
-        $coderef,                # Extracted coderef from symtable glob
-        @tests,                  # Collected coderefs for test functions
-       );
+        $glob,       # Iterated glob for symbol table traversal
+        $coderef,    # Extracted coderef from symtable glob
+        @tests,      # Collected coderefs for test functions
+    );
 
     @tests = ();
 
     # Iterate over the package's symbol table, extracting coderefs to functions
     # that are named 'test_*'.
-  PACKAGE: foreach my $package ( @packages ) {
+PACKAGE: foreach my $package (@packages) {
         no strict 'refs';
 
-      SYMBOL: foreach my $sym ( sort keys %{"${package}::"} ) {
+    SYMBOL: foreach my $sym ( sort keys %{"${package}::"} ) {
             next SYMBOL unless $sym =~ m{test_};
             $coderef = extractFunction( $package, $sym );
 
@@ -184,35 +181,33 @@ sub extractTestFunctions {
     return @tests;
 }
 
-
 ### FUNCTION: extractFunction( $package, $funcname )
 ### Given a I<package> and a function name I<funcname>, extract its coderef from
 ### the symbol table and return it.
 sub extractFunction {
     my $package = shift or croak "No package name given.";
-    my $sym = shift or croak "No function name given";
+    my $sym     = shift or croak "No function name given";
 
     no strict 'refs';
-    my $glob = ${"${package}::"}{ $sym } or return undef;
+    my $glob = ${"${package}::"}{$sym} or return undef;
     return *$glob{CODE};
 }
-
 
 ### FUNCTION: prepTests( $package[, @rawTests] )
 ### Normalize the given I<rawTests> (which can be coderefs or function names)
 ### and return them as coderefs. If I<rawTests> is empty, extract functions from
 ### the given I<package> and return those.
 sub prepTests {
-    my $package = shift or croak "No calling package specified.";
+    my $package  = shift or croak "No calling package specified.";
     my @rawtests = @_;
-    my @tests = ();
+    my @tests    = ();
 
-    @rawtests = extractTestFunctions( $package ) if !@rawtests;
+    @rawtests = extractTestFunctions($package) if !@rawtests;
 
     my $coderef;
 
-    foreach my $test ( @rawtests ) {
-        push( @tests, $test), next if ref $test eq 'CODE';
+    foreach my $test (@rawtests) {
+        push( @tests, $test ), next if ref $test eq 'CODE';
         $coderef = extractFunction( $package, $test )
             or croak "No such test '$test' in $package";
         push @tests, $coderef;
@@ -221,41 +216,37 @@ sub prepTests {
     return @tests;
 }
 
-
 ### FUNCTION: runTests( [@tests] )
 ### Run the specified I<tests> and report the result. The I<tests> can be
 ### coderefs or names of functions in the current package. If no I<tests> are
 ### specified, functions that are named 'test_*' in the current package are
 ### assumed to be the test functions.
 sub runTests {
-    my @tests = prepTests( scalar caller, @_ );
+    my @tests  = prepTests( scalar caller, @_ );
     my $result = new LJ::Test::Result;
 
     print "Started.\n";
     my $starttime = [gettimeofday];
     $|++;
 
-    foreach my $test ( @tests ) {
-        print $result->run( $test );
+    foreach my $test (@tests) {
+        print $result->run($test);
     }
 
-    printf "\nFinished in %0.5fs\n", tv_interval( $starttime );
+    printf "\nFinished in %0.5fs\n", tv_interval($starttime);
     print $result->stringify, "\n\n";
 
     return;
 }
-
-
 
 ### Extract tests from packages that were registered for 'autorun' and run them.
 END {
     return unless @AutorunPackages;
 
     # Extract coderefs from autorun packages.
-    my @tests = extractTestFunctions( @AutorunPackages );
-    runTests( @tests );
+    my @tests = extractTestFunctions(@AutorunPackages);
+    runTests(@tests);
 }
-
 
 1;
 

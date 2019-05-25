@@ -27,15 +27,16 @@ use LJ::User;
 use LJ::Userpic;
 
 DW::Routing->register_string( "/admin/memcache_clear", \&index_controller );
-DW::Controller::Admin->register_admin_page( '/',
-    path => 'memcache_clear',
+DW::Controller::Admin->register_admin_page(
+    '/',
+    path     => 'memcache_clear',
     ml_scope => '/admin/memcache_clear.tt',
-    privs => [ 'siteadmin:memcacheclear' ]
+    privs    => ['siteadmin:memcacheclear']
 );
 
 my %clear = (
     all => {
-        order => -1,
+        order  => -1,
         action => sub { LJ::wipe_major_memcache( $_[0] ); },
     },
     userpic => {
@@ -44,22 +45,26 @@ my %clear = (
 );
 
 map {
-    $clear{$_}->{key} = $_;
+    $clear{$_}->{key}     = $_;
     $clear{$_}->{name_ml} = ".purge.$_";
 } keys %clear;
 
 sub index_controller {
-    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:memcacheclear" ] );
+    my ( $ok, $rv ) = controller( privcheck => ["siteadmin:memcacheclear"] );
     return $rv unless $ok;
 
-    my $r = DW::Request->get;
+    my $r    = DW::Request->get;
     my $args = $r->did_post ? $r->post_args : $r->get_args;
 
     my $vars = {
         %$rv,
 
         # so the controller looking up the ML strings does not pollute our hash.
-        clear_options => [ map { { %$_ } } values %clear ],
+        clear_options => [
+            map {
+                { %$_ }
+            } values %clear
+        ],
     };
 
     if ( $r->method eq 'POST' ) {
@@ -72,10 +77,10 @@ sub index_controller {
             my $what = $clear{ $args->{what} || 'all' };
             die "Invalid key" unless $what;
 
-            $what->{action}->( $u );
+            $what->{action}->($u);
             $vars->{cleared} = 1;
         };
-        if ( $@ ) {
+        if ($@) {
             $vars->{error} = $@;
         }
     }

@@ -25,10 +25,10 @@ isnt( $ct, 0, "routing table empty" );
 
 # test some known lookups!
 
-ok( defined DW::Routing->get_call_opts( uri => "/nav", app => 1 ) );
-ok( defined DW::Routing->get_call_opts( uri => "/nav/read", app => 1 ) );
-ok( defined DW::Routing->get_call_opts( uri => "/admin", app => 1 ) );
-ok( defined DW::Routing->get_call_opts( uri => "/admin/", app => 1 ) );
+ok( defined DW::Routing->get_call_opts( uri => "/nav",         app => 1 ) );
+ok( defined DW::Routing->get_call_opts( uri => "/nav/read",    app => 1 ) );
+ok( defined DW::Routing->get_call_opts( uri => "/admin",       app => 1 ) );
+ok( defined DW::Routing->get_call_opts( uri => "/admin/",      app => 1 ) );
 ok( defined DW::Routing->get_call_opts( uri => "/admin/index", app => 1 ) );
 
 1;

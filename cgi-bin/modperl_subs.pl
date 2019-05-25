@@ -13,7 +13,6 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-
 # to be require'd by modperl.pl
 
 use strict;
@@ -40,12 +39,12 @@ use Apache::SendStats;
 use Apache::DebateSuicide;
 
 use Digest::MD5;
-use Text::Wrap ();
+use Text::Wrap     ();
 use LWP::UserAgent ();
 use Storable;
 use Time::HiRes ();
 use Image::Size ();
-use POSIX ();
+use POSIX       ();
 
 use LJ::Hooks;
 use LJ::Faq;
@@ -63,7 +62,6 @@ use DDLockClient;
 use LJ::BetaFeatures;
 use DW::InviteCodes;
 use DW::InviteCodeRequests;
-
 
 # force XML::Atom::* to be brought in (if we have it, it's optional),
 # unless we're in a test.
@@ -114,10 +112,10 @@ package LJ::ModPerl;
 sub setup_start {
 
     # auto-load some stuff before fork (unless this is a test program)
-    unless ($0 && $0 =~ m!(^|/)t/!) {
-        Storable::thaw(Storable::freeze({}));
-        foreach my $minifile ("GIF89a", "\x89PNG\x0d\x0a\x1a\x0a", "\xFF\xD8") {
-            Image::Size::imgsize(\$minifile);
+    unless ( $0 && $0 =~ m!(^|/)t/! ) {
+        Storable::thaw( Storable::freeze( {} ) );
+        foreach my $minifile ( "GIF89a", "\x89PNG\x0d\x0a\x1a\x0a", "\xFF\xD8" ) {
+            Image::Size::imgsize( \$minifile );
         }
         DBI->install_driver("mysql");
         LJ::CleanHTML::helper_preload();
@@ -125,7 +123,7 @@ sub setup_start {
 
     # set this before we fork
     my $newest = 0;
-    foreach my $fn ( @LJ::CONFIG_FILES ) {
+    foreach my $fn (@LJ::CONFIG_FILES) {
         next unless -e "$LJ::HOME/$fn";
         my $stattime = ( stat "$LJ::HOME/$fn" )[9];
         $newest = $stattime if $stattime && $stattime > $newest;
@@ -143,7 +141,8 @@ sub setup_restart {
     LJ::ModPerl::add_httpd_config("ServerAdmin $LJ::ADMIN_EMAIL")
         if $LJ::ADMIN_EMAIL;
 
-    LJ::ModPerl::add_httpd_config(q{
+    LJ::ModPerl::add_httpd_config(
+        q{
 
 # User-friendly error messages
 ErrorDocument 404 /404-error.bml
@@ -163,20 +162,25 @@ PerlInitHandler Apache::LiveJournal
 #PerlChildInitHandler Apache::SendStats
 DirectoryIndex index.html index.bml
 
-});
+}
+    );
 
     # setup child init handler to seed random using a good entropy source
-    eval { Apache2::ServerUtil->server->push_handlers(PerlChildInitHandler => sub {
-        srand(LJ::urandom_int());
-    }); };
+    eval {
+        Apache2::ServerUtil->server->push_handlers(
+            PerlChildInitHandler => sub {
+                srand( LJ::urandom_int() );
+            }
+        );
+    };
 
     if ($LJ::BML_DENY_CONFIG) {
         LJ::ModPerl::add_httpd_config("PerlSetVar BML_denyconfig \"$LJ::BML_DENY_CONFIG\"\n");
     }
 
-    unless ($LJ::SERVER_TOTALLY_DOWN)
-    {
-        LJ::ModPerl::add_httpd_config(q{
+    unless ($LJ::SERVER_TOTALLY_DOWN) {
+        LJ::ModPerl::add_httpd_config(
+            q{
 
 # BML support:
 <Files ~ "\.bml$">
@@ -184,17 +188,20 @@ DirectoryIndex index.html index.bml
     PerlResponseHandler Apache::BML
 </Files>
 
-});
+}
+        );
     }
 
     if ( LJ::is_enabled('ignore_htaccess') ) {
-        LJ::ModPerl::add_httpd_config(qq{
+        LJ::ModPerl::add_httpd_config(
+            qq{
 
 <Directory />
     AllowOverride none
 </Directory>
 
-        });
+        }
+        );
     }
 
     eval { setup_restart_local(); };

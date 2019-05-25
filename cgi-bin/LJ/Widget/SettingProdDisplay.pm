@@ -25,12 +25,17 @@ sub render_body {
     return unless $remote;
 
     my $body;
-    my $title = LJ::ejs( $class->ml('setting.prod.display.title') );
+    my $title    = LJ::ejs( $class->ml('setting.prod.display.title') );
     my $apache_r = BML::get_request();
     foreach my $prod (@LJ::SETTING_PROD) {
-        if ($apache_r->notes->{codepath} =~ $prod->{codepaths} && $prod->{should_show}->($remote)) {
-            $body .= "\n<script language='javascript'>setTimeout(\"displaySettingProd('" .
-                    $prod->{setting} . "', '" . $prod->{field} . "', '" . $title . "')\", 400)</script>\n";
+        if ( $apache_r->notes->{codepath} =~ $prod->{codepaths} && $prod->{should_show}->($remote) )
+        {
+            $body .=
+                  "\n<script language='javascript'>setTimeout(\"displaySettingProd('"
+                . $prod->{setting} . "', '"
+                . $prod->{field} . "', '"
+                . $title
+                . "')\", 400)</script>\n";
             last;
         }
     }
@@ -40,11 +45,11 @@ sub render_body {
 
 sub need_res {
     qw(js/settingprod.js
-       js/ljwidget.js
-       js/ljwidget_ippu.js
-       js/widget_ippu/settingprod.js
-       stc/widgets/settingprod.css
-      )
+        js/ljwidget.js
+        js/ljwidget_ippu.js
+        js/widget_ippu/settingprod.js
+        stc/widgets/settingprod.css
+    );
 }
 
 1;

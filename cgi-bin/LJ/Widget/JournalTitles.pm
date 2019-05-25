@@ -17,13 +17,13 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 
-sub ajax { 1 }
-sub authas { 1 }
+sub ajax     { 1 }
+sub authas   { 1 }
 sub need_res { qw( stc/widgets/journaltitles.css ) }
 
 sub render_body {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
@@ -32,42 +32,49 @@ sub render_body {
 
     my $ret;
     $ret .= "<h2 class='widget-header'>";
-    $ret .= $no_theme_chooser ? $class->ml('widget.journaltitles.title_nonum') : $class->ml('widget.journaltitles.title');
+    $ret .=
+          $no_theme_chooser
+        ? $class->ml('widget.journaltitles.title_nonum')
+        : $class->ml('widget.journaltitles.title');
     $ret .= "</h2>";
     $ret .= "<div class='theme-titles-content'><p class='detail'>";
-    $ret .= $u->is_community ?
-        $class->ml('widget.journaltitles.desc.comm') :
-        $class->ml('widget.journaltitles.desc');
+    $ret .=
+          $u->is_community
+        ? $class->ml('widget.journaltitles.desc.comm')
+        : $class->ml('widget.journaltitles.desc');
     $ret .= " " . LJ::help_icon('journal_titles') . "</p>";
 
     foreach my $id (qw( journaltitle journalsubtitle friendspagetitle friendspagesubtitle )) {
-        my $eprop = LJ::ehtml( $u->prop( $id ) ) || '';
+        my $eprop = LJ::ehtml( $u->prop($id) ) || '';
         $ret .= $class->start_form( id => "${id}_form" );
 
         $ret .= "<p>";
-        $ret .= ( $u->is_community ) ?
-            "<label>" . $class->ml("widget.journaltitles.$id.comm") . "</label> " :
-            "<label>" . $class->ml("widget.journaltitles.$id") . "</label> ";
+        $ret .=
+            ( $u->is_community )
+            ? "<label>" . $class->ml("widget.journaltitles.$id.comm") . "</label> "
+            : "<label>" . $class->ml("widget.journaltitles.$id") . "</label> ";
         $ret .= "<span id='${id}_view'>";
         $ret .= "<strong>$eprop</strong> ";
-        $ret .= "<a href='' class='theme-title-control' id='${id}_edit'>" . $class->ml('widget.journaltitles.edit') . "</a>";
+        $ret .= "<a href='' class='theme-title-control' id='${id}_edit'>"
+            . $class->ml('widget.journaltitles.edit') . "</a>";
         $ret .= "</span>";
 
         $ret .= "<span id='${id}_modify'>";
         $ret .= $class->html_text(
-            name => 'title_value',
-            id => $id,
-            value => $u->prop($id),
-            size => '30',
+            name      => 'title_value',
+            id        => $id,
+            value     => $u->prop($id),
+            size      => '30',
             maxlength => LJ::std_max_length(),
-            raw => "class='text'",
+            raw       => "class='text'",
         ) . " ";
         $ret .= $class->html_hidden( which_title => $id );
         $ret .= $class->html_submit(
             save => $class->ml('widget.journaltitles.btn'),
             { raw => "id='save_btn_$id'" },
         ) . " ";
-        $ret .= "<a href='' class='theme-title-control' id='${id}_cancel'>" . $class->ml('widget.journaltitles.cancel') . "</a>";
+        $ret .= "<a href='' class='theme-title-control' id='${id}_cancel'>"
+            . $class->ml('widget.journaltitles.cancel') . "</a>";
         $ret .= "</span></p>";
 
         $ret .= $class->end_form;
@@ -80,15 +87,15 @@ sub render_body {
 
 sub handle_post {
     my $class = shift;
-    my $post = shift;
-    my %opts = @_;
+    my $post  = shift;
+    my %opts  = @_;
 
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
-    my $eff_val = LJ::text_trim($post->{title_value}, 0, LJ::std_max_length());
+    my $eff_val = LJ::text_trim( $post->{title_value}, 0, LJ::std_max_length() );
     $eff_val = "" unless $eff_val;
-    $u->set_prop($post->{which_title}, $eff_val);
+    $u->set_prop( $post->{which_title}, $eff_val );
 
     return;
 }
@@ -195,7 +202,7 @@ sub js {
         onRefresh: function (data) {
             this.initWidget();
         }
-    ];    
+    ];
 }
 
 1;

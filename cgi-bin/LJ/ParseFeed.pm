@@ -17,7 +17,6 @@ use strict;
 use DW::XML::RSS;
 use DW::XML::Parser;
 
-
 # <LJFUNC>
 # name: LJ::ParseFeed::parse_feed
 # des: Parses an RSS/Atom feed.
@@ -41,10 +40,9 @@ use DW::XML::Parser;
 #           human-readable error string. The third argument is an
 #           arrayref of items, same as $feed->{'items'}.
 # </LJFUNC>
-sub parse_feed
-{
-    my ($content, $type) = @_;
-    my ($feed, $items, $error);
+sub parse_feed {
+    my ( $content, $type ) = @_;
+    my ( $feed, $items, $error );
     my $parser;
 
     # is it RSS or Atom?
@@ -52,50 +50,55 @@ sub parse_feed
     # simple heuristic: Atom feeds will have '<feed' somewhere
     # TODO: maybe store the feed's type on creation in a userprop and not guess here
 
-    if ( (defined $type && $type eq 'atom') || $content =~ m!\<feed!) {
+    if ( ( defined $type && $type eq 'atom' ) || $content =~ m!\<feed! ) {
+
         # try treating it as an atom feed
-        $parser = new DW::XML::Parser( Style => 'Stream',
-                                   Namespaces => 1,
-                                   Pkg => 'LJ::ParseFeed::Atom' );
-        return ("", "failed to create XML parser") unless $parser;
-        eval {
-            $parser->parse($content);
-        };
+        $parser = new DW::XML::Parser(
+            Style      => 'Stream',
+            Namespaces => 1,
+            Pkg        => 'LJ::ParseFeed::Atom'
+        );
+        return ( "", "failed to create XML parser" ) unless $parser;
+        eval { $parser->parse($content); };
         if ($@) {
             $error = "XML parser error: $@";
-        } else {
-            ($feed, $items, $error) = LJ::ParseFeed::Atom::results();
-        };
-    
-        if ($feed || $type eq 'atom') {
+        }
+        else {
+            ( $feed, $items, $error ) = LJ::ParseFeed::Atom::results();
+        }
+
+        if ( $feed || $type eq 'atom' ) {
+
             # there was a top-level <feed> there, or we're forced to treat
             # as an Atom feed, so even if $error is set,
             # don't try RSS
             $feed->{'type'} = 'atom';
-            return ($feed, $error, $items);
+            return ( $feed, $error, $items );
         }
     }
 
     # try parsing it as RSS
     $parser = new DW::XML::RSS;
-    return ("", "failed to create RSS parser") unless $parser;
+    return ( "", "failed to create RSS parser" ) unless $parser;
 
     # custom LJ/DW namespaces
-    $parser->add_module( prefix => 'nslj',
-                         uri => 'http://www.livejournal.org/rss/lj/1.0/' );
-    $parser->add_module( prefix => 'atom',
-                         uri => 'http://www.w3.org/2005/Atom' );
+    $parser->add_module(
+        prefix => 'nslj',
+        uri    => 'http://www.livejournal.org/rss/lj/1.0/'
+    );
+    $parser->add_module(
+        prefix => 'atom',
+        uri    => 'http://www.w3.org/2005/Atom'
+    );
 
-    eval {
-        $parser->parse($content);
-    };
+    eval { $parser->parse($content); };
     if ($@) {
         $error = "RSS parser error: $@";
-        return ("", $error);
+        return ( "", $error );
     }
 
-    $feed = {};
-    $feed->{'type'} = 'rss';
+    $feed              = {};
+    $feed->{'type'}    = 'rss';
     $feed->{'version'} = $parser->{'version'};
 
     foreach (qw (link title description)) {
@@ -103,25 +106,26 @@ sub parse_feed
             if $parser->{'channel'}->{$_};
     }
     $feed->{'atom:id'} = $parser->{channel}->{atom}->{id} if defined $parser->{channel}->{atom};
-    
+
     $feed->{'items'} = [];
 
-    foreach(@{$parser->{'items'}}) {
+    foreach ( @{ $parser->{'items'} } ) {
         my $item = {};
         $item->{'subject'} = $_->{'title'};
-        $item->{'text'} = $_->{'description'};
-        $item->{'link'} = $_->{'link'} if $_->{'link'};
-        $item->{'id'} = $_->{'guid'} if $_->{'guid'};
+        $item->{'text'}    = $_->{'description'};
+        $item->{'link'}    = $_->{'link'} if $_->{'link'};
+        $item->{'id'}      = $_->{'guid'} if $_->{'guid'};
 
         my $nsenc = 'http://purl.org/rss/1.0/modules/content/';
-        if ($_->{$nsenc} && ref($_->{$nsenc}) eq "HASH") {
+        if ( $_->{$nsenc} && ref( $_->{$nsenc} ) eq "HASH" ) {
+
             # prefer content:encoded if present
             $item->{'text'} = $_->{$nsenc}->{'encoded'}
                 if defined $_->{$nsenc}->{'encoded'};
         }
 
         my ( $time, $author );
-        $time = time822_to_time( $_->{pubDate} ) if $_->{pubDate};
+        $time   = time822_to_time( $_->{pubDate} ) if $_->{pubDate};
         $author = $_->{nslj}->{poster}
             if $_->{nslj} && ref $_->{nslj} eq "HASH";
 
@@ -131,12 +135,12 @@ sub parse_feed
             $time = w3cdtf_to_time( $_->{dc}->{date} ) if $_->{dc}->{date};
         }
 
-        $item->{time} = $time if $time;
+        $item->{time}   = $time   if $time;
         $item->{author} = $author if $author;
         push @{ $feed->{items} }, $item;
     }
 
-    return ($feed, undef, $feed->{'items'});
+    return ( $feed, undef, $feed->{'items'} );
 }
 
 # convert rfc822-time in RSS's <pubDate> to our time
@@ -145,21 +149,36 @@ sub parse_feed
 # but real RSS2.0 feeds apparently use 4 digits.
 sub time822_to_time {
     my $t822 = shift;
+
     # remove day name if present
     $t822 =~ s/^\s*\w+\s*,//;
+
     # remove whitespace
     $t822 =~ s/^\s*//;
+
     # break it up
-    if ($t822 =~ m!(\d?\d)\s+(\w+)\s+(\d\d\d\d)\s+(\d?\d):(\d\d)!) {
-        my ($day, $mon, $year, $hour, $min) = ($1,$2,$3,$4,$5);
-        $day = "0" . $day if length($day) == 1;
+    if ( $t822 =~ m!(\d?\d)\s+(\w+)\s+(\d\d\d\d)\s+(\d?\d):(\d\d)! ) {
+        my ( $day, $mon, $year, $hour, $min ) = ( $1, $2, $3, $4, $5 );
+        $day  = "0" . $day  if length($day) == 1;
         $hour = "0" . $hour if length($hour) == 1;
-        $mon = {'Jan'=>'01', 'Feb'=>'02', 'Mar'=>'03', 'Apr'=>'04',
-                'May'=>'05', 'Jun'=>'06', 'Jul'=>'07', 'Aug'=>'08',
-                'Sep'=>'09', 'Oct'=>'10', 'Nov'=>'11', 'Dec'=>'12'}->{$mon};
+        $mon  = {
+            'Jan' => '01',
+            'Feb' => '02',
+            'Mar' => '03',
+            'Apr' => '04',
+            'May' => '05',
+            'Jun' => '06',
+            'Jul' => '07',
+            'Aug' => '08',
+            'Sep' => '09',
+            'Oct' => '10',
+            'Nov' => '11',
+            'Dec' => '12'
+        }->{$mon};
         return undef unless $mon;
         return "$year-$mon-$day $hour:$min";
-    } else {
+    }
+    else {
         return undef;
     }
 }
@@ -176,13 +195,14 @@ sub w3cdtf_to_time {
     #   yet anyway. For now, just strip the timezone
     #   portion if it is present, along with the decimal
     #   fractions of a second.
-    
+
     $tw3 =~ s/(?:\.\d+)?(?:[+-]\d{1,2}:\d{1,2}|Z)$//;
-    $tw3 =~ s/^\s*//; $tw3 =~ s/\s*$//; # Eat any superflous whitespace
+    $tw3 =~ s/^\s*//;
+    $tw3 =~ s/\s*$//;                                   # Eat any superflous whitespace
 
     # We can only use complete times, so anything which
     # doesn't feature the time part is considered invalid.
-    
+
     # This is working around clients that don't implement W3C-DTF
     # correctly, and only send single digit values in the dates.
     # 2004-4-8T16:9:4Z vs 2004-04-08T16:09:44Z
@@ -190,9 +210,13 @@ sub w3cdtf_to_time {
     $tw3 =~ /^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/
         or return undef;
 
-    my %pd; # parsed date
-    $pd{Y} = $1; $pd{M} = $2; $pd{D} = $3;
-    $pd{h} = $4; $pd{m} = $5; $pd{s} = $6;
+    my %pd;    # parsed date
+    $pd{Y} = $1;
+    $pd{M} = $2;
+    $pd{D} = $3;
+    $pd{h} = $4;
+    $pd{m} = $5;
+    $pd{s} = $6;
 
     # force double digits
     foreach (qw/ M D h m s /) {
@@ -200,14 +224,15 @@ sub w3cdtf_to_time {
         $pd{$_} = sprintf "%02d", $pd{$_};
     }
 
-    return $pd{s} ? "$pd{Y}-$pd{M}-$pd{D} $pd{h}:$pd{m}:$pd{s}" :
-                    "$pd{Y}-$pd{M}-$pd{D} $pd{h}:$pd{m}";
+    return $pd{s}
+        ? "$pd{Y}-$pd{M}-$pd{D} $pd{h}:$pd{m}:$pd{s}"
+        : "$pd{Y}-$pd{M}-$pd{D} $pd{h}:$pd{m}";
 }
 
 package LJ::ParseFeed::Atom;
 
-our ($feed, $item, $data);
-our ($ddepth, $dholder); # for accumulating;
+our ( $feed, $item, $data );
+our ( $ddepth, $dholder );    # for accumulating;
 our @items;
 our $error;
 
@@ -216,7 +241,7 @@ sub err {
 }
 
 sub results {
-    return ($feed, \@items, $error);
+    return ( $feed, \@items, $error );
 }
 
 # $name under which we'll store accumulated data may be different
@@ -227,20 +252,23 @@ sub results {
 sub startaccum {
     my $name = shift;
 
-    return err("Tag found under neither <feed> nor <entry>")
+    return err ("Tag found under neither <feed> nor <entry>")
         unless $feed || $item;
-    $data = ""; # defining $data triggers accumulation
+    $data   = "";    # defining $data triggers accumulation
     $ddepth = 1;
 
-    if ( $name ) {
+    if ($name) {
+
         # if $name is a scalarref, it's actually our $dholder
         if ( ref $name eq 'SCALAR' ) {
             $dholder = $name;
-        } else {
+        }
+        else {
             $dholder = $item ? \$item->{$name} : \$feed->{$name};
         }
-    } else {
-        $dholder = undef;  # no $name
+    }
+    else {
+        $dholder = undef;    # no $name
     }
     return;
 }
@@ -250,21 +278,22 @@ sub swallow {
 }
 
 sub StartDocument {
-    ($feed, $item, $data) = (undef, undef, undef);
+    ( $feed, $item, $data ) = ( undef, undef, undef );
     @items = ();
     undef $error;
 }
 
 sub StartTag {
+
     # $_ carries the unparsed tag
-    my ($p, $tag) = @_;
+    my ( $p, $tag ) = @_;
     my $holder;
 
     # do nothing if there has been an error
     return if $error;
 
     # are we just accumulating data?
-    if (defined $data) {
+    if ( defined $data ) {
         $data .= $_;
         $ddepth++;
         return;
@@ -273,45 +302,46 @@ sub StartTag {
     # where we'll usually store info
     $holder = $item ? $item : $feed;
 
-    TAGS: {
-        if ($tag eq 'feed') {
-            return err("Nested <feed> tags") 
+TAGS: {
+        if ( $tag eq 'feed' ) {
+            return err ("Nested <feed> tags")
                 if $feed;
-            $feed = {};
+            $feed               = {};
             $feed->{'standard'} = 'atom';
-            $feed->{'version'} = $_{'version'};
-            return err("Incompatible version specified in <feed>")
+            $feed->{'version'}  = $_{'version'};
+            return err ("Incompatible version specified in <feed>")
                 if $feed->{'version'} && $feed->{'version'} < 0.3;
             last TAGS;
         }
-        if ($tag eq 'entry') {
-            return err("Nested <entry> tags") 
+        if ( $tag eq 'entry' ) {
+            return err ("Nested <entry> tags")
                 if $item;
             $item = {};
             last TAGS;
         }
-        
+
         # at this point, we must have a top-level <feed> or <entry>
         # to write into
-        return err("Tag found under neither <feed> nor <entry>")
+        return err ("Tag found under neither <feed> nor <entry>")
             unless $holder;
 
-        if ($tag eq 'link') {
+        if ( $tag eq 'link' ) {
+
             # store 'self' and 'hub' rels, for PubSubHubbub support; but only valid
             # for the feed, so make sure $item is undef
-            if ( ! $item && $_{rel} && ( $_{rel} eq 'self' || $_{rel} eq 'hub' ) ) {
-                return err( 'Feed not yet defined' )
+            if ( !$item && $_{rel} && ( $_{rel} eq 'self' || $_{rel} eq 'hub' ) ) {
+                return err ('Feed not yet defined')
                     unless $feed;
 
                 # allow these to be specified multiple times, the spec allows for multiple
                 # hubs.  the self link shouldn't allow multiples but it won't hurt if we let it.
-                push @{$feed->{$_{rel}} ||= []}, $_{href};
+                push @{ $feed->{ $_{rel} } ||= [] }, $_{href};
                 last TAGS;
             }
 
             # ignore links with rel= anything but alternate
             # and treat links as rel=alternate if not explicit
-            unless (!$_{'rel'} || $_{'rel'} eq 'alternate') {
+            unless ( !$_{'rel'} || $_{'rel'} eq 'alternate' ) {
                 swallow();
                 last TAGS;
             }
@@ -325,22 +355,24 @@ sub StartTag {
             }
 
             $holder->{'link'} = $_{'href'};
-            return err("No href attribute in <link>")
+            return err ("No href attribute in <link>")
                 unless $holder->{'link'};
             last TAGS;
         }
 
-        if ($tag eq 'content') {
-            return err("<content> outside <entry>")
+        if ( $tag eq 'content' ) {
+            return err ("<content> outside <entry>")
                 unless $item;
+
             # if type is multipart/alternative, we continue recursing
             # otherwise we accumulate
             my $type = $_{'type'} || "text/plain";
-            unless ($type eq "multipart/alternative") {
-                push @{$item->{'contents'}}, [$type, ""];
-                startaccum(\$item->{'contents'}->[-1]->[1]);
+            unless ( $type eq "multipart/alternative" ) {
+                push @{ $item->{'contents'} }, [ $type, "" ];
+                startaccum( \$item->{'contents'}->[-1]->[1] );
                 last TAGS;
             }
+
             # it's multipart/alternative, so recurse, but don't swallow
             last TAGS;
         }
@@ -356,8 +388,9 @@ sub StartTag {
 
         if ( $tag eq 'name' ) {
             if ( $holder->{inauth} ) {
-                startaccum( 'author' );
-            } else {
+                startaccum('author');
+            }
+            else {
                 swallow();
             }
             last TAGS;
@@ -365,7 +398,7 @@ sub StartTag {
 
         if ( $tag eq 'poster' ) {
             $holder->{ljposter} = $_{user};
-            return err( "No user attribute in <$tag>" )
+            return err ("No user attribute in <$tag>")
                 unless $holder->{ljposter};
             last TAGS;
         }
@@ -373,43 +406,45 @@ sub StartTag {
         # store tags which should require no further
         # processing as they are, and others under _atom_*, to be processed
         # in EndTag under </entry>
-        if ($tag eq 'title') {
-            if ($item) { # entry's subject
+        if ( $tag eq 'title' ) {
+            if ($item) {    # entry's subject
                 startaccum("subject");
-            } else { # feed's title
+            }
+            else {          # feed's title
                 startaccum($tag);
             }
             last TAGS;
         }
-        if ($tag eq 'atom:id' || $tag eq 'id') {
+        if ( $tag eq 'atom:id' || $tag eq 'id' ) {
             startaccum($tag);
             last TAGS;
         }
 
-        if ($tag eq 'tagline' && !$item) { # feed's tagline, our "description"
+        if ( $tag eq 'tagline' && !$item ) {    # feed's tagline, our "description"
             startaccum("description");
             last TAGS;
         }
 
         # accumulate and store
-        startaccum("_atom_" . $tag);
+        startaccum( "_atom_" . $tag );
         last TAGS;
     }
-            
+
     return;
 }
 
 sub EndTag {
+
     # $_ carries the unparsed tag
-    my ($p, $tag) = @_;
+    my ( $p, $tag ) = @_;
 
     # do nothing if there has been an error
     return if $error;
 
     # are we accumulating data?
-    if (defined $data) {
+    if ( defined $data ) {
         $ddepth--;
-        if ($ddepth == 0) { # stop accumulating
+        if ( $ddepth == 0 ) {    # stop accumulating
             $$dholder = $data
                 if $dholder;
             undef $data;
@@ -419,53 +454,60 @@ sub EndTag {
         return;
     }
 
-    TAGS: {
-        if ($tag eq 'entry') {
+TAGS: {
+        if ( $tag eq 'entry' ) {
+
             # finalize item...
             # generate suitable text from $item->{'contents'}
             my $content;
             $item->{'contents'} ||= [];
-            unless (scalar(@{$item->{'contents'}}) >= 1) {
+            unless ( scalar( @{ $item->{'contents'} } ) >= 1 ) {
+
                 # this item had no <content>
                 # maybe it has <summary>? if so, use <summary>
                 # TODO: type= or encoding issues here? perhaps unite
                 # handling of <summary> with that of <content>?
-                if ($item->{'_atom_summary'}) {
+                if ( $item->{'_atom_summary'} ) {
                     $item->{'text'} = $item->{'_atom_summary'};
                     delete $item->{'contents'};
-                } else {
+                }
+                else {
                     # nothing to display, so ignore this entry
                     undef $item;
                     last TAGS;
                 }
             }
 
-            unless ($item->{'text'}) { # unless we already have text
-                if (scalar(@{$item->{'contents'}}) == 1) {
+            unless ( $item->{'text'} ) {    # unless we already have text
+                if ( scalar( @{ $item->{'contents'} } ) == 1 ) {
+
                     # only one <content> section
-                    $content = $item->{'contents'}->[0]; 
-                } else {
+                    $content = $item->{'contents'}->[0];
+                }
+                else {
                     # several <content> section, must choose the best one
-                    foreach (@{$item->{'contents'}}) {
-                        if ($_->[0] eq "application/xhtml+xml") { # best match
+                    foreach ( @{ $item->{'contents'} } ) {
+                        if ( $_->[0] eq "application/xhtml+xml" ) {    # best match
                             $content = $_;
-                            last; # don't bother to look at others
+                            last;    # don't bother to look at others
                         }
-                        if ($_->[0] =~ m!html!) { # some kind of html/xhtml/html+xml, etc.
-                            # choose this unless we've already chosen some html
+                        if ( $_->[0] =~ m!html! ) {    # some kind of html/xhtml/html+xml, etc.
+                                # choose this unless we've already chosen some html
                             $content = $_
                                 unless $content->[0] =~ m!html!;
                             next;
                         }
-                        if ($_->[0] eq "text/plain") {
+                        if ( $_->[0] eq "text/plain" ) {
+
                             # choose this unless we have some html already
                             $content = $_
                                 unless $content->[0] =~ m!html!;
                             next;
                         }
                     }
+
                     # if we didn't choose anything, pick the first one
-                    $content =  $item->{'contents'}->[0]
+                    $content = $item->{'contents'}->[0]
                         unless $content;
                 }
 
@@ -479,15 +521,19 @@ sub EndTag {
             }
 
             # generate time
-            my $w3time = $item->{'_atom_created'} || $item->{'_atom_published'} ||
-                         $item->{'_atom_modified'} || $item->{'_atom_updated'};
+            my $w3time =
+                   $item->{'_atom_created'}
+                || $item->{'_atom_published'}
+                || $item->{'_atom_modified'}
+                || $item->{'_atom_updated'};
 
             my $time;
             if ($w3time) {
+
                 # see http://www.w3.org/TR/NOTE-datetime for format
                 # we insist on having granularity up to a minute,
                 # and ignore finer data as well as the timezone, for now
-                if ($w3time =~ m!^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d)!) {
+                if ( $w3time =~ m!^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d)! ) {
                     $time = "$1-$2-$3 $4:$5";
                 }
             }
@@ -499,9 +545,9 @@ sub EndTag {
 
             # get rid of all other tags we don't need anymore
             foreach ( keys %$item ) {
-                delete $item->{$_} if substr($_, 0, 6) eq '_atom_';
+                delete $item->{$_} if substr( $_, 0, 6 ) eq '_atom_';
             }
-            
+
             push @items, $item;
             undef $item;
             last TAGS;
@@ -513,7 +559,8 @@ sub EndTag {
             last TAGS;
         }
 
-        if ($tag eq 'feed') {
+        if ( $tag eq 'feed' ) {
+
             # finalize feed
 
             # if feed author exists, all items should default to it
@@ -523,11 +570,11 @@ sub EndTag {
 
             # get rid of all other tags we don't need anymore
             foreach ( keys %$feed ) {
-                delete $feed->{$_} if substr($_, 0, 6) eq '_atom_';
+                delete $feed->{$_} if substr( $_, 0, 6 ) eq '_atom_';
             }
-            
+
             # link the feed with its itms
-            $feed->{'items'} = \@items 
+            $feed->{'items'} = \@items
                 if $feed;
             last TAGS;
         }
@@ -545,16 +592,17 @@ sub Text {
 }
 
 sub PI {
+
     # ignore processing instructions
     return;
 }
 
 sub EndDocument {
+
     # if we parsed a feed, link items to it
-    $feed->{'items'} = \@items 
+    $feed->{'items'} = \@items
         if $feed;
     return;
 }
-
 
 1;

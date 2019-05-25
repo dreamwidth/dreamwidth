@@ -11,7 +11,6 @@ Digest::HMAC_SHA1
 Digest::SHA1
 File::Type
 GTop
-List::Util@1.45
 Gearman::Client
 GnuPG::Interface
 Hash::MultiValue@0.10
@@ -21,6 +20,7 @@ Image::Size
 JSON@2.53
 JSON::Validator
 LWP::UserAgent::Paranoid
+List::Util@1.45
 Locale::Country@3.32
 Log::Log4perl
 MIME::Base64::URLSafe
@@ -38,12 +38,14 @@ Net::OpenID::Server
 Net::SMTPS
 Net::SSL@2.85
 Paws::S3
+Perl::Tidy
 Proc::ProcessTable
 RPC::XML
 SOAP::Lite@0.710.8
 String::CRC32
 Sys::Syscall
 Template
+Test::Code::TidyAll
 Test::Most
 Text::Fuzzy@0.27
 Text::Markdown

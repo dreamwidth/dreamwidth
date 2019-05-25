@@ -81,7 +81,7 @@ If owner is undef, the codes will be 'system codes' and have no source.
 =cut
 
 sub generate {
-    my ($class, %opts) = @_;
+    my ( $class, %opts ) = @_;
     $opts{count} ||= 1;
 
     my $dbh = LJ::get_db_writer()
@@ -90,14 +90,13 @@ sub generate {
     my $sth = $dbh->prepare(
         q{INSERT INTO acctcode (acid, userid, rcptid, auth, reason, timegenerate)
           VALUES (NULL, ?, 0, ?, ?, UNIX_TIMESTAMP())}
-    )
-        or die "Unable to allocate statement handle.\n";
+    ) or die "Unable to allocate statement handle.\n";
 
     my @invitecodes;
-    my @authcodes = map { LJ::make_auth_code( AUTH_LEN ) } 1..$opts{count};
+    my @authcodes = map { LJ::make_auth_code(AUTH_LEN) } 1 .. $opts{count};
     my $uid = $opts{owner} ? $opts{owner}->id : 0;
 
-    foreach my $auth ( @authcodes ) {
+    foreach my $auth (@authcodes) {
         $sth->execute( $uid, $auth, $opts{reason} );
         die "Unable to generate invite codes: " . $dbh->errstr . "\n"
             if $dbh->err;
@@ -124,7 +123,7 @@ sub could_be_code {
 
     my %valid_digits = map { $_ => 1 } DIGITS;
     my @string_array = split( //, $string );
-    foreach my $char ( @string_array ) {
+    foreach my $char (@string_array) {
         return 0 unless $valid_digits{$char};
     }
 
@@ -140,8 +139,8 @@ if the form is double-submitted.
 =cut
 
 sub check_code {
-    my ($class, %opts) = @_;
-    my $dbh = LJ::get_db_writer();
+    my ( $class, %opts ) = @_;
+    my $dbh  = LJ::get_db_writer();
     my $code = $opts{code};
 
     # check if this code is a promo code first
@@ -153,13 +152,13 @@ sub check_code {
 
     return 0 unless $class->could_be_code( string => $code );
 
-    my ($acid, $auth) = $class->decode( $code );
-    my $ac = $dbh->selectrow_hashref( "SELECT userid, rcptid, auth " .
-                                      "FROM acctcode WHERE acid=?",
-                                      undef, $acid);
+    my ( $acid, $auth ) = $class->decode($code);
+    my $ac = $dbh->selectrow_hashref( "SELECT userid, rcptid, auth " . "FROM acctcode WHERE acid=?",
+        undef, $acid );
 
     # invalid account code
-    return 0 unless ( $ac && uc($ac->{auth}) eq $auth );
+    return 0 unless ( $ac && uc( $ac->{auth} ) eq $auth );
+
     # code has already been used
     my $userid = $opts{userid} || 0;
     return 0 if ( $ac->{rcptid} && $ac->{rcptid} != $userid );
@@ -181,7 +180,7 @@ Return 1 if rate is okay, return 0 if too fast.
 
 sub check_rate {
     my $ip = LJ::get_remote_ip();
-    if ( LJ::MemCache::get( "invite_code_try_ip:$ip" ) ) {
+    if ( LJ::MemCache::get("invite_code_try_ip:$ip") ) {
         LJ::MemCache::set( "invite_code_try_ip:$ip", 1, 5 );
         return 0;
     }
@@ -197,15 +196,15 @@ if yes; undef if not
 =cut
 
 sub paid_status {
-    my ($class, %opts) = @_;    
+    my ( $class, %opts ) = @_;
     my $code = $opts{code};
 
     return undef unless DW::InviteCodes->check_code( code => $code );
-    
+
     my $itemidref;
     if ( my $cart = DW::Shop::Cart->get_from_invite( $code, itemidref => \$itemidref ) ) {
-        my $item = $cart->get_item( $itemidref );
-        return $item if $item && $item->isa( 'DW::Shop::Item::Account' );
+        my $item = $cart->get_item($itemidref);
+        return $item if $item && $item->isa('DW::Shop::Item::Account');
     }
 
     return undef;
@@ -218,15 +217,18 @@ Marks an invite code as having been used to create the $recipient account.
 =cut
 
 sub use_code {
-    my ($self, %opts) = @_;
+    my ( $self, %opts ) = @_;
     my $dbh = LJ::get_db_writer();
 
     $self->{rcptid} = $opts{user}->{userid};
 
-    $dbh->do( "UPDATE acctcode SET email=NULL, rcptid=? WHERE acid=?",
-        undef, $opts{user}->{userid}, $self->{acid} );
+    $dbh->do(
+        "UPDATE acctcode SET email=NULL, rcptid=? WHERE acid=?",
+        undef, $opts{user}->{userid},
+        $self->{acid}
+    );
 
-    return 1; # 1 means success? Needs error return in that case.
+    return 1;    # 1 means success? Needs error return in that case.
 }
 
 =head2 C<< $object->send_code ( [ email => $email ] ) >>
@@ -237,13 +239,13 @@ Make sure if passing email to validate first!
 =cut
 
 sub send_code {
-    my ($self, %opts) = @_;
+    my ( $self, %opts ) = @_;
     my $dbh = LJ::get_db_writer();
 
     $dbh->do( "UPDATE acctcode SET timesent=UNIX_TIMESTAMP(), email=? WHERE acid=?",
         undef, $opts{email}, $self->{acid} );
 
-    return 1; # 1 means success? Needs error return in that case.
+    return 1;    # 1 means success? Needs error return in that case.
 }
 
 =head2 C<< $class->new( code => $invite ) >>
@@ -253,20 +255,22 @@ Returns object for invite, or undef if none exists.
 =cut
 
 sub new {
-    my ($class, %opts) = @_;
+    my ( $class, %opts ) = @_;
     my $dbr = LJ::get_db_reader();
 
     return undef unless length( $opts{code} ) == CODE_LEN;
 
-    my ($acid, $auth) = $class->decode( $opts{code} );
-    my $ac = $dbr->selectrow_hashref( "SELECT acid, userid, rcptid, auth, reason, timegenerate, timesent, email FROM acctcode ".
-                                      "WHERE acid=? AND auth=?",
-                                      undef, $acid, $auth);
+    my ( $acid, $auth ) = $class->decode( $opts{code} );
+    my $ac = $dbr->selectrow_hashref(
+        "SELECT acid, userid, rcptid, auth, reason, timegenerate, timesent, email FROM acctcode "
+            . "WHERE acid=? AND auth=?",
+        undef, $acid, $auth
+    );
 
     return undef unless defined $ac;
 
     my $ret = fields::new($class);
-    while (my ($k, $v) = each %$ac) {
+    while ( my ( $k, $v ) = each %$ac ) {
         $ret->{$k} = $v;
     }
 
@@ -292,17 +296,17 @@ unique, so going for safety.)
 =cut
 
 sub by_owner {
-    my ($class, %opts) = @_;
+    my ( $class, %opts ) = @_;
     return $class->load_by( 'userid', $opts{userid} );
 }
 
 sub by_owner_unused {
-    my ($class, %opts) = @_;
+    my ( $class, %opts ) = @_;
     return $class->load_by( 'userid', $opts{userid}, 1 );
 }
 
 sub by_recipient {
-    my ($class, %opts) = @_;
+    my ( $class, %opts ) = @_;
     return $class->load_by( 'rcptid', $opts{userid} );
 }
 
@@ -313,15 +317,16 @@ Returns a count of unused invite codes owned by $userid.
 =cut
 
 sub unused_count {
-    my ($class, %opts) = @_;
+    my ( $class, %opts ) = @_;
     my $userid = $opts{userid};
 
     my $dbr = LJ::get_db_reader();
-    my $count = $dbr->selectrow_array( "SELECT COUNT(*) FROM acctcode WHERE userid = ? AND rcptid = 0", undef, $userid );
+    my $count =
+        $dbr->selectrow_array( "SELECT COUNT(*) FROM acctcode WHERE userid = ? AND rcptid = 0",
+        undef, $userid );
 
     return $count;
 }
-
 
 =head2 C<< $class->load_by( $field, $userid ) >>
 
@@ -333,24 +338,25 @@ to pass externally generated values in $field.
 =cut
 
 sub load_by {
-    my ($class, $field, $userid, $only_load_unused) = @_;
+    my ( $class, $field, $userid, $only_load_unused ) = @_;
 
     die "SQL injection attempt? '$field'" unless $field =~ /^\w+$/;
 
     my $dbr = LJ::get_db_reader();
 
     my $unused_sql = $only_load_unused ? "AND rcptid=0" : "";
-    my $sth = $dbr->prepare( "SELECT acid, userid, rcptid, auth, reason, timegenerate, timesent, email FROM acctcode WHERE $field = ? $unused_sql" )
-        or die "Unable to retrieve invite codes by $field: " . $dbr->errstr;
+    my $sth        = $dbr->prepare(
+"SELECT acid, userid, rcptid, auth, reason, timegenerate, timesent, email FROM acctcode WHERE $field = ? $unused_sql"
+    ) or die "Unable to retrieve invite codes by $field: " . $dbr->errstr;
 
-    $sth->execute($userid + 0)
+    $sth->execute( $userid + 0 )
         or die "Unable to retrieve invite codes by $field: " . $sth->errstr;
 
     my @ics;
 
-    while (my $ac = $sth->fetchrow_hashref) {
+    while ( my $ac = $sth->fetchrow_hashref ) {
         my $ret = fields::new($class);
-        while (my ($k, $v) = each %$ac) {
+        while ( my ( $k, $v ) = each %$ac ) {
             $ret->{$k} = $v;
         }
         push @ics, $ret;
@@ -368,7 +374,7 @@ Returns the object's invite code.
 sub code {
     my ($self) = @_;
 
-    return (ref $self)->encode($self->{acid}, $self->{auth});
+    return ( ref $self )->encode( $self->{acid}, $self->{auth} );
 }
 
 =head2 C<< $object->owner >>
@@ -463,8 +469,8 @@ all-uppercase invite code.
 =cut
 
 sub encode {
-    my ($class, $acid, $auth) = @_;
-    return uc( $auth ) . $class->acid_encode( $acid );
+    my ( $class, $acid, $auth ) = @_;
+    return uc($auth) . $class->acid_encode($acid);
 }
 
 =head2 C<< $class->decode( $invite ) >>
@@ -475,8 +481,9 @@ invite code id and a 13-character auth code.
 =cut
 
 sub decode {
-    my ($class, $code) = @_;
-    return ( $class->acid_decode( substr( $code, AUTH_LEN, ACID_LEN ) ), uc( substr( $code, 0, AUTH_LEN ) ) );
+    my ( $class, $code ) = @_;
+    return ( $class->acid_decode( substr( $code, AUTH_LEN, ACID_LEN ) ),
+        uc( substr( $code, 0, AUTH_LEN ) ) );
 }
 
 =head2 C<< $class->acid_encode( $num ) >>
@@ -488,18 +495,18 @@ that are not easily mistaken for each other.
 =cut
 
 sub acid_encode {
-    my ($class, $num) = @_;
+    my ( $class, $num ) = @_;
     my $acid = "";
-    while ( $num ) {
+    while ($num) {
         my $dig = $num % DIGITS_LEN;
         $acid = (DIGITS)[$dig] . $acid;
-        $num = ($num - $dig) / DIGITS_LEN;
+        $num  = ( $num - $dig ) / DIGITS_LEN;
     }
-    return ( (DIGITS)[0] x ( ACID_LEN - length( $acid ) ) . $acid );
+    return ( (DIGITS)[0] x ( ACID_LEN - length($acid) ) . $acid );
 }
 
 my %val;
-@val{(DIGITS)} = 0..DIGITS_LEN;
+@val{ (DIGITS) } = 0 .. DIGITS_LEN;
 
 =head2 C<< $class->acid_decode( $acid ) >>
 
@@ -509,10 +516,10 @@ the original decimal number.
 =cut
 
 sub acid_decode {
-    my ($class, $acid) = @_;
-    $acid = uc( $acid );
+    my ( $class, $acid ) = @_;
+    $acid = uc($acid);
 
-    my $num = 0;
+    my $num   = 0;
     my $place = 0;
     foreach my $d ( split //, $acid ) {
         return 0 unless exists $val{$d};

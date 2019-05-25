@@ -27,13 +27,13 @@ DW::Routing->register_string( '/export', \&index_handler, app => 1 );
 
 sub get_encodings {
     my ( %encodings, %encnames );
-    LJ::load_codes({ "encoding" => \%encodings });
-    LJ::load_codes({ "encname" => \%encnames });
+    LJ::load_codes( { "encoding" => \%encodings } );
+    LJ::load_codes( { "encname"  => \%encnames } );
 
     my $rv = {};
     foreach my $id ( keys %encodings ) {
         next if lc $encodings{$id} eq 'none';
-        $rv->{$encodings{$id}} = $encnames{$id};
+        $rv->{ $encodings{$id} } = $encnames{$id};
     }
     return $rv;
 }
@@ -42,7 +42,7 @@ sub index_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, authas => 1 );
     return $rv unless $ok;
 
-    $rv->{encodings} = [ %{get_encodings()} ];
+    $rv->{encodings} = [ %{ get_encodings() } ];
 
     return DW::Template->render_template( 'export/index.tt', $rv );
 }

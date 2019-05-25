@@ -28,24 +28,27 @@ sub should_render {
 
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.emailalias.label' );
+    return $class->ml('setting.emailalias.label');
 }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $emailalias = $class->get_arg( $args, "emailalias" ) || ! $u->prop( "no_mail_alias" );
+    my $emailalias = $class->get_arg( $args, "emailalias" ) || !$u->prop("no_mail_alias");
 
-    my $ret = LJ::html_check( {
-        name => "${key}emailalias",
-        id => "${key}emailalias",
-        value => 1,
-        selected => $emailalias ? 1 : 0,
-    } );
+    my $ret = LJ::html_check(
+        {
+            name     => "${key}emailalias",
+            id       => "${key}emailalias",
+            value    => 1,
+            selected => $emailalias ? 1 : 0,
+        }
+    );
 
     $ret .= " <label for='${key}emailalias'>";
-    $ret .= $class->ml( 'setting.emailalias.option', { user => $u->username, domain => $LJ::USER_DOMAIN } );
+    $ret .= $class->ml( 'setting.emailalias.option',
+        { user => $u->username, domain => $LJ::USER_DOMAIN } );
     $ret .= "</label>";
 
     return $ret;
@@ -55,7 +58,8 @@ sub save {
     my ( $class, $u, $args ) = @_;
 
     my $val = $class->get_arg( $args, "emailalias" );
-    $u->set_prop( "no_mail_alias" => ! $val );
+    $u->set_prop( "no_mail_alias" => !$val );
+
     # our selection value is the opposite of what no_mail_alias expects
     $val ? $u->update_email_alias : $u->delete_email_alias;
 

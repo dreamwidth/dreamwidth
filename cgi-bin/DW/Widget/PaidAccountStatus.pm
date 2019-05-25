@@ -32,14 +32,17 @@ sub render_body {
     my $remote = LJ::get_remote()
         or return;
 
-    my $account_type = DW::Pay::get_account_type_name( $remote );
-    my $expires_at = DW::Pay::get_account_expiration_time( $remote );
-    my $expires_on = $expires_at > 0
-                     ? "<br />" . $class->ml( 'widget.paidaccountstatus.expiretime' ) . " " . LJ::mysql_time( $expires_at )
-                     : '';
+    my $account_type = DW::Pay::get_account_type_name($remote);
+    my $expires_at   = DW::Pay::get_account_expiration_time($remote);
+    my $expires_on =
+        $expires_at > 0
+        ? "<br />"
+        . $class->ml('widget.paidaccountstatus.expiretime') . " "
+        . LJ::mysql_time($expires_at)
+        : '';
 
     my $ret = "<div class='shop-item-highlight shop-account-status'>";
-    $ret .= $class->ml( 'widget.paidaccountstatus.accounttype' ) . " ";
+    $ret .= $class->ml('widget.paidaccountstatus.accounttype') . " ";
     $ret .= "<strong>$account_type</strong>$expires_on";
     $ret .= "</div>";
 

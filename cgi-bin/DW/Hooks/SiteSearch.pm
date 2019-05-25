@@ -20,29 +20,32 @@ use strict;
 use LJ::Hooks;
 
 sub _sphinx_db {
+
     # ensure we can talk to our system
     return unless @LJ::SPHINX_SEARCHD;
-    my $dbh = LJ::get_dbh( 'sphinx_search' )
+    my $dbh = LJ::get_dbh('sphinx_search')
         or die "Unable to get sphinx_search database handle.\n";
     return $dbh;
 }
 
-LJ::Hooks::register_hook( 'setprop', sub {
-    my %opts = @_;
-    return unless $opts{prop} eq 'opt_blockglobalsearch';
+LJ::Hooks::register_hook(
+    'setprop',
+    sub {
+        my %opts = @_;
+        return unless $opts{prop} eq 'opt_blockglobalsearch';
 
-    my $dbh = _sphinx_db() or return 0;
-    $dbh->do(
-        q{UPDATE items_raw SET allow_global_search = ?, touchtime = UNIX_TIMESTAMP()
+        my $dbh = _sphinx_db() or return 0;
+        $dbh->do(
+            q{UPDATE items_raw SET allow_global_search = ?, touchtime = UNIX_TIMESTAMP()
           WHERE journalid = ?},
-        undef, $opts{value} eq 'Y' ? 0 : 1, $opts{u}->id
-    );
-    die $dbh->errstr if $dbh->err;
+            undef, $opts{value} eq 'Y' ? 0 : 1, $opts{u}->id
+        );
+        die $dbh->errstr if $dbh->err;
 
-    # looks good
-    return 1;
-} );
-
+        # looks good
+        return 1;
+    }
+);
 
 # set when the user's status(vis) changes
 # the user may still undelete or be unsuspended
@@ -63,23 +66,31 @@ sub _mark_deleted {
 
 LJ::Hooks::register_hook( 'account_delete', sub { _mark_deleted( $_[0], 1 ) } );
 LJ::Hooks::register_hook( 'account_cancel', sub { _mark_deleted( $_[0], 1 ) } );
-LJ::Hooks::register_hook( 'account_makevisible', sub {
-    my ( $u, %opts ) = @_;
+LJ::Hooks::register_hook(
+    'account_makevisible',
+    sub {
+        my ( $u, %opts ) = @_;
 
-    my $old = $opts{old_statusvis};
-    _mark_deleted( $u, 0 ) if $old eq "D" || $old eq "S";
-} );
+        my $old = $opts{old_statusvis};
+        _mark_deleted( $u, 0 ) if $old eq "D" || $old eq "S";
+    }
+);
 
+LJ::Hooks::register_hook(
+    'purged_user',
+    sub {
+        my ($u) = @_;
 
-LJ::Hooks::register_hook( 'purged_user', sub {
-    my ( $u ) = @_;
+        my $sclient = LJ::theschwartz() or die;
 
-    my $sclient = LJ::theschwartz() or die;
+       # queue up a copier job, which will notice that the entries by this user have been deleted...
+        $sclient->insert_jobs(
+            TheSchwartz::Job->new_from_array(
+                'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "purghook" }
+            )
+        );
 
-    # queue up a copier job, which will notice that the entries by this user have been deleted...
-    $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
-                                { userid => $u->id, source => "purghook" } ) );
-
-});
+    }
+);
 
 1;

@@ -25,7 +25,7 @@ use Carp qw(croak);
 
 # wants screen name or handle
 sub new {
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
     my $self = bless {}, $pkg;
     $self->{screenname} = delete $args{screenname};
     croak "unknown args" if %args;
@@ -33,9 +33,9 @@ sub new {
 }
 
 sub new_from_formargs {
-    my ($pkg, $args) = @_;
+    my ( $pkg, $args ) = @_;
     return undef unless $args->{screenname};
-    return $pkg->new(screenname => $args->{screenname});
+    return $pkg->new( screenname => $args->{screenname} );
 }
 
 sub cache_for { 5 * 60 }
@@ -49,20 +49,22 @@ sub matching_uids {
     my $dbr = LJ::get_dbh("directory") || LJ::get_db_reader();
 
     my @propids;
+
     # FIRST: check whether we get matches based on IM services
     foreach my $service (qw(icq jabber skype google_talk)) {
-        my $p = LJ::get_prop("user", $service);
+        my $p = LJ::get_prop( "user", $service );
         push @propids, $p->{upropid};
     }
 
-    my $bind = LJ::DB::bindstr( @propids );
-    my $rows = $dbr->selectcol_arrayref("SELECT userid FROM userprop WHERE upropid IN ($bind) AND value = ?",
-                                        undef, @propids, $self->screenname);
+    my $bind = LJ::DB::bindstr(@propids);
+    my $rows = $dbr->selectcol_arrayref(
+        "SELECT userid FROM userprop WHERE upropid IN ($bind) AND value = ?",
+        undef, @propids, $self->screenname );
     die $dbr->errstr if $dbr->err;
-    my @uids = @{$rows || []};
+    my @uids = @{ $rows || [] };
 
     # SECOND: check for lj jabber matches
-    if ($self->screenname =~ /(.+)\@$LJ::USER_DOMAIN$/) {
+    if ( $self->screenname =~ /(.+)\@$LJ::USER_DOMAIN$/ ) {
         push @uids, LJ::get_userid($1);
     }
 
@@ -74,7 +76,7 @@ sub matching_uids {
     my @done;
 
     my $us = LJ::load_userids(@uids);
-    foreach my $u (values %$us) {
+    foreach my $u ( values %$us ) {
         next unless $u;
         next unless $u->is_person || $u->is_identity;
         next unless $u->is_visible;

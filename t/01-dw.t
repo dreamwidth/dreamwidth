@@ -22,6 +22,6 @@ use_ok('DW');
 
 my $dir = DW->home;
 
-ok($dir, 'DW->home returns something');
-ok(-d $dir, 'DW->home returns a directory');
+ok( $dir,    'DW->home returns something' );
+ok( -d $dir, 'DW->home returns a directory' );
 

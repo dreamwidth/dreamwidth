@@ -17,13 +17,13 @@ use strict;
 use warnings;
 
 sub should_render {
-    my ($class, $u) = @_;
+    my ( $class, $u ) = @_;
 
-    return !LJ::is_enabled( 'adult_content' ) || !$u || $u->is_community ? 0 : 1;
+    return !LJ::is_enabled('adult_content') || !$u || $u->is_community ? 0 : 1;
 }
 
 sub helpurl {
-    my ($class, $u) = @_;
+    my ( $class, $u ) = @_;
 
     return "adult_content_full";
 }
@@ -35,50 +35,60 @@ sub label {
 }
 
 sub option {
-    my ($class, $u, $errs, $args) = @_;
+    my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $viewingadultcontent = $class->get_arg($args, "viewingadultcontent") || $u->hide_adult_content;
+    my $viewingadultcontent =
+        $class->get_arg( $args, "viewingadultcontent" ) || $u->hide_adult_content;
 
     my @options = (
         {
-            value => "none",
-            text => $class->ml('setting.viewingadultcontent.option.select.none'),
-            disabled => $u->is_minor || ! $u->best_guess_age ? 1 : 0,
+            value    => "none",
+            text     => $class->ml('setting.viewingadultcontent.option.select.none'),
+            disabled => $u->is_minor || !$u->best_guess_age ? 1 : 0,
         },
         {
-            value => "explicit",
-            text => $class->ml('setting.viewingadultcontent.option.select.explicit'),
-            disabled => ! $u->best_guess_age ? 1 : 0,
+            value    => "explicit",
+            text     => $class->ml('setting.viewingadultcontent.option.select.explicit'),
+            disabled => !$u->best_guess_age ? 1 : 0,
         },
         {
-            value => "concepts",
-            text => $class->ml('setting.viewingadultcontent.option.select.concepts'),
+            value    => "concepts",
+            text     => $class->ml('setting.viewingadultcontent.option.select.concepts'),
             disabled => 0,
         },
     );
 
-    my $ret = "<label for='${key}viewingadultcontent'>" . $class->ml('setting.viewingadultcontent.option') . "</label> ";
-    $ret .= LJ::html_select({
-        name => "${key}viewingadultcontent",
-        id => "${key}viewingadultcontent",
-        selected => $viewingadultcontent,
-    }, @options);
+    my $ret =
+          "<label for='${key}viewingadultcontent'>"
+        . $class->ml('setting.viewingadultcontent.option')
+        . "</label> ";
+    $ret .= LJ::html_select(
+        {
+            name     => "${key}viewingadultcontent",
+            id       => "${key}viewingadultcontent",
+            selected => $viewingadultcontent,
+        },
+        @options
+    );
 
-    if ( ! $u->best_guess_age ) {
-        $ret .= "<br /><span style='font-size: smaller;'> " . LJ::Lang::ml( 'setting.viewingadultcontent.reason', { aopts => "href='$LJ::SITEROOT/manage/profile/'" } ) . "</span>";
+    if ( !$u->best_guess_age ) {
+        $ret .= "<br /><span style='font-size: smaller;'> "
+            . LJ::Lang::ml( 'setting.viewingadultcontent.reason',
+            { aopts => "href='$LJ::SITEROOT/manage/profile/'" } )
+            . "</span>";
 
     }
 
-    my $errdiv = $class->errdiv($errs, "viewingadultcontent");
+    my $errdiv = $class->errdiv( $errs, "viewingadultcontent" );
     $ret .= "<br />$errdiv" if $errdiv;
 
     return $ret;
 }
 
 sub error_check {
-    my ($class, $u, $args) = @_;
-    my $val = $class->get_arg($args, "viewingadultcontent");
+    my ( $class, $u, $args ) = @_;
+    my $val = $class->get_arg( $args, "viewingadultcontent" );
 
     $class->errors( viewingadultcontent => $class->ml('setting.viewingadultcontent.error.invalid') )
         unless $val =~ /^(none|explicit|concepts)$/;
@@ -87,14 +97,15 @@ sub error_check {
 }
 
 sub save {
-    my ($class, $u, $args) = @_;
-    $class->error_check($u, $args);
+    my ( $class, $u, $args ) = @_;
+    $class->error_check( $u, $args );
 
-    my $val = $class->get_arg($args, "viewingadultcontent");
+    my $val = $class->get_arg( $args, "viewingadultcontent" );
 
-    if (!$u->best_guess_age) {
+    if ( !$u->best_guess_age ) {
         $val = "concepts";
-    } elsif ($u->is_minor) {
+    }
+    elsif ( $u->is_minor ) {
         $val = "explicit" unless $val eq "concepts";
     }
 

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 # DW::Widget::SiteSearch
-# 
+#
 # Simple site-search module (global search only).
 #
 # Authors:
@@ -26,8 +26,9 @@ sub render_body {
     my $remote = LJ::get_remote()
         or return;
 
-    my $ret = "<h2>" . $class->ml( 'widget.sitesearch.title', { sitename => $LJ::SITENAMESHORT } ) . "</h2>";
-    $ret .= "<p>" . $class->ml( 'widget.sitesearch.desc' ) . "</p>";
+    my $ret = "<h2>"
+        . $class->ml( 'widget.sitesearch.title', { sitename => $LJ::SITENAMESHORT } ) . "</h2>";
+    $ret .= "<p>" . $class->ml('widget.sitesearch.desc') . "</p>";
 
     $ret .= "<form method='post' action='$LJ::SITEROOT/search'>" . LJ::form_auth();
     $ret .= "<input type='text' name='query' maxlength='255' size='30'>";
@@ -35,6 +36,6 @@ sub render_body {
 
     return $ret;
 
-};
+}
 
 1;

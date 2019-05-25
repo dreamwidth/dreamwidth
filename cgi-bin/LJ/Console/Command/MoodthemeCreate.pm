@@ -19,19 +19,23 @@ use Carp qw(croak);
 
 sub cmd { "moodtheme_create" }
 
-sub desc { "Create a new moodtheme. Returns the mood theme ID that you'll need to define moods for this theme. Requires priv: none." }
+sub desc {
+"Create a new moodtheme. Returns the mood theme ID that you'll need to define moods for this theme. Requires priv: none.";
+}
 
-sub args_desc { [
-                 'name' => "Name of this theme.",
-                 'desc' => "A description of the theme",
-                 ] }
+sub args_desc {
+    [
+        'name' => "Name of this theme.",
+        'desc' => "A description of the theme",
+    ]
+}
 
 sub usage { '<name> <desc>' }
 
 sub can_execute { 1 }
 
 sub execute {
-    my ($self, $name, $desc, @args) = @_;
+    my ( $self, $name, $desc, @args ) = @_;
 
     return $self->error("This command takes two arguments. Consult the reference.")
         unless $name && $desc && scalar(@args) == 0;
@@ -39,7 +43,7 @@ sub execute {
     my $remote = LJ::get_remote();
     my $err;
     my $mtid = $remote->create_moodtheme( $name, $desc, \$err )
-        or return $self->error( $err );
+        or return $self->error($err);
 
     return $self->print("Success. Your new mood theme ID is $mtid");
 }

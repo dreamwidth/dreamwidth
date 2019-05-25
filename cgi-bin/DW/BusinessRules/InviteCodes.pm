@@ -18,7 +18,7 @@
 package DW::BusinessRules::InviteCodes;
 use strict;
 use warnings;
-use Carp ();
+use Carp       ();
 use List::Util ();
 use base 'DW::BusinessRules';
 use LJ::Lang;
@@ -111,48 +111,49 @@ site-specific search_class should do the same.
 =cut
 
 sub search_class {
-    my ($uckey, $max_nusers) = @_;
-    Carp::croak( "$uckey not a known user class" ) if $uckey ne 'lucky';
+    my ( $uckey, $max_nusers ) = @_;
+    Carp::croak("$uckey not a known user class") if $uckey ne 'lucky';
 
-    my $dbslow = LJ::get_dbh( 'slow' ) or die "Can't get slow role";
-    my ($last_uid)
-        = $dbslow->selectrow_array( "SELECT MAX(userid) FROM user" );
+    my $dbslow = LJ::get_dbh('slow') or die "Can't get slow role";
+    my ($last_uid) = $dbslow->selectrow_array("SELECT MAX(userid) FROM user");
     die $dbslow->errstr unless defined $last_uid;
-    my $start_uid = int( rand( $last_uid ) );
+    my $start_uid = int( rand($last_uid) );
     my @uids;
 
     # Not restricting on journaltype/status/statusvis here because:
     # 1- that may send us all the way to the end trying to get the limit
     # 2- we don't need or care to get that many users anyway
     # Instead, we prune the rows returned by the database (see below).
-    my $sth = $dbslow->prepare( "SELECT userid, journaltype, status, statusvis " .
-                             "FROM user WHERE userid >= ? " .
-                             "ORDER BY userid ASC LIMIT ?" )
+    my $sth =
+        $dbslow->prepare( "SELECT userid, journaltype, status, statusvis "
+            . "FROM user WHERE userid >= ? "
+            . "ORDER BY userid ASC LIMIT ?" )
         or die $dbslow->errstr;
-    $sth->execute($start_uid, $max_nusers) or die $sth->errstr;
+    $sth->execute( $start_uid, $max_nusers ) or die $sth->errstr;
 
-    while (my $row = $sth->fetchrow_hashref) {
+    while ( my $row = $sth->fetchrow_hashref ) {
         push @uids, $row->{userid}
             if $row->{journaltype} eq 'P'
-               && $row->{status} eq 'A'
-               && $row->{statusvis} eq 'V';
+            && $row->{status} eq 'A'
+            && $row->{statusvis} eq 'V';
         $max_nusers--;
     }
 
     return \@uids unless $max_nusers > 0;
 
     # Try again, this time going down
-    $sth = $dbslow->prepare( "SELECT userid, journaltype, status, statusvis " .
-                          "FROM user WHERE userid < ? " .
-                          "ORDER BY userid DESC LIMIT ?" )
+    $sth =
+        $dbslow->prepare( "SELECT userid, journaltype, status, statusvis "
+            . "FROM user WHERE userid < ? "
+            . "ORDER BY userid DESC LIMIT ?" )
         or die $dbslow->errstr;
-    $sth->execute($start_uid, $max_nusers) or die $sth->errstr;
+    $sth->execute( $start_uid, $max_nusers ) or die $sth->errstr;
 
-    while (my $row = $sth->fetchrow_hashref) {
+    while ( my $row = $sth->fetchrow_hashref ) {
         push @uids, $row->{userid}
             if $row->{journaltype} eq 'P'
-               && $row->{status} eq 'A'
-               && $row->{statusvis} eq 'V';
+            && $row->{status} eq 'A'
+            && $row->{statusvis} eq 'V';
         $max_nusers--;
     }
 
@@ -172,12 +173,13 @@ $nusers.
 =cut
 
 sub adj_invites {
-    my ($ninv, $nusers) = @_;
+    my ( $ninv, $nusers ) = @_;
 
-    return ($ninv <= 0 || $nusers <= 0) ? 0 : ($ninv - $ninv % $nusers);
+    return ( $ninv <= 0 || $nusers <= 0 ) ? 0 : ( $ninv - $ninv % $nusers );
 }
 
-DW::BusinessRules::install_overrides( __PACKAGE__, qw( user_classes max_users search_class adj_invites ) );
+DW::BusinessRules::install_overrides( __PACKAGE__,
+    qw( user_classes max_users search_class adj_invites ) );
 1;
 
 =head1 BUGS

@@ -127,9 +127,9 @@ my $contents = qq{
 </feed>
 };
 
-my ($feed, $error) = LJ::ParseFeed::parse_feed($contents);
+my ( $feed, $error ) = LJ::ParseFeed::parse_feed($contents);
 
-foreach my $item (@{$feed->{items}}) {
-    is($item->{link}, "http://www.snellspace.com/public/linktests/alternate", $item->{subject});
+foreach my $item ( @{ $feed->{items} } ) {
+    is( $item->{link}, "http://www.snellspace.com/public/linktests/alternate", $item->{subject} );
 }
 

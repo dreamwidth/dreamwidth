@@ -41,7 +41,7 @@ sub new {
           FROM media WHERE userid = ? AND mediaid = ?},
         undef, $opts{user}->id, $opts{mediaid}
     );
-    return if $opts{user}->err || ! $hr;
+    return if $opts{user}->err || !$hr;
 
     # Calculate displayid here so it ends up in the object early.
     $hr->{displayid} = $hr->{mediaid} * 256 + $hr->{anum};
@@ -56,13 +56,16 @@ sub new {
           FROM media_versions WHERE userid = ? AND mediaid = ?},
         'versionid', undef, $opts{user}->id, $opts{mediaid}
     );
-    return if $opts{user}->err || ! $vers;
+    return if $opts{user}->err || !$vers;
 
     # Photo types can be instantiated and also support height and width.
     if ( $hr->{mediatype} == TYPE_PHOTO ) {
-        my $self = DW::Media::Photo->new_from_row( %$hr, versions => $vers,
-                height => $opts{height}, width => $opts{width} )
-            or croak 'Failed to construct a photo object.';
+        my $self = DW::Media::Photo->new_from_row(
+            %$hr,
+            versions => $vers,
+            height   => $opts{height},
+            width    => $opts{width}
+        ) or croak 'Failed to construct a photo object.';
         return $self;
     }
 
@@ -108,15 +111,17 @@ sub upload_media {
     # set the security
     my $sec = $opts{security} || 'public';
     if ( $sec =~ /^(?:friends|access)$/ ) {
-        $sec = 'usemask' ;
+        $sec = 'usemask';
         $opts{allowmask} = 1;
     }
     croak 'Invalid security for uploaded file.'
         unless $sec =~ /^(?:public|private|usemask)$/;
     if ( $sec eq 'usemask' ) {
+
         # default allowmask of 0 unless defined otherwise
         $opts{allowmask} //= 0;
-    } else {
+    }
+    else {
         $opts{allowmask} = 0;
     }
 
@@ -137,7 +142,7 @@ sub upload_media {
     $opts{user}->do(
         q{INSERT INTO media (userid, mediaid, anum, ext, state, mediatype, security, allowmask,
             logtime, mimetype, filesize) VALUES (?, ?, ?, ?, 'A', ?, ?, ?, UNIX_TIMESTAMP(), ?, ?)},
-        undef, $opts{user}->id, $id, int(rand(256)), $ext, $type, $sec, $opts{allowmask},
+        undef, $opts{user}->id, $id, int( rand(256) ), $ext, $type, $sec, $opts{allowmask},
         $mime, $size
     );
     croak "Failed to insert media row: " . $opts{user}->errstr . "."
@@ -160,7 +165,7 @@ sub preprocess {
 
     # We trust the MIME since we extracted that from File::Type, not from
     # user submitted information.
-    my ( $type, $ext ) = $class->get_upload_type( $mime );
+    my ( $type, $ext ) = $class->get_upload_type($mime);
     return unless defined $type && defined $ext;
 
     # If not an image, return type/ext and be done.
@@ -169,7 +174,7 @@ sub preprocess {
 
     # Now preprocess and extract size (required).
     DW::Media::Photo->preprocess( $ext, $dataref );
-    my ( $width, $height ) = Image::Size::imgsize( $dataref );
+    my ( $width, $height ) = Image::Size::imgsize($dataref);
     return unless defined $width && defined $height;
 
     # Any changes to the image are in the dataref.
@@ -179,34 +184,35 @@ sub preprocess {
 sub get_upload_type {
     my ( $class, $mime ) = @_;
 
-    return (TYPE_PHOTO, 'jpg') if $mime eq 'image/jpeg';
-    return (TYPE_PHOTO, 'gif') if $mime eq 'image/gif';
-    return (TYPE_PHOTO, 'png') if $mime eq 'image/png';
+    return ( TYPE_PHOTO, 'jpg' ) if $mime eq 'image/jpeg';
+    return ( TYPE_PHOTO, 'gif' ) if $mime eq 'image/gif';
+    return ( TYPE_PHOTO, 'png' ) if $mime eq 'image/png';
 
-    return (undef, undef);
+    return ( undef, undef );
 }
 
 sub get_active_for_user {
     my ( $class, $u, %opts ) = @_;
-    confess 'Invalid user' unless LJ::isu( $u );
+    confess 'Invalid user' unless LJ::isu($u);
     return () if $u->is_expunged;
 
     # get all active rows for this user
-    my $rows = $u->selectcol_arrayref(
-        q{SELECT mediaid FROM media WHERE userid = ? AND state = 'A'},
-        undef, $u->id
-    );
+    my $rows =
+        $u->selectcol_arrayref( q{SELECT mediaid FROM media WHERE userid = ? AND state = 'A'},
+        undef, $u->id );
     croak 'Failed to select rows: ' . $u->errstr . '.' if $u->err;
     return () unless $rows && ref $rows eq 'ARRAY';
 
     # construct media objects for each of the items and return that
     my @media;
-    foreach ( @$rows ) {
+    foreach (@$rows) {
+
         # use eval to catch croaks
         my $obj = eval { DW::Media->new( user => $u, mediaid => $_, %opts ) };
-        if ( $obj ) {
+        if ($obj) {
             push @media, $obj;
-        } else {
+        }
+        else {
             warn "Failed to load media: $@";
         }
     }
@@ -215,10 +221,10 @@ sub get_active_for_user {
 
 sub get_quota_for_user {
     my ( $class, $u ) = @_;
-    confess 'Invalid user' unless LJ::isu( $u );
+    confess 'Invalid user' unless LJ::isu($u);
     return 0 if $u->is_expunged;
 
-    my $cap = $u->get_cap( 'media_file_quota' ) // 0;
+    my $cap = $u->get_cap('media_file_quota') // 0;
 
     # convert megabytes -> bytes
     return $cap * 1024 * 1024;
@@ -226,10 +232,10 @@ sub get_quota_for_user {
 
 sub get_usage_for_user {
     my ( $class, $u ) = @_;
-    confess 'Invalid user' unless LJ::isu( $u );
+    confess 'Invalid user' unless LJ::isu($u);
     return 0 if $u->is_expunged;
 
-    my ( $usage ) = $u->selectrow_array(
+    my ($usage) = $u->selectrow_array(
         q{SELECT SUM(mv.filesize) FROM media_versions AS mv, media AS m
           WHERE mv.userid=? AND m.userid=mv.userid AND m.mediaid=mv.mediaid
           AND m.state = 'A'
@@ -238,15 +244,15 @@ sub get_usage_for_user {
     );
     croak 'Failed to get file sizes: ' . $u->errstr . '.' if $u->err;
     $usage //= 0;
-    return $usage;  # in bytes
+    return $usage;    # in bytes
 }
 
 sub can_upload_media {
     my ( $class, $u ) = @_;
     return 0 if $u->is_expunged || $u->is_identity;
 
-    my $quota = $class->get_quota_for_user( $u );
-    my $usage = $class->get_usage_for_user( $u );
+    my $quota = $class->get_quota_for_user($u);
+    my $usage = $class->get_usage_for_user($u);
     return $usage > $quota ? 0 : 1;
 }
 

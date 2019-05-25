@@ -37,7 +37,7 @@ DW::EmailPost::Comment - Handle comment replies via email
 sub _find_destination {
     my ( $class, @to_addresses ) = @_;
 
-    foreach my $dest ( @to_addresses ) {
+    foreach my $dest (@to_addresses) {
         next unless $dest =~ /^
                                 (\S+?)          # any prefix
                                 \@\Q$LJ::EMAIL_REPLY_DOMAIN\E
@@ -54,28 +54,29 @@ sub _find_destination {
 sub _parse_destination {
     my ( $self, $replyto_token ) = @_;
 
-    my ( $remote_userid, $journalid, $ditemid, $dtalkid, $message_auth ) = split "-", $replyto_token;
+    my ( $remote_userid, $journalid, $ditemid, $dtalkid, $message_auth ) = split "-",
+        $replyto_token;
 
-    my $u = LJ::load_userid( $remote_userid );
+    my $u = LJ::load_userid($remote_userid);
     return unless $u;
 
-    my $ju = LJ::load_userid( $journalid );
+    my $ju = LJ::load_userid($journalid);
     return unless $ju;
 
-    $self->{u} = $u;
-    $self->{ju} = $ju;
+    $self->{u}       = $u;
+    $self->{ju}      = $ju;
     $self->{journal} = $ju->user;
 
     # shouldn't happen but just in case
     return unless $u->emailpost_auth;
 
-    my $class = ref $self;
+    my $class     = ref $self;
     my $real_auth = $class->_hash( $u, $ju, $ditemid, $dtalkid );
-    return $self->err( "Invalid secret address. Unable to post as $u->{user}." )
+    return $self->err("Invalid secret address. Unable to post as $u->{user}.")
         unless $message_auth eq $real_auth;
 
     $self->{ditemid} = $ditemid;
-    $self->{parent} = $dtalkid;
+    $self->{parent}  = $dtalkid;
 
     return 1;
 }
@@ -89,23 +90,23 @@ sub _process {
 
     # remove reply cruft
     $self->{body} = DW::CleanEmail->nonquoted_text( $self->{body} );
-    $self->{subject} = DW::EmailPost::Comment->determine_subject(
-        $self->{subject}, $self->{ju}, $self->{ditemid}, $self->{parent}
-    );
+    $self->{subject} =
+        DW::EmailPost::Comment->determine_subject( $self->{subject}, $self->{ju}, $self->{ditemid},
+        $self->{parent} );
 
     $self->cleanup_body_final;
 
     # build the comment
     my $req = {
-        ver      => 1,
+        ver => 1,
 
         username => $self->{u}->username,
         journal  => $self->{ju}->username,
         ditemid  => $self->{ditemid},
         parent   => $self->{parent},
 
-        body     => $self->{body},
-        subject  => $self->{subject},
+        body                 => $self->{body},
+        subject              => $self->{subject},
         prop_picture_keyword => $self->{props}->{picture_keyword},
 
         useragent => "emailpost",
@@ -115,7 +116,7 @@ sub _process {
     # post!
     my $post_error;
     LJ::Protocol::do_request( "addcomment", $req, \$post_error, { noauth => 1, nocheckcap => 1 } );
-    return $self->send_error( LJ::Protocol::error_message( $post_error ) ) if $post_error;
+    return $self->send_error( LJ::Protocol::error_message($post_error) ) if $post_error;
 
     return ( 1, "Comment success" );
 
@@ -135,7 +136,7 @@ sub _check_sender {
     }
 
     my $from = $self->{from};
-    return $self->err( "Unauthorized sender address: $from" )
+    return $self->err("Unauthorized sender address: $from")
         unless grep { lc $from eq lc $_ } keys %$addrlist;
 
     return 1;
@@ -145,8 +146,8 @@ sub _set_props {
     my ( $self, $u, %post_headers ) = @_;
 
     my $props = {};
-    $props->{picture_keyword} = $post_headers{userpic} ||
-                                $post_headers{icon};
+    $props->{picture_keyword} = $post_headers{userpic}
+        || $post_headers{icon};
     $self->{props} = $props;
 
     return 1;
@@ -159,6 +160,7 @@ sub dblog_opts {
 =head1 Class Methods
 
 =cut
+
 # Generates the hash to be used in the reply to address
 sub _hash {
     my ( $class, $u, $ju, $ditemid, $dtalkid ) = @_;
@@ -170,16 +172,13 @@ sub _hash {
 Get the reply-to address for this user + journal + entry + comment combination
 
 =cut
+
 sub replyto_address {
     my ( $class, $u, $journalu, $ditemid, $dtalkid ) = @_;
-    return
-        join ( "-",
-            $u->userid,
-            $journalu->userid,
-            $ditemid,
-            $dtalkid,
-            $class->_hash( $u, $journalu, $ditemid, $dtalkid )
-        ) . "\@$LJ::EMAIL_REPLY_DOMAIN";
+    return join( "-",
+        $u->userid, $journalu->userid, $ditemid, $dtalkid,
+        $class->_hash( $u, $journalu, $ditemid, $dtalkid ) )
+        . "\@$LJ::EMAIL_REPLY_DOMAIN";
 }
 
 =head2 C<< $class->replyto_address_header( $u, $journal, $ditemid, $dtalkid ) >>
@@ -187,13 +186,16 @@ sub replyto_address {
 Returns the reply-to address with a pretty name, suitable for use in the reply-to-address header
 
 =cut
+
 sub replyto_address_header {
     my ( $class, $u, $journal, $ditemid, $dtalkid ) = @_;
 
-    my $reply_as = LJ::Lang::get_default_text( "emailpost.reply.address",
+    my $reply_as = LJ::Lang::get_default_text(
+        "emailpost.reply.address",
         {
-            user  => $u->display_username,
-        } );
+            user => $u->display_username,
+        }
+    );
     my $email = $class->replyto_address( $u, $journal, $ditemid, $dtalkid );
     return qq{"$reply_as" <$email>};
 }
@@ -203,6 +205,7 @@ sub replyto_address_header {
 Decide what the subject should be (either from the email or the parent comments)
 
 =cut
+
 sub determine_subject {
     my ( $class, $email_subject, $ju, $ditemid, $parent ) = @_;
 
@@ -215,6 +218,7 @@ sub determine_subject {
     # if so, then we assume we want to use the parent comment's subject (if any)
     # otherwise we assume they've set their own comment subject (no need to clean then)
     if ( $subject =~ /\Q$generated_subject_id\E$/ ) {
+
         # we always have a parent comment, because that's the only way we can get an auth hash
         # if that changes, we'll have to add checking here
         my $parent_obj = LJ::Comment->new( $ju, dtalkid => $parent );
@@ -224,7 +228,6 @@ sub determine_subject {
     return $subject;
 }
 
-
 =head1 User Methods
 
 =head2 C<< $u->generate_emailpost_auth() >>
@@ -232,15 +235,16 @@ sub determine_subject {
 Generates an auth to be used when replying to a comment via email
 
 =cut
-sub generate_auth {
-    my ( $u ) = $_[0];
 
-    my $auth = LJ::rand_chars( 32 );
+sub generate_auth {
+    my ($u) = $_[0];
+
+    my $auth = LJ::rand_chars(32);
     $u->set_prop( emailpost_auth => $auth );
 
     # just log that the emailpost_auth has changed
     # automatically records remote / uniq / ip if available
-    $u->log_event( 'emailpost_auth' );
+    $u->log_event('emailpost_auth');
 
     return $auth;
 }
@@ -252,11 +256,12 @@ Gets the auth to be used when replying to a comment via email.
 If you don't have one yet, generate one automatically.
 
 =cut
-sub emailpost_auth {
-    my ( $u ) = $_[0];
 
-    return $u->prop( "emailpost_auth" ) || $u->generate_emailpost_auth;
+sub emailpost_auth {
+    my ($u) = $_[0];
+
+    return $u->prop("emailpost_auth") || $u->generate_emailpost_auth;
 }
 
 *LJ::User::generate_emailpost_auth = \&generate_auth;
-*LJ::User::emailpost_auth = \&emailpost_auth;
+*LJ::User::emailpost_auth          = \&emailpost_auth;

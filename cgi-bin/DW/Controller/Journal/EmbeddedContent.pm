@@ -28,7 +28,6 @@ use DW::Routing;
 use LJ::Auth;
 use LJ::EmbedModule;
 
-
 =head1 NAME
 
 DW::Controller::EmbeddedContent - Show embedded content in an iframe
@@ -38,7 +37,7 @@ DW::Controller::EmbeddedContent - Show embedded content in an iframe
 DW::Routing->register_string( "/journal/embedcontent", \&embedcontent_handler, app => 1 );
 
 sub embedcontent_handler {
-    my ( $opts ) = @_;
+    my ($opts) = @_;
 
     my ( $ok, $rv ) = controller( anonymous => 1, skip_domsess => 1 );
     return $rv unless $ok;
@@ -51,32 +50,33 @@ sub embedcontent_handler {
     };
 
     # this can only be accessed from the embed module subdomain
-    return $print->( "This page cannot be viewed from $LJ::DOMAIN" )
-        unless $r->header_in( "Host" ) =~ /.*$LJ::EMBED_MODULE_DOMAIN$/i;
+    return $print->("This page cannot be viewed from $LJ::DOMAIN")
+        unless $r->header_in("Host") =~ /.*$LJ::EMBED_MODULE_DOMAIN$/i;
 
     # we should have three GET params: journalid, moduleid, auth_token
-    my $get = $r->get_args;
-    my $journalid = $get->{journalid} + 0 or return $print->( "No journalid specified" );
+    my $get       = $r->get_args;
+    my $journalid = $get->{journalid} + 0 or return $print->("No journalid specified");
 
     my $moduleid = $get->{moduleid};
-    return $print->( "No module id specified" ) unless defined $moduleid;
+    return $print->("No module id specified") unless defined $moduleid;
     $moduleid += 0;
 
     my $preview = $get->{preview};
 
-    return $print->( "Invalid auth string" )
+    return $print->("Invalid auth string")
         unless LJ::Auth->check_sessionless_auth_token( 'embedcontent', %$get );
-
 
     # ok we're cool, return content
     my $content = LJ::EmbedModule->module_content(
-        journalid => $journalid,
-        moduleid  => $moduleid,
-        preview => $preview,
+        journalid          => $journalid,
+        moduleid           => $moduleid,
+        preview            => $preview,
         display_as_content => 1,
     )->{content};
 
-    $r->print(qq{<html><head><style type="text/css">html, body { background-color:transparent; padding:0; margin:0; border:0; overflow:hidden; } iframe, object, embed { width: 100%; height: 100%;}</style></head><body>$content</body></html>});
+    $r->print(
+qq{<html><head><style type="text/css">html, body { background-color:transparent; padding:0; margin:0; border:0; overflow:hidden; } iframe, object, embed { width: 100%; height: 100%;}</style></head><body>$content</body></html>}
+    );
     return $r->OK;
 }
 

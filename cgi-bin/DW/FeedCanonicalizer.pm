@@ -21,10 +21,7 @@ use URI;
 use URI::Escape;
 
 my %LJISH_SITES = map { $_ => 1 } (
-    'livejournal.com',
-    'insanejournal.com',
-    'deadjournal.com',
-    'journalfen.net',
+    'livejournal.com', 'insanejournal.com', 'deadjournal.com', 'journalfen.net',
     'dreamwidth.org',
 );
 
@@ -35,13 +32,13 @@ sub canonicalize {
     my $uri_string = $_[0];
     $uri_string = $uri_string->[0] if ref $uri_string eq 'ARRAY';
 
-    my $uri = URI->new( $uri_string )->canonical;
+    my $uri = URI->new($uri_string)->canonical;
     return undef unless $uri->scheme =~ m/^(http|https)$/;
-    
-    $uri->userinfo( undef );
 
-    my $feed = $_[1];
-    my $src = $_[2];
+    $uri->userinfo(undef);
+
+    my $feed     = $_[1];
+    my $src      = $_[2];
     my $orig_uri = $uri->clone;
 
     $uri->fragment(undef);
@@ -51,37 +48,44 @@ sub canonicalize {
 
     {
         # Let's see if this looks "LJ-ish".
-        if ( $uri_str =~ m!^https?://(?:users|community|syndicated)\.([^/]+)/+([a-z0-9\-_]+)/$LJISH_URL_PART$!i ) {
+        if ( $uri_str =~
+            m!^https?://(?:users|community|syndicated)\.([^/]+)/+([a-z0-9\-_]+)/$LJISH_URL_PART$!i )
+        {
             my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
             return make_ljish( $host, $sub, $feed, $orig_uri, $extra )
-                unless $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
-                    or $spare && ! $LJISH_SITES{$host};
+                unless $feed =~ m/^rss/i && !$LJISH_SITES{$host}
+                or $spare && !$LJISH_SITES{$host};
         }
 
         if ( $uri_str =~ m!^https?://([a-z0-9\-_]+)\.([^/]+)/+$LJISH_URL_PART$!i ) {
             my ( $sub, $host, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
             return make_ljish( $host, $sub, $feed, $orig_uri, $extra )
                 unless $sub eq 'www'
-                    or $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
-                    or $spare && ! $LJISH_SITES{$host};
+                or $feed =~ m/^rss/i && !$LJISH_SITES{$host}
+                or $spare && !$LJISH_SITES{$host};
         }
-        
+
         if ( $uri_str =~ m!^https?://(?:www\.)?([^/]+)/+~([a-z0-9\-_]+)/$LJISH_URL_PART!i ) {
-            my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 ); 
-            return make_ljish( $host, $sub, $feed, $orig_uri, $extra )
-                unless $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
-                    or $spare && ! $LJISH_SITES{$host};
-        }
-        
-        if ( $uri_str =~ m!^https?://(?:www\.)?([^/]+)/+(?:users|community|syndicated)/([a-z0-9\-_]+)/$LJISH_URL_PART$!i ) {
             my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
             return make_ljish( $host, $sub, $feed, $orig_uri, $extra )
-                unless $feed =~ m/^rss/i && ! $LJISH_SITES{$host}
-                    or $spare && ! $LJISH_SITES{$host};
+                unless $feed =~ m/^rss/i && !$LJISH_SITES{$host}
+                or $spare && !$LJISH_SITES{$host};
+        }
+
+        if ( $uri_str =~
+m!^https?://(?:www\.)?([^/]+)/+(?:users|community|syndicated)/([a-z0-9\-_]+)/$LJISH_URL_PART$!i
+            )
+        {
+            my ( $host, $sub, $feed, $extra, $spare ) = ( $1, $2, $3, $4, $5 );
+            return make_ljish( $host, $sub, $feed, $orig_uri, $extra )
+                unless $feed =~ m/^rss/i && !$LJISH_SITES{$host}
+                or $spare && !$LJISH_SITES{$host};
         }
 
         # InsaneJournal decided to call communities something different
-        if ( $uri_str =~ m!^https?://(?:asylums)\.insanejournal\.com/+([a-z0-9\-_]+)/$LJISH_URL_PART$!i ) {
+        if ( $uri_str =~
+            m!^https?://(?:asylums)\.insanejournal\.com/+([a-z0-9\-_]+)/$LJISH_URL_PART$!i )
+        {
             return make_ljish( "insanejournal.com", $1, $2, $orig_uri, $3 );
         }
 
@@ -90,20 +94,27 @@ sub canonicalize {
             $username =~ s/-/_/g;
             return "tumblr://$username";
         }
-        
-        if ( $uri_str =~ m!^https?://([a-z0-9\-\_]+)\.tumblr\.com/+tagged/([^/\?#]+)/rss(?:/|\.xml)?$!i ) {
-            my $tag = uri_escape( uri_unescape( $2 ) );
+
+        if ( $uri_str =~
+            m!^https?://([a-z0-9\-\_]+)\.tumblr\.com/+tagged/([^/\?#]+)/rss(?:/|\.xml)?$!i )
+        {
+            my $tag      = uri_escape( uri_unescape($2) );
             my $username = lc($1);
             $username =~ s/-/_/g;
             return "tumblr://$username/tagged/$tag";
         }
 
         # Also handles blogspot and domains hosted on blogger/blogspot
-        if ( $uri_str =~ m!^https?://(?:www\.)?blogger\.com/+feeds/([0-9]+)/(posts|comments|[0-9]+/comments)/(default|full)/?$!i ) {
+        if ( $uri_str =~
+m!^https?://(?:www\.)?blogger\.com/+feeds/([0-9]+)/(posts|comments|[0-9]+/comments)/(default|full)/?$!i
+            )
+        {
             return "blogger://$1/$2" . ( $3 eq 'full' ? '/full' : '' );
         }
-        
-        if ( $uri_str =~ m!^https?://(?:www\.)?blogger\.com/+feeds/([0-9]+)/posts/(default|full)/?$!i ) {
+
+        if ( $uri_str =~
+            m!^https?://(?:www\.)?blogger\.com/+feeds/([0-9]+)/posts/(default|full)/?$!i )
+        {
             return "blogger://$1/posts" . ( $2 eq 'full' ? '/full' : '' );
         }
 
@@ -140,23 +151,31 @@ sub canonicalize {
             return "wordpress://$username";
         }
 
-        if ( $uri_str =~ m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+comments/feed(?:/rss|/atom)?/?$!i ) {
+        if ( $uri_str =~
+            m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+comments/feed(?:/rss|/atom)?/?$!i )
+        {
             my $username = lc($1);
             $username =~ s/-/_/g;
             return "wordpress://$username/comments";
         }
 
-       if ( $uri_str =~ m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+tag/([a-z0-9\-\_]+)/feed(?:/rss|/atom)?/?$!i ) {
+        if ( $uri_str =~
+m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+tag/([a-z0-9\-\_]+)/feed(?:/rss|/atom)?/?$!i
+            )
+        {
             my $username = lc($1);
-            my $tag = lc($2);
+            my $tag      = lc($2);
 
             $username =~ s/-/_/g;
-            $tag =~ s/-/_/g;
+            $tag      =~ s/-/_/g;
 
             return "wordpress://$username/tag/$tag";
         }
 
-        if ( $uri_str =~ m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+category/([a-z0-9\-\_]+)/feed(?:/rss|/atom)?/?$!i ) {
+        if ( $uri_str =~
+m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+category/([a-z0-9\-\_]+)/feed(?:/rss|/atom)?/?$!i
+            )
+        {
             my $username = lc($1);
             my $category = lc($2);
 
@@ -166,29 +185,37 @@ sub canonicalize {
             return "wordpress://$username/category/$category";
         }
 
-        if ( $uri_str =~ m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+author/([a-z0-9\-\_]+)/feed(?:/rss|/atom)?/?$!i ) {
+        if ( $uri_str =~
+m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+author/([a-z0-9\-\_]+)/feed(?:/rss|/atom)?/?$!i
+            )
+        {
             my $username = lc($1);
-            my $author = lc($2);
+            my $author   = lc($2);
 
             $username =~ s/-/_/g;
-            $author =~ s/-/_/g;
+            $author   =~ s/-/_/g;
 
             return "wordpress://$username/author/$author";
         }
 
-        if ( $uri_str =~ m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+([0-9]{4}/[0-9]{2}/[0-9]{2})/([a-z0-9\-\_]+)/feed(?:/rss|/atom)?/?$!i ) {
+        if ( $uri_str =~
+m!^https?://([a-z0-9\-\_\.]+)\.wordpress\.com/+([0-9]{4}/[0-9]{2}/[0-9]{2})/([a-z0-9\-\_]+)/feed(?:/rss|/atom)?/?$!i
+            )
+        {
             my $username = lc($1);
             my $datepart = $2;
-            my $article = lc($3);
+            my $article  = lc($3);
 
             $username =~ s/-/_/g;
-            $article =~ s/-/_/g;
+            $article  =~ s/-/_/g;
 
             return "wordpress://$username/$datepart/$article";
         }
 
         # Unfortunately, these two twitter ones cannot go away (yet)
-        if ( $uri_str =~ m!^https?://(?:www\.)?twitter\.com/+statuses/user_timeline/([a-z][a-z0-9\-_]*)\.rss$!i ) {
+        if ( $uri_str =~
+            m!^https?://(?:www\.)?twitter\.com/+statuses/user_timeline/([a-z][a-z0-9\-_]*)\.rss$!i )
+        {
             my $username = lc($1);
             $username =~ s/-/_/g;
 
@@ -198,7 +225,7 @@ sub canonicalize {
         if ( $uri_str =~ m!^https?://api\.twitter\.com/1/statuses/user_timeline\.rss$!i ) {
             my %query = $orig_uri->query_form;
 
-            if ( ! $query{id} ) {
+            if ( !$query{id} ) {
                 my $username = lc( $query{screen_name} );
 
                 if ( $username and $username !~ m/,/ ) {
@@ -216,40 +243,49 @@ sub canonicalize {
             return "twitter://$username";
         }
 
-        if ( $uri_str =~ m!^https?://blog\.myspace\.com/+([a-z][a-z0-9\-_]*)/?!i && $src eq 'link' ) {
+        if ( $uri_str =~ m!^https?://blog\.myspace\.com/+([a-z][a-z0-9\-_]*)/?!i && $src eq 'link' )
+        {
             my $username = lc($1);
             $username =~ s/-/_/g;
 
             return "myspace://$username";
         }
-    
-        if ( $uri_str =~ m!^https?://(?:www\.)?archiveofourown\.org/tags/([0-9]+)/feed\.(?:atom|rss)/?!i ) {
+
+        if ( $uri_str =~
+            m!^https?://(?:www\.)?archiveofourown\.org/tags/([0-9]+)/feed\.(?:atom|rss)/?!i )
+        {
             return "ao3://tag/$1";
         }
 
-        if ( $uri_str =~ m!^https?://feeds\.pinboard\.in/rss(?:/secret:[a-f0-9]+)?((?:/[a-z]:[^/]+?)+)(?:/public)?/?$! ) {
-            my @parts = split('/', $1);
+        if ( $uri_str =~
+m!^https?://feeds\.pinboard\.in/rss(?:/secret:[a-f0-9]+)?((?:/[a-z]:[^/]+?)+)(?:/public)?/?$!
+            )
+        {
+            my @parts = split( '/', $1 );
             my $url_end;
-            foreach my $part ( @parts ) {
+            foreach my $part (@parts) {
                 if ( $part =~ m!^[ut]:!i ) {
                     $url_end .= "/" . lc($part);
                 }
             }
             return "pinboard:/" . $url_end if $url_end;
         }
-        
+
         if ( $uri_str =~ m!^https?://feeds\.pinboard\.in/rss/popular(/[^/]+)?/?$!i ) {
             return "pinboard://popular$1";
         }
 
-        if ( $uri_str =~ m!^https?://gdata\.youtube\.com/feeds/base/users/([a-z0-9]+)/uploads/?$!i ) {
+        if ( $uri_str =~ m!^https?://gdata\.youtube\.com/feeds/base/users/([a-z0-9]+)/uploads/?$!i )
+        {
             return "youtube://users/$1/uploads";
         }
-        
+
         if ( $uri_str =~ m!^https?://gdata\.youtube\.com/feeds/(?:api|base)/videos/-/(.+?)/?$!i ) {
-            my $rv = join( '/', sort(
-                map { join('|', sort( split(/\|/,$_ ) ) ) } # sort |'d together terms
-                grep { $_ } split('/',$1) ) );
+            my $rv = join(
+                '/',
+                sort( map { join( '|', sort( split( /\|/, $_ ) ) ) }    # sort |'d together terms
+                        grep { $_ } split( '/', $1 ) )
+            );
             return "youtube://videos/$rv";
         }
 
@@ -261,13 +297,16 @@ sub canonicalize {
 
     return undef unless defined $feed;
 
-    $rv = canonicalize( $feed->{self}, undef, 'self' ) if ! defined $rv && $feed->{self};
-    $rv = canonicalize( $feed->{link}, undef, 'link' ) if ! defined $rv && $feed->{link};
-    $rv = canonicalize_id( $feed->{'atom:id'}, $uri, $orig_uri ) if ! defined $rv && $feed->{'atom:id'}; 
-    $rv = canonicalize_id( $feed->{id}, $uri, $orig_uri ) if ! defined $rv && $feed->{id};
+    $rv = canonicalize( $feed->{self}, undef, 'self' ) if !defined $rv && $feed->{self};
+    $rv = canonicalize( $feed->{link}, undef, 'link' ) if !defined $rv && $feed->{link};
+    $rv = canonicalize_id( $feed->{'atom:id'}, $uri, $orig_uri )
+        if !defined $rv && $feed->{'atom:id'};
+    $rv = canonicalize_id( $feed->{id}, $uri, $orig_uri ) if !defined $rv && $feed->{id};
 
-    $rv = canonicalize( $feed->{final_url}, undef, 'final_url' ) if ! defined $rv && $feed->{final_url};
-    $rv = last_ditch( ( map { $feed->{$_} } qw( self final_url ) ) , $orig_uri->as_string ) if ! defined $rv;
+    $rv = canonicalize( $feed->{final_url}, undef, 'final_url' )
+        if !defined $rv && $feed->{final_url};
+    $rv = last_ditch( ( map { $feed->{$_} } qw( self final_url ) ), $orig_uri->as_string )
+        if !defined $rv;
 
     return $rv;
 }
@@ -279,13 +318,13 @@ sub canonicalize_id {
     {
         if ( $uri_str =~ m!^tag:blogger\.com,1999:blog-([0-9]+)(\.comments)?$!i ) {
             my $url_bit = "blogger://$1/" . ( $2 eq '.comments' ? 'comments' : 'posts' );
-            my ( $full ) = $uri_str =~ m!/(default|full)/?$!i;
+            my ($full) = $uri_str =~ m!/(default|full)/?$!i;
             return $url_bit . ( $full eq 'full' ? '/full' : '' );
         }
-        
+
         if ( $uri_str =~ m!^tag:blogger\.com,1999:blog-([0-9]+)\.post([0-9]+)\.\.comments$!i ) {
             my $url_bit = "blogger://$1/$2/comments";
-            my ( $full ) = $uri_str =~ m!/(default|full)/?$!i;
+            my ($full) = $uri_str =~ m!/(default|full)/?$!i;
             return $url_bit . ( $full eq 'full' ? '/full' : '' );
         }
     }
@@ -293,11 +332,11 @@ sub canonicalize_id {
 
 sub last_ditch {
     my @args = @_;
-    foreach my $arg ( @args ) {
+    foreach my $arg (@args) {
         next unless $arg;
         $arg = $arg->[0] if ref $arg eq 'ARRAY';
 
-        my $uri = URI->new( $arg )->canonical;
+        my $uri = URI->new($arg)->canonical;
         next unless $uri->scheme =~ m/^(http|https)$/;
 
         $uri->fragment(undef);

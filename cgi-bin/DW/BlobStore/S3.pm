@@ -19,7 +19,7 @@ package DW::BlobStore::S3;
 use strict;
 use v5.10;
 use Log::Log4perl;
-my $log = Log::Log4perl->get_logger( __PACKAGE__ );
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5 qw/ md5_hex /;
 use Paws;
@@ -30,17 +30,17 @@ sub type { 's3' }
 sub init {
     my ( $class, %args ) = @_;
 
-    foreach my $required ( qw/ access_key secret_key region prefix bucket / ) {
+    foreach my $required (qw/ access_key secret_key region prefix bucket /) {
         $log->logcroak( 'S3 configuration must include config: ', $required )
             unless exists $args{$required};
     }
 
-    $log->logcroak( 'Prefix does not match required regex: [a-zA-Z0-9_-]+$.' )
+    $log->logcroak('Prefix does not match required regex: [a-zA-Z0-9_-]+$.')
         if defined $args{prefix} && $args{prefix} !~ /^[a-zA-Z0-9_-]+$/;
 
     my $credentials = Paws::Credential::InstanceProfile->new;
     if ( defined $args{access_key} && defined $args{secret_key} ) {
-        $log->warning( 'Using INSECURE AWS configuration!' );
+        $log->warning('Using INSECURE AWS configuration!');
         $credentials = Paws::Credential::Local->new(
             access_key => $args{access_key},
             secret_key => $args{secret_key},
@@ -52,12 +52,11 @@ sub init {
             credentials => $credentials,
             region      => $args{region},
         },
-    )
-        or $log->logcroak('Failed to initialize Paws object.');
+    ) or $log->logcroak('Failed to initialize Paws object.');
     my $s3 = $paws->service('S3')
         or $log->logcroak('Failed to initialize Paws::S3 object.');
 
-    $log->debug( "Initializing blobstore for S3" );
+    $log->debug("Initializing blobstore for S3");
     my $self = {
         s3     => $s3,
         bucket => $args{bucket},
@@ -71,31 +70,33 @@ sub get_location_for_key {
 
     # Hash the key, we create two layers of directory structure so the files
     # spread across 256^2 directories
-    my $hash = md5_hex( $key );
+    my $hash = md5_hex($key);
 
     # Create the fully qualified path including optional configured prefix
     my $fqfn =
-        ( defined $self->{prefix} ? $self->{prefix} . '/' : '' ) .
-        $namespace . '/' .
-        substr( $hash, 0, 2 ) . '/' .
-        substr( $hash, 2, 2 ) . '/' .
-        $hash;
-    $log->debug( "($namespace, $key) => $fqfn" );
+          ( defined $self->{prefix} ? $self->{prefix} . '/' : '' )
+        . $namespace . '/'
+        . substr( $hash, 0, 2 ) . '/'
+        . substr( $hash, 2, 2 ) . '/'
+        . $hash;
+    $log->debug("($namespace, $key) => $fqfn");
     return $fqfn;
 }
 
 sub store {
     my ( $self, $namespace, $key, $blobref ) = @_;
-    $log->logcroak( 'Unable to store empty file.' )
+    $log->logcroak('Unable to store empty file.')
         unless defined $$blobref && length $$blobref;
     my $fqfn = $self->get_location_for_key( $namespace, $key );
 
-    my $res = eval { $self->{s3}->PutObject(
-        Bucket => $self->{bucket},
-        Key    => $fqfn,
-        Body   => $$blobref,
-    ) };
-    if ( $@ && $@->isa( 'Paws::Exception' ) ) {
+    my $res = eval {
+        $self->{s3}->PutObject(
+            Bucket => $self->{bucket},
+            Key    => $fqfn,
+            Body   => $$blobref,
+        );
+    };
+    if ( $@ && $@->isa('Paws::Exception') ) {
         $log->error( "Failed to store to ( $namespace, $key ): " . $@->message );
         return 0;
     }
@@ -108,11 +109,8 @@ sub exists {
     my ( $self, $namespace, $key ) = @_;
     my $fqfn = $self->get_location_for_key( $namespace, $key );
 
-    my $res = eval { $self->{s3}->HeadObject(
-        Bucket => $self->{bucket},
-        Key    => $fqfn,
-    ) };
-    if ( $@ && $@->isa( 'Paws::Exception' ) ) {
+    my $res = eval { $self->{s3}->HeadObject( Bucket => $self->{bucket}, Key => $fqfn, ) };
+    if ( $@ && $@->isa('Paws::Exception') ) {
         $log->error( "Failed to check exists on ( $namespace, $key ): ", $@->message );
         return 0;
     }
@@ -125,11 +123,8 @@ sub retrieve {
     my ( $self, $namespace, $key ) = @_;
     my $fqfn = $self->get_location_for_key( $namespace, $key );
 
-    my $res = eval { $self->{s3}->GetObject(
-        Bucket => $self->{bucket},
-        Key    => $fqfn,
-    ) };
-    if ( $@ && $@->isa( 'Paws::Exception' ) ) {
+    my $res = eval { $self->{s3}->GetObject( Bucket => $self->{bucket}, Key => $fqfn, ) };
+    if ( $@ && $@->isa('Paws::Exception') ) {
         $log->error( "Failed to retrieve from ( $namespace, $key ): " . $@->message );
         return undef;
     }
@@ -140,11 +135,8 @@ sub delete {
     my ( $self, $namespace, $key ) = @_;
     my $fqfn = $self->get_location_for_key( $namespace, $key );
 
-    my $res = eval { $self->{s3}->DeleteObject(
-        Bucket => $self->{bucket},
-        Key    => $fqfn,
-    ) };
-    if ( $@ && $@->isa( 'Paws::Exception' ) ) {
+    my $res = eval { $self->{s3}->DeleteObject( Bucket => $self->{bucket}, Key => $fqfn, ) };
+    if ( $@ && $@->isa('Paws::Exception') ) {
         $log->error( "Failed to delete ( $namespace, $key ): ", $@->message );
         return 0;
     }
@@ -152,7 +144,6 @@ sub delete {
     $log->debug( 'Deleted path from S3: ', $fqfn );
     return 1;
 }
-
 
 ################################################################################
 #
@@ -167,9 +158,9 @@ package Paws::Credential::Local;
 
 use Moose;
 
-has access_key => (is => 'ro');
-has secret_key => (is => 'ro');
-has session_token => (is => 'ro', default => sub { undef });
+has access_key    => ( is => 'ro' );
+has secret_key    => ( is => 'ro' );
+has session_token => ( is => 'ro', default => sub { undef } );
 
 with 'Paws::Credential';
 

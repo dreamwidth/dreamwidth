@@ -49,39 +49,46 @@ extra is a hashref that'll be merged with whatever is stored.
 sub get {
     my ( $class, $key, $opts, $extra ) = @_;
 
-    $opts->{expire} ||= 60;
+    $opts->{expire}       ||= 60;
     $opts->{grace_period} ||= 20;
 
-    my $page = LJ::MemCache::get( $key );
+    my $page = LJ::MemCache::get($key);
 
     # return from the cache
     if ( $page && $page->[0] > time ) {
         LJ::text_uncompress( \$page->[1] );
-        $extra->{$_} = $page->[2]->{$_} foreach keys %{$page->[2]};
+        $extra->{$_} = $page->[2]->{$_} foreach keys %{ $page->[2] };
         return $page->[1];
     }
 
-    my $lock = LJ::locker()->trylock( $key );
-    unless ( $lock ) {
+    my $lock = LJ::locker()->trylock($key);
+    unless ($lock) {
+
         # no lock, someone else is updating this.  let's try to print out the stale memcache
         # page if possible, we know that next time it will be updated
         if ( $page && $page->[1] > 0 ) {
             LJ::text_uncompress( \$page->[1] );
-            $extra->{$_} = $page->[2]->{$_} foreach keys %{$page->[2]};
+            $extra->{$_} = $page->[2]->{$_} foreach keys %{ $page->[2] };
             return $page->[1];
         }
 
         # if we get here, we don't have any data, and we don't have the lock so we can't
         # construct any data.  this should only happen in the rare case of a memcache
         # flush when multiple people are hitting the page.
-        return $opts->{lock_failed} ? $opts->{lock_failed}->( $extra ) : "Sorry, something happened.  Please refresh and try again!";
+        return $opts->{lock_failed}
+            ? $opts->{lock_failed}->($extra)
+            : "Sorry, something happened.  Please refresh and try again!";
     }
 
-    my $res = $opts->{render}->( $extra );
+    my $res = $opts->{render}->($extra);
     return $res if $extra->{abort_cache};
     my $out = $res;
     LJ::text_compress( \$out );
-    LJ::MemCache::set( $key, [ time + $opts->{expire}, $out, $extra ], $opts->{expire} + $opts->{grace_period} );
+    LJ::MemCache::set(
+        $key,
+        [ time + $opts->{expire}, $out, $extra ],
+        $opts->{expire} + $opts->{grace_period}
+    );
     return $res;
 }
 

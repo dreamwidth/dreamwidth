@@ -26,6 +26,7 @@ DW::CleanEmail - Clean up text from email
 Returns original content from an email body. That is, non-quoted
 
 =cut
+
 sub nonquoted_text {
     my ( $class, $text ) = @_;
 
@@ -34,7 +35,7 @@ sub nonquoted_text {
     my $num_lines = 0;
 
     # remove all quoted lines, nice and easy
-    foreach ( @lines ) {
+    foreach (@lines) {
         last if m/^\s*>/;
 
         # e.g., --- Original Message ---
@@ -53,7 +54,7 @@ sub nonquoted_text {
     # look for something that looks like:
     #       On (date), someone wrote:
     my $max_backtrack = 3;
-    my $backtrack = 0;
+    my $backtrack     = 0;
 
     foreach ( reverse @lines ) {
         $backtrack++;
@@ -83,13 +84,14 @@ sub nonquoted_text {
 Clean out "Re:" from the subject and decode HTML entities
 
 =cut
+
 sub reply_subject {
     my ( $class, $subject ) = @_;
 
     $subject =~ s/^(Re:\s*)*//i;
     $subject = "Re: $subject" if $subject;
 
-    return LJ::dhtml( $subject );
+    return LJ::dhtml($subject);
 }
 
 1;

@@ -18,23 +18,24 @@ use strict;
 
 use base qw/ LJ::Console::Command /;
 
-sub cmd { 'reset_token' }
+sub cmd  { 'reset_token' }
 sub desc { 'Reset post-by-email token. Requires priv: reset_email.' }
+
 sub args_desc {
     [
         'username' => 'Username of the account whose token is to be reset',
-        'reason' => 'Reason for resetting it.',
+        'reason'   => 'Reason for resetting it.',
     ]
 }
 sub usage { '<username> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "reset_email" );
+    return $remote && $remote->has_priv("reset_email");
 }
 
 sub execute {
-    my ($self, $username, $reason, @args) = @_;
+    my ( $self, $username, $reason, @args ) = @_;
 
     return $self->error("This command takes two arguments. Consult the reference.")
         unless $username && $reason && scalar(@args) == 0;
@@ -45,15 +46,16 @@ sub execute {
 
     my $newauth = $u->generate_emailpost_auth();
 
-    return $self->error( "Token not reset" ) unless $newauth;
+    return $self->error("Token not reset") unless $newauth;
 
     my $sitename = $LJ::SITENAME;
-    my $rv = LJ::send_mail( {
-        to => $u->email_raw,
-        from => $LJ::ANTISPAM_EMAIL,
-        fromname => "The $sitename Team",
-        subject => "Your Dreamwidth reply-by-email token has been reset",
-        body => qq{
+    my $rv       = LJ::send_mail(
+        {
+            to       => $u->email_raw,
+            from     => $LJ::ANTISPAM_EMAIL,
+            fromname => "The $sitename Team",
+            subject  => "Your Dreamwidth reply-by-email token has been reset",
+            body     => qq{
 Dear username,
 
 A $sitename administrator has reset the secret token for your account to use to post comments by email. We had to reset the token, because your account was being used to email spam to the unique reply-to address for one or more comment notifications you received.
@@ -68,18 +70,15 @@ Best,
 The $sitename Team
 }
 
-    } );
+        }
+    );
 
-
-
-    $self->info( "Notification email not sent" ) unless $rv;
-
+    $self->info("Notification email not sent") unless $rv;
 
     my $remote = LJ::get_remote();
-    LJ::statushistory_add($u, $remote, "reset_token", $reason);
+    LJ::statushistory_add( $u, $remote, "reset_token", $reason );
 
     return $self->print("Post-by-email token for '$username' reset.");
 }
-
 
 1;

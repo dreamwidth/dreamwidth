@@ -14,6 +14,7 @@
 # part of this distribution.
 
 use strict;
+
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
@@ -33,18 +34,19 @@ chomp $pass;
 print "\n";
 
 print "Creating system account...\n";
-my $u = LJ::User->create( user => 'system',
-                          name => 'System Account',
-                          password => $pass );
-unless ( $u ) {
+my $u = LJ::User->create(
+    user     => 'system',
+    name     => 'System Account',
+    password => $pass
+);
+unless ($u) {
     print "Already exists.\nModifying 'system' account...\n";
     my $id = LJ::get_userid("system");
-    $dbh->do("UPDATE password SET password=? WHERE userid=?",
-             undef, $pass, $id);
+    $dbh->do( "UPDATE password SET password=? WHERE userid=?", undef, $pass, $id );
 }
 
-$u ||= LJ::load_user( "system" );
-unless ( $u ) {
+$u ||= LJ::load_user("system");
+unless ($u) {
     print "ERROR: can't find newly-created system account.\n";
     exit 1;
 }
@@ -52,17 +54,18 @@ unless ( $u ) {
 print "Giving 'system' account 'admin' priv on all areas...\n";
 if ( $u->has_priv( "admin", "*" ) ) {
     print "Already has it.\n";
-} else {
-    my $sth = $dbh->prepare("INSERT INTO priv_map (userid, prlid, arg) ".
-                            "SELECT $u->{'userid'}, prlid, '*' ".
-                            "FROM priv_list WHERE privcode='admin'");
+}
+else {
+    my $sth =
+        $dbh->prepare( "INSERT INTO priv_map (userid, prlid, arg) "
+            . "SELECT $u->{'userid'}, prlid, '*' "
+            . "FROM priv_list WHERE privcode='admin'" );
     $sth->execute;
-    if ($dbh->err || $sth->rows == 0) {
+    if ( $dbh->err || $sth->rows == 0 ) {
         print "Couldn't grant system account admin privs\n";
         exit 1;
     }
 }
 
 print "Done.\n\n";
-
 

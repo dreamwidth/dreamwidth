@@ -38,8 +38,8 @@ our %regex_choices = (
     user => [],
     api  => []
 );
-our %api_endpoints; # ver => { string => hash }
-our %api_rest_endpoints; # ver => { string => hash }
+our %api_endpoints;         # ver => { string => hash }
+our %api_rest_endpoints;    # ver => { string => hash }
 
 our $T_TESTING_ERRORS;
 
@@ -52,8 +52,8 @@ my $default_content_types = {
     png   => 'image/png',
 };
 
-LJ::ModuleLoader->require_subclasses( 'DW::Controller' )
-    unless $DW::Routing::DONT_LOAD;  # for testing
+LJ::ModuleLoader->require_subclasses('DW::Controller')
+    unless $DW::Routing::DONT_LOAD;    # for testing
 
 =head1 NAME
 
@@ -79,10 +79,10 @@ This method should be directly returned by the caller if defined.
 =cut
 
 sub call {
-    my $class = shift;
-    my $call_opts = $class->get_call_opts( @_ );
+    my $class     = shift;
+    my $call_opts = $class->get_call_opts(@_);
 
-    return $class->call_hash( $call_opts ) if defined $call_opts;
+    return $class->call_hash($call_opts) if defined $call_opts;
     return undef;
 }
 
@@ -107,7 +107,7 @@ sub get_call_opts {
     my ( $class, %opts ) = @_;
     my $r = DW::Request->get;
 
-    my $uri = $opts{uri} || $r->uri;
+    my $uri    = $opts{uri} || $r->uri;
     my $format = undef;
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
@@ -117,8 +117,8 @@ sub get_call_opts {
     if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
         $opts{role}   = 'api';
         $opts{apiver} = $1 + 0;
-        $format = 'json';
-        $uri = $2;
+        $format       = 'json';
+        $uri          = $2;
     }
 
     # add more data to the options hash, we'll need it
@@ -133,36 +133,41 @@ sub get_call_opts {
     # APIs are versioned, so we only want to check for endpoints that match
     # the version the user is requesting.
     if ( $call_opts->role eq 'api' ) {
+
         # check the static endpoints for this api version first
-        if ( exists $api_endpoints{$call_opts->apiver} ) {
-            my $hash = $api_endpoints{$call_opts->apiver}->{$uri};
-            if ( $hash ) {
-                $call_opts->init_call_opts( $hash );
+        if ( exists $api_endpoints{ $call_opts->apiver } ) {
+            my $hash = $api_endpoints{ $call_opts->apiver }->{$uri};
+            if ($hash) {
+                $call_opts->init_call_opts($hash);
                 return $call_opts;
             }
         }
+
         # if there's no static match, check the regexes
-        my $endpoints_for_version = $api_rest_endpoints{$call_opts->apiver};
-        if ( $endpoints_for_version ) {
+        my $endpoints_for_version = $api_rest_endpoints{ $call_opts->apiver };
+        if ($endpoints_for_version) {
+
             # check for a match for each regex in this version
             foreach my $regex ( keys %{$endpoints_for_version} ) {
+
                 # this actually checks the regex and, if there's a match,
                 # populates the @args with matched groups
                 if ( ( my @args = $uri =~ $regex ) ) {
-                    my $call_def = $endpoints_for_version->{ $regex };
+                    my $call_def = $endpoints_for_version->{$regex};
                     $call_opts->init_call_opts( $call_def, \@args );
                     return $call_opts;
                 }
             }
         }
+
         # if it's not found in either, just return.
         return;
     }
 
     # try the string options first as they're fast
-    my $hash = $string_choices{$call_opts->role . $uri};
+    my $hash = $string_choices{ $call_opts->role . $uri };
     if ( defined $hash ) {
-        $call_opts->init_call_opts( $hash );
+        $call_opts->init_call_opts($hash);
         return $call_opts;
     }
 
@@ -171,7 +176,7 @@ sub get_call_opts {
     # for now it doesn't matter so much but eventually when everything is in the routing table
     # that will have to be done
     my @args;
-    foreach $hash ( @{ $regex_choices{$call_opts->role} } ) {
+    foreach $hash ( @{ $regex_choices{ $call_opts->role } } ) {
         if ( ( @args = $uri =~ $hash->{regex} ) ) {
             $call_opts->init_call_opts( $hash, \@args );
             return $call_opts;
@@ -187,6 +192,7 @@ sub get_call_opts {
 Calls the raw hash.
 
 =cut
+
 sub call_hash {
     my ( $class, $opts ) = @_;
     my $r = DW::Request->get;
@@ -201,14 +207,14 @@ sub call_hash {
 # INTERNAL METHOD: no POD
 # Perl Response Handler for call_hash
 sub _call_hash {
-    my $r = DW::Request->get;
+    my $r    = DW::Request->get;
     my $opts = $r->pnote('routing_opts');
 
     $opts->prepare_for_call;
 
     # check method
     my $method = uc( $r->method );
-    return $r->HTTP_METHOD_NOT_ALLOWED unless $opts->method_valid( $method );
+    return $r->HTTP_METHOD_NOT_ALLOWED unless $opts->method_valid($method);
 
     # check for format validity
     return $r->NOT_FOUND unless $opts->format_valid;
@@ -217,14 +223,16 @@ sub _call_hash {
     #  cannot do SSL if it's not set up
     #  cannot do the redirect safely for non-GET/HEAD requests.
     return $r->redirect( LJ::create_url( $r->uri, keep_args => 1, ssl => 1 ) )
-        if $opts->prefer_ssl && $LJ::USE_SSL &&
-            ! $opts->ssl && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
+        if $opts->prefer_ssl
+        && $LJ::USE_SSL
+        && !$opts->ssl
+        && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
 
     # if renamed with redirect in place, then do the redirect
     if ( $opts->role eq 'user' && ( my $orig_u = LJ::load_user( $opts->username ) ) ) {
         my $renamed_u = $orig_u->get_renamed_user;
 
-        if ( $renamed_u && ! $orig_u->equals( $renamed_u ) ) {
+        if ( $renamed_u && !$orig_u->equals($renamed_u) ) {
             my $journal_host = $renamed_u->journal_base;
             $journal_host =~ s!https?://!!;
 
@@ -240,7 +248,7 @@ sub _call_hash {
     # apply default cache-avoidant settings to "journal" content
     # (similar to the behavior of our Apache server modules)
     # so that proxies (e.g. Cloudflare) must revalidate the response
-    if ( $opts->role eq 'user' && ! $opts->no_cache ) {
+    if ( $opts->role eq 'user' && !$opts->no_cache ) {
         $r->header_out( "Cache-Control" => "private, proxy-revalidate" );
     }
 
@@ -257,9 +265,9 @@ sub _call_hash {
     # might have died with
     my $msg = $@;
 
-    my $err = LJ::errobj( $msg )
+    my $err = LJ::errobj($msg)
         or die "LJ::errobj didn't return anything.";
-    unless ( $T_TESTING_ERRORS ) {
+    unless ($T_TESTING_ERRORS) {
         $err->log;
         warn $msg;
     }
@@ -269,36 +277,39 @@ sub _call_hash {
         $msg = $err->as_string;
         chomp $msg;
 
-        my $text = $LJ::MSG_ERROR || "Sorry, there was a problem.";
+        my $text   = $LJ::MSG_ERROR || "Sorry, there was a problem.";
         my $remote = LJ::get_remote();
 
         $text = "$msg" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
 
-        $r->status( 500 );
-        $r->print(to_json( { success => 0, error => $text } ));
+        $r->status(500);
+        $r->print( to_json( { success => 0, error => $text } ) );
         return $r->OK;
-    # default error rendering
-    } elsif ( $format eq "html" ) {
+
+        # default error rendering
+    }
+    elsif ( $format eq "html" ) {
         $msg = $err->as_html;
         chomp $msg;
 
         $msg .= " \@ $LJ::SERVER_NAME" if $LJ::SERVER_NAME;
 
-        $r->status( 500 );
+        $r->status(500);
         $r->content_type( $default_content_types->{html} );
 
-        my $text = $LJ::MSG_ERROR || "Sorry, there was a problem.";
+        my $text   = $LJ::MSG_ERROR || "Sorry, there was a problem.";
         my $remote = LJ::get_remote();
-        $text = "<b>[Error: $msg]</b>" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
+        $text = "<b>[Error: $msg]</b>"
+            if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
         $opts->{no_sitescheme} = 1 if $T_TESTING_ERRORS;
 
         $ret = eval { return DW::Template->render_string( $text, $opts ); };
         return $ret unless $@;
 
         my $msg2 = $@;
-        my $err2 = LJ::errobj( $msg2 )
+        my $err2 = LJ::errobj($msg2)
             or die "LJ::errobj didn't return anything.";
-        unless ( $T_TESTING_ERRORS ) {
+        unless ($T_TESTING_ERRORS) {
             $err2->log;
             warn $msg2;
         }
@@ -311,23 +322,24 @@ sub _call_hash {
             $text .= "\n<b>[Error 2: $msg2]</b>";
         }
 
-        $r->status( 500 );
-        $r->content_type( 'text/html' );
-        $r->print( $text );
+        $r->status(500);
+        $r->content_type('text/html');
+        $r->print($text);
         return $r->OK;
-    } else {
+    }
+    else {
         $msg = $err->as_string;
         chomp $msg;
 
         $msg .= " \@ $LJ::SERVER_NAME" if $LJ::SERVER_NAME;
 
-        my $text = $LJ::MSG_ERROR || "Sorry, there was a problem.";
+        my $text   = $LJ::MSG_ERROR || "Sorry, there was a problem.";
         my $remote = LJ::get_remote();
         $text = "Error: $msg" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
 
-        $r->status( 500 );
-        $r->content_type( 'text/plain' );
-        $r->print( $text );
+        $r->status(500);
+        $r->content_type('text/plain');
+        $r->print($text);
 
         return $r->OK;
     }
@@ -343,7 +355,7 @@ sub _static_helper {
 # INTERNAL METHOD: no POD
 # controller sub for register_redirect
 sub _redirect_helper {
-    my $r = DW::Request->get;
+    my $r    = DW::Request->get;
     my $data = $_[0]->args;
 
     my $dest = $data->{dest};
@@ -353,8 +365,9 @@ sub _redirect_helper {
     }
 
     if ( $data->{full_uri} ) {
-        return $r->redirect( $dest );
-    } else {
+        return $r->redirect($dest);
+    }
+    else {
         return $r->redirect( LJ::create_url( $dest, keep_args => $data->{keep_args} ) );
     }
 }
@@ -417,28 +430,33 @@ sub register_static {
 sub register_string {
     my ( $class, $string, $sub, %opts ) = @_;
 
-    my $hash = _apply_defaults( \%opts, {
-        sub    => $sub,
-    });
-
-    $string_choices{'app'  . $string} = $hash if $hash->{app};
-    $string_choices{'user' . $string} = $hash if $hash->{user};
-
-    my %redirect_opts = (
-        app => $hash->{app},
-        user => $hash->{user},
-        formats => $hash->{formats},
-        format => $hash->{format},
-        no_redirects => 1,
-        keep_args => 1,
+    my $hash = _apply_defaults(
+        \%opts,
+        {
+            sub => $sub,
+        }
     );
 
-    if ( $string =~ m!(^(.*)/)index$! && ! exists $opts{no_redirects} ) {
-        $class->register_redirect( $2, $1, %redirect_opts ) if $2;
-        $string_choices{'app'  . $1} = $hash if $hash->{app};
-        $string_choices{'user' . $1} = $hash if $hash->{user};
+    $string_choices{ 'app' . $string }  = $hash if $hash->{app};
+    $string_choices{ 'user' . $string } = $hash if $hash->{user};
 
-    } elsif ( ! exists $opts{no_redirects} ) {
+    my %redirect_opts = (
+        app          => $hash->{app},
+        user         => $hash->{user},
+        formats      => $hash->{formats},
+        format       => $hash->{format},
+        no_redirects => 1,
+        keep_args    => 1,
+    );
+
+    if ( $string =~ m!(^(.*)/)index$! && !exists $opts{no_redirects} ) {
+        $class->register_redirect( $2, $1, %redirect_opts ) if $2;
+        $string_choices{ 'app' . $1 }  = $hash if $hash->{app};
+        $string_choices{ 'user' . $1 } = $hash if $hash->{user};
+
+    }
+    elsif ( !exists $opts{no_redirects} ) {
+
         # for all other (non-index) pages, redirect page/ to page
         $class->register_redirect( "$string/", $string, %redirect_opts );
 
@@ -474,7 +492,7 @@ sub register_redirect {
 
     my $args = { dest => $dest };
     $args->{keep_args} = delete $opts{keep_args} || 0;
-    $args->{full_uri} = delete $opts{full_uri} || 0;
+    $args->{full_uri}  = delete $opts{full_uri}  || 0;
 
     $opts{args} = $args;
     $class->register_string( $string, \&_redirect_helper, %opts );
@@ -497,13 +515,16 @@ sub register_redirect {
 sub register_regex {
     my ( $class, $regex, $sub, %opts ) = @_;
 
-    my $hash = _apply_defaults( \%opts, {
-        regex  => $regex,
-        sub    => $sub,
-    });
-    push @{$regex_choices{app}}, $hash if $hash->{app};
-    push @{$regex_choices{user}}, $hash if $hash->{user};
-    push @{$regex_choices{api}}, $hash if $hash->{api};
+    my $hash = _apply_defaults(
+        \%opts,
+        {
+            regex => $regex,
+            sub   => $sub,
+        }
+    );
+    push @{ $regex_choices{app} },  $hash if $hash->{app};
+    push @{ $regex_choices{user} }, $hash if $hash->{user};
+    push @{ $regex_choices{api} },  $hash if $hash->{api};
 }
 
 =head2 C<< $class->register_rpc( $name, $sub, %opts ) >>
@@ -553,25 +574,29 @@ sub register_api_endpoint {
     croak 'register_api_endpoint must have version option'
         unless exists $opts{version};
 
-    my $hash = _apply_defaults( \%opts, {
-        sub    => $sub,
-        format => 'json',
-    });
+    my $hash = _apply_defaults(
+        \%opts,
+        {
+            sub    => $sub,
+            format => 'json',
+        }
+    );
 
-    my $vers = ref $opts{version} eq 'ARRAY' ? $opts{version} :
-        [ $opts{version} + 0 ];
+    my $vers =
+        ref $opts{version} eq 'ARRAY'
+        ? $opts{version}
+        : [ $opts{version} + 0 ];
     croak 'register_api_version requires all versions >= 1'
         if grep { $_ <= 0 } @$vers;
 
     # Now register this string at all versions that they gave us.
-    $api_endpoints{$_}->{$string} = $hash
-        foreach @$vers;
+    $api_endpoints{$_}->{$string} = $hash foreach @$vers;
 }
 
 # internal helper for speed construction ...
 sub register_api_endpoints {
     my $class = shift;
-    foreach my $row ( @_ ) {
+    foreach my $row (@_) {
         $class->register_api_endpoint( $row->[0], $row->[1], version => $row->[2] );
     }
 }
@@ -592,30 +617,34 @@ sub register_api_endpoints {
 
 sub register_api_rest_endpoint {
     my ( $class, $string, $sub, $controller_class, %opts ) = @_;
-    
+
     croak 'register_api_rest_endpoint must have version option'
         unless exists $opts{version};
 
-    my $hash = _apply_defaults( \%opts, {
-        class  => $controller_class,
-        sub    => $sub,
-        format => 'json',
-    });
+    my $hash = _apply_defaults(
+        \%opts,
+        {
+            class  => $controller_class,
+            sub    => $sub,
+            format => 'json',
+        }
+    );
 
-    my $vers = ref $opts{version} eq 'ARRAY' ? $opts{version} :
-        [ $opts{version} + 0 ];
+    my $vers =
+        ref $opts{version} eq 'ARRAY'
+        ? $opts{version}
+        : [ $opts{version} + 0 ];
     croak 'register_api_version requires all versions >= 1'
         if grep { $_ <= 0 } @$vers;
 
     # Now register this string at all versions that they gave us.
-    $api_rest_endpoints{$_}->{$string} = $hash
-        foreach @$vers;
+    $api_rest_endpoints{$_}->{$string} = $hash foreach @$vers;
 }
 
 # internal helper for speed construction ...
 sub register_api_rest_endpoints {
     my $class = shift;
-    foreach my $row ( @_ ) {
+    foreach my $row (@_) {
         $class->register_api_rest_endpoint( $row->[0], $row->[1], $row->[2], version => $row->[3] );
     }
 }
@@ -626,14 +655,14 @@ sub _apply_defaults {
     my ( $opts, $hash ) = @_;
 
     $hash ||= {};
-    $opts->{app}          = 1 if ! defined $opts->{app} && ! $opts->{user} && ! $opts->{api};
-    $hash->{args}         = $opts->{args};
-    $hash->{app}          = $opts->{app}  || 0;
-    $hash->{user}         = $opts->{user} || 0;
-    $hash->{api}          = $opts->{api}  || 0;
-    $hash->{format}     ||= $opts->{format} || 'html';
-    $hash->{prefer_ssl}   = $opts->{prefer_ssl} // $LJ::USE_HTTPS_EVERYWHERE;
-    $hash->{no_cache}     = $opts->{no_cache} || 0;
+    $opts->{app}  = 1 if !defined $opts->{app} && !$opts->{user} && !$opts->{api};
+    $hash->{args} = $opts->{args};
+    $hash->{app}  = $opts->{app} || 0;
+    $hash->{user} = $opts->{user} || 0;
+    $hash->{api}  = $opts->{api} || 0;
+    $hash->{format} ||= $opts->{format} || 'html';
+    $hash->{prefer_ssl} = $opts->{prefer_ssl} // $LJ::USE_HTTPS_EVERYWHERE;
+    $hash->{no_cache} = $opts->{no_cache} || 0;
 
     my $formats = $opts->{formats} || [ $hash->{format} ];
     $formats = { map { ( $_, 1 ) } @$formats } if ref $formats eq 'ARRAY';

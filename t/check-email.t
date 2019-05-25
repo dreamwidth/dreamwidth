@@ -20,27 +20,27 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::User;
 
 my @tests = (
-    [ 'example@example.com'                     ],
-    [ 'EXAMPLE@EXAMPLE.COM'                     ],
+    ['example@example.com'],
+    ['EXAMPLE@EXAMPLE.COM'],
 
     # basic error-checking
-    [ ' ',                      'empty'         ],
-    [ 'example.com',            'bad_form'      ],
-    [ 'a,b@example.com',        'bad_username'  ],
-    [ 'www.a@example.com',      'web_address'   ],
+    [ ' ',                 'empty' ],
+    [ 'example.com',       'bad_form' ],
+    [ 'a,b@example.com',   'bad_username' ],
+    [ 'www.a@example.com', 'web_address' ],
 
     # domain name
-    [ 'example@email.email',                    ],
-    [ 'example@email.ph',                       ],
-    [ 'example@a.baddomainname', 'bad_domain'   ],
+    [ 'example@email.email', ],
+    [ 'example@email.ph', ],
+    [ 'example@a.baddomainname', 'bad_domain' ],
 
     # misspellings
-    [ 'example@gmali.com',      'bad_spelling' ],
-    [ 'example@yaaho.com',      'bad_spelling' ],
-    [ 'example@hotmail.cm',     'bad_spelling' ],
-    [ 'example@outlok.com',     'bad_spelling' ],
-    [ 'example@aoll.com',       'bad_spelling' ],
-    [ 'example@liev.com',       'bad_spelling' ],
+    [ 'example@gmali.com',  'bad_spelling' ],
+    [ 'example@yaaho.com',  'bad_spelling' ],
+    [ 'example@hotmail.cm', 'bad_spelling' ],
+    [ 'example@outlok.com', 'bad_spelling' ],
+    [ 'example@aoll.com',   'bad_spelling' ],
+    [ 'example@liev.com',   'bad_spelling' ],
 
 );
 
@@ -52,9 +52,13 @@ sub check_email {
 
     my @email_errors;
     LJ::check_email( $email, undef, undef, undef, \@email_errors );
-    is_deeply( \@email_errors, $expected_error ? [ $expected_error ] : [], "checked '$email' with error '$expected_error'" );
+    is_deeply(
+        \@email_errors,
+        $expected_error ? [$expected_error] : [],
+        "checked '$email' with error '$expected_error'"
+    );
 }
 
-foreach my $test ( @tests ) {
-    check_email( @$test );
+foreach my $test (@tests) {
+    check_email(@$test);
 }

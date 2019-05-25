@@ -20,23 +20,21 @@ use strict;
 use base 'DW::External::Site';
 use Carp qw/ croak /;
 
-
 # new does nothing for these classes
 sub new { croak 'cannot build with new'; }
-
 
 # returns 1/0 if we allow this domain
 sub accepts {
     my ( $class, $parts ) = @_;
 
     # allows anything at lj.rossia.org
-    return 0 unless $parts->[-1] eq 'org'    &&
-                    $parts->[-2] eq 'rossia' &&
-                    $parts->[-3] eq 'lj';
+    return 0
+        unless $parts->[-1] eq 'org'
+        && $parts->[-2] eq 'rossia'
+        && $parts->[-3] eq 'lj';
 
     return bless { hostname => 'lj.rossia.org' }, $class;
 }
-
 
 # argument: DW::External::User
 # returns URL to this account's journal
@@ -54,11 +52,10 @@ sub profile_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-	my $user = $u->user;
+    my $user = $u->user;
     return "http://lj.rossia.org/userinfo.bml?user=$user";
-	
-}
 
+}
 
 # argument: DW::External::User
 # returns info for the badge image (head icon) for this user
@@ -67,19 +64,19 @@ sub badge_image {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    my $type = $self->journaltype( $u ) || 'P';
-    my $gif = {
-               P => [ '/external/ljr-userinfo.gif',   17, 17 ],
-               C => [ '/external/ljr-community.gif',  16, 16 ],
-               Y => [ '/external/ljr-syndicated.gif', 16, 16 ],
-              };
+    my $type = $self->journaltype($u) || 'P';
+    my $gif  = {
+        P => [ '/external/ljr-userinfo.gif',   17, 17 ],
+        C => [ '/external/ljr-community.gif',  16, 16 ],
+        Y => [ '/external/ljr-syndicated.gif', 16, 16 ],
+    };
 
     my $img = $gif->{$type};
     return {
-        url     => $LJ::IMGPREFIX . $img->[0],
-        width   => $img->[1],
-        height  => $img->[2],
-    }
+        url    => $LJ::IMGPREFIX . $img->[0],
+        width  => $img->[1],
+        height => $img->[2],
+    };
 }
 
 1;

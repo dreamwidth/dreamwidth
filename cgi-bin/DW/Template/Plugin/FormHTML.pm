@@ -45,22 +45,26 @@ sub new {
 
     my $data;
     my $errors;
-    if ( $context ) {
-        my $stash = $context->stash;
+    if ($context) {
+        my $stash    = $context->stash;
         my $formdata = $stash->{formdata};
-        $data = ref $formdata eq "Hash::MultiValue" ? $formdata : Hash::MultiValue->from_mixed( $formdata );
+        $data =
+            ref $formdata eq "Hash::MultiValue"
+            ? $formdata
+            : Hash::MultiValue->from_mixed($formdata);
 
         my $formerrors = $stash->{errors};
-        $errors = $formerrors if $formerrors && ref $formerrors eq "DW::FormErrors" && $formerrors->exist;
+        $errors = $formerrors
+            if $formerrors && ref $formerrors eq "DW::FormErrors" && $formerrors->exist;
     }
 
     my $r = DW::Request->get;
 
     my $self = bless {
-        _CONTEXT => $context,
-        data     => $data,
-        errors   => $errors,
-        did_post => $r && $r->did_post,
+        _CONTEXT        => $context,
+        data            => $data,
+        errors          => $errors,
+        did_post        => $r && $r->did_post,
         _id_gen_counter => 0,
     }, $class;
 
@@ -111,27 +115,29 @@ sub checkbox {
 
     my $ret = "";
 
-    if ( ! defined $args->{selected} && $self->{data} ) {
+    if ( !defined $args->{selected} && $self->{data} ) {
         my %selected;
         if ( defined $args->{name} ) {
             my @selargs = grep { defined } ( $self->{data}->get_all( $args->{name} ) );
             %selected = map { $_ => 1 } @selargs;
         }
         if ( defined $args->{value} ) {
-            $args->{selected} = $selected{$args->{value}};
-        } elsif ( $LJ::IS_DEV_SERVER ) {
+            $args->{selected} = $selected{ $args->{value} };
+        }
+        elsif ($LJ::IS_DEV_SERVER) {
             warn "DW::Template::Plugin::FormHTML::checkbox has undefined argument 'value'";
         }
     }
 
     $args->{labelclass} ||= "checkboxlabel";
-    $args->{class} ||= "checkbox";
-    $args->{id} ||= $self->generate_id( $args );
+    $args->{class}      ||= "checkbox";
+    $args->{id}         ||= $self->generate_id($args);
 
     # makes the form element use the default or an explicit value...
-    my $label_html = $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
+    my $label_html =
+        $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
 
-    $ret .= LJ::html_check( $args );
+    $ret .= LJ::html_check($args);
     $ret .= $label_html;
 
     return $ret;
@@ -159,30 +165,31 @@ sub checkbox_nested {
 
     my $ret = "";
 
-    if ( ! defined $args->{selected} && $self->{data} ) {
+    if ( !defined $args->{selected} && $self->{data} ) {
         my %selected;
         if ( defined $args->{name} ) {
             my @selargs = grep { defined } ( $self->{data}->get_all( $args->{name} ) );
             %selected = map { $_ => 1 } @selargs;
         }
         if ( defined $args->{value} ) {
-            $args->{selected} = $selected{$args->{value}};
-        } elsif ( $LJ::IS_DEV_SERVER ) {
+            $args->{selected} = $selected{ $args->{value} };
+        }
+        elsif ($LJ::IS_DEV_SERVER) {
             warn "DW::Template::Plugin::FormHTML::checkbox_nested has undefined argument 'value'";
         }
     }
 
     $args->{class} ||= "checkbox";
 
-    my $label = delete $args->{label};
-    my $include_hidden = (delete $args->{remember_old_state} || 0) && $args->{selected};
+    my $label          = delete $args->{label};
+    my $include_hidden = ( delete $args->{remember_old_state} || 0 ) && $args->{selected};
 
     # makes the form element use the default or an explicit value...
     $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
 
     my $for = $args->{id} ? "for='$args->{id}'" : "";
-    $ret .= "<label $for>" . LJ::html_check( $args ) . " $label</label>";
-    $ret .= LJ::html_hidden( { name => $args->{name} . "_old" , value => $args->{value}} )
+    $ret .= "<label $for>" . LJ::html_check($args) . " $label</label>";
+    $ret .= LJ::html_hidden( { name => $args->{name} . "_old", value => $args->{value} } )
         if $include_hidden;
 
     return $ret;
@@ -197,8 +204,8 @@ Return a hidden form element. Values are prepopulated by the plugin's datasource
 sub hidden {
     my ( $self, $args ) = @_;
 
-    $self->_process_value_and_label( $args );
-    return LJ::html_hidden( $args );
+    $self->_process_value_and_label($args);
+    return LJ::html_hidden($args);
 }
 
 =head2 [% form.radio( label = ... ) %]
@@ -214,26 +221,28 @@ sub radio {
 
     my $ret = "";
 
-    if ( ! defined $args->{selected} && $self->{data} ) {
+    if ( !defined $args->{selected} && $self->{data} ) {
         my %selected;
         if ( defined $args->{name} ) {
             %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
         }
         if ( defined $args->{value} ) {
-            $args->{selected} = $selected{$args->{value}};
-        } elsif ( $LJ::IS_DEV_SERVER ) {
+            $args->{selected} = $selected{ $args->{value} };
+        }
+        elsif ($LJ::IS_DEV_SERVER) {
             warn "DW::Template::Plugin::FormHTML::radio has undefined argument 'value'";
         }
     }
 
     $args->{labelclass} ||= "radiolabel";
-    $args->{class} ||= "radio";
-    $args->{id} ||= $self->generate_id( $args );
+    $args->{class}      ||= "radio";
+    $args->{id}         ||= $self->generate_id($args);
 
     # makes the form element use the default or an explicit value...
-    my $label_html = $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
+    my $label_html =
+        $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
 
-    $ret .= LJ::html_check( $args );
+    $ret .= LJ::html_check($args);
     $ret .= $label_html;
 
     return $ret;
@@ -252,14 +261,15 @@ sub radio_nested {
     $args->{type} = "radio";
 
     my $ret = "";
-    if ( ! defined $args->{selected} && $self->{data} ) {
+    if ( !defined $args->{selected} && $self->{data} ) {
         my %selected;
         if ( defined $args->{name} ) {
             %selected = map { $_ => 1 } ( $self->{data}->get_all( $args->{name} ) );
         }
         if ( defined $args->{value} ) {
-            $args->{selected} = $selected{$args->{value}};
-        } elsif ( $LJ::IS_DEV_SERVER ) {
+            $args->{selected} = $selected{ $args->{value} };
+        }
+        elsif ($LJ::IS_DEV_SERVER) {
             warn "DW::Template::Plugin::FormHTML::radio_nested has undefined argument 'value'";
         }
     }
@@ -272,7 +282,7 @@ sub radio_nested {
     $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
 
     my $for = $args->{id} ? "for='$args->{id}'" : "";
-    $ret .= "<label $for>" . LJ::html_check( $args ) . " $label</label>";
+    $ret .= "<label $for>" . LJ::html_check($args) . " $label</label>";
 }
 
 =head2 [% form.select( label="A Label", id="elementid", name="elementname", items=[array of items], ... ) %]
@@ -281,19 +291,20 @@ Return a select dropdown with a list of options, and matching label if provided.
 by the plugin's datasource.
 
 =cut
+
 sub select {
     my ( $self, $args ) = @_;
 
     my $items = delete $args->{items};
     $args->{class} ||= "select";
-    $args->{id} ||= $self->generate_id( $args );
+    $args->{id}    ||= $self->generate_id($args);
 
-    my $errors = $self->_process_errors( $args );
-    my $hint = $self->_process_hint( $args );
+    my $errors = $self->_process_errors($args);
+    my $hint   = $self->_process_hint($args);
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, use_as_value => "selected" );
-    $ret .= LJ::html_select( $args, @{$items || []} );
+    $ret .= LJ::html_select( $args, @{ $items || [] } );
 
     $ret .= $errors;
     $ret .= $hint;
@@ -312,7 +323,7 @@ sub submit {
 
     $args->{class} ||= "submit";
 
-    $self->_process_value_and_label( $args );
+    $self->_process_value_and_label($args);
     return LJ::html_submit( delete $args->{name}, delete $args->{value}, $args );
 }
 
@@ -327,14 +338,14 @@ sub textarea {
     my ( $self, $args ) = @_;
 
     $args->{class} ||= "text";
-    $args->{id} ||= $self->generate_id( $args );
+    $args->{id}    ||= $self->generate_id($args);
 
-    my $errors = $self->_process_errors( $args );
-    my $hint = $self->_process_hint( $args );
+    my $errors = $self->_process_errors($args);
+    my $hint   = $self->_process_hint($args);
 
     my $ret = "";
-    $ret .= $self->_process_value_and_label( $args );
-    $ret .= LJ::html_textarea( $args );
+    $ret .= $self->_process_value_and_label($args);
+    $ret .= LJ::html_textarea($args);
 
     $ret .= $errors;
     $ret .= $hint;
@@ -351,21 +362,20 @@ sub color {
     my ( $self, $args ) = @_;
 
     $args->{class} ||= "color-picker";
-    $args->{id} ||= $self->generate_id( $args );
+    $args->{id}    ||= $self->generate_id($args);
 
-    my $errors = $self->_process_errors( $args );
-    my $hint = $self->_process_hint( $args );
+    my $errors = $self->_process_errors($args);
+    my $hint   = $self->_process_hint($args);
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, use_as_value => "default" );
-    $ret .= LJ::html_color( $args );
+    $ret .= LJ::html_color($args);
 
     $ret .= $errors;
     $ret .= $hint;
 
     return $ret;
 }
-
 
 =head2 [% form.textbox( label="A Label", id="elementid", name="elementname", ... ) %]
 
@@ -377,16 +387,15 @@ are prepopulated by the plugin's datasource.
 sub textbox {
     my ( $self, $args ) = @_;
 
-
     $args->{class} ||= "text";
-    $args->{id} ||= $self->generate_id( $args );
+    $args->{id}    ||= $self->generate_id($args);
 
-    my $hint = $self->_process_hint( $args );
-    my $errors = $self->_process_errors( $args );
+    my $hint   = $self->_process_hint($args);
+    my $errors = $self->_process_errors($args);
 
     my $ret = "";
-    $ret .= $self->_process_value_and_label( $args );
-    $ret .= LJ::html_text( $args );
+    $ret .= $self->_process_value_and_label($args);
+    $ret .= LJ::html_text($args);
 
     $ret .= $errors;
     $ret .= $hint;
@@ -399,19 +408,20 @@ sub textbox {
 Return a password field with a matching label, if provided. Values are never prepopulated
 
 =cut
+
 sub password {
     my ( $self, $args ) = @_;
 
     $args->{type} = "password";
     $args->{class} ||= "text";
-    $args->{id} ||= $self->generate_id( $args );
+    $args->{id}    ||= $self->generate_id($args);
 
-    my $hint = $self->_process_hint( $args );
-    my $errors = $self->_process_errors( $args );
+    my $hint   = $self->_process_hint($args);
+    my $errors = $self->_process_errors($args);
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, noautofill => 1 );
-    $ret .= LJ::html_text( $args );
+    $ret .= LJ::html_text($args);
 
     $ret .= $errors;
     $ret .= $hint;
@@ -433,28 +443,32 @@ sub _process_value_and_label {
     my ( $self, $args, %opts ) = @_;
 
     my $valuekey = $opts{use_as_value} || "value";
-    my $default =  $args->{default};
+    my $default  = $args->{default};
 
     if ( defined $args->{$valuekey} ) {
+
         # explicitly override with a value when we created the form element
         # do nothing! Just use what we passed in
-    } else {
+    }
+    else {
         # we didn't pass in an explicit value; check our data source (probably form post)
-        if ( $self->{data} && ! $opts{noautofill} && $args->{name} ) {
-            $args->{$valuekey} = $self->{data}->{$args->{name}};
+        if ( $self->{data} && !$opts{noautofill} && $args->{name} ) {
+            $args->{$valuekey} = $self->{data}->{ $args->{name} };
         }
+
         # no data source, value not set explicitly, use a default if provided
         $args->{$valuekey} //= $default unless $self->{did_post};
     }
 
     my $label_html = "";
-    my $label = delete $args->{label};
+    my $label      = delete $args->{label};
     my $labelclass = delete $args->{labelclass} || "";
-    my $noescape = delete $args->{noescape};
+    my $noescape   = delete $args->{noescape};
 
     if ( defined $label ) {
+
         # don't ehtml the label text if noescape is specified
-        $label = LJ::ehtml( $label ) unless $noescape;
+        $label      = LJ::ehtml($label) unless $noescape;
         $label_html = LJ::labelfy( $args->{id}, $label, $labelclass );
     }
 
@@ -466,7 +480,7 @@ sub _process_hint {
 
     my $hint = delete $args->{hint};
     my $describedby;
-    if ( $hint ) {
+    if ($hint) {
         $describedby = $args->{id} ? "$args->{id}-hint" : "";
         $args->{"aria-describedby"} = $describedby;
     }
@@ -483,7 +497,7 @@ sub _process_errors {
     $args->{class} .= " error" if @errors;
 
     my $ret = "";
-    foreach my $error ( @errors ) {
+    foreach my $error (@errors) {
         $ret .= qq!<small class="error">$error->{message}</small>!;
     }
     return $ret;
