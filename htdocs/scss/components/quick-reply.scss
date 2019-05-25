@@ -1,4 +1,7 @@
 @import "foundation/base";
+
+$meta-input-height: 2.2em;
+
 #qrdiv * {
     box-sizing: border-box;
 }
@@ -29,9 +32,9 @@
     }
 
     .qr-icon {
-        // Same height as qr-meta's stacked select and input = 2em + 2em + .2em
-        width: 4.2em;
-        height: 4.2em;
+        // Same height as qr-meta's stacked select and input
+        width: $meta-input-height * 2 + .2em;
+        height: $meta-input-height * 2 + .2em;
         float: left;
         position: relative;
 
@@ -77,7 +80,7 @@
     }
 
     .qr-meta {
-        margin-left: 4.5em;
+        margin-left: $meta-input-height * 2 + .5em; // width of .qr-icon + .3em
 
         display: -webkit-flex;
         -webkit-flex-direction: row;
@@ -88,7 +91,7 @@
         flex-wrap: wrap;
 
         & > * {
-            height: 2em;
+            height: $meta-input-height;
 
             -webkit-flex-grow: 1;
             -webkit-flex-shrink: 1;
@@ -156,7 +159,7 @@
 @media #{$medium-up} {
     #qrform {
         .qr-meta, .qr-body, .qr-footer {
-            margin-left: 4.5em;
+            margin-left: $meta-input-height * 2 + .5em; // width of .qr-icon + .3em
             max-width: 38rem;
         }
 
