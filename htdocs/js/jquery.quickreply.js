@@ -85,7 +85,7 @@ $.extend( $.dw.quickreply, {
 
 })(jQuery);
 
-jQuery(document).ready(function($) {
+jQuery(function($) {
     function submitform(e) {
         e.preventDefault();
         e.stopPropagation();

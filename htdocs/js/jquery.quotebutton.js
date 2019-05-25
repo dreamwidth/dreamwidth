@@ -2,7 +2,7 @@
 // page text wrapped in a quote element. #body is what the quickreply form uses,
 // and #commenttext is like some old talkpost_do shenanigans that will take some
 // extra effort to dispose of.
-jQuery(function(jQ){
+jQuery(function($){
     var helped = 0; var pasted = 0;
     function quote(e) {
         var textarea = $('textarea#body');
@@ -42,7 +42,7 @@ jQuery(function(jQ){
         textarea.focus();
     }
 
-    jQ("<input type='button' value='Quote' />")
+    $("<input type='button' value='Quote' />")
         .appendTo("#quotebuttonspan")
         .click(quote);
 });
