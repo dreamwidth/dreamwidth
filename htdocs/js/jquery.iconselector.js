@@ -15,7 +15,7 @@
                 });
         }
 
-        return $(this).wrap("<span class='iconselect_trigger_wrapper'></span>");
+        return $(this);
     };
 
     // selected icon
