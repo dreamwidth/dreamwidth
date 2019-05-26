@@ -1494,6 +1494,17 @@ sub talkform {
     # errors:      optional error arrayref
     my $opts = shift;
     return "Invalid talkform values." unless ref $opts eq 'HASH';
+
+    # Variables for talkform.tt
+    my $template_args = {
+        'bad_table' => '',
+        'hidden_form_elements' => '',
+        'form_url' => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
+        'errors' => $opts->{errors},
+        'create_link' => '',
+        'ejs' => sub { return LJ::ejs(@_) },
+    };
+
     my $ret;
     my ( $remote, $journalu, $parpost, $form ) =
         map { $opts->{$_} } qw(remote journalu parpost form);
@@ -1523,36 +1534,27 @@ sub talkform {
             if LJ::Talk::Post::over_maxcomments( $journalu, $jitemid );
     }
 
-    $ret .= "<form method='post' action='$LJ::SITEROOT/talkpost_do' id='postform'>";
-    $ret .= LJ::form_auth();
-
     # Login challenge/response
-    my $authchal = LJ::challenge_generate(900);    # 15 minute auth token
-    $ret .= "<input type='hidden' name='chal' id='login_chal' value='$authchal' />";
-    $ret .= "<input type='hidden' name='response' id='login_response' value='' />";
-
-    if ( $opts->{errors} && @{ $opts->{errors} } ) {
-        $ret .= '<ul>';
-        $ret .= "<li><b>$_</b></li>" foreach @{ $opts->{errors} };
-        $ret .= '</ul>';
-        $ret .= "<hr />";
-    }
+    $template_args->{'hidden_form_elements'} .= LJ::html_hidden(
+        # 15 minute auth token
+        {'name' => 'chal',     'id' => 'login_chal',     'value' => LJ::challenge_generate(900)},
+        {'name' => 'response', 'id' => 'login_response', 'value' => '' }
+    );
 
     $opts->{styleopts} ||= LJ::viewing_style_opts(%$form);
-    my %styleoptshash = %{ $opts->{styleopts} };
     my $stylemineuri =
         %{ $opts->{styleopts} } ? LJ::viewing_style_args( %{ $opts->{styleopts} } ) . "&" : "";
     my $basepath = $entry->url . "?" . $stylemineuri;
 
     # hidden values
-    my $parent = $opts->{replyto} + 0;
-    $ret .= LJ::html_hidden(
+    $template_args->{'hidden_form_elements'} .= LJ::html_hidden(
         "replyto",      $opts->{replyto},
-        "parenttalkid", $parent,
+        "parenttalkid", ($opts->{replyto} + 0),
         "itemid",       $opts->{ditemid},
         "journal",      $journalu->{'user'},
         "basepath",     $basepath,
         "dtid",         $opts->{dtid},
+        "editid",       $editid,
         %{ $opts->{styleopts} },
     );
 
@@ -1562,7 +1564,7 @@ sub talkform {
         my $rchars = LJ::rand_chars(20);
         my $chal   = $opts->{ditemid} . "-$journalu->{userid}-$time-$rchars";
         my $res    = Digest::MD5::md5_hex( $secret . $chal );
-        $ret .= LJ::html_hidden( "chrp1", "$chal-$res" );
+        $template_args->{'hidden_form_elements'} .= LJ::html_hidden( "chrp1", "$chal-$res" );
     }
 
     my $oid_identity = $remote ? $remote->openid_identity           : undef;
@@ -1646,13 +1648,12 @@ sub talkform {
     # special link to create an account
     my $create_link;
     if ( !$remote || defined $oid_identity ) {
-        $create_link =
+        $template_args->{'create_link'} =
             LJ::Hooks::run_hook( "override_create_link_on_talkpost_form", $journalu ) || '';
-        $ret .= $create_link;
     }
 
+    # NF: FIRST ROW OF TOP TABLE
     # from registered user or anonymous?
-    $ret .= "<table summary='' class='talkform'>\n";
     $ret .= "<tr><td align='right' valign='top'>$BML::ML{'.opt.from'}</td>";
     $ret .= "<td>";
     $ret .= "<table summary=''>";    # Internal for "From" options
@@ -2058,7 +2059,9 @@ sub talkform {
 
     # Closing internal "From" table
     $ret .= "</td></tr></table>";
+    # NF: END OF FIRST ROW IN TOP TABLE
 
+    # NF: START SECOND ROW IN TOP TABLE
     # subject
     $basesubject = BML::eall($basesubject) if $basesubject;
     $ret .=
@@ -2193,7 +2196,9 @@ sub talkform {
 
     $ret .= "</div>";
     $ret .= "</td></tr>\n";
+    # NF: END SECOND ROW
 
+    # NF: BEGIN FINAL ROW
     # textarea for their message body
     $ret .= "<tr valign='top'><td align='right'>$BML::ML{'.opt.message'}";
     $ret .= "</td><td style='width: 90%'>";
@@ -2227,6 +2232,7 @@ sub talkform {
         $ret .= "<input type='hidden' name='captcha_type' value='$captcha_type' />";
     }
 
+    # NF: BEGIN OPTIONAL FOURTH ROW, wow omfg this is such bullshit, it even steals the post button, this is completely incoherent
     if ($editid) {
         my $editreason = LJ::ehtml( $comment->edit_reason );
         $ret .=
@@ -2281,21 +2287,11 @@ LOGIN
         $ret .= "<br />$BML::ML{'.linkstripped'}";
     }
 
-    $ret .= LJ::html_hidden( editid => $editid );
-    $ret .= "</td></tr></td></tr></table>\n";
+    $ret .= "</td></tr></td></tr>\n";
 
-    # Some JavaScript to help the UI out
+    $template_args->{'bad_table'} = $ret;
 
-    $ret .= "<script type='text/javascript' language='JavaScript'>\n";
-    $ret .=
-          "var usermismatchtext = \""
-        . LJ::ejs( LJ::Lang::ml( '.usermismatch2', { sitenameshort => $LJ::SITENAMESHORT } ) )
-        . "\";\n";
-    $ret .=
-"</script><script type='text/javascript' language='JavaScript' src='$LJ::JSPREFIX/talkpost.js'></script>";
-    $ret .= "</form>\n";
-
-    return $ret;
+    return DW::Template->template_string( 'journal/talkform.tt', $template_args );
 }
 
 sub icon_dropdown {
