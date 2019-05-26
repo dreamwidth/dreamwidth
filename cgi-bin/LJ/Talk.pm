@@ -2174,8 +2174,8 @@ sub talkform {
 
         # only show quick quote button on initial composition
         my $hidebutton = ( $opts->{errors} && @{ $opts->{errors} } );
-        unless ( $hidebutton ) {
-            my $alerttext = LJ::Lang::ml( 'talk.error.quickquote' );
+        unless ($hidebutton) {
+            my $alerttext = LJ::Lang::ml('talk.error.quickquote');
             $ret .= qq{<span id="quotebuttonspan" data-quote-error="$alerttext"></span>};
         }
     }
@@ -2341,9 +2341,10 @@ sub icon_dropdown {
 
         # userpic browse button
         if ( $remote && $remote->can_use_userpic_select ) {
-            my $metatext = $remote->iconbrowser_metatext ? "true" : "false";
+            my $metatext   = $remote->iconbrowser_metatext   ? "true" : "false";
             my $smallicons = $remote->iconbrowser_smallicons ? "true" : "false";
-            $ret .= qq{<input type="button" id="lj_userpicselect" value="Browse" data-iconbrowser-metatext="$metatext" data-iconbrowser-smallicons="$smallicons"/>};
+            $ret .=
+qq{<input type="button" id="lj_userpicselect" value="Browse" data-iconbrowser-metatext="$metatext" data-iconbrowser-smallicons="$smallicons"/>};
         }
 
         # random icon button - hidden for non-JS
@@ -2422,9 +2423,11 @@ sub init_s2journal_js {
     my %opts = @_;
 
     # load for everywhere you can reply (ReplyPage, lastn, AND entries)
-    LJ::need_res( { group => "jquery" }, qw(
+    LJ::need_res(
+        { group => "jquery" }, qw(
             js/jquery.quotebutton.js
-        ) );
+            )
+    );
 
     # load for quick reply (every view except ReplyPage)
     LJ::need_res(

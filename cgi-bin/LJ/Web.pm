@@ -942,11 +942,11 @@ sub create_qr_div {
                 ljuser => $remote->ljuser_display,
                 user   => $remote->user,
 
-                icons_url               => $remote->allpics_base,
-                icons                   => \@pics,
-                can_use_iconbrowser     => $remote->can_use_userpic_select,
-                iconbrowser_metatext    => $remote->iconbrowser_metatext ? "true" : "false",
-                iconbrowser_smallicons  => $remote->iconbrowser_smallicons ? "true" : "false",
+                icons_url              => $remote->allpics_base,
+                icons                  => \@pics,
+                can_use_iconbrowser    => $remote->can_use_userpic_select,
+                iconbrowser_metatext   => $remote->iconbrowser_metatext ? "true" : "false",
+                iconbrowser_smallicons => $remote->iconbrowser_smallicons ? "true" : "false",
             },
 
             journal => {
