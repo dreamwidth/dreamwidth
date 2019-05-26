@@ -42,7 +42,7 @@ sub editprivacy_handler {
     return error_ml('editprivacy.tt.unable') unless $u->can_use_mass_privacy;
 
     my $mode = $POST->{'mode'} || $GET->{'mode'} || "init";
-    my $more_public = 0;  # flag indiciating if security is becoming more public
+    my $more_public = 0;    # flag indiciating if security is becoming more public
 
     # Check fields
     my $errors = DW::FormErrors->new;
@@ -69,15 +69,11 @@ sub editprivacy_handler {
             }
 
             # Round down the day of month to the last day of the month
-            if ( $POST->{'s_day'} >
-                LJ::days_in_month( $POST->{'s_mon'}, $POST->{'s_year'} ) )
-            {
+            if ( $POST->{'s_day'} > LJ::days_in_month( $POST->{'s_mon'}, $POST->{'s_year'} ) ) {
                 $POST->{'s_day'} =
                     LJ::days_in_month( $POST->{'s_mon'}, $POST->{'s_year'} );
             }
-            if ( $POST->{'e_day'} >
-                LJ::days_in_month( $POST->{'e_mon'}, $POST->{'e_year'} ) )
-            {
+            if ( $POST->{'e_day'} > LJ::days_in_month( $POST->{'e_mon'}, $POST->{'e_year'} ) ) {
                 $POST->{'e_day'} =
                     LJ::days_in_month( $POST->{'e_mon'}, $POST->{'e_year'} );
             }
@@ -184,16 +180,15 @@ sub editprivacy_handler {
                     e_unixtime => $POST->{e_unixtime}
                 }
             );
-            $r->header_out(
-                Location => "$LJ::SITEROOT/editprivacy?mode=secured" );
+            $r->header_out( Location => "$LJ::SITEROOT/editprivacy?mode=secured" );
             return $r->REDIRECT;
         }
 
     }
 
-    my @days = map { $_, $_ } ( 1 .. 31 );
+    my @days   = map { $_, $_ } ( 1 .. 31 );
     my @months = map { $_, LJ::Lang::month_long_ml($_) } ( 1 .. 12 );
-    my $vars = {
+    my $vars   = {
         mode          => $mode,
         POST          => $POST,
         more_public   => $more_public,
