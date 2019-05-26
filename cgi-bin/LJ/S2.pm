@@ -2729,7 +2729,7 @@ sub nth_entry_seen {
 }
 
 sub sitescheme_secs_to_iso {
-    my ( $secs, %opts ) = @_;
+    my ( $secs, $opts ) = @_;
     my $remote = LJ::get_remote();
     my @ret;
 
@@ -2744,7 +2744,7 @@ sub sitescheme_secs_to_iso {
     my $has_tz = '';                           # don't display timezone unless requested below
 
     # if opts has a true tz key, get the remote user's timezone if possible
-    if ( $opts{tz} ) {
+    if ( $opts->{tz} ) {
         $s2_datetime = DateTime_tz( $secs, $remote );
         $has_tz = defined $s2_datetime ? "(local)" : "UTC";
     }
