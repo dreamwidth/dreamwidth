@@ -3198,7 +3198,7 @@ if ($bgimage == "") {
         if ($fgcolor or $bordercolor) {
 """
 
-#lj_controlstrip td {
+#lj_controlstrip {
 """;
 if ($fgcolor) {
     """    color: $*control_strip_fgcolor;""";

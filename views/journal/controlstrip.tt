@@ -1,9 +1,11 @@
-<table summary='' id='lj_controlstrip' cellpadding='0' cellspacing='0'><tr valign='top'>
+<div id='lj_controlstrip'>
 
-<td id='[% userpic_class %]'>[% userpic_html %]</td>
+<div id='[%- IF remote -%]lj_controlstrip_userpic[%- ELSE -%]lj_controlstrip_loggedout_userpic[%- END -%]'>
+  [% userpic_html %]
+</div>
 
 [%- IF remote -%]
-  <td id='lj_controlstrip_user' nowrap='nowrap'>
+  <div id='lj_controlstrip_user'>
     <form id='Greeting' class='nopic' action='[%- site.root -%]/logout' method='post'>
       <div>
         [%- dw.form_auth -%]
@@ -26,80 +28,72 @@
       [%- links.home -%]&nbsp;&nbsp; [%- links.post_journal -%]&nbsp;&nbsp;
     [%- END -%]
     [%- links.view_friends_page -%]&nbsp;&nbsp;[%- links.settings -%]&nbsp;&nbsp;[%- links.inbox -%]
-  </td>
+  </div>
 [%- ELSIF show_login_form -%]
-  <td id='lj_controlstrip_login' style='background-image: none;' nowrap='nowrap'>
+  <div id='lj_controlstrip_login'>
     <form id="login" class="lj_login_form" action="[%- site.root -%]/login?ret=1" method="post">
-      <div>
-        [%- form.hidden( name = "mode", value = "login" ) -%]
-        [%- form.hidden(
-            name = "chal",
-            value = login_chal,
-            class = "lj_login_chal",
-            id = "login_chal"
-        ) -%]
-        [%- form.hidden(
-            name = "response",
-            value = "",
-            id = "login_response",
-            class = "lj_login_response"
-        ) -%]
+      [%- form.hidden( name = "mode", value = "login" ) -%]
+      [%- form.hidden(
+          name = "chal",
+          value = login_chal,
+          class = "lj_login_chal",
+          id = "login_chal"
+      ) -%]
+      [%- form.hidden(
+          name = "response",
+          value = "",
+          id = "login_response",
+          class = "lj_login_response"
+      ) -%]
 
-        <table summary='' cellspacing="0" cellpadding="0" style="margin-right: 1em;">
-          <tr>
-            <td>
-              [% form.textbox(
-                  name = "user",
-                  label = dw.ml( '/login.bml.login.username' ),
-                  size = "7",
-                  maxlength = "27",
-                  tabindex = "1",
-                  id = "xc_user",
-                  value = ""
-              ) %]
-            </td>
-            <td>
-              [% form.password(
-                  name = "password",
-                  label = dw.ml( '/login.bml.login.password' ),
-                  size = "7",
-                  tabindex = "2",
-                  id = "xc_password",
-                  class = "lj_login_password"
-              ) %]
-              [% form.submit(
-                  value = dw.ml( 'web.controlstrip.btn.login' ),
-                  tabindex = "4"
-              ) %]
-            </td>
-          </tr>
-          <tr>
-            <td valign='top'>
-              <a href='[%- site.root -%]/openid/' tabindex='5'>[%- 'web.controlstrip.login.openid' | ml -%]</a>
-              <a href='[%- site.root -%]/lostinfo' tabindex='6'>[%- 'web.controlstrip.login.forgot' | ml -%]</a>
-            </td>
-            <td style='font: 10px Arial, Helvetica, sans-serif;' valign='top' colspan='2' align='right'>
-              [% form.checkbox(
-                  name = "remember_me",
-                  label = dw.ml( 'web.controlstrip.login.remember' ),
-                  id = "xc_remember",
-                  tabindex = "3"
-              ) %]
-            </td>
-          </tr>
-        </table>
+      [% form.textbox(
+          name = "user",
+          label = dw.ml( '/login.bml.login.username' ),
+          labelclass = "invisible",
+          placeholder = dw.ml( '/login.bml.login.username' ),
+          size = "7",
+          maxlength = "27",
+          tabindex = "1",
+          id = "xc_user",
+          value = ""
+      ) %]
+      [% form.password(
+          name = "password",
+          label = dw.ml( '/login.bml.login.password' ),
+          labelclass = "invisible",
+          placeholder = dw.ml( '/login.bml.login.password' ),
+          size = "7",
+          tabindex = "2",
+          id = "xc_password",
+          class = "lj_login_password"
+      ) %]
+      [% form.submit(
+          value = dw.ml( 'web.controlstrip.btn.login' ),
+          tabindex = "4"
+      ) %]
+
+      <div id='lj_controlstrip_login_secondary_controls'>
+        <a href='[%- site.root -%]/openid/' tabindex='5'>[%- 'web.controlstrip.login.openid' | ml -%]</a>
+        <a href='[%- site.root -%]/lostinfo' tabindex='6'>[%- 'web.controlstrip.login.forgot' | ml -%]</a>
+        [% form.checkbox(
+            name = "remember_me",
+            label = dw.ml( 'web.controlstrip.login.remember' ),
+            id = "xc_remember",
+            tabindex = "3"
+        ) %]
       </div>
     </form>
-  </td>
+  </div>
 [%- END -%]
 
-<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>
+<div id='lj_controlstrip_actionlinks'>
   <span id='lj_controlstrip_statustext'>[%- statustext -%]</span>
   <br />
   [%- actionlinks.join("&nbsp;&nbsp;") -%]
 
   [%- IF filters -%]
-      &nbsp;&nbsp; [% 'web.controlstrip.select.friends.label' | ml %] <form method='post' id='lj_controlstrip_readfilter' action='[%- site.root -%]/manage/circle/filter'>
+    &nbsp;&nbsp; [% 'web.controlstrip.select.friends.label' | ml %]
+    <form method='post' id='lj_controlstrip_readfilter' action='[%- site.root -%]/manage/circle/filter'>
       [%- form.hidden( name = "user", value = remote.user ) -%]
       [%- form.hidden( name = "mode", value = "view" ) -%]
       [%- form.hidden( name = "type", value = "allfilters" ) -%]
@@ -111,18 +105,18 @@
           items = filters.all
       ) %]
       [% form.submit( value = dw.ml( 'web.controlstrip.btn.view' ) ) %]
-      </form>
+    </form>
   [%- END -%]
 
   [%- logo_html -%]
-</td>
+</div>
 
-<td id='lj_controlstrip_search'>
+<div id='lj_controlstrip_search'>
 [%- search_html -%]
-[%- IF viewoptions -%]
-  [%- 'web.controlstrip.reloadpage2' | ml -%]&nbsp;&nbsp;
+[%- IF viewoptions %]
+  [% 'web.controlstrip.reloadpage2' | ml -%]&nbsp;&nbsp;
   [%- viewoptions.join("&nbsp;&nbsp; ") -%]
 [%- END -%]
-</td>
+</div>
 
-</tr></table>
+</div>

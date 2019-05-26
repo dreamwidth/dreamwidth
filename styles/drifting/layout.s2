@@ -365,7 +365,7 @@ function Page::print_default_stylesheet()
         $page_background
     }
 
-    html body {
+    #canvas {
         margin-left: $*margins_size$*margins_unit;
         margin-right: $*margins_size$*margins_unit;
     }

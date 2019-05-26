@@ -328,7 +328,7 @@ set color_module_border = "#cebfa7";
 set color_module_title = "#fff";
 set color_module_title_background = "#E0D1B5";
 function Page::print_theme_stylesheet() { """
-    #lj_controlstrip, #lj_controlstrip span, #lj_controlstrip td {    background: #e0d1b5;
+    #lj_controlstrip, #lj_controlstrip span {    background: #e0d1b5;
     border-color: #b39e74; 
     color: #917b5d;
     }
@@ -476,7 +476,7 @@ set color_module_title = "#D5B4B1";
 set color_module_title_background = "#280000";
 
 function Page::print_theme_stylesheet() { """
-    #lj_controlstrip, #lj_controlstrip span, #lj_controlstrip td {    background: #280000;
+    #lj_controlstrip, #lj_controlstrip span {    background: #280000;
     border-color: #451615; 
     color: #842321;
     }
@@ -595,7 +595,7 @@ set color_module_title = "#D1F2EB";
 set color_module_title_background = "#00254C";
 
 function Page::print_theme_stylesheet() { """
-    #lj_controlstrip, #lj_controlstrip span, #lj_controlstrip td {    background: #b61640;
+    #lj_controlstrip, #lj_controlstrip span {    background: #b61640;
     border-color: #00254C; 
     color: #D1F2EB;
     }
@@ -880,7 +880,7 @@ set color_module_title = "#FBB434";
 set color_module_title_background = "#9D2F0C";
 
 function Page::print_theme_stylesheet() { """
-    #lj_controlstrip, #lj_controlstrip span, #lj_controlstrip td {    background: #9D2F0C;
+    #lj_controlstrip, #lj_controlstrip span {    background: #9D2F0C;
     border-color: #350000; 
     color: #FBB434;}
     
@@ -951,7 +951,7 @@ set color_module_title = "#976107";
 set color_module_title_background = "#EDEE79";
 
 function Page::print_theme_stylesheet() { """
-    #lj_controlstrip, #lj_controlstrip span, #lj_controlstrip td {    background: #EDEE79;
+    #lj_controlstrip, #lj_controlstrip span {    background: #EDEE79;
     border-color: #b39e74; 
     color: #917b5d;
     }
@@ -1125,7 +1125,7 @@ set color_module_title = "#fff";
 set color_module_title_background = "#116f06";
 
 function Page::print_theme_stylesheet() { """
-    #lj_controlstrip, #lj_controlstrip span, #lj_controlstrip td {    background: #116f06;
+    #lj_controlstrip, #lj_controlstrip span {    background: #116f06;
     border-color: #000; 
     color: #fff;}
     
@@ -1439,7 +1439,7 @@ set color_module_title = "#fff";
 set color_module_title_background = "#d82e0d";
 
 function Page::print_theme_stylesheet() { """
-    #lj_controlstrip, #lj_controlstrip span, #lj_controlstrip td {    background: #D82E0D;
+    #lj_controlstrip, #lj_controlstrip span {    background: #D82E0D;
     border-color: #D82E0D; 
     color: #FFD02E;}
     
