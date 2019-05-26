@@ -324,6 +324,8 @@ sub create_handler {
         formdata       => $post,
         errors         => $errors,
         email_checkbox => $email_checkbox,
+
+        username_maxlength => $LJ::USERNAME_MAXLENGTH,
     };
 
     if ( $code_valid && $rate_ok ) {
