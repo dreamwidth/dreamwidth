@@ -21,21 +21,23 @@ sub cmd { "set_badpassword" }
 
 sub desc { "Mark or unmark an account as having a bad password. Requires priv: suspend." }
 
-sub args_desc { [
-                 'user' => "The username of the journal to mark/unmark",
-                 'state' => "Either 'on' (to mark as having a bad password) or 'off' (to unmark)",
-                 'reason' => "Reason why you are setting this status.",
-                 ] }
+sub args_desc {
+    [
+        'user'   => "The username of the journal to mark/unmark",
+        'state'  => "Either 'on' (to mark as having a bad password) or 'off' (to unmark)",
+        'reason' => "Reason why you are setting this status.",
+    ]
+}
 
 sub usage { '<user> <state> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "suspend" );
+    return $remote && $remote->has_priv("suspend");
 }
 
 sub execute {
-    my ($self, $user, $state, $reason, @args) = @_;
+    my ( $self, $user, $state, $reason, @args ) = @_;
 
     return $self->error("This command takes three arguments. Consult the reference.")
         unless $user && $state && $reason && scalar(@args) == 0;
@@ -52,7 +54,7 @@ sub execute {
 
     return $self->error("Second argument must be 'on' or 'off'.")
         unless $state =~ /^(?:on|off)/;
-    my $on = ($state eq "on") ? 1 : 0;
+    my $on = ( $state eq "on" ) ? 1 : 0;
 
     return $self->error("User is already marked as having a bad password.")
         if $on && $u->prop('badpassword');
@@ -61,12 +63,13 @@ sub execute {
 
     my $msg;
     if ($on) {
-        $u->set_prop('badpassword', 1)
+        $u->set_prop( 'badpassword', 1 )
             or return $self->error("Unable to set prop");
         $self->info("User marked as having a bad password.");
         $msg = "marked; $reason";
-    } else {
-        $u->set_prop('badpassword', 0);
+    }
+    else {
+        $u->set_prop( 'badpassword', 0 );
 
         # set_prop returns the value, so we can't "or" these together
         return $self->error("Unable to set prop") unless !$u->prop('badpassword');
@@ -76,17 +79,20 @@ sub execute {
     }
 
     my $remote = LJ::get_remote();
-    LJ::statushistory_add($u, $remote, "set_badpassword", $msg);
+    LJ::statushistory_add( $u, $remote, "set_badpassword", $msg );
 
     # run the hook
-    my $hres = LJ::Hooks::run_hook("set_badpassword", {
-        'user'   => $u,
-        'on'     => $on,
-        'reason' => $reason,
-    });
+    my $hres = LJ::Hooks::run_hook(
+        "set_badpassword",
+        {
+            'user'   => $u,
+            'on'     => $on,
+            'reason' => $reason,
+        }
+    );
 
     $self->error("Running of hook failed!")
-        if $on && !$hres && LJ::Hooks::are_hooks( 'set_badpassword' );
+        if $on && !$hres && LJ::Hooks::are_hooks('set_badpassword');
 
     return 1;
 }

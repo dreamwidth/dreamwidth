@@ -22,15 +22,17 @@ sub should_render {
 }
 
 sub label {
-    my ( $class ) = @_;
+    my ($class) = @_;
 
-    return $class->ml( 'setting.display.openidclaim.label' );
+    return $class->ml('setting.display.openidclaim.label');
 }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
 
-    return "<a href='$LJ::SITEROOT/openid/claim'>" . $class->ml( 'setting.display.openidclaim.option' ) . "</a>";
+    return
+        "<a href='$LJ::SITEROOT/openid/claim'>"
+        . $class->ml('setting.display.openidclaim.option') . "</a>";
 }
 
 1;

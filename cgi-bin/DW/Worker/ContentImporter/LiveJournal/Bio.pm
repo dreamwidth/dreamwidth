@@ -31,7 +31,7 @@ sub work {
     my $opts = $job->arg;
     my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
 
-    return $class->decline( $job ) unless $class->enabled( $data );
+    return $class->decline($job) unless $class->enabled($data);
 
     eval { try_work( $class, $job, $opts, $data ); };
     if ( my $msg = $@ ) {
@@ -56,17 +56,18 @@ sub try_work {
 
     my $ua = LJ::get_useragent(
         role     => 'importer',
-        max_size => 524288, # half meg, this should be plenty
-        timeout  => 20,     # 20 seconds, might need tuning for slow sites
-    ) or return $temp_fail->( 'Unable to allocate useragent.' );
+        max_size => 524288,       # half meg, this should be plenty
+        timeout  => 20,           # 20 seconds, might need tuning for slow sites
+    ) or return $temp_fail->('Unable to allocate useragent.');
 
-# FIXME: have to flip this back to using the user_path value instead of hardcoded
-# livejournal.com ... this should probably be part of the import_data structure?
-# abstract out sites?
+    # FIXME: have to flip this back to using the user_path value instead of hardcoded
+    # livejournal.com ... this should probably be part of the import_data structure?
+    # abstract out sites?
     my $un = $data->{usejournal} || $data->{username};
-    $un =~ s/_/-/g;  # URLs use hyphens, not underscores
-    my ( $items, $interests, $schools ) = $class->get_foaf_from( "http://$un.$data->{hostname}/data/foaf" );
-    return $temp_fail->( "Unable to load FOAF data for $un.$data->{hostname}." )
+    $un =~ s/_/-/g;    # URLs use hyphens, not underscores
+    my ( $items, $interests, $schools ) =
+        $class->get_foaf_from("http://$un.$data->{hostname}/data/foaf");
+    return $temp_fail->("Unable to load FOAF data for $un.$data->{hostname}.")
         unless $items;
 
     DW::Worker::ContentImporter::Local::Bio->merge_interests( $u, $interests );
@@ -76,6 +77,5 @@ sub try_work {
 
     return $ok->();
 }
-
 
 1;

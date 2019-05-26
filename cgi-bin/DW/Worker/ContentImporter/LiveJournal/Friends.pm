@@ -30,7 +30,7 @@ sub work {
     my $opts = $job->arg;
     my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
 
-    return $class->decline( $job ) unless $class->enabled( $data );
+    return $class->decline($job) unless $class->enabled($data);
 
     eval { try_work( $class, $job, $opts, $data ); };
     if ( my $msg = $@ ) {
@@ -58,10 +58,10 @@ sub try_work {
 
     my $r = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
     my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-    return $temp_fail->( $xmlrpc_fail ) if ! $r || $r->{fault};
+    return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};
 
     my ( @friends, @feeds );
-    foreach my $friend (@{ $r->{friends} || [] }) {
+    foreach my $friend ( @{ $r->{friends} || [] } ) {
 
         # if we have no type, or type is identity, allow it
         next if $friend->{type} && $friend->{type} ne 'identity';
@@ -72,25 +72,27 @@ sub try_work {
         # remap into a local OpenID userid and feed if we can
         my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $friend->{username} );
 
-        push @friends, {
-            userid => $local_oid,
+        push @friends,
+            {
+            userid    => $local_oid,
             groupmask => $class->remap_groupmask( $data, $friend->{groupmask} ),
-        } if $local_oid && $local_oid != $data->{userid};
+            }
+            if $local_oid && $local_oid != $data->{userid};
 
-# We aren't doing feeds right now / maybe not ever, when we solve the
-# authenticated feed reading problem.  (which we're on track for)
-#        push @feeds, {
-#            fgcolor => $friend->{fgcolor},
-#            bgcolor => $friend->{bgcolor},
-#            userid => $local_fid,
-#        } if $local_fid;
+        # We aren't doing feeds right now / maybe not ever, when we solve the
+        # authenticated feed reading problem.  (which we're on track for)
+        #        push @feeds, {
+        #            fgcolor => $friend->{fgcolor},
+        #            bgcolor => $friend->{bgcolor},
+        #            userid => $local_fid,
+        #        } if $local_fid;
     }
 
     DW::Worker::ContentImporter->merge_trust( $u, $opts, \@friends );
-#    DW::Worker::ContentImporter->merge_watch( $u, $opts, \@feeds );
+
+    #    DW::Worker::ContentImporter->merge_watch( $u, $opts, \@feeds );
 
     return $ok->();
 }
-
 
 1;

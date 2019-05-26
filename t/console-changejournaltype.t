@@ -25,16 +25,16 @@ use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;
 
-my $u = temp_user();
+my $u  = temp_user();
 my $u2 = temp_user();
 $u2->update_self( { status => 'A' } );
-$u2 = LJ::load_user($u2->user);
+$u2 = LJ::load_user( $u2->user );
 
 my $comm = temp_comm();
 
 my $commname = $comm->user;
-my $owner = $u2->user;
-LJ::set_rel($comm, $u, 'A');
+my $owner    = $u2->user;
+LJ::set_rel( $comm, $u, 'A' );
 LJ::start_request();
 LJ::set_remote($u);
 
@@ -45,8 +45,10 @@ my $run = sub {
 
 # all of these should fail.
 foreach my $to (qw(person community)) {
-    is($run->("change_journal_type $commname $to $owner"),
-       "error: You are not authorized to run this command.");
+    is(
+        $run->("change_journal_type $commname $to $owner"),
+        "error: You are not authorized to run this command."
+    );
 }
 
 ### NOW CHECK WITH PRIVS
@@ -55,13 +57,17 @@ $u->grant_priv("changejournaltype");
 my $types = { 'community' => 'C', 'person' => 'P' };
 
 foreach my $to (qw(person community)) {
-    is($run->("change_journal_type $commname $to $owner"),
-       "success: User $commname converted to a $to account.");
-    $comm = LJ::load_user($comm->user);
-    is($comm->journaltype, $types->{$to}, "Converted to a $to");
+    is(
+        $run->("change_journal_type $commname $to $owner"),
+        "success: User $commname converted to a $to account."
+    );
+    $comm = LJ::load_user( $comm->user );
+    is( $comm->journaltype, $types->{$to}, "Converted to a $to" );
 }
 
 ### check that 'shared' is not a valid journaltype
-is($run->("change_journal_type $commname shared $owner"),
-   "error: Type argument must be 'person' or 'community'.");
+is(
+    $run->("change_journal_type $commname shared $owner"),
+    "error: Type argument must be 'person' or 'community'."
+);
 

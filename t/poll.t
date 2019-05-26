@@ -18,11 +18,11 @@
 use strict;
 use warnings;
 
-use Test::More; # TODO no plan yet
+use Test::More;    # TODO no plan yet
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-if ( @LJ::CLUSTERS < 2 || @{$LJ::DEFAULT_CLUSTER||[]} < 2) {
+if ( @LJ::CLUSTERS < 2 || @{ $LJ::DEFAULT_CLUSTER || [] } < 2 ) {
     plan skip_all => "Less than two clusters.";
     exit 0;
 }
@@ -30,31 +30,33 @@ if ( @LJ::CLUSTERS < 2 || @{$LJ::DEFAULT_CLUSTER||[]} < 2) {
 use LJ::Test qw( temp_user );
 use LJ::Poll;
 
-note( "Set up a poll where the voter is on a different cluster" );
+note("Set up a poll where the voter is on a different cluster");
 {
     my $poll_journal = temp_user( cluster => $LJ::DEFAULT_CLUSTER->[0] );
 
     my $entry = $poll_journal->t_post_fake_entry();
-    my $poll = LJ::Poll->create(
-            entry => $entry,
-            questions => [ { type => "text", qtext => "a text question" } ],
-            name => "poll answer across clusters",
+    my $poll  = LJ::Poll->create(
+        entry     => $entry,
+        questions => [ { type => "text", qtext => "a text question" } ],
+        name      => "poll answer across clusters",
 
-            isanon => 'no',
-            whovote => 'all',
-            whoview => 'all',
-        );
-
+        isanon  => 'no',
+        whovote => 'all',
+        whoview => 'all',
+    );
 
     my $voter = temp_user( cluster => $LJ::DEFAULT_CLUSTER->[1] );
-    LJ::set_remote( $voter );
+    LJ::set_remote($voter);
 
     LJ::Poll->process_submission( { pollid => $poll->id, "pollq-1" => "voter's answers" } );
 
-    is_deeply( { $poll->get_pollanswers( $voter ) },
+    is_deeply(
+        { $poll->get_pollanswers($voter) },
         {
             1 => "voter's answers"
-        }, "Checking that we got the voter's answers correctly when journal / poll are on different clusters" );
+        },
+"Checking that we got the voter's answers correctly when journal / poll are on different clusters"
+    );
 }
 
 done_testing();

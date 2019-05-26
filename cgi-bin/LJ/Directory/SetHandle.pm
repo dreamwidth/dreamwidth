@@ -26,12 +26,12 @@ sub new {
 # override in subclasses.  but this generic version is the entry point
 # for other people.
 sub new_from_string {
-    my ($class, $shstr, $no_recurse) = @_;
+    my ( $class, $shstr, $no_recurse ) = @_;
     die "Unimplemented method 'new_from_string' on class $class" if $no_recurse;
     foreach my $sb (qw(Inline Mogile)) {
-        if ($shstr =~ /^$sb:/) {
+        if ( $shstr =~ /^$sb:/ ) {
             my $class = "LJ::Directory::SetHandle::$sb";
-            return $class->new_from_string($shstr, "no_recurse");
+            return $class->new_from_string( $shstr, "no_recurse" );
         }
     }
     die "Unknown set handle for handle: '$shstr'\n";
@@ -56,29 +56,33 @@ sub set_size {
 }
 
 sub load_matching_uids {
-    my ($self, $cb) = @_;
+    my ( $self, $cb ) = @_;
     die "Unimplemented method 'load_matching_uids' on $self";
 }
 
 # can optionally override this, otherwise calls load_matching_uids
 # instead, and this will pack it for you.
 sub load_pack_data {
-    my ($self, $cb) = @_;
-    $self->load_matching_uids(sub {
-        $cb->(pack("N*", @_));
-    });
+    my ( $self, $cb ) = @_;
+    $self->load_matching_uids(
+        sub {
+            $cb->( pack( "N*", @_ ) );
+        }
+    );
 }
 
 # default implementation.  can override for fanciness, if you want to interact
 # with LJ::UserSearch:: directly.
 sub filter_search {
-    my $sh = shift;
+    my $sh       = shift;
     my $packsize = $sh->pack_size;
     LJ::UserSearch::isect_begin($packsize);
-    $sh->load_pack_data(sub {
-        my $pd = shift;
-        LJ::UserSearch::isect_push($pd);
-    });
+    $sh->load_pack_data(
+        sub {
+            my $pd = shift;
+            LJ::UserSearch::isect_push($pd);
+        }
+    );
     LJ::UserSearch::isect_end();
 }
 

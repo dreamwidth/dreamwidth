@@ -51,7 +51,7 @@ integers.
 
 sub add {
     my ( $class, $catkey, @stats ) = @_;
-    my $catkey_id = $class->to_id( $catkey )
+    my $catkey_id = $class->to_id($catkey)
         or return undef;
 
     my $dbh = LJ::get_db_writer()
@@ -62,7 +62,7 @@ sub add {
     my $now = time;
 
     while ( my ( $key, $val ) = splice( @stats, 0, 2 ) ) {
-        my $key_id = $class->to_id( $key )
+        my $key_id = $class->to_id($key)
             or next;
 
         # if this insert fails there's not much we can do about it, missing
@@ -70,7 +70,7 @@ sub add {
         $dbh->do(
             q{INSERT INTO site_stats (category_id, key_id, insert_time, value)
               VALUES (?, ?, ?, ?)},
-            undef, $catkey_id, $key_id, $now, $val+0
+            undef, $catkey_id, $key_id, $now, $val + 0
         );
     }
 
@@ -86,7 +86,7 @@ Get statistics data over the past $numdays for all keys under this category. Cat
 sub get {
     my ( $class, $catkey, $numdays ) = @_;
 
-    my $catkey_id = $class->to_id( $catkey );
+    my $catkey_id = $class->to_id($catkey);
     return undef unless $catkey_id;
 
     $numdays ||= 1;
@@ -95,9 +95,10 @@ sub get {
     my $dbr = LJ::get_db_reader()
         or return undef;
 
-    my $sth = $dbr->prepare( "SELECT category_id, key_id, insert_time, value " .
-                    "FROM site_stats " .
-                    "WHERE category_id = ? AND insert_time >= ? ");
+    my $sth =
+        $dbr->prepare( "SELECT category_id, key_id, insert_time, value "
+            . "FROM site_stats "
+            . "WHERE category_id = ? AND insert_time >= ? " );
     $sth->execute( $catkey_id, $timestamp );
 
     my %ret;
@@ -105,7 +106,7 @@ sub get {
         my $key = $class->to_key( $data->{key_id} )
             or next;
 
-        $ret{$data->{insert_time}}->{$key} = $data->{value};
+        $ret{ $data->{insert_time} }->{$key} = $data->{value};
     }
     return \%ret;
 }
@@ -138,10 +139,13 @@ Internal: returns typemap for storing cat keys and stat keys. Autovivified.
 =cut
 
 my $tm;
+
 sub typemap {
-    $tm ||= LJ::Typemap->new( table => 'statkeylist',
-                              classfield => 'name',
-                              idfield => 'statkeyid' );
+    $tm ||= LJ::Typemap->new(
+        table      => 'statkeylist',
+        classfield => 'name',
+        idfield    => 'statkeyid'
+    );
     return $tm;
 }
 

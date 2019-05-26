@@ -8,12 +8,13 @@ use DW::External::User;
 
 note("simple email");
 {
-my $original_text=qq{Stuff's [happening].
+    my $original_text = qq{Stuff's [happening].
 
 Go to [Dreamwidth](https://www.dreamwidth.org).};
 
-my ( $html, $plain ) = LJ::format_mail( $original_text, "foobarbaz" );
-is( $html, qq{<p>Dear foobarbaz,</p>
+    my ( $html, $plain ) = LJ::format_mail( $original_text, "foobarbaz" );
+    is(
+        $html, qq{<p>Dear foobarbaz,</p>
 
 <p>Stuff's [happening].</p>
 
@@ -24,10 +25,11 @@ $LJ::SITENAMESHORT Team</p>
 
 <p>$LJ::SITEROOT</p>
 }
-, "HTML version looks fine."
-);
+        , "HTML version looks fine."
+    );
 
-is( $plain, qq{Dear foobarbaz,
+    is(
+        $plain, qq{Dear foobarbaz,
 
 Stuff's [happening].
 
@@ -37,17 +39,18 @@ Regards,
 $LJ::SITENAMESHORT Team
 
 $LJ::SITEROOT}
-, "Plain version looks fine."
-);
+        , "Plain version looks fine."
+    );
 }
 
 note("text with username");
 {
-my ( $html, $plain ) = LJ::format_mail( 'Hello @world', '@foobarbaz' );
-my $foobarbaz_usertag = LJ::ljuser( "foobarbaz" );
-my $world_usertag = LJ::ljuser( "world" );
+    my ( $html, $plain ) = LJ::format_mail( 'Hello @world', '@foobarbaz' );
+    my $foobarbaz_usertag = LJ::ljuser("foobarbaz");
+    my $world_usertag     = LJ::ljuser("world");
 
-is( $html, qq{<p>Dear $foobarbaz_usertag,</p>
+    is(
+        $html, qq{<p>Dear $foobarbaz_usertag,</p>
 
 <p>Hello $world_usertag</p>
 
@@ -56,10 +59,11 @@ $LJ::SITENAMESHORT Team</p>
 
 <p>$LJ::SITEROOT</p>
 }
-, "HTML version looks fine."
-);
+        , "HTML version looks fine."
+    );
 
-is( $plain, qq{Dear \@foobarbaz,
+    is(
+        $plain, qq{Dear \@foobarbaz,
 
 Hello \@world
 
@@ -67,7 +71,7 @@ Regards,
 $LJ::SITENAMESHORT Team
 
 $LJ::SITEROOT}
-, "Plain version looks fine."
-);
+        , "Plain version looks fine."
+    );
 }
 1;

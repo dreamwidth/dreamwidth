@@ -18,7 +18,7 @@ use base 'LJ::PageStats';
 use strict;
 
 sub _render_head {
-    my ( $self ) = @_;
+    my ($self) = @_;
     return '' unless $self->should_do_pagestats;
 
     my $ctx = $self->get_context;
@@ -26,12 +26,14 @@ sub _render_head {
     my $code;
     if ( $ctx eq 'app' ) {
         $code = $LJ::SITE_PAGESTAT_CONFIG{google_analytics};
-    } elsif ( $ctx eq 'journal' ) {
+    }
+    elsif ( $ctx eq 'journal' ) {
         $code = LJ::get_active_journal()->google_analytics;
+
         # the ejs call isn't strictly necessary but catches any
         # dodgy analytics codes which may have been stored before
         # validation was implemented.
-        $code = LJ::ejs( $code );
+        $code = LJ::ejs($code);
     }
 
     return qq{<script type="text/javascript">
@@ -42,7 +44,7 @@ sub _render_head {
 }
 
 sub _render {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     return '' unless $self->should_do_pagestats;
 
@@ -58,14 +60,15 @@ sub _render {
 }
 
 sub should_render {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     my $ctx = $self->get_context;
     return 0 unless $ctx && $ctx =~ /^(app|journal)$/;
 
     if ( $ctx eq 'app' ) {
         return 1 if defined $LJ::SITE_PAGESTAT_CONFIG{google_analytics};
-    } elsif ( $ctx eq 'journal' ) {
+    }
+    elsif ( $ctx eq 'journal' ) {
         my $u = LJ::get_active_journal();
         return $u && $u->can_use_google_analytics && $u->google_analytics ? 1 : 0;
     }

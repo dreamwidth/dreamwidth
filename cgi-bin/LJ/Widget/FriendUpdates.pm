@@ -26,28 +26,32 @@ sub need_res {
 #   limit: optional max number of updates to show; default is 5
 sub render_body {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
-    my $u = $opts{user} && LJ::isu($opts{user}) ? $opts{user} : LJ::get_remote();
+    my $u = $opts{user} && LJ::isu( $opts{user} ) ? $opts{user} : LJ::get_remote();
     return "" unless $u;
 
     my $limit = defined $opts{limit} ? $opts{limit} : 5;
 
-    my $inbox = $u->notification_inbox;
+    my $inbox         = $u->notification_inbox;
     my @notifications = ();
     if ($inbox) {
         @notifications = $inbox->friend_items;
         @notifications = sort { $b->when_unixtime <=> $a->when_unixtime } @notifications;
-        @notifications = @notifications[0..$limit-1] if @notifications > $limit;
+        @notifications = @notifications[ 0 .. $limit - 1 ] if @notifications > $limit;
     }
 
     my $ret;
     $ret .= "<h2><span>" . $class->ml('widget.friendupdates.title') . "</span></h2>";
-    $ret .= "<a href='$LJ::SITEROOT/inbox/' class='more-link'>" . $class->ml('widget.friendupdates.viewall') . "</a>";
+    $ret .= "<a href='$LJ::SITEROOT/inbox/' class='more-link'>"
+        . $class->ml('widget.friendupdates.viewall') . "</a>";
 
     unless (@notifications) {
         $ret .= $class->ml('widget.friendupdates.noupdates');
-        $ret .= "<p class='detail'>" . $class->ml('widget.friendupdates.noupdates.setup', {'aopts' => "href='$LJ::SITEROOT/manage/settings/?cat=notifications'"}) . "</p>";
+        $ret .= "<p class='detail'>"
+            . $class->ml( 'widget.friendupdates.noupdates.setup',
+            { 'aopts' => "href='$LJ::SITEROOT/manage/settings/?cat=notifications'" } )
+            . "</p>";
         return $ret;
     }
 

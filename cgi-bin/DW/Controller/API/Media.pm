@@ -26,8 +26,8 @@ use DW::Media;
 use LJ::JSON;
 
 DW::Routing->register_api_endpoints(
-        [ '/file/edit',   \&file_edit_handler,   1 ],
-        [ '/file/new',    \&file_new_handler,    1 ],
+    [ '/file/edit', \&file_edit_handler, 1 ],
+    [ '/file/new',  \&file_new_handler,  1 ],
 );
 
 #{
@@ -47,6 +47,7 @@ DW::Routing->register_api_endpoints(
 
 # Allows uploading a file. Allocates and returns a unique media ID for the upload.
 sub file_new_handler {
+
     # we want to handle the not logged in case ourselves
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
@@ -69,8 +70,8 @@ sub file_new_handler {
     return api_error( $r->HTTP_BAD_REQUEST, 'No uploads found' )
         unless ref $uploads eq 'ARRAY' && scalar @$uploads;
 
-    foreach my $upload ( @$uploads ) {
-        my ( $type, $ext ) = DW::Media->get_upload_type( $upload->{'content-type' } );
+    foreach my $upload (@$uploads) {
+        my ( $type, $ext ) = DW::Media->get_upload_type( $upload->{'content-type'} );
         next unless defined $type && $type == DW::Media::TYPE_PHOTO;
 
         # Try to upload this item since we know it's a photo.
@@ -83,14 +84,16 @@ sub file_new_handler {
             unless $obj;
 
         # For now, we only support a single upload per call, so finish now.
-        return api_ok( {
-            id => $obj->displayid,
-            url => $obj->url,
-            thumbnail_url => $obj->url( extra => '100x100/' ),
-            name => "image",
-            type => $obj->mimetype,
-            size => $obj->size,
-        } );
+        return api_ok(
+            {
+                id            => $obj->displayid,
+                url           => $obj->url,
+                thumbnail_url => $obj->url( extra => '100x100/' ),
+                name          => "image",
+                type          => $obj->mimetype,
+                size          => $obj->size,
+            }
+        );
     }
 
     return api_error( $r->HTTP_BAD_REQUEST, 'No uploads found' );
@@ -112,6 +115,7 @@ sub file_new_handler {
 #  }
 #
 sub file_edit_handler {
+
     # we want to handle the not logged in case ourselves
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
@@ -130,19 +134,19 @@ sub file_edit_handler {
     # First pass to check arguments.
     my %media;
     foreach my $id ( keys %$args ) {
+
         # sometimes JS sends us the string 'null' so let's make sure $id is OK
         return api_error( $r->HTTP_BAD_REQUEST, 'Media ID not provided' )
             unless defined $id && $id ne 'null';
 
         # use eval to catch croaks
-        $media{$id} = eval { DW::Media->new( user => $rv->{u},
-                                             mediaid => int( $id / 256 ) ) };
+        $media{$id} = eval { DW::Media->new( user => $rv->{u}, mediaid => int( $id / 256 ) ) };
         return api_error( $r->NOT_FOUND, 'Media ID not found or invalid' )
             unless $media{$id};
 
         return api_error( $r->HTTP_BAD_REQUEST, 'Security invalid' )
-            if $args->{$id}->{security} &&
-               $args->{$id}->{security} !~ /^(?:public|private|usemask)$/;
+            if $args->{$id}->{security}
+            && $args->{$id}->{security} !~ /^(?:public|private|usemask)$/;
         if ( exists $args->{$id}->{allowmask} ) {
             return api_error( $r->HTTP_BAD_REQUEST, 'Allowmask invalid with chosen security' )
                 unless $args->{$id}->{security} eq 'usemask';
@@ -152,7 +156,7 @@ sub file_edit_handler {
 
         # Check to be sure this is valid. Security and Allowmask are separate
         # from the rest, which are properties.
-        foreach my $key ( keys %{$args->{$id}} ) {
+        foreach my $key ( keys %{ $args->{$id} } ) {
             next if $key eq 'security' || $key eq 'allowmask';
 
             my $pobj = LJ::get_prop( media => $key );
@@ -164,8 +168,8 @@ sub file_edit_handler {
     # We did that in two phases so we could verify that all of the objects
     # were loadable, to try to make it an atomic process.
     foreach my $id ( keys %$args ) {
-        my ( $security, $allowmask ) = ( delete $args->{$id}->{security},
-            int( delete $args->{$id}->{allowmask} // 0 ) );
+        my ( $security, $allowmask ) =
+            ( delete $args->{$id}->{security}, int( delete $args->{$id}->{allowmask} // 0 ) );
         if ( defined $security ) {
             $media{$id}->set_security(
                 security  => $security,
@@ -174,12 +178,12 @@ sub file_edit_handler {
         }
 
         # At this point, we must have deleted all non-property items.
-        foreach my $prop ( keys %{$args->{$id}} ) {
+        foreach my $prop ( keys %{ $args->{$id} } ) {
             $media{$id}->prop( $prop => $args->{$id}->{$prop} );
         }
     }
 
-    return api_ok( $args );
+    return api_ok($args);
 }
 
 1;

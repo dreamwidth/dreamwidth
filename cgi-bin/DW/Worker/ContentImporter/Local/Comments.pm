@@ -37,7 +37,7 @@ so we don't bleed data from one import to the next.
 
 sub clear_caches {
     $EntryCache = undef;
-    $UserCache = undef;
+    $UserCache  = undef;
 }
 
 =head2 C<< $class->precache( $u, $jitemid_hash, $userid_hash ) >>
@@ -52,9 +52,9 @@ the roundtrips.
 sub precache {
     my ( $class, $u, $jitemids, $userids ) = @_;
 
-    $UserCache = LJ::load_userids( @$userids );
+    $UserCache = LJ::load_userids(@$userids);
 
-    foreach my $jitemid ( @$jitemids ) {
+    foreach my $jitemid (@$jitemids) {
         $EntryCache->{$jitemid} = LJ::Entry->new( $u, jitemid => $jitemid );
     }
     LJ::Entry->preload_props_all();
@@ -72,9 +72,10 @@ sub get_comment_map {
 
     my $p = LJ::get_prop( "talk", "import_source" )
         or die "Failed to load import_source property.";
-    my $dbr = LJ::get_cluster_reader( $u )
+    my $dbr = LJ::get_cluster_reader($u)
         or die "Failed to get database reader for user.";
-    my $sth = $dbr->prepare( "SELECT jtalkid, value FROM talkprop2 WHERE journalid = ? AND tpropid = ?" )
+    my $sth =
+        $dbr->prepare("SELECT jtalkid, value FROM talkprop2 WHERE journalid = ? AND tpropid = ?")
         or die "Failed to allocate statement handle.";
     $sth->execute( $u->id, $p->{id} )
         or die "Failed to execute query.";
@@ -85,7 +86,6 @@ sub get_comment_map {
     }
     return \%map;
 }
-
 
 =head2 C<< $class->update_comment( $u, $comment, $errref ) >>
 
@@ -110,18 +110,19 @@ sub update_comment {
     # so we don't load the bodies of every comment ever
     # (most of the time, we don't need to)
     # empty body of a nondeleted comment indicates something went wrong with the import process
-    if ( $LJ::FIX_COMMENT_IMPORT{$u->user} && ! $c->is_deleted && $c->body_raw == "" ) {
+    if ( $LJ::FIX_COMMENT_IMPORT{ $u->user } && !$c->is_deleted && $c->body_raw == "" ) {
         $c->set_subject_and_body( $cmt->{subject}, $cmt->{body} );
     }
 
     my $pu = $c->poster;
     if ( $pu && $pu->userpic_have_mapid ) {
-        $c->set_prop( picture_mapid => $pu->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 ) );
-    } else {
+        $c->set_prop( picture_mapid =>
+                $pu->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 ) );
+    }
+    else {
         $c->set_prop( picture_keyword => $cmt->{props}->{picture_keyword} );
     }
 }
-
 
 =head2 C<< $class->insert_comment( $u, $comment, $errref ) >>
 
@@ -150,10 +151,14 @@ sub insert_comment {
     $errref ||= '';
 
     # load the data we need to make this comment
-    my $jitem = $EntryCache->{$cmt->{jitemid}} ||
-        LJ::Entry->new( $u, jitemid => $cmt->{jitemid} );
-    my $source = ( $cmt->{entry_source} || $jitem->prop( "import_source" ) ) . "/" . ( $cmt->{orig_id} << 8 );
-    my $user = $cmt->{posterid} ? ( $UserCache->{$cmt->{posterid}} || LJ::load_userid( $cmt->{posterid} ) ) : undef;
+    my $jitem = $EntryCache->{ $cmt->{jitemid} }
+        || LJ::Entry->new( $u, jitemid => $cmt->{jitemid} );
+    my $source =
+        ( $cmt->{entry_source} || $jitem->prop("import_source") ) . "/" . ( $cmt->{orig_id} << 8 );
+    my $user =
+        $cmt->{posterid}
+        ? ( $UserCache->{ $cmt->{posterid} } || LJ::load_userid( $cmt->{posterid} ) )
+        : undef;
 
     # fix the XML timestamp to a useful timestamp
     my $date = $cmt->{date};
@@ -164,19 +169,19 @@ sub insert_comment {
     $date ||= LJ::mysql_time();
 
     # remove properties that we don't know or care about
-    foreach my $name ( keys %{$cmt->{props} || {}} ) {
+    foreach my $name ( keys %{ $cmt->{props} || {} } ) {
         delete $cmt->{props}->{$name}
-            unless LJ::get_prop( talk => $name ) &&
-                ( $name ne 'import_source' && $name ne 'imported_from' );
+            unless LJ::get_prop( talk => $name )
+            && ( $name ne 'import_source' && $name ne 'imported_from' );
     }
 
     # build the data structures we use.  we are sort of faking it here.
     my $comment = {
         subject => $cmt->{subject},
-        body => $cmt->{body},
+        body    => $cmt->{body},
 
         state => $cmt->{state},
-        u => $user,
+        u     => $user,
 
         # we have to promote these from properties to the main comment hash so that
         # the enter_imported_comment function can demote them back to properties
@@ -188,20 +193,16 @@ sub insert_comment {
         props => {
             import_source => $source,
             imported_from => $cmt->{source},
-            %{$cmt->{props} || {}},
+            %{ $cmt->{props} || {} },
         },
 
         no_urls => 1,
-        no_esn => 1,
+        no_esn  => 1,
     };
 
-    my $item = {
-        itemid => $cmt->{jitemid},
-    };
+    my $item = { itemid => $cmt->{jitemid}, };
 
-    my $parent = {
-        talkid => $cmt->{parentid},
-    };
+    my $parent = { talkid => $cmt->{parentid}, };
 
     # now try to import it and return this as the error code
     return LJ::Talk::Post::enter_imported_comment( $u, $parent, $item, $comment, $date, \$errref );

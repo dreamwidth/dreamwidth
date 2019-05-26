@@ -40,9 +40,10 @@ sub get_entry_map {
 
     my $p = LJ::get_prop( log => 'import_source' )
         or croak 'unable to load logprop';
-    my $dbcr = LJ::get_cluster_reader( $u )
+    my $dbcr = LJ::get_cluster_reader($u)
         or croak 'unable to connect to database';
-    my $sth = $dbcr->prepare( "SELECT jitemid, value FROM logprop2 WHERE journalid = ? AND propid = ?" )
+    my $sth =
+        $dbcr->prepare("SELECT jitemid, value FROM logprop2 WHERE journalid = ? AND propid = ?")
         or croak 'unable to prepare SQL';
 
     $sth->execute( $u->id, $p->{id} );
@@ -66,17 +67,18 @@ We assume that an exact match on subject and timestamp will be sufficient
 to identify duplicates
 
 =cut
+
 sub get_duplicates_map {
     my ( $class, $u ) = @_;
 
-    my $dbr = LJ::get_cluster_reader( $u )
+    my $dbr = LJ::get_cluster_reader($u)
         or croak 'unable to connect to database';
 
-    my $sth = $dbr->prepare(
-            "SELECT l.jitemid, UNIX_TIMESTAMP(l.logtime), lt.subject"
+    my $sth =
+        $dbr->prepare( "SELECT l.jitemid, UNIX_TIMESTAMP(l.logtime), lt.subject"
             . " FROM log2 l LEFT JOIN logtext2 lt ON ( l.jitemid = lt.jitemid  AND l.journalid=lt.journalid )"
             . " WHERE l.journalid=?" )
-            or croak 'unable to prepare SQL';
+        or croak 'unable to prepare SQL';
     $sth->execute( $u->id );
     croak 'database error: ' . $sth->errstr
         if $sth->err;
@@ -122,7 +124,7 @@ Returns (1, $res) on success, (undef, $res) on error.
 sub post_event {
     my ( $class, $data, $map, $u, $posteru, $evt, $errors ) = @_;
 
-    return if $map->{$evt->{key}};
+    return if $map->{ $evt->{key} };
 
     my ( $yr, $month, $day, $hr, $min, $sec );
     ( $yr, $month, $day, $hr, $min, $sec ) = ( $1, $2, $3, $4, $5, $6 )
@@ -130,27 +132,27 @@ sub post_event {
 
     # Rarely, we will get text that isn't valid UTF-8. If that's the case, shove it through the
     # encoder and hope for the best. Don't double-encode if it's already valid, though.
-    foreach my $key ( qw/ subject event / ) {
+    foreach my $key (qw/ subject event /) {
         $evt->{$key} = encode_utf8( $evt->{$key} )
             unless LJ::text_in( $evt->{$key} );
     }
-    foreach my $prop ( keys %{$evt->{props}} ) {
+    foreach my $prop ( keys %{ $evt->{props} } ) {
         $evt->{props}->{$prop} = encode_utf8( $evt->{props}->{$prop} )
             unless LJ::text_in( $evt->{props}->{$prop} );
     }
 
     my %proto = (
         lineendings => 'unix',
-        subject => $evt->{subject},
-        event => $evt->{event},
-        security => $evt->{security},
-        allowmask => $evt->{allowmask},
+        subject     => $evt->{subject},
+        event       => $evt->{event},
+        security    => $evt->{security},
+        allowmask   => $evt->{allowmask},
 
         year => $yr,
-        mon => $month,
-        day => $day,
+        mon  => $month,
+        day  => $day,
         hour => $hr,
-        min => $min,
+        min  => $min,
     );
 
     my $props = $evt->{props};
@@ -158,14 +160,14 @@ sub post_event {
     # this is a list of props that actually exist on this site
     # but have been shown to cause failures importing that entry.
     my %bad_props = (
-        current_coords => 1,
+        current_coords       => 1,
         personifi_word_count => 1,
-        personifi_lang => 1,
-        personifi_tags => 1,
-        give_features => 1,
-        spam_counter => 1,
-        poster_ip => 1,
-        uniq => 1,
+        personifi_lang       => 1,
+        personifi_tags       => 1,
+        give_features        => 1,
+        spam_counter         => 1,
+        poster_ip            => 1,
+        uniq                 => 1,
     );
     foreach my $prop ( keys %$props ) {
         next if $bad_props{$prop};
@@ -175,30 +177,31 @@ sub post_event {
         next if $p->{ownership} eq 'system';
 
         $proto{"prop_$prop"} = $props->{$prop};
-    };
+    }
 
     # Overwrite these here in case we're importing from an imported journal (hey, it could happen)
     $proto{prop_import_source} = $evt->{key};
     if ( defined $posteru ) {
         delete $proto{prop_opt_backdated};
-    } else {
+    }
+    else {
         $proto{prop_opt_backdated} = 1;
     }
 
     my %res;
     LJ::do_request(
         {
-            mode => 'postevent',
-            user => $posteru ? $posteru->user : $u->user,
+            mode       => 'postevent',
+            user       => $posteru ? $posteru->user : $u->user,
             usejournal => $posteru ? $u->user : undef,
-            ver  => $LJ::PROTOCOL_VER,
+            ver        => $LJ::PROTOCOL_VER,
             %proto,
         },
         \%res,
         {
-            u => $posteru || $u,
-            u_owner => $u,
-            importer_bypass => 1,
+            u                       => $posteru || $u,
+            u_owner                 => $u,
+            importer_bypass         => 1,
             allow_truncated_subject => 1,
         }
     );
@@ -207,10 +210,11 @@ sub post_event {
         push @$errors, "Failed to post: $res{errmsg}";
         return ( undef, \%res );
 
-    } else {
+    }
+    else {
         $u->do( "UPDATE log2 SET logtime = ? where journalid = ? and jitemid = ?",
-                undef, $evt->{logtime}, $u->userid, $res{itemid} );
-        $map->{$evt->{key}} = $res{itemid};
+            undef, $evt->{logtime}, $u->userid, $res{itemid} );
+        $map->{ $evt->{key} } = $res{itemid};
         return ( 1, \%res );
 
     }

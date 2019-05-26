@@ -96,20 +96,17 @@ use LJ::User::Styles;
 ###  28. Userpic-Related Functions
 use LJ::User::Icons;
 
-
 ########################################################################
 ###  99. Miscellaneous Legacy Items
 
 ########################################################################
 ###  99B. Deprecated (FIXME: we shouldn't need these)
 
-
 # THIS IS DEPRECATED DO NOT USE
 sub email {
-    my ($u, $remote) = @_;
+    my ( $u, $remote ) = @_;
     return $u->emails_visible($remote);
 }
-
 
 # FIXME: Needs updating for WTF
 sub opt_showmutualfriends {
@@ -125,6 +122,5 @@ sub show_mutualfriends {
     return 0 unless $u->is_individual;
     return $u->opt_showmutualfriends ? 1 : 0;
 }
-
 
 1;

@@ -18,7 +18,7 @@ use Carp qw/ croak /;
 use base 'LJ::NotificationMethod';
 use LJ::NotificationInbox;
 
-sub can_digest { 1 };
+sub can_digest { 1 }
 
 # takes a $u, and $journalid
 sub new {
@@ -34,7 +34,7 @@ sub new {
     my $journalid = shift;
 
     my $self = {
-        u => $u,
+        u         => $u,
         journalid => $journalid,
     };
 
@@ -44,10 +44,10 @@ sub new {
 sub title { BML::ml('notification_method.inbox.title') }
 
 sub new_from_subscription {
-    my $class = shift;
+    my $class  = shift;
     my $subscr = shift;
 
-    return $class->new($subscr->owner, $subscr->journalid);
+    return $class->new( $subscr->owner, $subscr->journalid );
 }
 
 sub u {
@@ -55,7 +55,7 @@ sub u {
     croak "'u' is an object method"
         unless ref $self eq __PACKAGE__;
 
-    if (my $u = shift) {
+    if ( my $u = shift ) {
         croak "invalid 'u' passed to setter"
             unless LJ::isu($u);
 
@@ -85,13 +85,13 @@ sub notify {
     foreach my $ev (@events) {
         croak "invalid event passed" unless ref $ev;
 
-        $q->enqueue(event => $ev);
+        $q->enqueue( event => $ev );
     }
 
     return 1;
 }
 
-sub configured { 1 }
-sub configured_for_user { 1 } # always configured for all users
+sub configured          { 1 }
+sub configured_for_user { 1 }    # always configured for all users
 
 1;

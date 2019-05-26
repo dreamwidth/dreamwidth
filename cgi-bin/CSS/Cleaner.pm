@@ -31,7 +31,6 @@
 #         best interface (SAC) but terrible parsing of selectors.  we'll probably
 #         have to write our own, based on the Mozilla CSS parsing code.
 
-
 package CSS::Cleaner;
 use strict;
 use vars qw($VERSION);
@@ -39,19 +38,19 @@ $VERSION = '0.01';
 
 sub new {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
     my $self = bless {}, $class;
 
-    if (defined( $opts{rule_handler} )) {
+    if ( defined( $opts{rule_handler} ) ) {
         my $rule_handler = $opts{rule_handler};
-        die "rule_handler needs to be a coderef if supplied" unless ref( $rule_handler ) eq 'CODE';
+        die "rule_handler needs to be a coderef if supplied" unless ref($rule_handler) eq 'CODE';
         $self->{rule_handler} = $rule_handler;
     }
 
-    if (defined( $opts{pre_hook} )) {
+    if ( defined( $opts{pre_hook} ) ) {
         my $pre_hook = $opts{pre_hook};
-        die "pre_hook needs to be a coderef if supplied" unless ref( $pre_hook ) eq 'CODE';
+        die "pre_hook needs to be a coderef if supplied" unless ref($pre_hook) eq 'CODE';
         $self->{pre_hook} = $pre_hook;
     }
 
@@ -60,44 +59,44 @@ sub new {
 
 # cleans CSS
 sub clean {
-    my ($self, $target) = @_;
-    $self->_stupid_clean(\$target);
+    my ( $self, $target ) = @_;
+    $self->_stupid_clean( \$target );
     return $target;
 }
 
 # cleans CSS properties, as if it were in a style="" attribute
 sub clean_property {
-    my ($self, $target) = @_;
-    $self->_stupid_clean(\$target);
+    my ( $self, $target ) = @_;
+    $self->_stupid_clean( \$target );
     return $target;
 }
 
 # this is so stupid.  see notes at top.
 #  returns 1 if it was okay, 0 if possibly malicious
 sub _stupid_clean {
-    my ($self, $ref) = @_;
+    my ( $self, $ref ) = @_;
 
     my $reduced = $$ref;
-    if (defined( $self->{pre_hook} )) {
+    if ( defined( $self->{pre_hook} ) ) {
         $self->{pre_hook}->( \$reduced );
     }
 
     $reduced =~ s/&\#(\d+);?/chr($1)/eg;
     $reduced =~ s/&\#x(\w+);?/chr(hex($1))/eg;
 
-    if ($reduced =~ /[\x00-\x08\x0B\x0C\x0E-\x1F]/) {
+    if ( $reduced =~ /[\x00-\x08\x0B\x0C\x0E-\x1F]/ ) {
         $$ref = "/* suspect CSS: low bytes */";
         return;
     }
 
-    if ($reduced =~ /[\x7f-\xff]/) {
+    if ( $reduced =~ /[\x7f-\xff]/ ) {
         $$ref = "/* suspect CSS: high bytes */";
         return;
     }
 
     # returns 1 if something bad was found
     my $check_for_bad = sub {
-        if ($reduced =~ m!<\w!) {
+        if ( $reduced =~ m!<\w! ) {
             $$ref = "/* suspect CSS: start HTML tag? */";
             return 1;
         }
@@ -105,30 +104,31 @@ sub _stupid_clean {
         my $with_white = $reduced;
         $reduced =~ s/[\s\x0b]+//g;
 
-        if ($reduced =~ m!\\[a-f0-9]!i) {
+        if ( $reduced =~ m!\\[a-f0-9]!i ) {
             $$ref = "/* suspect CSS: backslash hex */";
             return;
         }
 
         $reduced =~ s/\\//g;
 
-        if ($reduced =~ /\@(import|charset)([\s\x0A\x0D]*[^\x0A\x0D]*)/i) {
-            my $what = $1;
+        if ( $reduced =~ /\@(import|charset)([\s\x0A\x0D]*[^\x0A\x0D]*)/i ) {
+            my $what  = $1;
             my $value = $2;
-             if (defined( $self->{rule_handler} )) {
+            if ( defined( $self->{rule_handler} ) ) {
                 return $self->{rule_handler}->( $ref, $what, $value );
-            } else {
+            }
+            else {
                 $$ref = "/* suspect CSS: $what rule */";
                 return;
             }
         }
 
-        if ($reduced =~ /&\#/) {
+        if ( $reduced =~ /&\#/ ) {
             $$ref = "/* suspect CSS: found irregular &# */";
             return;
         }
 
-        if ($reduced =~ m!</!) {
+        if ( $reduced =~ m!</! ) {
             $$ref = "/* suspect CSS: close HTML tag */";
             return;
         }
@@ -136,15 +136,18 @@ sub _stupid_clean {
         # returns 1 if bad phrases found
         my $check_phrases = sub {
             my $str = shift;
-            if ($$str =~ m/(\bdata:\b|javascript|jscript|livescript|vbscript|expression|eval|cookie
-                |\bwindow\b|\bparent\b|\bthis\b|behaviou?r|moz-binding)/ix) {
+            if (
+                $$str =~ m/(\bdata:\b|javascript|jscript|livescript|vbscript|expression|eval|cookie
+                |\bwindow\b|\bparent\b|\bthis\b|behaviou?r|moz-binding)/ix
+                )
+            {
                 my $what = lc $1;
                 $$ref = "/* suspect CSS: potential scripting: $what */";
                 return 1;
             }
             return 0;
         };
-        return 1 if $check_phrases->(\$reduced);
+        return 1 if $check_phrases->( \$reduced );
 
         # restore whitespace
         $reduced = $with_white;
@@ -152,7 +155,7 @@ sub _stupid_clean {
         $reduced =~ s!\<\!--.*?--\>!!sg;
         $reduced =~ s/[\s\x0b]+//g;
         $reduced =~ s/\\//g;
-        return 1 if $check_phrases->(\$reduced);
+        return 1 if $check_phrases->( \$reduced );
 
         return 0;
     };

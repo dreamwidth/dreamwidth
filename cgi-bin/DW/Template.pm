@@ -34,58 +34,66 @@ DW::Template - Template Toolkit helpers for Apache2.
 # setting this to false -- have to explicitly specify which plugins we want.
 $Template::Plugins::PLUGIN_BASE = '';
 
-my $site_constants = Template::Namespace::Constants->new({
-    name        => $LJ::SITENAME,
-    nameshort   => $LJ::SITENAMESHORT,
-    nameabbrev  => $LJ::SITENAMEABBREV,
+my $site_constants = Template::Namespace::Constants->new(
+    {
+        name       => $LJ::SITENAME,
+        nameshort  => $LJ::SITENAMESHORT,
+        nameabbrev => $LJ::SITENAMEABBREV,
 
-    company          => $LJ::SITECOMPANY,
-    address          => $LJ::SITEADDRESS,
-    addressline      => $LJ::SITEADDRESSLINE,
+        company     => $LJ::SITECOMPANY,
+        address     => $LJ::SITEADDRESS,
+        addressline => $LJ::SITEADDRESSLINE,
 
-    domain      => $LJ::DOMAIN,
-    domainweb   => $LJ::DOMAIN_WEB,
+        domain    => $LJ::DOMAIN,
+        domainweb => $LJ::DOMAIN_WEB,
 
-    help => \%LJ::HELPURL,
+        help => \%LJ::HELPURL,
 
-    email => {
-        abuse => $LJ::ABUSE_EMAIL,
-        coppa => $LJ::COPPA_EMAIL,
-        privacy => $LJ::PRIVACY_EMAIL,
-    },
-});
+        email => {
+            abuse   => $LJ::ABUSE_EMAIL,
+            coppa   => $LJ::COPPA_EMAIL,
+            privacy => $LJ::PRIVACY_EMAIL,
+        },
+    }
+);
 
 # precreating this
-my $view_engine = Template->new({
-    INCLUDE_PATH => join(':', LJ::get_all_directories('views') ),
-    NAMESPACE => {
-        site => $site_constants,
-    },
-    CACHE_SIZE => $LJ::TEMPLATE_CACHE_SIZE, # this can be undef, and that means cache everything.
-    STAT_TTL => $LJ::IS_DEV_SERVER ? 1 : 3600,
-    RECURSION => 1,
-    PLUGINS => {
-        autoformat => 'Template::Plugin::Autoformat',
-        date => 'Template::Plugin::Date',
-        url => 'Template::Plugin::URL',
-        dw => 'DW::Template::Plugin',
-        form => 'DW::Template::Plugin::FormHTML',
-    },
-    PRE_PROCESS => '_init.tt',
-});
+my $view_engine = Template->new(
+    {
+        INCLUDE_PATH => join( ':', LJ::get_all_directories('views') ),
+        NAMESPACE    => {
+            site => $site_constants,
+        },
+        CACHE_SIZE =>
+            $LJ::TEMPLATE_CACHE_SIZE,    # this can be undef, and that means cache everything.
+        STAT_TTL  => $LJ::IS_DEV_SERVER ? 1 : 3600,
+        RECURSION => 1,
+        PLUGINS   => {
+            autoformat => 'Template::Plugin::Autoformat',
+            date       => 'Template::Plugin::Date',
+            url        => 'Template::Plugin::URL',
+            dw         => 'DW::Template::Plugin',
+            form       => 'DW::Template::Plugin::FormHTML',
+        },
+        PRE_PROCESS => '_init.tt',
+    }
+);
 
-my $scheme_engine = Template->new({
-    INCLUDE_PATH => join(':', LJ::get_all_directories('schemes') ),
-    NAMESPACE => {
-        site => $site_constants,
-    },
-    CACHE_SIZE => $LJ::TEMPLATE_CACHE_SIZE, # this can be undef, and that means cache everything.
-    STAT_TTL => $LJ::IS_DEV_SERVER ? 1 : 3600,
-    PLUGINS => {
-        dw => 'DW::Template::Plugin',
-        dw_scheme => 'DW::Template::Plugin::SiteScheme',
-    },
-});
+my $scheme_engine = Template->new(
+    {
+        INCLUDE_PATH => join( ':', LJ::get_all_directories('schemes') ),
+        NAMESPACE    => {
+            site => $site_constants,
+        },
+        CACHE_SIZE =>
+            $LJ::TEMPLATE_CACHE_SIZE,    # this can be undef, and that means cache everything.
+        STAT_TTL => $LJ::IS_DEV_SERVER ? 1 : 3600,
+        PLUGINS  => {
+            dw        => 'DW::Template::Plugin',
+            dw_scheme => 'DW::Template::Plugin::SiteScheme',
+        },
+    }
+);
 
 =head1 API
 
@@ -103,7 +111,7 @@ sub template_string {
     $opts->{sections}->{errors} = $opts->{errors};
 
     # now we have to save the scope and update it for this rendering
-    my $oldscope = $r->note( 'ml_scope' );
+    my $oldscope = $r->note('ml_scope');
     $r->note( ml_scope => ( $extra->{ml_scope} || "/$filename" ) );
 
     my $out;
@@ -136,17 +144,20 @@ fragment opts:
 =cut
 
 sub cached_template_string {
-    my ($class, $key, $filename, $opts_subref, $cache_opts, $extra ) = @_;
+    my ( $class, $key, $filename, $opts_subref, $cache_opts, $extra ) = @_;
 
-
-    return DW::FragmentCache->get( $key, {
-        lock_failed => $cache_opts->{lock_failed},
-        expire => $cache_opts->{expire},
-        grace_period => $cache_opts->{grace_period},
-        render => sub {
-            return $class->template_string( $filename, $opts_subref->( $_[0] ), $extra );
-        }
-    }, $extra);
+    return DW::FragmentCache->get(
+        $key,
+        {
+            lock_failed  => $cache_opts->{lock_failed},
+            expire       => $cache_opts->{expire},
+            grace_period => $cache_opts->{grace_period},
+            render       => sub {
+                return $class->template_string( $filename, $opts_subref->( $_[0] ), $extra );
+            }
+        },
+        $extra
+    );
 }
 
 =head2 C<< $class->render_cached_template( $key, $filename, $subref, $extra ) >>
@@ -174,7 +185,7 @@ $cache_opts can contain:
 =cut
 
 sub render_cached_template {
-    my ($class, $key, $filename, $opts_subref, $cache_opts, $extra) = @_;
+    my ( $class, $key, $filename, $opts_subref, $cache_opts, $extra ) = @_;
 
     $extra ||= {};
 
@@ -258,11 +269,11 @@ sub render_template_misc {
     my $scope = $extra->{scope};
 
     if ( $scope eq 'bml' ) {
-        my $r = DW::Request->get;
+        my $r   = DW::Request->get;
         my $bml = $extra->{scope_data};
 
-        for my $item ( qw(title windowtitle head bodyopts) ) {
-            ${$bml->{$item}} = $extra->{$item} || "";
+        for my $item (qw(title windowtitle head bodyopts)) {
+            ${ $bml->{$item} } = $extra->{$item} || "";
         }
         return $out;
     }
@@ -271,7 +282,8 @@ sub render_template_misc {
     if ( $scope eq 'journal' ) {
         $extra->{scope_data}->{handler_return} = $rv;
         return;
-    } else {
+    }
+    else {
         return $rv;
     }
 }
@@ -309,22 +321,28 @@ sub render_string {
     my $scheme = DW::SiteScheme->get;
 
     if ( $extra->{no_sitescheme} ) {
-        $r->print( $out );
+        $r->print($out);
 
         return $r->OK;
-    } elsif ( $extra->{fragment} ) {
-        LJ::set_active_resource_group( "fragment" );
+    }
+    elsif ( $extra->{fragment} ) {
+        LJ::set_active_resource_group("fragment");
         $out .= LJ::res_includes( nojs => 1, nolib => 1 );
-        $r->print( $out );
+        $r->print($out);
 
         return $r->OK;
-    } elsif ( $scheme->supports_tt ) {
+    }
+    elsif ( $scheme->supports_tt ) {
         $r->content_type("text/html; charset=utf-8");
         $r->print( $class->render_scheme( $scheme, $out, $extra ) );
 
         return $r->OK;
-    } else {
-        die "Can not use invalid/unknown engine " . $scheme->engine . " for scheme " . $scheme->name;
+    }
+    else {
+        die "Can not use invalid/unknown engine "
+            . $scheme->engine
+            . " for scheme "
+            . $scheme->name;
     }
 }
 
@@ -349,11 +367,11 @@ sub render_scheme {
     my $out;
 
     my $opts = $scheme->get_vars;
-    $opts->{sections} = $sections;
-    $opts->{inheritance} = [ map { "$_.tt" } reverse $scheme->inheritance ];
-    $opts->{content} = $body;
-    $opts->{is_ssl} = $LJ::IS_SSL;
-    $opts->{get} = $r->get_args;
+    $opts->{sections}       = $sections;
+    $opts->{inheritance}    = [ map { "$_.tt" } reverse $scheme->inheritance ];
+    $opts->{content}        = $body;
+    $opts->{is_ssl}         = $LJ::IS_SSL;
+    $opts->{get}            = $r->get_args;
     $opts->{resource_group} = $LJ::ACTIVE_RES_GROUP;
 
     $scheme_engine->process( "_init.tt", $opts, \$out )

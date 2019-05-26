@@ -156,8 +156,8 @@ is( $rss_error, undef, "RSS parse OK" );
 SKIP: {
     skip "RSS parse failed", 3 if $rss_error;
     is( $parse_rss->{items}->[0]->{author}, "example-dc-creator", "<dc:creator> tag" );
-    is( $parse_rss->{items}->[1]->{author}, "example-lj-poster", "<lj:poster> tag" );
-    is( $parse_rss->{items}->[2]->{author}, "example-dw-poster", "<dw:poster> tag" );
+    is( $parse_rss->{items}->[1]->{author}, "example-lj-poster",  "<lj:poster> tag" );
+    is( $parse_rss->{items}->[2]->{author}, "example-dw-poster",  "<dw:poster> tag" );
 }
 
 my ( $parse_atom, $atom_error ) = LJ::ParseFeed::parse_feed( $feed_atom, "atom" );
@@ -166,8 +166,9 @@ is( $atom_error, undef, "Atom parse OK" );
 SKIP: {
     skip "Atom parse failed", 5 if $atom_error;
     is( $parse_atom->{items}->[0]->{author}, "example-atom-author", "item <author> tag" );
-    is( $parse_atom->{items}->[1]->{author}, "example-dw-poster", "<dw:poster> tag" );
-    is( $parse_atom->{items}->[2]->{author}, "example-lj-poster", "<lj:poster> tag" );
+    is( $parse_atom->{items}->[1]->{author}, "example-dw-poster",   "<dw:poster> tag" );
+    is( $parse_atom->{items}->[2]->{author}, "example-lj-poster",   "<lj:poster> tag" );
     is( $parse_atom->{items}->[3]->{author}, "example-feed-author", "feed <author> tag" );
-    is( $parse_atom->{items}->[4]->{author}, "prefer-lj-poster", "both <lj:poster> and <author> tags" );
+    is( $parse_atom->{items}->[4]->{author},
+        "prefer-lj-poster", "both <lj:poster> and <author> tags" );
 }

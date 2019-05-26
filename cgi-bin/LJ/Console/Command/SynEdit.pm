@@ -21,20 +21,22 @@ sub cmd { "syn_editurl" }
 
 sub desc { "Changes the source feed URL for a syndicated account. Requires priv: syn_edit." }
 
-sub args_desc { [
-                 'user' => "The username of the syndicated account.",
-                 'newurl' => "The new source feed URL.",
-                 ] }
+sub args_desc {
+    [
+        'user'   => "The username of the syndicated account.",
+        'newurl' => "The new source feed URL.",
+    ]
+}
 
 sub usage { '<user> <newurl>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "syn_edit" );
+    return $remote && $remote->has_priv("syn_edit");
 }
 
 sub execute {
-    my ($self, $user, $newurl, @args) = @_;
+    my ( $self, $user, $newurl, @args ) = @_;
 
     return $self->error("This command takes two arguments. Consult the reference.")
         unless $user && $newurl && scalar(@args) == 0;
@@ -49,19 +51,20 @@ sub execute {
         unless $newurl =~ m!^https?://(.+?)/!;
 
     my $dbh = LJ::get_db_writer();
-    my $oldurl = $dbh->selectrow_array("SELECT synurl FROM syndicated WHERE userid=?",
-                                       undef, $u->id);
-    $dbh->do("UPDATE syndicated SET synurl=?, checknext=NOW() WHERE userid=?",
-             undef, $newurl, $u->id);
+    my $oldurl =
+        $dbh->selectrow_array( "SELECT synurl FROM syndicated WHERE userid=?", undef, $u->id );
+    $dbh->do( "UPDATE syndicated SET synurl=?, checknext=NOW() WHERE userid=?",
+        undef, $newurl, $u->id );
 
-    if ($dbh->err) {
-        my $acct = $dbh->selectrow_array("SELECT userid FROM syndicated WHERE synurl=?",
-                                         undef, $newurl);
+    if ( $dbh->err ) {
+        my $acct =
+            $dbh->selectrow_array( "SELECT userid FROM syndicated WHERE synurl=?", undef, $newurl );
         my $oldu = LJ::load_userid($acct);
-        return $self->error("URL for account $user not changed: URL in use by " . $oldu->user);
-    } else {
+        return $self->error( "URL for account $user not changed: URL in use by " . $oldu->user );
+    }
+    else {
         my $remote = LJ::get_remote();
-        LJ::statushistory_add($u, $remote, 'synd_edit', "URL changed: $oldurl => $newurl");
+        LJ::statushistory_add( $u, $remote, 'synd_edit', "URL changed: $oldurl => $newurl" );
         return $self->print("URL for account $user changed: $oldurl => $newurl");
     }
 }

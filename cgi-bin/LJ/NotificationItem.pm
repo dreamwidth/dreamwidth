@@ -30,7 +30,7 @@ use Carp qw(croak);
 
 # parameters: user, notification inbox id
 sub instance {
-    my ($class, $u, $qid) = @_;
+    my ( $class, $u, $qid ) = @_;
 
     my $singletonkey = $qid;
 
@@ -53,7 +53,7 @@ sub instance {
 
 # returns whose notification this is
 *u = \&owner;
-sub owner { LJ::load_userid($_[0]->{userid}) }
+sub owner { LJ::load_userid( $_[0]->{userid} ) }
 
 # returns this item's id in the notification queue
 sub qid { $_[0]->{qid} }
@@ -79,8 +79,8 @@ sub title {
 
     $mode = "html" unless $mode && $LJ::DEBUG{"esn_inbox_titles"};
 
-    if ($mode eq "html") {
-        return eval { $self->event->as_html($self->u) } || $@;
+    if ( $mode eq "html" ) {
+        return eval { $self->event->as_html( $self->u ) } || $@;
     }
 }
 
@@ -89,13 +89,13 @@ sub as_html {
     my $self = shift;
     croak "Too many args passed to NotificationItem->as_html" if scalar @_;
     return "(Invalid event)" unless $self->event;
-    return eval { $self->event->content($self->u) } || $@;
+    return eval { $self->event->content( $self->u ) } || $@;
 }
 
 sub as_html_summary {
     my $self = shift;
     croak "Too many args passed to NotificationItem->as_html_summary" if scalar @_;
-    return "(Invalid event)" unless $self->event; 
+    return "(Invalid event)" unless $self->event;
     return eval { $self->event->content_summary( $self->u ) } || $@;
 }
 
@@ -113,25 +113,24 @@ sub _load {
     my $self = shift;
 
     my $qid = $self->qid;
-    my $u = $self->owner;
+    my $u   = $self->owner;
 
     return if $self->{_loaded};
 
     # load info for all the currently instantiated singletons
     # get current singleton qids
     $u->{_inbox_items} ||= {};
-    my @qids = map { $_->qid } values %{$u->{_inbox_items}};
+    my @qids = map { $_->qid } values %{ $u->{_inbox_items} };
 
-    my $bind = join(',', map { '?' } @qids);
+    my $bind = join( ',', map { '?' } @qids );
 
-    my $sth = $u->prepare
-        ("SELECT userid, qid, journalid, etypeid, arg1, arg2, state, createtime " .
-         "FROM notifyqueue WHERE userid=? AND qid IN ($bind)");
-    $sth->execute($u->id, @qids);
+    my $sth = $u->prepare( "SELECT userid, qid, journalid, etypeid, arg1, arg2, state, createtime "
+            . "FROM notifyqueue WHERE userid=? AND qid IN ($bind)" );
+    $sth->execute( $u->id, @qids );
     die $sth->errstr if $sth->err;
 
     my @items;
-    while (my $row = $sth->fetchrow_hashref) {
+    while ( my $row = $sth->fetchrow_hashref ) {
         my $qid = $row->{qid} or next;
         my $singleton = $u->{_inbox_items}->{$qid} or next;
 
@@ -141,17 +140,15 @@ sub _load {
 
 # fills in a skeleton item from a database row hashref
 sub absorb_row {
-    my ($self, $row) = @_;
+    my ( $self, $row ) = @_;
 
     $self->{_loaded} = 1;
 
     $self->{state} = $row->{state};
-    $self->{when} = $row->{createtime};
+    $self->{when}  = $row->{createtime};
 
-    my $evt = LJ::Event->new_from_raw_params($row->{etypeid},
-                                             $row->{journalid},
-                                             $row->{arg1},
-                                             $row->{arg2});
+    my $evt = LJ::Event->new_from_raw_params( $row->{etypeid}, $row->{journalid}, $row->{arg1},
+        $row->{arg2} );
     $self->{event} = $evt;
 
     return $self;
@@ -219,15 +216,16 @@ sub mark_unread {
 
 # sets the state of this item
 sub _set_state {
-    my ($self, $state) = @_;
+    my ( $self, $state ) = @_;
 
-    $self->owner->do("UPDATE notifyqueue SET state=? WHERE userid=? AND qid=?", undef, $state, $self->owner->id, $self->qid)
+    $self->owner->do( "UPDATE notifyqueue SET state=? WHERE userid=? AND qid=?",
+        undef, $state, $self->owner->id, $self->qid )
         or die $self->owner->errstr;
     $self->{state} = $state;
 
     # expire unread cache
     my $userid = $self->u->id;
-    my $memkey = [$userid, "inbox:newct:${userid}"];
+    my $memkey = [ $userid, "inbox:newct:${userid}" ];
     LJ::MemCache::delete($memkey);
 }
 
@@ -235,10 +233,10 @@ sub _set_state {
 sub TO_JSON {
     my $self = shift;
     my $json = {
-        title => $self->title,
-        content => $self->as_html,
-        unread => $self->unread,
+        title     => $self->title,
+        content   => $self->as_html,
+        unread    => $self->unread,
         timestamp => $self->when_unixtime
 
-    }
+    };
 }

@@ -22,7 +22,7 @@ sub zero_journalid_subs_means { return 'all'; }
 sub subscription_as_html {
     my ( $class, $subscr, $key_prefix ) = @_;
 
-    my $key = $key_prefix || 'event.journal_new_comment.reply';
+    my $key  = $key_prefix || 'event.journal_new_comment.reply';
     my $arg2 = $subscr->arg2;
 
     my %key_suffixes = (
@@ -67,12 +67,12 @@ sub early_filter_event {
 
 sub additional_subscriptions_sql {
     my @userids = _relevant_userids( $_[1] );
-    return ('userid IN (' . join(",", map { '?' } @userids) . ')', @userids) if scalar @userids;
+    return ( 'userid IN (' . join( ",", map { '?' } @userids ) . ')', @userids ) if scalar @userids;
     return undef;
 }
 
 sub migrate_user {
-    my ($class, $u) = @_;
+    my ( $class, $u ) = @_;
 
     # Cannot use $u->migrate_prop_to_esn
     #  * opt_gettalkemail isn't really a prop
@@ -85,35 +85,42 @@ sub migrate_user {
 
     if ( $opt_gettalkemail ne 'X' ) {
         if ( $opt_gettalkemail eq 'Y' ) {
-            push @pending_subscriptions, map { (
-                # FIXME(dre): Remove when ESN can bypass inbox
-                LJ::Subscription::Pending->new($u,
-                    event => 'JournalNewComment::Reply',
-                    method => 'Inbox',
-                    arg2 => $_,
-                ),
-                LJ::Subscription::Pending->new($u,
-                    event => 'JournalNewComment::Reply',
-                    method => 'Email',
-                    arg2 => $_,
-                ),
-            ) } ( 0, 1 );
+            push @pending_subscriptions, map {
+                (
+                    # FIXME(dre): Remove when ESN can bypass inbox
+                    LJ::Subscription::Pending->new(
+                        $u,
+                        event  => 'JournalNewComment::Reply',
+                        method => 'Inbox',
+                        arg2   => $_,
+                    ),
+                    LJ::Subscription::Pending->new(
+                        $u,
+                        event  => 'JournalNewComment::Reply',
+                        method => 'Email',
+                        arg2   => $_,
+                    ),
+                )
+            } ( 0, 1 );
         }
         $u->update_self( { 'opt_gettalkemail' => 'X' } );
     }
     if ( $opt_getselfemail ne 'X' ) {
         if ( $opt_getselfemail eq '1' ) {
             push @pending_subscriptions, (
+
                 # FIXME(dre): Remove when ESN can bypass inbox
-                LJ::Subscription::Pending->new($u,
-                    event => 'JournalNewComment::Reply',
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event  => 'JournalNewComment::Reply',
                     method => 'Inbox',
-                    arg2 => 2,
+                    arg2   => 2,
                 ),
-                LJ::Subscription::Pending->new($u,
-                    event => 'JournalNewComment::Reply',
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event  => 'JournalNewComment::Reply',
                     method => 'Email',
-                    arg2 => 2,
+                    arg2   => 2,
                 ),
             );
         }
@@ -126,46 +133,47 @@ sub migrate_user {
 # override parent class sbuscriptions method to
 # convert opt_gettalkemail to a subscription
 sub raw_subscriptions {
-    my ($class, $self, %args) = @_;
-    my $cid   = delete $args{'cluster'};
+    my ( $class, $self, %args ) = @_;
+    my $cid = delete $args{'cluster'};
     croak("Cluser id (cluster) must be provided") unless defined $cid;
 
-    my $scratch = delete $args{'scratch'}; # optional
+    my $scratch = delete $args{'scratch'};    # optional
 
-    croak("Unknown options: " . join(', ', keys %args)) if %args;
+    croak( "Unknown options: " . join( ', ', keys %args ) ) if %args;
     croak("Can't call in web context") if LJ::is_web_context();
 
     my @userids = _relevant_userids( $_[1] );
 
-    foreach my $userid ( @userids ) {
+    foreach my $userid (@userids) {
         my $u = LJ::load_userid($userid);
         next unless $u;
         next unless ( $cid == $u->clusterid );
 
-        $class->migrate_user( $u );
+        $class->migrate_user($u);
     }
 
-    return eval { LJ::Event::raw_subscriptions($class, $self,
-        cluster => $cid, scratch => $scratch ) } unless scalar @userids;
+    return
+        eval { LJ::Event::raw_subscriptions( $class, $self, cluster => $cid, scratch => $scratch ) }
+        unless scalar @userids;
 
-    my @rows = eval { LJ::Event::raw_subscriptions($class, $self,
-        cluster => $cid, scratch => $scratch ) };
+    my @rows = eval { LJ::Event::raw_subscriptions( $class, $self,
+            cluster => $cid, scratch => $scratch ) };
 
     return @rows;
 }
 
 sub matches_filter {
-    my ($self, $subscr) = @_;
+    my ( $self, $subscr ) = @_;
 
-    my $sjid = $subscr->journalid;
-    my $ejid = $self->event_journal->{userid};
+    my $sjid    = $subscr->journalid;
+    my $ejid    = $self->event_journal->{userid};
     my $watcher = $subscr->owner;
-    my $arg2 = $subscr->arg2;
+    my $arg2    = $subscr->arg2;
 
     my $comment = $self->comment;
 
     # Do not send on own comments
-    return 0 unless $comment->visible_to( $watcher );
+    return 0 unless $comment->visible_to($watcher);
 
     # Do not send if opt_noemail applies
     return 0 if $self->apply_noemail( $watcher, $comment, $subscr->method );
@@ -173,13 +181,16 @@ sub matches_filter {
     my $parent = $comment->parent;
 
     if ( $arg2 == 0 ) {
+
         # Someone replies to my comment
         return 0 unless $parent;
         return 0 unless $parent->posterid == $watcher->id;
 
         # Make sure we didn't post the comment
         return 1 unless $comment->posterid == $watcher->id;
-    } elsif ( $arg2 == 1 ) {
+    }
+    elsif ( $arg2 == 1 ) {
+
         # Someone replies to my entry in a community
         my $entry = $comment->entry;
         return 0 unless $entry;
@@ -189,7 +200,9 @@ sub matches_filter {
 
         # Make sure we didn't post the comment
         return 1 unless $comment->posterid == $watcher->id;
-    } elsif ( $arg2 == 2 ) {
+    }
+    elsif ( $arg2 == 2 ) {
+
         # I comment on any entry in someone else's journal
         my $entry = $comment->entry;
         return 0 unless $entry;

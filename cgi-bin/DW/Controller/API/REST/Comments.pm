@@ -21,26 +21,27 @@ use strict;
 use warnings;
 use JSON;
 
-
 ################################################
 # /comments/screening
 #
 # Get a list of possible comment screening options.
 ################################################
 # Define route and associated params
-my $screening = DW::Controller::API::REST->path('comments/screening.yaml', 1, {'get' => \&get_screening});
-
+my $screening =
+    DW::Controller::API::REST->path( 'comments/screening.yaml', 1, { 'get' => \&get_screening } );
 
 sub get_screening {
     my $self = $_[0];
-    
-    my $settings = {""   =>   "Journal Default",
-                	"N"  =>   "No comments are screened.",
-                	"R"  =>   "Screen anonymous comments",
-                	"F"  =>   "Screen comments from journals without access granted.",
-                	"A"  =>   "All comments are screened."};
 
-    return $self->rest_ok( $settings );
+    my $settings = {
+        ""  => "Journal Default",
+        "N" => "No comments are screened.",
+        "R" => "Screen anonymous comments",
+        "F" => "Screen comments from journals without access granted.",
+        "A" => "All comments are screened."
+    };
+
+    return $self->rest_ok($settings);
 }
 
 1;

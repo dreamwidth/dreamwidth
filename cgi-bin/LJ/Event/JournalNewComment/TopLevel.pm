@@ -17,11 +17,12 @@ use strict;
 use base 'LJ::Event::JournalNewComment';
 
 sub subscription_as_html {
-    return LJ::Event::JournalNewComment->subscription_as_html( $_[1], "event.journal_new_top_comment" );
+    return LJ::Event::JournalNewComment->subscription_as_html( $_[1],
+        "event.journal_new_top_comment" );
 }
 
 sub matches_filter {
-    my ($self, $subscr) = @_;
+    my ( $self, $subscr ) = @_;
 
     return 0 unless $subscr->available_for_user;
 
@@ -32,12 +33,12 @@ sub matches_filter {
     return 0 if $sjid && $sjid != $ejid;
 
     my $comment = $self->comment;
-    my $entry = $comment->entry;
+    my $entry   = $comment->entry;
     return 0 unless $entry;
 
     # no notifications unless they can see the comment
     my $watcher = $subscr->owner;
-    return 0 unless $comment->visible_to( $watcher );
+    return 0 unless $comment->visible_to($watcher);
 
     # check that event's entry is the entry we're interested in (subscribed to)
     my $wanted_ditemid = $subscr->arg1;

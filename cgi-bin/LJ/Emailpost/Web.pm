@@ -22,10 +22,10 @@ use strict;
 # Used for ljemailgateway and manage/emailpost.bml
 sub get_allowed_senders {
     my ( $u, $include_user_email ) = @_;
-    return undef unless LJ::isu( $u );
-    my (%addr, @address);
+    return undef unless LJ::isu($u);
+    my ( %addr, @address );
 
-    @address = split( /\s*,\s*/, $u->prop( 'emailpost_allowfrom' ) || '' );
+    @address = split( /\s*,\s*/, $u->prop('emailpost_allowfrom') || '' );
 
     # add their personal email, and assume we want to receive errors here
     unshift @address, $u->email_raw . "(E)" if $include_user_email;
@@ -39,7 +39,7 @@ sub get_allowed_senders {
         $flags = $1 if $add =~ s/\((.+)\)$//;
         $addr{$add} = {};
         if ($flags) {
-            $addr{$add}->{$flag_english{$_}} = 1 foreach split(//, $flags);
+            $addr{$add}->{ $flag_english{$_} } = 1 foreach split( //, $flags );
         }
     }
 
@@ -52,23 +52,23 @@ sub get_allowed_senders {
 #  $addr is hashref of { $email_address -> {$flag -> 1} } where possible values of $flag
 #  currently include only 'get_errors', to receive errors at that email address
 sub set_allowed_senders {
-    my ($u, $addr) = @_;
+    my ( $u, $addr ) = @_;
     my %flag_letters = ( 'get_errors' => 'E' );
 
     my @addresses;
-    foreach (keys %$addr) {
+    foreach ( keys %$addr ) {
         my $email = $_;
         my $flags = $addr->{$_};
         if (%$flags) {
             $email .= '(';
-            foreach my $flag (keys %$flags) {
+            foreach my $flag ( keys %$flags ) {
                 $email .= $flag_letters{$flag};
             }
             $email .= ')';
         }
-        push(@addresses, $email);
+        push( @addresses, $email );
     }
-    $u->set_prop("emailpost_allowfrom", join(", ", @addresses));
+    $u->set_prop( "emailpost_allowfrom", join( ", ", @addresses ) );
 }
 
 1;

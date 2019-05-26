@@ -18,11 +18,12 @@ use base qw(LJ::Widget);
 use Carp qw(croak);
 
 sub ajax { 1 }
+
 #sub need_res { qw( stc/widgets/examplepostwidget.css ) }
 
 sub render_body {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
     my $ret;
     my $submitted = $opts{submitted} ? 1 : 0;
@@ -43,10 +44,10 @@ sub render_body {
 
 sub handle_post {
     my $class = shift;
-    my $post = shift;
-    my %opts = @_;
+    my $post  = shift;
+    my %opts  = @_;
 
-    if ($post->{text}) {
+    if ( $post->{text} ) {
         warn "You entered: $post->{text}\n";
     }
 

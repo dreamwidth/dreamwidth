@@ -23,22 +23,24 @@ sub cmd { "sysban_add" }
 
 sub desc { "Block an action based on certain criteria. Requires priv: sysban." }
 
-sub args_desc { [
-                 'what' => "The criterion you're blocking",
-                 'value' => "The value you're blocking",
-                 'days' => "Length of the ban, in days (or 0 for forever)",
-                 'note' => "Reason why you're setting this ban",
-                 ] }
+sub args_desc {
+    [
+        'what'  => "The criterion you're blocking",
+        'value' => "The value you're blocking",
+        'days'  => "Length of the ban, in days (or 0 for forever)",
+        'note'  => "Reason why you're setting this ban",
+    ]
+}
 
 sub usage { '<what> <value> [ <days> ] [ <note> ]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "sysban" );
+    return $remote && $remote->has_priv("sysban");
 }
 
 sub execute {
-    my ($self, $what, $value, $days, $note, @args) = @_;
+    my ( $self, $what, $value, $days, $note, @args ) = @_;
 
     return $self->error("This command takes two arguments. Consult the reference.")
         unless $what && $value && scalar(@args) == 0;
@@ -55,11 +57,11 @@ sub execute {
         unless $days =~ /^\d+$/;
 
     my $banid = LJ::Sysban::create(
-                                  'what'    => $what,
-                                  'value'   => $value,
-                                  'bandays' => $days,
-                                  'note'    => $note,
-                                  );
+        'what'    => $what,
+        'value'   => $value,
+        'bandays' => $days,
+        'note'    => $note,
+    );
 
     return $self->error("There was a problem creating the ban.")
         unless $banid;

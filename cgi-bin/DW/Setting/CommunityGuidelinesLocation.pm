@@ -25,26 +25,32 @@ sub should_render {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.communityguidelinesloc.label' );
+    return $_[0]->ml('setting.communityguidelinesloc.label');
 }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $communityguidelinesloc = $class->get_arg( $args, "communityguidelinesloc" ) || $u->posting_guidelines_location || $LJ::DEFAULT_POSTING_GUIDELINES_LOC;
+    my $communityguidelinesloc =
+           $class->get_arg( $args, "communityguidelinesloc" )
+        || $u->posting_guidelines_location
+        || $LJ::DEFAULT_POSTING_GUIDELINES_LOC;
 
     my @options = (
-        "N"      => $class->ml( 'setting.communityguidelinesloc.option.select.none' ),
-        "P" => $class->ml( 'setting.communityguidelinesloc.option.select.profile' ),
-        "E"    => $class->ml( 'setting.communityguidelinesloc.option.select.entry' ),
+        "N" => $class->ml('setting.communityguidelinesloc.option.select.none'),
+        "P" => $class->ml('setting.communityguidelinesloc.option.select.profile'),
+        "E" => $class->ml('setting.communityguidelinesloc.option.select.entry'),
     );
 
-    my $select = LJ::html_select( {
-        name => "${key}communityguidelinesloc",
-        id => "${key}communityguidelinesloc",
-        selected => $communityguidelinesloc,
-    }, @options );
+    my $select = LJ::html_select(
+        {
+            name     => "${key}communityguidelinesloc",
+            id       => "${key}communityguidelinesloc",
+            selected => $communityguidelinesloc,
+        },
+        @options
+    );
 
     my $ret;
     $ret .= " <label for='${key}communityguidelinesloc'>";
@@ -61,7 +67,8 @@ sub error_check {
     my ( $class, $u, $args ) = @_;
     my $val = $class->get_arg( $args, "communityguidelinesloc" );
 
-    $class->errors( communityguidelinesloc => $class->ml( 'setting.communityguidelinesloc.error.invalid' ) )
+    $class->errors(
+        communityguidelinesloc => $class->ml('setting.communityguidelinesloc.error.invalid') )
         unless $val =~ /^(?:N|P|E)$/;
 
     return 1;
@@ -72,7 +79,7 @@ sub save {
     $class->error_check( $u, $args );
 
     my $val = $class->get_arg( $args, "communityguidelinesloc" );
-    $u->posting_guidelines_location( $val );
+    $u->posting_guidelines_location($val);
 
     return 1;
 }

@@ -24,14 +24,12 @@ use Storable qw/ nfreeze thaw /;
 
 use base qw/ DW::Shop::Engine /;
 
-
 # new( $cart )
 #
 # instantiates a new PayPal engine for the given cart
 sub new {
     return bless { cart => $_[1] }, $_[0];
 }
-
 
 # checkout_url()
 #
@@ -53,9 +51,7 @@ sub checkout_url {
     return "$LJ::SITEROOT/shop/creditcard";
 }
 
-
 # accessors
 sub cart { $_[0]->{cart} }
-
 
 1;

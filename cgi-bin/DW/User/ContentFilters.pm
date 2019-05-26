@@ -35,7 +35,7 @@ use DW::User::ContentFilters::Filter;
 sub content_filters {
     my $u = LJ::want_user( shift() )
         or die 'Must call on a user object';
-    my %args = ( @_ );
+    my %args = (@_);
 
     # now return what they want, remember these are objects now, so sort them
     # by the sortorder
@@ -43,10 +43,10 @@ sub content_filters {
         my @list =
             sort { $a->sortorder <=> $b->sortorder }
             grep { $args{public} ? $_->public : 1 }
+
             # return content filter regardless of case
-            grep { $args{name} ? lc($_->name) eq lc($args{name}) : 1 }
-            grep { $args{id} ? $_->id == $args{id} : 1 }
-            @_;
+            grep { $args{name} ? lc( $_->name ) eq lc( $args{name} ) : 1 }
+            grep { $args{id} ? $_->id == $args{id} : 1 } @_;
         return wantarray ? @list : $list[0];
     };
 
@@ -55,20 +55,17 @@ sub content_filters {
     # what the db tells us.  so we have to reconstitute the objects every
     # time, which is what this does.
     my $build_filters = sub {
+
         # now promote everything to an object
-        return 
-            sort {
-                $a->sortorder <=> $b->sortorder ||
-                $a->name      cmp $b->name
-            }
+        return sort { $a->sortorder <=> $b->sortorder || $a->name cmp $b->name }
             map {
-                DW::User::ContentFilters::Filter->new(
-                    ownerid   => $u->id,
-                    id        => $_->[0],
-                    name      => $_->[1],
-                    public    => $_->[2],
-                    sortorder => $_->[3],
-                )
+            DW::User::ContentFilters::Filter->new(
+                ownerid   => $u->id,
+                id        => $_->[0],
+                name      => $_->[1],
+                public    => $_->[2],
+                sortorder => $_->[3],
+            )
             } @_;
     };
 
@@ -77,8 +74,8 @@ sub content_filters {
         if $u->{_content_filters};
 
     # if in memcache, build and return
-    my $filters = $u->memc_get( 'content_filters' );
-    return $sort_filters->( $build_filters->( @$filters ) )
+    my $filters = $u->memc_get('content_filters');
+    return $sort_filters->( $build_filters->(@$filters) )
         if $filters;
 
     # try the database now
@@ -94,11 +91,10 @@ sub content_filters {
 
     # store on the user object in case they call us later so we don't have to
     # do more memcache roundtrips
-    $u->{_content_filters} = [ $build_filters->( @$filters ) ];
+    $u->{_content_filters} = [ $build_filters->(@$filters) ];
     return $sort_filters->( @{ $u->{_content_filters} } );
 }
 *LJ::User::content_filters = \&content_filters;
-
 
 # makes a new watch filter for the user.  pretty easy to use, everything is actually
 # optional...
@@ -108,7 +104,7 @@ sub create_content_filter {
     # FIXME: this is probably the point we should implement limits on how many
     # filters you can create...
 
-    # check if a filter with this name already exists, if so return its id, so the user can edit or remove it
+# check if a filter with this name already exists, if so return its id, so the user can edit or remove it
     my $name = LJ::text_trim( delete $args{name}, 255, 100 ) || '';
     return $u->content_filters( name => $name )->id
         if $u->content_filters( name => $name );
@@ -128,11 +124,10 @@ sub create_content_filter {
 
     # everything is OK, so clear memcache, user object
     delete $u->{_content_filters};
-    $u->memc_delete( 'content_filters' );
+    $u->memc_delete('content_filters');
     return $fid;
 }
 *LJ::User::create_content_filter = \&create_content_filter;
-
 
 # removes a content filter.  arguments are the same as what you'd pass to content_filters
 # to get a filter, and if it returns just one filter, we'll nuke it.
@@ -141,16 +136,18 @@ sub delete_content_filter {
 
     # import to use the array return so that we get all of the filters that match
     # the query and can make sure it only returns one.
-    my @filters = $u->content_filters( %args );
+    my @filters = $u->content_filters(%args);
     die "tried to delete more than one content filter in a single call to delete_content_filter\n"
-        if scalar( @filters ) > 1;
+        if scalar(@filters) > 1;
     return undef unless @filters;
 
     # delete
-    $u->do( 'DELETE FROM content_filters WHERE userid = ? AND filterid = ?', undef, $u->id, $filters[0]->id );
-    $u->do( 'DELETE FROM content_filter_data WHERE userid = ? AND filterid = ?', undef, $u->id, $filters[0]->id );
+    $u->do( 'DELETE FROM content_filters WHERE userid = ? AND filterid = ?',
+        undef, $u->id, $filters[0]->id );
+    $u->do( 'DELETE FROM content_filter_data WHERE userid = ? AND filterid = ?',
+        undef, $u->id, $filters[0]->id );
     delete $u->{_content_filters};
-    $u->memc_delete( 'content_filters' );
+    $u->memc_delete('content_filters');
 
     # return the id of the deleted filter
     return $filters[0]->id;
@@ -164,7 +161,7 @@ sub add_to_default_filters {
     # one mis-add means failure
     # (but we're still okay if no adds were done)
     my $ok = 1;
-    foreach my $filter( $u->content_filters ) {
+    foreach my $filter ( $u->content_filters ) {
         next unless $filter->is_default();
         next if $filter->contains_userid( $targetu->userid );
 

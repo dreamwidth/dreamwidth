@@ -24,41 +24,46 @@ use warnings;
 
 sub should_render {
     my ( $class, $u ) = @_;
-    return $u && ! $u->is_syndicated;
+    return $u && !$u->is_syndicated;
+
     # identity users will only be shown opt_cut_disable_reading
 }
 
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.cutdisable.label' );
+    return $class->ml('setting.cutdisable.label');
 }
 
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $opt_reading = $u->prop( "opt_cut_disable_reading" ) || 0;
-    my $opt_journal = $u->prop( "opt_cut_disable_journal" ) || 0;
-    my $cutdisable = $class->get_arg( $args, "cutdisable" ) ||
-        ( $opt_reading << 0 | $opt_journal << 1 );
+    my $opt_reading = $u->prop("opt_cut_disable_reading") || 0;
+    my $opt_journal = $u->prop("opt_cut_disable_journal") || 0;
+    my $cutdisable = $class->get_arg( $args, "cutdisable" )
+        || ( $opt_reading << 0 | $opt_journal << 1 );
 
     my @opts = (
-        0 => $class->ml( "setting.cutdisable.sel.none" ),
-        1 => $class->ml( "setting.cutdisable.sel.reading" ),
-        2 => $class->ml( "setting.cutdisable.sel.journal" ),
-        3 => $class->ml( "setting.cutdisable.sel.both" ),
+        0 => $class->ml("setting.cutdisable.sel.none"),
+        1 => $class->ml("setting.cutdisable.sel.reading"),
+        2 => $class->ml("setting.cutdisable.sel.journal"),
+        3 => $class->ml("setting.cutdisable.sel.both"),
     );
-    @opts = @opts[0..3] if $u->is_identity;
+    @opts = @opts[ 0 .. 3 ] if $u->is_identity;
 
     my $ret;
     $ret .= "<label for='${key}cutdisable'>";
-    $ret .= $class->ml( 'setting.cutdisable.option' );
+    $ret .= $class->ml('setting.cutdisable.option');
     $ret .= "</label> ";
 
-    $ret .= LJ::html_select( { name => "${key}cutdisable",
-                               id   => "${key}cutdisable",
-                               selected => $cutdisable },
-                             @opts );
+    $ret .= LJ::html_select(
+        {
+            name     => "${key}cutdisable",
+            id       => "${key}cutdisable",
+            selected => $cutdisable
+        },
+        @opts
+    );
 
     my $errdiv = $class->errdiv( $errs, "cutdisable" );
     $ret .= "<br />$errdiv" if $errdiv;
@@ -72,7 +77,7 @@ sub save {
     my $val = $class->get_arg( $args, "cutdisable" ) || 0;
     $u->set_prop( "opt_cut_disable_reading" => ( $val & 1 ) > 0 );
     $u->set_prop( "opt_cut_disable_journal" => ( $val & 2 ) > 0 )
-         unless $u->is_identity;
+        unless $u->is_identity;
 
     return 1;
 }

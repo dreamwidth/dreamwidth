@@ -60,20 +60,22 @@ or
 =cut
 
 use strict;
+
 package DW::Captcha;
 
 use LJ::ModuleLoader;
 
-my @CLASSES = LJ::ModuleLoader->module_subclasses( "DW::Captcha" );
+my @CLASSES = LJ::ModuleLoader->module_subclasses("DW::Captcha");
 
 my %impl2class;
-foreach my $class ( @CLASSES ) {
+foreach my $class (@CLASSES) {
     eval "use $class";
     die "Error loading class '$class': $@" if $@;
-    $impl2class{lc $class->name} = $class;
+    $impl2class{ lc $class->name } = $class;
 }
 
 # class methods
+
 =head1 API
 
 =head2 C<< DW::Captcha->new( $page, %opts ) >>
@@ -96,21 +98,20 @@ sub new {
     # yes, I really do want to do this rather than $impl{...||$LJ::DEFAULT_CAPTCHA...}
     # we want to make certain that someone can't force all captchas off
     # by asking for an invalid captcha type
-    my $impl = $LJ::CAPTCHA_TYPES{delete $opts{want} || ""} || "";
+    my $impl     = $LJ::CAPTCHA_TYPES{ delete $opts{want} || "" } || "";
     my $subclass = $impl2class{$impl};
-    $subclass = $impl2class{$LJ::CAPTCHA_TYPES{$LJ::DEFAULT_CAPTCHA_TYPE}}
+    $subclass = $impl2class{ $LJ::CAPTCHA_TYPES{$LJ::DEFAULT_CAPTCHA_TYPE} }
         unless $subclass && $subclass->site_enabled;
 
-    my $self = bless {
-        page => $page,
-    }, $subclass;
+    my $self = bless { page => $page, }, $subclass;
 
-    $self->_init_opts( %opts );
+    $self->_init_opts(%opts);
 
     return $self;
 }
 
 # must be implemented by subclasses
+
 =head2 C<< $class->name >>
 
 The name used to refer to this CAPTCHA implementation.
@@ -118,7 +119,6 @@ The name used to refer to this CAPTCHA implementation.
 =cut
 
 sub name { return ""; }
-
 
 # object methods
 
@@ -178,11 +178,10 @@ User-provided response text
 # must be implemented by subclasses
 sub form_fields { qw() }
 
-sub site_enabled { return LJ::is_enabled( 'captcha' ) && $_[0]->_implementation_enabled ? 1 : 0 }
+sub site_enabled { return LJ::is_enabled('captcha') && $_[0]->_implementation_enabled ? 1 : 0 }
 
 # must be implemented by subclasses
 sub _implementation_enabled { return 1; }
-
 
 sub print {
     my $self = $_[0];
@@ -190,7 +189,8 @@ sub print {
 
     my $ret = "<div class='captcha'>";
     $ret .= $self->_print;
-    $ret .= "<p style='clear:both'>" . LJ::Lang::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
+    $ret .= "<p style='clear:both'>"
+        . LJ::Lang::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
     $ret .= "</div>";
 
     return $ret;
@@ -205,21 +205,22 @@ sub validate {
     # if disabled, then it's always valid to allow the post to go through
     return 1 unless $self->enabled;
 
-    $self->_init_opts( %opts );
+    $self->_init_opts(%opts);
 
     my $err_ref = $opts{err_ref};
 
     # error catching for undefined page
     my $pageref = $self->page // '';
+
     # captcha type, page captcha appeared on
-    my $stat_tags = [ (ref $self)->name, "page:$pageref" ];
+    my $stat_tags = [ ( ref $self )->name, "page:$pageref" ];
     if ( $self->challenge && $self->_validate ) {
         DW::Stats::increment( "dw.captcha.success", 1, $stat_tags );
         return 1;
     }
 
     DW::Stats::increment( "dw.captcha.failure", 1, $stat_tags );
-    $$err_ref = LJ::Lang::ml( 'captcha.invalid' );
+    $$err_ref = LJ::Lang::ml('captcha.invalid');
 
     return 0;
 }
@@ -248,6 +249,5 @@ sub _init_opts {
 sub page      { return $_[0]->{page} }
 sub challenge { return $_[0]->{challenge} }
 sub response  { return $_[0]->{response} }
-
 
 1;

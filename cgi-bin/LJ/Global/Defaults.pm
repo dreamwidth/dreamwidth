@@ -22,28 +22,29 @@ use strict;
 no strict "vars";
 
 {
+
     package LJ;
     use Sys::Hostname ();
 
     $DEFAULT_STYLE ||= {
-        'core' => 'core1',
+        'core'   => 'core1',
         'layout' => 'generator/layout',
-        'i18n' => 'generator/en',
+        'i18n'   => 'generator/en',
     };
 
     $DEFAULT_FEED_STYLE ||= {
-        core => 'core2',
+        core   => 'core2',
         layout => 'sitefeeds/layout',
-        theme => 'sitefeeds/default',
+        theme  => 'sitefeeds/default',
     };
 
     # cluster 0 is no longer supported
     $DEFAULT_CLUSTER ||= 1;
     @CLUSTERS = (1) unless @CLUSTERS;
 
-    $HOME = $LJ::HOME;
+    $HOME   = $LJ::HOME;
     $HTDOCS = "$HOME/htdocs";
-    $BIN = "$HOME/bin";
+    $BIN    = "$HOME/bin";
 
     $SERVER_NAME ||= Sys::Hostname::hostname();
 
@@ -53,22 +54,22 @@ no strict "vars";
     $SITENAME ||= "NameNotConfigured.com";
     unless ($SITENAMESHORT) {
         $SITENAMESHORT = $SITENAME;
-        $SITENAMESHORT =~ s/\..*//;  # remove .net/.com/etc
+        $SITENAMESHORT =~ s/\..*//;    # remove .net/.com/etc
     }
     $SITENAMEABBREV ||= "[??]";
 
     $MSG_READONLY_USER ||= "Database temporarily in read-only mode during maintenance.";
 
-    $DOMAIN_WEB ||= "www.$DOMAIN";
-    $SITEROOT ||= "https://$DOMAIN_WEB";
-    $IMGPREFIX ||= "$SITEROOT/img";
-    $STATPREFIX ||= "$SITEROOT/stc";
-    $WSTATPREFIX ||= "$SITEROOT/stc";
+    $DOMAIN_WEB   ||= "www.$DOMAIN";
+    $SITEROOT     ||= "https://$DOMAIN_WEB";
+    $IMGPREFIX    ||= "$SITEROOT/img";
+    $STATPREFIX   ||= "$SITEROOT/stc";
+    $WSTATPREFIX  ||= "$SITEROOT/stc";
     $USERPIC_ROOT ||= "$LJ::SITEROOT/userpic";
 
     $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
-    $PALIMGROOT ||= "$RELATIVE_SITEROOT/palimg";
-    $JSPREFIX ||= "$RELATIVE_SITEROOT/js";
+    $PALIMGROOT        ||= "$RELATIVE_SITEROOT/palimg";
+    $JSPREFIX          ||= "$RELATIVE_SITEROOT/js";
 
     # SSL prefix defaults
     $SSLIMGPREFIX   ||= "$SSLROOT/img";
@@ -89,59 +90,64 @@ no strict "vars";
     # where we set the cookies (note the period before the domain)
     $COOKIE_DOMAIN ||= ".$DOMAIN";
 
-    $MAX_SCROLLBACK_LASTN ||= 100;
+    $MAX_SCROLLBACK_LASTN   ||= 100;
     $MAX_SCROLLBACK_FRIENDS ||= 1000;
-    $MAX_USERPIC_KEYWORDS ||= 10;
-    $MAX_ICONS_PER_PAGE = 50 unless defined $MAX_ICONS_PER_PAGE; # We want to be able to configure this to unlimited ( 0 )
+    $MAX_USERPIC_KEYWORDS   ||= 10;
+    $MAX_ICONS_PER_PAGE = 50
+        unless
+        defined $MAX_ICONS_PER_PAGE;    # We want to be able to configure this to unlimited ( 0 )
 
     $LJ::AUTOSAVE_DRAFT_INTERVAL ||= 3;
 
     # this option can be a boolean or a URL, but internally we want a URL
     # (which can also be a boolean)
-    if ($LJ::OPENID_SERVER && $LJ::OPENID_SERVER == 1) {
-        $LJ::OPENID_SERVER = $LJ::USE_HTTPS_EVERYWHERE ? "$LJ::SSLROOT/openid/server" : "$LJ::SITEROOT/openid/server";
+    if ( $LJ::OPENID_SERVER && $LJ::OPENID_SERVER == 1 ) {
+        $LJ::OPENID_SERVER =
+            $LJ::USE_HTTPS_EVERYWHERE
+            ? "$LJ::SSLROOT/openid/server"
+            : "$LJ::SITEROOT/openid/server";
     }
 
     # set default capability limits if the site maintainer hasn't.
     {
         my %defcap = (
-                      'checkfriends' => 1,
-                      'checkfriends_interval' => 60,
-                      'friendsviewupdate' => 30,
-                      'makepoll' => 1,
-                      'maxfriends' => 500,
-                      'moodthemecreate' => 1,
-                      'styles' => 1,
-                      's2styles' => 1,
-                      's2props' => 1,
-                      's2viewentry' => 1,
-                      's2viewreply' => 1,
-                      's2stylesmax' => 10,
-                      's2layersmax' => 50,
-                      'userdomain' => 0,
-                      'useremail' => 0,
-                      'userpics' => 5,
-                      'findsim' => 1,
-                      'full_rss' => 1,
-                      'can_post' => 1,
-                      'get_comments' => 1,
-                      'leave_comments' => 1,
-                      'mod_queue' => 50,
-                      'mod_queue_per_poster' => 1,
-                      'hide_email_after' => 0,
-                      'userlinks' => 5,
-                      'maxcomments' => 10000,
-                      'maxcomments-before-captcha' => 5000,
-                      'rateperiod-lostinfo' => 24*60, # 24 hours
-                      'rateallowed-lostinfo' => 5,
-                      'tools_recent_comments_display' => 50,
-                      'rateperiod-invitefriend' => 60, # 1 hour
-                      'rateallowed-invitefriend' => 20,
-                      'subscriptions' => 25,
-                      'usermessage_length' => 5000,
-                      );
-        foreach my $k (keys %defcap) {
-            next if (defined $LJ::CAP_DEF{$k});
+            'checkfriends'                  => 1,
+            'checkfriends_interval'         => 60,
+            'friendsviewupdate'             => 30,
+            'makepoll'                      => 1,
+            'maxfriends'                    => 500,
+            'moodthemecreate'               => 1,
+            'styles'                        => 1,
+            's2styles'                      => 1,
+            's2props'                       => 1,
+            's2viewentry'                   => 1,
+            's2viewreply'                   => 1,
+            's2stylesmax'                   => 10,
+            's2layersmax'                   => 50,
+            'userdomain'                    => 0,
+            'useremail'                     => 0,
+            'userpics'                      => 5,
+            'findsim'                       => 1,
+            'full_rss'                      => 1,
+            'can_post'                      => 1,
+            'get_comments'                  => 1,
+            'leave_comments'                => 1,
+            'mod_queue'                     => 50,
+            'mod_queue_per_poster'          => 1,
+            'hide_email_after'              => 0,
+            'userlinks'                     => 5,
+            'maxcomments'                   => 10000,
+            'maxcomments-before-captcha'    => 5000,
+            'rateperiod-lostinfo'           => 24 * 60,    # 24 hours
+            'rateallowed-lostinfo'          => 5,
+            'tools_recent_comments_display' => 50,
+            'rateperiod-invitefriend'       => 60,         # 1 hour
+            'rateallowed-invitefriend'      => 20,
+            'subscriptions'                 => 25,
+            'usermessage_length'            => 5000,
+        );
+        foreach my $k ( keys %defcap ) {
+            next if ( defined $LJ::CAP_DEF{$k} );
             $LJ::CAP_DEF{$k} = $defcap{$k};
         }
     }
@@ -153,11 +159,11 @@ no strict "vars";
 
     # The list of content types that we consider valid for gzip compression.
     %GZIP_OKAY = (
-        'text/html' => 1,               # regular web pages; XHTML 1.0 "may" be this
-        'text/xml' => 1,                # regular XML files
-        'application/xml' => 1,         # XHTML 1.1 "may" be this
-        'application/xhtml+xml' => 1,   # XHTML 1.1 "should" be this
-        'application/rdf+xml' => 1,     # FOAF should be this
+        'text/html'             => 1,    # regular web pages; XHTML 1.0 "may" be this
+        'text/xml'              => 1,    # regular XML files
+        'application/xml'       => 1,    # XHTML 1.1 "may" be this
+        'application/xhtml+xml' => 1,    # XHTML 1.1 "should" be this
+        'application/rdf+xml'   => 1,    # FOAF should be this
     ) unless %GZIP_OKAY;
 
     # maximum FOAF friends to return (so the server doesn't get overloaded)
@@ -183,31 +189,31 @@ no strict "vars";
     # defined a MOGILEFS_CONFIG hash in etc/config.pl and you explicitly set
     # at least the hosts key to be an arrayref of ip:port combinations
     # indicating where to reach your local MogileFS server.
-    $MOGILEFS_CONFIG{domain}                 ||= 'livejournal';
-    $MOGILEFS_CONFIG{timeout}                ||= 3;
+    $MOGILEFS_CONFIG{domain}  ||= 'livejournal';
+    $MOGILEFS_CONFIG{timeout} ||= 3;
 
-    $MOGILEFS_CONFIG{classes}                ||= {};
-    $MOGILEFS_CONFIG{classes}->{temp}        ||= 2;
-    $MOGILEFS_CONFIG{classes}->{userpics}    ||= 3;
-    $MOGILEFS_CONFIG{classes}->{vgifts}      ||= 3;
-    $MOGILEFS_CONFIG{classes}->{media}       ||= 3;
+    $MOGILEFS_CONFIG{classes}             ||= {};
+    $MOGILEFS_CONFIG{classes}->{temp}     ||= 2;
+    $MOGILEFS_CONFIG{classes}->{userpics} ||= 3;
+    $MOGILEFS_CONFIG{classes}->{vgifts}   ||= 3;
+    $MOGILEFS_CONFIG{classes}->{media}    ||= 3;
 
     # detect whether we are running on 32-bit architecture
-    my $arch = ( length(pack "L!", 0) == 4 ) ? 1 : 0;
+    my $arch = ( length( pack "L!", 0 ) == 4 ) ? 1 : 0;
     if ( defined $ARCH32 ) {
-        die "Can't have ARCH32 set to false on a 32-bit architecture" if $ARCH32 <
-    $arch;
-    } else {
+        die "Can't have ARCH32 set to false on a 32-bit architecture" if $ARCH32 < $arch;
+    }
+    else {
         $ARCH32 = $arch;
     }
 
     # setup default minimal style information
-    $MINIMAL_USERAGENT{$_} ||= 1 foreach qw(Links Lynx w BlackBerry WebTV); # w is for w3m
-    $MINIMAL_BML_SCHEME ||= 'lynx';
+    $MINIMAL_USERAGENT{$_} ||= 1 foreach qw(Links Lynx w BlackBerry WebTV);    # w is for w3m
+    $MINIMAL_BML_SCHEME    ||= 'lynx';
     $MINIMAL_STYLE{'core'} ||= 'core1';
 
     # maximum size to cache s2compiled data
-    $MAX_S2COMPILED_CACHE_SIZE ||= 7500; # bytes
+    $MAX_S2COMPILED_CACHE_SIZE ||= 7500;                                       # bytes
 
     # max content length we should read via ATOM api
     # 25MB
@@ -216,56 +222,54 @@ no strict "vars";
     $DEFAULT_EDITOR ||= 'rich';
 
     unless (@LJ::EVENT_TYPES) {
-        @LJ::EVENT_TYPES = map { "LJ::Event::$_" }
-                           qw (
-                               AddedToCircle
-                               Birthday
-                               CommunityInvite
-                               CommunityJoinApprove
-                               CommunityJoinReject
-                               CommunityJoinRequest
-                               CommunityModeratedEntryNew
-                               ImportStatus
-                               InvitedFriendJoins
-                               JournalNewComment
-                               JournalNewComment::TopLevel
-                               JournalNewComment::Edited
-                               JournalNewComment::Reply
-                               JournalNewEntry
-                               NewUserpic
-                               OfficialPost
-                               PollVote
-                               RemovedFromCircle
-                               SecurityAttributeChanged
-                               UserExpunged
-                               UserMessageRecvd
-                               UserMessageSent
-                               VgiftApproved
-                               VgiftDelivered
-                               XPostFailure
-                               XPostSuccess
-                               );
+        @LJ::EVENT_TYPES = map { "LJ::Event::$_" } qw (
+            AddedToCircle
+            Birthday
+            CommunityInvite
+            CommunityJoinApprove
+            CommunityJoinReject
+            CommunityJoinRequest
+            CommunityModeratedEntryNew
+            ImportStatus
+            InvitedFriendJoins
+            JournalNewComment
+            JournalNewComment::TopLevel
+            JournalNewComment::Edited
+            JournalNewComment::Reply
+            JournalNewEntry
+            NewUserpic
+            OfficialPost
+            PollVote
+            RemovedFromCircle
+            SecurityAttributeChanged
+            UserExpunged
+            UserMessageRecvd
+            UserMessageSent
+            VgiftApproved
+            VgiftDelivered
+            XPostFailure
+            XPostSuccess
+        );
     }
 
     unless (@LJ::NOTIFY_TYPES) {
-        @LJ::NOTIFY_TYPES = map { "LJ::NotificationMethod::$_" }
-                            qw ( Email );
+        @LJ::NOTIFY_TYPES = map { "LJ::NotificationMethod::$_" } qw ( Email );
     }
 
     # random user defaults to a week
     $RANDOM_USER_PERIOD = 7;
 
     # how far in advance to send out birthday notifications
-    $LJ::BIRTHDAY_NOTIFS_ADVANCE ||= 2*24*60*60;
+    $LJ::BIRTHDAY_NOTIFS_ADVANCE ||= 2 * 24 * 60 * 60;
 
     # "RPC" URI mappings
     # add default URI handler mappings
     my %ajaxmapping = (
-                       delcomment     => "delcomment.bml",
-                       talkscreen     => "talkscreen.bml",
-                       );
+        delcomment => "delcomment.bml",
+        talkscreen => "talkscreen.bml",
+    );
 
-    foreach my $src (keys %ajaxmapping) {
+    foreach my $src ( keys %ajaxmapping ) {
         $LJ::AJAX_URI_MAP{$src} ||= $ajaxmapping{$src};
     }
 
@@ -275,15 +279,16 @@ no strict "vars";
     # 'save_region_code' specifies what to save in 'state' userprop  -
     # '1' mean save short region code and '0' - save full region name
     %LJ::COUNTRIES_WITH_REGIONS = (
-        'US' => { type => 'state', save_region_code => 1, },
+        'US' => { type => 'state',   save_region_code => 1, },
         'RU' => { type => 'stateru', save_region_code => 1, },
+
         #'AU' => { type => 'stateau', save_region_code => 0, },
         #'CA' => { type => 'stateca', save_region_code => 0, },
         #'DE' => { type => 'statede', save_region_code => 0, },
     );
 
     %LJ::VALID_PAGE_NOTICES = (
-        profile_design => 1,
+        profile_design  => 1,
         settings_design => 1,
     );
 
@@ -310,7 +315,7 @@ no strict "vars";
     # not expected to need to be changed
     # default priority for libraries and resources in a sitescheme,
     # so that they come before any stylesheets declared by the page itself
-    $LJ::LIB_RES_PRIORITY = 3;
+    $LJ::LIB_RES_PRIORITY    = 3;
     $LJ::SCHEME_RES_PRIORITY = 3;
 
     # FIXME: remove the need for this, it's a hack of a hack of a hack
@@ -323,8 +328,8 @@ no strict "vars";
 
     # mapping of captcha type to specific desired implementation
     %CAPTCHA_TYPES = (
-        "T" => "textcaptcha",   # "T" is for text
-        "I" => "recaptcha",     # "I" is for image
+        "T" => "textcaptcha",    # "T" is for text
+        "I" => "recaptcha",      # "I" is for image
     ) unless %CAPTCHA_TYPES;
     $DEFAULT_CAPTCHA_TYPE ||= "T";
 
@@ -348,10 +353,9 @@ no strict "vars";
         /latest
         /edittags
     );
-    
+
     # Selective screening limit. No user can have more than this.
     $LJ::SEL_SCREEN_LIMIT ||= 500;
 }
-
 
 1;

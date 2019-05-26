@@ -32,16 +32,15 @@ my %SKIP = (
     'Data/ObjectDriver/Driver/DBD/SQLite.pm' => 'Bareword "DBI::SQL_BLOB"',
     'Data/ObjectDriver/Driver/DBD/Oracle.pm' => 'no Oracle',
 
-    'LJ/Global/BMLInit.pm' => 'BML::register_isocode called from non-conffile context',
+    'LJ/Global/BMLInit.pm'     => 'BML::register_isocode called from non-conffile context',
     'cgi-bin/lj-bml-blocks.pl' => 'BML::register_block called from non-lookfile context',
 
-    'cgi-bin/modperl.pl' => "Special file",
+    'cgi-bin/modperl.pl'      => "Special file",
     'cgi-bin/modperl_subs.pl' => "Special file",
 );
 
-my @scripts = File::Find::Rule->file->name('*.pl')->in('cgi-bin', 'bin');
+my @scripts = File::Find::Rule->file->name('*.pl')->in( 'cgi-bin', 'bin' );
 my @modules = File::Find::Rule->relative->file->name('*.pm')->in('cgi-bin');
-
 
 plan tests => 1 * @scripts + 2 * @modules;
 bail_on_fail;
@@ -51,39 +50,35 @@ bail_on_fail;
 
 my $out = "$dir/out";
 my $err = "$dir/err";
-my $lib = File::Spec->catdir(dirname(dirname($0)), 'cgi-bin');
+my $lib = File::Spec->catdir( dirname( dirname($0) ), 'cgi-bin' );
 unshift @INC, $lib;
 
 foreach my $file (@modules) {
     my $warnings = '';
     local $SIG{__WARN__} = sub { $warnings = $_[0] || '' };
 
-    if ($SKIP{$file}) {
-        Test::More->builder->skip($SKIP{$file}) for 1..2;
-    } else {
+    if ( $SKIP{$file} ) {
+        Test::More->builder->skip( $SKIP{$file} ) for 1 .. 2;
+    }
+    else {
         require_ok($file);
         is( $warnings, '', "no warnings for $file" );
     }
 }
 
 foreach my $file (@scripts) {
-    if ($SKIP{$file}) {
-        Test::More->builder->skip($SKIP{$file});
+    if ( $SKIP{$file} ) {
+        Test::More->builder->skip( $SKIP{$file} );
         next;
     }
 
     system qq($^X -c -I$lib -I$ENV{LJHOME}/extlib/lib/perl5 $file > $out 2>$err);
     my $err_data = slurp($err);
-    is($err_data, "$file syntax OK\n", "STDERR of $file");
+    is( $err_data, "$file syntax OK\n", "STDERR of $file" );
 }
 
 # Bail out if any of the tests failed
-BAIL_OUT("Aborting test suite") if scalar
-    grep { not $_->{ok} } Test::More->builder->details;
-
-
-
-
+BAIL_OUT("Aborting test suite") if scalar grep { not $_->{ok} } Test::More->builder->details;
 
 ######################################################################
 # Support Functions

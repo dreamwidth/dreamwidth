@@ -42,30 +42,33 @@ $maint{cache_textcaptcha} = sub {
     # pre-fetch. Gradually ease off the timer if we were unable to get a captcha.
     # If we tried and failed too many times, stop for now.
     # We can always try again next time we run maint tasks
-    my @backoff_timer = ( 1, 3, 5, 0 );
-    my $delay = 1;
+    my @backoff_timer    = ( 1, 3, 5, 0 );
+    my $delay            = 1;
     my @fetched_captchas = ();
-    foreach my $i ( 1...$need ) {
+    foreach my $i ( 1 ... $need ) {
         my $captcha = DW::Captcha::textCAPTCHA::Logic->get_from_remote_server;
 
-        if ( $captcha ) {
+        if ($captcha) {
             push @fetched_captchas, $captcha;
-        } else {
+        }
+        else {
             $delay = shift @backoff_timer;
-            print $delay ? "setting delay to $delay.\n" : "ending on attempt #$i with " . scalar @fetched_captchas . " fetched.\n";
+            print $delay
+                ? "setting delay to $delay.\n"
+                : "ending on attempt #$i with " . scalar @fetched_captchas . " fetched.\n";
             last unless $delay;
         }
 
         if ( scalar @fetched_captchas >= 10 ) {
             print "...flushing to DB\n";
-            DW::Captcha::textCAPTCHA::Logic->save_multi( @fetched_captchas );
+            DW::Captcha::textCAPTCHA::Logic->save_multi(@fetched_captchas);
             @fetched_captchas = ();
         }
 
         sleep $delay;
     }
 
-    DW::Captcha::textCAPTCHA::Logic->save_multi( @fetched_captchas ) if @fetched_captchas;
+    DW::Captcha::textCAPTCHA::Logic->save_multi(@fetched_captchas) if @fetched_captchas;
     return 1;
 };
 

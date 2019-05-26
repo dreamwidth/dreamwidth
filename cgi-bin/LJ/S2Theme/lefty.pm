@@ -2,11 +2,18 @@ package LJ::S2Theme::lefty;
 use base qw( LJ::S2Theme );
 use strict;
 
-sub layouts { ( "1" => "one-column", "1s" => "one-column-split", "2l" => "two-columns-left", "2r" => "two-columns-right") }
+sub layouts {
+    (
+        "1"  => "one-column",
+        "1s" => "one-column-split",
+        "2l" => "two-columns-left",
+        "2r" => "two-columns-right"
+    )
+}
 sub layout_prop { "layout_type" }
 
 sub module_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_module_background_accent
         color_module_titlelist_border
@@ -15,7 +22,7 @@ sub module_props {
 }
 
 sub page_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_page_left_border
         color_page_right_border
@@ -29,7 +36,7 @@ sub page_props {
 }
 
 sub header_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_headernav_background
         color_headernav_current_background
@@ -41,7 +48,7 @@ sub header_props {
 }
 
 sub entry_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_entry_background_accent
         color_entry_titleuserpic_border
@@ -51,9 +58,8 @@ sub entry_props {
     return $self->_append_props( "entry_props", @props );
 }
 
-
 sub comment_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_comment_footer_text
         font_comment_footer

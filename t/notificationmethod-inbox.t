@@ -35,22 +35,22 @@ my $valid_u = sub {
 # less duplication of this so we can revalidate
 my $meth;
 my $valid_meth = sub {
-    $meth = eval { LJ::NotificationMethod::Inbox->new($u, $u->{userid}) };
-    ok(ref $meth && ! $@, "valid Inbox method instantiated");
+    $meth = eval { LJ::NotificationMethod::Inbox->new( $u, $u->{userid} ) };
+    ok( ref $meth && !$@, "valid Inbox method instantiated" );
     return $meth;
 };
 
-sub run_tests{
+sub run_tests {
     {
         # constructor tests
         $valid_u->();
         $valid_meth->();
 
         $meth = eval { LJ::NotificationMethod::Inbox->new() };
-        like($@, qr/no args/, "no args passed to constructor");
+        like( $@, qr/no args/, "no args passed to constructor" );
 
-        $meth = eval { LJ::NotificationMethod::Inbox->new({user => 'ugly'}) };
-        like($@, qr/invalid user/, "non-user passed to constructor");
+        $meth = eval { LJ::NotificationMethod::Inbox->new( { user => 'ugly' } ) };
+        like( $@, qr/invalid user/, "non-user passed to constructor" );
 
         # test valid case
         $valid_meth->();
@@ -65,19 +65,19 @@ sub run_tests{
 
         # now we have valid from prev test
         $mu = eval { $meth->{u} };
-        is($mu, $u, "member u is constructed u");
+        is( $mu, $u, "member u is constructed u" );
 
         $mu = eval { $meth->u('foo') };
-        like($@, qr/invalid 'u'/, "setting non-ref");
+        like( $@, qr/invalid 'u'/, "setting non-ref" );
 
-        $mu = eval { $meth->u($u, 'bar') };
-        like($@, qr/superfluous/, "superfluous args");
+        $mu = eval { $meth->u( $u, 'bar' ) };
+        like( $@, qr/superfluous/, "superfluous args" );
 
         # clear out $u
         %$u = ();
         LJ::start_request();
         $mu = eval { $meth->u };
-        ok(! %$u, "cleared 'u'");
+        ok( !%$u, "cleared 'u'" );
     }
 
     # notify
@@ -87,22 +87,22 @@ sub run_tests{
 
         my $ev;
 
-        my $fromu = $u; # yeah, you can watch yourself
+        my $fromu = $u;    # yeah, you can watch yourself
         $ev = LJ::Event::AddedToCircle->new( $u, $fromu, 2 );
-        ok(ref $ev && ! $@, "created LJ::Event::AddedToCircle object");
+        ok( ref $ev && !$@, "created LJ::Event::AddedToCircle object" );
 
         # failures
         eval { LJ::NotificationMethod::Inbox::notify() };
-        like($@, qr/'notify'.+?object method/, "notify class method");
+        like( $@, qr/'notify'.+?object method/, "notify class method" );
 
         eval { $meth->notify };
-        like($@, qr/requires one or more/, "notify no events");
+        like( $@, qr/requires one or more/, "notify no events" );
 
         eval { $meth->notify(undef) };
-        like($@, qr/invalid event/, "notify undef event");
+        like( $@, qr/invalid event/, "notify undef event" );
 
-        eval { $meth->notify($ev, undef, $ev) };
-        like($@, qr/invalid event/, "undef event with noise");
+        eval { $meth->notify( $ev, undef, $ev ) };
+        like( $@, qr/invalid event/, "undef event with noise" );
 
         my $str = $ev->as_string;
         $meth->notify($ev);

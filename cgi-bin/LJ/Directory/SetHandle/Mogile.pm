@@ -20,17 +20,15 @@ use LWP::UserAgent;
 use DW::BlobStore;
 
 sub new {
-    my ($class, $conskey) = @_;
+    my ( $class, $conskey ) = @_;
 
-    my $self = {
-        conskey => $conskey,
-    };
+    my $self = { conskey => $conskey, };
 
     return bless $self, $class;
 }
 
 sub new_from_string {
-    my ($class, $str) = @_;
+    my ( $class, $str ) = @_;
     $str =~ s/^Mogile:// or die;
     return $class->new($str);
 }
@@ -53,12 +51,12 @@ sub _load {
 
 sub pack_size {
     my $self = $_[0];
-    return length( ${$self->_load} );
+    return length( ${ $self->_load } );
 }
 
 sub load_pack_data {
     my ( $self, $cb ) = @_;
-    $cb->( ${$self->_load} );
+    $cb->( ${ $self->_load } );
     return;
 }
 

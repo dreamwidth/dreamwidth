@@ -27,8 +27,8 @@ BEGIN {
 $LJ::COMPRESS_TEXT = 1;
 
 my $master = LJ::get_db_writer();
-my $ct = $master->selectrow_array("SELECT COUNT(*) FROM user WHERE clusterid=?",
-			       undef, $clusterid);
+my $ct =
+    $master->selectrow_array( "SELECT COUNT(*) FROM user WHERE clusterid=?", undef, $clusterid );
 if ($ct) {
     die "There are still $ct users on cluster $clusterid\n";
 }
@@ -39,7 +39,7 @@ die "Invalid/down cluster: $clusterid\n" unless $db;
 my $sth = $db->prepare("SHOW TABLES");
 $sth->execute;
 
-while (my $table = $sth->fetchrow_array) {
+while ( my $table = $sth->fetchrow_array ) {
     next if $table eq "useridmap";
     print "  truncating $table\n";
     $db->do("TRUNCATE TABLE $table");

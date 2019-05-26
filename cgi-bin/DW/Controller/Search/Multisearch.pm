@@ -27,11 +27,11 @@ use DW::Template;
 use DW::Controller;
 use Locale::Codes::Country;
 
-DW::Routing->register_string( '/multisearch', \&multisearch_handler, app => 1 );
-DW::Routing->register_string( '/tools/search', \&toolsearch_handler, app => 1 );
+DW::Routing->register_string( '/multisearch',  \&multisearch_handler, app => 1 );
+DW::Routing->register_string( '/tools/search', \&toolsearch_handler,  app => 1 );
 
 sub multisearch_handler {
-    my $r = DW::Request->get;
+    my $r    = DW::Request->get;
     my $args = $r->did_post ? $r->post_args : $r->get_args;
 
     my $type   = lc( $args->{'type'}   || '' );
@@ -47,10 +47,11 @@ sub multisearch_handler {
     my ( $f_nav, $f_user, $f_int, $f_email, $f_im, $f_faq, $f_region );
 
     $f_nav = sub {
+
         # Some special shortcuts used for easy navigation
-        return $r->redirect( "$LJ::SITEROOT/support/faqbrowse?faqid=$1&view=full" )
+        return $r->redirect("$LJ::SITEROOT/support/faqbrowse?faqid=$1&view=full")
             if $q =~ /^faq (\d+)$/;
-        return $r->redirect( "$LJ::SITEROOT/support/see_request?id=$2" )
+        return $r->redirect("$LJ::SITEROOT/support/see_request?id=$2")
             if $q =~ /^req(uest)? (\d+)$/;
 
         if ( $q =~ m!(.+)/(pics|full)! ) {
@@ -62,18 +63,18 @@ sub multisearch_handler {
             }
         }
 
-	if ( $type eq "nav_and_user" ) {
-	    if ( my $u = LJ::load_user_or_identity($q) ) {
-                       return $r->redirect( $u->profile_url() );
-	    }
-	}
+        if ( $type eq "nav_and_user" ) {
+            if ( my $u = LJ::load_user_or_identity($q) ) {
+                return $r->redirect( $u->profile_url() );
+            }
+        }
 
-        my $eq = LJ::ehtml( $q );
+        my $eq = LJ::ehtml($q);
         return error_ml( '/multisearch.tt.errorpage.nomatch.nav', { query => $eq } );
 
         return DW::Template->render_template( $tpl, $rv );
 
-	};
+    };
 
     $f_user = sub {
         my $user = $q;
@@ -84,10 +85,10 @@ sub multisearch_handler {
         $user =~ s/-/_/g;
         $user =~ s/[^\w]//g;
 
-        return $r->redirect( "$LJ::SITEROOT/random" ) unless $user;
+        return $r->redirect("$LJ::SITEROOT/random") unless $user;
 
-        my $u = LJ::load_user( $user );
-        return $r->redirect( "$LJ::SITEROOT/profile?user=$user" ) unless $u;
+        my $u = LJ::load_user($user);
+        return $r->redirect("$LJ::SITEROOT/profile?user=$user") unless $u;
 
         return $r->redirect( $u->allpics_base ) if $what eq "pics";
 
@@ -96,29 +97,33 @@ sub multisearch_handler {
 
         my $url = $u->profile_url;
         $url .= "?mode=full" if $what eq 'full';
-        return $r->redirect( $url );
+        return $r->redirect($url);
     };
 
     $f_int = sub {
-        return error_ml( '/multisearch.tt.errorpage.nointerest' ) unless $q;
-        return $r->redirect( "$LJ::SITEROOT/interests?int=" . LJ::eurl( $q ) );
+        return error_ml('/multisearch.tt.errorpage.nointerest') unless $q;
+        return $r->redirect( "$LJ::SITEROOT/interests?int=" . LJ::eurl($q) );
     };
 
     $f_email = sub {
-        return error_ml( '/multisearch.tt.errorpage.noaddress' ) unless $q;
+        return error_ml('/multisearch.tt.errorpage.noaddress') unless $q;
 
         my $dbr = LJ::get_db_reader();
-        my $uid = $dbr->selectrow_array( qq{
+        my $uid = $dbr->selectrow_array(
+            qq{
             SELECT userid FROM user WHERE journaltype='P' AND statusvis='V'
-            AND allow_contactshow='Y' AND email=? LIMIT 1 }, undef, $q );
+            AND allow_contactshow='Y' AND email=? LIMIT 1 }, undef, $q
+        );
 
         # if not in the user table, try the email table
-        $uid ||= $dbr->selectrow_array( qq{
+        $uid ||= $dbr->selectrow_array(
+            qq{
             SELECT e.userid FROM user u, email e WHERE e.email=?
             AND e.userid=u.userid AND u.journaltype='P' AND u.statusvis='V'
-            AND u.allow_contactshow='Y' LIMIT 1 }, undef, $q );
+            AND u.allow_contactshow='Y' LIMIT 1 }, undef, $q
+        );
 
-        if ( my $u = LJ::load_userid( $uid ) ) {
+        if ( my $u = LJ::load_userid($uid) ) {
             my $show = $u->opt_whatemailshow;
             if ( $show eq "A" || $show eq "B" ) {
                 return $r->redirect( $u->journal_base . '/data/foaf' )
@@ -126,14 +131,14 @@ sub multisearch_handler {
                 return $r->redirect( $u->profile_url );
             }
         }
-        return error_ml( '/multisearch.tt.errorpage.nomatch' );
+        return error_ml('/multisearch.tt.errorpage.nomatch');
     };
 
     $f_im = sub {
         eval "use LJ::Directory::Constraint::ContactInfo;";
-        return error_ml( 'error.tempdisabled' ) if $@;
+        return error_ml('error.tempdisabled') if $@;
 
-        my $c = LJ::Directory::Constraint::ContactInfo->new( screenname => $q );
+        my $c    = LJ::Directory::Constraint::ContactInfo->new( screenname => $q );
         my @uids = $c->matching_uids;
 
         if ( @uids == 1 ) {
@@ -142,20 +147,24 @@ sub multisearch_handler {
                 if $output eq "foaf";
             return $r->redirect( $u->profile_url );
 
-        } elsif ( @uids > 1 ) {
+        }
+        elsif ( @uids > 1 ) {
             $rv->{type} = 'im';
 
-            my $us = [ values %{ LJ::load_userids( @uids ) } ];
+            my $us = [ values %{ LJ::load_userids(@uids) } ];
             $rv->{results} = LJ::user_search_display(
-                    users => $us, timesort => 1, perpage => 50 );
+                users    => $us,
+                timesort => 1,
+                perpage  => 50
+            );
 
             return DW::Template->render_template( $tpl, $rv );
         }
-        return error_ml( '/multisearch.tt.errorpage.nomatch' );
+        return error_ml('/multisearch.tt.errorpage.nomatch');
     };
 
     $f_region = sub {
-        $q = LJ::trim( $q );
+        $q = LJ::trim($q);
         my @parts = split /\s*,\s*/, $q;
         if ( @parts == 0 || @parts > 3 ) {
             $rv->{type} = 'region';
@@ -164,84 +173,88 @@ sub multisearch_handler {
 
         my $ctc = $parts[-1];
         my $country;
-        if ( length( $ctc ) > 2 ) {
+        if ( length($ctc) > 2 ) {
+
             # Must be country name
-            $country = uc country2code( $ctc );
-        } else {
+            $country = uc country2code($ctc);
+        }
+        else {
             # Likely country code or invalid
-            $country = uc country_code2code( $ctc, LOCALE_CODE_ALPHA_2,
-                                             LOCALE_CODE_ALPHA_2 );
-            $country ||= uc country2code( $ctc ); # 2-letter country name??
+            $country = uc country_code2code( $ctc, LOCALE_CODE_ALPHA_2, LOCALE_CODE_ALPHA_2 );
+            $country ||= uc country2code($ctc);    # 2-letter country name??
         }
 
         my ( $state, $city );
 
-        if ( $country ) {
+        if ($country) {
             pop @parts;
             if ( @parts == 1 ) {
                 $state = $parts[0];
-            } else {
+            }
+            else {
                 ( $city, $state ) = @parts;
             }
 
-        } else {
+        }
+        else {
             $country = "US";
 
             if ( @parts == 1 ) {
                 $city = $parts[0];
-            } else {
+            }
+            else {
                 ( $city, $state ) = @parts;
             }
         }
 
-        ( $city, $state, $country ) = map { LJ::eurl($_) }
-                                          ( $city, $state, $country );
-        return $r->redirect( "$LJ::SITEROOT/directorysearch?s_loc=1" .
-                             "&loc_cn=$country&loc_st=$state&loc_ci=$city" .
-                             "&opt_sort=ut&opt_format=pics&opt_pagesize=50" );
+        ( $city, $state, $country ) = map { LJ::eurl($_) } ( $city, $state, $country );
+        return $r->redirect( "$LJ::SITEROOT/directorysearch?s_loc=1"
+                . "&loc_cn=$country&loc_st=$state&loc_ci=$city"
+                . "&opt_sort=ut&opt_format=pics&opt_pagesize=50" );
     };
 
     $f_faq = sub {
-        return error_ml( '/multisearch.tt.errorpage.nofaq' ) unless $q;
-        return $r->redirect( "$LJ::SITEROOT/support/faqsearch?q=" . LJ::eurl( $q ) );
+        return error_ml('/multisearch.tt.errorpage.nofaq') unless $q;
+        return $r->redirect( "$LJ::SITEROOT/support/faqsearch?q=" . LJ::eurl($q) );
     };
 
     # set up dispatch table
-    my $dispatch = { nav_and_user => $f_nav,
-                     user         => $f_user,
-                     int          => $f_int,
-                     email        => $f_email,
-                     im           => $f_im,
-                     aolim        => $f_im,
-                     icq          => $f_im,
-                     yahoo        => $f_im,
-                     jabber       => $f_im,
-                     region       => $f_region,
-                     faq          => $f_faq,
-                   };
+    my $dispatch = {
+        nav_and_user => $f_nav,
+        user         => $f_user,
+        int          => $f_int,
+        email        => $f_email,
+        im           => $f_im,
+        aolim        => $f_im,
+        icq          => $f_im,
+        yahoo        => $f_im,
+        jabber       => $f_im,
+        region       => $f_region,
+        faq          => $f_faq,
+    };
 
     return $dispatch->{$type}->() if exists $dispatch->{$type};
 
     # Unknown type, try running site hooks
-    if ( $type ) {
+    if ($type) {
+
         # TODO: check return value of this hook, and fall back to another hook
         # that shows the results here, rather than redirecting to another page
         return LJ::Hooks::run_hook( 'multisearch_custom_search_redirect',
-                                    { type => $type, query => $q } );
+            { type => $type, query => $q } );
     }
 
     # No type specified - redirect them somewhere useful.
-    return $r->redirect( "$LJ::SITEROOT/tools/search" );
+    return $r->redirect("$LJ::SITEROOT/tools/search");
 }
 
 sub toolsearch_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
-    $rv->{widget} = LJ::Widget::Search->render;
+    $rv->{widget}   = LJ::Widget::Search->render;
     $rv->{sitename} = $LJ::SITENAMESHORT;
     return DW::Template->render_template( 'tools/search.tt', $rv );
 }
-
 
 1;

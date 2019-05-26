@@ -20,7 +20,7 @@ sub max_chars { 80 }
 
 sub prop_name { "friendspagetitle" }
 sub text_size { 40 }
-sub question { "Friends Page Title" }
+sub question  { "Friends Page Title" }
 
 1;
 

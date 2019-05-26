@@ -20,7 +20,7 @@ sub max_chars { 80 }
 
 sub prop_name { "journalsubtitle" }
 sub text_size { 40 }
-sub question { "Journal Subtitle" }
+sub question  { "Journal Subtitle" }
 
 1;
 

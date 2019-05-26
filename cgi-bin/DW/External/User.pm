@@ -22,7 +22,6 @@ use Carp qw/ croak /;
 use DW::External::Site;
 use LJ::CleanHTML;
 
-
 # given a site (url) and a user (string), construct an external
 # user to return; undef on error
 sub new {
@@ -37,7 +36,7 @@ sub new {
     my $ext = DW::External::Site->get_site( site => $site )
         or return undef;
 
-    my $vuser = $ext->canonical_username( $user )
+    my $vuser = $ext->canonical_username($user)
         or return undef;
 
     my $self = {
@@ -47,7 +46,6 @@ sub new {
 
     return bless $self, $class;
 }
-
 
 # return our username
 sub user {
@@ -59,23 +57,22 @@ sub site {
     return $_[0]->{site};
 }
 
-
 # return the ljuser_display block
 sub ljuser_display {
     my ( $self, %opts ) = @_;
 
-    my $user = $self->user;
-    my $profile_url = $self->site->profile_url( $self );
-    my $journal_url = $self->site->journal_url( $self );
-    my $badge_image = $self->site->badge_image( $self );
+    my $user        = $self->user;
+    my $profile_url = $self->site->profile_url($self);
+    my $journal_url = $self->site->journal_url($self);
+    my $badge_image = $self->site->badge_image($self);
     $badge_image->{url} = LJ::CleanHTML::https_url( $badge_image->{url} ) if $LJ::IS_SSL;
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
-    return "<span style='white-space: nowrap;'$display_class><a href='$profile_url'>" .
-           "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>" .
-           "</a><a href='$journal_url'><b>$user</b></a></span>";
+    return
+          "<span style='white-space: nowrap;'$display_class><a href='$profile_url'>"
+        . "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>"
+        . "</a><a href='$journal_url'><b>$user</b></a></span>";
 }
-
 
 1;

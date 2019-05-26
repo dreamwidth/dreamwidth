@@ -25,13 +25,14 @@ use DW::Template;
 
 use LJ::User;
 
-my $privs = [ 'suspend' ];
+my $privs = ['suspend'];
 
 DW::Routing->register_string( "/admin/logout_user", \&index_controller );
-DW::Controller::Admin->register_admin_page( '/',
-    path => 'logout_user',
+DW::Controller::Admin->register_admin_page(
+    '/',
+    path     => 'logout_user',
     ml_scope => '/admin/logout_user.tt',
-    privs => $privs,
+    privs    => $privs,
 );
 
 sub index_controller {
@@ -39,9 +40,9 @@ sub index_controller {
     return $rv unless $ok;
 
     my $vars = {%$rv};
-    my $r = DW::Request->get;
+    my $r    = DW::Request->get;
     my @errors;
-    $vars->{u} = 0;  # otherwise, page automatically loads the remote
+    $vars->{u} = 0;    # otherwise, page automatically loads the remote
 
     if ( $r->did_post ) {
         return DW::Template->render_template( 'error.tt', { "message" => "Invalid form auth" } )
@@ -57,23 +58,24 @@ sub index_controller {
 
         push @errors, "Unknown user: $user" unless $u;
 
-        if ( $u ) {
+        if ($u) {
             push @errors, "Deleted and purged user: $user"
-                if $u->is_expunged; # notify of this but still expire sessions
-            push @errors, "User is a community: " . LJ::ljuser( $u ) if $u->is_community;
-            push @errors, "User is a feed: " . LJ::ljuser( $u ) if $u->is_syndicated;
+                if $u->is_expunged;    # notify of this but still expire sessions
+            push @errors, "User is a community: " . LJ::ljuser($u) if $u->is_community;
+            push @errors, "User is a feed: " . LJ::ljuser($u)      if $u->is_syndicated;
 
-            if ( $u->is_personal || $u->is_identity ) { # these are the account types with sessions
-                my $remote = LJ::get_remote();
-                my $udbh = LJ::get_cluster_master( $u );
-                my $sessions = $udbh->selectcol_arrayref( "SELECT sessid FROM sessions WHERE ".
-                                                      "userid=$u->{userid}" );
-                $u->kill_sessions( @$sessions ) if @$sessions;
-                my $ct = scalar( @$sessions );
+            if ( $u->is_personal || $u->is_identity ) {  # these are the account types with sessions
+                my $remote   = LJ::get_remote();
+                my $udbh     = LJ::get_cluster_master($u);
+                my $sessions = $udbh->selectcol_arrayref(
+                    "SELECT sessid FROM sessions WHERE " . "userid=$u->{userid}" );
+                $u->kill_sessions(@$sessions) if @$sessions;
+                my $ct = scalar(@$sessions);
 
-                LJ::statushistory_add( $u->{userid}, $remote->{userid}, 'logout_user', "expired $ct sessions" );
+                LJ::statushistory_add( $u->{userid}, $remote->{userid}, 'logout_user',
+                    "expired $ct sessions" );
                 $vars->{sessions} = $sessions;
-                $vars->{u} = $u;
+                $vars->{u}        = $u;
             }
         }
 

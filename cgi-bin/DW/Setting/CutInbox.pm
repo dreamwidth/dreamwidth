@@ -26,7 +26,7 @@ sub should_render {
 
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.cutinbox.label' );
+    return $class->ml('setting.cutinbox.label');
 }
 
 sub option {
@@ -35,13 +35,15 @@ sub option {
 
     my $inbox_cut = $class->get_arg( $args, "cutinbox" ) || $u->cut_inbox;
 
-    my $ret = LJ::html_check( {
-        name => "${key}cutinbox",
-        id => "${key}cutinbox",
-        value => 1,
-        selected => $inbox_cut ? 1 : 0,
-    } );
-    $ret .= " <label for='${key}cutinbox'>" . $class->ml( 'setting.cutinbox.option' ) . "</label>";
+    my $ret = LJ::html_check(
+        {
+            name     => "${key}cutinbox",
+            id       => "${key}cutinbox",
+            value    => 1,
+            selected => $inbox_cut ? 1 : 0,
+        }
+    );
+    $ret .= " <label for='${key}cutinbox'>" . $class->ml('setting.cutinbox.option') . "</label>";
 
     return $ret;
 }
@@ -50,7 +52,7 @@ sub save {
     my ( $class, $u, $args ) = @_;
 
     my $val = $class->get_arg( $args, "cutinbox" ) ? "Y" : "N";
-    $u->cut_inbox( $val );
+    $u->cut_inbox($val);
 
     return 1;
 }

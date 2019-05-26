@@ -27,27 +27,28 @@ LJ::update_user( $u, { status => 'A' } );
 
 # Makei sure all users can have a site email alias.
 local $LJ::T_HAS_ALL_CAPS = 1;
-local $LJ::USER_EMAIL = 1;
+local $LJ::USER_EMAIL     = 1;
 
 my $dbh = LJ::get_db_writer();
+
 sub check_alias {
-    my ( $alias ) = @_;
-    my ( $rcpt ) = $dbh->selectrow_array(
-    	qq{SELECT rcpt FROM email_aliases
+    my ($alias) = @_;
+    my ($rcpt)  = $dbh->selectrow_array(
+        qq{SELECT rcpt FROM email_aliases
     	   WHERE alias=CONCAT(REPLACE(?, '-', '_'), '\@$LJ::USER_DOMAIN')},
-    	undef, $alias
+        undef, $alias
     );
     return defined $rcpt;
 }
 
 # Now you see them
-ok( $u->update_email_alias, 'update_email_alias successful' );
+ok( $u->update_email_alias,  'update_email_alias successful' );
 ok( check_alias( $u->user ), 'alias present' );
 my $username_with_dashes = $u->user;
 $username_with_dashes =~ tr/_/-/;
-ok( check_alias( $username_with_dashes ), 'alias with dashes "present"' );
+ok( check_alias($username_with_dashes), 'alias with dashes "present"' );
 
 # Now you don't
-ok( $u->delete_email_alias, 'delete_email_alias successful' );
-ok( !check_alias( $u->user ), 'alias absent' );
-ok( !check_alias( $username_with_dashes ), 'alias with dashes "absent"' );
+ok( $u->delete_email_alias,              'delete_email_alias successful' );
+ok( !check_alias( $u->user ),            'alias absent' );
+ok( !check_alias($username_with_dashes), 'alias with dashes "absent"' );

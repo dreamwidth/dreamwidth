@@ -23,7 +23,7 @@ use DW::Template;
 use URI;
 
 our ( @ISA, @EXPORT );
-@ISA = qw/ Exporter /;
+@ISA    = qw/ Exporter /;
 @EXPORT = qw/ needlogin error_ml success_ml controller /;
 
 # redirects the user to the login page to handle that eventuality
@@ -34,7 +34,7 @@ sub needlogin {
     if ( my $qs = $r->query_string ) {
         $uri .= '?' . $qs;
     }
-    $uri = LJ::eurl( $uri );
+    $uri = LJ::eurl($uri);
 
     $r->header_out( Location => "$LJ::SITEROOT/?returnto=$uri" );
     return $r->REDIRECT;
@@ -42,17 +42,15 @@ sub needlogin {
 
 # returns an error page using a language string
 sub error_ml {
-    my ($string, $opts) = @_;
-    return DW::Template->render_template(
-        'error.tt', { message => LJ::Lang::ml( $string ), opts => $opts }
-    );
+    my ( $string, $opts ) = @_;
+    return DW::Template->render_template( 'error.tt',
+        { message => LJ::Lang::ml($string), opts => $opts } );
 }
 
 # return a success page using a language string
 sub success_ml {
-    return DW::Template->render_template(
-        'success.tt', { message => LJ::Lang::ml( $_[0], $_[1] ), links => $_[2] }
-    );
+    return DW::Template->render_template( 'success.tt',
+        { message => LJ::Lang::ml( $_[0], $_[1] ), links => $_[2] } );
 }
 
 # return a success page, takes the following arguments:
@@ -62,11 +60,13 @@ sub success_ml {
 #   - a list of links, with each link being in the form of { text_ml => ".success.link.x", url => LJ::create_url( "..." ) }
 sub render_success {
     return DW::Template->render_template(
-        'success-page.tt', {
-            scope => "/" . $_[1],
+        'success-page.tt',
+        {
+            scope             => "/" . $_[1],
             message_arguments => $_[2],
-            links => $_[3],
-    });
+            links             => $_[3],
+        }
+    );
 }
 
 # helper controller.  give it a few arguments and it does nice things for you.
@@ -104,7 +104,7 @@ sub render_success {
 #        otherwise same as remote
 # - authas_html -- HTML for the "switch user" form
 sub controller {
-    my ( %args ) = @_;
+    my (%args) = @_;
 
     my $vars = {};
     my $fail = sub { return ( 0, $_[0] ); };
@@ -113,9 +113,9 @@ sub controller {
     # some argument combinations are invalid, so just die.  this is something that should
     # be caught in development...
     die "Invalid usage of controller, check your calling arguments.\n"
-        if ( $args{authas} && $args{specify_user} ) ||
-           ( $args{authas} && $args{anonymous} ) ||
-           ( $args{privcheck} && $args{anonymous} );
+        if ( $args{authas} && $args{specify_user} )
+        || ( $args{authas} && $args{anonymous} )
+        || ( $args{privcheck} && $args{anonymous} );
 
     $args{form_auth} //= 0;
 
@@ -129,9 +129,9 @@ sub controller {
     # check to see if we need to do a bounce to set the domain cookie
     unless ( $r->did_post || $args{skip_domsess} ) {
         my $burl = LJ::remote_bounce_url();
-        if ( $burl ) {
+        if ($burl) {
             $r->err_header_out( "Cache-Control" => "no-cache" );
-            return $fail->( $r->redirect( $burl ) );
+            return $fail->( $r->redirect($burl) );
         }
     }
 
@@ -142,69 +142,86 @@ sub controller {
 
     # if they can specify a user argument, try to load that
     if ( $args{specify_user} ) {
+
         # use 'user' argument if specified, default to remote
         $vars->{u} = LJ::load_user( $r->get_args->{user} ) || $vars->{remote}
-            or return $fail->( error_ml( 'error.invaliduser' ) );
+            or return $fail->( error_ml('error.invaliduser') );
     }
 
     # if a page allows authas it must declare it.  authas can only happen if we are
     # requiring the user to be logged in.
     if ( $args{authas} ) {
         $vars->{u} = LJ::get_authas_user( $r->get_args->{authas} || $vars->{remote}->user )
-            or return $fail->( error_ml( 'error.invalidauth' ) );
+            or return $fail->( error_ml('error.invalidauth') );
 
         my $authas_args = $args{authas} == 1 ? {} : $args{authas};
 
         # older pages
-        $vars->{authas_html} = LJ::make_authas_select( $vars->{remote}, { authas => $vars->{u}->user } );
+        $vars->{authas_html} =
+            LJ::make_authas_select( $vars->{remote}, { authas => $vars->{u}->user } );
 
         # foundation pages
-        $vars->{authas_form} = "<form action='" . LJ::create_url() . "' method='get'>"
-                                . LJ::make_authas_select( $vars->{remote}, { authas => $vars->{u}->user, foundation => 1, %{$authas_args || {}} } )
-                                . "</form>";
+        $vars->{authas_form} =
+              "<form action='"
+            . LJ::create_url()
+            . "' method='get'>"
+            . LJ::make_authas_select( $vars->{remote},
+            { authas => $vars->{u}->user, foundation => 1, %{ $authas_args || {} } } )
+            . "</form>";
     }
 
     # check user is suitably privved
     if ( my $privs = $args{privcheck} ) {
+
         # if they just gave us a string, throw it in an array
-        $privs = [ $privs ] unless ref $privs eq 'ARRAY';
+        $privs = [$privs] unless ref $privs eq 'ARRAY';
 
         # now iterate over the array and check.  the user must have ANY
         # of the privs to pass the test.
         my $has_one = 0;
         my @privnames;
-        foreach my $priv ( @$privs ) {
+        foreach my $priv (@$privs) {
+
             # if priv is a string, assign the priv having to has_one and stop searching
-            if ( not ref( $priv ) ) {
-                if ( $vars->{remote}->has_priv( $priv ) ) {
+            if ( not ref($priv) ) {
+                if ( $vars->{remote}->has_priv($priv) ) {
                     $has_one = 1;
                     last;
-                } else {
+                }
+                else {
                     push @privnames, $priv;
                 }
-            } elsif ( ref( $priv ) eq "CODE" ) { # if priv is a function, get the result and name
-                my( $result, $name ) = $priv->( $vars->{remote} );
-                if ( $result ) {
+            }
+            elsif ( ref($priv) eq "CODE" ) {    # if priv is a function, get the result and name
+                my ( $result, $name ) = $priv->( $vars->{remote} );
+                if ($result) {
                     $has_one = 1;
                     last;
-                } else {
+                }
+                else {
                     push @privnames, $name;
                 }
-            } else {
-                die "Malformed priv in privcheck!"
+            }
+            else {
+                die "Malformed priv in privcheck!";
             }
         }
 
         # now if they have none, throw an error message
-        return $fail->( error_ml( 'admin.noprivserror',
-                    { numprivs => scalar @$privs,
-                      needprivs => join( ', ', sort @privnames ) } ) )
-            unless $has_one;
+        return $fail->(
+            error_ml(
+                'admin.noprivserror',
+                {
+                    numprivs  => scalar @$privs,
+                    needprivs => join( ', ', sort @privnames )
+                }
+            )
+        ) unless $has_one;
     }
 
     if ( $r->did_post && $args{form_auth} ) {
         my $post_args = $r->post_args || {};
-        return $fail->( error_ml( 'error.invalidform' ) )
+        return $fail->( error_ml('error.invalidform') )
             unless LJ::check_form_auth( $post_args->{lj_form_auth} );
         $vars->{post_args} = $post_args;
     }

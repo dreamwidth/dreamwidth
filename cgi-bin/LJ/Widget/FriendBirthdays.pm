@@ -26,28 +26,31 @@ sub need_res {
 #   limit: optional max number of birthdays to show; default is 5
 sub render_body {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
-    my $u = $opts{user} && LJ::isu($opts{user}) ? $opts{user} : LJ::get_remote();
+    my $u = $opts{user} && LJ::isu( $opts{user} ) ? $opts{user} : LJ::get_remote();
     return "" unless $u;
 
     my $limit = defined $opts{limit} ? $opts{limit} : 5;
 
     my @bdays = $u->get_birthdays( months_ahead => 1 );
-    @bdays = @bdays[0..$limit-1]
+    @bdays = @bdays[ 0 .. $limit - 1 ]
         if @bdays > $limit;
 
     return "" unless @bdays;
 
     my $ret;
     $ret .= "<h2><span>" . $class->ml('widget.friendbirthdays.title') . "</span></h2>";
-    $ret .= "<a href='$LJ::SITEROOT/birthdays' class='more-link'>" . $class->ml('widget.friendbirthdays.viewall') . "</a></p>";
+    $ret .=
+          "<a href='$LJ::SITEROOT/birthdays' class='more-link'>"
+        . $class->ml('widget.friendbirthdays.viewall')
+        . "</a></p>";
     $ret .= "<div class='indent_sm'><table summary=''>";
 
     foreach my $bday (@bdays) {
-        my $u = LJ::load_user($bday->[2]);
+        my $u     = LJ::load_user( $bday->[2] );
         my $month = $bday->[0];
-        my $day = $bday->[1];
+        my $day   = $bday->[1];
         next unless $u && $month && $day;
 
         # remove leading zero on day
@@ -55,7 +58,10 @@ sub render_body {
 
         $ret .= "<tr>";
         $ret .= "<td>" . $u->ljuser_display . "</td>";
-        $ret .= "<td>" . $class->ml('widget.friendbirthdays.userbirthday', {'month' => LJ::Lang::month_short($month), 'day' => $day}) . "</td>";
+        $ret .= "<td>"
+            . $class->ml( 'widget.friendbirthdays.userbirthday',
+            { 'month' => LJ::Lang::month_short($month), 'day' => $day } )
+            . "</td>";
         $ret .= "<td><a href='" . $u->gift_url . "' class='gift-link'>";
         $ret .= $class->ml('widget.friendbirthdays.gift') . "</a></td>";
         $ret .= "</tr>";
@@ -63,9 +69,11 @@ sub render_body {
 
     $ret .= "</table></div>";
 
-    $ret .= "<p class='indent_sm'>&raquo; <a href='$LJ::SITEROOT/birthdays'>" .
-            $class->ml('widget.friendbirthdays.friends_link') .
-            "</a></p>" if $opts{friends_link};
+    $ret .=
+          "<p class='indent_sm'>&raquo; <a href='$LJ::SITEROOT/birthdays'>"
+        . $class->ml('widget.friendbirthdays.friends_link')
+        . "</a></p>"
+        if $opts{friends_link};
 
     return $ret;
 }

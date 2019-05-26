@@ -6,7 +6,7 @@ sub layouts { ( "1s" => "one-column-split" ) }
 sub layout_prop { "layout_type" }
 
 sub page_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw( c
         topnav_show
         page_top_image
@@ -38,12 +38,12 @@ sub page_props {
         topbar_width_units
         bottombar_width_size
         bottombar_width_units
-     );
+    );
     return $self->_append_props( "page_props", @props );
 }
 
 sub module_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_module_tag_link
         color_module_tag_link_visited
@@ -64,7 +64,7 @@ sub module_props {
 }
 
 sub footer_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         image_background_footer_group
         image_background_footer_url
@@ -75,13 +75,13 @@ sub footer_props {
 }
 
 sub entry_props {
-    my $self = shift;
-    my @props = qw( 
+    my $self  = shift;
+    my @props = qw(
         entry_comment_text_align
-        metadata_label_images  
+        metadata_label_images
         color_entry_shadow
         color_entry_datetime_text
-        color_metadata_text  
+        color_metadata_text
         font_entry_datetime
         font_entry_datetime_size
         font_entry_datetime_units
@@ -98,17 +98,17 @@ sub entry_props {
         image_metadata_groups
         image_metadata_xpost
         image_list_bullet
-     );
+    );
     return $self->_append_props( "entry_props", @props );
 }
 
 sub comment_props {
-    my $self = shift;
-    my @props = qw( 
+    my $self  = shift;
+    my @props = qw(
         image_background_comment_header_group
         image_background_comment_header_url
         image_background_comment_header_repeat
-        image_background_comment_header_position 
+        image_background_comment_header_position
     );
     return $self->_append_props( "comment_props", @props );
 }

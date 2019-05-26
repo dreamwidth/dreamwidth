@@ -53,12 +53,11 @@ this will be handled for you automatically: all you need to do is pass in the
 Returns a new DW::FormErrors object
 
 =cut
-sub new {
-    my ( $class ) = @_;
 
-    return bless {
-        _data => Hash::MultiValue->new,
-    };
+sub new {
+    my ($class) = @_;
+
+    return bless { _data => Hash::MultiValue->new, };
 }
 
 =head2 C<< $self->add( $key, $error_ml ) >>
@@ -66,12 +65,11 @@ sub new {
 Adds an error ml code for the given form field (key)
 
 =cut
+
 sub add {
     my ( $self, $key, $error_ml, $args ) = @_;
 
-    my $error = {
-       ml_key => $error_ml,
-    };
+    my $error = { ml_key => $error_ml, };
     $error->{ml_args} = $args if $args;
 
     $self->{_data}->add( $key || "", $error );
@@ -85,16 +83,14 @@ Use this only if you have a hardcoded string, such as one in a variable in the s
 Otherwise, $self->add is preferred.
 
 =cut
+
 sub add_string {
     my ( $self, $key, $hardcoded_string ) = @_;
 
-    my $error = {
-        message => $hardcoded_string,
-    };
+    my $error = { message => $hardcoded_string, };
 
     $self->{_data}->add( $key || "", $error );
 }
-
 
 =head2 C<< $self->get( $key ) >>
 
@@ -118,17 +114,19 @@ arguments for the ml string, as a hashref
 
 
 =cut
+
 sub get {
     my ( $self, $key ) = @_;
 
-    my @errors = $self->{_data}->get_all( $key );
-    foreach my $error ( @errors ) {
-        $error->{message} ||= LJ::Lang::ml( $self->_absolute_ml_code( $error->{ml_key} ), $error->{ml_args} );
+    my @errors = $self->{_data}->get_all($key);
+    foreach my $error (@errors) {
+        $error->{message} ||=
+            LJ::Lang::ml( $self->_absolute_ml_code( $error->{ml_key} ), $error->{ml_args} );
     }
 
     # using an array slice to force it to return as a list, even if in scalar context
     # (so if it's called in scalar context, we just pull off the first error...)
-    return @errors[0...$#errors];
+    return @errors[ 0 ... $#errors ];
 }
 
 =head2 C<< $self->get_all >>
@@ -145,27 +143,27 @@ Returns a reference to a list:
 Duplicate keys are preserved
 
 =cut
+
 sub get_all {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     my @errors;
-    $self->{_data}->each( sub {
-                my $error = {
-                    key     => $_[0],
-                };
-                $error->{ml_key} = $self->_absolute_ml_code( $_[1]->{ml_key} )
-                    if $_[1]->{ml_key};
-                $error->{ml_args} = $_[1]->{ml_args} if $_[1]->{ml_args};
+    $self->{_data}->each(
+        sub {
+            my $error = { key => $_[0], };
+            $error->{ml_key} = $self->_absolute_ml_code( $_[1]->{ml_key} )
+                if $_[1]->{ml_key};
+            $error->{ml_args} = $_[1]->{ml_args} if $_[1]->{ml_args};
 
-                $error->{message} = $_[1]->{message}
-                    || LJ::Lang::ml( $error->{ml_key}, $error->{ml_args} );
+            $error->{message} = $_[1]->{message}
+                || LJ::Lang::ml( $error->{ml_key}, $error->{ml_args} );
 
-                push @errors, $error;
-            } );
+            push @errors, $error;
+        }
+    );
 
     return \@errors;
 }
-
 
 # converts relative ml codes to absolute ones (including filename)
 # needs to be called when getting, rather than when adding
@@ -173,9 +171,9 @@ sub get_all {
 sub _absolute_ml_code {
     my ( $self, $error_ml ) = @_;
 
-    my $r = DW::Request->get;
-    my $ml_scope = $r ? $r->note( "ml_scope" ) : "";
-    $error_ml =  $ml_scope . $error_ml
+    my $r        = DW::Request->get;
+    my $ml_scope = $r ? $r->note("ml_scope") : "";
+    $error_ml = $ml_scope . $error_ml
         if rindex( $error_ml, '.', 0 ) == 0;
 
     return $error_ml;
@@ -186,8 +184,9 @@ sub _absolute_ml_code {
 Returns 1 if there are errors to display; 0 if none
 
 =cut
+
 sub exist {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     return scalar $self->{_data}->keys ? 1 : 0;
 }

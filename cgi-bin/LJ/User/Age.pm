@@ -32,12 +32,11 @@ sub age {
     my $bdate = $u->{bdate};
     return unless length $bdate;
 
-    my ($year, $mon, $day) = $bdate =~ m/^(\d\d\d\d)-(\d\d)-(\d\d)/;
-    my $age = LJ::calc_age($year, $mon, $day);
+    my ( $year, $mon, $day ) = $bdate =~ m/^(\d\d\d\d)-(\d\d)-(\d\d)/;
+    my $age = LJ::calc_age( $year, $mon, $day );
     return $age if defined $age && $age > 0;
     return;
 }
-
 
 # This will format the birthdate based on the user prop
 sub bday_string {
@@ -45,20 +44,21 @@ sub bday_string {
     croak "invalid user object passed" unless LJ::isu($u);
 
     my $bdate = $u->{'bdate'};
-    my ($year,$mon,$day) = split(/-/, $bdate);
+    my ( $year, $mon, $day ) = split( /-/, $bdate );
     my $bday_string = '';
 
-    if ($u->can_show_full_bday && $day > 0 && $mon > 0 && $year > 0) {
+    if ( $u->can_show_full_bday && $day > 0 && $mon > 0 && $year > 0 ) {
         $bday_string = $bdate;
-    } elsif ($u->can_show_bday && $day > 0 && $mon > 0) {
+    }
+    elsif ( $u->can_show_bday && $day > 0 && $mon > 0 ) {
         $bday_string = "$mon-$day";
-    } elsif ($u->can_show_bday_year && $year > 0) {
+    }
+    elsif ( $u->can_show_bday_year && $year > 0 ) {
         $bday_string = $year;
     }
     $bday_string =~ s/^0000-//;
     return $bday_string;
 }
-
 
 # Returns the best guess age of the user, which is init_age if it exists, otherwise age
 sub best_guess_age {
@@ -67,16 +67,15 @@ sub best_guess_age {
     return $u->init_age || $u->age;
 }
 
-
 # returns if this user can join an adult community or not
 # adultref will hold the value of the community's adult content flag
 sub can_join_adult_comm {
-    my ($u, %opts) = @_;
+    my ( $u, %opts ) = @_;
 
-    return 1 unless LJ::is_enabled( 'adult_content' );
+    return 1 unless LJ::is_enabled('adult_content');
 
     my $adultref = $opts{adultref};
-    my $comm = $opts{comm} or croak "No community passed";
+    my $comm     = $opts{comm} or croak "No community passed";
 
     my $adult_content = $comm->adult_content_calculated;
     $$adultref = $adult_content;
@@ -86,20 +85,18 @@ sub can_join_adult_comm {
     return 1;
 }
 
-
 # Birthday logic -- should a notification be sent?
 # Currently the same logic as can_show_bday with an exception for
 # journals that have memorial or deleted status.
 sub can_notify_bday {
     my ( $u, %opts ) = @_;
-    croak "invalid user object passed" unless LJ::isu( $u );
+    croak "invalid user object passed" unless LJ::isu($u);
 
     return 0 if $u->is_memorial;
     return 0 if $u->is_deleted;
 
-    return $u->can_show_bday( %opts );
+    return $u->can_show_bday(%opts);
 }
-
 
 # Birthday logic -- can any of the birthday info be shown
 # This will return true if any birthday info can be shown
@@ -111,10 +108,9 @@ sub can_share_bday {
 
     return 0 if $u->opt_sharebday eq 'N';
     return 0 if $u->opt_sharebday eq 'R' && !$with_u;
-    return 0 if $u->opt_sharebday eq 'F' && !$u->trusts( $with_u );
+    return 0 if $u->opt_sharebday eq 'F' && !$u->trusts($with_u);
     return 1;
 }
-
 
 # Birthday logic -- show appropriate string based on opt_showbday
 # This will return true if the actual birthday can be shown
@@ -129,7 +125,6 @@ sub can_show_bday {
     return 1;
 }
 
-
 # This will return true if the actual birth year can be shown
 sub can_show_bday_year {
     my ( $u, %opts ) = @_;
@@ -141,7 +136,6 @@ sub can_show_bday_year {
     return 0 unless $u->opt_showbday eq 'Y' || $u->opt_showbday eq 'F';
     return 1;
 }
-
 
 # This will return true if month, day, and year can be shown
 sub can_show_full_bday {
@@ -155,7 +149,6 @@ sub can_show_full_bday {
     return 1;
 }
 
-
 sub include_in_age_search {
     my $u = shift;
 
@@ -168,7 +161,6 @@ sub include_in_age_search {
     return 1;
 }
 
-
 # This returns the users age based on the init_bdate (users coppa validation birthdate)
 sub init_age {
     my $u = shift;
@@ -177,31 +169,28 @@ sub init_age {
     my $init_bdate = $u->prop('init_bdate');
     return unless $init_bdate;
 
-    my ($year, $mon, $day) = $init_bdate =~ m/^(\d\d\d\d)-(\d\d)-(\d\d)/;
-    my $age = LJ::calc_age($year, $mon, $day);
+    my ( $year, $mon, $day ) = $init_bdate =~ m/^(\d\d\d\d)-(\d\d)-(\d\d)/;
+    my $age = LJ::calc_age( $year, $mon, $day );
     return $age if $age > 0;
     return;
 }
 
-
 # return true if we know user is a minor (< 18)
 sub is_minor {
     my $self = shift;
-    my $age = $self->best_guess_age;
+    my $age  = $self->best_guess_age;
     return 0 unless $age;
-    return 1 if ($age < 18);
+    return 1 if ( $age < 18 );
     return 0;
 }
-
 
 sub next_birthday {
     my $u = shift;
     return if $u->is_expunged;
 
-    return $u->selectrow_array("SELECT nextbirthday FROM birthdays " .
-                               "WHERE userid = ?", undef, $u->id)+0;
+    return $u->selectrow_array( "SELECT nextbirthday FROM birthdays " . "WHERE userid = ?",
+        undef, $u->id ) + 0;
 }
-
 
 # class method, loads next birthdays for a bunch of users
 sub next_birthdays {
@@ -211,24 +200,23 @@ sub next_birthdays {
     my $clusters = LJ::User->split_by_cluster(@_);
 
     my %bdays = ();
-    foreach my $cid (keys %$clusters) {
+    foreach my $cid ( keys %$clusters ) {
         next unless $cid;
 
-        my @users = @{$clusters->{$cid} || []};
-        my $dbcr = LJ::get_cluster_def_reader($cid)
+        my @users = @{ $clusters->{$cid} || [] };
+        my $dbcr  = LJ::get_cluster_def_reader($cid)
             or die "Unable to load reader for cluster: $cid";
 
-        my $bind = join(",", map { "?" } @users);
-        my $sth = $dbcr->prepare("SELECT * FROM birthdays WHERE userid IN ($bind)");
+        my $bind = join( ",", map { "?" } @users );
+        my $sth  = $dbcr->prepare("SELECT * FROM birthdays WHERE userid IN ($bind)");
         $sth->execute(@users);
-        while (my $row = $sth->fetchrow_hashref) {
-            $bdays{$row->{userid}} = $row->{nextbirthday};
+        while ( my $row = $sth->fetchrow_hashref ) {
+            $bdays{ $row->{userid} } = $row->{nextbirthday};
         }
     }
 
     return \%bdays;
 }
-
 
 # opt_showbday options
 # F - Full Display of Birthday
@@ -237,6 +225,7 @@ sub next_birthdays {
 # N - Do not display
 sub opt_showbday {
     my $u = shift;
+
     # option not set = "yes", set to N = "no"
     $u->_lazy_migrate_infoshow;
 
@@ -248,13 +237,13 @@ sub opt_showbday {
     unless ( LJ::is_enabled('infoshow_migrate') || $u->{allow_infoshow} eq ' ' ) {
         return $u->{allow_infoshow} eq 'Y' ? undef : 'N';
     }
-    if ($u->raw_prop('opt_showbday') =~ /^(D|F|N|Y)$/) {
+    if ( $u->raw_prop('opt_showbday') =~ /^(D|F|N|Y)$/ ) {
         return $u->raw_prop('opt_showbday');
-    } else {
+    }
+    else {
         return 'D';
     }
 }
-
 
 # opt_sharebday options
 # A - All people
@@ -264,31 +253,31 @@ sub opt_showbday {
 sub opt_sharebday {
     my $u = shift;
 
-    if ($u->raw_prop('opt_sharebday') =~ /^(A|F|N|R)$/) {
+    if ( $u->raw_prop('opt_sharebday') =~ /^(A|F|N|R)$/ ) {
         return $u->raw_prop('opt_sharebday');
-    } else {
+    }
+    else {
         return 'F' if $u->is_minor;
         return 'A';
     }
 }
-
 
 # this sets the unix time of their next birthday for notifications
 sub set_next_birthday {
     my $u = shift;
     return if $u->is_expunged;
 
-    my ($year, $mon, $day) = split(/-/, $u->{bdate});
-    unless ($mon > 0 && $day > 0) {
-        $u->do("DELETE FROM birthdays WHERE userid = ?", undef, $u->id);
+    my ( $year, $mon, $day ) = split( /-/, $u->{bdate} );
+    unless ( $mon > 0 && $day > 0 ) {
+        $u->do( "DELETE FROM birthdays WHERE userid = ?", undef, $u->id );
         return;
     }
 
     my $as_unix = sub {
-        return LJ::mysqldate_to_time(sprintf("%04d-%02d-%02d", @_));
+        return LJ::mysqldate_to_time( sprintf( "%04d-%02d-%02d", @_ ) );
     };
 
-    my $curyear = (gmtime(time))[5]+1900;
+    my $curyear = ( gmtime(time) )[5] + 1900;
 
     # Calculate the time of their next birthday.
 
@@ -312,20 +301,19 @@ sub set_next_birthday {
     # window of dates where we're processing notifications.
 
     my $bday;
-    for my $inc (0..2) {
-        $bday = $as_unix->($curyear + $inc, $mon, $day);
+    for my $inc ( 0 .. 2 ) {
+        $bday = $as_unix->( $curyear + $inc, $mon, $day );
         last if $bday > time() + $LJ::BIRTHDAY_NOTIFS_ADVANCE;
     }
 
     # up to twelve hours drift so we don't get waves
-    $bday += int(rand(12*3600));
+    $bday += int( rand( 12 * 3600 ) );
 
-    $u->do("REPLACE INTO birthdays VALUES (?, ?)", undef, $u->id, $bday);
+    $u->do( "REPLACE INTO birthdays VALUES (?, ?)", undef, $u->id, $bday );
     die $u->errstr if $u->err;
 
     return $bday;
 }
-
 
 sub should_fire_birthday_notif {
     my $u = shift;
@@ -347,7 +335,6 @@ sub should_fire_birthday_notif {
     return 1;
 }
 
-
 # data for generating packed directory records
 sub usersearch_age_with_expire {
     my $u = shift;
@@ -361,9 +348,8 @@ sub usersearch_age_with_expire {
     # no need to expire due to age if we don't have a birthday
     my $expire = $u->next_birthday || undef;
 
-    return ($age, $expire);
+    return ( $age, $expire );
 }
-
 
 ########################################################################
 ### 12. Adult Content Functions
@@ -381,14 +367,12 @@ sub adult_content {
     return $prop_value ? $prop_value : "none";
 }
 
-
 # uses user-defined prop to figure out the adult content level
 sub adult_content_calculated {
     my $u = shift;
 
     return $u->adult_content;
 }
-
 
 # returns who marked the entry as the 'adult_content_calculated' adult content level
 sub adult_content_marker {
@@ -397,7 +381,6 @@ sub adult_content_marker {
     return "journal";
 }
 
-
 # defuned by the user
 sub adult_content_reason {
     my $u = shift;
@@ -405,23 +388,21 @@ sub adult_content_reason {
     return $u->prop('adult_content_reason');
 }
 
-
 sub hide_adult_content {
     my $u = shift;
 
     my $prop_value = $u->prop('hide_adult_content');
 
-    if (!$u->best_guess_age) {
+    if ( !$u->best_guess_age ) {
         return "concepts";
     }
 
-    if ($u->is_minor && $prop_value ne "concepts") {
+    if ( $u->is_minor && $prop_value ne "concepts" ) {
         return "explicit";
     }
 
     return $prop_value ? $prop_value : "none";
 }
-
 
 # returns a number that represents the user's chosen search filtering level
 # 0 = no filtering
@@ -441,7 +422,6 @@ sub safe_search {
     return 10;
 }
 
-
 # determine if the user in "for_u" should see $u in a search result
 sub should_show_in_search_results {
     my ( $u, %opts ) = @_;
@@ -451,28 +431,28 @@ sub should_show_in_search_results {
     return 0 if $u->is_person && $u->age && $u->age < 14;
 
     # now check adult content / safe search
-    return 1 unless LJ::is_enabled( 'adult_content' ) && LJ::is_enabled( 'safe_search' );
+    return 1 unless LJ::is_enabled('adult_content') && LJ::is_enabled('safe_search');
 
     my $adult_content = $u->adult_content_calculated;
-    my $for_u = $opts{for};
+    my $for_u         = $opts{for};
 
     # only show accounts with no adult content to logged out users
     return $adult_content eq "none" ? 1 : 0
-        unless LJ::isu( $for_u );
+        unless LJ::isu($for_u);
 
     my $safe_search = $for_u->safe_search;
-    return 1 if $safe_search == 0;  # user wants to see everyone
+    return 1 if $safe_search == 0;    # user wants to see everyone
 
     # calculate the safe_search level for this account
     my $adult_content_flag = $LJ::CONTENT_FLAGS{$adult_content};
-    my $adult_content_flag_level = $adult_content_flag
-                                 ? $adult_content_flag->{safe_search_level}
-                                 : 0;
+    my $adult_content_flag_level =
+          $adult_content_flag
+        ? $adult_content_flag->{safe_search_level}
+        : 0;
 
     # if the level is set, see if it exceeds the desired safe_search level
     return 1 unless $adult_content_flag_level;
     return ( $safe_search < $adult_content_flag_level ) ? 1 : 0;
 }
-
 
 1;

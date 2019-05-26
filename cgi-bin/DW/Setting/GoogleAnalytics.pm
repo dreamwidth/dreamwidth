@@ -26,7 +26,7 @@ sub should_render {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.googleanalytics.label' );
+    return $_[0]->ml('setting.googleanalytics.label');
 }
 
 sub option {
@@ -35,14 +35,16 @@ sub option {
     my $key = $class->pkgkey;
     my $ret;
 
-    $ret .= LJ::html_text({
-        name  => "${key}code",
-        id    => "${key}code",
-        class => "text",
-        value => $errs ? $class->get_arg( $args, "code" ) : $u->google_analytics,
-        size  => 30,
-        maxlength => 100,
-    });
+    $ret .= LJ::html_text(
+        {
+            name      => "${key}code",
+            id        => "${key}code",
+            class     => "text",
+            value     => $errs ? $class->get_arg( $args, "code" ) : $u->google_analytics,
+            size      => 30,
+            maxlength => 100,
+        }
+    );
 
     my $errdiv = $class->errdiv( $errs, "code" );
     $ret .= "<br />$errdiv" if $errdiv;
@@ -55,12 +57,14 @@ sub save {
 
     my $txt = $class->get_arg( $args, "code" ) || '';
     $txt = LJ::text_trim( $txt, 0, 100 );
+
     # Check that the ID matches the format UA-number-number
     # or is blank before proceeding.
     if ( $txt =~ /^UA-\d{1,20}-\d{1,5}$/i or $txt eq "" ) {
-        $u->google_analytics ( $txt );
-    } else {
-        $class->errors( "code" => $class->ml( 'setting.googleanalytics.error.invalid' ) ) ;
+        $u->google_analytics($txt);
+    }
+    else {
+        $class->errors( "code" => $class->ml('setting.googleanalytics.error.invalid') );
     }
     return 1;
 }

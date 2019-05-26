@@ -41,7 +41,7 @@ are not sysbanned from using the invites system.
 =cut
 
 sub can_request {
-    my (%opts)  = @_;
+    my (%opts) = @_;
     return 0 unless $opts{user}->is_person;
     my $userid = $opts{user}->id;
 

@@ -21,28 +21,31 @@ sub cmd { "unsuspend" }
 
 sub desc { "Unsuspend an account or entry. Requires priv: suspend." }
 
-sub args_desc { [
-                 'username or email address or entry url' => "The username of the account to unsuspend, or an email address to unsuspend all accounts at that address, or an entry URL to unsuspend a single entry within an account",
-                 'reason' => "Why you're unsuspending the account or entry",
-                 ] }
+sub args_desc {
+    [
+        'username or email address or entry url' =>
+"The username of the account to unsuspend, or an email address to unsuspend all accounts at that address, or an entry URL to unsuspend a single entry within an account",
+        'reason' => "Why you're unsuspending the account or entry",
+    ]
+}
 
 sub usage { '<username or email address or entry url> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && $remote->has_priv( "suspend" );
+    return $remote && $remote->has_priv("suspend");
 }
 
 sub execute {
-    my ($self, $user, $reason, $confirmed, @args) = @_;
+    my ( $self, $user, $reason, $confirmed, @args ) = @_;
 
     return $self->error("This command takes two arguments. Consult the reference.")
         unless $user && $reason && scalar(@args) == 0;
 
     my $remote = LJ::get_remote();
-    my $entry = LJ::Entry->new_from_url($user);
+    my $entry  = LJ::Entry->new_from_url($user);
     if ($entry) {
-        my $poster = $entry->poster;
+        my $poster  = $entry->poster;
         my $journal = $entry->journal;
 
         return $self->error("Invalid entry.")
@@ -54,36 +57,37 @@ sub execute {
         return $self->error("Entry is not currently suspended.")
             if $entry->is_visible;
 
-        $entry->set_prop( statusvis => "V" );
+        $entry->set_prop( statusvis           => "V" );
         $entry->set_prop( unsuspend_supportid => 0 )
             if $entry->prop("unsuspend_supportid");
 
         $reason = "entry: " . $entry->url . "; reason: $reason";
-        LJ::statushistory_add($journal, $remote, "unsuspend", $reason);
-        LJ::statushistory_add($poster, $remote, "unsuspend", $reason)
+        LJ::statushistory_add( $journal, $remote, "unsuspend", $reason );
+        LJ::statushistory_add( $poster,  $remote, "unsuspend", $reason )
             unless $journal->equals($poster);
 
-        return $self->print("Entry " . $entry->url . " unsuspended.");
+        return $self->print( "Entry " . $entry->url . " unsuspended." );
     }
 
     my @users;
-    if ($user !~ /@/) {
+    if ( $user !~ /@/ ) {
         push @users, $user;
 
-    } else {
+    }
+    else {
         $self->info("Acting on users matching email $user");
 
-        my @userids = LJ::User->accounts_by_email( $user );
-        return $self->error( "No users found matching the email address $user." )
+        my @userids = LJ::User->accounts_by_email($user);
+        return $self->error("No users found matching the email address $user.")
             unless @userids;
 
-        my $us = LJ::load_userids( @userids );
+        my $us = LJ::load_userids(@userids);
 
-        foreach my $u (values %$us) {
+        foreach my $u ( values %$us ) {
             push @users, $u->user;
         }
 
-        unless ($confirmed eq "confirm") {
+        unless ( $confirmed eq "confirm" ) {
             $self->info("   $_") foreach @users;
             $self->info("To actually confirm this action, please do this again:");
             $self->info("   unsuspend $user \"$reason\" confirm");
@@ -99,7 +103,7 @@ sub execute {
             next;
         }
 
-        unless ($u->is_suspended) {
+        unless ( $u->is_suspended ) {
             $self->error("$username is not currently suspended; skipping.");
             next;
         }
@@ -107,7 +111,7 @@ sub execute {
         $u->update_self( { statusvis => 'V', raw => 'statusvisdate=NOW()' } );
         $u->{statusvis} = 'V';
 
-        LJ::statushistory_add($u, $remote, "unsuspend", $reason);
+        LJ::statushistory_add( $u, $remote, "unsuspend", $reason );
 
         $self->print("User '$username' unsuspended.");
     }

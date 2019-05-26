@@ -38,20 +38,40 @@ use warnings;
 use DW::Routing;
 use DW::Graphs;
 
-DW::Routing->register_string("/stats/accounts_by_type",
-	\&accounts_by_type, app => 1, format=>'png');
+DW::Routing->register_string(
+    "/stats/accounts_by_type",
+    \&accounts_by_type,
+    app    => 1,
+    format => 'png'
+);
 
-DW::Routing->register_string("/stats/active_community_accounts",
-    \&active_community_accounts, app => 1, format=>'png');
+DW::Routing->register_string(
+    "/stats/active_community_accounts",
+    \&active_community_accounts,
+    app    => 1,
+    format => 'png'
+);
 
-DW::Routing->register_string("/stats/active_identity_accounts",
-    \&active_identity_accounts, app => 1, format=>'png');
+DW::Routing->register_string(
+    "/stats/active_identity_accounts",
+    \&active_identity_accounts,
+    app    => 1,
+    format => 'png'
+);
 
-DW::Routing->register_string("/stats/active_personal_accounts",
-    \&active_personal_accounts, app => 1, format=>'png');
+DW::Routing->register_string(
+    "/stats/active_personal_accounts",
+    \&active_personal_accounts,
+    app    => 1,
+    format => 'png'
+);
 
-DW::Routing->register_string("/stats/paid_accounts",
-	\&paid_accounts, app => 1, format=>'png');
+DW::Routing->register_string(
+    "/stats/paid_accounts",
+    \&paid_accounts,
+    app    => 1,
+    format => 'png'
+);
 
 =head2 C<< DW::Controller::Graphs::accounts_by_type( ) >>
 
@@ -63,27 +83,27 @@ sub accounts_by_type {
     my $r = DW::Request->get;
 
     # Get the values to be graphed
-    my $personal = $r->get_args->{personal};
-    my $identity = $r->get_args->{identity};
-    my $community = $r->get_args->{community};
+    my $personal   = $r->get_args->{personal};
+    my $identity   = $r->get_args->{identity};
+    my $community  = $r->get_args->{community};
     my $syndicated = $r->get_args->{syndicated};
 
     # Get labels for the graph
-    my $personal_label = $r->get_args->{personal_label};
-    my $identity_label = $r->get_args->{identity_label};
-    my $community_label = $r->get_args->{community_label};
+    my $personal_label   = $r->get_args->{personal_label};
+    my $identity_label   = $r->get_args->{identity_label};
+    my $community_label  = $r->get_args->{community_label};
     my $syndicated_label = $r->get_args->{syndicated_label};
 
     # Package the input for the DW::Graphs
     my $hashref = {
-                "$personal_label\r\n   $personal" => $personal,
-                "$identity_label\r\n   $identity" => $identity,
-                "$community_label\r\n   $community" => $community,
-                "$syndicated_label\r\n   $syndicated" => $syndicated,
+        "$personal_label\r\n   $personal"     => $personal,
+        "$identity_label\r\n   $identity"     => $identity,
+        "$community_label\r\n   $community"   => $community,
+        "$syndicated_label\r\n   $syndicated" => $syndicated,
     };
 
     # create an image
-    my $gd = DW::Graphs::pie( $hashref );
+    my $gd = DW::Graphs::pie($hashref);
 
     # return the image
     $r->content_type("image/png");
@@ -102,28 +122,28 @@ sub active_community_accounts {
     my $r = DW::Request->get;
 
     # Get the values to be graphed
-    my $active_free_c =  $r->get_args->{active_free_c};
-    my $active_allpaid_c =  $r->get_args->{active_allpaid_c};
+    my $active_free_c    = $r->get_args->{active_free_c};
+    my $active_allpaid_c = $r->get_args->{active_allpaid_c};
 
-    my $active_7d_free_c =  $r->get_args->{active_7d_free_c};
-    my $active_7d_allpaid_c =  $r->get_args->{active_7d_allpaid_c};
+    my $active_7d_free_c    = $r->get_args->{active_7d_free_c};
+    my $active_7d_allpaid_c = $r->get_args->{active_7d_allpaid_c};
 
-    my $active_1d_free_c =  $r->get_args->{active_1d_free_c};
-    my $active_1d_allpaid_c =  $r->get_args->{active_1d_allpaid_c};
+    my $active_1d_free_c    = $r->get_args->{active_1d_free_c};
+    my $active_1d_allpaid_c = $r->get_args->{active_1d_allpaid_c};
 
     # Get various labels for the graph
     my $bar_paid_label = $r->get_args->{bar_paid_label};
     my $bar_free_label = $r->get_args->{bar_free_label};
-    my $bar_30d_label = $r->get_args->{bar_30d_label};
-    my $bar_7d_label = $r->get_args->{bar_7d_label};
-    my $bar_1d_label = $r->get_args->{bar_1d_label};
+    my $bar_30d_label  = $r->get_args->{bar_30d_label};
+    my $bar_7d_label   = $r->get_args->{bar_7d_label};
+    my $bar_1d_label   = $r->get_args->{bar_1d_label};
 
     # Two datasets: paid and free
     my @paid_dataset = ( $active_1d_allpaid_c, $active_7d_allpaid_c, $active_allpaid_c );
-    my @free_dataset = ( $active_1d_free_c, $active_7d_free_c, $active_free_c );
+    my @free_dataset = ( $active_1d_free_c,    $active_7d_free_c,    $active_free_c );
 
     my @labels = ( $bar_1d_label, $bar_7d_label, $bar_30d_label );
-    my $names = [ $bar_free_label, $bar_paid_label ];
+    my $names  = [ $bar_free_label, $bar_paid_label ];
 
     # Package the input for the Graphs module
     my $input = [ [@labels], [@free_dataset], [@paid_dataset] ];
@@ -148,28 +168,28 @@ sub active_identity_accounts {
     my $r = DW::Request->get;
 
     # Get the values to be graphed
-    my $active_free_i =  $r->get_args->{active_free_i};
-    my $active_allpaid_i =  $r->get_args->{active_allpaid_i};
+    my $active_free_i    = $r->get_args->{active_free_i};
+    my $active_allpaid_i = $r->get_args->{active_allpaid_i};
 
-    my $active_7d_free_i =  $r->get_args->{active_7d_free_i};
-    my $active_7d_allpaid_i =  $r->get_args->{active_7d_allpaid_i};
+    my $active_7d_free_i    = $r->get_args->{active_7d_free_i};
+    my $active_7d_allpaid_i = $r->get_args->{active_7d_allpaid_i};
 
-    my $active_1d_free_i =  $r->get_args->{active_1d_free_i};
-    my $active_1d_allpaid_i =  $r->get_args->{active_1d_allpaid_i};
+    my $active_1d_free_i    = $r->get_args->{active_1d_free_i};
+    my $active_1d_allpaid_i = $r->get_args->{active_1d_allpaid_i};
 
     # Get labels for the graph
     my $bar_paid_label = $r->get_args->{bar_paid_label};
     my $bar_free_label = $r->get_args->{bar_free_label};
-    my $bar_30d_label = $r->get_args->{bar_30d_label};
-    my $bar_7d_label = $r->get_args->{bar_7d_label};
-    my $bar_1d_label = $r->get_args->{bar_1d_label};
+    my $bar_30d_label  = $r->get_args->{bar_30d_label};
+    my $bar_7d_label   = $r->get_args->{bar_7d_label};
+    my $bar_1d_label   = $r->get_args->{bar_1d_label};
 
     # Two datasets: paid and free
     my @paid_dataset = ( $active_1d_allpaid_i, $active_7d_allpaid_i, $active_allpaid_i );
-    my @free_dataset = ( $active_1d_free_i, $active_7d_free_i, $active_free_i );
+    my @free_dataset = ( $active_1d_free_i,    $active_7d_free_i,    $active_free_i );
 
     my @labels = ( $bar_1d_label, $bar_7d_label, $bar_30d_label );
-    my $names = [ $bar_free_label, $bar_paid_label ];
+    my $names  = [ $bar_free_label, $bar_paid_label ];
 
     # Package the input for the Graphs module
     my $input = [ [@labels], [@free_dataset], [@paid_dataset] ];
@@ -194,28 +214,28 @@ sub active_personal_accounts {
     my $r = DW::Request->get;
 
     # Get values to be graphed
-    my $active_free_p =  $r->get_args->{active_free_p};
-    my $active_allpaid_p =  $r->get_args->{active_allpaid_p};
+    my $active_free_p    = $r->get_args->{active_free_p};
+    my $active_allpaid_p = $r->get_args->{active_allpaid_p};
 
-    my $active_7d_free_p =  $r->get_args->{active_7d_free_p};
-    my $active_7d_allpaid_p =  $r->get_args->{active_7d_allpaid_p};
+    my $active_7d_free_p    = $r->get_args->{active_7d_free_p};
+    my $active_7d_allpaid_p = $r->get_args->{active_7d_allpaid_p};
 
-    my $active_1d_free_p =  $r->get_args->{active_1d_free_p};
-    my $active_1d_allpaid_p =  $r->get_args->{active_1d_allpaid_p};
+    my $active_1d_free_p    = $r->get_args->{active_1d_free_p};
+    my $active_1d_allpaid_p = $r->get_args->{active_1d_allpaid_p};
 
     # Get labels for the graph
     my $bar_paid_label = $r->get_args->{bar_paid_label};
     my $bar_free_label = $r->get_args->{bar_free_label};
-    my $bar_30d_label = $r->get_args->{bar_30d_label};
-    my $bar_7d_label = $r->get_args->{bar_7d_label};
-    my $bar_1d_label = $r->get_args->{bar_1d_label};
+    my $bar_30d_label  = $r->get_args->{bar_30d_label};
+    my $bar_7d_label   = $r->get_args->{bar_7d_label};
+    my $bar_1d_label   = $r->get_args->{bar_1d_label};
 
     # Two datasets: paid and free
     my @paid_dataset = ( $active_1d_allpaid_p, $active_7d_allpaid_p, $active_allpaid_p );
-    my @free_dataset = ( $active_1d_free_p, $active_7d_free_p, $active_free_p );
+    my @free_dataset = ( $active_1d_free_p,    $active_7d_free_p,    $active_free_p );
 
     my @labels = ( $bar_1d_label, $bar_7d_label, $bar_30d_label );
-    my $names = [ $bar_free_label, $bar_paid_label ];
+    my $names  = [ $bar_free_label, $bar_paid_label ];
 
     # Package the input for the Graphs module
     my $input = [ [@labels], [@free_dataset], [@paid_dataset] ];
@@ -239,26 +259,27 @@ sub paid_accounts {
     my $r = DW::Request->get;
 
     # Get values to be graphed
-    my $paid = $r->get_args->{paid};
-    my $premium = $r->get_args->{premium};
-    my $seed = $r->get_args->{seed};
+    my $paid            = $r->get_args->{paid};
+    my $premium         = $r->get_args->{premium};
+    my $seed            = $r->get_args->{seed};
     my $active_30d_free = $r->get_args->{active_30d_free};
 
     # Get labels for the graph
-    my $paid_label = $r->get_args->{paid_label};
-    my $premium_label = $r->get_args->{premium_label};
-    my $seed_label = $r->get_args->{seed_label};
+    my $paid_label        = $r->get_args->{paid_label};
+    my $premium_label     = $r->get_args->{premium_label};
+    my $seed_label        = $r->get_args->{seed_label};
     my $active_free_label = $r->get_args->{active_free_label};
 
     # Package the input for DW::Graphs
     my $input = {
-                "$paid_label\r\n   $paid" => $paid,
-                "$premium_label\r\n   $premium" => $premium,
-                "$seed_label\r\n   $seed" => $seed,
-                "$active_free_label\r\n   $active_30d_free" => $active_30d_free,
+        "$paid_label\r\n   $paid"                   => $paid,
+        "$premium_label\r\n   $premium"             => $premium,
+        "$seed_label\r\n   $seed"                   => $seed,
+        "$active_free_label\r\n   $active_30d_free" => $active_30d_free,
     };
+
     # create an image
-    my $gd = DW::Graphs::pie( $input );
+    my $gd = DW::Graphs::pie($input);
 
     # return the image
     $r->content_type("image/png");

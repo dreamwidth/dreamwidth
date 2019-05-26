@@ -2,7 +2,7 @@
 #
 # DW::Controller::CommentCount
 #
-# Creates an image that shows the current number of comments on 
+# Creates an image that shows the current number of comments on
 # the given post.
 #
 # Authors:
@@ -23,10 +23,14 @@ use warnings;
 use DW::Routing;
 use Image::Magick;
 
-DW::Routing->register_string("/tools/commentcount", \&commentcount_handler, app => 1, format => 'png' );
+DW::Routing->register_string(
+    "/tools/commentcount", \&commentcount_handler,
+    app    => 1,
+    format => 'png'
+);
 
 sub commentcount_handler {
-    my $r = DW::Request->get;
+    my $r    = DW::Request->get;
     my $args = $r->get_args;
 
     my $count = $args->{samplecount} || 0;
@@ -35,7 +39,7 @@ sub commentcount_handler {
 
     if ( $args->{ditemid} && $args->{user} ) {
         my $ditemid = $args->{ditemid};
-        my $uid = LJ::get_userid( $args->{user} );
+        my $uid     = LJ::get_userid( $args->{user} );
         $entry = LJ::Entry->new( $uid, ditemid => $ditemid ) if $uid;
         $entry = undef unless $entry && $entry->valid;
     }
@@ -44,10 +48,10 @@ sub commentcount_handler {
 
     # create an image
     my $image = Image::Magick->new;
-    $image->Set(pen => 'black');
-    $image->Set(font => 'Generic.ttf');
-    $image->Set(pointsize => 12);
-    $image->Set(size => '30x12');
+    $image->Set( pen       => 'black' );
+    $image->Set( font      => 'Generic.ttf' );
+    $image->Set( pointsize => 12 );
+    $image->Set( size      => '30x12' );
     $image->Read("label:$count");
 
     # return the image

@@ -31,8 +31,7 @@ sub get_openid_claims {
         or die "need database\n";
     my $claims = $dbh->selectall_arrayref(
         'SELECT userid, claimed_userid FROM openid_claims WHERE userid = ?',
-        undef, $u->id
-    );
+        undef, $u->id );
     return () unless $claims && ref $claims eq 'ARRAY';
     return map { LJ::load_userid( $_->[1] ) } @$claims;
 }
@@ -46,12 +45,10 @@ sub claimed_by {
 
     my $dbh = LJ::get_db_writer()
         or die "need database\n";
-    my $userid = $dbh->selectrow_array(
-        'SELECT userid FROM openid_claims WHERE claimed_userid = ?',
-        undef, $u->id
-    );
+    my $userid = $dbh->selectrow_array( 'SELECT userid FROM openid_claims WHERE claimed_userid = ?',
+        undef, $u->id );
     return undef unless $userid;
-    return LJ::load_userid( $userid );
+    return LJ::load_userid($userid);
 }
 *LJ::User::claimed_by = \&claimed_by;
 
@@ -70,15 +67,15 @@ sub claim_identity {
     my $dbh = LJ::get_db_writer()
         or die "need database\n";
     $dbh->do( 'INSERT INTO openid_claims (userid, claimed_userid) VALUES (?, ?)',
-               undef, $u->id, $ou->id );
+        undef, $u->id, $ou->id );
     die "database error claiming: " . $dbh->errstr . "\n"
         if $dbh->err;
 
     # Now we need to kick off the job that actually goes and reclaims things.
     my $sclient = LJ::theschwartz()
         or die "openid claiming requires TheSchwartz\n";
-    $sclient->insert('DW::Worker::ChangePosterId',
-            { from_userid => $ou->id, to_userid => $u->id } );
+    $sclient->insert( 'DW::Worker::ChangePosterId',
+        { from_userid => $ou->id, to_userid => $u->id } );
     return 1;
 }
 *LJ::User::claim_identity = \&claim_identity;

@@ -25,7 +25,7 @@ sub prop_name {
 
 sub label {
     my $class = shift;
-    return $class->ml( 'setting.shortcuts_touch.next.label' );
+    return $class->ml('setting.shortcuts_touch.next.label');
 }
 
 sub prop_key {

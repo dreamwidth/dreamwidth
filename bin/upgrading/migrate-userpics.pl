@@ -13,6 +13,7 @@
 # part of this distribution.
 
 use strict;
+
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
@@ -32,15 +33,17 @@ use Log::Log4perl;
 # aren't in either mogile or blobstore right now, and put them in blobstore
 
 # determine
-my ($one, $besteffort, $dryrun, $user, $verify, $verbose, $clusters, $purge);
-my $rv = GetOptions("best-effort"  => \$besteffort,
-                    "one"          => \$one,
-                    "dry-run"      => \$dryrun,
-                    "user=s"       => \$user,
-                    "verify"       => \$verify,
-                    "verbose"      => \$verbose,
-                    "purge-old"    => \$purge,
-                    "clusters=s"   => \$clusters,);
+my ( $one, $besteffort, $dryrun, $user, $verify, $verbose, $clusters, $purge );
+my $rv = GetOptions(
+    "best-effort" => \$besteffort,
+    "one"         => \$one,
+    "dry-run"     => \$dryrun,
+    "user=s"      => \$user,
+    "verify"      => \$verify,
+    "verbose"     => \$verbose,
+    "purge-old"   => \$purge,
+    "clusters=s"  => \$clusters,
+);
 unless ($rv) {
     die <<ERRMSG;
 This script supports the following command line arguments:
@@ -108,29 +111,34 @@ Log::Log4perl::init( \$conf );
 
 # operation modes
 if ($user) {
+
     # move a single user
     my $u = LJ::load_user($user);
     die "No such user: $user\n" unless $u;
-    handle_userid($u->{userid}, $u->{clusterid});
+    handle_userid( $u->{userid}, $u->{clusterid} );
 
-} else {
+}
+else {
     # parse the clusters
     my @clusters;
     if ($clusters) {
-        if ($clusters =~ /^(\d+)(?:-(\d+))?$/) {
-            my ($min, $max) = map { $_ + 0 } ($1, $2 || $1);
-            push @clusters, $_ foreach $min..$max;
-        } else {
+        if ( $clusters =~ /^(\d+)(?:-(\d+))?$/ ) {
+            my ( $min, $max ) = map { $_ + 0 } ( $1, $2 || $1 );
+            push @clusters, $_ foreach $min .. $max;
+        }
+        else {
             die "Error: --clusters argument not of right format.\n";
         }
-    } else {
+    }
+    else {
         @clusters = @LJ::CLUSTERS;
     }
 
     # now iterate over the clusters to pick
     my $ctotal = scalar(@clusters);
     my $ccount = 0;
-    foreach my $cid (sort { $a <=> $b } @clusters) {
+    foreach my $cid ( sort { $a <=> $b } @clusters ) {
+
         # status report
         $ccount++;
         print "\nChecking cluster $cid...\n\n";
@@ -140,18 +148,20 @@ if ($user) {
 
         # get all userids
         print "Getting userids...\n";
-        my $limit = $one ? 'LIMIT 1' : '';
-        my $userids = $dbcm->selectcol_arrayref
-            ("SELECT DISTINCT userid FROM userpic2 WHERE (location <> 'mogile' AND location <> 'blobstore') OR location IS NULL $limit");
+        my $limit   = $one ? 'LIMIT 1' : '';
+        my $userids = $dbcm->selectcol_arrayref(
+"SELECT DISTINCT userid FROM userpic2 WHERE (location <> 'mogile' AND location <> 'blobstore') OR location IS NULL $limit"
+        );
         my $total = scalar(@$userids);
 
         # iterate over userids
         my $count = 0;
         print "Beginning iteration over userids...\n";
         foreach my $userid (@$userids) {
+
             # move this userpic
-            my $extra = sprintf("[%6.2f%%, $ccount of $ctotal] ", (++$count/$total*100));
-            handle_userid($userid, $cid, $extra);
+            my $extra = sprintf( "[%6.2f%%, $ccount of $ctotal] ", ( ++$count / $total * 100 ) );
+            handle_userid( $userid, $cid, $extra );
         }
 
         # don't hit up more clusters
@@ -169,7 +179,7 @@ print "Updater terminating.\n";
 # move of a user's pictures, and 2 meaning the user isn't ready for moving
 # (dversion < 7, etc)
 sub handle_userid {
-    my ($userid, $cid, $extra) = @_;
+    my ( $userid, $cid, $extra ) = @_;
 
     # load user to move and do some sanity checks
     my $u = LJ::load_userid($userid);
@@ -186,29 +196,29 @@ sub handle_userid {
     # need to delete it ourselves (if purge-old is on)
     if ( $u->{clusterid} == 0 && $u->is_expunged ) {
         return unless $purge;
+
         # if we get here, the user has indicated they want data purged, get handle
         my $to_purge_dbcm = get_db_handle($cid);
-        my $ct = $to_purge_dbcm->do("DELETE FROM userpic2 WHERE userid = ?", undef, $u->{userid});
+        my $ct = $to_purge_dbcm->do( "DELETE FROM userpic2 WHERE userid = ?", undef, $u->{userid} );
         print "\tnotice: purged $ct old rows.\n\n"
             if $verbose;
         return;
     }
 
     # get a handle
-    my $dbcm = get_db_handle($u->{clusterid});
+    my $dbcm = get_db_handle( $u->{clusterid} );
 
     # print that we're doing this user
     print "$extra$u->{user}($u->{userid})\n";
 
     # if a user has been moved to another cluster, but the source data from
     # userpic2 wasn't deleted, we need to ignore the user or purge their data
-    if ($u->{clusterid} != $cid) {
+    if ( $u->{clusterid} != $cid ) {
         return unless $purge;
 
         # verify they have some rows on the new side
-        my $count = $dbcm->selectrow_array
-            ("SELECT COUNT(*) FROM userpic2 WHERE userid = ?",
-             undef, $u->{userid});
+        my $count = $dbcm->selectrow_array( "SELECT COUNT(*) FROM userpic2 WHERE userid = ?",
+            undef, $u->{userid} );
         return unless $count;
 
         # if we get here, the user has indicated they want data purged, get handle
@@ -218,8 +228,10 @@ sub handle_userid {
         if ($dryrun) {
             print "\tnotice: need to delete userpic2 rows.\n\n"
                 if $verbose;
-        } else {
-            my $ct = $to_purge_dbcm->do("DELETE FROM userpic2 WHERE userid = ?", undef, $u->{userid});
+        }
+        else {
+            my $ct =
+                $to_purge_dbcm->do( "DELETE FROM userpic2 WHERE userid = ?", undef, $u->{userid} );
             print "\tnotice: purged $ct old rows.\n\n"
                 if $verbose;
         }
@@ -229,14 +241,15 @@ sub handle_userid {
     }
 
     # get all their photos that aren't in mogile or blobstore already
-    my $picids = $dbcm->selectall_arrayref
-        ("SELECT picid, md5base64, fmt, location FROM userpic2 WHERE userid = ? AND ( (location <> 'mogile' AND location <> 'blobstore') OR location IS NULL )",
-         undef, $u->{userid});
+    my $picids = $dbcm->selectall_arrayref(
+"SELECT picid, md5base64, fmt, location FROM userpic2 WHERE userid = ? AND ( (location <> 'mogile' AND location <> 'blobstore') OR location IS NULL )",
+        undef, $u->{userid}
+    );
     return unless @$picids;
 
     # now we have a userid and picids, get the photos from the blob server
     foreach my $row (@$picids) {
-        my ($picid, $md5, $fmt, $loc) = @$row;
+        my ( $picid, $md5, $fmt, $loc ) = @$row;
         print "\tstarting move for picid $picid\n"
             if $verbose;
 
@@ -249,14 +262,13 @@ sub handle_userid {
 
             ($data) = $dbcm->selectrow_array(
                 'SELECT imagedata FROM userpicblob2 WHERE userid = ? AND picid = ?',
-                undef, $u->{userid}, $picid
-            );
+                undef, $u->{userid}, $picid );
 
         }
 
         # get length
         my $len = length($data);
-        if ($besteffort && !$len) {
+        if ( $besteffort && !$len ) {
             print STDERR "empty_userpic userid=$u->{userid} picid=$picid\n";
             print "\twarning: empty userpic.\n\n"
                 if $verbose;
@@ -267,8 +279,9 @@ sub handle_userid {
 
         # verify the md5 of this picture with what's in the database
         my $blobmd5 = Digest::MD5::md5_base64($data);
-        if ($besteffort && ($md5 ne $blobmd5)) {
-            print STDERR "md5_mismatch userid=$u->{userid} picid=$picid dbmd5=$md5 blobmd5=$blobmd5\n";
+        if ( $besteffort && ( $md5 ne $blobmd5 ) ) {
+            print STDERR
+                "md5_mismatch userid=$u->{userid} picid=$picid dbmd5=$md5 blobmd5=$blobmd5\n";
             print "\twarning: md5 mismatch; database=$md5, blobserver=$blobmd5\n\n"
                 if $verbose;
             next;
@@ -295,8 +308,8 @@ sub handle_userid {
         # extra verification
         if ($verify) {
             my $data2 = DW::BlobStore->retrieve( userpics => $storage_key );
-            my $eq = ($data2 && $$data2 eq $data) ? 1 : 0;
-            if ($besteffort && !$eq) {
+            my $eq = ( $data2 && $$data2 eq $data ) ? 1 : 0;
+            if ( $besteffort && !$eq ) {
                 print STDERR "verify_failed userid=$u->{userid} picid=$picid\n";
                 print "\twarning: verify failed; picture not updated\n\n"
                     if $verbose;
@@ -312,12 +325,13 @@ sub handle_userid {
         unless ($dryrun) {
             print "\tupdating database for this picture...\n"
                 if $verbose;
-            $dbcm->do("UPDATE userpic2 SET location = 'blobstore' WHERE userid = ? AND picid = ?",
-                      undef, $u->{userid}, $picid);
+            $dbcm->do( "UPDATE userpic2 SET location = 'blobstore' WHERE userid = ? AND picid = ?",
+                undef, $u->{userid}, $picid );
         }
 
         # get the paths so the user can verify if they want
         if ($verbose) {
+
             # Log4perl will print the blobstore path when in
             # debug mode, no need to calculate it again here
             print "\tverify site url: $LJ::SITEROOT/userpic/$picid/$u->{userid}\n";
@@ -330,7 +344,7 @@ sub handle_userid {
 sub get_db_handle {
     my $cid = shift;
 
-    my $dbcm = LJ::get_cluster_master({ raw => 1 }, $cid);
+    my $dbcm = LJ::get_cluster_master( { raw => 1 }, $cid );
     unless ($dbcm) {
         print STDERR "handle_unavailable clusterid=$cid\n";
         die "ERROR: unable to get raw handle to cluster $cid\n";

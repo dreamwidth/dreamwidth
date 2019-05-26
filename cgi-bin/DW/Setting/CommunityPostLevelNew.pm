@@ -20,11 +20,11 @@ use strict;
 
 sub should_render { return $_[1]->is_community }
 
-sub label { $_[0]->ml( 'setting.communitypostlevelnew.label' ) }
-sub des { $_[0]->ml( 'setting.communitypostlevelnew.option' ) }
+sub label { $_[0]->ml('setting.communitypostlevelnew.label') }
+sub des   { $_[0]->ml('setting.communitypostlevelnew.option') }
 
-sub prop_name { "comm_postlevel_new" }
-sub checked_value { 1 }
+sub prop_name       { "comm_postlevel_new" }
+sub checked_value   { 1 }
 sub unchecked_value { 0 }
 
 sub option {

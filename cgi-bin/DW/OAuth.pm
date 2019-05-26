@@ -35,13 +35,13 @@ use Net::OAuth::V1_0A::RequestTokenRequest;
 
 my %TOKEN_LENGTHS = (
     default => 16,
-    access => 20,
+    access  => 20,
 );
 
 my %CLASSES = (
     'protected resource' => 'DW::OAuth::LocalProtectedResourceRequest',
-    'access token' => 'Net::OAuth::V1_0A::AccessTokenRequest',
-    'request token' => 'Net::OAuth::V1_0A::RequestTokenRequest',
+    'access token'       => 'Net::OAuth::V1_0A::AccessTokenRequest',
+    'request token'      => 'Net::OAuth::V1_0A::RequestTokenRequest',
 );
 
 # FIXME: Until I figure our how to make Net::OAuth work with Hash::MultiValue
@@ -72,54 +72,59 @@ sub get_request_raw {
         die "Invalid arguments: not hash";
     }
 
-    my $authorization_header  = $opts{authorizaton_header} || "";
+    my $authorization_header = $opts{authorizaton_header} || "";
 
-    my $valid_header =
-        ( $authorization_header && $authorization_header =~ m/^OAuth / );
-    my $oauth_attempted = $valid_header ||
-        ( ( scalar grep { /^oauth_/ } keys %$args ) != 0 );
+    my $valid_header    = ( $authorization_header && $authorization_header =~ m/^OAuth / );
+    my $oauth_attempted = $valid_header
+        || ( ( scalar grep { /^oauth_/ } keys %$args ) != 0 );
     return undef unless $oauth_attempted;
 
     my $consumer_key = $args->{oauth_consumer_key};
-    if ( $valid_header ) {
-        # FIXME: Get this another way.
-        # This isn't really the best way to do this, but Net::OAuth will fail if the secret is missing.
+    if ($valid_header) {
+
+     # FIXME: Get this another way.
+     # This isn't really the best way to do this, but Net::OAuth will fail if the secret is missing.
         my ($key) = $authorization_header =~ m/oauth_consumer_key="(.+?)"/;
         $consumer_key = LJ::durl($key) if $key;
     }
 
-    my $consumer = DW::OAuth::Consumer->from_token($consumer_key);
+    my $consumer    = DW::OAuth::Consumer->from_token($consumer_key);
     my $oauth_token = $args->{oauth_token};
-    if ( $valid_header ) {
-        # FIXME: Get this another way.
-        # This isn't really the best way to do this, but Net::OAuth will fail if the secret is missing.
+    if ($valid_header) {
+
+     # FIXME: Get this another way.
+     # This isn't really the best way to do this, but Net::OAuth will fail if the secret is missing.
         my ($key) = $authorization_header =~ m/oauth_token="(.+?)"/;
         $oauth_token = LJ::durl($key) if $key;
     }
 
-    if ( $consumer ) {
-        return (0,"consumer_unusable") unless $consumer->usable;
-    } else {
-        return (0,"consumer_notfound");
+    if ($consumer) {
+        return ( 0, "consumer_unusable" ) unless $consumer->usable;
+    }
+    else {
+        return ( 0, "consumer_notfound" );
     }
 
     my $token;
     if ( $method eq 'protected resource' ) {
         $token = DW::OAuth::Access->from_token($oauth_token);
-        if ( $token ) {
-            return (0,"token_unusable") unless $token->usable( $consumer );
+        if ($token) {
+            return ( 0, "token_unusable" ) unless $token->usable($consumer);
             $params->{token_secret} = $token->secret;
-        } else {
-            return (0,"token_notfound");
         }
-    } elsif ( $method ne 'request token' ) {
+        else {
+            return ( 0, "token_notfound" );
+        }
+    }
+    elsif ( $method ne 'request token' ) {
         $token = DW::OAuth::Request->from_token($oauth_token);
-        if ( $token ) {
-            return (0,"token_unusable") unless $token->usable( $consumer );
+        if ($token) {
+            return ( 0, "token_unusable" ) unless $token->usable($consumer);
             $params->{token_secret} = $token->secret;
-            $params->{verifier} = $token->verifier;
-        } else {
-            return (0,"token_notfound");
+            $params->{verifier}     = $token->verifier;
+        }
+        else {
+            return ( 0, "token_notfound" );
         }
     }
 
@@ -131,43 +136,48 @@ sub get_request_raw {
 
     $params->{signature_method} = 'HMAC-SHA1';
 
-    my $oa_class = $CLASSES{ $method };
+    my $oa_class = $CLASSES{$method};
     die "Bad method $method" unless $oa_class;
 
     my $result = 0;
     eval {
-        if ( $authorization_header ) {
+        if ($authorization_header) {
             $params->{callback} ||= $args->{oauth_callback};
             $result = $oa_class->from_authorization_header(
                 $authorization_header,
                 protocol_version => Net::OAuth::PROTOCOL_VERSION_1_0A,
-                %$params);
-        } elsif ( defined $args->{oauth_signature} ) {
+                %$params
+            );
+        }
+        elsif ( defined $args->{oauth_signature} ) {
             $result = $oa_class->from_hash(
                 $args,
                 protocol_version => Net::OAuth::PROTOCOL_VERSION_1_0A,
-                %$params);
+                %$params
+            );
         }
     };
-    if ( $@ ) {
+    if ($@) {
         warn $@;
-        return (0,"oauth_failure: $@");
+        return ( 0, "oauth_failure: $@" );
     }
-    return (0,"oauth_failure: unknown") unless $result;
-    return (0,"verify_failure") unless $result->verify;
-    return (0,"nonce_failure") unless $class->verify_nonce( oauth => $result, token => $token );
+    return ( 0, "oauth_failure: unknown" ) unless $result;
+    return ( 0, "verify_failure" )         unless $result->verify;
+    return ( 0, "nonce_failure" ) unless $class->verify_nonce( oauth => $result, token => $token );
 
     # http://oauth.googlecode.com/svn/spec/ext/body_hash/1.0/oauth-bodyhash.html
     my $inbound_type = $opts{content_type} || '';
     if ( $result->{body_hash} ) {
-        return (0,"bodyhash_content")
+        return ( 0, "bodyhash_content" )
             if $inbound_type =~ m!^application/x-www-form-urlencoded!i;
 
         croak "want_content missing" unless $opts{want_content};
         my $real_hash = sha1_base64( $opts{want_content}->() ) . '=';
-        return (0,"bodyhash_hash") unless $real_hash eq $result->{body_hash};
-    } else {
-        return (0,"bodyhash_missing") if $inbound_type && $inbound_type !~ m!^application/x-www-form-urlencoded!i;
+        return ( 0, "bodyhash_hash" ) unless $real_hash eq $result->{body_hash};
+    }
+    else {
+        return ( 0, "bodyhash_missing" )
+            if $inbound_type && $inbound_type !~ m!^application/x-www-form-urlencoded!i;
     }
     return ( $result, $consumer, $token );
 }
@@ -180,20 +190,22 @@ sub get_request {
     my $r = DW::Request->get;
 
     my $args = $opts{args};
-    if ( ! $args ) {
+    if ( !$args ) {
         $args = {};
-        _process_into( $args, $r->get_args ) or return (0,"multi_arg");
-        _process_into( $args, $r->post_args ) or return (0,"multi_arg")
+        _process_into( $args, $r->get_args )  or return ( 0, "multi_arg" );
+        _process_into( $args, $r->post_args ) or return ( 0, "multi_arg" )
             if $r->did_post;
     }
 
-    return $class->get_request_raw($method,$params,
-        args => $args,
-        method => $r->method,
+    return $class->get_request_raw(
+        $method, $params,
+        args                => $args,
+        method              => $r->method,
         authorizaton_header => $r->header_in("Authorization"),
-        content_type => $r->header_in("Content-Type"),
-        want_content => sub { return $r->content; }, 
-        %opts);
+        content_type        => $r->header_in("Content-Type"),
+        want_content        => sub { return $r->content; },
+        %opts
+    );
 }
 
 sub _seperate_args {
@@ -203,7 +215,8 @@ sub _seperate_args {
     foreach my $argname ( keys %$all_args ) {
         if ( $argname =~ m/^oauth_/ ) {
             $out_args{$argname} = $all_args->{$argname};
-        } else {
+        }
+        else {
             $out_args{extra_params}->{$argname} = $all_args->{$argname};
         }
     }
@@ -216,15 +229,16 @@ sub user_for_protected_resource_raw {
 
     my $args = ( delete $opts{args} );
 
-    if ( ! defined $args ) {
+    if ( !defined $args ) {
         my $get_args  = delete $opts{get_args};
         my $post_args = delete $opts{post_args};
         $args = {};
-        _process_into( $args, $get_args ) or return (0,"multi_arg")
+        _process_into( $args, $get_args ) or return ( 0, "multi_arg" )
             if $get_args;
-        _process_into( $args, $post_args ) or return (0,"multi_arg")
+        _process_into( $args, $post_args ) or return ( 0, "multi_arg" )
             if $post_args;
-    } elsif ( ref $args ne 'HASH' ) {
+    }
+    elsif ( ref $args ne 'HASH' ) {
         die "Invalid arguments: not hash";
     }
 
@@ -236,19 +250,21 @@ sub user_for_protected_resource_raw {
     my %all_args = ( %$params, %$args );
     my $out_args = _seperate_args( \%all_args );
 
-    my ( $result,@rest ) = $class->get_request_raw('protected resource', $out_args,
+    my ( $result, @rest ) = $class->get_request_raw(
+        'protected resource', $out_args,
         args => $args,
-        %opts );
+        %opts
+    );
 
     return undef unless defined $result;
-    return (0,@rest) unless $result;
+    return ( 0, @rest ) unless $result;
 
     my ( $consumer, $token ) = @rest;
-    return (0,"token_missing") unless $token;
-    return (0,"token_unusable") unless $token->usable( $consumer );
+    return ( 0, "token_missing" )  unless $token;
+    return ( 0, "token_unusable" ) unless $token->usable($consumer);
 
     unless ( $opts{no_store} ) {
-        $class->current_token( $token );
+        $class->current_token($token);
         $token->update_accessed;
     }
 
@@ -261,22 +277,23 @@ sub user_for_protected_resource {
     my $r = DW::Request->get;
 
     my %ropts;
-    $ropts{no_store} = $opts{no_store};
-    $ropts{get_args} = $r->get_args;
+    $ropts{no_store}  = $opts{no_store};
+    $ropts{get_args}  = $r->get_args;
     $ropts{post_args} = $r->post_args
         if $r->did_post;
-    
+
     return $class->user_for_protected_resource_raw(
         %ropts,
-        method => $r->method,
+        method              => $r->method,
         authorizaton_header => $r->header_in("Authorization"),
-        content_type => $r->header_in("Content-Type"),
-        want_content => sub { return $r->content; } );
+        content_type        => $r->header_in("Content-Type"),
+        want_content        => sub { return $r->content; }
+    );
 }
 
 sub current_token {
     my $r = DW::Request->get;
-    $r->pnote('oauth_token', $_[1])
+    $r->pnote( 'oauth_token', $_[1] )
         if exists $_[1];
     return $r->pnote('oauth_token');
 }
@@ -285,28 +302,29 @@ sub verify_nonce {
     my ( $class, %opts ) = @_;
 
     my $timestamp = 0;
-    my $nonce = 0;
+    my $nonce     = 0;
 
     if ( $opts{oauth} ) {
         $timestamp = $opts{oauth}->timestamp;
-        $nonce = $opts{oauth}->nonce;
-    } else {
+        $nonce     = $opts{oauth}->nonce;
+    }
+    else {
         $timestamp = ( $opts{timestamp} || 0 ) + 0;
-        $nonce = $opts{nonce};
+        $nonce     = $opts{nonce};
     }
 
-    my $timestamp_valid = 30;            # 30 seconds should be plenty
-    my $validity = 120;                  # 2 minutes, 4 times the timestamp validity.
+    my $timestamp_valid = 30;     # 30 seconds should be plenty
+    my $validity        = 120;    # 2 minutes, 4 times the timestamp validity.
 
     my $now = time();
 
     return 0 if abs( $now - $timestamp ) > $timestamp_valid;
 
     # Hash timestamp:nonce, don't want to put user-provided data directly in memcached
-    my $key = "oauth_nonce:" . sha1_hex( "$timestamp:$nonce" );
+    my $key = "oauth_nonce:" . sha1_hex("$timestamp:$nonce");
 
     # this returns a false value if the key already exists
-    return 0 unless LJ::MemCache::add($key,time(),$validity);
+    return 0 unless LJ::MemCache::add( $key, time(), $validity );
     return 1;
 }
 
@@ -317,12 +335,13 @@ sub make_token_pair {
 
     croak "No secret for type: $secret_key" unless $LJ::SECRETS{$secret_key};
 
-    my $chars = $TOKEN_LENGTHS{ $type } || $TOKEN_LENGTHS{ default };
+    my $chars = $TOKEN_LENGTHS{$type} || $TOKEN_LENGTHS{default};
 
     my $token = LJ::rand_chars( $chars, 'urlsafe_b64' );
 
     # Signing this with a secret, so this is not just the token with things concatenated on.
-    my $secret = urlsafe_b64encode( hmac_sha256( $token . LJ::rand_chars(32), $LJ::SECRETS{$secret_key} ) );
+    my $secret =
+        urlsafe_b64encode( hmac_sha256( $token . LJ::rand_chars(32), $LJ::SECRETS{$secret_key} ) );
 
     return ( $token, $secret );
 }
@@ -338,12 +357,15 @@ sub can_view_other {
 }
 
 # Seperate function, in case we ever want other logic
-sub can_edit_other; *can_edit_other = \&can_view_other;
+sub can_edit_other;
+*can_edit_other = \&can_view_other;
 
 sub can_create_consumer {
     my $u = $_[1];
-    return $u &&
-        ! $u->is_inactive && ! LJ::sysban_check( 'oauth_consumer', $u->user );
+    return
+           $u
+        && !$u->is_inactive
+        && !LJ::sysban_check( 'oauth_consumer', $u->user );
 }
 
 1;

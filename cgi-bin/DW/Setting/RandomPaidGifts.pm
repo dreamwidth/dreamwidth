@@ -29,7 +29,7 @@ sub should_render {
 sub label {
     my $class = $_[0];
 
-    return $class->ml( 'setting.randompaidgifts.label' );
+    return $class->ml('setting.randompaidgifts.label');
 }
 
 sub option {
@@ -38,19 +38,24 @@ sub option {
 
     my $iscomm = $u->is_community ? '.comm' : '';
 
-    my $randompaidgifts = $class->get_arg( $args, "randompaidgifts" ) || $u->prop( "opt_randompaidgifts" ) || 'Y';
+    my $randompaidgifts =
+        $class->get_arg( $args, "randompaidgifts" ) || $u->prop("opt_randompaidgifts") || 'Y';
 
-    my $ret = LJ::html_check({
-        name => "${key}randompaidgifts",
-        id => "${key}randompaidgifts",
-        value => 1,
-        selected => $randompaidgifts eq 'N' ? 0 : 1,
-    });
+    my $ret = LJ::html_check(
+        {
+            name     => "${key}randompaidgifts",
+            id       => "${key}randompaidgifts",
+            value    => 1,
+            selected => $randompaidgifts eq 'N' ? 0 : 1,
+        }
+    );
     $ret .= " <label for='${key}randompaidgifts'>";
-    $ret .= $u->is_paid ? 
-        $class->ml( "setting.randompaidgifts.option.paid$iscomm" ) : 
-        $class->ml( "setting.randompaidgifts.option$iscomm" );
-    $ret .= "<p class='details'>" . $class->ml( "setting.randompaidgifts.option.note$iscomm" ) . "</p>";
+    $ret .=
+          $u->is_paid
+        ? $class->ml("setting.randompaidgifts.option.paid$iscomm")
+        : $class->ml("setting.randompaidgifts.option$iscomm");
+    $ret .=
+        "<p class='details'>" . $class->ml("setting.randompaidgifts.option.note$iscomm") . "</p>";
     $ret .= "</label>";
 
     return $ret;

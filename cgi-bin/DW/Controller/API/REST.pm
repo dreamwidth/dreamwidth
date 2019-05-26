@@ -2,7 +2,7 @@
 #
 # DW::Controller::API::REST
 #
-# 
+#
 #
 # Authors:
 #      Allen Petersen <allen@suberic.net>
@@ -32,50 +32,50 @@ use Hash::MultiValue;
 
 use Carp qw/ croak /;
 
-our %API_DOCS = ();
+our %API_DOCS   = ();
 our %TYPE_REGEX = (
-    string => '([^/]+)',
+    string  => '([^/]+)',
     integer => '(\d+)',
     boolean => '(true|false)',
 );
-our %METHODS = (get => 1, post => 1, delete => 1);
+our %METHODS  = ( get => 1, post => 1, delete => 1 );
 our $API_PATH = "$ENV{LJHOME}/api/";
 
-# Usage: path ( yaml_source_path, ver, hash_of_HTTP_handlers ) 
-# Creates a new path object for use in DW::Controller::API::REST 
+# Usage: path ( yaml_source_path, ver, hash_of_HTTP_handlers )
+# Creates a new path object for use in DW::Controller::API::REST
 #resource definitions from a OpenAPI-compliant YAML file and handler sub references
 
 sub path {
-    my ($class, $source, $ver, $handlers) = @_;
+    my ( $class, $source, $ver, $handlers ) = @_;
 
-    my $config = LoadFile($API_PATH . $source);
+    my $config = LoadFile( $API_PATH . $source );
 
-    my $route = {
-        ver => $ver};
+    my $route = { ver => $ver };
 
     my $path;
-    for my $key (keys %{$config->{paths}}) {
+    for my $key ( keys %{ $config->{paths} } ) {
         $route->{'path'}{'name'} = $key;
         $path = $key;
     }
 
     bless $route, $class;
 
-    if (exists $config->{paths}->{$path}->{parameters}) {
-        for my $param (@{$config->{paths}->{$path}->{parameters}}) {
+    if ( exists $config->{paths}->{$path}->{parameters} ) {
+        for my $param ( @{ $config->{paths}->{$path}->{parameters} } ) {
             my $new_param = DW::API::Parameter->define_parameter($param);
-            $route->{path}{params}{$param->{name}} = $new_param;
-            }
+            $route->{path}{params}{ $param->{name} } = $new_param;
+        }
         delete $config->{paths}->{$path}->{parameters};
     }
 
-    for my $method (keys %{$config->{paths}->{$path}}) {
+    for my $method ( keys %{ $config->{paths}->{$path} } ) {
+
         # make sure that it's a valid HTTP method, and we have a handler for it
         die "$method isn't a valid HTTP method" unless $METHODS{$method};
         die "No handler sub was passed for $method" unless $handlers->{$method};
 
         my $method_config = $config->{paths}->{$path}->{$method};
-        $route->_add_method($method, $handlers->{$method}, $method_config);
+        $route->_add_method( $method, $handlers->{$method}, $method_config );
 
     }
 
@@ -84,24 +84,23 @@ sub path {
 }
 
 sub _add_method {
-    my ($self, $method, $handler, $config) = @_;
-    my $new_method = DW::API::Method->define_method($method, $handler, $config);
+    my ( $self, $method, $handler, $config ) = @_;
+    my $new_method = DW::API::Method->define_method( $method, $handler, $config );
 
     # add method params
-    if (exists $config->{parameters}){
-        for my $param (@{$config->{parameters}}) {
+    if ( exists $config->{parameters} ) {
+        for my $param ( @{ $config->{parameters} } ) {
             $new_method->param($param);
         }
     }
 
-    if (exists $config->{requestBody}){
-        $new_method->body($config->{requestBody});
+    if ( exists $config->{requestBody} ) {
+        $new_method->body( $config->{requestBody} );
     }
 
     $self->{path}->{methods}->{$method} = $new_method;
 
 }
-
 
 # Usage: DW::Controller::API::REST->register_rest_endpoints( $resource , $ver );
 #
@@ -111,13 +110,14 @@ sub _add_method {
 # the resource object to the %API_DOCS hash for building our API documentation.
 
 sub register_rest_controller {
-    my ( $info ) = shift;
+    my ($info) = shift;
 
-    my $path = $info->{path}{name};
+    my $path       = $info->{path}{name};
     my $parameters = $info->{path}{params};
-    my $ver = $info->{ver};
+    my $ver        = $info->{ver};
 
     $API_DOCS{$ver}{$path} = $info;
+
     # check path parameters to make sure they're defined in the API docs
     # substitute appropriate regex if they are
     my @params = ( $path =~ /{([\w\d]+)}/g );
@@ -126,9 +126,9 @@ sub register_rest_controller {
         die "Parameter $param is not defined." unless exists $parameters->{$param};
         my $type = $parameters->{$param}->{schema}->{type};
         $path =~ s/{$param}/$TYPE_REGEX{$type}/;
-        
-        }
-    DW::Routing->register_api_rest_endpoint( $path . '$', "_dispatcher", $info, version => $ver);
+
+    }
+    DW::Routing->register_api_rest_endpoint( $path . '$', "_dispatcher", $info, version => $ver );
 }
 
 # A generic API method dispatcher, for use in registering API
@@ -143,58 +143,59 @@ sub _dispatcher {
 
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
-    
-    my $r = $rv->{r};
+
+    my $r      = $rv->{r};
     my $keystr = $r->header_in('Authorization');
     $keystr =~ s/Bearer (\w+)/$1/;
     my $apikey = DW::API::Key->get_key($keystr);
 
-    # all paths require an API key except the spec (which informs users that they need a key and where to put it)
-    unless ($apikey || $self->{path}{name} eq "/spec") {
-        $r->print( to_json({ success => 0, error => "Missing or invalid API key"}) );
-        $r->status( '401' );
+# all paths require an API key except the spec (which informs users that they need a key and where to put it)
+    unless ( $apikey || $self->{path}{name} eq "/spec" ) {
+        $r->print( to_json( { success => 0, error => "Missing or invalid API key" } ) );
+        $r->status('401');
         return;
     }
 
     # match path parameters to their names
-    my $path = $self->{path}{name};
+    my $path        = $self->{path}{name};
     my $path_params = {};
-    my @path_names = ($path =~ /{([\w]+)}/g);
-    for (my $i = 0; $i < @path_names; $i++) {
-        $path_params->{$path_names[$i]} = $path_args[$i];
+    my @path_names  = ( $path =~ /{([\w]+)}/g );
+    for ( my $i = 0 ; $i < @path_names ; $i++ ) {
+        $path_params->{ $path_names[$i] } = $path_args[$i];
     }
 
     my $args = {};
     $args->{user} = $apikey->{user} if $apikey;
 
     # check path-level parameters.
-    for my $param (keys %{$self->{path}{params}}) {
-        _validate_param($param, $self->{path}{params}{$param}, $r, $path_params, $args);
+    for my $param ( keys %{ $self->{path}{params} } ) {
+        _validate_param( $param, $self->{path}{params}{$param}, $r, $path_params, $args );
     }
 
-    my $method = lc $r->method;
-    my $handler = $self->{path}{methods}->{$method}->{handler};
+    my $method      = lc $r->method;
+    my $handler     = $self->{path}{methods}->{$method}->{handler};
     my $method_self = $self->{path}{methods}->{$method};
 
     # check method-level parameters
-    for my $param (keys %{$method_self->{params}}) {
-        _validate_param($param, $self->{params}{$param}, $r, $args);
+    for my $param ( keys %{ $method_self->{params} } ) {
+        _validate_param( $param, $self->{params}{$param}, $r, $args );
     }
 
     # if we accept a request body, validate that too.
-    if (defined $method_self->{requestBody}) {
-        _validate_body($method_self->{requestBody}, $r, $args)
+    if ( defined $method_self->{requestBody} ) {
+        _validate_body( $method_self->{requestBody}, $r, $args );
     }
 
     # some handlers need to know what version they are
     $method_self->{ver} = $self->{ver};
 
-    if (defined $handler) {
-        return $handler->($method_self, $args);
-    } else {
+    if ( defined $handler ) {
+        return $handler->( $method_self, $args );
+    }
+    else {
         # Generic response for unimplemented API methods.
-        $r->print( to_json({ success => 0, error => "Not Implemented"}) );
-        $r->status( '501' );
+        $r->print( to_json( { success => 0, error => "Not Implemented" } ) );
+        $r->status('501');
         return;
     }
 }
@@ -209,28 +210,31 @@ sub _dispatcher {
 # and weird things are happening, it may be this, not you.
 
 sub _validate_param {
-    my ($param, $config, $r, $path_params, $arg_obj) = @_;
+    my ( $param, $config, $r, $path_params, $arg_obj ) = @_;
 
     my $ploc = $config->{in};
     my $preq = $config->{required};
     my $pval = $config->{validator};
     my $p;
 
-    if ($ploc eq 'query') {
+    if ( $ploc eq 'query' ) {
         $p = $r->{get_args}{$param};
-    } elsif ($ploc eq 'header') {
+    }
+    elsif ( $ploc eq 'header' ) {
         $p = $r->header_in($param);
-    } elsif ($ploc eq 'cookie') {
+    }
+    elsif ( $ploc eq 'cookie' ) {
         $p = $r->cookie($param);
-    } elsif ($ploc eq 'path') {
+    }
+    elsif ( $ploc eq 'path' ) {
         $p = $path_params->{$param};
-    } 
+    }
 
     # make sure that required parameters are supplied
     if ($preq) {
-        unless (defined $p) {
-            $r->print( to_json({ success => 0, error => "Missing required parameter $param"}) );
-            $r->status( '400' );
+        unless ( defined $p ) {
+            $r->print( to_json( { success => 0, error => "Missing required parameter $param" } ) );
+            $r->status('400');
             return;
         }
     }
@@ -238,9 +242,10 @@ sub _validate_param {
     # run the schema validator
     my @errors = $pval->validate($p);
     if (@errors) {
-        my $err_str = join(', ', map {$_->{message}} @errors);
-        $r->print( to_json({ success => 0, error => "Bad format for $param. Errors: $err_str"}) );
-        $r->status( '400' );
+        my $err_str = join( ', ', map { $_->{message} } @errors );
+        $r->print(
+            to_json( { success => 0, error => "Bad format for $param. Errors: $err_str" } ) );
+        $r->status('400');
         return;
     }
 
@@ -257,31 +262,35 @@ sub _validate_param {
 # and weird things are happening, it may be this, not you.
 
 sub _validate_body {
-    my ($config, $r, $arg_obj) = @_;
+    my ( $config, $r, $arg_obj ) = @_;
 
-    my $preq = $config->{required};
+    my $preq         = $config->{required};
     my $content_type = lc $r->header_in('Content-Type');
     my $p;
 
-    if ($content_type eq 'application/json') {
+    if ( $content_type eq 'application/json' ) {
         $p = $r->json;
-    } elsif ($content_type eq 'application/x-www-form-urlencoded') {
+    }
+    elsif ( $content_type eq 'application/x-www-form-urlencoded' ) {
         $p = $r->post_args;
-    } elsif ($content_type eq 'multipart/form-data') {
+    }
+    elsif ( $content_type eq 'multipart/form-data' ) {
+
         # uploads are an array of hashrefs, so we convert to Hash::MultiValue for simplicty
-        my @uploads = $r->uploads;
+        my @uploads     = $r->uploads;
         my $upload_hash = Hash::MultiValue->new();
         for my $item (@uploads) {
-            $upload_hash->add($item->{name} => $item->{body});
+            $upload_hash->add( $item->{name} => $item->{body} );
         }
         $p = $upload_hash;
-    }    
+    }
 
     # make sure that required parameters are supplied
     if ($preq) {
-        unless (defined $p) {
-            $r->print( to_json({ success => 0, error => "Missing or badly formatted request!"}) );
-            $r->status( '400' );
+        unless ( defined $p ) {
+            $r->print(
+                to_json( { success => 0, error => "Missing or badly formatted request!" } ) );
+            $r->status('400');
             return;
         }
     }
@@ -289,9 +298,10 @@ sub _validate_body {
     # run the schema validator
     my @errors = $config->{content}->{$content_type}{validator}->validate($p);
     if (@errors) {
-        my $err_str = join(', ', map {$_->{message}} @errors);
-        $r->print( to_json({ success => 0, error => "Bad format for request body. Errors: $err_str"}) );
-        $r->status( '400' );
+        my $err_str = join( ', ', map { $_->{message} } @errors );
+        $r->print(
+            to_json( { success => 0, error => "Bad format for request body. Errors: $err_str" } ) );
+        $r->status('400');
         return;
     }
 
@@ -305,43 +315,42 @@ sub _validate_body {
 sub schema {
     my ($self) = @_;
 
-    if (defined $self->{schema}) {
+    if ( defined $self->{schema} ) {
+
         # Make sure we've been provided a valid schema to validate against
-        my @errors = validate_json($self->{schema}, 'http://json-schema.org/draft-07/schema#');
+        my @errors = validate_json( $self->{schema}, 'http://json-schema.org/draft-07/schema#' );
         croak "Invalid schema! Errors: @errors" if @errors;
 
         # make a validator against the schema
-        my $validator = JSON::Validator->new->schema($self->{schema});
-        
+        my $validator = JSON::Validator->new->schema( $self->{schema} );
+
         # turn on coercion for params, because perl doesn't care about scalar types but JSON does
         # so we're more flexible on input than output
-        if (ref($self) eq 'DW::API::Parameter') {
-            $validator = $validator->coerce({'booleans' => 1, 'numbers' => 1, 'strings' => 1});
+        if ( ref($self) eq 'DW::API::Parameter' ) {
+            $validator = $validator->coerce( { 'booleans' => 1, 'numbers' => 1, 'strings' => 1 } );
         }
 
         $self->{validator} = $validator;
-    } else {
+    }
+    else {
         croak "No schema defined!";
     }
 
-
 }
 
-
 # Formatter method for the JSON package to output resource objects as JSON.
-
 
 sub TO_JSON {
     my $self = $_[0];
 
     my $json = {};
-    if (defined $self->{path}{params}) {
-        $json->{parameters} = [ values %{$self->{path}{params}} ];
+    if ( defined $self->{path}{params} ) {
+        $json->{parameters} = [ values %{ $self->{path}{params} } ];
     }
 
-        for my $key (keys %{$self->{path}{methods}}) {
-            $json->{lc $key} = $self->{path}{methods}{$key};
-        }
+    for my $key ( keys %{ $self->{path}{methods} } ) {
+        $json->{ lc $key } = $self->{path}{methods}{$key};
+    }
     return $json;
 }
 

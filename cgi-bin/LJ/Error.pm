@@ -49,16 +49,17 @@ use Carp qw(croak);
 #                                      will get the errstr/errmsg
 #
 sub errobj {
+
     # constructing a new LJ::Error instance.  either with a classname
     # and args, or just a classname (no whitespace, must have one capital letter)
-    if (@_ > 0 && (@_ > 1 || ($_[0] !~ /\s/ && $_[0] =~ /[A-Z]/ && $_[0] !~ /[^:\w]/))) {
-        my ($classtail, @ctor_args) = @_;
-        my $class = "LJ::Error::$classtail";
+    if ( @_ > 0 && ( @_ > 1 || ( $_[0] !~ /\s/ && $_[0] =~ /[A-Z]/ && $_[0] !~ /[^:\w]/ ) ) ) {
+        my ( $classtail, @ctor_args ) = @_;
+        my $class  = "LJ::Error::$classtail";
         my $makeit = sub { $class->new(@ctor_args); };
-        my $val = eval { $makeit->(); };
-        if ($@ =~ /^Can\'t locate object method "new" via package "(LJ::Error::\S+?)"/) {
+        my $val    = eval { $makeit->(); };
+        if ( $@ =~ /^Can\'t locate object method "new" via package "(LJ::Error::\S+?)"/ ) {
             my $class = $1;
-            my $code = "\@${class}::ISA = ('LJ::Error'); 1;";
+            my $code  = "\@${class}::ISA = ('LJ::Error'); 1;";
             eval $code or die "Failed to set ISA: [$@] for code: [$code]\n";
         }
         return $val || $makeit->();
@@ -74,17 +75,17 @@ sub errobj {
 
     # wrapping a database (or database-like) handle
     if ( LJ::DB::isdb( $_[0] ) || $ref eq "LJ::User" ) {
-        return errobj("Database::Failure", db => $_[0]);
+        return errobj( "Database::Failure", db => $_[0] );
     }
 
     # wrapping return of an error object
-    return errobj("DieString", message => $_[0]) unless $ref;
+    return errobj( "DieString", message => $_[0] ) unless $ref;
 
     # wrapping an LJ::Error object, returning it unchanged
-    return $_[0] if $ref =~ /^LJ::Error/;  # should use ->isa, but then have to catch it on HASH, etc
+    return $_[0] if $ref =~ /^LJ::Error/; # should use ->isa, but then have to catch it on HASH, etc
 
     # else it's a reference, but not one of ours, so we wrap it
-    return errobj("DieObject", object => $_[0]);
+    return errobj( "DieObject", object => $_[0] );
 }
 
 # don't override this!
@@ -92,23 +93,23 @@ sub new {
     my $class = shift;
     my %opts  = @_;
 
-    my ($line, $file);
+    my ( $line, $file );
     my $self = {
         _line => $line,
         _file => $file,
     };
 
-    foreach my $f ($class->fields) {
+    foreach my $f ( $class->fields ) {
         croak("Missing field in $class ctor: '$f'")
             unless exists $opts{$f};
         $self->{$f} = delete $opts{$f};
     }
-    foreach my $f ($class->opt_fields) {
+    foreach my $f ( $class->opt_fields ) {
         $self->{$f} = delete $opts{$f};
     }
 
     if (%opts) {
-        croak("Unknown fields in $class ctor: " . join(", ", keys %opts));
+        croak( "Unknown fields in $class ctor: " . join( ", ", keys %opts ) );
     }
 
     return bless $self, $class;
@@ -116,9 +117,9 @@ sub new {
 
 # don't override.
 sub field {
-    my ($self, $field) = @_;
-    croak("Invalid field for object " . ref $self) unless
-        exists $self->{$field};
+    my ( $self, $field ) = @_;
+    croak( "Invalid field for object " . ref $self )
+        unless exists $self->{$field};
     return $self->{$field};
 }
 
@@ -126,20 +127,20 @@ sub field {
 sub throw {
     return unless @_;
 
-    if (@_ == 1) {
+    if ( @_ == 1 ) {
         my $self = shift;
         croak $self;
     }
 
     # throw multiple errors as one
     my @errors = @_;
-    LJ::errobj("Multiple", errors => \@errors)->throw;
+    LJ::errobj( "Multiple", errors => \@errors )->throw;
 }
 
 # throws self, if $LJ::THROW_ERRORS is dynamically set w/ local,
 # else returns undef (by default), or the value passed to it
 sub cond_throw {
-    my $self = shift;
+    my $self      = shift;
     my $ret_value = shift;
     $self->throw if $LJ::THROW_ERRORS;
     return defined $ret_value ? $ret_value : undef;
@@ -156,8 +157,8 @@ sub log {
     my $now = time;
     my @now = localtime($now);
 
-    my $table_name = sprintf("errors%04d%02d%02d%02d", $now[5]+1900,
-                             $now[4]+1, $now[3], $now[2]);
+    my $table_name =
+        sprintf( "errors%04d%02d%02d%02d", $now[5] + 1900, $now[4] + 1, $now[3], $now[2] );
 
     my $create_sql = qq {
         (
@@ -192,49 +193,52 @@ sub log {
     my $whn = time();
 
     my %insert = (
-                  'whn'         => $whn,
-                  'description' => $err->as_string || $err->as_html,
-                  'errclass'    => ref $err,
-                  'server'      => $LJ::SERVER_NAME,
-                  'usercaused'  => $err->user_caused, # 0, 1 or NULL
-                  );
+        'whn'         => $whn,
+        'description' => $err->as_string || $err->as_html,
+        'errclass'    => ref $err,
+        'server'      => $LJ::SERVER_NAME,
+        'usercaused'  => $err->user_caused,                  # 0, 1 or NULL
+    );
 
-    if (my $apache_r = eval {BML::get_request()}) {
+    if ( my $apache_r = eval { BML::get_request() } ) {
         my $apache_rl = $apache_r->last;
 
-        my $remote = eval { LJ::load_user($apache_rl->notes('ljuser')) };
-        my $remotecaps = $remote ? $remote->{caps} : undef;
+        my $remote = eval { LJ::load_user( $apache_rl->notes('ljuser') ) };
+        my $remotecaps = $remote ? $remote->{caps}   : undef;
         my $remoteid   = $remote ? $remote->{userid} : 0;
-        my $ju = eval { LJ::load_userid($apache_rl->notes('journalid')) };
+        my $ju  = eval { LJ::load_userid( $apache_rl->notes('journalid') ) };
         my $uri = $apache_r->uri;
 
         my %insert_r = (
-                        'addr'        => $apache_r->connection->client_ip,
-                        'remote'      => $apache_rl->notes('ljuser'),
-                        'remotecaps'  => $remotecaps,
-                        'remoteid'    => $remoteid,
-                        'journalid'   => $apache_rl->notes('journalid'),
-                        'journaltype' => $ju ? $ju->{journaltype} : "",
-                        'codepath'    => $apache_rl->notes('codepath'),
-                        'langpref'    => $apache_rl->notes('langpref'),
-                        'clientver'   => $apache_rl->notes('clientver'),
-                        'method'      => $apache_r->method,
-                        'uri'         => $uri,
-                        'args'        => scalar $apache_r->args,
-                        'browser'     => $apache_r->header_in("User-Agent"),
-                        'ref'         => $apache_r->header_in("Referer"),
-                        );
+            'addr'        => $apache_r->connection->client_ip,
+            'remote'      => $apache_rl->notes('ljuser'),
+            'remotecaps'  => $remotecaps,
+            'remoteid'    => $remoteid,
+            'journalid'   => $apache_rl->notes('journalid'),
+            'journaltype' => $ju ? $ju->{journaltype} : "",
+            'codepath'    => $apache_rl->notes('codepath'),
+            'langpref'    => $apache_rl->notes('langpref'),
+            'clientver'   => $apache_rl->notes('clientver'),
+            'method'      => $apache_r->method,
+            'uri'         => $uri,
+            'args'        => scalar $apache_r->args,
+            'browser'     => $apache_r->header_in("User-Agent"),
+            'ref'         => $apache_r->header_in("Referer"),
+        );
 
-        while ( my ($k,$v) = each %insert_r ) {
+        while ( my ( $k, $v ) = each %insert_r ) {
             $insert{$k} = $v;
         }
-    };
+    }
 
     my $ins = sub {
-        my $insert_sql = "INSERT INTO $table_name (" . join(", ", keys %insert) . ") VALUES (" .
-            join(",", map { "?" } values %insert) . ")";
+        my $insert_sql =
+              "INSERT INTO $table_name ("
+            . join( ", ", keys %insert )
+            . ") VALUES ("
+            . join( ",", map { "?" } values %insert ) . ")";
 
-        $dbl->do($insert_sql, undef, values %insert);
+        $dbl->do( $insert_sql, undef, values %insert );
     };
 
     # insert time!
@@ -243,7 +247,7 @@ sub log {
     # we just don't log that column until the next (wider) table is made at next
     # hour boundary.
     $ins->();
-    while ($dbl->err && $dbl->errstr =~ /Unknown column \'(\w+)/) {
+    while ( $dbl->err && $dbl->errstr =~ /Unknown column \'(\w+)/ ) {
         my $col = $1;
         delete $insert{$col};
         $ins->();
@@ -275,14 +279,15 @@ sub as_bullets {
 # override this
 sub as_string {
     my $self = shift;
+
     # FIXME: show line/file/function, show some fields?  maybe?  that are simple values?
 }
 
 # automatic type returned when something dies with just a string
 package LJ::Error::DieString;
-sub fields { qw(message) }
+sub fields     { qw(message) }
 sub die_string { return $_[0]->field('message'); }
-sub as_string { return $_[0]->field('message'); }
+sub as_string  { return $_[0]->field('message'); }
 
 sub as_html {
     my $self = shift;
@@ -301,21 +306,21 @@ sub as_html {
 # automatic type returned when something dies with a reference, but not
 # an LJ::Error
 package LJ::Error::DieObject;
-sub fields { qw(object) }
+sub fields     { qw(object) }
 sub die_object { return $_[0]->field('object'); }
 
 package LJ::Error::Multiple;
-sub fields { qw(errors); }  # arrayref of errors
+sub fields { qw(errors); }    # arrayref of errors
 
 sub as_bullets {
     my $self = shift;
-    return join('', map { $_->as_bullets } @{ $self->{errors} });
+    return join( '', map { $_->as_bullets } @{ $self->{errors} } );
 }
 
 sub log {
     my $self = shift;
     return if $self->{_logged}++;
-    foreach my $suberr (@{ $self->{errors} }) {
+    foreach my $suberr ( @{ $self->{errors} } ) {
         $suberr->log;
     }
 }
@@ -332,6 +337,5 @@ sub as_string {
     my $self = shift;
     return $self->{main}->as_string . ", due to: " . $self->{suberr}->as_string;
 }
-
 
 1;

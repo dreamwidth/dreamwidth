@@ -14,7 +14,7 @@
 use strict;
 use warnings;
 
-BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; };
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use DW::Routing::Test tests => 4;
 
 $DW::Routing::T_TESTING_ERRORS = 1;
@@ -25,10 +25,11 @@ begin_tests();
 
 DW::Routing->register_string( "/test/die/all_format", \&died_handler, app => 1, formats => 1 );
 
-handle_server_error( "/test die implied_format (app)", "/test/die/all_format", "html" );
-handle_server_error( "/test die .json format (app)", "/test/die/all_format.json", "json" );
-handle_server_error( "/test die .html format (app)", "/test/die/all_format.html", "html" );
-handle_server_error( "/test die .blah format (app)", "/test/die/all_format.blah", "blah" );
+handle_server_error( "/test die implied_format (app)", "/test/die/all_format",      "html" );
+handle_server_error( "/test die .json format (app)",   "/test/die/all_format.json", "json" );
+handle_server_error( "/test die .html format (app)",   "/test/die/all_format.html", "html" );
+handle_server_error( "/test die .blah format (app)",   "/test/die/all_format.blah", "blah" );
+
 # 4
 
 sub died_handler {

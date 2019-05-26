@@ -32,18 +32,18 @@ my $popsub_path = '/manage/circle/popsubscriptions';
 DW::Routing->register_string( $popsub_path, \&popsubscriptions_handler, app => 1 );
 
 sub popsubscriptions_handler {
-    return error_ml( "$popsub_path.tt.disabled" )
-        unless LJ::is_enabled( 'popsubscriptions' );
+    return error_ml("$popsub_path.tt.disabled")
+        unless LJ::is_enabled('popsubscriptions');
 
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
     my $remote = $rv->{remote};
 
-    return error_ml( "$popsub_path.tt.invalidaccounttype" )
+    return error_ml("$popsub_path.tt.invalidaccounttype")
         unless $remote->can_use_popsubscriptions;
 
-    my $r = DW::Request->get;
+    my $r    = DW::Request->get;
     my $args = $r->get_args;
 
     # filter options:
@@ -54,14 +54,14 @@ sub popsubscriptions_handler {
     # 5: whole circle => subscriptions + gives access to
 
     my $filter = $args->{filter} || 1;
-    my @ftypes = ( "$popsub_path.tt.filters.subscriptions",
-                   "$popsub_path.tt.filters.mutualsubscriptions",
-                   "$popsub_path.tt.filters.access",
-                   "$popsub_path.tt.filters.mutualaccess",
-                   "$popsub_path.tt.filters.circle" );  # for dropdown
+    my @ftypes = (
+        "$popsub_path.tt.filters.subscriptions", "$popsub_path.tt.filters.mutualsubscriptions",
+        "$popsub_path.tt.filters.access",        "$popsub_path.tt.filters.mutualaccess",
+        "$popsub_path.tt.filters.circle"
+    );    # for dropdown
 
     $rv->{filter} = $filter;
-    $rv->{ftypes} = [ map { $_ => LJ::Lang::ml( $ftypes[$_-1] ) } (1..5) ];
+    $rv->{ftypes} = [ map { $_ => LJ::Lang::ml( $ftypes[ $_ - 1 ] ) } ( 1 .. 5 ) ];
 
     # circle_ids stores the user ids of accounts to base the calculation on.
     # which accounts these are is based on which filter the user picks.
@@ -71,13 +71,17 @@ sub popsubscriptions_handler {
 
     if ( $filter == 1 ) {
         @circle_ids = $remote->watched_userids;
-    } elsif ( $filter == 2 ) {
+    }
+    elsif ( $filter == 2 ) {
         @circle_ids = $remote->mutually_watched_userids;
-    } elsif ( $filter == 3 ) {
+    }
+    elsif ( $filter == 3 ) {
         @circle_ids = $remote->trusted_userids;
-    } elsif ( $filter == 4 ) {
+    }
+    elsif ( $filter == 4 ) {
         @circle_ids = $remote->mutually_trusted_userids;
-    } else {
+    }
+    else {
         @circle_ids = $remote->circle_userids;
     }
 
@@ -98,61 +102,64 @@ sub popsubscriptions_handler {
     my %count;
 
     # limit the number of userids loaded for each @circle_ids user to 500
-    my $limit = 500;
+    my $limit     = 500;
     my $remote_id = $remote->userid;
 
     # load users...
-    my $circleusers = LJ::load_userids( @circle_ids );
+    my $circleusers = LJ::load_userids(@circle_ids);
 
     # now load the accounts the users are watching...
-    foreach my $uid ( @circle_ids ) {
+    foreach my $uid (@circle_ids) {
+
         # don't want to include the remote user
         next if $uid == $remote_id;
 
-        # since we have just loaded all user objects, we can now load subscribed accounts of that user
+      # since we have just loaded all user objects, we can now load subscribed accounts of that user
         my $circleuser = $circleusers->{$uid};
 
         # but we only include undeleted, unsuspended, personal journals (personal + identity)
-        next unless $circleuser->is_individual && ! $circleuser->is_inactive;
+        next unless $circleuser->is_individual && !$circleuser->is_inactive;
 
         # get userids subscribers are watching
-        my @subsubs = $circleuser->watched_userids( limit => $limit ) ;
+        my @subsubs = $circleuser->watched_userids( limit => $limit );
 
         # if there are none, skip to next subscription
         next unless @subsubs;
 
         # now we count the occurrence of the userids that the remote user
         # isn't already subscribed to
-        foreach my $userid ( @subsubs ) {
+        foreach my $userid (@subsubs) {
             $count{$userid}++ unless $circle_members{$userid};
         }
     }
 
     # now that we have the count for all userids, we sort it and take the most popular 500
     my @pop = sort { $count{$b} <=> $count{$a} } keys %count;
-    @pop =  splice( @pop, 0, 500 );
+    @pop = splice( @pop, 0, 500 );
 
     # now we sort according to personal, community or feed account and only take the top 50 accounts
     # for this we need to lead the user objects
-    my $popusers = LJ::load_userids( @pop );
+    my $popusers = LJ::load_userids(@pop);
     my ( @poppersonal, @popcomms, @popfeeds );
     my ( $numberpersonal, $numbercomms, $numberfeeds ) = ( 0, 0, 0 );
     my $maximum = 50;
 
-    foreach my $uid ( @pop ) {
+    foreach my $uid (@pop) {
         my $popuser = $popusers->{$uid};
 
         # don't show inactive accounts, or banned accounts
-        next if $uid == $remote_id || $popuser->is_inactive || $remote->has_banned( $popuser );
+        next if $uid == $remote_id || $popuser->is_inactive || $remote->has_banned($popuser);
 
         # sort userids into arrays
         if ( $numberpersonal < $maximum && $popuser->is_personal ) {
             push @poppersonal, $uid;
             $numberpersonal++;
-        } elsif ( $numbercomms < $maximum && $popuser->is_community ) {
+        }
+        elsif ( $numbercomms < $maximum && $popuser->is_community ) {
             push @popcomms, $uid;
             $numbercomms++;
-        } elsif ( $numberfeeds < $maximum && $popuser->is_syndicated ) {
+        }
+        elsif ( $numberfeeds < $maximum && $popuser->is_syndicated ) {
             push @popfeeds, $uid;
             $numberfeeds++;
         }
@@ -166,11 +173,11 @@ sub popsubscriptions_handler {
     $rv->{popularusers} = LJ::load_userids( @poppersonal, @popcomms, @popfeeds );
     $rv->{usercounts}   = \%count;
 
-    $rv->{poppersonal}  = \@poppersonal;
-    $rv->{popcomms}     = \@popcomms;
-    $rv->{popfeeds}     = \@popfeeds;
+    $rv->{poppersonal} = \@poppersonal;
+    $rv->{popcomms}    = \@popcomms;
+    $rv->{popfeeds}    = \@popfeeds;
 
-    $rv->{hasresults}   = $numberpersonal + $numbercomms + $numberfeeds;
+    $rv->{hasresults} = $numberpersonal + $numbercomms + $numberfeeds;
 
     return DW::Template->render_template( 'manage/circle/popsubscriptions.tt', $rv );
 }

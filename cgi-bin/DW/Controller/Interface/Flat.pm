@@ -19,8 +19,12 @@ package DW::Controller::Interface::Flat;
 use strict;
 use DW::Routing;
 
-DW::Routing->register_string( '/interface/flat', \&interface_handler, app => 1, format => 'plain',
-    methods => { GET => 1, POST => 1 } );
+DW::Routing->register_string(
+    '/interface/flat', \&interface_handler,
+    app     => 1,
+    format  => 'plain',
+    methods => { GET => 1, POST => 1 }
+);
 
 sub interface_handler {
     my $r = DW::Request->get;
@@ -34,14 +38,14 @@ sub interface_handler {
 
     if ( "urlenc" eq ( $post{responseenc} || "" ) ) {
         foreach ( sort keys %out ) {
-            $r->print( LJ::eurl( $_ ) . "=" . LJ::eurl( $out{$_} ) . "&" );
+            $r->print( LJ::eurl($_) . "=" . LJ::eurl( $out{$_} ) . "&" );
         }
         return $r->OK;
     }
 
     my $length = 0;
     foreach ( sort keys %out ) {
-        $length += length( $_ ) + 1;
+        $length += length($_) + 1;
         $length += length( $out{$_} ) + 1;
     }
     $r->header_out( "Content-Length", $length );

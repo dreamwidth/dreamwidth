@@ -22,13 +22,13 @@ use warnings;
 use JSON;
 
 # Define route and associated params
-my $spec = DW::Controller::API::REST->path('spec.yaml', 1, {'get' => \&rest_get});
+my $spec = DW::Controller::API::REST->path( 'spec.yaml', 1, { 'get' => \&rest_get } );
 
 sub rest_get {
     my $self = $_[0];
     my $spec = _spec_20();
-    my $ver = $self->{ver};
-    my %api = %DW::Controller::API::REST::API_DOCS;
+    my $ver  = $self->{ver};
+    my %api  = %DW::Controller::API::REST::API_DOCS;
 
     $spec->{paths} = $api{$ver};
 
@@ -38,23 +38,26 @@ sub rest_get {
 
 sub _spec_20 {
     my $self = $_[0];
-    my $ver = $spec->{ver};
+    my $ver  = $spec->{ver};
 
-    my $security_defs = { "api_key" => {"type" => "http", "scheme" => "Bearer", "bearerFormat" => "Bearer <api_key>" }};
- 
+    my $security_defs =
+        { "api_key" =>
+            { "type" => "http", "scheme" => "Bearer", "bearerFormat" => "Bearer <api_key>" } };
+
     my %spec = (
         openapi => '3.0.0',
-        servers => ({
-            url => "$LJ::WEB_DOMAIN/api/v$ver"
+        servers => (
+            {
+                url => "$LJ::WEB_DOMAIN/api/v$ver"
             },
         ),
         info => {
-            title => "$LJ::SITENAME API",
+            title       => "$LJ::SITENAME API",
             description => "An OpenAPI-compatible API for $LJ::SITENAME",
-            version => $ver,
+            version     => $ver,
 
         },
-        security => keys( %$security_defs),
+        security   => keys(%$security_defs),
         components => {
             securitySchemes => $security_defs,
         }

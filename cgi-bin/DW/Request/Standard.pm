@@ -27,37 +27,37 @@ use HTTP::Response;
 use HTTP::Status qw//;
 
 use fields (
-            'req',       # The HTTP::Request object
-            'res',       # a HTTP::Response object
-            'notes',
-            'pnotes',
+    'req',    # The HTTP::Request object
+    'res',    # a HTTP::Response object
+    'notes',
+    'pnotes',
 
-            # we have to parse these out ourselves
-            'uri',
-            'querystring',
+    # we have to parse these out ourselves
+    'uri',
+    'querystring',
 
-            'read_offset'
-        );
+    'read_offset'
+);
 
 # creates a new DW::Request object, based on what type of server environment we
 # are running under
 sub new {
     my DW::Request::Standard $self = $_[0];
-    $self = fields::new( $self ) unless ref $self;
+    $self = fields::new($self) unless ref $self;
     $self->SUPER::new;
 
     # setup object
     $self->{req}         = $_[1];
-    $self->{res}         = HTTP::Response->new( 200 );
+    $self->{res}         = HTTP::Response->new(200);
     $self->{uri}         = $self->{req}->uri;
     $self->{notes}       = {};
     $self->{pnotes}      = {};
     $self->{read_offset} = 0;
 
     # now stick ourselves as the primary request ...
-    unless ( $DW::Request::cur_req ) {
+    unless ($DW::Request::cur_req) {
         $DW::Request::determined = 1;
-        $DW::Request::cur_req = $self;
+        $DW::Request::cur_req    = $self;
     }
 
     # done
@@ -119,29 +119,32 @@ sub response_as_string {
 # searches for a given note and returns the value, or sets it
 sub note {
     my DW::Request::Standard $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
-        return $self->{notes}->{$_[1]};
-    } else {
-        return $self->{notes}->{$_[1]} = $_[2];
+    if ( scalar(@_) == 2 ) {
+        return $self->{notes}->{ $_[1] };
+    }
+    else {
+        return $self->{notes}->{ $_[1] } = $_[2];
     }
 }
 
 # searches for a given pnote and returns the value, or sets it
 sub pnote {
     my DW::Request::Standard $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
-        return $self->{pnotes}->{$_[1]};
-    } else {
-        return $self->{pnotes}->{$_[1]} = $_[2];
+    if ( scalar(@_) == 2 ) {
+        return $self->{pnotes}->{ $_[1] };
+    }
+    else {
+        return $self->{pnotes}->{ $_[1] } = $_[2];
     }
 }
 
 # searches for a given header and returns the value, or sets it
 sub header_in {
     my DW::Request::Standard $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
+    if ( scalar(@_) == 2 ) {
         return $self->{req}->header( $_[1] );
-    } else {
+    }
+    else {
         return $self->{req}->header( $_[1] => $_[2] );
     }
 }
@@ -154,9 +157,10 @@ sub headers_in {
 # searches for a given header and returns the value, or sets it
 sub header_out {
     my DW::Request::Standard $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
+    if ( scalar(@_) == 2 ) {
         return $self->{res}->header( $_[1] );
-    } else {
+    }
+    else {
         return $self->{res}->header( $_[1] => $_[2] );
     }
 }
@@ -169,12 +173,12 @@ sub headers_out {
 # appends a value to a header
 sub header_out_add {
     my DW::Request::Standard $self = $_[0];
-    return $self->{res}->push_header( $_[1] , $_[2] );
+    return $self->{res}->push_header( $_[1], $_[2] );
 }
 
 # this may not be precisely correct?  maybe we need to maintain our
 # own set of headers that are separate for errors... FIXME: investigate
-*err_header_out = \&header_out;
+*err_header_out     = \&header_out;
 *err_header_out_add = \&header_out_add;
 
 # returns the ip address of the connected person
@@ -187,7 +191,7 @@ sub get_remote_ip {
     # a bogus IP...
     return '127.0.0.100' unless $LJ::TRUST_X_HEADERS;
 
-    my @ips = split /\s*,\s*/, $self->{req}->header( 'X-Forwarded-For' );
+    my @ips = split /\s*,\s*/, $self->{req}->header('X-Forwarded-For');
     return '127.0.0.101' unless @ips && $ips[0];
 
     return $ips[0];
@@ -202,10 +206,11 @@ sub set_last_modified {
 # this is a response method
 sub status {
     my DW::Request::Standard $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
+    if ( scalar(@_) == 2 ) {
+
         # Set message to a default string, just setting code won't do it.
         my $code = $_[1] || 500;
-        $self->{res}->code( $code );
+        $self->{res}->code($code);
         $self->{res}->message( HTTP::Status::status_message($code) );
     }
     return $self->{res}->code;
@@ -214,11 +219,12 @@ sub status {
 # build or return a status line (RESPONSE)
 sub status_line {
     my DW::Request::Standard $self = $_[0];
-    if ( scalar( @_ ) == 2 ) {
+    if ( scalar(@_) == 2 ) {
+
         # We must set code and message seperately.
         if ( $_[1] =~ m/^(\d+)\s+(.+)$/ ) {
-            $self->{res}->code( $1 );
-            $self->{res}->message( $2 );
+            $self->{res}->code($1);
+            $self->{res}->message($2);
         }
     }
     return $self->{res}->status_line;
@@ -235,7 +241,8 @@ sub meets_conditions {
     my DW::Request::Standard $self = $_[0];
 
     return $self->OK
-        if LJ::http_to_time( $self->header_in("If-Modified-Since") ) <= LJ::http_to_time( $self->header_out("Last-Modified") );
+        if LJ::http_to_time( $self->header_in("If-Modified-Since") ) <=
+        LJ::http_to_time( $self->header_out("Last-Modified") );
 
     # FIXME: this should be pretty easy ... check the If headers (only time ones?)
     # and see if they're good or not.  return proper status code here (OK, NOT_MODIFIED)
@@ -255,12 +262,12 @@ sub print {
 # IMPORTANT: Do not pull out $_[1] to a variable in this sub
 sub read {
     my DW::Request::Standard $self = $_[0];
-    die "missing required arguments" if scalar( @_ ) < 3;
+    die "missing required arguments" if scalar(@_) < 3;
 
     my $prefix = '';
     if ( exists $_[3] ) {
         die "Negative offsets not allowed" if $_[3] < 0;
-        $prefix = substr( $_[1],0,$_[3] );
+        $prefix = substr( $_[1], 0, $_[3] );
     }
 
     die "Length cannot be negative" if $_[2] < 0;
@@ -270,8 +277,8 @@ sub read {
     # same exact scalar this will set *that* variable too.
     $_[1] = $prefix . $ov;
 
-    $self->{read_offset} += length( $ov );
-    return length( $ov );
+    $self->{read_offset} += length($ov);
+    return length($ov);
 }
 
 # return the internal Standard request object... in this case, we are

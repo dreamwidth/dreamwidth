@@ -28,6 +28,7 @@ use Storable;
 Get import data for this user for all provided import ids
 
 =cut
+
 sub get_import_data {
     my ( $class, $u, @ids ) = @_;
 
@@ -40,12 +41,12 @@ sub get_import_data {
 
     # FIXME: memcache this
     my $imports = $dbh->selectall_arrayref(
-        "SELECT import_data_id, hostname, username, usejournal, password_md5, options FROM import_data WHERE userid = ? AND import_data_id IN ( $qs ) " .
-        "ORDER BY import_data_id ASC",
+"SELECT import_data_id, hostname, username, usejournal, password_md5, options FROM import_data WHERE userid = ? AND import_data_id IN ( $qs ) "
+            . "ORDER BY import_data_id ASC",
         undef, $u->id, @ids
     );
 
-    foreach my $import ( @{$imports||[]} ) {
+    foreach my $import ( @{ $imports || [] } ) {
         $import->[5] = Storable::thaw( $import->[5] ) || {}
             if $import->[5];
     }
@@ -58,6 +59,7 @@ sub get_import_data {
 Get the latest import data for this user
 
 =cut
+
 sub get_import_data_for_user {
     my ( $class, $u ) = @_;
 
@@ -67,8 +69,8 @@ sub get_import_data_for_user {
     # load up their most recent (active) import
     # FIXME: memcache this
     my $imports = $dbh->selectall_arrayref(
-        'SELECT import_data_id, hostname, username, usejournal, password_md5, options FROM import_data WHERE userid = ? ' .
-        'ORDER BY import_data_id DESC LIMIT 1',
+'SELECT import_data_id, hostname, username, usejournal, password_md5, options FROM import_data WHERE userid = ? '
+            . 'ORDER BY import_data_id DESC LIMIT 1',
         undef, $u->id
     );
 
@@ -83,6 +85,7 @@ sub get_import_data_for_user {
 Get import items for this user for all provided import ids.
 
 =cut
+
 sub get_import_items {
     my ( $class, $u, @importids ) = @_;
 
@@ -92,16 +95,16 @@ sub get_import_items {
     my $qs = join ",", map { "?" } @importids;
 
     my $import_items = $dbh->selectall_arrayref(
-        "SELECT import_data_id, item, status, created, last_touch FROM import_items WHERE userid = ? AND import_data_id IN ( $qs )",
+"SELECT import_data_id, item, status, created, last_touch FROM import_items WHERE userid = ? AND import_data_id IN ( $qs )",
         undef, $u->id, @importids
     );
 
     my %ret;
-    foreach my $import_item ( @$import_items ) {
+    foreach my $import_item (@$import_items) {
         my ( $id, $item, $status, $created, $last_touch ) = @$import_item;
         $ret{$id}->{$item} = {
-            status => $status,
-            created => $created,
+            status     => $status,
+            created    => $created,
             last_touch => $last_touch,
         };
     }
@@ -114,6 +117,7 @@ sub get_import_items {
 Get all import items for this user
 
 =cut
+
 sub get_all_import_items {
     my ( $class, $u ) = @_;
 
@@ -121,23 +125,22 @@ sub get_all_import_items {
         or die "No database.";
 
     my $import_items = $dbh->selectall_arrayref(
-        "SELECT import_data_id, item, status, created, last_touch FROM import_items WHERE userid = ?",
+"SELECT import_data_id, item, status, created, last_touch FROM import_items WHERE userid = ?",
         undef, $u->id
     );
 
     my %ret;
-    foreach my $import_item ( @$import_items ) {
+    foreach my $import_item (@$import_items) {
         my ( $id, $item, $status, $created, $last_touch ) = @$import_item;
         $ret{$id}->{$item} = {
-            status => $status,
-            created => $created,
+            status     => $status,
+            created    => $created,
             last_touch => $last_touch,
         };
     }
 
     return \%ret;
 }
-
 
 =head2 C<<DW::Logic::Importer->get_import_items_for_user( $u, id1, [ id2, id3... ] )>>
 
@@ -148,18 +151,19 @@ Get latest import item for this user. Includes import data.
 sub get_import_items_for_user {
     my ( $class, $u ) = @_;
 
-    my $imports = DW::Logic::Importer->get_import_data_for_user( $u );
+    my $imports = DW::Logic::Importer->get_import_data_for_user($u);
     my %items;
 
     my $has_items = 0;
-    foreach my $import ( @$imports ) {
+    foreach my $import (@$imports) {
         my ( $importid, $host, $username, $usejournal, $password ) = @$import;
         $items{$importid} = {
-                    host => $host,
-                    user => $username,
-                    pw => $password,
-                    usejournal => $usejournal,
-                    items => DW::Logic::Importer->get_import_items( $u, $importid )->{$importid}, };
+            host       => $host,
+            user       => $username,
+            pw         => $password,
+            usejournal => $usejournal,
+            items      => DW::Logic::Importer->get_import_items( $u, $importid )->{$importid},
+        };
 
         $has_items = 1 if scalar keys %{ $items{$importid}->{items} };
     }
@@ -182,17 +186,16 @@ sub get_queued_imports {
     return {} unless $u;
 
     # the latest import the user has queued
-    my $latestimport = DW::Logic::Importer->get_import_data_for_user( $u );
+    my $latestimport = DW::Logic::Importer->get_import_data_for_user($u);
 
     # the latest job that's currently running
     # should be <= $latestimport
-    my $runningjob = $u->prop( "import_job" );
+    my $runningjob = $u->prop("import_job");
 
     return {} unless $latestimport && $runningjob;
 
     return DW::Logic::Importer->get_import_items( $u, $runningjob .. $latestimport->[0]->[0] );
 }
-
 
 sub set_import_data_for_user {
     my ( $class, $u, %opts ) = @_;
@@ -210,8 +213,8 @@ sub set_import_data_for_user {
 
     my $id = LJ::alloc_user_counter( $u, "I" ) or return "Can't get id for import data.";
     $dbh->do(
-        "INSERT INTO import_data (userid, import_data_id, hostname, username, usejournal, password_md5) VALUES (?, ?, ?, ?, ?, ?)",
-        undef, $u->id, $id, $hn, $un, $uj, md5_hex( $pw )
+"INSERT INTO import_data (userid, import_data_id, hostname, username, usejournal, password_md5) VALUES (?, ?, ?, ?, ?, ?)",
+        undef, $u->id, $id, $hn, $un, $uj, md5_hex($pw)
     );
     return $dbh->errstr if $dbh->err;
 
@@ -238,10 +241,7 @@ sub set_import_data_options_for_user {
     my $dbh = LJ::get_db_writer()
         or return "Unable to connect to database.";
 
-    $dbh->do(
-        "UPDATE import_data SET options = ? WHERE import_data_id = ?",
-        undef, $data, $id
-    );
+    $dbh->do( "UPDATE import_data SET options = ? WHERE import_data_id = ?", undef, $data, $id );
 
     return $dbh->errstr if $dbh->err;
 
@@ -252,7 +252,7 @@ sub set_import_items_for_user {
     my ( $class, $u, %opts ) = @_;
 
     my $item = $opts{item};
-    my $id = $opts{id}+0;
+    my $id   = $opts{id} + 0;
 
     return "Did not pass item and id."
         unless ref $item eq 'ARRAY' && $id > 0;
@@ -261,17 +261,18 @@ sub set_import_items_for_user {
         or return "Unable to connect to database.";
 
     # paid accounts get higher priority than free ones
-    my $account_type = DW::Pay::get_account_type( $u );
-    my $priority = 100;
+    my $account_type = DW::Pay::get_account_type($u);
+    my $priority     = 100;
     if ( $account_type eq "seed" || $account_type eq "premium" ) {
         $priority = 400;
-    } elsif ( $account_type eq 'paid' ) {
+    }
+    elsif ( $account_type eq 'paid' ) {
         $priority = 300;
     }
 
     $dbh->do(
-        "INSERT INTO import_items (userid, item, status, created, import_data_id, priority) " .
-        "VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, ?)",
+        "INSERT INTO import_items (userid, item, status, created, import_data_id, priority) "
+            . "VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, ?)",
         undef, $u->id, $item->[0], $item->[1], $id, $priority
     );
     return $dbh->errstr if $dbh->err;

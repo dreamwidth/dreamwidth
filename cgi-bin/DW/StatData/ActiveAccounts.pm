@@ -42,12 +42,12 @@ sub category { "active" }
 sub name     { "Active Accounts" }
 
 my %key_to_days = ( active_1d => 1, active_7d => 7, active_30d => 30 );
+
 sub keylist {
-    my @levels = ( 'unknown', values %{DW::Pay::all_shortnames()} );
-    my @keys = ();
+    my @levels = ( 'unknown', values %{ DW::Pay::all_shortnames() } );
+    my @keys   = ();
     foreach my $k ( keys %key_to_days ) {
-        push @keys, $k, map { +"$k-$_", "$k-$_-P", "$k-$_-C", "$k-$_-I" }
-                            @levels;
+        push @keys, $k, map { +"$k-$_", "$k-$_-P", "$k-$_-C", "$k-$_-I" } @levels;
     }
     return \@keys;
 }
@@ -91,52 +91,57 @@ sub collect {
     my $max_days = 0;
     my %data;
     my $shortnames = DW::Pay::all_shortnames();
-    my @levels = ( '', 'unknown', values %$shortnames );
+    my @levels     = ( '', 'unknown', values %$shortnames );
 
-    foreach my $k ( @keys ) {
+    foreach my $k (@keys) {
         my ( $keyprefix, $keylevel, $keytype ) = split( '-', $k );
         $keylevel ||= '';
-        $keytype ||= '';
+        $keytype  ||= '';
 
         die "Unknown statkey $k for $class"
             unless exists $key_to_days{$keyprefix}
-                   and grep { $_ eq $keylevel } @levels
-                   and $keytype =~ /^[PCI]?$/;
+            and grep { $_ eq $keylevel } @levels
+            and $keytype =~ /^[PCI]?$/;
 
         $max_days = $key_to_days{$keyprefix}
             if $max_days < $key_to_days{$keyprefix};
         $data{$k} = 0;
     }
 
-    LJ::DB::foreach_cluster( sub {
-        my ( $cid, $dbr ) = @_; # $cid isn't used
+    LJ::DB::foreach_cluster(
+        sub {
+            my ( $cid, $dbr ) = @_;    # $cid isn't used
 
-        my $sth = $dbr->prepare( qq{
+            my $sth = $dbr->prepare(
+                qq{
             SELECT FLOOR((UNIX_TIMESTAMP()-timeactive)/86400) as days,
                    accountlevel, journaltype, COUNT(*)
             FROM clustertrack2
             WHERE timeactive > UNIX_TIMESTAMP()-?
-            GROUP BY days, accountlevel, journaltype } );
-        $sth->execute( $max_days*86400 );
+            GROUP BY days, accountlevel, journaltype }
+            );
+            $sth->execute( $max_days * 86400 );
 
-        while ( my ( $days, $level, $type, $active ) = $sth->fetchrow_array ) {
-            $level = ( defined $level ) ? $shortnames->{$level} : 'unknown';
-            $type ||= '';
+            while ( my ( $days, $level, $type, $active ) = $sth->fetchrow_array ) {
+                $level = ( defined $level ) ? $shortnames->{$level} : 'unknown';
+                $type ||= '';
 
-            # which day interval(s) does this fall in?
-            # -- in last day, in last 7, in last 30?
-            foreach my $k ( @keys ) {
-                my ( $keyprefix, $keylevel, $keytype ) = split( '-', $k );
-                $keylevel ||= '';
-                $keytype ||= '';
-                if ( $days < $key_to_days{$keyprefix}
-                     && ( $keylevel eq $level || $keylevel eq '' )
-                     && ( $keytype eq $type || $keytype eq '' ) ) {
-                    $data{$k} += $active;
+                # which day interval(s) does this fall in?
+                # -- in last day, in last 7, in last 30?
+                foreach my $k (@keys) {
+                    my ( $keyprefix, $keylevel, $keytype ) = split( '-', $k );
+                    $keylevel ||= '';
+                    $keytype  ||= '';
+                    if (   $days < $key_to_days{$keyprefix}
+                        && ( $keylevel eq $level || $keylevel eq '' )
+                        && ( $keytype eq $type   || $keytype eq '' ) )
+                    {
+                        $data{$k} += $active;
+                    }
                 }
             }
         }
-    } );
+    );
 
     return \%data;
 }

@@ -16,7 +16,7 @@ package LJ::Hooks;
 use strict;
 use LJ::ModuleLoader;
 
-my $hooks_dir_scanned = 0;  # bool: if we've loaded everything from cgi-bin/LJ/Hooks/
+my $hooks_dir_scanned = 0;    # bool: if we've loaded everything from cgi-bin/LJ/Hooks/
 
 # <LJFUNC>
 # name: LJ::Hooks::are_hooks
@@ -39,11 +39,11 @@ sub are_hooks {
 # des-args: Arguments to be passed to hook.
 # </LJFUNC>
 sub run_hooks {
-    my ($hookname, @args) = @_;
+    my ( $hookname, @args ) = @_;
     _load_hooks_dir() unless $hooks_dir_scanned;
 
     my @ret;
-    foreach my $hook (@{$LJ::HOOKS{$hookname} || []}) {
+    foreach my $hook ( @{ $LJ::HOOKS{$hookname} || [] } ) {
         push @ret, [ $hook->(@args) ];
     }
     return @ret;
@@ -57,10 +57,10 @@ sub run_hooks {
 # des-args: Arguments to be passed to hook.
 # </LJFUNC>
 sub run_hook {
-    my ($hookname, @args) = @_;
+    my ( $hookname, @args ) = @_;
     _load_hooks_dir() unless $hooks_dir_scanned;
 
-    return undef unless @{$LJ::HOOKS{$hookname} || []};
+    return undef unless @{ $LJ::HOOKS{$hookname} || [] };
     return $LJ::HOOKS{$hookname}->[0]->(@args);
 }
 
@@ -74,17 +74,20 @@ sub run_hook {
 # </LJFUNC>
 sub register_hook {
     my ( $hookname, $subref ) = @_;
-    push @{$LJ::HOOKS{$hookname} ||= []}, $subref;
+    push @{ $LJ::HOOKS{$hookname} ||= [] }, $subref;
 }
 
 # loads all of the hooks in the hooks directory
 sub _load_hooks_dir {
     return if $hooks_dir_scanned++;
-    
+
     # eh, not actually subclasses... just files named $class.pm
     # $a::$b ==> cgi-bin/$a/$b
-    foreach my $class (LJ::ModuleLoader->module_subclasses("LJ::Hooks"),
-                       LJ::ModuleLoader->module_subclasses("DW::Hooks")) {
+    foreach my $class (
+        LJ::ModuleLoader->module_subclasses("LJ::Hooks"),
+        LJ::ModuleLoader->module_subclasses("DW::Hooks")
+        )
+    {
         eval "use $class;";
         die "Error loading $class: $@" if $@;
     }
@@ -102,6 +105,5 @@ sub register_setter {
     my ( $key, $subref ) = @_;
     $LJ::SETTER{$key} = $subref;
 }
-
 
 1;

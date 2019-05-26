@@ -16,7 +16,6 @@
 #
 # -------------------------------------------------------------------------
 
-
 package LJ::SpellCheck;
 
 use strict;
@@ -40,18 +39,20 @@ our $VERSION = '3.0';
 # terms, you can add a "-p /path/to/dictionary" to the program arguments
 
 sub new {
-    my ($class, $args) = @_;
+    my ( $class, $args ) = @_;
     my $self = {};
     bless $self, ref $class || $class;
 
     if ( $args->{command} ) {
-        $self->{command} = $args->{command};
+        $self->{command}      = $args->{command};
         $self->{command_args} = $args->{command_args};
-    } else {
-        my $command = $args->{spellcommand} || "/usr/bin/aspell pipe -H --sug-mode=fast --ignore-case";
+    }
+    else {
+        my $command =
+            $args->{spellcommand} || "/usr/bin/aspell pipe -H --sug-mode=fast --ignore-case";
         my @command_args = split /\s+/, $command;
 
-        $self->{command} = shift @command_args;
+        $self->{command}      = shift @command_args;
         $self->{command_args} = \@command_args;
     }
 
@@ -72,77 +73,84 @@ sub _call_system_spellchecker {
     return ( error => "Spell checker not configured for this site." ) unless $LJ::SPELLER;
 
     # bail out here if we can't spawn the process
-    return ( error => "Could not initialize spell checker. Please open a support request if you see this message more than once." )
-        unless $iwrite && $iread;
+    return ( error =>
+"Could not initialize spell checker. Please open a support request if you see this message more than once."
+    ) unless $iwrite && $iread;
 
     my $read_data = sub {
-        my ( $fh ) = @_;
+        my ($fh) = @_;
         my $data;
-        $data = <$fh> if PERLIO_IS_ENABLED || IO::Select->new( $fh )->can_read( 10 );
+        $data = <$fh> if PERLIO_IS_ENABLED || IO::Select->new($fh)->can_read(10);
         return defined $data ? $data : '';
     };
 
     my $ehtml_substr = sub {
         my ( $a, $b, $c ) = @_;
+
         # we can't substr( @_ ) directly, it won't compile
         my $str = substr( $a, $b, $c );
-        return $no_ehtml ? $str : LJ::ehtml( $str );
+        return $no_ehtml ? $str : LJ::ehtml($str);
     };
 
-
     # header from aspell/ispell
-    my $banner = $read_data->( $iread );
-    return ( error => "Spell checker not set up properly. banner=$banner" ) unless $banner =~ /^@\(#\)/;
-
+    my $banner = $read_data->($iread);
+    return ( error => "Spell checker not set up properly. banner=$banner" )
+        unless $banner =~ /^@\(#\)/;
 
     # send the command to shell-escape
     print $iwrite "!\n";
 
-    my $output = "";
+    my $output    = "";
     my $footnotes = "";
-    my $styling = $self->{class} ? qq{class="$self->{class}" style="text-decoration:none"} : qq{style="color:$self->{color}; text-decoration:none"};
+    my $styling =
+        $self->{class}
+        ? qq{class="$self->{class}" style="text-decoration:none"}
+        : qq{style="color:$self->{color}; text-decoration:none"};
 
     my ( $srcidx, $lineidx, $mscnt, $other_bad );
     $lineidx = 1;
-    $mscnt = 0;
+    $mscnt   = 0;
     foreach my $inline ( split( /\n/, $text ) ) {
         $srcidx = 0;
-        chomp( $inline );
+        chomp($inline);
         print $iwrite "^$inline\n";
 
         my $idata;
         do {
-            $idata = $read_data->( $iread );
-            chomp( $idata );
+            $idata = $read_data->($iread);
+            chomp($idata);
 
             if ( $idata =~ /^& / ) {
                 $idata =~ s/^& (\S+) (\d+) (\d+): //;
                 $mscnt++;
                 my ( $word, $sugcount, $ofs ) = ( $1, $2, $3 );
-                my $e_word = $no_ehtml ? $word : LJ::ehtml( $word );
-                my $e_idata = $no_ehtml ? $idata : LJ::ehtml( $idata );
-                $ofs -= 1; # because ispell reports "1" for first character
+                my $e_word  = $no_ehtml ? $word  : LJ::ehtml($word);
+                my $e_idata = $no_ehtml ? $idata : LJ::ehtml($idata);
+                $ofs -= 1;    # because ispell reports "1" for first character
 
                 $output .= $ehtml_substr->( $inline, $srcidx, $ofs - $srcidx );
-                $output .= "<a href='#spellcheck-$mscnt-suggestion' id='spellcheck-$mscnt-text' $styling>$e_word</a>";
+                $output .=
+"<a href='#spellcheck-$mscnt-suggestion' id='spellcheck-$mscnt-text' $styling>$e_word</a>";
 
-                $footnotes .= "<tr valign=top><td align=right><a href='#spellcheck-$mscnt-text' id='spellcheck-$mscnt-suggestion' $styling>$e_word</a>" .
-                              "</td><td>$e_idata</td></tr>";
+                $footnotes .=
+"<tr valign=top><td align=right><a href='#spellcheck-$mscnt-text' id='spellcheck-$mscnt-suggestion' $styling>$e_word</a>"
+                    . "</td><td>$e_idata</td></tr>";
 
-                $srcidx = $ofs + length( $word );
-            } elsif ($idata =~ /^\# /) {
+                $srcidx = $ofs + length($word);
+            }
+            elsif ( $idata =~ /^\# / ) {
                 $other_bad = 1;
                 $idata =~ /^\# (\S+) (\d+)/;
                 my ( $word, $ofs ) = ( $1, $2 );
-                my $e_word = $no_ehtml ? $word : LJ::ehtml( $word );
-                $ofs -= 1; # because ispell reports "1" for first character
+                my $e_word = $no_ehtml ? $word : LJ::ehtml($word);
+                $ofs -= 1;    # because ispell reports "1" for first character
                 $output .= $ehtml_substr->( $inline, $srcidx, $ofs - $srcidx );
                 $output .= "&nbsp;<span $styling>$e_word</span>&nbsp;";
-                $srcidx = $ofs + length( $word );
+                $srcidx = $ofs + length($word);
             }
         } while ( $idata ne "" );
-            $output .= $ehtml_substr->( $inline, $srcidx, length( $inline ) - $srcidx ) . "<br>\n";
-            $lineidx++;
+        $output .= $ehtml_substr->( $inline, $srcidx, length($inline) - $srcidx ) . "<br>\n";
+        $lineidx++;
     }
 
     $iread->close;
@@ -158,37 +166,38 @@ sub check_html {
     return "" unless $text;
 
     my $gc = LJ::gearman_client();
+
     # spawn a process using apache if we don't have spellcheck set up to use gearman
     return $self->_spawn_spellcheck( $text, $no_ehtml )
-        unless $gc && LJ::conf_test( $LJ::RUN_SPELLCHECK_USING_GEARMAN );
-
+        unless $gc && LJ::conf_test($LJ::RUN_SPELLCHECK_USING_GEARMAN);
 
     my $args = {
         text     => $text,
         no_ehtml => $no_ehtml,
 
-        class    => $self->{class},
-        color    => $self->{color},
-        command  => $self->{command},
+        class        => $self->{class},
+        color        => $self->{color},
+        command      => $self->{command},
         command_args => $self->{command_args},
     };
-    my $arg = Storable::nfreeze( $args );
+    my $arg = Storable::nfreeze($args);
 
     my $result;
     my $task = Gearman::Task->new(
-        'spellcheck', \$arg,
+        'spellcheck',
+        \$arg,
         {
-            uniq => '-',
+            uniq        => '-',
             on_complete => sub {
                 my $res = $_[0] or return undef;
-                $result = Storable::thaw( $$res )->{results};
+                $result = Storable::thaw($$res)->{results};
             },
         }
     );
 
     # setup the task set for gearman
     my $ts = $gc->new_task_set();
-    $ts->add_task( $task );
+    $ts->add_task($task);
     $ts->wait( timeout => 10 );
 
     return $result;
@@ -206,25 +215,29 @@ sub _spawn_spellcheck {
 
     return "<?errorbar $ret{error} errorbar?>" if $ret{error};
 
-    return ( $ret{has_results}
-                ? "$ret{output}<table cellpadding=3 border=0><thead><tr><th>Text</th><th>Suggestions</th></tr></thead>$ret{footnotes}</table>"
-                : "" );
+    return (
+        $ret{has_results}
+        ? "$ret{output}<table cellpadding=3 border=0><thead><tr><th>Text</th><th>Suggestions</th></tr></thead>$ret{footnotes}</table>"
+        : ""
+    );
 
 }
 
 sub run {
     my ( $self, %opts ) = @_;
 
-    my $iread = new FileHandle;
+    my $iread  = new FileHandle;
     my $iwrite = new FileHandle;
     my $pid;
 
-    $iwrite->autoflush( 1 );
+    $iwrite->autoflush(1);
 
-    $pid = open2( $iread, $iwrite, $self->{command}, @{$self->{command_args}||[]} ) || return "Spell process failed";
+    $pid = open2( $iread, $iwrite, $self->{command}, @{ $self->{command_args} || [] } )
+        || return "Spell process failed";
     return "Couldn't find spell checker" unless $pid;
 
-    my %ret = $self->_call_system_spellchecker( $opts{text}, $iwrite, $iread, no_ehtml => $opts{no_ehtml} );
+    my %ret = $self->_call_system_spellchecker( $opts{text}, $iwrite, $iread,
+        no_ehtml => $opts{no_ehtml} );
 
     $iread->close;
     $iwrite->close;
@@ -232,11 +245,12 @@ sub run {
     $pid = waitpid( $pid, 0 );
 
     return $ret{error} if $ret{error};
-    return ( $ret{has_results}
-                ? "$ret{output}<table cellpadding=3 border=0><thead><tr><th>Text</th><th>Suggestions</th></tr></thead>$ret{footnotes}</table>"
-                : "" );
+    return (
+        $ret{has_results}
+        ? "$ret{output}<table cellpadding=3 border=0><thead><tr><th>Text</th><th>Suggestions</th></tr></thead>$ret{footnotes}</table>"
+        : ""
+    );
 }
-
 
 1;
 __END__

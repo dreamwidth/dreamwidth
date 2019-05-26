@@ -25,11 +25,11 @@ sub supports_site {
 }
 
 sub label {
-    return $_[0]->ml( 'setting.display.viewiconstyle.label' );
+    return $_[0]->ml('setting.display.viewiconstyle.label');
 }
 
 sub option_ml {
-    return $_[0]->ml( 'setting.display.viewiconstyle.option' );
+    return $_[0]->ml('setting.display.viewiconstyle.option');
 }
 
 sub prop_name {

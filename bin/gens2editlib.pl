@@ -22,13 +22,14 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 
-my ($filename, $layerid, $query, $outputpath, $help);
+my ( $filename, $layerid, $query, $outputpath, $help );
 GetOptions(
-	'help|h' => \$help,
-	'filename|f=s' => \$filename,
-	'layerid|l=i' => \$layerid,
-	'query|q' => \$query,
-	'output|o=s' => \$outputpath) or pod2usage(1);
+    'help|h'       => \$help,
+    'filename|f=s' => \$filename,
+    'layerid|l=i'  => \$layerid,
+    'query|q'      => \$query,
+    'output|o=s'   => \$outputpath
+) or pod2usage(1);
 pod2usage(0) if $help;
 
 my $home = $ENV{LJHOME} or die "You'll have to set \$LJHOME first.\n";
@@ -39,24 +40,26 @@ $outputpath ||= "$home/htdocs/js/s2edit/s2library.js";
 
 my $info;
 if ($filename) {
-	local $/ = undef;
-	open F, $filename or die $!;
-	eval <F>;
-	die $@ if $@;
-	close F;
-	
-	$info = S2::get_layer_all(defined($layerid) ? $layerid : 1);
-} elsif ($query) {
+    local $/ = undef;
+    open F, $filename or die $!;
+    eval <F>;
+    die $@ if $@;
+    close F;
+
+    $info = S2::get_layer_all( defined($layerid) ? $layerid : 1 );
+}
+elsif ($query) {
     my $pub = LJ::S2::get_public_layers();
-	my $id = $pub->{core1};
-	$id = $id ? $id->{'s2lid'} : 0;
-	die "Couldn't locate a core 1 layer.\n" unless $id;
-	
-	my $dbr = LJ::get_db_reader();
-	my $rv = S2::load_layers_from_db($dbr, $id);
-	$info = S2::get_layer_all($id);
-} else {
-	pod2usage(1);
+    my $id  = $pub->{core1};
+    $id = $id ? $id->{'s2lid'} : 0;
+    die "Couldn't locate a core 1 layer.\n" unless $id;
+
+    my $dbr = LJ::get_db_reader();
+    my $rv  = S2::load_layers_from_db( $dbr, $id );
+    $info = S2::get_layer_all($id);
+}
+else {
+    pod2usage(1);
 }
 
 open LIB, ">$outputpath" or die "Failed to open $outputpath for writing: $!\n";
@@ -71,53 +74,53 @@ print "// Do not edit!\n\n";
 print "// Classes\n";
 print "var s2classlib = new Array(";
 
-my %classes = %{$info->{'class'}};
-my @orderedClasses = map { $_->[0] } sort { $a->[1] cmp $b->[1] } map
-	{ [ $_, lc $_ ] } keys %classes;
+my %classes = %{ $info->{'class'} };
+my @orderedClasses =
+    map { $_->[0] } sort { $a->[1] cmp $b->[1] } map { [ $_, lc $_ ] } keys %classes;
 
 my $cma = 0;
 
 foreach my $className (@orderedClasses) {
-	my $class = $classes{$className};
-	
-	my (%methods, %members);
-	my $c = $class;
-	do {
-		%methods = (%methods, %{$c->{funcs}});
-		%members = (%members, %{$c->{vars}});
-	
-		$c = ($c->{'parent'} ? $classes{$c->{'parent'}} : undef);
-	} while ($c);
-	
-	print "," if $cma++;
-	
-	print "\n\t{\n\t\tname: '$className',\n";
-	
-	print "\t\tmembers: new Array(";
-	my $cm = 0;
-	foreach my $memberName (sort keys %members) {
-		print "," if $cm++;
-		
-		print "\n\t\t\t{ ";
-		print "name: '$memberName', ";
-		print "type: '$members{$memberName}->{type}'";
-		print " }";
-	}
-	print "),\n";
-	
-	print "\t\tmethods: new Array(";
-	$cm = 0;
-	foreach my $methodName (sort keys %methods) {
-		print "," if $cm++;
-		
-		print "\n\t\t\t{ ";
-		print "name: '$methodName', ";
-		print "type: '$methods{$methodName}->{returntype}'";
-		print " }";
-	}
-	print ")\n";
-	
-	print "\t}";
+    my $class = $classes{$className};
+
+    my ( %methods, %members );
+    my $c = $class;
+    do {
+        %methods = ( %methods, %{ $c->{funcs} } );
+        %members = ( %members, %{ $c->{vars} } );
+
+        $c = ( $c->{'parent'} ? $classes{ $c->{'parent'} } : undef );
+    } while ($c);
+
+    print "," if $cma++;
+
+    print "\n\t{\n\t\tname: '$className',\n";
+
+    print "\t\tmembers: new Array(";
+    my $cm = 0;
+    foreach my $memberName ( sort keys %members ) {
+        print "," if $cm++;
+
+        print "\n\t\t\t{ ";
+        print "name: '$memberName', ";
+        print "type: '$members{$memberName}->{type}'";
+        print " }";
+    }
+    print "),\n";
+
+    print "\t\tmethods: new Array(";
+    $cm = 0;
+    foreach my $methodName ( sort keys %methods ) {
+        print "," if $cm++;
+
+        print "\n\t\t\t{ ";
+        print "name: '$methodName', ";
+        print "type: '$methods{$methodName}->{returntype}'";
+        print " }";
+    }
+    print ")\n";
+
+    print "\t}";
 }
 print ");\n\n";
 
@@ -130,10 +133,10 @@ my $global = $info->{'global'};
 print "var s2funclib = new Array(";
 
 my $cm = 0;
-foreach my $func (sort keys %$global) {
-	print "," if $cm++;
-	
-	print "\n\t{ name: '$func', type: '$global->{$func}{returntype}' }";
+foreach my $func ( sort keys %$global ) {
+    print "," if $cm++;
+
+    print "\n\t{ name: '$func', type: '$global->{$func}{returntype}' }";
 }
 print ");\n\n";
 
@@ -146,10 +149,10 @@ my $props = $info->{'prop'};
 print "var s2proplib = new Array(";
 
 $cm = 0;
-foreach my $prop (sort keys %$props) {
-	print "," if $cm++;
-	
-	print "\n\t{ name: '$prop', type: '$props->{$prop}{type}' }";
+foreach my $prop ( sort keys %$props ) {
+    print "," if $cm++;
+
+    print "\n\t{ name: '$prop', type: '$props->{$prop}{type}' }";
 }
 print ");\n";
 

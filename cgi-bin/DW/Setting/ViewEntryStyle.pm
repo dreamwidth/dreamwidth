@@ -22,11 +22,11 @@ use strict;
 use warnings;
 
 sub label {
-    return $_[0]->ml( 'setting.display.viewentrystyle.label' );
+    return $_[0]->ml('setting.display.viewentrystyle.label');
 }
 
 sub option_ml {
-    return $_[0]->ml( 'setting.display.viewentrystyle.option' );
+    return $_[0]->ml('setting.display.viewentrystyle.option');
 }
 
 sub prop_name {

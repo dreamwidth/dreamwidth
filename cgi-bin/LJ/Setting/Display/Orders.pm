@@ -17,7 +17,7 @@ use strict;
 use warnings;
 
 sub should_render {
-    my ($class, $u) = @_;
+    my ( $class, $u ) = @_;
 
     return $u && !$u->is_community ? 1 : 0;
 }
@@ -25,13 +25,15 @@ sub should_render {
 sub label {
     my $class = shift;
 
-    return $class->ml( 'setting.display.orders.label' );
+    return $class->ml('setting.display.orders.label');
 }
 
 sub option {
-    my ($class, $u, $errs, $args) = @_;
+    my ( $class, $u, $errs, $args ) = @_;
 
-    return "<a href='$LJ::SITEROOT/shop/history'>" . $class->ml( 'setting.display.orders.option' ) . "</a>";
+    return
+        "<a href='$LJ::SITEROOT/shop/history'>"
+        . $class->ml('setting.display.orders.option') . "</a>";
 }
 
 1;

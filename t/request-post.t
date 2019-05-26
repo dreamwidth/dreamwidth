@@ -17,7 +17,6 @@ use warnings;
 
 use Test::More tests => 5;
 
-
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Request::Standard;
 use HTTP::Request;
@@ -26,8 +25,9 @@ use Test::Exception;
 use LJ::JSON;
 
 # Test multipart
-check_request( "Standard POST",
-    POST("/foobar", Content=> [ foo => 1 ]),
+check_request(
+    "Standard POST",
+    POST( "/foobar", Content => [ foo => 1 ] ),
     sub {
         plan tests => 7;
 
@@ -38,24 +38,30 @@ check_request( "Standard POST",
         # 1 - Check post args
         my $args = $r->post_args;
         isnt( $args, undef, "POST args defined" );
-        is( $args->{foo}, 1, "Foo is correct" );
+        is( $args->{foo}, 1,     "Foo is correct" );
         is( $args->{bar}, undef, "Bar is undefined" );
 
         my $args2 = $r->post_args;
-        is ( $args, $args2, "Returns cached post_args" );
+        is( $args, $args2, "Returns cached post_args" );
 
         # 5 - Try uploads
         throws_ok { $r->uploads } qr/content type in upload/, "uploads failed";
 
         # 6 - Try JSON
         is( $r->json, undef, "json returns undefined" );
-});
+    }
+);
 
-check_request( "multipart/form-data POST",
-    POST("/foobar", Content_Type=>'form-data', Content=> [
-        foo => [ undef, 'rar.txt', Content => "Rar!" ],
-        bar => [ undef, 'rar.txt', Content => "Rawr!", 'X-Meaning-Of-Life' => 42 ],
-    ]),
+check_request(
+    "multipart/form-data POST",
+    POST(
+        "/foobar",
+        Content_Type => 'form-data',
+        Content      => [
+            foo => [ undef, 'rar.txt', Content => "Rar!" ],
+            bar => [ undef, 'rar.txt', Content => "Rawr!", 'X-Meaning-Of-Life' => 42 ],
+        ]
+    ),
     sub {
         plan tests => 9;
 
@@ -73,28 +79,32 @@ check_request( "multipart/form-data POST",
         isnt( $uploads, undef, "Uploads defined" );
         my %values = map { $_->{name} => $_ } @$uploads;
 
-        is( $values{foo}->{body}, "Rar!", "body correct" );
-        is( $values{bar}->{body}, "Rawr!", "body correct, with headers" );
-        is( $values{bar}->{'x-meaning-of-life'}, 42, "header correct" );
+        is( $values{foo}->{body},                "Rar!",  "body correct" );
+        is( $values{bar}->{body},                "Rawr!", "body correct, with headers" );
+        is( $values{bar}->{'x-meaning-of-life'}, 42,      "header correct" );
 
         my $uploads2 = $r->uploads;
         is( $uploads, $uploads2, "Returns cached uploads" );
 
         # 8 - Try JSON
         is( $r->json, undef, "json returns undefined" );
-});
+    }
+);
 
-check_request( "Invalid multipart/form-data POST, no boundary",
-    POST("/foobar", 'Content-Type'=>'multipart/form-data', Content=>"I don't care"),
+check_request(
+    "Invalid multipart/form-data POST, no boundary",
+    POST( "/foobar", 'Content-Type' => 'multipart/form-data', Content => "I don't care" ),
     sub {
         plan tests => 1;
 
         my $r = DW::Request->get;
         throws_ok { $r->uploads } qr/content type in upload/, "uploads failed";
-});
+    }
+);
 
-check_request( "Invalid multipart/form-data POST, no boundary in content",
-    POST("/foobar", 'Content-Type'=>'multipart/form-data;boundary=FooBar', Content=><<EOB),
+check_request(
+    "Invalid multipart/form-data POST, no boundary in content",
+    POST( "/foobar", 'Content-Type' => 'multipart/form-data;boundary=FooBar', Content => <<EOB),
 --FooBaz
 This is invalid.
 EOB
@@ -103,10 +113,16 @@ EOB
 
         my $r = DW::Request->get;
         throws_ok { $r->uploads } qr/it looks invalid/, "uploads failed";
-});
+    }
+);
 
-check_request( "application/json POST",
-    POST("/foobar", 'Content-Type'=>'application/json', Content=>to_json({Hello => 'World'})),
+check_request(
+    "application/json POST",
+    POST(
+        "/foobar",
+        'Content-Type' => 'application/json',
+        Content        => to_json( { Hello => 'World' } )
+    ),
     sub {
         plan tests => 7;
 
@@ -129,7 +145,8 @@ check_request( "application/json POST",
 
         my $json2 = $r->json;
         is( $json, $json2, "Returns cached json" );
-});
+    }
+);
 
 sub check_request {
     my ( $name, $rq, $sv ) = @_;
@@ -139,7 +156,7 @@ sub check_request {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     DW::Request->reset;
-    my $r = DW::Request::Standard->new( $rq );
+    my $r = DW::Request::Standard->new($rq);
 
     subtest "$name", sub { $sv->() };
 }

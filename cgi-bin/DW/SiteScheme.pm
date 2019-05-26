@@ -26,14 +26,14 @@ package DW::SiteScheme;
 use strict;
 
 my %sitescheme_data = (
-    blueshift => { parent => 'common', title => "Blueshift" },
-    celerity => { parent => 'common', title => "Celerity" },
-    common => { parent => 'global', internal => 1 },
-    'gradation-horizontal' => { parent => 'common', title => "Gradation Horizontal" },
-    'gradation-vertical' => { parent => 'common', title => "Gradation Vertical" },
-    lynx => { parent => 'common', title => "Lynx (light mode)" },
-    global => { engine => 'current' },
-    tt_runner => { engine => 'bml', internal => 1 },
+    blueshift              => { parent => 'common', title    => "Blueshift" },
+    celerity               => { parent => 'common', title    => "Celerity" },
+    common                 => { parent => 'global', internal => 1 },
+    'gradation-horizontal' => { parent => 'common', title    => "Gradation Horizontal" },
+    'gradation-vertical'   => { parent => 'common', title    => "Gradation Vertical" },
+    lynx                   => { parent => 'common', title    => "Lynx (light mode)" },
+    global                 => { engine => 'current' },
+    tt_runner              => { engine => 'bml',    internal => 1 },
 );
 
 my $data_loaded = 0;
@@ -47,6 +47,7 @@ $scheme defaults to the current sitescheme.
 Returns a DW::SiteScheme object.
 
 =cut
+
 sub get {
     my ( $class, $scheme ) = @_;
     $class->__load_data;
@@ -77,7 +78,7 @@ sub tt_file {
 sub engine {
     $_[0]->__load_data;
 
-    return $sitescheme_data{$_[0]->{scheme}}->{engine} || 'tt';
+    return $sitescheme_data{ $_[0]->{scheme} }->{engine} || 'tt';
 }
 
 sub supports_tt {
@@ -109,14 +110,12 @@ sub inheritance {
     push @scheme, $scheme;
     push @scheme, $scheme
         while exists $sitescheme_data{$scheme}
-              && ( $scheme = $sitescheme_data{$scheme}->{parent} );
+        && ( $scheme = $sitescheme_data{$scheme}->{parent} );
     return @scheme;
 }
 
 sub get_vars {
-    return {
-        remote => LJ::get_remote()
-    };
+    return { remote => LJ::get_remote() };
 }
 
 sub __load_data {
@@ -126,7 +125,7 @@ sub __load_data {
     # function to merge additional site schemes into our base site scheme data
     # new site scheme row overwrites original site schemes, if there is a conflict
     my $merge_data = sub {
-        my ( %data ) = @_;
+        my (%data) = @_;
 
         foreach my $k ( keys %data ) {
             $sitescheme_data{$k} = { %{ $sitescheme_data{$k} || {} }, %{ $data{$k} } };
@@ -138,7 +137,7 @@ sub __load_data {
     LJ::Hooks::run_hooks( 'modify_scheme_list', \@schemes, $merge_data );
 
     # take the final site scheme list (after all modificatios)
-    foreach my $row ( @schemes ) {
+    foreach my $row (@schemes) {
         my $scheme = $row->{scheme};
 
         # copy over any information from the modified scheme list
@@ -157,6 +156,7 @@ sub __load_data {
 =head2 C<< DW::SiteScheme->available >>
 
 =cut
+
 sub available {
     $_[0]->__load_data;
 
@@ -190,10 +190,11 @@ sub current {
     my $rv;
 
     if ( defined $r ) {
-        $rv = $r->note( 'bml_use_scheme' ) ||
-            $r->get_args->{skin} ||
-            $r->get_args->{usescheme} ||
-            $r->cookie( 'BMLschemepref' );
+        $rv =
+               $r->note('bml_use_scheme')
+            || $r->get_args->{skin}
+            || $r->get_args->{usescheme}
+            || $r->cookie('BMLschemepref');
     }
 
     return $rv if defined $rv and defined $sitescheme_data{$rv};
@@ -209,8 +210,8 @@ Get the default sitescheme.
 sub default {
     $_[0]->__load_data;
 
-    return $sitescheme_order[0] ||
-        'global';
+    return $sitescheme_order[0]
+        || 'global';
 }
 
 =head2 C<< DW::SiteScheme->set_for_request( $scheme ) >>
@@ -222,10 +223,11 @@ before calling into bml_handler for BML, or before render_template for TT
 otherwise has no action.
 
 =cut
+
 sub set_for_request {
     my $r = DW::Request->get;
 
-    return 0 unless exists $sitescheme_data{$_[1]};
+    return 0 unless exists $sitescheme_data{ $_[1] };
     $r->note( 'bml_use_scheme', $_[1] );
 
     return 1;
@@ -242,21 +244,23 @@ Note: If done early enough in the process this will affect the current request.
 See the note on set_for_request
 
 =cut
+
 sub set_for_user {
     my $r = DW::Request->get;
 
     my $scheme = $_[1];
-    my $u = exists $_[2] ? $_[2] : LJ::get_remote();
+    my $u      = exists $_[2] ? $_[2] : LJ::get_remote();
 
     return 0 unless exists $sitescheme_data{$scheme};
     my $cval = $scheme;
     if ( $scheme eq $sitescheme_order[0] && !$LJ::SAVE_SCHEME_EXPLICITLY ) {
         $cval = undef;
-        $r->delete_cookie( domain  => ".$LJ::DOMAIN", name => 'BMLschemepref' );
+        $r->delete_cookie( domain => ".$LJ::DOMAIN", name => 'BMLschemepref' );
     }
 
     my $expires = undef;
     if ($u) {
+
         # set a userprop to remember their schemepref
         $u->set_prop( schemepref => $scheme );
 

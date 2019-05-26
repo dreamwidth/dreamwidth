@@ -20,7 +20,7 @@ use base 'DW::Setting::JournalStyle';
 use strict;
 
 sub label {
-    return $_[0]->ml( 'setting.display.journaliconstyle.label2' );
+    return $_[0]->ml('setting.display.journaliconstyle.label2');
 }
 
 sub option_ml {

@@ -19,21 +19,24 @@ use Carp qw(croak);
 
 sub cmd { "find_user_cluster" }
 
-sub desc { "List the name of the cluster a user is on. Requires priv: supportviewscreened or supporthelp." }
+sub desc {
+    "List the name of the cluster a user is on. Requires priv: supportviewscreened or supporthelp.";
+}
 
-sub args_desc { [
-                 'user' => "Username of the account to look up",
-                 ] }
+sub args_desc {
+    [ 'user' => "Username of the account to look up", ]
+}
 
 sub usage { '<user>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return $remote && ( $remote->has_priv( "supportviewscreened" ) || $remote->has_priv( "supporthelp" ) );
+    return $remote
+        && ( $remote->has_priv("supportviewscreened") || $remote->has_priv("supporthelp") );
 }
 
 sub execute {
-    my ($self, $user, @args) = @_;
+    my ( $self, $user, @args ) = @_;
 
     return $self->error("This command takes one argument. Consult the reference.")
         unless $user && scalar(@args) == 0;

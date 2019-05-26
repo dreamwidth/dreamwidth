@@ -49,7 +49,7 @@ sub merge_trust_groups {
     my %name_map;
     my $cur_groups = $u->trust_groups || {};
     foreach my $id ( keys %$cur_groups ) {
-        $name_map{$cur_groups->{$id}->{groupname}} = $id;
+        $name_map{ $cur_groups->{$id}->{groupname} } = $id;
     }
 
     # now map new groups
@@ -57,20 +57,30 @@ sub merge_trust_groups {
     foreach my $group ( @{ $groups || [] } ) {
 
         # we assume the incoming group is valid
-        my $name = $group->{name};
-        my $sort = $group->{sortorder};
+        my $name   = $group->{name};
+        my $sort   = $group->{sortorder};
         my $public = $group->{public};
 
         my $id = 0;
 
         if ( defined $name_map{$name} ) {
             $id = $name_map{$name};
-            $u->edit_trust_group( id => $id, groupname => $name, sortorder => $sort, is_public => $public );
-        } else {
-            $id = $u->create_trust_group( groupname => $name, sortorder => $sort, is_public => $public );
+            $u->edit_trust_group(
+                id        => $id,
+                groupname => $name,
+                sortorder => $sort,
+                is_public => $public
+            );
+        }
+        else {
+            $id = $u->create_trust_group(
+                groupname => $name,
+                sortorder => $sort,
+                is_public => $public
+            );
         }
 
-        $map{$group->{id}} = $id if $id;
+        $map{ $group->{id} } = $id if $id;
     }
 
     return \%map;
@@ -95,6 +105,5 @@ the same terms as Perl itself. For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 =cut
-
 
 1;

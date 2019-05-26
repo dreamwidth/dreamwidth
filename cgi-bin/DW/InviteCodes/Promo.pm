@@ -33,17 +33,19 @@ sub _from_row {
 Gets a DW::InviteCode::Promo objct
 
 =cut
+
 # FIXME: Consider process caching and/or memcache, if this is a busy enough path
 sub load {
     my ( $class, %opts ) = @_;
-    my $dbh = LJ::get_db_writer();
+    my $dbh  = LJ::get_db_writer();
     my $code = $opts{code};
 
-    return undef unless $code && $code =~ /^[a-z0-9]+$/i; # make sure the code is valid first
-    my $data = $dbh->selectrow_hashref( "SELECT * FROM acctcode_promo WHERE code = ?", undef, $code );
+    return undef unless $code && $code =~ /^[a-z0-9]+$/i;    # make sure the code is valid first
+    my $data =
+        $dbh->selectrow_hashref( "SELECT * FROM acctcode_promo WHERE code = ?", undef, $code );
     return undef unless $data;
 
-    return $class->_from_row( $data );
+    return $class->_from_row($data);
 }
 
 =head2 C<< DW::InviteCodes::Promo->load_bulk( state => $state ); >>
@@ -57,30 +59,36 @@ State can be:
   * all ( all promo codes )
 
 =cut
+
 sub load_bulk {
     my ( $class, %opts ) = @_;
-    my $dbh = LJ::get_db_writer();
+    my $dbh   = LJ::get_db_writer();
     my $state = $opts{state} || 'active';
 
     my $sql = "SELECT * FROM acctcode_promo";
     if ( $state eq 'all' ) {
+
         # do nothing
-    } elsif ( $state eq 'active' ) {
+    }
+    elsif ( $state eq 'active' ) {
         $sql .= " WHERE active = '1' AND current_count < max_count";
-    } elsif ( $state eq 'inactive' ) {
+    }
+    elsif ( $state eq 'inactive' ) {
         $sql .= " WHERE active = '0' OR current_count >= max_count";
-    } elsif ( $state eq 'unused' ) {
-        $sql .= " WHERE current_count = 0"
-    } elsif ( $state eq 'noneleft' ) {
+    }
+    elsif ( $state eq 'unused' ) {
+        $sql .= " WHERE current_count = 0";
+    }
+    elsif ( $state eq 'noneleft' ) {
         $sql .= " WHERE current_count >= max_count";
     }
 
-    my $sth = $dbh->prepare( $sql ) or die $dbh->errstr;
+    my $sth = $dbh->prepare($sql) or die $dbh->errstr;
     $sth->execute() or die $dbh->errstr;
 
     my @out;
     while ( my $row = $sth->fetchrow_hashref ) {
-        push @out, $class->_from_row( $row );
+        push @out, $class->_from_row($row);
     }
     return \@out;
 }
@@ -90,10 +98,11 @@ sub load_bulk {
 Returns if the given code is a promo code or not.
 
 =cut
+
 sub is_promo_code {
     my ( $class, %opts ) = @_;
 
-    my $promo_code_info = $class->load( %opts );
+    my $promo_code_info = $class->load(%opts);
 
     return ref $promo_code_info ? 1 : 0;
 }
@@ -107,7 +116,7 @@ Checks code is available, not already used up, and not expired.
 =cut
 
 sub usable {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     return 0 unless $self->{active};
     return 0 unless $self->{current_count} < $self->{max_count};
@@ -122,18 +131,21 @@ sub usable {
 Handle any post-create operations for this user.
 
 =cut
+
 sub apply_for_user {
     my ( $self, $u ) = @_;
 
-    my $code = $self->code;
-    my $paid_type = $self->paid_class;
+    my $code        = $self->code;
+    my $paid_type   = $self->paid_class;
     my $paid_months = $self->paid_months;
 
-    LJ::statushistory_add( $u, undef, 'create_from_promo', "Created new account from promo code '$code'." );
+    LJ::statushistory_add( $u, undef, 'create_from_promo',
+        "Created new account from promo code '$code'." );
 
     if ( defined $paid_type ) {
         if ( DW::Pay::add_paid_time( $u, $paid_type, $paid_months ) ) {
-            LJ::statushistory_add( $u, undef, 'paid_from_promo', "Created new '$paid_type' account from promo code '$code'." );
+            LJ::statushistory_add( $u, undef, 'paid_from_promo',
+                "Created new '$paid_type' account from promo code '$code'." );
         }
     }
 }
@@ -141,6 +153,7 @@ sub apply_for_user {
 =head2 C<< $self->code >>
 
 =cut
+
 sub code {
     return $_[0]->{code};
 }
@@ -150,6 +163,7 @@ sub code {
 Return the display name of this account class.
 
 =cut
+
 sub paid_class_name {
     my $self = $_[0];
 
@@ -164,6 +178,7 @@ sub paid_class_name {
 =head2 C<< $self->paid_months >>
 
 =cut
+
 sub paid_months {
     return $_[0]->{paid_class} ? $_[0]->{paid_months} : 0;
 }
@@ -171,6 +186,7 @@ sub paid_months {
 =head2 C<< $self->paid_class >>
 
 =cut
+
 sub paid_class {
     return $_[0]->{paid_class};
 }
@@ -180,9 +196,10 @@ sub paid_class {
 Return the LJ::User to suggest
 
 =cut
+
 sub suggest_journal {
     my $id = $_[0]->{suggest_journalid};
-    return $id ? LJ::load_userid( $id ) : undef;
+    return $id ? LJ::load_userid($id) : undef;
 }
 
 =head2 C<< $self->use_code >>
@@ -190,13 +207,15 @@ sub suggest_journal {
 Increments the current_count on the given promo code.
 
 =cut
+
 sub use_code {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $dbh = LJ::get_db_writer();
 
     my $code = $self->code;
 
-    $dbh->do( "UPDATE acctcode_promo SET current_count = current_count + 1 WHERE code = ?", undef, $code );
+    $dbh->do( "UPDATE acctcode_promo SET current_count = current_count + 1 WHERE code = ?",
+        undef, $code );
 
     return 1;
 }

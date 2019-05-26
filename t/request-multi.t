@@ -17,7 +17,6 @@ use warnings;
 
 use Test::More tests => 2;
 
-
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Request::Standard;
 use HTTP::Request;
@@ -27,12 +26,12 @@ check_get(
     sub {
         plan tests => 6;
 
-        my $r = DW::Request->get;
+        my $r    = DW::Request->get;
         my $args = $r->get_args;
 
         is( 'qux', $args->{foo} );
         is( 'qux', $args->get('foo') );
-        is_deeply( ['bar','qux'], [ $args->get_all('foo') ] );
+        is_deeply( [ 'bar', 'qux' ], [ $args->get_all('foo') ] );
 
         is( 'baz', $args->{bar} );
         is( 'baz', $args->get('bar') );
@@ -45,12 +44,12 @@ check_post(
     sub {
         plan tests => 6;
 
-        my $r = DW::Request->get;
+        my $r    = DW::Request->get;
         my $args = $r->post_args;
 
         is( 'qux', $args->{foo} );
         is( 'qux', $args->get('foo') );
-        is_deeply( ['bar','qux'], [ $args->get_all('foo') ] );
+        is_deeply( [ 'bar', 'qux' ], [ $args->get_all('foo') ] );
 
         is( 'baz', $args->{bar} );
         is( 'baz', $args->get('bar') );
@@ -65,10 +64,10 @@ sub check_get {
     # look one level further up the call stack.
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    my $rq = HTTP::Request->new(GET => "http://www.example.com/test?$args");
+    my $rq = HTTP::Request->new( GET => "http://www.example.com/test?$args" );
 
     DW::Request->reset;
-    my $r = DW::Request::Standard->new( $rq );
+    my $r = DW::Request::Standard->new($rq);
 
     subtest "GET $args", sub { $sv->() };
 }
@@ -80,12 +79,12 @@ sub check_post {
     # look one level further up the call stack.
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    my $rq = HTTP::Request->new(POST => "http://www.example.com/test");
+    my $rq = HTTP::Request->new( POST => "http://www.example.com/test" );
     $rq->header( 'Content-Type' => 'application/x-www-form-urlencoded' );
-    $rq->add_content_utf8( $args );
+    $rq->add_content_utf8($args);
 
     DW::Request->reset;
-    my $r = DW::Request::Standard->new( $rq );
+    my $r = DW::Request::Standard->new($rq);
 
     subtest "POST $args", sub { $sv->() };
 }

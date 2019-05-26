@@ -23,14 +23,12 @@ use Storable qw/ nfreeze thaw /;
 
 use base qw/ DW::Shop::Engine /;
 
-
 # new( $cart )
 #
 # instantiates a new engine for the given cart
 sub new {
     return bless { cart => $_[1] }, $_[0];
 }
-
 
 # checkout_url()
 #
@@ -56,7 +54,6 @@ sub checkout_url {
     return ( $LJ::IS_DEV_SERVER ? $LJ::SITEROOT : $LJ::SSLROOT ) . '/shop/entercc';
 }
 
-
 # setup_transaction( ...many options... )
 #
 # sets up a transaction row in the database, also dispatches the gearman task to
@@ -74,7 +71,11 @@ sub setup_transaction {
         q{INSERT INTO cc_trans (cctransid, cartid, firstname, lastname,
             street1, street2, city, state, country, zip, phone, ipaddr, expmon, expyear, ccnumhash)
           VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)},
-        undef, ( map { $in{$_} } qw/ cartid firstname lastname street1 street2 city state country zip phone ip expmon expyear / ),
+        undef,
+        (
+            map { $in{$_} }
+                qw/ cartid firstname lastname street1 street2 city state country zip phone ip expmon expyear /
+        ),
         md5_hex( $in{ccnum} . $in{cvv2} )
     );
     die "Database error: " . $dbh->errstr . "\n"
@@ -86,19 +87,24 @@ sub setup_transaction {
     # dispatch this item...
     my $gc = LJ::gearman_client()
         or die "Unable to get gearman client.\n";
-    my $ref = $gc->dispatch_background( 'dw_creditcard_charge', nfreeze( \%in ), { uniq => $in{cctransid} } );
+    my $ref = $gc->dispatch_background(
+        'dw_creditcard_charge',
+        nfreeze( \%in ),
+        { uniq => $in{cctransid} }
+    );
     die "Unable to insert Gearman job.\n"
         unless $ref;
 
     # update our row from above so we have it later, avoiding columns
     # the worker may have already updated.
     $dbh->do( 'UPDATE cc_trans SET dispatchtime = UNIX_TIMESTAMP() WHERE cctransid = ?',
-              undef, $in{cctransid} );
-    $dbh->do( 'UPDATE cc_trans SET gctaskref = ?, jobstate = ? WHERE cctransid = ? AND jobstate IS NULL',
-              undef, $ref, 'queued', $in{cctransid} );
+        undef, $in{cctransid} );
+    $dbh->do(
+        'UPDATE cc_trans SET gctaskref = ?, jobstate = ? WHERE cctransid = ? AND jobstate IS NULL',
+        undef, $ref, 'queued', $in{cctransid}
+    );
     return $in{cctransid};
 }
-
 
 # get_transaction( cctransid )
 #
@@ -110,7 +116,8 @@ sub get_transaction {
         or die "Unable to get database handle.\n";
 
     # FIXME: "SELECT *" is for sad making :(
-    my $row = $dbh->selectrow_hashref( 'SELECT * FROM cc_trans WHERE cctransid = ?', undef, $cctransid );
+    my $row =
+        $dbh->selectrow_hashref( 'SELECT * FROM cc_trans WHERE cctransid = ?', undef, $cctransid );
     die "Database error: " . $dbh->errstr . "\n"
         if $dbh->err;
 
@@ -131,7 +138,8 @@ sub get_transaction {
     # if we get here and it says 'queued', that means that we think the job is in Gearman,
     # but by this point we know it's not. we need to check the database again to see if
     # the state has been updated. this prevents a race condition we've sometimes seen.
-    my $row2 = $dbh->selectrow_hashref( 'SELECT * FROM cc_trans WHERE cctransid = ?', undef, $cctransid );
+    my $row2 =
+        $dbh->selectrow_hashref( 'SELECT * FROM cc_trans WHERE cctransid = ?', undef, $cctransid );
     die "Database error: " . $dbh->errstr . "\n"
         if $dbh->err;
 
@@ -139,9 +147,10 @@ sub get_transaction {
     # like the worker crashed or the gearman server crashed
     if ( $row2->{jobstate} eq 'queued' ) {
         $row2->{jobstate} = 'internal_failure';
-        $row2->{joberr} = 'Task no longer known to Gearman.';
-        $dbh->do( 'UPDATE cc_trans SET jobstate = ?, joberr = ?, gctaskref = NULL WHERE cctransid = ?',
-                  undef, $row2->{jobstate}, $row2->{joberr}, $cctransid );
+        $row2->{joberr}   = 'Task no longer known to Gearman.';
+        $dbh->do(
+            'UPDATE cc_trans SET jobstate = ?, joberr = ?, gctaskref = NULL WHERE cctransid = ?',
+            undef, $row2->{jobstate}, $row2->{joberr}, $cctransid );
         die $dbh->errstr if $dbh->err;
     }
 
@@ -164,7 +173,7 @@ sub try_capture {
     my ( $self, %in ) = @_;
 
     die "Unable to capture funds: no credit card processor loaded.\n"
-        unless LJ::Hooks::are_hooks( 'creditcard_try_capture' );
+        unless LJ::Hooks::are_hooks('creditcard_try_capture');
 
     # first capture the points if we have any to do
     return ( 0, 'Failed to capture points to complete order.' )
@@ -185,10 +194,8 @@ sub try_capture {
     return ( $res, $msg );
 }
 
-
 # accessors
-sub cart { $_[0]->{cart} }
+sub cart      { $_[0]->{cart} }
 sub cctransid { $_[0]->cart->{cctransid} }
-
 
 1;

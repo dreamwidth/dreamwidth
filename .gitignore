@@ -16,3 +16,6 @@ htdocs/stc/css
 
 # Ignore test stuff
 t-theschwartz.sqlite
+
+# No tidying
+.tidyall.d/

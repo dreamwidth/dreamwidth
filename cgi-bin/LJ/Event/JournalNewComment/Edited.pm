@@ -17,25 +17,24 @@ use strict;
 use base 'LJ::Event::JournalNewComment';
 
 sub content {
-    my ($self, $target) = @_;
+    my ( $self, $target ) = @_;
 
     my $comment = $self->comment;
     return undef unless $self->_can_view_content( $comment, $target );
 
-    LJ::need_res( 'js/commentmanage.js' );
+    LJ::need_res('js/commentmanage.js');
 
     my $buttons = $comment->manage_buttons;
     my $dtalkid = $comment->dtalkid;
-    my $htmlid  = LJ::Talk::comment_htmlid( $dtalkid );
+    my $htmlid  = LJ::Talk::comment_htmlid($dtalkid);
 
     my $reason = LJ::ehtml( $comment->edit_reason );
     my $comment_body =
-        "This comment was edited. " .
-        "Please see the original notification for the updated text.";
-    $comment_body .= " " . LJ::Lang::get_default_text(
-                                "esn.journal_new_comment.edit_reason",
-                                { reason => $reason } ) . "."
-            if $reason;
+        "This comment was edited. " . "Please see the original notification for the updated text.";
+    $comment_body .= " "
+        . LJ::Lang::get_default_text( "esn.journal_new_comment.edit_reason", { reason => $reason } )
+        . "."
+        if $reason;
 
     my $ret = qq {
         <div id="$htmlid" class="JournalNewComment-Edited">
@@ -45,7 +44,7 @@ sub content {
     };
 
     my $cmt_info = $comment->info;
-    $cmt_info->{form_auth} = LJ::form_auth( 1 );
+    $cmt_info->{form_auth} = LJ::form_auth(1);
     my $cmt_info_js = LJ::js_dumper($cmt_info) || '{}';
 
     my $posterusername = $self->comment->poster ? $self->comment->poster->{user} : "";
@@ -54,13 +53,13 @@ sub content {
         <script language="JavaScript">
         };
 
-    while (my ($k, $v) = each %$cmt_info) {
+    while ( my ( $k, $v ) = each %$cmt_info ) {
         $k = LJ::ejs($k);
         $v = LJ::ejs($v);
         $ret .= "LJ_cmtinfo['$k'] = '$v';\n";
     }
 
-    my $dtid_cmt_info = {u => $posterusername, rc => []};
+    my $dtid_cmt_info = { u => $posterusername, rc => [] };
 
     $ret .= "LJ_cmtinfo['$dtalkid'] = " . LJ::js_dumper($dtid_cmt_info) . "\n";
 

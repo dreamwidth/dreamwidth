@@ -33,9 +33,7 @@ sub load {
 sub new {
     my ( $class, $context, @params ) = @_;
 
-    my $self = bless {
-        _CONTEXT => $context,
-    }, $class;
+    my $self = bless { _CONTEXT => $context, }, $class;
 
     return $self;
 }
@@ -52,15 +50,15 @@ sub need_res {
     $hash_arg->{priority} = $LJ::SCHEME_RES_PRIORITY;
 
     my @args = @_;
-    @args = @{$args[0]} if ref $_[0] eq 'ARRAY';
+    @args = @{ $args[0] } if ref $_[0] eq 'ARRAY';
 
-    return LJ::need_res($hash_arg,@args);
+    return LJ::need_res( $hash_arg, @args );
 }
 
 sub res_includes {
     return ( $LJ::ACTIVE_RES_GROUP || "" ) eq "foundation"
-                ? LJ::res_includes_head()
-                : LJ::res_includes();
+        ? LJ::res_includes_head()
+        : LJ::res_includes();
 }
 
 sub final_head_html {
@@ -69,8 +67,8 @@ sub final_head_html {
 
 sub final_body_html {
     return ( $LJ::ACTIVE_RES_GROUP || "" ) eq "foundation"
-                ? LJ::res_includes_body() . LJ::final_body_html()
-                : LJ::final_body_html();
+        ? LJ::res_includes_body() . LJ::final_body_html()
+        : LJ::final_body_html();
 }
 
 sub menu_nav {

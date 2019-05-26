@@ -2,11 +2,21 @@ package LJ::S2Theme::fantaisie;
 use base qw( LJ::S2Theme );
 use strict;
 
-sub layouts { ( "1" => "one-column", "1s" => "one-column-split", "2l" => "two-columns-left", "2r" => "two-columns-right", "3" => "three-columns-sides", "3r" => "three-columns-right", "3l" => "three-columns-left" ) }
+sub layouts {
+    (
+        "1"  => "one-column",
+        "1s" => "one-column-split",
+        "2l" => "two-columns-left",
+        "2r" => "two-columns-right",
+        "3"  => "three-columns-sides",
+        "3r" => "three-columns-right",
+        "3l" => "three-columns-left"
+    )
+}
 sub layout_prop { "layout_type" }
 
 sub module_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_module_calendar_background
         color_module_calendar_link
@@ -30,7 +40,7 @@ sub module_props {
 }
 
 sub navigation_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         image_background_navigation_url
         image_background_navigation_url_alt
@@ -41,7 +51,7 @@ sub navigation_props {
 }
 
 sub header_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_header_image_border
         color_header_image_shadow
@@ -53,7 +63,7 @@ sub header_props {
 }
 
 sub footer_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         color_footer_text
         font_journal_footer
@@ -67,7 +77,7 @@ sub footer_props {
 }
 
 sub entry_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw(
         image_background_entry_title_url
         image_background_entry_title_height
@@ -77,7 +87,7 @@ sub entry_props {
 }
 
 sub archive_props {
-    my $self = shift;
+    my $self  = shift;
     my @props = qw( color_calendar_header_background color_calendar_header_text );
     return $self->_append_props( "archive_props", @props );
 }

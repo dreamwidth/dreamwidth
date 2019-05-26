@@ -17,7 +17,7 @@ use base 'LJ::Widget';
 use strict;
 
 # load all subclasses
-LJ::ModuleLoader->require_subclasses( "LJ::Widget::IPPU" );
+LJ::ModuleLoader->require_subclasses("LJ::Widget::IPPU");
 
 sub ajax { 1 }
 

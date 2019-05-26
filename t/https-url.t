@@ -29,35 +29,37 @@ unless ( $LJ::PROXY_SALT_FILE && -e $LJ::PROXY_SALT_FILE ) {
 }
 
 my @urls = (
+
     # internal links
     [ "https://example.$LJ::DOMAIN/file/foo", "https://example.$LJ::DOMAIN/file/foo" ],
     [ "http://example.$LJ::DOMAIN/file/foo",  "https://example.$LJ::DOMAIN/file/foo" ],
 
     # external links
     [ "https://example.com/a.png", "https://example.com/a.png" ],
-    [ "http://example.com/a.png", DW::Proxy::get_proxy_url( "http://example.com/a.png" ) ],
+    [ "http://example.com/a.png",  DW::Proxy::get_proxy_url("http://example.com/a.png") ],
 
     # protocol relative links
     [ "//example.com/a.png", "//example.com/a.png" ],
 
     # links that can be upgraded via KNOWN_HTTPS_SITES
-    [ "http://xkcd.com/file/foo",  "https://xkcd.com/file/foo" ],
-    [ "http://username.blogspot.com/a.png",  "https://username.blogspot.com/a.png" ],
+    [ "http://xkcd.com/file/foo",           "https://xkcd.com/file/foo" ],
+    [ "http://username.blogspot.com/a.png", "https://username.blogspot.com/a.png" ],
 
     # link that includes a space - will be transformed into %20 by the browser
-    [ "http://example.com/a%20b.png", DW::Proxy::get_proxy_url( "http://example.com/a b.png" ) ],
+    [ "http://example.com/a%20b.png", DW::Proxy::get_proxy_url("http://example.com/a b.png") ],
 );
 
 local %LJ::KNOWN_HTTPS_SITES = qw( xkcd.com 1 blogspot.com 1 );
 
-if ( $LJ::USE_SSL ) {
+if ($LJ::USE_SSL) {
     plan tests => scalar @urls;
-} else {
+}
+else {
     plan skip_all => "Doesn't work without \$LJ::USE_SSL set";
 }
 
-for ( @urls ) {
-    my $url = $_->[0];
-    my $https_url = LJ::CleanHTML::https_url( $url );
+for (@urls) {
+    my $url       = $_->[0];
+    my $https_url = LJ::CleanHTML::https_url($url);
     is( $https_url, $_->[1], "https url for $url" );
 }

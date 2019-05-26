@@ -30,10 +30,10 @@ my $pu = temp_user();
         err_ref => \$err_ref,
 
         journal => undef,
-        poster => undef,
+        poster  => undef,
     );
 
-    ok( ! $c, "No comment created: invalid journal" );
+    ok( !$c, "No comment created: invalid journal" );
     is( $err_ref->{code}, "bad_journal" );
 }
 
@@ -43,10 +43,10 @@ my $pu = temp_user();
         err_ref => \$err_ref,
 
         journal => $ju,
-        poster => undef,
+        poster  => undef,
     );
 
-    ok( ! $c, "No comment created: invalid poster" );
+    ok( !$c, "No comment created: invalid poster" );
     is( $err_ref->{code}, "bad_poster" );
 }
 
@@ -56,11 +56,11 @@ my $pu = temp_user();
         err_ref => \$err_ref,
 
         journal => $ju,
-        poster => $pu,
+        poster  => $pu,
 
         extra_args => undef
     );
 
-    ok( ! $c, "No comment created: invalid args" );
+    ok( !$c, "No comment created: invalid args" );
     is( $err_ref->{code}, "bad_args" );
 }

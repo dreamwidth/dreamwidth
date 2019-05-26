@@ -29,20 +29,20 @@ use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
 
-
 DW::Routing->register_string( "/latest", \&index_handler, app => 1 );
 
 sub index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
-    my $r = $rv->{r};
+    my $r   = $rv->{r};
     my $GET = $r->get_args;
-    my ( $type, $max, $fmt, $feed, $tag ) = ( $GET->{type}, ($GET->{max}+0)||100, $GET->{fmt}, $GET->{feed}, $GET->{tag} );
+    my ( $type, $max, $fmt, $feed, $tag ) =
+        ( $GET->{type}, ( $GET->{max} + 0 ) || 100, $GET->{fmt}, $GET->{feed}, $GET->{tag} );
     my $tagname = $tag;
-    my $now = time();
+    my $now     = time();
 
-    $type = { entries => 'entry', comments => 'comment' }->{$type}  || 'entry';
+    $type = { entries => 'entry', comments => 'comment' }->{$type} || 'entry';
     $max = 100 if $max < 0 || 1000 < $max;
     $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
     $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
@@ -56,19 +56,22 @@ sub index_handler {
     # which case it is going to be in memcache
     my $mckey = "latest_src:$type:$max:$fmt" . ( $feed ? ":$feed" : '' ) . ( $tag ? ":$tag" : '' );
 
-    my $cache_opts = {
-        expire => 60,
-    };
+    my $cache_opts = { expire => 60, };
 
     LJ::need_res("stc/latest.css");
-    return DW::Template->render_cached_template( $mckey, 'latest/index.tt', \&generate_vars, $cache_opts );
+    return DW::Template->render_cached_template( $mckey, 'latest/index.tt', \&generate_vars,
+        $cache_opts );
 }
 
 sub make_short_entry {
     my $entry = $_[0];
-    my $url = $entry->url;
+    my $url   = $entry->url;
     my $truncated;
-    my $evt = $entry->event_html_summary( 2000, { cuturl => $url, preformatted => $entry->prop( 'opt_preformatted' ) }, \$truncated );
+    my $evt =
+        $entry->event_html_summary( 2000,
+        { cuturl => $url, preformatted => $entry->prop('opt_preformatted') },
+        \$truncated );
+
     # put a "(Read more)" link at the end of the text if the entry had to be shortened
     $evt .= ' <a href="' . $url . '">(Read more)</a>' if $truncated;
     return $evt;
@@ -78,13 +81,14 @@ sub generate_vars {
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
-    my $r = $rv->{r};
+    my $r   = $rv->{r};
     my $GET = $r->get_args;
-    my ( $type, $max, $fmt, $feed, $tag ) = ( $GET->{type}, ($GET->{max}+0)||100, $GET->{fmt}, $GET->{feed}, $GET->{tag} );
+    my ( $type, $max, $fmt, $feed, $tag ) =
+        ( $GET->{type}, ( $GET->{max} + 0 ) || 100, $GET->{fmt}, $GET->{feed}, $GET->{tag} );
     my $tagname = $tag;
-    my $now = time();
+    my $now     = time();
 
-    $type = { entries => 'entry', comments => 'comment' }->{$type}  || 'entry';
+    $type = { entries => 'entry', comments => 'comment' }->{$type} || 'entry';
     $max = 100 if $max < 0 || 1000 < $max;
     $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
     $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
@@ -101,7 +105,7 @@ sub generate_vars {
 
     # now, iterate and extract only the things we want
     my @objs;
-    foreach my $item ( @$items ) {
+    foreach my $item (@$items) {
         next unless $item->{type} eq $type;
         push @objs, [ $item->{journalid}, $item->{jitemid}, $item->{jtalkid} ];
     }
@@ -113,11 +117,12 @@ sub generate_vars {
     my $us = LJ::load_userids( map { $_->[0] } @objs );
 
     # and now construct real objects
-    for ( my $i = 0; $i <= $#objs; $i++ ) {
+    for ( my $i = 0 ; $i <= $#objs ; $i++ ) {
         if ( $type eq 'entry' ) {
-            $objs[$i] = LJ::Entry->new( $us->{$objs[$i]->[0]}, jitemid => $objs[$i]->[1] );
-        } elsif ( $type eq 'comment' ) {
-            $objs[$i] = LJ::Comment->new( $us->{$objs[$i]->[0]}, jtalkid => $objs[$i]->[2] );
+            $objs[$i] = LJ::Entry->new( $us->{ $objs[$i]->[0] }, jitemid => $objs[$i]->[1] );
+        }
+        elsif ( $type eq 'comment' ) {
+            $objs[$i] = LJ::Comment->new( $us->{ $objs[$i]->[0] }, jtalkid => $objs[$i]->[2] );
         }
     }
 
@@ -130,25 +135,32 @@ sub generate_vars {
 
     my $tagfeeds = '';
     unless ( $tag || $feed ) {
-        $tagfeeds = join ' ', map { $feed eq $_ ? $LJ::LATEST_TAG_FEEDS{group_names}->{$_}
-                                                : qq(<a href="$LJ::SITEROOT/latest?feed=$_">$LJ::LATEST_TAG_FEEDS{group_names}->{$_}</a>) }
-                              sort { $a cmp $b } keys %{$LJ::LATEST_TAG_FEEDS{group_names}};
-        if ( $feed ) {
+        $tagfeeds = join ' ', map {
+                  $feed eq $_
+                ? $LJ::LATEST_TAG_FEEDS{group_names}->{$_}
+                : qq(<a href="$LJ::SITEROOT/latest?feed=$_">$LJ::LATEST_TAG_FEEDS{group_names}->{$_}</a>)
+            }
+            sort { $a cmp $b } keys %{ $LJ::LATEST_TAG_FEEDS{group_names} };
+        if ($feed) {
             $tagfeeds = qq{[<a href="$LJ::SITEROOT/latest">show all</a>] } . $tagfeeds;
         }
     }
 
     # but if we are filtering to a tag, let them unfilter
-    if ( $feed ) {
-        $tagfeeds .= qq|Currently viewing posts about <strong>$LJ::LATEST_TAG_FEEDS{group_names}->{$feed}</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>|;
+    if ($feed) {
+        $tagfeeds .=
+qq|Currently viewing posts about <strong>$LJ::LATEST_TAG_FEEDS{group_names}->{$feed}</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>|;
     }
-    if ( $tag ) {
-        $tagfeeds .= qq{Currently viewing posts tagged <strong>} . LJ::ehtml( $tagname ) . qq{</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>};
+    if ($tag) {
+        $tagfeeds .=
+              qq{Currently viewing posts tagged <strong>}
+            . LJ::ehtml($tagname)
+            . qq{</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>};
     }
 
     # and now, tag cloud!
     my $tfmap = DW::LatestFeed->get_popular_tags( count => 100 ) || {};
-    if ( ! $tag && ! $feed && scalar keys %$tfmap ) {
+    if ( !$tag && !$feed && scalar keys %$tfmap ) {
         my $taghr = {
             map {
                 $tfmap->{$_}->{tag} => {
@@ -157,13 +169,13 @@ sub generate_vars {
                 }
             } keys %$tfmap
         };
-        $tagfeeds .= "<br /><br />" . LJ::tag_cloud( $taghr ) . "\n";
+        $tagfeeds .= "<br /><br />" . LJ::tag_cloud($taghr) . "\n";
     }
     my $vars = {
-        items => \@objs,
-        tagfeeds => $tagfeeds,
-        time_diff => \&LJ::diff_ago_text,
-        now => $now,
+        items            => \@objs,
+        tagfeeds         => $tagfeeds,
+        time_diff        => \&LJ::diff_ago_text,
+        now              => $now,
         make_short_entry => \&make_short_entry,
     };
 

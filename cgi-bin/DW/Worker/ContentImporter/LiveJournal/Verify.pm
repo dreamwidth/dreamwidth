@@ -31,7 +31,7 @@ sub work {
     my $opts = $job->arg;
     my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
 
-    return $class->decline( $job ) unless $class->enabled( $data );
+    return $class->decline($job) unless $class->enabled($data);
 
     eval { try_work( $class, $job, $opts, $data ); };
     if ( my $msg = $@ ) {
@@ -59,6 +59,7 @@ sub try_work {
 
     # now, we have to see if the error contains 'Invalid password' or something else
     if ( $r && $r->{fault} && $r->{faultString} =~ /Invalid password/ ) {
+
         # mark the rest of the import as aborted, since something went wrong
         my $dbh = LJ::get_db_writer();
         $dbh->do(
@@ -70,26 +71,32 @@ sub try_work {
 
         # this is a permanent failure.  if the password is bad, we're not going to ever
         # bother retrying.  that's life.
-        return $fail->( "Username or password for $data->{username} rejected by $data->{hostname}." );
+        return $fail->("Username or password for $data->{username} rejected by $data->{hostname}.");
     }
 
     # if we got any other type of failure, call it temporary...
     return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )
-        if ! $r || $r->{fault};
+        if !$r || $r->{fault};
 
     # If this is a community import, we have to do a second step now to make sure
     # that the user is an administrator of the remote community. The best way I can
     # come up with is try to unban the owner -- if it works, you're an admin.
     if ( $data->{usejournal} ) {
-        $r = $class->call_xmlrpc( $data, 'consolecommand', {
-            commands => [ "ban_unset $data->{username} from $data->{usejournal}" ],
-        } );
+        $r = $class->call_xmlrpc(
+            $data,
+            'consolecommand',
+            {
+                commands => ["ban_unset $data->{username} from $data->{usejournal}"],
+            }
+        );
 
         my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-        $xmlrpc_fail .=  " (community: $data->{usejournal})";
-        return $temp_fail->( $xmlrpc_fail ) if ! $r || $r->{fault};
-        return $fail->( 'You are not an administrator/maintainer of the remote' .
-                        ' community named ' . $data->{usejournal} . '.' )
+        $xmlrpc_fail .= " (community: $data->{usejournal})";
+        return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};
+        return $fail->( 'You are not an administrator/maintainer of the remote'
+                . ' community named '
+                . $data->{usejournal}
+                . '.' )
             unless $r->{results}->[0]->{output}->[0]->[0] eq 'success';
     }
 
@@ -104,8 +111,7 @@ sub try_work {
 
     # okay, but don't fire off a message to say it's done, this job doesn't matter to
     # the user unless it fails
-    return $ok->( 0 );
+    return $ok->(0);
 }
-
 
 1;

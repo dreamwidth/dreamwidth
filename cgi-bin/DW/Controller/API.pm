@@ -37,8 +37,7 @@ use base qw/ Exporter /;
 # arguments.
 sub api_error {
     my $status_code = shift;
-    my $message = scalar @_ >= 1 ?
-        sprintf( shift, @_ ) : 'Unknown error.';
+    my $message     = scalar @_ >= 1 ? sprintf( shift, @_ ) : 'Unknown error.';
 
     my $res = {
         success => 0,
@@ -46,8 +45,8 @@ sub api_error {
     };
 
     my $r = DW::Request->get;
-    $r->print( to_json( $res ) );
-    $r->status( $status_code );
+    $r->print( to_json($res) );
+    $r->status($status_code);
     return;
 }
 
@@ -66,8 +65,8 @@ sub api_ok {
     };
 
     my $r = DW::Request->get;
-    $r->print( to_json( $res ) );
-    $r->status( 200 );
+    $r->print( to_json($res) );
+    $r->status(200);
     return;
 }
 

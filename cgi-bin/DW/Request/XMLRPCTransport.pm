@@ -30,9 +30,12 @@ our @ISA = qw(SOAP::Transport::HTTP::Server);
 
 sub DESTROY { SOAP::Trace::objects('()') }
 
-sub initialize; *initialize = \&XMLRPC::Server::initialize;
-sub make_fault; *make_fault = \&XMLRPC::Transport::HTTP::CGI::make_fault;
-sub make_response; *make_response = \&XMLRPC::Transport::HTTP::CGI::make_response;
+sub initialize;
+*initialize = \&XMLRPC::Server::initialize;
+sub make_fault;
+*make_fault = \&XMLRPC::Transport::HTTP::CGI::make_fault;
+sub make_response;
+*make_response = \&XMLRPC::Transport::HTTP::CGI::make_response;
 
 sub new {
     my $self = shift;
@@ -50,16 +53,17 @@ sub handler {
     my $r    = DW::Request->get;
 
     my $req = HTTP::Request->new(
-            $r->method => $r->uri,
-            HTTP::Headers->new( $r->headers_in ),
-            $r->content );
-    $self->request( $req );
+        $r->method => $r->uri,
+        HTTP::Headers->new( $r->headers_in ),
+        $r->content
+    );
+    $self->request($req);
 
     $self->SUPER::handle;
 
-    $r->status_line($self->response->code);
+    $r->status_line( $self->response->code );
 
-    $self->response->headers->scan(sub { $r->header_out(@_) });
+    $self->response->headers->scan( sub { $r->header_out(@_) } );
     $r->content_type( join '; ', $self->response->content_type );
 
     $r->print( $self->response->content );
@@ -72,10 +76,10 @@ sub configure {
     my $config = shift->dir_config;
     for (%$config) {
         $config->{$_} =~ /=>/
-          ? $self->$_( {split /\s*(?:=>|,)\s*/, $config->{$_}} )
-          : ref $self->$_() ? ()    # hm, nothing can be done here
-          : $self->$_( split /\s+|\s*,\s*/, $config->{$_} )
-          if $self->can($_);
+            ? $self->$_( { split /\s*(?:=>|,)\s*/, $config->{$_} } )
+            : ref $self->$_() ? ()    # hm, nothing can be done here
+            : $self->$_( split /\s+|\s*,\s*/, $config->{$_} )
+            if $self->can($_);
     }
     return $self;
 }

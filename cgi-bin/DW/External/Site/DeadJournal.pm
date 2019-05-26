@@ -20,22 +20,20 @@ use strict;
 use base 'DW::External::Site';
 use Carp qw/ croak /;
 
-
 # new does nothing for these classes
 sub new { croak 'cannot build with new'; }
-
 
 # returns 1/0 if we allow this domain
 sub accepts {
     my ( $class, $parts ) = @_;
 
     # allows anything at deadjournal.com
-    return 0 unless $parts->[-1] eq 'com' &&
-                    $parts->[-2] eq 'deadjournal';
+    return 0
+        unless $parts->[-1] eq 'com'
+        && $parts->[-2] eq 'deadjournal';
 
     return bless { hostname => 'deadjournal.com' }, $class;
 }
-
 
 # argument: DW::External::User
 # returns info for the badge image (head icon) for this user
@@ -44,21 +42,20 @@ sub badge_image {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    my $type = $self->journaltype( $u ) || 'P';
-    my $gif = {
-               P => [ '/external/dj-userinfo.gif',   17, 25 ],
-               C => [ '/external/dj-community.gif',  17, 17 ],
-               Y => [ '/external/dj-syndicated.gif', 17, 17 ]
-              };
+    my $type = $self->journaltype($u) || 'P';
+    my $gif  = {
+        P => [ '/external/dj-userinfo.gif',   17, 25 ],
+        C => [ '/external/dj-community.gif',  17, 17 ],
+        Y => [ '/external/dj-syndicated.gif', 17, 17 ]
+    };
 
     my $img = $gif->{$type};
     return {
-        url     => $LJ::IMGPREFIX . $img->[0],
-        width   => $img->[1],
-        height  => $img->[2],
-    }
+        url    => $LJ::IMGPREFIX . $img->[0],
+        width  => $img->[1],
+        height => $img->[2],
+    };
 }
-
 
 # argument: request hash
 # returns: modified request hash

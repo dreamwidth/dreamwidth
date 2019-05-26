@@ -68,6 +68,7 @@ Do not call LJ::set_remote with the authenticated user.
 =back
 
 =cut
+
 sub authenticate {
     my ( $class, %opts ) = @_;
 
@@ -77,12 +78,12 @@ sub authenticate {
     my $ok = sub {
         my $u = shift;
         die 'Called $ok without valid $u' unless $u;
-        LJ::set_remote( $u ) unless $opts{_keep_remote};
+        LJ::set_remote($u) unless $opts{_keep_remote};
         return ( $u, @_ );
     };
 
     my $fail = sub {
-        LJ::set_remote( undef ) unless $opts{_keep_remote};
+        LJ::set_remote(undef) unless $opts{_keep_remote};
         $_->() foreach @fail_subs;
         return ( undef, @_ );
     };
@@ -91,12 +92,13 @@ sub authenticate {
 
     if ( $opts{wsse} ) {
         my $nonce_dup;
-        my $wsse = $r->header_in( "X-WSSE" );
+        my $wsse = $r->header_in("X-WSSE");
         my ( $u, $fail_sub ) = _auth_wsse( $wsse, \$nonce_dup );
         push @fail_subs, $fail_sub if $fail_sub;
         my $_opts = {};
         $_opts = $opts{wsse} if ref $opts{wsse} eq 'HASH';
-        return $fail->( 'wsse', 'wsse_nonce_duplicated' ) if $nonce_dup && ! $_opts->{allow_duplicate_nonce};
+        return $fail->( 'wsse', 'wsse_nonce_duplicated' )
+            if $nonce_dup && !$_opts->{allow_duplicate_nonce};
         return $ok->( $u, 'wsse' ) if $u;
     }
     if ( $opts{digest} ) {
@@ -109,7 +111,7 @@ sub authenticate {
         return $ok->( $remote, 'remote' ) if $remote;
     }
 
-    return $fail->( undef );
+    return $fail->(undef);
 }
 
 sub _auth_wsse {
@@ -120,62 +122,59 @@ sub _auth_wsse {
 
         my $sv = sub {
             my $r = DW::Request->get;
-            $r->header_out_add("WWW-Authenticate", "WSSE realm=\"$LJ::SITENAMESHORT\", profile=\"UsernameToken\"");
+            $r->header_out_add( "WWW-Authenticate",
+                "WSSE realm=\"$LJ::SITENAMESHORT\", profile=\"UsernameToken\"" );
         };
         return ( undef, $sv );
     };
 
-    $wsse =~ s/UsernameToken // or return $fail->( 'no username token' );
+    $wsse =~ s/UsernameToken // or return $fail->('no username token');
 
     # parse credentials into a hash.
     my %creds;
     foreach ( split /, /, $wsse ) {
-        my ($k, $v) = split '=', $_, 2;
+        my ( $k, $v ) = split '=', $_, 2;
         $v =~ s/^[\'\"]//;
         $v =~ s/[\'\"]$//;
-        $v =~ s/=$// if $k =~ /passworddigest/i; # strip base64 newline char
+        $v =~ s/=$// if $k =~ /passworddigest/i;    # strip base64 newline char
         $creds{ lc($k) } = $v;
     }
 
     # invalid create time?  invalid wsse.
-    my $ctime = LJ::ParseFeed::w3cdtf_to_time( $creds{created} ) or
-        return $fail->( "no created date" );
+    my $ctime = LJ::ParseFeed::w3cdtf_to_time( $creds{created} )
+        or return $fail->("no created date");
 
     # prevent replay attacks.
     $ctime = LJ::mysqldate_to_time( $ctime, 'gmt' );
-    return $fail->( "replay time skew" ) if abs( time() - $ctime ) > 42300;
+    return $fail->("replay time skew") if abs( time() - $ctime ) > 42300;
 
     my $u = LJ::load_user( LJ::canonical_username( $creds{username} ) )
-        or return $fail->( "invalid username [$creds{username}]" );
+        or return $fail->("invalid username [$creds{username}]");
 
-    if (@LJ::MEMCACHE_SERVERS && ref $nonce_dup) {
+    if ( @LJ::MEMCACHE_SERVERS && ref $nonce_dup ) {
         $$nonce_dup = 1
-          unless LJ::MemCache::add( "wsse_auth:$creds{username}:$creds{nonce}", 1, 180 );
+            unless LJ::MemCache::add( "wsse_auth:$creds{username}:$creds{nonce}", 1, 180 );
     }
 
     # validate hash
-    my $hash =
-      Digest::SHA1::sha1_base64(
-        $creds{nonce} . $creds{created} . $u->password );
+    my $hash = Digest::SHA1::sha1_base64( $creds{nonce} . $creds{created} . $u->password );
 
     # Nokia's WSSE implementation is incorrect as of 1.5, and they
     # base64 encode their nonce *value*.  If the initial comparison
     # fails, we need to try this as well before saying it's invalid.
     if ( $hash ne $creds{passworddigest} ) {
         $hash =
-          Digest::SHA1::sha1_base64(
-                MIME::Base64::decode_base64( $creds{nonce} ) .
-                $creds{created} .
-                $u->password );
+            Digest::SHA1::sha1_base64(
+            MIME::Base64::decode_base64( $creds{nonce} ) . $creds{created} . $u->password );
 
         if ( $hash ne $creds{passworddigest} ) {
-            LJ::handle_bad_login( $u );
-            return $fail->( "hash wrong" );
+            LJ::handle_bad_login($u);
+            return $fail->("hash wrong");
         }
     }
 
-    return $fail->( "ip_ratelimiting" )
-        if LJ::login_ip_banned( $u );
+    return $fail->("ip_ratelimiting")
+        if LJ::login_ip_banned($u);
 
     # If we're here, we're valid.
     return ( $u, undef );
@@ -190,15 +189,16 @@ sub _auth_digest {
         my $sv = sub {
             my $r = DW::Request->get;
 
-            my $nonce = LJ::challenge_generate(180); # 3 mins timeout
-            my $authline = "Digest realm=\"$LJ::SITENAMESHORT\", nonce=\"$nonce\", algorithm=MD5, qop=\"auth\"";
+            my $nonce = LJ::challenge_generate(180);    # 3 mins timeout
+            my $authline =
+"Digest realm=\"$LJ::SITENAMESHORT\", nonce=\"$nonce\", algorithm=MD5, qop=\"auth\"";
             $authline .= ", stale=\"true\"" if $stale;
-            $r->header_out_add("WWW-Authenticate", $authline);
+            $r->header_out_add( "WWW-Authenticate", $authline );
         };
         return ( undef, $sv );
     };
 
-    unless ($r->header_in("Authorization")) {
+    unless ( $r->header_in("Authorization") ) {
         return $decline->(0);
     }
 
@@ -207,13 +207,13 @@ sub _auth_digest {
     # parse it
     # FIXME: could there be "," or " " inside attribute values, requiring trickier parsing?
 
-    my @vals = split(/[, \s]/, $header);
+    my @vals     = split( /[, \s]/, $header );
     my $authname = shift @vals;
     my %attrs;
     foreach (@vals) {
         if (/^(\S*?)=(\S*)$/) {
-            my ($attr, $value) = ($1,$2);
-            if ($value =~ m/^\"([^\"]*)\"$/) {
+            my ( $attr, $value ) = ( $1, $2 );
+            if ( $value =~ m/^\"([^\"]*)\"$/ ) {
                 $value = $1;
             }
             $attrs{$attr} = $value;
@@ -221,13 +221,16 @@ sub _auth_digest {
     }
 
     # sanity checks
-    unless ($authname eq 'Digest' && ( !defined $attrs{'qop'} || $attrs{'qop'} eq 'auth' ) &&
-            $attrs{'realm'} eq $LJ::SITENAMESHORT && (!defined $attrs{'algorithm'} || $attrs{'algorithm'} eq 'MD5')) {
+    unless ( $authname eq 'Digest'
+        && ( !defined $attrs{'qop'} || $attrs{'qop'} eq 'auth' )
+        && $attrs{'realm'} eq $LJ::SITENAMESHORT
+        && ( !defined $attrs{'algorithm'} || $attrs{'algorithm'} eq 'MD5' ) )
+    {
         return $decline->(0);
     }
 
     my %opts;
-    LJ::challenge_check($attrs{'nonce'}, \%opts);
+    LJ::challenge_check( $attrs{'nonce'}, \%opts );
 
     return $decline->(0) unless $opts{'valid'};
 
@@ -241,15 +244,15 @@ sub _auth_digest {
     # nonce count implementation is broken and it doesn't send nc= or
     # always sends 1, this'll at least work due to leniency above
 
-    my $ncount = hex($attrs{'nc'});
+    my $ncount = hex( $attrs{'nc'} );
 
-    unless (abs($opts{'count'} - $ncount) <= 1) {
+    unless ( abs( $opts{'count'} - $ncount ) <= 1 ) {
         return $decline->(1);
     }
 
     # the username
-    my $user = LJ::canonical_username($attrs{'username'});
-    my $u = LJ::load_user($user);
+    my $user = LJ::canonical_username( $attrs{'username'} );
+    my $u    = LJ::load_user($user);
 
     return $decline->(0) unless $u;
 
@@ -259,16 +262,17 @@ sub _auth_digest {
 
     # recalculate the hash and compare to response
 
-    my $qop = $attrs{qop};
+    my $qop   = $attrs{qop};
     my $a1src = $u->user . ":$LJ::SITENAMESHORT:" . $u->password;
-    my $a1 = Digest::MD5::md5_hex($a1src);
+    my $a1    = Digest::MD5::md5_hex($a1src);
     my $a2src = $r->method . ":$attrs{'uri'}";
-    my $a2 = Digest::MD5::md5_hex($a2src);
+    my $a2    = Digest::MD5::md5_hex($a2src);
     my $hashsrc;
 
     if ( $qop eq 'auth' ) {
         $hashsrc = "$a1:$attrs{'nonce'}:$attrs{'nc'}:$attrs{'cnonce'}:$attrs{'qop'}:$a2";
-    } else {
+    }
+    else {
         $hashsrc = "$a1:$attrs{'nonce'}:$a2";
     }
     my $hash = Digest::MD5::md5_hex($hashsrc);

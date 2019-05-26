@@ -23,14 +23,12 @@ use Storable qw/ nfreeze thaw /;
 
 use base qw/ DW::Shop::Engine /;
 
-
 # new( $cart )
 #
 # instantiates a new CMO engine for the given cart
 sub new {
     return bless { cart => $_[1] }, $_[0];
 }
-
 
 # new_from_cart( $cart )
 #
@@ -39,7 +37,6 @@ sub new {
 sub new_from_cart {
     return $_[0]->new( $_[1] );
 }
-
 
 # checkout_url()
 #
@@ -51,7 +48,8 @@ sub checkout_url {
     # make sure that the cart contains something that costs something.  since
     # this check should have been done above, we die hardcore here.
     my $cart = $self->cart;
-    die "Constraints not met: cart && cart->has_items && ( cart->total_cash > 0.00 || cart->total_points > 0 ).\n"
+    die
+"Constraints not met: cart && cart->has_items && ( cart->total_cash > 0.00 || cart->total_points > 0 ).\n"
         unless $cart && $cart->has_items && ( $cart->total_cash > 0.00 || $cart->total_points > 0 );
 
     # and, just in case something terrible happens, make sure our state is good
@@ -63,7 +61,6 @@ sub checkout_url {
     return "$LJ::SITEROOT/shop/confirm?ordernum=" . $cart->ordernum;
 }
 
-
 # confirm_order()
 #
 # all this does is mark the order as pending.
@@ -74,7 +71,7 @@ sub confirm_order {
 
     # ensure the cart is in checkout state.  if it's still open or paid
     # or something, we can't touch it.
-    return $self->error( 'cmo.engbadstate' )
+    return $self->error('cmo.engbadstate')
         unless $cart->state == $DW::Shop::STATE_CHECKOUT;
 
     # and now, if this order is free (paid on points) then try to deduct the points
@@ -84,39 +81,48 @@ sub confirm_order {
             or die "Unknown error capturing points for sale.\n";
 
         # if the above succeeded the order is paid and done
-        $cart->state( $DW::Shop::STATE_PAID );
+        $cart->state($DW::Shop::STATE_PAID);
         return 1;
     }
 
     # now set it pending
-    $cart->state( $DW::Shop::STATE_PEND_PAID );
+    $cart->state($DW::Shop::STATE_PEND_PAID);
 
     # send an email to the user who placed the order
-    my $u = LJ::load_userid( $cart->userid );
+    my $u         = LJ::load_userid( $cart->userid );
     my $linebreak = "\n    ";
-    my $address = $LJ::SITEADDRESS;
+    my $address   = $LJ::SITEADDRESS;
     $address =~ s/<br \/>/$linebreak/g;
-    LJ::send_mail( {
-        to => $cart->email,
-        from => $LJ::ACCOUNTS_EMAIL,
-        fromname => $LJ::SITENAME,
-        subject => LJ::Lang::ml( 'shop.email.confirm.checkmoneyorder.subject', { sitename => $LJ::SITENAME } ),
-        body => LJ::Lang::ml( 'shop.email.confirm.checkmoneyorder.body', {
-            touser => LJ::isu( $u ) ? $u->display_name : $cart->email,
-            receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
-            total => '$' . $cart->total_cash . ' USD',
-            payableto => $LJ::SITECOMPANY,
-            address => "$LJ::SITECOMPANY${linebreak}Order #" . $cart->id . "$linebreak$address",
-            sitename => $LJ::SITENAME,
-        } ),
-    } );
+    LJ::send_mail(
+        {
+            to       => $cart->email,
+            from     => $LJ::ACCOUNTS_EMAIL,
+            fromname => $LJ::SITENAME,
+            subject  => LJ::Lang::ml(
+                'shop.email.confirm.checkmoneyorder.subject',
+                { sitename => $LJ::SITENAME }
+            ),
+            body => LJ::Lang::ml(
+                'shop.email.confirm.checkmoneyorder.body',
+                {
+                    touser     => LJ::isu($u) ? $u->display_name : $cart->email,
+                    receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
+                    total      => '$' . $cart->total_cash . ' USD',
+                    payableto  => $LJ::SITECOMPANY,
+                    address    => "$LJ::SITECOMPANY${linebreak}Order #"
+                        . $cart->id
+                        . "$linebreak$address",
+                    sitename => $LJ::SITENAME,
+                }
+            ),
+        }
+    );
 
     # and run any additional actions desired (because this is such a manual process)
     LJ::Hooks::run_hooks( 'check_money_order_pending', $cart, $u );
 
     return 2;
 }
-
 
 # cancel_order()
 #
@@ -125,12 +131,11 @@ sub cancel_order {
     my $self = $_[0];
 
     # ensure the cart is in open state
-    return $self->error( 'cmo.engbadstate' )
+    return $self->error('cmo.engbadstate')
         unless $self->cart->state == $DW::Shop::STATE_OPEN;
 
     return 1;
 }
-
 
 # called when something terrible has happened and we need to fully fail out
 # a transaction for some reason.  (payment not valid, etc.)
@@ -138,17 +143,14 @@ sub fail_transaction {
     my $self = $_[0];
 
     # step 1) mark statuses
-#    $self->cart->
+    #    $self->cart->
 }
-
 
 ################################################################################
 ## internal methods, nobody else should be calling these
 ################################################################################
 
-
 # accessors
 sub cart { $_[0]->{cart} }
-
 
 1;

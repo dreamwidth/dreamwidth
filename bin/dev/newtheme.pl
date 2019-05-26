@@ -22,8 +22,7 @@ if ( !$layout_human ) {
     diehelp;
 }
 
-( $layout_name = lc ( $layout_human ) ) =~ s/\s|'//g;
-
+( $layout_name = lc($layout_human) ) =~ s/\s|'//g;
 
 ####################
 # Input section
@@ -31,50 +30,58 @@ if ( !$layout_human ) {
 ####################
 my ( @dropped, @css, @set, $in_css, $in_css_2 );
 my $line_number = 0;
-while ( <STDIN> ) {
+while (<STDIN>) {
     my $line = $_;
     $line_number++;
 
     # Warn for anything that looks like an HTML colour code but doesn't have 3 or 6 digits
-    if ( ( $line =~ m/#[\da-f]+/ ) &&
-         ! ( ( $line =~ m/#[\da-f]{3}\W/ ) ||
-             ( $line =~ m/#[\da-f]{6}\W/ ) ) ) {
-      print "Possibly malformed colour code detected on input line $line_number:\n";
-      print ">    " . $line . "\n";
+    if ( ( $line =~ m/#[\da-f]+/ )
+        && !( ( $line =~ m/#[\da-f]{3}\W/ ) || ( $line =~ m/#[\da-f]{6}\W/ ) ) )
+    {
+        print "Possibly malformed colour code detected on input line $line_number:\n";
+        print ">    " . $line . "\n";
     }
 
     # Shorten HTML colour codes of the form #aabbcc to #abc
     $line =~ s/#([0-9a-f])\1([0-9a-f])\2([0-9a-f])\3/#\L$1$2$3/ig;
 
-    if ( $in_css ) { # Type 1 CSS insert
-        if ( $line =~ m/"""; }/ ) { # last line
+    if ($in_css) {    # Type 1 CSS insert
+        if ( $line =~ m/"""; }/ ) {    # last line
             $in_css = 0;
             next;
         }
         push( @css, $line );
-    } elsif ( $in_css_2 ) { # Type 2 CSS insert
-        if ( $line =~ m/^(.*)";$/ ) { # last line
+    }
+    elsif ($in_css_2) {                # Type 2 CSS insert
+        if ( $line =~ m/^(.*)";$/ ) {    # last line
             $in_css = 0;
             push( @css, $1 );
             next;
         }
         push( @css, $line );
-    } elsif ( $line =~ m/function Page::print_theme_stylesheet/ ) {
+    }
+    elsif ( $line =~ m/function Page::print_theme_stylesheet/ ) {
+
         # Type 1 CSS insert
         $in_css = 1;
-    } elsif ( $line =~ m/custom_css = "(.*)$/ ) {
+    }
+    elsif ( $line =~ m/custom_css = "(.*)$/ ) {
+
         # Type 2 CSS insert
         $in_css_2 = 1;
         push( @css, $1 );
-    } elsif ( /^\.$/ ) {
+    }
+    elsif (/^\.$/) {
         last;
-} else {
+    }
+    else {
         next unless $line;
         if ( $line =~ m/^layerinfo / || $line =~ m/ "";/ ) {
-            if ( m/layerinfo "?name"? = "(.+)"/ ) {
+            if (m/layerinfo "?name"? = "(.+)"/) {
                 $theme_human = $1;
-                ( $theme_name = lc ( $theme_human ) ) =~ s/\s//g;
-                warn "WARNING: $theme_name contains non-ascii characters" if $theme_name =~ m/[^\x01-\x7f]/;
+                ( $theme_name = lc($theme_human) ) =~ s/\s//g;
+                warn "WARNING: $theme_name contains non-ascii characters"
+                    if $theme_name =~ m/[^\x01-\x7f]/;
             }
             push( @dropped, $line );
             next;
@@ -90,25 +97,33 @@ while ( <STDIN> ) {
 
 # sort @set lines into categories
 my ( @unknown, @presentation, @page, @entries, @modules, @fonts, @images );
-foreach ( @set ){
+foreach (@set) {
 
     if ( /userlite_interaction_links = / || /_management_links = / || /module.*show/ ) {
         push( @dropped, $_ );
-    } elsif ( /font/ ) {
+    }
+    elsif (/font/) {
         push( @fonts, $_ );
-    } elsif ( /image/ ) {
+    }
+    elsif (/image/) {
         push( @images, $_ );
-    } elsif ( /entry/ ) {
+    }
+    elsif (/entry/) {
         push( @entries, $_ );
-    } elsif ( /comment/ ) {
+    }
+    elsif (/comment/) {
         push( @entries, $_ );
-    } elsif ( /layout/ ) {
+    }
+    elsif (/layout/) {
         push( @presentation, $_ );
-    } elsif ( /module/ ) {
+    }
+    elsif (/module/) {
         push( @modules, $_ );
-    } elsif ( /color/ ) {
+    }
+    elsif (/color/) {
         push( @page, $_ );
-    } else {
+    }
+    else {
         push( @unknown, $_ );
     }
 }
@@ -118,15 +133,18 @@ foreach ( @set ){
 # eg
 #    input: "arial black, verdana, helvetica, serif"
 #    output: "'Arial Black', Verdana, Helvetica, serif";
-foreach my $line ( @fonts ) {
+foreach my $line (@fonts) {
     if ( $line =~ m/_size / || $line =~ m/_units / ) {
+
         # Nothing - these aren't font names so leave them alone
-    } else {
+    }
+    else {
         #warn "Processing font line: $line";
         if ( $line =~ m/^set (font_[a-z_]+) = "(.*)";$/ ) {
-            my $setting = $1;
+            my $setting   = $1;
             my @fontnames = split( ", ", $2 );
-            foreach ( @fontnames ) {
+            foreach (@fontnames) {
+
                 # Unquote it if it's already quoted
                 s/^'(.*)'$/$1/;
                 s/^"(.*)"$/$1/;
@@ -139,19 +157,20 @@ foreach my $line ( @fonts ) {
                       )/\U$1/xg;
 
                 # Single-quote multi-word font names
-                if ( m/ / ) {
+                if (m/ /) {
                     $_ = "'" . $_ . "'";
                 }
             }
             $line = "set $setting = " . '"' . join( ", ", @fontnames ) . '";' . "\n";
+
             #warn "Post-processed line: $line";
-        } else {
+        }
+        else {
             print "ERROR: Font setting line may be malformed - check output thoroughly:\n";
             print ">    " . $line . "\n";
         }
     }
 }
-
 
 ####################
 # Output section
@@ -184,27 +203,27 @@ sub print_section {
 ##===============================
 
 EOT
-        foreach ( @lines ) {
+        foreach (@lines) {
             print TMP_FILE $_;
         }
     }
 }
 
 print_section( "Presentation", @presentation );
-print_section( "Page", @page );
-print_section( "Entry", @entries );
-print_section( "Module", @modules );
-print_section( "Fonts", @fonts );
-print_section( "Images", @images );
-if ( @css ) {
+print_section( "Page",         @page );
+print_section( "Entry",        @entries );
+print_section( "Module",       @modules );
+print_section( "Fonts",        @fonts );
+print_section( "Images",       @images );
+if (@css) {
     print TMP_FILE "\n";
     print TMP_FILE 'function Page::print_theme_stylesheet() { """' . "\n";
-    foreach ( @css ) {
+    foreach (@css) {
         print TMP_FILE "    " . $_;
     }
     print TMP_FILE '"""; }' . "\n";
 }
-print_section( "Unknown - DELETE THIS SECTION after reclassifying lines", @unknown );
+print_section( "Unknown - DELETE THIS SECTION after reclassifying lines",            @unknown );
 print_section( "Dropped - DELETE THIS SECTION after verifying none of it is needed", @dropped );
 print TMP_FILE "\n";
 close TMP_FILE;
@@ -214,12 +233,13 @@ print "Parsed theme now saved in file: $filename\n";
 print "Be sure to check this for hardcoded font sizes.\n";
 print "This new text needs to be put into the existing file named:\n";
 print "$ENV{LJHOME}/bin/upgrading/s2layers/$layout_name/theme.s2\n\n";
-if ( @images ) {
-    print "This layout appears to have image(s). Change their url to $layout_name/$theme_name(_imagename, if multiple), rename the image to $theme_name(_imagename), and put in:\n";
+if (@images) {
+    print
+"This layout appears to have image(s). Change their url to $layout_name/$theme_name(_imagename, if multiple), rename the image to $theme_name(_imagename), and put in:\n";
     print "$ENV{LJHOME}/htdocs/stc/$layout_name/$theme_name.png\n\n";
-    }
+}
 print "Theme also needs a preview screenshot. Resize to 150x114px and put in:\n";
 print "$ENV{LJHOME}/htdocs/img/customize/previews/$layout_name/$theme_name.png\n\n";
-print "(for additional reference on cleaning themes, see http://wiki.dreamwidth.net/notes/Newbie_Guide_for_People_Patching_Styles#Adding_a_New_Color_Theme )\n";
-
+print
+"(for additional reference on cleaning themes, see http://wiki.dreamwidth.net/notes/Newbie_Guide_for_People_Patching_Styles#Adding_a_New_Color_Theme )\n";
 

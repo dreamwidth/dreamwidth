@@ -25,18 +25,18 @@ use Carp qw(croak);
 
 sub need_res {
     return qw(
-            js/6alib/core.js
-            js/6alib/dom.js
-            js/6alib/view.js
-            js/6alib/datasource.js
-            js/6alib/checkallbutton.js
-            js/6alib/selectable_table.js
-            js/6alib/httpreq.js
-            js/6alib/hourglass.js
-            js/esn_inbox.js
-            stc/esn.css
-            stc/lj_base.css
-            );
+        js/6alib/core.js
+        js/6alib/dom.js
+        js/6alib/view.js
+        js/6alib/datasource.js
+        js/6alib/checkallbutton.js
+        js/6alib/selectable_table.js
+        js/6alib/httpreq.js
+        js/6alib/hourglass.js
+        js/esn_inbox.js
+        stc/esn.css
+        stc/lj_base.css
+    );
 }
 
 # args
@@ -47,56 +47,63 @@ sub need_res {
 #   items: list of notification items
 sub render_body {
     my $class = shift;
-    my %opts = @_;
+    my %opts  = @_;
 
-    my $name = $opts{folder};
+    my $name           = $opts{folder};
     my $show_reply_btn = $opts{reply_btn} || 0;
-    my $expand = $opts{expand} || 0;
-    my $inbox = $opts{inbox};
-    my $nitems = $opts{items};
-    my $page = $opts{page} || 1;
-    my $view = $opts{view} || "all";
-    my $itemid = int( $opts{itemid} || 0 );
-    my $remote = LJ::get_remote();
+    my $expand         = $opts{expand} || 0;
+    my $inbox          = $opts{inbox};
+    my $nitems         = $opts{items};
+    my $page           = $opts{page} || 1;
+    my $view           = $opts{view} || "all";
+    my $itemid         = int( $opts{itemid} || 0 );
+    my $remote         = LJ::get_remote();
 
-    my $unread_count = 1; #TODO get real number
-    my $disabled = $unread_count ? '' : 'disabled';
+    my $unread_count = 1;                                 #TODO get real number
+    my $disabled     = $unread_count ? '' : 'disabled';
 
     # print form
     my $msgs_body .= qq {
         <form action="$LJ::SITEROOT/inbox/" method="POST" id="${name}Form" onsubmit="return false;">
         };
 
-    $msgs_body .= LJ::html_hidden({
-                    name  => "view",
-                    value => "$view",
-                    id    => "inbox_view",
-                  });
+    $msgs_body .= LJ::html_hidden(
+        {
+            name  => "view",
+            value => "$view",
+            id    => "inbox_view",
+        }
+    );
 
-    $msgs_body .= LJ::html_hidden({
-                    name => "itemid",
-                    value => "$itemid",
-                    id => "inbox_itemid",
-                  });
+    $msgs_body .= LJ::html_hidden(
+        {
+            name  => "itemid",
+            value => "$itemid",
+            id    => "inbox_itemid",
+        }
+    );
+
     # pagination
     my $page_limit = 15;
     $page = 1 if $page < 1;
-    my $last_page = POSIX::ceil((scalar @$nitems) / $page_limit);
+    my $last_page = POSIX::ceil( ( scalar @$nitems ) / $page_limit );
     $last_page ||= 1;
     $page = $last_page if $page > $last_page;
-    my $starting_index = ($page - 1) * $page_limit;
+    my $starting_index = ( $page - 1 ) * $page_limit;
 
-    my $prev_disabled = ($page <= 1) ? 'disabled' : '';
-    my $next_disabled = ($page >= $last_page) ? 'disabled' : '';
+    my $prev_disabled = ( $page <= 1 )          ? 'disabled' : '';
+    my $next_disabled = ( $page >= $last_page ) ? 'disabled' : '';
 
     my $actionsrow = sub {
-        my $sfx = shift; # suffix
+        my $sfx = shift;    # suffix
 
         # check all checkbox
-        my $checkall = LJ::html_check({
-            id      => "${name}_CheckAll_$sfx",
-            class   => "InboxItem_Check",
-        });
+        my $checkall = LJ::html_check(
+            {
+                id    => "${name}_CheckAll_$sfx",
+                class => "InboxItem_Check",
+            }
+        );
 
         return qq {
              <tr class="header" id="ActionRow$sfx">
@@ -120,18 +127,18 @@ sub render_body {
 
         # choose button text depending on whether user is viewing all emssages or only a subfolder
         # to avoid any confusion as to what deleting and marking read will do
-        my $mark_all_text = "";
+        my $mark_all_text   = "";
         my $delete_all_text = "";
         if ( $view eq "all" ) {
-            $mark_all_text = "widget.inbox.menu.mark_all_read.btn";
+            $mark_all_text   = "widget.inbox.menu.mark_all_read.btn";
             $delete_all_text = "widget.inbox.menu.delete_all.btn";
         }
         elsif ( $view eq "singleentry" ) {
-            $mark_all_text = "widget.inbox.menu.mark_all_read.entry.btn";
+            $mark_all_text   = "widget.inbox.menu.mark_all_read.entry.btn";
             $delete_all_text = "widget.inbox.menu.delete_all.entry.btn";
         }
         else {
-            $mark_all_text = "widget.inbox.menu.mark_all_read.subfolder.btn";
+            $mark_all_text   = "widget.inbox.menu.mark_all_read.subfolder.btn";
             $delete_all_text = "widget.inbox.menu.delete_all.subfolder.btn";
         }
 
@@ -166,45 +173,45 @@ sub render_body {
     # print out messages
     my $rownum = 0;
 
-    for (my $i = $starting_index; $i < $starting_index + $page_limit; $i++) {
+    for ( my $i = $starting_index ; $i < $starting_index + $page_limit ; $i++ ) {
         my $inbox_item = $nitems->[$i];
         last unless $inbox_item;
 
-        my $qid  = $inbox_item->qid;
+        my $qid = $inbox_item->qid;
 
         my $read_class = $inbox_item->read ? "InboxItem_Read read" : "InboxItem_Unread";
 
-        my $title  = $inbox_item->title(mode => $opts{mode});
+        my $title = $inbox_item->title( mode => $opts{mode} );
 
         my $checkbox_name = "${name}_Check-$qid";
-        my $checkbox = LJ::html_check({
-            id    => $checkbox_name,
-            class => "InboxItem_Check",
-            name  => $checkbox_name,
-        });
+        my $checkbox      = LJ::html_check(
+            {
+                id    => $checkbox_name,
+                class => "InboxItem_Check",
+                name  => $checkbox_name,
+            }
+        );
 
         # HTML for displaying bookmark flag
-        my $bookmark = 'bookmark_'
-                     . ( $inbox->is_bookmark( $qid ) ? "on" : "off" );
+        my $bookmark = 'bookmark_' . ( $inbox->is_bookmark($qid) ? "on" : "off" );
         $bookmark = "<a href='$LJ::SITEROOT/inbox/?page=$page&$bookmark=$qid'>"
-                  . LJ::img( $bookmark, "", { class => 'InboxItem_Bookmark' } )
-                  . "</a>";
+            . LJ::img( $bookmark, "", { class => 'InboxItem_Bookmark' } ) . "</a>";
 
-        my $when = LJ::diff_ago_text( $inbox_item->when_unixtime );
+        my $when     = LJ::diff_ago_text( $inbox_item->when_unixtime );
         my $contents = $inbox_item->as_html || '';
 
-        my $row_class = ($rownum++ % 2 == 0) ? "InboxItem_Meta odd" : "InboxItem_Meta even";
+        my $row_class = ( $rownum++ % 2 == 0 ) ? "InboxItem_Meta odd" : "InboxItem_Meta even";
 
-        my $expandbtn = '';
+        my $expandbtn   = '';
         my $content_div = '';
 
         if ($contents) {
-            BML::ebml(\$contents);
+            BML::ebml( \$contents );
 
             my $expanded = $expand && $expand == $qid;
             $expanded ||= $remote->prop('esn_inbox_default_expand');
             $expanded = 0 if $inbox_item->read;
-            
+
             $expanded = 1 if ( $view eq "usermsg_sent_last" && $i == $starting_index );
 
             my $expand_img = $expanded ? "inbox_expand" : "inbox_collapse";
@@ -242,18 +249,23 @@ sub render_body {
 
     $msgs_body .= $messagetable;
 
-    $msgs_body .= LJ::html_hidden({
-        name  => "page",
-        id    => "pageNum",
-        value => $page,
-    });
+    $msgs_body .= LJ::html_hidden(
+        {
+            name  => "page",
+            id    => "pageNum",
+            value => $page,
+        }
+    );
 
     $msgs_body .= qq {
         </form>
         };
 
     # JS confirm dialog that appears when a user tries to delete a bookmarked item
-    $msgs_body .= "<script>ESN_Inbox.confirmDelete = '" . $class->ml('widget.inboxfolder.confirm.delete') . "';</script>";
+    $msgs_body .=
+          "<script>ESN_Inbox.confirmDelete = '"
+        . $class->ml('widget.inboxfolder.confirm.delete')
+        . "';</script>";
 
     return $msgs_body;
 }
