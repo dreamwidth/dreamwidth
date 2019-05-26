@@ -2176,7 +2176,7 @@ sub talkform {
         my $hidebutton = ( $opts->{errors} && @{ $opts->{errors} } );
         unless ( $hidebutton ) {
             my $alerttext = LJ::Lang::ml( 'talk.error.quickquote' );
-            $ret .= "<span id='quotebuttonspan' data-quote-error=\"$alerttext\"></span>";
+            $ret .= qq{<span id="quotebuttonspan" data-quote-error="$alerttext"></span>};
         }
     }
 
@@ -2343,7 +2343,7 @@ sub icon_dropdown {
         if ( $remote && $remote->can_use_userpic_select ) {
             my $metatext = $remote->iconbrowser_metatext ? "true" : "false";
             my $smallicons = $remote->iconbrowser_smallicons ? "true" : "false";
-            $ret .= '<input type="button" id="lj_userpicselect" value="Browse" data-iconbrowser-metatext="' . $metatext . '" data-iconbrowser-smallicons="' . $smallicons . '"/>';
+            $ret .= qq{<input type="button" id="lj_userpicselect" value="Browse" data-iconbrowser-metatext="$metatext" data-iconbrowser-smallicons="$smallicons"/>};
         }
 
         # random icon button - hidden for non-JS
