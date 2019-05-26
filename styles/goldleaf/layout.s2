@@ -1104,7 +1104,7 @@ function Page::print_default_stylesheet() {
     var string controlstrip_css = "";
          if ($*custom_control_strip_colors == "on_gradient" or $*custom_control_strip_colors == "on_no_gradient") {
          $controlstrip_css = """
-             #lj_controlstrip td {
+             #lj_controlstrip div {
                  border:none;
              }
 
@@ -1156,7 +1156,7 @@ body {
     $page_colors
 }
 
-html body {
+#canvas {
     margin-left: $*margins_size$*margins_unit;
     margin-right: $*margins_size$*margins_unit;
 }
@@ -2403,6 +2403,7 @@ ul.userlite-interaction-links.icon-links li{
     #footer > .inner{
         width: $*bottombar_width_size$*bottombar_width_units;
         margin: 0 auto;
+        box-sizing: border-box;
     }
 }
 
@@ -2503,6 +2504,16 @@ $controlstrip_css
 
 #lj_controlstrip{
     text-align: center;
+    justify-content: center;
+}
+
+#lj_controlstrip > div {
+    flex-grow: 0;
+}
+
+#lj_controlstrip_user,
+#lj_controlstrip_login {
+    text-align: left;
 }
 
 #lj_controlstrip_actionlinks {

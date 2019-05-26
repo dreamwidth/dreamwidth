@@ -341,7 +341,7 @@ body {
     $page_colors
 }
 
-html body {
+#canvas {
     margin-left: $*margins_size$*margins_unit;
     margin-right: $*margins_size$*margins_unit;
 }

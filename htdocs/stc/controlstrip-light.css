@@ -2,10 +2,6 @@
 {
     background-color: #c7c6c6;
     background-image: url(/img/controlstrip/bg-light.gif);
-}
-
-#lj_controlstrip td
-{
     color: #7c7c7c;
 }
 
@@ -16,7 +12,6 @@
 
 #lj_controlstrip_user,
 #lj_controlstrip_login,
-#lj_controlstrip_loggedout_userpic,
 #lj_controlstrip_actionlinks
 {
     border-right: 1px solid #fbfbfb;
