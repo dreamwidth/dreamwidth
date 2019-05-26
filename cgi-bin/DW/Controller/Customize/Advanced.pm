@@ -268,6 +268,7 @@ sub layers_handler {
             ? '/customize/advanced/layers.tt.error.youcantuseadvanced'
             : '/customize/advanced/layers.tt.error.usercantuseadvanced'
         ),
+        undef,
         { authas => $rv->{authas_html} }
     ) unless $u->can_create_s2_styles || $viewall;
 
@@ -453,6 +454,7 @@ sub styles_handler {
             ? '/customize/advanced/styles.tt.error.youcantuseadvanced'
             : '/customize/advanced/styles.tt.error.usercantuseadvanced'
         ),
+        undef,
         { authas => $rv->{authas_html} }
     ) unless $u->can_create_s2_styles || $viewall;
 
