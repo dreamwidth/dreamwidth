@@ -105,15 +105,6 @@ sub is_innodb {
     return $LJ::CACHE_CLUSTER_IS_INNO{$cluid} = $is_inno;
 }
 
-sub last_transition {
-
-    # FIXME: this function is unused as of Aug 2009 - kareila
-    my ( $u, $what ) = @_;
-    croak "invalid user object" unless LJ::isu($u);
-
-    $u->transition_list($what)->[-1];
-}
-
 # log2_do
 # see comments for talk2_do
 sub log2_do {
@@ -174,43 +165,6 @@ sub nodb_err {
         . "; cluster: "
         . $u->clusterid
         . ", errstr: $DBI::errstr]";
-}
-
-sub note_transition {
-
-    # FIXME: this function is unused as of Aug 2009 - kareila
-    my ( $u, $what, $from, $to ) = @_;
-    croak "invalid user object" unless LJ::isu($u);
-
-    return 1 unless LJ::is_enabled('user_transitions');
-
-    # we don't want to insert if the requested transition is already
-    # the last noted one for this user... in that case there has been
-    # no transition at all
-    my $last = $u->last_transition($what);
-    return 1
-        if $last->{before} eq $from
-        && $last->{after} eq $to;
-
-    my $dbh = LJ::get_db_writer()
-        or die "unable to contact global db master";
-
-    # bleh, need backticks on the 'before' and 'after' columns since those
-    # are MySQL reserved words
-    $dbh->do(
-        "INSERT INTO usertrans "
-            . "SET userid=?, time=UNIX_TIMESTAMP(), what=?, "
-            . "`before`=?, `after`=?",
-        undef, $u->{userid}, $what, $from, $to
-    );
-    die $dbh->errstr if $dbh->err;
-
-    # also log account changes to statushistory
-    my $remote = LJ::get_remote();
-    LJ::statushistory_add( $u, $remote, "account_level_change", "$from -> $to" )
-        if $what eq "account";
-
-    return 1;
 }
 
 # get an $sth from the writer
@@ -417,35 +371,6 @@ sub talk2_do {
 
     LJ::MemCache::delete( $memkey, 0 ) if int($ret);
     return $ret;
-}
-
-sub transition_list {
-
-    # FIXME: this function is unused as of Aug 2009 - kareila
-    my ( $u, $what ) = @_;
-    croak "invalid user object" unless LJ::isu($u);
-
-    my $dbh = LJ::get_db_writer()
-        or die "unable to contact global db master";
-
-    # FIXME: return list of transition object singleton instances?
-    my @list = ();
-    my $sth  = $dbh->prepare(
-        "SELECT time, `before`, `after` " . "FROM usertrans WHERE userid=? AND what=?" );
-    $sth->execute( $u->{userid}, $what );
-    die $dbh->errstr if $dbh->err;
-
-    while ( my $trans = $sth->fetchrow_hashref ) {
-
-        # fill in a couple of properties here rather than
-        # sending over the network from db
-        $trans->{userid} = $u->{userid};
-        $trans->{what}   = $what;
-
-        push @list, $trans;
-    }
-
-    return wantarray() ? @list : \@list;
 }
 
 sub uncache_prop {

@@ -24,20 +24,6 @@ use LJ::BetaFeatures;
 =head2 What the App Shows to Users
 =cut
 
-# format unixtimestamp according to the user's timezone setting
-sub format_time {
-
-    # FIXME: this function is unused as of Aug 2009 - kareila
-    my $u    = shift;
-    my $time = shift;
-
-    return undef unless $time;
-
-    return
-        eval { DateTime->from_epoch( epoch => $time, time_zone => $u->prop("timezone") )->ymd('-') }
-        || DateTime->from_epoch( epoch => $time )->ymd('-');
-}
-
 # return whether or not a user is in a given beta key (as defined by %LJ::BETA_FEATURES)
 # and enabled on the beta page
 sub is_in_beta {
