@@ -1517,6 +1517,7 @@ sub talkform {
         'errors' => $opts->{errors},
         'create_link' => '',
         'editid' => $editid,
+        'editreason' => $comment ? $comment->edit_reason : '',
 
         'length_limit' => LJ::CMAX_COMMENT,
         'can_checkspell' => $LJ::SPELLER ? 1 : 0,
@@ -2249,17 +2250,6 @@ sub talkform {
         $ret .= $captcha->print;
         $ret .= "<input type='hidden' name='captcha_type' value='$captcha_type' />";
     }
-
-    # NF: BEGIN OPTIONAL FOURTH ROW, wow omfg this is such bullshit, it even steals the post button, this is completely incoherent
-    if ($editid) {
-        my $editreason = LJ::ehtml( $comment->edit_reason );
-        $ret .=
-"<tr valign='top'><td align='right'>$BML::ML{'.opt.editreason'}</td><td><input class='textbox' type='text' size='75' maxlength='255' name='editreason' id='editreason' value=\"$editreason\" onKeyPress='editNoHTML(event);' />\n";
-
-        $ret .=
-"<div id='nohtmledit' class='ljdeem'><span style='font-size: 8pt; font-style: italic;'>$BML::ML{'.noedithtml'}</span></div>\n";
-    }
-
 
 
     $ret .= "</td></tr></td></tr>\n";
