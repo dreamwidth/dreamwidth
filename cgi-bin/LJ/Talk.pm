@@ -2175,10 +2175,8 @@ sub talkform {
         # only show quick quote button on initial composition
         my $hidebutton = ( $opts->{errors} && @{ $opts->{errors} } );
         unless ($hidebutton) {
-            $ret .= "<span id='quotebuttonspan'></span>";
-            $ret .= "<script type='text/javascript' language='JavaScript'>\n<!--\n";
-            $ret .= LJ::Talk::js_quote_button('commenttext');
-            $ret .= "-->\n</script>\n";
+            my $alerttext = LJ::Lang::ml('talk.error.quickquote');
+            $ret .= qq{<span id="quotebuttonspan" data-quote-error="$alerttext"></span>};
         }
     }
 
@@ -2343,8 +2341,10 @@ sub icon_dropdown {
 
         # userpic browse button
         if ( $remote && $remote->can_use_userpic_select ) {
-            $ret .= '<input type="button" id="lj_userpicselect" value="Browse" />';
-            $ret .= LJ::Talk::js_iconbrowser_button();
+            my $metatext   = $remote->iconbrowser_metatext   ? "true" : "false";
+            my $smallicons = $remote->iconbrowser_smallicons ? "true" : "false";
+            $ret .=
+qq{<input type="button" id="lj_userpicselect" value="Browse" data-iconbrowser-metatext="$metatext" data-iconbrowser-smallicons="$smallicons"/>};
         }
 
         # random icon button - hidden for non-JS
@@ -2422,6 +2422,13 @@ sub init_iconbrowser_js {
 sub init_s2journal_js {
     my %opts = @_;
 
+    # load for everywhere you can reply (ReplyPage, lastn, AND entries)
+    LJ::need_res(
+        { group => "jquery" }, qw(
+            js/jquery.quotebutton.js
+            )
+    );
+
     # load for quick reply (every view except ReplyPage)
     LJ::need_res(
         { group => "jquery" }, qw(
@@ -2491,78 +2498,6 @@ sub init_s2journal_shortcut_js {
 "$connect_string\n    touch: {\n      nextEntry: '$nextTouch',\n      prevEntry: '$prevTouch'\n    }\n";
     }
     $p->{'head_content'} .= "  };\n  </script>\n";
-}
-
-# generate the javascript code for the icon browser
-sub js_iconbrowser_button {
-    my $remote           = LJ::get_remote();
-    my $iconbrowser_opts = to_json(
-        {
-            selectorButtons => "#lj_userpicselect",
-            metatext        => LJ::JSON->to_boolean( $remote->iconbrowser_metatext ),
-            smallicons      => LJ::JSON->to_boolean( $remote->iconbrowser_smallicons ),
-        }
-    );
-
-    return qq {
-        <script type="text/javascript">
-        jQuery(function(jQ){
-            jQ("#prop_picture_keyword").iconselector($iconbrowser_opts);
-        })
-        </script>
-    };
-}
-
-# generate the javascript code for the quick quote button
-# arg1: element corresponds to textarea of caller (body or commenttext)
-# arg2: boolean to hide the button HTML (optional)
-sub js_quote_button {
-    my ($element) = @_;
-    return '' unless $element;
-
-    my $alerttext  = LJ::Lang::ml('talk.error.quickquote');
-    my $quote_func = <<"QUOTE";
-    var helped = 0; var pasted = 0;
-    function quote(e) {
-        var text = '';
-
-        if (document.getSelection) {
-            text = document.getSelection();
-        } else if (document.selection) {
-            text = document.selection.createRange().text;
-        } else if (window.getSelection) {
-            text = window.getSelection();
-        }
-
-        text = text.toString().replace(/^\\s+/, '').replace(/\\s+\$/, '');
-
-        if (text == '') {
-            if (helped != 1 && pasted != 1) {
-                helped = 1;
-                alert("$alerttext");
-            }
-        } else {
-            pasted = 1;
-        }
-
-        var element = text.search(/\\n/) == -1 ? 'q' : 'blockquote';
-        var textarea = document.getElementById('$element');
-        textarea.focus();
-        textarea.value = textarea.value + "<" + element + ">" + text + "</" + element + ">";
-        textarea.caretPos = textarea.value;
-        textarea.focus();
-    }
-QUOTE
-
-    return <<"QQ";
-jQuery(function(jQ){
-    $quote_func
-
-    jQ("<input type='button' value='Quote' />")
-        .appendTo("#quotebuttonspan")
-        .click(quote);
-    });
-QQ
 }
 
 # <LJFUNC>

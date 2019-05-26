@@ -12,14 +12,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- dw.need_res( "stc/css/components/quick-reply.css" ) -%]
 
-[%- quickreply = BLOCK -%]
+<div id='qrdiv' style="display: none;">
 <div id='qrformdiv'><form id='qrform' name='qrform' method='POST' action='[%- form_url | url -%]'>
 [%- dw.form_auth -%]
 [%- hidden_form_elements -%]
 <div class='qr-icon'>
     [%- IF current_icon -%]
       [%- IF remote.can_use_iconbrowser -%]
-        <button id="lj_userpicselect">[%- current_icon.imgtag -%]</button>
+        <button id="lj_userpicselect" data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
+            [%- current_icon.imgtag -%]
+        </button>
       [%- ELSE -%]
         [%- current_icon.imgtag -%]
       [%- END -%]
@@ -88,7 +90,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
       id = 'do_spellcheck'
     ) -%]</div>
   [%- END -%]
-  <span id='quotebuttonspan'></span>
+  <span id='quotebuttonspan' data-quote-error="[%- 'talk.error.quickquote' | ml -%]"></span>
   <input type='button' id='randomicon' value='[%- '/talkpost.bml.userpic.random2' | ml -%]' />
   [%- END -%]
 
@@ -109,12 +111,4 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 
 </form></div>
-[%- END -%]
-
-<script type='text/javascript'>
-jQuery(function(jQ){
-  jQ("body").append(jQ("<div id='qrdiv'></div>").html("[% ejs(quickreply) %]").hide());
-});
-[%- quote_button_js -%]
-</script>
-[%- iconbrowser_js -%]
+</div>
