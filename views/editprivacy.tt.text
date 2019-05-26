@@ -29,3 +29,12 @@
 
 .unable=Your account can't use this feature.
 
+.error.time=No timeframe selected
+
+.error.time.start=Start date is not a valid date
+
+.error.time.end=End date is not a valid date
+
+.error.security=Privacy levels are the same
+
+.error.password=Password Incorrect

@@ -1,0 +1,128 @@
+[%- sections.title = '.title' | ml -%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[% IF mode == 'init' %]
+    <p> [% dw.ml('.intro2', {"aopts" => "href='$site.root/accountstatus/'"}) %] </p>
+	<p> [% dw.ml('.archive', {"aopts" => "href='$u.journal_base/archive/'"}) %] </p>
+    <p> [% dw.ml('xpost.respected', {"aopts" => "href='$site.root/manage/settings/?cat=othersites'"}) %] </p>
+
+    <form method='post' action='./editprivacy'>
+    <h1> [% dw.ml('.timeframe') %] </h1>
+    <div class="row">
+        	<div class="columns">
+		        	[%- form.radio( "name" = "time", "id" = "time_all", "value" = "all", selected = (POST.time == 'time_all'), 'label' = dw.ml('.timeframe.all')) -%]
+		    </div>
+	</div>
+	<div class="row">
+		<div class="columns">
+        	[%- form.radio( "name" = "time", "id" = "time_range", "value" = "range", selected = (POST.time == 'time_range'), 'label'= dw.ml('.timeframe.range')) -%]
+			<div class="row">
+				<div class="columns medium-2">
+		        	<span class="right inline">[% dw.ml('.timeframe.range.start') %]:</span>
+		        </div>
+		        <div class="columns medium-2">
+		        	[%- form.textbox( "name" = 's_year', "value" = POST.s_year || '1999', "maxlength" = 4 ) -%]  
+		        </div>
+		        <div class="columns medium-2">
+			       	[%- form.select( "items"   = month_list
+			                 		"name"    = 's_mon'
+			                 		"selected" = POST.s_mon
+			               )
+			        -%] 
+		        </div>
+		        <div class="columns medium-1 end">
+			        [%- form.select( "items"   = day_list
+			                 		"name"    = 's_day'
+			                 		"selected" = POST.s_day
+			               )
+			        -%]
+		        </div>
+			</div>
+
+			<div class="row">
+				<div class="columns medium-2">
+		        	<span class="right inline">[% dw.ml('.timeframe.range.end') %]:</span>
+		        </div>
+		        <div class="columns medium-2">
+		        	[%- form.textbox( "name" = 'e_year', "value" = POST.e_year || '', "maxlength" = 4 ) -%]  
+		        </div>
+		        <div class="columns medium-2">
+			       	[%- form.select( "items"   = month_list
+			                 		"name"    = 'e_mon'
+			                 		"selected" = POST.e_mon
+			               )
+			        -%] 
+		        </div>
+		        <div class="columns medium-1 end">
+			        [%- form.select( "items"   = day_list
+			                 		"name"    = 'e_day'
+			                 		"selected" = POST.e_day
+			               )
+			        -%]
+		        </div>
+			</div>
+
+		</div>
+		</div>
+        <h1> [% dw.ml('.privacy') %] </h1>
+        <div class="row">
+    		<div class="columns large-1">
+    			<span class="inline right"><b>From:</b></span>
+    		</div>
+    		<div class="columns large-3">
+		        [%- form.select( "items"   = security_list
+		                         "name"    = 's_security'
+		                         "selected" = POST.s_security
+		                       )
+		        -%]
+	        </div>
+   			<div class="columns large-1">
+     			<span class="inline right"><b>To:</b></span>
+	         </div>
+	         <div class="columns large-3 end">
+		         [%- form.select( "items"   = security_list
+		                         "name"    = 'e_security'
+		                         "selected" = POST.e_security
+		                       )
+		        -%]
+	        </div>
+		</div>
+
+
+        [% dw.form_auth() %]
+        [% form.hidden( name = 'mode', value = 'change') %]
+        <p>[% form.submit(value = dw.ml('.button.update')) %]</p>
+        </form>
+
+	[% ELSIF mode == 'change' %]
+
+        <p>Change [% security.${POST.s_security}.1 %] posts to [% security.${POST.e_security}.1 -%]
+        [%- ", between $s_dt.ymd and $e_dt.ymd" IF POST.time == 'range' %]
+		</p>
+        <p>[% dw.ml('.matching', {'posts' => posts}) %]</p>
+
+        [% IF posts %]
+            <h2>[% dw.ml('.rusure') %]</h2>
+        	<form method='post' action='./editprivacy'>
+            [% dw.form_auth() %]
+            [% form.hidden( name = 'mode', value = 'amsure') %]
+            [% form.hidden( name = 's_unixtime', value = s_dt.epoch) %]
+            [% form.hidden( name = 'e_unixtime', value = e_dt.epoch) %]
+            [% form.hidden( name = 's_security', value = POST.s_security) %]
+            [% form.hidden( name = 'e_security', value = POST.e_security) %]
+			[% form.hidden( name = 'time', value = POST.time) %]
+            [% IF more_public %]
+            <div class="row">
+            	<div class="columns medium-6 end">
+                [% form.password( name = 'password', size='20,' maxlength='30', 'label'= "Password Required") %]
+                </div>
+                </div>
+            [% END %]
+            <p>[% form.submit(value = dw.ml('.button.ya.rly')) %]</p>
+            </form>
+        [% END %]
+
+[% ELSIF mode == 'amsure' || mode == 'secured' %]
+	<p>[% dw.ml('.notified') %]</p>
+[% END %]
