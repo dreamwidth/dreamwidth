@@ -200,8 +200,8 @@ sub render_body {
         # For clarity, we display both a relative time (e.g. "5 days ago")
         # and an absolute time (e.g. "2019-05-11 14:34 UTC") in the
         # notification list.
-        my $event_time = $inbox_item->when_unixtime;
-        my $relative_time = LJ::diff_ago_text( $event_time );
+        my $event_time    = $inbox_item->when_unixtime;
+        my $relative_time = LJ::diff_ago_text($event_time);
         my $absolute_time = LJ::S2::sitescheme_secs_to_iso( $event_time, { tz => "UTC" } );
 
         my $contents = $inbox_item->as_html || '';
