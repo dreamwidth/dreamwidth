@@ -3292,9 +3292,9 @@ sub control_strip {
 
     # Vars for controlstrip.tt
     my $template_args = {
-        'view'          => $view,
-        'userpic_html'  => '',
-        'logo_html'     => ( LJ::Hooks::run_hook( 'control_strip_logo', $remote, $journal ) || '' ),
+        'view'         => $view,
+        'userpic_html' => '',
+        'logo_html'    => ( LJ::Hooks::run_hook( 'control_strip_logo', $remote, $journal ) || '' ),
         'show_login_form' => 0,
         'login_chal'      => '',
         'links'           => \%links,
@@ -3597,10 +3597,10 @@ sub control_strip {
 
     }
     else {
-        $template_args->{'userpic_html'} = LJ::Hooks::run_hook('control_strip_loggedout_userpic_contents', $euri) || "";
+        $template_args->{'userpic_html'} =
+            LJ::Hooks::run_hook( 'control_strip_loggedout_userpic_contents', $euri ) || "";
 
-
-        my $show_login_form = LJ::Hooks::run_hook("show_control_strip_login_form", $journal);
+        my $show_login_form = LJ::Hooks::run_hook( "show_control_strip_login_form", $journal );
         $show_login_form = 1 if !defined $show_login_form;
 
         $template_args->{'show_login_form'} = $show_login_form;
