@@ -1859,3 +1859,5 @@ general /profile.bml.service.delicious
 general /profile.bml.im.yim
 general /profile.bml.label.yahooid
 general /manage/profile/index.bml.chat.yahooid
+
+general error.usernamelong
