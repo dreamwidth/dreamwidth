@@ -2430,15 +2430,9 @@ sub init_s2journal_js {
             js/jquery/jquery.ui.widget.js
             js/jquery.quickreply.js
             js/jquery.threadexpander.js
-            )
-    ) unless $opts{noqr};
-
-    # this is only used on lastn-type pages (DayPage, RecentPage, FriendsPage)
-    LJ::need_res(
-        { group => "jquery" }, qw(
             stc/css/components/quick-reply.css
             )
-    ) if $opts{lastn};
+    ) unless $opts{noqr};
 
     # load for userpicselect
     LJ::need_res( init_iconbrowser_js(1) ) if $opts{iconbrowser};

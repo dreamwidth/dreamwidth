@@ -7,6 +7,18 @@
     text-align: left;
     margin: 0 auto;
     padding: 0 1em;
+    clear: both;
+
+    // Consistent initial font size for every descendent, so we can use ems
+    // for reliable relative sizing later.
+    * {
+        font-size: .75rem;
+        @media (pointer: coarse) {
+            // Appease mobile Webkit so it won't *dramatic woodchuck* zoom on
+            // input focus. Minimum font-size to Not Do That: 16px.
+            font-size: 16px;
+        }
+    }
 
     .de {
         font-size: small;
@@ -17,8 +29,9 @@
     }
 
     .qr-icon {
-        width: 50px;
-        height: 50px;
+        // Same height as qr-meta's stacked select and input = 2em + 2em + .2em
+        width: 4.2em;
+        height: 4.2em;
         float: left;
         position: relative;
 
@@ -64,36 +77,91 @@
     }
 
     .qr-meta {
-        margin-left: 55px;
+        margin-left: 4.5em;
+
+        display: -webkit-flex;
+        -webkit-flex-direction: row;
+        -webkit-flex-wrap: wrap;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        & > * {
+            height: 2em;
+
+            -webkit-flex-grow: 1;
+            -webkit-flex-shrink: 1;
+
+            flex-grow: 1;
+            flex-shrink: 1;
+        }
+    }
+
+    .qr-footer {
+        display: -webkit-flex;
+        -webkit-flex-direction: row;
+        -webkit-flex-wrap: wrap;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    span#quotebuttonspan {
+        // This only exists to get something appended to it by jQuery. Its child
+        // input is the real flex item.
+        display: contents;
+
+        // Separate the "submit" buttons from the "misc" ones, if there's space.
+        // Quote is the first "misc" button.
+        input {
+            margin-left: auto;
+        }
     }
 
     textarea, select, input[type="text"] {
+        max-width: 100%;
+        flex-basis: 20%;
+        margin-right: 0; // Fix for site scheme.
+        &:hover {
+            // Fix for site scheme. Too distracting.
+            -moz-box-shadow: inherit;
+            -webkit-box-shadow: inherit;
+            box-shadow: inherit;
+        }
+    }
+
+    textarea#body {
         width: 100%;
     }
 
     select, input, textarea {
-        padding: .25em;
+        padding: .15em;
+    }
+
+    .invisible {
+        // Fix for site scheme; a ".comment .invisible" rule was setting position: relative.
+        position: absolute;
     }
 }
-@media only screen and (min-width: 40em) {
 
+// When we're down to ~two buttons per row, avoid messy clumping:
+@media #{$small-only} {
+    .qr-footer > *, #quotebuttonspan input {
+        flex-grow: 1;
+    }
+}
+
+@media #{$medium-up} {
     #qrform {
-        display: table;
-
-        .qr-meta {
-            display: -webkit-flex;
-            -webkit-flex-direction: row;
-
-            display: flex;
-            flex-direction: row;
-        }
-
-        .qr-body, .qr-footer {
-            margin-left: 55px;
+        .qr-meta, .qr-body, .qr-footer {
+            margin-left: 4.5em;
+            max-width: 38rem;
         }
 
         select, input, textarea {
-            padding: .5em;
+            padding: .3em;
         }
     }
 }

@@ -208,6 +208,7 @@ jQuery(document).ready(function($) {
         // take a random number, ignoring the "(default)" option
         var randomnumber = Math.floor(Math.random() * (iconslist.length-1) ) + 1;
         iconslist.selectedIndex = randomnumber;
+        $( iconslist ).trigger("change");
     });
 });
 
