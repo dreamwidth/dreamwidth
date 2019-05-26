@@ -26,7 +26,69 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- create_link -%]
 
 <table summary='' class='talkform'>
+[%# First row: "From" fields (aka the really nasty part) %]
+[%# Second row: Subject and metadata fields %]
+[%# Third row: Message body text %]
+[%# Fourth row: Edit reason field (optional) %]
+
 [% bad_table %]
+
+[%# Final row: post button controls and info notices. (Previously subsumed into either row three or four.) %]
+  <tr valign="top">
+    <td align="right">&nbsp;</td>
+    <td>
+      <script language="JavaScript" type='text/javascript'>
+        <!--
+        function checkLength() {
+          if (!document.getElementById) return true;
+          var textbox = document.getElementById('commenttext');
+          var limit = [% length_limit %];
+          if (!textbox) return true;
+          if (textbox.value.length > limit) {
+            alert('Sorry, but your comment of ' + textbox.value.length + ' characters exceeds the maximum character length of ' + limit + '.  Please try shortening it and then post again.');
+            return false;
+          }
+          return true;
+        }
+        // -->
+      </script>
+
+      [%- form.submit(
+        name = "submitpost"
+        onclick = 'return checkLength() && sendForm("postform", "username")'
+        value = editid ? dw.ml('/talkpost.bml.opt.edit') : dw.ml('/talkpost.bml.opt.submit')
+      ) -%]
+      &nbsp;
+      [%- form.submit(
+        name = "submitpreview"
+        onclick = 'return checkLength() && sendForm("postform", "username")'
+        value = dw.ml('talk.btn.preview')
+      ) -%]
+      [%- IF can_checkspell -%]
+        [%- form.checkbox(
+          label = dw.ml('talk.spellcheck')
+          name = 'do_spellcheck'
+          id = 'spellcheck'
+          value = '1'
+        ) -%]
+      [%- END -%]
+
+      [%- IF journal.is_iplogging -%]
+        <div class='de'>
+          [%- IF journal.is_iplogging == 'all' -%]
+            [% '/talkpost.bml.logyourip' | ml -%]
+          [%- ELSIF journal.is_iplogging == 'anon' -%]
+            [% '/talkpost.bml.loganonip' | ml -%]
+          [%- END -%]
+        </div>
+        [%- help.iplogging -%]
+      [%- END -%]
+
+      [%- IF journal.is_linkstripped -%]
+        <div class='de'>[%- '/talkpost.bml.linkstripped' | ml -%]</div>
+      [%- END %]
+    </td>
+  </tr>
 </table>
 
 [%# Some JavaScript to help the UI out -%]

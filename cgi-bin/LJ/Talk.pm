@@ -1495,16 +1495,6 @@ sub talkform {
     my $opts = shift;
     return "Invalid talkform values." unless ref $opts eq 'HASH';
 
-    # Variables for talkform.tt
-    my $template_args = {
-        'bad_table' => '',
-        'hidden_form_elements' => '',
-        'form_url' => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
-        'errors' => $opts->{errors},
-        'create_link' => '',
-        'ejs' => sub { return LJ::ejs(@_) },
-    };
-
     my $ret;
     my ( $remote, $journalu, $parpost, $form ) =
         map { $opts->{$_} } qw(remote journalu parpost form);
@@ -1518,6 +1508,34 @@ sub talkform {
 
     my $pics  = LJ::Talk::get_subjecticons();
     my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
+
+    # Variables for talkform.tt
+    my $template_args = {
+        'bad_table' => '',
+        'hidden_form_elements' => '',
+        'form_url' => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
+        'errors' => $opts->{errors},
+        'create_link' => '',
+        'editid' => $editid,
+
+        'length_limit' => LJ::CMAX_COMMENT,
+        'can_checkspell' => $LJ::SPELLER ? 1 : 0,
+
+        'journal' => {
+            'is_iplogging'    =>
+                $journalu->opt_logcommentips eq 'A' ? 'all' :
+                    $journalu->opt_logcommentips eq 'S' ? 'anon' : 0,
+            'is_linkstripped' => !$remote
+                || ( $remote && $remote->is_identity && !$journalu->trusts_or_has_member($remote) ),
+        },
+
+        'help' => {
+            'icon'      => LJ::help_icon_html( "userpics",  " " ),
+            'iplogging' => LJ::help_icon_html( "iplogging", " " ),
+        },
+
+        'ejs' => sub { return LJ::ejs(@_) },
+    };
 
     # once we clean out talkpost.bml, this will need to be changed.
     BML::set_language_scope('/talkpost.bml');
@@ -2242,50 +2260,7 @@ sub talkform {
 "<div id='nohtmledit' class='ljdeem'><span style='font-size: 8pt; font-style: italic;'>$BML::ML{'.noedithtml'}</span></div>\n";
     }
 
-    my $submit_btn = $editid ? LJ::Lang::ml('.opt.edit') : LJ::Lang::ml('.opt.submit');
 
-    # post and preview buttons
-    my $limit = LJ::CMAX_COMMENT;    # javascript String.length uses characters
-    $ret .= <<LOGIN;
-    <br />
-    <script language="JavaScript" type='text/javascript'>
-        <!--
-        function checkLength() {
-            if (!document.getElementById) return true;
-            var textbox = document.getElementById('commenttext');
-            if (!textbox) return true;
-            if (textbox.value.length > $limit) {
-                alert('Sorry, but your comment of ' + textbox.value.length + ' characters exceeds the maximum character length of $limit.  Please try shortening it and then post again.');
-                return false;
-            }
-            return true;
-        }
-        // -->
-    </script>
-
-    <input type='submit' name='submitpost' onclick='return checkLength() && sendForm("postform", "username")' value="$submit_btn" />
-    &nbsp;
-    <input type='submit' name='submitpreview' onclick='return checkLength() && sendForm("postform", "username")' value="$BML::ML{'talk.btn.preview'}" />
-LOGIN
-
-    if ($LJ::SPELLER) {
-        $ret .=
-"<input type='checkbox' name='do_spellcheck' value='1' id='spellcheck' /> <label for='spellcheck'>$BML::ML{'talk.spellcheck'}</label>";
-    }
-
-    if ( $journalu->opt_logcommentips eq "A" ) {
-        $ret .= "<br />$BML::ML{'.logyourip'}";
-        $ret .= LJ::help_icon_html( "iplogging", " " );
-    }
-    if ( $journalu->opt_logcommentips eq "S" ) {
-        $ret .= "<br />$BML::ML{'.loganonip'}";
-        $ret .= LJ::help_icon_html( "iplogging", " " );
-    }
-    if ( !$remote
-        || ( $remote && $remote->is_identity && !$journalu->trusts_or_has_member($remote) ) )
-    {
-        $ret .= "<br />$BML::ML{'.linkstripped'}";
-    }
 
     $ret .= "</td></tr></td></tr>\n";
 
