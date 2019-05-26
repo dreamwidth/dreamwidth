@@ -1550,10 +1550,7 @@ sub postevent {
                 my $modlist = LJ::load_userids(@$mods);
 
                 my @emails;
-                my $ct;
                 foreach my $mod ( values %$modlist ) {
-                    last if $ct > 20;    # don't send more than 20 emails.
-
                     next unless $mod->is_visible;
 
                     LJ::Event::CommunityModeratedEntryNew->new( $mod, $uowner, $modid )->fire;
