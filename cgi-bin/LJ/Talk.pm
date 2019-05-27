@@ -1516,11 +1516,20 @@ sub talkform {
         'form_url' => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         'errors' => $opts->{errors},
         'create_link' => '',
+
         'editid' => $editid,
         'editreason' => $comment ? $comment->edit_reason : '',
+        'comment_body' => $form->{body} || '',
+
+        'captcha' => $opts->{do_captcha} ? {
+            'type' => $journalu->captcha_type,
+            'html' => DW::Captcha->new( undef, want => $journalu->captcha_type )->print,
+        } : 0,
 
         'length_limit' => LJ::CMAX_COMMENT,
         'can_checkspell' => $LJ::SPELLER ? 1 : 0,
+        'can_unscreen_parent' => ( $parpost->{state} && $parpost->{state} eq "S"
+            && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ),
 
         'journal' => {
             'is_iplogging'    =>
@@ -2217,42 +2226,6 @@ sub talkform {
     $ret .= "</td></tr>\n";
     # NF: END SECOND ROW
 
-    # NF: BEGIN FINAL ROW
-    # textarea for their message body
-    $ret .= "<tr valign='top'><td align='right'>$BML::ML{'.opt.message'}";
-    $ret .= "</td><td style='width: 90%'>";
-    $ret .=
-          "<textarea class='textbox' rows='10' cols='75' wrap='soft' name='body' id='commenttext'>"
-        . LJ::ehtml( $form->{body} || '' )
-        . "</textarea><br />";
-
-    # if parent comment is screened, and user can unscreen, give option to unscreen it
-    # default is not to unscreen
-    if (   $parpost->{state}
-        && $parpost->{state} eq "S"
-        && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) )
-    {
-        $ret .= "<label for='unscreen_parent'>$BML::ML{'.opt.unscreenparent'}</label>";
-        $ret .= LJ::html_check(
-            {
-                name     => 'unscreen_parent',
-                id       => 'unscreen_parent',
-                value    => 1,
-                selected => 0
-            }
-        );
-    }
-
-    # Display captcha challenge if required.
-    if ( $opts->{do_captcha} ) {
-        my $captcha_type = $journalu->captcha_type;
-        my $captcha      = DW::Captcha->new( undef, want => $captcha_type );
-        $ret .= $captcha->print;
-        $ret .= "<input type='hidden' name='captcha_type' value='$captcha_type' />";
-    }
-
-
-    $ret .= "</td></tr></td></tr>\n";
 
     $template_args->{'bad_table'} = $ret;
 
