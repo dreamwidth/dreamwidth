@@ -1529,7 +1529,7 @@ sub talkform {
         return "Cannot load comment information." unless $comment;
     }
 
-    my $pics  = LJ::Talk::get_subjecticons();
+    my $subjecticons  = LJ::Talk::get_subjecticons();
     my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
     my @userpics = LJ::icons_for_remote($remote);
 
@@ -1547,13 +1547,15 @@ sub talkform {
         'form_url' => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         'errors' => $opts->{errors},
         'create_link' => '',
+        'subject_icons' => $subjecticons,
 
         'comment' => {
             'editid' => $editid,
             'editreason' => $comment ? $comment->edit_reason : '',
             'body' => $form->{body} || '',
             'subject' => $basesubject,
-            'subject_icon' => $form->{subjecticon} || 'none',
+            'subject_icon' => $subjecticons->{'pic'}->{ $form->{subjecticon} }
+                ||  $subjecticons->{'pic'}->{'none'}, # a subjecticon hashref
             'preformatted' => $form->{'prop_opt_preformatted'},
             'admin_post' => $form->{'prop_admin_post'},
             'current_icon_kw' => $form->{prop_picture_keyword},
@@ -1597,6 +1599,7 @@ sub talkform {
         },
 
         'ejs' => sub { return LJ::ejs(@_) },
+        'print_subjecticon' => sub { return LJ::Talk::print_subjecticon(@_) },
     };
 
     # once we clean out talkpost.bml, this will need to be changed.
@@ -2134,98 +2137,6 @@ sub talkform {
     # Closing internal "From" table
     $ret .= "</td></tr></table>";
     # NF: END OF FIRST ROW IN TOP TABLE
-
-    # NF: START SECOND ROW IN TOP TABLE
-
-    # Subject Icon toggle button
-    {
-        my $subjicon  = $form->{subjecticon} || 'none';
-        my $foundicon = 0;
-        $ret .=
-            "<input type='hidden' id='subjectIconField' name='subjecticon' value='$subjicon'>\n";
-        $ret .= "<script type='text/javascript' language='Javascript'>\n";
-        $ret .= "<!--\n";
-        $ret .= "if (document.getElementById) {\n";
-        $ret .= "document.write(\"";
-        if ( $subjicon eq 'none' ) {
-            $ret .= LJ::ejs(
-                LJ::Talk::show_none_image(
-                    "id='subjectIconImage' style='cursor:pointer;cursor:hand' align='absmiddle' "
-                        . "onclick='subjectIconListToggle();' "
-                        . "title='Click to change the subject icon'"
-                )
-            );
-        }
-        else {
-            foreach my $type ( @{ $pics->{types} } ) {
-                foreach ( @{ $pics->{lists}->{$type} } ) {
-                    if ( $_->{id} eq $subjicon ) {
-                        $ret .= LJ::Talk::show_image( $pics, $subjicon,
-"id='subjectIconImage' onclick='subjectIconListToggle();' style='cursor:pointer;cursor:hand'"
-                        );
-                        $foundicon = 1;
-                        last;
-                    }
-                }
-                last if $foundicon == 1;
-            }
-        }
-        if ( $foundicon == 0 && $subjicon ne 'none' ) {
-            $ret .= LJ::ejs(
-                LJ::Talk::show_none_image(
-                    "id='subjectIconImage' style='cursor:pointer;cursor:hand' align='absmiddle' "
-                        . "onclick='subjectIconListToggle();' "
-                        . "title='Click to change the subject icon'"
-                )
-            );
-        }
-        $ret .= "\");\n";
-
-        # spit out a pretty table of all the possible subjecticons
-        $ret .= "document.write(\"";
-        $ret .= "<blockquote style='display:none;' id='subjectIconList'>";
-        $ret .=
-"<table summary='' border='0' cellspacing='5' cellpadding='0' style='border: 1px solid #AAAAAA'>\");\n";
-
-        foreach my $type ( @{ $pics->{'types'} } ) {
-
-            $ret .= "document.write(\"<tr>\");\n";
-
-            # make an option if they don't want an image
-            if ( $type eq $pics->{'types'}->[0] ) {
-                $ret .= "document.write(\"";
-                $ret .= "<td valign='middle' align='center'>";
-                $ret .= LJ::Talk::show_none_image(
-"id='none' onclick='subjectIconChange(this);' style='cursor:pointer;cursor:hand' title='No subject icon' alt='No subject icon'"
-                );
-                $ret .= "</td>\");\n";
-            }
-
-            # go through and make clickable image rows.
-            foreach ( @{ $pics->{'lists'}->{$type} } ) {
-                $ret .= "document.write(\"";
-                $ret .= "<td valign='middle' align='center'>";
-                $ret .= LJ::Talk::show_image( $pics, $_->{'id'},
-"id='$_->{'id'}' onclick='subjectIconChange(this);' style='cursor:pointer;cursor:hand'"
-                );
-                $ret .= "</td>\");\n";
-            }
-
-            $ret .= "document.write(\"</tr>\");\n";
-
-        }
-
-        # end that table, bar!
-        $ret .= "document.write(\"</table></blockquote>\");\n";
-
-        $ret .= "}\n";
-        $ret .= "//-->\n";
-        $ret .= "</script>\n";
-    }
-
-
-    $ret .= "</td></tr>\n";
-    # NF: END SECOND ROW
 
 
     $template_args->{'bad_table'} = $ret;

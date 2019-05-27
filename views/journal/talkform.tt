@@ -47,7 +47,36 @@ the same terms as Perl itself.  For a copy of the license, please reference
       onKeyPress = "subjectNoHTML(event);"
     ) -%]
 
-    [%# -------- NF: subjecticons should go here --------------- %]
+    [%- form.hidden(
+      id = 'subjectIconField'
+      name = 'subjecticon'
+      value = comment.subject_icon.id
+    ) -%]
+
+    [%# The current subjecticon, as the button to open the menu. %]
+    [%- print_subjecticon(
+      comment.subject_icon,
+      "id='subjectIconImage' title='Click to change the subject icon' onclick='subjectIconListToggle();' style='cursor:pointer;cursor:hand'"
+    ) -%]
+
+    [%# Include the none subjecticon in the menu %]
+    [%- subject_icons.lists.values.0.unshift( subject_icons.pic.none ) -%]
+    <blockquote style="display: none;" id="subjectIconList">
+      <table summary='' border='0' cellspacing='5' cellpadding='0' style='border: 1px solid #AAAAAA'> [%# aaaaaa indeed, my dude %]
+        [%- FOREACH list IN subject_icons.lists.values -%]
+          <tr>
+            [%- FOREACH pic IN list -%]
+              <td valign="middle" align="center">
+                [%- print_subjecticon(
+                  pic,
+                  "id='${pic.id}' onclick='subjectIconChange(this)' style='cursor: pointer; cursor: hand;'"
+                ) -%]
+              </td>
+            [%- END -%]
+          </tr>
+        [%- END -%]
+      </table>
+    </blockquote>
 
     <div id='ljnohtmlsubj' class='ljdeem'><span style='font-size: 8pt; font-style: italic;'>
       [%- '/talkpost.bml.nosubjecthtml' | ml -%]
