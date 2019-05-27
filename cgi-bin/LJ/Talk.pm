@@ -32,6 +32,24 @@ use DW::EmailPost::Comment;
 # dataversion for rate limit logging
 our $RATE_DATAVER = "1";
 
+# Returns a hashref of the following form:
+# {
+#     types => ['sm', 'md'],
+#     lists => {
+#         sm => [
+#             { img => "sm01_smiley.gif", id => "sm01", w => 15, h => 15, alt => "Smiley" },
+#             ...
+#         ],
+#         md => [
+#             { img => "md01_alien.gif", id => "md01", w => 32, h => 32, alt => "Smiling Alien" },
+#             ...
+#         ]
+#     },
+#     pic => { # flat index for convenience
+#         sm01 => { img => "sm01_smiley.gif", id => "sm01", w => 15, h => 15, alt => "Smiley" },
+#         ...
+#     }
+# }
 sub get_subjecticons {
     my %subjecticon;
     $subjecticon{'types'} = [ 'sm', 'md' ];
