@@ -32,42 +32,70 @@ use DW::EmailPost::Comment;
 # dataversion for rate limit logging
 our $RATE_DATAVER = "1";
 
-sub get_subjecticons {
-    my %subjecticon;
-    $subjecticon{'types'} = [ 'sm', 'md' ];
-    $subjecticon{'lists'}->{'md'} = [
-        { img => "md01_alien.gif",       w => 32, h => 32, alt => "Smiling Alien" },
-        { img => "md02_skull.gif",       w => 32, h => 32, alt => "Skull and Crossbones" },
-        { img => "md05_sick.gif",        w => 25, h => 25, alt => "Sick Face" },
-        { img => "md06_radioactive.gif", w => 20, h => 20, alt => "Radioactive Symbol" },
-        { img => "md07_cool.gif",        w => 20, h => 20, alt => "Cool Smiley" },
-        { img => "md08_bulb.gif",        w => 17, h => 23, alt => "Lightbulb" },
-        { img => "md09_thumbdown.gif",   w => 25, h => 19, alt => "Red Thumbs Down" },
-        { img => "md10_thumbup.gif",     w => 25, h => 19, alt => "Green Thumbs Up" }
-    ];
-    $subjecticon{'lists'}->{'sm'} = [
-        { img => "sm01_smiley.gif", w => 15, h => 15, alt => "Smiley" },
-        { img => "sm02_wink.gif",   w => 15, h => 15, alt => "Winking Smiley" },
-        { img => "sm03_blush.gif",  w => 15, h => 15, alt => "Blushing Smiley" },
-        { img => "sm04_shock.gif",  w => 15, h => 15, alt => "Shocked Smiley" },
-        { img => "sm05_sad.gif",    w => 15, h => 15, alt => "Sad Smiley" },
-        { img => "sm06_angry.gif",  w => 15, h => 15, alt => "Angry Smiley" },
-        { img => "sm07_check.gif",  w => 15, h => 15, alt => "Checkmark" },
-        { img => "sm08_star.gif",   w => 20, h => 18, alt => "Gold Star" },
-        { img => "sm09_mail.gif",   w => 14, h => 10, alt => "Envelope" },
-        { img => "sm10_eyes.gif",   w => 24, h => 12, alt => "Shifty Eyes" }
-    ];
+my %subjecticons;
 
-    # assemble ->{'id'} portion of hash.  the part of the imagename before the _
-    foreach ( keys %{ $subjecticon{'lists'} } ) {
-        foreach my $pic ( @{ $subjecticon{'lists'}->{$_} } ) {
-            next unless ( $pic->{'img'} =~ /^(\D{2}\d{2})\_.+$/ );
-            $subjecticon{'pic'}->{$1} = $pic;
-            $pic->{'id'} = $1;
+# Returns a hashref of the following form:
+# {
+#     types => ['sm', 'md'],
+#     lists => {
+#         sm => [
+#             { img => "sm01_smiley.gif", id => "sm01", w => 15, h => 15, alt => "Smiley" },
+#             ...
+#         ],
+#         md => [
+#             { img => "md01_alien.gif", id => "md01", w => 32, h => 32, alt => "Smiling Alien" },
+#             ...
+#         ]
+#     },
+#     pic => { # flat index for convenience
+#         sm01 => { img => "sm01_smiley.gif", id => "sm01", w => 15, h => 15, alt => "Smiley" },
+#         ...
+#     }
+# }
+sub get_subjecticons {
+    unless ( keys %subjecticons ) {
+        $subjecticons{'types'} = [ 'sm', 'md' ];
+        $subjecticons{'lists'}->{'md'} = [
+            { img => "md01_alien.gif",       w => 32, h => 32, alt => "Smiling Alien" },
+            { img => "md02_skull.gif",       w => 32, h => 32, alt => "Skull and Crossbones" },
+            { img => "md05_sick.gif",        w => 25, h => 25, alt => "Sick Face" },
+            { img => "md06_radioactive.gif", w => 20, h => 20, alt => "Radioactive Symbol" },
+            { img => "md07_cool.gif",        w => 20, h => 20, alt => "Cool Smiley" },
+            { img => "md08_bulb.gif",        w => 17, h => 23, alt => "Lightbulb" },
+            { img => "md09_thumbdown.gif",   w => 25, h => 19, alt => "Red Thumbs Down" },
+            { img => "md10_thumbup.gif",     w => 25, h => 19, alt => "Green Thumbs Up" }
+        ];
+        $subjecticons{'lists'}->{'sm'} = [
+            { img => "sm01_smiley.gif", w => 15, h => 15, alt => "Smiley" },
+            { img => "sm02_wink.gif",   w => 15, h => 15, alt => "Winking Smiley" },
+            { img => "sm03_blush.gif",  w => 15, h => 15, alt => "Blushing Smiley" },
+            { img => "sm04_shock.gif",  w => 15, h => 15, alt => "Shocked Smiley" },
+            { img => "sm05_sad.gif",    w => 15, h => 15, alt => "Sad Smiley" },
+            { img => "sm06_angry.gif",  w => 15, h => 15, alt => "Angry Smiley" },
+            { img => "sm07_check.gif",  w => 15, h => 15, alt => "Checkmark" },
+            { img => "sm08_star.gif",   w => 20, h => 18, alt => "Gold Star" },
+            { img => "sm09_mail.gif",   w => 14, h => 10, alt => "Envelope" },
+            { img => "sm10_eyes.gif",   w => 24, h => 12, alt => "Shifty Eyes" }
+        ];
+
+        # assemble ->{'id'} portion of hash.  the part of the imagename before the _
+        foreach ( keys %{ $subjecticons{'lists'} } ) {
+            foreach my $pic ( @{ $subjecticons{'lists'}->{$_} } ) {
+                next unless ( $pic->{'img'} =~ /^(\D{2}\d{2})\_.+$/ );
+                $subjecticons{'pic'}->{$1} = $pic;
+                $pic->{'id'} = $1;
+            }
         }
+        $subjecticons{'pic'}->{'none'} = {
+            img => "none.gif",
+            id  => "none",
+            w   => 15,
+            h   => 15,
+            alt => "No Subject Icon Selected"
+        };
     }
 
-    return \%subjecticon;
+    return \%subjecticons;
 }
 
 # Returns talkurl with GET args added (don't pass #anchors to this :-)
@@ -79,25 +107,36 @@ sub talkargs {
     return "$talkurl$sep$args";
 }
 
-# Returns HTML to display an image, given the image id as an argument.
-sub show_image {
-    my ( $pics, $id, $extra ) = @_;
-    return unless defined $id && defined $pics->{pic}->{$id};
-    $extra = '' unless defined $extra;
-
-    my $p = $pics->{pic}->{$id};
-    return "<img src='$LJ::IMGPREFIX/talk/$p->{img}' border='0' "
-        . "width='$p->{w}' height='$p->{h}' alt='$p->{alt}' valign='middle' $extra />";
+# LJ::Talk::get_subjecticon_by_id(id)
+# Args: A subjecticon ID string (like 'none' or 'sm09').
+# Returns: A subjecticon hashref suitable for LJ::Talk::print_subjecticon, or
+#          undef if the ID is empty/invalid.
+sub get_subjecticon_by_id {
+    my $id           = shift;
+    my $subjecticons = LJ::Talk::get_subjecticons();
+    return $subjecticons->{'pic'}->{$id};
 }
 
-# Returns 'none' icon.
-sub show_none_image {
-    my $extra = shift;
-    my $img   = 'none.gif';
-    my $w     = 15;
-    my $h     = 15;
-    my $pfx   = "$LJ::IMGPREFIX/talk";
-    return "<img src='$pfx/$img' border='0' " . "width='$w' height='$h' valign='middle' $extra />";
+# LJ::Talk::print_subjecticon(subjecticon_hashref)
+# Args: A hashref that represents a subjecticon, and optionally a string of
+#       extra HTML attributes.
+# Returns: An image tag for the requested subjecticon, or an empty string if the
+#          subjecticon hashref missing.
+# Subjecticon hashrefs usually come from get_subjecticons.
+sub print_subjecticon { # expects a subjecticon ref
+    my ( $p, $extra ) = @_;
+    return '' unless ref $p eq 'HASH';
+    return qq{<img src="$LJ::IMGPREFIX/talk/$p->{img}" border="0" width="$p->{w}" height="$p->{h}" alt="$p->{alt}" valign="middle" $extra />};
+}
+
+# LJ::Talk::print_subjecticon_by_id(id)
+# Args: A subjecticon ID string (like 'none' or 'sm09'), and optionally a string
+#       of extra HTML attributes.
+# Returns: An image tag for the requested subjecticon, or an empty string if the
+#          ID is empty or invalid.
+sub print_subjecticon_by_id {
+    my ( $id, $extra ) = @_;
+    return print_subjecticon( get_subjecticon_by_id($id), $extra );
 }
 
 sub link_bar {

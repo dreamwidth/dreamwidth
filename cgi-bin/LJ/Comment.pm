@@ -1620,8 +1620,7 @@ sub _format_mail_both {
     $body .= "\n\n" . LJ::Lang::get_text( $lang, $k_reply_edit, undef, $vars ) . "\n\n";
 
     if ($is_html) {
-        my $pics = LJ::Talk::get_subjecticons();
-        my $icon = LJ::Talk::show_image( $pics, $self->prop('subjecticon') );
+        my $subjecticon = LJ::Talk::print_subjecticon_by_id( $self->prop('subjecticon') );
 
         my $heading;
         if ( $self->subject_raw ) {
@@ -1629,7 +1628,7 @@ sub _format_mail_both {
                 . LJ::Lang::get_text( $lang, $ml_prefix . 'subject', undef ) . "</b> "
                 . $self->subject_html;
         }
-        $heading .= $icon;
+        $heading .= $subjecticon;
         $heading .= "<br />" if $heading;
 
         # this needs to be one string so blockquote handles it properly.

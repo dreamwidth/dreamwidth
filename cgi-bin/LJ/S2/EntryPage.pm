@@ -128,7 +128,6 @@ sub EntryPage {
         $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
     }
 
-    my $pics = LJ::Talk::get_subjecticons()->{'pic'};    # hashref of imgname => { w, h, img }
     my ( $last_talkid, $last_jid ) = LJ::get_lastcomment();
 
     my $convert_comments = sub {
@@ -186,7 +185,7 @@ sub EntryPage {
 
             my $subject_icon = undef;
             if ( my $si = $com->{'props'}->{'subjecticon'} ) {
-                my $pic = $pics->{$si};
+                my $pic = LJ::Talk::get_subjecticon_by_id($si);
                 $subject_icon =
                     Image( "$LJ::IMGPREFIX/talk/$pic->{'img'}", $pic->{'w'}, $pic->{'h'} )
                     if $pic;
