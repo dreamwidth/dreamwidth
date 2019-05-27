@@ -1508,6 +1508,14 @@ sub talkform {
 
     my $pics  = LJ::Talk::get_subjecticons();
     my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
+    my @userpics = LJ::icons_for_remote($remote);
+
+    my $basesubject = $form->{subject} || "";
+    if ( !$editid && $opts->{replyto} && !$basesubject && $parpost->{'subject'} ) {
+        $basesubject = $parpost->{'subject'};
+        $basesubject =~ s/^Re:\s*//i;
+        $basesubject = "Re: $basesubject";
+    }
 
     # Variables for talkform.tt
     my $template_args = {
@@ -1517,9 +1525,18 @@ sub talkform {
         'errors' => $opts->{errors},
         'create_link' => '',
 
-        'editid' => $editid,
-        'editreason' => $comment ? $comment->edit_reason : '',
-        'comment_body' => $form->{body} || '',
+        'comment' => {
+            'editid' => $editid,
+            'editreason' => $comment ? $comment->edit_reason : '',
+            'body' => $form->{body} || '',
+            'subject' => $basesubject,
+            'subject_icon' => $form->{subjecticon} || 'none',
+            'preformatted' => $form->{'prop_opt_preformatted'},
+            'admin_post' => $form->{'prop_admin_post'},
+            'current_icon_kw' => $form->{prop_picture_keyword},
+            'current_icon' => LJ::Userpic->new_from_keyword(
+                $remote, $form->{prop_picture_keyword} ), # not yet used, but later...
+        },
 
         'captcha' => $opts->{do_captcha} ? {
             'type' => $journalu->captcha_type,
@@ -1530,7 +1547,18 @@ sub talkform {
         'can_checkspell' => $LJ::SPELLER ? 1 : 0,
         'can_unscreen_parent' => ( $parpost->{state} && $parpost->{state} eq "S"
             && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ),
+        'can_manage_community' => $journalu->is_community && $remote
+            && $remote->can_manage($journalu),
 
+        'remote' => $remote ? {
+            icons_url => $remote ? $remote->allpics_base : '',
+            icons => \@userpics,
+
+            can_use_iconbrowser    => $remote->can_use_userpic_select,
+            iconbrowser_metatext   => $remote->iconbrowser_metatext ? "true" : "false",
+            iconbrowser_smallicons => $remote->iconbrowser_smallicons ? "true" : "false",
+        }
+        : 0,
         'journal' => {
             'is_iplogging'    =>
                 $journalu->opt_logcommentips eq 'A' ? 'all' :
@@ -1540,8 +1568,9 @@ sub talkform {
         },
 
         'help' => {
-            'icon'      => LJ::help_icon_html( "userpics",  " " ),
-            'iplogging' => LJ::help_icon_html( "iplogging", " " ),
+            'icon'       => LJ::help_icon_html( "userpics",  " " ),
+            'iplogging'  => LJ::help_icon_html( "iplogging", " " ),
+            'autoformat' => LJ::help_icon_html( "noautoformat", " " ),
         },
 
         'ejs' => sub { return LJ::ejs(@_) },
@@ -2078,22 +2107,12 @@ sub talkform {
 
     }    # end edit check
 
-    my $basesubject = $form->{subject} || "";
-    if ( !$editid && $opts->{replyto} && !$basesubject && $parpost->{'subject'} ) {
-        $basesubject = $parpost->{'subject'};
-        $basesubject =~ s/^Re:\s*//i;
-        $basesubject = "Re: $basesubject";
-    }
 
     # Closing internal "From" table
     $ret .= "</td></tr></table>";
     # NF: END OF FIRST ROW IN TOP TABLE
 
     # NF: START SECOND ROW IN TOP TABLE
-    # subject
-    $basesubject = BML::eall($basesubject) if $basesubject;
-    $ret .=
-"<tr valign='top'><td align='right'>$BML::ML{'.opt.subject'}</td><td><input class='textbox' type='text' size='50' maxlength='100' name='subject' id='subject' value=\"$basesubject\" onKeyPress='subjectNoHTML(event);'/>\n";
 
     # Subject Icon toggle button
     {
@@ -2181,48 +2200,7 @@ sub talkform {
         $ret .= "</script>\n";
     }
 
-    # finish off subject line
-    $ret .=
-"<div id='ljnohtmlsubj' class='ljdeem'><span style='font-size: 8pt; font-style: italic;'>$BML::ML{'.nosubjecthtml'}</span></div>\n";
 
-    $ret .= "<div id='userpics'>";
-    $ret .= icon_dropdown( $remote, $form->{prop_picture_keyword} );
-
-    $ret .= "<br />";
-    $ret .= "<label for='prop_opt_preformatted'>$BML::ML{'.opt.noautoformat'}</label>";
-    $ret .= LJ::html_check(
-        {
-            name     => 'prop_opt_preformatted',
-            id       => 'prop_opt_preformatted',
-            value    => 1,
-            selected => $form->{'prop_opt_preformatted'}
-        }
-    );
-
-    $ret .= LJ::help_icon_html( "noautoformat", " " );
-
-    if ($remote) {
-
-        # only show quick quote button on initial composition
-        my $hidebutton = ( $opts->{errors} && @{ $opts->{errors} } );
-        unless ($hidebutton) {
-            my $alerttext = LJ::Lang::ml('talk.error.quickquote');
-            $ret .= qq{<span id="quotebuttonspan" data-quote-error="$alerttext"></span>};
-        }
-    }
-
-    if ( $journalu->is_community && $remote && $remote->can_manage($journalu) ) {
-        $ret .= LJ::html_check(
-            {
-                name     => 'prop_admin_post',
-                id       => 'prop_admin_post',
-                value    => 1,
-                selected => $form->{'prop_admin_post'}
-            }
-        ) . "<label for='prop_admin_post'>Admin Post</label>";
-    }
-
-    $ret .= "</div>";
     $ret .= "</td></tr>\n";
     # NF: END SECOND ROW
 
