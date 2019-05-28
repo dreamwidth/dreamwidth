@@ -84,6 +84,7 @@ sub get_subjecticons {
             $pic->{'id'} = $1;
         }
     }
+    $subjecticon{'pic'}->{'none'} = { img => "none.gif", id => "none",  w => 15, h => 15, alt => "No Subject Icon Selected" };
 
     return \%subjecticon;
 }
@@ -97,25 +98,29 @@ sub talkargs {
     return "$talkurl$sep$args";
 }
 
-# Returns HTML to display an image, given the image id as an argument.
-sub show_image {
-    my ( $pics, $id, $extra ) = @_;
-    return unless defined $id && defined $pics->{pic}->{$id};
-    $extra = '' unless defined $extra;
-
-    my $p = $pics->{pic}->{$id};
-    return "<img src='$LJ::IMGPREFIX/talk/$p->{img}' border='0' "
-        . "width='$p->{w}' height='$p->{h}' alt='$p->{alt}' valign='middle' $extra />";
+# LJ::Talk::print_subjecticon()
+# Args: A hashref that represents a subjecticon, and optionally a string of
+#       extra HTML attributes.
+# Returns: An image tag for the requested subjecticon, or an empty string if the
+#          subjecticon hashref missing.
+# Subjecticon hashrefs usually come from get_subjecticons.
+sub print_subjecticon { # expects a subjecticon ref
+    my ( $p, $extra ) = @_;
+    return '' unless ref $p eq 'HASH';
+    return qq{<img src="$LJ::IMGPREFIX/talk/$p->{img}" border="0" width="$p->{w}" height="$p->{h}" alt="$p->{alt}" valign="middle" $extra />};
 }
 
-# Returns 'none' icon.
-sub show_none_image {
-    my $extra = shift;
-    my $img   = 'none.gif';
-    my $w     = 15;
-    my $h     = 15;
-    my $pfx   = "$LJ::IMGPREFIX/talk";
-    return "<img src='$pfx/$img' border='0' " . "width='$w' height='$h' valign='middle' $extra />";
+# LJ::Talk::print_subjecticon_by_id()
+# Args: A subjecticon ID string (like 'none' or 'sm09'), and optionally a string
+#       of extra HTML attributes.
+# Returns: An image tag for the requested subjecticon, or an empty string if the
+#          ID is empty or invalid.
+sub print_subjecticon_by_id {
+    my ( $id, $extra ) = @_;
+    return '' unless $id;
+    # print_subjecticon can deal with a missing hashref, so don't sweat invalid IDs.
+    my $subjecticons = LJ::Talk::get_subjecticons();
+    return print_subjecticon( $subjecticons->{'pic'}->{$id}, $extra );
 }
 
 sub link_bar {
