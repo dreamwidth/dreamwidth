@@ -120,9 +120,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
               <td align='left'>
                 [%- IF remote.allowed -%]
                   <b>
-                    <label for='talkpostfromoid' onclick='handleRadios(4);return false;'>[%- '/talkpost.bml.opt.openid.loggedin' | ml -%]</label>
+                    <label for='talkpostfromoid' onclick='handleRadios(4);return false;'>
+                      [%- '/talkpost.bml.opt.openid.loggedin' | ml -%]
+                      [% remote.display_name %]
+                    </label>
                   </b>
-                  <strong>[% remote.display_name %]</strong>
                   [%- IF remote.screened -%] [%- '/talkpost.bml.opt.willscreen' | ml -%][%- END -%]
                 [%- ELSE -%]
                   <span class='disabled'><strong>
@@ -148,7 +150,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 [%- END -%]
               </td>
             </tr>
-          [%- ELSE -%]
+
+          [%- ELSE -%][%# not logged in as openid user -%]
+
             <tr valign='middle' id='oidlo' name='oidlo'>
               <td align='center'>
                 [%- dw.img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) -%]
@@ -185,9 +189,133 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
         [%- END -%][%# openid_enabled -%]
 
+        [%# logged-in site user -%]
+        [%- IF remote && ! remote.openid_identity -%]
+        <tr valign='middle' id='ljuser_row[%- UNLESS remote.allowed -%]_cannot[%- END -%]'>
+          <td align='center'>
+            [%- dw.img( 'id_user', '', { onclick => 'handleRadios(1);' } ) -%]
+          </td>
+
+          <td align='center'>
+            [%- IF remote.allowed -%]
+              <input type='radio' name='usertype' value='cookieuser' id='talkpostfromremote'[% IF default_usertype == 'cookieuser' %] checked='checked'[% END %] />
+            [%- ELSE -%]
+              (&nbsp;)
+            [%- END -%]
+          </td>
+
+          <td align='left'>
+            [%- IF remote.allowed -%]
+              <label for='talkpostfromremote'>
+                [%- '/talkpost.bml.opt.loggedin' | ml( username => "<strong>$remote.display_name</strong>" ) -%]
+              </label>
+              [%- IF remote.screened -%] [%- '/talkpost.bml.opt.willscreen' | ml -%][%- END -%]
+            [%- ELSE -%]
+              <span class='disabled'><strong>
+                [%- '/talkpost.bml.opt.loggedin' | ml %]
+                [% remote.display_name -%]
+              </strong></span>
+              &nbsp;
+              [%- IF remote.banned -%]
+                [%- journal.is_community ?
+                  '/talkpost.bml.opt.bannedfrom.comm' : '/talkpost.bml.opt.bannedfrom'
+                  | ml( journal => journal.user ) -%]
+              [%- ELSE -%][%# you're not on the access list -%]
+                [%- journal.is_community ?
+                  '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
+                  | ml( user => journal.user ) -%]
+              [%- END -%]
+            [%- END -%]
+            <script language='JavaScript'>
+              if (document.getElementById) {
+                document.write("&nbsp;<a href='#' onClick='otherLJUser();return false;'>[other]</a>");
+              }
+            </script>
+            [%- UNLESS remote.banned -%]
+              <input type='hidden' name='cookieuser' value='[% remote.user %]' id='cookieuser' />
+            [%- END -%]
+          </td>
+        </tr>
 
 
-      [%- END -%]
+        [%- END -%]
+
+        [%# not-logged-in site user -%]
+        <tr valign='middle' id='otherljuser_row' name='otherljuser_row'>
+          <td align='center'>
+            [%- dw.img( 'id_user', '', { onclick => 'handleRadios(2);' } ) -%]
+          </td>
+          <td align='center'>
+            <input type='radio' name='usertype' value='user' id='talkpostfromlj'[% IF default_usertype == 'user' %] checked='checked'[% END %] />
+          </td>
+          <td align='left'>
+            <b>
+              <label for='talkpostfromlj' onclick='handleRadios(2); return false;'>
+                [%- '/talkpost.bml.opt.siteuser' | ml( sitename => site.nameshort ) -%]
+              </label>
+            </b>
+            [%- IF journal.screens_all -%]
+              [%- '/talkpost.bml.opt.willscreen' | ml -%]
+            [%- ELSIF journal.screens_non_access -%]
+              [%- '/talkpost.bml.opt.willscreenfriend' | ml -%]
+            [%- END -%]
+          </td>
+        </tr>
+
+        [%# site user login form, always present but sometimes hidden -%]
+        <tr valign='middle' align='left' id='lj_more'>
+          <td colspan='2'></td>
+
+          <td>
+            <table summary=''>
+              <tr>
+                <td>
+                  [%- 'Username' | ml -%][%# NF: ??? -%]
+                </td>
+                <td>
+                  [%- form.textbox(
+                    name = 'userpost'
+                    id = 'username'
+                    size = 13
+                    maxlength = 25
+                    value = ( comment.user || remote.user )
+                    onclick = 'this.value=""'
+                    style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;"
+                  ) -%]
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  [%- 'Password' | ml -%][%# NF: ??? -%]
+                </td>
+                <td>
+                  <input class='textbox' name='password' type='password' maxlength='30' size='18' id='password' />
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan='2'>
+                  <label for='logincheck'>[% '/talkpost.bml.loginq' | ml %]&nbsp;</label>
+                  <input type='checkbox' name='do_login' id='logincheck' />
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        [%- IF ! create_link && ! remote -%]
+          <tr valign='middle' align='left'>
+            <td colspan='2'></td>
+            <td>
+              <span style='font-size: 8pt; font-style: italic;'>
+                [%- '/talkpost.bml.noaccount' | ml( aopts => "href='${site.root}/create'") -%]
+              </span>
+            </td>
+          </tr>
+        [%- END -%]
+
+      [%- END -%][%# figuring out whether it's an edit or new reply. -%]
     </table>
   </td>
 </tr>

@@ -77,6 +77,7 @@ function handleRadios(sel) {
 
     // LJ User
     if (sel == 2) {
+        showMe(otherljuser_row);
         if (ljuser_row) {
             hideMe(ljuser_row);
         }
@@ -190,7 +191,10 @@ if (document.getElementById) {
     }
     form.onsubmit = submitHandler;
 
-    document.onload = function () {
+    window.onload = function () {
+        hideMe(otherljuser_row);
+        hideMe(lj_more);
+        hideMe(oid_more);
         if (radio_anon && radio_anon.checked) handleRadios(0);
         if (radio_user && radio_user.checked) otherLJUser();
         if (radio_remote && radio_remote.checked) handleRadios(1);

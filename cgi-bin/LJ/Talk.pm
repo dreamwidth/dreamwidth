@@ -1519,7 +1519,6 @@ sub talkform {
     my $opts = shift;
     return "Invalid talkform values." unless ref $opts eq 'HASH';
 
-    my $ret;
     my ( $remote, $journalu, $parpost, $form ) =
         map { $opts->{$_} } qw(remote journalu parpost form);
 
@@ -1562,7 +1561,6 @@ sub talkform {
 
     # Variables for talkform.tt
     my $template_args = {
-        'bad_table' => '',
         'hidden_form_elements' => '',
         'form_url' => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         'errors' => $opts->{errors},
@@ -1578,6 +1576,7 @@ sub talkform {
             'editreason' => $comment ? $comment->edit_reason : '',
             oidurl => $form->{oidurl},
             oiddo_login => $form->{oiddo_login},
+            user => $form->{cookieuser},
             'body' => $form->{body} || '',
             'subject' => $basesubject,
             'subject_icon' => $subjecticons->{'pic'}->{ $form->{subjecticon} }
@@ -1710,253 +1709,11 @@ sub talkform {
         $template_args->{'hidden_form_elements'} .= LJ::html_hidden( "chrp1", "$chal-$res" );
     }
 
-    my $oid_identity = $remote ? $remote->openid_identity           : undef;
-    my $logged_in    = $remote ? LJ::ehtml( $remote->display_name ) : '';
-
-
-
-
-
-
-
-
-    # Default radio button
-    # 4 possible scenarios:
-    # remote - initial form load, error and redisplay
-    # no remote - initial load, error and redisplay
-    my $whocheck = sub {
-        my $type    = shift;
-        my $default = " checked='checked'";
-
-        # Initial page load (no remote)
-        return $default
-            if $type eq 'anonymous'
-            && !$form->{usertype}
-            && !$remote
-            && !$oid_identity;
-
-        # Anonymous
-        return $default
-            if $type eq 'anonymous'
-            && $form->{usertype}
-            && $form->{usertype} eq 'anonymous';
-
-        if ( LJ::OpenID->consumer_enabled ) {
-
-            # OpenID
-            return $default
-                if $type eq 'openid'
-                && $form->{usertype}
-                && $form->{usertype} eq 'openid';
-
-            return $default
-                if $type eq 'openid_cookie'
-                && ( $form->{usertype} && $form->{usertype} eq 'openid_cookie'
-                || ( defined $oid_identity ) );
-        }
-
-        # Remote user, remote equals userpost
-        return $default
-            if $type eq 'remote'
-            && ( ( $form->{usertype} || "" ) eq 'cookieuser'
-            || ( $form->{userpost} || "" ) eq ( $form->{cookieuser} || "" ) );
-
-        # Possible remote, using ljuser field
-        if ( $type eq 'ljuser' ) {
-            my $cookieuser = $form->{cookieuser} || '';
-
-            # Remote user posting as someone else.
-            return $default
-                if $form->{userpost}
-                && $form->{userpost} ne $cookieuser
-                && $form->{usertype} ne 'anonymous';
-            return $default
-                if !$form->{userpost}
-                && $form->{usertype}
-                && $form->{usertype} eq 'user';
-        }
-
-        return '';
-    };
-
-    my $bantext = sub {
-        my ( $type, $other_user ) = @_;
-        $other_user = '' unless $other_user;
-        my $ml_loggedin = BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } );
-        my $ml_bannedfrom =
-            $journalu->is_community
-            ? BML::ml( ".opt.bannedfrom.comm", { journal => $journalu->user } )
-            : BML::ml( ".opt.bannedfrom",      { journal => $journalu->user } );
-        return qq{
-    <td align='center'><img src='$LJ::IMGPREFIX/silk/identity/$type.png' /></td>
-    <td align='center'>( )</td>
-    <td align='left'><span class='ljdeem'>$ml_loggedin</span>
-      $ml_bannedfrom$other_user</td>
-        };
-    };
-
     # special link to create an account
-    my $create_link;
-    if ( !$remote || defined $oid_identity ) {
+    if ( !$remote || $remote->openid_identity ) {
         $template_args->{'create_link'} =
             LJ::Hooks::run_hook( "override_create_link_on_talkpost_form", $journalu ) || '';
     }
-
-    # NF: FIRST ROW OF TOP TABLE
-    # from registered user or anonymous?
-    $ret .= "<tr><td align='right' valign='top'>$BML::ML{'.opt.from'}</td>";
-    $ret .= "<td>";
-    $ret .= "<table summary=''>";    # Internal for "From" options
-
-    if ($editid) {}
-    else {    # if not edit
-
-        if ( $journalu->{'opt_whocanreply'} eq "all" ) {
-        }
-
-        if ( $journalu->{'opt_whocanreply'} eq "reg" ) {
-
-        }
-
-        my $remote_can_comment = !$journalu->does_not_allow_comments_from($remote);
-
-        if ( $journalu->{'opt_whocanreply'} eq 'friends' ) {
-
-        }
-
-        if ( $remote && !defined $oid_identity ) {
-            $ret .= "<tr valign='middle' id='ljuser_row"
-                . ( $remote_can_comment ? '' : '_cannot' ) . "'>";
-
-            # Don't worry about a real href since js hides the row anyway
-            my $other_user =
-"<script language='JavaScript'>if (document.getElementById) {document.write(\"&nbsp;<a href='#' onClick='otherLJUser();return false;'>[other]</a>\");}</script>";
-
-            if ( $journalu->has_banned($remote) ) {
-                $ret .= $bantext->( 'user', $other_user );
-            }
-            else {
-                $ret .= "<td align='center'>";
-                $ret .= LJ::img( 'id_user', '', { onclick => 'handleRadios(1);' } ) . "</td>";
-                if ($remote_can_comment) {
-                    $ret .=
-"<td align='center'><input type='radio' name='usertype' value='cookieuser' id='talkpostfromremote'";
-                    $ret .= $whocheck->('remote') . " /></td>";
-                }
-                else {
-                    $ret .= "<td align='center'>( )</td>";
-                }
-                $ret .= "<td align='left'>";
-                if ($remote_can_comment) {
-                    $ret .= "<label for='talkpostfromremote'>";
-                    $ret .=
-                        BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } );
-                    $ret .= "</label>\n";
-
-                    $ret .= $other_user;
-                }
-                else {
-                    $ret .= "<span class='disabled'>";
-                    $ret .= BML::ml( ".opt.loggedin",
-                        { username => "</span><strong>$logged_in</strong>" } );
-                    $ret .= "\n";
-
-                    my $msg = $journalu->is_comm ? "notamember" : "notafriend";
-                    $ret .= "&nbsp;- " . BML::ml( "$SC.error.$msg", { user => $journalu->user } );
-                }
-
-                $ret .=
-"<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
-                if ( $screening eq 'A'
-                    || ( $screening eq 'F' && !$journalu->trusts_or_has_member($remote) ) )
-                {
-                    $ret .= " " . $BML::ML{'.opt.willscreen'};
-                }
-                $ret .= "</td>";
-            }
-            $ret .= "</tr>\n";
-        }
-
-        # ( ) Site user:
-        $ret .= "<tr valign='middle' id='otherljuser_row' name='otherljuser_row'>";
-        $ret .= "<td align='center'>";
-        $ret .= LJ::img( 'id_user', '', { onclick => 'handleRadios(2);' } ) . "</td>";
-        $ret .=
-"<td align='center'><input type='radio' name='usertype' value='user' id='talkpostfromlj'";
-        $ret .= $remote_can_comment ? $whocheck->('ljuser') : ' checked="checked"';
-        $ret .=
-" /></td><td align='left'><b><label for='talkpostfromlj' onclick='handleRadios(2); return false;'>";
-        $ret .= BML::ml( '.opt.siteuser', { sitename => $LJ::SITENAMESHORT } ) . "</label></b> ";
-        $ret .= $BML::ML{'.opt.willscreenfriend'} if $screening eq 'F';
-        $ret .= $BML::ML{'.opt.willscreen'}       if $screening eq 'A';
-        $ret .= "</td></tr>\n";
-
-        if ( $remote && !defined $oid_identity ) {
-            $ret .= "<script language='JavaScript'>\n";
-            $ret .= "<!--\n";
-            $ret .= "if (document.getElementById) {\n";
-            $ret .= "var radio_user = document.getElementById(\"talkpostfromlj\");\n";
-            $ret .= "if (!radio_user.checked) {\n";
-            $ret .= "var otherljuser_row = document.getElementById(\"otherljuser_row\");\n";
-            $ret .= "otherljuser_row.className = 'display_none';\n";
-            $ret .= "}\n";
-            $ret .= "}\n";
-            $ret .= "//-->\n";
-            $ret .= "</script>";
-        }
-
-        # Username: [    ] Password: [    ]  Login? [ ]
-        $ret .= "<tr valign='middle' align='left' id='lj_more'><td colspan='2'></td><td>";
-
-        my $ljuser_def = "";
-        if ( $remote && !defined $oid_identity ) {
-            my $usertype   = defined $form->{usertype}   ? $form->{usertype}   : '';
-            my $userpost   = defined $form->{userpost}   ? $form->{userpost}   : '';
-            my $cookieuser = defined $form->{cookieuser} ? $form->{cookieuser} : '';
-
-            if ( $userpost ne $cookieuser && $usertype ne 'anonymous' ) {
-                $ljuser_def = BML::eall($userpost);
-            }
-            else {
-                $ljuser_def = $remote->user;
-            }
-        }
-        $ljuser_def = "" unless $remote_can_comment;
-
-        $ret .= "<table summary=''><tr><td>";
-        $ret .= "$BML::ML{'Username'}:</td><td>";
-        $ret .=
-"<input class='textbox' name='userpost' size='13' maxlength='25' id='username' value='$ljuser_def' onclick='this.value=\"\"' ";
-        $ret .=
-"style='background: url($LJ::IMGPREFIX/silk/identity/user.png) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;'/>";
-
-        $ret .= "</td></tr><tr><td>";
-        $ret .= "$BML::ML{'Password'}:</td><td>";
-        $ret .=
-"<input class='textbox' name='password' type='password' maxlength='30' size='18' id='password' />";
-        $ret .= "</td></tr><tr><td colspan='2'>";
-        $ret .=
-"<label for='logincheck'>$BML::ML{'.loginq'}&nbsp;</label><input type='checkbox' name='do_login' id='logincheck' /></td></tr></table>";
-        $ret .= "</td></tr>\n";
-
-        # Link to create an account
-        if ( !$create_link && ( !$remote || defined $oid_identity ) ) {
-            $ret .= "<tr valign='middle' align='left'>";
-            $ret .= "<td colspan='2'></td><td><span style='font-size: 8pt; font-style: italic;'>";
-            $ret .= BML::ml( '.noaccount', { 'aopts' => "href='$LJ::SITEROOT/create'" } );
-            $ret .= "</span></td>";
-            $ret .= "</tr>\n";
-        }
-
-    }    # end edit check
-
-
-    # Closing internal "From" table
-    $ret .= "</td></tr></table>";
-    # NF: END OF FIRST ROW IN TOP TABLE
-
-
-    $template_args->{'bad_table'} = $ret;
 
     return DW::Template->template_string( 'journal/talkform.tt', $template_args );
 }
