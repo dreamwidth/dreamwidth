@@ -4285,7 +4285,7 @@ function print_module_navlinks( bool apply_class_to_link ) {
           var string css = "";
 
           if ($apply_class_to_link ) {
-            var string css = """ class="$k" """;
+            $css = """ class="$k" """;
             if ($p.view == $k) { $css = """ class="current $k" """; }
           } else {
             $class = "$k " + $class;
