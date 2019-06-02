@@ -82,7 +82,7 @@ sub new_comment {
     my ( $id, $posterid, $state ) = @_;
     return [
         undef, $posterid + 0, $state, undef, undef, undef,
-        undef, undef,         {},     undef, undef, $id + 0,
+        undef, undef, {},     undef,  undef, $id + 0,
         undef, 0,             undef,  undef, undef
     ];
 }
@@ -386,7 +386,7 @@ sub try_work {
         # variable setup for the database work
         my @to_import = sort { ( $a->[C_orig_id] + 0 ) <=> ( $b->[C_orig_id] + 0 ) }
             grep { defined $_->[C_done] && $_->[C_done] == 0 && $_->[C_body_fixed] == 1 }
-            map { $meta{$_} }
+            map  { $meta{$_} }
             keys %in_flight;
         $title->( 'posting %d comments', scalar(@to_import) );
 
@@ -668,9 +668,9 @@ sub do_authed_comment_fetch {
     my $response = $ua->request($request);
     return if $response->is_error;
 
-    # now get the content
+    # now get the content, ensure it's actually XML
     my $xml = $response->content;
-    if ($xml) {
+    if ( $xml && $xml =~ m!^<\?xml ! ) {
         $log->( 'Writing cache file %s.xml', $md5 );
 
         open FILE, ">$fn";

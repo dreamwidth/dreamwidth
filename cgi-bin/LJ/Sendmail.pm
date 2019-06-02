@@ -29,6 +29,8 @@ use Mail::Address;
 use MIME::Words qw( encode_mimeword );
 use LJ::CleanHTML;
 
+use DW::Stats;
+
 my $done_init = 0;
 
 sub init {
@@ -64,6 +66,12 @@ sub send_mail {
     init();
 
     my $msg = $opt;
+
+    # Record stats about who called us. This is pretty gross, but there are many, many
+    # callers so it seems easier to amend this instead of going back and redefining
+    # the LJ::send_mail API. For now.
+    my ( $package, $filename, $line ) = caller;
+    DW::Stats::increment( 'dw.mail.send', 1, [ 'caller:' . "$package/$line" ] );
 
     # did they pass a MIME::Lite object already?
     unless ( ref $msg eq 'MIME::Lite' ) {

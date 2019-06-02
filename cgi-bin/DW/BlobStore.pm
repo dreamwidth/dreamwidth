@@ -89,7 +89,7 @@ sub ensure_key_is_valid {
 
     # This is just a check to ensure that nobody uses a key without path
     # elements or with invalid characters.
-    unless ( $key =~ m!^(?:[a-z0-9]+[_:/-])+([a-z0-9]+)$! ) {
+    unless ( $key =~ m!^(?:[a-z0-9]+[_:/-]+)+([a-z0-9]+)$! ) {
         DW::Stats::increment( 'dw.blobstore.error.key_invalid', 1 );
         $log->logcroak("Key '$key' is invalid.");
     }

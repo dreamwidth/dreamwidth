@@ -65,7 +65,7 @@ body<=
 
     # check email early so we can re-render the form on error
     my ( $email_checkbox, @email_errors );
-    if ( LJ::did_post() ) {
+    if ( LJ::did_post() && ! $cart->userid ) {
         LJ::check_email( $POST{email}, \@email_errors, \%POST, \$email_checkbox );
     }
 

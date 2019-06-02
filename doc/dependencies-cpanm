@@ -1,4 +1,5 @@
 Business::CreditCard
+CGI::Cookie
 Cache::Memcached
 Captcha::reCAPTCHA@0.99
 Class::Autouse

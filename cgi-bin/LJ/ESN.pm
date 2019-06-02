@@ -321,6 +321,11 @@ sub work {
     # safe to mark the job completed and return.
     return $job->completed unless $subsc;
 
+    # If the user hasn't logged in in a year, complete the sub and let's
+    # move on
+    my $user_idle_days = int( ( time() - $u->get_timeactive ) / 86400 );
+    return $job->completed if $user_idle_days > 365;
+
     # if the user deleted their account (or otherwise isn't visible), bail
     return $job->completed unless $u->is_visible || $evt->is_significant;
 

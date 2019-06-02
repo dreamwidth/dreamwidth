@@ -19,7 +19,7 @@ use Getopt::Long;
 use version;
 
 my $debs_only = 0;
-my ( $only_check, $no_check, $opt_nolocal );
+my ( $only_check, $no_check, $opt_nolocal, $opt_install );
 
 my %dochecks;    # these are the ones we'll actually do
 my @checks = (   # put these in the order they should be checked in
@@ -35,6 +35,7 @@ sub usage {
     die "Usage: checkconfig.pl
 checkconfig.pl --needed-debs
 checkconfig.pl --only=<check> | --no=<check>
+checkconfig.pl --install
 
 Checks are:
  " . join( ', ', @checks );
@@ -46,6 +47,7 @@ usage()
     'only=s'      => \$only_check,
     'no=s'        => \$no_check,
     'nolocal'     => \$opt_nolocal,
+    'install'     => \$opt_install,
     );
 
 if ($debs_only) {
@@ -131,6 +133,9 @@ sub check_modules {
     if (@mods) {
         print "\n# curl -L http://cpanmin.us | sudo perl - --self-upgrade\n";
         print "# cpanm -L \$LJHOME/extlib/ " . join( ' ', @mods ) . "\n\n";
+        if ($opt_install) {
+            system( "cpanm", "-n", "-L", "$ENV{LJHOME}/extlib/", @mods );
+        }
     }
 
     $err->(@errors);
