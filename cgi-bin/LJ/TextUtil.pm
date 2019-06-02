@@ -544,9 +544,8 @@ sub text_trim {
 #          depending on site config.
 # </LJFUNC>
 sub text_compress {
-    my $text = shift;
+    my $text = $_[0];
     my $ref  = ref $text;
-    return $ref ? undef : $text unless $LJ::COMPRESS_TEXT;
     die "Invalid reference" if $ref && $ref ne "SCALAR";
 
     my $tref    = $ref ? $text : \$text;
@@ -572,7 +571,7 @@ sub text_compress {
 #          depending on if test was compressed or not
 # </LJFUNC>
 sub text_uncompress {
-    my $text = shift;
+    my $text = $_[0];
     my $ref  = ref $text;
     die "Invalid reference" if $ref && $ref ne "SCALAR";
     my $tref = $ref ? $text : \$text;
