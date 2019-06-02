@@ -1512,7 +1512,8 @@ sub talkform {
     # parpost:     parent post object
     # replyto:     init->replyto
     # ditemid:     init->ditemid
-    # form:        optional full form hashref
+    # form:        optional full form hashref. Empty if reply page was opened via
+    #              direct link instead of partial form submission.
     # do_captcha:  optional toggle for creating a captcha challenge
     # errors:      optional error arrayref
     my $opts = shift;
@@ -1538,6 +1539,25 @@ sub talkform {
         $basesubject = $parpost->{'subject'};
         $basesubject =~ s/^Re:\s*//i;
         $basesubject = "Re: $basesubject";
+    }
+
+    my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
+    $screening = 'A' if $journalu->has_autoscreen($remote);
+
+    my $default_usertype = ''; # One of anonymous, openid, openid_cookie, cookieuser, user.
+    if ( $form->{usertype} ) {
+        # Partial form was submitted; pick up where we left off.
+        $default_usertype = $form->{usertype};
+    } elsif ($remote) {
+        if ($remote->openid_identity) {
+            $default_usertype = 'openid_cookie';
+        } else {
+            $default_usertype = 'cookieuser';
+        }
+    } elsif ( $journalu->{'opt_whocanreply'} eq "all" ) {
+        $default_usertype = 'anonymous';
+    } else {
+        $default_usertype = 'user';
     }
 
     # Variables for talkform.tt
@@ -1570,14 +1590,28 @@ sub talkform {
 
         'length_limit' => LJ::CMAX_COMMENT,
         'can_checkspell' => $LJ::SPELLER ? 1 : 0,
-        'can_unscreen_parent' => ( $parpost->{state} && $parpost->{state} eq "S"
-            && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ),
-        'can_manage_community' => $journalu->is_community && $remote
-            && $remote->can_manage($journalu),
 
         'remote' => $remote ? {
             icons_url => $remote ? $remote->allpics_base : '',
             icons => \@userpics,
+
+            user   => $remote->user,
+            display_name => LJ::ehtml( $remote->display_name ),
+            ljuser => $remote->ljuser_display,
+            openid_identity => $remote->openid_identity,
+
+            banned => $journalu->has_banned($remote),
+            screened => (
+                $journalu->has_autoscreen($remote)
+                || $screening eq 'A'
+                || ( $screening eq 'R' && !$remote->is_validated )
+                || ( $screening eq 'F' && !$journalu->trusts($remote) )
+            ),
+
+            can_unscreen_parent => ( $parpost->{state} && $parpost->{state} eq "S"
+                && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ),
+            can_manage_community => $journalu->is_community && $remote
+                && $remote->can_manage($journalu),
 
             can_use_iconbrowser    => $remote->can_use_userpic_select,
             iconbrowser_metatext   => $remote->iconbrowser_metatext ? "true" : "false",
@@ -1590,6 +1624,11 @@ sub talkform {
                     $journalu->opt_logcommentips eq 'S' ? 'anon' : 0,
             'is_linkstripped' => !$remote
                 || ( $remote && $remote->is_identity && !$journalu->trusts_or_has_member($remote) ),
+            is_community => $journalu->is_community,
+
+            screens_anon => $screening,
+            screens_non_access => $screening eq 'F' || $screening eq 'A',
+            screens_all => $screening eq 'A',
         },
 
         'help' => {
@@ -1652,6 +1691,13 @@ sub talkform {
 
     my $oid_identity = $remote ? $remote->openid_identity           : undef;
     my $logged_in    = $remote ? LJ::ehtml( $remote->display_name ) : '';
+
+
+
+
+
+
+
 
     # Default radio button
     # 4 possible scenarios:
@@ -1740,38 +1786,8 @@ sub talkform {
     $ret .= "<tr><td align='right' valign='top'>$BML::ML{'.opt.from'}</td>";
     $ret .= "<td>";
     $ret .= "<table summary=''>";    # Internal for "From" options
-    my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
-    $screening = 'A' if $journalu->has_autoscreen($remote);
 
-    if ($editid) {
-
-        return "You cannot edit this comment." unless $remote && !defined $oid_identity;
-
-        $ret .= "<tr valign='middle' id='ljuser_row'>";
-
-        if ( $journalu->has_banned($remote) ) {
-            $ret .= $bantext->('user');
-        }
-        else {
-            $ret .= "<td align='center'>";
-            $ret .= LJ::img( 'id_user', '', { onclick => 'handleRadios(1);' } ) . "</td>";
-            $ret .= "<td align='left'><label for='talkpostfromremote'>";
-            $ret .= BML::ml( ".opt.loggedin", { username => "<strong>$logged_in</strong>" } )
-                . "</label>\n";
-
-            $ret .= " " . $BML::ML{'.opt.willscreen'}
-                if $screening eq 'A'
-                || ( $screening eq 'R' && !$remote->is_validated )
-                || ( $screening eq 'F' && !$journalu->trusts($remote) );
-
-            $ret .= "<input type='hidden' name='usertype' value='cookieuser' />";
-            $ret .=
-"<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
-            $ret .= "</td>";
-        }
-        $ret .= "</tr>\n";
-
-    }
+    if ($editid) {}
     else {    # if not edit
 
         if ( $journalu->{'opt_whocanreply'} eq "all" ) {

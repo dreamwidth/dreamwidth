@@ -28,6 +28,53 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <table summary='' class='talkform'>
 [%# First row: "From" fields (aka the really nasty part) %]
 
+<!-- NF: WIP on the from fields -->
+
+<tr>
+  <td align='right' valign='top'>
+    [%- '/talkpost.bml.opt.from' | ml %]
+  </td>
+
+  <td>
+    <table summary=''>
+      [%- IF comment.editid -%]
+        <tr valign='middle' id='ljuser_row'>
+          [%- IF remote.banned -%]
+            [%- IF journal.is_community -%]
+              [%- '/talkpost.bml.opt.bannedfrom.comm' | ml -%]
+            [%- ELSE -%]
+              [%- '/talkpost.bml.opt.bannedfrom' | ml -%]
+            [%- END -%]
+          [%- ELSE -%]
+            <td align='center'>
+              [%- dw.img( 'id_user', '', { onclick => 'handleRadios(1);' } ) -%]
+            </td>
+
+            <td align='left'>
+              <label for='talkpostfromremote'>
+                [%- '/talkpost.bml.opt.loggedin' | ml( username => "<strong>$remote.display_name</strong>" ) -%]
+              </label>
+              [%- IF remote.screened %]
+                [%- '/talkpost.bml.opt.willscreen' | ml -%]
+              [%- END -%]
+              [%- form.hidden( name = 'usertype', value = 'cookieuser' ) -%]
+              [%- form.hidden(
+                name = 'cookieuser'
+                id = 'cookieuser'
+                value = remote.user
+              ) -%]
+            </td>
+          [%- END -%]
+        </tr>
+      [%- END -%]
+    </table>
+  </td>
+</tr>
+
+
+
+
+<!-- NF: the old from fields -->
 [% bad_table %]
 
 [%# Second row: Subject and metadata fields %]
@@ -120,7 +167,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- END -%]
       [%- END -%]
 
-      [%- IF can_manage_community -%]
+      [%- IF remote.can_manage_community -%]
         [%- form.checkbox(
           name = 'prop_admin_post'
           id = 'prop_admin_post'
@@ -151,7 +198,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         value = comment.body
       ) -%]
 
-      [%- IF can_unscreen_parent -%]
+      [%- IF remote.can_unscreen_parent -%]
         <br />
         [%- form.checkbox(
           label = dw.ml('/talkpost.bml.opt.unscreenparent')
