@@ -386,20 +386,8 @@ sub trans {
     my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
     BML::set_language( $lang, \&LJ::Lang::get_text );
 
-    my $is_ssl = $LJ::IS_SSL = LJ::Hooks::run_hook(
-        "ssl_check",
-        {
-            r => $apache_r,
-        }
-    );
-    my $protocol = $is_ssl ? "https" : "http";
-
     my $bml_handler = sub {
         my $filename = $_[0];
-
-        # redirect to HTTPS if necessary
-        my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
-        return $redirect_handler if $redirect_handler;
 
         # show the file
         $apache_r->handler("perl-script");
@@ -409,16 +397,6 @@ sub trans {
     };
 
     if ( $apache_r->is_initial_req ) {
-
-        # redirect to https if we're on http and we've set up the site to want https
-        if (   $LJ::USE_SSL
-            && $LJ::USE_HTTPS_EVERYWHERE
-            && !$is_ssl
-            && ( $apache_r->method eq 'GET' || $apache_r->method eq 'HEAD' ) )
-        {
-            my $url = LJ::create_url( $uri, keep_args => 1, ssl => 1 );
-            return redir( $apache_r, $url );
-        }
 
         # delete cookies if there are any we want gone
         if ( my $cookie = $LJ::DEBUG{"delete_cookie"} ) {
@@ -445,24 +423,10 @@ sub trans {
     }
     else {    # not is_initial_req
         if ( $apache_r->status == 404 ) {
-            my $ret = DW::Routing->call( uri => "/internal/local/404", ssl => $is_ssl );
-            $ret //= DW::Routing->call( uri => "/internal/404", ssl => $is_ssl );
+            my $ret = DW::Routing->call( uri => "/internal/local/404" );
+            $ret //= DW::Routing->call( uri => "/internal/404" );
             return $ret if defined $ret;
         }
-    }
-
-    # only allow certain pages over SSL
-    if ($is_ssl) {
-        LJ::use_ssl_site_variables();
-    }
-    elsif ( LJ::Hooks::run_hook("set_alternate_statimg") ) {
-
-        # do nothing, hook did it.
-    }
-    else {
-        $LJ::DEBUG_HOOK{'pre_restore_bak_stats'}->() if $LJ::DEBUG_HOOK{'pre_restore_bak_stats'};
-
-        LJ::use_config_site_variables();
     }
 
     # let foo.com still work, but redirect to www.foo.com
@@ -488,7 +452,7 @@ sub trans {
         }
 
         if ( defined $which_alternate_domain ) {
-            my $root = "$protocol://";
+            my $root = "https://";
             $host =~ s/\Q$which_alternate_domain\E$/$LJ::DOMAIN/i;
 
             # do $LJ::DOMAIN -> $LJ::DOMAIN_WEB here, to save a redirect.
@@ -580,7 +544,7 @@ sub trans {
 
     # is this the embed module host
     if ( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ ) {
-        return DW::Routing->call( uri => '/journal/embedcontent', ssl => $is_ssl );
+        return DW::Routing->call( uri => '/journal/embedcontent' );
     }
 
     my $journal_view = sub {
@@ -599,7 +563,7 @@ sub trans {
         if (   $orig_user ne lc($orig_user)
             || $orig_user =~ /[_-]/
             && $u
-            && $u->journal_base !~ m!^$protocol://$host!i
+            && $u->journal_base !~ m!^https://$host!i
             && $opts->{'vhost'} !~ /^other:/ )
         {
             my $newurl = $uri;
@@ -656,7 +620,7 @@ sub trans {
             my $is_journal_page = !$opts->{mode} || $journal_pages{ $opts->{mode} };
 
             if ( $adult_content ne "none" && $is_journal_page && !$should_show_page ) {
-                my $returl = "$protocol://$host" . $apache_r->uri . "$args_wq";
+                my $returl = "https://$host" . $apache_r->uri . "$args_wq";
 
                 LJ::set_active_journal($u);
                 $apache_r->pnotes->{user}  = $u;
@@ -676,8 +640,7 @@ sub trans {
                         $apache_r->handler("perl-script");
                         $apache_r->notes->{adult_content_type} = $_[0];
                         $apache_r->push_handlers(
-                            PerlHandler => sub { adult_interstitial( $_[0], is_ssl => $is_ssl ) },
-                        );
+                            PerlHandler => sub { adult_interstitial( $_[0] ) }, );
                         return OK;
                     };
 
@@ -785,7 +748,7 @@ sub trans {
 
         # see if there is a modular handler for this URI
         my $ret = LJ::URI->handle( $uuri, $apache_r );
-        $ret = DW::Routing->call( username => $user, ssl => $is_ssl ) unless defined $ret;
+        $ret = DW::Routing->call( username => $user ) unless defined $ret;
         return $ret if defined $ret;
 
         if ( $uuri =~ m#^/tags(.*)# ) {
@@ -967,7 +930,7 @@ sub trans {
         )
     {
         # Per bug 3734: users sometimes type 'www.username.USER_DOMAIN'.
-        return redir( $apache_r, "$protocol://$2.$LJ::USER_DOMAIN$uri$args_wq" )
+        return redir( $apache_r, "https://$2.$LJ::USER_DOMAIN$uri$args_wq" )
             if $1 eq 'www.';
 
         my $user = $2;
@@ -1001,7 +964,7 @@ sub trans {
         }
         elsif ( ref $func eq "ARRAY" && $func->[0] eq "changehost" ) {
 
-            return redir( $apache_r, "$protocol://$func->[1]$uri$args_wq" );
+            return redir( $apache_r, "https://$func->[1]$uri$args_wq" );
 
         }
         elsif ( $uri =~ m!^/(?:talkscreen|delcomment)\.bml! ) {
@@ -1028,7 +991,7 @@ sub trans {
             # redirect them to their canonical URL if on wrong host/prefix
             if ( my $u = LJ::load_user($user) ) {
                 my $canon_url = $u->journal_base;
-                unless ( $canon_url =~ m!^$protocol://$host!i
+                unless ( $canon_url =~ m!^https://$host!i
                     || $LJ::DEBUG{'user_vhosts_no_wronghost_redirect'} )
                 {
                     return redir( $apache_r, "$canon_url$uri$args_wq" );
@@ -1067,14 +1030,13 @@ sub trans {
 
     # Attempt to handle a URI given the old-style LJ handler, falling back to
     # the new style Dreamwidth routing system.
-    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call( ssl => $is_ssl );
+    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call();
     return $ret if defined $ret;
 
     # API role
     if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
         my $ver = $1 + 0;
         $ret = DW::Routing->call(
-            ssl         => $is_ssl,
             api_version => $ver,
             uri         => "/v$ver$2",
             role        => 'api'
@@ -1090,11 +1052,6 @@ sub trans {
     return redir( $apache_r, $redirect_url ) if $redirect_url;
 
     if ($alt_path) {
-
-        # redirect to HTTPS if necessary
-        my $redirect_handler = LJ::URI->redirect_to_https( $apache_r, $uri );
-        return $redirect_handler if $redirect_handler;
-
         $apache_r->uri($alt_uri);
         $apache_r->filename($alt_path);
         return OK;
@@ -1129,7 +1086,7 @@ sub trans {
         }
 
         # redirect to canonical username and/or add slash if needed
-        return redir( $apache_r, "$protocol://$host$hostport/$part1$cuser$srest$args_wq" )
+        return redir( $apache_r, "https://$host$hostport/$part1$cuser$srest$args_wq" )
             if $cuser ne $user or not $rest;
 
         my $vhost = {
@@ -1175,22 +1132,6 @@ sub userpic_trans {
     my ( $picid, $userid ) = ( $1, $2 );
 
     $apache_r->notes->{codepath} = "img.userpic";
-
-    # redirect to the correct URL if we're not at the right one,
-    # and unless CDN stuff is in effect...
-    if (   $LJ::USERPIC_ROOT ne $LJ::_ORIG_CONFIG{USERPIC_ROOT}
-        && $LJ::USERPIC_ROOT ne $LJ::SSLICONPREFIX )
-    {
-        my $host = $apache_r->headers_in->{"Host"};
-        unless (
-               $LJ::USERPIC_ROOT =~ m!^https?://\Q$host\E!i
-            || $LJ::USERPIC_ROOT_CDN && $LJ::USERPIC_ROOT_CDN =~ m!^https?://\Q$host\E!i
-            || $host eq '127.0.0.1'    # FIXME: not great hack for DW config
-            )
-        {
-            return redir( $apache_r, "$LJ::USERPIC_ROOT/$picid/$userid" );
-        }
-    }
 
     # we can safely do this without checking since we never re-use
     # picture IDs and don't let the contents get modified
@@ -1326,10 +1267,7 @@ sub load_file_for_concat {
 
 sub adult_interstitial {
     my ( $apache_r, %opts ) = @_;
-    my $int_redir = DW::Routing->call(
-        uri => $apache_r->notes->{adult_content_type},
-        ssl => $opts{is_ssl},
-    );
+    my $int_redir = DW::Routing->call( uri => $apache_r->notes->{adult_content_type}, );
 
     if ( defined $int_redir ) {
 
@@ -1448,7 +1386,7 @@ sub journal_content {
 
     # check for redirects
     if ( $opts->{internal_redir} ) {
-        my $int_redir = DW::Routing->call( uri => $opts->{internal_redir}, ssl => $LJ::IS_SSL );
+        my $int_redir = DW::Routing->call( uri => $opts->{internal_redir} );
         if ( defined $int_redir ) {
 
             # we got a match; clear the request cache and return DECLINED.

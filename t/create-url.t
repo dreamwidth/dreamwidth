@@ -29,8 +29,8 @@ check_req(
             foo => "bar"
         },
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
-    { foo => "bar", },
+    { host => "www.example.com", uri => "/", },
+    { foo  => "bar", },
 );
 
 check_req(
@@ -42,7 +42,7 @@ check_req(
         },
         keep_args => ['bar'],
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
+    { host => "www.example.com", uri => "/", },
     {
         foo => "bar",
         bar => "baz",
@@ -59,7 +59,7 @@ check_req(
         keep_args => ['bar'],
         fragment  => 'yay',
     },
-    { ssl => 0, host => "www.example.com", uri => "/", fragment => "yay" },
+    { host => "www.example.com", uri => "/", fragment => "yay" },
     {
         foo => "bar",
         bar => "baz",
@@ -76,7 +76,7 @@ check_req(
         keep_args     => ['bar'],
         viewing_style => 1
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
+    { host => "www.example.com", uri => "/", },
     {
         foo    => "bar",
         bar    => "baz",
@@ -98,7 +98,7 @@ check_req(
         keep_args     => ['bar'],
         viewing_style => 1
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
+    { host => "www.example.com", uri => "/", },
     {
         foo    => "bar",
         bar    => "kitten",
@@ -118,42 +118,27 @@ check_req(
         },
         keep_args => ['bar'],
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
+    { host => "www.example.com", uri => "/", },
     {
         foo => "bar",
     },
 );
 
-check_req( "https://www.example.com/", undef, {},
-    { ssl => 1, host => "www.example.com", uri => "/", }, {}, );
+check_req( "https://www.example.com/", undef, {}, { host => "www.example.com", uri => "/", }, {}, );
+
+check_req( "https://www.example.com/", undef, {}, { host => "www.example.com", uri => "/", }, {}, );
+
+check_req( "https://www.example.com/", undef, {}, { host => "www.example.com", uri => "/", }, {}, );
+
+check_req( "http://www.example.com/", undef, {}, { host => "www.example.com", uri => "/", }, {}, );
 
 check_req(
     "https://www.example.com/",
     undef,
     {
-        ssl => 0,
+        host => "foo.example.com",
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
-    {},
-);
-
-check_req(
-    "https://www.example.com/",
-    undef,
-    {
-        ssl => 1,
-    },
-    { ssl => 1, host => "www.example.com", uri => "/", },
-    {},
-);
-
-check_req(
-    "http://www.example.com/",
-    undef,
-    {
-        ssl => 1,
-    },
-    { ssl => 1, host => "www.example.com", uri => "/", },
+    { host => "foo.example.com", uri => "/", },
     {},
 );
 
@@ -163,7 +148,7 @@ check_req(
     {
         host => "foo.example.com",
     },
-    { ssl => 1, host => "foo.example.com", uri => "/", },
+    { host => "foo.example.com", uri => "/", },
     {},
 );
 
@@ -172,20 +157,8 @@ check_req(
     undef,
     {
         host => "foo.example.com",
-        ssl  => 1,
     },
-    { ssl => 1, host => "foo.example.com", uri => "/", },
-    {},
-);
-
-check_req(
-    "https://www.example.com/",
-    undef,
-    {
-        host => "foo.example.com",
-        ssl  => 0,
-    },
-    { ssl => 0, host => "foo.example.com", uri => "/", },
+    { host => "foo.example.com", uri => "/", },
     {},
 );
 
@@ -194,17 +167,16 @@ check_req(
     undef,
     {
         host => "foo.example.com",
-        ssl  => 1,
     },
-    { ssl => 1, host => "foo.example.com", uri => "/", },
+    { host => "foo.example.com", uri => "/", },
     {},
 );
 
 check_req( "http://www.example.com/", "/mmm_path", {},
-    { ssl => 0, host => "www.example.com", uri => "/mmm_path", }, {}, );
+    { host => "www.example.com", uri => "/mmm_path", }, {}, );
 
 check_req( "http://www.example.com/meow", undef, {},
-    { ssl => 0, host => "www.example.com", uri => "/meow", }, {}, );
+    { host => "www.example.com", uri => "/meow", }, {}, );
 
 check_req(
     "http://www.example.com/meow",
@@ -212,7 +184,7 @@ check_req(
     {
         fragment => "kitten",
     },
-    { ssl => 0, host => "www.example.com", uri => "/meow", fragment => "kitten" },
+    { host => "www.example.com", uri => "/meow", fragment => "kitten" },
     {},
 );
 
@@ -226,7 +198,7 @@ check_req(
         },
         keep_args => 1,
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
+    { host => "www.example.com", uri => "/", },
     {
         foo    => "bar",
         bar    => "baz",
@@ -248,7 +220,7 @@ check_req(
         keep_args     => 1,
         viewing_style => 1,
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
+    { host => "www.example.com", uri => "/", },
     {
         foo    => "bar",
         bar    => "baz",
@@ -269,7 +241,7 @@ check_req(
         },
         keep_args => 0,
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
+    { host => "www.example.com", uri => "/", },
     {
         foo => "bar",
     },
@@ -281,7 +253,7 @@ check_req(
     {
         keep_args => 1,
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
+    { host => "www.example.com", uri => "/", },
     {
         format => "light",
     },
@@ -293,7 +265,7 @@ check_req(
     {
         keep_args => 1,
     },
-    { ssl => 0, host => "www.example.com", uri => "/", },
+    { host => "www.example.com", uri => "/", },
     {},
 );
 
@@ -305,11 +277,10 @@ sub check_req {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     subtest $url, sub {
-        plan tests => 5;
+        plan tests => 4;
 
         my $rq = HTTP::Request->new( GET => $url );
         my ( $https, $host ) = $url =~ m!^(http(?:s)?)://(.+?)/!;
-        $LJ::IS_SSL = ( $https eq 'https' ) ? 1 : 0;
         $rq->header( "Host", $host );
 
         DW::Request->reset;
@@ -326,7 +297,6 @@ sub validate_req {
 
     my ( $https, $host, $blah, $blah2, $fragment ) =
         $url =~ m!^(http(?:s)?)://(.+?)/(.*?)((?:\?.+?)?)((?:#.+?)?)$!;
-    my $ssl = ( $https eq 'https' ) ? 1 : 0;
     my $rq = HTTP::Request->new( GET => $url );
 
     DW::Request->reset;
@@ -334,7 +304,6 @@ sub validate_req {
 
     is( $r->uri, $eopts->{uri},  "uri mismatch" );
     is( $host,   $eopts->{host}, "host mismatch" );
-    is( $ssl,    $eopts->{ssl},  "invalid ssl" );
 
     if ($fragment) {
         $fragment =~ s/^#//;

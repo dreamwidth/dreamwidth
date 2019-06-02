@@ -370,7 +370,6 @@ sub render_scheme {
     $opts->{sections}       = $sections;
     $opts->{inheritance}    = [ map { "$_.tt" } reverse $scheme->inheritance ];
     $opts->{content}        = $body;
-    $opts->{is_ssl}         = $LJ::IS_SSL;
     $opts->{get}            = $r->get_args;
     $opts->{resource_group} = $LJ::ACTIVE_RES_GROUP;
 

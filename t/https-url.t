@@ -51,12 +51,7 @@ my @urls = (
 
 local %LJ::KNOWN_HTTPS_SITES = qw( xkcd.com 1 blogspot.com 1 );
 
-if ($LJ::USE_SSL) {
-    plan tests => scalar @urls;
-}
-else {
-    plan skip_all => "Doesn't work without \$LJ::USE_SSL set";
-}
+plan tests => scalar @urls;
 
 for (@urls) {
     my $url       = $_->[0];

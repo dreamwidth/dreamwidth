@@ -63,9 +63,6 @@ sub protected_handler {
     }
     else {
         $vars->{chal} = LJ::challenge_generate(300);
-
-        # include SSL if it's an option
-        $vars->{'usessl'} = $LJ::USE_SSL;
     }
 
     return DW::Template->render_template( 'protected.tt', $vars );

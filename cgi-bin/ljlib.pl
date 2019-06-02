@@ -638,33 +638,6 @@ sub end_request {
     return 1;
 }
 
-sub site_variables_list {
-    return qw(IMGPREFIX JSPREFIX STATPREFIX WSTATPREFIX USERPIC_ROOT SITEROOT);
-}
-
-sub use_ssl_site_variables {
-
-    # save a backup of the original config value
-    unless (%LJ::_ORIG_CONFIG) {
-        %LJ::_ORIG_CONFIG = ();
-        $LJ::_ORIG_CONFIG{$_} = ${ $LJ::{$_} } foreach LJ::site_variables_list();
-    }
-
-    $LJ::SITEROOT     = $LJ::SSLROOT;
-    $LJ::IMGPREFIX    = $LJ::SSLIMGPREFIX;
-    $LJ::STATPREFIX   = $LJ::SSLSTATPREFIX;
-    $LJ::JSPREFIX     = $LJ::SSLJSPREFIX;
-    $LJ::WSTATPREFIX  = $LJ::SSLWSTATPREFIX;
-    $LJ::USERPIC_ROOT = $LJ::SSLICONPREFIX;
-}
-
-sub use_config_site_variables {
-
-    # restore original siteroot, etc
-    ${ $LJ::{$_} } = $LJ::_ORIG_CONFIG{$_}
-        foreach qw(IMGPREFIX JSPREFIX STATPREFIX WSTATPREFIX USERPIC_ROOT SITEROOT);
-}
-
 # <LJFUNC>
 # name: LJ::flush_cleanup_handlers
 # des: Runs all cleanup handlers registered in @LJ::CLEANUP_HANDLERS
@@ -899,7 +872,6 @@ sub load_include {
     return unless -e $filename;
 
     # get it and return it
-    my $val;
     open( INCFILE, $filename )
         or return "Could not open include file: $file.";
     { local $/ = undef; $val = <INCFILE>; }

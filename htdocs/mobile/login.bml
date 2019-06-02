@@ -65,7 +65,7 @@ form { margin-left: 2em; }
 
 <h2><?_ml .ssl.header _ml?></h2>
 <p<?_ml .ssl.text _ml?></p>
-<form method='post' action='<?_code return $LJ::SSLROOT _code?>/mobile/login'>
+<form method='post' action='<?_code return $LJ::SITEROOT _code?>/mobile/login'>
 <?_ml .form.username _ml?>: <input name='user' size='15' /><br />
 <?_ml .form.password _ml?>: <input name='password' type='password' size='15' />
 <input type='submit' value="<?_ml .form.button _ml?>" />

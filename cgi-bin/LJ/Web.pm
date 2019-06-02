@@ -48,16 +48,12 @@ sub img {
     my $type = shift;    # either "" or "input"
     my $attr = shift;
 
-    my ( $attrs, $alt, $ssl ) = ( '', '', 0 );
+    my ( $attrs, $alt ) = ( '', '', 0 );
     if ($attr) {
         if ( ref $attr eq "HASH" ) {
             if ( exists $attr->{alt} ) {
                 $alt = LJ::ehtml( $attr->{alt} );
                 delete $attr->{alt};
-            }
-            if ( exists $attr->{ssl} ) {
-                $ssl = $attr->{ssl} && $LJ::IS_SSL;
-                delete $attr->{ssl};
             }
             $attrs .= " $_=\"" . LJ::ehtml( $attr->{$_} || '' ) . "\"" foreach keys %$attr;
         }
@@ -66,12 +62,11 @@ sub img {
         }
     }
 
-    my $i         = $LJ::Img::img{$ic};
-    my $imgprefix = $ssl ? $LJ::SSLIMGPREFIX : $LJ::IMGPREFIX;
+    my $i = $LJ::Img::img{$ic};
     $alt ||= LJ::Lang::string_exists( $i->{alt} ) ? LJ::Lang::ml( $i->{alt} ) : $i->{alt};
     if ( $type eq "" ) {
         return
-              "<img src=\"$imgprefix$i->{src}\" width=\"$i->{width}\" "
+              "<img src=\"$LJ::IMGPREFIX$i->{src}\" width=\"$i->{width}\" "
             . "height=\"$i->{height}\" alt=\"$alt\" title=\"$alt\" "
             . "border='0'$attrs />";
     }
@@ -747,7 +742,6 @@ sub check_referer {
     }
 
     return 1 if $LJ::SITEROOT   && $referer =~ m!^\Q$LJ::SITEROOT\E$uri!;
-    return 1 if $LJ::SSLROOT    && $referer =~ m!^\Q$LJ::SSLROOT\E$uri!;
     return 1 if $LJ::DOMAIN     && $referer =~ m!^https?://\Q$LJ::DOMAIN\E$uri!;
     return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^https?://\Q$LJ::DOMAIN_WEB\E$uri!;
     return 1
@@ -1109,7 +1103,6 @@ opts can contain:
 proto -- specify a protocol
 host -- link to different domains
 args -- get arguments to add
-ssl -- use ssl
 fragment -- add fragment identifier
 cur_args -- hashref of current GET arguments to the page
 keep_args -- arguments to keep
@@ -1127,10 +1120,7 @@ sub create_url {
     my $host = lc( $opts{host} || $r->host );
     $path ||= $r->uri;
 
-    # Default SSL if SSL is set and we are on the same host, unless we explicitly don't want it
-    $opts{ssl} //= $LJ::IS_SSL;
-
-    my $proto = $opts{proto} // ( $opts{ssl} ? "https" : "http" );
+    my $proto = $opts{proto} // 'https';
     my $url   = $proto . "://$host$path";
 
     # TWO PATHS: if keep_query_string is used, we simply preserve that
@@ -2248,7 +2238,6 @@ PREVIEW
 
         if ( $opts->{'mode'} eq "update" ) {
             my $onclick = "";
-            $onclick .= "return sendForm('updateForm');" if !$LJ::IS_SSL;
 
             my $defaultjournal;
             my $not_a_journal = 0;
@@ -2281,7 +2270,6 @@ PREVIEW
 
         if ( $opts->{'mode'} eq "edit" ) {
             my $onclick = "";
-            $onclick .= "return true;" if !$LJ::IS_SSL;
 
             if ( !$opts->{'disabled_save'} ) {
                 $out .= LJ::html_submit(
@@ -3118,7 +3106,6 @@ sub control_strip {
     my $passed_in_location = $opts{host} && $opts{uri} ? 1 : 0;
     my $host               = delete $opts{host} || $r->host;
     my $uri                = delete $opts{uri} || $r->uri;
-    my $protocol           = $LJ::IS_SSL ? "https" : "http";
 
     my $args;
     my $argshash = {};
@@ -3136,7 +3123,7 @@ sub control_strip {
     my $view = delete $opts{view} || $r->note('view');
     my $view_is = sub { defined $view && $view eq $_[0] };
 
-    my $baseuri = "$protocol://$host$uri";
+    my $baseuri = "https://$host$uri";
 
     $baseuri .= $args ? "?$args" : "";
     my $euri        = LJ::eurl($baseuri);

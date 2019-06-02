@@ -33,12 +33,8 @@ DW::Controller::Settings - Controller for settings/settings-related pages
 
 =cut
 
-DW::Routing->register_string( "/accountstatus", \&account_status_handler, app => 1 );
-DW::Routing->register_string(
-    "/changepassword", \&changepassword_handler,
-    app        => 1,
-    prefer_ssl => 1
-);
+DW::Routing->register_string( "/accountstatus",  \&account_status_handler, app => 1 );
+DW::Routing->register_string( "/changepassword", \&changepassword_handler, app => 1, );
 
 sub account_status_handler {
     my ($opts) = @_;

@@ -27,7 +27,7 @@ use DW::OAuth::Access;
 use DW::Controller::OAuth::User;
 
 # User facing
-DW::Routing->register_string( "/admin/oauth/index", \&index_handler, app => 1, prefer_ssl => 1 );
+DW::Routing->register_string( "/admin/oauth/index", \&index_handler, app => 1 );
 DW::Controller::Admin->register_admin_page(
     '/',
     path     => 'oauth/index',
@@ -37,31 +37,13 @@ DW::Controller::Admin->register_admin_page(
 
 DW::Routing->register_redirect( "/admin/oauth/consumer/index", "/admin/oauth/" );
 
-DW::Routing->register_string(
-    "/admin/oauth/consumer/new",
-    \&consumer_create_handler,
-    app        => 1,
-    prefer_ssl => 1
-);
+DW::Routing->register_string( "/admin/oauth/consumer/new", \&consumer_create_handler, app => 1, );
 
-DW::Routing->register_regex(
-    qr!^/admin/oauth/consumer/(\d+)/?$!,
-    \&consumer_handler,
-    app        => 1,
-    prefer_ssl => 1
-);
-DW::Routing->register_regex(
-    qr!^/admin/oauth/consumer/(\d+)/secret$!,
-    \&consumer_secret_handler,
-    app        => 1,
-    prefer_ssl => 1
-);
-DW::Routing->register_regex(
-    qr!^/admin/oauth/consumer/(\d+)/reissue$!,
-    \&consumer_reissue_handler,
-    app        => 1,
-    prefer_ssl => 1
-);
+DW::Routing->register_regex( qr!^/admin/oauth/consumer/(\d+)/?$!, \&consumer_handler, app => 1, );
+DW::Routing->register_regex( qr!^/admin/oauth/consumer/(\d+)/secret$!,
+    \&consumer_secret_handler, app => 1, );
+DW::Routing->register_regex( qr!^/admin/oauth/consumer/(\d+)/reissue$!,
+    \&consumer_reissue_handler, app => 1, );
 DW::Routing->register_regex( qr!^/admin/oauth/consumer/(\d+)/delete$!,
     \&consumer_delete_handler, app => 1 );
 

@@ -39,8 +39,6 @@ use DW::Routing;
 # so that entries can be posted to community journals
 $LJ::EVERYONE_VALID = 1;
 
-$LJ::USE_SSL = 1 if $LJ::USE_HTTPS_EVERYWHERE && $LJ::SSLROOT;
-
 my $u    = temp_user();
 my $pass = "foopass";
 $u->set_password($pass);
@@ -62,7 +60,6 @@ sub do_request {
 
     my %routing_data = ();
     $routing_data{username} = $user_subdomain if $user_subdomain;
-    $routing_data{ssl} = 1 if $LJ::USE_SSL;
 
     my $input = delete $data->{input};
 

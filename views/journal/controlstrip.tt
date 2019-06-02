@@ -79,6 +79,7 @@
             name = "remember_me",
             label = dw.ml( 'web.controlstrip.login.remember' ),
             id = "xc_remember",
+            value = "1",
             tabindex = "3"
         ) %]
       </div>

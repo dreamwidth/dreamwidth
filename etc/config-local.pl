@@ -26,12 +26,6 @@
     # keep this enabled only if this site is a development server
     $IS_DEV_SERVER = 1;
 
-    # change this to "1" to enable certain site content to respond securely
-    $USE_SSL = 0;
-
-    # change this to "1" to redirect all incoming connections to use HTTPS
-    $USE_HTTPS_EVERYWHERE = 0;
-
     # home directory
     $HOME = $ENV{'LJHOME'};
 

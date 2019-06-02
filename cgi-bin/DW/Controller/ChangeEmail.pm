@@ -25,7 +25,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 
-DW::Routing->register_string( '/changeemail', \&changeemail_handler, app => 1, prefer_ssl => 1 );
+DW::Routing->register_string( '/changeemail', \&changeemail_handler, app => 1 );
 
 sub changeemail_handler {
     my ( $ok, $rv ) = controller( authas => 1 );

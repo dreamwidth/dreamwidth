@@ -351,8 +351,6 @@
     # (16 bit unsigned int ... each bit is capability class flag)
     $NEWUSER_CAPS = 2;
 
-    $USE_SSL = 1;
-
     $ONLY_USER_VHOSTS = 1;
 
     ## MISC SETTINGS ##

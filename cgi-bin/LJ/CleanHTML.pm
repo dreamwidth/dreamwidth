@@ -906,7 +906,7 @@ TOKEN:
 
                     my $sanitize_url = sub {
                         my $url = canonical_url( $_[0], 1 );
-                        return $url unless $LJ::IS_SSL && !$to_external_site;
+                        return $url if $to_external_site;
                         return https_url( $url, journal => $journal, ditemid => $ditemid );
                     };
 
@@ -1695,7 +1695,7 @@ sub clean_embed {
             noexpandembedded        => 1,
             transform_embed_nocheck => 1,
             rewrite_embed_param     => 1,
-            force_https_embed       => $opts->{display_as_content} && $LJ::IS_SSL,
+            force_https_embed       => $opts->{display_as_content},
         }
     );
 }
@@ -1799,9 +1799,6 @@ sub canonical_url {
 
 sub https_url {
     my ( $url, %opts ) = @_;
-
-    # no-op if we're not configured to use SSL
-    return $url unless $LJ::USE_SSL;
 
     # https:// and the relative // protocol don't need proxying
     return $url if $url =~ m!^(?:https://|//)!;

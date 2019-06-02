@@ -42,8 +42,8 @@ my %urls = (
     next    => '/create/next',
 );
 
-DW::Routing->register_string( $urls{create}, \&create_handler, app => 1, prefer_ssl => 1 );
-DW::Routing->register_string( $urls{setup}, \&setup_handler, app => 1 );
+DW::Routing->register_string( $urls{create},  \&create_handler,  app => 1 );
+DW::Routing->register_string( $urls{setup},   \&setup_handler,   app => 1 );
 DW::Routing->register_string( $urls{upgrade}, \&upgrade_handler, app => 1 );
 DW::Routing->register_string( $urls{next},    \&next_handler,    app => 1 );
 

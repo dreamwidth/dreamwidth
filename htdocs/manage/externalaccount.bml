@@ -19,11 +19,6 @@ use strict;
 {
     use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
 
-    if ($LJ::USE_SSL && ! $LJ::IS_SSL && $FORM{ssl} ne "no") {
-        my $getextra = $GET{acctid} ? "?acctid=" . LJ::eurl($GET{acctid}) : "";
-        return BML::redirect("$LJ::SSLROOT/manage/externalaccount$getextra");
-    }
-
     BML::set_language_scope('/manage/externalaccount.bml');
 
     LJ::need_res("stc/settings.css", "js/externalaccount.js");

@@ -16,6 +16,8 @@
 
 package DW::Controller::MassPrivacy;
 
+use strict;
+
 use DW::Controller;
 use DW::Routing;
 use DW::Template;

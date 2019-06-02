@@ -88,8 +88,7 @@ sub management_handler {
 
     $rv->{create_link} = sub {
         my ($code) = @_;
-        my $root = $LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT;
-        return "$root/create?from=$remote->{user}&code=$code";
+        return "$LJ::SITEROOT/create?from=$remote->{user}&code=$code";
     };
     $rv->{time_to_http} = sub { return $_[0] ? LJ::time_to_http( $_[0] ) : '' };
 

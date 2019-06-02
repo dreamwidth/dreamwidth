@@ -149,7 +149,7 @@ sub get_request {
 sub get_root {
     my ($self) = @_;
 
-    return $LJ::IS_SSL ? $LJ::SSLROOT : $LJ::SITEROOT;
+    return $LJ::SITEROOT;
 }
 
 sub get_active_plugins {

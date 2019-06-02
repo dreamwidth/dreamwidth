@@ -45,10 +45,9 @@ sub render_body {
         $getextra .= $getextra eq '' ? '?ret=1' : '&ret=1';
     }
 
-    my $root       = $LJ::IS_SSL ? $LJ::SSLROOT : $LJ::SITEROOT;
     my $form_class = LJ::Hooks::run_hook("login_form_class_name_$mode");
     $form_class = "lj_login_form pkg" unless $form_class;
-    $ret .= "<form action='$root/login$getextra' method='post' class='$form_class'>\n";
+    $ret .= "<form action='$LJ::SITEROOT/login$getextra' method='post' class='$form_class'>\n";
     $ret .= LJ::form_auth();
 
     my $chal = LJ::challenge_generate(300);    # 5 minute auth token
@@ -131,49 +130,6 @@ sub render_body {
             . LJ::Lang::ml('/login.bml.login.openid')
             . "</a></p>";
 
-        if ( !$LJ::IS_SSL ) {
-            my $login_btn_text = LJ::ejs( LJ::Lang::ml('/login.bml.login.btn.login') );
-
-            if ($nojs) {
-
-                # insecure now, but because they choose to not use javascript.  link to
-                # javascript version of login if they seem to have javascript, otherwise
-                # noscript to SSL
-                $ret .= "<script type='text/javascript' language='Javascript'>\n";
-                $ret .=
-                      "<!-- \n document.write(\"<p style='padding-bottom: 5px'>"
-                    . LJ::img( 'ssl_unlocked', '', { align => 'middle' } )
-                    . LJ::ejs( " <a href='$LJ::SITEROOT/login'>"
-                        . LJ::Lang::ml('/login.bml.login.secure')
-                        . "</a> | "
-                        . LJ::Lang::ml('/login.bml.login.standard')
-                        . "</p>" )
-                    . "\"); \n // -->\n </script>\n";
-                if ($LJ::USE_SSL) {
-                    $ret .= "<noscript><p style='padding-bottom: 5px'>";
-                    $ret .= LJ::img( 'ssl_unlocked', '', { align => 'middle' } );
-                    $ret .=
-                          " <a href='$LJ::SSLROOT/login'>"
-                        . LJ::Lang::ml('/login.bml.login.secure')
-                        . "</a> | "
-                        . LJ::Lang::ml('/login.bml.login.standard') . "</p>";
-                    $ret .= "</noscript>";
-                }
-            }
-            else {
-                # insecure now, and not because it was forced, so javascript doesn't work.
-                # only way to get to secure now is via SSL, so link there
-                $ret .= "<p>" . LJ::img( 'ssl_unlocked', '', { class => 'secure-image' } );
-                $ret .=
-                      " <a href='$LJ::SSLROOT/login'>"
-                    . LJ::Lang::ml('/login.bml.login.secure')
-                    . "</a> | "
-                    . LJ::Lang::ml('/login.bml.login.standard')
-                    . "</p>\n"
-                    if $LJ::USE_SSL;
-
-            }
-        }
         $ret .= LJ::help_icon( 'securelogin', '&nbsp;' );
 
         if ( LJ::Hooks::are_hooks("login_formopts") ) {

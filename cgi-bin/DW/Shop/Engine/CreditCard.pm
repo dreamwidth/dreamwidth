@@ -46,12 +46,8 @@ sub checkout_url {
     die "Cart not in valid state!\n"
         unless $cart->state == $DW::Shop::STATE_OPEN;
 
-    # we absolutely must be using SSL on the site...
-    die "This site is not configured to use SSL, we refuse to allow credit cards.\n"
-        unless $LJ::IS_DEV_SERVER || $LJ::USE_SSL;
-
     # return URL to cc entry
-    return ( $LJ::IS_DEV_SERVER ? $LJ::SITEROOT : $LJ::SSLROOT ) . '/shop/entercc';
+    return "$LJ::SITEROOT/shop/entercc";
 }
 
 # setup_transaction( ...many options... )

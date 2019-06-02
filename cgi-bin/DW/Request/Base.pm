@@ -52,7 +52,7 @@ sub new {
 }
 
 sub host {
-    return lc $_[0]->header_in("Host");
+    return lc ( $_[0]->header_in("Host") // "" );
 }
 
 sub cookie {

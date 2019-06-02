@@ -263,13 +263,6 @@ sub new_handler {
 
     $vars->{editable} = { map { $_ => 1 } @modules };
 
-    # we don't need this JS magic if we are sending everything over SSL
-    $vars->{usessl} = $LJ::IS_SSL;
-    if ( !$LJ::IS_SSL && !$remote ) {
-        $vars->{login_chal} =
-            LJ::challenge_generate(3600);    # one hour to post if they're not logged in
-    }
-
     $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
 
     return DW::Template->render_template( 'entry/form.tt', $vars );

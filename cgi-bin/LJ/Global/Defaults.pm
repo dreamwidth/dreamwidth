@@ -71,12 +71,6 @@ no strict "vars";
     $PALIMGROOT        ||= "$RELATIVE_SITEROOT/palimg";
     $JSPREFIX          ||= "$RELATIVE_SITEROOT/js";
 
-    # SSL prefix defaults
-    $SSLIMGPREFIX   ||= "$SSLROOT/img";
-    $SSLSTATPREFIX  ||= "$SSLROOT/stc";
-    $SSLJSPREFIX    ||= "$SSLROOT/js";
-    $SSLWSTATPREFIX ||= "$SSLROOT/stc";
-
     # path to sendmail and any necessary options
     $SENDMAIL ||= "/usr/sbin/sendmail -t -oi";
 
@@ -102,10 +96,7 @@ no strict "vars";
     # this option can be a boolean or a URL, but internally we want a URL
     # (which can also be a boolean)
     if ( $LJ::OPENID_SERVER && $LJ::OPENID_SERVER == 1 ) {
-        $LJ::OPENID_SERVER =
-            $LJ::USE_HTTPS_EVERYWHERE
-            ? "$LJ::SSLROOT/openid/server"
-            : "$LJ::SITEROOT/openid/server";
+        $LJ::OPENID_SERVER = "$LJ::SITEROOT/openid/server";
     }
 
     # set default capability limits if the site maintainer hasn't.

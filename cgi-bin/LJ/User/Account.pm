@@ -1396,8 +1396,7 @@ sub isu {
 # </LJFUNC>
 sub journal_base {
     my ( $user, %opts ) = @_;
-    my $vhost    = $opts{vhost};
-    my $protocol = ( $LJ::USE_HTTPS_EVERYWHERE || $LJ::IS_SSL ) ? "https" : "http";
+    my $vhost = $opts{vhost} // "";
 
     my $u = LJ::isu($user) ? $user : LJ::load_user($user);
     $user = $u->user if $u;
@@ -1429,17 +1428,17 @@ sub journal_base {
 
         if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
             $user =~ s/_/-/g;
-            return "$protocol://$user.$LJ::DOMAIN";
+            return "https://$user.$LJ::DOMAIN";
         }
         else {
-            return "$protocol://$rule->[1]/$user";
+            return "https://$rule->[1]/$user";
         }
     }
 
     if ( $vhost eq "users" ) {
         my $he_user = $user;
         $he_user =~ s/_/-/g;
-        return "$protocol://$he_user.$LJ::USER_DOMAIN";
+        return "https://$he_user.$LJ::USER_DOMAIN";
     }
     elsif ( $vhost eq "tilde" ) {
         return "$LJ::SITEROOT/~$user";
@@ -1451,7 +1450,7 @@ sub journal_base {
         return $LJ::SITEROOT;
     }
     elsif ( $vhost =~ /^other:(.+)/ ) {
-        return "$protocol://$1";
+        return "https://$1";
     }
     else {
         return "$LJ::SITEROOT/users/$user";

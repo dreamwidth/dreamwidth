@@ -17,6 +17,7 @@ package DW::Template::Plugin::FormHTML;
 use base 'Template::Plugin';
 use strict;
 use Hash::MultiValue;
+use Carp qw/ cluck /;
 
 =head1 NAME
 
@@ -125,7 +126,7 @@ sub checkbox {
             $args->{selected} = $selected{ $args->{value} };
         }
         elsif ($LJ::IS_DEV_SERVER) {
-            warn "DW::Template::Plugin::FormHTML::checkbox has undefined argument 'value'";
+            cluck "DW::Template::Plugin::FormHTML::checkbox has undefined argument 'value'";
         }
     }
 
@@ -175,7 +176,7 @@ sub checkbox_nested {
             $args->{selected} = $selected{ $args->{value} };
         }
         elsif ($LJ::IS_DEV_SERVER) {
-            warn "DW::Template::Plugin::FormHTML::checkbox_nested has undefined argument 'value'";
+            cluck "DW::Template::Plugin::FormHTML::checkbox_nested has undefined argument 'value'";
         }
     }
 
@@ -230,7 +231,7 @@ sub radio {
             $args->{selected} = $selected{ $args->{value} };
         }
         elsif ($LJ::IS_DEV_SERVER) {
-            warn "DW::Template::Plugin::FormHTML::radio has undefined argument 'value'";
+            cluck "DW::Template::Plugin::FormHTML::radio has undefined argument 'value'";
         }
     }
 
@@ -270,7 +271,7 @@ sub radio_nested {
             $args->{selected} = $selected{ $args->{value} };
         }
         elsif ($LJ::IS_DEV_SERVER) {
-            warn "DW::Template::Plugin::FormHTML::radio_nested has undefined argument 'value'";
+            cluck "DW::Template::Plugin::FormHTML::radio_nested has undefined argument 'value'";
         }
     }
 

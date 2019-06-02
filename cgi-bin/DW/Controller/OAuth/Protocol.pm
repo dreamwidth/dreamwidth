@@ -30,14 +30,9 @@ use LJ::JSON;
 use DW::Controller;
 
 # User facing
-DW::Routing->register_string(
-    "/oauth/authorize", \&authorize_handler,
-    app        => 1,
-    prefer_ssl => 1
-);
+DW::Routing->register_string( "/oauth/authorize", \&authorize_handler, app => 1, );
 
 # API Callbacks
-# IMPORTANT: These aren't prefer_ssl because the redirect may confuse a consumer.
 DW::Routing->register_string(
     "/oauth/request_token", \&request_token_handler,
     app    => 1,

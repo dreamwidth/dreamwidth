@@ -27,14 +27,10 @@ DW::Controller::Community - Community management pages
 
 =cut
 
-DW::Routing->register_string( "/communities/index", \&index_handler, app => 1 );
-DW::Routing->register_string( "/communities/list",  \&list_handler,  app => 1 );
-DW::Routing->register_string( "/communities/new",   \&new_handler,   app => 1 );
-DW::Routing->register_string(
-    "/communities/convert", \&convert_handler,
-    app        => 1,
-    prefer_ssl => 1
-);
+DW::Routing->register_string( "/communities/index",   \&index_handler,   app => 1 );
+DW::Routing->register_string( "/communities/list",    \&list_handler,    app => 1 );
+DW::Routing->register_string( "/communities/new",     \&new_handler,     app => 1 );
+DW::Routing->register_string( "/communities/convert", \&convert_handler, app => 1 );
 
 DW::Routing->register_regex( '^/communities/([^/]+)/members/new$', \&members_new_handler,
     app => 1 );

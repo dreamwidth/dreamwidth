@@ -21,10 +21,6 @@ body<=
     use strict;
     use vars qw/ %POST @errors /;
 
-    if ( $LJ::USE_SSL && !$LJ::IS_SSL ) {
-        return BML::redirect( "$LJ::SSLROOT/admin/impersonate" );
-    }
-
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 

@@ -113,9 +113,6 @@
     # Set this to the IP address of your main site.  This is used for Tor exit checking.
     #$EXTERNAL_IP = '127.0.0.1';
 
-    # Set this to the port number used for incoming SSL connections
-    #$SSL_PORT = 443;
-
     # configuration/ID for statistics tracker modules which apply to
     # site pages (www, non-journal)
     %SITE_PAGESTAT_CONFIG = (

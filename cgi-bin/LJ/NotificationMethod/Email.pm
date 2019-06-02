@@ -71,14 +71,6 @@ sub notify {
     croak "'notify' is an object method"
         unless ref $self eq __PACKAGE__;
 
-    # use https:// for system-generated links in notification emails
-    local $LJ::IS_SSL;
-    local ${ $LJ::{$_} } foreach LJ::site_variables_list();
-    if ($LJ::USE_HTTPS_EVERYWHERE) {
-        $LJ::IS_SSL = 1;
-        LJ::use_ssl_site_variables();
-    }
-
     my $u    = $self->u;
     my $vars = {
         sitenameshort => $LJ::SITENAMESHORT,

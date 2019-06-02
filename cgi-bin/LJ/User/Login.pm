@@ -162,13 +162,6 @@ sub make_login_session {
         LJ::UniqCookie->save_mapping( $uniq => $u );
     }
 
-    # don't set/force the scheme for this page if we're on SSL.
-    # we'll pick it up from cookies on subsequent pageloads
-    # but if their scheme doesn't have an SSL equivalent,
-    # then the post-login page throws security errors
-    BML::set_scheme( $u->prop('schemepref') )
-        unless $LJ::IS_SSL;
-
     # run some hooks
     my @sopts;
     LJ::Hooks::run_hooks(

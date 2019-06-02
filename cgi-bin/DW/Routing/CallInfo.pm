@@ -176,14 +176,6 @@ Is SSL request?
 
 sub ssl { return $_[0]->{ssl} ? 1 : 0; }
 
-=head2 C<< $self->prefer_ssl >>
-
-Should prefer SSL if possible.
-
-=cut
-
-sub prefer_ssl { return $_[0]->{__hash}->{prefer_ssl} // $LJ::USE_HTTPS_EVERYWHERE; }
-
 =head2 C<< $self->no_cache >>
 
 Return whether we should prevent caching or not.

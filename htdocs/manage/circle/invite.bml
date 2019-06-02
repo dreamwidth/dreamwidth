@@ -34,7 +34,7 @@ _c?>
 
     my %ierr;
     my $email = $POST{invite_email} || '';
-    my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT) . "/create?from=$u->{user}";
+    my $create_link = $LJ::SITEROOT . "/create?from=$u->{user}";
 
 
     my @invitecodes;

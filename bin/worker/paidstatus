@@ -68,14 +68,6 @@ my $alert = sub {
     return undef;
 };
 
-# set additional site variables
-if ( $LJ::USE_HTTPS_EVERYWHERE ) {
-    # use https:// for system-generated links
-    $LJ::IS_SSL = 1;
-    LJ::use_ssl_site_variables();
-}
-
-
 while ( 1 ) {
     $log->( 'Main loop beginning...' );
 

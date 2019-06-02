@@ -70,7 +70,6 @@ Valid options:
 =item uri - explicitly override the uri
 =item role - explicitly define the role
 =item username - define the username, implies username role
-=item ssl - this is a SSL call
 
 =back
 
@@ -95,7 +94,6 @@ Valid options:
 =item uri - explicitly override the uri
 =item role - explicitly define the role
 =item username - define the username, implies username role
-=item ssl - this is a SSL call
 
 =back
 
@@ -218,15 +216,6 @@ sub _call_hash {
 
     # check for format validity
     return $r->NOT_FOUND unless $opts->format_valid;
-
-    # prefer SSL if wanted and possible
-    #  cannot do SSL if it's not set up
-    #  cannot do the redirect safely for non-GET/HEAD requests.
-    return $r->redirect( LJ::create_url( $r->uri, keep_args => 1, ssl => 1 ) )
-        if $opts->prefer_ssl
-        && $LJ::USE_SSL
-        && !$opts->ssl
-        && ( $r->method eq 'GET' || $r->method eq 'HEAD' );
 
     # if renamed with redirect in place, then do the redirect
     if ( $opts->role eq 'user' && ( my $orig_u = LJ::load_user( $opts->username ) ) ) {
@@ -418,8 +407,6 @@ sub register_static {
 =item format - What format should be used, defaults to HTML
 
 =item formats - An array of possible formats, or 1 to allow everything.
-
-=item prefer_ssl - Auto-redirect to SSL version if possible.
 
 =back
 
@@ -661,7 +648,6 @@ sub _apply_defaults {
     $hash->{user} = $opts->{user} || 0;
     $hash->{api}  = $opts->{api} || 0;
     $hash->{format} ||= $opts->{format} || 'html';
-    $hash->{prefer_ssl} = $opts->{prefer_ssl} // $LJ::USE_HTTPS_EVERYWHERE;
     $hash->{no_cache} = $opts->{no_cache} || 0;
 
     my $formats = $opts->{formats} || [ $hash->{format} ];

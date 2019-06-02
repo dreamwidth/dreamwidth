@@ -29,27 +29,6 @@ sub bml_handler {
     return OK;
 }
 
-sub redirect_to_https {
-    my ( $class, $apache_r, $uri ) = @_;
-
-    my $host = $apache_r->headers_in->{"Host"};
-    if (
-           $LJ::USE_HTTPS_EVERYWHERE
-        && !$LJ::IS_SSL
-        && (    # temporary
-            !$LJ::SSL_DISABLED_URI{$uri} && $host ne $LJ::EMBED_MODULE_DOMAIN
-        )
-        && ( $apache_r->method eq "GET" || $apache_r->method eq "HEAD" )
-        && $apache_r->status == 200    # don't try to handle 404s, 500s
-        )
-    {
-        my $url = LJ::create_url( $uri, ssl => 1, keep_args => 1 );
-        return Apache::LiveJournal::redir( $apache_r, $url, HTTP_MOVED_PERMANENTLY );
-    }
-
-    return;
-}
-
 # Handle a URI. Returns response if success, undef if not handled
 # Takes URI and Apache $apache_r
 sub handle {
@@ -61,21 +40,18 @@ sub handle {
     if ( my ($rpc) = $uri =~ m!^.*/__rpc_(\w+)$! ) {
         my $bml_handler_path = $LJ::AJAX_URI_MAP{$rpc};
 
-        return LJ::URI->redirect_to_https( $apache_r, $uri )
-            || LJ::URI->bml_handler( $apache_r, $bml_handler_path )
+        return LJ::URI->bml_handler( $apache_r, $bml_handler_path )
             if $bml_handler_path;
     }
 
     # handle normal URI mappings
     if ( my $bml_file = $LJ::URI_MAP{$uri} ) {
-        return LJ::URI->redirect_to_https( $apache_r, $uri )
-            || LJ::URI->bml_handler( $apache_r, $bml_file );
+        return LJ::URI->bml_handler( $apache_r, $bml_file );
     }
 
     # handle URI redirects
     if ( my $url = $LJ::URI_REDIRECT{$uri} ) {
-        return LJ::URI->redirect_to_https( $apache_r, $uri )
-            || Apache::LiveJournal::redir( $apache_r, $url, HTTP_MOVED_TEMPORARILY );
+        return Apache::LiveJournal::redir( $apache_r, $url, HTTP_MOVED_TEMPORARILY );
     }
 
     return undef;
