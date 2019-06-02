@@ -878,28 +878,23 @@ sub is_web_context {
 
 # loads an include file, given the bare name of the file.
 #   ($filename)
-# returns the text of the file.  if the file is specified in %LJ::FILEEDIT_VIA_DB
-# then it is loaded from memcache/DB, else it falls back to disk.
+# returns the text of the file from memcache/db.
 sub load_include {
     my $file = shift;
     return unless $file && $file =~ /^[a-zA-Z0-9-_\.]{1,255}$/;
 
-    # okay, edit from where?
-    if ( $LJ::FILEEDIT_VIA_DB || $LJ::FILEEDIT_VIA_DB{$file} ) {
+    # we handle, so first if memcache...
+    my $val = LJ::MemCache::get("includefile:$file");
+    return $val if $val;
 
-        # we handle, so first if memcache...
-        my $val = LJ::MemCache::get("includefile:$file");
-        return $val if $val;
+    # straight database hit
+    my $dbh = LJ::get_db_writer();
+    $val = $dbh->selectrow_array( "SELECT inctext FROM includetext " . "WHERE incname=?",
+        undef, $file );
+    LJ::MemCache::set( "includefile:$file", $val, time() + 3600 );
+    return $val if $val;
 
-        # straight database hit
-        my $dbh = LJ::get_db_writer();
-        $val = $dbh->selectrow_array( "SELECT inctext FROM includetext " . "WHERE incname=?",
-            undef, $file );
-        LJ::MemCache::set( "includefile:$file", $val, time() + 3600 );
-        return $val if $val;
-    }
-
-    # hit it up from the file, if it exists
+    # if not in memcache, hit disk -- if it exists
     my $filename = "$LJ::HTDOCS/inc/$file";
     return unless -e $filename;
 

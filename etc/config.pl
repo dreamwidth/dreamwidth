@@ -529,25 +529,12 @@
         'theme' => 'negatives/black',
     };
 
-    ### /admin/fileedit setup
-    # If you are using the files in htdocs/inc and are frequently editing
-    # those, you may wish to put all of these files into the database.
-    # You can instruct BML to treat all <?_include?> statements as being
-    # pulled from memcached (failover to the database) by uncommenting:
-    # $FILEEDIT_VIA_DB = 1;
-    # Alternately, you can specify that only particular files should be
-    # kept in memcache and the database by doing:
-    # %FILEEDIT_VIA_DB = ( 'support_links' => 1, );
-
-
     # Setup support email address to not accept new emails.  Basically if an
     # address is specified below, any user who emails it out of the blue will
     # be sent back a copy of the specified file along with their email.  Users
     # will still be allowed to respond to emails from the support system, but
     # they can't open a request by emailing the address.  The value part of
-    # the hash is the name of an include file.  It will be loaded out of
-    # LJHOME/htdocs/inc.  See %FILEEDIT_VIA_DB for how to make it read
-    # from memcache/DB.
+    # the hash is the name of an include file.
     #%DENY_REQUEST_FROM_EMAIL = (
     #    "abuse\@$DOMAIN" => "bounce-abuse",
     #);

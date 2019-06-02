@@ -13,9 +13,8 @@
 # part of this distribution.
 
 # This script goes through all of the files in your include directory
-# (LJHOME/htdocs/inc) and then imports ones that are specified by your
-# etc/config.pl file (%LJ::FILEEDIT_VIA_DB) into your database if the file
-# on disk is newer than the one in the database.
+# (LJHOME/htdocs/inc) and then imports them into the database if
+# they're newer on disk.
 
 use strict;
 
@@ -28,7 +27,7 @@ my $dir = "$ENV{'LJHOME'}/htdocs/inc";
 print "searching for files to check against database...";
 opendir DIR, $dir
     or die "Unable to open $ENV{'LJHOME'}/htdocs/inc for searching.\n";
-my @files = grep { $LJ::FILEEDIT_VIA_DB || $LJ::FILEEDIT_VIA_DB{$_} } readdir(DIR);
+my @files = readdir(DIR);
 my $count = scalar(@files);
 print $count+ 0 . " found.\n";
 

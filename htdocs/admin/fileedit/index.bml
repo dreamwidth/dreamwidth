@@ -42,18 +42,11 @@ _c?>
      my ($filename, $content) = @_;
      return 0 unless $valid_filename->($filename);
 
-     if ($LJ::FILEEDIT_VIA_DB || $LJ::FILEEDIT_VIA_DB{$filename}) {
-         my $dbh = LJ::get_db_writer();
-         $dbh->do("REPLACE INTO includetext (incname, inctext, updatetime) ".
-                   "VALUES (?, ?, UNIX_TIMESTAMP())", undef, $filename, $content);
-         return 0 if $dbh->err;
-         LJ::MemCache::set("includefile:$filename", $content);
-         return 1;
-     }
-
-     open (FILE, ">$INC_DIR/$filename") or return 0;
-     print FILE $content;
-     close FILE;
+     my $dbh = LJ::get_db_writer();
+     $dbh->do("REPLACE INTO includetext (incname, inctext, updatetime) ".
+             "VALUES (?, ?, UNIX_TIMESTAMP())", undef, $filename, $content);
+     return 0 if $dbh->err;
+     LJ::MemCache::set("includefile:$filename", $content);
      return 1;
  };
 
@@ -62,17 +55,9 @@ _c?>
      my ($filename) = @_;
      return undef unless $valid_filename->($filename);
 
-     my $contents;
-     if ($LJ::FILEEDIT_VIA_DB || $LJ::FILEEDIT_VIA_DB{$filename}) {
-         my $dbh = LJ::get_db_writer();
-         $contents = $dbh->selectrow_array("SELECT inctext FROM includetext WHERE incname=?", undef, $filename);
-         return $contents if defined $contents;
-     }
-
-     open (FILE, "$INC_DIR/$filename") or return undef;
-     while (<FILE>) { $contents .= $_; }
-     close FILE;
-     return $contents;
+     my $dbh = LJ::get_db_writer();
+     my $contents = $dbh->selectrow_array("SELECT inctext FROM includetext WHERE incname=?", undef, $filename);
+     return $contents if defined $contents;
  };
 
  if ($files{'*'}) 
