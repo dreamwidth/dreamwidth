@@ -39,8 +39,6 @@ use LJ::S2;
 use LJ::URI;
 
 BEGIN {
-    $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
-
     require "ljlib.pl";
 }
 
@@ -1506,13 +1504,11 @@ sub journal_content {
 
     $html =~ s!</body>!$before_body_close</body>!i if $before_body_close;
 
-    my $do_gzip = $LJ::DO_GZIP && $LJ::OPTMOD_ZLIB;
-    if ($do_gzip) {
-        my $ctbase = $opts->{'contenttype'};
-        $ctbase =~ s/;.*//;
-        $do_gzip = 0 unless $LJ::GZIP_OKAY{$ctbase};
-        $do_gzip = 0 if $apache_r->headers_in->{"Accept-Encoding"} !~ /gzip/;
-    }
+    my $ctbase = $opts->{'contenttype'};
+    $ctbase =~ s/;.*//;
+    $do_gzip = 0 unless $LJ::GZIP_OKAY{$ctbase};
+    $do_gzip = 0 if $apache_r->headers_in->{"Accept-Encoding"} !~ /gzip/;
+
     my $length = length($html);
     $do_gzip = 0 if $length < 500;
 

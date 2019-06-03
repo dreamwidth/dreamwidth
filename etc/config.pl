@@ -89,10 +89,6 @@
     # use a gearman worker for spellcheck
     #$RUN_SPELLCHECK_USING_GEARMAN = 1;
 
-    # to save bandwidth, should we compress pages before they go out?
-    # require Compress::Zlib to be installed
-    #$DO_GZIP = 1;
-
     # Support signed PGP email for email posting?
     # Requires GnuPG::Interface and Mail::GnuPG to be installed.
     #$USE_PGP = 1;
