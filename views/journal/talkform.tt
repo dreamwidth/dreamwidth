@@ -66,6 +66,45 @@ the same terms as Perl itself.  For a copy of the license, please reference
             </td>
           [%- END -%]
         </tr>
+
+      [%- ELSE -%][%# New comment, not editing. -%]
+        [%# Anonymous: -%]
+        <tr valign="middle">
+          <td align="center">
+            [%- dw.img( 'id_anonymous', '', { onclick => 'handleRadios(0);' } ) -%]
+          </td>
+          <td align='center'>
+            [%- IF public_entry AND journal.allows_anon -%]
+              <input type='radio' name='usertype' value='anonymous' id='talkpostfromanon'[% IF default_usertype == 'anonymous' %] checked='checked'[% END %] />
+            [%- ELSE -%]
+              (&nbsp;)
+            [%- END -%]
+          </td>
+          <td align='left'>
+            [%- IF public_entry AND journal.allows_anon -%]
+              <b>
+                <label for='talkpostfromanon'>[% '/talkpost.bml.opt.anonymous' | ml %]</label>
+              </b>
+              [%- IF journal.screens_anon %] [% '/talkpost.bml.opt.willscreen' | ml %][%- END -%]
+            [%- ELSE -%]
+              <span class='disabled'><strong>
+                [%- '/talkpost.bml.opt.anonymous' | ml -%]
+              </strong></span>
+              [%- IF ! public_entry %]
+                [% '/talkpost.bml.opt.noanonpost.nonpublic' | ml -%]
+              [%- ELSIF ! journal.allows_non_access -%]
+                [% ( journal.is_community ? '/talkpost.bml.opt.membersonly' : '/talkpost.bml.opt.friendsonly' )
+                  | ml( {username => "<b>$journal.user</b>"} )
+                %]
+              [%- ELSE -%]
+                [% '/talkpost.bml.opt.noanonpost' | ml -%]
+              [%- END -%]
+            [%- END -%]
+          </td>
+        </tr>
+
+
+
       [%- END -%]
     </table>
   </td>

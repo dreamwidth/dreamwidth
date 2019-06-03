@@ -1569,6 +1569,9 @@ sub talkform {
         'create_link' => '',
         'subject_icons' => $subjecticons,
 
+        public_entry => $entry->security eq 'public',
+        default_usertype => $default_usertype,
+
         'comment' => {
             'editid' => $editid,
             'editreason' => $comment ? $comment->edit_reason : '',
@@ -1600,6 +1603,7 @@ sub talkform {
             ljuser => $remote->ljuser_display,
             openid_identity => $remote->openid_identity,
 
+            # allowed => ,
             banned => $journalu->has_banned($remote),
             screened => (
                 $journalu->has_autoscreen($remote)
@@ -1619,6 +1623,8 @@ sub talkform {
         }
         : 0,
         'journal' => {
+            user => $journalu->{'user'},
+
             'is_iplogging'    =>
                 $journalu->opt_logcommentips eq 'A' ? 'all' :
                     $journalu->opt_logcommentips eq 'S' ? 'anon' : 0,
@@ -1629,6 +1635,10 @@ sub talkform {
             screens_anon => $screening,
             screens_non_access => $screening eq 'F' || $screening eq 'A',
             screens_all => $screening eq 'A',
+
+            allows_anon => $journalu->{'opt_whocanreply'} eq "all",
+            allows_non_access => $journalu->{'opt_whocanreply'} eq "all"
+                || $journalu->{'opt_whocanreply'} eq "reg",
         },
 
         'help' => {
@@ -1792,27 +1802,6 @@ sub talkform {
 
         if ( $journalu->{'opt_whocanreply'} eq "all" ) {
 
-            if ( $entry && $entry->security ne "public" ) {
-                $ret .= "<tr valign='middle'>";
-                $ret .= "<td align='center' width='20'>";
-                $ret .= LJ::img( 'id_anonymous', '' ) . "</td>";
-                $ret .= "<td align='center'>(  )</td>";
-                $ret .=
-"<td align='left'><span class='disabled'><strong>$BML::ML{'.opt.anonymous'}</strong></span> $BML::ML{'.opt.noanonpost.nonpublic'}</td>";
-                $ret .= "</tr>\n";
-            }
-            else {
-                $ret .= "<tr valign='center'><td align='center'>";
-                $ret .= LJ::img( 'id_anonymous', '', { onclick => 'handleRadios(0);' } ) . "</td>";
-                $ret .=
-"<td align='center'><input type='radio' name='usertype' value='anonymous' id='talkpostfromanon'"
-                    . $whocheck->('anonymous')
-                    . " /></td>";
-                $ret .=
-"<td align='left'><b><label for='talkpostfromanon'>$BML::ML{'.opt.anonymous'}</label></b>";
-                $ret .= " " . $BML::ML{'.opt.willscreen'} if $screening;
-                $ret .= "</td></tr>\n";
-            }
 
             if ( LJ::OpenID->consumer_enabled ) {
 
@@ -1878,12 +1867,6 @@ sub talkform {
         }
 
         if ( $journalu->{'opt_whocanreply'} eq "reg" ) {
-            $ret .= "<tr valign='middle'><td align='center' width='20'>";
-            $ret .= LJ::img( 'id_anonymous', '' ) . "</td>";
-            $ret .= "<td align='center'>(  )</td>";
-            $ret .=
-"<td align='left'><span class='disabled'><strong>$BML::ML{'.opt.anonymous'}</strong></span> $BML::ML{'.opt.noanonpost'}</td>";
-            $ret .= "</tr>\n";
 
             if ( LJ::OpenID->consumer_enabled ) {
 
@@ -1943,14 +1926,6 @@ sub talkform {
         my $remote_can_comment = !$journalu->does_not_allow_comments_from($remote);
 
         if ( $journalu->{'opt_whocanreply'} eq 'friends' ) {
-            $ret .= "<tr valign='middle'><td align='center' width='20'>";
-            $ret .= LJ::img( 'id_anonymous', '' ) . "</td>";
-            $ret .= "<td align='center'>(  )</td>";
-            $ret .=
-"<td align='left' colspan='2'><span class='disabled'><strong>$BML::ML{'.opt.anonymous'}</strong></span>";
-            my $stringname = $journalu->is_person ? ".opt.friendsonly" : ".opt.membersonly";
-            $ret .= " " . BML::ml( $stringname, { 'username' => "<b>$journalu->{'user'}</b>" } );
-            $ret .= "</tr>\n";
 
             ## the if clause was a copy of code from ($journalu->{'opt_whocanreply'} eq 'all')
             if ( LJ::OpenID->consumer_enabled ) {
