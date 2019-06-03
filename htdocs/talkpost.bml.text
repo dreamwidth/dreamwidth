@@ -83,8 +83,6 @@
 
 .opt.openid.loggedin=OpenID identity:
 
-.opt.openidsignin2=You can comment on this post while signed in with an account from many other sites, once you have confirmed your email address. <a [[aopts]]>Sign in using OpenID</a>.
-
 .opt.preview=Preview
 
 .opt.siteuser=[[sitename]] account
