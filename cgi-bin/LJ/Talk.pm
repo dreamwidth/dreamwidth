@@ -4271,7 +4271,6 @@ EOM
                     );
                 }    # end sending email
 
-                return 0 if $LJ::ANTI_TALKSPAM;
                 last WATCH;
             }
         }

@@ -222,7 +222,6 @@ sub addcomment {
 
     # some additional checks
     return fail( $err, 314 ) unless $u->is_paid || $flags->{nocheckcap};
-    return fail( $err, 214 ) if LJ::Comment->is_text_spam( \$req->{body} );
 
     my $journal;
     if ( $req->{journal} ) {

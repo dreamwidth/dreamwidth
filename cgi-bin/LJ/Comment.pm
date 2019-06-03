@@ -1748,29 +1748,6 @@ sub delete_thread {
     );
 }
 
-#
-# Returns true if passed text is a spam.
-#
-# Class method.
-#   LJ::Comment->is_text_spam( $some_text );
-#
-sub is_text_spam($\$) {
-    my ( $class, $ref ) = @_;
-
-    # REF on text
-    $ref = \$ref unless ref($ref) eq 'SCALAR';
-
-    my $plain = $$ref;    # otherwise we modify the source text
-    $plain = LJ::CleanHTML::clean_comment( \$plain );
-
-    foreach my $re ( $LJ::TALK_ABORT_REGEXP, @LJ::TALKSPAM ) {
-        return 1          # spam
-            if $re and ( $plain =~ /$re/ or $$ref =~ /$re/ );
-    }
-
-    return 0;             # normal text
-}
-
 =head2 C<< $cmt->userpic >>
 
 Returns a LJ::Userpic object for the poster of the comment, or undef.

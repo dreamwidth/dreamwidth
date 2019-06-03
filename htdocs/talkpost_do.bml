@@ -22,16 +22,6 @@ body<=
     my @errors;
     my $skip_form_auth = 0;
 
-    if ($LJ::TALK_ABORT_REGEXP) {
-        my $tempbody = $POST{'body'};
-        LJ::CleanHTML::clean_comment(\$tempbody);
-        return "" if $tempbody =~ /$LJ::TALK_ABORT_REGEXP/ || $POST{'body'} =~ /$LJ::TALK_ABORT_REGEXP/;
-    }
-
-    foreach my $re (@LJ::TALKSPAM) {
-        return if ($POST{'body'} =~ /$re/);
-    }
-
     my $editid = $POST{editid};
 
     # OpenID support

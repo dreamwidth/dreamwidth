@@ -72,11 +72,6 @@
     ### Policy Options
     ###
 
-    # filter comments for spam using this list of regular expressions:
-    #@TALKSPAM = (
-    #             "morphese",
-    #             );
-
     # require new free acounts to be referred by an existing user?
     $USE_ACCT_CODES = 1;
 
