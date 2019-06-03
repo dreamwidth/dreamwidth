@@ -3212,8 +3212,8 @@ sub login_message {
     };
 
     return $msg->("readonly")        if $u->is_readonly;
-    return $msg->("not_validated")   if ( $u->{'status'} eq "N" and not $LJ::EVERYONE_VALID );
-    return $msg->("must_revalidate") if ( $u->{'status'} eq "T" and not $LJ::EVERYONE_VALID );
+    return $msg->("not_validated")   if $u->{'status'} eq "N";
+    return $msg->("must_revalidate") if $u->{'status'} eq "T";
 
     my $checkpass = LJ::CreatePage->verify_password( u => $u );
     return $msg->( "bad_password", { 'pre' => "$checkpass " } ) if $checkpass;

@@ -93,7 +93,7 @@ sub create {
     DW::Stats::increment( 'dw.action.account.create', 1,
         [ 'journal_type:' . $u->journaltype_readable ] );
 
-    my $status   = $opts{status}   || ( $LJ::EVERYONE_VALID ? 'A' : 'N' );
+    my $status   = $opts{status}   || 'N';
     my $name     = $opts{name}     || $username;
     my $bdate    = $opts{bdate}    || '0000-00-00';
     my $email    = $opts{email}    || '';

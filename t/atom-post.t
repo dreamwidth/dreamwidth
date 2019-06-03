@@ -36,12 +36,10 @@ use XML::Atom::Category;
 use XML::Atom::Feed;
 use DW::Routing;
 
-# so that entries can be posted to community journals
-$LJ::EVERYONE_VALID = 1;
-
 my $u    = temp_user();
 my $pass = "foopass";
 $u->set_password($pass);
+$u->update_self({ status => 'A' });
 
 my $api = XML::Atom::Client->new( Version => 1 );
 
