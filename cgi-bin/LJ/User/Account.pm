@@ -1406,10 +1406,7 @@ sub journal_base {
         return $hookurl if $hookurl;
 
         unless ( defined $vhost ) {
-            if ( $LJ::FRONTPAGE_JOURNAL eq $user ) {
-                $vhost = "front";
-            }
-            elsif ( $u->is_person ) {
+            if ( $u->is_person ) {
                 $vhost = "";
             }
             elsif ( $u->is_community ) {

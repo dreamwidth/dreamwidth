@@ -1022,12 +1022,6 @@ sub trans {
 
     return vgift_trans($apache_r) if $uri =~ m!^/vgift/!;
 
-    # front page journal
-    if ($LJ::FRONTPAGE_JOURNAL) {
-        my $view = $determine_view->( $LJ::FRONTPAGE_JOURNAL, "front", $uri );
-        return $view if defined $view;
-    }
-
     # Attempt to handle a URI given the old-style LJ handler, falling back to
     # the new style Dreamwidth routing system.
     my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call();

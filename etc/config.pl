@@ -33,9 +33,6 @@
     # prefix for images
     $IMGPREFIX = "$SITEROOT/img";
 
-    # set this if you're running an FTP server that mirrors your htdocs/files
-    #$FTPPREFIX = "ftp://ftp.$DOMAIN";
-
     # where we set the cookies (note the period before the domain)
     # can be one value or an array ref (to accomodate certain old
     # broken browsers)
@@ -51,9 +48,6 @@
     $COPPA_EMAIL = "coppa\@$DOMAIN";
     $PRIVACY_EMAIL = "privacy\@$DOMAIN";
     $ACCOUNTS_EMAIL = "accounts\@$DOMAIN";
-
-    # news site support. if set, that journal loads on the main page.
-    #$FRONTPAGE_JOURNAL = "news";
 
     # css proxy
     $CSSPROXY = "//cssproxy.$DOMAIN/";
