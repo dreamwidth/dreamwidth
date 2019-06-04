@@ -31,6 +31,7 @@
 
     # the base domain of your site.
     $DOMAIN = $DW::PRIVATE::DOMAIN;
+    $PROTOCOL = $DW::PRIVATE::PROTOCOL;
 
     # human readable name of this site as well as shortened versions
     # CHANGE THIS

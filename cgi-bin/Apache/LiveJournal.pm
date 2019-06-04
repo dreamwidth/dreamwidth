@@ -441,7 +441,7 @@ sub trans {
         }
 
         if ( defined $which_alternate_domain ) {
-            my $root = "https://";
+            my $root = "$LJ::PROTOCOL://";
             $host =~ s/\Q$which_alternate_domain\E$/$LJ::DOMAIN/i;
 
             # do $LJ::DOMAIN -> $LJ::DOMAIN_WEB here, to save a redirect.
@@ -545,7 +545,7 @@ sub trans {
         if (   $orig_user ne lc($orig_user)
             || $orig_user =~ /[_-]/
             && $u
-            && $u->journal_base !~ m!^https://$host!i
+            && $u->journal_base !~ m!^$LJ::PROTOCOL://$host!i
             && $opts->{'vhost'} !~ /^other:/ )
         {
             my $newurl = $uri;
@@ -602,7 +602,7 @@ sub trans {
             my $is_journal_page = !$opts->{mode} || $journal_pages{ $opts->{mode} };
 
             if ( $adult_content ne "none" && $is_journal_page && !$should_show_page ) {
-                my $returl = "https://$host" . $apache_r->uri . "$args_wq";
+                my $returl = "$LJ::PROTOCOL://$host" . $apache_r->uri . "$args_wq";
 
                 LJ::set_active_journal($u);
                 $apache_r->pnotes->{user}  = $u;
@@ -880,7 +880,7 @@ sub trans {
             my $renamedto = $u->prop('renamedto');
             if ( $renamedto ne '' ) {
                 my $redirect_url =
-                    ( $renamedto =~ m!^https?://! )
+                    ( $renamedto =~ m!^$LJ::PROTOCOL?://! )
                     ? $renamedto
                     : LJ::journal_base( $renamedto, vhost => $vhost ) . $uuri . $args_wq;
                 return redir( $apache_r, $redirect_url, 301 );
@@ -912,7 +912,7 @@ sub trans {
         )
     {
         # Per bug 3734: users sometimes type 'www.username.USER_DOMAIN'.
-        return redir( $apache_r, "https://$2.$LJ::USER_DOMAIN$uri$args_wq" )
+        return redir( $apache_r, "$LJ::PROTOCOL://$2.$LJ::USER_DOMAIN$uri$args_wq" )
             if $1 eq 'www.';
 
         my $user = $2;
@@ -946,7 +946,7 @@ sub trans {
         }
         elsif ( ref $func eq "ARRAY" && $func->[0] eq "changehost" ) {
 
-            return redir( $apache_r, "https://$func->[1]$uri$args_wq" );
+            return redir( $apache_r, "$LJ::PROTOCOL://$func->[1]$uri$args_wq" );
 
         }
         elsif ( $uri =~ m!^/(?:talkscreen|delcomment)\.bml! ) {
@@ -973,7 +973,7 @@ sub trans {
             # redirect them to their canonical URL if on wrong host/prefix
             if ( my $u = LJ::load_user($user) ) {
                 my $canon_url = $u->journal_base;
-                unless ( $canon_url =~ m!^https://$host!i
+                unless ( $canon_url =~ m!^$LJ::PROTOCOL://$host!i
                     || $LJ::DEBUG{'user_vhosts_no_wronghost_redirect'} )
                 {
                     return redir( $apache_r, "$canon_url$uri$args_wq" );
@@ -1062,7 +1062,7 @@ sub trans {
         }
 
         # redirect to canonical username and/or add slash if needed
-        return redir( $apache_r, "https://$host$hostport/$part1$cuser$srest$args_wq" )
+        return redir( $apache_r, "$LJ::PROTOCOL://$host$hostport/$part1$cuser$srest$args_wq" )
             if $cuser ne $user or not $rest;
 
         my $vhost = {
