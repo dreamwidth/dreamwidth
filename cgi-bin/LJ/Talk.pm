@@ -84,7 +84,8 @@ sub get_subjecticons {
             $pic->{'id'} = $1;
         }
     }
-    $subjecticon{'pic'}->{'none'} = { img => "none.gif", id => "none",  w => 15, h => 15, alt => "No Subject Icon Selected" };
+    $subjecticon{'pic'}->{'none'} =
+        { img => "none.gif", id => "none", w => 15, h => 15, alt => "No Subject Icon Selected" };
 
     return \%subjecticon;
 }
@@ -104,10 +105,11 @@ sub talkargs {
 # Returns: An image tag for the requested subjecticon, or an empty string if the
 #          subjecticon hashref missing.
 # Subjecticon hashrefs usually come from get_subjecticons.
-sub print_subjecticon { # expects a subjecticon ref
+sub print_subjecticon {    # expects a subjecticon ref
     my ( $p, $extra ) = @_;
     return '' unless ref $p eq 'HASH';
-    return qq{<img src="$LJ::IMGPREFIX/talk/$p->{img}" border="0" width="$p->{w}" height="$p->{h}" alt="$p->{alt}" valign="middle" $extra />};
+    return
+qq{<img src="$LJ::IMGPREFIX/talk/$p->{img}" border="0" width="$p->{w}" height="$p->{h}" alt="$p->{alt}" valign="middle" $extra />};
 }
 
 # LJ::Talk::print_subjecticon_by_id()
@@ -118,6 +120,7 @@ sub print_subjecticon { # expects a subjecticon ref
 sub print_subjecticon_by_id {
     my ( $id, $extra ) = @_;
     return '' unless $id;
+
     # print_subjecticon can deal with a missing hashref, so don't sweat invalid IDs.
     my $subjecticons = LJ::Talk::get_subjecticons();
     return print_subjecticon( $subjecticons->{'pic'}->{$id}, $extra );
@@ -1529,9 +1532,9 @@ sub talkform {
         return "Cannot load comment information." unless $comment;
     }
 
-    my $subjecticons  = LJ::Talk::get_subjecticons();
-    my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
-    my @userpics = LJ::icons_for_remote($remote);
+    my $subjecticons = LJ::Talk::get_subjecticons();
+    my $entry        = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
+    my @userpics     = LJ::icons_for_remote($remote);
 
     my $basesubject = $form->{subject} || "";
     if ( !$editid && $opts->{replyto} && !$basesubject && $parpost->{'subject'} ) {
@@ -1543,117 +1546,133 @@ sub talkform {
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
     $screening = 'A' if $journalu->has_autoscreen($remote);
 
-    my $default_usertype = ''; # One of anonymous, openid, openid_cookie, cookieuser, user.
+    my $default_usertype = '';    # One of anonymous, openid, openid_cookie, cookieuser, user.
     if ( $form->{usertype} ) {
+
         # Partial form was submitted; pick up where we left off.
         $default_usertype = $form->{usertype};
-    } elsif ($remote) {
+    }
+    elsif ($remote) {
+
         # If logged-in user isn't allowed to comment we end up with no default,
         # which seems correct.
-        if ($remote->openid_identity) {
+        if ( $remote->openid_identity ) {
             $default_usertype = 'openid_cookie';
-        } else {
+        }
+        else {
             $default_usertype = 'cookieuser';
         }
-    } elsif ( $journalu->{'opt_whocanreply'} eq "all" ) {
+    }
+    elsif ( $journalu->{'opt_whocanreply'} eq "all" ) {
         $default_usertype = 'anonymous';
-    } else {
+    }
+    else {
         $default_usertype = 'user';
     }
 
     # Variables for talkform.tt
     my $template_args = {
         hidden_form_elements => '',
-        form_url => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
-        errors => $opts->{errors},
-        create_link => '',
-        subject_icons => $subjecticons,
-        openid_enabled => LJ::OpenID->consumer_enabled,
+        form_url             => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
+        errors               => $opts->{errors},
+        create_link          => '',
+        subject_icons        => $subjecticons,
+        openid_enabled       => LJ::OpenID->consumer_enabled,
 
-        public_entry => $entry->security eq 'public',
+        public_entry     => $entry->security eq 'public',
         default_usertype => $default_usertype,
 
         comment => {
-            editid => $editid,
-            editreason => $comment ? $comment->edit_reason : '',
-            oidurl => $form->{oidurl},
+            editid      => $editid,
+            editreason  => $comment ? $comment->edit_reason : '',
+            oidurl      => $form->{oidurl},
             oiddo_login => $form->{oiddo_login},
-            user => $form->{cookieuser},
-            body => $form->{body} || '',
-            subject => $basesubject,
+            user        => $form->{cookieuser},
+            body        => $form->{body}
+                || '',
+            subject      => $basesubject,
             subject_icon => $subjecticons->{pic}->{ $form->{subjecticon} }
-                ||  $subjecticons->{pic}->{none}, # a subjecticon hashref
-            preformatted => $form->{prop_opt_preformatted},
-            admin_post => $form->{prop_admin_post},
+                || $subjecticons->{pic}->{none},    # a subjecticon hashref
+            preformatted    => $form->{prop_opt_preformatted},
+            admin_post      => $form->{prop_admin_post},
             current_icon_kw => $form->{prop_picture_keyword},
-            current_icon => LJ::Userpic->new_from_keyword(
-                $remote, $form->{prop_picture_keyword} ), # not yet used, but later...
+            current_icon => LJ::Userpic->new_from_keyword( $remote, $form->{prop_picture_keyword} )
+            ,                                       # not yet used, but later...
         },
 
-        captcha => $opts->{do_captcha} ? {
+        captcha => $opts->{do_captcha}
+        ? {
             type => $journalu->captcha_type,
             html => DW::Captcha->new( undef, want => $journalu->captcha_type )->print,
-        } : 0,
+            }
+        : 0,
 
-        length_limit => LJ::CMAX_COMMENT,
+        length_limit   => LJ::CMAX_COMMENT,
         can_checkspell => $LJ::SPELLER ? 1 : 0,
 
-        remote => $remote ? {
+        remote => $remote
+        ? {
             icons_url => $remote ? $remote->allpics_base : '',
-            icons => \@userpics,
+            icons     => \@userpics,
 
-            user   => $remote->user,
-            display_name => LJ::ehtml( $remote->display_name ),
-            ljuser => $remote->ljuser_display,
+            user            => $remote->user,
+            display_name    => LJ::ehtml( $remote->display_name ),
+            ljuser          => $remote->ljuser_display,
             openid_identity => $remote->openid_identity,
 
-            allowed => !$journalu->has_banned($remote) && (
-                $journalu->{opt_whocanreply} eq 'all' ||
-                ( $journalu->{opt_whocanreply} eq 'reg' && !$remote->openid_identity ) ||
-                ( $journalu->{opt_whocanreply} eq 'reg' && $remote->openid_identity &&
-                    ( $remote->is_validated || $journalu->trusts($remote) ) ) ||
-                ( $journalu->{opt_whocanreply} eq 'friends' &&
-                    !$journalu->does_not_allow_comments_from($remote) )
-            ),
-            banned => $journalu->has_banned($remote),
+            allowed => !$journalu->has_banned($remote)
+                && (
+                   $journalu->{opt_whocanreply} eq 'all'
+                || ( $journalu->{opt_whocanreply} eq 'reg' && !$remote->openid_identity )
+                || (   $journalu->{opt_whocanreply} eq 'reg'
+                    && $remote->openid_identity
+                    && ( $remote->is_validated || $journalu->trusts($remote) ) )
+                || ( $journalu->{opt_whocanreply} eq 'friends'
+                    && !$journalu->does_not_allow_comments_from($remote) )
+                ),
+            banned   => $journalu->has_banned($remote),
             screened => (
-                $journalu->has_autoscreen($remote)
-                || $screening eq 'A'
-                || ( $screening eq 'R' && !$remote->is_validated )
-                || ( $screening eq 'F' && !$journalu->trusts($remote) )
+                       $journalu->has_autoscreen($remote)
+                    || $screening eq 'A'
+                    || ( $screening eq 'R' && !$remote->is_validated )
+                    || ( $screening eq 'F' && !$journalu->trusts($remote) )
             ),
 
-            can_unscreen_parent => ( $parpost->{state} && $parpost->{state} eq "S"
-                && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ),
-            can_manage_community => $journalu->is_community && $remote
+            can_unscreen_parent => (
+                       $parpost->{state}
+                    && $parpost->{state} eq "S"
+                    && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster )
+            ),
+            can_manage_community => $journalu->is_community
+                && $remote
                 && $remote->can_manage($journalu),
 
             can_use_iconbrowser    => $remote->can_use_userpic_select,
             iconbrowser_metatext   => $remote->iconbrowser_metatext ? "true" : "false",
             iconbrowser_smallicons => $remote->iconbrowser_smallicons ? "true" : "false",
-        }
+            }
         : 0,
         journal => {
             user => $journalu->{user},
 
-            is_iplogging    =>
-                $journalu->opt_logcommentips eq 'A' ? 'all' :
-                    $journalu->opt_logcommentips eq 'S' ? 'anon' : 0,
+            is_iplogging => $journalu->opt_logcommentips eq 'A' ? 'all'
+            : $journalu->opt_logcommentips eq 'S' ? 'anon'
+            : 0,
             is_linkstripped => !$remote
                 || ( $remote && $remote->is_identity && !$journalu->trusts_or_has_member($remote) ),
             is_community => $journalu->is_community,
 
-            screens_anon => $screening,
+            screens_anon       => $screening,
             screens_non_access => $screening eq 'F' || $screening eq 'A',
-            screens_all => $screening eq 'A',
+            screens_all        => $screening eq 'A',
 
-            allows_anon => $journalu->{opt_whocanreply} eq "all",
+            allows_anon       => $journalu->{opt_whocanreply} eq "all",
             allows_non_access => $journalu->{opt_whocanreply} eq "all"
                 || $journalu->{opt_whocanreply} eq "reg",
         },
 
-        help_icon => sub { LJ::help_icon_html(@_) },
-        ejs => sub { return LJ::ejs(@_) },
+        help_icon         => sub { LJ::help_icon_html(@_) },
+        ejs               => sub { return LJ::ejs(@_) },
         print_subjecticon => sub { return LJ::Talk::print_subjecticon(@_) },
     };
 
@@ -1671,9 +1690,10 @@ sub talkform {
 
     # Login challenge/response
     $template_args->{'hidden_form_elements'} .= LJ::html_hidden(
+
         # 15 minute auth token
-        {'name' => 'chal',     'id' => 'login_chal',     'value' => LJ::challenge_generate(900)},
-        {'name' => 'response', 'id' => 'login_response', 'value' => '' }
+        { 'name' => 'chal',     'id' => 'login_chal',     'value' => LJ::challenge_generate(900) },
+        { 'name' => 'response', 'id' => 'login_response', 'value' => '' }
     );
 
     $opts->{styleopts} ||= LJ::viewing_style_opts(%$form);
@@ -1683,13 +1703,13 @@ sub talkform {
 
     # hidden values
     $template_args->{'hidden_form_elements'} .= LJ::html_hidden(
-        "replyto",      $opts->{replyto},
-        "parenttalkid", ($opts->{replyto} + 0),
-        "itemid",       $opts->{ditemid},
-        "journal",      $journalu->{'user'},
-        "basepath",     $basepath,
-        "dtid",         $opts->{dtid},
-        "editid",       $editid,
+        "replyto", $opts->{replyto},
+        "parenttalkid", ( $opts->{replyto} + 0 ),
+        "itemid",   $opts->{ditemid},
+        "journal",  $journalu->{'user'},
+        "basepath", $basepath,
+        "dtid",     $opts->{dtid},
+        "editid",   $editid,
         %{ $opts->{styleopts} },
     );
 
