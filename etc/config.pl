@@ -181,10 +181,6 @@
                       "page for updates.";
     #$MSG_DB_UNAVAILABLE = "Sorry, database temporarily unavailable.  Please see <a href='...'>...</a> for status updates.";
 
-    # can also disable media uploads/modifications, if for some reason you need to
-    # turn off your MogileFS install, for example.
-    $DISABLE_MEDIA_UPLOADS = 0;
-
     ###
     ### Language / Scheme support
     ###

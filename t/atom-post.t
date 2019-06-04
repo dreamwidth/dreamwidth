@@ -39,7 +39,7 @@ use DW::Routing;
 my $u    = temp_user();
 my $pass = "foopass";
 $u->set_password($pass);
-$u->update_self({ status => 'A' });
+$u->update_self( { status => 'A' } );
 
 my $api = XML::Atom::Client->new( Version => 1 );
 

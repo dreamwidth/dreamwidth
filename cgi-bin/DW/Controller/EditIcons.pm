@@ -259,11 +259,6 @@ sub editicons_handler {
 
     #  finished post processing
 
-    # if we're disabling media, say so
-    $rv->{uploads_disabled} = $LJ::DISABLE_MEDIA_UPLOADS;
-    $errors->add( undef, 'error.mediauploadsdisabled' )
-        if $LJ::DISABLE_MEDIA_UPLOADS;
-
     $rv->{errors}   = $errors;
     $rv->{messages} = \@info;
 
@@ -503,11 +498,7 @@ sub update_userpics {
         push @$errors, LJ::Lang::ml( 'error.iconkw.rename.multiple', { ekw => $kw } );
     }
 
-    if ( @delete && $LJ::DISABLE_MEDIA_UPLOADS ) {
-        push @$errors, LJ::Lang::ml('error.editicons.nomediauploads.delete');
-
-    }
-    elsif (@delete) {
+    if (@delete) {
 
         # delete pics
         foreach my $up (@delete) {

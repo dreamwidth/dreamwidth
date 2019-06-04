@@ -106,12 +106,6 @@ sub store {
         unless ref $blobref eq 'SCALAR';
     $log->debug("Meta-blobstore: storing ($namespace, $key)");
 
-    # Enforce read-only mode
-    if ($LJ::DISABLE_MEDIA_UPLOADS) {
-        $log->info('Denying write due to $LJ::DISABLE_MEDIA_UPLOADS being set.');
-        return 0;
-    }
-
     # Storage requests always go to the first blobstore that will take them,
     # we never store something twice.
     foreach my $bs ( @{ $class->_get_blobstores } ) {
@@ -136,12 +130,6 @@ sub delete {
     ensure_namespace_is_valid($namespace);
     ensure_key_is_valid($key);
     $log->debug("Meta-blobstore: deleting ($namespace, $key)");
-
-    # Enforce read-only mode
-    if ($LJ::DISABLE_MEDIA_UPLOADS) {
-        $log->info('Denying write due to $LJ::DISABLE_MEDIA_UPLOADS being set.');
-        return 0;
-    }
 
     # Deletes must be sent to all blobstores. Return true if any accepted
     # the delete.
