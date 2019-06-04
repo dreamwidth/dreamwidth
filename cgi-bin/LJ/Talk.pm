@@ -1600,7 +1600,7 @@ sub talkform {
             editreason  => $comment ? $comment->edit_reason : '',
             oidurl      => $form->{oidurl},
             oiddo_login => $form->{oiddo_login},
-            user        => $form->{cookieuser},
+            user        => $form->{userpost} || $form->{cookieuser},
             body        => $form->{body}
                 || '',
             subject      => $basesubject,
