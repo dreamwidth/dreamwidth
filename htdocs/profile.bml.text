@@ -359,8 +359,6 @@
 
 .people.watched_by.some=Subscribers ([[num]]):
 
-.pubkey.alt=View public key
-
 .section.edit=Edit
 
 .sendmessage.body2=<a [[aopts]]>Send [[user]] a text message</a><br />on his/her cellphone/pager.

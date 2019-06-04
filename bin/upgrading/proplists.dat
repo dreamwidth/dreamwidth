@@ -1118,14 +1118,6 @@ userproplist.profile_collapsed_headers:
   multihomed: 0
   prettyname: Profile Page Collapsed Headers
 
-userproplist.public_key:
-  cldversion: 4
-  datatype: blobchar
-  des: Public key used for email gateway signature verification
-  indexed: 0
-  multihomed: 0
-  prettyname: PGP or GPG public key
-
 userproplist.ravelry:
   cldversion: 4
   datatype: char

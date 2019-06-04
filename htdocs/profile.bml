@@ -390,12 +390,6 @@ body<=
     my $ret = q{ <div id='profile_page'><div id='profile_top'> };
 
     $ret .= q{ <div class='username'> } . $u->ljuser_display;
-    if ( $u->public_key ) {
-        $ret .= "<a href='$LJ::SITEROOT/pubkey?user=$user'>";
-        $ret .= LJ::img( 'key', '', { border => 0, title => $ML{'.pubkey.alt'},
-                          style => 'vertical-align: middle; border: 0;' } );
-        $ret .= "</a>\n";
-    }
 
     if ( $u->is_rp_account ) {
         $ret .= ": " . BML::ml( '.details.rp' );

@@ -1486,15 +1486,6 @@ sub ExpandLJURL {
                 return "memories";
             }
         },
-        'pubkey' => sub {
-            my $user = LJ::canonical_username(shift);
-            if ($user) {
-                return "pubkey?user=$user";
-            }
-            else {
-                return "pubkey";
-            }
-        },
         'support' => sub {
             my $id = shift() + 0;
             if ($id) {

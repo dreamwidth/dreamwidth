@@ -88,10 +88,6 @@
 
 .information.profile.about=Edit your profile information
 
-.information.pubkey=PGP/GPG public key
-
-.information.pubkey.about=Upload your public key
-
 .information.settings.about=Change your viewing options and other account settings
 
 .information.status.about=Set your account's activation status

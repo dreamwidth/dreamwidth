@@ -89,10 +89,6 @@
     # use a gearman worker for spellcheck
     #$RUN_SPELLCHECK_USING_GEARMAN = 1;
 
-    # Support signed PGP email for email posting?
-    # Requires GnuPG::Interface and Mail::GnuPG to be installed.
-    #$USE_PGP = 1;
-
     # HINTS:
     #   how far you can scroll back on lastn and friends pages.
     #   big performance implications if you make these too high.

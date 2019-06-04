@@ -78,7 +78,6 @@ body<=
 
         my @address  = split(/\s*,\s*/, $u->{emailpost_allowfrom});
         my $addr     = $address[0] || $ML{'.help.allowedsenderemail'};
-        my $addr_pgp = $ML{'.help.pgpsenderemail'};
         $addr =~ s/\(\w\)$//;
         my $pin          = $u->{emailpost_pin} || $ML{'.help.pin'};
         my $to           = BML::ml('.help.to', {'email' => $user . '@' . $LJ::EMAIL_POST_DOMAIN}) . '<br />';
@@ -86,11 +85,9 @@ body<=
         my $to_pin_bold  = BML::ml('.help.to', {'email' => "$user<b>+$pin</b>" . '@' . $LJ::EMAIL_POST_DOMAIN}) . '<br />';
         my $to_community = BML::ml('.help.to', {'email' => "$user.<b>$community</b>+$pin" . '@' . $LJ::EMAIL_POST_DOMAIN}) . '<br />';
         my $to_hyphens   = BML::ml('.help.to', {'email' => "<b>$user_hyphen.$comm_hyphen</b>+$pin" . '@' . $LJ::EMAIL_POST_DOMAIN}) . '<br />';
-        my $to_pgp       = BML::ml('.help.to', {'email' => "$user<b>+PGP</b>" . '@' . $LJ::EMAIL_POST_DOMAIN}) . '<br />';
         my $subject      = BML::ml('.help.subject', {'pin' => ''}) . '<br /><br />';
         my $subject_pin  = BML::ml('.help.subject', {'pin' => "<b>+$pin</b>"}) . '<br /><br />';
         my $from         = BML::ml('.help.from', {'email' => $addr}) . '<br />';
-        my $from_pgp     = BML::ml('.help.from', {'email' => $addr_pgp}) . '<br />';
         my $body         = $ML{'.help.body'};
 
         if ($need_login) {
@@ -218,29 +215,7 @@ body<=
                     <?p } . BML::ml( '.help.headers.compat.text', { 'sitename' => $LJ::SITENAME } ) . qq{ p?>
                     </fieldset>
                 }
-            },
-
-            {
-                name  => 'advanced',
-                title => $ML{'.help.advanced.header'},
-                url   => '?mode=help&type=advanced',
-                text  => qq{
-                    <?h1 $ML{'.help.advanced.header'} h1?><br />
-
-                    <a name="pgp"></a>
-                    <fieldset><legend>$ML{'.help.advanced.pgp.header'} } .
-                    LJ::img( 'key', '', { alt => '' } ) . qq{ </legend>
-                    <?p } . BML::ml('.help.advanced.pgp.text1', {'pgp' => "<b>PGP</b>"}) . qq{ p?>
-                    <?p } . BML::ml('.help.advanced.pgp.text2', {'aopts' => "href='$LJ::SITEROOT/manage/pubkey'"}) . qq{ p?>
-                    <?emailex
-                    $to_pgp
-                    $from_pgp
-                    $subject
-                    $body
-                    <br />$ML{'.help.advanced.pgp.body'}
-                    emailex?></fieldset>
-                }
-            },
+            }
         );
 
         # index by name, record order

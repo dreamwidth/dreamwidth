@@ -33,7 +33,6 @@ sub index_handler {
     $u->{stylesys} ||= 2;
 
     $rv->{use_s2}      = $u->{stylesys} == 2 ? 1 : 0;
-    $rv->{use_pubkey}  = $LJ::USE_PGP;
     $rv->{use_invites} = $LJ::USE_ACCT_CODES;
     $rv->{use_tags}    = LJ::is_enabled('tags');
 

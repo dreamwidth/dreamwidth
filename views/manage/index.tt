@@ -115,13 +115,6 @@ IF u.is_personal; infoitems.push(
     text = dw.ml( '.information.mobilepost' )
   } );
 
-  IF use_pubkey; infoitems.push(
-    {
-      href = dw.create_url( '/manage/pubkey' )
-      title = dw.ml( '.information.pubkey.about' )
-      text = dw.ml( '.information.pubkey' )
-    } ); END;
-
   IF remote.can_use_esn; infoitems.push(
     {
       href = dw.create_url( '/manage/settings/?cat=notifications' )

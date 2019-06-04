@@ -36,13 +36,6 @@ use DW::Media;
 
 my $workdir = "/tmp";
 
-BEGIN {
-    if ($LJ::USE_PGP) {
-        eval 'use GnuPG::Interface';
-        die "Could not load GnuPG::Interface." if $@;
-    }
-}
-
 =head1 NAME
 
 DW::EmailPost::Entry - Handle entries posted through email
@@ -81,13 +74,8 @@ sub _process {
     my $self = $_[0];
 
     $self->_extract_pin;
-    $self->_check_pin_validity or return $self->send_error;
-
+    $self->_check_pin_validity      or return $self->send_error;
     $self->_cleanup_mobile_carriers or return $self->send_error;
-
-    # not sure why this isn't with $self->_check_pin_validity
-    # maybe need to go through mobile cleanup first?
-    $self->_check_pgp_validity or return $self->send_error;
 
     # figure out what entryprops should be based on post headers in email
     # and user's defaults
@@ -369,10 +357,6 @@ sub _check_pin_validity {
     my $pin  = $self->{pin};
     my $u    = $self->{u};
 
-    # pgp is handled elsewhere
-    return 1 if lc $pin eq 'pgp' && $LJ::USE_PGP;
-
-    # Validity checks.  We only care about these if they aren't using PGP.
     my $addrlist = LJ::Emailpost::Web::get_allowed_senders( $self->{u} );
     unless ( ref $addrlist && keys %$addrlist ) {
         return $self->err( "No allowed senders have been saved for your account.",
@@ -389,141 +373,6 @@ sub _check_pin_validity {
         unless lc $pin eq lc $u->prop('emailpost_pin');
 
     return 1;
-}
-
-sub _check_pgp_validity {
-    my $self = $_[0];
-
-    return 1 unless lc $self->{pin} eq 'pgp' && $LJ::USE_PGP;
-
-    # PGP signed mail?  We'll see about that.
-    my %gpg_errcodes = (    # temp mapping until translation
-        'bad'         => "PGP signature found to be invalid.",
-        'no_key'      => "You don't have a PGP key uploaded.",
-        'bad_tmpdir'  => "Problem generating tempdir: Please try again.",
-        'invalid_key' => "Your PGP key is invalid.  Please upload a proper key.",
-        'not_signed'  => "You specified PGP verification, but your message isn't PGP signed!"
-    );
-
-    my $gpgerr;
-    my $gpgcode = $self->_check_sig( $self->{u}, $self->{_entity}, \$gpgerr );
-    unless ( $gpgcode eq 'good' ) {
-        my $errstr = $gpg_errcodes{$gpgcode};
-        $errstr .= "\nGnuPG error output:\n$gpgerr\n" if $gpgerr;
-        return $self->err($errstr);
-    }
-
-    # Strip pgp clearsigning and any extra text surrounding it
-    # This takes into account pgp 'dash escaping' and a possible lack of Hash: headers
-    $self->{body} =~ s/.*?^-----BEGIN PGP SIGNED MESSAGE-----(?:\n[^\n].*?\n\n|\n\n)//ms;
-    $self->{body} =~ s/-----BEGIN PGP SIGNATURE-----.+//s;
-
-    return 1;
-}
-
-# Verifies an email pgp signature as being valid.
-# Returns codes so we can use the pre-existing err subref,
-# without passing everything all over the place.
-#
-# note that gpg interaction requires gpg version 1.2.4 or better.
-sub _check_sig {
-    my ( $self, $u, $entity, $gpg_err ) = @_;
-
-    my $key = LJ::isu($u) ? $u->prop('public_key') : undef;
-    return 'no_key' unless $key;
-
-    # Create work directory.
-    my $tmpdir = File::Temp::tempdir( "ljmailgate_" . 'X' x 20, DIR => $workdir );
-    return 'bad_tmpdir' unless -e $tmpdir;
-
-    my ( $in, $out, $err, $status, $gpg_handles, $gpg, $gpg_pid, $ret );
-
-    my $check = sub {
-        my %rets = (
-            'NODATA 1'     => 1,    # no key or no signed data
-            'NODATA 2'     => 2,    # no signed content
-            'NODATA 3'     => 3,    # error checking sig (crc)
-            'IMPORT_RES 0' => 4,    # error importing key (crc)
-            'BADSIG'       => 5,    # good crc, bad sig
-            'GOODSIG'      => 6,    # all is well
-        );
-        while ( my $gline = <$status> ) {
-            foreach ( keys %rets ) {
-                next unless $gline =~ /($_)/;
-                return $rets{$1};
-            }
-        }
-        return 0;
-    };
-
-    my $gpg_cleanup = sub {
-        close $in;
-        close $out;
-        waitpid $gpg_pid, 0;
-        undef foreach $gpg, $gpg_handles;
-    };
-
-    my $gpg_pipe = sub {
-        $_           = IO::Handle->new() foreach $in, $out, $err, $status;
-        $gpg_handles = GnuPG::Handles->new(
-            stdin  => $in,
-            stdout => $out,
-            stderr => $err,
-            status => $status
-        );
-        $gpg = GnuPG::Interface->new();
-        $gpg->options->hash_init( armor => 1, homedir => $tmpdir );
-        $gpg->options->meta_interactive(0);
-    };
-
-    # Pull in user's key, add to keyring.
-    $gpg_pipe->();
-    $gpg_pid = $gpg->import_keys( handles => $gpg_handles );
-    print $in $key;
-    $gpg_cleanup->();
-    $ret = $check->();
-    if ( $ret && $ret == 1 || $ret == 4 ) {
-        $$gpg_err .= "    $_" while (<$err>);
-        return 'invalid_key';
-    }
-
-    my ( $txt, $txt_f, $txt_e, $sig_e );
-    $txt_e = ( get_entity($entity) )[0];
-    return 'bad' unless $txt_e;
-
-    if ( $entity->effective_type() eq 'multipart/signed' ) {
-
-        # attached signature
-        $sig_e = ( get_entity( $entity, 'application/pgp-signature' ) )[0];
-        $txt   = $txt_e->as_string();
-        my $txt_fh;
-        ( $txt_fh, $txt_f ) = File::Temp::tempfile( 'plaintext_XXXXXXXX', DIR => $tmpdir );
-        print $txt_fh $txt;
-        close $txt_fh;
-    }    # otherwise, it's clearsigned
-
-    # Validate message.
-    # txt_e->bodyhandle->path() is clearsigned message in its entirety.
-    # txt_f is the ascii text that was signed (in the event of sig-as-attachment),
-    #     with MIME headers attached.
-    $gpg_pipe->();
-    $gpg_pid = $gpg->wrap_call(
-        handles      => $gpg_handles,
-        commands     => [qw( --trust-model always --verify )],
-        command_args => $sig_e
-        ? [ $sig_e->bodyhandle->path(), $txt_f ]
-        : $txt_e->bodyhandle->path()
-    );
-    $gpg_cleanup->();
-    $ret = $check->();
-    if ( $ret && $ret != 6 ) {
-        $$gpg_err .= "    $_" while (<$err>);
-        return 'bad'        if $ret =~ /[35]/;
-        return 'not_signed' if $ret =~ /[12]/;
-    }
-
-    return 'good' if $ret == 6;
-    return;
 }
 
 sub _cleanup_mobile_carriers {

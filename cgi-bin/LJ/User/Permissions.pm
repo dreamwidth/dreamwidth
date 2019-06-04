@@ -1059,11 +1059,6 @@ sub prop {
     return $u->raw_prop($prop);
 }
 
-# returns the user's public key
-sub public_key {
-    $_[0]->prop('public_key');
-}
-
 sub raw_prop {
     my ( $u, $prop ) = @_;
     $u->preload_props($prop) unless exists $u->{$prop};

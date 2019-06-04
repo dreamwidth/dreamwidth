@@ -17,14 +17,6 @@
 
 .help.advanced.header=Advanced usage
 
-.help.advanced.pgp.body=This body should be properly signed with my private key.
-
-.help.advanced.pgp.header=PGP/GPG message signing
-
-.help.advanced.pgp.text1=If you specify "[[pgp]]" instead of your PIN, allowed sender addresses and the saved PIN are completely ignored.  Your email will only be posted if it's signed with a valid PGP/GPG private key.
-
-.help.advanced.pgp.text2=You must first  <a [[aopts]]>upload your public key</a>.
-
 .help.allowedsenderemail|notes=A made-up email address for users that haven't specified an allowed email address for email posts to be sent from.
 .help.allowedsenderemail=allowed_sender@example.com
 
@@ -107,9 +99,6 @@
 .help.optionalfeatures.removetext.header=Removing unwanted text
 
 .help.optionalfeatures.removetext.text=All text below two or more dashes or underscores ("[[dashes]]" or "[[underscores]]") on a line by itself will be automatically removed. The red text below won't show up in your posting.
-
-.help.pgpsenderemail|notes=A made-up sender email address for users posting with PGP.  It should imply that the user can post from any email address.
-.help.pgpsenderemail=anywhere@example.com
 
 .help.pin=PIN
 

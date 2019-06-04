@@ -32,7 +32,6 @@ use LJ::BetaFeatures;
 DW::Routing->register_string( '/misc/feedping',           \&feedping_handler,         app  => 1 );
 DW::Routing->register_string( '/misc/get_domain_session', \&domain_session_handler,   app  => 1 );
 DW::Routing->register_string( '/misc/whereami',           \&whereami_handler,         app  => 1 );
-DW::Routing->register_string( '/pubkey',                  \&pubkey_handler,           app  => 1 );
 DW::Routing->register_string( '/guidelines',              \&community_guidelines,     user => 1 );
 DW::Routing->register_string( "/random/index",            \&random_personal_handler,  app  => 1 );
 DW::Routing->register_string( "/community/random/index",  \&random_community_handler, app  => 1 );
@@ -163,18 +162,6 @@ sub whereami_handler {
     };
 
     return DW::Template->render_template( 'misc/whereami.tt', $vars );
-}
-
-# handle requests for a user's public key
-sub pubkey_handler {
-    return error_ml('/misc/pubkey.tt.error.notconfigured') unless $LJ::USE_PGP;
-
-    my ( $ok, $rv ) = controller( anonymous => 1, specify_user => 1 );
-    return $rv unless $ok;
-
-    $rv->{u}->preload_props('public_key') if $rv->{u};
-
-    return DW::Template->render_template( 'misc/pubkey.tt', $rv );
 }
 
 sub community_guidelines {
