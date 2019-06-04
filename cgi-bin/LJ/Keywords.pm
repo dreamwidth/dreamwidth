@@ -158,7 +158,7 @@ sub validate_interest_list {
 
     my @valid_ints = ();
     foreach my $int (@ints) {
-        $int = lc($int);    # FIXME: use utf8?
+        $int = lc($int);         # FIXME: use utf8?
         $int =~ s/^i like //;    # *sigh*
         next unless $int;
 

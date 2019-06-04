@@ -80,8 +80,8 @@ sub as_html_actions {
     $ret    .= "<a href='$journalurl'>$journaltext</a>";
     $ret    .= " | <a href='$pmurl'>$pmtext</a>";
     $ret    .= " | <a href='$gifturl'>$gifttext</a>";
-    $ret .= " | <a href='$vgifturl'>$vgifttext</a>" if exists $LJ::SHOP{vgifts};
-    $ret .= "</div>";
+    $ret    .= " | <a href='$vgifturl'>$vgifttext</a>" if exists $LJ::SHOP{vgifts};
+    $ret    .= "</div>";
 
     return $ret;
 }
@@ -134,8 +134,8 @@ sub _as_email {
     return LJ::Lang::get_default_text(
         'esn.bday.email',
         {
-            user => $is_html ? $u->ljuser_display : $u->display_username,
-            bday => $self->email_bday,
+            user     => $is_html ? $u->ljuser_display : $u->display_username,
+            bday     => $self->email_bday,
             bdayuser => $is_html
             ? $self->bdayuser->ljuser_display
             : $self->bdayuser->display_username,

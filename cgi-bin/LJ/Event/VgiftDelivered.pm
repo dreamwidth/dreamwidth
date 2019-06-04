@@ -72,8 +72,8 @@ sub as_html {
 
 sub as_html_actions {
     my ($self) = @_;
-    my $trans = $self->trans or return '';
-    my $u     = $self->u;
+    my $trans  = $self->trans or return '';
+    my $u      = $self->u;
 
     my $url   = $trans->url;
     my $index = $u->journal_base . '/vgifts/';

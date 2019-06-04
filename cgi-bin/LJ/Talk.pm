@@ -602,7 +602,7 @@ sub freeze_comments {
     my $qnodeid   = $nodeid + 0;
 
     # now perform action
-    my $in = join( ',', map { $_ + 0 } @$ids );
+    my $in       = join( ',', map { $_ + 0 } @$ids );
     my $newstate = $unfreeze ? 'A' : 'F';
     my $res      = $u->talk2_do( $nodetype, $nodeid, undef,
               "UPDATE talk2 SET state = '$newstate' "
@@ -845,8 +845,8 @@ sub fixup_logitem_replycount {
     my $nodetype = "L";    # this is only for logitem comment counts
 
     my $rp_memkey = [ $u->{'userid'}, "rp:$u->{'userid'}:$jitemid" ];
-    my $rp_count = LJ::MemCache::get($rp_memkey) || 0;
-    my $fix_key  = "rp_fixed:$u->{userid}:$nodetype:$jitemid:$rp_count";
+    my $rp_count  = LJ::MemCache::get($rp_memkey) || 0;
+    my $fix_key   = "rp_fixed:$u->{userid}:$nodetype:$jitemid:$rp_count";
 
     my $db_key   = "rp:fix:$u->{userid}:$nodetype:$jitemid";
     my $got_lock = $u->selectrow_array( "SELECT GET_LOCK(?, 1)", undef, $db_key );
@@ -983,7 +983,7 @@ sub load_comments {
 
             # see if we should ideally show it or not.  even if it's
             # zero, we'll still show it if it has any children (but we won't show content)
-            my $state = $post->{state} || '';
+            my $state        = $post->{state} || '';
             my $should_show  = $state eq 'D' ? 0 : 1;    # no deleted comments
             my $parenttalkid = $post->{parenttalkid};
             unless ($viewall) {
@@ -1010,7 +1010,7 @@ sub load_comments {
                 $should_show = 0
                     if $should_show &&    # short circuit, and check the following conditions
                                           # only if we wanted to show in the first place
-                         # can view if not screened, or if screened and some conditions apply
+                        # can view if not screened, or if screened and some conditions apply
                     $state eq "S"
                     && !(
                     $remote
@@ -1176,7 +1176,7 @@ sub load_comments {
     $page = $page < 1 ? 1 : $page > $pages ? $pages : $page;
 
     my $itemfirst = $page_size * ( $page - 1 ) + 1;
-    my $itemlast = $page == $pages ? $top_replies : ( $page_size * $page );
+    my $itemlast  = $page == $pages ? $top_replies : ( $page_size * $page );
 
     @top_replies = @top_replies[ $itemfirst - 1 .. $itemlast - 1 ];
 
@@ -1420,7 +1420,7 @@ sub load_userpics {
 
     if (@LJ::MEMCACHE_SERVERS) {
         my @mem_keys = map { [ $_->[1], "userpic.$_->[1]" ] } @load_list;
-        my $mem = LJ::MemCache::get_multi(@mem_keys) || {};
+        my $mem      = LJ::MemCache::get_multi(@mem_keys) || {};
         while ( my ( $k, $v ) = each %$mem ) {
             next unless $v && $k =~ /(\d+)/;
             my $id = $1;

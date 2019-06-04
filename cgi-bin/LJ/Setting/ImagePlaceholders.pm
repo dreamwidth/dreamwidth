@@ -113,7 +113,7 @@ sub option {
 
     my $errdiv = $class->errdiv( $errs, "imgplaceholders" );
     $errdiv .= $class->errdiv( $errs, "imgplaceundef" );
-    $ret .= "<br />$errdiv" if $errdiv;
+    $ret    .= "<br />$errdiv" if $errdiv;
 
     return $ret;
 }

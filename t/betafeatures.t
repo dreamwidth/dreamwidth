@@ -51,8 +51,8 @@ my $u = LJ::Test::temp_user();
 
     $LJ::BETA_FEATURES{foo}->{end_time} = 0;
     ok( !LJ::BetaFeatures->user_in_beta( $u => 'foo' ), "expired" );
-    ok( !$u->in_class('betafeatures'),          "cap unset" );
-    ok( !defined $u->prop('betafeatures_list'), "prop no longer defined" );
+    ok( !$u->in_class('betafeatures'),                  "cap unset" );
+    ok( !defined $u->prop('betafeatures_list'),         "prop no longer defined" );
 
     # FIXME: more!
     # -- BetaFeatures::t_handler dies unless $LJ::T_FOO ?

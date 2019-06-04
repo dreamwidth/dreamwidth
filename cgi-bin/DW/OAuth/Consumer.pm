@@ -39,7 +39,7 @@ sub from_id {
     return $LJ::REQUEST_CACHE{oauth_consumer}{$id} if $LJ::REQUEST_CACHE{oauth_consumer}{$id};
 
     {
-        my $ar = LJ::MemCache::get( [ $id, "oauth_consumer:" . $id ] );
+        my $ar  = LJ::MemCache::get( [ $id, "oauth_consumer:" . $id ] );
         my $row = $ar ? LJ::MemCache::array_to_hash( "oauth_consumer", $ar ) : undef;
         return $class->new_from_row($row) if $row;
     }

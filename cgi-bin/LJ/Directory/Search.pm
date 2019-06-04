@@ -28,7 +28,7 @@ sub new {
     my ( $pkg, %args ) = @_;
     my $self = bless {}, $pkg;
     $self->{page_size} = int( delete $args{page_size} || 100 );
-    $self->{page_size} = 1    if $self->{page_size} < 1;
+    $self->{page_size} = 1 if $self->{page_size} < 1;
     $self->{page_size} = 1000 if $self->{page_size} > 1000;
 
     $self->{page} = int( delete $args{page} || 1 );

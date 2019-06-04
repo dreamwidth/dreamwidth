@@ -59,7 +59,7 @@ like( $@, qr/numeric/, "must be numeric" );
     is( LJ::Event->class( $evt2->etypeid ), ref $evt2, "Got correct class" );
 
     my @classes = $evt->all_classes;
-    ok( @classes, "Got classes" );
+    ok( @classes,                                     "Got classes" );
     ok( scalar( grep { $_ =~ /ForTest1/ } @classes ), "found our class" );
 }
 

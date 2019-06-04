@@ -95,7 +95,7 @@ memcache_stress(
                     LJ::Directory::Constraint::Interest->new( interest => 'chedda' ) );
                 $res = $search->search_no_dispatch;
                 ok(
-                    ( grep { $_ == $u1->userid } $res->userids )
+                    ( grep        { $_ == $u1->userid } $res->userids )
                         && ( grep { $_ == $u2->userid } $res->userids ),
                     "interest search correct"
                 );

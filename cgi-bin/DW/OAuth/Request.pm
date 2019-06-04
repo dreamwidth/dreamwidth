@@ -31,7 +31,7 @@ sub from_token {
     return undef unless DW::OAuth->validate_token($token);
 
     {
-        my $ar = LJ::MemCache::get( [ $token, "oauth_request_token:" . $token ] );
+        my $ar  = LJ::MemCache::get( [ $token, "oauth_request_token:" . $token ] );
         my $row = $ar ? LJ::MemCache::array_to_hash( "oauth_request", $ar ) : undef;
         return $class->new_from_row($row) if $row;
     }

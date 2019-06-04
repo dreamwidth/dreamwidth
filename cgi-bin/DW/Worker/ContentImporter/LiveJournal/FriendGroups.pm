@@ -57,7 +57,7 @@ sub try_work {
     my $dbh = LJ::get_db_writer()
         or return $temp_fail->('Unable to get global master database handle');
 
-    my $r = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
+    my $r           = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
     my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
     $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
     return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};

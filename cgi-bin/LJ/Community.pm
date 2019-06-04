@@ -281,7 +281,7 @@ sub leave_community {
     $cu = LJ::want_user($cu);
 
     return LJ::error('comm_not_found') unless LJ::isu($u) && $cu;
-    return LJ::error('comm_not_comm') unless $cu->is_community;
+    return LJ::error('comm_not_comm')  unless $cu->is_community;
 
     # log to userlog if remote is a maintainer
     $cu->log_event( 'maintainer_remove', { actiontarget => $u->id, remote => $u } )
@@ -314,7 +314,7 @@ sub join_community {
     my ( $u, $cu, $watch, $canpost, %opts ) = @_;
     $cu = LJ::want_user($cu);
     return LJ::error('comm_not_found') unless LJ::isu($u) && $cu;
-    return LJ::error('comm_not_comm') unless $cu->is_community;
+    return LJ::error('comm_not_comm')  unless $cu->is_community;
 
     # try to join the community, and return if it didn't work
     $u->add_edge(
@@ -708,7 +708,7 @@ sub is_closed_membership    { $_[0]->membership_level eq 'closed'    ? 1 : 0; }
 sub is_moderated_membership { $_[0]->membership_level eq 'moderated' ? 1 : 0; }
 sub is_open_membership      { $_[0]->membership_level eq 'open'      ? 1 : 0; }
 sub has_moderated_posting   { $_[0]->prop('moderated'); }
-sub has_open_posting        { $_[0]->prop('nonmember_posting')       ? 1 : 0; }
+sub has_open_posting { $_[0]->prop('nonmember_posting') ? 1 : 0; }
 
 # returns an array of maintainer userids
 sub maintainer_userids {

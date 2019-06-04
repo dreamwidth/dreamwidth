@@ -46,7 +46,7 @@ sub index_handler {
     $max = 100 if $max < 0 || 1000 < $max;
     $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
     $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
-    $tag = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
+    $tag  = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
 
     # if they want a format we don't support ... FIXME: implement all formats
     return "Sorry, that format is not supported yet."
@@ -92,7 +92,7 @@ sub generate_vars {
     $max = 100 if $max < 0 || 1000 < $max;
     $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
     $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
-    $tag = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
+    $tag  = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
 
     # if they want a format we don't support ... FIXME: implement all formats
     return "Sorry, that format is not supported yet."

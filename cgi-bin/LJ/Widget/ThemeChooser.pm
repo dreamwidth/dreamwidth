@@ -421,7 +421,7 @@ sub handle_post {
 
     # we need to load sponsor's themes for sponsored users
     my $substitue_user = LJ::Hooks::run_hook( "substitute_s2_layers_user", $u );
-    my $effective_u = defined $substitue_user ? $substitue_user : $u;
+    my $effective_u    = defined $substitue_user ? $substitue_user : $u;
     my $theme;
     if ($themeid) {
         $theme = LJ::S2Theme->load_by_themeid( $themeid, $effective_u );

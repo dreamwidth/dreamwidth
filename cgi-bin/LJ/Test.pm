@@ -185,7 +185,7 @@ sub check_memcache {
 sub routing_request {
     my ( $uri, %opts ) = @_;
 
-    my $method = $opts{method} || 'GET';
+    my $method       = $opts{method} || 'GET';
     my %routing_data = %{ $opts{routing_data} || {} };
 
     LJ::start_request();
@@ -358,7 +358,7 @@ sub t_post_fake_entry {
 
     die "Error posting: $res{errmsg}" unless $res{'success'} eq "OK";
     my $jitemid = $res{itemid} or die "No itemid";
-    my $ju = $opts{usejournal} ? LJ::load_user( $opts{usejournal} ) : $u;
+    my $ju      = $opts{usejournal} ? LJ::load_user( $opts{usejournal} ) : $u;
 
     return LJ::Entry->new( $ju, jitemid => $jitemid );
 }

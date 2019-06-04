@@ -75,7 +75,7 @@ sub thaw {
     return $class->new_by_id( $u, $subid );
 }
 
-sub pending { 0 }
+sub pending          { 0 }
 sub default_selected { $_[0]->active && $_[0]->enabled }
 
 sub subscriptions_of_user {

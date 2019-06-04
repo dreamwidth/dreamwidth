@@ -110,8 +110,8 @@ sub _apply_userid {
     {
         # By definition, things from anonymous purchasers are gifts.
         my @tags = (
-            'gift:' . ( $fu && $fu->equals($u) ? 'no' : 'yes' ),
-            'anonymous:' . ( $self->anonymous ? 'yes' : 'no' ),
+            'gift:' .      ( $fu && $fu->equals($u) ? 'no'  : 'yes' ),
+            'anonymous:' . ( $self->anonymous       ? 'yes' : 'no' ),
             'type:' . $self->class,
             'target:account'
         );
@@ -179,7 +179,7 @@ sub _apply_userid {
         }
         else {
             $emailtype = $fu && $u->equals($fu) ? 'self' : 'other';
-            $emailtype = 'anon'     if $self->anonymous;
+            $emailtype = 'anon' if $self->anonymous;
             $emailtype = 'explicit' if $self->from_name;
         }
 

@@ -54,7 +54,7 @@ LJ::Hooks::register_hook(
             if ( $priv eq 'supportread' ) {
                 $hr->{"$_+"} = "Extended $sup privs for $_ category" foreach @catkeys;
             }
-            $sup = $priv eq 'supporthelp' ? 'All' : ucfirst $sup;
+            $sup      = $priv eq 'supporthelp' ? 'All' : ucfirst $sup;
             $hr->{$_} = "$sup privs for $_ category" foreach @catkeys;
             $hr->{''} = "$sup privs for public categories";
         }

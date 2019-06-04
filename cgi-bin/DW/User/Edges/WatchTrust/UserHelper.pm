@@ -149,7 +149,7 @@ sub _mutually_trusted_users {
     return $fom->{t_mut_users} = [
         sort { $a->display_name cmp $b->display_name }
         grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
-        map { $us->{$_} ? ( $us->{$_} ) : () } @ids
+        map  { $us->{$_} ? ( $us->{$_} ) : () } @ids
     ];
 }
 
@@ -164,7 +164,7 @@ sub _mutually_watched_users {
     return $fom->{w_mut_users} = [
         sort { $a->display_name cmp $b->display_name }
         grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
-        map { $us->{$_} ? ( $us->{$_} ) : () } @ids
+        map  { $us->{$_} ? ( $us->{$_} ) : () } @ids
     ];
 }
 
@@ -245,7 +245,7 @@ sub _trusted_by_users {
     return $fom->{_trusted_by_users} = [
         sort { $a->display_name cmp $b->display_name }
         grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
-        map { $us->{$_} ? ( $us->{$_} ) : () } @to_load
+        map  { $us->{$_} ? ( $us->{$_} ) : () } @to_load
     ];
 
 }

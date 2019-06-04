@@ -92,9 +92,9 @@ sub new {
 sub delete  { }
 sub pending { 1 }
 
-sub journal   { $_[0]->{journal} }
-sub journalid { $_[0]->{journal} ? $_[0]->{journal}->{userid} : 0 }
-sub entry     { $_[0]->{entry} }
+sub journal          { $_[0]->{journal} }
+sub journalid        { $_[0]->{journal} ? $_[0]->{journal}->{userid} : 0 }
+sub entry            { $_[0]->{entry} }
 sub default_selected { $_[0]->{default_selected} && !$_[0]->disabled }
 
 sub disabled {

@@ -740,7 +740,7 @@ sub load_random_user {
             or next;
 
         # situational checks to ensure this user is a good one to show
-        next unless $u->is_visible;    # no suspended/deleted/etc users
+        next unless $u->is_visible;           # no suspended/deleted/etc users
         next if $u->prop('latest_optout');    # they have chosen to be excluded
 
         # they've passed the checks, return this user

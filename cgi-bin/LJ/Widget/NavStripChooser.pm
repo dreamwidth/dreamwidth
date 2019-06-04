@@ -40,7 +40,7 @@ sub render_body {
     $ret .= "<p>" . $class->ml('widget.navstripchooser.colors') . "</p>";
 
     # choose colors
-    my $chosen_color = $u->prop('control_strip_color') // '';
+    my $chosen_color   = $u->prop('control_strip_color') // '';
     my $color_selected = $chosen_color ne '' ? $chosen_color : "dark";
 
     my (

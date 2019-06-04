@@ -63,7 +63,7 @@ sub directory_handler {
 
             # create the links to filter by journal type
             my $filter_url = sub {
-                my $jt = $_[0] || '';
+                my $jt  = $_[0] || '';
                 my %get = ( start_search => 1, journaltype => $jt, page => '' );
                 return LJ::ehtml( LJ::page_change_getargs(%get) );
             };

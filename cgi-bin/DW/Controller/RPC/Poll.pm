@@ -38,11 +38,11 @@ sub poll_handler {
         return $r->OK;
     };
 
-    my $pollid = ( ( $args->{pollid} || 0 ) + 0 ) or return $err->("No pollid");
-    my $pollqid  = ( $args->{pollqid}  || 0 ) + 0;
-    my $userid   = ( $args->{userid}   || 0 ) + 0;
+    my $pollid   = ( ( $args->{pollid} || 0 ) + 0 ) or return $err->("No pollid");
+    my $pollqid  = ( $args->{pollqid} || 0 ) + 0;
+    my $userid   = ( $args->{userid} || 0 ) + 0;
     my $action   = $args->{action};
-    my $page     = ( $args->{page}     || 0 ) + 0;
+    my $page     = ( $args->{page} || 0 ) + 0;
     my $pagesize = ( $args->{pagesize} || 2000 ) + 0;
 
     my $poll = LJ::Poll->new($pollid) or return $err->("Error loading poll $pollid");

@@ -852,9 +852,9 @@ sub create_qr_div {
 
     return undef if $remote->prop("opt_no_quickreply");
 
-    my $e = LJ::Entry->new( $u, ditemid => $ditemid );
+    my $e         = LJ::Entry->new( $u, ditemid => $ditemid );
     my $separator = %$style_opts ? "&" : "?";
-    my $basepath = $e->url( style_opts => LJ::viewing_style_opts(%$style_opts) ) . $separator;
+    my $basepath  = $e->url( style_opts => LJ::viewing_style_opts(%$style_opts) ) . $separator;
 
     my $usertype =
         ( $remote->openid_identity && $remote->is_validated ) ? 'openid_cookie' : 'cookieuser';
@@ -3120,7 +3120,7 @@ sub control_strip {
         $argshash = $r->get_args;
     }
 
-    my $view = delete $opts{view} || $r->note('view');
+    my $view    = delete $opts{view} || $r->note('view');
     my $view_is = sub { defined $view && $view eq $_[0] };
 
     my $baseuri = "https://$host$uri";
@@ -4088,7 +4088,7 @@ sub subscribe_interface {
                 $cat_html .= LJ::img( 'btn_trash', '' ) . "</a>\n";
             }
             my $always_checked = eval { "$evt_class"->always_checked; };
-            my $disabled = $always_checked ? 1 : !$pending_sub->enabled;
+            my $disabled       = $always_checked ? 1 : !$pending_sub->enabled;
 
             if ($do_show) {
                 $cat_html .= LJ::html_check(
@@ -4380,14 +4380,14 @@ sub placeholder_link {
     my (%opts) = @_;
 
     my $placeholder_html = LJ::ejs_all( delete $opts{placeholder_html} || '' );
-    my $width       = delete $opts{width}       || 100;
-    my $height      = delete $opts{height}      || 100;
-    my $width_unit  = delete $opts{width_unit}  || "px";
-    my $height_unit = delete $opts{height_unit} || "px";
-    my $link        = delete $opts{link}        || '';
-    my $url         = delete $opts{url}         || '';
-    my $linktext    = delete $opts{linktext}    || '';
-    my $img         = delete $opts{img}         || "$LJ::IMGPREFIX/videoplaceholder.png";
+    my $width            = delete $opts{width} || 100;
+    my $height           = delete $opts{height} || 100;
+    my $width_unit       = delete $opts{width_unit} || "px";
+    my $height_unit      = delete $opts{height_unit} || "px";
+    my $link             = delete $opts{link} || '';
+    my $url              = delete $opts{url} || '';
+    my $linktext         = delete $opts{linktext} || '';
+    my $img              = delete $opts{img} || "$LJ::IMGPREFIX/videoplaceholder.png";
 
     my $direct_link =
         defined $url
@@ -4416,7 +4416,7 @@ sub placeholder_link {
 # characters.
 sub std_max_length {
     my $lang = eval { BML::get_language() };
-    return 80 if !$lang || $lang =~ /^en/;
+    return 80  if !$lang || $lang =~ /^en/;
     return 100 if $lang =~ /\b(hy|az|be|et|ka|ky|kk|lt|lv|mo|ru|tg|tk|uk|uz)\b/i;
     return 80;
 }

@@ -102,7 +102,7 @@ unless ( rename_user( "lj_swap_$swapnum", $to ) ) {
 {
 
     # if the fromuser had redirection on, make sure it points to the new $to user
-    my $fromu = LJ::load_user( $from, 'force' );
+    my $fromu   = LJ::load_user( $from, 'force' );
     my $fromu_r = $fromu ? $fromu->prop('renamedto') : undef;
     if ( $fromu_r && $fromu_r ne $to ) {
         print "Setting redirection: $from => $to\n";

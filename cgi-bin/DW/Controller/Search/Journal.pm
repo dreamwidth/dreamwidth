@@ -104,7 +104,7 @@ sub search_handler {
 
         # see if the user wants to include comments, then verify that they are
         # allowed to do so; if not, just ignore that they checked the checkbox
-        my $wc = $post_args->{with_comments} ? 1 : 0;
+        my $wc   = $post_args->{with_comments} ? 1 : 0;
         my $wc_u = $su || $remote;
         $wc &&= $wc_u->is_paid;    # comment search is a paid account feature
 

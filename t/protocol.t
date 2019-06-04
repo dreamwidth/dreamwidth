@@ -135,7 +135,7 @@ note("getcircle");
     while ( my ( $include, $val ) = each %circle_args ) {
         ( $res, $err ) = $do_request->( "getcircle", username => $u->user, $include => 1 );
         $success->("'getcircle' => $include");
-        is( scalar keys %$res, 1, "One key: " . ( keys %$res )[0] );
+        is( scalar keys %$res,       1,       "One key: " . ( keys %$res )[0] );
         is( ref $res->{ $val->[0] }, "ARRAY", "Returned an arrayref of this user's $include." );
 
         my @cached_users   = @{ $val->[1] };

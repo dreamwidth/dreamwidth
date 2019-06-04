@@ -631,8 +631,8 @@ sub _set_text {
         $self->{_loaded_text} = 1;
     }
     else {
-        $self->{$_} = undef foreach qw(subject body);
-        $self->{_loaded_text} = 0;
+        $self->{$_}                                      = undef foreach qw(subject body);
+        $self->{_loaded_text}                            = 0;
         $unloaded_text_singletons{ $self->singletonkey } = $self;
     }
 
@@ -966,8 +966,8 @@ sub visible_to {
     # screened comment
     return 0 if $self->is_screened && !    # allowed viewers:
         (
-        $u->can_manage( $self->journal )    # owns the journal
-        || $posted_comment || $posted_entry # owns the content
+        $u->can_manage( $self->journal )       # owns the journal
+        || $posted_comment || $posted_entry    # owns the content
         || ( $posted_parent && $posted_by_admin )
         );
 

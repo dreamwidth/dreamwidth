@@ -97,7 +97,7 @@ sub changeemail_handler {
 
         ## make note of changed email
         my $is_identity_no_email = $u->is_identity && !$u->email_raw;
-        my $old_email = $is_identity_no_email ? "none" : $u->email_raw;
+        my $old_email            = $is_identity_no_email ? "none" : $u->email_raw;
 
         my $loginfo = "old: $old_email, new: $post->{email}";
         $loginfo .= ", ip: " . $r->get_remote_ip if $LJ::LOG_CHANGEEMAIL_IP;

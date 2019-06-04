@@ -94,7 +94,7 @@ sub generate {
 
     my @invitecodes;
     my @authcodes = map { LJ::make_auth_code(AUTH_LEN) } 1 .. $opts{count};
-    my $uid = $opts{owner} ? $opts{owner}->id : 0;
+    my $uid       = $opts{owner} ? $opts{owner}->id : 0;
 
     foreach my $auth (@authcodes) {
         $sth->execute( $uid, $auth, $opts{reason} );

@@ -27,7 +27,7 @@ sub render_body {
     my $remote = LJ::get_remote()
         or return;
 
-    my $tags_count = scalar keys %{ $remote->tags || {} };
+    my $tags_count     = scalar keys %{ $remote->tags || {} };
     my $memories_count = LJ::Memories::count( $remote->id ) || 0;
 
     my $accttype = DW::Pay::get_account_type_name($remote);

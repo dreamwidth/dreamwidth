@@ -71,7 +71,7 @@ sub serialize {
     $type =~ s/^LJ::Directory::Constraint:://;
     return "$type:"
         . join( "&",
-        map { LJ::eurl($_) . "=" . LJ::eurl( $self->{$_} ) }
+        map      { LJ::eurl($_) . "=" . LJ::eurl( $self->{$_} ) }
             grep { /^[a-z]/ && $self->{$_} }
             sort
             keys %$self );

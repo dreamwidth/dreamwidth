@@ -65,7 +65,7 @@ sub save {
     #       buyer => (u or userid) - optional
     #       time => (epoch seconds) - optional (defaults to current time)
 
-    my $vg = $opts{vgift} or return;
+    my $vg    = $opts{vgift} or return;
     my $vgift = ref $vg ? $vg : DW::VirtualGift->new($vg);
     return unless $vgift && $vgift->id;
 
@@ -242,7 +242,7 @@ sub from_text {
 sub _update {
     my ( $self, $sql, $expire ) = @_;
     my ( $id, $u ) = ( $self->id, $self->u );
-    return unless $id && LJ::isu($u);
+    return unless $id  && LJ::isu($u);
     return unless $sql && $sql !~ /\?/;
 
     $u->do( "$sql WHERE rcptid=? AND transid=?", undef, $u->id, $id );

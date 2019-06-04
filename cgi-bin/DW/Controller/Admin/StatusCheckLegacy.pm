@@ -114,7 +114,7 @@ sub mysql_status_handler {
 
         while ( my $t = $sth->fetchrow_hashref ) {
             my @row;
-            push @row, $t->{$_} foreach @headers;
+            push @row,  $t->{$_} foreach @headers;
             push @data, \@row;
         }
     }

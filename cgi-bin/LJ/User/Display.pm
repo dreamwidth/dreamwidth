@@ -174,11 +174,11 @@ sub ljuser_display {
         || $u->is_locked
         || $u->is_readonly;
 
-    my $andfull = $opts->{full} ? "&amp;mode=full" : "";
-    my $img = $opts->{imgroot} || $LJ::IMGPREFIX;
-    my $strike = $opts->{del} ? ' text-decoration: line-through;' : '';
-    my $profile_url = $opts->{profile_url} || '';
-    my $journal_url = $opts->{journal_url} || '';
+    my $andfull       = $opts->{full} ? "&amp;mode=full" : "";
+    my $img           = $opts->{imgroot} || $LJ::IMGPREFIX;
+    my $strike        = $opts->{del} ? ' text-decoration: line-through;' : '';
+    my $profile_url   = $opts->{profile_url} || '';
+    my $journal_url   = $opts->{journal_url} || '';
     my $display_class = $opts->{no_ljuser_class} ? "" : " class='ljuser'";
     my $type          = $u->journaltype_readable;
 
@@ -377,7 +377,7 @@ sub get_times_multi {
     return {} unless @uids;
 
     my @memkeys = map { [ $_, "tu:$_" ], [ $_, "tc:$_" ] } @uids;
-    my $mem = LJ::MemCache::get_multi(@memkeys) || {};
+    my $mem     = LJ::MemCache::get_multi(@memkeys) || {};
 
     my @need  = ();
     my %times = ();
@@ -450,7 +450,7 @@ sub get_timeupdate_multi {
     return {} unless @uids;
 
     my @memkeys = map { [ $_, "tu:$_" ] } @uids;
-    my $mem = LJ::MemCache::get_multi(@memkeys) || {};
+    my $mem     = LJ::MemCache::get_multi(@memkeys) || {};
 
     my @need;
     my %timeupdate;    # uid => timeupdate
@@ -506,7 +506,7 @@ sub get_timezone {
 
         if ($dt) {
             $$offsetref = $dt->offset() / ( 60 * 60 );    # Convert from seconds to hours
-            $$fakedref = 0 if $fakedref;
+            $$fakedref  = 0 if $fakedref;
 
             return 1;
         }
@@ -597,10 +597,10 @@ sub get_timezone {
 sub ljuser {
     my ( $user, $opts ) = @_;
 
-    my $andfull = $opts->{'full'} ? "?mode=full" : "";
-    my $img         = $opts->{'imgroot'}     || $LJ::IMGPREFIX;
-    my $profile_url = $opts->{'profile_url'} || '';
-    my $journal_url = $opts->{'journal_url'} || '';
+    my $andfull       = $opts->{'full'} ? "?mode=full" : "";
+    my $img           = $opts->{'imgroot'} || $LJ::IMGPREFIX;
+    my $profile_url   = $opts->{'profile_url'} || '';
+    my $journal_url   = $opts->{'journal_url'} || '';
     my $display_class = $opts->{no_ljuser_class} ? "" : " class='ljuser'";
     my $profile;
 

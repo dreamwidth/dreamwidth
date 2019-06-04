@@ -273,7 +273,7 @@ sub _create_entry {
         return err ( "Unable to post new entry. Protocol error: $errstr", $r->HTTP_SERVER_ERROR );
     }
 
-    my $entry_obj = LJ::Entry->new( $u, jitemid => $res->{itemid} );
+    my $entry_obj  = LJ::Entry->new( $u, jitemid => $res->{itemid} );
     my $atom_reply = $entry_obj->atom_entry( apilinks => 1, synlevel => 'full' );
 
     $r->header_out( "Location", $entry_obj->atom_url );

@@ -59,7 +59,7 @@ sub _parse_destination {
     my ( $user, $journal, $pin );
 
     # ignore pin, handle it later
-    ( $user, $pin ) = split /\+/, $auth_string;
+    ( $user, $pin )     = split /\+/, $auth_string;
     ( $user, $journal ) = split /\./, $user if $user =~ /\./;
 
     $self->{u} = LJ::load_user($user);

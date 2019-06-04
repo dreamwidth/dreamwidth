@@ -36,7 +36,7 @@ sub interest_handler {
 
     # do mode logic first, to save typing later
     my $mode = '';
-    $mode = 'int' if $args->{int} || $args->{intid};
+    $mode = 'int'     if $args->{int} || $args->{intid};
     $mode = 'popular' if $args->{view} && $args->{view} eq "popular";
     if ( $args->{mode} ) {
         $mode = 'add'        if $args->{mode} eq "add"    && $args->{intid};
@@ -175,8 +175,8 @@ sub interest_handler {
         my $users = LJ::load_userids(@matches);
 
         my $nocircle = $remote && $args->{nocircle};
-        my $count = { P => 0, C => 0, I => 0 };
-        my $data = { P => [], C => [], I => [] };
+        my $count    = { P => 0, C => 0, I => 0 };
+        my $data     = { P => [], C => [], I => [] };
         foreach my $uid (@matches) {
             my $match_u = $users->{$uid};
             next unless $match_u && $match_u->is_visible;
@@ -351,7 +351,7 @@ sub interest_handler {
             }
 
             my $e_int = $trunc_check->( $check_int, $interest );
-            push @intdata, $e_int;
+            push @intdata,  $e_int;
             push @no_users, $e_int unless $intcount;
 
             $rv->{allcount} = $intcount if scalar @intids == 1;
@@ -376,12 +376,12 @@ sub interest_handler {
         $rv->{type_list} = \@type_args;
 
         my $type = $args->{type};
-        $type = 'none' unless $type && $type =~ /^[PCIF]$/;
-        $type = 'none' if $type eq 'F' && !$remote;    # just in case
+        $type = 'none' unless $type    && $type =~ /^[PCIF]$/;
+        $type = 'none' if $type eq 'F' && !$remote;              # just in case
 
         # constructor for filter links
         $rv->{type_link} = sub {
-            return '' if $type eq $_[0];               # no link for active selection
+            return '' if $type eq $_[0];                         # no link for active selection
             my $typearg = $_[0] eq 'none' ? '' : $_[0];
             return LJ::page_change_getargs( type => $typearg );
         };

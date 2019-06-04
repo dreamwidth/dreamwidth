@@ -134,7 +134,7 @@ sub new_handler {
         # if user has timezone, use it!
         if ( $remote && $remote->prop("timezone") ) {
             my $tz = $remote->prop("timezone");
-            $tz = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
+            $tz  = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
             $now = eval { DateTime->from_epoch( epoch => time(), time_zone => $tz ); }
                 if $tz;
         }
@@ -414,7 +414,7 @@ sub _init {
     }
 
     my $is_community = $journalu && $journalu->is_community;
-    my @security = $is_community ? qw( public members admin ) : qw( public access private );
+    my @security     = $is_community ? qw( public members admin ) : qw( public access private );
     my @custom_groups;
     if ( $u && !$is_community ) {
         @custom_groups =

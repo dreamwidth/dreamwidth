@@ -205,12 +205,12 @@ sub title {
     return undef unless $url;
     my $ua  = $class->agent;
     my $res = $ua->get($url);
-    return 'error' if $res && $res->code == 404;    # non-exist
-    return undef unless $res && $res->is_success;   # non-response
+    return 'error' if $res   && $res->code == 404;    # non-exist
+    return undef unless $res && $res->is_success;     # non-response
 
     my $text = $res->content || '';
     my ($title) = $text =~ m@<title>([^<]*)</title>@i;
-    return lc $title;                               # e.g. username - community profile
+    return lc $title;                                 # e.g. username - community profile
 }
 
 # REMOTE METHODS

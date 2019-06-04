@@ -44,7 +44,7 @@ sub new {
 }
 
 # accessors for our internal data
-sub u { $_[0]->{_u} ||= LJ::load_userid( $_[0]->{userid} ) }
+sub u             { $_[0]->{_u} ||= LJ::load_userid( $_[0]->{userid} ) }
 sub userid        { $_[0]->{userid} }
 sub id            { $_[0]->{colid} }
 sub parent_userid { $_[0]->{paruserid} }

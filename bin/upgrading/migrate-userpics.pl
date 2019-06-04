@@ -295,7 +295,7 @@ sub handle_userid {
         print "\tdata length = $len bytes, uploading to BlobStore...\n"
             if $verbose;
         my $storage_key = LJ::Userpic->storage_key( $u->userid, $picid );
-        my $bstore = DW::BlobStore->store( userpics => $storage_key, \$data );
+        my $bstore      = DW::BlobStore->store( userpics => $storage_key, \$data );
         if ( $besteffort && !$bstore ) {
             print STDERR "store_failed userid=$u->{userid} picid=$picid\n";
             print "\twarning: failed in call to store\n\n"
@@ -308,7 +308,7 @@ sub handle_userid {
         # extra verification
         if ($verify) {
             my $data2 = DW::BlobStore->retrieve( userpics => $storage_key );
-            my $eq = ( $data2 && $$data2 eq $data ) ? 1 : 0;
+            my $eq    = ( $data2 && $$data2 eq $data ) ? 1 : 0;
             if ( $besteffort && !$eq ) {
                 print STDERR "verify_failed userid=$u->{userid} picid=$picid\n";
                 print "\twarning: verify failed; picture not updated\n\n"

@@ -1927,7 +1927,7 @@ sub paging {
     $self{'page'} = $page;
 
     $self{'itemfirst'} = $pagesize * ( $page - 1 ) + 1;
-    $self{'itemlast'} = $self{'pages'} == $page ? $self{'itemcount'} : ( $pagesize * $page );
+    $self{'itemlast'}  = $self{'pages'} == $page ? $self{'itemcount'} : ( $pagesize * $page );
 
     $self{'items'} = [ @{$listref}[ ( $self{'itemfirst'} - 1 ) .. ( $self{'itemlast'} - 1 ) ] ];
 

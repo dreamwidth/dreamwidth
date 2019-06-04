@@ -128,7 +128,7 @@ sub individual_edit_handler {
         my $error;
         my $can_trust = $remote->can_trust( $target_u, errref => \$error );
         $edge->{can_change} = $edge->{on} ? 1 : $can_trust;
-        $edge->{error} = $error unless $edge->{can_change};
+        $edge->{error}      = $error unless $edge->{can_change};
 
 # populate access filters (only allow to modify access filters if we can still grant access -- if we can't, no filters for them;
 # only thing they can do is remove existing access)
@@ -160,7 +160,7 @@ sub individual_edit_handler {
         my $error;
         my $can_watch = $remote->can_watch( $target_u, errref => \$error );
         $edge->{can_change} = $edge->{on} ? 1 : $can_watch;
-        $edge->{error} = $error unless $edge->{can_change};
+        $edge->{error}      = $error unless $edge->{can_change};
 
         # populate content filters
         my @content_filters;
@@ -288,7 +288,7 @@ sub individual_edit_handler {
 
             my $do_grant_access = ( $did_change_access && $post->{new_state} eq "on" )
                 || ( $did_change_access_filters && !$already_trusted ) ? 1 : 0;
-            my $do_revoke_access = $did_change_access && $post->{new_state} eq "off";
+            my $do_revoke_access    = $did_change_access && $post->{new_state} eq "off";
             my $do_update_trustmask = $did_change_access_filters || $do_grant_access;
 
             if ($do_grant_access) {
@@ -333,7 +333,7 @@ sub individual_edit_handler {
 
             my $do_subscribe = ( $did_change_subscribe && $post->{new_state} eq "on" )
                 || ( $did_change_subscribe_filters && !$already_watched );
-            my $do_unsubscribe = $did_change_subscribe && $post->{new_state} eq "off";
+            my $do_unsubscribe    = $did_change_subscribe && $post->{new_state} eq "off";
             my $do_update_filters = $did_change_subscribe_filters || $do_subscribe;
 
             if ($do_subscribe) {

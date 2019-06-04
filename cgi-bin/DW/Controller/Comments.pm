@@ -90,9 +90,9 @@ sub received_handler {
         }
 
         my $comment_text = LJ::get_talktext2( $u, keys %talkids );
-        my $log_data = LJ::get_posts_raw( { text_only => 1 }, @need_logtext );
-        my $log_text = $log_data->{text};
-        my $root     = $u->journal_base;
+        my $log_data     = LJ::get_posts_raw( { text_only => 1 }, @need_logtext );
+        my $log_text     = $log_data->{text};
+        my $root         = $u->journal_base;
 
         # Cycle through comments and skip deleted ones
         foreach my $r (@recv) {
@@ -399,7 +399,7 @@ sub initialize_count {
     $show = $max if $show > $max;
     $show = 0    if $show < 1;
     my $count = $show || ( $max > 25 ? 25 : $max );
-    $show = $max > 25 ? 25 : $max;
+    $show          = $max > 25 ? 25 : $max;
     $vars->{count} = $count;
     $vars->{show}  = $show;
     $vars->{max}   = $max;
@@ -410,7 +410,7 @@ sub initialize_count {
     push @values, $max
         unless grep { $max == $_ } @values;
 
-    @values = sort { $a <=> $b } @values;
+    @values          = sort { $a <=> $b } @values;
     $vars->{values}  = \@values;
     $vars->{sitemax} = $LJ::TOOLS_RECENT_COMMENTS_MAX;
 

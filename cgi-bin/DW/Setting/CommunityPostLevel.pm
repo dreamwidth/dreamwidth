@@ -92,8 +92,8 @@ sub save {
         $nonmember_posting = 1;
     }
 
-    $u->set_comm_settings( $remote, { postlevel => $val } );
-    $u->set_prop( { nonmember_posting => $nonmember_posting } );
+    $u->set_comm_settings( $remote, { postlevel         => $val } );
+    $u->set_prop(                   { nonmember_posting => $nonmember_posting } );
 
     # unconditionally give posting access to all members
     my $cid = $u->userid;

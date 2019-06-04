@@ -203,11 +203,11 @@ sub log {
     if ( my $apache_r = eval { BML::get_request() } ) {
         my $apache_rl = $apache_r->last;
 
-        my $remote = eval { LJ::load_user( $apache_rl->notes('ljuser') ) };
-        my $remotecaps = $remote ? $remote->{caps}   : undef;
+        my $remote     = eval { LJ::load_user( $apache_rl->notes('ljuser') ) };
+        my $remotecaps = $remote ? $remote->{caps} : undef;
         my $remoteid   = $remote ? $remote->{userid} : 0;
-        my $ju  = eval { LJ::load_userid( $apache_rl->notes('journalid') ) };
-        my $uri = $apache_r->uri;
+        my $ju         = eval { LJ::load_userid( $apache_rl->notes('journalid') ) };
+        my $uri        = $apache_r->uri;
 
         my %insert_r = (
             'addr'        => $apache_r->connection->client_ip,

@@ -174,7 +174,7 @@ if ($modify) {
         || ( $status && $status ne $ban->{'status'} && $status eq 'active' ) )
     {
 
-        my $new_value = $value || $ban->{value};
+        my $new_value    = $value || $ban->{value};
         my $new_banuntil = LJ::mysqldate_to_time( $banuntil || $ban->{banuntil} );
 
         LJ::Sysban::ban_do( $ban->{what}, $new_value, $new_banuntil );

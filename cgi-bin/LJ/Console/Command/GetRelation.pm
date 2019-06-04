@@ -47,7 +47,7 @@ sub execute {
         unless $u;
 
     my $ids = $u->is_person ? LJ::load_rel_target( $u, $edge ) : LJ::load_rel_user( $u, $edge );
-    my $us = LJ::load_userids( @{ $ids || [] } );
+    my $us  = LJ::load_userids( @{ $ids || [] } );
 
     foreach my $u ( sort { $a->id <=> $b->id } values %$us ) {
         next unless $u;

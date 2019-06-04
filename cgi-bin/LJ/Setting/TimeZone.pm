@@ -46,7 +46,7 @@ sub option {
 
     my @options = ( "", $class->ml('setting.timezone.option.select') );
     push @options, ( map { $usmap->{$_}, $_ } sort keys %$usmap ),
-        ( map { $camap->{$_}, $_ } sort keys %$camap ),
+        ( map            { $camap->{$_}, $_ } sort keys %$camap ),
         ( map { $_, $_ } DateTime::TimeZone::all_names() );
 
     my $ret = LJ::html_select(

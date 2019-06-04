@@ -662,12 +662,13 @@ sub get_layers_of_user {
             . "'majorversion', '_previews')" );
     $sth->execute($userid);
     die $dbr->errstr if $dbr->err;
+
     while ( my ( $key, $val, $id, $bid, $type ) = $sth->fetchrow_array ) {
         $layers{$id}->{'b2lid'} = $bid;
         $layers{$id}->{'s2lid'} = $id;
         $layers{$id}->{'type'}  = $type;
-        $key = "uniq" if $key eq "redist_uniq";
-        $layers{$id}->{$key} = $val;
+        $key                    = "uniq" if $key eq "redist_uniq";
+        $layers{$id}->{$key}    = $val;
     }
 
     foreach ( keys %layers ) {
@@ -1494,8 +1495,8 @@ sub layer_compile {
     foreach ( keys %info ) {
         $values .= "," if $values;
         $values .= sprintf( "(%d, %s, %s)", $lid, $dbh->quote($_), $dbh->quote( $info{$_} ) );
-        $notin .= "," if $notin;
-        $notin .= $dbh->quote($_);
+        $notin  .= "," if $notin;
+        $notin  .= $dbh->quote($_);
     }
     if ($values) {
         $dbh->do("REPLACE INTO s2info (s2lid, infokey, value) VALUES $values")
@@ -1867,7 +1868,7 @@ sub tracking_popup_js {
 
 sub use_journalstyle_icons_page {
     my ( $u, $ctx ) = @_;
-    return 0 if !$u || $u->is_syndicated;    # see sitefeeds/layout.s2
+    return 0 if !$u || $u->is_syndicated;                       # see sitefeeds/layout.s2
     return 0 unless exists $ctx->[S2::CLASSES]->{IconsPage};    # core1 doesn't support IconsPage
 
     return $u->prop('use_journalstyle_icons_page') ? 1 : 0;
@@ -2738,7 +2739,7 @@ sub sitescheme_secs_to_iso {
     # if opts has a true tz key, get the remote user's timezone if possible
     if ( $opts->{tz} ) {
         $s2_datetime = DateTime_tz( $secs, $remote );
-        $has_tz = defined $s2_datetime ? "(local)" : "UTC";
+        $has_tz      = defined $s2_datetime ? "(local)" : "UTC";
     }
 
     # if timezone execution failed, use GMT
@@ -4129,8 +4130,8 @@ sub DateTime__time_format {
     my $code  = "\$\$c = sub { my \$time = shift; return join('',";
     my $i     = 0;
     foreach (@parts) {
-        if ( $i % 2 ) { $code .= $dt_vars{$_} . ","; }
-        else          { $_ = LJ::ehtml($_); $code .= "\$parts[$i],"; }
+        if   ( $i % 2 ) { $code                     .= $dt_vars{$_} . ","; }
+        else            { $_ = LJ::ehtml($_); $code .= "\$parts[$i],"; }
         $i++;
     }
     $code .= "); };";

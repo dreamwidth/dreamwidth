@@ -1781,7 +1781,7 @@ sub postevent {
     );
 
     # cluster tracking
-    LJ::mark_user_active( $u, 'post' );
+    LJ::mark_user_active( $u,      'post' );
     LJ::mark_user_active( $uowner, 'post' ) unless $u->equals($uowner);
 
     DW::Stats::increment( 'dw.action.entry.post', 1,
