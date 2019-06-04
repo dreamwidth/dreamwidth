@@ -40,7 +40,7 @@ Net::OpenID::Server
 Net::SMTPS
 Net::SSL@2.85
 Paws::S3
-Perl::Tidy
+Perl::Tidy@20190601
 Proc::ProcessTable
 RPC::XML
 SOAP::Lite@0.710.8
