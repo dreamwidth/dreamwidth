@@ -101,91 +101,87 @@ the same terms as Perl itself.  For a copy of the license, please reference
           </td>
         </tr>
 
-        [%- IF openid_enabled -%]
-
-          [%- IF remote.openid_identity -%]
-            <tr valign='middle' id='oidli' name='oidli'>
-              <td align='center'>
-                [%- dw.img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) -%]
-              </td>
-              <td align='center'>
-                [%- IF remote.allowed -%]
-                  <input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'[% IF default_usertype == 'openid_cookie' %] checked='checked'[% END %] />
-                [%- ELSE -%]
-                  (&nbsp;)
-                [%- END -%]
-              </td>
-              <td align='left'>
-                [%- IF remote.allowed -%]
-                  <b>
-                    <label for='talkpostfromoid' onclick='handleRadios(4);return false;'>
-                      [%- '/talkpost.bml.opt.openid.loggedin' | ml -%]
-                      [% remote.display_name %]
-                    </label>
-                  </b>
-                  [%- IF remote.screened -%] [%- '/talkpost.bml.opt.willscreen' | ml -%][%- END -%]
-                [%- ELSE -%]
-                  <span class='disabled'><strong>
-                    [%- '/talkpost.bml.opt.openid.loggedin' | ml %]
-                    [% remote.display_name -%]
-                  </strong></span>&nbsp;
-
-                  [%- IF remote.banned -%][%# p. cut and dried -%]
-                    [%- journal.is_community ?
-                      '/talkpost.bml.opt.bannedfrom.comm' : '/talkpost.bml.opt.bannedfrom'
-                      | ml( journal => journal.user ) -%]
-                  [%- ELSIF journal.allows_non_access -%][%# your email's not validated. -%]
-                    [%- '/talkpost.bml.opt.noopenidpost' | ml(
-                      aopts1 => "href='${site.root}/changeemail'"
-                      aopts2 => "href='${site.root}/register'"
-                    ) -%]
-                  [%- ELSE -%][%# you're not on the access list -%]
-                    [%- journal.is_community ?
-                      '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
-                      | ml( user => journal.user ) -%]
-                  [%- END -%]
-
-                [%- END -%]
-              </td>
-            </tr>
-
-          [%- ELSE -%][%# not logged in as openid user -%]
-
-            <tr valign='middle' id='oidlo' name='oidlo'>
-              <td align='center'>
-                [%- dw.img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) -%]
-              </td>
-              <td align='center'>
-                <input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'[% IF default_usertype == 'openid' %] checked='checked'[% END %] />
-              </td>
-              <td align='left'>
+        [%- IF remote.openid_identity -%]
+          <tr valign='middle' id='oidli' name='oidli'>
+            <td align='center'>
+              [%- dw.img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) -%]
+            </td>
+            <td align='center'>
+              [%- IF remote.allowed -%]
+                <input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'[% IF default_usertype == 'openid_cookie' %] checked='checked'[% END %] />
+              [%- ELSE -%]
+                (&nbsp;)
+              [%- END -%]
+            </td>
+            <td align='left'>
+              [%- IF remote.allowed -%]
                 <b>
-                  <label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>[%- '/talkpost.bml.opt.openid' | ml -%]</label>
+                  <label for='talkpostfromoid' onclick='handleRadios(4);return false;'>
+                    [%- '/talkpost.bml.opt.openid.loggedin' | ml -%]
+                    [% remote.display_name %]
+                  </label>
                 </b>
-                [% help_icon( 'openid' ) %]
-                [%- IF journal.screens_all -%]
-                  [%- '/talkpost.bml.opt.willscreen' | ml -%]
-                [%- ELSIF journal.screens_non_access -%]
-                  [%- '/talkpost.bml.opt.willscreenfriend' | ml -%]
-                [%- ELSIF journal.screens_anon -%]
-                  [%- '/talkpost.bml.opt.willscreenopenid' | ml -%]
-                [%- END -%]
-              </td>
-            </tr>
-          [%- END -%]
+                [%- IF remote.screened -%] [%- '/talkpost.bml.opt.willscreen' | ml -%][%- END -%]
+              [%- ELSE -%]
+                <span class='disabled'><strong>
+                  [%- '/talkpost.bml.opt.openid.loggedin' | ml %]
+                  [% remote.display_name -%]
+                </strong></span>&nbsp;
 
-          <tr valign='middle' align='left' id='oid_more'>
-            <td colspan='2'></td>
-            <td>
-              [%- '/talkpost.bml.login.url' | ml -%]
-              &nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='[% comment.oidurl || remote.openid_identity %]' />
-              <br />
-              <label for='oidlogincheck'>[% '/talkpost.bml.loginq' | ml %]&nbsp;</label>
-              <input type='checkbox' name='oiddo_login' id='oidlogincheck'[% IF comment.oiddo_login %] checked='checked'[% END %] />
+                [%- IF remote.banned -%][%# p. cut and dried -%]
+                  [%- journal.is_community ?
+                    '/talkpost.bml.opt.bannedfrom.comm' : '/talkpost.bml.opt.bannedfrom'
+                    | ml( journal => journal.user ) -%]
+                [%- ELSIF journal.allows_non_access -%][%# your email's not validated. -%]
+                  [%- '/talkpost.bml.opt.noopenidpost' | ml(
+                    aopts1 => "href='${site.root}/changeemail'"
+                    aopts2 => "href='${site.root}/register'"
+                  ) -%]
+                [%- ELSE -%][%# you're not on the access list -%]
+                  [%- journal.is_community ?
+                    '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
+                    | ml( user => journal.user ) -%]
+                [%- END -%]
+
+              [%- END -%]
             </td>
           </tr>
 
-        [%- END -%][%# openid_enabled -%]
+        [%- ELSE -%][%# not logged in as openid user -%]
+
+          <tr valign='middle' id='oidlo' name='oidlo'>
+            <td align='center'>
+              [%- dw.img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) -%]
+            </td>
+            <td align='center'>
+              <input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'[% IF default_usertype == 'openid' %] checked='checked'[% END %] />
+            </td>
+            <td align='left'>
+              <b>
+                <label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>[%- '/talkpost.bml.opt.openid' | ml -%]</label>
+              </b>
+              [% help_icon( 'openid' ) %]
+              [%- IF journal.screens_all -%]
+                [%- '/talkpost.bml.opt.willscreen' | ml -%]
+              [%- ELSIF journal.screens_non_access -%]
+                [%- '/talkpost.bml.opt.willscreenfriend' | ml -%]
+              [%- ELSIF journal.screens_anon -%]
+                [%- '/talkpost.bml.opt.willscreenopenid' | ml -%]
+              [%- END -%]
+            </td>
+          </tr>
+        [%- END -%]
+
+        <tr valign='middle' align='left' id='oid_more'>
+          <td colspan='2'></td>
+          <td>
+            [%- '/talkpost.bml.login.url' | ml -%]
+            &nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='[% comment.oidurl || remote.openid_identity %]' />
+            <br />
+            <label for='oidlogincheck'>[% '/talkpost.bml.loginq' | ml %]&nbsp;</label>
+            <input type='checkbox' name='oiddo_login' id='oidlogincheck'[% IF comment.oiddo_login %] checked='checked'[% END %] />
+          </td>
+        </tr>
 
         [%# logged-in site user -%]
         [%- IF remote && ! remote.openid_identity -%]

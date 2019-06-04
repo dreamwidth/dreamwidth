@@ -1591,7 +1591,6 @@ sub talkform {
         errors               => $opts->{errors},
         create_link          => '',
         subject_icons        => $subjecticons,
-        openid_enabled       => LJ::OpenID->consumer_enabled,
 
         public_entry     => $entry->security eq 'public',
         default_usertype => $default_usertype,
