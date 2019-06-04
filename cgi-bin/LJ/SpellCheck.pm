@@ -167,10 +167,6 @@ sub check_html {
 
     my $gc = LJ::gearman_client();
 
-    # spawn a process using apache if we don't have spellcheck set up to use gearman
-    return $self->_spawn_spellcheck( $text, $no_ehtml )
-        unless $gc && LJ::conf_test($LJ::RUN_SPELLCHECK_USING_GEARMAN);
-
     my $args = {
         text     => $text,
         no_ehtml => $no_ehtml,

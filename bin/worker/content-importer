@@ -20,8 +20,6 @@ BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 
-$LJ::LOG_GTOP = 1;
-
 use LJ::Worker::TheSchwartz;
 use DW::Worker::ContentImporter::LiveJournal::Bio;
 use DW::Worker::ContentImporter::LiveJournal::Comments;

@@ -222,7 +222,7 @@ $LJ::PROTOCOL_VER = "1";
 ## see LJ::clear_caches and LJ::handle_caches
 $LJ::CLEAR_CACHES = 0;
 
-my $GTop;    # GTop object (created if $LJ::LOG_GTOP is true)
+my $GTop;
 my %SecretCache;
 
 ## if this library is used in a BML page, we don't want to destroy BML's
@@ -291,7 +291,6 @@ sub theschwartz {
 }
 
 sub gtop {
-    return unless $LJ::LOG_GTOP && LJ::ModuleCheck->have("GTop");
     return $GTop ||= GTop->new;
 }
 

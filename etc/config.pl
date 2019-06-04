@@ -86,9 +86,6 @@
     #$SPELLER = "/usr/local/bin/ispell -a";
     #$SPELLER = "/usr/bin/aspell pipe --mode=html --sug-mode=fast --ignore-case";
 
-    # use a gearman worker for spellcheck
-    #$RUN_SPELLCHECK_USING_GEARMAN = 1;
-
     # HINTS:
     #   how far you can scroll back on lastn and friends pages.
     #   big performance implications if you make these too high.
@@ -118,12 +115,6 @@
     # Support replying to comments via email?
     # We set the reply-to for the user in the form of user.$auth@EMAIL_REPLY_DOMAIN
     $EMAIL_REPLY_DOMAIN = "replies.$DOMAIN";
-
-    # This should be a path to a Maildir, matching the delivery
-    # location of your MTA.
-    # If you are using sendmail, you should deliver with procmail
-    # (versions 3.14 and above) for Maildir support.
-    #$MAILSPOOL = '/home/livejournal/mail';
 
     # turns these from 0 to 1 to disable parts of the site that are
     # CPU & database intensive or that you simply don't want to use
@@ -199,13 +190,6 @@
     ###
     ### Database Configuration
     ###
-
-    # if database logging is enabled above, should we log images or just page requests?
-    #$DONT_LOG_IMAGES = 1;
-
-    # Turn on memory/cpu usage statistics generation for database logs (requires the
-    # GTop module to be installed)
-    #$LOG_GTOP = 1;
 
     # directory optimizations
     $DIR_DB_HOST = "master";  # DB role to use when connecting to directory DB

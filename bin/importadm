@@ -21,8 +21,6 @@ BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use Carp qw/ croak /;
 use Getopt::Long;
 
-$LJ::LOG_GTOP = 1;
-
 use DW::Logic::Importer;
 use DW::Worker::ContentImporter::LiveJournal::Comments;
 use DW::Worker::ContentImporter::LiveJournal::Entries;

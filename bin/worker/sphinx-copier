@@ -22,8 +22,6 @@ BEGIN {
 
 use LJ::Worker::TheSchwartz;
 
-$LJ::LOG_GTOP = 1;
-
 schwartz_decl( 'DW::Worker::Sphinx::Copier' );
 schwartz_work();
 
