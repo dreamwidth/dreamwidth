@@ -14,8 +14,6 @@
 _c?>
 <?_code
 {
-    return $ML{'.error.openid_support_disabled'} unless LJ::OpenID::server_enabled();
-
     use strict;
     use vars qw($title $body %GET %POST);
     use LJ::OpenID;

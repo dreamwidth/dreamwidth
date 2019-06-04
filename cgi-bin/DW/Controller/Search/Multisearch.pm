@@ -92,9 +92,6 @@ sub multisearch_handler {
 
         return $r->redirect( $u->allpics_base ) if $what eq "pics";
 
-        return $r->redirect( $u->journal_base . '/data/foaf' )
-            if $output eq "foaf";
-
         my $url = $u->profile_url;
         $url .= "?mode=full" if $what eq 'full';
         return $r->redirect($url);
@@ -126,8 +123,6 @@ sub multisearch_handler {
         if ( my $u = LJ::load_userid($uid) ) {
             my $show = $u->opt_whatemailshow;
             if ( $show eq "A" || $show eq "B" ) {
-                return $r->redirect( $u->journal_base . '/data/foaf' )
-                    if $output eq "foaf";
                 return $r->redirect( $u->profile_url );
             }
         }
@@ -143,8 +138,6 @@ sub multisearch_handler {
 
         if ( @uids == 1 ) {
             my $u = LJ::load_userid( $uids[0] );
-            return $r->redirect( $u->journal_base . '/data/foaf' )
-                if $output eq "foaf";
             return $r->redirect( $u->profile_url );
 
         }

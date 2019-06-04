@@ -30,9 +30,6 @@ body<=
     # POST hash as if they never left.  Watch and see
     if (($GET{'openid.mode'} eq 'id_res' || $GET{'openid.mode'} eq 'cancel') && $GET{'jid'} && $GET{'pendcid'}) {
 
-        return LJ::bad_input( BML::ml( '/openid/login.bml.error.no_support' ) )
-            unless LJ::OpenID::consumer_enabled();
-
         my $csr = LJ::OpenID::consumer(\%GET);
 
         if ($GET{'openid.mode'} eq 'id_res') { # Verify their identity

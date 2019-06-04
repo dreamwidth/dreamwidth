@@ -29,12 +29,6 @@ sub FriendsPage {
     $p->{'friends_title'}    = LJ::ehtml( $u->{'friendspagetitle'} );
     $p->{'friends_subtitle'} = LJ::ehtml( $u->{'friendspagesubtitle'} );
 
-    # Add a friends-specific XRDS reference
-    $p->{'head_content'} .=
-          qq{<meta http-equiv="X-XRDS-Location" content="}
-        . LJ::ehtml( $u->journal_base )
-        . qq{/data/yadis/friends" />\n};
-
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
     # include JS for quick reply, icon browser, and ajax cut tag

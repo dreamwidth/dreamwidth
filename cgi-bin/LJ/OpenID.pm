@@ -17,23 +17,6 @@ use strict;
 use Digest::SHA1 qw(sha1 sha1_hex);
 use LJ::OpenID::Cache;
 
-BEGIN {
-    $LJ::OPTMOD_OPENID_CONSUMER = $LJ::OPENID_CONSUMER ? eval "use Net::OpenID::Consumer; 1;" : 0;
-    $LJ::OPTMOD_OPENID_SERVER   = $LJ::OPENID_SERVER   ? eval "use Net::OpenID::Server; 1;"   : 0;
-}
-
-# returns boolean whether consumer support is enabled and available
-sub consumer_enabled {
-    return 0 unless $LJ::OPENID_CONSUMER;
-    return $LJ::OPTMOD_OPENID_CONSUMER || eval "use Net::OpenID::Consumer; 1;";
-}
-
-# returns boolean whether server support is enabled and available
-sub server_enabled {
-    return 0 unless $LJ::OPENID_SERVER;
-    return $LJ::OPTMOD_OPENID_CONSUMER || eval "use Net::OpenID::Server; 1;";
-}
-
 sub server {
     my ( $get, $post ) = @_;
 

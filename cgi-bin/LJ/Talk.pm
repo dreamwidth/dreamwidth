@@ -1589,19 +1589,16 @@ sub talkform {
             && $form->{usertype}
             && $form->{usertype} eq 'anonymous';
 
-        if ( LJ::OpenID->consumer_enabled ) {
+        # OpenID
+        return $default
+            if $type eq 'openid'
+            && $form->{usertype}
+            && $form->{usertype} eq 'openid';
 
-            # OpenID
-            return $default
-                if $type eq 'openid'
-                && $form->{usertype}
-                && $form->{usertype} eq 'openid';
-
-            return $default
-                if $type eq 'openid_cookie'
-                && ( $form->{usertype} && $form->{usertype} eq 'openid_cookie'
-                || ( defined $oid_identity ) );
-        }
+        return $default
+            if $type eq 'openid_cookie'
+            && ( $form->{usertype} && $form->{usertype} eq 'openid_cookie'
+            || ( defined $oid_identity ) );
 
         # Remote user, remote equals userpost
         return $default
@@ -1714,67 +1711,64 @@ sub talkform {
                 $ret .= "</td></tr>\n";
             }
 
-            if ( LJ::OpenID->consumer_enabled ) {
-
-                # OpenID!!
-                # Logged in
-                if ( defined $oid_identity ) {
-                    $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
-                    $ret .= "<td align='center'>";
-                    $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) . "</td>";
-                    $ret .=
+            # OpenID!!
+            # Logged in
+            if ( defined $oid_identity ) {
+                $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
+                $ret .= "<td align='center'>";
+                $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) . "</td>";
+                $ret .=
 "<td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'";
-                    $ret .= $whocheck->('openid_cookie') . "/>";
-                    $ret .=
+                $ret .= $whocheck->('openid_cookie') . "/>";
+                $ret .=
 "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>$BML::ML{'.opt.openid.loggedin'}</label></b> ";
 
-                    $ret .= "<strong>$logged_in</strong>";
+                $ret .= "<strong>$logged_in</strong>";
 
 # show willscreen if a) all comments are screened b) anonymous is screened and OpenID user not validated, c) non-access is screened and OpenID user
 # is not on access list d) this user is being automatically screened (in which case $screening has been forced to 'A')
-                    $ret .= $BML::ML{'.opt.willscreen'}
-                        if $screening eq 'A'
-                        || ( $screening eq 'R' && !$remote->is_validated )
-                        || ( $screening eq 'F' && !$journalu->trusts($remote) );
-                    $ret .= "</td></tr>\n";
-                }
-                else {
-                    # logged out
-                    $ret .= "<tr valign='middle' id='oidlo' name='oidlo'>";
-                    $ret .= "<td align='center'>";
-                    $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
-                    $ret .=
+                $ret .= $BML::ML{'.opt.willscreen'}
+                    if $screening eq 'A'
+                    || ( $screening eq 'R' && !$remote->is_validated )
+                    || ( $screening eq 'F' && !$journalu->trusts($remote) );
+                $ret .= "</td></tr>\n";
+            }
+            else {
+                # logged out
+                $ret .= "<tr valign='middle' id='oidlo' name='oidlo'>";
+                $ret .= "<td align='center'>";
+                $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
+                $ret .=
 "<td align='center'><input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'"
-                        . $whocheck->('openid') . "/>";
-                    $ret .=
+                    . $whocheck->('openid') . "/>";
+                $ret .=
 "</td><td align='left'><b><label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>$BML::ML{'.opt.openid'}</label></b> ";
 
-                    $ret .= LJ::help_icon_html( "openid", " " );
+                $ret .= LJ::help_icon_html( "openid", " " );
 
-                    # show willscreen text depending on journal settings
-                    if ( $screening eq 'F' ) {
-                        $ret .= $BML::ML{'.opt.willscreenfriend'};
-                    }
-                    elsif ( $screening eq 'A' ) {
-                        $ret .= $BML::ML{'.opt.willscreen'};
-                    }
-                    elsif ($screening) {
-                        $ret .= $BML::ML{'.opt.willscreenopenid'};
-                    }
-                    $ret .= "</td></tr>\n";
+                # show willscreen text depending on journal settings
+                if ( $screening eq 'F' ) {
+                    $ret .= $BML::ML{'.opt.willscreenfriend'};
                 }
-
-                # URL: [    ]  Verify? [ ]
-                my $url_def = defined $oid_identity ? $form->{'oidurl'} || $oid_identity : "";
-
-                $ret .= "<tr valign='middle' align='left' id='oid_more'><td colspan='2'></td><td>";
-                $ret .=
-"$BML::ML{'.login.url'}&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";
-                $ret .=
-"<br /><label for='oidlogincheck'>$BML::ML{'.loginq'}&nbsp;</label><input type='checkbox' name='oiddo_login' id='oidlogincheck' ";
-                $ret .= "checked='checked' " if $form->{'oiddo_login'};
-                $ret .= "/></td></tr>\n";
+                elsif ( $screening eq 'A' ) {
+                    $ret .= $BML::ML{'.opt.willscreen'};
+                }
+                elsif ($screening) {
+                    $ret .= $BML::ML{'.opt.willscreenopenid'};
+                }
+                $ret .= "</td></tr>\n";
             }
+
+            # URL: [    ]  Verify? [ ]
+            my $url_def = defined $oid_identity ? $form->{'oidurl'} || $oid_identity : "";
+
+            $ret .= "<tr valign='middle' align='left' id='oid_more'><td colspan='2'></td><td>";
+            $ret .=
+"$BML::ML{'.login.url'}&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";
+            $ret .=
+"<br /><label for='oidlogincheck'>$BML::ML{'.loginq'}&nbsp;</label><input type='checkbox' name='oiddo_login' id='oidlogincheck' ";
+            $ret .= "checked='checked' " if $form->{'oiddo_login'};
+            $ret .= "/></td></tr>\n";
         }
 
         if ( $journalu->{'opt_whocanreply'} eq "reg" ) {
@@ -1785,58 +1779,53 @@ sub talkform {
 "<td align='left'><span class='disabled'><strong>$BML::ML{'.opt.anonymous'}</strong></span> $BML::ML{'.opt.noanonpost'}</td>";
             $ret .= "</tr>\n";
 
-            if ( LJ::OpenID->consumer_enabled ) {
-
-                # OpenID user can post if the account has validated e-mail address
-                # or if the account has been granted access by the journal
-                if (
-                    defined $oid_identity
-                    && (   $remote->is_validated
-                        || $journalu->trusts($remote) )
-                    )
-                {
-                    $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
-                    if ( $journalu->has_banned($remote) ) {
-                        $ret .= $bantext->('openid');
-                    }
-                    else {
-                        $ret .= "<td align='center'>";
-                        $ret .=
-                            LJ::img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) . "</td>";
-                        $ret .=
-"<td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'";
-                        $ret .= $whocheck->('openid_cookie') . "/>";
-                        $ret .=
-"</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>$BML::ML{'.opt.openid.loggedin'}</label></b> ";
-
-                        $ret .= "<strong>$logged_in</strong>";
-
-                        $ret .= $BML::ML{'.opt.willscreen'} if $screening;
-                    }
-                    $ret .= "</td></tr>\n";
+            # OpenID user can post if the account has validated e-mail address
+            # or if the account has been granted access by the journal
+            if (
+                defined $oid_identity
+                && (   $remote->is_validated
+                    || $journalu->trusts($remote) )
+                )
+            {
+                $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
+                if ( $journalu->has_banned($remote) ) {
+                    $ret .= $bantext->('openid');
                 }
                 else {
-                    # logged out or no validated email
-                    $ret .= "<tr valign='middle'><td align='center'>";
-                    $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
-                    $ret .= "<td align='center'>(  )</td>";
+                    $ret .= "<td align='center'>";
+                    $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) . "</td>";
                     $ret .=
-"<td align='left'><span class='disabled'><strong>$BML::ML{'.opt.openid'}</strong></span>"
-                        . " "
-                        . BML::ml( '.opt.openidsignin2',
-                        { 'aopts' => "href='$LJ::SITEROOT/openid'" } );
-                    $ret .= BML::ml(
-                        '.opt.noopenidpost',
-                        {
-                            aopts1 => "href='$LJ::SITEROOT/changeemail'",
-                            aopts2 => "href='$LJ::SITEROOT/register'"
-                        }
-                    ) if defined $oid_identity;
+"<td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'";
+                    $ret .= $whocheck->('openid_cookie') . "/>";
+                    $ret .=
+"</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>$BML::ML{'.opt.openid.loggedin'}</label></b> ";
 
-                    $ret .= LJ::help_icon_html( "openid", " " );
+                    $ret .= "<strong>$logged_in</strong>";
 
-                    $ret .= "</td></tr>\n";
+                    $ret .= $BML::ML{'.opt.willscreen'} if $screening;
                 }
+                $ret .= "</td></tr>\n";
+            }
+            else {
+                # logged out or no validated email
+                $ret .= "<tr valign='middle'><td align='center'>";
+                $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
+                $ret .= "<td align='center'>(  )</td>";
+                $ret .=
+"<td align='left'><span class='disabled'><strong>$BML::ML{'.opt.openid'}</strong></span>"
+                    . " "
+                    . BML::ml( '.opt.openidsignin2', { 'aopts' => "href='$LJ::SITEROOT/openid'" } );
+                $ret .= BML::ml(
+                    '.opt.noopenidpost',
+                    {
+                        aopts1 => "href='$LJ::SITEROOT/changeemail'",
+                        aopts2 => "href='$LJ::SITEROOT/register'"
+                    }
+                ) if defined $oid_identity;
+
+                $ret .= LJ::help_icon_html( "openid", " " );
+
+                $ret .= "</td></tr>\n";
             }
         }
 
@@ -1853,74 +1842,70 @@ sub talkform {
             $ret .= "</tr>\n";
 
             ## the if clause was a copy of code from ($journalu->{'opt_whocanreply'} eq 'all')
-            if ( LJ::OpenID->consumer_enabled ) {
-
-                # OpenID!!
-                # Logged in
-                if ( defined $oid_identity ) {
-                    $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
-                    $ret .= "<td align='center'>";
-                    $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) . "</td>";
-                    if ($remote_can_comment) {
-                        $ret .=
+            # OpenID!!
+            # Logged in
+            if ( defined $oid_identity ) {
+                $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
+                $ret .= "<td align='center'>";
+                $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) . "</td>";
+                if ($remote_can_comment) {
+                    $ret .=
 "<td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'";
-                        $ret .= $whocheck->('openid_cookie') . "/>";
-                        $ret .=
+                    $ret .= $whocheck->('openid_cookie') . "/>";
+                    $ret .=
 "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>$BML::ML{'.opt.openid.loggedin'}</label></b> ";
-                    }
-                    else {
-                        $ret .=
-"<td align='center'>( )</td><td align='left'><span class='disabled'><strong>$BML::ML{'.opt.openid.loggedin'}</strong></span>&nbsp;";
-                    }
-
-                    $ret .= "<strong>$logged_in</strong>";
-                    unless ($remote_can_comment) {
-                        my $msg = $journalu->is_comm ? "notamember" : "notafriend";
-                        $ret .=
-                            "&nbsp;- " . BML::ml( "$SC.error.$msg", { user => $journalu->user } );
-                    }
-
-                    $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A';
-                    $ret .= "</td></tr>\n";
                 }
                 else {
-                    # logged out
-                    $ret .= "<tr valign='middle' id='oidlo' name='oidlo'>";
-                    $ret .= "<td align='center'>";
-                    $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
                     $ret .=
-"<td align='center'><input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'"
-                        . $whocheck->('openid') . "/>";
-                    $ret .=
-"</td><td align='left'><b><label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>$BML::ML{'.opt.openid'}</label></b> ";
-
-                    $ret .= LJ::help_icon_html( "openid", " " );
-
-                    # show willscreen text depending on journal settings
-                    if ( $screening eq 'F' ) {
-                        $ret .= $BML::ML{'.opt.willscreenfriend'};
-                    }
-                    elsif ( $screening eq 'A' ) {
-                        $ret .= $BML::ML{'.opt.willscreen'};
-                    }
-                    elsif ($screening) {
-                        $ret .= $BML::ML{'.opt.willscreenopenid'};
-                    }
-
-                    $ret .= "</td></tr>\n";
+"<td align='center'>( )</td><td align='left'><span class='disabled'><strong>$BML::ML{'.opt.openid.loggedin'}</strong></span>&nbsp;";
                 }
 
-                # URL: [    ]  Verify? [ ]
-                my $url_def = defined $oid_identity ? $form->{'oidurl'} || $oid_identity : "";
+                $ret .= "<strong>$logged_in</strong>";
+                unless ($remote_can_comment) {
+                    my $msg = $journalu->is_comm ? "notamember" : "notafriend";
+                    $ret .= "&nbsp;- " . BML::ml( "$SC.error.$msg", { user => $journalu->user } );
+                }
 
-                $ret .= "<tr valign='middle' align='left' id='oid_more'><td colspan='2'></td><td>";
-                $ret .=
-"$BML::ML{'.login.url'}&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";
-                $ret .=
-"<br /><label for='oidlogincheck'>$BML::ML{'.loginq'}&nbsp;</label><input type='checkbox' name='oiddo_login' id='oidlogincheck' ";
-                $ret .= "checked='checked' " if $form->{'oiddo_login'};
-                $ret .= "/></td></tr>\n";
+                $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A';
+                $ret .= "</td></tr>\n";
             }
+            else {
+                # logged out
+                $ret .= "<tr valign='middle' id='oidlo' name='oidlo'>";
+                $ret .= "<td align='center'>";
+                $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
+                $ret .=
+"<td align='center'><input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'"
+                    . $whocheck->('openid') . "/>";
+                $ret .=
+"</td><td align='left'><b><label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>$BML::ML{'.opt.openid'}</label></b> ";
+
+                $ret .= LJ::help_icon_html( "openid", " " );
+
+                # show willscreen text depending on journal settings
+                if ( $screening eq 'F' ) {
+                    $ret .= $BML::ML{'.opt.willscreenfriend'};
+                }
+                elsif ( $screening eq 'A' ) {
+                    $ret .= $BML::ML{'.opt.willscreen'};
+                }
+                elsif ($screening) {
+                    $ret .= $BML::ML{'.opt.willscreenopenid'};
+                }
+
+                $ret .= "</td></tr>\n";
+            }
+
+            # URL: [    ]  Verify? [ ]
+            my $url_def = defined $oid_identity ? $form->{'oidurl'} || $oid_identity : "";
+
+            $ret .= "<tr valign='middle' align='left' id='oid_more'><td colspan='2'></td><td>";
+            $ret .=
+"$BML::ML{'.login.url'}&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";
+            $ret .=
+"<br /><label for='oidlogincheck'>$BML::ML{'.loginq'}&nbsp;</label><input type='checkbox' name='oiddo_login' id='oidlogincheck' ";
+            $ret .= "checked='checked' " if $form->{'oiddo_login'};
+            $ret .= "/></td></tr>\n";
         }
 
         if ( $remote && !defined $oid_identity ) {
@@ -3357,9 +3342,7 @@ sub init {
     }
 
     # OpenID
-    if ( LJ::OpenID->consumer_enabled
-        && ( $form->{'usertype'} eq 'openid' || $form->{'usertype'} eq 'openid_cookie' ) )
-    {
+    if ( $form->{'usertype'} eq 'openid' || $form->{'usertype'} eq 'openid_cookie' ) {
 
         if ( $remote && defined $remote->openid_identity ) {
             $up = $remote;

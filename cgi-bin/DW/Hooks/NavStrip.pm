@@ -35,8 +35,6 @@ LJ::Hooks::register_hook(
 LJ::Hooks::register_hook(
     'show_control_strip',
     sub {
-
-        return undef unless $LJ::USE_CONTROL_STRIP;
         return undef unless LJ::is_enabled('control_strip');
 
         my $remote  = LJ::get_remote();

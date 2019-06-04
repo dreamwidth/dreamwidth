@@ -2466,7 +2466,6 @@ sub Page {
         openid => $opts->{addopenid},
         )
         : ();
-    $meta_opts{foaf}   = 1;
     $meta_opts{remote} = $remote;
     $p->{head_content} .= $u->meta_discovery_links(%meta_opts);
 
@@ -2570,7 +2569,7 @@ sub Image_std {
         # with alt text from translation system
         my @ic = qw( btn_del btn_freeze btn_unfreeze btn_scr btn_unscr
             editcomment editentry edittags tellfriend memadd
-            prev_entry next_entry track untrack foaf atom rss );
+            prev_entry next_entry track untrack atom rss );
         foreach (@ic) {
             my $i = $LJ::Img::img{$_};
             $LJ::S2::RES_CACHE->{$_} =
@@ -2698,14 +2697,7 @@ sub UserLite {
         'name'                => LJ::ehtml( $u->{'name'} ),
         'journal_type'        => $u->{'journaltype'},
         'userpic_listing_url' => $u->allpics_base,
-        'data_link'           => {
-            'foaf' => Link(
-                "$LJ::SITEROOT/users/" . LJ::ehtml( $u->{'user'} ) . '/data/foaf', "FOAF",
-                Image_std("foaf")
-            ),
-        },
-        'data_links_order' => ["foaf"],
-        'link_keyseq'      => [],
+        'link_keyseq'         => [],
     };
     my $lks = $o->{link_keyseq};
     push @$lks, qw(manage_membership trust watch post_entry track message);
@@ -3058,8 +3050,6 @@ sub viewer_can_manage_tags {
 }
 
 sub viewer_sees_control_strip {
-    return 0 unless $LJ::USE_CONTROL_STRIP;
-
     my $apache_r = BML::get_request();
     return LJ::Hooks::run_hook('show_control_strip');
 }
@@ -4581,7 +4571,6 @@ sub EntryPage__print_multiform_start {
 sub Page__print_control_strip {
     my ( $ctx, $this ) = @_;
 
-    return "" unless $LJ::USE_CONTROL_STRIP;
     my $control_strip =
         LJ::control_strip( user => $LJ::S2::CURR_PAGE->{'journal'}->{'_u'}->{'user'} );
 

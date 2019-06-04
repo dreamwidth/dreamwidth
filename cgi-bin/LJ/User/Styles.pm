@@ -287,19 +287,8 @@ qq{<link rel="service" type="application/atomsvc+xml" title="AtomAPI service doc
             . qq{" />\n};
     }
 
-    # OpenID Server and Yadis
+    # OpenID Server
     $ret .= $u->openid_tags if $opts{openid};
-
-    # FOAF autodiscovery
-    if ( $opts{foaf} ) {
-        my $foafurl = "$journalbase/data/foaf";
-        $ret .= qq{<link rel="meta" type="application/rdf+xml" title="FOAF" href="$foafurl" />\n};
-
-        if ( $u->email_visible( $opts{remote} ) ) {
-            my $digest = Digest::SHA1::sha1_hex( 'mailto:' . $u->email_raw );
-            $ret .= qq{<meta name="foaf:maker" content="foaf:mbox_sha1sum '$digest'" />\n};
-        }
-    }
 
     return $ret;
 }
@@ -635,8 +624,7 @@ sub make_journal {
         my $url = "$LJ::SITEROOT/users/$user/";
         $opts->{'status'} = $status if $status;
 
-        my $head =
-            $u->meta_discovery_links( feeds => 1, openid => 1, foaf => 1, remote => $remote );
+        my $head = $u->meta_discovery_links( feeds => 1, openid => 1, remote => $remote );
 
         return qq{
             <html>

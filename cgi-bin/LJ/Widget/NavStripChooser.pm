@@ -227,12 +227,7 @@ sub handle_post {
     return;
 }
 
-sub should_render {
-    my $class = shift;
-
-    return 1 if $LJ::USE_CONTROL_STRIP;
-    return 0;
-}
+sub should_render { 1 }
 
 sub js {
     q [

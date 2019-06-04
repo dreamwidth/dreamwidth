@@ -186,13 +186,6 @@ $img{editcomment} = {
     alt    => 'img.editcomment',
 };
 
-$img{foaf} = {
-    src    => '/data_foaf.gif',
-    width  => 32,
-    height => 15,
-    alt    => 'img.foaf',
-};
-
 $img{atom} = {
     src    => '/data_atom.gif',
     width  => 32,

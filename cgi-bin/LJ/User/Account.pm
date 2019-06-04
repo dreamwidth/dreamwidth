@@ -19,6 +19,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ confess /;
+use LJ::DB;
 use LJ::Identity;
 
 use DW::Pay;
@@ -295,7 +296,7 @@ sub create_syndicated {
     return unless $opts{feedurl};
 
     $opts{caps}        = $LJ::SYND_CAPS;
-    $opts{cluster}     = $LJ::SYND_CLUSTER;
+    $opts{cluster}     = LJ::DB::new_account_cluster();
     $opts{journaltype} = "Y";
 
     my $u = LJ::User->create(%opts) or return;
@@ -1148,11 +1149,10 @@ sub openid_tags {
 
     my $head = '';
 
-    # OpenID Server and Yadis
-    if ( LJ::OpenID->server_enabled and defined $u ) {
+    # OpenID Server
+    if ( defined $u ) {
         my $journalbase = $u->journal_base;
         $head .= qq{<link rel="openid.server" href="$LJ::OPENID_SERVER" />\n};
-        $head .= qq{<meta http-equiv="X-XRDS-Location" content="$journalbase/data/yadis" />\n};
     }
 
     return $head;

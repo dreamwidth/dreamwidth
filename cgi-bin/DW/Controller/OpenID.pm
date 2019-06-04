@@ -56,9 +56,6 @@ sub openid_options_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
-    return error_ml( LJ::Lang::ml('/openid/options.tt.error.no_support') )
-        unless LJ::OpenID::server_enabled();
-
     my $r = $rv->{r};
     my $u = $rv->{remote};
 
@@ -101,9 +98,6 @@ sub openid_options_handler {
 }
 
 sub openid_server_handler {
-    return LJ::Lang::ml('/openid/options.tt.error.no_support')
-        unless LJ::OpenID::server_enabled();
-
     my $r   = DW::Request->get;
     my $get = $r->get_args;
 
@@ -136,9 +130,6 @@ sub openid_claim_handler {
         my @errors = map { $_ =~ /^\./ ? LJ::Lang::ml("/openid/claim.tt$_") : $_ } @_;
         return DW::Template->render_template( 'openid/claim.tt', { error_list => \@errors } );
     };
-
-    return $err->('.error.no_openid')
-        unless LJ::OpenID::consumer_enabled();
 
     my $u      = $rv->{remote};
     my @claims = $u->get_openid_claims;
@@ -186,9 +177,6 @@ sub openid_claimed_handler {
         my @errors = map { $_ =~ /^\./ ? LJ::Lang::ml("/openid/claim.tt$_") : $_ } @_;
         return DW::Template->render_template( 'openid/claim.tt', { error_list => \@errors } );
     };
-
-    return $err->('.error.no_openid')
-        unless LJ::OpenID::consumer_enabled();
 
     # attempt to verify the user
     my $u    = $rv->{remote};

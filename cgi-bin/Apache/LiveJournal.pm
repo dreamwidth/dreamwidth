@@ -281,18 +281,9 @@ sub blocked_anon {
     $apache_r->status_line("403 Denied");
     $apache_r->content_type("text/html");
 
-    my $subject = $LJ::BLOCKED_ANON_SUBJECT || "403 Denied";
-    my $message = $LJ::BLOCKED_ANON_MESSAGE;
-
-    unless ($message) {
-        $message =
+    my $subject = "403 Denied";
+    my $message =
 "You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login.bml?skin=lynx'>log in</a>.";
-
-        if ($LJ::BLOCKED_ANON_URI) {
-            $message .=
-" <a href='$LJ::BLOCKED_ANON_URI'>Why can't I access the site without logging in?</a>";
-        }
-    }
 
     $apache_r->print("<html><head><title>$subject</title></head><body>");
     $apache_r->print("<h1>$subject</h1> $message");
@@ -478,15 +469,8 @@ sub trans {
     # we're not logged in, and we're not in the middle of logging in
     unless ( $remote || LJ::remote_bounce_url() ) {
 
-        # blocked anon uri contains more information for the user
-        # re: why they're banned, and what they should do
-        unless (
-            ( $LJ::BLOCKED_ANON_URI && index( $uri, $LJ::BLOCKED_ANON_URI ) == 0 )
-
-            # allow the user to go through login and subdomain cookie checking paths
-            || $uri =~ m!^(?:/login|/__setdomsess|/misc/get_domain_session)!
-            )
-        {
+        # allow the user to go through login and subdomain cookie checking paths
+        unless ( $uri =~ m!^(?:/login|/__setdomsess|/misc/get_domain_session)! ) {
 
             foreach my $ip (@req_hosts) {
                 if ( LJ::sysban_check( 'noanon_ip', $ip ) ) {
@@ -1285,17 +1269,6 @@ sub journal_content {
         $apache_r->print("User-Agent: *\n");
         if ( $u->should_block_robots ) {
             $apache_r->print("Disallow: /\n");
-
-            # FOAF doesn't contain journal content
-            $apache_r->print("\n# If you also support the allow directive let us know\n");
-            foreach (qw/Googlebot Slurp Teoma/) {
-                $apache_r->print("User-Agent: $_\n");
-
-                # Some bots ignore generic section if a more specific on exists
-                $apache_r->print("Disallow: /\n");
-                $apache_r->print("Allow: /data/foaf\n");
-                $apache_r->print("\n");
-            }
         }
         return OK;
     }

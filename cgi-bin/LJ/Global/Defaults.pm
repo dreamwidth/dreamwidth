@@ -93,11 +93,8 @@ no strict "vars";
 
     $LJ::AUTOSAVE_DRAFT_INTERVAL ||= 3;
 
-    # this option can be a boolean or a URL, but internally we want a URL
-    # (which can also be a boolean)
-    if ( $LJ::OPENID_SERVER && $LJ::OPENID_SERVER == 1 ) {
-        $LJ::OPENID_SERVER = "$LJ::SITEROOT/openid/server";
-    }
+    # set to the URL of our server
+    $LJ::OPENID_SERVER = "$LJ::SITEROOT/openid/server";
 
     # set default capability limits if the site maintainer hasn't.
     {
@@ -154,11 +151,7 @@ no strict "vars";
         'text/xml'              => 1,    # regular XML files
         'application/xml'       => 1,    # XHTML 1.1 "may" be this
         'application/xhtml+xml' => 1,    # XHTML 1.1 "should" be this
-        'application/rdf+xml'   => 1,    # FOAF should be this
     ) unless %GZIP_OKAY;
-
-    # maximum FOAF friends to return (so the server doesn't get overloaded)
-    $MAX_FOAF_FRIENDS ||= 1000;
 
     # maximum number of friendofs to load/memcache (affects profile.bml display)
     $MAX_FRIENDOF_LOAD ||= 5000;

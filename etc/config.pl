@@ -188,30 +188,6 @@
 
 
     ###
-    ### Database Configuration
-    ###
-
-    # directory optimizations
-    $DIR_DB_HOST = "master";  # DB role to use when connecting to directory DB
-    $DIR_DB = "";             # by default, hit the main database (bad for big sites!)
-
-    # list of all clusters - each one needs a 'cluster$i' role in %DBINFO
-    @CLUSTERS = (1);    # eg: (1, 2, 3) (for scalability)
-
-    # can users choose which cluster they're assigned to?  leave this off.
-    $ALLOW_CLUSTER_SELECT = 0;
-
-    # which cluster(s) get new users?
-    # if it's an arrayref, choose one of the listed clusters at random.  you can weight
-    # new users by repeating cluster numbers, e.g. [ 1, 1, 1, 2 ] puts 75% of people on
-    # cluster 1, 25% of people on cluster 2.  clusters are checked for validity before
-    # being used.
-    $DEFAULT_CLUSTER = [ 1 ];
-
-    # which cluster should syndication accounts live on?
-    $SYND_CLUSTER = 1;
-
-    ###
     ### Account Information
     ###
 
@@ -219,18 +195,11 @@
     # leave undefined if you don't want to use it.
     @INITIAL_SUBSCRIPTIONS = qw(news);
 
-    # initial optional friends
-    #@LJ::INITIAL_OPTIONAL_SUBSCRIPTIONS = qw(news);
-
-    # initial friends checked by default on create.bml
-    #@LJ::INITIAL_OPTOUT_SUBSCRIPTIONS = qw(news);
-
     # some system accounts have so many friends it is harmful to display
     # them.  list these accounts here.
     #%FORCE_EMPTY_SUBSCRIPTIONS = (
-     #                             '81752' => 'paidmembers'
+    #                             '81752' => 'paidmembers'
     #                             );
-
 
     # test accounts are special
     @TESTACCTS = qw(test);
@@ -510,16 +479,6 @@
     # the following line.  Default is 5000.
     #$MAX_BANS = 5000;
 
-    # If you are using MogileFS on your site for userpics or other purposes, you
-    # will need to define the following hash and complete the information in it.
-    #%MOGILEFS_CONFIG = (
-    #    hosts => [ '10.0.0.1:6001' ],
-    #    root => '/mnt/mogdata',
-    #    classes => {
-    #        'your_class' => 3,  # define any special MogileFS classes you need
-    #    },
-    #);
-
     # Some people on portable devices may have troubles viewing the nice site
     # scheme you've setup, so you can specify that some user-agent prefixes
     # should instead use fallback presentation information.
@@ -545,18 +504,10 @@
     # real client IP will be found last in the resulting list.
     # $IS_TRUSTED_PROXY = sub { $_[0] eq '192.168.1.1'; };
 
-    # the following values allow you to control enabling your OpenID server and consumer
-    # support.
-    $OPENID_SERVER = 1;
-    $OPENID_CONSUMER = 1;
-
     # how many days to store random users for; after this many days they fall out of the table.
     # high traffic sites probably want a reasonably low number, whereas lower traffic sites might
     # want to set this higher to give a larger sample of users to select from.
     $RANDOM_USER_PERIOD = 7;
-
-    # turn on control/nav strip
-    $USE_CONTROL_STRIP = 1;
 
     # initial settings for new users
     %USER_INIT = (
@@ -589,10 +540,6 @@
 
     # default is plain (change to 'rich' if you want RTE by default)
     $DEFAULT_EDITOR = 'plain';
-
-    # page that 'noanon_ip' sysbanned users can access to get more information
-    # on why they're banned
-    # $BLOCKED_ANON_URI = '';
 
     # pages where we want to see captcha
     %CAPTCHA_FOR = (

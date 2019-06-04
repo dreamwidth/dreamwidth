@@ -27,9 +27,6 @@ _c?>
         return;
     };
 
-    return $err->($ML{'.error.no_support'})
-        unless LJ::OpenID::consumer_enabled();
-
     my $query_args = $POST{'continue_to'} ? "?continue_to=" .  LJ::eurl( $POST{'continue_to'} ) : "";
 
     my $return_to = "$LJ::SITEROOT/openid/login" . $query_args;

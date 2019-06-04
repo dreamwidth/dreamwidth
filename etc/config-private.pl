@@ -15,6 +15,15 @@
 {
     package LJ;
 
+    # Database configuration, this is required to specify what
+    # clusters exist. This must map to an appropriate set of roles
+    # in %DBINFO.
+    @CLUSTERS = ( 1 );
+
+    # Default user creation. Will pick one integer randomly from the
+    # arrayref and use it.
+    $DEFAULT_CLUSTER = [ 1 ];
+
     # database info.  only the master is necessary.
     %DBINFO = (
                'master' => {  # master must be named 'master'
