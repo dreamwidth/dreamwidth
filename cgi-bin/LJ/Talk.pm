@@ -1548,6 +1548,8 @@ sub talkform {
         # Partial form was submitted; pick up where we left off.
         $default_usertype = $form->{usertype};
     } elsif ($remote) {
+        # If logged-in user isn't allowed to comment we end up with no default,
+        # which seems correct.
         if ($remote->openid_identity) {
             $default_usertype = 'openid_cookie';
         } else {
@@ -1561,42 +1563,42 @@ sub talkform {
 
     # Variables for talkform.tt
     my $template_args = {
-        'hidden_form_elements' => '',
-        'form_url' => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
-        'errors' => $opts->{errors},
-        'create_link' => '',
-        'subject_icons' => $subjecticons,
+        hidden_form_elements => '',
+        form_url => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
+        errors => $opts->{errors},
+        create_link => '',
+        subject_icons => $subjecticons,
         openid_enabled => LJ::OpenID->consumer_enabled,
 
         public_entry => $entry->security eq 'public',
         default_usertype => $default_usertype,
 
-        'comment' => {
-            'editid' => $editid,
-            'editreason' => $comment ? $comment->edit_reason : '',
+        comment => {
+            editid => $editid,
+            editreason => $comment ? $comment->edit_reason : '',
             oidurl => $form->{oidurl},
             oiddo_login => $form->{oiddo_login},
             user => $form->{cookieuser},
-            'body' => $form->{body} || '',
-            'subject' => $basesubject,
-            'subject_icon' => $subjecticons->{'pic'}->{ $form->{subjecticon} }
-                ||  $subjecticons->{'pic'}->{'none'}, # a subjecticon hashref
-            'preformatted' => $form->{'prop_opt_preformatted'},
-            'admin_post' => $form->{'prop_admin_post'},
-            'current_icon_kw' => $form->{prop_picture_keyword},
-            'current_icon' => LJ::Userpic->new_from_keyword(
+            body => $form->{body} || '',
+            subject => $basesubject,
+            subject_icon => $subjecticons->{pic}->{ $form->{subjecticon} }
+                ||  $subjecticons->{pic}->{none}, # a subjecticon hashref
+            preformatted => $form->{prop_opt_preformatted},
+            admin_post => $form->{prop_admin_post},
+            current_icon_kw => $form->{prop_picture_keyword},
+            current_icon => LJ::Userpic->new_from_keyword(
                 $remote, $form->{prop_picture_keyword} ), # not yet used, but later...
         },
 
-        'captcha' => $opts->{do_captcha} ? {
-            'type' => $journalu->captcha_type,
-            'html' => DW::Captcha->new( undef, want => $journalu->captcha_type )->print,
+        captcha => $opts->{do_captcha} ? {
+            type => $journalu->captcha_type,
+            html => DW::Captcha->new( undef, want => $journalu->captcha_type )->print,
         } : 0,
 
-        'length_limit' => LJ::CMAX_COMMENT,
-        'can_checkspell' => $LJ::SPELLER ? 1 : 0,
+        length_limit => LJ::CMAX_COMMENT,
+        can_checkspell => $LJ::SPELLER ? 1 : 0,
 
-        'remote' => $remote ? {
+        remote => $remote ? {
             icons_url => $remote ? $remote->allpics_base : '',
             icons => \@userpics,
 
@@ -1606,11 +1608,11 @@ sub talkform {
             openid_identity => $remote->openid_identity,
 
             allowed => !$journalu->has_banned($remote) && (
-                $journalu->{'opt_whocanreply'} eq 'all' ||
-                ( $journalu->{'opt_whocanreply'} eq 'reg' && !$remote->openid_identity ) ||
-                ( $journalu->{'opt_whocanreply'} eq 'reg' && $remote->openid_identity &&
+                $journalu->{opt_whocanreply} eq 'all' ||
+                ( $journalu->{opt_whocanreply} eq 'reg' && !$remote->openid_identity ) ||
+                ( $journalu->{opt_whocanreply} eq 'reg' && $remote->openid_identity &&
                     ( $remote->is_validated || $journalu->trusts($remote) ) ) ||
-                ( $journalu->{'opt_whocanreply'} eq 'friends' &&
+                ( $journalu->{opt_whocanreply} eq 'friends' &&
                     !$journalu->does_not_allow_comments_from($remote) )
             ),
             banned => $journalu->has_banned($remote),
@@ -1631,13 +1633,13 @@ sub talkform {
             iconbrowser_smallicons => $remote->iconbrowser_smallicons ? "true" : "false",
         }
         : 0,
-        'journal' => {
-            user => $journalu->{'user'},
+        journal => {
+            user => $journalu->{user},
 
-            'is_iplogging'    =>
+            is_iplogging    =>
                 $journalu->opt_logcommentips eq 'A' ? 'all' :
                     $journalu->opt_logcommentips eq 'S' ? 'anon' : 0,
-            'is_linkstripped' => !$remote
+            is_linkstripped => !$remote
                 || ( $remote && $remote->is_identity && !$journalu->trusts_or_has_member($remote) ),
             is_community => $journalu->is_community,
 
@@ -1645,24 +1647,15 @@ sub talkform {
             screens_non_access => $screening eq 'F' || $screening eq 'A',
             screens_all => $screening eq 'A',
 
-            allows_anon => $journalu->{'opt_whocanreply'} eq "all",
-            allows_non_access => $journalu->{'opt_whocanreply'} eq "all"
-                || $journalu->{'opt_whocanreply'} eq "reg",
-        },
-
-        'help' => {
-            'icon'       => LJ::help_icon_html( "userpics",  " " ),
-            'iplogging'  => LJ::help_icon_html( "iplogging", " " ),
-            'autoformat' => LJ::help_icon_html( "noautoformat", " " ),
+            allows_anon => $journalu->{opt_whocanreply} eq "all",
+            allows_non_access => $journalu->{opt_whocanreply} eq "all"
+                || $journalu->{opt_whocanreply} eq "reg",
         },
 
         help_icon => sub { LJ::help_icon_html(@_) },
-        'ejs' => sub { return LJ::ejs(@_) },
-        'print_subjecticon' => sub { return LJ::Talk::print_subjecticon(@_) },
+        ejs => sub { return LJ::ejs(@_) },
+        print_subjecticon => sub { return LJ::Talk::print_subjecticon(@_) },
     };
-
-    # once we clean out talkpost.bml, this will need to be changed.
-    BML::set_language_scope('/talkpost.bml');
 
     # make sure journal isn't locked
     return
