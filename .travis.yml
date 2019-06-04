@@ -9,4 +9,5 @@ before_script:
     - env LJHOME=$TRAVIS_BUILD_DIR bin/checkconfig.pl --only=modules
 script:
 #     - env LJHOME=$TRAVIS_BUILD_DIR perl -Iextlib/lib/perl5 t/00-compile.t
-    - env LJHOME=$TRAVIS_BUILD_DIR perl -Iextlib/lib/perl5 t/02-tidy.t
+#     - env LJHOME=$TRAVIS_BUILD_DIR perl -Iextlib/lib/perl5 t/02-tidy.t
+    - env LJHOME=$TRAVIS_BUILD_DIR perltidy -v
