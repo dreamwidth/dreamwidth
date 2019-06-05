@@ -1120,7 +1120,7 @@ sub create_url {
     my $host = lc( $opts{host} || $r->host );
     $path ||= $r->uri;
 
-    my $proto = $opts{proto} // 'https';
+    my $proto = $opts{proto} // $LJ::PROTOCOL;
     my $url   = $proto . "://$host$path";
 
     # TWO PATHS: if keep_query_string is used, we simply preserve that
@@ -3123,7 +3123,7 @@ sub control_strip {
     my $view    = delete $opts{view} || $r->note('view');
     my $view_is = sub { defined $view && $view eq $_[0] };
 
-    my $baseuri = "https://$host$uri";
+    my $baseuri = "$LJ::PROTOCOL://$host$uri";
 
     $baseuri .= $args ? "?$args" : "";
     my $euri        = LJ::eurl($baseuri);

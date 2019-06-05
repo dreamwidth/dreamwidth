@@ -27,7 +27,7 @@
     $DOMAIN_WEB = "www.$DOMAIN"; # necessary
 
     # this is what gets prepended to all URLs
-    $SITEROOT = "https://$DOMAIN_WEB";
+    $SITEROOT = "$PROTOCOL://$DOMAIN_WEB";
     $RELATIVE_SITEROOT = "//$DOMAIN_WEB";
 
     # prefix for images

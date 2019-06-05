@@ -1425,17 +1425,17 @@ sub journal_base {
 
         if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
             $user =~ s/_/-/g;
-            return "https://$user.$LJ::DOMAIN";
+            return "$LJ::PROTOCOL://$user.$LJ::DOMAIN";
         }
         else {
-            return "https://$rule->[1]/$user";
+            return "$LJ::PROTOCOL://$rule->[1]/$user";
         }
     }
 
     if ( $vhost eq "users" ) {
         my $he_user = $user;
         $he_user =~ s/_/-/g;
-        return "https://$he_user.$LJ::USER_DOMAIN";
+        return "$LJ::PROTOCOL://$he_user.$LJ::USER_DOMAIN";
     }
     elsif ( $vhost eq "tilde" ) {
         return "$LJ::SITEROOT/~$user";
@@ -1447,7 +1447,7 @@ sub journal_base {
         return $LJ::SITEROOT;
     }
     elsif ( $vhost =~ /^other:(.+)/ ) {
-        return "https://$1";
+        return "$LJ::PROTOCOL://$1";
     }
     else {
         return "$LJ::SITEROOT/users/$user";
