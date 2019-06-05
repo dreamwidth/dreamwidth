@@ -105,6 +105,7 @@ use LJ::ModuleCheck;
 use IO::Socket::INET;
 use IO::Socket::SSL;
 use Mozilla::CA;
+use GTop;
 
 use LJ::UniqCookie;
 use LJ::WorkerResultStorage;
