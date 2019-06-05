@@ -1589,7 +1589,7 @@ sub talkform {
         form_url             => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         errors               => $opts->{errors},
         create_link          => '',
-        subject_icons        => $subjecticons,
+        subjecticons        => $subjecticons,
 
         public_entry     => $entry->security eq 'public',
         default_usertype => $default_usertype,
@@ -1603,8 +1603,7 @@ sub talkform {
                 || $form->{cookieuser},
             body         => $form->{body},
             subject      => $basesubject,
-            subject_icon => $subjecticons->{pic}->{ $form->{subjecticon} }
-                || $subjecticons->{pic}->{none},    # a subjecticon hashref
+            subjecticon => $form->{subjecticon} || 'none', # a subjecticon ID
             preformatted    => $form->{prop_opt_preformatted},
             admin_post      => $form->{prop_admin_post},
             current_icon_kw => $form->{prop_picture_keyword},
@@ -1685,7 +1684,7 @@ sub talkform {
 
         help_icon         => sub { LJ::help_icon_html(@_) },
         ejs               => sub { return LJ::ejs(@_) },
-        print_subjecticon => sub { return LJ::Talk::print_subjecticon(@_) },
+        print_subjecticon_by_id => sub { return LJ::Talk::print_subjecticon_by_id(@_) },
     };
 
     # make sure journal isn't locked
