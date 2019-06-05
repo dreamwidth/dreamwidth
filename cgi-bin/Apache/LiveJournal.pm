@@ -1479,6 +1479,7 @@ sub journal_content {
 
     my $ctbase = $opts->{'contenttype'};
     $ctbase =~ s/;.*//;
+    my $do_gzip = 1;
     $do_gzip = 0 unless $LJ::GZIP_OKAY{$ctbase};
     $do_gzip = 0 if $apache_r->headers_in->{"Accept-Encoding"} !~ /gzip/;
 
