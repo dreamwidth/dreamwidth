@@ -13,7 +13,9 @@
 
     [%# authas switcher form %]
     [% UNLESS noactions %]
-            <br />[%- authas_html -%]
+                <form method="get">
+        [%- authas_html -%]
+    </form>
     [% END %]
 
     [%# show list of layers %]

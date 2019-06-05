@@ -4,10 +4,11 @@
     [% dw.ml("Actionlink", {'link' => "<a href='$site.root/customize/advanced/layers$getextra'>" _ dw.ml('.nav.yourlayers') _ "</a>", }) %]
 
 
-<form method="get">
-    [%- authas_html -%]
-</form>
-
+[% UNLESS noactions %]
+    <form method="get">
+        [%- authas_html -%]
+    </form>
+[% END %]
     [%# edit mode %]
     [% IF id %]
 
@@ -23,7 +24,6 @@
     [% ELSE %]
 
         [%# set up page header %]
-        [% authas_html UNLESS noactions %]
 
         <div><h1>[% dw.ml('.yourstyles.header') %] </h1></div>
 
