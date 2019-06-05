@@ -833,7 +833,7 @@ sub members_edit_handler {
       # go ahead and add poster (P), unmoderated (N), moderator (M), admin (A) edges unconditionally
         my $cid = $cu->userid;
         LJ::set_rel_multi(
-            ( map { [ $cid, $_, 'A' ] } keys %{ $add{admin} || {} } ),
+            ( map { [ $cid, $_, 'A' ] } keys %{ $add{admin}       || {} } ),
             ( map { [ $cid, $_, 'P' ] } keys %{ $add{poster}      || {} } ),
             ( map { [ $cid, $_, 'M' ] } keys %{ $add{moderator}   || {} } ),
             ( map { [ $cid, $_, 'N' ] } keys %{ $add{unmoderated} || {} } ),
@@ -880,7 +880,7 @@ sub members_edit_handler {
 
    # go ahead and delete poster (P), unmoderated (N), moderator (M), admin (A) edges unconditionally
         LJ::clear_rel_multi(
-            ( map { [ $cid, $_, 'A' ] } keys %{ $delete{admin} || {} } ),
+            ( map { [ $cid, $_, 'A' ] } keys %{ $delete{admin}       || {} } ),
             ( map { [ $cid, $_, 'P' ] } keys %{ $delete{poster}      || {} } ),
             ( map { [ $cid, $_, 'M' ] } keys %{ $delete{moderator}   || {} } ),
             ( map { [ $cid, $_, 'N' ] } keys %{ $delete{unmoderated} || {} } ),

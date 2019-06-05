@@ -57,7 +57,7 @@ sub try_work {
         or return $temp_fail->('Unable to get global master database handle');
 
     # get tags
-    my $r = $class->call_xmlrpc( $data, 'getusertags' );
+    my $r           = $class->call_xmlrpc( $data, 'getusertags' );
     my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
     $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
     return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};

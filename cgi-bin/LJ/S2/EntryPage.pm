@@ -246,7 +246,7 @@ sub EntryPage {
 
             # Comment Posted Notice
             my $same_talkid = ( $last_talkid || 0 ) == ( $dtalkid || 0 );
-            my $same_jid      = ( $last_jid || 0 ) == ( $remote ? $remote->userid : 0 );
+            my $same_jid    = ( $last_jid    || 0 ) == ( $remote ? $remote->userid : 0 );
             my $commentposted = "";
             $commentposted = 1 if $same_talkid && $same_jid;
 

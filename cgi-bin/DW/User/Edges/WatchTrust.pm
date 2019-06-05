@@ -374,7 +374,7 @@ sub get_birthdays {
     shift @bdays while @bdays && $bdays[0]->[1]->epoch < $now->epoch;
 
     # remove anything that is too far in the future
-    my $months = $full ? 12 : $months_ahead;
+    my $months  = $full ? 12 : $months_ahead;
     my $compare = $now->add( months => $months )->epoch;
     pop @bdays while @bdays && $bdays[-1]->[1]->epoch > $compare;
 

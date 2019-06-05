@@ -339,8 +339,8 @@ sub as_html_actions {
     my $ret .= "<div class='actions'>";
     $ret    .= " <a href='$reply_url'>Reply</a> | ";
     $ret    .= " <a href='$url'>Link</a> ";
-    $ret .= " | <a href='$parent_url'>Parent</a>" if $parent_url;
-    $ret .= "</div>";
+    $ret    .= " | <a href='$parent_url'>Parent</a>" if $parent_url;
+    $ret    .= "</div>";
 
     return $ret;
 }

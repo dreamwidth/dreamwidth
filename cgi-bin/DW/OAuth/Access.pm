@@ -43,7 +43,7 @@ sub from_consumer {
         if $LJ::REQUEST_CACHE{oauth_access}{"$uid:$cid"};
 
     {
-        my $ar = LJ::MemCache::get( [ $uid, join( ":", "oauth_access", $uid, $cid ) ] );
+        my $ar  = LJ::MemCache::get( [ $uid, join( ":", "oauth_access", $uid, $cid ) ] );
         my $row = $ar ? LJ::MemCache::array_to_hash( "oauth_access", $ar ) : undef;
         return $class->new_from_row($row) if $row;
     }

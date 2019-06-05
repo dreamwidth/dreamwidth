@@ -67,7 +67,7 @@ sub delay {
 }
 
 sub max_size {
-    my ($u) = @_;    # optional user object for feed
+    my ($u) = @_;                                    # optional user object for feed
     my $max_size = $LJ::SYNSUCK_MAX_SIZE || 3000;    # in kb
 
     if ( $u && $u->has_priv( "siteadmin", "largefeedsize" ) ) {
@@ -93,7 +93,7 @@ sub get_content {
         undef, $userid );
     return if $now_checknext ne $urow->{checknext};
 
-    my $ua = LJ::get_useragent( role => 'syn_sucker' );
+    my $ua          = LJ::get_useragent( role => 'syn_sucker' );
     my $reader_info = $readers ? "; $readers readers" : "";
     $ua->agent(
         "$LJ::SITENAME ($LJ::ADMIN_EMAIL; for $LJ::SITEROOT/users/$user/" . $reader_info . ")" );

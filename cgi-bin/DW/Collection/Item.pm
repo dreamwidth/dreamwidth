@@ -30,7 +30,7 @@ sub new_from_row {
     return bless \%opts, $class;
 }
 
-sub u { $_[0]->{_u} ||= LJ::load_userid( $_[0]->{userid} ) }
+sub u           { $_[0]->{_u} ||= LJ::load_userid( $_[0]->{userid} ) }
 sub userid      { $_[0]->{userid} }
 sub id          { $_[0]->{colitemid} }
 sub colid       { $_[0]->{colid} }

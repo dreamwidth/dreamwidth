@@ -1521,7 +1521,7 @@ sub load_user_privs {
     $sth->execute( $remote->userid, @privs );
 
     while ( my ( $priv, $arg ) = $sth->fetchrow_array ) {
-        $arg = "" unless defined $arg;    # NULL -> ""
+        $arg = "" unless defined $arg;             # NULL -> ""
         $remote->{'_priv'}->{$priv}->{$arg} = 1;
     }
 }

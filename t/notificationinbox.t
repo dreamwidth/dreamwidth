@@ -66,7 +66,7 @@ sub run_tests {
     # check the queued events and make sure we get what we put in
     {
         @notifications = $q->items;
-        ok( @notifications, "Got notifications list" );
+        ok( @notifications,                 "Got notifications list" );
         ok( ( scalar @notifications ) == 1, "Got one item" );
         $qitem = $notifications[0];
         ok( $qitem, "Item exists" );

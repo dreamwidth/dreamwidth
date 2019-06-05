@@ -708,8 +708,8 @@ sub make_journal {
         # get user's tags so we know what remote can see, and setup an inverse mapping
         # from keyword to tag
         $opts->{tagids} = [];
-        my $tags = LJ::Tags::get_usertags( $u, { remote => $remote } );
-        my %kwref = ( map { $tags->{$_}->{name} => $_ } keys %{ $tags || {} } );
+        my $tags  = LJ::Tags::get_usertags( $u, { remote => $remote } );
+        my %kwref = ( map { $tags->{$_}->{name}          => $_ } keys %{ $tags || {} } );
 
         foreach ( @{ $opts->{tags} } ) {
             return $error->( BML::ml('error.tag.undef'), "404 Not Found",

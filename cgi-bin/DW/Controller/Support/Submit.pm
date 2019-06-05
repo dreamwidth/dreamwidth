@@ -101,8 +101,8 @@ sub submit_handler {
             }
         }
 
-        $vars->{errors} = $errors;
-        $vars->{$_} = $post_args->{$_} foreach (qw( reqname email spcatid subject message ));
+        $vars->{errors}   = $errors;
+        $vars->{$_}       = $post_args->{$_} foreach (qw( reqname email spcatid subject message ));
         $vars->{language} = $post_args->{language}
             if LJ::is_enabled('support_request_language');
     }

@@ -358,7 +358,7 @@ sub rename_admin_edit_handler {
     # load up the old values
     my $token_details = $token->details;
     if ($token_details) {
-        $form->{redirect} = $token_details->{redirect}->{username} ? "forward" : "disconnect";
+        $form->{redirect}    = $token_details->{redirect}->{username} ? "forward" : "disconnect";
         $form->{rel_options} = { map { $_ => !$token_details->{del}->{$_} } @rel_types };
         $form->{others}->{email} = $token_details->{redirect}->{email};
     }

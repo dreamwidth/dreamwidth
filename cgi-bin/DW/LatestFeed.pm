@@ -92,7 +92,7 @@ sub get_items {
 
     # and simply get the list and return it ... simplicity
     my $thinger = $opts{feed} || $opts{tagkwid};
-    my $mckey = $thinger ? "latest_items_tag:$thinger" : "latest_items";
+    my $mckey   = $thinger ? "latest_items_tag:$thinger" : "latest_items";
     return LJ::MemCache::get($mckey) || [];
 }
 

@@ -284,7 +284,7 @@ sub general_handler {
     elsif ( $mode eq 'list_filter_members' ) {
         my $filterid = $args->{filterid} + 0;
         $ret{filter_members}->{filterusers} = $u->trust_group_members( id => $filterid );
-        $ret{filter_members}->{filtername} = $u->trust_groups( id => $filterid );
+        $ret{filter_members}->{filtername}  = $u->trust_groups( id => $filterid );
         my $uobjs = LJ::load_userids( keys %{ $ret{filter_members}->{filterusers} } );
         foreach my $userid ( keys %$uobjs ) {
             next unless $uobjs->{$userid};

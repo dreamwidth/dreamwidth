@@ -437,7 +437,7 @@ sub esn_subs_handler {
 
         my %postauth;
         foreach my $subkey (qw(journalid arg1 arg2 etypeid)) {
-            $ret{$subkey} = $subscr->$subkey || 0;
+            $ret{$subkey}      = $subscr->$subkey || 0;
             $postauth{$subkey} = $ret{$subkey} if $ret{$subkey};
         }
 
@@ -547,7 +547,7 @@ sub get_security_options_handler {
         unless $u;
 
     my %ret = (
-        is_comm    => $u->is_comm ? 1 : 0,
+        is_comm => $u->is_comm ? 1 : 0,
         can_manage => $remote && $remote->can_manage($u) ? 1 : 0,
     );
 
@@ -779,7 +779,7 @@ sub widget_handler {
                 delete $post->{$orig_key};
             }
         }
-        $ret{_widget_body} = eval { $widget_class->render_body(%$post); };
+        $ret{_widget_body}   = eval { $widget_class->render_body(%$post); };
         $ret{_widget_body}   = "Error: $@" if $@;
         $ret{_widget_update} = 1;
     }

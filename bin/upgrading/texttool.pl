@@ -89,7 +89,7 @@ my $set = sub {
 my %lang_dir_map;
 
 foreach my $scope ( "general", "local" ) {
-    my $file = $scope eq "general" ? "text.dat" : "text-local.dat";
+    my $file  = $scope eq "general" ? "text.dat" : "text-local.dat";
     my @files = LJ::get_all_files( "$DATA_DIR/$file", home_first => 1 );
     if ( $scope eq 'general' && !@files ) {
         die "$file file not found; odd: did you delete it?\n";

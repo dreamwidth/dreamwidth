@@ -74,7 +74,7 @@ sub main_controller {
         return
               LJ::html_hidden( mode => 'del' )
             . LJ::html_hidden( srids => join( ',', @$srids ) )
-            . LJ::html_hidden( ret => LJ::create_url( undef, keep_args => 1 ) )
+            . LJ::html_hidden( ret   => LJ::create_url( undef, keep_args => 1 ) )
             . LJ::html_submit( submit => $text );
     };
 
@@ -284,7 +284,7 @@ sub main_controller {
             # if it's not, we'll get a noreports error later, so it's all good
             return error_ml("$scope.error.noip") if length $what > 45;
 
-            $rv->{reason} = LJ::Sysban::populate_full_by_value( $what, 'talk_ip_test' );
+            $rv->{reason}  = LJ::Sysban::populate_full_by_value( $what, 'talk_ip_test' );
             $rv->{is_ipv4} = ( $what =~ /^\d+\.\d+\.\d+\.\d+$/ ) ? 1 : 0;
             $rv->{timestr} = LJ::mysql_time();
         }

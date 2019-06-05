@@ -266,7 +266,7 @@ sub editicons_handler {
     $rv->{sort_by_kw} = $args->{'keywordSort'} ? 1 : 0;
 
     $rv->{selflink} = sub {
-        my $want_kw = $_[0] // $args->{'keywordSort'};
+        my $want_kw      = $_[0] // $args->{'keywordSort'};
         my $keyword_sort = $want_kw ? { 'keywordSort' => 1 } : {};
         return LJ::create_url(
             "/manage/icons",

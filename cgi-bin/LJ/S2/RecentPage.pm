@@ -250,8 +250,8 @@ ENTRY:
         my $date        = substr( $alldatepart, 0, 10 );
         my $new_day     = 0;
         if ( $date ne $lastdate ) {
-            $new_day  = 1;
-            $lastdate = $date;
+            $new_day              = 1;
+            $lastdate             = $date;
             $lastentry->{end_day} = 1 if $lastentry;
         }
         $entry->{new_day} = $new_day,
@@ -273,7 +273,7 @@ ENTRY:
     };
 
     my %valid_modes = ( all => 'all', and => 'all' );
-    my $tagmode = $valid_modes{ $get->{mode} || '' };
+    my $tagmode     = $valid_modes{ $get->{mode} || '' };
 
     # these are the same for both previous and next links
     my %linkattrs = (

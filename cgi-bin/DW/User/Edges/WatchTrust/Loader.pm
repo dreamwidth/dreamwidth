@@ -126,12 +126,12 @@ sub _wt_userids {
 # helper to filter the _wt_list by a groupmask AND
 sub _filter_wt_list {
     my ( $mask, $raw ) = @_;
-    return {} unless $mask;    # undef/0 = no matches!
+    return {}    unless $mask;                                # undef/0 = no matches!
     return undef unless defined $raw && ref $raw eq 'HASH';
-    return $raw unless keys %$raw;
+    return $raw  unless keys %$raw;
 
     return {
-        map { $_ => $raw->{$_} }
+        map      { $_ => $raw->{$_} }
             grep { $raw->{$_}->{groupmask} & $mask }
             keys %$raw
     };

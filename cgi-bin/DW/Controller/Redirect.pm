@@ -127,7 +127,7 @@ sub entry_nav_url {
     }
     return unless $jumpid;
 
-    my $e = LJ::Entry->new( $u, ditemid => $jumpid );
+    my $e      = LJ::Entry->new( $u, ditemid => $jumpid );
     my $anchor = $tagnav ? "tagnav-" . LJ::eurl( $args->{redir_key} ) : "";
     return ( url => $e->url( style_opts => LJ::viewing_style_opts(%$args), anchor => $anchor ) );
 }

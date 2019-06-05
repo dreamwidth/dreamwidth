@@ -669,7 +669,7 @@ sub is_valid_tagstring {
         # Allow underscore tags to be viewed/deleted, but not created/modified.
         return 0 if !$opts->{'omit_underscore_check'} && $tag =~ /^_/;
 
-        return 0 if $tag =~ /[\<\>\r\n\t]/;    # no HTML, newlines, tabs, etc
+        return 0 if $tag =~ /[\<\>\r\n\t]/;        # no HTML, newlines, tabs, etc
         return 0 unless $tag =~ /^(?:.+\s?)+$/;    # one or more "words"
         return 1;
     };

@@ -171,7 +171,7 @@ sub do_upgrade {
                 foreach my $kwid ( sort { $a <=> $b } keys %{ $outrows{$picid} } ) {
                     next if $kwid == 0 && $picid == 0;
                     push @bind, "(?,?,?,?)";
-                    my $mapid = LJ::alloc_user_counter( $u, 'Y' );
+                    my $mapid   = LJ::alloc_user_counter( $u, 'Y' );
                     my $keyword = $kwid == 0 ? "pic#$picid" : $kwid_map{$kwid};
 
         # if $keyword is undef, this isn't used on any entries, so we don't care about the mapid

@@ -400,7 +400,7 @@ sub get_move_source_dbh {
 
 sub moveUser {
     my ( $dbh, $u, $dclust, $verify_code, $opts ) = @_;
-    die "Non-existent db.\n" unless $dbh;
+    die "Non-existent db.\n"   unless $dbh;
     die "Non-existent user.\n" unless $u && $u->{userid};
 
     my $user   = $u->{user};

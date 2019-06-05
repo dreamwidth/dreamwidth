@@ -244,7 +244,7 @@ sub swap_usernames {
 
     my $errors = $opts{errors} || DW::FormErrors->new;
 
-    my $admin = LJ::isu( $opts{user} ) ? $opts{user} : $u1;
+    my $admin  = LJ::isu( $opts{user} ) ? $opts{user} : $u1;
     my @tokens = @{ $opts{tokens} || [] };
 
     # tokens can be owned by $admin (remote user),

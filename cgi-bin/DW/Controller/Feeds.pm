@@ -265,7 +265,7 @@ sub index_handler {
     # if we got to this point, we need to render the index template
 
     $rv->{poplist} = \@pop if @pop;
-    $rv->{xmlimg} = LJ::img( 'xml', '', { border => 0 } );
+    $rv->{xmlimg}  = LJ::img( 'xml', '', { border => 0 } );
 
     return DW::Template->render_template( 'feeds/index.tt', $rv );
 }

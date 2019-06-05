@@ -112,7 +112,7 @@ sub communities_managed_list {
     my %users = %{ LJ::load_userids(@$cids) };
 
     return map { $_ }
-        grep { $_ && ( $_->is_visible || $_->is_readonly ) } values %users;
+        grep   { $_ && ( $_->is_visible || $_->is_readonly ) } values %users;
 }
 
 # list of communities that $u moderates
@@ -128,7 +128,7 @@ sub communities_moderated_list {
     my %users = %{ LJ::load_userids(@$cids) };
 
     return map { $_ }
-        grep { $_ && ( $_->is_visible || $_->is_readonly ) } values %users;
+        grep   { $_ && ( $_->is_visible || $_->is_readonly ) } values %users;
 }
 
 # Get an array of usernames a given user can authenticate as.
@@ -433,7 +433,7 @@ sub entryform_width {
 
 # getter/setter
 sub default_entryform_panels {
-    my (%opts) = @_;
+    my (%opts)     = @_;
     my $anonymous  = $opts{anonymous} ? 1 : 0;
     my $force_show = $anonymous;
 
@@ -734,7 +734,7 @@ sub security_group_display {
     return '' unless LJ::isu($u);
     return '' unless defined $allowmask;
 
-    my $remote = LJ::get_remote() or return '';
+    my $remote   = LJ::get_remote() or return '';
     my $use_urls = $remote->get_cap("security_filter") || $u->get_cap("security_filter");
 
     # see which group ids are in the security mask

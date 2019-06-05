@@ -111,7 +111,7 @@ sub FriendsPage {
     if    ( $itemshow < 1 )  { $itemshow = 20; }
     elsif ( $itemshow > 50 ) { $itemshow = 50; }
 
-    my $skip = $get->{skip} ? $get->{skip} + 0 : 0;
+    my $skip    = $get->{skip} ? $get->{skip} + 0 : 0;
     my $maxskip = ( $LJ::MAX_SCROLLBACK_FRIENDS || 1000 ) - $itemshow;
     if ( $skip > $maxskip ) { $skip = $maxskip; }
     if ( $skip < 0 )        { $skip = 0; }

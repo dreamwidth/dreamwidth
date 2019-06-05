@@ -56,7 +56,7 @@ sub try_work {
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
     $0 = sprintf( 'content-importer [friends: %s(%d)]', $u->user, $u->id );
 
-    my $r = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
+    my $r           = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
     my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
     return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};
 

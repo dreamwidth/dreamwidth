@@ -62,7 +62,7 @@ my %user_classes = (
 
     # Users with no invites left
     noinvleft => { search => \&_search_noinvleft },    # No search arg
-          # Users with no invites left and 1 invitee paid/perm/active in last 30 days
+         # Users with no invites left and 1 invitee paid/perm/active in last 30 days
     noinvleft_apinv => {
         search     => \&_search_noinvleft_apinvitee,
         search_arg => 30

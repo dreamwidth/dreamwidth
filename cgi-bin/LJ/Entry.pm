@@ -715,7 +715,7 @@ sub comment_info {
     my $viewall    = $opts{viewall};
 
     my $journal = exists $opts{journal} ? $opts{journal} : $u;    # journal entry was posted in
-           # may be different from $u on a read page
+         # may be different from $u on a read page
 
     my $permalink = $self->url;
     my $comments_enabled =
@@ -988,7 +988,7 @@ sub visible_to {
 
     my ( $viewall, $viewsome ) = ( 0, 0 );
     if ( LJ::isu($remote) && $canview ) {
-        $viewall = $remote->has_priv( 'canview', '*' );
+        $viewall  = $remote->has_priv( 'canview', '*' );
         $viewsome = $viewall || $remote->has_priv( 'canview', 'suspended' );
     }
 
@@ -2329,7 +2329,7 @@ sub delete_entry {
         $u->log2_do( undef, "DELETE FROM log2 WHERE journalid=$jid AND jitemid=$jitemid $and" );
     LJ::MemCache::delete( [ $jid, "log2:$jid:$jitemid" ] );
     LJ::MemCache::delete( [ $jid, "activeentries:$jid" ] );
-    LJ::MemCache::decr( [ $jid, "log2ct:$jid" ] ) if $dc > 0;
+    LJ::MemCache::decr(   [ $jid, "log2ct:$jid" ] ) if $dc > 0;
     LJ::memcache_kill( $jid, "dayct2" );
     LJ::Hooks::run_hooks( "deletepost", $jid, $jitemid, $anum );
 

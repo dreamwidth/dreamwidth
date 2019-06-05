@@ -97,7 +97,7 @@ sub category_controller {
         # Copy fields to $cat, normalizing at the same time.
         $cat->{catkey}  = $catkey;
         $cat->{catname} = LJ::text_trim( $post_args->{catname}, 80, 0 );
-        $cat->{$_} = $post_args->{$_} + 0 foreach (qw( sortorder basepoints ));
+        $cat->{$_} = $post_args->{$_} + 0     foreach (qw( sortorder basepoints ));
         $cat->{$_} = $post_args->{$_} ? 1 : 0 foreach (
             qw( is_selectable public_read public_help allow_screened
             hide_helpers user_closeable no_autoreply )
@@ -109,7 +109,7 @@ sub category_controller {
             : 'general';
 
         # Check for errors
-        $errors->add( 'catkey', '.error.catkey_empty' ) if $cat->{catkey} eq '';
+        $errors->add( 'catkey',  '.error.catkey_empty' ) if $cat->{catkey} eq '';
         $errors->add( 'catname', '.error.catname_empty' )
             if $cat->{catname} eq '';
         $errors->add( 'sortorder', '.error.sortorder_oob' )

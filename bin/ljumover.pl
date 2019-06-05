@@ -145,7 +145,7 @@ BEGIN {
     # Versioning stuff and custom includes
     use vars qw{$VERSION $RCSID $AUTOLOAD};
     $VERSION = do { my @r = ( q$Revision: 3660 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
-    $RCSID = q$Id: ljumover.pl 3660 2004-02-13 07:24:32Z avva $;
+    $RCSID   = q$Id: ljumover.pl 3660 2004-02-13 07:24:32Z avva $;
 
     # Define some constants
     use constant TRUE  => 1;
@@ -749,11 +749,11 @@ sub start {
         @queue,    $thread, $uid,   $pid,        $dest,   $dbh,
     );
 
-    $maxUsers = $self->max || 1e+33;
+    $maxUsers   = $self->max || 1e+33;
     $maxThreads = $oldMax = $self->{maxThreads};
     $chunksize  = $self->chunksize;
-    $chunksize = $maxUsers if $maxUsers < $chunksize;
-    $count     = 0;
+    $chunksize  = $maxUsers if $maxUsers < $chunksize;
+    $count      = 0;
     $self->setSignalHandlers;
 
     # Iterate over all users for this worker's cluster list, $chunksize per
@@ -952,7 +952,7 @@ sub pickDestination {
 ### METHOD: getPendingUsers()
 ### Return users that need moving from the source clusters for this mover.
 sub getPendingUsers {
-    my $self = shift or confess "Cannot be called as a function";
+    my $self  = shift or confess "Cannot be called as a function";
     my $limit = shift || 500;
 
     my (

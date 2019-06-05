@@ -891,7 +891,7 @@ sub bit_breakdown {
 
     # check each bit 0..63 and return only ones that are defined
     return grep { defined }
-        map { $mask & ( 1 << $_ ) ? $_ : undef } 0 .. 63;
+        map     { $mask & ( 1 << $_ ) ? $_ : undef } 0 .. 63;
 }
 
 sub last_error_code {

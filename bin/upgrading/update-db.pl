@@ -94,9 +94,9 @@ foreach my $cl ( split( /,/, $cluster ) ) {
 }
 @clusters = (0) unless @clusters;
 
-my $su;              # system user, not available until populate mode
-my %status;          # clusterid -> string
-my %clustered_table; # $table -> 1
+my $su;                 # system user, not available until populate mode
+my %status;             # clusterid -> string
+my %clustered_table;    # $table -> 1
 my $sth;
 my %table_exists;    # $table -> 1
 my %table_unknown;   # $table -> 1

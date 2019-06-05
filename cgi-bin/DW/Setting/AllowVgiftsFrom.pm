@@ -118,7 +118,7 @@ sub save {
     my $allowed = $class->get_arg( $args, "allowvgiftsfrom" );
     my $anonopt = $class->get_arg( $args, "anonvgift_optout" );
 
-    $u->set_prop( 'opt_allowvgiftsfrom' => $allowed ) if $allowed;
+    $u->set_prop( 'opt_allowvgiftsfrom'  => $allowed ) if $allowed;
     $u->set_prop( 'opt_anonvgift_optout' => $anonopt ? 0 : 1 );
 
     return 1;

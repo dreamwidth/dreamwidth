@@ -132,7 +132,7 @@ if ( $trans && $trans->is_delivered ) {
 # do clean up (2 tests) - can't delete cart, but do need to change state
 $cart->state($DW::Shop::STATE_PROCESSED) if $cart;    # worker usually does this
 my $removed = $trans ? $trans->remove : undef;        # deletes row from vgift_trans
-ok( $removed, 'deleted test transaction' );
+ok( $removed,                                         'deleted test transaction' );
 ok( !DW::VirtualGiftTransaction->list( user => $u1 ), 'no gifts left' );
 
 # now attempt to delete the vgift (4 tests)

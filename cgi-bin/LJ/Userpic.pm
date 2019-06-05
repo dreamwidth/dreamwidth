@@ -837,7 +837,7 @@ sub get_upf_scaled {
         my $fromh = $img ? $img->Get('height') : $oh;
 
         return ( int( $newsize * $fromw / $fromh ), $newsize ) if $fromh > $fromw;
-        return ( $newsize, int( $newsize * $fromh / $fromw ) );
+        return ( $newsize,                          int( $newsize * $fromh / $fromw ) );
     };
 
     # get the "medium sized" width/height.  this is the size which

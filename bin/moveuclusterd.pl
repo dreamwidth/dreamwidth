@@ -107,7 +107,7 @@ BEGIN {
     # Versioning stuff and custom includes
     use vars qw{$VERSION $RCSID};
     $VERSION = do { my @r = ( q$Revision: 12350 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
-    $RCSID = q$Id: moveuclusterd.pl 12350 2007-08-28 22:20:25Z ahassan $;
+    $RCSID   = q$Id: moveuclusterd.pl 12350 2007-08-28 22:20:25Z ahassan $;
 
     # Define some constants
     use constant TRUE  => 1;
@@ -811,8 +811,8 @@ sub assignJobFromCluster {
 ### I<fdno>.
 sub unassignJobForClient {
     my JobServer $self = shift;
-    my $fdno = shift or confess "No client fdno";
-    my $requeue = shift || '';
+    my $fdno           = shift or confess "No client fdno";
+    my $requeue        = shift || '';
 
     my ( $job, $src, );
 

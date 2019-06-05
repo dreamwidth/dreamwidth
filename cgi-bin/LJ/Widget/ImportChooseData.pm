@@ -20,7 +20,7 @@ use strict;
 use base qw/ LJ::Widget /;
 use Carp qw/ croak /;
 
-sub need_res { qw( stc/importer.css js/jquery.importer.js ) }
+sub need_res      { qw( stc/importer.css js/jquery.importer.js ) }
 sub need_res_opts { group => "jquery" }
 
 sub render_body {

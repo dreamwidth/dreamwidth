@@ -215,7 +215,7 @@ sub parse_module_embed {
                 $newstate = EXPLICIT;
 
                 # save embed id, width and height if they do exist in attributes
-                $embed_attrs{id} = $attr->{id} if $attr->{id};
+                $embed_attrs{id}    = $attr->{id} if $attr->{id};
                 $embed_attrs{width} = ( $attr->{width} > MAX_WIDTH ? MAX_WIDTH : $attr->{width} )
                     if $attr->{width};
                 $embed_attrs{height} =
@@ -712,6 +712,7 @@ sub module_content {
     $linktext = $cref->{linktext};
     $url      = $cref->{url};
     my ( $dbload, $dbid );               # module id from the database
+
     unless ( defined $content ) {
         my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';
         ( $content, $dbid, $linktext, $url ) = $journal->selectrow_array(

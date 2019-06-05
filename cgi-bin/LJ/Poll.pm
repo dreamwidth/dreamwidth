@@ -1303,12 +1303,12 @@ sub render {
                 }
 
                 # displaying results
-                my $count = ( defined $itid ) ? $itvotes{$itid} || 0 : 0;
+                my $count   = ( defined $itid ) ? $itvotes{$itid} || 0 : 0;
                 my $percent = sprintf( "%.1f", ( 100 * $count / ( $usersvoted || 1 ) ) );
-                my $width   = 20 + int(        ( $count / $maxitvotes ) * 380 );
+                my $width   = 20 + int( ( $count / $maxitvotes ) * 380 );
 
                 # did the user viewing this poll choose this option? If so, mark it
-                my $qvalue = $preval{$qid} || '';
+                my $qvalue   = $preval{$qid} || '';
                 my $answered = ( $qvalue =~ /\b$itid\b/ ) ? "*" : "";
 
                 if ($do_table) {

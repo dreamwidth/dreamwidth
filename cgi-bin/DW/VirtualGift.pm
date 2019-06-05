@@ -496,7 +496,7 @@ sub delete {
 sub id { return $_[0]->{vgiftid} }
 *vgiftid = \&id;
 
-sub name { return $_[0]->_access('name') || ''; }
+sub name              { return $_[0]->_access('name') || ''; }
 sub name_ehtml        { return LJ::ehtml( $_[0]->name ); }
 sub description       { return $_[0]->_access('description') || ''; }
 sub description_ehtml { return LJ::ehtml( $_[0]->description ); }
@@ -686,8 +686,8 @@ sub is_untagged {
 
 sub num_sold {
     my ($self) = @_;
-    my $id    = $self->id or return undef;
-    my $count = LJ::MemCache::get( $self->num_sold_memkey );
+    my $id     = $self->id or return undef;
+    my $count  = LJ::MemCache::get( $self->num_sold_memkey );
     return $count if defined $count;
 
     # check db if not in cache
@@ -1083,7 +1083,7 @@ sub fetch_creatorcounts {
 sub list_nonpriv_tags {
     my ($self) = @_;
     my $memkey = $self->nonpriv_tags_memkey;
-    my $names = LJ::MemCache::get($memkey) || [];
+    my $names  = LJ::MemCache::get($memkey) || [];
 
     unless (@$names) {
         my $dbr = LJ::get_db_reader();

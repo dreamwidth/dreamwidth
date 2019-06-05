@@ -673,7 +673,7 @@ sub challenge {
     # get the xml-rpc proxy and start the connection.
     # use the custom serviceurl if available, or the default using the hostname
     my $proxyurl = $extacct->serviceurl || "http://" . $extacct->serverhost . "/interface/xmlrpc";
-    my $xmlrpc = eval { XMLRPC::Lite->proxy( $proxyurl, timeout => 3 ); };
+    my $xmlrpc   = eval { XMLRPC::Lite->proxy( $proxyurl, timeout => 3 ); };
     return 0 unless $xmlrpc;
 
     my $challengecall = eval { $xmlrpc->call("LJ.XMLRPC.getchallenge"); };

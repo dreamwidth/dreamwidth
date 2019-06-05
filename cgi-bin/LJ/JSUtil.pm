@@ -29,7 +29,7 @@ sub autocomplete {
 
     # create formatted string to use as a javascript list
     @list = sort { lc $a cmp lc $b } @list;
-    @list = map { $_ = "\"$_\"" } @list;
+    @list = map  { $_ = "\"$_\"" } @list;
     my $formatted_list = join( ",", @list );
 
     return qq{
