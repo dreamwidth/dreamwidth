@@ -1557,8 +1557,7 @@ sub talkform {
         $basesubject = "Re: $basesubject";
     }
 
-    my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
-    $screening = 'A' if $journalu->has_autoscreen($remote);
+    my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) // '';
 
     my $default_usertype = '';    # One of anonymous, openid, openid_cookie, cookieuser, user.
     if ( $form->{usertype} ) {
@@ -1602,8 +1601,7 @@ sub talkform {
             oiddo_login => $form->{oiddo_login},
             user        => $form->{userpost}
                 || $form->{cookieuser},
-            body => $form->{body}
-                || '',
+            body         => $form->{body},
             subject      => $basesubject,
             subject_icon => $subjecticons->{pic}->{ $form->{subjecticon} }
                 || $subjecticons->{pic}->{none},    # a subjecticon hashref
