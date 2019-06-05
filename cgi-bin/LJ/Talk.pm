@@ -1589,7 +1589,7 @@ sub talkform {
         form_url             => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         errors               => $opts->{errors},
         create_link          => '',
-        subjecticons        => $subjecticons,
+        subjecticons         => $subjecticons,
 
         public_entry     => $entry->security eq 'public',
         default_usertype => $default_usertype,
@@ -1601,14 +1601,15 @@ sub talkform {
             oiddo_login => $form->{oiddo_login},
             user        => $form->{userpost}
                 || $form->{cookieuser},
-            body         => $form->{body},
-            subject      => $basesubject,
-            subjecticon => $form->{subjecticon} || 'none', # a subjecticon ID
+            body        => $form->{body},
+            subject     => $basesubject,
+            subjecticon => $form->{subjecticon}
+                || 'none',    # a subjecticon ID
             preformatted    => $form->{prop_opt_preformatted},
             admin_post      => $form->{prop_admin_post},
             current_icon_kw => $form->{prop_picture_keyword},
             current_icon => LJ::Userpic->new_from_keyword( $remote, $form->{prop_picture_keyword} )
-            ,                                       # not yet used, but later...
+            ,                 # not yet used, but later...
         },
 
         captcha => $opts->{do_captcha}
@@ -1682,8 +1683,8 @@ sub talkform {
                 || $journalu->{opt_whocanreply} eq "reg",
         },
 
-        help_icon         => sub { LJ::help_icon_html(@_) },
-        ejs               => sub { return LJ::ejs(@_) },
+        help_icon               => sub { LJ::help_icon_html(@_) },
+        ejs                     => sub { return LJ::ejs(@_) },
         print_subjecticon_by_id => sub { return LJ::Talk::print_subjecticon_by_id(@_) },
     };
 
