@@ -1600,8 +1600,9 @@ sub talkform {
             editreason  => $comment ? $comment->edit_reason : '',
             oidurl      => $form->{oidurl},
             oiddo_login => $form->{oiddo_login},
-            user        => $form->{userpost} || $form->{cookieuser},
-            body        => $form->{body}
+            user        => $form->{userpost}
+                || $form->{cookieuser},
+            body => $form->{body}
                 || '',
             subject      => $basesubject,
             subject_icon => $subjecticons->{pic}->{ $form->{subjecticon} }
