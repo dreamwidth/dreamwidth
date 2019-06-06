@@ -153,6 +153,8 @@ function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
     var string small_media_query = generate_small_media_query();
 
+    var string make_invisible = generate_invisible_css();
+
     var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
@@ -229,6 +231,92 @@ function print_stylesheet () {
                 }
             """;
         }
+
+    var string responsive_indent_css = "";
+        if ($*comment_indent_style == "responsive") {
+            $responsive_indent_css = """
+            /* Responsive comment thread indentation */
+            .comment-thread {
+                margin-top: 7px;
+                }
+
+            @media $small_media_query {
+                /* Mobile indents */
+                .comment-depth-indent-mobile {
+                    margin-left: 10px;
+                    }
+
+                /* Establish an anchoring containing block for thread lines */
+                .comment-thread {
+                    position: relative;
+                    }
+
+                /* Once the thread lines absolute themselves off the page, don't
+                   scroll for them. Content shouldn't be affected because it
+                   gets overflow-x:auto-ed well before becoming the section
+                   container's problem. Make sure to set comment_indent_limit_mobile
+                   low enough to work for 320px viewport widths, because if
+                   there's slop it'll get cut off. */
+                #comments {
+                    overflow-x: hidden;
+                    }
+
+                /* Go-behind thread lines for non-indented threads */
+                .comment-thread::before {
+                    content: "";
+                    width: 2px;
+                    /* Leave a gap between threads, so it's easier to see the
+                    /transition between two replies to the same parent */
+                    height: 100%;
+                    display: block;
+                    position: absolute;
+                    background-color: ${*color_entry_border};
+                    z-index: -1;
+                    /* Since the thread blocks stay at the same indent level from
+                       here on out, we need to manually indent each add'l line. */
+                    left: calc( (var(--comment-depth) - var(--comment-indent-limit-mobile)) * 10px);
+                    top: 0;
+                    border-radius: 1px;
+                    }
+
+                /* On-the-left thread lines for threads that still get indented */
+                .comment-thread.comment-depth-indent-mobile::before {
+                    left: -10px; /* Let the compounding margins handle the indent */
+                    }
+
+                /* Skip the first one */
+                .comment-thread.comment-depth-1::before {
+                    display:none;
+                    }
+
+                /* Color every fifth one differently for easy counting */
+                .comment-thread.comment-depth-mod5-1::before {
+                    background-color: ${*color_entry_background};
+                    }
+
+                /* Hide numeric indicators if indent is working */
+                .thread-depth.indent-mobile {
+                    $make_invisible
+                    }
+                }
+
+            @media $medium_media_query {
+                .comment-depth-indent-desktop {
+                    margin-left: 20px;
+                    }
+
+                .thread-depth.indent-desktop {
+                    $make_invisible
+                    }
+                }
+
+            .comment-depth-1 {
+                margin-left: 0;
+                }
+
+            """;
+        }
+
 """
 
 /*--------------------*/
@@ -841,6 +929,12 @@ td.day {
 hr.above-entry-interaction-links, hr.below-reply-container {
     display: none;
     }
+
+.comment-wrapper {
+    min-width: 14em;
+    }
+
+$responsive_indent_css
 
 .comment {
     background: $*color_entry_background;
