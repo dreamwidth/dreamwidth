@@ -151,6 +151,7 @@ function Page::print() {
 
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
+    var string small_media_query = generate_small_media_query();
 
     var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
@@ -168,32 +169,62 @@ function print_stylesheet () {
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
+            /* Float placeholder for userpic */
+            .entry .contents > .inner::before,
+            .comment .contents > .inner::before {
+                content: "";
+                display: block;
+                position: static;
+                width: 140px;
+                height: 100px;
+                float: left;
+                }
+
             .has-userpic .entry .userpic,
             .has-userpic .comment .userpic {
-                float: left;
+                position: absolute;
+                left: 10px;
+                top: -20px;
                 }
             .has-userpic .entry .header,
             .has-userpic .comment .header {
                 text-align: right;
                 }
-            .has-userpic .entry .header {
+            .has-userpic .entry .header .datetime {
+                display: block;
                 margin-left: $entry_header_margin;
                 }
-            .has-userpic .comment .header {
+            .has-userpic .comment .header .datetime {
+                display: block;
                 margin-left: $comment_header_margin;
                 }
             """;
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
-            .has-userpic .entry .userpic,
-            .has-userpic .comment .userpic {
+            /* Float placeholder for userpic */
+            .entry .contents > .inner::before,
+            .comment .contents > .inner::before {
+                content: "";
+                display: block;
+                position: static;
+                width: 140px;
+                height: 100px;
                 float: right;
                 }
-            .has-userpic .entry .header {
+
+            .has-userpic .entry .userpic,
+            .has-userpic .comment .userpic {
+                position: absolute;
+                right: 10px;
+                top: -20px;
+                }
+            .has-userpic .entry .header .datetime {
+                display: block;
                 margin-right: $entry_header_margin;
                 }
-            .has-userpic .comment .header {
+            .has-userpic .comment .header .datetime {
+                display: block;
                 margin-right: $comment_header_margin;
                 }
             """;
@@ -248,6 +279,12 @@ ol {
 #canvas {
     width: 90%;
     margin: 0 auto;
+    }
+
+@media $small_media_query {
+    #canvas {
+        width: calc(100% - 10px);
+        }
     }
 
 #primary > .inner:first-child {
@@ -494,9 +531,23 @@ ul.userlite-interaction-links.text-links {
     margin: 0 0 15px 0;
     }
 
+/* Provide an anchor for absolute positioning of descendents like userpic */
+.entry .contents {
+  position: relative;
+}
+
+/* Don't allow one overflowing flist entry to trash the whole page's layout */
+.entry .contents > .inner {
+    overflow-x: auto;
+}
+
 .entry-content {
     margin: 10px 0 0;
     min-height: 100px;
+    }
+
+.entry-content td, .entry-content th {
+    border: 1px solid $*color_entry_border;
     }
 
 .entry .header {
@@ -529,7 +580,6 @@ h3.entry-title a:visited {
 
 .has-userpic .entry .userpic {
     border: none;
-    margin: -20px 10px 10px 10px;
     }
 
 .entry .userpic img {
@@ -799,6 +849,16 @@ hr.above-entry-interaction-links, hr.below-reply-container {
     padding: 1em;
     }
 
+/* Provide an anchor for absolute positioning of descendents like userpic */
+.comment .contents {
+  position: relative;
+}
+
+/* Don't allow one overflowing comment to trash the whole page's layout */
+.comment .contents > .inner {
+    overflow-x: auto;
+}
+
 .comment a { color: $*color_entry_link; }
 .comment a:visited { color: $*color_entry_link_visited; }
 .comment a:hover { color: $*color_entry_link_hover; }
@@ -841,7 +901,6 @@ textarea.textbox {
 .has-userpic .comment .userpic {
     border: none;
     display: block;
-    margin: -1em .5em .5em .5em;
     }
 
 .comment .userpic img {
