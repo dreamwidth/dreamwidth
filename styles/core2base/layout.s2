@@ -38,6 +38,11 @@ propgroup presentation {
     property use entry_management_links;
     property use comment_management_links;
 
+    property use comment_indent_style;
+    property use comment_indent_limit_mobile;
+    property use comment_indent_limit_desktop;
+    property use comment_indent_depth_caption;
+
 }
 
 set layout_type = "one-column";
@@ -247,8 +252,11 @@ propgroup customcss {
 }
 
 function Page::print_default_stylesheet() {
+    var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
     var string large_media_query = generate_large_media_query();
+
+    var string make_invisible = generate_invisible_css();
 
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
@@ -319,6 +327,44 @@ function Page::print_default_stylesheet() {
                 }
              """;
          }
+
+    var string responsive_indent_css = "";
+        if ($*comment_indent_style == "responsive") {
+            $responsive_indent_css = """
+            /* Basic responsive comment thread indentation */
+            .comment-thread {
+                margin-top: 5px;
+                }
+
+            @media $small_media_query {
+                /* Mobile indents */
+                .comment-depth-indent-mobile {
+                    margin-left: 10px;
+                    }
+
+                .thread-depth.indent-mobile {
+                    $make_invisible
+                    }
+                }
+
+            @media $medium_media_query {
+                .comment-depth-indent-desktop {
+                    margin-left: 20px;
+                    }
+
+                .thread-depth.indent-desktop {
+                    $make_invisible
+                    }
+                }
+
+            .comment-depth-1 {
+                margin-left: 0;
+                }
+
+            """;
+        }
+
+
     print_custom_control_strip_css();
 
     """
@@ -617,6 +663,8 @@ ul.entry-interaction-links li {
 /* comments */
 
 .comment-posted {font-weight:bold;}
+
+$responsive_indent_css
 
 .comment-wrapper {
     padding: .5em 0;
