@@ -506,6 +506,7 @@ h2#pagetitle {
 
 .entry .entry-title {
     $entry_title_font
+    overflow-wrap: break-word;
 }
 
 .entry .entry-title, .entry .entry-title a {
@@ -515,6 +516,10 @@ h2#pagetitle {
 .no-subject .entry .entry-title {
     background: none;
     border: none;
+}
+
+.entry .contents {
+    overflow-wrap: break-word;
 }
 
 .entry a { $entry_link_colors }
@@ -570,6 +575,10 @@ h2#pagetitle {
     margin-bottom: 1em;
 }
 
+.metadata-item, .poster-ip {
+    overflow-wrap: break-word;
+}
+
 .tag ul {
     display: inline;
     margin-left: 0;
@@ -617,6 +626,7 @@ ul.entry-interaction-links li {
 .comment .comment-title {
     $comment_title_font
     margin: 0;
+    overflow-wrap: break-word;
 }
 
 .comment .comment-title, .comment .comment-title a {
@@ -626,6 +636,10 @@ ul.entry-interaction-links li {
 .no-subject .comment .comment-title {
     background: none;
     border: none;
+}
+
+.comment .contents {
+    overflow-wrap: break-word;
 }
 
 ul.comment-management-links {
@@ -722,10 +736,13 @@ table.month td p {
 .module h2 {
     $module_title_colors
     $module_title_font
+    overflow-wrap: break-word;
 }
 
 .module-content {
     $module_font
+    overflow-x: auto;
+    overflow-wrap: break-word;
 }
 
 .module-content ul {
