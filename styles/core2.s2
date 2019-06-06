@@ -3765,30 +3765,48 @@ function generate_font_css(string font_base, string font_fallback, string font_s
     return generate_font_css("", $font_base, $font_fallback, $font_size, $font_unit);
 }
 
-function generate_media_query(string user_breakpoint, int sidebar_width_multiplier, string default_min_width): string {
-    # use the user-provided breakpoint width
-    var string min_width = $user_breakpoint;
+function generate_invisible_css() : string {
+    return "    /* yes on screenreaders, no on display */
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+";
+}
 
-    # no user-provided breakpoint width, base our min-width as a multiplier on the sidebar width
-    if ($min_width == "" and $*sidebar_width != "") {
+function generate_media_query(string user_breakpoint, int sidebar_width_multiplier, string default_break_width, string min_or_max): string {
+    # use the user-provided breakpoint width
+    var string break_width = $user_breakpoint;
+
+    # no user-provided breakpoint width, base our break_width as a multiplier on the sidebar width
+    if ($break_width == "" and $*sidebar_width != "") {
         # set the min width in ems
-        $min_width = $*sidebar_width->css_multiply_length($sidebar_width_multiplier);
+        $break_width = $*sidebar_width->css_multiply_length($sidebar_width_multiplier);
     }
 
     # $*sidebar_width wasn't in a format we expected, fall back to a default
-    if ($min_width == "") {
-        $min_width = $default_min_width;
+    if ($break_width == "") {
+        $break_width = $default_break_width;
     }
 
-    return "only screen and (min-width: $min_width)";
+    return "only screen and ($min_or_max-width: $break_width)";
+}
+
+function generate_small_media_query(): string {
+    return generate_media_query($*medium_breakpoint_width, 3, "40em", "max");
 }
 
 function generate_medium_media_query(): string {
-    return generate_media_query($*medium_breakpoint_width, 3, "40em");
+    return generate_media_query($*medium_breakpoint_width, 3, "40em", "min");
 }
 
 function generate_large_media_query(): string {
-    return generate_media_query($*large_breakpoint_width, 4, "64em");
+    return generate_media_query($*large_breakpoint_width, 4, "64em", "min");
 }
 
 function Page::print_meta_tags() {
