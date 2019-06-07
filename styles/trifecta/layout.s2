@@ -901,10 +901,6 @@ pre {
     word-wrap: break-word;
 }
 
-@media $large_media_query {
-    .entry-content img, .comment-content img { max-width: none; }
-}
-
 .metadata {
     font-style: italic;
 }
