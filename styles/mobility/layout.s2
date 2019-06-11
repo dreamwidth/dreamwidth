@@ -314,11 +314,6 @@ function print_stylesheet () {
         margin: 0; 
     }
 
-    .entry-content img {
-        max-height: 100%; 
-        max-width: 100%;  
-    }
-
     .bottom-metadata { 
          margin-top: 1em; 
     }

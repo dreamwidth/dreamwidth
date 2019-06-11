@@ -568,7 +568,7 @@ pre {
     overflow: auto;
 }
 
-img, embed {
+embed {
     max-width: 100%;
     max-height: auto;
 }
