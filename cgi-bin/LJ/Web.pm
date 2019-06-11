@@ -772,6 +772,54 @@ sub bad_password_redirect {
 }
 
 # <LJFUNC>
+# name: LJ::icons_for_remote
+# class: web
+# des: Gets all the userpics for a given user, including an item for the default userpic.
+# args: remote
+# des-remote: a user object.
+# returns: An array of {value => ..., text => ..., data => { url => ...}}
+#          hashrefs, suitable for use as the items in an LJ::html_select().
+#          If no userpics or if remote is undefined, an empty array.
+# </LJFUNC>
+sub icons_for_remote {
+    my ($remote) = @_;
+    my @pics;
+
+    {
+        my %res;
+        if ($remote) {
+            LJ::do_request(
+                {
+                    mode         => "login",
+                    ver          => $LJ::PROTOCOL_VER,
+                    user         => $remote->user,
+                    getpickws    => 1,
+                    getpickwurls => 1,
+                },
+                \%res,
+                { noauth => 1, userid => $remote->userid }
+            );
+        }
+
+        if ( $res{pickw_count} ) {
+            for ( my $i = 1 ; $i <= $res{pickw_count} ; $i++ ) {
+                push @pics, [ $res{"pickw_$i"}, $res{"pickwurl_$i"} ];
+            }
+            @pics = sort { lc( $a->[0] ) cmp lc( $b->[0] ) } @pics;
+            @pics = (
+                {
+                    value => "",
+                    text  => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
+                    data  => { url => $res{defaultpicurl} }
+                },
+                map { { value => $_->[0], text => $_->[0], data => { url => $_->[1] } } } @pics
+            );
+        }
+    }
+    return @pics;
+}
+
+# <LJFUNC>
 # name: LJ::form_auth
 # class: web
 # des: Creates an authentication token to be used later to verify that a form
@@ -884,38 +932,8 @@ sub create_qr_div {
         $hidden_form_elements .= LJ::html_hidden( "chrp1", "$chal-$res" );
     }
 
-    my @pics;
-
-    # Userpic selector
-    {
-        my %res;
-        LJ::do_request(
-            {
-                mode         => "login",
-                ver          => $LJ::PROTOCOL_VER,
-                user         => $remote->user,
-                getpickws    => 1,
-                getpickwurls => 1,
-            },
-            \%res,
-            { noauth => 1, userid => $remote->userid }
-        );
-
-        if ( $res{pickw_count} ) {
-            for ( my $i = 1 ; $i <= $res{pickw_count} ; $i++ ) {
-                push @pics, [ $res{"pickw_$i"}, $res{"pickwurl_$i"} ];
-            }
-            @pics = sort { lc( $a->[0] ) cmp lc( $b->[0] ) } @pics;
-            @pics = (
-                {
-                    value => "",
-                    text  => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
-                    data  => { url => $res{defaultpicurl} }
-                },
-                map { { value => $_->[0], text => $_->[0], data => { url => $_->[1] } } } @pics
-            );
-        }
-    }
+    # For userpic selector
+    my @pics = icons_for_remote($remote);
 
     my $post_disabled = $u->does_not_allow_comments_from($remote)
         || $u->does_not_allow_comments_from_unconfirmed_openid($remote);

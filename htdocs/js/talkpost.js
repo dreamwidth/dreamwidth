@@ -63,20 +63,21 @@ function handleRadios(sel) {
 
     // Anonymous
     if (sel == 0) {
-        if (radio_anon.checked != 1) {
+        if (radio_anon && radio_anon.checked != 1) {
             radio_anon.checked = 1;
         }
     }
 
     // Remote LJ User
     if (sel == 1) {
-        if (radio_remote.checked != 1) {
+        if (radio_remote && radio_remote.checked != 1) {
             radio_remote.checked = 1;
         }
     }
 
     // LJ User
     if (sel == 2) {
+        showMe(otherljuser_row);
         if (ljuser_row) {
             hideMe(ljuser_row);
         }
@@ -85,7 +86,7 @@ function handleRadios(sel) {
         }
         username.focus();
 
-        if (radio_user.checked != 1) {
+        if (radio_user && radio_user.checked != 1) {
             radio_user.checked = 1;
         }
 
@@ -105,7 +106,7 @@ function handleRadios(sel) {
             }
             showMe(oidlo_row);
 
-            if (radio_oidlo.checked != 1) {
+            if (radio_oidlo && radio_oidlo.checked != 1) {
                 radio_oidlo.checked = 1;
             }
 
@@ -116,7 +117,7 @@ function handleRadios(sel) {
             showMe(oidli_row);
             hideMe(oid_more);
 
-            if (radio_oidli.checked != 1) {
+            if (radio_oidli && radio_oidli.checked != 1) {
                 radio_oidli.checked = 1;
             }
         } else {
@@ -190,7 +191,10 @@ if (document.getElementById) {
     }
     form.onsubmit = submitHandler;
 
-    document.onload = function () {
+    window.onload = function () {
+        hideMe(otherljuser_row);
+        hideMe(lj_more);
+        hideMe(oid_more);
         if (radio_anon && radio_anon.checked) handleRadios(0);
         if (radio_user && radio_user.checked) otherLJUser();
         if (radio_remote && radio_remote.checked) handleRadios(1);
