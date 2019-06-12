@@ -52,15 +52,8 @@ LiveJournal.initPage = function () {
     LiveJournal.run_hook("page_load");
 };
 
-// Set up two different ways to test if the page is loaded yet.
-// The proper way is using DOMContentLoaded, but only Mozilla supports it.
-{
-    // Others
-    DOM.addEventListener(window, "load", LiveJournal.initPage);
-
-    // Mozilla
-    DOM.addEventListener(window, "DOMContentLoaded", LiveJournal.initPage);
-}
+// Do setup once the page is ready
+DOM.addEventListener(window, "DOMContentLoaded", LiveJournal.initPage);
 
 // Set up a timer to keep the inbox count updated
 LiveJournal.initInboxUpdate = function () {

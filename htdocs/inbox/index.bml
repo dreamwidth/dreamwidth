@@ -222,7 +222,7 @@ var pageNum;
 var cur_folder = '<?_code return $POST{view} || $GET{view} || undef; _code?>';
 var itemid = <?_code return int( $POST{itemid} || $GET{itemid} || 0 ) _code?>;
 
-DOM.addEventListener(window, "load", setup, cur_folder);
+document.addEventListener("DOMContentLoaded", setup, cur_folder);
 
 var tableview;
 var checkallButton;

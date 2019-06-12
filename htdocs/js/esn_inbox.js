@@ -3,7 +3,7 @@ var ESN_Inbox = {
     "selected_qids": []
 };
 
-DOM.addEventListener(window, "load", function (evt) {
+document.addEventListener("DOMContentLoaded", function (evt) {
   for (var i=0; i<folders.length; i++) {
       var folder = folders[i];
 
