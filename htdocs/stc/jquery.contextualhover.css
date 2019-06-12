@@ -32,6 +32,12 @@
     padding: 2px;
 }
 
+/* Don't add extra height at bottom of userpic box */
+.ContextualPopup .Userpic a {
+    display: block;
+    line-height: 0;
+}
+
 .ContextualPopup .Userpic img {
     height: auto;
     width: auto;

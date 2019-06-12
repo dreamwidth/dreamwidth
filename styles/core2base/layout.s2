@@ -311,6 +311,12 @@ function Page::print_default_stylesheet() {
              .comment .userpic {
                  text-align: right;
                  }
+
+             /* Don't add extra height at bottom of userpic box */
+             .userpic .a {
+                display: block;
+                line-height: 0;
+                }
              """;
          }
     print_custom_control_strip_css();
@@ -774,7 +780,7 @@ ul.userlite-interaction-links.text-links {
     max-width: 100%;
 }
 
-.search-form .search-box-item, 
+.search-form .search-box-item,
 .search-form .search-button-item {
     display: block
 }
