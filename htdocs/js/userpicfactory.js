@@ -76,7 +76,7 @@ function toggleBorder (evt) {
     }
 }
 
-DOM.addEventListener(window, "load", function () {
+document.addEventListener("DOMContentLoaded", function () {
     if (!origW || !origH)
         return;
 

@@ -150,4 +150,4 @@ function updateMakeDefaultType(multi) {
   }
 }
 
-DOM.addEventListener(window, "load", setup);
+document.addEventListener("DOMContentLoaded", setup);
