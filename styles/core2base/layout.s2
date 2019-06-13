@@ -541,7 +541,7 @@ h2#pagetitle {
       (within the limits of the container), but if they conflict with the aspect
       ratio, treat them as maximums and let the aspect ratio win. */
 .entry-content img, .comment-content img {
-    height: max-content;
+    height: auto;
     max-width: 100%;
     max-height: 95vh;
     object-fit: contain;
