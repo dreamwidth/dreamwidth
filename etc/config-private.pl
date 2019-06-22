@@ -216,7 +216,6 @@
     package DW::PRIVATE;
 
     $DOMAIN = "ljsite.com";
-    $PROTOCOL = "https"; # Should always be https except on dev servers
 
     #%PAYPAL = (
     #    user => ,
