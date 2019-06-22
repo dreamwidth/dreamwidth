@@ -391,7 +391,7 @@ sub shop_icons_handler {
 
 # if someone wants to refund their account back to points
 sub shop_refund_to_points_handler {
-    my ( $ok, $rv ) = _shop_controller();
+    my ( $ok, $rv ) = _shop_controller( form_auth => 1 );
     return $rv unless $ok;
 
     $rv->{status}     = DW::Pay::get_paid_status( $rv->{remote} );
