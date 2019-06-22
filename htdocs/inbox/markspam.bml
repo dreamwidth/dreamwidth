@@ -93,7 +93,7 @@ body<=
     $body .= "<div align='center' style='margin: 8px'>";
     $body .= LJ::html_hidden({name => 'msgid', value => $msg->msgid});
     $body .= LJ::html_submit('confirm', 'Confirm') . "</div>\n";
-
+    $body .= "</form>";
 
     $body .= "<p><strong>Note:</strong> From the <a href='/manage/profile/'>Edit Profile</a> page, you can change your $LJ::SITENAMEABBREV User Messaging settings.</p>";
 
