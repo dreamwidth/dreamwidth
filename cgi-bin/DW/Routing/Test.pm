@@ -211,7 +211,7 @@ sub handle_redirect {
 
             is( $rv, $r->REDIRECT );
             if ( substr( $expected, 0, 1 ) == '/' ) {
-                is( $r->header_out('Location'), "https://www.example.com$expected" );
+                is( $r->header_out('Location'), "$LJ::PROTOCOL://www.example.com$expected" );
             }
             else {
                 is( $r->header_out('Location'), $expected );
