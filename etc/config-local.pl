@@ -30,8 +30,8 @@
     $HOME = $ENV{'LJHOME'};
 
     # the base domain of your site.
+    $PROTOCOL = "https"; # Should always be https except on dev servers
     $DOMAIN = $DW::PRIVATE::DOMAIN;
-    $PROTOCOL = $DW::PRIVATE::PROTOCOL;
 
     # human readable name of this site as well as shortened versions
     # CHANGE THIS
