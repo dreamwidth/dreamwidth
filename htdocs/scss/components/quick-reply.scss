@@ -123,9 +123,12 @@ $meta-input-height: 2.2em;
         }
     }
 
-    textarea, select, input[type="text"] {
+    select, input[type="text"]  {
         max-width: 100%;
         flex-basis: 20%;
+    }
+
+    textarea, select, input[type="text"] {
         margin-right: 0; // Fix for site scheme.
         &:hover {
             // Fix for site scheme. Too distracting.
