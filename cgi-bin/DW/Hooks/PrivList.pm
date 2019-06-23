@@ -104,7 +104,7 @@ LJ::Hooks::register_hook(
                 impersonate journal_status logout_user
                 mass_privacy paid_from_invite paidstatus
                 privadd privdel rename_token reset_email
-                reset_password s2lid_remap set_badpassword shop_points
+                reset_password s2lid_remap shop_points
                 suspend sysban_add sysban_mod synd_create
                 synd_edit synd_merge sysban_add sysban_modify
                 sysban_trig unsuspend vgifts viewall /;
