@@ -1,6 +1,6 @@
 @import "foundation/base";
 
-$meta-input-height: 2.2em;
+$icon-control-height: 2.2em;
 
 #qrdiv * {
     box-sizing: border-box;
@@ -9,19 +9,7 @@ $meta-input-height: 2.2em;
 #qrform {
     text-align: left;
     margin: 0 auto;
-    padding: 0 1em;
     clear: both;
-
-    // Consistent initial font size for every descendent, so we can use ems
-    // for reliable relative sizing later.
-    * {
-        font-size: 13px;
-        @media (pointer: coarse) {
-            // Appease mobile Webkit so it won't *dramatic woodchuck* zoom on
-            // input focus. Minimum font-size to Not Do That: 16px.
-            font-size: 16px;
-        }
-    }
 
     .de {
         font-size: small;
@@ -31,12 +19,25 @@ $meta-input-height: 2.2em;
         margin-bottom: .2em;
     }
 
+    // Consistent em size, to keep these controls aligned while we scale:
+    .qr-icon, .qr-icon-controls * {
+        font-size: .85rem;
+    }
+
+    // Avoid *dramatic woodchuck* zoom on mobile
+    @media (pointer: coarse) {
+        .qr-icon, .qr-icon-controls *, textarea, input[type="text"] {
+            font-size: 16px;
+        }
+    }
+
     .qr-icon {
-        // Same height as qr-meta's stacked select and input
-        width: $meta-input-height * 2 + .2em;
-        height: $meta-input-height * 2 + .2em;
+        // Same height as stacked icon controls
+        width: $icon-control-height * 2 + .2em;
+        height: $icon-control-height * 2 + .2em;
         float: left;
-        position: relative;
+        margin-right: .2em;
+        margin-bottom: .2em;
 
         img {
             max-width: 100%;
@@ -44,68 +45,25 @@ $meta-input-height: 2.2em;
         }
     }
 
-    #lj_userpicselect {
-        width: 100%;
-        height: 100%;
-        border: none;
-        padding: 0;
-        margin: 0;
-        background: none;
-        @include single_transition();
-
-        &:hover, &:focus {
-            // grow down and to the left
-            -webkit-transform: scale(1.1, 1.1) translate(-1px, 3px);
-            -moz-transform: scale(1.1, 1.1) translate(-1px, 3px);
-            -o-transform: scale(1.1, 1.1) translate(-1px, 3px);
-            -ms-transform: scale(1.1, 1.1) translate(-1px, 3px);
-            transform: scale(1.1, 1.1) translate(-1px, 3px);
-
-            &:after {
-                content: "Browse";
-                display: block;
-                position: absolute;
-                top: 0;
-                margin: 0 auto;
-                font-weight: bold;
-                line-height: 60px;
-                color: #000;
-                background-color: #fff;
-                text-align: center;
-                width: 100%;
-                height: 100%;
-                opacity: .7;
-            }
-        }
-    }
-
-    .qr-meta {
-        margin-left: $meta-input-height * 2 + .5em; // width of .qr-icon + .3em
-
-        display: -webkit-flex;
-        -webkit-flex-direction: row;
-        -webkit-flex-wrap: wrap;
-
+    .qr-icon-controls {
         display: flex;
-        flex-direction: row;
         flex-wrap: wrap;
 
         & > * {
-            height: $meta-input-height;
+            height: $icon-control-height;
+            margin-bottom: .2em;
+        }
 
-            -webkit-flex-grow: 1;
-            -webkit-flex-shrink: 1;
-
-            flex-grow: 1;
-            flex-shrink: 1;
+        select#prop_picture_keyword {
+            width: 100%;
         }
     }
 
-    .qr-footer {
-        display: -webkit-flex;
-        -webkit-flex-direction: row;
-        -webkit-flex-wrap: wrap;
+    .qr-body * {
+        width: 100%;
+    }
 
+    .qr-footer {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
@@ -123,11 +81,6 @@ $meta-input-height: 2.2em;
         }
     }
 
-    select, input[type="text"]  {
-        max-width: 100%;
-        flex-basis: 20%;
-    }
-
     textarea, select, input[type="text"] {
         margin-right: 0; // Fix for site scheme.
         &:hover {
@@ -136,14 +89,6 @@ $meta-input-height: 2.2em;
             -webkit-box-shadow: inherit;
             box-shadow: inherit;
         }
-    }
-
-    textarea#body {
-        width: 100%;
-    }
-
-    select, input, textarea {
-        padding: .15em;
     }
 
     .invisible {
@@ -161,13 +106,7 @@ $meta-input-height: 2.2em;
 
 @media #{$medium-up} {
     #qrform {
-        .qr-meta, .qr-body, .qr-footer {
-            margin-left: $meta-input-height * 2 + .5em; // width of .qr-icon + .3em
-            max-width: 38rem;
-        }
-
-        select, input, textarea {
-            padding: .3em;
-        }
+        padding: 0 1em;
+        max-width: 45rem;
     }
 }
