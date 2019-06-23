@@ -65,6 +65,8 @@ sub instance {
 
 sub active_sessions {
     my ( $class, $u ) = @_;
+    return unless $u && !$u->is_expunged;
+
     my $sth = $u->prepare( "SELECT userid, sessid, exptype, auth, timecreate, timeexpire, ipfixed "
             . "FROM sessions WHERE userid=? AND timeexpire > UNIX_TIMESTAMP()" );
     $sth->execute( $u->{userid} );
