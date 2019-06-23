@@ -332,7 +332,7 @@ var string navlinks_css = "";
 
 
 
-html body {
+#canvas {
     margin:0; }
 
 blockquote {

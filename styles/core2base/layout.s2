@@ -789,7 +789,6 @@ table.month td p {
 
 .module-content {
     $module_font
-    overflow-x: auto;
     overflow-wrap: break-word;
 }
 
