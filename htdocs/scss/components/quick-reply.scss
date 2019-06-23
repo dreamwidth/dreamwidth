@@ -15,7 +15,7 @@ $meta-input-height: 2.2em;
     // Consistent initial font size for every descendent, so we can use ems
     // for reliable relative sizing later.
     * {
-        font-size: .75rem;
+        font-size: 13px;
         @media (pointer: coarse) {
             // Appease mobile Webkit so it won't *dramatic woodchuck* zoom on
             // input focus. Minimum font-size to Not Do That: 16px.
