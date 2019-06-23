@@ -12,7 +12,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div id='lj_controlstrip'>
 
-<div class="userpic" id="[%- IF remote -%]lj_controlstrip_userpic[%- ELSE -%]lj_controlstrip_loggedout_userpic[%- END -%]">
+<div id='[%- IF remote -%]lj_controlstrip_userpic[%- ELSE -%]lj_controlstrip_loggedout_userpic[%- END -%]'>
   [% userpic_html %]
 </div>
 

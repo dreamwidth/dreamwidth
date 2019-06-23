@@ -58,6 +58,12 @@ html body
     text-decoration: underline;
 }
 
+/* Don't add extra height at bottom of userpic box */
+#lj_controlstrip_userpic a {
+    display: block;
+    line-height: 0;
+}
+
 #lj_controlstrip img {
     background: none;
     margin: 0;
