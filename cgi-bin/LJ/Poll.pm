@@ -1311,25 +1311,23 @@ sub render {
                 my $qvalue   = $preval{$qid} || '';
                 my $answered = ( $qvalue =~ /\b$itid\b/ ) ? "*" : "";
 
+                # still concatencruft, but at least it's not duplicated any more
+                my $barcode = LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
+                $barcode .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' ";
+                $barcode .= "style='vertical-align:middle; height: 14px;' ";
+                $barcode .= "height='14' width='$width' alt='' />";
+                $barcode .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
+                $barcode .= "<b>$count</b> ($percent%) $answered";
+
                 if ($do_table) {
                     $results_table .= "<tr valign='middle'><td align='right'>$item</td><td>";
-                    $results_table .=
-                        LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
-                    $results_table .=
-"<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle; height: 14px;' height='14' width='$width' alt='' />";
-                    $results_table .=
-                        LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
-                    $results_table .= "<b>$count</b> ($percent%) $answered</td></tr>";
+                    $results_table .= $barcode;
+                    $results_table .= "</td></tr>";
                 }
                 else {
                     $results_table .= "<p>$item<br /><span style='white-space: nowrap'>";
-                    $results_table .=
-                        LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
-                    $results_table .=
-"<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle; height: 14px;' height='14' width='$width' alt='' />";
-                    $results_table .=
-                        LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
-                    $results_table .= "<b>$count</b> ($percent%) $answered</span></p>";
+                    $results_table .= $barcode;
+                    $results_table .= "</span></p>";
                 }
             }
 
