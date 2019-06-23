@@ -1569,6 +1569,24 @@ sub talkform {
 
         # Partial form was submitted; pick up where we left off.
         $default_usertype = $form->{usertype};
+
+        # EXCEPT: there's an annoying special behavior with the "cookieuser"
+        # usertype. It can survive certain partial form submissions (like the
+        # "More options" button), but as soon as it passes through
+        # LJ::Talk::Post::init() (which is when we find out whether a captcha is
+        # needed, for example), it gets munged into the "user" type and a few
+        # other properties get added. So if it's "user", we have to check those
+        # other properties to see whether it was actually meant to be
+        # "cookieuser". (Why not just preserve "cookieuser" through init()?
+        # Because an unknowable amount of things check for usertype eq user, and
+        # I'm not ready to hunt them all down yet.)
+        if (   $form->{usertype} eq 'user'
+            && $form->{userpost}
+            && $form->{cookieuser}
+            && $form->{userpost} eq $form->{cookieuser} )
+        {
+            $default_usertype = 'cookieuser';
+        }
     }
     elsif ($remote) {
 
