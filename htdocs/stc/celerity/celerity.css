@@ -676,16 +676,6 @@ hr.hr {
     background-color: #999966;
 }
 
-input.text,
-textarea.text,
-select.select,
-.autocomplete_container {
-    background: #fff url("/img/input-bg.gif") repeat-x 0 -1px;
-    border: 1px solid #bbb;
-    border-top: 1px solid #999;
-    border-left: 1px solid #999;
-}
-
 .appwidget .more-link {
     color: #999966 !important;
     background: url('/img/arrow-double-black.gif') no-repeat 0 60%;
@@ -696,12 +686,6 @@ select.select,
 }
 .message blockquote {
     border: 1px solid #aaa;
-}
-
-/* Quick Reply table */
-
-#qrformdiv table {
-    border: 1px solid #999;
 }
 
 /* MonthPage */
