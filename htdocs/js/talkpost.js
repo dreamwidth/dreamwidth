@@ -191,7 +191,7 @@ if (document.getElementById) {
     }
     form.onsubmit = submitHandler;
 
-    window.onload = function () {
+    document.addEventListener("DOMContentLoaded", function () {
         hideMe(otherljuser_row);
         hideMe(lj_more);
         hideMe(oid_more);
@@ -200,7 +200,7 @@ if (document.getElementById) {
         if (radio_remote && radio_remote.checked) handleRadios(1);
         if (radio_oidlo && radio_oidlo.checked) handleRadios(3);
         if (radio_oidli && radio_oidli.checked) handleRadios(4);
-    }
+    });
 
 }
 
