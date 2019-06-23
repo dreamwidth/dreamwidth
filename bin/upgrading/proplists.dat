@@ -22,14 +22,6 @@ userproplist.ao3:
   multihomed: 0
   prettyname: Archive of Our Own user account name
 
-userproplist.badpassword:
-  cldversion: 4
-  datatype: num
-  des: If this user has a bad password and should change it
-  indexed: 0
-  multihomed: 0
-  prettyname: Bad Password
-
 userproplist.betafeatures_list:
   cldversion: 4
   datatype: char
