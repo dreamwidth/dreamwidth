@@ -112,9 +112,3 @@
   border-color: #444;
   background-color: #4b4b4b;
 }
-
-input.text:hover, textarea.text:hover {
-  -moz-box-shadow: inset 0 2px 4px #444;
-  -webkit-box-shadow:inset 0 2px 4px #444;
-  box-shadow: inset 0 2px 4px #444;
-}

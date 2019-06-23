@@ -83,12 +83,6 @@ $icon-control-height: 2.2em;
 
     textarea, select, input[type="text"] {
         margin-right: 0; // Fix for site scheme.
-        &:hover {
-            // Fix for site scheme. Too distracting.
-            -moz-box-shadow: inherit;
-            -webkit-box-shadow: inherit;
-            box-shadow: inherit;
-        }
     }
 
     .invisible {
