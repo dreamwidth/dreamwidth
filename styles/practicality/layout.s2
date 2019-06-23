@@ -172,8 +172,8 @@ function print_stylesheet () {
         if ($*userpics_position == "left") {
             $userpic_css = """
             /* Float placeholder for userpic */
-            .entry .contents > .inner::before,
-            .comment .contents > .inner::before {
+            .has-userpic .entry .contents > .inner::before,
+            .has-userpic .comment .contents > .inner::before {
                 content: "";
                 display: block;
                 position: static;
@@ -205,8 +205,8 @@ function print_stylesheet () {
         elseif ($*userpics_position == "right") {
             $userpic_css = """
             /* Float placeholder for userpic */
-            .entry .contents > .inner::before,
-            .comment .contents > .inner::before {
+            .has-userpic .entry .contents > .inner::before,
+            .has-userpic .comment .contents > .inner::before {
                 content: "";
                 display: block;
                 position: static;
