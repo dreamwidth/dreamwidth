@@ -343,23 +343,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
       "id='subjectIconImage' title='Click to change the subject icon' onclick='subjectIconListToggle();' style='cursor:pointer;cursor:hand'"
     ) -%]
 
-    [%# Include the none subjecticon in the menu %]
-    [%- subjecticons.lists.values.0.unshift( subjecticons.pic.none ) -%]
     <blockquote style="display: none;" id="subjectIconList">
-      <table summary='' border='0' cellspacing='5' cellpadding='0' style='border: 1px solid #AAAAAA'> [%# aaaaaa indeed, my dude %]
-        [%- FOREACH list IN subjecticons.lists.values -%]
-          <tr>
-            [%- FOREACH pic IN list -%]
-              <td valign="middle" align="center">
-                [%- print_subjecticon_by_id(
-                  pic.id,
-                  "id='${pic.id}' onclick='subjectIconChange(this)' style='cursor: pointer; cursor: hand;'"
-                ) -%]
-              </td>
-            [%- END -%]
-          </tr>
+      <div style='display: flex; flex-wrap: wrap; align-items: center; width: 390px; border: 1px solid #AAAAAA'> [%# aaaaaa indeed, my dude %]
+        [%- FOREACH id IN subjecticon_ids -%]
+          <div style="width: 32px;">
+            [%- print_subjecticon_by_id(
+              id,
+              "id='${id}' onclick='subjectIconChange(this)' style='cursor: pointer; cursor: hand; margin-left: auto; margin-right: auto; display: block;'"
+            ) -%]
+          </div>
         [%- END -%]
-      </table>
+      </div>
     </blockquote>
 
     <div id='ljnohtmlsubj' class='ljdeem'><span style='font-size: 8pt; font-style: italic;'>

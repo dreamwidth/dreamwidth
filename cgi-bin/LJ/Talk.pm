@@ -1546,9 +1546,14 @@ sub talkform {
         return "Cannot load comment information." unless $comment;
     }
 
-    my $subjecticons = LJ::Talk::get_subjecticons();
-    my $entry        = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
-    my @userpics     = LJ::icons_for_remote($remote);
+    my $subjecticons    = LJ::Talk::get_subjecticons();
+    my @subjecticon_ids = ('none');
+    foreach my $sublist ( $subjecticons{lists}->{sm}, $subjecticons{lists}->{md} ) {
+        push( @subjecticon_ids, map { $_->{id} } @$sublist );
+    }
+
+    my $entry    = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
+    my @userpics = LJ::icons_for_remote($remote);
 
     my $basesubject = $form->{subject} || "";
     if ( !$editid && $opts->{replyto} && !$basesubject && $parpost->{'subject'} ) {
@@ -1589,7 +1594,7 @@ sub talkform {
         form_url             => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
         errors               => $opts->{errors},
         create_link          => '',
-        subjecticons         => $subjecticons,
+        subjecticon_ids      => \@subjecticon_ids,
 
         public_entry     => $entry->security eq 'public',
         default_usertype => $default_usertype,
