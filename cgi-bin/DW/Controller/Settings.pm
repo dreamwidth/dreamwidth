@@ -388,8 +388,7 @@ sub changepassword_handler {
     }
 
     my $vars = {
-        bad_password => $remote
-            && $remote->prop('badpassword'),
+
         needs_validation => !$authu
             && $remote
             && !$remote->prop('badpassword')
