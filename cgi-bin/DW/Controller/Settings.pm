@@ -319,10 +319,10 @@ sub changepassword_handler {
                 if $checkpass;
         }
 
-        # don't allow changes if email address is not validated, unless they
-        # have a bad password or got the reset email
+        # don't allow changes if email address is not validated,
+        # unless they got the reset email
         $errors->add( "newpass1", ".error.notvalidated" )
-            if $u->{status} ne 'A' && !$u->prop('badpassword') && !$authu;
+            if $u->{status} ne 'A' && !$authu;
 
         # now let's change the password
         unless ( $errors->exist ) {
@@ -337,10 +337,6 @@ sub changepassword_handler {
 
             # if we used an authcode, we'll need to expire it now
             LJ::mark_authaction_used($aa) if $authu;
-
-            # If we forced them to change their password, mark them as now being good
-            $u->set_prop( 'badpassword', 0 )
-                if LJ::is_enabled('force_pass_change');
 
             # Kill all sessions, forcing user to relogin
             $u->kill_all_sessions;
@@ -391,7 +387,6 @@ sub changepassword_handler {
 
         needs_validation => !$authu
             && $remote
-            && !$remote->prop('badpassword')
             && !$r->did_post
             && $remote->{status} ne 'A',
 
