@@ -810,15 +810,6 @@ input.create-account {
     background: #D6DCE9;
     border: 2px solid #3960A0;
 }
-input.text,
-textarea.text,
-select.select,
-.autocomplete_container {
-    background: #fff url("/img/input-bg.gif") repeat-x 0 -1px;
-    border: 1px solid #bbb;
-    border-top: 1px solid #999;
-    border-left: 1px solid #999;
-}
 .detail {
 
 }

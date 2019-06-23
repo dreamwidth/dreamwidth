@@ -923,12 +923,6 @@ div#cf-edit select {
     background-color: #222;
 }
 
-/* Quick Reply table */
-
-#qrformdiv table {
-    border: 1px solid #888;
-}
-
 /* MonthPage */
 
 #archive-month .navigation li, #archive-month .navigation a {display: inline; }
