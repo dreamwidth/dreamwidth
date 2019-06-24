@@ -45,6 +45,40 @@ $icon-control-height: 2.2em;
         }
     }
 
+    button.lj_userpicselect_extra {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        border: none;
+        padding: 0;
+        margin: 0;
+        background: none;
+        cursor: pointer;
+
+        &::after {
+            content: "Browse";
+            display: block;
+            position: absolute;
+            top: 0;
+            margin: 0 auto;
+            font-weight: bold;
+            line-height: 60px;
+            color: #000;
+            background-color: #fff;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            @include single_transition();
+        }
+
+        &:hover, &:focus {
+            &::after {
+                opacity: .7;
+            }
+        }
+    }
+
     .qr-icon-controls {
         display: flex;
         flex-wrap: wrap;
