@@ -36,7 +36,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class='qr-icon-controls'>
       [%- IF remote.can_use_iconbrowser -%]
         <input type="button" value="Browse" id="lj_userpicselect" data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]" />
-      [%- END -%]
+      [%- END %]
 
       <input type='button' id='randomicon' value='Random' />
 
@@ -77,36 +77,37 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%- IF post_disabled -%]
   <div class='ui-state-error'>[%- '/talkpost.bml.error.nocomment_quick' | ml -%]</div>
   [%- END -%]
-  [%- form.submit(
+  [% form.submit(
       name = 'submitpost'
       value = dw.ml( '/talkread.bml.button.post' ),
       disabled = post_disabled,
       class = post_button_class,
       id = 'submitpost'
-  ) -%]
+  ) %]
 
-  [%- form.submit(
+  [% form.submit(
       name = 'submitpview'
       value = dw.ml( 'talk.btn.preview' ),
       id = 'submitpview'
   ) -%]
-  [%- form.hidden( name = 'submitpreview', value = 0 ) -%]
+  [%- form.hidden( name = 'submitpreview', value = 0 ) %]
+
   <span id='quotebuttonspan' data-quote-error="[%- 'talk.error.quickquote' | ml -%]"></span>
 
-  [%- form.submit(
+  [% form.submit(
       name = 'submitmoreopts'
       value = dw.ml( '/talkread.bml.button.more' ),
       id = 'submitmoreopts'
-  ) -%]
+  ) %]
 
-  [%- help.icon -%]
-  [%- IF journal.is_iplogging -%]
+  [% help.icon %]
+  [%- IF journal.is_iplogging %]
     <div class='de'>[%- '/talkpost.bml.logyourip' | ml -%]</div>
-    [%- help.iplogging -%]
-  [%- END -%]
-  [%- IF journal.is_linkstripped -%]
+    [% help.iplogging %]
+  [% END -%]
+  [%- IF journal.is_linkstripped %]
     <div class='de'>[%- '/talkpost.bml.linkstripped' | ml -%]</div>
-  [%- END -%]
+  [% END -%]
 </div>
 
 </form></div>
