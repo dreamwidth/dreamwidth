@@ -1314,7 +1314,8 @@ sub render {
                 # still concatencruft, but at least it's not duplicated any more
                 my $barcode = LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
                 $barcode .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' ";
-                $barcode .= "style='vertical-align:middle; height: 14px;' ";
+                $barcode .= "style='vertical-align:middle; object-fit: initial; ";
+                $barcode .= "object-position: initial; height: 14px;' ";
                 $barcode .= "height='14' width='$width' alt='' />";
                 $barcode .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
                 $barcode .= "<b>$count</b> ($percent%) $answered";
