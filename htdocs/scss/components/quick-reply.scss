@@ -99,6 +99,7 @@ $icon-control-height: 2.2em;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+        align-items: flex-start;
     }
 
     span#quotebuttonspan {
