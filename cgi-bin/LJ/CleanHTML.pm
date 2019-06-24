@@ -20,6 +20,7 @@ use LJ::CSS::Cleaner;
 use HTML::TokeParser;
 use LJ::EmbedModule;
 use LJ::Config;
+use Text::Markdown;
 
 LJ::Config->load;
 
@@ -1611,7 +1612,13 @@ sub clean_event {
         $opts = { 'preformatted' => $opts };
     }
 
-    # this is the hack to make markdown work. really.
+    # First pass, convert user mentions like @foo into user HTML. This syntax needs to be
+    # supported everywhere, so we do this before Markdown-izing.
+    convert_user_mentions( $ref ); 
+
+    # Markdown is processed at this point. Since the Markdown module converts our input
+    # into an output HTML, it needs to be run now so we can pass it through our HTML cleaner
+    # so we still have ultimate control on the output HTML.
     if ( $$ref =~ s/^\s*!markdown\s*\r?\n//s ) {
         clean_as_markdown( $ref, $opts );
     }
@@ -1705,6 +1712,10 @@ sub clean_comment {
 
     $opts = { preformatted => $opts } unless ref $opts;
     return 0 unless defined $$ref;
+
+    # First pass, convert user mentions like @foo into user HTML. This syntax needs to be
+    # supported everywhere, so we do this before Markdown-izing.
+    convert_user_mentions( $ref ); 
 
     # preprocess with markdown if desired
     if ( $opts->{editor} && $opts->{editor} eq "markdown" ) {
@@ -1859,21 +1870,8 @@ sub quote_html {
     return $string;
 }
 
-sub clean_as_markdown {
-    my ( $ref, $opts ) = @_;
-
-    my $rv = eval "use Text::Markdown; 1;";
-    die "Attempted to use Markdown without the Text::Markdown module.\n"
-        unless $rv;
-
-    # First, convert @-style addressing to <user> tags, ignoring escaped '@'s.
-    # We're relying on the fact that Markdown generally passes HTML-like
-    # elements--even pseudo-elements like <user>--thru unscathed.
-    #
-    # Note that we HAVE to do this first to avoid issues with escaped '@'s.  If
-    # we wait until AFTER the markdown has been converted to HTML, we won't be
-    # able to tell the difference between "\@foo" and "\\@foo", since
-    # Text::Markdown will helpfully un-escape the double backslash.
+sub convert_user_mentions {
+    my $ref = $_[0];
 
     my $usertag = sub {
         my ( $user, $site ) = ( $_[0], $_[1] || $LJ::DOMAIN );
@@ -1909,9 +1907,12 @@ sub clean_as_markdown {
     $$ref =~ s!(\\.)|(?<=[^\w/])\@([\w\d_-]+)(?:\.([\w\d\.]+))?(?=$|\W)!
         defined($1) ? ( $1 eq '\@' ? '@' : $1 ) : $usertag->($2, $3)
         !mge;
+}
+
+sub clean_as_markdown {
+    my ( $ref, $opts ) = @_;
 
     # Second, markdown-ize the result, complete with <user> tags.
-
     $$ref = Text::Markdown::markdown($$ref);
     $opts->{preformatted} = 1;
 
