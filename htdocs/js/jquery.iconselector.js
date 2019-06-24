@@ -319,7 +319,7 @@ jQuery(function($) {
     var browseButton = $("#lj_userpicselect");
     if (browseButton.length > 0) {
         $("#prop_picture_keyword").iconselector({
-            selectorButtons: "#lj_userpicselect",
+            selectorButtons: "#lj_userpicselect, .lj_userpicselect_extra",
             metatext: browseButton.data("iconbrowserMetatext"),
             smallicons: browseButton.data("iconbrowserSmallicons")
         });

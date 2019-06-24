@@ -19,10 +19,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class='qr-meta'>
   <div class='qr-icon'>
+    [%- IF remote.can_use_iconbrowser -%]
+      <button type='button' class='lj_userpicselect_extra'>
+    [%- END -%]
     [%- IF current_icon -%]
       [%- current_icon.imgtag -%]
     [%- ELSE -%]
       [%- dw.img( "nouserpic_sitescheme", "" ) -%]
+    [%- END -%]
+    [%- IF remote.can_use_iconbrowser -%]
+      </button>
     [%- END -%]
   </div>
 
