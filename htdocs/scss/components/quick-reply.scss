@@ -11,37 +11,49 @@ $icon-control-height: 2.2em;
     padding: 0 1em;
     clear: both;
 
+    // .de means warnings/alerts.
     .de {
         font-size: small;
     }
 
     input, button, textarea, select {
-        margin-bottom: .2em;
-    }
-
-    // Consistent em size, to keep these controls aligned while we scale:
-    .qr-icon, .qr-icon-controls * {
-        font-size: .85rem;
+        margin-bottom: 3px;
     }
 
     // Avoid *dramatic woodchuck* zoom on mobile
     @media (pointer: coarse) {
-        .qr-icon, .qr-icon-controls *, textarea, input[type="text"] {
+        select, textarea, input[type="text"] {
             font-size: 16px;
         }
     }
 
+    .qr-meta {
+        display: flex;
+        align-items: flex-end;
+    }
+
     .qr-icon {
         // Same height as stacked icon controls
-        width: $icon-control-height * 2 + .2em;
-        height: $icon-control-height * 2 + .2em;
-        float: left;
-        margin-right: .2em;
-        margin-bottom: .2em;
+        width: 55px;
+        height: 55px;
+        flex-shrink: 0;
+        margin-right: 3px;
+        margin-bottom: 3px;
 
         img {
             max-width: 100%;
             max-height: 100%;
+        }
+    }
+
+    .qr-icon-controls {
+        & > * {
+            margin-bottom: 3px;
+        }
+
+        select#prop_picture_keyword {
+            display: block;
+            width: 100%;
         }
     }
 
@@ -76,20 +88,6 @@ $icon-control-height: 2.2em;
             &::after {
                 opacity: .7;
             }
-        }
-    }
-
-    .qr-icon-controls {
-        display: flex;
-        flex-wrap: wrap;
-
-        & > * {
-            height: $icon-control-height;
-            margin-bottom: .2em;
-        }
-
-        select#prop_picture_keyword {
-            width: 100%;
         }
     }
 
