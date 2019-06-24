@@ -76,7 +76,8 @@ function toggleBorder (evt) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+// This setup actually does need to be on the load event.
+DOM.addEventListener(window, "load", function () {
     if (!origW || !origH)
         return;
 
