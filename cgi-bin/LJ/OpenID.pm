@@ -16,6 +16,8 @@ package LJ::OpenID;
 use strict;
 use Digest::SHA1 qw(sha1 sha1_hex);
 use LJ::OpenID::Cache;
+use Net::OpenID::Server;
+use Net::OpenID::Consumer;
 
 sub server {
     my ( $get, $post ) = @_;
