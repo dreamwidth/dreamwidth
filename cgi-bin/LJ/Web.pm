@@ -922,11 +922,9 @@ sub create_qr_div {
             form_url             => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
             hidden_form_elements => $hidden_form_elements,
             can_checkspell       => $LJ::SPELLER ? 1 : 0,
+            minimal              => $opts{minimal} ? 1 : 0,
             post_disabled        => $post_disabled,
             post_button_class    => $post_disabled ? 'ui-state-disabled' : '',
-
-            # Currently unused, but might come back.
-            minimal => $opts{minimal} ? 1 : 0,
 
             current_icon_kw => $userpic_kw,
             current_icon    => LJ::Userpic->new_from_keyword( $remote, $userpic_kw ),
