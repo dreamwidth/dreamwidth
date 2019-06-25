@@ -85,12 +85,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
       id = 'submitpost'
   ) %]
 
+  [%- UNLESS minimal -%]
   [% form.submit(
       name = 'submitpview'
       value = dw.ml( 'talk.btn.preview' ),
       id = 'submitpview'
   ) -%]
   [%- form.hidden( name = 'submitpreview', value = 0 ) %]
+  [%- END -%]
 
   <span id='quotebuttonspan' data-quote-error="[%- 'talk.error.quickquote' | ml -%]"></span>
 
