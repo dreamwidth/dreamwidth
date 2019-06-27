@@ -94,7 +94,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%- form.hidden( name = 'submitpreview', value = 0 ) %]
   [%- END -%]
 
-  <span id='quotebuttonspan' data-quote-error="[%- 'talk.error.quickquote' | ml -%]"></span>
+  <input type="button" id="comment-text-quote" value="Quote" class="js-only" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
 
   [% form.submit(
       name = 'submitmoreopts'

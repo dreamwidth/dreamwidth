@@ -1964,7 +1964,7 @@ $display_topnav_css
 
 .talkform #subject { margin-bottom: .5em; }
 
-.talkform #prop_picture_keyword, .talkform #randomicon, .talkform #quotebuttonspan {
+.talkform #prop_picture_keyword, .talkform #randomicon, .talkform #comment-text-quote {
     display: inline-block;
     margin-top: 0.4em;
     }
@@ -2002,7 +2002,7 @@ $display_topnav_css
     padding: .25em;
     }
 
-#prop_picture_keyword, #randomicon, #quotebuttonspan {
+#prop_picture_keyword, #randomicon, #comment-text-quote {
     margin-right: .5em;
     }
 
