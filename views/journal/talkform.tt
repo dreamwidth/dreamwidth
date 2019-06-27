@@ -34,9 +34,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
   </td>
 
   <td>
-    <table summary=''>
       [%- IF comment.editid -%]
-        <tr valign='middle' id='ljuser_row'>
+        <div class="from-option" id='from-ljuser'>
           [%- IF remote.banned -%]
             [%- IF journal.is_community -%]
               [%- '/talkpost.bml.opt.bannedfrom.comm' | ml -%]
@@ -44,13 +43,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
               [%- '/talkpost.bml.opt.bannedfrom' | ml -%]
             [%- END -%]
           [%- ELSE -%]
-            <td align='center'>
-              [%- dw.img( 'id_user', '', { onclick => 'handleRadios(1);' } ) -%]
-            </td>
 
-            <td align='left'>
+              [%- dw.img( 'id_user', '' ) -%]
+
               <label for='talkpostfromremote'>
-                [%- '/talkpost.bml.opt.loggedin' | ml( username => "<strong>$remote.display_name</strong>" ) -%]
+                [%- '/talkpost.bml.opt.loggedin' | ml( username => remote.display_name ) -%]
               </label>
               [%- IF remote.screened %]
                 [%- '/talkpost.bml.opt.willscreen' | ml -%]
@@ -61,72 +58,66 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 id = 'cookieuser'
                 value = remote.user
               ) -%]
-            </td>
           [%- END -%]
-        </tr>
+        </div>
 
       [%- ELSE -%][%# New comment, not editing. -%]
         [%# Anonymous: -%]
-        <tr valign="middle">
-          <td align="center">
-            [%- dw.img( 'id_anonymous', '', { onclick => 'handleRadios(0);' } ) -%]
-          </td>
-          <td align='center'>
+        <div class="from-option" id="from-anon">
+
+
             [%- IF public_entry AND journal.allows_anon -%]
               <input type='radio' name='usertype' value='anonymous' id='talkpostfromanon'[% IF default_usertype == 'anonymous' %] checked='checked'[% END %] />
-            [%- ELSE -%]
-              (&nbsp;)
-            [%- END -%]
-          </td>
-          <td align='left'>
-            [%- IF public_entry AND journal.allows_anon -%]
-              <b>
-                <label for='talkpostfromanon'>[% '/talkpost.bml.opt.anonymous' | ml %]</label>
-              </b>
+
+              <label for='talkpostfromanon'>
+                [% dw.img( 'id_anonymous', '' ) %]
+                [% '/talkpost.bml.opt.anonymous' | ml %]
+              </label>
+
               [%- IF journal.screens_anon %] [% '/talkpost.bml.opt.willscreen' | ml %][%- END -%]
             [%- ELSE -%]
-              <span class='disabled'><strong>
-                [%- '/talkpost.bml.opt.anonymous' | ml -%]
-              </strong></span>
+              <input type='radio' name='usertype' value='anonymous' id='talkpostfromanon' disabled='disabled' />
+              <label for='talkpostfromanon'>
+                [% dw.img( 'id_anonymous', '' ) %]
+                [% '/talkpost.bml.opt.anonymous' | ml -%]
+              </label>
               [%- IF ! public_entry %]
                 [% '/talkpost.bml.opt.noanonpost.nonpublic' | ml -%]
               [%- ELSIF ! journal.allows_non_access -%]
                 [% ( journal.is_community ? '/talkpost.bml.opt.membersonly' : '/talkpost.bml.opt.friendsonly' )
-                  | ml( username => "<b>$journal.user</b>" )
+                  | ml( username => "$journal.user" )
                 %]
               [%- ELSE -%]
                 [% '/talkpost.bml.opt.noanonpost' | ml -%]
               [%- END -%]
             [%- END -%]
-          </td>
-        </tr>
+
+        </div>
 
         [%- IF remote.openid_identity -%]
-          <tr valign='middle' id='oidli' name='oidli'>
-            <td align='center'>
-              [%- dw.img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) -%]
-            </td>
-            <td align='center'>
+          <div class="from-option
+            [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
+          " id='from-openid-loggedin'>
+
+              <input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli' [%
+                IF remote.allowed -%]
+                  [%- IF default_usertype == 'openid_cookie' -%]
+                    checked='checked'
+                  [%- END -%]
+                [%- ELSE -%]
+                  disabled='disabled'
+                [%- END
+              %] />
+
+              <label for='talkpostfromoid'>
+                [% dw.img( 'id_openid', '' ) %]
+                [% '/talkpost.bml.opt.openid.loggedin' | ml %]
+                [% remote.display_name %]
+              </label>
+
               [%- IF remote.allowed -%]
-                <input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'[% IF default_usertype == 'openid_cookie' %] checked='checked'[% END %] />
+                [%- IF remote.screened %] [% '/talkpost.bml.opt.willscreen' | ml -%][%- END -%]
               [%- ELSE -%]
-                (&nbsp;)
-              [%- END -%]
-            </td>
-            <td align='left'>
-              [%- IF remote.allowed -%]
-                <b>
-                  <label for='talkpostfromoid' onclick='handleRadios(4);return false;'>
-                    [%- '/talkpost.bml.opt.openid.loggedin' | ml -%]
-                    [% remote.display_name %]
-                  </label>
-                </b>
-                [%- IF remote.screened -%] [%- '/talkpost.bml.opt.willscreen' | ml -%][%- END -%]
-              [%- ELSE -%]
-                <span class='disabled'><strong>
-                  [%- '/talkpost.bml.opt.openid.loggedin' | ml %]
-                  [% remote.display_name -%]
-                </strong></span>&nbsp;
 
                 [%- IF remote.banned -%][%# p. cut and dried -%]
                   [%- journal.is_community ?
@@ -144,22 +135,19 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 [%- END -%]
 
               [%- END -%]
-            </td>
-          </tr>
+
+          </div>
 
         [%- ELSE -%][%# not logged in as openid user -%]
 
-          <tr valign='middle' id='oidlo' name='oidlo'>
-            <td align='center'>
-              [%- dw.img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) -%]
-            </td>
-            <td align='center'>
-              <input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'[% IF default_usertype == 'openid' %] checked='checked'[% END %] />
-            </td>
-            <td align='left'>
-              <b>
-                <label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>[%- '/talkpost.bml.opt.openid' | ml -%]</label>
-              </b>
+          <div class="from-option" id="from-openid-loggedout">
+
+              <input type='radio' name='usertype' value='openid' data-more="from-openid-more" id='talkpostfromoidlo'[% IF default_usertype == 'openid' %] checked='checked'[% END %] />
+
+              <label for='talkpostfromoidlo'>
+                [% dw.img( 'id_openid', '' ) %]
+                [% '/talkpost.bml.opt.openid' | ml %]
+              </label>
               [% help_icon( 'openid' ) %]
               [%- IF journal.screens_all -%]
                 [%- '/talkpost.bml.opt.willscreen' | ml -%]
@@ -168,48 +156,58 @@ the same terms as Perl itself.  For a copy of the license, please reference
               [%- ELSIF journal.screens_anon -%]
                 [%- '/talkpost.bml.opt.willscreenopenid' | ml -%]
               [%- END -%]
-            </td>
-          </tr>
+          </div>
         [%- END -%]
 
-        <tr valign='middle' align='left' id='oid_more'>
-          <td colspan='2'></td>
-          <td>
-            [%- '/talkpost.bml.login.url' | ml -%]
-            &nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='[% comment.oidurl || remote.openid_identity %]' />
-            <br />
-            <label for='oidlogincheck'>[% '/talkpost.bml.loginq' | ml %]&nbsp;</label>
-            <input type='checkbox' name='oiddo_login' id='oidlogincheck'[% IF comment.oiddo_login %] checked='checked'[% END %] />
-          </td>
-        </tr>
+        <div class="from-login" id="from-openid-more">
+
+            <div>
+              [%- form.textbox(
+                name = 'oidurl'
+                id = 'oidurl'
+                label = dw.ml('/talkpost.bml.login.url')
+                size = 53
+                maxlength = 60
+                value = ( comment.oidurl || remote.openid_identity )
+              ) -%]
+            </div>
+
+            <div>
+              [%- form.checkbox(
+                name = 'oiddo_login'
+                id = 'oidlogincheck'
+                label = dw.ml('/talkpost.bml.loginq')
+                selected = comment.oiddo_login
+              ) -%]
+            </div>
+
+        </div>
 
         [%# logged-in site user -%]
         [%- IF remote && ! remote.openid_identity -%]
-        <tr valign='middle' id='ljuser_row[%- UNLESS remote.allowed -%]_cannot[%- END -%]'>
-          <td align='center'>
-            [%- dw.img( 'id_user', '', { onclick => 'handleRadios(1);' } ) -%]
-          </td>
+        <div class="from-option
+          [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
+        " id="from-user-loggedin">
 
-          <td align='center'>
-            [%- IF remote.allowed -%]
-              <input type='radio' name='usertype' value='cookieuser' id='talkpostfromremote'[% IF default_usertype == 'cookieuser' %] checked='checked'[% END %] />
-            [%- ELSE -%]
-              (&nbsp;)
-            [%- END -%]
-          </td>
+            <input type='radio' name='usertype' value='cookieuser' id='talkpostfromremote' [%
+              IF remote.allowed -%]
+                [%- IF default_usertype == 'cookieuser' -%]
+                  checked='checked'
+                [%- END -%]
+              [%- ELSE -%]
+                disabled='disabled'
+              [% END
+            %] />
 
-          <td align='left'>
+            <label for='talkpostfromremote'>
+              [% dw.img( 'id_user', '' ) %]
+              [% '/talkpost.bml.opt.loggedin' | ml( username => remote.display_name ) %]
+            </label>
+
             [%- IF remote.allowed -%]
-              <label for='talkpostfromremote'>
-                [%- '/talkpost.bml.opt.loggedin' | ml( username => "<strong>$remote.display_name</strong>" ) -%]
-              </label>
               [%- IF remote.screened -%] [%- '/talkpost.bml.opt.willscreen' | ml -%][%- END -%]
             [%- ELSE -%]
-              <span class='disabled'><strong>
-                [%- '/talkpost.bml.opt.loggedin' | ml %]
-                [% remote.display_name -%]
-              </strong></span>
-              &nbsp;
+
               [%- IF remote.banned -%]
                 [%- journal.is_community ?
                   '/talkpost.bml.opt.bannedfrom.comm' : '/talkpost.bml.opt.bannedfrom'
@@ -219,98 +217,81 @@ the same terms as Perl itself.  For a copy of the license, please reference
                   '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
                   | ml( user => journal.user ) -%]
               [%- END -%]
+
             [%- END -%]
-            <script language='JavaScript'>
-              if (document.getElementById) {
-                document.write("&nbsp;<a href='#' onClick='otherLJUser();return false;'>[other]</a>");
-              }
-            </script>
+
             [%- UNLESS remote.banned -%]
               <input type='hidden' name='cookieuser' value='[% remote.user %]' id='cookieuser' />
             [%- END -%]
-          </td>
-        </tr>
+
+        </div>
 
 
         [%- END -%]
 
         [%# not-logged-in site user -%]
-        <tr valign='middle' id='otherljuser_row' name='otherljuser_row'>
-          <td align='center'>
-            [%- dw.img( 'id_user', '', { onclick => 'handleRadios(2);' } ) -%]
-          </td>
-          <td align='center'>
-            <input type='radio' name='usertype' value='user' id='talkpostfromlj'[% IF default_usertype == 'user' %] checked='checked'[% END %] />
-          </td>
-          <td align='left'>
-            <b>
-              <label for='talkpostfromlj' onclick='handleRadios(2); return false;'>
-                [%- '/talkpost.bml.opt.siteuser' | ml( sitename => site.nameshort ) -%]
-              </label>
-            </b>
+        <div class="from-option" id="from-user-loggedout">
+
+            <input type='radio' name='usertype' value='user' data-more="from-user-more" id='talkpostfromlj'[% IF default_usertype == 'user' %] checked='checked'[% END %] />
+
+            <label for='talkpostfromlj'>
+              [% dw.img( 'id_user', '' ) %]
+              [% IF remote && ! remote.openid_identity %] Other [%- END %]
+              [% '/talkpost.bml.opt.siteuser' | ml( sitename => site.nameshort ) %]
+            </label>
             [%- IF journal.screens_all -%]
               [%- '/talkpost.bml.opt.willscreen' | ml -%]
             [%- ELSIF journal.screens_non_access -%]
               [%- '/talkpost.bml.opt.willscreenfriend' | ml -%]
             [%- END -%]
-          </td>
-        </tr>
+        </div>
 
         [%# site user login form, always present but sometimes hidden -%]
-        <tr valign='middle' align='left' id='lj_more'>
-          <td colspan='2'></td>
+        <div class="from-login" id="from-user-more">
 
-          <td>
-            <table summary=''>
-              <tr>
-                <td>
-                  [%- 'Username' | ml -%][%# NF: ??? -%]
-                </td>
-                <td>
-                  [%- form.textbox(
-                    name = 'userpost'
-                    id = 'username'
-                    size = 13
-                    maxlength = 25
-                    value = ( comment.user || remote.user )
-                    onclick = 'this.value=""'
-                    style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;"
-                  ) -%]
-                </td>
-              </tr>
+          <div>
+            [%- form.textbox(
+              name = 'userpost'
+              id = 'username'
+              label = dw.ml('Username')
+              size = 13
+              maxlength = username_maxlength
+              value = ( comment.user || remote.user )
+              style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;"
+            ) -%]
+          </div>
 
-              <tr>
-                <td>
-                  [%- 'Password' | ml -%][%# NF: ??? -%]
-                </td>
-                <td>
-                  <input class='textbox' name='password' type='password' maxlength='30' size='18' id='password' />
-                </td>
-              </tr>
+          <div>
+            [%- form.password(
+              name = 'password'
+              id= 'password'
+              label = dw.ml('Password')
+              maxlength = 30
+              size = 18
+            ) -%]
+          </div>
 
-              <tr>
-                <td colspan='2'>
-                  <label for='logincheck'>[% '/talkpost.bml.loginq' | ml %]&nbsp;</label>
-                  <input type='checkbox' name='do_login' id='logincheck' />
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+          <div>
+            [%- form.checkbox(
+              name = 'do_login'
+              id = 'logincheck'
+              label = dw.ml('/talkpost.bml.loginq')
+              selected = comment.do_login
+            ) -%]
+          </div>
+
+        </div>
 
         [%- IF ! create_link && ! remote -%]
-          <tr valign='middle' align='left'>
-            <td colspan='2'></td>
-            <td>
+
               <span style='font-size: 8pt; font-style: italic;'>
                 [%- '/talkpost.bml.noaccount' | ml( aopts => "href='${site.root}/create'") -%]
               </span>
-            </td>
-          </tr>
+
         [%- END -%]
 
       [%- END -%][%# figuring out whether it's an edit or new reply. -%]
-    </table>
+
   </td>
 </tr>
 
@@ -328,7 +309,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
       size = 50
       maxlength = 100
       value = comment.subject
-      onKeyPress = "subjectNoHTML(event);"
     ) -%]
 
     [%- form.hidden(
@@ -340,7 +320,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%# The current subjecticon, as the button to open the menu. %]
     [%- print_subjecticon_by_id(
       comment.subjecticon,
-      "id='subjectIconImage' title='Click to change the subject icon' onclick='subjectIconListToggle();' style='cursor:pointer;cursor:hand'"
+      "id='subjectIconImage' title='Click to change the subject icon' style='cursor:pointer;cursor:hand'"
     ) -%]
 
     <blockquote style="display: none;" id="subjectIconList">
@@ -349,14 +329,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
           <div style="width: 32px;">
             [%- print_subjecticon_by_id(
               id,
-              "id='${id}' onclick='subjectIconChange(this)' style='cursor: pointer; cursor: hand; margin-left: auto; margin-right: auto; display: block;'"
+              "id='${id}' style='cursor: pointer; cursor: hand; margin-left: auto; margin-right: auto; display: block;'"
             ) -%]
           </div>
         [%- END -%]
       </div>
     </blockquote>
 
-    <div id='ljnohtmlsubj' class='ljdeem'><span style='font-size: 8pt; font-style: italic;'>
+    <div id='ljnohtmlsubj' class='ljdeem no-js'><span style='font-size: 8pt; font-style: italic;'>
       [%- '/talkpost.bml.nosubjecthtml' | ml -%]
     </span></div>
 
@@ -376,7 +356,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
           </button>
         [%- END -%]
 
-        <input type='button' id='randomicon' value='[%- '/talkpost.bml.userpic.random2' | ml -%]' />
+        <input type='button' id='randomicon' class="js-only" style="display: none;" value='[%- '/talkpost.bml.userpic.random2' | ml -%]' />
       </div>
     [%- END -%]
 
@@ -394,7 +374,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
       [%# NF: original comment said "only show quick quote button on initial composition," but this seems goofy anyway? -%]
       [%- IF remote -%]
         [%- UNLESS errors -%]
-          <span id="quotebuttonspan" data-quote-error="[% 'talk.error.quickquote' | ml %]"></span>
+          <input type="button" id="comment-text-quote" value="Quote" class="js-only" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
         [%- END -%]
       [%- END -%]
 
@@ -466,9 +446,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         value = comment.editreason
         size = 75
         maxlength = 255
-        onKeyPress = 'editNoHTML(event);'
       ) -%]
-      <div id='nohtmledit' class='ljdeem'><span style='font-size: 8pt; font-style: italic;'>[% '/talkpost.bml.noedithtml' | ml %]</span></div>
+      <div id='nohtmledit' class='ljdeem no-js'><span style='font-size: 8pt; font-style: italic;'>[% '/talkpost.bml.noedithtml' | ml %]</span></div>
     </td>
   </tr>
 [%- END -%]
@@ -477,31 +456,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
   <tr valign="top">
     <td align="right">&nbsp;</td>
     <td>
-      <script language="JavaScript" type='text/javascript'>
-        <!--
-        function checkLength() {
-          if (!document.getElementById) return true;
-          var textbox = document.getElementById('commenttext');
-          var limit = [% length_limit %];
-          if (!textbox) return true;
-          if (textbox.value.length > limit) {
-            alert('Sorry, but your comment of ' + textbox.value.length + ' characters exceeds the maximum character length of ' + limit + '.  Please try shortening it and then post again.');
-            return false;
-          }
-          return true;
-        }
-        // -->
-      </script>
 
       [%- form.submit(
         name = "submitpost"
-        onclick = 'return checkLength() && sendForm("postform", "username");'
         value = comment.editid ? dw.ml('/talkpost.bml.opt.edit') : dw.ml('/talkpost.bml.opt.submit')
       ) -%]
       &nbsp;
       [%- form.submit(
         name = "submitpreview"
-        onclick = 'return checkLength() && sendForm("postform", "username");'
         value = dw.ml('talk.btn.preview')
       ) -%]
       [%- IF can_checkspell -%]
@@ -530,11 +492,5 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </td>
   </tr>
 </table>
-
-[%# Some JavaScript to help the UI out -%]
-<script type="text/javascript" language="JavaScript">
-  var usermismatchtext = "[% ejs( dw.ml('/talkpost.bml.usermismatch2', { sitenameshort => site.nameshort }) ) %]";
-</script>
-<script type="text/javascript" language="JavaScript" src="[% site.jsroot %]/talkpost.js"></script>
 
 </form>

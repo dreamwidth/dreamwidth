@@ -82,6 +82,13 @@ body<=
     LJ::need_res( LJ::Talk::init_iconbrowser_js( 1 ) )
         if $remote && $remote->can_use_userpic_select;
     LJ::set_active_resource_group( "jquery" );
+    LJ::need_res(
+        { group => "jquery" }, qw(
+            js/jquery.replyforms.js
+            js/jquery.talkform.js
+            stc/css/components/talkform.css
+            )
+    );
 
     # show this error along with the regenerated comment form down below
     push @errors, $ML{'.error.invalidform'} if $remote && ! ( $skip_form_auth || LJ::check_form_auth() );
@@ -165,12 +172,12 @@ body<=
 
     # is the current user banned by the author of the original post?
     return LJ::bad_input( $ML{'.error.banned.entryowner'} )
-        if defined $remote && $entryu->has_banned( $remote );  
+        if defined $remote && $entryu->has_banned( $remote );
 
     # Don't allow user A to reply to a comment by user B if user B has banned user A.
     # We check whether $remote is defined because it won't be if we aren't logged in.
     # We check if $parentu is defined because it won't be if the parent is an anonymous comment.
-    if ( defined $remote ) { 
+    if ( defined $remote ) {
         my $parentu = LJ::load_userid( $parent->{posterid} );
         return LJ::bad_input( $ML{'.error.banned.reply'} )
             if defined $parentu && $parentu->has_banned( $remote );
