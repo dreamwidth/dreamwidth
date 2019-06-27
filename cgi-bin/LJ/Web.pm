@@ -20,6 +20,7 @@ use Carp;
 use POSIX;
 use DW::External::Site;
 use DW::Request;
+use LJ::Global::Constants;
 use LJ::Event;
 use LJ::Subscription::Pending;
 use LJ::Directory::Search;
@@ -2895,6 +2896,7 @@ sub res_includes {
             media_embed_enabled => $embeds_enabled,
             esn_async           => $esn_async,
             user_domain         => $LJ::USER_DOMAIN,
+            cmax_comment        => LJ::CMAX_COMMENT,
         );
 
         my $site_params     = LJ::js_dumper( \%site );
@@ -4423,38 +4425,6 @@ sub std_max_length {
 # Returns true to let the submit continue.
 $LJ::COMMON_CODE{'chalresp_js'} = qq{
 <script type="text/javascript" src="$LJ::JSPREFIX/md5.js"></script>
-<script language="JavaScript" type="text/javascript">
-    <!--
-function sendForm (formid, checkuser)
-{
-    if (formid == null) formid = 'login';
-    // 'checkuser' is the element id name of the username textfield.
-    // only use it if you care to verify a username exists before hashing.
-
-    if (! document.getElementById) return true;
-    var loginform = document.getElementById(formid);
-    if (! loginform) return true;
-
-    // Avoid accessing the password field if there is no username.
-    // This works around Opera < 7 complaints when commenting.
-    if (checkuser) {
-        var username = null;
-        for (var i = 0; username == null && i < loginform.elements.length; i++) {
-            if (loginform.elements[i].id == checkuser) username = loginform.elements[i];
-        }
-        if (username != null && username.value == "") return true;
-    }
-
-    if (! loginform.password || ! loginform.login_chal || ! loginform.login_response) return true;
-    var pass = loginform.password.value;
-    var chal = loginform.login_chal.value;
-    var res = MD5(chal + MD5(pass));
-    loginform.login_response.value = res;
-    loginform.password.value = "";  // dont send clear-text password!
-    return true;
-}
-// -->
-</script>
 };
 
 # Common JavaScript function for auto-checking radio buttons on form

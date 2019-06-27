@@ -1613,6 +1613,7 @@ sub talkform {
         errors               => $opts->{errors},
         create_link          => '',
         subjecticon_ids      => \@subjecticon_ids,
+        username_maxlength   => $LJ::USERNAME_MAXLENGTH,
 
         public_entry     => $entry->security eq 'public',
         default_usertype => $default_usertype,
@@ -1624,6 +1625,7 @@ sub talkform {
             oiddo_login => $form->{oiddo_login},
             user        => $form->{userpost}
                 || $form->{cookieuser},
+            do_login    => $form->{do_login},
             body        => $form->{body},
             subject     => $basesubject,
             subjecticon => $form->{subjecticon}
@@ -1642,7 +1644,6 @@ sub talkform {
             }
         : 0,
 
-        length_limit   => LJ::CMAX_COMMENT,
         can_checkspell => $LJ::SPELLER ? 1 : 0,
 
         remote => $remote
@@ -1722,14 +1723,6 @@ sub talkform {
         return "Sorry, this entry already has the maximum number of comments allowed."
             if LJ::Talk::Post::over_maxcomments( $journalu, $jitemid );
     }
-
-    # Login challenge/response
-    $template_args->{'hidden_form_elements'} .= LJ::html_hidden(
-
-        # 15 minute auth token
-        { 'name' => 'chal',     'id' => 'login_chal',     'value' => LJ::challenge_generate(900) },
-        { 'name' => 'response', 'id' => 'login_response', 'value' => '' }
-    );
 
     $opts->{styleopts} ||= LJ::viewing_style_opts(%$form);
     my $stylemineuri =
@@ -1893,7 +1886,7 @@ sub init_s2journal_js {
     # load for everywhere you can reply (ReplyPage, lastn, AND entries)
     LJ::need_res(
         { group => "jquery" }, qw(
-            js/jquery.quotebutton.js
+            js/jquery.replyforms.js
             )
     );
 
@@ -1908,6 +1901,14 @@ sub init_s2journal_js {
             stc/css/components/quick-reply.css
             )
     ) unless $opts{noqr};
+
+    # load only for ReplyPage
+    LJ::need_res(
+        { group => "jquery" }, qw(
+            js/jquery.talkform.js
+            stc/css/components/talkform.css
+            )
+    ) if $opts{noqr};
 
     # load for userpicselect
     LJ::need_res( init_iconbrowser_js(1) ) if $opts{iconbrowser};

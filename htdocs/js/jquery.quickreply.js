@@ -1,3 +1,5 @@
+// Helpers specific to quickreply aka quicker-reply and lessquick-reply aka The Critters
+// See also jquery.talkform.js, jquery.replyforms.js
 (function($) {
 var _ok;
 var qrdiv;
@@ -28,17 +30,17 @@ function update(data,widget) {
 
     $("#parenttalkid, #replyto").val(data.pid);
     $("#dtid").val(data.dtid);
-    
+
     var old_subject;
     if ( previous ) {
         old_subject = previous.subject;
         previous.widget.hide();
     }
-    
+
     var subject = $("#subject");
     var cur_subject = subject.val();
 
-    if ( old_subject != undefined && cur_subject != old_subject ) 
+    if ( old_subject != undefined && cur_subject != old_subject )
         customsubject = true;
     if ( ! customsubject || cur_subject == "" )
         subject.val(data.subject);
@@ -46,7 +48,7 @@ function update(data,widget) {
     $("#qrdiv").show().css("display", "inline").appendTo(widget);
     widget.show();
     $("#body").focus();
-    
+
     previous = {
         subject: data.subject,
         widget: widget
@@ -86,12 +88,13 @@ $.extend( $.dw.quickreply, {
 })(jQuery);
 
 jQuery(function($) {
-    function submitform(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var $form = $("#qrform");
+    $("#qrform").submit(function(e) {
+        var $form = $(this);
 
         if ($form.data("stayOnPage")) {
+            e.preventDefault();
+            e.stopPropagation();
+
             $("#submitpost").ajaxtip() // init
             .ajaxtip( "load", {
                 endpoint: "addcomment",
@@ -103,7 +106,13 @@ jQuery(function($) {
 
                     success: function( data, status, jqxhr ) {
                         if ( data.error ) {
-                            $("#submitpost").ajaxtip( "error", data.error )
+                            if ( data.error === "Client error: Message looks like spam" ) {
+                                // It just wants a captcha; disable ajax and take the long way around.
+                                $form.data("stayOnPage", false).submit();
+                            } else {
+                                // Go bother grandma cuz mom don't care.
+                                $("#submitpost").ajaxtip( "error", data.error );
+                            }
                         } else {
                             var $container = $("#qrdiv").parent();
                             var $readLink = $("[data-quickreply-target='" + $container.data("quickreply-container") + "'] .entry-readlink a");
@@ -144,41 +153,28 @@ jQuery(function($) {
                 }
             });
         } else {
-            $("#submitmoreopts, #submitpview, #submitpost").prop("disabled", true);
+            // prevent double-submits
+            $form.find('input[type="submit"]').prop("disabled", true);
 
             var dtid = $("#dtid");
             if ( ! Number(dtid.val()) )
                 dtid.val("0");
 
-            $form
-                .attr("action", Site.siteroot + "/talkpost_do" )
-                .submit();
+            // ...and then carry on.
         }
-    }
+    });
 
-    $("#submitpview").live("click", function(e){
+    $("#submitpview").on("click", function(e){
         $("#qrform input[name='submitpreview']").val(1);
-        submitform(e);
+        $("#qrform").attr("action", Site.siteroot + "/talkpost_do" );
     });
-    $("#submitpost").live("click", function(e){
-        var maxlength = 16000;
-        var length = $("#body").val().length;
-        if ( length > maxlength ) {
-            alert("Sorry, but your comment of " + length + " characters exceeds the maximum character length of " + maxlength + ". Please try shortening it and then post again");
-
-            e.stopPropagation();
-            e.preventDefault();
-        } else {
-            submitform(e);
-        }
+    $("#submitpost").on("click", function(e){
+        $("#qrform").attr("action", Site.siteroot + "/talkpost_do" );
     });
-    $("#submitmoreopts").live("click", function(e) {
+    $("#submitmoreopts").on("click", function(e) {
         var replyto = Number($("#dtid").val());
         var pid = Number($("#parenttalkid").val());
         var basepath = $("#basepath").val();
-
-        e.stopPropagation();
-        e.preventDefault();
 
         if(replyto > 0 && pid > 0) {
             $("#qrform").attr("action", basepath + "replyto=" + replyto );
@@ -186,29 +182,7 @@ jQuery(function($) {
             $("#qrform").attr("action", basepath + "mode=reply" );
         }
 
-        $("#qrform").submit();
-    });
-
-    $("#prop_picture_keyword").live("change", function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-
-        $(".qr-icon").find("img")
-            .attr("src", $(this).find("option:selected").data("url"))
-            .removeAttr("width").removeAttr("height").removeAttr("alt");
-    });
-
-    $("#randomicon").live("click", function(e){
-        e.stopPropagation();
-        e.preventDefault();
-
-        var iconslist = $("#prop_picture_keyword").get(0);
-        if ( !iconslist ) return;
-
-        // take a random number, ignoring the "(default)" option
-        var randomnumber = Math.floor(Math.random() * (iconslist.length-1) ) + 1;
-        iconslist.selectedIndex = randomnumber;
-        $( iconslist ).trigger("change");
+        $("#qrform").data("stayOnPage", false);
     });
 });
 

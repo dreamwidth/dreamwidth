@@ -102,16 +102,8 @@ $icon-control-height: 2.2em;
         align-items: flex-start;
     }
 
-    span#quotebuttonspan {
-        // This only exists to get something appended to it by jQuery. Its child
-        // input is the real flex item.
-        display: contents;
-
-        // Separate the "submit" buttons from the "misc" ones, if there's space.
-        // Quote is the first "misc" button.
-        input {
-            margin-left: auto;
-        }
+    #comment-text-quote {
+        margin-left: auto;
     }
 
     textarea, select, input[type="text"] {
@@ -126,7 +118,7 @@ $icon-control-height: 2.2em;
 
 // When we're down to ~two buttons per row, avoid messy clumping:
 @media #{$small-only} {
-    .qr-footer > *, #quotebuttonspan input {
+    .qr-footer > * {
         flex-grow: 1;
     }
 }
