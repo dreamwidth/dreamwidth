@@ -63,24 +63,28 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
       [%- ELSE -%][%# New comment, not editing. -%]
         [%# Anonymous: -%]
-        <div class="from-option" id="from-anon">
+        <div class="from-option[% UNLESS public_entry AND journal.allows_anon %] from-option-cannot[% END %]" id="from-anon">
 
+            <input type='radio' name='usertype' value='anonymous' id='talkpostfromanon' [%
+              IF public_entry AND journal.allows_anon -%]
+                [%- IF default_usertype == 'anonymous' -%]
+                  checked='checked'
+                [%- END -%]
+              [%- ELSE -%]
+                disabled='disabled'
+              [%- END
+            %] />
+
+            <label for='talkpostfromanon'[% UNLESS public_entry AND journal.allows_anon %] class="disabled"[% END %]>
+              [% dw.img( 'id_anonymous', '' ) %]
+              [% '/talkpost.bml.opt.anonymous' | ml %]
+            </label>
 
             [%- IF public_entry AND journal.allows_anon -%]
-              <input type='radio' name='usertype' value='anonymous' id='talkpostfromanon'[% IF default_usertype == 'anonymous' %] checked='checked'[% END %] />
-
-              <label for='talkpostfromanon'>
-                [% dw.img( 'id_anonymous', '' ) %]
-                [% '/talkpost.bml.opt.anonymous' | ml %]
-              </label>
-
-              [%- IF journal.screens_anon %] [% '/talkpost.bml.opt.willscreen' | ml %][%- END -%]
+              [%- IF journal.screens_anon %]
+                [% '/talkpost.bml.opt.willscreen' | ml %]
+              [%- END -%]
             [%- ELSE -%]
-              <input type='radio' name='usertype' value='anonymous' id='talkpostfromanon' disabled='disabled' />
-              <label for='talkpostfromanon'>
-                [% dw.img( 'id_anonymous', '' ) %]
-                [% '/talkpost.bml.opt.anonymous' | ml -%]
-              </label>
               [%- IF ! public_entry %]
                 [% '/talkpost.bml.opt.noanonpost.nonpublic' | ml -%]
               [%- ELSIF ! journal.allows_non_access -%]
@@ -109,7 +113,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 [%- END
               %] />
 
-              <label for='talkpostfromoid'>
+              <label for='talkpostfromoid'[% UNLESS remote.allowed %] class="disabled"[% END %]>
                 [% dw.img( 'id_openid', '' ) %]
                 [% '/talkpost.bml.opt.openid.loggedin' | ml %]
                 [% remote.display_name %]
@@ -199,7 +203,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
               [% END
             %] />
 
-            <label for='talkpostfromremote'>
+            <label for='talkpostfromremote'[% UNLESS remote.allowed %] class="disabled"[% END %]>
               [% dw.img( 'id_user', '' ) %]
               [% '/talkpost.bml.opt.loggedin' | ml( username => remote.display_name ) %]
             </label>
