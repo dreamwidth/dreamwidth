@@ -515,6 +515,28 @@ sub _load_text {
     return 1;
 }
 
+sub import_source {
+    my $self = $_[0];
+    my $u    = $self->{u};
+    my $jid  = $u->id;
+
+    my $mc = LJ::MemCache::get( [ $jid, "logsource:$jid:$self->{jitemid}" ] );
+    return $mc if defined $mc;
+
+    my $p = LJ::get_prop( log => 'import_source' );
+    return 0 unless $p;
+
+    my $db =
+        $u->selectrow_array(
+        q{SELECT value FROM logprop2 WHERE journalid=? AND propid=? AND jitemid=?},
+        undef, $jid, $p->{id}, $self->{jitemid} )
+        || 0;
+    return 0 if $u->err;    # but don't cache on error
+
+    LJ::MemCache::set( [ $jid, "logsource:$jid:$self->{jitemid}" ], $db );
+    return $db;
+}
+
 sub slug {
     my $self = $_[0];
     my $u    = $self->{u};

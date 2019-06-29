@@ -1861,4 +1861,26 @@ sub is_edited {
     return $_[0]->edit_time ? 1 : 0;
 }
 
+sub import_source {
+    my $self = $_[0];
+    my $u    = $self->journal;
+    my $jid  = $u->id;
+
+    my $mc = LJ::MemCache::get( [ $jid, "talksource:$jid:$self->{jtalkid}" ] );
+    return $mc if defined $mc;
+
+    my $p = LJ::get_prop( talk => 'import_source' );
+    return 0 unless $p;
+
+    my $db =
+        $u->selectrow_array(
+        q{SELECT value FROM talkprop2 WHERE journalid=? AND tpropid=? AND jtalkid=?},
+        undef, $jid, $p->{id}, $self->{jtalkid} )
+        || 0;
+    return 0 if $u->err;    # but don't cache on error
+
+    LJ::MemCache::set( [ $jid, "talksource:$jid:$self->{jtalkid}" ], $db );
+    return $db;
+}
+
 1;
