@@ -1614,7 +1614,7 @@ sub clean_event {
 
     # First pass, convert user mentions like @foo into user HTML. This syntax needs to be
     # supported everywhere, so we do this before Markdown-izing.
-    convert_user_mentions($ref);
+    convert_user_mentions( $ref, $opts );
 
     # Markdown is processed at this point. Since the Markdown module converts our input
     # into an output HTML, it needs to be run now so we can pass it through our HTML cleaner
@@ -1715,7 +1715,7 @@ sub clean_comment {
 
     # First pass, convert user mentions like @foo into user HTML. This syntax needs to be
     # supported everywhere, so we do this before Markdown-izing.
-    convert_user_mentions($ref);
+    convert_user_mentions( $ref, $opts );
 
     # preprocess with markdown if desired
     if ( $opts->{editor} && $opts->{editor} eq "markdown" ) {
@@ -1871,7 +1871,10 @@ sub quote_html {
 }
 
 sub convert_user_mentions {
-    my $ref = $_[0];
+    my ( $ref, $opts ) = @_;
+
+    return if $opts->{is_syndicated};
+    return if $opts->{is_imported};
 
     my $usertag = sub {
         my ( $user, $site ) = ( $_[0], $_[1] || $LJ::DOMAIN );

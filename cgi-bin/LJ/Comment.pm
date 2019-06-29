@@ -879,6 +879,7 @@ sub body_html {
     $opts->{editor}       = $self->prop("editor");
     $opts->{journal}      = $self->journal->user;
     $opts->{ditemid}      = $self->entry->ditemid;
+    $opts->{is_imported}  = $self->import_source;
 
     my $body = $self->body_raw;
     LJ::CleanHTML::clean_comment( \$body, $opts ) if $body;

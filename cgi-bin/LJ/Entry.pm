@@ -928,6 +928,8 @@ sub event_html {
     $opts->{unsuspend_supportid} = $suspend_msg ? $self->prop("unsuspend_supportid") : 0;
     $opts->{journal}             = $self->{u}->user;
     $opts->{ditemid}             = $self->{ditemid};
+    $opts->{is_imported}         = $self->import_source;
+    $opts->{is_syndicated}       = $self->{u}->is_syndicated;
 
     $self->_load_text unless $self->{_loaded_text};
     my $event = $self->{event};
