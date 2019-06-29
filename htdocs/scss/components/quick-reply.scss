@@ -8,8 +8,13 @@ $icon-control-height: 2.2em;
 
 #qrform {
     text-align: left;
-    padding: 0 1em;
+    padding: .5em;
     clear: both;
+
+    @media #{$medium-up} {
+        padding: .5em 1em;
+        max-width: 45rem;
+    }
 
     // .de means warnings/alerts.
     .de {
@@ -120,12 +125,5 @@ $icon-control-height: 2.2em;
 @media #{$small-only} {
     .qr-footer > * {
         flex-grow: 1;
-    }
-}
-
-@media #{$medium-up} {
-    #qrform {
-        padding: 0 1em;
-        max-width: 45rem;
     }
 }

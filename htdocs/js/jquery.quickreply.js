@@ -2,9 +2,9 @@
 // See also jquery.talkform.js, jquery.replyforms.js
 (function($) {
 var _ok;
-var qrdiv;
 var customsubject;
 var previous;
+var firstCommentWidgetParent;
 
 function can_continue() {
     if ( _ok == undefined )
@@ -14,6 +14,10 @@ function can_continue() {
 }
 
 function update(data,widget) {
+    // There's three target patterns:
+    // - "entry-dw_dev-215060-reply" (lastn page, reply to entry)
+    // - "topcomment", "bottomcomment" (entry page, reply to entry)
+    // - "1236487" (entry page, reply to comment)
     var targetParts = data.target.split("-");
     if ( targetParts.length === 1 ) {
         data.dtid = data.target;
@@ -45,6 +49,49 @@ function update(data,widget) {
     if ( ! customsubject || cur_subject == "" )
         subject.val(data.subject);
 
+    // If we previously munged the layout of #qrformdiv, reset it.
+    $('#qrformdiv').removeAttr('style').removeClass('width-adjusted');
+
+    // If replying to a comment, sort out the width. If the reply form would be
+    // super-small but there's plenty of whitespace to the left due to comment
+    // indentation, extend the form out to the left.
+    if ( data.target.match(/^\d+$/) ) {
+        if ( ! firstCommentWidgetParent ) {
+            // Parent element of the ljqrtNNNNN divs is different from style to
+            // style, so we can't hardcode it.
+            firstCommentWidgetParent = $('.comment').first().find('[data-quickreply-container]').parent();
+        }
+        // .width() always gives content width, which is what we want here.
+        var maxAvailableCommentWidth = firstCommentWidgetParent.width();
+        var plannedWidth = widget.parent().width();
+        // 640 = 40em @ 16px, reasonable size on desktop. If we're mobile or
+        // otherwise too small for that, just max out what we've got.
+        var minWidth = Math.min( 640, maxAvailableCommentWidth );
+        if ( plannedWidth < minWidth ) {
+            // Ascend and grab the first non-transparent background color we
+            // see, so the form fields aren't just dangling out in space
+            var backgroundColor;
+            // not guessing every browser's exact stringification of computed transparent
+            var rootBackgroundColor = $(':root').css('background-color');
+            widget.parentsUntil('.comment-thread').each(function(i, element) {
+                var bg = $(element).css('background-color');
+                if ( bg !== rootBackgroundColor ) {
+                    backgroundColor = bg;
+                    return false; // exit .each() early
+                }
+            });
+            // #qrdiv is the sacrificial inline-display wrapper. #qrformdiv is
+            // the block-display workhorse behind it.
+            $('#qrformdiv').css({
+                'min-width': minWidth,
+                'position': 'relative',
+                'right': minWidth - plannedWidth + 'px',
+                'background-color': backgroundColor
+            }).addClass('width-adjusted');
+        }
+    }
+
+    // display: inline is to keep the whole container from getting kicked sideways by a float.
     $("#qrdiv").show().css("display", "inline").appendTo(widget);
     widget.show();
     $("#body").focus();
