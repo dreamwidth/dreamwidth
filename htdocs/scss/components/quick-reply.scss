@@ -97,8 +97,24 @@ $icon-control-height: 2.2em;
         }
     }
 
-    .qr-body * {
-        width: 100%;
+    .qr-body {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+
+        #subject {
+            // size=50 in html is a presentational hint for width, so need to
+            // set width to SOMETHING to keep it from messing up the flex.
+            width: 70%;
+            flex-grow: 1;
+            flex-shrink: 1;
+        }
+        #comment-text-quote {
+            margin-left: 5px;
+        }
+        #body {
+            width: 100%;
+        }
     }
 
     .qr-footer {
@@ -110,10 +126,6 @@ $icon-control-height: 2.2em;
         input {
             margin-left: 5px;
         }
-    }
-
-    #comment-text-quote {
-        margin-right: auto;
     }
 
     #submitmoreopts {
@@ -130,9 +142,3 @@ $icon-control-height: 2.2em;
     }
 }
 
-// When we're down to ~two buttons per row, avoid messy clumping:
-@media #{$small-only} {
-    .qr-footer > * {
-        flex-grow: 1;
-    }
-}

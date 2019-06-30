@@ -62,6 +62,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         placeholder = dw.ml( '/talkpost.bml.opt.subject2' )
   ) -%]
 
+  <input type="button" id="comment-text-quote" value="Quote" tabindex="-1" class="js-only markup-button" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
+
   [%- form.textarea(
     label = dw.ml( '/talkpost.bml.opt.message2' )
     labelclass = 'invisible'
@@ -93,8 +95,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
   ) -%]
   [%- form.hidden( name = 'submitpreview', value = 0 ) %]
   [%- END -%]
-
-  <input type="button" id="comment-text-quote" value="Quote" class="js-only" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
 
   [% form.submit(
       name = 'submitmoreopts'
