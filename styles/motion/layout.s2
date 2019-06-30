@@ -232,7 +232,6 @@ function Page::print() {
     """;
                 }
     """
-                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
                     <div id="tertiary"><div class="inner">
                         """;
                         $this->print_module_section("two");
@@ -320,6 +319,10 @@ body{line-height:1}
 ul, ol{list-style:none}
 h1, h2, h3, h4, h5, h6{font-size:1em}
 
+#canvas * {
+    box-sizing: border-box;
+}
+
 /************************************************
 * General elements *
 ************************************************/
@@ -400,7 +403,6 @@ form label.subscribe-label{display:inline}
     $link_background_image;
     color: $*color_header_link;
     display: block;
-    float: left;
     margin-right: .75em;
     line-height: 2em;
     padding: .5em 1em;
@@ -475,20 +477,16 @@ form label.subscribe-label{display:inline}
 .contents .metadata ul li { list-style: none; }
 
 .footer{ $entry_footer_image
-    overflow:hidden;
     padding:1em 0 0;
     margin:1em 0
     }
 
 
 .footer .tag{
-    float:left;
-    width:93%;
     line-height:1em;
     }
 
 .footer .tag .tag-text{
-    float:left;
     margin:0 .5em 0 0
     }
 
@@ -498,12 +496,10 @@ form label.subscribe-label{display:inline}
 
 .footer .entry-management-links{ margin:1em 1em .5em; }
 
-.footer .entry-management-links{ float:left}
-
 .footer hr{ display:none}
 
 /*----- MANAGEMENT/INTERACTION LINKS -----*/
-.entry-interaction-links, .comment-interaction-links{float:right; margin:0 1em .5em}
+.entry-interaction-links, .comment-interaction-links{margin:0 1em .5em}
 
 .entry-interaction-links li, .comment-interaction-links li, .bottomcomment .entry-interaction-links li {display:inline;}
 
@@ -531,22 +527,22 @@ $userpic_css
     border-radius:4px
     }
 
-.entry .userpic img, .comment .userpic img { display:block;}
+.module .userpic { display: inline-block;}
 
-.module .userpic { float: left;}
-
-.userpic a{ border:0;}
+.userpic a{
+    border: 0;
+    display: block;
+    line-height: 0;
+    }
 
 .userpic a:hover{ background:none}
 
-#secondary .module-userprofile .userpic img{padding:1em}
-
 /*----- COMMENTS -----*/
-#comments {overflow:visible; width:100%}
+#comments {width:100%}
 
-#comments ul.commentlist li ul.children li {clear:both; margin:1.5em 0 0 1.5em}
+#comments ul.commentlist li ul.children li { margin:1.5em 0 0 1.5em}
 
-.comment .contents {min-height: 100px; }
+.comment .contents {min-height: 148px; } /* icon, padding, margin */
 
 .comment h3{font-weight:normal}
 
@@ -559,15 +555,14 @@ $userpic_css
 
 #comments .footer {
     font-size:smaller;
-    clear:both;
     padding:1em
     }
 
-#comments .footer .inner {float:left; width:96.5%}
+#comments .footer .inner {width:96.5%}
 
-#comments .footer .inner .multiform-checkbox{ float:left; margin:.5em 0 0}
+#comments .footer .inner .multiform-checkbox{ margin:.5em 0 0}
 
-#comments .footer .inner .comment-management-links { float:left; margin:.5em 0 0 1em}
+#comments .footer .inner .comment-management-links { margin:.5em 0 0 1em}
 
 #comments .footer .comment-interaction-links {margin:0}
 
@@ -583,48 +578,26 @@ $userpic_css
 
 #comments ul.trackback li .commentbody .author{margin:0}
 
-#comments a#cancel-comment-reply-link{display:block; padding: .75em 0}
-
-#comments a#cancel-comment-reply-link:hover{border-bottom: 1px dashed; }
-
-#comments .reply {
-    margin-top:1.75em;
-    overflow:hidden;
-    width:100%
-    }
-
-#ljqrttopcomment {clear:both}
-
-#qrformdiv{ max-width:98%; margin:0 auto}
-
 .bottomcomment{
-    clear:both;
     margin:2.5em 0;
     $entry_footer_image
     padding:1em;
-    overflow:hidden
     }
 
-.bottomcomment .entry-management-links{ float:left}
-
 .bottomcomment .entry-management-links li{ display:inline}
-
-.bottomcomment .entry-interaction-links{ margin:-.5em 0}
 
 /************************************************
 * Navigation (page turns) *
 ************************************************/
 .navigation{
-    overflow:hidden;
     width:100%;
     line-height:1.7em;
     margin-bottom:1.5em;
     }
 
-.navigation li { float: left; line-height: 2em; }
+.navigation li { line-height: 2em; }
 
 .navigation li a {
-    float:left;
     $link_background_image line-height:2em;
     padding:.5em 1em;
     color: $*color_page_text;
@@ -637,26 +610,27 @@ $userpic_css
 /************************************************
 * All Modules *
 ************************************************/
-#secondary .module, #tertiary .module {display:inline-block; width: $*sidebar_width; vertical-align:top; margin: 0 1em 0 1em;}
+#secondary .module, #tertiary .module {
+    width: $*sidebar_width;
+    margin: 0 1em 0 1em;
+    }
 @media $medium_media_query {
     .multiple-columns #secondary .module,
     .multiple-columns #tertiary .module {
-        display: block;
         width: auto;
         margin: 0 0 1em 0;
     }
 }
 
 .module {
-    overflow:hidden;
     padding: .75em;
     line-height:1.4em;
     }
 
 .module ul {
     width:100%;
-    overflow:hidden;
     list-style: none;
+    margin-right: 0;
     }
 
 .module table{width:100%}
@@ -686,7 +660,7 @@ $userpic_css
 .module img{
     background:none;
     border:none;
-    padding:0 .5em;
+    margin: 0 .5em;
     }
 
 .module .ljuser img { padding-left: 0; }
@@ -696,10 +670,7 @@ $userpic_css
 
 .module-userprofile .journal-name {
     margin: 1em 0 0;
-    clear:both;
     }
-
-.module-userprofile .userpic img { padding: 0 !important; }
 
 .module-userprofile li {display:inline}
 
@@ -765,8 +736,6 @@ $userpic_css
 
 .page-archive .month .day a { padding: .25em .5em; }
 
-.page-archive .month .day .label{ float:left;}
-
 .page-archive .month .footer .inner{ padding:0 1em 1em}
 
 /************************************************
@@ -774,7 +743,6 @@ $userpic_css
 ************************************************/
 
 .icons-container .icon {
-    float: left;
     margin-bottom: 15px;
     min-width: 350px;
     vertical-align: bottom;
@@ -783,13 +751,11 @@ $userpic_css
 
 .icon-image {
     display: inline;
-    float: left;
     margin-right: 1em;
     min-width: 100px;
 }
 
 .icon-info {
-    overflow: auto;
     vertical-align: bottom;
     word-wrap: break-word;
 }
@@ -800,7 +766,6 @@ $userpic_css
 }
 
 .icons-container .inner .footer, .icon-pages {
-    clear: both;
     text-align: center;
 }
 
