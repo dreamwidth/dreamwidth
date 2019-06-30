@@ -334,6 +334,12 @@ body {background-attachment: fixed;}
 
 #tertiary h1, #tertiary h2, #tertiary h3, #tertiary h4, #tertiary h5, #tertiary h6, #tertiary p, #tertiary li, #tertiary dt, #tertiary dd, #tertiary blockquote, #tertiary label, #tertiary th, #tertiary td, #tertiary a {text-shadow: 0 0 4px $*color_module_text_shadow;}
 
+p { margin: 1em 0; }
+
+input, textarea {
+    border: 1px solid;
+}
+
 a{ text-decoration:none}
 a img{border:0}
 
@@ -481,9 +487,16 @@ form label.subscribe-label{display:inline}
     margin:1em 0
     }
 
+.footer .inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
 
 .footer .tag{
     line-height:1em;
+    margin: 0 1em;
+    width: 100%;
     }
 
 .footer .tag .tag-text{
@@ -492,14 +505,18 @@ form label.subscribe-label{display:inline}
 
 .footer li{ display:inline}
 
-.footer .tag { margin: 0 1em; }
 
 .footer .entry-management-links{ margin:1em 1em .5em; }
 
 .footer hr{ display:none}
 
 /*----- MANAGEMENT/INTERACTION LINKS -----*/
-.entry-interaction-links, .comment-interaction-links{margin:0 1em .5em}
+ul.entry-interaction-links, ul.comment-interaction-links{
+    margin-top: 0;
+    margin-right: 1em;
+    margin-bottom: .5em;
+    margin-left: auto;
+    }
 
 .entry-interaction-links li, .comment-interaction-links li, .bottomcomment .entry-interaction-links li {display:inline;}
 
@@ -558,13 +575,9 @@ $userpic_css
     padding:1em
     }
 
-#comments .footer .inner {width:96.5%}
-
 #comments .footer .inner .multiform-checkbox{ margin:.5em 0 0}
 
 #comments .footer .inner .comment-management-links { margin:.5em 0 0 1em}
-
-#comments .footer .comment-interaction-links {margin:0}
 
 #comments h3#trackbacktitle{padding-top: .75em}
 
@@ -582,7 +595,15 @@ $userpic_css
     margin:2.5em 0;
     $entry_footer_image
     padding:1em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
     }
+
+.bottomcomment label[for="multiform_mode"] {
+    flex-basis: 100%; /* Don't cozy up into the previous line. */
+}
 
 .bottomcomment .entry-management-links li{ display:inline}
 
@@ -750,12 +771,20 @@ $userpic_css
 }
 
 .icon-image {
-    display: inline;
-    margin-right: 1em;
+    display: table-cell;
     min-width: 100px;
 }
 
+div.icon-image a {
+	display: block;
+	line-height: 0;
+	text-decoration: none;
+	border-bottom: 0;
+}
+
 .icon-info {
+    display: table-cell;
+    padding-left: 1em;
     vertical-align: bottom;
     word-wrap: break-word;
 }
