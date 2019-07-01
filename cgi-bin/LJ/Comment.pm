@@ -873,10 +873,11 @@ sub body_html {
     my ( $self, %extra_opts ) = @_;
 
     my $opts;
-    $opts->{preformatted} = $self->prop("opt_preformatted");
+    $opts->{preformatted} = $self->prop('opt_preformatted');
     $opts->{anon_comment} = LJ::Talk::treat_as_anon( $self->poster, $self->journal );
     $opts->{nocss}        = $opts->{anon_comment};
-    $opts->{editor}       = $self->prop("editor");
+    $opts->{editor}       = $self->prop('editor');
+    $opts->{is_imported}  = defined $self->prop('import_source') ? 1 : 0;
     $opts->{journal}      = $self->journal->user;
     $opts->{ditemid}      = $self->entry->ditemid;
 

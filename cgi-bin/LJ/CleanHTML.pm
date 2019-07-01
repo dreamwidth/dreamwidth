@@ -119,7 +119,6 @@ sub clean {
     my $cut                     = $opts->{'cuturl'} || $opts->{'cutpreview'};
     my $ljcut_disable           = $opts->{'ljcut_disable'};
     my $extractlinks            = 0 || $opts->{'extractlinks'};
-    my $noautolinks             = $extractlinks || $opts->{'noautolinks'};
     my $noexpand_embedded       = $opts->{'noexpandembedded'} || $opts->{'textonly'} || 0;
     my $transform_embed_nocheck = $opts->{'transform_embed_nocheck'} || 0;
     my $transform_embed_wmode   = $opts->{'transform_embed_wmode'};
@@ -128,6 +127,10 @@ sub clean {
     my $remove_sizes            = $opts->{'remove_sizes'} || 0;
     my $remove_abs_sizes        = $opts->{remove_abs_sizes} || 0;
     my $remove_fonts            = $opts->{'remove_fonts'} || 0;
+    my $local_content           = $opts->{local_content} || 0;
+    my $formatting              = $opts->{formatting} // 'html';
+    my $auto_links              = !( $extractlinks || $opts->{noautolinks} );
+    $auto_links = 0 if $formatting ne 'html';
     my $blocked_links =
         ( exists $opts->{'blocked_links'} ) ? $opts->{'blocked_links'} : \@LJ::BLOCKED_LINKS;
     my $blocked_link_substitute =
@@ -620,58 +623,7 @@ TOKEN:
                     : exists $attr->{comm} ? $attr->{comm}
                     :                        undef;
 
-                # allow external sites
-                # do not use link to an external site if site attribute is current domain
-                if ( ( my $site = $attr->{site} ) && ( $attr->{site} ne $LJ::DOMAIN ) ) {
-
-                    # try to load this user@site combination
-                    if ( my $ext_u = DW::External::User->new( user => $user, site => $site ) ) {
-
-                        # looks good, render
-                        if ( $opts->{textonly} ) {
-
-                            # FIXME: need a textonly way of identifying users better?  "user@LJ"?
-                            $newdata .= $user;
-                        }
-                        else {
-                            $newdata .=
-                                $ext_u->ljuser_display( no_ljuser_class => $to_external_site );
-                        }
-
-                        # if we hit the else, then we know that this user doesn't appear
-                        # to be valid at the requested site
-                    }
-                    else {
-                        $newdata .=
-                              "<b>[Bad username or site: "
-                            . LJ::ehtml( LJ::no_utf8_flag($user) ) . " @ "
-                            . LJ::ehtml( LJ::no_utf8_flag($site) ) . "]</b>";
-                    }
-
-                    # failing that, no site or local site, use the local behavior
-                }
-                elsif ( length $user ) {
-                    if ( my $u = LJ::load_user_or_identity($user) ) {
-                        if ( $opts->{textonly} ) {
-                            $newdata .= $u->display_name;
-                        }
-                        else {
-                            $newdata .=
-                                $u->ljuser_display( { no_ljuser_class => $to_external_site } );
-                        }
-                    }
-                    elsif ( my $username = LJ::canonical_username($user) ) {
-                        $newdata .= LJ::ljuser( $user, { no_ljuser_class => $to_external_site } );
-                    }
-                    else {
-                        $user = LJ::no_utf8_flag($user);
-                        $newdata .=
-                            "<b>[Bad username or unknown identity: " . LJ::ehtml($user) . "]</b>";
-                    }
-                }
-                else {
-                    $newdata .= "<b>[Unknown site tag]</b>";
-                }
+                $newdata .= user_link_html( $user, $attr->{site}, $opts );
             }
             elsif ( $tag eq "lj-raw" ) {
 
@@ -1250,7 +1202,7 @@ TOKEN:
                 && !$opencount{'pre'}
                 && !$opencount{'lj-raw'};
 
-            if ( $auto_format && !$noautolinks && !$opencount{'a'} && !$opencount{'textarea'} ) {
+            if ( $auto_format && $auto_links && !$opencount{'a'} && !$opencount{'textarea'} ) {
                 my $match = sub {
                     my $str = shift;
                     if ( $str =~ /^(.*?)(&(#39|quot|lt|gt)(;.*)?)$/ ) {
@@ -1276,10 +1228,29 @@ TOKEN:
                 $token->[1] =~ s/(\S{$wordlength,})/break_word( $1, $wordlength )/eg;
             }
 
+            # markdown is available, but we disable it if the user is using HTML. this is
+            # to prevent bad interactions between the two. technically markdown supports
+            # running on HTML inputs, but we choose not to support that.
+            if ( $formatting eq 'markdown' && !grep { $_ > 0 } values %opencount ) {
+
+                # markdown should be marked down
+                $token->[1] = Text::Markdown::markdown( $token->[1] );
+            }
+
             # auto-format things, unless we're in a textarea, when it doesn't make sense
             if ( $auto_format && !$opencount{'textarea'} ) {
-                $token->[1] =~ s/\r?\n/<br \/>/g;
+                if ( $formatting eq 'html' ) {
+
+                    # if HTML editing, insert linebreaks
+                    $token->[1] =~ s/\r?\n/<br \/>/g;
+                }
+
                 if ( !$opencount{'a'} ) {
+
+                    # safe to convert user mentions, do that in this context
+                    convert_user_mentions( \$token->[1], $opts );
+
+                    # convert URLs back into actual HTML
                     $token->[1] =~ s/&url(\d+);(.*?)&urlend;/<a href=\"$url{$1}\">$2<\/a>/g;
                 }
             }
@@ -1612,60 +1583,41 @@ sub clean_event {
         $opts = { 'preformatted' => $opts };
     }
 
-    # First pass, convert user mentions like @foo into user HTML. This syntax needs to be
-    # supported everywhere, so we do this before Markdown-izing.
-    convert_user_mentions($ref);
-
-    # Markdown is processed at this point. Since the Markdown module converts our input
-    # into an output HTML, it needs to be run now so we can pass it through our HTML cleaner
-    # so we still have ultimate control on the output HTML.
-    if ( $$ref =~ s/^\s*!markdown\s*\r?\n//s ) {
-        clean_as_markdown( $ref, $opts );
-    }
-
-    my $wordlength = defined $opts->{'wordlength'} ? $opts->{'wordlength'} : 40;
-
-    # fast path:  no markup or URLs to linkify, and no suspend message needed
-    if ( $$ref !~ /\<|\>|http/ && !$opts->{preformatted} && !$opts->{suspend_msg} ) {
-        $$ref =~ s/(\S{$wordlength,})/break_word( $1, $wordlength )/eg if $wordlength;
-        $$ref =~ s/\r?\n/<br \/>/g;
-        return;
-    }
-
-    # slow path: need to be run it through the cleaner
     clean(
         $ref,
         {
-            'linkify'                 => 1,
-            'wordlength'              => $wordlength,
-            'addbreaks'               => $opts->{'preformatted'} ? 0 : 1,
-            'cuturl'                  => $opts->{'cuturl'},
-            'cutpreview'              => $opts->{'cutpreview'},
-            'eat'                     => $event_eat,
-            'mode'                    => 'allow',
-            'remove'                  => $event_remove,
-            'cleancss'                => 1,
-            'maximgwidth'             => $opts->{'maximgwidth'},
-            'maximgheight'            => $opts->{'maximgheight'},
-            'imageplaceundef'         => $opts->{'imageplaceundef'},
-            'ljcut_disable'           => $opts->{'ljcut_disable'},
-            'noearlyclose'            => 1,
-            'extractimages'           => $opts->{'extractimages'} ? 1 : 0,
-            'noexpandembedded'        => $opts->{'noexpandembedded'} ? 1 : 0,
-            'textonly'                => $opts->{'textonly'} ? 1 : 0,
-            'remove_colors'           => $opts->{'remove_colors'} ? 1 : 0,
-            'remove_sizes'            => $opts->{'remove_sizes'} ? 1 : 0,
-            'remove_fonts'            => $opts->{'remove_fonts'} ? 1 : 0,
-            'transform_embed_nocheck' => $opts->{'transform_embed_nocheck'} ? 1 : 0,
-            'transform_embed_wmode'   => $opts->{'transform_embed_wmode'},
-            rewrite_embed_param       => $opts->{rewrite_embed_param} ? 1 : 0,
-            'suspend_msg'             => $opts->{'suspend_msg'} ? 1 : 0,
-            'unsuspend_supportid'     => $opts->{'unsuspend_supportid'},
-            to_external_site          => $opts->{to_external_site} ? 1 : 0,
-            cut_retrieve              => $opts->{cut_retrieve},
-            journal                   => $opts->{journal},
-            ditemid                   => $opts->{ditemid},
-            errref                    => $opts->{errref},
+            linkify                 => 1,
+            wordlength              => defined $opts->{wordlength} ? $opts->{wordlength} : 40,
+            addbreaks               => $opts->{preformatted} ? 0 : 1,
+            cuturl                  => $opts->{cuturl},
+            cutpreview              => $opts->{cutpreview},
+            eat                     => $event_eat,
+            mode                    => 'allow',
+            remove                  => $event_remove,
+            cleancss                => 1,
+            maximgwidth             => $opts->{maximgwidth},
+            maximgheight            => $opts->{maximgheight},
+            imageplaceundef         => $opts->{imageplaceundef},
+            ljcut_disable           => $opts->{ljcut_disable},
+            noearlyclose            => 1,
+            extractimages           => $opts->{extractimages} ? 1 : 0,
+            noexpandembedded        => $opts->{noexpandembedded} ? 1 : 0,
+            textonly                => $opts->{textonly} ? 1 : 0,
+            remove_colors           => $opts->{remove_colors} ? 1 : 0,
+            remove_sizes            => $opts->{remove_sizes} ? 1 : 0,
+            remove_fonts            => $opts->{remove_fonts} ? 1 : 0,
+            transform_embed_nocheck => $opts->{transform_embed_nocheck} ? 1 : 0,
+            transform_embed_wmode   => $opts->{transform_embed_wmode},
+            rewrite_embed_param     => $opts->{rewrite_embed_param} ? 1 : 0,
+            suspend_msg             => $opts->{suspend_msg} ? 1 : 0,
+            unsuspend_supportid     => $opts->{unsuspend_supportid},
+            to_external_site        => $opts->{to_external_site} ? 1 : 0,
+            cut_retrieve            => $opts->{cut_retrieve},
+            journal                 => $opts->{journal},
+            ditemid                 => $opts->{ditemid},
+            errref                  => $opts->{errref},
+            formatting              => $opts->{editor} // 'html',
+            local_content           => !( $opts->{is_syndicated} || $opts->{is_imported} ),
         }
     );
 }
@@ -1713,41 +1665,26 @@ sub clean_comment {
     $opts = { preformatted => $opts } unless ref $opts;
     return 0 unless defined $$ref;
 
-    # First pass, convert user mentions like @foo into user HTML. This syntax needs to be
-    # supported everywhere, so we do this before Markdown-izing.
-    convert_user_mentions($ref);
-
-    # preprocess with markdown if desired
-    if ( $opts->{editor} && $opts->{editor} eq "markdown" ) {
-        clean_as_markdown( $ref, $opts );
-    }
-
-    # fast path:  no markup or URLs to linkify
-    if ( $$ref !~ /\<|\>|http/ && !$opts->{preformatted} ) {
-        $$ref =~ s/(\S{40,})/break_word( $1, 40 )/eg;
-        $$ref =~ s/\r?\n/<br \/>/g;
-        return 0;
-    }
-
-    # slow path: need to be run it through the cleaner
     return clean(
         $ref,
         {
-            'linkify'            => 1,
-            'wordlength'         => 40,
-            'addbreaks'          => $opts->{preformatted} ? 0 : 1,
-            'eat'                => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
-            'mode'               => 'deny',
-            'allow'              => \@comment_all,
-            'cleancss'           => 1,
-            'strongcleancss'     => 1,
-            'extractlinks'       => $opts->{'anon_comment'},
-            'extractimages'      => $opts->{'anon_comment'},
-            'noearlyclose'       => 1,
-            'nocss'              => $opts->{'nocss'},
-            'textonly'           => $opts->{'textonly'} ? 1 : 0,
-            'remove_positioning' => 1,
-            'remove_abs_sizes'   => $opts->{anon_comment},
+            linkify            => 1,
+            wordlength         => 40,
+            addbreaks          => $opts->{preformatted} ? 0 : 1,
+            eat                => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
+            mode               => 'deny',
+            allow              => \@comment_all,
+            cleancss           => 1,
+            strongcleancss     => 1,
+            extractlinks       => $opts->{anon_comment},
+            extractimages      => $opts->{anon_comment},
+            noearlyclose       => 1,
+            nocss              => $opts->{nocss},
+            textonly           => $opts->{textonly} ? 1 : 0,
+            remove_positioning => 1,
+            remove_abs_sizes   => $opts->{anon_comment},
+            formatting         => $opts->{editor} // 'html',
+            local_content      => !$opts->{is_imported},
         }
     );
 }
@@ -1871,29 +1808,11 @@ sub quote_html {
 }
 
 sub convert_user_mentions {
-    my $ref = $_[0];
+    my ( $ref, $opts ) = @_;
 
     my $usertag = sub {
         my ( $orig, $user, $site ) = ( $_[0], $_[1], $_[2] || $LJ::DOMAIN );
-        return $orig if $user =~ /^(font-face|media|supports)$/;
-
-        my $siteobj = DW::External::Site->get_site( site => $site );
-
-        if ( $site eq $LJ::DOMAIN ) {
-
-            # just use a plain usertag in the most common case, which
-            # also avoids problems with other sites (dreamhacks etc.)
-            # that aren't found in DW::External::Site
-            return qq|<user name="$user" />|;
-        }
-        elsif ( $siteobj && ref $siteobj ne 'DW::External::Site::Unknown' ) {
-
-            # only do site tags for known site formats
-            return qq|<user name="$user" site="$siteobj->{domain}" />|;
-        }
-        else {
-            return qq|\@$user.$site|;
-        }
+        return user_link_html( $user, $site, $opts );
     };
 
     # First pass is just to look for an edge case where an unescaped
@@ -1920,4 +1839,61 @@ sub clean_as_markdown {
 
     return 1;
 }
+
+sub user_link_html {
+
+    # Generate HTML to link to a user
+    my ( $user, $site, $opts ) = @_;
+
+    # allow external sites
+    # do not use link to an external site if site attribute is current domain
+    if ( defined $site && $site ne $LJ::DOMAIN ) {
+
+        # try to load this user@site combination
+        if ( my $ext_u = DW::External::User->new( user => $user, site => $site ) ) {
+
+            # looks good, render
+            if ( $opts->{textonly} ) {
+
+                # FIXME: need a textonly way of identifying users better?  "user@LJ"?
+                return $user;
+            }
+            else {
+                return $ext_u->ljuser_display( no_ljuser_class => $opts->{to_external_site} );
+            }
+
+            # if we hit the else, then we know that this user doesn't appear
+            # to be valid at the requested site
+        }
+        else {
+            return
+                  "<b>[Bad username or site: "
+                . LJ::ehtml( LJ::no_utf8_flag($user) ) . " @ "
+                . LJ::ehtml( LJ::no_utf8_flag($site) ) . "]</b>";
+        }
+
+        # failing that, no site or local site, use the local behavior
+    }
+    elsif ( length $user ) {
+        if ( my $u = LJ::load_user_or_identity($user) ) {
+            if ( $opts->{textonly} ) {
+                return $u->display_name;
+            }
+            else {
+                return $u->ljuser_display( { no_ljuser_class => $opts->{to_external_site} } );
+            }
+        }
+        elsif ( my $username = LJ::canonical_username($user) ) {
+            return LJ::ljuser( $user, { no_ljuser_class => $opts->{to_external_site} } );
+        }
+        else {
+            $user = LJ::no_utf8_flag($user);
+            return "<b>[Bad username or unknown identity: " . LJ::ehtml($user) . "]</b>";
+        }
+    }
+    else {
+        return "<b>[Unknown site tag]</b>";
+    }
+}
+
 1;

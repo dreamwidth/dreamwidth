@@ -1498,6 +1498,13 @@ logproplist.current_music:
   sortorder: 10
   ownership: user
 
+logproplist.editor:
+  datatype: char
+  des: Type of editor used when making this content. Values: "markdown" or undefined (plain/raw html)
+  prettyname: Entry editor
+  sortorder: 8
+  ownership: user
+
 logproplist.hasscreened:
   datatype: bool
   des: True if comments to this item include screened comments
