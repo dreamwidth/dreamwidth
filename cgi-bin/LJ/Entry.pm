@@ -906,9 +906,19 @@ sub event_html {
     $opts->{unsuspend_supportid} = $suspend_msg ? $self->prop("unsuspend_supportid") : 0;
     $opts->{journal}             = $self->{u}->user;
     $opts->{ditemid}             = $self->{ditemid};
+    $opts->{is_syndicated}       = $self->{u}->is_syndicated;
+    $opts->{is_imported}         = defined $self->{props}{import_source};
+    $opts->{editor}              = $self->{props}{editor};
 
     $self->_load_text unless $self->{_loaded_text};
     my $event = $self->{event};
+
+    # Old-style: if the entry has a special prefix then remove it and also turn on
+    # markdown formatting.
+    if ( $event =~ s/^\s*!markdown\s*\r?\n//s ) {
+        $opts->{editor} = 'markdown';
+    }
+
     LJ::CleanHTML::clean_event( \$event, $opts );
 
     LJ::expand_embedded( $self->{u}, $self->ditemid, LJ::User->remote, \$event,

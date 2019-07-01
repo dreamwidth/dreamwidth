@@ -23,12 +23,9 @@ use LJ::CleanHTML;
 my $lju_sys = LJ::ljuser("system");
 my $url     = 'https://medium.com/@username/title-of-page';
 
-my $as_markdown = sub { return "!markdown\n$_[0]" };
-
 my $clean = sub {
     my ($text) = @_;
-    $text = $as_markdown->($text);
-    LJ::CleanHTML::clean_event( \$text, { wordlength => 80 } );
+    LJ::CleanHTML::clean_event( \$text, { wordlength => 80, editor => 'markdown' } );
     chomp $text;
     return $text;
 };
@@ -40,13 +37,18 @@ is( $clean->('@system'), "<p>$lju_sys</p>", "user tag in plain text converted" )
 is( $clean->('\@system'), '<p>@system</p>',
     "escaped user tag in plain text not converted, backslash removed" );
 
-# plain text user tag with escape character escaped
-is( $clean->('\\\@system'),
-    "<p>\\$lju_sys</p>", "user tag in plain text converted when escape character is escaped" );
+# don't convert in html
+is(
+    $clean->('<pre>\@system</pre>'),
+    '<pre>\@system</pre>', "user tag in plain text converted when escape character is escaped"
+);
 
 # plain URL containing user tag
-# (Markdown conversion sets preformatted flag, so this won't linkify)
-is( $clean->($url), "<p>$url</p>", "user tag in URL not converted" );
+is(
+    $clean->($url),
+    '<p>https://medium.com/@username/title-of-page</p>',
+    'user tag in URL not converted'
+);
 
 # linked URL containing user tag
 is(
@@ -55,9 +57,9 @@ is(
     "user tag in href not converted, but user tag in link text converted []"
 );
 
-# same as standard HTML
+# same as standard HTML, we don't apply markdown to HTML
 is(
     $clean->(qq{<a href="$url">link from \@system</a>}),
-    qq{<p><a href="$url">link from $lju_sys</a></p>},
-    "user tag in href not converted, but user tag in link text converted <>"
+    qq{<a href="$url">link from \@system</a>},
+    "content is unconverted"
 );
