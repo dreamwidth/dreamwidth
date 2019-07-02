@@ -373,6 +373,10 @@ H1, H2, H3 {
     padding: .25em 0;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+}
+
 img {
     border: none;
 }
@@ -552,7 +556,6 @@ h2#pagetitle {
 
 .entry .entry-title {
     $entry_title_font
-    overflow-wrap: break-word;
 }
 
 .entry .entry-title, .entry .entry-title a {
@@ -674,7 +677,6 @@ $responsive_indent_css
 .comment .comment-title {
     $comment_title_font
     margin: 0;
-    overflow-wrap: break-word;
 }
 
 .comment .comment-title, .comment .comment-title a {
@@ -784,7 +786,6 @@ table.month td p {
 .module h2 {
     $module_title_colors
     $module_title_font
-    overflow-wrap: break-word;
 }
 
 .module-content {
