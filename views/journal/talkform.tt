@@ -10,6 +10,492 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
+
+[%- IF foundation_beta -%][%# use new quickreply-style talkform -%]
+
+<div id='qrdiv'><div id='qrformdiv'>
+
+<form id="postform" name="postform" method="POST" action="[% form_url | url %]">
+[%- dw.form_auth -%]
+[%- hidden_form_elements -%]
+
+[%- IF errors -%]
+<ul>
+[% FOREACH error IN errors -%]
+  <li><b>[% error %]</b></li>
+[%- END %]
+</ul>
+<hr />
+[%- END -%]
+
+[%- create_link -%]
+
+[%# "From" fields %]
+
+<div id="talkform-from">
+  <label>[%- '/talkpost.bml.opt.from' | ml %]</label>
+
+  [%- IF comment.editid -%]
+    <div class="from-option" id='from-ljuser'>
+      [%- IF remote.banned -%]
+        [%- IF journal.is_community -%]
+          [%- '/talkpost.bml.opt.bannedfrom.comm' | ml -%]
+        [%- ELSE -%]
+          [%- '/talkpost.bml.opt.bannedfrom' | ml -%]
+        [%- END -%]
+      [%- ELSE -%]
+        [%- dw.img( 'id_user', '' ) -%]
+
+        <label for='talkpostfromremote'>
+          [%- '/talkpost.bml.opt.loggedin' | ml( username => remote.display_name ) -%]
+        </label>
+        [%- IF remote.screened %]
+          [%- '/talkpost.bml.opt.willscreen' | ml -%]
+        [%- END -%]
+        [%- form.hidden( name = 'usertype', value = 'cookieuser' ) -%]
+        [%- form.hidden(
+          name = 'cookieuser'
+          id = 'cookieuser'
+          value = remote.user
+        ) -%]
+      [%- END -%]
+    </div>
+
+  [%- ELSE -%][%# New comment, not editing. -%]
+    [%# Anonymous: -%]
+    <div class="from-option[% UNLESS public_entry AND journal.allows_anon %] from-option-cannot[% END %]" id="from-anon">
+      <input type='radio' name='usertype' value='anonymous' id='talkpostfromanon' [%
+        IF public_entry AND journal.allows_anon -%]
+          [%- IF default_usertype == 'anonymous' -%]
+            checked='checked'
+          [%- END -%]
+        [%- ELSE -%]
+          disabled='disabled'
+        [%- END
+      %] />
+
+      <label for='talkpostfromanon'[% UNLESS public_entry AND journal.allows_anon %] class="disabled"[% END %]>
+        [% dw.img( 'id_anonymous', '' ) %]
+        [% '/talkpost.bml.opt.anonymous' | ml %]
+      </label>
+
+      [%- IF public_entry AND journal.allows_anon -%]
+        [%- IF journal.screens_anon %]
+          [% '/talkpost.bml.opt.willscreen' | ml %]
+        [%- END -%]
+      [%- ELSE -%]
+        [%- IF ! public_entry %]
+          [% '/talkpost.bml.opt.noanonpost.nonpublic' | ml -%]
+        [%- ELSIF ! journal.allows_non_access -%]
+          [% ( journal.is_community ? '/talkpost.bml.opt.membersonly' : '/talkpost.bml.opt.friendsonly' )
+            | ml( username => "$journal.user" )
+          %]
+        [%- ELSE -%]
+          [% '/talkpost.bml.opt.noanonpost' | ml -%]
+        [%- END -%]
+      [%- END -%]
+    </div>
+
+    [%- IF remote.openid_identity -%]
+      <div class="from-option
+        [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
+      " id='from-openid-loggedin'>
+
+        <input type='radio' name='usertype' value='openid_cookie' data-more="from-openid-loggedin-more" id='talkpostfromoidli' [%
+          IF remote.allowed -%]
+            [%- IF default_usertype == 'openid_cookie' -%]
+              checked='checked'
+            [%- END -%]
+          [%- ELSE -%]
+            disabled='disabled'
+          [%- END
+        %] />
+
+        <label for='talkpostfromoidli'[% UNLESS remote.allowed %] class="disabled"[% END %]>
+          [% dw.img( 'id_openid', '' ) %]
+          [% '/talkpost.bml.opt.openid.loggedin' | ml %]
+          [% remote.display_name %]
+        </label>
+
+        [%- IF remote.allowed -%]
+          [%- IF remote.screened %] [% '/talkpost.bml.opt.willscreen' | ml -%][%- END -%]
+        [%- ELSE -%]
+
+          [%- IF remote.banned -%][%# p. cut and dried -%]
+            [%- journal.is_community ?
+              '/talkpost.bml.opt.bannedfrom.comm' : '/talkpost.bml.opt.bannedfrom'
+              | ml( journal => journal.user ) -%]
+          [%- ELSIF journal.allows_non_access -%][%# your email's not validated. -%]
+            [%- '/talkpost.bml.opt.noopenidpost' | ml(
+              aopts1 => "href='${site.root}/changeemail'"
+              aopts2 => "href='${site.root}/register'"
+            ) -%]
+          [%- ELSE -%][%# you're not on the access list -%]
+            [%- journal.is_community ?
+              '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
+              | ml( user => journal.user ) -%]
+          [%- END -%]
+
+        [%- END -%]
+      </div>
+
+      <div class="from-login" id="from-openid-loggedin-more">
+        [%- IF remote.can_manage_community -%]
+          [%- form.checkbox(
+            name = 'prop_admin_post'
+            id = 'prop_admin_post'
+            value = 1
+            selected = comment.admin_post
+            label = 'Admin Post'
+          ) -%]
+        [%- END -%]
+      </div>
+
+    [%- ELSE -%][%# not logged in as openid user -%]
+
+      <div class="from-option" id="from-openid-loggedout">
+        <input type='radio' name='usertype' value='openid' data-more="from-openid-more" id='talkpostfromoidlo'[% IF default_usertype == 'openid' %] checked='checked'[% END %] />
+
+        <label for='talkpostfromoidlo'>
+          [% dw.img( 'id_openid', '' ) %]
+          [% '/talkpost.bml.opt.openid' | ml %]
+        </label>
+        [% help_icon( 'openid' ) %]
+        [%- IF journal.screens_all -%]
+          [%- '/talkpost.bml.opt.willscreen' | ml -%]
+        [%- ELSIF journal.screens_non_access -%]
+          [%- '/talkpost.bml.opt.willscreenfriend' | ml -%]
+        [%- ELSIF journal.screens_anon -%]
+          [%- '/talkpost.bml.opt.willscreenopenid' | ml -%]
+        [%- END -%]
+      </div>
+    [%- END -%]
+
+    <div class="from-login" id="from-openid-more">
+      <div>
+        [%- form.textbox(
+          name = 'oidurl'
+          id = 'oidurl'
+          label = dw.ml('/talkpost.bml.login.url')
+          size = 53
+          maxlength = 60
+          value = ( comment.oidurl || remote.openid_identity )
+        ) -%]
+      </div>
+
+      <div>
+        [%- form.checkbox(
+          name = 'oiddo_login'
+          id = 'oidlogincheck'
+          label = dw.ml('/talkpost.bml.loginq')
+          selected = comment.oiddo_login
+        ) -%]
+      </div>
+    </div>
+
+    [%# logged-in site user -%]
+    [%- IF remote && ! remote.openid_identity -%]
+    <div class="from-option
+      [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
+    " id="from-user-loggedin">
+
+      <input type='radio' name='usertype' value='cookieuser' data-more="from-user-loggedin-more" id='talkpostfromremote' [%
+        IF remote.allowed -%]
+          [%- IF default_usertype == 'cookieuser' -%]
+            checked='checked'
+          [%- END -%]
+        [%- ELSE -%]
+          disabled='disabled'
+        [% END
+      %] />
+
+      <label for='talkpostfromremote'[% UNLESS remote.allowed %] class="disabled"[% END %]>
+        [% dw.img( 'id_user', '' ) %]
+        [% remote.display_name %]
+        [% '/talkpost.bml.opt.loggedin2' | ml %]
+      </label>
+
+      [%- IF remote.allowed -%]
+        [%- IF remote.screened -%] [%- '/talkpost.bml.opt.willscreen' | ml -%][%- END -%]
+      [%- ELSE -%]
+
+        [%- IF remote.banned -%]
+          [%- journal.is_community ?
+            '/talkpost.bml.opt.bannedfrom.comm' : '/talkpost.bml.opt.bannedfrom'
+            | ml( journal => journal.user ) -%]
+        [%- ELSE -%][%# you're not on the access list -%]
+          [%- journal.is_community ?
+            '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
+            | ml( user => journal.user ) -%]
+        [%- END -%]
+
+      [%- END -%]
+
+      [%- UNLESS remote.banned -%]
+        <input type='hidden' name='cookieuser' value='[% remote.user %]' id='cookieuser' />
+      [%- END -%]
+    </div>
+
+    <div class="from-login" id="from-user-loggedin-more">
+      [%- IF remote.can_manage_community -%]
+        [%- form.checkbox(
+          name = 'prop_admin_post'
+          id = 'prop_admin_post'
+          value = 1
+          selected = comment.admin_post
+          label = 'Admin Post'
+        ) -%]
+      [%- END -%]
+    </div>
+
+    [%- END -%]
+
+    [%# not-logged-in site user -%]
+    <div class="from-option" id="from-user-loggedout">
+      <input type='radio' name='usertype' value='user' data-more="from-user-more" id='talkpostfromlj'[% IF default_usertype == 'user' %] checked='checked'[% END %] />
+
+      <label for='talkpostfromlj'>
+        [% dw.img( 'id_user', '' ) %]
+        [% IF remote && ! remote.openid_identity %] Other [%- END %]
+        [% '/talkpost.bml.opt.siteuser' | ml( sitename => site.nameshort ) %]
+      </label>
+      [%- IF journal.screens_all -%]
+        [%- '/talkpost.bml.opt.willscreen' | ml -%]
+      [%- ELSIF journal.screens_non_access -%]
+        [%- '/talkpost.bml.opt.willscreenfriend' | ml -%]
+      [%- END -%]
+    </div>
+
+    [%# site user login form, always present but sometimes hidden -%]
+    <div class="from-login" id="from-user-more">
+      <div>
+        [%- form.textbox(
+          name = 'userpost'
+          id = 'username'
+          label = dw.ml('Username')
+          size = 13
+          maxlength = username_maxlength
+          value = ( comment.user || remote.user )
+          style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 50%; padding-left: 18px; color: #00C; font-weight: bold;"
+        ) -%]
+      </div>
+
+      <div>
+        [%- form.password(
+          name = 'password'
+          id= 'password'
+          label = dw.ml('Password')
+          maxlength = 30
+          size = 18
+        ) -%]
+      </div>
+
+      <div>
+        [%- form.checkbox(
+          name = 'do_login'
+          id = 'logincheck'
+          label = dw.ml('/talkpost.bml.loginq')
+          selected = comment.do_login
+        ) -%]
+      </div>
+    </div>
+
+    [%- IF ! create_link && ! remote -%]
+      <span style='font-size: 8pt; font-style: italic;'>
+        [%- '/talkpost.bml.noaccount' | ml( aopts => "href='${site.root}/create'") -%]
+      </span>
+    [%- END -%]
+
+  [%- END -%][%# figuring out whether it's an edit or new reply. -%]
+</div>
+
+<div class='qr-meta'>
+  <div class='qr-icon'>
+    [%- IF remote.can_use_userpic_select -%]
+      <button type='button' id='lj_userpicselect' data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
+    [%- ELSIF remote -%]
+      <a href="[% remote.icons_url %]">
+    [%- END -%]
+    [%- IF comment.current_icon -%]
+      [%- comment.current_icon.imgtag -%]
+    [%- ELSE -%]
+      [%- dw.img( "nouserpic_sitescheme", "" ) -%]
+    [%- END -%]
+    [%- IF remote.can_use_userpic_select -%]
+      </button>
+    [%- ELSIF remote -%]
+      </a>
+    [%- END -%]
+  </div>
+
+  [%- IF remote.icons.size > 0 -%]
+    <div class='qr-icon-controls'>
+      <label for='prop_picture_keyword' class='invisible'>[%- '/talkpost.bml.label.picturetouse2' | ml( aopts = "href='$remote.icons_url'" ) -%]</label>
+      [%- form.select(
+        name = 'prop_picture_keyword',
+        id = 'prop_picture_keyword',
+        selected = comment.current_icon_kw,
+        items = remote.icons
+      ) -%]
+
+      <input type="button" id="randomicon" value="Random" style="display: none;" />
+    </div>
+  [%- END -%]
+</div>
+
+
+[%# Subject, subjecticon, quote button %]
+
+<div class="qr-subject">
+  [%- form.textbox(
+    label = dw.ml( '/talkpost.bml.opt.subject2' )
+    labelclass = 'invisible'
+    size = 50
+    maxlength = 100
+    name = 'subject'
+    id = 'subject'
+    placeholder = dw.ml( '/talkpost.bml.opt.subject2' )
+    value = comment.subject
+  ) -%]
+
+  [%- form.hidden(
+    id = 'subjectIconField'
+    name = 'subjecticon'
+    value = comment.subjecticon
+  ) -%]
+
+  [%# The current subjecticon, as the button to open the menu. %]
+  [%- print_subjecticon_by_id(
+    comment.subjecticon,
+    "id='subjectIconImage' role='button' title='Click to change the subject icon'"
+  ) -%]
+
+  <input type="button" id="comment-text-quote" value="Quote" tabindex="-1" class="js-only markup-button" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
+</div>
+
+<div style="display: none;" id="subjectIconList">
+  <div class="subjecticon-grid">
+    [%- FOREACH id IN subjecticon_ids -%]
+      <div>
+        [%- print_subjecticon_by_id(
+          id,
+          "id='${id}' role='button'"
+        ) -%]
+      </div>
+    [%- END -%]
+  </div>
+</div>
+
+<div id='ljnohtmlsubj' class='ljdeem no-js'><span style='font-size: 8pt; font-style: italic;'>
+  [%- '/talkpost.bml.nosubjecthtml' | ml -%]
+</span></div>
+
+
+[%# Message body text %]
+
+<div class="qr-body">
+  [%- form.textarea(
+    label = dw.ml( '/talkpost.bml.opt.message2' )
+    labelclass = 'invisible'
+    rows = 10
+    cols = 80
+    wrap = 'soft'
+    name = 'body'
+    id = 'body'
+    value = comment.body
+  ) -%]
+</div>
+
+
+[%# Misc checkboxes, captcha, edit reason - after body, before post buttons %]
+
+<div id="talkform-misc">
+  [%- form.checkbox(
+    name = 'prop_opt_preformatted'
+    id = 'prop_opt_preformatted'
+    value = 1
+    selected = comment.preformatted
+    label = dw.ml('/talkpost.bml.opt.noautoformat')
+  ) -%]
+  [%- help_icon( 'autoformat' ) -%]
+
+  [%- IF remote.can_unscreen_parent -%]
+    <br />
+    [%- form.checkbox(
+      label = dw.ml('/talkpost.bml.opt.unscreenparent')
+      name = 'unscreen_parent'
+      id = 'unscreen_parent'
+      value = 1
+      selected = 0
+    ) -%]
+  [%- END -%]
+
+  [%- IF captcha -%]
+    <br />
+    [%- captcha.html -%]
+    [%- form.hidden(
+      name = 'captcha_type'
+      value = captcha.type
+    ) -%]
+  [%- END -%]
+
+  [%- IF comment.editid -%]
+    <br />
+    [%- form.textbox(
+      label = dw.ml('/talkpost.bml.opt.editreason')
+      name = 'editreason'
+      id = 'editreason'
+      value = comment.editreason
+      size = 75
+      maxlength = 255
+    ) -%]
+    <div id='nohtmledit' class='ljdeem no-js'><span style='font-size: 8pt; font-style: italic;'>[% '/talkpost.bml.noedithtml' | ml %]</span></div>
+  [%- END -%]
+</div>
+
+
+[%# post button controls and info notices. %]
+<div class="qr-footer">
+
+  [%- form.submit(
+    name = "submitpost"
+    value = comment.editid ? dw.ml('/talkpost.bml.opt.edit') : dw.ml('/talkpost.bml.opt.submit')
+    id = "submitpost"
+  ) -%]
+  &nbsp;
+  [%- form.submit(
+    name = "submitpreview"
+    value = dw.ml('talk.btn.preview')
+    id = "submitpview"
+  ) -%]
+  [%- form.hidden(
+    name = "previewplaceholder"
+    id = "previewplaceholder"
+    value = 1
+  ) -%]
+
+  [%- IF journal.is_iplogging -%]
+    <div class='de'>
+      [%- IF journal.is_iplogging == 'all' -%]
+        [% '/talkpost.bml.logyourip' | ml -%]
+      [%- ELSIF journal.is_iplogging == 'anon' -%]
+        [% '/talkpost.bml.loganonip' | ml -%]
+      [%- END -%]
+    </div>
+    [%- help_icon( 'iplogging' ) -%]
+  [%- END -%]
+
+  [%- IF journal.is_linkstripped -%]
+    <div class='de'>[%- '/talkpost.bml.linkstripped' | ml -%]</div>
+  [%- END %]
+
+</div>
+
+</form>
+</div></div>
+
+[%- ELSE -%][%# not in S2 foundation beta, use old table-based talkform -%]
+
 <form id="postform" name="postform" method="POST" action="[% form_url | url %]">
 [%- dw.form_auth -%]
 [%- hidden_form_elements -%]
@@ -28,7 +514,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <table summary='' class='talkform'>
 [%# First row: "From" fields %]
 
-<tr>
+<tr id='talkform-from'>
   <td align='right' valign='top'>
     [%- '/talkpost.bml.opt.from' | ml %]
   </td>
@@ -499,6 +985,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </table>
 
 </form>
+
+[%- END -%][%# check for S2 foundation beta -%]
 
 [%- IF remote.can_use_userpic_select AND foundation_beta -%]
   [%- INCLUDE "components/icon-browser.tt" -%]
