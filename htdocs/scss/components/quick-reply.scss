@@ -59,7 +59,9 @@ $icon-control-height: 2.2em;
 
         select#prop_picture_keyword {
             display: block;
-            width: 100%;
+            @supports (display: flex) {
+                width: 100%;
+            }
         }
     }
 
