@@ -19,6 +19,7 @@ $icon-control-height: 2.2em;
     // .de means warnings/alerts.
     .de {
         font-size: small;
+        width: 100%;
     }
 
     input, button, textarea, select {
@@ -102,13 +103,21 @@ $icon-control-height: 2.2em;
 
     .qr-footer {
         display: flex;
-        flex-direction: row;
+        flex-direction: row-reverse;
         flex-wrap: wrap;
         align-items: flex-start;
+
+        input {
+            margin-left: 5px;
+        }
     }
 
     #comment-text-quote {
-        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #submitmoreopts {
+        margin-left: 0;
     }
 
     textarea, select, input[type="text"] {
