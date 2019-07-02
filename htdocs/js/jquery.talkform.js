@@ -82,7 +82,7 @@ jQuery(function($){
             $('#password').val('');
         }
         // prevent double-submits
-        $form.find('input[type="submit"]').prop("disabled", true);
+        commentForm.find('input[type="submit"]').prop("disabled", true);
     });
 
 });
