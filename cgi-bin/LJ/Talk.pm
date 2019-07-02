@@ -1552,8 +1552,8 @@ sub talkform {
         push( @subjecticon_ids, map { $_->{id} } @$sublist );
     }
 
-    my $entry    = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
-    my @userpics = LJ::icons_for_remote($remote);
+    my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
+    my @icons = LJ::icons_for_remote($remote);
 
     my $basesubject = $form->{subject} || "";
     if ( !$editid && $opts->{replyto} && !$basesubject && $parpost->{'subject'} ) {
@@ -1649,7 +1649,7 @@ sub talkform {
         remote => $remote
         ? {
             icons_url => $remote ? $remote->allpics_base : '',
-            icons     => \@userpics,
+            icons     => \@icons,
 
             user            => $remote->user,
             display_name    => LJ::ehtml( $remote->display_name ),
@@ -1683,7 +1683,7 @@ sub talkform {
                 && $remote
                 && $remote->can_manage($journalu),
 
-            can_use_iconbrowser    => $remote->can_use_userpic_select,
+            can_use_userpic_select => $remote->can_use_userpic_select && ( scalar(@icons) > 0 ),
             iconbrowser_metatext   => $remote->iconbrowser_metatext ? "true" : "false",
             iconbrowser_smallicons => $remote->iconbrowser_smallicons ? "true" : "false",
             }

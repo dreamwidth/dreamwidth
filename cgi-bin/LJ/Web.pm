@@ -915,7 +915,7 @@ sub create_qr_div {
     }
 
     # For userpic selector
-    my @pics = icons_for_remote($remote);
+    my @icons = icons_for_remote($remote);
 
     my $post_disabled = $u->does_not_allow_comments_from($remote)
         || $u->does_not_allow_comments_from_unconfirmed_openid($remote);
@@ -939,8 +939,8 @@ sub create_qr_div {
                 user   => $remote->user,
 
                 icons_url              => $remote->allpics_base,
-                icons                  => \@pics,
-                can_use_iconbrowser    => $remote->can_use_userpic_select,
+                icons                  => \@icons,
+                can_use_userpic_select => $remote->can_use_userpic_select && ( scalar(@icons) > 0 ),
                 iconbrowser_metatext   => $remote->iconbrowser_metatext ? "true" : "false",
                 iconbrowser_smallicons => $remote->iconbrowser_smallicons ? "true" : "false",
             },
