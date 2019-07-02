@@ -1,9 +1,57 @@
-.from-option {
+#talkform-from {
+    margin-bottom: 3px;
     label {
         font-weight: bold;
+        margin-right: 0; // fix for site scheme
     }
+}
+
+.from-option {
+    // hanging indent for tiny widths where radio buttons wrap
+    padding-left: 25px;
+    text-indent: -25px;
 }
 
 .from-login {
     margin-left: 4em;
+    input[type="text"], input[type="password"] {
+        max-width: 100%;
+        display: block;
+    }
+}
+
+#subjectIconImage {
+    cursor: pointer;
+    margin-bottom: auto;
+    margin-top: auto;
+    margin-left: 5px;
+}
+
+.subjecticon-grid {
+    display: grid;
+    align-items: center;
+    max-width: 380px;
+    grid-template-columns: repeat(auto-fill, 32px);
+    grid-column-gap: 5px;
+    grid-row-gap: 5px;
+    padding: 5px;
+    margin-bottom: 3px;
+    border: 1px solid #aaa;
+
+    div {
+        display: inline-block; // for no-grid browsers
+    }
+
+    img {
+        display: block;
+        cursor: pointer;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+#talkform-misc {
+    input[type="text"] {
+        width: 100%;
+    }
 }

@@ -34,13 +34,15 @@ jQuery(function($){
         if (this.id === 'talkpostfromremote' || this.id === 'talkpostfromoidli') {
             iconSelect.prop('disabled', false);
         } else {
-            iconSelect.val('');
-            iconSelect.prop('disabled', true);
+            iconSelect.val('').change().prop('disabled', true);
         }
     });
 
-    // setup: hide login forms. show the currently relevant one, if any.
+    // setup:
+    // hide login forms. show the currently relevant one, if any.
     fromOptions.filter(':checked').change();
+    // confirm the selected icon, to update preview and browse button label.
+    iconSelect.change();
 
     // Clear username when clicked (but not focused, so we don't clear it as a
     // keyboard or reader user navigates through it)

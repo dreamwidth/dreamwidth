@@ -63,6 +63,8 @@
 
 .opt.loggedin=<strong>Logged in account:</strong> [[username]]
 
+.opt.loggedin2=<strong>(logged in)</strong>
+
 .opt.membersonly=This community only allows commenting by members. You may comment here if you're a member of [[username]].
 
 .opt.message=Message:
