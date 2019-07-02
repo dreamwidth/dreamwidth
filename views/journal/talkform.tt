@@ -354,7 +354,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
           items = remote.icons
         ) -%]
 
-        [%- IF remote.can_use_iconbrowser -%]
+        [%- IF remote.can_use_userpic_select -%]
           <button type="button" id="lj_userpicselect" data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
               Browse
           </button>
