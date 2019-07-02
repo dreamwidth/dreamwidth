@@ -1712,7 +1712,6 @@ sub talkform {
         },
 
         help_icon               => sub { LJ::help_icon_html(@_) },
-        ejs                     => sub { return LJ::ejs(@_) },
         print_subjecticon_by_id => sub { return LJ::Talk::print_subjecticon_by_id(@_) },
     };
 
@@ -1917,6 +1916,7 @@ sub init_s2journal_js {
     LJ::need_res(
         { group => "all" }, qw(
             js/jquery.replyforms.js
+            stc/css/components/quick-reply.css
             )
     );
 
@@ -1928,7 +1928,6 @@ sub init_s2journal_js {
             js/jquery/jquery.ui.widget.js
             js/jquery.quickreply.js
             js/jquery.threadexpander.js
-            stc/css/components/quick-reply.css
             )
     ) unless $opts{noqr};
 

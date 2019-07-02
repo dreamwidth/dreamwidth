@@ -1,9 +1,47 @@
-.from-option {
+#talkform-from {
+    margin-bottom: 3px;
     label {
         font-weight: bold;
+        margin-right: 0; // fix for site scheme
     }
 }
 
 .from-login {
     margin-left: 4em;
+}
+
+#subjectIconImage {
+    cursor: pointer;
+    cursor: hand; // ? Old junk, probably
+    margin-bottom: auto;
+    margin-top: auto;
+    margin-left: 5px;
+}
+
+.subjecticon-grid {
+    display: grid;
+    align-items: center;
+    max-width: 370px;
+    grid-template-columns: repeat(auto-fill, 32px);
+    grid-column-gap: 5px;
+    grid-row-gap: 5px;
+    margin-bottom: 3px;
+    border: 1px solid #aaa;
+
+    div {
+        display: inline-block; // for no-grid browsers
+    }
+
+    img {
+        display: block;
+        cursor: pointer;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+#talkform-misc {
+    input[type="text"] {
+        width: 100%;
+    }
 }
