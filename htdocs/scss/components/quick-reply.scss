@@ -127,6 +127,11 @@ $icon-control-height: 2.2em;
 
         input {
             margin-left: 5px;
+            float: right;
+
+            @supports (display: flex) {
+                float: none;
+            }
         }
     }
 
