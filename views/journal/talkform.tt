@@ -375,12 +375,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
       ) -%]
       [%- help_icon( 'autoformat' ) -%]
 
-      [%# NF: original comment said "only show quick quote button on initial composition," but this seems goofy anyway? -%]
-      [%- IF remote -%]
-        [%- UNLESS errors -%]
-          <input type="button" id="comment-text-quote" value="Quote" class="js-only" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
-        [%- END -%]
-      [%- END -%]
+      <input type="button" id="comment-text-quote" value="Quote" class="js-only" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
 
       [%- IF remote.can_manage_community -%]
         [%- form.checkbox(
