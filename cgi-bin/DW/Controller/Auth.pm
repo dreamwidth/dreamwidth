@@ -15,7 +15,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::Controller::Rename;
+package DW::Controller::Auth;
 
 use strict;
 use v5.10;
@@ -49,6 +49,16 @@ sub logout_handler {
         elsif ( exists $post_args->{logout_all} ) {
             $remote->logout_all;
             $vars->{success} = 'all';
+        }
+
+        # If the logout form asked to be sent back to the original page (with a
+        # hidden 'ret=1' form input), do so (as long as the logout was
+        # successful).
+        if ( $vars->{success} && $post_args->{ret} ) {
+            my $referer = $r->header_in('Referer');
+            if ( $referer && LJ::check_referer( '', $referer ) ) {
+                return $r->redirect($referer);
+            }
         }
     }
 
