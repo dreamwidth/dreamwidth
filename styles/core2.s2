@@ -590,6 +590,9 @@ class Page
     "Extra tags supplied by the server to go in the <head> section of the output HTML document. Layouts
     should include this in the head section if they are writing HTML.";
 
+    var readonly bool show_control_strip
+    "Whether the control strip will be shown on the current page.";
+
     var readonly string stylesheet_url
     "The URL to use in a link element for the server-supported external stylesheet to put stuff in it)";
 
@@ -725,6 +728,9 @@ class Page
 
     function print_theme_stylesheet
     "Prints theme-specific CSS. Should be overwritten by themes that include CSS not part of the layout's default stylesheet.";
+
+    function builtin print_script_tags
+    "Prints the JavaScript tags that this page requires. Used in Page::print_wrapper_end. Do not override this.";
 
     function builtin print_trusted(string key)
     "Prints a trusted string by key.";
@@ -4019,6 +4025,7 @@ function Page::print_wrapper_start(string{} opts)
 function Page::print_wrapper_end()
 "This function concludes the wrapper to the page.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
+    $this->print_script_tags();
     """</body>""";
 }
 
