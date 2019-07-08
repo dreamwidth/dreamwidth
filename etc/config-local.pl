@@ -160,10 +160,9 @@
 #            start_time => 0,
 #            end_time => "Inf",
 #        },
-#        "s2comments" => {
+#        "s2foundation" => {
 #            start_time => 0,
 #            end_time => "Inf",
-#            sitewide => 1,
 #        },
 #    );
 

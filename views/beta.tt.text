@@ -19,6 +19,22 @@
 
 .betafeature.updatepage.title=New Create Entries Page
 
+.betafeature.s2foundation.cantadd=Sorry, your account is not eligible to test this feature.
+
+.betafeature.s2foundation.off<<
+<p>Activate several updated components on journal pages, including a new version of the icon browser for paid users and a mobile-friendly cleanup of the site-styled comment pages. The underlying components are already well-tested, but introducing them into a new environment might turn up some bugs.</p>
+
+<p>TODO: post a link for reporting bugs.</p>
+.
+
+.betafeature.s2foundation.on<<
+<p>You are currently testing several updated components on journal pages, including a new version of the icon browser for paid users and a mobile-friendly cleanup of the site-styled comment pages. The underlying components are already well-tested, but introducing them into a new environment might turn up some bugs.</p>
+
+<p>TODO: post a link for reporting bugs.</p>
+.
+
+.betafeature.s2foundation.title=Updated journal page components
+
 .nofeatures=There are no features currently available for beta testing.
 
 .staytuned.newscomm=Stay tuned to [[news]] for upcoming testing opportunities. Thank you.

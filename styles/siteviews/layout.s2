@@ -5,6 +5,7 @@ layerinfo is_internal = "1";
 
 class Siteviews {
     function builtin need_res(string res);
+    function builtin need_res(string{} opts, string res);
     function builtin start_capture();
     function builtin end_capture() : string;
 
@@ -40,7 +41,7 @@ function Page::print_title() {
 
 function Page::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/siteviews/layout.css" );
+    $*SITEVIEWS->need_res( {"group" => "jquery"}, "stc/siteviews/layout.css" );
 }
 
 function Page::print_theme_stylesheet() {}
@@ -100,7 +101,7 @@ function IconsPage::print_title() {
 
 function IconsPage::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/allpics.css" );
+    $*SITEVIEWS->need_res( {"group" => "jquery"}, "stc/allpics.css" );
 }
 
 function IconsPage::print_body() {
@@ -189,13 +190,13 @@ set comment_time_format = "short_24";
 
 function EntryPage::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/entrypage.css" );
+    $*SITEVIEWS->need_res( {"group" => "jquery"}, "stc/entrypage.css" );
 
 }
 
 function ReplyPage::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/replypage.css" );
+    $*SITEVIEWS->need_res( {"group" => "jquery"}, "stc/replypage.css" );
 
 }
 
