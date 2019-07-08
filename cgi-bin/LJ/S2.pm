@@ -4985,6 +4985,12 @@ sub Siteviews__need_res {
     LJ::need_res($res);
 }
 
+sub Siteviews__active_resource_group {
+    my ( $ctx, $this, $grp ) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+    LJ::set_active_resource_group($grp);
+}
+
 sub Siteviews__start_capture {
     my ( $ctx, $this ) = @_;
     die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};

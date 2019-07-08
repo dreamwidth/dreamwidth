@@ -5,6 +5,7 @@ layerinfo is_internal = "1";
 
 class Siteviews {
     function builtin need_res(string res);
+    function builtin active_resource_group(string grp);
     function builtin start_capture();
     function builtin end_capture() : string;
 
@@ -20,6 +21,7 @@ property builtin Siteviews SITEVIEWS {
 
 function Page::print() {
     if ( $*SITEVIEWS ) {
+        $*SITEVIEWS->active_resource_group("foundation");
         $*SITEVIEWS->start_capture();
         $this->print_head();
         $this->print_default_stylesheet();
