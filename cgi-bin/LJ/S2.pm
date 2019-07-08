@@ -176,11 +176,21 @@ sub make_journal {
     # like print_stylesheet() won't run, which don't have an method invocant
     return $page if $page && ref $page ne 'HASH';
 
-    LJ::set_active_resource_group('jquery');
+    if ( LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" ) ) {
+        LJ::set_active_resource_group('foundation');
+
+        # Minimal Foundation component support if we're not in site scheme
+        unless ( $ctx->[S2::SCRATCH]->{siteviews_enabled} ) {
+            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'foundation' },
+                "stc/css/foundation/foundation_minimal.css" );
+        }
+    }
+    else {
+        LJ::set_active_resource_group('jquery');
+    }
 
     # Control strip
-    my $show_control_strip = LJ::Hooks::run_hook('show_control_strip');
-    if ($show_control_strip) {
+    if ( $page->{show_control_strip} ) {
         LJ::Hooks::run_hook('control_strip_stylesheet_link');
 
         # used if we're using our jquery library
@@ -219,15 +229,15 @@ sub make_journal {
 
     # this will cause double-JS and likely cause issues if called during siteviews
     # as this is done once the page is out of S2's control.
-    $page->{head_content} .= LJ::res_includes()
-        unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+    unless ( $ctx->[S2::SCRATCH]->{siteviews_enabled} || $view eq "res" ) {
+        $page->{head_content} .= LJ::res_includes_head();    # CSS
+
+        $page->{head_content} .= get_script_tags($page)
+            if $LJ::ACTIVE_RES_GROUP eq "jquery";    # Foundation puts scripts at end of body
+    }
 
     $page->{head_content} .= $extra_js;
     $page->{head_content} .= LJ::PageStats->new->render_head('journal');
-
-    # inject the control strip JS, but only after any libraries have been injected
-    $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user )
-        if $show_control_strip;
 
     s2_run( $apache_r, $ctx, $opts, $entry, $page );
 
@@ -374,6 +384,19 @@ sub make_link {
         $append = "&";
     }
     return $url;
+}
+
+# Uses the res_includes system to return the appropriate JavaScript tags
+# for the current page. This should be called once per page at most, and never
+# called for siteviews pages.
+sub get_script_tags {
+    my ($page) = @_;
+    my $ret = LJ::res_includes_body();
+    $ret .= LJ::control_strip_js_inject( user => $page->{_u}->user )
+        if $page->{show_control_strip};
+    $ret .= '<script>$(document).foundation();</script>'
+        if $LJ::ACTIVE_RES_GROUP eq "foundation";
+    return $ret;
 }
 
 # <LJFUNC>
@@ -2438,6 +2461,7 @@ sub Page {
         'views_order'         => [ 'recent', 'archive', 'read', 'tags', 'memories', 'userinfo' ],
         'global_title'        => LJ::ehtml( $u->{'journaltitle'} || $u->{'name'} ),
         'global_subtitle'     => LJ::ehtml( $u->{'journalsubtitle'} ),
+        'show_control_strip'  => LJ::Hooks::run_hook('show_control_strip'),
         'head_content'        => '',
         'data_link'           => {},
         'data_links_order'    => [],
@@ -4002,6 +4026,13 @@ sub Comment__print_unhide_link {
     );
 }
 
+sub Page__print_script_tags {
+    my ( $ctx, $this ) = @_;
+    if ( $LJ::ACTIVE_RES_GROUP eq "foundation" ) {
+        $S2::pout->( LJ::S2::get_script_tags($this) );
+    }
+}
+
 sub Page__print_trusted {
     my ( $ctx, $this, $key ) = @_;
 
@@ -4981,6 +5012,13 @@ sub Siteviews__need_res {
     my ( $ctx, $this, $res ) = @_;
     die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
     LJ::need_res($res);
+}
+
+sub Siteviews__in_foundation_beta {
+    my ( $ctx, $this, $res ) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+    my $remote = LJ::get_remote();
+    return LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" ) ? 1 : 0;
 }
 
 sub Siteviews__start_capture {

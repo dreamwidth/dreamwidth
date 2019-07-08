@@ -1,0 +1,21 @@
+// The minimum of Foundation functionality, to enable shared components in
+// journal styled pages. Do not include both this and foundation.scss; choose
+// ONE.
+
+// The goal of this is to basically act like _base.scss, except we DO want to
+// print the meta.foundation.* classes from _global. For any other styles, we
+// rely on what the components bring with them.
+
+// import the settings we want to work with
+@import "foundation/settings";
+
+$include-html-classes: false;
+
+// import global
+@import "foundation/components/global";
+
+$include-html-classes: true;
+
+// import components we use in journal-styled pages
+@import "foundation/components/reveal";
+@import "foundation/components/thumbs";

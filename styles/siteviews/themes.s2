@@ -14,7 +14,9 @@ layerinfo redist_uniq = "siteviews/celerity";
 
 function Page::print_theme_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/siteviews/celerity.css" );
+    if ( not $*SITEVIEWS->in_foundation_beta() ) {
+        $*SITEVIEWS->need_res( "stc/siteviews/celerity.css" );
+    }
 }
 
 #NEWLAYER: siteviews/gradation-horizontal
@@ -24,7 +26,9 @@ layerinfo redist_uniq = "siteviews/gradation-horizontal";
 
 function Page::print_theme_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/siteviews/gradation.css" );
+    if ( not $*SITEVIEWS->in_foundation_beta() ) {
+        $*SITEVIEWS->need_res( "stc/siteviews/gradation.css" );
+    }
 }
 
 #NEWLAYER: siteviews/gradation-vertical
@@ -34,7 +38,9 @@ layerinfo redist_uniq = "siteviews/gradation-vertical";
 
 function Page::print_theme_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/siteviews/gradation.css" );
+    if ( not $*SITEVIEWS->in_foundation_beta() ) {
+        $*SITEVIEWS->need_res( "stc/siteviews/gradation.css" );
+    }
 }
 
 
@@ -45,5 +51,7 @@ layerinfo redist_uniq = "siteviews/lynx";
 
 function Page::print_theme_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
-    $*SITEVIEWS->need_res( "stc/siteviews/lynx.css" );
+    if ( not $*SITEVIEWS->in_foundation_beta() ) {
+        $*SITEVIEWS->need_res( "stc/siteviews/lynx.css" );
+    }
 }
