@@ -25,6 +25,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- IF remote.sessid -%]
           [%- form.hidden( name = "sessid", value = remote.sessid ) -%]
         [%- END -%]
+        [%- form.hidden( name = "ret", value = 1 ) -%]
+
         [% remote.display %]
         [% form.submit(
             id = "Logout",
