@@ -1,0 +1,440 @@
+/**
+* Styles for site-skinned journal pages (entry page and reply page)
+*/
+
+/**
+* Typography resets:
+*/
+
+.entry, #comments, .reply-page-wrapper {
+  // Intended behavior:
+  // - Skins that don't specify otherwise will display entries and comments
+  //   slightly smaller than Foundation's 16px default font size, which is a
+  //   little intense for text-heavy pages.
+  // - Skins that want big entries and comments (or smaller ones!) can set a rem
+  //   or px font size for `.entry, #comments, .reply-page-wrapper`; everything
+  //   inside those will scale.
+
+  // In order to GET that intended behavior, we basically need to do a partial
+  // CSS reset and make new em-based sizes for all the internal content on these
+  // pages; Foundation sets individual rem font sizes for almost every element,
+  // so you can't scale them by just setting a new size on the container.
+
+  font-size: 0.85rem;
+
+  // The em-based sizes below are based on a combination of foundation/_settings
+  // and the hardcoded defaults, depending on what we seem to be using.
+
+  // Things we leave alone:
+  // tables, and form elements other than textareas.
+
+  // Things that are normal text:
+  p, ul, ol, dl, label {
+    font-size: 1em;
+  }
+
+  // Things that are a little askew from normal text:
+  aside { font-size: 0.875em; }
+  blockquote cite { font-size: 0.8125em; } // This Foundation-ism isn't commonly used in journal posts, and is here for completeness' sake.
+  blockquote {
+    margin: 1.25em;
+  }
+
+  // Things that are their own thing:
+  h1 { font-size: 1.814em; }
+  h2 { font-size: 1.618em; }
+  h3 { font-size: 1.3055em; }
+  h4 { font-size: 1.121em; }
+  h5 { font-size: 1em; }
+  h6 { font-size: .9em; }
+
+  // Specific to journal content:
+  .comment-title {
+    font-size: 1.3em;
+  }
+
+  .partial .comment-title {
+    font-size: 1em;
+    display: inline;
+    font-weight: normal;
+    font-family: inherit;
+  }
+
+  textarea {
+    font-family: monospace;
+    font-size: 16px;
+  }
+
+  // Foundation likes stretching selects to 100% for some reason
+  select {
+    width: auto;
+  }
+
+  .usercontent, .currents, .comment-title {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+}
+
+/**
+* Some common elements that are used in a bunch of places:
+*/
+
+.poster {
+  display: block;
+}
+
+.userpic a {
+  display: block;
+  line-height: 0;
+}
+
+.entry-interaction-links li,
+.comment-interaction-links li,
+.view-flat,
+.view-threaded,
+.view-top-only,
+.expand_all {
+  &::before {
+    content: "(";
+  }
+  &::after {
+    content: ")";
+  }
+}
+
+ul.icon-links,
+ul.text-links {
+  margin: 0;
+  display: inline;
+
+  // Need an ID to match specificity of a default #content ul li rule.
+  #content & li {
+    display: inline;
+    list-style: none;
+    margin-left: 0;
+    margin-right: 8px;
+    margin-bottom: 2px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.bottomcomment,
+.entry .footer .inner,
+.comment-pages {
+  text-align: center;
+
+  hr {
+    width: 100%;
+  }
+}
+
+/**
+* Primary item styles:
+* (The primary item is always an entry on entry pages, but is sometimes a
+* comment on reply pages.)
+*/
+
+.entry, .reply-page-wrapper .comment {
+  .header .inner {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap; // Fitting an OpenID username on mobile: always fun.
+  }
+
+  .userpic {
+    display: inline-block;
+    margin-right: .3rem;
+    flex-shrink: 0;
+  }
+
+  .poster-info {
+    display: inline-block;
+    vertical-align: bottom;
+    min-width: 0;
+
+    .datetime {
+      font-style: italic;
+      &::before {
+          content: "@";
+      }
+    }
+  }
+
+  .entry-title, .comment-title {
+    font-size: 1.5em;
+    font-style: italic;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+
+  @media #{$medium-up} {
+    .contents {
+      margin-left: 30px;
+    }
+  }
+
+}
+
+/**
+* Entry-specific styles:
+*/
+
+.entry {
+  .metadata ul {
+    margin: 0;
+    list-style: none;
+
+    // Need an ID to match specificity of a default #content ul li rule.
+    #content & li {
+      margin-left: 0;
+    }
+  }
+
+  .metadata-label, .tag-text {
+    font-weight: bold;
+  }
+
+  .tag ul {
+    list-style: none;
+    display: inline;
+    margin-left: 0;
+
+    // Need an ID to match specificity of a default #content ul li rule.
+    #content & li {
+      display: inline;
+      margin-left: 0;
+    }
+  }
+
+  .entry-title {
+    display: inline-block; // security level icon displays in front of title
+  }
+
+  .access-filter img { // security level icon
+    vertical-align: baseline;
+  }
+
+  @media #{$medium-up} {
+    .currents { // also includes tags
+      margin-left: 50px;
+    }
+  }
+
+}
+
+ul.entry-management-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.entry-interaction-links, .comment-pages {
+  font-weight: bold;
+}
+
+.comment-pages span {
+  margin: 0 4px;
+}
+
+/**
+* Comment styles:
+*/
+
+#comments .comment { // Doesn't affect the comment on a reply page
+  min-width: 28em;
+  @media #{$small-only} {
+    min-width: 75vw;
+  }
+
+  .edittime {
+    margin-top: 1.5em;
+  }
+
+  .header {
+    & > .inner {
+      display: flex;
+    }
+
+    .comment-info, .userpic {
+      border-bottom: 1px solid $soft-accent-color;
+    }
+    .comment-info {
+      border-right: 1px solid $soft-accent-color;
+      flex-grow: 1;
+    }
+
+    line-height: 1.1;
+
+    input {
+      margin: 0;
+    }
+
+    @media #{$small-only} {
+      font-size: 0.9em;
+
+      .userpic {
+        // deal with tall aspect userpics
+        img {
+          height: auto;
+          max-width: 75px;
+          max-height: 75px;
+          object-fit: contain;
+          object-position: left;
+        }
+      }
+    }
+  }
+}
+
+// Comment header backgrounds
+// Structure is:
+// .comment-thread.comment-depth(odd|even)
+  // .dwexpcomment
+    // .comment-wrapper (possibly with .screened)
+      // .comment
+        // .inner
+          // .header (needs background-color)
+// Intended behavior is:
+// - Background colors alternate by depth.
+// - Screened comments are special and stand out.
+.comment-depth-odd > .dwexpcomment .header {
+  .comment-info, .userpic {
+    background-color: $secondary-color-alternate;
+  }
+}
+
+.comment-depth-even > .dwexpcomment .header {
+  .comment-info, .userpic {
+    background-color: $secondary-color;
+  }
+}
+
+.comment-wrapper.screened > .comment .header {
+  .comment-info, .userpic {
+    // Same background color as callout panels:
+    background-color: change-color($primary-color, $lightness:lightness($panel-bg));
+  }
+}
+
+.comment .footer {
+  margin-top: .6em;
+  margin-bottom: 1em;
+}
+
+.comment-info {
+  padding-left: .3em;
+
+  & > span, & > ul, & > div {
+    margin-right: .9em;
+  }
+
+  // width ignores inline image in some situations, so leave room for 16px
+  // userhead + 4px breathing room.
+  .poster {
+    margin-right: 20px;
+  }
+
+  .comment-title {
+    min-height: 0.6em; // take up space when the inner span is invisible.
+    margin: 0;
+  }
+
+  .datetime, .poster-ip, .commentpermalink, .multiform-checkbox {
+    font-size: .8em;
+  }
+
+}
+
+// Single-line collapsed comments -- more rightward slop, but easier to track
+.comment-wrapper.partial {
+  white-space: nowrap;
+  .comment-title {
+    font-size: 1em;
+    display: inline;
+    font-weight: normal;
+  }
+
+  .poster {
+    display: inline;
+  }
+}
+
+
+/**
+* Quickreply and talkform tweaks:
+* (To make them fit better with Foundation's odd form control styles.)
+*/
+
+#qrformdiv {
+  // Consistent Foundation styles for most buttons
+  input[type="button"],
+  button:not(#lj_userpicselect),
+  input[type="submit"]:not(#submitpost) {
+    @include button;
+    @include button-style($bg:$secondary-color, $bg-hover:$secondary-button-bg-hover, $border-color:$secondary-button-border-color);
+    margin-bottom: 3px;
+  }
+
+  // Clear unwanted extra button styles for icon browse button.
+  #lj_userpicselect {
+    border-radius: initial;
+    box-shadow: initial;
+  }
+
+  // Foundation default (inline-block) gives worse wrapping on mobile for long labels.
+  label {
+    display: inline;
+  }
+
+  // Foundation likes stretching selects to 100% for some reason
+  select {
+    width: auto;
+  }
+
+  // Shrink subject and quote button a bit
+  .qr-subject {
+    input[type="text"] {
+      height: 2.2rem;
+      padding: 0.3em;
+    }
+    input[type="button"], button {
+      height: 2.2rem;
+    }
+  }
+
+  .qr-meta {
+    // Make .ljuser bigger ("font-size: smaller" looks more balanced on journal
+    // styles, but unbalanced here due to big form fields and smaller body text).
+    .ljuser {
+      font-size: inherit;
+    }
+    // Make more options and icon controls smaller so they don't tower over the
+    // icon preview.
+    select, button, input[type="button"] {
+      height: 1.6rem;
+      padding: 0 0.8rem;
+    }
+  }
+}
+
+/**
+* Reply page tweaks:
+*/
+
+.reply-page-wrapper {
+  div.readlink {
+    text-align: center;
+    font-weight: bold;
+  }
+
+  #content & .comment .reply, // reply action link; need ID to override defaults
+  .entry .footer {
+    display: none;
+  }
+}
