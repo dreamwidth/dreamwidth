@@ -1,0 +1,338 @@
+/**
+* Site-wide customizations to journal entry pages
+*/
+
+.entry, #comments {
+  // Working with typography in Foundation is annoying because they set
+  // everything to an absolute size in rems, so you can't just make one section
+  // a little bit smaller. So we need all this manual stuff.
+
+  font-size: 0.85rem;
+
+  // Things I'm leaving alone:
+  // form elements except for textarea, tables
+
+  // Things that are normal text:
+  p, ul, ol, dl, label {
+    font-size: 1em;
+  }
+
+  // Things that are a little askew from normal text:
+  aside { font-size: 0.875em; }
+  blockquote cite { font-size: 0.8125em; }
+  blockquote {
+    margin: 1.25em;
+  }
+
+  // Things that are their own thing:
+  h1 { font-size: 1.189em; }
+  h2 { font-size: 1.189em; }
+  h3 { font-size: 1.3055em; }
+  h4 { font-size: .8085em; }
+  h5 { font-size: 1em; }
+  h6 { font-size: .9em; }
+
+  .comment-title {
+    font-size: 1.3em;
+  }
+
+  .partial .comment-title {
+    font-size: 1em;
+    display: inline;
+    font-weight: normal;
+    font-family: inherit;
+  }
+
+  textarea {
+    font-family: monospace;
+    font-size: 16px;
+  }
+
+  // Foundation likes stretching selects to 100% for some reason
+  select {
+    width: auto;
+  }
+
+  .usercontent, .currents, .comment-title {
+    overflow-wrap: break-word;
+  }
+
+  /* Constrain image dimensions.
+      Job 1: Don't trash the layout sideways.
+      Job 2: Limit height to fit inside the viewport. Having to scroll to see a
+        portrait of someone is nonsense.
+      Job 3: Defend the native aspect ratio.
+      Job 4: Respect the width/height HTML attributes for scaling down OR up
+        (within the limits of the container), but if they conflict with the aspect
+        ratio, treat them as maximums and let the aspect ratio win. */
+  .usercontent img {
+    height: auto;
+    max-width: 100%;
+    max-height: 95vh;
+    object-fit: contain;
+    object-position: left;
+  }
+
+
+}
+
+// Basics
+
+.poster {
+  display: block;
+}
+
+.userpic a {
+  display: block;
+  line-height: 0;
+}
+
+.entry-interaction-links li,
+.comment-interaction-links li,
+.view-flat,
+.view-threaded,
+.view-top-only,
+.expand_all {
+  &::before {
+    content: "(";
+  }
+  &::after {
+    content: ")";
+  }
+}
+
+ul.icon-links,
+ul.text-links {
+  margin: 0;
+  display: inline;
+
+  // Need an ID to match specificity of a default #content ul li rule.
+  #content & li {
+    display: inline;
+    list-style: none;
+    margin-left: 0;
+    margin-right: 8px;
+    margin-bottom: 2px;
+  }
+}
+
+.bottomcomment,
+.entry .footer .inner,
+.comment-pages {
+  text-align: center;
+
+  hr {
+    width: 100%;
+  }
+}
+
+
+// Entry styles
+
+
+.entry {
+  .header .inner {
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .userpic {
+    display: inline-block;
+    margin-right: .3rem;
+  }
+
+  .poster-info {
+    display: inline-block;
+    vertical-align: bottom;
+
+    .datetime {
+      font-style: italic;
+      &::before {
+          content: "@";
+      }
+    }
+  }
+
+  .metadata ul {
+    margin: 0;
+    list-style: none;
+
+    // Need an ID to match specificity of a default #content ul li rule.
+    #content & li {
+      margin-left: 0;
+    }
+  }
+
+  .metadata-label, .tag-text {
+    font-weight: bold;
+  }
+
+  .tag ul {
+    list-style: none;
+    display: inline;
+    margin-left: 0;
+
+    // Need an ID to match specificity of a default #content ul li rule.
+    #content & li {
+      display: inline;
+      margin-left: 0;
+    }
+  }
+
+  .entry-title {
+    font-size: 1.5em;
+    font-style: italic;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+
+  @media #{$medium-up} {
+    .currents {
+      margin-left: 50px;
+    }
+
+    .contents {
+      margin-left: 30px;
+    }
+  }
+
+}
+
+ul.entry-management-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.entry-interaction-links, .comment-pages {
+  font-weight: bold;
+}
+
+.comment-pages span {
+  margin: 0 4px;
+}
+
+
+// Comment styles
+
+.comment {
+  min-width: 28em;
+  @media #{$small-only} {
+    min-width: 70vw;
+  }
+
+  .header {
+    border-bottom: 1px solid $soft-accent-color;
+    border-right: 1px solid $soft-accent-color;
+
+    line-height: 1.1;
+
+    .comment-wrapper-odd > & {
+      background-color: $secondary-color;
+    }
+
+    .comment-wrapper-even > & {
+      background-color: $secondary-color-alternate;
+    }
+
+    .comment-wrapper.screened > & {
+      // TODO: Need a background color!
+      // Temp attempt stolen from callout panel:
+      background-color: change-color($primary-color, $lightness:lightness($panel-bg));
+      // Color from old tropo: #c29b9b;
+    }
+
+    .userpic, .comment-info {
+      display: table-cell;
+      vertical-align: top;
+    }
+
+    input {
+      margin: 0;
+    }
+
+    // On mobile, just accept that these headers will spill into multiple lines,
+    // and try to save space by flowing text around the userpic.
+    @media #{$small-only} {
+      font-size: 0.9em;
+
+      & > .inner {
+        position: relative; // keep icon from shrinking at edge of viewport
+      }
+
+      .userpic {
+        display: block;
+        position: absolute; // remove userpic from layout of .inner
+
+        // deal with tall aspect userpics
+        img {
+          height: auto;
+          max-width: 75px;
+          max-height: 75px;
+          object-fit: contain;
+          object-position: left;
+        }
+      }
+
+      .comment-info {
+        display: block;
+        min-height: 75px;
+      }
+
+      .has-userpic & .comment-info::before { // add userpic placeholder to layout of .comment-info
+        content: "";
+        display: block;
+        float: left;
+        width: 75px;
+        height: 75px;
+      }
+    }
+
+  }
+
+  .footer {
+    margin-top: .6em;
+    margin-bottom: 1em;
+  }
+
+}
+
+.comment-info {
+  padding-left: .8em;
+
+  & > span, & > ul, & > div {
+    margin-right: .9em;
+  }
+
+  .comment-title {
+    min-height: 0.6em; // take up space when the inner span is invisible.
+    margin: 0;
+  }
+
+  .datetime, .poster-ip, .commentpermalink, .multiform-checkbox {
+    font-size: .8em;
+  }
+
+}
+
+// Single-line collapsed comments -- more rightward slop, but easier to track
+.comment-wrapper.partial {
+  white-space: nowrap;
+  .comment-title {
+    font-size: 1em;
+    display: inline;
+    font-weight: normal;
+  }
+
+  .poster {
+    display: inline;
+  }
+}
+
+// Submit buttons get standard button styles, but input type="button"s don't.
+#qrform input[type="button"] {
+  @include button;
+  margin-bottom: 3px;
+}
+
