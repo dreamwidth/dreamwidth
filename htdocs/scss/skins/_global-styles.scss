@@ -6,4 +6,4 @@ Should only @import other stylesheets
 $include-html-classes: true;
 @import "foundation/foundation";
 
-@import "skins/skin-colors", "skins/community-menu", "skins/compatibility-styles";
+@import "skins/skin-colors", "skins/community-menu", "skins/compatibility-styles", "skins/entry-styles", "skins/icons-page";
