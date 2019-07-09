@@ -1,0 +1,52 @@
+/**
+* Site-skin CSS for user icons pages
+*/
+
+.icon-container {
+  .icon-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .icon {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: .75rem;
+    min-width: 280px;
+    flex-basis: 50%;
+    flex-grow: 1;
+  }
+
+  .icon-image {
+    flex-shrink: 0;
+    width: 100px;
+
+    a {
+      display: block;
+      line-height: 0;
+    }
+  }
+
+  .icon-info {
+    flex-grow: 1;
+    min-width: 0;
+
+    font-size: .9rem;
+    padding: .2rem 1rem;
+
+    // need one ID to fight a default #content li rule
+    ul, #content & li {
+      list-style: none;
+      display: inline;
+      margin: 0;
+      padding: 0;
+      font-size: .9rem;
+    }
+
+    .comment-text, .description-text, .keywords-label {
+      font-weight: bold;
+    }
+  }
+
+
+}
