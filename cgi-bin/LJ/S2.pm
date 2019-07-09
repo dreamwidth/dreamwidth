@@ -4988,7 +4988,10 @@ sub Siteviews__need_res {
 sub Siteviews__active_resource_group {
     my ( $ctx, $this, $grp ) = @_;
     die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
-    LJ::set_active_resource_group($grp);
+    my $remote = LJ::get_remote();
+    if ( LJ::BetaFeatures->user_in_beta( $remote => "mobilesiteschemecomments") ) {
+        LJ::set_active_resource_group($grp);
+    }
 }
 
 sub Siteviews__start_capture {

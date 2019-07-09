@@ -19,6 +19,22 @@
 
 .betafeature.updatepage.title=New Create Entries Page
 
+.betafeature.mobilesiteschemecomments.cantadd=Sorry, your account is not eligible to test this feature.
+
+.betafeature.mobilesiteschemecomments.off<<
+<p>Activate a modern, mobile-friendly version of the site-styled comment pages. These are the version of the comment pages that appear on journals that don't display comments in their own style, or when you specifically request site-styled comment pages. This revised version will look somewhat different than what you're used to, but should still feel familiar.</p>
+
+<p>TODO: post a link for reporting bugs.</p>
+.
+
+.betafeature.mobilesiteschemecomments.on<<
+<p>You are currently testing the mobile-friendly version of the site-styled comment pages. These are the version of the comment pages that appear on journals that don't display comments in their own style, or when you specifically request site-styled comment pages.</p>
+
+<p>TODO: post a link for reporting bugs.</p>
+.
+
+.betafeature.mobilesiteschemecomments.title=Mobile-friendly Site-style Comments
+
 .nofeatures=There are no features currently available for beta testing.
 
 .staytuned.newscomm=Stay tuned to [[news]] for upcoming testing opportunities. Thank you.
