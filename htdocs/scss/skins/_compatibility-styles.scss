@@ -1,0 +1,20 @@
+// Style translations for widgets that sometimes show up in pages written for
+// the old non-Foundation site skins. These rules should mostly use @extend
+// rules to style these widgets in terms of existing classes from the modern
+// site skins.
+
+.action-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 20px;
+
+    .inner {
+        @extend .panel;
+        @extend .callout;
+        display: block;
+        padding: 5px;
+        text-align: center;
+    }
+}
