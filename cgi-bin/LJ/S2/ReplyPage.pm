@@ -59,7 +59,6 @@ sub ReplyPage {
 
     $p->{'head_content'} .= $LJ::COMMON_CODE{'chalresp_js'};
 
-    LJ::need_res('stc/display_none.css');
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
     # include JS for quick reply, icon browser, and ajax cut tag
