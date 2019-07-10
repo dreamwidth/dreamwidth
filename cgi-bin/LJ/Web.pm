@@ -4569,7 +4569,7 @@ sub statusvis_message_js {
     $statusvis_full = "memorial" if $u->is_memorial;
     $statusvis_full = "readonly" if $u->is_readonly;
 
-    LJ::need_res("js/statusvis_message.js");
+    LJ::need_res( { group => 'all' }, "js/statusvis_message.js" );
     return
           "<script>Site.StatusvisMessage=\""
         . LJ::Lang::ml("statusvis_message.$statusvis_full")
