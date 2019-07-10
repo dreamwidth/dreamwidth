@@ -1922,7 +1922,6 @@ sub init_s2journal_js {
     ) unless $opts{siteskin};
 
     # load for ajax cuttag - again, only needed on lastn-type pages
-    LJ::need_res('js/cuttag-ajax.js') if $opts{lastn};
     LJ::need_res(
         { group => "jquery" }, qw(
             js/jquery/jquery.ui.widget.js
