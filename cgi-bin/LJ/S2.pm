@@ -215,8 +215,6 @@ sub make_journal {
             )
     );
 
-    # Include any head stc or js head content
-    LJ::Hooks::run_hooks( "need_res_for_journals", $u );
     my $extra_js = LJ::statusvis_message_js($u);
 
     # this will cause double-JS and likely cause issues if called during siteviews
