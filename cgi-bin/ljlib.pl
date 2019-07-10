@@ -561,12 +561,7 @@ sub start_request {
         );
 
         LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw (
-                stc/lj_base.css
-                )
-        );
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY, group => "jquery" }, qw (
+            { priority => $LJ::LIB_RES_PRIORITY, group => "all" }, qw (
                 stc/lj_base.css
                 )
         );
