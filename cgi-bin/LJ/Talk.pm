@@ -1891,14 +1891,14 @@ sub init_s2journal_js {
 
     # load for everywhere you can reply (ReplyPage, lastn, AND entries)
     LJ::need_res(
-        { group => "jquery" }, qw(
+        { group => "all" }, qw(
             js/jquery.replyforms.js
             )
     );
 
     # load for quick reply (every view except ReplyPage)
     LJ::need_res(
-        { group => "jquery" }, qw(
+        { group => "all" }, qw(
             js/jquery/jquery.ui.core.js
             stc/jquery/jquery.ui.core.css
             js/jquery/jquery.ui.widget.js
@@ -1910,7 +1910,7 @@ sub init_s2journal_js {
 
     # load only for ReplyPage
     LJ::need_res(
-        { group => "jquery" }, qw(
+        { group => "all" }, qw(
             js/jquery.talkform.js
             stc/css/components/talkform.css
             )
@@ -1922,14 +1922,14 @@ sub init_s2journal_js {
     # if we're using the site skin, don't override the jquery-ui theme,
     # as that's already included
     LJ::need_res(
-        { group => "jquery" }, qw(
+        { group => "all" }, qw(
             stc/jquery/jquery.ui.theme.smoothness.css
             )
     ) unless $opts{siteskin};
 
     # load for ajax cuttag - again, only needed on lastn-type pages
     LJ::need_res(
-        { group => "jquery" }, qw(
+        { group => "all" }, qw(
             js/jquery/jquery.ui.widget.js
             js/jquery.cuttag-ajax.js
             )
@@ -1950,12 +1950,12 @@ sub init_s2journal_shortcut_js {
 
     my $connect_string = "";
 
-    LJ::need_res( { group => "jquery" }, "js/shortcuts.js" );
-    LJ::need_res( { group => "jquery" }, "js/jquery.shortcuts.nextentry.js" );
+    LJ::need_res( { group => "all" }, "js/shortcuts.js" );
+    LJ::need_res( { group => "all" }, "js/jquery.shortcuts.nextentry.js" );
 
     $p->{'head_content'} .= "  <script type='text/javascript'>\n  var dw_shortcuts = {\n";
     if ( $remote->prop("opt_shortcuts") ) {
-        LJ::need_res( { group => "jquery" }, "js/mousetrap.js" );
+        LJ::need_res( { group => "all" }, "js/mousetrap.js" );
         $p->{'head_content'} .= "    keyboard: {\n";
 
         my $nextKey = $remote->prop("opt_shortcuts_next");
@@ -1965,7 +1965,7 @@ sub init_s2journal_shortcut_js {
         $connect_string = ",";
     }
     if ( $remote->prop("opt_shortcuts_touch") ) {
-        LJ::need_res( { group => "jquery" }, "js/jquery.touchSwipe.js" );
+        LJ::need_res( { group => "all" }, "js/jquery.touchSwipe.js" );
         my $nextTouch = $remote->prop("opt_shortcuts_touch_next");
         my $prevTouch = $remote->prop("opt_shortcuts_touch_prev");
         $p->{'head_content'} .=
