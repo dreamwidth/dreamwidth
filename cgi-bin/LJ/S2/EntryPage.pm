@@ -413,7 +413,7 @@ sub EntryPage {
     }
 
     LJ::need_res(
-        { group => "jquery" }, qw(
+        { group => "all" }, qw(
             js/jquery/jquery.ui.core.js
             js/jquery/jquery.ui.tooltip.js
             js/jquery.ajaxtip.js

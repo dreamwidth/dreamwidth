@@ -195,7 +195,7 @@ sub make_journal {
 
         # used if we're using our jquery library
         LJ::need_res(
-            { group => "jquery" }, qw(
+            { group => "all" }, qw(
                 js/md5.js
                 js/login-jquery.js
                 )
@@ -203,7 +203,7 @@ sub make_journal {
     }
 
     LJ::need_res(
-        { group => "jquery" }, qw(
+        { group => "all" }, qw(
             js/jquery/jquery.ui.core.js
             js/jquery/jquery.ui.widget.js
             js/jquery/jquery.ui.tooltip.js
@@ -1870,7 +1870,7 @@ sub use_journalstyle_entry_page {
 sub tracking_popup_js {
     return LJ::is_enabled('esn_ajax')
         ? (
-        { group => 'jquery' }, qw(
+        { group => 'all' }, qw(
             js/jquery/jquery.ui.core.js
             js/jquery/jquery.ui.widget.js
 
