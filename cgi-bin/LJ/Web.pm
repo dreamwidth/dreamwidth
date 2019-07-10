@@ -786,10 +786,8 @@ sub icons_for_remote {
                 push @pics, [ $res{"pickw_$i"}, $res{"pickwurl_$i"} ];
             }
             @pics = sort { lc( $a->[0] ) cmp lc( $b->[0] ) } @pics;
-            my $defaultpicurl =
-                  $res{defaultpicurl}
-                ? $res{defaultpicurl}
-                : $LJ::IMGPREFIX . $LJ::Img::img{nouserpic_sitescheme}->{src};
+            my $defaultpicurl = $res{defaultpicurl}
+                || ( $LJ::IMGPREFIX . $LJ::Img::img{nouserpic_sitescheme}->{src} );
             @pics = (
                 {
                     value => "",
