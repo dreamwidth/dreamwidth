@@ -211,9 +211,7 @@ footer { border-top: 4px double #999966;
     border-left: 9em solid #DDDDAA;
     margin-top: 170px;
     padding: 1px 1em 1em 1.5em;
-    min-height: 65em;
-    height: auto !important; /*these two lines are a min-height hack that fixes it in IE6*/
-      height: 65em;
+    min-height: 73rem;
 }
 
 #content p {
