@@ -145,6 +145,15 @@ ul { list-style: circle; }
 }
 
 /**
+ * Fix the gradient alignment between the logo and the background image on mobile
+ */
+@media #{$small-only} {
+    body {
+        background-position: top -21px left;
+    }
+}
+
+/**
  * #content
  */
 
