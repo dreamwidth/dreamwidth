@@ -57,7 +57,7 @@ $row-width: 64em + $sidebar-width + 1em; // desired content width + border width
     top: $nav-small-screen-header-height + 1.5em;
 }
 
-@media #{$small} {
+@media #{$medium-up} {
     .main-nav {
         top: $masthead-height;
     }
