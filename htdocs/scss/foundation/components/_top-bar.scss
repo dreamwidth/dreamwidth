@@ -42,8 +42,12 @@ $topbar-link-text-transform: none !default;
 $topbar-link-padding: ($topbar-height / 3) !default;
 $topbar-back-link-size: rem-calc(18) !default;
 $topbar-link-dropdown-padding: rem-calc(20) !default;
+
+// Top-bar input styles
+$topbar-input-height: rem-calc(28) !default;
 $topbar-button-font-size: .75rem !default;
-$topbar-button-top: 7px !default;
+$topbar-button-top: (($topbar-height - $topbar-input-height) / 2) !default;
+$topbar-button-height: $topbar-input-height - rem-calc(2px) !default;
 
 // Style the top bar dropdown elements
 $topbar-dropdown-bg: $oil !default;
@@ -77,9 +81,6 @@ $topbar-transition-speed: 300ms !default;
 // Using rem-calc for the below breakpoint causes issues with top bar
 $topbar-breakpoint: unquote("#{lower-bound($medium-range)}") !default; // Change to 9999px for always mobile layout
 $topbar-media-query: "#{$screen} and (min-width:#{lower-bound($topbar-breakpoint)})" !default;
-
-// Top-bar input styles
-$topbar-input-height: rem-calc(28) !default;
 
 // Divider Styles
 $topbar-divider-border-bottom: solid 1px scale-color($topbar-bg-color, $lightness: 13%) !default;
@@ -509,17 +510,17 @@ $topbar-dropdown-arrows: true !default; //Set false to remove the \00bb >> text 
         .button,
         button {
           font-size: rem-calc(14);
-          height: $topbar-input-height;
+          height: $topbar-button-height;
           position: relative;
-          top: (($topbar-height - $topbar-input-height) / 2);
+          top: $topbar-button-top;
         }
 
         .has-form > .button,
         .has-form > button {
           font-size: rem-calc(14);
-          height: $topbar-input-height;
+          height: $topbar-button-height;
           position: relative; 
-          top: (($topbar-height - $topbar-input-height) / 2);
+          top: $topbar-button-top;
         }
 
         &.expanded {
