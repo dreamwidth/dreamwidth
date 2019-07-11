@@ -107,6 +107,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <form action='[% site.root %]/logout' method='post'>
         [%- dw.form_auth -%]
         [%- remote.ljuser_display -%]
+        <input type="hidden" name="ret" value="1" />
         <input class="logout button secondary" type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     </form>
 </div></div>
@@ -176,6 +177,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <form action='[% site.root %]/logout' method='post'>
         [%- dw.form_auth -%]
         [%- remote.ljuser_display -%]
+        <input type="hidden" name="ret" value="1" />
         <input type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     </form>
     [%- -%]<ul>
