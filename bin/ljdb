@@ -21,6 +21,7 @@
 
 use strict;
 BEGIN {
+    $LJ::_T_CONFIG = $ENV{DW_TEST};
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 use LJ::DB;
