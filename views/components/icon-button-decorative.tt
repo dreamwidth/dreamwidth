@@ -18,4 +18,4 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <button class="fi-icon--decorative [% button.class -%]" [% IF button.id -%]id="[%- button.id -%]"[%- END -%]>
     <span class="fi-icon fi-[%- icon -%]" aria-hidden="true"></span> [% text %]
-</a>
+</button>
