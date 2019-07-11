@@ -84,10 +84,6 @@ sub challenge_generate {
     return LJ::challenge_generate(@_);
 }
 
-sub show_logout_button {
-    return DW::Request->get->uri !~ m!^/logout!;
-}
-
 sub show_invite_link {
     return $LJ::USE_ACCT_CODES ? 1 : 0;
 }
