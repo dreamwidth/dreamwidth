@@ -62,6 +62,8 @@ $nav-small-screen-header-height: 3em;
               $bg:$reveal-modal-bg,
               // Set reveal border style. Default: $reveal-border-style or solid
               $border:true,
+              // Padding to apply to reveal modal. Default: $reveal-modal-padding.
+              $padding:$reveal-modal-padding,
               // Width of border (i.e. 1px). Default: $reveal-border-width.
               $border-style:$reveal-border-style,
               // Color of border. Default: $reveal-border-color.
@@ -76,6 +78,9 @@ $nav-small-screen-header-height: 3em;
 
             .logout.button { display: block; margin-top: .5em; }
             ul { list-style: none; margin-left: 0; }
+            a.close-reveal-modal {
+                @include reveal-close();
+            }
         }
     }
 
