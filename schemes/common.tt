@@ -103,7 +103,6 @@ the table based way can be removed when the entire site is Foundation-based.
 [%- END -%]
 
 <div id='account-links-text' role="navigation" aria-label="[% 'sitescheme.navigation.accountlinks' | ml %]" data-reveal>
-[%- IF dw_scheme.show_logout_button -%]
 <div class='row'><div class='columns'>
     <form action='[% site.root %]/logout' method='post'>
         [%- dw.form_auth -%]
@@ -111,7 +110,6 @@ the table based way can be removed when the entire site is Foundation-based.
         <input class="logout button secondary" type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     </form>
 </div></div>
-[%- END -%]
 <div class='row'><div class='small-12 large-12 columns'>
 <ul>
 [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
@@ -175,13 +173,11 @@ the table based way can be removed when the entire site is Foundation-based.
     [%- unread = inbox.unread_count -%]
     [%- identity = remote.is_identity -%]
     [%- -%]<div id='account-links-text'>
-    [%- IF dw_scheme.show_logout_button -%]
     <form action='[% site.root %]/logout' method='post'>
         [%- dw.form_auth -%]
         [%- remote.ljuser_display -%]
         <input type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     </form>
-    [%- END -%]
     [%- -%]<ul>
     [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
     [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a></li>
