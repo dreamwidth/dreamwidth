@@ -183,7 +183,7 @@ ul { list-style: square;}
     }
 }
 
-@media #{$small} {
+@media #{$medium-up} {
     #header-divider {
         top: $masthead-height;
     }

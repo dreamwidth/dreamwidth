@@ -84,7 +84,7 @@ $nav-small-screen-header-height: 3em;
         }
     }
 
-    @media #{$small} {
+    @media #{$medium-up} {
       #account-links {
         top: $accountlinks-offset + 1em;
 
@@ -222,7 +222,7 @@ $nav-small-screen-header-height: 3em;
         margin-top: $nav-small-screen-header-height + $topbar-offset + 2 * $base-line-height !important;
     }
 
-    @media #{$small} {
+    @media #{$medium-up} {
         #masthead {
             height: $header-height;
         }
@@ -248,7 +248,7 @@ $nav-small-screen-header-height: 3em;
             right: 0;
         }
 
-        @media #{$small} {
+        @media #{$medium-up} {
             .main-nav {
                 top: $header-height + $topbar-offset;
             }
@@ -309,7 +309,7 @@ $nav-small-screen-header-height: 3em;
             }
         }
 
-        @media #{$small} {
+        @media #{$medium-up} {
             .main-nav {
                 top: $header-height;
             }
