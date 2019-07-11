@@ -129,7 +129,7 @@ the table based way can be removed when the entire site is Foundation-based.
 </div>
 </div><!-- end #account-links.row -->
 
-[%- ELSE -%]
+[%- ELSE -%] [%# no remote, logged out %]
     [%- chal = dw_scheme.challenge_generate(300) -%]
     <div class="row" id='account-links'>
     <div class="columns show-for-medium-up small-12" role="navigation" aria-label="[% 'sitescheme.navigation.accountlinks' | ml %]">
@@ -163,8 +163,8 @@ the table based way can be removed when the entire site is Foundation-based.
     </div>
     </div>
     </div>
-[%- END -%]
-[%- ELSE -%]
+[%- END -%] [%# end if remote %]
+[%- ELSE -%] [%# resource group is not foundation %]
 <div id="account-links" role="navigation" aria-label="[% 'sitescheme.navigation.accountlinks' | ml %]">
 [%- IF remote -%]
     [%- IF ! account_link_options.no_userpic -%]
@@ -193,7 +193,7 @@ the table based way can be removed when the entire site is Foundation-based.
     [%- -%]<li><a href='[% site.root %]/support/'>[% 'sitescheme.accountlinks.help' | ml %]</a></li>
     [%- -%]</ul>
     [%- -%]</div>
-[%- ELSE -%]
+[%- ELSE -%] [%# no remote, logged out %]
     [%- chal = dw_scheme.challenge_generate(300) -%]
     [%- -%]<form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
     [%- -%]<input type="hidden" name="returnto" value="[% get.returnto | html %]" />
@@ -212,10 +212,10 @@ the table based way can be removed when the entire site is Foundation-based.
     [%- %] <label for='login_remember_me'>[% 'sitescheme.accountlinks.login.rememberme' | ml %]</label></td>
     [%- -%]<td><input type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/></td>
     [%- -%]</tr></table></form>
-[%- END -%]
+[%- END -%] [%# end if remote %]
 </div>
-[%- END -%]
-[%- END -%]
+[%- END -%] [%# end if resource_group == "foundation" %]
+[%- END -%] [%# end block.accountlinks %]
 
 [%- BLOCK block.pagediv -%]
 <div id="page">
