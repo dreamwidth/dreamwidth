@@ -6,7 +6,9 @@ $include-html-panel-classes: false;
 .panel { @include panel;
 
   &.callout {
-    @include panel(change-color($primary-color, $lightness:lightness($panel-bg)));
+    $callout-bg: change-color($primary-color, $lightness:lightness($panel-bg));
+    $callout-border-color: scale-color($callout-bg, $lightness: -11%);
+    @include panel($bg:$callout-bg, $border-color:$callout-border-color);
     a {
       color: $callout-panel-link-color;
     }
