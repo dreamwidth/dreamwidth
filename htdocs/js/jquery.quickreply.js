@@ -213,6 +213,11 @@ jQuery(function($) {
 
     $("#submitpview").on("click", function(e){
         $("#qrform").data("stayOnPage", false);
+        // Why use a hidden input for the real "submitpreview" instead of just
+        // relying on the button? Because we disable the submit buttons to guard
+        // against double-submits, and that causes the preview button's value to
+        // appear as falsy when the form data arrives back in perl-land, which
+        // in turn causes surprise posts.
         $("#qrform input[name='submitpreview']").val(1);
         $("#qrform").attr("action", Site.siteroot + "/talkpost_do" );
     });

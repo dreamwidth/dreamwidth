@@ -74,6 +74,17 @@ jQuery(function($){
     });
 
     // submit handlers :|
+
+    // If JS is disabled, the preview button works normally.
+    // If JS is enabled, we disable the submit buttons to guard against
+    // double-submits, and that causes the preview button's value to appear as
+    // falsy when the form data arrives back in perl-land. So if the user
+    // clicked preview, we need to preserve that info in a non-disabled input.
+    $('#submitpview').click(function(e) {
+        this.name = 'submitpview';
+        $('#previewplaceholder').prop('name', 'submitpreview');
+    });
+
     commentForm.submit(function(e) {
         // idek what would blow up if you sent name/pwd when usertype is
         // something other than user, but the old js did this so whatever
