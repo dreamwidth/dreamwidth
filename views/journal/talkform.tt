@@ -464,6 +464,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
       [%- form.submit(
         name = "submitpreview"
         value = dw.ml('talk.btn.preview')
+        id = "submitpview"
+      ) -%]
+      [%- form.hidden(
+        name = "previewplaceholder"
+        id = "previewplaceholder"
+        value = 1
       ) -%]
       [%- IF can_checkspell -%]
         [%- form.checkbox(
