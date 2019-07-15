@@ -212,6 +212,7 @@ jQuery(function($) {
     });
 
     $("#submitpview").on("click", function(e){
+        $("#qrform").data("stayOnPage", false);
         $("#qrform input[name='submitpreview']").val(1);
         $("#qrform").attr("action", Site.siteroot + "/talkpost_do" );
     });
