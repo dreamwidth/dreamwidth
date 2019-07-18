@@ -21,9 +21,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="columns">
         <div id="js-icon-preview" class="[% IF icons.size==0 %] no-icon border [% ELSE %] icon [% END %]">
         [% IF icons.size > 0 %]
-            [% IF defaulticon %]
-                <img id="js-icon-preview-image" src="[% defaulticon.url | url %]" alt="[% defaulticon.description | html %]" data-no-ctx="true" />
-            [% END %]
+            <img id="js-icon-preview-image" src="[% icons.0.data.url | url %]" alt="[% icons.0.data.description | html %]" data-no-ctx="true" />
         [% ELSE %]
             <a href='[% site.root %]/manage/icons'>[% 'entryform.userpic.upload' | ml %]</a>
         [% END %]
@@ -36,23 +34,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- INCLUDE "components/icon-browser.tt" -%]
 
     <div class="row"><div class="columns">
-        [%- iconselect = [] -%]
-        [%- FOREACH icon IN icons -%]
-            [%- IF icon.keyword.defined -%]
-                [%- iconselect.push( icon.keyword, icon.keyword ) -%]
-            [%- ELSE -%]
-                [%- defaulttext = ".keyword.default" | ml -%]
-                [%- iconselect.push( "", defaulttext ) -%]
-            [% END %]
-        [% END %]
-
         [%- form.select(
             name = "icon"
             id = "js-icon-select"
 
-            items = iconselect
+            items = icons
         ) -%]
-
     </div></div>
     [% END %]
 
