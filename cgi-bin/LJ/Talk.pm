@@ -1553,7 +1553,7 @@ sub talkform {
     }
 
     my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
-    my @icons = LJ::icons_for_remote($remote);
+    my @icons = LJ::icon_keyword_menu($remote);
 
     my $basesubject = $form->{subject} || "";
     if ( !$editid && $opts->{replyto} && !$basesubject && $parpost->{'subject'} ) {
