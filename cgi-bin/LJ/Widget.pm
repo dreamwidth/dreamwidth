@@ -125,28 +125,13 @@ sub render {
         my $opts = { $widget->need_res_opts };
 
         # include any resources that this widget declares
-        if ( defined $opt_hash{stylesheet_override} ) {
-            LJ::need_res( $opt_hash{stylesheet_override} ) if $opt_hash{stylesheet_override};
-
-            # include non-CSS files (we used stylesheet_override above)
-            foreach my $file ( $widget->need_res ) {
-                if ( $file =~ m!^[^/]+\.(js|css)$!i ) {
-                    next if $1 eq 'css';
-                    LJ::need_res( $opts, "js/widgets/$subclass/$file" );
-                    next;
-                }
-                LJ::need_res( $opts, $file ) unless $file =~ /\.css$/i;
+        foreach my $file ( $widget->need_res ) {
+            if ( $file =~ m!^[^/]+\.(js|css)$!i ) {
+                my $prefix = $1 eq 'js' ? "js" : "stc";
+                LJ::need_res( $opts, "$prefix/widgets/$subclass/$file" );
+                next;
             }
-        }
-        else {
-            foreach my $file ( $widget->need_res ) {
-                if ( $file =~ m!^[^/]+\.(js|css)$!i ) {
-                    my $prefix = $1 eq 'js' ? "js" : "stc";
-                    LJ::need_res( $opts, "$prefix/widgets/$subclass/$file" );
-                    next;
-                }
-                LJ::need_res( $opts, $file );
-            }
+            LJ::need_res( $opts, $file );
         }
         LJ::need_res( $opt_hash{stylesheet} ) if $opt_hash{stylesheet};
 
