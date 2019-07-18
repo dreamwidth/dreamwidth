@@ -16,48 +16,51 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- dw.need_res( { group => "foundation" },
         "js/components/jquery.icon-browser.js"
-        "stc/css/components/block-grid.css"
         "stc/css/components/icon-browser.css"
     ); -%]
 
-    [%- WRAPPER components/modal.tt id="js-icon-browser" class="icon-browser" -%]
-    <div class="row">
-        <div class="columns medium-2 large-1">
-            <label class='inline' for='js-icon-browser-search'>Search:</label>
-        </div>
-        <div class="columns medium-4 large-4">
-            <input type='search' id='js-icon-browser-search'>
-        </div>
-        <div class="columns medium-3">
-            <button id='js-icon-browser-select'>Select</button>
-        </div>
-        <div class="columns medium-3 large-3">
-                <div class='icon-browser-meta-toggle' id='js-icon-browser-meta-toggle'>
-                    <a href="#" data-action="text">Meta text</a> /
-                    <a href="#" data-action="no-text">No meta text</a>
+    [%- WRAPPER components/modal.tt id="js-icon-browser" class="icon-browser" options="animation:'fade'" -%]
+    <div class="icon-browser-flex-wrapper">
+
+        <div class="row">
+            <div class="columns top-controls">
+                <label class='invisible' for='js-icon-browser-search'>Search</label>
+                <input type='search' id='js-icon-browser-search' placeholder='Search' />
+                <button id='js-icon-browser-select'>Select</button>
+                <div class="display-toggles">
+                    <div class='icon-browser-meta-toggle' id='js-icon-browser-meta-toggle'>
+                        <a href="#" data-action="text">Meta text</a> /
+                        <a href="#" data-action="no-text">No meta text</a>
+                    </div>
+
+                    <div class='icon-browser-size-toggle' id='js-icon-browser-size-toggle'>
+                        <a href="#" data-action="small">Small images</a> /
+                        <a href="#" data-action="large">Large images</a>
+                    </div>
                 </div>
-
-                <div class='icon-browser-size-toggle' id='js-icon-browser-size-toggle'>
-                    <a href="#" data-action="small">Small images</a> /
-                    <a href="#" data-action="large">Large images</a>
-                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="columns keyword-menu">
-            <label class="left">Keywords of selected icon:</label>
-            <div class='keywords'></div>
+        <div class="row">
+            <div class="columns">
+                <p class="icon-browser-help">Tap icon to select, tap again to confirm.</p>
+            </div>
         </div>
-    </div>
 
-    <hr>
+        <div class="row">
+            <div class="columns keyword-menu">
+                <label class="left">Keywords of selected icon:</label>
+                <div class='keywords'></div>
+            </div>
+        </div>
 
-    <div class="row"><div class="columns">
+        <hr />
+
         <div id="js-icon-browser-content" class="icon-browser-content">
             <span class="icon-browser-status">Loading...</span>
-            <ul></ul>
+            <ul class="js-icon-browser-icon-grid"></ul>
         </div>
-    </div></div>
+
+    </div>
     [%- END -%]
 [%- END -%]

@@ -1838,7 +1838,6 @@ sub init_iconbrowser_js {
         'js/foundation/foundation/foundation.js',
         'js/foundation/foundation/foundation.reveal.js',
         'js/components/jquery.icon-browser.js',
-        'stc/css/components/block-grid.css',
         'stc/css/components/icon-browser.css',
     );
 
