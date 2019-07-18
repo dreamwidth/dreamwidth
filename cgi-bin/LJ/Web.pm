@@ -752,53 +752,64 @@ sub check_referer {
 }
 
 # <LJFUNC>
-# name: LJ::icons_for_remote
+# name: LJ::icon_keyword_menu
 # class: web
-# des: Gets all the userpics for a given user, including an item for the default userpic.
-# args: remote
-# des-remote: a user object.
-# returns: An array of {value => ..., text => ..., data => { url => ...}}
-#          hashrefs, suitable for use as the items in an LJ::html_select().
-#          If no userpics or if remote is undefined, an empty array.
+# des: Gets all userpics for a given user, separated by keyword. Use this when
+#      building a drop-down icons menu.
+# args: user
+# des-user: a user object.
+# returns: An array of hashrefs like:
+#          {value => ..., text => ..., data => { url => ..., description => ... }}
+#          which can be passed directly to an LJ::html_select(). Includes an
+#          item for each keyword (thus duplicating icons with multiple
+#          keywords), and an item for the default userpic. If no userpics or if
+#          user is undefined, returns an empty array.
 # </LJFUNC>
-sub icons_for_remote {
-    my ($remote) = @_;
-    my @pics;
+sub icon_keyword_menu {
+    my ($user) = @_;
 
-    {
-        my %res;
-        if ($remote) {
-            LJ::do_request(
-                {
-                    mode         => "login",
-                    ver          => $LJ::PROTOCOL_VER,
-                    user         => $remote->user,
-                    getpickws    => 1,
-                    getpickwurls => 1,
-                },
-                \%res,
-                { noauth => 1, userid => $remote->userid }
-            );
-        }
+    return () unless ($user);
 
-        if ( $res{pickw_count} ) {
-            for ( my $i = 1 ; $i <= $res{pickw_count} ; $i++ ) {
-                push @pics, [ $res{"pickw_$i"}, $res{"pickwurl_$i"} ];
-            }
-            @pics = sort { lc( $a->[0] ) cmp lc( $b->[0] ) } @pics;
-            my $defaultpicurl = $res{defaultpicurl}
-                || ( $LJ::IMGPREFIX . $LJ::Img::img{nouserpic_sitescheme}->{src} );
-            @pics = (
-                {
-                    value => "",
-                    text  => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
-                    data  => { url => $defaultpicurl }
+    my @icons = grep { !( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics($user);
+
+    if (@icons) {
+
+        # Get a sorted array of { keyword => "...", userpic => userpic_object } hashrefs:
+        @icons = LJ::Userpic->separate_keywords( \@icons );
+
+        # Sort out the default icon -- either it's a real one, or it's nothing
+        # and we should use a placeholder image in previews.
+        my $default_icon = $user->userpic;    # userpic object or nothing
+        my $default_icon_url =
+              $default_icon
+            ? $default_icon->url
+            : ( $LJ::IMGPREFIX . $LJ::Img::img{nouserpic_sitescheme}->{src} );
+
+        # Finally, turn it into the expected format for an LJ::html_select,
+        # including an item for the default icon:
+        @icons = (
+            {
+                value => "",
+                text  => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
+                data  => {
+                    url         => $default_icon_url,
+                    description => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
                 },
-                map { { value => $_->[0], text => $_->[0], data => { url => $_->[1] } } } @pics
-            );
-        }
+            },
+            map {
+                {
+                    value => $_->{keyword},
+                    text  => $_->{keyword},
+                    data  => {
+                        url         => $_->{userpic}->url,
+                        description => $_->{userpic}->description || $_->{keyword},
+                    },
+                }
+            } @icons
+        );
     }
-    return @pics;
+
+    return @icons;
 }
 
 # <LJFUNC>
@@ -915,7 +926,7 @@ sub create_qr_div {
     }
 
     # For userpic selector
-    my @icons = icons_for_remote($remote);
+    my @icons = icon_keyword_menu($remote);
 
     my $post_disabled = $u->does_not_allow_comments_from($remote)
         || $u->does_not_allow_comments_from_unconfirmed_openid($remote);
