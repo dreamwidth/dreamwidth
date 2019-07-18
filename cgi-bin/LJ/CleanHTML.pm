@@ -70,14 +70,6 @@ my $onechar;
     $onechar = qr/$match/o;
 }
 
-# Some browsers, such as Internet Explorer, have decided to alllow
-# certain HTML tags to be an alias of another.  This has manifested
-# itself into a problem, as these aliases act in the browser in the
-# same manner as the original tag, but are not treated the same by
-# the HTML cleaner.
-# 'alias' => 'real'
-my %tag_substitute = ( 'image' => 'img', );
-
 # In XHTML you can close a tag in the same opening tag like <br />,
 # but some browsers still will interpret it as an opening only tag.
 # This is a list of tags which you can actually close with a trailing
@@ -112,21 +104,21 @@ sub clean {
 
     my $p = HTML::TokeParser->new($data);
 
-    my $wordlength              = $opts->{'wordlength'};
-    my $addbreaks               = $opts->{'addbreaks'};
-    my $keepcomments            = $opts->{'keepcomments'};
-    my $mode                    = $opts->{'mode'};
-    my $cut                     = $opts->{'cuturl'} || $opts->{'cutpreview'};
-    my $ljcut_disable           = $opts->{'ljcut_disable'};
-    my $extractlinks            = 0 || $opts->{'extractlinks'};
-    my $noexpand_embedded       = $opts->{'noexpandembedded'} || $opts->{'textonly'} || 0;
-    my $transform_embed_nocheck = $opts->{'transform_embed_nocheck'} || 0;
-    my $transform_embed_wmode   = $opts->{'transform_embed_wmode'};
+    my $wordlength              = $opts->{wordlength};
+    my $addbreaks               = $opts->{addbreaks};
+    my $keepcomments            = $opts->{keepcomments};
+    my $mode                    = $opts->{mode};
+    my $cut                     = $opts->{cuturl} || $opts->{cutpreview};
+    my $ljcut_disable           = $opts->{ljcut_disable};
+    my $extractlinks            = 0 || $opts->{extractlinks};
+    my $noexpand_embedded       = $opts->{noexpandembedded} || $opts->{textonly} || 0;
+    my $transform_embed_nocheck = $opts->{transform_embed_nocheck} || 0;
+    my $transform_embed_wmode   = $opts->{transform_embed_wmode};
     my $rewrite_embed_param     = $opts->{rewrite_embed_param} || 0;
-    my $remove_colors           = $opts->{'remove_colors'} || 0;
-    my $remove_sizes            = $opts->{'remove_sizes'} || 0;
+    my $remove_colors           = $opts->{remove_colors} || 0;
+    my $remove_sizes            = $opts->{remove_sizes} || 0;
     my $remove_abs_sizes        = $opts->{remove_abs_sizes} || 0;
-    my $remove_fonts            = $opts->{'remove_fonts'} || 0;
+    my $remove_fonts            = $opts->{remove_fonts} || 0;
     my $local_content           = $opts->{local_content} || 0;
     my $formatting              = $opts->{formatting} // 'html';
     my $auto_links              = !( $extractlinks || $opts->{noautolinks} );
@@ -252,6 +244,8 @@ sub clean {
 
     my @tagstack = ();              # so we can make sure that tags are closed properly/in order
 
+    my $disable_user_conversion = 0;
+
     my $form_tag = {
         input  => 1,
         select => 1,
@@ -295,12 +289,6 @@ sub clean {
 TOKEN:
     while ( my $token = $p->get_token ) {
         my $type = $token->[0];
-
-        # See if this tag should be treated as an alias
-
-        $token->[1] = $tag_substitute{ $token->[1] }
-            if defined $tag_substitute{ $token->[1] }
-            && ( $type eq 'S' || $type eq 'E' );
 
         if ( $type eq "S" )    # start tag
         {
@@ -528,6 +516,12 @@ TOKEN:
                 $cutcount++;
                 $newdata .= "<a name=\"cutid$cutcount\"></a>";
                 $ljcut_div = 0;
+            }
+
+            # Hack: Twitter uses @-syntax to refer to users, so we want to set
+            # a flag that says we're in a space where we shouldn't embed.
+            if ( $tag eq 'blockquote' && $attr->{class} eq 'twitter-tweet' ) {
+                $disable_user_conversion = 1;
             }
 
             if ( ( $tag eq "lj-cut" || $ljcut_div ) ) {
@@ -1068,6 +1062,12 @@ TOKEN:
                 next TOKEN;
             }
 
+            # Hack: For Twitter, which uses blockquotes to embed tweets, re-enable
+            # user conversion once we've exited a blockquote.
+            if ( $disable_user_conversion && $tag eq 'blockquote' ) {
+                $disable_user_conversion = 0;
+            }
+
             my $allow;
             if ( $tag eq "lj-raw" ) {
                 $opencount{$tag}--;
@@ -1247,8 +1247,11 @@ TOKEN:
 
                 if ( !$opencount{'a'} ) {
 
-                    # safe to convert user mentions, do that in this context
-                    convert_user_mentions( \$token->[1], $opts );
+                    # safe to convert user mentions, do that in this context, but only if
+                    # the content was created locally (otherwise we don't know what the
+                    # user mention might be referring to)
+                    convert_user_mentions( \$token->[1], $opts )
+                        if $local_content && !$disable_user_conversion;
 
                     # convert URLs back into actual HTML
                     $token->[1] =~ s/&url(\d+);(.*?)&urlend;/<a href=\"$url{$1}\">$2<\/a>/g;
@@ -1509,13 +1512,19 @@ sub clean_subject {
     clean(
         $ref,
         {
-            'wordlength'   => 40,
-            'addbreaks'    => 0,
-            'eat'          => $subject_eat,
-            'mode'         => 'deny',
-            'allow'        => $subject_allow,
-            'remove'       => $subject_remove,
-            'noearlyclose' => 1,
+            wordlength   => 40,
+            addbreaks    => 0,
+            eat          => $subject_eat,
+            mode         => 'deny',
+            allow        => $subject_allow,
+            remove       => $subject_remove,
+            noearlyclose => 1,
+
+            # This is wrong in some cases, but clean_subject is used by many
+            # different paths that don't tell us where the content came from.
+            # Let's assume the most conservative for now.
+            formatting    => 'html',
+            local_content => 0,
         }
     );
 }
@@ -1529,12 +1538,18 @@ sub clean_subject_all {
     clean(
         $ref,
         {
-            'wordlength'   => 40,
-            'addbreaks'    => 0,
-            'eat'          => $subjectall_eat,
-            'mode'         => 'deny',
-            'textonly'     => 1,
-            'noearlyclose' => 1,
+            wordlength   => 40,
+            addbreaks    => 0,
+            eat          => $subjectall_eat,
+            mode         => 'deny',
+            textonly     => 1,
+            noearlyclose => 1,
+
+            # This is wrong in some cases, but clean_subject is used by many
+            # different paths that don't tell us where the content came from.
+            # Let's assume the most conservative for now.
+            formatting    => 'html',
+            local_content => 0,
         }
     );
 }
@@ -1646,6 +1661,10 @@ sub clean_embed {
             transform_embed_nocheck => 1,
             rewrite_embed_param     => 1,
             force_https_embed       => $opts->{display_as_content},
+
+            # Embeds always come from somewhere else, so be conservative.
+            formatting    => 'html',
+            local_content => 0,
         }
     );
 }
@@ -1696,14 +1715,18 @@ sub clean_userbio {
     clean(
         $ref,
         {
-            'wordlength'   => 100,
-            'addbreaks'    => 1,
-            'attrstrip'    => [qw[style]],
-            'mode'         => 'allow',
-            'noearlyclose' => 1,
-            'eat'          => $userbio_eat,
-            'remove'       => $userbio_remove,
-            'cleancss'     => 1,
+            wordlength   => 100,
+            addbreaks    => 1,
+            attrstrip    => [qw[style]],
+            mode         => 'allow',
+            noearlyclose => 1,
+            eat          => $userbio_eat,
+            remove       => $userbio_remove,
+            cleancss     => 1,
+
+            # Bios are always local.
+            formatting    => 'markdown',
+            local_content => 1,
         }
     );
 }
@@ -1828,16 +1851,6 @@ sub convert_user_mentions {
     $$ref =~ s!(\\.)|(?<=[^\w/])(\@([\w\d_-]+)(?:\.([\w\d\.]+))?)(?=$|\W)!
         defined($1) ? ( $1 eq '\@' ? '@' : $1 ) : $usertag->($2, $3, $4)
         !mge;
-}
-
-sub clean_as_markdown {
-    my ( $ref, $opts ) = @_;
-
-    # Second, markdown-ize the result, complete with <user> tags.
-    $$ref = Text::Markdown::markdown($$ref);
-    $opts->{preformatted} = 1;
-
-    return 1;
 }
 
 sub user_link_html {
