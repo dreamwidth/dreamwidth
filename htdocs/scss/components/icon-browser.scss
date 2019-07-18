@@ -1,24 +1,140 @@
 @import "foundation/base";
 .icon-browser {
+    // POSITIONING FIXES:
+    // Foundation's "reveal" component assumes pages never scroll sideways, lol.
+    // The icon browser JS fixes the left position, but we also need to handle
+    // the centering at desktop widths. (By default it uses auto-margins for
+    // centering, but that's not reliable once left != 0.)
+
+    // Override the default (100px) gap between top of viewport and top of
+    // modal, bc we want it to be 0 on mobile. (This isn't the "real" top
+    // property, it's just a hint to the reveal-modal js.)
+    top: 0;
+
+    // On mobile, the modal's width is 100vw and we don't need to center
+    // On tablet+, the modal's width is 80%, so 10% margin on each side:
     @media #{$medium-up} {
-        .icon-browser-content {
-            max-height: 70vh;
-            overflow-y: auto;
-            overflow-x: hidden;
+        margin: 4vh 10% 0; // Restore a gap at the top, too.
+    }
+    // Modal's max width is 70em, so from min-width: (1.25 * 70em) we use math:
+    @media only screen and (min-width: 87.5em) {
+        margin: 4vh calc( (100% - 70em) / 2 ) 0;
+    }
+    // And then there's the height. On desktop/tablet, we want to fit the whole
+    // modal on screen and keep the controls in view, with the icon grid
+    // scrolling independently. Only bother with this on browsers w/ non-buggy
+    // flexbox; on old browsers it can just act like it does on mobile.
+    @media #{$medium-up} {
+        // @supports will hide this from IE11, which thinks it can flex but kinda can't.
+        @supports (display: flex) {
+            .icon-browser-flex-wrapper {
+                display: flex;
+                flex-direction: column;
+                max-height: calc(93vh - 3.75rem); // outer container has 1.875rem padding
+                // This should usually leave 3vw gap at bottom, to reassure you that
+                // you're seeing the whole thing and/or leave room for the
+                // horizontal scrollbar.
+            }
+
+            .icon-browser-content {
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+            }
         }
+    }
+
+    // Not necessary on site skin, but necessary in most journal styles.
+    box-sizing: border-box;
+    * {
+        box-sizing: border-box;
+    }
+
+    #js-icon-browser-search {
+        width: auto; // don't stretch to 100% on site skin
+        @media (pointer: coarse) {
+            font-size: 16px; // dramatic woodchuck repellent
+        }
+    }
+
+    .icon-browser-content {
+        padding: 4px; // don't clip tops/sides off the box shadows
     }
 
     li {
         @include single-transition(background-color);
     }
+
+    hr {
+        display: block;
+        width: 100%;
+        border-style: solid;
+        border-width: 1px 0 0;
+    }
+
+    .top-controls {
+        // @supports will hide this from IE11, which thinks it can flex but kinda can't.
+        @supports (display: flex) {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        & > * {
+            display: inline-block; // for no-flex browsers
+            // fake row-gap:
+            margin-right: 2em;
+            &:last-child {
+                margin-right: 0;
+            }
+            // Consistent spacing
+            margin-bottom: 1rem;
+        }
+    }
+
+    p.icon-browser-help {
+        font-size: smaller;
+        margin-bottom: 1rem;
+    }
+
+    .keyword-menu {
+        // Slow yr roll, jumpy!
+        min-height: 2.5em;
+        @media #{$small-only} {
+            min-height: 4.2em;
+        }
+        label.left {
+            float: left;
+            margin-top: calc(.3em + 1px); // match keyword padding + margin + border
+            line-height: 1.5;
+        }
+    }
+
     .keyword {
+        display: inline-block;
+        max-width: 100%;
+        cursor: pointer;
         text-decoration: none;
         border-width: 1px;
         border-style: solid;
-        margin-right: .2em;
-        padding: .2em .3em;
-        line-height: $base-line-height * 1.5;
-        transition: color 300ms ease-out, background-color 300ms ease-out;
+        margin: .2em;
+        margin-left: 0;
+        padding: .1em .3em;
+        line-height: 1.5;
+        transition-duration: 300ms;
+        transition-timing-function: ease-out;
+        transition-property: color, background-color, border-width, margin-top, margin-bottom, margin-right;
+
+        &.active {
+            // Journal styles don't know about ".active" controls so they don't
+            // do the inverted colors thing you see in site skins. But border
+            // thickness will do in a pinch.
+            border-width: 3px;
+            margin: calc(.2em - 2px); // absorb extra border size
+            margin-left: 0;
+        }
     }
 
     a.inactive-toggle {
@@ -26,36 +142,77 @@
         text-decoration: none;
     }
 
-    .icon-browser-item-comment {
-        word-break: break-word;
+    .icon-browser-item-meta {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        font-size: smaller;
     }
 
     &.no-meta {
         .icon-browser-item-meta {
             display: none;
         }
+    }
+
+    // The image is wrapped in a dummy "a" element, so we can use inherit to
+    // grab a color that fits the journal style.
+    .th.active {
+        border-color: inherit;
+    }
+
+    .js-icon-browser-icon-grid {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 110px);
+        grid-column-gap: 1rem;
+        grid-row-gap: 1rem;
+
         li {
-            width: auto;
-            clear: none;
-        }
-    }
+            list-style: none;
+            margin: 0;
 
-    .icon-image {
-        width: 100px;
-        height: 100px;
-    }
+            // Basic fallback styles for old browsers:
+            display: inline-block;
+            width: 150px;
+            vertical-align: top;
+            padding-bottom: 1rem;
+            padding-right: 1rem;
 
-    &.small-icons {
-        .icon-image {
-            float: left;
-            width: 50px;
-            height: 50px;
-            margin-right: 4px;
-
-            img {
-                vertical-align: top;
-                margin-top: 4px; // width of the border around the image
+            // Cool browsers can ignore all that.
+            @supports (display: grid) {
+                width: auto;
+                vertical-align: initial;
+                padding: 0;
             }
         }
     }
+
+    // Pack em in:
+    &.small-icons.no-meta .js-icon-browser-icon-grid {
+        grid-template-columns: repeat(auto-fill, 58px);
+    }
+
+    .icon-browser-icon-image img {
+        max-width: 100%;
+        height: auto;
+        // Foundation's .th thumbnail class sets images to display: inline-block
+        // instead of inline, which makes border-box sizing affect their
+        // height/width attributes. So without this, a 100 x 100 icon will
+        // display as 92 x 92.
+        box-sizing: content-box;
+    }
+
+    &.small-icons {
+        .icon-browser-icon-image img {
+            max-width: 58px; // 50px icon plus borders
+            max-height: 58px;
+            width: auto;
+            // ...but once we're shrinking images anyway, reliable sizing
+            // becomes more important than pixel-for-pixel dimensions.
+            box-sizing: border-box;
+        }
+    }
+
 }

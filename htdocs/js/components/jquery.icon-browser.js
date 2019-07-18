@@ -2,10 +2,12 @@
 
 function IconBrowser($el, options) {
     var iconBrowser = this;
+    var modalSelector = "#" + options.modalId;
+    var scrollPositionDogear;
 
     $.extend(iconBrowser, {
         element: $el,
-        modal: $("#" + options.modalId),
+        modal: $(modalSelector),
         modalId: options.modalId
     });
 
@@ -14,12 +16,34 @@ function IconBrowser($el, options) {
     new Options(this.modal, options.preferences);
 
     $(document)
-        .on('open.fndtn.reveal', "#" + options.modalId, function(e) {
+        .on('open.fndtn.reveal', modalSelector, function(e) {
             // hackety hack -- being triggered on both 'open' and 'open.fndtn.reveal'; just want one
             if (e.namespace === "") return;
 
+            // If the page scrolled sideways, don't put the modal way out in left field.
+            iconBrowser.modal.css('left', window.scrollX);
+
             iconBrowser.loadIcons();
             iconBrowser.registerListeners();
+        })
+        // Save and restore the scroll position when opening and closing the
+        // modal. This is crucial on mobile if you have dozens of icons, because
+        // otherwise it'll ditch you miles out into the comment thread, as you
+        // wonder where you left your reply form and whether you have enough
+        // water to survive the walk back to the gas station.
+        .on('opened.fndtn.reveal', modalSelector, function(e) {
+            // hackety hack -- being triggered on both 'opened' and 'opened.fndtn.reveal'; just want one
+            if (e.namespace === "") return;
+
+            scrollPositionDogear = $(window).scrollTop();
+        })
+        .on('closed.fndtn.reveal', modalSelector, function(e) {
+            // hackety hack -- being triggered on both 'closed' and 'closed.fndtn.reveal'; just want one
+            if (e.namespace === "") return;
+
+            if ( Math.abs( $(window).scrollTop() - scrollPositionDogear ) > 500 ) {
+                $(window).scrollTop(scrollPositionDogear);
+            }
         });
 }
 
@@ -69,16 +93,16 @@ IconBrowser.prototype = {
                             icon.height,
                             width: icon.width,
                             "class": "th" } )
-                        .wrap("<div class='icon-image'></div>").parent();
+                        .wrap("<a>").parent()
+                        .wrap("<div class='icon-browser-icon-image'></div>").parent();
                     var $keywords = "";
                     if ( icon.keywords ) {
                         $keywords = $("<div class='keywords'></div>");
-                        var last = icon.keywords.length - 1;
 
                         $.each(icon.keywords, function(i, kw) {
                             iconBrowser.kwToIcon[kw] = idstring;
                             $keywords
-                                .append( $("<a href='#' class='keyword radius' data-kw='" + kw + "'></a>").text(kw) )
+                                .append( $("<a class='keyword radius' data-kw='" + kw + "'></a>").text(kw) )
                                 .append(document.createTextNode(" "));
 
                         });
@@ -143,32 +167,43 @@ IconBrowser.prototype = {
         }
     },
     selectByClick: function(e) {
-        // this may be on either the icon or the keyword
-        var container = $(e.target).closest("li");
-        var keyword = $(e.target).closest("a.keyword");
-
-        this.doSelect(container, keyword.length > 0 ? keyword.text() : null, true);
-
         e.stopPropagation();
         e.preventDefault();
+
+        // If this is the second click, treat it as confirmation:
+        if ( $(e.target).hasClass("active") ) {
+            this.updateOwner.call(this, e);
+        } else {
+            // this may be on either the icon or the keyword
+            var container = $(e.target).closest("li");
+            var keyword = $(e.target).closest("a.keyword");
+
+            this.doSelect(container, keyword.length > 0 ? keyword.text() : null, true);
+
+            // If they chose a keyword, treat it as confirmation:
+            if (keyword.length > 0) {
+                this.updateOwner.call(this, e);
+            }
+        }
     },
     selectByDoubleClick: function(e) {
         this.selectByClick.call(this, e);
         this.updateOwner.call(this, e);
     },
     selectByKeywordMenuClick: function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
         var keyword = $(e.target).text();
         var id = this.kwToIcon[keyword];
         if ( id ) {
             this.doSelect($("#" + id), keyword, false);
+            // If they chose a keyword, treat it as confirmation:
+            this.updateOwner.call(this, e);
         }
-
-        e.stopPropagation();
-        e.preventDefault();
     },
     selectByKeywordMenuDoubleClick: function(e) {
         this.selectByKeywordMenuClick(e);
-        this.updateOwner.call(this, e);
     },
     initializeKeyword: function() {
         var keyword = this.element.val();
@@ -312,14 +347,10 @@ Options.prototype = {
         var $link = $(e.target);
         if ( $link.data("action") === "large" ) {
             this.modal.removeClass("small-icons");
-            $("#js-icon-browser-content ul").attr("class",
-                "small-block-grid-2 medium-block-grid-4 large-block-grid-6");
 
             if ( !init ) this.save( "smallicons", false );
         } else {
             this.modal.addClass("small-icons");
-            $("#js-icon-browser-content ul").attr("class",
-                "small-block-grid-1 medium-block-grid-2 large-block-grid-3");
 
             if ( !init ) this.save( "smallicons", true );
         }
