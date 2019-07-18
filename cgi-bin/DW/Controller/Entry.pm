@@ -283,7 +283,6 @@ sub _init {
     my $vars = {};
 
     my @icons;
-    my $defaulticon;
 
     my %moodtheme;
     my @moodlist;
@@ -309,12 +308,7 @@ sub _init {
     if ($u) {
 
         # icons
-        @icons = grep { !( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics($u);
-
-        @icons = LJ::Userpic->separate_keywords( \@icons )
-            if @icons;
-
-        $defaulticon = $u->userpic;
+        @icons = LJ::icon_keyword_select_items($u);
 
         # moods
         my $theme = DW::Mood->new( $u->{moodthemeid} );
@@ -441,8 +435,7 @@ sub _init {
     $vars = {
         remote => $u,
 
-        icons       => @icons ? [ { userpic => $defaulticon }, @icons ] : [],
-        defaulticon => $defaulticon,
+        icons => \@icons,
 
         icon_browser => {
             metatext   => $u ? $u->iconbrowser_metatext   : "",

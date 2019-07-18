@@ -388,7 +388,7 @@ var postForm = (function($) {
         });
     };
 
-    var initIcons = function($form, icons, iconBrowserOptions) {
+    var initIcons = function($form, iconBrowserOptions) {
         var $preview = $( "#js-icon-preview" );
         if ( $preview.is(".no-icon") ) return;
 
@@ -406,15 +406,12 @@ var postForm = (function($) {
                     '</div>');
 
         function update_icon_preview() {
-            if ( !icons ) return;
-
-            if ( this.selectedIndex != null && icons[this.selectedIndex] ) {
-                if ( icons[this.selectedIndex].src ) {
-                    $("#js-icon-preview-image").attr({
-                        "src": icons[this.selectedIndex].src,
-                        "alt": icons[this.selectedIndex].alt
-                    });
-                }
+            if ( this.selectedIndex != null ) {
+                var selection = $(this).find("option:selected");
+                $("#js-icon-preview-image").attr({
+                    "src": selection.data('url'),
+                    "alt": selection.data('description')
+                });
             }
         }
 
@@ -663,7 +660,7 @@ var postForm = (function($) {
         initCurrents(entryForm, formData.moodpics);
         initSecurity(entryForm, formData.security, { spellcheck: formData.did_spellcheck, edit: formData.edit } );
         initJournal(entryForm);
-        initIcons(entryForm, formData.icons, formData.iconBrowser);
+        initIcons(entryForm, formData.iconBrowser);
         initSlug(entryForm, $("#js-entrytime-date"));
         initTags(entryForm);
         initDate(entryForm);
