@@ -78,7 +78,7 @@ body<=
     return LJ::bad_input('Unknown journal.  Please go back and try again.') unless $journalu;
 
     # libs for userpicselect
-    LJ::need_res( LJ::Talk::init_iconbrowser_js( 1 ) )
+    LJ::Talk::init_iconbrowser_js()
         if $remote && $remote->can_use_userpic_select;
     LJ::set_active_resource_group( "jquery" );
     LJ::need_res(
