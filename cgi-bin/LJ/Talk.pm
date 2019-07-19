@@ -1820,12 +1820,18 @@ qq{<input type="button" id="lj_userpicselect" value="Browse" data-iconbrowser-me
 
 # load the javascript libraries for the icon browser
 # args: names of any additional files to load
-# returns: full list of arguments to pass to LJ::need_res
+# returns: nothing, just calls need_res
 sub init_iconbrowser_js {
-    my ( $jquery, @additional ) = @_;
+    my @additional = @_;
 
-    my @list = $jquery
-        ? (
+    # There are three separate implementations of the icon browser.
+
+    # The New-New Icon Browser: Depends on Foundation CSS/JS. Used on: New entry
+    # page (if in "updatepage" beta). Omitted here.
+
+    # The Old-New Icon Browser: Depends on jQuery. Used on: Quick-reply and
+    # talkform on journal pages, talkform on talkpost_do.bml, preview page.
+    LJ::need_res(
         { group => 'jquery' },
 
         # base libraries
@@ -1843,8 +1849,17 @@ sub init_iconbrowser_js {
 
         # additional files from arguments
         @additional,
-        )
-        : (
+    );
+
+    # The Old-Old Icon Browser: Weird ancient technology. Not the exciting kind.
+    # Used on: New entry page (if NOT in "updatepage" beta), inbox's "compose"
+    # page (always).
+    LJ::need_res(
+
+        # Explicitly specify "default" group to keep the CSS out of the
+        # 'all' group, because we almost never want it.
+        { group => 'default' },
+
         # base libraries
         'js/6alib/core.js',
         'js/6alib/dom.js',
@@ -1872,9 +1887,7 @@ sub init_iconbrowser_js {
 
         # additional files from arguments
         @additional,
-        );
-
-    return @list;
+    );
 }
 
 # convenience/deduplication function for QR, cut tag, & icon browser JS loading
@@ -1911,7 +1924,7 @@ sub init_s2journal_js {
     ) if $opts{noqr};
 
     # load for userpicselect
-    LJ::need_res( init_iconbrowser_js(1) ) if $opts{iconbrowser};
+    init_iconbrowser_js() if $opts{iconbrowser};
 
     # if we're using the site skin, don't override the jquery-ui theme,
     # as that's already included

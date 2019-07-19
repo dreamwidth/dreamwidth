@@ -21,8 +21,10 @@ use LJ::Talk;
 
 sub need_res {
 
-    # force to not use beta, because this is not used in journal spaces
-    return LJ::Talk::init_iconbrowser_js( 0, 'stc/entry.css' );
+    # Just let need_res work normally for this, instead of using LJ::Widget's
+    # berserk reimplementation of it.
+    LJ::Talk::init_iconbrowser_js('stc/entry.css');
+    return ();
 }
 
 sub handle_post {

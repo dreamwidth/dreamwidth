@@ -1235,7 +1235,7 @@ sub entry_form {
     );
 
     # libs for userpicselect
-    LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+    LJ::Talk::init_iconbrowser_js()
         if !$altlogin && $remote && $remote->can_use_userpic_select;
 
     $out .= $pic;
