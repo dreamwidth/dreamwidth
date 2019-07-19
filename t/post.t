@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 133;
+use Test::More tests => 104;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -49,8 +49,7 @@ note("Not logged in - init");
     ok( !$vars->{remote} );
 
     # icon
-    ok( !@{ $vars->{icons} },  "No icons." );
-    ok( !$vars->{defaulticon}, "No default icon." );
+    ok( !@{ $vars->{icons} }, "No icons." );
 
     # mood theme
     ok( !keys %{ $vars->{moodtheme} }, "No mood theme." );
@@ -72,54 +71,16 @@ note("Logged in - init");
 
     note("# Icons ");
     note("  no icons");
-    ok( !@{ $vars->{icons} },  "No icons." );
-    ok( !$vars->{defaulticon}, "No default icon." );
+    ok( !@{ $vars->{icons} }, "No icons." );
 
-    note("  no default icon");
+    note("  yes icons");
     my $icon1 = LJ::Userpic->create( $u, data => \$ICON1 );
     my $icon2 = LJ::Userpic->create( $u, data => \$ICON2 );
     $icon1->set_keywords("b, z");
     $icon2->set_keywords("a, c, y");
 
     $vars = DW::Controller::Entry::_init( { remote => $u } );
-    is( @{ $vars->{icons} }, 6, "Has icons (including a blank one in the list for default)" );
-    ok( !$vars->{defaulticon}, "No default icon." );
-
-    my @icon_order = (
-
-        # keyword, userpic object
-        [ undef, undef ],
-        [ "a",   $icon2 ],
-        [ "b",   $icon1 ],
-        [ "c",   $icon2 ],
-        [ "y",   $icon2 ],
-        [ "z",   $icon1 ],
-    );
-    my $count = 0;
-    foreach my $icon ( @{ $vars->{icons} } ) {
-        if ( $count == 0 ) {
-            is( $icon->{keyword}, undef, "No default icon; no keyword." );
-            is( $icon->{userpic}, undef, "No default icon." );
-        }
-        else {
-            is( $icon->{keyword},     $icon_order[$count]->[0],     "Keyword is in proper order." );
-            is( $icon->{userpic}->id, $icon_order[$count]->[1]->id, "Icon is proper icon." );
-        }
-        $count++;
-    }
-
-    note("  with default icon");
-    $icon1->make_default;
-    $vars = DW::Controller::Entry::_init( { remote => $u } );
-    ok( $vars->{defaulticon}, "Has default icon." );
-
-    $icon_order[0] = [ undef, $icon1 ];
-    $count = 0;
-    foreach my $icon ( @{ $vars->{icons} } ) {
-        is( $icon->{keyword},     $icon_order[$count]->[0],     "Keyword is in proper order." );
-        is( $icon->{userpic}->id, $icon_order[$count]->[1]->id, "Icon is proper icon." );
-        $count++;
-    }
+    is( @{ $vars->{icons} }, 6, "Has icons (including an entry for default)" );
 
     note("# Moodtheme");
     note("  default mood theme");
@@ -276,7 +237,6 @@ note("Altlogin - init");
     ok( !$vars->{tags},                "No tags" );
     ok( !keys %{ $vars->{moodtheme} }, "No mood theme." );
     ok( !@{ $vars->{icons} },          "No icons." );
-    ok( !$vars->{defaulticon},         "No default icon." );
     is( @{ $vars->{security} }, 3, "Default security dropdown" );
     ok( !@{ $vars->{journallist} }, "No journal dropdown" );
 
