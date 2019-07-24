@@ -3574,12 +3574,12 @@ var Color hover = isnull $*color_entry_link_hover ? $*color_page_link_hover : $*
 var Color active = isnull $*color_entry_link_active ? $*color_page_link_active : $*color_entry_link_active;
 
 """
-.ContextualPopup {
+.ContextualPopup, .icon-browser {
     background: $background;
     color: $text;
     }
 
-.ContextualPopup a { color: $link; }
+.ContextualPopup a, .icon-browser a { color: $link; }
 .ContextualPopup a:visited { color: $visited; }
 .ContextualPopup a:hover { color: $hover; }
 .ContextualPopup a:active { color: $active; }
