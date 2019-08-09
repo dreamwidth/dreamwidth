@@ -38,7 +38,7 @@
                             my: "center top",
                             at: "center bottom",
                             of: this,
-                            collision: "flipfit"
+                            collision: "flip"
                         },
                         width: "auto",
                         open: function(e, ui) {
@@ -104,11 +104,13 @@ var hash = location.hash;
 if ( hash.indexOf( "#tagnav-" ) == 0 ) {
     $(window).load(function() {
         var tagnav_tag = decodeURIComponent(hash.slice(8));
+        var scrollPosition = $(window).scrollTop();
 
         $(".tag-nav-trigger").click();
         $(".tag a").filter(function() {
             var text = $(this).text();
             return text === tagnav_tag || text.replace(/ /g, '+') === tagnav_tag;
         }).click();
+        $(window).scrollTop(scrollPosition);
     })
 }
