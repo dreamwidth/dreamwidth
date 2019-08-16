@@ -446,6 +446,7 @@ function ReplyPage::print_comment (Comment c) {
 
 function ReplyPage::print_body
 {
+    """<div class="reply-page-wrapper">""";
     if (not $.entry.comments.enabled) {
         print safe "<h2>$*text_reply_nocomments_header</h2><p>$*text_reply_nocomments</p>";
         return;
@@ -465,6 +466,7 @@ function ReplyPage::print_body
     ") </div>\n";
     """<h1>Post a comment in response:</h1>""";
     $.form->print();
+    """</div>""";
 }
 
 function EntryPage::print_title() {
