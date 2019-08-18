@@ -15,7 +15,7 @@ File::Type
 GTop
 Gearman::Client
 GnuPG::Interface
-Hash::MultiValue@0.10
+Hash::MultiValue@0.16
 IO::WrapTie
 Image::ExifTool
 Image::Size
@@ -30,7 +30,7 @@ MIME::Lite
 MIME::Words
 Mail::GnuPG
 Math::BigInt::GMP
-MogileFS::Client@1.12
+MogileFS::Client@1.17
 Moose
 Mozilla::CA
 Net::DNS
@@ -43,7 +43,7 @@ Paws::S3
 Perl::Tidy@20190601
 Proc::ProcessTable
 RPC::XML
-SOAP::Lite@0.710.8
+SOAP::Lite@1.27
 String::CRC32
 Sys::Syscall
 Template
@@ -59,7 +59,7 @@ Unicode::CheckUTF8
 Unicode::MapUTF8
 XML::Atom
 XML::RSS
-XML::Simple@2.12
+XML::Simple@2.25
 XMLRPC::Lite
 YAML
 YAML::XS
