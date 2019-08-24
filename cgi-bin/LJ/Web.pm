@@ -2800,6 +2800,80 @@ sub js_dumper {
     }
 }
 
+# INTERLUDE: What's up w/ need_res, res_includes, and set_active_resource_group?
+#
+#     GOOD QUESTION, WONDER-CAT. This is a system for lazy resolution and
+# deduplication of required CSS/JS files. Any component can declare its own
+# dependencies without caring where it's being called from, which theoretically
+# makes things slightly more self-contained and maintainable.
+#     Later (I think?), someone extended it to enable incremental code
+# modernization. A component can declare multiple implementations of a frontend
+# feature, specifying a "resource group" for each implementation. When it's
+# finally time to build a page, the controller sets its preferred resource group
+# and pulls in only frontend code that's compatible with that group.
+#     As for how to use these, well, hmm. They follow a classic LJ design
+# pattern that I like to call "launch some garbage into the void / reach
+# into the void and grab some garbage." Infinite flexibility, zero handrails or
+# validation. So here's the conventions I've been able to puzzle out.
+#
+# * `need_res`: Declares one or more JS/CSS files that need to be loaded for
+# the current page. need_res([<opts hashref>], <path>, [<path>...])
+#     FILE PATHS: Use paths like "js/jquery.replyforms.js" or
+#         "stc/components/quick-reply.css", relative to the top-level "htdocs"
+#         directory. Paths can ONLY go into the "js" (javascript) or "stc" (CSS)
+#         subdirectories. Note that on a live instance of the app, "stc" also
+#         has the compiled contents of the "scss" directory (minus any files
+#         whose names begin with an underscore [_]).
+#     PRIORITY: The opts hashref can have a "priority" key, whose value is
+#         an integer. This affects the order in which files are added to the
+#         page; otherwise the order is effectively random. Files with bigger
+#         priority values get included first. Existing code only seems to
+#         use two values: 0 (normal) and 3 (prerequisites). 0 is never
+#         referenced explicitly, just defaulted to. 3 is always referenced
+#         indirectly, via the $LJ::LIB_RES_PRIORITY variable.
+#     RESOURCE GROUP: The opts hashref can have a "group" key, whose value
+#         is a string. See "KNOWN RESOURCE GROUPS" below for more details. If
+#         you don't specify a group, need_res puts CSS files in the "all" group
+#         and JS files in the "default" (actually legacy) group.
+#
+# * `set_active_resource_group`: Sets the value of a global variable called
+# $LJ::ACTIVE_RES_GROUP, which then affects the behavior of res_includes. It's
+# supposed to be called pretty late in the process of building a page. You can
+# check that variable to see what will _probably_ be happening, but be careful;
+# there aren't a lot of assurances about how accurate it is at any given time.
+#
+# * `res_includes`: Builds the actual HTML tags for the JS/CSS in the current
+# resource group (plus the special "all" group), and returns them as a string.
+# Whatever calls res_includes is responsible for putting the result somewhere
+# useful.
+#     Conceptually, res_includes is only meant to be called once per page, but
+# since Foundation expects JS to go at the bottom of the <body>, it's more like
+# "call half of it twice," via the wrapper functions `res_includes_head`
+# (for CSS and really basic inline JS that everything else relies on) and
+# `res_includes_body` (JS loaded from files).
+#
+# KNOWN RESOURCE GROUPS: There isn't any validation on these, but these are the
+# values that actually get used by something.
+#     - "foundation" - newer pages.
+#     - "jquery" - pages whose JS was modernized in the early '10s.
+#     - "default" - legacy LJ pages that have basically never been modernized.
+#     - "all" - always included, regardless of the current resource group.
+#     - "fragment" - no idea, tbh. Something involving the template system.
+#
+# LIMITATIONS: Lazy resolution basically doesn't work with S2 pages, so they
+# need to know all of their CSS/JS files BEFORE we start rendering markup. In
+# particular, watch out for this when using .tt components that call need_res.
+#     Why? To lazy resolve, you need to call res_includes AFTER the inner
+# content is fully built, which means building the outer frame of the page last.
+# That's easy for site pages, but since journal styles can override the entire
+# HTML document, there's not really any protected "outer" part of the page that
+# core2 can defer.
+# Exceptions to this:
+#     - The "siteviews" layout can lazy-resolve just fine.
+#     - If the "s2foundation" beta is active, S2 pages can lazy-resolve JS (but
+#       not CSS).
+# -NF
+
 # optional first argument: hashref with options
 # other arguments: resources to include
 sub need_res {
