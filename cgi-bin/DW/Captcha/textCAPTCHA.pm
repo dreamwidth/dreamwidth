@@ -101,7 +101,7 @@ sub _print {
     return qq{
 <div id="textcaptcha_container" aria-live="assertive" style="line-height: 1.2em">
     $captcha_load
-<noscript><iframe src="$LJ::SITEROOT/captcha/text/$auth" style="width:100%;height:4em" id="textcaptcha_fallback"></iframe>
+<noscript><iframe src="$LJ::SITEROOT/captcha/text/$auth" style="width:100%;height:8em" id="textcaptcha_fallback"></iframe>
 <label for="textcaptcha_response_noscript">$response_label</label> <input type="text" maxlength="255" autocomplete="off" value="" name="textcaptcha_response_noscript" class="text" id="textcaptcha_response_noscript" size="50" />
 </noscript>
 </div>};
