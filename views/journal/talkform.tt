@@ -96,7 +96,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
       [%- END -%]
     </div>
 
-    [%- IF remote.openid_identity -%]
+    [%- IF remote.openid_identity AND default_usertype != 'openid' -%]
+      [%# ...then we're legit logged in as an OpenID user, not just holding a
+      temp $remote on a partial form submission (captcha, error, etc.) -%]
       <div class="from-option
         [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
       " id='from-openid-loggedin'>
@@ -275,7 +277,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
           label = dw.ml('Username')
           size = 13
           maxlength = username_maxlength
-          value = ( comment.user || remote.user )
+          value = comment.user
           style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 50%; padding-left: 18px; color: #00C; font-weight: bold;"
         ) -%]
       </div>
@@ -310,7 +312,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 
 <div class='qr-meta'>
-  <div class='qr-icon'>
+  <div class='qr-icon no-label'>
     [%- IF remote.can_use_userpic_select -%]
       <button type='button' id='lj_userpicselect' data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
     [%- ELSIF remote -%]
@@ -367,10 +369,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%# The current subjecticon, as the button to open the menu. %]
   [%- print_subjecticon_by_id(
     comment.subjecticon,
-    "id='subjectIconImage' role='button' title='Click to change the subject icon'"
+    "id='subjectIconImage' role='button' class='js-only' style='display: none;' title='Click to change the subject icon'"
   ) -%]
 
-  <input type="button" id="comment-text-quote" value="Quote" tabindex="-1" class="js-only markup-button" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
+  <input type="button" id="comment-text-quote" value="Quote" tabindex="-1" class="js-only markup-button" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
 </div>
 
 <div style="display: none;" id="subjectIconList">
@@ -584,7 +586,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
         </div>
 
-        [%- IF remote.openid_identity -%]
+        [%- IF remote.openid_identity AND default_usertype != 'openid' -%]
+          [%# ...then we're legit logged in as an OpenID user, not just holding a
+          temp $remote on a partial form submission (captcha, error, etc.) -%]
           <div class="from-option
             [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
           " id='from-openid-loggedin'>
@@ -746,7 +750,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
               label = dw.ml('Username')
               size = 13
               maxlength = username_maxlength
-              value = ( comment.user || remote.user )
+              value = comment.user
               style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;"
             ) -%]
           </div>
@@ -810,7 +814,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%# The current subjecticon, as the button to open the menu. %]
     [%- print_subjecticon_by_id(
       comment.subjecticon,
-      "id='subjectIconImage' title='Click to change the subject icon' style='cursor:pointer;cursor:hand'"
+      "id='subjectIconImage' title='Click to change the subject icon' class='js-only' style='display: none;cursor:pointer;cursor:hand'"
     ) -%]
 
     <blockquote style="display: none;" id="subjectIconList">
@@ -841,7 +845,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         ) -%]
 
         [%- IF remote.can_use_userpic_select -%]
-          <button type="button" id="lj_userpicselect" data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
+          <button type="button" class="js-only" style="display: none;" id="lj_userpicselect" data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
               Browse
           </button>
         [%- END -%]

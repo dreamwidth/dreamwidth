@@ -146,6 +146,13 @@
                 }
             }
         }
+
+        // Hide browse button in talkform when JS is disabled
+        &.no-label {
+            button::after {
+                opacity: 0 !important;
+            }
+        }
     }
 
     .qr-icon-controls {
