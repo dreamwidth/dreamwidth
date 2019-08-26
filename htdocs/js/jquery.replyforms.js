@@ -69,13 +69,15 @@ jQuery(function($) {
             $("#randomicon").show();
         } else {
             // Update icon preview
-            $(".qr-icon").find("img")
+            var iconPreview = $(".qr-icon");
+            iconPreview.removeClass("no-label"); // hides browse button in talkform when no JS.
+            iconPreview.find("img")
                 .attr("src", selection.data("url"))
                 .removeAttr("width").removeAttr("height").removeAttr("alt");
             if (selection.attr('value') === '') {
-                $(".qr-icon").addClass("default");
+                iconPreview.addClass("default");
             } else {
-                $(".qr-icon").removeClass("default");
+                iconPreview.removeClass("default");
             }
         }
     });
