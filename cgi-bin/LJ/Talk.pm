@@ -1627,8 +1627,7 @@ sub talkform {
             editreason  => $comment ? $comment->edit_reason : '',
             oidurl      => $form->{oidurl},
             oiddo_login => $form->{oiddo_login},
-            user        => $form->{userpost}
-                || $form->{cookieuser},
+            user        => $form->{userpost},
             do_login    => $form->{do_login},
             body        => $form->{body},
             subject     => $basesubject,
