@@ -17,6 +17,12 @@ jQuery(function($) {
     // Reveal any controls that are hidden when JS is disabled... and vice versa
     $(".js-only").show();
     $(".no-js").hide();
+    // Re-enable submit buttons when page is thawed from bfcache (Safari, Firefox)
+    $(window).on('pageshow', function(e){
+        if ( e.originalEvent.persisted ) {
+            commentForm.find('input[type="submit"]').prop("disabled", false);
+        }
+    });
 
     function randomIcon() {
         if ( iconSelect.length === 0 ) return;
