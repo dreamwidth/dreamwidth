@@ -1,12 +1,10 @@
 @import "foundation/base";
 
-$icon-control-height: 2.2em;
-
 #qrdiv * {
     box-sizing: border-box;
 }
 
-#qrform {
+#qrformdiv {
     text-align: left;
     padding: .5em;
     clear: both;
@@ -24,6 +22,12 @@ $icon-control-height: 2.2em;
 
     input, button, textarea, select {
         margin-bottom: 3px;
+        margin-top: 0;
+    }
+
+    input[type="button"], button {
+        // Avoids double-tap zoom when tapping "random" repeatedly
+        touch-action: manipulation;
     }
 
     // Avoid *dramatic woodchuck* zoom on mobile
@@ -33,90 +37,154 @@ $icon-control-height: 2.2em;
         }
     }
 
+    // If no grid: vertical stack. ID -> icon preview -> icon controls.
     .qr-meta {
-        display: flex;
-        align-items: flex-end;
+
+        display: grid;
+        grid-column-gap: 5px;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+            "name name"
+            "icon more"
+            "icon iconctl";
+        .qr-icon {
+            margin-bottom: 3px;
+            grid-area: icon;
+            align-self: self-end;
+        }
+        .qr-icon-controls {
+            grid-area: iconctl;
+        }
+        .ljuser {
+            grid-area: name;
+            margin-bottom: 2px;
+            font-size: smaller;
+        }
+        #submitmoreopts {
+            grid-area: more;
+            justify-self: start;
+            align-self: self-end;
+        }
     }
 
     .qr-icon {
-        // Same height as stacked icon controls
         width: 55px;
         height: 55px;
-        flex-shrink: 0;
-        margin-right: 3px;
-        margin-bottom: 3px;
 
         img {
             max-width: 100%;
             max-height: 100%;
+
+            @supports (object-position: bottom) {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                object-position: bottom;
+            }
+        }
+
+        a, button {
+            position: relative;
+            display: block;
+
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 0;
+            margin: 0;
+            background: none;
+            cursor: pointer;
+
+            &::after {
+                position: absolute;
+
+                display: block; // old browsers
+                display: flex;  // new browsers
+                align-items: flex-end;
+                justify-content: center;
+
+                top: 0;
+                margin: 0;
+                font-size: 11px;
+                font-weight: bold;
+                opacity: 0;
+                background: rgba(255, 255, 255, 0.7); // real old browsers
+                background: radial-gradient(
+                    circle farthest-side at left 50% bottom -60%,
+                    rgba(255, 255, 255, 1.0),
+                    rgba(255, 255, 255, 0.85) 50%,
+                    rgba(255, 255, 255, 0) 67%
+                );
+                color: rgba(0, 0, 0, 0.8);
+                text-shadow: 0px -1px 3px #fff;
+                text-align: center;
+                width: 100%;
+                height: 100%;
+                @include single_transition();
+            }
+
+            &:hover, &:focus {
+                &::after {
+                    opacity: 1;
+                }
+            }
+        }
+
+        a::after {
+            content: "View all";
+        }
+
+        button::after {
+            content: "Browse";
+        }
+
+        &.default {
+            a, button {
+                &::after {
+                    opacity: 1;
+                }
+            }
         }
     }
 
     .qr-icon-controls {
-        & > * {
-            margin-bottom: 3px;
+        display: flex;
+        align-items: flex-end;
+        min-width: 0; // let grid shrink it
+
+        #randomicon {
+            margin-left: 5px;
         }
 
         select#prop_picture_keyword {
-            display: block;
-            @supports (display: flex) {
-                width: 100%;
-            }
+            margin-left: 0;
+            max-width: 100%;
+            min-width: 0; // Let grid/flex shrink it
         }
     }
 
-    button.lj_userpicselect_extra {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        border: none;
-        padding: 0;
-        margin: 0;
-        background: none;
-        cursor: pointer;
-
-        &::after {
-            content: "Browse";
-            display: block;
-            position: absolute;
-            top: 0;
-            margin: 0 auto;
-            font-weight: bold;
-            line-height: 60px;
-            color: #000;
-            background-color: #fff;
-            text-align: center;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            @include single_transition();
-        }
-
-        &:hover, &:focus {
-            &::after {
-                opacity: .7;
-            }
-        }
-    }
-
-    .qr-body {
+    .qr-subject {
         display: flex;
-        flex-wrap: wrap;
         align-items: flex-end;
 
         #subject {
             // size=50 in html is a presentational hint for width, so need to
             // set width to SOMETHING to keep it from messing up the flex.
             width: 70%;
+            min-width: 0; // let it shrink
             flex-grow: 1;
             flex-shrink: 1;
         }
         #comment-text-quote {
             margin-left: 5px;
         }
+    }
+
+    .qr-body {
         #body {
             width: 100%;
-            flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
         }
     }
 
@@ -136,16 +204,12 @@ $icon-control-height: 2.2em;
         }
     }
 
-    #submitmoreopts {
-        margin-left: 0;
-    }
-
     textarea, select, input[type="text"] {
-        margin-right: 0; // Fix for site scheme.
+        margin-right: 0; // Fix for old site scheme.
     }
 
     .invisible {
-        // Fix for site scheme; a ".comment .invisible" rule was setting position: relative.
+        // Fix for old site scheme; a ".comment .invisible" rule was setting position: relative.
         position: absolute;
     }
 }
