@@ -48,6 +48,19 @@ jQuery(function($) {
     // Random icon re-roll button (hidden until random is selected once)
     $("#randomicon").on("click", randomIcon);
 
+
+    // New-new icon browser, if available
+    if ( $.fn.iconBrowser ) {
+        iconSelect.iconBrowser({
+            triggerSelector: "#lj_userpicselect",
+            modalId: "js-icon-browser",
+            preferences: {
+                "metatext": $('#lj_userpicselect').data('iconbrowserMetatext'),
+                "smallicons": $('#lj_userpicselect').data('iconbrowserSmallicons')
+            }
+        });
+    }
+
     iconSelect.on("change", function(e) {
         var selection = $(this).find("option:selected");
         if (selection.attr('id') === 'random') {

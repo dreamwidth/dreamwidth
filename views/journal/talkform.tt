@@ -499,3 +499,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </table>
 
 </form>
+
+[%- IF remote.can_use_userpic_select AND foundation_beta -%]
+  [%- INCLUDE "components/icon-browser.tt" -%]
+[%- END -%]

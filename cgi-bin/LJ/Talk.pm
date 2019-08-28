@@ -1615,6 +1615,10 @@ sub talkform {
         subjecticon_ids      => \@subjecticon_ids,
         username_maxlength   => $LJ::USERNAME_MAXLENGTH,
 
+        foundation_beta => LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" )
+            && $LJ::ACTIVE_RES_GROUP
+            && $LJ::ACTIVE_RES_GROUP eq "foundation",
+
         public_entry     => $entry->security eq 'public',
         default_usertype => $default_usertype,
 
@@ -1825,11 +1829,22 @@ sub init_iconbrowser_js {
 
     # There are three separate implementations of the icon browser.
 
-    # The New-New Icon Browser: Depends on Foundation CSS/JS. Used on: New entry
-    # page (if in "updatepage" beta). Omitted here.
+    # The New-New Icon Browser: Depends on Foundation CSS/JS (either site skin
+    # or minimal version). Used on: New entry page (if in "updatepage" beta),
+    # quickreply and talkform on journal pages (if in "s2foundation" beta).
+    LJ::need_res(
+        { group => 'foundation' },
+
+        'js/foundation/foundation/foundation.js',
+        'js/foundation/foundation/foundation.reveal.js',
+        'js/components/jquery.icon-browser.js',
+        'stc/css/components/block-grid.css',
+        'stc/css/components/icon-browser.css',
+    );
 
     # The Old-New Icon Browser: Depends on jQuery. Used on: Quick-reply and
-    # talkform on journal pages, talkform on talkpost_do.bml, preview page.
+    # talkform on journal pages (if NOT in "s2foundation" beta), talkform on
+    # talkpost_do.bml (always), preview page (always).
     LJ::need_res(
         { group => 'jquery' },
 
