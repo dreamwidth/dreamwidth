@@ -49,6 +49,8 @@ function update(data,widget) {
     if ( ! customsubject || cur_subject == "" )
         subject.val(data.subject);
 
+    $("#prop_picture_keyword").change();
+
     // If we previously munged the layout of #qrformdiv, reset it.
     $('#qrformdiv').removeAttr('style').removeClass('width-adjusted');
 
@@ -225,6 +227,9 @@ jQuery(function($) {
         $("#qrform").attr("action", Site.siteroot + "/talkpost_do" );
     });
     $("#submitmoreopts").on("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
         var replyto = Number($("#dtid").val());
         var pid = Number($("#parenttalkid").val());
         var basepath = $("#basepath").val();
@@ -236,7 +241,9 @@ jQuery(function($) {
         }
 
         $("#qrform").data("stayOnPage", false);
+        $("#qrform").submit();
     });
+
 });
 
 
