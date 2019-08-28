@@ -49,6 +49,8 @@ function update(data,widget) {
     if ( ! customsubject || cur_subject == "" )
         subject.val(data.subject);
 
+    $("#prop_picture_keyword").change();
+
     // If we previously munged the layout of #qrformdiv, reset it.
     $('#qrformdiv').removeAttr('style').removeClass('width-adjusted');
 
@@ -225,18 +227,24 @@ jQuery(function($) {
         $("#qrform").attr("action", Site.siteroot + "/talkpost_do" );
     });
     $("#submitmoreopts").on("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var qrform = $("#qrform");
         var replyto = Number($("#dtid").val());
         var pid = Number($("#parenttalkid").val());
         var basepath = $("#basepath").val();
 
         if(replyto > 0 && pid > 0) {
-            $("#qrform").attr("action", basepath + "replyto=" + replyto );
+            qrform.attr("action", basepath + "replyto=" + replyto );
         } else {
-            $("#qrform").attr("action", basepath + "mode=reply" );
+            qrform.attr("action", basepath + "mode=reply" );
         }
 
-        $("#qrform").data("stayOnPage", false);
+        qrform.data("stayOnPage", false);
+        qrform.submit();
     });
+
 });
 
 
