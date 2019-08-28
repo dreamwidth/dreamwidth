@@ -933,6 +933,9 @@ sub create_qr_div {
 
             current_icon_kw => $userpic_kw,
             current_icon    => LJ::Userpic->new_from_keyword( $remote, $userpic_kw ),
+            foundation_beta => LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" )
+                && $LJ::ACTIVE_RES_GROUP
+                && $LJ::ACTIVE_RES_GROUP eq "foundation",
 
             remote => {
                 ljuser => $remote->ljuser_display,
