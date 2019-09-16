@@ -374,6 +374,7 @@ H1, H2, H3 {
 }
 
 h1, h2, h3, h4, h5, h6 {
+    word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
@@ -568,6 +569,7 @@ h2#pagetitle {
 }
 
 .entry .contents {
+    word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
@@ -625,6 +627,7 @@ h2#pagetitle {
 }
 
 .metadata-item, .poster-ip {
+    word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
@@ -689,6 +692,7 @@ $responsive_indent_css
 }
 
 .comment .contents {
+    word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
@@ -790,6 +794,7 @@ table.month td p {
 
 .module-content {
     $module_font
+    word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
