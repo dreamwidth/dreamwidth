@@ -1,0 +1,35 @@
+[%# Stripe checkout
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2019 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = 'Check Out With Stripe' -%]
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+
+$(window).on('load', function() {
+    var stripe = Stripe('[% stripe_published_key %]');
+
+    stripe.redirectToCheckout({
+        // Make the id field from the Checkout Session creation API response
+        // available to this file, so you can provide it as parameter here
+        // instead of the {{CHECKOUT_SESSION_ID}} placeholder.
+        sessionId: '[% stripe_session_id %]'
+    }).then(function (result) {
+        // If `redirectToCheckout` fails due to a browser or network
+        // error, display the localized error message to your customer
+        // using `result.error.message`.
+    });
+});
+
+</script>
+
+<p>Please hold while we redirect you...</p>

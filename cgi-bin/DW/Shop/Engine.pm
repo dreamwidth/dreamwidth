@@ -22,6 +22,7 @@ use DW::Shop::Engine::CreditCardPP;
 use DW::Shop::Engine::PayPal;
 use DW::Shop::Engine::GoogleCheckout;
 use DW::Shop::Engine::CreditCard;
+use DW::Shop::Engine::Stripe;
 
 # get( $method, $cart )
 #
@@ -32,6 +33,7 @@ sub get {
     return DW::Shop::Engine::CreditCardPP->new( $_[2] )    if $_[1] eq 'creditcardpp';
     return DW::Shop::Engine::CheckMoneyOrder->new( $_[2] ) if $_[1] eq 'checkmoneyorder';
     return DW::Shop::Engine::CreditCard->new( $_[2] )      if $_[1] eq 'creditcard';
+    return DW::Shop::Engine::Stripe->new( $_[2] )          if $_[1] eq 'stripe';
 
     warn "Payment method '$_[1]' not supported.\n";
     return undef;

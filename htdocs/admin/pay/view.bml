@@ -228,6 +228,10 @@ EOF
         $body .= "<h2>raw: cc_log (raw server query/response log)</h2>\n";
         $dump->( 'SELECT * FROM cc_log WHERE cartid = ?', $cart->id );
 
+    } elsif ( $classname eq 'Stripe' ) {
+        # TODO: Implement
+        $body .= "<h2>Stripe extra details not yet implemented</h2>";
+
     } elsif ( $classname eq 'CheckMoneyOrder' ) {
         # show the payer's details.
         $body .= "<h2>Payer Details</h2>";

@@ -166,6 +166,7 @@ sub new_cart {
         nextscan      => 0,
         authcode      => LJ::make_auth_code(20),
         paymentmethod => 0,                        # we don't have a payment method yet
+        pm_metadata   => {},                       # payment method extra storage
         email         => undef,                    # we don't have an email yet
     };
 
@@ -479,6 +480,17 @@ sub paymentmethod {
     $self->save;
 
     return $self->{paymentmethod};
+}
+
+# return hash for paymenet method metadata
+sub paymentmethod_metadata {
+    my ( $self, $key, $val ) = @_;
+
+    if ( defined $val ) {
+        $self->{pm_metadata}->{$key} = $val;
+        $self->save;
+    }
+    return $self->{pm_metadata}->{$key};
 }
 
 # payment method the user should be aware of

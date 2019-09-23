@@ -183,7 +183,11 @@ sub render_body {
                 $ret .= " &nbsp;&nbsp;";
             }
 
-            # and now any hooks that want to add to this...
+            # pay with Stripe
+            $ret .= $class->html_submit( checkout_stripe => 'Stripe (preferred)' );
+            $ret .= ' &nbsp;&nbsp;';
+
+            # generic credit card processing
             $ret .= $class->html_submit(
                 checkout_creditcard => $class->ml('widget.shopcart.paymentmethod.creditcard') );
             $ret .= " &nbsp;&nbsp;";
@@ -213,6 +217,7 @@ sub handle_post {
         && ( $post->{checkout_gco} || $post->{'checkout_gco.x'} );
     $cm = 'creditcard'      if $post->{checkout_creditcard};
     $cm = 'checkmoneyorder' if $post->{checkout_cmo} || $post->{checkout_free};
+    $cm = 'stripe'          if $post->{checkout_stripe};
 
     # check out?
     return BML::redirect("$LJ::SITEROOT/shop/checkout?method=$cm")
