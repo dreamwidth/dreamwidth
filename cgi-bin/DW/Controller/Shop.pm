@@ -28,12 +28,11 @@ use DW::Template;
 use LJ::JSON;
 
 # routing directions
-DW::Routing->register_string( '/shop',                 \&shop_index_handler,            app => 1 );
-DW::Routing->register_string( '/shop/points',          \&shop_points_handler,           app => 1 );
-DW::Routing->register_string( '/shop/icons',           \&shop_icons_handler,            app => 1 );
-DW::Routing->register_string( '/shop/transferpoints',  \&shop_transfer_points_handler,  app => 1 );
-DW::Routing->register_string( '/shop/refundtopoints',  \&shop_refund_to_points_handler, app => 1 );
-DW::Routing->register_string( '/shop/stripe-checkout', \&shop_stripe_checkout_handler,  app => 1 );
+DW::Routing->register_string( '/shop',                \&shop_index_handler,            app => 1 );
+DW::Routing->register_string( '/shop/points',         \&shop_points_handler,           app => 1 );
+DW::Routing->register_string( '/shop/icons',          \&shop_icons_handler,            app => 1 );
+DW::Routing->register_string( '/shop/transferpoints', \&shop_transfer_points_handler,  app => 1 );
+DW::Routing->register_string( '/shop/refundtopoints', \&shop_refund_to_points_handler, app => 1 );
 
 # our basic shop controller, this does setup that is unique to all shop
 # pages and everybody should call this first.  returns the same tuple as
@@ -60,9 +59,6 @@ sub _shop_controller {
     LJ::need_res('stc/shop.css');
     LJ::set_active_resource_group('jquery');
 
-    # stripe variables
-    $rv->{stripe_published_key} = $LJ::STRIPE{published_key} // '';
-
     # figure out what shop/cart to use
     $rv->{shop} = DW::Shop->get;
     $rv->{cart} =
@@ -83,16 +79,6 @@ sub shop_index_handler {
     return $rv unless $ok;
 
     return DW::Template->render_template( 'shop/index.tt', $rv );
-}
-
-# handles the stripe checkout redirect
-sub shop_stripe_checkout_handler {
-    my ( $ok, $rv ) = _shop_controller( anonymous => 1 );
-    return $rv unless $ok;
-
-    $rv->{stripe_session_id} = $rv->{cart}->paymentmethod_metadata('session_id');
-
-    return DW::Template->render_template( 'shop/stripe-checkout.tt', $rv );
 }
 
 # if someone wants to transfer points...

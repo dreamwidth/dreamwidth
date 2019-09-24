@@ -22,6 +22,7 @@ use HTTP::Request::Common;
 use LWP::UserAgent;
 use URI::Escape;
 
+use DW::Shop::Cart;
 use LJ::JSON;
 
 use base qw/ DW::Shop::Engine /;
@@ -120,8 +121,8 @@ sub checkout_url {
     my $res = _post(
         'checkout/sessions',
         {
-            cancel_url           => "$LJ::SITEROOT/shop/cart",
-            success_url          => "$LJ::SITEROOT/shop/cart",    # TODO: Fixme
+            cancel_url           => "$LJ::SITEROOT/shop/stripe-cancel",
+            success_url          => "$LJ::SITEROOT/shop/stripe-success",
             payment_method_types => ['card'],
             client_reference_id  => $cart->id,
             line_items           => \@items,
@@ -140,41 +141,38 @@ sub checkout_url {
     return "$LJ::SITEROOT/shop/stripe-checkout";
 }
 
-# try_capture( ...many values... )
-#
-# given an input of some values, try to capture funds from the processor.  this
-# uses a hook so that local sites can implement their own payment processing
-# logic...
-#
-# note that it is important that you don't actually save the credit card number
-# anywhere on your servers unless you are doing PCI compliance.
-#
-# to repeat: DO NOT SAVE CREDIT CARD NUMBERS TO DISK.  well, at least not in
-# the US.  if you're in another country, your own rules apply.
-#
-sub try_capture {
-    my ( $self, %in ) = @_;
+# process an incoming webhook
+sub process_webhook {
+    my ( $class, $event ) = @_;
 
-    die "Unable to capture funds: no credit card processor loaded.\n"
-        unless LJ::Hooks::are_hooks('creditcard_try_capture');
+    if ( $event->{type} eq 'checkout.session.completed' ) {
+        my $cartid = $event->{data}{object}{client_reference_id};
+        return ( 400, 'Invalid client_reference_id (invalid/not provided).' )
+            unless defined $cartid;
+        $cartid += 0;
 
-    # first capture the points if we have any to do
-    return ( 0, 'Failed to capture points to complete order.' )
-        unless $self->try_capture_points;
+        my $cart = DW::Shop::Cart->get_from_cartid($cartid);
+        return ( 400, 'Invalid client_reference_id (cart not found).' )
+            unless defined $cart;
 
-    # this hook is supposed to try to capture the funds.  return value is a
-    # list: ( $code, $message ).  code is one of 0 (declined), 1 (success).
-    # message is optional and if saved will be recorded as the status message.
-    my ( $res, $msg ) = LJ::Hooks::run_hook( creditcard_try_capture => ( $self, \%in ) );
+        my $engine = $class->new($cart);
+        return ( 500, 'Unable to build engine.' )
+            unless $engine;
 
-    # if the capture failed, refund the points
-    $self->refund_captured_points
-        unless $res;
+        # This event should only be fired when the cart has been paid, and in
+        # that case, we should move the cart along.
+        # TODO: this needs to be some kind of other state, ...?
+        if ( $cart->state == $DW::Shop::STATE_OPEN ) {
+            $cart->state($DW::Shop::STATE_PAID);
 
-    # the person who called us is responsible for setting up cart and engine
-    # status based on the results.  improvement: maybe move all that logic
-    # up to here so the workers are really small?
-    return ( $res, $msg );
+            # TODO: What if this fails? do we need to refund the user?
+            $engine->try_capture_points;
+        }
+
+        return ( 200, 'I gotchu, Stripe. User is good!' );
+    }
+
+    return ( 400, 'Unsupported event.' );
 }
 
 # accessors
