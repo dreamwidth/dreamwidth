@@ -16,6 +16,8 @@
 #
 
 _c?>
+<?page
+body<=
 <?_code
 {
     use strict;
@@ -94,3 +96,6 @@ _c?>
     return $ret;
 }
 _code?>
+<=body
+title=><?_code return $title; _code?>
+page?>
