@@ -131,6 +131,7 @@ sub checkout_url {
 
     if ( $res->is_success ) {
         my $obj = from_json( $res->decoded_content );
+        $cart->state( $DW::Shop::STATE_PEND_PAID );
         $cart->paymentmethod_metadata( session_id => $obj->{id} );
     }
     else {
@@ -138,7 +139,7 @@ sub checkout_url {
     }
 
     # return URL to cc entry
-    return "$LJ::SITEROOT/shop/stripe-checkout";
+    return "$LJ::SITEROOT/shop/stripe-checkout?ordernum=" . $cart->ordernum;
 }
 
 # process an incoming webhook
@@ -161,8 +162,7 @@ sub process_webhook {
 
         # This event should only be fired when the cart has been paid, and in
         # that case, we should move the cart along.
-        # TODO: this needs to be some kind of other state, ...?
-        if ( $cart->state == $DW::Shop::STATE_OPEN ) {
+        if ( $cart->state == $DW::Shop::STATE_PEND_PAID ) {
             $cart->state($DW::Shop::STATE_PAID);
 
             # TODO: What if this fails? do we need to refund the user?

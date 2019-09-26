@@ -54,7 +54,7 @@ sub checkout_url {
 
     # and, just in case something terrible happens, make sure our state is good
     die "Cart not in valid state!\n"
-        unless $cart->state == $DW::Shop::STATE_OPEN;
+        unless $cart->state == $DW::Shop::STATE_OPEN || $cart->state == $DW::Shop::STATE_CHECKOUT;
 
     # the cart is in a good state, so just send them to the confirmation page which
     # gives them instructions on where to send it

@@ -54,7 +54,7 @@ sub render_body {
     my $colspan = $opts{receipt} ? 5 : 6;
 
     $ret .= $class->start_form
-        unless $opts{receipt};
+        unless $opts{confirm};
 
     $ret .= "<table class='shop-cart grid'>";
     $ret .= "<thead>";
@@ -159,7 +159,7 @@ sub render_body {
 
     $ret .= "</table>";
 
-    unless ( $opts{receipt} ) {
+    if ( !$opts{receipt} || ( !$opts{confirm} && $cart->state == $DW::Shop::STATE_CHECKOUT ) ) {
         $ret .=
               "<div class='shop-cart-btn'><p><strong>"
             . $class->ml('widget.shopcart.paymentmethod')
@@ -183,13 +183,9 @@ sub render_body {
                 $ret .= " &nbsp;&nbsp;";
             }
 
-            # pay with Stripe
-            $ret .= $class->html_submit( checkout_stripe => 'Stripe (preferred)' );
-            $ret .= ' &nbsp;&nbsp;';
-
-            # generic credit card processing
+            # Stripe credit card processing
             $ret .= $class->html_submit(
-                checkout_creditcard => $class->ml('widget.shopcart.paymentmethod.creditcard') );
+                checkout_stripe => $class->ml('widget.shopcart.paymentmethod.creditcard') );
             $ret .= " &nbsp;&nbsp;";
 
             # check or money order button
@@ -198,7 +194,8 @@ sub render_body {
         }
 
         $ret .= "</p></div>";
-        $ret .= $class->end_form;
+        $ret .= $class->end_form
+            unless $opts{confirm};
     }
 
     # allow hooks to alter the cart or append to it
