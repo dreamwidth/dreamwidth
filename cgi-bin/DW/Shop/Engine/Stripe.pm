@@ -121,8 +121,8 @@ sub checkout_url {
     my $res = _post(
         'checkout/sessions',
         {
-            cancel_url           => "$LJ::SITEROOT/shop/stripe-cancel",
-            success_url          => "$LJ::SITEROOT/shop/stripe-success",
+            cancel_url           => "$LJ::SITEROOT/shop",
+            success_url          => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
             payment_method_types => ['card'],
             client_reference_id  => $cart->id,
             line_items           => \@items,

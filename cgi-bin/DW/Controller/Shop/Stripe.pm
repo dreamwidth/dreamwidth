@@ -24,7 +24,6 @@ use DW::Controller::Shop;
 use DW::Shop::Engine::Stripe;
 
 DW::Routing->register_string( '/shop/stripe-checkout', \&stripe_checkout_handler, app => 1 );
-DW::Routing->register_string( '/shop/stripe-success',  \&stripe_success_handler,  app => 1 );
 DW::Routing->register_string( '/shop/stripe-webhook', \&stripe_webhook_handler, format => 'json' );
 
 sub _stripe_controller {
@@ -35,13 +34,6 @@ sub _stripe_controller {
     }
 
     return ( $ok, $rv );
-}
-
-sub stripe_success_handler {
-    my ( $ok, $rv ) = _stripe_controller( anonymous => 1 );
-    return $rv unless $ok;
-
-    return DW::Template->render_template( 'shop/stripe/success.tt', $rv );
 }
 
 sub stripe_checkout_handler {
