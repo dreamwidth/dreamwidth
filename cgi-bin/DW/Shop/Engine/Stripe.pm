@@ -110,7 +110,7 @@ sub checkout_url {
         push @items,
             {
             name     => $item->name_text,
-            amount   => $item->cost_cash * 100,
+            amount   => $item->paid_cash * 100,
             quantity => 1,
             currency => 'usd',
             };
