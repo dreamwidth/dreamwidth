@@ -17,6 +17,9 @@
 package DW::Controller::Shop::Stripe;
 
 use strict;
+use Carp qw/ confess /;
+use Digest::SHA qw/ hmac_sha256_hex /;
+
 use LJ::JSON;
 use DW::Routing;
 use DW::Controller;
@@ -52,8 +55,18 @@ sub stripe_webhook_handler {
     my $raw_json = $r->content;
     my $event    = from_json($raw_json);
 
-    # TODO: verify signature here
+    # validate webhook signature
+    my $signature = $r->header_in( 'Stripe-Signature' );
+    my %elems = map { split /=/, $_ } split( /,\s*/, $signature );
+    my $payload = $elems{t} . '.' . $raw_json;
+    my $hmac = hmac_sha256_hex( $payload, $LJ::STRIPE{webhook_key} );
+    if ( $hmac ne $elems{v1} ) {
+        $r->status( 400 );
+        $r->print( 'Invalid webhook signature.' );
+        return $r->OK;
+    }
 
+    # Signature validated, process
     my ( $status, $msg ) = DW::Shop::Engine::Stripe->process_webhook($event);
     $r->status($status);
     $r->print($msg);
