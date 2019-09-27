@@ -186,7 +186,7 @@ sub render_body {
             # Stripe credit card processing
             $ret .= $class->html_submit(
                 checkout_stripe => $class->ml('widget.shopcart.paymentmethod.creditcard'),
-                { disabled => ! $LJ::STRIPE{enabled} }
+                { disabled => !$LJ::STRIPE{enabled} }
             );
             $ret .= " &nbsp;&nbsp;";
 

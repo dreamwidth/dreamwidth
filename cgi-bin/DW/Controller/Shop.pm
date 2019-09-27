@@ -64,7 +64,9 @@ sub _shop_controller {
     $rv->{cart} =
         $r->get_args->{newcart} ? DW::Shop::Cart->new_cart( $rv->{u} ) : $rv->{shop}->cart;
     $rv->{cart} =
-        $r->get_args->{ordernum} ? DW::Shop::Cart->get_from_ordernum( $r->get_args->{ordernum} ) : $rv->{shop}->cart;
+        $r->get_args->{ordernum}
+        ? DW::Shop::Cart->get_from_ordernum( $r->get_args->{ordernum} )
+        : $rv->{shop}->cart;
 
     # populate vars with cart display template
     $rv->{cart_display} = DW::Template->template_string( 'shop/cartdisplay.tt', $rv );

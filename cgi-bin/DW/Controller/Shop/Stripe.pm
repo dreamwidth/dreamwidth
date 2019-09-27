@@ -56,13 +56,13 @@ sub stripe_webhook_handler {
     my $event    = from_json($raw_json);
 
     # validate webhook signature
-    my $signature = $r->header_in( 'Stripe-Signature' );
-    my %elems = map { split /=/, $_ } split( /,\s*/, $signature );
-    my $payload = $elems{t} . '.' . $raw_json;
-    my $hmac = hmac_sha256_hex( $payload, $LJ::STRIPE{webhook_key} );
+    my $signature = $r->header_in('Stripe-Signature');
+    my %elems     = map { split /=/, $_ } split( /,\s*/, $signature );
+    my $payload   = $elems{t} . '.' . $raw_json;
+    my $hmac      = hmac_sha256_hex( $payload, $LJ::STRIPE{webhook_key} );
     if ( $hmac ne $elems{v1} ) {
-        $r->status( 400 );
-        $r->print( 'Invalid webhook signature.' );
+        $r->status(400);
+        $r->print('Invalid webhook signature.');
         return $r->OK;
     }
 

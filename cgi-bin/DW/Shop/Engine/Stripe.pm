@@ -131,7 +131,7 @@ sub checkout_url {
 
     if ( $res->is_success ) {
         my $obj = from_json( $res->decoded_content );
-        $cart->state( $DW::Shop::STATE_PEND_PAID );
+        $cart->state($DW::Shop::STATE_PEND_PAID);
         $cart->paymentmethod_metadata( session_id => $obj->{id} );
     }
     else {
