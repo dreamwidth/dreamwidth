@@ -59,9 +59,9 @@ body<=
         $paymentmethod = $cart->paymentmethod;
     }
 
-    # cart must be in open state
+    # cart must be in open/checkout state
     return BML::redirect( "$LJ::SITEROOT/shop/receipt?ordernum=$ordernum" )
-        unless $cart->state == $DW::Shop::STATE_OPEN;
+        unless $cart->state == $DW::Shop::STATE_OPEN || $cart->state == $DW::Shop::STATE_CHECKOUT;
 
     # check email early so we can re-render the form on error
     my ( $email_checkbox, @email_errors );
@@ -117,7 +117,7 @@ body<=
         $cart->email( $POST{email} );
     }
 
-    # and now set the state, this has been checked out...
+    # and now set the state, we're waiting for the user to send us money
     $cart->state( $DW::Shop::STATE_CHECKOUT );
 
     # they want to pay us, yippee!

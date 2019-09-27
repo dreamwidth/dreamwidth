@@ -112,6 +112,10 @@ our %PAYMENTMETHODS = (
         id    => 5,
         class => 'CreditCard',
     },
+    stripe => {
+        id    => 6,
+        class => 'Stripe',
+    },
 );
 
 # called to return an instance of the shop; auto-determines if we have a

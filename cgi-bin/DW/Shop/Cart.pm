@@ -166,6 +166,7 @@ sub new_cart {
         nextscan      => 0,
         authcode      => LJ::make_auth_code(20),
         paymentmethod => 0,                        # we don't have a payment method yet
+        pm_metadata   => {},                       # payment method extra storage
         email         => undef,                    # we don't have an email yet
     };
 
@@ -382,6 +383,7 @@ sub recalculate_costs {
 
     # now, if we're short on points, the maximum we can use is based on the
     # minimum cash order size
+    my $all_points = 0;
     if ( $has_points < $max_points ) {
 
         # x10 to convert from USD to points
@@ -392,6 +394,10 @@ sub recalculate_costs {
         $has_points = $cutoff
             if $has_points > $cutoff;
     }
+    else {
+        # user is all poitns
+        $all_points = 1;
+    }
 
     # second loop has to iterate and actually adjust the point/cash balances
     foreach my $item ( @{ $self->items } ) {
@@ -400,16 +406,32 @@ sub recalculate_costs {
         # we can just ignore and skip
         next unless $item->cost_points;
 
-        # start deducting items from points until one goes negative
+        # start deducting items from points until one goes negative. note that
+        # every item has to cost at least 1 cent, or Stripe will be unhappy.
         $has_points -= $item->cost_points;
 
-        # if positive, the item was paid for by points entirely
+        # if positive, the item was paid for by points entirely, but we need
+        # to respect Stripe's minimum cost rules
         if ( $has_points >= 0 ) {
-            $item->paid_cash(0.00);
-            $item->paid_points( $item->cost_points );
+            if ($all_points) {
 
-            $self->{total_cash} -= $item->cost_cash;
-            $self->{total_points} += $item->cost_points;
+                # No cash
+                $item->paid_cash(0.0);
+                $item->paid_points( $item->cost_points );
+
+                $self->{total_cash} -= $item->cost_cash;
+                $self->{total_points} += $item->cost_points;
+
+            }
+            else {
+                # Respect Stripe minimum cost
+                $item->paid_cash(0.1);
+                $item->paid_points( $item->cost_points - 1 );
+                $has_points++;
+
+                $self->{total_cash} -= ( $item->cost_cash - 0.1 );
+                $self->{total_points} += ( $item->cost_points - 1 );
+            }
 
             # and last if we're at 0 points left
             last if $has_points == 0;
@@ -479,6 +501,17 @@ sub paymentmethod {
     $self->save;
 
     return $self->{paymentmethod};
+}
+
+# return hash for paymenet method metadata
+sub paymentmethod_metadata {
+    my ( $self, $key, $val ) = @_;
+
+    if ( defined $val ) {
+        $self->{pm_metadata}->{$key} = $val;
+        $self->save;
+    }
+    return $self->{pm_metadata}->{$key};
 }
 
 # payment method the user should be aware of
