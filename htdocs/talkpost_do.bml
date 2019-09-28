@@ -77,7 +77,6 @@ body<=
     my $journalu = LJ::load_user($POST{journal});
     return LJ::bad_input('Unknown journal.  Please go back and try again.') unless $journalu;
 
-    LJ::need_res('stc/display_none.css');
     # libs for userpicselect
     LJ::need_res( LJ::Talk::init_iconbrowser_js( 1 ) )
         if $remote && $remote->can_use_userpic_select;

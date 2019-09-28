@@ -8,13 +8,20 @@
 * rather than hardcoding random colors here
 */
 
+// Variant color variables -- most site skins can just ignore these, but we'll
+// use an explicit value if it exists.
+
+$background-color-alternate:    darken( $background-color, 5% ) !default;
+$background-color-inactive:     tint( $inactive-color, 50% ) !default;
+$secondary-color-alternate:     darken( $secondary-color, 15% ) !default;
+$text-color-disabled:           scale-color($text-color, $lightness: 50%) !default;
+$anchor-font-color-visited:     shade( $anchor-font-color, 20% ) !default;
+$page-title-color:              $primary-color !default;
+$border-color:                  $input-border-color !default;
+
 /**
  * Links and a pseudo link class
  */
-
-$anchor-font-color-visited: shade( $anchor-font-color, 20% ) !default;
-$page-title-color: $primary-color !default;
-$border-color: $input-border-color !default;
 
 a:visited {
     color: $anchor-font-color-visited;
@@ -121,7 +128,7 @@ li.token {
 
 // Enabled and disabled text
 div.enabled, div.enabled * { color: $text-color; }
-div.disabled, div.disabled * { color: scale-color($text-color, $lightness: 50%); }
+div.disabled, div.disabled * { color: $text-color-disabled; }
 
 // date and time picker
 .picker__holder {
@@ -210,7 +217,7 @@ div.disabled, div.disabled * { color: scale-color($text-color, $lightness: 50%);
         color: $inactive-color;
     }
     .finished:before {
-        background-color: tint( $inactive-color, 50% );
+        background-color: $background-color-inactive;
         color: $inactive-color;
     }
 }
@@ -230,9 +237,9 @@ div.disabled, div.disabled * { color: scale-color($text-color, $lightness: 50%);
 
 // alternating row colors
 .odd, tr.odd th, tr.odd td {
-    background-color: $background_color;
+    background-color: $background-color;
 }
 
 .even, tr.even th, tr.even td {
-    background-color: darken($background_color, 5%);
+    background-color: $background-color-alternate;
 }
