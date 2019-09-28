@@ -116,6 +116,7 @@ $icon-control-height: 2.2em;
         }
         #body {
             width: 100%;
+            flex-shrink: 0;
         }
     }
 
