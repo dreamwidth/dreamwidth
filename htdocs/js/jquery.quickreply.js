@@ -234,6 +234,7 @@ jQuery(function($) {
         var replyto = Number($("#dtid").val());
         var pid = Number($("#parenttalkid").val());
         var basepath = $("#basepath").val();
+        var isSameDomain = (new URL(basepath)).hostname === document.location.hostname;
 
         if(replyto > 0 && pid > 0) {
             qrform.attr("action", basepath + "replyto=" + replyto );
@@ -242,7 +243,25 @@ jQuery(function($) {
         }
 
         qrform.data("stayOnPage", false);
-        qrform.submit();
+
+        if ( fetch && !isSameDomain ) {
+            // Do a preflight request to ensure we have a domain session cookie
+            // on the other journal, so we don't lose comment text for replies
+            // from the reading page.
+
+            // get_domain_session wants a "return" URL. Doesn't matter what it
+            // is, as long as it's 1. on the target journal domain and 2. fast.
+            var returnTo = new URL(basepath);
+            returnTo.pathname = '/robots.txt';
+            returnTo.search = '';
+            fetch(Site.siteroot + '/misc/get_domain_session?return=' + encodeURIComponent(returnTo.href),
+                {mode: 'no-cors', credentials: 'include'}
+            ).then(function() {
+                qrform.submit();
+            });
+        } else {
+            qrform.submit();
+        }
     });
 
 });
