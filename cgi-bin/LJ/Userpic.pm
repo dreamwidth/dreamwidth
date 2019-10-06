@@ -1377,7 +1377,7 @@ sub separate_keywords {
     my @nokw_array;
 
     foreach my $userpic (@$userpics) {
-        my @keywords = $userpic->keywords( raw => 1 );
+        my @keywords = $userpic->keywords( raw => 0 );
         foreach my $keyword (@keywords) {
             if ( defined $keyword ) {
                 push @userpic_array, { keyword => $keyword, userpic => $userpic };
