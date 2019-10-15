@@ -289,29 +289,36 @@ if ( FCKBrowserInfo.IsGecko && !FCKBrowserInfo.IsOpera )
 }
 
 	</script>
+	<style type="text/css">
+	    #xEditingArea > iframe {
+	        height: auto !important;
+	        width: auto !important;
+	        flex-grow: 1;
+	    }
+	</style>
 </head>
 <body>
-	<table width="100%" cellpadding="0" cellspacing="0" style="height: 100%; table-layout: fixed">
-		<tr id="xToolbarRow" style="display: none">
-			<td id="xToolbarSpace" style="overflow: hidden">
-				<table width="100%" cellpadding="0" cellspacing="0">
-					<tr id="xCollapsed" style="display: none">
-						<td id="xExpandHandle" class="TB_Expand" colspan="3">
-							<img class="TB_ExpandImg" alt="" src="images/spacer.gif" width="8" height="4" /></td>
-					</tr>
-					<tr id="xExpanded" style="display: none">
-						<td id="xTBLeftBorder" class="TB_SideBorder" style="width: 1px; display: none;"></td>
-						<td id="xCollapseHandle" style="display: none" class="TB_Collapse" valign="bottom">
-							<img class="TB_CollapseImg" alt="" src="images/spacer.gif" width="8" height="4" /></td>
-						<td id="xToolbar" class="TB_ToolbarSet"></td>
-						<td class="TB_SideBorder" style="width: 1px"></td>
-					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr>
-			<td id="xEditingArea" valign="top" style="height: 100%"></td>
-		</tr>
-	</table>
+    <div style="display: flex; flex-direction: column; justify-content: stretch; align-items: stretch; height: 100%; width: 100%;">
+        <table cellpadding="0" cellspacing="0" style="table-layout: fixed">
+            <tr id="xToolbarRow" style="display: none">
+                <td id="xToolbarSpace" style="overflow: hidden">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr id="xCollapsed" style="display: none">
+                            <td id="xExpandHandle" class="TB_Expand" colspan="3">
+                                <img class="TB_ExpandImg" alt="" src="images/spacer.gif" width="8" height="4" /></td>
+                        </tr>
+                        <tr id="xExpanded" style="display: none">
+                            <td id="xTBLeftBorder" class="TB_SideBorder" style="width: 1px; display: none;"></td>
+                            <td id="xCollapseHandle" style="display: none" class="TB_Collapse" valign="bottom">
+                                <img class="TB_CollapseImg" alt="" src="images/spacer.gif" width="8" height="4" /></td>
+                            <td id="xToolbar" class="TB_ToolbarSet"></td>
+                            <td class="TB_SideBorder" style="width: 1px"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <div id="xEditingArea" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: stretch;"></div>
+    </div>
 </body>
 </html>
