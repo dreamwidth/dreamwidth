@@ -54,7 +54,7 @@ sub render_body {
     my $colspan = $opts{receipt} ? 5 : 6;
 
     $ret .= $class->start_form
-        unless $opts{confirm};
+        unless ( $opts{confirm} || $opts{admin} );
 
     $ret .= "<table class='shop-cart grid'>";
     $ret .= "<thead>";
@@ -196,9 +196,10 @@ sub render_body {
         }
 
         $ret .= "</p></div>";
-        $ret .= $class->end_form
-            unless $opts{confirm};
     }
+
+    $ret .= $class->end_form
+        unless ( $opts{confirm} || $opts{admin} );
 
     # allow hooks to alter the cart or append to it
     LJ::Hooks::run_hooks( 'shop_cart_render', \$ret, %opts );
