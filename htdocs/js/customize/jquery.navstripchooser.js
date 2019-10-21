@@ -1,12 +1,20 @@
-var NavStripChooser = {
+(function($) {
+
+function NavStripChooser($el) {
+    var navStripChooser = this;
+    navStripChooser.init();
+}
+
+NavStripChooser.prototype = {
 
         init: function () {
+            var navStripChooser = this;
             if (!$('#control_strip_color_custom')) return;
-            NavStripChooser.hideSubDivs();
-            if ($('#control_strip_color_custom').checked) showSubDiv();
-            $('#control_strip_color_dark').click( function (evt) { NavStripChooser.hideSubDivs(); });
-            $('#control_strip_color_light').click( function (evt) { NavStripChooser.hideSubDivs(); });
-            $('#control_strip_color_custom').click( function (evt) { NavStripChooser.showSubDiv(); });
+            navStripChooser.hideSubDivs();
+            if ($('#control_strip_color_custom').checked) navStripChooser.showSubDiv();
+            $('#control_strip_color_dark').click( function (evt) { navStripChooser.hideSubDivs(); });
+            $('#control_strip_color_light').click( function (evt) { navStripChooser.hideSubDivs(); });
+            $('#control_strip_color_custom').click( function (evt) { navStripChooser.showSubDiv(); });
         },
 
         hideSubDivs: function  () {
@@ -17,6 +25,13 @@ var NavStripChooser = {
         },
 };
 
-jQuery(document).ready(function(){
-    NavStripChooser.init();
+$.fn.extend({
+    navStripChooser: function() {
+        new NavStripChooser( $(this) );
+    }
+});
+})(jQuery);
+
+jQuery(function($){
+    $(".appwidget-journaltitles").navStripChooser();
 });

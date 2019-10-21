@@ -1,3 +1,6 @@
+ [%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.currenttheme.js' ) -%]
+ [%- dw.need_res( 'stc/widgets/currenttheme.css' ) -%]
+
  <div class='highlight-box'><h2 class='widget-header'><span> [% dw.ml('widget.currenttheme.title', {'user' => u.ljuser_display}) %]</span></h2> 
  <div class='theme-current-content pkg'> 
  <img src='[% theme.preview_imgurl %]' class='theme-current-image preview-image' /> 

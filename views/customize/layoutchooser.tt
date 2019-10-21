@@ -1,3 +1,6 @@
+[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.layoutchooser.js' ) -%]
+[%- dw.need_res( 'stc/widgets/layoutchooser.css' ) -%]
+
 <h2 class='widget-header'>
     [% IF no_themechooser %]
         [% dw.ml('widget.layoutchooser.title_nonum') %]

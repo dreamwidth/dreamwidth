@@ -363,7 +363,6 @@ sub color {
     my ( $self, $args ) = @_;
 
     $args->{class} ||= "color-picker";
-<<<<<<< 7a46066fbe1b816f3db48b2e7bdba59436b593f5
     $args->{id}    ||= $self->generate_id($args);
 
     my $errors = $self->_process_errors($args);
@@ -372,26 +371,11 @@ sub color {
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, use_as_value => "default" );
     $ret .= LJ::html_color($args);
-=======
-    $args->{id} ||= $self->generate_id( $args );
-
-    my $errors = $self->_process_errors( $args );
-    my $hint = $self->_process_hint( $args );
-
-    my $ret = "";
-    $ret .= $self->_process_value_and_label( $args, use_as_value => "default" );
-    $ret .= LJ::html_color( $args );
->>>>>>> Finished work on /customize/options and most JS rewrites.
-
     $ret .= $errors;
     $ret .= $hint;
 
     return $ret;
 }
-<<<<<<< 7a46066fbe1b816f3db48b2e7bdba59436b593f5
-=======
-
->>>>>>> Finished work on /customize/options and most JS rewrites.
 
 =head2 [% form.textbox( label="A Label", id="elementid", name="elementname", ... ) %]
 
@@ -459,11 +443,7 @@ sub _process_value_and_label {
     my ( $self, $args, %opts ) = @_;
 
     my $valuekey = $opts{use_as_value} || "value";
-<<<<<<< 7a46066fbe1b816f3db48b2e7bdba59436b593f5
     my $default  = $args->{default};
-=======
-    my $default =  $args->{default};
->>>>>>> Finished work on /customize/options and most JS rewrites.
 
     if ( defined $args->{$valuekey} ) {
 

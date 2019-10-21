@@ -1,3 +1,6 @@
+[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.journaltitles.js' ) -%]
+[%- dw.need_res( 'stc/widgets/journaltitles.css' ) -%]
+
 <div class="appwidget-journaltitles">
 <h2 class='widget-header'>
     [% IF no_themechooser %]
@@ -15,7 +18,7 @@
     [% help_icon("journal_titles") %]</p>
 
     [% FOREACH id IN ['journaltitle', 'journalsubtitle', 'friendspagetitle', 'friendspagesubtitle' ] %]
-         <form id ="[% id %]_form" method=POST>
+         <form id ="[% id %]_form" class="title_form" method=POST>
 
         [% dw.form_auth %]
         <p>
@@ -24,23 +27,23 @@
         [% ELSE %]
             <label>[% dw.ml("widget.journaltitles.$id") %]</label>
         [% END %]
-        <span id='[% id %]_view'><strong>[% u.prop( id ) | html %]</strong>
-        <a href='' class='theme-title-control' id='[% id %]_edit'>[% dw.ml('widget.journaltitles.edit') %]</a>
+        <span id='[% id %]_view' class='title_view'><strong class="title">[% u.prop( id ) | html %]</strong>
+        <a href='' class='theme-title-control title_edit'>[% dw.ml('widget.journaltitles.edit') %]</a>
         </span>
 
-        <span id='[% id %]_modify'>
+        <span class='title_modify'>
         [%- form.textbox(
                 name = 'title_value'
                 id = id
                 size = 30
                 maxlength => maxlength
                 value => u.prop(id)
-                raw = "class='text'"
+                raw = "class='text title_input'"
         )
         -%]
-        [% form.hidden( name = "which_title", value = id) %]
-        [% form.submit( name = "save",  id="save_btn_$id" , value = dw.ml( 'widget.journaltitles.btn' ) ) %]
-        <a href='' class='theme-title-control' id='[% id %]_cancel'>[% dw.ml('widget.journaltitles.cancel') %]</a>
+        [% form.hidden( name = "which_title", value = id, class="which_title") %]
+        [% form.submit( name = "save",  id="save_btn_$id" , value = dw.ml( 'widget.journaltitles.btn' ), class="title_save" ) %]
+        <a href='' class='theme-title-control title_cancel'>[% dw.ml('widget.journaltitles.cancel') %]</a>
         </span></p>
 
         </form>

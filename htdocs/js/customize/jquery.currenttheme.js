@@ -1,35 +1,48 @@
-var CurrentTheme = {
-    init: function () {
-                        //Handle designer and layoutid links
+(function($) {
 
-        $(".theme-current-designer").click(function(event){
+function CurrentTheme($el) {
+    var currentTheme = this;
+    currentTheme.init();
+}
+
+CurrentTheme.prototype = {
+    init: function () {
+        var currentTheme = this;
+        //Handle designer and layoutid links
+
+        $(".theme-current").on("click", ".theme-current-designer", function(event){
                     event.preventDefault();
                     var designerLink = $(this).attr('href');
                     var newDesigner = designerLink.replace(/.*designer=([^&?]*)&?.*/, "$1");
                     
                     //reload the theme chooser area
-                    filterThemes(event, "designer", newDesigner);
-            })
+                    $(".theme-selector-wrapper").trigger("theme:filter", {"designer": newDesigner});
+            });
 
 
-            $(".theme-current-layout").click(function(event){
+            $(".theme-current").on("click", ".theme-current-layout", function(event){
                     event.preventDefault();
                     var layoutLink = $(this).attr('href');
                     var newLayout = layoutLink.replace(/.*layoutid=([^&?]*)&?.*/, "$1");
                     
                     //reload the theme chooser area
-                    CurrentTheme.trigger("theme:filter", {"layoutid", newLayout});
-            })
+                    $(".theme-selector-wrapper").trigger("theme:filter", {"layoutid" : newLayout});
+            });
 
         },
 
-        refresh: function() {
-
+    refresh: function() {
+        return true;
         }
 }
 
-jQuery(document).ready(function(){
-    CurrentTheme.init;
-    CurrentTheme.on("theme:changed", CurrentTheme.refresh);
-    CurrentTheme.on("themechooser:changed", CurrentTheme.refresh);
-})
+$.fn.extend({
+    currentTheme: function() {
+        new CurrentTheme( $(this) );
+    }
+});
+})(jQuery);
+
+jQuery(function($){
+    $(".theme").currentTheme();
+});

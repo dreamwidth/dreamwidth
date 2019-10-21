@@ -1,3 +1,7 @@
+[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.themechooser.js' ) -%]
+[%- dw.need_res( 'stc/widgets/themechooser.css' ) -%]
+[%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
+
     <script>confirmation = " [% dw.ml('widget.themechooser.confirmation') %] ";</script>
     
     [% IF cat == 'all' %]

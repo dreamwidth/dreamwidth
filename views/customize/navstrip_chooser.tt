@@ -1,4 +1,5 @@
 [%- dw.need_res( "stc/widgets/navstripchooser.css" ) -%]
+[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.navstripchooser.js' ) -%]
 [%- dw.need_res( "js/colorpicker.js" ) -%]
 [% USE Dumper %]
 [% Dumper.dump(navstrip_options) %]

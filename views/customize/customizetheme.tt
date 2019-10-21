@@ -1,3 +1,6 @@
+[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.customizetheme.js' ) -%]
+[%- dw.need_res( 'stc/widgets/customizetheme.css' ) -%]
+
     <h2 class='widget-header'>[% dw.ml('widget.customizetheme.title') %]</h2>
     [% USE Dumper %]
 

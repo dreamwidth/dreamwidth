@@ -1,119 +1,92 @@
-var JournalTitles = {
+(function($) {
+
+function JournalTitles($el) {
+    var journalTitles = this;
+    journalTitles.init();
+}
+
+JournalTitles.prototype = {
       init: function () {
-            console.log("trying to initialize");
-            // store current field values
-            var journaltitle_value = $("journaltitle").value;
-            var journalsubtitle_value = $("journalsubtitle").value;
-            var friendspagetitle_value = $("friendspagetitle").value;
-            var friendspagesubtitle_value = $("friendspagesubtitle").value;
+            var journalTitles = this;
 
             // show view mode
-            $("#journaltitle_view").css("display", "inline");
-            $("#journalsubtitle_view").css("display", "inline");
-            $("#friendspagetitle_view").css("display", "inline");
-            $("#friendspagesubtitle_view").css("display", "inline");
-            $("#journaltitle_cancel").css("display", "inline");
-            $("#journalsubtitle_cancel").css("display", "inline");
-            $("#friendspagetitle_cancel").css("display", "inline");
-            $("#friendspagesubtitle_cancel").css("display", "inline");
-            $("#journaltitle_modify").css("display", "none");
-            $("#journalsubtitle_modify").css("display", "none");
-            $("#friendspagetitle_modify").css("display", "none");
-            $("#friendspagesubtitle_modify").css("display", "none");
+            $(".title_view").css("display", "inline");
+            $(".title_cancel").css("display", "inline");
+            $(".title_modify").css("display", "none");
 
+            // set up handlers
 
-            // set up edit links
-            $("#journaltitle_edit").click(function(event) { JournalTitles.editTitle(event, "journaltitle"); });
-            $("#journalsubtitle_edit").click(function(event) { JournalTitles.editTitle(event, "journalsubtitle"); });
-            $("#friendspagetitle_edit").click(function(event) { JournalTitles.editTitle(event, "friendspagetitle"); });
-            $("#friendspagesubtitle_edit").click(function(event) { JournalTitles.editTitle(event, "friendspagesubtitle"); });
-
-            // set up cancel links
-            $("#journaltitle_cancel").click(function(event) { JournalTitles.cancelTitle(event, "journaltitle"); });
-            $("#journalsubtitle_cancel").click(function(event) { JournalTitles.cancelTitle(event, "journalsubtitle"); });
-            $("#friendspagetitle_cancel").click(function(event) { JournalTitles.cancelTitle(event, "friendspagetitle"); });
-            $("#friendspagesubtitle_cancel").click(function(event) { JournalTitles.cancelTitle(event, "friendspagesubtitle"); });
-
-
-            // set up save forms
-            $("#journaltitle_form").submit(function(event){ JournalTitles.saveTitle(event, "journaltitle") });
-            $("#journalsubtitle_form").submit(function(event){ JournalTitles.saveTitle(event, "journalsubtitle") });
-            $("#friendspagetitle_form").submit(function(event){ JournalTitles.saveTitle(event, "friendspagetitle") });
-            $("#friendspagesubtitle_form").submit(function(event){ JournalTitles.saveTitle(event, "friendspagesubtitle") });
+            $(".title_edit").click(function(event) { journalTitles.editTitle(event); });
+            $(".title_cancel").click(function(event) { journalTitles.cancelTitle(event); });
+            $(".title_form").submit(function(event){ journalTitles.saveTitle(event) });
 
         },
 
-        editTitle: function (event, id) {
+        editTitle: function (event) {
             event.preventDefault();
+            var title = $(event.target).closest(".title_form");
 
-            $("#" + id + "_modify").css("display", "inline");
-            $("#" + id + "_view").css( "display",  "none");
-            $("#" + id).focus();
+            title.find(".title_modify").css("display", "inline");
+            title.find(".title_view").css( "display",  "none");
+            title.find(".title_input").focus();
 
-            // cancel any other titles that are being edited since
-            // we only want one title in edit mode at a time
-            if (id == "journaltitle") {
-                JournalTitles.cancelTitle(event, "journalsubtitle");
-                JournalTitles.cancelTitle(event, "friendspagetitle");
-                JournalTitles.cancelTitle(event, "friendspagesubtitle");
-            } else if (id == "journalsubtitle") {
-                JournalTitles.cancelTitle(event, "journaltitle");
-                JournalTitles.cancelTitle(event, "friendspagetitle");
-                JournalTitles.cancelTitle(event, "friendspagesubtitle");
-            } else if (id == "friendspagetitle") {
-                JournalTitles.cancelTitle(event, "journaltitle");
-                JournalTitles.cancelTitle(event, "journalsubtitle");
-                JournalTitles.cancelTitle(event, "friendspagesubtitle");
-            } else if (id == "friendspagesubtitle") {
-                JournalTitles.cancelTitle(event, "journaltitle");
-                JournalTitles.cancelTitle(event, "journalsubtitle");
-                JournalTitles.cancelTitle(event, "friendspagetitle");
-            }
+            $(".title_form").each(function() {
+                if (!$( this ).is(title)) {
+                    $( this ).find(".title_cancel").click();
+                }
+            });
 
 
             return false;
         },
 
-        cancelTitle: function (event, id) {
+        cancelTitle: function (event) {
             event.preventDefault();
+            var title = $(event.target).closest(".title_form");
 
-            $("#" + id + "_modify").css("display", "none");
-            $("#" + id + "_view").css("display",  "inline");
+            title.find(".title_modify").css("display", "none");
+            title.find(".title_view").css( "display",  "inline");
 
             // reset appropriate field to default
-            if (id == "journaltitle") {
-                $("journaltitle").value = this.journaltitle_value;
-            } else if (id == "journalsubtitle") {
-                $("journalsubtitle").value = this.journalsubtitle_value;
-            } else if (id == "friendspagetitle") {
-                $("friendspagetitle").value = this.friendspagetitle_value;
-            } else if (id == "friendspagesubtitle") {
-                $("friendspagesubtitle").value = this.friendspagesubtitle_value;
-            }
+            title.find(".title_input").value = title.find(".title").value;
 
             return false;
         },
 
-        saveTitle: function (event, id) {
-            $("#save_btn_" + id).attr("disabled", true);
-            var title = $("#" + id).val();
+        saveTitle: function (event) {
+            event.preventDefault();
+            var journalTitles = this;
+            var title = $(event.target).closest(".title_form");
+
+            title.find(".title_save").attr("disabled", true);
+            var value = title.find("input[name=title_value]").val();
+            var which = title.find(".which_title").val();
             $.ajax({
               type: "POST",
-              url: "/__rpc_journaltitle",
+              url: "/__rpc_journaltitles",
               data: {
-                     which_title: id,
-                     title_value: title,
-                    "authas": authas
+                     which_title: which,
+                     title_value: value,
+                    //"authas": authas
                      },
               success: function( data ) { $( "div.theme-titles" ).html(data);
-                                        JournalTitles.init},
+                                        journalTitles.init();},
               dataType: "html"
             });
 
-            event.preventDefault();
+            return false
         }
 }
 
-jQuery(document).ready(function(){
-    JournalTitles.init();
-})
+
+
+$.fn.extend({
+    journalTitles: function() {
+        new JournalTitles( $(this) );
+    }
+});
+})(jQuery);
+
+jQuery(function($){
+    $(".appwidget-journaltitles").journalTitles();
+});

@@ -1,30 +1,52 @@
-var CustomizeTheme = {
-        init: function () {
-            // confirmation when reseting the form
-            $('#reset_btn_top').click(function (evt) { confirmReset(evt) });
-            $('#reset_btn_bottom').click(function (evt) { confirmReset(evt) });
+(function($) {
 
-            form_changed = false;
+function CustomizeTheme($el) {
+    var customizeTheme = this;
+    customizeTheme.init();
+}
+
+CustomizeTheme.prototype = {
+        form_changed: false,
+
+        navclick_save: function (evt) {
+            var confirmed = false;
+            if (customizeTheme.form_changed == false) {
+                return true;
+            } else {
+                confirmed = confirm("Save your changes?");
+            }
+            if (confirmed) {
+                $('customize-form').submit();
+            }
+        },
+
+        init: function () {
+            var customizeTheme = this;
+            // confirmation when reseting the form
+            $('#reset_btn_top').click(function (evt) { customizeTheme.confirmReset(evt) });
+            $('#reset_btn_bottom').click(function (evt) { customizeTheme.confirmReset(evt) });
+
+            customizeTheme.form_changed = false;
             // capture onclicks on the nav links to confirm form saving
             var links = $('#customize_theme_nav_links a').each( function(){
                 if ($(this).attr('href') != "") {
-                    $(this).click(function (evt) { navclick_save(evt) })
+                    $(this).click(function (evt) { customizeTheme.navclick_save(evt) })
                 }
             }
             )
             // register all form changes to confirm them later
-            $('#customize-form select').change( function() { form_change() });
-            $('#customize-form input').change( function() { form_change() });
-            $('#customize-form textarea').change( function() { form_change() });
+            $('#customize-form select').change( function() { customizeTheme.form_change() });
+            $('#customize-form input').change( function() { customizeTheme.form_change() });
+            $('#customize-form textarea').change( function() { customizeTheme.form_change() });
 
             // initialize the expand and collapse links
 
             // add event listeners to all of the subheaders
-             $(".subheader").click(function (evt) { CustomizeTheme.alterSubheader($(this)) });
+             $(".subheader").click(function (evt) { customizeTheme.alterSubheader($(this)) });
             // show the expand/collapse links
              $(".s2propgroup-outer-expandcollapse").css("display", "inline");
             // add event listeners to all of the expand/collapse links
-            $(".s2propgroup-expandcollapse").click( function (evt) { CustomizeTheme.expandCollapseAll(evt, $(this).attr('id')); } );
+            $(".s2propgroup-expandcollapse").click( function (evt) { customizeTheme.expandCollapseAll(evt, $(this).attr('id')); } );
 
 
         },
@@ -35,21 +57,10 @@ var CustomizeTheme = {
             }
         },
 
-        navclick_save: function (evt) {
-            var confirmed = false;
-            if (form_changed == false) {
-                return true;
-            } else {
-                confirmed = confirm("Save your changes?");
-            }
-            if (confirmed) {
-                $('customize-form').submit();
-            }
-        },
-
         form_change: function () {
-            if (form_changed == true) { return; }
-            form_changed = true;
+            var customizeTheme = this;
+            if (customizeTheme.form_changed == true) { return; }
+            customizeTheme.form_changed = true;
         },
 
         alterSubheader: function (subheaderid, override) {
@@ -79,17 +90,25 @@ var CustomizeTheme = {
         },
 
         expandCollapseAll: function (evt, ec_linkid) {
+            var customizeTheme = this;
             evt.preventDefault();
             var action = ec_linkid.replace(/.+__(.+)/, '$1');
             var propgroup = ec_linkid.replace(/(.+)__.+/, '$1');
             var propgroupSubheaders = $(".subheader-" + propgroup);
             propgroupSubheaders.each(function () {
-                CustomizeTheme.alterSubheader($(this), action);
+                customizeTheme.alterSubheader($(this), action);
             });
             evt.preventDefault();
         },
 };
 
-jQuery(document).ready(function(){
-    CustomizeTheme.init();
+$.fn.extend({
+    customizeTheme: function() {
+        new CustomizeTheme( $(this) );
+    }
+});
+})(jQuery);
+
+jQuery(function($){
+    $(".layout-selector-wrapper").customizeTheme();
 });

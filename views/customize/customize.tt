@@ -1,15 +1,6 @@
 [%- CALL dw.active_resource_group( 'jquery' ) -%]
 [%- dw.need_res( 'stc/customize.css' ) -%]
-[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.layoutchooser.js' ) -%]
-[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.journaltitles.js' ) -%]
-[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.currenttheme.js' ) -%]
-[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.themechooser.js' ) -%]
 [%- dw.need_res( 'stc/select-list.css' ) -%]
-[%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
-[%- dw.need_res( 'stc/widgets/themechooser.css' ) -%]
-[%- dw.need_res( 'stc/widgets/journaltitles.css' ) -%]
-[%- dw.need_res( 'stc/widgets/layoutchooser.css' ) -%]
-[%- dw.need_res( 'stc/widgets/currenttheme.css' ) -%]
 [%#- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
 
 <form method="get">

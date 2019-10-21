@@ -1,17 +1,22 @@
-var LayoutChooser = {
+(function($) {
 
+function LayoutChooser($el) {
+    var layoutChooser = this;
+    layoutChooser.init();
+}
+
+LayoutChooser.prototype = { 
         init: function () {
+          var layoutChooser = this;
             //Handle the 'apply theme' buttons
-            $(".layout-form").submit(function(event){
+            $(".layout-selector-wrapper").on("submit", ".layout-form", function(event){
                 event.preventDefault();
-                applyLayout(this, event);       
+                layoutChooser.applyLayout(this, event);       
             })
 
         },
-
         applyLayout: function (form, event) {
-            console.log("trying to apply layout");
-
+          var layoutChooser = this;
             var given_layout_choice = $(form).children("[name=layout_choice]").val(); 
             var given_layout_prop = $(form).children("[name=layout_prop]").val(); 
             var given_show_sidebar_prop = $(form).children("[name=show_sidebar_prop]").val(); 
@@ -25,21 +30,26 @@ var LayoutChooser = {
                      'layout_choice': given_layout_choice,
                      'layout_prop': given_layout_prop,
                      'show_sidebar_prop': given_show_sidebar_prop,
-                    'authas': authas },
+                    //'authas': authas 
+                  },
               success: function( data ) { $( "div.layout-selector-wrapper" ).html(data);
-                                            LayoutChooser.init;},
+                                            layoutChooser.init();},
               dataType: "html"
             });
             event.preventDefault();
     },
-    
-    refresh: fuction () {
-      return true;
-    },
-};
 
-jQuery(document).ready(function(){
-    LayoutChooser.init;
-    LayoutChooser.on("theme:changed", LayoutChooser.refresh);
+ };
+
+
+
+$.fn.extend({
+    layoutChooser: function() {
+        new LayoutChooser( $(this) );
+    }
 });
+})(jQuery);
 
+jQuery(function($){
+    $(".layout-selector-wrapper").layoutChooser();
+});
