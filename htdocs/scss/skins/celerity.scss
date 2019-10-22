@@ -16,6 +16,7 @@ $_very-dark-olive:   darken($_dark-olive-green, 10%);// try to match visual impa
                                                      // which is $_dark-olive-green, but heavier to the eye
 $_bright-olive-green: #888833; // a little brighter than the dark olive green, to attract the eye
 $_light-olive-green: #ddddaa;
+$_lightest-olive-green: #eeeecc;
 
 $_white:             #fff;
 $_light-gray:        #f7f7f7;
@@ -42,6 +43,9 @@ $secondary-color:    $_mid-gray;
 $strong-accent-color:$_very-dark-olive;
 $soft-accent-color:  $_light-olive-green;
 $border-color:       $_low-contrast-gray;
+$highlight-color:    $_lightest-olive-green;
+$highlight-border:   $_dark-olive-green;
+$highlight-text-color:$_off-black;
 
 $header-image-color: $_dark-olive-green; // meant to match the images in the nav
 
