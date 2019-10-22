@@ -11,8 +11,9 @@
     margin-top: 20px;
 
     .inner {
-        @extend .panel;
-        @extend .callout;
+        background-color: $highlight-color;
+        color: $highlight-text-color;
+        border: 1px solid $highlight-border;
         display: block;
         padding: 5px;
         text-align: center;
