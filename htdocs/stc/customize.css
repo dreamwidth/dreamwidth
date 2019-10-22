@@ -7,6 +7,20 @@ h2.widget-header {
     padding: 5px 8px;
 }
 
+#content ul.select-list li {
+    margin-left: 0.75em;
+    margin-bottom: 0.75em;
+}
+
+#content .section-nav ul, #content .section-nav ul li {
+    list-style: none;
+    margin: 0px;
+}
+
+.section-nav {
+    padding: 0px;
+}
+
 .theme-current {
     float: right;
     width: 35%;
@@ -17,10 +31,6 @@ h2.widget-header {
     float: left;
     width: 63%;
     margin-bottom: 15px;
-}
-
-.theme-selector-wrapper {
-    clear: both;
 }
 
 .layout-selector-wrapper {

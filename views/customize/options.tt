@@ -1,4 +1,5 @@
 [%- CALL dw.active_resource_group( 'jquery' ) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- dw.need_res( 'stc/customize.css' ) -%]
 [%- dw.need_res( 'stc/select-list.css' ) -%]
 [%- dw.need_res( 'stc/widgets/themenav.css' ) -%]

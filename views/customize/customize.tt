@@ -1,4 +1,5 @@
 [%- CALL dw.active_resource_group( 'jquery' ) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- dw.need_res( 'stc/customize.css' ) -%]
 [%- dw.need_res( 'stc/select-list.css' ) -%]
 [%#- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
@@ -54,9 +55,9 @@
     </p>
     </form>
 
-    <div class='theme-nav-inner-wrapper section-nav-inner-wrapper'>
-    <div class='theme-selector-nav section-nav'>
-    <ul class='theme-nav nostyle'>
+    <div class='theme-nav-inner-wrapper section-nav-inner-wrapper row'>
+    <div class='theme-selector-nav section-nav columns large-3'>
+    <ul class='theme-nav nostyle theme-side-nav'>
     [% INCLUDE customize/cats.tt cat_list = main_cats_sorted %]
     </ul>
 
@@ -74,7 +75,7 @@
 
     </div>
 
-    <div class='theme-nav-content section-nav-content'>
+    <div class='theme-nav-content section-nav-content columns large-9'>
         <div class="appwidget appwidget-themechooser" id="LJWidget_92">
     <div class='theme-selector-content pkg'>
 

@@ -16,15 +16,7 @@
     font-family: verdana;
     vertical-align: baseline;
 }
-.theme-nav-content {
-    margin: 0 0 15px 134px;
-    position: relative;
-    border-left: none;
-}
-.theme-selector-nav {
-    float: left;
-    width: 135px;
-}
+
 .theme-nav li a,
 .theme-nav-small li {
     text-decoration: none;
@@ -43,11 +35,6 @@
     font-weight: bold;
 }
 
-* html .theme-nav li a,
-* html .theme-nav-small li a {
-    display: inline-block;
-    width: 123px;
-}
 .theme-nav-separator {
     padding: 5px 0;
     border-right-width: 1px;

@@ -2,33 +2,28 @@
 .theme-current-content {
     padding: 0 8px 8px 8px;
 }
-.theme-current-content h3 {
-    font-size: 14px;
-    font-style: normal;
-    margin: 0;
-    padding: 0;
+
+
+.theme-current .highlight-box > .inner {
+    paddidng: 1em;
 }
 .theme-current-image {
-    float: left;
     margin-right: 8px;
     width: 120px;
     height: 91px;
 }
 .theme-current-desc {
-    font-size: 11px;
+    font-size: 0.75em;
     margin: 0 0 5px 0;
     padding: 0;
 }
 .theme-current-links {
-    font-size: 11px;
-    float: left;
+    font-size: 0.75em;
 }
 .theme-current ul {
     margin-top: 3px;
 }
 .theme-current ul li {
-    padding: 0 0 0 8px;
     margin-bottom: 2px;
-    font-size: 11px;
-    background: url("/img/customize/arrow.gif") no-repeat 0 5px;
+    font-size: 0.75em;
 }

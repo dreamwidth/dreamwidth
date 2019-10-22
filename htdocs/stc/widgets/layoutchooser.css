@@ -2,8 +2,9 @@
     font-size: 1em;
     text-align: center;
     position: relative;
-    width: 156px;
+    width: 10em;
 }
+
 
 .layout-item img.layout-preview {
     border: 1px solid #fff;

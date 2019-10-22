@@ -1,10 +1,15 @@
- [%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.currenttheme.js' ) -%]
+ [%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.currenttheme.js' ) -%]
  [%- dw.need_res( 'stc/widgets/currenttheme.css' ) -%]
 
- <div class='highlight-box'><h2 class='widget-header'><span> [% dw.ml('widget.currenttheme.title', {'user' => u.ljuser_display}) %]</span></h2> 
+ <div class='highlight-box'>
+    <div class="inner"><h5><span> [% dw.ml('widget.currenttheme.title', {'user' => u.ljuser_display}) %]</span></h5> 
  <div class='theme-current-content pkg'> 
+ <div class="row">
+    <div class="large-4 columns">
  <img src='[% theme.preview_imgurl %]' class='theme-current-image preview-image' /> 
- <h3>[% theme.name %]</h3> 
+</div>
+<div class="large-8 columns">
+ <h6 class="subheader">[% theme.name %]</h6> 
 
     [% layout_link = "<a href='$site.root/customize/$getextra${getsep}layoutid=$theme.layoutid$showarg' class='theme-current-layout'><em>$theme.layout_name</em></a>" %] 
     [% special_link_opts = "href='$site.root/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'"  %]
@@ -48,5 +53,8 @@
 
  </ul> 
  </div><!-- end .theme-current-links --> 
+</div>
+</div>
  </div><!-- end .theme-current-content --> 
+</div>
  </div> 

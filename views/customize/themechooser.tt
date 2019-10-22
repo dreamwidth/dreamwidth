@@ -1,4 +1,4 @@
-[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.themechooser.js' ) -%]
+[%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.themechooser.js' ) -%]
 [%- dw.need_res( 'stc/widgets/themechooser.css' ) -%]
 [%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
 
