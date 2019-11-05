@@ -5,12 +5,12 @@
 
 
 .theme-current .highlight-box > .inner {
-    paddidng: 1em;
+    padding: 1em;
 }
 .theme-current-image {
-    margin-right: 8px;
     width: 120px;
     height: 91px;
+    border: 1px solid;
 }
 .theme-current-desc {
     font-size: 0.75em;
@@ -23,7 +23,8 @@
 .theme-current ul {
     margin-top: 3px;
 }
-.theme-current ul li {
+
+#content .theme-current ul li {
     margin-bottom: 2px;
     font-size: 0.75em;
 }

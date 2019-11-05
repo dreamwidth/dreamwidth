@@ -5,24 +5,23 @@
     <div class="inner"><h5><span> [% dw.ml('widget.currenttheme.title', {'user' => u.ljuser_display}) %]</span></h5> 
  <div class='theme-current-content pkg'> 
  <div class="row">
-    <div class="large-4 columns">
+    <div class="large-5 columns">
  <img src='[% theme.preview_imgurl %]' class='theme-current-image preview-image' /> 
 </div>
-<div class="large-8 columns">
- <h6 class="subheader">[% theme.name %]</h6> 
+<div class="large-7 columns">
+ <h6>[% theme.name %]</h6> 
 
     [% layout_link = "<a href='$site.root/customize/$getextra${getsep}layoutid=$theme.layoutid$showarg' class='theme-current-layout'><em>$theme.layout_name</em></a>" %] 
     [% special_link_opts = "href='$site.root/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'"  %]
  <p class='theme-current-desc'> 
- [% IF theme.designer %]
-        [% designer_link = "<a href='$site.root/customize/$getextra${getsep}designer="_ eurl(theme.designer) _ "$showarg' class='theme-current-designer'>$theme.designer</a>" %]
-        [% dw.ml('widget.currenttheme.designer', {'designer' => designer_link}) %]
-        [% IF is_special %]
-        
-           [% dw.ml('widget.currenttheme.specialdesc2', {'aopts' => special_link_opts}) %]
-        [% ELSE %]
-           [% dw.ml('widget.currenttheme.desc2', {'style' => layout_link}) %]
-        [% END %]
+ [%- IF theme.designer -%]
+        [%- designer_link = "<a href='$site.root/customize/$getextra${getsep}designer="_ eurl(theme.designer) _ "$showarg' class='theme-current-designer'>$theme.designer</a>" -%]
+        [%- dw.ml('widget.currenttheme.designer', {'designer' => designer_link}) -%]
+        [%- IF is_special -%]
+            [%- dw.ml('widget.currenttheme.specialdesc2', {'aopts' => special_link_opts}) -%]
+        [%- ELSE -%]
+           [%- dw.ml('widget.currenttheme.desc2', {'style' => layout_link}) -%]
+        [%- END -%]
     [% ELSIF theme.layout_name %]
         [% dw.ml('widget.currenttheme.desc2', {'style' => layout_link}) %]
     [% END %]
@@ -31,25 +30,25 @@
  <div class='theme-current-links inset-box'> 
     [% dw.ml('widget.currenttheme.options') %]
  <ul class='nostyle'>
-    [% IF no_themechooser %] 
+    [% IF no_themechooser -%] 
      <li><a href='[% site.root %]/customize/[% getextra %]'> [% dw.ml('widget.currenttheme.options.newtheme') %]</a></li> 
-     [% ELSE %]
+     [%- ELSE -%]
      <li><a href='[% site.root %]/customize/options[% getextra %]'> [% dw.ml('widget.currenttheme.options.change') %]</a></li> 
-    [% END %]
+    [%- END -%]
     [% IF NOT no_layer_edit %]
      <li><a href='[% site.root %]/customize/advanced/'> [% dw.ml( 'widget.currenttheme.options.advancedcust' ) %]</a></li>
         [% IF theme.layoutid AND NOT theme.layout_uniq %] 
          <li><a href='[% site.root %]/customize/advanced/layeredit?id=[% theme.layoutid %]'> [% dw.ml('widget.currenttheme.options.editlayoutlayer') %]</a></li> 
-        [% END %]
+        [%- END -%]
         [% IF theme.themeid AND NOT theme.uniq %]
          <li><a href='[% site.root %]/customize/advanced/layeredit?id=[% theme.themeid %]'> [% dw.ml('widget.currenttheme.options.editthemelayer') %]</a></li> 
-        [% END %]
-    [% END %]
+        [%- END -%]
+    [%- END -%]
     [% IF no_themechooser %]
      <li><a href='[% site.root %]/customize/options[% getextra %]#layout'> [% dw.ml('widget.currenttheme.options.layout') %]</a></li> 
      [% ELSE %]
      <li><a href='[% site.root %]/customize/[% getextra %]#layout'> [% dw.ml('widget.currenttheme.options.layout') %]</a></li> 
-    [% END %]
+    [%- END -%]
 
  </ul> 
  </div><!-- end .theme-current-links --> 

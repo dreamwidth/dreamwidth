@@ -22,10 +22,13 @@ use DW::Routing;
 use DW::Template;
 use DW::Logic::MenuNav;
 use Data::Dumper;
+use JSON;
 
 # This registers a static string, which is an application page.
 DW::Routing->register_string( '/customize/options', \&options_handler, 
     app => 1 );
+
+DW::Routing->register_rpc( "moodtheme", \&moodtheme_handler, format => 'json' );
 
 sub options_handler {
     my ( $ok, $rv ) = controller( authas => 1,  form_auth => 1 );
@@ -223,8 +226,8 @@ sub render_customizetheme {
     my $forcemoodtheme = defined $opts{forcemoodtheme} ? $opts{forcemoodtheme} : $u->{opt_forcemoodtheme} eq 'Y';
     $vars->{preview_moodthemeid} = $preview_moodthemeid;
     $vars->{forcemoodtheme} = $forcemoodtheme;
-    my $mobj = DW::Mood->new( $preview_moodthemeid );
-    $vars->{mobj} = $mobj;
+    my $mood_previews = $preview_moodthemeid ? moodtheme_preview( $preview_moodthemeid ) : undef;
+    $vars->{mood_previews} = $mood_previews;
 
 
     my $theme = LJ::Customize->get_current_theme($u);
@@ -595,6 +598,48 @@ sub render_linkslist {
     $vars->{caplinks} = $caplinks;
 
     return DW::Template->template_string( 'customize/linkslist.tt', $vars );
+}
+
+
+sub moodtheme_handler {
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+
+    my $r = DW::Request->get;
+    my $args = $r->post_args;
+    my $u = LJ::get_effective_remote();
+    my $given_moodthemeid = $args->{preview_moodthemeid};
+    die "Invalid user." unless LJ::isu($u);
+
+
+    my $moodthemeid = LJ::Customize->validate_moodthemeid($u, $given_moodthemeid);
+
+    $r->print(moodtheme_preview($moodthemeid));
+    return $r->OK;
+
+
+}
+
+sub moodtheme_preview {
+    my $moodtheme_id = $_[0];
+    my $moodtheme = DW::Mood->new( $moodtheme_id );
+    my $previews = {};
+
+    foreach my $mood ('happy', 'sad', 'angry', 'tired') {
+        my %pic;
+        if($moodtheme->get_picture( $moodtheme->mood_id($mood), \%pic )) {
+            $previews->{$mood} = {
+                src => $pic{pic},
+                w => $pic{w},
+                h => $pic{h},
+            }
+        }
+    }
+
+    my $vars;
+    $vars->{mood_previews} = $previews;
+    $vars->{desc} = $moodtheme->des;
+    return DW::Template->template_string( 'customize/moodtheme_preview.tt', $vars );
 }
 
 1;

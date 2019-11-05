@@ -1,37 +1,13 @@
+
 h2.widget-header {
     font-size: 14px;
     clear: left;
     font-family: Arial;
     font-weight: bold;
-    margin: 0 0 8px 0
+    margin: 0 0 8px 0;
     padding: 5px 8px;
 }
 
-#content ul.select-list li {
-    margin-left: 0.75em;
-    margin-bottom: 0.75em;
-}
-
-#content .section-nav ul, #content .section-nav ul li {
-    list-style: none;
-    margin: 0px;
-}
-
-.section-nav {
-    padding: 0px;
-}
-
-.theme-current {
-    float: right;
-    width: 35%;
-    margin-bottom: 15px;
-}
-
-.theme-titles {
-    float: left;
-    width: 63%;
-    margin-bottom: 15px;
-}
 
 .layout-selector-wrapper {
     margin-bottom: 15px;
@@ -63,4 +39,8 @@ form.theme-switcher {
 .layout-item.highlight {
     border-width: 1px;
     border-style: solid;
+}
+
+.theme-paging input {
+    margin: 0px;
 }

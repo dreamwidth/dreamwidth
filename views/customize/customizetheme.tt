@@ -1,148 +1,150 @@
-[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.customizetheme.js' ) -%]
+[%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.customizetheme.js' ) -%]
+[%- dw.need_res( { group => "foundation" },
+                    "js/color_picker.js"
+                 "js/components/jquery.collapse.js"
+                "stc/css/components/collapse.css"
+                "stc/css/components/foundation-icons.css"
+                "stc/monolith.min.css"
+
+        ) -%]
 [%- dw.need_res( 'stc/widgets/customizetheme.css' ) -%]
 
-    <h2 class='widget-header'>[% dw.ml('widget.customizetheme.title') %]</h2>
-    [% USE Dumper %]
+    <h4>[%- dw.ml('widget.customizetheme.title') -%]</h4>
 
     <form id="customize-form" method = POST>
-    [% dw.form_auth() %]
+    [%- dw.form_auth() -%]
 
-    <div class='customize-inner-wrapper section-nav-inner-wrapper'>
-    <div class='customize-nav section-nav'>
+    <div class='customize-inner-wrapper section-nav-inner-wrapper row'>
+    <div class='customize-nav section-nav columns large-2'>
 
-    [%# Navigation %]
-
-    <ul class='customize-nav nostyle' id='customize_theme_nav_links'>
+    [%-# Navigation -%]
+    <ul class='customize-nav-bk nostyle' id='customize_theme_nav_links'>
     <li [% nav_class("display") %]><a class='customize-nav-group' href='[% site.root %]/customize/options[% getextra %][% getsep %]group=display'>[% dw.ml('widget.customizetheme.nav.display') %]</a></li>
 
-    [% FOREACH g IN group_names %]
-        [% NEXT IF g == "customcss" %]
+    [%- FOREACH g IN group_names -%]
+        [%- NEXT IF g == "customcss"- %]
 
-        [% name = propgroup_name(g, u, style) %]
+        [%- name = propgroup_name(g, u, style) -%]
         <li [% nav_class(g) %]><a class='customize-nav-group' href='[% site.root %]/customize/options[% getextra %][% getsep %]group=[% g %]'>[% name %]</a></li>
-    [% END %]
+    [%- END -%]
 
     <li [% nav_class("linkslist") %]><a class='customize-nav-group' href='[% site.root %]/customize/options[% getextra %][% getsep %]group=linkslist'>[% dw.ml('widget.customizetheme.nav.linkslist') %]</a></li>
 
-    [% IF has_customcss %]
-        [% name = propgroup_name("customcss", u, style) %]
+    [%- IF has_customcss -%]
+        [%- name = propgroup_name("customcss", u, style) -%]
         <li[% nav_class("customcss") %]><a class='customize-nav-group' href='[% site.root %]/customize/options[% getextra %][% getsep %]group=customcss'>[% name %]</a></li>
-    [% END %]
+    [%- END -%]
 
     </ul>
     </div>
 
+    [%-# Content -%]
+    <div class='customize-content section-nav-content columns large-10'>
 
-    [%# Content %]
-
-    <div class='customize-content section-nav-content'>
-
-    [%# Display Group %]
-    [% IF group == "display" %]
+    [%-# Display Group -%]
+    [%- IF group == "display" -%]
         <div id='display-group' class='customize-group'>
         <div class='pkg'>
-        [% INCLUDE customize/moodtheme_chooser.tt %]
+        [%- INCLUDE customize/moodtheme_chooser.tt -%]
         </div>
 
         <div class='pkg'>
-        [% INCLUDE customize/navstrip_chooser.tt 'props' = groups.props,%]
+        [%- INCLUDE customize/navstrip_chooser.tt 'props' = groups.props -%]
         </div>
 
         </div>
-    [%# Presentation Group %]
-    [% ELSIF group == "presentation" %]
+    [%-# Presentation Group -%]
+    [%- ELSIF group == "presentation" -%]
         <div id='presentation-group' class='customize-group'>
         <div class='pkg'>
-        [% render_s2propgroup( 
+        [%- render_s2propgroup( 
             'props', groups.props,
             'propgroup', "presentation",
             'groupprops', groups.groupprops.presentation,
             'show_lang_chooser', 0  )
-        %]
+        -%]
         </div>
-
         </div>
     
-    [%# Colors Group %]
-    [% ELSIF group == "colors" %]
+    [%-# Colors Group -%]
+    [%- ELSIF group == "colors" -%]
         <div id='colors-group' class='customize-group'>
-        [% render_s2propgroup( 
+        [%- render_s2propgroup( 
             'props' , groups.props,
             'propgroup', "colors",
             'groupprops' , groups.groupprops.colors,
               )
-        %]
+        -%]
         </div>
     
-
-    [%# Fonts Group %]
-    [% ELSIF group == "fonts" %]
+    [%-# Fonts Group -%]
+    [%- ELSIF group == "fonts" -%]
         <div id='fonts-group' class='customize-group'>
-        [% render_s2propgroup( 
+        [%- render_s2propgroup( 
             'props' , groups.props,
             'propgroup', "fonts",
             'groupprops' , groups.groupprops.fonts,
              )
-        %]
+        -%]
         </div>
 
-    [%# Images Group %]
-    [% ELSIF group == "images" %]
+    [%-# Images Group -%]
+    [%- ELSIF group == "images" -%]
         <div id='images-group' class='customize-group'>
-        [% render_s2propgroup( 
+        [%- render_s2propgroup( 
             'props', groups.props,
             'propgroup', "images",
             'groupprops', groups.groupprops.images,
              )
-        %]
+        -%]
         </div>
 
-    [%# Text Group %]
-    [% ELSIF group == "text" %]
+    [%-# Text Group -%]
+    [%- ELSIF group == "text" -%]
         <div id='text-group' class='customize-group'>
-        [% render_s2propgroup( 
+        [%- render_s2propgroup( 
             'props', groups.props,
             'propgroup', "text",
             'groupprops', groups.groupprops.text,
              )
-        %]
+        -%]
         </div>
 
-    [%# Links List Group %]
-    [% ELSIF group == "linkslist" %]
+    [%-# Links List Group -%]
+    [%- ELSIF group == "linkslist" -%]
         <div id='linkslist-group' class='customize-group'>
-        [% render_linkslist('numlinks', numlinks, 'morelinks', morelinks) %]
+        [%- render_linkslist('numlinks', numlinks, 'morelinks', morelinks) -%]
         </div>
     
 
-    [%# Custom CSS Group %]
-    [% ELSIF group == "customcss" %]
+    [%-# Custom CSS Group -%]
+    [%- ELSIF group == "customcss" -%]
         <div id='customcss-group' class='customize-group'>
-        [% render_s2propgroup( 
+        [%- render_s2propgroup( 
             'props', groups.props,
             'propgroup', "customcss",
             'groupprops', groups.groupprops.customcss,
              )
-        %]
+        -%]
         </div>
 
-    [%# Other Groups %]
-    [% ELSE %]
+    [%-# Other Groups -%]
+    [%- ELSE -%]
         <div id='[% group %]-group' class='customize-group pkg'>
-        [% render_s2propgroup(
+        [%- render_s2propgroup(
             'props', groups.props,
             'propgroup' , "$group",
             'groupprops', groups.groupprops.$group,
              )
-        %]
-    [% END %]
+        -%]
+        </div>
+    [%- END -%]
 
     <div class='customize-buttons action-bar'>
-    [% form.submit( name = 'save', value = dw.ml('widget.customizetheme.btn.save'), class = 'customize-button') %]
-    [% form.submit( name = 'reset', value = dw.ml('widget.customizetheme.btn.reset'), class='customize-button' id='reset_btn_bottom') %]
+    [%- form.submit( name = 'save', value = dw.ml('widget.customizetheme.btn.save'), class = 'customize-button button') -%]
+    [%- form.submit( name = 'reset', value = dw.ml('widget.customizetheme.btn.reset'), class='customize-button button' id='reset_btn_bottom') -%]
     </div>
 
     </div><!-- end .customize-content -->
     </div><!-- end .customize-inner-wrapper -->
-
     </form>

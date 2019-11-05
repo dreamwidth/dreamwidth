@@ -1,9 +1,10 @@
 [%- CALL dw.active_resource_group( 'jquery' ) -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- dw.need_res( 'stc/customize.css' ) -%]
-[%- dw.need_res( 'stc/select-list.css' ) -%]
 [%#- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
 
+
+<div class="row">
 <form method="get">
     [%- authas_html -%]
 </form>
@@ -25,39 +26,59 @@
     [% ELSE %]
         <p> [% '.setsiteskin.desc' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'" ) %]</p>
     [% END %]
-
-    [%#render current theme widget %]
-    <div class='theme-current pkg'>
-    [% render_currenttheme() %]
-    </div><!-- end .theme-current -->
+    </div>
+<div class="row">
+<div class="columns large-7">
 
     [% #render journal titles widget %]
     <div class='theme-titles pkg'>
     [% render_journaltitles() %]
     </div><!-- end .theme-titles -->
+
+
+</div>
+<div class="columns large-5">
+    [%#render current theme widget %]
+    <div class='theme-current pkg'>
+    [% render_currenttheme() %]
+    </div><!-- end .theme-current -->
+
+    </div>
+    </div>
     <br />
 
     [% #render search form and submit button %]
     <div class='theme-selector-wrapper pkg'>
-    <h2 class='widget-header'> [% dw.ml( 'widget.themenav.title' ) %]</h2>
+    <h4> [% dw.ml( 'widget.themenav.title' ) %]</h4>
     <script>searchwords = [% keywords_string %];</script>
+    <div class="row">
     <form id=search_form method=post>
-    <p class='detail theme-nav-search-box'>
+    <div class='detail theme-nav-search-box'>
+    <div class="columns large-10 large-offset-2">
+    <div class="row">
+    <div class="columns large-10">
     [% dw.form_auth %]
     [%- form.textbox(
             name = 'search'
             id = 'search_box'
             size = 30
             raw = "autocomplete='off'"
+            class = "text"
     )
     -%]
+    </div>
+    <div class="columns large-2">
     [% form.submit( name = "action:search", id => "search_btn" value = dw.ml('widget.themenav.btn.search') ) %]
-    </p>
+    </div>
+    </div>
+    </div>
+    </div>
     </form>
+    </div>
 
     <div class='theme-nav-inner-wrapper section-nav-inner-wrapper row'>
-    <div class='theme-selector-nav section-nav columns large-3'>
-    <ul class='theme-nav nostyle theme-side-nav'>
+    <div class='theme-selector-nav section-nav columns large-2'>
+    <ul class='theme-nav nostyle'>
     [% INCLUDE customize/cats.tt cat_list = main_cats_sorted %]
     </ul>
 
@@ -75,7 +96,7 @@
 
     </div>
 
-    <div class='theme-nav-content section-nav-content columns large-9'>
+    <div class='theme-nav-content section-nav-content columns large-10'>
         <div class="appwidget appwidget-themechooser" id="LJWidget_92">
     <div class='theme-selector-content pkg'>
 

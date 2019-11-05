@@ -57,4 +57,39 @@ label.hidden {
   @include element-invisible();
 }
 
+fieldset.color_picker {
+  border: 0px;
+  margin: 0px;
+  padding: 0px;
+}
+
+.color_picker_input {
+  margin-right: 1em;
+}
+
+input.color_picker_text {
+  display: inline;
+  width: auto;
+}
+
+/**
+* Helper classes to make inputs/selects embedable in a block of text
+* Also applies these styles to the authas form by default.
+*/
+
+input.inline, select.inline {
+  width: auto;
+  margin-bottom: 0px;
+}
+
+select.inline {
+  padding-right: 1.5em;
+}
+
+select#authas {
+  width: auto;
+  padding-right: 1.5em;
+  margin-bottom: 0px;
+}
+
 @import "components/expand-for-mobile";

@@ -1,6 +1,6 @@
 (function($) {
 
-function CustomizeTheme($el) {
+function CustomizeTheme() {
     var customizeTheme = this;
     customizeTheme.init();
 }
@@ -9,14 +9,22 @@ CustomizeTheme.prototype = {
         form_changed: false,
 
         navclick_save: function (evt) {
+            var customizeTheme = this;
             var confirmed = false;
             if (customizeTheme.form_changed == false) {
                 return true;
             } else {
                 confirmed = confirm("Save your changes?");
             }
+            console.log(confirmed);
             if (confirmed) {
-                $('customize-form').submit();
+                console.log("we're confirmed!~");
+                var form = $('#customize-form');
+                console.log(form);
+                $('#customize-form').submit(function( event ) {
+  console.log( "Handler for .submit() called." );
+});
+                $('#customize-form').trigger( "submit" );
             }
         },
 
@@ -110,5 +118,6 @@ $.fn.extend({
 })(jQuery);
 
 jQuery(function($){
-    $(".layout-selector-wrapper").customizeTheme();
+    $().customizeTheme();
+    $("body").collapse();
 });

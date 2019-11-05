@@ -1,7 +1,7 @@
 
 [%# info about the links textareas %]
 
-    <fieldset><legend> [% dw.ml('widget.linkslist.title') %]</legend></fieldset> 
+    <h3> [% dw.ml('widget.linkslist.title') %]<h3> 
 
 [%# title of this module %]
 
@@ -9,24 +9,21 @@
 
 [%# explanation %]
 
-     <table summary='' cellspacing='2' cellpadding='0'><tr valign='top'><td> 
-
-     <td><div class='highlight-box'><p class='tips-header'><strong> [% dw.ml('widget.linkslist.tips') %]</strong></p> 
+    <div class='highlight-box'><p class='tips-header'><strong> [% dw.ml('widget.linkslist.tips') %]</strong></p> 
      <ul><li> [% dw.ml('widget.linkslist.about.reorder') %]</li> 
      <li> [% dw.ml('widget.linkslist.about.blank') %]</li> 
      <li> [% dw.ml('widget.linkslist.about.heading') %]</li> 
      <li> [% dw.ml('widget.linkslist.about.hover') %]</li> 
      <li> [% dw.ml('widget.linkslist.about.hoverhead') %]</li>
      </ul></div> 
-     </td></tr></table> 
 
 
 [%# add the table-ey stuff at the top %]
 
-     <table border='0' cellspacing='5' cellpadding='0'> 
-     <thead><tr><th> [% dw.ml('widget.linkslist.table.order') %]</th><th></th> 
-     <th> [% dw.ml('widget.linkslist.table.title') %]</th><td>&nbsp;</td></tr></thead> 
-
+<div class="row prop-row">
+     <div class="columns large-2"> [% dw.ml('widget.linkslist.table.order') %]</div> 
+     <div class="columns large-10"> [% dw.ml('widget.linkslist.table.title') %]</div> 
+</div>
 [%# now we're building the textareas %]
 
     [% FOREACH ct IN  [1..showlinks] %]
@@ -34,51 +31,57 @@
         [% it = linkobj.$indextoken || {} %]
 
         [%# builds the order number %]
-
-        <tr><td>
+    <div class="row prop-row">
+        <div class="columns large-2">
         [% form.textbox(
             name => "link_"_ ct _"_ordernum",
             size => 4,
             value => ct * order_step,
         ) %]
-        </td>
+        </div>
 
         [%# the link itself %]
-
-        <td> 
-        <label>Link</label></td><td> 
+        <div class="columns large-10">
+            <div class="row">
+        <div class="columns large-3"> 
+        <label>Link</label></div>
+        <div class="columns large-9"> 
         [% form.textbox(
             name => "link_" _ ct _ "_url",
             size => 50,
             maxlength => 255,
             value => it.url || "http://",
         ) %]
+        </div>
 
         [%# the title of the link %]
 
-         <tr><td></td><td> 
-         <label>Link text</label></td><td> 
+         <div class="columns large-3"> 
+         <label>Link text</label></div> 
+         <div class="columns large-9">
         [% form.textbox(
             name => "link_" _ ct _ "_title",
             size => 50,
             maxlength => 255,
             value =>it.title,
         ) %]
-         </td> 
+         </div>
 
         [%# so here's where we might insert some hover text %]
 
-         <tr><td></td><td> 
-         <label>Hover text<label></td><td> 
+         <div class="columns large-3"> 
+         <label>Hover text<label></div>
+            <div class="columns large-9">
         [% form.textbox(
             'name' => "link_" _ ct _ "_hover",
             'size' => 50,
             'maxlength' => 255,
             'value' => it.hover,
         ) %]
-         </td><td>&nbsp;</td></tr> 
+         </div>
+         </div> 
 
-
+     </div>
         [%# more button at the end of the last line, but only if %]
         [%# they are allowed more than the minimum %]
          <td>&nbsp; 
@@ -95,11 +98,8 @@
              </td></tr><tr><td colspan='2'>&nbsp;</td><td>[% dw.ml('cprod.links.text3.v1') %]
         [% END %]
          </td></tr> 
-
-        [%# blank line unless this is the last line %]
-         [% "<tr><td colspan='3'>&nbsp;</td></tr>" UNLESS ct >= showlinks %]
-
+     </div>
     [% END %]
 
     [% form.hidden( 'name' = 'numlinks', 'value' = showlinks ) %]
-     </table></td> 
+

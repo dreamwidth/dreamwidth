@@ -1,161 +1,156 @@
+    [%# visually grouped properties. Allow nesting to only two levels -%]
+    [%- IF type == "string[]" AND is_group < 2 -%]
+        [%- IF prop.grouptype == "module" -%]
 
+            <div class='prop-grouped prop-[%- prop.grouptype -%] columns large-12'>
+            [%- FOREACH prop_in_group IN override -%]
 
-    [%# visually grouped properties. Allow nesting to only two levels %]
-    [% IF type == "string[]" AND is_group < 2 %]
-        [% IF prop.grouptype == "module" %]
-
-            <td class='prop-grouped prop-[% prop.grouptype %]' colspan=2>
-            [% FOREACH prop_in_group IN override %]
-
-                [% IF grouped_prop_override.prop_in_group %]
-                    [% prop_in_group = grouped_prop_override.prop_in_group %]
-                    [% override_token = prop_in_group _ "_values" %]
-                    [% overriding_values = grouped_prop_override.override_token %]
-                [% END %]
+                [%- IF grouped_prop_override.prop_in_group -%]
+                    [%- prop_in_group = grouped_prop_override.prop_in_group -%]
+                    [%- override_token = prop_in_group _ "_values" -%]
+                    [%- overriding_values = grouped_prop_override.override_token -%]
+                [%- END -%]
                 
-                [% IF prop_in_group.match('opts_group') %]
-                    [% has_opts = 1 %]
-                    [% NEXT %]
-                [% END %]
-                [% output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1) %]
-            [% END %]
+                [%- IF prop_in_group.match('opts_group') -%]
+                    [%- has_opts = 1 -%]
+                    [%- NEXT -%]
+                [%- END -%]
+                [%- output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1) -%]
+            [%- END -%]
 
-            [% modulename = prop.name.remove('_group') %]
+            [%- modulename = prop.name.remove('_group') -%]
 
-            <label for='[% modulename %]_show'>[% prop.des | html %]</label>
-            [% modulename_token = modulename _ "_opts_group" %]
+            <label for='[%- modulename -%]_show'>[%- prop.des | html -%]</label>
+            [%- modulename_token = modulename _ "_opts_group" -%]
 
-            [% output_prop_element( props.$modulename_token, modulename_token, u, style, theme, props, is_group + 1  ) IF has_opts %]
+            [%- output_prop_element( props.$modulename_token, modulename_token, u, style, theme, props, is_group + 1  ) IF has_opts -%]
 
-            </td>
-        [% ELSIF prop.grouptype == "moduleopts" %]
+            </div>
+        [%- ELSIF prop.grouptype == "moduleopts" -%]
             <ul class='prop-moduleopts'>
-            [% FOREACH prop_in_group IN override %]
-                <li>[% output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1) %] 
-            [% END %]
+            [%- FOREACH prop_in_group IN override -%]
+                <li>[%- output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1) -%] </li>
+            [%- END -%]
             </ul>
-        [% ELSE %]
+        [%- ELSE -%]
 
-            <td class='prop-grouped prop-[% prop.grouptype %]' colspan=2><label class='prop-header'>[% prop.des| html %][% help_icon( "s2opt_$prop->{name}" ) %]</label>
+            <div class='prop-grouped prop-[%- prop.grouptype -%] columns large-12'>
+            <label class='prop-header'>[%- prop.des| html -%][%- help_icon( "s2opt_$prop->{name}" ) -%]</label>
+            [%- FOREACH prop_in_group IN override -%]
+                [%- output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1 ) -%] 
+            [%- END -%]
+            [%- IF prop.note -%]
+                <ul class=''><li>[%- prop.note | html -%]</li></ul>
+            [%- END -%]
 
-            [% FOREACH prop_in_group IN override %]
-                [% output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1 ) %] 
-            [% END %]
-            [% IF prop.note %]
-                <ul class=''><li>[% prop.note | html %]</li></ul>
-            [% END %]
-
-            </td>
+            </div>
         
-        [% END %]
-    [% ELSIF prop.item('values') %]
-        [% "<td class='prop-input'>" UNLESS is_group %]
+        [%- END -%]
+    [%- ELSIF prop.item('values') -%]
+        [%- "<div class='prop-input columns large-6'>" UNLESS is_group -%]
 
-        [%# take the list of allowed values, determine whether we allow custom values %]
-        [%# and whether we have a value not in the list (possibly set through the layer editor) %]
-        [%# if so, prepend custom values %]
-        [% value_list.unshift( override, "Custom: $override") IF prop.allow_other && override.defined && NOT value_list.grep($override) %]
+        [%# take the list of allowed values, determine whether we allow custom values -%]
+        [%# and whether we have a value not in the list (possibly set through the layer editor) -%]
+        [%# if so, prepend custom values -%]
+        [%- value_list.unshift( override, "Custom: $override") IF prop.allow_other && override.defined && NOT value_list.grep($override) -%]
 
-        [% form.select(
+        [%- form.select(
             'name' = name,
               'disabled' = !can_use,
               'selected' = override, 
               items = value_list,
-        ) %]
-        [% IF is_group && prop.des %]
-            <label>[% prop.des | html %]</label>
-        [% END %]
-        [% "</td>" UNLESS is_group %]
-    [% ELSIF type == "int" %]
-        [% "<td class='prop-input'>" UNLESS is_group %]
-        [% form.textbox(
+        ) -%]
+        [%- IF is_group && prop.des -%]
+            <label>[%- prop.des | html -%]</label>
+        [%- END -%]
+        [%- "</div>" UNLESS is_group -%]
+    [%- ELSIF type == "int" -%]
+        [%- "<div class='prop-input columns large-6'>" UNLESS is_group -%]
+        [%- form.textbox(
             'name' = name,
             'disabled' = !can_use,
             'value' = override,
             'maxlength' = 5,
             'size' = 7,
-        ) %]
-        [% IF is_group && prop.des %]
-            <label>[% prop.des | html %]</label>
-        [% END %]
-        [% "</td>" UNLESS is_group %]
-    [% ELSIF type == "bool" %]
-        [% "<td class='prop-check'>" UNLESS is_group %]
-        [% UNLESS prop.obsolete %]
-        [%  # can't be changed, so don't print %]
+        ) -%]
+        [%- IF is_group && prop.des -%]
+            <label>[%- prop.des | html -%]</label>
+        [%- END -%]
+        [%- "</div>" UNLESS is_group -%]
+    [%- ELSIF type == "bool" -%]
+        [%- "<div class='prop-check columns large-6'>" UNLESS is_group -%]
+        [%- UNLESS prop.obsolete -%]
+        [%-  # can't be changed, so don't print -%]
 
-            [% form.checkbox( 
+            [%- form.checkbox( 
                 'name' = name,
                 'disabled' = !can_use,
                 'selected' = override,
                 'label' = prop.label,
                 'id' = name,
-            ) %]
+            ) -%]
 
-            [%# force the checkbox to be submitted, if the user unchecked it %]
-            [%# so that it can be processed (disabled) when handling the post %]
+            [%# force the checkbox to be submitted, if the user unchecked it -%]
+            [%# so that it can be processed (disabled) when handling the post -%]
 
-            [% IF can_use %]
-                [% form.hidden(
+            [%- IF can_use -%]
+                [%- form.hidden(
                     'name' = name,
                      'value' = 0,
-                ) %]
-            [% END %]
-        [% END %]
+                ) -%]
+            [%- END -%]
+        [%- END -%]
 
-        [% "</td>" UNLESS is_group %]
-    [% ELSIF type == "string" %]
-        [% rows = prop.rows ? prop.rows + 0 : 0 %]
-        [% cols = prop.cols ? prop.cols + 0 : 0 %]
-        [% full = prop.full ? prop.full + 0 : 0 %]
+        [%- "</div>" UNLESS is_group -%]
+    [%- ELSIF type == "string" -%]
+        [%- rows = prop.rows ? prop.rows + 0 : 0 -%]
+        [%- cols = prop.cols ? prop.cols + 0 : 0 -%]
+        [%- full = prop.full ? prop.full + 0 : 0 -%]
 
-        [% "<td class='prop-input'>" UNLESS is_group %]
+        [%- "<div class='prop-input columns large-6'>" UNLESS is_group -%]
 
-        [% IF full > 0 %]
-            [% form.textarea(
+        [%- IF full > 0 -%]
+            [%- form.textarea(
                 'name' = name,
                 'disabled' = !can_use,
                 'value' = override,
                 'rows' = "40",
                 'cols' = "40",
                 'style' = "width: 97%; height: 350px; ",
-            ) %]
-        [% ELSIF rows > 0 && cols > 0 %]
-            [% form.textarea(
+            ) -%]
+        [%- ELSIF rows > 0 && cols > 0 -%]
+            [%- form.textarea(
                 'name' = name,
                 'disabled' = !can_use,
                 'value' = override,
                 'rows' = rows,
                 'cols' = cols,
-            ) %]
-        [% ELSE %]
-            [% size = prop.item('size') || 30 %]
-            [% maxlength = prop.maxlength || 255 %]
-            [% form.textbox(
+            ) -%]
+        [%- ELSE -%]
+            [%- size = prop.item('size') || 20 -%]
+            [%- maxlength = prop.maxlength || 255 -%]
+            [%- form.textbox(
                 'name' = name,
                 'disabled' = !can_use
                 'value' = override
                 'maxlength' = maxlength
                 'size' = size
-            ) %]
-                [% END %]
-        [% "</td>" UNLESS is_group %]
-    [% ELSIF type == "Color" %]
-        [% "<td class='prop-color'>" UNLESS is_group %]
-        [% form.color(
+            ) -%]
+                [%- END -%]
+        [%- "</div>" UNLESS is_group -%]
+    [%- ELSIF type == "Color" -%]
+        [%- "<div class='prop-color columns large-3'>" UNLESS is_group -%]
+        [%- form.color(
             'name' = name,
             'disabled' = !can_use,
             'default' = override,
             'des' = prop.des,
-            'onchange' = "form_change();",
             'no_btn' = 1,
-        ) %]
-        [% "</td>" UNLESS is_group %]
+        ) -%]
+        [%- "</div>" UNLESS is_group -%]
 
-        <td>[% prop.des| html %][% help_icon("s2opt_" _ $name) %]</td>
+        <div>[%- prop.des| html -%][%- help_icon("s2opt_" _ $name) -%]</div>
     
-    [% END %]
+    [%- END -%]
 
-    [% help_icon('s2propoff', ' ') IF NOT can_use %]
-
-
+    [%- help_icon('s2propoff', ' ') IF NOT can_use -%]

@@ -44,7 +44,7 @@
                         size = 30
                         maxlength => maxlength
                         value => u.prop(id)
-                        class = "text inline"
+                        class = "text"
                 )
                 -%]
                 [% form.hidden( name = "which_title", value = id, class="which_title") %]

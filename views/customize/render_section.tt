@@ -1,0 +1,41 @@
+        [%- IF show_lang_chooser -%]
+            <div class='prop-row row'>
+                <div class="columns large-6">[%- dw.ml('widget.s2propgroup.language.label') -%]</div>
+                <div class="columns large-6">
+                [%- form.html_select(
+                    'name' = "langcode",
+                    'selected' = $langcode,
+
+                    'items' = langs) 
+                -%]
+            </div>
+            </div>
+            <div class='prop-row-note row'>
+                [%- dw.ml('widget.s2propgroup.language.note') -%]
+            </div>
+        [%- END -%]
+
+        [%- NEXT IF skip_prop(props.$prop_name, prop_name, 'theme', theme, 'user', u ) -%]
+
+        [%-# for themes that don't use the linklist_support prop -%]
+        [%- IF NOT props.$prop_name AND (prop_name == "linklist_support") -%]
+            [%- linklist_tab = theme.linklist_support_tab -%]
+        [%- END -%]
+
+        <div class='prop-row row'>
+        [%- IF linklist_tab -%]
+            [%- dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]
+            </div>
+        [%- END -%]
+
+        [%- UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" -%]
+        <div class='prop-header columns large-6'>[%- props.$prop_name.des | html -%][%- help_icon( "s2opt_" _ props.$prop_name.name ) -%]</div>
+        [%- END -%]
+
+       [%- output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0, grouped_prop_override ) -%]
+
+        [%- IF prop.note -%]
+            </div><div class='prop-row-note row'>
+                [%- props.$prop_name.note | html -%]
+        [%- END -%]
+        </div>

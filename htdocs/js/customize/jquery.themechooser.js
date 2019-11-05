@@ -33,8 +33,9 @@ ThemeChooser.prototype = {
             })
 
             $(".theme-selector-wrapper").on("theme:filter", function(evt, data) {
-                for (let [key, value] of Object.entries(data)) {
-                      themeChooser.filterThemes(evt, key, value);
+                for (var dkey in Object.keys(data)) {
+                        var dvalue = data[key];
+                      themeChooser.filterThemes(evt, dkey, dvalue);
                     }
 
             });

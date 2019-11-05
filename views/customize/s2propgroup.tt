@@ -2,343 +2,116 @@
 [%- dw.need_res( "stc/widgets/s2propgroup.css" ) -%]
 [%- dw.need_res( { group => 'jquery' }, "js/colorpicker.js" ) -%]
 [%- dw.need_res( "stc/widgets/navstripchooser.css" ) -%]
-[%- dw.need_res( "stc/collapsible.css" ) -%]
-<script>
-var ml =  {
-            collapsed: "[% dw.ml('collapsible.collapsed') %]",
-            expanded: "[% dw.ml('collapsible.expanded') %]"
-        }
-</script>
 
 <div class="appwidget appwidget-s2propgroup">
-    [% pname = propgroup_name(propgroup, u, style) %]
+    [%- pname = propgroup_name(propgroup, u, style) -%]
 
-    <fieldset><legend> [% pname %]
-    <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='[% propgroup %]__expand'>[% dw.ml('widget.s2propgroup.expand') %]</a></span>
-    <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='[% propgroup %]__collapse'>[% dw.ml('widget.s2propgroup.collapse') %]</a></span>
-    </legend></fieldset>
+    <h3> [%- pname -%]
+    <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='[%- propgroup -%]__expand'>[%- dw.ml('widget.s2propgroup.expand') -%]</a></span>
+    <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='[%- propgroup -%]__collapse'>[%- dw.ml('widget.s2propgroup.collapse') -%]</a></span>
+    </h3>
 
-    [% row_class = "" %]
-    [% count = 1 %]
+    [%- IF propgroup == "presentation" -%]
+        <p class='detail'>[%- dw.ml('widget.s2propgroup.presentation.note') -%]</p>
 
-    [% IF propgroup == "presentation" %]
-        <p class='detail'>[% dw.ml('widget.s2propgroup.presentation.note') %]</p>
+        [%- WRAPPER "customize/section_wrapper.tt" 
+            id = "subheader__presentation__basic"
+            text = dw.ml('widget.s2propgroup.presentation.basic') 
+        -%]
+            [%- print_headers = 0 -%]
+            [%- FOREACH prop_name IN basic_props -%]
+                   [%- INCLUDE "customize/render_section.tt" -%]
+                   [%- print_headers = 1 -%]
+            [%- END -%]
+        [%- END -%]
 
-        <div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__basic'><div class='collapse-button'>[% dw.ml('collapsible.expanded') %]
-         </div>
-         [% dw.ml('widget.s2propgroup.presentation.basic') %]</div>
-        <table summary='' cellspacing='0' class='prop-list first' id='proplist__presentation__basic'>
-        [% IF show_lang_chooser %]
-            <tr class='prop-row' width='100%'>
-                <td>[% dw.ml('widget.s2propgroup.language.label') %]</td><td>
-                [% form.html_select(
-                    'name' = "langcode",
-                    'selected' = $langcode,
+        [%- WRAPPER "customize/section_wrapper.tt" 
+            id = "subheader__presentation__additional"
+            text = dw.ml('widget.s2propgroup.presentation.additional')
+        -%]
+            [%- print_headers = 0 -%]
+            [%- FOREACH prop_name IN groupprops -%]
+                [%- NEXT IF skip_prop(props.$prop_name, prop_name, 'props_to_skip', is_basic_prop, 'theme', theme, 'user', u ) -%]
+               [%- INCLUDE "customize/render_section.tt" -%]
+               [%- print_headers = 1 -%]
+            [%- END -%]
+        [%- END -%]
+        [%- prop_is_in_subheader = {} -%]
 
-                    'items' = langs) 
-                %]</td>
-                </tr><tr class='prop-row-note'><td colspan='100%' class='prop-note'>[% dw.ml('widget.s2propgroup.language.note') %]</td></tr>
-        [% END %]
+     [%- ELSIF propgroup == "modules" -%]
+        [%- FOREACH subheader IN layout_sections_order -%]       
+            [%- WRAPPER "customize/section_wrapper.tt" -%]
+                [%- print_headers = 0 -%]
+                [%- FOREACH prop_name IN prop_in_subheader.$subheader.list -%]
+                
+                    [%- NEXT IF skip_prop( props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style ) -%]
 
-        [% FOREACH prop_name IN basic_props %]
+                    [%- INCLUDE "customize/render_section.tt" -%]
+                    [%- print_headers = 1 -%]
+                [%- END -%]
+            [%- END -%]
+            [%- prop_is_in_subheader = {} -%]
+        [%- END -%]
 
-            [% NEXT IF skip_prop(props.$prop_name, prop_name, 'theme', theme, 'user', u ) %]
+    [%- ELSE -%]
+        [%- FOREACH subheader IN get_subheaders_order() -%]
 
-            [% IF show_lang_chooser %]
-                [%# start on gray, since the language chooser will be white %]
-                [% row_class = count % 2 != 0 ? " odd" : " even" %]
-            [% ELSE %]
-                [% row_class = count % 2 == 0 ? " even" : " odd" %]
-            [% END %]
+            [%- subheader_token = subheader _ "_props" -%]
+            [%- subheader_props = {} -%]
+            [%- IF subheader == "unsorted" -%]
+                [%- subheader_props = unsorted_props.keys -%]
+            [%- ELSE -%]
+                [%- subheader_props = theme.$subheader_token -%]
+            [%- END -%]
+            
+            [%- NEXT UNLESS subheader_props -%]
 
-                [%# for themes that don't use the linklist_support prop %]
-                [% IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
-                    [% linklist_tab = theme.linklist_support_tab %]
-                [% END %]
+            [%- SET prop_is_in_subheader.$prop = 1 FOREACH prop IN subheader_props -%]
 
-                <tr class='prop-row[% row_class %]' width='100%' valign='top'>
-                [% IF linklist_tab %]
-                    <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
-                    </tr>
-                [% END %]
+            [%- WRAPPER "customize/section_wrapper.tt" -%]
+                [%- print_headers = 0 -%]
+                [%- FOREACH prop_name IN groupprops -%]
+                    [%- NEXT IF skip_prop(props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style) -%]
+                    [%- NEXT UNLESS prop_is_in_subheader.$prop_name -%]
 
-                [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
-                [% END %]
+                    [%- INCLUDE "customize/render_section.tt" -%]
+                    [%- print_headers = 1 -%]
+                [%- END -%]
 
-               [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0, grouped_prop_override ) %]
-
-                [% IF prop.note %]
-                    </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html %]</td>
-                [% END %]
-                </tr>
-
-            [% count = count + 1 %]
-        [% END %]
-        </table>
-
-        [% count = 1 %]
-        [% header_printed = 0 %]
-
-        [% FOREACH prop_name IN groupprops %]
-            [% NEXT IF skip_prop(props.$prop_name, prop_name, 'props_to_skip', is_basic_prop, 'theme', theme, 'user', u ) %]
-
-            [%# need to print the header inside the foreach because we don't want it printed if %]
-            [%# there's no props in this group that are also in this subheader %]
-            [% UNLESS header_printed %]
-                <div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__additional'><div class='collapse-button'>
-                    [% dw.ml('collapsible.expanded') %]
+                [%- IF subheaders.$subheader == dw.ml('customize.propgroup_subheaders.module') && propgroup == "text" -%] 
+                    <div class='prop-row row'>
+                        <div class='prop-header columns large-6'>[%- dw.ml('widget.customtext.title') -%]</div>
+                        <div class="columns large-6">[%- form.textbox(
+                            name => "module_customtext_title",
+                            size => 20,
+                            value => custom_text_title,
+                        ) -%]</div>
                     </div>
-                    [% dw.ml('widget.s2propgroup.presentation.additional') %]</div>
-                <table summary='' cellspacing='0' class='prop-list' id='proplist__presentation__additional'>
-            
-            [% END %]
-            [% header_printed = 1 %]
-            [% row_class = count % 2 == 0 ? " even" : " odd" %]
 
-                [%# for themes that don't use the linklist_support prop %]
-                [% IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
-                    [% linklist_tab = theme.linklist_support_tab %]
-                [% END %]
+                    <div class='prop-row row'>
+                        <div class='prop-header columns large-6'>[%- dw.ml('widget.customtext.url') -%]</div>
+                        <div class="columns large-6">[%- form.textbox(
+                            name => "module_customtext_url",
+                            size=> 20,
+                            value => custom_text_url,
+                        ) -%]</div>
+                    </div>
 
-                <tr class='prop-row[% row_class %]' width='100%' valign='top'>
-                [% IF linklist_tab %]
-                    <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
-                    </tr>
-                [% END %]
+                    <div class='prop-row row'>
+                        <div class='prop-header columns large-6'>[%- dw.ml('widget.customtext.content') -%]</div>
+                        <div class="columns large-6">[%- form.textarea(
+                            name => "module_customtext_content",
+                            rows => 10,
+                            cols => 50,
+                            wrap => 'soft',
+                            value => custom_text_content,
+                        ) -%]</div>
+                    </div>
+                [%- END -%]
 
-                [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
-                [% END %]
-
-                [% output_prop_element(props.$prop_name, prop_name, u, style, theme, props, 0) %]
-
-                [% IF prop.note %]
-                    </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html%]</td>
-                [% END %]
-                </tr>
-            [% count = count + 1 %]
-        [% END %]
-        [% '</table>'  IF header_printed %]
-        [% prop_is_in_subheader = {} %]
-     [% ELSIF propgroup == "modules" %]
-
-        [% subheader_counter = 1 %]
-        [% FOREACH subheader IN layout_sections_order %]
-            [% header_printed = 0 %]
-            [% FOREACH prop_name IN prop_in_subheader.$subheader.list %]
-            
-                [% NEXT IF skip_prop( props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style ) %]
-
-                [% UNLESS header_printed %]
-                    [% prop_list_class = '' %]
-                    [% prop_list_class = " first" IF subheader_counter == 1 %]
-
-                    <div class='subheader subheader-modules collapsible expanded' id='subheader__modules__[% subheader %]'><div class='collapse-button'>"
-                     [% dw.ml('collapsible.expanded') %]
-                     </div> [% subheaders.$subheader %]</div>
-                    <table summary='' cellspacing='0' class='prop-list[% prop_list_class %]' id='proplist__modules__[% subheader %]'>
-                    [% header_printed = 1 %]
-                    [% subheader_counter = subheader_counter + 1 %]
-                    [%count = 1 # reset counter %]
-                [% END %]
-
-                [% row_class = count % 2 == 0 ? " even" : " odd" %]
-
-                    [%# for themes that don't use the linklist_support prop %]
-                    [% IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
-                        [% linklist_tab = theme.linklist_support_tab %]
-                    [% END %]
-
-                    <tr class='prop-row[% row_class %]' width='100%' valign='top'>
-                    [% IF linklist_tab %]
-                        <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
-                        </tr>
-                    [% END %]
-
-                    [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                    <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
-                    [% END %]
-
-
-                    [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0, grouped_prop_override) %]
-
-                    [% IF props.$prop_name.note %]
-                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html%]</td>
-                    [% END %]
-                    </tr>
-                [% count = count + 1 %]
-            [% END %]
-            [% '</table>'  IF header_printed %]
-            [% prop_is_in_subheader = {} %]
-        [% END %]
-
-    [% ELSIF propgroup == "text" %]
-        [% subheader_counter = 1 %]
-        [% FOREACH subheader IN get_subheaders_order() %]
-            [% header_printed = 0 %]
-
-            [% subheader_token = subheader _ "_props" %]
-            [% subheader_props = {} %]
-            [% IF subheader == "unsorted" %]
-                [% subheader_props = unsorted_props.keys %]
-            [% ELSE %]
-                [% subheader_props = theme.$subheader_token %]
-            [% END %]
-            [% NEXT UNLESS subheader_props %]
-
-            [% SET prop_is_in_subheader.$prop = 1 FOREACH prop IN subheader_props %]
-
-            [% FOREACH prop_name IN groupprops %]
-                [% NEXT IF skip_prop(props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style) %]
-                [% NEXT UNLESS prop_is_in_subheader.$prop_name %]
-
-                [%# need to print the header inside the foreach because we don't want it printed if %]
-                [%# there's no props in this group that are also in this subheader %]
-                [% UNLESS header_printed %]
-                    [% prop_list_class = "" %]
-                    [% prop_list_class = " first" IF subheader_counter == 1 %]
-
-                    <div class='subheader subheader-[% propgroup %] collapsible expanded' id='subheader__[% propgroup %]__[% subheader %]'><div class='collapse-button'>
-                     [% dw.ml('collapsible.expanded') %]
-                     </div>[% subheaders.$subheader %]</div>
-                    <table summary='' cellspacing='0' class='prop-list[% prop_list_class %]' id='proplist__[% propgroup %]__[% subheader %]'>
-                    [% header_printed = 1 %]
-                    [% subheader_counter = subheader_counter + 1 %]
-                    [% count = 1 # reset counter %]
-                [% END %]
-
-                [% row_class = count % 2 == 0 ? " even" : " odd" %]
-
-                    [%# for themes that don't use the linklist_support prop %]
-                    [% IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
-                        [% linklist_tab = theme.linklist_support_tab %]
-                    [% END %]
-
-                    <tr class='prop-row[% row_class %]' width='100%' valign='top'>
-                    [% IF linklist_tab %]
-                        <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
-                        </tr>
-                    [% END %]
-
-                    [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                    <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
-                    [% END %]
-
-                    [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0) %]
-
-                    [% IF prop.note %]
-                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html%]</td>
-                    [% END %]
-                    </tr>
-                [% count = count + 1 %]
-            [% END %]
-
-            [% #If we're in the module subsection, we also need to render the Custom Text widget %]
-            [% IF subheaders.$subheader == dw.ml('customize.propgroup_subheaders.module') %] 
-
-                [% row_class = count % 2 == 0 ? " even" : " odd" %]
-
-                <tr class='prop-row[% row_class %]' valign='top' width='100%'><td class='prop-header' valign='top'>[% dw.ml('widget.customtext.title') %]</td>
-                <td valign='top'>[% form.textbox(
-                    name => "module_customtext_title",
-                    size => 20,
-                    value => custom_text_title,
-                ) %]</td></tr>
-
-                [% count = count + 1 %]
-                [% row_class = count % 2 == 0 ? " even" : " odd" %]
-
-                <tr class='prop-row[% row_class %]' valign='top' width='100%'><td class='prop-header' valign='top'>[% dw.ml('widget.customtext.url') %]</td>
-                <td valign='top'>[% form.textbox(
-                    name => "module_customtext_url",
-                    size=> 20,
-                    value => custom_text_url,
-                ) %]</td></tr>
-
-
-                [% count = count + 1 %]
-                [% row_class = count % 2 == 0 ? " even" : " odd" %]
-
-                <tr class='prop-row[% row_class %]' valign='top' width='100%'><td class='prop-header' valign='top'>[% dw.ml('widget.customtext.content') %]<br />
-                <td valign='top'>[% form.textarea(
-                    name => "module_customtext_content",
-                    rows => 10,
-                    cols => 50,
-                    wrap => 'soft',
-                    value => custom_text_content,
-                ) %]</td></tr>
-                </div>
-            [% END %]
-
-            [% '</table>'  IF header_printed %]
-            [% prop_is_in_subheader = {} %]
-        [% END %]
-    [% ELSE %]
-
-        [% subheader_counter = 1 %]
-        [% FOREACH subheader IN get_subheaders_order() %]
-            [% header_printed = 0 %]
-
-            [% subheader_token = subheader _ "_props" %]
-            [% subheader_props = {} %]
-            [% IF subheader == "unsorted" %]
-                [% subheader_props = unsorted_props.keys %]
-            [% ELSE %]
-                [% subheader_props = theme.$subheader_token %]
-            [% END %]
-            [% NEXT UNLESS subheader_props %]
-
-            [% SET prop_is_in_subheader.$prop = 1 FOREACH prop IN subheader_props %]
-
-            [% FOREACH prop_name IN groupprops %]
-                [% NEXT IF skip_prop(props.$prop_name, prop_name, 'theme' , theme, 'user' , u, 'style' , style) %]
-                [% NEXT UNLESS prop_is_in_subheader.$prop_name %]
-
-                [%# need to print the header inside the foreach because we don't want it printed if %]
-                [%# there's no props in this group that are also in this subheader %]
-                [% UNLESS header_printed %]
-                    [% prop_list_class = "" %]
-                    [% prop_list_class = " first" IF subheader_counter == 1 %]
-
-                    <div class='subheader subheader-[% propgroup %] collapsible expanded' id='subheader__[% propgroup %]__[% subheader %]'><div class='collapse-button'>
-                     [% dw.ml('collapsible.expanded') %]
-                     </div>[% subheaders.$subheader %]</div>
-                    <table summary='' cellspacing='0' class='prop-list[% prop_list_class %]' id='proplist__[% propgroup %]__[% subheader %]'>
-                    [% header_printed = 1 %]
-                    [% subheader_counter = subheader_counter + 1 %]
-                    [% count = 1 # reset counter %]
-                [% END %]
-
-                [% row_class = count % 2 == 0 ? " even" : " odd" %]
-
-                    [%# for themes that don't use the linklist_support prop %]
-                    [% SET linklist_tab = theme.linklist_support_tab IF NOT props.$prop_name AND (prop_name == "linklist_support") %]
-
-                    <tr class='prop-row[% row_class %]' width='100%' valign='top'>
-                    [% IF linklist_tab %]
-                        <td colspan='100%'>[% dw.ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} )%]</td>
-                        </tr>
-                    [% END %]
-
-                    [% UNLESS props.$prop_name.type == "Color" || props.$prop_name.type == "string[]" %]
-                    <td class='prop-header' valign='top'>[% props.$prop_name.des | html %][% help_icon( "s2opt_" _ props.$prop_name.name ) %]</td>
-                    [% END %]
-
-                   [% output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0) %]
-
-
-                    [% IF props.$prop_name.note %]
-                        </tr><tr class='prop-row-note[% row_class %]'><td colspan='100%' class='prop-note'>[% props.$prop_name.note | html%]</td>
-                    [% END %]
-                    </tr>
-                [% count = count + 1 %]
-            [% END %]
-
-            [% '</table>'  IF header_printed %]
-            [% prop_is_in_subheader = {} %]
-        [% END %]
-    [% END %]
+            [%- END -%]
+            [%- prop_is_in_subheader = {} -%]
+        [%- END -%]
+    [%- END -%]
 </div>
-
 

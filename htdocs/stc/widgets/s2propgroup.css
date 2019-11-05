@@ -1,50 +1,15 @@
-.prop-list {
-    width: 100%;
-    margin-bottom: 5px;
-}
-
 .graybg {
     background-color: #f1f1f1;
 }
 
-.prop-row td {
-    padding: 5px;
-}
-
-.prop-row-note td {
-    padding: 5px;
-    padding-top: 0;
-}
-
-.prop-row .prop-header {
-    width: 400px;
-}
-
-.prop-row .prop-color {
-    width: 150px;
+.prop-row .prop-color input {
+    display: inline;
+    width: auto;
 }
 
 .prop-note {
     color: #666;
     font-size: smaller;
-}
-
-.prop-header {
-    vertical-align: top;
-}
-
-.prop-input {
-    clear: left;
-}
-
-.s2propgroup-outer-expandcollapse {
-    display: none;
-}
-
-.prop-grouped label.prop-header {
-    float: left;
-    clear: both;
-    width: 20em;
 }
 
 .prop-viewslist label {
@@ -59,4 +24,6 @@
 
 .prop-moduleopts {
     margin-left: 10em;
+    margin-top: 0.5em;
+    margin-bottom: 0em;
 }

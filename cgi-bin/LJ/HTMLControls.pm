@@ -409,23 +409,12 @@ sub html_color {
     my $htmlname = ehtml( $opts->{'name'} );
     my $des      = ehtml( $opts->{'des'} ) || "Pick a Color";
     my $ret;
-
-    ## Output the preview box and picker button with script so that
-    ## they don't appear when JavaScript is unavailable.
-    $ret .=
-          "<script language=\"JavaScript\"><!--\n"
-        . "document.write('<span style=\"border: 1px solid #000000; "
-        . "padding-left: 2em; background-color: "
-        . ehtml( $opts->{'default'} || "" ) . ";\" "
-        . "id=\"${htmlname}_disp\"";
-    if ( $opts->{no_btn} ) {
-        $ret .=
-              " onclick=\"spawnPicker(findel(\\'${htmlname}\\'),"
-            . "findel(\\'${htmlname}_disp\\'),\\'$des\\'); "
-            . LJ::ejs( $opts->{'onchange'} )
-            . " return false;\"";
-    }
-    $ret .= ">&nbsp;</span>'); " . "\n--></script>\n";
+    $ret .= "<fieldset class='color_picker'>"
+        . "<span class = 'color_picker_input'>"
+        . "<input type='button' class='color_picker_button'"
+        . " style='border: 1px solid #000000; background-color: "
+        . ehtml( $opts->{'default'} || "" ) . ";'"
+        . " id='${htmlname}_disp' /></span>";
 
     # 'onchange' argument happens when color picker button is clicked,
     # or when focus is changed to text box
@@ -436,29 +425,16 @@ sub html_color {
             'maxlength' => 7,
             'name'      => $htmlname,
             'id'        => $htmlname,
-            'onchange'  => "setBGColorWithId(findel('${htmlname}_disp'),'${htmlname}');",
-            'onfocus'   => $opts->{'onchange'},
             'disabled'  => $opts->{'disabled'},
             'value'     => $opts->{'default'},
             'noescape'  => 1,
             'raw'       => $opts->{'raw'},
+            'class'     => "color_picker_text",
         }
     );
 
-    unless ( $opts->{no_btn} ) {
-        my $disabled = $opts->{'disabled'} ? "disabled=\'disabled\'" : '';
-        $ret .=
-              "<script language=\"JavaScript\"><!--\n"
-            . "document.write('<button "
-            . "onclick=\"spawnPicker(findel(\\'${htmlname}\\'),"
-            . "findel(\\'${htmlname}_disp\\'),\\'$des\\'); "
-            . LJ::ejs( $opts->{'onchange'} )
-            . " return false;\"$disabled>Choose...</button>'); "
-            . "\n--></script>\n";
-    }
-
     # A little help for the non-JavaScript folks
-    $ret .= "<noscript> (#<var>rr</var><var>gg</var><var>bb</var>)</noscript>";
+    $ret .= "</fieldset><noscript> (#<var>rr</var><var>gg</var><var>bb</var>)</noscript>";
 
     return $ret;
 }

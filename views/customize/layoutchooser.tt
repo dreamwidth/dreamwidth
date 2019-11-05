@@ -2,24 +2,24 @@
 [%- dw.need_res( 'stc/widgets/layoutchooser.css' ) -%]
 
 <h4>
-    [% IF no_themechooser %]
+    [%- IF no_themechooser -%]
         [% dw.ml('widget.layoutchooser.title_nonum') %]
-    [% ELSE %]
+    [%- ELSE -%]
         [% dw.ml('widget.layoutchooser.title') %]
-    [% END %]
+    [%- END -%]
 </h4>
-<ul class='layout-content select-list inline-list'>
-    [% layout_prop = current_theme_id.layout_prop %]
-    [% show_sidebar_prop = current_theme_id.show_sidebar_prop %]
+<div class='layout-content'>
+    [%- layout_prop = current_theme_id.layout_prop -%]
+    [%- show_sidebar_prop = current_theme_id.show_sidebar_prop -%]
 
-    [% UNLESS !current_theme_id.is_system_layout %]
-        [% FOREACH layout IN layouts.keys.sort %]
-            [% current = ((!layout_prop) || (layout_prop && layouts.$layout == prop_value)) ? 1 : 0 %]
-            [% current_class = current ? " selected action-box" : "" %]
-            <li class='layout-item[% current_class %]'>
+    [%- UNLESS !current_theme_id.is_system_layout -%]
+        [%- FOREACH layout IN layouts.keys.sort -%]
+            [%- current = ((!layout_prop) || (layout_prop && layouts.$layout == prop_value)) ? 1 : 0 -%]
+            [%- current_class = current ? " selected " : "" -%]
+            <div class='layout-item[% current_class %]'>
             <img src='[% img_prefix %]/customize/layouts/[% layout %].png' class='layout-preview' />
             <p class='layout-desc'>[% layout_names.$layout %]</p>
-            [% UNLESS current %]
+            [% UNLESS current -%]
                 <form class = "layout-form" method=POST>
                 [% dw.form_auth %]
                 [% form.hidden( name = "layout_choice", value = layout) %]
@@ -28,8 +28,8 @@
                 [% form.submit( name = "apply_layout", class = "layout_button button", id="layout_btn_$layout" , value = dw.ml( 'widget.layoutchooser.layout.apply' ) ) %]
                 </form>
             [% END %]
-            </li><!-- end .theme-item -->
+            </div><!-- end .layout-item -->
         [% END %]
     [% END %]
 
-</ul>
+</div>

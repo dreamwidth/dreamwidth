@@ -1,9 +1,9 @@
 [%- CALL dw.active_resource_group( 'jquery' ) -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- dw.need_res( 'stc/customize.css' ) -%]
-[%- dw.need_res( 'stc/select-list.css' ) -%]
 [%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
 
+<script crossorigin="anonymous" src="/js/vendor/pickr.es5.min.js"></script>
 <form method="get">
     [%- authas_html -%]
 </form>
@@ -16,18 +16,20 @@
         [%- sections.title = '.title' | ml -%]
     [% END %]
 
-
-
-    [%#render current theme widget %]
-    <div class='theme-current pkg'>
-    [% render_currenttheme('no_themechooser', 1) %]
-    </div><!-- end .theme-current -->
-
-    [%#render journal titles widget %]
-    <div class='theme-titles pkg'>
-    [% render_journaltitles('no_themechooser', 1) %]
-    </div><!-- end .theme-titles -->
-    <br />
+<div class=row>
+    <div class="columns large-7">
+        [%#render journal titles widget %]
+        <div class='theme-titles pkg'>
+        [% render_journaltitles('no_themechooser', 1) %]
+        </div><!-- end .theme-titles -->
+    </div>
+    <div class="columns large-5">
+        [%#render current theme widget %]
+        <div class='theme-current pkg'>
+        [% render_currenttheme('no_themechooser', 1) %]
+        </div><!-- end .theme-current -->
+    </div>
+</div>
 
     <div class='customize-wrapper one-percent'>
     [% render_customizetheme('group', group) %]

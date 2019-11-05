@@ -1,13 +1,14 @@
 [%- dw.need_res( 'stc/widgets/moodthemechooser.css' ) -%]
+[%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.moodtheme.js' ) -%]
 
     [% themevalues = [] %]
     [% FOREACH theme IN moodthemes %]
         [% themevalues.push(theme.moodthemeid, theme.name) UNLESS theme.disabled %]
     [% END %]
-    <fieldset><legend>[% dw.ml('widget.moodthemechooser.title') %]</legend></fieldset>
+    <h3>[% dw.ml('widget.moodthemechooser.title') %]</h3>
     <p class='detail'>[% dw.ml('widget.moodthemechooser.desc') %] [% help_icon('mood_themes') %]</p>
-
-    <br /><br /><div class='moodtheme-form'>
+    <div class="row">
+   <div class='moodtheme-form columns large-6'>
         [% form.select( name = "moodthemeid",
                         id = "moodtheme_dropdown",
                         selected = preview_moodthemeid,
@@ -28,33 +29,8 @@
     </ul>
     </div>
 
-
-    [% show_moods = [ 'happy', 'sad', 'angry', 'tired' ] %]
-
-    [% IF mobj %]
-        [% count = 0 %]
-
-        <div class='moodtheme-preview moodtheme-preview highlight-box'>
-        [% FOREACH mood IN show_moods %]
-            [% pic = { } %]
-            [% mood_id = mobj.mood_id(mood) %]
-            [% IF  mobj.get_picture( mood_id, pic ) %]
-                <div class='moodtheme-mood'>
-				<img alt='[% mood %]' src='[% pic.pic %]' width='[% pic.w %]' height='[% pic.h %]' />
-				<p>[% mood %]</p>
-				</div>
-                [% count = count + 1 %]
-            [% END %]
-        [% END %]
-        <div class='moodtheme-view-link'>
-		<a href='[% site.root %]/moodlist?moodtheme=[% preview_moodthemeid %]'>
-        [% dw.ml( 'widget.moodthemechooser.viewtheme' ) %]</a>
+        <div class="columns large-6 moodtheme-preview">
+        [% mood_previews %]
         </div>
 
-        <div class='moodtheme-description'>
-
-		<p>[% mobj.des | html %]</p></div>
-        </div>
-    [% END %]
-
-
+</div>

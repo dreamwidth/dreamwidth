@@ -2,58 +2,33 @@
 
     [% url = "$site.root/customize/$getextra$getsep$q_string" %]
 
-    <div class='theme-paging theme-paging-[% location %]'>
-    [% UNLESS page == 1 && $max_page == 1 %]
-        [% IF page - 1 >= 1 %]
-            <span class='item'><a href='[% url %]page=1' class='theme-page'>&lt;&lt;</a></span>
-            <span class='item'><a href='[% url %]page=[% page - 1 %] ' class='theme-page'>&lt;</a></span>
-        [% ELSE %]
-            <span class='item'>&lt;&lt;</span>
-            <span class='item'>&lt;</span>
-        [% END %]
-
-        [% pages = [ ] %]
-        [% FOREACH pagenum IN [1 .. max_page] %]
-            [% pages.push(pagenum, pagenum) %]
-        [% END %]
-
-
-
-        <form method=POST>
-        [% dw.form_auth %]
-        <span class='item'> [% dw.ml('widget.themechooser.page') %]         
-        [% form.select( name = "page",
-                        id = "page_dropdown_$location",
-                        selected = page,
-                        items = pages ) %]
-
-        [% dw.ml('widget.themechooser.page.maxpage', { currentpage => currentpage, maxpage => max_page }) %]
-        <noscript>[% form.submit( name = "action:create", value = dw.ml( 'widget.themechooser.btn.page' ) ) %]</noscript></span>
-        </form>
-
-        [% IF (page + 1) <= max_page %]
-            <span class='item'><a href='[% url %]page=[% page + 1 %]' class='theme-page'>&gt;</a></span>
-            <span class='item'><a href='[% url %]page=[% max_page %]' class='theme-page'>&gt;&gt;</a></span>
-        [% ELSE %]
-            <span class='item'>&gt;</span>
-            <span class='item'>&gt;&gt;</span>
-        [% END %]
-
-         <span class='item'>|</span>
-    [% END %]
-
+    <div class='theme-paging theme-paging-[% location %] row'>
+    <div class="columns large-9">
+    [%- INCLUDE components/pagination.tt
+    current => page,
+    total_pages => max_page, -%]
+</div>
+<div class="columns large-3">
+<div class="row">
+    
     [% shows = [ 6 6 12 12 24 24 48 48 96 96 all All ] %]
 
     <form method=POST>
     [% dw.form_auth %]
-
-    <span class='item'> [% dw.ml('widget.themechooser.show') %]
+    <div class="columns large-6">
+    <span class='item'> [% dw.ml('widget.themechooser.show') %]</span>
+    </div>
+    <div class="columns large-6">
     [% form.select( name = 'show',
                             id = "show_dropdown_$location",
                             selected = show,
+                            class = "inline",
                             items = shows ) %]
-    <noscript>[% form.submit( name = "action:create", value = dw.ml( 'widget.themechooser.btn.show' ) ) %] </noscript></span>
+    <noscript>[% form.submit( name = "action:create", value = dw.ml( 'widget.themechooser.btn.show' ) ) %] </noscript>
+    </div>
     </form>
+    </div>
+    </div>
    <span id='paging_msg_area_[% location %]'></span>
    </div>
 

@@ -1,52 +1,25 @@
-.appwidget-moodthemechooser fieldset {
-    width: 100%;
-    float: right;
-}
-.appwidget-moodthemechooser[class] fieldset {
-    width: auto;
-    float: none;
-}
-.appwidget-moodthemechooser .detail {
-    float: left;
-}
-.appwidget-moodthemechooser .detail[class] {
-    float: none;
-}
 .moodtheme-links {
     margin-top: 10px !important;
 }
 .moodtheme-links li {
-    background: url(/img/arrow-double-black.gif) no-repeat 0 50%;
     padding-left: 12px;
 }
-.moodtheme-form {
-    float: left;
-    margin-right: 40px;
-}
-div.moodtheme-preview {
-    float: left;
+div.moodtheme-preview .highlight-box {
     padding: 5px;
     margin-left: 20px;
     width: auto;
+    text-align: center
 }
 
-.moodtheme-preview div {
-    float: left;
-}
-
-.moodtheme-mood {
+.moodtheme-mood, .moodtheme-view-link {
     margin: 0.2em 0.5em;
     text-align: center;
+    display: inline-block;
 }
 
 .moodtheme-mood p {
     text-align: center;
     margin-bottom: 0.2em;
-}
-
-.moodtheme-view-link {
-    margin: 0.2em 0.5em;
-    text-align: center;
 }
 
 .moodtheme-description {

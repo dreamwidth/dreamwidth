@@ -1,69 +1,72 @@
 [%- dw.need_res( "stc/widgets/navstripchooser.css" ) -%]
-[%- dw.need_res( { group => 'jquery' }, 'js/customize/jquery.navstripchooser.js' ) -%]
-[%- dw.need_res( "js/colorpicker.js" ) -%]
-[% USE Dumper %]
-[% Dumper.dump(navstrip_options) %]
+[%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.navstripchooser.js' ) -%]
 
 <div class = "appwidget appwidget-navstripchooser">
-    <fieldset><legend>[% dw.ml('widget.navstripchooser.title') %]</legend>
-    </fieldset>
+    <h3>[% dw.ml('widget.navstripchooser.title') %]</h3>
    <p class='detail'>[% dw.ml( 'widget.navstripchooser.desc', { aopts => "href='/manage/settings/?cat=display'" } ) %] [% help_icon('navstrip') %]</p>
 
     <p>[% dw.ml('widget.navstripchooser.colors') %]</p>
 
     [%# choose colors %]
     [% chosen_color = u.prop( 'control_strip_color' ) || '' %]
-    [% Dumper.dump(chosen_color) %]
     [% color_selected = chosen_color != '' ? chosen_color : "dark" %]
 
     [% color_custom = 0 %]
     [% color_custom = 1 UNLESS navstrip_options.override == "off" %]
 
-
-    <div class='option'>
+<div class="row">
+    <div class='option columns large-1'>
     [%- form.radio( 
         name = "control_strip_color"
         id = "control_strip_color_dark"
         value = "dark"
+        class = "right"
         default = ( color_selected == "dark" ? 1 : 0 )
     ) -%]
     </div>
-    <div><label for='control_strip_color_dark' class='color-dark'><strong>[% dw.ml('widget.navstripchooser.option.color.dark') %]</strong></label></div>
-
-    <div class='option'>
+    <div class="columns large-11"><label for='control_strip_color_dark' class='color-dark'><strong>[% dw.ml('widget.navstripchooser.option.color.dark') %]</strong></label></div>
+</div>
+<div class="row">
+    <div class='option columns large-1'>
     [%- form.radio( 
         name = "control_strip_color"
         id = "control_strip_color_light"
         value = "light"
+        class = "right"
         default = ( color_selected == "light" ? 1 : 0 )
     ) -%]
     </div>
-    <div><label for='control_strip_color_light' class='color-light'><strong>[% dw.ml('widget.navstripchooser.option.color.light') %]</strong></label></div>
-
+    <div class="columns large-11"><label for='control_strip_color_light' class='color-light'><strong>[% dw.ml('widget.navstripchooser.option.color.light') %]</strong></label></div>
+</div>
     [% IF prop_is_used.custom_control_strip_colors %]
         [% no_gradient = navstrip_options.override == "on_no_gradient" ? 1 : 0 %]
-
-        <div class='option'>
+<div class='row'>
+        <div class='option columns large-1'>
         [%- form.checkbox( 
                 'name' = "control_strip_custom"
                 'id' = "control_strip_color_custom"
                 'value' = "custom"
                 'selected' = color_custom
+                'class' = 'right'
         ) -%]
         </div>
-        <div><label for='control_strip_color_custom'><strong>[% dw.ml('widget.navstripchooser.option.color.custom') %]</strong></label><br /></div>
-
+        <div class='columns large-11'><label for='control_strip_color_custom'><strong>[% dw.ml('widget.navstripchooser.option.color.custom') %]</strong></label><br /></div>
+</div>
         <div id='custom_subdiv' class='option'>
+        <div class="row">
+        <div class="columns large-1">
         [%- form.checkbox( 
                 name = "control_strip_no_gradient_custom"
                 id = "control_strip_gradient_custom"
                 selected = no_gradient
+                class = 'right'
         ) -%]
-
+        </div>
+        <div class="columns large-11">
         <label for='control_strip_gradient_custom'>[% dw.ml('widget.navstripchooser.option.color.no_gradient') %]</label><br/>
-    
+    </div>
+    </div>
         [% count = 0 %]
-        <table summary='' class='color-picker'>
         [% FOREACH prop IN navstrip_custom_colors.keys %]
 
             [%# NEXT UNLESS isref(prop) %]
@@ -73,20 +76,24 @@
 
 
             [% IF count % 2 == 0 %]
-                <tr valign='top'>
+                <div class="row">
             [% END %]
-            <td>[% dw.ml("widget.navstripchooser.option.color.$prop_name") %]</td>
-            <td>[% form.color(
+            <div class="columns large-6">
+            <div class="row">
+            <div class="columns large-6">[% dw.ml("widget.navstripchooser.option.color.$prop_name") %]</div>
+            <div class="columns large-6">[% form.color(
                 name => prop_name,
                 default => override,
                 des => prop.des,
                 no_btn => 1,
-            ) %]</td>
+            ) %]</div>
+            </div>
+            </div>
             [% IF count % 2 == 1 %]
-                </tr>
+                </div>
             [% END %]
             [% count = count + 1 %]
         [% END %]
-        </table></div>
+        </div>
     [% END %]
     </div>

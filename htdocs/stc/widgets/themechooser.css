@@ -1,10 +1,7 @@
 .themes-area {
-    margin-top: 10px;
-}
-
-.themes-area .select-list li {
-    width: 156px;
-    overflow: visible;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
 }
 
 .theme-selector-content h3 {
@@ -13,29 +10,32 @@
     font-size: 22px;
 }
 .theme-item {
-    font-size: 1em;
+    font-size: 0.75em;
+    margin: 0 0.75em 0.75em 0;
     position: relative;
     text-align: center;
-}
-.theme-item img.theme-preview {
-    padding: 1px;
+    display: inline-block;
     width: 150px;
-    height: 114px;
-    display: block;
+    border: 1px solid;
+    padding: 10px;
+    flex-shrink: 0;
+    box-sizing: content-box;
 }
+
+form.theme-form, input.theme-button {
+    margin: 0px;
+}
+
 .theme-item .theme-preview-link {
     position: absolute;
-    right: 11px;
-    top: 9px;
+    right: 10px;
+    top: 10px;
     display: block;
     width: 31px;
     height: 31px;
 }
-.theme-item .theme-preview-image {
-    margin-top: 1px;
-    width: 31px;
-    height: 31px;
-    border: none;
+.theme-item .theme-preview {
+    border: 1px solid black;
 }
 .theme-item h4 {
     font-size: 1em;
@@ -47,14 +47,11 @@
 }
 .theme-item .theme-desc {
     display: block;
-    font-size: 1em;
-    height: 5.2em;
-    line-height: 1.3em;
-    min-height: 5.2em;
+    height: 5em;
+    min-height: 5em;
     margin: 0;
 }
 .theme-item .theme-action {
-    height: 8em;
     min-height: 8em;
 }
 .theme-item.special h4,
@@ -109,10 +106,9 @@
     display: block;
 }
 .theme-paging {
-    font-size: 11px;
-    margin-left: 1px;
+    text-align:center;
 }
-.theme-paging-bottom {
+.theme-paging-bottom, .theme-selector-wrapper {
     clear: both;
 }
 .theme-paging span.item {

@@ -1,6 +1,6 @@
 (function($) {
 
-function NavStripChooser($el) {
+function NavStripChooser() {
     var navStripChooser = this;
     navStripChooser.init();
 }
@@ -11,10 +11,10 @@ NavStripChooser.prototype = {
             var navStripChooser = this;
             if (!$('#control_strip_color_custom')) return;
             navStripChooser.hideSubDivs();
-            if ($('#control_strip_color_custom').checked) navStripChooser.showSubDiv();
+            if ($('#control_strip_color_custom').checked) navStripChooser.showSubDivs();
             $('#control_strip_color_dark').click( function (evt) { navStripChooser.hideSubDivs(); });
             $('#control_strip_color_light').click( function (evt) { navStripChooser.hideSubDivs(); });
-            $('#control_strip_color_custom').click( function (evt) { navStripChooser.showSubDiv(); });
+            $('#control_strip_color_custom').click( function (evt) { navStripChooser.showSubDivs(); });
         },
 
         hideSubDivs: function  () {
@@ -33,5 +33,5 @@ $.fn.extend({
 })(jQuery);
 
 jQuery(function($){
-    $(".appwidget-journaltitles").navStripChooser();
+    $().navStripChooser();
 });

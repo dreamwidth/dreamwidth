@@ -1,6 +1,6 @@
 (function($) {
 
-function JournalTitles($el) {
+function JournalTitles() {
     var journalTitles = this;
     journalTitles.init();
 }
@@ -88,5 +88,5 @@ $.fn.extend({
 })(jQuery);
 
 jQuery(function($){
-    $(".appwidget-journaltitles").journalTitles();
+    $().journalTitles();
 });

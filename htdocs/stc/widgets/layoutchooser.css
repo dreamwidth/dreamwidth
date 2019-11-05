@@ -1,8 +1,19 @@
+.layout-content {
+    overflow: auto;
+    list-style: none;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
 .layout-content .layout-item {
-    font-size: 1em;
+    margin: 0 0.75em 0.75em 0;
     text-align: center;
-    position: relative;
-    width: 10em;
+    width: 160px;
+    border: 1px solid;
+    padding: 0.5em;
+    font-size: 0.9em;
+    flex-shrink: 0;
 }
 
 

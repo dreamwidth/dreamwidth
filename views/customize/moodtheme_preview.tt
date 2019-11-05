@@ -1,0 +1,19 @@
+[% IF mood_previews %]
+<div class='highlight-box'>
+        [% FOREACH mood IN mood_previews.keys() %]
+            [% preview = mood_previews.$mood %]
+                <div class='moodtheme-mood'>
+				<img alt='[% mood %]' src='[% preview.src %]' width='[% preview.w %]' height='[% preview.h %]' />
+				<p>[% mood %]</p>
+				</div>
+        [% END %]
+        <div class='moodtheme-view-link'>
+		<a href='[% site.root %]/moodlist?moodtheme=[% preview_moodthemeid %]'>
+        [% dw.ml( 'widget.moodthemechooser.viewtheme' ) %]</a>
+        </div>
+
+        <span class='moodtheme-description'>
+
+		<p>[% desc | html %]</p></span>
+</div>
+[% END %]

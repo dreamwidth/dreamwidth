@@ -248,15 +248,3 @@ div.disabled, div.disabled * { color: $text-color-disabled; }
 .even, tr.even th, tr.even td {
     background-color: $background-color-alternate;
 }
-
-.highlight-box, .action-box, .selected, {
-    background-color: $soft-accent-color;
-    border-color: $primary-color;
-}
-
-.theme-side-nav {
-    background-color: $soft-accent-color;
-  @include side-nav(
-  );
-}
-

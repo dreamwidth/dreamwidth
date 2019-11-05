@@ -31,7 +31,6 @@
     [% INCLUDE customize/paging.tt location = "top" %]
 
     <div class='themes-area'>
-<ul class='select-list'>
 
 [% index_of_first_theme = show != "all" ? show * (page - 1) : 0 %]
     [% index_of_last_theme = show != "all" ? (show * page) - 1 : themes.max %]
@@ -92,7 +91,7 @@
         [% theme_layout_name = theme.layout_name %]
         [% theme_designer = theme.designer %]
 
-        <li class='theme-item[% theme_class %]'>
+        <div class='theme-item[% theme_class %]'>
         <img src="[% theme.preview_imgurl %]" class='theme-preview' />
 
         <h4>[% theme.name %]</h4><div class='theme-action'><span class='theme-desc'>
@@ -129,12 +128,12 @@
             [% dw.form_auth %]
             [% form.hidden( name = "apply_themeid", value = theme.themeid) %]
             [% form.hidden( name = "apply_layoutid", value = theme.layoutid) %]
-            [% form.submit( name = "action_apply", apply_themeid = theme.themeid, apply_layoutid = theme.layoutid , class = "theme_button", id="theme_btn_$theme.layoutid$theme.themeid" , value = dw.ml( 'widget.themechooser.theme.apply' ) ) %]
+            [% form.submit( name = "action_apply", apply_themeid = theme.themeid, apply_layoutid = theme.layoutid , class = "theme_button button", id="theme_btn_$theme.layoutid$theme.themeid" , value = dw.ml( 'widget.themechooser.theme.apply' ) ) %]
             </form>
         [% END %]
-    </div><!-- end .theme-action --></li><!-- end .theme-item -->
+    </div><!-- end .theme-action --></div><!-- end .theme-item -->
     [% END %]
-</ul>    </div><!-- end .themes-area --->
+  </div><!-- end .themes-area -->
 
 
     [%# code for the bottom paging area %]
