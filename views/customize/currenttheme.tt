@@ -1,4 +1,4 @@
- [%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.currenttheme.js' ) -%]
+ [%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.currenttheme.js' ) IF NOT no_themechooser-%]
  [%- dw.need_res( 'stc/widgets/currenttheme.css' ) -%]
 
  <div class='highlight-box'>
@@ -15,8 +15,8 @@
     [% special_link_opts = "href='$site.root/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'"  %]
  <p class='theme-current-desc'> 
  [%- IF theme.designer -%]
-        [%- designer_link = "<a href='$site.root/customize/$getextra${getsep}designer="_ eurl(theme.designer) _ "$showarg' class='theme-current-designer'>$theme.designer</a>" -%]
-        [%- dw.ml('widget.currenttheme.designer', {'designer' => designer_link}) -%]
+        [%- designer_link = "<a href='$site.root/customize/$getextra${getsep}designer="_ eurl(theme.designer) _ "$showarg' class='theme-current-designer'>$theme.designer</a> " -%]
+        [%- dw.ml('widget.currenttheme.designer', {'designer' => designer_link}) %]
         [%- IF is_special -%]
             [%- dw.ml('widget.currenttheme.specialdesc2', {'aopts' => special_link_opts}) -%]
         [%- ELSE -%]

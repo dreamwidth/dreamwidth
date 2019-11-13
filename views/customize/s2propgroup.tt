@@ -7,8 +7,8 @@
     [%- pname = propgroup_name(propgroup, u, style) -%]
 
     <h3> [%- pname -%]
-    <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='[%- propgroup -%]__expand'>[%- dw.ml('widget.s2propgroup.expand') -%]</a></span>
-    <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='[%- propgroup -%]__collapse'>[%- dw.ml('widget.s2propgroup.collapse') -%]</a></span>
+    <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='expand'>[%- dw.ml('widget.s2propgroup.expand') -%]</a></span>
+    <span class='s2propgroup-outer-expandcollapse'> - <a href='' class='s2propgroup-expandcollapse' id='collapse'>[%- dw.ml('widget.s2propgroup.collapse') -%]</a></span>
     </h3>
 
     [%- IF propgroup == "presentation" -%]

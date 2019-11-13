@@ -61,14 +61,17 @@ JournalTitles.prototype = {
             title.find(".title_save").attr("disabled", true);
             var value = title.find("input[name=title_value]").val();
             var which = title.find(".which_title").val();
+            var authas = window.location.search.replace(/.*authas=([^&?]*)&?.*/, "$1");
+            var postData = {
+                    which_title: which,
+                    title_value: value
+                     };
+            if (authas)  postData.authas = authas;
+
             $.ajax({
               type: "POST",
               url: "/__rpc_journaltitles",
-              data: {
-                     which_title: which,
-                     title_value: value,
-                    //"authas": authas
-                     },
+              data: postData,
               success: function( data ) { $( "div.theme-titles" ).html(data);
                                         journalTitles.init();},
               dataType: "html"

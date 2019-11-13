@@ -22,7 +22,6 @@ use DW::Routing;
 use DW::Template;
 use DW::Logic::MenuNav;
 use JSON;
-use Data::Dumper;
 use Carp;
 
 # This registers a static string, which is an application page.

@@ -21,7 +21,6 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::Logic::MenuNav;
-use Data::Dumper;
 use JSON;
 
 # This registers a static string, which is an application page.
@@ -108,7 +107,6 @@ sub options_handler {
             }
         } else {
             my %override = map { $_ => "" } keys %$POST;
-            warn Dumper($POST);
 
 
             # we need to remove properties that are set in userprops and
@@ -579,8 +577,6 @@ sub render_linkslist {
     my $link_min = 5; # how many do they start with ?
     my $link_more = 5; # how many do they get when they click "more"
     my $order_step = 10; # step order numbers by
-
-    warn Dumper($linkobj);
 
     # how many link inputs to show?
     my $showlinks = $opts{numlinks} || @$linkobj;

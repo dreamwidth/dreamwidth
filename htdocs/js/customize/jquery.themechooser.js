@@ -131,23 +131,26 @@ ThemeChooser.prototype = {
         },
 
         applyTheme: function (event, themeid, layoutid, auth_token) {
-            var themeChooser = this;
+                var themeChooser = this;
                 $("#theme_btn_" + layoutid + themeid).attr("disabled", true);
                 $("#theme_btn_" + layoutid + themeid).addClass("theme-button-disabled disabled");
-                $.ajax({
-                  type: "POST",
-                  url: "/__rpc_themechooser",
-                  data: {
+                var authas = window.location.search.replace(/.*authas=([^&?]*)&?.*/, "$1");
+                var postData = {
                          apply_themeid: themeid,
                          apply_layoutid: layoutid,
                          lj_form_auth: auth_token,
-                        //'authas' : authas,
                          'cat': themeChooser.cat,
                          'layoutid': themeChooser.layoutid,
                         'designer': themeChooser.designer,
                         'page': themeChooser.page,
                         'search': themeChooser.search,
-                        'show': themeChooser.show },
+                        'show': themeChooser.show }
+                if (authas) postData.authas = authas;
+
+                $.ajax({
+                  type: "POST",
+                  url: "/__rpc_themechooser",
+                  data: postData,
                   success: function( data ) { $( "div.theme-selector-content" ).html(data.themechooser);
                                                 $( "div.layout-selector-wrapper" ).html(data.layoutchooser);
                                                 $("div.theme-current").html(data.currenttheme);
@@ -175,25 +178,23 @@ ThemeChooser.prototype = {
                 return;
             }
 
-            if (key == "cat") themeChooser.cat = value;
-            if (key == "layoutid") themeChooser.layoutid = value;
-            if (key == "designer") themeChooser.designer = value;
-            if (key == "search") themeChooser.search = value;
-            if (key == "page") themeChooser.page = value;
-            if (key == "show") themeChooser.show = value;
+            themeChooser[key] = value;
 
-            $.ajax({
-              type: "GET",
-              url: "/__rpc_themefilter",
-              data: {
+            var postData = {
                     'cat': themeChooser.cat,
                     'layoutid': themeChooser.layoutid,
                     'designer': themeChooser.designer,
                     'search': themeChooser.search,
                     'page': themeChooser.page,
                     'show': themeChooser.show,
-                   // 'authas': authas
-                     },
+                     }
+            var authas = window.location.search.replace(/.*authas=([^&?]*)&?.*/, "$1");
+            if (authas) postData.authas = authas;
+
+            $.ajax({
+              type: "GET",
+              url: "/__rpc_themefilter",
+              data: postData,
               success: function( data ) { $( "div.theme-selector-content" ).html(data.themechooser);
                                             $("div.theme-current").html(data.currenttheme);},
               dataType: "json"
