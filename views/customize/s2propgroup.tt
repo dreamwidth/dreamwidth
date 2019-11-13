@@ -16,40 +16,40 @@
 
         [%- WRAPPER "customize/section_wrapper.tt" 
             id = "subheader__presentation__basic"
-            text = dw.ml('widget.s2propgroup.presentation.basic') 
-        -%]
-            [%- print_headers = 0 -%]
-            [%- FOREACH prop_name IN basic_props -%]
-                   [%- INCLUDE "customize/render_section.tt" -%]
-                   [%- print_headers = 1 -%]
-            [%- END -%]
-        [%- END -%]
+            text = dw.ml('widget.s2propgroup.presentation.basic');
+
+            print_headers = 0;
+            FOREACH prop_name IN basic_props;
+                   INCLUDE "customize/render_section.tt";
+                   print_headers = 1;
+            END;
+        END -%]
 
         [%- WRAPPER "customize/section_wrapper.tt" 
             id = "subheader__presentation__additional"
-            text = dw.ml('widget.s2propgroup.presentation.additional')
-        -%]
-            [%- print_headers = 0 -%]
-            [%- FOREACH prop_name IN groupprops -%]
-                [%- NEXT IF skip_prop(props.$prop_name, prop_name, 'props_to_skip', is_basic_prop, 'theme', theme, 'user', u ) -%]
-               [%- INCLUDE "customize/render_section.tt" -%]
-               [%- print_headers = 1 -%]
-            [%- END -%]
-        [%- END -%]
+            text = dw.ml('widget.s2propgroup.presentation.additional');
+
+            print_headers = 0;
+            FOREACH prop_name IN groupprops;
+               NEXT IF skip_prop(props.$prop_name, prop_name, 'props_to_skip', is_basic_prop, 'theme', theme, 'user', u );
+               INCLUDE "customize/render_section.tt";
+               print_headers = 1;
+            END;
+        END -%]
         [%- prop_is_in_subheader = {} -%]
 
      [%- ELSIF propgroup == "modules" -%]
         [%- FOREACH subheader IN layout_sections_order -%]       
-            [%- WRAPPER "customize/section_wrapper.tt" -%]
-                [%- print_headers = 0 -%]
-                [%- FOREACH prop_name IN prop_in_subheader.$subheader.list -%]
+            [%- WRAPPER "customize/section_wrapper.tt";
+                print_headers = 0;
+                FOREACH prop_name IN prop_in_subheader.$subheader.list;
                 
-                    [%- NEXT IF skip_prop( props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style ) -%]
+                    NEXT IF skip_prop( props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style );
 
-                    [%- INCLUDE "customize/render_section.tt" -%]
-                    [%- print_headers = 1 -%]
-                [%- END -%]
-            [%- END -%]
+                    INCLUDE "customize/render_section.tt";
+                    print_headers = 1;
+                END;
+            END -%]
             [%- prop_is_in_subheader = {} -%]
         [%- END -%]
 
@@ -68,15 +68,15 @@
 
             [%- SET prop_is_in_subheader.$prop = 1 FOREACH prop IN subheader_props -%]
 
-            [%- WRAPPER "customize/section_wrapper.tt" -%]
-                [%- print_headers = 0 -%]
-                [%- FOREACH prop_name IN groupprops -%]
-                    [%- NEXT IF skip_prop(props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style) -%]
-                    [%- NEXT UNLESS prop_is_in_subheader.$prop_name -%]
+            [%- WRAPPER "customize/section_wrapper.tt";
+                print_headers = 0;
+                FOREACH prop_name IN groupprops;
+                    NEXT IF skip_prop(props.$prop_name, prop_name, 'theme', theme, 'user', u, 'style', style);
+                    NEXT UNLESS prop_is_in_subheader.$prop_name;
 
-                    [%- INCLUDE "customize/render_section.tt" -%]
-                    [%- print_headers = 1 -%]
-                [%- END -%]
+                    INCLUDE "customize/render_section.tt";
+                    print_headers = 1;
+                END %]
 
                 [%- IF subheaders.$subheader == dw.ml('customize.propgroup_subheaders.module') && propgroup == "text" -%] 
                     <div class='prop-row row'>

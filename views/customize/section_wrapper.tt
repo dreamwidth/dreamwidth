@@ -3,13 +3,14 @@
 	[%- subheader_text = text || subheaders.$subheader -%]
 
 	<div data-collapse data-collapse-state="" class="prop-section">
-	<div class="row customize-subheader-row">
-	<h4 class='customize-subheader subheader-[%- propgroup -%]' id='[%- subheader_id -%]'>[%- subheader_text -%]</h4>
+		<div class="row customize-subheader-row">
+			<h4 class='customize-subheader subheader-[%- propgroup -%]' id='[%- subheader_id -%]'>[%- subheader_text -%]</h4>
+		</div>
+		<div class='prop-list inner' id='proplist__[%- propgroup -%]__[%- subheader -%]'>
+
+		[%- content -%]
+
+		</div>
 	</div>
-	<div class='prop-list inner' id='proplist__[%- propgroup -%]__[%- subheader -%]'>
-
-	[%- content -%]
-
-	</div></div>
 
 [%- END -%]

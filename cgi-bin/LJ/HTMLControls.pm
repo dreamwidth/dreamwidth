@@ -409,7 +409,8 @@ sub html_color {
     my $htmlname = ehtml( $opts->{'name'} );
     my $des      = ehtml( $opts->{'des'} ) || "Pick a Color";
     my $ret;
-    $ret .= "<fieldset class='color_picker'>"
+    $ret .=
+          "<fieldset class='color_picker'>"
         . "<span class = 'color_picker_input'>"
         . "<input type='button' class='color_picker_button'"
         . " style='border: 1px solid #000000; background-color: "

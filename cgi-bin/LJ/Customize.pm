@@ -422,7 +422,6 @@ sub load_all_s2_props {
     my $u     = shift;
     my $style = shift;
 
-
     my $styleid = $style->{styleid};
 
     # return if props have already been loaded in this request

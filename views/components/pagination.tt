@@ -32,11 +32,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
       IF next_first <= previous_last;
         next_first = previous_last + 1;
+      END;
+
+      IF NOT path;
+        path = undef;
       END
   -%]
 
   [% IF current > 1 %]
-    <li class="arrow"><a href="[% dw.create_url( undef, keep_args => 1, args => { page => previous_first } ) %]">&laquo;</a></li>
+    <li class="arrow"><a href="[% dw.create_url( path, keep_args => 1, args => { page => previous_first } ) %]">&laquo;</a></li>
   [% END %]
 
   [%- FOREACH page_num = [ previous_first..previous_last ] %]

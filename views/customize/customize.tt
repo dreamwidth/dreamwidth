@@ -1,7 +1,7 @@
 [%- CALL dw.active_resource_group( 'jquery' ) -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- dw.need_res( 'stc/customize.css' ) -%]
-[%#- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
+[%- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
 
 
 <div class="row">
@@ -100,10 +100,7 @@
         <div class="appwidget appwidget-themechooser" id="LJWidget_92">
     <div class='theme-selector-content pkg'>
 
-        [% render_themechooser( {'show' => show, 'cat' => cat, 'page'=> page, 'layoutid'=> layoutid, 'designer' => designer, 'search'=> search }) %]
-
-    [%# INCLUDE customize/themechooser.tt %]
-
+        [% render_themechooser(qargs) %]
 
 
     </div><!-- end .theme-selector-content -->

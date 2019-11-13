@@ -44,7 +44,6 @@ sub advanced_handler {
     $vars->{remote}        = $remote;
     $vars->{no_layer_edit} = $no_layer_edit;
 
-
     return DW::Template->render_template( 'customize/advanced/index.tt', $vars );
 
 }
@@ -273,7 +272,6 @@ sub layers_handler {
         { authas => $rv->{authas_html} }
     ) unless $u->can_create_s2_styles || $viewall;
 
-
     if ( $POST->{'action:create'} && !$noactions ) {
         return error_ml('/customize/advanced/layers.tt.error.maxlayers')
             if keys %$ulay >= $u->count_s2layersmax;
@@ -327,7 +325,7 @@ sub layers_handler {
     # delete
     if ( $POST->{'action:del'} && !$noactions ) {
 
-        my $id  = $POST->{'id'} + 0;
+        my $id = $POST->{'id'} + 0;
 
         my $lay = LJ::S2::load_layer($id);
         return error_ml('/customize/advanced/layers.tt.error.layerdoesntexist')
@@ -485,6 +483,7 @@ sub styles_handler {
     my ( $pub, $ulay, $style );    # hashrefs
 
     if ($id) {
+
         # load style
         $style = LJ::S2::load_style($id);
         return error_ml('/customize/advanced/styles.tt.error.stylenotfound') unless $style;
@@ -495,6 +494,7 @@ sub styles_handler {
 
         # use selected style
         if ( $POST->{'action:usestyle'} && !$noactions ) {
+
             # save to db and update user object
             $u->set_prop(
                 {

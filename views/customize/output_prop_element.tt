@@ -5,16 +5,16 @@
             <div class='prop-grouped prop-[%- prop.grouptype -%] columns large-12'>
             [%- FOREACH prop_in_group IN override -%]
 
-                [%- IF grouped_prop_override.prop_in_group -%]
-                    [%- prop_in_group = grouped_prop_override.prop_in_group -%]
-                    [%- override_token = prop_in_group _ "_values" -%]
-                    [%- overriding_values = grouped_prop_override.override_token -%]
-                [%- END -%]
+                [%- IF grouped_prop_override.prop_in_group;
+                    prop_in_group = grouped_prop_override.prop_in_group;
+                    override_token = prop_in_group _ "_values";
+                    overriding_values = grouped_prop_override.override_token;
+                END -%]
                 
-                [%- IF prop_in_group.match('opts_group') -%]
-                    [%- has_opts = 1 -%]
-                    [%- NEXT -%]
-                [%- END -%]
+                [%- IF prop_in_group.match('opts_group');
+                    has_opts = 1;
+                    NEXT;
+                 END -%]
                 [%- output_prop_element( props.$prop_in_group, prop_in_group, u, style, theme, props, is_group + 1) -%]
             [%- END -%]
 
