@@ -110,6 +110,9 @@ sub customize_handler {
     #handle post actions
 
     if ( $r->did_post ) {
+        return error_ml('error.invalidform')
+            unless LJ::check_form_auth( $post->{lj_form_auth} );
+
         if ( $post->{"action_apply"} ) {
 
             my $themeid  = $post->{apply_themeid};

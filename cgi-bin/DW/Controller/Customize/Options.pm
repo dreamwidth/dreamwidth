@@ -71,6 +71,9 @@ sub options_handler {
     my ( $given_moodthemeid, $given_forcemoodtheme );
 
     if ( $r->did_post ) {
+        return error_ml('error.invalidform')
+            unless LJ::check_form_auth( $POST->{lj_form_auth} );
+
         if ( $POST->{'action:morelinks'} ) {
             $vars->{morelinks} = 1;
             $vars->{numlinks}  = $POST->{numlinks};
