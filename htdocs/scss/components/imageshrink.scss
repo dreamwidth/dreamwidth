@@ -1,0 +1,36 @@
+/* Constrain image dimensions.
+    Job 1: Don't trash the layout sideways.
+    Job 2: Limit height to fit inside the viewport. Having to scroll to see a
+      portrait of someone is nonsense.
+    Job 3: Defend the native aspect ratio.
+    Job 4: Respect the width/height HTML attributes for scaling down OR up
+      (within the limits of the container), but if they conflict with the aspect
+      ratio, treat them as maximums and let the aspect ratio win.
+    Job 5: Let the user expand an individual image to max size by clicking.
+*/
+@supports (object-fit: contain) {
+  .entry-content, .comment-content {
+    img {
+      cursor: zoom-in;
+      height: auto;
+      max-width: 100%;
+      max-height: 95vh;
+      object-fit: contain;
+      object-position: left;
+    }
+
+    img.expanded {
+      cursor: zoom-out;
+      height: auto;
+      width: auto;
+      max-width: unset;
+      max-height: unset;
+      object-fit: unset;
+      object-position: unset;
+    }
+
+    a img, .poll-response img {
+      cursor: unset;
+    }
+  }
+}
