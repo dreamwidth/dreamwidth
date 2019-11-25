@@ -682,22 +682,6 @@ h3.entry-title a {
     list-style-position: inside;
     }
 
-/* Constrain image dimensions.
-    Job 1: Don't trash the layout sideways.
-    Job 2: Limit height to fit inside the viewport. Having to scroll to see a
-      portrait of someone is nonsense.
-    Job 3: Defend the native aspect ratio.
-    Job 4: Respect the width/height HTML attributes for scaling down OR up
-      (within the limits of the container), but if they conflict with the aspect
-      ratio, treat them as maximums and let the aspect ratio win. */
-.entry-content img, .comment-content img {
-    height: auto;
-    max-width: 100%;
-    max-height: 95vh;
-    object-fit: contain;
-    object-position: left;
-}
-
 .metadata {
     margin: 2em 0 0;
     }
