@@ -225,8 +225,6 @@ sub make_journal {
             )
     );
 
-    my $extra_js = LJ::statusvis_message_js($u);
-
     # this will cause double-JS and likely cause issues if called during siteviews
     # as this is done once the page is out of S2's control.
     unless ( $ctx->[S2::SCRATCH]->{siteviews_enabled} || $view eq "res" ) {
@@ -236,7 +234,6 @@ sub make_journal {
             if $LJ::ACTIVE_RES_GROUP eq "jquery";    # Foundation puts scripts at end of body
     }
 
-    $page->{head_content} .= $extra_js;
     $page->{head_content} .= LJ::PageStats->new->render_head('journal');
 
     s2_run( $apache_r, $ctx, $opts, $entry, $page );
