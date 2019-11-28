@@ -300,7 +300,7 @@
   window.Foundation = {
     name : 'Foundation',
 
-    version : '{{VERSION}}',
+    version : '5.5.3',
 
     media_queries : {
       'small'       : new MediaQuery('.foundation-mq-small'),
