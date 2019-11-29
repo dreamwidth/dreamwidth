@@ -65,8 +65,6 @@ my %SCOPE_ORDER = (
 my @SCOPES =
     sort { $SCOPE_ORDER{$b} <=> $SCOPE_ORDER{$a} } keys %SCOPE_ORDER;
 
-lib->import( $ENV{LJHOME} . "/src/DSMS/lib" );
-
 {
     my @dirs     = ();
     my $ext_path = abs_path( $ENV{LJHOME} . "/ext" );
