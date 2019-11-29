@@ -604,7 +604,7 @@ sub try_work {
             # that didn't work, let's force encodings to see if one of them does.
             my $result;
             foreach my $encoding (@ENCODINGS) {
-                eval { 
+                eval {
                     # reset for another body pass
                     ( $lastid, $curid ) = ( $reset_lastid, $reset_curid );
                     @tags = ();
@@ -614,7 +614,7 @@ sub try_work {
                     foreach my $id ( keys %in_flight ) {
                         $meta{$id}->[$_] = undef foreach ( C_subject, C_body, C_date, C_props );
                     }
-                    $result = $parser->parse( $content, ProtocolEncoding => $encoding ); 
+                    $result = $parser->parse( $content, ProtocolEncoding => $encoding );
                 };
                 last if $result;
             }
