@@ -20,23 +20,22 @@ require 'ljlib.pl';
 use LJ::User;
 use Time::HiRes qw( usleep );
 
-my $readonly_bit;
-
-# find readonly cap class, complain if not found
-foreach ( keys %LJ::CAP ) {
-    if (   $LJ::CAP{$_}->{'_name'} eq "_moveinprogress"
-        && $LJ::CAP{$_}->{'readonly'} == 1 )
-    {
-        $readonly_bit = $_;
-        last;
-    }
-}
-unless ( defined $readonly_bit ) {
-    die
-"Won't move user without %LJ::CAP capability class named '_moveinprogress' with readonly => 1\n";
-}
-
 sub do_upgrade {
+    my $readonly_bit;
+
+    foreach ( keys %LJ::CAP ) {
+        if (   $LJ::CAP{$_}->{'_name'} eq "_moveinprogress"
+            && $LJ::CAP{$_}->{'readonly'} == 1 )
+        {
+            $readonly_bit = $_;
+            last;
+        }
+    }
+    unless ( defined $readonly_bit ) {
+        die
+"Won't move user without %LJ::CAP capability class named '_moveinprogress' with readonly => 1\n";
+    }
+
     my $logpropid  = LJ::get_prop( log  => 'picture_keyword' )->{id};
     my $talkpropid = LJ::get_prop( talk => 'picture_keyword' )->{id};
 
