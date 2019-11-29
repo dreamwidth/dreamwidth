@@ -19,7 +19,7 @@ package DW::Worker::ContentImporter::LiveJournal::Comments;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use Carp qw/ croak confess /;
+use Carp qw/ carp croak confess /;
 use Digest::MD5 qw/ md5_hex /;
 use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
@@ -48,6 +48,9 @@ use constant C_local_posterid  => 16;
 # these come from LJ
 our $COMMENTS_FETCH_META = 10000;
 our $COMMENTS_FETCH_BODY = 500;
+
+# if we add more encoding maps, update this!
+our @ENCODINGS = ( 'UTF-8', 'ISO-8859-1', 'UTF-16' );
 
 sub work {
 
@@ -319,9 +322,26 @@ sub try_work {
                 Start => $meta_handler,
                 Char  => $meta_content,
                 End   => $meta_closer
-            }
+            },
         );
-        $parser->parse($content);
+
+        # This hideous loop is here because LJ lies and claims to return utf-8 when sometimes
+        # it's actually Latin-1, so we have to brute-force the encodings.
+        eval {
+            # try to run with the encoding the XML gives us
+            $parser->parse($content);
+        } or do {
+
+            # that didn't work, let's force encodings to see if one of them does.
+            my $result;
+            foreach my $encoding (@ENCODINGS) {
+                eval { $result = $parser->parse( $content, ProtocolEncoding => $encoding ); };
+                last if $result;
+            }
+
+            # if we couldn't parse it with any encoding, just die with the parser error.
+            carp "$@" unless $result;
+        };
 
         return $temp_fail->( join( "\n", map { " * $_" } @fail_errors ) )
             if @fail_errors;
@@ -574,37 +594,34 @@ sub try_work {
             }
         );
 
-        # have to do this in an eval
-        eval { $parser->parse($content); };
-        if ($@) {
+        # This hideous loop is here because LJ lies and claims to return utf-8 when sometimes
+        # it's actually Latin-1, so we have to brute-force the encodings.
+        eval {
+            # try to run with the encoding the XML gives us
+            $parser->parse($content);
+        } or do {
 
-            # this error typically means the encoding is bad.  not sure how this happens,
-            # it's probably just on a very, very old comment?
-            $log->( 'Parse failure: %s', $@ );
-            if ( $@ =~ /token/ ) {
+            # that didn't work, let's force encodings to see if one of them does.
+            my $result;
+            foreach my $encoding (@ENCODINGS) {
+                eval {
+                    # reset for another body pass
+                    ( $lastid, $curid ) = ( $reset_lastid, $reset_curid );
+                    @tags = ();
 
-                # reset for another body pass
-                ( $lastid, $curid ) = ( $reset_lastid, $reset_curid );
-                @tags = ();
-
-                # reset all text so we don't get it double posted
-                $log->('Resetting comment bodies of in-flight data.');
-                foreach my $id ( keys %in_flight ) {
-                    $meta{$id}->[$_] = undef foreach ( C_subject, C_body, C_date, C_props );
-                }
-
-                # and now filter.  note that we're assuming this is ISO-8859-1, as that's a
-                # very likely guess.  if it's not that, we have problems.
-                $content = LJ::ConvUTF8->to_utf8( 'ISO-8859-1', $content );
-                $parser->parse($content);
-
+                    # reset all text so we don't get it double posted
+                    $log->('Resetting comment bodies of in-flight data.');
+                    foreach my $id ( keys %in_flight ) {
+                        $meta{$id}->[$_] = undef foreach ( C_subject, C_body, C_date, C_props );
+                    }
+                    $result = $parser->parse( $content, ProtocolEncoding => $encoding );
+                };
+                last if $result;
             }
-            else {
-                # can't handle, pass it up
-                $log->('Ultimate failure. Bailing out!');
-                die $@;
-            }
-        }
+
+            # if we couldn't parse it with any encoding, just die with the parser error.
+            carp "$@" unless $result;
+        };
 
         # We increment lastid during our fetches so we should walk nicely, but
         # if we didn't move at least N comments forward, then increment by
