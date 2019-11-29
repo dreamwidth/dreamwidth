@@ -35,8 +35,10 @@ my %SKIP = (
     'LJ/Global/BMLInit.pm'     => 'BML::register_isocode called from non-conffile context',
     'cgi-bin/lj-bml-blocks.pl' => 'BML::register_block called from non-lookfile context',
 
-    'cgi-bin/modperl.pl'      => "Special file",
-    'cgi-bin/modperl_subs.pl' => "Special file",
+    'cgi-bin/modperl.pl'      => 'Special file',
+    'cgi-bin/modperl_subs.pl' => 'Special file',
+
+    'bin/ljumover.pl' => 'Requires configs to be loaded, easier to skip',
 );
 
 my @scripts = File::Find::Rule->file->name('*.pl')->in( 'cgi-bin', 'bin' );
