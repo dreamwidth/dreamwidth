@@ -772,44 +772,41 @@ sub icon_keyword_menu {
 
     my @icons = grep { !( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics($user);
 
-    if (@icons) {
+    return () unless (@icons);
 
-        # Get a sorted array of { keyword => "...", userpic => userpic_object } hashrefs:
-        @icons = LJ::Userpic->separate_keywords( \@icons );
+    # Get a sorted array of { keyword => "...", userpic => userpic_object } hashrefs:
+    @icons = LJ::Userpic->separate_keywords( \@icons );
 
-        # Sort out the default icon -- either it's a real one, or it's nothing
-        # and we should use a placeholder image in previews.
-        my $default_icon = $user->userpic;    # userpic object or nothing
-        my $default_icon_url =
-              $default_icon
-            ? $default_icon->url
-            : ( $LJ::IMGPREFIX . $LJ::Img::img{nouserpic_sitescheme}->{src} );
+    # Sort out the default icon -- either it's a real one, or it's nothing
+    # and we should use a placeholder image in previews.
+    my $default_icon = $user->userpic;    # userpic object or nothing
+    my $default_icon_url =
+          $default_icon
+        ? $default_icon->url
+        : ( $LJ::IMGPREFIX . $LJ::Img::img{nouserpic_sitescheme}->{src} );
 
-        # Finally, turn it into the expected format for an LJ::html_select,
-        # including an item for the default icon:
-        @icons = (
-            {
-                value => "",
-                text  => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
-                data  => {
-                    url         => $default_icon_url,
-                    description => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
-                },
+    # Finally, return the expected format for an LJ::html_select,
+    # including an item for the default icon:
+    return (
+        {
+            value => "",
+            text  => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
+            data  => {
+                url         => $default_icon_url,
+                description => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
             },
-            map {
-                {
-                    value => $_->{keyword},
-                    text  => $_->{keyword},
-                    data  => {
-                        url         => $_->{userpic}->url,
-                        description => $_->{userpic}->description || $_->{keyword},
-                    },
-                }
-            } @icons
-        );
-    }
-
-    return @icons;
+        },
+        map {
+            {
+                value => $_->{keyword},
+                text  => $_->{keyword},
+                data  => {
+                    url         => $_->{userpic}->url,
+                    description => $_->{userpic}->description || $_->{keyword},
+                },
+            }
+        } @icons
+    );
 }
 
 # <LJFUNC>
