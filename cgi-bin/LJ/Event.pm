@@ -16,6 +16,9 @@ use strict;
 no warnings 'uninitialized';
 
 use Carp qw(croak);
+
+use DW::Task::ESN::FiredEvent;
+use DW::TaskQueue;
 use LJ::ModuleLoader;
 use LJ::ESN;
 use LJ::Subscription;
@@ -257,9 +260,18 @@ sub process_fired_events {
 # processed later, or does nothing, if it's a rare event and there
 # are no subscriptions for the event.
 sub fire {
-    my $self = shift;
+    my ( $self, %args ) = @_;
     return 0 unless LJ::is_enabled('esn');
 
+    # If enabled, use Task system instead of old Worker system.
+    if ( $args{use_task} ) {
+        my $task = $self->fire_task
+            or return 0;
+        DW::TaskQueue->get->send($task);
+        return 1;
+    }
+
+    # Old style event processing.
     my $sclient = LJ::theschwartz( { role => $self->schwartz_role } );
     return 0 unless $sclient;
 
@@ -289,6 +301,13 @@ sub fire_job {
     return unless $self->should_enqueue;
 
     return TheSchwartz::Job->new_from_array( "LJ::Worker::FiredEvent", [ $self->raw_params ] );
+}
+
+sub fire_task {
+    my $self = $_[0];
+    return unless LJ::is_enabled('esn');
+    return unless $self->should_enqueue;
+    return DW::Task::ESN::FiredEvent->new( $self->raw_params );
 }
 
 sub subscriptions {

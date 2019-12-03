@@ -2494,7 +2494,14 @@ sub enter_comment {
 
         if ( LJ::is_enabled('esn') ) {
             my $cmtobj = LJ::Comment->new( $journalu, jtalkid => $jtalkid );
-            push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
+
+            my $use_sqs = defined $LJ::ESN_OVER_SQS && rand() < $LJ::ESN_OVER_SQS;
+            if ($use_sqs) {
+                LJ::Event::JournalNewComment->new($cmtobj)->fire( use_task => 1 );
+            }
+            else {
+                push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
+            }
         }
 
         if (@LJ::SPHINX_SEARCHD) {

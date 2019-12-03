@@ -14,9 +14,12 @@
 package LJ::ESN;
 use strict;
 use Carp qw(croak);
+use Data::Dumper;
+
+use DW::Task::ESN::ProcessSub;
+use DW::TaskQueue;
 use LJ::Event;
 use LJ::Subscription;
-use Data::Dumper;
 
 our $MAX_FILTER_SET = 5_000;
 
@@ -45,7 +48,21 @@ sub process_fired_events {
     $sclient->work_until_done;
 }
 
+# Make TheSchwartz jobs for matching subs
+# DEPRECATED. If SQS works out, this will be removed in favor of moving this workload
+# off of TheSchwartz...
 sub jobs_of_unique_matching_subs {
+    return
+        map { TheSchwartz::Job->new( funcname => 'LJ::Worker::ProcessSub', arg => $_, ) }
+        unique_matching_subs(@_);
+}
+
+# Make DW::Tasks for matching subs, this is the new (maybe) hotness.
+sub tasks_of_unique_matching_subs {
+    return map { DW::Task::ESN::ProcessSub->new(@$_) } unique_matching_subs(@_);
+}
+
+sub unique_matching_subs {
     my ( $class, $evt, @subs ) = @_;
     my %has_done = ();
     my @subjobs;
@@ -68,14 +85,11 @@ sub jobs_of_unique_matching_subs {
     {
 
         next if $has_done{ $s->unique }++;
-        push @subjobs, TheSchwartz::Job->new(
-            funcname => 'LJ::Worker::ProcessSub',
-            arg      => [
-                $s->userid + 0,
-                $s->id + 0,
-                $params    # arrayref of event params
-            ],
-        );
+        push @subjobs, [
+            $s->userid + 0,
+            $s->id + 0,
+            $params    # arrayref of event params
+        ];
     }
     return @subjobs;
 }
@@ -135,7 +149,7 @@ sub work {
     }
 
     # this is the slow/safe/on-error/lots-of-subscribers path
-    if ( $ENV{FORCE_P1_P2} || $LJ::_T_ESN_FORCE_P1_P2 || $split_per_cluster ) {
+    if ($split_per_cluster) {
         my @subjobs;
         foreach my $cid (@LJ::CLUSTERS) {
             push @subjobs,
@@ -183,7 +197,7 @@ sub work {
     }
 
     # fast path:  job from phase2 to phase4, skipping filtering.
-    if ( @subs <= $LJ::ESN::MAX_FILTER_SET && !$LJ::_T_ESN_FORCE_P2_P3 && !$ENV{FORCE_P2_P3} ) {
+    if ( @subs <= $LJ::ESN::MAX_FILTER_SET ) {
         my @subjobs = LJ::ESN->jobs_of_unique_matching_subs( $evt, @subs );
         warn "fast path:  subjobs=@subjobs\n" if $ENV{DEBUG};
         return $job->replace_with(@subjobs);
