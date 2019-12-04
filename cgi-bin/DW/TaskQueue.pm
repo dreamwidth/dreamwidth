@@ -228,7 +228,7 @@ sub _offload_large_message_if_necessary {
     return $message if length $message < LARGE_MESSAGE_CUTOFF;
 
     my $uuid = create_uuid_as_string(UUID_V4);
-    my $rv   = DW::BlobStore->store( tasks_offload => $uuid, \$message );
+    my $rv   = DW::BlobStore->store( tasks => $uuid, \$message );
     unless ($rv) {
         $log->error('Failed to offload task to BlobStore!');
         return undef;
@@ -244,7 +244,7 @@ sub _reload_large_message_if_necessary {
         if $message =~ /^offloaded:(.+?)$/;
     return $message unless $uuid;
 
-    my $rv = DW::BlobStore->retrieve( tasks_offload => $uuid );
+    my $rv = DW::BlobStore->retrieve( tasks => $uuid );
     unless ($rv) {
         $log->error( 'Failed to reload task from BlobStore: ' . $uuid );
         return undef;
