@@ -58,15 +58,14 @@ sub erase_handler {
     }
 
     # Confirmed, let's schedule.
-    my $sclient = LJ::theschwartz() or die "Unable to get TheSchwartz.\n";
-    my $job     = TheSchwartz::Job->new_from_array(
+    my $rv = DW::TaskQueue->dispatch( TheSchwartz::Job->new_from_array(
         'DW::Worker::ImportEraser',
         {
             userid => $rv->{u}->userid
         }
-    );
+    ));
     die "Failed to insert eraser job.\n"
-        unless $job && $sclient->insert($job);
+        unless $rv;
 
     return DW::Template->render_template(
         'tools/importer/erase.tt',

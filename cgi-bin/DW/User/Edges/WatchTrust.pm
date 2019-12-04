@@ -9,7 +9,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2008 by Dreamwidth Studios, LLC.
+# Copyright (c) 2008-2019 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -17,13 +17,18 @@
 #
 
 package DW::User::Edges::WatchTrust;
+
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ confess /;
-use LJ::Global::Constants;
+
 use DW::User::Edges;
 use DW::User::Edges::WatchTrust::Loader;
 use DW::User::Edges::WatchTrust::UserHelper;
+use LJ::Global::Constants;
 
 # the watch edge simply adds one user's content to another user's watch page
 # and has no security implications whatsoever
@@ -145,22 +150,23 @@ sub _add_wt_edge {
     LJ::memcache_kill( $to_userid,   'trusted_by' );
 
     # fire notifications if we have theschwartz
-    if ( my $sclient = LJ::theschwartz() ) {
-        my $notify =
-               LJ::is_enabled('esn')
-            && !$from_u->equals($to_u)
-            && $from_u->is_visible
-            && ( $from_u->is_personal || $from_u->is_identity )
-            && ( $to_u->is_personal   || $to_u->is_identity )
-            && !$to_u->has_banned($from_u) ? 1 : 0;
-        my $trust_notify = $notify && !$trust_edge->{nonotify} ? 1 : 0;
-        my $watch_notify = $notify && !$watch_edge->{nonotify} ? 1 : 0;
+    my $notify =
+          !$from_u->equals($to_u)
+        && $from_u->is_visible
+        && ( $from_u->is_personal || $from_u->is_identity )
+        && ( $to_u->is_personal   || $to_u->is_identity )
+        && !$to_u->has_banned($from_u) ? 1 : 0;
+    my $trust_notify = $notify && !$trust_edge->{nonotify} ? 1 : 0;
+    my $watch_notify = $notify && !$watch_edge->{nonotify} ? 1 : 0;
 
-        $sclient->insert_jobs( LJ::Event::AddedToCircle->new( $to_u, $from_u, 1 )->fire_job )
-            if $do_trust && $trust_notify;
-        $sclient->insert_jobs( LJ::Event::AddedToCircle->new( $to_u, $from_u, 2 )->fire_job )
-            if $do_watch && $watch_notify;
-    }
+    my @jobs;
+
+    push @jobs, LJ::Event::AddedToCircle->new( $to_u, $from_u, 1 )
+        if $do_trust && $trust_notify;
+    push @jobs, LJ::Event::AddedToCircle->new( $to_u, $from_u, 2 )
+        if $do_watch && $watch_notify;
+
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
 
     return 1;
 }
@@ -226,22 +232,21 @@ sub _del_wt_edge {
     LJ::MemCache::delete( [ $from_u->id, "trustmask:" . $from_u->id . ":" . $to_u->id ] );
 
     # fire notifications if we have theschwartz
-    if ( my $sclient = LJ::theschwartz() ) {
-        my $notify =
-               LJ::is_enabled('esn')
-            && !$from_u->equals($to_u)
-            && $from_u->is_visible
-            && ( $from_u->is_personal || $from_u->is_identity )
-            && ( $to_u->is_personal   || $to_u->is_identity )
-            && !$to_u->has_banned($from_u) ? 1 : 0;
-        my $trust_notify = $notify && !$de_trust->{nonotify} ? 1 : 0;
-        my $watch_notify = $notify && !$de_watch->{nonotify} ? 1 : 0;
+    my $notify =
+            !$from_u->equals($to_u)
+        && $from_u->is_visible
+        && ( $from_u->is_personal || $from_u->is_identity )
+        && ( $to_u->is_personal   || $to_u->is_identity )
+        && !$to_u->has_banned($from_u) ? 1 : 0;
+    my $trust_notify = $notify && !$de_trust->{nonotify} ? 1 : 0;
+    my $watch_notify = $notify && !$de_watch->{nonotify} ? 1 : 0;
 
-        $sclient->insert_jobs( LJ::Event::RemovedFromCircle->new( $to_u, $from_u, 1 )->fire_job )
-            if $do_trust && $trust_notify;
-        $sclient->insert_jobs( LJ::Event::RemovedFromCircle->new( $to_u, $from_u, 2 )->fire_job )
-            if $do_watch && $watch_notify;
-    }
+    my @jobs;
+    push @jobs, LJ::Event::RemovedFromCircle->new( $to_u, $from_u, 1 )
+        if $do_trust && $trust_notify;
+    push @jobs, LJ::Event::RemovedFromCircle->new( $to_u, $from_u, 2 )
+        if $do_watch && $watch_notify;
+    DW::TaskQueue->dispatch( @jobs ) if @jobs;
 
     return 1;
 }

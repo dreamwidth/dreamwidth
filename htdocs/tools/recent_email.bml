@@ -63,6 +63,8 @@ body<=
     $email ||= $u->email_raw;
     my ($username, $domain) = $email =~ /(.*)\@(.*)/;
 
+    # TODO: Figure out how to make this work when TheSchwartz has gone away
+    # and is no longer being used for stuff.
     my $sclient = LJ::theschwartz();
     my @jobs = $sclient->list_jobs({
         funcname    => 'TheSchwartz::Worker::SendEmail',

@@ -12,7 +12,11 @@
 # part of this distribution.
 
 package LJ::Support;
+
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5 qw(md5_hex);
 
@@ -1097,10 +1101,8 @@ sub mini_auth {
 
 sub support_notify {
     my $params  = shift;
-    my $sclient = LJ::theschwartz()
-        or return 0;
 
-    my $h = $sclient->insert( "LJ::Worker::SupportNotify", $params );
+    my $h = DW::TaskQueue->dispatch( TheSchwartz::Job->new_from_array( "LJ::Worker::SupportNotify", $params ));
     return $h ? 1 : 0;
 }
 

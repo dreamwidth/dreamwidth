@@ -19,7 +19,11 @@
 ###############################################################################
 
 package DW::User::OpenID;
+
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 # get the claims that a user has. this returns an array of user objects for
 # the relevant OpenID accounts.
@@ -72,10 +76,8 @@ sub claim_identity {
         if $dbh->err;
 
     # Now we need to kick off the job that actually goes and reclaims things.
-    my $sclient = LJ::theschwartz()
-        or die "openid claiming requires TheSchwartz\n";
-    $sclient->insert( 'DW::Worker::ChangePosterId',
-        { from_userid => $ou->id, to_userid => $u->id } );
+    DW::TaskQueue->dispatch( TheSchwartz::Job->new_from_array( 'DW::Worker::ChangePosterId',
+        { from_userid => $ou->id, to_userid => $u->id } ));
     return 1;
 }
 *LJ::User::claim_identity = \&claim_identity;

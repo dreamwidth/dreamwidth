@@ -13,23 +13,24 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-use strict;
-
-require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
-
 package LJ;
 
+use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use Encode qw( encode from_to );
+use IO::Socket::INET;
+use Mail::Address;
+use MIME::Base64 qw( encode_base64 );
+use MIME::Lite;
+use MIME::Words qw( encode_mimeword );
 use Text::Wrap ();
 use Time::HiRes qw( gettimeofday tv_interval );
-use Encode qw( encode from_to );
-use MIME::Base64 qw( encode_base64 );
-use IO::Socket::INET;
-use MIME::Lite;
-use Mail::Address;
-use MIME::Words qw( encode_mimeword );
-use LJ::CleanHTML;
 
 use DW::Stats;
+use LJ::CleanHTML;
 
 my $done_init = 0;
 
@@ -181,8 +182,6 @@ sub send_mail {
 
     my $enqueue = sub {
         my $starttime = [ gettimeofday() ];
-        my $sclient   = LJ::theschwartz()
-            or die "Misconfiguration in mail.  Can't go into TheSchwartz.";
         my ($env_from) = map { $_->address } Mail::Address->parse( $msg->get('From') );
         my @rcpts;
         push @rcpts, map { $_->address } Mail::Address->parse( $msg->get($_) )
@@ -192,7 +191,7 @@ sub send_mail {
             $rcpts[0] =~ /(.+)@(.+)$/;
             $host = lc($2) . '@' . lc($1);    # we store it reversed in database
         }
-        my $job = TheSchwartz::Job->new(
+        my $h = DW::TaskQueue->dispatch( TheSchwartz::Job->new(
             funcname => "TheSchwartz::Worker::SendEmail",
             arg      => {
                 env_from => $env_from,
@@ -201,8 +200,7 @@ sub send_mail {
             },
             coalesce  => $host,
             run_after => $opt->{delay} ? time() + $opt->{delay} : undef,
-        );
-        my $h = $sclient->insert($job);
+        ));
         return $h ? 1 : 0;
     };
 

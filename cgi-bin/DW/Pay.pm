@@ -17,6 +17,9 @@
 package DW::Pay;
 
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ confess /;
 use HTTP::Request;
@@ -667,8 +670,8 @@ sub update_paid_status {
 
     # and now, at this last step, we kick off a job to check if this user
     # needs to have their search index setup/messed with.
-    if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
-        $sclient->insert_jobs(
+    if ( @LJ::SPHINX_SEARCHD ) {
+        DW::TaskQueue->dispatch(
             TheSchwartz::Job->new_from_array(
                 'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "paidstat" }
             )

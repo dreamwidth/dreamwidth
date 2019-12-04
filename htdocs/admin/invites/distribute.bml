@@ -56,13 +56,11 @@ body<=
         return LJ::error_list( LJ::Lang::ml( '.error.nosuchclass', { class => $selected_user_class } ) )
             unless exists $class_names->{$selected_user_class};
 
-        my $sclient = LJ::theschwartz()
-            or return LJ::error_list( $ML{'error.noschwartz'} );
-        $sclient->insert('DW::Worker::DistributeInvites',
+        DW::TaskQueue->dispatch( TheSchwartz::Job->new_from_array('DW::Worker::DistributeInvites',
                          { requester => $remote->userid,
                            searchclass => $selected_user_class,
                            invites => $num_invites_requested,
-                           reason => $reason } )
+                           reason => $reason } ))
             or return LJ::error_list( $ML{'.error.cantinsertjob'} );
 
         $ret .= "<?hr?>";

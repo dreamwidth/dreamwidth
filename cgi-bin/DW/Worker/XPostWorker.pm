@@ -18,17 +18,22 @@
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
-use strict;
-use warnings;
-
 package DW::Worker::XPostWorker;
-use base 'TheSchwartz::Worker';
-use LJ::Protocol;
+
+use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use Time::HiRes qw/ gettimeofday /;
+
 use DW::External::Account;
 use LJ::Event::XPostSuccess;
-use LJ::User;
 use LJ::Lang;
-use Time::HiRes qw/ gettimeofday /;
+use LJ::Protocol;
+use LJ::User;
+
+use base 'TheSchwartz::Worker';
 
 sub schwartz_capabilities { return ('DW::Worker::XPostWorker'); }
 
@@ -63,11 +68,10 @@ sub work {
     my $acct = DW::External::Account->get_external_account( $u, $acctid )
         or return $job->failed("Unable to load account $acctid for uid $uid");
 
-    my $sclient     = LJ::theschwartz();
     my $notify_fail = sub {
-        $sclient->insert_jobs(
+        DW::TaskQueue->dispatch(
             LJ::Event::XPostFailure->new( $u, $acctid, $ditemid,
-                ( $_[0] || 'Unknown error message.' ) )->fire_job
+                ( $_[0] || 'Unknown error message.' ) )
         );
     };
 
@@ -98,7 +102,7 @@ sub work {
         $delete ? $acct->delete_entry( \%auth, $entry ) : $acct->crosspost( \%auth, $entry );
 
     if ( $result->{success} ) {
-        $sclient->insert_jobs( LJ::Event::XPostSuccess->new( $u, $acctid, $ditemid )->fire_job );
+        DW::TaskQueue->dispatch( LJ::Event::XPostSuccess->new( $u, $acctid, $ditemid ) );
         DW::Stats::increment( 'dw.worker.crosspost.success', 1, ["domain:$domain"] );
 
         # FIXME: subroutine not implemented

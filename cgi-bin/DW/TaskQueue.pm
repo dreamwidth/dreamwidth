@@ -25,6 +25,7 @@ use MIME::Base64;
 use Paws;
 use Paws::Credential::InstanceProfile;
 use Storable qw/ nfreeze thaw /;
+use TheSchwartz::Job;
 
 use DW::Task;
 
@@ -103,9 +104,72 @@ sub _get_queue_for_task {
     return $self->{queues}->{$queue_name} = $res->QueueUrl;
 }
 
+sub dispatch {
+    my ( $self, @tasks ) = @_;
+    return undef unless @tasks;
+
+    $self = $self->get unless ref $self;
+
+    # This is a shim function that inspects the tasks being sent and dispatches
+    # them to the appropriate task queueing system.
+    my ( @schwartz_jobs, @sqs_tasks );
+    foreach my $task (@tasks) {
+        if ( $task->isa('TheSchwartz::Job') ) {
+            push @schwartz_jobs, $task;
+        }
+        elsif ( $task->isa('DW::Task') ) {
+            push @sqs_tasks, $task;
+        }
+        elsif ( $task->isa('LJ::Event') ) {
+
+            # Do the SQS check, because these tasks could go either way, and we
+            # want to be able to ramp up the traffic slowly.
+            if ( $LJ::ESN_OVER_SQS && random() < $LJ::ESN_OVER_SQS ) {
+                push @sqs_tasks, $task->fire_task;
+            }
+            else {
+                push @schwartz_jobs, $task->fire_job;
+            }
+        }
+        else {
+            $log->error( 'Unknown job/task type, dropping: ' . ref($task) );
+        }
+    }
+
+    my $rv = 1;
+
+    # Dispatch to Schwartz
+    if (@schwartz_jobs) {
+        if ( my $sclient = LJ::theschwartz() ) {
+            $log->debug( 'Inserting ' . scalar(@schwartz_jobs) . ' jobs into TheSchwartz.' );
+            $rv &&= $sclient->insert_jobs(@schwartz_jobs);
+        }
+        else {
+            $log->warn( 'Failed to retrieve TheSchwartz client, dropping '
+                    . scalar(@schwartz_jobs)
+                    . ' jobs.' );
+        }
+    }
+
+    # Dispatch to SQS
+    if (@sqs_tasks) {
+        $log->debug( 'Inserting ' . scalar(@sqs_tasks) . ' tasks into SQS.' );
+        $rv &&= $self->send(@sqs_tasks);
+    }
+
+    # Returns the "worse" of the return values. If either are falsey, we will
+    # return a false value.
+    return $rv;
+}
+
+# Send a group of tasks to SQS. Returns 1 if all succeeded or undef if there was one
+# or more failures. TODO: might be nice to make it so callers can determine which messages
+# succeeded, maybe?
 sub send {
     my ( $self, @tasks ) = @_;
     return undef unless @tasks;
+
+    $self = $self->get unless ref $self;
 
     my $queue = $self->_get_queue_for_task( $tasks[0] )
         or return undef;
@@ -136,12 +200,14 @@ sub send {
         }
     }
 
-    return $sent;
+    return $sent > 0 ? 1 : undef;
 }
 
 sub receive {
     my ( $self, $class, $count ) = @_;
     $count ||= 10;
+
+    $self = $self->get unless ref $self;
 
     my $queue = $self->_get_queue_for_task($class)
         or return undef;
@@ -170,6 +236,8 @@ sub completed {
     my ( $self, $class, @handles ) = @_;
     return unless @handles;
 
+    $self = $self->get unless ref $self;
+
     my $queue = $self->_get_queue_for_task($class)
         or return undef;
 
@@ -190,6 +258,8 @@ sub completed {
 
 sub start_work {
     my ( $self, $class ) = @_;
+
+    $self = $self->get unless ref $self;
 
     eval "use $class;";
 

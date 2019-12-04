@@ -351,26 +351,23 @@ sub extract_src_info {
         $linktext = LJ::Lang::ml('embedmedia.youtube');
 
         # Fire off the worker to get the correct title
-        my $sclient = LJ::theschwartz()
-            or croak "Can't get TheSchwartz client";
-        my $job = TheSchwartz::Job->new_from_array(
-            "DW::Worker::EmbedWorker",
-            {
-                vid_id    => $vid_id,
-                host      => 'youtube',
-                preview   => $preview,
-                contents  => $contents,
-                cmptext   => $cmptext,
-                journalid => $journal->id,
-                preview   => $preview,
-                id        => $id,
-                linktext  => $linktext,
-                url       => $url,
-            }
+        DW::TaskQueue->dispatch(
+            TheSchwartz::Job->new_from_array(
+                "DW::Worker::EmbedWorker",
+                {
+                    vid_id    => $vid_id,
+                    host      => 'youtube',
+                    preview   => $preview,
+                    contents  => $contents,
+                    cmptext   => $cmptext,
+                    journalid => $journal->id,
+                    preview   => $preview,
+                    id        => $id,
+                    linktext  => $linktext,
+                    url       => $url,
+                }
+            )
         );
-        die "Can't create job" unless $job;
-        $sclient->insert($job)
-            or croak "Can't queue youtube api job: $@";
 
     }
     elsif ( $contents =~ /src="https?:\/\/.*vimeo\.com/ ) {
@@ -387,26 +384,23 @@ sub extract_src_info {
         $linktext = LJ::Lang::ml('embedmedia.vimeo');
 
         # Fire off the worker to get the correct title
-        my $sclient = LJ::theschwartz()
-            or croak "Can't get TheSchwartz client";
-        my $job = TheSchwartz::Job->new_from_array(
-            "DW::Worker::EmbedWorker",
-            {
-                vid_id    => $vid_id,
-                host      => 'vimeo',
-                preview   => $preview,
-                contents  => $contents,
-                cmptext   => $cmptext,
-                journalid => $journal->id,
-                preview   => $preview,
-                id        => $id,
-                linktext  => $linktext,
-                url       => $url,
-            }
+        DW::TaskQueue->dispatch(
+            TheSchwartz::Job->new_from_array(
+                "DW::Worker::EmbedWorker",
+                {
+                    vid_id    => $vid_id,
+                    host      => 'vimeo',
+                    preview   => $preview,
+                    contents  => $contents,
+                    cmptext   => $cmptext,
+                    journalid => $journal->id,
+                    preview   => $preview,
+                    id        => $id,
+                    linktext  => $linktext,
+                    url       => $url,
+                }
+            )
         );
-        die "Can't create job" unless $job;
-        $sclient->insert($job)
-            or croak "Can't queue vimeo api job: $@";
     }
     else {
         # Not one of our known embed types

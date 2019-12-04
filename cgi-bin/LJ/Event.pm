@@ -260,26 +260,9 @@ sub process_fired_events {
 # processed later, or does nothing, if it's a rare event and there
 # are no subscriptions for the event.
 sub fire {
-    my ( $self, %args ) = @_;
-    return 0 unless LJ::is_enabled('esn');
-
-    # If enabled, use Task system instead of old Worker system.
-    if ( $args{use_task} ) {
-        my $task = $self->fire_task
-            or return 0;
-        DW::TaskQueue->get->send($task);
-        return 1;
-    }
-
-    # Old style event processing.
-    my $sclient = LJ::theschwartz( { role => $self->schwartz_role } );
-    return 0 unless $sclient;
-
-    my $job = $self->fire_job
-        or return 0;
-
-    my $h = $sclient->insert($job);
-    return $h ? 1 : 0;
+    # The TaskQueue knows how to convert us to an appropriate job or task and
+    # schedule is in the correct place.
+    return DW::TaskQueue->dispatch( $_[0] ) ? 1 : 0;
 }
 
 # returns the job object that would've fired, so callers can batch them together
@@ -287,7 +270,6 @@ sub fire {
 # return undef.
 sub fire_job {
     my $self = shift;
-    return unless LJ::is_enabled('esn');
 
     if ( my $val = $LJ::DEBUG{'firings'} ) {
         if ( ref $val eq "CODE" ) {
@@ -305,7 +287,6 @@ sub fire_job {
 
 sub fire_task {
     my $self = $_[0];
-    return unless LJ::is_enabled('esn');
     return unless $self->should_enqueue;
     return DW::Task::ESN::FiredEvent->new( $self->raw_params );
 }

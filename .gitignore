@@ -8,6 +8,7 @@
 /var
 *.sw?
 src/proxy/proxy
+.vstags
 
 # Ignore SCSS cache
 .sass-cache
