@@ -1100,9 +1100,10 @@ sub mini_auth {
 }
 
 sub support_notify {
-    my $params  = shift;
+    my $params = shift;
 
-    my $h = DW::TaskQueue->dispatch( TheSchwartz::Job->new_from_array( "LJ::Worker::SupportNotify", $params ));
+    my $h = DW::TaskQueue->dispatch(
+        TheSchwartz::Job->new_from_array( "LJ::Worker::SupportNotify", $params ) );
     return $h ? 1 : 0;
 }
 

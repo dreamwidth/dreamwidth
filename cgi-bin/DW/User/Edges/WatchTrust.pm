@@ -233,7 +233,7 @@ sub _del_wt_edge {
 
     # fire notifications if we have theschwartz
     my $notify =
-            !$from_u->equals($to_u)
+          !$from_u->equals($to_u)
         && $from_u->is_visible
         && ( $from_u->is_personal || $from_u->is_identity )
         && ( $to_u->is_personal   || $to_u->is_identity )
@@ -246,7 +246,7 @@ sub _del_wt_edge {
         if $do_trust && $trust_notify;
     push @jobs, LJ::Event::RemovedFromCircle->new( $to_u, $from_u, 2 )
         if $do_watch && $watch_notify;
-    DW::TaskQueue->dispatch( @jobs ) if @jobs;
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
 
     return 1;
 }

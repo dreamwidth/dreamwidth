@@ -191,16 +191,18 @@ sub send_mail {
             $rcpts[0] =~ /(.+)@(.+)$/;
             $host = lc($2) . '@' . lc($1);    # we store it reversed in database
         }
-        my $h = DW::TaskQueue->dispatch( TheSchwartz::Job->new(
-            funcname => "TheSchwartz::Worker::SendEmail",
-            arg      => {
-                env_from => $env_from,
-                rcpts    => \@rcpts,
-                data     => $msg->as_string,
-            },
-            coalesce  => $host,
-            run_after => $opt->{delay} ? time() + $opt->{delay} : undef,
-        ));
+        my $h = DW::TaskQueue->dispatch(
+            TheSchwartz::Job->new(
+                funcname => "TheSchwartz::Worker::SendEmail",
+                arg      => {
+                    env_from => $env_from,
+                    rcpts    => \@rcpts,
+                    data     => $msg->as_string,
+                },
+                coalesce  => $host,
+                run_after => $opt->{delay} ? time() + $opt->{delay} : undef,
+            )
+        );
         return $h ? 1 : 0;
     };
 

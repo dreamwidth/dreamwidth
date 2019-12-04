@@ -58,7 +58,8 @@ sub enqueue_job {
         }
     }
 
-    return DW::TaskQueue->dispatch( TheSchwartz::Job->new_from_array( "LJ::Worker::MassPrivacy", \%opts ) );
+    return DW::TaskQueue->dispatch(
+        TheSchwartz::Job->new_from_array( "LJ::Worker::MassPrivacy", \%opts ) );
 }
 
 sub handle {

@@ -70,8 +70,9 @@ sub work {
 
     my $notify_fail = sub {
         DW::TaskQueue->dispatch(
-            LJ::Event::XPostFailure->new( $u, $acctid, $ditemid,
-                ( $_[0] || 'Unknown error message.' ) )
+            LJ::Event::XPostFailure->new(
+                $u, $acctid, $ditemid, ( $_[0] || 'Unknown error message.' )
+            )
         );
     };
 

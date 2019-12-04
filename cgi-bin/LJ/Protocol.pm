@@ -1802,7 +1802,7 @@ sub postevent {
             TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
             { userid => $uowner->id, jitemid => $jitemid, source => "entrynew" } );
     }
-    
+
     DW::TaskQueue->dispatch(@jobs) if @jobs;
 
     # To minimize impact on legacy code, let's make sure the entry object in
@@ -2277,15 +2277,13 @@ sub editevent {
 
     # fired to copy the post over to the Sphinx search database
     my @jobs;
-    if ( @LJ::SPHINX_SEARCHD ) {
+    if (@LJ::SPHINX_SEARCHD) {
         push @jobs,
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier',
-                { userid => $ownerid, jitemid => $itemid, source => "entryedt" }
-            );
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            { userid => $ownerid, jitemid => $itemid, source => "entryedt" } );
     }
     LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );
-    DW::TaskQueue->dispatch( @jobs ) if @jobs;
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
 
     # ensure our xposted edit fires
     $schedule_xposts->();

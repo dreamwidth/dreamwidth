@@ -76,8 +76,11 @@ sub claim_identity {
         if $dbh->err;
 
     # Now we need to kick off the job that actually goes and reclaims things.
-    DW::TaskQueue->dispatch( TheSchwartz::Job->new_from_array( 'DW::Worker::ChangePosterId',
-        { from_userid => $ou->id, to_userid => $u->id } ));
+    DW::TaskQueue->dispatch(
+        TheSchwartz::Job->new_from_array(
+            'DW::Worker::ChangePosterId', { from_userid => $ou->id, to_userid => $u->id }
+        )
+    );
     return 1;
 }
 *LJ::User::claim_identity = \&claim_identity;

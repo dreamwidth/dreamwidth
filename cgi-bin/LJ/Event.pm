@@ -260,6 +260,7 @@ sub process_fired_events {
 # processed later, or does nothing, if it's a rare event and there
 # are no subscriptions for the event.
 sub fire {
+
     # The TaskQueue knows how to convert us to an appropriate job or task and
     # schedule is in the correct place.
     return DW::TaskQueue->dispatch( $_[0] ) ? 1 : 0;
