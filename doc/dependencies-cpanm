@@ -55,6 +55,7 @@ Text::Wrap@2013.0523
 TheSchwartz
 TheSchwartz::Worker::SendEmail
 URI::Fetch
+UUID::Tiny
 Unicode::CheckUTF8
 Unicode::MapUTF8
 XML::Atom

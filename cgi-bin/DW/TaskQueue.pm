@@ -25,9 +25,12 @@ use MIME::Base64;
 use Paws;
 use Paws::Credential::InstanceProfile;
 use Storable qw/ nfreeze thaw /;
-use TheSchwartz::Job;
+use UUID::Tiny qw/ :std /;
 
 use DW::Task;
+
+use constant LARGE_MESSAGE_CUTOFF => 255_000;
+use constant MAX_BATCH_SIZE       => 10;
 
 my $_queue;
 
@@ -124,7 +127,7 @@ sub dispatch {
 
             # Do the SQS check, because these tasks could go either way, and we
             # want to be able to ramp up the traffic slowly.
-            if ( $LJ::ESN_OVER_SQS && random() < $LJ::ESN_OVER_SQS ) {
+            if ( $LJ::ESN_OVER_SQS && rand() < $LJ::ESN_OVER_SQS ) {
                 push @sqs_tasks, $task->fire_task;
             }
             else {
@@ -174,33 +177,80 @@ sub send {
     my $queue = $self->_get_queue_for_task( $tasks[0] )
         or return undef;
 
-    # Get batches of 10 messages and send them along, since that's all SQS lets us do
-    my $sent = 0;
-    while ( my @taskset = splice @tasks, 0, 10 ) {
-        my @messages;
-        foreach my $message (@taskset) {
-            my $body = encode_base64( nfreeze($message) );
-            if ( length $body > 255_000 ) {
+    # Send batches of messages, limited by count or size
+    my @messages;
+    my $sent_bytes = 0;
 
-                # TODO: Make it possible to offload large messages to S3 and send
-                # references in SQS.
-                $log->error('Message too large, dropping task.');
-            }
-            else {
-                push @messages, { Id => $sent++, MessageBody => $body };
-            }
-        }
-
-        $log->debug( 'Sending ' . length(@messages) . ' messages.' );
+    my $send = sub {
+        $log->debug( 'Sending ', length(@messages), ' messages: ', $sent_bytes, ' bytes.' );
         my $res =
             eval { $self->{sqs}->SendMessageBatch( QueueUrl => $queue, Entries => \@messages ) };
         if ( $@ && $@->isa('Paws::Exception') ) {
-            $log->error( 'Failed to send SQS message: ' . $@->message );
+            $log->error( 'Failed to send SQS message batch: ' . $@->message );
             return undef;
         }
+
+        @messages   = ();
+        $sent_bytes = 0;
+    };
+
+    foreach my $task (@tasks) {
+        my $body = $self->_offload_large_message_if_necessary($task);
+
+        # If this message would put us over the cap, we need to send the previous batch
+        # before appending it
+        if (
+            @messages
+            && ( $sent_bytes + length $body > LARGE_MESSAGE_CUTOFF
+                || scalar @messages == MAX_BATCH_SIZE )
+            )
+        {
+            $send->() or return undef;
+        }
+
+        # Safe to append this messages
+        $sent_bytes += length $body;
+        push @messages, { Id => 'id-' . $sent_bytes, MessageBody => $body };
     }
 
-    return $sent > 0 ? 1 : undef;
+    # If there are any messages left send them
+    if (@messages) {
+        $send->() or return undef;
+    }
+
+    return $sent_bytes > 0 ? 1 : undef;
+}
+
+sub _offload_large_message_if_necessary {
+    my ( $self, $message ) = @_;
+
+    $message = encode_base64( nfreeze($message) );
+    return $message if length $message < LARGE_MESSAGE_CUTOFF;
+
+    my $uuid = create_uuid_as_string(UUID_V4);
+    my $rv   = DW::BlobStore->store( tasks_offload => $uuid, \$message );
+    unless ($rv) {
+        $log->error('Failed to offload task to BlobStore!');
+        return undef;
+    }
+
+    return 'offloaded:' . $uuid;
+}
+
+sub _reload_large_message_if_necessary {
+    my ( $self, $message ) = @_;
+
+    my $uuid = $1
+        if $message =~ /^offloaded:(.+?)$/;
+    return $message unless $uuid;
+
+    my $rv = DW::BlobStore->retrieve( tasks_offload => $uuid );
+    unless ($rv) {
+        $log->error( 'Failed to reload task from BlobStore: ' . $uuid );
+        return undef;
+    }
+
+    return $$rv;
 }
 
 sub receive {
@@ -228,7 +278,14 @@ sub receive {
     return undef
         unless $messages && ref $messages eq 'ARRAY' && length @$messages >= 1;
 
-    $messages = [ map { [ $_->ReceiptHandle, thaw( decode_base64( $_->Body ) ) ] } @$messages ];
+    $messages = [
+        map {
+            [
+                $_->ReceiptHandle,
+                thaw( decode_base64( $self->_reload_large_message_if_necessary( $_->Body ) ) )
+            ]
+        } @$messages
+    ];
     return $messages;
 }
 
