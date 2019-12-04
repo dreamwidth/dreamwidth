@@ -58,16 +58,14 @@ sub erase_handler {
     }
 
     # Confirmed, let's schedule.
-    my $rv = DW::TaskQueue->dispatch(
+    DW::TaskQueue->dispatch(
         TheSchwartz::Job->new_from_array(
             'DW::Worker::ImportEraser',
             {
                 userid => $rv->{u}->userid
             }
         )
-    );
-    die "Failed to insert eraser job.\n"
-        unless $rv;
+    ) or die "Failed to insert eraser job.\n";
 
     return DW::Template->render_template(
         'tools/importer/erase.tt',
