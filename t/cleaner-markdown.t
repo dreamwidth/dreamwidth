@@ -22,8 +22,9 @@ use Test::More tests => 19;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
 
-my $lju_sys = LJ::ljuser('system');
-my $url     = 'https://medium.com/@username/title-of-page';
+my $lju_sys         = LJ::ljuser('system');
+my $lju_sys_no_link = LJ::ljuser( 'system', { no_link => 1 } );
+my $url             = 'https://medium.com/@username/title-of-page';
 
 my $clean = sub {
     my ( $text, %opts ) = @_;
@@ -56,14 +57,14 @@ is(
 # linked URL containing user tag
 is(
     $clean->("[link from \@system]($url)"),
-    qq{<p><a href="$url">link from $lju_sys</a></p>},
-    'user tag in href not converted, but user tag in link text converted []'
+    qq{<p><a href="$url">link from $lju_sys_no_link</a></p>},
+    'user tag in href not converted, but user tag in link text converted (using de-linked form) []'
 );
 
-# same as standard HTML, we don't apply markdown to HTML
+# HTML within Markdown is passed through undigested, but Markdown can build new tags around it.
 is(
     $clean->(qq{<a href="$url">link from \@system</a>}),
-    qq{<a href="$url">link from \@system</a>},
+    qq{<p><a href="$url">link from $lju_sys_no_link</a></p>},
     'content is unconverted'
 );
 
