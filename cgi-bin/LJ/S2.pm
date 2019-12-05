@@ -2215,37 +2215,34 @@ sub Entry_from_entryobj {
         && $remote->id != $journalid ? ( style => 'mine' ) : ();
     my $style_args = LJ::viewing_style_args( %$get, %opt_stylemine );
 
+    my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
+
+    # Configuration for cleaning the entry text: cuts and such
+    my $cut_disable    = $opts->{cut_disable};
+    my $cleanhtml_opts = {
+        cuturl => $entry_obj->url( style_opts => LJ::viewing_style_opts( %$get, %opt_stylemine ) ),
+        ljcut_disable       => $cut_disable,
+        journal             => $journal->username,
+        ditemid             => $ditemid,
+        suspend_msg         => $suspend_msg,
+        unsuspend_supportid => $suspend_msg ? $entry_obj->prop('unsuspend_supportid') : 0,
+        preformatted        => $entry_obj->prop("opt_preformatted"),
+    };
+
+    # reading pages might need to display image placeholders
+    my $cleanhtml_extra = $opts->{cleanhtml_extra} || {};
+    foreach my $k ( keys %$cleanhtml_extra ) {
+        $cleanhtml_opts->{$k} = $cleanhtml_extra->{$k};
+    }
+
     #load and prepare subject and text of entry
     my $subject = LJ::CleanHTML::quote_html( $entry_obj->subject_html, $get->{nohtml} );
     my $text =
-        $no_entry_body ? "" : LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
-    LJ::item_toutf8( $journal, \$subject, \$text, $entry_obj->props )
-        if $entry_obj->props->{unknown8bit};
-
-    my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
+        $no_entry_body
+        ? ""
+        : LJ::CleanHTML::quote_html( $entry_obj->event_html($cleanhtml_opts), $get->{nohtml} );
 
     unless ($no_entry_body) {
-
-        # cleaning the entry text: cuts and such
-        my $cut_disable    = $opts->{cut_disable};
-        my $cleanhtml_opts = {
-            cuturl =>
-                $entry_obj->url( style_opts => LJ::viewing_style_opts( %$get, %opt_stylemine ) ),
-            ljcut_disable       => $cut_disable,
-            journal             => $journal->username,
-            ditemid             => $ditemid,
-            suspend_msg         => $suspend_msg,
-            unsuspend_supportid => $suspend_msg ? $entry_obj->prop('unsuspend_supportid') : 0,
-            preformatted        => $entry_obj->prop("opt_preformatted"),
-        };
-
-        # reading pages might need to display image placeholders
-        my $cleanhtml_extra = $opts->{cleanhtml_extra} || {};
-        foreach my $k ( keys %$cleanhtml_extra ) {
-            $cleanhtml_opts->{$k} = $cleanhtml_extra->{$k};
-        }
-        LJ::CleanHTML::clean_event( \$text, $cleanhtml_opts );
-
         LJ::expand_embedded( $journal, $jitemid, $remote, \$text );
         $text = DW::Logic::AdultContent->transform_post(
             post    => $text,
