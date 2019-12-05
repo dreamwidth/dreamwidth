@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-dw-esn-process-sub
+spec:
+  replicas: 25
+  selector:
+    matchLabels:
+      app: worker-dw-esn-process-sub
+  template:
+    metadata:
+      labels:
+        app: worker-dw-esn-process-sub
+    spec:
+      containers:
+      - image: 194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/worker:latest
+        name: worker-dw-esn-process-sub
+        command: ["bash"]
+        args: ["/opt/startup-prod.sh", "bin/worker/dw-esn-process-sub", "-v"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 300M
+        volumeMounts:
+        - name: config
+          mountPath: /dw/etc
+          readOnly: true
+      volumes:
+      - name: config
+        secret:
+          secretName: dw-config
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: worker-dw-esn-process-sub
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: worker-dw-esn-process-sub
+  minReplicas: 25
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 100
