@@ -84,10 +84,6 @@ sub load_cuttext {
     my $journalid = $entry_obj->journalid;
     my $journal   = LJ::load_userid($journalid);
 
-    #load and prepare text of entry
-    my $text = LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
-    LJ::item_toutf8( $journal, \$subject, \$text ) if $entry_obj->props->{unknown8bit};
-
     my $suspend_msg    = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
     my $cleanhtml_opts = {
         cuturl              => $entry_obj->url,
@@ -99,7 +95,8 @@ sub load_cuttext {
         cut_retrieve        => $cutid,
     };
 
-    LJ::CleanHTML::clean_event( \$text, $cleanhtml_opts );
+    #load and prepare text of entry
+    my $text = LJ::CleanHTML::quote_html( $entry_obj->event_html($cleanhtml_opts), $get->{nohtml} );
 
     LJ::expand_embedded( $journal, $jitemid, $remote, \$text );
 
