@@ -35,9 +35,6 @@ ADD config/ /dw/ext/local
 # last minute configuration.
 RUN bash /opt/setup.sh
 
-# We run on 80, TLS is handled by a proxy of some kind.
-EXPOSE 80
-
 # Kick off the startup script, which does some healthcheck and then starts
 # Apache if things look good.
 CMD bash /opt/startup-prod.sh
