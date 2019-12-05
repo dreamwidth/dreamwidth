@@ -1,5 +1,5 @@
 #
-# This creates a Dreamwidth webserver.
+# This creates a Dreamwidth worker container.
 #
 
 # Configuration can go here.
@@ -11,7 +11,7 @@ MAINTAINER Mark Smith "mark@dreamwidth.org"
 # Things that commands need, but shouldn't change.
 ENV LJHOME /dw
 
-# Install some packages we need in web only.
+# Install some packages we need in workers only.
 RUN echo $COMMIT && \
     apt-get update && \
     apt-get install -y mysql-client && \
@@ -25,8 +25,7 @@ RUN echo $COMMIT && \
 RUN git -C $LJHOME fetch && \
     git -C $LJHOME checkout $COMMIT && \
     git -C $LJHOME/ext/dw-nonfree fetch && \
-    git -C $LJHOME/ext/dw-nonfree checkout master && \
-    $LJHOME/bin/build-static.sh
+    git -C $LJHOME/ext/dw-nonfree checkout master
 
 # Copy in support scripts/configurations that are useful.
 ADD scripts/ /opt/
