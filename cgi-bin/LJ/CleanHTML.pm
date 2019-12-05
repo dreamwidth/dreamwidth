@@ -99,11 +99,7 @@ sub clean {
     # anything to it if $$data contains only invalid content
     my $newdata = '';
 
-    # remove the auth portion of any see_request links
-    $$data = LJ::strip_request_auth($$data);
-
-    my $p = HTML::TokeParser->new($data);
-
+    # Set up configuration and defaults:
     my $wordlength              = $opts->{wordlength};
     my $addbreaks               = $opts->{addbreaks};
     my $keepcomments            = $opts->{keepcomments};
@@ -140,7 +136,6 @@ sub clean {
     my $journal      = $opts->{journal}      || "";
     my $ditemid      = $opts->{ditemid}      || "";
 
-    my @canonical_urls;    # extracted links
     my %action = ();
     my %remove = ();
     if ( ref $opts->{'allow'} eq "ARRAY" ) {
@@ -189,6 +184,22 @@ sub clean {
     if ( ref $opts->{'attrstrip'} eq "ARRAY" ) {
         foreach ( @{ $opts->{'attrstrip'} } ) { push @attrstrip, $_; }
     }
+
+    # Do some preprocessing of the input text before we try to parse it as HTML:
+    # First, remove the auth portion of any see_request links
+    $$data = LJ::strip_request_auth($$data);
+
+    # Second, convert Markdown; from here on, we can process it as raw HTML (no autoformatting)
+    if ( $formatting eq 'markdown' ) {
+        $$data     = Text::Markdown::markdown($$data);
+        $addbreaks = 0;
+    }
+
+    # Create the HTML parser we'll use to navigate the text from here on out:
+    my $p = HTML::TokeParser->new($data);
+
+    # Set up state variables:
+    my @canonical_urls;    # extracted links
 
     my %opencount  = map { $_ => 0 } qw(td th);
     my @tablescope = ();
@@ -1196,13 +1207,20 @@ TOKEN:
                 next TOKEN;
             }
 
+            # auto_format means: the dialect is "html with auto linebreaks," AND
+            # we're not currently in a context that needs to remain raw.
             my $auto_format =
-                   $addbreaks
+                   $formatting eq 'html'
+                && $addbreaks
                 && ( ( $opencount{table} || 0 ) <= ( $opencount{td} + $opencount{th} ) )
                 && !$opencount{'pre'}
+                && !$opencount{'textarea'}
                 && !$opencount{'lj-raw'};
 
-            if ( $auto_format && $auto_links && !$opencount{'a'} && !$opencount{'textarea'} ) {
+            # Stash any URLs that should be auto-linked, and insert temporary
+            # placeholders that can survive the next few escaping steps. We'll
+            # restore the URLs later as links.
+            if ( $auto_format && $auto_links && !$opencount{'a'} ) {
                 my $match = sub {
                     my $str = shift;
                     if ( $str =~ /^(.*?)(&(#39|quot|lt|gt)(;.*)?)$/ ) {
@@ -1228,33 +1246,26 @@ TOKEN:
                 $token->[1] =~ s/(\S{$wordlength,})/break_word( $1, $wordlength )/eg;
             }
 
-            # markdown is available, but we disable it if the user is using HTML. this is
-            # to prevent bad interactions between the two. technically markdown supports
-            # running on HTML inputs, but we choose not to support that.
-            if ( $formatting eq 'markdown' && !grep { $_ > 0 } values %opencount ) {
+            # auto-format some stuff!
+            if ($auto_format) {
 
-                # markdown should be marked down
-                $token->[1] = Text::Markdown::markdown( $token->[1] );
-            }
-
-            # auto-format things, unless we're in a textarea, when it doesn't make sense
-            if ( $auto_format && !$opencount{'textarea'} ) {
-                if ( $formatting eq 'html' ) {
-
-                    # if HTML editing, insert linebreaks
-                    $token->[1] =~ s/\r?\n/<br \/>/g;
-                }
-
+                # Add linebreaks
+                $token->[1] =~ s/\r?\n/<br \/>/g;
                 if ( !$opencount{'a'} ) {
 
-                    # safe to convert user mentions, do that in this context, but only if
-                    # the content was created locally (otherwise we don't know what the
-                    # user mention might be referring to)
-                    convert_user_mentions( \$token->[1], $opts )
-                        if $local_content && !$disable_user_conversion;
-
-                    # convert URLs back into actual HTML
+                    # Restore any auto-linked URLs as real HTML links
                     $token->[1] =~ s/&url(\d+);(.*?)&urlend;/<a href=\"$url{$1}\">$2<\/a>/g;
+                }
+            }
+
+            # convert user mentions, if we're in an appropriate context
+            if ( $auto_format || $formatting eq 'markdown' ) {
+                # Don't mangle links, code spans, code blocks, or things that
+                # act like code blocks. (Need to re-check some elements that
+                # were already checked for $auto_format, because Markdown
+                # content might have a few.)
+                if ( $local_content && !$disable_user_conversion && !$opencount{'a'} && !$opencount{'code'} && !$opencount{'pre'} && !$opencount{'textarea'} && !$opencount{'lj-raw'} ) {
+                    convert_user_mentions( \$token->[1], $opts );
                 }
             }
 
@@ -1588,6 +1599,9 @@ my $event_remove = [qw[ bgsound embed object link body meta noscript plaintext n
 my $userbio_eat    = $event_eat;
 my $userbio_remove = $event_remove;
 
+# An "event" is the body text of a journal entry. But this also gets called for
+# several unrelated things that LOOK a lot like journal entries, like FAQ items
+# and support requests.
 sub clean_event {
     my ( $ref, $opts ) = @_;
     return unless $$ref;    # nothing to do
@@ -1597,6 +1611,20 @@ sub clean_event {
     unless ( ref $opts eq "HASH" ) {
         $opts = { 'preformatted' => $opts };
     }
+
+    # Detect which formatting dialect to use.
+    # Formatting is specified with the `editor` prop.
+    my $editor = $opts->{editor};
+
+    # Old-style Markdown for journal entries: if the entry has a special
+    # !markdown prefix, remove it and switch to Markdown formatting. Only do
+    # this if `editor` isn't set; an explicit formatting request always wins.
+    if ( !$editor && $$ref =~ s/^\s*!markdown\s*\r?\n//s ) {
+        $editor = 'markdown';
+    }
+
+    # Default to 'html' if we still don't know.
+    $editor //= 'html';
 
     clean(
         $ref,
@@ -1631,7 +1659,7 @@ sub clean_event {
             journal                 => $opts->{journal},
             ditemid                 => $opts->{ditemid},
             errref                  => $opts->{errref},
-            formatting              => $opts->{editor} // 'html',
+            formatting              => $editor,
             local_content           => !( $opts->{is_syndicated} || $opts->{is_imported} ),
         }
     );
