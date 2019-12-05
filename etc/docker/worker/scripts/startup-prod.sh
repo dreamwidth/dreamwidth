@@ -9,4 +9,4 @@ perl -I$LJHOME/extlib/ $LJHOME/bin/checkconfig.pl || sleep infinity
 # Run whatever was passed as an argument.
 COMMAND="$1"
 shift
-$LJHOME/$COMMAND "$@" || sleep infinity
+exec $LJHOME/$COMMAND "$@"
