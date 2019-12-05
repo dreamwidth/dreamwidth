@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 25;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
@@ -43,15 +43,38 @@ is( $clean->('@system'), "<p>$lju_sys</p>", 'user tag in plain text converted' )
 is( $clean->('\@system'), '<p>@system</p>',
     'escaped user tag in plain text not converted, backslash removed' );
 
-# don't convert in html
+# don't convert user tags (or escaped user tags) in excluded HTML elements
+is( $clean->('<pre>@system</pre>'),
+    '<pre>@system</pre>', 'md: unescaped user tag is not converted within pre tag' );
+is( $clean->( '<pre>@system</pre>', editor => undef ),
+    '<pre>@system</pre>', 'html: unescaped user tag is not converted within pre tag' );
 is( $clean->('<pre>\@system</pre>'),
-    '<pre>\@system</pre>', 'user tag in plain text converted when escape character is escaped' );
+    '<pre>\@system</pre>', 'md: escaped user tag is not de-escaped within pre tag' );
+is( $clean->( '<pre>\@system</pre>', editor => undef ),
+    '<pre>\@system</pre>', 'html: escaped user tag is not de-escaped within pre tag' );
+is(
+    $clean->('inline `@system` code span'),
+    '<p>inline <code>@system</code> code span</p>',
+    'md: unescaped user tag is not converted within code tag'
+);
+is(
+    $clean->( '<textarea>@system</textarea>', editor => undef ),
+    '<textarea>@system</textarea>',
+    'html: unescaped user tag is not converted within textarea tag'
+);
 
 # plain URL containing user tag
 is(
     $clean->($url),
     '<p>https://medium.com/@username/title-of-page</p>',
     'user tag in URL not converted'
+);
+
+# plain URL containing user tag, with autolinks enabled
+is(
+    $clean->( $url, editor => undef, preformatted => 0, noautolinks => 0, wordlength => 80 ),
+'<a href="https://medium.com/@username/title-of-page">https://medium.com/@username/title-of-page</a>',
+    'user tag in auto-linked URL not converted'
 );
 
 # linked URL containing user tag
@@ -61,11 +84,11 @@ is(
     'user tag in href not converted, but user tag in link text converted (using de-linked form) []'
 );
 
-# HTML within Markdown is passed through undigested, but Markdown can build new tags around it.
+# HTML within Markdown is passed through, but Markdown can build new tags around it and user tags get processed
 is(
     $clean->(qq{<a href="$url">link from \@system</a>}),
     qq{<p><a href="$url">link from $lju_sys_no_link</a></p>},
-    'content is unconverted'
+    'user tags work the same in HTML-in-Markdown as in plain Markdown'
 );
 
 # Now validate that we only fire the cleaner in expected situations
