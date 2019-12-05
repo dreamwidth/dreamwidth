@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+#
+# bin/worker/dw-esn-process-sub
+#
+# DW style ESN subs processor.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2019 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use DW::TaskQueue;
+my $q = DW::TaskQueue->init( %LJ::SQS );
+$q->start_work( 'DW::Task::ESN::FindSubsByCluster' );

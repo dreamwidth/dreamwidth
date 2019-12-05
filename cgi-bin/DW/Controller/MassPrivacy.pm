@@ -163,7 +163,7 @@ sub editprivacy_handler {
         # User is sure they want to update posts
     }
     elsif ( $mode eq 'amsure' ) {
-        my $handle = LJ::MassPrivacy->enqueue_job(
+        my $rv = LJ::MassPrivacy->enqueue_job(
             'userid'     => $u->{userid},
             's_security' => $security{ $POST->{s_security} }[0],
             'e_security' => $security{ $POST->{e_security} }[0],
@@ -171,7 +171,7 @@ sub editprivacy_handler {
             'e_unixtime' => $POST->{e_unixtime}
         );
 
-        if ($handle) {
+        if ($rv) {
             $u->log_event(
                 'mass_privacy_change',
                 {

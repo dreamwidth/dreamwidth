@@ -16,6 +16,8 @@
 #
 
 use strict;
+use v5.10;
+
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
@@ -49,8 +51,6 @@ sub work {
     LJ::start_request();
     my $dbh = LJ::get_db_writer()
         or die "unable to get db handle\n";
-    my $sclient = LJ::theschwartz()
-        or die "unable to get TheSchwartz client\n";
 
     # find feeds that are ready to be checked
     my $rows = $dbh->selectcol_arrayref(
@@ -63,7 +63,7 @@ sub work {
 
     # iterate and schedule jobs
     foreach my $row ( @$rows ) {
-        my $rv = $sclient->insert( TheSchwartz::Job->new(
+        my $rv = DW::TaskQueue->dispatch( TheSchwartz::Job->new(
             funcname => 'DW::Worker::SynSuck',
             arg      => { userid => $row },
 

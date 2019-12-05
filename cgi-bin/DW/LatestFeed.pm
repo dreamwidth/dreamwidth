@@ -22,7 +22,11 @@
 #
 
 package DW::LatestFeed;
+
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 # time in seconds to hold events for.  until an event is this old, we will not
 # show it on any page.
@@ -40,15 +44,13 @@ sub new_item {
     my ( $class, $obj ) = @_;
     return unless $obj && ref $obj;
 
-    my $sclient = LJ::theschwartz() or return;
-
     # entries are [ journalid, jitemid ] which lets us get the LJ::Entry back
     if ( $obj->isa('LJ::Entry') ) {
         return
             unless $obj->journal->is_community
             || $obj->journal->is_individual;
 
-        $sclient->insert_jobs(
+        DW::TaskQueue->dispatch(
             TheSchwartz::Job->new_from_array(
                 'DW::Worker::LatestFeed',
                 {
@@ -63,7 +65,7 @@ sub new_item {
         # the object easily
     }
     elsif ( $obj->isa('LJ::Comment') ) {
-        $sclient->insert_jobs(
+        DW::TaskQueue->dispatch(
             TheSchwartz::Job->new_from_array(
                 'DW::Worker::LatestFeed',
                 {

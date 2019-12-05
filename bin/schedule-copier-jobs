@@ -17,6 +17,8 @@
 #
 
 use strict;
+use v5.10;
+
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
@@ -28,11 +30,9 @@ my $dbr = LJ::get_db_reader() or die;
 my $sth = $dbr->prepare( q{SELECT userid FROM user WHERE journaltype IN ('P','C')} );
 $sth->execute;
 
-my $sclient = LJ::theschwartz() or die;
-
 while ( my ( $userid ) = $sth->fetchrow_array ) {
     warn "Scheduling $userid ...\n";
-    $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+    DW::TaskQueue->dispatch( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
                 { userid => $userid, source => "schedule" } ) );
     select undef, undef, undef, 0.02;
 }

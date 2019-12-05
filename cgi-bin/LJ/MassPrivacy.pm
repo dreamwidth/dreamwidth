@@ -19,6 +19,10 @@ package LJ::MassPrivacy;
 #
 
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
 use Carp qw(croak);
 use DateTime;
 
@@ -54,12 +58,8 @@ sub enqueue_job {
         }
     }
 
-    my $sclient = LJ::theschwartz();
-    die "Unable to contact TheSchwartz!" unless $sclient;
-
-    my $shandle = $sclient->insert( "LJ::Worker::MassPrivacy", \%opts );
-
-    return $shandle;
+    return DW::TaskQueue->dispatch(
+        TheSchwartz::Job->new_from_array( "LJ::Worker::MassPrivacy", \%opts ) );
 }
 
 sub handle {

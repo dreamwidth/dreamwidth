@@ -1180,7 +1180,6 @@ sub schedule_xposts {
     return unless $fn && ref $fn eq 'CODE';
 
     my ( @successes, @failures );
-    my $sclient  = LJ::theschwartz() or return;
     my @accounts = DW::External::Account->get_external_accounts($u);
 
     foreach my $acct (@accounts) {
@@ -1195,13 +1194,9 @@ sub schedule_xposts {
             %{$info}
         };
 
-        my $job = TheSchwartz::Job->new_from_array( 'DW::Worker::XPostWorker', $jobargs );
-        if ( $job && $sclient->insert($job) ) {
-            push @successes, $acct;
-        }
-        else {
-            push @failures, $acct;
-        }
+        DW::TaskQueue->dispatch(
+            TheSchwartz::Job->new_from_array( 'DW::Worker::XPostWorker', $jobargs ) );
+        push @successes, $acct;
     }
 
     return ( \@successes, \@failures );
@@ -1794,8 +1789,8 @@ sub postevent {
     # if the caller told us not to fire events (importer?) then skip the user events,
     # but still fire the logging events
     unless ( $flags->{nonotify} ) {
-        push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
-        push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;
+        push @jobs, LJ::Event::JournalNewEntry->new($entry);
+        push @jobs, LJ::Event::OfficialPost->new($entry) if $uowner->is_official;
 
         # latest posts feed update
         DW::LatestFeed->new_item($entry);
@@ -1808,12 +1803,7 @@ sub postevent {
             { userid => $uowner->id, jitemid => $jitemid, source => "entrynew" } );
     }
 
-    my $sclient = LJ::theschwartz();
-    if ( $sclient && @jobs ) {
-        my @handles = $sclient->insert_jobs(@jobs);
-
-        # TODO: error on failure?  depends on the job I suppose?  property of the job?
-    }
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
 
     # To minimize impact on legacy code, let's make sure the entry object in
     # memory has been populated with data. Easiest way to do that is to call
@@ -2286,24 +2276,14 @@ sub editevent {
         [ 'journal_type:' . $uowner->journaltype_readable ] );
 
     # fired to copy the post over to the Sphinx search database
-    if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
-        $sclient->insert_jobs(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier',
-                { userid => $ownerid, jitemid => $itemid, source => "entryedt" }
-            )
-        );
-    }
-
     my @jobs;
-    LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );
-
-    my $sclient = LJ::theschwartz();
-    if ( $sclient && @jobs ) {
-        my @handles = $sclient->insert_jobs(@jobs);
-
-        # TODO: error on failure?  depends on the job I suppose?  property of the job?
+    if (@LJ::SPHINX_SEARCHD) {
+        push @jobs,
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            { userid => $ownerid, jitemid => $itemid, source => "entryedt" } );
     }
+    LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
 
     # ensure our xposted edit fires
     $schedule_xposts->();

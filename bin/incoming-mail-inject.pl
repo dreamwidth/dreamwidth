@@ -23,9 +23,6 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5 qw/ md5_hex /;
-use DW::BlobStore;
-
-my $sclient = LJ::theschwartz() or die "No schwartz config.\n";
 
 my $tempfail = sub {
     my $msg = shift;
@@ -73,7 +70,7 @@ if ( $len > IN_MEMORY_THRES ) {
     $msg = "ie:$md5";
 }
 
-my $h = $sclient->insert(
+my $h = DW::TaskQueue->dispatch(
     TheSchwartz::Job->new(
         funcname => "LJ::Worker::IncomingEmail",
         arg      => $msg,

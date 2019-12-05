@@ -18,7 +18,12 @@
 #
 
 package LJ::Entry;
+
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
 our $AUTOLOAD;
 use Carp qw/ croak confess /;
 
@@ -2345,17 +2350,18 @@ sub delete_entry {
 
     # if this is running the second time (started by the cmd buffer),
     # the log2 row will already be gone and we shouldn't check for it.
-    my $sclient = $quick ? LJ::theschwartz() : undef;
-    if ( $quick && $sclient ) {
+    if ($quick) {
         return 1 if $dc < 1;    # already deleted?
         return 1
-            if $sclient->insert(
-            "LJ::Worker::DeleteEntry",
-            {
-                uid     => $jid,
-                jitemid => $jitemid,
-                anum    => $anum,
-            }
+            if DW::TaskQueue->dispatch(
+            TheSchwartz::Job->new_from_array(
+                "LJ::Worker::DeleteEntry",
+                {
+                    uid     => $jid,
+                    jitemid => $jitemid,
+                    anum    => $anum,
+                }
+            )
             );
         return 0;
     }
@@ -2373,8 +2379,8 @@ sub delete_entry {
     LJ::delete_all_comments( $u, 'L', $jitemid );
 
     # fired to delete the post from the Sphinx search database
-    if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
-        $sclient->insert_jobs(
+    if (@LJ::SPHINX_SEARCHD) {
+        DW::TaskQueue->dispatch(
             TheSchwartz::Job->new_from_array(
                 'DW::Worker::Sphinx::Copier',
                 { userid => $u->id, jitemid => $jitemid, source => "entrydel" }

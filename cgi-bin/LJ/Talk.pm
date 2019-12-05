@@ -12,22 +12,25 @@
 # part of this distribution.
 
 package LJ::Talk;
+
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use MIME::Words;
 use MIME::Lite;
-use Carp qw(croak);
+use Carp qw/ croak /;
 
-use LJ::Global::Constants;
+use DW::Captcha;
+use DW::EmailPost::Comment;
+use LJ::Comment;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;
-use LJ::Comment;
+use LJ::Global::Constants;
+use LJ::JSON;
 use LJ::OpenID;
 use LJ::S2;
-use DW::Captcha;
-use LJ::JSON;
-
-use DW::EmailPost::Comment;
 
 # dataversion for rate limit logging
 our $RATE_DATAVER = "1";
@@ -2507,22 +2510,18 @@ sub enter_comment {
     LJ::Talk::update_commentalter( $journalu, $itemid );
 
     # fire events
-    if ( my $sclient = LJ::theschwartz() ) {
-        my @jobs;
+    my @jobs;
 
-        if ( LJ::is_enabled('esn') ) {
-            my $cmtobj = LJ::Comment->new( $journalu, jtalkid => $jtalkid );
-            push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
-        }
+    push @jobs,
+        LJ::Event::JournalNewComment->new( LJ::Comment->new( $journalu, jtalkid => $jtalkid ) );
 
-        if (@LJ::SPHINX_SEARCHD) {
-            push @jobs,
-                TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
-                { userid => $journalu->id, jtalkid => $jtalkid, source => "commtnew" } );
-        }
-
-        $sclient->insert_jobs(@jobs);
+    if (@LJ::SPHINX_SEARCHD) {
+        push @jobs,
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            { userid => $journalu->id, jtalkid => $jtalkid, source => "commtnew" } );
     }
+
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
 
     return $jtalkid;
 }
@@ -3390,21 +3389,17 @@ sub edit_comment {
     LJ::mark_user_active( $pu, 'comment' );
 
     # fire events
-    if ( my $sclient = LJ::theschwartz() ) {
-        my @jobs;
+    my @jobs;
 
-        if ( LJ::is_enabled('esn') ) {
-            push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj)->fire_job;
-        }
+    push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj);
 
-        if (@LJ::SPHINX_SEARCHD) {
-            push @jobs,
-                TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
-                { userid => $journalu->id, jtalkid => $comment->{talkid}, source => "commtedt" } );
-        }
-
-        $sclient->insert_jobs(@jobs);
+    if (@LJ::SPHINX_SEARCHD) {
+        push @jobs,
+            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            { userid => $journalu->id, jtalkid => $comment->{talkid}, source => "commtedt" } );
     }
+
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
 
     DW::Stats::increment(
         'dw.action.comment.edit',

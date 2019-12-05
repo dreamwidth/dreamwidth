@@ -40,7 +40,7 @@ sub init {
 
     my $credentials = Paws::Credential::InstanceProfile->new;
     if ( defined $args{access_key} && defined $args{secret_key} ) {
-        $log->warning('Using INSECURE AWS configuration!');
+        $log->warn('Using INSECURE AWS configuration!');
         $credentials = Paws::Credential::Local->new(
             access_key => $args{access_key},
             secret_key => $args{secret_key},

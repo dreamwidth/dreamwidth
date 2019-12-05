@@ -127,6 +127,8 @@ use LJ::Global::Secrets;    # defines LJ::Secrets
 use DW::Media;
 use DW::Stats;
 use DW::Proxy;
+use DW::TaskQueue;
+use DW::BlobStore;
 
 $Net::HTTPS::SSL_SOCKET_CLASS = "IO::Socket::SSL";
 

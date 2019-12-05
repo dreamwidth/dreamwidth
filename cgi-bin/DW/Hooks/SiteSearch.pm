@@ -81,10 +81,8 @@ LJ::Hooks::register_hook(
     sub {
         my ($u) = @_;
 
-        my $sclient = LJ::theschwartz() or die;
-
        # queue up a copier job, which will notice that the entries by this user have been deleted...
-        $sclient->insert_jobs(
+        DW::TaskQueue->dispatch(
             TheSchwartz::Job->new_from_array(
                 'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "purghook" }
             )
