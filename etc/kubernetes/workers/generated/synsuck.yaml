@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: worker-synsuck
+      annotations:
+        ad.datadoghq.com/worker-synsuck.logs: '[{"source":"worker","service":"synsuck"}]'
     spec:
       containers:
       - image: 194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/worker:latest

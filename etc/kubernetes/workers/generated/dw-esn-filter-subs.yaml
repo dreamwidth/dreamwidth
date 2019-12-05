@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: worker-dw-esn-filter-subs
+      annotations:
+        ad.datadoghq.com/worker-dw-esn-filter-subs.logs: '[{"source":"worker","service":"dw-esn-filter-subs"}]'
     spec:
       containers:
       - image: 194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/worker:latest

@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: worker-$WORKER
+      annotations:
+        ad.datadoghq.com/worker-$WORKER.logs: '[{"source":"worker","service":"$WORKER"}]'
     spec:
       containers:
       - image: 194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/worker:latest

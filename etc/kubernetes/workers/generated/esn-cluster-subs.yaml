@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: worker-esn-cluster-subs
+      annotations:
+        ad.datadoghq.com/worker-esn-cluster-subs.logs: '[{"source":"worker","service":"esn-cluster-subs"}]'
     spec:
       containers:
       - image: 194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/worker:latest

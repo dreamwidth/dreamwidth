@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: worker-send-email-ses
+      annotations:
+        ad.datadoghq.com/worker-send-email-ses.logs: '[{"source":"worker","service":"send-email-ses"}]'
     spec:
       containers:
       - image: 194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/worker:latest
