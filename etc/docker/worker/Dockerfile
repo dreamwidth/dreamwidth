@@ -29,7 +29,6 @@ RUN git -C $LJHOME fetch && \
 
 # Copy in support scripts/configurations that are useful.
 ADD scripts/ /opt/
-ADD config/ /dw/ext/local
 
 # Setup script that runs to make sure we get configs in the right place and do any
 # last minute configuration.
