@@ -628,7 +628,14 @@ TOKEN:
                     : exists $attr->{comm} ? $attr->{comm}
                     :                        undef;
 
-                $newdata .= user_link_html( $user, $attr->{site}, $opts );
+                if ( $opencount{'a'} ) {
+                    $opts->{delink_user_links} = 1;
+                    $newdata .= user_link_html( $user, $attr->{site}, $opts );
+                    $opts->{delink_user_links} = 0;
+                }
+                else {
+                    $newdata .= user_link_html( $user, $attr->{site}, $opts );
+                }
             }
             elsif ( $tag eq "lj-raw" ) {
 
@@ -1260,12 +1267,27 @@ TOKEN:
 
             # convert user mentions, if we're in an appropriate context
             if ( $auto_format || $formatting eq 'markdown' ) {
-                # Don't mangle links, code spans, code blocks, or things that
-                # act like code blocks. (Need to re-check some elements that
-                # were already checked for $auto_format, because Markdown
-                # content might have a few.)
-                if ( $local_content && !$disable_user_conversion && !$opencount{'a'} && !$opencount{'code'} && !$opencount{'pre'} && !$opencount{'textarea'} && !$opencount{'lj-raw'} ) {
-                    convert_user_mentions( \$token->[1], $opts );
+
+                # Don't mangle code spans, code blocks, or things that act like
+                # code blocks. (This re-checks some elements that were already
+                # checked for $auto_format, because Markdown content might have
+                # a few.)
+                if (   $local_content
+                    && !$disable_user_conversion
+                    && !$opencount{'code'}
+                    && !$opencount{'pre'}
+                    && !$opencount{'textarea'}
+                    && !$opencount{'lj-raw'} )
+                {
+                    # Special no-link user tag if we're already inside another link
+                    if ( $opencount{'a'} ) {
+                        $opts->{delink_user_links} = 1;
+                        convert_user_mentions( \$token->[1], $opts );
+                        $opts->{delink_user_links} = 0;
+                    }
+                    else {
+                        convert_user_mentions( \$token->[1], $opts );
+                    }
                 }
             }
 
@@ -1900,7 +1922,10 @@ sub user_link_html {
                 return $user;
             }
             else {
-                return $ext_u->ljuser_display( no_ljuser_class => $opts->{to_external_site} );
+                return $ext_u->ljuser_display(
+                    no_ljuser_class => $opts->{to_external_site},
+                    no_link         => $opts->{delink_user_links}
+                );
             }
 
             # if we hit the else, then we know that this user doesn't appear
@@ -1921,11 +1946,22 @@ sub user_link_html {
                 return $u->display_name;
             }
             else {
-                return $u->ljuser_display( { no_ljuser_class => $opts->{to_external_site} } );
+                return $u->ljuser_display(
+                    {
+                        no_ljuser_class => $opts->{to_external_site},
+                        no_link         => $opts->{delink_user_links}
+                    }
+                );
             }
         }
         elsif ( my $username = LJ::canonical_username($user) ) {
-            return LJ::ljuser( $user, { no_ljuser_class => $opts->{to_external_site} } );
+            return LJ::ljuser(
+                $user,
+                {
+                    no_ljuser_class => $opts->{to_external_site},
+                    no_link         => $opts->{delink_user_links}
+                }
+            );
         }
         else {
             $user = LJ::no_utf8_flag($user);
