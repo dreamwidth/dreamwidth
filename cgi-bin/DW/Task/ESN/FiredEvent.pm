@@ -101,6 +101,12 @@ sub work {
             sprintf( 'Fast path: exploding job into %d processing jobs.', scalar(@subjobs) ) );
     }
 
+    # And if those subscriptions didn't turn into actual jobs, nothing to do
+    unless (@subjobs) {
+        $log->debug('No notification jobs found for subscriptions.');
+        return DW::Task::COMPLETED;
+    }
+
     return DW::Task::FAILED
         unless DW::TaskQueue->send(@subjobs);
     return DW::Task::COMPLETED;
