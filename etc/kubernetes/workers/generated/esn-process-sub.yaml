@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-esn-process-sub
 spec:
-  replicas: 50
+  replicas: 10
   selector:
     matchLabels:
       app: worker-esn-process-sub
@@ -46,8 +46,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: worker-esn-process-sub
-  minReplicas: 50
-  maxReplicas: 100
+  minReplicas: 10
+  maxReplicas: 50
   metrics:
   - type: Resource
     resource:
