@@ -21,10 +21,12 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+# use Coro;
 use MIME::Base64;
 use Paws;
 use Paws::Credential::InstanceProfile;
 use Storable qw/ nfreeze thaw /;
+use Time::HiRes qw/ time /;
 use UUID::Tiny qw/ :std /;
 
 use DW::Task;
@@ -84,7 +86,7 @@ sub _get_queue_for_task {
     $queue_name =~ s/::/-/g;
     $queue_name = $self->{prefix} . $queue_name;
 
-    return $self->{queues}->{$queue_name}
+    return ( $queue_name, $self->{queues}->{$queue_name} )
         if exists $self->{queues}->{$queue_name};
 
     my $res = eval { $self->{sqs}->GetQueueUrl( QueueName => $queue_name ) };
@@ -94,17 +96,17 @@ sub _get_queue_for_task {
         $res = eval { $self->{sqs}->CreateQueue( QueueName => $queue_name ) };
         if ( $@ && $@->isa('Paws::Exception') ) {
             $log->error( "Failed to create queue $queue_name: " . $@->message );
-            return undef;
+            return;
         }
 
         $res = eval { $self->{sqs}->GetQueueUrl( QueueName => $queue_name ) };
         if ( $@ && $@->isa('Paws::Exception') ) {
             $log->error( "Failed to get queue $queue_name after creating: " . $@->message );
-            return undef;
+            return;
         }
     }
 
-    return $self->{queues}->{$queue_name} = $res->QueueUrl;
+    return ( $queue_name, $self->{queues}->{$queue_name} = $res->QueueUrl );
 }
 
 sub dispatch {
@@ -174,24 +176,35 @@ sub send {
 
     $self = $self->get unless ref $self;
 
-    my $queue = $self->_get_queue_for_task( $tasks[0] )
+    my ( $queue_name, $queue_url ) = $self->_get_queue_for_task( $tasks[0] )
         or return undef;
+
+    my $tags = [ 'queue:' . $queue_name ];
+    DW::Stats::increment( 'dw.taskqueue.action.send_attempt', scalar(@tasks), $tags );
 
     # Send batches of messages, limited by count or size
     my @messages;
-    my $sent_bytes = 0;
+    my ( $sent_bytes, $ctr ) = ( 0, 0 );
 
     my $send = sub {
-        $log->debug( 'Sending ', length(@messages), ' messages: ', $sent_bytes, ' bytes.' );
+        $log->debug( 'Sending ', scalar(@messages), ' messages: ', $sent_bytes,
+            ' bytes to queue: ', $queue_name );
         my $res =
-            eval { $self->{sqs}->SendMessageBatch( QueueUrl => $queue, Entries => \@messages ) };
+            eval { $self->{sqs}->SendMessageBatch( QueueUrl => $queue_url, Entries => \@messages ) };
         if ( $@ && $@->isa('Paws::Exception') ) {
-            $log->error( 'Failed to send SQS message batch: ' . $@->message );
+            $log->error( 'Failed to send SQS message batch: ', $@->message );
+            DW::Stats::increment( 'dw.taskqueue.action.send_error', scalar(@messages), $tags );
             return undef;
+        }
+        else {
+            $log->debug( 'Successfully sent ', scalar(@messages), ' messages.' );
+            DW::Stats::increment( 'dw.taskqueue.action.send_ok', scalar(@messages), $tags );
+            DW::Stats::increment( 'dw.taskqueue.sent_messages',  scalar(@tasks),    $tags );
         }
 
         @messages   = ();
         $sent_bytes = 0;
+        return 1;
     };
 
     foreach my $task (@tasks) {
@@ -210,7 +223,7 @@ sub send {
 
         # Safe to append this messages
         $sent_bytes += length $body;
-        push @messages, { Id => 'id-' . $sent_bytes, MessageBody => $body };
+        push @messages, { Id => 'id-' . $ctr++, MessageBody => $body };
     }
 
     # If there are any messages left send them
@@ -218,7 +231,9 @@ sub send {
         $send->() or return undef;
     }
 
-    return $sent_bytes > 0 ? 1 : undef;
+    # If any messages had failed, we would have early returned elsewhere when a
+    # call to $send failed
+    return 1;
 }
 
 sub _offload_large_message_if_necessary {
@@ -231,9 +246,11 @@ sub _offload_large_message_if_necessary {
     my $rv   = DW::BlobStore->store( tasks => $uuid, \$message );
     unless ($rv) {
         $log->error('Failed to offload task to BlobStore!');
+        DW::Stats::increment( 'dw.taskqueue.action.send_offload_error', 1 );
         return undef;
     }
 
+    DW::Stats::increment( 'dw.taskqueue.action.send_offload_ok', 1 );
     return 'offloaded:' . $uuid;
 }
 
@@ -247,9 +264,11 @@ sub _reload_large_message_if_necessary {
     my $rv = DW::BlobStore->retrieve( tasks => $uuid );
     unless ($rv) {
         $log->error( 'Failed to reload task from BlobStore: ' . $uuid );
+        DW::Stats::increment( 'dw.taskqueue.action.send_reload_error', 1 );
         return undef;
     }
 
+    DW::Stats::increment( 'dw.taskqueue.action.send_reload_ok', 1 );
     return $$rv;
 }
 
@@ -259,25 +278,33 @@ sub receive {
 
     $self = $self->get unless ref $self;
 
-    my $queue = $self->_get_queue_for_task($class)
+    my ( $queue_name, $queue_url ) = $self->_get_queue_for_task($class)
         or return undef;
+
+    my $tags = [ 'queue:' . $queue_name ];
+    DW::Stats::increment( 'dw.taskqueue.action.receive_attempt', 1, $tags );
 
     my $res = eval {
         $self->{sqs}->ReceiveMessage(
-            QueueUrl            => $queue,
+            QueueUrl            => $queue_url,
             MaxNumberOfMessages => $count,
             WaitTimeSeconds     => 10
         );
     };
     if ( $@ && $@->isa('Paws::Exception') ) {
         $log->warn( 'Failed to retrieve SQS messages: ' . $@->message );
+        DW::Stats::increment( 'dw.taskqueue.action.receive_error', 1, $tags );
         return undef;
     }
 
     my $messages = $res->Messages;
-    return undef
-        unless $messages && ref $messages eq 'ARRAY' && length @$messages >= 1;
+    unless ( $messages && ref $messages eq 'ARRAY' && length @$messages >= 1 ) {
+        DW::Stats::increment( 'dw.taskqueue.action.receive_empty', 1, $tags );
+        return undef;
+    }
 
+    DW::Stats::increment( 'dw.taskqueue.action.receive_ok', 1, $tags );
+    DW::Stats::increment( 'dw.taskqueue.received_messages', scalar(@$messages), $tags );
     $messages = [
         map {
             [
@@ -295,22 +322,29 @@ sub completed {
 
     $self = $self->get unless ref $self;
 
-    my $queue = $self->_get_queue_for_task($class)
+    my ( $queue_name, $queue_url ) = $self->_get_queue_for_task($class)
         or return undef;
+
+    my $tags = [ 'queue:' . $queue_name ];
+    DW::Stats::increment( 'dw.taskqueue.action.completed_attempt', 1, $tags );
 
     my $res = eval {
         my $idx = 0;
         $self->{sqs}->DeleteMessageBatch(
-            QueueUrl => $queue,
+            QueueUrl => $queue_url,
             Entries  => [ map { { Id => $idx++, ReceiptHandle => $_ } } @handles ]
         );
     };
     if ( $@ && $@->isa('Paws::Exception') ) {
-        $log->warn( 'Failed to delete message batch: ' . $@->message );
+        $log->warn( 'Failed to delete message batch: ', $@->message );
+        DW::Stats::increment( 'dw.taskqueue.action.completed_error', 1, $tags );
+        return undef;
     }
 
     # TODO: We could return information about which messages failed to complete,
     # and then do something else with them, but not sure what to do yet.
+    DW::Stats::increment( 'dw.taskqueue.action.completed_ok', 1, $tags );
+    DW::Stats::increment( 'dw.taskqueue.completed_messages', scalar(@handles), $tags );
 }
 
 sub start_work {
@@ -320,26 +354,81 @@ sub start_work {
 
     eval "use $class;";
 
-    while (1) {
-        my @completed;
-        my $messages = $self->receive( $class, 10 );
+    my $start_time = time();
 
-        $log->warn( 'Got ' . scalar(@$messages) . ' messages for task: ' . $class );
+    # Turn on coroutines for MySQL so that our database handles will
+    # activate the scheduler for us
+    # $LJ::ENABLE_CORO_MYSQL = 1;
+
+    while (1) {
+        my $recv_start_time = time();
+        my $messages        = $self->receive( $class, 10 );
+        my $recv_time       = time() - $recv_start_time;
+
+        unless (@$messages) {
+            $log->debug( sprintf( '[%s %0.3fs] Receive finished, empty', $class, $recv_time ) );
+            next;
+        }
+
+        $log->debug(
+            sprintf(
+                '[%s %0.3fs] Receive finished, %d messages',
+                $class, $recv_time, scalar(@$messages)
+            )
+        );
+
+        my ( @completed, @failed );
+        my ( $work_start_time, $work_end_time, @coros );
         foreach my $message_pair (@$messages) {
             my ( $handle, $message ) = @$message_pair;
+
+            #push @coros, async {
+
+            # Record earliest start time of any coroutine
+            my $local_start_time = time();
+            $work_start_time = $local_start_time
+                if $local_start_time < $work_start_time || !defined $work_start_time;
+
             my $res = $message->work;
+
+            # Record latest end time of any coroutine
+            my $local_end_time = time();
+            $work_end_time = $local_end_time
+                if $local_end_time > $work_end_time || !defined $work_end_time;
+
             if ( $res == DW::Task::COMPLETED ) {
                 push @completed, $handle;
             }
             else {
-                $log->warn( 'Message failed to complete: ' . $handle . ' (' . $class . ')' );
+                $log->warn( sprintf( '[%s] Message "%s" failed', $class, $handle ) );
+                push @failed, $handle;
             }
+
+            #};
         }
 
-        if (@completed) {
-            $log->warn( 'Completing ' . scalar(@completed) . ' messages for task: ' . $class );
-            $self->completed( $class, @completed );
-        }
+        # Wait for all coroutines to have finished and exited
+        #$_->join foreach @coros;
+
+        $log->debug(
+            sprintf(
+                '[%s %0.3fs] Processed %d messages (%d failed)',
+                $class, $work_end_time - $work_start_time,
+                scalar(@$messages), scalar(@failed)
+            )
+        );
+        next unless @completed;
+
+        my $complete_start_time = time();
+        $self->completed( $class, @completed );
+        my $complete_time = time() - $complete_start_time;
+
+        $log->debug(
+            sprintf(
+                '[%s %0.3fs] Marked %d messages complete',
+                $class, $complete_time, scalar(@completed)
+            )
+        );
     }
 }
 

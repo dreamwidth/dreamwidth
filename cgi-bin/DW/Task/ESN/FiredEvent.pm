@@ -33,8 +33,13 @@ sub work {
     my $self = $_[0];
     my $a    = $self->args;
 
-    my $evt = eval { LJ::Event->new_from_raw_params(@$a) }
-        or return DW::Task::FAILED;
+    my $evt = eval { LJ::Event->new_from_raw_params(@$a) };
+    unless ($evt) {
+        $log->error( 'Failed to load event from raw params: ', join( ', ', @$a ) );
+        return DW::Task::FAILED;
+    }
+
+    $log->debug( 'Processing event from raw params: ', join( ', ', @$a ) );
 
     # step 1:  see if we can split this into a bunch of ProcessSub directly.
     # we can only do this if A) all clusters are up, and B) subs is reasonably
@@ -49,6 +54,7 @@ sub work {
             );
         };
         if ($@) {
+            $log->debug( 'Failed scanning for subscriptions from cluster: ', $cid );
 
             # if there were errors (say, the cluster is down), abort!
             # that is, abort the fast path and we'll resort to
@@ -57,28 +63,46 @@ sub work {
             last;
         }
 
+        $log->debug(
+            sprintf( 'Found %d subscriptions from cluster %d.', scalar(@more_subs), $cid ) );
+
         push @subs, @more_subs;
         if ( @subs > $LJ::ESN::MAX_FILTER_SET ) {
             $split_per_cluster = "hit_max";
-            warn "Hit max!  over $LJ::ESN::MAX_FILTER_SET = @subs\n" if $ENV{DEBUG};
             last;
         }
     }
 
+    # If there are no subscriptions, exit now
+    unless (@subs) {
+        $log->debug('No subscriptions found for event.');
+        return DW::Task::COMPLETED;
+    }
+
     # this is the slow/safe/on-error/lots-of-subscribers path
+    my @subjobs;
     if ($split_per_cluster) {
-        my @subjobs;
         my $params = $evt->raw_params;
         foreach my $cid (@LJ::CLUSTERS) {
             push @subjobs, DW::Task::ESN::FindSubsByCluster->new( $cid, $params );
         }
-        DW::TaskQueue->get->send(@subjobs);
-        return DW::Task::COMPLETED;
+        $log->debug(
+            sprintf(
+                'Slow path: exploding job into %d cluster scan jobs because: %s',
+                scalar(@subjobs), $split_per_cluster
+            )
+        );
+    }
+    else {
+        # the fast path, filter those max 5,000 subscriptions down to ones that match,
+        # then split right into processing those notification methods
+        @subjobs = LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs );
+        $log->debug(
+            sprintf( 'Fast path: exploding job into %d processing jobs.', scalar(@subjobs) ) );
     }
 
-    # the fast path, filter those max 5,000 subscriptions down to ones that match,
-    # then split right into processing those notification methods
-    DW::TaskQueue->get->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) );
+    return DW::Task::FAILED
+        unless DW::TaskQueue->send(@subjobs);
     return DW::Task::COMPLETED;
 }
 

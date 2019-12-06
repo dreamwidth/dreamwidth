@@ -29,7 +29,10 @@ sub work {
     my $self = $_[0];
     my $a    = $self->args;
     my ( $userid, $subid, $eparams ) = @$a;
-    my $u     = LJ::load_userid($userid);
+    my $u = LJ::load_userid($userid);
+
+    $log->debug( 'Processing event for user: ', $u->user, '(', $u->id, ') subscription ', $subid );
+
     my $evt   = LJ::Event->new_from_raw_params(@$eparams);
     my $subsc = $evt->get_subscriptions( $u, $subid );
 
