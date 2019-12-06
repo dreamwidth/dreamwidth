@@ -330,10 +330,7 @@ sub format_mail {
 
     # use markdown to format from text to HTML
     my $html = $text;
-    my $opts = {};
-    LJ::CleanHTML::clean_as_markdown( \$html, $opts );
-
-    # run this cleaner to convert any user tags that turn up post-markdown
+    my $opts = { editor => 'markdown' };
     LJ::CleanHTML::clean_event( \$html, $opts );
 
 # use plaintext as-is, but look for "[links like these](url)", and change them to "links like these (url)"
