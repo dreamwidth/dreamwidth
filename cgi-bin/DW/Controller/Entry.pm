@@ -1408,11 +1408,15 @@ sub preview_handler {
     # the cleaner won't eat
     LJ::EmbedModule->parse_module_embed( $u, \$event, preview => 1 );
 
+    # TODO: get prop_editor from the form (not currently being set)
+    my $editor = undef;
+
     # clean content normally
     LJ::CleanHTML::clean_event(
         \$event,
         {
             preformatted => $form_req->{props}->{opt_preformatted},
+            editor       => $editor,
         }
     );
 
