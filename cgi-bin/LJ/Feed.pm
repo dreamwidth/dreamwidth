@@ -233,6 +233,7 @@ ENTRY:
                     preformatted     => $logprops{$itemid}->{opt_preformatted},
                     cuturl           => $u->{opt_synlevel} eq 'cut' ? $entry_url : "",
                     to_external_site => 1,
+                    editor           => $logprops{$itemid}->{editor},
                 }
             );
 
