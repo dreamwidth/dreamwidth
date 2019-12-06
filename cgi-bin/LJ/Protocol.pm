@@ -1652,7 +1652,10 @@ sub postevent {
     # warn the user of any bad markup errors
     my $clean_event = $event;
     my $errref;
-    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref } );
+
+    # TODO: accept editor prop and thread it through to the cleaner.
+    my $editor = undef;
+    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref, editor => $editor } );
     $res->{message} = translate(
         $u, $errref,
         {
@@ -2024,6 +2027,7 @@ sub editevent {
     }
 
     ## handle meta-data (properties)
+    # FIXME: Hey... I think this just throws the changed props away???? -NF
     my %props_byname = ();
     foreach my $key ( keys %{ $req->{'props'} } ) {
         ## changing to something else?
@@ -2168,7 +2172,11 @@ sub editevent {
 
     my $clean_event = $event;
     my $errref;
-    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref } );
+
+    # TODO: get editor prop from the new props (or current, if unchanged) and
+    # thread it through to the cleaner.
+    my $editor = undef;
+    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref, editor => $editor } );
     $add_message->(
         translate(
             $u, $errref,
