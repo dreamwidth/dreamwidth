@@ -113,6 +113,7 @@ sub event {
         \$event,
         {
             preformatted => $raw_data->{props}->{opt_preformatted},
+            editor       => $raw_data->{props}->{editor},
             cutpreview   => 1,
             cuturl       => '#',
         }
