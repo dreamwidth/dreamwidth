@@ -27,6 +27,11 @@ spec:
         - name: config
           mountPath: /dw/etc
           readOnly: true
+        env:
+        - name: DOGSTATSD_HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
       volumes:
       - name: config
         secret:
