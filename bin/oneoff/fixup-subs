@@ -1,0 +1,61 @@
+#!/usr/bin/perl
+#
+# Written to clean out extraneous subscriptions after user migrations.
+# Should be safe to run, but we shouldn't need to again. Committed for
+# posterity.
+#
+
+use v5.10;
+use strict;
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use Data::Dumper qw/ Dumper /;
+
+my $dbr = LJ::get_db_reader();
+my $sth = $dbr->prepare( 'SELECT userid, clusterid FROM user ORDER BY userid');
+$sth->execute or die;
+
+my %users;
+my $ct = 0;
+
+my $process = sub {
+    # For each cluster, get the list of people who are NOT on it
+    foreach my $target_cid ( @LJ::CLUSTERS ) {
+        my @userids;
+        foreach my $test_cid ( @LJ::CLUSTERS ) {
+            next if $test_cid == $target_cid;
+
+            push @userids, @{$users{$test_cid} || []};
+        }
+        next unless @userids;
+
+        my $userid_str = join ',', @userids;
+        my $dbcm = LJ::get_cluster_master( $target_cid ) or die;
+        my $subs = $dbcm->selectall_arrayref(
+            qq{SELECT userid, subid, is_dirty, journalid, etypeid, arg1, arg2,
+                      ntypeid, createtime, expiretime, flags
+               FROM subs WHERE userid IN ($userid_str)} );
+        if ( $subs && @$subs ) {
+            foreach my $sub ( @$subs ) {
+                print "/* $target_cid */ " . join(',', @$sub) . "\n";
+            }
+
+            print "/* Deleting... */\n";
+            $dbcm->do( qq{/* [$target_cid] */ DELETE FROM subs WHERE userid IN ($userid_str)} )
+                or die;
+        }
+    }
+
+    $ct = 0;
+    %users = ();
+};
+
+while ( my ( $uid, $cid ) = $sth->fetchrow_array ) {
+    push @{$users{$cid} ||= []}, $uid;
+    next unless ++$ct == 100;
+
+    $process->();
+}
+$process->();
