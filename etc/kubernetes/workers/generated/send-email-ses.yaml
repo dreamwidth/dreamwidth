@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-send-email-ses
 spec:
-  replicas: 50
+  replicas: 40
   selector:
     matchLabels:
       app: worker-send-email-ses
@@ -46,7 +46,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: worker-send-email-ses
-  minReplicas: 50
+  minReplicas: 40
   maxReplicas: 100
   metrics:
   - type: Resource

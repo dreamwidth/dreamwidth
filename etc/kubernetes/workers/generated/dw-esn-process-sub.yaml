@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-dw-esn-process-sub
 spec:
-  replicas: 10
+  replicas: 3
   selector:
     matchLabels:
       app: worker-dw-esn-process-sub
@@ -21,7 +21,7 @@ spec:
         args: ["/opt/startup-prod.sh", "bin/worker/dw-esn-process-sub", "-v"]
         resources:
           requests:
-            cpu: 50m
+            cpu: 300m
             memory: 300M
         volumeMounts:
         - name: config
@@ -46,7 +46,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: worker-dw-esn-process-sub
-  minReplicas: 10
+  minReplicas: 3
   maxReplicas: 50
   metrics:
   - type: Resource

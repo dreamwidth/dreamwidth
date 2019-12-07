@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-dw-esn-fired-event
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: worker-dw-esn-fired-event
@@ -21,7 +21,7 @@ spec:
         args: ["/opt/startup-prod.sh", "bin/worker/dw-esn-fired-event", "-v"]
         resources:
           requests:
-            cpu: 100m
+            cpu: 300m
             memory: 300M
         volumeMounts:
         - name: config
@@ -46,7 +46,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: worker-dw-esn-fired-event
-  minReplicas: 5
+  minReplicas: 3
   maxReplicas: 20
   metrics:
   - type: Resource

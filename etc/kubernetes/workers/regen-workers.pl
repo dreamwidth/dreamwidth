@@ -4,17 +4,26 @@ use strict;
 use v5.10;
 
 my %workers = (
-    # Name                MinCt, MaxCt, Memory, MilliCpu, TgtCpu
-    'esn-cluster-subs'    => [    2,    20,  '300M',  '100m',   100  ],
-    'dw-esn-cluster-subs' => [    5,    20,  '300M',  '100m',   100  ],
-    'esn-filter-subs'     => [    2,    20,  '300M',  '300m',   100  ],
-    'dw-esn-filter-subs'  => [    5,    20,  '300M',  '300m',   100  ],
-    'esn-fired-event'     => [    2,    20,  '300M',  '100m',   100  ],
-    'dw-esn-fired-event'  => [    5,    20,  '300M',  '100m',   100  ],
-    'esn-process-sub'     => [   10,    50,  '300M',   '50m',   100  ],
-    'dw-esn-process-sub'  => [   10,    50,  '300M',   '50m',   100  ],
-    'send-email-ses'      => [   50,   100,  '300M',   '50m',   100  ],
+    # Name                    MinCt, MaxCt, Memory, MilliCpu, TgtCpu
+
+    # New SQS based workers
+    'dw-esn-cluster-subs' => [    3,    20,  '300M',  '300m',   100  ],
+    'dw-esn-filter-subs'  => [    3,    20,  '300M',  '300m',   100  ],
+    'dw-esn-fired-event'  => [    3,    20,  '300M',  '300m',   100  ],
+    'dw-esn-process-sub'  => [    3,    50,  '300M',  '300m',   100  ],
+
+    # Old style ESN workers
+    'esn-cluster-subs'    => [    1,    20,  '300M',  '100m',   100  ],
+    'esn-filter-subs'     => [    1,    20,  '300M',  '300m',   100  ],
+    'esn-fired-event'     => [    1,    20,  '300M',  '100m',   100  ],
+    'esn-process-sub'     => [    1,    50,  '300M',   '50m',   100  ],
+
+    # Other workers
+    'send-email-ses'      => [   40,   100,  '300M',   '50m',   100  ],
     'synsuck'             => [   10,    30,  '300M',  '100m',   100  ],
+
+    # Misc site utilities
+    'codebuild-notifier'  => [    1,     1,  '300M',   '50m',   100  ],
 );
 
 my $template;
