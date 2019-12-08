@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-send-email-ses
 spec:
-  replicas: 40
+  replicas: 1
   selector:
     matchLabels:
       app: worker-send-email-ses
@@ -36,22 +36,3 @@ spec:
       - name: config
         secret:
           secretName: dw-config
----
-apiVersion: autoscaling/v2beta2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: worker-send-email-ses
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: worker-send-email-ses
-  minReplicas: 40
-  maxReplicas: 100
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 100

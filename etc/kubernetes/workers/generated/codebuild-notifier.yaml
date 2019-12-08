@@ -36,22 +36,3 @@ spec:
       - name: config
         secret:
           secretName: dw-config
----
-apiVersion: autoscaling/v2beta2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: worker-codebuild-notifier
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: worker-codebuild-notifier
-  minReplicas: 1
-  maxReplicas: 1
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 100

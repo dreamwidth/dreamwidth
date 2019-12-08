@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-dw-esn-process-sub
 spec:
-  replicas: 3
+  replicas: 20
   selector:
     matchLabels:
       app: worker-dw-esn-process-sub
@@ -21,7 +21,7 @@ spec:
         args: ["/opt/startup-prod.sh", "bin/worker/dw-esn-process-sub", "-v"]
         resources:
           requests:
-            cpu: 300m
+            cpu: 100m
             memory: 300M
         volumeMounts:
         - name: config
@@ -37,7 +37,7 @@ spec:
         secret:
           secretName: dw-config
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
   name: worker-dw-esn-process-sub
@@ -46,12 +46,13 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: worker-dw-esn-process-sub
-  minReplicas: 3
-  maxReplicas: 50
+  minReplicas: 20
+  maxReplicas: 40
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 100
+  - type: External
+    external:
+      metricName: dw.sqs.approx_messages
+      metricSelector:
+        matchLabels:
+            queue: dw-prod-dw-task-esn-processsub
+      targetAverageValue: 20

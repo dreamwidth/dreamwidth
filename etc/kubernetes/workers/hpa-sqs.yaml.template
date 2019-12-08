@@ -1,0 +1,19 @@
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: worker-$WORKER
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: worker-$WORKER
+  minReplicas: $MIN_REPLICAS
+  maxReplicas: $MAX_REPLICAS
+  metrics:
+  - type: External
+    external:
+      metricName: dw.sqs.approx_messages
+      metricSelector:
+        matchLabels:
+            queue: $QUEUE_NAME
+      targetAverageValue: 20

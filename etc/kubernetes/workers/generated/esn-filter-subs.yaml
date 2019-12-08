@@ -21,7 +21,7 @@ spec:
         args: ["/opt/startup-prod.sh", "bin/worker/esn-filter-subs", "-v"]
         resources:
           requests:
-            cpu: 300m
+            cpu: 50m
             memory: 300M
         volumeMounts:
         - name: config
@@ -36,22 +36,3 @@ spec:
       - name: config
         secret:
           secretName: dw-config
----
-apiVersion: autoscaling/v2beta2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: worker-esn-filter-subs
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: worker-esn-filter-subs
-  minReplicas: 1
-  maxReplicas: 20
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 100

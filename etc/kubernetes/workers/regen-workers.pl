@@ -3,49 +3,75 @@
 use strict;
 use v5.10;
 
+my $hpa_cpu = sub {
+    return [ 'hpa-cpu.yaml.template', TARGET_UTILIZATION => $_[0] ];
+};
+
+my $hpa_sqs = sub {
+    return [ 'hpa-sqs.yaml.template', QUEUE_NAME => $_[0] ];
+};
+
 my %workers = (
     # Name                    MinCt, MaxCt, Memory, MilliCpu, TgtCpu
 
     # New SQS based workers
-    'dw-esn-cluster-subs' => [    3,    20,  '300M',  '300m',   100  ],
-    'dw-esn-filter-subs'  => [    3,    20,  '300M',  '300m',   100  ],
-    'dw-esn-fired-event'  => [    3,    20,  '300M',  '300m',   100  ],
-    'dw-esn-process-sub'  => [    3,    50,  '300M',  '300m',   100  ],
+    'dw-esn-cluster-subs' => [    5,    10,  '300M',  '100m',  $hpa_sqs->('dw-prod-dw-task-esn-findsubsbycluster') ],
+    'dw-esn-filter-subs'  => [    5,    10,  '300M',  '300m',  $hpa_sqs->('dw-prod-dw-task-esn-filtersubs') ],
+    'dw-esn-fired-event'  => [    5,    10,  '300M',  '100m',  $hpa_sqs->('dw-prod-dw-task-esn-firedevent') ],
+    'dw-esn-process-sub'  => [   20,    40,  '300M',  '100m',  $hpa_sqs->('dw-prod-dw-task-esn-processsub') ],
 
-    # Old style ESN workers
-    'esn-cluster-subs'    => [    1,    20,  '300M',  '100m',   100  ],
-    'esn-filter-subs'     => [    1,    20,  '300M',  '300m',   100  ],
-    'esn-fired-event'     => [    1,    20,  '300M',  '100m',   100  ],
-    'esn-process-sub'     => [    1,    50,  '300M',   '50m',   100  ],
+    # Old style ESN workers, mostly deprecated, we keep one each around just
+    # in case something ends up in the queue
+    'esn-cluster-subs'    => [    1,    10,  '300M',   '50m',  undef ],
+    'esn-filter-subs'     => [    1,    10,  '300M',   '50m',  undef ],
+    'esn-fired-event'     => [    1,    10,  '300M',   '50m',  undef ],
+    'esn-process-sub'     => [    1,    10,  '300M',   '50m',  undef ],
 
     # Other workers
-    'send-email-ses'      => [   40,   100,  '300M',   '50m',   100  ],
-    'synsuck'             => [   10,    30,  '300M',  '100m',   100  ],
+    'dw-send-email'       => [    5,    20,  '300M',  '100m',  $hpa_sqs->('dw-prod-dw-task-sendemail') ],
+    'send-email-ses'      => [    1,     1,  '300M',   '50m',  undef ],
+    'synsuck'             => [   10,    15,  '300M',  '100m',  undef ],
 
     # Misc site utilities
-    'codebuild-notifier'  => [    1,     1,  '300M',   '50m',   100  ],
+    'codebuild-notifier'  => [    1,     1,  '300M',   '50m',  undef ],
+    'metrics-emitter'     => [    1,     1,  '300M',   '50m',  undef ],
 );
 
-my $template;
-{
-    local $/ = undef;
-    open FILE, "<worker.yaml.template" or die;
-    $template = <FILE>;
-    close FILE;
-}
-
 foreach my $worker (keys %workers) {
-    my ($min, $max, $mem, $cpu, $util) = @{$workers{$worker}};
+    my ($min, $max, $mem, $cpu, $hpa) = @{$workers{$worker}};
 
-    my $yaml = $template;
-    $yaml =~ s/\$WORKER/$worker/g;
-    $yaml =~ s/\$MIN_REPLICAS/$min/g;
-    $yaml =~ s/\$MAX_REPLICAS/$max/g;
-    $yaml =~ s/\$CPU_REQUEST/$cpu/g;
-    $yaml =~ s/\$MEMORY_REQUEST/$mem/g;
-    $yaml =~ s/\$TARGET_UTILIZATION/$util/g;
+    my %attrs = (
+        WORKER => $worker,
+        MIN_REPLICAS => $min,
+        MAX_REPLICAS => $max,
+        CPU_REQUEST => $cpu,
+        MEMORY_REQUEST => $mem,
+    );
+
+    my $yaml = template ('worker.yaml.template', %attrs );
+    if ( defined $hpa ) {
+        my $tmplate = shift @$hpa;
+        $yaml .= "---\n";
+        $yaml .= template( $tmplate, %attrs, @$hpa );
+    }
 
     open FILE, ">generated/$worker.yaml" or die;
     print FILE $yaml;
     close FILE;
+}
+
+sub template {
+    my ( $fn, %vars ) = @_;
+
+    my $template;
+    {
+        local $/ = undef;
+        open FILE, "<$fn" or die;
+        $template = <FILE>;
+        close FILE;
+    }
+    foreach my $var ( keys %vars ) {
+        $template =~ s/\$$var/$vars{$var}/g;
+    }
+    return $template;
 }

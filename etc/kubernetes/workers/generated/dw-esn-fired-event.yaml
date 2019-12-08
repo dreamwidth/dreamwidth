@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-dw-esn-fired-event
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: worker-dw-esn-fired-event
@@ -21,7 +21,7 @@ spec:
         args: ["/opt/startup-prod.sh", "bin/worker/dw-esn-fired-event", "-v"]
         resources:
           requests:
-            cpu: 300m
+            cpu: 100m
             memory: 300M
         volumeMounts:
         - name: config
@@ -37,7 +37,7 @@ spec:
         secret:
           secretName: dw-config
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
   name: worker-dw-esn-fired-event
@@ -46,12 +46,13 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: worker-dw-esn-fired-event
-  minReplicas: 3
-  maxReplicas: 20
+  minReplicas: 5
+  maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 100
+  - type: External
+    external:
+      metricName: dw.sqs.approx_messages
+      metricSelector:
+        matchLabels:
+            queue: dw-prod-dw-task-esn-firedevent
+      targetAverageValue: 20
