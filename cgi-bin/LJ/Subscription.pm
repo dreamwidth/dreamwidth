@@ -590,7 +590,7 @@ sub process {
         if $self->etypeid == LJ::Event::OfficialPost->etypeid
         && !LJ::is_enabled('officialpost_esn');
 
-    # significant events (such as SecurityAttributeChanged) must be processed even for inactive users.
+  # significant events (such as SecurityAttributeChanged) must be processed even for inactive users.
     return 1
         unless $self->notify_class->configured_for_user( $self->owner )
         || LJ::Event->class( $self->etypeid )->is_significant;

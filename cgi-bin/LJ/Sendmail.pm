@@ -167,8 +167,7 @@ sub send_mail {
     my $starttime = [ gettimeofday() ];
     my ($env_from) = map { $_->address } Mail::Address->parse( $msg->get('From') );
     my @rcpts;
-    push @rcpts, map { $_->address } Mail::Address->parse( $msg->get($_) )
-        foreach (qw(To Cc Bcc));
+    push @rcpts, map { $_->address } Mail::Address->parse( $msg->get($_) ) foreach (qw(To Cc Bcc));
     my $host;
     if ( @rcpts == 1 ) {
         $rcpts[0] =~ /(.+)@(.+)$/;

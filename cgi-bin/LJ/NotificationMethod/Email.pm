@@ -25,7 +25,6 @@ use LJ::Web;
 
 use base 'LJ::NotificationMethod';
 
-
 sub can_digest { 1 }
 
 # takes a $u

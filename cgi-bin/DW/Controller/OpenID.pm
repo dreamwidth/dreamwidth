@@ -237,7 +237,7 @@ sub openid_claimed_handler {
             from => $LJ::ADMIN_EMAIL,
             subject =>
                 LJ::Lang::ml( '/openid/claim.tt.email.subject', { sitename => $LJ::SITENAME } ),
-            body  => $email,
+            body => $email,
         }
     );
 
