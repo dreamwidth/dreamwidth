@@ -28,7 +28,8 @@ use Net::SMTPS;
 use base 'DW::Task';
 
 my $smtp;
-my $last_email = 0;
+my $last_email    = 0;
+my $email_counter = 0;
 
 sub work {
     my ( $self, $handle ) = @_;
@@ -40,7 +41,7 @@ sub work {
 
     # Refresh the SMTP client if we don't have one or we haven't sent an email in
     # more than 10 seconds
-    if ( ( time() - $last_email > 10 ) || !defined $smtp ) {
+    if ( ( $email_counter++ % 30 == 0 ) || ( time() - $last_email > 10 ) || !defined $smtp ) {
         $smtp = Net::SMTPS->new(
             $LJ::EMAIL_VIA_SES{hostname},
             doSSL   => 'starttls',
@@ -83,12 +84,12 @@ sub work {
     my $not_ok = sub {
         my $cmd = $_[0];
         return $failed->(
-            "Permanent failure during %s phase to [%s]: %s",
+            'Permanent failure during %s phase to [%s]: %s',
             $cmd, join( ', ', @$rcpts ),
             $details->()
         ) if $smtp->status == 5;
         return $failed->(
-            "Error during %s phase to [%s]: %s",
+            'Error during %s phase to [%s]: %s',
             $cmd, join( ', ', @$rcpts ),
             $details->()
         );
