@@ -56,4 +56,18 @@ sub increment {
     }
 }
 
+# Usage: DW::Stats::gauge( 'my.metric', $gauge_level, $tags )
+#
+# Metric must be a string. $gauge_level must be a number. $tags must be an
+# arrayref or undef.
+sub gauge {
+    return unless $sock;
+
+    my ( $metric, $gauge, $tags ) = @_;
+    return unless defined $gauge;
+
+    $tags = ref $tags eq 'ARRAY' ? '|#' . join( ',', @$tags ) : '';
+    $sock->send("$metric:$gauge|g$tags");
+}
+
 1;

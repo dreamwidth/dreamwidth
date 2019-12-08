@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+#
+# metrics-emitter
+#
+# Run this job once. It will gather metrics on various things we need and emit
+# them to our monitoring system, which is used for HorizontalPodAutoscalers
+# and the like.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2019 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use v5.10;
+use strict;
+
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use Time::HiRes qw/ time sleep /;
+
+use DW::Stats;
+use DW::TaskQueue;
+
+my $q = DW::TaskQueue->init(%LJ::SQS);
+
+my $next_get_attributes = time();
+
+while (1) {
+
+    # Ensure we run as close to every 10 seconds as we can, no matter how long it
+    # takes to talk to AWS etc
+    my $sleep_for = $next_get_attributes - time();
+    sleep($sleep_for) if $sleep_for > 0;
+    $next_get_attributes += 10;
+
+    $log->info('Metrics emitter fetching metrics.');
+
+    my $qattrs = $q->queue_attributes;
+    foreach my $queue ( keys %$qattrs ) {
+        my $messages = $qattrs->{$queue}->ApproximateNumberOfMessages;
+
+        $log->info(' * Queue ', $queue, ' depth: ', $messages, ' messages' );
+
+        DW::Stats::gauge(
+            'dw.sqs.approx_messages',
+            $messages,
+            [ 'queue:' . $queue ]
+        );
+    }
+}

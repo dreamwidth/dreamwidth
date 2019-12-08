@@ -93,7 +93,10 @@ sub _get_queue_for_task {
     if ( $@ && $@->isa('Paws::Exception') ) {
         $log->warn("Failed to get queue $queue_name, creating.");
 
-        $res = eval { $self->{sqs}->CreateQueue( QueueName => $queue_name ) };
+        $res = eval {
+            $self->{sqs}
+                ->CreateQueue( QueueName => $queue_name, Attributes => $task->queue_attributes );
+        };
         if ( $@ && $@->isa('Paws::Exception') ) {
             $log->error( "Failed to create queue $queue_name: " . $@->message );
             return;
@@ -430,6 +433,54 @@ sub start_work {
             )
         );
     }
+}
+
+sub _queue_name_from_url {
+    my $queue_url = $_[0];
+    return $1 if $queue_url =~ m|/([^/]+)$|;
+    return;
+}
+
+sub queue_attributes {
+    my ( $self, $queue ) = @_;
+
+    my @queues;
+    if ($queue) {
+        my ( $_queue_name, $queue_url ) = $self->_get_queue_for_task($queue);
+        unless ($queue_url) {
+            $log->error( 'Failed to fetch URL for queue: ', $queue );
+            return;
+        }
+        push @queues, $queue_url;
+    }
+    else {
+        my $res = eval { $self->{sqs}->ListQueues( QueueNamePrefix => $self->{prefix}, ) };
+        if ( $@ && $@->isa('Paws::Exception') ) {
+            $log->warn( 'Failed to list queues: ', $@->message );
+            return;
+        }
+
+        @queues = @{ $res->QueueUrls || [] };
+    }
+
+    return {} unless @queues;
+
+    my $rv = {};
+    foreach my $queue_url (@queues) {
+        my $res = eval {
+            $self->{sqs}->GetQueueAttributes(
+                QueueUrl       => $queue_url,
+                AttributeNames => ['ApproximateNumberOfMessages']
+            );
+        };
+        if ( $@ && $@->isa('Paws::Exception') ) {
+            $log->warn( 'Failed to get queue attributes for ', $queue_url, ': ', $@->message );
+            next;
+        }
+
+        $rv->{ _queue_name_from_url($queue_url) } = $res->Attributes;
+    }
+    return $rv;
 }
 
 ################################################################################
