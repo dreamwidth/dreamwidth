@@ -30,23 +30,8 @@ use Text::Wrap ();
 use Time::HiRes qw( gettimeofday tv_interval );
 
 use DW::Stats;
+use DW::Task::SendEmail;
 use LJ::CleanHTML;
-
-my $done_init = 0;
-
-sub init {
-    return if $done_init++;
-    if ($LJ::SMTP_SERVER) {
-
-        # determine how we're going to send mail
-        $LJ::OPTMOD_NETSMTP = eval "use Net::SMTP (); 1;";
-        die "Net::SMTP not installed\n" unless $LJ::OPTMOD_NETSMTP;
-        MIME::Lite->send( 'smtp', $LJ::SMTP_SERVER, Timeout => 10 );
-    }
-    else {
-        MIME::Lite->send( 'sendmail', $LJ::SENDMAIL );
-    }
-}
 
 # <LJFUNC>
 # name: LJ::send_mail
@@ -63,8 +48,6 @@ sub init {
 sub send_mail {
     my $opt          = shift;
     my $async_caller = shift;
-
-    init();
 
     my $msg = $opt;
 
@@ -180,78 +163,27 @@ sub send_mail {
 
     # at this point $msg is a MIME::Lite
 
-    my $enqueue = sub {
-        my $starttime = [ gettimeofday() ];
-        my ($env_from) = map { $_->address } Mail::Address->parse( $msg->get('From') );
-        my @rcpts;
-        push @rcpts, map { $_->address } Mail::Address->parse( $msg->get($_) )
-            foreach (qw(To Cc Bcc));
-        my $host;
-        if ( @rcpts == 1 ) {
-            $rcpts[0] =~ /(.+)@(.+)$/;
-            $host = lc($2) . '@' . lc($1);    # we store it reversed in database
-        }
-        my $h = DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new(
-                funcname => "TheSchwartz::Worker::SendEmail",
-                arg      => {
-                    env_from => $env_from,
-                    rcpts    => \@rcpts,
-                    data     => $msg->as_string,
-                },
-                coalesce  => $host,
-                run_after => $opt->{delay} ? time() + $opt->{delay} : undef,
-            )
-        );
-        return $h ? 1 : 0;
-    };
-
-    if ( $LJ::MAIL_TO_THESCHWARTZ
-        || ( $LJ::MAIL_SOMETIMES_TO_THESCHWARTZ && $LJ::MAIL_SOMETIMES_TO_THESCHWARTZ->($msg) ) )
-    {
-        return $enqueue->();
-    }
-
-    return $enqueue->() if $LJ::ASYNC_MAIL && !$async_caller;
-
+    # Enqueue in the task system for sending out by a worker
     my $starttime = [ gettimeofday() ];
-    my $rv;
-    if ($LJ::DMTP_SERVER) {
-        my $host = $LJ::DMTP_SERVER;
-        unless ( $host =~ /:/ ) {
-            $host .= ":7005";
-        }
-
-        # DMTP (Danga Mail Transfer Protocol)
-        $LJ::DMTP_SOCK ||= IO::Socket::INET->new(
-            PeerAddr => $host,
-            Proto    => 'tcp'
-        );
-        if ($LJ::DMTP_SOCK) {
-            my $as  = $msg->as_string;
-            my $len = length($as);
-            my $env = $opt->{'from'};
-            $LJ::DMTP_SOCK->print(
-                "Content-Length: $len\r\n" . "Envelope-Sender: $env\r\n\r\n$as" );
-            my $ok = $LJ::DMTP_SOCK->getline;
-            $rv = ( $ok =~ /^OK/ );
-        }
+    my ($env_from) = map { $_->address } Mail::Address->parse( $msg->get('From') );
+    my @rcpts;
+    push @rcpts, map { $_->address } Mail::Address->parse( $msg->get($_) )
+        foreach (qw(To Cc Bcc));
+    my $host;
+    if ( @rcpts == 1 ) {
+        $rcpts[0] =~ /(.+)@(.+)$/;
+        $host = lc($2) . '@' . lc($1);    # we store it reversed in database
     }
-    else {
-        # SMTP or sendmail case
-        $rv = eval { $msg->send && 1; };
-    }
-    my $notes = sprintf(
-        "Direct mail send to %s %s: %s",
-        $msg->get('to'),
-        $rv ? "succeeded" : "failed",
-        $msg->get('subject')
+    my $h = DW::TaskQueue->dispatch(
+        DW::Task::SendEmail->new(
+            {
+                env_from => $env_from,
+                rcpts    => \@rcpts,
+                data     => $msg->as_string,
+            },
+        )
     );
-
-    return 1 if $rv;
-    return 0 if $@ =~ /no data in this part/;    # encoding conversion error higher
-    return $enqueue->() unless $opt->{'no_buffer'};
-    return 0;
+    return $h ? 1 : 0;
 }
 
 =head2 C<< LJ::send_formatted_mail( %opts ) >>

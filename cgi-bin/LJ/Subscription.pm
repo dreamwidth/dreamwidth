@@ -12,12 +12,18 @@
 # part of this distribution.
 
 package LJ::Subscription;
+
 use strict;
-use Carp qw(croak confess);
-use LJ::NotificationMethod;
-use LJ::Typemap;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use Carp qw/ croak confess /;
+
 use LJ::Event;
+use LJ::NotificationMethod;
 use LJ::Subscription::Pending;
+use LJ::Typemap;
 
 use constant {
     INACTIVE => 1 << 0,    # user has deactivated
@@ -584,7 +590,7 @@ sub process {
         if $self->etypeid == LJ::Event::OfficialPost->etypeid
         && !LJ::is_enabled('officialpost_esn');
 
-  # significant events (such as SecurityAttributeChanged) must be processed even for inactive users.
+    # significant events (such as SecurityAttributeChanged) must be processed even for inactive users.
     return 1
         unless $self->notify_class->configured_for_user( $self->owner )
         || LJ::Event->class( $self->etypeid )->is_significant;

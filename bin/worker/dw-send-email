@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# bin/worker/dw-esn-process-sub
+# dw-send-email
 #
-# DW style ESN subs processor.
+# DW style email sending worker.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -22,4 +22,4 @@ BEGIN {
 
 use DW::TaskQueue;
 my $q = DW::TaskQueue->init( %LJ::SQS );
-$q->start_work( 'DW::Task::ESN::ProcessSub' );
+$q->start_work( 'DW::Task::SendEmail' );

@@ -14,12 +14,17 @@
 package LJ::NotificationMethod::Email;
 
 use strict;
-use Carp qw/ croak /;
-use base 'LJ::NotificationMethod';
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-use LJ::Web;
+use Carp qw/ croak /;
 
 use DW::Stats;
+use LJ::Web;
+
+use base 'LJ::NotificationMethod';
+
 
 sub can_digest { 1 }
 
@@ -163,7 +168,6 @@ sub notify {
                     bodyref => \$html_body
                 );
             }
-
             LJ::send_mail(
                 {
                     to       => $u->email_raw,

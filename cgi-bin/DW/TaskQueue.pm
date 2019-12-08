@@ -389,7 +389,7 @@ sub start_work {
             $work_start_time = $local_start_time
                 if $local_start_time < $work_start_time || !defined $work_start_time;
 
-            my $res = $message->work;
+            my $res = $message->work($handle);
 
             # Record latest end time of any coroutine
             my $local_end_time = time();

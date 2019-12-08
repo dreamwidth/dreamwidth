@@ -238,7 +238,6 @@ sub openid_claimed_handler {
             subject =>
                 LJ::Lang::ml( '/openid/claim.tt.email.subject', { sitename => $LJ::SITENAME } ),
             body  => $email,
-            delay => 1800,
         }
     );
 
