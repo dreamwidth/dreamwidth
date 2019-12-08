@@ -28,6 +28,11 @@ spec:
               secretKeyRef:
                 name: datadog-secret
                 key: api-key
+          - name: DD_APP_KEY
+            valueFrom:
+              secretKeyRef:
+                name: datadog-secret
+                key: app-key
           - name: DD_CLUSTER_AGENT_AUTH_TOKEN
             valueFrom:
               secretKeyRef:
