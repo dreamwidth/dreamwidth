@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-sphinx-copier
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: worker-sphinx-copier
+  template:
+    metadata:
+      labels:
+        app: worker-sphinx-copier
+      annotations:
+        ad.datadoghq.com/worker-sphinx-copier.logs: '[{"source":"worker","service":"sphinx-copier"}]'
+    spec:
+      containers:
+      - image: 194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/worker:latest
+        name: worker-sphinx-copier
+        command: ["bash"]
+        args: ["/opt/startup-prod.sh", "bin/worker/sphinx-copier", "-v"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 300M
+        volumeMounts:
+        - name: config
+          mountPath: /dw/etc
+          readOnly: true
+        env:
+        - name: DOGSTATSD_HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+      volumes:
+      - name: config
+        secret:
+          secretName: dw-config

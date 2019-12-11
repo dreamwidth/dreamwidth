@@ -28,9 +28,19 @@ my %workers = (
     'esn-process-sub'     => [    1,    10,  '300M',   '50m',  undef ],
 
     # Other workers
+    'birthday-notify'     => [    1,     1,  '300M',   '50m',  undef ],
+    'change-poster-id'    => [    1,     1,  '300M',   '50m',  undef ],
+    'directory-meta'      => [    1,     1,  '300M',   '50m',  undef ],
+    'distribute-invites'  => [    1,     1,  '300M',   '50m',  undef ],
     'dw-send-email'       => [    5,    20,  '300M',  '100m',  $hpa_sqs->('dw-prod-dw-task-sendemail') ],
+    'embeds'              => [    5,    15,  '300M',   '50m',  undef ],
+    'resolve-extacct'     => [    1,     1,  '300M',   '50m',  undef ],
     'send-email-ses'      => [    1,     1,  '300M',   '50m',  undef ],
+    'spellcheck-gm'       => [    1,     1,  '300M',   '50m',  undef ],
+    'sphinx-copier'       => [    3,     5,  '300M',   '50m',  undef ],
+    'sphinx-search-gm'    => [    1,     1,  '300M',   '50m',  undef ],
     'synsuck'             => [   10,    15,  '300M',  '100m',  undef ],
+    'xpost'               => [    1,     1,  '300M',   '50m',  undef ],
 
     # Misc site utilities
     'codebuild-notifier'  => [    1,     1,  '300M',   '50m',  undef ],
