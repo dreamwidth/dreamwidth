@@ -19,8 +19,8 @@ Hash::MultiValue@0.16
 IO::WrapTie
 Image::ExifTool
 Image::Size
-JSON@2.53
 JSON::Validator
+JSON@2.53
 LWP::UserAgent::Paranoid
 List::Util@1.45
 Locale::Country@3.32
@@ -45,6 +45,7 @@ Perl::Tidy@20190601
 Proc::ProcessTable
 RPC::XML
 SOAP::Lite@1.27
+Sphinx::Search@0.28
 String::CRC32
 Sys::Syscall
 Template
