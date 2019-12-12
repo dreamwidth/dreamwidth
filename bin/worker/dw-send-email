@@ -16,10 +16,20 @@
 
 use v5.10;
 use strict;
+
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 
 use DW::TaskQueue;
-my $q = DW::TaskQueue->init( %LJ::SQS );
-$q->start_work( 'DW::Task::SendEmail' );
+
+DW::TaskQueue->start_work(
+    'DW::Task::SendEmail',
+
+    # Don't let any single message wedge the worker
+    message_timeout_secs => 60,
+
+    # Exit every so often to keep memory usage in check
+    exit_after_secs     => 300 + int( rand() * 600 ),
+    exit_after_messages => 100,
+);

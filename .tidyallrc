@@ -1,3 +1,4 @@
 [PerlTidy]
+select = bin/worker/dw-*
 select = {bin,cgi-bin,t}/**/*.{pl,pm,t}
 argv = -ole=unix -ci=4 -l=100

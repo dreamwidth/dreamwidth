@@ -80,28 +80,43 @@ sub init {
 }
 
 sub _get_queue_for_task {
-    my ( $self, $task ) = @_;
+    my ( $self, $task, %opts ) = @_;
 
+    my ( $dlq_name, $dlq_url );
     my $queue_name = lc( ref $task || $task );
-    $queue_name =~ s/::/-/g;
-    $queue_name = $self->{prefix} . $queue_name;
+    unless ( $opts{dlq} ) {
+        $queue_name =~ s/::/-/g;
+        $queue_name = $self->{prefix} . $queue_name;
 
+        $dlq_name = $queue_name . '-dlq';
+        $dlq_url  = $self->_get_queue_for_task( $dlq_name, dlq => { $task->queue_attributes } );
+    }
+
+    # Cache hit?
     return ( $queue_name, $self->{queues}->{$queue_name} )
         if exists $self->{queues}->{$queue_name};
 
+    # Fetch queue attributes
+    my $queue_attrs = $opts{dlq} // { $task->queue_attributes( dlq => $dlq_name ) };
+
+    # Fall back to SQS
     my $res = eval { $self->{sqs}->GetQueueUrl( QueueName => $queue_name ) };
     if ( $@ && $@->isa('Paws::Exception') ) {
         $log->warn("Failed to get queue $queue_name, creating.");
 
+        # Fall back to creating the queue
         $res = eval {
-            $self->{sqs}
-                ->CreateQueue( QueueName => $queue_name, Attributes => $task->queue_attributes );
+            $self->{sqs}->CreateQueue(
+                QueueName  => $queue_name,
+                Attributes => $queue_attrs,
+            );
         };
         if ( $@ && $@->isa('Paws::Exception') ) {
             $log->error( "Failed to create queue $queue_name: " . $@->message );
             return;
         }
 
+        # Get URL from SQS
         $res = eval { $self->{sqs}->GetQueueUrl( QueueName => $queue_name ) };
         if ( $@ && $@->isa('Paws::Exception') ) {
             $log->error( "Failed to get queue $queue_name after creating: " . $@->message );
@@ -109,7 +124,51 @@ sub _get_queue_for_task {
         }
     }
 
-    return ( $queue_name, $self->{queues}->{$queue_name} = $res->QueueUrl );
+    my $queue_url = $res->QueueUrl;
+
+    # This is possibly racy, but hopefully attributes don't change much, and
+    # also that we don't run N versions of the code in prod at the same time...
+    # but it beats forgetting to update SQS and/or having to do it by hand
+    # all the time
+    my $res = eval {
+        $self->{sqs}->GetQueueAttributes(
+            QueueUrl       => $queue_url,
+            AttributeNames => [ keys %$queue_attrs ],
+        );
+    };
+    if ( $@ && $@->isa('Paws::Exception') ) {
+        $log->warn( 'Failed to get queue attributes for ', $queue_name, ': ', $@->message );
+        next;
+    }
+
+    $log->debug( 'Checking queue attributes for ', $queue_name, '...' );
+    foreach my $attr ( sort keys %$queue_attrs ) {
+
+        # Coerce to strings for easy comparisons
+        my $val_local = "" . $queue_attrs->{$attr};
+        my $val_prod  = "" . $res->Attributes->{$attr};
+        next if $val_local eq $val_prod;
+
+        $log->info(
+            sprintf(
+                'Changing attribute %s of queue %s from %s to %s.',
+                $attr, $queue_name, $val_prod, $val_local
+            )
+        );
+        eval {
+            $self->{sqs}->SetQueueAttributes(
+                QueueUrl   => $queue_url,
+                Attributes => { $attr => $val_local }
+            );
+        };
+        if ( $@ && $@->isa('Paws::Exception') ) {
+            $log->warn( 'Failed to set queue attributes for ', $queue_name, ': ', $@->message );
+            next;
+        }
+    }
+
+    # Stick it in the queue
+    return ( $queue_name, $self->{queues}->{$queue_name} = $queue_url );
 }
 
 sub dispatch {
@@ -351,13 +410,16 @@ sub completed {
 }
 
 sub start_work {
-    my ( $self, $class ) = @_;
+    my ( $self, $class, %opts ) = @_;
+
+    $opts{message_timeout_secs} ||= 0;
 
     $self = $self->get unless ref $self;
 
     eval "use $class;";
 
-    my $start_time = time();
+    my $start_time    = time();
+    my $messages_done = 0;
 
     # Turn on coroutines for MySQL so that our database handles will
     # activate the scheduler for us
@@ -365,8 +427,29 @@ sub start_work {
 
     while (1) {
         my $recv_start_time = time();
-        my $messages        = $self->receive( $class, 10 );
-        my $recv_time       = time() - $recv_start_time;
+        if ( $opts{exit_after_secs} && ( $recv_start_time - $start_time > $opts{exit_after_secs} ) )
+        {
+            $log->info(
+                sprintf(
+                    '[%s] Exiting after %d seconds of work, as requested.',
+                    $class, $opts{exit_after_secs}
+                )
+            );
+            return;
+        }
+
+        if ( $opts{exit_after_messages} && ( $messages_done >= $opts{exit_after_messages} ) ) {
+            $log->info(
+                sprintf(
+                    '[%s] Exiting after %d messages done, as requested.',
+                    $class, $opts{exit_after_messages}
+                )
+            );
+            return;
+        }
+
+        my $messages  = $self->receive( $class, 10 );
+        my $recv_time = time() - $recv_start_time;
 
         unless (@$messages) {
             $log->debug( sprintf( '[%s %0.3fs] Receive finished, empty', $class, $recv_time ) );
@@ -392,7 +475,25 @@ sub start_work {
             $work_start_time = $local_start_time
                 if $local_start_time < $work_start_time || !defined $work_start_time;
 
-            my $res = $message->work($handle);
+            my ( $res, $abort );
+            eval {
+                local $SIG{ALRM} = sub {
+                    $log->error(
+                        sprintf(
+'[%s] Operation timed out after %d seconds. Exiting worker. Message: %s',
+                            $class, $opts{message_timeout_secs}, $handle
+                        )
+                    );
+                    $abort = 1;
+                };
+                alarm $opts{message_timeout_secs};
+                $res = $message->work($handle);
+            };
+            alarm 0;
+            die if $@;          # Reraise if the work call died.
+            return if $abort;
+
+            $messages_done++;
 
             # Record latest end time of any coroutine
             my $local_end_time = time();
