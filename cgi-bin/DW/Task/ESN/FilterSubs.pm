@@ -32,14 +32,19 @@ sub work {
     my $self = $_[0];
     my $a    = $self->args;
 
+    my $failed = sub {
+        $log->error( sprintf(@_) );
+        return DW::Task::FAILED;
+    };
+
     my ( $e_params, $sublist, $cid ) = @$a;
     my $evt = eval { LJ::Event->new_from_raw_params(@$e_params) }
-        or die "Couldn't load event: $@";
+        or return $failed->("Couldn't load event: $@");
 
     my ( $ct, $max ) = ( 0, scalar(@$sublist) );
     my $us   = LJ::load_userids( map { $_->[0] } @$sublist );
     my $dbcr = LJ::get_cluster_reader($cid)
-        or die "Can't get cluster handle\n";
+        or return $failed->("Couldn't get cluster reader handle");
 
     my @subs;
     while ( scalar(@$sublist) > 0 ) {
@@ -54,7 +59,7 @@ sub work {
 
         my $res =
             $dbcr->selectall_hashref( $qry, [ 'userid', 'subid' ], undef, map { @$_ } @slice );
-        die $dbcr->errstr if $dbcr->err;
+        return $failed->( $dbcr->errstr ) if $dbcr->err;
 
         # We have to do it like this so we get hashes back. Else, we have to
         # build them ourselves. This is easier.

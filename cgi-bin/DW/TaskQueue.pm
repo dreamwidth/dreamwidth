@@ -261,7 +261,7 @@ sub send {
         else {
             $log->debug( 'Successfully sent ', scalar(@messages), ' messages.' );
             DW::Stats::increment( 'dw.taskqueue.action.send_ok', scalar(@messages), $tags );
-            DW::Stats::increment( 'dw.taskqueue.sent_messages',  scalar(@tasks),    $tags );
+            DW::Stats::increment( 'dw.taskqueue.sent_messages',  scalar(@messages), $tags );
         }
 
         @messages   = ();

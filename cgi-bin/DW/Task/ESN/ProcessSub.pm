@@ -28,13 +28,22 @@ use base 'DW::Task';
 sub work {
     my $self = $_[0];
     my $a    = $self->args;
-    my ( $userid, $subid, $eparams ) = @$a;
-    my $u = LJ::load_userid($userid);
 
+    my $failed = sub {
+        $log->error( sprintf(@_) );
+        return DW::Task::FAILED;
+    };
+
+    my ( $userid, $subid, $eparams ) = @$a;
+    my $u = LJ::load_userid($userid)
+        or return $failed->( 'Failed to load user: %d', $userid );
     $log->debug( 'Processing event for user: ', $u->user, '(', $u->id, ') subscription ', $subid );
 
-    my $evt   = LJ::Event->new_from_raw_params(@$eparams);
-    my $subsc = $evt->get_subscriptions( $u, $subid );
+    my $evt = LJ::Event->new_from_raw_params(@$eparams)
+        or return $failed->( 'Failed to get event from params: %s', join( ', ', @$eparams ) );
+    my $subsc = $evt->get_subscriptions( $u, $subid )
+        or return $failed->( 'Failed to get subscriptions for: %s(%d) subid %d', $u->user, $u->id,
+        $subid );
 
     # if the subscription doesn't exist anymore, we're done here
     # (race: if they delete the subscription between when we start processing
@@ -55,8 +64,8 @@ sub work {
 
     # NEXT: do sub's ntypeid, unless it's inbox, then we're done.
     $subsc->process($evt)
-        or die
-        "Failed to process notification method for userid=$userid/subid=$subid, evt=[@$eparams]\n";
+        or return $failed->(
+        "Failed to process notification method for userid=$userid/subid=$subid, evt=[@$eparams]");
     return DW::Task::COMPLETED;
 }
 
