@@ -9,4 +9,9 @@ perl -I$LJHOME/extlib/ $LJHOME/bin/checkconfig.pl || sleep infinity
 # Run whatever was passed as an argument.
 COMMAND="$1"
 shift
-exec $LJHOME/$COMMAND "$@"
+
+while true; do
+    # If the worker exits successfully, run it again -- it was probably just done
+    # running jobs and freeing up memory. Any other condition, propogate.
+    $LJHOME/$COMMAND "$@" || exit $?
+done
