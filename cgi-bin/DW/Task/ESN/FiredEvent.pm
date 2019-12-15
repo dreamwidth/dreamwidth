@@ -33,9 +33,18 @@ sub work {
     my $self = $_[0];
     my $a    = $self->args;
 
+    my $incr = sub {
+        my ( $phase, $incr, $tags ) = @_;
+        push @{ $tags ||= [] }, "etypeid:$a->[0]";
+        DW::Stats::increment( 'dw.esn.firedevent.' . $phase, $incr // 1, $tags );
+    };
+
+    $incr->('started');
+
     my $evt = eval { LJ::Event->new_from_raw_params(@$a) };
     unless ($evt) {
         $log->error( 'Failed to load event from raw params: ', join( ', ', @$a ) );
+        $incr->( 'failed', 1, ['err:LoadEvent'] );
         return DW::Task::FAILED;
     }
 
@@ -73,9 +82,10 @@ sub work {
         }
     }
 
-    # If there are no subscriptions, exit now
-    unless (@subs) {
+    # If there are no subscriptions and we didn't hit an edge case, exit now
+    unless ( @subs || $split_per_cluster ) {
         $log->debug('No subscriptions found for event.');
+        $incr->( 'completed', 1, ['err:NoSubsNoSplit'] );
         return DW::Task::COMPLETED;
     }
 
@@ -104,11 +114,16 @@ sub work {
     # And if those subscriptions didn't turn into actual jobs, nothing to do
     unless (@subjobs) {
         $log->debug('No notification jobs found for subscriptions.');
+        $incr->( 'completed', 1, [ 'err:NoSubsWithSplit', 'split:' . $split_per_cluster ] );
         return DW::Task::COMPLETED;
     }
 
-    return DW::Task::FAILED
-        unless DW::TaskQueue->send(@subjobs);
+    unless ( DW::TaskQueue->send(@subjobs) ) {
+        $incr->( 'completed', 1, ['err:FailedSend'] );
+        return DW::Task::FAILED;
+    }
+
+    $incr->( 'completed', 1, ['err:None'] );
     return DW::Task::COMPLETED;
 }
 
