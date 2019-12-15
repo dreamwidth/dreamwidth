@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-directory-meta
+        type: worker
       annotations:
         ad.datadoghq.com/worker-directory-meta.logs: '[{"source":"worker","service":"directory-meta"}]'
     spec:

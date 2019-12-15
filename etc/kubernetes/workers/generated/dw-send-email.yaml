@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-dw-send-email
+        type: worker
       annotations:
         ad.datadoghq.com/worker-dw-send-email.logs: '[{"source":"worker","service":"dw-send-email"}]'
     spec:

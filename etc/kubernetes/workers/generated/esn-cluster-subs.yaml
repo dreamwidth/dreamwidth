@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-esn-cluster-subs
+        type: worker
       annotations:
         ad.datadoghq.com/worker-esn-cluster-subs.logs: '[{"source":"worker","service":"esn-cluster-subs"}]'
     spec:

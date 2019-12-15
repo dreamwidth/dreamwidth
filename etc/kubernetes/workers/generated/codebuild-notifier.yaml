@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-codebuild-notifier
+        type: worker
       annotations:
         ad.datadoghq.com/worker-codebuild-notifier.logs: '[{"source":"worker","service":"codebuild-notifier"}]'
     spec:

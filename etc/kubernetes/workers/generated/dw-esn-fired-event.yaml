@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-dw-esn-fired-event
+        type: worker
       annotations:
         ad.datadoghq.com/worker-dw-esn-fired-event.logs: '[{"source":"worker","service":"dw-esn-fired-event"}]'
     spec:

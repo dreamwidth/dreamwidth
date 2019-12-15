@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-distribute-invites
+        type: worker
       annotations:
         ad.datadoghq.com/worker-distribute-invites.logs: '[{"source":"worker","service":"distribute-invites"}]'
     spec:

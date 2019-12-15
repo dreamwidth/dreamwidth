@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-resolve-extacct
+        type: worker
       annotations:
         ad.datadoghq.com/worker-resolve-extacct.logs: '[{"source":"worker","service":"resolve-extacct"}]'
     spec:

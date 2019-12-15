@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-embeds
+        type: worker
       annotations:
         ad.datadoghq.com/worker-embeds.logs: '[{"source":"worker","service":"embeds"}]'
     spec:

@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-sphinx-search-gm
+        type: worker
       annotations:
         ad.datadoghq.com/worker-sphinx-search-gm.logs: '[{"source":"worker","service":"sphinx-search-gm"}]'
     spec:

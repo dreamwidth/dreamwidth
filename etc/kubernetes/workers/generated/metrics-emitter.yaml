@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-metrics-emitter
+        type: worker
       annotations:
         ad.datadoghq.com/worker-metrics-emitter.logs: '[{"source":"worker","service":"metrics-emitter"}]'
     spec:

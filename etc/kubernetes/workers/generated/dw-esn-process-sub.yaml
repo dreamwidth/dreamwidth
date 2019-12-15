@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-dw-esn-process-sub
+        type: worker
       annotations:
         ad.datadoghq.com/worker-dw-esn-process-sub.logs: '[{"source":"worker","service":"dw-esn-process-sub"}]'
     spec:

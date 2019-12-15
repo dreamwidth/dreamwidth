@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-esn-filter-subs
+        type: worker
       annotations:
         ad.datadoghq.com/worker-esn-filter-subs.logs: '[{"source":"worker","service":"esn-filter-subs"}]'
     spec:

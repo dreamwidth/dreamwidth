@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-change-poster-id
+        type: worker
       annotations:
         ad.datadoghq.com/worker-change-poster-id.logs: '[{"source":"worker","service":"change-poster-id"}]'
     spec:

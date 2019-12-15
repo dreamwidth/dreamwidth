@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-$WORKER
+        type: worker
       annotations:
         ad.datadoghq.com/worker-$WORKER.logs: '[{"source":"worker","service":"$WORKER"}]'
     spec:

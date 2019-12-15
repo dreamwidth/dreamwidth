@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-spellcheck-gm
+        type: worker
       annotations:
         ad.datadoghq.com/worker-spellcheck-gm.logs: '[{"source":"worker","service":"spellcheck-gm"}]'
     spec:

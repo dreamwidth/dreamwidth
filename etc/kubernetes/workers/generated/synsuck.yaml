@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-synsuck
+        type: worker
       annotations:
         ad.datadoghq.com/worker-synsuck.logs: '[{"source":"worker","service":"synsuck"}]'
     spec:

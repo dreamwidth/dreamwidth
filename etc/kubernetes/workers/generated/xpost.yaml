@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: worker-xpost
+        type: worker
       annotations:
         ad.datadoghq.com/worker-xpost.logs: '[{"source":"worker","service":"xpost"}]'
     spec:
