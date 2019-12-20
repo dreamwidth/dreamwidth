@@ -109,8 +109,7 @@ ul.text-links {
   margin: 0;
   display: inline;
 
-  // Need an ID to match specificity of a default #content ul li rule.
-  #content & li {
+  li {
     display: inline;
     list-style: none;
     margin-left: 0;
@@ -189,8 +188,7 @@ ul.text-links {
     margin: 0;
     list-style: none;
 
-    // Need an ID to match specificity of a default #content ul li rule.
-    #content & li {
+    li {
       margin-left: 0;
     }
   }
@@ -204,8 +202,7 @@ ul.text-links {
     display: inline;
     margin-left: 0;
 
-    // Need an ID to match specificity of a default #content ul li rule.
-    #content & li {
+    li {
       display: inline;
       margin-left: 0;
     }
@@ -433,7 +430,7 @@ ul.entry-management-links {
     font-weight: bold;
   }
 
-  #content & .comment .reply, // reply action link; need ID to override defaults
+  .comment .reply, // reply action link
   .entry .footer {
     display: none;
   }

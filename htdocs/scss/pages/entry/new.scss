@@ -146,7 +146,7 @@
             display: flex;
             flex-grow: 1;
             & > li {
-                margin-bottom: 0 !important; // override generic #content ul li rule
+                margin-bottom: 0;
             }
         }
         .entry-quick-metadata {
