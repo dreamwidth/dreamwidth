@@ -34,8 +34,7 @@
     font-size: .9rem;
     padding: .2rem 1rem;
 
-    // need one ID to fight a default #content li rule
-    ul, #content & li {
+    ul, li {
       list-style: none;
       display: inline;
       margin: 0;

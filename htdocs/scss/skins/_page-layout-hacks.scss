@@ -10,21 +10,24 @@
     padding-top: 1px;  /*to ensure margin*/
 }
 
-#content ul li {
+// We want default margins for lists inside #content, but an ID selector is too
+// powerful for a constantly-overridden default. An attribute selector has the
+// same specificity as a class, so it's easy to override.
+[id="content"] li {
     margin-left: 2em;
     margin-bottom: 0.75em;
 }
 
-// don't add the bottom spacing for success links
-#content ul.successlinks li {
+// Case in point: override bottom spacing for success links
+ul.successlinks li {
     margin-bottom: 0;
 }
 
-#content ul ul {
+[id="content"] li ul, [id="content"] li ol {
     margin-top: 0.75em;
 }
 
-#content dl dd {
+[id="content"] dd {
     margin-left: 1.5em;
 }
 
