@@ -35,8 +35,17 @@ sub work {
     my ( $self, $handle ) = @_;
 
     my $failed = sub {
-        $log->error( sprintf(@_) );
+        my ( $fmt, @args ) = @_;
+        $log->error( sprintf( $fmt, @args ) );
+        $smtp = undef;
         return DW::Task::FAILED;
+    };
+
+    my $permanent_failure = sub {
+        my ( $fmt, @args ) = @_;
+        $log->error( sprintf( $fmt, @args ) );
+        $smtp = undef;
+        return DW::Task::COMPLETED;
     };
 
     # Refresh the SMTP client if we don't have one or we haven't sent an email in
@@ -100,7 +109,7 @@ sub work {
 
     my $not_ok = sub {
         my $cmd = $_[0];
-        return $failed->(
+        return $permanent_failure->(
             'Permanent failure during %s phase to [%s]: %s',
             $cmd, join( ', ', @$rcpts ),
             $details->()
@@ -127,7 +136,7 @@ sub work {
     }
 
     unless ($got_an_okay) {
-        return $failed->( 'Permanent failure TO [%s]: %s', join( ', ', @$rcpts ), $details->() );
+        return $permanent_failure->( 'Permanent failure TO [%s]: %s', join( ', ', @$rcpts ), $details->() );
     }
 
     return $not_ok->("DATA")     unless $smtp->data;
