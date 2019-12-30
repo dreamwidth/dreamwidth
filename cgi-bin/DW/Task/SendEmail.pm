@@ -63,6 +63,23 @@ sub work {
     my $rcpts    = $args->{rcpts};       # arrayref of recipients
     my $body     = $args->{data};
 
+    # Drop any recipient domains that we don't support/aren't allowed
+    foreach my $rcpt ( @$rcpts ) {
+        my ( $domain ) = ( $1 )
+            if $rcpt =~ /@(.+?)$/;
+        unless ( $domain ) {
+            $log->error( 'Invalid email address: ', $rcpt );
+            DW::Stats::increment( 'dw.email.sent', 1, [ 'status:invalid', 'via:ses' ] );
+            return DW::Task::COMPLETED;
+        }
+
+        if ( exists $LJ::DISALLOW_EMAIL_DOMAIN{$domain} ) {
+            $log->info( 'Disallowing email to: ', $rcpt );
+            DW::Stats::increment( 'dw.email.sent', 1, [ 'status:disallowed', 'via:ses' ] );
+            return DW::Task::COMPLETED;
+        }
+    }
+
     $log->debug( 'Sending email to: ', join( ', ', @$rcpts ) );
 
     # remove bcc
