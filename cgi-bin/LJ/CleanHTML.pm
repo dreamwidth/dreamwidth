@@ -569,11 +569,8 @@ TOKEN:
 
                     # include empty span and div to be filled in on page
                     # load if javascript is enabled
-                    # Note: cuttag_container is a hack, to guard against Firefox bug
-                    # where toggling an element's display is glitchy in the presence
-                    # of certain CSS pseudo-elements (:first-letter, others?)
                     $newdata .=
-"<span class=\"cuttag_container\"><span style=\"display: none;\" id=\"span-cuttag_"
+                          "<span style=\"display: none;\" id=\"span-cuttag_"
                         . $journal . "_"
                         . $ditemid . "_"
                         . $cutcount
@@ -585,7 +582,7 @@ TOKEN:
                         . $ditemid . "_"
                         . $cutcount
                         . "\" aria-live=\"assertive\">";
-                    $newdata .= "</div></span>";
+                    $newdata .= "</div>";
                     $newdata .= "</div>" if $tag eq "div";
 
                     unless ( $opts->{'cutpreview'} ) {
