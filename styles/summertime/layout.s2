@@ -1508,6 +1508,7 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
 #lj_controlstrip {
     border: none;
     padding: 4px;
+    box-sizing: border-box;
     }
 
 #lj_controlstrip select,
