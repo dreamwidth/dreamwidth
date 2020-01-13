@@ -1377,7 +1377,7 @@ a, a:link, a:visited, a:active, a:hover{
     text-align:$*entry_comment_text_align;
 }
 
-.cuttag_container img{
+.cuttag-action img{
     vertical-align:bottom;
 }
 
