@@ -73,10 +73,10 @@ sub work {
     my $body     = $args->{data};
 
     # Drop any recipient domains that we don't support/aren't allowed
-    foreach my $rcpt ( @$rcpts ) {
-        my ( $domain ) = ( $1 )
+    foreach my $rcpt (@$rcpts) {
+        my ($domain) = ($1)
             if $rcpt =~ /@(.+?)$/;
-        unless ( $domain ) {
+        unless ($domain) {
             $log->error( 'Invalid email address: ', $rcpt );
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:invalid', 'via:ses' ] );
             return DW::Task::COMPLETED;
@@ -136,7 +136,11 @@ sub work {
     }
 
     unless ($got_an_okay) {
-        return $permanent_failure->( 'Permanent failure TO [%s]: %s', join( ', ', @$rcpts ), $details->() );
+        return $permanent_failure->(
+            'Permanent failure TO [%s]: %s',
+            join( ', ', @$rcpts ),
+            $details->()
+        );
     }
 
     return $not_ok->("DATA")     unless $smtp->data;
