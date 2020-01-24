@@ -125,11 +125,12 @@ sub clean {
           ( exists $opts->{'blocked_link_substitute'} ) ? $opts->{'blocked_link_substitute'}
         : ($LJ::BLOCKED_LINK_SUBSTITUTE)                ? $LJ::BLOCKED_LINK_SUBSTITUTE
         :                                                 '#';
-    my $suspend_msg         = $opts->{'suspend_msg'}         || 0;
-    my $unsuspend_supportid = $opts->{'unsuspend_supportid'} || 0;
-    my $to_external_site    = $opts->{to_external_site}      || 0;
-    my $remove_positioning  = $opts->{'remove_positioning'}  || 0;
-    my $errref              = $opts->{errref};
+    my $suspend_msg          = $opts->{'suspend_msg'}         || 0;
+    my $unsuspend_supportid  = $opts->{'unsuspend_supportid'} || 0;
+    my $to_external_site     = $opts->{to_external_site}      || 0;
+    my $preserve_lj_tags_for = $opts->{preserve_lj_tags_for}  || 0;    # False or site name
+    my $remove_positioning   = $opts->{'remove_positioning'}  || 0;
+    my $errref               = $opts->{errref};
 
     # for ajax cut tag parsing
     my $cut_retrieve = $opts->{cut_retrieve} || 0;
@@ -294,6 +295,7 @@ sub clean {
 
     my $usertag_opts = {
         textonly             => $opts->{textonly} ? 1 : 0,
+        preserve_lj_tags_for => $opts->{preserve_lj_tags_for} || 0,
         no_ljuser_class      => $opts->{to_external_site} ? 1 : 0,
         no_link              => 0,
     };
@@ -544,6 +546,17 @@ TOKEN:
             }
 
             if ( ( $tag eq "lj-cut" || $ljcut_div ) ) {
+
+                # Here's the things can happen with cut tags:
+                # - User enabled a "don't cut" setting. Do nothing.
+                # - Recent/reading/etc. Cut it, link to $opts->{cuturl} + anchor,
+                #   add markup for JS cut expander.
+                # - Entry page. Add numbered anchor and continue.
+                # - Moderation queue ($opts->{cutpreview}). Don't cut; add mock
+                #   "read more"s and "</cut>"s.
+                # - RPC for cut expander. Keep ONLY the specified cut.
+                # - Crosspost. Keep literal "<lj-cut>"s. At end, close dangling cuts.
+
                 next TOKEN if $ljcut_disable;
                 $cutcount++;
 
@@ -570,7 +583,15 @@ TOKEN:
                     }
                     return $text;
                 };
-                if ($cut) {
+                if ( $opts->{preserve_lj_tags_for} ) {
+                    $opencount{'lj-cut'}++;
+                    $newdata .= qq{<lj-cut};
+                    $newdata .= qq{ text="$attr->{'text'}"}
+                        if $attr->{'text'};
+                    $newdata .= '>';
+                    next TOKEN;
+                }
+                elsif ($cut) {
                     my $etext = $link_text->();
                     my $url   = LJ::ehtml($cut);
                     $newdata .= "<div>" if $tag eq "div";
@@ -597,7 +618,6 @@ TOKEN:
                         push @eatuntil, $tag;
                         next TOKEN;
                     }
-
                 }
                 else {
                     $newdata .= "<a name=\"cutid$cutcount\"></a>" unless $opts->{'textonly'};
@@ -1090,7 +1110,11 @@ TOKEN:
                 # state variable which is stashed across tokens.
             }
             elsif ( $tag eq "lj-cut" ) {
-                if ( $opts->{'cutpreview'} ) {
+                if ( $opts->{preserve_lj_tags_for} ) {
+                    $opencount{'lj-cut'}--;
+                    $newdata .= "</lj-cut>";
+                }
+                elsif ( $opts->{'cutpreview'} ) {
                     $newdata .= "<b>&lt;/cut&gt;</b>";
                 }
             }
@@ -1329,6 +1353,14 @@ TOKEN:
         if ( $opencount{$tag} ) {
             $newdata .= "</$tag>";
             $opencount{$tag}--;
+        }
+    }
+
+    # If crossposting, explicitly close cuts to keep the crosspost footer visible.
+    if ($preserve_lj_tags_for) {
+        while ( $opencount{'lj-cut'} ) {
+            $newdata .= "</lj-cut>";
+            $opencount{'lj-cut'}--;
         }
     }
 
@@ -1660,6 +1692,7 @@ sub clean_event {
             suspend_msg             => $opts->{suspend_msg} ? 1 : 0,
             unsuspend_supportid     => $opts->{unsuspend_supportid},
             to_external_site        => $opts->{to_external_site} ? 1 : 0,
+            preserve_lj_tags_for    => $opts->{preserve_lj_tags_for} || 0,
             cut_retrieve            => $opts->{cut_retrieve},
             journal                 => $opts->{journal},
             ditemid                 => $opts->{ditemid},
@@ -1888,6 +1921,7 @@ sub convert_user_mentions {
 
 # Keys available in opts hashref:
 # - textonly (ignored by ljuser_display et al.)
+# - preserve_lj_tags_for (ignored by ljuser_display et al.)
 # - no_ljuser_class
 # - no_link
 sub user_link_html {
@@ -1903,7 +1937,12 @@ sub user_link_html {
         if ( my $ext_u = DW::External::User->new( user => $user, site => $site ) ) {
 
             # looks good, render
-            if ( $opts->{textonly} ) {
+            if ( $ext_u->site eq $opts->{preserve_lj_tags_for} ) {
+
+                # that's the crosspost destination, so send a native user tag.
+                return qq{<lj user="$user">};
+            }
+            elsif ( $opts->{textonly} ) {
 
                 # FIXME: need a textonly way of identifying users better?  "user@LJ"?
                 return $user;
