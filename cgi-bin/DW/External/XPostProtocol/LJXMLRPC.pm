@@ -378,14 +378,9 @@ sub entry_to_req {
         $req->{props}->{$entrykey} = $entryprops->{$entrykey} if defined $entryprops->{$entrykey};
     }
 
-    # always carry over opt_preformatted, otherwise we can't request to clear it
-    $req->{props}->{opt_preformatted} = $entryprops->{opt_preformatted} ? 1 : 0;
-
-    # determine if we used Markdown by examining the raw entry text (not
-    # the cleaned text) and advertise the opt_preformatted flag if so
-    if ( $entry->event_raw =~ /^\s*!markdown\s*\r?\n/s ) {
-        $req->{props}->{opt_preformatted} = 1;
-    }
+    # always set opt_preformatted -- we pre-process all DW-style autoformatting,
+    # markdown, etc. before crossposting.
+    $req->{props}->{opt_preformatted} = 1;
 
     # remove html from current location
     if ( $req->{props}->{current_location} ) {
@@ -495,157 +490,21 @@ sub clean_entry_text {
 
     my $event_text = $entry->event_raw;
 
-    # FIXME: Markdown processing needs to be better integrated, but this at
-    # at least makes it work with crossposting to LJ sites.
-    #
-    # Note: the flag for opt_preformatted should be set in the caller,
-    # since the crosspost request data isn't accessible here.
-    if ( $event_text =~ s/^\s*!markdown\s*\r?\n//s ) {
-        LJ::CleanHTML::clean_as_markdown( \$event_text, {} );
-    }
-
-    # clean up lj-tags
-    $self->clean_lj_tags( \$event_text, $extacct );
+    # pre-process all of our own formatting, but preserve <lj user=...> and
+    # <lj-cut> tags, since we're posting to a site that understands them.
+    my $clean_opts = {
+        editor               => $entry->prop('editor'),
+        preformatted         => $entry->prop('opt_preformatted'),
+        preserve_lj_tags_for => $extacct->externalsite,
+        to_external_site     => 1,
+    };
+    LJ::CleanHTML::clean_event( \$event_text, $clean_opts );
 
     # clean up any embedded objects
     LJ::EmbedModule->expand_entry( $entry->journal, \$event_text, expand_full => 1 );
 
     # remove polls, then return the text
     return $self->scrub_polls($event_text);
-}
-
-# cleans up lj-tags for crossposting
-sub clean_lj_tags {
-    my ( $self, $entry_text_ref, $extacct ) = @_;
-    my $p = HTML::TokeParser->new($entry_text_ref);
-    $p->attr_encoded(1);
-    my $newdata = "";
-
-    my %update_tags = (
-        'cut'      => 'lj-cut',
-        'raw-code' => 'lj-raw'
-    );
-
-    # keep track of unclosed tags
-    my %opencount;
-
-    # this is mostly gakked from cgi-bin/cleanhtml.pl (LJ::CleanHTML)
-
-    # go throught each token.
-TOKEN:
-    while ( my $token = $p->get_token ) {
-        my $type = $token->[0];
-
-        # See if this tag should be treated as an alias
-
-        if ( $type eq "S" ) {
-            my $tag   = $token->[1];
-            my $hash  = $token->[2];    # attribute hashref
-            my $attrs = $token->[3];    # attribute names, in original order
-
-            # we need to rewrite cut tags as lj-cut
-            if ( $update_tags{$tag} ) {
-                $tag = $update_tags{$tag};
-
-                # for tags like <name/>, pretend it's <name> and reinsert the slash later
-                my $slashclose = 0;     # If set to 1, use XML-style empty tag marker
-                $slashclose = 1 if delete $hash->{'/'};
-
-                # spit it back out
-                $newdata .= "<$tag";
-
-                # output attributes in original order
-                foreach (@$attrs) {
-                    $newdata .= " $_=\"" . $hash->{$_} . "\""
-                        if exists $hash->{$_};
-                }
-                $newdata .= " /" if $slashclose;
-                $newdata .= ">";
-
-                $opencount{$tag}++ unless $slashclose;
-            }
-            elsif ( $tag eq 'lj' || $tag eq 'user' ) {
-                my $user = $hash->{user} =
-                      exists $hash->{name} ? $hash->{name}
-                    : exists $hash->{user} ? $hash->{user}
-                    : exists $hash->{comm} ? $hash->{comm}
-                    :                        undef;
-
-                # allow external sites
-                if ( my $site = $hash->{site} ) {
-
-                    # try to load this user@site combination
-                    if ( my $ext_u = DW::External::User->new( user => $user, site => $site ) ) {
-
-                        # if the sites match, make this into a standard
-                        # lj user tag
-                        if ( $ext_u->site == $extacct->externalsite ) {
-                            $newdata .= "<lj user=\"$user\">";
-                        }
-                        else {
-                            $newdata .= $ext_u->ljuser_display( no_ljuser_class => 1 );
-                        }
-                    }
-                    else {
-                        # if we hit the else, then we know that this user doesn't appear
-                        # to be valid at the requested site
-                        $newdata .=
-                              "<b>[Bad username or site: "
-                            . LJ::ehtml( LJ::no_utf8_flag($user) ) . " @ "
-                            . LJ::ehtml( LJ::no_utf8_flag($site) ) . "]</b>";
-                    }
-
-                    # failing that, no site, use the local behavior
-                }
-                elsif ( length $user ) {
-                    my $orig_user = $user;
-                    $user = LJ::canonical_username($user);
-                    if ( length $user ) {
-                        $newdata .= LJ::ljuser( $user, { no_ljuser_class => 1 } );
-                    }
-                    else {
-                        $orig_user = LJ::no_utf8_flag($orig_user);
-                        $newdata .= "<b>[Bad username: " . LJ::ehtml($orig_user) . "]</b>";
-                    }
-                }
-                else {
-                    $newdata .= "<b>[Unknown LJ tag]</b>";
-                }
-            }
-            else {
-                # if no change was necessary
-                $newdata .= $token->[4];
-                $opencount{ $token->[1] }++;
-                next TOKEN;
-            }
-        }
-        elsif ( $type eq "E" ) {
-            if ( $update_tags{ $token->[1] } ) {
-                $newdata .= "</" . $update_tags{ $token->[1] } . ">";
-                $opencount{ $update_tags{ $token->[1] } }--;
-            }
-            else {
-                $newdata .= $token->[2];
-            }
-        }
-        elsif ( $type eq "D" ) {
-            $newdata .= $token->[1];
-        }
-        elsif ( $type eq "T" ) {
-            $newdata .= $token->[1];
-        }
-        elsif ( $type eq "C" ) {
-            $newdata .= $token->[1];
-        }
-        elsif ( $type eq "PI" ) {
-            $newdata .= $token->[2];
-        }
-    }    # end while
-
-    # explicitly close any cuts
-    $newdata .= "</lj-cut>" if $opencount{'lj-cut'};
-    $$entry_text_ref = $newdata;
-    return undef;
 }
 
 sub protocolid {
