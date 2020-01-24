@@ -214,20 +214,15 @@ sub ljuser_display {
 
         my $lj_user = $opts->{no_ljuser_class} ? "" : " lj:user='$name'";
 
-        my $ret = '';
-        $ret .= "<span$lj_user style='white-space: nowrap;$strike'$display_class>";
-        $ret .= "<a href='$profile'>"
-            unless $opts->{no_link};
-        $ret .= "<img src='$imgurl' alt='[$type profile] ' width='$width' height='$height'";
-        $ret .= " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' />";
-        $ret .= "</a><a href='$url' rel='nofollow'>"
-            unless $opts->{no_link};
-        $ret .= "<b>$name</b>";
-        $ret .= "</a>"
-            unless $opts->{no_link};
-        $ret .= "</span>";
-
-        return $ret;
+        return
+              "<span$lj_user style='white-space: nowrap;$strike'$display_class>"
+            . ( $opts->{no_link} ? '' : "<a href='$profile'>" )
+            . "<img src='$imgurl' alt='[$type profile] ' width='$width' height='$height'"
+            . " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' />"
+            . ( $opts->{no_link} ? '' : "</a><a href='$url' rel='nofollow'>" )
+            . "<b>$name</b>"
+            . ( $opts->{no_link} ? '' : "</a>" )
+            . "</span>";
     }
     else {
         return "<b>????</b>";
@@ -637,20 +632,15 @@ sub ljuser {
         $profile = $profile_url ne '' ? $profile_url : $profile . $andfull;
         $url     = $journal_url ne '' ? $journal_url : $url;
 
-        my $ret = '';
-        $ret .= "<span$lj_user style='white-space: nowrap;$strike'$display_class>";
-        $ret .= "<a href='$profile'>"
-            unless $opts->{no_link};
-        $ret .= "<img src='$img/$fil' alt='[$alttext] ' width='$x' height='$y'";
-        $ret .= " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' />";
-        $ret .= "</a><a href='$url'$link_color>"
-            unless $opts->{no_link};
-        $ret .= $ljusername;
-        $ret .= "</a>"
-            unless $opts->{no_link};
-        $ret .= "</span>";
-
-        return $ret;
+        return
+              "<span$lj_user style='white-space: nowrap;$strike'$display_class>"
+            . ( $opts->{no_link} ? '' : "<a href='$profile'>" )
+            . "<img src='$img/$fil' alt='[$alttext] ' width='$x' height='$y'"
+            . " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' />"
+            . ( $opts->{no_link} ? '' : "</a><a href='$url'$link_color>" )
+            . $ljusername
+            . ( $opts->{no_link} ? '' : "</a>" )
+            . "</span>";
     };
 
     my $u = isu($user) ? $user : LJ::load_user($user);

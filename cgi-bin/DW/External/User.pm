@@ -69,20 +69,14 @@ sub ljuser_display {
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
-    my $ret = '';
-    $ret .= "<span style='white-space: nowrap;'$display_class>";
-    $ret .= "<a href='$profile_url'>"
-        unless $opts{no_link};
-    $ret .=
-"<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>";
-    $ret .= "</a><a href='$journal_url'>"
-        unless $opts{no_link};
-    $ret .= "<b>$user</b>";
-    $ret .= "</a>"
-        unless $opts{no_link};
-    $ret .= "</span>";
-
-    return $ret;
+    return
+          "<span style='white-space: nowrap;'$display_class>"
+        . ( $opts{no_link} ? '' : "<a href='$profile_url'>" )
+        . "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>"
+        . ( $opts{no_link} ? '' : "</a><a href='$journal_url'>" )
+        . "<b>$user</b>"
+        . ( $opts{no_link} ? '' : "</a>" )
+        . "</span>";
 }
 
 1;
