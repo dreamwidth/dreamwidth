@@ -292,6 +292,12 @@ sub clean {
             || $_[0];
     };
 
+    my $usertag_opts = {
+        textonly             => $opts->{textonly} ? 1 : 0,
+        no_ljuser_class      => $opts->{to_external_site} ? 1 : 0,
+        no_link              => 0,
+    };
+
     # if we're retrieving a cut tag, then we want to eat everything
     # until we hit the first cut tag.
     my @cuttag_stack = ();
@@ -300,6 +306,8 @@ sub clean {
 TOKEN:
     while ( my $token = $p->get_token ) {
         my $type = $token->[0];
+
+        $usertag_opts->{no_link} = $opencount{'a'} ? 1 : 0;
 
         if ( $type eq "S" )    # start tag
         {
@@ -625,14 +633,7 @@ TOKEN:
                     : exists $attr->{comm} ? $attr->{comm}
                     :                        undef;
 
-                if ( $opencount{'a'} ) {
-                    $opts->{delink_user_links} = 1;
-                    $newdata .= user_link_html( $user, $attr->{site}, $opts );
-                    $opts->{delink_user_links} = 0;
-                }
-                else {
-                    $newdata .= user_link_html( $user, $attr->{site}, $opts );
-                }
+                $newdata .= user_link_html( $user, $attr->{site}, $usertag_opts );
             }
             elsif ( $tag eq "lj-raw" ) {
 
@@ -1064,14 +1065,7 @@ TOKEN:
             if ($eating_ljuser_span) {
                 if ( $tag eq "span" ) {
                     $eating_ljuser_span = 0;
-
-                    if ( $opts->{textonly} ) {
-                        $newdata .= $ljuser_text_node;
-                    }
-                    else {
-                        $newdata .= LJ::ljuser( $ljuser_text_node,
-                            { no_ljuser_class => $to_external_site } );
-                    }
+                    $newdata .= user_link_html( $ljuser_text_node, undef, $usertag_opts );
                 }
 
                 next TOKEN;
@@ -1276,15 +1270,7 @@ TOKEN:
                     && !$opencount{'textarea'}
                     && !$opencount{'lj-raw'} )
                 {
-                    # Special no-link user tag if we're already inside another link
-                    if ( $opencount{'a'} ) {
-                        $opts->{delink_user_links} = 1;
-                        convert_user_mentions( \$token->[1], $opts );
-                        $opts->{delink_user_links} = 0;
-                    }
-                    else {
-                        convert_user_mentions( \$token->[1], $opts );
-                    }
+                    convert_user_mentions( \$token->[1], $usertag_opts );
                 }
             }
 
@@ -1900,6 +1886,10 @@ sub convert_user_mentions {
         !mge;
 }
 
+# Keys available in opts hashref:
+# - textonly (ignored by ljuser_display et al.)
+# - no_ljuser_class
+# - no_link
 sub user_link_html {
 
     # Generate HTML to link to a user
@@ -1919,10 +1909,7 @@ sub user_link_html {
                 return $user;
             }
             else {
-                return $ext_u->ljuser_display(
-                    no_ljuser_class => $opts->{to_external_site},
-                    no_link         => $opts->{delink_user_links}
-                );
+                return $ext_u->ljuser_display($opts);
             }
 
             # if we hit the else, then we know that this user doesn't appear
@@ -1943,22 +1930,11 @@ sub user_link_html {
                 return $u->display_name;
             }
             else {
-                return $u->ljuser_display(
-                    {
-                        no_ljuser_class => $opts->{to_external_site},
-                        no_link         => $opts->{delink_user_links}
-                    }
-                );
+                return $u->ljuser_display($opts);
             }
         }
         elsif ( my $username = LJ::canonical_username($user) ) {
-            return LJ::ljuser(
-                $user,
-                {
-                    no_ljuser_class => $opts->{to_external_site},
-                    no_link         => $opts->{delink_user_links}
-                }
-            );
+            return LJ::ljuser( $user, $opts );
         }
         else {
             $user = LJ::no_utf8_flag($user);
