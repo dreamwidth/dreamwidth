@@ -13,7 +13,7 @@ spec:
         app: web
     spec:
       containers:
-      - image: 194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/web:latest
+      - image: 194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/web:2020.02.05.01
         name: web
         resources:
           requests:
