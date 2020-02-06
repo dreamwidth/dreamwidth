@@ -2,9 +2,15 @@
 
 set -xe
 
-# Validate that the system is set up and working correctly. If this fails, sleep forever
-# so that someone can log in and debug.
-perl -I$LJHOME/extlib/ $LJHOME/bin/checkconfig.pl || sleep infinity
+fail () {
+    echo "-- failure detected --"
+    sleep 30
+    exit 1
+}
+
+# Validate that the system is set up and working correctly. If this fails, give it 30 seconds
+# so operators can view the logs, then exit.
+perl -I$LJHOME/extlib/ $LJHOME/bin/checkconfig.pl || fail
 
 # Run whatever was passed as an argument.
 COMMAND="$1"
