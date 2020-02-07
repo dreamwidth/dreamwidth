@@ -532,13 +532,6 @@ TOKEN:
                 $ljcut_div = 0;
             }
 
-            # no cut URL, record the anchor, but then fall through
-            if ( 0 && $ljcut_div && !$cut ) {
-                $cutcount++;
-                $newdata .= "<a name=\"cutid$cutcount\"></a>";
-                $ljcut_div = 0;
-            }
-
             # Hack: Twitter uses @-syntax to refer to users, so we want to set
             # a flag that says we're in a space where we shouldn't embed.
             if ( $tag eq 'blockquote' && $attr->{class} eq 'twitter-tweet' ) {
