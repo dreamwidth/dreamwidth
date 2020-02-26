@@ -136,7 +136,7 @@ sub options_handler {
             my $given_control_strip_color  = $POST->{control_strip_color};
             my $given_control_strip_custom = $POST->{control_strip_custom};
 
-            if ( $given_control_strip_custom ne "custom" ) {
+            if ( !defined($given_control_strip_custom) || $given_control_strip_custom ne "custom" ) {
                 $override{custom_control_strip_colors} = "off";
             }
             else {

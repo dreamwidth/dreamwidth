@@ -1,6 +1,7 @@
 [%- CALL dw.active_resource_group( 'jquery' ) -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
-[%- dw.need_res( 'stc/customize.css' ) -%]
+[%- dw.need_res( 'stc/css/pages/customize/customize.css' ) -%]
+[%- dw.need_res( 'stc/css/pages/customize/themechooser.css' ) -%]
 [%- dw.need_res( 'js/6alib/inputcomplete.js' ) -%]
 
 

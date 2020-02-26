@@ -36,8 +36,9 @@
 
 [%- output_prop_element( props.$prop_name, prop_name, u, style, theme, props, 0, grouped_prop_override ) -%]
 
-[%- IF prop.note -%]
-    </div><div class='prop-row-note row'>
+[%- IF props.$prop_name.note -%]
+    <div class='prop-note columns'>
         [%- props.$prop_name.note | html -%]
+    </div>
 [%- END -%]
 </div>

@@ -7,7 +7,6 @@
                 "stc/monolith.min.css"
 
         ) -%]
-[%- dw.need_res( 'stc/widgets/customizetheme.css' ) -%]
 
     <h4>[%- dw.ml('widget.customizetheme.title') -%]</h4>
 

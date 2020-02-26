@@ -1,5 +1,4 @@
 [%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.layoutchooser.js' ) -%]
-[%- dw.need_res( 'stc/widgets/layoutchooser.css' ) -%]
 
 <h4>
     [%- IF no_themechooser -%]

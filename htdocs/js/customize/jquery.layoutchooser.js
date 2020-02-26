@@ -29,8 +29,11 @@ LayoutChooser.prototype = {
                      'layout_prop': given_layout_prop,
                      'show_sidebar_prop': given_show_sidebar_prop
                   }
-            var authas = window.location.search.replace(/.*authas=([^&?]*)&?.*/, "$1");
-            if (authas)  postData.authas = authas;
+            var auth_re = RegExp('.*authas=([^&?]*)&?.*');
+            if (auth_re.test(window.location.search)) {
+              postData.authas = window.location.search.replace(auth_re, "$1");
+            }
+
 
             $.ajax({
               type: "POST",

@@ -1,7 +1,7 @@
 [%- CALL dw.active_resource_group( 'jquery' ) -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
-[%- dw.need_res( 'stc/customize.css' ) -%]
-[%- dw.need_res( 'stc/widgets/themenav.css' ) -%]
+[%- dw.need_res( 'stc/css/pages/customize/customize.css' ) -%]
+[%- dw.need_res( 'stc/css/pages/customize/customizetheme.css' ) -%]
 
 <script crossorigin="anonymous" src="/js/vendor/pickr.es5.min.js"></script>
 <form method="get">

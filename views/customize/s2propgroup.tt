@@ -1,7 +1,5 @@
 
-[%- dw.need_res( "stc/widgets/s2propgroup.css" ) -%]
 [%- dw.need_res( { group => 'jquery' }, "js/colorpicker.js" ) -%]
-[%- dw.need_res( "stc/widgets/navstripchooser.css" ) -%]
 
 <div class="appwidget appwidget-s2propgroup">
     [%- pname = propgroup_name(propgroup, u, style) -%]

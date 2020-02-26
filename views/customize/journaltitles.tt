@@ -1,5 +1,4 @@
 [%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.journaltitles.js' ) -%]
-[%- dw.need_res( 'stc/widgets/journaltitles.css' ) -%]
 
 <div class="appwidget-journaltitles">
 <h4>

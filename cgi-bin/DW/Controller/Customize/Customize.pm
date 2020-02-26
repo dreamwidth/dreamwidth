@@ -461,7 +461,6 @@ sub render_layoutchooser {
 
         if ($layout_prop) {
             my %prop_values = LJ::Customize->get_s2_prop_values( $layout_prop, $u, $style );
-            carp;
             $prop_value = $prop_values{override};
         }
 
