@@ -100,7 +100,7 @@ ThemeChooser.prototype = {
                 function (event) { themeChooser.filterThemes(event, "show", $(this).val()) }
             )
 
-            $(".theme-selector-wrapper").on("click", ".theme-page", function(event){
+            $(".theme-selector-wrapper").on("click", ".theme-paging li", function(event){
                     event.preventDefault();
                     var pageLink = $(this).attr('href');
                     var newPage = pageLink.replace(/.*page=([^&?]*)&?.*/, "$1");
