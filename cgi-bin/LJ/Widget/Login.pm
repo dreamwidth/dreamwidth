@@ -17,7 +17,7 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 
-sub need_res { qw( stc/widgets/login.css js/md5.js js/login.js) }
+sub need_res { qw( stc/widgets/login.css) }
 
 sub render_body {
     my $class = shift;
@@ -49,10 +49,6 @@ sub render_body {
     $form_class = "lj_login_form pkg" unless $form_class;
     $ret .= "<form action='$LJ::SITEROOT/login$getextra' method='post' class='$form_class'>\n";
     $ret .= LJ::form_auth();
-
-    my $chal = LJ::challenge_generate(300);    # 5 minute auth token
-    $ret .= "<input type='hidden' name='chal' class='lj_login_chal' value='$chal' />\n";
-    $ret .= "<input type='hidden' name='response' class='lj_login_response' value='' />\n";
 
     my $referer = BML::get_client_header('Referer');
     my $eh_ref;

@@ -2806,13 +2806,8 @@ sub init {
                 unless ($cookie_auth) {
 
                     # authenticate on username/password
-                    my $ok;
-                    if ( $form->{response} ) {
-                        $ok = LJ::challenge_check_login( $up, $form->{chal}, $form->{response} );
-                    }
-                    else {
-                        $ok = LJ::auth_okay( $up, $form->{password}, $form->{hpassword} );
-                    }
+                    my $ok = LJ::auth_okay( $up, $form->{password} );
+
                     $mlerr->(
                         "$SC.error.badpassword2", { aopts => "href='$LJ::SITEROOT/lostinfo'" }
                     ) unless $ok;

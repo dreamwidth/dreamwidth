@@ -3460,15 +3460,7 @@ sub authenticate {
 
         my $auth_meth = $req->{auth_method} || 'clear';
         if ( $auth_meth eq 'clear' ) {
-            return LJ::auth_okay( $u, $req->{password}, $req->{hpassword}, $u->password,
-                \$ip_banned );
-        }
-        if ( $auth_meth eq 'challenge' ) {
-            my $chal_opts = {};
-            my $chall_ok  = LJ::challenge_check_login( $u, $req->{auth_challenge},
-                $req->{auth_response}, \$ip_banned, $chal_opts );
-            $chal_expired = 1 if $chal_opts->{expired};
-            return $chall_ok;
+            return LJ::auth_okay( $u, $req->{password}, \$ip_banned );
         }
         if ( $auth_meth eq 'cookie' ) {
             return unless $r && $r->header_in('X-LJ-Auth') eq 'cookie';

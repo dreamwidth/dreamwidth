@@ -16,8 +16,6 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
     <form action="[% site.root %]/login" method="post" class="lj_login_form pkg">
     <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4> 
       [% dw.form_auth() %]
-      <input type="hidden" name="chal" class="lj_login_chal" value="[% chal %]" /> 
-      <input type="hidden" name="response" class="lj_login_response" value="" /> 
       <fieldset class="pkg nostyle"> 
         <label for="user" class="left">[% '.login.username' | ml %]</label> 
         <input type="text" value="" name="user" id="user" class="text" size="18" maxlength="27" style="" tabindex="11" aria-required="true" />

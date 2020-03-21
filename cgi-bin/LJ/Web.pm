@@ -1224,11 +1224,7 @@ sub entry_form {
     my $tabindex = sub { return ( $tabnum += 10 ) - 10; };
     $opts->{'event'} = LJ::durl( $opts->{'event'} ) if $opts->{'mode'} eq "edit";
 
-    # 1 hour auth token, should be adequate
-    my $chal = LJ::challenge_generate(3600);
-    $out .= "\n\n<div id='entry-form-wrapper'>";
-    $out .= "\n<input type='hidden' name='chal' id='login_chal' value='$chal' />\n";
-    $out .= "<input type='hidden' name='response' id='login_response' value='' />\n\n";
+    $out .= "\n\n<div id='entry-form-wrapper'>\n";
     $out .= LJ::error_list( $errors->{entry} ) if $errors->{entry};
 
     ### Icon Selection
@@ -3366,7 +3362,6 @@ sub control_strip {
         'userpic_html' => '',
         'logo_html'    => ( LJ::Hooks::run_hook( 'control_strip_logo', $remote, $journal ) || '' ),
         'show_login_form' => 0,
-        'login_chal'      => '',
         'links'           => \%links,
         'statustext'      => '',
 
@@ -3674,10 +3669,6 @@ sub control_strip {
         $show_login_form = 1 if !defined $show_login_form;
 
         $template_args->{'show_login_form'} = $show_login_form;
-
-        if ($show_login_form) {
-            $template_args->{'login_chal'} = LJ::challenge_generate(300);
-        }
 
         if ( $journal->is_personal || $journal->is_identity ) {
             if ( $view_is->("read") ) {
