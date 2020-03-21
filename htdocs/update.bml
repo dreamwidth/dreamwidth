@@ -291,11 +291,7 @@ _c?>
             $u = LJ::load_user($user);
 
             # Verify entered password, if it is present.
-            my $ok;
-            my $hashed_password = $POST{response} ||
-                                    # js disabled, fallback to plaintext
-                                    Digest::MD5::md5_hex($POST{chal} . Digest::MD5::md5_hex($POST{password}));
-            $ok = LJ::challenge_check_login($u, $POST{chal}, $hashed_password);
+            my $ok = LJ::auth_okay($u, $POST{password});
             $flags = { 'noauth' => 1, 'u' => $u } if $ok;
 
         } elsif ($remote && LJ::check_referer()) {

@@ -12,13 +12,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[%- dw.need_res( { group => "foundation" },
-        "js/md5.js"
-        "js/components/jquery.hash-password.js"
-    ); -%]
+[%- dw.need_res( { group => "foundation" } ); -%]
 
-<input type="hidden" name="chal" value="[% login_chal %]" />
-<input type="hidden" name="response" id="js-login-response" value="" />
 
 <input type="hidden" name="username" value="" />
 <input type="hidden" name="password" value="" />

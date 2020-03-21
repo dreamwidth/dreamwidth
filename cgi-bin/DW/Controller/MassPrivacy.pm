@@ -97,7 +97,7 @@ sub editprivacy_handler {
 
         if (   ( $mode eq 'amsure' )
             && $more_public
-            && !LJ::auth_okay( $u, $POST->{password}, undef, undef, undef ) )
+            && !LJ::auth_okay( $u, $POST->{password} ) )
         {
             $errors->add( undef, ".error.password" );
             $mode = 'change' if $errors->exist;

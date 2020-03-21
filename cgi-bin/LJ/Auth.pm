@@ -138,35 +138,21 @@ sub check_sessionless_auth_token {
 # move over auth-related functions from ljlib.pl
 
 package LJ;
-
 use Digest::MD5 ();
 
 # <LJFUNC>
 # name: LJ::auth_okay
-# des: Validates a user's password.  The "clear" or "md5" argument
-#      must be present, and either the "actual" argument (the correct
-#      password) must be set, or the first argument must be a user
-#      object ($u) with the 'password' key set.  This is the preferred
+# des: Validates a user's password. This is the preferred
 #      way to validate a password (as opposed to doing it by hand).
 # returns: boolean; 1 if authentication succeeded, 0 on failure
-# args: u, clear, md5, actual?, ip_banned?
-# des-clear: Clear text password the client is sending. (need this or md5)
-# des-md5: MD5 of the password the client is sending. (need this or clear).
-#          If this value instead of clear, clear can be anything, as md5
-#          validation will take precedence.
-# des-actual: The actual password for the user.  Ignored if a pluggable
-#             authenticator is being used.  Required unless the first
-#             argument is a user object instead of a username scalar.
+# args: u, password, ip_banned?
+# des-clear: Clear text password the client is sending.
 # des-ip_banned: Optional scalar ref which this function will set to true
 #                if IP address of remote user is banned.
 # </LJFUNC>
 sub auth_okay {
-    my ( $u, $clear, $md5, $actual, $ip_banned ) = @_;
+    my ( $u, $password, $ip_banned ) = @_;
     return 0 unless LJ::isu($u);
-
-    $actual ||= $u->password;
-
-    my $user = $u->{'user'};
 
     # set the IP banned flag, if it was provided.
     my $fake_scalar;
@@ -185,9 +171,7 @@ sub auth_okay {
     };
 
     ## LJ default authorization:
-    return 0 unless $actual;
-    return 1 if $md5 && lc($md5) eq Digest::MD5::md5_hex($actual);
-    return 1 if $clear eq $actual;
+    return 1 if $password eq $u->password;
     return $bad_login->();
 }
 
@@ -259,39 +243,6 @@ sub challenge_check {
     }
 
     return ( $valid && !$expired && ( $count == 1 || $opts->{dont_check_count} ) );
-}
-
-# Validate login/talk md5 responses.
-# Return 1 on valid, 0 on invalid.
-sub challenge_check_login {
-    my ( $u, $chal, $res, $banned, $opts ) = @_;
-    return 0 unless $u;
-    my $pass = $u->password;
-    return 0 if $pass eq "";
-
-    # set the IP banned flag, if it was provided.
-    my $fake_scalar;
-    my $ref = ref $banned ? $banned : \$fake_scalar;
-    if ( LJ::login_ip_banned($u) ) {
-        $$ref = 1;
-        return 0;
-    }
-    else {
-        $$ref = 0;
-    }
-
-    # check the challenge string validity
-    return 0 unless LJ::challenge_check( $chal, $opts );
-
-    # Validate password
-    my $hashed = Digest::MD5::md5_hex( $chal . Digest::MD5::md5_hex($pass) );
-    if ( $hashed eq $res ) {
-        return 1;
-    }
-    else {
-        LJ::handle_bad_login($u);
-        return 0;
-    }
 }
 
 # Create a challenge token for secure logins

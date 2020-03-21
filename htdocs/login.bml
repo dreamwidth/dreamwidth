@@ -296,12 +296,8 @@ _c?>
 
             my ($banned, $ok);
             $banned = $ok = 0;
-            my $chal_opts = {};
 
-            my $hashed_password = $POST{response} ||
-                                    # js disabled, fallback to plaintext
-                                    Digest::MD5::md5_hex($POST{chal} . Digest::MD5::md5_hex($password));
-            $ok = LJ::challenge_check_login($u, $POST{chal}, $hashed_password, \$banned, $chal_opts);
+            $ok = LJ::auth_okay($u, $POST{password}, \$banned);
 
             if ($banned) {
                 return if $want_fail_redirect->("banned_ip");
@@ -312,11 +308,7 @@ _c?>
             }
 
             if ($u && ! $ok) {
-                if ($chal_opts->{'expired'}) {
-                    push @errors, [ expired_challenge => $ML{'error.expiredchal'}];
-                } else {
-                    push @errors, [ bad_password => BML::ml( 'error.badpassword2', { aopts => "href='$LJ::SITEROOT/lostinfo'" } ) ];
-                }
+                push @errors, [ bad_password => BML::ml( 'error.badpassword2', { aopts => "href='$LJ::SITEROOT/lostinfo'" } ) ];
             }
 
             push @errors, [ account_locked => 'This account is locked and cannot be logged in to at this time.' ]
