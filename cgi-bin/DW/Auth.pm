@@ -4,11 +4,6 @@
 #
 # Alternate authentication styles
 #
-# BIG NOTE: These authentication mechanisms break as soon as we move to storing
-# bcrypted passwords, which are not compatible with schemes like digest auth that
-# require us to be able to reverse the user's password. Do we care? Do we need to
-# generate app passwords?
-#
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #      Afuna <coder.dw@afunamatata.com>
@@ -107,7 +102,7 @@ sub authenticate {
         return $ok->( $u, 'wsse' ) if $u;
     }
     if ( $opts{digest} ) {
-        my ( $u, $fail_sub ) = _auth_digest();
+        my ( $u, $fail_sub ) = _auth_basic();
         push @fail_subs, $fail_sub if $fail_sub;
         return $ok->( $u, 'digest' ) if $u;
     }
@@ -185,7 +180,7 @@ sub _auth_wsse {
     return ( $u, undef );
 }
 
-sub _auth_digest {
+sub _auth_basic {
     my $r = DW::Request->get;
 
     my $decline = sub {
@@ -194,96 +189,41 @@ sub _auth_digest {
         my $sv = sub {
             my $r = DW::Request->get;
 
-            my $nonce = LJ::challenge_generate(180);    # 3 mins timeout
-            my $authline =
-"Digest realm=\"$LJ::SITENAMESHORT\", nonce=\"$nonce\", algorithm=MD5, qop=\"auth\"";
-            $authline .= ", stale=\"true\"" if $stale;
-            $r->header_out_add( "WWW-Authenticate", $authline );
+            $r->header_out_add( "WWW-Authenticate", "Basic  realm=\"$LJ::SITENAMESHORT\"" );
         };
         return ( undef, $sv );
     };
 
     unless ( $r->header_in("Authorization") ) {
-        return $decline->(0);
+       return $decline->();
     }
 
     my $header = $r->header_in("Authorization");
 
-    # parse it
-    # FIXME: could there be "," or " " inside attribute values, requiring trickier parsing?
-
-    my @vals     = split( /[, \s]/, $header );
-    my $authname = shift @vals;
-    my %attrs;
-    foreach (@vals) {
-        if (/^(\S*?)=(\S*)$/) {
-            my ( $attr, $value ) = ( $1, $2 );
-            if ( $value =~ m/^\"([^\"]*)\"$/ ) {
-                $value = $1;
-            }
-            $attrs{$attr} = $value;
-        }
-    }
+    my ($authname, $val) = split( ' ', $header );
 
     # sanity checks
-    unless ( $authname eq 'Digest'
-        && ( !defined $attrs{'qop'} || $attrs{'qop'} eq 'auth' )
-        && $attrs{'realm'} eq $LJ::SITENAMESHORT
-        && ( !defined $attrs{'algorithm'} || $attrs{'algorithm'} eq 'MD5' ) )
+    unless ( $authname eq 'Basic')
     {
-        return $decline->(0);
+        return $decline->();
     }
+    $val =~ s/=$//;    # strip base64 newline char
+    my $decoded = MIME::Base64::decode_base64($val);
 
-    my %opts;
-    LJ::challenge_check( $attrs{'nonce'}, \%opts );
-
-    return $decline->(0) unless $opts{'valid'};
-
-    # if the nonce expired, force a new one
-    return $decline->(1) if $opts{'expired'};
-
-    # check the nonce count
-    # be lenient, allowing for error of magnitude 1 (Mozilla has a bug,
-    # it repeats nc=00000001 twice...)
-    # in case the count is off, force a new nonce; if a client's
-    # nonce count implementation is broken and it doesn't send nc= or
-    # always sends 1, this'll at least work due to leniency above
-
-    my $ncount = hex( $attrs{'nc'} );
-
-    unless ( abs( $opts{'count'} - $ncount ) <= 1 ) {
-        return $decline->(1);
-    }
+    my ($username, $password) = split(":", $decoded, 2);
 
     # the username
-    my $user = LJ::canonical_username( $attrs{'username'} );
+    my $user = LJ::canonical_username( $username );
     my $u    = LJ::load_user($user);
 
-    return $decline->(0) unless $u;
+    return $decline->() unless $u;
 
     # don't allow empty passwords
 
-    return $decline->(0) unless $u->password;
+    return $decline->() unless $u->password;
 
-    # recalculate the hash and compare to response
-
-    my $qop   = $attrs{qop};
-    my $a1src = $u->user . ":$LJ::SITENAMESHORT:" . $u->password;
-    my $a1    = Digest::MD5::md5_hex($a1src);
-    my $a2src = $r->method . ":$attrs{'uri'}";
-    my $a2    = Digest::MD5::md5_hex($a2src);
-    my $hashsrc;
-
-    if ( $qop eq 'auth' ) {
-        $hashsrc = "$a1:$attrs{'nonce'}:$attrs{'nc'}:$attrs{'cnonce'}:$attrs{'qop'}:$a2";
-    }
-    else {
-        $hashsrc = "$a1:$attrs{'nonce'}:$a2";
-    }
-    my $hash = Digest::MD5::md5_hex($hashsrc);
-
-    return $decline->(0)
-        unless $hash eq $attrs{'response'};
+    return $decline->()
+        unless $u->check_password( $password );
 
     return ( $u, undef );
 }
