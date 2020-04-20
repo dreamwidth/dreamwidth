@@ -15,8 +15,8 @@ package LJ::User;
 use strict;
 no warnings 'uninitialized';
 
-use Crypt::Eksblowfish::Bcrypt qw/ bcrypt_hash en_base64 de_base64 /;
-use Math::Random::Secure qw/ irand /;
+use Authen::Passphrase::Clear;
+use Authen::Passphrase::BlowfishCrypt;
 
 use LJ::Session;
 
@@ -340,7 +340,6 @@ sub password {
     croak('User password is unavailable.')
         unless $u->dversion <= 9;
 
-    # TODO: Remove when everybody is upgraded.
     my $userid = $u->userid;
     $u->{_password} ||= LJ::MemCache::get_or_set(
         [ $userid, "pw:$userid" ],
@@ -353,20 +352,23 @@ sub password {
     return $u->{_password};
 }
 
-sub password_bcrypt {
+sub password_hash {
     my $u = $_[0];
-    croak('User is not using bcrypted passwords yet.') unless $u->dversion >= 10;
+    return unless $u->is_person;
 
-    # TODO: memcache?
-    my $dbh = LJ::get_db_writer()
-        or croak('Unable to get db master.');
-    my ( $cost, $salt, $hash ) = $dbh->selectrow_array(
-        q{SELECT bcrypt_cost, bcrypt_salt, bcrypt_hash FROM password_bcrypt WHERE userid = ?},
-        undef, $u->id );
+    croak('User password hash is unavailable.')
+        unless $u->dversion >= 10;
 
-    croak('User has no bcrypted password?!') unless $cost && defined $salt && defined $hash;
-
-    return ( $cost, $salt, $hash );
+    my $userid = $u->userid;
+    $u->{_password} ||= LJ::MemCache::get_or_set(
+        [ $userid, "pw:$userid" ],
+        sub {
+            my $dbh = LJ::get_db_writer() or croak("Couldn't get db master");
+            return $dbh->selectrow_array( q{SELECT bcrypt_hash FROM password2 WHERE userid = ?},
+                undef, $userid );
+        }
+    );
+    return $u->{_password};
 }
 
 sub set_password {
@@ -376,59 +378,45 @@ sub set_password {
     my $dbh = LJ::get_db_writer()
         or croak('Unable to get db master.');
 
-    if ( $u->dversion <= 9 && !exists $opts{force_bcrypt} ) {
+    if ( $u->dversion <= 9 && ! $opts{force_bcrypt} ) {
 
         # Old style: Write raw password to the database and store it in the user
         # object. This is quite dumb, but it was the late 90s when this was written?
         $dbh->do( "REPLACE INTO password (userid, password) VALUES (?, ?)",
             undef, $userid, $password )
             or croak('Failed to set password.');
-
-        # update caches
-        LJ::memcache_kill( $userid, "userid" );
-        $u->memc_delete('pw');
-        my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
-        $cache->{'_password'} = $password;
     }
     else {
         # New style: calculate a new salt and bcrypt and store into the database.
         # Password is never saved anywhere.
-
-        # Salt is constructed with 16 bytes of cryptographically secure PRNG. And is
-        # unique per password set.
-        my $salt = pack( 'LLLL', map { irand() } 1 .. 4 );
-
-        # Bcrypt hash, so it's hard to brute force.
-        my $cost = $LJ::BCRYPT_COST || 12;
-        my $hash = bcrypt_hash( { key_nul => 1, cost => $cost, salt => $salt }, $password );
+        my $crypt = Authen::Passphrase::BlowfishCrypt->new(
+            cost        => $LJ::BCRYPT_COST,
+            salt_random => 1,
+            passphrase  => $password
+        );
 
         # Replace into database.
-        $dbh->do(
-q{REPLACE INTO password_bcrypt (userid, bcrypt_cost, bcrypt_salt, bcrypt_hash) VALUES (?, ?, ?, ?)},
-            undef,
-            $userid,
-            $cost,
-            en_base64($salt),
-            en_base64($hash)
-        ) or croak('Failed to set password hash.');
-
-        # TODO: memcache:
+        $dbh->do( q{REPLACE INTO password2 (userid, bcrypt_hash) VALUES (?, ?)},
+            undef, $userid, $crypt->as_crypt, )
+            or croak('Failed to set password hash.');
     }
+
+    # update caches
+    LJ::memcache_kill( $userid, "userid" );
+    $u->memc_delete('pw');
+    my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
+    $cache->{'_password'} = $password;
 }
 
 sub check_password {
     my ( $u, $password ) = @_;
 
-    if ( $u->dversion <= 9 ) {
-        return $u->password eq $password;
-    }
+    my $crypt =
+        $u->dversion <= 9
+        ? Authen::Passphrase::Clear->new( $u->password )
+        : Authen::Passphrase::BlowfishCrypt->from_crypt( $u->password_hash );
 
-    # This is a modern password, we have to do the hash anew and check.
-    my ( $cost, $salt, $hash ) = $u->password_bcrypt;
-    my $check_hash =
-        bcrypt_hash( { key_nul => 1, cost => $cost, salt => de_base64($salt) }, $password );
-
-    return en_base64($check_hash) eq $hash ? 1 : 0;
+    return $crypt->match($password);
 }
 
 ########################################################################
