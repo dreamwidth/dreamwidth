@@ -284,7 +284,7 @@ body<=
             unless $pin =~ /^([a-z0-9]){4,20}$/i or $pin eq '';
 
         push @errors, BML::ml('.error.invalidpinaccount', {'sitename' => $LJ::SITENAMESHORT})
-            if $pin eq $u->password or $pin eq $u->user;
+            if $pin eq $u->user;
 
         # Check email, add flags if needed.
         my %allowed;

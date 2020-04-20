@@ -62,7 +62,7 @@ sub verify_username {
                     # brute-force possibly going on
                 }
                 else {
-                    if ( $u->password eq $post->{password1} ) {
+                    if ( $u->check_password( $post->{password1} ) ) {
 
                         # okay either they double-clicked the submit button
                         # or somebody entered an account name that already exists
@@ -96,7 +96,6 @@ sub verify_password {
     my ( $password, $username, $email, $name );
     my $u = $opts{u};
     if ( LJ::isu($u) ) {
-        $password = $u->password;
         $username = $u->user;
         $email    = $u->email_raw;
         $name     = $u->name_raw;

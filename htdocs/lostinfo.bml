@@ -107,8 +107,7 @@ body<=
             return $err->( $ML{'.error.syndicated'} );
         }
 
-        if ( $u->is_community && ! length $u->password ) {
-            # community with no password
+        if ( $u->is_community ) {
             return $err->( $ML{'.error.commnopassword'} );
         }
 

@@ -342,8 +342,12 @@ no strict "vars";
     # Selective screening limit. No user can have more than this.
     $LJ::SEL_SCREEN_LIMIT ||= 500;
 
-# maximum length of a username (NB do not change without changing width of database fields to match. And perhaps other stuff.
+    # Maximum length of a username (NB do not change without changing width
+    # of database fields to match. And perhaps other stuff.
     $USERNAME_MAXLENGTH = 25;
+
+    # Cost to set for bcrypt password hash calculations.
+    $BCRYPT_COST = 12;
 }
 
 1;

@@ -15,6 +15,9 @@ package LJ::User;
 use strict;
 no warnings 'uninitialized';
 
+use Crypt::Eksblowfish::Bcrypt qw/ bcrypt_hash en_base64 de_base64 /;
+use Math::Random::Secure qw/ irand /;
+
 use LJ::Session;
 
 ########################################################################
@@ -319,8 +322,8 @@ sub can_receive_password {
     return 0 unless $u && $email;
     return 1 if lc($email) eq lc( $u->email_raw );
 
-    my $dbh = LJ::get_db_reader();
-    return $dbh->selectrow_array(
+    my $dbr = LJ::get_db_reader();
+    return $dbr->selectrow_array(
         "SELECT COUNT(*) FROM infohistory "
             . "WHERE userid=? AND what='email' "
             . "AND oldvalue=? AND other='A'",
@@ -331,6 +334,13 @@ sub can_receive_password {
 sub password {
     my $u = shift;
     return unless $u->is_person;
+
+    # This is only valid on dversion <= 9. Otherwise, we are using encrypted
+    # passwords and this is meaningless.
+    croak('User password is unavailable.')
+        unless $u->dversion <= 9;
+
+    # TODO: Remove when everybody is upgraded.
     my $userid = $u->userid;
     $u->{_password} ||= LJ::MemCache::get_or_set(
         [ $userid, "pw:$userid" ],
@@ -343,21 +353,82 @@ sub password {
     return $u->{_password};
 }
 
+sub password_bcrypt {
+    my $u = $_[0];
+    croak('User is not using bcrypted passwords yet.') unless $u->dversion >= 10;
+
+    # TODO: memcache?
+    my $dbh = LJ::get_db_writer()
+        or croak('Unable to get db master.');
+    my ( $cost, $salt, $hash ) = $dbh->selectrow_array(
+        q{SELECT bcrypt_cost, bcrypt_salt, bcrypt_hash FROM password_bcrypt WHERE userid = ?},
+        undef, $u->id );
+
+    croak('User has no bcrypted password?!') unless $cost && defined $salt && defined $hash;
+
+    return ( $cost, $salt, $hash );
+}
+
 sub set_password {
-    my ( $u, $password ) = @_;
+    my ( $u, $password, %opts ) = @_;
     my $userid = $u->id;
 
-    my $dbh = LJ::get_db_writer();
-    if ( $LJ::DEBUG{'write_passwords_to_user_table'} ) {
-        $dbh->do( "UPDATE user SET password=? WHERE userid=?", undef, $password, $userid );
-    }
-    $dbh->do( "REPLACE INTO password (userid, password) VALUES (?, ?)", undef, $userid, $password );
+    my $dbh = LJ::get_db_writer()
+        or croak('Unable to get db master.');
 
-    # update caches
-    LJ::memcache_kill( $userid, "userid" );
-    $u->memc_delete('pw');
-    my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
-    $cache->{'_password'} = $password;
+    if ( $u->dversion <= 9 && !exists $opts{force_bcrypt} ) {
+
+        # Old style: Write raw password to the database and store it in the user
+        # object. This is quite dumb, but it was the late 90s when this was written?
+        $dbh->do( "REPLACE INTO password (userid, password) VALUES (?, ?)",
+            undef, $userid, $password )
+            or croak('Failed to set password.');
+
+        # update caches
+        LJ::memcache_kill( $userid, "userid" );
+        $u->memc_delete('pw');
+        my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
+        $cache->{'_password'} = $password;
+    }
+    else {
+        # New style: calculate a new salt and bcrypt and store into the database.
+        # Password is never saved anywhere.
+
+        # Salt is constructed with 16 bytes of cryptographically secure PRNG. And is
+        # unique per password set.
+        my $salt = pack( 'LLLL', map { irand() } 1 .. 4 );
+
+        # Bcrypt hash, so it's hard to brute force.
+        my $cost = $LJ::BCRYPT_COST || 12;
+        my $hash = bcrypt_hash( { key_nul => 1, cost => $cost, salt => $salt }, $password );
+
+        # Replace into database.
+        $dbh->do(
+q{REPLACE INTO password_bcrypt (userid, bcrypt_cost, bcrypt_salt, bcrypt_hash) VALUES (?, ?, ?, ?)},
+            undef,
+            $userid,
+            $cost,
+            en_base64($salt),
+            en_base64($hash)
+        ) or croak('Failed to set password hash.');
+
+        # TODO: memcache:
+    }
+}
+
+sub check_password {
+    my ( $u, $password ) = @_;
+
+    if ( $u->dversion <= 9 ) {
+        return $u->password eq $password;
+    }
+
+    # This is a modern password, we have to do the hash anew and check.
+    my ( $cost, $salt, $hash ) = $u->password_bcrypt;
+    my $check_hash =
+        bcrypt_hash( { key_nul => 1, cost => $cost, salt => de_base64($salt) }, $password );
+
+    return en_base64($check_hash) eq $hash ? 1 : 0;
 }
 
 ########################################################################

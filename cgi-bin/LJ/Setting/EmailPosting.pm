@@ -183,7 +183,7 @@ sub save {
             'setting.emailposting.error.pin.invalidaccount',
             { sitename => $LJ::SITENAMESHORT }
         )
-    ) if $pin_val eq $u->password || $pin_val eq $u->user;
+    ) if $pin_val eq $u->user;
 
     $u->set_prop( emailpost_pin => $pin_val );
 

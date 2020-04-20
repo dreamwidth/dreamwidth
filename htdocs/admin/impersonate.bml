@@ -39,7 +39,7 @@ body<=
         push @errors, BML::ml( '.error.invaliduser', { user => LJ::ehtml( $POST{username} ) } ) unless $u;
 
         my $password = $POST{password};
-        push @errors, $ML{'.error.invalidpassword'} unless $password && $password eq $remote->password;
+        push @errors, $ML{'.error.invalidpassword'} unless $password && $remote->check_password( $password );
 
         my $reason = LJ::ehtml( LJ::trim( $POST{reason} ) );
         push @errors, $ML{'.error.emptyreason'} unless $reason;

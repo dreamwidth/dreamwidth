@@ -89,7 +89,9 @@ sub changeemail_handler {
             push @errors, LJ::Lang::ml('/changeemail.tt.error.nospace');
         }
 
-        if ( !$remote->is_identity && ( !defined $password || $password ne $remote->password ) ) {
+        if ( !$remote->is_identity
+            && ( !defined $password || !$remote->check_password($password) ) )
+        {
             push @errors, LJ::Lang::ml('/changeemail.tt.error.invalidpassword');
         }
 
