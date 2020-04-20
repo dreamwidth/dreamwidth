@@ -191,18 +191,19 @@ sub editprivacy_handler {
     my @days   = map { $_, $_ } ( 1 .. 31 );
     my @months = map { $_, LJ::Lang::month_long_ml($_) } ( 1 .. 12 );
     my $vars   = {
-        mode          => $mode,
-        POST          => $POST,
-        more_public   => $more_public,
-        day_list      => \@days,
-        month_list    => \@months,
-        security_list => \@security,
-        security      => \%security,
-        errors        => $errors,
-        s_dt          => $s_dt,
-        e_dt          => $e_dt,
-        posts         => $posts,
-        u             => $u,
+        mode               => $mode,
+        POST               => $POST,
+        more_public        => $more_public,
+        day_list           => \@days,
+        month_list         => \@months,
+        security_list      => \@security,
+        security           => \%security,
+        errors             => $errors,
+        s_dt               => $s_dt,
+        e_dt               => $e_dt,
+        posts              => $posts,
+        u                  => $u,
+        password_maxlength => $LJ::PASSWORD_MAXLENGTH,
     };
 
     return DW::Template->render_template( 'editprivacy.tt', $vars );

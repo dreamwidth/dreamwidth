@@ -115,7 +115,7 @@
             [% IF more_public %]
             <div class="row">
             	<div class="columns medium-6 end">
-                [% form.password( name = 'password', size='20,' maxlength='30', 'label'= "Password Required") %]
+                [% form.password(name='password', size='20', maxlength=password_maxlength, label="Password Required") %]
                 </div>
                 </div>
             [% END %]

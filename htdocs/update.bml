@@ -180,7 +180,7 @@ _c?>
         $auth .= "<p class='pkg'>\n";
         $auth .= "<label for='altlogin_password' class='left'>$ML{'.password'}</label>\n";
         $auth .= LJ::html_text({ 'type' => 'password', 'id' => 'altlogin_password', 'class' => 'text',
-                'name' => 'password', 'tabindex' => '6', 'size' => '15', 'maxlength' => '30' }) . "\n";
+                'name' => 'password', 'tabindex' => '6', 'size' => '15', 'maxlength' => $LJ::PASSWORD_MAXLENGTH }) . "\n";
         # posted with a user, but no password
         if ($did_post && $auth_missing) {
             $auth .= "<br /><?inerr $ML{'.error.nopass'} inerr?>";

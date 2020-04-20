@@ -195,25 +195,24 @@ sub _auth_basic {
     };
 
     unless ( $r->header_in("Authorization") ) {
-       return $decline->();
+        return $decline->();
     }
 
     my $header = $r->header_in("Authorization");
 
-    my ($authname, $val) = split( ' ', $header );
+    my ( $authname, $val ) = split( ' ', $header );
 
     # sanity checks
-    unless ( $authname eq 'Basic')
-    {
+    unless ( $authname eq 'Basic' ) {
         return $decline->();
     }
     $val =~ s/=$//;    # strip base64 newline char
     my $decoded = MIME::Base64::decode_base64($val);
 
-    my ($username, $password) = split(":", $decoded, 2);
+    my ( $username, $password ) = split( ":", $decoded, 2 );
 
     # the username
-    my $user = LJ::canonical_username( $username );
+    my $user = LJ::canonical_username($username);
     my $u    = LJ::load_user($user);
 
     return $decline->() unless $u;
@@ -223,7 +222,7 @@ sub _auth_basic {
     return $decline->() unless $u->password;
 
     return $decline->()
-        unless $u->check_password( $password );
+        unless $u->check_password($password);
 
     return ( $u, undef );
 }
