@@ -90,7 +90,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         label = dw.ml( '.field.password' )
         name  = 'password1'
 
-        maxlength = 31
+        maxlength = password_maxlength + 1
 
         "aria-required" = "true"
     ) -%]
@@ -106,7 +106,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         label = dw.ml( '.field.confirmpassword' )
         name  = 'password2'
 
-        maxlength = 31
+        maxlength = password_maxlength + 1
 
         "aria-required" = "true"
     ) -%]
@@ -172,5 +172,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </form>
 
 [%- BLOCK tooltip text="" id="" -%]
-<div class="tooltip tip-right" id="hint-[%- id -%]"><div class='nub'></div> [%- text | ml -%]</div>
+<div class="tooltip tip-right" id="hint-[%- id -%]">
+    <div class='nub'></div>
+    [%- text | ml( password_minlength = password_minlength, password_maxlength = password_maxlength ) -%]
+</div>
 [%- END -%]

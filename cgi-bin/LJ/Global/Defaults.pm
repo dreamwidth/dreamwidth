@@ -346,6 +346,10 @@ no strict "vars";
     # of database fields to match. And perhaps other stuff.
     $USERNAME_MAXLENGTH = 25;
 
+    # Password size requirements
+    $PASSWORD_MINLENGTH = 6;
+    $PASSWORD_MAXLENGTH = 72;
+
     # Cost to set for bcrypt password hash calculations.
     $BCRYPT_COST = 12;
 }

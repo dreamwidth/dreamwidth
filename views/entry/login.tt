@@ -32,6 +32,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         type = "password"
         name = "password"
         size = "20"
+        maxlength = password_maxlength
         "aria-required" = "true"
     ) -%]
     <input class="button expand" type="submit" name="login" value="[% '.onetime.button.post' | ml %]" aria-describedby="one-time" />

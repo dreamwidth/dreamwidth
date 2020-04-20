@@ -96,7 +96,7 @@ sub render_body {
             . LJ::Lang::ml('/login.bml.login.password')
             . "</label>\n";
         $ret .=
-"<input type='password' id='lj_loginwidget_password' name='password' class='lj_login_password text' size='20' maxlength='30' tabindex='12' /><a href='$LJ::SITEROOT/lostinfo' class='small-link' tabindex='16'>"
+"<input type='password' id='lj_loginwidget_password' name='password' class='lj_login_password text' size='20' maxlength='$LJ::PASSWORD_MAXLENGTH' tabindex='12' /><a href='$LJ::SITEROOT/lostinfo' class='small-link' tabindex='16'>"
             . LJ::Lang::ml('/login.bml.login.forget2')
             . "</a>\n";
         $ret .= "</fieldset>\n";

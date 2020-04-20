@@ -326,6 +326,8 @@ sub create_handler {
         email_checkbox => $email_checkbox,
 
         username_maxlength => $LJ::USERNAME_MAXLENGTH,
+        password_minlength => $LJ::PASSWORD_MINLENGTH,
+        password_maxlength => $LJ::PASSWORD_MAXLENGTH,
     };
 
     if ( $code_valid && $rate_ok ) {

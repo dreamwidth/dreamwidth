@@ -265,6 +265,8 @@ sub new_handler {
 
     $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
 
+    $vars->{password_maxlength} = $LJ::PASSWORD_MAXLENGTH;
+
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
 

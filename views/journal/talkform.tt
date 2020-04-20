@@ -287,7 +287,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
           name = 'password'
           id= 'password'
           label = dw.ml('Password')
-          maxlength = 30
+          maxlength = password_maxlength
           size = 18
         ) -%]
       </div>
@@ -760,7 +760,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
               name = 'password'
               id= 'password'
               label = dw.ml('Password')
-              maxlength = 30
+              maxlength = password_maxlength
               size = 18
             ) -%]
           </div>
