@@ -296,8 +296,8 @@ sub changepassword_handler {
             if ( LJ::login_ip_banned($u) ) {
                 $errors->add( "user", "error.ipbanned" );
             }
-            elsif ( !$authu
-                && ( $u->password eq "" || $u->password ne $password ) )
+            elsif (!$authu
+                && !$u->check_password($password) )
             {
                 $errors->add( "password", ".error.badoldpassword" );
                 LJ::handle_bad_login($u);
@@ -326,14 +326,9 @@ sub changepassword_handler {
 
         # now let's change the password
         unless ( $errors->exist ) {
-            ## make note of changed password
-            my $dbh    = LJ::get_db_writer();
-            my $oldval = Digest::MD5::md5_hex( $u->password . "change" );
-            $u->infohistory_add( 'password', $oldval );
-
+            $u->infohistory_add( 'password', 'changed' );
             $u->log_event( 'password_change', { remote => $remote } );
-
-            $u->update_self( { password => $post->{newpass1} } );
+            $u->set_password( $post->{newpass1} );
 
             # if we used an authcode, we'll need to expire it now
             LJ::mark_authaction_used($aa) if $authu;
@@ -367,15 +362,6 @@ sub changepassword_handler {
                 $success_ml,
                 {
                     url => LJ::create_url("/login"),
-                }
-            );
-
-            LJ::Hooks::run_hooks(
-                "post_changepassword",
-                {
-                    "u"           => $u,
-                    "newpassword" => $post->{newpass1},
-                    "oldpassword" => $u->password,
                 }
             );
 

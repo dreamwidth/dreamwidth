@@ -66,10 +66,6 @@ unless ( $args{force} ) {
         print "   " . $acct[1]->email_raw . "\n";
         exit 1;
     }
-    unless ( $acct[0]->password eq $acct[1]->password ) {
-        print "Passwords don't match.\n";
-        exit 1;
-    }
     unless ( $acct[0]->{'status'} eq "A" || $acct[1]->{'status'} eq "A" ) {
         print "At least one account isn't verified.\n";
         exit 1;

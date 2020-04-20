@@ -4,6 +4,11 @@
 #
 # Alternate authentication styles
 #
+# BIG NOTE: These authentication mechanisms break as soon as we move to storing
+# bcrypted passwords, which are not compatible with schemes like digest auth that
+# require us to be able to reverse the user's password. Do we care? Do we need to
+# generate app passwords?
+#
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #      Afuna <coder.dw@afunamatata.com>

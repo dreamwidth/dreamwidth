@@ -171,7 +171,7 @@ sub auth_okay {
     };
 
     ## LJ default authorization:
-    return 1 if $password eq $u->password;
+    return 1 if $u->check_password($password);
     return $bad_login->();
 }
 

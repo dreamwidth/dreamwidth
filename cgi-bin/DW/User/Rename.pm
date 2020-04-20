@@ -329,7 +329,6 @@ sub _are_same_person {
 # may be able to do this more elegantly once we are able to associate accounts
 # right now: two valid accounts, same email address, same password, and at least one must be validated
     return 0 unless $p1->has_same_email_as($p2);
-    return 0 unless $p1->password eq $p2->password;
     return 0 unless $p1->is_validated || $p2->is_validated;
 
     return 1;
