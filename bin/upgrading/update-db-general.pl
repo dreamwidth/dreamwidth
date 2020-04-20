@@ -2215,12 +2215,10 @@ CREATE TABLE password (
 )
 EOC
 
-register_tablecreate( "password_bcrypt", <<'EOC');
-CREATE TABLE password_bcrypt (
-    userid           INT UNSIGNED NOT NULL PRIMARY KEY,
-    bcrypt_cost      SMALLINT UNSIGNED NOT NULL,
-    bcrypt_salt      CHAR(22) NOT NULL,
-    bcrypt_hash      CHAR(31) NOT NULL
+register_tablecreate( "password2", <<'EOC');
+CREATE TABLE password2 (
+    userid      INT UNSIGNED NOT NULL PRIMARY KEY,
+    bcrypt_hash VARCHAR(60) NOT NULL
 )
 EOC
 
