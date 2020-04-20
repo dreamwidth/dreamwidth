@@ -378,7 +378,7 @@ sub set_password {
     my $dbh = LJ::get_db_writer()
         or croak('Unable to get db master.');
 
-    if ( $u->dversion <= 9 && ! $opts{force_bcrypt} ) {
+    if ( $u->dversion <= 9 && !$opts{force_bcrypt} ) {
 
         # Old style: Write raw password to the database and store it in the user
         # object. This is quite dumb, but it was the late 90s when this was written?
