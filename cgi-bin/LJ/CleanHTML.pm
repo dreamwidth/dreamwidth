@@ -579,8 +579,10 @@ TOKEN:
                 if ( $opts->{preserve_lj_tags_for} ) {
                     $opencount{'lj-cut'}++;
                     $newdata .= qq{<lj-cut};
-                    $newdata .= qq{ text="$attr->{'text'}"}
-                        if $attr->{'text'};
+                    if ( $attr->{'text'} ) {
+                        my $etext = $link_text->();
+                        $newdata .= qq{ text="$etext"};
+                    }
                     $newdata .= '>';
                     next TOKEN;
                 }
