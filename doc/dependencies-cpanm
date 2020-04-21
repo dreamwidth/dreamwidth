@@ -1,3 +1,4 @@
+Authen::OATH
 Authen::Passphrase::Clear
 Authen::Passphrase::BlowfishCrypt
 Business::CreditCard
@@ -8,6 +9,7 @@ Class::Autouse
 Class::Data::Inheritable
 Class::Trigger
 Compress::Zlib
+Convert::Base32
 CryptX
 Danga::Socket
 Data::ObjectDriver
@@ -21,6 +23,7 @@ Hash::MultiValue@0.16
 IO::WrapTie
 Image::ExifTool
 Image::Size
+Imager::QRCode
 JSON::Validator
 JSON@2.53
 LWP::UserAgent::Paranoid

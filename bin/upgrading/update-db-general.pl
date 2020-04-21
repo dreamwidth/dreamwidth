@@ -2217,9 +2217,22 @@ EOC
 
 register_tablecreate( "password2", <<'EOC');
 CREATE TABLE password2 (
-    userid   INT UNSIGNED NOT NULL PRIMARY KEY,
-    version  INT UNSIGNED NOT NULL,
-    password VARCHAR(255) NOT NULL
+    userid      INT UNSIGNED NOT NULL PRIMARY KEY,
+    version     INT UNSIGNED NOT NULL,
+    password    VARCHAR(255) NOT NULL
+    totp_secret VARCHAR(255)
+)
+EOC
+
+register_tablecreate( "totp_recovery_codes", <<'EOC');
+CREATE TABLE totp_recovery_codes (
+    userid      INT UNSIGNED NOT NULL,
+    code        VARCHAR(255) NOT NULL,
+    status      CHAR(1) NOT NULL,
+    used_ip     VARCHAR(15),
+    used_time   INT(10) UNSIGNED,
+
+    PRIMARY KEY (userid, code)
 )
 EOC
 

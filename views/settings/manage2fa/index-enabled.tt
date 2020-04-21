@@ -1,0 +1,61 @@
+[%#
+
+Manage 2fa settings
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2020 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = "Manage Two-Factor Authentication" -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+<form method="POST">
+    [%- dw.form_auth -%]
+    [%- form.hidden( name = "mode", value = "submit" ) -%]
+
+<p>
+    Two-factor authentication (2FA) is <strong>currently enabled</strong> for
+    your account. Hurrah! Your account is much more secure now.
+</p>
+
+<h1>Recovery Codes</h1>
+[% IF show_codes %]
+    <p>
+        These are your 2FA <strong>recovery codes</strong>. Please write these down
+        somewhere secure. You will need these if you lose access to your 2FA device
+        and need to contact support to unlock your account.
+    </p>
+
+    <p>
+        <strong>Treat these like passwords!</strong> These codes will allow someone
+        access to your account, so please be careful with them.
+    </p>
+
+    [% FOR code IN codes %]
+    <code>[% code %]</code>
+    [% END %]
+[% ELSE %]
+    <p>
+        If you've misplaced your recovery codes, please click this button to see
+        them again.
+    </p>
+
+    [% form.submit(name='action:show-codes', value='Show Recovery Codes') %]
+[% END %]
+
+<h1>Disable 2FA</h1>
+
+<p>
+    If for some reason you need to temporarily disable two-factor authentication
+    on your account, you can start the process here.
+</p>
+
+[% form.submit(name='action:disable', value='Disable Two-Factor Authentication') %]
+
+
+</form>
