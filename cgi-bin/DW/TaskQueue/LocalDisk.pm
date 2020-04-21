@@ -84,7 +84,7 @@ sub receive {
     # To emulate SQS, we will wait for messages for 10 seconds
     my @tasks;
     my $abort_after = time() + 10;
-    while (time() < $abort_after) {
+    while ( time() < $abort_after ) {
         opendir DIR, $dir or $log->logcroak('Failed to open directory!');
         @tasks = grep { /^[0-9a-f]/ && -f "$dir/$_" } readdir DIR;
         closedir DIR;
