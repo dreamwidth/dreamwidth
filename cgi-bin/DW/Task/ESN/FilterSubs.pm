@@ -74,7 +74,7 @@ sub work {
 
     $0 = 'esn-filter-subs [bored]';
 
-    DW::TaskQueue->get->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) );
+    DW::TaskQueue->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) );
     return DW::Task::COMPLETED;
 }
 

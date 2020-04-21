@@ -42,7 +42,7 @@ sub work {
 
     # fast path:  job from phase2 to phase4, skipping filtering.
     if ( @subs <= $LJ::ESN::MAX_FILTER_SET ) {
-        DW::TaskQueue->get->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) );
+        DW::TaskQueue->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) );
         return DW::Task::COMPLETED;
     }
 
@@ -96,7 +96,7 @@ sub work {
         push @subjobs, DW::Task::ESN::FilterSubs->new( $e_params, $sublist, $cid );
     }
 
-    DW::TaskQueue->get->send(@subjobs);
+    DW::TaskQueue->send(@subjobs);
     return DW::Task::COMPLETED;
 }
 
