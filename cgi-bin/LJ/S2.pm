@@ -192,14 +192,6 @@ sub make_journal {
     # Control strip
     if ( $page->{show_control_strip} ) {
         LJ::Hooks::run_hook('control_strip_stylesheet_link');
-
-        # used if we're using our jquery library
-        LJ::need_res(
-            { group => "all" }, qw(
-                js/md5.js
-                js/login-jquery.js
-                )
-        );
     }
 
     LJ::need_res(

@@ -31,11 +31,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [% END %]
 
     [%- # block.need_res below includes files for the individual pages
-        # this need_res is for the sake of the login form on the theme
-        dw.need_res( "js/md5.js" );
-        dw.need_res( { group => 'jquery' }
-                    "js/md5.js"
-        );
         dw.need_res( { group => "foundation" },
                     "js/foundation/foundation/foundation.reveal.js"
                     "js/skins/jquery.focus-on-reveal.js"
