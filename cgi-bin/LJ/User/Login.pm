@@ -339,7 +339,8 @@ sub password {
         unless $u->dversion <= 9;
 
     my $dbh = LJ::get_db_writer() or die "Couldn't get db master";
-    return $dbh->selectrow_array( "SELECT password FROM password WHERE userid=?", undef, $u->userid );
+    return $dbh->selectrow_array( "SELECT password FROM password WHERE userid=?", undef,
+        $u->userid );
 }
 
 sub set_password {
