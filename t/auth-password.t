@@ -19,7 +19,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-plan tests => 12;
+plan tests => 13;
 
 use DW::Auth::Password;
 use LJ::Test qw/ temp_user /;
@@ -34,7 +34,7 @@ ok( !$u->check_password('test?'), 'Password fails validation.' );
 
 # Looks like a bcrypt hash (not quite base64)
 my $hash1 = DW::Auth::Password->_password_hash($u);
-ok( $hash1 =~ m!^\$2a\$$LJ::BCRYPT_COST\$[a-zA-Z0-9./]+$!, ' Appropriate bcrypt hash.' );
+ok( $hash1 =~ m!^\$2a\$$LJ::BCRYPT_COST\$[a-zA-Z0-9./]+$!, 'Appropriate bcrypt hash.' );
 
 # Same password results in different hash
 ok( $u->set_password('test'),                         'Able to set password.' );
