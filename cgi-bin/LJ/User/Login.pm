@@ -12,8 +12,11 @@
 # part of this distribution.
 
 package LJ::User;
+
 use strict;
-no warnings 'uninitialized';
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::Auth::Password;
 use LJ::Session;

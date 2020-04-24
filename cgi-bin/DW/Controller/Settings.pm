@@ -16,12 +16,20 @@
 #
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
+#      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2014 by Dreamwidth Studios, LLC.
+# Copyright (c) 2014-2020 by Dreamwidth Studios, LLC.
 
 package DW::Controller::Settings;
 
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use Imager::QRCode;
+
+use DW::Auth::TOTP;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -33,8 +41,10 @@ DW::Controller::Settings - Controller for settings/settings-related pages
 
 =cut
 
-DW::Routing->register_string( "/accountstatus",  \&account_status_handler, app => 1 );
-DW::Routing->register_string( "/changepassword", \&changepassword_handler, app => 1, );
+DW::Routing->register_string( "/accountstatus",    \&account_status_handler,   app    => 1 );
+DW::Routing->register_string( "/changepassword",   \&changepassword_handler,   app    => 1, );
+DW::Routing->register_string( "/manage2fa",        \&manage2fa_handler,        app    => 1, );
+DW::Routing->register_string( "/manage2fa/qrcode", \&manage2fa_qrcode_handler, format => 'png' );
 
 sub account_status_handler {
     my ($opts) = @_;
@@ -237,10 +247,97 @@ sub account_status_handler {
     return DW::Template->render_template( 'settings/accountstatus.tt', $vars );
 }
 
+sub manage2fa_handler {
+    my ($opts) = @_;
+
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r         = $rv->{r};
+    my $remote    = $rv->{remote};
+    my $post_args = $r->post_args;
+    my $errors    = DW::FormErrors->new;
+
+    if ( DW::Auth::TOTP->is_enabled($remote) ) {
+        my $vars;
+
+        if ( $post_args->{'action:show-codes'} ) {
+            $vars->{codes}      = [ DW::Auth::TOTP->get_recovery_codes($remote) ];
+            $vars->{show_codes} = 1;
+        }
+        elsif ( $post_args->{'action:disable'} ) {
+            return DW::Template->render_template('settings/manage2fa/disable.tt');
+        }
+        elsif ( $post_args->{'action:disable-confirm'} ) {
+            if ( !$remote->check_password( $post_args->{password} ) ) {
+                $errors->add_string( password => 'Password invalid.' );
+                return DW::Template->render_template( 'settings/manage2fa/disable.tt',
+                    { errors => $errors } );
+            }
+            else {
+                DW::Auth::TOTP->disable( $remote, $post_args->{password} );
+
+                return DW::Template->render_template( 'settings/manage2fa/index-disabled.tt',
+                    { just_disabled => 1 } );
+            }
+        }
+
+        return DW::Template->render_template( 'settings/manage2fa/index-enabled.tt', $vars );
+    }
+
+    # User does not have 2fa
+    if ( $post_args->{'action:setup'} ) {
+        return DW::Template->render_template( 'settings/manage2fa/setup.tt',
+            { totp_secret => DW::Auth::TOTP->generate_secret } );
+
+    }
+    elsif ( $post_args->{'action:enable'} ) {
+        my $secret      = $post_args->{totp_secret};
+        my $verify_code = $post_args->{verification_code};
+
+        if ( !DW::Auth::TOTP->check_code( $remote, $verify_code, secret => $secret ) ) {
+            $errors->add_string(
+                verification_code => 'Verification code failed. Please, try again.' );
+            return DW::Template->render_template( 'settings/manage2fa/setup.tt',
+                { totp_secret => $secret, errors => $errors } );
+        }
+
+        DW::Auth::TOTP->enable( $remote, $secret );
+
+        return DW::Template->render_template( 'settings/manage2fa/index-enabled.tt',
+            { codes => [ DW::Auth::TOTP->get_recovery_codes($remote) ], show_codes => 1 } );
+    }
+
+    return DW::Template->render_template('settings/manage2fa/index-disabled.tt');
+}
+
+sub manage2fa_qrcode_handler {
+    my ($opts) = @_;
+
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r      = $rv->{r};
+    my $remote = $rv->{remote};
+
+    my $secret = $r->get_args->{'secret'} or die;
+
+    my $qrcode = Imager::QRCode->new( casesensitive => 1, );
+
+    my $image = $qrcode->plot(
+        qq{otpauth://totp/Dreamwidth:%20$remote->{user}?secret=$secret&issuer=Dreamwidth});
+
+    my $data;
+    $image->write( data => \$data, type => 'png' );
+    $r->print($data);
+
+    return $r->OK;
+}
+
 sub changepassword_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
     return $rv unless $ok;
 
     my $r   = $rv->{r};

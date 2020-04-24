@@ -1,0 +1,47 @@
+[%#
+
+Manage 2fa settings
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2020 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = "Manage Two-Factor Authentication" -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<form method="POST">
+    [%- dw.form_auth -%]
+    [%- form.hidden( name = "mode", value = "submit" ) -%]
+
+[% IF just_disabled %]
+<div class="panel callout radius">
+    <h5>Two-factor authentication has been disabled.</h5>
+    <p>We hope you know what you're doing! If you want to turn it back on, please
+       follow the instructions below.</p>
+</div>
+[% END %]
+
+<p>
+    Your account currently <strong>does not</strong> two-factor authentication enabled.
+</p>
+
+<p>
+    If you would like to enable this feature (as an added level of account security),
+    please follow the instructions below.
+</p>
+
+<p>
+    <strong>Important note:</strong> Once you've enabled two-factor authentication
+    your account is much more secure, but if you lose/wipe the device that you are
+    using for authentication, <em>you may lose your account.</em>
+</p>
+
+[% form.submit(name='action:setup', value='Begin Two-Factor Authentication Setup') %]
+
+</form>

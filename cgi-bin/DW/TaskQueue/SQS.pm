@@ -122,7 +122,7 @@ sub _get_queue_for_task {
     # also that we don't run N versions of the code in prod at the same time...
     # but it beats forgetting to update SQS and/or having to do it by hand
     # all the time
-    my $res = eval {
+    $res = eval {
         $self->{sqs}->GetQueueAttributes(
             QueueUrl       => $queue_url,
             AttributeNames => [ keys %$queue_attrs ],
@@ -294,7 +294,7 @@ sub receive {
     }
 
     my $messages = $res->Messages;
-    unless ( $messages && ref $messages eq 'ARRAY' && length @$messages >= 1 ) {
+    unless ( $messages && ref $messages eq 'ARRAY' && scalar @$messages >= 1 ) {
         DW::Stats::increment( 'dw.taskqueue.action.receive_empty', 1, $tags );
         return undef;
     }
