@@ -54,6 +54,12 @@ while (1) {
             or die "Failed to get password on $u->{user}($uid)!\n";
         $u->set_password( $password, force_bcrypt => 1 );
         $u->update_self( { dversion => 10 } );
+
+        # And nuke memcache, so we don't keep passwords
+        # floating around there
+        LJ::memcache_kill( $uid, "userid" );
+        $u->memc_delete('pw');
+
         print "UPGRADED $u->{user}($uid) MIGRATED\n";
     }
 }

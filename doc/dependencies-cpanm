@@ -8,7 +8,7 @@ Class::Autouse
 Class::Data::Inheritable
 Class::Trigger
 Compress::Zlib
-Crypt::DH
+CryptX
 Danga::Socket
 Data::ObjectDriver
 Digest::HMAC_SHA1

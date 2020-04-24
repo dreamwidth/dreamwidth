@@ -352,6 +352,13 @@ no strict "vars";
 
     # Cost to set for bcrypt password hash calculations.
     $BCRYPT_COST = 12;
+
+    # Default pepper key -- ONLY SET IF DEV SERVER. If this is production,
+    # you MUST set a valid pepper key here!
+    if ($LJ::IS_DEV_SERVER) {
+        %PASSWORD_PEPPER_KEYS           = ( 1 => "A" x 32, );
+        $PASSWORD_PEPPER_KEY_CURRENT_ID = 1;
+    }
 }
 
 1;
