@@ -31,39 +31,60 @@ use Authen::Passphrase::BlowfishCrypt;
 use Crypt::Mode::CBC;
 use MIME::Base64 qw/ encode_base64 decode_base64 /;
 
+################################################################################
+#
+# public methods
+#
+
 sub check_password {
     my ( $class, $u, $password ) = @_;
 
     my $crypt =
         $u->dversion <= 9
         ? Authen::Passphrase::Clear->new( $u->password )
-        : Authen::Passphrase::BlowfishCrypt->from_crypt( $class->password_hash($u) );
+        : Authen::Passphrase::BlowfishCrypt->from_crypt( $class->_password_hash($u) );
 
     return $crypt->match($password);
 }
 
-sub password_hash {
+sub set_password {
+    my ( $class, $u, $password ) = @_;
+
+    my $encrypted_password_hash =
+        $class->_encrypt_password_hash( $class->_bcrypt_password($password) );
+
+    # Replace into database.
+    my $dbh = LJ::get_db_writer()
+        or $log->logcroak('Failed to get database writer.');
+    $dbh->do( q{REPLACE INTO password2 (userid, version, password) VALUES (?, ?, ?)},
+        undef, $u->userid, 1, $encrypted_password_hash )
+        or $log->logcroak( 'Failed to set password hash: ', $dbh->errstr );
+}
+
+################################################################################
+#
+# internal methods
+#
+
+sub _password_hash {
     my ( $class, $u ) = @_;
     return unless $u->is_person;
 
     $log->logcroak('User password hash is unavailable.')
         unless $u->dversion >= 10;
 
-    my $userid        = $u->userid;
-    my $dbh           = LJ::get_db_writer() or $log->logcroak("Couldn't get db master");
-    my $safe_password = decode_base64(
-        $dbh->selectrow_array( q{SELECT password FROM password2 WHERE userid = ?}, undef, $userid )
+    my $userid = $u->userid;
+    my $dbh    = LJ::get_db_writer() or $log->logcroak("Couldn't get db master");
+
+    return $class->_decrypt_password_hash(
+        $dbh->selectrow_array(
+            q{SELECT password FROM password2 WHERE userid = ? AND version = 1},
+            undef, $userid
+        )
     );
-
-    my $aes        = Crypt::Mode::CBC->new('AES');
-    my $pkey       = get_pepper_key( ord( substr( $safe_password, 0, 1 ) ) );
-    my $iv         = substr( $safe_password, 1, 16 );
-    my $ciphertext = substr( $safe_password, 17 );
-
-    return $aes->decrypt( $ciphertext, $pkey, $iv );
 }
 
-sub get_pepper_key {
+sub _get_pepper_key {
     my ( $class, $keyid ) = @_;
 
     $keyid //= $LJ::PASSWORD_PEPPER_KEY_CURRENT_ID;
@@ -73,50 +94,54 @@ sub get_pepper_key {
     $log->logcroak('Pepper key ID must be in the range 0..255')
         if $keyid < 0 || $keyid > 255;
 
-    my $keyval = $LJ::PASSWORD_PEPPER_KEYS{$keyid};
+    my $keyval = $LJ::PASSWORD_PEPPER_KEYS{$keyid}
+        or $log->logcroak('Pepper key ID invalid, key not found?');
     return wantarray ? ( $keyid, $keyval ) : $keyval;
 }
 
-sub set_password {
-    my ( $class, $u, $password ) = @_;
+sub _bcrypt_password {
+    my ( $class, $password ) = @_;
 
-    # Step 1)
-    #
-    # Use bcrypt with a random salt to construct a hash that we can use to
-    # verify the password later. This step makes it so that we can never
-    # retrieve the password.
-    #
+    # Applies bcrypt to a password, with a random salt
+
     my $crypt = Authen::Passphrase::BlowfishCrypt->new(
         cost        => $LJ::BCRYPT_COST,
         salt_random => 1,
         passphrase  => $password,
     );
 
-    my $bcrypt_hash = $crypt->as_crypt;
+    return $crypt->as_crypt;
+}
 
-    # Step 2)
-    #
-    # Now encrypt the password. This is equivalent to applying 'pepper',
-    # which provides the property that if our database were to be
-    # breached, the password fields are entirely useless unless the
-    # attacker also was able to get access to the encryption key (which
-    # is not stored in the database).
+sub _encrypt_password_hash {
+    my ( $class, $password_hash ) = @_;
 
-    # Perform the encryption with random IV.
+    # Applies symmetric encryption to the password hash
     my $aes = Crypt::Mode::CBC->new('AES');
-    my $iv  = pack( 'C*', map { rand(256) } 1 .. 16 );
-    my ( $pkeyid, $pkey ) = $class->get_pepper_key();
-    my $ciphertext = $aes->encrypt( $bcrypt_hash, $pkey, $iv );
 
-    # Safe password is base64'd and includes the IV.
-    my $safe_password = encode_base64( chr($pkeyid) . $iv . $ciphertext, '' );
+    # Pick a random initialization vector (IV) every time we encrypt
+    my $iv = pack( 'C*', map { rand(256) } 1 .. 16 );
 
-    # Replace into database.
-    my $dbh = LJ::get_db_writer()
-        or $log->logcroak('Failed to get database writer.');
-    $dbh->do( q{REPLACE INTO password2 (userid, version, password) VALUES (?, ?, ?)},
-        undef, $u->userid, 1, $safe_password )
-        or $log->logcroak( 'Failed to set password hash: ', $dbh->errstr );
+    # The encryption key ("pepper key" here)
+    my ( $pkeyid, $pkey ) = $class->_get_pepper_key;
+
+    # Perform encryption, base64, and return
+    my $ciphertext = $aes->encrypt( $password_hash, $pkey, $iv );
+    return encode_base64( chr($pkeyid) . $iv . $ciphertext, '' );
+}
+
+sub _decrypt_password_hash {
+    my ( $class, $encrypted_hash ) = @_;
+
+    # Perform decoding, extraction, and decryption on the encrypted hash
+    my $aes = Crypt::Mode::CBC->new('AES');
+    $encrypted_hash = decode_base64($encrypted_hash);
+    my $pkey       = $class->_get_pepper_key( ord( substr( $encrypted_hash, 0, 1 ) ) );
+    my $iv         = substr( $encrypted_hash, 1, 16 );
+    my $ciphertext = substr( $encrypted_hash, 17 );
+
+    # Now decrypt
+    return $aes->decrypt( $ciphertext, $pkey, $iv );
 }
 
 1;
