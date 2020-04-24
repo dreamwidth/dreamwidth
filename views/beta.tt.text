@@ -3,6 +3,18 @@
 
 .betafeature.btn.on=Turn ON beta testing
 
+.betafeature.manage2fa.cantadd=Sorry, your account is not eligible to test this feature.
+
+.betafeature.manage2fa.off<<
+<p>Activate our new Two-Factor Authentication system. This will enable you to configure 2FA on your account. <strong>Note:</strong> While this feature is in beta, not all login flows are protected by 2FA... it's not done yet!</p>
+.
+
+.betafeature.manage2fa.on<<
+<p>You are in the Two-Factor Authentication beta. You can turn it off if you want, <strong>but this will not disable 2FA on your account</strong>. If you have 2FA configured, you must go disable it via the Manage 2FA page before you turn off the beta.</p>
+.
+
+.betafeature.manage2fa.title=Two-Factor Authentication
+
 .betafeature.updatepage.cantadd=Sorry, your account is not eligible to test this feature.
 
 .betafeature.updatepage.off<<
