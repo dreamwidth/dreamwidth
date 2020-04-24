@@ -72,7 +72,7 @@ body<=
                 LJ::Setting::Display::AccountStatus
                 LJ::Setting::Display::Email
                 LJ::Setting::Display::Password
-                DW::Setting::Display::ManageTOTP
+                DW::Setting::Display::Manage2FA
             )],
         },
         display => {

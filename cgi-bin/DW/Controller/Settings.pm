@@ -29,6 +29,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Imager::QRCode;
 
+use DW::Auth::TOTP;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -257,11 +258,11 @@ sub manage2fa_handler {
     my $post_args = $r->post_args;
     my $errors    = DW::FormErrors->new;
 
-    if ( $remote->has_totp ) {
+    if ( DW::Auth::TOTP->is_enabled($remote) ) {
         my $vars;
 
         if ( $post_args->{'action:show-codes'} ) {
-            $vars->{codes}      = [ $remote->get_totp_recovery_codes ];
+            $vars->{codes}      = [ DW::Auth::TOTP->get_recovery_codes($remote) ];
             $vars->{show_codes} = 1;
         }
         elsif ( $post_args->{'action:disable'} ) {
@@ -274,7 +275,7 @@ sub manage2fa_handler {
                     { errors => $errors } );
             }
             else {
-                $remote->disable_totp;
+                DW::Auth::TOTP->disable( $remote, $post_args->{password} );
 
                 return DW::Template->render_template( 'settings/manage2fa/index-disabled.tt',
                     { just_disabled => 1 } );
@@ -287,24 +288,24 @@ sub manage2fa_handler {
     # User does not have 2fa
     if ( $post_args->{'action:setup'} ) {
         return DW::Template->render_template( 'settings/manage2fa/setup.tt',
-            { totp_secret => $remote->generate_totp_secret } );
+            { totp_secret => DW::Auth::TOTP->generate_secret } );
 
     }
     elsif ( $post_args->{'action:enable'} ) {
         my $secret      = $post_args->{totp_secret};
         my $verify_code = $post_args->{verification_code};
 
-        if ( !$remote->check_totp_verification_code( $secret, $verify_code ) ) {
+        if ( !DW::Auth::TOTP->check_code( $remote, $verify_code, secret => $secret ) ) {
             $errors->add_string(
                 verification_code => 'Verification code failed. Please, try again.' );
             return DW::Template->render_template( 'settings/manage2fa/setup.tt',
                 { totp_secret => $secret, errors => $errors } );
         }
 
-        $remote->enable_totp_with_secret($secret);
+        DW::Auth::TOTP->enable( $remote, $secret );
 
         return DW::Template->render_template( 'settings/manage2fa/index-enabled.tt',
-            { codes => [ $remote->get_totp_recovery_codes ], show_codes => 1 } );
+            { codes => [ DW::Auth::TOTP->get_recovery_codes($remote) ], show_codes => 1 } );
     }
 
     return DW::Template->render_template('settings/manage2fa/index-disabled.tt');

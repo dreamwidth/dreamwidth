@@ -59,7 +59,8 @@ sub get_recovery_codes {
         $dbh->selectcol_arrayref(
             q{SELECT code FROM totp_recovery_codes WHERE userid = ? AND status = 'A'}, undef,
             $u->userid
-        ) || []
+            )
+            || []
     };
 }
 

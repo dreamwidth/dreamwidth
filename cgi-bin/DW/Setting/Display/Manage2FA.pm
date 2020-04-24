@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# DW::TaskQueue
+# DW::Setting::Display::Manage2FA
 #
-# Library for queueing and executing jobs.
+# Settings for managing 2fa.
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -14,13 +14,15 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::Setting::Display::ManageTOTP;
+package DW::Setting::Display::Manage2FA;
 use base 'LJ::Setting';
 
 use strict;
 use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use DW::Auth::TOTP;
 
 sub should_render {
     my ( $class, $u ) = @_;
@@ -43,7 +45,7 @@ sub label {
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
 
-    return $u->has_totp
+    return DW::Auth::TOTP->is_enabled($u)
         ? "enabled (<a href='$LJ::SITEROOT/manage2fa'>view recovery codes</a>)"
         : "<em>disabled</em>";
 }
