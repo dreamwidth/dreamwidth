@@ -37,7 +37,7 @@ sub check_password {
     my $crypt =
         $u->dversion <= 9
         ? Authen::Passphrase::Clear->new( $u->password )
-        : Authen::Passphrase::BlowfishCrypt->from_crypt( $class->password_hash( $u ) );
+        : Authen::Passphrase::BlowfishCrypt->from_crypt( $class->password_hash($u) );
 
     return $crypt->match($password);
 }
@@ -116,7 +116,7 @@ sub set_password {
         or $log->logcroak('Failed to get database writer.');
     $dbh->do( q{REPLACE INTO password2 (userid, version, password) VALUES (?, ?, ?)},
         undef, $u->userid, 1, $safe_password )
-        or $log->logcroak('Failed to set password hash: ', $dbh->errstr);
+        or $log->logcroak( 'Failed to set password hash: ', $dbh->errstr );
 }
 
 1;
