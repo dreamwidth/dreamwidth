@@ -15,9 +15,7 @@ package LJ::User;
 use strict;
 no warnings 'uninitialized';
 
-use Authen::Passphrase::Clear;
-use Authen::Passphrase::BlowfishCrypt;
-
+use DW::Auth::Password;
 use LJ::Session;
 
 ########################################################################
@@ -340,35 +338,8 @@ sub password {
     croak('User password is unavailable.')
         unless $u->dversion <= 9;
 
-    my $userid = $u->userid;
-    $u->{_password} ||= LJ::MemCache::get_or_set(
-        [ $userid, "pw:$userid" ],
-        sub {
-            my $dbh = LJ::get_db_writer() or die "Couldn't get db master";
-            return $dbh->selectrow_array( "SELECT password FROM password WHERE userid=?",
-                undef, $userid );
-        }
-    );
-    return $u->{_password};
-}
-
-sub password_hash {
-    my $u = $_[0];
-    return unless $u->is_person;
-
-    croak('User password hash is unavailable.')
-        unless $u->dversion >= 10;
-
-    my $userid = $u->userid;
-    $u->{_password} ||= LJ::MemCache::get_or_set(
-        [ $userid, "pw:$userid" ],
-        sub {
-            my $dbh = LJ::get_db_writer() or croak("Couldn't get db master");
-            return $dbh->selectrow_array( q{SELECT bcrypt_hash FROM password2 WHERE userid = ?},
-                undef, $userid );
-        }
-    );
-    return $u->{_password};
+    my $dbh = LJ::get_db_writer() or die "Couldn't get db master";
+    return $dbh->selectrow_array( "SELECT password FROM password WHERE userid=?", undef, $u->userid );
 }
 
 sub set_password {
@@ -387,36 +358,17 @@ sub set_password {
             or croak('Failed to set password.');
     }
     else {
-        # New style: calculate a new salt and bcrypt and store into the database.
-        # Password is never saved anywhere.
-        my $crypt = Authen::Passphrase::BlowfishCrypt->new(
-            cost        => $LJ::BCRYPT_COST,
-            salt_random => 1,
-            passphrase  => $password
-        );
 
-        # Replace into database.
-        $dbh->do( q{REPLACE INTO password2 (userid, bcrypt_hash) VALUES (?, ?)},
-            undef, $userid, $crypt->as_crypt, )
-            or croak('Failed to set password hash.');
+        # Ask password system to do it
+        DW::Auth::Password->set_password( $u, $password )
+            or croak('Failed to set password.');
     }
-
-    # update caches
-    LJ::memcache_kill( $userid, "userid" );
-    $u->memc_delete('pw');
-    my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
-    $cache->{'_password'} = $password;
 }
 
 sub check_password {
     my ( $u, $password ) = @_;
 
-    my $crypt =
-        $u->dversion <= 9
-        ? Authen::Passphrase::Clear->new( $u->password )
-        : Authen::Passphrase::BlowfishCrypt->from_crypt( $u->password_hash );
-
-    return $crypt->match($password);
+    return DW::Auth::Password->check_password( $u, $password );
 }
 
 ########################################################################
