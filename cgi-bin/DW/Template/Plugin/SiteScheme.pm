@@ -16,6 +16,8 @@
 package DW::Template::Plugin::SiteScheme;
 use base 'Template::Plugin';
 use strict;
+
+use DW::Auth::Challenge;
 use DW::Logic::MenuNav;
 
 =head1 NAME
@@ -81,7 +83,7 @@ sub search_render {
 
 sub challenge_generate {
     my $self = shift;
-    return LJ::challenge_generate(@_);
+    return DW::Auth::Challenge->generate(@_);
 }
 
 sub show_invite_link {

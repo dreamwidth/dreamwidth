@@ -145,18 +145,18 @@ use Digest::MD5 ();
 # des: Validates a user's password. This is the preferred
 #      way to validate a password (as opposed to doing it by hand).
 # returns: boolean; 1 if authentication succeeded, 0 on failure
-# args: u, password, ip_banned?
+# args: u, password, opts
 # des-clear: Clear text password the client is sending.
 # des-ip_banned: Optional scalar ref which this function will set to true
 #                if IP address of remote user is banned.
+# des-opts: Hash of options, including 'is_ip_banned'
 # </LJFUNC>
 sub auth_okay {
-    my ( $u, $password, $ip_banned ) = @_;
+    my ( $u, $password, %opts ) = @_;
     return 0 unless LJ::isu($u);
 
     # set the IP banned flag, if it was provided.
-    my $fake_scalar;
-    my $ref = ref $ip_banned ? $ip_banned : \$fake_scalar;
+    my $ref = delete $opts{is_ip_banned} // \'';
     if ( LJ::login_ip_banned($u) ) {
         $$ref = 1;
         return 0;
@@ -171,96 +171,8 @@ sub auth_okay {
     };
 
     ## LJ default authorization:
-    return 1 if $u->check_password($password);
+    return 1 if $u->check_password( $password, %opts );
     return $bad_login->();
-}
-
-# Validate a challenge string previously supplied by challenge_generate
-# return 1 "good" 0 "bad", plus sets keys in $opts:
-# 'valid'=1/0 whether the string itself was valid
-# 'expired'=1/0 whether the challenge expired, provided it's valid
-# 'count'=N number of times we've seen this challenge, including this one,
-#           provided it's valid and not expired
-# $opts also supports in parameters:
-#   'dont_check_count' => if true, won't return a count field
-# the return value is 1 if 'valid' and not 'expired' and 'count'==1
-sub challenge_check {
-    my ( $chal, $opts ) = @_;
-    my ( $valid, $expired, $count ) = ( 1, 0, 0 );
-
-    my ( $c_ver, $stime, $s_age, $goodfor, $rand, $chalsig ) = split /:/, $chal;
-    my $secret   = LJ::get_secret($stime);
-    my $chalbare = "$c_ver:$stime:$s_age:$goodfor:$rand";
-
-    # Validate token
-    $valid = 0
-        unless $secret && $c_ver eq 'c0';    # wrong version
-    $valid = 0
-        unless Digest::MD5::md5_hex( $chalbare . $secret ) eq $chalsig;
-
-    $expired = 1
-        unless ( not $valid )
-        or time() - ( $stime + $s_age ) < $goodfor;
-
-    # Check for token dups
-    if ( $valid && !$expired && !$opts->{dont_check_count} ) {
-        if (@LJ::MEMCACHE_SERVERS) {
-            $count = LJ::MemCache::incr( "chaltoken:$chal", 1 );
-            unless ($count) {
-                LJ::MemCache::add( "chaltoken:$chal", 1, $goodfor );
-                $count = 1;
-            }
-        }
-        else {
-            my $dbh = LJ::get_db_writer();
-            my $rv  = $dbh->do( "SELECT GET_LOCK(?,5)", undef, $chal );
-            if ($rv) {
-                $count = $dbh->selectrow_array( "SELECT count FROM challenges WHERE challenge=?",
-                    undef, $chal );
-                if ($count) {
-                    $dbh->do( "UPDATE challenges SET count=count+1 WHERE challenge=?",
-                        undef, $chal );
-                    $count++;
-                }
-                else {
-                    $dbh->do( "INSERT INTO challenges SET ctime=?, challenge=?, count=1",
-                        undef, $stime + $s_age, $chal );
-                    $count = 1;
-                }
-            }
-            $dbh->do( "SELECT RELEASE_LOCK(?)", undef, $chal );
-        }
-
-        # if we couldn't get the count (means we couldn't store either)
-        # , consider it invalid
-        $valid = 0 unless $count;
-    }
-
-    if ($opts) {
-        $opts->{'expired'} = $expired;
-        $opts->{'valid'}   = $valid;
-        $opts->{'count'}   = $count;
-    }
-
-    return ( $valid && !$expired && ( $count == 1 || $opts->{dont_check_count} ) );
-}
-
-# Create a challenge token for secure logins
-sub challenge_generate {
-    my ( $goodfor, $attr ) = @_;
-
-    $goodfor ||= 60;
-    $attr    ||= LJ::rand_chars(20);
-
-    my ( $stime, $secret ) = LJ::get_secret();
-
-    # challenge version, secret time, secret age, time in secs token is good for, random chars.
-    my $s_age    = time() - $stime;
-    my $chalbare = "c0:$stime:$s_age:$goodfor:$attr";
-    my $chalsig  = Digest::MD5::md5_hex( $chalbare . $secret );
-    my $chal     = "$chalbare:$chalsig";
-
-    return $chal;
 }
 
 sub get_authaction {
@@ -272,12 +184,6 @@ sub get_authaction {
             . "WHERE userid=? AND arg1=? AND action=? AND used='N' LIMIT 1",
         undef, $id, $arg1, $action
     );
-}
-
-# Return challenge info.
-# This could grow later - for now just return the rand chars used.
-sub get_challenge_attributes {
-    return ( split /:/, shift )[4];
 }
 
 # <LJFUNC>

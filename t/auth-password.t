@@ -27,19 +27,19 @@ use LJ::Test qw/ temp_user /;
 my $u = temp_user();
 
 # Test public APIs work
-ok( $u->dversion == 10,           'New user is on dversion 10.' );
-ok( $u->set_password('test'),     'Able to set password.' );
-ok( $u->check_password('test'),   'Password validates.' );
-ok( !$u->check_password('test?'), 'Password fails validation.' );
+ok( $u->dversion == 10, 'New user is on dversion 10.' );
+ok( DW::Auth::Password->set( $u, 'test' ), 'Able to set password.' );
+ok( DW::Auth::Password->check( $u, 'test' ), 'Password validates.' );
+ok( !DW::Auth::Password->check( $u, 'test?' ), 'Password fails validation.' );
 
 # Looks like a bcrypt hash (not quite base64)
-my $hash1 = DW::Auth::Password->_password_hash($u);
+my $hash1 = DW::Auth::Password->_get_password_token($u);
 ok( $hash1 =~ m!^\$2a\$$LJ::BCRYPT_COST\$[a-zA-Z0-9./]+$!, 'Appropriate bcrypt hash.' );
 
 # Same password results in different hash
-ok( $u->set_password('test'),                         'Able to set password.' );
-ok( $hash1 ne DW::Auth::Password->_password_hash($u), 'Same password uses new hash.' );
-ok( $u->check_password('test'),                       'Password validates.' );
-ok( !$u->check_password('test?'),                     'Password fails validation.' );
+ok( DW::Auth::Password->set( $u, 'test' ), 'Able to set password.' );
+ok( $hash1 ne DW::Auth::Password->_get_password_token($u), 'Same password uses new hash.' );
+ok( DW::Auth::Password->check( $u, 'test' ), 'Password validates.' );
+ok( !DW::Auth::Password->check( $u, 'test?' ), 'Password fails validation.' );
 
 1;

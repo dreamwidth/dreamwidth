@@ -27,6 +27,7 @@ use LJ::Comment;
 
 LJ::Config->load;
 
+use DW::Auth::Challenge;
 use LJ::Tags;
 use LJ::Feed;
 use LJ::EmbedModule;
@@ -3179,7 +3180,7 @@ sub getchallenge {
     my $res   = {};
     my $now   = time();
     my $etime = 60;
-    $res->{'challenge'}   = LJ::challenge_generate($etime);
+    $res->{'challenge'}   = DW::Auth::Challenge->generate($etime);
     $res->{'server_time'} = $now;
     $res->{'expire_time'} = $now + $etime;
     $res->{'auth_scheme'} = "c0";    # fixed for now, might support others later
@@ -3460,7 +3461,19 @@ sub authenticate {
 
         my $auth_meth = $req->{auth_method} || 'clear';
         if ( $auth_meth eq 'clear' ) {
-            return LJ::auth_okay( $u, $req->{password}, \$ip_banned );
+            return LJ::auth_okay(
+                $u, $req->{password} // $req->{hpassword},
+                is_ip_banned => \$ip_banned,
+                allow_hpassword => 1,
+                allow_api_keys  => 1
+            );
+        }
+        if ( $auth_meth eq 'challenge' ) {
+            my $chal_opts = {};
+            my $chal_ok   = DW::Auth::Challenge->check_login( $u, $req->{auth_challenge},
+                $req->{auth_response}, \$ip_banned, $chal_opts );
+            $chal_expired = 1 if $chal_opts->{expired};
+            return $chal_ok;
         }
         if ( $auth_meth eq 'cookie' ) {
             return unless $r && $r->header_in('X-LJ-Auth') eq 'cookie';
@@ -3468,6 +3481,8 @@ sub authenticate {
             my $remote = LJ::get_remote();
             return $remote && $remote->user eq $username ? 1 : 0;
         }
+
+        return 0;
     };
 
     unless ( $flags->{nopassword}

@@ -364,15 +364,15 @@ sub set_password {
     else {
 
         # Ask password system to do it
-        DW::Auth::Password->set_password( $u, $password )
+        DW::Auth::Password->set( $u, $password )
             or croak('Failed to set password.');
     }
 }
 
 sub check_password {
-    my ( $u, $password ) = @_;
+    my ( $u, $password, %opts ) = @_;
 
-    return DW::Auth::Password->check_password( $u, $password );
+    return DW::Auth::Password->check( $u, $password, %opts );
 }
 
 ########################################################################
@@ -548,7 +548,7 @@ sub login_ip_banned {
     my $rateperiod = LJ::get_cap( $u, "rateperiod-failed_login" );
     if ( $rateperiod && ( $udbr = LJ::get_cluster_reader($u) ) ) {
         my $bantime = $udbr->selectrow_array(
-            "SELECT time FROM loginstall WHERE " . "userid=? AND ip=INET_ATON(?)",
+            q{SELECT time FROM loginstall WHERE userid = ? AND ip = INET_ATON(?)},
             undef, $u->userid, $ip );
         if ( $bantime && $bantime > time() - $rateperiod ) {
             return 1;

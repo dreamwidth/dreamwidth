@@ -36,28 +36,28 @@ use DW::Auth::Helpers;
 # public methods
 #
 
-sub check_password {
+sub check {
     my ( $class, $u, $password ) = @_;
 
     my $crypt =
         $u->dversion <= 9
         ? Authen::Passphrase::Clear->new( $u->password )
-        : Authen::Passphrase::BlowfishCrypt->from_crypt( $class->_password_hash($u) );
+        : Authen::Passphrase::BlowfishCrypt->from_crypt( $class->_get_password_token($u) );
 
     return $crypt->match($password);
 }
 
-sub set_password {
+sub set {
     my ( $class, $u, $password ) = @_;
 
-    my $encrypted_password_hash =
+    my $encrypted_password_token =
         DW::Auth::Helpers->encrypt_token( $class->_bcrypt_password($password) );
 
     # Replace into database.
     my $dbh = LJ::get_db_writer()
         or $log->logcroak('Failed to get database writer.');
     $dbh->do( q{REPLACE INTO password2 (userid, version, password) VALUES (?, ?, ?)},
-        undef, $u->userid, 1, $encrypted_password_hash )
+        undef, $u->userid, 1, $encrypted_password_token )
         or $log->logcroak( 'Failed to set password hash: ', $dbh->errstr );
 }
 
@@ -66,7 +66,7 @@ sub set_password {
 # internal methods
 #
 
-sub _password_hash {
+sub _get_password_token {
     my ( $class, $u ) = @_;
     return unless $u->is_person;
 

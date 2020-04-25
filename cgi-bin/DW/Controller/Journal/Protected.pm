@@ -18,6 +18,8 @@ package DW::Controller::Journal::Protected;
 
 use strict;
 use warnings;
+
+use DW::Auth::Challenge;
 use DW::Controller;
 use DW::Template;
 use DW::Routing;
@@ -62,7 +64,7 @@ sub protected_handler {
         }
     }
     else {
-        $vars->{chal} = LJ::challenge_generate(300);
+        $vars->{chal} = DW::Auth::Challenge->generate(300);
     }
 
     return DW::Template->render_template( 'protected.tt', $vars );

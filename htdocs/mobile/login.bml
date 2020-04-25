@@ -28,7 +28,7 @@ _c?>
         or return $err->( "<?_ml .login.invalid_username  _ml?>" );
 
     my ($banned, $ok);
-    $ok = LJ::auth_okay($u, $POST{password}, \$banned);
+    $ok = LJ::auth_okay($u, $POST{password}, is_ip_banned => \$banned);
 
     if ($banned) {
         return $err->( "<?_ml .login.ip_banned _ml?>" );

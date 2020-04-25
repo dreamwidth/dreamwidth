@@ -818,8 +818,7 @@ sub get_secret {
 
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
-    $secret =
-        $dbh->selectrow_array( "SELECT secret FROM secrets " . "WHERE stime=?", undef, $time );
+    $secret = $dbh->selectrow_array( q{SELECT secret FROM secrets WHERE stime = ?}, undef, $time );
     if ($secret) {
         $SecretCache{$memkey} = $secret;
         LJ::MemCache::set( $memkey, $secret );
@@ -835,7 +834,7 @@ sub get_secret {
     return undef if $time % 3600;
 
     $secret = LJ::rand_chars(32);
-    $dbh->do( "INSERT IGNORE INTO secrets SET stime=?, secret=?", undef, $time, $secret );
+    $dbh->do( q{INSERT IGNORE INTO secrets SET stime=?, secret=?}, undef, $time, $secret );
 
     # check for races:
     $secret = get_secret($time);

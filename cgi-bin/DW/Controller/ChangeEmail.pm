@@ -21,6 +21,7 @@ package DW::Controller::Changeemail;
 use strict;
 use warnings;
 
+use DW::Auth::Password;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -90,7 +91,7 @@ sub changeemail_handler {
         }
 
         if ( !$remote->is_identity
-            && ( !defined $password || !$remote->check_password($password) ) )
+            && ( !defined $password || !DW::Auth::Password->check( $remote, $password ) ) )
         {
             push @errors, LJ::Lang::ml('/changeemail.tt.error.invalidpassword');
         }

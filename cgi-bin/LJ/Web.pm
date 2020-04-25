@@ -18,6 +18,8 @@ use strict;
 
 use Carp;
 use POSIX;
+
+use DW::Auth::Challenge;
 use DW::External::Site;
 use DW::Request;
 use LJ::Global::Constants;
@@ -829,7 +831,7 @@ sub form_auth {
             $remote && $remote->session ? $remote->session->id : LJ::UniqCookie->current_uniq;
 
         my $auth = join( '-', LJ::rand_chars(10), $id, $sess );
-        $chal = LJ::challenge_generate( 86400, $auth );
+        $chal = DW::Auth::Challenge->generate( 86400, $auth );
         $LJ::REQ_GLOBAL{form_auth_chal} = $chal;
     }
 
@@ -854,7 +856,7 @@ sub check_form_auth {
     my $sess   = $remote && $remote->session ? $remote->session->id : LJ::UniqCookie->current_uniq;
 
     # check the attributes are as they should be
-    my $attr = LJ::get_challenge_attributes($formauth);
+    my $attr = DW::Auth::Challenge->get_attributes($formauth);
     my ( $randchars, $chal_id, $chal_sess ) = split( /\-/, $attr );
 
     return 0 unless $id == $chal_id;
@@ -862,7 +864,7 @@ sub check_form_auth {
 
     # check the signature is good and not expired
     my $opts = { dont_check_count => 1 };    # in/out
-    LJ::challenge_check( $formauth, $opts );
+    DW::Auth::Challenge->check( $formauth, $opts );
     return $opts->{valid} && !$opts->{expired};
 }
 

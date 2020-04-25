@@ -33,6 +33,8 @@ our @ISA = qw( DW::Captcha );
 use XML::Simple;
 use Digest::MD5 ();
 
+use DW::Auth::Challenge;
+
 # implemented as overrides for the base class
 
 # class methods
@@ -307,7 +309,7 @@ sub form_data {
     return {
         question => $captcha->{question},
         answers  => $concat_answers,
-        chal     => LJ::challenge_generate(900),    # 15 minute token
+        chal     => DW::Auth::Challenge->generate(900),    # 15 minute token
     };
 }
 
@@ -325,7 +327,7 @@ sub check_answer {
     return 0 unless $form_auth && $captcha_auth;
 
     my $chal_opts = {};
-    return 0 unless LJ::challenge_check( $captcha_auth, $chal_opts );
+    return 0 unless DW::Auth::Challenge->check( $captcha_auth, $chal_opts );
 
     my $secret = LJ::get_secret( ( split( /:/, $form_auth ) )[1] );
 

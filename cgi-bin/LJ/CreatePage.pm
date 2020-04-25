@@ -13,7 +13,10 @@
 
 package LJ::CreatePage;
 use strict;
+
 use Carp qw(croak);
+
+use DW::Auth::Password;
 
 sub verify_username {
     my $class          = shift;
@@ -62,7 +65,7 @@ sub verify_username {
                     # brute-force possibly going on
                 }
                 else {
-                    if ( $u->check_password( $post->{password1} ) ) {
+                    if ( DW::Auth::Password->check( $u, $post->{password1} ) ) {
 
                         # okay either they double-clicked the submit button
                         # or somebody entered an account name that already exists

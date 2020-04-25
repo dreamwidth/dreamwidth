@@ -21,6 +21,8 @@ body<=
     use strict;
     use vars qw/ %POST @errors /;
 
+    use DW::Auth::Password;
+
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
@@ -39,7 +41,7 @@ body<=
         push @errors, BML::ml( '.error.invaliduser', { user => LJ::ehtml( $POST{username} ) } ) unless $u;
 
         my $password = $POST{password};
-        push @errors, $ML{'.error.invalidpassword'} unless $password && $remote->check_password( $password );
+        push @errors, $ML{'.error.invalidpassword'} unless $password && DW::Auth::Password->check( $remote, $password );
 
         my $reason = LJ::ehtml( LJ::trim( $POST{reason} ) );
         push @errors, $ML{'.error.emptyreason'} unless $reason;

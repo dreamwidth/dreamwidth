@@ -20,14 +20,14 @@ use Test::More tests => 104;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
 
-use DW::Routing::CallInfo;
+use Hash::MultiValue;
+
+use DW::Auth::Challenge;
 use DW::Controller::Entry;
 use DW::FormErrors;
-
+use DW::Routing::CallInfo;
 use LJ::Community;
 use LJ::Entry;
-
-use Hash::MultiValue;
 
 use FindBin qw($Bin);
 chdir "$Bin/data/userpics" or die "Failed to chdir to t/data/userpics";
@@ -298,7 +298,7 @@ sub post_with {
     LJ::set_remote($remote);
 
     $opts{event} = $postdata->{event} unless exists $opts{event};
-    $opts{chal}  = LJ::challenge_generate();
+    $opts{chal}  = DW::Auth::Challenge->generate;
 
     # if we'd been in a handler, this would have been put into $vars->{formdata}
     # and automatically converted to Hash::MultiValue. We're not, though, so fake it
