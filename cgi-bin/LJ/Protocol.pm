@@ -27,6 +27,7 @@ use LJ::Comment;
 
 LJ::Config->load;
 
+use DW::API::Key;
 use DW::Auth::Challenge;
 use LJ::Tags;
 use LJ::Feed;
@@ -3426,6 +3427,44 @@ sub check_altusage {
     return fail( $err, 300 );
 }
 
+# Validate login/talk md5 responses. THIS IS DEPRECATED. This now only checks
+# against a user's API keys as a pseudo "
+#
+# Return 1 on valid, 0 on invalid.
+sub check_login {
+    my ( $u, $chal, $res, $banned, $opts ) = @_;
+    return 0 unless $u;
+
+    my @keys = @{ DW::API::Key->get_keys_for_user($u) || [] };
+    return 0 unless @keys;
+
+    # set the IP banned flag, if it was provided.
+    my $fake_scalar;
+    my $ref = ref $banned ? $banned : \$fake_scalar;
+    if ( LJ::login_ip_banned($u) ) {
+        $$ref = 1;
+        return 0;
+    }
+    else {
+        $$ref = 0;
+    }
+
+    # check the challenge string validity
+    return 0 unless DW::Auth::Challenge->check( $chal, $opts );
+
+    # Validate password against the user's list of API keys
+    foreach my $key (@keys) {
+        my $hashed = Digest::MD5::md5_hex( $chal . Digest::MD5::md5_hex( $key->hash ) );
+        if ( $hashed eq $res ) {
+            return 1;
+        }
+    }
+
+    # Login failed against all keys
+    LJ::handle_bad_login($u);
+    return 0;
+}
+
 sub authenticate {
     my ( $req, $err, $flags ) = @_;
 
@@ -3463,14 +3502,14 @@ sub authenticate {
         if ( $auth_meth eq 'clear' ) {
             return LJ::auth_okay(
                 $u, $req->{password} // $req->{hpassword},
-                is_ip_banned => \$ip_banned,
+                is_ip_banned    => \$ip_banned,
                 allow_hpassword => 1,
                 allow_api_keys  => 1
             );
         }
         if ( $auth_meth eq 'challenge' ) {
             my $chal_opts = {};
-            my $chal_ok   = DW::Auth::Challenge->check_login( $u, $req->{auth_challenge},
+            my $chal_ok   = check_login( $u, $req->{auth_challenge},
                 $req->{auth_response}, \$ip_banned, $chal_opts );
             $chal_expired = 1 if $chal_opts->{expired};
             return $chal_ok;

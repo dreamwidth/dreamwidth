@@ -156,13 +156,13 @@ sub auth_okay {
     return 0 unless LJ::isu($u);
 
     # set the IP banned flag, if it was provided.
-    my $ref = delete $opts{is_ip_banned} // \'';
+    my $ref = delete $opts{is_ip_banned};
     if ( LJ::login_ip_banned($u) ) {
-        $$ref = 1;
+        $$ref = 1 if ref $ref;
         return 0;
     }
     else {
-        $$ref = 0;
+        $$ref = 0 if ref $ref;
     }
 
     my $bad_login = sub {

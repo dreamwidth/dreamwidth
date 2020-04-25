@@ -29,40 +29,6 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 # public methods
 #
 
-# Validate login/talk md5 responses.
-# Return 1 on valid, 0 on invalid.
-sub check_login {
-    my ( $class, $u, $chal, $res, $banned, $opts ) = @_;
-    return 0 unless $u;
-
-    my $pass = $u->password;
-    return 0 if $pass eq "";
-
-    # set the IP banned flag, if it was provided.
-    my $fake_scalar;
-    my $ref = ref $banned ? $banned : \$fake_scalar;
-    if ( LJ::login_ip_banned($u) ) {
-        $$ref = 1;
-        return 0;
-    }
-    else {
-        $$ref = 0;
-    }
-
-    # check the challenge string validity
-    return 0 unless $class->check( $chal, $opts );
-
-    # Validate password
-    my $hashed = Digest::MD5::md5_hex( $chal . Digest::MD5::md5_hex($pass) );
-    if ( $hashed eq $res ) {
-        return 1;
-    }
-    else {
-        LJ::handle_bad_login($u);
-        return 0;
-    }
-}
-
 # Validate a challenge string previously supplied by generate
 # return 1 "good" 0 "bad", plus sets keys in $opts:
 # 'valid'=1/0 whether the string itself was valid

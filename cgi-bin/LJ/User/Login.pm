@@ -332,41 +332,11 @@ sub can_receive_password {
     );
 }
 
-sub password {
-    my $u = shift;
-    return unless $u->is_person;
-
-    # This is only valid on dversion <= 9. Otherwise, we are using encrypted
-    # passwords and this is meaningless.
-    croak('User password is unavailable.')
-        unless $u->dversion <= 9;
-
-    my $dbh = LJ::get_db_writer() or die "Couldn't get db master";
-    return $dbh->selectrow_array( "SELECT password FROM password WHERE userid=?", undef,
-        $u->userid );
-}
-
 sub set_password {
     my ( $u, $password, %opts ) = @_;
-    my $userid = $u->id;
 
-    my $dbh = LJ::get_db_writer()
-        or croak('Unable to get db master.');
-
-    if ( $u->dversion <= 9 && !$opts{force_bcrypt} ) {
-
-        # Old style: Write raw password to the database and store it in the user
-        # object. This is quite dumb, but it was the late 90s when this was written?
-        $dbh->do( "REPLACE INTO password (userid, password) VALUES (?, ?)",
-            undef, $userid, $password )
-            or croak('Failed to set password.');
-    }
-    else {
-
-        # Ask password system to do it
-        DW::Auth::Password->set( $u, $password )
-            or croak('Failed to set password.');
-    }
+    DW::Auth::Password->set( $u, $password, %opts )
+        or croak('Failed to set password.');
 }
 
 sub check_password {

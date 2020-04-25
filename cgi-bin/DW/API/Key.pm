@@ -189,4 +189,10 @@ sub valid_for_user {
     return $self->{user}->equals($u);
 }
 
+sub hash {
+
+    # Returns the "key" itself, or the hash of it
+    return $_[0]->{keyhash};
+}
+
 1;

@@ -20,6 +20,8 @@ BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 my $dbh = LJ::get_db_writer();
 
+use DW::Auth::Password;
+
 while (1) {
     sleep(1);
     print "FINDING_USERS\n";
@@ -50,7 +52,7 @@ while (1) {
         }
 
         # Valid user, get their password, set it, move on.
-        my $password = $u->password
+        my $password = DW::Auth::Password->_get_password($u)
             or die "Failed to get password on $u->{user}($uid)!\n";
         $u->set_password( $password, force_bcrypt => 1 );
         $u->update_self( { dversion => 10 } );
