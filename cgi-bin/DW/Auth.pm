@@ -215,14 +215,10 @@ sub _auth_basic {
     my $user = LJ::canonical_username($username);
     my $u    = LJ::load_user($user);
 
-    return $decline->() unless $u;
-
-    # don't allow empty passwords
-
-    return $decline->() unless $u->password;
-
+    # must be a person and have a password
+    return $decline->() unless $u && $u->is_person;
     return $decline->()
-        unless $u->check_password($password);
+        unless $password && $u->check_password($password);
 
     return ( $u, undef );
 }

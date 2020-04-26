@@ -46,9 +46,6 @@ sub new_for_user {
         return undef;
     }
 
-    # with a new key added, our cached api_keys_list for the user is out of date
-    LJ::MemCache::delete( [ $user->id, "api_keys_list:" . $user->id ] );
-
     return $self->_create( $user, $id, $key );
 }
 
@@ -57,19 +54,13 @@ sub new_for_user {
 # if it's valid, or undef otherwise.
 sub get_key {
     my ( $class, $hash ) = @_;
-
     return undef unless $hash;
-    my $memkey  = [ $hash, "api_key:" . $hash ];
-    my $keydata = LJ::MemCache::get($memkey);
 
-    unless ( defined $keydata ) {
-        my $dbr = LJ::get_db_reader() or croak "Failed to get database";
-        $keydata = $dbr->selectrow_hashref(
-            "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'",
-            undef, $hash );
-        carp $dbr->errstr if $dbr->err;
-        LJ::MemCache::set( $memkey, $keydata );
-    }
+    my $dbh = LJ::get_db_writer() or croak "Failed to get database";
+    my $keydata = $dbh->selectrow_hashref(
+        "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'",
+        undef, $hash );
+    carp $dbh->errstr if $dbh->err;
 
     if ($keydata) {
         my $user = LJ::want_user( $keydata->{userid} );
@@ -87,34 +78,18 @@ sub get_keys_for_user {
     my ( $self, $u ) = @_;
     my $user = LJ::want_user($u)
         or croak "need a user!\n";
-    my $memkey  = [ $user->id, "api_keys_list:" . $user->id ];
-    my $keydata = LJ::MemCache::get($memkey);
     my @keylist;
 
-    if ( defined $keydata ) {
-        for my $keyhash (@$keydata) {
-            push @keylist, ( $self->get_key($keyhash) );
-        }
+    my $dbh = LJ::get_db_writer() or croak "Failed to get database";
+    my $keys = $dbh->selectall_hashref(
+        q{SELECT keyid, hash FROM api_key WHERE userid = ? AND state = 'A'},
+        'keyid', undef, $user->{userid} );
+    carp $dbh->errstr if $dbh->err;
+    return undef unless $keys;
 
-    }
-    else {
-        my $dbr  = LJ::get_db_reader() or croak "Failed to get database";
-        my $keys = $dbr->selectall_hashref(
-            q{SELECT keyid, hash FROM api_key WHERE userid = ? AND state = 'A'},
-            'keyid', undef, $user->{userid} );
-        carp $dbr->errstr if $dbr->err;
-        return undef unless $keys;
-        my @hashlist;
-
-        for my $key ( sort ( keys %$keys ) ) {
-            my $new = $self->_create( $user, $keys->{$key}->{keyid}, $keys->{$key}->{hash} );
-            push @hashlist, ( $keys->{$key}->{hash} );
-            push @keylist,  ($new);
-            my $cachekey = [ $new->{keyhash}, "api_key:" . $new->{keyhash} ];
-            LJ::MemCache::set( $cachekey,
-                { userid => $user->id, keyid => $new->{keyid}, hash => $new->{keyhash} } );
-        }
-        LJ::MemCache::set( $memkey, \@hashlist );
+    for my $key ( sort ( keys %$keys ) ) {
+        my $new = $self->_create( $user, $keys->{$key}->{keyid}, $keys->{$key}->{hash} );
+        push @keylist, $new;
     }
 
     return \@keylist;
@@ -166,7 +141,6 @@ sub delete {
     my ( $self, $u ) = @_;
     my $user = LJ::want_user($u)
         or croak "need a user!\n";
-    my $memkey = [ $self->{keyhash}, "api_key:" . $self->{keyhash} ];
 
     $self->valid_for_user($user) or croak "key doesn't belong to user";
 
@@ -174,12 +148,8 @@ sub delete {
     $dbw->do( q{UPDATE api_key SET state = 'D' WHERE state = 'A' AND hash = ?},
         undef, $self->{keyhash} );
 
-    LJ::MemCache::delete($memkey);
-
-    # with a new key added, our cached api_keys_list for the user is out of date
-    LJ::MemCache::delete( [ $user->id, "api_keys_list:" . $user->id ] );
-
     return 1 unless $dbw->err;
+
     carp $dbw->errstr if $dbw->err;
     return undef;
 }

@@ -40,7 +40,7 @@ sub logout_handler {
     my $remote = $rv->{remote};
     my $vars   = {};
 
-    if ( $r->did_post ) {
+    if ( $remote && $r->did_post ) {
         my $post_args = $r->post_args;
         if ( exists $post_args->{logout_one} ) {
             $remote->logout;

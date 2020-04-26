@@ -3205,9 +3205,6 @@ sub login_message {
     return $msg->("not_validated")   if $u->{'status'} eq "N";
     return $msg->("must_revalidate") if $u->{'status'} eq "T";
 
-    my $checkpass = LJ::CreatePage->verify_password( u => $u );
-    return $msg->( "bad_password", { 'pre' => "$checkpass " } ) if $checkpass;
-
     return $msg->("old_win32_client") if $req->{'clientversion'} =~ /^Win32-MFC\/(1.2.[0123456])$/;
     return $msg->("old_win32_client") if $req->{'clientversion'} =~ /^Win32-MFC\/(1.3.[01234])\b/;
     return $msg->("hello_test")       if grep { $u->{user} eq $_ } @LJ::TESTACCTS;

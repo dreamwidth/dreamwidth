@@ -23,6 +23,7 @@ Hash::MultiValue@0.16
 IO::WrapTie
 Image::ExifTool
 Image::Size
+Imager::File::PNG
 Imager::QRCode
 JSON::Validator
 JSON@2.53

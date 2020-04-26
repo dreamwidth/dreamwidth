@@ -1785,8 +1785,9 @@ sub clean_userbio {
             remove       => $userbio_remove,
             cleancss     => 1,
 
-            # Bios are always local.
-            formatting    => 'markdown',
+            # Bios are always local, but for now, we are marking them as
+            # HTML so that people don't have to reformat everything.
+            formatting    => 'html',
             local_content => 1,
         }
     );
