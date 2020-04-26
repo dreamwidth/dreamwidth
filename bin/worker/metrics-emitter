@@ -28,9 +28,9 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use Time::HiRes qw/ time sleep /;
 
 use DW::Stats;
-use DW::TaskQueue;
+use DW::TaskQueue::SQS;
 
-my $q = DW::TaskQueue->init(%LJ::SQS);
+my $q = DW::TaskQueue::SQS->init(%LJ::SQS);
 
 my $next_get_attributes = time();
 
