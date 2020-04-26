@@ -161,13 +161,6 @@ _c?>
         if ( $u->rate_log( 'invitefriend', 1 ) ) {
 
             my $given_msg_custom = $POST{msg} ? "$POST{msg}\n\n" : "";
-            LJ::send_mail({
-                to       => $email,
-                from     => $LJ::BOGUS_EMAIL,
-                fromname => $u->{name},
-                subject  => $msg_subject,
-                body     => "$msg_body_top\n\n$given_msg_custom$msg_body_bottom\n\n$msg_sig\n\n$msg_footer",
-            });
 
             $u->log_event('friend_invite_sent', {
                 remote => $u,

@@ -2219,7 +2219,7 @@ register_tablecreate( "password2", <<'EOC');
 CREATE TABLE password2 (
     userid      INT UNSIGNED NOT NULL PRIMARY KEY,
     version     INT UNSIGNED NOT NULL,
-    password    VARCHAR(255) NOT NULL
+    password    VARCHAR(255) NOT NULL,
     totp_secret VARCHAR(255)
 )
 EOC
