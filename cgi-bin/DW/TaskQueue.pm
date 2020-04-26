@@ -160,7 +160,7 @@ sub start_work {
         my $messages  = $self->receive( $class, 10 );
         my $recv_time = time() - $recv_start_time;
 
-        unless (@$messages) {
+        unless ( @{ $messages || [] } ) {
             $log->debug( sprintf( '[%s %0.3fs] Receive finished, empty', $class, $recv_time ) );
             next;
         }
