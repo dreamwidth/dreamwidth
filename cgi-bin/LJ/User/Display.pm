@@ -168,7 +168,8 @@ sub ljuser_display {
 
     # Mark accounts as deleted that aren't visible, memorial, locked, or
     # read-only
-    $opts->{del} = 1
+    my $deleted = $opts->{del} ? 1 : 0;
+    $deleted = 1
         unless $u->is_visible
         || $u->is_memorial
         || $u->is_locked
@@ -176,7 +177,7 @@ sub ljuser_display {
 
     my $andfull       = $opts->{full} ? "&amp;mode=full" : "";
     my $img           = $opts->{imgroot} || $LJ::IMGPREFIX;
-    my $strike        = $opts->{del} ? ' text-decoration: line-through;' : '';
+    my $strike        = $deleted ? ' text-decoration: line-through;' : '';
     my $profile_url   = $opts->{profile_url} || '';
     my $journal_url   = $opts->{journal_url} || '';
     my $display_class = $opts->{no_ljuser_class} ? "" : " class='ljuser'";
@@ -601,17 +602,18 @@ sub get_timezone {
 sub ljuser {
     my ( $user, $opts ) = @_;
 
-    my $andfull       = $opts->{'full'} ? "?mode=full" : "";
-    my $img           = $opts->{'imgroot'} || $LJ::IMGPREFIX;
-    my $profile_url   = $opts->{'profile_url'} || '';
-    my $journal_url   = $opts->{'journal_url'} || '';
+    my $deleted = $opts->{del}    ? 1            : 0;
+    my $andfull = $opts->{'full'} ? "?mode=full" : "";
+    my $img         = $opts->{'imgroot'}     || $LJ::IMGPREFIX;
+    my $profile_url = $opts->{'profile_url'} || '';
+    my $journal_url = $opts->{'journal_url'} || '';
     my $display_class = $opts->{no_ljuser_class} ? "" : " class='ljuser'";
     my $profile;
 
     my $make_tag = sub {
         my ( $fil, $url, $x, $y, $type ) = @_;
         $y ||= $x;    # make square if only one dimension given
-        my $strike = $opts->{'del'} ? ' text-decoration: line-through;' : '';
+        my $strike = $deleted ? ' text-decoration: line-through;' : '';
 
         # Backwards check, because we want it to default to on
         my $bold = ( exists $opts->{'bold'} and $opts->{'bold'} == 0 ) ? 0 : 1;
@@ -663,8 +665,8 @@ sub ljuser {
     my $type_readable = $u->journaltype_readable;
 
     # Mark accounts as deleted that aren't visible, memorial, locked, or read-only
-    $opts->{'del'} = 1 unless $u->is_visible || $u->is_memorial || $u->is_locked || $u->is_readonly;
-    $user = $u->user;
+    $deleted = 1 unless $u->is_visible || $u->is_memorial || $u->is_locked || $u->is_readonly;
+    $user    = $u->user;
 
     my $url       = $u->journal_base . "/";
     my $head_size = $opts->{head_size};
