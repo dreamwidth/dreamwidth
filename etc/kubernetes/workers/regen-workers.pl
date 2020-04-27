@@ -40,11 +40,15 @@ my %workers = (
     'sphinx-copier'       => [    3,     5,  '300M',   '50m',  undef ],
     'sphinx-search-gm'    => [    1,     1,  '300M',   '50m',  undef ],
     'synsuck'             => [   10,    15,  '300M',  '100m',  undef ],
-    'xpost'               => [    1,     1,  '300M',   '50m',  undef ],
 
     # Misc site utilities
     'codebuild-notifier'  => [    1,     1,  '300M',   '50m',  undef ],
     'metrics-emitter'     => [    1,     1,  '300M',   '50m',  undef ],
+
+	# DO NOT run these in k8s... until we have some way of having a dedicated IP,
+	# we keep getting banned by LJ.
+    # 'xpost'               => [    1,     1,  '300M',   '50m',  undef ],
+	# importers...
 );
 
 foreach my $worker (keys %workers) {
