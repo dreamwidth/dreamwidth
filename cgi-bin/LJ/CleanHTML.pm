@@ -1944,7 +1944,7 @@ sub user_link_html {
                 return $user;
             }
             else {
-                return $ext_u->ljuser_display($opts);
+                return $ext_u->ljuser_display(%$opts);
             }
 
             # if we hit the else, then we know that this user doesn't appear
