@@ -253,6 +253,13 @@ ul.entry-management-links {
     margin-top: 1.5em;
   }
 
+  // Link text is "Thread." We want to keep this on reply pages, but on entry
+  // pages it's redundant; the real permalink is in the comment header, and
+  // there's already another "Thread" in the footer.
+  .footer .commentpermalink {
+    display: none;
+  }
+
   .header {
     & > .inner {
       display: flex;
