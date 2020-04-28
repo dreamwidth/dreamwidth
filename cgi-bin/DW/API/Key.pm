@@ -56,7 +56,7 @@ sub get_key {
     my ( $class, $hash ) = @_;
     return undef unless $hash;
 
-    my $dbh = LJ::get_db_writer() or croak "Failed to get database";
+    my $dbh     = LJ::get_db_writer() or croak "Failed to get database";
     my $keydata = $dbh->selectrow_hashref(
         "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'",
         undef, $hash );
@@ -80,7 +80,7 @@ sub get_keys_for_user {
         or croak "need a user!\n";
     my @keylist;
 
-    my $dbh = LJ::get_db_writer() or croak "Failed to get database";
+    my $dbh  = LJ::get_db_writer() or croak "Failed to get database";
     my $keys = $dbh->selectall_hashref(
         q{SELECT keyid, hash FROM api_key WHERE userid = ? AND state = 'A'},
         'keyid', undef, $user->{userid} );
