@@ -6,7 +6,7 @@ jQuery(function($){
     var authForms = $('.from-login');
     var iconSelect = $('#prop_picture_keyword');
 
-    // Blank out any input children.
+    // Helpers for modifying every input in a sub-section of the form:
     jQuery.fn.extend({
         clearFormFields: function() {
             this.find('input').each(function(i, elm){
@@ -18,18 +18,33 @@ jQuery(function($){
                 }
             });
             return this;
+        },
+        disableFormFields: function() {
+            this.find('input').each(function(i, elm) {
+                elm.disabled = true;
+            });
+            return this;
+        },
+        enableFormFields: function() {
+            this.find('input').each(function(i, elm) {
+                elm.disabled = false;
+            });
+            return this;
         }
     });
 
     // Tidy up irrelevant controls when choosing who the comment is from
     fromOptions.change(function(e) {
-        // When a "from" option is selected, show its associated login form (if
-        // any), and blank out the values of any other login forms so we don't
-        // send contradictory info.
+        // If the backend gets a user/password value AND a usertype that doesn't
+        // need it, it considers that an error. So in addition to keeping
+        // irrelevant sections of the form out of the way, we blank+disable any
+        // other login forms to avoid sending contradictory info. (Disabling is
+        // necessary to keep browser password managers from sending an unwanted
+        // user/password at the last minute; browsers omit disabled fields.)
         var associatedLoginForm = document.getElementById( $(this).data('more') );
         authForms.hide();
-        $(associatedLoginForm).show();
-        authForms.not(associatedLoginForm).clearFormFields();
+        $(associatedLoginForm).show().enableFormFields();
+        authForms.not(associatedLoginForm).clearFormFields().disableFormFields();
 
         // Icon select menu is only available for logged-in user
         if (this.id === 'talkpostfromremote' || this.id === 'talkpostfromoidli') {
