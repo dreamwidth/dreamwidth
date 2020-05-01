@@ -19,7 +19,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-plan tests => 9;
+plan tests => 19;
 
 use Digest::MD5 qw/ md5_hex /;
 

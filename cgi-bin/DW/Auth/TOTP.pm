@@ -105,7 +105,7 @@ sub disable {
     # the TOTP system never removes itself without knowledge of the user's
     # password)
     return undef
-        unless DW::Auth::Password->check_password( $u, $password );
+        unless DW::Auth::Password->check( $u, $password );
 
     # Wipe out their secret and also the recovery codes so they can't be used
     # in the future, this is done in a transaction to try to ensure we don't
