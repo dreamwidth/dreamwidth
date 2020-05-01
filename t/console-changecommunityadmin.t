@@ -19,7 +19,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 8;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
@@ -71,5 +71,4 @@ is( $run->( "change_community_admin " . $comm->user . " " . $u->user ),
 $refresh->();
 ok( $u->can_manage($comm),        "Verified user is maintainer" );
 ok( $u->has_same_email_as($comm), "Addresses match" );
-ok( !$comm->password,             "Password cleared" );
 $u->revoke_priv("communityxfer");
