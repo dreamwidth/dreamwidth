@@ -249,9 +249,6 @@ IconBrowser.prototype = {
             .addClass("active");
     },
     updateOwner: function(e) {
-        // hackety hack -- being triggered on both 'close' and 'close.fndtn.reveal'; just want once
-        if (e.namespace === "") return;
-
         if (this.selectedKeyword) {
             this.element
                 .val(this.selectedKeyword)
