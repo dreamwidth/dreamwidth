@@ -223,7 +223,17 @@ IconBrowser.prototype = {
         var iconBrowser = this;
 
         $("#" + iconBrowser.selectedId).find(".th, a").removeClass("active");
-        if ( $container.length == 0 ) return;
+
+        if ( ! $container || $container.length === 0 ) {
+            // more like DON'Tselect.
+            iconBrowser.selectedKeyword = undefined;
+            iconBrowser.selectedId = undefined;
+            // move keyword menu and select button back to their original spots
+            $("#js-icon-browser-content").before(
+                iconBrowser.modal.find("#inline-keyword-menu, #icon-browser-select-button-wrapper")
+            )
+            return;
+        }
 
         // select keyword
         if ( keyword != null ) {
@@ -271,44 +281,35 @@ IconBrowser.prototype = {
         this.modal.foundation('reveal', 'close');
     },
     filter: function(e) {
-        console.log("filter");
         var val = $(e.target).val().toLocaleUpperCase();
 
-        if ( ! this.originalElement ) {
-            this.originalElement = $("#js-icon-browser-content");
-            this.originalElementContainer = this.originalElement.parent();
-            this.originalElement.detach();
-        } else {
-            $("#js-icon-browser-content").remove();
+        if ( ! this.contentElement ) {
+            this.contentElement = $("#js-icon-browser-content");
         }
 
-
-        var $filtered = this.originalElement.clone(true);
-        $filtered
+        this.contentElement
             .find("li").each(function(i, item) {
-                console.log("item", item, $(this).data("keywords"), val);
                 if ( $(this).data("keywords").indexOf(val) == -1
                     && $(this).data("comment").indexOf(val) == -1
                     && $(this).data("alt").indexOf(val) == -1 ) {
 
-                    $(this).remove();
+                    $(this).css('display', 'none');
+                } else {
+                    $(this).css('display', ''); // Reason we aren't using .show() is bc it forcibly sets 'display: block'.
                 }
-            }).end()
-        .appendTo(this.originalElementContainer);
+            });
 
         var $visible = $("#js-icon-browser-content li:visible");
-        if ( $visible.length == 1 )
+        if ( $visible.length == 1 ) {
             this.doSelect($visible, null, true);
+        } else if ( ! $visible.is('#' + this.selectedId) ) {
+            // The previously selected icon doesn't match the filter anymore, so deselect it.
+            this.doSelect(null, null, true);
+        }
     },
     resetFilter: function() {
         $("#js-icon-browser-search").val("");
-        if ( this.originalElement ) {
-            $("#js-icon-browser-content").detach();
-            this.originalElementContainer.append(this.originalElement);
-        }
-
-        this.originalElement = null;
-        this.originalElementContainer = null;
+        $("#js-icon-browser-content li").show();
     }
 };
 
