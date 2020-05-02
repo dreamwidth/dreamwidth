@@ -94,9 +94,10 @@ IconBrowser.prototype = {
                     var $img = $("<img />").attr( {
                             src: icon.url,
                             alt: icon.alt,
-                            height:
-                            icon.height,
+                            height: icon.height,
                             width: icon.width,
+                            role: "button",
+                            tabindex: "0",
                             "class": "th" } )
                         .wrap("<a>").parent()
                         .wrap("<div class='icon-browser-icon-image'></div>").parent();
@@ -107,7 +108,7 @@ IconBrowser.prototype = {
                         $.each(icon.keywords, function(i, kw) {
                             iconBrowser.kwToIcon[kw] = idstring;
                             $keywords
-                                .append( $("<a class='keyword radius' data-kw='" + kw + "'></a>").text(kw) )
+                                .append( $("<a class='keyword radius' role='button' tabindex='0' data-kw='" + kw + "'></a>").text(kw) )
                                 .append(document.createTextNode(" "));
 
                         });
@@ -174,6 +175,10 @@ IconBrowser.prototype = {
     selectByClick: function(e) {
         e.stopPropagation();
         e.preventDefault();
+
+        // Some browsers don't focus buttons or role=buttons on click, and we
+        // want predictable behavior when people combine click + tab/enter.
+        e.target.focus();
 
         // If this is the second click, treat it as confirmation:
         if ( $(e.target).hasClass("active") ) {
