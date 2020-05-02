@@ -36,6 +36,8 @@ function IconBrowser($el, options) {
             if (e.namespace === "") return;
 
             scrollPositionDogear = $(window).scrollTop();
+            iconBrowser.modal.removeAttr('tabindex'); // WHY does foundation.reveal set this.
+            iconBrowser.focusSearch();
         })
         .on('closed.fndtn.reveal', modalSelector, function(e) {
             // hackety hack -- being triggered on both 'closed' and 'closed.fndtn.reveal'; just want one
@@ -64,7 +66,8 @@ IconBrowser.prototype = {
             iconBrowser.resetFilter();
             iconBrowser.initializeKeyword();
         } else {
-            iconBrowser.modal.find(":input[type=search]").prop("disabled", true);
+            var searchField = $("#js-icon-browser-search");
+            searchField.prop("disabled", true);
 
             var url = Site.currentJournalBase ? "/" + Site.currentJournal + "/__rpc_userpicselect" : "/__rpc_userpicselect";
             $.getJSON(url).then(function(data) {
@@ -126,9 +129,7 @@ IconBrowser.prototype = {
                         .attr( "id", idstring );
                 });
 
-                iconBrowser.modal.find(":input[type=search]")
-                    .prop("disabled", false)
-                    .focus();
+                searchField.prop("disabled", false);
 
                 iconBrowser.initializeKeyword();
             });
@@ -159,6 +160,9 @@ IconBrowser.prototype = {
             .on('closed.fndtn.reveal', '#' + this.modalId, this.deregisterListeners.bind(this));
 
         this.listenersRegistered = true;
+    },
+    focusSearch: function() {
+        $('#js-icon-browser-search').focus();
     },
     selectByEnter: function(e) {
         // enter
