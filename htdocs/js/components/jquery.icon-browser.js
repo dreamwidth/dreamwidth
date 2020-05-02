@@ -145,8 +145,8 @@ IconBrowser.prototype = {
         if ( this.listenersRegistered ) return;
 
         $("#js-icon-browser-content")
-            .on("click", this.selectByClick.bind(this))
-            .on("dblclick", this.selectByDoubleClick.bind(this));
+            .on("click", ".icon-browser-item", this.selectByClick.bind(this))
+            .on("dblclick", ".icon-browser-item", this.selectByDoubleClick.bind(this));
 
         this.modal
             .find(".keyword-menu")
@@ -252,11 +252,16 @@ IconBrowser.prototype = {
             .find(".th, a[data-kw='" + iconBrowser.selectedKeyword + "']")
                 .addClass("active");
 
-        // keyword menu
+        // update keyword menus, move inline menu and select button
         if ( replaceKwMenu ) {
-            var $keywords = $container.find(".keywords");
-            iconBrowser.modal.find(".keyword-menu .keywords")
-                .replaceWith($keywords.clone());
+            var $currentKeywords = $container.find(".keywords");
+            var $oldKeywords = iconBrowser.modal.find(".keyword-menu")
+                .find(".keywords");
+            $currentKeywords.clone().replaceAll($oldKeywords);
+            // adopt inline menu as sibling:
+            $container.after( $('#inline-keyword-menu') );
+            // adopt select button as child:
+            $container.append( $('#icon-browser-select-button-wrapper') );
         } else {
             iconBrowser.modal.find(".keyword-menu .active")
                 .removeClass("active");
