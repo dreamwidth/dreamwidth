@@ -140,7 +140,7 @@ IconBrowser.prototype = {
         $(document).off('keydown.icon-browser');
     },
     registerListeners: function() {
-        $(document).on('keydown.icon-browser', this.selectByEnter.bind(this));
+        $(document).on('keydown.icon-browser', this.keyboardNav.bind(this));
 
         if ( this.listenersRegistered ) return;
 
@@ -164,16 +164,14 @@ IconBrowser.prototype = {
     focusSearch: function() {
         $('#js-icon-browser-search').focus();
     },
-    selectByEnter: function(e) {
-        // enter
-        if (e.keyCode && e.keyCode === 13) {
-            var $originalTarget = $(e.originalTarget);
-            if ($originalTarget.hasClass("keyword")) {
-                $originalTarget.click();
-            } else if ($originalTarget.is("a")) {
-                return;
-            }
-            this.updateOwner.call(this, e);
+    keyboardNav: function(e) {
+        if ( $(e.target).is('#js-icon-browser-search') ) return;
+
+        if ( e.key === 'Enter' || (! e.key && e.keyCode === 13) ) {
+            $(e.target).trigger('click');
+        } else if ( e.key === '/' || (! e.key && e.keyCode === 191) ) {
+            e.preventDefault();
+            $("#js-icon-browser-search").focus();
         }
     },
     selectByClick: function(e) {
@@ -285,6 +283,13 @@ IconBrowser.prototype = {
         this.modal.foundation('reveal', 'close');
     },
     filter: function(e) {
+        if (this.selectedKeyword) {
+            if ( e.key === 'Enter' || (! e.key && e.keyCode === 13) ) {
+                this.updateOwner.call(this, e);
+                return;
+            }
+        }
+
         var val = $(e.target).val().toLocaleUpperCase();
 
         if ( ! this.contentElement ) {
