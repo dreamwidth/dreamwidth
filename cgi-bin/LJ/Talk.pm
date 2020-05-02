@@ -1785,12 +1785,7 @@ sub icon_dropdown {
 
     my $ret = "";
     if ( $res{pickw_count} ) {
-        $ret .= BML::ml(
-            '/talkpost.bml.label.picturetouse2',
-            {
-                aopts => "href='" . $remote->allpics_base . "'"
-            }
-        ) . " ";
+        $ret .= BML::ml('/talkpost.bml.label.picturetouse2') . " ";
 
         my @pics;
         foreach my $i ( 1 ... $res{pickw_count} ) {

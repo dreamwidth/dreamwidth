@@ -25,7 +25,7 @@
 
 .error.noreply_suspended=This entry is suspended.  You can't reply to it.
 
-.label.picturetouse2=<a [[aopts]]>Icon</a> to use:
+.label.picturetouse2=Icon to use:
 
 .linkstripped=Links will be displayed as unclickable URLs to help prevent spam.
 
