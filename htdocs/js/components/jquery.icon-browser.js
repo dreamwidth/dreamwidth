@@ -44,6 +44,11 @@ function IconBrowser($el, options) {
             if ( Math.abs( $(window).scrollTop() - scrollPositionDogear ) > 500 ) {
                 $(window).scrollTop(scrollPositionDogear);
             }
+
+            // the browser blew away the user's tab-through position, so restore
+            // it on the icon menu, since that's what they just indirectly set a
+            // value for.
+            $el.focus();
         });
 }
 
