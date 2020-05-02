@@ -76,7 +76,7 @@
         // @supports will hide this from IE11, which thinks it can flex but kinda can't.
         @supports (display: flex) {
             display: flex;
-            flex-direction: row;
+            flex-direction: row-reverse;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
@@ -112,7 +112,7 @@
         }
     }
 
-    .keyword {
+    .keyword, .icon-browser-options a {
         display: inline-block;
         max-width: 100%;
         cursor: pointer;
@@ -127,7 +127,7 @@
         transition-timing-function: ease-out;
         transition-property: color, background-color;
 
-        &.active {
+        &.active, &.inactive-toggle {
             // Journal styles don't know about ".active" controls so they don't
             // do the inverted colors thing you see in site skins. But border
             // thickness will do in a pinch.
@@ -135,11 +135,6 @@
             margin: calc(.2em - 2px); // absorb extra border size
             margin-left: 0;
         }
-    }
-
-    a.inactive-toggle {
-        color: inherit;
-        text-decoration: none;
     }
 
     .icon-browser-item-meta {
