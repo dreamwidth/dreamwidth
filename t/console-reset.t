@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
@@ -26,8 +26,10 @@ use LJ::Test qw (temp_user);
 local $LJ::T_NO_COMMAND_PRINT = 1;
 local $LJ::T_SUPPRESS_EMAIL   = 1;
 
-my $u  = temp_user();
-my $u2 = temp_user();
+my $u    = temp_user();
+my $u2   = temp_user();
+my $pass = "foopass";
+$u2->set_password($pass);
 
 my $run = sub {
     my $cmd = shift;
@@ -58,14 +60,13 @@ $u->revoke_priv("reset_email");
 
 is( $run->( "reset_password " . $u2->user . " \"resetting password\"" ),
     "error: You are not authorized to run this command." );
+ok( $u2->check_password($pass), "Password unchanged." );
 $u->grant_priv("reset_password");
-
-my $oldpass = $u2->password;
 
 is( $run->( "reset_password " . $u2->user . " \"resetting password\"" ),
     "success: Password reset for '" . $u2->user . "'." );
 $u2 = LJ::load_user( $u2->user );
-ok( $u2->password ne $oldpass, "Password changed successfully." );
+ok( !$u2->check_password($pass), "Password changed successfully." );
 
 $u->revoke_priv("reset_password");
 

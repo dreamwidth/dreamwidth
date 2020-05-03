@@ -19,7 +19,7 @@ use Carp qw(croak);
 
 sub cmd { "change_journal_type" }
 
-sub desc { "Change a journal's type. Requires priv: changejournaltype." }
+sub desc { "Change a journal's type. Currently broken! Requires priv: changejournaltype." }
 
 sub args_desc {
     [
@@ -35,6 +35,7 @@ sub args_desc {
 sub usage { '<journal> <type> <owner> [force]' }
 
 sub can_execute {
+    return 0;    # fix password method usage
     my $remote = LJ::get_remote();
     return ( $remote && $remote->has_priv("changejournaltype") );
 }

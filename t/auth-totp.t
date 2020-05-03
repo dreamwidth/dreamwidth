@@ -51,7 +51,7 @@ ok( !DW::Auth::TOTP->check_code( $u, '000000' ), 'Bad code fails.' );
 # in a TOTP system seems spooky)
 
 # Disable
-ok( DW::Auth::Password->set_password( $u, 'test' ), 'Changed user password.' );
+ok( DW::Auth::Password->set( $u, 'test' ), 'Changed user password.' );
 ok( !DW::Auth::TOTP->disable( $u, 'fail' ), 'Fail to disable without password.' );
 ok( DW::Auth::TOTP->disable( $u, 'test' ), 'Disable works.' );
 ok( !DW::Auth::TOTP->is_enabled($u), 'Disabled user does not have TOTP.' );

@@ -27,7 +27,7 @@ use LJ::Protocol;
 my $u       = temp_user();
 my $newpass = "pass" . rand();
 $u->set_password($newpass);
-is( $u->password, $newpass, "password matches" );
+ok( $u->check_password($newpass), "password matches" );
 
 my $res;
 
@@ -115,9 +115,9 @@ is( $it->{props}{revnum}, 2, "is 2nd revision now" );
 sub do_req {
     my ( $mode, %args ) = @_;
     $args{mode}     = $mode;
-    $args{ver}      = 1;              # supports unicode
+    $args{ver}      = 1;          # supports unicode
     $args{user}     = $u->user;
-    $args{password} = $u->password;
+    $args{password} = $newpass;
 
     my %res;
     my $flags = {};
@@ -128,9 +128,9 @@ sub do_req {
 
 sub do_req_deep {
     my ( $mode, %args ) = @_;
-    $args{ver}      = 1;              # supports unicode
+    $args{ver}      = 1;          # supports unicode
     $args{username} = $u->user;
-    $args{password} = $u->password;
+    $args{password} = $newpass;
 
     my $flags = {};
     my $err;

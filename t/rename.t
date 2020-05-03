@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 154;
+use Test::More tests => 153;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -264,14 +264,6 @@ note("-- personal-to-personal, authorization");
     $tousername = $tou->user;
     ok( !$fromu->can_rename_to($tousername),
         "Cannot rename fromu to existing user $tousername (because: email)" );
-
-    ( $fromu, $tou ) = $create_users->(
-        from_details => { %rename_cond, password => 'from' },
-        to_details   => { %rename_cond, password => 'to' }
-    );
-    $tousername = $tou->user;
-    ok( !$fromu->can_rename_to($tousername),
-        "Cannot rename fromu to existing user $tousername (because: password)" );
 
     ( $fromu, $tou ) = $create_users->(
         from_details => { %rename_cond, status => 'N' },
