@@ -301,63 +301,6 @@ ul.entry-management-links {
 
 
 /**
-* Quickreply and talkform tweaks:
-* (To make them fit better with Foundation's odd form control styles.)
-*/
-
-#qrformdiv {
-  // Consistent Foundation styles for most buttons
-  input[type="button"],
-  button:not(#lj_userpicselect),
-  input[type="submit"]:not(#submitpost) {
-    @include button;
-    @include button-style($bg:$secondary-color, $bg-hover:$secondary-button-bg-hover, $border-color:$secondary-button-border-color);
-    margin-bottom: 3px;
-  }
-
-  // Clear unwanted extra button styles for icon browse button.
-  #lj_userpicselect {
-    border-radius: initial;
-    box-shadow: initial;
-  }
-
-  // Foundation default (inline-block) gives worse wrapping on mobile for long labels.
-  label {
-    display: inline;
-  }
-
-  // Foundation likes stretching selects to 100% for some reason
-  select {
-    width: auto;
-  }
-
-  // Shrink subject and quote button a bit
-  .qr-subject {
-    input[type="text"] {
-      height: 2.2rem;
-      padding: 0.3em;
-    }
-    input[type="button"], button {
-      height: 2.2rem;
-    }
-  }
-
-  .qr-meta {
-    // Make .ljuser bigger ("font-size: smaller" looks more balanced on journal
-    // styles, but unbalanced here due to big form fields and smaller body text).
-    .ljuser {
-      font-size: inherit;
-    }
-    // Make more options and icon controls smaller so they don't tower over the
-    // icon preview.
-    select, button, input[type="button"] {
-      height: 1.6rem;
-      padding: 0 0.8rem;
-    }
-  }
-}
-
-/**
 * Reply page tweaks:
 */
 
