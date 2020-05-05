@@ -183,6 +183,13 @@ sub reset_email {
 
     $update_opts ||= { status => 'T' };
     $update_opts->{email} = $newemail;
+
+    # this is no longer done using update_self
+    my $changepass = delete $update_opts->{password};
+    if ( defined $changepass ) {
+        $u->set_password($changepass);
+    }
+
     $u->update_self($update_opts)
         or return $errsub->( LJ::Lang::ml( "email.emailreset.error", { user => $u->user } ) );
 
@@ -198,13 +205,26 @@ sub reset_email {
                 from    => $LJ::ADMIN_EMAIL,
                 subject => LJ::Lang::ml("email.emailreset.subject"),
                 body    => LJ::Lang::ml(
-                    "email.emailreset.body",
-                    {
-                        user     => $u->user,
-                        sitename => $LJ::SITENAME,
-                        siteroot => "$LJ::SITEROOT/",
-                        auth     => $auth
-                    }
+                    $changepass
+                    ? (
+                        "email.emailreset.body_withpasswd",
+                        {
+                            user     => $u->user,
+                            newpass  => $changepass,
+                            sitename => $LJ::SITENAME,
+                            siteroot => "$LJ::SITEROOT/",
+                            auth     => $auth
+                        }
+                        )
+                    : (
+                        "email.emailreset.body",
+                        {
+                            user     => $u->user,
+                            sitename => $LJ::SITENAME,
+                            siteroot => "$LJ::SITEROOT/",
+                            auth     => $auth
+                        }
+                    )
                 ),
             }
         );

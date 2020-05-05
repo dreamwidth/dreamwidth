@@ -19,14 +19,14 @@ use Carp qw(croak);
 
 sub cmd { "change_journal_type" }
 
-sub desc { "Change a journal's type. Currently broken! Requires priv: changejournaltype." }
+sub desc { "Change a journal's type. Requires priv: changejournaltype." }
 
 sub args_desc {
     [
         'journal' => "The username of the journal that type is changing.",
         'type'    => "Either 'person' or 'community'.",
         'owner' =>
-"The person to become the maintainer of the community journal. If changing to type 'person', the account will adopt the email address and password of the owner.",
+"The person to become the maintainer of the community journal. If changing to type 'person', the account will adopt the email address of the owner and have a randomly assigned password.",
         'force' =>
 "Specify this to create a community from a non-empty journal. The maintainer of the community will be the owner of the journal's entries."
     ]
@@ -35,7 +35,6 @@ sub args_desc {
 sub usage { '<journal> <type> <owner> [force]' }
 
 sub can_execute {
-    return 0;    # fix password method usage
     my $remote = LJ::get_remote();
     return ( $remote && $remote->has_priv("changejournaltype") );
 }
@@ -83,8 +82,11 @@ sub execute {
     my $dbh = LJ::get_db_writer();
 
     #############################
-    # going to a personal journal. do they have any entries posted by other users?
+
     if ( $type eq "person" ) {
+
+        # going to a personal journal. do they have any entries posted by other users?
+
         my $dbcr  = LJ::get_cluster_def_reader($u);
         my $count = $dbcr->selectrow_array(
             'SELECT COUNT(*) FROM log2 WHERE journalid = ? AND posterid <> journalid',
@@ -93,11 +95,11 @@ sub execute {
         return $self->error(
             "Account contains $count entries posted by other users and cannot be converted.")
             if $count;
-
-        # going to a community. do they have any entries posted by themselves?
-        # if so, make the new owner of the community to be the owner of these entries
     }
     else {
+        # going to a community. do they have any entries posted by themselves?
+        # if so, make the new owner of the community to be the owner of these entries
+
         my $dbcr  = LJ::get_cluster_def_reader($u);
         my $count = $dbcr->selectrow_array(
             'SELECT COUNT(*) FROM log2 WHERE journalid = ? AND posterid = journalid',
@@ -152,11 +154,10 @@ sub execute {
     # update the user info
     my $extra = {};    # aggregates all the changes we're making
 
-    # update the password
-    $extra->{password} = $type eq "community" ? '' : $ou->password;
+    # update the password to something randomly generated, or blank for comm
+    $extra->{password} = $type eq "community" ? '' : LJ::rand_chars(12);
 
-    $u->infohistory_add( 'password', Digest::MD5::md5_hex( $u->password . 'change' ) )
-        if $extra->{password} ne $u->password;
+    $u->infohistory_add( 'passwordreset', 'reset' );
 
     # reset the email address
     $extra->{status} = 'A';
@@ -172,6 +173,7 @@ sub execute {
     $u->invalidate_directory_record;
     $u->set_next_birthday;
     $u->lazy_interests_cleanup;
+    $u->kill_all_sessions;
 
     #############################
     # register this action in statushistory
