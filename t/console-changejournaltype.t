@@ -18,15 +18,13 @@
 use strict;
 use warnings;
 
-use Test::More;
-plan skip_all => "Console command is currently broken -- password issues!";
-
-#use Test::More tests => 7;
+use Test::More tests => 7;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;
+local $LJ::T_SUPPRESS_EMAIL   = 1;
 
 my $u  = temp_user();
 my $u2 = temp_user();

@@ -275,6 +275,26 @@ Regards,
 [[siteroot]]
 .
 
+email.emailreset.body_withpasswd<<
+The email address for your [[sitename]] account '[[user]]' has
+been reset. To validate the change, please go to this address:
+
+     [[siteroot]]confirm/[[auth]]
+
+Additionally, the password for this account has been reset to:
+
+     [[newpass]]
+
+Please change it immediately by going to:
+
+     [[siteroot]]changepassword
+
+Regards,  
+[[sitename]] Team
+
+[[siteroot]]
+.
+
 email.emailreset.error=Unable to update user record for [[user]]
 
 email.emailreset.subject=Email Address Reset
