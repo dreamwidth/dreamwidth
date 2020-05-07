@@ -1,0 +1,24 @@
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>[% ".os.intro" | ml %]</p>
+
+<p>[% ".os.dw2" | ml('sitenameshort' => site.nameshort) %]</p>
+
+<p>[% ".os.lj" | ml %]</p>
+
+<h1>[% ".licensing.header" | ml %]</h1>
+
+<p>[% ".licensing.main1" | ml %]</p>
+
+<h1>[% ".attrib.header" | ml %]</h1>
+
+<p>[% ".attrib.silk" | ml('sitenameshort' => site.nameshort) %]</p>
+
+<p>[% ".attrib.circular" | ml('sitenameshort' => site.nameshort) %]</p>
+
+<h1>[% ".development.header" | ml %]</h1>
+
+<p>[% ".development.main2" | ml %]</p>
+
+<p>[% ".development.directions4" | ml %]</p>
