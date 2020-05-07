@@ -4432,7 +4432,7 @@ sub subscribe_interface {
     my $referer = BML::get_client_header('Referer') || '';
     my $uri     = $LJ::SITEROOT . DW::Request->get->uri;
 
-    # normalize the URLs -- ../index.bml doesn't make it a different page.
+    # normalize the URLs -- ../index.tt doesn't make it a different page.
     $uri     =~ s/index\.bml//;
     $referer =~ s/index\.bml//;
 
