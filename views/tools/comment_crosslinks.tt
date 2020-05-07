@@ -1,0 +1,26 @@
+[%- sections.title = 'Comment Crosslinks' -%]
+
+<form method="get">
+	[%- authas_html -%]
+</form>
+
+[% FOR prop IN props %]
+	[%-
+		ditemid = prop.1
+		dtalkid = prop.2
+		value = prop.3
+	-%]
+
+		[%- was = 'UNKNOWN' -%]
+		[%- IF (matches = value.match('^livejournal.com/([a-z0-9_]+)/(\d+)/(\d+)$')) -%]
+			[%-
+				user = matches.1
+				remote_ditemid = matches.2
+				remote_dtalkid = matches.3
+			-%]
+			[%- user.replace('_', '-') -%]
+			[%- was = "http://$user.livejournal.com/$remote_ditemid.html?thread=$remote_dtalkid"-%]
+		[%- END -%]
+
+		[% "$base/$ditemid.html?thread=$dtalkid was $was" %]<br />
+	[% END %]
