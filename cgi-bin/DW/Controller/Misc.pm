@@ -39,6 +39,7 @@ DW::Routing->register_string( "/beta",                    \&beta_handler,       
 
 DW::Routing->register_static( '/internal/404', 'error/404.tt', app => 1 );
 DW::Routing->register_static( '/site/opensource', 'site/opensource.tt', app => 1 );
+DW::Routing->register_static( '/doc/s2', 'doc/s2/index.tt', app => 1 );
 
 sub beta_handler {
     my ($opts) = @_;

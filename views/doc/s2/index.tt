@@ -1,0 +1,21 @@
+[%- sections.windowtitle = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<h1>[% ".css.header" | ml %]</h1>
+<p>[% ".intro.css" | ml(sitename = site.nameshort) %]</p>
+<ul>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_CSS'>[% ".css.overview" | ml %]</a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/CSS_tutorial'>[% ".css.tutorial" | ml %]</a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/Style_Structure_Overview'>[% ".css.stylestructure" | ml %]</a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/Category:S2_CSS'>[% ".css.selectors" | ml %]</a></li>
+</ul>
+<h1>[% ".s2.header" | ml %]</h1>
+<p>[% ".intro.s2" | ml(sitename = site.nameshort) %]</p>
+<ul>
+    <li><a href='http://wiki.dreamwidth.net/notes/Category:S2_Guide'>[% ".s2.guide" | ml %]</a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_Guide:_Style_System_Overview'>[% ".s2.overview" | ml %]</a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_Guide:_Language_Tutorial'>[% ".s2.language" | ml %]</a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_Cookbook:_Introduction'>[% ".s2.cookbook" | ml %]</a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/Category:S2_Properties'>[% ".s2.props" | ml %]</a></li>
+    <li><a href='http://wiki.dreamwidth.net/notes/S2_Guide:_Troubleshooting'>[% ".s2.troubleshoot" | ml %]</a></li>
+</ul>
