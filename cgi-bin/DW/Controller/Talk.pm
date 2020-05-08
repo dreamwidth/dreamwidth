@@ -42,7 +42,7 @@ sub talkpost_do_handler {
         if ( $GET->{'openid.mode'} eq 'id_res' ) {    # Verify their identity
 
             unless ( LJ::check_referer( '/talkpost_do', $GET->{'openid.return_to'} ) ) {
-                return error_ml( '/openid/login.bml.error.invalidparameter',
+                return error_ml( '/openid/login.tt.error.invalidparameter',
                     { item => "return_to" } );
             }
 

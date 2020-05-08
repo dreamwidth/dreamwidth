@@ -1108,21 +1108,21 @@ sub load_from_consumer {
 
     unless ($vident) {
         my $msg = $@ ? $@ : $csr->err;
-        $err->( '/openid/login.bml.error.notverified', { error => $msg } );
+        $err->( '/openid/login.tt.error.notverified', { error => $msg } );
         return;
     }
 
     my $url = $vident->url;
 
     if ( $url =~ /[\<\>\s]/ ) {
-        $err->('/openid/login.bml.error.invalidcharacters');
+        $err->('/openid/login.tt.error.invalidcharacters');
         return;
     }
 
     my $u = load_identity_user( "O", $url, $vident );
 
     unless ($u) {
-        $err->( '/openid/login.bml.error.notvivified', { url => LJ::ehtml($url) } );
+        $err->( '/openid/login.tt.error.notvivified', { url => LJ::ehtml($url) } );
         return;
     }
 
