@@ -1,14 +1,15 @@
 $include-html-panel-classes: false;
 @import "foundation/components/panels";
 
+// Exporting for other files to use, since it's listed in settings anyway:
+$callout-panel-bg: change-color($primary-color, $lightness:lightness($panel-bg));
 
 /* Panels */
 .panel { @include panel;
 
   &.callout {
-    $callout-bg: change-color($primary-color, $lightness:lightness($panel-bg));
-    $callout-border-color: scale-color($callout-bg, $lightness: -11%);
-    @include panel($bg:$callout-bg, $border-color:$callout-border-color);
+    $callout-border-color: scale-color($callout-panel-bg, $lightness: -11%);
+    @include panel($bg:$callout-panel-bg, $border-color:$callout-border-color);
     a {
       color: $callout-panel-link-color;
     }

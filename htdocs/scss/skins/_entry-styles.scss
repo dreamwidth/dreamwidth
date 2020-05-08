@@ -321,8 +321,7 @@ ul.entry-management-links {
 
 .comment-wrapper.screened > .comment .header {
   .comment-info, .userpic {
-    // Same background color as callout panels:
-    background-color: change-color($primary-color, $lightness:lightness($panel-bg));
+    background: $screened-comment-bg;
   }
 }
 
