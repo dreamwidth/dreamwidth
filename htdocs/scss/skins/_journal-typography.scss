@@ -46,6 +46,10 @@ $journal-content-font-size: 16px !default;
   h5 { font-size: 1em; }
   h6 { font-size: .9em; }
 
+  pre code {
+    display: block;
+  }
+
   // Specific to journal content:
   .comment-title {
     font-size: 1.3em;
