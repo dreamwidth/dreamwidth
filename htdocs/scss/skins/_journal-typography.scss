@@ -2,6 +2,8 @@
 * Typography resets for entries and comments:
 */
 
+$journal-content-font-size: 16px !default;
+
 .entry, #comments, .reply-page-wrapper {
   // Intended behavior:
   // - Skins that don't specify otherwise will display entries and comments
@@ -16,7 +18,7 @@
   // pages; Foundation sets individual rem font sizes for almost every element,
   // so you can't scale them by just setting a new size on the container.
 
-  font-size: 0.85rem;
+  font-size: $journal-content-font-size;
 
   // The em-based sizes below are based on a combination of foundation/_settings
   // and the hardcoded defaults, depending on what we seem to be using.
@@ -71,4 +73,16 @@
     overflow-wrap: break-word;
   }
 
+}
+
+/**
+* Typography resets for icons page:
+*/
+
+.icon-container .icon-info {
+  font-size: $journal-content-font-size;
+
+  ul, li {
+    font-size: $journal-content-font-size;
+  }
 }
