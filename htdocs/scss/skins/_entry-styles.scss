@@ -33,6 +33,7 @@
 ul.icon-links,
 ul.text-links {
   margin: 0;
+  padding: 0;
   display: inline;
 
   li {
@@ -112,10 +113,12 @@ ul.text-links {
 .entry {
   .metadata ul {
     margin: 0;
+    padding: 0;
     list-style: none;
 
     li {
       margin-left: 0;
+      margin-bottom: .75em;
     }
   }
 
@@ -127,10 +130,11 @@ ul.text-links {
     list-style: none;
     display: inline;
     margin-left: 0;
+    padding: 0;
 
     li {
       display: inline;
-      margin-left: 0;
+      margin: 0;
     }
   }
 
@@ -197,10 +201,12 @@ ul.entry-management-links {
     }
 
     .comment-info, .userpic {
-      border-bottom: 1px solid $soft-accent-color;
+      border-bottom: 1px solid;
+      border-color: $soft-accent-color;
     }
     .comment-info {
-      border-right: 1px solid $soft-accent-color;
+      border-right: 1px solid;
+      border-color: $soft-accent-color;
       flex-grow: 1;
     }
 
