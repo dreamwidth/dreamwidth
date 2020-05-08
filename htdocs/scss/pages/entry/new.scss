@@ -419,6 +419,12 @@
     padding-bottom: 0.2em;
     padding-top: 0.2em;
     border-bottom: none;
+    text-align: right;
+
+    & > * {
+        display: inline-block;
+        margin-left: 1.25rem;
+    }
 
     a {
         text-decoration: none;
