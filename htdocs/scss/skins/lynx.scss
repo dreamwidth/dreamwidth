@@ -1,40 +1,64 @@
-// color names. Only use these variables in the color assignment section
-$_black:     #000;
-$_white:     #FFF;
-$_dark-gray: #636363;
+// The Lynx skin deliberately does not look or act like a proper site skin. It
+// should defer to browser default styles wherever possible.
 
-$_support-bg-blue:  #c5dff9;
-$_support-fg-blue:  darken( $_support-bg-blue, 15% );
-$_support-bg-green: #d0fbca;
-$_support-fg-green: darken( $_support-bg-green, 15% );
+* {
+  box-sizing: border-box;
+}
 
-// color assignment
-$text-color: $_black;
-$primary-text-color: $_white;
-$inactive-color: $_dark-gray;
-$background-color: $_white;
-$soft-accent-color: $_white;
+@import "foundation/foundation_minimal";
+// ^^ used for pages that need foundation features but should never LOOK like
+// foundation.
 
-@import "skins/alert-colors";
+// Color variables required by compatibility-styles:
+$highlight-color: unset;
+$highlight-text-color: unset;
+$highlight-border: unset;
+@import "skins/compatibility-styles";
 
-$body-bg:           $background-color;
-$body-font-color:   $text-color;
-$form-font-color:   rgba(0,0,0,0.75);
-$form-bg-color:     #f7f7f7;
+// Color variables required by entry-styles:
+$soft-accent-color: unset;
+$secondary-color-alternate: #c0c0c0;
+$secondary-color: #e2e2e2;
+$screened-comment-bg: #C29B9B; // old Tropo screened comment color, why not.
+@import "skins/entry-styles";
+@import "skins/icons-page";
 
-// we want to base these on $body-font-color rather than the random variables they're based on
-$blockquote-font-color:                 tint( $body-font-color, 20% );
-$small-font-color:                      $body-font-color;
+// Hacks: isolated important bits from files we really don't want to import.
 
-// sub-nav
-$sub-nav-font-color:	$inactive-color;
+// _form-elements.scss:
+label.hidden {
+  @include element-invisible();
+}
 
-// pagination
-$pagination-link-font-color:	 $inactive-color;
-$pagination-link-unavailable-font-color:	$inactive-color;
+// _jquery-ui-theme.scss:
+.ui-menu, .ui-widget {
+    background-color: #fff;
+    border: 1px solid;
 
-@import "skins/global-styles";
+    .ui-state-focus {
+        border: 1px solid;
+    }
+}
 
-#content {
-    @include grid-row(container);
+// foundation/components/_panels.scss:
+.panel {
+    margin-bottom: 1.25rem;
+}
+
+// _skin-colors.scss:
+.border {
+    border: 1px solid;
+}
+.picker__holder {
+    background-color: #fff;
+}
+.picker__day.picker__day--selected,
+.picker__day--infocus:hover,
+.picker__day--outfocus:hover,
+.picker__day--selected:hover,
+.picker__list-item--highlighted,
+.picker__list-item--selected,
+.picker__list-item:hover,
+.picker__list-item--selected:hover {
+    border: 1px solid;
 }
