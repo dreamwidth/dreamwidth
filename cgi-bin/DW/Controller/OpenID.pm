@@ -8,7 +8,7 @@
 #      Mark Smith <mark@dreamwidth.org>
 #      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2011-2017 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2020 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -40,6 +40,13 @@ DW::Routing->register_string(
 DW::Routing->register_string( '/openid/claim',         \&openid_claim_handler,         app => 1 );
 DW::Routing->register_string( '/openid/claimed',       \&openid_claimed_handler,       app => 1 );
 DW::Routing->register_string( '/openid/claim_confirm', \&openid_claim_confirm_handler, app => 1 );
+
+# for handling site logins
+DW::Routing->register_string(
+    '/openid/login', \&openid_login_handler,
+    app      => 1,
+    no_cache => 1
+);
 
 sub openid_index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
@@ -297,6 +304,108 @@ sub openid_claim_confirm_handler {
     $u->claim_identity($ou);
 
     return DW::Template->render_template('openid/claim_confirm.tt');
+}
+
+sub openid_login_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my $remote = $rv->{remote};
+    return error_ml( '/openid/login.tt.error.logout.content', { user => $remote->ljuser_display } )
+        if $remote;
+
+    my $r = $rv->{r};
+
+    # yes, this looks at post_args without checking for did_post.
+    # that's how the old page operated so I'm preserving that behavior.
+    my $continue_to = $r->post_args->{'continue_to'};
+    my $query_args  = $continue_to ? "?continue_to=" . LJ::eurl($continue_to) : "";
+    my $return_to   = "$LJ::SITEROOT/openid/login" . $query_args;
+
+    if ( $r->did_post ) {
+        my $csr = LJ::OpenID::consumer();
+        my $url = $r->post_args->{'openid_url'};
+
+        return error_ml('/openid/login.tt.error.invalidcharacters') if $url =~ /[\<\>\s]/;
+
+        my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
+
+        my $claimed_id = eval { $csr->claimed_identity($url); };
+        return error_ml( '/openid/login.tt.error.claimed_identity', { err => $@ } ) if $@;
+
+        unless ($claimed_id) {
+            return error_ml( '/openid/login.tt.error.cantuseownsite',
+                { sitename => $LJ::SITENAMESHORT } )
+                if $$tried_local_ref;
+            return error_ml( '/openid/login.tt.error.loading_identity', { err => $csr->err } );
+        }
+
+        my $check_url = $claimed_id->check_url(
+            return_to      => $return_to,
+            trust_root     => "$LJ::SITEROOT/",
+            delayed_return => 1,
+        );
+        return $r->redirect($check_url);
+    }
+
+    my $get_args = $r->get_args;
+    if ( $get_args->{'openid.mode'} ) {
+
+        my $csr = LJ::OpenID::consumer($get_args);
+        return $r->redirect("$LJ::SITEROOT/openid/") if $csr->user_cancel;
+
+        my $setup = $csr->user_setup_url;
+        return $r->redirect($setup) if $setup;
+
+        if (   $get_args->{'openid.return_to'}
+            && $get_args->{'openid.return_to'} !~ /^\Q$return_to\E/ )
+        {
+            return error_ml( '/openid/login.tt.error.invalidparameter', { item => "return_to" } );
+        }
+
+        my $errmsg;
+        my $u = LJ::User::load_from_consumer( $csr, \$errmsg );
+        return error_ml( '/openid/login.tt.error.consumer_object', { err => $errmsg } )
+            unless $u;
+
+        my $sess_opts = { exptype => 'short', ipfixed => 0 };
+        my $etime     = 0;
+
+        # yes, we're looking at post args in a get request again.
+        if ( $r->post_args->{'expire'} eq "never" ) {
+            $etime = time() + 60 * 60 * 24 * 60;
+            $sess_opts->{'exptype'} = "long";
+        }
+
+        $u->make_login_session( $sess_opts->{'exptype'}, $sess_opts->{'ipfixed'} );
+        LJ::set_remote($u);
+
+        my $redirect = "$LJ::SITEROOT/login";
+
+        # handle the continue_to url, if it's a valid URL to redirect to.
+        $continue_to = $get_args->{'continue_to'};
+        if ($continue_to) {
+
+            # some pages return a relative url
+            if ( $continue_to =~ /^\// ) {
+                $continue_to = $LJ::SITEROOT . $continue_to;
+            }
+            if ( DW::Controller::validate_redirect_url($continue_to) ) {
+
+                # if the account is validated, then go ahead and redirect
+                if ( $u->is_validated ) {
+                    $redirect = $continue_to;
+                }
+                else {
+                    $redirect .= "?continue_to=" . LJ::eurl($continue_to);
+                }
+            }
+        }
+        return $r->redirect($redirect);
+    }
+
+    # the old code displayed an empty page if we got this far. let's do better.
+    return $r->redirect("$LJ::SITEROOT/login");
 }
 
 1;

@@ -1,21 +1,18 @@
 ;; -*- coding: utf-8 -*-
 .error.cantuseownsite=You can't use a [[sitename]] OpenID account on [[sitename]]:  <a href='/login'>go log in</a> with your actual [[sitename]] account.
 
+.error.claimed_identity=Error loading claimed identity: [[err]]
+
+.error.consumer_object=Error loading consumer object: [[err]]
+
 .error.invalidcharacters=Unable to continue: the provided OpenID URL contains invalid characters.
 
 .error.invalidparameter=There was a problem loading the page: invalid parameter [[item]]
 
-.error.logout.content=Hello, [[user]]. Before logging in with <a href='http://openid.net/'>OpenID</a>, you must first <a href='/logout'>log out</a>.
+.error.loading_identity=Error loading identity: [[err]]
 
-.error.logout.heading=Already logged in
+.error.logout.content=Hello, [[user]]. Before logging in with <a href='http://openid.net/'>OpenID</a>, you must first <a href='/logout'>log out</a>.
 
 .error.notverified=Can't verify OpenID: [[error]]
 
 .error.notvivified=We couldn't load your account, but we verified your identity as [[url]]. Please try logging in again later, and contact us if this error keeps happening.
-
-.error.no_support=OpenID consumer support is disabled
-
-.error.title=Error
-
-.title=OpenID Login
-
