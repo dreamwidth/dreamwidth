@@ -1,39 +1,44 @@
 @import "foundation/base", "foundation/components/forms";
 $regular-select-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
 
-.fancy-select {
-    display: inline-block;
-    height: $regular-select-height; // prevents extra bottom margins from inside elements
-    margin-bottom: $form-spacing;
-}
-
-.fancy-select-select {
-    position: relative;
-
-    select {
-        z-index: 10;
-
-        // hide the select
-        position: absolute;
-        top: 0;
-        left: 0;
-        border: none;
-        outline: none;
-        opacity: 0;
-        -webkit-appearance: none;
-        filter: alpha(opacity=0);
-    }
-}
-
-
-// visually overlay our custom element over the select
-// (but the select will be activated)
-.fancy-select-output {
-    z-index: 9;
-    text-align: left;
-    height: $regular-select-height;     // ensures consistent height for the visual overlay
-    output {
+// Only full site skin styles can support maximum fanciness. On Lynx, it'll be a
+// normal select with an explanatory div beside it that reacts to the current
+// selection.
+#canvas {
+    .fancy-select {
         display: inline-block;
-        white-space: nowrap;
+        height: $regular-select-height; // prevents extra bottom margins from inside elements
+        margin-bottom: $form-spacing;
+    }
+
+    .fancy-select-select {
+        position: relative;
+
+        select {
+            z-index: 10;
+
+            // hide the select
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: none;
+            outline: none;
+            opacity: 0;
+            -webkit-appearance: none;
+            filter: alpha(opacity=0);
+        }
+    }
+
+
+    // visually overlay our custom element over the select
+    // (but the select will be activated)
+    .fancy-select-output {
+        z-index: 9;
+        text-align: left;
+        height: $regular-select-height;     // ensures consistent height for the visual overlay
+        output {
+            display: inline-block;
+            white-space: nowrap;
+        }
     }
 }

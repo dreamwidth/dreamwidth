@@ -2,6 +2,7 @@
 
 .collapse-trigger, .collapse-trigger:hover, .collapse-trigger:focus {
     display: block;
+    position: relative;
     width: 100%;
 
     @extend %bare-button;

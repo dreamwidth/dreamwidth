@@ -61,22 +61,40 @@
 .community-administration {
     clear: both;
 
-    h2 {
+    #canvas & h2 { // exclude from Lynx skin
         font-size: 1.2rem;
     }
 }
 
-// don't let fancy-select-box expand around its contents (causes extra whitespace)
 .entry-quick-actions {
-    $entry-quick-action-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
+    label {
+        @include element-invisible();
+    }
     ul {
         margin-bottom: 0;
+        padding: 0;
+    }
+    li {
+        display: inline-block;
+        margin-left: 0;
+    }
+
+    input, select, output, button {
+        margin-right: $form-spacing; // Lynx skin only, overridden below.
+        margin-bottom: $form-spacing;
+    }
+}
+
+// pixel-pushing to arrange fancy-selects *just so.*
+// only relevant on non-Lynx skins.
+#canvas .entry-quick-actions {
+    $entry-quick-action-height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
+
+    input, select, output, button {
+        margin-right: 0;
     }
 
     li {
-        display: inline-block;
-        margin-left: 0 !important;
-
         input, .button {
             border-radius: 0;
         }
@@ -89,9 +107,6 @@
             border-top-right-radius: $global-radius !important;
             border-bottom-right-radius: $global-radius !important;
         }
-    }
-    label {
-        @include element-invisible();
     }
     input[type=text] {
         display: inline-block;
@@ -129,11 +144,6 @@
 
 .flexbox {
     .entry-quick-actions {
-        display: -webkit-flex;
-        -webkit-flex-direction: row;
-        -webkit-align-items: stretch;
-        -webkit-justify-content: space-between;
-        -webkit-flex-wrap: wrap;
         display: flex;
         flex-direction: row;
         align-items: stretch;
@@ -141,17 +151,14 @@
         flex-wrap: wrap;
 
         .entry-quick-metadata, .secondary-actions {
-            display: -webkit-flex;
-            -webkit-flex-grow: 1;
             display: flex;
             flex-grow: 1;
+            align-items: flex-start;
             & > li {
                 margin-bottom: 0;
             }
         }
         .entry-quick-metadata {
-            -webkit-justify-content: flex-start;
-            -webkit-flex-wrap: wrap;
             justify-content: flex-start;
             flex-wrap: wrap;
 
@@ -166,23 +173,30 @@
                     .fancy-select {
                         width: 100%;
                     }
-                    .fancy-select-output {
+                    #canvas & .fancy-select-output { // non-Lynx
                         border-radius: $global-radius; // on own line.
                     }
                 }
             }
         }
         .secondary-actions {
-            -webkit-justify-content: flex-end;
             justify-content: flex-end;
         }
     }
 }
 
+#canvas .current-entry textarea {
+    font-family: monospace;
+    font-size: 16px;
+}
+
 .current-entry {
-    textarea {
-        font-family: monospace;
-        font-size: 16px;
+    input[type="text"], textarea {
+        width: 100%;
+        @media (pointer: coarse) {
+            // dramatic woodchuck deterrent for mobile, still relevant on Lynx
+            font-size: 16px;
+        }
     }
 }
 
@@ -192,33 +206,19 @@
 
 .component {
     padding: 0;
-    font-size: .8rem;
-
-    h3 {
-        font-size: 1rem;
-    }
-
-    p, label, legend, ul {
-        font-size: .8rem;
-    }
 
     input, select, textarea {
-        font-size: .8rem;
+        #canvas & { // exclude from Lynx skin
+            font-size: .8rem;
+        }
         @media (pointer: coarse) {
-            // Appease mobile Webkit so it won't *dramatic woodchuck* zoom on
-            // input focus. Minimum font-size to Not Do That: 16px.
+            // dramatic woodchuck deterrent for mobile, still relevant on Lynx
             font-size: 16px;
         }
     }
 
-    input[type=text], input[type=password], select {
-        height: 2.2em;
-        padding: .4em;
-    }
-
-    .postfix {
-        height: 2rem;
-        line-height: 2rem;
+    h3 {
+        margin-top: .2rem; // come closer to the "minus" icon
     }
 
     &.collapse-collapsed {
@@ -228,7 +228,7 @@
         }
     }
 
-    &.collapse-expanded {
+    #canvas &.collapse-expanded { // exclude from Lynx skin
         // .last-visible handles the case when we have invisible elements
         // that are only meant to be revealed by js
         .row:last-child .columns >, .last-visible {
@@ -255,6 +255,36 @@
 
     a {
         text-decoration: none;
+    }
+}
+
+#canvas .component { // Styles to exclude from the Lynx site skin
+    font-size: .8rem;
+
+    h3 {
+        font-size: 1rem;
+    }
+
+    p, label, legend, ul {
+        font-size: .8rem;
+    }
+
+    input[type=text], input[type=password], select {
+        height: 2.2em;
+        padding: .4em;
+    }
+
+    button { // match sizes of nearby inputs
+        font-size: .8rem;
+
+        @media (pointer: coarse) {
+            font-size: 16px;
+        }
+    }
+
+    .postfix {
+        height: 2.2em;
+        line-height: 2.2em;
     }
 }
 
@@ -291,12 +321,13 @@
         margin-bottom: $paragraph-margin-bottom;
         height: 100px;
         line-height: 100px;
+        cursor: pointer;
         img {
             vertical-align: middle;
         }
     }
 
-    .inner button {
+    #canvas & .inner button { // exclude from Lynx skin
         width: 100%;
     }
 
@@ -334,12 +365,14 @@
         right: rem-calc(15+20);
     }
 
-    .columns:nth-child(2) .postfix {
-        border-radius: 0;
-    }
+    #canvas & { // exclude from Lynx skin
+        .columns:nth-child(2) .postfix {
+            border-radius: 0;
+        }
 
-    .columns:nth-child(3) input {
-        border-left: none;
+        .columns:nth-child(3) input {
+            border-left: none;
+        }
     }
 }
 
@@ -367,6 +400,10 @@
 
 #js-settings-panel {
     display: none;
+
+    label {
+        display: block;
+    }
 
     fieldset {
         margin: 0;
