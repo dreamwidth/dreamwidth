@@ -16,6 +16,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/css/components/foundation-icons.css"
 ) -%]
 
-<button class="fi-icon--decorative [% button.class -%]" [% IF button.id -%]id="[%- button.id -%]"[%- END -%]>
+<button type="[% IF button.type %][% button.type %][% ELSE %]button[% END %]" class="fi-icon--decorative [% button.class -%]" [% IF button.id -%]id="[%- button.id -%]"[%- END -%]>
     <span class="fi-icon fi-[%- icon -%]" aria-hidden="true"></span> [% text %]
 </button>
