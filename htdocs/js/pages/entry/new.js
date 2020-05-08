@@ -515,6 +515,19 @@ var postForm = (function($) {
             } ).join(sep);
         }
 
+        // Hack: the 3rd-party date/time picker expects a trigger button with no
+        // child elements, causing bad behavior on our icon <button>s.
+        // jQuery can't do capturing events, so we do this raw.
+        document.getElementById('collapse-target-displaydate')
+            .addEventListener('click', mungePickerTargets, true);
+        function mungePickerTargets(e) {
+            if ( $(e.target).is('#js-entrytime-date-button > span, #js-entrytime-time-button > span') ) {
+                e.stopPropagation();
+                e.preventDefault();
+                e.target.parentNode.click();
+            }
+        }
+
         $("#js-entrytime-date").pickadate({
             editable: true,
             format: 'yyyy-mm-dd',
