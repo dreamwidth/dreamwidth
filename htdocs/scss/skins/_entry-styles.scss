@@ -243,6 +243,11 @@ ul.entry-management-links {
 * Comment styles:
 */
 
+// Don't let floated pics in a comment mess with the next comment's indent.
+#comments .comment-thread {
+  clear: both;
+}
+
 #comments .comment { // Doesn't affect the comment on a reply page
   min-width: 28em;
   @media #{$small-only} {
