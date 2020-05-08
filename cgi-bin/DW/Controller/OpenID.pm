@@ -48,6 +48,9 @@ DW::Routing->register_string(
     no_cache => 1
 );
 
+# form for approving an OpenID login elsewhere using credentials from our site
+DW::Routing->register_string( '/openid/approve', \&openid_approve_handler, app => 1 );
+
 sub openid_index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
@@ -406,6 +409,81 @@ sub openid_login_handler {
 
     # the old code displayed an empty page if we got this far. let's do better.
     return $r->redirect("$LJ::SITEROOT/login");
+}
+
+sub openid_approve_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $u = $rv->{remote};
+    return error_ml('/openid/approve.tt.error.login_needed') unless $u;
+
+    my $r    = $rv->{r};
+    my $args = $r->get_args;
+
+    # redirect to the main OpenID page if we tried to access this directly
+    return $r->redirect("$LJ::SITEROOT/openid/") unless $args->{'identity'};
+
+    my $identity = LJ::OpenID::is_identity( $u, $args->{'identity'}, $args );
+
+    unless ($identity) {
+        return error_ml( '/openid/approve.tt.error.cannot_provide_identity',
+            { url => LJ::ehtml( $args->{'identity'} ), user => $u->ljuser_display } );
+    }
+
+    my $site = $args->{'trust_root'};
+    $site =~ s/\?.*//;
+    return error_ml('/openid/approve.tt.error.invalid_site_address')
+        unless $site =~ m!^https?://!;
+
+    # TODO from original bml file: check URL and see if it contains images or
+    # external scripts/css/images, where an attacker could sniff the validation
+    # tokens in the Referer header?
+
+    my $nos        = LJ::OpenID::server();
+    my $sig_return = $nos->signed_return_url(
+        identity     => $args->{'identity'},
+        return_to    => $args->{'return_to'},
+        trust_root   => $args->{'trust_root'},
+        assoc_handle => $args->{'assoc_handle'},
+    );
+
+    ##
+    ## If user is logged in, and user trusts the site, then
+    ## we can tell the user's identity to the site.
+    ##
+    if ( LJ::OpenID::is_trusted( $u, $site ) ) {
+        return $r->redirect($sig_return) if $sig_return;
+    }
+
+    if ( $r->did_post ) {
+
+        # form_auth is checked in the controller function
+        my $post = $r->post_args;
+
+        if ( $post->{'no'} ) {
+            my $cancel_url = $nos->cancel_return_url( return_to => $args->{'return_to'}, );
+            return $r->redirect($cancel_url);
+        }
+
+        if ( $post->{'yes:always'} ) {
+            LJ::OpenID::add_trust( $u, $site )
+                or return error_ml('/openid/approve.tt.error.failed_to_save');
+        }
+
+        return $r->redirect($sig_return) if $sig_return;
+        return error_ml('/openid/approve.tt.error.failed_sign_url');
+    }
+
+    my $disp_site = LJ::ehtml($site);
+    $disp_site =~ s!\*\.!<span style='color: red'><i>&lt;anything&gt;</i></span>.!;
+
+    my $vars = {
+        disp_idurl => LJ::ehtml( $args->{'identity'} ),
+        disp_site  => $disp_site,
+    };
+
+    return DW::Template->render_template( 'openid/approve.tt', $vars );
 }
 
 1;
