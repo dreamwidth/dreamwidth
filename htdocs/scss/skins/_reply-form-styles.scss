@@ -29,6 +29,11 @@
     width: auto;
   }
 
+  // Foundation hates textarea resizers
+  textarea {
+    max-width: unset;
+  }
+
   // Shrink subject and quote button a bit
   .qr-subject {
     input[type="text"] {
