@@ -1,0 +1,24 @@
+<div class='importer'>
+    <h2 class='gradient'>[% "widget.importconfirm.header" | ml %]</h2>
+    <p>[% "widget.importconfirm.intro" | ml %]</p>
+
+    [%- IF imports.0.3 -%]
+        <p>[% "widget.importconfirm.source.comm" | ml(user = imports.1.2, host = imports.0.1, comm = imports.0.3) %]</p>
+    [%- ELSE -%]
+        <p>[% "widget.importconfirm.source" | ml(user = imports.0.2, host = imports.0.1) %]</p>
+    [%- END -%]
+
+    <p>[% "widget.importconfirm.destination" | ml(user = u.ljuser_display, host = site.nameshort) %]</p>
+    <p>[% "widget.importconfirm.items" | ml(items => items_display.join( '<br />')) %]</p>
+
+    <form method="post">
+        [%- dw.form_auth -%]
+        [% FOR item IN items_fields %]
+            [% form.hidden(name = item, value = 1) %]
+        [% END %]
+        <p>
+            <strong>[% "widget.importconfirm.warning" | ml %]</strong><br />
+            [% form.submit(name = 'confirm', value = dw.ml('widget.importconfirm.btn.import')) %]
+        </p>
+    </form>
+</div>

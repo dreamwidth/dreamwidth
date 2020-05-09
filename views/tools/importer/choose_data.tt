@@ -1,0 +1,43 @@
+<div class='importer'>
+<h2 class='gradient'>[% "widget.importchoosedata.header2" | ml %]</h2>
+
+<form method="post">
+    [%- dw.form_auth -%]
+    <div class='importoptions'>
+    [%- FOR option IN options -%]
+        [%- NEXT UNLESS u.is_person || option.comm_okay -%]
+
+        <div class='importoption'>
+            [%- form.checkbox(
+                'name' = option.name,
+                'id' = option.name,
+                'value' = 1,
+                'selected' = option.selected
+                ) -%]
+            <label for='[% option.name %]'>[% option.display_name %]</label>
+            <p>[% option.desc %]</p>
+        </div>
+    [%- END -%]
+    </div>
+
+    [%- IF fixup_options -%]
+        <h2 class='gradient'>[% "widget.importchoosedata.header.fixup" | ml %]</h2>
+        <div class='importoptions'>
+        [%- FOR option IN fixup_options -%]
+            <div class='importoption'>
+                [%- form.checkbox(
+                    'name' = option.name,
+                    'id' = option.name,
+                    'value' = 1,
+                    'selected' = option.selected
+                    ) -%]
+                <label for='[% option.name %]'>[% option.display_name %]</label>
+                <p>[% option.desc %]</p>
+            </div>
+        [%- END -%]
+        </div>
+    [%- END -%]
+
+    [% form.submit(value = dw.ml('/tools/importer/index.tt.btn.continue'), name = "choose_data") %]
+</form>
+</div>

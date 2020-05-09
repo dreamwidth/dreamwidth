@@ -1,0 +1,17 @@
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[% dw.need_res( { group => "foundation" }, 'stc/importer.css', 'js/jquery.importer.js' ) %]
+[%- sections.title = '.title' | ml -%]
+
+<p class='intro'>[% '.intro' | ml(sitename => site.nameshort, user => remote.ljuser_display ) %]</p>
+    <div class="importer-queue">
+        <strong>Importer Queue Depth:</strong><br />
+    [% queue %]
+    </div>
+    [% IF allow_comm_imports %]
+        <form method="get">
+            [%- authas_html -%]
+        </form>
+    [% END %]
+
+    [% widget %]
+

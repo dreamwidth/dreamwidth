@@ -20,19 +20,18 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
-use LJ::BetaFeatures;
 
-DW::Routing->register_string( '/tools/comment_crosslinks',           \&crosslinks_handler,         app  => 1 );
+DW::Routing->register_string( '/tools/comment_crosslinks', \&crosslinks_handler, app => 1 );
 
 sub crosslinks_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
-    my $u             = $rv->{u};
+    my $u = $rv->{u};
 
-	my $dbcr = LJ::get_cluster_reader($u) or die;
+    my $dbcr = LJ::get_cluster_reader($u) or die;
 
-	my $props = $dbcr->selectall_arrayref(
-		q{
+    my $props = $dbcr->selectall_arrayref(
+        q{
 select
     l.jitemid * 256 + l.anum as 'ditemid',
     t.jtalkid * 256 + l.anum as 'dtalkid',
@@ -43,13 +42,13 @@ from
        inner join talkprop2 tp on (tp.journalid = t.journalid and t.jtalkid = tp.jtalkid)
 where
     tp.tpropid = 13 and tp.journalid = ?
-		}, undef, $u->id );
+		}, undef, $u->id
+    );
 
-	my $base = $u->journal_base;
+    my $base = $u->journal_base;
 
-    my $vars = { 'base' => $base, 'props' => $props, 'authas_html' => $rv->{authas_html}  };
+    my $vars = { 'base' => $base, 'props' => $props, 'authas_html' => $rv->{authas_html} };
     return DW::Template->render_template( 'tools/comment_crosslinks.tt', $vars );
 }
-
 
 1;

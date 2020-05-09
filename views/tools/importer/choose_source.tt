@@ -1,0 +1,44 @@
+<div class='importer'>
+    <h2 class='gradient'>[% "widget.importchoosesource.header" | ml %]</h2>
+    [%- IF import_in_progress -%]
+        <p><strong>[% "widget.importchoosesource.warning" | ml %]</strong></p>
+    [%- END -%]
+    <p>[% 'widget.importchoosesource.intro' | ml('sitename' = site.nameshort) %]</p>
+
+    <form method="post">
+        [%- dw.form_auth -%]
+    <div class='sites'>
+    <strong>[% "widget.importchoosesource.service" | ml %]</strong>
+        [%- FOR service IN services -%]
+        <div class='siteoption'>
+            [%- form.checkbox(
+                type = 'radio',
+                name = 'hostname',
+                value = service.url,
+                id = service.name
+                ) -%]
+        <label for='[% service.name %]'>[% service.display_name %]</label>
+        </div>
+    [%- END -%]
+    </div>
+
+    <div class='credentials columns'>
+    <div class='i-username row'>
+        <label for='username'>[% "widget.importchoosesource.username" | ml %]</label>
+        [% form.textbox( name = 'username', maxlength = 255) %]
+    </div>
+    <div class='i-password row'>
+        <label for='password'>[% "widget.importchoosesource.password" | ml %]</label>
+        [% form.password(name = 'password') %]
+    </div>
+
+    [%- IF u.is_community -%]
+        <div class='i-usejournal row'>
+            <label for='usejournal'>[% 'widget.importchoosesource.usejournal' | ml %]</label>
+            [% form.textbox( name = 'usejournal', maxlength = 255) %]
+        </div>
+    [%- END -%]
+    </div>
+    [% form.submit(value = dw.ml('/tools/importer/index.tt.btn.continue'), name="choose_source") %]
+    </form>
+</div>

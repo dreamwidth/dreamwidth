@@ -1,0 +1,46 @@
+
+        <h2 class='gradient'>[% dw.ml('widget.importstatus.header') %]</h2>
+        <table summary='' width='100%' class='importer-status'>
+
+        [% FOR importid IN items.keys.sort %]
+            [% import_item = items.$importid %]
+
+            <tr><td colspan='4' class='table-header'>
+            [% IF import_item.usejournal %]
+                [% 'widget.importstatus.whichaccount.com' | ml(user = import_item.user, comm = import_item.usejournal, host = import_item.host) %]
+            [% ELSE %]
+                [% 'widget.importstatus.whichaccount' | ml(user = import_item.user, host = import_item.host) %]
+            [% END %]
+                <a href='[% "${site.root}/tools/importer${authas}" %]'>
+                [% 'widget.importstatus.refresh' | ml %]</a>
+            </td></tr>
+
+            [% FOR item IN import_item.items.keys.sort %]
+                [% i = import_item.items.$item %]
+                [% status = "<span style='color: $i.color;'>$i.status_txt$i.dupe</span>" %]
+                <tr>
+                <td><em>[% "widget.importstatus.item.$item" | ml %]</em></td>
+                <td>
+                    [% IF i.ago %]
+                        [% 'widget.importstatus.statusasof' | ml(status = status, timeago = i.ago) %]
+                    [% ELSE %]
+                        [% status %]
+                    [% END %]
+                </td>
+                <td>
+                    [% 'widget.importstatus.createtime' | ml(timeago = time_ago(i.created)) %]
+                </td>
+                </tr>
+
+                [% import_in_progress = 1 IF i.status.match('^(?:init|ready|queued)') %]
+            [% END %]
+        [% END %]
+
+        </table>
+<p class='queueanother'>[% dw.ml('widget.importstatus.importanother') %]</p>
+                
+    <form method="post">
+        [%- dw.form_auth -%]
+        [% form.hidden(name = 'import_in_progress', value = import_in_progress) %]
+        [% form.submit(name = 'import', value = dw.ml('widget.importstatus.btn.importanother')) %]
+    </form>
