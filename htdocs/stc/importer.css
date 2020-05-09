@@ -96,26 +96,12 @@ p.intro {
     margin-bottom: 10px;
 }
 
-.importer .credentials input {
-    position: absolute;
-    left: 22em;
-    margin-top: -1px;
-}
-
 .importer .credentials label {
     font-weight: bold;
 }
 
 .importer .credentials div {
     margin-bottom: 5px;
-}
-
-.importer .submit {
-    border: 1px solid #951D22;
-    padding: 10px;
-    margin: 0 auto;
-    width: 55px;
-    background-color: #C1272D;
 }
 
 .importer .importantnote {
