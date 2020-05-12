@@ -1,36 +1,51 @@
-/* Constrain image dimensions.
-    Job 1: Don't trash the layout sideways.
-    Job 2: Limit height to fit inside the viewport. Having to scroll to see a
+/* Constrain size of casually posted images.
+    1: Don't trash the layout sideways.
+    2: Limit height to fit inside the viewport. Having to scroll to see a
       portrait of someone is nonsense.
-    Job 3: Defend the native aspect ratio.
-    Job 4: Respect the width/height HTML attributes for scaling down OR up
+    3: Defend the native aspect ratio.
+    4: Respect the width/height HTML attributes for scaling down OR up
       (within the limits of the container), but if they conflict with the aspect
       ratio, treat them as maximums and let the aspect ratio win.
-    Job 5: Let the user expand an individual image to max size by clicking.
+    5: Let the user expand an individual image to max size by clicking.
+      (js/jquery.imageshrink.js)
+    6: Use a zoom-in/zoom-out cursor to show when users can zoom.
+    7: Undo zoom cursor for images that are actual size in their unexpanded
+      state (.imageshrink-actualsize; relies on JS for comparing effective and
+      natural dimensions).
+    8: NONE of the above applies to images inside tables or inline-styled divs.
+      (.imageshrink-exempt; relies on JS for heavy lifting.)
+
+      FIXME: Someday in the distant future, part 8 should be pure CSS, using
+      selectors kind of like this:
+      img:not(.journal-type-P .entry-content div[style]:not(.cuttag-open) img)
+      Unfortunately that's a CSS Selectors Level 4 thing, and as of 2020 only
+      Safari supports it (and that's just the earlier iteration; I didn't try
+      the one that skips .cuttag-open like that). Oh well.
 */
+
 @supports (object-fit: contain) {
   .entry-content, .comment-content {
-    img {
+    img:not(.imageshrink-exempt) {
       cursor: zoom-in;
       height: auto;
       max-width: 100%;
       max-height: 95vh;
       object-fit: contain;
       object-position: left;
-    }
 
-    img.expanded {
-      cursor: zoom-out;
-      height: auto;
-      width: auto;
-      max-width: unset;
-      max-height: unset;
-      object-fit: unset;
-      object-position: unset;
+      &.imageshrink-expanded {
+        cursor: zoom-out;
+        height: auto;
+        width: auto;
+        max-width: unset;
+        max-height: unset;
+        object-fit: unset;
+        object-position: unset;
+      }
     }
+  }
 
-    a img, .poll-response img {
-      cursor: unset;
-    }
+  a img, .poll-response img, img.imageshrink-actualsize {
+    cursor: unset !important;
   }
 }
