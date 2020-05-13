@@ -4559,7 +4559,8 @@ sub EntryPage__print_multiform_actionline {
             '',
             $pr->{'text_multiform_btn'},
             {
-                      "onclick" => 'return ((document.multiform.mode.value != "delete" '
+                "id"      => "multiform_submit",
+                "onclick" => 'return ((document.multiform.mode.value != "delete" '
                     . '&& document.multiform.mode.value != "deletespam")) '
                     . "|| confirm(\""
                     . LJ::ejs( $pr->{'text_multiform_conf_delete'} ) . "\");"
