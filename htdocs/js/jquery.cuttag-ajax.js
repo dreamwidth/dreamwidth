@@ -36,7 +36,7 @@ if ( supportsSVG() ) {
         var collapseend_img     = "/collapse-end.gif";
 }
 
-var img_inline_style = "border: 0; max-width: 100%; width: 1.0em; padding: 0.2em; box-sizing: content-box;";
+var img_inline_style = "border: 0; max-width: 100%; width: 1.0em; padding: 0.2em; box-sizing: content-box; vertical-align: text-bottom;";
 
 $.widget("dw.cuttag", {
     options: {
