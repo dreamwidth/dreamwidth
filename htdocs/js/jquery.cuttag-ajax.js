@@ -9,7 +9,7 @@ var loadPending = 0;
 // If we expand SVG usage on the site this function should get
 // pulled out of this file.
 function supportsSVG() {
-            return !!document.createElementNS 
+            return !!document.createElementNS
          && !!document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect
          // FF 3.6.8 supports SVG but not inline
          && !isOldFirefox();
@@ -35,6 +35,8 @@ if ( supportsSVG() ) {
         var ajaxloader_img      = "/ajax-loader.gif";
         var collapseend_img     = "/collapse-end.gif";
 }
+
+var img_inline_style = "border: 0; max-width: 100%; width: 1.0em; padding: 0.2em; box-sizing: content-box;";
 
 $.widget("dw.cuttag", {
     options: {
@@ -68,7 +70,7 @@ $.widget("dw.cuttag", {
             "class": "cuttag-action cuttag-action-before"
         });
         var img = $("<img>",{
-            style: "border: 0;",
+            style: img_inline_style,
             "aria-controls": 'div-cuttag_' + identifier
         });
         a.append(img);
@@ -140,7 +142,7 @@ $.widget("dw.cuttag", {
         i.attr("src",Site.imgprefix + path);
         i.attr("alt",str);
         i.attr("title",str);
-        i.attr("style","max-width: 100%; width: 1.0em; padding: 0.2em;");
+        i.attr("style",img_inline_style);
     },
     handleError: function(error) {
         this._setArrow(collapse_img, this.config.text.expand);
@@ -161,7 +163,7 @@ $.widget("dw.cuttag", {
                 "class": "cuttag-action cuttag-action-after"
             });
             var img = $("<img>",{
-                style: "border: 0; max-width: 100%; width: 1.0em; padding: 0.2em;",
+                style: img_inline_style,
                 src: Site.imgprefix + collapseend_img,
                 "aria-controls": 'div-cuttag_' + self.identifier,
                 alt: self.config.text.collapse,
