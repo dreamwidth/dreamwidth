@@ -60,3 +60,14 @@
   }
 }
 
+/**
+* Hack to make the "multiform" comment editing controls match site-skin without
+* messing with the S2 markup
+*/
+#multiform_submit {
+  @extend .submit;
+  @extend .postfix;
+  display: inline-block;
+  width: auto;
+  padding: 0 1rem;
+}
