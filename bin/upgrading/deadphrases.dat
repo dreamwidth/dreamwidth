@@ -342,8 +342,46 @@ general /support/faqbrowse.bml.backfaqcat
 general /support/faqbrowse.bml.backsupport
 general /support/faqbrowse.bml.title
 
+general /talkpost.bml.allowedhtml
+general /talkpost.bml.error.nocomment_quick
 general /talkpost.bml.label.picturetouse
+general /talkpost.bml.label.picturetouse2
+general /talkpost.bml.linkstripped
+general /talkpost.bml.loganonip
+general /talkpost.bml.loginq
+general /talkpost.bml.login.url
+general /talkpost.bml.logyourip
+general /talkpost.bml.noaccount
+general /talkpost.bml.noedithtml
+general /talkpost.bml.nosubjecthtml
+general /talkpost.bml.opt.anonymous
+general /talkpost.bml.opt.bannedfrom
+general /talkpost.bml.opt.bannedfrom.comm
 general /talkpost.bml.opt.defpic
+general /talkpost.bml.opt.edit
+general /talkpost.bml.opt.editreason
+general /talkpost.bml.opt.friendsonly
+general /talkpost.bml.opt.from
+general /talkpost.bml.opt.loggedin
+general /talkpost.bml.opt.loggedin2
+general /talkpost.bml.opt.membersonly
+general /talkpost.bml.opt.message
+general /talkpost.bml.opt.message2
+general /talkpost.bml.opt.noanonpost
+general /talkpost.bml.opt.noanonpost.nonpublic
+general /talkpost.bml.opt.noautoformat
+general /talkpost.bml.opt.noopenidpost
+general /talkpost.bml.opt.openid
+general /talkpost.bml.opt.openid.loggedin
+general /talkpost.bml.opt.siteuser
+general /talkpost.bml.opt.subject
+general /talkpost.bml.opt.subject2
+general /talkpost.bml.opt.submit
+general /talkpost.bml.opt.unscreenparent
+general /talkpost.bml.opt.willscreen
+general /talkpost.bml.opt.willscreenfriend
+general /talkpost.bml.opt.willscreenopenid
+general /talkpost.bml.userpic.random2
 
 general /talkpost_do.bml.opt.spellcheck
 
