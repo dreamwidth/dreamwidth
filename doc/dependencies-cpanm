@@ -46,6 +46,7 @@ Net::OpenID::Server
 Net::SMTPS
 Net::SSL@2.85
 Net::Subnet
+Params::Classify@0.015
 Paws::S3
 Perl::Tidy@20190601
 Proc::ProcessTable
