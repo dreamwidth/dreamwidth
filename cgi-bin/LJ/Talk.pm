@@ -1798,7 +1798,7 @@ sub icon_dropdown {
                 selected => $selected,
                 id       => 'prop_picture_keyword'
             },
-            ( "", $BML::ML{'/talkpost.bml.opt.defpic'}, map { ( $_, $_ ) } @pics )
+            ( "", LJ::Lang::ml('entryform.opt.defpic'), map { ( $_, $_ ) } @pics )
         );
 
         # userpic browse button

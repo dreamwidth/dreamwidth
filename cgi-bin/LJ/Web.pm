@@ -792,10 +792,10 @@ sub icon_keyword_menu {
     return (
         {
             value => "",
-            text  => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
+            text  => LJ::Lang::ml('entryform.opt.defpic'),
             data  => {
                 url         => $default_icon_url,
-                description => LJ::Lang::ml('/talkpost.bml.opt.defpic'),
+                description => LJ::Lang::ml('entryform.opt.defpic'),
             },
         },
         map {
