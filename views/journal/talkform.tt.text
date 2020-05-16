@@ -1,8 +1,6 @@
 ;; -*- coding: utf-8 -*-
 .allowedhtml=Allowed HTML
 
-.error.nocomment_quick=You cannot reply as this account. You can select a different one under More Options.
-
 .label.picturetouse2=Icon to use:
 
 .linkstripped=Links will be displayed as unclickable URLs to help prevent spam.

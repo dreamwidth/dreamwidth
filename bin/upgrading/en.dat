@@ -1967,6 +1967,8 @@ label.security.public=Public
 
 label.security.public2=Everyone (Public)
 
+label.select=Select
+
 label.switch.button=Switch
 
 label.switch.header=Switch Journal

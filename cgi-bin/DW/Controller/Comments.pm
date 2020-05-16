@@ -195,7 +195,7 @@ sub received_handler {
 
       # FIXME: (David?) We'll have to make talk_multi.bml understand jtalkids in multiple posts
       #$ret .= " <nobr><input type='checkbox' name='selected_$r->{jtalkid}' id='s$r->{jtalkid}' />";
-      #$ret .= " <label for='s$r->{jtalkid}'>$ML{'/talkread.bml.select'}</label></nobr>";
+      #$ret .= " <label for='s$r->{jtalkid}'>$ML{'label.select'}</label></nobr>";
 
             my $comment_htmlid = LJ::Talk::comment_htmlid($talkid);
 

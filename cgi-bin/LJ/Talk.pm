@@ -3541,7 +3541,7 @@ sub make_preview {
     if ($post_disabled) {
         $ret .=
               "<div class='ui-state-error'>"
-            . LJ::Lang::ml('/journal/talkform.tt.error.nocomment_quick')
+            . LJ::Lang::ml('/journal/quickreply.tt.error.nocomment_quick')
             . "</div>";
     }
     my $disabling_extra = $post_disabled ? ' disabled="disabled" class="ui-state-disabled"' : '';
