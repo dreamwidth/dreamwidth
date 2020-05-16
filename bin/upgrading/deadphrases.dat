@@ -145,7 +145,21 @@ general /login.bml.whylogin.benefit3
 general /login.bml.whylogin.head
 general /login.bml.whylogin.text
 
+general /logout.bml.already.head
+general /logout.bml.already.text
+general /logout.bml.killall.btn
+general /logout.bml.killall.head
+general /logout.bml.killall.text
+general /logout.bml.loggedout.already
+general /logout.bml.loggedout.head
+general /logout.bml.loggedout.killedall
 general /logout.bml.loggedout.success
+general /logout.bml.loggedout.text
+general /logout.bml.logout.btn
+general /logout.bml.logout.head
+general /logout.bml.logout.text2
+general /logout.bml.title
+general /logout.bml.title.loggedout
 
 general /manage/comments/index.bml.disablecomment2
 
