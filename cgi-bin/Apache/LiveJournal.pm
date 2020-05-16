@@ -1315,7 +1315,7 @@ sub journal_content {
         }
 
         $apache_r->print(
-"Invalid cookies.  Try <a href='$LJ::SITEROOT/logout.bml'>logging out</a> and then logging back in.\n"
+"Invalid cookies.  Try <a href='$LJ::SITEROOT/logout'>logging out</a> and then logging back in.\n"
         );
         $apache_r->print("<!-- xxxxxxxxxxxxxxxxxxxxxxxx -->\n") for ( 0 .. 100 );
         return OK;
