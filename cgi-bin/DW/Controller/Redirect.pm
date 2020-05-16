@@ -32,7 +32,6 @@ sub go_handler {
     my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 0 );
     return $rv unless $ok;
 
-    my $ml_scope = "/go.bml";
     my %status;
 
     my $r = $rv->{r};
@@ -55,7 +54,7 @@ sub go_handler {
     return $r->redirect( $status{url} ) if $status{url};
 
     my $error = $status{error} || ".defaultbody";
-    return error_ml( $ml_scope . $error, $status{error_args} );
+    return error_ml( 'redirect' . $error, $status{error_args} );
 }
 
 # S2 monthview

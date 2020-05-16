@@ -2271,6 +2271,26 @@ random.retry.community=We couldn't find a random community. <a [[aopts]]>Try aga
 
 random.retry.personal=We couldn't find a random journal. <a [[aopts]]>Try again</a>?
 
+redirect.defaultbody=No parameters given.
+
+redirect.defaulttitle=Error
+
+redirect.error.nocomment=No such comment exists.
+
+redirect.error.noentry=No such entry exists.
+
+redirect.error.noentry.next2=There is no entry following this one. Go back to [[journal]].
+
+redirect.error.noentry.prev2=There is no entry preceding this one. Go back to [[journal]].
+
+redirect.error.noentrytitle=No Entry
+
+redirect.error.redirkey=Bogus redir_key.
+
+redirect.error.usernotfound=Journal not found.
+
+redirect.link.to.journal=Go back to [[journal]].
+
 rename.error.invalidaccounttype=Only personal journals can own rename tokens.
 
 rename.error.invalidfrom=Tried to rename an invalid journal.
