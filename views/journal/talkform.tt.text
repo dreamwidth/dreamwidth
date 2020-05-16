@@ -1,0 +1,77 @@
+;; -*- coding: utf-8 -*-
+.allowedhtml=Allowed HTML
+
+.error.nocomment_quick=You cannot reply as this account. You can select a different one under More Options.
+
+.label.picturetouse2=Icon to use:
+
+.linkstripped=Links will be displayed as unclickable URLs to help prevent spam.
+
+.loganonip=<strong>Notice:</strong> This account is set to log the IP addresses of people who comment anonymously.
+
+.loginq=Log in?
+
+.login.url=Identity URL:
+
+.logyourip=<strong>Notice:</strong> This account is set to log the IP addresses of everyone who comments.
+
+.noaccount=If you don't have an account you can <a [[aopts]]>create one now</a>.
+
+.noedithtml=No HTML allowed in reason for edit
+
+.nosubjecthtml=HTML doesn't work in the subject.
+
+.opt.anonymous=Anonymous
+
+.opt.bannedfrom= - you have been banned from commenting in this journal.
+
+.opt.bannedfrom.comm= - you have been banned from commenting in this community.
+
+.opt.edit=Update Reply
+
+.opt.editreason=Reason:
+
+.opt.friendsonly=You may post here only if [[username]] has given you access; posting by non-Access List accounts has been disabled.
+
+.opt.from=From:
+
+.opt.loggedin=<strong>Logged in account:</strong> [[username]]
+
+.opt.loggedin2=<strong>(logged in)</strong>
+
+.opt.membersonly=This community only allows commenting by members. You may comment here if you're a member of [[username]].
+
+.opt.message=Message:
+
+.opt.message2=Message
+
+.opt.noanonpost=This account has disabled anonymous posting.
+
+.opt.noanonpost.nonpublic=You can't comment anonymously on a protected entry.
+
+.opt.noautoformat=Don't auto-format
+
+.opt.noopenidpost=You must <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address before you can comment.
+
+.opt.openid=OpenID
+
+.opt.openid.loggedin=OpenID identity:
+
+.opt.siteuser=[[sitename]] account
+
+.opt.subject=Subject:
+
+.opt.subject2=Subject
+
+.opt.submit=Post Comment
+
+.opt.unscreenparent=Unscreen the comment you are replying to (your comment will also be posted unscreened)
+
+.opt.willscreen=(will be screened)
+
+.opt.willscreenfriend=(will be screened if not on Access List)
+
+.opt.willscreenopenid=(will be screened if not validated)
+
+.userpic.random2=Random icon
+

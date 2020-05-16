@@ -1785,7 +1785,7 @@ sub icon_dropdown {
 
     my $ret = "";
     if ( $res{pickw_count} ) {
-        $ret .= BML::ml('/talkpost.bml.label.picturetouse2') . " ";
+        $ret .= LJ::Lang::ml('/journal/talkform.tt.label.picturetouse2') . " ";
 
         my @pics;
         foreach my $i ( 1 ... $res{pickw_count} ) {
@@ -1811,7 +1811,7 @@ qq{<input type="button" id="lj_userpicselect" value="Browse" data-iconbrowser-me
 
         # random icon button - hidden for non-JS
         $ret .= "<input type='button' class='ljhidden' id='randomicon' value='"
-            . BML::ml('/talkpost.bml.userpic.random2') . "'/>";
+            . LJ::Lang::ml('/journal/talkform.tt.userpic.random2') . "'/>";
 
         $ret .= LJ::help_icon_html( "userpics", " " );
     }
@@ -3539,7 +3539,10 @@ sub make_preview {
     my $post_disabled = $u->does_not_allow_comments_from($remote)
         || $u->does_not_allow_comments_from_unconfirmed_openid($remote);
     if ($post_disabled) {
-        $ret .= "<div class='ui-state-error'>$BML::ML{'/talkpost.bml.error.nocomment_quick'}</div>";
+        $ret .=
+              "<div class='ui-state-error'>"
+            . LJ::Lang::ml('/journal/talkform.tt.error.nocomment_quick')
+            . "</div>";
     }
     my $disabling_extra = $post_disabled ? ' disabled="disabled" class="ui-state-disabled"' : '';
     $ret .=
@@ -3551,7 +3554,8 @@ sub make_preview {
 "<input type='checkbox' name='do_spellcheck' value='1' id='spellcheck' /> <label for='spellcheck'>$BML::ML{'talk.spellcheck'}</label>";
     }
     $ret .= "<p>";
-    $ret .= "$BML::ML{'/talkpost.bml.opt.noautoformat'} "
+    $ret .=
+        LJ::Lang::ml('/journal/talkform.tt.opt.noautoformat') . " "
         . LJ::html_check(
         {
             'name'   => 'prop_opt_preformatted',
@@ -3561,7 +3565,7 @@ sub make_preview {
     $ret .= LJ::help_icon_html( "noautoformat", " " );
     $ret .= "</p>";
 
-    $ret .= "<p> <?de $BML::ML{'/talkpost.bml.allowedhtml'}: ";
+    $ret .= "<p> <?de " . LJ::Lang::ml('/journal/talkform.tt.allowedhtml') . ": ";
     foreach ( sort &LJ::CleanHTML::get_okay_comment_tags() ) {
         $ret .= "&lt;$_&gt; ";
     }
