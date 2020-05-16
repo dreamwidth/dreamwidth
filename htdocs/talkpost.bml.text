@@ -1,44 +1,9 @@
 ;; -*- coding: utf-8 -*-
-.editresponse=Edit your response:
-
-.error.cannotreplynopost=You can't reply to an entry that isn't there.
-
-.error.nocommentsjournal=Comments are disabled in this journal.
-
-.error.nocommentspost=Comments are disabled for this entry.
-
-.error.noreplypost=Reply-to entry not found.  It may have been deleted.
-
-.error.noreply_deleted=You can't reply to this comment because it has been deleted.
-
 .error.noreply_frozen=This comment is frozen; you can't reply to it.
 
 .error.noreply_readonly_journal=This journal is read-only.  You can't reply to any entries in it.
 
 .error.noreply_readonly_remote=You're read-only.  You can't post comments.
 
-.error.noreply_screened=This comment is screened. You don't have permission to read it or reply to it.
-
 .error.noreply_suspended=This entry is suspended.  You can't reply to it.
 
-.nosubject=(no subject)
-
-.opt.noimage=No Image
-
-.opt.preview=Preview
-
-.opt.spellcheck=Spell check entry before posting
-
-.paraformat=Paragraphs will be automatically formatted by default.
-
-.postresponse=Post a comment in response:
-
-.sorry.cannotcomment=Sorry, you cannot leave comments at this time.
-
-.title=(Reply)
-
-.usermismatch2<<
-You've entered an account name but have deselected the '[[sitenameshort]] account' option.
-
-Please clear the textbox or select the correct posting mode and try again.
-.
