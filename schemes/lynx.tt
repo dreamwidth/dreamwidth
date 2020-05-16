@@ -14,6 +14,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <!DOCTYPE html>
 <html>
 <head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="home" title="[% 'lynx.nav.home' | ml %]" href="[% site.root %]/" />
 <link rel="contents" title="[% 'lynx.nav.sitemap' | ml %]" href="[% site.root %]/site/" />
