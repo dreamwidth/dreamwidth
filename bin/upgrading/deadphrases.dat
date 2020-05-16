@@ -1861,3 +1861,30 @@ general /profile.bml.label.yahooid
 general /manage/profile/index.bml.chat.yahooid
 
 general error.usernamelong
+
+general /export.bml.btn.proceed
+general /export.bml.description
+general /export.bml.fields
+general /export.bml.format.csv
+general /export.bml.format.xml
+general /export.bml.hint.encoding
+general /export.bml.hint.month
+general /export.bml.hint.year
+general /export.bml.label.choices
+general /export.bml.label.encoding
+general /export.bml.label.export
+general /export.bml.label.field.allowmask
+general /export.bml.label.field.currents
+general /export.bml.label.field.event
+general /export.bml.label.field.eventtime
+general /export.bml.label.field.itemid
+general /export.bml.label.field.logtime
+general /export.bml.label.field.security
+general /export.bml.label.field.subject
+general /export.bml.label.format
+general /export.bml.label.month
+general /export.bml.label.notranslation
+general /export.bml.label.what
+general /export.bml.label.year
+general /export.bml.title
+general /export.bml.what.entries
