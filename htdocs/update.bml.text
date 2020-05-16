@@ -73,8 +73,6 @@
 
 .opt.backdate.about=won't show on friends view
 
-.opt.defpic=(default)
-
 .opt.nocomments=Disallow Comments:
 
 .opt.noemail=Don't email Comments:

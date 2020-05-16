@@ -343,6 +343,7 @@ general /support/faqbrowse.bml.backsupport
 general /support/faqbrowse.bml.title
 
 general /talkpost.bml.label.picturetouse
+general /talkpost.bml.opt.defpic
 
 general /talkpost_do.bml.opt.spellcheck
 
@@ -358,6 +359,7 @@ general /tools/memadd.bml.body.added.body
 general /update.bml.update.about
 general /update.bml.login.success
 general /update.bml.htmlokay
+general /update.bml.opt.defpic
 
 general /uploadpic.bml.success.text
 general /uploadpic.bml.btn.proceed
