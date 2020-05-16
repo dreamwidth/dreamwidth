@@ -401,7 +401,11 @@ general /talkpost.bml.userpic.random2
 
 general /talkpost_do.bml.opt.spellcheck
 
+general /talkread.bml.button.more
+general /talkread.bml.button.post
+general /talkread.bml.error.nocomment_quick
 general /talkread.bml.pageofpages
+general /talkread.bml.select
 
 general /tools/endpoints/extacct_auth.bml.error.authfailed
 general /tools/endpoints/extacct_auth.bml.error.nochallenge

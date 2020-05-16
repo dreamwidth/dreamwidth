@@ -20,7 +20,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div class='qr-meta'>
   [%- remote.ljuser %]
 
-  <input type="button" id="submitmoreopts" name="submitmoreopts" value="[% '/talkread.bml.button.more' | ml %]" />
+  <input type="button" id="submitmoreopts" name="submitmoreopts" value="[% '.button.more' | ml %]" />
 
   <div class='qr-icon'>
     [%- IF remote.can_use_userpic_select -%]
@@ -84,11 +84,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class="qr-footer">
   [%- IF post_disabled -%]
-  <div class='ui-state-error'>[%- '/journal/talkform.tt.error.nocomment_quick' | ml -%]</div>
+  <div class='ui-state-error'>[%- '.error.nocomment_quick' | ml -%]</div>
   [%- END -%]
   [% form.submit(
       name = 'submitpost'
-      value = dw.ml( '/talkread.bml.button.post' ),
+      value = dw.ml( '.button.post' ),
       disabled = post_disabled,
       class = post_button_class,
       id = 'submitpost'

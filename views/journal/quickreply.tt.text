@@ -1,0 +1,7 @@
+;; -*- coding: utf-8 -*-
+.button.more=More Options
+
+.button.post=Post Comment
+
+.error.nocomment_quick=You cannot reply as this account. You can select a different one under More Options.
+

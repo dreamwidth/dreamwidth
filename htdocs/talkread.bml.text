@@ -6,10 +6,6 @@
 
 .anonuser=<i>(Anonymous)</i>
 
-.button.more=More Options
-
-.button.post=Post Comment
-
 .comment.screened.subject=(screened) 
 
 .commentnav.flat=Flat
@@ -43,8 +39,6 @@
 .replysuspended=<strong>(Reply from suspended account)</strong>
 
 .screenedpost=<b>(Screened Comment)</b>
-
-.select=Select
 
 .subjectdeleted=[deleted]
 
