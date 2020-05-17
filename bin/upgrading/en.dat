@@ -49,6 +49,20 @@ collapsible.expanded=Collapse
 
 comment.rpc.posted=Your comment has been posted.
 
+commlist.actinfo2=Profile
+
+commlist.actinvites=Invitations
+
+commlist.actmembers2=Members
+
+commlist.actsettingsaccount=Account Settings
+
+commlist.customize2=Style
+
+commlist.managelinks=Manage [[user]]'s:
+
+commlist.queue=Queue
+
 contentflag.viewingconcepts.bycommunity.community=You're about to view content that a community administrator has advised should be viewed with discretion.
 
 contentflag.viewingconcepts.byjournal.community=You're about to view content that a community administrator has advised should be viewed with discretion.
