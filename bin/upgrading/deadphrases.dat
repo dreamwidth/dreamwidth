@@ -157,6 +157,22 @@ general /community/members.bml.update
 general /community/settings.bml.label.admconsole
 general /community/settings.bml.manage
 
+general /community/transfer.bml.account
+general /community/transfer.bml.badstatus.body
+general /community/transfer.bml.badstatus.title
+general /community/transfer.bml.body
+general /community/transfer.bml.button.title
+general /community/transfer.bml.error.alreadyadmin
+general /community/transfer.bml.error.badstatus
+general /community/transfer.bml.error.mismatch
+general /community/transfer.bml.error.nopassword
+general /community/transfer.bml.error.notcomm
+general /community/transfer.bml.error.notfound
+general /community/transfer.bml.password
+general /community/transfer.bml.success.body
+general /community/transfer.bml.success.title
+general /community/transfer.bml.title
+
 general /create.bml.aolnotice.head
 general /create.bml.aolnotice.text
 general /create.bml.birthday.question
