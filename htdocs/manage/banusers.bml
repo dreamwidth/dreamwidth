@@ -175,7 +175,7 @@ body<=
                         inputs[i].checked = this.checked;
                     }
                }", selected => 0 });
-        $ret .= "</th><th>$ML{'/community/members.bml.key.user'}";
+        $ret .= "</th><th>$ML{'.key.user'}";
         $ret .= "</th><th colspan='2'>$ML{'.note'}";
         $ret .= "</th></tr></thead>\n";
 
