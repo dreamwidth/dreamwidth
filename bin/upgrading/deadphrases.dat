@@ -12,8 +12,44 @@ general BML.parse_multipart.unknowntype
 
 general /changeemail.bml.label.password
 
+general /community/join.bml.btn.cancel
+general /community/join.bml.button.join2
+general /community/join.bml.error.already.member
+general /community/join.bml.error.closed
+general /community/join.bml.error.isminor2
+general /community/join.bml.error.setage
+general /community/join.bml.error.statusvis.body
+general /community/join.bml.error.statusvis.title
+general /community/join.bml.label.addtofriends.note2
+general /community/join.bml.label.addtofriends2.modify
+general /community/join.bml.label.addtofriends3
+general /community/join.bml.label.allowposting2
+general /community/join.bml.label.auth2
 general /community/join.bml.label.authpost
+general /community/join.bml.label.banned
+general /community/join.bml.label.closed
 general /community/join.bml.label.closedcomm
+general /community/join.bml.label.commlogged
+general /community/join.bml.label.errorcomminfo
+general /community/join.bml.label.expls2
+general /community/join.bml.label.locked
+general /community/join.bml.label.membernow6
+general /community/join.bml.label.notcomm
+general /community/join.bml.label.read_comm_info
+general /community/join.bml.label.read_recent_entries
+general /community/join.bml.label.search_other
+general /community/join.bml.label.sure2
+general /community/join.bml.label.you_can
+general /community/join.bml.reqsubmitted.body
+general /community/join.bml.reqsubmitted.title
+general /community/join.bml.request.body
+general /community/join.bml.request.reason
+general /community/join.bml.request.title
+general /community/join.bml.success
+general /community/join.bml.success.posttocommunity
+general /community/join.bml.success.readcommunitypostingguidelines
+general /community/join.bml.title
+general /community/join.bml.toomanyfriends
 
 general /community/manage.bml.actmembers
 general /community/manage.bml.actsettings
