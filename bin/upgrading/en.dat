@@ -225,6 +225,8 @@ edges.join.error.usernotvisible=Your account must be visible.
 
 edges.join.error.userunderage=You must be 18 or older to join this community.
 
+edges.join.response.reqsubmitted=Your request to join this community has been submitted to the administrators. If it is approved, you'll be automatically added to the community.
+
 edges.leave.error.lastmaintainer2=You can't leave this community because you're the only administrator.  If you want to leave the community, please <a href="[[url]]">appoint another adminstrator</a> and then try leaving again.
 
 edges.trust.error.targetinvalidstatusvis=The person who you are granting access to must not be purged, suspended, or locked.

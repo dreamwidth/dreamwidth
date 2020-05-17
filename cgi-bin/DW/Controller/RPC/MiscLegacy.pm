@@ -94,7 +94,7 @@ sub change_relation_handler {
                 && $targetu->is_moderated_membership )
             {
                 $targetu->comm_join_request($remote);
-                $ret{note} = LJ::Lang::ml('/community/join.bml.reqsubmitted.body');
+                $ret{note} = LJ::Lang::ml('edges.join.response.reqsubmitted');
             }
             else {
                 return DW::RPC->err($error);
