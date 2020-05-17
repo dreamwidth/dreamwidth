@@ -401,11 +401,39 @@ general /talkpost.bml.userpic.random2
 
 general /talkpost_do.bml.opt.spellcheck
 
+general /talkread.bml.admin.comment
+general /talkread.bml.admin.post
+general /talkread.bml.anonuser
 general /talkread.bml.button.more
 general /talkread.bml.button.post
+general /talkread.bml.comment.screened.subject
+general /talkread.bml.commentnav.flat
+general /talkread.bml.commentnav.threaded
+general /talkread.bml.commentnav.toponly
+general /talkread.bml.confirm.action
+general /talkread.bml.deletedpost
+general /talkread.bml.deleteduser
+general /talkread.bml.edittime
 general /talkread.bml.error.nocomment_quick
+general /talkread.bml.fromip
+general /talkread.bml.from_external
+general /talkread.bml.maxcomments
+general /talkread.bml.noreplies
+general /talkread.bml.nosubject
 general /talkread.bml.pageofpages
+general /talkread.bml.posted
+general /talkread.bml.qr.spellcheck
+general /talkread.bml.replysuspended
+general /talkread.bml.screenedpost
 general /talkread.bml.select
+general /talkread.bml.subjectdeleted
+general /talkread.bml.talkmulti.delete
+general /talkread.bml.talkmulti.deletespam
+general /talkread.bml.talkmulti.des
+general /talkread.bml.talkmulti.screen
+general /talkread.bml.talkmulti.submit
+general /talkread.bml.talkmulti.unscreen
+general /talkread.bml.title
 
 general /tools/endpoints/extacct_auth.bml.error.authfailed
 general /tools/endpoints/extacct_auth.bml.error.nochallenge
