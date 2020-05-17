@@ -31,6 +31,8 @@
 
 .intro.unban.self.none=You don't have anyone banned from commenting in your journal.
 
+.key.user=<strong>Account</strong>
+
 .note=Note
 
 .note.previous=Previous Notes
