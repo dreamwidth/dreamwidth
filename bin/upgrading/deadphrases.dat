@@ -53,7 +53,43 @@ general /community/join.bml.toomanyfriends
 
 general /community/manage.bml.actmembers
 general /community/manage.bml.actsettings
+general /community/manage.bml.commlist.actinfo
+general /community/manage.bml.commlist.actinfo2
+general /community/manage.bml.commlist.actinvites
+general /community/manage.bml.commlist.actions
+general /community/manage.bml.commlist.actmembers2
 general /community/manage.bml.commlist.actmoderate
+general /community/manage.bml.commlist.actpending
+general /community/manage.bml.commlist.actsettingsaccount
+general /community/manage.bml.commlist.actsettingspost
+general /community/manage.bml.commlist.customize
+general /community/manage.bml.commlist.customize2
+general /community/manage.bml.commlist.header
+general /community/manage.bml.commlist.moderation
+general /community/manage.bml.commlist.moderation.num2
+general /community/manage.bml.commlist.none
+general /community/manage.bml.commlist.post
+general /community/manage.bml.commlist.queue
+general /community/manage.bml.commlist.tags
+general /community/manage.bml.commlist.text
+general /community/manage.bml.commlist.title
+general /community/manage.bml.commlist.tracking
+general /community/manage.bml.commlist.username
+general /community/manage.bml.create.header
+general /community/manage.bml.create.text2
+general /community/manage.bml.error.badaccounttype
+general /community/manage.bml.invite.text
+general /community/manage.bml.joinmail.body2
+general /community/manage.bml.joinmail.email.all
+general /community/manage.bml.joinmail.email.digest
+general /community/manage.bml.joinmail.email.none
+general /community/manage.bml.joinmail.save
+general /community/manage.bml.joinmail.title
+general /community/manage.bml.managelinks
+general /community/manage.bml.modemail.body
+general /community/manage.bml.modemail.no
+general /community/manage.bml.modemail.yes
+general /community/manage.bml.title2
 
 general /community/members.bml.manage
 

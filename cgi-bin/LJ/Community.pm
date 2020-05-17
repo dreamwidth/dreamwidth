@@ -611,40 +611,39 @@ sub maintainer_linkbar {
     }
 
     push @links, (
-        $page eq "profile"
-        ? "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinfo2') . "</strong>"
+        $page eq "profile" ? "<strong>" . LJ::Lang::ml('commlist.actinfo2') . "</strong>"
         : "<a href='$LJ::SITEROOT/manage/profile/?authas=$username'>"
-            . LJ::Lang::ml('/community/manage.bml.commlist.actinfo2') . "</a>",
+            . LJ::Lang::ml('commlist.actinfo2') . "</a>",
         $page eq "customize"
-        ? "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</strong>"
+        ? "<strong>" . LJ::Lang::ml('commlist.customize2') . "</strong>"
         : "<a href='$LJ::SITEROOT/customize/?authas=$username'>"
-            . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</a>",
+            . LJ::Lang::ml('commlist.customize2') . "</a>",
         $page eq "settingsaccount"
         ? "<strong>"
-            . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount')
+            . LJ::Lang::ml('commlist.actsettingsaccount')
             . "</strong>"
         : "<a href='$LJ::SITEROOT/manage/settings/?authas=$username&cat=community'>"
-            . LJ::Lang::ml('/community/manage.bml.commlist.actsettingsaccount') . "</a>",
+            . LJ::Lang::ml('commlist.actsettingsaccount') . "</a>",
         $page eq "invites"
-        ? "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</strong>"
+        ? "<strong>" . LJ::Lang::ml('commlist.actinvites') . "</strong>"
         : "<a href='$LJ::SITEROOT/communities/$username/members/new'>"
-            . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",
+            . LJ::Lang::ml('commlist.actinvites') . "</a>",
         $page eq "members"
-        ? "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</strong>"
+        ? "<strong>" . LJ::Lang::ml('commlist.actmembers2') . "</strong>"
         : "<a href='"
             . $comm->community_manage_members_url . "'>"
-            . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
+            . LJ::Lang::ml('commlist.actmembers2') . "</a>",
         $page eq "queue"
-        ? "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.queue') . "</strong>"
+        ? "<strong>" . LJ::Lang::ml('commlist.queue') . "</strong>"
         : "<a href='"
             . $comm->moderation_queue_url . "'>"
-            . LJ::Lang::ml('/community/manage.bml.commlist.queue') . "</a>",
+            . LJ::Lang::ml('commlist.queue') . "</a>",
 
     );
 
     my $ret .=
           "<strong>"
-        . LJ::Lang::ml( '/community/manage.bml.managelinks', { user => $comm->ljuser_display } )
+        . LJ::Lang::ml( 'commlist.managelinks', { user => $comm->ljuser_display } )
         . "</strong> ";
     $ret .= join( " | ", @links );
 
