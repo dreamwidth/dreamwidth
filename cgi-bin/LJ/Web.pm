@@ -927,8 +927,11 @@ sub create_qr_div {
     # For userpic selector
     my @icons = icon_keyword_menu($remote);
 
-    my $post_disabled = $u->does_not_allow_comments_from($remote)
-        || $u->does_not_allow_comments_from_unconfirmed_openid($remote);
+    # FIXME: This is incoherent on reading/network pages. (But it's only
+    # noticeable when viewing the reading/network page of someone who wouldn't
+    # allow you to comment.) -NF
+    my $post_disabled = $u->does_not_allow_comments_from($remote);
+
     return DW::Template->template_string(
         'journal/quickreply.tt',
         {

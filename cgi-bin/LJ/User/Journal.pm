@@ -290,8 +290,25 @@ sub trusts_or_has_member {
 =head2 Comment-Related Functions
 =cut
 
-# true if u1 restricts commenting to trusted and u2 is not trusted
+# true if u1 wouldn't allow a comment from u2, for ANY reason
 sub does_not_allow_comments_from {
+    my ( $u1, $u2 ) = @_;
+    return unless LJ::isu($u1);
+
+    if ( LJ::isu($u2) ) {
+        return
+               $u1->has_banned($u2)
+            || $u1->does_not_allow_comments_from_non_access($u2)
+            || $u1->does_not_allow_comments_from_unconfirmed_openid($u2);
+    }
+    else {
+        # Anonymous (which is never allowed on syndicated items)
+        return $u1->prop('opt_whocanreply') ne 'all' || $u1->is_syndicated;
+    }
+}
+
+# true if u1 restricts commenting to trusted and u2 is not trusted
+sub does_not_allow_comments_from_non_access {
     my ( $u1, $u2 ) = @_;
     return unless LJ::isu($u1) && LJ::isu($u2);
     return $u1->prop('opt_whocanreply') eq 'friends'
@@ -300,8 +317,6 @@ sub does_not_allow_comments_from {
 
 # true if u1 restricts comments to registered users and u2 is a
 # non-circled OpenID with an unconfirmed email
-# FIXME: fold into does_not_allow_comments_from without disabling
-# QuickReply in that situation due to S2.pm:3677
 sub does_not_allow_comments_from_unconfirmed_openid {
     my ( $u1, $u2 ) = @_;
     return unless LJ::isu($u1) && LJ::isu($u2);
