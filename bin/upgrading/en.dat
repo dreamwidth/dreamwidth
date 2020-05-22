@@ -4259,8 +4259,6 @@ talk.somebodywrote=[[realname]] ([[userlink]]) wrote,
 
 talk.somebodywrote_comm=[[realname]] ([[userlink]]) wrote in [[commlink]],
 
-talk.spellcheck=Check spelling during preview
-
 talk.threadlink=Thread
 
 talk.threadrootlink=Thread from start

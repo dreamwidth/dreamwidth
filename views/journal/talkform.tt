@@ -134,7 +134,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             ) -%]
           [%- ELSE -%][%# you're not on the access list -%]
             [%- journal.is_community ?
-              '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
+              '/talkpost_do.tt.error.notamember' : '/talkpost_do.tt.error.notafriend'
               | ml( user => journal.user ) -%]
           [%- END -%]
 
@@ -227,7 +227,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             | ml( journal => journal.user ) -%]
         [%- ELSE -%][%# you're not on the access list -%]
           [%- journal.is_community ?
-            '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
+            '/talkpost_do.tt.error.notamember' : '/talkpost_do.tt.error.notafriend'
             | ml( user => journal.user ) -%]
         [%- END -%]
 
@@ -288,6 +288,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
           id= 'password'
           label = dw.ml('Password')
           maxlength = password_maxlength
+          value = comment.password
           size = 18
         ) -%]
       </div>
@@ -624,7 +625,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                   ) -%]
                 [%- ELSE -%][%# you're not on the access list -%]
                   [%- journal.is_community ?
-                    '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
+                    '/talkpost_do.tt.error.notamember' : '/talkpost_do.tt.error.notafriend'
                     | ml( user => journal.user ) -%]
                 [%- END -%]
 
@@ -708,7 +709,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                   | ml( journal => journal.user ) -%]
               [%- ELSE -%][%# you're not on the access list -%]
                 [%- journal.is_community ?
-                  '/talkpost_do.bml.error.notamember' : '/talkpost_do.bml.error.notafriend'
+                  '/talkpost_do.tt.error.notamember' : '/talkpost_do.tt.error.notafriend'
                   | ml( user => journal.user ) -%]
               [%- END -%]
 
@@ -761,6 +762,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
               id= 'password'
               label = dw.ml('Password')
               maxlength = password_maxlength
+              value = comment.password
               size = 18
             ) -%]
           </div>
@@ -961,14 +963,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         id = "previewplaceholder"
         value = 1
       ) -%]
-      [%- IF can_checkspell -%]
-        [%- form.checkbox(
-          label = dw.ml('talk.spellcheck')
-          name = 'do_spellcheck'
-          id = 'spellcheck'
-          value = '1'
-        ) -%]
-      [%- END -%]
 
       [%- IF journal.is_iplogging -%]
         <div class='de'>

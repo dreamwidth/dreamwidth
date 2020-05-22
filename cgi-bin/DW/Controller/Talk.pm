@@ -402,9 +402,13 @@ sub authenticate_user_and_mutate_form {
         # authenticate on username/password
         my $ok = LJ::auth_okay( $up, $form->{password} );
 
-        return $mlerr->(
-            "/talkpost_do.tt.error.badpassword2", { aopts => "href='$LJ::SITEROOT/lostinfo'" }
-        ) unless $ok;
+        unless ($ok) {
+            # Don't pre-populate the fix-up form with a password we already know is wrong.
+            $form->{password} = '';
+            return $mlerr->(
+                "/talkpost_do.tt.error.badpassword2", { aopts => "href='$LJ::SITEROOT/lostinfo'" }
+            );
+        }
 
         # GREAT, they're in!
 

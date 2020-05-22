@@ -1402,26 +1402,50 @@ sub load_userpics {
 sub talkform {
 
     # Takes a hashref with the following keys / values:
-    # remote:      optional remote u object
-    # journalu:    prequired journal u object
-    # parpost:     parent post object
-    # replyto:     init->replyto
-    # ditemid:     init->ditemid
+    # journalu:    required journal user object
+    # parpost:     parent comment hashref. Only keys we use are state and subject.
+    # replyto:     jtalkid of the parent comment (or 0 if replying to entry)
+    # dtid:        dtalkid of the parent comment (or 0) -- useless, but preserved
+    # ditemid:     target entry's ditemid
     # form:        optional full form hashref. Empty if reply page was opened via
     #              direct link instead of partial form submission.
     # do_captcha:  optional toggle for creating a captcha challenge
-    # errors:      optional error arrayref
+    # errors:      optional arrayref of errors to display, so user can fix
+
+    # Refresher course on IDs:
+    # Entries and comments have real and "display" ids. This is for reader comfort, not for security.
+    # "anum" is a random but permanent number attached to entries.
+    # entry->jitemid * 256 + entry->anum = entry->ditemid
+    # (usually "itemid" means a jitemid, but reply forms pass a ditemid in their "itemid" field.)
+    # comment->jtalkid * 256 + comment->entry->anum = comment->dtalkid
+    # parenttalkid/replyto is always a jtalkid. Sometimes you'll see "dtid" to mean dtalkid.
     my $opts = shift;
     return "Invalid talkform values." unless ref $opts eq 'HASH';
 
-    my ( $remote, $journalu, $parpost, $form ) =
-        map { $opts->{$_} } qw(remote journalu parpost form);
+    my ( $journalu, $parpost, $form ) =
+        map { $opts->{$_} } qw(journalu parpost form);
+
+    my $remote = LJ::get_remote();
 
     my $editid = $form->{editid} || 0;
     my $comment;
+
     if ($editid) {
         $comment = LJ::Comment->new( $journalu, dtalkid => $editid );
         return "Cannot load comment information." unless $comment;
+    }
+
+    # A few early exit conditions, before we bother with all this other work:
+    # make sure journal isn't locked
+    return
+        "Sorry, this journal is locked and comments cannot be posted to it or edited at this time."
+        if $journalu->is_locked;
+
+    # check max comments (if posting a new comment; edits are ok.)
+    unless ($editid) {
+        my $jitemid = $opts->{'ditemid'} >> 8;
+        return "Sorry, this entry already has the maximum number of comments allowed."
+            if LJ::Talk::Post::over_maxcomments( $journalu, $jitemid );
     }
 
     my $subjecticons    = LJ::Talk::get_subjecticons();
@@ -1442,49 +1466,7 @@ sub talkform {
 
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) // '';
 
-    my $default_usertype = '';    # One of anonymous, openid, openid_cookie, cookieuser, user.
-    if ( $form->{usertype} ) {
-
-        # Partial form was submitted; pick up where we left off.
-        $default_usertype = $form->{usertype};
-
-        # EXCEPT: there's an annoying special behavior with the "cookieuser"
-        # usertype. It can survive certain partial form submissions (like the
-        # "More options" button), but as soon as it passes through
-        # LJ::Talk::Post::init() (which is when we find out whether a captcha is
-        # needed, for example), it gets munged into the "user" type and a few
-        # other properties get added. So if it's "user", we have to check those
-        # other properties to see whether it was actually meant to be
-        # "cookieuser". (Why not just preserve "cookieuser" through init()?
-        # Because an unknowable amount of things check for usertype eq user, and
-        # I'm not ready to hunt them all down yet.)
-        if (   $form->{usertype} eq 'user'
-            && $form->{userpost}
-            && $form->{cookieuser}
-            && $form->{userpost} eq $form->{cookieuser} )
-        {
-            $default_usertype = 'cookieuser';
-        }
-    }
-    elsif ($remote) {
-
-        # If logged-in user isn't allowed to comment we end up with no default,
-        # which seems correct.
-        if ( $remote->openid_identity ) {
-            $default_usertype = 'openid_cookie';
-        }
-        else {
-            $default_usertype = 'cookieuser';
-        }
-    }
-    elsif ( $journalu->{'opt_whocanreply'} eq "all" ) {
-        $default_usertype = 'anonymous';
-    }
-    else {
-        $default_usertype = 'user';
-    }
-
-    # Variables for talkform.tt
+    # Variables for talkform.tt (most of them, at least)
     my $template_args = {
         hidden_form_elements => '',
         form_url             => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
@@ -1494,12 +1476,10 @@ sub talkform {
         username_maxlength   => $LJ::USERNAME_MAXLENGTH,
         password_maxlength   => $LJ::PASSWORD_MAXLENGTH,
 
-        foundation_beta => LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" )
-            && $LJ::ACTIVE_RES_GROUP
-            && $LJ::ACTIVE_RES_GROUP eq "foundation",
+        foundation_beta => LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" ),
 
         public_entry     => $entry->security eq 'public',
-        default_usertype => $default_usertype,
+        default_usertype => 'user',
 
         comment => {
             editid      => $editid,
@@ -1507,6 +1487,7 @@ sub talkform {
             oidurl      => $form->{oidurl},
             oiddo_login => $form->{oiddo_login},
             user        => $form->{userpost},
+            password    => $form->{password},
             do_login    => $form->{do_login},
             body        => $form->{body},
             subject     => $basesubject,
@@ -1515,8 +1496,7 @@ sub talkform {
             preformatted    => $form->{prop_opt_preformatted},
             admin_post      => $form->{prop_admin_post},
             current_icon_kw => $form->{prop_picture_keyword},
-            current_icon => LJ::Userpic->new_from_keyword( $remote, $form->{prop_picture_keyword} )
-            ,                 # not yet used, but later...
+            current_icon => LJ::Userpic->new_from_keyword( $remote, $form->{prop_picture_keyword} ),
         },
 
         captcha => $opts->{do_captcha}
@@ -1525,8 +1505,6 @@ sub talkform {
             html => DW::Captcha->new( undef, want => $journalu->captcha_type )->print,
             }
         : 0,
-
-        can_checkspell => $LJ::SPELLER ? 1 : 0,
 
         remote => $remote
         ? {
@@ -1538,16 +1516,7 @@ sub talkform {
             ljuser          => $remote->ljuser_display,
             openid_identity => $remote->openid_identity,
 
-            allowed => !$journalu->has_banned($remote)
-                && (
-                   $journalu->{opt_whocanreply} eq 'all'
-                || ( $journalu->{opt_whocanreply} eq 'reg' && !$remote->openid_identity )
-                || (   $journalu->{opt_whocanreply} eq 'reg'
-                    && $remote->openid_identity
-                    && ( $remote->is_validated || $journalu->trusts($remote) ) )
-                || ( $journalu->{opt_whocanreply} eq 'friends'
-                    && !$journalu->does_not_allow_comments_from($remote) )
-                ),
+            allowed  => !$journalu->does_not_allow_comments_from($remote),
             banned   => $journalu->has_banned($remote),
             screened => (
                        $journalu->has_autoscreen($remote)
@@ -1593,21 +1562,60 @@ sub talkform {
         print_subjecticon_by_id => sub { return LJ::Talk::print_subjecticon_by_id(@_) },
     };
 
-    # make sure journal isn't locked
-    return
-        "Sorry, this journal is locked and comments cannot be posted to it or edited at this time."
-        if $journalu->is_locked;
+    # Now, we munge some of the more complex template inputs that can make
+    # a mess inline.
 
-    # check max comments only if posting a new comment (not when editing)
-    unless ($editid) {
-        my $jitemid = $opts->{'ditemid'} >> 8;
-        return "Sorry, this entry already has the maximum number of comments allowed."
-            if LJ::Talk::Post::over_maxcomments( $journalu, $jitemid );
+    # default_usertype is the initial selected item in the "from" options.
+    # It defaults to 'user' above, but something else might be better.
+    # Reminder: allowed usertypes are:
+    # anonymous
+    # openid
+    # openid_cookie (logged-in)
+    # cookieuser (logged-in)
+    # user (w/ name provided in "userpost")
+    if ( $form->{usertype} ) {
+
+        # Partial form was submitted, and they already told us who they want to
+        # be! Pick up where they left off.
+        $template_args->{default_usertype} = $form->{usertype};
+
+        # But there are two exceptions to that. First, quick-reply doesn't know
+        # about openid_cookie and always says cookieuser, so if they're
+        # logged in as OpenID, straighten that out.
+        if ( $form->{usertype} eq 'cookieuser'
+            && $remote
+            && $remote->is_identity )
+        {
+            $template_args->{default_usertype} = 'openid_cookie';
+        }
+
+        # Second, if the logged-in user isn't allowed to comment, it's
+        # impossible to select "current user." Revert to the default.
+        if (
+            ( $template_args->{default_usertype} eq 'cookieuser' || $template_args->{default_usertype} eq 'openid_cookie' )
+            && $remote
+            && ! $template_args->{remote}->{allowed}
+        ) {
+            $template_args->{default_usertype} = 'user';
+        }
+    }
+    elsif ( $remote && $template_args->{remote}->{allowed} ) {
+
+        # Whole point of logging in is to be the default user, so, yeah.
+        if ( $remote->is_identity ) {
+            $template_args->{default_usertype} = 'openid_cookie';
+        }
+        else {
+            $template_args->{default_usertype} = 'cookieuser';
+        }
+    }
+    elsif ( $journalu->{'opt_whocanreply'} eq "all" ) {
+        $template_args->{default_usertype} = 'anonymous';
     }
 
-    $opts->{styleopts} ||= LJ::viewing_style_opts(%$form);
+    my $styleopts = $opts->{styleopts} || LJ::viewing_style_opts(%$form);
     my $stylemineuri =
-        %{ $opts->{styleopts} } ? LJ::viewing_style_args( %{ $opts->{styleopts} } ) . "&" : "";
+        %{$styleopts} ? LJ::viewing_style_args( %{$styleopts} ) . "&" : "";
     my $basepath = $entry->url . "?" . $stylemineuri;
 
     # hidden values
@@ -1618,6 +1626,9 @@ sub talkform {
         "journal"      => $journalu->{'user'},
         "basepath"     => $basepath,
         "dtid"         => $opts->{dtid},
+        # ^ display version of replyto/parenttalkid. Nothing actually uses this
+        # in the talkform or after the form is submitted. It's important for JS
+        # in the quickreply, but vestigial here.
         "editid"       => $editid,
         "chrp1"        => generate_chrp1($journalu->{userid}, $opts->{ditemid}),
         %$styleopts,
