@@ -1,24 +1,26 @@
+[%# talkpost_do.tt
+
+Comment previews and fix-your-comment-error pages.
+
+Authors:
+    Ruth Hatch <ruth.s.hatch@gmail.com>
+    Nick Fagerlund <nick.fagerlund@gmail.com>
+
+Copyright (c) 2020 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+
 [%- sections.title = dw.ml(title) -%]
-[% sections.head = BLOCK %]
-        <style type="text/css">
-            .userpic { float: left; margin: 0 15px 5px 0; }
-            .userpics { float: right; }
-        </style>
+
+[% IF preview %]
+    [% INCLUDE talkpost_do/preview_comment.tt %]
 [% END %]
-[%- CALL dw.active_resource_group( "jquery" ) -%]
-   [%- dw.need_res( { group => "jquery" },
-           "js/jquery.replyforms.js",
-            "js/jquery.talkform.js",
-            "stc/css/components/talkform.css"
-   ) -%]
-[% IF html %]
-    [% html %]
-[% ELSE %]
-    <p>[% dw.ml(mlcode, {'aopts' => "href='$commentlink'"} ) %]</p>
-    [%- IF unscreened -%]
-        <p>[% dw.ml('.success.unscreened') %]</p>
-    [%- END -%]
-    [%- IF didlogin -%]
-        <p>[% dw.ml('.success.loggedin') %]</p>
-    [%- END -%]
+
+[% html %]
+
+[% IF preview %]
+    [% INCLUDE talkpost_do/preview_parent.tt %]
 [% END %]

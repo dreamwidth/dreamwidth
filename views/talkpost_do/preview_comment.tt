@@ -1,0 +1,93 @@
+[%# talkpost_do/preview_comment.tt
+
+Displays a preview of the submitted comment, mimicking the markup of the
+comments section in a site-skin entry page.
+
+Authors:
+    Nick Fagerlund <nick.fagerlund@gmail.com>
+
+Copyright (c) 2020 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+
+<h2>[% dw.ml('/talkpost_do.tt.preview.title') %]</h2>
+<p>[% dw.ml('/talkpost_do.tt.preview') %]</p>
+
+<div id="comments">
+<div class="inner">
+
+<div class="comment-thread comment-depth-odd comment-depth-1">
+	<div id="cmtpreview" class="dwexpcomment" style="margin-left: 0px; margin-top: 5px;">
+		<div class="comment-wrapper comment-wrapper-odd visible full
+		    [% IF comment.icon %]has-userpic[% ELSE %]no-userpic[% END %]
+		    [% IF comment.subject %]has-subject[% ELSE %]no-subject[% END %]
+		">
+			<div class="separator separator-before">
+				<div class="inner">
+				</div>
+			</div>
+			<div class="comment" id="comment-cmtpreview">
+				<div class="inner">
+					<div class="header">
+						<div class="inner">
+							<div class="userpic">
+								[% comment.icon %]
+							</div>
+							<div class="comment-info">
+								<h4 class="comment-title">
+									[% IF comment.subject %]
+									    <span>[% comment.subject %]</span>
+									[% ELSE %]
+									    <span class=" invisible">no subject</span>
+                                    [% END %]
+								</h4>
+								[% IF comment.subjecticon %]
+								    <div class="comment-subjecticon">
+								        [% comment.subjecticon %]
+								    </div>
+								[% END %]
+								<span class="poster comment-poster">
+								    [% comment.poster %]
+								</span>
+
+								[%# This is just lorem-ipsum so the spatial relationships look right. %]
+								<span class="datetime"><span class="comment-date-text"> </span> <span title="time passed since journal entry">20xx-mm-dd hh:mm am (UTC)</span></span>
+								<span class="poster-ip"><span class="comment-ip-text"></span> (IP address, if recorded)</span>
+								<span class="commentpermalink">(<a>link</a>)</span>
+								<ul class="comment-management-links icon-links">
+									<li class="link watch_thread"><a>
+									    [% dw.img('track') %]
+									</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="contents usercontent">
+						<div class="inner">
+							<div class="comment-content">
+								[% comment.body %]
+							</div>
+						</div>
+					</div>
+					<div class="footer">
+						<div class="inner">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="separator separator-after">
+				<div class="inner">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+</div> <!-- end .inner -->
+</div> <!-- end #comments -->
+
+<hr>
