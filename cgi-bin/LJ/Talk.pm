@@ -1851,7 +1851,10 @@ sub init_s2journal_js {
     ) if $opts{noqr};
 
     # load for userpicselect
-    init_iconbrowser_js() if $opts{iconbrowser};
+    if ( $opts{iconbrowser} ) {
+        my $remote = LJ::get_remote();
+        init_iconbrowser_js() if $remote && $remote->can_use_userpic_select;
+    }
 
     # if we're using the site skin, don't override the jquery-ui theme,
     # as that's already included

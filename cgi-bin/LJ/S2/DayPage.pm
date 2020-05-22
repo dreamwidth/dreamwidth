@@ -36,7 +36,7 @@ sub DayPage {
     my $handle_with_siteviews = $opts->{handle_with_siteviews_ref}
         && ${ $opts->{handle_with_siteviews_ref} };
     LJ::Talk::init_s2journal_js(
-        iconbrowser => $remote && $remote->can_use_userpic_select,
+        iconbrowser => 1,
         siteskin    => $handle_with_siteviews,
         lastn       => 1
     );
