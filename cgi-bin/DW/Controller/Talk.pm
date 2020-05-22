@@ -118,7 +118,6 @@ sub talkpost_do_handler {
 
         $title = '.title.error' unless $need_captcha;
 
-        $POST->{edit} = $POST->{editid}; # talkform expects the editid to be in "edit"
         my $talkform = LJ::Talk::talkform({ 'remote'      => $remote,
                                     'journalu'    => $journalu,
                                     'parpost'     => $parpost,

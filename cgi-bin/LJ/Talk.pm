@@ -1542,7 +1542,7 @@ sub talkform {
     my ( $remote, $journalu, $parpost, $form ) =
         map { $opts->{$_} } qw(remote journalu parpost form);
 
-    my $editid = $form->{edit} ? $form->{edit} : 0;
+    my $editid = $form->{editid} || 0;
     my $comment;
     if ($editid) {
         $comment = LJ::Comment->new( $journalu, dtalkid => $editid );
