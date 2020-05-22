@@ -34,7 +34,7 @@ sub talkpost_do_handler {
 
         if ($GET->{'openid.mode'} eq 'id_res') { # Verify their identity
 
-            unless ( LJ::check_referer('/talkpost_do.bml', $GET->{'openid.return_to'}) ) {
+            unless ( LJ::check_referer('/talkpost_do', $GET->{'openid.return_to'}) ) {
                 return error_ml( '/openid/login.bml.error.invalidparameter',
                                                { item => "return_to" } );
             }
@@ -60,7 +60,7 @@ sub talkpost_do_handler {
 
         my $penddata = eval { Storable::thaw($pending) };
 
-        $POST = %$penddata;
+        $POST = $penddata;
 
         push @errors, "You chose to cancel your identity verification"
             if $csr->user_cancel;
@@ -193,7 +193,7 @@ sub talkpost_do_handler {
     my $dtalkid = $comment->{talkid}*256 + $item->{anum};
 
     # Allow style=mine, etc for QR redirects
-    my $style_args = LJ::viewing_style_args( $POST );
+    my $style_args = LJ::viewing_style_args( %$POST );
 
     # FIXME: potentially can be replaced with some form of additional logic when we have multiple account linkage
     my $posted = $comment->{state} eq 'A' ? "posted=1" : "";
@@ -240,7 +240,6 @@ sub talkpost_do_handler {
     $vars->{unscreened} = $wasscreened and $parent->{state} ne 'S';
     $vars->{didlogin} = $init->{didlogin};
 
-    warn "reached the end!";
     return DW::Template->render_template( 'talkpost_do.tt', $vars );
 }
 
