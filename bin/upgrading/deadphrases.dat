@@ -2235,3 +2235,5 @@ general /go.bml.error.noentrytitle
 general /go.bml.error.redirkey
 general /go.bml.error.usernotfound
 general /go.bml.link.to.journal
+
+general talk.error.nosuchjournal
