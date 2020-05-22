@@ -202,15 +202,6 @@ sub create {
     return $err->( "init_comment", join "\n" => @errors )
         unless defined $init;
 
-    # check max comments
-    return $err->(
-        "too_many_comments", "Sorry, this entry already has the maximum number of comments allowed."
-    ) if LJ::Talk::Post::over_maxcomments( $init->{journalu}, $init->{item}->jitemid );
-
-    # no replying to frozen comments
-    my $parent_state = $init->{parent}->{state} // '';
-    return $err->( "frozen", "Can't reply to frozen thread." ) if $parent_state eq 'F';
-
     ## insertion
     my $post_err_ref;
     return $err->( "post_comment", $post_err_ref )

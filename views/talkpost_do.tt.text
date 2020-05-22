@@ -49,6 +49,14 @@
 
 .error.noparent=Cannot reply to a non-existent comment.
 
+.error.noreply_frozen=This comment is frozen; you can't reply to it.
+
+.error.noreply_readonly_journal=This journal is read-only.  You can't reply to any entries in it.
+
+.error.noreply_readonly_remote=You're read-only.  You can't post comments.
+
+.error.noreply_suspended=This entry is suspended.  You can't reply to it.
+
 .error.notafriend=You aren't on [[user]]'s Access List; only members of [[user]]'s Access List can reply to entries in this journal.
 
 .error.notamember=You aren't a member of <strong>[[user]]</strong>.  Commenting here is restricted to members.
