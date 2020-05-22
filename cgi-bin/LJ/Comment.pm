@@ -176,7 +176,7 @@ sub create {
     ) if %opts;
 
     # Move props values to the talk_opts hash.
-    # Because LJ::Talk::Post::init needs this.
+    # Because prepare_and_validate_comment needs this.
     foreach my $key ( keys %{ $talk_opts{props} } ) {
         my $talk_key = "prop_$key";
 
