@@ -92,8 +92,9 @@ sub talkpost_do_handler {
         my $entry = LJ::Entry->new( $journalu, ditemid => $POST->{itemid} + 0 );
         my $talkurl = $entry->url;
 
-        $title = '.title.preview';
-        return LJ::Talk::Post::make_preview($talkurl, $cookie_auth, $POST);
+        $vars->{title} = '.title.preview';
+        $vars->{html} = LJ::Talk::Post::make_preview($talkurl, $cookie_auth, $POST);
+        return DW::Template->render_template( 'talkpost_do.tt', $vars );
     }
 
     ## init.  this handles all the error-checking, as well.
