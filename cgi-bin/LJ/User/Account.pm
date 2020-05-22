@@ -1461,7 +1461,7 @@ sub journal_base {
 # des-user: Username of user to load.
 # des-force: if set to true, won't return cached user object and will
 #            query a dbh.
-# returns: Hashref, with keys being columns of [dbtable[user]] table.
+# returns: LJ::User object, whose keys are columns of [dbtable[user]] table.
 # </LJFUNC>
 sub load_user {
     my ( $user, $force ) = @_;
