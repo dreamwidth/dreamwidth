@@ -2237,16 +2237,22 @@ sub blockquote {
 "<blockquote style='border-left: #000040 2px solid; margin-left: 0px; margin-right: 0px; padding-left: 15px; padding-right: 0px'>$a</blockquote>";
 }
 
-# Mutates received $comment hashref, adding talkid
+# An implementation detail of LJ::Talk::Post::post_comment; takes care of the
+# gnarly database stuff. This is not expected to be called from anywhere else.
+# (skull and crossbones emoji)
+# Returns (1, talkid) on success, (0, error) on failure.
 sub enter_comment {
-    my ( $journalu, $parent, $item, $comment, $errref ) = @_;
+    my ( $comment ) = @_;
 
+    my $item = $comment->{entry};
+    my $journalu = $item->journal;
+    my $parent = $comment->{parent};
     my $partid = $parent->{talkid};
     my $itemid = $item->jitemid;
 
+    # accepts multi-part errors if you're into that.
     my $err = sub {
-        $$errref = join( ": ", @_ );
-        return 0;
+        return ( 0, join( ": ", @_ ) );
     };
 
     return $err->("Invalid user object passed.")
@@ -2283,8 +2289,6 @@ sub enter_comment {
     }
 
     LJ::MemCache::incr( [ $journalu->{'userid'}, "talk2ct:$journalu->{'userid'}" ] );
-
-    $comment->{talkid} = $jtalkid;
 
     # record IP if anonymous
     LJ::Talk::record_anon_comment_ip( $journalu, $comment->{talkid}, LJ::get_remote_ip() )
@@ -2362,8 +2366,9 @@ sub enter_comment {
     $talkprop{admin_post}         = $comment->{admin_post} ? 1 : 0;
     $talkprop{'opt_preformatted'} = $comment->{preformat}  ? 1 : 0;
 
+    my $site_user_comment = $comment->{u} && $comment->{u}->is_person;
     if ( $journalu->opt_logcommentips eq "A"
-        || ( $journalu->opt_logcommentips eq "S" && $comment->{usertype} ne "user" ) )
+        || ( $journalu->opt_logcommentips eq "S" && !$site_user_comment ) )
     {
         if ( LJ::is_web_context() ) {
             my $ip        = BML::get_remote_ip();
@@ -2426,7 +2431,7 @@ sub enter_comment {
 
     DW::TaskQueue->dispatch(@jobs) if @jobs;
 
-    return $jtalkid;
+    return (1, $jtalkid);
 }
 
 # this is used by the journal import code, but is kept here so as to be kept
@@ -2960,11 +2965,18 @@ sub require_captcha_test {
     }
 }
 
-# returns 1 on success.  0 on fail (with $$errref set)
-# Mutates its received $comment hashref, adding talkid, maybe setting state,
-# maybe removing picture_keyword.
+# Does what it says on the tin.
+# Expects a comment hashref from LJ::Talk::Post::prepare_and_validate_comment.
+# Don't yolo one of these hashrefs unless you're in a test.
+# returns (1, talkid) on success, (0, error) on fail
+# Mutates its received $comment hashref: maybe setting state,
+# maybe removing picture_keyword, //= '' on a few things.
 sub post_comment {
-    my ( $entryu, $journalu, $comment, $parent, $item, $errref, $unscreen_parent ) = @_;
+    my ( $comment, $unscreen_parent ) = @_;
+
+    my $item = $comment->{entry};
+    my $journalu = $item->journal;
+    my $parent = $comment->{parent};
 
     my $parent_state = $parent->{state} || "";
 
@@ -3021,20 +3033,15 @@ sub post_comment {
         # XXX do select and delete $talkprop{'picture_keyword'} if they're lying
         my $pic = LJ::Userpic->new_from_keyword( $posteru, $kw );
         delete $comment->{picture_keyword} unless $pic && $pic->state eq 'N';
-        $comment->{pic} = $pic;
 
         # put the post in the database
-        # This mutates $comment to add talkid
-        $jtalkid = enter_comment( $journalu, $parent, $item, $comment, $errref );
-        return 0 unless $jtalkid;
+        my ($ok, $talkid_or_err) = enter_comment($comment);
+        return (0, $talkid_or_err) unless $ok;
+        $jtalkid = $talkid_or_err;
 
         # save its identifying characteristics to protect against duplicates.
         LJ::MemCache::set( $memkey, $jtalkid + 0, time() + 60 * 10 );
     }
-
-    # the caller wants to know the comment's talkid. (in case it wasn't already
-    # added by enter_comment.)
-    $comment->{talkid} = $jtalkid;
 
     # cluster tracking
     LJ::mark_user_active( $comment->{u}, 'comment' );
@@ -3051,7 +3058,7 @@ sub post_comment {
 
     LJ::Hooks::run_hooks( 'new_comment', $journalu->{userid}, $item->jitemid, $jtalkid ); # This hook is never registered by anything in -free or -nonfree. -NF
 
-    return 1;
+    return (1, $jtalkid);
 }
 
 # Does what it says on the tin.

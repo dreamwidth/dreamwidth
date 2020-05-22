@@ -193,14 +193,12 @@ sub create {
         unless defined $comment;
 
     ## insertion
-    my $post_err_ref;
-    return $err->( "post_comment", $post_err_ref )
-        unless LJ::Talk::Post::post_comment(
-        $entry->poster, $journalu, $comment, # $entry->poster is not used by post_comment. -NF
-        $comment->{parent}, $entry, \$post_err_ref,
-        );
+    my ($ok, $talkid_or_err) = LJ::Talk::Post::post_comment($comment);
+    unless ($ok) {
+        return $err->( "post_comment", $talkid_or_err );
+    }
 
-    return LJ::Comment->new( $journalu, jtalkid => $comment->{talkid} ); # talkid gets added by post_comment
+    return LJ::Comment->new( $journalu, jtalkid => $talkid_or_err );
 
 }
 
