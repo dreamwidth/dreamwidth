@@ -20,10 +20,6 @@ sub talkpost_do_handler {
 
     my $vars;
 
-    # Hack to make sure resource group is set to SOMETHING (in case lj::talk
-    # returns way too early and we don't pass through the template at all)
-    LJ::set_active_resource_group( "jquery" );
-
     # Like error_ml but for when we don't control the error string.
     my $err_raw = sub {
         return DW::Template->render_template( 'error.tt', { message => $_[0] } );
@@ -151,6 +147,18 @@ sub talkpost_do_handler {
     }
     else {
         push @errors, $auth;
+    }
+
+    # Now that we've given them a chance to log in, set a resource group.
+    # FIXME: You're supposed to set this in the template, so if someone ever
+    # rewrites DW::Captcha::TextCAPTCHA to stop snooping around in
+    # $LJ::ACTIVE_RES_GROUP, definitely do that. In the meantime, this needs to
+    # happen before LJ::Talk::talkform gets called or things might break. -NF
+    my $real_remote = LJ::get_remote();
+    if ( LJ::BetaFeatures->user_in_beta( $real_remote => "s2foundation" ) ) {
+        LJ::set_active_resource_group("foundation");
+    } else {
+        LJ::set_active_resource_group("jquery");
     }
 
     ## Prepare the comment (or wipe out on the permissions/consistency checks)
