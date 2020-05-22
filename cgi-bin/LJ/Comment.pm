@@ -157,8 +157,7 @@ sub create {
     # Fill it with nessesary options.
     my %talk_opts = map { $_ => delete $opts{$_} } qw(nodetype parenttalkid body subject props);
 
-    # poster and journal should be $u objects,
-    # but talklib wants usernames... we'll map here
+    # poster and journal should be $u objects
     my $journalu = delete $opts{journal};
     return $err->( "bad_journal", "invalid journal for new comment: $journalu" )
         unless LJ::isu($journalu);
@@ -167,11 +166,9 @@ sub create {
     return $err->( "bad_poster", "invalid poster for new comment: $posteru" )
         unless LJ::isu($posteru);
 
-    # LJ::Talk::init uses 'itemid', not 'ditemid'.
-    $talk_opts{itemid} = delete $opts{ditemid};
-
-    # LJ::Talk::init needs journal name
-    $talk_opts{journal} = $journalu->user;
+    # to prepare the comment, we need an LJ::Entry object, so go get one.
+    my $ditemid = delete $opts{ditemid};
+    my $entry = LJ::Entry->new($journalu, ditemid => $ditemid);
 
     # Strictly parameters check. Do not allow any unused params to be passed in.
     return $err->(
@@ -187,30 +184,23 @@ sub create {
             if not exists $talk_opts{$talk_key};
     }
 
-    # The following 2 options are necessary for successful user authentification
-    # in the depth of LJ::Talk::Post::init.
-    #
-    # FIXME: this almost certainly should be 'usertype=user' rather than
-    #        'cookieuser' with $remote passed below.  Gross.
-    $talk_opts{cookieuser} ||= $posteru->user;
-    $talk_opts{usertype}   ||= 'cookieuser';
-    $talk_opts{nodetype}   ||= 'L';     # LJ::Talk::Post::init never uses this.
-
     ## init.  this handles all the error-checking, as well.
     my @errors = ();
-    my $init   = LJ::Talk::Post::init( \%talk_opts, $posteru, \$need_captcha, \@errors );
+    my $comment = LJ::Talk::Post::prepare_and_validate_comment(
+        \%talk_opts, $posteru, $entry, \$need_captcha, \@errors
+    );
     return $err->( "init_comment", join "\n" => @errors )
-        unless defined $init;
+        unless defined $comment;
 
     ## insertion
     my $post_err_ref;
     return $err->( "post_comment", $post_err_ref )
         unless LJ::Talk::Post::post_comment(
-        $init->{entryu}, $init->{journalu}, $init->{comment},
-        $init->{parent}, $init->{item},     \$post_err_ref,
+        $entry->poster, $journalu, $comment, # $entry->poster is not used by post_comment. -NF
+        $comment->{parent}, $entry, \$post_err_ref,
         );
 
-    return LJ::Comment->new( $init->{journalu}, jtalkid => $init->{comment}->{talkid} );
+    return LJ::Comment->new( $journalu, jtalkid => $comment->{talkid} ); # talkid gets added by post_comment
 
 }
 
