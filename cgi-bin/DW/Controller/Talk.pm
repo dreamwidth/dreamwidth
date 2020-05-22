@@ -24,18 +24,19 @@ sub talkpost_do_handler {
     # returns way too early and we don't pass through the template at all)
     LJ::set_active_resource_group( "jquery" );
 
-    # With most kinds of commenting errors, the user can recover by fixing their
-    # form inputs. There also might be several of these errors at once. So
-    # unless it's something immediately fatal, just push errors onto @errors
-    # instead of returning, and we'll bundle them up at the end.
+    # Like error_ml but for when we don't control the error string.
+    my $err_raw = sub {
+        return DW::Template->render_template( 'error.tt', { message => $_[0] } );
+    };
+
+    # For errors that aren't immediately fatal, collect them as we go and let
+    # the user fix them all at once.
     my @errors;
-    my $skip_form_auth = 0;
 
     my $editid = $POST->{editid};
 
-    # If this is a GET instead of a POST, check whether we're in the second pass
-    # of the OpenID auth flow, where they come back from the identity server. If
-    # so, we recreate their POST hash as if they never left.
+    # If this is a GET (not POST), see if they're coming back from an OpenID
+    # identity server. If so, restore the POST hash we saved before they left.
     if (($GET->{'openid.mode'} eq 'id_res' || $GET->{'openid.mode'} eq 'cancel') && $GET->{jid} && $GET->{pendcid}) {
         my $csr = LJ::OpenID::consumer($GET->mixed);
 
@@ -48,25 +49,24 @@ sub talkpost_do_handler {
 
             my $errmsg;
             my $uo = LJ::User::load_from_consumer( $csr, \$errmsg );
-            return error_ml( $errmsg ) unless $uo;
+            return $err_raw->( $errmsg ) unless $uo;
 
             # Change who we think we are. NB: don't use set_remote to ACTUALLY
             # change the remote, or you'll cause a glitch in the matrix. We just
             # want to use this OpenID user below to check auth, etc.
             $remote = $uo;
-            $skip_form_auth = 1;  # wouldn't have form auth at this point
         }
 
         # Restore their data to reset state where they were
         my $pendcid = $GET->{pendcid} + 0;
 
         my $journalu = LJ::load_userid($GET->{jid});
-        return error_ml("Unable to load user or get database handle") unless $journalu && $journalu->writer;
+        return error_ml("/talkpost_do.tt.error.openid.nodb") unless $journalu && $journalu->writer;
 
         my $pending = $journalu->selectrow_array("SELECT data FROM pendcomments WHERE jid=? AND pendcid=?",
                                                  undef, $journalu->{userid}, $pendcid);
 
-        return error_ml("Unable to load pending comment, maybe you took too long") unless $pending;
+        return error_ml("/talkpost_do.tt.error.openid.nopending") unless $pending;
 
         my $penddata = eval { Storable::thaw($pending) };
 
@@ -80,19 +80,29 @@ sub talkpost_do_handler {
         return error_ml('/talkpost_do.tt.error.badrequest');
     }
 
-
-    # as an exception, we do NOT call LJ::text_in() to check for bad
-    # input, since it may be not in UTF-8 in replies coming from mail
-    # clients. We call it later.
-
+    # We don't call LJ::text_in() here; instead, we call it during
+    # LJ::Talk::Post::prepare_and_validate_comment.
+    # Old talkpost_do.bml comments said they did this because of non-UTF-8 in
+    # "replies coming from mail clients," but nobody in 2020 knew what that
+    # meant. (Maybe they just wanted to call it only once, so they put it in a
+    # spot where it would also hit replies that come through LJ::Protocol
+    # instead of talkpost_do? But you'd think encoding checks should be the
+    # concern of the request handler, whether it's Protocol or a controller.)
+    # Anyway... the point is it gets called eventually. -NF
 
     my $journalu = LJ::load_user($POST->{journal});
-    return error_ml('Unknown journal.  Please go back and try again.') unless $journalu; # hmm, is error_ml right? -NF
-    $r->note( 'journalid', $journalu->userid ) if $r; # What the heck? -NF Oh, looks like maybe this gets looked up by S2.pm under some conditions.
+    return error_ml('/talkpost_do.tt.error.nojournal') unless $journalu;
+
+    # This launches some garbage into the void of the Apache "notes" system, and
+    # it's impossible to know for sure what ends up reading it as an implicit
+    # argument. Obviously everyone hates this. It dates back to the old
+    # talkpost_do.bml we inherited from LJ. NF's best guess is that S2.pm
+    # expects this, but it might also be irrelevant. Who knows.
+    $r->note( 'journalid', $journalu->userid ) if $r;
 
     my $entry = LJ::Entry->new( $journalu, ditemid => $POST->{itemid} + 0 );
     unless ($entry) {
-        push @errors, 'talk.error.noentry';
+        return error_ml('talk.error.noentry');
     }
     my $talkurl = $entry->url;
 
@@ -100,9 +110,6 @@ sub talkpost_do_handler {
     LJ::Talk::init_iconbrowser_js()
         if $remote && $remote->can_use_userpic_select;
 
-
-    # validate form auth (maybe)
-    push @errors, LJ::Lang::ml('error.invalidform') if $remote && ! ( $skip_form_auth || LJ::check_form_auth($POST->{lj_form_auth} ) );
 
     # validate the challenge/response value (anti-spammer)
     my ($chrp_ok, $chrp_err) = LJ::Talk::validate_chrp1($POST->{'chrp1'});
@@ -130,15 +137,23 @@ sub talkpost_do_handler {
     }
 
     ## Sort out who's posting for real.
-    my $didlogin = 0;
-    my $commenter_or_redirect = authenticate_user_and_mutate_form($POST, $remote, $journalu, \@errors, \$didlogin);
-    if (defined $commenter_or_redirect && ! $commenter_or_redirect->isa('LJ::User')) {
-        # openid thing. Round and round we go.
-        return $r->redirect($commenter_or_redirect);
+    my ($commenter, $didlogin);
+    my ($authok, $auth) = authenticate_user_and_mutate_form($POST, $remote, $journalu);
+    if ($authok) {
+        if ($auth->{check_url}) {
+            # openid thing. Round and round we go.
+            return $r->redirect( $auth->{check_url} );
+        }
+        else {
+            $commenter = $auth->{user};
+            $didlogin = $auth->{didlogin};
+        }
     }
-    my $commenter = $commenter_or_redirect;
+    else {
+        push @errors, $auth;
+    }
 
-    ## Prepare the comment (or trip on our shoelaces during the permissions/consistency checks)
+    ## Prepare the comment (or wipe out on the permissions/consistency checks)
     my $need_captcha = 0;
     my $comment = LJ::Talk::Post::prepare_and_validate_comment($POST, $commenter, $entry, \$need_captcha, \@errors);
 
@@ -147,7 +162,7 @@ sub talkpost_do_handler {
     unless ( $comment ) {
         my ($sth, $parpost);
         my $dbcr = LJ::get_cluster_def_reader($journalu);
-        return error_ml('No database connection present.  Please go back and try again.') unless $dbcr;
+        return error_ml('/talkpost_do.tt.error.nodb') unless $dbcr;
 
         $sth = $dbcr->prepare("SELECT posterid, state FROM talk2 ".
                               "WHERE journalid=? AND jtalkid=?");
@@ -180,15 +195,15 @@ sub talkpost_do_handler {
     my $wasscreened = ($parent->{state} eq 'S');
     my $talkid;
     if ($editid) {
-        my ($ok, $talkid_or_err) = LJ::Talk::Post::edit_comment($comment);
-        unless ($ok) {
-            return error_ml($talkid_or_err);
+        my ($postok, $talkid_or_err) = LJ::Talk::Post::edit_comment($comment);
+        unless ($postok) {
+            return $err_raw->($talkid_or_err);
         }
         $talkid = $talkid_or_err;
     } else {
-        my ($ok, $talkid_or_err) = LJ::Talk::Post::post_comment( $comment, $unscreen_parent );
-        unless ($ok) {
-            return error_ml($talkid_or_err);
+        my ($postok, $talkid_or_err) = LJ::Talk::Post::post_comment( $comment, $unscreen_parent );
+        unless ($postok) {
+            return $err_raw->($talkid_or_err);
         }
         $talkid = $talkid_or_err;
     }
@@ -210,7 +225,7 @@ sub talkpost_do_handler {
         # Redirect the user back to their post as long as it didn't unscreen its parent,
         # is screened itself, or they logged in
         if (!($wasscreened && ($parent->{state} ne 'S')) && !$didlogin) {
-            LJ::set_lastcomment($journalu->{'userid'}, $remote, $dtalkid);
+            LJ::set_lastcomment($journalu->id, $commenter, $dtalkid);
             return $r->redirect($commentlink);
         }
 
@@ -218,7 +233,7 @@ sub talkpost_do_handler {
     } else {
         # otherwise, it's a screened comment.
         if ( $journalu && $journalu->is_community ) {
-            if ( $POST->{'usertype'} eq 'anonymous' ) {
+            if ( $POST->{usertype} eq 'anonymous' ) {
                 $mlcode = '.success.screened.comm.anon3';
             } elsif ( $commenter && $commenter->can_manage( $journalu ) ) {
                 $mlcode = '.success.screened.comm.owncomm4';
@@ -226,7 +241,7 @@ sub talkpost_do_handler {
                 $mlcode = '.success.screened.comm3';
             }
         } else {  # not a community
-            if ( $POST->{'usertype'} eq 'anonymous' ) {
+            if ( $POST->{usertype} eq 'anonymous' ) {
                 $mlcode = '.success.screened.user.anon3';
             } elsif ( $commenter && $commenter->equals( $journalu ) ) {
                 $mlcode = '.success.screened.user.ownjournal3';
@@ -248,30 +263,26 @@ sub talkpost_do_handler {
 
 # Handles user auth for the talkform's "from" fields.
 # Args:
-# - $form: a hashref representing the POSTed comment form. It might Go Through
-# Some Changes during this function (mostly affecting those "from" fields).
-# - $remote: the current logged-in LJ::User, or undef, OR the just-now authenticated OpenID
-# user (which is why we can't just get_remote like normal).
+# - $form: a hashref representing the POSTed comment form. We might mutate its
+# usertype, userpost, cookieuser, and oidurl fields, in order to canonicalize
+# some values or help the comment form react to a change in the global login
+# state.
+# - $remote: the current logged-in LJ::User, or undef, OR the just-now
+# authenticated OpenID user (which is why we can't just get_remote from within).
 # - $journalu: LJ::User who owns the journal the comment was submitted to. Need
 # this for storing pending comments in first pass through openid auth, and also
 # we use it to switch off between variant error messages.
-# - $errret: an array ref to push errors onto. Actually, should probably
-# refactor this to just return an error instead; we only ever push one error,
-# since any error here is fatal.
-# - $didlogin: an optional scalar ref to indicate whether we started a new login
-# session. Only really used for an informational thing on an interstitial page
-# after commenting, which doesn't appear 100% reliably.
-# Returns one of:
-# - user object (authenticated user)
-# - undef (anon)
-# - string with URL (openid first pass)
+# Returns: (1, result) on success, (0, error) on failure. result is one of:
+# - {user => $u, didlogin => $bool} ($u is undef for anons)
+# - {check_url => $url} (openid redirect)
 sub authenticate_user_and_mutate_form {
-    my ( $form, $remote, $journalu, $errret, $didlogin ) = @_;
+    my ( $form, $remote, $journalu ) = @_;
+
+    my $didlogin = 0;
 
     my $err = sub {
         my $error = shift;
-        push @$errret, $error;
-        return undef;
+        return (0, $error);
     };
     my $mlerr = sub {
         return $err->( LJ::Lang::ml(@_) );
@@ -279,43 +290,44 @@ sub authenticate_user_and_mutate_form {
     my $incoherent = sub {
         return $mlerr->("/talkpost_do.tt.error.confused_identity");
     };
+    my $got_user = sub {
+        my $user = shift;
+        return (1, {user => $user, didlogin => $didlogin});
+    };
 
-    # just so we only have to check this once.
-    unless (ref $didlogin eq 'SCALAR') {
-        my $throwaway = 0;
-        $didlogin = \$throwaway;
-    }
-
-    # User stuff!
-    # usertype - One of the following, with the following extra fields
-        # anonymous
-            # nothing
-        # openid
-            # oidurl
-            # oiddo_login
-        # openid_cookie
-            # nothing, OR:
-            # cookieuser (= ext_1234) (QR)
-        # cookieuser (currently logged in user)
-            # cookieuser (= username)
-        # user (non-logged-in user, w/ name/password provided in the form)
-            # userpost - The username provided in the form
-            # password
+    # The "usertype" field must be one of the following. (Each value might have
+    # some associated fields it expects, which are shown as nested lists.)
+    # - anonymous
+    #   - (nothing)
+    # - openid
+    #   - oidurl
+    #   - oiddo_login
+    # - openid_cookie
+    #   - (nothing) (in talkform), OR:
+    #   - cookieuser (= ext_1234) (in quickreply)
+    # - cookieuser (currently logged in user)
+    #   - cookieuser (= username) (yes, "cookieuser" is the field's name)
+    # - user (non-logged-in user, w/ name/password provided)
+    #   - userpost (the username provided in the form)
+    #   - password
+    #   - do_login
 
     # CHECKLIST:
-    # 1. Check for incoherent combinations of fields. Most of these can only
-    # happen if javascript is disabled. From what I've been told, there used to
-    # be rare conditions where it would straight-up post as the wrong user; who
-    # knows if that's somehow still true, but regardless, if we got conflicting
-    # information, then the user's intention was not clear and we need to ask
-    # them to clarify, because they might have meant it either way.
+    # 1. Check for incoherent combinations of fields. (Most can only happen with
+    # JS disabled. I'm told there were once cases where it could post as the
+    # wrong user, possibly without auth; who knows. But regardless, conflicting
+    # info means the user's intention was not clear and they must clarify.)
     # 2. Validate the specified user type's credentials.
-    # 3. If validated, return the LJ::User object for that user.
+    # 3. If validated, return the relevant user object.
+    # 4. OpenID is weird.
+    # NOTA BENE: This long "if" statement is tedious and stupid, and I'm well
+    # aware there's several cleverer and more exciting ways to write it. But
+    # don't. KEEP IT STUPID. KEEP IT SAFE. </gandalf voice> -NF, 2020
     if ( $form->{usertype} eq 'anonymous' ) {
         if ($form->{oidurl} || $form->{userpost}) {
             return $incoherent->();
         }
-        return undef; # Well! that was easy.
+        return $got_user->(undef); # Well! that was easy.
     } elsif ( $form->{usertype} eq 'cookieuser' ) {
         if ($form->{oidurl}) {
             return $incoherent->();
@@ -329,7 +341,7 @@ sub authenticate_user_and_mutate_form {
 
         # OK! Check if that's the logged-in user.
         if ( $remote && ($remote->user eq $form->{cookieuser}) ) {
-            return $remote; # Cool.
+            return $got_user->($remote); # Cool.
         } else {
             return $mlerr->("/talkpost_do.tt.error.lostcookie");
         }
@@ -345,7 +357,7 @@ sub authenticate_user_and_mutate_form {
         }
 
         my $exptype;    # set to long if ! after username
-        my $ipfixed;    # set to remote  ip if < after username
+        my $ipfixed;    # set to remote ip if < after username
 
         # Parse inline login options.
         # MUTATE FORM: remove trailing garbage from username.
@@ -390,59 +402,48 @@ sub authenticate_user_and_mutate_form {
 
         # if the user chooses to log in, do so
         if ( $form->{do_login} ) {
-            $$didlogin = $up->make_login_session( $exptype, $ipfixed );
-            # MUTATE FORM: change the usertype if they logged in, so they don't
-            # have to re-type their password if they hit an unrelated error
-            # (captcha whiff, etc.) and are already logged in.
+            $didlogin = $up->make_login_session( $exptype, $ipfixed );
+            # MUTATE FORM: change the usertype, so if they need to fix an
+            # unrelated error and are already logged in, the form uses the
+            # "currently logged-in user" option.
             $form->{usertype} = 'cookieuser';
             $form->{cookieuser} = $up->user;
         }
 
-        return $up;
+        return $got_user->($up);
     } elsif ( $form->{usertype} eq 'openid' || $form->{usertype} eq 'openid_cookie' ) {
-        # Okay: This one's weird.
-        # - If they're already logged in, $remote is set and we just let them
-        # through. We don't bother to compare against $form->{cookieuser} for a
-        # "lost cookie" error, because it doesn't get set consistently;
-        # quick-reply includes it, but talkform doesn't.
-        # - If they're not logged in, the authentication happens in two passes.
-        # - On the first pass, we store the current state of the form to the
-        # database, bail out, and tell the caller to redirect to the
-        # authentication server by returning a string with a URL. The caller is
-        # responsible for actually doing the redirect!
-        # - The authentication server then kicks the user back to /talkpost_do
-        # as a GET request. The Talk controller looks up and reconstructs their
-        # frozen form info, and calls THIS function (or the thing that calls it)
-        # a second time, passing the user who just authenticated as $remote.
-        # - On the second pass, our passed-in $remote HAS to be set to the
-        # openid user, even if it's a one-off comment and not a login session.
+        # Okay: This one's weird, but mostly just because the code order is
+        # backwards from how things happen irl, WHICH IS:
+        # - Person supplies OpenID URL.
+        # - We store the form to the database, bail out, and tell the caller to
+        # redirect to an authentication server URL. (The URL also tells the auth
+        # server where to redirect to once IT'S done.)
+        # - Auth server sends them back to /talkpost_do, but as a GET request
+        # instead of a POST.
+        # - Controller restores their frozen POST data from last time and calls
+        # this function again, passing the newly authenticated user as $remote.
         # (This is why we're not using LJ::get_remote in this function, btw.)
-        # So, openid_cookie and the second pass of openid act the same way.
-        # - If they put trailing garbage on their auth URL to configure their
-        # login session, we stash it in the form before freezing it, since
-        # that's the only convenient way to preserve it through to the second
-        # pass (where we actually set the login session).
+        # - Since $remote is set, we let them through.
 
-        # So, if $remote is set, then they were already authenticated before
-        # they got here, and we let them in.
+        # If $remote looks good, they're in.
         if ( $remote && defined $remote->openid_identity ) {
 
             # Go ahead and log in, if requested.
             if ( $form->{oiddo_login} ) {
-                $$didlogin = $remote->make_login_session( $form->{exptype}, $form->{ipfixed} );
+                # Those extra form vars got stored last time, see below.
+                $didlogin = $remote->make_login_session( $form->{exptype}, $form->{ipfixed} );
                 # MUTATE FORM: change the usertype if they logged in, so
                 # things look more consistent if they hit an unrelated error
-                # (captcha whiff, etc.) and are already logged in.
                 $form->{usertype} = 'openid_cookie';
             }
 
-            return $remote; # welcome home
+            return $got_user->($remote); # welcome back
         } else {
 
             # If this is your first time at Tautology Club... you've never been
             # here before.
 
-            return $err->("No OpenID identity URL entered") unless $form->{'oidurl'};
+            return $err->("No OpenID identity URL entered") unless $form->{oidurl};
 
             my $csr     = LJ::OpenID::consumer();
             my $exptype = 'short';
@@ -467,15 +468,14 @@ sub authenticate_user_and_mutate_form {
                 return $err->( "No claimed id: " . $csr->err );
             }
 
-            # Store their cleaned up identity url vs what they
-            # actually typed in.
-            # MUTATE FORM: clean up oidurl
+            # Store their cleaned up identity url (vs. what they actually typed.)
+            # MUTATE FORM: canonicalize oidurl
             $form->{oidurl} = $claimed_id->claimed_url();
 
             # Store the entry
             my $pendcid = LJ::alloc_user_counter( $journalu, "C" );
 
-            $err->("Unable to allocate pending id") unless $pendcid;
+            return $err->("Unable to allocate pending id") unless $pendcid;
 
             # persist login options in the form data, since we removed them from
             # the oidurl
@@ -488,24 +488,27 @@ sub authenticate_user_and_mutate_form {
             return $err->("Unable to get database handle to store pending comment")
                 unless $journalu->writer;
 
+            my $journalid = $journalu->id;
+
             $journalu->do(
 "INSERT INTO pendcomments (jid, pendcid, data, datesubmit) VALUES (?, ?, ?, UNIX_TIMESTAMP())",
-                undef, $journalu->{'userid'}, $pendcid, $penddata
+                undef, $journalid, $pendcid, $penddata
             );
 
-            # Don't redirect them if errors
             return $err->( $journalu->errstr ) if $journalu->err;
 
             my $check_url = $claimed_id->check_url(
-                return_to => "$LJ::SITEROOT/talkpost_do?jid=$journalu->{'userid'}&pendcid=$pendcid",
+                return_to => "$LJ::SITEROOT/talkpost_do?jid=$journalid&pendcid=$pendcid",
                 trust_root     => "$LJ::SITEROOT",
                 delayed_return => 1,
             );
 
-            # Returning a string instead of undef or an LJ::User! Caller must
-            # eventually redirect to this URL.
-            return $check_url;
+            # Caller must redirect to this URL.
+            return (1, {check_url => $check_url});
         }
+    }
+    else {
+        return $err->("Reply form was submitted without any user information.");
     }
 }
 

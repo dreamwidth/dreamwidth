@@ -3,7 +3,7 @@
 
 .error.badusername2=The [[sitename]] username you specified does not exist. You can recover your username <a [[aopts]]>here</a> if you've forgotten it, or you may post as "Anonymous" instead.
 
-.error.badrequest=Comment not posted: POST required, or missing parameter.
+.error.badrequest=Comment not posted: POST required. This page doesn't do anything unless you come here by submitting a comment form, and it looks like you didn't do that.
 
 .error.banned=You are not allowed to post in this user's journal.
 
@@ -15,7 +15,7 @@
 
 .error.blankmessage=Your message is blank.  Please enter something in the message field.
 
-.error.confused_identity=You entered an account name but selected "post anonymously" or as the currently logged in account.  Please clear the textbox or select the correct posting mode and try again.
+.error.confused_identity=You entered contradictory account information (for example: selected "post anonymously" but also provided a username). We don't want to take a guess and risk doing the wrong thing, so please clear any unrelated text fields or select the correct posting mode and try again.
 
 .error.deleted=Your journal has been deleted.  You can't post messages.
 
@@ -43,6 +43,10 @@
 
 .error.nocomments=Comments are disabled on this entry.
 
+.error.nodb=No database connection present. Please go back and try again.
+
+.error.nojournal=Unknown journal. Please go back and try again.
+
 .error.noopenid=OpenID users aren't authorized to reply to this entry.
 
 .error.noopenidpost=You must <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address before you can comment.
@@ -68,6 +72,10 @@
 .error.nousername.noanon.comm=You did not enter your [[sitename]] username and this community does not allow anonymous commenting. Please go back and enter your [[sitename]] username and password to comment.
 
 .error.noverify2=You can't post comments until your email address has been confirmed. If you've lost the confirmation email, you can <a [[aopts]]>have it re-sent</a>.
+
+.error.openid.nodb=Unable to load user or get database handle.
+
+.error.openid.nopending=Unable to load pending comment; maybe you took too long.
 
 .error.postshared=You can't post as a community account.
 
