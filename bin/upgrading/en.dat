@@ -4211,9 +4211,7 @@ talk.error.nocomment=This comment doesn't exist.
 
 talk.error.noentry=No such entry.
 
-talk.error.nojournal=Error: couldn't determine journal from arguments.
-
-talk.error.nosuchjournal=No such journal
+talk.error.nojournal=No such journal.
 
 talk.error.notauthorised=You're not authorized to view this protected entry.
 

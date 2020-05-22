@@ -244,127 +244,6 @@ sub link_bar {
     return $ret;
 }
 
-sub init {
-    my ($form) = @_;
-    my $init = {};    # structure to return
-
-    my $journal = $form->{'journal'};
-    my $ju      = undef;
-    my $item    = undef;                # hashref; journal item conversation is in
-
-    # defaults, to be changed later:
-    $init->{'itemid'}    = ( $form->{'itemid'} || 0 ) + 0;
-    $init->{'ditemid'}   = $init->{'itemid'};
-    $init->{'thread'}    = ( $form->{'thread'} || 0 ) + 0;
-    $init->{'dthread'}   = $init->{'thread'};
-    $init->{'clustered'} = 0;
-    $init->{'replyto'}   = ( $form->{'replyto'} || 0 ) + 0;
-    $init->{'style'}     = $form->{'style'}
-        if $form->{style} && $form->{style} =~ /^(?:mine|light)$/;
-
-    if ($journal) {
-
-        # they specified a journal argument, which indicates new style.
-        $ju = LJ::load_user($journal);
-        return { 'error' => BML::ml('talk.error.nosuchjournal') } unless $ju;
-        return { 'error' => BML::ml('talk.error.purged') } if $ju->is_expunged;
-
-        LJ::assert_is( $ju->{user}, lc $journal );
-        $ju->selfassert;
-
-        $init->{'clustered'} = 1;
-        foreach (qw(itemid replyto)) {
-            next unless $init->{$_};
-            $init->{'anum'} = $init->{$_} % 256;
-            $init->{$_} = int( $init->{$_} / 256 );
-            last;
-        }
-        $init->{'thread'} = int( $init->{'thread'} / 256 )
-            if $init->{'thread'};
-    }
-    else {
-        return { 'error' => BML::ml('talk.error.noentry') };
-    }
-
-    $init->{'journalu'} = $ju;
-    return $init;
-}
-
-# $u, $itemid
-sub get_journal_item {
-    my ( $u, $itemid ) = @_;
-    return unless $u && $itemid;
-
-    my $uid = $u->{'userid'} + 0;
-    $itemid += 0;
-
-    my $item = LJ::get_log2_row( $u, $itemid );
-    return undef unless $item;
-
-    $item->{'alldatepart'} = LJ::alldatepart_s2( $item->{'eventtime'} );
-
-    $item->{'itemid'}  = $item->{'jitemid'};      # support old & new keys
-    $item->{'ownerid'} = $item->{'journalid'};    # support old & news keys
-
-    my $lt = LJ::get_logtext2( $u, $itemid );
-    my $v  = $lt->{$itemid};
-    $item->{'subject'} = $v->[0];
-    $item->{'event'}   = $v->[1];
-
-    ### load the log properties
-    my %logprops = ();
-    LJ::load_log_props2( $u->{'userid'}, [$itemid], \%logprops );
-    $item->{'props'} = $logprops{$itemid} || {};
-
-    if ( $logprops{$itemid}->{'unknown8bit'} ) {
-        LJ::item_toutf8( $u, \$item->{'subject'}, \$item->{'event'},
-            $item->{'logprops'}->{$itemid} );
-    }
-    return $item;
-}
-
-sub check_viewable {
-    my ( $remote, $item, $form, $errref ) = @_;
-
-    # note $form no longer used
-
-    my $err = sub {
-        $$errref = "<?h1 <?_ml Error _ml?> h1?><?p $_[0] p?>";
-        return 0;
-    };
-
-    my $ent = LJ::Entry->new_from_item_hash($item)
-        or die "Unable to construct entry object.\n";
-    return 1 if $ent->visible_to($remote);
-
-    my $apache_r = BML::get_request();
-
-    # this checks to see why the logged-in user is not allowed to see
-    # the given content.
-    if ( defined $remote ) {
-        my $journal     = LJ::load_userid( $item->{ownerid} );
-        my $journalname = $journal->username;
-
-        if (   $journal->is_community
-            && !$journal->is_closed_membership
-            && $remote
-            && $item->{security} ne "private" )
-        {
-            $apache_r->notes->{error_key}   = ".comm.open";
-            $apache_r->notes->{journalname} = $journalname;
-        }
-        elsif ( $journal->is_community && $journal->is_closed_membership ) {
-            $apache_r->notes->{error_key}   = ".comm.closed";
-            $apache_r->notes->{journalname} = $journalname;
-        }
-    }
-
-    $apache_r->notes->{internal_redir} = "/protected";
-    $apache_r->notes->{returnto}       = LJ::create_url( undef, keep_args => 1 );
-    return 0;
-
-}
-
 # <LJFUNC>
 # name: LJ::Talk::can_delete
 # des: Determines if a user can delete a comment or entry: You can
@@ -2331,11 +2210,12 @@ sub blockquote {
 "<blockquote style='border-left: #000040 2px solid; margin-left: 0px; margin-right: 0px; padding-left: 15px; padding-right: 0px'>$a</blockquote>";
 }
 
+# Mutates received $comment hashref, adding talkid
 sub enter_comment {
     my ( $journalu, $parent, $item, $comment, $errref ) = @_;
 
     my $partid = $parent->{talkid};
-    my $itemid = $item->{itemid};
+    my $itemid = $item->jitemid;
 
     my $err = sub {
         $$errref = join( ": ", @_ );
@@ -2398,7 +2278,7 @@ sub enter_comment {
             $db    = LJ::get_db_writer();
             $table = "talkleft_xfp";
         }
-        my $pub = $item->{'security'} eq "public" ? 1 : 0;
+        my $pub = $item->security eq "public" ? 1 : 0;
         if ($db) {
             $db->do(
                 "INSERT INTO $table (userid, posttime, journalid, nodetype, "
@@ -2669,10 +2549,51 @@ sub enter_imported_comment {
     return $jtalkid;
 }
 
+# LJ::Talk::Post::init
+# Normalizes and prepares a submitted comment, before we try to do anything
+# permanent with it. Returns either undef (in which case caller is expected to
+# bail and do something useful with the errors that got appended to the
+# now-mutated $errret array ref), or {check_url => 'url'} (if it's one half of
+# an openid login loop), or an "init" hashref containing several
+# important items:
+# - comment: hashref representing the comment to be posted.
+# - item: LJ::Entry object for the entry the comment is ultimately replying to.
+# - parent: hashref with minimal information about the comment being replied to (if any).
+# - journalu: LJ::User object for the owner of the journal the comment is being posted to.
+# - entryu: LJ::User object for the author of the entry the comment is being
+#   posted to. (different from journalu if it's a community entry.)
+# - talkurl: item->url
+# - itemid, ditemid, replyto, style: various info fragments
+# - didlogin: results of an attempt to log in, but only for site users, not openid. (fixme.)
+# - parpost: a talk2 row hashref for the comment being replied to, if any.
+# - unknown8bit: always false. IDEK.
+# Also does some other things:
+# - Changes the currently logged-in user, if applicable.
+# - Mutates $need_captcha (scalar ref) to signal to caller whether a captcha is needed.
+# - Mutates $form:
+    # userpost and usertype (and cookieuser?)
+    # removes trailing ! and < from userpost and oidurl
+    # canonicalizes oidurl
+    # sets exptype, etime, ipfixed (stashing login options for openid)
+    # translates encoding of body and subject, if encoding was specified in the form
+    #   (can't seem to track down the circumstances where that would happen)
+    # munges line endings in body to unix
+    # trims subject
+    # sets want (consumed by captcha check)
+#
+# Only ever called by LJ::Comment->create and
+# DW::Controller::Talk::talkpost_do_handler
 sub init {
     my ( $form, $remote, $need_captcha, $errret ) = @_;
-    my $sth;
+    # We rely on a passed $remote instead of calling LJ::get_remote, because
+    # OpenID users logging in via the reply form go through a two-phase process;
+    # after they've been authenticated, this function gets called a second time
+    # with a "fake" remote for that user.
 
+    # These helpers add errors to $errret. If that was the last error / cleanup
+    # that needed to be handled, you can then return early and let init's caller
+    # sort it out. If you think there might be more errors that need handling, I
+    # guess you can continue? -NF
     my $err = sub {
         my $error = shift;
         push @$errret, $error;
@@ -2682,14 +2603,49 @@ sub init {
         return $err->( LJ::Lang::ml(@_) );
     };
 
-    my $init = LJ::Talk::init($form);
-    return $err->( $init->{error} ) if $init->{error};
+    # Inlined from the old LJ::Talk::init -NF
 
-    my $journalu = $init->{'journalu'};
+    my $init = {};    # structure to return
+
+    # Structure: these defaults belong in the "real" init.
+
+    # defaults, to be changed later:
+    $init->{'itemid'}    = ( $form->{'itemid'} || 0 ) + 0; # entry ditemid
+    $init->{'ditemid'}   = $init->{'itemid'};
+    $init->{'replyto'}   = ( $form->{'replyto'} || 0 ) + 0; # parent comment or 0
+    $init->{'style'}     = $form->{'style'}
+        if $form->{style} && $form->{style} =~ /^(?:mine|light)$/;
+
+    # refresher course:
+    # - jitemid is the real, sequential per-user ID of an entry. (itemid here is a jitemid.)
+    # - anum is a random byte (0-255) permanently attached to an entry.
+    # - ditemid is the stable obfuscated (display) ID of an entry, (jitemid * 256) + anum.
+    # - apparently same for jtalkid and dtalkid (dtid?) (using entry's anum)
+    # - this isn't about security; it's about the comfort of (most) human
+    # readers, for whom in-head bitwise math is hard but noticing a gap in a
+    # sequence of integers (indicating a locked post) is involuntary.
+
+    my $journal = $form->{'journal'};
+    return $mlerr->('talk.error.noentry') unless $journal;
+
+    my $journalu = LJ::load_user($journal);
     return $mlerr->('talk.error.nojournal') unless $journalu;
+    LJ::assert_is( $journalu->{user}, lc $journal );
+    $journalu->selfassert;
+    return $mlerr->('talk.error.purged') if $journalu->is_expunged;
     return $err->($LJ::MSG_READONLY_USER) if $journalu->is_readonly;
-
     return $err->("Account is locked, unable to post or edit a comment.") if $journalu->is_locked;
+
+    $init->{'journalu'} = $journalu;
+
+    foreach (qw(itemid replyto)) { # itemid is always present, so replyto never gets munged. If it did, things might break, so, lucky. -NF
+        next unless $init->{$_};
+        $init->{'anum'} = $init->{$_} % 256;
+        $init->{$_} = int( $init->{$_} / 256 );
+        last;
+    }
+
+    # end of old LJ::Talk::init -NF
 
     my $r = DW::Request->get;
     $r->note( 'journalid', $journalu->userid ) if $r;
@@ -2699,32 +2655,47 @@ sub init {
 
     my $itemid = $init->{'itemid'} + 0;
 
-    my $item = LJ::Talk::get_journal_item( $journalu, $itemid );
+    my $item = LJ::Entry->new( $journalu, jitemid => $itemid );
 
-    if ( $init->{'oldurl'} && $item ) {
-        $init->{'anum'}    = $item->{'anum'};
-        $init->{'ditemid'} = $init->{'itemid'} * 256 + $item->{'anum'};
-    }
-
-    unless ( $item && $item->{'anum'} == $init->{'anum'} ) {
+    unless ( $item && ($item->anum == $init->{'anum'}) ) {
         return $mlerr->('talk.error.noentry');
     }
 
-    my $iprops  = $item->{'props'};
     my $ditemid = $init->{'ditemid'} + 0;
 
-    my $entry   = LJ::Entry->new( $journalu, ditemid => $ditemid );
-    my $talkurl = $entry->url;
+    my $talkurl = $item->url;
     $init->{talkurl} = $talkurl;
 
-    ### load users
-    LJ::load_userids_multiple(
-        [
-            $item->{'posterid'} => \$init->{entryu},
-        ],
-        [$journalu]
-    );
+    $init->{entryu} = $item->poster;
 
+    # USER MUNGING STARTS HERE -NF
+    # Information read:
+    # $form
+    # $remote
+    # $journalu (...why? let's dig deeper on that one.)
+        # testacct -> testacct check
+        # ban check
+        # anon allowed check, for deciding which of two errors to throw if you didn't provide a username.
+        # doesn't allow unconfirmed openid check
+        # database writer and $pendcid generation for first pass through openid loop
+        # userid for constructing return URL in first pass through openid loop
+        # OKAY, so for all of those except the last two, I think they should move out of the main user loop.
+
+    # Information written:
+    # $up (user object, the primary output of all this)
+    # IMMEDIATE EARLY RETURN if first phase of openid auth.
+    # $init->{didlogin} (login succeeded?)
+    # $errret (via convenience functions, can push multiple errors)
+    # pendcomments database table
+    # $form->{userpost} and $form->{usertype} (chaos)
+
+    # This is the thing that causes errors if you submit the talkform with a
+    # username/password provided but didn't pick the site user option.
+    # Supposedly this was put in place for a good reason once upon a time, like
+    # there was some condition where it would post as a user you didn't mean to
+    # post as. More recently, we started disabling the user/pass fields entirely
+    # when unselected to stop an issue where some password managers would insert
+    # bad data at the last possible moment before submit. -NF
     if ( $form->{'userpost'} && $form->{'usertype'} ne "user" ) {
         unless ( $form->{'usertype'} eq "cookieuser"
             && $form->{'userpost'} eq $form->{'cookieuser'} )
@@ -2732,6 +2703,15 @@ sub init {
             $mlerr->("$SC.error.confused_identity");
         }
     }
+
+    # User stuff!
+    # usertype - One of the following:
+        # anonymous
+        # openid
+        # openid_cookie
+        # cookieuser (currently logged in user)
+        # user (non-logged-in user, w/ name/password provided in the form)
+    # userpost - The username provided in the form, if usertype is "user".
 
     my $cookie_auth;
 
@@ -2746,9 +2726,7 @@ sub init {
         $form->{'userpost'} = $remote->{'user'};
         $form->{'usertype'} = "user";
     }
-
-    # FIXME: XXXevan hack:  remove me when we fix preview.
-    $init->{cookie_auth} = $cookie_auth;
+    # $form HAS NOW BEEN MUTATED FOR THE FIRST TIME. Returning after this can have side effects, if form usertype was cookieuser. -NF
 
     # test accounts may only comment on other test accounts.
     if (   ( grep { $form->{'userpost'} eq $_ } @LJ::TESTACCTS )
@@ -2772,27 +2750,23 @@ sub init {
                 $exptype = 'long' if index( $1, "!" ) >= 0;
                 $ipfixed = LJ::get_remote_ip() if index( $1, "<" ) >= 0;
             }
+            # $form MUTATED AGAIN to remove login opts -NF
 
             $up = LJ::load_user( $form->{'userpost'} );
             if ($up) {
                 ### see if the user is banned from posting here
                 $mlerr->("$SC.error.banned$iscomm") if $journalu->has_banned($up);
 
-                # Reject OpenIDs that are neither validated nor granted access by the user
-                if (   $up->is_identity
-                    && $journalu->{'opt_whocanreply'} eq "reg"
-                    && !( $up->is_validated || $journalu->trusts($remote) ) )
-                {
-                    $mlerr->(
-                        "$SC.error.noopenidpost",
-                        {
-                            aopts1 => "href='$LJ::SITEROOT/changeemail'",
-                            aopts2 => "href='$LJ::SITEROOT/register'"
-                        }
+                if ( $up->is_identity ) {
+                    $err->("To comment as an OpenID user, you must choose the "
+                        . "OpenID option and authenticate with your identity provider; "
+                        . "it's not possible to log in using an OpenID account's "
+                        . "internal 'ext_12345' username. (Would have been a cool hack "
+                        . "tho, so nice try.)"
                     );
                 }
 
-                unless ( $up->is_person || ( $up->is_identity && $cookie_auth ) ) {
+                if ( $up->is_community || $up->is_syndicated ) {
                     $mlerr->("$SC.error.postshared");
                 }
 
@@ -2841,6 +2815,19 @@ sub init {
             ### see if the user is banned from posting here
             $mlerr->("$SC.error.banned") if $journalu->has_banned($up);
 
+            # Reject OpenIDs that are neither validated nor granted access by the user
+            if ( $journalu->does_not_allow_comments_from_unconfirmed_openid($up) )
+            {
+                $mlerr->(
+                    "$SC.error.noopenidpost",
+                    {
+                        aopts1 => "href='$LJ::SITEROOT/changeemail'",
+                        aopts2 => "href='$LJ::SITEROOT/register'"
+                    }
+                );
+            }
+
+            # Go ahead and log in, if requested.
             if ( $form->{'oiddo_login'} ) {
                 $up->make_login_session( $form->{'exptype'}, $form->{'ipfixed'} );
             }
@@ -2856,10 +2843,10 @@ sub init {
             if ( $form->{oidurl} =~ s/([!<]{1,2})$// ) {
                 if ( index( $1, "!" ) >= 0 ) {
                     $exptype = 'long';
-                    $etime   = time() + 60 * 60 * 24 * 60;
                 }
                 $ipfixed = LJ::get_remote_ip() if index( $1, "<" ) >= 0;
             }
+            # $form MUTATED AGAIN to remove inline login opts from oidurl -NF
 
             my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
 
@@ -2885,7 +2872,6 @@ sub init {
             # Since these were gotten from the oidurl and won't
             # persist in the form data
             $form->{'exptype'} = $exptype;
-            $form->{'etime'}   = $etime;
             $form->{'ipfixed'} = $ipfixed;
             my $penddata = Storable::freeze($form);
 
@@ -2911,7 +2897,12 @@ sub init {
         }
     }
 
+    # USER MUNGING ENDS HERE -NF
+
     # validate the challenge/response value (anti-spammer)
+    # This is distinct from the outdated challenge/response login method, and
+    # doesn't require any client-side md5 horseplay; it's just an expiring
+    # server-provided token that's impractical to forge. -NF
     my $chrp_err;
     if ( my $chrp = $form->{'chrp1'} ) {
         my ( $c_ditemid, $c_uid, $c_time, $c_chars, $c_res ) =
@@ -2946,9 +2937,7 @@ sub init {
     # check that user can even view this post, which is required
     # to reply to it
     ####  Check security before viewing this post
-    my $ent = LJ::Entry->new_from_item_hash($item)
-        or die "Unable to create entry object.\n";
-    unless ( $ent->visible_to($up) ) {
+    unless ( $item->visible_to($up) ) {
         $mlerr->("$SC.error.mustlogin") unless defined $up;
         $mlerr->("$SC.error.noauth");
         return undef;
@@ -2984,7 +2973,7 @@ sub init {
         $mlerr->("$SC.error.noanon$iscomm");
     }
 
-    if ( $ent->comments_disabled ) {
+    if ( $item->comments_disabled ) {
         $mlerr->("$SC.error.nocomments");
     }
 
@@ -3020,6 +3009,7 @@ sub init {
 
     # in case this post comes directly from the user's mail client, it
     # may have an encoding field for us.
+    # Hey yo what the hell. How could we possibly end up in this branch? mail from where? -NF
     if ( $form->{'encoding'} ) {
         $form->{'body'} = Unicode::MapUTF8::to_utf8(
             { -string => $form->{'body'}, -charset => $form->{'encoding'} } );
@@ -3031,6 +3021,7 @@ sub init {
     $form->{'body'} =~ s/\r\n/\n/g;
 
     # now check for UTF-8 correctness, it must hold
+    # FIXME HEY this is inline BML or something -NF
     return $err->("<?badinput?>") unless LJ::text_in($form);
 
     $init->{unknown8bit} = 0;
@@ -3227,6 +3218,8 @@ sub require_captcha_test {
 }
 
 # returns 1 on success.  0 on fail (with $$errref set)
+# Mutates its received $comment hashref, adding talkid, maybe setting state,
+# maybe removing picture_keyword.
 sub post_comment {
     my ( $entryu, $journalu, $comment, $parent, $item, $errref, $unscreen_parent ) = @_;
 
@@ -3237,7 +3230,7 @@ sub post_comment {
 
      # if parent comment is screened and we got this far, the user has the permission to unscreen it
      # in this case the parent comment needs to be unscreened and the comment posted as normal
-        LJ::Talk::unscreen_comment( $journalu, $item->{itemid}, $parent->{talkid} );
+        LJ::Talk::unscreen_comment( $journalu, $item->jitemid, $parent->{talkid} );
         $parent->{state} = 'A';
     }
     elsif ( $parent_state eq 'S' ) {
@@ -3273,7 +3266,7 @@ sub post_comment {
         );
         $memkey = [
             $journalu->{userid},
-            "tdup:$journalu->{userid}:$item->{itemid}-$parent->{talkid}-$posterid-$md5_b64"
+            "tdup:$journalu->{userid}:$item->jitemid-$parent->{talkid}-$posterid-$md5_b64"
         ];
         $jtalkid = LJ::MemCache::get($memkey);
     }
@@ -3288,8 +3281,7 @@ sub post_comment {
         $comment->{pic} = $pic;
 
         # put the post in the database
-        $item->{anum} ||= 0;    # avoid warning FIXME this should be done elsewhere
-        my $ditemid = $item->{itemid} * 256 + $item->{anum};
+        # This mutates $comment to add talkid
         $jtalkid = enter_comment( $journalu, $parent, $item, $comment, $errref );
         return 0 unless $jtalkid;
 
@@ -3297,7 +3289,8 @@ sub post_comment {
         LJ::MemCache::set( $memkey, $jtalkid + 0, time() + 60 * 10 );
     }
 
-    # the caller wants to know the comment's talkid.
+    # the caller wants to know the comment's talkid. (in case it wasn't already
+    # added by enter_comment.)
     $comment->{talkid} = $jtalkid;
 
     # cluster tracking
@@ -3313,12 +3306,13 @@ sub post_comment {
         ]
     );
 
-    LJ::Hooks::run_hooks( 'new_comment', $journalu->{userid}, $item->{itemid}, $jtalkid );
+    LJ::Hooks::run_hooks( 'new_comment', $journalu->{userid}, $item->jitemid, $jtalkid ); # This hook is never registered by anything in -free or -nonfree. -NF
 
     return 1;
 }
 
 # returns 1 on success.  0 on fail (with $$errref set)
+# mutates received $comment hashref, setting talkid.
 sub edit_comment {
     my ( $entryu, $journalu, $comment, $parent, $item, $errref ) = @_;
 
@@ -3373,7 +3367,7 @@ sub edit_comment {
     # If we need to rescreen the comment, do so now.
     my $state = $comment->{state} || "";
     if ( $state eq 'S' ) {
-        LJ::Talk::screen_comment( $journalu, $item->{itemid}, $comment->{talkid} );
+        LJ::Talk::screen_comment( $journalu, $item->jitemid, $comment->{talkid} );
     }
 
     # cluster tracking
@@ -3401,8 +3395,8 @@ sub edit_comment {
         ]
     );
 
-    LJ::Hooks::run_hooks( 'edit_comment', $journalu->{userid}, $item->{itemid},
-        $comment->{talkid} );
+    LJ::Hooks::run_hooks( 'edit_comment', $journalu->{userid}, $item->jitemid,
+        $comment->{talkid} ); # This hook is never registered by anything in -free or -nonfree. -NF
 
     return 1;
 }

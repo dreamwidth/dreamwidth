@@ -194,7 +194,7 @@ sub create {
     #        'cookieuser' with $remote passed below.  Gross.
     $talk_opts{cookieuser} ||= $posteru->user;
     $talk_opts{usertype}   ||= 'cookieuser';
-    $talk_opts{nodetype}   ||= 'L';
+    $talk_opts{nodetype}   ||= 'L';     # LJ::Talk::Post::init never uses this.
 
     ## init.  this handles all the error-checking, as well.
     my @errors = ();
@@ -205,7 +205,7 @@ sub create {
     # check max comments
     return $err->(
         "too_many_comments", "Sorry, this entry already has the maximum number of comments allowed."
-    ) if LJ::Talk::Post::over_maxcomments( $init->{journalu}, $init->{item}->{'jitemid'} );
+    ) if LJ::Talk::Post::over_maxcomments( $init->{journalu}, $init->{item}->jitemid );
 
     # no replying to frozen comments
     my $parent_state = $init->{parent}->{state} // '';

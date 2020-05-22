@@ -149,7 +149,7 @@ sub talkpost_do_handler {
     # check max comments only if posting a new comment (not when editing)
     unless ($editid) {
         return error_ml('.error.maxcomments')
-            if LJ::Talk::Post::over_maxcomments($journalu, $item->{'jitemid'});
+            if LJ::Talk::Post::over_maxcomments($journalu, $item->jitemid);
     }
 
     # no replying to frozen comments
@@ -157,9 +157,8 @@ sub talkpost_do_handler {
         if $parent->{state} eq 'F';
 
     # no replying to suspended entries, even by entry poster
-    my $entry = LJ::Entry->new($journalu, jitemid => $item->{jitemid});
     return error_ml('/talkpost.bml.error.noreply_suspended')
-        if $entry && $entry->is_suspended;
+        if $item && $item->is_suspended;
 
     # no replying to entries/comments in an entry where the remote user or journal are read-only
     return error_ml('/talkpost.bml.error.noreply_readonly_remote')
