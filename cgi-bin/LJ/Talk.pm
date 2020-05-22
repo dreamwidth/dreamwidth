@@ -3419,7 +3419,7 @@ sub make_preview {
     # preview form
 
     $ret .=
-"<?h2 $BML::ML{'/talkpost_do.bml.preview.title'} h2?><?p $BML::ML{'/talkpost_do.bml.preview'} p?><?hr?>";
+"<h2>$BML::ML{'/talkpost_do.bml.preview.title'}</h2><p>$BML::ML{'/talkpost_do.bml.preview'}</p><hr>";
 
     my $cleansubject = $form->{'subject'};
     LJ::CleanHTML::clean_subject( \$cleansubject );
@@ -3442,7 +3442,7 @@ sub make_preview {
     if ( defined($cleanok) && $LJ::SPELLER && $form->{'do_spellcheck'} ) {
         my $s = new LJ::SpellCheck {
             'spellcommand' => $LJ::SPELLER,
-            'color'        => '<?hotcolor?>',
+            'color'        => '#ff0000',
         };
         $spellcheck_html = $s->check_html( \$event, 1 );
 
@@ -3458,7 +3458,7 @@ sub make_preview {
         $ret .= $remote->ljuser_display;
     }
     elsif ( $form->{'usertype'} eq 'openid' ) {
-        $ret .= BML::ml( ".preview.unauthenticated_openid", { openid => $form->{oidurl} } );
+        $ret .= BML::ml( "/talkpost_do.bml.preview.unauthenticated_openid", { openid => $form->{oidurl} } );
     }
     else {    # anonymous usertype or not logged in
         $ret .= $BML::ML{'/talkpost_do.bml.preview.anonymous'};
@@ -3565,21 +3565,21 @@ sub make_preview {
     $ret .= LJ::help_icon_html( "noautoformat", " " );
     $ret .= "</p>";
 
-    $ret .= "<p> <?de " . LJ::Lang::ml('/journal/talkform.tt.allowedhtml') . ": ";
+    $ret .= "<p>" . LJ::Lang::ml('/journal/talkform.tt.allowedhtml') . ": ";
     foreach ( sort &LJ::CleanHTML::get_okay_comment_tags() ) {
         $ret .= "&lt;$_&gt; ";
     }
-    $ret .= "de?> </p>";
+    $ret .= "</p>";
 
     $ret .= "</form></div>";
 
     # entry details
     my $entry = LJ::Entry->new_from_url($talkurl);
     if ( $entry && $entry->visible_to($remote) ) {
-        $ret .= "<?hr?><?h2 $BML::ML{'/talkpost_do.bml.preview.context'} h2?>";
+        $ret .= "<hr><h2>$BML::ML{'/talkpost_do.bml.preview.context'}</h2>";
 
         if ( my $ju = $entry->journal ) {
-            $ret .= "<?p ";
+            $ret .= "<p>";
 
             my $pu = $entry->poster;
             if ( $pu && !$pu->equals($ju) ) {
@@ -3597,10 +3597,10 @@ sub make_preview {
             my $etime = LJ::mysqldate_to_time( $entry->eventtime_mysql );
             $ret .= " @ " . LJ::S2::sitescheme_secs_to_iso($etime);
 
-            $ret .= " p?>\n";
+            $ret .= "</p>\n";
         }
 
-        $ret .= "<?p ";
+        $ret .= "<p>";
         ### security indicator
         my $sec = $entry->security;
         if ( $sec eq "private" ) {
@@ -3610,7 +3610,7 @@ sub make_preview {
             $ret .= BML::fill_template("securityprotected");
         }
         $ret .= "&nbsp;<i><b>" . $entry->subject_html . "</b></i>";
-        $ret .= " p?>\n";
+        $ret .= "</p>\n";
 
         my $cleanopts = {
             preformatted => $entry->prop('opt_preformatted'),
@@ -3619,10 +3619,10 @@ sub make_preview {
         my $truncated;
         my $summary = $entry->event_html_summary( 1000, $cleanopts, \$truncated );
 
-        $ret .= "<?p ";
+        $ret .= "<p>";
         $ret .= $summary;
         $ret .= "..." if $truncated;
-        $ret .= " p?>\n";
+        $ret .= "</p>\n";
     }
 
     $ret .=
