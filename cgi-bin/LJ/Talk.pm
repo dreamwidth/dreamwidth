@@ -1744,8 +1744,9 @@ sub init_iconbrowser_js {
     # There are three separate implementations of the icon browser.
 
     # The New-New Icon Browser: Depends on Foundation CSS/JS (either site skin
-    # or minimal version). Used on: New entry page (if in "updatepage" beta),
-    # quickreply and talkform on journal pages (if in "s2foundation" beta).
+    # or minimal version). Used on: Create entry page (if in "updatepage" beta),
+    # quickreply and talkform on journal pages and on talkpost_do (if in
+    # "s2foundation" beta).
     LJ::need_res(
         { group => 'foundation' },
 
@@ -1755,9 +1756,9 @@ sub init_iconbrowser_js {
         'stc/css/components/icon-browser.css',
     );
 
-    # The Old-New Icon Browser: Depends on jQuery. Used on: Quick-reply and
-    # talkform on journal pages (if NOT in "s2foundation" beta), talkform on
-    # talkpost_do.bml (always), preview page (always).
+    # The Old-New Icon Browser: Depends on jQuery; only used if NOT in the
+    # "s2foundation" beta. Used on: Quick-reply and talkform on journal pages,
+    # talkform on talkpost_do for errors/previews .
     LJ::need_res(
         { group => 'jquery' },
 
