@@ -401,7 +401,7 @@ sub t_enter_comment {
         parenttalkid => $parenttalkid,
     };
 
-    my ($ok, $talkid_or_err) = LJ::Talk::Post::post_comment( $commentref );
+    my ( $ok, $talkid_or_err ) = LJ::Talk::Post::post_comment($commentref);
 
     unless ($ok) {
         die "Could not post comment: $talkid_or_err";

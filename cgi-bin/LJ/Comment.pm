@@ -168,7 +168,7 @@ sub create {
 
     # to prepare the comment, we need an LJ::Entry object, so go get one.
     my $ditemid = delete $opts{ditemid};
-    my $entry = LJ::Entry->new($journalu, ditemid => $ditemid);
+    my $entry   = LJ::Entry->new( $journalu, ditemid => $ditemid );
 
     # Strictly parameters check. Do not allow any unused params to be passed in.
     return $err->(
@@ -185,15 +185,14 @@ sub create {
     }
 
     ## init.  this handles all the error-checking, as well.
-    my @errors = ();
-    my $comment = LJ::Talk::Post::prepare_and_validate_comment(
-        \%talk_opts, $posteru, $entry, \$need_captcha, \@errors
-    );
+    my @errors  = ();
+    my $comment = LJ::Talk::Post::prepare_and_validate_comment( \%talk_opts, $posteru, $entry,
+        \$need_captcha, \@errors );
     return $err->( "init_comment", join "\n" => @errors )
         unless defined $comment;
 
     ## insertion
-    my ($ok, $talkid_or_err) = LJ::Talk::Post::post_comment($comment);
+    my ( $ok, $talkid_or_err ) = LJ::Talk::Post::post_comment($comment);
     unless ($ok) {
         return $err->( "post_comment", $talkid_or_err );
     }

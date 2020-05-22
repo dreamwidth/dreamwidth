@@ -9,7 +9,7 @@ use Carp;
 DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 
 sub talkpost_do_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1);
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
@@ -33,19 +33,22 @@ sub talkpost_do_handler {
 
     # If this is a GET (not POST), see if they're coming back from an OpenID
     # identity server. If so, restore the POST hash we saved before they left.
-    if (($GET->{'openid.mode'} eq 'id_res' || $GET->{'openid.mode'} eq 'cancel') && $GET->{jid} && $GET->{pendcid}) {
-        my $csr = LJ::OpenID::consumer($GET->mixed);
+    if (   ( $GET->{'openid.mode'} eq 'id_res' || $GET->{'openid.mode'} eq 'cancel' )
+        && $GET->{jid}
+        && $GET->{pendcid} )
+    {
+        my $csr = LJ::OpenID::consumer( $GET->mixed );
 
-        if ($GET->{'openid.mode'} eq 'id_res') { # Verify their identity
+        if ( $GET->{'openid.mode'} eq 'id_res' ) {    # Verify their identity
 
-            unless ( LJ::check_referer('/talkpost_do', $GET->{'openid.return_to'}) ) {
+            unless ( LJ::check_referer( '/talkpost_do', $GET->{'openid.return_to'} ) ) {
                 return error_ml( '/openid/login.bml.error.invalidparameter',
-                                               { item => "return_to" } );
+                    { item => "return_to" } );
             }
 
             my $errmsg;
             my $uo = LJ::User::load_from_consumer( $csr, \$errmsg );
-            return $err_raw->( $errmsg ) unless $uo;
+            return $err_raw->($errmsg) unless $uo;
 
             # Change who we think we are. NB: don't use set_remote to ACTUALLY
             # change the remote, or you'll cause a glitch in the matrix. We just
@@ -56,11 +59,12 @@ sub talkpost_do_handler {
         # Restore their data to reset state where they were
         my $pendcid = $GET->{pendcid} + 0;
 
-        my $journalu = LJ::load_userid($GET->{jid});
+        my $journalu = LJ::load_userid( $GET->{jid} );
         return error_ml("/talkpost_do.tt.error.openid.nodb") unless $journalu && $journalu->writer;
 
-        my $pending = $journalu->selectrow_array("SELECT data FROM pendcomments WHERE jid=? AND pendcid=?",
-                                                 undef, $journalu->{userid}, $pendcid);
+        my $pending =
+            $journalu->selectrow_array( "SELECT data FROM pendcomments WHERE jid=? AND pendcid=?",
+            undef, $journalu->{userid}, $pendcid );
 
         return error_ml("/talkpost_do.tt.error.openid.nopending") unless $pending;
 
@@ -71,7 +75,9 @@ sub talkpost_do_handler {
         # Not fatal, maybe just decided to be someone else for this comment:
         push @errors, "You chose to cancel your identity verification"
             if $csr->user_cancel;
-    } elsif ( ! LJ::did_post() ) {
+    }
+    elsif ( !LJ::did_post() ) {
+
         # If it's a GET and you're NOT coming back from the OpenID dance, wyd
         return error_ml('/talkpost_do.tt.error.badrequest');
     }
@@ -86,7 +92,7 @@ sub talkpost_do_handler {
     # concern of the request handler, whether it's Protocol or a controller.)
     # Anyway... the point is it gets called eventually. -NF
 
-    my $journalu = LJ::load_user($POST->{journal});
+    my $journalu = LJ::load_user( $POST->{journal} );
     return error_ml('/talkpost_do.tt.error.nojournal') unless $journalu;
 
     # This launches some garbage into the void of the Apache "notes" system, and
@@ -103,30 +109,33 @@ sub talkpost_do_handler {
     my $talkurl = $entry->url;
 
     # validate the challenge/response value (anti-spammer)
-    my ($chrp_ok, $chrp_err) = LJ::Talk::validate_chrp1($POST->{'chrp1'});
+    my ( $chrp_ok, $chrp_err ) = LJ::Talk::validate_chrp1( $POST->{'chrp1'} );
     unless ($chrp_ok) {
         if ( $LJ::DEBUG{'talkspam'} ) {
-            my $ip = LJ::get_remote_ip();
+            my $ip    = LJ::get_remote_ip();
             my $ruser = $remote ? $remote->{user} : "[nonuser]";
-            carp( "talkhash error: from $ruser \@ $ip - $chrp_err - $talkurl\n" );
+            carp("talkhash error: from $ruser \@ $ip - $chrp_err - $talkurl\n");
         }
         if ($LJ::REQUIRE_TALKHASH) {
-            push @errors, "Sorry, form expired.  Press back, copy text, reload form, paste into new form, and re-submit." if $chrp_err eq "too_old";
+            push @errors,
+"Sorry, form expired.  Press back, copy text, reload form, paste into new form, and re-submit."
+                if $chrp_err eq "too_old";
             push @errors, "Missing parameters";
         }
     }
 
     ## Sort out who's posting for real.
-    my ($commenter, $didlogin);
-    my ($authok, $auth) = authenticate_user_and_mutate_form($POST, $remote, $journalu);
+    my ( $commenter, $didlogin );
+    my ( $authok, $auth ) = authenticate_user_and_mutate_form( $POST, $remote, $journalu );
     if ($authok) {
-        if ($auth->{check_url}) {
+        if ( $auth->{check_url} ) {
+
             # openid thing. Round and round we go.
             return $r->redirect( $auth->{check_url} );
         }
         else {
             $commenter = $auth->{user};
-            $didlogin = $auth->{didlogin};
+            $didlogin  = $auth->{didlogin};
         }
     }
     else {
@@ -141,13 +150,16 @@ sub talkpost_do_handler {
     my $real_remote = LJ::get_remote();
     if ( LJ::BetaFeatures->user_in_beta( $real_remote => "s2foundation" ) ) {
         LJ::set_active_resource_group("foundation");
-    } else {
+    }
+    else {
         LJ::set_active_resource_group("jquery");
     }
 
     ## Prepare the comment (or wipe out on the permissions/consistency checks)
     my $need_captcha = 0;
-    my $comment = LJ::Talk::Post::prepare_and_validate_comment($POST, $commenter, $entry, \$need_captcha, \@errors);
+    my $comment =
+        LJ::Talk::Post::prepare_and_validate_comment( $POST, $commenter, $entry, \$need_captcha,
+        \@errors );
 
     # If there's anything in @errors at the end of prepare_and_validate_comment,
     # it returns undef instead of a $comment, even if it wasn't the one to
@@ -163,7 +175,7 @@ sub talkpost_do_handler {
     # For most errors, we preview anyway; they can fix it while they edit
     # their text. But we DO need to know who they think they are, so let the
     # error path handle auth failures.
-    if ( $authok && $POST->{submitpreview}) {
+    if ( $authok && $POST->{submitpreview} ) {
 
         # yer a reply page, Harry. (keep consistent behavior by loading same
         # JS/CSS as journal pages.)
@@ -175,44 +187,43 @@ sub talkpost_do_handler {
 
         # Plus we're displaying entry/comment content, so the legacy site skins
         # need CSS for that.
-        LJ::need_res({group => 'jquery'},
-            'stc/siteviews/layout.css',
-            'stc/entrypage.css',
-        );
+        LJ::need_res( { group => 'jquery' }, 'stc/siteviews/layout.css', 'stc/entrypage.css', );
 
         # If validation failed, just use what we have on hand to build the preview.
         # Might theoretically have borked non-UTF-8, shrug.
         unless ($comment) {
             $comment = {
-                u => $commenter,
-                entry => $entry,
+                u      => $commenter,
+                entry  => $entry,
                 parent => {
                     talkid => $POST->{replyto} || $POST->{parenttalkid},
                 },
-                subject => $POST->{subject},
-                body => $POST->{body},
-                subjecticon => $POST->{subjecticon} eq 'none' ? '' : $POST->{subjecticon},
+                subject         => $POST->{subject},
+                body            => $POST->{body},
+                subjecticon     => $POST->{subjecticon} eq 'none' ? '' : $POST->{subjecticon},
                 preformat       => $POST->{'prop_opt_preformatted'},
                 admin_post      => $POST->{'prop_admin_post'},
                 picture_keyword => $POST->{'prop_picture_keyword'},
             };
         }
 
-        my $talkform = LJ::Talk::talkform({
-            journalu => $journalu,
-            parpost => $comment->{parent},
-            replyto => $comment->{parent}->{talkid},
-            ditemid => $comment->{entry}->ditemid,
-            do_captcha => $need_captcha,
-            errors      => @errors ? \@errors : undef,
-            form => $POST,
-        });
+        my $talkform = LJ::Talk::talkform(
+            {
+                journalu   => $journalu,
+                parpost    => $comment->{parent},
+                replyto    => $comment->{parent}->{talkid},
+                ditemid    => $comment->{entry}->ditemid,
+                do_captcha => $need_captcha,
+                errors     => @errors ? \@errors : undef,
+                form       => $POST,
+            }
+        );
 
-        $vars->{title} = '.title.preview';
+        $vars->{title}   = '.title.preview';
         $vars->{preview} = 1;
         $vars->{comment} = preview_comment_args($comment);
-        $vars->{parent} = preview_parent_args($comment);
-        $vars->{html} = $talkform;
+        $vars->{parent}  = preview_parent_args($comment);
+        $vars->{html}    = $talkform;
         return DW::Template->render_template( 'talkpost_do.tt', $vars );
     }
 
@@ -220,14 +231,14 @@ sub talkpost_do_handler {
     # Don't continue; report errors, ask for help, and regenerate the
     # form. We repopulate what we can via hidden fields, but the objects
     # (journalu & parpost) must be recreated here.
-    unless ( $comment ) {
-        my ($sth, $parpost);
+    unless ($comment) {
+        my ( $sth, $parpost );
         my $dbcr = LJ::get_cluster_def_reader($journalu);
         return error_ml('/talkpost_do.tt.error.nodb') unless $dbcr;
 
-        $sth = $dbcr->prepare("SELECT posterid, state FROM talk2 ".
-                              "WHERE journalid=? AND jtalkid=?");
-        $sth->execute($journalu->{userid}, $POST->{itemid}+0);
+        $sth = $dbcr->prepare(
+            "SELECT posterid, state FROM talk2 " . "WHERE journalid=? AND jtalkid=?" );
+        $sth->execute( $journalu->{userid}, $POST->{itemid} + 0 );
         $parpost = $sth->fetchrow_hashref;
 
         # yer a reply page, Harry. (keep consistent behavior by loading same
@@ -238,17 +249,19 @@ sub talkpost_do_handler {
             noqr        => 1
         );
 
-        my $talkform = LJ::Talk::talkform({
-            journalu    => $journalu,
-            parpost     => $parpost,
-            replyto     => $POST->{replyto} || $POST->{parenttalkid},
-            ditemid     => $POST->{itemid},
-            do_captcha  => $need_captcha,
-            errors      => \@errors,
-            form        => $POST,
-        });
+        my $talkform = LJ::Talk::talkform(
+            {
+                journalu   => $journalu,
+                parpost    => $parpost,
+                replyto    => $POST->{replyto} || $POST->{parenttalkid},
+                ditemid    => $POST->{itemid},
+                do_captcha => $need_captcha,
+                errors     => \@errors,
+                form       => $POST,
+            }
+        );
         $vars->{title} = '.title.error';
-        $vars->{html} = $talkform;
+        $vars->{html}  = $talkform;
         return DW::Template->render_template( 'talkpost_do.tt', $vars );
     }
 
@@ -257,21 +270,22 @@ sub talkpost_do_handler {
     # in), but the most common path is to silently redirect back to the thread
     # after posting.
 
-    my $parent   = $comment->{parent};
+    my $parent = $comment->{parent};
 
     my $unscreen_parent = $POST->{unscreen_parent} ? 1 : 0;
 
     # ACTUALLY POST IT
-    my $wasscreened = ($parent->{state} eq 'S');
+    my $wasscreened = ( $parent->{state} eq 'S' );
     my $talkid;
     if ($editid) {
-        my ($postok, $talkid_or_err) = LJ::Talk::Post::edit_comment($comment);
+        my ( $postok, $talkid_or_err ) = LJ::Talk::Post::edit_comment($comment);
         unless ($postok) {
             return $err_raw->($talkid_or_err);
         }
         $talkid = $talkid_or_err;
-    } else {
-        my ($postok, $talkid_or_err) = LJ::Talk::Post::post_comment( $comment, $unscreen_parent );
+    }
+    else {
+        my ( $postok, $talkid_or_err ) = LJ::Talk::Post::post_comment( $comment, $unscreen_parent );
         unless ($postok) {
             return $err_raw->($talkid_or_err);
         }
@@ -279,53 +293,62 @@ sub talkpost_do_handler {
     }
 
     # Yeah, we're done.
-    my $dtalkid = $talkid*256 + $entry->{anum};
+    my $dtalkid = $talkid * 256 + $entry->{anum};
 
     # Allow style=mine, etc for QR redirects
-    my $style_args = LJ::viewing_style_args( %$POST );
+    my $style_args = LJ::viewing_style_args(%$POST);
 
-    # FIXME: potentially can be replaced with some form of additional logic when we have multiple account linkage
+# FIXME: potentially can be replaced with some form of additional logic when we have multiple account linkage
     my $posted = $comment->{state} eq 'A' ? "posted=1" : "";
 
     my $cthread = $POST->{'viewing_thread'} ? "thread=$POST->{viewing_thread}" : "view=$dtalkid";
-    my $commentlink = LJ::Talk::talkargs( $talkurl, $cthread, $style_args, $posted ) . LJ::Talk::comment_anchor( $dtalkid );
+    my $commentlink = LJ::Talk::talkargs( $talkurl, $cthread, $style_args, $posted )
+        . LJ::Talk::comment_anchor($dtalkid);
 
     my $mlcode;
-    if ($comment->{state} eq 'A') {
+    if ( $comment->{state} eq 'A' ) {
+
         # Redirect the user back to their post as long as it didn't unscreen its parent,
         # is screened itself, or they logged in
-        if (!($wasscreened && ($parent->{state} ne 'S')) && !$didlogin) {
-            LJ::set_lastcomment($journalu->id, $commenter, $dtalkid);
+        if ( !( $wasscreened && ( $parent->{state} ne 'S' ) ) && !$didlogin ) {
+            LJ::set_lastcomment( $journalu->id, $commenter, $dtalkid );
             return $r->redirect($commentlink);
         }
 
         $mlcode = '.success.message2';
-    } else {
+    }
+    else {
         # otherwise, it's a screened comment.
         if ( $journalu && $journalu->is_community ) {
             if ( $POST->{usertype} eq 'anonymous' ) {
                 $mlcode = '.success.screened.comm.anon3';
-            } elsif ( $commenter && $commenter->can_manage( $journalu ) ) {
+            }
+            elsif ( $commenter && $commenter->can_manage($journalu) ) {
                 $mlcode = '.success.screened.comm.owncomm4';
-            } else {
+            }
+            else {
                 $mlcode = '.success.screened.comm3';
             }
-        } else {  # not a community
+        }
+        else {    # not a community
             if ( $POST->{usertype} eq 'anonymous' ) {
                 $mlcode = '.success.screened.user.anon3';
-            } elsif ( $commenter && $commenter->equals( $journalu ) ) {
+            }
+            elsif ( $commenter && $commenter->equals($journalu) ) {
                 $mlcode = '.success.screened.user.ownjournal3';
-            } else {
+            }
+            else {
                 $mlcode = '.success.screened.user3';
             }
         }
     }
     $vars->{title} = $title;
 
-    my @notices = ( LJ::Lang::ml("/talkpost_do.tt$mlcode", {aopts => "href='$commentlink'"}) );
-    push @notices, LJ::Lang::ml('/talkpost_do.tt.success.unscreened') if $wasscreened && ($parent->{state} ne 'S');
+    my @notices = ( LJ::Lang::ml( "/talkpost_do.tt$mlcode", { aopts => "href='$commentlink'" } ) );
+    push @notices, LJ::Lang::ml('/talkpost_do.tt.success.unscreened')
+        if $wasscreened && ( $parent->{state} ne 'S' );
     push @notices, LJ::Lang::ml('/talkpost_do.tt.success.loggedin') if $didlogin;
-    $vars->{html} = join("\n", map { "<p>$_</p>" } @notices);
+    $vars->{html} = join( "\n", map { "<p>$_</p>" } @notices );
 
     return DW::Template->render_template( 'talkpost_do.tt', $vars );
 }
@@ -351,7 +374,7 @@ sub authenticate_user_and_mutate_form {
 
     my $err = sub {
         my $error = shift;
-        return (0, $error);
+        return ( 0, $error );
     };
     my $mlerr = sub {
         return $err->( LJ::Lang::ml(@_) );
@@ -361,7 +384,7 @@ sub authenticate_user_and_mutate_form {
     };
     my $got_user = sub {
         my $user = shift;
-        return (1, {user => $user, didlogin => $didlogin});
+        return ( 1, { user => $user, didlogin => $didlogin } );
     };
 
     # The "usertype" field must be one of the following. (Each value might have
@@ -393,36 +416,44 @@ sub authenticate_user_and_mutate_form {
     # aware there's several cleverer and more exciting ways to write it. But
     # don't. KEEP IT STUPID. KEEP IT SAFE. </gandalf voice> -NF, 2020
     if ( $form->{usertype} eq 'anonymous' ) {
-        if ($form->{oidurl} || $form->{userpost}) {
+        if ( $form->{oidurl} || $form->{userpost} ) {
             return $incoherent->();
         }
-        return $got_user->(undef); # Well! that was easy.
-    } elsif ( $form->{usertype} eq 'cookieuser' ) {
-        if ($form->{oidurl}) {
+        return $got_user->(undef);    # Well! that was easy.
+    }
+    elsif ( $form->{usertype} eq 'cookieuser' ) {
+        if ( $form->{oidurl} ) {
             return $incoherent->();
         }
+
         # If they selected "current user" and then typed in their own username,
         # well, that's "wrong" but their intention was perfectly clear. But if
         # they typed in a DIFFERENT username, get outta here.
-        if ( $form->{userpost} && ($form->{userpost} ne $form->{cookieuser}) ) {
+        if ( $form->{userpost} && ( $form->{userpost} ne $form->{cookieuser} ) ) {
             return $incoherent->();
         }
 
         # OK! Check if that's the logged-in user.
-        if ( $remote && ($remote->user eq $form->{cookieuser}) ) {
-            return $got_user->($remote); # Cool.
-        } else {
+        if ( $remote && ( $remote->user eq $form->{cookieuser} ) ) {
+            return $got_user->($remote);    # Cool.
+        }
+        else {
             return $mlerr->("/talkpost_do.tt.error.lostcookie");
         }
-    } elsif ( $form->{usertype} eq 'user' ) {
-        if ($form->{oidurl}) {
+    }
+    elsif ( $form->{usertype} eq 'user' ) {
+        if ( $form->{oidurl} ) {
             return $incoherent->();
         }
+
         # No username?
-        if ( ! $form->{userpost} ) {
+        if ( !$form->{userpost} ) {
             my $iscomm = $journalu->is_community ? '.comm' : '';
             my $noanon = $journalu->prop('opt_whocanreply') eq 'all' ? '' : '.noanon';
-            return $mlerr->( "/talkpost_do.tt.error.nousername$noanon$iscomm", { sitename => $LJ::SITENAMESHORT } );
+            return $mlerr->(
+                "/talkpost_do.tt.error.nousername$noanon$iscomm",
+                { sitename => $LJ::SITENAMESHORT }
+            );
         }
 
         my $exptype;    # set to long if ! after username
@@ -438,7 +469,7 @@ sub authenticate_user_and_mutate_form {
         my $up = LJ::load_user( $form->{userpost} );
 
         # Now for all the things that can go wrong:
-        if ( ! $up ) {
+        if ( !$up ) {
             return $mlerr->(
                 "/talkpost_do.tt.error.badusername2",
                 {
@@ -449,11 +480,10 @@ sub authenticate_user_and_mutate_form {
         }
 
         if ( $up->is_identity ) {
-            return $err->("To comment as an OpenID user, you must choose the "
-                . "OpenID option and authenticate with your identity provider; "
-                . "it's not possible to log in using an OpenID account's "
-                . "internal 'ext_12345' username."
-            );
+            return $err->( "To comment as an OpenID user, you must choose the "
+                    . "OpenID option and authenticate with your identity provider; "
+                    . "it's not possible to log in using an OpenID account's "
+                    . "internal 'ext_12345' username." );
         }
 
         if ( $up->is_community || $up->is_syndicated ) {
@@ -464,10 +494,12 @@ sub authenticate_user_and_mutate_form {
         my $ok = LJ::auth_okay( $up, $form->{password} );
 
         unless ($ok) {
+
             # Don't pre-populate the fix-up form with a password we already know is wrong.
             $form->{password} = '';
             return $mlerr->(
-                "/talkpost_do.tt.error.badpassword2", { aopts => "href='$LJ::SITEROOT/lostinfo'" }
+                "/talkpost_do.tt.error.badpassword2",
+                { aopts => "href='$LJ::SITEROOT/lostinfo'" }
             );
         }
 
@@ -476,15 +508,18 @@ sub authenticate_user_and_mutate_form {
         # if the user chooses to log in, do so
         if ( $form->{do_login} ) {
             $didlogin = $up->make_login_session( $exptype, $ipfixed );
+
             # MUTATE FORM: change the usertype, so if they need to fix an
             # unrelated error and are already logged in, the form uses the
             # "currently logged-in user" option.
-            $form->{usertype} = 'cookieuser';
+            $form->{usertype}   = 'cookieuser';
             $form->{cookieuser} = $up->user;
         }
 
         return $got_user->($up);
-    } elsif ( $form->{usertype} eq 'openid' || $form->{usertype} eq 'openid_cookie' ) {
+    }
+    elsif ( $form->{usertype} eq 'openid' || $form->{usertype} eq 'openid_cookie' ) {
+
         # Okay: This one's weird, but mostly just because the code order is
         # backwards from how things happen irl, WHICH IS:
         # - Person supplies OpenID URL.
@@ -503,15 +538,18 @@ sub authenticate_user_and_mutate_form {
 
             # Go ahead and log in, if requested.
             if ( $form->{oiddo_login} ) {
+
                 # Those extra form vars got stored last time, see below.
                 $didlogin = $remote->make_login_session( $form->{exptype}, $form->{ipfixed} );
+
                 # MUTATE FORM: change the usertype if they logged in, so
                 # things look more consistent if they hit an unrelated error
                 $form->{usertype} = 'openid_cookie';
             }
 
-            return $got_user->($remote); # welcome back
-        } else {
+            return $got_user->($remote);    # welcome back
+        }
+        else {
 
             # If this is your first time at Tautology Club... you've never been
             # here before.
@@ -571,13 +609,13 @@ sub authenticate_user_and_mutate_form {
             return $err->( $journalu->errstr ) if $journalu->err;
 
             my $check_url = $claimed_id->check_url(
-                return_to => "$LJ::SITEROOT/talkpost_do?jid=$journalid&pendcid=$pendcid",
+                return_to      => "$LJ::SITEROOT/talkpost_do?jid=$journalid&pendcid=$pendcid",
                 trust_root     => "$LJ::SITEROOT",
                 delayed_return => 1,
             );
 
             # Caller must redirect to this URL.
-            return (1, {check_url => $check_url});
+            return ( 1, { check_url => $check_url } );
         }
     }
     else {
@@ -587,7 +625,7 @@ sub authenticate_user_and_mutate_form {
 
 # Returns hashref for template.
 sub preview_comment_args {
-    my ( $comment ) = @_;
+    my ($comment) = @_;
 
     my $cleansubject = $comment->{subject};
     LJ::CleanHTML::clean_subject( \$cleansubject );
@@ -596,37 +634,34 @@ sub preview_comment_args {
     LJ::CleanHTML::clean_comment(
         \$cleanbody,
         {
-            anon_comment => LJ::Talk::treat_as_anon(
-                $comment->{u}, $comment->{entry}->journal
-            ),
+            anon_comment => LJ::Talk::treat_as_anon( $comment->{u}, $comment->{entry}->journal ),
             preformatted => $comment->{preformat},
             admin_post   => $comment->{admin_post},
+
             # editor       => $comment->{editor}, # not wired through yet
         }
     );
 
     my $poster = "(Anonymous)";
-    my $icon = '';
-    if ($comment->{u}) {
+    my $icon   = '';
+    if ( $comment->{u} ) {
         $poster = $comment->{u}->ljuser_display;
 
         my $userpic = LJ::Userpic->new_from_keyword( $comment->{u}, $comment->{picture_keyword} );
         if ($userpic) {
             $icon =
-                '<a href="'
-                . $comment->{u}->allpics_base
-                . '">'
-                . $userpic->imgtag( keyword => $comment->{prop_picture_keyword} )
-                . '</a>';
+                  '<a href="'
+                . $comment->{u}->allpics_base . '">'
+                . $userpic->imgtag( keyword => $comment->{prop_picture_keyword} ) . '</a>';
         }
     }
 
     my $preview = {
-        poster => $poster,
+        poster      => $poster,
         subjecticon => LJ::Talk::print_subjecticon_by_id( $comment->{subjecticon} ),
-        body => $cleanbody,
-        subject => $cleansubject,
-        icon => $icon,
+        body        => $cleanbody,
+        subject     => $cleansubject,
+        icon        => $icon,
     };
 
     return $preview;
@@ -634,11 +669,11 @@ sub preview_comment_args {
 
 # Returns hashref for template.
 sub preview_parent_args {
-    my ( $comment ) = @_;
+    my ($comment) = @_;
 
     my $userpic_tag = sub {
-        my $item = shift;
-        my $icon = '';
+        my $item    = shift;
+        my $icon    = '';
         my $userpic = $item->userpic;
         if ($userpic) {
             $icon = $userpic->imgtag( keyword => $item->userpic_kw );
@@ -649,41 +684,42 @@ sub preview_parent_args {
     my $entry = $comment->{entry};
 
     if ( $comment->{parent}->{talkid} ) {
-        # Replying to comment
-        my $parentitem = LJ::Comment->new(
-            $entry->journal, jtalkid => $comment->{parent}->{talkid}
-        );
 
-        my $poster = 'Anonymous';
+        # Replying to comment
+        my $parentitem =
+            LJ::Comment->new( $entry->journal, jtalkid => $comment->{parent}->{talkid} );
+
+        my $poster      = 'Anonymous';
         my $poster_name = '';
-        if ($parentitem->poster) {
-            $poster = $parentitem->poster->ljuser_display;
+        if ( $parentitem->poster ) {
+            $poster      = $parentitem->poster->ljuser_display;
             $poster_name = $parentitem->poster->name_html;
         }
 
         return {
-            type => 'comment',
-            body => $parentitem->body_html,
-            subject => $parentitem->subject_html,
-            poster => $poster,
+            type        => 'comment',
+            body        => $parentitem->body_html,
+            subject     => $parentitem->subject_html,
+            poster      => $poster,
             poster_name => $poster_name,
-            icon => $userpic_tag->($parentitem),
-            time => $parentitem->{datepost}, # convert?
-            url => $parentitem->url,
-            entry_url => $entry->url,
+            icon        => $userpic_tag->($parentitem),
+            time        => $parentitem->{datepost},       # convert?
+            url         => $parentitem->url,
+            entry_url   => $entry->url,
         };
-    } else {
+    }
+    else {
         # Replying to entry
         return {
-            type => 'entry',
-            body => $entry->event_html,
-            subject => $entry->subject_html,
-            poster => $entry->poster->ljuser_display,
+            type        => 'entry',
+            body        => $entry->event_html,
+            subject     => $entry->subject_html,
+            poster      => $entry->poster->ljuser_display,
             poster_name => $entry->poster->name_html,
-            icon => $userpic_tag->($entry),
-            time => $entry->eventtime_mysql,
-            url => $entry->url,
-            entry_url => $entry->url,
+            icon        => $userpic_tag->($entry),
+            time        => $entry->eventtime_mysql,
+            url         => $entry->url,
+            entry_url   => $entry->url,
         };
     }
 }

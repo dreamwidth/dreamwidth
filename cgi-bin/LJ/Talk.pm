@@ -1412,13 +1412,13 @@ sub talkform {
     # do_captcha:  optional toggle for creating a captcha challenge
     # errors:      optional arrayref of errors to display, so user can fix
 
-    # Refresher course on IDs:
-    # Entries and comments have real and "display" ids. This is for reader comfort, not for security.
-    # "anum" is a random but permanent number attached to entries.
-    # entry->jitemid * 256 + entry->anum = entry->ditemid
-    # (usually "itemid" means a jitemid, but reply forms pass a ditemid in their "itemid" field.)
-    # comment->jtalkid * 256 + comment->entry->anum = comment->dtalkid
-    # parenttalkid/replyto is always a jtalkid. Sometimes you'll see "dtid" to mean dtalkid.
+   # Refresher course on IDs:
+   # Entries and comments have real and "display" ids. This is for reader comfort, not for security.
+   # "anum" is a random but permanent number attached to entries.
+   # entry->jitemid * 256 + entry->anum = entry->ditemid
+   # (usually "itemid" means a jitemid, but reply forms pass a ditemid in their "itemid" field.)
+   # comment->jtalkid * 256 + comment->entry->anum = comment->dtalkid
+   # parenttalkid/replyto is always a jtalkid. Sometimes you'll see "dtid" to mean dtalkid.
     my $opts = shift;
     return "Invalid talkform values." unless ref $opts eq 'HASH';
 
@@ -1582,7 +1582,7 @@ sub talkform {
         # But there are two exceptions to that. First, quick-reply doesn't know
         # about openid_cookie and always says cookieuser, so if they're
         # logged in as OpenID, straighten that out.
-        if ( $form->{usertype} eq 'cookieuser'
+        if (   $form->{usertype} eq 'cookieuser'
             && $remote
             && $remote->is_identity )
         {
@@ -1592,10 +1592,14 @@ sub talkform {
         # Second, if the logged-in user isn't allowed to comment, it's
         # impossible to select "current user." Revert to the default.
         if (
-            ( $template_args->{default_usertype} eq 'cookieuser' || $template_args->{default_usertype} eq 'openid_cookie' )
+            (
+                   $template_args->{default_usertype} eq 'cookieuser'
+                || $template_args->{default_usertype} eq 'openid_cookie'
+            )
             && $remote
-            && ! $template_args->{remote}->{allowed}
-        ) {
+            && !$template_args->{remote}->{allowed}
+            )
+        {
             $template_args->{default_usertype} = 'user';
         }
     }
@@ -1626,11 +1630,12 @@ sub talkform {
         "journal"      => $journalu->{'user'},
         "basepath"     => $basepath,
         "dtid"         => $opts->{dtid},
+
         # ^ display version of replyto/parenttalkid. Nothing actually uses this
         # in the talkform or after the form is submitted. It's important for JS
         # in the quickreply, but vestigial here.
-        "editid"       => $editid,
-        "chrp1"        => generate_chrp1($journalu->{userid}, $opts->{ditemid}),
+        "editid" => $editid,
+        "chrp1"  => generate_chrp1( $journalu->{userid}, $opts->{ditemid} ),
         %$styleopts,
     );
 
@@ -1660,11 +1665,11 @@ sub generate_chrp1 {
 # server-provided token that's impractical to forge.
 # Returns (1, undef) if valid, (0, errorstring) if not.
 sub validate_chrp1 {
-    my ( $chrp ) = @_;
+    my ($chrp) = @_;
     my $fail = sub { return ( 0, $_[0] ); };
     my $ok   = sub { return ( 1, undef ); };
 
-    if (!$chrp) {
+    if ( !$chrp ) {
         $fail->("missing");
     }
     my ( $c_ditemid, $c_uid, $c_time, $c_chars, $c_res ) =
@@ -2254,13 +2259,13 @@ sub blockquote {
 # (skull and crossbones emoji)
 # Returns (1, talkid) on success, (0, error) on failure.
 sub enter_comment {
-    my ( $comment ) = @_;
+    my ($comment) = @_;
 
-    my $item = $comment->{entry};
+    my $item     = $comment->{entry};
     my $journalu = $item->journal;
-    my $parent = $comment->{parent};
-    my $partid = $parent->{talkid};
-    my $itemid = $item->jitemid;
+    my $parent   = $comment->{parent};
+    my $partid   = $parent->{talkid};
+    my $itemid   = $item->jitemid;
 
     # accepts multi-part errors if you're into that.
     my $err = sub {
@@ -2443,7 +2448,7 @@ sub enter_comment {
 
     DW::TaskQueue->dispatch(@jobs) if @jobs;
 
-    return (1, $jtalkid);
+    return ( 1, $jtalkid );
 }
 
 # this is used by the journal import code, but is kept here so as to be kept
@@ -2621,7 +2626,7 @@ sub enter_imported_comment {
 sub prepare_and_validate_comment {
     my ( $content, $commenter, $entry, $need_captcha, $errret ) = @_;
 
-    my $tp_d = '/talkpost_do.tt'; # for ml strings
+    my $tp_d = '/talkpost_do.tt';    # for ml strings
 
     # Commenter can be undef for anon, but yes, we absolutely need an entry.
     croak("Need LJ::Entry object to reply to") unless $entry->isa('LJ::Entry');
@@ -2638,7 +2643,7 @@ sub prepare_and_validate_comment {
         return $err->( LJ::Lang::ml(@_) );
     };
 
-    my $journalu = $entry->journal;
+    my $journalu          = $entry->journal;
     my $commenter_is_user = LJ::isu($commenter);
 
     # First: accept the things u cannot change. Existential errors a commenter
@@ -2648,41 +2653,47 @@ sub prepare_and_validate_comment {
     unless ( $entry->visible_to($commenter) ) {
         $mlerr->("$tp_d.error.mustlogin") unless $commenter_is_user;
         $mlerr->("$tp_d.error.noauth");
-        return undef; # Shouldn't tell you anything else about this entry, then.
+        return undef;    # Shouldn't tell you anything else about this entry, then.
     }
+
     # No replying to readonly/locked/expunged journals
-    return $mlerr->("$tp_d.error.noreply_readonly_journal") if $journalu->is_readonly;
-    return $mlerr->('talk.error.purged') if $journalu->is_expunged;
+    return $mlerr->("$tp_d.error.noreply_readonly_journal")               if $journalu->is_readonly;
+    return $mlerr->('talk.error.purged')                                  if $journalu->is_expunged;
     return $err->("Account is locked, unable to post or edit a comment.") if $journalu->is_locked;
+
     # can ANYONE comment?
     return $mlerr->("$tp_d.error.nocomments") if $entry->comments_disabled;
+
     # no replying to suspended entries, even by entry poster
     return $mlerr->("$tp_d.error.noreply_suspended") if $entry->is_suspended;
+
     # check max comments (unless editing existing comment)
-    if ( ! $content->{editid} && over_maxcomments( $journalu, $entry->jitemid ) ) {
-        return $mlerr->( "$tp_d.error.maxcomments" );
+    if ( !$content->{editid} && over_maxcomments( $journalu, $entry->jitemid ) ) {
+        return $mlerr->("$tp_d.error.maxcomments");
     }
+
     # If replying to a comment, it's gotta exist. (Hold onto it, we'll want it later.)
-    my $parenttalkid = ($content->{parenttalkid} || $content->{replyto} || 0) + 0;
+    my $parenttalkid = ( $content->{parenttalkid} || $content->{replyto} || 0 ) + 0;
     my $parpost;
     if ($parenttalkid) {
         my $dbcr = LJ::get_cluster_def_reader($journalu);
-        return $mlerr->('error.nodb') unless $dbcr; # tbh we got bigger problems at this point.
+        return $mlerr->('error.nodb') unless $dbcr;    # tbh we got bigger problems at this point.
         $parpost = LJ::Talk::get_talk2_row( $dbcr, $journalu->{userid}, $parenttalkid );
         unless ($parpost) {
             return $mlerr->("$tp_d.error.noparent");
         }
     }
+
     # no replying to frozen comments
     my $parent_state = $parpost->{state} // '';
-    return $mlerr->( "$tp_d.error.noreply_frozen" ) if $parent_state eq 'F';
+    return $mlerr->("$tp_d.error.noreply_frozen") if $parent_state eq 'F';
 
     # Next: Permissions checks! Easily solved, just become someone else.
 
     # (For switching between variant error messages.)
     my $iscomm = $journalu->is_community ? '.comm' : '';
 
-    if ( $commenter_is_user ) {
+    if ($commenter_is_user) {
 
         # test accounts can only comment on other test accounts.
         if (   ( grep { $commenter->user eq $_ } @LJ::TESTACCTS )
@@ -2693,20 +2704,21 @@ sub prepare_and_validate_comment {
         }
 
         # Ban check for journal and entry:
-        if ($journalu->has_banned($commenter)) {
-            $mlerr->("$tp_d.error.banned$iscomm")
-        } else {
+        if ( $journalu->has_banned($commenter) ) {
+            $mlerr->("$tp_d.error.banned$iscomm");
+        }
+        else {
             # comm hasn't banned you, but maybe this poster did
             $mlerr->("$tp_d.error.banned.entryowner") if $entry->poster->has_banned($commenter);
         }
+
         # Ban check for parent comment:
         my $parentu = LJ::load_userid( $parpost->{posterid} );
         $mlerr->("$tp_d.error.banned.reply")
             if defined $parentu && $parentu->has_banned($commenter);
 
         # they down with unvalidated OpenIDs?
-        if ( $journalu->does_not_allow_comments_from_unconfirmed_openid($commenter) )
-        {
+        if ( $journalu->does_not_allow_comments_from_unconfirmed_openid($commenter) ) {
             $mlerr->(
                 "$tp_d.error.noopenidpost",
                 {
@@ -2726,9 +2738,9 @@ sub prepare_and_validate_comment {
         }
 
         # Miscellaneous miscreants:
-        $mlerr->("$tp_d.error.purged")    if $commenter->is_expunged;
-        $mlerr->("$tp_d.error.deleted")   if $commenter->is_deleted;
-        $mlerr->("$tp_d.error.suspended") if $commenter->is_suspended;
+        $mlerr->("$tp_d.error.purged")                  if $commenter->is_expunged;
+        $mlerr->("$tp_d.error.deleted")                 if $commenter->is_deleted;
+        $mlerr->("$tp_d.error.suspended")               if $commenter->is_suspended;
         $mlerr->("$tp_d.error.noreply_readonly_remote") if $commenter->is_readonly;
 
         # members only?
@@ -2736,7 +2748,8 @@ sub prepare_and_validate_comment {
             my $msg = $journalu->is_community ? "notamember" : "notafriend";
             $mlerr->( "$tp_d.error.$msg", { user => $journalu->user } );
         }
-    } else {
+    }
+    else {
         # I think these would all have been handled by the checks in the other
         # branch, but tradition says anons get different error messages.
 
@@ -2760,15 +2773,17 @@ sub prepare_and_validate_comment {
     # happen. Let's just explode instead. -NF
     return $mlerr->("bml.badinput.body1") unless LJ::text_in($content);
 
-    my $body = $content->{body};
+    my $body    = $content->{body};
     my $subject = $content->{subject};
 
     # Cat got your tongue?
     $mlerr->("$tp_d.error.blankmessage") unless $body =~ /\S/;
+
     # unixify line-endings
     $body =~ s/\r\n/\n/g;
+
     # Length check:
-    my ( $bl, $cl ) = LJ::text_length( $body );
+    my ( $bl, $cl ) = LJ::text_length($body);
     if ( $cl > LJ::CMAX_COMMENT ) {
         $mlerr->(
             "$tp_d.error.manychars",
@@ -2801,23 +2816,25 @@ sub prepare_and_validate_comment {
         my $nevermind = 0;
         $need_captcha = \$nevermind;
     }
+
     # If the form already had a captcha, prep it:
-    $content->{want} = $content->{captcha_type}; # Captcha->new consumes "want"
+    $content->{want} = $content->{captcha_type};    # Captcha->new consumes "want"
     my $captcha = DW::Captcha->new( undef, %{ $content || {} } );
 
     # are they sending us a response? Check it.
     if ( $captcha->enabled && $captcha->response ) {
+
         # If this isn't their final pass through the form, they'll need a captcha next time too.
         $$need_captcha = 1;
+
         # TODO: I'd rather only ask for one captcha per interaction.
 
         my $captcha_error;
-        $err->($captcha_error) unless ($captcha->validate( err_ref => \$captcha_error ));
+        $err->($captcha_error) unless ( $captcha->validate( err_ref => \$captcha_error ) );
     }
     else {
         $$need_captcha =
-            LJ::Talk::Post::require_captcha_test( $commenter, $journalu, $body,
-            $entry->ditemid );
+            LJ::Talk::Post::require_captcha_test( $commenter, $journalu, $body, $entry->ditemid );
 
         $err->( LJ::Lang::ml('captcha.title') ) if $$need_captcha;
     }
@@ -2856,15 +2873,15 @@ sub prepare_and_validate_comment {
         preformat       => $content->{'prop_opt_preformatted'},
         admin_post      => $content->{'prop_admin_post'},
         picture_keyword => $content->{'prop_picture_keyword'},
+
         # TODO need a more organized way to carry approved props forward.
-        state           => $state,
-        editid          => $content->{editid},
-        editreason      => $content->{editreason},
+        state      => $state,
+        editid     => $content->{editid},
+        editreason => $content->{editreason},
     };
 
     return $comment;
 }
-
 
 # <LJFUNC>
 # name: LJ::Talk::Post::require_captcha_test
@@ -2972,9 +2989,9 @@ sub require_captcha_test {
 sub post_comment {
     my ( $comment, $unscreen_parent ) = @_;
 
-    my $item = $comment->{entry};
+    my $item     = $comment->{entry};
     my $journalu = $item->journal;
-    my $parent = $comment->{parent};
+    my $parent   = $comment->{parent};
 
     my $parent_state = $parent->{state} || "";
 
@@ -3033,8 +3050,8 @@ sub post_comment {
         delete $comment->{picture_keyword} unless $pic && $pic->state eq 'N';
 
         # put the post in the database
-        my ($ok, $talkid_or_err) = enter_comment($comment);
-        return (0, $talkid_or_err) unless $ok;
+        my ( $ok, $talkid_or_err ) = enter_comment($comment);
+        return ( 0, $talkid_or_err ) unless $ok;
         $jtalkid = $talkid_or_err;
 
         # save its identifying characteristics to protect against duplicates.
@@ -3054,9 +3071,10 @@ sub post_comment {
         ]
     );
 
-    LJ::Hooks::run_hooks( 'new_comment', $journalu->{userid}, $item->jitemid, $jtalkid ); # This hook is never registered by anything in -free or -nonfree. -NF
+    LJ::Hooks::run_hooks( 'new_comment', $journalu->{userid}, $item->jitemid, $jtalkid )
+        ;    # This hook is never registered by anything in -free or -nonfree. -NF
 
-    return (1, $jtalkid);
+    return ( 1, $jtalkid );
 }
 
 # Does what it says on the tin.
@@ -3064,16 +3082,16 @@ sub post_comment {
 # Don't yolo one of these hashrefs unless you're in a test.
 # returns (1, talkid) on success, (0, error) on fail
 sub edit_comment {
-    my ( $comment ) = @_;
+    my ($comment) = @_;
 
-    my $item = $comment->{entry};
+    my $item     = $comment->{entry};
     my $journalu = $item->journal;
 
     my $comment_obj = LJ::Comment->new( $journalu, dtalkid => $comment->{editid} );
 
     my $remote = LJ::get_remote();
     my $edit_error;
-    return (0, $edit_error) unless $comment_obj->remote_can_edit(\$edit_error);
+    return ( 0, $edit_error ) unless $comment_obj->remote_can_edit( \$edit_error );
 
     my %props = (
         subjecticon      => $comment->{subjecticon},
@@ -3142,12 +3160,11 @@ sub edit_comment {
         ]
     );
 
-    LJ::Hooks::run_hooks( 'edit_comment', $journalu->{userid}, $item->jitemid,
-        $comment->{talkid} ); # This hook is never registered by anything in -free or -nonfree. -NF
+    LJ::Hooks::run_hooks( 'edit_comment', $journalu->{userid}, $item->jitemid, $comment->{talkid} )
+        ;    # This hook is never registered by anything in -free or -nonfree. -NF
 
-    return (1, $comment_obj->jtalkid);
+    return ( 1, $comment_obj->jtalkid );
 }
-
 
 # given a journalu and jitemid, return 1 if the entry
 # is over the maximum comments allowed.
