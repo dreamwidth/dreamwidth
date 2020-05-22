@@ -63,17 +63,6 @@ form { margin-left: 2em; }
 <?_code return BML::ml( ".login.back", { aopts => "href='./'", sitename => $LJ::SITENAMESHORT } ) _code?>
 <h1>Login</h1>
 
-<h2><?_ml .ssl.header _ml?></h2>
-<p<?_ml .ssl.text _ml?></p>
-<form method='post' action='<?_code return $LJ::SITEROOT _code?>/mobile/login'>
-<?_ml .form.username _ml?>: <input name='user' size='15' /><br />
-<?_ml .form.password _ml?>: <input name='password' type='password' size='15' />
-<input type='submit' value="<?_ml .form.button _ml?>" />
-</form>
-
-<h2><?_ml .basic.header _ml?></h2>
-<p><?_ml .basic.text _ml?></p>
-
 <form method='post' action='<?_code return $LJ::SITEROOT _code?>/mobile/login'>
 <?_ml .form.username _ml?>: <input name='user' size='15' /><br />
 <?_ml .form.password _ml?>: <input name='password' type='password' size='15' />
