@@ -2827,19 +2827,6 @@ sub prepare_and_validate_comment {
         $state = 'S';
     }
 
-    # "usertype" is a talkform field for switching who you're commenting as, but
-    # LJ::Talk::Post::init used to munge it a bunch before reaching this part of
-    # the code and reused it for all kinds of other junk.
-    # Beyond this point, the only downstream things that still check for the old
-    # vandalized "usertype" values are edit_comment and enter_comment (which
-    # sometimes skip IP logging for registered site users), so we'll give them a
-    # "fake" but accurate value based on the user we were explicitly passed,
-    # and not contaminate this zone with a bunch of user auth crud. -NF
-    my $usertype = '';
-    if ( $commenter_is_user && $commenter->is_person ) {
-        $usertype = 'user';
-    }
-
     # Assemble the final prepared comment!
     my $parent = {
         state    => $parent_state,
@@ -2848,7 +2835,6 @@ sub prepare_and_validate_comment {
     };
     my $comment = {
         u               => $commenter,
-        usertype        => $usertype,
         parent          => $parent,
         entry           => $entry,
         subject         => $subject,
