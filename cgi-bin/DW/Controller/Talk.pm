@@ -19,6 +19,9 @@ sub talkpost_do_handler {
 
     my $vars;
 
+    # Hack to make sure resource group is set to SOMETHING (in case lj::talk returns way too early and we don't pass through the template at all)
+    LJ::set_active_resource_group( "jquery" );
+
     my @errors;
     my $skip_form_auth = 0;
 
