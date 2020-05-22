@@ -1,0 +1,89 @@
+[%# talkpost_do/preview_parent.tt
+
+Displays the parent entry or comment for reference during a comment preview,
+mimicking the markup of the site-skin reply page.
+
+Authors:
+    Nick Fagerlund <nick.fagerlund@gmail.com>
+
+Copyright (c) 2020 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+
+<hr>
+
+<h3>Replying to:</h3>
+
+<div class="reply-page-wrapper">
+
+<div class="entry-wrapper
+    [% IF parent.icon %]
+        has-userpic
+    [% ELSE %]
+        no-userpic
+    [% END %]
+    [% IF parent.subject %]
+        has-subject
+    [% ELSE %]
+        no-subject
+    [% END %]
+">
+	<div class="separator separator-before">
+		<div class="inner">
+		</div>
+	</div>
+	<div class="entry" id="preview-parent">
+		<div class="inner">
+			<div class="header">
+				<div class="inner">
+					<div class="userpic">
+						[% parent.icon %]
+					</div>
+					<div class="poster-info">
+						<span class="poster entry-poster"> [% parent.poster_name %] ( [% parent.poster %] ) wrote </span>
+						<span class="datetime">
+						    <span class="comment-date-text"></span>
+						    <span> [% parent.time %] </span>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div>
+				<div class="contents usercontent">
+					<div class="inner">
+						<h3 class="entry-title">
+							[% IF parent.subject %]
+							    <a href="[% parent.url %]">[% parent.subject %]</a>
+							[% ELSE %]
+                                <a title="no subject" class=" invisible"> no subject </a>
+                            [% END %]
+						</h4>
+						<div class="entry-content">
+							[% parent.body %]
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="footer">
+				<div class="inner">
+					<ul class="comment-interaction-links text-links">
+						[% IF parent.type == 'comment' %]
+                            <li class="link commentpermalink"> <a href="[% parent.url %]"> Thread </a> </li>
+						[% END %]
+						    <li class="readlink"> <a href="[% parent.entry_url %]"> Entry </a> </li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="separator separator-after">
+		<div class="inner">
+		</div>
+	</div>
+</div>
+
+
+</div><!-- end reply page wrapper -->

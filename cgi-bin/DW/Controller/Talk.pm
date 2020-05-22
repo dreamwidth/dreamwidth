@@ -102,11 +102,6 @@ sub talkpost_do_handler {
     }
     my $talkurl = $entry->url;
 
-    # libs for userpicselect
-    LJ::Talk::init_iconbrowser_js()
-        if $remote && $remote->can_use_userpic_select;
-
-
     # validate the challenge/response value (anti-spammer)
     my ($chrp_ok, $chrp_err) = LJ::Talk::validate_chrp1($POST->{'chrp1'});
     unless ($chrp_ok) {
@@ -119,17 +114,6 @@ sub talkpost_do_handler {
             push @errors, "Sorry, form expired.  Press back, copy text, reload form, paste into new form, and re-submit." if $chrp_err eq "too_old";
             push @errors, "Missing parameters";
         }
-    }
-
-    ## preview
-    # ignore errors for previewing
-    if ($POST->{'submitpreview'} || ($POST->{'qr'} && $POST->{'do_spellcheck'})) {
-        my $cookie_auth;
-        $cookie_auth = 1 if $POST->{usertype} eq "cookieuser";
-
-        $vars->{title} = '.title.preview';
-        $vars->{html} = LJ::Talk::Post::make_preview($talkurl, $cookie_auth, $POST);
-        return DW::Template->render_template( 'talkpost_do.tt', $vars );
     }
 
     ## Sort out who's posting for real.
@@ -165,8 +149,77 @@ sub talkpost_do_handler {
     my $need_captcha = 0;
     my $comment = LJ::Talk::Post::prepare_and_validate_comment($POST, $commenter, $entry, \$need_captcha, \@errors);
 
-    # Report errors in a friendly manner by regenerating the field.
-    # We repopulate what we can via hidden fields - however the objects (journalu & parpost) must be recreated here.
+    # If there's anything in @errors at the end of prepare_and_validate_comment,
+    # it returns undef instead of a $comment, even if it wasn't the one to
+    # add those errors. So all the "non-fatal" errors we've been logging above
+    # become suddenly fatal right... about... NOW.
+
+    # At this point, there's three main paths:
+    # 1. Stop and show the requested preview (and report errors inline)
+    # 2. Stop and ask user to fix errors
+    # 3. Continue and post the comment for real.
+
+    # 1. We're previewing!
+    # For most errors, we preview anyway; they can fix it while they edit
+    # their text. But we DO need to know who they think they are, so let the
+    # error path handle auth failures.
+    if ( $authok && $POST->{submitpreview}) {
+
+        # yer a reply page, Harry. (keep consistent behavior by loading same
+        # JS/CSS as journal pages.)
+        LJ::Talk::init_s2journal_js(
+            iconbrowser => $remote && $remote->can_use_userpic_select,
+            siteskin    => 1,
+            noqr        => 1
+        );
+
+        # Plus we're displaying entry/comment content, so the legacy site skins
+        # need CSS for that.
+        LJ::need_res({group => 'jquery'},
+            'stc/siteviews/layout.css',
+            'stc/entrypage.css',
+        );
+
+        # If validation failed, just use what we have on hand to build the preview.
+        # Might theoretically have borked non-UTF-8, shrug.
+        unless ($comment) {
+            $comment = {
+                u => $commenter,
+                entry => $entry,
+                parent => {
+                    talkid => $POST->{replyto} || $POST->{parenttalkid},
+                },
+                subject => $POST->{subject},
+                body => $POST->{body},
+                subjecticon => $POST->{subjecticon} eq 'none' ? '' : $POST->{subjecticon},
+                preformat       => $POST->{'prop_opt_preformatted'},
+                admin_post      => $POST->{'prop_admin_post'},
+                picture_keyword => $POST->{'prop_picture_keyword'},
+            };
+        }
+
+        my $talkform = LJ::Talk::talkform({
+            journalu => $journalu,
+            parpost => $comment->{parent},
+            replyto => $comment->{parent}->{talkid},
+            ditemid => $comment->{entry}->ditemid,
+            do_captcha => $need_captcha,
+            errors      => @errors ? \@errors : undef,
+            form => $POST,
+        });
+
+        $vars->{title} = '.title.preview';
+        $vars->{preview} = 1;
+        $vars->{comment} = preview_comment_args($comment);
+        $vars->{parent} = preview_parent_args($comment);
+        $vars->{html} = $talkform;
+        return DW::Template->render_template( 'talkpost_do.tt', $vars );
+    }
+
+    # 2. Validation failed!
+    # Don't continue; report errors, ask for help, and regenerate the
+    # form. We repopulate what we can via hidden fields, but the objects
+    # (journalu & parpost) must be recreated here.
     unless ( $comment ) {
         my ($sth, $parpost);
         my $dbcr = LJ::get_cluster_def_reader($journalu);
@@ -177,29 +230,38 @@ sub talkpost_do_handler {
         $sth->execute($journalu->{userid}, $POST->{itemid}+0);
         $parpost = $sth->fetchrow_hashref;
 
-        $title = '.title.error' unless $need_captcha;
+        # yer a reply page, Harry. (keep consistent behavior by loading same
+        # JS/CSS as journal pages.)
+        LJ::Talk::init_s2journal_js(
+            iconbrowser => $remote && $remote->can_use_userpic_select,
+            siteskin    => 1,
+            noqr        => 1
+        );
 
-        my $talkform = LJ::Talk::talkform({ 'remote'      => $commenter,
-                                    'journalu'    => $journalu,
-                                    'parpost'     => $parpost,
-                                    'replyto'     => $POST->{replyto} || $POST->{parenttalkid},
-                                    'ditemid'     => $POST->{itemid},
-                                    'do_captcha'  => $need_captcha,
-                                    'errors'      => \@errors,
-                                    'form'        => $POST });
-        $vars->{title} = $title;
+        my $talkform = LJ::Talk::talkform({
+            journalu    => $journalu,
+            parpost     => $parpost,
+            replyto     => $POST->{replyto} || $POST->{parenttalkid},
+            ditemid     => $POST->{itemid},
+            do_captcha  => $need_captcha,
+            errors      => \@errors,
+            form        => $POST,
+        });
+        $vars->{title} = '.title.error';
         $vars->{html} = $talkform;
         return DW::Template->render_template( 'talkpost_do.tt', $vars );
     }
 
-    my ( $entryu, $parent );
+    # 3. It's go time!!
+    # We might show a page at the end anyway (for example, if the user logged
+    # in), but the most common path is to silently redirect back to the thread
+    # after posting.
 
-    $entryu   = $entry->poster;
-    $parent   = $comment->{parent};
+    my $parent   = $comment->{parent};
 
     my $unscreen_parent = $POST->{unscreen_parent} ? 1 : 0;
 
-    ## insertion or editing
+    # ACTUALLY POST IT
     my $wasscreened = ($parent->{state} eq 'S');
     my $talkid;
     if ($editid) {
@@ -258,13 +320,12 @@ sub talkpost_do_handler {
             }
         }
     }
-    $vars->{mlcode} = $mlcode;
-    $vars->{commentlink} = $commentlink;
     $vars->{title} = $title;
 
-    # did this comment unscreen its parent?
-    $vars->{unscreened} = $wasscreened && ($parent->{state} ne 'S');
-    $vars->{didlogin} = $didlogin;
+    my @notices = ( LJ::Lang::ml("/talkpost_do.tt$mlcode", {aopts => "href='$commentlink'"}) );
+    push @notices, LJ::Lang::ml('/talkpost_do.tt.success.unscreened') if $wasscreened && ($parent->{state} ne 'S');
+    push @notices, LJ::Lang::ml('/talkpost_do.tt.success.loggedin') if $didlogin;
+    $vars->{html} = join("\n", map { "<p>$_</p>" } @notices);
 
     return DW::Template->render_template( 'talkpost_do.tt', $vars );
 }
@@ -521,6 +582,109 @@ sub authenticate_user_and_mutate_form {
     }
     else {
         return $err->("Reply form was submitted without any user information.");
+    }
+}
+
+# Returns hashref for template.
+sub preview_comment_args {
+    my ( $comment ) = @_;
+
+    my $cleansubject = $comment->{subject};
+    LJ::CleanHTML::clean_subject( \$cleansubject );
+
+    my $cleanbody = $comment->{body};
+    LJ::CleanHTML::clean_comment(
+        \$cleanbody,
+        {
+            anon_comment => LJ::Talk::treat_as_anon(
+                $comment->{u}, $comment->{entry}->journal
+            ),
+            preformatted => $comment->{preformat},
+            admin_post   => $comment->{admin_post},
+            # editor       => $comment->{editor}, # not wired through yet
+        }
+    );
+
+    my $poster = "(Anonymous)";
+    my $icon = '';
+    if ($comment->{u}) {
+        $poster = $comment->{u}->ljuser_display;
+
+        my $userpic = LJ::Userpic->new_from_keyword( $comment->{u}, $comment->{picture_keyword} );
+        if ($userpic) {
+            $icon =
+                '<a href="'
+                . $comment->{u}->allpics_base
+                . '">'
+                . $userpic->imgtag( keyword => $comment->{prop_picture_keyword} )
+                . '</a>';
+        }
+    }
+
+    my $preview = {
+        poster => $poster,
+        subjecticon => LJ::Talk::print_subjecticon_by_id( $comment->{subjecticon} ),
+        body => $cleanbody,
+        subject => $cleansubject,
+        icon => $icon,
+    };
+
+    return $preview;
+}
+
+# Returns hashref for template.
+sub preview_parent_args {
+    my ( $comment ) = @_;
+
+    my $userpic_tag = sub {
+        my $item = shift;
+        my $icon = '';
+        my $userpic = $item->userpic;
+        if ($userpic) {
+            $icon = $userpic->imgtag( keyword => $item->userpic_kw );
+        }
+        return $icon;
+    };
+
+    my $entry = $comment->{entry};
+
+    if ( $comment->{parent}->{talkid} ) {
+        # Replying to comment
+        my $parentitem = LJ::Comment->new(
+            $entry->journal, jtalkid => $comment->{parent}->{talkid}
+        );
+
+        my $poster = 'Anonymous';
+        my $poster_name = '';
+        if ($parentitem->poster) {
+            $poster = $parentitem->poster->ljuser_display;
+            $poster_name = $parentitem->poster->name_html;
+        }
+
+        return {
+            type => 'comment',
+            body => $parentitem->body_html,
+            subject => $parentitem->subject_html,
+            poster => $poster,
+            poster_name => $poster_name,
+            icon => $userpic_tag->($parentitem),
+            time => $parentitem->{datepost}, # convert?
+            url => $parentitem->url,
+            entry_url => $entry->url,
+        };
+    } else {
+        # Replying to entry
+        return {
+            type => 'entry',
+            body => $entry->event_html,
+            subject => $entry->subject_html,
+            poster => $entry->poster->ljuser_display,
+            poster_name => $entry->poster->name_html,
+            icon => $userpic_tag->($entry),
+            time => $entry->eventtime_mysql,
+            url => $entry->url,
+            entry_url => $entry->url,
+        };
     }
 }
 
