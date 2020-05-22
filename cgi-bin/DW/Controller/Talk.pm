@@ -180,7 +180,7 @@ sub talkpost_do_handler {
         # yer a reply page, Harry. (keep consistent behavior by loading same
         # JS/CSS as journal pages.)
         LJ::Talk::init_s2journal_js(
-            iconbrowser => $remote && $remote->can_use_userpic_select,
+            iconbrowser => 1,
             siteskin    => 1,
             noqr        => 1
         );
@@ -244,7 +244,7 @@ sub talkpost_do_handler {
         # yer a reply page, Harry. (keep consistent behavior by loading same
         # JS/CSS as journal pages.)
         LJ::Talk::init_s2journal_js(
-            iconbrowser => $remote && $remote->can_use_userpic_select,
+            iconbrowser => 1,
             siteskin    => 1,
             noqr        => 1
         );

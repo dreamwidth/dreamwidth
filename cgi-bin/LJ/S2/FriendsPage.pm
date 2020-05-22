@@ -34,7 +34,7 @@ sub FriendsPage {
     # include JS for quick reply, icon browser, and ajax cut tag
     my $handle_with_siteviews = 0;    # not an option for FriendsPage?
     LJ::Talk::init_s2journal_js(
-        iconbrowser => $remote && $remote->can_use_userpic_select,
+        iconbrowser => 1,
         siteskin    => $handle_with_siteviews,
         lastn       => 1
     );
