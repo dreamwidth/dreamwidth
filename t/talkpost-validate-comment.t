@@ -38,21 +38,20 @@ plan tests => 6;
 #   - all other fields are ignored. MOST NOTABLY, this function stays away from
 #   the user info fields.
 
-
 my $journalu = temp_user();
-my $entry = $journalu->t_post_fake_entry();
+my $entry    = $journalu->t_post_fake_entry();
 
 note("Comment form from a logged in user:");
 
 my $form = {
-    body => "Comment body",
-    subject => "Comment subject",
+    body        => "Comment body",
+    subject     => "Comment subject",
     subjecticon => "none",
 };
 
-my $commenter = temp_user();
+my $commenter    = temp_user();
 my $need_captcha = 0;
-my @errors = ();
+my @errors       = ();
 my $comment;
 
 # There's a nasty observer effect due to this cache: once something asks whether
@@ -60,34 +59,37 @@ my $comment;
 # relationship. And prepare_and_validate_comment asks about basically every
 # possible relationship. So SCORCH THE EARTH.
 my $reset = sub {
-    foreach (keys %LJ::REQ_CACHE_REL) {
+    foreach ( keys %LJ::REQ_CACHE_REL ) {
         delete $LJ::REQ_CACHE_REL{$_};
     }
-    $comment = undef;
-    @errors = ();
+    $comment      = undef;
+    @errors       = ();
     $need_captcha = 0;
 };
 
 note("...who ain't validated:");
-$comment = LJ::Talk::Post::prepare_and_validate_comment($form, $commenter, $entry, \$need_captcha, \@errors);
-ok(! defined $comment, "Returned undef, not allowed.");
-note(scalar @errors . " Validation errors: " . join("\n", @errors));
+$comment = LJ::Talk::Post::prepare_and_validate_comment( $form, $commenter, $entry, \$need_captcha,
+    \@errors );
+ok( !defined $comment, "Returned undef, not allowed." );
+note( scalar @errors . " Validation errors: " . join( "\n", @errors ) );
 $reset->();
 
 note("...who has validated their email:");
-$commenter->update_self({status => 'A'});
-$comment = LJ::Talk::Post::prepare_and_validate_comment($form, $commenter, $entry, \$need_captcha, \@errors);
-ok(ref $comment eq 'HASH', "Succeeded, returned comment");
-ok(scalar @errors == 0, "Didn't append any errors");
-note(scalar @errors . " Validation errors: " . join("\n", @errors));
-ok($comment->{body} eq $form->{body}, "Comment body survived");
-ok($comment->{subjecticon} eq '', "'none' subjecticon (w/ left beef) munged to empty string");
+$commenter->update_self( { status => 'A' } );
+$comment = LJ::Talk::Post::prepare_and_validate_comment( $form, $commenter, $entry, \$need_captcha,
+    \@errors );
+ok( ref $comment eq 'HASH', "Succeeded, returned comment" );
+ok( scalar @errors == 0,    "Didn't append any errors" );
+note( scalar @errors . " Validation errors: " . join( "\n", @errors ) );
+ok( $comment->{body} eq $form->{body}, "Comment body survived" );
+ok( $comment->{subjecticon} eq '',     "'none' subjecticon (w/ left beef) munged to empty string" );
 $reset->();
 
 note("...who's banned:");
 $journalu->ban_user($commenter);
-$comment = LJ::Talk::Post::prepare_and_validate_comment($form, $commenter, $entry, \$need_captcha, \@errors);
-ok(! defined $comment, "Returned undef, not allowed.");
-note(scalar @errors . " Validation errors: " . join("\n", @errors));
+$comment = LJ::Talk::Post::prepare_and_validate_comment( $form, $commenter, $entry, \$need_captcha,
+    \@errors );
+ok( !defined $comment, "Returned undef, not allowed." );
+note( scalar @errors . " Validation errors: " . join( "\n", @errors ) );
 $reset->();
 

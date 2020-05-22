@@ -57,7 +57,7 @@ sub ReplyPage {
     # canonical link to the entry or comment thread
     $p->{head_content} .= LJ::canonical_link( $entry->url, $replytoid );
 
-    $p->{'head_content'} .= $LJ::COMMON_CODE{'chalresp_js'}; # Hey, I think this is destroyed? -NF
+    $p->{'head_content'} .= $LJ::COMMON_CODE{'chalresp_js'};   # Hey, I think this is destroyed? -NF
 
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
@@ -286,7 +286,8 @@ sub ReplyForm__print {
     my $dtid    = $parpost ? $parpost->{dtid} : 0;
 
     my $post_vars = DW::Request->get->post_args;
-    $post_vars = $form->{_values} unless keys %$post_vars; # _values only gets populated when editing comment. -NF
+    $post_vars = $form->{_values}
+        unless keys %$post_vars;    # _values only gets populated when editing comment. -NF
 
     $S2::pout->(
         LJ::Talk::talkform(
