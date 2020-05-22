@@ -899,14 +899,20 @@ sub create_qr_div {
     my $usertype =
         ( $remote->openid_identity && $remote->is_validated ) ? 'openid_cookie' : 'cookieuser';
     my $hidden_form_elements .= LJ::html_hidden(
-        { 'name' => 'replyto',        'id' => 'replyto',        'value' => '' },
-        { 'name' => 'parenttalkid',   'id' => 'parenttalkid',   'value' => '' },
-        { 'name' => 'journal',        'id' => 'journal',        'value' => $u->{'user'} },
-        { 'name' => 'itemid',         'id' => 'itemid',         'value' => $ditemid },
-        { 'name' => 'usertype',       'id' => 'usertype',       'value' => $usertype },
-        { 'name' => 'qr',             'id' => 'qr',             'value' => '1' },
-        { 'name' => 'cookieuser',     'id' => 'cookieuser',     'value' => $remote->{'user'} },
-        { 'name' => 'dtid',           'id' => 'dtid',           'value' => '' },
+        { 'name' => 'replyto',      'id' => 'replyto',      'value' => '' },
+        { 'name' => 'parenttalkid', 'id' => 'parenttalkid', 'value' => '' },
+
+        # ^ these two inputs are duplicates, but oh well.
+        { 'name' => 'journal',    'id' => 'journal',    'value' => $u->{'user'} },
+        { 'name' => 'itemid',     'id' => 'itemid',     'value' => $ditemid },
+        { 'name' => 'usertype',   'id' => 'usertype',   'value' => $usertype },
+        { 'name' => 'qr',         'id' => 'qr',         'value' => '1' },
+        { 'name' => 'cookieuser', 'id' => 'cookieuser', 'value' => $remote->{'user'} },
+        { 'name' => 'dtid',       'id' => 'dtid',       'value' => '' },
+
+        # ^ the "display" version of replyto/parenttalkid. Starts empty, set by
+        # JS when QR is summoned, then used to build the "more options" URL.
+        # Nothing uses this after the form is submitted, it's just for JS.
         { 'name' => 'basepath',       'id' => 'basepath',       'value' => $basepath },
         { 'name' => 'viewing_thread', 'id' => 'viewing_thread', 'value' => $viewing_thread },
     );
@@ -946,9 +952,7 @@ sub create_qr_div {
 
             current_icon_kw => $userpic_kw,
             current_icon    => LJ::Userpic->new_from_keyword( $remote, $userpic_kw ),
-            foundation_beta => LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" )
-                && $LJ::ACTIVE_RES_GROUP
-                && $LJ::ACTIVE_RES_GROUP eq "foundation",
+            foundation_beta => LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" ),
 
             remote => {
                 ljuser => $remote->ljuser_display,

@@ -2241,3 +2241,4 @@ general /go.bml.error.usernotfound
 general /go.bml.link.to.journal
 
 general talk.error.nosuchjournal
+general talk.spellcheck
