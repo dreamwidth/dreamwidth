@@ -2907,7 +2907,7 @@ sub init {
 
             # Don't redirect them if errors
             return undef if @$errret;
-            return BML::redirect($check_url);
+            return {check_url=>$check_url};
         }
     }
 
