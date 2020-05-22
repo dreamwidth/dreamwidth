@@ -186,10 +186,11 @@ sub talkpost_do_handler {
         }
         $talkid = $talkid_or_err;
     } else {
-        unless ( LJ::Talk::Post::post_comment( $entryu, $journalu, $comment, $parent, $entry, \$err, $unscreen_parent ) ) {
-            return error_ml($err);
+        my ($ok, $talkid_or_err) = LJ::Talk::Post::post_comment( $comment, $unscreen_parent );
+        unless ($ok) {
+            return error_ml($talkid_or_err);
         }
-        $talkid = $comment->{talkid};
+        $talkid = $talkid_or_err;
     }
 
     # Yeah, we're done.

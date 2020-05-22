@@ -392,6 +392,8 @@ sub t_enter_comment {
 
     my $commentref = {
         u       => $u,
+        parent  => { talkid => $parenttalkid, state => 'A' },
+        entry   => $entry,
         state   => 'A',
         subject => $subject,
         body    => $body,
@@ -399,20 +401,16 @@ sub t_enter_comment {
         parenttalkid => $parenttalkid,
     };
 
-    LJ::Talk::Post::post_comment(
-        $entry->poster, $entry->journal, $commentref,
-        { talkid => $parenttalkid, state => 'A' },
-        { itemid => $jitemid,      state => 'A', opt_noemail => 1 }, \$err,
-    );
+    my ($ok, $talkid_or_err) = LJ::Talk::Post::post_comment( $commentref );
 
-    my $jtalkid = $commentref->{talkid};
-
-    die "Could not post comment: $err" unless $jtalkid;
+    unless ($ok) {
+        die "Could not post comment: $talkid_or_err";
+    }
 
     delete $entry->{_loaded_comments};
     delete $entry->{_loaded_talkdata};
 
-    return LJ::Comment->new( $entryu, jtalkid => $jtalkid );
+    return LJ::Comment->new( $entryu, jtalkid => $talkid_or_err );
 }
 
 package LJ::Comment;
