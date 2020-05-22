@@ -206,7 +206,7 @@ sub talkpost_do_handler {
     if ($comment->{state} eq 'A') {
         # Redirect the user back to their post as long as it didn't unscreen its parent,
         # is screened itself, or they logged in
-        if (!($wasscreened and $parent->{state} ne 'S') && !$init->{didlogin}) {
+        if (!($wasscreened && ($parent->{state} ne 'S')) && !$init->{didlogin}) {
             LJ::set_lastcomment($journalu->{'userid'}, $remote, $dtalkid);
             return $r->redirect($commentlink);
         }
@@ -238,7 +238,7 @@ sub talkpost_do_handler {
     $vars->{title} = $title;
 
     # did this comment unscreen its parent?
-    $vars->{unscreened} = $wasscreened and $parent->{state} ne 'S';
+    $vars->{unscreened} = $wasscreened && ($parent->{state} ne 'S');
     $vars->{didlogin} = $init->{didlogin};
 
     return DW::Template->render_template( 'talkpost_do.tt', $vars );
