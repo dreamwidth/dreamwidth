@@ -1,6 +1,5 @@
-[%- sections.title = title | ml -%]
+[%- sections.title = dw.ml(title) -%]
 [% sections.head = BLOCK %]
-    [%- chalresp_js -%]
         <style type="text/css">
             .userpic { float: left; margin: 0 15px 5px 0; }
             .userpics { float: right; }
@@ -15,7 +14,6 @@
 [% IF html %]
     [% html %]
 [% ELSE %]
-   <h1>[% dw.ml(title) %]</h1>
     <p>[% dw.ml(mlcode, {'aopts' => "href='$commentlink'"} ) %]</p>
     [%- IF unscreened -%]
         <p>[% dw.ml('.success.unscreened') %]</p>
