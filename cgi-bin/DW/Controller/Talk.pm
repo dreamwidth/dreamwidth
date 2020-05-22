@@ -29,8 +29,7 @@ sub talkpost_do_handler {
     # coming back from the identity server and then recreate their
     # POST hash as if they never left.  Watch and see
     if (($GET->{'openid.mode'} eq 'id_res' || $GET->{'openid.mode'} eq 'cancel') && $GET->{'jid'} && $GET->{'pendcid'}) {
-
-        my $csr = LJ::OpenID::consumer($GET);
+        my $csr = LJ::OpenID::consumer($GET->mixed);
 
         if ($GET->{'openid.mode'} eq 'id_res') { # Verify their identity
 
@@ -43,7 +42,7 @@ sub talkpost_do_handler {
             my $uo = LJ::User::load_from_consumer( $csr, \$errmsg );
             return error_ml( $errmsg ) unless $uo;
 
-            LJ::set_remote($uo);
+            $remote = $uo;
             $skip_form_auth = 1;  # wouldn't have form auth at this point
         }
 
@@ -100,7 +99,6 @@ sub talkpost_do_handler {
     ## init.  this handles all the error-checking, as well.
     my $need_captcha = 0;
     my $init = LJ::Talk::Post::init($POST, $remote, \$need_captcha, \@errors);
-
     # Report errors in a friendly manner by regenerating the field.
     # Required for challenge/response login, since we also need to regenerate an auth token.
     # We repopulate what we can via hidden fields - however the objects (journalu & parpost) must be recreated here.
@@ -130,6 +128,9 @@ sub talkpost_do_handler {
         return DW::Template->render_template( 'talkpost_do.tt', $vars );
     }
 
+    if (defined $init->{check_url}) {
+        return $r->redirect($init->{check_url});
+    }
 
     my ( $talkurl, $entryu, $parent, $comment, $item );
 
