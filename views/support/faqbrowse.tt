@@ -1,0 +1,109 @@
+<script language='JavaScript'>
+<!--
+    function showAnswer() {
+        if (!document.getElementById) {
+            return true;
+        }
+        var a = document.getElementById('answer');
+        var r = document.getElementById('rm');
+        if (!a || !r) {
+            return true;
+        }
+        r.style.display = 'none';
+        a.style.display = 'block';
+        return false;
+    }
+//-->
+
+
+</script>
+[%- CALL dw.active_resource_group("foundation") -%]
+[%- dw.need_res({ group => "foundation"}
+        "stc/faq.css"
+        ) -%]
+
+
+
+[%- UNLESS faqs -%]
+    [%- sections.title = title -%]
+    <p><b>[% '.error.nofaq' | ml %]</b></p>
+[%- ELSE -%]
+    [%- sections.title = title -%]
+<div id='faq'>
+    [%- IF faqcatarg -%]
+        <ol>
+            [%- FOR f IN faqs -%]
+                <li><a href=[%- "#faq${f.faqid}" -%]>[% f.question %]</a></li>
+            [%- END -%]
+        </ol>
+    [%- END -%]
+    [%- FOR f IN faqs -%]
+        [%- IF faqcatarg -%]
+            <h1>
+                <a id='faq[% f.faqid %]'></a>
+                <a style='text-decoration: none;' href='faqbrowse?faqid=[% f.faqid %]'>&#x00bb; [%- f.question -%]</a>
+            </h1>
+        [%- END -%]
+        <div style='margin-left: 20px;'>
+            [%- IF f.display_summary -%]
+                <div class='summary'>[% f.summary %]</div>
+                [% UNLESS f.display_answer %]
+
+                    <div class='rm'>
+                        [%- oc = faqcatarg ? '' : "onclick='return showAnswer();'" -%]
+                        <b>( <a [% f.oc %] href='faqbrowse?faqid=[% "$f.faqid$q" %]&view=full'>[% '.more' | ml %]</a> )</b>
+                    </div>
+                [%- END -%]
+            [%- END -%]
+
+            [%- IF f.display_answer -%]
+                <div class='answer'>[% f.answer %]</div>
+            [% ELSE %]
+                <div class='answer' style='display: none'>[% f.answer %]</div>
+            [%- END -%]
+
+        </div>
+
+        [%- IF f.lastmodwho -%]
+            <p align="right">
+                <b>[% '.lastupdated' | ml %]</b>
+                [% f.lastmodtime %] ([% f.lastmodwho %])
+            </p>
+        [%- END -%]
+        [% IF remote && remote.has_priv("faqedit", f.faqcat) %]
+            <p align="right"><a href="/admin/faq/faqedit?id=[% f.faqid %]">[% '.edit.faq' | ml %]</a></p>
+        [%- END -%]
+    [%- END -%]
+
+    [% IF remote && altlang && remote.has_priv("translate", curlang) %]
+        <p align="right">
+            <a href="/translate/editpage?lang=[% curlang %]&items=[% f.t_items %]">
+                [%- '.translate.faq' | ml -%]
+            </a>
+        </p>
+    [%- END -%]
+
+[%- END -%]
+
+    <hr>
+
+    <p style="float:right; text-align:right;"><a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">
+        <img alt="[% 'cc.imgalt' | ml %]" style="border-width: 0;"
+             src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png"/>
+    </a><br/><a href="[% site.root %]/site/opensource">[% '.cc.licensing' | ml %]</a></p>
+
+[% IF f.faqcat && faqidarg %]
+    [%- IF categoryname -%]
+        [% '.backfaqcat3' | ml({ 'aopts' => "href='/support/faqbrowse?faqcat=${f.faqcat}'", 'categoryname' => categoryname}) %]
+    [% ELSE %]
+        [% '.backfaqcat2' | ml({ 'aopts' => "href='/support/faqbrowse?faqcat=${f.faqcat}'"}) %]
+
+    [%- END -%]
+[%- END -%]
+
+[% '.backfaq2' | ml({ 'aopts' => 'href="faq"'}) %]
+[% '.backsearch' | ml({ 'aopts' => 'href="/support/faqsearch"'}) %]
+[% '.backsupport2' | ml({ 'aopts' => 'href="/support/"'}) %]
+
+</div>
+
