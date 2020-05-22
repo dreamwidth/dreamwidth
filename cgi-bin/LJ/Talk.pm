@@ -3054,20 +3054,21 @@ sub post_comment {
     return 1;
 }
 
-# returns 1 on success.  0 on fail (with $$errref set)
-# mutates received $comment hashref, setting talkid.
+# Does what it says on the tin.
+# Expects a comment hashref from LJ::Talk::Post::prepare_and_validate_comment.
+# Don't yolo one of these hashrefs unless you're in a test.
+# returns (1, talkid) on success, (0, error) on fail
 sub edit_comment {
-    my ( $entryu, $journalu, $comment, $parent, $item, $errref ) = @_;
+    my ( $comment ) = @_;
 
-    my $err = sub {
-        $$errref = join( ": ", @_ );
-        return 0;
-    };
+    my $item = $comment->{entry};
+    my $journalu = $item->journal;
 
     my $comment_obj = LJ::Comment->new( $journalu, dtalkid => $comment->{editid} );
 
     my $remote = LJ::get_remote();
-    return 0 unless $comment_obj->remote_can_edit($errref);
+    my $edit_error;
+    return (0, $edit_error) unless $comment_obj->remote_can_edit(\$edit_error);
 
     my %props = (
         subjecticon      => $comment->{subjecticon},
@@ -3095,17 +3096,15 @@ sub edit_comment {
 
     # set poster IP separately since it has special conditions
     my $opt_logcommentips = $comment_obj->journal->opt_logcommentips;
+    my $site_user_comment = $comment->{u} && $comment->{u}->is_person;
     if ( $opt_logcommentips eq "A"
-        || ( $opt_logcommentips eq "S" && $comment->{usertype} ne "user" ) )
+        || ( $opt_logcommentips eq "S" && !$site_user_comment ) )
     {
         $comment_obj->set_poster_ip;
     }
 
     # set subject and body text
     $comment_obj->set_subject_and_body( $comment->{subject}, $comment->{body} );
-
-    # the caller wants to know the comment's talkid.
-    $comment->{talkid} = $comment_obj->jtalkid;
 
     # If we need to rescreen the comment, do so now.
     my $state = $comment->{state} || "";
@@ -3141,7 +3140,7 @@ sub edit_comment {
     LJ::Hooks::run_hooks( 'edit_comment', $journalu->{userid}, $item->jitemid,
         $comment->{talkid} ); # This hook is never registered by anything in -free or -nonfree. -NF
 
-    return 1;
+    return (1, $comment_obj->jtalkid);
 }
 
 # XXXevan:  this function should have its functionality migrated to talkpost.

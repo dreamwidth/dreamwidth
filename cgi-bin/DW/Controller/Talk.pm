@@ -178,19 +178,22 @@ sub talkpost_do_handler {
 
     ## insertion or editing
     my $wasscreened = ($parent->{state} eq 'S');
-    my $err;
+    my $talkid;
     if ($editid) {
-        unless (LJ::Talk::Post::edit_comment($entryu, $journalu, $comment, $parent, $entry, \$err)) {
-            return error_ml($err);
+        my ($ok, $talkid_or_err) = LJ::Talk::Post::edit_comment($comment);
+        unless ($ok) {
+            return error_ml($talkid_or_err);
         }
+        $talkid = $talkid_or_err;
     } else {
         unless ( LJ::Talk::Post::post_comment( $entryu, $journalu, $comment, $parent, $entry, \$err, $unscreen_parent ) ) {
             return error_ml($err);
         }
+        $talkid = $comment->{talkid};
     }
 
     # Yeah, we're done.
-    my $dtalkid = $comment->{talkid}*256 + $entry->{anum};
+    my $dtalkid = $talkid*256 + $entry->{anum};
 
     # Allow style=mine, etc for QR redirects
     my $style_args = LJ::viewing_style_args( %$POST );
