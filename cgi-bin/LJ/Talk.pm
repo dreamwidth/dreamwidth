@@ -1612,24 +1612,16 @@ sub talkform {
 
     # hidden values
     $template_args->{'hidden_form_elements'} .= LJ::html_hidden(
-        "replyto", $opts->{replyto},
-        "parenttalkid", ( $opts->{replyto} + 0 ),
-        "itemid",   $opts->{ditemid},
-        "journal",  $journalu->{'user'},
-        "basepath", $basepath,
-        "dtid",     $opts->{dtid},
-        "editid",   $editid,
-        %{ $opts->{styleopts} },
+        "replyto"      => $opts->{replyto},
+        "parenttalkid" => ( $opts->{replyto} + 0 ),
+        "itemid"       => $opts->{ditemid},
+        "journal"      => $journalu->{'user'},
+        "basepath"     => $basepath,
+        "dtid"         => $opts->{dtid},
+        "editid"       => $editid,
+        "chrp1"        => generate_chrp1($journalu->{userid}, $opts->{ditemid}),
+        %$styleopts,
     );
-
-    # rate limiting challenge
-    {
-        my ( $time, $secret ) = LJ::get_secret();
-        my $rchars = LJ::rand_chars(20);
-        my $chal   = $opts->{ditemid} . "-$journalu->{userid}-$time-$rchars";
-        my $res    = Digest::MD5::md5_hex( $secret . $chal );
-        $template_args->{'hidden_form_elements'} .= LJ::html_hidden( "chrp1", "$chal-$res" );
-    }
 
     # special link to create an account
     if ( !$remote || $remote->openid_identity ) {
@@ -1638,6 +1630,45 @@ sub talkform {
     }
 
     return DW::Template->template_string( 'journal/talkform.tt', $template_args );
+}
+
+# Generate anti-spam challenge/response value
+sub generate_chrp1 {
+    my ( $journal_userid, $ditemid ) = @_;
+
+    my ( $time, $secret ) = LJ::get_secret();
+    my $rchars = LJ::rand_chars(20);
+    my $chal   = $ditemid . "-$journal_userid-$time-$rchars";
+    my $res    = Digest::MD5::md5_hex( $secret . $chal );
+    return "$chal-$res";
+}
+
+# validate the challenge/response value (anti-spammer)
+# This is distinct from the outdated challenge/response login method, and
+# doesn't require any client-side md5 horseplay; it's just an expiring
+# server-provided token that's impractical to forge.
+# Returns (1, undef) if valid, (0, errorstring) if not.
+sub validate_chrp1 {
+    my ( $chrp ) = @_;
+    my $fail = sub { return ( 0, $_[0] ); };
+    my $ok   = sub { return ( 1, undef ); };
+
+    if (!$chrp) {
+        $fail->("missing");
+    }
+    my ( $c_ditemid, $c_uid, $c_time, $c_chars, $c_res ) =
+        split( /\-/, $chrp );
+    my $chal   = "$c_ditemid-$c_uid-$c_time-$c_chars";
+    my $secret = LJ::get_secret($c_time);
+    my $res    = Digest::MD5::md5_hex( $secret . $chal );
+    if ( $res ne $c_res ) {
+        $fail->("invalid");
+    }
+    elsif ( $c_time < time() - 2 * 60 * 60 ) {
+        $fail->("too_old") if $LJ::REQUIRE_TALKHASH_NOTOLD;
+    }
+
+    $ok->();
 }
 
 sub icon_dropdown {
@@ -3209,29 +3240,12 @@ sub init {
     $init->{entryu} = $item->poster;
 
     # validate the challenge/response value (anti-spammer)
-    # This is distinct from the outdated challenge/response login method, and
-    # doesn't require any client-side md5 horseplay; it's just an expiring
-    # server-provided token that's impractical to forge. -NF
     my $chrp_err;
-    if ( my $chrp = $form->{'chrp1'} ) {
-        my ( $c_ditemid, $c_uid, $c_time, $c_chars, $c_res ) =
-            split( /\-/, $chrp );
-        my $chal   = "$c_ditemid-$c_uid-$c_time-$c_chars";
-        my $secret = LJ::get_secret($c_time);
-        my $res    = Digest::MD5::md5_hex( $secret . $chal );
-        if ( $res ne $c_res ) {
-            $chrp_err = "invalid";
-        }
-        elsif ( $c_time < time() - 2 * 60 * 60 ) {
-            $chrp_err = "too_old" if $LJ::REQUIRE_TALKHASH_NOTOLD;
-        }
-    }
-    else {
-        $chrp_err = "missing";
-    }
+    LJ::Talk::validate_chrp1($form->{'chrp1'}, \$chrp_err);
+
     if ($chrp_err) {
-        my $ip = LJ::get_remote_ip();
         if ( $LJ::DEBUG{'talkspam'} ) {
+            my $ip = LJ::get_remote_ip();
             my $ruser = $remote ? $remote->{user} : "[nonuser]";
             print STDERR "talkhash error: from $ruser \@ $ip - $chrp_err - $talkurl\n";
         }
