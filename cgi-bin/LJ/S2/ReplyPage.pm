@@ -108,7 +108,7 @@ sub ReplyPage {
         $parpost   = undef if $parpost && $parpost->is_deleted;
         $replytoid = $parpost ? $comment->parent->dtalkid : 0;
 
-        $comment_values{edit}                  = $editid;
+        $comment_values{editid}                = $editid;
         $comment_values{replyto}               = $replytoid;
         $comment_values{subject}               = $comment->subject_orig;
         $comment_values{body}                  = $comment->body_orig;
