@@ -1,8 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.basic.header=Your basic log-in isn't secure.
-
-.basic.text=Choosing this option will send your account password out unencrypted.  That's risky if you're connecting using Wifi, but you'll probably be okay if you're using a mobile carrier's data network.
-
 .form.button=Login
 
 .form.password=Password
@@ -20,8 +16,3 @@
 .login.ip_banned=Your IP address is temporarily banned for exceeding the login failure rate.
 
 .page.title=Login
-
-.ssl.header=SSL secure login
-
-.ssl.text=Secure using SSL, but SSL may not work on all mobile devices:
-
