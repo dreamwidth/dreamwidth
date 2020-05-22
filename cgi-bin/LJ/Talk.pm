@@ -1399,10 +1399,6 @@ sub load_userpics {
     }
 }
 
-# XXX these strings should be in talk, but moving them means we have
-# to retranslate.  so for now we're just gonna put it off.
-my $SC = '/talkpost_do.bml';
-
 sub talkform {
 
     # Takes a hashref with the following keys / values:
@@ -2549,6 +2545,292 @@ sub enter_imported_comment {
     return $jtalkid;
 }
 
+# Checks permissions and consistency for a submitted comment, then returns a
+# comment hashref that can be passed to post_comment or edit_comment (or undef
+# if the comment wouldn't be allowed).
+# Replacement for LJ::Talk::Post::init.
+# This ONLY deals with the content and relationships of the comment itself;
+# user authentication and frontend concerns belong elsewhere.
+#
+# Args:
+# $content: a reply form hashref, representing the comment as submitted.
+#   Mostly won't get mutated here, but the captcha check requires minor
+#   finagling. Fields we use:
+#   - body
+#   - subject
+#   - prop_something (various)
+#   - editid and editreason, if editing
+#   - parenttalkid: integer, comment being replied to (0 if replying to entry)
+#   - replyto: duplicate of parenttalkid, for some reason
+#   - subjecticon
+#   - any captcha-related fields from the talkform (varies by captcha type)
+#   Other fields are ignored.
+# $commenter: user object, or undef for anonymous
+# $entry: LJ::Entry object
+# $need_captcha: scalar ref to mutate; if the caller can't ask a human
+#     for a captcha response, it probably bails if this comes back truthy.
+# $errret: array ref to push errors to. If we return undef, this says why.
+sub prepare_and_validate_comment {
+    my ( $content, $commenter, $entry, $need_captcha, $errret ) = @_;
+
+    my $tp_d = '/talkpost_do.tt'; # for ml strings
+
+    # Commenter can be undef for anon, but yes, we absolutely need an entry.
+    croak("Need LJ::Entry object to reply to") unless $entry->isa('LJ::Entry');
+
+    # For most errors, report and keep going; we'll return undef at the end, and
+    # the user can address them all at once. ~But if it's all gone wrong &
+    # there's nothing left to learn: go ahead and return~ (guitar)
+    my $err = sub {
+        my $error = shift;
+        push @$errret, $error;
+        return undef;
+    };
+    my $mlerr = sub {
+        return $err->( LJ::Lang::ml(@_) );
+    };
+
+    my $journalu = $entry->journal;
+    my $commenter_is_user = LJ::isu($commenter);
+
+    # First: accept the things u cannot change. Existential errors a commenter
+    # can't do anything about.
+
+    # Can the user even view this post?
+    unless ( $entry->visible_to($commenter) ) {
+        $mlerr->("$tp_d.error.mustlogin") unless $commenter_is_user;
+        $mlerr->("$tp_d.error.noauth");
+        return undef; # Shouldn't tell you anything else about this entry, then.
+    }
+    # No replying to readonly/locked/expunged journals
+    return $mlerr->("$tp_d.error.noreply_readonly_journal") if $journalu->is_readonly;
+    return $mlerr->('talk.error.purged') if $journalu->is_expunged;
+    return $err->("Account is locked, unable to post or edit a comment.") if $journalu->is_locked;
+    # can ANYONE comment?
+    return $mlerr->("$tp_d.error.nocomments") if $entry->comments_disabled;
+    # no replying to suspended entries, even by entry poster
+    return $mlerr->("$tp_d.error.noreply_suspended") if $entry->is_suspended;
+    # check max comments (unless editing existing comment)
+    if ( ! $content->{editid} && over_maxcomments( $journalu, $entry->jitemid ) ) {
+        return $mlerr->( "$tp_d.error.maxcomments" );
+    }
+    # If replying to a comment, it's gotta exist. (Hold onto it, we'll want it later.)
+    my $parenttalkid = ($content->{parenttalkid} || $content->{replyto} || 0) + 0;
+    my $parpost;
+    if ($parenttalkid) {
+        my $dbcr = LJ::get_cluster_def_reader($journalu);
+        return $mlerr->('error.nodb') unless $dbcr; # tbh we got bigger problems at this point.
+        $parpost = LJ::Talk::get_talk2_row( $dbcr, $journalu->{userid}, $parenttalkid );
+        unless ($parpost) {
+            return $mlerr->("$tp_d.error.noparent");
+        }
+    }
+    # no replying to frozen comments
+    my $parent_state = $parpost->{state} // '';
+    return $mlerr->( "$tp_d.error.noreply_frozen" ) if $parent_state eq 'F';
+
+    # Next: Permissions checks! Easily solved, just become someone else.
+
+    # (For switching between variant error messages.)
+    my $iscomm = $journalu->is_community ? '.comm' : '';
+
+    if ( $commenter_is_user ) {
+
+        # test accounts can only comment on other test accounts.
+        if (   ( grep { $commenter->user eq $_ } @LJ::TESTACCTS )
+            && !( grep { $journalu->user eq $_ } @LJ::TESTACCTS )
+            && !$LJ::IS_DEV_SERVER )
+        {
+            $mlerr->("$tp_d.error.testacct");
+        }
+
+        # Ban check for journal and entry:
+        if ($journalu->has_banned($commenter)) {
+            $mlerr->("$tp_d.error.banned$iscomm")
+        } else {
+            # comm hasn't banned you, but maybe this poster did
+            $mlerr->("$tp_d.error.banned.entryowner") if $entry->poster->has_banned($commenter);
+        }
+        # Ban check for parent comment:
+        my $parentu = LJ::load_userid( $parpost->{posterid} );
+        $mlerr->("$tp_d.error.banned.reply")
+            if defined $parentu && $parentu->has_banned($commenter);
+
+        # they down with unvalidated OpenIDs?
+        if ( $journalu->does_not_allow_comments_from_unconfirmed_openid($commenter) )
+        {
+            $mlerr->(
+                "$tp_d.error.noopenidpost",
+                {
+                    aopts1 => "href='$LJ::SITEROOT/changeemail'",
+                    aopts2 => "href='$LJ::SITEROOT/register'"
+                }
+            );
+        }
+
+        # No one's down with unvalidated site users.
+        # (FYI, nothing in -free or -nonfree ever calls that hook. -NF)
+        if (   $commenter->{'status'} eq "N"
+            && !$commenter->is_identity
+            && !LJ::Hooks::run_hook( "journal_allows_unvalidated_commenting", $journalu ) )
+        {
+            $mlerr->( "$tp_d.error.noverify2", { aopts => "href='$LJ::SITEROOT/register'" } );
+        }
+
+        # Miscellaneous miscreants:
+        $mlerr->("$tp_d.error.purged")    if $commenter->is_expunged;
+        $mlerr->("$tp_d.error.deleted")   if $commenter->is_deleted;
+        $mlerr->("$tp_d.error.suspended") if $commenter->is_suspended;
+        $mlerr->("$tp_d.error.noreply_readonly_remote") if $commenter->is_readonly;
+
+        # members only?
+        if ( $journalu->does_not_allow_comments_from_non_access($commenter) ) {
+            my $msg = $journalu->is_community ? "notamember" : "notafriend";
+            $mlerr->( "$tp_d.error.$msg", { user => $journalu->user } );
+        }
+    } else {
+        # I think these would all have been handled by the checks in the other
+        # branch, but tradition says anons get different error messages.
+
+        # Doesn't allow anon comments?
+        if ( $journalu->does_not_allow_comments_from($commenter) ) {
+            $mlerr->("$tp_d.error.noanon$iscomm");
+        }
+
+        # members only?
+        if ( $journalu->prop('opt_whocanreply') eq 'friends' ) {
+            my $msg = $journalu->is_community ? "membersonly" : "friendsonly";
+            $mlerr->( "$tp_d.error.$msg", { user => $journalu->user } );
+        }
+    }
+
+    # Next: consistency checks and munging!
+    # (And captcha, after that.)
+
+    # Old init had some UTF8 conversion thing here for POSTs to talkpost_do that
+    # included an "encoding" field, but I can't find any way that can possibly
+    # happen. Let's just explode instead. -NF
+    return $mlerr->("bml.badinput.body1") unless LJ::text_in($content);
+
+    my $body = $content->{body};
+    my $subject = $content->{subject};
+
+    # Cat got your tongue?
+    $mlerr->("$tp_d.error.blankmessage") unless $body =~ /\S/;
+    # unixify line-endings
+    $body =~ s/\r\n/\n/g;
+    # Length check:
+    my ( $bl, $cl ) = LJ::text_length( $body );
+    if ( $cl > LJ::CMAX_COMMENT ) {
+        $mlerr->(
+            "$tp_d.error.manychars",
+            {
+                current => $cl,
+                limit   => LJ::CMAX_COMMENT
+            }
+        );
+    }
+    elsif ( $bl > LJ::BMAX_COMMENT ) {
+        $mlerr->(
+            "$tp_d.error.manybytes",
+            {
+                current => $bl,
+                limit   => LJ::BMAX_COMMENT
+            }
+        );
+    }
+
+    # the subject can be silently shortened, no need to reject the whole comment
+    $subject = LJ::text_trim( $subject, 100, 100 );
+
+    # munge subjecticons, not to be confused with Decepticons (or regular icons)
+    my $subjecticon = $content->{'subjecticon'} || '';
+    $subjecticon = LJ::trim( lc($subjecticon) );
+    $subjecticon = '' if $subjecticon eq "none";
+
+    # anti-spam captcha check
+    unless ( ref $need_captcha eq 'SCALAR' ) {
+        my $nevermind = 0;
+        $need_captcha = \$nevermind;
+    }
+    # If the form already had a captcha, prep it:
+    $content->{want} = $content->{captcha_type}; # Captcha->new consumes "want"
+    my $captcha = DW::Captcha->new( undef, %{ $content || {} } );
+
+    # are they sending us a response? Check it.
+    if ( $captcha->enabled && $captcha->response ) {
+        # If this isn't their final pass through the form, they'll need a captcha next time too.
+        $$need_captcha = 1;
+        # TODO: I'd rather only ask for one captcha per interaction.
+
+        my $captcha_error;
+        $err->($captcha_error) unless ($captcha->validate( err_ref => \$captcha_error ));
+    }
+    else {
+        $$need_captcha =
+            LJ::Talk::Post::require_captcha_test( $commenter, $journalu, $body,
+            $entry->ditemid );
+
+        $err->( LJ::Lang::ml('captcha.title') ) if $$need_captcha;
+    }
+
+    # That's the end of Things that Ain't Valid! Roll em up and bail now so the
+    # user can fix.
+    return undef if @$errret;
+
+    # Ok!! Home free, and almost done.
+
+    # post this comment screened?
+    my $state     = 'A';
+    my $screening = LJ::Talk::screening_level( $journalu, $entry->jitemid ) || "";
+    $screening = 'A' if $journalu->has_autoscreen($commenter);
+    if (   $screening eq 'A'
+        || ( $screening eq 'R' && !$commenter_is_user )
+        || ( $screening eq 'F' && !( $commenter && $journalu->trusts_or_has_member($commenter) ) ) )
+    {
+        $state = 'S';
+    }
+
+    # "usertype" is a talkform field for switching who you're commenting as, but
+    # LJ::Talk::Post::init used to munge it a bunch before reaching this part of
+    # the code and reused it for all kinds of other junk.
+    # Beyond this point, the only downstream things that still check for the old
+    # vandalized "usertype" values are edit_comment and enter_comment (which
+    # sometimes skip IP logging for registered site users), so we'll give them a
+    # "fake" but accurate value based on the user we were explicitly passed,
+    # and not contaminate this zone with a bunch of user auth crud. -NF
+    my $usertype = '';
+    if ( $commenter_is_user && $commenter->is_person ) {
+        $usertype = 'user';
+    }
+
+    # Assemble the final prepared comment!
+    my $parent = {
+        state    => $parent_state,
+        talkid   => $parenttalkid,
+        posterid => $parpost->{posterid},
+    };
+    my $comment = {
+        u               => $commenter,
+        usertype        => $usertype,
+        parent          => $parent,
+        entry           => $entry,
+        subject         => $subject,
+        body            => $body,
+        unknown8bit     => 0,
+        subjecticon     => $subjecticon,
+        preformat       => $content->{'prop_opt_preformatted'},
+        admin_post      => $content->{'prop_admin_post'},
+        picture_keyword => $content->{'prop_picture_keyword'},
+        # TODO need a more organized way to carry approved props forward.
+        state           => $state,
+        editid          => $content->{editid},
+        editreason      => $content->{editreason},
+    };
+
+    return $comment;
+}
+
 # LJ::Talk::Post::init
 # Normalizes and prepares a submitted comment, before we try to do anything
 # permanent with it. Returns either undef (in which case caller is expected to
@@ -2613,7 +2895,7 @@ sub init {
     $init->{'itemid'}    = ( $form->{'itemid'} || 0 ) + 0; # entry ditemid
     $init->{'ditemid'}   = $init->{'itemid'};
     $init->{'replyto'}   = ( $form->{'replyto'} || 0 ) + 0; # parent comment or 0
-    $init->{'style'}     = $form->{'style'}
+    $init->{'style'}     = $form->{'style'} # Yo, this is never accessed again -NF
         if $form->{style} && $form->{style} =~ /^(?:mine|light)$/;
 
     # refresher course:
@@ -2632,9 +2914,6 @@ sub init {
     return $mlerr->('talk.error.nojournal') unless $journalu;
     LJ::assert_is( $journalu->{user}, lc $journal );
     $journalu->selfassert;
-    return $mlerr->('talk.error.purged') if $journalu->is_expunged;
-    return $err->($LJ::MSG_READONLY_USER) if $journalu->is_readonly;
-    return $err->("Account is locked, unable to post or edit a comment.") if $journalu->is_locked;
 
     $init->{'journalu'} = $journalu;
 
@@ -2649,9 +2928,6 @@ sub init {
 
     my $r = DW::Request->get;
     $r->note( 'journalid', $journalu->userid ) if $r;
-
-    my $dbcr = LJ::get_cluster_def_reader($journalu);
-    return $mlerr->('error.nodb') unless $dbcr;
 
     my $itemid = $init->{'itemid'} + 0;
 
@@ -2728,15 +3004,7 @@ sub init {
     }
     # $form HAS NOW BEEN MUTATED FOR THE FIRST TIME. Returning after this can have side effects, if form usertype was cookieuser. -NF
 
-    # test accounts may only comment on other test accounts.
-    if (   ( grep { $form->{'userpost'} eq $_ } @LJ::TESTACCTS )
-        && !( grep { $journalu->{'user'} eq $_ } @LJ::TESTACCTS )
-        && !$LJ::IS_DEV_SERVER )
-    {
-        $mlerr->("$SC.error.testacct");
-    }
-
-    my $userpost = lc( $form->{'userpost'} );
+    # my $userpost = lc( $form->{'userpost'} ); # Never referenced again. -NF
     my $iscomm   = $journalu->is_community ? '.comm' : '';
     my $up;         # user posting
     my $exptype;    # set to long if ! after username
@@ -2754,8 +3022,6 @@ sub init {
 
             $up = LJ::load_user( $form->{'userpost'} );
             if ($up) {
-                ### see if the user is banned from posting here
-                $mlerr->("$SC.error.banned$iscomm") if $journalu->has_banned($up);
 
                 if ( $up->is_identity ) {
                     $err->("To comment as an OpenID user, you must choose the "
@@ -2810,22 +3076,9 @@ sub init {
     if ( $form->{'usertype'} eq 'openid' || $form->{'usertype'} eq 'openid_cookie' ) {
 
         if ( $remote && defined $remote->openid_identity ) {
+
             $up = $remote;
 
-            ### see if the user is banned from posting here
-            $mlerr->("$SC.error.banned") if $journalu->has_banned($up);
-
-            # Reject OpenIDs that are neither validated nor granted access by the user
-            if ( $journalu->does_not_allow_comments_from_unconfirmed_openid($up) )
-            {
-                $mlerr->(
-                    "$SC.error.noopenidpost",
-                    {
-                        aopts1 => "href='$LJ::SITEROOT/changeemail'",
-                        aopts2 => "href='$LJ::SITEROOT/register'"
-                    }
-                );
-            }
 
             # Go ahead and log in, if requested.
             if ( $form->{'oiddo_login'} ) {
@@ -2934,187 +3187,14 @@ sub init {
         }
     }
 
-    # check that user can even view this post, which is required
-    # to reply to it
-    ####  Check security before viewing this post
-    unless ( $item->visible_to($up) ) {
-        $mlerr->("$SC.error.mustlogin") unless defined $up;
-        $mlerr->("$SC.error.noauth");
-        return undef;
-    }
 
-    # If the reply is to a comment, check that it exists.
-
-    my $parpost;
-    my $partid = $form->{'parenttalkid'} + 0;
-
-    if ($partid) {
-        $parpost = LJ::Talk::get_talk2_row( $dbcr, $journalu->{userid}, $partid );
-        unless ($parpost) {
-            $mlerr->("$SC.error.noparent");
-        }
-    }
-    $init->{parpost} = $parpost;
-
-    # don't allow anonymous comments on syndicated items
-    if ( $journalu->is_syndicated && $journalu->{'opt_whocanreply'} eq "all" ) {
-        $journalu->{'opt_whocanreply'} = "reg";
-    }
-
-    if (
-        (
-               $form->{'usertype'} ne "user"
-            && $form->{'usertype'} ne 'openid'
-            && $form->{'usertype'} ne 'openid_cookie'
-        )
-        && $journalu->{'opt_whocanreply'} ne "all"
-        )
-    {
-        $mlerr->("$SC.error.noanon$iscomm");
-    }
-
-    if ( $item->comments_disabled ) {
-        $mlerr->("$SC.error.nocomments");
-    }
-
-    if ($up) {
-        if (   $up->{'status'} eq "N"
-            && !$up->is_identity
-            && !LJ::Hooks::run_hook( "journal_allows_unvalidated_commenting", $journalu ) )
-        {
-            $mlerr->( "$SC.error.noverify2", { aopts => "href='$LJ::SITEROOT/register'" } );
-        }
-
-        $mlerr->("$SC.error.purged")    if $up->is_expunged;
-        $mlerr->("$SC.error.deleted")   if $up->is_deleted;
-        $mlerr->("$SC.error.suspended") if $up->is_suspended;
-    }
-
-    if ( $journalu->{'opt_whocanreply'} eq "friends" ) {
-        if ($up) {
-            if ( $up->{'userid'} != $journalu->{'userid'} ) {
-                unless ( $journalu->trusts_or_has_member($up) ) {
-                    my $msg = $journalu->is_comm ? "notamember" : "notafriend";
-                    $mlerr->( "$SC.error.$msg", { user => $journalu->user } );
-                }
-            }
-        }
-        else {
-            my $msg = $journalu->is_comm ? "membersonly" : "friendsonly";
-            $mlerr->( "$SC.error.$msg", { user => $journalu->user } );
-        }
-    }
-
-    $mlerr->("$SC.error.blankmessage") unless $form->{'body'} =~ /\S/;
-
-    # in case this post comes directly from the user's mail client, it
-    # may have an encoding field for us.
-    # Hey yo what the hell. How could we possibly end up in this branch? mail from where? -NF
-    if ( $form->{'encoding'} ) {
-        $form->{'body'} = Unicode::MapUTF8::to_utf8(
-            { -string => $form->{'body'}, -charset => $form->{'encoding'} } );
-        $form->{'subject'} = Unicode::MapUTF8::to_utf8(
-            { -string => $form->{'subject'}, -charset => $form->{'encoding'} } );
-    }
-
-    # unixify line-endings
-    $form->{'body'} =~ s/\r\n/\n/g;
-
-    # now check for UTF-8 correctness, it must hold
-    # FIXME HEY this is inline BML or something -NF
-    return $err->("<?badinput?>") unless LJ::text_in($form);
-
-    $init->{unknown8bit} = 0;
-
-    my ( $bl, $cl ) = LJ::text_length( $form->{'body'} );
-    if ( $cl > LJ::CMAX_COMMENT ) {
-        $mlerr->(
-            "$SC.error.manychars",
-            {
-                current => $cl,
-                limit   => LJ::CMAX_COMMENT
-            }
-        );
-    }
-    elsif ( $bl > LJ::BMAX_COMMENT ) {
-        $mlerr->(
-            "$SC.error.manybytes",
-            {
-                current => $bl,
-                limit   => LJ::BMAX_COMMENT
-            }
-        );
-    }
-
-    # the Subject can be silently shortened, no need to reject the whole comment
-    $form->{'subject'} = LJ::text_trim( $form->{'subject'}, 100, 100 );
-
-    my $subjecticon      = "";
-    my $form_subjecticon = $form->{'subjecticon'} || "";
-    if ( $form_subjecticon ne "none" && $form_subjecticon ne "" ) {
-        $subjecticon = LJ::trim( lc($form_subjecticon) );
-    }
-
-    # figure out whether to post this comment screened
-    my $state     = 'A';
-    my $screening = LJ::Talk::screening_level( $journalu, $ditemid >> 8 ) || "";
-    $screening = 'A' if $journalu->has_autoscreen($up);
-    if (   $screening eq 'A'
-        || ( $screening eq 'R' && !$up )
-        || ( $screening eq 'F' && !( $up && $journalu->trusts_or_has_member($up) ) ) )
-    {
-        $state = 'S';
-    }
-
-    my $parent = {
-        state    => $parpost->{state},
-        talkid   => $partid,
-        posterid => $parpost->{posterid},
-    };
-    my $comment = {
-        u               => $up,
-        usertype        => $form->{'usertype'},
-        subject         => $form->{'subject'},
-        body            => $form->{'body'},
-        unknown8bit     => $init->{unknown8bit},
-        subjecticon     => $subjecticon,
-        preformat       => $form->{'prop_opt_preformatted'},
-        admin_post      => $form->{'prop_admin_post'},
-        picture_keyword => $form->{'prop_picture_keyword'},
-        state           => $state,
-        editid          => $form->{editid},
-        editreason      => $form->{editreason},
-    };
+    my $comment = prepare_and_validate_comment($form, $up, $item, $need_captcha, $errret);
+    return undef unless $comment;
 
     $init->{item}    = $item;
-    $init->{parent}  = $parent;
+    $init->{parent}  = $comment->{parent};
     $init->{comment} = $comment;
 
-    # anti-spam captcha check
-    if ( ref $need_captcha eq 'SCALAR' ) {
-
-        # see if they're in the second+ phases of a captcha check.
-        # are they sending us a response?
-
-        $form->{want} = $form->{captcha_type};
-        my $captcha = DW::Captcha->new( undef, %{ $form || {} } );
-
-        if ( $captcha->enabled && $captcha->response ) {
-
-            # assume they won't pass and re-set the flag
-            $$need_captcha = 1;
-
-            my $captcha_error;
-            return $err->($captcha_error) unless $captcha->validate( err_ref => \$captcha_error );
-        }
-        else {
-            $$need_captcha =
-                LJ::Talk::Post::require_captcha_test( $comment->{'u'}, $journalu, $form->{body},
-                $ditemid );
-
-            return $err->( LJ::Lang::ml('captcha.title') ) if $$need_captcha;
-        }
-    }
 
     return undef if @$errret;
     return $init;

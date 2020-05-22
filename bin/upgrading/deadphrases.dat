@@ -775,6 +775,10 @@ general /register.bml.new.update
 general /talkpost_do.bml.error.badpassword
 general /talkpost_do.bml.error.badusername
 general /talkpost_do.bml.error.noverify
+general /talkpost_do.bml.error.noreply_frozen
+general /talkpost_do.bml.error.noreply_readonly_journal
+general /talkpost_do.bml.error.noreply_readonly_remote
+general /talkpost_do.bml.error.noreply_suspended
 general /update.bml.currmood
 general /update.bml.update.alternate
 

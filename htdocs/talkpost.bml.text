@@ -1,9 +1,0 @@
-;; -*- coding: utf-8 -*-
-.error.noreply_frozen=This comment is frozen; you can't reply to it.
-
-.error.noreply_readonly_journal=This journal is read-only.  You can't reply to any entries in it.
-
-.error.noreply_readonly_remote=You're read-only.  You can't post comments.
-
-.error.noreply_suspended=This entry is suspended.  You can't reply to it.
-

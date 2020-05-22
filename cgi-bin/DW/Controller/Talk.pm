@@ -146,39 +146,6 @@ sub talkpost_do_handler {
 
     my $unscreen_parent = $POST->{unscreen_parent} ? 1 : 0;
 
-    # check max comments only if posting a new comment (not when editing)
-    unless ($editid) {
-        return error_ml('.error.maxcomments')
-            if LJ::Talk::Post::over_maxcomments($journalu, $item->jitemid);
-    }
-
-    # no replying to frozen comments
-    return error_ml('/talkpost.bml.error.noreply_frozen')
-        if $parent->{state} eq 'F';
-
-    # no replying to suspended entries, even by entry poster
-    return error_ml('/talkpost.bml.error.noreply_suspended')
-        if $item && $item->is_suspended;
-
-    # no replying to entries/comments in an entry where the remote user or journal are read-only
-    return error_ml('/talkpost.bml.error.noreply_readonly_remote')
-        if $remote && $remote->is_readonly;
-    return error_ml('/talkpost.bml.error.noreply_readonly_journal')
-        if $journalu && $journalu->is_readonly;
-
-    # is the current user banned by the author of the original post?
-    return error_ml( '.error.banned.entryowner' )
-        if defined $remote && $entryu->has_banned( $remote );
-
-    # Don't allow user A to reply to a comment by user B if user B has banned user A.
-    # We check whether $remote is defined because it won't be if we aren't logged in.
-    # We check if $parentu is defined because it won't be if the parent is an anonymous comment.
-    if ( defined $remote ) {
-        my $parentu = LJ::load_userid( $parent->{posterid} );
-        return error_ml('.error.banned.reply')
-            if defined $parentu && $parentu->has_banned( $remote );
-    }
-
     ## insertion or editing
     my $wasscreened = ($parent->{state} eq 'S');
     my $err;
