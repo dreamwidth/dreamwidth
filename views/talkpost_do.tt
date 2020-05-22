@@ -1,0 +1,26 @@
+[%- sections.title = title | ml -%]
+[% sections.head = BLOCK %]
+    [%- chalresp_js -%]
+        <style type="text/css">
+            .userpic { float: left; margin: 0 15px 5px 0; }
+            .userpics { float: right; }
+        </style>
+[% END %]
+[%- CALL dw.active_resource_group( "jquery" ) -%]
+   [%- dw.need_res( { group => "jquery" },
+           "js/jquery.replyforms.js",
+            "js/jquery.talkform.js",
+            "stc/css/components/talkform.css"
+   ) -%]
+[% IF html %]
+    [% html %]
+[% ELSE %]
+   <h1>[% dw.ml(title) %]</h1>
+    <p>[% dw.ml(mlcode, {'aopts' => "href='$commentlink'"} ) %]</p>
+    [%- IF unscreened -%]
+        <p>[% dw.ml('.success.unscreened') %]</p>
+    [%- END -%]
+    [%- IF didlogin -%]
+        <p>[% dw.ml('.success.loggedin') %]</p>
+    [%- END -%]
+[% END %]

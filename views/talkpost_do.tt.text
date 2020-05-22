@@ -1,0 +1,122 @@
+;; -*- coding: utf-8 -*-
+.error.badpassword2=Incorrect password given for the username specified. You can recover your password <a [[aopts]]>here</a> if you've forgotten it.
+
+.error.badusername2=The [[sitename]] username you specified does not exist. You can recover your username <a [[aopts]]>here</a> if you've forgotten it, or you may post as "Anonymous" instead.
+
+.error.badrequest=Comment not posted: POST required, or missing parameter.
+
+.error.banned=You are not allowed to post in this user's journal.
+
+.error.banned.comm=You are not allowed to post in this community.
+
+.error.banned.reply=You have been banned from replying to this user's comments.
+
+.error.banned.entryowner=You have been banned from commenting on entries by this user.
+
+.error.blankmessage=Your message is blank.  Please enter something in the message field.
+
+.error.confused_identity=You entered an account name but selected "post anonymously" or as the currently logged in account.  Please clear the textbox or select the correct posting mode and try again.
+
+.error.deleted=Your journal has been deleted.  You can't post messages.
+
+.error.friendsonly=Only friends of [[user]] may post in this journal.
+
+.error.invalidform=Invalid form submission. You may have left the reply form open too long, or logged out since you opened the page. Please try posting again.
+
+.error.lostcookie=Your login cookie has disappeared.
+
+.error.manybytes=Sorry, but your comment of [[current]] exceeds the maximum byte length of [[limit]]. Please go back, shorten it, and try posting it again.
+
+.error.manychars=Sorry, but your comment of [[current]] characters exceeds the maximum character length of [[limit]]. Please go back, shorten it, and try posting it again.
+
+.error.maxcomments=This entry already has the maximum number of comments allowed.
+
+.error.membersonly=Only members of [[user]] can post in this community.
+
+.error.mustlogin=You must be logged in or using a username/password to reply to this protected entry.
+
+.error.noanon=You can't post anonymously in this journal.
+
+.error.noanon.comm=You can't post anonymously in this community.
+
+.error.noauth=You aren't authorized to reply to this protected entry.
+
+.error.nocomments=Comments are disabled on this entry.
+
+.error.noopenid=OpenID users aren't authorized to reply to this entry.
+
+.error.noopenidpost=You must <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address before you can comment.
+
+.error.noparent=Cannot reply to a non-existent comment.
+
+.error.notafriend=You aren't on [[user]]'s Access List; only members of [[user]]'s Access List can reply to entries in this journal.
+
+.error.notamember=You aren't a member of <strong>[[user]]</strong>.  Commenting here is restricted to members.
+
+.error.nousername=You did not enter your [[sitename]] username.  You can choose to post as "Anonymous" if you don't have a [[sitename]] user account, or log in via OpenID.
+
+.error.nousername.noanon=You did not enter your [[sitename]] username and this user does not allow anonymous commenting. Please go back and enter your [[sitename]] username and password to comment.
+
+.error.nousername.noanon.comm=You did not enter your [[sitename]] username and this community does not allow anonymous commenting. Please go back and enter your [[sitename]] username and password to comment.
+
+.error.noverify2=You can't post comments until your email address has been confirmed. If you've lost the confirmation email, you can <a [[aopts]]>have it re-sent</a>.
+
+.error.postshared=You can't post as a community account.
+
+.error.purged=Your journal has been deleted and purged.  You can't post messages.
+
+.error.screened=You don't have permission to reply to this screened comment.
+
+.error.suspended=Your journal has been suspended.  You can't post messages.
+
+.error.testacct=Test accounts can only be used in test account journals.
+
+.opt.preview=Preview
+
+.preview=This is how your comment will look when posted. You can edit your comment further using the form below, or you can submit it as is.
+
+.preview.context=Comment Context
+
+.preview.edit.body=<b>New message: </b>
+
+.preview.edit.editreason=<b>Reason for edit: </b>
+
+.preview.edit.subject=<b>New subject: </b>
+
+.preview.entry.journal=[[user]] posting in [[journal]]
+
+.preview.poster=<strong>Posted by: </strong>
+.preview.anonymous=Anonymous
+.preview.unauthenticated_openid=[[openid]] (not yet authenticated)
+.preview.subject=<strong>Subject: </strong>
+
+.preview.postcomment=Post Comment
+
+.preview.title=Preview
+
+.success.loggedin=You're now logged in.
+
+.success.message2=Your comment has been added. You can <a [[aopts]]>view it</a>.
+
+.success.screened.comm.anon3=Your anonymous comment has been added and marked as screened; it will be visible only to any logged-in user to whom you may be replying and the community administrators until they choose to unscreen it. <a [[aopts]]>Go back to the comment thread</a>.
+
+.success.screened.comm.owncomm4=Your comment has been added. According to this community or entry's settings, it was marked as screened, and will be visible only to you, any logged-in user to whom you may be replying, and any other community admins until one of you chooses to unscreen it. <a [[aopts]]>View your comment</a>.
+
+.success.screened.comm3=Your comment has been added and marked as screened; it will be visible only to you, any logged-in user to whom you may be replying, and the community administrators until they choose to unscreen it. <a [[aopts]]>View your comment</a>.
+
+.success.screened.user.anon3=Your anonymous comment has been added. According to this account's settings, it was marked as screened and will be visible only to any logged-in user to whom you may be replying and the account owner until the owner chooses to unscreen it. <a [[aopts]]>Go back to the comment thread</a>.
+
+.success.screened.user.ownjournal3=Your comment has been added. According to this journal's settings, it was marked as screened, and will be visible only to you and any logged-in user to whom you may be replying until you choose to unscreen it. <a [[aopts]]>View your comment</a>.
+
+.success.screened.user3=Your comment has been added. According to this account's settings, it was marked as screened and will be visible only to you, any logged-in user to whom you may be replying, and the journal's owner until the owner chooses to unscreen it. <a [[aopts]]>View your comment</a>.
+
+.success.title=Success
+
+.success.unscreened=The screened comment you replied to has been unscreened and is visible.
+
+.title=Post Comment
+
+.title.error=Comment Not Posted
+
+.title.preview=Comment Preview
+
