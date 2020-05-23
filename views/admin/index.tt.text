@@ -11,10 +11,6 @@
 
 .admin.file_edit.text=Allows you to edit various include files.
 
-.admin.invites.link=Invite Code Management
-
-.admin.invites.text=View and manage invite codes.
-
 .admin.logout_user.link=Logout User
 
 .admin.logout_user.text=Logs a user out of the site.

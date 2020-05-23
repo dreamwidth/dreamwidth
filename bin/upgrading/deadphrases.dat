@@ -2005,8 +2005,22 @@ general /views/admin/index.tt.admin.sitemessages_add.text
 general /views/admin/index.tt.admin.sitemessages_manage.link
 general /views/admin/index.tt.admin.sitemessages_manage.text
 
+general /views/admin/index.tt.admin.invites.link
+general /views/admin/index.tt.admin.invites.text
 general /views/admin/index.tt.admin.navtag.link
 general /views/admin/index.tt.admin.navtag.text
+
+general /admin/invites/index.bml.codetrace.desc
+general /admin/invites/index.bml.codetrace.head
+general /admin/invites/index.bml.distribute.desc
+general /admin/invites/index.bml.distribute.head
+general /admin/invites/index.bml.promo.desc
+general /admin/invites/index.bml.promo.head
+general /admin/invites/index.bml.requests.desc
+general /admin/invites/index.bml.requests.head
+general /admin/invites/index.bml.review.desc
+general /admin/invites/index.bml.review.head
+general /admin/invites/index.bml.title
 
 general /customize/index.bml.admin.customize_area_feedback
 general /customize/options.bml.customize.feedback

@@ -46,10 +46,6 @@ DW::Controller::Admin->_register_admin_pages_legacy(
     [ 'faq/', '.admin.faq.link', '.admin.faq.text', [ 'faqadd', 'faqedit', 'faqcat' ] ],
     [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
     [
-        'invites/', '.admin.invites.link',
-        '.admin.invites.text', [ 'finduser:codetrace', 'finduser:*', 'payments' ]
-    ],
-    [
         'memcache', '.admin.memcache.link',
         '.admin.memcache.text', [ 'siteadmin:memcacheview', 'siteadmin:*' ]
     ],
