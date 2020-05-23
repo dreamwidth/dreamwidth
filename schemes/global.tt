@@ -102,6 +102,23 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- END -%]
 [%- END -%]
 
+[%- BLOCK block.msgs -%]
+[%# sections.errors are instances of DW::FormErrors %]
+[%- IF msgs -%]
+<div class="row">
+    <div class="columns large-12">
+        [%- FOR msg IN msgs -%]
+            <div class="radius session-msg-box [% msg.level %]">
+                <span class="invisible"><b>[% msg.level.ucfirst %]:</b> </span>
+                [% msg.item -%]
+            </div>
+        [%- END -%]
+    </div>
+</div>
+[%- END -%]
+[%- END -%]
+
+
 [%- BLOCK block.script_init -%]
 [%- IF resource_group == "foundation" -%]
 <script>$(document).foundation();</script>

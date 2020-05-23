@@ -197,3 +197,12 @@ div.lj_ippu_titlebar {
 }
 
 big big big big {  font-size: 100%; }
+
+.session-msg-box {
+    margin: 1em auto;
+    padding: 0.5em;
+    border-style:solid;
+    border-width:1px;
+    display:block;
+    font-size:1rem;
+}

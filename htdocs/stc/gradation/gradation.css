@@ -951,3 +951,9 @@ div#cf-edit select {
 #archive-month .empty {margin: 0;}
 #archive-month .datetime {font-style: italic;}
 #archive-month .tag li {display: inline; list-style:none;}
+
+#canvas .row {
+    margin-top: 2em;
+    padding: 1.5em 1.5em 0em;
+    margin-bottom: -2em;
+}

@@ -35,6 +35,8 @@ use fields (
 
     # Query string arguments, every request might have these.
     'get_args',
+    'msgs',
+    'msgkey',
 );
 
 sub new {
@@ -49,6 +51,8 @@ sub new {
     $self->{get_args}         = undef;
     $self->{json_obj}         = undef;
     $self->{uploads}          = undef;
+    $self->{msgs}             = undef;
+    $self->{msgkey}           = undef;
 }
 
 sub host {
@@ -227,6 +231,75 @@ sub redirect {
     my DW::Request $self = $_[0];
     $self->header_out( Location => $_[1] );
     return $opts{permanent} ? $self->MOVED_PERMANENTLY : $self->REDIRECT;
+}
+
+# Constants for message alert levels
+sub DEFAULT { return INFO(); }
+sub INFO    { return 'info'; }
+sub WARN    { return 'warning'; }
+sub WARNING { return WARN(); };     # alias because both are common usages.
+sub ERROR   { return 'error'; }
+sub SUCCESS { return 'success'; }
+my @MSG_LEVELS = ( DEFAULT(), INFO(), WARN(), ERROR(), SUCCESS() );
+
+# Generate memcache key for session messages
+sub msgkey {
+    my DW::Request $self = $_[0];
+    return $self->{msgkey} if defined $self->{msgkey};
+
+    my $cookie = $self->cookie('ljuniq');
+    if ($cookie) {
+        my ( $uniq, $ts ) = split( /:/, $self->cookie('ljuniq') );
+        $self->{msgkey} = "req_msgs:$uniq";
+    }
+    return $self->{msgkey};
+}
+
+# Gets session messages to display inline on pages
+sub msgs {
+    my DW::Request $self = $_[0];
+
+    return $self->{msgs} if defined $self->{msgs};
+    my $msgkey = $self->msgkey;
+    $self->{msgs} = LJ::MemCache::get($msgkey) if $msgkey;
+    return $self->{msgs};
+}
+
+# Clear session messages from the request and from memcache.
+# Should be used after messages have been displayed to user.
+sub clear_msgs {
+    my DW::Request $self = $_[0];
+
+    my $msgkey = $self->msgkey;
+    LJ::MemCache::delete($msgkey) if $msgkey;
+    $self->{msgs} = undef;
+
+    return 1;
+}
+
+# Add a session message to be displayed inline. Log level can be
+# one of INFO, WARNING, ERROR, SUCCESS, or DEFAULT, or none.
+sub add_msg {
+    my DW::Request $self = $_[0];
+    my $msg              = $_[1];
+    my $level            = $_[2];
+
+    croak "Invalid message level $level" if $level && !( grep { $level eq $_ } @MSG_LEVELS );
+    $msg =
+        $level ? { 'item' => $msg, 'level' => $level } : { 'item' => $msg, 'level' => DEFAULT() };
+
+    my $msgs = $self->msgs;
+    if ($msgs) {
+        push @$msgs, $msg;
+    }
+    else {
+        $msgs = [$msg];
+    }
+
+    my $msgkey = $self->msgkey;
+    LJ::MemCache::set( $msgkey, $msgs ) if $msgkey;
+    $self->{msgs} = $msgs;
+    return 1;
 }
 
 # indicates that this request has been handled

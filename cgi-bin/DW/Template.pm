@@ -363,7 +363,6 @@ A DW::SiteScheme object
 sub render_scheme {
     my ( $class, $scheme, $body, $sections ) = @_;
     my $r = DW::Request->get;
-
     my $out;
 
     my $opts = $scheme->get_vars;
@@ -372,9 +371,11 @@ sub render_scheme {
     $opts->{content}        = $body;
     $opts->{get}            = $r->get_args;
     $opts->{resource_group} = $LJ::ACTIVE_RES_GROUP;
+    $opts->{msgs}           = $r->msgs;
 
     $scheme_engine->process( "_init.tt", $opts, \$out )
         or die $scheme_engine->error->as_string;
+    $r->clear_msgs;
 
     return $out;
 }

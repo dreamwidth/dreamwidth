@@ -260,11 +260,13 @@ the table based way can be removed when the entire site is Foundation-based.
                 </div><!-- end masthead -->
 
                 <div id="content" role="main" [% sections.contentopts %]>
+                    [%- PROCESS block.msgs -%]
                 <div class="row"><div class="large-12 columns">
                     <h1>[% sections.title %]</h1>
                 </div></div>
 
                 [%- PROCESS block.errors -%]
+
 
                 <div class="row"><div class="large-12 columns">
                     [%- content -%]
@@ -312,6 +314,7 @@ the table based way can be removed when the entire site is Foundation-based.
     [% PROCESS block.head %]
     <body [% sections.bodyopts %]>
         <div id="canvas" [% canvas_opts %]>
+            [%- PROCESS block.msgs -%]
             [% PROCESS block.pagediv %]
         </div>
         [% dw_scheme.final_body_html %]

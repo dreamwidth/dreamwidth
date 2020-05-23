@@ -72,6 +72,11 @@
 .error-box, .alert-box {
 }
 
+.session-msg-box .invisible {
+    position: relative;
+    left: 0;
+
+}
 .odd, tr.odd th, tr.odd td {
     background-color: #fff;
 }

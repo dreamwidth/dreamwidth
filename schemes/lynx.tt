@@ -50,6 +50,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </div>
 
     [%- PROCESS block.errors -%]
+    [%- PROCESS block.msgs -%]
 
     <div class="row"><div class="large-12 columns">
         [%- content -%]

@@ -112,3 +112,27 @@
   border-color: #444;
   background-color: #4b4b4b;
 }
+
+.session-msg-box.info {
+    background-color:#666;
+    border-color:#585858;
+    color:#fff;
+}
+
+.session-msg-box.warning {
+    background-color:#f7f3b8;
+    border-color:#f0e982;
+    color:#232323;
+}
+
+.session-msg-box.error {
+    background-color:#ffd9bb;
+    border-color:#ffb77d;
+    color:#232323;
+}
+
+.session-msg-box.success {
+    background-color:#cce2ba;
+    border-color:#add192;
+    color:#232323;
+}

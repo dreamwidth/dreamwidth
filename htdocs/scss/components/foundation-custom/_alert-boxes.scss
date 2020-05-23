@@ -18,3 +18,14 @@ $alert-box-error-color: $alert-color !default;
 
   ul, ol { font-size: inherit; margin-bottom: 0; }
 }
+
+.session-msg-box {
+    @include alert($bg:$alert-box-color);
+
+    font-size: 1rem;
+
+    &.success { @include alert-style($success-color); }
+    &.error { @include alert-style($alert-box-error-color);}
+    &.info { @include alert-style($secondary-color);}
+    &.warning { } // .warning uses the base 'alert' style
+}
