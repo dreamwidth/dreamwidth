@@ -1,0 +1,85 @@
+[%# Invite Code Trace
+  #
+  # Authors:
+  #      Afuna <coder.dw@afunamatata.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+<p>[% '.intro' | ml %]</p>
+
+<form method='GET'>
+  <table summary=''>
+    <tr>
+      <td><label>[% '.field.bycode.label' | ml %] </label></td>
+      <td>
+    [%- form.textbox(
+        name = 'code'
+        size = 27
+        maxlength = maxlength_code
+    ) -%]
+      </td>
+    </tr>
+    <tr>
+      <td><label>[% '.field.byuser.label' | ml %] </label></td>
+      <td>
+    [%- form.textbox(
+        name = 'account'
+        size = 27
+        maxlength = maxlength_user
+    ) -%]
+      </td>
+    </tr>
+    <tr>
+      <td colspan='2' align='right'>
+    [%- form.submit( value = dw.ml( ".btn.view" ) ) -%]
+      </td>
+    </tr>
+  </table>
+</form>
+
+<hr />
+
+[%- IF display_error -%]
+  <p>[% display_error %]</p>
+[%- ELSIF display_codes -%]
+<table border='1' cellpadding='5'>
+  <thead><tr>
+    <th>[% '.col.code' | ml %]</th>
+    <th>[% '.col.owner' | ml %]</th>
+    <th>[% '.col.recipient' | ml %]</th>
+    <th>[% '.col.reason' | ml %]</th>
+    <th>[% '.col.dategen' | ml %]</th>
+    <th>[% '.col.datesent' | ml %]</th>
+    <th>[% '.col.dateused' | ml %]</th>
+    <th>[% '.col.email' | ml %]</th>
+  </tr></thead>
+
+  [%- FOREACH code = display_codes;
+        owner = load_code_owner( code );
+        recipient = load_code_recipient( code )
+  -%]
+
+  <tr>
+    <td><tt>[% code.code %]</tt></td>
+    <td>[% IF owner; owner.ljuser_display; END %]</td>
+    <td>[% IF recipient; recipient.ljuser_display; END %]</td>
+    <td>[% code.reason %]</td>
+    <td>[% time_to_http( code.timegenerate ) %]</td>
+    <td>[% IF code.timesent; time_to_http( code.timesent ); END %]</td>
+    <td>[% IF recipient; time_to_http( recipient.timecreate ); END %]</td>
+    <td>[% code.email %]</td>
+  </tr>
+
+  [%- END -%]
+
+</table>
+[%- END -%]
