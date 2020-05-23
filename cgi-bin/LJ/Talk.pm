@@ -1823,15 +1823,26 @@ sub init_iconbrowser_js {
 sub init_s2journal_js {
     my %opts = @_;
 
-    # load for everywhere you can reply (ReplyPage, lastn, AND entries)
+    # TODO: change resource group to "foundation" in all these after the
+    # s2foundation beta ends.
+
+    # load for everywhere that displays entry and/or comment text.
+    # quick-reply.css is for both reply forms. (TODO: rename that.)
     LJ::need_res(
         { group => "all" }, qw(
+            js/jquery/jquery.ui.widget.js
             js/jquery.replyforms.js
             stc/css/components/quick-reply.css
+            js/jquery.poll.js
+            js/journals/jquery.tag-nav.js
+            js/jquery.mediaplaceholder.js
+            js/jquery.imageshrink.js
+            stc/css/components/imageshrink.css
             )
     );
 
-    # load for quick reply (every view except ReplyPage)
+    # load for quick reply (every view except ReplyPage).
+    # threadexpander is only for EntryPage, but whatever.
     LJ::need_res(
         { group => "all" }, qw(
             js/jquery/jquery.ui.core.js
@@ -1864,7 +1875,7 @@ sub init_s2journal_js {
             )
     ) unless $opts{siteskin};
 
-    # load for ajax cuttag - again, only needed on lastn-type pages
+    # load for ajax cuttag - only needed on lastn-type pages
     LJ::need_res(
         { group => "all" }, qw(
             js/jquery/jquery.ui.widget.js
