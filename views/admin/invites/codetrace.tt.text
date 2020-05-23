@@ -1,0 +1,33 @@
+;; -*- coding: utf-8 -*-
+.btn.view=View
+
+.col.code=Code
+
+.col.dategen=Date generated
+
+.col.datesent=Date sent
+
+.col.dateused=Date used
+
+.col.email=Email
+
+.col.owner=Owner
+
+.col.reason=Reason
+
+.col.recipient=Recipient
+
+.error.invalidcode=Error: invalid code '[[code]]'
+
+.error.invaliduser=Error: invalid user '[[user]]'
+
+.error.nocodes=Error: user [[account]] has no invite codes to display
+
+.field.bycode.label=By code:
+
+.field.byuser.label=By account:
+
+.intro=View invite details:
+
+.title=Invite Code Trace
+
