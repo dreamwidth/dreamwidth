@@ -21,6 +21,8 @@
         id = 'num_invites'
         name = 'num_invites'
         label = dw.ml( '.field.numinvites.label' )
+        size = 15
+        class = 'inline'
     ) -%]
   </p>
   <p>
