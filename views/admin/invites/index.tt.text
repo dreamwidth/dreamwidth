@@ -1,7 +1,11 @@
 ;; -*- coding: utf-8 -*-
+.admin.link=Invite Code Management
+
+.admin.text=View and manage invite codes and promo codes.
+
 .codetrace.desc=Look up invite codes, by code or by user
 
-.codetrace.head=Codetrace
+.codetrace.head=Code Trace
 
 .distribute.desc=Bulk invite code distribution
 
