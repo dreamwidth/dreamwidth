@@ -26,21 +26,24 @@ use DW::Template;
 
 use DW::InviteCodes;
 
-my $invite_privs =
+my $all_invite_privs =
     [ 'finduser:codetrace', 'finduser:*', 'payments', 'siteadmin:invites', 'siteadmin:*' ];
+
+my $light_invite_privs = [ 'payments', 'siteadmin:invites', 'siteadmin:*' ];
 
 DW::Routing->register_string( "/admin/invites", \&index_controller, app => 1 );
 DW::Controller::Admin->register_admin_page(
     '/',
     path     => 'invites',
     ml_scope => '/admin/invites/index.tt',
-    privs    => $invite_privs
+    privs    => $all_invite_privs
 );
 
-DW::Routing->register_string( "/admin/invites/codetrace", \&codetrace_controller, app => 1 );
+DW::Routing->register_string( "/admin/invites/codetrace",  \&codetrace_controller,  app => 1 );
+DW::Routing->register_string( "/admin/invites/distribute", \&distribute_controller, app => 1 );
 
 sub index_controller {
-    my ( $ok, $rv ) = controller( privcheck => $invite_privs );
+    my ( $ok, $rv ) = controller( privcheck => $all_invite_privs );
     return $rv unless $ok;
     my $remote = $rv->{remote};
 
@@ -114,6 +117,70 @@ sub codetrace_controller {
     };
 
     return DW::Template->render_template( 'admin/invites/codetrace.tt', $vars );
+}
+
+sub distribute_controller {
+    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => $light_invite_privs );
+    return $rv unless $ok;
+
+    my $scope = '/admin/invites/distribute.tt';
+
+    my $r         = DW::Request->get;
+    my $post_args = $r->post_args;
+    my $vars      = {};
+
+    my $classes = DW::BusinessRules::InviteCodes::user_classes();
+
+    # we can't just splat this hashref into an arrayref because
+    # the order of the list will be randomized every time we load it
+    # which is bad UX for a dropdown menu
+
+    $vars->{classes} = [];
+    foreach ( sort { $classes->{$a} cmp $classes->{$b} } keys %$classes ) {
+        push @{ $vars->{classes} }, $_, $classes->{$_};
+    }
+
+    if ( $r->did_post ) {
+
+        # sanitize the number of invites
+        my $num_invites_requested = $post_args->{num_invites};
+        $num_invites_requested =~ s/[^0-9]//g;
+        $num_invites_requested += 0;
+
+        if ($num_invites_requested) {
+
+            # sanitize selected user class
+            my $selected_user_class = $post_args->{user_class};
+
+            if ( exists $classes->{$selected_user_class} ) {
+
+                $vars->{dispatch} = DW::TaskQueue->dispatch(
+                    TheSchwartz::Job->new_from_array(
+                        'DW::Worker::DistributeInvites',
+                        {
+                            requester   => $rv->{remote}->userid,
+                            searchclass => $selected_user_class,
+                            invites     => $num_invites_requested,
+                            reason      => $post_args->{reason}
+                        }
+                    )
+                );
+
+                $vars->{display_error} = LJ::Lang::ml("$scope.error.cantinsertjob")
+                    unless $vars->{dispatch};
+            }
+            else {
+                $vars->{display_error} =
+                    LJ::Lang::ml( "$scope.error.nosuchclass", { class => $selected_user_class } );
+            }
+        }
+        else {
+            $vars->{display_error} = LJ::Lang::ml("$scope.error.noinvites");
+        }
+
+    }
+
+    return DW::Template->render_template( 'admin/invites/distribute.tt', $vars );
 }
 
 1;
