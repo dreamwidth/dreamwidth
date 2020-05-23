@@ -61,11 +61,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 </div><!-- end masthead-->
 
                 <div id="content" role="main" [% sections.contentopts %]>
+                [%- PROCESS block.msgs -%]
                 <div class="row"><div class="large-12 columns">
+
                     <h1>[% sections.title %]</h1>
                 </div></div>
 
                 [%- PROCESS block.errors -%]
+
 
                 <div class="row"><div class="large-12 columns">
                     [%- content -%]
@@ -126,6 +129,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 </div><!-- end masthead-->
 
                 <div id="content" role="main" [% sections.contentopts %]>
+                    [%- PROCESS block.msgs -%]
                     <h1>[% sections.title %]</h1>
                     [% content %]
                 </div><!--end content-->

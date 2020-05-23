@@ -716,3 +716,26 @@ hr.hr {
 #archive-month .tag li {display: inline; list-style:none;}
 
 
+.session-msg-box.info {
+    background-color:#e9e9e9;
+    border-color:#c8c8c8;
+    color:#4f4f4f
+}
+
+.session-msg-box.warning {
+    background-color:#fbf9dd;
+    border-color:#f4efa2;
+    color:#4f4f4f
+}
+
+.session-msg-box.error {
+    background-color:#fff0e4;
+    border-color:#ffcaa0;
+    color:#4f4f4f
+}
+
+.session-msg-box.success {
+    background-color:#e1eed7;
+    border-color:#c0dbaa;
+    color:#4f4f4f
+}

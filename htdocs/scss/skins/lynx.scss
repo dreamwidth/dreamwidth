@@ -62,3 +62,8 @@ label.hidden {
 .picker__list-item--selected:hover {
     border: 1px solid;
 }
+
+.session-msg-box .invisible {
+    position: relative;
+    left: 0;
+}
