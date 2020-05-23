@@ -519,6 +519,9 @@ sub authenticate_user_and_mutate_form {
         return $got_user->($up);
     }
     elsif ( $form->{usertype} eq 'openid' || $form->{usertype} eq 'openid_cookie' ) {
+        if ( $form->{userpost} ) {
+            return $incoherent->();
+        }
 
         # Okay: This one's weird, but mostly just because the code order is
         # backwards from how things happen irl, WHICH IS:
