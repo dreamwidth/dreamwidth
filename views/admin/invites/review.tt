@@ -1,0 +1,131 @@
+[%# View a user's invite-code-related history.
+  #
+  # Authors:
+  #      Afuna <coder.dw@afunamatata.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content h2 { padding-top: 0.5em; }
+        #content table { margin-bottom: 2em; }
+    </style>
+[% END %]
+
+[%- IF r.did_post;
+      req = load_req( r.post_args.reqid );
+
+      IF req.defined;
+        IF r.post_args.action == 'Accept';
+          req.accept( num_invites = r.post_args.num_invites );
+        ELSIF r.post_args.action == 'Reject';
+          req.reject;
+        END;
+      END;
+    END -%]
+
+[%- IF getuser && ! u.defined -%]
+<div class="alert-box radius">
+  [% '.error.invalid' | ml( name = getuser ) %]
+</div>
+[%- END -%]
+
+[%- IF u.defined;
+    codelist = usercodes(u) -%]
+<p>[% '.label.user' | ml %] [% u.ljuser_display %]</p>
+<h2>[% '.subhead.invites' | ml %]</h2>
+<p>[% '.label.unused' | ml %] [% unused_count( u ) %]</p>
+
+  [%- IF codelist.size -%]
+<table>
+  <thead><tr>
+    <th>[% '.col.recipient' | ml %]</th>
+    <th>[% '.col.last' | ml %]</th>
+    <th>[% '.col.paid' | ml %]</th>
+  </tr></thead>
+
+    [%- FOREACH code = codelist;
+        rec = load_recipient( code ) -%]
+  <tr>
+      [%- IF rec -%]
+    <td>[% rec.ljuser_display %]</td>
+    <td>[% time_to_http( rec.get_timeactive ) %]</td>
+    <td>
+        [%- IF paid_status( rec );
+              dw.ml( '.paid' );
+            ELSE;
+              '&nbsp;';
+            END -%]
+      </td>
+      [%- ELSE -%]
+    <td>[% '.unused' | ml %]</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+      [%- END -%]
+  </tr>
+    [%- END -%]
+</table>
+  [%- ELSE -%]
+  <p>[% '.nocodes' | ml %]</p>
+  [%- END -%]
+
+<h2>[% '.subhead.requests' | ml %]</h2>
+
+  [%- reqlist = list_req( u );
+      IF reqlist.size -%]
+<table>
+  <thead><tr>
+    <th>[% '.col.reqdate' | ml %]</th>
+    <th>[% '.col.procdate' | ml %]</th>
+    <th>[% '.col.status' | ml %]</th>
+    <th>[% '.col.reason' | ml %]</th>
+  </tr></thead>
+
+    [%- FOREACH req = reqlist -%]
+  <tr>
+    <td>[% time_to_http( req.timegenerate ) %]</td>
+    <td>[% IF req.timeprocessed; time_to_http( req.timeprocessed );
+           ELSE; 'N/A'; END %]</td>
+    <td>[% req.status %]</td>
+    <td>[% req.reason %]</td>
+  </tr>
+    [%- END -%]
+</table>
+
+    [%- actreq = get_oldest( reqlist );
+        IF actreq -%]
+  <form method='POST'>
+      [%- dw.form_auth -%]
+      [%- form.hidden( name = 'reqid', value = actreq.id ) -%]
+    <p>
+      [%- form.textbox(
+          id = 'num_invites'
+          name = 'num_invites'
+          label = dw.ml( '.label.num_invites' )
+          size = 3
+          value = 1
+      ) -%]
+      [%- form.submit( name='action', value =  "Accept" ) -%]
+      [%- form.submit( name='action', value =  "Reject" ) -%]
+    </p>
+  </form>
+    [%- END -%]
+  [%- ELSE -%]
+  <p>[% '.noreqs' | ml %]</p>
+  [%- END -%]
+
+[%- ELSE -%]
+<form method='GET'>
+  [%- form.textbox( name = 'user', label = dw.ml( '.label.user' ) ) -%]
+  [%- form.submit( value = dw.ml( ".btn.view" ) ) -%]
+</form>
+[%- END -%]
