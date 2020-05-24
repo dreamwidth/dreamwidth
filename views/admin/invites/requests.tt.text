@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+.btn.do=Give/Reject
+
+.col.count=Ct
+
+.col.give=Give
+
+.col.pc=P/C
+
+.col.reason=Reason
+
+.col.timegen=Time generated
+
+.col.user=User
+
+.noreason=( no reason given )
+
+.req.denied=DENIED
+
+.req.gave=GAVE: [[count]]
+
+.title=View Invite Code Requests
+
+.whatdo=This will give codes to people you have put a number in, and reject people who have 0 given.
+
