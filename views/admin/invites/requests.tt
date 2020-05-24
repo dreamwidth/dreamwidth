@@ -1,0 +1,77 @@
+[%# View and manage pending invite code requests.
+  #
+  # Authors:
+  #      Afuna <coder.dw@afunamatata.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        td, th { padding: 2px; }
+    </style>
+[% END %]
+
+<form method="POST">
+  [%- dw.form_auth -%]
+  <table>
+    <thead><tr>
+      <th>[% '.col.user' | ml %]</th>
+      <th>[% '.col.timegen' | ml %]</th>
+      <th>[% '.col.pc' | ml %]</th>
+      <th>[% '.col.count' | ml %]</th>
+      <th>[% '.col.give' | ml %]</th>
+      <th>[% '.col.reason' | ml %]</th>
+    </tr></thead>
+
+  [%- FOREACH req = outstanding;
+        ctid = "ct_${req.id}";
+        uid = req.userid;
+        u = users.$uid;
+        UNLESS sysbanned( u )
+  -%]
+
+    <tr>
+      <td>[% u.ljuser_display %]</td>
+      <td>[% time_to_http( req.timegenerate ) %]</td>
+      <td>[% pc_accts( u ) %]</td>
+      <td>[% counts.$uid %]</td>
+      <td>
+
+      [%- IF r.did_post;
+            ct = r.post_args.$ctid;
+            IF ct.defined && ct.match('^\d\d?$');
+
+              IF ct > 0;
+                req.accept( num_invites = ct );
+                dw.ml( '.req.gave', { count => ct } );
+              ELSE;
+                req.reject;
+                dw.ml( '.req.denied' );
+              END;
+
+            ELSE; '---'; END;
+
+          ELSE;  form.textbox( name = ctid, size = 2, maxlength = 2 );
+          END -%]
+
+        </td>
+      <td>[% reason_link( u, reason_text( req ) ) %]</td>
+    </tr>
+  [%- END; END -%]
+  </table>
+  <br />
+
+  [%- UNLESS r.did_post -%]
+    <p>[% form.submit( value = dw.ml( ".btn.do" ) ) %]</p>
+    <p>[% '.whatdo' | ml %]</p>
+  [%- END -%]
+</form>

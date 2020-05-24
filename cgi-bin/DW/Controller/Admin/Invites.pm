@@ -25,6 +25,7 @@ use DW::Routing;
 use DW::Template;
 
 use DW::InviteCodes;
+use DW::InviteCodeRequests;
 
 my $all_invite_privs =
     [ 'finduser:codetrace', 'finduser:*', 'payments', 'siteadmin:invites', 'siteadmin:*' ];
@@ -41,6 +42,7 @@ DW::Controller::Admin->register_admin_page(
 
 DW::Routing->register_string( "/admin/invites/codetrace",  \&codetrace_controller,  app => 1 );
 DW::Routing->register_string( "/admin/invites/distribute", \&distribute_controller, app => 1 );
+DW::Routing->register_string( "/admin/invites/requests",   \&requests_controller,   app => 1 );
 
 sub index_controller {
     my ( $ok, $rv ) = controller( privcheck => $all_invite_privs );
@@ -181,6 +183,66 @@ sub distribute_controller {
     }
 
     return DW::Template->render_template( 'admin/invites/distribute.tt', $vars );
+}
+
+sub requests_controller {
+    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => $light_invite_privs );
+    return $rv unless $ok;
+
+    my $scope = '/admin/invites/requests.tt';
+
+    my $r    = DW::Request->get;
+    my $vars = {};
+
+    # we do the post processing in the template (radical!)
+    $vars->{r} = $r;
+
+    # get outstanding invites
+    my @outstanding = DW::InviteCodeRequests->outstanding;
+    $vars->{outstanding} = \@outstanding;
+
+    # load user objects
+    my $users = LJ::load_userids( map { $_->userid } @outstanding );
+    $vars->{users} = $users;
+
+    # count invites the user has
+    $vars->{counts} = {};
+    foreach my $u ( values %$users ) {
+        $vars->{counts}->{ $u->id } =
+            DW::InviteCodes->unused_count( userid => $u->id );
+    }
+
+    # subroutine for counting accounts registered to user's email.
+    $vars->{pc_accts} = sub {
+        my ($u) = @_;
+        if ( my $acctids = $u->accounts_by_email ) {
+            my $us = LJ::load_userids(@$acctids);
+            my ( $pct, $cct ) = ( 0, 0 );
+            foreach (@$acctids) {
+                next unless $us->{$_};
+                $pct++ if $us->{$_}->is_personal;
+                $cct++ if $us->{$_}->is_comm;
+            }
+            return "$pct/$cct";
+        }
+        else {
+            return "N/A";
+        }
+    };
+
+    # subroutine to check whether the user is sysbanned
+    $vars->{sysbanned} = sub { DW::InviteCodeRequests->invite_sysbanned( user => $_[0] ) };
+
+    $vars->{time_to_http} = sub { return LJ::time_to_http( $_[0] ) };
+
+    $vars->{reason_text} = sub { $_[0]->reason || LJ::Lang::ml("$scope.noreason") };
+    $vars->{reason_link} = sub {
+        my ( $u, $reason ) = @_;
+        return $reason unless $rv->{remote}->has_priv("payments");
+        return "<a href='review?user=$u->{user}'>$reason</a>";
+    };
+
+    return DW::Template->render_template( 'admin/invites/requests.tt', $vars );
 }
 
 1;
