@@ -1352,8 +1352,8 @@ TOKEN:
     }
 
     # If crossposting, explicitly close cuts to keep the crosspost footer visible.
-    if ($preserve_lj_tags_for) {
-        while ( $opencount{'lj-cut'} ) {
+    if ( $preserve_lj_tags_for && $opencount{'lj-cut'} ) {
+        while ( $opencount{'lj-cut'} > 0 ) {
             $newdata .= "</lj-cut>";
             $opencount{'lj-cut'}--;
         }
