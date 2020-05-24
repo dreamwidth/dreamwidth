@@ -26,6 +26,7 @@ use DW::Template;
 
 use DW::InviteCodes;
 use DW::InviteCodeRequests;
+use DW::Pay;
 
 my $all_invite_privs =
     [ 'finduser:codetrace', 'finduser:*', 'payments', 'siteadmin:invites', 'siteadmin:*' ];
@@ -43,6 +44,7 @@ DW::Controller::Admin->register_admin_page(
 DW::Routing->register_string( "/admin/invites/codetrace",  \&codetrace_controller,  app => 1 );
 DW::Routing->register_string( "/admin/invites/distribute", \&distribute_controller, app => 1 );
 DW::Routing->register_string( "/admin/invites/requests",   \&requests_controller,   app => 1 );
+DW::Routing->register_string( "/admin/invites/review",     \&review_controller,     app => 1 );
 
 sub index_controller {
     my ( $ok, $rv ) = controller( privcheck => $all_invite_privs );
@@ -243,6 +245,44 @@ sub requests_controller {
     };
 
     return DW::Template->render_template( 'admin/invites/requests.tt', $vars );
+}
+
+sub review_controller {
+    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => ['payments'] );
+    return $rv unless $ok;
+
+    my $r    = DW::Request->get;
+    my $vars = {};
+
+    # we do the post processing in the template (radical!)
+    $vars->{r} = $r;
+
+    $vars->{getuser} = $r->get_args->{user};
+    $vars->{u}       = LJ::load_user( $vars->{getuser} )
+        if defined $vars->{getuser};
+
+    $vars->{load_req} = sub { DW::InviteCodeRequests->new( reqid => $_[0] ) };
+    $vars->{list_req} = sub { [ DW::InviteCodeRequests->by_user( userid => $_[0]->id ) ] };
+
+    $vars->{unused_count} = sub { DW::InviteCodes->unused_count( userid => $_[0]->id ) };
+    $vars->{usercodes}    = sub { [ DW::InviteCodes->by_owner( userid => $_[0]->id ) ] };
+
+    $vars->{load_recipient} = sub { LJ::load_userid( $_[0]->recipient ) };
+
+    $vars->{time_to_http} = sub { LJ::time_to_http( $_[0] ) };
+
+    $vars->{paid_status} = sub { defined DW::Pay::get_paid_status( $_[0] ) };
+
+    $vars->{get_oldest} = sub {
+
+        # being tyrannical, and forcing the earliest outstanding
+        # request to be the one which is processed
+
+        my ($requests) = @_;
+        return ( grep { $_->{status} eq 'outstanding' } @$requests )[0];
+    };
+
+    return DW::Template->render_template( 'admin/invites/review.tt', $vars );
 }
 
 1;

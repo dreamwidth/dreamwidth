@@ -1,0 +1,39 @@
+;; -*- coding: utf-8 -*-
+.btn.view=View Invite History
+
+.col.last=Last Active
+
+.col.paid=Paid?
+
+.col.procdate=Processed on
+
+.col.reason=Request reason
+
+.col.recipient=Recipient
+
+.col.reqdate=Requested on
+
+.col.status=Status
+
+.error.invalid=Invalid user '[[name]]'
+
+.label.num_invites=Number of invites:
+
+.label.unused=Number of unused invites:
+
+.label.user=User:
+
+.nocodes=This user has never received any invite codes.
+
+.noreqs=This user has not made any invite code requests.
+
+.paid=Was or is currently paid
+
+.subhead.invites=Invites
+
+.subhead.requests=Requests for Invite Codes
+
+.title=Review Invite History
+
+.unused=unused
+
