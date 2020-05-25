@@ -1,0 +1,117 @@
+[%# View and manage promo codes.
+  #
+  # Authors:
+  #      Andrea Nall <anall@andreanall.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- IF state == 'create';
+      sections.title = dw.ml( '.title.create' );
+      return_link = "/admin/invites/promo";
+      submit_text = dw.ml( '.btn.create' );
+      active = 1;
+    ELSE;
+      sections.title = dw.ml( '.title.edit', { 'code' => code } );
+      return_link = "/admin/invites/promo?state=${state}";
+      submit_text = dw.ml( '.btn.save' );
+    END -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        .error { color: #f04124; }
+    </style>
+[% END %]
+
+<p><a href="[% return_link %]">[% '.return' | ml %]</a></p>
+
+[%- INCLUDE components/errors.tt errors = errors -%]
+
+[%- IF formdata.size;
+      suggest_u = load_suggest_u( formdata );
+      active = formdata.active.defined ? formdata.active : 1;
+      expiry_date = mysql_date( formdata.expiry_date );
+      submit_text = dw.ml( '.btn.save' );
+    END -%]
+
+<form method='POST' action='/admin/invites/promo'>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'state', value = state ) %]
+  <p>
+  [%- form.checkbox( label = dw.ml( ".field.active.label" ),
+                     name = "active", id = "active",
+                     selected = active, value = 0 ) -%]
+  </p>
+  <p>
+
+[%- IF state == 'create';
+    form.textbox( label = dw.ml( '.field.code.label' ),
+                  name = 'code', id = 'code',
+                  size = 23, maxlength = 20 );
+    ELSE;
+    form.hidden( name = 'code', value = code );
+    form.textbox( label = dw.ml( '.field.code.label' ),
+                  name = 'code', id = 'code',
+                  disabled = 1,
+                  size = 23, maxlength = 20 );
+    END -%]
+
+  </p>
+  <p>
+
+[%- form.textbox( label = dw.ml( ( state == 'create' ? '.field.count.create.label'
+                                                     : '.field.count.edit.label' ),
+                                 { current => formdata.current_count || 0 } ),
+                  name = 'max_count', id = 'max_count', size = 7 ) -%]
+  </p>
+  <p>
+
+[%- form.textbox( label = dw.ml( '.field.suggest_journal.label' ),
+                  name = 'suggest_journal', id = 'suggest_journal',
+                  value = suggest_u ? suggest_u.username
+                                    : formdata.suggest_journal,
+                  size = 28, maxlength = maxlength_user ) -%]
+  </p>
+  <p>
+
+[%- form.select( label = dw.ml( '.field.paid_class.label' ),
+                 name = 'paid_class', id = 'paid_class',
+                 items = [ '',        dw.ml( '.field.paid_class.none'),
+                           'paid',    dw.ml( '.field.paid_class.paid'),
+                           'premium', dw.ml( '.field.paid_class.premium') ] ) -%]
+  </p>
+  <p>
+
+[%- form.textbox( label = dw.ml( '.field.paid_months.label' ),
+                  name = 'paid_months', id = 'paid_months',
+                  size = 10, maxlength = 2 ) -%]
+  </p>
+  <p>
+
+[%- form.hidden( name = 'expiry_date_unedited', value = expiry_date ) -%]
+[%- form.textbox( label = dw.ml( '.field.expiry_date.label' ),
+                  name = 'expiry_date', id = 'expiry_date',
+                  value = expiry_date,
+                  size = 12, maxlength = 12 ) -%]
+  </p>
+  <p>
+
+[%- form.textbox( label = dw.ml( '.field.expiry_date.label_extra' ),
+                  name = 'expiry_months', id = 'expiry_months',
+                  size = 5, maxlength = 2 );
+    dw.ml( '.field.expiry_date.months') -%]
+  &nbsp;
+[%- form.textbox( name = 'expiry_days', id = 'expiry_days',
+                  size = 5, maxlength = 2 );
+    dw.ml( '.field.expiry_date.days') -%]
+  </p>
+
+  <p>[%- form.submit( value = submit_text ) -%]</p>
+
+</form>

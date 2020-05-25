@@ -23,8 +23,10 @@ use DW::Controller;
 use DW::Controller::Admin;
 use DW::Routing;
 use DW::Template;
+use DW::FormErrors;
 
 use DW::InviteCodes;
+use DW::InviteCodes::Promo;
 use DW::InviteCodeRequests;
 use DW::Pay;
 
@@ -45,6 +47,7 @@ DW::Routing->register_string( "/admin/invites/codetrace",  \&codetrace_controlle
 DW::Routing->register_string( "/admin/invites/distribute", \&distribute_controller, app => 1 );
 DW::Routing->register_string( "/admin/invites/requests",   \&requests_controller,   app => 1 );
 DW::Routing->register_string( "/admin/invites/review",     \&review_controller,     app => 1 );
+DW::Routing->register_string( "/admin/invites/promo",      \&promo_controller,      app => 1 );
 
 sub index_controller {
     my ( $ok, $rv ) = controller( privcheck => $all_invite_privs );
@@ -283,6 +286,194 @@ sub review_controller {
     };
 
     return DW::Template->render_template( 'admin/invites/review.tt', $vars );
+}
+
+sub promo_controller {
+    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => $light_invite_privs );
+    return $rv unless $ok;
+
+    my $r      = DW::Request->get;
+    my $errors = DW::FormErrors->new;
+    my $vars   = {};
+
+    $vars->{code}  = $r->get_args->{code} || "";
+    $vars->{state} = lc( $r->get_args->{state} || "" );
+
+    $vars->{load_suggest_u} = sub {
+        my ($data) = @_;
+        return unless $data && $data->{suggest_journalid};
+        return LJ::load_userid( $data->{suggest_journalid} );
+    };
+
+    $vars->{mysql_date} = sub { $_[0] ? LJ::mysql_date( $_[0] ) : "" };
+
+    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
+
+    if ( $r->did_post ) {
+
+        $vars->{code}  = $r->post_args->{code} || "";
+        $vars->{state} = lc( $r->post_args->{state} || "" );
+
+        my $post  = $r->post_args;
+        my $valid = 1;
+        my $info;
+
+        my $data = {
+            active               => defined( $post->{active} ) ? 1 : 0,
+            code                 => $vars->{code},
+            current_count        => 0,
+            max_count            => $post->{max_count} || 0,
+            suggest_journal      => $post->{suggest_journal},
+            paid_class           => $post->{paid_class} || '',
+            paid_months          => $post->{paid_months} || undef,
+            expiry_date_unedited => $post->{expiry_date_unedited} || 0,
+            expiry_date          => $post->{expiry_date} || 0,
+            expiry_months        => $post->{expiry_months} || 0,
+            expiry_days          => $post->{expiry_days} || 0,
+        };
+
+        if ( !$vars->{code} ) {
+            $errors->add( 'code', '.error.code.missing' );
+            $valid = 0;
+
+        }
+        elsif ( $vars->{state} eq 'create' ) {
+
+            if ( $vars->{code} !~ /^[a-z0-9]+$/i ) {
+                $errors->add( 'code', '.error.code.invalid_character' );
+                $valid = 0;
+
+            }
+            elsif ( DW::InviteCodes::Promo->is_promo_code( code => $vars->{code} ) ) {
+                $errors->add( 'code', '.error.code.exists' );
+                $valid = 0;
+            }
+
+        }
+        elsif ( !ref( $info = DW::InviteCodes::Promo->load( code => $vars->{code} ) ) ) {
+            $errors->add( 'code', '.error.code.invalid' );
+            $valid = 0;
+
+        }
+        else {
+            $data->{current_count} = $info->{current_count};
+        }
+
+        if ( $post->{max_count} < 0 ) {
+            $errors->add( 'max_count', '.error.count.negative' );
+        }
+
+        if ( $post->{suggest_journal} ) {
+
+            if ( my $user = LJ::load_user( $post->{suggest_journal} ) ) {
+                $data->{suggest_journalid} = $user->userid;
+
+            }
+            else {
+                $errors->add( 'suggest_journal', '.error.suggest_journal.invalid' );
+                $valid = 0;
+            }
+
+        }
+        else {
+            $data->{suggest_journal} = undef;
+        }
+
+        if ( $data->{paid_class} !~ /^(paid|premium)$/ ) {
+            $data->{paid_class}  = undef;
+            $data->{paid_months} = undef;
+        }
+
+        if ( $data->{expiry_date} ne $data->{expiry_date_unedited} ) {
+
+            if ( $data->{expiry_days} || $data->{expiry_months} ) {
+                $errors->add( 'expiry_date', '.error.date.double_specified' );
+                $valid = 0;
+            }
+
+            $data->{expiry_db} = LJ::mysqldate_to_time( $data->{expiry_date} );
+
+        }
+        else {
+            if ( $data->{expiry_days} < 0 ) {
+                $errors->add( 'expiry_date', '.error.days.negative' );
+                $valid = 0;
+            }
+
+            if ( $data->{expiry_months} < 0 ) {
+                $errors->add( 'expiry_date', '.error.months.negative' );
+                $valid = 0;
+            }
+
+            $data->{expiry_months} = 0 unless $data->{expiry_months};
+            $data->{expiry_days}   = 0 unless $data->{expiry_days};
+
+            if ( my $length = $data->{expiry_months} * 30 + $data->{expiry_days} ) {
+                $data->{expiry_db} = time() + ( $length * 86400 );
+            }
+            else {
+                $data->{expiry_db} = 0;
+            }
+        }
+
+        if ($valid) {
+            my $dbh = LJ::get_db_writer();
+
+            if ( $vars->{state} eq 'create' ) {
+                $dbh->do(
+"INSERT INTO acctcode_promo (code, max_count, active, suggest_journalid, paid_class, paid_months, expiry_date) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    undef,
+                    $data->{code},
+                    $data->{max_count},
+                    $data->{active},
+                    $data->{suggest_journalid},
+                    $data->{paid_class},
+                    $data->{paid_months},
+                    $data->{expiry_db}
+                ) or die $dbh->errstr;
+
+                delete $vars->{state};
+
+            }
+            else {
+                $dbh->do(
+"UPDATE acctcode_promo SET max_count = ?, active = ?, suggest_journalid = ?, paid_class = ?, paid_months = ?, expiry_date =? WHERE code = ?",
+                    undef,
+                    $data->{max_count},
+                    $data->{active},
+                    $data->{suggest_journalid},
+                    $data->{paid_class},
+                    $data->{paid_months},
+                    $data->{expiry_db},
+                    $data->{code}
+                ) or die $dbh->errstr;
+            }
+
+        }
+        else {
+            $vars->{errors}   = $errors;
+            $vars->{formdata} = $data;
+            return DW::Template->render_template( 'admin/invites/promo-edit.tt', $vars );
+        }
+
+        delete $vars->{code};
+
+    }    # end if did_post
+
+    return DW::Template->render_template( 'admin/invites/promo-edit.tt', $vars )
+        if $vars->{state} && $vars->{state} eq 'create';
+
+    if ( DW::InviteCodes::Promo->is_promo_code( code => $vars->{code} ) ) {
+
+        $vars->{formdata} = DW::InviteCodes::Promo->load( code => $vars->{code} );
+        return DW::Template->render_template( 'admin/invites/promo-edit.tt', $vars );
+    }
+
+    # variables only used in promo.tt
+
+    $vars->{codelist} = DW::InviteCodes::Promo->load_bulk( state => $vars->{state} );
+
+    return DW::Template->render_template( 'admin/invites/promo.tt', $vars );
 }
 
 1;
