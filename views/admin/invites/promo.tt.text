@@ -1,0 +1,41 @@
+;; -*- coding: utf-8 -*-
+.active.active=active
+
+.active.inactive=inactive
+
+.expiry.none=(none)
+
+.heading.active=Active
+
+.heading.code=Code
+
+.heading.count=Count
+
+.heading.paid=Paid Time
+
+.heading.suggest=Suggest Journal
+
+.heading.expiry=Expiry Date
+
+.nomatch=No promo codes match your criteria.
+
+.paid=[[type]] for [[months]] [[?months|month|months]]
+
+.paid.no=(none)
+
+.state.active=Active
+
+.state.inactive=Inactive
+
+.state.new=Create new
+
+.state.noneleft=All creations used
+
+.state.unfiltered=Unfiltered
+
+.state.unused=Unused
+
+.suggest.none=<em>(none)</em>
+
+.title=Manage Promo Codes
+

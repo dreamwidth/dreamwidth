@@ -1,0 +1,95 @@
+[%# View and manage promo codes.
+  #
+  # Authors:
+  #      Andrea Nall <anall@andreanall.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content td, #content th { padding: 4px; }
+        div.filterlinks { padding: 1em 0; font-size: larger; }
+    </style>
+[% END %]
+
+<div class="filterlinks">
+<a href="/admin/invites/promo?state=create">[% '.state.new' | ml %]</a>
+ |
+[%- IF state == 'all'; ' <strong>'; ELSE -%]
+ <a href="/admin/invites/promo?state=all">
+[%- END -%]
+[% '.state.unfiltered' | ml %]
+[%- IF state == 'all'; '</strong>'; ELSE; '</a>'; END -%]
+ |
+[%- IF state == 'active'; ' <strong>'; ELSE -%]
+ <a href="/admin/invites/promo?state=active">
+[%- END -%]
+[% '.state.active' | ml %]
+[%- IF state == 'active'; '</strong>'; ELSE; '</a>'; END -%]
+ |
+[%- IF state == 'inactive'; ' <strong>'; ELSE -%]
+ <a href="/admin/invites/promo?state=inactive">
+[%- END -%]
+[% '.state.inactive' | ml %]
+[%- IF state == 'inactive'; '</strong>'; ELSE; '</a>'; END -%]
+ |
+[%- IF state == 'unused'; ' <strong>'; ELSE -%]
+ <a href="/admin/invites/promo?state=unused">
+[%- END -%]
+[% '.state.unused' | ml %]
+[%- IF state == 'unused'; '</strong>'; ELSE; '</a>'; END -%]
+ |
+[%- IF state == 'noneleft'; ' <strong>'; ELSE -%]
+ <a href="/admin/invites/promo?state=noneleft">
+[%- END -%]
+[% '.state.noneleft' | ml %]
+[%- IF state == 'noneleft'; '</strong>'; ELSE; '</a>'; END -%]
+</div>
+
+[%- IF codelist.size -%]
+<table>
+  <thead><tr>
+    <th>[% '.heading.code'    | ml %]</th>
+    <th>[% '.heading.active'  | ml %]</th>
+    <th>[% '.heading.count'   | ml %]</th>
+    <th>[% '.heading.suggest' | ml %]</th>
+    <th>[% '.heading.paid'    | ml %]</th>
+    <th>[% '.heading.expiry'  | ml %]</th>
+  </tr></thead>
+
+  [%- FOREACH item = codelist;
+      suggest_u = load_suggest_u( item ) -%]
+  <tr>
+    <td>
+      <a href="/admin/invites/promo?code=[% item.code | uri %]&state=[% state %]">
+      [% item.code | html %]</a>
+    </td>
+    <td>[% dw.ml( item.active ? '.active.active' : '.active.inactive' ) %]</td>
+    <td>[% item.current_count %]/[% item.max_count %]</td>
+    <td>[% suggest_u ? suggest_u.ljuser_display : dw.ml( '.suggest.none' ) %]</td>
+    <td>
+    [%- IF item.paid_class.defined;
+        dw.ml( '.paid', { type   => item.paid_class,
+                          months => item.paid_months } );
+        ELSE;
+        dw.ml( '.paid.no' );
+        END -%]
+    </td>
+    <td>[% item.expiry_date ? mysql_date( item.expiry_date )
+                            : dw.ml( '.expiry.none' ) %]
+    </td>
+  </tr>
+  [%- END -%]
+</table>
+[%- ELSE -%]
+<p>[% '.nomatch' | ml %]</p>
+[%- END -%]

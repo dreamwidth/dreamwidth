@@ -1,0 +1,57 @@
+;; -*- coding: utf-8 -*-
+.btn.create=Create
+
+.btn.save=Save
+
+.error.code.exists=Promo code already exists
+
+.error.code.invalid=Code invalid
+
+.error.code.invalid_character=Code must be [a-z0-9] only
+
+.error.code.missing=Code must be specified
+
+.error.count.negative=Count must be positive
+
+.error.date.double_specified=You can't specify both an expiry date and months/days to add.
+
+.error.days.negative=Days until expiry must be positive or zero
+
+.error.months.negative=Months until expiry must be positive or zero
+
+.error.suggest_journal.invalid=Cannot find that user
+
+.field.active.label=Active
+
+.field.code.label=Code:
+
+.field.count.create.label=Count (max number of uses):
+
+.field.count.edit.label=Count ([[current]] already used):
+
+.field.expiry_date.days=days
+
+.field.expiry_date.label=Expiry Date (YYYY-MM-DD):
+
+.field.expiry_date.label_extra=Or instead, add time:
+
+.field.expiry_date.months=months
+
+.field.paid_class.label=Paid Account:
+
+.field.paid_class.none=(No Paid Time)
+
+.field.paid_class.paid=Paid
+
+.field.paid_class.premium=Premium Paid
+
+.field.paid_months.label=Months of paid time, if selected:
+
+.field.suggest_journal.label=Suggest Journal:
+
+.return=Return to list
+
+.title.create=Create Promo Code
+
+.title.edit=Edit Promo Code: [[code]]
+
