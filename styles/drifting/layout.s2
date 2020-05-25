@@ -709,6 +709,11 @@ function Page::print_default_stylesheet()
         padding-bottom: 20px;
     }
 
+    /* Hack to keep the new-style talkform usable until we can rip the old float crud out of this layout */
+    #reply #qrformdiv {
+        clear: none;
+    }
+
     /* Entry
     ***************************************************************************/
     .entry {
