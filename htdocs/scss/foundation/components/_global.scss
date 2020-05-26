@@ -515,9 +515,9 @@ $cursor-text-value: text !default;
   a:hover { cursor: $cursor-pointer-value; }
 
     // Grid Defaults to get images and embeds to work properly
-    img { max-width: 100%; height: auto; }
+//     img { max-width: 100%; height: auto; }
 
-    img { -ms-interpolation-mode: bicubic; }
+//     img { -ms-interpolation-mode: bicubic; }
 
     #map_canvas,
     .map_canvas,
@@ -548,10 +548,10 @@ $cursor-text-value: text !default;
     .antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
     // Get rid of gap under images by making them display: inline-block; by default
-    img {
-      display: inline-block;
-      vertical-align: middle;
-    }
+//     img {
+//       display: inline-block;
+//       vertical-align: middle;
+//     }
 
     //
     // Global resets for forms
