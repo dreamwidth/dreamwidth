@@ -2743,7 +2743,7 @@ sub prepare_and_validate_comment {
         }
 
         # No one's down with unvalidated site users.
-        # (FYI, nothing in -free or -nonfree ever calls that hook. -NF)
+        # (FYI, nothing in -free or -nonfree ever registers that hook. -NF)
         if (   $commenter->{'status'} eq "N"
             && !$commenter->is_identity
             && !LJ::Hooks::run_hook( "journal_allows_unvalidated_commenting", $journalu ) )
