@@ -65,6 +65,9 @@ sub work {
 
     my $u = LJ::want_user($uid)
         or return $job->failed("Unable to load user with uid $uid");
+    return $job->permanent_failure("User is suspended.")
+        if $u->is_suspended;
+
     my $acct = DW::External::Account->get_external_account( $u, $acctid )
         or return $job->failed("Unable to load account $acctid for uid $uid");
 

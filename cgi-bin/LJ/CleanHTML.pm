@@ -1105,7 +1105,7 @@ TOKEN:
                 # state variable which is stashed across tokens.
             }
             elsif ( $tag eq "lj-cut" ) {
-                if ( $opts->{preserve_lj_tags_for} ) {
+                if ( $opts->{preserve_lj_tags_for} && $opencount{'lj-cut'} ) {
                     $opencount{'lj-cut'}--;
                     $newdata .= "</lj-cut>";
                 }

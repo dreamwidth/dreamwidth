@@ -41,14 +41,14 @@ while (1) {
         unless ( $u->is_person ) {
             $u->update_self( { dversion => 10 } );
             print "UPGRADED $u->{user}($uid) NOT_PERSON\n";
-            continue;
+            next;
         }
 
         # If they're expunged, we also just auto-upgrade.
         if ( $u->is_expunged ) {
             $u->update_self( { dversion => 10 } );
             print "UPGRADED $u->{user}($uid) EXPUNGED\n";
-            continue;
+            next;
         }
 
         # Valid user, get their password, set it, move on.

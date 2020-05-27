@@ -53,6 +53,9 @@ sub check {
     #   allow_api_keys       If truthy, will check the provided 'password' against the user's
     #                        generated API keys and return OK if any of them match.
 
+    # Only people can log in
+    return 0 unless $u->is_person;
+
     if ( $u->dversion <= 9 ) {
         return $class->_check_old_dversion( $u, $password, %opts );
     }
