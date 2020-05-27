@@ -25,6 +25,8 @@ use Carp qw/ croak /;
 use Digest::MD5 qw/ md5_hex /;
 use Net::SMTPS;
 
+use LJ::MemCache;
+
 use base 'DW::Task';
 
 my $smtp;
@@ -72,7 +74,9 @@ sub work {
     my $rcpts    = $args->{rcpts};       # arrayref of recipients
     my $body     = $args->{data};
 
-    # Drop any recipient domains that we don't support/aren't allowed
+    # Drop any recipient domains that we don't support/aren't allowed, and don't allow
+    # duplicate emails within 24 hours
+    my @recipients;
     foreach my $rcpt (@$rcpts) {
         my ($domain) = ($1)
             if $rcpt =~ /@(.+?)$/;
@@ -87,9 +91,25 @@ sub work {
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:disallowed', 'via:ses' ] );
             return DW::Task::COMPLETED;
         }
-    }
 
-    $log->debug( 'Sending email to: ', join( ', ', @$rcpts ) );
+        # Stupid hack to prevent spamming people, check memcache to see if we've sent this
+        # email already to this user
+        my ( $email_md5, $body_md5 ) = ( md5_hex( $rcpt ), md5_hex( $body ));
+        my $key = "email:$email_md5:$body_md5";
+
+        my $sent = LJ::MemCache::get( $key );
+        if ( $sent ) {
+            $log->debug( 'Duplicate email, skipping to: ', $rcpt );
+            DW::Stats::increment( 'dw.email.sent', 1, [ 'status:duplicate', 'via:ses' ] );
+        } else {
+            LJ::MemCache::set( $key, 1, 86400 );
+            push @recipients, $rcpt;
+        }
+    }
+    return DW::Task::COMPLETED
+        unless @recipients;
+
+    $log->debug( 'Sending email to: ', join( ', ', @recipients ) );
 
     # remove bcc
     $body =~ s/^(.+?\r?\n\r?\n)//s;
@@ -104,51 +124,51 @@ sub work {
     }
 
     my $details = sub {
-        return eval { $smtp->code . " " . $smtp->message; }
+        return eval { $smtp->code . ' ' . $smtp->message; }
     };
 
     my $not_ok = sub {
         my $cmd = $_[0];
         return $permanent_failure->(
             'Permanent failure during %s phase to [%s]: %s',
-            $cmd, join( ', ', @$rcpts ),
+            $cmd, join( ', ', @recipients ),
             $details->()
         ) if $smtp->status == 5;
         return $failed->(
             'Error during %s phase to [%s]: %s',
-            $cmd, join( ', ', @$rcpts ),
+            $cmd, join( ', ', @recipients ),
             $details->()
         );
     };
 
-    return $not_ok->("MAIL") unless $smtp->mail($env_from);
+    return $not_ok->('MAIL') unless $smtp->mail($env_from);
 
     my $got_an_okay = 0;
-    foreach my $rcpt (@$rcpts) {
+    foreach my $rcpt (@recipients) {
         if ( $smtp->to($rcpt) ) {
             $got_an_okay = 1;
             next;
         }
         next if $smtp->status == 5;
 
-        return $failed->( 'Error during TO phase to [%s]: %s', join( ', ', @$rcpts ),
+        return $failed->( 'Error during TO phase to [%s]: %s', join( ', ', @recipients ),
             $details->() );
     }
 
     unless ($got_an_okay) {
         return $permanent_failure->(
             'Permanent failure TO [%s]: %s',
-            join( ', ', @$rcpts ),
+            join( ', ', @recipients ),
             $details->()
         );
     }
 
-    return $not_ok->("DATA")     unless $smtp->data;
-    return $not_ok->("DATASEND") unless $smtp->datasend( $headers . $body );
-    return $not_ok->("DATAEND")  unless $smtp->dataend;
+    return $not_ok->('DATA')     unless $smtp->data;
+    return $not_ok->('DATASEND') unless $smtp->datasend( $headers . $body );
+    return $not_ok->('DATAEND')  unless $smtp->dataend;
 
     $log->debug('Email sent successfully.');
-    DW::Stats::increment( 'dw.email.sent', 1, [ "status:completed", "via:ses" ] );
+    DW::Stats::increment( 'dw.email.sent', 1, [ 'status:completed', 'via:ses' ] );
 
     return DW::Task::COMPLETED;
 }
