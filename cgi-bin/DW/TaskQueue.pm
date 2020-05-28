@@ -134,7 +134,7 @@ sub start_work {
     my $start_time    = time();
     my $messages_done = 0;
 
-    $log->debug( sprintf( '[%s %0.3fs] Worker starting', $class, 0.0) );
+    $log->debug( sprintf( '[%s %0.3fs] Worker starting', $class, 0.0 ) );
 
     while (1) {
         my $recv_start_time = time();
