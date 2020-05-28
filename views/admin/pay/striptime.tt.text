@@ -1,0 +1,14 @@
+;; -*- coding: utf-8 -*-
+
+.btn.strip=Strip that code!
+
+.error.db=Database error: [[err]]
+
+.error.stripfail=Failed to strip the code. Was it already stripped?
+
+.explain=This action strips the paid time from an invite code.  The code will still be usable, but it will no longer grant the user with any paid time.  Please confirm you wish to do this by clicking the button below.
+
+.success=Code successfully stripped.
+
+.title=Payment Manager - Strip Code
+

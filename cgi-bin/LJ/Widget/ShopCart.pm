@@ -141,7 +141,7 @@ sub render_body {
                     }
                     else {
                         $ret .=
-" (unused, <a href='$LJ::SITEROOT/admin/pay/view?striptimefrom=$acid'>strip</a>)";
+" (unused, <a href='$LJ::SITEROOT/admin/pay/striptime?from=$acid'>strip</a>)";
                     }
                 }
                 else {
