@@ -1,0 +1,152 @@
+[%# View details of a specific shop transaction.
+  #
+  # Authors:
+  #      Mark Smith <mark@dreamwidth.org -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content select { height: auto; width: auto; display: inline; }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>[ <a href="/admin/pay/index">&lt;&lt; [% '.goback' | ml %]</a> ]</p>
+
+<h2>[% '.header.cart' | ml( id = cart.id ) %]</h2>
+
+[%- fromuser = u.defined ? u.ljuser_display
+                         : dw.ml( '.user.loggedout', { uniq => cart.uniq } );
+    date = from_epoch( cart.starttime );
+    pay_method = cart.paymentmethod_visible;
+    pay_string = '/shop/receipt.bml.cart.paymentmethod';
+    status_string = '/shop/receipt.bml.cart.status';
+    view_pay_method = dw.ml( pay_method ? "${pay_string}.${pay_method}"
+                                        : '.cart.notyet' ) -%]
+<table border='1'>
+  <tr>
+    <th>[% '.col.from' | ml %]</th><td>[% fromuser %]</td>
+  </tr><tr>
+    <th>[% '.col.date' | ml %]</th><td>[% date.strftime( "%F %r %Z" ) %]</td>
+  </tr><tr>
+    <th>[% '.col.total' | ml %]</th><td>[% cart.display_total %]</td>
+  </tr><tr>
+    <th>[% '.col.method' | ml %]</th><td>[% view_pay_method %]</td>
+  </tr><tr>
+    <th>[% '.col.uniq' | ml %]</th><td>[% cart.uniq %]</td>
+  </tr><tr>
+    <th>[% '.col.ip' | ml %]</th><td>[% cart.ip %]</td>
+  </tr><tr>
+    <th>[% '.col.status' | ml %]</th>
+    <td>[% "${status_string}.${cart.state}" | ml %]</td>
+  </tr>
+</table>
+
+<h3>[% '.subhead.items' | ml %]</h3>
+
+[% IF cart.has_items; widget(cart); ELSE %]
+<p>[% '.noitems' | ml %]</p>
+[% END %]
+
+[%# not stripping strings for legacy transaction engines %]
+
+[%- IF classname == 'PayPal' -%]
+<h2>Payer Details</h2>
+<table border='1'>
+  <tr>
+    <th>First Name:</th><td>[% engine.firstname %]</td>
+  </tr><tr>
+    <th>Last Name:</th><td>[% engine.lastname %]</td>
+  </tr><tr>
+    <th>PayPal Email Address:</th><td>[% engine.email %]</td>
+  </tr><tr>
+    <th>User Email Address:</th><td>[% cart.email %]</td>
+  </tr>
+</table>
+
+<h2>raw: pp_trans (PayPal transactions)</h2>
+[% dump( 'SELECT * FROM pp_trans WHERE ppid = ?', engine.ppid ) %]
+
+<h2>raw: pp_log (PayPal raw log)</h2>
+[% dump( 'SELECT * FROM pp_log WHERE ppid = ?', engine.ppid ) %]
+
+[%- ELSIF classname == 'GoogleCheckout' -%]
+<h2>GCO Payer Details</h2>
+<table border='1'>
+  <tr>
+    <th>Contact Name:</th><td>[% engine.contactname %]</td>
+  </tr><tr>
+    <th>GCO Email Address:</th><td>[% engine.email %]</td>
+  </tr>
+</table>
+
+<h2>raw: gco_log (GCO raw)</h2>
+[% dump( 'SELECT * FROM gco_log WHERE gcoid = ?', engine.gcoid ) %]
+
+[%- ELSIF classname == 'CreditCard' -%]
+<h2>raw: cc_trans (raw transaction data)</h2>
+[% dump( 'SELECT * FROM cc_trans WHERE cartid = ?', cart.id ) %]
+
+<h2>raw: cc_log (raw server query/response log)</h2>
+[% dump( 'SELECT * FROM cc_log WHERE cartid = ?', cart.id ) %]
+
+[%- ELSIF classname == 'Stripe' -%]
+<h2>Stripe extra details not yet implemented</h2>
+
+[%- ELSIF classname == 'CheckMoneyOrder' -%]
+<h2>[% '.header.payer' | ml %]</h2>
+<table border='1'>
+  <tr>
+    <th>[% '.col.email' | ml %]</th><td>[% cart.email %]</td>
+  </tr>
+</table>
+
+  [% IF is_pending( cart.state ) %]
+<h2>[% '.header.received' | ml %]</h2>
+<form method="post" action="/admin/pay/view?cartid=[% cart.id %]">
+  [% dw.form_auth %]
+  <p>
+    [%- form.select( label = dw.ml( '.label.paymentmethod' ),
+                     id = 'paymentmethod', name = 'paymentmethod',
+                     items = [ 'cash',       dw.ml( '.select.cash'),
+                               'check',      dw.ml( '.select.check'),
+                               'moneyorder', dw.ml( '.select.moneyorder'),
+                               'other',      dw.ml( '.select.other') ] ) -%]
+  </p>
+
+  <p>
+    [%- form.textarea( label = dw.ml( '.label.paymentnotes' ),
+                       id = 'notes', name = 'notes',
+                       rows = 5, cols = 40 ) -%]
+  </p>
+
+  <p>
+    [%- form.submit( name = "record_cmo", value = dw.ml( '.btn.receive' ) ) -%]
+  </p>
+</form>
+
+  [% ELSE %]
+<h2>[% '.header.payment' | ml %]</h2>
+<table border='1'>
+  <tr>
+    <th>[% '.col.method' | ml %]</th>
+    <td>[% cmo_info.paymentmethod %]</td>
+  </tr><tr>
+    <th>[% '.col.notes' | ml %]</th>
+    <td>[% cmo_info.notes ? cmo_info.notes : dw.ml( '.nonotes' ) %]</td>
+  </tr>
+</table>
+
+  [% END %]
+[% END %]

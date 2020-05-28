@@ -1,0 +1,74 @@
+;; -*- coding: utf-8 -*-
+
+.btn.give=Give!
+
+.cart.act=Details / Mark as Payment Received
+
+.cart.notyet=(not yet selected)
+
+.cart.viewonly=Details
+
+.col.cartnum=Cart Number
+
+.col.date=Date
+
+.col.details=Details
+
+.col.method=Payment Method
+
+.col.status=Status
+
+.col.total=Total
+
+.error.formcheck=Invalid form option.
+
+.error.invalidaccount=User '[[user]]' does not exist.
+
+.error.invalidstatus=Invalid account type provided.
+
+.error.invalidtime=Invalid date/time format provided.
+
+.error.sys=Error from payment system: [[err]]
+
+.goback=Back to Index
+
+.header.paidstatus=Paid Status
+
+.header.viewcarts=View Carts
+
+.label.days=days
+
+.label.email=Email?
+
+.label.for=for
+
+.label.givetime=Give Paid Time:
+
+.label.months=months,
+
+.nocarts=This user has not made any orders.
+
+.ps.editdate=Or edit expiration date:
+
+.ps.expired=<strong>expired</strong>.
+
+.ps.never=User has never had a paid account of any kind.
+
+.ps.paid.hastime=expires [[time]] (<strong>[[text]]</strong>).
+
+.ps.permanent=<strong>Permanent Status</strong> will never expire.
+
+.ps.permanent.hastime=Has paid time up until [[time]]
+
+.select.expire=FORCE EXPIRATION
+
+.select.paid=Paid Account
+
+.select.premium=Paid Premium Account
+
+.select.seed=Seed Account
+
+.statushistory=View statushistory for user.
+
+.title=Payment Manager - View User
+

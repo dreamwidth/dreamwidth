@@ -1,0 +1,16 @@
+;; -*- coding: utf-8 -*-
+
+.admin.link=Payment Management
+
+.admin.text=Review payment details and enter payments manually.
+
+.btn.go=Go
+
+.label.edituser=Edit user:
+
+.label.vieworder=View cart/order ID (or PayPal transaction ID):
+
+.label.viewinvite=View invite code:
+
+.title=Payment Manager
+

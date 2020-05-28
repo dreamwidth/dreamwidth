@@ -1,0 +1,45 @@
+[%# Access a user's payment history and status.
+  #
+  # Authors:
+  #      Mark Smith <mark@dreamwidth.org -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input { height: auto; width: auto; display: inline; }
+        #content input.text { width: 50%; }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>
+<form method="get" action="/admin/pay/index">
+  [% form.textbox( name = 'view', label = dw.ml( '.label.edituser' ) ) %]
+  [% form.submit(  value = dw.ml( '.btn.go' ) ) %]
+</form>
+</p>
+
+<p>
+<form method="get" action="/admin/pay/view">
+  [% form.textbox( name = 'cartid', label = dw.ml( '.label.vieworder' ) ) %]
+  [% form.submit(  value = dw.ml( '.btn.go' ) ) %]
+</form>
+</p>
+
+<p>
+<form method="get" action="/admin/pay/view">
+  [% form.textbox( name = 'code', label = dw.ml( '.label.viewinvite' ) ) %]
+  [% form.submit(  value = dw.ml( '.btn.go' ) ) %]
+</form>
+</p>

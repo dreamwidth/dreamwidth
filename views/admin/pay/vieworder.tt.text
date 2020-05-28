@@ -1,0 +1,69 @@
+;; -*- coding: utf-8 -*-
+
+.btn.receive=Mark as Received
+
+.cart.notyet=(not yet selected)
+
+.col.date=Date:
+
+.col.email=Email Address:
+
+.col.from=From:
+
+.col.ip=IP:
+
+.col.method=Payment Method:
+
+.col.notes=Notes:
+
+.col.status=Status
+
+.col.total=Total:
+
+.col.uniq=Uniq:
+
+.error.db=Database error: [[err]]
+
+.error.invalidcode=The provided code is invalid.
+
+.error.invalidpay=Invalid payment method provided.
+
+.error.nocartid=No cartid provided!
+
+.error.nonotes=You must enter notes for this payment.
+
+.error.notfound=The requested information was not found in the database.
+
+.error.unpaidcode=This code does not appear to have any paid time on it.
+
+.goback=Back to Index
+
+.header.cart=Cart #[[id]]
+
+.header.payer=Payer Details
+
+.header.payment=Payment Details
+
+.header.received=Mark as Payment Received
+
+.label.paymentmethod=Payment method:
+
+.label.paymentnotes=Payment notes (check number, address, etc.) -- required if method is "check" or "other"
+
+.noitems=This cart has no items in it.
+
+.nonotes=<em>(no notes given)</em>
+
+.select.cash=Cash
+
+.select.check=Check
+
+.select.moneyorder=Money Order
+
+.select.other=Other
+
+.subhead.items=Items
+
+.title=Payment Manager - View Cart
+
+.user.loggedout=Logged-out user with uniq: [[uniq]]

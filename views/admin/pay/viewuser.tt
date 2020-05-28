@@ -1,0 +1,139 @@
+[%# Allow editing a user's paid status.
+  #
+  # Authors:
+  #      Mark Smith <mark@dreamwidth.org -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        table.cartlist, .cartlist td {
+          border-width: medium; border-style: groove;
+        }
+        .cartlist td { vertical-align: middle; padding: 0 0.25em; }
+    </style>
+[% END %]
+
+<p>[ <a href="/admin/pay/index">&lt;&lt; [% '.goback' | ml %]</a> ]</p>
+
+<h2>[% '.header.paidstatus' | ml %]</h2>
+
+[% edit_expiration = 0 %]
+
+<p>
+  [% u.ljuser_display %]: [% ps ? type_name( ps ) : dw.ml( '.ps.never' ) %]
+  [%- IF ps; '; ';
+        IF ps.permanent; dw.ml( '.ps.permanent' );
+          IF ps.expiresin > 0; '&nbsp;';
+            dw.ml( '.ps.permanent.hastime', { time => mysql_time(ps.expiretime) } );
+          END;
+        ELSE;
+          IF ps.expiresin > 0;
+            edit_expiration = 1;
+            dw.ml( '.ps.paid.hastime', { time => mysql_time( ps.expiretime ),
+                                         text => ago_text( ps.expiresin ) } );
+          ELSE;
+            dw.ml( '.ps.expired' );
+          END;
+        END;
+      END -%]
+</p>
+
+<p>
+  <form method="post">
+    [% dw.form_auth %]
+    [% form.hidden( name = 'givetime', value = 1 ) %]
+    [% form.hidden( name = 'user', value = u.user ) %]
+    <table summary='' border='0' cellpadding='4'>
+      <tr>
+        <td>
+        [%- form.select( name = 'type', label = dw.ml( '.label.givetime' ),
+                         items = [ 'paid',    dw.ml( '.select.paid'),
+                                   'premium', dw.ml( '.select.premium'),
+                                   'seed',    dw.ml( '.select.seed'),
+                                   'blank',   '',
+                                   'expire',  dw.ml( '.select.expire') ] ) -%]
+        </td>
+        <td align="center">
+        [%- '.label.for' | ml; '&nbsp;';
+            form.textbox( name = "months", maxlength = 2, size = 3 ); '&nbsp;';
+            '.label.months' | ml; '&nbsp;';
+            form.textbox( name = "days", maxlength = 2, size = 3 ); '&nbsp;';
+            '.label.days' | ml -%]
+        </td>
+        <td>
+        [%- form.checkbox( label = dw.ml( ".label.email" ),
+                           name = "sendemail", value = 1 )
+          -%]
+        </td>
+        <td>
+        [%- form.submit( name = 'submit', value = dw.ml( ".btn.give" ) ) -%]
+        </td>
+      </tr>
+    [% IF edit_expiration %]
+      <tr>
+        <td>[% '.ps.editdate' | ml %]</td>
+        <td align="center">
+        [%- form.textbox( name = "datetime", maxlength = 20, size = 20,
+                          value = mysql_time( ps.expiretime ) ) -%]
+        </td>
+        <td>
+        [%- form.submit( name = 'submit', value = "Edit" ) -%]
+        </td>
+      </tr>
+    [% END %]
+    </table>
+  </form>
+</p>
+
+<p>
+  <a href="/admin/statushistory?user=[% u.user %]">[% '.statushistory' | ml %]</a>
+</p>
+
+<h2>[% '.header.viewcarts' | ml %]</h2>
+
+[% IF carts.size %]
+<table class="cartlist">
+  <thead><tr>
+    <th>[% '.col.cartnum' | ml %]</th>
+    <th>[% '.col.date'    | ml %]</th>
+    <th>[% '.col.total'   | ml %]</th>
+    <th>[% '.col.method'  | ml %]</th>
+    <th>[% '.col.status'  | ml %]</th>
+    <th>[% '.col.details' | ml %]</th>
+  </tr></thead>
+
+  [% FOREACH cart = carts;
+     date = from_epoch( cart.starttime );
+     pay_method = cart.paymentmethod_visible;
+     pay_string = '/shop/receipt.bml.cart.paymentmethod';
+     status_string = '/shop/receipt.bml.cart.status';
+     view_pay_method = dw.ml( pay_method ? "${pay_string}.${pay_method}"
+                                         : '.cart.notyet' ) -%]
+  <tr>
+    <td>[% cart.id %]</td>
+    <td>[% date.strftime( "%F %r %Z" ) %]</td>
+    <td>[% cart.display_total %]</td>
+    <td>[% view_pay_method %]</td>
+    <td>[% "${status_string}.${cart.state}" | ml %]</td>
+    <td>
+      <a href="[% site.root %]/admin/pay/view?cartid=[% cart.id %]">
+      [%- dw.ml( is_pending(cart.state) ? '.cart.act' : '.cart.viewonly' ) -%]
+      </a>
+    </td>
+  </tr>
+  [% END %]
+</table>
+
+[% ELSE %]
+<p>[% '.nocarts' | ml %]</p>
+[% END %]
