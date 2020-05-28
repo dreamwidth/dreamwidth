@@ -64,11 +64,16 @@ foreach my $to (qw(person community)) {
     );
     $comm = LJ::load_user( $comm->user );
     is( $comm->journaltype, $types->{$to}, "Converted to a $to" );
+
+    if ( $comm->is_community ) {
+
+        # have to check the database directly because convenience methods
+        # know that communities aren't supposed to have passwords
+
+        my $dbh  = LJ::get_db_writer() or die "Couldn't get db master";
+        my $pass = $dbh->selectrow_array( q{SELECT password FROM password WHERE userid = ?},
+            undef, $comm->userid ) // '';
+
+        ok( $pass eq '', "community password is blank or not stored in password table" );
+    }
 }
-
-### check that 'shared' is not a valid journaltype
-is(
-    $run->("change_journal_type $commname shared $owner"),
-    "error: Type argument must be 'person' or 'community'."
-);
-
