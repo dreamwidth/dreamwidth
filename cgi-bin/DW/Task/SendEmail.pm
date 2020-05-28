@@ -94,14 +94,15 @@ sub work {
 
         # Stupid hack to prevent spamming people, check memcache to see if we've sent this
         # email already to this user
-        my ( $email_md5, $body_md5 ) = ( md5_hex( $rcpt ), md5_hex( $body ));
+        my ( $email_md5, $body_md5 ) = ( md5_hex($rcpt), md5_hex($body) );
         my $key = "email:$email_md5:$body_md5";
 
-        my $sent = LJ::MemCache::get( $key );
-        if ( $sent ) {
+        my $sent = LJ::MemCache::get($key);
+        if ($sent) {
             $log->debug( 'Duplicate email, skipping to: ', $rcpt );
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:duplicate', 'via:ses' ] );
-        } else {
+        }
+        else {
             LJ::MemCache::set( $key, 1, 86400 );
             push @recipients, $rcpt;
         }
@@ -151,8 +152,11 @@ sub work {
         }
         next if $smtp->status == 5;
 
-        return $failed->( 'Error during TO phase to [%s]: %s', join( ', ', @recipients ),
-            $details->() );
+        return $failed->(
+            'Error during TO phase to [%s]: %s',
+            join( ', ', @recipients ),
+            $details->()
+        );
     }
 
     unless ($got_an_okay) {
