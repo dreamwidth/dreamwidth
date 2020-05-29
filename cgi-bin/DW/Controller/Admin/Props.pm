@@ -206,30 +206,33 @@ sub propedit_handler {
         my $username = LJ::ehtml( $post->{username} );
         $errors->add_string( 'username', "$username is not a valid username" ) unless $u;
 
-        if ( !$errors->exist && $can_save && $post->{_save} ) {
-            foreach my $key ( $post->keys ) {
-                next if $key eq 'username';
-                next if $key eq '_save';
-                next if $key eq 'value';
-                next if $key eq 'lj_form_auth';
+        unless ( $errors->exist ) {
 
-                next unless LJ::get_prop( "user", $key );
-                $u->set_prop( $key, $post->{$key} );
+            if ( $can_save && $post->{_save} ) {
+                foreach my $key ( $post->keys ) {
+                    next if $key eq 'username';
+                    next if $key eq '_save';
+                    next if $key eq 'value';
+                    next if $key eq 'lj_form_auth';
+
+                    next unless LJ::get_prop( "user", $key );
+                    $u->set_prop( $key, $post->{$key} );
+                }
             }
-        }
 
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT * from userproplist ORDER BY name;");
-        $sth->execute;
+            my $dbr = LJ::get_db_reader();
+            my $sth = $dbr->prepare("SELECT * from userproplist ORDER BY name;");
+            $sth->execute;
 
-        while ( my $p = $sth->fetchrow_hashref ) {
-            push @props,
-                {
-                name        => $p->{name},
-                value       => $u->raw_prop( $p->{name} ),
-                description => $p->{des},
-                is_text     => $p->{des} !~ /Storable hashref/,
-                };
+            while ( my $p = $sth->fetchrow_hashref ) {
+                push @props,
+                    {
+                    name        => $p->{name},
+                    value       => $u->raw_prop( $p->{name} ),
+                    description => $p->{des},
+                    is_text     => $p->{des} !~ /Storable hashref/,
+                    };
+            }
         }
     }
 
@@ -257,7 +260,8 @@ sub propedit_handler {
             statusvis_display => $statusvis_map{ $u->statusvis } || "???",
             }
         : undef,
-        props => \@props,
+        props  => \@props,
+        errors => $errors,
     };
     return DW::Template->render_template( "admin/propedit.tt", $vars );
 }
