@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
@@ -28,6 +28,7 @@ local $LJ::T_SUPPRESS_EMAIL   = 1;
 
 my $u  = temp_user();
 my $u2 = temp_user();
+$u->update_self(  { status => 'A' } );
 $u2->update_self( { status => 'A' } );
 $u2 = LJ::load_user( $u2->user );
 
@@ -54,6 +55,14 @@ foreach my $to (qw(person community)) {
 
 ### NOW CHECK WITH PRIVS
 $u->grant_priv("changejournaltype");
+
+{
+    # test community maintainer case
+    LJ::set_rel( $comm, $u2, 'A' );
+    is( $run->("change_journal_type $owner community $u->{user}"),
+        "error: Account administers 1 other communities, must remove maintainership first." );
+    LJ::clear_rel( $comm, $u2, 'A' );
+}
 
 my $types = { 'community' => 'C', 'person' => 'P' };
 

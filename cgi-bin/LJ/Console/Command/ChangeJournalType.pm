@@ -83,6 +83,15 @@ sub execute {
 
     #############################
 
+    if ( $type eq "community" ) {
+
+        # make sure the journal to be converted does not administer other communities
+        my $admin_of_count = scalar( $u->communities_managed_list ) || 0;
+        return $self->error(
+"Account administers $admin_of_count other communities, must remove maintainership first."
+        ) if $admin_of_count;
+    }
+
     if ( $type eq "person" ) {
 
         # going to a personal journal. do they have any entries posted by other users?
