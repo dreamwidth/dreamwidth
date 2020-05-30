@@ -1,0 +1,76 @@
+[%# Admin page for viewing entries in the userlog table.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This code was forked from the LiveJournal project owned and operated
+  # by Live Journal, Inc. The code has been modified and expanded by
+  # Dreamwidth Studios, LLC. These files were originally licensed under
+  # the terms of the license supplied by Live Journal, Inc.
+  #
+  # In accordance with the original license, this code and all its
+  # modifications are provided under the GNU General Public License.
+  # A copy of that license can be found in the LICENSE file included as
+  # part of this distribution.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input { height: auto; width: auto; display: inline; }
+        td.logrow {
+            border: solid 1px rgb(230,230,230);
+            padding: 2px;
+            margin: 0px;
+        }
+        th.logrow {
+            border: solid 1px rgb(180,180,180);
+            padding: 2px;
+            margin: 0px;
+            text-weight: bold;
+        }
+    </style>
+[% END %]
+
+<form method='post' action='userlog'>
+  [% dw.form_auth %]
+  [% form.textbox( label = dw.ml( '.label.username' ),
+                   maxlength = maxlength_user, size = maxlength_user,
+                   name = 'user', value = user );
+     form.submit( value = dw.ml( '.btn.view' ) ) %]
+</form>
+
+[%- IF u -%]
+<p>[% '.txt.latest' | ml( user = u.ljuser_display ) %]</p>
+
+<table style='border: solid 1px black; width: 95%;'>
+  <thead><tr>
+    <th class='logrow'>[% '.col.date'   | ml %]</th>
+    <th class='logrow'>[% '.col.action' | ml %]</th>
+    <th class='logrow'>[% '.col.init'   | ml %]</th>
+    <th class='logrow'>[% '.col.ip'     | ml %]</th>
+    <th class='logrow'>[% '.col.uniq'   | ml %]</th>
+  </tr></thead>
+
+  [%- FOREACH row IN rows;
+        actor_u = load_actor( row ) -%]
+
+  <tr>
+    <td class='logrow'>[% mysql_time( row.logtime ) %]</td>
+    <td class='logrow'>[% action_text( row ) %]</td>
+    <td class='logrow'>
+      [%- actor_u ? actor_u.ljuser_display : dw.ml( '.txt.notrecorded' ) -%]
+      </td>
+    <td class='logrow'>[% row.ip ? row.ip : dw.ml( '.txt.notrecorded' ) %]</td>
+    <td class='logrow'>[% row.uniq ? row.uniq : dw.ml( '.txt.notrecorded' ) %]</td>
+  </tr>
+
+  [%- END -%]
+
+</table>
+[%- END -%]

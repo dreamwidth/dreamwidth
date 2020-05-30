@@ -1,0 +1,77 @@
+;; -*- coding: utf-8 -*-
+.action.account_create=Account created
+
+.action.accountstatus.any=Account status changed ([[old]] to [[new]])
+
+.action.accountstatus.D-to-V=Account undeleted
+
+.action.accountstatus.V-to-D=Account deleted
+
+.action.ban_set=Banned [[user]]
+
+.action.ban_unset=Unbanned [[user]]
+
+.action.delete_entry=Deleted entry [[target]] via [[method]]
+
+.action.delete_userpic=Deleted userpic #[[picid]]
+
+.action.email_change=Email address changed to: [[new]]
+
+.action.emailpost_auth=Generated new emailpost_auth. Auth revoked for older emails.
+
+.action.emailpost=User posted via email gateway
+
+.action.friend_invite_sent=Friend invite sent to [[whom]]
+
+.action.impersonated=Was impersonated: [[reason]]
+
+.action.impersonator=Did impersonate on [[user]]: [[reason]]
+
+.action.maintainer_add=Added maintainer [[user]]
+
+.action.maintainer_remove=Removed maintainer [[user]]
+
+.action.mass_privacy_change=Entry privacy updated (from [[from]] to [[to]])
+
+.action.password_change=User changed password
+
+.action.password_reset=User reset password via lost password email
+
+.action.redirect.add=Added redirect: [[to]]
+
+.action.redirect.remove=Removed redirect: [[to]]
+
+.action.rename=Renamed from '[[from]]' to '[[to]]'. [[del]] [[redir]]
+
+.action.unknown=Unknown action ([[action]])
+
+.admin.link=Userlog Viewer
+
+.admin.text=View a user's logged actions.
+
+.btn.view=View
+
+.col.action=Action
+
+.col.date=Date and Time
+
+.col.init=Initiator
+
+.col.ip=IP Address
+
+.col.uniq=Uniq Cookie
+
+.error.nodb=Unable to get user cluster reader.
+
+.error.nouser=User does not exist.
+
+.error.purged=User is deleted and purged.
+
+.label.username=Username:
+
+.title=User Log Viewer
+
+.txt.latest=Latest log entries for [[user]].
+
+.txt.notrecorded=<em>not recorded</em>
+
