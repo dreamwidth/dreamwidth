@@ -76,7 +76,8 @@ sub userlog_controller {
         my $ml = sub { LJ::Lang::ml( "$scope$_[0]", $_[1] ) };
 
         my %need_target_u =
-            map { $_ => 1 } qw(ban_set ban_unset maintainer_add maintainer_remove impersonator);
+            map { $_ => 1 }
+            qw(ban_set ban_unset maintainer_add maintainer_remove impersonator screen_set screen_unset);
 
         if ( $need_target_u{$action} ) {
             my $u    = LJ::load_userid( $row->{actiontarget} );
@@ -119,6 +120,8 @@ sub userlog_controller {
                 del   => $extra->{del} ? "<br />Deleted: $extra->{del}" : '',
                 redir => $extra->{redir} ? "<br />Redirected: $extra->{redir}" : '',
             },
+            siteadmin_email =>
+                { account => $extra->{account}, domain => $LJ::DOMAIN, msgid => $extra->{msgid} },
         );
 
         return $ml->( ".action.$action", $other_actions{$action} )

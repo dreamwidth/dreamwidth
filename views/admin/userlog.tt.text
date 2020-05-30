@@ -43,6 +43,12 @@
 
 .action.rename=Renamed from '[[from]]' to '[[to]]'. [[del]] [[redir]]
 
+.action.screen_set=Added auto-screen for [[user]]
+
+.action.screen_unset=Removed auto-screen for [[user]]
+
+.action.siteadmin_email=Sent email #[[msgid]] from [[account]]@[[domain]]
+
 .action.unknown=Unknown action ([[action]])
 
 .admin.link=Userlog Viewer
