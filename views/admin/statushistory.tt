@@ -1,0 +1,101 @@
+[%# Admin page for viewing a user's statushistory.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This code was forked from the LiveJournal project owned and operated
+  # by Live Journal, Inc. The code has been modified and expanded by
+  # Dreamwidth Studios, LLC. These files were originally licensed under
+  # the terms of the license supplied by Live Journal, Inc.
+  #
+  # In accordance with the original license, this code and all its
+  # modifications are provided under the GNU General Public License.
+  # A copy of that license can be found in the LICENSE file included as
+  # part of this distribution.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content label { display: inline; }
+        #content input { height: auto; width: auto; }
+        #content th, #content td { padding: 0.5em 0.25em; }
+        #content td .ljuser img { max-width: inherit; }
+        #content th { text-align: center; }
+    </style>
+[% END %]
+
+<p>[% '.intro' | ml %]</p>
+
+<form method='post' action='statushistory'>
+  [% dw.form_auth %]
+
+  [%# the hidden form fields below get their values from formdata %]
+  [% form.hidden( name = "orderby" ) %]
+  [% form.hidden( name = "flow" ) %]
+
+  [% form.textbox( label = dw.ml( '.label.user' ),
+                   maxlength = maxlength_user, size = maxlength_user,
+                   name = 'user' ) %]
+
+  [% form.textbox( label = dw.ml( '.label.admin' ),
+                   maxlength = maxlength_user, size = maxlength_user,
+                   name = 'admin' ) %]
+
+  [% form.textbox( label = dw.ml( '.label.type' ),
+                   maxlength = 20, size = 20, name = 'type' ) %]
+  <p>
+  [% form.submit( name = 'query_submit', value = dw.ml( '.btn.search' ) ) %]
+  </p>
+</form>
+
+[% IF showtable %]
+<hr size='1'>
+
+<p><b>[% '.label.query' | ml;
+    FOREACH query IN [ 'user', 'admin', 'type' ];
+      IF formdata.$query;
+    "&nbsp;&nbsp;${query}="; formdata.$query | html;
+      END;
+    END %]
+</b></p>
+
+<table border='1' cellpadding='5' width='100%'>
+  <thead><tr>
+  [% FOREACH col IN [ 'user', 'admin', 'shtype', 'shdate', 'notes' ];
+       flow = ( formdata.orderby == col && formdata.flow == 'asc' ) ? 'desc'
+                                                                    : 'asc';
+       link = dw.create_url( '/admin/statushistory', args => {
+                             user => formdata.user, admin => formdata.admin,
+                             type => formdata.type, orderby = col,
+                             flow => flow } ) %]
+    <th><a href='[% link %]'>[% col %]</a></th>
+  [% END %]
+  </tr></thead>
+
+  [% count = 0;
+     FOREACH row IN rows;
+       NEXT UNLESS canview( row ) %]
+  <tr>
+    <td>[% IF row.user;  ljuser( row.user );  END %]</td>
+    <td>[% IF row.admin; ljuser( row.admin ); END %]</td>
+    <td>[% row.shtype | html %]</td>
+    <td>[% format_time( row.shdate ) %]</td>
+    <td>[% format_note( row.notes )  %]</td>
+  </tr>
+
+  [% count = count + 1;
+     END %]
+
+  <tr><td colspan='5'><b>
+    [% '.txt.rowcount' | ml( count = count );
+       IF rows.size >= 1000; '&nbsp;'; '.txt.truncated' | ml; END %]
+  </b></td></tr>
+
+</table>
+[% END %]

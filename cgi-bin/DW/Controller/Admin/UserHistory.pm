@@ -22,6 +22,22 @@ use DW::Controller;
 use DW::Controller::Admin;
 use DW::Routing;
 use DW::Template;
+use DW::FormErrors;
+
+my $statushistory_privs = [
+    'historyview',
+    sub {
+        return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
+    }
+];
+
+DW::Routing->register_string( "/admin/statushistory", \&statushistory_controller, app => 1 );
+DW::Controller::Admin->register_admin_page(
+    '/',
+    path     => 'statushistory',
+    ml_scope => '/admin/statushistory.tt',
+    privs    => $statushistory_privs
+);
 
 DW::Routing->register_string( "/admin/userlog", \&userlog_controller, app => 1 );
 DW::Controller::Admin->register_admin_page(
@@ -30,6 +46,116 @@ DW::Controller::Admin->register_admin_page(
     ml_scope => '/admin/userlog.tt',
     privs    => [ 'canview:userlog', 'canview:*' ]
 );
+
+sub statushistory_controller {
+    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => $statushistory_privs );
+    return $rv unless $ok;
+
+    my $scope = '/admin/statushistory.tt';
+
+    my $r         = DW::Request->get;
+    my $form_args = $r->did_post ? $r->post_args : $r->get_args;
+    my $vars      = {};
+
+    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
+
+    $vars->{formdata} = $form_args;
+    $vars->{showtable} =
+        ( $form_args->{'user'} || $form_args->{'admin'} || $form_args->{'type'} ) ? 1 : 0;
+
+    return DW::Template->render_template( 'admin/statushistory.tt', $vars )
+        unless $vars->{showtable};
+
+    # build database query
+
+    my $errors = DW::FormErrors->new;
+    my $dbr    = LJ::get_db_reader();
+    my @where;
+
+    if ( $form_args->{'user'} ) {
+        if ( my $userid = LJ::get_userid( $form_args->{'user'} ) ) {
+            push @where, "s.userid=$userid";
+        }
+        else {
+            $errors->add( "user", ".error.nouser" );
+        }
+    }
+
+    if ( $form_args->{'admin'} ) {
+        if ( my $userid = LJ::get_userid( $form_args->{'admin'} ) ) {
+            push @where, "s.adminid=$userid";
+        }
+        else {
+            $errors->add( "admin", ".error.noadmin" );
+        }
+    }
+
+    if ( $form_args->{'type'} ) {
+        my $qt = $dbr->quote( $form_args->{'type'} );
+        push @where, "s.shtype=$qt";
+    }
+
+    if ( $errors->exist ) {
+        $vars->{errors}    = $errors;
+        $vars->{showtable} = 0;
+        return DW::Template->render_template( 'admin/statushistory.tt', $vars );
+    }
+
+    my $where = "";
+    $where = "WHERE " . join( " AND ", @where ) . " " if @where;
+
+    my $orderby = 's.shdate';
+    $orderby = {
+        user   => "u.user",
+        admin  => "admin",
+        shdate => "s.shdate",
+        shtype => "s.shtype",
+        notes  => "s.notes",
+    }->{ $form_args->{'orderby'} }
+        if $form_args->{'orderby'};
+
+    my $flow = 'DESC';
+    $flow = 'ASC' if $form_args->{'flow'} && $form_args->{'flow'} eq 'asc';
+
+    $vars->{rows} = $dbr->selectall_arrayref(
+        "SELECT u.user, ua.user AS admin, s.shtype, s.shdate, s.notes "
+            . "FROM statushistory s "
+            . "LEFT JOIN useridmap ua ON s.adminid=ua.userid "
+            . "LEFT JOIN useridmap u ON s.userid=u.userid "
+            . $where
+            . "ORDER BY $orderby $flow LIMIT 1000",
+        { Slice => {} }
+    );
+
+    return error_ml( "$scope.error.db", { err => $dbr->errstr } ) if $dbr->err;
+
+    $vars->{canview} = sub {
+        return 1 if $LJ::IS_DEV_SERVER;
+
+        my $remote = $rv->{remote};
+        return 1 if $remote->has_priv( 'historyview', '' );
+
+        return $remote->has_priv( 'historyview', $_[0]->{shtype} );
+    };
+
+    # I dislike using ljuser instead of ljuser_display,
+    # but this flow works better for this specific case
+    $vars->{ljuser} = sub { LJ::ljuser( $_[0] ) };
+
+    $vars->{format_time} = sub {
+        my $time = $_[0];
+        $time =~ s/(\d{4})(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)/$1-$2-$3 $4:$5:$6/;
+        return $time;
+    };
+
+    $vars->{format_note} = sub {
+        my $enotes = LJ::ehtml( $_[0] );
+        $enotes =~ s!\n!<br />\n!g;
+        return $enotes;
+    };
+
+    return DW::Template->render_template( 'admin/statushistory.tt', $vars );
+}
 
 sub userlog_controller {
     my ( $ok, $rv ) = controller( form_auth => 1, privcheck => [ 'canview:userlog', 'canview:*' ] );
