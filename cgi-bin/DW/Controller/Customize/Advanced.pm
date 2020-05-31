@@ -157,7 +157,10 @@ sub layerbrowse_handler {
         my $v = shift;
 
         if ( ref $v eq "HASH" ) {
-            if ( $v->{'_type'} eq "Color" && $v->{'as_string'} =~ /^#\w\w\w\w\w\w$/ ) {
+            if (   $v->{'_type'}
+                && $v->{'_type'} eq "Color"
+                && $v->{'as_string'} =~ /^#\w\w\w\w\w\w$/ )
+            {
                 my $ecolor = LJ::ehtml( $v->{'as_string'} );
                 $v =
 "<span style=\"border: 1px solid #000000; padding-left: 2em; background-color: $ecolor\">&nbsp;</span> <tt>$ecolor</tt>";
