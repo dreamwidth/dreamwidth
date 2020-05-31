@@ -1321,7 +1321,7 @@ sub get_userid {
         LJ::MemCache::set( "uidof:$user", $userid );
     }
 
-    return ( $userid + 0 );
+    return ( defined $userid ? $userid + 0 : 0 );
 }
 
 # <LJFUNC>
