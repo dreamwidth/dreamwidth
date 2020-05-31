@@ -31,6 +31,20 @@ ul.successlinks li {
     margin-left: 1.5em;
 }
 
+// fix for illegible table header links
+[id="content"] table th a {
+    color: $primary-text-color;
+}
+
+[id="content"] table th a:visited {
+    color: $secondary-color;
+}
+
+[id="content"] table th a:hover, [id="content"] table th a:visited:hover {
+    color: $highlight-color;
+}
+
+
 /**
  * Temporary hack to hide account links / userpics on small screens
  */
