@@ -1,0 +1,29 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Statushistory
+
+.admin.text=View a user's statushistory.
+
+.btn.search=Search
+
+.error.db=Database error: [[err]]
+
+.error.noadmin=Admin does not exist.
+
+.error.nouser=User does not exist.
+
+.intro=Fill in at least one field below:
+
+.label.admin=Admin:
+
+.label.query=Query:
+
+.label.type=Type:
+
+.label.user=User:
+
+.title=Status History
+
+.txt.rowcount=[[count]] rows in set
+
+.txt.truncated=[truncated]
+
