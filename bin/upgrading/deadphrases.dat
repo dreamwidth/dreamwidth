@@ -2007,6 +2007,10 @@ general /views/admin/index.tt.admin.sitemessages_manage.text
 
 general /views/admin/index.tt.admin.invites.link
 general /views/admin/index.tt.admin.invites.text
+general /views/admin/index.tt.admin.memcache.link
+general /views/admin/index.tt.admin.memcache.text
+general /views/admin/index.tt.admin.memcache_view.link
+general /views/admin/index.tt.admin.memcache_view.text
 general /views/admin/index.tt.admin.navtag.link
 general /views/admin/index.tt.admin.navtag.text
 
