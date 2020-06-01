@@ -118,7 +118,6 @@ LJ::Hooks::register_hook(
             invites       => "Access to some invites functionality under /admin/invites",
             largefeedsize => "Overrides synsuck_max_size for a feed",
             memcacheclear => "Access to /admin/memcache_clear",
-            mysqlstatus   => "Access to /admin/mysql_status",
             propedit      => "Allow to change userprops for other users",
             rename        => "Access to rename_opts console command",
             sendmail      => "Access to /admin/sendmail",

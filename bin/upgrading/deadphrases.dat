@@ -2014,6 +2014,22 @@ general /views/admin/index.tt.admin.memcache_view.text
 general /views/admin/index.tt.admin.navtag.link
 general /views/admin/index.tt.admin.navtag.text
 
+general /views/admin/clusterstatus.tt.admin.link
+general /views/admin/clusterstatus.tt.admin.text
+general /views/admin/clusterstatus.tt.cluster.available
+general /views/admin/clusterstatus.tt.cluster.unavailable
+general /views/admin/clusterstatus.tt.status.limited
+general /views/admin/clusterstatus.tt.status.okay
+general /views/admin/clusterstatus.tt.status.readonly
+general /views/admin/clusterstatus.tt.status.when_needed
+
+general /views/admin/mysql_status.tt.admin.link
+general /views/admin/mysql_status.tt.admin.text
+general /views/admin/mysql_status.tt.link.text
+general /views/admin/mysql_status.tt.mode.status
+general /views/admin/mysql_status.tt.mode.tables
+general /views/admin/mysql_status.tt.mode.variables
+
 general /admin/invites/index.bml.codetrace.desc
 general /admin/invites/index.bml.codetrace.head
 general /admin/invites/index.bml.distribute.desc
