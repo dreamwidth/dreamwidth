@@ -1,0 +1,67 @@
+[%# View style info for a user for the purpose of troubleshooting.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This code was forked from the LiveJournal project owned and operated
+  # by Live Journal, Inc. The code has been modified and expanded by
+  # Dreamwidth Studios, LLC. These files were originally licensed under
+  # the terms of the license supplied by Live Journal, Inc.
+  #
+  # In accordance with the original license, this code and all its
+  # modifications are provided under the GNU General Public License.
+  # A copy of that license can be found in the LICENSE file included as
+  # part of this distribution.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input { height: auto; width: auto; display: inline; }
+    </style>
+[% END %]
+
+<form method='POST'>
+[% form.textbox( label = dw.ml( '.label.viewuser' ), name = 'user',
+                 size = maxlength_user, maxlength = maxlength_user );
+
+   form.submit( value = dw.ml( '.btn.view' ) ) %]
+</form>
+
+[%- IF u -%]
+<hr />
+
+  [%- IF s2style -%]
+<h3>[% '.header.s2style' | ml( stylename = s2style.name ) %]</h3>
+
+<ul>
+  <li>[% '.label.styleid' | ml %] [% s2style.styleid %]</li>
+  <li>[% '.label.lastmod' | ml %] [% mysql_time( s2style.modtime ) %]</li>
+  <li>[% '.label.layers'  | ml %]</li>
+  <ul>
+    [%- FOREACH layer IN sort_keys( s2style.layer );
+          layerid = s2style.layer.$layer -%]
+    <li>[% layer %]: 
+      [%- IF layerid %]
+      <a href='[% dw.create_url( '/customize/advanced/layerbrowse',
+                                 args => { id => layerid } ) %]'>
+      [%- layerview = public.$layerid.defined ? 'public' : 'custom';
+          ".txt.$layerview" | ml %]</a> (#[% layerid %])
+      [%- ELSE;
+          '.txt.nolayer' | ml;
+          END %]
+    </li>
+    [%- END -%]
+  </ul>
+</ul>
+
+
+  [%- ELSE -%]
+<p>[% '.txt.nostyle' | ml %]</p>
+  [%- END -%]
+[%- END -%]

@@ -1,0 +1,20 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Recent Comments
+
+.admin.text=View a user's recent comments.
+
+.btn.load=Load
+
+.error.invaliduser=That is not a registered user.
+
+.error.nodb=Error: can't get DB for user.
+
+.header.user=Recent comments of [[user]] (#[[id]])
+
+.label.form=Username or (#userid) to view comments of:
+
+.title=View Recent Comments
+
+.txt.nolink=link unavailable
+
+.txt.row=[[hours]] hr ago in [[journal]]: 
