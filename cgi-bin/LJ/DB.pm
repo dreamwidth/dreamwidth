@@ -613,7 +613,7 @@ sub alloc_user_counter {
         my @tables = @_;
         foreach my $t (@tables) {
             my $res = $u->selectrow_array( $qry_map->{$t}, undef, $uid );
-            $newmax = $res if $res > $newmax;
+            $newmax = $res if defined $res and $res > $newmax;
         }
     };
 
