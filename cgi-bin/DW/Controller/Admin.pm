@@ -46,22 +46,6 @@ DW::Controller::Admin->_register_admin_pages_legacy(
     [ 'faq/', '.admin.faq.link', '.admin.faq.text', [ 'faqadd', 'faqedit', 'faqcat' ] ],
     [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
     [
-        'memcache', '.admin.memcache.link',
-        '.admin.memcache.text', [ 'siteadmin:memcacheview', 'siteadmin:*' ]
-    ],
-    [
-        'memcache_view',
-        '.admin.memcache_view.link',
-        '.admin.memcache_view.text',
-        [
-            'siteadmin:memcacheview',
-            'siteadmin:*',
-            sub {
-                return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
-            }
-        ]
-    ],
-    [
         'pay/',
         '.admin.pay.link',
         '.admin.pay.text',

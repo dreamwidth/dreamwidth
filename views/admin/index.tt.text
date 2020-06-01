@@ -15,14 +15,6 @@
 
 .admin.logout_user.text=Logs a user out of the site.
 
-.admin.memcache.link=Memcache Overview
-
-.admin.memcache.text=Shows current memcache conditions.
-
-.admin.memcache_view.link=Memcache View
-
-.admin.memcache_view.text=Shows current memcache details.
-
 .admin.pay.link=Payment Managements
 
 .admin.pay.text=Review payment details.
