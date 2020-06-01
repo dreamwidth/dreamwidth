@@ -57,6 +57,67 @@ DW::Controller::Admin->register_admin_page(
     privs    => [ 'siteadmin:commentview', 'siteadmin:*' ]
 );
 
+DW::Routing->register_string( "/admin/impersonate", \&impersonate_controller, app => 1 );
+
+# The impersonate page isn't listed in the index because the index is public
+# and seeing it listed there makes people nervous that we use it all the time,
+# which we don't. It's not a secret but we don't advertise it.
+
+sub impersonate_controller {
+    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => ['canview:*'] );
+    return $rv unless $ok;
+
+    my $r         = DW::Request->get;
+    my $form_args = $r->post_args;
+    my $vars      = {};
+
+    my $errors = DW::FormErrors->new;
+
+    if ( $r->did_post && LJ::check_referer('/admin/impersonate') ) {
+
+        my $remote = $rv->{remote};
+
+        my $u = LJ::load_user( $form_args->{username} );
+        $errors->add( 'username', '.error.invaliduser',
+            { user => LJ::ehtml( $form_args->{username} ) } )
+            unless $u;
+
+        my $password = $form_args->{password};
+        $errors->add( 'password', '.error.invalidpassword' )
+            unless $password && DW::Auth::Password->check( $remote, $password );
+
+        my $reason = LJ::ehtml( LJ::trim( $form_args->{reason} ) );
+        $errors->add( 'reason', '.error.emptyreason' ) unless $reason;
+
+        unless ( $errors->exist ) {
+
+            $remote->logout;
+
+            if ( $u->make_fake_login_session ) {
+
+                # log for auditing
+                $remote->log_event( 'impersonator',
+                    { actiontarget => $u->id, remote => $remote, reason => $reason } );
+                $u->log_event( 'impersonated',
+                    { actiontarget => $u->id, remote => $remote, reason => $reason } );
+                LJ::statushistory_add( $u->id, $remote->id, 'impersonate', $reason );
+
+                return $r->redirect($LJ::SITEROOT);
+            }
+            else {
+                $errors->add( '', '.error.failedlogin' );
+            }
+        }
+    }
+
+    $vars->{errors}   = $errors;
+    $vars->{formdata} = $form_args;
+
+    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
+
+    return DW::Template->render_template( 'admin/impersonate.tt', $vars );
+}
+
 sub recent_comments_controller {
     my ( $ok, $rv ) = controller( privcheck => [ 'siteadmin:commentview', 'siteadmin:*' ] );
     return $rv unless $ok;

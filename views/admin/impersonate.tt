@@ -1,0 +1,38 @@
+[%# Allow someone trusted to log in as another user for a limited time.
+  #
+  # Authors:
+  #      Afuna <coder.dw@afunamatata.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself. For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input { height: auto; width: auto; display: inline; }
+    </style>
+[% END %]
+
+<form method='POST'>
+[% dw.form_auth %]
+[% form.textbox( label = dw.ml( '.form.username' ), id='impersonate_username',
+                 size = maxlength_user, maxlength = maxlength_user,
+                 name = 'username' ) %]
+<br />
+[% form.textbox( label = dw.ml( '.form.password' ), id='impersonate_password',
+                 size = maxlength_user, type = 'password', value = '',
+                 name = 'password' ) %]
+<br />
+[% form.textbox( label = dw.ml( '.form.reason' ), id='impersonate_reason',
+                 size = 50, maxlength = 255,
+                 name = 'reason' ) %]
+<br />
+[% form.submit( value = dw.ml( '.form.button' ) ) %]
+</form>
