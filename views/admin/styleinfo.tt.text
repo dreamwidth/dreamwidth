@@ -1,0 +1,33 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Style Info
+
+.admin.text=View a user's style information.
+
+.btn.view=View
+
+.error.nouser=[[user]] is not a registered username.
+
+.error.purged=[[user]] is deleted and purged.
+
+.error.s1=S1 is no longer supported.
+
+.header.s2style=S2 - [[stylename]]
+
+.label.lastmod=Last modified:
+
+.label.layers=Style Layers:
+
+.label.styleid=Style ID:
+
+.label.viewuser=View user:
+
+.title=Style Info
+
+.txt.custom=custom
+
+.txt.nolayer=none
+
+.txt.nostyle=No style is defined for this user.
+
+.txt.public=public
+

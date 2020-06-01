@@ -1,0 +1,60 @@
+[%# View a user's recent comments.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This code was forked from the LiveJournal project owned and operated
+  # by Live Journal, Inc. The code has been modified and expanded by
+  # Dreamwidth Studios, LLC. These files were originally licensed under
+  # the terms of the license supplied by Live Journal, Inc.
+  #
+  # In accordance with the original license, this code and all its
+  # modifications are provided under the GNU General Public License.
+  # A copy of that license can be found in the LICENSE file included as
+  # part of this distribution.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content label { display: inline; }
+        #content input { height: auto; width: auto; }
+    </style>
+[% END %]
+
+<form method='GET'>
+[% form.textbox( label = dw.ml( '.label.form' ), name='user',
+                 size = maxlength_user, maxlength = maxlength_user );
+
+   form.submit( value = dw.ml( '.btn.load' ) ) %]
+</form>
+
+[%- IF u -%]
+
+<hr />
+
+<h3>[% '.header.user' | ml( user = u.ljuser_display( head_size = "24x24" ),
+                            id = u.id ) %]</h3>
+
+  [%- FOREACH r IN rows;
+        NEXT UNLESS r.nodetype == "L";
+        ju = get_journal( r );
+        lr = get_comment( r, ju ) -%]
+
+[% '.txt.row' | ml( hours = num_hours(r.posttime), journal = ju.ljuser_display ) %]
+
+    [%- lr_url = talklink( lr, r, ju );
+        IF lr_url -%]
+  <a href='[% lr_url %]'>[% lr_url %]</a>
+    [%- ELSE;
+          '.txt.nolink' | ml;
+        END -%]
+  <br />
+
+  [%- END -%]
+[%- END -%]
