@@ -2163,6 +2163,16 @@ general /admin/invites/promo.bml.title
 general /admin/invites/promo.bml.title.create
 general /admin/invites/promo.bml.title.edit
 
+general /admin/impersonate.bml.error.emptyreason
+general /admin/impersonate.bml.error.failedlogin
+general /admin/impersonate.bml.error.invalidpassword
+general /admin/impersonate.bml.error.invaliduser
+general /admin/impersonate.bml.form.button
+general /admin/impersonate.bml.form.password
+general /admin/impersonate.bml.form.reason
+general /admin/impersonate.bml.form.username
+general /admin/impersonate.bml.title
+
 general /customize/index.bml.admin.customize_area_feedback
 general /customize/options.bml.customize.feedback
 
