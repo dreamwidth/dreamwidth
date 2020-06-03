@@ -1,0 +1,45 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Sysban Management
+
+.admin.text=Set and manage sysbans.
+
+.btn.addnew=Add New
+
+.btn.query=Query
+
+.btn.queryone=Query This Value
+
+.col.exp=Expiration
+
+.col.note=Note
+
+.col.type=Type
+
+.error.create=Ban creation error: [[message]]
+
+.error.modify=Ban modify error: [[message]]
+
+.error.noaction=Invalid form submission: no post action provided.
+
+.error.nonote=Please go back and enter a description in the note field.
+
+.error.nopriv=You do not have the correct privileges for [[bantype]].
+
+.error.notvalid=Ban not valid: [[reason]]
+
+.header.queryone=Sysbans for [[banquery]]
+
+.label.queryone=Query all sysbans for this value:
+
+.label.type=Act on sysbans of the following type:
+
+.success.create=Ban successfully added.
+
+.success.linktext=Return to Sysban page
+
+.success.modify=Ban modified.
+
+.title=Sysban Management
+
+.txt.nomatch=No sysbans matching [[banquery]]
+

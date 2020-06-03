@@ -1,0 +1,37 @@
+;; -*- coding: utf-8 -*-
+.btn.modify=modify
+
+.btn.query=Query
+
+.btn.skipback=<< Previous [[limit]]
+
+.btn.skipnext=Next [[limit]] >>
+
+.col.action=Action
+
+.col.change=Change expiry
+
+.col.exp=Expiration
+
+.col.note=Note
+
+.col.value=Value
+
+.link.back=Return to Sysban page
+
+.select.E=no change
+
+.select.X=expire now
+
+.select.0=forever
+
+.select.1=add 24 hrs
+
+.select.7=add 7 days
+
+.select.30=add 1 month
+
+.title=Sysban Management
+
+.txt.noresults=<em>no results to display for [[what]]</em>
+
