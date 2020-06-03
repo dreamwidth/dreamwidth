@@ -1278,12 +1278,11 @@ TOKEN:
             }
 
             # convert user mentions, if we're in an appropriate context
-            if ( $auto_format || $formatting eq 'markdown' ) {
+            if ($at_mentions) {
 
                 # Don't mangle code spans, code blocks, things that act like
                 # code blocks, or things we KNOW have foreign @mentions in em.
-                if (   $at_mentions
-                    && !$disable_user_conversion
+                if (   !$disable_user_conversion
                     && !$opencount{'code'}
                     && !$opencount{'pre'}
                     && !$opencount{'textarea'}
@@ -1642,24 +1641,57 @@ sub clean_event {
         $opts = { 'preformatted' => $opts };
     }
 
-    # Detect which formatting dialect to use.
-    # Formatting is specified with the `editor` prop.
-    my $editor = $opts->{editor};
+    # Formatting is specified with the `editor` prop, if present...
+    my $formatting = $opts->{editor};
 
-    # Old-style Markdown for journal entries: if the entry has a special
-    # !markdown prefix, remove it and switch to Markdown formatting. Only do
-    # this if `editor` isn't set; an explicit formatting request always wins.
-    if ( !$editor && $$ref =~ s/^\s*!markdown\s*\r?\n//s ) {
-        $editor = 'markdown';
+    # ...and if not, here's how we guess.
+    if ( !$formatting ) {
+        if ( $$ref =~ s/^\s*!markdown\s*\r?\n//s ) {
+
+            # Old-style Markdown: remove the special !markdown prefix,
+            # and switch to Markdown formatting.
+            $formatting = 'markdown0';
+        }
+        elsif ( $opts->{is_syndicated} ) {
+
+            # MOST of the time, synsuck sets opt_preformatted, in which case
+            # this is plain old HTML that doesn't know anything about our
+            # special DW/LJ tags.
+            if ( $opts->{preformatted} ) {
+                $formatting = 'html_extra_raw';
+            }
+            else {
+                # BUT, if a feed post contains zero HTML tags, synsuck doesn't
+                # set preformatted. Those posts can use a "wrong" format that at
+                # least handles line breaks legibly.
+                $formatting = 'html_casual0';
+            }
+        }
+        elsif ( $opts->{preformatted} ) {
+            $formatting = 'html_raw0';
+        }
+        elsif ( $opts->{is_imported} ) {
+
+            # LJ et al don't have @mentions
+            $formatting = 'html_casual0';
+        }
+        elsif ( $opts->{logtime_mysql} && $opts->{logtime_mysql} lt '2019-05' ) {
+
+            # Before @mentions were rolled out
+            $formatting = 'html_casual0';
+        }
+        else {
+            $formatting = 'html_casual1';
+        }
     }
 
-    # Default to 'html' if we still don't know.
-    $editor //= 'html';
+    my %formatting_args = formatting_args($formatting);
 
     clean(
         $ref,
         {
-            addbreaks               => $opts->{preformatted} ? 0 : 1,
+            %formatting_args,
+
             cuturl                  => $opts->{cuturl},
             cutpreview              => $opts->{cutpreview},
             eat                     => $event_eat,
@@ -1688,8 +1720,6 @@ sub clean_event {
             journal                 => $opts->{journal},
             ditemid                 => $opts->{ditemid},
             errref                  => $opts->{errref},
-            formatting              => $editor,
-            at_mentions             => !( $opts->{is_syndicated} || $opts->{is_imported} ),
         }
     );
 }
@@ -1737,18 +1767,45 @@ sub get_okay_comment_tags {
 #       or, opts can just be a boolean scalar, which implies the performatted tag
 sub clean_comment {
     my ( $ref, $opts ) = @_;
+    return 0 unless defined $$ref;
 
     $opts = { preformatted => $opts } unless ref $opts;
-    return 0 unless defined $$ref;
+
+    # Formatting is specified with the `editor` prop, if present...
+    my $formatting = $opts->{editor};
+
+    # ...and if not, here's how we guess.
+    # Differences from entries: No magic !markdown, no syndicated content.
+    if ( !$formatting ) {
+        if ( $opts->{preformatted} ) {
+            $formatting = 'html_raw0';
+        }
+        elsif ( $opts->{is_imported} ) {
+
+            # LJ et al don't have @mentions
+            $formatting = 'html_casual0';
+        }
+        elsif ( $opts->{datepost} && $opts->{datepost} lt '2019-05' ) {
+
+            # Before @mentions were rolled out
+            $formatting = 'html_casual0';
+        }
+        else {
+            $formatting = 'html_casual1';
+        }
+    }
+
+    my %formatting_args = formatting_args($formatting);
 
     return clean(
         $ref,
         {
-            addbreaks => $opts->{preformatted} ? 0                  : 1,
-            eat       => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
-            mode      => 'deny',
-            allow     => \@comment_all,
-            cleancss  => 1,
+            %formatting_args,
+
+            eat                => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
+            mode               => 'deny',
+            allow              => \@comment_all,
+            cleancss           => 1,
             strongcleancss     => 1,
             extractlinks       => $opts->{anon_comment},
             extractimages      => $opts->{anon_comment},
@@ -1757,8 +1814,6 @@ sub clean_comment {
             textonly           => $opts->{textonly} ? 1 : 0,
             remove_positioning => 1,
             remove_abs_sizes   => $opts->{anon_comment},
-            formatting         => $opts->{editor} // 'html',
-            at_mentions        => !$opts->{is_imported},
         }
     );
 }
@@ -1843,6 +1898,54 @@ sub quote_html {
     # quote all non-LJ tags
     $string =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
     return $string;
+}
+
+# The part about which format IDs exist, are aliases, etc. is sort of duplicated
+# info from DW::Formats. But we're keeping the actual formatting behavior here
+# in the cleaner because it seems like a good idea to keep all other code from
+# knowing too much about the cleaner's internals. -NF
+my %markup_formats = (
+    html_casual0 => {
+        formatting  => 'html',
+        addbreaks   => 1,
+        at_mentions => 0,
+    },
+    html_casual1 => {
+        formatting  => 'html',
+        addbreaks   => 1,
+        at_mentions => 1,
+    },
+    html_raw0 => {
+        formatting  => 'html',
+        addbreaks   => 0,
+        at_mentions => 0,
+        noautolinks => 1,
+    },
+    html_extra_raw => {
+        formatting  => 'html',
+        addbreaks   => 0,
+        at_mentions => 0,
+        noautolinks => 1,
+        nodwtags    => 1,
+    },
+    markdown0 => {
+        formatting  => 'markdown',
+        addbreaks   => 0,
+        at_mentions => 1,
+        noautolinks => 1,
+    },
+);
+$markup_formats{markdown} = $markup_formats{markdown0};
+$markup_formats{html}     = $markup_formats{html_casual1};
+
+# Return a group of arguments to pass to clean() based on the requested format
+sub formatting_args {
+    my $format = $_[0];
+    my $args   = $markup_formats{$format};
+    unless ( ref $args ) {
+        $args = $markup_formats{html_casual1};
+    }
+    return %$args;
 }
 
 sub convert_user_mentions {
