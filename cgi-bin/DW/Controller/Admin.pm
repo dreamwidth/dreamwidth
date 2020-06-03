@@ -46,12 +46,6 @@ DW::Controller::Admin->_register_admin_pages_legacy(
     [ 'faq/', '.admin.faq.link', '.admin.faq.text', [ 'faqadd', 'faqedit', 'faqcat' ] ],
     [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
     [
-        'pay/',
-        '.admin.pay.link',
-        '.admin.pay.text',
-        ['payments']
-    ],
-    [
         'priv/',
         '.admin.priv.link',
         '.admin.priv.text'
