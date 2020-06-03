@@ -94,6 +94,14 @@ userproplist.comm_theme:
   multihomed: 0
   prettyname: Community theme
 
+userproplist.comment_editor:
+  cldversion: 4
+  datatype: char
+  des: The last-used comment markup format; new replies default to this.
+  indexed: 0
+  multihomed: 0
+  prettyname: Last-used comment markup format
+
 userproplist.control_strip_display:
   cldversion: 4
   datatype: num
@@ -325,6 +333,14 @@ userproplist.entry_editor:
   indexed: 0
   multihomed: 0
   prettyname: Default entry editor
+
+userproplist.entry_editor2:
+  cldversion: 4
+  datatype: char
+  des: The last-used markup format for posting entries. New entries default to this.
+  indexed: 0
+  multihomed: 0
+  prettyname: Last-used entry markup format.
 
 userproplist.entryform_width:
   cldversion: 4
