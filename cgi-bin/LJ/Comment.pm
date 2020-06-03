@@ -866,8 +866,9 @@ sub body_html {
     $opts->{nocss}        = $opts->{anon_comment};
     $opts->{editor}       = $self->prop('editor');
     $opts->{is_imported}  = defined $self->prop('import_source') ? 1 : 0;
-    $opts->{journal}      = $self->journal->user;
-    $opts->{ditemid}      = $self->entry->ditemid;
+    $opts->{datepost} = $self->{datepost};       # for format guessing
+    $opts->{journal}  = $self->journal->user;
+    $opts->{ditemid}  = $self->entry->ditemid;
 
     my $body = $self->body_raw;
     LJ::CleanHTML::clean_comment( \$body, $opts ) if $body;

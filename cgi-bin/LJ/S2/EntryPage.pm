@@ -146,7 +146,9 @@ sub EntryPage {
                     preformatted => $com->{props}->{opt_preformatted},
                     anon_comment => $anon_comment,
                     nocss        => $anon_comment,
-                    editor       => $com->{props}->{editor}
+                    editor       => $com->{props}->{editor},
+                    datepost     => $com->{datepost},                    # for format guessing
+                    is_imported => defined $com->{props}->{import_source} ? 1 : 0,
                 }
             );
 

@@ -2199,18 +2199,11 @@ sub Entry_from_entryobj {
         && $remote->id != $journalid ? ( style => 'mine' ) : ();
     my $style_args = LJ::viewing_style_args( %$get, %opt_stylemine );
 
-    my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
-
     # Configuration for cleaning the entry text: cuts and such
     my $cut_disable    = $opts->{cut_disable};
     my $cleanhtml_opts = {
         cuturl => $entry_obj->url( style_opts => LJ::viewing_style_opts( %$get, %opt_stylemine ) ),
-        ljcut_disable       => $cut_disable,
-        journal             => $journal->username,
-        ditemid             => $ditemid,
-        suspend_msg         => $suspend_msg,
-        unsuspend_supportid => $suspend_msg ? $entry_obj->prop('unsuspend_supportid') : 0,
-        preformatted        => $entry_obj->prop("opt_preformatted"),
+        ljcut_disable => $cut_disable,
     };
 
     # reading pages might need to display image placeholders

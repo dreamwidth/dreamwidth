@@ -199,10 +199,12 @@ sub ReplyPage {
         LJ::CleanHTML::clean_comment(
             \$parpost->{'body'},
             {
-                preformatted => $parpost->{props}->{opt_preformatted},
+                preformatted => $parentcomment->prop('opt_preformatted'),
                 anon_comment => $anon_comment,
                 nocss        => $anon_comment,
-                editor       => $parpost->{props}->{editor},
+                editor       => $parentcomment->prop('editor'),
+                datepost     => $parentcomment->{datepost},                 # for format guessing
+                is_imported => defined $parentcomment->prop('import_source') ? 1 : 0,
             }
         );
 
