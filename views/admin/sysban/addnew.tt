@@ -1,0 +1,61 @@
+[%# Frontend for managing/setting/clearing sysbans.
+  #
+  # Authors:
+  #      Juliet Kemp <juliet.kemp@gmail.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content select {
+            display: inline;
+            height: auto;
+            width: auto;
+            margin: 1em;
+        }
+        #content select {
+            padding-right: 2rem;
+        }
+    </style>
+[% END %]
+
+<form method='post' action='sysban'>
+[% dw.form_auth %]
+[% form.select( label = dw.ml( '.label.select' ),
+                name = 'bantype', items = sysban_menu,
+                raw = "onchange=\"document.getElementById('spelling').style.display = ( this.value.endsWith('email') ? 'block' : 'none' )\"" );
+
+  spellstyle = formdata.bantype.match( 'email$' ) ? "" : "display: none" %]
+
+[% form.textbox( label = dw.ml( '.label.value' ), name = 'value', size = 35 ) %]
+
+  <div id="spelling" style="[% spellstyle %]">
+
+[% form.checkbox( label = dw.ml( '.label.spelling' ), value = 0,
+                  name = "force_spelling", id = "force_spelling" ) %]
+  </div>
+
+[% form.select( label = dw.ml( '.label.duration' ), name = 'bandays',
+                items = [ '1',  dw.ml( '.select.1'  ),
+                          '7',  dw.ml( '.select.7'  ),
+                          '30'  dw.ml( '.select.30' ),
+                          '0',  dw.ml( '.select.0'  ) ] ) %]
+
+  <p>
+[% form.textarea( label = dw.ml( '.label.note' ), name = 'note',
+                  rows = 3, cols = 60 ) %]
+  </p>
+
+[% form.submit( name = 'add',  value = dw.ml( '.btn.add'  ) ) %]
+</form>
+
+<p style="padding-top: 1em"><b><a href="sysban">[% '.link.back' | ml %]</a></b></p>

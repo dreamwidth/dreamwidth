@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+.btn.add=Add
+
+.label.duration=Duration:
+
+.label.note=Note (required):
+
+.label.select=Fill in the details below:
+
+.label.spelling=Override email spell-check
+
+.label.value=Value:
+
+.link.back=Return to Sysban page
+
+.select.0=forever
+
+.select.1=24 hrs
+
+.select.7=7 days
+
+.select.30=1 month
+
+.title=Sysban Management
+
