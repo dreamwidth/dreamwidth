@@ -267,7 +267,7 @@ email.emailreset.body<<
 The email address for your [[sitename]] account '[[user]]' has
 been reset. To validate the change, please go to this address:
 
-     [[siteroot]]/confirm/[[auth]]
+     [[siteroot]]confirm/[[auth]]
 
 Regards,
 [[sitename]] Team
@@ -279,7 +279,7 @@ email.emailreset.body_withpasswd<<
 The email address for your [[sitename]] account '[[user]]' has
 been reset. To validate the change, please go to this address:
 
-     [[siteroot]]/confirm/[[auth]]
+     [[siteroot]]confirm/[[auth]]
 
 Additionally, the password for this account has been reset to:
 
@@ -287,7 +287,7 @@ Additionally, the password for this account has been reset to:
 
 Please change it immediately by going to:
 
-     [[siteroot]]/changepassword
+     [[siteroot]]changepassword
 
 Regards,  
 [[sitename]] Team
