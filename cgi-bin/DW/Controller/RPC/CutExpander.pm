@@ -91,7 +91,6 @@ sub load_cuttext {
         ditemid             => $ditemid,
         suspend_msg         => $suspend_msg,
         unsuspend_supportid => $suspend_msg ? $entry_obj->prop('unsuspend_supportid') : 0,
-        preformatted        => $entry_obj->prop("opt_preformatted"),
         cut_retrieve        => $cutid,
     };
 

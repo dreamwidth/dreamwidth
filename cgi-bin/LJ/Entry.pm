@@ -893,16 +893,22 @@ sub subject_text {
 #    undef:   loads the opt_preformatted key and uses that for formatting options
 #    1:       treats entry as preformatted (no breaks applied)
 #    0:       treats entry as normal (newlines convert to HTML breaks)
-#    hashref: passed to LJ::CleanHTML::clean_event verbatim
+#    hashref: extra arguments to LJ::CleanHTML::clean_event
 sub event_html {
     my ( $self, $opts ) = @_;
 
+    $self->_load_props unless $self->{_loaded_props};
+
     if ( !defined $opts ) {
-        $self->_load_props unless $self->{_loaded_props};
-        $opts = { preformatted => $self->{props}{opt_preformatted} };
+        $opts = {};
     }
     elsif ( !ref $opts ) {
         $opts = { preformatted => $opts };
+    }
+
+    # Caller can override preformatted (but: plz don't.)
+    if ( !defined $opts->{preformatted} ) {
+        $opts->{preformatted} = $self->prop('opt_preformatted');
     }
 
     my $remote      = LJ::get_remote();
@@ -913,7 +919,8 @@ sub event_html {
     $opts->{ditemid}             = $self->{ditemid};
     $opts->{is_syndicated}       = $self->{u}->is_syndicated;
     $opts->{is_imported}         = defined $self->{props}{import_source};
-    $opts->{editor}              = $self->{props}{editor};
+    $opts->{editor}              = $self->prop('editor');
+    $opts->{logtime_mysql} = $self->logtime_mysql;    # for format guessing
 
     $self->_load_text unless $self->{_loaded_text};
     my $event = $self->{event};
