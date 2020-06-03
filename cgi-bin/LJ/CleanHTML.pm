@@ -99,12 +99,13 @@ sub clean {
     my $newdata = '';
 
     # Set up configuration and defaults:
-    my $addbreaks               = $opts->{addbreaks};
-    my $keepcomments            = $opts->{keepcomments};
-    my $mode                    = $opts->{mode};
-    my $cut                     = $opts->{cuturl} || $opts->{cutpreview};
-    my $ljcut_disable           = $opts->{ljcut_disable};
-    my $extractlinks            = 0 || $opts->{extractlinks};
+    my $addbreaks     = $opts->{addbreaks};                       # \n -> <br>
+    my $keepcomments  = $opts->{keepcomments};
+    my $mode          = $opts->{mode};
+    my $nodwtags      = $opts->{nodwtags} || 0;                   # Disable all special DW/LJ tags
+    my $cut           = $opts->{cuturl} || $opts->{cutpreview};
+    my $ljcut_disable = $opts->{ljcut_disable};
+    my $extractlinks  = 0 || $opts->{extractlinks};               # Links become `<b>text</b> (url)`
     my $noexpand_embedded       = $opts->{noexpandembedded} || $opts->{textonly} || 0;
     my $transform_embed_nocheck = $opts->{transform_embed_nocheck} || 0;
     my $transform_embed_wmode   = $opts->{transform_embed_wmode};
@@ -116,7 +117,11 @@ sub clean {
     my $local_content           = $opts->{local_content} || 0;
     my $formatting              = $opts->{formatting} // 'html';
     my $auto_links              = !( $extractlinks || $opts->{noautolinks} );
-    $auto_links = 0 if $formatting ne 'html';
+
+    $auto_links    = 0 if $formatting ne 'html';
+    $cut           = 0 if $nodwtags;
+    $local_content = 0 if $nodwtags;
+
     my $blocked_links =
         ( exists $opts->{'blocked_links'} ) ? $opts->{'blocked_links'} : \@LJ::BLOCKED_LINKS;
     my $blocked_link_substitute =
@@ -336,7 +341,7 @@ TOKEN:
                 next TOKEN;
             }
 
-            if ( $tag eq "lj-template" && !$noexpand_embedded ) {
+            if ( $tag eq "lj-template" && !$noexpand_embedded && !$nodwtags ) {
                 my $name = $attr->{name} || "";
                 $name =~ s/-/_/g;
 
@@ -404,7 +409,7 @@ TOKEN:
                 $attr->{value} = "sameDomain" if $attr->{value} ne 'never';
             }
 
-            if ( $tag eq "span" && lc $attr->{class} eq "ljuser" && !$noexpand_embedded ) {
+            if ( $tag eq "span" && lc $attr->{class} eq "ljuser" && !$noexpand_embedded && !$nodwtags ) {
                 $eating_ljuser_span = 1;
                 $ljuser_text_node   = "";
             }
@@ -513,7 +518,7 @@ TOKEN:
                 && $tag eq "div"
                 && defined $attr->{class}
                 && $attr->{class} eq "ljuser";
-            if ($ljuser_div) {
+            if ( $ljuser_div && !$nodwtags ) {
                 my $ljuser_text = $p->get_text("/b");
                 $p->get_tag("/div");
                 $ljuser_text =~ s/\[        # opening bracket
@@ -536,7 +541,7 @@ TOKEN:
                 $disable_user_conversion = 1;
             }
 
-            if ( ( $tag eq "lj-cut" || $ljcut_div ) ) {
+            if ( ( $tag eq "lj-cut" || $ljcut_div ) && !$nodwtags ) {
 
                 # Here's the things can happen with cut tags:
                 # - User enabled a "don't cut" setting. Do nothing.
@@ -636,7 +641,7 @@ TOKEN:
                 $newdata .= "\n<style>\n$style</style>\n";
                 next;
             }
-            elsif ( $tag eq "lj" ) {
+            elsif ( $tag eq "lj" && !$nodwtags ) {
 
                 # keep <lj comm> working for backwards compatibility, but pretend
                 # it was <lj user> so we don't have to account for it below.
@@ -648,7 +653,7 @@ TOKEN:
 
                 $newdata .= user_link_html( $user, $attr->{site}, $usertag_opts );
             }
-            elsif ( $tag eq "lj-raw" ) {
+            elsif ( $tag eq "lj-raw" && !$nodwtags ) {
 
                 # Strip it out, but still register it as being open
                 $opencount{$tag}++;
@@ -669,7 +674,7 @@ TOKEN:
                 foreach (@attrstrip) {
 
                     # maybe there's a better place for this?
-                    next if ( lc $tag eq 'lj-embed' && lc $_ eq 'id' );
+                    next if ( lc $tag eq 'lj-embed' && lc $_ eq 'id' && !$nodwtags );
                     delete $hash->{$_};
                 }
 
@@ -1091,9 +1096,11 @@ TOKEN:
             }
 
             my $allow;
-            if ( $tag eq "lj-raw" ) {
+            if ( $tag eq "lj-raw" && !$nodwtags ) {
                 $opencount{$tag}--;
                 $tablescope[-1]->{$tag}-- if @tablescope;
+            }
+            elsif ( $tag eq "lj-cut" && !$nodwtags ) {
 
                 # Since this is an end-tag, we can't know if it's the closing
                 # div for a faked <div class="ljcut"> tag, which means that
@@ -1101,8 +1108,6 @@ TOKEN:
                 # of those tags; if this was a problem, then the 'S' branch of
                 # this function would need to record the ljcut_div flag in a
                 # state variable which is stashed across tokens.
-            }
-            elsif ( $tag eq "lj-cut" ) {
                 if ( $opts->{preserve_lj_tags_for} && $opencount{'lj-cut'} ) {
                     $opencount{'lj-cut'}--;
                     $newdata .= "</lj-cut>";
