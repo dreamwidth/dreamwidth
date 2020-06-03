@@ -15,10 +15,6 @@
 
 .admin.logout_user.text=Logs a user out of the site.
 
-.admin.pay.link=Payment Managements
-
-.admin.pay.text=Review payment details.
-
 .admin.priv.link=Privilege Management
 
 .admin.priv.text=View privs by priv or by user. Some priv lists are private.
