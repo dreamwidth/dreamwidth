@@ -121,7 +121,6 @@ sub IconsPage {
             LJ::CleanHTML::clean(
                 \$eh_comment,
                 {
-                    'wordlength' => 40,
                     'addbreaks'  => 0,
                     'tablecheck' => 1,
                     'mode'       => 'deny',
@@ -134,7 +133,6 @@ sub IconsPage {
             LJ::CleanHTML::clean(
                 \$eh_description,
                 {
-                    'wordlength' => 40,
                     'addbreaks'  => 0,
                     'tablecheck' => 1,
                     'mode'       => 'deny',

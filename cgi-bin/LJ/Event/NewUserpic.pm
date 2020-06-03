@@ -52,7 +52,6 @@ sub _clean_field {
     LJ::CleanHTML::clean(
         \$field,
         {
-            wordlength => 40,
             addbreaks  => 0,
             tablecheck => 1,
             mode       => "deny",

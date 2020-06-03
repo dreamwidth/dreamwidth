@@ -33,7 +33,6 @@ sub mangle_email_address {
 }
 
 #     LJ::CleanHTML::clean(\$u->{'bio'}, {
-#        'wordlength' => 100, # maximum length of an unbroken "word"
 #        'addbreaks' => 1,    # insert <br/> after newlines where appropriate
 #        'eat' => [qw(head title style layer iframe)],
 #        'mode' => 'allow',
@@ -100,7 +99,6 @@ sub clean {
     my $newdata = '';
 
     # Set up configuration and defaults:
-    my $wordlength              = $opts->{wordlength};
     my $addbreaks               = $opts->{addbreaks};
     my $keepcomments            = $opts->{keepcomments};
     my $mode                    = $opts->{mode};
@@ -280,17 +278,17 @@ sub clean {
 
     # we now allow users to use new tags that aren't "lj" tags.  this short
     # stub allows us to "upgrade" the tag.
+    my $tag_updates = {
+        'cut'           => 'lj-cut',
+        'poll'          => 'lj-poll',
+        'poll-item'     => 'lj-pi',
+        'poll-question' => 'lj-pq',
+        'raw-code'      => 'lj-raw',
+        'site-embed'    => 'lj-embed',
+        'user'          => 'lj',
+    };
     my $update_tag = sub {
-        return {
-            'cut'           => 'lj-cut',
-            'poll'          => 'lj-poll',
-            'poll-item'     => 'lj-pi',
-            'poll-question' => 'lj-pq',
-            'raw-code'      => 'lj-raw',
-            'site-embed'    => 'lj-embed',
-            'user'          => 'lj',
-        }->{ $_[0] }
-            || $_[0];
+        return $tag_updates->{ $_[0] } || $_[0];
     };
 
     my $usertag_opts = {
@@ -1258,11 +1256,6 @@ TOKEN:
             $token->[1] =~ s/</&lt;/g;
             $token->[1] =~ s/>/&gt;/g;
 
-            # put <wbr> tags into long words, except inside <pre> and <textarea>.
-            if ( $wordlength && !$opencount{'pre'} && !$opencount{'textarea'} ) {
-                $token->[1] =~ s/(\S{$wordlength,})/break_word( $1, $wordlength )/eg;
-            }
-
             # auto-format some stuff!
             if ($auto_format) {
 
@@ -1555,7 +1548,6 @@ sub clean_subject {
     clean(
         $ref,
         {
-            wordlength   => 40,
             addbreaks    => 0,
             eat          => $subject_eat,
             mode         => 'deny',
@@ -1581,7 +1573,6 @@ sub clean_subject_all {
     clean(
         $ref,
         {
-            wordlength   => 40,
             addbreaks    => 0,
             eat          => $subjectall_eat,
             mode         => 'deny',
@@ -1661,8 +1652,6 @@ sub clean_event {
     clean(
         $ref,
         {
-            linkify                 => 1,
-            wordlength              => defined $opts->{wordlength} ? $opts->{wordlength} : 40,
             addbreaks               => $opts->{preformatted} ? 0 : 1,
             cuturl                  => $opts->{cuturl},
             cutpreview              => $opts->{cutpreview},
@@ -1748,8 +1737,6 @@ sub clean_comment {
     return clean(
         $ref,
         {
-            linkify            => 1,
-            wordlength         => 40,
             addbreaks          => $opts->{preformatted} ? 0 : 1,
             eat                => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
             mode               => 'deny',
@@ -1776,7 +1763,6 @@ sub clean_userbio {
     clean(
         $ref,
         {
-            wordlength   => 100,
             addbreaks    => 1,
             attrstrip    => [qw[style]],
             mode         => 'allow',
@@ -1841,46 +1827,6 @@ sub https_url {
         journal => $opts{journal},
         ditemid => $opts{ditemid}
     ) || $url;
-}
-
-sub break_word {
-    my ( $word, $at ) = @_;
-    return $word unless $at;
-
-    my $ret = '';
-    my $chunk;
-
-    # This while loop splits up $word into chunks that are each $at characters
-    # long.  If the chunk contains punctuation (here defined as anything that
-    # isn't a word character or digit), the word break tag will be placed at
-    # the last punctuation point; otherwise it will be placed at the maximum
-    # length of the unbroken word as defined by $at.
-
-    while ( $word =~ s/^((?:$onechar){$at})// ) {
-        $chunk = $1;
-
-        # Edge case: if the next character would be whitespace, we
-        # don't want to insert a word break tag at the end of a word.
-
-        if ( $word eq '' ) {
-            $ret .= $chunk;
-            next;
-        }
-
-        # Here we shift the breakpoint if the chunk contains punctuation,
-        # unless the punctuation occurs as the first character of the chunk,
-        # since it would be immediately preceded by either whitespace or the
-        # previous word break tag.
-
-        if ( $chunk =~ /([^\d\w])([\d\w]+)$/p && $-[1] != 0 ) {
-            $chunk = "${^PREMATCH}$1";
-            $word  = "$2$word";
-        }
-
-        $ret .= "$chunk<wbr />";
-    }
-
-    return "$ret$word";
 }
 
 sub quote_html {

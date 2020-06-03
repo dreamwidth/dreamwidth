@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 49;
+use Test::More tests => 42;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
@@ -301,43 +301,5 @@ qq{&lt;select ... &gt;&lt;option ... &gt;hello&lt;/option&gt;&lt;option ... &gt;
     is( $orig_post, $clean_post,
         "Full text of entry, with mismatched HTML tags within and with-out the cut" );
 }
-
-note("expected wordbreak behavior");
-
-$orig_post  = qq{wordbreak};
-$clean_post = qq{word<wbr />brea<wbr />k};
-$clean->( { wordlength => 4 } );
-is( $orig_post, $clean_post, "Word break tags inserted where requested" );
-
-$orig_post  = qq{insert a word<wbr>break};
-$clean_post = qq{insert a word<wbr>break};
-$clean->();
-is( $orig_post, $clean_post, "Existing word break tags unchanged" );
-
-$orig_post  = qq{word-break};
-$clean_post = qq{word-<wbr />break};
-$clean->( { wordlength => 8 } );
-is( $orig_post, $clean_post, "Word break tag prefers punctuation points" );
-
-$orig_post  = qq{&quot;entity&quot; test};
-$clean_post = qq{&quot;entity&quot; test};
-$clean->( { wordlength => 8 } );
-is( $orig_post, $clean_post, "Word break handling of HTML entities OK" );
-
-$orig_post  = qq{multi-character-string test};
-$clean_post = qq{multi-character-<wbr />string test};
-$clean->( { wordlength => 20 } );
-is( $orig_post, $clean_post, "Choose last punctuation in string" );
-
-$orig_post  = qq{"This_is_a_test_of_the_emergency_word_break_system."};
-$clean_post = qq{"This_is_a_test_of_the_emergency_word_br<wbr />eak_system."};
-$clean->( { wordlength => 40 } );
-is( $orig_post, $clean_post, "Don't choose first character in string" );
-
-$orig_post = qq{"Auto-linkify: http://www.dreamwidth.org/file/edit"};
-$clean_post =
-qq{"Auto-linkify: <a href="http://www.dreamwidth.org/file/edit">http://www.dreamwidth.org/file/edit</a>"};
-$clean->( { wordlength => 40 } );
-is( $orig_post, $clean_post, "Don't mutilate URL entity markers" );
 
 1;
