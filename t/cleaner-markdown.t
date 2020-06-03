@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 28;
+use Test::More tests => 27;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
@@ -137,17 +137,16 @@ is( $clean->( '@system', editor => 'markdown' ),
 is( $clean->( '<pre>@system</pre>', editor => 'markdown' ),
     "<pre>\@system</pre>", 'user tag in pre unconverted and unmarkeddown (markdown)' );
 
+# Local content from before ~May 2019 doesn't expect user conversion either.
+is( $clean->( '@system', logtime_mysql => '2018-10-10', editor => undef ),
+    '@system', 'old content - user tag in plain text unconverted (undef editor)' );
+
 # imported content obeys the same rules, except isn't considered local content
 # so doesn't convert users
 check_doesnt_use_markdown( 'imported content w/o editor set', is_imported => 1, editor => undef );
 check_uses_markdown( 'imported content w/editor set', is_imported => 1, editor => 'markdown' );
 is( $clean->( '@system', is_imported => 1, editor => undef ),
     '@system', 'imported content - user tag in plain text unconverted (undef editor)' );
-is( $clean->( '@system', is_imported => 1, editor => 'markdown' ),
-    '<p>@system</p>', 'imported content - user tag in plain text unconverted (markdown)' );
-is( $clean->( '<pre>@system</pre>', is_imported => 1, editor => 'markdown' ),
-    "<pre>\@system</pre>",
-    'imported content - user tag in pre unconverted and unmarkeddown (markdown)' );
 
 # syndicated content is always post-processed (even if we get it from another DW/LJ)
 # so it can't have any editor settings
