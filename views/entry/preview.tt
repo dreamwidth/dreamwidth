@@ -12,50 +12,73 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[%- dw.need_res( "stc/talkpage.css" ) -%]
-
 [%- sections.windowtitle = '.title' | ml( sitenameshort = site.nameshort ) -%]
 
-[%- IF journal -%]
-    <table summary=''><tr valign='middle'>
-    [%- IF icon -%]
-        <td>[% icon %]</td>
-    [%- END -%]
+<div class="entry-wrapper entry-wrapper-odd journal-type-P [%- IF icon -%]has[%- ELSE -%]no[%- END -%]-userpic  [%- IF subject -%]has[%- ELSE -%]no[%- END -%]-subject">
+    <div class="separator separator-before">
+        <div class="inner">
+        </div>
+    </div>
 
-    <td>
-        [%- postername = poster.name | html -%]
+    <div class="entry" id="entry-4857">
+        <div class="inner">
+            [%- IF journal -%]
+                <div class="header">
+                    <div class="inner">
+                        <div class="userpic">
+                            [%- IF icon -%]
+                                [% icon %]
+                            [%- END -%]
+                        </div>
 
-        [%- IF journal.is_community -%]
-            [%- "talk.somebodywrote_comm" | ml( realname = postername
-                                                userlink = poster.ljuser_display
-                                                commlink = journal.ljuser_display )
-            -%]
-        [%- ELSE -%]
-            [%- "talk.somebodywrote" | ml(  realname = postername
-                                            userlink = poster.ljuser_display )
-            -%]
-        [%- END -%]
+                        <div class="poster-info">
+                            <span class="poster entry-poster ">[%- postername = poster.name | html -%]
+                                [%- IF journal.is_community -%]
+                                    [%- "talk.somebodywrote_comm" | ml( realname = postername
+                                                                        userlink = poster.ljuser_display
+                                                                        commlink = journal.ljuser_display )
+                                    -%]
+                                [%- ELSE -%]
+                                    [%- "talk.somebodywrote" | ml(  realname = postername
+                                                                    userlink = poster.ljuser_display )
+                                    -%]
+                                [%- END -%]
+                            </span>
+                            <span class='datetime'>@ [% displaydate %]</span>
+                        </div>
+                    </div>
+                </div>
 
-        <br /><span class='time'>@ [% displaydate %]</span>
-    </td>
+                [%- currents -%]
+            [%- END -%]
 
-    </tr></table>
-[%- END -%]
+            <div>
+                <div class="contents usercontent">
+                    <div class="inner">
+                        [%- IF security -%]
+                            <span class="access-filter">
+                                <img src="[% site.imgroot %][% security.src %]" alt="[% security.alt%]" width="[% security.width %]" height="[% security.height %]" align="absmiddle" />
+                            </span>
+                        [%- END -%]
 
-<div id='entry' class='usercontent' style='margin-left: 30px'>
-    [%- currents -%]
+                        <h3 class="entry-title">
+                            <a title="testing editor prop">[% subject %]</a>
+                        </h3>
 
-    [%- IF security -%]
-        <img src="[% site.imgroot %][% security.src %]" alt="[% security.alt%]" width="[% security.width %]" height="[% security.height %]" align="absmiddle" />
-    [%- END -%]
+                        <div class="entry-content">
+                            [%- event -%]
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <div id='entrysubj'>[% subject %]</div>
-    [%- IF security OR subject -%]<br />[%- END -%]
-
-    [%- event -%]
+            <div class="footer">
+                <div class="inner">
+                    <div class='alert-box'>
+                        <p>[% '.entry.preview_warn_text' | ml %]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<br clear='all' /><hr width='100%' size='2' align='center' />
-
-<div class='highlight-box'><p>[% '.entry.preview_warn_text' | ml %]</p></div>
-

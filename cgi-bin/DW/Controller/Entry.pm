@@ -1337,6 +1337,10 @@ sub preview_handler {
     my $r      = DW::Request->get;
     my $remote = LJ::get_remote();
 
+    # Can't count on template to handle resource group, since we might go
+    # through S2 instead.
+    LJ::set_active_resource_group('foundation');
+
     my $post = $r->post_args;
     my $styleid;
     my $siteskinned = 1;
@@ -1444,6 +1448,9 @@ sub preview_handler {
         ( $siteskinned, $styleid ) = ( 1, 0 );
     }
 
+    # Include helper CSS/JS for highest fidelity previews
+    LJ::Talk::init_s2journal_js( noqr => 1, siteskin => $siteskinned );
+
     if ($siteskinned) {
         my $vars = {
             event   => $event,
@@ -1475,7 +1482,7 @@ sub preview_handler {
                 map { "<a href='$base/tag/" . LJ::eurl($_) . "'>" . LJ::ehtml($_) . "</a>" }
                     @taglist );
         }
-        $vars->{currents} = LJ::currents_table(%current);
+        $vars->{currents} = LJ::currents_div(%current);
 
         my $security = "";
         if ( $form_req->{security} eq "private" ) {
@@ -1494,6 +1501,9 @@ sub preview_handler {
     else {
         my $ret  = "";
         my $opts = {};
+
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'foundation' },
+            "stc/css/foundation/foundation_minimal.css" );
 
         $LJ::S2::ret_ref = \$ret;
         $opts->{r} = $r;
@@ -1594,6 +1604,10 @@ sub preview_handler {
         my $charset = $opts->{saycharset} // '';
         $p->{head_content} .=
             '<meta http-equiv="Content-Type" content="text/html; charset=' . $charset . "\" />\n";
+
+        # Include required CSS and really fundamental JS like Site object (most
+        # other JS gets loaded at end of page by s2_run)
+        $p->{head_content} .= LJ::res_includes_head();
 
         # Don't show the navigation strip or invisible content
         $p->{head_content} .= qq{
