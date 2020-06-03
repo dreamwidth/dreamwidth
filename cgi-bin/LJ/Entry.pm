@@ -2877,4 +2877,31 @@ sub currents_table {
     return $ret;
 }
 
+# Same, but stop it with the tables
+sub currents_div {
+    my (%current) = @_;
+    my $ret = '';
+    return $ret unless %current;
+
+    $ret .= "<div class='currents'>\n";
+    $ret .= "<div class='metadata bottom-metadata'>\n";
+    $ret .= "<ul>\n";
+
+    foreach ( sort keys %current ) {
+        next unless $current{$_};
+
+        my $curkey  = "talk.curname_" . $_;
+        my $curname = LJ::Lang::ml($curkey);
+        $curname = "<b>Current $_:</b>" unless $curname;
+
+        $ret .= "<li><span class='metadata-label'>$curname</span> ";
+        $ret .= "<span class='metadata-item'>$current{$_}</span></li>\n";
+    }
+    $ret .= "</ul>\n";
+    $ret .= "</div>\n";
+    $ret .= "</div>\n";
+
+    return $ret;
+}
+
 1;
