@@ -24,6 +24,7 @@ use Carp qw/ croak /;
 
 use DW::Captcha;
 use DW::EmailPost::Comment;
+use DW::Formats;
 use LJ::Comment;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;
@@ -1464,6 +1465,12 @@ sub talkform {
         $basesubject = "Re: $basesubject";
     }
 
+    # hashref with "selected" and "items" keys
+    my $editors = DW::Formats::select_items(
+        current   => $form->{prop_editor},
+        preferred => $remote ? $remote->prop('comment_editor') : '',
+    );
+
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) // '';
 
     # Variables for talkform.tt (most of them, at least)
@@ -1473,6 +1480,7 @@ sub talkform {
         errors               => $opts->{errors},
         create_link          => '',
         subjecticon_ids      => \@subjecticon_ids,
+        editors              => $editors,
         username_maxlength   => $LJ::USERNAME_MAXLENGTH,
         password_maxlength   => $LJ::PASSWORD_MAXLENGTH,
 

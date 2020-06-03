@@ -2308,3 +2308,4 @@ general /go.bml.link.to.journal
 
 general talk.error.nosuchjournal
 general talk.spellcheck
+general /talkform.tt.opt.noautoformat

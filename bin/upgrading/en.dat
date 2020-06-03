@@ -2045,6 +2045,10 @@ lynx.nav.siteopts=Browse Options
 
 lynx.nav.update=Post Entry
 
+markup.helplink.url=FAQ_URL
+
+markup.helplink.alttext=More info about formatting
+
 menunav.create=Create
 
 menunav.create.createaccount=Create Account

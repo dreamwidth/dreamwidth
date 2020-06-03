@@ -22,6 +22,7 @@ use POSIX;
 use DW::Auth::Challenge;
 use DW::External::Site;
 use DW::Request;
+use DW::Formats;
 use LJ::Global::Constants;
 use LJ::Event;
 use LJ::Subscription::Pending;
@@ -933,6 +934,9 @@ sub create_qr_div {
     # For userpic selector
     my @icons = icon_keyword_menu($remote);
 
+    # hashref with "selected" and "items" keys
+    my $editors = DW::Formats::select_items( preferred => $remote->prop('comment_editor'), );
+
     # FIXME: This is incoherent on reading/network pages. (But it's only
     # noticeable when viewing the reading/network page of someone who wouldn't
     # allow you to comment.) -NF
@@ -952,12 +956,14 @@ sub create_qr_div {
 
             current_icon_kw => $userpic_kw,
             current_icon    => LJ::Userpic->new_from_keyword( $remote, $userpic_kw ),
+
+            editors => $editors,
+
             foundation_beta => LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" ),
 
             remote => {
-                ljuser => $remote->ljuser_display,
-                user   => $remote->user,
-
+                ljuser                 => $remote->ljuser_display,
+                user                   => $remote->user,
                 icons_url              => $remote->allpics_base,
                 icons                  => \@icons,
                 can_use_userpic_select => $remote->can_use_userpic_select && ( scalar(@icons) > 0 ),

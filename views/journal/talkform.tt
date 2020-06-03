@@ -372,8 +372,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     comment.subjecticon,
     "id='subjectIconImage' role='button' class='js-only' style='display: none;' title='Click to change the subject icon'"
   ) -%]
-
-  <input type="button" id="comment-text-quote" value="Quote" tabindex="-1" class="js-only markup-button" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
 </div>
 
 <div style="display: none;" id="subjectIconList">
@@ -392,6 +390,36 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div id='ljnohtmlsubj' class='ljdeem no-js'><span style='font-size: 8pt; font-style: italic;'>
   [%- '.nosubjecthtml' | ml -%]
 </span></div>
+
+[%# Markup controls %]
+
+<div class="qr-markup">
+  <div class="qr-markup-type">
+    [%- form.select(
+      label = 'Formatting type'
+      labelclass = 'invisible'
+      name = 'prop_editor'
+      id = 'prop_editor'
+      selected = editors.selected
+      items = editors.items
+    ) -%]
+
+    <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1">[%-
+      dw.img('help', '',
+        {
+          alt   => dw.ml('markup.helplink.alttext'),
+          title => dw.ml('markup.helplink.alttext'),
+          style => 'vertical-align: middle;'
+        }
+      )
+    -%]</a>
+  </div>
+
+  <div class="qr-markup-controls">
+    <input type="button" id="comment-text-quote" value="Quote" tabindex="-1" class="js-only markup-button" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
+  </div>
+</div>
+
 
 
 [%# Message body text %]
@@ -413,15 +441,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%# Misc checkboxes, captcha, edit reason - after body, before post buttons %]
 
 <div id="talkform-misc">
-  [%- form.checkbox(
-    name = 'prop_opt_preformatted'
-    id = 'prop_opt_preformatted'
-    value = 1
-    selected = comment.preformatted
-    label = dw.ml('.opt.noautoformat')
-  ) -%]
-  [%- help_icon( 'autoformat' ) -%]
-
   [%- IF remote.can_unscreen_parent -%]
     <br />
     [%- form.checkbox(
@@ -858,14 +877,24 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 
     <div id="misc_controls">
-      [%- form.checkbox(
-        name = 'prop_opt_preformatted'
-        id = 'prop_opt_preformatted'
-        value = 1
-        selected = comment.preformatted
-        label = dw.ml('.opt.noautoformat')
+      [%- form.select(
+        label = 'Formatting type'
+        labelclass = 'invisible'
+        name = 'prop_editor'
+        id = 'prop_editor'
+        selected = editors.selected
+        items = editors.items
       ) -%]
-      [%- help_icon( 'autoformat' ) -%]
+
+      <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1">[%-
+        dw.img('help', '',
+          {
+            alt   => dw.ml('markup.helplink.alttext'),
+            title => dw.ml('markup.helplink.alttext'),
+            style => 'vertical-align: middle;'
+          }
+        )
+      -%]</a>
 
       <input type="button" id="comment-text-quote" value="Quote" class="js-only" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
 
