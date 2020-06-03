@@ -45,16 +45,10 @@ DW::Controller::Admin->_register_admin_pages_legacy(
     '/',
     [ 'faq/', '.admin.faq.link', '.admin.faq.text', [ 'faqadd', 'faqedit', 'faqcat' ] ],
     [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
+    [ 'priv/', '.admin.priv.link', '.admin.priv.text' ],
     [
-        'priv/',
-        '.admin.priv.link',
-        '.admin.priv.text'
-    ],
-    [
-        'recent_comments',
-        '.admin.recent_comments.link',
-        '.admin.recent_comments.text',
-        [ 'siteadmin:commentview', 'siteadmin:*' ]
+        'recent_comments', '.admin.recent_comments.link',
+        '.admin.recent_comments.text', [ 'siteadmin:commentview', 'siteadmin:*' ]
     ],
     [
         'statushistory',
