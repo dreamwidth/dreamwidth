@@ -174,6 +174,29 @@ postFormInitData.strings = {
         </div></div>
 
         <div class="row"><div class="columns">
+            <div class='markup-container'>
+                [%- form.select(
+                  label = 'Formatting type'
+                  labelclass = 'invisible'
+                  name = 'editor'
+                  id = 'editor'
+                  select = editors.selected
+                  items = editors.items
+                ) -%]
+
+                <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1">[%-
+                  dw.img('help', '',
+                    {
+                      alt   => dw.ml('markup.helplink.alttext'),
+                      title => dw.ml('markup.helplink.alttext'),
+                      style => 'box-sizing: content-box;'
+                    }
+                  )
+                -%]</a>
+            </div>
+        </div></div>
+
+        <div class="row"><div class="columns">
             <div class='event-container'>
                 [%- form.textarea( label = dw.ml(".event.label")
                     name = "event"

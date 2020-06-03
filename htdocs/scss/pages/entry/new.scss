@@ -200,6 +200,16 @@
     }
 }
 
+.markup-container {
+    display: flex;
+    align-items: center;
+
+    img { // help icon
+        margin-bottom: 1rem;
+        margin-left: 1rem;
+    }
+}
+
 .inactive-component {
     display: none;
 }

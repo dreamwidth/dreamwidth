@@ -24,6 +24,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
+use DW::Formats;
 
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
@@ -243,6 +244,15 @@ sub new_handler {
 
     # prepopulate if we haven't been through this form already
     $vars->{formdata} = $post || _prepopulate($get);
+
+    # Had to wait for formdata before figuring out the editors list -- if we
+    # have a WIP form submission with errors, we want to reuse what the user
+    # already chose.
+    $vars->{editors} = DW::Formats::select_items(
+        current   => $vars->{formdata}->{editor},
+        preferred => $remote ? $remote->prop('entry_editor2') : '',
+    );
+    $vars->{formdata}->{editor} = $vars->{editors}->{selected};
 
     $vars->{editable} = { map { $_ => 1 } @modules };
 
@@ -608,6 +618,17 @@ sub _edit {
 
     $vars->{formdata} = $post || _backend_to_form($entry_obj);
 
+    # Now that we have {formdata}->{editor}, we can get the list of available
+    # editors.
+    $vars->{editors} = DW::Formats::select_items(
+        current   => $vars->{formdata}->{editor},
+        preferred => $remote->prop('entry_editor2'),
+    );
+
+    # The template helper uses "formdata" to set the default values for fields,
+    # so we'll update it in place with what DW::Formats thinks we should use.
+    $vars->{formdata}->{editor} = $vars->{editors}->{selected};
+
     my %editable = map { $_ => 1 } @modules;
     $vars->{editable} = \%editable;
 
@@ -704,11 +725,9 @@ sub _form_to_backend {
     $props->{picture_keyword} = $post->{icon}    if defined $post->{icon};
     $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
 
-    # FIXME
+    # This form always uses the editor prop instead of opt_preformatted.
     $props->{opt_preformatted} = 0;
-
-    #     $req->{"prop_opt_preformatted"} ||= $POST->{'switched_rte_on'} ? 1 :
-    #         $POST->{event_format} && $POST->{event_format} eq "preformatted" ? 1 : 0;
+    $props->{editor}           = DW::Formats::validate( $post->{editor} );
 
     # old implementation of comments
     # FIXME: remove this before taking the page out of beta
@@ -820,6 +839,34 @@ sub _backend_to_form {
 
     # direct translation of prop values to the form
 
+    my $event = $entry->event_raw;
+
+    # Look up formatting for newer entries...
+    my $editor = $entry->prop('editor');
+
+    # ...or, figure out formatting when editing old entries.
+    # TODO: This duplicates some logic from LJ::CleanHTML for guessing an editor
+    # value for old posts. Would be nice to centralize it in the Entry class,
+    # except that if we're detecting old-style !markdown, we DO want to also
+    # mutate the body text, which makes it hairy.
+    unless ($editor) {
+        if ( $event =~ s/^\s*!markdown\s*\r?\n//s ) {
+            $editor = 'markdown0';
+        }
+        elsif ( $entry->prop('opt_preformatted') ) {
+            $editor = 'html_raw0';
+        }
+        elsif ( $entry->prop('import_source') ) {
+            $editor = 'html_casual0';
+        }
+        elsif ( $entry->logtime_mysql lt '2019-05' ) {
+            $editor = 'html_casual0';
+        }
+        else {
+            $editor = 'html_casual1';    # For accurate state when editing posts.
+        }
+    }
+
     my %formprops = map { $_ => $entry->prop( $form_to_props{$_} ) } keys %form_to_props;
 
     # some properties aren't in the hash above, so go through them manually
@@ -840,8 +887,13 @@ sub _backend_to_form {
 
         flags_adminpost => $entry->prop("admin_post"),
 
-        # FIXME:
-        # ...       => $entry->prop( "opt_preformatted" )
+        # At this point we know enough to get the full list of editors (and
+        # selection state) for the dropdown, but because of how the template
+        # variables are laid out, we shouldn't really do that from here. (This
+        # function's whole return value becomes 'formdata' in the template
+        # vars.) So we'll pass this along, and the caller (currently just _edit)
+        # will use it to get the list for the dropdown.
+        editor => DW::Formats::validate($editor),
 
         # FIXME: remove before taking the page out of beta
         opt_screening      => $entry->prop("opt_screening"),
@@ -865,8 +917,7 @@ sub _backend_to_form {
     }
 
     # allow editing of embedded content
-    my $event = $entry->event_raw;
-    my $ju    = $entry->journal;
+    my $ju = $entry->journal;
     LJ::EmbedModule->parse_module_embed( $ju, \$event, edit => 1 );
 
     return {
@@ -1248,19 +1299,9 @@ sub _persist_props {
 
     # FIXME:
     #
-    #                 # persist the default value of the disable auto-formatting option
-    #                 $u->disable_auto_formatting( $POST{event_format} ? 1 : 0 );
-    #
     #                 # Clear out a draft
     #                 $remote->set_prop('entry_draft', '')
     #                     if $remote;
-    #
-    #                 # Store what editor they last used
-    #                 unless (!$remote || $remote->prop('entry_editor') =~ /^always_/) {
-    #                      $POST{'switched_rte_on'} ?
-    #                          $remote->set_prop('entry_editor', 'rich') :
-    #                          $remote->set_prop('entry_editor', 'plain');
-    #                  }
 
 }
 
@@ -1372,8 +1413,7 @@ sub preview_handler {
     # the cleaner won't eat
     LJ::EmbedModule->parse_module_embed( $u, \$event, preview => 1 );
 
-    # TODO: get prop_editor from the form (not currently being set)
-    my $editor = undef;
+    my $editor = $form_req->{props}->{editor};
 
     # clean content normally
     LJ::CleanHTML::clean_event(
