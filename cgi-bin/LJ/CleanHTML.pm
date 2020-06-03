@@ -114,13 +114,13 @@ sub clean {
     my $remove_sizes            = $opts->{remove_sizes} || 0;
     my $remove_abs_sizes        = $opts->{remove_abs_sizes} || 0;
     my $remove_fonts            = $opts->{remove_fonts} || 0;
-    my $local_content           = $opts->{local_content} || 0;
-    my $formatting              = $opts->{formatting} // 'html';
-    my $auto_links              = !( $extractlinks || $opts->{noautolinks} );
+    my $at_mentions = $opts->{at_mentions} || 0;                   # @person.place -> user tag
+    my $formatting  = $opts->{formatting} // 'html';               # html, or do we need to convert?
+    my $auto_links  = !( $extractlinks || $opts->{noautolinks} );
 
-    $auto_links    = 0 if $formatting ne 'html';
-    $cut           = 0 if $nodwtags;
-    $local_content = 0 if $nodwtags;
+    $auto_links  = 0 if $formatting ne 'html';
+    $cut         = 0 if $nodwtags;
+    $at_mentions = 0 if $nodwtags;
 
     my $blocked_links =
         ( exists $opts->{'blocked_links'} ) ? $opts->{'blocked_links'} : \@LJ::BLOCKED_LINKS;
@@ -409,7 +409,11 @@ TOKEN:
                 $attr->{value} = "sameDomain" if $attr->{value} ne 'never';
             }
 
-            if ( $tag eq "span" && lc $attr->{class} eq "ljuser" && !$noexpand_embedded && !$nodwtags ) {
+            if (   $tag eq "span"
+                && lc $attr->{class} eq "ljuser"
+                && !$noexpand_embedded
+                && !$nodwtags )
+            {
                 $eating_ljuser_span = 1;
                 $ljuser_text_node   = "";
             }
@@ -1276,11 +1280,9 @@ TOKEN:
             # convert user mentions, if we're in an appropriate context
             if ( $auto_format || $formatting eq 'markdown' ) {
 
-                # Don't mangle code spans, code blocks, or things that act like
-                # code blocks. (This re-checks some elements that were already
-                # checked for $auto_format, because Markdown content might have
-                # a few.)
-                if (   $local_content
+                # Don't mangle code spans, code blocks, things that act like
+                # code blocks, or things we KNOW have foreign @mentions in em.
+                if (   $at_mentions
                     && !$disable_user_conversion
                     && !$opencount{'code'}
                     && !$opencount{'pre'}
@@ -1563,8 +1565,8 @@ sub clean_subject {
             # This is wrong in some cases, but clean_subject is used by many
             # different paths that don't tell us where the content came from.
             # Let's assume the most conservative for now.
-            formatting    => 'html',
-            local_content => 0,
+            formatting  => 'html',
+            at_mentions => 0,
         }
     );
 }
@@ -1587,8 +1589,8 @@ sub clean_subject_all {
             # This is wrong in some cases, but clean_subject is used by many
             # different paths that don't tell us where the content came from.
             # Let's assume the most conservative for now.
-            formatting    => 'html',
-            local_content => 0,
+            formatting  => 'html',
+            at_mentions => 0,
         }
     );
 }
@@ -1687,7 +1689,7 @@ sub clean_event {
             ditemid                 => $opts->{ditemid},
             errref                  => $opts->{errref},
             formatting              => $editor,
-            local_content           => !( $opts->{is_syndicated} || $opts->{is_imported} ),
+            at_mentions             => !( $opts->{is_syndicated} || $opts->{is_imported} ),
         }
     );
 }
@@ -1718,8 +1720,8 @@ sub clean_embed {
             force_https_embed       => $opts->{display_as_content},
 
             # Embeds always come from somewhere else, so be conservative.
-            formatting    => 'html',
-            local_content => 0,
+            formatting  => 'html',
+            at_mentions => 0,
         }
     );
 }
@@ -1742,11 +1744,11 @@ sub clean_comment {
     return clean(
         $ref,
         {
-            addbreaks          => $opts->{preformatted} ? 0 : 1,
-            eat                => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
-            mode               => 'deny',
-            allow              => \@comment_all,
-            cleancss           => 1,
+            addbreaks => $opts->{preformatted} ? 0                  : 1,
+            eat       => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
+            mode      => 'deny',
+            allow     => \@comment_all,
+            cleancss  => 1,
             strongcleancss     => 1,
             extractlinks       => $opts->{anon_comment},
             extractimages      => $opts->{anon_comment},
@@ -1756,7 +1758,7 @@ sub clean_comment {
             remove_positioning => 1,
             remove_abs_sizes   => $opts->{anon_comment},
             formatting         => $opts->{editor} // 'html',
-            local_content      => !$opts->{is_imported},
+            at_mentions        => !$opts->{is_imported},
         }
     );
 }
@@ -1778,8 +1780,8 @@ sub clean_userbio {
 
             # Bios are always local, but for now, we are marking them as
             # HTML so that people don't have to reformat everything.
-            formatting    => 'html',
-            local_content => 1,
+            formatting  => 'html',
+            at_mentions => 1,
         }
     );
 }
