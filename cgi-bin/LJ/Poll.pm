@@ -166,12 +166,11 @@ sub clean_poll {
     LJ::CleanHTML::clean(
         $ref,
         {
-            'wordlength' => 40,
-            'addbreaks'  => 0,
-            'eat'        => $poll_eat,
-            'mode'       => 'deny',
-            'allow'      => $poll_allow,
-            'remove'     => $poll_remove,
+            'addbreaks' => 0,
+            'eat'       => $poll_eat,
+            'mode'      => 'deny',
+            'allow'     => $poll_allow,
+            'remove'    => $poll_remove,
         }
     );
     LJ::text_out($ref);

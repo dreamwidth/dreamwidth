@@ -29,7 +29,7 @@ my $url             = 'https://medium.com/@username/title-of-page';
 my $clean = sub {
     my ( $text, %opts ) = @_;
     unless (%opts) {
-        %opts = ( wordlength => 80, editor => 'markdown' );
+        %opts = ( editor => 'markdown' );
     }
     LJ::CleanHTML::clean_event( \$text, \%opts );
     chomp $text;
@@ -72,7 +72,7 @@ is(
 
 # plain URL containing user tag, with autolinks enabled
 is(
-    $clean->( $url, editor => undef, preformatted => 0, noautolinks => 0, wordlength => 80 ),
+    $clean->( $url, editor => undef, preformatted => 0, noautolinks => 0 ),
 '<a href="https://medium.com/@username/title-of-page">https://medium.com/@username/title-of-page</a>',
     'user tag in auto-linked URL not converted'
 );
