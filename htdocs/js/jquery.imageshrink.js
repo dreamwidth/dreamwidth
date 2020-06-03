@@ -38,7 +38,7 @@ jQuery(function($) {
     // Third: Don't show zoom cursors for non-zooming images (.imageshrink-actualsize on/off)
 
     // Dummied out observeImages function, to simplify browser support in (Fourth).
-    var observeImages = function(img) {return;};
+    var observeImages = function(container) {return;};
 
     if (typeof ResizeObserver === 'function') {
         var zoomCursorCleaner = new ResizeObserver(function(resizeList, observer) {
