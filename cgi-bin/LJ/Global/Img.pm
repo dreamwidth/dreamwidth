@@ -209,8 +209,8 @@ $img{key} = {
 
 $img{help} = {
     src    => '/silk/site/help.png',
-    width  => 14,
-    height => 14,
+    width  => 16,
+    height => 16,
     alt    => 'img.help',
 };
 
