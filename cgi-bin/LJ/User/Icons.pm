@@ -714,12 +714,13 @@ sub get_userpic_info {
                     $info->{mapkw}->{$mapid} = $kw;
                 }
             }
-            next if $skip_kw;
 
             next unless $info->{pic}->{$id};
-            $info->{kw}->{$kw}       = $info->{pic}->{$id};
             $info->{mapid}->{$mapid} = $info->{pic}->{$id} if $mapped_icons && $id;
-            $minfokw{$kw}            = int($id);
+
+            next if $skip_kw;
+            $info->{kw}->{$kw} = $info->{pic}->{$id};
+            $minfokw{$kw} = int($id);
         }
         $kwstr = join( '', map { pack( "Z*N", $_, $minfokw{$_} ) } keys %minfokw );
         if ($mapped_icons) {
