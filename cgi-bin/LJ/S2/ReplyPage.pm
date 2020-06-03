@@ -115,6 +115,7 @@ sub ReplyPage {
         $comment_values{subjecticon}           = $comment->prop('subjecticon');
         $comment_values{prop_opt_preformatted} = $comment->prop('opt_preformatted');
         $comment_values{prop_picture_keyword}  = $comment->userpic_kw;
+        $comment_values{prop_editor}           = $comment->prop('editor');
     }
 
     if ($replytoid) {

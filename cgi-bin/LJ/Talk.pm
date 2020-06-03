@@ -2404,6 +2404,7 @@ sub enter_comment {
 
     $talkprop{admin_post}         = $comment->{admin_post} ? 1 : 0;
     $talkprop{'opt_preformatted'} = $comment->{preformat}  ? 1 : 0;
+    $talkprop{'editor'}           = $comment->{editor};
 
     my $site_user_comment = $comment->{u} && $comment->{u}->is_person;
     if ( $journalu->opt_logcommentips eq "A"
@@ -2885,18 +2886,20 @@ sub prepare_and_validate_comment {
         posterid => $parpost->{posterid},
     };
     my $comment = {
-        u               => $commenter,
-        parent          => $parent,
-        entry           => $entry,
-        subject         => $subject,
-        body            => $body,
-        unknown8bit     => 0,
-        subjecticon     => $subjecticon,
+        u           => $commenter,
+        parent      => $parent,
+        entry       => $entry,
+        subject     => $subject,
+        body        => $body,
+        unknown8bit => 0,
+        subjecticon => $subjecticon,
+
+        # TODO need a more organized way to carry approved props forward.
+        editor          => DW::Formats::validate( $content->{'prop_editor'} ),
         preformat       => $content->{'prop_opt_preformatted'},
         admin_post      => $content->{'prop_admin_post'},
         picture_keyword => $content->{'prop_picture_keyword'},
 
-        # TODO need a more organized way to carry approved props forward.
         state      => $state,
         editid     => $content->{editid},
         editreason => $content->{editreason},
@@ -3043,7 +3046,8 @@ sub post_comment {
     if (@LJ::MEMCACHE_SERVERS) {
 
         # avoid warnings FIXME this should be done elsewhere
-        foreach my $field (qw(body subject subjecticon preformat admin_post picture_keyword)) {
+        foreach my $field (qw(body subject subjecticon preformat editor admin_post picture_keyword))
+        {
             $comment->{$field} = '' if not defined $comment->{$field};
         }
         my $md5_b64 = Digest::MD5::md5_base64(
@@ -3052,7 +3056,7 @@ sub post_comment {
                 (
                     $comment->{body},        $comment->{subject},
                     $comment->{subjecticon}, $comment->{preformat},
-                    $comment->{picture_keyword}
+                    $comment->{editor},      $comment->{picture_keyword}
                 )
             )
         );
@@ -3119,6 +3123,7 @@ sub edit_comment {
         subjecticon      => $comment->{subjecticon},
         opt_preformatted => $comment->{preformat} ? 1 : 0,
         admin_post       => $comment->{admin_post} ? 1 : 0,
+        editor           => $comment->{editor},
         edit_reason      => $comment->{editreason},
     );
 

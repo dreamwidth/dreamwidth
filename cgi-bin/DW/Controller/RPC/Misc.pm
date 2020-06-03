@@ -322,6 +322,7 @@ sub addcomment_handler {
         body                 => $post->{body},
         subject              => $post->{subject},
         prop_picture_keyword => $post->{prop_picture_keyword},
+        prop_editor          => $post->{prop_editor},
 
         useragent => "rpc-addcomment",
     };

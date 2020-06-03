@@ -204,6 +204,7 @@ sub talkpost_do_handler {
                 preformat       => $POST->{'prop_opt_preformatted'},
                 admin_post      => $POST->{'prop_admin_post'},
                 picture_keyword => $POST->{'prop_picture_keyword'},
+                editor          => $POST->{'prop_editor'},
             };
         }
 
@@ -640,8 +641,7 @@ sub preview_comment_args {
             anon_comment => LJ::Talk::treat_as_anon( $comment->{u}, $comment->{entry}->journal ),
             preformatted => $comment->{preformat},
             admin_post   => $comment->{admin_post},
-
-            # editor       => $comment->{editor}, # not wired through yet
+            editor       => $comment->{editor},
         }
     );
 
