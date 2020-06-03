@@ -176,8 +176,8 @@ sub create {
         "bad_args", __PACKAGE__ . "->create: Unsupported params: " . join " " => keys %opts
     ) if %opts;
 
-    # Move props values to the talk_opts hash.
-    # Because prepare_and_validate_comment needs this.
+    # Move props values to the talk_opts hash so it resembles the reply form
+    # fields, since that's what prepare_and_validate_comment expects.
     foreach my $key ( keys %{ $talk_opts{props} } ) {
         my $talk_key = "prop_$key";
 

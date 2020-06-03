@@ -108,9 +108,9 @@ sub _process {
         body                 => $self->{body},
         subject              => $self->{subject},
         prop_picture_keyword => $self->{props}->{picture_keyword},
+        prop_editor          => "markdown",
 
         useragent => "emailpost",
-        editor    => "markdown",
     };
 
     # post!

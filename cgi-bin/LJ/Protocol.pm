@@ -247,7 +247,10 @@ sub addcomment {
         body    => $req->{body},
         subject => $req->{subject},
 
-        props => { picture_keyword => $req->{prop_picture_keyword} },
+        props => {
+            picture_keyword => $req->{prop_picture_keyword},
+            editor          => $req->{prop_editor},
+        },
 
         err_ref => \$comment_err,
     );
@@ -269,7 +272,6 @@ sub addcomment {
 
     my %props = ();
     $props{useragent} = $req->{useragent} if $req->{useragent};
-    $props{editor}    = $req->{editor}    if $req->{editor};
     $comment->set_props(%props);
 
     # OK
