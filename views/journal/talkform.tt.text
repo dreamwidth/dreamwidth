@@ -47,8 +47,6 @@
 
 .opt.noanonpost.nonpublic=You can't comment anonymously on a protected entry.
 
-.opt.noautoformat=Don't auto-format
-
 .opt.noopenidpost=You must <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address before you can comment.
 
 .opt.openid=OpenID

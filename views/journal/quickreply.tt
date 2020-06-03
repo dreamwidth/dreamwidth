@@ -67,7 +67,35 @@ the same terms as Perl itself.  For a copy of the license, please reference
         placeholder = dw.ml( '/journal/talkform.tt.opt.subject2' )
   ) -%]
 
-  <input type="button" id="comment-text-quote" value="Quote" tabindex="-1" class="js-only markup-button" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
+</div>
+
+[%# Markup controls %]
+
+<div class="qr-markup">
+  <div class="qr-markup-type">
+    [%- form.select(
+      label = 'Formatting type'
+      labelclass = 'invisible'
+      name = 'prop_editor'
+      id = 'prop_editor'
+      selected = editors.selected
+      items = editors.items
+    ) -%]
+
+    <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1">[%-
+      dw.img('help', '',
+        {
+          alt   => dw.ml('markup.helplink.alttext'),
+          title => dw.ml('markup.helplink.alttext'),
+          style => 'vertical-align: middle;'
+        }
+      )
+    -%]</a>
+  </div>
+
+  <div class="qr-markup-controls">
+    <input type="button" id="comment-text-quote" value="Quote" tabindex="-1" class="js-only markup-button" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
+  </div>
 </div>
 
 <div class="qr-body">

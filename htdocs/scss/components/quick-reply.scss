@@ -183,9 +183,12 @@
             flex-grow: 1;
             flex-shrink: 1;
         }
-        #comment-text-quote {
-            margin-left: 5px;
-        }
+    }
+
+    .qr-markup {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
     }
 
     .qr-body {
