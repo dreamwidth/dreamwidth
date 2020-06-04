@@ -31,10 +31,6 @@
 
 .admin.styleinfo.text=Shows you a user's style information.
 
-.admin.sysban.link=Sysban Management
-
-.admin.sysban.text=Set and manage sysbans.
-
 .admin.title=Admin Tools
 
 .admin.translate.link=Translation & Site Copy

@@ -2081,6 +2081,8 @@ general /views/admin/index.tt.admin.navtag.link
 general /views/admin/index.tt.admin.navtag.text
 general /views/admin/index.tt.admin.pay.link
 general /views/admin/index.tt.admin.pay.text
+general /views/admin/index.tt.admin.sysban.link
+general /views/admin/index.tt.admin.sysban.text
 
 general /views/admin/clusterstatus.tt.admin.link
 general /views/admin/clusterstatus.tt.admin.text

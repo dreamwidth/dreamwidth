@@ -78,12 +78,6 @@ DW::Controller::Admin->_register_admin_pages_legacy(
         ]
     ],
     [
-        'sysban',
-        '.admin.sysban.link',
-        '.admin.sysban.text',
-        ['sysban']
-    ],
-    [
         'translate/',
         '.admin.translate.link',
         '.admin.translate.text'
