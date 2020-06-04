@@ -265,6 +265,9 @@ sub _html_option {
     my %item_data      = $item->{data} ? %{ $item->{data} } : ();
     foreach ( keys %item_data ) {
         my $val = $item_data{$_} // '';
+        if ($ehtml) {
+            $val = ehtml($val);
+        }
         $data_attribute .= " data-$_='$val'";
     }
 
