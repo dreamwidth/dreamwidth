@@ -1,7 +1,8 @@
-# t/talkpost-authenticate-user.t
+# t/talkpost-validate-comment.t
 #
-# Test the thing that authenticates users when submitting a comment through the
-# web forms.
+# Test the thing that checks permissions/validity/coherency of submitted
+# comments (and puts them into the expected format for the functions that
+# enter comments into the database).
 #
 # Authors:
 #      Nick Fagerlund <nick.fagerlund@gmail.com>
