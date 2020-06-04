@@ -21,5 +21,11 @@
 
 .select.30=1 month
 
+.success.linktext=Return to Sysban page
+
+.success.message=Ban successfully added.
+
+.success.title=Success
+
 .title=Sysban Management
 

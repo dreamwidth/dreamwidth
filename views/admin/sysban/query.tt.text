@@ -31,6 +31,12 @@
 
 .select.30=add 1 month
 
+.success.linktext=Return to Sysban page
+
+.success.message=Ban modified.
+
+.success.title=Success
+
 .title=Sysban Management
 
 .txt.noresults=<em>no results to display for [[what]]</em>

@@ -33,12 +33,6 @@
 
 .label.type=Act on sysbans of the following type:
 
-.success.create=Ban successfully added.
-
-.success.linktext=Return to Sysban page
-
-.success.modify=Ban modified.
-
 .title=Sysban Management
 
 .txt.nomatch=No sysbans matching [[banquery]]
