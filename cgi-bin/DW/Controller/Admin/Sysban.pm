@@ -112,16 +112,8 @@ sub sysban_controller {
         return error_ml( "$scope.error.modify", { message => $modify->{message} } )
             if ( ref $modify eq 'ERROR' );
 
-        return success_ml(
-            "$scope.success.modify",
-            undef,
-            [
-                {
-                    text => LJ::Lang::ml("$scope.success.linktext"),
-                    url  => '/admin/sysban'
-                }
-            ]
-        );
+        return DW::Controller->render_success( 'admin/sysban/query.tt', undef,
+            [ { text_ml => '.success.linktext', url => '/admin/sysban' } ] );
     }
 
     if ( $vars->{action} eq 'add' ) {    # this action comes from the addnew form
@@ -153,16 +145,8 @@ sub sysban_controller {
         return error_ml( "$scope.error.create", { message => $create->{message} } )
             if ( ref $create eq 'ERROR' );
 
-        return success_ml(
-            "$scope.success.create",
-            undef,
-            [
-                {
-                    text => LJ::Lang::ml("$scope.success.linktext"),
-                    url  => '/admin/sysban'
-                }
-            ]
-        );
+        return DW::Controller->render_success( 'admin/sysban/addnew.tt', undef,
+            [ { text_ml => '.success.linktext', url => '/admin/sysban' } ] );
     }
 
     if ( $vars->{action} eq 'queryone' ) {
