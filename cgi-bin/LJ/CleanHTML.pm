@@ -1902,7 +1902,7 @@ sub convert_user_mentions {
 
     # First pass is just to look for an edge case where an unescaped
     # username that needs to be converted is the first item in the string.
-    $$ref =~ s!^(\@([\w\d_-]+)(?:\.([\w\d\.]+))?)(?=$|\W)!$usertag->($1, $2, $3)!mge;
+    $$ref =~ s!^(\@([\w\-]+)(?:\.([\w\-\.]*[\w\-]))?)(?=$|\W)!$usertag->($1, $2, $3)!mge;
 
     # Second pass is to look for all other occurrences of unescaped usernames.
     # If we find an escaped username, remove the escape sequence and continue.
@@ -1910,7 +1910,7 @@ sub convert_user_mentions {
     # sequences here, to avoid parsing edge cases like '\\@foo' incorrectly
     # (note that's two user-supplied backslashes).  That's why the (\\.) case is
     # actually (\\.) and not (\\\@).
-    $$ref =~ s!(\\.)|(?<=[^\w/])(\@([\w\d_-]+)(?:\.([\w\d\.]+))?)(?=$|\W)!
+    $$ref =~ s!(\\.)|(?<=[^\w/])(\@([\w\-]+)(?:\.([\w\-\.]*[\w\-]))?)(?=$|\W)!
         defined($1) ? ( $1 eq '\@' ? '@' : $1 ) : $usertag->($2, $3, $4)
         !mge;
 }
