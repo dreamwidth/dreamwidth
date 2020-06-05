@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 28;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
@@ -82,6 +82,27 @@ is(
     $clean->("[link from \@system]($url)"),
     qq{<p><a href="$url">link from $lju_sys_no_link</a></p>},
     'user tag in href not converted, but user tag in link text converted (using de-linked form) []'
+);
+
+# user tags at ends of sentences
+is(
+    $clean->('hi @system.'),
+    "<p>hi $lju_sys.</p>",
+    "bare usertag before period is converted, keeping period"
+);
+my $ao3_user = DW::External::User->new( user => 'system', site => 'ao3' );
+my $lju_ao3  = $ao3_user->ljuser_display;
+is(
+    $clean->('hi @system.ao3.'),
+    qq{<p>hi $lju_ao3.</p>},
+    "shortcut sitename usertag before period is converted, keeping period"
+);
+my $gh_user = DW::External::User->new( user => 'system', site => 'github.com' );
+my $lju_gh  = $gh_user->ljuser_display;
+is(
+    $clean->('hi @system.github.com.'),
+    qq{<p>hi $lju_gh.</p>},
+    "full sitename usertag before period is converted, keeping period"
 );
 
 # HTML within Markdown is passed through, but Markdown can build new tags around it and user tags get processed
