@@ -2747,20 +2747,6 @@ sub entry_form_decode {
     return $req;
 }
 
-# returns exactly what was passed to it normally.  but in developer mode,
-# it includes a link to a page that automatically grants the needed priv.
-sub no_access_error {
-    my ( $text, $priv, $privarg ) = @_;
-    if ($LJ::IS_DEV_SERVER) {
-        my $remote = LJ::get_remote();
-        return
-"$text <b>(DEVMODE: <a href='/admin/priv/?devmode=1&user=$remote->{user}&priv=$priv&arg=$privarg'>Grant $priv\[$privarg\]</a>)</b>";
-    }
-    else {
-        return $text;
-    }
-}
-
 # Data::Dumper for JavaScript
 # use this only when printing out on a page as a JS variable
 # do not use for JSON requests -- it is not guaranteed to return
