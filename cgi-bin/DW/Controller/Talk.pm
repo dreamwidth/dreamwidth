@@ -102,10 +102,10 @@ sub talkpost_do_handler {
     # expects this, but it might also be irrelevant. Who knows.
     $r->note( 'journalid', $journalu->userid ) if $r;
 
-    my $entry = LJ::Entry->new( $journalu, ditemid => $POST->{itemid} + 0 );
-    unless ($entry) {
+    unless ( $POST->{itemid} ) {
         return error_ml('talk.error.noentry');
     }
+    my $entry   = LJ::Entry->new( $journalu, ditemid => $POST->{itemid} + 0 );
     my $talkurl = $entry->url;
 
     # validate the challenge/response value (anti-spammer)

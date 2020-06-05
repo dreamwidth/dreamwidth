@@ -168,7 +168,8 @@ sub create {
 
     # to prepare the comment, we need an LJ::Entry object, so go get one.
     my $ditemid = delete $opts{ditemid};
-    my $entry   = LJ::Entry->new( $journalu, ditemid => $ditemid );
+    return $err->( "no_entry", "No ditemid provided" ) unless $ditemid;
+    my $entry = LJ::Entry->new( $journalu, ditemid => $ditemid );
 
     # Strictly parameters check. Do not allow any unused params to be passed in.
     return $err->(
@@ -188,6 +189,15 @@ sub create {
     my @errors  = ();
     my $comment = LJ::Talk::Post::prepare_and_validate_comment( \%talk_opts, $posteru, $entry,
         \$need_captcha, \@errors );
+
+    # Special double-checking for max comments limit error before we return a
+    # generic error, because, it's VERY SPECIAL, I guess, and there's a faint
+    # possibility some consumer of LJ::Protocol Cares.
+    return $err->(
+        "too_many_comments", "Sorry, this entry already has the maximum number of comments allowed."
+    ) if LJ::Talk::Post::over_maxcomments( $journalu, $entry->jitemid );
+
+    # OK, now bail for generic errors.
     return $err->( "init_comment", join "\n" => @errors )
         unless defined $comment;
 

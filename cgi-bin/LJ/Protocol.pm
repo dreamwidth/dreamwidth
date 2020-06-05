@@ -256,11 +256,11 @@ sub addcomment {
         bad_journal => 206,    # authenticate() takes care of this
         bad_poster  => 100,    # authenticate() takes care of this
         bad_args    => 202,
+        no_entry    => 200,
 
         too_many_comments => 412,
 
         init_comment => 158,
-        frozen       => 158,
         post_comment => 158,
     }->{ $comment_err->{code} }
         if $comment_err;

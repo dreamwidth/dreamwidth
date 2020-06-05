@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 8;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user );
@@ -61,6 +61,27 @@ my $pu = temp_user();
         extra_args => undef
     );
 
+    ok( !$c, "No comment created: missing ditemid, no entry to reply to" );
+    is( $err_ref->{code}, "no_entry" );
+}
+
+{
+    my $err_ref;
+    my $c = LJ::Comment->create(
+        err_ref => \$err_ref,
+
+        journal => $ju,
+        poster  => $pu,
+
+        ditemid => '111',    # < 256, guaranteed premium fake but never mind that
+
+        extra_args => undef
+    );
+
+    # Fails before ever calling prepare-and-validate
     ok( !$c, "No comment created: invalid args" );
     is( $err_ref->{code}, "bad_args" );
 }
+
+# LJ::Talk::prepare_and_validate_comment has its own tests, so don't test for
+# anything that would fail during that in here.
