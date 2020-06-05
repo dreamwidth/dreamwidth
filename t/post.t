@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 104;
+use Test::More tests => 108;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -266,6 +266,7 @@ my $postdecoded_bare = {
 
     props => {
         taglist => "",
+        editor  => '',
 
         opt_nocomments => 0,
         opt_noemail    => 0,
@@ -539,6 +540,36 @@ note("Post - with tags, nothing fancy");
         { map { $_ => 1 } qw( bar baz foo ) },
         "tag list as parsed array (order doesn't matter)"
     );
+}
+
+note("Post - setting non-default editor format");
+{
+    my ( $req, $res, $u ) = post_with( editor => 'markdown0', );
+    is_deeply(
+        $req,
+        {
+            %$postdecoded_bare, props => { %{ $postdecoded_bare->{props} }, editor => 'markdown0' }
+        },
+        "decoded entry form with metadata"
+    );
+
+    my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
+    is( $entry->prop("editor"), "markdown0", "specified format in saved editor prop" );
+}
+
+note("Post - setting invalid editor format");
+{
+    my ( $req, $res, $u ) = post_with( editor => 'morkdawn0', );
+    is_deeply(
+        $req,
+        {
+            %$postdecoded_bare, props => { %{ $postdecoded_bare->{props} }, editor => '' }
+        },
+        "decoded entry form with metadata"
+    );
+
+    my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
+    is( $entry->prop("editor"), undef, "undef in saved editor prop" );
 }
 
 note("Logged in - post (community)");
