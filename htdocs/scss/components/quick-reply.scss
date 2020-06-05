@@ -189,6 +189,10 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
+
+        & > div {
+            display: inline-block;
+        }
     }
 
     .qr-body {
@@ -223,4 +227,3 @@
         position: absolute;
     }
 }
-

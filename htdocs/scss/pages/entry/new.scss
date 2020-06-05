@@ -207,6 +207,16 @@
     img { // help icon
         margin-bottom: 1rem;
         margin-left: 1rem;
+        vertical-align: middle;
+    }
+
+    & > * {
+        display: inline-block;
+        width: auto;
+    }
+
+    select#editor {
+        flex-grow: 1;
     }
 }
 
