@@ -105,6 +105,10 @@ is(
     "full sitename usertag before period is converted, keeping period"
 );
 
+# TODO: add a test to properly handle @user.hyphenated-sitename.com.
+# This SHOULD work fine, but testing it isn't practical until DW::External::Site
+# includes at least ONE site with a hyphenated hostname.
+
 # HTML within Markdown is passed through, but Markdown can build new tags around it and user tags get processed
 is(
     $clean->(qq{<a href="$url">link from \@system</a>}),
