@@ -47,31 +47,11 @@ DW::Controller::Admin->_register_admin_pages_legacy(
     [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
     [ 'priv/', '.admin.priv.link', '.admin.priv.text' ],
     [
-        'recent_comments', '.admin.recent_comments.link',
-        '.admin.recent_comments.text', [ 'siteadmin:commentview', 'siteadmin:*' ]
-    ],
-    [
         'statushistory',
         '.admin.statushistory.link',
         '.admin.statushistory.text',
         [
             'historyview',
-            sub {
-                return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
-            }
-        ]
-    ],
-    [
-        'styleinfo',
-        '.admin.styleinfo.link',
-        '.admin.styleinfo.text',
-        [
-            sub {
-                return (
-                    LJ::Support::has_any_support_priv( $_[0]->{remote} ),
-                    LJ::Lang::ml("/admin/index.tt.anysupportpriv")
-                );
-            },
             sub {
                 return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
             }

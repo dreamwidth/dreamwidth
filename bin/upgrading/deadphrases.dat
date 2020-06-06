@@ -2081,6 +2081,10 @@ general /views/admin/index.tt.admin.navtag.link
 general /views/admin/index.tt.admin.navtag.text
 general /views/admin/index.tt.admin.pay.link
 general /views/admin/index.tt.admin.pay.text
+general /views/admin/index.tt.admin.recent_comments.link
+general /views/admin/index.tt.admin.recent_comments.text
+general /views/admin/index.tt.admin.styleinfo.link
+general /views/admin/index.tt.admin.styleinfo.text
 general /views/admin/index.tt.admin.sysban.link
 general /views/admin/index.tt.admin.sysban.text
 
