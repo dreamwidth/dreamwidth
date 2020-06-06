@@ -19,17 +19,9 @@
 
 .admin.priv.text=View privs by priv or by user. Some priv lists are private.
 
-.admin.recent_comments.link=Recent Comments
-
-.admin.recent_comments.text=Allows you to view a user's recent comments.
-
 .admin.statushistory.link=Statushistory
 
 .admin.statushistory.text=Shows you a user's statushistory.
-
-.admin.styleinfo.link=Style Info
-
-.admin.styleinfo.text=Shows you a user's style information.
 
 .admin.title=Admin Tools
 
