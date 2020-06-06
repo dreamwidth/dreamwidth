@@ -12,10 +12,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
+[%- UNLESS style.defined; style = 'alert'; END -%]
+
 [%# errors are instances of DW::FormErrors %]
 [%- IF errors.exist -%]
     [%- FOREACH err = errors.get_all -%]
-        <div class="alert-box alert radius">[%- err.message -%]</div>
+        <div class="alert-box [% style %] radius">[%- err.message -%]</div>
     [%- END -%]
 [%- END -%]
 
