@@ -1,0 +1,110 @@
+[%# Manage privileges for a given user, or see who has a given privilege.
+  #
+  # Authors:
+  #      Amy Hendrix <greenchick@gmail.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content select { height: auto; width: auto; }
+        #content input, #content label, #content select { display: inline; }
+        #content input[type="checkbox"] { margin: 0; }
+        #content select { padding-right: 2rem; }
+        #content th, #content td {
+            padding: 0.5rem 0.75rem;
+            margin: 0;
+            text-align: center;
+        }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- INCLUDE components/errors.tt
+    errors = success
+    style = 'success' -%]
+
+<h2><a href='./'>&lt;&lt;</a>
+    [% '.header.viewuser' | ml( user = u.ljuser_display( head_size = "24x24" ) )
+ %]
+</h2>
+
+<form method='post' action='./'>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'user', value = u.user ) %]
+  [% form.hidden( name = 'mode', value = 'userchange' ) %]
+
+[%- IF userprivs.size -%]
+  <table cellpadding='5' cellspacing='1' border='1'>
+    <thead><tr>
+      <th>[% '.col.revoke' | ml %]</th>
+      <th>[% '.col.priv'   | ml %]</th>
+      <th>[% '.col.arg'    | ml %]</th>
+    </tr></thead>
+
+  [%- FOREACH priv IN userprivs;
+        pinfo = priv_by_id.${priv.prlid};
+        pcode = pinfo.privcode;
+        can_grant = remote_can_grant( pcode, priv.arg );
+
+        NEXT UNLESS pinfo.is_public || remote.equals( u ) || can_grant -%]
+
+    <tr>
+      <td>
+    [% IF can_grant; form.checkbox( name = "revoke:${priv.prmid}:${u.id}",
+                                    selected = 0 );
+       ELSE; "--";
+       END %]
+      </td>
+      <td>
+        <a href='[% dw.create_url( '/admin/priv/', args => { priv => pcode } ) %]'>
+        [% pcode %]</a>
+      </td>
+      <td>
+    [%- IF priv.arg -%]
+        <a href='[% dw.create_url( '/admin/priv/', args => { priv => pcode,
+                                                   viewarg => priv.arg } ) %]'>
+        [% priv.arg | html %]</a>
+    [%- ELSE; '&nbsp;'; END -%]
+      </td>
+    </tr>
+  [%- END -%]
+  </table>
+[%- ELSE -%]
+  <p>[% '.txt.noprivs' | ml %]</p>
+[%- END -%]
+
+  <p>
+  [%- IF remote.has_priv( 'admin' ) -%]
+        [% form.select( label = dw.ml( '.label.privmenu',
+                                       { user => u.ljuser_display } ),
+                        noescape = 1,
+                        name = 'grantpriv', items = privmenu ) %]
+
+        [% form.textbox( label = dw.ml( '.label.arg' ), name = 'arg',
+                         size = 20, maxlength = 40 ) %]
+  [%- ELSE -%]
+        [% '.txt.noadmin' | ml %]
+  [%- END -%]
+  </p>
+
+  <p>
+  [%- IF remote.has_priv( 'admin' ) -%]
+        [% form.submit( name = 'submit:change',
+                        value = dw.ml( '.btn.changes' ) ) %]
+  [%- END -%]
+
+        [% form.submit( name = 'submit:refresh',
+                        value = dw.ml( '.btn.refresh' ) ) %]
+  </p>
+</form>

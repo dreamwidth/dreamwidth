@@ -1,0 +1,149 @@
+[%# Manage privileges for a given user, or see who has a given privilege.
+  #
+  # Authors:
+  #      Amy Hendrix <greenchick@gmail.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content select { height: auto; width: auto; }
+        #content input, #content label, #content select { display: inline; }
+        #content input[type="checkbox"] { margin: 0; }
+        #content label { font-weight: bold; }
+        #content th, #content td {
+            padding: 0.5rem 0.75rem;
+            margin: 0;
+            text-align: center;
+        }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- INCLUDE components/errors.tt
+    errors = success
+    style = 'success' -%]
+
+<h2><a href='./'>&lt;&lt;</a>
+    [% '.header.viewpriv' | ml( privname = pname ) %]
+</h2>
+
+[%- da = pinfo.des.split( 'arg=' );
+    des = da.0; args = da.1 -%]
+
+<p>
+  <b>[% '.label.privname' | ml %]</b> [% pinfo.privname %]
+     [% IF des %]<br />
+  <b>[% '.label.desc' | ml %]</b> [% des; END %]
+     [% IF args %]<br />
+  <b>[% '.label.arg' | ml %]</b> [% args; END %]
+</p>
+
+[%- IF pinfo.is_public || remote_can_grant( pcode, arg ) -%]
+
+<form style='display: inline;' action='./' method='post'>
+  [% dw.form_auth %]
+
+  <p>
+  [% form.textbox( label = dw.ml( '.label.viewprivswitharg' ),
+                   name = 'viewarg', size = 20 ) %]
+  [% form.submit( name = 'submit:load', value = dw.ml( '.btn.load' ) ) %]
+  </p>
+
+  [% form.hidden( name = 'priv', value = pcode ) %]
+  [% form.hidden( name = 'mode', value = 'privchange' ) %]
+
+  [%- IF privusers.size -%]
+
+  <table cellpadding='5' cellspacing='1' border='1'>
+    <thead><tr>
+      <th>[% '.col.revoke' | ml %]</th>
+      <th>[% '.col.user'   | ml %]</th>
+      <th>[% '.col.arg'    | ml %]</th>
+    </tr></thead>
+
+    [%- FOREACH row IN privusers -%]
+
+    <tr>
+      <td>
+      [%- IF remote_can_grant( pcode, row.arg );
+          form.checkbox( name = "revoke:${row.prmid}:${row.userid}", selected = 0 );
+         ELSE; "--";
+         END %]
+      </td>
+      <td>
+        <a href='[% dw.create_url( '/admin/priv/', args => { user => row.user } ) %]'>
+        [% row.user %]</a>
+      </td>
+      <td>
+      [%- IF row.arg -%]
+        <a href='[% dw.create_url( '/admin/priv/', args => { priv => pcode,
+                                                   viewarg => row.arg } ) %]'>
+        [% row.arg | html %]</a>
+      [%- ELSE; '&nbsp;'; END -%]
+      </td>
+    </tr>
+    [%- END -%]
+    <tr>
+      <td colspan='3'>
+        <b>[% '.txt.numusers' | ml( count = privusers.size ) %]</b>
+      </td>
+    </tr>
+  </table>
+
+    [%- IF privusers.size >= limit -%]
+  <p>
+    <a href='[% dw.create_url( '/admin/priv/', no_blank => 1,
+                               args => { priv => pcode,
+                                         skip => skip + limit,
+                                         viewarg => arg } ) %]'>
+    [% '.txt.skipmore' | ml %]</a>
+  </p>
+    [%- END -%]
+
+  [%- ELSE -%]
+  <p>[% '.txt.nousers' | ml %]</p>
+  [%- END -%]
+
+  [%- IF remote_can_grant( pcode, arg ) -%]
+  <h4>[% '.header.grant' | ml( privname = pname ) %]</h4>
+
+  <p>
+        [% form.textbox( label = dw.ml( '.label.grantuser' ), name = 'grantuser',
+                         size = maxlength_user, maxlength = maxlength_user ) %]
+
+        [% form.textbox( label = dw.ml( '.label.grantarg' ), name = 'arg',
+                         size = 20, maxlength = 40, value = arg ) %]
+  </p>
+  [%- ELSE -%]
+  <p>[% '.txt.noadmin' | ml %]</p>
+  [%- END -%]
+
+  [%- IF remote_can_grant( pcode, arg ) -%]
+        [% form.submit( name = 'submit:change',
+                        value = dw.ml( '.btn.changes' ) ) %]
+  [%- END -%]
+</form>
+
+<form style='display: inline;' method='post' action='./'>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'priv', value = pcode ) %]
+  [% form.hidden( name = 'mode', value = 'privchange' ) %]
+  [% form.hidden( name = 'viewarg', value = arg ) %]
+  [% form.submit( name = 'submit:refresh',
+                  value = dw.ml( '.btn.refresh' ) ) %]
+</form>
+
+[%- ELSE -%]
+<p>[% '.txt.notpublic' | ml %]</p>
+[%- END -%]

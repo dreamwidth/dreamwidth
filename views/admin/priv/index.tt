@@ -1,0 +1,54 @@
+[%# Manage privileges for a given user, or see who has a given privilege.
+  #
+  # Authors:
+  #      Amy Hendrix <greenchick@gmail.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input { height: auto; width: auto; }
+        #content input, #content label { display: inline; }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>[% '.backlink' | ml %]</p>
+
+<p>
+<form method='get' action='index'>
+  [% form.textbox( name = 'user', label = dw.ml( '.label.viewuserprivs' ),
+                   size = maxlength_user, maxlength = maxlength_user ) %]
+  [% form.submit(  value = dw.ml( '.btn.load' ) ) %]
+</form>
+</p>
+
+<p>[% '.label.viewprivusers' | ml %]</p>
+
+<dl>
+[%- FOREACH priv IN privs;
+      da = priv.des.split( 'arg=' );
+      des = da.0; args = da.1 -%]
+
+  <dt><strong>
+    <a href='[% dw.create_url( '/admin/priv/', args => { priv => priv.privcode } ) %]'>
+    [% priv.privcode %]</a>: [% priv.privname %]</strong>
+    [% IF priv.scope == 'local'; '.txt.localpriv' | ml; END %]
+  </dt>
+
+  <dd>[% des; IF args %]<br />[% '.label.argument' | ml %] [% args; END %]
+  </dd>
+
+  <br />
+[%- END -%]
+</dl>
