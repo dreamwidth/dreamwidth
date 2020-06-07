@@ -1,0 +1,26 @@
+;; -*- coding: utf-8 -*-
+
+.admin.link=Privilege Management
+
+.admin.text=View privs by priv or by user. Some priv lists are private.
+
+.backlink=<em>Back to <a href="/admin">Admin Tools</a></em>
+
+.btn.load=Load
+
+.error.invalidpriv=<b>Error:</b> invalid priv ID
+
+.error.invaliduser=<b>Error:</b> invalid user
+
+.error.needpost=<b>Error:</b> requires post
+
+.label.argument=<strong>Argument:</strong>
+
+.label.viewprivusers=Or, show all users with privilege:
+
+.label.viewuserprivs=View all privileges of user:
+
+.title=Privilege Management
+
+.txt.localpriv=<i>(Site Specific)</i>
+

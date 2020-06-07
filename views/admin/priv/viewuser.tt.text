@@ -1,0 +1,36 @@
+;; -*- coding: utf-8 -*-
+
+.btn.changes=Make Changes
+
+.btn.refresh=Just Refresh
+
+.col.arg=Arg
+
+.col.priv=Privilege
+
+.col.revoke=Revoke
+
+.error.access.grant=You don't have access to grant priv '[[privcode]]'.
+
+.error.access.remove=Invalid access to remove priv '[[privcode]]'.
+
+.error.already=User already has specified priv '[[privcode]]'.
+
+.error.unknownpriv=Unknown privilege provided.
+
+.header.viewuser=View User [[user]]
+
+.label.arg=Arg:
+
+.label.privmenu=Grant [[user]] privilege: 
+
+.success.grant=Privilege '[[privcode]]' granted.
+
+.success.remove=Privilege removed.
+
+.title=Privilege Management
+
+.txt.noadmin=<i>(you do not have access to grant any privileges)</i>
+
+.txt.noprivs=This user does not currently have any site privileges.
+
