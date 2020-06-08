@@ -1,12 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.admin.dbschema.link=Database Schema
-
-.admin.dbschema.text=Shows the database schema.
-
-.admin.faq.link=FAQ Tools
-
-.admin.faq.text=Allows you to manipulate the FAQ.
-
 .admin.file_edit.link=File Edit
 
 .admin.file_edit.text=Allows you to edit various include files.
