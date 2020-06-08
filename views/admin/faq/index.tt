@@ -1,0 +1,63 @@
+[%# For adding, organizing, and maintaining FAQs.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- IF can_add || can_manage -%]
+<p>
+  [%- IF can_add -%]
+  <a href='faqedit'>[% '.link.add' | ml %]</a><br />
+  [%- END -%]
+
+  [%- IF can_manage -%]
+  <a href='faqcat'>[% '.link.manage' | ml %]</a>
+  [%- END -%]
+</p>
+[%- END -%]
+
+[%- FOREACH c IN catlist -%]
+<h3><a href='[% dw.create_url( '/admin/faq/readcat', no_blank => 1,
+                               args => { 'faqcat' => c } ) %]'>
+    [% faqcat.$c.faqcatname | html %]</a>
+</h3>
+
+  [%- UNLESS faq.defined(c) AND faq.$c.size -%]
+
+    [%- IF faqcat.$c.faqcatname == '<No Category>' -%]
+<p>[% '.txt.emptynocat' | ml %]</p>
+    [%- ELSE -%]
+<p>[% '.txt.emptycat'   | ml %]</p>
+    [%- END -%]
+
+  [%- ELSE -%]
+
+<ul>
+    [%- FOREACH f IN faqlist( c );
+          q = f.question_html;
+          NEXT UNLESS q -%]
+
+  <li>
+      [% IF can_edit( '*' ) OR can_edit( c ) %]
+    <a href='[% dw.create_url( '/admin/faq/faqedit', args => { 'id' => f.id } ) %]'>
+    [% '.link.edit' | ml %]</a> ([% f.sortorder %])
+      [% END %]
+
+    <b>{[% f.faqid %]}</b> [% display_faq( q ) %]
+  </li>
+
+    [%- END -%]
+
+</ul>
+  [%- END -%]
+[%- END -%]
