@@ -62,7 +62,7 @@ sub execute {
         if $dbh->err;
 
     # canonical package name is "#" plus whatever is in the db
-    $cpkg = "#$cpkg";
+    $cpkg = defined $cpkg ? "#$cpkg" : undef;
 
     # list created packages, or contents of one
     if ( $cmd eq 'list' ) {
