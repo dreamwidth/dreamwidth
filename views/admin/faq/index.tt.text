@@ -1,0 +1,17 @@
+;; -*- coding: utf-8 -*-
+.admin.link=FAQ Tools
+
+.admin.text=Edit and add to the site FAQs.
+
+.link.add=[Add to FAQ]
+
+.link.edit=[edit]
+
+.link.manage=[Manage FAQ Categories]
+
+.title=FAQ Administration
+
+.txt.emptycat=There are no FAQs currently assigned to this category.
+
+.txt.emptynocat=All viewable FAQs are assigned to a category.
+
