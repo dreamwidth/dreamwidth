@@ -93,6 +93,13 @@
 
         [% form.textbox( label = dw.ml( '.label.arg' ), name = 'arg',
                          size = 20, maxlength = 40 ) %]
+    [%- IF pkgmenu.size > 2; # not counting empty top selection -%]
+  </p>
+  <p>
+        [% form.select( label = dw.ml( '.label.pkgmenu' ),
+                        name = 'grantpkg', items = pkgmenu ) %]
+    [%- END -%]
+
   [%- ELSE -%]
         [% '.txt.noadmin' | ml %]
   [%- END -%]

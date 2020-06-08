@@ -125,14 +125,14 @@ sub main_controller {
 
         # these actions are the same on both sides, just different data sources
         my $process_grant = sub {
-            my ( $user, $privid ) = @_;
+            my ( $user, $privid, $arg ) = @_;
 
             my $u = LJ::load_user($user);
             return error_ml("$scope.error.invaliduser") unless $u;
 
             my $privcode = $vars->{priv_by_id}->{$privid}->{privcode};
-            my $arg      = $form_args->{arg};
-            my $pname    = join( ' ', grep { $_ } $privcode, $arg );
+            $arg //= $form_args->{arg};
+            my $pname = join( ' ', grep { $_ } $privcode, $arg );
 
             if ( !$privcode ) {
                 $errors->add( '', '.error.unknownpriv' );
@@ -157,6 +157,14 @@ sub main_controller {
 
         $process_grant->( $form_args->{grantuser}, $map_codeid->{ $form_args->{priv} } )
             if $form_args->{grantuser};
+
+        if ( $form_args->{grantpkg} ) {
+            my $ps = $dbh->selectall_arrayref(
+                'SELECT privname, privarg FROM priv_packages_content WHERE pkgid = ?',
+                undef, $form_args->{grantpkg} );
+            $process_grant->( $form_args->{user}, $map_codeid->{ $_->[0] }, $_->[1] )
+                foreach @{ $ps || [] };
+        }
 
         $vars->{errors}  = $errors;
         $vars->{success} = $success;
@@ -185,6 +193,14 @@ sub main_controller {
         my @privmenu = ( '', '' );
         push( @privmenu, $_->{prlid}, $_->{privcode} ) foreach @{ $vars->{privs} };
         $vars->{privmenu} = \@privmenu;
+
+        # include list of priv packages
+
+        my @pkgmenu = ( '', '' );
+        my $pkgs = $dbh->selectall_arrayref( "SELECT pkgid, name FROM priv_packages ORDER BY name",
+            { Slice => {} } );
+        push( @pkgmenu, $_->{pkgid}, '#' . $_->{name} ) foreach @$pkgs;
+        $vars->{pkgmenu} = \@pkgmenu;
 
         return DW::Template->render_template( 'admin/priv/viewuser.tt', $vars );
     }

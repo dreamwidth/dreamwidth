@@ -22,6 +22,8 @@
 
 .label.arg=Arg:
 
+.label.pkgmenu=Or grant the package of privileges:
+
 .label.privmenu=Grant [[user]] privilege: 
 
 .success.grant=Privilege '[[privcode]]' granted.
