@@ -2071,6 +2071,10 @@ general /views/admin/index.tt.admin.sitemessages_add.text
 general /views/admin/index.tt.admin.sitemessages_manage.link
 general /views/admin/index.tt.admin.sitemessages_manage.text
 
+general /views/admin/index.tt.admin.dbschema.link
+general /views/admin/index.tt.admin.dbschema.text
+general /views/admin/index.tt.admin.faq.link
+general /views/admin/index.tt.admin.faq.text
 general /views/admin/index.tt.admin.invites.link
 general /views/admin/index.tt.admin.invites.text
 general /views/admin/index.tt.admin.memcache.link
