@@ -2104,6 +2104,29 @@ general /views/admin/mysql_status.tt.mode.status
 general /views/admin/mysql_status.tt.mode.tables
 general /views/admin/mysql_status.tt.mode.variables
 
+general /admin/faq/faqcat.bml.addcat.intro
+general /admin/faq/faqcat.bml.addcat.success
+general /admin/faq/faqcat.bml.addcat.title
+general /admin/faq/faqcat.bml.btn.addcat
+general /admin/faq/faqcat.bml.btn.catsave
+general /admin/faq/faqcat.bml.btn.deletecat
+general /admin/faq/faqcat.bml.btn.editcat
+general /admin/faq/faqcat.bml.btn.sortdown
+general /admin/faq/faqcat.bml.btn.sortup
+general /admin/faq/faqcat.bml.catsort.success
+general /admin/faq/faqcat.bml.deletecat.confirm
+general /admin/faq/faqcat.bml.deletecat.success2
+general /admin/faq/faqcat.bml.editcat.intro
+general /admin/faq/faqcat.bml.editcat.success
+general /admin/faq/faqcat.bml.editcat.title
+general /admin/faq/faqcat.bml.editcats.intro
+general /admin/faq/faqcat.bml.editcats.title
+general /admin/faq/faqcat.bml.faqcat.title
+general /admin/faq/faqcat.bml.label.catkey
+general /admin/faq/faqcat.bml.label.catname
+general /admin/faq/faqcat.bml.label.catorder
+general /admin/faq/faqcat.bml.link.faqmain
+
 general /admin/invites/index.bml.codetrace.desc
 general /admin/invites/index.bml.codetrace.head
 general /admin/invites/index.bml.distribute.desc
