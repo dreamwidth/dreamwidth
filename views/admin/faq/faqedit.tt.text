@@ -1,0 +1,51 @@
+;; -*- coding: utf-8 -*-
+.btn.preview=Preview FAQ Item
+
+.btn.save=Add/Edit FAQ Item
+
+.error.db=Database error: [[err]]
+
+.error.noaccess.add=You do not have access to add to the FAQ.
+
+.error.noaccess.edit=You do not have access to edit the FAQ.
+
+.error.noaccess.editcat=You do not have access to edit a FAQ question in the "[[cat]]" category.
+
+.error.nocats=(none available)
+
+.error.notfound=FAQ #$id does not exist.
+
+.header.answer=Answer
+
+.header.answer.desc=(long as you want, urls are automatically linked, same markup as journal entries, no lj-cut)
+
+.header.question=Question
+
+.header.question.desc=(as brief as possible, do not span multiple lines)
+
+.header.summary=Summary
+
+.header.summary.desc=(should be a shortish paragraph, urls are automatically linked, same markup as journal entries, no lj-cut)
+
+.label.catmenu=Category:
+
+.label.sortorder=SortOrder:
+
+.link.back=Back to FAQ Administration Area
+
+.success.add=Added FAQ item. All good. FAQ id is <b><a href='[[url]]'>[[id]]</a></b>
+
+.success.del=FAQ item deleted.
+
+.success.edit=Updated FAQ item. All good. FAQ id is <b><a href='[[url]]'>[[id]]</a></b>
+
+.title.add=Add to FAQ
+
+.title.edit=Edit FAQ Item #[[id]]
+
+.txt.lastupdated=<b>Last Activity:</b><br />[[lastmodtime]] ([[lastmodwho]])
+
+.txt.question=<i>(erase question to delete FAQ entry)</i>
+
+.txt.sortorder=<i>(Sort order is how to sort within the category. Categories themselves are also sorted.)</i>
+
