@@ -35,7 +35,8 @@ DW::Controller::Admin->register_admin_page(
     privs    => [ 'faqadd', 'faqedit', 'faqcat' ]
 );
 
-DW::Routing->register_string( '/admin/faq/index', \&index_handler, app => 1, no_cache => 1 );
+DW::Routing->register_string( '/admin/faq/index',   \&index_handler, app => 1, no_cache => 1 );
+DW::Routing->register_string( '/admin/faq/faqedit', \&edit_handler,  app => 1, no_cache => 1 );
 
 sub _page_setup {
     my ($rv) = @_;
@@ -110,6 +111,206 @@ sub index_handler {
     }
 
     return DW::Template->render_template( 'admin/faq/index.tt', $vars );
+}
+
+sub edit_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => [ 'faqadd', 'faqedit' ] );
+    return $rv unless $ok;
+
+    my $scope = '/admin/faq/faqedit.tt';
+
+    my $r         = $rv->{r};
+    my $form_args = $r->did_post ? $r->post_args : $r->get_args;
+    my $vars      = _page_setup($rv);
+
+    {    # translation setup
+
+        my $faqd  = LJ::Lang::get_dom("faq");
+        my $rlang = LJ::Lang::get_root_lang($faqd);
+
+        $vars->{dmid} = $faqd->{dmid} if $faqd;
+        $vars->{lang} = $rlang->{lncode};
+    }
+
+    # setup for add vs. edit
+
+    if ( !$form_args->{id} ) {
+
+        return error_ml("$scope.error.noaccess.add")
+            unless $vars->{can_add_any};
+    }
+    else {
+        my $faqid = $form_args->{id} + 0;
+        my $faq   = LJ::Faq->load( $faqid, lang => $vars->{lang} );
+
+        return error_ml( "$scope.error.notfound", { id => $faqid } ) unless $faq;
+
+        my $can_edit = $vars->{can_edit};
+
+        return error_ml( "$scope.error.noaccess" . $vars->{can_edit_any} ? '.editcat' : '.edit',
+            { cat => $faq->faqcat } )
+            unless $can_edit->('*') || $can_edit->('') || $can_edit->( $faq->faqcat );
+
+        # initialize data variables with previously saved FAQ data
+
+        $vars->{id}          = $faq->id;
+        $vars->{faqcat}      = $faq->faqcat // '';
+        $vars->{sortorder}   = $faq->sortorder + 0;
+        $vars->{question}    = $faq->question_raw;
+        $vars->{summary}     = $faq->summary_raw;
+        $vars->{answer}      = $faq->answer_raw;
+        $vars->{has_summary} = $faq->has_summary;
+    }
+
+    $vars->{sortorder} ||= 50;
+
+    if ( $r->did_post ) {    # overwrite with form data
+
+        $vars->{faqcat}    = $form_args->{'faqcat'};
+        $vars->{sortorder} = $form_args->{'sortorder'} + 0 || 50;
+        $vars->{question}  = $form_args->{'q'};
+        $vars->{answer}    = $form_args->{'a'};
+
+        # If summary is disabled or not present, pretend it was unchanged
+        $vars->{summary} = $form_args->{'s'}
+            if LJ::is_enabled('faq_summaries') && defined $form_args->{'s'};
+    }
+
+    my $dbh    = LJ::get_db_writer();
+    my $remote = $rv->{remote};
+
+    if ( $r->post_args->{'action:save'} ) {
+
+        # severity options are deprecated - always use 0
+        my $text_opts = { changeseverity => 0 };
+
+        my $do_trans = sub {
+            my $id = $_[0];
+            return unless $vars->{dmid};
+            my @lang = ( $vars->{dmid}, $vars->{lang} );
+
+            LJ::Lang::set_text( @lang, "$id.1question", $vars->{question}, $text_opts );
+            LJ::Lang::set_text( @lang, "$id.2answer",   $vars->{answer},   $text_opts );
+            LJ::Lang::set_text( @lang, "$id.3summary",  $vars->{summary},  $text_opts )
+                if LJ::is_enabled('faq_summaries');
+        };
+
+        if ( !$vars->{id} ) {    # create new FAQ
+
+            $dbh->do(
+                qq{ INSERT INTO faq
+                          ( faqid, question, summary, answer, faqcat,
+                            sortorder, lastmoduserid, lastmodtime )
+                          VALUES ( NULL, ?, ?, ?, ?, ?, ?, NOW() ) },
+                undef,           $vars->{question},  $vars->{summary}, $vars->{answer},
+                $vars->{faqcat}, $vars->{sortorder}, $remote->id
+            );
+
+            return error_ml( "$scope.error.db", { err => $dbh->errstr } )
+                if $dbh->err;
+
+            $vars->{id} = $dbh->{mysql_insertid};
+
+            $text_opts->{childrenlatest} = 1;
+
+            if ( $vars->{id} ) {
+                $do_trans->( $vars->{id} );
+
+                $vars->{success} = LJ::Lang::ml( "$scope.success.add",
+                    { id => $vars->{id}, url => LJ::Faq->url( $vars->{id} ) } );
+            }
+        }
+        elsif ( $vars->{question} =~ /\S/ ) {    # edit existing FAQ
+
+            $dbh->do(
+                qq{ UPDATE faq SET question=?, summary=?, answer=?,
+                     faqcat=?, sortorder=?, lastmoduserid=?,
+                     lastmodtime=NOW() WHERE faqid=? },
+                undef,           $vars->{question},  $vars->{summary}, $vars->{answer},
+                $vars->{faqcat}, $vars->{sortorder}, $remote->id,      $vars->{id}
+            );
+
+            return error_ml( "$scope.error.db", { err => $dbh->errstr } )
+                if $dbh->err;
+
+            $do_trans->( $vars->{id} );
+
+            $vars->{success} = LJ::Lang::ml( "$scope.success.edit",
+                { id => $vars->{id}, url => LJ::Faq->url( $vars->{id} ) } );
+        }
+        else {    # delete this FAQ
+
+            $dbh->do( "DELETE FROM faq WHERE faqid=?", undef, $vars->{id} );
+            $vars->{success} = LJ::Lang::ml("$scope.success.del");
+
+            # TODO: delete translation from ml_* ?
+        }
+
+        return DW::Template->render_template( 'admin/faq/faqedit.tt', $vars );
+
+    }    # end action:save
+
+    if ( $r->post_args->{'action:preview'} ) {
+
+        # TODO: make lastmodtime look more like in LJ::Faq->load
+
+        my %faq_args = (
+            faqid         => $vars->{id},
+            lastmoduserid => $remote->id,
+            lastmodtime   => scalar gmtime,
+            unixmodtime   => time,
+        );
+        $faq_args{$_} = $vars->{$_} foreach qw( faqcat question summary answer sortorder lang );
+
+        my $fake_faq = LJ::Faq->new(%faq_args);
+
+        $fake_faq->render_in_place( { user => $remote->user, url => $remote->journal_base } );
+
+        $vars->{preview_faq} = $fake_faq;
+        $vars->{remote}      = $remote;
+
+        # Display summary if enabled and present.
+        $vars->{preview_summary} = $fake_faq->has_summary && LJ::is_enabled('faq_summaries');
+
+        # Clean this as if it were an entry, but don't allow lj-cuts
+        my $s_html = $fake_faq->summary_html;
+        LJ::CleanHTML::clean_event( \$s_html, { ljcut_disable => 1 } )
+            if $vars->{preview_summary};
+        my $a_html = $fake_faq->answer_raw;
+        LJ::CleanHTML::clean_event( \$a_html, { ljcut_disable => 1 } );
+
+        $vars->{s_html} = $s_html;
+        $vars->{a_html} = $a_html;
+
+    }    # end action:preview
+
+    {    # load FAQ categories that remote has permission to use
+
+        my $faqcat =
+            $dbh->selectall_arrayref("SELECT faqcat, faqcatname FROM faqcat ORDER BY catorder");
+
+        my @catmenu = ( '', '' );
+
+        foreach my $cat (@$faqcat) {
+            push( @catmenu, @$cat )
+                if $vars->{can_add}->('*')
+                || $vars->{can_add}->( $cat->[0] )
+                || $cat->[0] eq $vars->{faqcat};
+        }
+
+        if ( scalar @catmenu == 2 ) {
+            push( @catmenu, '', LJ::Lang::ml("$scope.error.nocats") );
+        }
+
+        $vars->{catmenu} = \@catmenu;
+    }
+
+    # If FAQ has summary and summaries are disabled, leave field in,
+    # but make it read-only to let FAQ editors copy from it.
+    $vars->{show_summary}     = LJ::is_enabled('faq_summaries') || $vars->{has_summary};
+    $vars->{readonly_summary} = LJ::is_enabled('faq_summaries') ? 0 : 1;
+
+    return DW::Template->render_template( 'admin/faq/faqedit.tt', $vars );
 }
 
 1;

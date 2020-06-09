@@ -1,0 +1,97 @@
+[%# For adding, organizing, and maintaining FAQs.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = dw.ml( id ? '.title.edit' : '.title.add', { id => id } ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content select { height: auto; width: auto; }
+        #content input, #content label, #content select { display: inline; }
+        #content select { padding-right: 2rem; margin-right: 1em; }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p><b><a href='./'>&lt;&lt; [% '.link.back' | ml %]</a></b></p>
+
+[% IF success; success; ELSE;
+     IF preview_faq %]
+<hr />
+<h1>[% display_faq( preview_faq.question_html ) %]</h1>
+
+<div style='margin-left: 20px;'>
+
+      [%- IF preview_summary -%]
+  <div name='summary' id='summary'>[% s_html %]</div><br />
+      [%- END -%]
+  <div id='answer' name='answer'>[% a_html %]</div>
+
+</div>
+
+<p align='right'>
+  [%- '.txt.lastupdated' | ml( lastmodtime => preview_faq.lastmodtime,
+                               lastmodwho  => remote.user ) -%]
+</p>
+
+<hr />
+  [%- END; # preview_faq -%]
+
+<form action='faqedit' method='post'>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'id', value = id ) %]
+  <p>
+  [% form.select( label = dw.ml( '.label.catmenu' ), items = catmenu,
+                  name = 'faqcat', selected = faqcat ) %]
+
+  [% form.textbox( label = dw.ml( '.label.sortorder' ),
+                   name = 'sortorder', value = sortorder,
+                   size = 5, maxlength = 4 ) %]
+    <br />[% '.txt.sortorder' | ml %]
+  </p>
+
+  <h1>[% '.header.question' | ml %]</h1>
+  <p>[% '.header.question.desc' | ml %]</p>
+
+  <p>
+  [% form.textarea( name = 'q', value = question, wrap = 'soft',
+                    rows = 2, cols = 60 ) %]
+  [% '.txt.question' | ml %]
+  </p>
+
+  [%- IF show_summary -%]
+  <h1>[% '.header.summary' | ml %]</h1>
+  <p>[% '.header.summary.desc' | ml %]</p>
+
+  <p>
+  [% form.textarea( name = 's', value = summary, wrap = 'soft',
+                    rows = 10, cols = 60, disabled = readonly_summary ) %]
+  </p>
+  [%- END -%]
+
+  <h1>[% '.header.answer' | ml %]</h1>
+  <p>[% '.header.answer.desc' | ml %]</p>
+
+  <p>
+  [% form.textarea( name = 'a', value = answer, wrap = 'soft',
+                    rows = 15, cols = 60 ) %]
+  </p>
+
+  <p>
+  [% form.submit( name = 'action:save', value = dw.ml( '.btn.save' ) ) %]
+  [% form.submit( name = 'action:preview', value = dw.ml( '.btn.preview' ) ) %]
+  </p>
+
+</form>
+
+[%- END; # success -%]
