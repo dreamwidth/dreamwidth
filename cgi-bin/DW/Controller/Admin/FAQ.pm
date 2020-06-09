@@ -37,9 +37,8 @@ DW::Controller::Admin->register_admin_page(
 
 DW::Routing->register_string( '/admin/faq/index', \&index_handler, app => 1, no_cache => 1 );
 
-sub index_handler {
-    my ( $ok, $rv ) = controller( privcheck => [ 'faqadd', 'faqedit', 'faqcat' ] );
-    return $rv unless $ok;
+sub _page_setup {
+    my ($rv) = @_;
 
     my $vars   = {};
     my $remote = $rv->{remote};
@@ -47,12 +46,29 @@ sub index_handler {
     my %ac_add  = $remote->priv_args("faqadd");
     my %ac_edit = $remote->priv_args("faqedit");
 
-    $vars->{can_add}    = %ac_add ? 1 : 0;
-    $vars->{can_edit}   = sub { $ac_edit{ $_[0] } };
+    $vars->{can_add_any}  = %ac_add  ? 1 : 0;
+    $vars->{can_edit_any} = %ac_edit ? 1 : 0;
+
+    $vars->{can_add}  = sub { $ac_add{ $_[0] } };
+    $vars->{can_edit} = sub { $ac_edit{ $_[0] } };
+
     $vars->{can_manage} = $remote->has_priv("faqcat");
 
-    {
-        # load FAQ categories
+    $vars->{display_faq} = sub {    # to display FAQ content properly
+        return LJ::html_newlines( LJ::trim( $_[0] ) );
+    };
+
+    return $vars;
+}
+
+sub index_handler {
+    my ( $ok, $rv ) = controller( privcheck => [ 'faqadd', 'faqedit', 'faqcat' ] );
+    return $rv unless $ok;
+
+    my $vars   = _page_setup($rv);
+    my $remote = $rv->{remote};
+
+    {    # load FAQ categories
 
         my $dbh = LJ::get_db_writer();
 
@@ -92,12 +108,6 @@ sub index_handler {
             [ sort { $a->sortorder <=> $b->sortorder } @{ $vars->{faq}->{ $_[0] } } ]
         };
     }
-
-    $vars->{display_faq} = sub {    # to display FAQ content properly
-        my $q = LJ::trim( $_[0] );
-        $q =~ s|\n|<br />|g;
-        return $q;
-    };
 
     return DW::Template->render_template( 'admin/faq/index.tt', $vars );
 }

@@ -14,9 +14,9 @@
 [%- sections.title = '.title' | ml -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
-[%- IF can_add || can_manage -%]
+[%- IF can_add_any || can_manage -%]
 <p>
-  [%- IF can_add -%]
+  [%- IF can_add_any -%]
   <a href='faqedit'>[% '.link.add' | ml %]</a><br />
   [%- END -%]
 
