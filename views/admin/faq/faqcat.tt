@@ -1,0 +1,116 @@
+[%# For adding, organizing, and maintaining FAQs.
+  #
+  # Authors:
+  #      Aaron Isaac <wyntarvox@dreamwidth.org> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content select { height: auto; width: auto; }
+        #content input, #content label, #content select { display: inline; }
+        #content select { padding-right: 2rem; }
+        #content label { padding-right: 1rem; font-weight: bold; }
+        #content th { text-align: center; }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p><b><a href='./'>&lt;&lt; [% '.link.back' | ml %]</a></b></p>
+
+[%- IF success -%]
+<div class="alert-box success">
+  <strong>[% success %]</strong>
+</div>
+[%- END -%]
+
+<h3>[% '.editcats.title' | ml %]</h3>
+
+[%- IF faqcat.size;
+      faqcount = 0 -%]
+
+<p> [% '.editcats.intro' | ml %]</p>
+
+<form action='faqcat' method='post'>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'faqcats', value = faqcats ) %]
+
+  <table>
+    <thead><tr>
+      <th>[% '.label.catname'  | ml( '_' => '' ) %]</th>
+      <th>[% '.label.catkey'   | ml( '_' => '' ) %]</th>
+      <th>[% '.label.catorder' | ml( '_' => '' ) %]</th>
+      <th></th><th></th><th></th><th></th>
+    </tr></thead>
+
+  [%- FOREACH c IN catlist;
+        faqcount = faqcount + 1;
+        sortupdis = ( faqcount == 1 ? 1 : 0 );
+        sortdowndis = ( faqcount == catlist.size ? 1 : 0 ) -%]
+                
+    <tr>
+      <td>[% faqcat.$c.faqcatname | html %]</td>
+      <td>[% faqcat.$c.faqcat     | html %]</td>
+      <td>[% faqcat.$c.catorder   | html %]</td>
+      <td>[% form.submit( name = "sortup:${faqcat.$c.faqcat}",
+                          value = dw.ml( '.btn.sortup' ),
+                          disabled = sortupdis ) %]
+        </td>
+      <td>[% form.submit( name = "sortdown:${faqcat.$c.faqcat}",
+                          value = dw.ml( '.btn.sortdown' ),
+                          disabled = sortdowndis ) %]
+        </td>
+      <td>[% form.submit( name = "edit:${faqcat.$c.faqcat}",
+                          value = dw.ml( '.btn.editcat' ) ) %]
+        </td>
+      <td>[% form.submit( name = "delete:${faqcat.$c.faqcat}",
+                          value = dw.ml( '.btn.deletecat' ),
+                    raw = "onclick=\"return confirm( '${confirm_delete}' );\"" ) %]
+        </td>
+    </tr>
+
+  [%- END -%]
+
+  </table>
+</form>
+
+[%- ELSE -%]
+<p> [% '.editcats.none' | ml %]</p>
+[%- END -%]
+
+<h3>[% '.addcat.title' | ml %]</h3>
+<p> [% '.addcat.intro' | ml %]</p>
+
+<form method='POST' action='faqcat'>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'action', value = 'add' ) %]
+
+  <p>
+  [% form.textbox( label = dw.ml( '.label.catkey', { '_' => ':' } ),
+                   name = 'faqcat', size = 10, maxlength = 150 ) %]
+  </p>
+
+  <p>
+  [% form.textbox( label = dw.ml( '.label.catname', { '_' => ':' } ),
+                   name = 'faqcatname', size = 50, maxlength = 150 ) %]
+  </p>
+
+  <p>
+  [% form.textbox( label = dw.ml( '.label.catorder', { '_' => ':' } ),
+                   name = 'faqcatorder', size = 4, maxlength = 10 ) %]
+  </p>
+
+  <p>
+  [% form.submit( value = dw.ml( '.btn.addcat' ) ) %]
+  </p>
+
+</form>

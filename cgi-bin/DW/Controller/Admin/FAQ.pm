@@ -37,6 +37,7 @@ DW::Controller::Admin->register_admin_page(
 
 DW::Routing->register_string( '/admin/faq/index',   \&index_handler, app => 1, no_cache => 1 );
 DW::Routing->register_string( '/admin/faq/faqedit', \&edit_handler,  app => 1, no_cache => 1 );
+DW::Routing->register_string( '/admin/faq/faqcat',  \&cat_handler,   app => 1, no_cache => 1 );
 
 sub _page_setup {
     my ($rv) = @_;
@@ -311,6 +312,185 @@ sub edit_handler {
     $vars->{readonly_summary} = LJ::is_enabled('faq_summaries') ? 0 : 1;
 
     return DW::Template->render_template( 'admin/faq/faqedit.tt', $vars );
+}
+
+sub cat_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => ['faqcat'] );
+    return $rv unless $ok;
+
+    my $scope = '/admin/faq/faqcat.tt';
+
+    my $r         = $rv->{r};
+    my $form_args = $r->post_args;
+    my $vars      = {};
+
+    my $dbh = LJ::get_db_writer();
+
+    # helper function for reordering categories
+
+    my $move_cat = sub {
+        my ( $direction, $faqcat ) = @_;
+
+        my %pre;         # catkey -> key before
+        my %post;        # catkey -> key after
+        my %catorder;    # catkey -> order
+
+        my $sth = $dbh->prepare("SELECT faqcat, catorder FROM faqcat ORDER BY catorder");
+        $sth->execute;
+        my $last;
+
+        while ( my ( $key, $order ) = $sth->fetchrow_array ) {
+            if ( defined $last ) {
+                $post{$last} = $key;
+                $pre{$key}   = $last;
+            }
+            $catorder{$key} = $order;
+            $last = $key;
+        }
+
+        my %new;    # catkey -> new order
+
+        if ( $direction eq "up" ) {
+            $new{$faqcat} = $catorder{ $pre{$faqcat} };
+            $new{ $pre{$faqcat} } = $catorder{$faqcat};
+        }
+        elsif ( $direction eq "down" ) {
+            $new{$faqcat} = $catorder{ $post{$faqcat} };
+            $new{ $post{$faqcat} } = $catorder{$faqcat};
+        }
+
+        foreach my $n ( keys %new ) {
+            $dbh->do( "UPDATE faqcat SET catorder=? WHERE faqcat=?", undef, $new{$n}, $n );
+        }
+    };
+
+    if ( $r->did_post ) {
+
+        my $faqcat = $form_args->{'faqcat'};
+
+        # If coming from the cat list, see if we're editing/sorting/deleting
+        foreach ( split( ",", $form_args->{'faqcats'} // '' ) ) {
+            $faqcat = $_ if ( $form_args->{"edit:$_"} );
+            $faqcat = $_ if ( $form_args->{"sortup:$_"} );
+            $faqcat = $_ if ( $form_args->{"sortdown:$_"} );
+            $faqcat = $_ if ( $form_args->{"delete:$_"} );
+        }
+
+        if ($faqcat) {
+
+            my $action_setup = sub {
+                my $faqcatname = $_[0];
+                my $faqd       = LJ::Lang::get_dom("faq");
+                my $rlang      = LJ::Lang::get_root_lang($faqd);
+                undef $faqd unless $rlang;
+
+                LJ::Lang::set_text( $faqd->{dmid}, $rlang->{lncode},
+                    "cat.$faqcatname", $faqcatname, { changeseverity => 1 } )
+                    if $faqd;
+            };
+
+            # See if we're adding a new FAQ from the cat list
+            if ( $form_args->{'action'} && $form_args->{'action'} eq "add" ) {
+
+                my $faqcatname  = LJ::trim( $form_args->{faqcatname} );
+                my $faqcatorder = $form_args->{faqcatorder} // 0;
+
+                $action_setup->($faqcatname);
+
+                $dbh->do(
+                    "REPLACE INTO faqcat
+                              ( faqcat, faqcatname, catorder )
+                               VALUES ( ?, ?, ? )",
+                    undef, $faqcat, $faqcatname, $faqcatorder
+                );
+
+                $vars->{success} = LJ::Lang::ml("$scope.addcat.success");
+            }
+
+            # See if we're saving an edited FAQ from the edit form
+            elsif ( $form_args->{'action'} && $form_args->{'action'} eq "save" ) {
+
+                $faqcat = $form_args->{faqcat};
+                my $faqcatname  = LJ::trim( $form_args->{faqcatname} );
+                my $faqcatorder = $form_args->{faqcatorder} // 0;
+
+                $action_setup->($faqcatname);
+
+                $dbh->do(
+                    "UPDATE faqcat
+                              SET faqcatname=?, catorder=?
+                              WHERE faqcat=?",
+                    undef, $faqcatname, $faqcatorder, $faqcat
+                );
+
+                $vars->{success} = LJ::Lang::ml("$scope.editcat.success");
+            }
+
+            # See if we're loading the edit form for a cat
+            elsif ( $form_args->{"edit:$faqcat"} ) {
+
+                my $sth = $dbh->prepare(
+                    "SELECT faqcat, faqcatname, catorder
+                                          FROM faqcat WHERE faqcat=?"
+                );
+                $sth->execute($faqcat);
+                my ($faqcatdata) = $sth->fetchrow_hashref;
+
+                $vars->{faqcatdata} = $faqcatdata;
+
+                return DW::Template->render_template( 'admin/faq/editcat.tt', $vars );
+            }
+
+            # See if we're sorting a category up the order
+            elsif ( $form_args->{"sortup:$faqcat"} ) {
+
+                $move_cat->( "up", $faqcat );
+
+                $vars->{success} =
+                    LJ::Lang::ml( "$scope.catsort.success", { direction => "up" } );
+            }
+
+            # See if we're sorting a category down the order
+            elsif ( $form_args->{"sortdown:$faqcat"} ) {
+
+                $move_cat->( "down", $faqcat );
+
+                $vars->{success} =
+                    LJ::Lang::ml( "$scope.catsort.success", { direction => "down" } );
+            }
+
+            # See if we're deleting a FAQ category
+            elsif ( $form_args->{"delete:$faqcat"} ) {
+
+                my $ct = $dbh->do( "DELETE FROM faqcat WHERE faqcat=?", undef, $faqcat );
+
+                $vars->{success} = LJ::Lang::ml(
+                    $ct
+                    ? "$scope.deletecat.success"
+                    : "$scope.error.unknowncatkey"
+                );
+            }
+        }
+    }
+
+    # Show category list and add form
+    {
+        my %faqcat;
+        my $sth = $dbh->prepare("SELECT faqcat, faqcatname, catorder FROM faqcat");
+        $sth->execute;
+        $faqcat{ $_->{faqcat} } = $_ while $_ = $sth->fetchrow_hashref;
+
+        $vars->{faqcat}  = \%faqcat;
+        $vars->{faqcats} = join( ",", map { $_->{faqcat} } values %faqcat );
+        $vars->{catlist} = [
+            sort { $faqcat{$a}->{catorder} <=> $faqcat{$b}->{catorder} }
+                keys %faqcat
+        ];
+    }
+
+    $vars->{confirm_delete} = LJ::ejs( LJ::Lang::ml("$scope.deletecat.confirm") );
+
+    return DW::Template->render_template( 'admin/faq/faqcat.tt', $vars );
 }
 
 1;

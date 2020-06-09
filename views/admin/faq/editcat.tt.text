@@ -1,0 +1,17 @@
+;; -*- coding: utf-8 -*-
+.btn.catsave=Save Category
+
+.editcat.intro=Use the below form to edit this category.
+
+.editcat.key=Category Key: <strong>[[faqcat]]</strong>
+
+.editcat.title=Edit FAQ Category
+
+.label.catname=Category Name:
+
+.label.catorder=Category Order:
+
+.link.back=Back to FAQ Administration Area
+
+.title=Manage FAQ Categories
+
