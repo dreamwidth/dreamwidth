@@ -189,10 +189,8 @@ sub faqbrowse_handler {
     }
 
     # get language settings
-    my $curlang = $GET->{'lang'} || BML::get_language();
+    my $curlang = $GET->{'lang'} || LJ::Lang::get_effective_lang();
     my $deflang = BML::get_language_default();
-    warn $curlang;
-    warn $deflang;
     my $altlang = $curlang ne $deflang;
     my $mll     = LJ::Lang::get_lang($curlang);
     my $mld     = LJ::Lang::get_dom("faq");
@@ -201,7 +199,8 @@ sub faqbrowse_handler {
     $vars->{altlang} = $altlang;
     $vars->{curlang} = $curlang;
 
-    my $mode = ( $GET->{'view'} eq 'full' || $faqidarg ) ? 'answer' : 'summary';
+    my $view = $GET->{'view'} // '';
+    my $mode = ( $view eq 'full' || $faqidarg ) ? 'answer' : 'summary';
 
     my @faqs;
     my $title;
@@ -250,11 +249,9 @@ sub faqbrowse_handler {
     }
 
     my $dbh;
-    my $backfaqcat;
     my $categoryname;
     my @cleanfaqs;
     my $qterm = $GET->{'q'};
-    warn $qterm;
     $vars->{q} = $qterm ? "&q=" . LJ::eurl($qterm) : "";
 
     foreach my $f (@faqs) {
@@ -358,6 +355,8 @@ sub faqbrowse_handler {
             my $items = join( ",", map { $mld->{'dmid'} . ":" . $_ } @itids );
             $cleanf->{t_items} = $items;
         }
+
+        my $backfaqcat = $f->faqcat // '';
 
         # get the name of this faq's category, if loading a single faqid
         if ($faqidarg) {
