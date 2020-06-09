@@ -323,20 +323,6 @@ sub faqbrowse_handler {
                 unless $answer =~ m!<[^>]*\Q$qterm\E[^>]*>!;
         }
 
-        # run hook to transform the text of this FAQ before it's rendered
-        # FIXME: hook is responsible for clean-up if it changes $display_*
-        # from false to true. Should that be checked/enforced here instead?
-        # FIXME: do we even need that hook? It looks like LJ only ever used
-        # it to add stuff to LJ Talk FAQs, for Gizmo sponsorship.
-        LJ::Hooks::run_hook(
-            "faq.$faqid.transform", $remote,
-            question        => \$question,
-            summary         => \$summary,
-            display_summary => \$display_summary,
-            answer          => \$answer,
-            display_answer  => \$display_answer
-        ) if LJ::Hooks::are_hooks("faq.$faqid.transform");
-
         my $lastmodwho = LJ::get_username( $f->lastmoduserid );
 
         $cleanf = {

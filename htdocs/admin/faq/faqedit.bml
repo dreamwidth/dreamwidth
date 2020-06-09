@@ -184,17 +184,6 @@ body<=
             LJ::CleanHTML::clean_event( \$a_html, { ljcut_disable => 1 } )
                 if $display_answer;
 
-            # run hook to transform the text of this FAQ before it's rendered
-            # FIXME: hook is responsible for clean-up if it changes $display_*
-            # from false to true. Should that be checked/enforced here instead?
-            # FIXME: do we even need that hook? It looks like LJ only ever used
-            # it to add stuff to LJ Talk FAQs, for Gizmo sponsorship.
-            LJ::Hooks::run_hook( "faq.$id.transform", $remote, answer => \$a_html,
-                          question => \$q_html, summary => \$s_html,
-                          display_summary => \$display_summary,
-                          display_answer => \$display_answer )
-                if LJ::Hooks::are_hooks( "faq.$id.transform" );
-
             # display output
             $ret .= "<hr /><?h1 $q_html h1?>";
             $ret .= "<div style='margin-left: 20px;'>";
