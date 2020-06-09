@@ -1,0 +1,55 @@
+[%# For adding, organizing, and maintaining FAQs.
+  #
+  # Authors:
+  #      Aaron Isaac <wyntarvox@dreamwidth.org> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content select { height: auto; width: auto; }
+        #content input, #content label, #content select { display: inline; }
+        #content select { padding-right: 2rem; }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p><b><a href='./'>&lt;&lt; [% '.link.back' | ml %]</a></b></p>
+
+<h2>[% '.editcat.title' | ml %]</h2>
+
+<p>[% '.editcat.intro' | ml %]</p>
+
+<form method='POST' action='faqcat'>
+  [% dw.form_auth %]
+  [% form.hidden( name = "faqcat", value = faqcatdata.faqcat ) %]
+  [% form.hidden( name = "action", value = 'save' ) %]
+
+  <p>[% '.editcat.key' | ml( faqcat = faqcatdata.faqcat ) %]</p>
+
+  <p>
+  [% form.textbox( label = dw.ml( '.label.catname' ),
+                   name = 'faqcatname', value = faqcatdata.faqcatname,
+                   size = 50, maxlength = 150 ) %]
+  </p>
+
+  <p>
+  [% form.textbox( label = dw.ml( '.label.catorder' ),
+                   name = 'faqcatorder', value = faqcatdata.catorder,
+                   size = 4, maxlength = 3 ) %]
+  </p>
+
+  <p>
+  [% form.submit( value = dw.ml( '.btn.catsave' ) ) %]
+  </p>
+
+</form>
