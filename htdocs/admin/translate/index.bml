@@ -26,7 +26,6 @@ body<=
         $lang{$lnid}->{'percent'} = 100 * $lang{$lnid}->{'_good'} / ($lang{$lnid}->{'_total'}||1);
     }
 
-    my $sortcol = exists $lang{'1'}->{$FORM{'s'}} ? $FORM{'s'} : "lnname";
     my @cols = (['lncode', $ML{'.table.code'}],
                 ['lnname', $ML{'.table.langname'}, sub {
                     my $r = shift;
@@ -38,30 +37,19 @@ body<=
                     sprintf("%.02f%%", $r->{'percent'}) . "</b><br />" .
                     "<font size='-1'>$r->{'_good'}/$r->{'_total'}</font>" .
                     "</td>";
-                },
-                    sub {
-                        $b->{'percent'} <=> $a->{'percent'} || $b->{'_total'} <=> $a->{'_total'}
                 }],
-                ['lastupdate', $ML{'.table.lastupdate'}, undef, sub {
-                    $b->{'lastupdate'} cmp $a->{'lastupdate'}
-                }]);
+                ['lastupdate', $ML{'.table.lastupdate'}]);
     my $ret;
-    my $sorter = sub { $a->{$sortcol} cmp $b->{$sortcol} };
 
     $ret .= BML::ml('.text2');
 
     $ret .= "<p><table border='1' cellspacing='1' cellpadding='3'><thead><tr>";
     foreach (@cols) {
-        if ($sortcol eq $_->[0]) {
-            $ret .= "<th>$_->[1]</th>";
-        } else {
-            $ret .= "<th><a href=\"./?s=$_->[0]\">$_->[1]</a></th>";
-        }
-        if ($_->[0] eq $sortcol && $_->[3]) { $sorter = $_->[3]; }
+        $ret .= "<th>$_->[1]</th>";
     }
     $ret .= "</tr></thead>\n";
 
-    foreach my $r (sort $sorter values %lang) {
+    foreach my $r (sort { $a->{lnname} cmp $b->{lnname} } values %lang) {
         $ret .= "<tr>";
         foreach (@cols) {
             $ret .= $_->[2] ? $_->[2]->($r) : "<td>$r->{$_->[0]}</td>";
