@@ -1,0 +1,9 @@
+;; -*- coding: utf-8 -*-
+.error.catnotfound=Unknown FAQ cat [[faqcat]]
+
+.link.back=Back to FAQ Administration Area
+
+.title=Read FAQ Category
+
+.txt.emptycat=There are no FAQs currently assigned to this category.
+

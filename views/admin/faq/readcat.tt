@@ -1,0 +1,60 @@
+[%# For adding, organizing, and maintaining FAQs.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        div.faq { margin-left: 2em; }
+        div.question {
+            display: inline-block;
+            width: auto;
+            margin-top: 1em;
+            margin-bottom: 1em;
+            background-color: #c0c0c0;
+            padding: 0.25rem 0.5rem;
+            font-weight: bold;
+        }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p><b><a href='./'>&lt;&lt; [% '.link.back' | ml %]</a></b></p>
+
+<h2>[% faqcatname | html %]</h2>
+
+[%- IF faqs.size;
+      FOREACH f IN faqs;
+        q = f.question_html;
+        NEXT UNLESS q;
+
+        a = f.answer_html;
+
+        IF display_summary( f.has_summary );
+          s = f.summary_html;
+        END;
+
+        CALL note_mod_time( f.unixmodtime ) -%]
+
+<div class="faq question">[% display_faq( q ) %]</div>
+<br />
+<div class="faq">[% clean_content( s ) %]</div>
+<br />
+<div class="faq">[% clean_content( a ) %]</div>
+
+  [%- END -%]
+
+[%- ELSE -%]
+<p>[% '.txt.emptycat' | ml %]</p>
+[%- END -%]
