@@ -1,0 +1,47 @@
+[%# Frontend for finding and editing strings in the translation system.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+<html>
+<body>
+
+<h1>Description of severity levels:</h1>
+
+<table cellpadding='3'>
+<thead><tr valign='top'><th>Severity</th><th>Description</th></tr></thead>
+
+<tr valign='top'><td><b>0</b></td>
+<td>Translate is up-to-date</td></tr>
+
+<tr valign='top'><td><b>1</b></td>
+<td>Parent language has changed a little.  Your translation might need updating.</td></tr>
+
+<tr valign='top'><td><b>2</b></td>
+<td>Parent language has changed.  Your translation probably needs updating.</td></tr>
+
+<tr valign='top'><td><b>3</b></td>
+<td>New text was added in parent language which you haven't yet translated.</td></tr>
+
+<tr valign='top'><td><b>4</b></td>
+<td>Item code in use but no text exists yet for any language.</td></tr>
+
+</table>
+
+<h2>Searching</h2>
+
+<p>
+When searching, you can search for a certain severity level (0, 1, 2, 3, 4)
+ or search for everything at or above a certain severity level (0+, 1+, 2+, 3+).
+</p>
+
+</body>
+</html>

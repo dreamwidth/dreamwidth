@@ -1,0 +1,27 @@
+[%# Frontend for finding and editing strings in the translation system.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+<html>
+<head>
+ <title>Language Editor</title>
+</head>
+
+<frameset cols="200,*">
+  <frameset rows="230,*">
+    <frame name="search" src="searchform?lang=[% lang %]">
+    <frame name="res" src="search?lang=[% lang %]&amp;stale=1%2B&amp;search=sev">
+  </frameset>
+  <frame name="main" src="welcome">
+</frameset>
+
+</html>

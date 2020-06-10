@@ -29,7 +29,10 @@ DW::Controller::Admin->register_admin_page(
     ml_scope => '/admin/translate/index.tt',
 );
 
-DW::Routing->register_string( "/admin/translate/index", \&index_controller, app => 1 );
+DW::Routing->register_string( "/admin/translate/index",         \&index_controller,    app => 1 );
+DW::Routing->register_string( "/admin/translate/edit",          \&edit_controller,     app => 1 );
+DW::Routing->register_string( "/admin/translate/help-severity", \&severity_controller, app => 1 );
+DW::Routing->register_string( "/admin/translate/welcome",       \&welcome_controller,  app => 1 );
 
 sub index_controller {
     my ( $ok, $rv ) = controller();
@@ -92,6 +95,35 @@ sub index_controller {
     ];
 
     return DW::Template->render_template( 'admin/translate/index.tt', $vars );
+}
+
+sub edit_controller {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r         = $rv->{r};
+    my $form_args = $r->get_args;
+
+    return $r->redirect('/admin/translate/') unless $form_args->{lang};
+
+    return DW::Template->render_template( 'admin/translate/edit.tt', $form_args,
+        { no_sitescheme => 1 } );
+}
+
+sub severity_controller {
+
+    # this could be a static page if register_static supported no_sitescheme
+
+    return DW::Template->render_template( 'admin/translate/help-severity.tt',
+        {}, { no_sitescheme => 1 } );
+}
+
+sub welcome_controller {
+
+    # this could be a static page if register_static supported no_sitescheme
+
+    return DW::Template->render_template( 'admin/translate/welcome.tt', {},
+        { no_sitescheme => 1 } );
 }
 
 1;
