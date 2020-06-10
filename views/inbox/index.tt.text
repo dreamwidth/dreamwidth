@@ -1,0 +1,35 @@
+;; -*- coding: utf-8 -*-
+.error.couldnt_retrieve_inbox=Couldn't retrieve inbox for [[user]]
+
+.error.max_bookmarks=Maximum number of flagged items reached
+
+.error.not_ready=Not Ready
+
+.manage_settings=Manage Settings
+
+.menu.all=All
+
+.menu.birthdays=Birthdays
+
+.menu.bookmarks=Bookmarks
+
+.menu.delete_all.btn=Delete All
+
+.menu.entries_and_comments=Entries and Comments
+
+.menu.friend_updates=Relationship Updates
+
+.menu.mark_all_read.btn=Mark All Read
+
+.menu.messages=Messages
+
+.menu.new_friends=New Subscriptions
+
+.menu.new_message.btn=New Message
+
+.menu.sent=Sent
+
+.refresh=Refresh
+
+.title=Inbox
+

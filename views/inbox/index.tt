@@ -1,0 +1,79 @@
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[% dw.need_res( { group => "foundation" }, 'stc/inbox.css', 'js/jquery.inbox.js' ) %]
+[%- sections.title = '.title' | ml -%]
+
+    <div id="inbox">
+        <div id="inbox_folders">
+            [% IF user_messaging %]
+                <a href="/inbox/compose">[% form.submit(value=dw.ml('inbox.menu.new_message.btn')) %]</a>
+            [% END %]
+            <div class="folders">
+                [% BLOCK folder %]
+                    <a href="/inbox?view=[% f.view %]" id="esn_folder_[% f.view %]" [% 'class="selected"' IF view == f.view %]>
+                        [% "inbox.menu.${f.label}" | ml %]  <span class='unread_count'>[% "($f.unread)" IF f.unread %]</span>
+                    </a>
+                    [% IF f.children %]
+                        <ul>
+                            [% FOR child IN f.children %]
+                                <li>[% PROCESS folder f=child %]</li>
+                                [% END %]
+                        </ul>
+                    [% END %]
+                [% END %]
+
+                [% PROCESS folder f = folder_links %]
+            </div>
+        </div>
+
+
+        <div id="inbox_messages">
+            <div class="inbox_newitems pkg">
+                <span class="esnlinks" style="float: left">
+                    <a href="[% site.root %]/inbox/?page=$page$viewarg$itemidarg" id="RefreshLink">[% 'inbox.refresh' | ml %]</a> |
+                    <a href="[% site.root %]/manage/settings/?cat=notifications">[% 'inbox.manage_settings' | ml %]</a></span>
+            </div>
+
+<form action="[% site.root %]/inbox" method="POST">
+    [% dw.form_auth() %]
+    [% form.hidden(name = 'view', value = view) IF view %]
+    [% form.hidden(name = 'page', value = page) IF page%]
+    [% form.hidden(name = 'itemid', value = itemid) IF itemid %]
+                <div style="text-align: center; margin-bottom: 20px; margin-top: 20px;">
+                    [% form.submit(name = 'mark_all', value = dw.ml(mark_all), class = 'action_button button', 'data-action' = 'mark_all') %]
+                    [% form.submit(name = 'delete_all', value = dw.ml(delete_all), class = 'action_button button', 'data-action' = 'delete_all') %]
+            </div>
+                <div class="header" id="action_row">
+                    <div class="checkbox">[% form.checkbox(name = 'check_all', id = 'check_all', value = 'check_all') %]</div>
+                    <div class="actions">
+                        [% form.submit(name = 'mark_read', value = dw.ml('widget.inbox.menu.mark_read.btn'), class = 'action_button button', 'data-action' = 'mark_read') %]
+                        [% form.submit(name = 'mark_unread', value = dw.ml('widget.inbox.menu.mark_unread.btn'), class = 'action_button button', 'data-action' =  'mark_unread') %]
+                        [% form.submit(name = 'delete', value = dw.ml('widget.inbox.menu.delete.btn'), class = 'action_button button', 'data-action' =  'delete') %]
+                    </div>
+                    <div class="pages">
+                        [%- INCLUDE components/pagination.tt
+                            current => page
+                            total_pages => last_page -%]
+                    </div>
+            </div>
+
+<div id="inbox_message_list">
+[% item_html %]
+</div>
+    [% # Repeat refresh/manage links if we have more than a few items (15 max per page) %]
+    [% IF itemcount > 10  %]
+            <div class="inbox_newitems pkg">
+                <span class="esnlinks" style="float: left">
+                    <a href="[% site.root %]/inbox/?page=$page$viewarg$itemidarg" id="RefreshLink">[% 'inbox.refresh' | ml %]</a> |
+                    <a href="[% site.root %]/manage/settings/?cat=notifications">[% 'inbox.manage_settings' | ml %]</a></span>
+            </div>
+    [% END %]
+</form>
+        </div></div>
+
+    # send the i18n variables to the js page context
+    $body .= "<script type='text/javascript'>\n";
+    $body .= "expanded = '$ML{'widget.inbox.notification.expanded'}';\n";
+    $body .= "collapsed = '$ML{'widget.inbox.notification.collapsed'}';\n";
+    $body .= "add_bookmark = '$ML{'widget.inbox.notification.add_bookmark'}';\n";
+    $body .= "rem_bookmark = '$ML{'widget.inbox.notification.rem_bookmark'}';\n";
+    $body .="</script>\n"; $body .= "</p>\n";

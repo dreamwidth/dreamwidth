@@ -1,0 +1,62 @@
+#inbox {
+display: grid;
+    grid: [row1-start] "folder messages" auto [row1-end]
+        / auto auto;
+    width: 100%;
+        }
+
+.selected_filter {display: none;}
+.entry-tags {text-align: right; font-style: italic;}
+
+#inbox_folders {
+padding-right: 12px;
+grid-area: folder;
+}
+
+#inbox_folders li {
+margin-bottom: 0;}
+
+#inbox_messages {
+grid-area: messages;
+padding-left: 10px;
+width: 100%;
+}
+
+#action_row {
+display: grid;
+    grid: [row1-start] "checkbox actions pages" auto [row1-end]
+        / 2em auto auto;
+        padding: 5px;
+}
+
+.actions {
+grid-area: actions;
+}
+
+.pages {
+grid-area: pages;
+text-align: right;}
+
+.inbox_item_row {
+display: grid;
+    grid: [row1-start] "checkbox message time" auto [row1-end]
+        / 2em auto 8.5em;
+        padding: 5px;
+}
+
+.checkbox {
+grid-area: checkbox;
+text-align: center;
+}
+
+.time {
+grid-area: time;
+font-size: smaller;}
+
+.item {
+ grid-area: message;
+ overflow-wrap: anywhere;
+ word-break: break-all;}
+
+ .read {
+ opacity: 0.5;}

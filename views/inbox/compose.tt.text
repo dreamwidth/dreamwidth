@@ -1,0 +1,39 @@
+;; -*- coding: utf-8 -*-
+.error.cannot.reply=You cannot reply to this message
+
+.error.invalid.username="[[to]]" is not a valid username
+
+.error.message.length=Message body is too long ([[msg_length]] characters). It should not exceed [[msg_limit]] characters.
+
+.error.no.username=Please enter a valid username
+
+.error.rate.limit=This message will exceed your limit and cannot be sent.[[up]]
+
+.error.subject.length=Subject is too long ([[subject_length]] characters). It should not exceed [[subject_limit]] characters.
+
+.error.text.encoding.subject=Invalid text encoding for message subject
+
+.error.text.encoding.text=Invalid text encoding for message text
+
+.form.label.cc=Send me a copy of my own message
+
+.link.home=Return Home
+
+.link.inbox=Return to Inbox
+
+.link.send.message=Send a new message
+
+.link.view.message=View your message
+
+.link.view.warning=(If your message doesn't appear yet, please wait a few minutes and refresh the page.)
+
+.message.sent=Your message has been sent successfully.
+
+.message.sent.options=From here you can:
+
+.messaging.disabled=User messaging is currently disabled
+
+.suspended.cannot.send=Suspended accounts can't send private messages.
+
+.warning.empty.message=Warning: You are trying to send a message with no text. Please resubmit if this is correct.
+
