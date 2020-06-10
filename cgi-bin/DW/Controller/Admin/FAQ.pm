@@ -38,6 +38,7 @@ DW::Controller::Admin->register_admin_page(
 DW::Routing->register_string( '/admin/faq/index',   \&index_handler, app => 1, no_cache => 1 );
 DW::Routing->register_string( '/admin/faq/faqedit', \&edit_handler,  app => 1, no_cache => 1 );
 DW::Routing->register_string( '/admin/faq/faqcat',  \&cat_handler,   app => 1, no_cache => 1 );
+DW::Routing->register_string( '/admin/faq/readcat', \&read_handler,  app => 1, no_cache => 1 );
 
 sub _page_setup {
     my ($rv) = @_;
@@ -167,7 +168,7 @@ sub edit_handler {
 
     if ( $r->did_post ) {    # overwrite with form data
 
-        $vars->{faqcat}    = $form_args->{'faqcat'};
+        $vars->{faqcat}    = $form_args->{'faqcat'} // '';
         $vars->{sortorder} = $form_args->{'sortorder'} + 0 || 50;
         $vars->{question}  = $form_args->{'q'};
         $vars->{answer}    = $form_args->{'a'};
@@ -491,6 +492,85 @@ sub cat_handler {
     $vars->{confirm_delete} = LJ::ejs( LJ::Lang::ml("$scope.deletecat.confirm") );
 
     return DW::Template->render_template( 'admin/faq/faqcat.tt', $vars );
+}
+
+sub read_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    # this page is public, but it's only linked from /admin/faq
+
+    my $scope = '/admin/faq/readcat.tt';
+
+    my $r         = $rv->{r};
+    my $form_args = $r->get_args;
+
+    my $vars   = _page_setup($rv);
+    my $remote = $rv->{remote};
+
+    {    # load requested category name
+
+        my $faqcatname = "<No Category>";
+        my $faqcat     = $form_args->{faqcat} || '';
+
+        if ( $faqcat ne '' ) {
+            my $dbh = LJ::get_db_writer();
+            my $sth = $dbh->prepare("SELECT faqcatname FROM faqcat WHERE faqcat=?");
+            $sth->execute($faqcat);
+            ($faqcatname) = $sth->fetchrow_array;
+        }
+
+        return error_ml( "$scope.error.catnotfound", { faqcat => LJ::ehtml($faqcat) } )
+            unless defined $faqcatname;
+
+        $vars->{faqcat}     = $faqcat;
+        $vars->{faqcatname} = $faqcatname;
+    }
+
+    {    # load FAQ questions
+
+        my $dom  = LJ::Lang::get_dom("faq");
+        my $lang = LJ::Lang::get_root_lang($dom);
+        my @faqs = LJ::Faq->load_all(
+            lang         => $lang->{lncode},
+            cat          => $vars->{faqcat},
+            allow_no_cat => 1
+        );
+
+        my $user;
+        my $user_url;
+
+        # Get remote username and journal URL, or example user's username and journal URL
+        if ($remote) {
+            $user     = $remote->user;
+            $user_url = $remote->journal_base;
+        }
+        else {
+            my $u       = LJ::load_user($LJ::EXAMPLE_USER_ACCOUNT);
+            my $unknown = "<b>[Unknown or undefined example username]</b>";
+            $user     = $u ? $u->user         : $unknown;
+            $user_url = $u ? $u->journal_base : $unknown;
+        }
+
+        LJ::Faq->render_in_place( { lang => $lang, user => $user, url => $user_url }, @faqs );
+
+        $vars->{faqs} = [ sort { $a->sortorder <=> $b->sortorder } @faqs ];
+    }
+
+    # ugh BML, but DW::Request doesn't appear to have a similar function
+    $vars->{note_mod_time} = sub { BML::note_mod_time( $_[0] ) };
+
+    # Display summary if enabled and present.
+    $vars->{display_summary} = $_[0] && LJ::is_enabled('faq_summaries');
+
+    $vars->{clean_content} = sub {
+        my $txt = LJ::trim( $_[0] );
+        $txt =~ s/\n( +)/"\n" . "&nbsp;&nbsp;"x length( $1 )/eg;
+        LJ::CleanHTML::clean_event( \$txt, { ljcut_disable => 1 } );
+        return $txt;
+    };
+
+    return DW::Template->render_template( 'admin/faq/readcat.tt', $vars );
 }
 
 1;
