@@ -31,7 +31,8 @@
 /translate/help-severity.bml        /admin/translate/help-severity
 /translate/search.bml               /admin/translate/search
 /translate/searchform.bml           /admin/translate/searchform
-/translate/teams.bml                /admin/translate/teams
+/translate/teams.bml                /admin/translate
+/admin/translate/teams              /admin/translate
 /translate/welcome.bml              /admin/translate/welcome
 /syn                                /feeds
 /syn/                               /feeds
