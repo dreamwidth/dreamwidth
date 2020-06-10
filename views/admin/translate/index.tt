@@ -1,0 +1,46 @@
+[%# Frontend for finding and editing strings in the translation system.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content td { vertical-align: top; }
+        #content th { text-align: center;  }
+        td.percent  { text-align: right;   }
+    </style>
+[% END %]
+
+<p>[% '.intro' | ml %]</p>
+
+<table border='1' cellspacing='1' cellpadding='3'>
+  <thead><tr>
+
+[%- FOREACH c IN cols -%]
+    <th>[% c.ml_key | ml %]</th>
+[%- END -%]
+
+  </tr></thead>
+
+[%- FOREACH r IN rows -%]
+  <tr>
+
+  [%- FOREACH c IN cols -%]
+    <td class='[% c.ln_key %]'>[% c.format( r ) %]</td>
+  [%- END -%]
+
+  </tr>
+[%- END -%]
+
+</table>
