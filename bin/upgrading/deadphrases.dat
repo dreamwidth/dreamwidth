@@ -2431,6 +2431,15 @@ general /admin/impersonate.bml.form.reason
 general /admin/impersonate.bml.form.username
 general /admin/impersonate.bml.title
 
+general /admin/translate/index.bml.text
+
+general /admin/translate/teams.bml.table.community
+general /admin/translate/teams.bml.table.language
+general /admin/translate/teams.bml.table.users
+general /admin/translate/teams.bml.teams.header
+general /admin/translate/teams.bml.teams.text
+general /admin/translate/teams.bml.title
+
 general /customize/index.bml.admin.customize_area_feedback
 general /customize/options.bml.customize.feedback
 
