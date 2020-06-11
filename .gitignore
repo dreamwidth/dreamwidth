@@ -9,6 +9,7 @@
 *.sw?
 src/proxy/proxy
 .vstags
+.idea
 
 # Ignore SCSS cache
 .sass-cache
