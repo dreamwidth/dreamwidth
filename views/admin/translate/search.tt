@@ -1,0 +1,47 @@
+[%# Frontend for finding and editing strings in the translation system.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%-
+  page = 0;
+  pages = [];
+
+  BLOCK addlink;
+    IF pages.size;
+
+      page = page + 1;
+
+      link = "editpage?lang=${lang}&amp;items=" _ join( pages ) -%]
+
+<b><a target='main' href='[% link %]'>Page [% page %]</a></b>
+<br />
+<span style='font-size:8pt'>[% pages.0.2 %]<br />[% pages.-1.2 %]<br /></span>
+
+[%-
+      pages = [];
+
+    END;
+  END; # BLOCK
+
+  FOREACH r IN rows;
+    pages.push( r );
+
+    IF pages.size >= 10;
+      PROCESS addlink;
+    END;
+  END;
+
+  PROCESS addlink;
+
+  IF page == 0;
+    "<i>(No matches)</i>";
+  END -%]
