@@ -72,7 +72,10 @@ sub beta_handler {
     my @current_features;
     if ( keys %LJ::BETA_FEATURES ) {
         my @all_features =
-            sort { $LJ::BETA_FEATURES{$b}->{start_time} <=> $LJ::BETA_FEATURES{$a}->{start_time} }
+            sort {
+                   ( $LJ::BETA_FEATURES{$b}->{start_time} <=> $LJ::BETA_FEATURES{$a}->{start_time} )
+                || ( $b cmp $a )
+            }
             keys %LJ::BETA_FEATURES;
         foreach my $feature (@all_features) {
             my $feature_handler = LJ::BetaFeatures->get_handler($feature);
