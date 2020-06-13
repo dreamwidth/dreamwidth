@@ -1,0 +1,193 @@
+[%# Frontend for finding and editing strings in the translation system.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+<html>
+<head><title>Edit Form</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+    form dl dd { margin-bottom: 1em; }
+</style>
+</head>
+<body>
+
+<form method='post' action='editpage'>
+  <input type='hidden' name='lang' value='[% lang %]'>
+  <input type='hidden' name='mode' value='save'>
+
+[%- IF can_delete -%]
+  <p style='font-size:9pt'><b>To delete an item:</b> edit text to be "XXDELXX"</p>
+[%- END -%]
+
+[%- ict = 0;
+    FOREACH i IN load;
+
+        dmid = i.dmid;
+        itid = i.itid;
+        ituq = "${dmid}-${itid}";
+        it   = ml_items.$ituq;
+        lat  = ml_latest.$ituq.${l.lnid};
+
+        NEXT UNLESS it.defined AND lat.defined;
+
+        ict = ict + 1;
+
+        IF lp.defined && ml_latest.$ituq.${lp.lnid}.defined;
+          plat = ml_latest.$ituq.${lp.lnid};
+        END;
+
+        form.hidden( name = "dom_$ict",  value = dmid );
+        form.hidden( name = "itid_$ict", value = itid );
+
+        form.hidden( name = "oldtxtid_$ict",  value = lat.txtid );
+        form.hidden( name = "oldptxtid_$ict", value = plat ? plat.txtid : 0 ) -%]
+
+  <table summary='' bgcolor='#c0c0c0' width='100%'>
+    <tr>
+      <td><b>Code:</b>
+      [% IF dmid != 1; d = get_dom_id( dmid ); "[${d.uniq}] "; END %]
+      [% it.itcode %]
+
+  [%- IF plat.defined AND lat.staleness > 0 -%]
+      ([% plat.chgtime %],
+        <a target='_new' href='diff?it=[% dmid %]:[% itid %]&lang=[% lp.lncode %]'>
+      diff</a>)
+  [%- END -%]
+
+      </td>
+
+      <td align='right'>
+        <b><a target='_new' href='help-severity'>Sev</a>:</b> [% lat.staleness %]
+      </td>
+    </tr>
+  </table>
+
+  <dl>
+
+  [%- IF it.notes -%]
+    <dt><b>Notes:</b></dt><dd>[% html_newlines( it.notes ) %]</dd>
+  [%- END -%]
+
+  [%- use_textarea = 0;
+
+      IF plat.defined;
+        ptxtid = "${plat.dmid}-${plat.txtid}";
+        t = ml_text.$ptxtid.text;
+
+        IF t.match( "\n" ); use_textarea = 1; END;
+        IF t.length > 255;  use_textarea = 1; END -%]
+
+    <dt><b>[% lp.lnname %]:</b></dt><dd>[% clean_text( t ) %]</dd>
+  [%- END; # IF plat.defined -%]
+
+  [%- txtid = "${lat.dmid}-${lat.txtid}";
+      curtext = ml_text.$txtid.text | html;
+
+      IF curtext.match( "\n" ); use_textarea = 1; END;
+      IF curtext.length > 255;  use_textarea = 1; END -%]
+
+    <dt><b>[% l.lnname %]</b>:</b></dt>
+    <dd>
+
+  [%- disabled = "disabled='disabled'";
+
+      IF lat.staleness >= 3;
+        # when something's this stale, assume both it's being
+        # edited and that the severity is major (going from wrong
+        # language to right language is a major change, afterall)
+
+        disabled = "";
+
+        # why populate the textarea with stuff they'll just have to delete?
+        curtext = "";
+
+        form.hidden( name = "ed_$ict",  value = 1 );
+        form.hidden( name = "sev_$ict", value = 2 );
+
+      ELSE;
+
+        js = "a=document.getElementById(\"newtext_$ict\"); "
+           _ "a.disabled=!this.checked; if (this.checked) a.focus();";
+
+        extra_js =
+             "a=document.getElementById(\"pr_$ict\"); a.disabled=!this.checked; "
+           _ "a=document.getElementById(\"up_$ict\"); a.disabled=!this.checked;";
+
+        IF extra_checkboxes; js = "$js $extra_js"; END -%]
+
+      <input name='[% "ed_$ict" %]' type='checkbox' value='1' id='[% "ed_$ict" %]'
+           onClick='[% js %]' />
+           <label for='[% "ed_$ict" %]' style='margin-right: 1rem;'>
+           Edit Text</label>
+
+    [%- IF l.children.defined && l.children.size;
+
+          form.select( label = " Severity: ", name = "sev_$ict", selected = 1,
+                       items = [ 0, "Typo/etc (no notify)",
+                                 1, "Minor (notify translators)",
+                                 2, "Major (require translation updates)" ] );
+        END;
+
+        UNLESS extra_checkboxes; "<br />"; END -%]
+
+  [%- END; # IF lat.staleness >= 3 -%]
+
+  [%- IF extra_checkboxes;
+
+        " ";
+        form.checkbox( label = 'Proofed', name = "pr_$ict", id = "pr_$ict",
+                       selected = it.proofed, value = 1,
+                       disabled = ( disabled == '' ? 0 : 1 ) );
+        " ";
+        form.checkbox( label = 'Updated', name = "up_$ict", id = "up_$ict",
+                       selected = it.updated, value = 1,
+                       disabled = ( disabled == '' ? 0 : 1 ) );
+        "<br />";
+
+      END -%]
+
+      [%- IF use_textarea -%]
+
+      <textarea name='[% "newtext_$ict" %]' id='[% "newtext_$ict" %]'
+          [% disabled %] wrap='soft' rows='10' cols='60'>[% curtext %]</textarea>
+
+      [%- ELSE -%]
+
+      <input name='[% "newtext_$ict" %]' id='[% "newtext_$ict" %]'
+          [% disabled %] size='60' value="[% curtext %]"/>
+
+      [%- END -%]
+
+    </dd>
+  </dl>
+[%- END; # FOREACH i IN load -%]
+
+[%- IF ict;
+       disabled = can_edit ? "" : "disabled='disabled'" -%]
+
+  [% form.hidden( name = "ict", value = ict ) %]
+
+  <table summary='' width='100%' bgcolor='#e0e0e0'>
+    <tr><td align='center'>
+      <input type='submit' [% disabled %] value='Save Changes' />
+    </td></tr>
+  </table>
+
+[%- ELSE -%]
+
+  <p>No items to show.  (since been deleted, perhaps?)</p>
+
+[%- END -%]
+</form>
+
+</body>
+</html>
