@@ -31,6 +31,7 @@ DW::Controller::Admin->register_admin_page(
 
 DW::Routing->register_string( "/admin/translate/index",         \&index_controller,      app => 1 );
 DW::Routing->register_string( "/admin/translate/edit",          \&edit_controller,       app => 1 );
+DW::Routing->register_string( "/admin/translate/editpage",      \&editpage_controller,   app => 1 );
 DW::Routing->register_string( "/admin/translate/search",        \&search_controller,     app => 1 );
 DW::Routing->register_string( "/admin/translate/searchform",    \&searchform_controller, app => 1 );
 DW::Routing->register_string( "/admin/translate/help-severity", \&severity_controller,   app => 1 );
@@ -110,6 +111,290 @@ sub edit_controller {
 
     return DW::Template->render_template( 'admin/translate/edit.tt', $form_args,
         { no_sitescheme => 1 } );
+}
+
+sub editpage_controller {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r         = $rv->{r};
+    my $form_args = $r->did_post ? $r->post_args : $r->get_args;
+    my $vars      = { lang => $form_args->{lang} };
+
+    my $l = LJ::Lang::get_lang( $vars->{lang} );
+
+    my $err = sub { DW::Template->render_string( $_[0], { no_sitescheme => 1 } ) };
+
+    return $err->("<b>Invalid language</b>") unless $l;
+
+    my $lp = $l->{'parentlnid'} ? LJ::Lang::get_lang_id( $l->{'parentlnid'} ) : undef;
+
+    $vars->{l}  = $l;
+    $vars->{lp} = $lp;
+
+    if ( my $remote = $rv->{remote} ) {
+        $vars->{can_edit}   = $remote->has_priv( "translate", $l->{'lncode'} );
+        $vars->{can_delete} = $remote->has_priv( "translate", "[itemdelete]" );
+    }
+
+    # Extra checkboxes for default language and root language (DW: en_DW and en)
+    $vars->{extra_checkboxes} = $l->{'lncode'} eq $LJ::DEFAULT_LANG || !defined $lp;
+
+    my $mode = { '' => 'view', 'save' => 'save' }->{ $form_args->{mode} // '' };
+    return $err->("<b>Bogus mode</b>") unless $mode;
+
+    my $dbr = LJ::get_db_reader();
+
+    my $MAX_EDIT = 100;
+
+    if ( $mode eq "save" ) {
+
+        my $num = $form_args->{'ict'} + 0;
+        $num = $MAX_EDIT if $num > $MAX_EDIT;
+
+        my ( @errors, @info );
+        unless ( $vars->{can_edit} ) {
+            push @errors, "You don't have access to edit text for this language.";
+            $num = 0;
+        }
+
+        unless ( LJ::text_in($form_args) ) {
+            push @errors, "Your browser's encoding seems to be something other"
+                . " than UTF-8.  It needs to be in UTF-8.";
+            push @errors, "Nothing saved.";
+            $num = 0;
+        }
+
+        my $saved = 0;    # do any saves?
+
+        my $dbh;
+
+        for ( my $i = 1 ; $i <= $num ; $i++ ) {
+            next unless $form_args->{"ed_$i"};
+
+            my ( $dom, $itid, $oldtxtid, $oldptxtid, $sev, $proofed, $updated ) =
+                map { int( $form_args->{"${_}_$i"} // 0 ) + 0 }
+                qw(dom itid oldtxtid oldptxtid sev pr up);
+
+            my $itcode =
+                $dbr->selectrow_array("SELECT itcode FROM ml_items WHERE dmid=$dom AND itid=$itid");
+            unless ( defined $itcode ) {
+                push @errors, "Bogus dmid/itid: $dom/$itid";
+                next;
+            }
+
+            $dbh ||= LJ::get_db_writer();
+            my $lat = $dbh->selectrow_hashref( "SELECT * FROM ml_latest"
+                    . " WHERE lnid=$l->{'lnid'} AND dmid=$dom AND itid=$itid" );
+            unless ($lat) {
+                push @errors, "No existing mapping for $itcode";
+                next;
+            }
+
+            unless ( $lat->{'txtid'} == $oldtxtid ) {
+                push @errors, "Another translator updated '$itcode' before you saved,"
+                    . " so your edit has been ignored.";
+                next;
+            }
+
+            my $plat;
+            if ($lp) {
+                $plat = $dbh->selectrow_hashref( "SELECT * FROM ml_latest"
+                        . " WHERE lnid=$lp->{'lnid'} AND dmid=$dom AND itid=$itid" );
+
+                my $ptid = $plat ? $plat->{'txtid'} : 0;
+                unless ( $ptid == $oldptxtid ) {
+                    push @errors, "The source text of item '$itcode' changed while"
+                        . " you were editing, so your edit has been ignored.";
+                    next;
+                }
+            }
+
+            # did they type anything?
+            my $text = $form_args->{"newtext_$i"};
+            next unless defined $text && $text =~ /\S/;
+
+            # delete
+            if ( $text eq "XXDELXX" ) {
+                if ( $vars->{can_delete} ) {
+                    $dbh->do("DELETE FROM ml_latest WHERE dmid=$dom AND itid=$itid");
+                    push @info, "Deleted: '$itcode'";
+                }
+                else {
+                    push @errors, "You don't have access to delete items.";
+                }
+                next;
+            }
+
+            # did anything even change, though?
+            my $oldtext = $dbr->selectrow_array(
+                "SELECT text FROM ml_text WHERE dmid=$dom AND txtid=$lat->{'txtid'}");
+
+            if ( $oldtext eq $text && $lat->{'staleness'} == 2 ) {
+                push @errors, "Severity of source language change requires"
+                    . " change in text for item '$itcode'";
+                next;
+            }
+
+            # keep old txtid if text didn't change.
+            my $opts = {};
+            if ( $oldtext eq $text ) {
+                $opts->{txtid} = $lat->{'txtid'};
+                $text          = undef;
+                $sev           = 0;
+            }
+
+            # if setting text for first time, push down to children langs
+            if ( $lat->{'staleness'} == 4 ) {
+                $opts->{childrenlatest} = 1;
+            }
+
+            # severity of change:
+            $opts->{changeseverity} = $sev;
+
+            # set userid of writer
+            $opts->{userid} = $rv->{remote}->id;
+
+            my ( $res, $msg ) =
+                LJ::Lang::web_set_text( $dom, $l->{'lncode'}, $itcode, $text, $opts );
+
+            if ($res) {
+                push @info, "OK: $itcode";
+                $saved = 1;
+
+                if ( $vars->{extra_checkboxes} ) {
+
+                    # Not gonna bother to refactor to LJ::Lang as the whole
+                    # translation system will get thrown away and redone later.
+                    # TODO: make sure my words don't come back to haunt me.
+                    # (Controller author's note: good luck with that.)
+                    $dbh->do(
+                        "UPDATE ml_items SET proofed = ?, updated = ? "
+                            . "WHERE dmid = ? AND itid = ?",
+                        undef, $proofed ? 1 : 0, $updated ? 1 : 0, $dom, $itid
+                    );
+
+                    if ( $dbh->err ) {
+                        push @errors, $dbh->errstr;
+                    }
+                    else {
+                        push @info, "OK: $itcode (flags)";
+                    }
+                }
+            }
+            else {    # no $res
+                push @errors, $msg;
+            }
+
+        }    # end for
+
+        $dbh ||= LJ::get_db_writer();
+        $dbh->do("UPDATE ml_langs SET lastupdate=NOW() WHERE lnid=$l->{'lnid'}")
+            if $saved;
+
+        my $ret = '';
+
+        if (@errors) {
+            $ret .= "<b>ERRORS:</b><ul>";
+            $ret .= "<li>$_</li>" foreach @errors;
+            $ret .= "</ul>";
+        }
+
+        if (@info) {
+            $ret .= "<b>Results:</b><ul>";
+            $ret .= "<li>$_</li>" foreach @info;
+            $ret .= "</ul>";
+        }
+
+        if ( !@errors && !@info ) {
+            $ret .= "<i>No errors & nothing saved.</i>";
+        }
+
+        return $err->($ret);
+    }
+
+    if ( $mode eq "view" ) {
+
+        my $sth;
+        my @load;
+
+        foreach ( split /,/, $form_args->{items} ) {
+            next unless /^(\d+):(\d+)$/;
+            last if @load >= $MAX_EDIT;
+            push @load, { 'dmid' => $1, 'itid' => $2 };
+        }
+
+        return $err->("Nothing to show.") unless @load;
+
+        $vars->{load} = \@load;
+
+        my $itwhere = join( " OR ", map { "(dmid=$_->{dmid} AND itid=$_->{itid})" } @load );
+
+        # load item info
+        my %ml_items;
+        {
+            $sth = $dbr->prepare( "SELECT dmid, itid, itcode, proofed, updated, notes"
+                    . " FROM ml_items WHERE $itwhere" );
+            $sth->execute;
+
+            while ( my ( $dmid, $itid, $itcode, $proofed, $updated, $notes ) =
+                $sth->fetchrow_array )
+            {
+                $ml_items{"$dmid-$itid"} = {
+                    'itcode'  => $itcode,
+                    'proofed' => $proofed,
+                    'updated' => $updated,
+                    'notes'   => $notes
+                };
+            }
+        }
+
+        # getting latest mappings for this lang and parent
+        my %ml_text;
+        my %ml_latest;
+        {
+            $sth =
+                $dbr->prepare( "SELECT lnid, dmid, itid, txtid, chgtime, staleness FROM ml_latest"
+                    . " WHERE ($itwhere) AND lnid IN ($l->{'lnid'}, $l->{'parentlnid'})" );
+            $sth->execute;
+            return $err->( $dbr->errstr ) if $dbr->err;
+
+            while ( $_ = $sth->fetchrow_hashref ) {
+                $ml_latest{"$_->{'dmid'}-$_->{'itid'}"}->{ $_->{'lnid'} } = $_;
+                $ml_text{"$_->{'dmid'}-$_->{'txtid'}"} = undef;    # mark to load later
+            }
+
+            # load text
+            $sth = $dbr->prepare(
+                "SELECT dmid, txtid, lnid, itid, text FROM ml_text WHERE "
+                    . join( " OR ",
+                    map { "(dmid=$_->[0] AND txtid=$_->[1])" }
+                    map { [ split( /-/, $_ ) ] } keys %ml_text )
+            );
+            $sth->execute;
+
+            while ( $_ = $sth->fetchrow_hashref ) {
+                $ml_text{"$_->{'dmid'}-$_->{'txtid'}"} = $_;
+            }
+        }
+
+        $vars->{ml_items}  = \%ml_items;
+        $vars->{ml_text}   = \%ml_text;
+        $vars->{ml_latest} = \%ml_latest;
+    }
+
+    $vars->{get_dom_id} = sub { LJ::Lang::get_dom_id( $_[0] ) };
+
+    $vars->{html_newlines} = sub { LJ::html_newlines( $_[0] ) };
+
+    $vars->{clean_text} = sub {
+        my $t = LJ::ehtml( $_[0] );
+        $t =~ s/\n( *)/"<br \/>" . "&nbsp;"x length($1)/eg;
+        return $t;
+    };
+
+    return DW::Template->render_template( 'admin/translate/editpage.tt',
+        $vars, { no_sitescheme => 1 } );
 }
 
 sub search_controller {
