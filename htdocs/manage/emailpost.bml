@@ -182,6 +182,7 @@ body<=
                     $from
                     $subject
                     <b>post-icon:</b> $ML{'.help.headers.options.userpic.example'}<br />
+                    <b>post-format:</b> $ML{'.help.headers.options.format.example'}<br />
                     <b>post-tags:</b> $ML{'.help.headers.options.tags.example'}<br />
                     <b>post-mood:</b> $ML{'.help.headers.options.mood.example'}<br />
                     <b>post-music:</b> $ML{'.help.headers.options.music.example'}<br />
