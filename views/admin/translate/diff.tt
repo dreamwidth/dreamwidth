@@ -1,0 +1,121 @@
+[%# Frontend for finding and editing strings in the translation system.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+<html>
+<head><title>View Differences</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+    span.del {
+        text-decoration: none;
+        color: #ff0000;
+        background-color: #ffd0d0;
+    }
+    span.ins {
+        text-decoration: none;
+        color: #002000;
+        background-color: #20ff20;
+    }
+</style>
+</head>
+<body>
+
+<p>
+[% i = 1;
+   WHILE i <= num_changes;
+     change_link( i ) _ " ";
+     i = i + 1;
+   END %]
+</p>
+
+<hr>
+
+[% mode = '';
+
+   BLOCK setmode;
+
+     UNLESS newmode.defined; newmode = ''; END;
+
+     IF newmode == mode;
+       " ";
+     ELSE;
+
+       IF mode.length; "</span>"; END;
+
+       " ";
+
+       IF newmode.length; "<span class='$newmode'>"; END;
+
+       mode = newmode;
+
+     END;
+
+   END; # BLOCK
+
+   pos = 0;
+
+   FOREACH dl IN difflines;
+
+     IF dl.match( '^(\+\+\+|\-\-\-)' ); NEXT; END;
+
+     IF ( matches = dl.match( '^\@\@ \-(\d+),\d+' ) );
+       newpos = matches.0;
+       PROCESS setmode newmode='';
+       i = pos + 1;
+
+       WHILE i < newpos;
+         j = i - 1;
+         format( words.$j ) _ " ";
+         pos = pos + 1;
+         i = i + 1;
+       END;
+
+       NEXT;
+     END;
+
+     IF dl.match( '^ ' );
+       PROCESS setmode newmode='';
+       format( words.$pos );
+       pos = pos + 1;
+     END;
+
+     IF dl.match( '^\-' );
+       PROCESS setmode newmode='del';
+       format( words.$pos );
+       pos = pos + 1;
+     END;
+
+     IF ( matches = dl.match( '^\+(.*)' ) );
+       PROCESS setmode newmode='ins';
+       format( matches.0 );
+     END;
+
+   END; # FOREACH
+
+   PROCESS setmode newmode='';
+
+   WHILE pos < words.size;
+     format( words.$pos ) _ " ";
+     pos = pos + 1;
+   END %]
+
+<p>
+  <table summary='' width='100%' border='1'>
+    <tr valign='top'>
+      <td width='50%'><b>Before:</b><br>[% was %]</td>
+      <td width='50%'><b>After:</b><br>[% then %]</td>
+    </tr>
+  </table>
+</p>
+
+</body>
+</html>

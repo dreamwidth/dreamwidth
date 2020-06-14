@@ -23,6 +23,8 @@ use DW::Controller::Admin;
 use DW::Routing;
 use DW::Template;
 
+use File::Temp qw/tempfile/;
+
 DW::Controller::Admin->register_admin_page(
     '/',
     path     => 'translate',
@@ -30,6 +32,7 @@ DW::Controller::Admin->register_admin_page(
 );
 
 DW::Routing->register_string( "/admin/translate/index",         \&index_controller,      app => 1 );
+DW::Routing->register_string( "/admin/translate/diff",          \&diff_controller,       app => 1 );
 DW::Routing->register_string( "/admin/translate/edit",          \&edit_controller,       app => 1 );
 DW::Routing->register_string( "/admin/translate/editpage",      \&editpage_controller,   app => 1 );
 DW::Routing->register_string( "/admin/translate/search",        \&search_controller,     app => 1 );
@@ -98,6 +101,114 @@ sub index_controller {
     ];
 
     return DW::Template->render_template( 'admin/translate/index.tt', $vars );
+}
+
+sub diff_controller {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r         = $rv->{r};
+    my $form_args = $r->get_args;
+    my $vars      = { lang => $form_args->{lang} };
+
+    my $l = LJ::Lang::get_lang( $vars->{lang} );
+
+    my $err = sub { DW::Template->render_string( $_[0], { no_sitescheme => 1 } ) };
+
+    return $err->("<b>Invalid language</b>") unless $l;
+
+    my $itkey = $form_args->{it} // '';
+    return $err->("<b>Invalid item</b>") unless $itkey =~ /^(\d+):(\d+)$/;
+    my ( $dmid, $itid ) = ( $1, $2 );
+
+    my $lnids;
+    {    # look for parent languages
+        my @lnids = $l->{'lnid'};
+        my $il    = $l;
+
+        while ( $il && $il->{'parentlnid'} ) {
+            push @lnids, $il->{'parentlnid'};
+            $il = LJ::Lang::get_lang_id( $il->{'parentlnid'} );
+        }
+
+        $lnids = join( ",", @lnids );
+    }
+
+    my @tlist;
+    {    # fetch text from database
+        my $dbr = LJ::get_db_reader();
+
+        my $sth = $dbr->prepare( "SELECT * FROM ml_text WHERE dmid=$dmid"
+                . " AND itid=$itid AND lnid IN ($lnids) ORDER BY txtid" );
+        $sth->execute;
+
+        while ( my $t = $sth->fetchrow_hashref ) {
+            next if @tlist && $t->{text} eq $tlist[-1]->{text};
+            push @tlist, $t;
+        }
+    }
+
+    $vars->{num_changes} = scalar @tlist - 1;
+    return $err->("<b>No changes</b>") unless $vars->{num_changes};
+
+    my $view_change = $form_args->{change} || $vars->{num_changes};
+    return $err->("bogus change")
+        if $view_change < 1 || $view_change > $vars->{num_changes};
+
+    $vars->{change_link} = sub {
+        my $c = $_[0];
+        return "<b>[Change $c]</b>" if $c eq $view_change;
+        return "<a href='diff?lang=$vars->{lang}&it=$itkey&change=$c'>[Change $c]</a>";
+    };
+
+    my $was  = $tlist[ $view_change - 1 ]->{text};
+    my $then = $tlist[$view_change]->{text};
+
+    my ( @words, $diff );
+    {    # calculate differences
+        my ( $was_alt, $then_alt ) = ( $was, $then );
+
+        foreach ( \$was_alt, \$then_alt ) {
+            $$_ =~ s/\n/*NEWLINE*/g;
+            $$_ =~ s/\s+/\n/g;
+            $$_ .= "\n";
+        }
+
+        my ( $was_file, $then_file, $fh );
+
+        ( $fh, $was_file ) = tempfile();
+        print $fh $was_alt;
+        close $fh;
+
+        ( $fh, $then_file ) = tempfile();
+        print $fh $then_alt;
+        close $fh;
+
+        @words = split( /\n/, $was_alt );
+        $diff  = `diff -u $was_file $then_file`;
+
+        unlink( $was_file, $then_file );
+    }
+
+    $vars->{words}     = \@words;
+    $vars->{difflines} = [ split( /\n/, $diff ) ];
+
+    $was  = LJ::eall($was);
+    $then = LJ::eall($then);
+    $was  =~ s/\n( *)/"<br \/>" . "&nbsp;"x length($1)/eg;
+    $then =~ s/\n( *)/"<br \/>" . "&nbsp;"x length($1)/eg;
+
+    $vars->{was}  = $was;
+    $vars->{then} = $then;
+
+    $vars->{format} = sub {
+        my $word = LJ::ehtml( $_[0] );
+        $word =~ s/\*NEWLINE\*/<br>\n/g;
+        return $word;
+    };
+
+    return DW::Template->render_template( 'admin/translate/diff.tt', $vars,
+        { no_sitescheme => 1 } );
 }
 
 sub edit_controller {

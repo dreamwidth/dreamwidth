@@ -57,10 +57,10 @@
       [% IF dmid != 1; d = get_dom_id( dmid ); "[${d.uniq}] "; END %]
       [% it.itcode %]
 
-  [%- IF plat.defined AND lat.staleness > 0 -%]
-      ([% plat.chgtime %],
-        <a target='_new' href='diff?it=[% dmid %]:[% itid %]&lang=[% lp.lncode %]'>
-      diff</a>)
+  [%- IF plat.defined OR lat.staleness > 0 -%]
+      ([%- IF plat.defined; plat.chgtime _ ", "; END -%]<a
+           target='_new'
+           href='diff?it=[% dmid %]:[% itid %]&lang=[% l.lncode %]'>diff</a>)
   [%- END -%]
 
       </td>
