@@ -15,6 +15,7 @@ use strict;
 
 require 'ljlib.pl';
 use LJ::Emailpost::Web;
+use DW::Formats;
 
 use Encode;
 use MIME::Words      ();
@@ -334,6 +335,24 @@ sub _clean_body_and_subject {
     $self->{subject} = $subject;
 
     return 1;
+}
+
+# Convert special email format keywords to the real format IDs used by
+# DW::Formats and LJ::CleanHTML.
+sub _choose_editor {
+    my ( $self, $format ) = @_;
+    $format = lc($format);
+
+    # Support email-only short names for the active formats:
+    $format = 'markdown_latest'    if $format eq 'markdown';
+    $format = 'html_casual_latest' if $format eq 'html';
+
+    $format = DW::Formats::validate($format);
+
+    # If validate returns '', use an email-specific default.
+    $format = DW::Formats::validate('markdown_latest') unless $format;
+
+    return $format;
 }
 
 # By default, returns first plain text entity from email message.

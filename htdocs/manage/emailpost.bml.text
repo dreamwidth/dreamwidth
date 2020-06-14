@@ -51,6 +51,8 @@
 
 .help.headers.options.comments.example=("[[off]]" or "[[noemail]]")
 
+.help.headers.options.format.example=("markdown" or "html"; defaults to "markdown")
+
 .help.headers.options.header=Journal entry options
 
 .help.headers.options.location.example=Paris, France
@@ -61,7 +63,7 @@
 
 .help.headers.options.tags.example=greyhounds, potato, wool
 
-.help.headers.options.text=Most journal-specific features can be set via "post-headers" in the body of your message. The post-headers should be at the top of your message, separated by a blank line. All post-headers are completely optional and simply override your journal defaults.
+.help.headers.options.text=Most journal-specific features can be set via "post-headers" in the body of your message. The post-headers should be at the top of your message, separated by a blank line. All post-headers are completely optional and simply override your journal defaults. The <strong>post-icon</strong> and <strong>post-format</strong> headers can also be used when replying to comments by email.
 
 .help.headers.options.userpic.example=icon keywords
 

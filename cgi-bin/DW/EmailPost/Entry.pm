@@ -188,6 +188,7 @@ sub _set_props {
     }
     $props->{current_music}    = $post_headers{music};
     $props->{current_location} = $post_headers{location};
+    $props->{editor}           = $self->_choose_editor( $post_headers{format} );
     $props->{opt_nocomments}   = 1
         if $post_headers{comments} =~ /off/i
         || $u->{emailpost_comments} =~ /off/i;

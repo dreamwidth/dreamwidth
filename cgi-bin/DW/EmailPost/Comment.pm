@@ -108,7 +108,7 @@ sub _process {
         body                 => $self->{body},
         subject              => $self->{subject},
         prop_picture_keyword => $self->{props}->{picture_keyword},
-        prop_editor          => "markdown",
+        prop_editor          => $self->{props}->{editor},
 
         useragent => "emailpost",
     };
@@ -148,6 +148,8 @@ sub _set_props {
     my $props = {};
     $props->{picture_keyword} = $post_headers{userpic}
         || $post_headers{icon};
+    $props->{editor} = $self->_choose_editor( $post_headers{format} );
+
     $self->{props} = $props;
 
     return 1;
