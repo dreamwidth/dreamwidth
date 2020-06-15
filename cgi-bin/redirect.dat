@@ -64,3 +64,5 @@
 /tools/popsubscriptions.bml         /manage/circle/popsubscriptions
 /betafeatures                       /beta
 /betafeatures.bml                   /beta
+/shop/index                         /shop
+/shop/index.bml                     /shop
