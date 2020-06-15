@@ -1,0 +1,43 @@
+[%# Frontend for editing site content stored in local files.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content select, #content textarea {
+            display: inline;
+            height: auto;
+            width: auto;
+        }
+    </style>
+[% END %]
+
+<p><a href="/admin/fileedit/index">&lt;&lt; [% '.goback' | ml %]</a></p>
+
+<p>[% '.header.edit' | ml( file = file ) %]</p>
+
+<form method=POST>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'mode', value = 'save' ) %]
+  [% form.hidden( name = 'file', value = file ) %]
+
+  [% form.textarea( name = 'contents', rows = txt.r, cols = txt.c, wrap = txt.w,
+                    value = contents ) %]
+
+  <p>
+    [% form.submit( value = dw.ml( '.btn.save' ) ) %]
+    [% '.txt.savewarn' | ml %]
+  </p>
+</form>

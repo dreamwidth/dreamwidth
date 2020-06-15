@@ -1,0 +1,49 @@
+[%# Frontend for editing site content stored in local files.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content select, #content label {
+            display: inline;
+            height: auto;
+            width: auto;
+        }
+        #content select {
+            padding-right: 2rem;
+        }
+        #content label {
+            margin-right: 0;
+        }
+    </style>
+[% END %]
+
+<form method=GET>
+
+  <p>
+
+[% form.select( label = dw.ml( '.label.file' ),
+                name = 'file', items = file_menu ) %]
+
+[% form.submit( value = dw.ml( '.btn.load' ) ) %]
+
+  </p>
+
+Wordwrap? <input type="checkbox" value=1 name="w">
+
+[% form.textbox( label = dw.ml( '.label.rows' ), name = 'r', size = 3 );
+   form.textbox( label = dw.ml( '.label.cols' ), name = 'c', size = 3 ) %]
+
+</form>

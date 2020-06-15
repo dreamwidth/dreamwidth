@@ -1,0 +1,23 @@
+;; -*- coding: utf-8 -*-
+.admin.link=File Edit
+
+.admin.text=Edit site-wide include files.
+
+.btn.load=load...
+
+.error.mode=Error: unknown form mode.
+
+.error.nofile=You don't have access to this document.
+
+.error.noload=Couldn't open file: [[filename]]
+
+.error.nosave=Error saving file; please go back and retry.
+
+.label.cols=Cols:
+
+.label.file=Pick file to edit:
+
+.label.rows=Rows:
+
+.title=Edit File Content
+
