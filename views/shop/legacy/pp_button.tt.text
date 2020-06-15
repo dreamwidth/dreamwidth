@@ -1,9 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.error.badcartstate=Your shopping cart has already been checked out.  If your payment failed, you will need to build a new shopping cart to try again.  We're sorry for the inconvenience.
-
 .error.emptycart=Your cart is empty.
-
-.error.invalidpaymentmethod=The payment method you chose is not currently supported.
 
 .error.nocart=You do not have a shopping cart.
 

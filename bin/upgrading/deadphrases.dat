@@ -1447,14 +1447,29 @@ general /reject.bml.error.rejecting
 general /reject.bml.error.unknownactiontype
 general /reject.bml.shared.success
 general /reject.bml.title
+
 general /shop/account.bml.footnote.prices
+
+general /shop/creditcard.bml.error.badcartstate
+general /shop/creditcard.bml.error.emptycart
+general /shop/creditcard.bml.error.invalidpaymentmethod
+general /shop/creditcard.bml.error.nocart
+general /shop/creditcard.bml.error.zerocart
+general /shop/creditcard.bml.info
+general /shop/creditcard.bml.title
+
 general /shop/gifts.bml.buy
 general /shop/gifts.bml.paid.about
 general /shop/gifts.bml.paid.header
+
 general /shop/randomgift.bml.form.getanother
 general /shop/randomgift.bml.intro
 general /shop/randomgift.bml.nousers
 general /shop/randomgift.bml.title
+
+general /shop/transferpoints.tt.confirm
+general /shop/transferpoints.tt.confirm.anon
+
 general /support/faq.bml.cannotfind
 general /support/faq.bml.cannotfind.note
 general /support/faqbrowse.bml.title_num
@@ -1475,8 +1490,7 @@ general /interests/int.tt.nocomms.text
 general /interests/int.tt.nousers.header
 general /interests/int.tt.nousers.text2
 general /interests/int.tt.users.header
-general /shop/transferpoints.tt.confirm
-general /shop/transferpoints.tt.confirm.anon
+
 general contentflag.viewingconcepts.byadmin
 general contentflag.viewingexplicit.byadmin
 general cprod.todomaxitems.text2.v1

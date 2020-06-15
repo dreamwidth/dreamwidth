@@ -1,4 +1,8 @@
 ;; -*- coding: utf-8 -*-
+.error.invalidpaymentmethod=The payment method you chose is not currently supported.
+
+.error.nocart=You do not have a shopping cart.
+
 .state.failed=We're sorry, but your payment has been declined by our credit card processor.  You may wish to try an alternative payment method, or ensure that you accurately entered your billing information.
 
 .state.internal_failure=We're sorry, but something failed internally on our end attempting to process your payment.  Your credit card has probably not been charged.
