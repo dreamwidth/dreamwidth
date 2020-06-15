@@ -1,0 +1,15 @@
+;; -*- coding: utf-8 -*-
+.btn.save=Save
+
+.goback=Back to Index
+
+.header.edit=<b>Editing:</b> <tt>[[file]]</tt>
+
+.success.message=File [[file]] saved successfully.
+
+.success.title=Success
+
+.title=Edit File Content
+
+.txt.savewarn=(no undo.. are you sure?)
+
