@@ -1,24 +1,26 @@
-.edit.delete=Journal entry was deleted.
+.edit.delete2=Journal entry was deleted. <a href="[[url]]">View your updated journal</a>.
 
-.edit.delete.comm=Community entry was deleted.
+.edit.delete2.comm=Community entry was deleted. <a href="[[url]]">View your updated community</a>.
 
 .edit.deletespam=Additionally, the entry was marked as spam.  Thank you for your report.
 
-.edit.edited=Journal entry was edited.
+.edit.edited2=Your edit was successful. <a href="[[url]]">View your updated journal</a>.
 
-.edit.edited.comm=Community entry was edited.
+.edit.edited2.comm=Your edit was successful. <a href="[[url]]">View your updated community</a>.
 
-.edit.links=From here you can:
+.links=From here you can:
 
-.edit.links.editentry=Edit this entry again
+.links.viewentry=View this entry
 
-.edit.links.manageentries=Manage your journal entries
+.links.editentry=Edit this entry
 
-.edit.links.viewentries=View your journal entries
+.links.tags=Edit this entry's tags
 
-.edit.links.viewentries.comm=View community
+.links.myentries=View all my entries in this community
 
-.edit.links.viewentry=View this entry
+.links.memories=Add this entry to your memories
+
+.links.manageentries=Manage your journal entries
 
 .extradata.subj=The entry was posted with the following subject: 
 
@@ -27,19 +29,5 @@
 .new.community=Your update was successful. <a href="[[url]]">View your updated community</a>.
 
 .new.journal=Your update was successful. <a href="[[url]]">View your updated journal</a>.
-
-.new.links=Now that you've posted, you can:
-
-.new.links.backdated=View all entries from the same date
-
-.new.links.edit=Edit the entry
-
-.new.links.memories=Add the entry to your memories
-
-.new.links.myentries=View all my entries in this community
-
-.new.links.tags=Edit this entry's tags
-
-.new.links.view=View the entry
 
 .sticky.max=This entry was not made sticky because you've reached your limit of [[limit]] for sticky entries.
