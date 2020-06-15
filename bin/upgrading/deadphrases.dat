@@ -2577,3 +2577,21 @@ general /go.bml.link.to.journal
 general talk.error.nosuchjournal
 general talk.spellcheck
 general /talkform.tt.opt.noautoformat
+
+general /views/entry/success.tt.edit.edited
+general /views/entry/success.tt.edit.edited.comm
+general /views/entry/success.tt.edit.delete
+general /views/entry/success.tt.edit.delete.comm
+general /views/entry/success.tt.edit.links
+general /views/entry/success.tt.edit.links.editentry
+general /views/entry/success.tt.edit.links.manageentries
+general /views/entry/success.tt.edit.links.viewentries
+general /views/entry/success.tt.edit.links.viewentries.comm
+general /views/entry/success.tt.edit.links.viewentry
+general /views/entry/success.tt.new.links
+general /views/entry/success.tt.new.links.backdated
+general /views/entry/success.tt.new.links.edit
+general /views/entry/success.tt.new.links.memories
+general /views/entry/success.tt.new.links.myentries
+general /views/entry/success.tt.new.links.tags
+general /views/entry/success.tt.new.links.view

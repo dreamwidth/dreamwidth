@@ -554,7 +554,7 @@ sub _edit {
 
                 my %edit_res = _do_edit(
                     $ditemid, $form_req,
-                    { remote => $remote, journal => $journal },
+                    { poster => $remote, journal => $journal },
                     warnings => $warnings,
                 );
                 return $edit_res{render} if $edit_res{status} eq "ok";
@@ -1081,17 +1081,18 @@ sub _do_post {
         $warnings->add_string( undef, LJ::auto_linkify( LJ::ehtml( $res->{message} ) ) )
             if $res->{message};
 
-        my $u  = $auth->{poster};
-        my $ju = $auth->{journal} || $auth->{poster};
+        my $u       = $auth->{poster};
+        my $journal = $auth->{journal};
 
         # we updated successfully! Now tell the user
         my $poststatus = {
-            ml_string => $ju->is_community ? ".new.community" : ".new.journal",
-            url       => $ju->journal_base . "/",
+            status    => 'posted',
+            ml_string => $journal->is_community ? ".new.community" : ".new.journal",
+            url       => $journal->journal_base . "/",
         };
 
         # bunch of helpful links
-        my $juser        = $ju->user;
+        my $juser        = $journal->user;
         my $ditemid      = $res->{itemid} * 256 + $res->{anum};
         my $itemlink     = $res->{url};
         my $edititemlink = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
@@ -1099,46 +1100,50 @@ sub _do_post {
         my @links = (
             {
                 url       => $itemlink,
-                ml_string => ".new.links.view"
-            }
+                ml_string => ".links.viewentry"
+            },
+            {
+                url       => $edititemlink,
+                ml_string => ".links.editentry"
+            },
+            {
+                url       => "$LJ::SITEROOT/edittags?journal=$juser&itemid=$ditemid",
+                ml_string => ".links.tags"
+            },
         );
+
+        push @links,
+            {
+            url       => $journal->journal_base . "?poster=" . $auth->{poster}->user,
+            ml_string => ".links.myentries"
+            }
+            if $journal->is_community;
 
         push @links,
             (
             {
-                url       => $edititemlink,
-                ml_string => ".new.links.edit"
-            },
-            {
                 url       => "$LJ::SITEROOT/tools/memadd?journal=$juser&itemid=$ditemid",
-                ml_string => ".new.links.memories"
+                ml_string => ".links.memories"
             },
             {
-                url       => "$LJ::SITEROOT/edittags?journal=$juser&itemid=$ditemid",
-                ml_string => ".new.links.tags"
-            },
-            );
-
-        push @links,
-            {
-            url       => $ju->journal_base . "?poster=" . $auth->{poster}->user,
-            ml_string => ".new.links.myentries"
+                url       => "$LJ::SITEROOT/editjournal",
+                ml_string => '.links.manageentries',
             }
-            if $ju->is_community;
+            );
 
         # crosspost!
         my @crossposts = _queue_crosspost(
             $form_req,
             remote  => $u,
-            journal => $ju,
+            journal => $journal,
             deleted => 0,
             editurl => $edititemlink,
             ditemid => $ditemid,
         );
 
         # set sticky
-        if ( $form_req->{sticky_entry} && $u->can_manage($ju) ) {
-            my $added_sticky = $ju->sticky_entry_new($ditemid);
+        if ( $form_req->{sticky_entry} && $u->can_manage($journal) ) {
+            my $added_sticky = $journal->sticky_entry_new($ditemid);
             $warnings->add( '', '.sticky.max', { limit => $u->count_max_stickies } )
                 unless $added_sticky;
         }
@@ -1150,8 +1155,8 @@ sub _do_post {
                 warnings     => $warnings,       # warnings about the entry or your account
                 crossposts   => \@crossposts,    # crosspost status list
                 links        => \@links,
-                links_header => ".new.links",
-                extradata => _get_extradata( $form_req, $ju ),
+                links_header => ".links",
+                extradata => _get_extradata( $form_req, $journal ),
             }
         );
     }
@@ -1164,7 +1169,7 @@ sub _save_editted_entry {
 
     my $req = {
         ver        => $LJ::PROTOCOL_VER,
-        username   => $auth->{remote} ? $auth->{remote}->user : undef,
+        username   => $auth->{poster} ? $auth->{poster}->user : undef,
         usejournal => $auth->{journal} ? $auth->{journal}->user : undef,
         xpost  => '0',             # don't crosspost by default; we handle this ourselves later
         itemid => $ditemid >> 8,
@@ -1178,7 +1183,7 @@ sub _save_editted_entry {
         \$err,
         {
             noauth => 1,
-            u      => $auth->{remote},
+            u      => $auth->{poster},
         }
     );
 
@@ -1192,7 +1197,7 @@ sub _do_edit {
     my $res = _save_editted_entry( $ditemid, $form_req, $auth );
     return %$res if $res->{errors};
 
-    my $remote  = $auth->{remote};
+    my $remote  = $auth->{poster};
     my $journal = $auth->{journal};
 
     my $deleted = $form_req->{event} ? 0 : 1;
@@ -1213,9 +1218,10 @@ sub _do_edit {
         if $res->{message};
 
     # bunch of helpful links:
-    my $juser     = $journal->user;
-    my $entry_url = $res->{url};
-    my $edit_url  = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
+    my $juser         = $journal->user;
+    my $comm_modifier = $journal->is_community ? '.comm' : '';
+    my $entry_url     = $res->{url};
+    my $edit_url      = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
 
     my $is_sticky_entry = $journal->sticky_entries_lookup->{$ditemid};
     if ( $remote->can_manage($journal) ) {
@@ -1230,39 +1236,64 @@ sub _do_edit {
     }
 
     if ($deleted) {
-        $poststatus_ml = ".edit.delete";
+        $poststatus_ml = ".edit.delete2$comm_modifier";
 
         $journal->sticky_entry_remove($ditemid)
             if $is_sticky_entry && $remote->can_manage($journal);
+
+        push @links,
+            {
+            url       => $journal->journal_base . "?poster=" . $auth->{poster}->user,
+            ml_string => ".links.myentries"
+            }
+            if $journal->is_community;
+
+        push @links,
+            {
+            url       => "$LJ::SITEROOT/editjournal",
+            ml_string => '.links.manageentries',
+            };
+
     }
     else {
-        $poststatus_ml = ".edit.edited";
+        $poststatus_ml = ".edit.edited2$comm_modifier";
+
+        push @links,
+            (
+            {
+                url       => $entry_url,
+                ml_string => ".links.viewentry",
+            },
+            {
+                url       => $edit_url,
+                ml_string => ".links.editentry",
+            },
+            {
+                url       => "$LJ::SITEROOT/edittags?journal=$juser&itemid=$ditemid",
+                ml_string => ".links.tags"
+            },
+            );
 
         push @links,
             {
-            url       => $entry_url,
-            ml_string => ".edit.links.viewentry",
-            };
+            url       => $journal->journal_base . "?poster=" . $auth->{poster}->user,
+            ml_string => ".links.myentries"
+            }
+            if $journal->is_community;
 
         push @links,
+            (
             {
-            url       => $edit_url,
-            ml_string => ".edit.links.editentry",
-            };
+                url       => "$LJ::SITEROOT/tools/memadd?journal=$juser&itemid=$ditemid",
+                ml_string => ".links.memories"
+            },
+            {
+                url       => "$LJ::SITEROOT/editjournal",
+                ml_string => '.links.manageentries',
+            }
+            );
 
     }
-
-    push @links,
-        (
-        {
-            url       => $journal->journal_base,
-            ml_string => '.edit.links.viewentries',
-        },
-        {
-            url       => "$LJ::SITEROOT/editjournal",
-            ml_string => '.edit.links.manageentries',
-        }
-        );
 
     my @crossposts = _queue_crosspost(
         $form_req,
@@ -1273,7 +1304,12 @@ sub _do_edit {
         editurl => $edit_url,
     );
 
-    my $poststatus = { ml_string => $poststatus_ml };
+    my $poststatus = {
+        status    => $deleted ? 'deleted' : 'edited',
+        ml_string => $poststatus_ml,
+        url       => $journal->journal_base . "/",
+    };
+
     $render_ret = DW::Template->render_template(
         'entry/success.tt',
         {
@@ -1281,7 +1317,7 @@ sub _do_edit {
             warnings     => $warnings,       # warnings about the entry or your account
             crossposts   => \@crossposts,    # crosspost status list
             links        => \@links,
-            links_header => '.edit.links',
+            links_header => '.links',
             extradata => _get_extradata( $form_req, $journal ),
         }
     );
