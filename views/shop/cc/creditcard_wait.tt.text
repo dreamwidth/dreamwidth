@@ -3,8 +3,6 @@
 
 .error.nocart=You do not have a shopping cart.
 
-.state.failed=We're sorry, but your payment has been declined by our credit card processor.  You may wish to try an alternative payment method, or ensure that you accurately entered your billing information.
-
 .state.internal_failure=We're sorry, but something failed internally on our end attempting to process your payment.  Your credit card has probably not been charged.
 
 .state.paid=Your payment has been successful.  We will process your order in the next few minutes.  Please keep an eye on your email for a confirmation.
