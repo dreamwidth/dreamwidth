@@ -1458,6 +1458,16 @@ general /shop/creditcard.bml.error.zerocart
 general /shop/creditcard.bml.info
 general /shop/creditcard.bml.title
 
+general /shop/creditcard_wait.bml.state.failed
+general /shop/creditcard_wait.bml.state.internal_failure
+general /shop/creditcard_wait.bml.state.paid
+general /shop/creditcard_wait.bml.state.paid.noemail
+general /shop/creditcard_wait.bml.state.queued
+general /shop/creditcard_wait.bml.title
+general /shop/creditcard_wait.bml.title.internal_failure
+general /shop/creditcard_wait.bml.title.paid
+general /shop/creditcard_wait.bml.title.queued
+
 general /shop/gifts.bml.buy
 general /shop/gifts.bml.paid.about
 general /shop/gifts.bml.paid.header

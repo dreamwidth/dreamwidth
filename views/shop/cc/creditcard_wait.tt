@@ -1,0 +1,34 @@
+[%# Interstitial for credit card charges.
+  #
+  # Authors:
+  #      Mark Smith <mark@dreamwidth.org -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2010-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title=dw.ml( jobstate ? ".title.$jobstate" : '.title' ) -%]
+
+[%- sections.head = BLOCK %]
+
+  [%- IF jobstate == 'queued' -%]
+<meta http-equiv="refresh" content="3" />
+  [%- END -%]
+
+[% END %]
+
+<p>
+
+[%- IF jobstate == 'paid' && no_email -%]
+  [% rcpt = dw.create_url( '/shop/receipt', args => { ordernum => ordernum } ) %]
+  [% '.state.paid.noemail' | ml( url = rcpt ) %]
+[%- ELSE -%]
+  [% ".state.$jobstate" | ml %]
+[%- END -%]
+
+</p>
