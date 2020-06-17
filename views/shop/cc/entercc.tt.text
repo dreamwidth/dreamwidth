@@ -7,11 +7,7 @@
 
 .confirm.para=By filling out the above form and clicking the confirmation button below, you authorize [[sitename]] to charge the given credit card in the amount of [[amount]] to complete this purchase.
 
-.error.badcartstate=Your shopping cart has already been checked out.  If your payment failed, you will need to build a new shopping cart to try again.  We're sorry for the inconvenience.
-
 .error.ccnum.invalid=Credit card number appears invalid.  Try again.
-
-.error.cctype.invalid=Invalid credit card type selected.
 
 .error.cvv2.invalid=CVV invalid.  Must be a three or four digit number such as 123 or 4567.
 
