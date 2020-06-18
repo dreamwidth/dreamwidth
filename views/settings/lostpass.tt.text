@@ -1,0 +1,43 @@
+;; -*- coding: utf-8 -*-
+.error.commnopassword=That account is a community; community accounts don't have passwords.  All community administration can be done by logging in as an administrator of the community.
+
+.error.invalidemail=Invalid email address.
+
+.error.purged=You can't retrieve a password for a deleted account after it has been purged.
+
+.error.renamed=You can't retrieve a password for a renamed account.
+
+.error.syndicated=The account you're trying to retrieve the password for is a feed account. This type of account doesn't have a password to retrieve.
+
+.error.sysbanned=Your account isn't allowed to email passwords.
+
+.error.toofrequent=You're trying to send too many emails at once.  You may only request five lost information emails within 24 hours.
+
+.error.unconfirmed=You've never used that email address with this account, or it was never confirmed.
+
+.lostpasswordmail.ps<<
+P.S. This information was requested on the website from the IP address [[remoteip]].
+
+If you didn't ask to have a password reset token emailed to you, don't be alarmed - after all, you're the one reading this email, not the person who made the request on the website.  It's possible that the person who made the request simply made a typo in an account name or email address.
+.
+
+.lostpasswordmail.reset<<
+A request has been made at [[lostinfolink]] to reset the password to the [[sitename]] account associated with this email address.
+
+The account information is:
+
+Account name: [[username]]
+Email Address: [[emailadr]]
+
+Go to [[resetlink]] to confirm the request to reset your password. If you didn't make this request, ignore this email and your password won't be reset.
+
+Regards,
+[[sitename]] Team
+.
+
+.lostpasswordmail.subject=Lost Password
+
+.success.message=A token to reset your password has been emailed to you.
+
+.success.title=Password Reset
+

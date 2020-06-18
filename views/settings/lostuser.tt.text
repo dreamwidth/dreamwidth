@@ -1,0 +1,28 @@
+;; -*- coding: utf-8 -*-
+.email.body<<
+
+This is your requested username reminder from [[sitename]]. Below are the usernames you have registered for the email address [[emailaddress]]:
+
+          [[usernames]]
+
+This information was requested on the website from the IP address [[remoteip]].
+
+Regards,
+[[sitename]] Team
+
+[[siteurl]]
+
+.
+
+.email.subject=Lost Username
+
+.error.no_email=You must enter an email address to recover your account name.
+
+.error.no_usernames_for_email=No account name(s) found for email address: [[address]].
+
+.error.toofrequent=You're trying to send too many emails at once.  You may only request five lost information emails within 24 hours.
+
+.success.message=Success. Your account name has been emailed.
+
+.success.title=Email Sent
+
