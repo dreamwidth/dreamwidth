@@ -1,0 +1,74 @@
+[%# Request email for lost username or password reset.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input, #content label { width: auto; display: inline; }
+    </style>
+[% END %]
+
+[%- IF captcha.enabled -%]
+<h2>[% 'captcha.title' | ml %]</h2>
+[%- END -%]
+
+<form action='lostinfo' method='post'>
+  [% dw.form_auth %]
+  [% captcha.print %]
+
+  <h2>[% '.lostpassword.title' | ml %]</h2>
+  <p>[% '.lostpassword.text' | ml( sitename = site.nameshort ) %]</p>
+
+  [% form.textbox( label = dw.ml( '.enter_username' ), id = 'userlost',
+                   name = 'user', size = 30, maxlength = username_maxlength,
+                   onkeyup = 'enable_pass();', onchange = 'enable_pass();' ) %]
+
+  <br />
+
+  [% form.textbox( label = dw.ml( '.enter_email_optional' ), name = 'email_p',
+                   size = 30, maxlength = 50 ) %]
+
+  <br />
+
+  [% form.submit( name = 'lostpass', id = 'lostpass',
+                  value = dw.ml( '.btn.proceed' ) ) %]
+
+  <h2>[% '.lostusername.title' | ml %]</h2>
+  <p>[% '.lostusername.text'   | ml %]</p>
+
+  [% form.textbox( label = dw.ml( '.enter_email' ), name = 'email_u',
+                   id = 'email_u', size = 30, maxlength = 50,
+                   onkeyup = 'enable_user();', onchange = 'enable_user();' ) %]
+
+  <br />
+
+  [% form.submit( name = 'lostuser', id = 'lostuser',
+                  value = dw.ml( '.btn.proceed' ) ) %]
+
+  <script type="text/javascript">
+  function enable_pass () {
+      document.getElementById("lostpass").disabled =
+      document.getElementById("userlost").value ? false : true;
+  }
+  function enable_user () {
+      document.getElementById("lostuser").disabled =
+      document.getElementById("email_u").value ? false : true;
+  }
+
+  enable_pass();
+  enable_user();
+  </script>
+
+</form>

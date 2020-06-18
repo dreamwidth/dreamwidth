@@ -17,6 +17,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #      Mark Smith <mark@dreamwidth.org>
+#      Jen Griffin <kareila@livejournal.com> (lostinfo conversion)
 #
 # Copyright (c) 2014-2020 by Dreamwidth Studios, LLC.
 
@@ -34,6 +35,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
+use DW::Captcha;
 
 =head1 NAME
 
@@ -43,6 +45,7 @@ DW::Controller::Settings - Controller for settings/settings-related pages
 
 DW::Routing->register_string( "/accountstatus",    \&account_status_handler,   app    => 1 );
 DW::Routing->register_string( "/changepassword",   \&changepassword_handler,   app    => 1, );
+DW::Routing->register_string( "/lostinfo",         \&lostinfo_handler,         app    => 1, );
 DW::Routing->register_string( "/manage2fa",        \&manage2fa_handler,        app    => 1, );
 DW::Routing->register_string( "/manage2fa/qrcode", \&manage2fa_qrcode_handler, format => 'png' );
 
@@ -484,4 +487,150 @@ sub changepassword_handler {
     };
     return DW::Template->render_template( 'settings/changepassword.tt', $vars );
 }
+
+sub lostinfo_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
+    return $rv unless $ok;
+
+    my $r         = $rv->{r};
+    my $form_args = $r->post_args;
+    my $captcha   = DW::Captcha->new( 'lostinfo', %{$form_args} );
+
+    my $vars = {
+        captcha            => $captcha,
+        username_maxlength => $LJ::USERNAME_MAXLENGTH,
+    };
+
+    return DW::Template->render_template( 'settings/lostinfo.tt', $vars )
+        unless $r->did_post;
+
+    my $scope = "/settings/lostinfo.tt";
+    my $captcha_error;
+
+    return error_ml( "$scope.error.captcha", { errmsg => $captcha_error } )
+        unless $captcha->validate( err_ref => \$captcha_error );
+
+    my $ip = $r->get_remote_ip;
+
+    if ( $form_args->{lostpass} ) {
+
+        # this template doesn't exist but the strings do
+        $scope = "/settings/lostpass.tt";
+
+        my $email = LJ::trim( $form_args->{email_p} );
+
+        my $u = LJ::load_user( $form_args->{user} );
+        return error_ml("error.username_notfound") unless $u;
+
+        return error_ml("$scope.error.syndicated")     if $u->is_syndicated;
+        return error_ml("$scope.error.commnopassword") if $u->is_community;
+        return error_ml("$scope.error.purged")         if $u->is_expunged;
+        return error_ml("$scope.error.renamed")        if $u->is_renamed;
+
+        return error_ml("$scope.error.toofrequent") unless $u->rate_log( "lostinfo", 1 );
+
+        # Check to see if they are banned from sending a password
+        if ( LJ::sysban_check( 'lostpassword', $u->user ) ) {
+            LJ::Sysban::note(
+                $u->id,
+                "Password retrieval blocked based on user",
+                { user => $u->user }
+            );
+            return error_ml("$scope.error.sysbanned");
+        }
+
+        # Check to see if this email address can receive password reminders
+        $email ||= $u->email_raw;
+        return error_ml("$scope.error.unconfirmed")
+            unless $u->can_receive_password($email);
+        return error_ml("$scope.error.invalidemail")
+            if $LJ::BLOCKED_PASSWORD_EMAIL && $email =~ /$LJ::BLOCKED_PASSWORD_EMAIL/;
+
+        # email address is okay, build email body
+        my $aa = LJ::register_authaction( $u->id, "reset_password", $email );
+
+        my $body = LJ::Lang::ml(
+            "$scope.lostpasswordmail.reset",
+            {
+                lostinfolink => "$LJ::SITEROOT/lostinfo",
+                sitename     => $LJ::SITENAME,
+                username     => $u->user,
+                emailadr     => $u->email_raw,
+                resetlink    => "$LJ::SITEROOT/changepassword?auth=$aa->{aaid}.$aa->{authcode}",
+            }
+        );
+
+        $body .= "\n\n";
+        $body .= LJ::Lang::ml( "$scope.lostpasswordmail.ps", { remoteip => $ip } );
+        $body .= "\n\n";
+
+        LJ::send_mail(
+            {
+                to       => $email,
+                from     => $LJ::ADMIN_EMAIL,
+                fromname => $LJ::SITENAME,
+                charset  => 'utf-8',
+                subject  => LJ::Lang::ml("$scope.lostpasswordmail.subject"),
+                body     => $body,
+            }
+        ) or die "Error: couldn't send email";
+
+        return DW::Controller->render_success('settings/lostpass.tt');
+    }
+
+    if ( $form_args->{lostuser} ) {
+
+        # this template doesn't exist but the strings do
+        $scope = "/settings/lostuser.tt";
+
+        my $email = LJ::trim( $form_args->{email_u} );
+        return error_ml("$scope.error.no_email") unless $email;
+
+        my @users;
+        foreach my $uid ( LJ::User->accounts_by_email($email) ) {
+            my $u = LJ::load_userid($uid);
+            next if !$u || $u->is_expunged;    # not purged
+
+            # As the idea is to limit spam to one e-mail address,
+            # if any of their usernames are over the limit, then
+            # don't send them any more e-mail.
+            return error_ml("$scope.error.toofrequent") unless $u->rate_log( "lostinfo", 1 );
+            push @users, $u->display_name;
+        }
+
+        return error_ml( "$scope.error.no_usernames_for_email",
+            { address => LJ::ehtml($email) || 'none' } )
+            unless @users;
+
+        # we have valid usernames, build email body
+        my $userlist = join "\n          ", @users;
+        my $body     = LJ::Lang::ml(
+            "$scope.email.body",
+            {
+                sitename     => $LJ::SITENAME,
+                emailaddress => $email,
+                usernames    => $userlist,
+                remoteip     => $ip,
+                siteurl      => $LJ::SITEROOT,
+            }
+        );
+
+        LJ::send_mail(
+            {
+                to       => $email,
+                from     => $LJ::ADMIN_EMAIL,
+                fromname => $LJ::SITENAME,
+                charset  => 'utf-8',
+                subject  => LJ::Lang::ml("$scope.email.subject"),
+                body     => $body,
+            }
+        ) or die "Error: couldn't send email";
+
+        return DW::Controller->render_success('settings/lostuser.tt');
+    }
+
+    # have post, but no lostuser or lostpass?
+    return error_ml("error.nobutton");
+}
+
 1;
