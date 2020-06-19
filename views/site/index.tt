@@ -1,0 +1,208 @@
+[%# A basic, bare-bones functional site map.
+  # Ideally all major tasks should be listed on this page,
+  # and all pages should be no more than 2 clicks away.
+  #
+  # Authors:
+  #      Denise Paolucci <denise@dreamwidth.org> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content dd ul li { margin-left: 2em; }
+        #content dt { font-weight: bold; margin-top: 10px; }
+        #maplinks-left { margin-right: 2%; width: 48%; float: left; }
+        #maplinks-right { margin-left: 2%; width: 48%; float: right; }
+    </style>
+[% END %]
+
+<hr />
+
+<h2>[% '.maplinks' | ml %]</h2>
+
+<div id='maplinks-left'>
+
+ <dl>
+  <dt>[% '.maplinks.title.manage-journal' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/update'>[% '.maplinks.post-entry' | ml %]</a></li>
+   <li><a href='/editjournal'>[% '.maplinks.edit-entries' | ml %]</a></li>
+   <li><a href='/comments/recent'>[% '.maplinks.manage-comments' | ml %]</a></li>
+   <li><a href='/manage/tags'>[% '.maplinks.manage-tags' | ml %]</a></li>
+   <li><a href='/tools/memories'>[% '.maplinks.manage-memories' | ml %]</a></li>
+   <li><a href='/manage/profile/'>[% '.maplinks.manage-profile' | ml %]</a></li>
+   <li><a href='/manage/icons'>[% '.maplinks.manage-userpics' | ml %]</a></li>
+   <li><a href='/poll/create'>[% '.maplinks.create-poll' | ml %]</a></li>
+   <li><a href='/editprivacy'>[% '.maplinks.massprivacy' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.manage-images' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/file/new'>[% '.maplinks.upload-images' | ml %]</a></li>
+   <li><a href='/file/edit'>[% '.maplinks.manage-images' | ml %]</a></li>
+   <li><a href='/file/list'>[% '.maplinks.images-all' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.manage-readlist' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/manage/circle/'>[% '.maplinks.manage-readlist' | ml %]</a></li>
+   <li><a href='/manage/circle/editfilters'>[% '.maplinks.manage-groups' | ml %]</a></li>
+   <li><a href='/manage/circle/filter'>[% '.maplinks.filter-readlist' | ml %]</a></li>
+   <li><a href='/feeds'>[% '.maplinks.synfeeds' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.manage-account' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/manage/settings/'>[% '.maplinks.manage-settings' | ml %]</a></li>
+   <li><a href='/inbox/'>[% '.maplinks.inbox' | ml %]</a></li>
+   <li><a href='/shop'>[% '.maplinks.upgrade' | ml %]</a></li>
+   <li><a href='/changepassword'>[% '.maplinks.changepassword' | ml %]</a></li>
+   <li><a href='/accountstatus'>[% '.maplinks.changestatus' | ml %]</a></li>
+   <li><a href='/beta'>[% '.maplinks.beta' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.customize' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/customize/'>[% '.maplinks.selectstyle' | ml %]</a></li>
+   <li><a href='/customize/options'>[% '.maplinks.customizestyle' | ml %]</a></li>
+   <li><a href='/customize/options?group=linkslist'>[% '.maplinks.manage-linkslist' | ml %]</a></li>
+   <li><a href='/support/faqbrowse?faqcat=styles'>[% '.maplinks.about-customizing' | ml %]</a></li>
+   <li><a href='/customize/advanced/'>[% '.maplinks.advanced-customization' | ml %]</a></li>
+   <li><a href='/customize/advanced/layerbrowse'>[% '.maplinks.layer-browser' | ml %]</a></li>
+   <li><a href='/doc/s2'>[% '.maplinks.s2-manual' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.community' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/communities/new'>[% '.maplinks.create-comm' | ml %]</a></li>
+   <li><a href='/communities/list'>[% '.maplinks.manage-comm' | ml %]</a></li>
+   <li><a href='/manage/invites'>[% '.maplinks.manage-invites' | ml %]</a></li>
+   <li><a href='/community/search'>[% '.maplinks.search-comm' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+</div>
+
+<div id='maplinks-right'>
+
+[%- IF shop_enabled || merch_url -%]
+ <dl>
+  <dt>[% '.maplinks.title.shop' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+  [%- IF shop_enabled -%]
+   <li><a href='/shop'>[% '.maplinks.buy-points' | ml %]</a></li>
+   <li><a href='/shop/gifts'>[% '.maplinks.buy-circle' | ml %]</a></li>
+   <li><a href='/shop/randomgift'>[% '.maplinks.buy-random' | ml %]</a></li>
+   <li><a href='/shop/transferpoints'>[% '.maplinks.transfer-points' | ml %]</a></li>
+  [%- END -%]
+  [%- IF merch_url -%]
+   <li><a href='[% merch_url %]'>[% '.maplinks.buy-merchandise' | ml %]</a></li>
+  [%- END -%]
+  [%- IF shop_enabled -%]
+   <li><a href='/shop/history'>[% '.maplinks.payment-history' | ml %]</a></li>
+  [%- END -%]
+  </ul></dd>
+ </dl>
+[%- END -%]
+
+ <dl>
+  <dt>[% '.maplinks.title.learn-site' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/support/faqbrowse?faqcat=about'>[% '.maplinks.aboutus' | ml %]</a></li>
+   <li><a href='/legal/tos'>[% '.maplinks.tos' | ml %]</a></li>
+   <li><a href='/legal/privacy'>[% '.maplinks.privacy' | ml %]</a></li>
+   <li><a href='/legal/principles'>[% '.maplinks.principles' | ml %]</a></li>
+   <li><a href='/legal/diversity'>[% '.maplinks.diversity' | ml %]</a></li>
+   <li><a href='/legal/'>[% '.maplinks.legal' | ml %]</a></li>
+   <li><a href='/stats'>[% '.maplinks.sitestats' | ml %]</a></li>
+   <li><a href='staff'>[% '.maplinks.staff' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.official-journals' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+  [%- off_us = [ load_user( 'dw_news' ),       load_user( 'dw_maintenance' ),
+                 load_user( 'dw_volunteers' ), load_user( 'dw_suggestions' ) ] -%]
+  [%- IF off_us.0 -%]
+   <li>[% off_us.0.ljuser_display %]</li>
+  [%- END -%]
+  [%- IF off_us.1 -%]
+   <li>[% off_us.1.ljuser_display %]</li>
+  [%- END -%]
+  [%- IF off_us.2 -%]
+   <li>[% off_us.2.ljuser_display %]</li>
+  [%- END -%]
+   <li>[%- IF off_us.3; off_us.3.ljuser_display _ ' - '; END -%]
+       <a href='/site/suggest'>[% '.maplinks.suggestion' | ml %]</li>
+   <li><a href='/support/faqbrowse?faqid=65'>[% '.maplinks.official-journals.list' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.gethelp' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/support/faq'>[% '.maplinks.faq' | ml %]</a></li>
+   <li><a href='/support/faqsearch'>[% '.maplinks.faqsearch' | ml %]</a></li>
+   <li><a href='/support/'>[% '.maplinks.support' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.explore' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/directorysearch'>[% '.maplinks.directory' | ml %]</a></li>
+   <li><a href='/community/search'>[% '.maplinks.search-comm' | ml %]</a></li>
+   <li><a href='/latest'>[% '.maplinks.latestthings' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.toys' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/birthdays'>[% '.maplinks.birthdays' | ml %]</a></li>
+   <li><a href='/latest/mood'>[% '.maplinks.latestmoods' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.advanced-tools' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/admin/console'>[% '.maplinks.console' | ml %]</a></li>
+   <li><a href='/admin/console/reference'>[% '.maplinks.console-reference' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+ <dl>
+  <dt>[% '.maplinks.title.search' | ml( sitename = site.nameshort ) %]</dt>
+  <dd><ul>
+   <li><a href='/tools/search'>[% '.maplinks.search.site' | ml %]</a></li>
+   <li><a href='/search'>[% '.maplinks.search.journal' | ml %]</a></li>
+  </ul></dd>
+ </dl>
+
+</div>
+
+<div style='clear: both; padding-top: 1em;'>
+ <hr />
+ <p>[% '.footer' | ml %]</p>
+</div>

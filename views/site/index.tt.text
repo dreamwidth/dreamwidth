@@ -9,8 +9,6 @@
 
 .maplinks.advanced-customization=Advanced Customization
 
-.maplinks.advanced-tools-title=...use the advanced tools:
-
 .maplinks.beta=Test Beta Features
 
 .maplinks.birthdays=Upcoming Birthdays
@@ -27,8 +25,6 @@
 
 .maplinks.changestatus=Change Account Status
 
-.maplinks.community-title=...manage a community:
-
 .maplinks.console=Console
 
 .maplinks.console-reference=Console Reference
@@ -36,8 +32,6 @@
 .maplinks.create-comm=Create a community
 
 .maplinks.create-poll=Create a poll
-
-.maplinks.customize-title=...customize the look of your journal:
 
 .maplinks.customizestyle=Customize Style
 
@@ -47,21 +41,15 @@
 
 .maplinks.edit-entries=Edit Entries
 
-.maplinks.explore-title=...explore [[sitename]]:
-
 .maplinks.faq=Frequently Asked Questions
 
 .maplinks.faqsearch=Search the FAQ
 
 .maplinks.filter-readlist=Filter your Reading Page
 
-.maplinks.gethelp-title=...get help using [[sitename]]:
-
 .maplinks.images-all=View all your images
 
 .maplinks.inbox=Inbox
-
-.maplinks.invite-friend=Invite someone
 
 .maplinks.latestmoods=Mood of Service
 
@@ -69,15 +57,7 @@
 
 .maplinks.layer-browser=Layer Browser
 
-.maplinks.learn-site-title=...learn about [[sitename]]:
-
 .maplinks.legal=Legal Documents
-
-.maplinks.manage-accesslist=Manage circle
-
-.maplinks.manage-accesslist-title=...manage your access list:
-
-.maplinks.manage-account-title=...manage your [[sitename]] account:
 
 .maplinks.manage-comm=Manage Community Settings
 
@@ -85,15 +65,9 @@
 
 .maplinks.manage-groups=Manage Custom Filters
 
-.maplinks.manage-images-title=...use [[sitename]] image hosting:
-
 .maplinks.manage-images=Manage Images
 
-.maplinks.manage-invite-friend-title=...invite someone to join [[sitename]]:
-
 .maplinks.manage-invites=Manage Community Invites
-
-.maplinks.manage-journal-title=...manage your journal's contents:
 
 .maplinks.manage-linkslist=Manage Links List
 
@@ -103,8 +77,6 @@
 
 .maplinks.manage-readlist=Manage Circle
 
-.maplinks.manage-readlist-title=...manage your Reading Page:
-
 .maplinks.manage-settings=Manage Settings
 
 .maplinks.manage-tags=Manage Tags
@@ -112,8 +84,6 @@
 .maplinks.manage-userpics=Manage Icons
 
 .maplinks.massprivacy=Edit journal privacy
-
-.maplinks.official-journals-title=Read [[sitename]]'s official journals:
 
 .maplinks.official-journals.list=Complete list
 
@@ -133,11 +103,7 @@
 
 .maplinks.search.site=Site search
 
-.maplinks.search.title=...search [[sitename]]:
-
 .maplinks.selectstyle=Select Style
-
-.maplinks.shop-title=...shop with [[sitename]]:
 
 .maplinks.sitestats=Site Statistics
 
@@ -149,11 +115,37 @@
 
 .maplinks.synfeeds=Feed Accounts
 
+.maplinks.title.advanced-tools=...use the advanced tools:
+
+.maplinks.title.community=...manage a community:
+
+.maplinks.title.customize=...customize the look of your journal:
+
+.maplinks.title.explore=...explore [[sitename]]:
+
+.maplinks.title.gethelp=...get help using [[sitename]]:
+
+.maplinks.title.learn-site=...learn about [[sitename]]:
+
+.maplinks.title.manage-account=...manage your [[sitename]] account:
+
+.maplinks.title.manage-images=...use [[sitename]] image hosting:
+
+.maplinks.title.manage-journal=...manage your journal's contents:
+
+.maplinks.title.manage-readlist=...manage your Reading Page:
+
+.maplinks.title.official-journals=...read [[sitename]]'s official journals:
+
+.maplinks.title.search=...search [[sitename]]:
+
+.maplinks.title.shop=...shop with [[sitename]]:
+
+.maplinks.title.toys=work with some site tools:
+
 .maplinks.tos=Terms of Service
 
-.maplinks.toys-title=work with some site tools:
-
-.maplinks.transfer-points=Transfer points
+.maplinks.transfer-points=Send points
 
 .maplinks.upgrade=Upgrade Account
 

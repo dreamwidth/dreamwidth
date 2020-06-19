@@ -36,6 +36,7 @@ DW::Routing->register_string( '/guidelines',              \&community_guidelines
 DW::Routing->register_string( "/random/index",            \&random_personal_handler,  app  => 1 );
 DW::Routing->register_string( "/community/random/index",  \&random_community_handler, app  => 1 );
 DW::Routing->register_string( "/beta",                    \&beta_handler,             app  => 1 );
+DW::Routing->register_string( "/site/index",              \&sitemap_handler,          app  => 1 );
 
 DW::Routing->register_static( '/internal/404',    'error/404.tt',       app => 1 );
 DW::Routing->register_static( '/site/opensource', 'site/opensource.tt', app => 1 );
@@ -212,6 +213,16 @@ sub _random_handler {
     # if we are unable to load a random journal / community, ask to try again
     my $ml_string = $journaltype eq "C" ? "random.retry.community" : "random.retry.personal";
     return error_ml( $ml_string, { aopts => "href='$LJ::SITEROOT" . $r->uri . "'" } );
+}
+
+sub sitemap_handler {
+    my $vars = {
+        shop_enabled => LJ::is_enabled('payments'),
+        merch_url    => $LJ::MERCH_URL,
+        load_user    => sub { LJ::load_user( $_[0] ) },
+    };
+
+    return DW::Template->render_template( 'site/index.tt', $vars );
 }
 
 1;
