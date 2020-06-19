@@ -14,14 +14,14 @@
   #
 %]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
 [%- sections.title='.title' | ml -%]
 
 [%- sections.head = BLOCK %]
     <style type="text/css">
-        #content dd ul li { margin-left: 2em; }
-        #content dt { font-weight: bold; margin-top: 10px; }
-        #maplinks-left { margin-right: 2%; width: 48%; float: left; }
-        #maplinks-right { margin-left: 2%; width: 48%; float: right; }
+        #maplinks { column-width: 24em; column-gap: 2em; }
+        #maplinks dl { break-inside: avoid; }
     </style>
 [% END %]
 
@@ -29,7 +29,7 @@
 
 <h2>[% '.maplinks' | ml %]</h2>
 
-<div id='maplinks-left'>
+<div id='maplinks'>
 
  <dl>
   <dt>[% '.maplinks.title.manage-journal' | ml( sitename = site.nameshort ) %]</dt>
@@ -99,10 +99,6 @@
    <li><a href='/community/search'>[% '.maplinks.search-comm' | ml %]</a></li>
   </ul></dd>
  </dl>
-
-</div>
-
-<div id='maplinks-right'>
 
 [%- IF shop_enabled || merch_url -%]
  <dl>
