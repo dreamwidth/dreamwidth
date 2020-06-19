@@ -21,7 +21,12 @@
 [%- sections.head = BLOCK %]
     <style type="text/css">
         #maplinks { column-width: 24em; column-gap: 2em; }
-        #maplinks dl { break-inside: avoid; }
+        #maplinks dl {
+          break-inside: avoid;
+          /* Hack: Safari spills bottom margins into the top of the next column. */
+          padding-bottom: 1px;
+          margin-bottom: 0;
+        }
     </style>
 [% END %]
 
