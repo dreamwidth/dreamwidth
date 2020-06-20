@@ -55,6 +55,17 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         // this is only a confirmation message. We can fade away quickly
         window.setTimeout( function() { self.close(); }, 1500 );
     },
+    sticky: function(msg) {
+        var self = this;
+        self.option("content", msg);
+        self.open();
+        $.each(self.tooltips, function(id, element) {
+            // auto-close handlers on the tooltip itself:
+            self._off($('#' + id), "mouseleave focusout");
+            // auto-close handlers on the trigger element:
+            element.off("mouseleave focusout");
+        });
+    },
     abort: function () {
         var self = this;
         if ( self.requests.length ) {
