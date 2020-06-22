@@ -919,6 +919,43 @@ general lostinfo.text
 
 general /customize/index.bml.s2.advanced.denied
 
+general /stats.bml.age.desc
+general /stats.bml.age.header
+general /stats.bml.client.desc
+general /stats.bml.client.header
+general /stats.bml.demographics.desc.countries
+general /stats.bml.demographics.desc.states
+general /stats.bml.demographics.header
+general /stats.bml.description
+general /stats.bml.gender.desc
+general /stats.bml.gender.female
+general /stats.bml.gender.header
+general /stats.bml.gender.male
+general /stats.bml.gender.other
+general /stats.bml.gender.unspecified
+general /stats.bml.graphs.desc
+general /stats.bml.graphs.header
+general /stats.bml.graphs.newbyday.desc
+general /stats.bml.graphs.newbyday.header
+general /stats.bml.new.desc.community
+general /stats.bml.new.desc.feeds
+general /stats.bml.new.desc.personal
+general /stats.bml.new.header
+general /stats.bml.notavailable
+general /stats.bml.recent.desc.community
+general /stats.bml.recent.desc.feeds
+general /stats.bml.recent.desc.personal
+general /stats.bml.recent.header
+general /stats.bml.title
+general /stats.bml.users.desc
+general /stats.bml.users.header
+general /stats.bml.users.total.active
+general /stats.bml.users.total.everupdate
+general /stats.bml.users.total.last24
+general /stats.bml.users.total.last30
+general /stats.bml.users.total.last7
+general /stats.bml.users.total
+
 general /styles/create.bml.createstyle.text
 general /styles/index.bml.about
 
