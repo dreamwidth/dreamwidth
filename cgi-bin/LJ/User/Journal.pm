@@ -19,6 +19,7 @@ use Carp;
 use Storable;
 use LJ::Global::Constants;
 use LJ::Keywords;
+use DW::Formats;
 
 ########################################################################
 ### 13. Community-Related Functions and Authas
@@ -444,6 +445,45 @@ sub entryform_width {
     else {
         return 'F';
     }
+}
+
+# don't call this directly, only use the wrapper functions below.
+sub _editor_props {
+    my ( $u, $propname, $new_editor ) = @_;
+
+    if ( defined $new_editor ) {
+        $new_editor = DW::Formats::validate($new_editor);
+        $u->set_prop( $propname => $new_editor );
+        return $new_editor;
+    }
+
+    my $editor_default = DW::Formats::validate( $u->raw_prop($propname) );
+
+    if ( !$editor_default ) {
+        return $DW::Formats::default_format;
+    }
+
+    if (  !DW::Formats::is_active($editor_default)
+        && DW::Formats::is_active( DW::Formats::upgrade($editor_default) ) )
+    {
+        # Silently upgrade to new version.
+        $editor_default = DW::Formats::upgrade($editor_default);
+        $u->set_prop( $propname => $editor_default );
+    }
+
+    return $editor_default;
+}
+
+# getter/setter
+sub comment_editor {
+    my ( $u, $new_editor ) = @_;
+    return _editor_props($u, 'comment_editor', $new_editor);
+}
+
+# getter/setter
+sub entry_editor2 {
+    my ( $u, $new_editor ) = @_;
+    return _editor_props($u, 'entry_editor2', $new_editor);
 }
 
 # getter/setter
