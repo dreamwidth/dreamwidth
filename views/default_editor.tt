@@ -1,0 +1,19 @@
+[%# Success page after changing your default entry or comment markup format.
+
+Authors:
+    Nick Fagerlund <nick.fagerlund@gmail.com>
+
+Copyright (c) 2020 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.title = dw.ml(title) -%]
+
+[% ".success" | ml(type => type, new_format => new_format) %]
+
+<ul><li><a href="[% exit_url %]">[% exit_text %]</a></li></ul>
