@@ -1,0 +1,230 @@
+[%# View basic site account statistics.
+  #
+  # Authors:
+  #      import r26.1 livejournal -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2008-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml( sitenameshort = site.nameshort ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content td img { height: 10px; }
+        #content table tr { background: inherit; }
+    </style>
+[% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- BLOCK display_acct_list;
+        i = 0;
+        FOREACH a IN accounts;
+            u = userobj_for.${a.userid};
+            NEXT UNLESS u.defined && u.is_visible;
+            LAST IF i > 9;
+-%]
+    <li>[% u.ljuser_display %] - [% u.name_html %], [% a.timeupdate %]</li>
+
+[%-         i = i + 1;
+        END; # FOREACH
+    END; # BLOCK
+-%]
+
+<p>[% '.description' | ml( aopts = "href='stats/stats.txt'" ) %]</p>
+
+<h2>[% '.users.header' | ml %]</h2>
+
+<p>[% '.users.desc' | ml %]</p>
+
+<ul>
+  <li><b>[% '.users.total' | ml %]</b>
+    [% default_zero( stat.userinfo.total ) %]</li>
+[%- active = default_zero( stat.size.accounts_active_30 );
+    IF active -%]
+  <li><b>[% '.users.total.active' | ml %]</b>[% active %]</li>
+[%- END -%]
+  <li><b>[% '.users.total.everupdate' | ml %]</b>
+    [% default_zero( stat.userinfo.updated ) %]</li>
+  <li><b>[% '.users.total.last30' | ml %]</b>
+    [% default_zero( stat.userinfo.updated_last30 ) %]</li>
+  <li><b>[% '.users.total.last7' | ml %]</b>
+    [% default_zero( stat.userinfo.updated_last7 ) %]</li>
+  <li><b>[% '.users.total.last24' | ml %]</b>
+    [% default_zero( stat.userinfo.updated_last1 ) %]</li>
+</ul>
+
+<h2>[% '.gender.header' | ml %]</h2>
+
+<p>[% '.gender.desc' | ml %]</p>
+
+<ul>
+[%- male   = default_zero( stat.gender.M );
+    female = default_zero( stat.gender.F );
+    other  = default_zero( stat.gender.O );
+    unspec = default_zero( stat.gender.U );
+    total  = male + female + other + unspec;
+    UNLESS total; total = 1; END;
+
+    fpc = percentage( female, total );
+    mpc = percentage( male,   total );
+    opc = percentage( other,  total );
+    upc = percentage( unspec, total );
+-%]
+  <li><b>[% '.gender.female' | ml %]</b> [%- "$female ($fpc%)" -%]</li>
+  <li><b>[% '.gender.male'   | ml %]</b> [%-   "$male ($mpc%)" -%]</li>
+  <li><b>[% '.gender.other'  | ml %]</b> [%-  "$other ($opc%)" -%]</li>
+  <li><b>[% '.gender.unspec' | ml %]</b> [%- "$unspec ($upc%)" -%]</li>
+</ul>
+
+[%- IF accounts_updated.P.size || accounts_updated.C.size || accounts_updated.Y.size -%]
+
+<h2>[% '.recent.header' | ml %]</h2>
+
+<p>[% '.recent.desc.personal' | ml %]</p>
+
+<ul>
+  [% IF accounts_updated.P.size;
+     PROCESS display_acct_list accounts = accounts_updated.P;
+     ELSE -%]
+  <li><i>[% '.notavailable' | ml %]</i></li>
+  [% END -%]
+</ul>
+
+<p>[% '.recent.desc.community' | ml %]</p>
+
+<ul>
+  [% IF accounts_updated.C.size;
+     PROCESS display_acct_list accounts = accounts_updated.C;
+     ELSE -%]
+  <li><i>[% '.notavailable' | ml %]</i></li>
+  [% END -%]
+</ul>
+
+<p>[% '.recent.desc.feeds' | ml %]</p>
+
+<ul>
+  [% IF accounts_updated.Y.size;
+     PROCESS display_acct_list accounts = accounts_updated.Y;
+     ELSE -%]
+  <li><i>[% '.notavailable' | ml %]</i></li>
+  [% END -%]
+</ul>
+
+[%- END -%]
+
+[%- IF accounts_created.P.size || accounts_created.C.size || accounts_created.Y.size -%]
+
+<h2>[% '.new.header' | ml %]</h2>
+
+<p>[% '.new.desc.personal' | ml %]</p>
+
+<ul>
+  [% IF accounts_created.P.size;
+     PROCESS display_acct_list accounts = accounts_created.P;
+     ELSE -%]
+  <li><i>[% '.notavailable' | ml %]</i></li>
+  [% END -%]
+</ul>
+
+<p>[% '.new.desc.community' | ml %]</p>
+
+<ul>
+  [% IF accounts_created.C.size;
+     PROCESS display_acct_list accounts = accounts_created.C;
+     ELSE -%]
+  <li><i>[% '.notavailable' | ml %]</i></li>
+  [% END -%]
+</ul>
+
+<p>[% '.new.desc.feeds' | ml %]</p>
+
+<ul>
+  [% IF accounts_created.Y.size;
+     PROCESS display_acct_list accounts = accounts_created.Y;
+     ELSE -%]
+  <li><i>[% '.notavailable' | ml %]</i></li>
+  [% END -%]
+</ul>
+
+[%- END -%]
+
+<h2>[% '.demographics.header' | ml %]</h2>
+
+<p>[% '.demographics.desc.countries' | ml %]</p>
+
+<ul>
+[%- IF countries.size;
+      FOREACH c IN countries -%]
+  <li><b>[% c %]</b> - [% stat.country.$c %]</li>
+[%-   END;
+    ELSE -%]
+  <li><i>[% '.notavailable' | ml %]</i></li>
+[%- END -%]
+</ul>
+
+<p>[% '.demographics.desc.states' | ml %]</p>
+
+<ul>
+[%- IF states.size;
+      FOREACH s IN states -%]
+  <li><b>[% s %]</b> - [% stat.state.$s %]</li>
+[%-   END;
+    ELSE -%]
+  <li><i>[% '.notavailable' | ml %]</i></li>
+[%- END -%]
+</ul>
+
+[%- ages = age.keys.nsort;
+    IF ages.size -%]
+<h2>[% '.age.header' | ml %]</h2>
+
+<p>[% '.age.desc' | ml %]</p>
+
+<table summary=''>
+[%-   FOREACH a IN ages;
+        width = scale_bar( age.$a ) -%]
+  <tr>
+    <td align='right'><b>[% a %]&nbsp;</b></td>
+    <td>[% age.$a %]&nbsp;</td>
+    <td><img src="/img/bluedot.gif" height='10' width='[% width %]' /></td>
+  </tr>
+[%-   END; # FOREACH -%]
+</table>
+[%- END -%]
+
+[%- IF client_list.size -%]
+<h2>[% '.client.header' | ml %]</h2>
+
+<p>[% '.client.desc' | ml %]</p>
+
+<table summary='' cellpadding='3'>
+[%-   FOREACH cn IN client_list -%]
+  <tr valign='top'>
+    <td><font size='+1'><b>[% stat.clientname.$cn %]</b></font></td>
+    <td><b>[% cn | html %]</b>
+    <br /><font size='-1'>[% client_details.$cn %]</font></td>
+  </tr>
+[%-   END; # FOREACH -%]
+</table>
+[%- END -%]
+
+[%- IF graphs.size -%]
+<h2>[% '.graphs.header' | ml %]</h2>
+
+<p>[% '.graphs.desc' | ml %]</p>
+
+[%-   IF graphs.newbyday -%]
+<h3>[% '.graphs.newbyday.header' | ml %]</h3>
+
+<p>[% '.graphs.newbyday.desc' | ml %]</p>
+
+<p align='center'><img src="/[% graphs.newbyday %]" width='520' height='350' /></p>
+
+[%- END; END -%]

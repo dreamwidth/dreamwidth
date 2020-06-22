@@ -15,6 +15,8 @@
 
 .description=You may find the following statistics interesting. Most of this page is updated every 24 hours. You can also display the <a [[aopts]]>raw data</a>.
 
+.error.nostats=No statistics are available. If you are the administrator for this site, run <b>ljmaint.pl genstats</b>, or ideally, put it in cron to run nightly.
+
 .gender.desc=The self-identified gender breakdown of our account holders:
 
 .gender.female=Female
@@ -25,7 +27,7 @@
 
 .gender.other=Other
 
-.gender.unspecified=Rather not say
+.gender.unspec=Rather not say
 
 .graphs.desc=Pretty graphs are the most fun, aren't they?
 
