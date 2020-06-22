@@ -329,8 +329,26 @@ sub addcomment_handler {
 
     # post!
     my $post_error;
-    LJ::Protocol::do_request( "addcomment", $req, \$post_error, { noauth => 1, nocheckcap => 1 } );
+    my $result = LJ::Protocol::do_request( "addcomment", $req, \$post_error,
+        { noauth => 1, nocheckcap => 1 } );
     return DW::RPC->err( LJ::Protocol::error_message($post_error) ) if $post_error;
+
+    # figure out if they posted with a non-default editor
+    my $editor      = DW::Formats::validate( $post->{prop_editor} );
+    my %format_opts = ();
+    if ( DW::Formats::is_active($editor) && $editor ne $remote->comment_editor ) {
+        %format_opts = (
+            extra => DW::Template->template_string(
+                'default_editor_form.tt',
+                {
+                    type      => 'comment',
+                    format    => $DW::Formats::formats{$editor},
+                    exit_text => "Return to comment",
+                    exit_url  => $result->{commentlink},
+                }
+            )
+        );
+    }
 
     # now get the comment count
     my $entry;
@@ -341,7 +359,11 @@ sub addcomment_handler {
     my $count;
     $count = $entry->reply_count( force_lookup => 1 ) if $entry;
 
-    return DW::RPC->out( message => LJ::Lang::ml('comment.rpc.posted'), count => $count );
+    return DW::RPC->out(
+        message => LJ::Lang::ml('comment.rpc.posted'),
+        count   => $count,
+        %format_opts
+    );
 }
 
 1;
