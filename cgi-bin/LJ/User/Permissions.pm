@@ -1049,7 +1049,7 @@ sub prop {
             map { $_ => 1 }
                 qw(opt_sharebday opt_showbday opt_showlocation opt_showmutualfriends
                 view_control_strip show_control_strip opt_ctxpopup opt_embedplaceholders
-                esn_inbox_default_expand)
+                esn_inbox_default_expand comment_editor entry_editor2)
         }->{$prop}
         )
     {
