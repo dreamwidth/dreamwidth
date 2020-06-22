@@ -179,9 +179,14 @@ jQuery(function($) {
                                     // for the 0 -> 1 case, when the link starts out hidden
                                     $readLink.parent().show();
 
-                                    $readLink
-                                        .ajaxtip() // init
-                                        .ajaxtip("success", data.message); // success message
+                                    $readLink.ajaxtip(); // init
+                                    if (data.extra) {
+                                        // success message plus extra actions
+                                        $readLink.ajaxtip("sticky", data.message + ' ' + data.extra);
+                                    } else {
+                                        // plain success message
+                                        $readLink.ajaxtip("success", data.message);
+                                    }
 
                                     var commentText = '';
                                     if ( data.count == 1 ) {
