@@ -4,6 +4,7 @@ use strict;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use DW::Formats;
 use Carp;
 
 DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
@@ -28,8 +29,6 @@ sub talkpost_do_handler {
     # For errors that aren't immediately fatal, collect them as we go and let
     # the user fix them all at once.
     my @errors;
-
-    my $editid = $POST->{editid};
 
     # If this is a GET (not POST), see if they're coming back from an OpenID
     # identity server. If so, restore the POST hash we saved before they left.
@@ -276,8 +275,10 @@ sub talkpost_do_handler {
     my $unscreen_parent = $POST->{unscreen_parent} ? 1 : 0;
 
     # ACTUALLY POST IT
+    my $editid      = $POST->{editid};
     my $wasscreened = ( $parent->{state} eq 'S' );
     my $talkid;
+
     if ($editid) {
         my ( $postok, $talkid_or_err ) = LJ::Talk::Post::edit_comment($comment);
         unless ($postok) {
@@ -296,6 +297,15 @@ sub talkpost_do_handler {
     # Yeah, we're done.
     my $dtalkid = $talkid * 256 + $entry->{anum};
 
+    # Figure out whether we should offer to update their default formatting.
+    my $editor_new;
+    if (   $real_remote
+        && DW::Formats::is_active( $comment->{editor} )
+        && $comment->{editor} ne $real_remote->comment_editor )
+    {
+        $editor_new = $comment->{editor};
+    }
+
     # Allow style=mine, etc for QR redirects
     my $style_args = LJ::viewing_style_args(%$POST);
 
@@ -309,9 +319,12 @@ sub talkpost_do_handler {
     my $mlcode;
     if ( $comment->{state} eq 'A' ) {
 
-        # Redirect the user back to their post as long as it didn't unscreen its parent,
-        # is screened itself, or they logged in
-        if ( !( $wasscreened && ( $parent->{state} ne 'S' ) ) && !$didlogin ) {
+        # Redirect straight to the post as long as:
+        # - it isn't screened
+        # - it didn't unscreen its parent
+        # - its formatting type didn't change
+        # - it didn't log the user in as a side-effect
+        if ( !( $wasscreened && ( $parent->{state} ne 'S' ) ) && !$didlogin && !$editor_new ) {
             LJ::set_lastcomment( $journalu->id, $commenter, $dtalkid );
             return $r->redirect($commentlink);
         }
@@ -346,6 +359,16 @@ sub talkpost_do_handler {
     $vars->{title} = $title;
 
     my @notices = ( LJ::Lang::ml( "/talkpost_do.tt$mlcode", { aopts => "href='$commentlink'" } ) );
+    push @notices,
+        DW::Template->template_string(
+        'default_editor_form.tt',
+        {
+            type      => 'comment',
+            format    => $DW::Formats::formats{$editor_new},
+            exit_text => "Return to comment",
+            exit_url  => $commentlink,
+        }
+        ) if $editor_new;
     push @notices, LJ::Lang::ml('/talkpost_do.tt.success.unscreened')
         if $wasscreened && ( $parent->{state} ne 'S' );
     push @notices, LJ::Lang::ml('/talkpost_do.tt.success.loggedin') if $didlogin;
