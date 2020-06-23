@@ -864,11 +864,8 @@ sub get_moodtheme_select_list {
 
     my @themes;
     foreach my $moodtheme ( DW::Mood->public_themes ) {
-        my $is_active = LJ::Hooks::run_hook( "mood_theme_is_active", $moodtheme->{moodthemeid} );
-        next unless !defined $is_active || $is_active;
         push @themes, $strip->($moodtheme);
     }
-    LJ::Hooks::run_hook( 'modify_mood_theme_list', \@themes, user => $u, add_seps => 1 );
     unshift @themes, { 'moodthemeid' => 0, 'name' => '(None)' };
 
     ### user's private themes
