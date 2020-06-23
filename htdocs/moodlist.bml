@@ -62,14 +62,9 @@ body<=
 
     my @themes = ();
     foreach my $moodtheme ( DW::Mood->public_themes ) {
-        my $is_active = LJ::Hooks::run_hook("mood_theme_is_active", $moodtheme->{moodthemeid});
-        next unless !defined $is_active || $is_active;
         push @themes, $moodtheme;
     }
     @themes = sort { lc($a->{name}) cmp lc($b->{name}) } @themes;
-    my @special_themes = LJ::Hooks::run_hook('modify_mood_theme_list', \@themes, user => $u);
-    # validate the list (should only contain hashrefs)
-    @special_themes = grep { ref $_ } @special_themes;
 
     my $do_mood_list = sub {
         # Setup the paging bar
@@ -96,16 +91,8 @@ body<=
 
         my $mood_theme_table = sub {
             my $theme = shift;
-            my $special = shift;
 
-            if ($special) {
-                my $author = LJ::Hooks::run_hook("mood_theme_author", $theme->{moodthemeid});
-                $ret .= "<tr class='highlight-box'><td style='padding-left: 5px;'>$theme->{'name'}";
-                $ret .= "<br /><span style='font-size: smaller;'>" . BML::ml('.moodtheme.byauthor', {'author' => $author}) . "</span>" if $author;
-                $ret .= "</td>\n";
-            } else {
-                $ret .= "<tr><td>$theme->{'name'}</td>\n";
-            }
+            $ret .= "<tr><td>$theme->{'name'}</td>\n";
 
             my $tobj = DW::Mood->new( $theme->{moodthemeid} );
 
@@ -145,19 +132,8 @@ body<=
 
         $ret .= "<td align='center'><input type='submit' value=\"$ML{'.btn.switch'}\" /></td></tr>\n";
 
-        if (@special_themes && $items{page} == 1) {
-            $ret .= "<tr class='highlight-box'>";
-            $ret .= "<td style='padding-left: 5px;' colspan='8'><h2>$ML{'.specialthemes.header'}</h2></td>";
-            $ret .= "</tr>";
-            foreach my $theme (@special_themes) {
-                $mood_theme_table->($theme, 1);
-            }
-        }
-
-        my %special_themeids = map { $_->{moodthemeid} => 1 } @special_themes;
         foreach my $theme (@show_themes) {
-            next if $special_themeids{$theme->{moodthemeid}};
-            $mood_theme_table->($theme, 0);
+            $mood_theme_table->($theme);
         }
 
         $ret .= "<tr><td colspan='8' align='center'><br />$navbar</td></tr></table></form>";
