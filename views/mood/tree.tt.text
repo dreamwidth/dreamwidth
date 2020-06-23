@@ -1,0 +1,13 @@
+;; -*- coding: utf-8 -*-
+.backlink=&lt;&lt; Back to Mood Themes
+
+.btn.view=View
+
+.moodname=[[name]] (#[[id]])
+
+.moods.howtochange=To change the icons in your journal, go to the <a [[aopts]]>modify journal page</a> and select your preferred icon set.
+
+.title=[[sitename]] Moods
+
+.view.table=View this theme in a table layout.
+

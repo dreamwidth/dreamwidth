@@ -448,6 +448,23 @@ general /modify_do.bml.success.head
 general /modify_do.bml.success.text2
 general /modify_do.bml.title
 
+general /moodlist.bml.back2
+general /moodlist.bml.btn.switch
+general /moodlist.bml.btn.view
+general /moodlist.bml.error.cantviewtheme
+general /moodlist.bml.moodname.fromparent
+general /moodlist.bml.moodname.nopicfortheme
+general /moodlist.bml.moodname
+general /moodlist.bml.moods.header
+general /moodlist.bml.moods.howtochange
+general /moodlist.bml.moods.intro
+general /moodlist.bml.moodtheme.byauthor
+general /moodlist.bml.nav.viewall
+general /moodlist.bml.specialthemes.header
+general /moodlist.bml.title
+general /moodlist.bml.view.table
+general /moodlist.bml.view.tree
+
 general /multisearch.bml.formaterror
 general /multisearch.bml.noaddress.text
 general /multisearch.bml.noaddress.title
