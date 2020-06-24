@@ -4509,13 +4509,6 @@ sub std_max_length {
     return 80;
 }
 
-# Common challenge/response JavaScript, needed by both login pages and comment pages alike.
-# Forms that use this should onclick='return sendForm()' in the submit button.
-# Returns true to let the submit continue.
-$LJ::COMMON_CODE{'chalresp_js'} = qq{
-<script type="text/javascript" src="$LJ::JSPREFIX/md5.js"></script>
-};
-
 sub final_head_html {
     my $ret = "";
 

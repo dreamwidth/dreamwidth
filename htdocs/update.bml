@@ -501,7 +501,7 @@ _c?>
 
 
                     $$body .= " p?><?p $ML{'.success.links'} p?><ul>" .
-                        "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" . 
+                        "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" .
                         "<li><a href=\"$edititemlink\">$ML{'.success.links.edit'}</a></li>" .
                         "<li><a href=\"/tools/memadd?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .
                         "<li><a href=\"/edittags?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .
@@ -663,7 +663,11 @@ head<=
     //]]>
     </script>^;
 
-    $ret .= (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : "";
+    my $chalresp_js = qq{
+<script type="text/javascript" src="$LJ::JSPREFIX/md5.js"></script>
+};
+
+    $ret .= (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $chalresp_js : "";
 
     return $ret;
 }
