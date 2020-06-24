@@ -676,7 +676,19 @@ head<=
 
 <?entryformcss?>
 <?_code return $_[1]->{'head'}; _code?>
-<?_code return $LJ::COMMON_CODE{'autoradio_check'}; _code?>
+<?_code return q{
+<script language="JavaScript" type="text/javascript">
+    <!--
+    /* If radioid exists, check the radio button. */
+    function checkRadioButton(radioid) {
+        if (!document.getElementById) return;
+        var radio = document.getElementById(radioid);
+        if (!radio) return;
+        radio.checked = true;
+    }
+// -->
+</script>
+}; _code?>
 
 <?_code
 {
