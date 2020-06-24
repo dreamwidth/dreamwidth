@@ -4516,22 +4516,6 @@ $LJ::COMMON_CODE{'chalresp_js'} = qq{
 <script type="text/javascript" src="$LJ::JSPREFIX/md5.js"></script>
 };
 
-# Common JavaScript function for auto-checking radio buttons on form
-# input field data changes
-$LJ::COMMON_CODE{'autoradio_check'} = q{
-<script language="JavaScript" type="text/javascript">
-    <!--
-    /* If radioid exists, check the radio button. */
-    function checkRadioButton(radioid) {
-        if (!document.getElementById) return;
-        var radio = document.getElementById(radioid);
-        if (!radio) return;
-        radio.checked = true;
-    }
-// -->
-</script>
-};
-
 sub final_head_html {
     my $ret = "";
 
