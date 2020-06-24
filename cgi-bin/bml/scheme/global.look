@@ -13,15 +13,11 @@
 
 _parent=>../../lj-bml-blocks.pl
 
-loginboxstyle=>{Ss}background: url(/img/silk/identity/user.png) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;
-commloginboxstyle=>{Ss}background: url(/img/silk/identity/community.png) no-repeat; background-color: #fff; background-position: 0px 2px; padding-left: 19px; color: #00C; font-weight: bold;
-
 SECURITYPRIVATE=>{Ss}<img src="<?imgprefix?>/silk/entry/private.png" alt="private" width=16 height=16 align=absmiddle>
 SECURITYPROTECTED=>{Ss}<img src="<?imgprefix?>/silk/entry/locked.png" alt="protected" width=14 height=15 align=absmiddle>
 SECURITYGROUPS=>{Ss}<img src="<?imgprefix?>/silk/entry/filtered.png" alt="custom" idth=21 height=13 align=absmiddle>
 HELP=>{DR}(<a href="%%data%%"><i>help</i></a>)
 INERR=>{DR}<font color="#ff0000"><b>%%data%%</b></font>
-SOERROR=>{DR}<div><b>%%data%%</b></div>
 EMAILEX=><div style='font-family: courier; border: solid black 1px; padding: 5px;'>%%data%%</div>
 
 BADINPUT<=
@@ -31,141 +27,11 @@ BADINPUT<=
 
 REQUIREPOST=><?_ml bml.requirepost _ml?>
 
-LOAD_PAGE_INFO<=
-<?_code
-### PLEASE NOTE: This block is deprecated. To print the menu navigation in a scheme,
-###              use the <?menunav?> block.
-
-#line 3
-@sidebar = ({ 'name' => 'Home',
-           'uri' => '/',
-           'match' => "^/(index\\.bml)?(\\?.*)?\$",
-           'children' => [
-                  { 'name' => 'Create Journal',
-                'uri' => '/create', },
-                  { 'name' => 'Update',
-                'uri' => '/update',
-#                'children' => [
-#                           { 'name' => 'Full Update',
-#                         'uri' => '/update?mode=full', }
-#                           ],
-                },
-                  ],
-           },
-         { 'name' => 'Find Users',
-           'children' => [
-                         { 'name' => 'Random!',
-                'uri' => '/random', },
-                         { 'name' => 'By Interest',
-                'uri' => '/interests', },
-                              { 'name' => 'Search',
-                'uri' => '/directorysearch', }
-                  ], },
-         { 'name' => 'Manage ...',
-           uri => '/manage/',
-           'children' => [
-                  { 'name' => 'Your Profile',
-                'uri' => '/manage/profile/', },
-                  { 'name' => 'Your Style',
-                'uri' => '/customize/', },
-                  { 'name' => 'Your Friends',
-                'uri' => '/manage/circle/edit', },
-                  { 'name' => 'Your Entries',
-                'uri' => '/editjournal', },
-                  { 'name' => 'Your Pictures',
-                'uri' => '/manage/icons', },
-                  { 'name' => 'Your Password',
-                'uri' => '/changepassword', },
-                  ],
-       },
-         { 'name' => 'Developer Area',
-           'uri' => '/developer/',
-           'match' => "^/developer/\$",
-           'recursematch' => "^/developer/",
-           'children' => [
-                  { 'name' => 'Style System',
-                'uri' => '/developer/styles',
-                'children' => [
-                           { 'name' => 'View Types',
-                         'uri' => '/developer/views', },
-                           { 'name' => 'Variable List',
-                         'uri' => '/developer/varlist', },
-                           ],
-                },
-                  { 'name' => 'Embedding',
-                'uri' => '/developer/embedding', },
-                  { 'name' => 'Protocol',
-                'uri' => '/developer/protocol',
-                'children' => [
-                           { 'name' => 'Mode List',
-                         'uri' => '/developer/modelist', }
-                           ],
-                },
-                  ],
-       },
-         { 'name' => 'Need Help?',
-           'children' => [
-                  { 'name' => 'Lost Password?',
-                'uri' => '/lostinfo', },
-                  { 'name' => 'FAQ / Guide',
-                'uri' => '/support/faq', },
-                  { 'name' => 'Support Area',
-                'uri' => '/support/', },
-                  ],
-       },
- );
-
- my $remote = LJ::get_remote();
- my $remuser = $remote ? $remote->{'user'} : "";
- my $uri = BML::get_uri();
- if ($remuser ne "" && $uri ne "/logout")
- {
-     my $subdomain = $remuser;
-     $subdomain =~ s/_/-/g;
-     unshift @sidebar, { 'name' => "Hello, $remuser!",
-             'children' => [
-                    { 'name' => 'Your Journal',
-                      'children' => [
-                             { 'name' => 'Recent',
-                               'uri' => "/users/$remuser/", },
-                             { 'name' => 'Calendar',
-                               'uri' => "/users/$remuser/calendar", },
-                             { 'name' => 'Friends',
-                               'uri' => "/users/$remuser/read",
-                               'extra' => "/friend/filter",
-                               },
-                             ],
-                      },
-                    { 'name' => 'User Info',
-                      'uri' => "/profile?user=$remuser", },
-                    { 'name' => 'Memories',
-                      'uri' => "/tools/memories?user=$remuser", },
-                    { 'name' => 'Logout',
-                      'uri' => '/logout', },
-                    ]
-                    };
- } elsif ($uri ne "/login") {
-     unshift @sidebar, { 'name' => "Log In",
-             'uri' => '/login', }
- }
-
-return "";
-_code?>
-<=LOAD_PAGE_INFO
-
-AL=>{P}<i><a href="%%data1%%">%%data2%%</a></i> <img src="/img/external_link.gif" width='16' height='11' align='absmiddle' />
-AWAYLINK=>{P}<i><a href="%%data1%%">%%data2%%</a></i> <img src="/img/external_link.gif" width='16' height='11' align='absmiddle' />
-
 H1=>{D}<h1>%%data%%</h1>
 H2=>{D}<h2>%%data%%</h2>
 
-# Banner Header: search results banner, content desriptor, etc...
-BH=>{D}<p align='center'><font face="Arial,Helvetica" color="#CC0000" size='-1'><b>%%data%%</b></font>
-
-GRIN=>{S}&lt;grin&gt;
 HR=>{S}<hr />
 
-NEWLINE=>{S}<BR>&nbsp;&nbsp;&nbsp;&nbsp;
 P=>{D}<p>%%data%%</p>
 BLOCK=>{D}<div>%%data%%</div>
 
@@ -202,12 +68,7 @@ DE<=
 %%data%%
 <=DE
 
-EMCOLOR=>{S}#c0c0c0
 HOTCOLOR=>{S}#ff0000
-EMCOLORLITE=>{S}#e2e2e2
-ALTCOLOR1=>{S}#eeeeee
-ALTCOLOR2=>{S}#dddddd
-screenedbarcolor=>{S}#707070
 
 CHOICE=>{P}<dt><a href="%%data2%%"><font size="+1"><tt><b>%%data1%%</b></tt></font></a><dd><font size="2">%%data3%%</font>
 
