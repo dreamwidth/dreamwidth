@@ -533,7 +533,6 @@ body=>    <?_code return $_[1]->{'body'}; _code?>
 bodyopts=><?_code return $_[1]->{'bodyopts'}; _code?>
 head<=
 
-<?entryformcss?>
 <?_code
 {
     use strict;

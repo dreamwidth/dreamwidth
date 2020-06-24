@@ -24,12 +24,6 @@ INERR=>{DR}<font color="#ff0000"><b>%%data%%</b></font>
 SOERROR=>{DR}<div><b>%%data%%</b></div>
 EMAILEX=><div style='font-family: courier; border: solid black 1px; padding: 5px;'>%%data%%</div>
 
-ENTRYFORMCSS<=
-{Ss}
-<style type="text/css">
-</style>
-<=ENTRYFORMCSS
-
 BADINPUT<=
 <?h1 <?_ml bml.badinput.head _ml?> h1?>
 <?p <?_ml bml.badinput.body1 _ml?> p?>

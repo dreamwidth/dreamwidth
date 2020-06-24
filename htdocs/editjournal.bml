@@ -674,7 +674,6 @@ _code?>
 bodyopts=><?_code return $_[1]->{'bodyopts'}; _code?>
 head<=
 
-<?entryformcss?>
 <?_code return $_[1]->{'head'}; _code?>
 <?_code return q{
 <script language="JavaScript" type="text/javascript">
