@@ -1085,6 +1085,12 @@ sub _get_extradata {
         $extradata->{security_ml} = "post.security.public";
     }
 
+    # Figure out whether we should offer to update their default formatting.
+    my $remote = LJ::get_remote();
+    if ($remote && DW::Formats::is_active( $form_req->{props}->{editor} ) && $form_req->{props}->{editor} ne $remote->entry_editor2 ) {
+        $extradata->{format} = $DW::Formats::formats{ $form_req->{props}->{editor} };
+    }
+
     return $extradata;
 }
 
@@ -1192,6 +1198,7 @@ sub _do_post {
                 crossposts   => \@crossposts,    # crosspost status list
                 links        => \@links,
                 links_header => ".links",
+                entry_url    => $itemlink,
                 extradata => _get_extradata( $form_req, $journal ),
             }
         );
@@ -1354,6 +1361,7 @@ sub _do_edit {
             crossposts   => \@crossposts,    # crosspost status list
             links        => \@links,
             links_header => '.links',
+            entry_url    => $entry_url,
             extradata => _get_extradata( $form_req, $journal ),
         }
     );
