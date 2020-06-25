@@ -13,11 +13,12 @@ BEGIN {
         my ( $code, $vars ) = @_;
         my $aopts = $vars->{'aopts'};
         if ( $code eq "cleanhtml.error.markup.extra" ) {
-            return "[<strong>Error:</strong> Irreparable invalid markup (".
-	    "'&lt;$aopts&gt;') in entry. Owner must fix manually. Raw contents below.]";
+            return "[<strong>Error:</strong> Irreparable invalid markup ("
+                . "'&lt;$aopts&gt;') in entry. Owner must fix manually. Raw contents below.]";
         }
         if ( $code eq "cleanhtml.error.markup" ) {
-            return "<a $aopts>Error: Irreparable invalid markup in entry. Raw contents behind the cut.</a>";
+            return
+"<a $aopts>Error: Irreparable invalid markup in entry. Raw contents behind the cut.</a>";
         }
     }
 
