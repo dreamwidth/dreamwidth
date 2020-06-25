@@ -10,7 +10,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
-<form id="default_editor" method="POST" action="[%site.root%]/default_editor" data-rpc-endpoint="default_editor">
+[% dw.need_res( { group => "foundation" },
+    "js/jquery.default-editor.js"
+) %]
+
+<form id="default_editor" method="POST" action="[%site.root%]/default_editor" data-rpc-endpoint="default_editor" style="position: relative;">
 [%- dw.form_auth -%]
 [%- form.hidden( name = "type", value = type ) -%]
 [%- form.hidden( name = "new_editor", value = format.id ) -%]
