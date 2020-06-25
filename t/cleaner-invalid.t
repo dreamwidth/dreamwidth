@@ -20,9 +20,8 @@ use warnings;
 
 use Test::More tests => 4;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljtestlib.pl"; }
 use LJ::CleanHTML;
-use LJ::Test qw (temp_user);
 use HTMLCleaner;
 
 my $post;
@@ -46,13 +45,13 @@ qq {<marquee><font size="24"></font></marquee><div class='ljparseerror'>[<strong
     "Invalid HTML is not okay."
 );
 
-my $u = temp_user();
+my $u = LJ::temp_user();
 $post = "<lj user=\"" . $u->user . "\">";
 $clean->();
 is( $clean_post, $u->ljuser_display, "User tag is fine." );
 
 {
-    my $u = temp_user();
+    my $u = LJ::temp_user();
     $post =
           "<lj user=\""
         . $u->user

@@ -21,6 +21,7 @@ use HTML::TokeParser;
 use LJ::EmbedModule;
 use LJ::Config;
 use Text::Markdown;
+use LJ::TextUtil;
 
 LJ::Config->load;
 
