@@ -31,6 +31,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF poststatus.status != "deleted" -%]
 
+    [%- IF extradata.format -%]
+        <p>[% INCLUDE default_editor_form.tt
+            type = "entry"
+            format = extradata.format
+            exit_text = dw.ml(".links.viewentry")
+            exit_url = entry_url
+        %]</p>
+    [%- END -%]
+
     <p>[% extradata.security_ml | ml( filters => extradata.filters ) %]</p>
     <p>[% ".extradata.subj" | ml %]
         [% IF extradata.subject.length %]
