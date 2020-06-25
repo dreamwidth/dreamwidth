@@ -1876,11 +1876,12 @@ sub init_s2journal_js {
             )
     ) unless $opts{siteskin};
 
-    # load for ajax cuttag - only needed on lastn-type pages
+    # load for ajax cuttag and ajax quickreply - only needed on lastn-type pages
     LJ::need_res(
         { group => "all" }, qw(
             js/jquery/jquery.ui.widget.js
             js/jquery.cuttag-ajax.js
+            js/jquery.default-editor.js
             )
     ) if $opts{lastn};
 }
