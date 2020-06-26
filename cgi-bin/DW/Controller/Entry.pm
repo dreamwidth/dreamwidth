@@ -1087,7 +1087,10 @@ sub _get_extradata {
 
     # Figure out whether we should offer to update their default formatting.
     my $remote = LJ::get_remote();
-    if ($remote && DW::Formats::is_active( $form_req->{props}->{editor} ) && $form_req->{props}->{editor} ne $remote->entry_editor2 ) {
+    if (   $remote
+        && DW::Formats::is_active( $form_req->{props}->{editor} )
+        && $form_req->{props}->{editor} ne $remote->entry_editor2 )
+    {
         $extradata->{format} = $DW::Formats::formats{ $form_req->{props}->{editor} };
     }
 

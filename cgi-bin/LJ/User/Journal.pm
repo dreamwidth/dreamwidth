@@ -477,13 +477,13 @@ sub _editor_props {
 # getter/setter
 sub comment_editor {
     my ( $u, $new_editor ) = @_;
-    return _editor_props($u, 'comment_editor', $new_editor);
+    return _editor_props( $u, 'comment_editor', $new_editor );
 }
 
 # getter/setter
 sub entry_editor2 {
     my ( $u, $new_editor ) = @_;
-    return _editor_props($u, 'entry_editor2', $new_editor);
+    return _editor_props( $u, 'entry_editor2', $new_editor );
 }
 
 # getter/setter
