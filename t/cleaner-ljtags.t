@@ -20,7 +20,7 @@ use warnings;
 
 use Test::More tests => 12;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/t/ljtestlib.pl"; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
 

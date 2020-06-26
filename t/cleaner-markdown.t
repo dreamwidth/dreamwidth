@@ -19,7 +19,7 @@ use warnings;
 
 use Test::More tests => 27;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 
 my $lju_sys         = LJ::ljuser('system');

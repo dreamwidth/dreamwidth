@@ -20,7 +20,7 @@ use warnings;
 
 use Test::More tests => 6;
 
-BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
 

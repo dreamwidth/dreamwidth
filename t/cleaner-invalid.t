@@ -20,9 +20,29 @@ use warnings;
 
 use Test::More tests => 4;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/t/ljtestlib.pl"; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
+
 use LJ::CleanHTML;
 use HTMLCleaner;
+
+# We rely on LJ::Lang::ml
+# Fake the single value we retrieve during the tests.
+my $mock = Test::MockObject->new();
+
+sub fake_lang_ml {
+    my ( $code, $vars ) = @_;
+    my $aopts = $vars->{'aopts'};
+    if ( $code eq "cleanhtml.error.markup.extra" ) {
+        return "[<strong>Error:</strong> Irreparable invalid markup ("
+            . "'&lt;$aopts&gt;') in entry. Owner must fix manually. Raw contents below.]";
+    }
+}
+
+$mock->fake_module(
+    'LJ::Lang' => (
+        ml => \&fake_lang_ml
+    )
+);
 
 my $post;
 my $clean_post;

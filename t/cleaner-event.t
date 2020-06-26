@@ -17,9 +17,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 41;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
 
@@ -220,15 +220,6 @@ $orig_post = $entry_text;
 $cut_text  = qq{Other text here};
 $clean->( { cut_retrieve => 2 } );
 is( $orig_post, $cut_text, "text in <lj-cut> style cut after <div> style cut is retrieved" );
-
-# embed tags
-
-note("<object> and <embed> tags");
-$orig_post =
-qq{<object width="640" height="385"><param name="movie" value="http://www.example.com/video"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.example.com/video" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>};
-$clean_post = qq{};
-$clean->();
-is( $orig_post, $clean_post, "<object> and <embed> tags" );
 
 note("various allowed/disallowed tags");
 {
