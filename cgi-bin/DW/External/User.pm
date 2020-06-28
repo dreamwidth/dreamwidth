@@ -72,7 +72,7 @@ sub ljuser_display {
     return
           "<span style='white-space: nowrap;'$display_class>"
         . ( $opts{no_link} ? '' : "<a href='$profile_url'>" )
-        . "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>"
+        . "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: text-bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>"
         . ( $opts{no_link} ? '' : "</a><a href='$journal_url'>" )
         . "<b>$user</b>"
         . ( $opts{no_link} ? '' : "</a>" )
