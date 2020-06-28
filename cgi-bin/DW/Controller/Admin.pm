@@ -44,7 +44,6 @@ DW::Controller::Admin->register_admin_scope( '/', title_ml => '.admin.title' );
 DW::Controller::Admin->_register_admin_pages_legacy(
     '/',
     [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
-    [ 'priv/',     '.admin.priv.link',      '.admin.priv.text' ],
     [
         'statushistory',
         '.admin.statushistory.link',

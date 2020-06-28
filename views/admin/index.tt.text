@@ -7,10 +7,6 @@
 
 .admin.logout_user.text=Logs a user out of the site.
 
-.admin.priv.link=Privilege Management
-
-.admin.priv.text=View privs by priv or by user. Some priv lists are private.
-
 .admin.statushistory.link=Statushistory
 
 .admin.statushistory.text=Shows you a user's statushistory.
