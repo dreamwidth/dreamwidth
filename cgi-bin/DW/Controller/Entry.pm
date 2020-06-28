@@ -169,7 +169,7 @@ sub new_handler {
         if defined $usejournal && !$vars->{usejournal};
 
     if ( $r->did_post ) {
-        my $mode_preview    = $post->{"action:preview"}    ? 1 : 0;
+        my $mode_preview = $post->{"action:preview"} ? 1 : 0;
 
         $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in($post);
@@ -499,8 +499,8 @@ sub _edit {
         $post->remove('poster_remote');
         $post->remove('usejournal');
 
-        my $mode_preview    = $post->{"action:preview"}    ? 1 : 0;
-        my $mode_delete     = $post->{"action:delete"}     ? 1 : 0;
+        my $mode_preview = $post->{"action:preview"} ? 1 : 0;
+        my $mode_delete  = $post->{"action:delete"}  ? 1 : 0;
 
         $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in($post);
