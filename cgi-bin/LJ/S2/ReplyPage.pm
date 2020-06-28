@@ -176,7 +176,6 @@ sub ReplyPage {
         $parpost->{'body'}    = $tt->{$re_talkid}->[1];
         $parpost->{'props'} =
             LJ::load_talk_props2( $u, [$re_talkid] )->{$re_talkid} || {};
-        $parpost->{'dtid'} = $dtalkid;
 
         if ( $parpost->{'props'}->{'unknown8bit'} ) {
             LJ::item_toutf8( $u, \$parpost->{'subject'}, \$parpost->{'body'}, {} );
@@ -285,7 +284,6 @@ sub ReplyForm__print {
     my $u       = $form->{'_u'};
     my $parpost = $form->{'_parpost'};
     my $parent  = $parpost ? $parpost->{'jtalkid'} : 0;
-    my $dtid    = $parpost ? $parpost->{dtid} : 0;
 
     my $post_vars = DW::Request->get->post_args;
     $post_vars = $form->{_values}
@@ -297,7 +295,6 @@ sub ReplyForm__print {
                 'journalu'   => $u,
                 'parpost'    => $parpost,
                 'replyto'    => $parent,
-                'dtid'       => $dtid,                                  # unused in talkform, btw.
                 'ditemid'    => $form->{'_ditemid'},
                 'styleopts'  => $form->{_styleopts},
                 'form'       => $post_vars,
