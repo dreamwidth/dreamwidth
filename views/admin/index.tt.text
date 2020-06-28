@@ -7,19 +7,11 @@
 
 .admin.logout_user.text=Logs a user out of the site.
 
-.admin.statushistory.link=Statushistory
-
-.admin.statushistory.text=Shows you a user's statushistory.
-
 .admin.title=Admin Tools
 
 .admin.translate.link=Translation & Site Copy
 
 .admin.translate.text=View and edit the site copy and translations.
-
-.admin.userlog.link=Userlog Viewer
-
-.admin.userlog.text=Shows you a user's logged actions.
 
 .admin.vgifts.link=Virtual Gifts
 
