@@ -1407,6 +1407,7 @@ sub talkform {
     # replyto:     jtalkid of the parent comment (or 0 if replying to entry)
     # dtid:        dtalkid of the parent comment (or 0) -- useless, but preserved
     # ditemid:     target entry's ditemid
+    # styleopts:   the style options (`?style=light`) at reply time, as a hashref
     # form:        optional full form hashref. Empty if reply page was opened via
     #              direct link instead of partial form submission.
     # do_captcha:  optional toggle for creating a captcha challenge

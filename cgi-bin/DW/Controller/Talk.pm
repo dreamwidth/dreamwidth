@@ -8,6 +8,154 @@ use Carp;
 
 DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 
+# I think this canon isn't written down anywhere else, so HWAET: I sing a record
+# of every damn form field that comes through in reply form POSTs. -NF
+#
+# Form names:
+# - qrform
+#     The quick-reply form, built by the LJ::create_qr_div function, in
+#     LJ/Web.pm.
+# - postform
+#     The talkform, built by the LJ::Talk::talkform function.
+# - There used to also be a previewform, but it was a menace and I killed it.
+#
+# Actual comment content (which gets saved to the DB):
+# - subject
+# - body
+# - prop_picture_keyword
+#     The user icon for this comment.
+# - prop_opt_preformatted
+#     The "don't autoformat" checkbox, which switches a comment from casual HTML
+#     to raw HTML. Soon to be deprecated in favor of the editor prop and named
+#     formats. Only available in talkform.
+# - prop_editor
+#     Not yet implemented. The markup format the comment's body text uses.
+# - prop_admin_post
+#     Whether this comment is from a community admin (and should thus be displayed
+#     specially).
+# - subjecticon
+#     The "subject icon" for this comment, chosen from a hardcoded list of ~32.
+#     Only available in talkform.
+# - editreason
+#     An explanation for the edit; only present if editing.
+#
+# Sort of like comment content, but not quite:
+# - unscreen_parent
+#     Whether to unscreen the screened comment they're replying to. Only available
+#     if this is a journal where the commenter can do that, and only shown in the
+#     talkform. I think this is meant as a convenience for the no-javascript case,
+#     because otherwise the AJAX unscreen button is faster and more intuitive.
+#
+# Identity stuff:
+# - usertype
+#     The type of user submitting the comment. In the quick-reply, this is locked
+#     to `cookieuser`. In the talkform, it's a group of radio buttons so you can
+#     switch user/go anon, and the value will be one of the following:
+#         - anonymous
+#         - openid
+#         - openid_cookie
+#         - cookieuser
+#         - user
+#     All of the identity fields mostly get consumed by the Talk controller, but
+#     they can also influence the initial state of the talkform if it gets
+#     regenerated partway through a comment submission (when previewing or when
+#     there's an error that needs fixing). These fields are documented more fully
+#     down in authenticate_user_and_mutate_form.
+# - oidurl
+# - oiddo_login
+# - cookieuser
+# - userpost
+# - password
+# - do_login
+#
+# Hidden fields that determine what the comment is replying to:
+# - journal
+#     The journal name for the entry they're replying to.
+# - itemid
+#     The ditemid (obfuscated display ID) of the entry they're replying to.
+#     See comments in the implementation of LJ::Talk::talkform for more info about
+#     the different ID formats.
+# - parenttalkid
+#     The jtalkid (raw ID) of the comment they're replying to. If they're replying
+#     directly to the entry, this is 0.
+# - replyto
+#     An exact duplicate of parenttalkid;
+#     LJ::Talk::Post::prepare_and_validate_comment will fall back to this if
+#     parenttalkid isn't present, which should never be the case. Nothing else
+#     uses this, but jquery.quickreply.js confirms that it's present before
+#     allowing you to continue. LJ::Comment->create omits replyto in the mock form
+#     it sends to prep/validate.
+# - editid
+#     The dtalkid (obfuscated display ID) of the existing comment to be edited. If
+#     posting a new comment, this is 0.
+#
+# Consistency checks and metadata:
+# - lj_form_auth
+#     Form auth for logged-in users. I don't fully understand how this works yet,
+#     but plenty of others around here do, so go ask them.
+# - chrp1
+#     A time-expiring server-provided token used to make spam posts inconvenient.
+# - captcha_type (and other captcha fields)
+#     Which captcha implementation to use, if a captcha is deemed necessary;
+#     absent if not. Captchas can bring in additional form fields. These get
+#     consumed by the captcha implementations, which get invoked down near the
+#     bottom of LJ::Talk::Post::prepare_and_validate_comment.
+# - qr
+#     Hardcoded to 1 in the quick-reply form; absent in talkform. As far as I can
+#     tell, nothing ever consumes this. Maybe was for some ancient server log
+#     metrics?
+#
+# Things that affect the return link after replying:
+# - viewing_thread
+#     The filtered thread view (`?thread=12345`) they were in when they hit the
+#     "reply" link, and which they should be returned to once they finish posting.
+#     Currently only populated by the quick-reply. Consumed by Talk controller to
+#     build the return link.
+# - style/format/s2id/fallback
+#     The "viewing style" options (`?style=light`) that were in effect when they
+#     hit the "reply" link, which should be re-instated once they finish
+#     posting. You get one hidden input for each of these that was present,
+#     although usually there's only one and the effects of mixing them seem
+#     obscure. See LJ::viewing_style_opts (in Web.pm) for more info.
+#
+# Enablers for quick-reply's "more options" button:
+# - dtid
+#     The dtalkid (obfuscated display ID) of the comment they're replying to (in
+#     other words, the display version of `parenttalkid`). Only used by the
+#     quick-reply JS for building the "more options" URL. Nothing on the backend
+#     ever consumes this.
+# - basepath
+#     The path to the journal entry they're replying to, with any viewing style
+#     options included. The quick-reply JS uses this for building the "more
+#     options" URL. Nothing on the backend ever consumes this.
+#
+# Submit buttons and their friends:
+# - submitpost
+#     The post button. Nothing on the backend listens for this by name; it's just
+#     the button that does a "vanilla" form submission.
+# - submitpreview
+#     The actual signal to the backend that we need to build a preview for this
+#     comment instead of posting it. Has indirect behavior sometimes because we
+#     disable the post buttons with JS to prevent double-submits, and browsers
+#     don't send disabled inputs. In the quick-reply, this is a hidden input whose
+#     value gets set to 1 if they click `submitpview`. In the talkform, this is
+#     the name of the preview button, so it gets sent normally if JS is disabled,
+#     but see also `previewplaceholder`.
+# - submitpview
+#     The "preview" submit button in the quick-reply form. Nothing on the backend
+#     listens for this by name; it just sets the value of the hidden
+#     `submitpreview` input.
+# - previewplaceholder
+#     A hidden input in the talkform whose value is 1. If JS is enabled, we change
+#     its name to `submitpreview` when they click the preview button, so the
+#     signal to preview will reach the backend despite the submit buttons being
+#     disabled.
+# - submitmoreopts
+#     The "more options" button in the quick-reply. Changes the action of the form
+#     to point to the ReplyPage instead of to talkpost_do (so they can continue
+#     with a partially-filled talkform), then submits. Nothing on the backend
+#     listens for this by name.
+
 sub talkpost_do_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
     return $rv unless $ok;
