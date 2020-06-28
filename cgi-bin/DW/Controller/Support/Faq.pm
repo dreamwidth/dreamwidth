@@ -341,7 +341,7 @@ sub faqbrowse_handler {
             'answer'          => $answer,
             'summary'         => $summary,
             'display_summary' => $display_summary,
-            'display_answer'  => $display_summary,
+            'display_answer'  => $display_answer,
             'lastmodwho'      => $lastmodwho,
             'lastmodtime'     => $f->lastmodtime
         };
