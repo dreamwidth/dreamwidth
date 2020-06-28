@@ -45,26 +45,9 @@ DW::Controller::Admin->_register_admin_pages_legacy(
     '/',
     [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
     [
-        'statushistory',
-        '.admin.statushistory.link',
-        '.admin.statushistory.text',
-        [
-            'historyview',
-            sub {
-                return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
-            }
-        ]
-    ],
-    [
         'translate/',
         '.admin.translate.link',
         '.admin.translate.text'
-    ],
-    [
-        'userlog',
-        '.admin.userlog.link',
-        '.admin.userlog.text',
-        [ 'canview:userlog', 'canview:*' ]
     ],
     [
         'vgifts/',

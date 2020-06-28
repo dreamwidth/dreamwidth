@@ -2310,10 +2310,14 @@ general /views/admin/index.tt.admin.priv.link
 general /views/admin/index.tt.admin.priv.text
 general /views/admin/index.tt.admin.recent_comments.link
 general /views/admin/index.tt.admin.recent_comments.text
+general /views/admin/index.tt.admin.statushistory.link
+general /views/admin/index.tt.admin.statushistory.text
 general /views/admin/index.tt.admin.styleinfo.link
 general /views/admin/index.tt.admin.styleinfo.text
 general /views/admin/index.tt.admin.sysban.link
 general /views/admin/index.tt.admin.sysban.text
+general /views/admin/index.tt.admin.userlog.link
+general /views/admin/index.tt.admin.userlog.text
 
 general /views/admin/clusterstatus.tt.admin.link
 general /views/admin/clusterstatus.tt.admin.text
