@@ -89,7 +89,6 @@ var postForm = (function($) {
             $("input[name='action:post']").attr("data-reveal-id", "js-post-entry-login");
 
             $("#js-post-entry-login").find("input[type=submit]").click(handleLoginModal);
-            $form.hashpassword();
         }
     };
 
