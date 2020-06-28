@@ -3006,6 +3006,7 @@ sub post_comment {
     my $item     = $comment->{entry};
     my $journalu = $item->journal;
     my $parent   = $comment->{parent};
+    my $itemid   = $item->jitemid;
 
     my $parent_state = $parent->{state} || "";
 
@@ -3014,7 +3015,7 @@ sub post_comment {
 
      # if parent comment is screened and we got this far, the user has the permission to unscreen it
      # in this case the parent comment needs to be unscreened and the comment posted as normal
-        LJ::Talk::unscreen_comment( $journalu, $item->jitemid, $parent->{talkid} );
+        LJ::Talk::unscreen_comment( $journalu, $itemid, $parent->{talkid} );
         $parent->{state} = 'A';
     }
     elsif ( $parent_state eq 'S' ) {
@@ -3050,7 +3051,7 @@ sub post_comment {
         );
         $memkey = [
             $journalu->{userid},
-            "tdup:$journalu->{userid}:$item->jitemid-$parent->{talkid}-$posterid-$md5_b64"
+            "tdup:$journalu->{userid}:$itemid-$parent->{talkid}-$posterid-$md5_b64"
         ];
         $jtalkid = LJ::MemCache::get($memkey);
     }
@@ -3085,7 +3086,7 @@ sub post_comment {
         ]
     );
 
-    LJ::Hooks::run_hooks( 'new_comment', $journalu->{userid}, $item->jitemid, $jtalkid )
+    LJ::Hooks::run_hooks( 'new_comment', $journalu->{userid}, $itemid, $jtalkid )
         ;    # This hook is never registered by anything in -free or -nonfree. -NF
 
     return ( 1, $jtalkid );
