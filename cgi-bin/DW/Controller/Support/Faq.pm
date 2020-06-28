@@ -179,7 +179,7 @@ sub faqbrowse_handler {
     }
 
     # get faqid and redirect to faq.bml if none
-    my $faqidarg = $GET->{'faqid'} + 0;
+    my $faqidarg = $GET->{'faqid'} ? $GET->{'faqid'} + 0 : 0;
 
     # FIXME: disallow both faqid and faqcat (or ignore one)
     my $faqcatarg = $GET->{'faqcat'};
@@ -308,6 +308,7 @@ sub faqbrowse_handler {
 
         if ($qterm) {
             $question =~ s/(\Q$qterm\E)/$term->($1)/ige;
+            $summary //= '';    # no undefined string warnings
 
             # don't highlight terms in URLs or HTML tags
             # FIXME: if the search term is present in a tag, should still
