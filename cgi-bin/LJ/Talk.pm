@@ -1405,7 +1405,6 @@ sub talkform {
     # journalu:    required journal user object
     # parpost:     parent comment hashref. Only keys we use are state and subject.
     # replyto:     jtalkid of the parent comment (or 0 if replying to entry)
-    # dtid:        dtalkid of the parent comment (or 0) -- useless, but preserved
     # ditemid:     target entry's ditemid
     # styleopts:   the style options (`?style=light`) at reply time, as a hashref
     # form:        optional full form hashref. Empty if reply page was opened via
@@ -1619,9 +1618,6 @@ sub talkform {
     }
 
     my $styleopts = $opts->{styleopts} || LJ::viewing_style_opts(%$form);
-    my $stylemineuri =
-        %{$styleopts} ? LJ::viewing_style_args( %{$styleopts} ) . "&" : "";
-    my $basepath = $entry->url . "?" . $stylemineuri;
 
     # hidden values
     $template_args->{'hidden_form_elements'} .= LJ::html_hidden(
@@ -1629,14 +1625,8 @@ sub talkform {
         "parenttalkid" => ( $opts->{replyto} + 0 ),
         "itemid"       => $opts->{ditemid},
         "journal"      => $journalu->{'user'},
-        "basepath"     => $basepath,
-        "dtid"         => $opts->{dtid},
-
-        # ^ display version of replyto/parenttalkid. Nothing actually uses this
-        # in the talkform or after the form is submitted. It's important for JS
-        # in the quickreply, but vestigial here.
-        "editid" => $editid,
-        "chrp1"  => generate_chrp1( $journalu->{userid}, $opts->{ditemid} ),
+        "editid"       => $editid,
+        "chrp1"        => generate_chrp1( $journalu->{userid}, $opts->{ditemid} ),
         %$styleopts,
     );
 
