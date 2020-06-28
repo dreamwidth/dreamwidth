@@ -118,7 +118,6 @@ sub new_handler {
     my $errors   = DW::FormErrors->new;
     my $warnings = DW::FormErrors->new;
     my $post     = $r->did_post ? $r->post_args : undef;
-    my %spellcheck;
 
     # figure out times
     my $datetime;
@@ -171,7 +170,6 @@ sub new_handler {
 
     if ( $r->did_post ) {
         my $mode_preview    = $post->{"action:preview"}    ? 1 : 0;
-        my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
 
         $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in($post);
@@ -184,19 +182,6 @@ sub new_handler {
         if ($mode_preview) {
 
             # do nothing
-        }
-        elsif ($mode_spellcheck) {
-            if ($LJ::SPELLER) {
-                my $spellchecker = LJ::SpellCheck->new(
-                    {
-                        spellcommand => $LJ::SPELLER,
-                        class        => "searchhighlight",
-                    }
-                );
-                my $event = $post->{event};
-                $spellcheck{results}        = $spellchecker->check_html( \$event, 1 );
-                $spellcheck{did_spellcheck} = 1;
-            }
         }
         elsif ( $okay_formauth && $post->{showform} )
         {    # some other form posted content to us, which the user will want to edit further
@@ -255,8 +240,6 @@ sub new_handler {
 # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
     $vars->{errors}   = $errors;
     $vars->{warnings} = $warnings;
-
-    $vars->{spellcheck} = \%spellcheck;
 
     # prepopulate if we haven't been through this form already
     $vars->{formdata} = $post || _prepopulate($get);
@@ -432,7 +415,7 @@ sub _init {
     # TODO:
     #             # JavaScript sets this value, so we know that the time we get is correct
     #             # but always trust the time if we've been through the form already
-    #             my $date_diff = ($opts->{'mode'} eq "edit" || $opts->{'spellcheck_html'}) ? 1 : 0;
+    #             my $date_diff = ($opts->{'mode'} eq "edit") ? 1 : 0;
 
     $vars = {
         remote => $u,
@@ -465,8 +448,6 @@ sub _init {
 
         displaydate       => \%displaydate,
         displaydate_check => $displaydate_check,
-
-        can_spellcheck => $LJ::SPELLER,
 
         panels        => $panels,
         formwidth     => $formwidth && $formwidth eq "P" ? "narrow" : "wide",
@@ -509,7 +490,6 @@ sub _edit {
     my $errors   = DW::FormErrors->new;
     my $warnings = DW::FormErrors->new;
     my $post;
-    my %spellcheck;
 
     if ( $r->did_post ) {
         $post = $r->post_args;
@@ -520,7 +500,6 @@ sub _edit {
         $post->remove('usejournal');
 
         my $mode_preview    = $post->{"action:preview"}    ? 1 : 0;
-        my $mode_spellcheck = $post->{"action:spellcheck"} ? 1 : 0;
         my $mode_delete     = $post->{"action:delete"}     ? 1 : 0;
 
         $errors->add( undef, 'bml.badinput.body1' )
@@ -533,19 +512,6 @@ sub _edit {
         if ($mode_preview) {
 
             # do nothing
-        }
-        elsif ($mode_spellcheck) {
-            if ($LJ::SPELLER) {
-                my $spellchecker = LJ::SpellCheck->new(
-                    {
-                        spellcommand => $LJ::SPELLER,
-                        class        => "searchhighlight",
-                    }
-                );
-                my $event = $post->{event};
-                $spellcheck{results}        = $spellchecker->check_html( \$event, 1 );
-                $spellcheck{did_spellcheck} = 1;
-            }
         }
         elsif ($okay_formauth) {
             $errors->add_string( undef, $LJ::MSG_READONLY_USER )
@@ -639,8 +605,6 @@ sub _edit {
 # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
     $vars->{errors}   = $errors;
     $vars->{warnings} = $warnings;
-
-    $vars->{spellcheck} = \%spellcheck;
 
     $vars->{formdata} = $post || _backend_to_form($entry_obj);
 
