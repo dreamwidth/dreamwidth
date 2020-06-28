@@ -231,7 +231,6 @@ sub faqbrowse_handler {
                 undef, $faqcatarg );
             die $dbr->errstr if $dbr->err;
         }
-        warn $catname;
         $title =
             LJ::Lang::ml( '/support/faqbrowse.tt.title_cat', { catname => LJ::ehtml($catname) } );
         @faqs = sort { $a->sortorder <=> $b->sortorder }
@@ -425,7 +424,6 @@ sub faqsearch_handler {
 
         my @clean_results;
         foreach my $f (@results) {
-            warn $f;
             my $dq = $f->question_html;
             $dq =~ s/(\Q$q\E)/$term->($1) /ige;
             my $ueq   = LJ::eurl($q);
