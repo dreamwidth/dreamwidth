@@ -98,8 +98,6 @@ postFormInitData.strings = {
   "delete_xposts_confirm": [%- "entryform.delete.xposts.confirm" | ml | js  -%]
 };
 
-postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false" %];
-
 [%- IF remote && remote.can_use_userpic_select -%]
     postFormInitData.iconBrowser = {
         "metatext": [%- icon_browser.metatext ? "true" : "false" -%],
@@ -116,19 +114,6 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
     [%- FOREACH warning IN warnings.get_all -%]
         <div class="alert-box">[%- warning.message -%]</div>
     [%- END -%]
-[%- END -%]
-
-[%- IF spellcheck.did_spellcheck -%]
-    <h2>[% 'entryform.spellchecked' | ml %]</h2>
-    [%-
-    IF spellcheck.results;
-         spellcheck.results;
-    ELSE;
-        'entryform.spellcheck.noerrors' | ml;
-    END -%]
-
-    [%# indicate where the spellcheck bit ends, and the entry form begins #%]
-    <h2>[% 'entryform.form' | ml %]</h2>
 [%- END -%]
 
 <form method="POST" id="js-post-entry" action="[% action.url %]" class="
@@ -289,15 +274,6 @@ postFormInitData.did_spellcheck = [% spellcheck.did_spellcheck ? "true" : "false
                                      class = "secondary button"
                                      )
                     -%]</li>
-
-                    [%- IF can_spellcheck %]
-                    <li>[% form.submit( value = dw.ml('entryform.spellcheck')
-                                     name = "action:spellcheck"
-                                     id = "js-spellcheck-button"
-                                     class = "secondary button"
-                                     );
-                    %]</li>
-                    [%- END -%]
                 </ul>
             </div>
         </div></div>

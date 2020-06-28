@@ -55,10 +55,6 @@ var postForm = (function($) {
             e.preventDefault();
         }
 
-        function handleSpellcheck(e) {
-            $(this.form).data( "skipchecks", "spellcheck" );
-        }
-
         function handleDelete(e) {
             $(this.form).data( "skipchecks", "delete" );
 
@@ -87,7 +83,6 @@ var postForm = (function($) {
         }
 
         $("#js-preview-button").click(openPreview);
-        $("#js-spellcheck-button").click(handleSpellcheck);
         $("#js-delete-button").click(handleDelete);
 
         if ( ! hasRemote() ) {
@@ -183,7 +178,6 @@ var postForm = (function($) {
                 .after($custom_edit_button);
 
         // show the custom groups modal
-        var rememberInitialValue = !opts.spellcheck;
         $security_select.change( function(e, init) {
             var $this = $(this);
 
@@ -195,7 +189,7 @@ var postForm = (function($) {
             } else {
                 $custom_edit_button.hide();
             }
-        }).triggerHandler("change", rememberInitialValue);
+        });
 
         // update the list of people who can see the entry
         function updatePostingMembers(e, useCached) {
@@ -671,7 +665,7 @@ var postForm = (function($) {
         initCommunitySection(entryForm);
 
         initCurrents(entryForm, formData.moodpics);
-        initSecurity(entryForm, formData.security, { spellcheck: formData.did_spellcheck, edit: formData.edit } );
+        initSecurity(entryForm, formData.security, { edit: formData.edit } );
         initJournal(entryForm);
         initIcons(entryForm, formData.iconBrowser);
         initSlug(entryForm, $("#js-entrytime-date"));
