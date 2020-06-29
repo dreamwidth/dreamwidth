@@ -397,7 +397,15 @@ sub convert_handler {
             $count = $dbcr->selectrow_array(
                 "SELECT COUNT(*) FROM log2 WHERE journalid=$userid AND posterid=journalid");
 
-            $errors->add( "username", ".error.hasentries" ) if $count;
+            $errors->add( "cuser", ".error.hasentries", { user => $cu->ljuser_display } )
+                if $count;
+        }
+
+        # disallow changing the journal type if the journal administers any communities
+        unless ( $errors->exist ) {
+            my $admin_of_count = scalar( $cu->communities_managed_list ) || 0;
+            $errors->add( "cuser", ".error.hascommadmin", { count => $admin_of_count } )
+                if $admin_of_count;
         }
 
         unless ( $errors->exist ) {
