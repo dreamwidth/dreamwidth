@@ -28,6 +28,8 @@ use DW::Template;
 
 use LJ::Faq;
 
+use POSIX qw( strftime );
+
 DW::Controller::Admin->register_admin_page(
     '/',
     path     => 'faq',
@@ -254,12 +256,10 @@ sub edit_handler {
 
     if ( $r->post_args->{'action:preview'} ) {
 
-        # TODO: make lastmodtime look more like in LJ::Faq->load
-
         my %faq_args = (
             faqid         => $vars->{id},
             lastmoduserid => $remote->id,
-            lastmodtime   => scalar gmtime,
+            lastmodtime   => strftime( '%B %e, %Y', gmtime ),
             unixmodtime   => time,
         );
         $faq_args{$_} = $vars->{$_} foreach qw( faqcat question summary answer sortorder lang );
