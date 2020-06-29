@@ -1485,7 +1485,7 @@ sub talkform {
         username_maxlength   => $LJ::USERNAME_MAXLENGTH,
         password_maxlength   => $LJ::PASSWORD_MAXLENGTH,
 
-        foundation_beta => LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" ),
+        foundation_beta => !LJ::BetaFeatures->user_in_beta( $remote => "nos2foundation" ),
 
         public_entry     => $entry->security eq 'public',
         default_usertype => 'user',
@@ -1751,8 +1751,7 @@ sub init_iconbrowser_js {
 
     # The New-New Icon Browser: Depends on Foundation CSS/JS (either site skin
     # or minimal version). Used on: Create entry page (if in "updatepage" beta),
-    # quickreply and talkform on journal pages and on talkpost_do (if in
-    # "s2foundation" beta).
+    # quickreply and talkform on journal pages and on talkpost_do.
     LJ::need_res(
         { group => 'foundation' },
 

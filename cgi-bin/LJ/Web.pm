@@ -961,7 +961,7 @@ sub create_qr_div {
 
             editors => $editors,
 
-            foundation_beta => LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" ),
+            foundation_beta => !LJ::BetaFeatures->user_in_beta( $remote => "nos2foundation" ),
 
             remote => {
                 ljuser                 => $remote->ljuser_display,
@@ -2879,18 +2879,15 @@ sub js_dumper {
 #     - "all" - always included, regardless of the current resource group.
 #     - "fragment" - no idea, tbh. Something involving the template system.
 #
-# LIMITATIONS: Lazy resolution basically doesn't work with S2 pages, so they
-# need to know all of their CSS/JS files BEFORE we start rendering markup. In
-# particular, watch out for this when using .tt components that call need_res.
+# LIMITATIONS: Lazy resolution doesn't work reliably with non-"siteviews" S2
+# pages (they can sometimes do JS, but not CSS), so they should know all of
+# their CSS/JS files BEFORE we start rendering markup. In particular, watch out
+# for this when using .tt components that call need_res.
 #     Why? To lazy resolve, you need to call res_includes AFTER the inner
 # content is fully built, which means building the outer frame of the page last.
 # That's easy for site pages, but since journal styles can override the entire
 # HTML document, there's not really any protected "outer" part of the page that
 # core2 can defer.
-# Exceptions to this:
-#     - The "siteviews" layout can lazy-resolve just fine.
-#     - If the "s2foundation" beta is active, S2 pages can lazy-resolve JS (but
-#       not CSS).
 # -NF
 
 # optional first argument: hashref with options
