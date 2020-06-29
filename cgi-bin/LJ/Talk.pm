@@ -1621,12 +1621,13 @@ sub talkform {
 
     # hidden values
     $template_args->{'hidden_form_elements'} .= LJ::html_hidden(
-        "replyto"      => $opts->{replyto},
-        "parenttalkid" => ( $opts->{replyto} + 0 ),
-        "itemid"       => $opts->{ditemid},
-        "journal"      => $journalu->{'user'},
-        "editid"       => $editid,
-        "chrp1"        => generate_chrp1( $journalu->{userid}, $opts->{ditemid} ),
+        replyto        => $opts->{replyto},
+        parenttalkid   => ( $opts->{replyto} + 0 ),
+        itemid         => $opts->{ditemid},
+        journal        => $journalu->{user},
+        editid         => $editid,
+        viewing_thread => $opts->{form}->{viewing_thread} || 0,
+        chrp1          => generate_chrp1( $journalu->{userid}, $opts->{ditemid} ),
         %$styleopts,
     );
 
