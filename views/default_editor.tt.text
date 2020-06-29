@@ -1,5 +1,7 @@
 ;; -*- coding: utf-8 -*-
 
+.error.nopost=This page doesn't do anything on its own; you're only supposed to land here after submitting a form.
+
 .error.nouser=Can only set default editor for logged-in users.
 
 .error.unknowntype=Don't know how to set default editor for [[type]]!
