@@ -27,10 +27,10 @@ DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 #     The user icon for this comment.
 # - prop_opt_preformatted
 #     The "don't autoformat" checkbox, which switches a comment from casual HTML
-#     to raw HTML. Soon to be deprecated in favor of the editor prop and named
-#     formats. Only available in talkform.
+#     to raw HTML. Deprecated in favor of prop_editor and named formats. No
+#     longer included in the forms, but can potentially come in via Protocol.
 # - prop_editor
-#     Not yet implemented. The markup format the comment's body text uses.
+#     The markup format the comment's body text uses. See DW::Formats for more info.
 # - prop_admin_post
 #     Whether this comment is from a community admin (and should thus be displayed
 #     specially).
