@@ -59,6 +59,26 @@ sub EntryPage {
     my $permalink = $entry->url;
     my $style_arg = LJ::viewing_style_args(%$get);
 
+    $p->{'viewing_thread'} = $get->{thread} ? 1 : 0;
+    $p->{_viewing_thread_id} = $get->{thread} ? $get->{thread} + 0 : 0;
+
+    my $link_thread_arg = '';    # Thread to return to after reply/edit
+
+    if ( defined $get->{destination_thread} ) {
+
+        # destination_thread is only set by the JS thread expander. If present,
+        # our links must match the context of the page we're being loaded into.
+        # (0 means that's a top-level page, so link_thread_arg should be blank.)
+        if ( $get->{destination_thread} ) {
+            $link_thread_arg = "thread=$get->{destination_thread}";
+        }
+    }
+    elsif ( $get->{thread} ) {
+
+        # Only use the page's real thread view if we're not being thread-expanded.
+        $link_thread_arg = "thread=$get->{thread}";
+    }
+
     if ( $u->should_block_robots || $entry->should_block_robots ) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
@@ -170,7 +190,7 @@ sub EntryPage {
                 my $comment = LJ::Comment->new( $u, jtalkid => $com->{talkid} );
 
                 $edited   = $comment->is_edited;
-                $edit_url = LJ::Talk::talkargs( $comment->edit_url, $style_arg );
+                $edit_url = LJ::Talk::talkargs( $comment->edit_url, $style_arg, $link_thread_arg );
                 if ($edited) {
                     $editreason = LJ::ehtml( $comment->edit_reason );
                     $edittime   = DateTime_unix( $comment->edit_time );
@@ -215,7 +235,8 @@ sub EntryPage {
                 }
             }
 
-            my $reply_url = LJ::Talk::talkargs( $permalink, "replyto=$dtalkid", $style_arg );
+            my $reply_url =
+                LJ::Talk::talkargs( $permalink, "replyto=$dtalkid", $style_arg, $link_thread_arg );
 
             my $par_url;
 
@@ -346,9 +367,18 @@ sub EntryPage {
             push @$link_keyseq, "watching_parent" if LJ::is_enabled('esn');
             unshift @$link_keyseq, "edit_comment" if LJ::is_enabled('edit_comments');
 
+            my $destination_thread =
+                defined $get->{destination_thread}
+                ? $get->{destination_thread}
+                : $p->{_viewing_thread_id};
+
 # always populate expand url; let get_link sort out whether this link should be printed or not
 # the value of expand_url is not directly exposed via s2. It is used by the get_link backend function
             $s2com->{expand_url} = LJ::Talk::talkargs( $permalink, "thread=$dtalkid", $style_arg )
+                . LJ::Talk::comment_anchor($dtalkid);
+            $s2com->{js_expand_url} =
+                LJ::Talk::talkargs( $permalink, "thread=$dtalkid",
+                "destination_thread=$destination_thread", $style_arg )
                 . LJ::Talk::comment_anchor($dtalkid);
             $s2com->{thread_url} = $s2com->{expand_url} if @{ $com->{children} };
 
@@ -434,9 +464,6 @@ sub EntryPage {
     LJ::Talk::init_s2journal_shortcut_js( $remote, $p );
 
     $p->{'_picture_keyword'} = $get->{'prop_picture_keyword'};
-
-    $p->{'viewing_thread'} = $get->{'thread'} ? 1 : 0;
-    $p->{_viewing_thread_id} = $get->{thread} ? $get->{thread} + 0 : 0;
 
     # default values if there were no comments, because
     # LJ::Talk::load_comments() doesn't provide them.

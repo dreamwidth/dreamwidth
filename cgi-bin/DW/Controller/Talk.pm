@@ -109,8 +109,7 @@ DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 # - viewing_thread
 #     The filtered thread view (`?thread=12345`) they were in when they hit the
 #     "reply" link, and which they should be returned to once they finish posting.
-#     Currently only populated by the quick-reply. Consumed by Talk controller to
-#     build the return link.
+#     Consumed by Talk controller to build the return link.
 # - style/format/s2id/fallback
 #     The "viewing style" options (`?style=light`) that were in effect when they
 #     hit the "reply" link, which should be re-instated once they finish
