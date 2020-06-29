@@ -2316,6 +2316,8 @@ general /views/admin/index.tt.admin.styleinfo.link
 general /views/admin/index.tt.admin.styleinfo.text
 general /views/admin/index.tt.admin.sysban.link
 general /views/admin/index.tt.admin.sysban.text
+general /views/admin/index.tt.admin.translate.link
+general /views/admin/index.tt.admin.translate.text
 general /views/admin/index.tt.admin.userlog.link
 general /views/admin/index.tt.admin.userlog.text
 

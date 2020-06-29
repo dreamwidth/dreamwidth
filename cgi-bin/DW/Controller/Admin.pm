@@ -43,8 +43,7 @@ DW::Controller::Admin->register_admin_scope( '/', title_ml => '.admin.title' );
 # DO NOT add anything to here
 DW::Controller::Admin->_register_admin_pages_legacy(
     '/',
-    [ 'fileedit/',  '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
-    [ 'translate/', '.admin.translate.link', '.admin.translate.text' ],
+    [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
     [
         'vgifts/',
         '.admin.vgifts.link',
