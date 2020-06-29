@@ -188,7 +188,7 @@ var postForm = (function($) {
             } else {
                 $custom_edit_button.hide();
             }
-        });
+        }).triggerHandler("change", true);
 
         // update the list of people who can see the entry
         function updatePostingMembers(e, useCached) {
@@ -314,7 +314,8 @@ var postForm = (function($) {
                 $security.append(opts.join(""));
 
                 // select the minsecurity value and disable the values with lesser security
-                $security.val(rank[oldval] >= rank[data.ret['minsecurity']] ? oldval : data.ret['minsecurity']);
+                var minsecrank = rank[data.ret['minsecurity']] || 0;
+                $security.val(rank[oldval] >= minsecrank ? oldval : data.ret['minsecurity']);
                 if ( data.ret['minsecurity'] == 'access' ) {
                     $security.find("option[value='public']").prop("disabled", true);
                 } else if ( data.ret['minsecurity'] == 'private' ) {
