@@ -294,7 +294,7 @@ sub talkpost_do_handler {
     # $LJ::ACTIVE_RES_GROUP, definitely do that. In the meantime, this needs to
     # happen before LJ::Talk::talkform gets called or things might break. -NF
     my $real_remote = LJ::get_remote();
-    if ( LJ::BetaFeatures->user_in_beta( $real_remote => "s2foundation" ) ) {
+    if ( !LJ::BetaFeatures->user_in_beta( $real_remote => "nos2foundation" ) ) {
         LJ::set_active_resource_group("foundation");
     }
     else {

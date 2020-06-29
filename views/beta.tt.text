@@ -31,21 +31,23 @@
 
 .betafeature.updatepage.title=New Create Entries Page
 
-.betafeature.s2foundation.cantadd=Sorry, your account is not eligible to test this feature.
+.betafeature.nos2foundation.cantadd=Sorry, your account is not eligible to test this feature.
 
-.betafeature.s2foundation.off<<
-<p>Activate several updated components on journal pages, including a new version of the icon browser for paid users and a mobile-friendly cleanup of the site-styled comment pages. The underlying components are already well-tested, but introducing them into a new environment might turn up new bugs.</p>
+.betafeature.nos2foundation.off<<
+<p>We recently updated several important components on journal pages; this includes a mobile-friendly cleanup of the site-styled comment pages, a refresh of the "more options" reply form, and a new version of the icon browser.</p>
 
-<p>To report bugs with these updated components, leave a comment in <?ljuser dw_beta ljuser?>.</p>
+<p>These changes were already beta tested, but enabling them for everyone might reveal bugs we haven't seen before. If any updated components are so broken that you can't use them, you can set this beta to "ON" to temporarily disable the updates while we work on a fix.</p>
+
+<p><strong>If you disable the updates to work around a bug, please report the bug by leaving a comment in <?ljuser dw_beta ljuser?>.</strong> The option to disable these updates is only temporary, and we will remove it once we feel confident that we've fixed all major bugs.</p>
 .
 
-.betafeature.s2foundation.on<<
-<p>You are currently testing several updated components on journal pages, including a new version of the icon browser for paid users and a mobile-friendly cleanup of the site-styled comment pages. The underlying components are already well-tested, but introducing them into a new environment might turn up new bugs.</p>
+.betafeature.nos2foundation.on<<
+<p>You have temporarily disabled several updated components on journal pages (mobile-friendly site-styled comment pages, refreshed "more options" comment form, and new icon browser).</p>
 
-<p>To report bugs with these updated components, leave a comment in <?ljuser dw_beta ljuser?>.</p>
+<p><strong>If you disabled these updates to work around a bug, please make sure you have reported it by leaving a comment in <?ljuser dw_beta ljuser?>.</strong> The option to disable these updates is only temporary, and we will remove it once we feel confident that we've fixed all major bugs.</p>
 .
 
-.betafeature.s2foundation.title=Updated journal page components
+.betafeature.nos2foundation.title=Temporarily revert updated journal page components
 
 .nofeatures=There are no features currently available for beta testing.
 

@@ -2520,6 +2520,10 @@ general /views/beta.tt.betafeature.httpseverywhere.cantadd
 general /views/beta.tt.betafeature.httpseverywhere.on
 general /views/beta.tt.betafeature.httpseverywhere.off
 general /views/beta.tt.betafeature.httpseverywhere.title
+general /views/beta.tt.betafeature.s2foundation.cantadd
+general /views/beta.tt.betafeature.s2foundation.off
+general /views/beta.tt.betafeature.s2foundation.on
+general /views/beta.tt.betafeature.s2foundation.title
 
 general email.newacct5.body
 

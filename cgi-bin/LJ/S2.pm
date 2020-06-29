@@ -176,7 +176,7 @@ sub make_journal {
     # like print_stylesheet() won't run, which don't have an method invocant
     return $page if $page && ref $page ne 'HASH';
 
-    if ( LJ::BetaFeatures->user_in_beta( $remote => "s2foundation" ) ) {
+    if ( !LJ::BetaFeatures->user_in_beta( $remote => "nos2foundation" ) ) {
         LJ::set_active_resource_group('foundation');
 
         # Minimal Foundation component support if we're not in site scheme
