@@ -269,6 +269,7 @@ sub ReplyPage {
         '_parpost'   => $parpost,
         '_values'    => \%comment_values,
         '_styleopts' => $p->{_styleopts},
+        '_thread'    => $get->{thread} || 0,
     };
 
     $p->{'isedit'} = $editid ? 1 : 0;
@@ -297,6 +298,7 @@ sub ReplyForm__print {
                 'replyto'    => $parent,
                 'ditemid'    => $form->{'_ditemid'},
                 'styleopts'  => $form->{_styleopts},
+                'thread'     => $form->{_thread},
                 'form'       => $post_vars,
                 'do_captcha' => LJ::Talk::Post::require_captcha_test(
                     $remote, $u, $post_vars->{body}, $form->{'_ditemid'}
