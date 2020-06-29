@@ -3904,11 +3904,11 @@ sub Comment__expand_link {
         my $remote = LJ::get_remote();
 
         $onclick =
-" onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', true); return false;\"";
+" onClick=\"Expander.make(this,'$this->{js_expand_url}','$this->{talkid}', true); return false;\"";
     }
     else {
         $onclick =
-" onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}'); return false;\"";
+" onClick=\"Expander.make(this,'$this->{js_expand_url}','$this->{talkid}'); return false;\"";
     }
     return "<a href='$this->{expand_url}'$title$class$onclick>$text</a>";
 }
