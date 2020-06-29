@@ -15,6 +15,7 @@
 package DW::Controller::Editor;
 
 use strict;
+use v5.10;
 use LJ::JSON;
 use DW::Controller;
 use DW::Routing;
@@ -60,10 +61,12 @@ sub default_editor_handler {
     my ( $ok, $rv ) = controller( form_auth => 1 );
     return $rv unless $ok;
 
-    my $r      = $rv->{r};
-    my $POST   = $r->post_args;
+    my $r = $rv->{r};
+    return error_ml('/default_editor.tt.error.nopost') unless $r->did_post;
     my $remote = $rv->{remote};
     return error_ml('/default_editor.tt.error.nouser') unless $remote;
+
+    my $POST = $r->post_args;
 
     my $type       = $POST->{type};
     my $new_editor = $POST->{new_editor};
