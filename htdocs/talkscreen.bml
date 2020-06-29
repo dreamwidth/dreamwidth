@@ -69,12 +69,15 @@ _info?><?_code
             'unfreeze' => "silk/comments/unfreeze.png",
         };
 
+        my $imgprefix = $LJ::IMGPREFIX;
+        $imgprefix =~ s/^https?://;
+
         my %ret = (
             id       => $dtalkid,
             mode     => $mode,
             newalt   => $alttext,
-            oldimage => "$LJ::IMGPREFIX/$stockimg->{$mode}",
-            newimage => "$LJ::IMGPREFIX/$stockimg->{$newmode}",
+            oldimage => "$imgprefix/$stockimg->{$mode}",
+            newimage => "$imgprefix/$stockimg->{$newmode}",
             newurl   => "$LJ::SITEROOT/talkscreen?mode=$newmode&journal=$journal&talkid=$dtalkid",
             msg      => $message,
         );
