@@ -48,7 +48,7 @@
     [% default_zero( stat.userinfo.total ) %]</li>
 [%- active = default_zero( stat.size.accounts_active_30 );
     IF active -%]
-  <li><b>[% '.users.total.active' | ml %]</b>[% active %]</li>
+  <li><b>[% '.users.total.active' | ml %]</b> [% active %]</li>
 [%- END -%]
   <li><b>[% '.users.total.everupdate' | ml %]</b>
     [% default_zero( stat.userinfo.updated ) %]</li>
