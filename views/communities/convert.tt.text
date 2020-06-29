@@ -6,6 +6,8 @@
 
 .error.badpassword=Invalid password for the journal you're trying to convert.
 
+.error.hascommadmin=This journal administers [[count]] other [[?count|community|communities]]; their maintainership must be removed before converting.
+
 .error.hasentries=[[user]] already has entries and can't be converted.
 
 .error.notfound=Journal not found.
