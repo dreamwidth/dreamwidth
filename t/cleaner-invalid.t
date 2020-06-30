@@ -23,6 +23,7 @@ use Test::More tests => 4;
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
+use LJ::Mock;
 
 # We rely on LJ::Lang::ml
 # Fake the single value we retrieve during the tests.
@@ -64,13 +65,13 @@ qq {<marquee><font size="24"></font></marquee><div class='ljparseerror'>[<strong
     "Invalid HTML is not okay."
 );
 
-my $u = LJ::temp_user();
+my $u = LJ::Mock::temp_user();
 $post = "<lj user=\"" . $u->user . "\">";
 $clean->();
 is( $clean_post, $u->ljuser_display, "User tag is fine." );
 
 {
-    my $u = LJ::temp_user();
+    my $u = LJ::Mock::temp_user();
     $post =
           "<lj user=\""
         . $u->user

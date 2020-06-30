@@ -16,6 +16,9 @@ BEGIN {
 
     # Please do not change this to "LJ::Directories"
     require $LJ::HOME . "/cgi-bin/LJ/Directories.pm";
+    
+    # Add t/lib to the include path so we can standardise on it for test libs.
+    unshift @INC, $LJ::HOME . "/t/lib";
 }
 
 use Test::MockObject;
@@ -49,13 +52,6 @@ sub ljuser {
         . "<a href='http://lj.example/userprofile'><img src='http://lj.example/img.png' alt='[alttext]' width='60' height='80'"
         . " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a>"
         . "<a href='http://lj.example/url'>$user</a></span>";
-}
-
-sub temp_user {
-    my $u = Test::MockObject->new();
-    $u->mock( 'user',           sub { return 'temp'; } );
-    $u->mock( 'ljuser_display', sub { return ljuser('temp'); } );
-    return $u;
 }
 
 sub fake_external_user {
