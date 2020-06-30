@@ -29,6 +29,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
             title =  ".view.byposter.title";
         ELSIF view_by == 'posterid';
             title =  ".view.byposterid.title";
+        ELSIF view_by == 'journal';
+            title =  ".view.byjournal.title";
         END;
 
         title_extra = "($view_state: $count)";
@@ -84,8 +86,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
                '</form>';
            END %]
         <dl class="spamreport">
+        [%- IF view_by == 'journal' -%]
+            <dt>[% ".report.individual.by" | ml( spamlocation = row.spamloc ) %]</dt>
+            <dd>[% row.poster.ljuser_display %]</dd>
+        [%- ELSE -%]
             <dt>[% ".report.individual.in" | ml( spamlocation = row.spamloc ) %]</dt>
             <dd>[% row.journal.ljuser_display %]</dd>
+        [%- END -%]
             <dt>[% ".report.individual.reporttime" | ml %]</dt>
             <dd>[% row.reporttime %]</dd>
             <dt>[% ".report.individual.spamtime" | ml( spamlocation = row.spamloc ) %]</dt>
