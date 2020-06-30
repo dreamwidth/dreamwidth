@@ -16,6 +16,8 @@
 
 .report.individual.close=Close
 
+.report.individual.by=[[spamlocation]] by:
+
 .report.individual.in=[[spamlocation]] in:
 
 .report.individual.reporttime=Report Time:
@@ -37,6 +39,8 @@
 .report.individual.sysban.nonote=(no note)
 
 .view.byip.title=Spam Reports - By IP [[ip]] ([[state]]: [[count]])
+
+.view.byjournal.title=Spam Reports - Comments Reported From [[user]]
 
 .view.byposterid.title=Spam Reports - By [[user]]
 

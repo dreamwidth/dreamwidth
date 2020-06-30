@@ -36,6 +36,8 @@
 
 .reports.individual.sysban.anon=anonymous spamreports
 
+.reports.journal.individual=Reports from journal:
+
 .reports.select=Please select one of the above reports to view.  Actions can be taken when viewing a report.
 
 .reports.user.individual=Reports for user:

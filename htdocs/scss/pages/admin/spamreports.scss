@@ -34,7 +34,7 @@ form.close {
     vertical-align: top;
 }
 
-form.usersearch, form.usersearch label, input#repu {
+form.usersearch, form.usersearch label, form.usersearch input {
     display: inline;
 }
 
@@ -43,6 +43,6 @@ form.usersearch {
     width: 100%;
 }
 
-input#repu {
+form.usersearch input {
     width: auto;
 }

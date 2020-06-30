@@ -41,6 +41,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <input type="hidden" name="mode" value="view" />
         </form>
     </li>
+
+[%# and another buttonless text form for journal search #%]
+    <li><form method="GET" action="spamreports" class="usersearch">
+            <label for="repj">[% '.reports.journal.individual' | ml %]</label>
+            <input type="text" name="what" size="25" maxlength="25" id="repj" />
+            <input type="hidden" name="by" value="journal" />
+            <input type="hidden" name="mode" value="view" />
+        </form>
+    </li>
 </ul>
 
 <p>[% '.reports.select' | ml %]</p>

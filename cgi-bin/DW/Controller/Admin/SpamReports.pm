@@ -227,7 +227,7 @@ sub main_controller {
         my $get = $r->get_args;
         my ( $by, $what, $state ) =
             ( lc( $get->{by} || '' ), $get->{what}, lc( $get->{state} || '' ) );
-        $by    = ''     unless $by =~ /^(?:ip|poster(?:id)?)$/;
+        $by    = ''     unless $by =~ /^(?:ip|journal|poster(?:id)?)$/;
         $state = 'open' unless $state =~ /^(?:open|closed)$/;
 
         # check to see whether the viewer requested a posttime sort instead
@@ -277,6 +277,16 @@ sub main_controller {
             $rv->{view_u} = $u;
 
         }
+        elsif ( $by eq 'journal' ) {
+            my $u = LJ::load_user($what);
+            return error_ml("$scope.error.nouser") unless $u;
+
+            # Now just pretend that user used 'journalid'
+            $by           = 'journalid';
+            $what         = $u->userid;
+            $rv->{view_u} = $u;
+
+        }
         elsif ( $by eq 'ip' ) {
 
             # don't worry about IP format, just do a length check
@@ -294,7 +304,7 @@ sub main_controller {
             $by
             ? $dbr->selectall_arrayref(
             "SELECT reporttime, journalid, subject, body, posttime, report_type,"
-                . " srid, client FROM spamreports WHERE state=? AND $by=?"
+                . " srid, client, posterid FROM spamreports WHERE state=? AND $by=?"
                 . " ORDER BY ? DESC LIMIT 1000",
             undef, $state, $what, $sort
             )
@@ -310,6 +320,7 @@ sub main_controller {
             my $spamlocation = ucfirst $_->[5];
             my $srid         = $_->[6];
             my $client       = $_->[7] || '';
+            my $pu           = LJ::load_userid( $_->[8] );
 
             push @srids, $srid;
             push @rows,
@@ -317,6 +328,7 @@ sub main_controller {
                 srid       => $srid,
                 spamloc    => $spamlocation,
                 journal    => $ju,
+                poster     => $pu,
                 reporttime => $reporttime,
                 posttime   => $posttime,
                 client     => $client,
