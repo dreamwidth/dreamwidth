@@ -18,6 +18,7 @@
     <style type="text/css">
         #content td img { height: 10px; }
         #content table tr { background: inherit; }
+        #content .ljuser a:visited { color: inherit; }
     </style>
 [% END %]
 
