@@ -23,7 +23,6 @@ use Test::More tests => 4;
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
-use LJ::Mock;
 
 # We rely on LJ::Lang::ml
 # Fake the single value we retrieve during the tests.

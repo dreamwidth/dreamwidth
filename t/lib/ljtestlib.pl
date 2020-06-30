@@ -16,9 +16,6 @@ BEGIN {
 
     # Please do not change this to "LJ::Directories"
     require $LJ::HOME . "/cgi-bin/LJ/Directories.pm";
-
-    # Add t/lib to the include path so we can standardise on it for test libs.
-    unshift @INC, $LJ::HOME . "/t/lib";
 }
 
 use Test::MockObject;
@@ -84,5 +81,16 @@ $mock->fake_module(
         get_proxy_url => \&fake_get_proxy_url
     )
 );
+
+# Mock objects that are used as test helpers, not overriding LJ::foo functions
+
+package LJ::Mock;
+
+sub temp_user {
+    my $u = Test::MockObject->new();
+    $u->mock( 'user',           sub { return 'temp'; } );
+    $u->mock( 'ljuser_display', sub { return LJ::ljuser('temp'); } );
+    return $u;
+}
 
 1;
