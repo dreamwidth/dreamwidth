@@ -60,3 +60,6 @@ font-size: smaller;}
 
  .read {
  opacity: 0.5;}
+
+ .inbox_collapse {
+ display: none;}

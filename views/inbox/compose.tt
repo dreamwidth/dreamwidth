@@ -1,0 +1,81 @@
+[%- CALL dw.active_resource_group("foundation") -%]
+[% dw.need_res({ group => "foundation"}, 'stc/inbox.css') %]
+[% sections.title = "Compose Message" %]
+
+<div id="inbox">
+    [%  folder_html %]
+
+            <div id="inbox_compose">
+            <form action="./compose" method="POST" id="compose">
+                [% dw.form_auth() %]
+
+  <div class='qr-icon'>
+    [%- IF can_use_userpic_select -%]
+      <button type='button' id='lj_userpicselect' data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
+    [%- ELSE -%]
+      <a href="[% icons_url %]">
+    [%- END -%]
+    [%- IF current_icon -%]
+      [%- current_icon.imgtag -%]
+    [%- ELSE -%]
+      [%- dw.img( "nouserpic_sitescheme", "" ) -%]
+    [%- END -%]
+    [%- IF remote.can_use_userpic_select -%]
+      </button>
+    [%- ELSE -%]
+      </a>
+    [%- END -%]
+  </div>
+
+  [%- IF remote.icons.size > 0 -%]
+    <div class='qr-icon-controls'>
+      <label for='prop_picture_keyword' class='invisible'>[%- '/journal/talkform.tt.label.picturetouse2' | ml -%]</label>
+      [%- form.select(
+          name = 'prop_picture_keyword',
+          id = 'prop_picture_keyword',
+          selected = current_icon_kw,
+          items = icons
+      ) -%]
+
+      <input type="button" id="randomicon" value="Random" style="display: none;" />
+    </div>
+  [%- END -%]
+
+
+                <div id='metainfo'>
+                    <p class="pkg"><label class="left">To:</label>
+
+
+                        [% IF disabled_to %]
+                            [% reply_u.ljuser_display %]
+                            [% form.hidden( 'name' = 'msg_to', 'value' = reply_u.username) %]
+                        [% ELSE %]
+                            [% form.textbox( 'name' = 'msg_to', size = 15, id = 'msg_to', value = msg_to, autocomplete = 'off') %]
+                        [% END %]
+
+                        [% form.hidden( name = 'force', value = force, id = 'force') %]
+
+                    </p>
+
+
+                    [% form.checkbox( name = 'cc_msg', id = 'cc_msg', selected = cc_msg_option, label = dw.ml('.form.label.cc')) %]
+
+
+                    <div class='inbox_formmes'><p>
+                        [% form.textbox( name = 'msg_subject', size = 50, maxlength = subject_limit, class = subj - t, label = "Subject:") %]
+
+                    </p>
+                        <div class='msg_txt'>
+                            [% form.textarea( name = 'msg_body', rows = 6, cols = 55, wrap = 'soft') %]
+                            <span class='helper'>Up to " . LJ::commafy($msg_limit) . " characters. Plain text, no HTML.</span>
+                        </div>
+
+                    </div>
+                        [% msg_parent %]
+                        [% form.hidden( name = 'mode', value = 'send') %]
+                        [% form.submit( value = 'Send') %]
+                </div>
+
+            </form>
+</div>
+</div>

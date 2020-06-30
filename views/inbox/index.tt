@@ -3,28 +3,7 @@
 [%- sections.title = '.title' | ml -%]
 
     <div id="inbox">
-        <div id="inbox_folders">
-            [% IF user_messaging %]
-                <a href="/inbox/compose">[% form.submit(value=dw.ml('inbox.menu.new_message.btn')) %]</a>
-            [% END %]
-            <div class="folders">
-                [% BLOCK folder %]
-                    <a href="/inbox?view=[% f.view %]" id="esn_folder_[% f.view %]" [% 'class="selected"' IF view == f.view %]>
-                        [% "inbox.menu.${f.label}" | ml %]  <span class='unread_count'>[% "($f.unread)" IF f.unread %]</span>
-                    </a>
-                    [% IF f.children %]
-                        <ul>
-                            [% FOR child IN f.children %]
-                                <li>[% PROCESS folder f=child %]</li>
-                                [% END %]
-                        </ul>
-                    [% END %]
-                [% END %]
-
-                [% PROCESS folder f = folder_links %]
-            </div>
-        </div>
-
+        [% folder_html %]
 
         <div id="inbox_messages">
             <div class="inbox_newitems pkg">

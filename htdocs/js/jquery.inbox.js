@@ -11,7 +11,25 @@ $('.action_button').click(function () {
 
 $("#inbox_messages").on("click", ".item_expand_action", function(){
     var qid = $(this).data('qid');
-    mark_items("expand", qid);
+    var child = $(this).children();
+    var item = $("#inbox_item_" + qid);
+
+    if (item.hasClass('inbox_collapse')) {
+        item.removeClass('inbox_collapse');
+        item.addClass('inbox_expand');
+        child.attr({'src': '/img/expand.gif',
+                'alt': 'Collapse',
+                'title': 'Collapse'
+                });
+    } else {
+        item.removeClass('inbox_expand');
+        item.addClass('inbox_collapse');
+        child.attr({'src': '/img/collapse.gif',
+                'alt': 'Expand',
+                'title': 'Expand'
+                });
+        }
+    return false;
 });
 
 $("#inbox_messages").on("click", ".item_bookmark_action", function(){

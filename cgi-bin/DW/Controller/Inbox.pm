@@ -5,10 +5,12 @@ use warnings;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use DW::FormErrors;
 use LJ::Hooks;
 use Data::Dumper;
 
 DW::Routing->register_string( '/inbox', \&index_handler,    app => 1 );
+DW::Routing->register_string( '/inbox/compose', \&compose_handler,    app => 1 );
 DW::Routing->register_rpc( "inbox_actions",  \&action_handler,  format => 'html' );
 
 my $PAGE_LIMIT = 15;
@@ -41,7 +43,6 @@ sub index_handler {
     my $page = int($POST->{page} || $GET->{page} || 1);
     my @errors;
     if ($r->did_post) {
-        warn Dumper($r);
         my $action;
 
         if ($POST->{mark_read}) {
@@ -81,33 +82,10 @@ sub index_handler {
     my @all_items = @{items_by_view($inbox, $view, $itemid)};
 
     my $itemcount = scalar @all_items;
-
-    my $user_messsaging = LJ::is_enabled('user_messaging');
     $vars->{user_messaging} = $user_messsaging;
     $vars->{view} = $view;
     $vars->{itemcount} = $itemcount;
 
-    my @children = (
-        { view => 'circle', label => 'circle_updates', unread => $inbox->circle_event_count, children => [
-            {view => 'birthday', label => 'birthdays'}, {view => 'encircled', label => 'encircled'}
-        ] },
-        {view => 'entrycomment', label => 'entries_and_comments', unread =>  $inbox->entrycomment_event_count},
-        {view => 'pollvote', label => 'poll_votes', unread =>  $inbox->pollvote_event_count },
-        {view => 'communitymembership', label => 'community_membership', unread =>  $inbox->communitymembership_event_count },
-        {view => 'sitenotices', label => 'site_notices', unread =>   $inbox->sitenotices_event_count}
-
-
-    );
-
-    if ($user_messsaging) {
-        # push links for recieved PMs and sent PMs to the beginning and end of the list, respectively
-        unshift @children, { view => 'usermsg_recvd', label => 'messages', unread => $inbox->usermsg_recvd_event_count };
-        push @children,         {view => 'usermsg_sent', label => 'sent', unread =>   $inbox->usermsg_sent_event_count};
-    };
-    push @children, {view => 'bookmark', label => 'bookmarks', unread =>   $inbox->bookmark_count};
-    push @children, {view => 'archived', label => 'archive'} if LJ::is_enabled('esn_archive');
-
-    $vars->{folder_links} = {view => 'all', label => 'all', unread =>  $inbox->all_event_count, children => \@children };
 
     # pagination
 
@@ -121,6 +99,7 @@ sub index_handler {
 
 
     $vars->{item_html} = render_items( $page, $view, $remote, \@all_items, $expand );
+    $vars->{folder_html} = render_folders($remote);
 
         # choose button text depending on whether user is viewing all emssages or only a subfolder
     # to avoid any confusion as to what deleting and marking read will do
@@ -182,11 +161,11 @@ sub render_items {
         my $expanded   = '';
 
         if ($contents) {
-            BML::ebml( \$contents );
+            BML::ehtml( \$contents );
 
-            my $is_expanded = $expand && $expand == $item->qid;
-            $is_expanded ||= $remote->prop('esn_inbox_default_expand');
+            my $is_expanded = $remote->prop('esn_inbox_default_expand');
             $is_expanded = 0 if $item->read;
+            $is_expanded = $expand && $expand == $item->qid;
 
             $is_expanded = 1 if ( $view eq "usermsg_sent_last" );
             $expanded = $is_expanded ? "inbox_expand" : "inbox_collapse";
@@ -200,10 +179,44 @@ sub render_items {
     }
 
     my $vars = {messages => \@cleaned_items,
-                page => $page};
+                page => $page,
+                view => $view};
 
     return DW::Template->template_string( 'inbox/msg_list.tt', $vars );
 
+}
+
+sub render_folders {
+    my $remote = $_;
+    my $user_messsaging = LJ::is_enabled('user_messaging');
+    my $inbox = $remote->notification_inbox
+        or return error_ml("/inbox/index.tt.error.couldnt_retrieve_inbox", { 'user' => $remote->{user} });
+
+    my $vars;
+
+    my @children = (
+        { view => 'circle', label => 'circle_updates', unread => $inbox->circle_event_count, children => [
+            {view => 'birthday', label => 'birthdays'}, {view => 'encircled', label => 'encircled'}
+        ] },
+        {view => 'entrycomment', label => 'entries_and_comments', unread =>  $inbox->entrycomment_event_count},
+        {view => 'pollvote', label => 'poll_votes', unread =>  $inbox->pollvote_event_count },
+        {view => 'communitymembership', label => 'community_membership', unread =>  $inbox->communitymembership_event_count },
+        {view => 'sitenotices', label => 'site_notices', unread =>   $inbox->sitenotices_event_count}
+
+
+    );
+
+    if ($user_messsaging) {
+        # push links for recieved PMs and sent PMs to the beginning and end of the list, respectively
+        unshift @children, { view => 'usermsg_recvd', label => 'messages', unread => $inbox->usermsg_recvd_event_count };
+        push @children,         {view => 'usermsg_sent', label => 'sent', unread =>   $inbox->usermsg_sent_event_count};
+    };
+    push @children, {view => 'bookmark', label => 'bookmarks', unread =>   $inbox->bookmark_count};
+    push @children, {view => 'archived', label => 'archive'} if LJ::is_enabled('esn_archive');
+
+    $vars->{folder_links} = {view => 'all', label => 'all', unread =>  $inbox->all_event_count, children => \@children };
+    $vars->{user_messaging} = $user_messsaging;
+    return DW::Template->template_string( 'inbox/folders.tt', $vars );
 }
 
 sub action_handler {
@@ -288,6 +301,233 @@ sub items_by_view {
         @all_items = $inbox->all_items;
     }
     return \@all_items;
+}
+
+sub compose_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    # gets the request and args
+    my $r        = $rv->{r};
+    my $POST = $r->post_args;
+    my $GET = $r->get_args;
+    my $remote = $rv->{remote};
+    my $errors = DW::FormErrors->new;
+
+
+    unless( LJ::is_enabled( 'user_messaging' )) {
+        $r->add_msg(LJ::Lang::ml('protocol.not_validated', { sitename => $LJ::SITENAMESHORT, siteroot => $LJ::SITEROOT }), $r->ERROR);
+        $r->redirect("$LJ::SITEROOT/inbox")
+    }
+
+    if($remote->is_suspended) {
+        $r->add_msg(LJ::Lang::ml('.suspended.cannot.send'), $r->ERROR);
+        $r->redirect("$LJ::SITEROOT/inbox")
+    }
+
+    my $remote_id = $remote->{userid};
+    my $reply_to; # User replying to
+    my $reply_u; # User replying to
+    my $disabled_to = 0; # disable To field if sending a reply message
+    my $msg_subject = ''; # reply subject
+    my $msg_body = ''; # reply body
+    my $msg_parent = ''; # Hidden msg field containing id of parent message
+    my $msg_limit = $remote->count_usermessage_length;
+    my $subject_limit = 255;
+    my $force = 0; # flag for if user wants to force an empty PM
+    
+    # Submitted message
+    if (r->did_post) {
+        my $mode = $POST->{'mode'};
+        $errors->add(LJ::Lang::ml('error.invalidform')) unless LJ::check_form_auth();
+
+        if ($mode eq 'send') {
+            # test encoding
+            my $msg_subject_text = $POST->{'msg_subject'};
+            $errors->add('msg_subject', LJ::Lang::ml('.error.text.encoding.subject'))
+                unless LJ::text_in($msg_subject_text);
+            my ( $subject_length_b, $subject_length_c ) = LJ::text_length( $msg_subject_text );
+            $errors->add('msg_subject', LJ::Lang::ml('.error.subject.length',
+                {
+                    subject_length => LJ::commafy( $subject_length_c ),
+                    subject_limit  => LJ::commafy( $subject_limit ),
+                } ))
+                unless $subject_length_c <= $subject_limit;
+
+            # test encoding and length
+            my $msg_body_text = $POST->{'msg_body'};
+            $errors->add('msg_body', LJ::Lang::ml('.error.text.encoding.text'))
+                unless LJ::text_in($msg_body_text);
+            my ($msg_len_b, $msg_len_c) = LJ::text_length($msg_body_text);
+            $errors->add('msg_body', LJ::Lang::ml(".error.message.length",
+                  { msg_length => LJ::commafy( $msg_len_c ),
+                    msg_limit => LJ::commafy( $msg_limit ) } ))
+                unless ($msg_len_c <= $msg_limit);
+
+            # checks if the PM is empty (no text)
+            $force = $POST->{'force'};
+            unless ( $msg_len_c > 0 || $force ) {
+                $errors->add('msg_body', LJ::Lang::ml('.warning.empty.message'));
+               $force = 1;
+            }
+
+            # Get list of recipients
+            my $to_field = $POST->{'msg_to'};
+            $to_field =~ s/\s//g;
+            # Get recipient list without duplicates
+            my %to_hash = map { lc($_), 1 } split(",", $to_field);
+            my @to_list = keys %to_hash;
+            push @to_list, $remote->username if $POST->{'cc_msg'};
+            my @msg_list;
+
+            # persist the default value of the cc_msg option
+            $remote->cc_msg( $POST->{'cc_msg'} ? 1 : 0 );
+
+            # must be at least one username
+                $errors->add('msg_to', LJ::Lang::ml('.error.no.username')) unless ( scalar( @to_list ) > 0 );
+
+            # Check each user being sent a message
+            foreach my $to (@to_list) {
+                # Check the To field
+                my $tou = LJ::load_user_or_identity( $to );
+                unless ($tou) {
+                    $errors->add('msg_to', ( '.error.invalid.username',
+                                    { to => $to } ));
+                    next;
+                }
+
+                # Can only send to other individual users
+                unless ($tou->is_person || $tou->is_identity || $tou->is_renamed) {
+                    $errors->add('msg_to', LJ::Lang::ml( 'error.message.individual', { ljuser => $tou->ljuser_display } ));
+                    next;
+                }
+
+                # Can't send to unvalidated users
+                unless ( $tou->is_validated || $remote->has_priv( "siteadmin", "*" ) ) {
+                    $errors->add('msg_to', LJ::Lang::ml( 'error.message.unvalidated',
+                      { ljuser => $tou->ljuser_display } ));
+                    next;
+                }
+
+                # Will target user accept messages from sender
+                unless ($tou->can_receive_message($remote)) {
+
+                    errors->add('msg_to', LJ::Lang::ml( 'error.message.canreceive', { ljuser => $tou->ljuser_display } ));
+                    next;
+                }
+
+                my $msguserpic;
+                $msguserpic = $POST->{'prop_picture_keyword'} if ( defined $POST->{'prop_picture_keyword'} );
+
+                push @msg_list, LJ::Message->new({journalid => $remote_id,
+                                            otherid   => $tou->{userid},
+                                            subject   => $msg_subject_text,
+                                            body      => $msg_body_text,
+                                            parent_msgid => $POST->{'msg_parent'} || undef,
+                                            userpic      => $msguserpic,
+                                           });
+
+            }
+
+            # Check that the rate limit will not be exceeded
+            # This is only necessary if there are multiple recipients
+            if (scalar(@msg_list) > 1) {
+                my $up;
+                $up = LJ::Hooks::run_hook('upgrade_message', $remote, 'message');
+                $up = "<br />$up" if ($up);
+                $errors->add(undef, LJ::Lang::ml( ".error.rate.limit", { up => $up } ))
+                    unless LJ::Message::ratecheck_multi(userid => $remote_id, msg_list => \@msg_list)
+            }
+
+            # check if any of the messages will throw an error
+            unless ($errors->exist) {
+                my @errors;
+                foreach my $msg (@msg_list) {
+                    $msg->can_send(\@errors);
+                }
+                foreach my $error (@errors) {
+                    $error->add(undef, $error);
+                }
+            }
+
+            # send all the messages and display confirmation
+            unless ($errors->exist) {
+                my @errors;
+                foreach my $msg (@msg_list) {
+                    $msg->send(\@errors);
+                }
+                foreach my $error (@errors) {
+                    $error->add(undef, $error);
+                }
+                unless ($errors->exist) {
+                    $body .= $ML{'.message.sent'};
+                    $body .= "<?p $ML{'.message.sent.options'} <ul>";
+                    $body .= "<li><a href='$LJ::SITEROOT/inbox/?page=0&view=usermsg_sent_last'>$ML{'.link.view.message'}</a> $ML{'.link.view.warning'}</li>";
+                    $body .= "<li><a href='$LJ::SITEROOT/inbox/compose'>$ML{'.link.send.message'}</a></li>";
+                    $body .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'.link.inbox'}</a></li>";
+                    $body .= "<li><a href='$LJ::SITEROOT/'>$ML{'.link.home'}</a></li>";
+                    $body .= "</ul> p?>\n";
+                    return $body;
+                }
+            }
+        }
+    }
+
+    # Sending a reply to a message
+    if (($GET->{mode} && $GET->{mode} eq 'reply') || $POST->{'msgid'}) {
+        my $msgid = $GET->{'msgid'} || $POST->{'msgid'};
+        next unless $msgid;
+
+        my $msg = LJ::Message->load({ msgid => $msgid, journalid => $remote_id });
+        unless ($msg->can_reply($msgid, $remote_id)) {
+            $r->add_msg($ML{'.error.cannot.reply'}, $r->ERROR);
+            $r->redirect("$LJ::SITEROOT/inbox");
+
+            $reply_u = $msg->other_u;
+            $reply_to = $reply_u->display_name;
+            $disabled_to = 1;
+            $msg_subject = $msg->subject_raw || "(no subject)";
+            $msg_subject = "Re: " . $msg_subject
+                unless $msg_subject =~ /Re: /;
+            $msg_body = $msg->body_raw;
+            $msg_body =~ s/(.{70}[^\s]*)\s+/$1\n/g;
+            $msg_body =~ s/(^.*)/\> $1/gm;
+            $msg_body = "\n\n--- $reply_to wrote:\n" . $msg_body;
+            $msg_parent .= LJ::html_hidden({
+                name  => 'msg_parent',
+                value => "$msgid",
+            });
+        }
+    }
+
+            # autocomplete To field with trusted and watched people
+    my @flist = ();
+    if ( LJ::isu( $remote ) ) {
+        my %trusted_and_watched_userids = map { $_ => 1 } ( $remote->trusted_userids, $remote->watched_userids );
+        my $us = LJ::load_userids( keys %trusted_and_watched_userids );
+        @flist = map { $us->{$_}->display_name } grep { $us->{$_}->is_personal || $us->{$_}->is_identity } keys %trusted_and_watched_userids;
+    }
+    # Are we sending a copy of the message to the user?
+    my $cc_msg_option = $remote->cc_msg;
+    my @icons = LJ::icon_keyword_menu($remote);
+
+    my $vars = { errors        => $errors,
+        icons                  => \@icons,
+        icons_url              => $remote->allpics_base,
+        can_use_userpic_select => ($remote->can_use_userpic_select && (scalar(@icons) > 0)),
+        formdata               => $POST || { msg_to => ($GET->{'user'} || undef) },
+        msg_body               => $msg_body,
+        msg_subject            => $msg_subject,
+        msg_parent             => $msg_parent,
+        reply_u                => $reply_u,
+        reply_to               => $reply_to,
+        autocomplete           => \@flist,
+        cc_msg_option          => $cc_msg_option,
+        folder_html            => render_folders($remote)
+    };
+
+    return DW::Template->render_template( 'inbox/compose.tt', $vars );
+
 }
 
 1;
