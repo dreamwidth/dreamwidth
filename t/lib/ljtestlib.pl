@@ -16,7 +16,7 @@ BEGIN {
 
     # Please do not change this to "LJ::Directories"
     require $LJ::HOME . "/cgi-bin/LJ/Directories.pm";
-    
+
     # Add t/lib to the include path so we can standardise on it for test libs.
     unshift @INC, $LJ::HOME . "/t/lib";
 }
