@@ -35,20 +35,22 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%# add a buttonless text form for username search #%]
     <li><form method="GET" action="spamreports" class="usersearch">
-            <label for="repu">[% '.reports.user.individual' | ml %]</label>
-            <input type="text" name="what" size="25" maxlength="25" id="repu" />
-            <input type="hidden" name="by" value="poster" />
-            <input type="hidden" name="mode" value="view" />
-        </form>
+      [% form.textbox( label = dw.ml( '.reports.user.individual' ),
+                       id = "repu", name = "what",
+                       size = maxlength_user, maxlength = maxlength_user ) %]
+      [% form.hidden( name = "by", value = "poster" ) %]
+      [% form.hidden( name = "mode", value = "view" ) %]
+      </form>
     </li>
 
 [%# and another buttonless text form for journal search #%]
     <li><form method="GET" action="spamreports" class="usersearch">
-            <label for="repj">[% '.reports.journal.individual' | ml %]</label>
-            <input type="text" name="what" size="25" maxlength="25" id="repj" />
-            <input type="hidden" name="by" value="journal" />
-            <input type="hidden" name="mode" value="view" />
-        </form>
+      [% form.textbox( label = dw.ml( '.reports.journal.individual' ),
+                       id = "repj", name = "what",
+                       size = maxlength_user, maxlength = maxlength_user ) %]
+      [% form.hidden( name = "by", value = "journal" ) %]
+      [% form.hidden( name = "mode", value = "view" ) %]
+      </form>
     </li>
 </ul>
 
