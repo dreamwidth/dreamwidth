@@ -41,6 +41,7 @@ sub importer_handler {
     $vars->{u}                  = $u;
     $vars->{allow_comm_imports} = $LJ::ALLOW_COMM_IMPORTS;
     $vars->{authas}             = $authas;
+    $vars->{authas_html}		= $rv->{authas_html}
     my $depth = get_queue();
 
     $vars->{queue} = join( ', ', map { "$_: " . ( $depth->{ lc $_ } + 0 ) } sort keys %$depth );
