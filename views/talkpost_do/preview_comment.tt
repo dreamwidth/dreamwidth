@@ -13,6 +13,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
+<div id="preview-comment">
+
 <h2>[% dw.ml('/talkpost_do.tt.preview.title') %]</h2>
 <p>[% dw.ml('/talkpost_do.tt.preview') %]</p>
 
@@ -90,7 +92,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 
 
-</div> <!-- end .inner -->
-</div> <!-- end #comments -->
+</div> [%# end .inner %]
+</div> [%# end #comments %]
 
-<hr>
+</div> [%# end #preview-comment %]

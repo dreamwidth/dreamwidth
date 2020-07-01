@@ -13,7 +13,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
-<hr>
+<div id="preview-parent">
 
 <h3>Replying to:</h3>
 
@@ -35,7 +35,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <div class="inner">
         </div>
     </div>
-    <div class="entry" id="preview-parent">
+    <div class="entry" id="preview-parent-entry">
         <div class="inner">
             <div class="header">
                 <div class="inner">
@@ -93,4 +93,21 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 
 
-</div><!-- end reply page wrapper -->
+</div>[%# end .reply page wrapper %]
+
+[%- INCLUDE "components/icon-button-decorative.tt"
+    button = {
+      id = "js-preview-parent-expand"
+      class = "js-hidden js-parent-toggle"
+    }
+    icon = "plus"
+    text = "Show more" -%]
+[%- INCLUDE "components/icon-button-decorative.tt"
+    button = {
+      id = "js-preview-parent-collapse"
+      class = "js-hidden js-parent-toggle"
+    }
+    icon = "minus"
+    text = "Show less" -%]
+
+</div>[%# end #preview-parent %]
