@@ -63,7 +63,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </p>
 
 <div class="row"><div class="columns">
-    [%- form.submit( value = dw.ml( '.btn.status' ), disabled = u.is_suspended ) -%]
+    [%- form.submit( value = dw.ml( '.btn.change', { user => u.user } ),
+                     disabled = u.is_suspended ) -%]
 </div></div>
 </form>
 

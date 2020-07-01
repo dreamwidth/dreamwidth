@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
-.btn.status|notes=Submit button for form
-.btn.status=Change Status
+.btn.change|notes=Submit button for form
+.btn.change=Change Status for [[user]]
 
 .delete.openid1=If you wish to delete your OpenID account, please note that deleting it will mean you can no longer delete comments that were imported by other users and are associated with your OpenID account. Deleting your OpenID account will not prevent other users from importing comments you have left on journals under their control. Comments that you already deleted on this site might be reimported. More information on OpenID accounts can be found <a href=https://www.dreamwidth.org/support/faqbrowse?faqid=62>here</a>.
 

@@ -2595,3 +2595,5 @@ general /views/entry/success.tt.new.links.memories
 general /views/entry/success.tt.new.links.myentries
 general /views/entry/success.tt.new.links.tags
 general /views/entry/success.tt.new.links.view
+
+general /views/settings/accountstatus.tt.btn.status
