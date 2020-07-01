@@ -290,7 +290,7 @@ sub handle_swap_post {
         journal     => $journal->ljuser_display,
         swapjournal => $swapjournal->ljuser_display
         }
-        unless $errors->exist;
+        unless $swap_errors->exist;
 
     # the list of errors should be present in the caller
     return 0;
