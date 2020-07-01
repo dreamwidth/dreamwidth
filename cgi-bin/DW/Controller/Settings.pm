@@ -52,7 +52,7 @@ DW::Routing->register_string( "/manage2fa/qrcode", \&manage2fa_qrcode_handler, f
 sub account_status_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( form_auth => 1, authas => { show_all => 1 } );
+    my ( $ok, $rv ) = controller( form_auth => 1, authas => { showall => 1 } );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
