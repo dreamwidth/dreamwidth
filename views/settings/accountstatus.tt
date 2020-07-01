@@ -34,13 +34,21 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>
 
 <div class="row"><div class="columns">
+  <label for="statusvis" style="display: inline">
+    [% ".journalstatus.select.head" | ml %]
+  </label>
     [%- form.select(
-        label = dw.ml( ".journalstatus.select.head" )
+        id = "statusvis"
         name = "statusvis"
         selected = u.statusvis
         items = statusvis_options
+        class = 'inline'
     ) -%]
 </div></div>
+
+</p>
+
+<p>
 
 <div class="row"><div class="columns">
     [%- form.textbox(
@@ -51,6 +59,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         hint = dw.ml( u.is_community ? '.reason.about.comm' : '.reason.about' )
     ) -%]
 </div></div>
+
+</p>
 
 <div class="row"><div class="columns">
     [%- form.submit( value = dw.ml( '.btn.status' ), disabled = u.is_suspended ) -%]
@@ -66,7 +76,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF u.is_identity && u.statusvis != 'D' -%]
 [%# only show this text to not-deleted OpenID accounts -%]
-    <p>[%- '.delete.openid1' | ml -%]
+    <p>[%- '.delete.openid1' | ml -%]</p>
 [%- END -%]
 
 [%- IF extra_delete_text -%]
