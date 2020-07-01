@@ -180,6 +180,8 @@ sub valid_stylesheet_url {
 #           'label' - label to go before form elements;
 #           'button' - button label for submit button;
 #           'type' - journaltype (affects label & list filtering)
+#           'selectonly' - 1 for just menu items, otherwise entire HTML block
+#           'foundation' - 1 for Foundation HTML, otherwise legacy HTML
 #           others - arguments to pass to $u->get_authas_list.
 # </LJFUNC>
 sub make_authas_select {
