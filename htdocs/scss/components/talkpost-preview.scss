@@ -1,0 +1,40 @@
+/**
+* Fancy behavior for the comment preview page.
+* See also jquery.talkpost.preview.js.
+*/
+
+#preview-parent, #preview-comment {
+  border-bottom: 1px solid;
+}
+
+#talkpost-wrapper {
+  .js-parent-toggle {
+    margin: 1em auto;
+    display: block;
+  }
+
+  .js-hidden {
+    display: none;
+  }
+}
+
+#talkpost-wrapper.js-preview {
+  display: flex;
+  flex-direction: column;
+
+  #preview-parent {
+    order: -1; // up top
+  }
+
+  #preview-parent-entry {
+    padding-bottom: 2em; // Avoid blurring out one-line comments.
+  }
+
+  #preview-parent-entry.collapsed {
+    overflow-y: hidden;
+    max-height: 17em;
+    // mask image can be any color. Opaque = visible.
+    -webkit-mask-image: linear-gradient(to bottom, rgba(255, 255, 255, 255) 80%, rgba(255,255,255,0) 95%);
+    mask-image: linear-gradient(to bottom, rgba(255, 255, 255, 255) 80%, rgba(255,255,255,0) 95%);
+  }
+}
