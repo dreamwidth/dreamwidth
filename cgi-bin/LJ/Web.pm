@@ -211,13 +211,12 @@ sub make_authas_select {
             $ret = $menu;
         }
         else {
-            $ret =
-                $foundation
+            $ret = $foundation
                 ? q{<div class='row collapse'><div class='columns medium-1'><label class='inline'>}
                 . LJ::Lang::ml('web.authas.select.label')
                 . q{</label></div>}
                 . q{<div class='columns medium-11'><div class='row'>}
-                . q{<div class='columns medium-4'>}
+                . q{<div class="columns medium-2">}
                 . $menu
                 . q{</div>}
                 . q{<div class='columns medium-2 end'>}
@@ -225,6 +224,8 @@ sub make_authas_select {
                 . q{</div>}
                 . q{</div></div>}
                 . q{</div>}
+
+                # else not foundation
                 : "<br/>"
                 . LJ::Lang::ml( 'web.authas.select',
                 { menu => $menu, username => LJ::ljuser($authas) } )
