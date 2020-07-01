@@ -2353,6 +2353,8 @@ rename.error.reserved="[[to]]" is a reserved username.
 
 rename.error.tokenapplied=This token has already been used.
 
+rename.error.tokenduplicate=The same token was provided twice; two distinct tokens are required.
+
 rename.error.tokeninvalid=The provided token is not a valid token.
 
 rename.error.tokentoofew=Too few tokens; you need two to perform a swap.

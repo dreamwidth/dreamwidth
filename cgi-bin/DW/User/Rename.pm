@@ -262,7 +262,7 @@ sub swap_usernames {
     }
 
     if ( scalar @tokens >= 2 ) {
-        $errors->add( 'token', 'rename.error.tokeninvalid' )
+        $errors->add( 'token', 'rename.error.tokenduplicate' )
             if ( $tokens[0]->token eq $tokens[1]->token );
     }
     else {
