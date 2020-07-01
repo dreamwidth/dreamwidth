@@ -258,12 +258,13 @@ sub handle_swap_post {
 
     my $remote = $opts{user};
     my $get_unused_tokens =
-        sub { @{ DW::RenameToken->by_owner_unused( userid => $_[0]->id ) || [] } };
+        sub { @{ DW::RenameToken->by_owner_unused( userid => $_[0] ) || [] } };
 
     my @check_users = ( $journal, $swapjournal );
     unshift @check_users, $remote if $remote;
+    my %check_uids = map { $_->id => 1 } @check_users;    # remove duplicates
 
-    my @unused_tokens = grep { defined } map { $get_unused_tokens->($_) } @check_users;
+    my @unused_tokens = grep { defined } map { $get_unused_tokens->($_) } keys %check_uids;
 
     $errors->add(
         '',
