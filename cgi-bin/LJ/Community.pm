@@ -33,7 +33,10 @@ sub send_comm_invite {
     # step 1: if the user has banned the community, don't accept the invite
     return LJ::error('comm_user_has_banned') if $u->has_banned($cu);
 
-    # step 2: lazily clean out old community invites.
+    # step 2: if the user has banned the maintainer, don't accept the invite
+    return LJ::error('comm_user_has_banned') if $u->has_banned($mu);
+
+    # step 3: lazily clean out old community invites.
     return LJ::error('db') unless $u->writer;
     $u->do(
         'DELETE FROM inviterecv WHERE userid = ? AND '
