@@ -2976,6 +2976,8 @@ sub require_captcha_test {
     if ( $captcha->enabled('comment_html_auth')
         || ( $captcha->enabled('comment_html_anon') && $anon_commenter ) )
     {
+        return 0 unless $body;    # Before we bother matching against it.
+
         if ( $body =~ /<[a-z]/i ) {
 
             # strip white-listed bare tags w/o attributes,
