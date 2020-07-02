@@ -48,11 +48,10 @@ use LJ::PageStats;
 #            input controls.
 # </LJFUNC>
 sub img {
-    my $ic   = shift;
-    my $type = shift;    # either "" or "input"
-    my $attr = shift;
+    my ( $ic, $type, $attr ) = @_;
+    $type //= '';    # Type is either "" or "input"
 
-    my ( $attrs, $alt ) = ( '', '', 0 );
+    my ( $attrs, $alt ) = ( '', '' );
     if ($attr) {
         if ( ref $attr eq "HASH" ) {
             if ( exists $attr->{alt} ) {
@@ -62,7 +61,7 @@ sub img {
             $attrs .= " $_=\"" . LJ::ehtml( $attr->{$_} || '' ) . "\"" foreach keys %$attr;
         }
         else {
-            $attrs = " name=\"$attr\"";
+            $attrs = " id=\"$attr\"";
         }
     }
 
