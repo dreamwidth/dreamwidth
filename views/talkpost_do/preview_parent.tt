@@ -43,7 +43,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
                         [% parent.icon %]
                     </div>
                     <div class="poster-info">
-                        <span class="poster entry-poster"> [% parent.poster_name %] ( [% parent.poster %] ) wrote </span>
+                        <span class="poster entry-poster"> [% parent.poster_name %] ([% parent.poster %]) wrote </span>
+                        [%- IF parent.in_journal %]
+                            in
+                            [% parent.in_journal %]
+                        [%- END -%]
+                        [% IF parent.admin_post %]
+                            <span>(<span class="admin-post-icon">[% dw.img('admin-post') %]</span> as admin)</span>
+                        [% END %]
                         <span class="datetime">
                             <span class="comment-date-text"></span>
                             <span> [% parent.time %] </span>
