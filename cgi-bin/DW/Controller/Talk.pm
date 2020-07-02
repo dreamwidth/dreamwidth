@@ -835,6 +835,7 @@ sub preview_comment_args {
         body        => $cleanbody,
         subject     => $cleansubject,
         icon        => $icon,
+        admin_post  => $comment->{admin_post},
     };
 
     return $preview;
@@ -864,9 +865,15 @@ sub preview_parent_args {
 
         my $poster      = 'Anonymous';
         my $poster_name = '';
+        my $in_journal  = $entry->journal->ljuser_display;
+
         if ( $parentitem->poster ) {
             $poster      = $parentitem->poster->ljuser_display;
             $poster_name = $parentitem->poster->name_html;
+
+            if ( $parentitem->poster->user eq $entry->journal->user ) {
+                $in_journal = '';
+            }
         }
 
         return {
@@ -875,20 +882,27 @@ sub preview_parent_args {
             subject     => $parentitem->subject_html,
             poster      => $poster,
             poster_name => $poster_name,
+            in_journal  => $in_journal,
+            admin_post  => $parentitem->prop('admin_post'),
             icon        => $userpic_tag->($parentitem),
-            time        => $parentitem->{datepost},       # convert?
+            time        => $parentitem->{datepost},
             url         => $parentitem->url,
             entry_url   => $entry->url,
         };
     }
     else {
         # Replying to entry
+
+        my $in_journal =
+            $entry->poster->user eq $entry->journal->user ? '' : $entry->journal->ljuser_display;
+
         return {
             type        => 'entry',
             body        => $entry->event_html,
             subject     => $entry->subject_html,
             poster      => $entry->poster->ljuser_display,
             poster_name => $entry->poster->name_html,
+            in_journal  => $in_journal,
             icon        => $userpic_tag->($entry),
             time        => $entry->eventtime_mysql,
             url         => $entry->url,

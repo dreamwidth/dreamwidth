@@ -51,6 +51,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
                                 [% END %]
                                 <span class="poster comment-poster">
                                     [% comment.poster %]
+                                    [% IF comment.admin_post %]
+                                        <span>(<span class="admin-post-icon">[% dw.img('admin-post') %]</span> as admin)</span>
+                                    [% END %]
                                 </span>
 
                                 [%# This is just lorem-ipsum so the spatial relationships look right. %]
