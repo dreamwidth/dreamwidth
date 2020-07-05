@@ -64,6 +64,19 @@ sub _strict_refer {
     return $ret;
 }
 
+sub _check_id {
+    my $err_ml = $_[1] // \undef;
+
+    if ( my $id = $_[0] ) {
+        my $vgift = DW::VirtualGift->new($id);
+        return $vgift if $vgift && $vgift->name;
+        $$err_ml = "vgift.error.badid";
+    }
+    else {
+        $$err_ml = "error.invalidform";
+    }
+}
+
 sub index_controller {
     my ( $ok, $rv ) = controller( form_auth => 0, privcheck => $vgift_privs );
     return $rv unless $ok;
@@ -92,20 +105,9 @@ sub index_controller {
         # now uploaded data is in $form_args, we can continue
     }
 
-    my $checkid = sub {
-        my $err_ml = $_[0] // \undef;
+    my $checkid = sub { return _check_id( $form_args->{id}, $_[0] ) };
 
-        if ( my $id = $form_args->{id} ) {
-            my $vgift = DW::VirtualGift->new($id);
-            return $vgift if $vgift && $vgift->name;
-            $$err_ml = "$scope.error.badid";
-        }
-        else {
-            $$err_ml = "error.invalidform";
-        }
-    };
-
-    my $mode = lc( $r->get_args->{mode} || $form_args->{mode} || '' );
+    my $mode = lc( $form_args->{mode} || $r->get_args->{mode} || '' );
 
     # process post request, but only if we have a mode
     if ( $r->did_post && $mode ) {

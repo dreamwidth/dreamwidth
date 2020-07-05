@@ -4439,6 +4439,8 @@ vgift.display.linktext.viewedit=[View/Edit]
 
 vgift.display.linktext.viewgifts=[View Gifts]
 
+vgift.error.badid=An error occurred while trying to load this vgift.
+
 vgift.error.create.noname=Name must be specified
 
 vgift.error.create.samename=Name already in use
