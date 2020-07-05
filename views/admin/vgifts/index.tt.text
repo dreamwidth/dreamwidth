@@ -1,11 +1,17 @@
 ;; -*- coding: utf-8 -*-
-.error=Error
+.admin.link=Virtual Gifts
+
+.admin.text=Maintain the virtual gift shop and submit new gift ideas.
 
 .error.badid=An error occurred while trying to load this vgift.
+
+.error.baduser=No such user: [[user]]
 
 .error.changed=The information for this virtual gift has changed. Please reload and try again.
 
 .error.create.badusername=The username you specified ([[name]]) does not appear to be a valid personal or identity account.
+
+.error.create.failure=Error in creation: [[err]]
 
 .error.create.nodesc=Please give your new gift a description.
 
@@ -15,9 +21,13 @@
 
 .error.denied=You do not have permission to [[action]] this gift.
 
+.error.edit.failure=Error saving edits: [[err]]
+
 .error.upload.badtype=Files of type [[filetype]] are not supported.  You can only upload GIF, PNG or JPG files.
 
-.error.upload.badurl2=The address for the picture to be uploaded does not look correct. It should start with <b>http://</b> or <b>https://</b>
+.error.upload.badurl=The address for the picture to be uploaded does not look correct. It should start with <b>http://</b> or <b>https://</b>
+
+.error.upload.content=Error processing upload: [[err]]
 
 .error.upload.dimstoolarge=The dimensions of your image ([[imagesize]]) exceed maximum size.  Your picture can't be larger than [[maxsize]] pixels.
 
@@ -49,7 +59,7 @@
 
 .header.userqueue=Your other pending submissions:
 
-.label.create.creator=Username to credit as creator <u>(admin only)</u>:
+.label.create.creator=Username to credit as creator (admin only):
 
 .label.create.desc=Description (for image alt text):
 
@@ -105,7 +115,7 @@
 
 .queue.empty=(none available)
 
-.review.approved=Approval changes submitted:
+.review.approved=Approval changes submitted: [[name]] (#[[id]])
 
 .review.deleted=The gift was deleted.
 

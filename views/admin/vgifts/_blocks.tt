@@ -1,0 +1,74 @@
+[%- BLOCK linkback -%]
+<p style='clear: both'>
+  <a href='[% "${site.root}/admin/vgifts/" %]'>[% '.linktext.home' | ml %]</a>
+</p>
+[%- END -%]
+
+[%- BLOCK success_message -%]
+<div class="alert-box success radius">[% success_text %]</div>
+[%- END -%]
+
+[%- BLOCK userview; # requires $u from caller
+      i = 0;
+      FOREACH vg IN list_created_by( u );
+        NEXT UNLESS vg.defined;
+        i = i + 1;
+        r = review && vg.is_queued -%]
+
+<div style='clear: both'>
+  <div class='vgdiv' id='left'>
+    [% vg.display_basic %]
+    <p>[% vg.display_vieweditlinks( r ) %]</p>
+  </div>
+  <div class='vgdiv' id='right'>
+    [%- IF vg.id && ! vg.is_queued -%]
+    <h2>[% '.header.review' | ml %]</h2>
+    [%- END -%]
+    [% PROCESS review_status %]
+    [% PROCESS shop_status %]
+  </div>
+</div>
+  [%- END; # FOREACH -%]
+
+  [%- UNLESS i -%]
+<p>[% '.review.empty' | ml %]</p>
+  [%- END -%]
+[%- END; # BLOCK userview -%]
+
+[%- BLOCK review_status; # requires $vg from caller
+      IF vg.id && ! vg.is_queued -%]
+        <h3>
+          [%- vg.is_approved ? dw.ml( '.label.review.approved' )
+                             : dw.ml( '.label.review.rejected' );
+              vg.approver.ljuser_display -%]
+        </h3>
+        <p>
+          <b>[% '.label.review.why' | ml %]</b> [% vg.approved_why | html %]
+        </p>
+  [%- END -%]
+[%- END -%]
+
+[%- BLOCK shop_status; # requires $vg from caller
+      IF vg.id && vg.is_approved -%]
+        <p>
+          <b>[% 'vgift.display.label.featured' | ml %]</b> 
+          [%- isfeat = vg.is_featured ? 'y' : 'n';
+              ".label.review.answer.$isfeat" | ml -%]
+        </p>
+        <p>
+          <b>[% 'vgift.display.label.cost' %]</b> [% vg.display_cost %]
+        </p>
+  [%- END -%]
+[%- END -%]
+
+[%- BLOCK imgform; # requires $id from caller -%]
+  [% form.radio( name = id, value = 'file', id = "${id}_file",
+                 selected = 1, accesskey = dw.ml( '.label.fromfile.key' ) ) %]
+  <label for='[% "${id}_file" %]' >[% '.label.fromfile' | ml %]</label>
+  <input type='file' name='%[ "data_$id" %]' size='25' /><br />
+
+  [% form.radio( name = id, value = 'url', id = "${id}_url",
+                 accesskey = dw.ml( '.label.fromurl.key' ) ) %]
+  <label for='[% "${id}_url" %]' >[% '.label.fromurl' | ml %]</label>
+  [% form.textbox( name = "url_$id", size = 25 ) %]
+[%- END -%]
