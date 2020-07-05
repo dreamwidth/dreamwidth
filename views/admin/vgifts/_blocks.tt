@@ -1,6 +1,6 @@
 [%- BLOCK linkback -%]
-<p style='clear: both'>
-  <a href='[% "${site.root}/admin/vgifts/" %]'>[% '.linktext.home' | ml %]</a>
+<p>
+  <a href='[% "/admin/vgifts/" %]'>&lt;&lt; [% '.linktext.home' | ml %]</a>
 </p>
 [%- END -%]
 
@@ -15,12 +15,12 @@
         i = i + 1;
         r = review && vg.is_queued -%]
 
-<div style='clear: both'>
-  <div class='vgdiv' id='left'>
+<div class='row'>
+  <div class='columns medium-6'>
     [% vg.display_basic %]
     <p>[% vg.display_vieweditlinks( r ) %]</p>
   </div>
-  <div class='vgdiv' id='right'>
+  <div class='columns medium-6'>
     [%- IF vg.id && ! vg.is_queued -%]
     <h2>[% '.header.review' | ml %]</h2>
     [%- END -%]
@@ -40,7 +40,7 @@
         <h3>
           [%- vg.is_approved ? dw.ml( '.label.review.approved' )
                              : dw.ml( '.label.review.rejected' );
-              vg.approver.ljuser_display -%]
+              vg.approver.ljuser_display( head_size = "24x24" ) -%]
         </h3>
         <p>
           <b>[% '.label.review.why' | ml %]</b> [% vg.approved_why | html %]
@@ -65,7 +65,7 @@
   [% form.radio( name = id, value = 'file', id = "${id}_file",
                  selected = 1, accesskey = dw.ml( '.label.fromfile.key' ) ) %]
   <label for='[% "${id}_file" %]' >[% '.label.fromfile' | ml %]</label>
-  <input type='file' name='%[ "data_$id" %]' size='25' /><br />
+  <input type='file' name='%[ "data_$id" %]' /><br />
 
   [% form.radio( name = id, value = 'url', id = "${id}_url",
                  accesskey = dw.ml( '.label.fromurl.key' ) ) %]
