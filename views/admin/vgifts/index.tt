@@ -1,0 +1,328 @@
+[%# Management pages for virtual gifts in the shop.
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2010-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content input { height: auto; width: auto; display: inline; }
+        .vgdiv { margin-bottom: 15px; width: 45%; }
+        #content #left  { float: left; }
+        #content #right { float: right; }
+        #content label { margin-right: 1em; }
+        #content p  { margin-top: 1em; }
+        #content h2 { margin-top: 1em; }
+        #content h3 { margin: 0.5em 0; }
+        #content li { margin: 0.25em 0; }
+        #content ol { list-style: decimal inside; }
+        #content ul { list-style: none; }
+    </style>
+[% END %]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- IF mode == 'view';
+      IF vgift; sections.title = sections.title _ ": " _ vgift.name_ehtml; END;
+      IF vu;    sections.title = sections.title _ ": " _ vu.display_name; END;
+      IF title; sections.title = ".title.$title" | ml; END;
+    ELSIF mode == 'review';
+      title_extra = '.title.review' | ml;
+      sections.title = sections.title _ ": " _ title_extra;
+    ELSIF mode == 'delete';
+      sections.title = '.title.delete' | ml;
+    ELSIF mode == 'artists';
+      title_extra = '.title.artists' | ml;
+      sections.title = sections.title _ ": " _ title_extra;
+    END
+-%]
+
+[%- PROCESS admin/vgifts/_blocks.tt -%]
+
+[%- IF mode == 'view';
+      IF vgift;
+        IF vgift.can_be_edited_by( remote ) -%]
+
+<h2>[% vgift.name_ehtml %] (#[% vgift.id %])</h2>
+
+<h3>[% 'vgift.display.createdby' | ml( user = vgift.creator.ljuser_display,
+                                       ago =  vgift.created_ago_text ) %]</h3>
+
+<form enctype='multipart/form-data' method='post'>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'mode', value = 'edit' ) %]
+  [% form.hidden( name = 'id', value = vgift.id ) %]
+
+  [% form.textbox( label = dw.ml( '.label.edit.name' ),
+                   name = 'name', id = 'name',
+                   size = 40, maxlength = 80 ) %]
+
+  <p><b>[% '.label.create.desc' | ml %]}</b> [% vgift.description_ehtml %]</p>
+
+  [% form.textbox( label = dw.ml( '.label.edit.desc' ),
+                   name = 'desc', id = 'desc',
+                   size = 40, maxlength = 255 ) %]
+
+  <h3>[% '.header.imgsmall' | ml %]</h3>
+  [% vgift.img_small_html %]<br />
+  <label for='img_small'>[% '.label.edit.imgsmall' | ml %]</label><br />
+  [% PROCESS imgform id = 'img_small' %]
+
+  <h3>[% '.header.imglarge' | ml %]</h3>
+  [% vgift.img_large_html %]<br />
+  <label for='img_large'>[% '.label.edit.imglarge' | ml %]</label><br />
+  [% PROCESS imgform id = 'img_large' %]
+
+  <p>[% form.submit( name = 'submit', value = dw.ml( '.submit.edit' ) ) %]</p>
+</form>
+
+    [%- ELSE; # no edit, view only -%]
+<div style='clear: both'>
+  <div class='vgdiv' id='left'>
+      [% vgift.display_basic %]
+      [% vgift.img_large_html %]
+  </div>
+  <div class='vgdiv' id='right'>
+      [%- IF vgift.id && ! vgift.is_queued -%]
+    <h2>[% '.header.review' | ml %]</h2>
+      [%- END -%]
+      [% PROCESS review_status vg = vgift %]
+      [% PROCESS shop_status vg = vgift %]
+  </div>
+</div>
+
+    [%- END -%]
+
+  [%- ELSIF vu -%]
+    [% PROCESS userview u = vu, review = siteadmin %]
+
+  [%- ELSE; # view summary for logged in user -%]
+    [%- IF title == 'deleted' -%]
+      [% PROCESS success_message success_text = dw.ml( '.review.deleted' ) %]
+    [%- END -%]
+    [% PROCESS userview u = remote %]
+  [%- END -%]
+
+  [% PROCESS linkback %]
+
+[%- ELSIF mode == 'review' AND siteadmin -%]
+  [%- IF title == 'deleted' -%]
+    [% PROCESS success_message success_text = dw.ml( '.review.deleted' ) %]
+  [%- ELSIF title == 'approved' AND vgift -%]
+    [%- succtext = '.review.approved' | ml( name = vgift.name_ehtml,
+                                            id = vgift.id ) -%]
+    [% PROCESS success_message success_text = succtext %]
+  [%- END -%]
+
+  [%- IF vgift; queue = vgift; ELSE; queue = review_list; END -%]
+
+  [%- i = 0;
+      FOREACH vg IN queue;
+        NEXT UNLESS vg.defined;
+        NEXT UNLESS vg.can_be_approved_by( remote )
+               OR ( vg.is_approved && siteadmin );
+        i = i + 1 -%]
+
+<div style='clear: both'>
+  <div class='vgdiv' id='left'>
+    [% vg.display_basic %]
+    <p>[% vg.display_vieweditlinks %]</p>
+  </div>
+  <div class='vgdiv' id='right'>
+    <h2>[% '.header.review' | ml %]</h2>
+      [%- UNLESS vg.is_queued -%]
+        [% PROCESS review_status %]
+      [%- END -%]
+      [%- UNLESS vg.is_rejected -%]
+    <form method='post'>
+        [% dw.form_auth %]
+        [% form.hidden( name = 'mode', value = 'approve' ) %]
+        [% form.hidden( name = 'id', value = vg.id ) %]
+        [% IF days; form.hidden( name = 'days', value = days ); END %]
+        [% form.hidden( name = "${vg.id}_chksum", value = vg.checksum ) %]
+
+        [%- IF vg.is_queued -%]
+          [% form.select( name = "${vg.id}_approve", id = "${vg.id}_approve",
+                          label = dw.ml( '.label.review.approval' ),
+                          selected = '',
+                          items =  [ '',  '',
+                                     'Y', dw.ml( '.label.review.answer.y' ),
+                                     'N', dw.ml( '.label.review.answer.n' ) ] ) %]
+          <br />
+          <label for='[% "${vg.id}_comment" %]'>
+            [% '.label.review.comment' | ml %]
+          </label>
+          <br />
+          [% form.textarea( name = "${vg.id}_comment", id = "${vg.id}_comment",
+                            cols = 40, rows = 10 ) %]
+
+        [%- ELSIF vg.is_approved; # prompt for suggestions -%]
+          <h3>[% '.label.review.optional' | ml %]</h3>
+          [% form.hidden( name = 'activation', value = inactive ) %]
+
+          [% form.select( name = "${vg.id}_featured", id = "${vg.id}_featured",
+                          label = dw.ml( 'vgift.display.label.featured' ),
+                          selected = vg.featured,
+                          items =  [ 'N', dw.ml( '.label.review.answer.n' ),
+                                     'Y', dw.ml( '.label.review.answer.y' ) ] ) %]
+          <br />
+          [% form.textbox( label = dw.ml( 'vgift.display.label.cost' ),
+                           name = "${vg.id}_cost", id = "${vg.id}_cost",
+                           size = 5, value = vg.cost ? vg.cost : '' ) %]
+          [% 'vgift.display.cost.points' | ml( cost = '' ) %]
+          <br />
+          [% form.textbox( label = dw.ml( 'vgift.display.label.tags' ),
+                           name = "${vg.id}_tags", id = "${vg.id}_tags",
+                           size = 50, value = vg.display_taglist ) %]
+        [%- END -%]
+      <p>
+        [% form.submit( name = 'submit', value = dw.ml( '.submit.review' ) ) %]
+      </p>
+    </form>
+      [%- END -%]
+  </div>
+</div>
+  [%- END -%]
+  [%- UNLESS i -%]
+<p>[% '.review.empty' | ml %]</p>
+  [%- END -%]
+
+  [%- IF vgift -%]
+    [%- IF inactive -%]
+<p style='clear: both'><a href='inactive'>[% '.linktext.inactive' | ml %]</a></p>
+
+    [%- ELSIF days -%]
+<p style='clear: both'>
+  <a href='?mode=review&days=[% days %]'>[% '.linktext.review.recent' | ml %]</a>
+</p>
+
+    [%- ELSE -%]
+<p style='clear: both'>
+  <a href='?mode=review'>[% '.linktext.review.all' | ml %]</a>
+</p>
+    [%- END -%]
+
+  [%- ELSE; PROCESS linkback;
+      END -%]
+
+[%- ELSIF mode == 'delete' AND vgift -%]
+  [%- IF vgift.can_be_deleted_by( remote ) -%]
+
+<h3>[% '.header.delete' | ml %]</h3>
+[% vgift.display_basic %]
+<form method='post'>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'mode', value = 'confirm' ) %]
+  [% form.hidden( name = 'id', value = vgift.id ) %]
+  <p>[% form.submit( name = 'submit', value = dw.ml( '.submit.delete' ) ) %]</p>
+</form>
+
+  [%- ELSE -%]
+<p>[% '.error.delete' | ml %]</p>
+  [%- END -%]
+
+  [% PROCESS linkback %]
+
+[%- ELSIF mode == 'artists' -%]
+<ol>[% display_creatorlist %]</ol>
+  [% PROCESS linkback %]
+
+[%- ELSE; # default page display -%]
+
+<div class='vgdiv' id='right' style='text-align: center'>
+  <h2>[% '.header.userqueue' | ml %]</h2>
+
+  [%- vglist = list_created_by( remote );
+      IF vglist.size -%]
+  <ul>
+    [%- i = 0;
+        FOREACH vg IN vglist;
+          NEXT UNLESS vg.defined AND vg.can_be_edited_by( remote );
+          i = i + 1 -%]
+    <li>
+      "[% vg.name_ehtml %]" ([% vg.created_ago_text %])
+      [% vg.display_vieweditlinks %]
+    </li>
+    [%- END -%]
+    [%- IF i > 0 -%]
+    <li style='padding-top: 0.5em'>
+      <a href='?mode=view'>[% '.linktext.viewall' | ml %]</a>
+    </li>
+    [%- END -%]
+  </ul>
+  [%- ELSE -%]
+  <i>[% '.queue.empty' | ml %]</i>
+  [%- END -%]
+
+  <h2>[% '.header.artists' | ml %]</h2>
+
+  [%- dclist = display_creatorlist( 5 );
+      IF dclist -%]
+  <ul>
+    [% dclist %]
+    <li style='padding-top: 0.5em'>
+      <a href='?mode=artists'>[% '.linktext.viewall' | ml %]</a>
+    </li>
+  </ul>
+  [%- ELSE -%]
+  <i>[% '.queue.empty' | ml %]</i>
+  [%- END -%]
+
+  [%- IF siteadmin -%]
+  <h2>[% '.header.siteadmin' | ml %]</h2>
+
+  <ul>
+    <li>
+      <a href='?mode=review&days=14'>[% '.linktext.review.recent' | ml %]</a>
+    </li><li>
+      <a href='?mode=review'>[% '.linktext.review.all' | ml %]</a>
+    </li><li>
+      <a href='tags'>[% '.linktext.tags' | ml %]</a>
+    </li><li>
+      <a href='inactive'>[% '.linktext.inactive' | ml %]</a>
+    </li>
+  </ul>
+  [%- END -%]
+
+</div>
+
+<div class='vgdiv' id='left'>
+  <h2>[% '.header.create' | ml %]</h2>
+
+  <form enctype='multipart/form-data' method='post'>
+    [% dw.form_auth %]
+    [% form.hidden( name = 'mode', value = 'create' ) %]
+    [% form.textbox( label = dw.ml( '.label.create.name' ),
+                     name = 'name', id = 'name',
+                     size = 40, maxlength = 80 ) %]
+    <br />
+
+    [% form.textbox( label = dw.ml( '.label.create.desc' ),
+                     name = 'desc', id = 'desc',
+                     size = 40, maxlength = 255 ) %]
+
+  [%- IF siteadmin -%]
+    <br />
+
+    [% form.textbox( label = dw.ml( '.label.create.creator' ),
+                     name = 'creator', id = 'creator',
+                     size = 40, maxlength = 80 ) %]
+  [%- END -%]
+
+    <h3>[% '.header.imgsmall' | ml %]</h3>
+  [% PROCESS imgform id = 'img_small' %]
+    <h3>[% '.header.imglarge' | ml %]</h3>
+  [% PROCESS imgform id = 'img_large' %]
+    <p>[% '.note.svg' | ml %]</p>
+
+    <p>[% form.submit( name = 'submit', value = dw.ml( '.submit.create' ) ) %]</p>
+  </form>
+</div>
+
+[%- END -%]
