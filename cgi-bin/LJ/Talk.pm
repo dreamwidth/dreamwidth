@@ -3168,7 +3168,7 @@ sub edit_comment {
     if (@LJ::SPHINX_SEARCHD) {
         push @jobs,
             TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
-            { userid => $journalu->id, jtalkid => $comment->{talkid}, source => "commtedt" } );
+            { userid => $journalu->id, jtalkid => $comment_obj->jtalkid, source => "commtedt" } );
     }
 
     DW::TaskQueue->dispatch(@jobs) if @jobs;
