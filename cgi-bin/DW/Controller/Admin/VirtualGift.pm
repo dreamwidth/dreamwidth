@@ -43,7 +43,8 @@ DW::Controller::Admin->register_admin_page(
     privs    => $vgift_privs
 );
 
-DW::Routing->register_string( "/admin/vgifts/index", \&index_controller, app => 1 );
+DW::Routing->register_string( "/admin/vgifts/index",    \&index_controller,    app => 1 );
+DW::Routing->register_string( "/admin/vgifts/inactive", \&inactive_controller, app => 1 );
 
 sub _loose_refer {
     my $baseuri = $_[0];
@@ -401,6 +402,112 @@ sub index_controller {
     $vars->{list_created_by} = sub { [ DW::VirtualGift->list_created_by( $_[0] ) ] };
 
     return DW::Template->render_template( 'admin/vgifts/index.tt', $vars );
+}
+
+sub inactive_controller {
+    my $privs = [ $vgift_privs->[1], $vgift_privs->[2] ];
+
+    my ( $ok, $rv ) = controller( privcheck => $privs );
+    return $rv unless $ok;
+
+    my $r     = $rv->{r};
+    my $scope = '/admin/vgifts/inactive.tt';
+    my $vars  = {};
+
+    my $remote    = $rv->{remote};
+    my $form_args = $r->did_post ? $r->post_args : $r->get_args;
+
+    my $mode = lc( $form_args->{mode} || $r->get_args->{mode} || '' );
+
+    # process post request, but only if we have a mode
+    if ( $r->did_post && $mode ) {
+
+        $mode = '' unless _loose_refer("/admin/vgifts/inactive");
+
+        if ( $mode eq 'activate' ) {
+            my @vgs;
+            foreach ( keys %$form_args ) {
+                my ($id) = ( $_ =~ /^(\d+)_activate$/ );
+                next unless $id;
+
+                my $err_ml;
+                my $vg = _check_id( $id, $err_ml );
+                return error_ml($err_ml) unless $vg;
+
+                next if $vg->is_active;    # already active
+
+                return error_ml( "$scope.error.notags", { name => $vg->name_ehtml } )
+                    if $vg->is_untagged;
+
+                return error_ml( "$scope.error.changed", { name => $vg->name_ehtml } )
+                    if $form_args->{"${id}_chksum"} ne $vg->checksum;
+
+                push @vgs, $vg;
+            }
+
+            # now that we're clear of possible errors, do the activation
+            $_->mark_active foreach @vgs;
+            my $ids = join ', ', map { $_->id } @vgs;
+            LJ::statushistory_add( 0, $remote, 'vgifts', "Activated: $ids" )
+                if $ids;
+
+            # go back to where we were
+            return $r->redirect( $r->header_in('Referer') );
+        }
+
+        else {
+            # if we get here, check_referer failed or something weird happened
+            return $r->redirect("$LJ::SITEROOT/admin/vgifts/inactive");
+        }
+    }    # end did_post
+
+    my @vgs;
+
+    if ( $mode eq 'tags' ) {
+        my $tag = $form_args->{tag} || '';
+
+        if ($tag) {
+            return error_ml("$scope.error.badid")
+                unless DW::VirtualGift->get_tagid($tag);
+
+            $vars->{tag}   = $tag;
+            $vars->{count} = scalar grep { $_->is_approved } DW::VirtualGift->list_untagged;
+
+            @vgs = DW::VirtualGift->list_tagged_with($tag);
+
+            # list_tagged_with includes active gifts
+            @vgs = grep { $_->is_inactive } @vgs;
+        }
+        else {
+            @vgs = DW::VirtualGift->list_untagged;
+        }
+
+        my $app = DW::VirtualGift->fetch_tagcounts_approved;
+        my $act = DW::VirtualGift->fetch_tagcounts_active;
+
+        $vars->{approved_inactive} = {};
+        $vars->{approved_inactive}->{$_} = $app->{$_} - ( $act->{$_} // 0 ) foreach keys %$app;
+    }
+    else {
+        # DEFAULT PAGE DISPLAY
+        @vgs = DW::VirtualGift->list_inactive;
+    }
+
+    # don't include queued or rejected gifts
+    @vgs = grep { $_->is_approved } @vgs;
+
+    $vars->{feat}    = [ grep { $_->is_featured } @vgs ];
+    $vars->{nonfeat} = [ grep { !$_->is_featured } @vgs ];
+    $vars->{nonpriv} = { map  { $_ => 1 } DW::VirtualGift->list_nonpriv_tags };
+
+    $vars->{mode}  = $mode;
+    $vars->{modes} = [ '', 'tags' ];    # ordered
+    $vars->{tabs}  = {
+        ''     => '.tab.default',
+        'tags' => '.tab.tags',
+    };
+
+    return DW::Template->render_template( 'admin/vgifts/inactive.tt', $vars );
 }
 
 1;

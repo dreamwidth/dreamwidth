@@ -1,3 +1,5 @@
+[%# for global use %]
+
 [%- BLOCK linkback -%]
 <p>
   <a href='[% "/admin/vgifts/" %]'>&lt;&lt; [% '.linktext.home' | ml %]</a>
@@ -7,6 +9,8 @@
 [%- BLOCK success_message -%]
 <div class="alert-box success radius">[% success_text %]</div>
 [%- END -%]
+
+[%# for index %]
 
 [%- BLOCK userview; # requires $u from caller
       i = 0;
@@ -72,3 +76,44 @@
   <label for='[% "${id}_url" %]' >[% '.label.fromurl' | ml %]</label>
   [% form.textbox( name = "url_$id", size = 25 ) %]
 [%- END -%]
+
+[%# for inactive %]
+
+[%- BLOCK display_privtags; # requires $vg from caller -%]
+  [%- FOREACH t IN vg.tags.sort;
+        tagname = t | url;
+        taghtml = t | html;
+        url = dw.create_url( 'tags', args => { tag => tagname, mode => 'view' } );
+        txt = "<a href='$url'>$taghtml</a>";
+        privtext = '';
+
+        UNLESS nonpriv.t;
+          # asterisk tags with privileges
+          txt = txt _ ' [*]';
+          privtext = '.note.privstar' | ml;
+        END;
+
+        print_tags.push(txt);
+
+      END -%]
+
+  [%- IF print_tags.size -%]
+    [% 'vgift.display.label.tags' | ml %]
+    [% print_tags.join(', ') %] &nbsp; [% privtext %]
+  [%- END -%]
+
+[%- END; # BLOCK display_privtags -%]
+
+[%- BLOCK display_gift; # requires $vg from caller -%]
+<div style='margin: 1em 0 2em 0'>
+  [% form.checkbox( label = dw.ml( '.label.activate' ), value = 1,
+                    name = "${vg.id}_activate", id = "${vg.id}_activate" ) %]
+  [% form.hidden( name = "${vg.id}_chksum", value = vg.checksum ) %]
+  [% vg.display_summary %]
+  [% PROCESS display_privtags %]
+  [%- editurl = dw.create_url( '/admin/vgifts/', args => { id => vg.id,
+                               mode => 'review', title => 'inactive' } ) -%]
+  <p><a href='[% editurl %]'>[% '.linktext.edit' | ml( name = vg.name_ehtml) %]</a>
+  </p>
+</div>
+[%- END; # BLOCK display_gift -%]
