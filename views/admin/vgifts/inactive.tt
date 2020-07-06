@@ -10,23 +10,21 @@
   # 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
 [%- sections.head = BLOCK %]
     <style type="text/css">
         #content input { height: auto; width: auto; display: inline; }
         #content input[type="text"] { margin: 0.5em 0; }
         #content input[type="file"] { font-size: 85%; }
+        #content label { margin-top: 1em; display: inline-block; }
         #content h2, #content p { margin-top: 1em; }
         #content h3, #content li { margin: 0.5em 0; }
         #content h4 { margin-top: 2rem; }
         #content ol { list-style: decimal inside; }
         #content ul { list-style: none; margin-left: 0; }
 
-        #content label { margin-right: 1em; }
-        .vgdiv         { margin-bottom: 15px; width: 45%; }
-        #left          { float: left; }
-        #right         { float: right; }
-
-        ul.tabs { width: 100%; padding-bottom: 3.5em; }
+        ul.tabs { width: 100%; padding-bottom: 2em; }
         ul.tabs li {
             float: left;
             display: block;
@@ -53,11 +51,43 @@
   <li><a href='[% href %]'>[% tabs.$m | ml %]</a></li>
   [%- END -%]
 </ul>
-<div style='clear: both'></div>
 [%- END -%]
 
+<div class='row'><div class='columns medium-6'><form method='post'>
+  [% dw.form_auth %]
+  [% form.hidden( name = 'mode', value = 'activate' ) %]
+
+  <h2>[% '.header.featured' | ml %]</h2>
+
+[%- IF feat.size -%]
+  <ul>
+  [%- FOREACH vg IN feat -%]
+    [%- PROCESS display_gift -%]
+  [%- END -%]
+  </ul>
+[%- ELSE -%]
+  <p>[% '.queue.empty' | ml %]</p>
+[%- END -%]
+
+  <h2>[% '.header.nonfeatured' | ml %]</h2>
+
+[%- IF nonfeat.size -%]
+  <ul>
+  [%- FOREACH vg IN nonfeat -%]
+    [%- PROCESS display_gift -%]
+  [%- END -%]
+  </ul>
+[%- ELSE -%]
+  <p>[% '.queue.empty' | ml %]</p>
+[%- END -%]
+
+  <p style='margin-top: 2.5em'>
+    [% form.submit( name = 'submit', value = dw.ml( '.submit.activate' ) ) %]
+  </p>
+</form></div>
+
 [%- IF mode == 'tags' -%]
-<div class='vgdiv' id='right'>
+<div class='columns medium-6'>
   <h2>
     [%- etag = tag | html; untag_txt = '.label.untagged' | ml -%]
     [% '.header.tagfilter' | ml %] [% tag ? etag : untag_txt %]
@@ -81,40 +111,6 @@
   [%- END -%]
 </div>
 [%- END -%]
-
-<form method='post'>
-  [% dw.form_auth %]
-  [% form.hidden( name = 'mode', value = 'activate' ) %]
-
-  <h2>[% '.header.featured' | ml %]</h2>
-
-[%- IF feat.size -%]
-  <ul>
-  [%- FOREACH vg IN feat -%]
-    [%- PROCESS display_gift -%]
-  [%- END -%]
-  </ul>
-[%- ELSE -%]
-  <p>[% '.queue.empty' | ml %]</p>
-[%- END -%]
-
-  <div style='clear: left'></div>
-
-  <h2>[% '.header.nonfeatured' | ml %]</h2>
-
-[%- IF nonfeat.size -%]
-  <ul>
-  [%- FOREACH vg IN nonfeat -%]
-    [%- PROCESS display_gift -%]
-  [%- END -%]
-  </ul>
-[%- ELSE -%]
-  <p>[% '.queue.empty' | ml %]</p>
-[%- END -%]
-
-  <p>[% form.submit( name = 'submit', value = dw.ml( '.submit.activate' ) ) %]</p>
-</form>
-
-<div style='margin-bottom: 15px'></div>
+</div>
 
 [% PROCESS linkback %]

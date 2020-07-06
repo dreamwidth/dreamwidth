@@ -1147,7 +1147,7 @@ sub display_summary {
     $ret .= "<div style='clear: left'></div>\n";
     $ret .= "<div style='float: left; margin-right: 2em'>";
     $ret .= $self->img_small_html;
-    $ret .= "</div><p><b>";
+    $ret .= "</div><p style='margin-top: 0'><b>";
     $ret .= $self->name_ehtml . '</b>: <em>' . $self->description_ehtml;
     $ret .= "</em><br />";
     $ret .= LJ::Lang::ml(
