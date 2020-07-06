@@ -2452,6 +2452,26 @@ general /admin/translate/teams.bml.teams.header
 general /admin/translate/teams.bml.teams.text
 general /admin/translate/teams.bml.title
 
+general /admin/vgifts/inactive.bml.error.badid
+general /admin/vgifts/inactive.bml.error.changed
+general /admin/vgifts/inactive.bml.error.notags
+general /admin/vgifts/inactive.bml.error.upload.noheader
+general /admin/vgifts/inactive.bml.error
+general /admin/vgifts/inactive.bml.header.featured
+general /admin/vgifts/inactive.bml.header.nonfeatured
+general /admin/vgifts/inactive.bml.header.tabs
+general /admin/vgifts/inactive.bml.header.tagfilter
+general /admin/vgifts/inactive.bml.label.activate
+general /admin/vgifts/inactive.bml.label.untagged
+general /admin/vgifts/inactive.bml.linktext.edit
+general /admin/vgifts/inactive.bml.linktext.home
+general /admin/vgifts/inactive.bml.note.privstar
+general /admin/vgifts/inactive.bml.queue.empty
+general /admin/vgifts/inactive.bml.submit.activate
+general /admin/vgifts/inactive.bml.tab.default
+general /admin/vgifts/inactive.bml.tab.tags
+general /admin/vgifts/inactive.bml.title
+
 general /admin/vgifts/index.bml.error
 general /admin/vgifts/index.bml.error.badid
 general /admin/vgifts/index.bml.error.changed

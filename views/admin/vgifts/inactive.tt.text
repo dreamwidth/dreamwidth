@@ -1,13 +1,9 @@
 ;; -*- coding: utf-8 -*-
-.error=Error
-
 .error.badid=The specified tag was not found.
 
 .error.changed=The information for "[[name]]" has changed. Please reload and try again.
 
 .error.notags=The gift "[[name]]" cannot be activated because it has no tags.
-
-.error.upload.noheader=No content-length header: can't upload
 
 .header.featured=Featured Gifts:
 
