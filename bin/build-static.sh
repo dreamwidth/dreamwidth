@@ -20,8 +20,8 @@ fi
 # if compass is installed, build that first
 compass=$(which compass)
 if [ "$compass" != "" ]; then
-    # see if we have Compass version 0.12 or later
-    compass_version_ok=$(compass version | perl -ne '/^Compass (\d\.\d+)/ && print $1 >= 0.12')
+    # see if we have Compass version 1.0 or later
+    compass_version_ok=$(compass version | perl -ne '/^Compass (\d\.\d+)/ && print $1 >= 1.0')
     if [ $compass_version_ok ]; then
         echo "* Building SCSS..."
         cd $LJHOME
@@ -31,7 +31,7 @@ if [ "$compass" != "" ]; then
             $compass compile -e production --force
         fi
     else
-        echo "Compass version must be 0.12 or higher. Please upgrade."
+        echo "Compass version must be 1.0 or higher. Please upgrade."
         echo "Warning: Skipping compass compile..."
     fi
 else
