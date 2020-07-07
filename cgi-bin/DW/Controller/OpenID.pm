@@ -351,7 +351,9 @@ sub openid_login_handler {
         return $r->redirect($check_url);
     }
 
-    my $get_args = $r->get_args;
+    # get_args method returns a Hash::MultiValue,
+    # but LJ::OpenID::consumer needs a plain vanilla hash
+    my $get_args = $r->get_args->as_hashref;
     if ( $get_args->{'openid.mode'} ) {
 
         my $csr = LJ::OpenID::consumer($get_args);
