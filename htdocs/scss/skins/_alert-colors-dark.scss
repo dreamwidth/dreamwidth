@@ -1,6 +1,6 @@
 // shared colors for elements between themes
 $_gray:             #222;
-$_orange:           shade( #ffbc88, 20% );
+$_orange:           mix( #000000, #ffbc88, 20% );
 $_light-orange:     darken( #fff0e4, 8% );
 $_light-green:      darken( #e1eed7, 8% );
 $_light-yellow:     darken( #fbf9dd, 8% );

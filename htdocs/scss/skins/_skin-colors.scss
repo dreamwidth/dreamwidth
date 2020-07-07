@@ -17,10 +17,10 @@ $highlight-text-color: $body-font-color !default;
 // use an explicit value if it exists.
 
 $background-color-alternate:    darken( $background-color, 5% ) !default;
-$background-color-inactive:     tint( $inactive-color, 50% ) !default;
+$background-color-inactive:     mix( #ffffff, $inactive-color, 50% ) !default;
 $secondary-color-alternate:     darken( $secondary-color, 15% ) !default;
 $text-color-disabled:           scale-color($text-color, $lightness: 50%) !default;
-$anchor-font-color-visited:     shade( $anchor-font-color, 20% ) !default;
+$anchor-font-color-visited:     mix( #000000, $anchor-font-color, 20% ) !default;
 $page-title-color:              $primary-color !default;
 $border-color:                  $input-border-color !default;
 $screened-comment-bg:           $callout-panel-bg !default;
@@ -210,7 +210,7 @@ div.disabled, div.disabled * { color: $text-color-disabled; }
 // progress meter
 .progress-meter {
     li:before {
-        background-color: lighten( tint( $primary-color, 50% ), 10% );
+        background-color: lighten( mix( #ffffff, $primary-color, 50% ), 10% );
         color: $primary-text-color;
     }
 
