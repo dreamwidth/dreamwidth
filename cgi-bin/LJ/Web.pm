@@ -2804,7 +2804,16 @@ sub js_dumper {
             return $mtime;
         };
 
-        my $file  = LJ::resolve_file("htdocs/$key");
+        my $file;
+
+        # Prefer the compiled version, but fall back to source
+        if ( defined $LJ::STATDOCS ) {
+            $file = $LJ::STATDOCS . '/' . $key;
+        }
+        else {
+            $file = LJ::resolve_file("htdocs/$key");
+        }
+
         my $mtime = defined $file ? ( stat($file) )[9] : undef;
         return $set->($mtime);
     }
