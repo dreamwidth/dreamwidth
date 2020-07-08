@@ -1220,8 +1220,8 @@ sub load_file_for_concat {
     my $mime;
     if ( $fn =~ /\.([a-z]+)$/ ) {
         $mime = {
-            css => 'text/css',
-            js  => 'application/javascript',
+            css => 'text/css; charset=utf-8',
+            js  => 'application/javascript; charset=utf-8',
         }->{$1};
     }
     return undef unless $mime;
