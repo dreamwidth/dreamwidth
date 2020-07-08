@@ -1238,7 +1238,19 @@ sub load_file_for_concat {
     { local $/ = undef; $contents = <FILE>; }
     close FILE;
 
-    return [ $contents, $stat[7], $stat[9], $mime ];
+    # Remove UTF-8 byte-order mark, in case someone set us up the BOM. (It's not
+    # valid after the first position in a file, and can screw up syntax when
+    # concatenating.)
+    $contents =~ s/\A\x{ef}\x{bb}\x{bf}//;
+
+    # Add a newline, juuuust to be safe.
+    $contents .= "\n";
+
+    # If we were handling unicode properly, we'd need to encode before checking
+    # length... but we aren't.
+    my $size = length($contents);
+
+    return [ $contents, $size, $stat[9], $mime ];
 }
 
 sub adult_interstitial {
