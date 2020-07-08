@@ -17,6 +17,8 @@ use strict;
 use LJ::ConvUTF8;
 use HTML::TokeParser;
 use HTML::Entities;
+use Carp qw(cluck);
+use Encode;
 
 # <LJFUNC>
 # name: LJ::trim
@@ -312,6 +314,16 @@ sub is_ascii {
     my $text = $_[0];
     return 1 unless defined $text;
     return ( $text !~ m/[^\x01-\x7f]/ );
+}
+
+# Logs a warning if text has Perl's internal UTF8 flag set, so we can track it
+# down later. This is intended for debugging problems on prod that can't be
+# reproduced in dev.
+sub warn_for_perl_utf8 {
+    my $text = $_[0];
+    if ( Encode::is_utf8($text) ) {
+        cluck("MOJIBAKE ALERT: Found text with Perl UTF8 flag set!");
+    }
 }
 
 # <LJFUNC>
