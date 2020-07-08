@@ -33,36 +33,44 @@ our $default_format = 'html_casual1';
 # obsolete version => newest version:
 our %format_upgrades = ( html_casual0 => 'html_casual1', );
 
+# format hashref keys:
+# id: identifies formats everywhere, including the HTML cleaner.
+# name: displayed in web UI.
+# description and features: displayed on /dev/formats.
 our %formats = (
     html_casual0 => {
-        id   => 'html_casual0',
-        name => "Casual HTML (legacy 0)",
-        description =>
-"Text with normal line breaks, plus HTML tags for formatting. Doesn't support \@mentions.",
+        id          => 'html_casual0',
+        name        => "Casual HTML (legacy 0)",
+        features    => q{DW tags, auto linebreaks, auto links},
+        description => q{An older version of casual HTML that doesn't support @mentions.},
     },
     html_casual1 => {
-        id   => 'html_casual1',
-        name => "Casual HTML",
+        id       => 'html_casual1',
+        name     => "Casual HTML",
+        features => q{@mentions, DW tags, auto linebreaks, auto links},
         description =>
-            "Text with normal line breaks, plus \@mentions and HTML tags for formatting.",
+q{The classic default format: uses HTML tags for formatting, but automatically formats paragraphs.},
     },
     html_raw0 => {
-        id   => 'html_raw0',
-        name => "Raw HTML",
+        id       => 'html_raw0',
+        name     => "Raw HTML",
+        features => q{DW tags},
         description =>
-"Pre-formatted HTML. Doesn't automatically detect paragraph breaks, and doesn't support \@mentions.",
+q{Normal HTML, plus Dreamwidth's special <code>&lt;user&gt;</code> and <code>&lt;cut&gt;</code> tags. Doesn't automatically format paragraphs, and doesn't support @mentions.},
     },
     html_extra_raw => {
-        id   => 'html_extra_raw',
-        name => "Raw HTML (external source)",
+        id       => 'html_extra_raw',
+        name     => "Raw HTML (external source)",
+        features => q{none},
         description =>
-"Pre-formatted HTML from a feed or some other external source. Doesn't support special Dreamwidth tags like &lt;user&gt;.",
+q{Normal HTML from a feed or some other external source. Doesn't support any special Dreamwidth syntax, including tags like <code>&lt;user&gt;</code>.},
     },
     markdown0 => {
-        id   => 'markdown0',
-        name => "Markdown",
+        id       => 'markdown0',
+        name     => "Markdown",
+        features => q{Markdown syntax, @mentions, DW tags},
         description =>
-"Markdown, a lightweight text format that makes paragraphs from normal line breaks and provides shortcuts for the most common HTML tags. Supports \@mentions, and supports real HTML tags for more complex formatting.",
+q{A lightweight markup syntax that automatically formats paragraphs, provides shortcuts for the most common HTML tags, and allows inline HTML for more complex formatting. This implementation uses Perl's Text::Markdown module (which is very close to <a href="https://daringfireball.net/projects/markdown/">the original Markdown syntax</a>), plus some DW-specific extensions.},
     },
 );
 
