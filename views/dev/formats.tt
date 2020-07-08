@@ -1,0 +1,82 @@
+[%# List of all markup formats and their aliases, for developers. (Normal users
+don't need all these details, and should learn a subset of this stuff from a faq
+page.)
+
+Authors:
+    Nick Fagerlund <nick.fagerlund@gmail.com>
+
+Copyright (c) 2020 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.title = "Markup Formats" -%]
+
+<h2>About Formats</h2>
+
+<p>Dreamwidth supports a handful of different markup formats for user-submitted text like entries and comments. The format ID is stored alongside the text of each item, and it determines how we transform the user's raw text when displaying it on the web.</p>
+
+<p>Some formats have multiple versions — we sometimes want to change how the markup rules work going forward, so we retain the old versions to preserve any content written before the changes took effect.</p>
+
+<p>Some formats also have aliases, either to preserve some existing behavior or as a convenience for requesting the current version of a format. When content is submitted with an aliased format, it gets saved as the canonical ID that the alias currently resolves to.</p>
+
+<p>A subset of formats are marked as "active." Although any format can be used in contexts that accept a raw format ID, the web UI's format selectors only display the active formats. (When editing old content that already uses an inactive format, that format is also included in the UI.)</p>
+
+<h2>Contents</h2>
+
+<ul>
+    <li>Active Formats
+        <ul>
+            [% FOREACH format = active_formats %]
+                <li><a href="#[% format.id %]">[% format.id %]</a></li>
+            [% END %]
+        </ul>
+    </li>
+
+    <li>Other Formats
+        <ul>
+            [% FOREACH format = other_formats %]
+                <li><a href="#[% format.id %]">[% format.id %]</a></li>
+            [% END %]
+        </ul>
+    </li>
+</ul>
+
+<h2>Active Formats</h2>
+
+<dl>
+[% FOREACH format = active_formats -%]
+    [% INCLUDE print_format %]
+[%- END -%]
+</dl>
+
+<h2>Other Formats</h2>
+
+<dl>
+[% FOREACH format = other_formats -%]
+    [% INCLUDE print_format %]
+[%- END -%]
+</dl>
+
+[%- BLOCK print_format -%]
+    <dt id="[% format.id %]">[% format.id %]</dt>
+    <dd>
+        <p>[% format.description %]</p>
+        <h5>Display Name:</h5>
+        <p>[% format.name %]</p>
+        [% IF format.features -%]
+            <h5>Features:</h5>
+            <p>[% format.features %]</p>
+        [%- END %]
+        [% IF aliases.${format.id} -%]
+            <h5>Aliases:</h5>
+            <ul>
+                [% FOREACH alias = aliases.${format.id} %]<li>[% alias %]</li>[% END %]
+            </ul>
+        [%- END %]
+    </dd>
+[%- END -%]
