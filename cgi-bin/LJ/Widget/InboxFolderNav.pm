@@ -126,6 +126,7 @@ sub render_body {
             </p></div>&nbsp;<br />
     };
 
+    LJ::warn_for_perl_utf8($body);
     return $body;
 }
 

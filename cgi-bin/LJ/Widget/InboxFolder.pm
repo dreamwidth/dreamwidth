@@ -231,6 +231,7 @@ sub render_body {
             $content_div = qq {
                 <div class="InboxItem_Content usercontent" style="display: $display;">$contents</div>
                 };
+            LJ::warn_for_perl_utf8($content_div);
         }
 
         $messagetable .= qq {
@@ -273,6 +274,7 @@ sub render_body {
         . $class->ml('widget.inboxfolder.confirm.delete')
         . "';</script>";
 
+    LJ::warn_for_perl_utf8($msgs_body);
     return $msgs_body;
 }
 

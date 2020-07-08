@@ -46,6 +46,8 @@ sub render_body {
     }
 
     $ret .= LJ::tag_cloud($tag_items);
+
+    LJ::warn_for_perl_utf8($ret);
     return $ret;
 }
 

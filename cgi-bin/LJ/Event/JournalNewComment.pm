@@ -268,7 +268,8 @@ sub content_summary {
     return undef unless $self->_can_view_content( $comment, $target );
 
     my $body_summary = $comment->body_html_summary(300);
-    my $ret          = $body_summary;
+    LJ::warn_for_perl_utf8($body_summary);
+    my $ret = $body_summary;
     $ret .= "..." if $comment->body_html ne $body_summary;
 
     if ( $comment->is_edited ) {
@@ -278,9 +279,11 @@ sub content_summary {
             { reason => $reason } )
             . "</div>"
             if $reason;
+        LJ::warn_for_perl_utf8($ret);
     }
 
     $ret .= $self->as_html_actions;
+    LJ::warn_for_perl_utf8($ret);
 
     return $ret;
 }
@@ -311,9 +314,12 @@ sub as_html {
     my $url = $comment->url;
 
     my $in_text = '<a href="' . $entry->url . "\">$entry_subject</a>";
+    LJ::warn_for_perl_utf8($in_text);
     my $subject = $comment->subject_text ? ' "' . $comment->subject_text . '"' : '';
+    LJ::warn_for_perl_utf8($subject);
 
     my $poster = $comment->poster ? "by $pu" : '';
+    LJ::warn_for_perl_utf8($poster);
     my $ret;
     if ( $comment->is_edited ) {
         $ret = "Edited <a href=\"$url\">comment</a> $subject $poster on $in_text in $ju.";
