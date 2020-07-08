@@ -22,10 +22,13 @@ use DW::Routing;
 use DW::SiteScheme;
 use DW::Controller;
 use DW::FormErrors;
+use DW::Formats;
 
 use LJ::JSON;
 
 DW::Routing->register_string( '/dev/style-guide', \&style_guide_handler, app => 1 );
+
+DW::Routing->register_string( '/dev/formats', \&formats_handler, app => 1 );
 
 if ($LJ::IS_DEV_SERVER) {
     DW::Routing->register_string( '/dev/tests/index', \&tests_index_handler, app => 1 );
@@ -58,6 +61,44 @@ sub style_guide_handler {
         {
             authas_form => $authas_form,
             errors      => $errors,
+        }
+    );
+}
+
+sub formats_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my @active_formats;
+    my @other_formats;
+    my %aliases;
+
+    my @format_ids = sort { $a cmp $b } ( keys %DW::Formats::formats );
+    foreach (@format_ids) {
+        my $id     = $_;
+        my $format = $DW::Formats::formats{$id};
+        if ( $id ne $format->{id} ) {
+
+            # It's an alias.
+            $aliases{ $format->{id} } //= [];
+            push @{ $aliases{ $format->{id} } }, $id;
+        }
+        else {
+            if ( grep { $id eq $_ } @DW::Formats::active_formats ) {
+                push @active_formats, $format;
+            }
+            else {
+                push @other_formats, $format;
+            }
+        }
+    }
+
+    return DW::Template->render_template(
+        'dev/formats.tt',
+        {
+            active_formats => \@active_formats,
+            other_formats  => \@other_formats,
+            aliases        => \%aliases,
         }
     );
 }
