@@ -109,7 +109,7 @@ sub select_items {
 # Return the canonical version of the provided format ID if valid, empty string if not.
 sub validate {
     my $format = $_[0];
-    if ( $formats{$format} ) {
+    if ( $format && $formats{$format} ) {
         return $formats{$format}->{id};
     }
     else {
@@ -119,7 +119,7 @@ sub validate {
 
 sub is_active {
     my $format = $_[0];
-    if ( grep( $_ eq $format, @active_formats ) ) {
+    if ( $format && grep( $_ eq $format, @active_formats ) ) {
         return 1;
     }
     return 0;
@@ -127,7 +127,7 @@ sub is_active {
 
 sub display_name {
     my $format = $_[0];
-    if ( $formats{$format} ) {
+    if ( $format && $formats{$format} ) {
         return $formats{$format}->{name};
     }
     return "Unknown markup format";
