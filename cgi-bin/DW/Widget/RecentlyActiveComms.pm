@@ -61,6 +61,7 @@ sub render_body {
     $ret .= "<li><em> " . BML::ml('widget.comms.notavailable') . "</em></li>" unless $ct;
     $ret .= "</ul>\n";
 
+    LJ::warn_for_perl_utf8($ret);
     return $ret;
 }
 

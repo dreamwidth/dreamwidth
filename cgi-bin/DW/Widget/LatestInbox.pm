@@ -76,6 +76,7 @@ sub render_body {
     }
 
     $ret .= "</div>";
+    LJ::warn_for_perl_utf8($ret);
     return $ret;
 }
 
