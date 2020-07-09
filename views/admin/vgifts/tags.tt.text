@@ -1,6 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.error=Error
-
 .error.badarg=The argument [[arg]] is not valid for the privilege [[priv]].
 
 .error.badid=The specified tag was not found.
@@ -12,8 +10,6 @@
 .error.needpriv=You specified an arg but failed to specify an associated privilege.
 
 .error.privarg=There was a problem adding [[privarg]] permissions to the specified tag.
-
-.error.upload.noheader=No content-length header: can't upload
 
 .header.delete=Are you sure you want to delete the tag '[[tag]]' from all gifts?
 
