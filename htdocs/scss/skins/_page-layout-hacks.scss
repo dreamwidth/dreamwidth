@@ -32,15 +32,15 @@ ul.successlinks li {
 }
 
 // fix for illegible table header links
-[id="content"] table th a {
+[id="content"] table thead th a {
     color: $primary-text-color;
 }
 
-[id="content"] table th a:visited {
+[id="content"] table thead th a:visited {
     color: $secondary-color;
 }
 
-[id="content"] table th a:hover, [id="content"] table th a:visited:hover {
+[id="content"] table thead th a:hover, [id="content"] table thead th a:visited:hover {
     color: $highlight-color;
 }
 
