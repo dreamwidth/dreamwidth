@@ -69,3 +69,5 @@
 /shop/index.bml                     /shop
 /stats/index                        /stats
 /stats/index.bml                    /stats
+/extcss/index                       /extcss
+/extcss/index.bml                   /extcss

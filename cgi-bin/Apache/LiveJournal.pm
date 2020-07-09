@@ -927,7 +927,7 @@ sub trans {
         }
         elsif ( $func eq "cssproxy" ) {
 
-            return $bml_handler->("$LJ::HTDOCS/extcss/index.bml");
+            return DW::Routing->call( uri => '/extcss' );
 
         }
         elsif ( $func eq 'support' ) {
