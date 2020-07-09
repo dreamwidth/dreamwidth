@@ -45,6 +45,7 @@ DW::Controller::Admin->register_admin_page(
 
 DW::Routing->register_string( "/admin/vgifts/index",    \&index_controller,    app => 1 );
 DW::Routing->register_string( "/admin/vgifts/inactive", \&inactive_controller, app => 1 );
+DW::Routing->register_string( "/admin/vgifts/tags",     \&tags_controller,     app => 1 );
 
 sub _loose_refer {
     my $baseuri = $_[0];
@@ -508,6 +509,165 @@ sub inactive_controller {
     };
 
     return DW::Template->render_template( 'admin/vgifts/inactive.tt', $vars );
+}
+
+sub tags_controller {
+    my $privs = [ $vgift_privs->[1], $vgift_privs->[2] ];
+
+    my ( $ok, $rv ) = controller( privcheck => $privs );
+    return $rv unless $ok;
+
+    my $r     = $rv->{r};
+    my $scope = '/admin/vgifts/tags.tt';
+    my $vars  = {};
+
+    my $form_args = $r->did_post ? $r->post_args : $r->get_args;
+    my $redirect_args;
+
+    my $mode = lc( $form_args->{mode} || $r->get_args->{mode} || '' );
+
+    # process post request, but only if we have a mode
+    if ( $r->did_post && $mode ) {
+
+        $mode = '' unless _loose_refer("/admin/vgifts/tags");
+
+        my $errors = DW::FormErrors->new;
+
+        if ( $mode eq 'edit' ) {
+            my $tagid = $form_args->{id};
+            return error_ml("$scope.error.badid") unless $tagid;
+
+            my $tag = DW::VirtualGift->get_tagname($tagid);
+            return error_ml("$scope.error.badid") unless $tag;
+
+            my $priv = $form_args->{"${tagid}_addpriv"};
+            my $arg  = $form_args->{"${tagid}_privarg"};
+
+            $errors->add( "${tagid}_addpriv", "$scope.error.needpriv" ) if $arg && !$priv;
+
+            if ($priv) {
+                my $e_priv = LJ::ehtml($priv);
+                my $e_arg  = LJ::ehtml($arg);
+
+                # make sure the new priv is valid
+                $errors->add( "${tagid}_addpriv", "$scope.error.badpriv", { priv => $e_priv } )
+                    unless DW::VirtualGift->validate_priv($priv);
+
+                # also validate arg if given
+                if ( $arg && $arg ne '*' ) {
+                    my $valid_args = LJ::list_valid_args($priv);
+                    $errors->add( "${tagid}_privarg", "$scope.error.badarg",
+                        { priv => $e_priv, arg => $e_arg } )
+                        unless $valid_args && $valid_args->{$arg};
+                }
+            }
+
+            # process rename first
+            if ( my $newtag = $form_args->{"${tagid}_rename"} ) {
+
+                if ( DW::VirtualGift->alter_tag( $tag, $newtag ) ) {
+                    $tag = $newtag;    # subsequent changes target $newtag
+                }
+                else {
+                    $errors->add( "${tagid}_rename", "$scope.error.badtagname",
+                        { tag => LJ::ehtml($newtag) } );
+                }
+            }
+
+            unless ( $errors->exist ) {
+
+                # process new privilege
+                if ($priv) {
+                    my $e_privarg = LJ::ehtml($priv) . ':' . LJ::ehtml($arg);
+                    DW::VirtualGift->add_priv_to_tag( $tag, $priv, $arg )
+                        or return error_ml( "$scope.error.privarg", { privarg => $e_privarg } );
+                }
+
+                # process old privileges
+                if ( my $maxprivnum = $form_args->{"${tagid}_maxprivnum"} ) {
+
+                    # only remove existing privs if not renamed (can resubmit)
+                    unless ( $form_args->{"${tagid}_rename"} ) {
+                        DW::VirtualGift->remove_priv_from_tag( $tag, $_->[0], $_->[1] )
+                            foreach DW::VirtualGift->list_tagprivs($tag);
+                    }
+
+                    # add back selected privs
+                    foreach my $i ( 0 .. $maxprivnum ) {
+                        my $priv_i = $form_args->{"${tagid}_priv$i"};
+                        next unless $priv_i;
+                        my ( $p, $a ) = ( $priv_i =~ /^([^:]+):(.*)$/ );
+                        next unless $p;
+                        DW::VirtualGift->add_priv_to_tag( $tag, $p, $a )
+                            or return error_ml( "$scope.error.privarg",
+                            { privarg => LJ::ehtml("$p:$a") } );
+                    }
+                }
+
+                $redirect_args =
+                    { mode => 'view', title => 'edited', id => DW::VirtualGift->get_tagid($tag) };
+            }
+        }
+
+        elsif ( $mode eq 'confirm' ) {
+            my $tag = DW::VirtualGift->get_tagname( $form_args->{id} );
+            return error_ml("$scope.error.badid") unless $tag;
+            DW::VirtualGift->alter_tag($tag);    # deletes the tag
+        }
+
+        if ( $errors->exist ) {
+            $vars->{errors}   = $errors;
+            $vars->{formdata} = $form_args;
+
+            # fall through to template
+        }
+        else {
+            return $r->redirect( LJ::create_url( undef, args => $redirect_args ) );
+        }
+    }    # end did_post
+
+    # non post processing stuff (check for gets)
+    my $tag = LJ::durl( $form_args->{tag} || '' );
+    my $id;
+
+    if ($mode) {
+        return $r->redirect( LJ::create_url() ) unless $tag;
+        $id = DW::VirtualGift->get_tagid($tag);
+        return error_ml("$scope.error.badid") unless $id;
+    }
+
+    if ( $mode eq 'remove' ) {
+        my $err_ml;
+        my $vg = _check_id( $form_args->{vg}, $err_ml );
+        return error_ml($err_ml) unless $vg;
+
+        # quickly process and return
+        $vg->remove_tag_by_id($id);
+        $redirect_args = { mode => 'view', tag => LJ::eurl($tag) };
+        return $r->redirect( LJ::create_url( undef, args => $redirect_args ) );
+    }
+
+    if ( $form_args->{title} && _strict_refer("/admin/vgifts/tags") ) {
+        $vars->{title} = $form_args->{title};
+    }
+
+    $vars->{mode} = $mode;
+    $vars->{tag}  = $tag;
+    $vars->{id}   = $id;
+
+    $vars->{list_tagprivs} = sub { [ DW::VirtualGift->list_tagprivs( $_[0] ) ] };
+    $vars->{tagged_with}   = sub { [ DW::VirtualGift->list_tagged_with( $_[0] ) ] };
+
+    unless ($mode) {
+        my $counts  = DW::VirtualGift->fetch_tagcounts_approved;
+        my %nonpriv = map { $_ => $counts->{$_} } DW::VirtualGift->list_nonpriv_tags;
+        delete @$counts{ keys %nonpriv };    # leaving only privileged data
+
+        $vars->{haspriv} = $counts;
+        $vars->{nonpriv} = \%nonpriv;
+    }
+
+    return DW::Template->render_template( 'admin/vgifts/tags.tt', $vars );
 }
 
 1;

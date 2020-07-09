@@ -117,3 +117,26 @@
   </p>
 </div>
 [%- END; # BLOCK display_gift -%]
+
+[%# for tags %]
+
+[%- BLOCK printtags; # requires $tagcounts from caller -%]
+  [%- IF tagcounts.size -%]
+    [%- FOREACH t IN tagcounts.keys.sort -%]
+<h3>
+  [% t | html %] ([% tagcounts.$t %]) &nbsp;
+  <a href='?mode=view&tag=[% t | url %]'>[% 'vgift.display.linktext.viewedit' | ml %]</a>
+  | <a href='?mode=delete&tag=[% t | url %]'>[% '.linktext.deletetag' | ml %]</a>
+</h3>
+    [%- END -%]
+  [%- ELSE -%]
+<h3>[% '.queue.empty' | ml %]</h3>
+  [%- END -%]
+[%- END; # BLOCK printtags -%]
+
+[%- BLOCK linkreset -%]
+<p>
+  <a href='[% "/admin/vgifts/tags" %]'>&lt;&lt;
+  [% '.linktext.back' | ml( title = dw.ml( '.title' ) ) %]</a>
+</p>
+[%- END -%]

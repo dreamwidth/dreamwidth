@@ -2533,6 +2533,38 @@ general /admin/vgifts/index.bml.title.delete
 general /admin/vgifts/index.bml.title.edited
 general /admin/vgifts/index.bml.title.review
 
+general /admin/vgifts/tags.bml.error.badarg
+general /admin/vgifts/tags.bml.error.badid
+general /admin/vgifts/tags.bml.error.badpriv
+general /admin/vgifts/tags.bml.error.badtagname
+general /admin/vgifts/tags.bml.error.needpriv
+general /admin/vgifts/tags.bml.error.privarg
+general /admin/vgifts/tags.bml.error.upload.noheader
+general /admin/vgifts/tags.bml.error
+general /admin/vgifts/tags.bml.header.delete
+general /admin/vgifts/tags.bml.header.giftlist
+general /admin/vgifts/tags.bml.header.nonpriv
+general /admin/vgifts/tags.bml.header.priv
+general /admin/vgifts/tags.bml.header.privlist
+general /admin/vgifts/tags.bml.label.edit.name
+general /admin/vgifts/tags.bml.label.edit.priv
+general /admin/vgifts/tags.bml.label.edit.tagname
+general /admin/vgifts/tags.bml.linktext.back
+general /admin/vgifts/tags.bml.linktext.deletetag
+general /admin/vgifts/tags.bml.linktext.home
+general /admin/vgifts/tags.bml.linktext.removetag
+general /admin/vgifts/tags.bml.note.active
+general /admin/vgifts/tags.bml.note.notapproved
+general /admin/vgifts/tags.bml.note.removeprivs
+general /admin/vgifts/tags.bml.note.tagmerge
+general /admin/vgifts/tags.bml.queue.empty
+general /admin/vgifts/tags.bml.review.empty
+general /admin/vgifts/tags.bml.submit.delete
+general /admin/vgifts/tags.bml.submit.edit
+general /admin/vgifts/tags.bml.title.delete
+general /admin/vgifts/tags.bml.title.edited
+general /admin/vgifts/tags.bml.title
+
 general /customize/index.bml.admin.customize_area_feedback
 general /customize/options.bml.customize.feedback
 
