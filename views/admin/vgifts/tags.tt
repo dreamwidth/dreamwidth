@@ -10,6 +10,8 @@
   # 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
 [%- sections.head = BLOCK %]
     <style type="text/css">
         #content input { height: auto; width: auto; display: inline; }

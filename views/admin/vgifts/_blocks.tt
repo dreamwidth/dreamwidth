@@ -60,7 +60,7 @@
               ".label.review.answer.$isfeat" | ml -%]
         </p>
         <p>
-          <b>[% 'vgift.display.label.cost' %]</b> [% vg.display_cost %]
+          <b>[% 'vgift.display.label.cost' | ml %]</b> [% vg.display_cost %]
         </p>
   [%- END -%]
 [%- END -%]
@@ -122,15 +122,17 @@
 
 [%- BLOCK printtags; # requires $tagcounts from caller -%]
   [%- IF tagcounts.size -%]
+<ul>
     [%- FOREACH t IN tagcounts.keys.sort -%]
-<h3>
+  <li>
   [% t | html %] ([% tagcounts.$t %]) &nbsp;
   <a href='?mode=view&tag=[% t | url %]'>[% 'vgift.display.linktext.viewedit' | ml %]</a>
   | <a href='?mode=delete&tag=[% t | url %]'>[% '.linktext.deletetag' | ml %]</a>
-</h3>
+  </li>
     [%- END -%]
+</ul>
   [%- ELSE -%]
-<h3>[% '.queue.empty' | ml %]</h3>
+[% '.queue.empty' | ml %]
   [%- END -%]
 [%- END; # BLOCK printtags -%]
 
