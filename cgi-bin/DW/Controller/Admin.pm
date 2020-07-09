@@ -40,24 +40,6 @@ my $admin_pages = {};
 
 DW::Controller::Admin->register_admin_scope( '/', title_ml => '.admin.title' );
 
-# DO NOT add anything to here
-DW::Controller::Admin->_register_admin_pages_legacy(
-    '/',
-    [ 'fileedit/', '.admin.file_edit.link', '.admin.file_edit.text', ['fileedit'] ],
-    [
-        'vgifts/',
-        '.admin.vgifts.link',
-        '.admin.vgifts.text',
-        [
-            'siteadmin:vgifts',
-            'vgifts',
-            sub {
-                return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml("/admin/index.tt.devserver") );
-            }
-        ]
-    ],
-);
-
 sub admin_handler {
     my $opts = shift @_;
     my $r    = DW::Request->get;
@@ -230,17 +212,6 @@ sub register_admin_page {
 
     $scope ||= "/";
     push @{ $admin_pages->{$scope}->{pages} }, [ $path, $link_ml, $desc_ml, $privs ];
-}
-
-# DO NOT USE OUTSIDE THIS FILE!
-# FIXME: Remove once the big scary array up above is gone!
-sub _register_admin_pages_legacy {
-    my ( $class, $scope, @pages ) = @_;
-
-    $scope ||= "/";
-    foreach my $part (@pages) {
-        push @{ $admin_pages->{$scope}->{pages} }, $part;
-    }
 }
 
 =head1 AUTHOR
