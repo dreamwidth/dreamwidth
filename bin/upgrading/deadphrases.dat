@@ -2301,8 +2301,12 @@ general /views/admin/index.tt.admin.dbschema.link
 general /views/admin/index.tt.admin.dbschema.text
 general /views/admin/index.tt.admin.faq.link
 general /views/admin/index.tt.admin.faq.text
+general /views/admin/index.tt.admin.file_edit.link
+general /views/admin/index.tt.admin.file_edit.text
 general /views/admin/index.tt.admin.invites.link
 general /views/admin/index.tt.admin.invites.text
+general /views/admin/index.tt.admin.logout_user.link
+general /views/admin/index.tt.admin.logout_user.text
 general /views/admin/index.tt.admin.memcache.link
 general /views/admin/index.tt.admin.memcache.text
 general /views/admin/index.tt.admin.memcache_view.link
@@ -2325,6 +2329,8 @@ general /views/admin/index.tt.admin.translate.link
 general /views/admin/index.tt.admin.translate.text
 general /views/admin/index.tt.admin.userlog.link
 general /views/admin/index.tt.admin.userlog.text
+general /views/admin/index.tt.admin.vgifts.link
+general /views/admin/index.tt.admin.vgifts.text
 
 general /views/admin/clusterstatus.tt.admin.link
 general /views/admin/clusterstatus.tt.admin.text

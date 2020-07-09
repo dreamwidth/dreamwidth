@@ -1,17 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.admin.file_edit.link=File Edit
-
-.admin.file_edit.text=Allows you to edit various include files.
-
-.admin.logout_user.link=Logout User
-
-.admin.logout_user.text=Logs a user out of the site.
-
 .admin.title=Admin Tools
-
-.admin.vgifts.link=Virtual Gifts
-
-.admin.vgifts.text=Maintain the virtual gift shop and submit new gift ideas.
 
 .anysupportpriv=any support priv
 
