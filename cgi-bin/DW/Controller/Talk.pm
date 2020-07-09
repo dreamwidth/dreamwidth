@@ -871,7 +871,7 @@ sub preview_parent_args {
             $poster      = $parentitem->poster->ljuser_display;
             $poster_name = $parentitem->poster->name_html;
 
-            if ( $parentitem->poster->user eq $entry->journal->user ) {
+            if ( $parentitem->poster->equals( $entry->journal ) ) {
                 $in_journal = '';
             }
         }
@@ -894,7 +894,7 @@ sub preview_parent_args {
         # Replying to entry
 
         my $in_journal =
-            $entry->poster->user eq $entry->journal->user ? '' : $entry->journal->ljuser_display;
+            $entry->poster->equals( $entry->journal ) ? '' : $entry->journal->ljuser_display;
 
         return {
             type        => 'entry',
