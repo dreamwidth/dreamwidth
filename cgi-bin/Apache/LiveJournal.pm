@@ -221,7 +221,7 @@ sub send_concat_res_response {
 
     # Might contain cache buster "?v=3234234234" at the end;
     # plus possibly other unique args (caught by the .*)
-    $args =~ s/\?v=\d*.*$//;
+    $args =~ s/\?v=.*$//;
 
     # Collect each file
     my ( $body, $size, $mtime, $mime ) = ( '', 0, 0, undef );
