@@ -12,19 +12,9 @@
 
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
-[%- sections.head = BLOCK %]
-    <style type="text/css">
-        #content input { height: auto; width: auto; display: inline; }
-        #content input[type="text"] { margin: 0.5em 0; }
-        #content input[type="file"] { font-size: 85%; }
-        #content label { margin-top: 1em; display: inline-block; }
-        #content h2, #content p { margin-top: 1em; }
-        #content h3, #content li { margin: 0.5em 0; }
-        #content h4 { margin-top: 2rem; }
-        #content ol { list-style: decimal inside; }
-        #content ul { list-style: none; margin-left: 0; }
-    </style>
-[% END %]
+[%- dw.need_res( { group => "foundation" }
+        "stc/css/pages/admin/vgifts.css"
+) -%]
 
 [%- sections.title = '.title' | ml -%]
 
