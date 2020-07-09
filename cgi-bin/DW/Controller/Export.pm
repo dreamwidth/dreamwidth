@@ -42,7 +42,11 @@ sub index_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, authas => 1 );
     return $rv unless $ok;
 
-    $rv->{encodings} = [ %{ get_encodings() } ];
+    my @enclist;
+    my %e = %{ get_encodings() };
+    push @enclist, ( $_ => $e{$_} ) foreach sort { $e{$a} cmp $e{$b} } keys %e;
+
+    $rv->{encodings} = \@enclist;
 
     return DW::Template->render_template( 'export/index.tt', $rv );
 }
