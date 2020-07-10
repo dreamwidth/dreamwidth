@@ -96,12 +96,6 @@ sub extcss_handler {
     # We do this before CSS cleaning to avoid this being used to introduce nasties.
     $unclean =~ s/\burl\(([\"\']?)(.+?)\1\)/ 'url('.URI::URL->new($2, $url)->abs().')' /egi;
 
-    # Whitelist this host
-    if ( $url =~ m!^https?://www\.typepad\.com/\.shared/!i ) {    # 10 minute caching
-        LJ::MemCache::set( $memkey, $unclean, 600 ) unless $nocache;
-        return $print->($unclean);
-    }
-
     my $cleaner = LJ::CSS::Cleaner->new;
     my $clean   = $cleaner->clean($unclean);
 
