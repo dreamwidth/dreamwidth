@@ -2739,6 +2739,8 @@ general /export.bml.label.year
 general /export.bml.title
 general /export.bml.what.entries
 
+general /export_do.bml.error.encoding
+
 general /go.bml.defaultbody
 general /go.bml.defaulttitle
 general /go.bml.error.nocomment

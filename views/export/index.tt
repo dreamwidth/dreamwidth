@@ -20,6 +20,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>[% '.description' | ml %]</p>
 
 <form action='export_do?authas=[% u.username %]' method='post'>
+[% dw.form_auth %]
 
 <fieldset class="row">
     <legend>[% '.label.export' | ml %]</legend>
