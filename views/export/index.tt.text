@@ -17,6 +17,8 @@
 
 .hint.year=E.g. 2010, 2011, etc.
 
+.label.csv_header=[CSV] Include header row with field names for each column?
+
 .label.choices=Please select one or more fields to export below. Any items checked will be included for all entries exported.
 
 .label.encoding=Text Encoding
