@@ -61,6 +61,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
 
         <div class="row">
+            <div class="columns">
+                <p>[% form.checkbox( label = dw.ml( '.label.csv_header' ),
+                                     name = "csv_header", id = "csv_header",
+                                     selected = 1, value = 1 ) %]</p>
+            </div>
+        </div>
+
+        <div class="row">
             <div class="large-12 columns">
                 [%- form.select(
                     name = 'encid'
@@ -78,7 +86,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             </div>
         </div>
 
-        <div class="row">
+        <div class="row" style="margin-bottom: 1.5em;">
             <div class="medium-6 columns">
                 <input type='checkbox' name="field_itemid" id="field_itemid" checked='checked' />
                 <label for="field_itemid">[% '.label.field.itemid' | ml %]</label><br />

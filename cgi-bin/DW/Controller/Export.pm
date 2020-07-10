@@ -131,7 +131,7 @@ sub post_handler {
         $r->content_type("text/plain");
         my $filename = sprintf( "%s-%04d-%02d.csv", $u->user, $year, $month );
         $r->header_out_add( 'Content-Disposition' => "attachment; filename=$filename" );
-        $r->print( join( ",", @fields ) . "\n" ) if $post->{header};
+        $r->print( join( ",", @fields ) . "\n" ) if $post->{csv_header};
     }
 
     if ( $format eq "xml" ) {
@@ -236,11 +236,11 @@ sub _dump_entry {
     }
 
     foreach my $f ( @{ $opts->{fields} } ) {
-        my $v = $e->{$f};
+        my $v = $e->{$f} // '';
         if ( $format eq "csv" ) {
             if ( $v =~ /[\"\n\,]/ ) {
                 $v =~ s/\"/\"\"/g;
-                $v = "\"$v\"";
+                $v = qq{"$v"};
             }
         }
         if ( $format eq "xml" ) {
