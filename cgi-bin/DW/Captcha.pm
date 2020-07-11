@@ -173,6 +173,10 @@ Challenge text, provided by the CAPTCHA implementation
 
 User-provided response text
 
+=head2 C<< $captcha->has_response >>
+
+Tests for existence of user-provided response text, returns true/false
+
 =cut
 
 # must be implemented by subclasses
