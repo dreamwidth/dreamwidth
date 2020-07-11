@@ -1382,6 +1382,14 @@ userproplist.use_journalstyle_icons_page:
   multihomed: 0
   prettyname: Use Journal Icons Style
 
+userproplist.wattpad:
+  cldversion: 4
+  datatype: char
+  des: Wattpad user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Wattpad user account name
+
 userproplist.who_invited:
   cldversion: 4
   datatype: char

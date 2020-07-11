@@ -401,6 +401,8 @@
 
 .service.twitter=Twitter
 
+.service.wattpad=Wattpad
+
 .syn.header=Feeds
 
 .syn.last.never=Never

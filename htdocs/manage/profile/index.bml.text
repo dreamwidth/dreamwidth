@@ -215,9 +215,11 @@
 
 .services.ravelry=Ravelry Username
 
+.services.tumblr=Tumblr Username
+
 .services.twitter=Twitter Username
 
-.services.tumblr=Tumblr Username
+.services.wattpad=Wattpad Username
 
 .show.birthday.day2=Show only month and day
 

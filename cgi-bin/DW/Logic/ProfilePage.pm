@@ -1047,6 +1047,18 @@ sub external_services {
             };
     }
 
+    if ( my $wattpad = $u->prop('wattpad') ) {
+        my $url = sprintf( "//www.wattpad.com/user/%s", LJ::eurl($wattpad) );
+        push @ret,
+            {
+            type     => 'wattpad',
+            text     => LJ::ehtml($wattpad),
+            url      => $url,
+            image    => 'wattpad.png',
+            title_ml => '.service.wattpad',
+            };
+    }
+
     return @ret;
 }
 
