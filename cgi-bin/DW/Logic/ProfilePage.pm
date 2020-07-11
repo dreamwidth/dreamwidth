@@ -871,6 +871,18 @@ sub external_services {
             };
     }
 
+    if ( my $insanejournal = $u->prop('insanejournal') ) {
+        my $einsanejournal = LJ::eurl($insanejournal);
+        push @ret,
+            {
+            type     => 'insanejournal',
+            text     => LJ::ehtml($insanejournal),
+            url      => "http://$einsanejournal.insanejournal.com",
+            image    => 'insanejournal.png',
+            title_ml => '.service.insanejournal',
+            };
+    }
+
     if ( my $instagram = $u->prop('instagram') ) {
         my $einstagram = LJ::eurl($instagram);
         push @ret,
@@ -908,12 +920,12 @@ sub external_services {
     }
 
     if ( my $livejournal = $u->prop('livejournal') ) {
-        my $livejournal = LJ::eurl($livejournal);
+        my $elivejournal = LJ::eurl($livejournal);
         push @ret,
             {
             type     => 'livejournal',
             text     => LJ::ehtml($livejournal),
-            url      => "http://$livejournal.livejournal.com",
+            url      => "http://$elivejournal.livejournal.com",
             image    => 'livejournal.gif',
             title_ml => '.service.livejournal',
             };

@@ -534,6 +534,14 @@ userproplist.interest_ids_blob:
   multihomed: 0
   prettyname: Interest IDs blob
 
+userproplist.insanejournal:
+  cldversion: 4
+  datatype: char
+  des: InsaneJournal account name for user profile
+  indexed: 0
+  multihomed: 0
+  prettyname: InsaneJournal Account
+
 userproplist.instagram:
   cldversion: 4
   datatype: char
