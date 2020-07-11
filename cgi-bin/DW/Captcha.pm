@@ -250,4 +250,14 @@ sub page      { return $_[0]->{page} }
 sub challenge { return $_[0]->{challenge} }
 sub response  { return $_[0]->{response} }
 
+# return true if the captcha has a valid response
+# (use this instead of "if response" since correct response might be 0)
+sub has_response {
+    my ($self) = @_;
+    my $resp = $self->response;
+
+    # this should only be false if the response is empty or zero characters
+    return defined $resp && length $resp ? 1 : 0;
+}
+
 1;
