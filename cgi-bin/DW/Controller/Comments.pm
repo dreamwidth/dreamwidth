@@ -49,7 +49,7 @@ sub received_handler {
     my $vars;
     $vars->{u}           = $u;
     $vars->{authas_html} = $rv->{authas_html};
-    $vars->{getextra}    = ( $u ne $remote ) ? ( "?authas=" . $u->user ) : '';
+    $vars->{getextra}    = ( $u ne $remote ) ? { authas => $u->user } : {};
 
     my %LJ_cmtinfo = %{ LJ::Comment->info($u) };
     $LJ_cmtinfo{form_auth} = LJ::form_auth(1);
@@ -264,7 +264,7 @@ sub posted_handler {
     my $vars;
     $vars->{u}           = $u;
     $vars->{authas_html} = $rv->{authas_html};
-    $vars->{getextra}    = ( $u ne $remote ) ? ( "?authas=" . $u->user ) : '';
+    $vars->{getextra}    = ( $u ne $remote ) ? { authas => $u->user } : {};
 
     my %LJ_cmtinfo = %{ LJ::Comment->info($u) };
     $LJ_cmtinfo{form_auth} = LJ::form_auth(1);
