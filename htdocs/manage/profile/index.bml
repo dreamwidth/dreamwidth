@@ -641,7 +641,7 @@ body<=
             my @save_errors;
             for ( keys %$save_rv ) {
                 my $e = $save_rv->{$_}->{save_errors};
-                push @save_errors, $e->{(keys $e)[0]};
+                push @save_errors, $e->{(keys %$e)[0]};
             }
             return LJ::error_list( @save_errors );
         }
