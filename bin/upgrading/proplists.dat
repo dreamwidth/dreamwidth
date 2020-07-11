@@ -1398,14 +1398,6 @@ userproplist.who_invited:
   multihomed: 0
   prettyname: Who Invited User
 
-userproplist.yahoo:
-  cldversion: 0
-  datatype: char
-  des: Yahoo ID
-  indexed: 1
-  multihomed: 1
-  prettyname: Yahoo ID
-
 talkproplist.admin_post:
   datatype: bool
   des: Set to true if this is an official community administrator post.
