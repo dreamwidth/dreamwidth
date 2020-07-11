@@ -2839,7 +2839,7 @@ sub prepare_and_validate_comment {
     my $captcha = DW::Captcha->new( undef, %{ $content || {} } );
 
     # are they sending us a response? Check it.
-    if ( $captcha->enabled && $captcha->response ) {
+    if ( $captcha->enabled && $captcha->has_response ) {
 
         # If this isn't their final pass through the form, they'll need a captcha next time too.
         $$need_captcha = 1;

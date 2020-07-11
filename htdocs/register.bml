@@ -101,7 +101,7 @@ body<=
      if ( $u->is_identity ) {
         my $captcha = DW::Captcha->new( 'validate_openid', %POST );
 
-        if ( $captcha->response ) {
+        if ( $captcha->has_response ) {
             return LJ::bad_input( "error.invalidform" ) unless LJ::check_form_auth() && $captcha->enabled;
             my $err_ref;
             return LJ::bad_input( $err_ref )
