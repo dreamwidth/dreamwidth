@@ -1102,6 +1102,14 @@ userproplist.patreon:
   multihomed: 0
   prettyname: Patreon user account name
 
+userproplist.pillowfort:
+  cldversion: 4
+  datatype: char
+  des: Pillowfort user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Pillowfort user account name
+
 userproplist.pinboard:
   cldversion: 4
   datatype: char

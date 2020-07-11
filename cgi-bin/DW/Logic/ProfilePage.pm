@@ -953,6 +953,18 @@ sub external_services {
             };
     }
 
+    if ( my $pillowfort = $u->prop('pillowfort') ) {
+        my $url = sprintf( "//www.pillowfort.social/%s", LJ::eurl($pillowfort) );
+        push @ret,
+            {
+            type     => 'pillowfort',
+            text     => LJ::ehtml($pillowfort),
+            url      => $url,
+            image    => 'pillowfort.png',
+            title_ml => '.service.pillowfort',
+            };
+    }
+
     if ( my $pinboard = $u->prop('pinboard') ) {
         my $url = sprintf( "//pinboard.in/u:%s", LJ::eurl($pinboard) );
         push @ret,
