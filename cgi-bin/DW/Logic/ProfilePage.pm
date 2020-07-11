@@ -1054,7 +1054,7 @@ sub external_services {
             type     => 'twitter',
             text     => LJ::ehtml($twitter),
             url      => $url,
-            image    => 'twitter.png',
+            image    => 'twitter_bird.png',
             title_ml => '.service.twitter',
             };
     }
