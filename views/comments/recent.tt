@@ -32,14 +32,15 @@ the same terms as Perl itself. For a copy of the license, please reference
         [<a href='[% site.root %]/comments/posted'>[% '.latest.posted' | ml %]</a>]
     [% END %]
 [% END %]
-[<a href='[% site.root %]/manage/comments[% getextra %]'>[% '.managesettings' | ml %]</a>]<br />
+[<a href='[% dw.create_url( "/manage/comments", args => getextra ) %]'>[% '.managesettings' | ml %]</a>]<br />
 [% '.view.latest' | ml %] [
 [% FOREACH val = values %]
     [% IF val <= max %]
         [% IF val == count %]
             <b>[% val %]</b>
         [% ELSE %]
-            <a href='?show=[% val %][% getextra %]'>[% val %]</a>
+            [%- getextra.show = val -%]
+            <a href='[% dw.create_url( undef, args => getextra ) %]'>[% val %]</a>
         [% END %]
     [% END %]
 [% END %]
