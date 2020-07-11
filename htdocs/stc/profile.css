@@ -220,6 +220,7 @@ span.expandcollapse {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding-top: 5px;
 }
 .external_services div.im_icon {
     text-align: center;
@@ -228,4 +229,5 @@ span.expandcollapse {
 }
 .external_services div.im_icon img {
     border: 0;
+    vertical-align: text-bottom;
 }
