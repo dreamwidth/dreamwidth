@@ -1013,6 +1013,18 @@ sub external_services {
             };
     }
 
+    if ( my $reddit = $u->prop('reddit') ) {
+        my $url = sprintf( "//www.reddit.com/user/%s", LJ::eurl($reddit) );
+        push @ret,
+            {
+            type     => 'reddit',
+            text     => LJ::ehtml($reddit),
+            url      => $url,
+            image    => 'reddit.png',
+            title_ml => '.service.reddit',
+            };
+    }
+
     if ( my $skype = $u->prop('skype') ) {
         my $service = {
             type     => 'skype',

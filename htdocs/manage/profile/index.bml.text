@@ -215,6 +215,8 @@
 
 .services.ravelry=Ravelry Username
 
+.services.reddit=Reddit Username
+
 .services.tumblr=Tumblr Username
 
 .services.twitter=Twitter Username

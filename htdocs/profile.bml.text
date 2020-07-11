@@ -397,6 +397,8 @@
 
 .service.ravelry=Ravelry
 
+.service.reddit=Reddit
+
 .service.tumblr=Tumblr
 
 .service.twitter=Twitter

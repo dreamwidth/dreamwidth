@@ -1166,6 +1166,14 @@ userproplist.ravelry:
   multihomed: 0
   prettyname: Ravelry user account name
 
+userproplist.reddit:
+  cldversion: 4
+  datatype: char
+  des: Reddit user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Reddit user account name
+
 userproplist.renamedto:
   cldversion: 4
   datatype: char
