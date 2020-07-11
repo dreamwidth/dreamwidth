@@ -381,6 +381,8 @@
 
 .service.livejournal=LiveJournal
 
+.service.medium=Medium
+
 .service.pinboard=Pinboard
 
 .service.pinterest=Pinterest

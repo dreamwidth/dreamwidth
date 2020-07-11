@@ -919,6 +919,18 @@ sub external_services {
             };
     }
 
+    if ( my $medium = $u->prop('medium') ) {
+        my $emedium = LJ::eurl($medium);
+        push @ret,
+            {
+            type     => 'medium',
+            text     => LJ::ehtml($medium),
+            url      => "https://medium.com/\@$emedium/latest",
+            image    => 'medium.png',
+            title_ml => '.service.medium',
+            };
+    }
+
     if ( my $pinboard = $u->prop('pinboard') ) {
         my $pinboard = LJ::eurl($pinboard);
         push @ret,

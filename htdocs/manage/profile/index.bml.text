@@ -199,6 +199,8 @@
 
 .services.livejournal=LiveJournal Username
 
+.services.medium=Medium Username
+
 .services.pinboard=Pinboard Username
 
 .services.pinterest=Pinterest Username
