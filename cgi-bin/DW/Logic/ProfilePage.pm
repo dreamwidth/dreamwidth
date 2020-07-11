@@ -854,8 +854,8 @@ sub external_services {
             {
             type     => 'google',
             email    => LJ::ehtml($google),
-            image    => 'gtalk.gif',
-            title_ml => '.im.gtalk',
+            image    => 'google_hangouts.png',
+            title_ml => '.im.hangouts',
             };
     }
 

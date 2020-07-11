@@ -370,6 +370,7 @@ general /manage/links.bml.success
 general /manage/links.bml.title
 
 general /manage/profile/index.bml.birthday
+general /manage/profile/index.bml.chat.googletalk
 general /manage/profile/index.bml.intro
 general /manage/profile/index.bml.im
 general /manage/profile/index.bml.email
@@ -481,6 +482,7 @@ general /multisearch.bml.title.results
 
 general /profile.bml.contact.txtmsg
 general /profile.bml.im.aol.status
+general /profile.bml.im.gtalk
 general /profile.bml.im.icq.status
 general /profile.bml.im.skype.status
 general /profile.bml.im.yim

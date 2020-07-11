@@ -411,7 +411,7 @@ body<=
                            ["etsy", $ML{ '.services.etsy' }, 20],
                            ["ffnet", $ML{ '.services.ffnet' }, 30],
                            ["github", $ML{'.services.github'}, 39],
-                           ["google_talk", $ML{'.chat.googletalk'}, 60],
+                           ["google_talk", $ML{'.chat.googlehangouts'}, 60],
                            ["icq", $ML{'.chat.icquin'}, 12],
                            ["insanejournal", $ML{'.services.insanejournal'}, 15],
                            ["instagram", $ML{'.services.instagram'}, 30],
