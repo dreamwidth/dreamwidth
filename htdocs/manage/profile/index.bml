@@ -56,7 +56,7 @@ body<=
         opt_whatemailshow comm_theme
         ao3 deviantart diigo discord etsy ffnet github google_talk icq
         insanejournal instagram jabber last_fm_user livejournal medium
-        pinboard pinterest plurk ravelry skype tumblr twitter
+        patreon pinboard pinterest plurk ravelry skype tumblr twitter
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
@@ -418,6 +418,7 @@ body<=
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
                            ["livejournal", $ML{'.services.livejournal'}, 30],
                            ["medium", $ML{'.services.medium'}, 25],
+                           ["patreon", $ML{'.services.patreon'}, 255],
                            ["pinboard", $ML{'.services.pinboard'}, 30],
                            ["pinterest", $ML{'.services.pinterest'}, 30],
                            ["plurk", $ML{ '.services.plurk' }, 255],

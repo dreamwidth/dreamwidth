@@ -1094,6 +1094,14 @@ userproplist.opt_show_captcha_to:
   multihomed: 0
   prettyname: Show CAPTCHA on commenting
 
+userproplist.patreon:
+  cldversion: 4
+  datatype: char
+  des: Patreon user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Patreon user account name
+
 userproplist.pinboard:
   cldversion: 4
   datatype: char

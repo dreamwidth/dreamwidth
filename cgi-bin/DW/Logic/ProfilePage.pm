@@ -941,6 +941,18 @@ sub external_services {
             };
     }
 
+    if ( my $patreon = $u->prop('patreon') ) {
+        my $url = sprintf( "//www.patreon.com/%s", LJ::eurl($patreon) );
+        push @ret,
+            {
+            type     => 'patreon',
+            text     => LJ::ehtml($patreon),
+            url      => $url,
+            image    => 'patreon.png',
+            title_ml => '.service.patreon',
+            };
+    }
+
     if ( my $pinboard = $u->prop('pinboard') ) {
         my $url = sprintf( "//pinboard.in/u:%s", LJ::eurl($pinboard) );
         push @ret,
