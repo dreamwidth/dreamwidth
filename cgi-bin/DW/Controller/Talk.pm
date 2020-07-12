@@ -92,8 +92,8 @@ DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 #
 # Consistency checks and metadata:
 # - lj_form_auth
-#     Form auth for logged-in users. I don't fully understand how this works yet,
-#     but plenty of others around here do, so go ask them.
+#     Consistency check for CSRF prevention. Similar idea to chrp1, but checks more
+#     stuff. See LJ::check_form_auth in Web.pm for more.
 # - chrp1
 #     A time-expiring server-provided token used to make spam posts inconvenient.
 # - captcha_type (and other captcha fields)
@@ -157,7 +157,11 @@ DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 #     listens for this by name.
 
 sub talkpost_do_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
+
+    # This route handles form_auth manually instead of passing form_auth => 1 to
+    # controller() -- we want to fail gently AFTER we have our post args, so we
+    # can regenerate the comment form and not lose your text.
+    my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
@@ -176,13 +180,30 @@ sub talkpost_do_handler {
     # For errors that aren't immediately fatal, collect them as we go and let
     # the user fix them all at once.
     my @errors;
+    my $form_auth_ok = 1;
 
-    # If this is a GET (not POST), see if they're coming back from an OpenID
-    # identity server. If so, restore the POST hash we saved before they left.
-    if (   ( $GET->{'openid.mode'} eq 'id_res' || $GET->{'openid.mode'} eq 'cancel' )
+    # First, make sure we've got POST data and confirm that it's from a legit
+    # local form (and not some CSRF shenanigans). Usually that's a real POST,
+    # but sometimes it's a saved POST that we set aside while an OpenID
+    # commenter sorted out their identity.
+    if ( $r->did_post ) {
+
+        # We only check form_auth for real POSTs; if they're coming back from
+        # OpenID, we already checked earlier.
+        unless ( LJ::check_form_auth( $POST->{lj_form_auth} ) ) {
+
+            # Form_auth failure is extra sketchy, so let's remember this and
+            # avoid calling some other functions later.
+            $form_auth_ok = 0;
+            push @errors, LJ::Lang::ml('/talkpost_do.tt.error.invalidform');
+        }
+    }
+    elsif (( $GET->{'openid.mode'} eq 'id_res' || $GET->{'openid.mode'} eq 'cancel' )
         && $GET->{jid}
         && $GET->{pendcid} )
     {
+        # If they're coming back from an OpenID identity server, restore the
+        # POST hash we saved before they left.
         my $csr = LJ::OpenID::consumer( $GET->mixed );
 
         if ( $GET->{'openid.mode'} eq 'id_res' ) {    # Verify their identity
@@ -222,9 +243,9 @@ sub talkpost_do_handler {
         push @errors, "You chose to cancel your identity verification"
             if $csr->user_cancel;
     }
-    elsif ( !$r->did_post ) {
+    else {
 
-        # If it's a GET and you're NOT coming back from the OpenID dance, wyd
+        # You didn't post, you aren't coming back from OpenID, wyd??
         return error_ml('/talkpost_do.tt.error.badrequest');
     }
 
@@ -263,29 +284,31 @@ sub talkpost_do_handler {
             carp("talkhash error: from $ruser \@ $ip - $chrp_err - $talkurl\n");
         }
         if ($LJ::REQUIRE_TALKHASH) {
-            push @errors,
-"Sorry, form expired.  Press back, copy text, reload form, paste into new form, and re-submit."
+            push @errors, "Sorry, form expired. Please re-submit."
                 if $chrp_err eq "too_old";
             push @errors, "Missing parameters";
         }
     }
 
     ## Sort out who's posting for real.
-    my ( $commenter, $didlogin );
-    my ( $authok, $auth ) = authenticate_user_and_mutate_form( $POST, $remote, $journalu );
-    if ($authok) {
-        if ( $auth->{check_url} ) {
+    my ( $commenter, $didlogin, $authok, $auth );
 
-            # openid thing. Round and round we go.
-            return $r->redirect( $auth->{check_url} );
+    if ($form_auth_ok) {
+        ( $authok, $auth ) = authenticate_user_and_mutate_form( $POST, $remote, $journalu );
+        if ($authok) {
+            if ( $auth->{check_url} ) {
+
+                # openid thing. Round and round we go.
+                return $r->redirect( $auth->{check_url} );
+            }
+            else {
+                $commenter = $auth->{user};
+                $didlogin  = $auth->{didlogin};
+            }
         }
         else {
-            $commenter = $auth->{user};
-            $didlogin  = $auth->{didlogin};
+            push @errors, $auth;
         }
-    }
-    else {
-        push @errors, $auth;
     }
 
     # Now that we've given them a chance to log in, set a resource group.
@@ -301,11 +324,16 @@ sub talkpost_do_handler {
         LJ::set_active_resource_group("jquery");
     }
 
-    ## Prepare the comment (or wipe out on the permissions/consistency checks)
     my $need_captcha = 0;
-    my $comment =
-        LJ::Talk::Post::prepare_and_validate_comment( $POST, $commenter, $entry, \$need_captcha,
-        \@errors );
+    my $comment;
+
+    if ($form_auth_ok) {
+
+        # Prepare the comment (or wipe out on the permissions/consistency checks)
+        $comment =
+            LJ::Talk::Post::prepare_and_validate_comment( $POST, $commenter, $entry,
+            \$need_captcha, \@errors );
+    }
 
     # If there's anything in @errors at the end of prepare_and_validate_comment,
     # it returns undef instead of a $comment, even if it wasn't the one to
