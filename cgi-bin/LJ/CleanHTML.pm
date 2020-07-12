@@ -1647,7 +1647,7 @@ sub clean_event {
 
     # ...and if not, here's how we guess.
     if ( !$formatting ) {
-        if ( $$ref =~ s/^\s*!markdown\s*\r?\n//s ) {
+        if ( legacy_markdown($ref) ) {
 
             # Old-style Markdown: remove the special !markdown prefix,
             # and switch to Markdown formatting.
@@ -2036,6 +2036,13 @@ sub user_link_html {
     else {
         return "<b>[Unknown site tag]</b>";
     }
+}
+
+# detect and remove "!markdown" at beginning of entry text;
+# return true if the marker was found, false otherwise
+sub legacy_markdown {
+    my ($ref) = @_;
+    return $$ref =~ s/^\s*!markdown\s*\r?\n//is;
 }
 
 1;
