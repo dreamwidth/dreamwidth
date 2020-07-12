@@ -102,9 +102,30 @@ body<=
               }
             $ret .= "<br />\n";
 
-            my $event = LJ::ehtml(LJ::durl($res{"events_${i}_event"}));
-            $event =~ s!\n!<br />!g;
-            $ret .= $event;
+            if ( my $event = LJ::durl( $res{"events_${i}_event"} ) ) {
+
+                # use the cleaner to get an HTML-minimal excerpt
+                LJ::CleanHTML::clean( \$event,
+                    {
+                        textonly  => 1,
+                        addbreaks => 1,
+                        mode => 'deny',
+                        allow => [qw[p b i u em strong cite tt q br span div]],
+                        attrstrip => [qw[style]],
+                        # these are copied from clean_subject
+                        remove => [qw[bgsound embed object caption link font noscript]],
+                        eat => [qw[ head title style layer iframe applet object xml param base ]],
+                        noearlyclose => 1,
+                    }
+                );
+
+                if ( defined $event && length $event ) {
+                    $ret .= $event;
+                }
+                else {
+                    $ret .= $ML{'.htmlonly'};
+                }
+            }
 
             $ret .= "</td></tr></table>\n";
         }
