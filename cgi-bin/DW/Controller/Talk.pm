@@ -158,10 +158,9 @@ DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 
 sub talkpost_do_handler {
 
-    # This route handles form_auth manually instead of passing form_auth => 1 to
-    # controller() -- we want to fail gently AFTER we have our post args, so we
-    # can regenerate the comment form and not lose your text.
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    # This route handles form_auth manually; we want to get the post args, fail
+    # gently, regenerate the comment form, and not lose your text.
+    my ( $ok, $rv ) = controller( form_auth => 0, anonymous => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
