@@ -50,7 +50,7 @@ authorized to see.</p>
     continue paging.</strong></p>
 [% END %]
 
-    <form method="post">
+    <form method="post" action="/support/search">
         [% dw.form_auth %]
         <input type="hidden" name="query" value="[% query %]" />
         <input type="hidden" name="offset" value="[% offset + 20 %]" />
