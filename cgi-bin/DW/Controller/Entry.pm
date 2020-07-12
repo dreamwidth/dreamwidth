@@ -850,7 +850,7 @@ sub _backend_to_form {
     # except that if we're detecting old-style !markdown, we DO want to also
     # mutate the body text, which makes it hairy.
     unless ($editor) {
-        if ( $event =~ s/^\s*!markdown\s*\r?\n//s ) {
+        if ( LJ::CleanHTML::legacy_markdown( \$event ) ) {    # mutates $event
             $editor = 'markdown0';
         }
         elsif ( $entry->prop('opt_preformatted') ) {
