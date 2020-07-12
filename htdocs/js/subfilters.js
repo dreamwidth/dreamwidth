@@ -592,7 +592,7 @@ function compareFilters( a, b ) {
 
 function cfUpdateFilterSelect() {
     // regenerate HTML for the Filter: dropdown
-    var options = '<option value="0">( select filter )</option><option value="0"></option>';
+    var options = '<option value="0">( select filter )</option>';
 
     // sort by sortorder, then name
     var sortedFilters = [];
