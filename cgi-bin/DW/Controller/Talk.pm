@@ -198,15 +198,21 @@ sub talkpost_do_handler {
             push @errors, LJ::Lang::ml('/talkpost_do.tt.error.invalidform');
         }
     }
-    elsif (( $GET->{'openid.mode'} eq 'id_res' || $GET->{'openid.mode'} eq 'cancel' )
-        && $GET->{jid}
-        && $GET->{pendcid} )
-    {
+    elsif ( my $mode = $GET->{'openid.mode'} ) {
+
         # If they're coming back from an OpenID identity server, restore the
         # POST hash we saved before they left.
+
+        unless ( $GET->{jid}
+            && $GET->{pendcid}
+            && ( $mode eq 'id_res' || $mode eq 'cancel' ) )
+        {
+            return error_ml('/talkpost_do.tt.error.badrequest');
+        }
+
         my $csr = LJ::OpenID::consumer( $GET->mixed );
 
-        if ( $GET->{'openid.mode'} eq 'id_res' ) {    # Verify their identity
+        if ( $mode eq 'id_res' ) {    # Verify their identity
 
             unless ( LJ::check_referer( '/talkpost_do', $GET->{'openid.return_to'} ) ) {
                 return error_ml( '/openid/login.tt.error.invalidparameter',
