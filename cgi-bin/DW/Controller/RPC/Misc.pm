@@ -307,7 +307,7 @@ sub addcomment_handler {
     my $r      = DW::Request->get;
     my $post   = $r->post_args;
 
-    return DW::RPC->err( LJ::Lang::ml('error.invalidform') )
+    return DW::RPC->err( LJ::Lang::ml('error.invalidform.quickerreply') )
         if $r->did_post && !LJ::check_form_auth( $post->{lj_form_auth} );
 
     # build the comment

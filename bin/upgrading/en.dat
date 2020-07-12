@@ -838,6 +838,8 @@ error.invalidauth=You couldn't be authenticated as the specified account.
 
 error.invalidform=Invalid form submission.  Please go back and try again.
 
+error.invalidform.quickerreply=The form on this page expired. Use the "More Options" button to get a fresh form, then try posting again.
+
 error.invaliduser=Unable to load specified user.
 
 error.ipbanned=Your IP address is temporarily banned for exceeding the log in failure rate.
