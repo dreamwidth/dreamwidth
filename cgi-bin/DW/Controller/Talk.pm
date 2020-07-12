@@ -222,7 +222,7 @@ sub talkpost_do_handler {
         push @errors, "You chose to cancel your identity verification"
             if $csr->user_cancel;
     }
-    elsif ( !LJ::did_post() ) {
+    elsif ( !$r->did_post ) {
 
         # If it's a GET and you're NOT coming back from the OpenID dance, wyd
         return error_ml('/talkpost_do.tt.error.badrequest');
