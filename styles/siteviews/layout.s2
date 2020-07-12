@@ -54,7 +54,7 @@ function ItemRange::print(string{} opts) {
     var string anchor = $opts{"anchor"} ? "#$opts{"anchor"}" : "";
     var string class = $opts{"class"} ? $opts{"class"} : "action-box";
 
-    """<div class="$class">""";
+    """<div class="$class"><div>""";
     print """<p style="font-weight: bolder; margin: 0 0 .5em 0;">""" + lang_page_of_pages($.current, $.total) + "</p>";
     var string url_prev = $this->url_of($.current - 1);
     """<span class="page-prev">""";
@@ -86,7 +86,7 @@ function ItemRange::print(string{} opts) {
         """<p><a href="$.url_all">View All</a></p>""";
     }
 
-    "</div>";
+    "</div></div>";
 }
 
 # IconsPage
