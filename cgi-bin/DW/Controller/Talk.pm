@@ -179,23 +179,17 @@ sub talkpost_do_handler {
     # For errors that aren't immediately fatal, collect them as we go and let
     # the user fix them all at once.
     my @errors;
-    my $form_auth_ok = 1;
+
+    # Track form_auth specially, since we want to bail on some things if it fails.
+    my $form_auth_ok = 0;
 
     # First, make sure we've got POST data and confirm that it's from a legit
     # local form (and not some CSRF shenanigans). Usually that's a real POST,
     # but sometimes it's a saved POST that we set aside while an OpenID
     # commenter sorted out their identity.
     if ( $r->did_post ) {
-
-        # We only check form_auth for real POSTs; if they're coming back from
-        # OpenID, we already checked earlier.
-        unless ( LJ::check_form_auth( $POST->{lj_form_auth} ) ) {
-
-            # Form_auth failure is extra sketchy, so let's remember this and
-            # avoid calling some other functions later.
-            $form_auth_ok = 0;
-            push @errors, LJ::Lang::ml('/talkpost_do.tt.error.invalidform');
-        }
+        $form_auth_ok = LJ::check_form_auth( $POST->{lj_form_auth} );
+        push @errors, LJ::Lang::ml('/talkpost_do.tt.error.invalidform') unless $form_auth_ok;
     }
     elsif ( my $mode = $GET->{'openid.mode'} ) {
 
@@ -208,6 +202,10 @@ sub talkpost_do_handler {
         {
             return error_ml('/talkpost_do.tt.error.badrequest');
         }
+
+        # We only check form_auth for real POSTs; if they're coming back from
+        # OpenID, we already checked earlier.
+        $form_auth_ok = 1;
 
         my $csr = LJ::OpenID::consumer( $GET->mixed );
 
