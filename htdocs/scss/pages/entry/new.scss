@@ -229,11 +229,9 @@
 
     input, select, textarea {
         #canvas & { // exclude from Lynx skin
-            font-size: .8rem;
-        }
-        @media (pointer: coarse) {
-            // dramatic woodchuck deterrent for mobile, still relevant on Lynx
-            font-size: 16px;
+            @media (pointer: fine) { // Desktop only, don't attract woodchucks.
+                font-size: .8rem;
+            }
         }
     }
 
@@ -295,10 +293,8 @@
     }
 
     button { // match sizes of nearby inputs
-        font-size: .8rem;
-
-        @media (pointer: coarse) {
-            font-size: 16px;
+        @media (pointer: fine) {
+            font-size: .8rem;
         }
     }
 
