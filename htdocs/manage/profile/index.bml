@@ -55,8 +55,9 @@ body<=
     my @uprops = qw/
         opt_whatemailshow comm_theme
         ao3 deviantart diigo discord etsy ffnet github google_talk
-        icq instagram jabber last_fm_user livejournal pinboard pinterest
-        plurk ravelry skype tumblr twitter
+        icq insanejournal instagram jabber last_fm_user livejournal
+        medium patreon pillowfort pinboard pinterest plurk ravelry
+        reddit skype tumblr twitter wattpad
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
@@ -410,19 +411,25 @@ body<=
                            ["etsy", $ML{ '.services.etsy' }, 20],
                            ["ffnet", $ML{ '.services.ffnet' }, 30],
                            ["github", $ML{'.services.github'}, 39],
-                           ["google_talk", $ML{'.chat.googletalk'}, 60],
+                           ["google_talk", $ML{'.chat.googlehangouts'}, 60],
                            ["icq", $ML{'.chat.icquin'}, 12],
+                           ["insanejournal", $ML{'.services.insanejournal'}, 15],
                            ["instagram", $ML{'.services.instagram'}, 30],
                            ["jabber", $ML{'.chat.jabber'}, 60],
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
                            ["livejournal", $ML{'.services.livejournal'}, 30],
+                           ["medium", $ML{'.services.medium'}, 25],
+                           ["patreon", $ML{'.services.patreon'}, 255],
+                           ["pillowfort", $ML{'.services.pillowfort'}, 255],
                            ["pinboard", $ML{'.services.pinboard'}, 30],
                            ["pinterest", $ML{'.services.pinterest'}, 30],
                            ["plurk", $ML{ '.services.plurk' }, 255],
                            ["ravelry", $ML{ '.services.ravelry' }, 40],
+                           ["reddit", $ML{ '.services.reddit' }, 20],
                            ["skype", $ML{'.chat.skype'}, 40],
                            ["tumblr", $ML{ '.services.tumblr' }, 255],
                            ["twitter", $ML{ '.services.twitter' }, 40],
+                           ["wattpad", $ML{ '.services.wattpad' }, 20],
                           )
 
             {
@@ -639,7 +646,7 @@ body<=
             my @save_errors;
             for ( keys %$save_rv ) {
                 my $e = $save_rv->{$_}->{save_errors};
-                push @save_errors, $e->{(keys $e)[0]};
+                push @save_errors, $e->{(keys %$e)[0]};
             }
             return LJ::error_list( @save_errors );
         }

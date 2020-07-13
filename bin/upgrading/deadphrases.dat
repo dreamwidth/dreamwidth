@@ -370,6 +370,7 @@ general /manage/links.bml.success
 general /manage/links.bml.title
 
 general /manage/profile/index.bml.birthday
+general /manage/profile/index.bml.chat.googletalk
 general /manage/profile/index.bml.intro
 general /manage/profile/index.bml.im
 general /manage/profile/index.bml.email
@@ -481,11 +482,14 @@ general /multisearch.bml.title.results
 
 general /profile.bml.contact.txtmsg
 general /profile.bml.im.aol.status
+general /profile.bml.im.gtalk
 general /profile.bml.im.icq.status
 general /profile.bml.im.skype.status
+general /profile.bml.im.yim
 general /profile.bml.im.yim.status
 general /profile.bml.label.feedchange
 general /profile.bml.label.textmessage
+general /profile.bml.label.yahooid
 
 general /register.bml.new.body
 general /register.bml.new.modify2
@@ -2090,6 +2094,7 @@ general widget.qotdresponses.read.more
 general widget.qotdresponses.read.your.friends.page
 general widget.qotdresponses.there.are.no.answers
 general widget.search.note
+general widget.search.yahoo
 general widget.shopcart.deliverydate.today
 general widget.shopcartstatusbar.header
 general widget.shopcartstatusbar.itemcount
@@ -2546,8 +2551,6 @@ general /profile.bml.details.userpics
 general /manage/profile/index.bml.services.delicious
 general /profile.bml.service.delicious
 
-general /profile.bml.im.yim
-general /profile.bml.label.yahooid
 general /manage/profile/index.bml.chat.yahooid
 
 general error.usernamelong

@@ -441,10 +441,10 @@ userproplist.github:
 userproplist.google_talk:
   cldversion: 0
   datatype: char
-  des: Google's 'Talk' Service address
+  des: Google's 'Hangouts' Service address
   indexed: 1
   multihomed: 1
-  prettyname: Google Talk Address
+  prettyname: Google Hangouts Address
 
 userproplist.google_analytics:
   cldversion: 4
@@ -534,6 +534,14 @@ userproplist.interest_ids_blob:
   multihomed: 0
   prettyname: Interest IDs blob
 
+userproplist.insanejournal:
+  cldversion: 4
+  datatype: char
+  des: InsaneJournal account name for user profile
+  indexed: 0
+  multihomed: 0
+  prettyname: InsaneJournal Account
+
 userproplist.instagram:
   cldversion: 4
   datatype: char
@@ -613,6 +621,14 @@ userproplist.latest_optout:
   indexed: 0
   multihomed: 0
   prettyname: Latest Updates Opt Out
+
+userproplist.medium:
+  cldversion: 4
+  datatype: char
+  des: Medium user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Medium user account name
 
 userproplist.moderated:
   cldversion: 4
@@ -1078,6 +1094,22 @@ userproplist.opt_show_captcha_to:
   multihomed: 0
   prettyname: Show CAPTCHA on commenting
 
+userproplist.patreon:
+  cldversion: 4
+  datatype: char
+  des: Patreon user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Patreon user account name
+
+userproplist.pillowfort:
+  cldversion: 4
+  datatype: char
+  des: Pillowfort user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Pillowfort user account name
+
 userproplist.pinboard:
   cldversion: 4
   datatype: char
@@ -1133,6 +1165,14 @@ userproplist.ravelry:
   indexed: 0
   multihomed: 0
   prettyname: Ravelry user account name
+
+userproplist.reddit:
+  cldversion: 4
+  datatype: char
+  des: Reddit user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Reddit user account name
 
 userproplist.renamedto:
   cldversion: 4
@@ -1350,6 +1390,14 @@ userproplist.use_journalstyle_icons_page:
   multihomed: 0
   prettyname: Use Journal Icons Style
 
+userproplist.wattpad:
+  cldversion: 4
+  datatype: char
+  des: Wattpad user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Wattpad user account name
+
 userproplist.who_invited:
   cldversion: 4
   datatype: char
@@ -1357,14 +1405,6 @@ userproplist.who_invited:
   indexed: 0
   multihomed: 0
   prettyname: Who Invited User
-
-userproplist.yahoo:
-  cldversion: 0
-  datatype: char
-  des: Yahoo ID
-  indexed: 1
-  multihomed: 1
-  prettyname: Yahoo ID
 
 talkproplist.admin_post:
   datatype: bool

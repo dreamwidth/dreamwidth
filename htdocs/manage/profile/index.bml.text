@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.chat.googletalk=Google Talk
+.chat.googlehangouts=Google Hangouts
 
 .chat.icquin=ICQ UIN
 
@@ -193,11 +193,19 @@
 
 .services.github=GitHub Username
 
+.services.insanejournal=InsaneJournal Username
+
 .services.instagram=Instagram Username
 
 .services.last_fm=Last.fm Username
 
 .services.livejournal=LiveJournal Username
+
+.services.medium=Medium Username
+
+.services.patreon=Patreon Username
+
+.services.pillowfort=Pillowfort Username
 
 .services.pinboard=Pinboard Username
 
@@ -207,9 +215,13 @@
 
 .services.ravelry=Ravelry Username
 
-.services.twitter=Twitter Username
+.services.reddit=Reddit Username
 
 .services.tumblr=Tumblr Username
+
+.services.twitter=Twitter Username
+
+.services.wattpad=Wattpad Username
 
 .show.birthday.day2=Show only month and day
 

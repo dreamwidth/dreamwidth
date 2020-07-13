@@ -151,7 +151,7 @@
 
 .flag=Flag Journal
 
-.im.gtalk=Google Talk
+.im.hangouts=Google Hangouts
 
 .im.header=Instant Message:
 
@@ -377,9 +377,17 @@
 
 .service.github=GitHub
 
+.service.insanejournal=InsaneJournal
+
 .service.instagram=Instagram
 
 .service.livejournal=LiveJournal
+
+.service.medium=Medium
+
+.service.patreon=Patreon
+
+.service.pillowfort=Pillowfort
 
 .service.pinboard=Pinboard
 
@@ -389,9 +397,13 @@
 
 .service.ravelry=Ravelry
 
+.service.reddit=Reddit
+
 .service.tumblr=Tumblr
 
 .service.twitter=Twitter
+
+.service.wattpad=Wattpad
 
 .syn.header=Feeds
 
