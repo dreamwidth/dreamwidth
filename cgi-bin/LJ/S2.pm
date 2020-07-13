@@ -4004,7 +4004,7 @@ sub Comment__print_unhide_link {
 
 sub Page__print_script_tags {
     my ( $ctx, $this ) = @_;
-    if ( $LJ::ACTIVE_RES_GROUP eq "foundation" ) {
+    if ( $LJ::ACTIVE_RES_GROUP && $LJ::ACTIVE_RES_GROUP eq "foundation" ) {
         $S2::pout->( LJ::S2::get_script_tags($this) );
     }
 }
