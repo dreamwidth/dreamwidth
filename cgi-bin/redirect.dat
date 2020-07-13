@@ -1,10 +1,10 @@
 /community.bml                      /community/
 /communities                        /community/
 /support.bml                        /support/
-/memories.bml                       /tools/memories.bml
-/memadd.bml                         /tools/memadd.bml
-/faq.bml                            /support/faq.bml
-/faqbrowse.bml                      /support/faqbrowse.bml
+/memories.bml                       /tools/memories
+/memadd.bml                         /tools/memadd
+/faq.bml                            /support/faq
+/faqbrowse.bml                      /support/faqbrowse
 /customize/advanced.bml             /customize/
 /customize/preview.bml              /customize/
 /customize/style.bml                /customize/
