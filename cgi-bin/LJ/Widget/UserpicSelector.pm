@@ -66,8 +66,9 @@ sub render_body {
     if ( !$opts->{altlogin} && $has_icons ) {
 
         # start with default picture info
-        my $num = 0;
-        my $userpics .= "    userpics[$num] = \"$res->{defaultpicurl}\";\n";
+        my $defpicurl = $res->{defaultpicurl} // '';
+        my $num       = 0;
+        my $userpics .= "    userpics[$num] = \"$defpicurl\";\n";
         my $altcode  .= "     alttext[$num] = \"$defpic\";\n";
 
         foreach ( @{ $res->{pickwurls} } ) {
