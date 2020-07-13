@@ -110,9 +110,9 @@ sub get_call_opts {
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
 
-    # redirect to html if the caller requested bml from an ancient link
+    # discard format if the caller requested bml from an ancient link
     if ( $format && $format eq 'bml' ) {
-        $format = 'html';
+        $format = undef;
     }
 
     # Role determination: if the URL starts with '/api/vX' then it's an API
