@@ -857,6 +857,13 @@ ul.userlite-interaction-links.text-links {
 
 .tags_cloud li, .module-tags_cloud li { display: inline; }
 
+/* avoid Dramatic Woodchuck zoom effect on form fields (polls, search, etc.) */
+@media (pointer: coarse) {
+    input[type="text"], select {
+        font-size: 16px;
+    }
+}
+
 $userpic_css
     """;
 }
