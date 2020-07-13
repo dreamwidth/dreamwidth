@@ -32,7 +32,7 @@
     # if you define these, little help bubbles appear next to common
     # widgets to the URL you define:
     %HELPURL = (
-        paidaccountinfo => "https://www.dreamwidth.org/support/faqbrowse.bml?faqid=4",
+        paidaccountinfo => "https://www.dreamwidth.org/support/faqbrowse?faqid=4",
     );
 
     # Configuration for suggestions community & adminbot
