@@ -1649,6 +1649,29 @@ general /shop/randomgift.bml.intro
 general /shop/randomgift.bml.nousers
 general /shop/randomgift.bml.title
 
+general /shop/receipt.bml.cart.date
+general /shop/receipt.bml.cart.paymentmethod.checkmoneyorder.extra
+general /shop/receipt.bml.cart.paymentmethod.checkmoneyorder
+general /shop/receipt.bml.cart.paymentmethod.creditcard
+general /shop/receipt.bml.cart.paymentmethod.creditcardpp
+general /shop/receipt.bml.cart.paymentmethod.gco
+general /shop/receipt.bml.cart.paymentmethod.paypal
+general /shop/receipt.bml.cart.paymentmethod.points
+general /shop/receipt.bml.cart.paymentmethod.stripe
+general /shop/receipt.bml.cart.paymentmethod
+general /shop/receipt.bml.cart.status.1
+general /shop/receipt.bml.cart.status.2
+general /shop/receipt.bml.cart.status.3
+general /shop/receipt.bml.cart.status.4
+general /shop/receipt.bml.cart.status.5
+general /shop/receipt.bml.cart.status.6
+general /shop/receipt.bml.cart.status.7
+general /shop/receipt.bml.cart.status.8
+general /shop/receipt.bml.cart.status.9
+general /shop/receipt.bml.cart.status
+general /shop/receipt.bml.error.invalidordernum
+general /shop/receipt.bml.title
+
 general /shop/transferpoints.tt.confirm
 general /shop/transferpoints.tt.confirm.anon
 
