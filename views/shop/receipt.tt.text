@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
-.cart.date=<strong>Order Date:</strong> [[date]]
+.cart.date=<strong>Order Date:</strong>
 
-.cart.paymentmethod=<strong>Payment Method:</strong> [[paymentmethod]]
+.cart.paymentmethod=<strong>Payment Method:</strong>
 
 .cart.paymentmethod.checkmoneyorder=Check/Money Order
 
@@ -19,7 +19,7 @@
 
 .cart.paymentmethod.points=Points
 
-.cart.status=<strong>Current Order Status:</strong> [[status]]
+.cart.status=<strong>Current Order Status:</strong>
 
 .cart.status.1|note=This status should never be possible on the receipt page!
 .cart.status.1=Open

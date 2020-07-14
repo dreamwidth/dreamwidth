@@ -1,0 +1,40 @@
+[%# This page shows your receipt for your order.
+  #
+  # Authors:
+  #      Janine Smith <janine@netrophic.com> -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml( num = cart.id ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        table th { border: 1px solid #000; }
+    </style>
+[% END %]
+
+[%- pmethod = cart.paymentmethod_visible -%]
+<p>
+  [% '.cart.status' | ml %] [% ".cart.status.${cart.state}" | ml %]<br />
+  [% '.cart.paymentmethod' | ml %] [% ".cart.paymentmethod.$pmethod" | ml %]</br />
+  [% '.cart.date' | ml %] [% orderdate.strftime( "%F %r %Z" ) %]
+</p>
+
+[%- IF pmethod == 'checkmoneyorder' -%]
+  [%- mail = "<p>${site.company}<br />Order \#${cart.id}<br />${site.address}</p>"
+    -%]
+
+<p>
+  [% '.cart.paymentmethod.checkmoneyorder.extra' | ml(
+      sitecompany = "<strong>${site.company}</strong>", address = mail ) %]
+</p>
+[%- END -%]
+
+[% carttable %]
