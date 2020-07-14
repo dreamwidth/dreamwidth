@@ -1244,7 +1244,7 @@ sub render {
                     { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev } );
                 $results_table .= "<br />\n";
                 $do_table = 1;
-                $results_table .= "<table summary=''>";
+                $results_table .= "<table style='width: 100%; box-sizing: border-box;'>";
             }
 
             my @items = $self->question($qid)->items;
@@ -1264,6 +1264,25 @@ sub render {
                 }
                 push @items, [ $to, "$highlabel $to" ];
             }
+
+            # Histogram bars expect to be on their own line; any bars that are
+            # related to each other should be in containers of the same width.
+            # (So tables, grids, and normal block flow are OK, but not flex.)
+            my $histogram_bar = sub {
+                my $fraction = $_[0];
+                my $percent  = sprintf( "%.1f", 100 * $fraction );
+                return
+                      qq{<div style="}
+                    . "width: $percent%; "
+                    . 'min-width: 10px; '
+                    . 'height: 10px; '
+                    . 'box-sizing: border-box; '
+                    . 'background-color: #e00; '
+                    . 'background: linear-gradient(to bottom, #300, #900 20%, #e00 80%, #f00); '
+                    . 'border: 1px solid #333; '
+                    . 'border-radius: 5px; '
+                    . qq{"> </div>};
+            };
 
             foreach my $item (@items) {
 
@@ -1291,32 +1310,30 @@ sub render {
                 }
 
                 # displaying results
-                my $count   = ( defined $itid ) ? $itvotes{$itid} || 0 : 0;
-                my $percent = sprintf( "%.1f", ( 100 * $count / ( $usersvoted || 1 ) ) );
-                my $width   = 20 + int( ( $count / $maxitvotes ) * 380 );
+                # The histogram is relative to the winning item's vote
+                # total (i.e. we normalize the winner's bar to 100%).
+                my $count           = ( defined $itid ) ? $itvotes{$itid} || 0 : 0;
+                my $percent         = sprintf( "%.1f", ( 100 * $count / ( $usersvoted || 1 ) ) );
+                my $fraction_of_max = $count / $maxitvotes;
 
                 # did the user viewing this poll choose this option? If so, mark it
                 my $qvalue   = $preval{$qid} || '';
                 my $answered = ( $qvalue =~ /\b$itid\b/ ) ? "*" : "";
-
-                # still concatencruft, but at least it's not duplicated any more
-                my $barcode = LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
-                $barcode .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' ";
-                $barcode .= "style='vertical-align:middle; object-fit: initial; ";
-                $barcode .= "object-position: initial; height: 14px;' ";
-                $barcode .= "height='14' width='$width' alt='' />";
-                $barcode .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
-                $barcode .= "<b>$count</b> ($percent%) $answered";
+                my $barlabel = "<b>$count</b> ($percent%) $answered";
+                my $bar      = $histogram_bar->($fraction_of_max);
 
                 if ($do_table) {
-                    $results_table .= "<tr valign='middle'><td align='right'>$item</td><td>";
-                    $results_table .= $barcode;
-                    $results_table .= "</td></tr>";
+                    $results_table .= "<tr style='vertical-align: middle;'>";
+                    $results_table .=
+"<th scope='row' style='text-align: right; white-space: nowrap;'>$item</th>";
+                    $results_table .= "<td style='width: 100%;'>$bar</td>";
+                    $results_table .=
+                        "<td style='text-align: left; white-space: nowrap;'>$barlabel</td>";
+                    $results_table .= "</tr>";
                 }
                 else {
-                    $results_table .= "<p>$item<br /><span style='white-space: nowrap'>";
-                    $results_table .= $barcode;
-                    $results_table .= "</span></p>";
+                    $results_table .= "<p style='margin-bottom: 5px;'>$item<br>$barlabel</p>";
+                    $results_table .= $bar;
                 }
             }
 
