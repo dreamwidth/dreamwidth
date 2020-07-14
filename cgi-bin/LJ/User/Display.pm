@@ -37,7 +37,6 @@ sub show_raw_errors {
     my $u = shift;
 
     return 1 if $LJ::IS_DEV_SERVER;
-    return 1 if $LJ::ENABLE_BETA_TOOLS;
 
     return 0 unless LJ::isu($u);
     return 1 if $u->has_priv("supporthelp");
