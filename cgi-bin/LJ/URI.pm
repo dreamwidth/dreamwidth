@@ -44,15 +44,8 @@ sub handle {
             if $bml_handler_path;
     }
 
-    # handle normal URI mappings
-    if ( my $bml_file = $LJ::URI_MAP{$uri} ) {
-        return LJ::URI->bml_handler( $apache_r, $bml_file );
-    }
-
-    # handle URI redirects
-    if ( my $url = $LJ::URI_REDIRECT{$uri} ) {
-        return Apache::LiveJournal::redir( $apache_r, $url, HTTP_MOVED_TEMPORARILY );
-    }
+    # handle normal URI mappings -- removed, unused
+    # handle URI redirects -- removed, also unused
 
     return undef;
 }
