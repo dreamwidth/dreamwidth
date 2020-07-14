@@ -103,7 +103,7 @@ sub preview_as_html {
             }
         }
     }
-    $ret .= "<div style='margin: 10px 0 10px 40px'>";
+    $ret .= "<div style='margin: 10px 0 10px 5%'>";
 
     # text questions
     if ( $type eq 'text' ) {
