@@ -1060,7 +1060,7 @@ sub render {
             }
         }
 
-        $results_table .= "<div style='margin: 10px 0 10px 40px' class='poll-response'>";
+        $results_table .= "<div style='margin: 10px 0 10px 5%;' class='poll-response'>";
 
         ### get statistics, for scale questions
         my ( $valcount, $valmean, $valstddev, $valmedian );
@@ -1154,7 +1154,8 @@ sub render {
                     'maxlength' => $max,
                     'class'     => "poll-$pollid",
                     'name'      => "pollq-$qid",
-                    'value'     => $prevanswer
+                    'value'     => $prevanswer,
+                    'style'     => 'max-width: 100%; box-sizing: border-box;',
                 }
             );
         }
@@ -1172,7 +1173,8 @@ sub render {
                 {
                     'name'     => "pollq-$qid",
                     'class'    => "poll-$pollid",
-                    'selected' => $prevanswer
+                    'selected' => $prevanswer,
+                    'style'    => 'max-width: 100%; box-sizing: border-box;',
                 },
                 @optlist
             );
@@ -1237,7 +1239,8 @@ sub render {
                     {
                         'name'     => "pollq-$qid",
                         'class'    => "poll-$pollid",
-                        'selected' => $prevanswer
+                        'selected' => $prevanswer,
+                        'style'    => 'max-width: 100%; box-sizing: border-box;',
                     },
                     @optlist
                 );
