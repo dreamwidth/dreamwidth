@@ -1,0 +1,39 @@
+[%# Render a poll question about a range of values, using radio buttons.
+arguments:
+    lowlabel
+    highlabel
+    selectedanswer
+    pollid
+    qid
+    values
+-%]
+
+[%-
+    container_style = "display: flex; flex-wrap: wrap; align-items: center; text-align: center;"
+    item_style = "display: inline-block; padding: 3px 6px 3px 0;"
+-%]
+
+<div style="[% container_style %]">
+    [%- IF lowlabel -%]
+        <div style="[% item_style %]"><strong>[% lowlabel %]</strong></div>
+    [%- END -%]
+
+    [%- FOREACH val = values -%]
+        [%- val_id = "pollq-$pollid-$qid-$val" -%]
+        <div style="[% item_style %]">
+            [%- form.radio(
+                name = "pollq-$qid"
+                class = "poll-$pollid"
+                value = val
+                id = val_id
+                selected = val == selectedanswer
+            ) -%]
+            <br>
+            <label for="[% val_id %]">[% val %]</label>
+        </div>
+    [%- END -%]
+
+    [%- IF highlabel -%]
+        <div style="[% item_style %]"><strong>[% highlabel %]</strong></div>
+    [%- END -%]
+</div>

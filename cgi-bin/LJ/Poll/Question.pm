@@ -118,19 +118,27 @@ sub preview_as_html {
         my $count     = int( ( $to - $from ) / $by ) + 1;
         my $do_radios = ( $count <= 11 );
 
-        # few opts, display radios
         if ($do_radios) {
-            $ret .= "<table summary=''><tr valign='top' align='center'>\n";
-            $ret .= "<td style='padding-right: 5px;'><b>$lowlabel</b></td>";
-            for ( my $at = $from ; $at <= $to ; $at += $by ) {
-                $ret .= "<td>" . LJ::html_check( { 'type' => 'radio' } ) . "<br />$at</td>\n";
-            }
-            $ret .= "<td style='padding-left: 5px;'><b>$highlabel</b></td>";
-            $ret .= "</tr></table>\n";
 
-            # many opts, display select
+            # few opts, display radios
+            my @all_values;
+            for ( my $at = $from ; $at <= $to ; $at += $by ) {
+                push @all_values, $at;
+            }
+            $ret .= DW::Template->template_string(
+                'poll/scale_radio.tt',
+                {
+                    lowlabel       => $lowlabel,
+                    highlabel      => $highlabel,
+                    selectedanswer => '',
+                    pollid         => '',
+                    qid            => '',
+                    values         => \@all_values,
+                }
+            );
         }
         else {
+            # many opts, display select
             my @optlist = ( '', ' ' );
             push @optlist, ( $from, $from . " " . $lowlabel );
 

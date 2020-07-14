@@ -1186,43 +1186,29 @@ sub render {
             my $count     = int( ( $to - $from ) / $by ) + 1;
             my $do_radios = ( $count <= 11 );
 
-            # few opts, display radios
             if ($do_radios) {
 
-                $results_table .= "<table summary=''><tr valign='top' align='center'>";
-
-                # appends the lower end
-                $results_table .= "<td style='padding-right: 5px;'><b>$lowlabel</b></td>"
-                    if defined $lowlabel;
-
+                # few opts, display radios
+                my @all_values;
                 for ( my $at = $from ; $at <= $to ; $at += $by ) {
-
-                    my $selectedanswer =
-                        !$clearanswers && ( defined $preval{$qid} && $at == $preval{$qid} );
-                    $results_table .= "<td style='text-align: center;'>";
-                    $results_table .= LJ::html_check(
-                        {
-                            'type'     => 'radio',
-                            'name'     => "pollq-$qid",
-                            'class'    => "poll-$pollid",
-                            'value'    => $at,
-                            'id'       => "pollq-$pollid-$qid-$at",
-                            'selected' => $selectedanswer
-                        }
-                    );
-                    $results_table .= "<br /><label for='pollq-$pollid-$qid-$at'>$at</label></td>";
+                    push @all_values, $at;
                 }
+                $results_table .= DW::Template->template_string(
+                    'poll/scale_radio.tt',
+                    {
+                        lowlabel       => $lowlabel,
+                        highlabel      => $highlabel,
+                        selectedanswer => $clearanswers ? '' : ( $preval{$qid} // '' ),
+                        pollid         => $pollid,
+                        qid            => $qid,
+                        values         => \@all_values,
+                    }
+                );
 
-                # appends the higher end
-                $results_table .= "<td style='padding-left: 5px;'><b>$highlabel</b></td>"
-                    if defined $highlabel;
-
-                $results_table .= "</tr></table>\n";
-
-                # many opts, display select
-                # but only if displaying form
             }
             else {
+                # many opts, display select
+                # but only if displaying form
                 $prevanswer = $clearanswers ? "" : $preval{$qid};
 
                 my @optlist = ( '', '' );
