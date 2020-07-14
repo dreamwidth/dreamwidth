@@ -166,19 +166,26 @@ sub anonymous {
 # shop/payment system, undef means they're allowed
 sub remote_sysban_check {
 
+    my $err = sub {
+        return LJ::Lang::ml(
+            'error.blocked',
+            {
+                blocktype => $_[0],
+                email     => $LJ::ACCOUNTS_EMAIL
+            }
+        );
+    };
+
     # do sysban checks:
     if ( LJ::sysban_check( 'pay_uniq', LJ::UniqCookie->current_uniq ) ) {
-        return BML::ml( 'error.blocked',
-            { blocktype => "computer", email => $LJ::ACCOUNTS_EMAIL } );
+        return $err->("computer");
     }
     elsif ( my $remote = LJ::get_remote() ) {
         if ( LJ::sysban_check( 'pay_user', $remote->user ) ) {
-            return BML::ml( 'error.blocked',
-                { blocktype => "account", email => $LJ::ACCOUNTS_EMAIL } );
+            return $err->("account");
         }
         elsif ( LJ::sysban_check( 'pay_email', $remote->email_raw ) ) {
-            return BML::ml( 'error.blocked',
-                { blocktype => "email address", email => $LJ::ACCOUNTS_EMAIL } );
+            return $err->("email address");
         }
     }
 
