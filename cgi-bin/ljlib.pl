@@ -611,7 +611,6 @@ sub start_request {
         LJ::need_res(
             { priority => $LJ::LIB_RES_PRIORITY }, qw(
                 js/6alib/devel.js
-                js/livejournal-devel.js
                 )
         ) if $LJ::IS_DEV_SERVER;
     }
