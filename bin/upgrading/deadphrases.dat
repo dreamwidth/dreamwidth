@@ -1294,6 +1294,8 @@ general cprod.todononpublic.text
 general setting.contentpromotion.label
 general setting.contentpromotion.option
 
+general setting.prod.display.title
+
 general error.message.yourself
 
 general /allpics.bml.comment

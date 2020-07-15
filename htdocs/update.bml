@@ -269,8 +269,6 @@ _c?>
         $$body .= LJ::entry_form($entry, \$$head, $onload, $errors);
         $$body .= "</form><!-- end #updateForm -->\n";
 
-        $$body .= LJ::Widget::SettingProdDisplay->render;
-
         return;
     };
 
