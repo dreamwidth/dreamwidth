@@ -18,8 +18,6 @@ old: js/userpicselect.js
 old: js/6alib/view.js
 
 old: js/ljwidget.js
-old: js/ljwidget_ippu.js
-old: js/widget_ippu/settingprod.js
 */
 
 module( "old" );
@@ -73,21 +71,12 @@ test( "UserpicSelect", function() {
 });
 
 test( "Widget", function() {
-    expect(2);
+    expect(1);
 
     var o;
     o = new LJWidget();
     o.init();
     ok( o, "LJWidget" );
-
-    o = new LJWidgetIPPU();
-    o.init({});
-    ok( o, "LJWidgetIPPU" );
-
-    // automatically tries to post to something on page refresh, so leaving out
-    // o = new LJWidgetIPPU_SettingProd();
-    // o.init({}, {});
-    // ok( o, "LJWidgetIPPU_SettingProd" );
 });
 
 test( "Check all", function() {

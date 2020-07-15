@@ -725,7 +725,6 @@ sub widget_handler {
     }
 
     my $widget_id   = $post->{_widget_id};
-    my $widget_ippu = $post->{_widget_ippu};
     my $doing_post  = delete $post->{_widget_post};
 
     my %ret = (
