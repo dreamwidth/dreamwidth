@@ -1296,6 +1296,10 @@ general setting.contentpromotion.option
 
 general setting.prod.display.title
 
+general settings.settingprod.intro
+general settings.settingprod.outro
+general settings.settingprod.update
+
 general error.message.yourself
 
 general /allpics.bml.comment
