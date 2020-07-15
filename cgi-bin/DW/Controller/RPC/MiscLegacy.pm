@@ -724,8 +724,8 @@ sub widget_handler {
         $post->{$_} = $get->{$_} foreach keys %$get;
     }
 
-    my $widget_id   = $post->{_widget_id};
-    my $doing_post  = delete $post->{_widget_post};
+    my $widget_id  = $post->{_widget_id};
+    my $doing_post = delete $post->{_widget_post};
 
     my %ret = (
         _widget_id    => $widget_id,
