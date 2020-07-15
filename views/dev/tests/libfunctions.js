@@ -11,7 +11,7 @@ old: js/6alib/selectable_table.js
 old: js/6alib/checkallbutton.js
 
 old: js/6alib/ippu.js
-old: js/6alib/lj_ippu.js
+old: js/lj_ippu.js
 old: js/6alib/template.js
 old: js/userpicselect.js
 

@@ -3208,13 +3208,7 @@ settings.option.select=(Please make a selection)
 
 settings.province=or non-US State/province/territory
 
-settings.settingprod.intro=Hi from [[sitename]]. We have a new option that we'd like you to set:
-
 settings.settingprod.learn=Learn more
-
-settings.settingprod.outro=You can change this setting on the <a [[aopts]]>Edit Profile Page</a>.
-
-settings.settingprod.update=Update your Settings
 
 settings.state=State
 
