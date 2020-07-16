@@ -379,7 +379,7 @@ sub is_utf8_wrapper {
 # des-text: text to check if too long
 # des-maxbreaks: maximum number of linebreak
 # des-maxchars: maximum number of characters
-# returns: true if text has more than maxbreaks linebreaks or more than maxchars characters
+# returns: true if text has more than maxbreaks HTML linebreaks or more than maxchars characters
 # </LJFUNC>
 sub has_too_many {
     my ( $text, %opts ) = @_;
@@ -387,7 +387,12 @@ sub has_too_many {
     return 1 if exists $opts{chars} && length($text) > $opts{chars};
 
     if ( exists $opts{linebreaks} ) {
-        my @breaks = $text =~ m/(<br \/>|\n)/g;
+
+        # - we always call this on HTML, so ignore literal \n.
+        # - paragraphs count as two linebreaks.
+        # - this is ballpark guessing and ignores MANY things that can add
+        # vertical space (<li>s, blockquotes...) -- shrug!
+        my @breaks = $text =~ m!</?(?:p|br)[^>]*>!g;
         return 1 if scalar @breaks > $opts{linebreaks};
     }
 
