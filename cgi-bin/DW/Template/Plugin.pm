@@ -79,6 +79,19 @@ sub active_resource_group {
     return LJ::set_active_resource_group( $_[1] );
 }
 
+=head2 request_status
+
+Allows a template to embed a request status code. Useful for error pages.
+
+    [% CALL dw.request_status( 404 ) %]
+
+=cut
+
+sub request_status {
+    my $r = DW::Request->get;
+    return $r->status( $_[1] );
+}
+
 =head2 ml_scope
 
 Get or set the ML scope of the template
