@@ -266,7 +266,7 @@ sub render_template_misc {
     $extra ||= {};
     my $out = $class->template_string( $filename, $opts, $extra );
 
-    my $scope = $extra->{scope};
+    my $scope = $extra->{scope} // '';
 
     if ( $scope eq 'bml' ) {
         my $r   = DW::Request->get;
