@@ -71,6 +71,7 @@ sub http_to_time {
 
 sub mysqldate_to_time {
     my ( $string, $gmt ) = @_;
+    return undef unless defined $string;
     return undef unless $string =~ /^(\d\d\d\d)-(\d\d)-(\d\d)(?: (\d\d):(\d\d)(?::(\d\d))?)?$/;
     my ( $y, $mon, $d, $h, $min, $s ) = ( $1, $2, $3, $4, $5, $6 );
 
