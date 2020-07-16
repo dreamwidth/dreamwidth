@@ -932,8 +932,6 @@ error.support.norequest=You did not enter a support request.
 
 error.support.nosummary=You must enter a problem summary.
 
-error.suspended.text=This journal has been either temporarily or permanently suspended by [[sitename]] for policy violation.  If you're [[user]], contact us for more information.
-
 error.suspended.name=Suspended
 
 error.suspended.text=This journal has been either temporarily or permanently suspended by [[sitename]] for policy violation.  If you are [[user]], contact us for more information.
