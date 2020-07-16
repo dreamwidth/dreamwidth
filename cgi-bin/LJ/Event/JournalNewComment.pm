@@ -201,8 +201,6 @@ sub content {
     my $dtalkid      = $comment->dtalkid;
     my $htmlid       = LJ::Talk::comment_htmlid($dtalkid);
 
-    $comment_body = LJ::html_newlines($comment_body);
-
     if ( $comment->is_edited ) {
         my $reason = LJ::ehtml( $comment->edit_reason );
         $comment_body .= "<br /><br /><div class='edittime'>"
