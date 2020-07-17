@@ -20,7 +20,7 @@ use warnings;
 
 use Test::More tests => 12;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
 
@@ -57,7 +57,7 @@ is(
 is( $clean->("[<span class=ljuser>system</span>]"), "[$lju_sys]", "span ljuser" );
 is(
     $clean->(
-"[<span class=ljuser>bob <img src=\"http://www.lj.bradfitz.com/img/userinfo.gif\" /> system</span>]"
+"[<span class=ljuser>bob <img src=\"http://www.lj.bradfitz.com/img/userinfo.gif\" />system</span>]"
     ),
     "[$lju_sys]",
     "span ljuser with junk inside"

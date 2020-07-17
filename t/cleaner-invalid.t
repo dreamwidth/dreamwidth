@@ -20,10 +20,28 @@ use warnings;
 
 use Test::More tests => 4;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
-use LJ::Test qw (temp_user);
 use HTMLCleaner;
+
+# We rely on LJ::Lang::ml
+# Fake the single value we retrieve during the tests.
+my $mock = Test::MockObject->new();
+
+sub fake_lang_ml {
+    my ( $code, $vars ) = @_;
+    my $aopts = $vars->{'aopts'};
+    if ( $code eq "cleanhtml.error.markup.extra" ) {
+        return "[<strong>Error:</strong> Irreparable invalid markup ("
+            . "'&lt;$aopts&gt;') in entry. Owner must fix manually. Raw contents below.]";
+    }
+}
+
+$mock->fake_module(
+    'LJ::Lang' => (
+        ml => \&fake_lang_ml
+    )
+);
 
 my $post;
 my $clean_post;
@@ -46,13 +64,13 @@ qq {<marquee><font size="24"></font></marquee><div class='ljparseerror'>[<strong
     "Invalid HTML is not okay."
 );
 
-my $u = temp_user();
+my $u = LJ::Mock::temp_user();
 $post = "<lj user=\"" . $u->user . "\">";
 $clean->();
 is( $clean_post, $u->ljuser_display, "User tag is fine." );
 
 {
-    my $u = temp_user();
+    my $u = LJ::Mock::temp_user();
     $post =
           "<lj user=\""
         . $u->user

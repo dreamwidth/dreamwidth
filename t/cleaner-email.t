@@ -17,8 +17,9 @@ use warnings;
 
 use Test::More tests => 17;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::CleanEmail;
+use LJ::TextUtil;
 
 local $LJ::BOGUS_EMAIL = 'dw_null@dreamwidth.org';    # for testing only
 

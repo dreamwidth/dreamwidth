@@ -18,7 +18,7 @@ use warnings;
 
 use Test::More tests => 28;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 
 my $orig_comment;
