@@ -128,7 +128,8 @@ sub check_doesnt_use_markdown {
 }
 
 # local content, converts users when not inside html
-check_doesnt_use_markdown( 'local entry made in default editor (newest casual HTML version)', editor => undef );
+check_doesnt_use_markdown( 'local entry made in default editor (newest casual HTML version)',
+    editor => undef );
 check_uses_markdown( 'local entry made in markdown editor', editor => 'markdown' );
 is( $clean->( '@system', editor => undef ),
     $lju_sys, 'user tag in plain text converted (undef editor)' );
