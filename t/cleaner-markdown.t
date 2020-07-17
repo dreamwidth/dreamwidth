@@ -29,7 +29,7 @@ my $url             = 'https://medium.com/@username/title-of-page';
 my $clean = sub {
     my ( $text, %opts ) = @_;
     unless (%opts) {
-        %opts = ( editor => 'markdown' );
+        %opts = ( editor => 'markdown_latest' );
     }
     LJ::CleanHTML::clean_event( \$text, \%opts );
     chomp $text;
@@ -128,7 +128,8 @@ sub check_doesnt_use_markdown {
 }
 
 # local content, converts users when not inside html
-check_doesnt_use_markdown( 'local entry made in old editor', editor => undef );
+check_doesnt_use_markdown( 'local entry made in default editor (newest casual HTML version)',
+    editor => undef );
 check_uses_markdown( 'local entry made in markdown editor', editor => 'markdown' );
 is( $clean->( '@system', editor => undef ),
     $lju_sys, 'user tag in plain text converted (undef editor)' );
