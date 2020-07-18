@@ -94,19 +94,19 @@ sub userpic {
         }
         elsif ( $u->is_personal ) {
             $ret->{userpic}  = "$LJ::IMGPREFIX/profile_icons/user.png";
-            $ret->{alt_text} = LJ::Lang::ml('.userpic.user.alt');
+            $ret->{alt_text} = _profile_ml('.userpic.user.alt');
             $ret->{width}    = 100;
             $ret->{height}   = 100;
         }
         elsif ( $u->is_community ) {
             $ret->{userpic}  = "$LJ::IMGPREFIX/profile_icons/comm.png";
-            $ret->{alt_text} = LJ::Lang::ml('.userpic.comm.alt');
+            $ret->{alt_text} = _profile_ml('.userpic.comm.alt');
             $ret->{width}    = 100;
             $ret->{height}   = 100;
         }
         elsif ( $u->is_identity ) {
             $ret->{userpic}  = "$LJ::IMGPREFIX/profile_icons/openid.png";
-            $ret->{alt_text} = LJ::Lang::ml('.userpic.openid.alt');
+            $ret->{alt_text} = _profile_ml('.userpic.openid.alt');
             $ret->{width}    = 100;
             $ret->{height}   = 100;
         }
@@ -115,12 +115,12 @@ sub userpic {
         if ( $remote && $remote->can_manage($u) ) {
             if ( $u->get_userpic_count ) {
                 $ret->{userpic_url}  = $u->allpics_base;
-                $ret->{caption_text} = LJ::Lang::ml('.section.edit');
+                $ret->{caption_text} = _profile_ml('.section.edit');
                 $ret->{caption_url}  = "$LJ::SITEROOT/manage/icons?authas=$user";
             }
             else {
                 $ret->{userpic_url}  = "$LJ::SITEROOT/manage/icons?authas=$user";
-                $ret->{caption_text} = LJ::Lang::ml('.userpic.upload');
+                $ret->{caption_text} = _profile_ml('.userpic.upload');
                 $ret->{caption_url}  = "$LJ::SITEROOT/manage/icons?authas=$user";
             }
         }
@@ -197,14 +197,14 @@ sub warnings {
             push @ret,
                 {
                 class => 'journal_adult_warning',
-                text  => LJ::Lang::ml('.details.warning.explicit')
+                text  => _profile_ml('.details.warning.explicit')
                 };
         }
         elsif ( $u->adult_content_calculated eq 'concepts' ) {
             push @ret,
                 {
                 class => 'journal_adult_warning',
-                text  => LJ::Lang::ml('.details.warning.concepts')
+                text  => _profile_ml('.details.warning.concepts')
                 };
         }
     }
@@ -223,11 +223,11 @@ sub comment_stats {
     my $num_comments_posted   = $u->num_comments_posted;
 
     push @ret,
-        LJ::Lang::ml( '.details.comments.received2',
+        _profile_ml( '.details.comments.received2',
         { num_raw => $num_comments_received, num_comma => LJ::commafy($num_comments_received) } )
         unless $u->is_identity;
     push @ret,
-        LJ::Lang::ml( '.details.comments.posted2',
+        _profile_ml( '.details.comments.posted2',
         { num_raw => $num_comments_posted, num_comma => LJ::commafy($num_comments_posted) } )
         if LJ::is_enabled('show-talkleft') && ( $u->is_personal || $u->is_identity );
 
@@ -243,7 +243,7 @@ sub support_stats {
 
     my $supportpoints = $u->support_points_count;
     push @ret,
-        LJ::Lang::ml( '.details.supportpoints2',
+        _profile_ml( '.details.supportpoints2',
         { aopts => qq{href="$LJ::SITEROOT/support/"}, num => LJ::commafy($supportpoints) } )
         if $supportpoints;
 
@@ -259,7 +259,7 @@ sub entry_stats {
 
     my $ct = $u->number_of_posts;
     push @ret,
-        LJ::Lang::ml(
+        _profile_ml(
         '.details.entries3',
         {
             num_raw   => $ct,
@@ -280,7 +280,7 @@ sub tag_stats {
 
     my $ct = scalar keys %{ $u->tags || {} };
     push @ret,
-        LJ::Lang::ml(
+        _profile_ml(
         '.details.tags2',
         {
             num_raw   => $ct,
@@ -301,7 +301,7 @@ sub memory_stats {
 
     my $ct = LJ::Memories::count( $u->id ) || 0;
     push @ret,
-        LJ::Lang::ml(
+        _profile_ml(
         '.details.memories2',
         {
             num_raw   => $ct,
@@ -327,7 +327,7 @@ sub userpic_stats {
         my $slots = $u->userpic_quota;
         my $bonus = $u->prop('bonus_icons') || 0;
         push @ret,
-            LJ::Lang::ml(
+            _profile_ml(
             '.details.userpics.self',
             {
                 uploaded_raw   => $ct,
@@ -342,7 +342,7 @@ sub userpic_stats {
     }
     else {
         push @ret,
-            LJ::Lang::ml(
+            _profile_ml(
             '.details.userpics.others',
             {
                 uploaded_raw   => $ct,
@@ -392,7 +392,7 @@ sub _basic_info_display_name {
 
     my $name = $u->name_html;
     if ( $u->is_syndicated ) {
-        $ret->[0] = LJ::Lang::ml('.label.syndicatedfrom');
+        $ret->[0] = _profile_ml('.label.syndicatedfrom');
         $ret->[1] = ' ';
 
         if ( my $url = $u->url ) {
@@ -409,7 +409,7 @@ sub _basic_info_display_name {
         };
     }
     else {
-        $ret->[0] = LJ::Lang::ml('.label.name');
+        $ret->[0] = _profile_ml('.label.name');
         $ret->[1] = $name;
     }
 
@@ -429,7 +429,7 @@ sub _basic_info_birthday {
     if ( $u->bday_string && ( $u->can_share_bday || $self->{viewall} ) ) {
         my $bdate = $u->prop('bdate');
         if ( $bdate && $bdate ne "0000-00-00" ) {
-            $ret->[0] = LJ::Lang::ml('.label.birthdate');
+            $ret->[0] = _profile_ml('.label.birthdate');
             $ret->[1] = $self->security_image( $u->opt_sharebday );
             my ( $year, $mon, $day ) = split /-/, $bdate;
             my $moname = LJ::Lang::month_short_ml($mon);
@@ -506,7 +506,7 @@ sub _basic_info_location {
         }
 
         push @$ret, $city_ret, $state_ret, $country_ret;
-        unshift @$ret, ( LJ::Lang::ml('.label.location'), ', ' );
+        unshift @$ret, ( _profile_ml('.label.location'), ', ' );
     }
 
     return $ret;
@@ -531,7 +531,7 @@ sub _basic_info_website {
         }
         $urlname = LJ::ehtml( $urlname || $url );
         if ($url) {
-            $ret->[0] = LJ::Lang::ml('.label.website');
+            $ret->[0] = _profile_ml('.label.website');
             $ret->[1] = { url => $url, text => $urlname };
         }
     }
@@ -551,15 +551,15 @@ sub _basic_info_comm_membership {
 
     my ( $membership, $postlevel ) = $u->get_comm_settings;
 
-    my $membership_string = LJ::Lang::ml('.commsettings.membership.open');
+    my $membership_string = _profile_ml('.commsettings.membership.open');
     if ( $membership && $membership eq "moderated" ) {
-        $membership_string = LJ::Lang::ml('.commsettings.membership.moderated');
+        $membership_string = _profile_ml('.commsettings.membership.moderated');
     }
     elsif ( $membership && $membership eq "closed" ) {
-        $membership_string = LJ::Lang::ml('.commsettings.membership.closed');
+        $membership_string = _profile_ml('.commsettings.membership.closed');
     }
 
-    $ret->[0] = LJ::Lang::ml('.commsettings.membership.header');
+    $ret->[0] = _profile_ml('.commsettings.membership.header');
     $ret->[1] = $membership_string;
 
     return $ret;
@@ -577,17 +577,17 @@ sub _basic_info_comm_postlevel {
 
     my ( $membership, $postlevel ) = $u->get_comm_settings;
 
-    my $postlevel_string = LJ::Lang::ml('.commsettings.postlevel.members');
+    my $postlevel_string = _profile_ml('.commsettings.postlevel.members');
     if ( $postlevel && $postlevel eq "select" ) {
-        $postlevel_string = LJ::Lang::ml('.commsettings.postlevel.select');
+        $postlevel_string = _profile_ml('.commsettings.postlevel.select');
     }
     elsif ( $u->prop('nonmember_posting') ) {
-        $postlevel_string = LJ::Lang::ml('.commsettings.postlevel.anybody');
+        $postlevel_string = _profile_ml('.commsettings.postlevel.anybody');
     }
 
-    $postlevel_string .= LJ::Lang::ml('.commsettings.postlevel.moderated') if $u->prop('moderated');
+    $postlevel_string .= _profile_ml('.commsettings.postlevel.moderated') if $u->prop('moderated');
 
-    $ret->[0] = LJ::Lang::ml('.commsettings.postlevel.header');
+    $ret->[0] = _profile_ml('.commsettings.postlevel.header');
     $ret->[1] = $postlevel_string;
 
     return $ret;
@@ -604,7 +604,7 @@ sub _basic_info_comm_theme {
     return $ret unless $u->is_community;
 
     if ( $u->prop('comm_theme') ) {
-        $ret->[0] = LJ::Lang::ml('.commdesc.header');
+        $ret->[0] = _profile_ml('.commdesc.header');
         $ret->[1] = LJ::ehtml( $u->prop('comm_theme') );
     }
 
@@ -623,8 +623,8 @@ sub _basic_info_syn_status {
     my $synd = $u->get_syndicated;
     my $syn_status;
 
-    $syn_status .= LJ::Lang::ml('.syn.lastcheck') . " ";
-    $syn_status .= $synd->{lastcheck} || LJ::Lang::ml('.syn.last.never');
+    $syn_status .= _profile_ml('.syn.lastcheck') . " ";
+    $syn_status .= $synd->{lastcheck} || _profile_ml('.syn.last.never');
     my $status = {
         parseerror  => "Parse error",
         notmodified => "Not modified",
@@ -638,13 +638,13 @@ sub _basic_info_syn_status {
     if ( $synd->{laststatus} && $synd->{laststatus} eq 'parseerror' ) {
         $syn_status .=
               "<br />"
-            . LJ::Lang::ml('.syn.parseerror') . " "
+            . _profile_ml('.syn.parseerror') . " "
             . LJ::ehtml( $u->prop('rssparseerror') );
     }
 
-    $syn_status .= "<br />" . LJ::Lang::ml('.syn.nextcheck') . " $synd->{checknext}";
+    $syn_status .= "<br />" . _profile_ml('.syn.nextcheck') . " $synd->{checknext}";
 
-    $ret->[0] = LJ::Lang::ml('.label.syndicatedstatus');
+    $ret->[0] = _profile_ml('.label.syndicatedstatus');
     $ret->[1] = $syn_status;
 
     return $ret;
@@ -659,7 +659,7 @@ sub _basic_info_syn_readers {
     return () unless $u->is_syndicated;
 
     my $ret = [];
-    $ret->[0] = LJ::Lang::ml('.label.syndreadcount');
+    $ret->[0] = _profile_ml('.label.syndreadcount');
     $ret->[1] = scalar $u->watched_by_userids;
 
     return $ret;
@@ -678,7 +678,7 @@ sub contact_rows {
         push @ret,
             {
             url  => "$LJ::SITEROOT/inbox/compose?user=" . $u->user,
-            text => LJ::Lang::ml('.contact.pm')
+            text => _profile_ml('.contact.pm')
             };
     }
 
@@ -1179,6 +1179,13 @@ sub security_image {
     $imgfile = "$LJ::SITEROOT/img/silk/$imgfile";
     return "&nbsp;(<img alt='$text' title='$text' width='16' height='16'"
         . " style='vertical-align: bottom' src='$imgfile' />)&nbsp;&nbsp;";
+}
+
+# explicitly scope the profile page for ml strings
+sub _profile_ml {
+    my ( $string, $optref ) = @_;
+    my $page = "/profile.bml";
+    return LJ::Lang::ml( "$page$string", $optref );
 }
 
 1;
