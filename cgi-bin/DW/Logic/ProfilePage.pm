@@ -868,7 +868,7 @@ sub external_services {
             type     => 'google',
             email    => LJ::ehtml($google),
             image    => 'google_hangouts.png',
-            title_ml => '.im.hangouts',
+            title_ml => '.service.hangouts',
             };
     }
 
@@ -880,7 +880,7 @@ sub external_services {
             text     => LJ::ehtml($icq),
             url      => $url,
             image    => 'icq.gif',
-            title_ml => '.im.icq',
+            title_ml => '.service.icq',
             };
     }
 
@@ -914,7 +914,7 @@ sub external_services {
             type     => 'jabber',
             email    => LJ::ehtml($jabber),
             image    => 'jabber.gif',
-            title_ml => '.im.jabber',
+            title_ml => '.service.jabber',
             };
     }
 
@@ -926,7 +926,7 @@ sub external_services {
             text     => LJ::ehtml($lastfm),
             url      => $url,
             image    => 'lastfm.gif',
-            title_ml => '.im.lastfm',
+            title_ml => '.service.lastfm',
             };
     }
 
@@ -1043,7 +1043,7 @@ sub external_services {
             type     => 'skype',
             email    => LJ::ehtml($skype),
             image    => 'skype.gif',
-            title_ml => '.im.skype',
+            title_ml => '.service.skype',
         };
         push @ret, $service;
     }
@@ -1254,6 +1254,74 @@ sub posting_access_from_userids {
 sub posting_access_to_userids {
     my $self = $_[0];
     return LJ::load_rel_target_cache( $self->{u}, 'P' );
+}
+
+# returns data hash mapping various userid lists
+sub populate_edges {
+    my $profile = $_[0];
+    my $u       = $profile->{u};
+    my $remote  = $profile->{remote};
+    my %edges;
+
+    my $force_empty = exists $LJ::FORCE_EMPTY_SUBSCRIPTIONS{ $u->id } ? 1 : 0;
+
+    # identity accounts ignore show_mutualfriends for trust edges
+    # (they can be trusted but can't trust back)
+    $edges{trusted_by} = $profile->trusted_by_userids if $u->is_identity;
+
+    # show_mutualfriends can only be true for personal or identity accounts
+    if ( $u->show_mutualfriends ) {
+        if ( $u->is_personal ) {
+            $edges{mutually_trusted}        = $profile->mutually_trusted_userids;
+            $edges{not_mutually_trusted}    = $profile->not_mutually_trusted_userids;
+            $edges{not_mutually_trusted_by} = $profile->not_mutually_trusted_by_userids;
+        }
+        $edges{mutually_watched}        = $profile->mutually_watched_userids;
+        $edges{not_mutually_watched}    = $profile->not_mutually_watched_userids;
+        $edges{not_mutually_watched_by} = $profile->not_mutually_watched_by_userids;
+
+        # need this one to get watched communities and feeds
+        $edges{watched} = $profile->watched_userids;
+    }
+    else {    # no show_mutualfriends, includes communities
+        if ( $u->is_personal ) {
+            $edges{trusted}    = $profile->trusted_userids;
+            $edges{trusted_by} = $profile->trusted_by_userids;
+        }
+        if ( $u->is_individual ) {
+            $edges{watched} = $profile->watched_userids;
+        }
+
+        # respect option to hide watched_by unless journal owner == remote
+        my $hide_watched_by = 0;
+        unless ( $remote && $remote->can_manage($u) ) {
+            $hide_watched_by = $u->prop('opt_hidefriendofs') ? 1 : 0;
+        }
+
+        # but ALWAYS hide watched_by if journal in the force_empty list
+        unless ( $force_empty || $hide_watched_by ) {
+            $edges{watched_by} = $profile->watched_by_userids;
+        }
+    }
+
+    if ( $u->is_community && !$force_empty ) {
+        $edges{members}             = $profile->member_userids;
+        $edges{posting_access_from} = $profile->posting_access_from_userids;
+    }
+
+    if ( $u->is_personal ) {
+        $edges{member_of}         = $profile->member_of_userids;
+        $edges{admin_of}          = $profile->admin_of_userids;
+        $edges{posting_access_to} = $profile->posting_access_to_userids;
+    }
+
+    # before returning, filter out any banned users
+    my %banned_users = map { $_ => 1 } @{ LJ::load_rel_user( $u, 'B' ) || [] };
+    foreach my $e ( keys %edges ) {
+        $edges{$e} = [ grep { !$banned_users{$_} } @{ $edges{$e} } ];
+    }
+
+    return \%edges;
 }
 
 # returns image link based on privacy settings

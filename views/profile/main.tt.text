@@ -1,0 +1,169 @@
+;; -*- coding: utf-8 -*-
+.comms.admin_of=Administrator Of [[num]]
+
+.comms.member_of=Member Of [[num]]
+
+.comms.posting_access_to=Posting Access [[num]]
+
+.comms.watched=Subscriptions [[num]]
+
+.details.accounttype.expireson=[[type]], expires on [[date]]
+
+.details.createdon=Created on [[createdate]]
+
+.details.profile.default=<a [[aopts]]>View default profile</a>
+
+.details.profile.full=<a [[aopts]]>View extended profile</a>
+
+.details.rp=This account is a roleplaying account.
+
+.details.title=[[user]]'s Journal
+
+.disabled.members=Member list is disabled for this journal.
+
+.disabled.posting_access_from=Posting access list is disabled for this journal.
+
+.disabled.watched_by=Subscriber list is disabled for this journal.
+
+.error.linkify=(Error in Linkification)
+
+.error.nonexist=The account name <strong>[[user]]</strong> isn't currently registered.
+
+.error.reqfinduser=You can't look up accounts by userid.
+
+.feeds.watched=Subscriptions [[num]]
+
+.header.admins=Administrators
+
+.header.basicinfo=About
+
+.header.bio=Mini Bio
+
+.header.comms=Communities
+
+.header.contact=Contact Details:
+
+.header.feeds=Feeds
+
+.header.im=Other Services:
+
+.header.linking=Linking
+
+.header.members=Members
+
+.header.people=People
+
+.label.connect=Connect
+
+.label.feedchange=If this feed has stopped updating because its location has changed, please <a [[aopts]]>submit a Support request using the category Feeds</a> instead of creating a new feed.
+
+.label.hidden=(hidden)
+
+.label.interests=Interests ([[num]]):
+
+.label.interests.modifyyours=Modify Yours
+
+.label.interests.removesome=Remove Some
+
+.label.maintainers=Administrators ([[num]]):
+
+.label.moderators=Moderators ([[num]]):
+
+.linking.about=To link to this user, copy this code:
+
+.linking.anywhere=Elsewhere:
+
+.linking.local=On [[sitename]]:
+
+.people.members=Members [[num]]
+
+.people.mutually_trusted=Mutual Access [[num]]
+
+.people.mutually_watched=Mutual Subscriptions [[num]]
+
+.people.not_mutually_trusted=Also Gives Access To [[num]]
+
+.people.not_mutually_trusted_by=Also Has Access From [[num]]
+
+.people.not_mutually_watched=Other Subscriptions [[num]]
+
+.people.not_mutually_watched_by=Other Subscribers [[num]]
+
+.people.posting_access_from=Posting Access [[num]]
+
+.people.trusted=Gives Access To [[num]]
+
+.people.trusted_by=Has Access To [[num]]
+
+.people.watched=Subscriptions [[num]]
+
+.people.watched_by=Subscribers [[num]]
+
+.section.edit=Edit
+
+.service.ao3=Archive of Our Own
+
+.service.deviantart=DeviantArt
+
+.service.diigo=Diigo
+
+.service.discord=Discord
+
+.service.etsy=Etsy
+
+.service.ffnet=FanFiction.net
+
+.service.github=GitHub
+
+.service.hangouts=Google Hangouts
+
+.service.icq=ICQ
+
+.service.insanejournal=InsaneJournal
+
+.service.instagram=Instagram
+
+.service.jabber=Jabber
+
+.service.lastfm=Last.fm
+
+.service.livejournal=LiveJournal
+
+.service.medium=Medium
+
+.service.patreon=Patreon
+
+.service.pillowfort=Pillowfort
+
+.service.pinboard=Pinboard
+
+.service.pinterest=Pinterest
+
+.service.plurk=Plurk
+
+.service.ravelry=Ravelry
+
+.service.reddit=Reddit
+
+.service.skype=Skype
+
+.service.tumblr=Tumblr
+
+.service.twitter=Twitter
+
+.service.wattpad=Wattpad
+
+.title=Profile
+
+.title.communityprofile=Community Profile
+
+.title.openidprofile=OpenID Profile
+
+.title.syndicatedprofile=Feed Account Profile
+
+.viewentries.comms=View Entries
+
+.viewentries.feeds=View Entries
+
+.viewentries.people=View Entries
+
