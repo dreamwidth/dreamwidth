@@ -1,0 +1,578 @@
+[%# Displays information about an account in a viewer friendly manner.
+  #
+  # Authors:
+  #      Mark Smith <mark@dreamwidth.org>
+  #      Janine Smith <janine@netrophic.com>
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2009-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- IF u.is_community;
+      sections.title='.title.communityprofile' | ml;
+    ELSIF u.is_syndicated;
+      sections.title='.title.syndicatedprofile' | ml;
+    ELSIF u.is_identity;
+      sections.title='.title.openidprofile' | ml;
+    END -%]
+
+[%- sections.windowtitle = "${u.display_name} - ${sections.title}" -%]
+
+[%- sections.head = BLOCK %]
+  [% robot_meta_tags %]
+[% END %]
+
+[%- PROCESS profile/_blocks.tt -%]
+
+<div id='profile_page'>
+  <div id='profile_top'>
+    <div class='username'>
+[%- IF u.is_rp_account -%]
+      [% u.ljuser_display %]: [% '.details.rp' | ml %]
+[%- ELSE -%]
+      [% u.ljuser_display %]
+[%- END -%]
+    </div>
+
+    <div class='actions'>
+      <ul>
+[%- FOREACH link IN profile.action_links;
+      width  = link.width  ?  "width=\"${link.width}\""  : "";
+      height = link.height ? "height=\"${link.height}\"" : "" -%]
+
+        <li class="[% link.class %]" title="[% link.title %]">
+  [%- IF link.url && link.url.size; "<a href=\"${link.url}\">"; END -%]
+        <img src="[% link.image %]" [% "$width $height" %] alt="" />[% link.text %]
+  [%- IF link.url && link.url.size; "</a>"; END -%]
+        </li>
+[%- END -%]
+      </ul>
+    </div>
+
+    <div class='user_details'>
+      <div class='userpicdiv'>[% profile.userpic.imgtag %]</div>
+      <div class='user_details_inner'>
+
+[%- # JOURNAL TITLES
+    IF u.prop( "journaltitle" );
+      title = u.prop( "journaltitle" ) | html;
+    ELSE;
+      title = '.details.title' | ml( user = u.display_username );
+    END;
+    IF u.prop( "journalsubtitle" );
+      subtitle = u.prop( "journalsubtitle" ) | html;
+    END -%]
+        <div class="details_journal">
+          <p class="journal_title">[% title %]</p>
+          <p class="journal_subtitle">[% subtitle %]</p>
+        </div>
+
+        <div class='details_stats detail'>
+[%- # JOURNAL STATISTICS
+    FOREACH w IN profile.warnings;
+      "<span class='${w.class}'>${w.text}</span> ";
+    END;
+
+    IF accttype;
+      IF remote && remote.can_manage( u );
+        exp = expiretime;
+        IF exp;
+          accttype = '.details.accounttype.expireson' | ml( type = accttype,
+                                                            date = exp );
+        END;
+      END;
+      "<p>$accttype</p>";
+    END -%]
+
+[%- UNLESS u.is_identity -%]
+          <p>
+  [% '.details.createdon' | ml( createdate = createdate ) %]
+  [% " (\#${u.id}), ${u.last_updated}" %]
+          </p>
+[%- END -%]
+
+[%- csstats = profile.comment_stats.merge( profile.support_stats ) -%]
+          <p>[% csstats.join( ', ' ) %]</p>
+
+[%- justats = profile.entry_stats.merge( profile.tag_stats, profile.memory_stats,
+                                         profile.userpic_stats ) -%]
+          <p>[% justats.join( ', ' ) %]</p>
+
+[%- showfull = is_full ? 'default' : 'full' -%]
+[%- linkfull = is_full ? u.profile_url : u.profile_url( 'full', 1 ) -%]
+          <p>
+            [% ".details.profile.$showfull" | ml( aopts = "href='$linkfull'" ) %]
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+[%- manage_url = "${site.root}/manage/profile/?authas=${u.user}" -%]
+
+[%- # BASIC INFORMATION
+    bibody = BLOCK -%]
+
+  [%- rows = profile.basic_info_rows;
+      IF rows.size -%]
+  <div class="profile"><table summary=''>
+    [%- FOREACH row IN rows -%]
+      [%- NEXT UNLESS row.size; # this was a bug in the original page -%]
+      [%- row_header = row.shift -%]
+    <tr><th>[% row_header %]</th><td>
+      [%- linkify_multiple( row ) -%]
+    </td></tr>
+    [%- END -%]
+  </table></div>
+  [%- END -%]
+
+  [%- contacts = profile.contact_rows;
+      contact_links = [];
+      IF contacts.size -%]
+  <div class="contact">
+    <p class="section_body_title">[% '.header.contact' | ml %]</p>
+    [%- FOREACH c IN contacts; contact_links.push( linkify( c ) ); END -%]
+    [% contact_links.join( '<br />' ) %]
+  </div>
+  [%- END -%]
+
+  [%- IF u.is_syndicated -%]
+    [% '.label.feedchange' | ml( aopts = "href='${site.root}/support/submit?category=feeds'" ) %]
+  [%- END -%]
+
+[%- END; # BLOCK for bibody -%]
+
+[%- IF bibody;
+      content_block_opts = {
+            section_name    => 'basics',
+            section_name_ml => '.header.basicinfo',
+            section_link    => 'basics',
+            body            => bibody,
+            links           => cb_links( { editurl => manage_url } ),
+      } -%]
+
+  [% PROCESS content_block opts = content_block_opts %]
+[%- END -%]
+
+[%- biobody = profile.bio;
+    IF biobody;
+      content_block_opts = {
+            section_name    => 'bio',
+            section_name_ml => '.header.bio',
+            section_link    => 'bio',
+            body            => "<div class='usercontent'>$biobody</div>",
+            links           => cb_links( { editurl => "${manage_url}#bio" } ),
+      } -%]
+
+  [% PROCESS content_block opts = content_block_opts %]
+[%- END -%]
+
+[%- connectbody = BLOCK -%]
+  [%- # CONNECT - INTERESTS -%]
+  [%- linked_ints = [];
+      FOREACH int IN profile.interests;
+        linked_ints.push( linkify( int ) );
+      END;
+      IF linked_ints.size;
+        enmasse = [];
+        IF remote;
+          enmasse_link = "${site.root}/interests?mode=enmasse";
+          IF remote.equals( u );
+            enmasse_text = dw.ml( '.label.interests.removesome' );
+          ELSE;
+            enmasse_link = enmasse_link _ "&fromuser=${u.user}";
+            enmasse_text = dw.ml( '.label.interests.modifyyours' );
+          END;
+          enmasse.push( { url => enmasse_link, text => enmasse_text } );
+        END;
+        intcount = linked_ints.size;
+        intlist  = linked_ints.join(', ');
+        content_block_opts = {
+            section_name_ml => [ '.label.interests', { num => intcount } ],
+            section_link    => 'interests',
+            extra_classes   => " first",
+            body            => "<div class='inner_section_body'>$intlist</div>",
+            links           => cb_links( { editurl => "${manage_url}#interests",
+                                           extra => enmasse } ),
+            collapsible     => 0,
+        };
+
+        PROCESS content_inner_block opts = content_block_opts;
+      END; # IF linked_ints.size -%]
+
+  [%- # CONNECT - OTHER SERVICES -%]
+  [%- service_list = [];
+      FOREACH service IN profile.external_services;
+        li_title = service.title_ml | ml;
+        li_text = BLOCK -%]
+  <li class="im_[% service.type %]">
+    <div class="im_icon">
+      <img src="[% site.imgroot %]/profile_icons/[% service.image %]"
+           alt="[% li_title %]" title="[% li_title %]" />
+    </div>
+    [% linkify( service ) %]
+  </li>
+    [%- END;
+        service_list.push( li_text );
+      END; # FOREACH
+      imbody = service_list.join("\n");
+      IF imbody;
+        secimg = profile.security_image( u.opt_showcontact );
+        UNLESS intlist;
+          new_im_margin = " style='margin-top: 0;'";
+        END -%]
+<div class="external_services"[% new_im_margin %]>
+    [%- content_block_opts = {
+            section_name_ml => [ '.header.im' ],
+            section_name_postfix => $secimg,
+            section_link    => 'services',
+            extra_attrs     => new_im_margin,
+            body            => "<ul>$imbody</ul>",
+            links           => cb_links({ editurl => "${manage_url}#iminfo" }),
+            collapsible     => 0,
+        };
+        PROCESS content_inner_block opts = content_block_opts -%]
+</div>
+  [%- END; # IF imbody -%]
+[%- END; # BLOCK for connectbody -%]
+
+[%- IF connectbody;
+      content_block_opts = {
+            section_name    => 'connect',
+            section_name_ml => '.label.connect',
+            section_link    => 'connect',
+            body            => connectbody,
+      } -%]
+
+  [% PROCESS content_block opts = content_block_opts %]
+[%- END -%]
+
+[%- # MAINTAINERS/MODERATORS (COMMUNITY ONLY) -%]
+
+[%- maint_userids = profile.maintainer_userids;
+    mod_userids   = profile.moderator_userids;
+    admin_userids = maint_userids.merge( mod_userids );
+
+    IF admin_userids.size;
+      admin_us = load_userids( admin_userids );
+
+      maintlist = [];
+      FOREACH id IN maint_userids;
+        maintlist.push( admin_us.$id );
+      END;
+      IF maintlist.size;
+        userlist = PROCESS listusers users = sort_by_username( maintlist );
+        maintbody = BLOCK;
+          content_block_opts = {
+                section_name    => 'maints',
+                section_name_ml => [ '.label.maintainers',
+                                     { num => maintlist.size } ],
+                section_link    => 'maintainers',
+                extra_classes   => ' first',
+                body            => userlist,
+          };
+          PROCESS content_inner_block opts = content_block_opts;
+        END;
+      END;
+
+      modlist = [];
+      FOREACH id IN mod_userids;
+        modlist.push( admin_us.$id );
+      END;
+      IF modlist.size;
+        userlist = PROCESS listusers users = sort_by_username( modlist );
+        modbody = BLOCK;
+          content_block_opts = {
+                section_name    => 'mods',
+                section_name_ml => [ '.label.moderators',
+                                     { num => modlist.size } ],
+                section_link    => 'moderators',
+                body            => userlist,
+          };
+          PROCESS content_inner_block opts = content_block_opts;
+        END;
+      END;
+
+      IF maintbody || modbody;
+        manage_link = u.community_manage_members_url;
+        content_block_opts = {
+            section_name    => 'admins',
+            section_name_ml => '.header.admins',
+            section_link    => 'administrators',
+            body            => "$maintbody$modbody",
+            links           => cb_links( { editurl => manage_link } ),
+            collapsible     => 0,
+        };
+        PROCESS content_block opts = content_block_opts;
+      END;
+    END; # IF admin_userids.size -%]
+
+[%- # WATCH/TRUST/MEMBER/POSTING LISTS -%]
+
+[%- # make this a hash instead of 15 different list variables:
+    # edges.trusted, edges.trusted_by, edges.member_of, etc.
+    edges = profile.populate_edges;
+    edge_uids = [];
+    FOREACH edgetype IN edges.keys;
+      # add this list to the full list of users to load
+      CALL edge_uids.import( edges.$edgetype );
+    END;
+    edge_us = load_userids( edge_uids );
+
+    # set up a mirror hash of edges containing user objects instead of userids
+    u_edges = {};
+    FOREACH edgetype IN edges.keys;
+      edges.$edgetype = sort_by_username( edges.$edgetype, edge_us );
+      u_edges.$edgetype = [];
+      # foreach + push = our best approximation of map
+      FOREACH id IN edges.$edgetype;
+        u_edges.$edgetype.push( edge_us.$id );
+      END;
+    END -%]
+
+[%- # SECTIONS FOR PERSONAL JOURNALS -%]
+
+[%- # AGAIN: make this a hash instead of 15 different list variables:
+    # list.trusted, list.trusted_by, list.member_of, etc.
+    list = {};
+    body = {};
+
+    # special subhashes for personal and identity subdivisions
+    list_p = {};
+    list_i = {};
+
+    # FYI: the list hashes are populated within edge_block in _blocks.tt
+    #      because every section was duplicating the exact same logic
+
+    # identity accounts cannot trust anyone, so ignore show_mutualfriends here
+    IF u.is_identity;
+      body.trusted_by = BLOCK;
+        PROCESS edge_block e = 'trusted_by', type = 'people', use_pi = 0,
+                           extra = { extra_classes => ' first', hidable => 1 };
+      END;
+    END;
+
+    # show_mutualfriends can only return true for personal or identity accounts
+    IF u.show_mutualfriends;
+      IF u.is_personal;
+        body.trusted = BLOCK;
+          PROCESS edge_block e = 'mutually_trusted', type = 'people',
+                             use_pi = 0, extra = { extra_classes => ' first' };
+
+          PROCESS edge_block e = 'not_mutually_trusted', type = 'people',
+                             use_pi = 1, extra = {};
+        END;
+
+        body.trusted_by = BLOCK;
+          PROCESS edge_block e = 'not_mutually_trusted_by', type = 'people',
+                             use_pi = 0, extra = { hidable => 1 };
+        END;
+      END; # IF u.is_personal
+
+      body.watched = BLOCK;
+        PROCESS edge_block e = 'mutually_watched', type = 'people',
+                           use_pi = 0, extra = {};
+        PROCESS edge_block e = 'not_mutually_watched', type = 'people',
+                           use_pi = 0, extra = {};
+      END;
+
+      body.watched_by = BLOCK;
+        PROCESS edge_block e = 'not_mutually_watched_by', type = 'people',
+                           use_pi = 0, extra = { hidable => 1 };
+      END;
+
+    ELSE; # not u.show_mutualfriends, includes communities
+      IF u.is_personal;
+        body.trusted = BLOCK;
+          PROCESS edge_block e = 'trusted', type = 'people',
+                             use_pi = 1, extra = { extra_classes => ' first' };
+        END;
+
+        body.trusted_by = BLOCK;
+          PROCESS edge_block e = 'trusted_by', type = 'people',
+                             use_pi = 0, extra = { hidable => 1 };
+        END;
+      END; # IF u.is_personal
+
+      IF u.is_individual;
+        body.watched = BLOCK;
+          PROCESS edge_block e = 'watched', type = 'people',
+                             use_pi = 0, extra = {};
+        END;
+      END;
+
+      IF u.is_community;
+        body.members = BLOCK;
+          PROCESS edge_block e = 'members', type = 'people',
+                             use_pi = 0, extra = { extra_classes => ' first' };
+        END;
+
+        body.posting_access_from = BLOCK;
+          PROCESS edge_block e = 'posting_access_from', type = 'people',
+                             use_pi = 0, extra = { hidable => 1 };
+        END;
+      END; # IF u.is_community
+
+      body.watched_by = BLOCK;
+        PROCESS edge_block e = 'watched_by', type = 'people',
+                           use_pi = 0, extra = { hidable => 1 };
+      END;
+
+    END; # IF u.show_mutualfriends
+
+    IF body.keys.size;
+      ordered_body = [ body.trusted, body.trusted_by, body.watched, body.members,
+                       body.watched_by, body.posting_access_from ];
+      IF u.is_community;
+        which = 'members';
+        manage_link = u.community_manage_members_url;
+        header_image = '';
+        read_args = '';
+      ELSE;
+        which = 'people';
+        manage_link = "${site.root}/manage/circle/edit#editpeople";
+        header_image = "${site.imgroot}/silk/identity/user.png";
+        read_args = '?show=P';
+      END;
+      read_link = [];
+      UNLESS u.is_syndicated;
+        read_link.push( { url => "${u.journal_base}/read$read_args",
+                          text => dw.ml( '.viewentries.people' ) } );
+      END;
+
+      content_block_opts = {
+          section_name    => 'people',
+          section_name_ml => ".header.$which",
+          section_link    => 'people',
+          header_image    => header_image,
+          body            => ordered_body.join( '' ),
+          collapsible     => 0,
+          links           => cb_links( { editurl => manage_link,
+                                         extra => read_link } ),
+      };
+      PROCESS content_block opts = content_block_opts;
+    END; # IF body.keys.size -%]
+
+[%- # SECTIONS FOR COMMUNITY JOURNALS -%]
+
+[%- # reset the body hash for new section
+    body = {};
+
+    IF u.is_individual;
+      IF u.is_personal;
+        body.member_of = BLOCK;
+          PROCESS edge_block e = 'member_of', type = 'comms', use_pi = 0,
+                             extra = { extra_classes => ' first',
+                                       hidable => 1 };
+        END;
+
+        body.admin_of = BLOCK;
+          PROCESS edge_block e = 'admin_of', type = 'comms',
+                             use_pi = 0, extra = { hidable => 1 };
+        END;
+
+        body.posting_access_to = BLOCK;
+          PROCESS edge_block e = 'posting_access_to', type = 'comms',
+                             use_pi = 0, extra = { hidable => 1 };
+        END;
+      END; # IF u.is_personal
+
+      body.watched = BLOCK;
+        PROCESS edge_block e = 'watched', type = 'comms',
+                           use_pi = 0, extra = {};
+      END;
+    END; # IF u.is_individual
+
+    IF body.keys.size;
+      ordered_body = [ body.member_of, body.watched, body.admin_of,
+                       body.posting_access_to ];
+
+      manage_link = "${site.root}/manage/circle/edit#editcomms";
+      read_link = [ { url => "${u.journal_base}/read?show=C",
+                      text => dw.ml( '.viewentries.comms' ) } ];
+
+      content_block_opts = {
+          section_name    => 'comms',
+          section_name_ml => ".header.comms",
+          section_link    => 'communities',
+          header_image    => "${site.imgroot}/silk/identity/community.png",
+          body            => ordered_body.join( '' ),
+          collapsible     => 0,
+          links           => cb_links( { editurl => manage_link,
+                                         extra => read_link } ),
+      };
+      PROCESS content_block opts = content_block_opts;
+    END; # IF body.keys.size -%]
+
+[%- # SECTIONS FOR SYNDICATED JOURNALS -%]
+
+[%- # this section only has one inner block
+    body = '';
+
+    IF u.is_individual;
+      body = BLOCK;
+        PROCESS edge_block e = 'watched', type = 'feeds',
+                           use_pi = 0, extra = { extra_classes => ' first' };
+      END;
+    END;
+
+    IF body;
+      manage_link = "${site.root}/manage/circle/edit#editfeeds";
+      read_link = [ { url => "${u.journal_base}/read?show=F",
+                      text => dw.ml( '.viewentries.feeds' ) } ];
+
+      content_block_opts = {
+          section_name    => 'feeds',
+          section_name_ml => ".header.feeds",
+          section_link    => 'feeds',
+          header_image    => "${site.imgroot}/silk/identity/feed.png",
+          body            => body,
+          collapsible     => 0,
+          links           => cb_links( { editurl => manage_link,
+                                         extra => read_link } ),
+      };
+      PROCESS content_block opts = content_block_opts;
+    END -%]
+
+[%- # LINKING MODULE -%]
+
+[%- IF u.is_individual || u.is_community;
+      local_link = "<user name=\"${u.display_name}\">";
+      remote_link = u.ljuser_display( { no_ljuser_class => 1 } );
+
+      link_body = BLOCK -%]
+  <div style='font-style: italic;'>[% '.linking.about' | ml %]</div>
+  <div style='margin: 5px 0;'>
+    [% form.textbox( label = dw.ml( '.linking.local',
+                                    { sitename => site.nameshort } ),
+                     name = 'local', id = 'local', size = 50,
+                     maxlength = 100, value = local_link ) %]
+  </div>
+  <div style='margin: 5px 0;'>
+  [%- # fixed bug: the textbox below was also named local in the old page -%]
+    [% form.textbox( label = dw.ml( '.linking.anywhere' ),
+                     name = 'remote', id = 'remote', size = 50,
+                     maxlength = 550, value = remote_link ) %]
+  </div>
+  [%- END;
+      content_block_opts = {
+          section_name    => 'linking',
+          section_name_ml => ".header.linking",
+          section_link    => 'linking',
+          body            => link_body,
+          hidable         => 1,
+      };
+      PROCESS content_block opts = content_block_opts;
+    END -%]
+
+[%- # THE END -%]
+  <div class='ljclear'></div>
+</div>

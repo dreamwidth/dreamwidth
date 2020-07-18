@@ -375,16 +375,6 @@ sub trans {
     my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
     BML::set_language( $lang, \&LJ::Lang::get_text );
 
-    my $bml_handler = sub {
-        my $filename = $_[0];
-
-        # show the file
-        $apache_r->handler("perl-script");
-        $apache_r->notes->{bml_filename} = $filename;
-        $apache_r->push_handlers( PerlHandler => \&Apache::BML::handler );
-        return OK;
-    };
-
     if ( $apache_r->is_initial_req ) {
 
         # delete cookies if there are any we want gone
@@ -667,8 +657,6 @@ sub trans {
         }
 
         if ( $opts->{'mode'} eq "profile" ) {
-            my $burl = LJ::remote_bounce_url();
-            return remote_domsess_bounce() if LJ::remote_bounce_url();
 
             $apache_r->notes->{_journal} = $opts->{user};
 
@@ -682,9 +670,7 @@ sub trans {
                 $apache_r->notes->{journalid} = $u->{userid};
             }
 
-            my $file = LJ::Hooks::run_hook("profile_bml_file");
-            $file ||= $LJ::PROFILE_BML_FILE || "profile.bml";
-            return $bml_handler->("$LJ::HTDOCS/$file");
+            return DW::Routing->call( uri => '/profile' );
         }
 
         if ( $opts->{'mode'} eq "update" ) {

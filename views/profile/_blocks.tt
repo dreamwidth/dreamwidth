@@ -1,0 +1,161 @@
+[%- BLOCK content_block; # requires $opts from caller
+      collapsible = opts.collapsible.defined ? opts.collapsible : 1;
+      IF opts.header_image;
+        header_image = "<img src='${opts.header_image}' alt='' /> ";
+      ELSE;
+        header_image = "";
+      END;
+      content_block_links = [];
+      FOREACH l IN opts.links;
+        NEXT UNLESS l.defined;
+        content_block_links.push(
+          "<span class='section_link'>[<a href='${l.url}'>${l.text}</a>]</span>"
+        );
+      END -%]
+<div class='ljclear'></div>
+<div class='section'>
+  [%- IF collapsible -%]
+  <span class='expandcollapse on' id='[% opts.section_name %]_header'>
+    [% dw.img( 'arrow-down', '', { id => "${opts.section_name}_arrow",
+                align => "absmiddle" } ) %]
+    [% header_image %]
+    <a name='[% opts.section_link %]'>[% opts.section_name_ml | ml %]</a>
+  </span>
+  [%- ELSE -%]
+    [% header_image %][% opts.section_name_ml | ml %]
+  [%- END -%]
+  [% content_block_links.join( ' ' ) %]
+</div>
+<div class='section_body' id='[% opts.section_name %]_body'>
+  [% opts.body %]
+</div>
+[%- END; # BLOCK content_block -%]
+
+[%- BLOCK content_inner_block; # requires $opts from caller
+      hidden = opts.hidable && profile.hide_list( opts.section_name );
+      UNLESS remote && remote.can_manage( u );
+        RETURN IF hidden;
+      END;
+      section_name = dw.ml( opts.section_name_ml.0, opts.section_name_ml.1 );
+    # allow for extra HTML to be added after the translated
+    # section header text - used for security icon
+      IF opts.section_name_postfix;
+        section_name = section_name _ opts.section_name_postfix;
+      END;
+      IF hidden;
+        label_hidden = '.label.hidden' | ml;
+        section_name = section_name _ " <em>$label_hidden</em>";
+      END;
+      collapsible = opts.collapsible.defined ? opts.collapsible : 1;
+      content_block_links = [];
+      FOREACH l IN opts.links;
+        NEXT UNLESS l.defined;
+        content_block_links.push(
+"<span class='inner_section_header_link'>[<a href='${l.url}'>${l.text}</a>]</span>"
+        );
+      END -%]
+  <p class='inner_section_header[% opts.extra_classes %]'[% opts.extra_attrs %]>
+  [%- IF collapsible -%]
+  <span class='expandcollapse on' id='[% opts.section_name %]_header'>
+    [% dw.img( 'arrow-down', '', { id => "${opts.section_name}_arrow",
+                align => "absmiddle" } ) %]
+    <a name='[% opts.section_link %]'>[% section_name %]</a>
+  </span>
+  [%- ELSE -%]
+    [%- # this did not include label_hidden before - I think that was a bug? -%]
+    <a name='[% opts.section_link %]'>[% section_name %]</a>
+  [%- END -%]
+  [% content_block_links.join( ' ' ) %]
+  </p>
+  [%- IF collapsible -%]
+  <div class='inner_section_body' id='[% opts.section_name %]_body'>
+    [% opts.body %]
+  </div>
+  [%- ELSE -%]
+    [% opts.body %]
+  [%- END -%]
+[%- END; # BLOCK content_inner_block -%]
+
+[%- BLOCK format_userlink; # requires $user and $linked_u from caller
+      IF user.is_inactive;
+        linked_u = "<strike>$linked_u</strike>";
+      END;
+  # if user is logged in and not looking at own profile, use
+  # appropriate highlighting for users they have in common
+      IF remote && ! remote.equals( u );
+        IF remote.watches( user );
+          linked_u = "<em>$linked_u</em>";
+        END;
+        trust_method = user.is_community ? 'member_of' : 'trusts';
+        IF remote.$trust_method( user );
+          linked_u = "<strong>$linked_u</strong>";
+        END;
+      END;
+    END; # BLOCK format_userlink -%]
+
+[%- BLOCK listusers; # requires $users and $openids from caller
+      linked_users = [];
+      FOREACH user IN users;
+        linked_u = linkify( { url  => user.profile_url,
+                              text => user.display_name } );
+        PROCESS format_userlink;
+        linked_users.push( linked_u );
+      END;
+      linked_users.join( ', ' );
+
+      openid_info = parse_openids( openids );
+      FOREACH s IN openid_info.sites.keys.sort -%]
+<div class='openid-users-block'>
+  [% dw.img( 'id_openid', '' ); "[$s] "; %]
+    [%- site_users = [];
+        i = 0;
+        i_max = openid_info.sites.$s.size;
+        WHILE i < i_max;
+          user = openid_info.sites.$s.$i;
+          text = openid_info.shortnames.$s.$i;
+          linked_u = linkify( { url => user.profile_url, text => text } );
+          PROCESS format_userlink;
+          site_users.push( linked_u );
+          i = i + 1;
+        END;
+        site_users.join( ', ' ) -%]
+</div>
+  [%- END; # FOREACH s
+    END; # BLOCK listusers -%]
+
+[%- BLOCK edge_block; # requires $e, $use_pi, $type, and $extra from caller
+      list.$e = []; list_p.$e = []; list_i.$e = [];
+      jtmap = { people => 'PI', comms => 'C', feeds => 'Y' };
+      FOREACH user IN u_edges.$e;
+        NEXT UNLESS includeuser.$e( user, jtmap.$type );
+        list.$e.push( user );
+        IF use_pi;
+          list_p.$e.push( user ) IF user.is_personal;
+          list_i.$e.push( user ) IF user.is_identity;
+        END;
+      END;
+      femap = { watched_by => force_empty, members => force_empty,
+                posting_access_from => force_empty };
+      IF femap.$e;
+        userlist = dw.ml( ".disabled.$e" );
+      ELSIF use_pi;
+        userlist = PROCESS listusers users = list_p.$e, openids = list_i.$e;
+      ELSE;
+        userlist = PROCESS listusers users = list.$e, openids = [];
+      END;
+      IF list.$e.size == 0;
+        # no colon
+        ml_num = "(0)";
+      ELSE;
+        ml_num = "(${list.$e.size}):";
+      END;
+      opts = extra;
+      # TODO: consider automatically removing collapse arrows from empty sections,
+      #       but only once we are ready to go to war with ancient CSS
+      # UNLESS opts.collapsible.defined; opts.collapsible = list.$e.size; END;
+      opts.section_link = ( e == 'watched' ? "${e}_$type" : e );
+      opts.section_name = "${e}_$type";
+      opts.section_name_ml = [ ".${type}.$e", { num => ml_num } ];
+      opts.body = userlist;
+      PROCESS content_inner_block opts = opts;
+    END; # BLOCK edge_block -%]
