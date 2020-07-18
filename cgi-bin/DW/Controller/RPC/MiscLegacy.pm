@@ -622,11 +622,14 @@ sub profileexpandcollapse_handler {
     my $remote = LJ::get_remote();
     return unless $remote;
 
+    my $collapsed_headers = $remote->prop("profile_collapsed_headers") // '';
+    my @collapsed_headers = split( /,/, $collapsed_headers );
+
     if ( $mode eq "save" ) {
         return unless $header && $header =~ /_header$/;
         $header =~ s/_header$//;
 
-        my %is_collapsed = map { $_ => 1 } split( /,/, $remote->prop("profile_collapsed_headers") );
+        my %is_collapsed = map { $_ => 1 } @collapsed_headers;
 
         # this header is already saved as expanded or collapsed, so we don't need to do anything
         return if $is_collapsed{$header}  && !$expand;
@@ -644,8 +647,7 @@ sub profileexpandcollapse_handler {
         }
     }
     else {        # load
-        my $profile_collapsed_headers = $remote->prop("profile_collapsed_headers") // '';
-        return DW::RPC->out( headers => [ split( /,/, $profile_collapsed_headers ) ] );
+        return DW::RPC->out( headers => \@collapsed_headers );
     }
 }
 
