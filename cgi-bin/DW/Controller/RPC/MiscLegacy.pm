@@ -645,6 +645,7 @@ sub profileexpandcollapse_handler {
             $is_collapsed{$header} = 1;
             $remote->set_prop( profile_collapsed_headers => join( ",", keys %is_collapsed ) );
         }
+        return $r->OK;
     }
     else {        # load
         return DW::RPC->out( headers => \@collapsed_headers );
