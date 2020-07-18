@@ -1184,7 +1184,7 @@ sub security_image {
 # explicitly scope the profile page for ml strings
 sub _profile_ml {
     my ( $string, $optref ) = @_;
-    my $page = "/profile.bml";
+    my $page = "/profile/logic.tt";
     return LJ::Lang::ml( "$page$string", $optref );
 }
 

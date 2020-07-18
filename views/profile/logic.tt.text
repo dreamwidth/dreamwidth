@@ -1,0 +1,75 @@
+;; -*- coding: utf-8 -*-
+.commdesc.header=Community Description:
+
+.commsettings.membership.closed=Closed
+
+.commsettings.membership.header=Membership:
+
+.commsettings.membership.moderated=Moderated
+
+.commsettings.membership.open=Open
+
+.commsettings.postlevel.anybody=Anybody
+
+.commsettings.postlevel.header=Posting Access:
+
+.commsettings.postlevel.members=All Members
+
+.commsettings.postlevel.moderated=, Moderated
+
+.commsettings.postlevel.select=Select Members
+
+.contact.pm=Send Message
+
+.details.comments.posted2=[[num_comma]] [[?num_raw|comment|comments]] posted
+
+.details.comments.received2=[[num_comma]] [[?num_raw|comment|comments]] received
+
+.details.entries3=[[num_comma]] <a [[aopts]]>[[?num_raw|Journal Entry|Journal Entries]]</a>
+
+.details.memories2=[[num_comma]] <a [[aopts]]>[[?num_raw|Memory|Memories]]</a>
+
+.details.supportpoints2=[[num]] <a [[aopts]]>Support Points</a>
+
+.details.tags2=[[num_comma]] <a [[aopts]]>[[?num_raw|Tag|Tags]]</a>
+
+.details.userpics.others=[[uploaded_comma]] <a [[aopts]]>[[?uploaded_raw|Icon|Icons]] Uploaded</a>
+
+.details.userpics.self=[[uploaded_comma]] <a [[aopts]]>[[?uploaded_raw|Icon|Icons]] Uploaded</a> ([[slots_comma]] icon [[?slots_raw|slot|slots]] active, [[bonus_comma]] bonus [[?bonus_raw|icon|icons]])
+
+.details.warning.concepts=This journal should be viewed with discretion.
+
+.details.warning.explicit=This journal contains content only suitable for those over the age of 18.
+
+.label.birthdate=Birthdate:
+
+.label.location=Location:
+
+.label.name=Name:
+
+.label.syndicatedfrom=Source:
+
+.label.syndicatedstatus=Status:
+
+.label.syndreadcount=Subscribers:
+
+.label.website=Website:
+
+.section.edit=Edit
+
+.syn.last.never=Never
+
+.syn.lastcheck=Last checked:
+
+.syn.nextcheck=Next check (approximate) :
+
+.syn.parseerror=Error Message:
+
+.userpic.comm.alt=Community Icon
+
+.userpic.openid.alt=OpenID Icon
+
+.userpic.upload=Upload Icon
+
+.userpic.user.alt=Generic Icon
+

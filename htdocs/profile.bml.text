@@ -15,8 +15,6 @@
 
 .body.leave2=<a [[aopts]]>Leave this community?</a>
 
-.commdesc.header=Community description:
-
 .comminfo.body=Information about "[[commname]]":
 
 .comminfo.name=Community Information
@@ -41,51 +39,17 @@
 
 .comms.watched.some=Subscriptions ([[num]]):
 
-.commsettings.membership.closed=Closed
-
-.commsettings.membership.header=Membership:
-
-.commsettings.membership.moderated=Moderated
-
-.commsettings.membership.open=Open
-
-.commsettings.postlevel.anybody=Anybody
-
-.commsettings.postlevel.header=Posting Access:
-
-.commsettings.postlevel.members=All Members
-
-.commsettings.postlevel.moderated=, Moderated
-
-.commsettings.postlevel.select=Select Members
-
 .contact.header=Contact Details:
-
-.contact.pm=Send Message
 
 .date.never=<em>Never.</em>
 
 .details.accounttype.expireson=[[type]], expires on [[date]]
-
-.details.comments.posted=[[num]] [[?num|comment|comments]] posted
-
-.details.comments.posted2=[[num_comma]] [[?num_raw|comment|comments]] posted
-
-.details.comments.received=[[num]] [[?num|comment|comments]] received
-
-.details.comments.received2=[[num_comma]] [[?num_raw|comment|comments]] received
 
 .details.created=Created: [[createdate]]
 
 .details.createdon=Created On: [[createdate]]
 
 .details.createdon2=Created on [[createdate]]
-
-.details.entries=[[num]] [[?num|entry|entries]]
-
-.details.entries2=[[num_comma]] [[?num_raw|entry|entries]]
-
-.details.entries3=[[num_comma]] <a [[aopts]]>[[?num_raw|Journal Entry|Journal Entries]]</a>
 
 .details.flag.other=Flag this journal as mature/adult.
 
@@ -107,10 +71,6 @@
 
 .details.membersince=Member Since: [[createdate]]
 
-.details.memories=[[num]] <a [[aopts]]>[[?num|Memory|Memories]]</a>
-
-.details.memories2=[[num_comma]] <a [[aopts]]>[[?num_raw|Memory|Memories]]</a>
-
 .details.profile.default=<a [[aopts]]>View default profile</a>
 
 .details.profile.full=<a [[aopts]]>View extended profile</a>
@@ -119,25 +79,9 @@
 
 .details.search=Search
 
-.details.supportpoints=<a [[aopts]]>Support Points</a>: [[num]]
-
-.details.supportpoints2=[[num]] <a [[aopts]]>Support Points</a>
-
-.details.tags=[[num]] <a [[aopts]]>[[?num|Tag|Tags]]</a>
-
-.details.tags2=[[num_comma]] <a [[aopts]]>[[?num_raw|Tag|Tags]]</a>
-
 .details.title=[[user]]'s Journal
 
-.details.userpics.others=[[uploaded_comma]] <a [[aopts]]>[[?uploaded_raw|Icon|Icons]] Uploaded</a>
-
-.details.userpics.self=[[uploaded_comma]] <a [[aopts]]>[[?uploaded_raw|Icon|Icons]] Uploaded</a> ([[slots_comma]] icon [[?slots_raw|slot|slots]] active, [[bonus_comma]] bonus [[?bonus_raw|icon|icons]])
-
 .details.viewlinkssep=, 
-
-.details.warning.concepts=This journal should be viewed with discretion.
-
-.details.warning.explicit=This journal contains content only suitable for those over the age of 18.
 
 .error.malfname=Malformed username.
 
@@ -170,8 +114,6 @@
 .label.adduser=Add User
 
 .label.alsofriendof=Also Friend of:
-
-.label.birthdate=Birthdate:
 
 .label.clientsused2=<a [[aopts]]>Clients</a> used:
 
@@ -225,8 +167,6 @@
 
 .label.linking=Linking
 
-.label.location=Location:
-
 .label.maintainers=Administrators ([[num]]):
 
 .label.memberof=Member of
@@ -238,8 +178,6 @@
 .label.moredetails=(more details...)
 
 .label.mutual=Mutual Friends:
-
-.label.name=Name:
 
 .label.nofriends=<em>None listed.</em>
 
@@ -259,12 +197,6 @@
 
 .label.supportpoints=Support points
 
-.label.syndicatedfrom=Source:
-
-.label.syndicatedstatus=Status:
-
-.label.syndreadcount=Subscribers:
-
 .label.theme=Theme:
 
 .label.user=User:
@@ -274,8 +206,6 @@
 .label.viewfriends=View Friends
 
 .label.viewmembers=View Members
-
-.label.website=Website:
 
 .linking.about=To link to this user, copy this code:
 
@@ -407,14 +337,6 @@
 
 .syn.header=Feeds
 
-.syn.last.never=Never
-
-.syn.lastcheck=Last checked:
-
-.syn.nextcheck=Next check (approximate) :
-
-.syn.parseerror=Error Message:
-
 .syndinfo.body2=If you would like articles from the syndicated site to appear on your friends page, you can <a [[aopts]]>add this journal to your friends list</a>.
 
 .syndinfo.name=Syndication Journal
@@ -463,19 +385,11 @@
 
 .userpic.choose=Choose Icon
 
-.userpic.comm.alt=Community Icon
-
 .userpic.none=no default icon
 
 .userpic.none2=(no icons)
 
 .userpic.none3=No Icons
-
-.userpic.openid.alt=OpenID Icon
-
-.userpic.upload=Upload Icon
-
-.userpic.user.alt=Generic Icon
 
 .userpic.viewall=View All Icons
 
