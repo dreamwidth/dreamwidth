@@ -330,15 +330,6 @@ no strict "vars";
     # number of days to display virtual gifts on the profile - default to two weeks
     $VGIFT_EXPIRE_DAYS ||= 14;
 
-    # BML pages that should be forced to not use SSL
-    # this should be *temporary*
-    %SSL_DISABLED_URI = map { $_ => 1 } qw(
-        /preview/entry
-        /entry/preview
-        /latest
-        /edittags
-    );
-
     # Selective screening limit. No user can have more than this.
     $LJ::SEL_SCREEN_LIMIT ||= 500;
 
