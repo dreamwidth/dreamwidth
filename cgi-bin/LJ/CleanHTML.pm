@@ -22,6 +22,7 @@ use LJ::EmbedModule;
 use LJ::Config;
 use Text::Markdown;
 use LJ::TextUtil;
+use DW::Formats;
 
 LJ::Config->load;
 
@@ -1901,10 +1902,11 @@ sub quote_html {
     return $string;
 }
 
-# The part about which format IDs exist, are aliases, etc. is sort of duplicated
-# info from DW::Formats. But we're keeping the actual formatting behavior here
-# in the cleaner because it seems like a good idea to keep all other code from
-# knowing too much about the cleaner's internals. -NF
+# Map of known markup formats to the clean() options that implement their
+# behavior. We only care about "real" format IDs here -- aliases are handled by
+# DW::Formats. (You could argue the clean options belong in DW::Formats too, but
+# this was a compromise to keep other code from knowing too much about the
+# cleaner's internals.)
 my %markup_formats = (
     html_casual0 => {
         formatting  => 'html',
@@ -1936,15 +1938,13 @@ my %markup_formats = (
         noautolinks => 1,
     },
 );
-$markup_formats{markdown} = $markup_formats{markdown0};
-$markup_formats{html}     = $markup_formats{html_casual1};
 
 # Return a group of arguments to pass to clean() based on the requested format
 sub formatting_args {
-    my $format = $_[0];
+    my $format = DW::Formats::validate( $_[0] );
     my $args   = $markup_formats{$format};
     unless ( ref $args ) {
-        $args = $markup_formats{html_casual1};
+        $args = $markup_formats{$DW::Formats::default_format};
     }
     return %$args;
 }
