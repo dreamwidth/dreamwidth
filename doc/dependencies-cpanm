@@ -57,6 +57,7 @@ String::CRC32
 Sys::Syscall
 Template
 Test::Code::TidyAll
+Test::MockObject
 Test::Most
 Text::Fuzzy@0.27
 Text::Markdown
