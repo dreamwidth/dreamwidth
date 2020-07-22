@@ -196,11 +196,15 @@ $nav-small-screen-header-height: 3em;
     .nav-search {
         input, select {
             margin: 0;
-            padding: 1px .25em;
-            height: auto;
             width: auto;
             display: inline-block;
             font-size: 0.875rem;
+        }
+        input {
+            padding: 1px .25em;
+        }
+        select {
+            padding: 1px 1em;
         }
         input.button {
             padding: 0 .5em;
