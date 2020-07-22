@@ -19,13 +19,18 @@
   // Foundation likes stretching selects to 100% for some reason. It also
   // draws an artificial dropdown triangle we need to leave room for.
   width: auto;
-  padding-left: 0.8rem;
-  padding-right: 0.8rem;
+  padding-right: 1rem;
 }
 
-@mixin hack-smaller-controls {
+@mixin hack-smaller-select {
+  width: auto;
   height: 1.6rem;
-  padding: 0 0.8rem;
+  padding: 0 1rem 0 0.5rem;
+}
+
+@mixin hack-smaller-button {
+  height: 1.6rem;
+  padding: 0 0.5rem;
 }
 
 #qrformdiv {
@@ -52,23 +57,16 @@
     display: inline;
   }
 
-  select {
-    @include hack-normal-select;
-  }
-
   // Foundation hates textarea resizers
   textarea {
     max-width: unset;
   }
 
-  // Shrink subject and quote button a bit
+  // Shrink subject a bit
   .qr-subject {
     input[type="text"] {
       height: 2.2rem;
       padding: 0.3em;
-    }
-    input[type="button"], button {
-      height: 2.2rem;
     }
   }
 
@@ -80,16 +78,25 @@
     }
     // Make more options and icon controls smaller so they don't tower over the
     // icon preview.
-    select, button, input[type="button"] {
-      @include hack-smaller-controls;
+    select {
+      @include hack-smaller-select;
+    }
+
+    button, input[type="button"] {
+      @include hack-smaller-button;
     }
   }
 
   .qr-markup {
-    // Default form controls are too huge for an extra row between subj/body.
-    select, button, input[type="button"] {
-      @include hack-smaller-controls;
+    // Default form controls are too huge to go between subject and body.
+    select {
+      @include hack-smaller-select;
       vertical-align: top; // Lets the help link image triangulate properly.
+    }
+
+    button, input[type="button"] {
+      @include hack-smaller-button;
+      vertical-align: top;
     }
   }
 }
