@@ -3,14 +3,42 @@
 * (To make them fit better with Foundation's odd form control styles.)
 */
 
+@mixin hack-normal-button {
+  @include button;
+  @include button-style($bg:$secondary-color, $bg-hover:$secondary-button-bg-hover, $border-color:$secondary-button-border-color);
+  @include inset-shadow();
+}
+
+@mixin hack-match-input-height {
+  // Foundation sets input/select heights weirdly, and doesn't have a built-in
+  // way to make nearby buttons not look janky. So copy that height logic.
+  height: ($input-font-size + ($form-spacing * 1.5) - rem-calc(1));
+}
+
+@mixin hack-normal-select {
+  // Foundation likes stretching selects to 100% for some reason. It also
+  // draws an artificial dropdown triangle we need to leave room for.
+  width: auto;
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+}
+
+@mixin hack-smaller-controls {
+  height: 1.6rem;
+  padding: 0 0.8rem;
+}
+
 #qrformdiv {
   // Consistent Foundation styles for most buttons
   input[type="button"],
   button:not(#lj_userpicselect),
   input[type="submit"]:not(#submitpost) {
-    @include button;
-    @include button-style($bg:$secondary-color, $bg-hover:$secondary-button-bg-hover, $border-color:$secondary-button-border-color);
+    @include hack-normal-button;
     margin-bottom: 3px;
+  }
+
+  #submitpost {
+    @include inset-shadow();
   }
 
   // Clear unwanted extra button styles for icon browse button.
@@ -24,9 +52,8 @@
     display: inline;
   }
 
-  // Foundation likes stretching selects to 100% for some reason
   select {
-    width: auto;
+    @include hack-normal-select;
   }
 
   // Foundation hates textarea resizers
@@ -54,8 +81,15 @@
     // Make more options and icon controls smaller so they don't tower over the
     // icon preview.
     select, button, input[type="button"] {
-      height: 1.6rem;
-      padding: 0 0.8rem;
+      @include hack-smaller-controls;
+    }
+  }
+
+  .qr-markup {
+    // Default form controls are too huge for an extra row between subj/body.
+    select, button, input[type="button"] {
+      @include hack-smaller-controls;
+      vertical-align: top; // Lets the help link image triangulate properly.
     }
   }
 }
@@ -64,10 +98,13 @@
 * Hack to make the "multiform" comment editing controls match site-skin without
 * messing with the S2 markup
 */
+#multiform_mode {
+  @include hack-normal-select;
+  vertical-align: top;
+}
+
 #multiform_submit {
-  @extend .submit;
-  @extend .postfix;
-  display: inline-block;
-  width: auto;
-  padding: 0 1rem;
+  @include hack-normal-button;
+  @include hack-match-input-height;
+  vertical-align: top;
 }
