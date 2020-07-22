@@ -19,13 +19,13 @@
   // Foundation likes stretching selects to 100% for some reason. It also
   // draws an artificial dropdown triangle we need to leave room for.
   width: auto;
-  padding-right: 1rem;
+  padding-right: 24px;
 }
 
 @mixin hack-smaller-select {
   width: auto;
   height: 1.6rem;
-  padding: 0 1rem 0 0.5rem;
+  padding: 0 24px 0 0.5rem;
 }
 
 @mixin hack-smaller-button {
