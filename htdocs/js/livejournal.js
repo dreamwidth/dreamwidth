@@ -44,7 +44,6 @@ LiveJournal.initPage = function () {
 
     // set up various handlers for every page
     LiveJournal.initPagePlaceholders();
-    LiveJournal.initLabels();
     LiveJournal.initInboxUpdate();
     LiveJournal.initPolls();
 
@@ -134,39 +133,6 @@ LiveJournal.initPlaceholders = function (srcElement) {
     });
 };
 
-// set up labels for Safari
-LiveJournal.initLabels = function () {
-    // disabled because new webkit has labels that work
-    return;
-
-    // safari doesn't know what <label> tags are, lets fix them
-    if (navigator.userAgent.indexOf('Safari') == -1) return;
-
-    // get all labels
-    var labels = document.getElementsByTagName("label");
-
-    for (var i = 0; i < labels.length; i++) {
-        DOM.addEventListener(labels[i], "click", LiveJournal.labelClickHandler);
-    }
-};
-
-LiveJournal.labelClickHandler = function (evt) {
-    Event.prep(evt);
-
-    var label = DOM.getAncestorsByTagName(evt.target, "label", true)[0];
-    if (! label) return;
-
-    var targetId = label.getAttribute("for");
-    if (! targetId) return;
-
-    var target = $(targetId);
-    if (! target) return;
-
-    target.click();
-
-    return false;
-};
-
 // handy utilities to create elements with just text in them
 function _textSpan () { return _textElements("span", arguments); }
 function _textDiv  () { return _textElements("div", arguments);  }
@@ -202,8 +168,8 @@ LiveJournal.initPolls = function (element) {
         DOM.addEventListener(pollClear, "click", LiveJournal.pollClearLinkClicked.bindEventListener(pollClear));
     });
 
-    var pollButtons = DOM.getElementsByTagAndClassName(ele, 'input', "LJ_PollSubmit") || []; 
-    
+    var pollButtons = DOM.getElementsByTagAndClassName(ele, 'input', "LJ_PollSubmit") || [];
+
     // attaches a click handler to all poll submit buttons
     Array.prototype.forEach.call(pollButtons, function (pollButton) {
         DOM.addEventListener(pollButton, "click", LiveJournal.pollButtonClicked.bindEventListener(pollButton));
@@ -223,7 +189,7 @@ LiveJournal.initPolls = function (element) {
         DOM.addEventListener(pollDisplay, "click", LiveJournal.pollDisplayClicked.bindEventListener(pollDisplay));
     });
 
-    var pollForms = DOM.getElementsByTagAndClassName(ele, 'form', "LJ_PollForm") || []; 
+    var pollForms = DOM.getElementsByTagAndClassName(ele, 'form', "LJ_PollForm") || [];
 
     // attach submit handlers to each poll form
     Array.prototype.forEach.call(pollForms, function (pollForm) {
@@ -245,7 +211,7 @@ LiveJournal.initPolls = function (element) {
     });
 };
 
-LiveJournal.pollButtonClicked = function (e) {  
+LiveJournal.pollButtonClicked = function (e) {
     // shows the hourglass. The submit event wouldn't update the coordinates, so the click event
     // had to be used for this
     if (!PollPages.hourglass) {
@@ -255,13 +221,13 @@ LiveJournal.pollButtonClicked = function (e) {
         PollPages.hourglass.hourglass_at(coords.x, coords.y+25);    // 25 is added to the y axis, otherwise the button would cover it
         PollPages.e = e;
     }
-    
+
     return true;
 };
 
 LiveJournal.pollFormSubmitted = function (e) {
     Event.stop(e);
-    
+
     var formObject = LiveJournal.getFormObject(this);  //gets the form ready for serialization
 
     var opts = {
@@ -273,7 +239,7 @@ LiveJournal.pollFormSubmitted = function (e) {
     };
 
     HTTPReq.getJSON(opts);
-    
+
     return false;
 };
 
@@ -331,12 +297,12 @@ LiveJournal.pollUpdateContainer = function (results) {
 LiveJournal.getFormObject = function (form) {
 
     var inputs = form.getElementsByTagName("input");
-    
+
     var formObject = new Object();
-    
+
     for (var i = 0; i < inputs.length; i++) {
         var obj = inputs[i];
-        
+
         if (obj.type == "checkbox") {
             if (!formObject[obj.name]) {
                 formObject[obj.name] = new Array();
@@ -349,19 +315,19 @@ LiveJournal.getFormObject = function (form) {
               formObject[obj.name] = obj.value;
            }
         }
-        else 
+        else
         {
             formObject[obj.name] = obj.value;
         }
     }
-    
+
     var selects = form.getElementsByTagName("select");
 
     for (var i = 0; i < selects.length; i++) {
         var sel = selects[i];
         formObject[sel.name] = sel.options[sel.selectedIndex].value;
     }
-    
+
     return formObject;
 
 };
@@ -620,7 +586,7 @@ LiveJournal.pollUserAnswersReceived = function (answers) {
     answerEle.innerHTML = answers.answer_html ? answers.answer_html : "(No answers)";
 	linkEle.innerHTML = "";
 	answerEle.style.display = "block";
-	
+
     if (typeof ContextualPopup != "undefined")
         ContextualPopup.setup();
 };
