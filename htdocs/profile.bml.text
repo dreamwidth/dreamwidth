@@ -1,23 +1,11 @@
 ;; -*- coding: utf-8 -*-
-.about.comm=About:
-
 .about.header=Mini Bio
 
-.about.user=Bio:
-
 .admins.header=Administrators
-
-.allpics=View all Icons
 
 .basicinfo.header=About
 
 .bio.header=Mini Bio
-
-.body.leave2=<a [[aopts]]>Leave this community?</a>
-
-.comminfo.body=Information about "[[commname]]":
-
-.comminfo.name=Community Information
 
 .comms.admin_of.none=Administrator Of (0)
 
@@ -41,35 +29,11 @@
 
 .contact.header=Contact Details:
 
-.date.never=<em>Never.</em>
-
 .details.accounttype.expireson=[[type]], expires on [[date]]
-
-.details.created=Created: [[createdate]]
 
 .details.createdon=Created On: [[createdate]]
 
 .details.createdon2=Created on [[createdate]]
-
-.details.flag.other=Flag this journal as mature/adult.
-
-.details.flag.self=Set this journal as mature/adult.
-
-.details.id=LJ User No.: [[id]]
-
-.details.joined=Joined: [[createdate]]
-
-.details.lastupdated=Last updated [[timestamp]]
-
-.details.lastupdated.never=Never updated
-
-.details.lastupdated.never2=never posted to
-
-.details.lastupdated2=last updated [[timestamp]]
-
-.details.lastupdated3=last posted [[timestamp]] ([[agotext]])
-
-.details.membersince=Member Since: [[createdate]]
 
 .details.profile.default=<a [[aopts]]>View default profile</a>
 
@@ -77,13 +41,7 @@
 
 .details.rp=This account is a roleplaying account.
 
-.details.search=Search
-
 .details.title=[[user]]'s Journal
-
-.details.viewlinkssep=, 
-
-.error.malfname=Malformed username.
 
 .feeds.header=Feeds
 
@@ -92,8 +50,6 @@
 .feeds.watched.none=Subscriptions (0)
 
 .feeds.watched.some=Subscriptions ([[num]]):
-
-.flag=Flag Journal
 
 .im.hangouts=Google Hangouts
 
@@ -109,43 +65,11 @@
 
 .im.skype=Skype
 
-.label.addbuddy=Add Buddy
-
-.label.adduser=Add User
-
-.label.alsofriendof=Also Friend of:
-
-.label.clientsused2=<a [[aopts]]>Clients</a> used:
-
-.label.comments=Comments:
-
-.label.composted=<b>Posted:</b> [[num]] - 
-
-.label.comreceived=<b>Received:</b> [[num]]
-
 .label.connect=Connect
-
-.label.datecreated=Date created:
-
-.label.dateupdated=Date updated:
-
-.label.email=Email:
 
 .label.feedchange2=If this feed has stopped updating because its location has changed, please <a [[aopts]]>submit a Support request using the category Feeds</a> instead of creating a new feed.
 
-.label.frcommunity=Communities
-
-.label.frpeople=People
-
-.label.frsyndication2=Feeds
-
-.label.googletalk=Google Talk:
-
 .label.hidden=(hidden)
-
-.label.icquin=ICQ UIN:
-
-.label.icq_send_message=Send Message
 
 .label.interests=Interests ([[num]]):
 
@@ -157,55 +81,13 @@
 
 .label.interests.removesome2=Remove Some
 
-.label.jabber=Jabber:
-
-.label.journalentrs=Journal entries:
-
-.label.last_fm_user=Last.FM user:
-
-.label.last_fm_user2=Last.fm user:
-
 .label.linking=Linking
 
 .label.maintainers=Administrators ([[num]]):
 
-.label.memberof=Member of
-
-.label.memories=Memories
-
 .label.moderators=Moderators ([[num]]):
 
-.label.moredetails=(more details...)
-
-.label.mutual=Mutual Friends:
-
-.label.nofriends=<em>None listed.</em>
-
-.label.post=Post to "[[journal]]"
-
-.label.postalt=Update your journal
-
 .label.reqfinduser=You can't look up accounts by userid.
-
-.label.searchjournal=Search This Journal
-
-.label.sendmessage=Send Message
-
-.label.shared=Posting Access:
-
-.label.skype=Skype:
-
-.label.supportpoints=Support points
-
-.label.theme=Theme:
-
-.label.user=User:
-
-.label.userprofile=User Profile
-
-.label.viewfriends=View Friends
-
-.label.viewmembers=View Members
 
 .linking.about=To link to this user, copy this code:
 
@@ -215,27 +97,7 @@
 
 .members.header=Members
 
-.members.members=Members
-
-.members.postingaccess=Posting Access
-
-.members.watchedby=Watched by
-
-.membership.body2=To join this community, <a [[aopts]]>click here</a>.
-
-.memories.entries=[[count]] entries
-
-.memories.entry=[[count]] entry
-
-.monitor.comm=Monitor Community
-
-.monitor.comm2=Watch Community
-
-.monitor.user=Add this user to your friends list
-
 .nonexist.body=The account name <strong>[[user]]</strong> isn't currently registered.
-
-.nonexist.name=Unknown user
 
 .people.header=People
 
@@ -291,8 +153,6 @@
 
 .section.edit=Edit
 
-.sendmessage.body2=<a [[aopts]]>Send [[user]] a text message</a><br />on his/her cellphone/pager.
-
 .service.ao3=Archive of Our Own
 
 .service.deviantart=DeviantArt
@@ -335,34 +195,6 @@
 
 .service.wattpad=Wattpad
 
-.syn.header=Feeds
-
-.syndinfo.body2=If you would like articles from the syndicated site to appear on your friends page, you can <a [[aopts]]>add this journal to your friends list</a>.
-
-.syndinfo.name=Syndication Journal
-
-.tellafriend=Tell a Friend!
-
-.timeupdate.dayago=1 day ago
-
-.timeupdate.daysago=[[num]] days ago
-
-.timeupdate.hourago=1 hour ago
-
-.timeupdate.hoursago=[[num]] hours ago
-
-.timeupdate.minuteago=1 minute ago
-
-.timeupdate.minutesago=[[num]] minutes ago
-
-.timeupdate.secondago=1 second ago
-
-.timeupdate.secondsago=[[num]] seconds ago
-
-.timeupdate.weekago=1 week ago
-
-.timeupdate.weeksago=[[num]] weeks ago
-
 .title=Profile
 
 .title.communityinfo=Community Info
@@ -378,20 +210,4 @@
 .title.userprofile=Profile
 
 .title1=Profile
-
-.userinfo.body3=You can edit your information (or choose what information is considered public) at the <a [[aopts]]>Edit Personal Information</a> page.
-
-.userinfo.name=User Information
-
-.userpic.choose=Choose Icon
-
-.userpic.none=no default icon
-
-.userpic.none2=(no icons)
-
-.userpic.none3=No Icons
-
-.userpic.viewall=View All Icons
-
-.userpic.viewall.edit=<a [[aopts1]]>View All</a> / <a [[aopts2]]>Edit</a>
 
