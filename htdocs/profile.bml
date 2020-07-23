@@ -403,7 +403,7 @@ body<=
 
     $ret .= q{ <div class='actions'><ul> };
 
-    foreach my $link ( $profile->action_links ) {
+    foreach my $link ( @{ $profile->action_links } ) {
         my $width = $link->{width} ? "width=\"$link->{width}\"" : "";
         my $height = $link->{height} ? "height=\"$link->{height}\"" : "";
 
@@ -456,7 +456,7 @@ body<=
     $ret .= q{ <div class='details_stats detail'> };
 
     # journal warnings
-    $ret .= "<span class='$_->{class}'>$_->{text}</span> " foreach $profile->warnings;
+    $ret .= "<span class='$_->{class}'>$_->{text}</span> " foreach @{ $profile->warnings };
 
     # account type
     my $accttype = DW::Pay::get_account_type_name( $u );
@@ -479,12 +479,12 @@ body<=
     }
 
     # comment and support stats
-    my $csstats = join( ', ', ( $profile->comment_stats, $profile->support_stats ) );
+    my $csstats = join( ', ', ( @{ $profile->comment_stats }, @{ $profile->support_stats } ) );
     $ret .= qq{<p>$csstats</p>};
 
     # other statistics
     $ret .= q{ <p> };
-    $ret .= join( ', ', ( $profile->entry_stats, $profile->tag_stats, $profile->memory_stats, $profile->userpic_stats ) );
+    $ret .= join( ', ', ( @{ $profile->entry_stats }, @{ $profile->tag_stats }, @{ $profile->memory_stats }, @{ $profile->userpic_stats } ) );
     $ret .= "</p>";
 
     #extended profile link
@@ -501,7 +501,7 @@ body<=
 
     my $bibody = '';
 
-    if ( my @rows = $profile->basic_info_rows ) {
+    if ( my @rows = @{ $profile->basic_info_rows } ) {
         my @row_texts;
         foreach my $row (@rows) {
             my $row_header = shift @$row;
@@ -515,7 +515,7 @@ body<=
         $bibody .= q{ </td></tr></table></div> };
     }
 
-    if ( my @contacts = $profile->contact_rows ) {
+    if ( my @contacts = @{ $profile->contact_rows } ) {
         $bibody .= qq( <div class="contact"><p class="section_body_title">$ML{'.contact.header'}</p> );
         $bibody .= join( '<br />', map { $linkify->( $_ ) } @contacts );
         $bibody .= q{ </div> };
@@ -564,7 +564,7 @@ body<=
     # interests
     my @linked_ints;
     my $intcount = 0;
-    foreach my $int ( $profile->interests ) {
+    foreach my $int ( @{ $profile->interests } ) {
         push @linked_ints, $linkify->( $int );
         $intcount++;
     }
@@ -599,7 +599,7 @@ body<=
 
     # external services
     my $imlist;
-    foreach my $service ( $profile->external_services ) {
+    foreach my $service ( @{ $profile->external_services } ) {
         my $title = $ML{$service->{title_ml}};
         $imlist .= "<li class=\"im_$service->{type}\">";
         $imlist .= "<div class=\"im_icon\"><img src=\"$LJ::IMGPREFIX/profile_icons/$service->{image}\" alt=\"$title\" title=\"$title\" /></div>";
@@ -686,27 +686,27 @@ body<=
 ################################################################################
 ##### WATCH/TRUST/MEMBER/POSTING LISTS
 
-    my ( @trusted_userids, @trusted_by_userids, @mutually_trusted_userids, @not_mutually_trusted_userids, @not_mutually_trusted_by_userids );
-    my ( @watched_userids, @watched_by_userids, @mutually_watched_userids, @not_mutually_watched_userids, @not_mutually_watched_by_userids );
+    my ( $trusted_userids, $trusted_by_userids, $mutually_trusted_userids, $not_mutually_trusted_userids, $not_mutually_trusted_by_userids );
+    my ( $watched_userids, $watched_by_userids, $mutually_watched_userids, $not_mutually_watched_userids, $not_mutually_watched_by_userids );
 
     # no mutual trust lists for identity accounts since they can't trust anyone
-    @trusted_by_userids = $u->trusted_by_userids if $u->is_identity;
+    $trusted_by_userids = $profile->trusted_by_userids if $u->is_identity;
 
     if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
         if ( $u->is_personal ) {
-            @mutually_trusted_userids = $u->mutually_trusted_userids;
-            @not_mutually_trusted_userids = $profile->not_mutually_trusted_userids;
-            @not_mutually_trusted_by_userids = $profile->not_mutually_trusted_by_userids;
+            $mutually_trusted_userids = $profile->mutually_trusted_userids;
+            $not_mutually_trusted_userids = $profile->not_mutually_trusted_userids;
+            $not_mutually_trusted_by_userids = $profile->not_mutually_trusted_by_userids;
         }
-        @mutually_watched_userids = $u->mutually_watched_userids;
-        @not_mutually_watched_userids = $profile->not_mutually_watched_userids;
-        @not_mutually_watched_by_userids = $profile->not_mutually_watched_by_userids;
-        @watched_userids = $u->watched_userids; # need this one to get watched communities and feeds
+        $mutually_watched_userids = $profile->mutually_watched_userids;
+        $not_mutually_watched_userids = $profile->not_mutually_watched_userids;
+        $not_mutually_watched_by_userids = $profile->not_mutually_watched_by_userids;
+        $watched_userids = $profile->watched_userids; # need this one to get watched communities and feeds
     } else {
-        @trusted_userids = $u->trusted_userids if $u->is_personal;
-        @trusted_by_userids = $u->trusted_by_userids if $u->is_personal;
-        @watched_userids = $u->watched_userids if $u->is_individual;
-        @watched_by_userids = $u->watched_by_userids
+        $trusted_userids = $profile->trusted_userids if $u->is_personal;
+        $trusted_by_userids = $profile->trusted_by_userids if $u->is_personal;
+        $watched_userids = $profile->watched_userids if $u->is_individual;
+        $watched_by_userids = $profile->watched_by_userids
             # This is kind of a hack; we don't want to load these for communities with lots
             # of subscribers because the profile page chokes and dies.  This won't load them
             # if the option to hide subscribers is set and the person cannot manage the communities.
@@ -718,22 +718,22 @@ body<=
                 ( $u->prop( 'opt_hidefriendofs' ) && ( !$remote || !$remote->can_manage( $u ) ) );
     }
 
-    my ( @members_userids, @member_of_userids, @admin_of_userids, @posting_access_to_userids, @posting_access_from_userids );
-    @members_userids = $u->member_userids
+    my ( $members_userids, $member_of_userids, $admin_of_userids, $posting_access_to_userids, $posting_access_from_userids );
+    $members_userids = $profile->member_userids
         if $u->is_community && !$force_empty;
-    @member_of_userids = $u->member_of_userids if $u->is_personal;
-    @admin_of_userids = @{LJ::load_rel_target_cache( $u, 'A' )} if $u->is_personal;
-    @posting_access_to_userids = @{LJ::load_rel_target_cache( $u, 'P' )} if $u->is_personal;
-    @posting_access_from_userids = @{LJ::load_rel_user_cache( $u, 'P' )}
+    $member_of_userids = $profile->member_of_userids if $u->is_personal;
+    $admin_of_userids = $profile->admin_of_userids if $u->is_personal;
+    $posting_access_to_userids = $profile->posting_access_to_userids if $u->is_personal;
+    $posting_access_from_userids = $profile->posting_access_from_userids
         if $u->is_community && !$force_empty;
 
     my $us = LJ::load_userids(
-        @trusted_userids, @trusted_by_userids,
-        @mutually_trusted_userids, @not_mutually_trusted_userids, @not_mutually_trusted_by_userids,
-        @watched_userids, @watched_by_userids,
-        @mutually_watched_userids, @not_mutually_watched_userids, @not_mutually_watched_by_userids,
-        @members_userids, @member_of_userids, @admin_of_userids,
-        @posting_access_to_userids, @posting_access_from_userids,
+        @$trusted_userids, @$trusted_by_userids,
+        @$mutually_trusted_userids, @$not_mutually_trusted_userids, @$not_mutually_trusted_by_userids,
+        @$watched_userids, @$watched_by_userids,
+        @$mutually_watched_userids, @$not_mutually_watched_userids, @$not_mutually_watched_by_userids,
+        @$members_userids, @$member_of_userids, @$admin_of_userids,
+        @$posting_access_to_userids, @$posting_access_from_userids,
     );
 
     # pull in list of banned users
@@ -742,19 +742,19 @@ body<=
 
     # remove banned users from lists to display
     @$_ = grep { !exists $banned_users{ $_ } } @$_
-        foreach ( \@trusted_userids, \@watched_userids, \@trusted_by_userids, \@watched_by_userids,
-                  \@mutually_trusted_userids, \@mutually_watched_userids, \@mutually_watched_userids,
-                  \@not_mutually_trusted_userids, \@not_mutually_watched_userids,
-                  \@not_mutually_trusted_by_userids, \@not_mutually_watched_by_userids, \@members_userids,
-                  \@member_of_userids, \@admin_of_userids, \@posting_access_to_userids, \@posting_access_from_userids );
+        foreach ( $trusted_userids, $watched_userids, $trusted_by_userids, $watched_by_userids,
+                  $mutually_trusted_userids, $mutually_watched_userids,
+                  $not_mutually_trusted_userids, $not_mutually_watched_userids,
+                  $not_mutually_trusted_by_userids, $not_mutually_watched_by_userids, $members_userids,
+                  $member_of_userids, $admin_of_userids, $posting_access_to_userids, $posting_access_from_userids );
 
     # presort various userid arrays
     @$_ = sort { $us->{$a}->display_name cmp $us->{$b}->display_name } @$_
-        foreach ( \@trusted_userids, \@watched_userids, \@trusted_by_userids, \@watched_by_userids,
-                  \@mutually_trusted_userids, \@mutually_watched_userids, \@mutually_watched_userids,
-                  \@not_mutually_trusted_userids, \@not_mutually_watched_userids,
-                  \@not_mutually_trusted_by_userids, \@not_mutually_watched_by_userids, \@members_userids,
-                  \@member_of_userids, \@admin_of_userids, \@posting_access_to_userids, \@posting_access_from_userids );
+        foreach ( $trusted_userids, $watched_userids, $trusted_by_userids, $watched_by_userids,
+                  $mutually_trusted_userids, $mutually_watched_userids,
+                  $not_mutually_trusted_userids, $not_mutually_watched_userids,
+                  $not_mutually_trusted_by_userids, $not_mutually_watched_by_userids, $members_userids,
+                  $member_of_userids, $admin_of_userids, $posting_access_to_userids, $posting_access_from_userids );
 
 ################################################################################
 ##### PEOPLE LISTS
@@ -763,7 +763,7 @@ body<=
 
     if ( $u->is_identity ) {  # can't be mutual trust
         my @trusted_by_list = grep { $includeuser->( $_ ) }
-            map { $us->{$_} } @trusted_by_userids;
+            map { $us->{$_} } @$trusted_by_userids;
         $trusted_by_body = $content_inner_block->(
             section_name    => 'trusted_by_people',
             section_name_ml => $mlsn->( '.people.trusted_by', \@trusted_by_list ),
@@ -777,7 +777,7 @@ body<=
     if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
         if ( $u->is_personal ) {
             my @mutually_trusted_list = grep { $_->is_individual }
-                map { $us->{$_} } @mutually_trusted_userids;
+                map { $us->{$_} } @$mutually_trusted_userids;
             $trusted_body .= $content_inner_block->(
                 section_name    => 'mutually_trusted_people',
                 section_name_ml => $mlsn->( '.people.mutually_trusted', \@mutually_trusted_list ),
@@ -786,7 +786,7 @@ body<=
                 body            => $listusers->( \@mutually_trusted_list ),
             );
 
-            my @not_mutually_trusted_us = map { $us->{$_} } @not_mutually_trusted_userids;
+            my @not_mutually_trusted_us = map { $us->{$_} } @$not_mutually_trusted_userids;
             my @not_mutually_trusted_list_p = grep { $_->is_personal } @not_mutually_trusted_us;
             my @not_mutually_trusted_list_i = grep { $_->is_identity } @not_mutually_trusted_us;
 
@@ -800,7 +800,7 @@ body<=
             );
 
             my @not_mutually_trusted_by_list = grep { $includeuser->( $_ ) }
-                map { $us->{$_} } @not_mutually_trusted_by_userids;
+                map { $us->{$_} } @$not_mutually_trusted_by_userids;
             $trusted_by_body = $content_inner_block->(
                 section_name    => 'not_mutually_trusted_by_people',
                 section_name_ml => $mlsn->( '.people.not_mutually_trusted_by', \@not_mutually_trusted_by_list ),
@@ -811,7 +811,7 @@ body<=
         }
 
         my @mutually_watched_list = grep { $_->is_individual }
-            map { $us->{$_} } @mutually_watched_userids;
+            map { $us->{$_} } @$mutually_watched_userids;
         $watched_body .= $content_inner_block->(
             section_name    => 'mutually_watched_people',
             section_name_ml => $mlsn->( '.people.mutually_watched', \@mutually_watched_list ),
@@ -820,7 +820,7 @@ body<=
         );
 
         my @not_mutually_watched_list = grep { $_->is_individual }
-            map { $us->{$_} } @not_mutually_watched_userids;
+            map { $us->{$_} } @$not_mutually_watched_userids;
         $watched_body .= $content_inner_block->(
             section_name    => 'not_mutually_watched_people',
             section_name_ml => $mlsn->( '.people.not_mutually_watched', \@not_mutually_watched_list ),
@@ -829,7 +829,7 @@ body<=
         );
 
         my @not_mutually_watched_by_list = grep { $includeuser->( $_ ) }
-            map { $us->{$_} } @not_mutually_watched_by_userids;
+            map { $us->{$_} } @$not_mutually_watched_by_userids;
         $watched_by_body = $content_inner_block->(
             section_name    => 'not_mutually_watched_by_people',
             section_name_ml => $mlsn->( '.people.not_mutually_watched_by', \@not_mutually_watched_by_list ),
@@ -839,7 +839,7 @@ body<=
         );
     } else {  # show_mutualfriends is false
         if ( $u->is_personal ) {
-            my @trusted_us = map { $us->{$_} } @trusted_userids;
+            my @trusted_us = map { $us->{$_} } @$trusted_userids;
             my @trusted_list_p = grep { $_->is_personal } @trusted_us;
             my @trusted_list_i = grep { $_->is_identity } @trusted_us;
 
@@ -852,7 +852,7 @@ body<=
             );
 
             my @trusted_by_list = grep { $includeuser->( $_ ) }
-                map { $us->{$_} } @trusted_by_userids;
+                map { $us->{$_} } @$trusted_by_userids;
             $trusted_by_body = $content_inner_block->(
                 section_name    => 'trusted_by_people',
                 section_name_ml => $mlsn->( '.people.trusted_by', \@trusted_by_list ),
@@ -864,7 +864,7 @@ body<=
 
         if ( $u->is_individual ) {
             my @watched_list = grep { $_->is_individual }
-                map { $us->{$_} } @watched_userids;
+                map { $us->{$_} } @$watched_userids;
             $watched_body = $content_inner_block->(
                 section_name    => 'watched_people',
                 section_name_ml => $mlsn->( '.people.watched', \@watched_list ),
@@ -874,7 +874,7 @@ body<=
         }
 
         if ( $u->is_community ) {
-            my @members_list = map { $us->{$_} } @members_userids;
+            my @members_list = map { $us->{$_} } @$members_userids;
             $members_body = $content_inner_block->(
                 section_name    => 'members_people',
                 section_name_ml => $mlsn->( '.people.members', \@members_list ),
@@ -885,7 +885,7 @@ body<=
                                    : $listusers->( \@members_list ),
             );
 
-            my @posting_access_from_list = map { $us->{$_} } @posting_access_from_userids;
+            my @posting_access_from_list = map { $us->{$_} } @$posting_access_from_userids;
             $posting_access_from_body = $content_inner_block->(
                 section_name    => 'posting_access_from_people',
                 section_name_ml => $mlsn->( '.people.posting_access_from', \@posting_access_from_list ),
@@ -898,7 +898,7 @@ body<=
         }
 
         my @watched_by_list = grep { $includeuser->( $_ ) }
-            map { $us->{$_} } @watched_by_userids;
+            map { $us->{$_} } @$watched_by_userids;
         $watched_by_body = $content_inner_block->(
             section_name    => 'watched_by_people',
             section_name_ml => $mlsn->( '.people.watched_by', \@watched_by_list ),
@@ -942,7 +942,7 @@ body<=
 
         if ( $u->is_personal ) {
             my @member_of_list = grep { $includeuser->( $_ ) }
-                map { $us->{$_} } @member_of_userids;
+                map { $us->{$_} } @$member_of_userids;
             $member_of_body = $content_inner_block->(
                 section_name    => 'member_of_comms',
                 section_name_ml => $mlsn->( '.comms.member_of', \@member_of_list ),
@@ -953,7 +953,7 @@ body<=
             );
 
             my @admin_of_list = grep { $includeuser->( $_ ) }
-                map { $us->{$_} } @admin_of_userids;
+                map { $us->{$_} } @$admin_of_userids;
             $admin_of_body = $content_inner_block->(
                 section_name    => 'admin_of_comms',
                 section_name_ml => $mlsn->( '.comms.admin_of', \@admin_of_list ),
@@ -963,7 +963,7 @@ body<=
             );
 
             my @posting_access_to_list = grep { $includeuser->( $_ ) }
-                map { $us->{$_} } @posting_access_to_userids;
+                map { $us->{$_} } @$posting_access_to_userids;
             $posting_access_to_body = $content_inner_block->(
                 section_name    => 'posting_access_to_comms',
                 section_name_ml => $mlsn->( '.comms.posting_access_to', \@posting_access_to_list ),
@@ -974,7 +974,7 @@ body<=
         }
 
         my @watched_list = grep { $includeuser->( $_ ) } grep { $_->is_community }
-            map { $us->{$_} } @watched_userids;
+            map { $us->{$_} } @$watched_userids;
         $watched_body = $content_inner_block->(
             section_name    => 'watched_comms',
             section_name_ml => $mlsn->( '.comms.watched', \@watched_list ),
@@ -1008,7 +1008,7 @@ body<=
         my ( $watched_body );
 
         my @watched_list = grep { $_->is_syndicated }
-            map { $us->{$_} } @watched_userids;
+            map { $us->{$_} } @$watched_userids;
         $watched_body = $content_inner_block->(
             section_name    => 'watched_feeds',
             section_name_ml => $mlsn->( '.feeds.watched', \@watched_list ),

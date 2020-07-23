@@ -63,6 +63,7 @@ sub action_links {
         "manage_membership", "trust",   "watch",  "post",
         "track",             "message", "search", "buyaccount"
     );
+    return \@ret;
 }
 
 # returns hashref with userpic display options
@@ -209,7 +210,7 @@ sub warnings {
         }
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # returns an array of comment statistic strings
@@ -231,7 +232,7 @@ sub comment_stats {
         { num_raw => $num_comments_posted, num_comma => LJ::commafy($num_comments_posted) } )
         if LJ::is_enabled('show-talkleft') && ( $u->is_personal || $u->is_identity );
 
-    return @ret;
+    return \@ret;
 }
 
 # returns an array of support statistic strings
@@ -247,7 +248,7 @@ sub support_stats {
         { aopts => qq{href="$LJ::SITEROOT/support/"}, num => LJ::commafy($supportpoints) } )
         if $supportpoints;
 
-    return @ret;
+    return \@ret;
 }
 
 # return array of entry statistic strings
@@ -268,7 +269,7 @@ sub entry_stats {
         }
         ) unless $u->is_identity;
 
-    return @ret;
+    return \@ret;
 }
 
 # return array of tag statistic strings
@@ -289,7 +290,7 @@ sub tag_stats {
         }
         ) unless $u->is_identity || $u->is_syndicated;
 
-    return @ret;
+    return \@ret;
 }
 
 # return array of memory statistic strings
@@ -310,7 +311,7 @@ sub memory_stats {
         }
         ) unless $u->is_syndicated;
 
-    return @ret;
+    return \@ret;
 }
 
 # return array of userpic statistic strings
@@ -318,7 +319,7 @@ sub userpic_stats {
     my $self = $_[0];
 
     my $u = $self->{u};
-    return () if $u->is_syndicated;
+    return [] if $u->is_syndicated;
 
     my @ret = ();
 
@@ -352,7 +353,7 @@ sub userpic_stats {
             );
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # returns array of hashrefs
@@ -379,7 +380,7 @@ sub basic_info_rows {
         push @ret, $self->_basic_info_website;
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # returns the account's displayed name
@@ -617,9 +618,10 @@ sub _basic_info_syn_status {
     my $self = $_[0];
 
     my $u = $self->{u};
-    return () unless $u->is_syndicated;
 
-    my $ret  = [];
+    my $ret = [];
+    return $ret unless $u->is_syndicated;
+
     my $synd = $u->get_syndicated;
     my $syn_status;
 
@@ -656,9 +658,10 @@ sub _basic_info_syn_readers {
     my $self = $_[0];
 
     my $u = $self->{u};
-    return () unless $u->is_syndicated;
 
     my $ret = [];
+    return $ret unless $u->is_syndicated;
+
     $ret->[0] = _profile_ml('.label.syndreadcount');
     $ret->[1] = scalar $u->watched_by_userids;
 
@@ -696,7 +699,7 @@ sub contact_rows {
         }
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # returns the bio
@@ -754,7 +757,7 @@ sub interests {
         }
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # return an array of external services (mostly IM services)
@@ -765,7 +768,17 @@ sub external_services {
     my $remote = $self->{remote};
     my @ret;
 
-    return () unless $u->is_personal && ( $u->share_contactinfo($remote) || $self->{viewall} );
+    return [] unless $u->is_personal && ( $u->share_contactinfo($remote) || $self->{viewall} );
+
+    # this has gotten big enough that we should improve database efficiency
+    $u->preload_props(
+        qw/
+            ao3 deviantart diigo discord etsy ffnet github google_talk
+            icq insanejournal instagram jabber last_fm_user livejournal
+            medium patreon pillowfort pinboard pinterest plurk ravelry
+            reddit skype tumblr twitter wattpad
+            /
+    );
 
     if ( my $ao3 = $u->prop('ao3') ) {
         my $url = sprintf( "//archiveofourown.org/users/%s", LJ::eurl($ao3) );
@@ -1071,7 +1084,7 @@ sub external_services {
             };
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # returns whether a given list should be hidden or not
@@ -1096,7 +1109,7 @@ sub not_mutually_trusted_userids {
     my $u = $self->{u};
     my @ret;
 
-    return () unless $u->is_personal;
+    return [] unless $u->is_personal;
 
     my @trusted_userids = $u->trusted_userids;
     my %is_trusted_by   = map { $_ => 1 } $u->trusted_by_userids;
@@ -1105,7 +1118,7 @@ sub not_mutually_trusted_userids {
         push @ret, $uid if !$is_trusted_by{$uid};
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # returns all userids that trust but that aren't trusted in return
@@ -1115,7 +1128,7 @@ sub not_mutually_trusted_by_userids {
     my $u = $self->{u};
     my @ret;
 
-    return () unless $u->is_personal;
+    return [] unless $u->is_personal;
 
     my @trusted_by_userids = $u->trusted_by_userids;
     my %is_trusted         = map { $_ => 1 } $u->trusted_userids;
@@ -1124,7 +1137,7 @@ sub not_mutually_trusted_by_userids {
         push @ret, $uid if !$is_trusted{$uid};
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # returns all userids that are watched but that don't watch in return
@@ -1134,7 +1147,7 @@ sub not_mutually_watched_userids {
     my $u = $self->{u};
     my @ret;
 
-    return () unless $u->is_personal || $u->is_identity;
+    return [] unless $u->is_personal || $u->is_identity;
 
     my @watched_userids = $u->watched_userids;
     my %is_watched_by   = map { $_ => 1 } $u->watched_by_userids;
@@ -1143,7 +1156,7 @@ sub not_mutually_watched_userids {
         push @ret, $uid if !$is_watched_by{$uid};
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # returns all userids that watch but that aren't watched in return
@@ -1153,7 +1166,7 @@ sub not_mutually_watched_by_userids {
     my $u = $self->{u};
     my @ret;
 
-    return () unless $u->is_personal || $u->is_identity;
+    return [] unless $u->is_personal || $u->is_identity;
 
     my @watched_by_userids = $u->watched_by_userids;
     my %is_watched         = map { $_ => 1 } $u->watched_userids;
@@ -1162,7 +1175,7 @@ sub not_mutually_watched_by_userids {
         push @ret, $uid if !$is_watched{$uid};
     }
 
-    return @ret;
+    return \@ret;
 }
 
 # identical to user method except returns a reference instead of a list
