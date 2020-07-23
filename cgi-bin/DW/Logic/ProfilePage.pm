@@ -1225,6 +1225,24 @@ sub watched_by_userids {
     return [ $self->{u}->watched_by_userids ];
 }
 
+# convenience method
+sub admin_of_userids {
+    my $self = $_[0];
+    return LJ::load_rel_target_cache( $self->{u}, 'A' );
+}
+
+# convenience method
+sub posting_access_from_userids {
+    my $self = $_[0];
+    return LJ::load_rel_user_cache( $self->{u}, 'P' );
+}
+
+# convenience method
+sub posting_access_to_userids {
+    my $self = $_[0];
+    return LJ::load_rel_target_cache( $self->{u}, 'P' );
+}
+
 # returns image link based on privacy settings
 sub security_image {
     my ( $self, $code ) = @_;
