@@ -1165,6 +1165,66 @@ sub not_mutually_watched_by_userids {
     return @ret;
 }
 
+# identical to user method except returns a reference instead of a list
+sub maintainer_userids {
+    my $self = $_[0];
+    return [ $self->{u}->maintainer_userids ];
+}
+
+# identical to user method except returns a reference instead of a list
+sub member_userids {
+    my $self = $_[0];
+    return [ $self->{u}->member_userids ];
+}
+
+# identical to user method except returns a reference instead of a list
+sub member_of_userids {
+    my $self = $_[0];
+    return [ $self->{u}->member_of_userids ];
+}
+
+# identical to user method except returns a reference instead of a list
+sub moderator_userids {
+    my $self = $_[0];
+    return [ $self->{u}->moderator_userids ];
+}
+
+# identical to user method except returns a reference instead of a list
+sub mutually_trusted_userids {
+    my $self = $_[0];
+    return [ $self->{u}->mutually_trusted_userids ];
+}
+
+# identical to user method except returns a reference instead of a list
+sub mutually_watched_userids {
+    my $self = $_[0];
+    return [ $self->{u}->mutually_watched_userids ];
+}
+
+# identical to user method except returns a reference instead of a list
+sub trusted_userids {
+    my $self = $_[0];
+    return [ $self->{u}->trusted_userids ];
+}
+
+# identical to user method except returns a reference instead of a list
+sub trusted_by_userids {
+    my $self = $_[0];
+    return [ $self->{u}->trusted_by_userids ];
+}
+
+# identical to user method except returns a reference instead of a list
+sub watched_userids {
+    my $self = $_[0];
+    return [ $self->{u}->watched_userids ];
+}
+
+# identical to user method except returns a reference instead of a list
+sub watched_by_userids {
+    my $self = $_[0];
+    return [ $self->{u}->watched_by_userids ];
+}
+
 # returns image link based on privacy settings
 sub security_image {
     my ( $self, $code ) = @_;
