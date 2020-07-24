@@ -855,9 +855,12 @@ sub make_journal {
         return $u->display_journal_deleted( $remote, journal_opts => $opts ) if $u->is_deleted;
 
         if ( $u->is_suspended ) {
-            my $warning = BML::ml( 'error.suspended.text',
-                { user => $u->ljuser_display, sitename => $LJ::SITENAME } );
-            return $error->( $warning, "403 Forbidden", BML::ml('error.suspended.name') );
+            ${ $opts->{handle_with_siteviews_ref} } = 1;
+            return DW::Template->render_template_misc(
+                "error/suspended.tt",
+                { u     => $u },
+                { scope => 'journal', scope_data => $opts }
+            );
         }
 
         my $entry = $opts->{ljentry};
@@ -867,8 +870,12 @@ sub make_journal {
             return $error->( $warning, "403 Forbidden", BML::ml('error.suspended.name') );
         }
     }
-    return $error->( BML::ml('error.purged.text'), "410 Gone", BML::ml('error.purged.name') )
-        if $u->is_expunged;
+
+    if ( $u->is_expunged ) {
+        ${ $opts->{handle_with_siteviews_ref} } = 1;
+        return DW::Template->render_template_misc( "error/purged.tt", {},
+            { scope => 'journal', scope_data => $opts } );
+    }
 
     my %valid_identity_views = (
         read  => 1,
