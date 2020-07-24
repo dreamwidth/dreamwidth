@@ -865,9 +865,12 @@ sub make_journal {
 
         my $entry = $opts->{ljentry};
         if ( $entry && $entry->is_suspended_for($remote) ) {
-            my $journal_base = $u->journal_base;
-            my $warning = BML::ml( 'error.suspended.entry', { aopts => "href='$journal_base/'" } );
-            return $error->( $warning, "403 Forbidden", BML::ml('error.suspended.name') );
+            ${ $opts->{handle_with_siteviews_ref} } = 1;
+            return DW::Template->render_template_misc(
+                "error/suspended-entry.tt",
+                { u     => $u },
+                { scope => 'journal', scope_data => $opts }
+            );
         }
     }
 
