@@ -154,9 +154,6 @@ no strict "vars";
         'application/xhtml+xml' => 1,    # XHTML 1.1 "should" be this
     ) unless %GZIP_OKAY;
 
-    # maximum number of friendofs to load/memcache (affects profile.bml display)
-    $MAX_FRIENDOF_LOAD ||= 5000;
-
     # block size is used in stats generation code that gets n rows from the db at a time
     $STATS_BLOCK_SIZE ||= 10_000;
 
