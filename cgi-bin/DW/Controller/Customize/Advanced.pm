@@ -233,7 +233,7 @@ sub layers_handler {
 
     # id is optional
     my $id;
-    $id = $POST->{'id'} if $POST->{'id'} =~ /^\d+$/;
+    $id = $POST->{'id'} if $POST->{'id'} && $POST->{'id'} =~ /^\d+$/;
 
     # this catches core_hidden if it's set
     $POST->{'parid'} ||= $POST->{'parid_hidden'};
