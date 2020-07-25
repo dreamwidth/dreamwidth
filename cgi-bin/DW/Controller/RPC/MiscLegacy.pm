@@ -620,7 +620,7 @@ sub profileexpandcollapse_handler {
     my $expand = ( defined $get->{expand} && $get->{expand} eq "false" ) ? 0     : 1;
 
     my $remote = LJ::get_remote();
-    return unless $remote;
+    return DW::RPC->out() unless $remote;
 
     my $collapsed_headers = $remote->prop("profile_collapsed_headers") // '';
     my @collapsed_headers = split( /,/, $collapsed_headers );
