@@ -67,7 +67,7 @@ sub index_handler {
         # Allow bookmarking to work without Javascript
     # or before JS events are bound
     if ($GET->{bookmark_off} && $GET->{bookmark_off} =~ /^\d+$/) {
-        push @errors, LJ::Lang::ml('.error.max_bookmarks')
+        push @errors, LJ::Lang::ml("$scope.error.max_bookmarks")
             unless $inbox->add_bookmark($GET->{bookmark_off});
     }
     if ($GET->{bookmark_on} && $GET->{bookmark_on} =~ /^\d+$/) {
@@ -82,7 +82,6 @@ sub index_handler {
     my @all_items = @{items_by_view($inbox, $view, $itemid)};
 
     my $itemcount = scalar @all_items;
-    $vars->{user_messaging} = $user_messsaging;
     $vars->{view} = $view;
     $vars->{itemcount} = $itemcount;
 
@@ -187,7 +186,7 @@ sub render_items {
 }
 
 sub render_folders {
-    my $remote = $_;
+    my $remote = LJ::get_remote();
     my $user_messsaging = LJ::is_enabled('user_messaging');
     my $inbox = $remote->notification_inbox
         or return error_ml("/inbox/index.tt.error.couldnt_retrieve_inbox", { 'user' => $remote->{user} });
@@ -263,7 +262,7 @@ sub handle_post {
     } elsif ($action eq 'delete_all') {
         $inbox->delete_all( $view, itemid => $itemid );
     } elsif ($action eq 'bookmark_off') {
-        push @errors, LJ::Lang::ml('.error.max_bookmarks')
+        push @errors, LJ::Lang::ml("/inbox.index.tt.error.max_bookmarks")
             unless $inbox->add_bookmark($item_ids);
     } elsif($action eq 'bookmark_on') {
         $inbox->remove_bookmark($item_ids);
@@ -304,7 +303,7 @@ sub items_by_view {
 }
 
 sub compose_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller(form_auth => 1);
     return $rv unless $ok;
 
     # gets the request and args
@@ -317,12 +316,12 @@ sub compose_handler {
 
     unless( LJ::is_enabled( 'user_messaging' )) {
         $r->add_msg(LJ::Lang::ml('protocol.not_validated', { sitename => $LJ::SITENAMESHORT, siteroot => $LJ::SITEROOT }), $r->ERROR);
-        $r->redirect("$LJ::SITEROOT/inbox")
+        return $r->redirect("$LJ::SITEROOT/inbox")
     }
 
     if($remote->is_suspended) {
         $r->add_msg(LJ::Lang::ml('.suspended.cannot.send'), $r->ERROR);
-        $r->redirect("$LJ::SITEROOT/inbox")
+        return $r->redirect("$LJ::SITEROOT/inbox")
     }
 
     my $remote_id = $remote->{userid};
@@ -335,39 +334,40 @@ sub compose_handler {
     my $msg_limit = $remote->count_usermessage_length;
     my $subject_limit = 255;
     my $force = 0; # flag for if user wants to force an empty PM
+    my $scope = '/inbox/compose.tt';
     
     # Submitted message
-    if (r->did_post) {
+    if ($r->did_post) {
         my $mode = $POST->{'mode'};
-        $errors->add(LJ::Lang::ml('error.invalidform')) unless LJ::check_form_auth();
+        $errors->add(undef, 'error.invalidform') unless LJ::check_form_auth($POST->{lj_form_auth});
 
         if ($mode eq 'send') {
             # test encoding
             my $msg_subject_text = $POST->{'msg_subject'};
-            $errors->add('msg_subject', LJ::Lang::ml('.error.text.encoding.subject'))
+            $errors->add('msg_subject', "$scope.error.text.encoding.subject")
                 unless LJ::text_in($msg_subject_text);
             my ( $subject_length_b, $subject_length_c ) = LJ::text_length( $msg_subject_text );
-            $errors->add('msg_subject', LJ::Lang::ml('.error.subject.length',
+            $errors->add('msg_subject', "$scope.error.subject.length",
                 {
                     subject_length => LJ::commafy( $subject_length_c ),
                     subject_limit  => LJ::commafy( $subject_limit ),
-                } ))
+                } )
                 unless $subject_length_c <= $subject_limit;
 
             # test encoding and length
             my $msg_body_text = $POST->{'msg_body'};
-            $errors->add('msg_body', LJ::Lang::ml('.error.text.encoding.text'))
+            $errors->add('msg_body', "$scope.error.text.encoding.text")
                 unless LJ::text_in($msg_body_text);
             my ($msg_len_b, $msg_len_c) = LJ::text_length($msg_body_text);
-            $errors->add('msg_body', LJ::Lang::ml(".error.message.length",
+            $errors->add('msg_body', ".error.message.length",
                   { msg_length => LJ::commafy( $msg_len_c ),
-                    msg_limit => LJ::commafy( $msg_limit ) } ))
+                    msg_limit => LJ::commafy( $msg_limit ) } )
                 unless ($msg_len_c <= $msg_limit);
 
             # checks if the PM is empty (no text)
             $force = $POST->{'force'};
             unless ( $msg_len_c > 0 || $force ) {
-                $errors->add('msg_body', LJ::Lang::ml('.warning.empty.message'));
+                $errors->add('msg_body', '.warning.empty.message');
                $force = 1;
             }
 
@@ -377,42 +377,42 @@ sub compose_handler {
             # Get recipient list without duplicates
             my %to_hash = map { lc($_), 1 } split(",", $to_field);
             my @to_list = keys %to_hash;
+            # must be at least one username
+            $errors->add('msg_to', "$scope.error.no.username") unless ( scalar( @to_list ) > 0 );
+
             push @to_list, $remote->username if $POST->{'cc_msg'};
             my @msg_list;
 
             # persist the default value of the cc_msg option
             $remote->cc_msg( $POST->{'cc_msg'} ? 1 : 0 );
 
-            # must be at least one username
-                $errors->add('msg_to', LJ::Lang::ml('.error.no.username')) unless ( scalar( @to_list ) > 0 );
-
             # Check each user being sent a message
             foreach my $to (@to_list) {
                 # Check the To field
                 my $tou = LJ::load_user_or_identity( $to );
                 unless ($tou) {
-                    $errors->add('msg_to', ( '.error.invalid.username',
-                                    { to => $to } ));
+                    $errors->add('msg_to', "$scope.error.invalid.username",
+                                    { to => $to } );
                     next;
                 }
 
                 # Can only send to other individual users
                 unless ($tou->is_person || $tou->is_identity || $tou->is_renamed) {
-                    $errors->add('msg_to', LJ::Lang::ml( 'error.message.individual', { ljuser => $tou->ljuser_display } ));
+                    $errors->add('msg_to', 'error.message.individual', { ljuser => $tou->ljuser_display } );
                     next;
                 }
 
                 # Can't send to unvalidated users
                 unless ( $tou->is_validated || $remote->has_priv( "siteadmin", "*" ) ) {
-                    $errors->add('msg_to', LJ::Lang::ml( 'error.message.unvalidated',
-                      { ljuser => $tou->ljuser_display } ));
+                    $errors->add('msg_to', 'error.message.unvalidated',
+                      { ljuser => $tou->ljuser_display } );
                     next;
                 }
 
                 # Will target user accept messages from sender
                 unless ($tou->can_receive_message($remote)) {
 
-                    errors->add('msg_to', LJ::Lang::ml( 'error.message.canreceive', { ljuser => $tou->ljuser_display } ));
+                    errors->add('msg_to', 'error.message.canreceive', { ljuser => $tou->ljuser_display } );
                     next;
                 }
 
@@ -435,7 +435,7 @@ sub compose_handler {
                 my $up;
                 $up = LJ::Hooks::run_hook('upgrade_message', $remote, 'message');
                 $up = "<br />$up" if ($up);
-                $errors->add(undef, LJ::Lang::ml( ".error.rate.limit", { up => $up } ))
+                $errors->add(undef, ".error.rate.limit", { up => $up } )
                     unless LJ::Message::ratecheck_multi(userid => $remote_id, msg_list => \@msg_list)
             }
 
@@ -460,14 +460,8 @@ sub compose_handler {
                     $error->add(undef, $error);
                 }
                 unless ($errors->exist) {
-                    $body .= $ML{'.message.sent'};
-                    $body .= "<?p $ML{'.message.sent.options'} <ul>";
-                    $body .= "<li><a href='$LJ::SITEROOT/inbox/?page=0&view=usermsg_sent_last'>$ML{'.link.view.message'}</a> $ML{'.link.view.warning'}</li>";
-                    $body .= "<li><a href='$LJ::SITEROOT/inbox/compose'>$ML{'.link.send.message'}</a></li>";
-                    $body .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'.link.inbox'}</a></li>";
-                    $body .= "<li><a href='$LJ::SITEROOT/'>$ML{'.link.home'}</a></li>";
-                    $body .= "</ul> p?>\n";
-                    return $body;
+                    $r->add_msg(LJ::Lang::ml("$scope.message.sent"), $r->SUCCESS);
+                    return $r->redirect("$LJ::SITEROOT/inbox");
                 }
             }
         }
@@ -480,9 +474,9 @@ sub compose_handler {
 
         my $msg = LJ::Message->load({ msgid => $msgid, journalid => $remote_id });
         unless ($msg->can_reply($msgid, $remote_id)) {
-            $r->add_msg($ML{'.error.cannot.reply'}, $r->ERROR);
-            $r->redirect("$LJ::SITEROOT/inbox");
-
+            $r->add_msg(LJ::Lang::ml("$scope.error.cannot.reply"), $r->ERROR);
+            return $r->redirect("$LJ::SITEROOT/inbox");
+        }
             $reply_u = $msg->other_u;
             $reply_to = $reply_u->display_name;
             $disabled_to = 1;
@@ -497,7 +491,6 @@ sub compose_handler {
                 name  => 'msg_parent',
                 value => "$msgid",
             });
-        }
     }
 
             # autocomplete To field with trusted and watched people
@@ -523,7 +516,10 @@ sub compose_handler {
         reply_to               => $reply_to,
         autocomplete           => \@flist,
         cc_msg_option          => $cc_msg_option,
-        folder_html            => render_folders($remote)
+        folder_html            => render_folders($remote),
+        commafy                => \&LJ::commafy,
+        current_icon           => $remote->userpic,
+        msg_limit              => $msg_limit
     };
 
     return DW::Template->render_template( 'inbox/compose.tt', $vars );

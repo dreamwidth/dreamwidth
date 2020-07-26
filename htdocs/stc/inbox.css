@@ -63,3 +63,11 @@ font-size: smaller;}
 
  .inbox_collapse {
  display: none;}
+
+ #compose_header_fields, #compose_icon {
+ display: inline-block;
+ }
+
+  #compose_header_fields label, #compose_icon {
+  padding-right: 0.5em;
+  }
