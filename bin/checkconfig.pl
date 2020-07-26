@@ -17,6 +17,7 @@ use strict;
 use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use Getopt::Long;
 use version;
+use File::Temp;
 
 my $debs_only = 0;
 my ( $only_check, $no_check, $opt_nolocal, $opt_install );
@@ -163,8 +164,43 @@ sub check_env {
     eval { require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl"; };
     $err->("Failed to load ljlib.pl: $@") if $@;
 
-    $err->("No config-local.pl file found at etc/config-local.pl")
-        unless LJ::resolve_file('etc/config-local.pl');
+    # this is copied from similar logic in 00-compile.t
+    my $tempdir = File::Temp::tempdir( CLEANUP => 1 );
+    my $slurp   = sub {
+        my $file = $_[0];
+        open my $fh, '<', $file or die $!;
+        local $/ = undef;
+        return <$fh>;
+    };
+    my $test_syntax = sub {
+        my $file = $_[0];
+        my $out  = "$tempdir/out";
+        my $err  = "$tempdir/err";
+        system qq($^X -c $file > $out 2>$err);
+        my $err_data = $slurp->($err);
+        return 1 if $err_data && $err_data eq "$file syntax OK\n";
+    };
+
+    my @configs_to_test = qw(
+        etc/config-private.pl
+        etc/config-local.pl
+        etc/config.pl
+    );
+
+    push @configs_to_test, qw( t/config-test-private.pl t/config-test.pl )
+        if $LJ::IS_DEV_SERVER;
+
+    foreach my $testfile (@configs_to_test) {
+        if ( my $config = LJ::resolve_file($testfile) ) {
+            my $fn = $config;
+            $fn =~ s=^\Q$ENV{LJHOME}\E/==;
+            my $parse_config = $test_syntax->($config);
+            $err->("Failed to parse $fn -- check syntax") unless $parse_config;
+        }
+        else {
+            $err->("No file found for $testfile");
+        }
+    }
 
 }
 
