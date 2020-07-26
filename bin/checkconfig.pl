@@ -163,57 +163,8 @@ sub check_env {
     eval { require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl"; };
     $err->("Failed to load ljlib.pl: $@") if $@;
 
-    my $config_file_private = LJ::resolve_file('etc/config-private.pl');
-    my $config_file_local   = LJ::resolve_file('etc/config-local.pl');
-    my $config_file_main    = LJ::resolve_file('etc/config.pl');
-
-    if ($config_file_private) {
-        my $parse_config_private = eval { require $config_file_private; };
-        $err->("Problem parsing $config_file_private -- check syntax")
-            unless $parse_config_private;
-    }
-    else {
-        $err->("No config-private.pl file found at etc/config-private.pl");
-    }
-
-    if ($config_file_local) {
-        my $parse_config_local = eval { require $config_file_local; };
-        $err->("Problem parsing $config_file_local -- check syntax")
-            unless $parse_config_local;
-    }
-    else {
-        $err->("No config-local.pl file found at etc/config-local.pl");
-    }
-
-    if ($config_file_main) {
-        my $parse_config_main = eval { require $config_file_main; };
-        $err->("Problem parsing $config_file_main -- check syntax")
-            unless $parse_config_main;
-    }
-    else {
-        $err->("No config.pl file found at etc/config.pl");
-    }
-
-    my $config_file_test_private = LJ::resolve_file('t/config-test-private.pl');
-    my $config_file_test_main    = LJ::resolve_file('t/config-test.pl');
-
-    if ($config_file_test_private) {
-        my $parse_config_test_private = eval { require $config_file_test_private; };
-        $err->("Problem parsing $config_file_test_private -- check syntax")
-            unless $parse_config_test_private;
-    }
-    else {
-        $err->("No config-test-private.pl file found at t/config-test-private.pl");
-    }
-
-    if ($config_file_test_main) {
-        my $parse_config_test_main = eval { require $config_file_test_main; };
-        $err->("Problem parsing $config_file_test_main -- check syntax")
-            unless $parse_config_test_main;
-    }
-    else {
-        $err->("No config-test.pl file found at t/config-test.pl");
-    }
+    $err->("No config-local.pl file found at etc/config-local.pl")
+        unless LJ::resolve_file('etc/config-local.pl');
 
 }
 
