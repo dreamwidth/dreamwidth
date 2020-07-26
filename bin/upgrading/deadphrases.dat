@@ -2061,9 +2061,7 @@ general /support/faq.bml.cannotfind
 general /support/faq.bml.cannotfind.note
 general /support/faqbrowse.bml.title_num
 general /support/help.bml.interim
-general /support/see_request.bml.email.validared
-general /support/see_request.bml.important.notes.text
-general /support/see_request.bml.language
+
 general /talkpost.bml.opt.ljuser
 general /talkpost.bml.opt.ljuser2
 general /talkpost.bml.warnscreened
@@ -2694,8 +2692,12 @@ general /manage/invites.bml.fromline
 
 general settings.usermessaging.obsolete
 
+general /support/see_request.bml.email.validared
 general /support/see_request.bml.error.text2
+general /support/see_request.bml.help.link
+general /support/see_request.bml.important.notes.text
 general /support/see_request.bml.incat
+general /support/see_request.bml.language
 
 general /views/admin/index.tt.admin.sitemessages_add.link
 general /views/admin/index.tt.admin.sitemessages_add.text
