@@ -2,7 +2,7 @@
 [% dw.need_res( { group => "foundation" }, 'stc/importer.css', 'js/jquery.importer.js' ) %]
 [%- sections.title = '.title' | ml -%]
 
-<p class='intro'>[% '.intro' | ml(sitename => site.nameshort, user => remote.ljuser_display ) %]</p>
+<p class='intro'>[% '.intro' | ml(sitename => site.nameshort, user => u.ljuser_display ) %]</p>
     <div class="importer-queue">
         <strong>Importer Queue Depth:</strong><br />
     [% queue %]
