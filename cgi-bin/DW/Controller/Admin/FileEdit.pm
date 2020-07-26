@@ -101,7 +101,8 @@ sub index_controller {
         return error_ml( "$scope.error.noload", { filename => $vars->{file} } )
             unless defined $contents;
 
-        $vars->{contents} = LJ::eall($contents);
+        # this is escaped by form.textarea in the template
+        $vars->{contents} = $contents;
 
         $vars->{txt} = {
             r => ( $form_args->{r} || $DEF_ROW ) + 0,
