@@ -694,7 +694,7 @@ _code?>
 <?_code
 {
     my $ret;
-    $ret .= BML::ml('.help.link', {helplink=>'href="help"'});
+    $ret .= BML::ml('.help.link2', {helplink=>'href="help"'});
     $ret .= BML::ml('.back.link', {backlink=>'href="./"'});
 
     return $ret;

@@ -63,7 +63,7 @@
 
 .goback.text=<?p Return to <a [[request_link]]>Request #[[spid]]</a> p?>
 
-.help.link=Return to the <a href="help.bml">list of open requests</a>.<br />
+.help.link2=Return to the <a [[helplink]]>list of open requests</a>.<br />
 
 .important.notes.text2<<
 <strong>Important Notes:</strong>
