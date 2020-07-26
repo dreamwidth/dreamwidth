@@ -54,7 +54,7 @@ sub importer_handler {
     }
 
     return error_ml('/tools/importer/index.tt.error.notperson')
-        unless $u->is_person;
+        unless $remote->is_person;
 
     if ( $r->did_post ) {
 
