@@ -188,6 +188,11 @@ ul.entry-management-links {
     min-width: 75vw;
   }
 
+  .invisible {
+    position: relative;
+    top: 0;
+    left: 0;
+  }
   .edittime {
     margin-top: 1.5em;
   }
@@ -206,7 +211,6 @@ ul.entry-management-links {
 
     .comment-info, .userpic {
       border-bottom: 1px solid;
-      border-color: $soft-accent-color;
     }
     .comment-info {
       border-right: 1px solid;
@@ -251,6 +255,7 @@ ul.entry-management-links {
 .comment-depth-odd > .dwexpcomment .header {
   .comment-info, .userpic {
     background-color: $secondary-color-alternate;
+    border-color: $strong-accent-color !important;
   }
 }
 
@@ -324,4 +329,9 @@ ul.entry-management-links {
   .entry .footer {
     display: none;
   }
+}
+
+.entry table tr, .entry table {
+  background: none;
+  border: none;
 }
