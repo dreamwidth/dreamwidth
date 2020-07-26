@@ -2,6 +2,7 @@ Authen::OATH
 Authen::Passphrase::Clear
 Authen::Passphrase::BlowfishCrypt
 Business::CreditCard
+CGI@4.50
 CGI::Cookie
 Cache::Memcached
 Captcha::reCAPTCHA@0.99
