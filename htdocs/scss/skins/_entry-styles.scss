@@ -188,11 +188,6 @@ ul.entry-management-links {
     min-width: 75vw;
   }
 
-  .invisible {
-    position: relative;
-    top: 0;
-    left: 0;
-  }
   .edittime {
     margin-top: 1.5em;
   }
@@ -290,7 +285,11 @@ ul.entry-management-links {
   }
 
   .comment-title {
-    min-height: 0.6em; // take up space when the inner span is invisible.
+    // TODO: Use media query to vary this depending on if we're mobile. We'd prefer not
+    // to take up this space on devices where space is at a premium! Once we do that,
+    // set this back to 0.6em for mobile deevices.
+    min-height: 1.4em; // take up as much space as a subject would.
+
     margin: 0;
   }
 
