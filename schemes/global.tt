@@ -15,7 +15,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- IF remote # Show the accounts modal link -%]
 <a id="account-link-access" class="show-for-small-only" href="#"
   data-reveal-id="account-links-text">
-  [% remote.username %]
+  [% remote.username %] &raquo;
 </a>
 [%- ELSE # Show a login modal link -%]
 <a id="login-form-access" href="[% site.root %]/login" class="show-for-small-only" data-reveal-id="nav-login-form">
