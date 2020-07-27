@@ -383,10 +383,14 @@ function Page::print_default_stylesheet()
     }
 
     /* reorder so that #primary appears on top of #secondary on mobile views */
-    #canvas { display: table; }
-    #header { display: table-header-group; }
-    #secondary { display: table-footer-group; }
-    #primary { display: table-row-group; }
+    #canvas {
+        display: flex;
+        flex-direction: column;
+    }
+    #header { order: 1; }
+    #secondary { order: 4; }
+    #primary { order: 2; }
+    #canvas-footer { order: 3; }
 
     @media $medium_media_query {
         #canvas, #header, #secondary, #primary { display: block; }
@@ -669,15 +673,15 @@ function Page::print_default_stylesheet()
     /* Search Module
     ***************************************************************************/
     .search-box { max-width: 100%; }
-	
-	.search-form .search-box-item, 
+
+	.search-form .search-box-item,
     .search-form .search-button-item {
         display: block
     }
     .search-form .comment_search_checkbox_item {
         display: inline
     }
-	
+
 	#footer .module-search .search-form .search-box-item,
     #footer .module-search .search-form .comment_search_label,
     #footer .module-search .search-form .search-button-item {
@@ -1124,7 +1128,7 @@ function print_module_navlinks()
 
     var string{}[] links = [];
     foreach var string k ($p.views_order)
-    { 
+    {
         var string class = "list-item-$k";
         $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""" };
     }
