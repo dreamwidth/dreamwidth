@@ -173,6 +173,48 @@ ul.entry-management-links {
   margin: 0 4px;
 }
 
+ul.pagination {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  text-align: center;
+  margin-bottom: 0;
+
+  @media #{$small-only} {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+
+ul.pagination li {
+  /* remove float: left; */
+  /* remove height: 1.5rem; (or some variable) */
+  align-self: center;
+  margin-bottom: .25em;
+  font-weight: bold;
+}
+
+ul.pagination .arrow {
+  grid-row-start: 1;
+  grid-row-end: span 100;
+  /* (Will be slightly misaligned after 1000 comment pages, but with auto-rows there's no way to refer to the final implicit grid line; -1 only works for the explicit list of rows.) */
+  font-size: larger;
+}
+
+ul.pagination .arrow:first-child {
+  grid-column: 1 / 2;
+}
+
+ul.pagination .arrow:last-child {
+  grid-column: -1 / -2;
+}
+
+ul.pagination li a {
+  padding: .0625rem .25rem .0625rem;
+
+  @media #{$small-only} {
+    padding: .125rem .5rem .125rem;
+  }
+}
+
 /**
 * Comment styles:
 */
