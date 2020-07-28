@@ -1,0 +1,50 @@
+[%- dw.need_res({ group => 'foundation'}, 'js/customize/jquery.journaltitles.js') -%]
+
+<div class="appwidget-journaltitles">
+    <h4>[% dw.ml('widget.journaltitles.title_nonum') %]</h4>
+
+    <div class='theme-titles-content'>
+        <p class='detail'>
+        [% IF is_community %]
+            [% dw.ml('widget.journaltitles.desc.comm') %]
+        [% ELSE %]
+            [% dw.ml('widget.journaltitles.desc') %]
+        [% END %]
+        [% help_icon("journal_titles") %]</p>
+
+        [% FOREACH id IN ['journaltitle', 'journalsubtitle', 'friendspagetitle', 'friendspagesubtitle'] %]
+            <form id="[% id %]_form" class="title_form" method=POST>
+                [% dw.form_auth %]
+                <div class="row">
+                    <div class="large-4 columns">
+                        [% IF is_community %]
+                            <label>[% dw.ml("widget.journaltitles.${id}.comm") %]</label>
+                        [% ELSE %]
+                            <label>[% dw.ml("widget.journaltitles.$id") %]</label>
+                        [% END %]
+                    </div>
+
+                    <div class="large-8 columns">
+                        <span id='[% id %]_view' class='title_view'><strong class="title">[% u.prop(id) | html %]</strong>
+                            <a href='' class='theme-title-control title_edit'>[% dw.ml('widget.journaltitles.edit') %]</a>
+                        </span>
+
+                        <span class='title_modify'>
+                            <div class="row">
+                                <div class="columns large-6">
+                                    [%- form.textbox(name = 'title_value', id = id, maxlength = maxlength, value => u.prop(id), class = "text")-%]
+                                    [% form.hidden( name = "which_title", value = id, class = "which_title") %]
+                                </div>
+                                <div class="columns large-6">
+                                    [% form.submit( name = "save", id = "save_btn_$id", value = dw.ml('widget.journaltitles.btn'), class = "title_save button") %]
+                                    <button class='theme-title-control title_cancel button secondary'>[% dw.ml('widget.journaltitles.cancel') %]</button>
+                                </div>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </form>
+
+        [% END %]
+    </div>
+</div>

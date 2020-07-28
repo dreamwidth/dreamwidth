@@ -27,3 +27,35 @@
         background-color: $highlight-color;
         color: $highlight-text-color;
 }
+
+
+.highlight-box, .selected {
+        background-color: $highlight-color;
+        color: $highlight-text-color;
+        border: 1px solid $highlight-border;
+        padding: 0.5em;
+}
+
+.section-nav ul, .section-nav-separator {
+    background-color: $highlight-color;
+    border-color: $highlight-border;
+    color: $highlight-text-color;
+}
+
+.section-nav li:hover {
+    background-color: $soft-accent-color;
+    color: $text-color;
+    }
+
+.section-nav li.on, .section-nav hr {
+    background-color: $primary-color;
+    }
+
+.section-nav li.on a {
+    color: $primary-text-color;
+    }
+
+.customize-subheader-row {
+    background-color: $highlight-color;
+    color: $highlight-text-color;
+    }

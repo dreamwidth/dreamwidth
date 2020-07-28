@@ -1,0 +1,58 @@
+[% #render search form and submit button %]
+    <div class='theme-selector-wrapper pkg'>
+    <h4> [% dw.ml( 'widget.themenav.title2' ) %]</h4>
+    <script>searchwords = [% keywords_string %];</script>
+    <div class="row">
+    <form id=search_form method=post>
+    <div class='detail theme-nav-search-box'>
+    <div class="columns large-10 large-offset-2">
+    <div class="row">
+    <div class="columns large-10">
+    [% dw.form_auth %]
+    [%- form.textbox(
+            name = 'search'
+            id = 'search_box'
+            size = 30
+            raw = "autocomplete='off'"
+            class = "text"
+    )
+    -%]
+    </div>
+    <div class="columns large-2">
+    [% form.submit( name = "action:search", id => "search_btn" value = dw.ml('widget.themenav.btn.search') ) %]
+    </div>
+    </div>
+    </div>
+    </div>
+    </form>
+    </div>
+
+    <div class='theme-nav-inner-wrapper section-nav-inner-wrapper row'>
+    <div class='theme-selector-nav section-nav columns large-2'>
+        <ul class='theme-nav nostyle'>
+        [% INCLUDE customize/cats.tt cat_list = main_cats_sorted %]
+        </ul>
+
+        [% IF cats_sorted %]
+            <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
+            [% INCLUDE customize/cats.tt cat_list = cats_sorted %]
+        [% END %]
+
+    <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
+    <ul class='theme-nav-small nostyle section-nav'>
+    <li class='first'><a href='[% site.root %]/customize/advanced/'>[% dw.ml( 'widget.themenav.developer' ) %]</a>
+    </li>
+    </ul>
+
+    </div>
+
+    <div class='theme-nav-content section-nav-content columns large-10'>
+        <div class="appwidget appwidget-themechooser" id="LJWidget_92">
+    <div class='theme-selector-content pkg'>
+
+        [% render_themechooser(qargs) %]
+
+
+    </div><!-- end .theme-selector-content -->
+        </div></div></div><!-- end .appwidget-themechooser -->
+    </div><!-- end .theme-selector-wrapper -->

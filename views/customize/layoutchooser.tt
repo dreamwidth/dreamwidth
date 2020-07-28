@@ -1,0 +1,31 @@
+[%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.layoutchooser.js' ) -%]
+
+<h4>
+    [% dw.ml('widget.layoutchooser.title_nonum') %]
+
+</h4>
+<div class='layout-content'>
+    [%- layout_prop = current_theme_id.layout_prop -%]
+    [%- show_sidebar_prop = current_theme_id.show_sidebar_prop -%]
+
+    [%- UNLESS !current_theme_id.is_system_layout -%]
+        [%- FOREACH layout IN layouts.keys.sort -%]
+            [%- current = ((!layout_prop) || (layout_prop && layouts.$layout == prop_value)) ? 1 : 0 -%]
+            [%- current_class = current ? " selected " : "" -%]
+            <div class='layout-item[% current_class %]'>
+            <img src='[% img_prefix %]/customize/layouts/[% layout %].png' class='layout-preview' />
+            <p class='layout-desc'>[% layout_names.$layout %]</p>
+            [% UNLESS current -%]
+                <form class = "layout-form" method=POST>
+                [% dw.form_auth %]
+                [% form.hidden( name = "layout_choice", value = layout) %]
+                [% form.hidden( name = "layout_prop", value = layout_prop) %]
+                [% form.hidden( name = "show_sidebar_prop", value = show_sidebar_prop) %]
+                [% form.submit( name = "apply_layout", class = "layout_button button", id="layout_btn_$layout" , value = dw.ml( 'widget.layoutchooser.layout.apply' ) ) %]
+                </form>
+            [% END %]
+            </div><!-- end .layout-item -->
+        [% END %]
+    [% END %]
+
+</div>

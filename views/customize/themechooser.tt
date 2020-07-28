@@ -1,0 +1,130 @@
+[%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.themechooser.js' ) -%]
+
+    <script>confirmation = " [% dw.ml('widget.themechooser.confirmation') %] ";</script>
+
+    <h3>
+    [%-
+        IF qargs.cat == 'all';
+            dw.ml('widget.themechooser.header.all');
+        ELSIF qargs.cat == 'custom';
+            dw.ml('widget.themechooser.header.custom');
+        ELSIF qargs.cat;
+            cats.${qargs.cat}.text;
+        ELSIF qargs.layoutid;
+            layout_name = get_layout_name(qargs.layoutid, user => u);
+        ELSIF qargs.designer;
+            qargs.designer;
+        ELSIF qargs.search;
+            dw.ml('widget.themechooser.header.search', {'term' => ehtml(qargs.search)});
+        ELSE;
+            cats.featured.text;
+        END
+    -%]
+    </h3>
+
+    [%# code for the top paging area %]
+    [% INCLUDE customize/paging.tt location = "top" %]
+
+    <div class='themes-area'>
+
+[%-
+    index_of_first_theme = qargs.show != "all" ? qargs.show * (qargs.page - 1) : 0;
+    index_of_last_theme = qargs.show != "all" ? (qargs.show * qargs.page) - 1 : themes.max;
+    themes_this_page = themes.slice(index_of_first_theme, index_of_last_theme)
+-%]
+
+    [% FOREACH theme IN themes_this_page %]
+        [% NEXT UNLESS theme %]
+
+        [%-
+        theme_class = "";
+        theme_options = "";
+        theme_icons = "";
+
+        theme_types = {
+            current = 0
+            upgrade = 0 };
+        IF theme.themeid && theme.themeid == current_theme_id.themeid;
+             theme_types.current = 1;
+        ELSIF !theme.themeid && !current_theme_id.themeid  && theme.layoutid == current_theme_id.layoutid;
+              theme_types.current = 1;
+        END;
+        IF !theme.available_to(u);
+            theme_types.upgrade = 1;
+        END;
+
+        theme_icons = "$theme_icons<div class='theme-icons'>" IF theme_types.upgrade;
+
+        IF theme_types.current;
+            no_layer_edit = run_hook("no_theme_or_layer_edit", u);
+
+            theme_class = "$theme_class selected";
+            theme_options = "$theme_options<strong><a href='"_ c_url({authas => qargs.authas}, undef, "options") _ "'>" _ dw.ml('widget.themechooser.theme.customize') _ "</a></strong>";
+            IF ! $no_layer_edit && theme.is_custom && !theme_types.upgrade;
+                IF theme.layoutid && !theme.layout_uniq;
+                    theme_options = "$theme_options<br /><strong><a href='$site.root/customize/advanced/layeredit?id=$theme.layoutid'>" _ dw.ml('widget.themechooser.theme.editlayoutlayer') _ "</a></strong>";
+                END;
+                IF theme.themeid && !theme.uniq;
+                    theme_options = "$theme_options<br /><strong><a href='$site.root/customize/advanced/layeredit?id=theme.themeid'>" _ dw.ml('widget.themechooser.theme.editthemelayer') _ "</a></strong>";
+                END;
+            END;
+        END;
+
+        IF theme_types.upgrade;
+            theme_class = "$theme_class upgrade";
+            theme_options = "$theme_options<br />" IF theme_options;
+            theme_options = "$theme_options" _ run_hook("customize_special_options", u, theme);
+            theme_icons = "$theme_icons" _ run_hook("customize_special_icons", u, theme);
+        END;
+        theme_icons = "$theme_icons</div><!-- end .theme-icons -->" IF theme_icons;
+        -%]
+
+        <div class='theme-item[% theme_class %]'>
+        <img src="[% theme.preview_imgurl %]" class='theme-preview' />
+
+        <h4>[% theme.name %]</h4>
+        <div class='theme-action'>
+            <span class='theme-desc'>
+
+            [% IF theme.designer %]
+                [% designer_link = "<a href='"_ c_url(qargs, {designer => theme.designer }) _ "' class='theme-designer'>$theme.designer</a>" %]
+                [% dw.ml('widget.themechooser.theme.designer', {'designer' => designer_link}) %]
+            [% END %]
+
+            [%-
+                preview_redirect_url = "";
+                IF theme.themeid;
+                    preview_redirect_url = c_url(qargs, {themeid => theme.themeid}, "preview_redirect");
+                ELSE;
+                    preview_redirect_url = c_url(qargs, {layoutid => theme.layoutid}, "preview_redirect");
+                END
+            -%]
+
+            <a href='[% preview_redirect_url %]' target='_blank' class='theme-preview-link' title="[% dw.ml('widget.themechooser.theme.preview') %]">
+
+            <img src='[% img_prefix %]/customize/preview-theme.gif' class='theme-preview-image' /></a>
+            [% theme_icons %]
+
+            [% layout_link = "<a href='"_ c_url(qargs, {layoutid => theme.layoutid}) _ "' class='theme-layout'><em>$theme.layout_name</em></a>" %]
+            [% dw.ml('widget.themechooser.theme.desc2', {'style' => layout_link}) %]
+
+        </span>
+
+        [% IF theme_options %]
+            [% theme_options %]
+        [% ELSE %]
+            <form method="POST" class="theme-form">
+            [% dw.form_auth %]
+            [% form.hidden( name = "apply_themeid", value = theme.themeid) %]
+            [% form.hidden( name = "apply_layoutid", value = theme.layoutid) %]
+            [% form.submit( name = "action_apply", apply_themeid = theme.themeid, apply_layoutid = theme.layoutid , class = "theme_button button", id="theme_btn_$theme.layoutid$theme.themeid" , value = dw.ml( 'widget.themechooser.theme.apply' ) ) %]
+            </form>
+        [% END %]
+    </div><!-- end .theme-action -->
+    </div><!-- end .theme-item -->
+    [% END %]
+  </div><!-- end .themes-area -->
+
+
+    [%# code for the bottom paging area %]
+    [% INCLUDE customize/paging.tt location = "bottom" %]

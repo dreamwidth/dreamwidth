@@ -1,0 +1,61 @@
+[%- CALL dw.active_resource_group('jquery') -%]
+[%- CALL dw.active_resource_group("foundation") -%]
+[%- dw.need_res('stc/css/pages/customize/customize.css') -%]
+[%- dw.need_res('stc/css/pages/customize/themechooser.css') -%]
+[%- dw.need_res('js/6alib/inputcomplete.js') -%]
+
+
+<div class="row">
+    <form method="get">
+        [%- authas_html -%]
+    </form>
+
+    [% IF is_community %]
+        [%- sections.title = '.title.comm' | ml -%]
+    [% ELSE %]
+        [%- sections.title = '.title2' | ml -%]
+    [% END %]
+
+    [% # if they're working as a community, reproduce the community management linkbar: %]
+    [% IF is_community %]
+        <p class='intro'> [% $u.maintainer_linkbar("customize") %] </p>
+    [% END %]
+
+    [% # would you like to set the site skin instead?  %]
+    [% IF is_community %]
+        <p> [% '.setsiteskin.desc.comm' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'") %]</p>
+    [% ELSE %]
+        <p> [% '.setsiteskin.desc' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'") %]</p>
+    [% END %]
+</div>
+<div class="row">
+    <div class="columns large-7">
+
+        [% #render journal titles widget %]
+        <div class='theme-titles pkg'>
+            [% render_journaltitles() %]
+        </div><!-- end .theme-titles -->
+
+
+    </div>
+    <div class="columns large-5">
+        [% #render current theme widget  %]
+        <div class='theme-current pkg'>
+            [% render_currenttheme() %]
+        </div><!-- end .theme-current -->
+
+    </div>
+</div>
+<br/>
+
+    [% INCLUDE 'customize/themeselect.tt' %]
+
+[% # render layout chooser widget  %]
+<a name='layout'></a>
+<div class='layout-selector-wrapper pkg'>
+    [% render_layoutchooser() %]
+</div><!-- end .layout-selector-wrapper' -->
+
+
+
+

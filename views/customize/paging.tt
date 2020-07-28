@@ -1,0 +1,23 @@
+<div class='theme-paging theme-paging-[% location %] row'>
+    <div class="columns large-9">
+        [%- INCLUDE components/pagination.tt current => qargs.page, total_pages => max_page, path => "/customize" -%]
+    </div>
+    <div class="columns large-3">
+        <div class="row">
+
+            [% shows = [ 6 6 12 12 24 24 48 48 96 96 "all" "All" ] %]
+
+            <form method=POST>
+                [% dw.form_auth %]
+                <div class="columns large-6">
+                    <span class='item'> [% dw.ml('widget.themechooser.show') %]</span>
+                </div>
+                <div class="columns large-6">
+                    [% form.select( name = 'show', id = "show_dropdown_$location", selected = qargs.show, class = "inline", items = shows ) %]
+                    <noscript>[% form.submit( name = "action:create", value = dw.ml( 'widget.themechooser.btn.show' ) ) %] </noscript>
+                </div>
+            </form>
+        </div>
+    </div>
+    <span id='paging_msg_area_[% location %]'></span>
+</div>
