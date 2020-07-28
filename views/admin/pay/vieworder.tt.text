@@ -34,6 +34,8 @@
 
 .error.notfound=The requested information was not found in the database.
 
+.error.notransid=No transaction id available.
+
 .error.unpaidcode=This code does not appear to have any paid time on it.
 
 .goback=Back to Index
