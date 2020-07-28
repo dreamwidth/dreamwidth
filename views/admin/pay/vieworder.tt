@@ -76,10 +76,18 @@
 </table>
 
 <h2>raw: pp_trans (PayPal transactions)</h2>
+  [%- IF engine.ppid.defined -%]
 [% dump( 'SELECT * FROM pp_trans WHERE ppid = ?', engine.ppid ) %]
+  [%- ELSE -%]
+<p>[% '.error.notransid' | ml %]</p>
+  [%- END -%]
 
 <h2>raw: pp_log (PayPal raw log)</h2>
+  [%- IF engine.ppid.defined -%]
 [% dump( 'SELECT * FROM pp_log WHERE ppid = ?', engine.ppid ) %]
+  [%- ELSE -%]
+<p>[% '.error.notransid' | ml %]</p>
+  [%- END -%]
 
 [%- ELSIF classname == 'GoogleCheckout' -%]
 <h2>GCO Payer Details</h2>
@@ -92,7 +100,11 @@
 </table>
 
 <h2>raw: gco_log (GCO raw)</h2>
+  [%- IF engine.gcoid.defined -%]
 [% dump( 'SELECT * FROM gco_log WHERE gcoid = ?', engine.gcoid ) %]
+  [%- ELSE -%]
+<p>[% '.error.notransid' | ml %]</p>
+  [%- END -%]
 
 [%- ELSIF classname == 'CreditCard' -%]
 <h2>raw: cc_trans (raw transaction data)</h2>
