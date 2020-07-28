@@ -30,8 +30,8 @@
                          : dw.ml( '.user.loggedout', { uniq => cart.uniq } );
     date = from_epoch( cart.starttime );
     pay_method = cart.paymentmethod_visible;
-    pay_string = '/shop/receipt.bml.cart.paymentmethod';
-    status_string = '/shop/receipt.bml.cart.status';
+    pay_string = '/shop/receipt.tt.cart.paymentmethod';
+    status_string = '/shop/receipt.tt.cart.status';
     view_pay_method = dw.ml( pay_method ? "${pay_string}.${pay_method}"
                                         : '.cart.notyet' ) -%]
 <table border='1'>
