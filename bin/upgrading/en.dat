@@ -876,6 +876,8 @@ error.nojournal=Unknown Journal
 
 error.nojournal.openid=This user is an OpenID account and does not maintain a journal here. You might be able to see their content at <a [[aopts]]>[[id]]</a>.
 
+error.nojournal.openid.title=OpenID Account
+
 error.nojournal.text=There is no known user <b>[[user]]</b> at <a href='[[siteroot]]'>[[sitename]].</a>
 
 error.nojournal.title=Account Not Found
