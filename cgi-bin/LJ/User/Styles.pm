@@ -465,12 +465,12 @@ sub make_journal {
     LJ::set_active_journal($u);
 
     my ($styleid);
-    if ( $opts->{'styleid'} ) {            # s1 styleid
+    if ( $opts->{'styleid'} ) {    # s1 styleid
         confess 'S1 was removed, sorry.';
     }
     else {
 
-        $view ||= "lastn";                 # default view when none specified explicitly in URLs
+        $view ||= "lastn";         # default view when none specified explicitly in URLs
         if (   $LJ::viewinfo{$view}
             || $view eq "month"
             || $view eq "entry"
@@ -888,18 +888,17 @@ sub make_journal {
 
     my %valid_identity_views = (
         read  => 1,
-        res   => 1,
+        res   => 1,    # res is a resource, such as an external stylesheet
         icons => 1,
     );
 
-    # FIXME: pretty this up at some point, to maybe auto-redirect to
-    # the external URL or something, but let's just do this for now
-    # res is a resource, such as an external stylesheet
     if ( $u->is_identity && !$valid_identity_views{$view} ) {
-        my $location = $u->openid_identity;
-        my $warning =
-            BML::ml( 'error.nojournal.openid', { aopts => "href='$location'", id => $location } );
-        return $error->( $warning, "404 Not here" );
+        ${ $opts->{handle_with_siteviews_ref} } = 1;
+        return DW::Template->render_template_misc(
+            "error/openid-user.tt",
+            { u     => $u },
+            { scope => 'journal', scope_data => $opts }
+        );
     }
 
     $opts->{'view'} = $view;
