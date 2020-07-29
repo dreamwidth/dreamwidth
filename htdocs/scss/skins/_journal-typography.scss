@@ -72,11 +72,24 @@ $journal-content-font-size: 16px !default;
     width: auto;
   }
 
+  // People use textareas to share code sometimes.
+  textarea {
+    width: unset;
+    height: unset;
+  }
+
   .usercontent, .currents, .comment-title {
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
 
+  // RPers especially love to abuse tables for decorative layout, but Foundation
+  // default styles assume tables are for tabular data. (Leaving Foundation's
+  // cell padding in place, though, since old skins also had some.)
+  table, table tr {
+    background: none;
+    border: none;
+  }
 }
 
 /**
