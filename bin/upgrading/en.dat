@@ -954,8 +954,6 @@ error.tag.invalid=Sorry, the tag list specified is invalid.
 
 error.tag.name=Tag Error
 
-error.tag.noarg=You must provide tags to filter by.
-
 error.tag.s1=Sorry, tag filtering is not supported within S1 styles.
 
 error.tag.undef=Sorry, one or more specified tags do not exist.
