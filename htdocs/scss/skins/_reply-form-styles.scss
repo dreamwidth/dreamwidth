@@ -57,9 +57,13 @@
     display: inline;
   }
 
-  // Foundation hates textarea resizers
   textarea {
+    // Foundation hates textarea resizers
     max-width: unset;
+    // Foundation sets height to "illegible chiclet," then unsets it with an
+    // attribute selector on the "rows" attribute. Works fine, unless you're
+    // browsing with a potato that doesn't understand attribute selectors.
+    height: unset;
   }
 
   // Shrink subject a bit

@@ -205,11 +205,13 @@ ul.entry-management-links {
     }
 
     .comment-info, .userpic {
-      border-bottom: 1px solid;
+      // Using "exploded" border properties so we can set the color later.
+      border-bottom-width: 1px;
+      border-bottom-style: solid;
     }
     .comment-info {
-      border-right: 1px solid;
-      border-color: $soft-accent-color;
+      border-right-width: 1px;
+      border-right-style: solid;
       flex-grow: 1;
     }
 
@@ -236,7 +238,7 @@ ul.entry-management-links {
   }
 }
 
-// Comment header backgrounds
+// Comment header backgrounds/borders
 // Structure is:
 // .comment-thread.comment-depth(odd|even)
   // .dwexpcomment
@@ -250,13 +252,14 @@ ul.entry-management-links {
 .comment-depth-odd > .dwexpcomment .header {
   .comment-info, .userpic {
     background-color: $secondary-color-alternate;
-    border-color: $strong-accent-color !important;
+    border-color: $strong-accent-color;
   }
 }
 
 .comment-depth-even > .dwexpcomment .header {
   .comment-info, .userpic {
     background-color: $secondary-color;
+    border-color: $soft-accent-color;
   }
 }
 
@@ -276,7 +279,8 @@ ul.entry-management-links {
 }
 
 .comment-info {
-  padding-left: .3em;
+  padding: .25em;
+  padding-left: .5em;
 
   & > span, & > ul, & > div {
     margin-right: .9em;
@@ -289,10 +293,10 @@ ul.entry-management-links {
   }
 
   .comment-title {
-    // TODO: Use media query to vary this depending on if we're mobile. We'd prefer not
-    // to take up this space on devices where space is at a premium! Once we do that,
-    // set this back to 0.6em for mobile deevices.
     min-height: 1.4em; // take up as much space as a subject would.
+    @media #{$small-only} {
+      min-height: 0.6em; // except on mobile, where we can't spare the space.
+    }
 
     margin: 0;
   }
@@ -332,9 +336,4 @@ ul.entry-management-links {
   .entry .footer {
     display: none;
   }
-}
-
-.entry table tr, .entry table {
-  background: none;
-  border: none;
 }
