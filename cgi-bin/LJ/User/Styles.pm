@@ -646,15 +646,14 @@ sub make_journal {
         } . ( "<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->\n" x 50 );
     };
     my $error = sub {
-        my ( $msg, $status, $header ) = @_;
-        $header ||= 'Error';
-        $opts->{'status'} = $status if $status;
+        my ( $file, $fileopts ) = @_;
+        $fileopts //= {};
 
-        return qq{
-            <h1>$header</h1>
-            <p>$msg</p>
-        } . ( "<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->\n" x 50 );
+        ${ $opts->{handle_with_siteviews_ref} } = 1;
+        return DW::Template->render_template_misc( $file, $fileopts,
+            { scope => 'journal', scope_data => $opts } );
     };
+
     if (   $LJ::USER_VHOSTS
         && $opts->{'vhost'} eq "users"
         && !$u->is_redirect
@@ -698,18 +697,21 @@ sub make_journal {
         }
 
         # error if disabled
-        return $error->( BML::ml('error.tag.disabled'), "404 Not Found", BML::ml('error.tag.name') )
+        return $error->( "error/tagview.tt", { errmsg => 'error.tag.disabled' } )
             unless LJ::is_enabled('tags');
 
         # throw an error if we're rendering in S1, but not for renamed accounts
-        return $error->( BML::ml('error.tag.s1'), "404 Not Found", BML::ml('error.tag.name') )
-            if $stylesys == 1 && $view ne 'data' && !$u->is_redirect;
+        if ( $stylesys == 1 && $view ne 'data' && !$u->is_redirect ) {
+            return $error->( "error/tagview.tt", { errmsg => 'error.tag.s1' } );
+        }
 
         # overwrite any tags that exist
         $opts->{tags} = [];
-        return $error->( BML::ml('error.tag.invalid'), "404 Not Found", BML::ml('error.tag.name') )
-            unless LJ::Tags::is_valid_tagstring( $tagfilter, $opts->{tags},
+        my $check_tagstring = LJ::Tags::is_valid_tagstring( $tagfilter, $opts->{tags},
             { omit_underscore_check => 1 } );
+
+        return $error->( "error/tagview.tt", { errmsg => 'error.tag.invalid' } )
+            unless $check_tagstring;
 
         # get user's tags so we know what remote can see, and setup an inverse mapping
         # from keyword to tag
@@ -718,9 +720,9 @@ sub make_journal {
         my %kwref = ( map { $tags->{$_}->{name}          => $_ } keys %{ $tags || {} } );
 
         foreach ( @{ $opts->{tags} } ) {
-            return $error->( BML::ml('error.tag.undef'), "404 Not Found",
-                BML::ml('error.tag.name') )
+            return $error->( "error/tagview.tt", { errmsg => 'error.tag.undef' } )
                 unless $kwref{$_};
+
             push @{ $opts->{tagids} }, $kwref{$_};
         }
 
@@ -860,31 +862,14 @@ sub make_journal {
     {    # don't check style sheets
         return $u->display_journal_deleted( $remote, journal_opts => $opts ) if $u->is_deleted;
 
-        if ( $u->is_suspended ) {
-            ${ $opts->{handle_with_siteviews_ref} } = 1;
-            return DW::Template->render_template_misc(
-                "error/suspended.tt",
-                { u     => $u },
-                { scope => 'journal', scope_data => $opts }
-            );
-        }
+        return $error->( "error/suspended.tt", { u => $u } ) if $u->is_suspended;
 
         my $entry = $opts->{ljentry};
-        if ( $entry && $entry->is_suspended_for($remote) ) {
-            ${ $opts->{handle_with_siteviews_ref} } = 1;
-            return DW::Template->render_template_misc(
-                "error/suspended-entry.tt",
-                { u     => $u },
-                { scope => 'journal', scope_data => $opts }
-            );
-        }
+        return $error->( "error/suspended-entry.tt", { u => $u } )
+            if $entry && $entry->is_suspended_for($remote);
     }
 
-    if ( $u->is_expunged ) {
-        ${ $opts->{handle_with_siteviews_ref} } = 1;
-        return DW::Template->render_template_misc( "error/purged.tt", {},
-            { scope => 'journal', scope_data => $opts } );
-    }
+    return $error->("error/purged.tt") if $u->is_expunged;
 
     my %valid_identity_views = (
         read  => 1,
@@ -893,12 +878,7 @@ sub make_journal {
     );
 
     if ( $u->is_identity && !$valid_identity_views{$view} ) {
-        ${ $opts->{handle_with_siteviews_ref} } = 1;
-        return DW::Template->render_template_misc(
-            "error/openid-user.tt",
-            { u     => $u },
-            { scope => 'journal', scope_data => $opts }
-        );
+        return $error->( "error/openid-user.tt", { u => $u } );
     }
 
     $opts->{'view'} = $view;
