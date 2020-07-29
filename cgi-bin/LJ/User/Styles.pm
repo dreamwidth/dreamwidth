@@ -452,10 +452,16 @@ sub make_journal {
     $opts->{getargs} = $geta;
 
     my $u = $opts->{'u'} || LJ::load_user($user);
+
     unless ($u) {
-        $opts->{'baduser'} = 1;
-        return "<!-- No such user -->";    # return value ignored
+        ${ $opts->{handle_with_siteviews_ref} } = 1;
+        return DW::Template->render_template_misc(
+            "error/unknown-user.tt",
+            { user  => $user },
+            { scope => 'journal', scope_data => $opts }
+        );
     }
+
     LJ::set_active_journal($u);
 
     my ($styleid);

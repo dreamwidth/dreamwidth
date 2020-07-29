@@ -1384,12 +1384,6 @@ sub journal_content {
         # Apache handle the 404
         return 404;
     }
-    elsif ( $opts->{'baduser'} ) {
-        $status = "404 Unknown User";
-        $html =
-"<h1>Unknown User</h1><p>There is no user <b>$user</b> at <a href='$LJ::SITEROOT'>$LJ::SITENAME.</a></p>";
-        $generate_iejunk = 1;
-    }
     elsif ( $opts->{'badfriendgroup'} ) {
 
         # give a real 404 to the journal owner
