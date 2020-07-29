@@ -2,16 +2,16 @@
 * Typography resets for entries and comments:
 */
 
-$journal-content-font-size: 16px !default;
+$journal-content-font-size: 1rem !default;
 
 .entry, #comments, .reply-page-wrapper {
   // Intended behavior:
   // - Skins that don't specify otherwise will display entries and comments
-  //   slightly smaller than Foundation's 16px default font size, which is a
-  //   little intense for text-heavy pages.
-  // - Skins that want big entries and comments (or smaller ones!) can set a rem
-  //   or px font size for `.entry, #comments, .reply-page-wrapper`; everything
-  //   inside those will scale.
+  //   in the default font size. (That's not the browser default, though,
+  //   because Foundation hard-sets the default font size to 16px.)
+  // - Skins that want a different base text size for entries and comments (the
+  //   Tropos, at the moment) can set a rem or px font size for `.entry,
+  //   #comments, .reply-page-wrapper`; everything inside those will scale.
 
   // In order to GET that intended behavior, we basically need to do a partial
   // CSS reset and make new em-based sizes for all the internal content on these
@@ -19,6 +19,12 @@ $journal-content-font-size: 16px !default;
   // so you can't scale them by just setting a new size on the container.
 
   font-size: $journal-content-font-size;
+  // An attempt to get a more readable line-length. The ideal width seems to be
+  // incalculable, and definitely depends on the specific font's metrics. This
+  // width is specifically for Verdana; revisit this carefully if updating the
+  // font stack.
+  max-width: 72em;
+  margin: 0 auto;
 
   // The em-based sizes below are based on a combination of foundation/_settings
   // and the hardcoded defaults, depending on what we seem to be using.
