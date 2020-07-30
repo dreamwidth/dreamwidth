@@ -669,7 +669,8 @@ sub make_journal {
         return $notice->( BML::ml('error.vhost.nocomm') );
     }
     if ( $view eq "network" && !LJ::get_cap( $u, "friendsfriendsview" ) ) {
-        return BML::ml('cprod.friendsfriendsinline.text3.v1');
+        my $errmsg = LJ::Lang::ml('cprod.friendsfriendsinline.text3.v1');
+        return $error->( 'error.tt', { message => $errmsg } );
     }
 
     # signal to LiveJournal.pm that we can't handle this
