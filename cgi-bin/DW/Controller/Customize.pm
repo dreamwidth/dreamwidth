@@ -181,7 +181,6 @@ sub customize_handler {
     # get the current theme id - at the end because post actions may have changed it.
 
     $vars->{render_themechooser}  = \&render_themechooser;
-    $vars->{render_journaltitles} = \&render_journaltitles;
     $vars->{render_layoutchooser} = \&render_layoutchooser;
     $vars->{render_currenttheme}  = \&render_currenttheme;
     $vars->{c_url}                = \&customize_url;
@@ -506,7 +505,6 @@ sub journaltitles_handler {
 
     set_journaltitles($args);
 
-    $r->print( render_journaltitles() );
     return $r->OK;
 }
 
@@ -521,16 +519,6 @@ sub set_journaltitles {
     $u->set_prop( $post->{which_title}, $eff_val );
 }
 
-sub render_journaltitles {
-    my %opts = @_;
-    my $vars;
-    my $u = LJ::get_effective_remote();
-    die "Invalid user." unless LJ::isu($u);
-
-    $vars->{u}               = $u;
-    $vars->{no_themechooser} = $opts{no_themechooser};
-    return DW::Template->template_string( 'customize/journaltitles.tt', $vars );
-}
 
 sub options_handler {
     my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
@@ -587,7 +575,6 @@ sub options_handler {
 
     # get the current theme id - at the end because post actions may have changed it.
     $vars->{content}              = $ret;
-    $vars->{render_journaltitles} = \&render_journaltitles;
     $vars->{render_layoutchooser} = \&render_layoutchooser;
     $vars->{render_currenttheme}  = \&render_currenttheme;
 
