@@ -624,27 +624,6 @@ sub make_journal {
     $r->note( journalid => $u->userid )
         if $r;
 
-    my $notice = sub {
-        my ( $msg, $status ) = @_;
-
-        my $url = "$LJ::SITEROOT/users/$user/";
-        $opts->{'status'} = $status if $status;
-
-        my $head = $u->meta_discovery_links( feeds => 1, openid => 1, remote => $remote );
-
-        return qq{
-            <html>
-            <head>
-            $head
-            </head>
-            <body>
-             <h1>Notice</h1>
-             <p>$msg</p>
-             <p>Instead, please use <nobr><a href=\"$url\">$url</a></nobr></p>
-            </body>
-            </html>
-        } . ( "<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->\n" x 50 );
-    };
     my $error = sub {
         my ( $file, $fileopts ) = @_;
         $fileopts //= {};
@@ -653,16 +632,20 @@ sub make_journal {
         return DW::Template->render_template_misc( $file, $fileopts,
             { scope => 'journal', scope_data => $opts } );
     };
+    my $notice = sub {
+        return $error->( 'error/vhost.tt', { u => $u, msg => $_[0] } );
+    };
 
     if (   $LJ::USER_VHOSTS
         && $opts->{'vhost'} eq "users"
         && !$u->is_redirect
         && !LJ::get_cap( $u, "userdomain" ) )
     {
-        return $notice->( BML::ml( 'error.vhost.nodomain1', { user_domain => $LJ::USER_DOMAIN } ) );
+        return $notice->(
+            LJ::Lang::ml( 'error.vhost.nodomain1', { user_domain => $LJ::USER_DOMAIN } ) );
     }
     if ( $opts->{'vhost'} =~ /^other:/ ) {
-        return $notice->( BML::ml('error.vhost.noalias1') );
+        return $notice->( LJ::Lang::ml('error.vhost.noalias1') );
     }
     if ( $opts->{'vhost'} eq "community" && $u->journaltype !~ /[CR]/ ) {
         $opts->{'badargs'} = 1;
