@@ -572,7 +572,7 @@ sub keywords {
         # if list context return the array
         return ( $raw ? ('') : ( "pic#" . $self->id ) ) unless @pickeywords;
 
-        return @pickeywords;
+        return sort { lc $a cmp lc $b } @pickeywords;
     }
     else {
         # if scalar context return comma-seperated list of keywords, or "pic#12345" if no keywords
