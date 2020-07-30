@@ -972,8 +972,6 @@ error.utf8=Invalid UTF-8 Input
 
 error.vhost.noalias1=The domain aliasing feature has been retired.
 
-error.vhost.nocomm=This account isn't a community journal.
-
 error.vhost.nodomain1=URLs like <nobr><b>https://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
 
 esn.addedtocircle.trusted.email_text<<

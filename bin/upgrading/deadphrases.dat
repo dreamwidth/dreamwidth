@@ -2000,6 +2000,7 @@ general error.interest.chars.words
 general error.interest.excessive
 general error.interest.words
 general error.tag.noarg
+general error.vhost.nocomm
 general error.vhost.nostyle
 general esn.add_friend
 general esn.befriended.email_text
