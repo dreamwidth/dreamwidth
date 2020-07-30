@@ -116,7 +116,7 @@ sub create_footer {
             my $footer_text_redirect_key =
                 $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment2';
 
-            return "\n\n"
+            return "\n<br><br>\n"
                 . LJ::Lang::ml( $footer_text_redirect_key,
                 { postlink => $entry->url, openidlink => "$LJ::SITEROOT/openid/" } );
         }
@@ -132,7 +132,7 @@ sub create_footer {
         my $footer_text_redirect_key =
             $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment2';
 
-        return "\n\n"
+        return "\n<br><br>\n"
             . LJ::Lang::ml( $footer_text_redirect_key,
             { postlink => $entry->url, openidlink => "$LJ::SITEROOT/openid/" } );
     }
