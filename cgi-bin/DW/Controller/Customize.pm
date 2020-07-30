@@ -25,8 +25,8 @@ use JSON;
 use Carp;
 
 # This registers a static string, which is an application page.
-DW::Routing->register_string( '/customize/', \&customize_handler, app => 1 );
-DW::Routing->register_string( '/customize/options', \&options_handler, app => 1 );
+DW::Routing->register_string( '/customize/',        \&customize_handler, app => 1 );
+DW::Routing->register_string( '/customize/options', \&options_handler,   app => 1 );
 
 DW::Routing->register_rpc( "themechooser",  \&themechooser_handler,  format => 'json' );
 DW::Routing->register_rpc( "journaltitles", \&journaltitles_handler, format => 'html' );
@@ -75,7 +75,7 @@ sub customize_handler {
         sort { $cats{$a}->{order} <=> $cats{$b}->{order} }
         sort { lc $cats{$a}->{text} cmp lc $cats{$b}->{text} } keys %cats;
 
-    my @custom_themes = LJ::S2Theme->load_by_user($u);
+    my @custom_themes        = LJ::S2Theme->load_by_user($u);
     my @special_themes       = LJ::S2Theme->load_by_cat("special");
     my $special_themes_exist = 0;
     foreach my $special_theme (@special_themes) {
@@ -89,17 +89,19 @@ sub customize_handler {
         }
     }
 
-
     # pull the main cats out of the full list
     my @main_cats;
     my @other_cats;
 
     for my $cat (@cats_sorted) {
-        next if ($cat eq 'special' && !$special_themes_exist) || ($cat == 'custom' && !@custom_themes);
+        next
+            if ( $cat eq 'special' && !$special_themes_exist )
+            || ( $cat == 'custom'  && !@custom_themes );
 
         if ( defined $cats{$cat}->{main} ) {
             push @main_cats, $cat;
-        } else {
+        }
+        else {
             push @other_cats, $cat;
         }
     }
@@ -535,13 +537,13 @@ sub options_handler {
     return $rv unless $ok;
 
     my $r      = $rv->{r};
-    my $POST  = $r->post_args;
+    my $POST   = $r->post_args;
     my $u      = $rv->{u};
     my $remote = $rv->{remote};
     my $GET    = $r->get_args;
 
-        # if using s1, switch them to s2
-    unless ($u->prop('stylesys') == 2) {
+    # if using s1, switch them to s2
+    unless ( $u->prop('stylesys') == 2 ) {
         $u->set_prop( stylesys => 2 );
     }
 
@@ -553,7 +555,6 @@ sub options_handler {
     # lazy migration of style name
     LJ::Customize->migrate_current_style($u);
 
-
     my $vars;
     $vars->{u}            = $u;
     $vars->{remote}       = $remote;
@@ -563,26 +564,29 @@ sub options_handler {
     $vars->{authas_html}  = $rv->{authas_html};
 
     # pass our computed values to the template
-    $vars->{help_icon}          = \&LJ::help_icon;
+    $vars->{help_icon} = \&LJ::help_icon;
 
     my $customize_theme = LJ::Widget::CustomizeTheme->new;
-    my $headextra = $customize_theme->wrapped_js( page_js_obj => "Customize" );
-    my $ret = "<div class='customize-wrapper one-percent'>";
+    my $headextra       = $customize_theme->wrapped_js( page_js_obj => "Customize" );
+    my $ret             = "<div class='customize-wrapper one-percent'>";
     $ret .= $customize_theme->render(
-        group => $group,
+        group     => $group,
         headextra => \$headextra,
-        post => $POST,
+        post      => $POST,
     );
     $ret .= "</div><!-- end .customize-wrapper -->";
 
     #handle post actions
 
-    if (LJ::did_post()) {
-        my @errors = LJ::Widget->handle_post($POST, qw(CustomizeTheme CustomTextModule MoodThemeChooser NavStripChooser S2PropGroup LinksList));
+    if ( LJ::did_post() ) {
+        my @errors = LJ::Widget->handle_post( $POST,
+            qw(CustomizeTheme CustomTextModule MoodThemeChooser NavStripChooser S2PropGroup LinksList)
+        );
         $ret .= LJ::bad_input(@errors) if @errors;
     }
+
     # get the current theme id - at the end because post actions may have changed it.
-    $vars->{content} = $ret;
+    $vars->{content}              = $ret;
     $vars->{render_journaltitles} = \&render_journaltitles;
     $vars->{render_layoutchooser} = \&render_layoutchooser;
     $vars->{render_currenttheme}  = \&render_currenttheme;
