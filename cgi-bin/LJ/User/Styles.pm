@@ -665,9 +665,10 @@ sub make_journal {
         return $notice->( BML::ml('error.vhost.noalias1') );
     }
     if ( $opts->{'vhost'} eq "community" && $u->journaltype !~ /[CR]/ ) {
-        $opts->{'badargs'} = 1;    # Output a generic 'bad URL' message if available
-        return $notice->( BML::ml('error.vhost.nocomm') );
+        $opts->{'badargs'} = 1;
+        return;    # 404 Not Found
     }
+
     if ( $view eq "network" && !LJ::get_cap( $u, "friendsfriendsview" ) ) {
         my $errmsg = LJ::Lang::ml('cprod.friendsfriendsinline.text3.v1');
         return $error->( 'error.tt', { message => $errmsg } );
