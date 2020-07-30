@@ -1,11 +1,11 @@
-[%- CALL dw.active_resource_group('jquery') -%]
 [%- CALL dw.active_resource_group("foundation") -%]
-[%- dw.need_res('stc/css/pages/customize/customize.css') -%]
-[%- dw.need_res('stc/css/pages/customize/themechooser.css') -%]
-[%- dw.need_res('js/6alib/inputcomplete.js') -%]
-
+[%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.customize.js', 'stc/css/pages/customize/customize.css', "stc/monolith.min.css", 'js/colorpicker.js' ) -%]
+<script crossorigin="anonymous" src="/js/vendor/pickr.es5.min.js"></script>
 
 <div class="row">
+    [% IF qargs.authas %]
+        [% form.hidden( name = "authas", value = qargs.authas, id = 'authas') %]
+    [% END %]
     <form method="get">
         [%- authas_html -%]
     </form>
@@ -41,14 +41,17 @@
     <div class="columns large-5">
         [% #render current theme widget  %]
         <div class='theme-current pkg'>
-            [% render_currenttheme() %]
+            [% render_currenttheme('no_themechooser', (content ? 1 : 0)) %]
         </div><!-- end .theme-current -->
 
     </div>
 </div>
 <br/>
-
-    [% INCLUDE 'customize/themeselect.tt' %]
+    [% IF content %]
+        [% content %]
+    [% ELSE %]
+        [% INCLUDE 'customize/themeselect.tt' %]
+    [%  END %]
 
 [% # render layout chooser widget  %]
 <a name='layout'></a>

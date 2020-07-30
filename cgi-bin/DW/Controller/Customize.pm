@@ -26,6 +26,7 @@ use Carp;
 
 # This registers a static string, which is an application page.
 DW::Routing->register_string( '/customize/', \&customize_handler, app => 1 );
+DW::Routing->register_string( '/customize/options', \&options_handler, app => 1 );
 
 DW::Routing->register_rpc( "themechooser",  \&themechooser_handler,  format => 'json' );
 DW::Routing->register_rpc( "journaltitles", \&journaltitles_handler, format => 'html' );
@@ -527,6 +528,68 @@ sub render_journaltitles {
     $vars->{u}               = $u;
     $vars->{no_themechooser} = $opts{no_themechooser};
     return DW::Template->template_string( 'customize/journaltitles.tt', $vars );
+}
+
+sub options_handler {
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r      = $rv->{r};
+    my $POST  = $r->post_args;
+    my $u      = $rv->{u};
+    my $remote = $rv->{remote};
+    my $GET    = $r->get_args;
+
+        # if using s1, switch them to s2
+    unless ($u->prop('stylesys') == 2) {
+        $u->set_prop( stylesys => 2 );
+    }
+
+    my $group = $GET->{group} ? $GET->{group} : "presentation";
+
+    # make sure there's a style set and load it
+    my $style = LJ::Customize->verify_and_load_style($u);
+
+    # lazy migration of style name
+    LJ::Customize->migrate_current_style($u);
+
+
+    my $vars;
+    $vars->{u}            = $u;
+    $vars->{remote}       = $remote;
+    $vars->{is_identity}  = 1 if $u->is_identity;
+    $vars->{is_community} = 1 if $u->is_community;
+    $vars->{style}        = LJ::Customize->verify_and_load_style($u);
+    $vars->{authas_html}  = $rv->{authas_html};
+
+    # pass our computed values to the template
+    $vars->{help_icon}          = \&LJ::help_icon;
+
+    my $customize_theme = LJ::Widget::CustomizeTheme->new;
+    my $headextra = $customize_theme->wrapped_js( page_js_obj => "Customize" );
+    my $ret = "<div class='customize-wrapper one-percent'>";
+    $ret .= $customize_theme->render(
+        group => $group,
+        headextra => \$headextra,
+        post => $POST,
+    );
+    $ret .= "</div><!-- end .customize-wrapper -->";
+
+    #handle post actions
+
+    if (LJ::did_post()) {
+        my @errors = LJ::Widget->handle_post($POST, qw(CustomizeTheme CustomTextModule MoodThemeChooser NavStripChooser S2PropGroup LinksList));
+        $ret .= LJ::bad_input(@errors) if @errors;
+    }
+    # get the current theme id - at the end because post actions may have changed it.
+    $vars->{content} = $ret;
+    $vars->{render_journaltitles} = \&render_journaltitles;
+    $vars->{render_layoutchooser} = \&render_layoutchooser;
+    $vars->{render_currenttheme}  = \&render_currenttheme;
+
+    # Now we tell it what template to render and pass in our variables
+    return DW::Template->render_template( 'customize/index.tt', $vars );
+
 }
 
 1;

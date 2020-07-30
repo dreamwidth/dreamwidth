@@ -1,5 +1,3 @@
-[%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.themechooser.js' ) -%]
-
     <script>confirmation = " [% dw.ml('widget.themechooser.confirmation') %] ";</script>
 
     <h3>

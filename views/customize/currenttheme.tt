@@ -1,4 +1,4 @@
- [%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.currenttheme.js' ) IF NOT no_themechooser-%] [%- dw.need_res( 'stc/css/pages/customize/currenttheme.css' ) -%]
+ [%- dw.need_res( 'stc/css/pages/customize/currenttheme.css' ) -%]
 
 <div class='highlight-box'>
     <div class="inner">

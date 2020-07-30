@@ -54,3 +54,11 @@ form.theme-switcher {
     border-width: 1px;
     border-style: solid;
 }
+
+.appwidget-s2propgroup select, .appwidget-s2propgroup input {
+	width: auto;
+}
+
+.appwidget-s2propgroup label {
+	display: inline
+}
