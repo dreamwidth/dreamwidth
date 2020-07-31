@@ -32,13 +32,23 @@ LJ::Hooks::register_hook(
     'setprop',
     sub {
         my %opts = @_;
-        return unless $opts{prop} eq 'opt_blockglobalsearch';
+        my $bool;
+        if ( $opts{prop} eq 'opt_blockglobalsearch' ) {
+            $bool = $opts{value} eq 'Y' ? 0 : 1;
+        }
+        elsif ( $opts{prop} eq 'not_approved' ) {
+            return if $opts{value};    # only act on this if it is being cleared
+            $bool = 1;
+        }
+        else {
+            return;
+        }
 
         my $dbh = _sphinx_db() or return 0;
         $dbh->do(
             q{UPDATE items_raw SET allow_global_search = ?, touchtime = UNIX_TIMESTAMP()
           WHERE journalid = ?},
-            undef, $opts{value} eq 'Y' ? 0 : 1, $opts{u}->id
+            undef, $bool, $opts{u}->id
         );
         die $dbh->errstr if $dbh->err;
 
