@@ -15,39 +15,57 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 [%- sections.title = '.title' | ml -%]
 
-[% INCLUDE components/errors.tt errors = errors %]
+[%- sections.head = BLOCK -%]
+    <style type="text/css">
+        label.emphasis { font-weight: bold; }
+        p.note { font-style: italic; font-size: 0.8em; }
+        div.indent { margin-left: 30px; }
+        #content select { width: auto; display: inline; padding-right: 2rem; }
+    </style>
+[%- END -%]
 
-<div class='appwidget'>
-[% IF url %]
-    <div class='highlight-box' style='float: right; width: 300px;'>
-    <h2>[% '.help.header' | ml %]</h2>
-    <p>[% '.help.text2' | ml( sitename = site.name, aopts = "href='$site.root/support/help'" ) %]</p>
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[% IF url; # request submission success %]
+    <div class="row">
+        <div class="medium-7 columns">
+            [% '.complete.text' | ml( url = url ) %]
+        </div>
+        <div class="medium-5 columns end">
+            <div class='panel callout radius'>
+                <h3>[% '.help.header' | ml %]</h3>
+                <p>[% '.help.text2' | ml( aopts = "href='$site.root/support/help'",
+                                          sitename = site.name ) %]</p>
+            </div>
+        </div>
     </div>
-    [% '.complete.text' | ml( url = url ) %]
 [% ELSE %]
     <form method='post'>
-        [%- dw.form_auth -%]
+      [%- dw.form_auth -%]
+      [%- IF include_name || include_email -%]
+        <div class='panel radius'>
         [% IF include_name %]
             <p><em>[% '.login.note' | ml( sitename = site.nameshort, loginlink = "href='$site.root/login?ret=1'" ) %]</em></p>
             <p><label class='emphasis' for='yourname'>[% '.yourname' | ml %]</label></p>
-            <div style='margin-left: 30px'><p><input type='text' id='yourname' name='reqname' size='40' maxlength='50' value="[% reqname | html %]" /></p></div>
+            <div class='indent'><p><input type='text' id='yourname' name='reqname' size='40' maxlength='50' value="[% reqname | html %]" /></p></div>
         [% END %]
         [% IF include_email %]
             <p><label class='emphasis' for='yourmail'>[% '.yourmail' | ml %]</label></p>
-            <div style='margin-left: 30px'><p><input type='text' aria-describedby='notshow' id='yourmail' name='email' size='30' maxlength='70' value="[% email | html %]" /></p>
+            <div class='indent'><p><input type='text' aria-describedby='notshow' id='yourmail' name='email' size='30' maxlength='70' value="[% email | html %]" /></p>
             [% IF email_checkbox %]
                 <p>[% email_checkbox %]</p>
             [% END %]
-            <p id='notshow' class='compressed'>[% '.notshow' | ml %]</p></div>
+            <p id='notshow' class='note'>[% '.notshow' | ml %]</p></div>
         [% END %]
+        </div>
+      [%- END -%]
 
+        <p><label class='emphasis' for='category'>[% '.category' | ml %]</label></p>
+        <div class='indent'>
         [% IF cat_type == 'fixed' %]
-            <p><label class='emphasis' for='category'>[% '.category' | ml %]</label></p>
-            <div style='margin-left: 30px'><p>[% catname %]</p></div>
+            <p>[% catname %]</p>
             <input type='hidden' id='category' name='spcatid' value="[% spcatid | html %]" />
         [% ELSE %]
-            <p><label class='emphasis' for='category'>[% '.category' | ml %]</label></p>
-            <div style='margin-left: 30px'><p>
             <select id='category' name='spcatid'>
             [% FOREACH cat = cat_list %]
                 <option value="[% cat.spcatid | html %]"[% IF spcatid == cat.spcatid %] selected='selected'[% END %]>[% cat.catname %]</option>
@@ -56,28 +74,27 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
             [% IF cat_has_nonpublic %]
                 <p class='note'>[% '.nonpublic' | ml %]</p>
             [% END %]
-            </div>
         [% END %]
+        </div>
 
         <p><label class='emphasis' for='summary'>[% '.summary' | ml %]</label></p>
-        <div style='margin-left: 30px'><p>
+        <div class='indent'><p>
         <input type='text' id='summary' name='subject' size='40' maxlength='80' value="[% subject | html %]" />
         </p></div>
 
         <p><label class='emphasis' for='question'>[% '.question' | ml %]</label></p>
-        <p id='question_note' class='compressed'>[% '.question.note2' | ml %]</p>
-        <div style='margin-left: 30px'><p>
+        <p id='question_note'>[% '.question.note2' | ml %]</p>
+        <div class='indent'><p>
         <textarea aria-describedby='question_note' id='question' name='message' rows='15' cols='70' wrap='soft'>[% message | html %]</textarea>
         </p></div>
 
         [% IF print_captcha %]
             <p><label class='emphasis' for='captcha'>[% 'captcha.title' | ml %]</label></p>
-            <div style='margin-left: 30px'>
+            <div class='indent'>
             [% print_captcha( 'support_submit_anon' ) %]
             </div>
         [% END %]
 
-        <br /><div class='action-box'><ul class='nostyle inner'><li><input type='submit' value="[% '.button' | ml | html %]" /></li></ul></div><div class='clear-floats'></div>
+        <div class='action-box'><input type='submit' class='large button' value="[% '.button' | ml | html %]" /></div>
     </form>
 [% END %]
-</div><!-- end .appwidget-submitrequest::support -->
