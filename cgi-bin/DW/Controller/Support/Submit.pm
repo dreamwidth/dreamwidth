@@ -34,7 +34,13 @@ sub submit_handler {
     my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
     return $rv unless $ok;
 
-    my $remote = LJ::get_remote();
+    my $remote = $rv->{remote};
+
+    # If not logged in and logged-out requests are disabled, give a fatal error
+    return error_ml(
+        '/support/submit.tt.error.loginrequired',
+        { loginlink => "href='$LJ::SITEROOT/login?ret=1'" }
+    ) unless $remote || LJ::is_enabled('loggedout_support_requests');
 
     my $vars = {};
 
@@ -105,14 +111,6 @@ sub submit_handler {
         $vars->{$_}       = $post_args->{$_} foreach (qw( reqname email spcatid subject message ));
         $vars->{language} = $post_args->{language}
             if LJ::is_enabled('support_request_language');
-    }
-
-    # If not logged in and logged-out requests are disabled, give a fatal error
-    unless ( $remote || LJ::is_enabled('loggedout_support_requests') ) {
-        my $errors = DW::FormErrors->new;
-        $errors->add( 'no_such_variable', '.error.mustbeloggedin' );
-        $vars->{errors}       = $errors;
-        $vars->{fatal_errors} = 1;
     }
 
     # Include name if not logged in, email address if not logged in or empty
