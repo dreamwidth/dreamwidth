@@ -45,10 +45,9 @@ sub actionlink {
             . $class->ml('setting.display.accountstatus.actionlink.undelete') . "</a>";
     }
     elsif ( $u->is_suspended || $u->is_readonly ) {
-        return $class->ml(
-            'setting.display.accountstatus.actionlink.contactabuse',
-            { aopts => "href='$LJ::SITEROOT/abuse/report'" }
-        );
+        return
+            "<a href='$LJ::SITEROOT/support/submit?category=abuse'>"
+            . $class->ml('setting.display.accountstatus.actionlink.contactabuse') . "</a>";
     }
     elsif ( $u->is_visible ) {
         return
