@@ -3018,3 +3018,6 @@ general /views/entry/success.tt.new.links.view
 general /views/settings/accountstatus.tt.btn.status
 
 general /views/support/submit.tt.error.mustbeloggedin
+general /views/support/submit.tt.language
+general /views/support/submit.tt.language.note
+general /views/support/submit.tt.language.other
