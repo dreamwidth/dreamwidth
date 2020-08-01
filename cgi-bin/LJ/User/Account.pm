@@ -557,6 +557,9 @@ sub set_unsuspended {
 
     LJ::statushistory_add( $u, $who, "unsuspend", $reason );
 
+    # if not_approved was set, clear it
+    $u->set_prop( not_approved => 0 );
+
     return $res;    # success
 }
 
