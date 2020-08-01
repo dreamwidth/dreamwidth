@@ -1687,13 +1687,6 @@ logproplist.unknown8bit:
   sortorder: 99
   ownership: user
 
-logproplist.unsuspend_supportid:
-  datatype: num
-  des: The support request ID of the unsuspension request submitted by a user whose entry was suspended. Undef or 0 if no request is currently open.
-  prettyname: Support Request ID for Unsuspension Request
-  sortorder: 99
-  ownership: system
-
 logproplist.used_rte:
   datatype: bool
   des: True if entry was composed using the rich text editor

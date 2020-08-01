@@ -130,11 +130,10 @@ sub clean {
           ( exists $opts->{'blocked_link_substitute'} ) ? $opts->{'blocked_link_substitute'}
         : ($LJ::BLOCKED_LINK_SUBSTITUTE)                ? $LJ::BLOCKED_LINK_SUBSTITUTE
         :                                                 '#';
-    my $suspend_msg          = $opts->{'suspend_msg'}         || 0;
-    my $unsuspend_supportid  = $opts->{'unsuspend_supportid'} || 0;
-    my $to_external_site     = $opts->{to_external_site}      || 0;
-    my $preserve_lj_tags_for = $opts->{preserve_lj_tags_for}  || 0;    # False or site name
-    my $remove_positioning   = $opts->{'remove_positioning'}  || 0;
+    my $suspend_msg          = $opts->{'suspend_msg'}        || 0;
+    my $to_external_site     = $opts->{to_external_site}     || 0;
+    my $preserve_lj_tags_for = $opts->{preserve_lj_tags_for} || 0;    # False or site name
+    my $remove_positioning   = $opts->{'remove_positioning'} || 0;
     my $errref               = $opts->{errref};
 
     # for ajax cut tag parsing
@@ -1369,23 +1368,8 @@ TOKEN:
     if ($suspend_msg) {
         my $msg =
 qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-color: #ffeeee; background-repeat: repeat-x; border: 1px solid #ff9999; padding: 8px; margin: 5px auto; width: auto; text-align: left; background-image: url('$LJ::IMGPREFIX/message-error.gif');">};
-        my $link_style =
-            "color: #00c; text-decoration: underline; background: transparent; border: 0;";
 
-        if ($unsuspend_supportid) {
-            $msg .= LJ::Lang::ml(
-                'cleanhtml.suspend_msg_with_supportid',
-                {
-                    aopts =>
-"href='$LJ::SITEROOT/support/see_request?id=$unsuspend_supportid' style='$link_style'"
-                }
-            );
-        }
-        else {
-            $msg .= LJ::Lang::ml( 'cleanhtml.suspend_msg',
-                { aopts => "href='$LJ::SITEROOT/abuse/report' style='$link_style'" } );
-        }
-
+        $msg .= LJ::Lang::ml('cleanhtml.suspend_msg');
         $msg .= "</div>";
 
         $$data = $msg . $$data;
@@ -1715,7 +1699,6 @@ sub clean_event {
             transform_embed_wmode   => $opts->{transform_embed_wmode},
             rewrite_embed_param     => $opts->{rewrite_embed_param} ? 1 : 0,
             suspend_msg             => $opts->{suspend_msg} ? 1 : 0,
-            unsuspend_supportid     => $opts->{unsuspend_supportid},
             to_external_site        => $opts->{to_external_site} ? 1 : 0,
             preserve_lj_tags_for    => $opts->{preserve_lj_tags_for} || 0,
             cut_retrieve            => $opts->{cut_retrieve},

@@ -262,6 +262,7 @@ general /friends/nudge.bml.success.text
 general /editjournal.bml.enterlogin
 general /editjournal.bml.lostinfo.head
 general /editjournal.bml.lostinfo.text
+general /editjournal.bml.success.editedunsuspend
 
 general /editjournal_do.bml.error.mustlogin
 general /editjournal_do.bml.success.edit
@@ -1943,6 +1944,7 @@ general /interests/int.tt.nousers.header
 general /interests/int.tt.nousers.text2
 general /interests/int.tt.users.header
 
+general cleanhtml.suspend_msg_with_supportid
 general contentflag.viewingconcepts.byadmin
 general contentflag.viewingexplicit.byadmin
 general cprod.todomaxitems.text2.v1
@@ -1994,6 +1996,8 @@ general email.newacct2.body
 general email.newacct4.body
 general entryform.music.detect
 general entryform.public
+general entryform.saveandrequestunsuspend
+general entryform.saveandrequestunsuspend2
 general error.badpassword
 general error.interest.bytes.chars.words
 general error.interest.chars.words

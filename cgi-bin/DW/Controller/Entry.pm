@@ -829,13 +829,12 @@ sub _form_to_backend {
 sub _backend_to_form {
     my ($entry) = @_;
 
-#             my $entry = {
-#                 'usejournal' => $usejournal,
-#                 'auth' => $auth,
-#                 'richtext' => LJ::is_enabled('richtext'),
-#                 'suspended' => $suspend_msg,
-#                 'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0,
-#             };
+    #             my $entry = {
+    #                 'usejournal' => $usejournal,
+    #                 'auth' => $auth,
+    #                 'richtext' => LJ::is_enabled('richtext'),
+    #                 'suspended' => $suspend_msg,
+    #             };
 
     # direct translation of prop values to the form
 
