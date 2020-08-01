@@ -79,9 +79,7 @@ sub submit_handler {
         }
 
         if ( LJ::is_enabled('support_request_language') ) {
-            $req{language} = $post_args->{language};
-            $req{language} = $LJ::DEFAULT_LANG
-                unless grep { $req{language} eq $_ } ( @LJ::LANGS, 'xx' );
+            $req{language} = $LJ::DEFAULT_LANG;
         }
 
         $req{body}         = $post_args->{message};
@@ -107,10 +105,8 @@ sub submit_handler {
             }
         }
 
-        $vars->{errors}   = $errors;
-        $vars->{$_}       = $post_args->{$_} foreach (qw( reqname email spcatid subject message ));
-        $vars->{language} = $post_args->{language}
-            if LJ::is_enabled('support_request_language');
+        $vars->{errors} = $errors;
+        $vars->{$_} = $post_args->{$_} foreach (qw( reqname email spcatid subject message ));
     }
 
     # Include name if not logged in, email address if not logged in or empty
@@ -148,20 +144,6 @@ sub submit_handler {
 
         $vars->{cat_list}          = \@cat_list;
         $vars->{cat_has_nonpublic} = $has_nonpublic;
-    }
-
-    if ( LJ::is_enabled("support_request_language") ) {
-        my $lang_list = LJ::Lang::get_lang_names();
-        my @langs     = ();
-        for ( my $i = 0 ; $i < @$lang_list ; $i = $i + 2 ) {
-            push @langs, { id => $lang_list->[$i], name => $lang_list->[ $i + 1 ] }
-                if $LJ::LANGS_FOR_SUPPORT_REQUESTS{ $lang_list->[$i] };
-        }
-
-        $vars->{language} ||= $LJ::DEFAULT_LANG;
-
-        # Pushing xx in template to avoid dealing with ML scope issues here
-        $vars->{lang_list} = \@langs;
     }
 
     # Defer captcha creation until template is rendered

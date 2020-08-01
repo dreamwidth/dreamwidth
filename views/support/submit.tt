@@ -59,19 +59,6 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
             </div>
         [% END %]
 
-        [% IF lang_list %]
-            <p><label class='emphasis' for='lang'>[% '.language' | ml %]</label></p>
-            <p id='lang_note' class='compressed'>[% '.language.note' | ml %]</p>
-            <div style='margin-left: 30px'><p>
-            <select aria-describedby='lang_note' id='lang' name='language'>
-            [% FOREACH lang = lang_list %]
-                <option value="[% lang.id | html %]"[% IF language == lang.id %] selected='selected'[% END %]>[% lang.name %]</option>
-            [% END %]
-            <option value="xx"[% IF language == 'xx' %] selected='selected'[% END %]>[% '.language.other' | ml %]</option>
-            </select>
-            </p></div>
-        [% END %]
-
         <p><label class='emphasis' for='summary'>[% '.summary' | ml %]</label></p>
         <div style='margin-left: 30px'><p>
         <input type='text' id='summary' name='subject' size='40' maxlength='80' value="[% subject | html %]" />

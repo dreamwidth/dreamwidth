@@ -17,12 +17,6 @@ If you have any additional questions or comments, you can add them to your reque
 
 .help.text2=[[sitename]] Support is run primarily by volunteers. Do you have some extra time? <strong><a [[aopts]]>Help someone!</a></strong>
 
-.language=Language
-
-.language.note=Select the language in which you'd prefer to receive a response.
-
-.language.other=(Other)
-
 .login.note=If you're a [[sitename]] user, <a [[loginlink]]>please log in</a> before submitting your request.
 
 .nonpublic=* Only visible to staff and those trusted volunteers with appropriate privileges
