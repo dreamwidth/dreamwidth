@@ -57,9 +57,7 @@ sub execute {
         return $self->error("Entry is not currently suspended.")
             if $entry->is_visible;
 
-        $entry->set_prop( statusvis           => "V" );
-        $entry->set_prop( unsuspend_supportid => 0 )
-            if $entry->prop("unsuspend_supportid");
+        $entry->set_prop( statusvis => "V" );
 
         $reason = "entry: " . $entry->url . "; reason: $reason";
         LJ::statushistory_add( $journal, $remote, "unsuspend", $reason );

@@ -41,8 +41,6 @@ cleanhtml.error.template.video=[Error: unknown template 'video']
 
 cleanhtml.suspend_msg=This is a suspended entry.
 
-cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened and this entry will be reviewed soon.
-
 collapsible.collapsed=Expand
 
 collapsible.expanded=Collapse
@@ -666,10 +664,6 @@ entryform.preview=Preview
 entryform.save=Save
 
 entryform.save.maintainer=Save Administrator Override Settings
-
-entryform.saveandrequestunsuspend=Save Entry & Request Unsuspension
-
-entryform.saveandrequestunsuspend2=Save and Request Unsuspension
 
 entryform.security=Security:
 

@@ -43,8 +43,6 @@
 
 .success.editedstillsuspended=Please note that your entry is still suspended.
 
-.success.editedunsuspend=Additionally, an unsuspension request has been opened at [[url]], and your entry will be reviewed soon.
-
 .success.fromhere=From here you can:
 
 .success.fromhere.editentry=Edit this entry again

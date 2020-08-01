@@ -226,7 +226,7 @@ body<=
             }
 
             # they clicked the save or delete button
-            if (!$spellcheck_html && ($POST{'action:save'} || $POST{'action:saveunsuspend'} || $POST{'action:delete'} || $POST{'action:deletespam'})) {
+            if (!$spellcheck_html && ($POST{'action:save'} || $POST{'action:delete'} || $POST{'action:deletespam'})) {
                 return LJ::bad_input($ML{'error.invalidform'}) unless LJ::check_form_auth();
 
                 my %req = ( 'mode' => 'editevent',
@@ -324,27 +324,8 @@ body<=
                         "<?p $ML{'.success.edited'} p?>";
                     $result .= "<div class='alert-box'>$message</div>" if $message;
                     $result .= $xpost_result;
-                    # open a request about the unsuspension if one doesn't already exist
-                    if ($POST{'action:saveunsuspend'} && !$entry_obj->prop("unsuspend_supportid") && $LJ::UNSUSPENSION_REQUEST_SPCATID) {
-                        my %req;
-                        $req{reqtype} = "user";
-                        $req{requserid} = $remote->id;
-                        $req{uniq} = LJ::UniqCookie->current_uniq;
-                        $req{spcatid} = $LJ::UNSUSPENSION_REQUEST_SPCATID;
-                        $req{ignore_dup_check} = 1; # can't have dup checking in case a particular entry gets re-suspended after unsuspension
-                        $req{subject} = "Unsuspension Request from " . $remote->user;
-                        $req{body} = "The suspended entry at " . $entry_obj->url . " has been edited and the poster requests unsuspension.";
-
-                        my @errors;
-                        my $spid = LJ::Support::file_request(\@errors, \%req);
-
-                        if ($spid) {
-                            $entry_obj->set_prop( unsuspend_supportid => $spid );
-                            my $url = "$LJ::SITEROOT/support/see_request?id=$spid";
-                            $result .= "<?p " . BML::ml('.success.editedunsuspend', { url => "<a href='$url'>$url</a>" }) . " p?>";
-                        }
-                    } elsif ($POST{'action:save'} && $entry_obj->is_suspended && !$entry_obj->prop("unsuspend_supportid")) {
-                        $result .= "<?p " . BML::ml('.success.editedstillsuspended', { aopts => "href='$LJ::SITEROOT/abuse/report'" }) . " p?>";
+                    if ($POST{'action:save'} && $entry_obj->is_suspended) {
+                        $result .= "<?p " . BML::ml('.success.editedstillsuspended') . " p?>";
                     }
                 }
 
@@ -464,7 +445,6 @@ body<=
                 'disabled_spamdelete' => $disabled_spamdelete,
                 'maintainer_mode' => !$disabled_spamdelete,
                 'suspended' => $suspend_msg,
-                'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0,
             };
             for (my $i = 1; $i <= $res{'prop_count'}; $i++) {
                 $entry->{"prop_" . $res{"prop_${i}_name"}} = $res{"prop_${i}_value"};

@@ -2321,20 +2321,6 @@ PREVIEW
                 ) . "&nbsp;\n";
             }
 
-            if ( !$opts->{'disabled_save'} && $opts->{suspended} && !$opts->{unsuspend_supportid} )
-            {
-                $out .= LJ::html_submit(
-                    'action:saveunsuspend',
-                    BML::ml('entryform.saveandrequestunsuspend2'),
-                    {
-                        'onclick'  => $onclick,
-                        'disabled' => $opts->{'disabled_save'},
-                        'class'    => 'xpost_submit',
-                        'tabindex' => $tabindex->()
-                    }
-                ) . "&nbsp;\n";
-            }
-
             # do a double-confirm on delete if we have crossposts that
             # would also get removed
             my $delete_onclick =
