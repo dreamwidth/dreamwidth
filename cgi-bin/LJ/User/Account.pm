@@ -254,22 +254,6 @@ sub create_personal {
         }
     }
 
-    # populate some default friends groups
-    # FIXME(mark): this should probably be removed or refactored, especially
-    # since editfriendgroups is dying/dead
-    #    LJ::do_request(
-    #                   {
-    #                       'mode'           => 'editfriendgroups',
-    #                       'user'           => $u->user,
-    #                       'ver'            => $LJ::PROTOCOL_VER,
-    #                       'efg_set_1_name' => 'Family',
-    #                       'efg_set_2_name' => 'Local Friends',
-    #                       'efg_set_3_name' => 'Online Friends',
-    #                       'efg_set_5_name' => 'Work',
-    #                       'efg_set_6_name' => 'Mobile View',
-    #                   }, \%res, { 'u' => $u, 'noauth' => 1, }
-    #                   );
-    #
     # subscribe to default events
     $u->subscribe( event => 'OfficialPost',      method  => 'Inbox' );
     $u->subscribe( event => 'OfficialPost',      method  => 'Email' ) if $opts{get_news};
