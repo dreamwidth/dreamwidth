@@ -1326,14 +1326,6 @@ userproplist.theme_preview_styleid:
   multihomed: 0
   prettyname: Style ID for theme preview
 
-userproplist.third_party_notify_list:
-  cldversion: 4
-  datatype: char
-  des: Comma-separated list of third-party services that should be notified when a user takes an action.
-  indexed: 0
-  multihomed: 0
-  prettyname: Third-Party Notify List
-
 userproplist.timezone:
   cldversion: 4
   datatype: char
