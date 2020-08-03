@@ -37,7 +37,10 @@ LJ::Hooks::register_hook(
             $bool = $opts{value} eq 'Y' ? 0 : 1;
         }
         elsif ( $opts{prop} eq 'not_approved' ) {
-            return if $opts{value};    # only act on this if it is being cleared
+
+            # only act on this if it is being cleared from a visible user
+            return if $opts{value};
+            return if $opts{u}->is_suspended;
             $bool = 1;
         }
         else {

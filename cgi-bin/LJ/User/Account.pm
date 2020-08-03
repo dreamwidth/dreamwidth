@@ -528,6 +528,9 @@ sub set_suspended {
 
     LJ::statushistory_add( $u, $who, "suspend", $reason );
 
+    # if not_approved was set, clear it
+    $u->set_prop( not_approved => 0 );
+
     LJ::Hooks::run_hooks( "account_cancel", $u );
 
     if ( my $err = LJ::Hooks::run_hook( "cdn_purge_userpics", $u ) ) {
