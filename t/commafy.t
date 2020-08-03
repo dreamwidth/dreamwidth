@@ -19,10 +19,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use LJ::Lang;
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
+use LJ::TextUtil;
+
+LJ::Mock::make_fake_lang_ml( { "number.punctuation" => "," } );
 
 is( LJ::commafy("lalala"),  "lalala" );
 is( LJ::commafy("1"),       "1" );
@@ -32,5 +34,10 @@ is( LJ::commafy("1234"),    "1,234" );
 is( LJ::commafy("123456"),  "123,456" );
 is( LJ::commafy("1234567"), "1,234,567" );
 
-1;
+# Test that we are using the value of number.punctuation, since "," is the
+# default value.
+LJ::Mock::make_fake_lang_ml( { 'number.punctuation' => '.' } );
 
+is( LJ::commafy("1234567"), "1.234.567" );
+
+1;
