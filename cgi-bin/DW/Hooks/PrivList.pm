@@ -134,7 +134,10 @@ LJ::Hooks::register_hook(
             }
             if $priv eq 'siteadmin';
 
-        $hr = { openid => "Only allowed to suspend OpenID accounts", }
+        $hr = {
+            openid => "Only allowed to suspend OpenID accounts",
+            recent => "Only allowed to suspend from /admin/recent_accounts",
+            }
             if $priv eq 'suspend';
 
         # extracted from LJ::Sysban::validate
