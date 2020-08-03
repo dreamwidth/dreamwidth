@@ -1,0 +1,23 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Review New Accounts
+
+.admin.text=Screen new accounts for spam content.
+
+.button.begin=Let's Go!
+
+.button.suspend=Hammer Time!
+
+.error.disabled=This feature is not enabled for [[sitenameshort]].
+
+.error.nousers=No users found to review - come back again later!
+
+.intro=Click below to review a recently created account for content created solely for SEO spam purposes.
+
+.intro.suspend=Alternatively, you can review accounts previously flagged for suspension.
+
+.success.approved=Thanks for approving [[user]] - their journal will now be included in Site Search and Latest Things.
+
+.success.rejected=Thank you for reviewing [[user]]. They have been flagged for suspension by the antispam team.
+
+.title=Review New Accounts
+
