@@ -31,8 +31,7 @@
 
   <p>[% '.intro.suspend' | ml %]</p>
 
-  [% form.submit( name = 'suspend', value = dw.ml( '.button.suspend' ),
-                  disabled = 1 ); # not implemented yet %]
+  [% form.submit( name = 'suspend', value = dw.ml( '.button.suspend' ) ) %]
 [%- END -%]
 
 </form>

@@ -19,5 +19,7 @@
 
 .success.rejected=Thank you for reviewing [[user]]. They have been flagged for suspension by the antispam team.
 
+.success.suspend=Suspended [[count]] [[?count|account|accounts]].
+
 .title=Review New Accounts
 
