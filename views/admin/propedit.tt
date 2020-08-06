@@ -80,6 +80,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             [%- ELSE -%]
                 [%- form.textarea(
                     label = prop.name
+                    id = prop.name
                     value = prop.value
                     disabled = 1
                 ) -%]
