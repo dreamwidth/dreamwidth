@@ -680,7 +680,7 @@ TOKEN:
                 foreach (@attrstrip) {
 
                     # maybe there's a better place for this?
-                    next if ( lc $tag eq 'lj-embed' && lc $_ eq 'id' && !$nodwtags );
+                    next if ( lc $tag eq 'lj-embed' && lc $_ eq 'id' );
                     delete $hash->{$_};
                 }
 
