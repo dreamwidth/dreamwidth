@@ -48,9 +48,22 @@ function IconBrowser($el, options) {
             }
 
             // the browser blew away the user's tab-through position, so restore
-            // it on the icon menu, since that's what they just indirectly set a
-            // value for.
-            $el.focus();
+            // it on whatever makes most sense to focus. Defaulting to the icon
+            // menu, since that's what they just indirectly set a value for, but
+            // if you want something else, set
+            // data-focus-after-browse="selector" on the icon menu.
+            var $focusTarget = $el;
+            if ( $el.data('focusAfterBrowse') ) {
+                var $altTarget = $( $el.data('focusAfterBrowse') ).first();
+                if ( $altTarget.length === 1 ) {
+                    $focusTarget = $altTarget;
+                }
+            }
+            // Avoid yanking the focus if the user somehow managed to focus
+            // something else before this handler fired.
+            if ( document.activeElement.tagName === 'BODY' ) {
+                $focusTarget.focus();
+            }
         });
 }
 

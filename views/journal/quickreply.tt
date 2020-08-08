@@ -48,6 +48,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
           id = 'prop_picture_keyword',
           selected = current_icon_kw,
           items = remote.icons
+          'data-focus-after-browse' = '#body'
       ) -%]
 
       <input type="button" id="randomicon" value="Random" style="display: none;" />
