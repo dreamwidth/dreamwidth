@@ -110,90 +110,65 @@
         margin-bottom: 1rem;
     }
 
-    .keyword, .icon-browser-options a {
-        display: inline-block;
-        max-width: 100%;
+    // Style reset for icon/keyword buttons
+    button {
+        display: block;
+        border: none;
+        margin: 0;
+        padding: 0;
+        background: none;
+        border-radius: initial;
+        box-shadow: none;
+        color: inherit;
+        text-align: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        text-decoration: inherit;
+        line-height: inherit;
+    }
+
+    // Hack: We wrap buttons in a dummy 'a' element to grab an appropriate color
+    // for controls, so we can fit in on journal styles while still being
+    // accessible.
+    a.color-wrapper {
+        display: block;
+        text-decoration: none;
+    }
+
+    // Styles specifically for keyword buttons
+    .keyword {
+        display: block;
+        width: 100%;
         cursor: pointer;
         text-decoration: none;
         border-width: 1px;
         border-style: solid;
-        margin: .2em;
-        margin-left: 0;
-        padding: .1em .3em;
+        margin: 0 0 .2em;
+        padding: calc(.1em + 2px) calc(.3em + 2px); // Don't change size when border changes
         line-height: 1.5;
         transition-duration: 300ms;
         transition-timing-function: ease-out;
         transition-property: color, background-color;
 
-        &.active, &.inactive-toggle {
-            // Journal styles don't know about ".active" controls so they don't
-            // do the inverted colors thing you see in site skins. But border
-            // thickness will do in a pinch.
-            border-width: 3px;
-            margin: calc(.2em - 2px); // absorb extra border size
-            margin-left: 0;
-        }
+    }
+    a.active .keyword {
+        // Journal styles don't know about site skins' "a.active" controls so
+        // they don't do the inverted colors thing. But border thickness will do
+        // in a pinch.
+        border-width: 3px;
+        padding: .1em .3em;
     }
 
     .icon-browser-item-meta {
         word-wrap: break-word;
         overflow-wrap: break-word;
+        min-width: 0; // makes children shrinkable by grid/flex
         font-size: smaller;
-    }
-
-    // Keyword menus: the inline one is the modern one, and the legacy one is
-    // for old browsers that can't handle display: grid, because there's no way
-    // to make it work inline without tearing my hair out.
-    #inline-keyword-menu { // when no icon selected, or redundant bc meta text = yes
-        display: none;
-    }
-
-    #legacy-keyword-menu {
-        min-height: 4em;
-
-        @supports (display: grid) {
-            display: none;
-        }
-
-        label.left {
-            float: left;
-            margin-right: .5rem;
-        }
-    }
-
-    #icon-browser-select-button-wrapper {
-        display: none; // when no icon selected
-    }
-
-    #js-icon-browser-select {
-        margin-top: .5rem;
-        margin-bottom: .5rem;
-    }
-
-    .icon-browser-content #icon-browser-select-button-wrapper {
-        display: block;
-        display: flex;
-        justify-content: center;
-        align-items: center;
     }
 
     &.no-meta {
         .icon-browser-item-meta {
             display: none;
-        }
-
-        @supports (display: grid) { // no inline menu for old browsers
-            .icon-browser-content #inline-keyword-menu {
-                display: block;
-                grid-column: 1 / -1;
-
-                .keywords {
-                    display: flex;
-                    justify-content: center;
-                    flex-wrap: wrap;
-                    margin-bottom: .5rem;
-                }
-            }
         }
     }
 
@@ -203,6 +178,7 @@
         border-color: inherit;
     }
 
+    // Main grid
     .js-icon-browser-icon-grid {
         list-style: none;
         padding: 0;
@@ -211,6 +187,7 @@
         display: grid;
         grid-auto-flow: row dense;
         grid-template-columns: repeat(auto-fill, 110px);
+        justify-content: center;
         grid-column-gap: 1rem;
         grid-row-gap: 1rem;
 
@@ -234,19 +211,81 @@
         }
     }
 
-    // Pack em in:
-    &.small-icons.no-meta .js-icon-browser-icon-grid {
-        grid-template-columns: repeat(auto-fill, 58px);
+    // Per-item grid
+    .icon-browser-item {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 108px 1fr;
+        grid-row-gap: .5em;
+        grid-column-gap: .5em;
     }
 
-    .icon-browser-icon-image img {
-        max-width: 100%;
-        height: auto;
-        // Foundation's .th thumbnail class sets images to display: inline-block
-        // instead of inline, which makes border-box sizing affect their
-        // height/width attributes. So without this, a 100 x 100 icon will
-        // display as 92 x 92.
-        box-sizing: content-box;
+    // Icons sit on the ground, centered.
+    .icon-browser-icon-image {
+        align-self: end;
+        justify-self: center;
+
+        // Fallback for non-grid browsers
+        margin-bottom: .5em;
+        @supports (display: grid) {
+            margin-bottom: 0;
+        }
+    }
+
+    // Large + notext: get rid of extra vertical gap
+    &.no-meta {
+        .icon-browser-item {
+            grid-row-gap: 0;
+        }
+    }
+
+    // Small + text: Bigger cell width, icon beside text.
+    &.small-icons {
+        .js-icon-browser-icon-grid {
+            grid-template-columns: repeat(auto-fill, 180px);
+        }
+        .icon-browser-item {
+            grid-template-columns: 58px 1fr;
+            grid-template-rows: 1fr;
+        }
+        // Icon aligns w/ start of text.
+        .icon-browser-icon-image {
+            align-self: start;
+        }
+    }
+
+    // small + notext: shrink main grid, item grid adjusts fine.
+    &.small-icons.no-meta {
+        .js-icon-browser-icon-grid {
+            grid-template-columns: repeat(auto-fill, 58px);
+        }
+        // Icons can sit on the ground again.
+        .icon-browser-item {
+            grid-template-rows: minmax(58px, 1fr);
+        }
+        .icon-browser-icon-image {
+            align-self: end;
+            justify-self: center;
+        }
+    }
+
+    .icon-browser-icon-image {
+        a {
+            cursor: pointer; // since it has no href.
+            // Don't save useless space below the image:
+            display: block;
+            line-height: 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            // Foundation's .th thumbnail class sets images to display: inline-block
+            // instead of inline, which makes border-box sizing affect their
+            // height/width attributes. So without this, a 100 x 100 icon will
+            // display as 92 x 92.
+            box-sizing: content-box;
+        }
     }
 
     &.small-icons {
