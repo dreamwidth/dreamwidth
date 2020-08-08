@@ -98,13 +98,13 @@ sub temp_user {
 # Usage: LJ::Mock::make_fake_lang_ml( {'key' => 'value', ...} )
 sub make_fake_lang_ml {
     my ($table) = @_;
-    my sub fake_lang_ml {
+    my $fake_lang_ml = sub {
         my ($arg) = @_;
         return $table->{$arg};
-    }
+    };
     $mock->fake_module(
         'LJ::Lang' => (
-            ml => \&fake_lang_ml
+            ml => $fake_lang_ml
         )
     );
 }
