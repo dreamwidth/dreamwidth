@@ -51,7 +51,8 @@
     }
 
     #js-icon-browser-search {
-        width: auto; // don't stretch to 100% on site skin
+        width: 8em; // don't stretch to 100% on site skin
+        flex-grow: 1;
         @media (pointer: coarse) {
             font-size: 16px; // dramatic woodchuck repellent
         }
@@ -88,10 +89,19 @@
             margin-right: 2em;
 
             @supports (display: flex) {
-                margin-right: 0;
+                margin-right: .4rem;
+                margin-left: .4rem;
             }
 
             margin-bottom: 1rem;
+            white-space: nowrap;
+        }
+
+        // Override ultra-fluffy Foundation styling for fieldsets, we don't have
+        // space for that nonsense.
+        fieldset {
+            margin: 0;
+            padding: .3em .8em .6em;
         }
     }
 

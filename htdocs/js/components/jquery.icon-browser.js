@@ -58,6 +58,8 @@ IconBrowser.prototype = {
     kwToIcon: {},
     selectedId: undefined,
     selectedKeyword: undefined,
+    iconBrowserItems: [],
+    iconsList: undefined,
     isLoaded: false,
     listenersRegistered: false,
     loadIcons: function() {
@@ -87,6 +89,8 @@ IconBrowser.prototype = {
                 $status.remove();
 
                 var $iconslist = $content.find("ul");
+                // Save it, we'll need it for sorting later.
+                iconBrowser.iconsList = $iconslist;
                 $iconslist.empty();
 
                 var pics = data.pics;
@@ -97,6 +101,7 @@ IconBrowser.prototype = {
                     var $img = $("<img />").attr( {
                             src: icon.url,
                             alt: icon.alt,
+                            title: icon.keywords.join(', '),
                             height: icon.height,
                             width: icon.width,
                             role: "button",
@@ -121,13 +126,25 @@ IconBrowser.prototype = {
 
                     var $meta = $("<div class='icon-browser-item-meta'></div>").append($keywords).append($comment);
                     var $item = $("<div class='icon-browser-item'></div>").append($img).append($meta);
-                    $("<li></li>").append($item).appendTo($iconslist)
+                    var $listItem = $("<li></li>").append($item)
                         .data( "keywords", icon.keywords.join(" ").toLocaleUpperCase() )
                         .data( "comment", icon.comment.toLocaleUpperCase() )
                         .data( "alt", icon.alt.toLocaleUpperCase() )
                         .data( "defaultkw", icon.keywords[0] )
+                        .data( "dateorder", index )
                         .attr( "id", idstring );
+                    // Save a reference for easy sorting later
+                    iconBrowser.iconBrowserItems.push($listItem);
                 });
+
+                // If we're starting in keyword order, do an initial sort so we
+                // match the option button state.
+                if ( iconBrowser.modal.hasClass('keyword-order') ) {
+                    iconBrowser.sortByKeyword();
+                }
+
+                // Do the DOM manipulation in one pass.
+                $iconslist.append(iconBrowser.iconBrowserItems);
 
                 searchField.prop("disabled", false);
 
@@ -155,6 +172,9 @@ IconBrowser.prototype = {
 
         $("#js-icon-browser-search").on("keyup click", this.filter.bind(this));
         $("#js-icon-browser-select").on("click", this.updateOwner.bind(this));
+
+        this.modal.on("sortByKeyword.iconbrowser", this.sortByKeyword.bind(this));
+        this.modal.on("sortByDate.iconbrowser", this.sortByDate.bind(this));
 
         $(document)
             .on('closed.fndtn.reveal', '#' + this.modalId, this.deregisterListeners.bind(this));
@@ -287,6 +307,34 @@ IconBrowser.prototype = {
     close: function() {
         this.modal.foundation('reveal', 'close');
     },
+    sortByKeyword: function() {
+        this.iconBrowserItems.sort(function(a, b) {
+            var aKW = a.data('defaultkw').toLowerCase();
+            var bKW = b.data('defaultkw').toLowerCase();
+            if ( aKW < bKW ) {
+                return -1;
+            }
+            if ( aKW > bKW ) {
+                return 1;
+            }
+            return 0;
+        });
+        this.iconsList.append(this.iconBrowserItems); // updates in-place.
+    },
+    sortByDate: function() {
+        this.iconBrowserItems.sort(function(a, b) {
+            var aDate = a.data('dateorder');
+            var bDate = b.data('dateorder');
+            if ( aDate < bDate ) {
+                return -1;
+            }
+            if ( aDate > bDate ) {
+                return 1;
+            }
+            return 0;
+        });
+        this.iconsList.append(this.iconBrowserItems); // updates in-place.
+    },
     filter: function(e) {
         if (this.selectedKeyword) {
             if ( e.key === 'Enter' || (! e.key && e.keyCode === 13) ) {
@@ -331,43 +379,51 @@ function Options(modal, prefs) {
     $.extend(this, {
         modal: modal
     });
-    $("#js-icon-browser-meta-toggle a")
-        .click(this.toggleMetaText.bind(this))
-        .filter(prefs.metatext ? "[data-action='text']" : "[data-action='no-text']")
-            .triggerHandler("click", true);
+    $("#js-icon-browser-order-option")
+        .on('change', this.toggleKeywordOrder.bind(this))
+        .find(prefs.keywordorder ? "[value='keyword']" : "[value='date']")
+            .prop('checked', true).trigger('change', true);
 
-    $("#js-icon-browser-size-toggle a")
-        .click(this.toggleIconSize.bind(this))
-        .filter(prefs.smallicons ? "[data-action='small']" : "[data-action='large']")
-            .triggerHandler("click", true);
-}
+    $("#js-icon-browser-meta-option")
+        .on('change', this.toggleMetaText.bind(this))
+        .find(prefs.metatext ? "[value='text']" : "[value='no-text']")
+            .prop('checked', true).trigger('change', true);
 
-function toggleLinkState($el, init) {
-    $el.addClass("inactive-toggle")
-        .siblings()
-            .removeClass("inactive-toggle");
+    $("#js-icon-browser-size-option")
+        .on('change', this.toggleIconSize.bind(this))
+        .find(prefs.smallicons ? "[value='small']" : "[value='large']")
+            .prop('checked', true).trigger('change', true);
 }
 
 Options.prototype = {
+    toggleKeywordOrder: function(e, init) {
+        e.preventDefault();
+
+        if ( e.target.value === "keyword" ) {
+            this.modal.addClass("keyword-order");
+            this.modal.trigger("sortByKeyword.iconbrowser");
+            if ( !init ) this.save( "keywordorder", true );
+        } else {
+            this.modal.removeClass("keyword-order");
+            this.modal.trigger("sortByDate.iconbrowser");
+            if ( !init ) this.save( "keywordorder", false );
+        }
+    },
     toggleMetaText: function(e, init) {
         e.preventDefault();
 
-        var $link = $(e.target);
-        if ( $link.data("action") === "text" ) {
+        if ( e.target.value === "text" ) {
             this.modal.removeClass("no-meta");
             if ( !init ) this.save( "metatext", true );
         } else {
             this.modal.addClass("no-meta");
             if ( !init ) this.save( "metatext", false );
         }
-
-        toggleLinkState($link);
     },
     toggleIconSize: function(e, init) {
         e.preventDefault();
 
-        var $link = $(e.target);
-        if ( $link.data("action") === "large" ) {
+        if ( e.target.value === "large" ) {
             this.modal.removeClass("small-icons");
 
             if ( !init ) this.save( "smallicons", false );
@@ -376,8 +432,6 @@ Options.prototype = {
 
             if ( !init ) this.save( "smallicons", true );
         }
-
-        toggleLinkState($link);
     },
     save: function(option, value) {
         var params = {};
@@ -395,7 +449,7 @@ $.fn.extend({
             var defaults = {
                 // triggerSelector: "#icon-browse-button, #icon-preview",
                 // modalId: "icon-browser",
-                // preferences: { metatext: true, smallicons: false }
+                // preferences: { metatext: true, smallicons: false, keywordorder: false }
             };
 
             new IconBrowser($(this), $.extend({}, defaults, options));
