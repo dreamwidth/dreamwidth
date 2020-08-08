@@ -648,6 +648,26 @@ sub hide_join_post_link {
     return $u->prop('hide_join_post_link');
 }
 
+=head3 C<< $self->iconbrowser_keywordorder( [ $keyword_order ] ) >>
+
+If no argument, returns whether to sort the icon browser by keyword order
+(instead of upload order). Default is upload order.
+
+If argument is passed in, acts as setter. Argument can be "Y" / "N"
+
+=cut
+
+sub iconbrowser_keywordorder {
+    my $u = $_[0];
+
+    if ( $_[1] ) {
+        my $newval = $_[1] eq "Y" ? "Y" : undef;
+        $u->set_prop( iconbrowser_keywordorder => $newval );
+    }
+
+    return ( $_[1] || $u->prop('iconbrowser_keywordorder') || "N" ) eq 'Y' ? 1 : 0;
+}
+
 =head3 C<< $self->iconbrowser_metatext( [ $arg ] ) >>
 
 If no argument, returns whether to show meta text in the icon browser or not.

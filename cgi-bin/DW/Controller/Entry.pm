@@ -433,6 +433,7 @@ sub _init {
         icons => \@icons,
 
         icon_browser => {
+            keywordorder   => $u ? $u->iconbrowser_keywordorder   : "",
             metatext   => $u ? $u->iconbrowser_metatext   : "",
             smallicons => $u ? $u->iconbrowser_smallicons : "",
         },
