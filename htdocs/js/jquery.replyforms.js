@@ -55,6 +55,7 @@ jQuery(function($) {
             triggerSelector: "#lj_userpicselect",
             modalId: "js-icon-browser",
             preferences: {
+                "keywordorder": $('#lj_userpicselect').data('iconbrowserKeywordorder'),
                 "metatext": $('#lj_userpicselect').data('iconbrowserMetatext'),
                 "smallicons": $('#lj_userpicselect').data('iconbrowserSmallicons')
             }

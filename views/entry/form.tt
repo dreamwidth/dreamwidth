@@ -100,6 +100,7 @@ postFormInitData.strings = {
 
 [%- IF remote && remote.can_use_userpic_select -%]
     postFormInitData.iconBrowser = {
+        "keywordorder": [%- icon_browser.keywordorder ? "true" : "false" -%],
         "metatext": [%- icon_browser.metatext ? "true" : "false" -%],
         "smallicons": [%- icon_browser.smallicons ? "true": "false" -%]
     };

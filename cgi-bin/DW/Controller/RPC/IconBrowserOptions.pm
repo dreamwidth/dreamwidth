@@ -30,6 +30,10 @@ sub iconbrowser_save {
 
     my $remote = LJ::get_remote();
 
+    if ( $post->{keywordorder} ) {
+        $remote->iconbrowser_keywordorder( $post->{keywordorder} eq "true" ? "Y" : "N" );
+    }
+
     if ( $post->{metatext} ) {
         $remote->iconbrowser_metatext( $post->{metatext} eq "true" ? "Y" : "N" );
     }

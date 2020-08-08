@@ -478,6 +478,14 @@ userproplist.icbm:
   multihomed: 0
   prettyname: ICBM Address
 
+userproplist.iconbrowser_keywordorder:
+  cldversion: 4
+  datatype: bool
+  des: Whether to sort the icon browser by keyword, instead of upload date
+  indexed: 0
+  multihomed: 0
+  prettyname: Icon browser keyword order
+
 userproplist.iconbrowser_metatext:
   cldversion: 4
   datatype: bool
