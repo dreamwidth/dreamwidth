@@ -1543,10 +1543,10 @@ sub talkform {
                 && $remote
                 && $remote->can_manage($journalu),
 
-            can_use_userpic_select => $remote->can_use_userpic_select && ( scalar(@icons) > 0 ),
-            iconbrowser_keywordorder   => $remote->iconbrowser_keywordorder ? "true" : "false",
-            iconbrowser_metatext   => $remote->iconbrowser_metatext ? "true" : "false",
-            iconbrowser_smallicons => $remote->iconbrowser_smallicons ? "true" : "false",
+            can_use_userpic_select   => $remote->can_use_userpic_select && ( scalar(@icons) > 0 ),
+            iconbrowser_keywordorder => $remote->iconbrowser_keywordorder ? "true" : "false",
+            iconbrowser_metatext     => $remote->iconbrowser_metatext ? "true" : "false",
+            iconbrowser_smallicons   => $remote->iconbrowser_smallicons ? "true" : "false",
             }
         : 0,
         journal => {
