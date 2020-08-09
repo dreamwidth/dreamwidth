@@ -93,4 +93,20 @@ sub temp_user {
     return $u;
 }
 
+# For tests that just need to hardcode a few responses from LJ::Lang::ml this
+# provides an easy way to set up the lookup table.
+# Usage: LJ::Mock::make_fake_lang_ml( {'key' => 'value', ...} )
+sub make_fake_lang_ml {
+    my ($table) = @_;
+    my $fake_lang_ml = sub {
+        my ($arg) = @_;
+        return $table->{$arg};
+    };
+    $mock->fake_module(
+        'LJ::Lang' => (
+            ml => $fake_lang_ml
+        )
+    );
+}
+
 1;
