@@ -272,11 +272,6 @@ no strict "vars";
         #'DE' => { type => 'statede', save_region_code => 0, },
     );
 
-    %LJ::VALID_PAGE_NOTICES = (
-        profile_design  => 1,
-        settings_design => 1,
-    );
-
     $SUBDOMAIN_RULES = {
         P => [ 1, "users.$LJ::DOMAIN" ],
         Y => [ 1, "syndicated.$LJ::DOMAIN" ],
