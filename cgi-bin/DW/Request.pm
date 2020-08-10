@@ -89,13 +89,6 @@ These methods work on any DW::Request subclass.
 Sends this cookie to the browser.  %args should be the same arguments passed to CGI::Cookie->new, except without the
 initial hyphens CGI::Cookie asks you to use.  We don't use those.
 
-=head2 C<< $r->call_bml( $filename ) >>
-
-    return $r->call_bml( $filename );
-
-Render a BML file.
-Must be called as above, with the result being directly returned.
-
 =head2 C<< $r->call_response_handler( $subref ) >>
 
     return $r->call_response_handler( \&handler );
