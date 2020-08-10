@@ -17,7 +17,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
     sections.head = BLOCK -%]
 <script type="text/javascript">
 [%- IF all_tests -%]
-register_all_tests([ [% FOREACH test IN all_tests; UNLESS loop.first %],[% END %]"[% test %]"[% END %] ]);
+register_all_tests([ [%-
+      FOREACH test IN all_tests;
+      NEXT IF test == 'sample';
+      ',' UNLESS loop.first;
+      "\"$test\"";
+      END -%] ]);
 [%- ELSE -%]
 register_all_tests([ "[% test %]" ]);
 [%- END -%]
