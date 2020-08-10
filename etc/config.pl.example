@@ -164,9 +164,6 @@
     $MSG_READONLY_USER   = "This journal is in read-only mode right now while database maintenance is performed " .
                            "on the server where the journal is located.  Try again in several minutes.";
     $MSG_NO_POST    = "Due to hardware maintenance, you cannot post at this time.  Watch the news page for updates.";
-    $MSG_NO_COMMENT = "Due to hardware maintenance, you cannot leave comments at this time.  Watch the news " .
-                      "page for updates.";
-    #$MSG_DB_UNAVAILABLE = "Sorry, database temporarily unavailable.  Please see <a href='...'>...</a> for status updates.";
 
     ###
     ### Language / Scheme support
