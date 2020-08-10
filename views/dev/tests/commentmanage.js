@@ -255,7 +255,7 @@ test( "delete with shift", 4, function() {
         .one( "delcommentcomplete", function(event, data) {
             // finish animation early
             parent.stop(true, true);
-            child.stop(true, true);
+            // child.stop(true, true);
 
             ok( ! parent.is(":visible"), "Parent comment successfully hidden after delete" );
             ok(   child.is(":visible"), "Child comment not deleted, still visible" );
@@ -303,7 +303,7 @@ test( "delete all children (has no children)", 4, function() {
         .delcomment(this.del_args)
         .one( "delcommentcomplete", function(event, data) {
             // finish animation early
-            parent.stop(true, true);
+            // parent.stop(true, true);
             child.stop(true, true);
 
             ok(   parent.is(":visible"), "Parent comment not deleted" );
@@ -332,7 +332,7 @@ test( "delete no children (has children)", 4, function() {
         .one( "delcommentcomplete", function(event, data) {
             // finish animation early
             parent.stop(true, true);
-            child.stop(true, true);
+            // child.stop(true, true);
 
             ok( ! parent.is(":visible"), "Parent comment successfully hidden after delete" );
             ok(   child.is(":visible"), "Child comment not deleted, still visible" );
@@ -356,7 +356,7 @@ test( "delete no children (has no children)", 4, function() {
         .delcomment(this.del_args)
         .one( "delcommentcomplete", function(event, data) {
             // finish animation early
-            parent.stop(true, true);
+            // parent.stop(true, true);
             child.stop(true, true);
 
             ok(   parent.is(":visible"), "Parent comment not deleted, still visible" );
@@ -383,8 +383,8 @@ test( "failed delete: no hiding", 4, function() {
         .delcomment(this.del_args)
         .one( "delcommentcomplete", function(event, data) {
             // finish animation early
-            parent.stop(true, true);
-            child.stop(true, true);
+            // parent.stop(true, true);
+            // child.stop(true, true);
 
             ok( parent.is(":visible"), "Parent comment not deleted, still visible" );
             ok( child.is(":visible"), "Child comment not deleted, still visible" );
