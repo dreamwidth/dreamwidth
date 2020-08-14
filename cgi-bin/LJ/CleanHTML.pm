@@ -1160,6 +1160,7 @@ TOKEN:
                             my $close;
                             while ( ( $close = pop @tagstack ) && $close ne $tag ) {
                                 $opencount{$close}--;
+                                next if $close =~ $slashclose_tags;
                                 $newdata .= "</$close>";
                             }
                         }
