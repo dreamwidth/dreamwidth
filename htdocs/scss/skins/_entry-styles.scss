@@ -187,7 +187,12 @@ ul.pagination {
 
 ul.pagination li {
   align-self: center;
-  margin-bottom: .25em;
+  @supports (display: grid) {
+    margin: 0 0 .25em;
+  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
 }
 
