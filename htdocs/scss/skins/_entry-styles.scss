@@ -213,6 +213,7 @@ ul.pagination .arrow:last-child {
 
 ul.pagination li a {
   padding: .0625rem .25rem .0625rem;
+  flex-grow: 1;
 
   @media #{$small-only} {
     padding: .125rem .5rem .125rem;
