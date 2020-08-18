@@ -4,7 +4,7 @@
 
 $journal-content-font-size: 1rem !default;
 
-.entry, #comments, .reply-page-wrapper {
+.entry, #comments, .reply-page-wrapper, #talkpost-wrapper {
   // Intended behavior:
   // - Skins that don't specify otherwise will display entries and comments
   //   in the default font size. (That's not the browser default, though,
