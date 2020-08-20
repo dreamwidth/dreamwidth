@@ -70,7 +70,7 @@ sub entryprops_handler {
     my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
         my $post  = $r->post_args;
-        my $entry = LJ::Entry->new_from_url( $post->{url} );
+        my $entry = LJ::Entry->new_from_url( LJ::trim( $post->{url} ) );
 
         my $url = LJ::ehtml( $post->{url} );
         $errors->add_string( 'url', "$url is not a valid entry URL." )
@@ -178,8 +178,9 @@ sub entryprops_handler {
     }
 
     my $vars = {
-        entry => %entry_info ? \%entry_info : undef,
-        props => \@props,
+        entry  => %entry_info ? \%entry_info : undef,
+        props  => \@props,
+        errors => $errors,
     };
     return DW::Template->render_template( "admin/entryprops.tt", $vars );
 }
