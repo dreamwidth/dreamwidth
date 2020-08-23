@@ -19,42 +19,59 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF total_pages > 1 -%]
 <ul class="pagination">
-  [%- previous_first = current == 1           ? current : current - 1;
-      previous_last  = current == total_pages ? current : current + 1;
-
-      next_first     = total_pages - 1;
-      next_last      = total_pages;
-
-      IF previous_first > next_first;
-        previous_first = next_first;
-        previous_last = next_last;
-      END;
-
-      IF next_first <= previous_last;
-        next_first = previous_last + 1;
-      END
-  -%]
-
   [% IF current > 1 %]
-    <li class="arrow"><a href="[% dw.create_url( undef, keep_args => 1, args => { page => previous_first } ) %]">&laquo;</a></li>
+    <li class="arrow"><a href="[% dw.create_url( undef, keep_args => 1, args => { page => (current - 1) } ) %]">&laquo;</a></li>
   [% END %]
 
-  [%- FOREACH page_num = [ previous_first..previous_last ] %]
-    <li[% IF page_num == current %] class="current" [% END %]><a href="[% dw.create_url( undef, keep_args => 1, args => { page => page_num } ) %]">[% page_num %]</a></li>
-  [%- END -%]
+  [% IF total_pages <= 7 %]
+  [%# If there's less than seven pages, print all of them. %]
+    [%- INCLUDE print_pages range=[1..total_pages] -%]
+  [% ELSE %]
+    [%- # Time for weird math! There are three display possiblities:
+        # 1) current page is near the start, so we have a big start block and small end
+        # 2) current page is near the end, so we have a small start and big end
+        # 3) current page is near neither, so we have a small start and end, and a center block
+        # each setting will print 7 items - either:
+        # 1) 5 pages, ellipsis, 1 page
+        # 2) 1 page, ellipsis, 5 pages
+        # 3) 1 page, ellipsis, 3 pages, ellipsis, 1 page
 
-  [% IF next_last > previous_last %]
-    <li class="unavailable"><a href="">&hellip;</a></li>
-  [% END %]
+        end_range_start = total_pages - 4;
+        start_range_end = 5; # 1 plus 4, as the end is last minus 4
 
-  [% IF next_last > previous_last %]
-    [%- FOREACH page_num = [ next_first..next_last ] %]
-    <li><a href="[% dw.create_url( undef, keep_args => 1, args => { page => page_num } ) %]">[% page_num %]</a></li>
-    [%- END -%]
+        in_end_range = end_range_start < current;
+        in_start_range = current < start_range_end;
+        in_center_range = !(in_start_range || in_end_range); # both ends are collapsed
+
+        start_range = in_start_range ? [1..start_range_end] : [1];
+        end_range = in_end_range ? [end_range_start..total_pages] : [ total_pages] ;
+        center_start = current - 1;
+        center_end = current + 1;
+    -%]
+        [%- INCLUDE print_pages range=start_range -%]
+        [%- INCLUDE print_ellipsis -%]
+
+        [% IF in_center_range %]
+          [%- INCLUDE print_pages range=[center_start..center_end] -%]
+          [%- INCLUDE print_ellipsis -%]
+        [% END %]
+
+        [%- INCLUDE print_pages range=end_range -%]
   [% END %]
 
   [% IF current < total_pages %]
-    <li class="arrow"><a href="[% dw.create_url( undef, keep_args => 1, args => { page => previous_last } ) %]">&raquo;</a></li>
+    <li class="arrow"><a href="[% dw.create_url( undef, keep_args => 1, args => { page => (current + 1) } ) %]">&raquo;</a></li>
   [% END %]
 </ul>
 [%- END -%]
+
+[%- BLOCK print_pages -%]
+  [%- FOREACH page_num = range -%]
+      <li[% IF page_num == current %] class="current" [% END %]><a href="[% dw.create_url( undef, keep_args => 1, args => { page => page_num } ) %]">[% page_num %]</a></li>
+  [%- END -%]
+[%- END -%]
+
+[%- BLOCK print_ellipsis -%]
+<li class="unavailable"><a href="">&hellip;</a></li>
+[%- END -%]
+
