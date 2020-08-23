@@ -1,5 +1,30 @@
 [%- CALL dw.active_resource_group("foundation") -%]
-[% dw.need_res({ group => "foundation"}, 'stc/inbox.css') %]
+[% dw.need_res(
+        { group => 'foundation' },
+
+        'js/foundation/foundation/foundation.js',
+        'js/foundation/foundation/foundation.reveal.js',
+        'js/components/jquery.icon-browser.js',
+        'stc/css/components/icon-browser.css',
+        "stc/css/components/quick-reply.css"
+    ) IF can_use_userpic_select %]
+
+[% dw.need_res({ group => "foundation"}, 
+    'stc/inbox.css'
+    "stc/css/components/button-groups.css"
+
+    ## tags (autocomplete)
+    "js/vendor/jquery.vertigro.js"
+    "js/jquery/jquery.ui.menu.js"
+    "js/jquery/jquery.ui.autocomplete.js"
+    "js/components/jquery.autocompletewithunknown.js"
+    "stc/jquery/jquery.ui.menu.css"
+    "stc/jquery/jquery.ui.autocomplete.css"
+    "stc/css/components/autocompletewithunknown.css"
+
+    'js/jquery.inbox.js'
+) %]
+
 [% sections.title = "Compose Message" %]
 
 <div id="inbox">
@@ -9,7 +34,7 @@
             <form action="./compose" method="POST" id="compose">
                 [% dw.form_auth() %]
 
-  <div class='qr-icon' id="compose_icon">
+  <div class='qr-icon no-label' id="compose_icon">
     [%- IF can_use_userpic_select -%]
       <button type='button' id='lj_userpicselect' data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
     [%- ELSE -%]
@@ -42,7 +67,7 @@
     </div>
   [%- END -%]
 
-<span class="pkg">
+<div class="pkg">
     <label class="left" for="msg_to">To: </label>
 
     [% IF disabled_to %]
@@ -54,7 +79,7 @@
 
     [% form.hidden( name = 'force', value = force, id = 'force') %]
 
-</span>
+</div>
 
 
 [% form.checkbox( name = 'cc_msg', id = 'cc_msg', selected = cc_msg_option, label = dw.ml('.form.label.cc')) %]
@@ -78,6 +103,9 @@
                         [% form.hidden( name = 'mode', value = 'send') %]
                         [% form.submit( value = 'Send') %]
                 </div>
+               <script>
+               var autocomplete_list = ['[% autocomplete.join("', '") %]'];
+              </script>
 
             </form>
 </div>
