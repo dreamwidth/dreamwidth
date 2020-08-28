@@ -526,4 +526,48 @@ sub compose_handler {
 
 }
 
+sub markspam_handler {
+    my ( $ok, $rv ) = controller(form_auth => 1);
+    return $rv unless $ok;
+
+    # gets the request and args
+    my $r        = $rv->{r};
+    my $POST = $r->post_args;
+    my $GET = $r->get_args;
+    my $remote = $rv->{remote};
+    my $remote_id = $remote->{'userid'};
+
+    my $msg_id = $GET->{msgid} || $POST->{msgid};
+    my $msg = LJ::Message->load({msgid => $msg_id, journalid => $remote_id});
+
+        return "<?p Message cannot be loaded p?>"
+        unless $msg && $msg->valid;
+
+    return "<?p You cannot report a message you sent as spam. p?>"
+        if $msg->type eq "out";
+
+    return "<?p You are not allowed to report messages as spam. p?>"
+        if LJ::sysban_check( 'spamreport', $remote->user );
+
+    my $vars = { errors        => $errors,
+        icons                  => \@icons,
+        icons_url              => $remote->allpics_base,
+        can_use_userpic_select => ($remote->can_use_userpic_select && (scalar(@icons) > 0)),
+        formdata               => $POST || { msg_to => ($GET->{'user'} || undef) },
+        msg_body               => $msg_body,
+        msg_subject            => $msg_subject,
+        msg_parent             => $msg_parent,
+        reply_u                => $reply_u,
+        reply_to               => $reply_to,
+        autocomplete           => \@flist,
+        cc_msg_option          => $cc_msg_option,
+        folder_html            => render_folders($remote),
+        commafy                => \&LJ::commafy,
+        current_icon           => $remote->userpic,
+        msg_limit              => $msg_limit
+    };
+
+    return DW::Template->render_template( 'inbox/compose.tt', $vars );
+
+}
 1;
