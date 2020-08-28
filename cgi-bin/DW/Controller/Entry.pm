@@ -303,7 +303,7 @@ sub _init {
     if ($u) {
 
         # icons
-        @icons = LJ::icon_keyword_menu($u);
+        @icons = $u->icon_keyword_menu;
 
         # moods
         my $theme = DW::Mood->new( $u->{moodthemeid} );
