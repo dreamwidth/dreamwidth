@@ -175,10 +175,11 @@
 
         // Prevent namespace event from triggering twice
         modal.on('open.fndtn.reveal', function(e) {
+          console.log(e);
           if (e.namespace !== 'fndtn.reveal') return;
         });
 
-        modal.on('open.fndtn.reveal').trigger('open.fndtn.reveal');
+      modal.trigger('open.fndtn.reveal');
 
         if (open_modal.length < 1) {
           this.toggle_bg(modal, true);

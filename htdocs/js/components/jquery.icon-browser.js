@@ -17,6 +17,7 @@ function IconBrowser($el, options) {
 
     $(document)
         .on('open.fndtn.reveal', modalSelector, function(e) {
+            console.log("opened");
             // hackety hack -- being triggered on both 'open' and 'open.fndtn.reveal'; just want one
             if (e.namespace === "") return;
 
@@ -32,6 +33,7 @@ function IconBrowser($el, options) {
         // wonder where you left your reply form and whether you have enough
         // water to survive the walk back to the gas station.
         .on('opened.fndtn.reveal', modalSelector, function(e) {
+            console.log("opened");
             // hackety hack -- being triggered on both 'opened' and 'opened.fndtn.reveal'; just want one
             if (e.namespace === "") return;
 
