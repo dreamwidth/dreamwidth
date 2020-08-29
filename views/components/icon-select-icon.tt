@@ -7,15 +7,15 @@
 ) %]
   <div class='block-icon no-label'>
     [%- IF can_use_userpic_select -%]
-      <button type='button' id='lj_userpicselect' data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
+      <button type='button' id='lj_userpicselect' data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]" data-iconbrowser-keywordorder="[%- remote.iconbrowser_keywordorder -%]">
     [%- ELSE -%]
       <a href="[% remote.allpics_base %]">
     [%- END -%]
-    [%- IF current_icon -%]
-      [%- current_icon.imgtag -%]
-    [%- ELSE -%]
-      [%- dw.img( "nouserpic_sitescheme", "" ) -%]
-    [%- END -%]
+      [%- IF current_icon -%]
+        [%- current_icon.imgtag -%]
+      [%- ELSE -%]
+        [%- dw.img( "nouserpic_sitescheme", "" ) -%]
+      [%- END -%]
     [%- IF can_use_userpic_select -%]
       </button>
     [%- ELSE -%]

@@ -13,7 +13,6 @@
 
 package LJ::User;
 use strict;
-use Data::Dumper;
 no warnings 'uninitialized';
 
 use List::Util qw/ min /;
@@ -937,7 +936,7 @@ sub icon_keyword_menu {
 
     # Finally, return the expected format for an LJ::html_select,
     # including an item for the default icon:
-    @icons = (
+    return (
         {
             value => "",
             text  => LJ::Lang::ml('entryform.opt.defpic'),
@@ -957,8 +956,6 @@ sub icon_keyword_menu {
             }
         } @icons
     );
-    print(Dumper(\@icons));
-    return @icons;
 }
 
 1;

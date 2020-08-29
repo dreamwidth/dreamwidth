@@ -277,8 +277,6 @@ sub _init {
     my $u    = $form_opts->{remote};
     my $vars = {};
 
-    my @icons;
-
     my %moodtheme;
     my @moodlist;
     my $moods = DW::Mood->get_moods;
@@ -301,10 +299,6 @@ sub _init {
     my $min_animation;
     my $displaydate_check;
     if ($u) {
-
-        # icons
-        @icons = $u->icon_keyword_menu;
-
         # moods
         my $theme = DW::Mood->new( $u->{moodthemeid} );
 
@@ -429,14 +423,6 @@ sub _init {
 
     $vars = {
         remote => $u,
-
-        icons => \@icons,
-
-        icon_browser => {
-            keywordorder => $u ? $u->iconbrowser_keywordorder : "",
-            metatext     => $u ? $u->iconbrowser_metatext     : "",
-            smallicons   => $u ? $u->iconbrowser_smallicons   : "",
-        },
 
         moodtheme => \%moodtheme,
         moods     => \@moodlist,
