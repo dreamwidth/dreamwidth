@@ -34,7 +34,7 @@ my $ICON2 = do { local $/; <$fh2> };
 note("called with falsy or undefined user object");
 {
     my $bogususer;
-    my @icons = LJ::icon_keyword_menu($bogususer);
+    my @icons = $bogususer->icon_keyword_menu;
     my $empty = [];
     is_deeply( \@icons, $empty, "No user, empty icons list" );
 }
@@ -46,14 +46,14 @@ note("called for user with...");
     my @icons;
 
     note("  ...no icons");
-    @icons = LJ::icon_keyword_menu($u);
+    @icons = $u->icon_keyword_menu;
     my $empty = [];
     is_deeply( \@icons, $empty, "No user, empty icons list" );
 
     note("  ...one icon, one keyword, no default");
     my $icon1 = LJ::Userpic->create( $u, data => \$ICON1 );
     $icon1->set_keywords("rad pic");
-    @icons = LJ::icon_keyword_menu($u);
+    @icons = $u->icon_keyword_menu;
     is( @icons, 2, "Select would have two items" );
     ok(
         defined $icons[0]->{data}->{url},
@@ -65,7 +65,7 @@ note("called for user with...");
     $icon1->set_keywords("b, z");
     $icon2->set_keywords("a, c, y");
     $icon1->make_default;
-    @icons = LJ::icon_keyword_menu($u);
+    @icons = $u->icon_keyword_menu;
     is( @icons, 6, "Select would have six items" );
     my @keywords   = map  { $_->{value} } @icons;
     my $b_keywords = grep { $_ eq 'b' } @keywords;

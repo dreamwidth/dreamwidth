@@ -382,50 +382,6 @@ var postForm = (function($) {
         });
     };
 
-    var initIcons = function($form, iconBrowserOptions) {
-        var $preview = $( "#js-icon-preview" );
-        if ( $preview.is(".no-icon") ) return;
-
-        var $select = $("#js-icon-select");
-
-        function buttonHTML(id, text, columnClass) {
-            return '<div class="columns medium-6 ' + columnClass + '">' +
-                "<button id='" + id + "' class='small secondary button'>" + text + "</button>" +
-                '</div>'
-        }
-        $select.closest('.row')
-                .after('<div class="row">' +
-                    buttonHTML('js-icon-browse', 'browse', '') +
-                    buttonHTML('js-icon-random', 'random', 'end') +
-                    '</div>');
-
-        function update_icon_preview() {
-            if ( this.selectedIndex != null ) {
-                var selection = $(this).find("option:selected");
-                $("#js-icon-preview-image").attr({
-                    "src": selection.data('url'),
-                    "alt": selection.data('description')
-                });
-            }
-        }
-
-        $select
-            .iconrandom( { trigger: "#js-icon-random" } )
-            .change( update_icon_preview )
-            .triggerHandler( "change" );
-
-        if ( $.fn.iconBrowser ) {
-            if ( ! iconBrowserOptions ) iconBrowserOptions = {};
-            $select.iconBrowser({
-                triggerSelector: "#js-icon-preview, #js-icon-browse",
-                modalId: "js-icon-browser",
-                preferences: iconBrowserOptions
-            });
-        } else {
-            $("#js-icon-browse").remove();
-        }
-    };
-
     var initSlug = function($form, $dateElement) {
         var $slug = $("#js-entry-slug");
         var $slugBase = $("#js-slug-base");
@@ -667,7 +623,6 @@ var postForm = (function($) {
         initCurrents(entryForm, formData.moodpics);
         initSecurity(entryForm, formData.security, { edit: formData.edit } );
         initJournal(entryForm);
-        initIcons(entryForm, formData.iconBrowser);
         initSlug(entryForm, $("#js-entrytime-date"));
         initTags(entryForm);
         initDate(entryForm);
