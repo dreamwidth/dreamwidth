@@ -76,18 +76,6 @@ sub customize_handler {
         sort { lc $cats{$a}->{text} cmp lc $cats{$b}->{text} } keys %cats;
 
     my @custom_themes        = LJ::S2Theme->load_by_user($u);
-    my @special_themes       = LJ::S2Theme->load_by_cat("special");
-    my $special_themes_exist = 0;
-    foreach my $special_theme (@special_themes) {
-        my $layout_is_active =
-            LJ::Hooks::run_hook( "layer_is_active", $special_theme->layout_uniq );
-        my $theme_is_active = LJ::Hooks::run_hook( "layer_is_active", $special_theme->uniq );
-
-        if ( $layout_is_active && $theme_is_active ) {
-            $special_themes_exist = 1;
-            last;
-        }
-    }
 
     # pull the main cats out of the full list
     my @main_cats;
@@ -95,8 +83,7 @@ sub customize_handler {
 
     for my $cat (@cats_sorted) {
         next
-            if ( $cat eq 'special' && !$special_themes_exist )
-            || ( $cat == 'custom'  && !@custom_themes );
+            if $cat == 'custom'  && !@custom_themes;
 
         if ( defined $cats{$cat}->{main} ) {
             push @main_cats, $cat;
@@ -389,7 +376,6 @@ sub render_currenttheme {
     $vars->{no_themechooser} = $no_themechooser;
     $vars->{userlay}         = $userlay;
     $vars->{no_layer_edit}   = $no_layer_edit;
-    $vars->{is_special}      = LJ::Hooks::run_hook( "layer_is_special", $theme->uniq );
     $vars->{c_url}           = \&customize_url;
 
     return DW::Template->template_string( 'customize/currenttheme.tt', $vars );
@@ -459,15 +445,9 @@ sub render_layoutchooser {
     die "Invalid user." unless LJ::isu($u);
 
     my $current_theme_id = LJ::Customize->get_current_theme($u);
-    $vars->{current_theme_id} = $current_theme_id;
     my %layouts = $current_theme_id->layouts;
-    $vars->{layouts} = \%layouts;
     my $show_sidebar_prop = $current_theme_id->show_sidebar_prop;
-    $vars->{get_layout_name} = sub { LJ::Customize->get_layout_name(@_); };
     my %layout_names = LJ::Customize->get_layouts;
-    $vars->{layout_names}    = \%layout_names;
-    $vars->{img_prefix}      = $LJ::IMGPREFIX;
-    $vars->{no_themechooser} = $opts{no_themechooser};
 
     my $layout_prop = $current_theme_id->layout_prop;
 
@@ -490,6 +470,11 @@ sub render_layoutchooser {
     }
 
     $vars->{prop_value} = $prop_value;
+    $vars->{current_theme_id} = $current_theme_id;
+    $vars->{layout_names}    = \%layout_names;
+    $vars->{img_prefix}      = $LJ::IMGPREFIX;
+    $vars->{get_layout_name} = sub { LJ::Customize->get_layout_name(@_); };
+    $vars->{layouts} = \%layouts;
 
     $vars->{u} = $u;
     return DW::Template->template_string( 'customize/layoutchooser.tt', $vars );
