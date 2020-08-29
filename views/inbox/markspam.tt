@@ -1,75 +1,30 @@
 [%- CALL dw.active_resource_group( "foundation" ) -%]
-[% dw.need_res( { group => "foundation" }, 'stc/inbox.css', 'js/jquery.inbox.js' ) %]
-[%- sections.title = '.title' | ml -%]
+[%- sections.title = 'Mark Message as Spam' -%]
 
+<p>Are you sure you want to mark this message as spam?</p>
 
-    return "<?p Message cannot be loaded p?>"
-        unless $msg && $msg->valid;
+    <form method='post'>
+    [% dw.form_auth() %]
 
-    return "<?p You cannot report a message you sent as spam. p?>"
-        if $msg->type eq "out";
+        <div class='highlight-box'>
+        [% form.checkbox( 
+            name = 'spam', 
+            id = 'spam', 
+            selected = "checked", 
+            label = "Mark this message as spam") %]
+        </div>
 
-    return "<?p You are not allowed to report messages as spam. p?>"
-        if LJ::sysban_check( 'spamreport', $remote->user );
+        <div>
+        [% form.checkbox( 
+            name = 'ban', 
+            id = 'ban', 
+            label = "Ban $msg_user.display_name from sending you messages and commenting in your journal.") %]
+        </div>
 
-    my $body = '';
+        <div align='center' style='margin: 8px'>
+        [% form.hidden( name = 'msgid', value = msgid) %]
+        [% form.submit( name = 'confirm', value = 'Confirm') %]
+        </div>
+    </form>
 
-    if (LJ::did_post() && $POST{'confirm'}) {
-        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
-            unless LJ::check_form_auth();
-
-        # Some action must be selected
-        return "<?h1 $ML{'Error'} h1?><?p No action selected p?>"
-            unless ($POST{spam} || $POST{'ban'});
-
-        $body .= '<ul>';
-        # Mark as spam
-        if ($POST{spam}) {
-            $body .= '<li>Message marked as spam.</li>'
-                if $msg->mark_as_spam;
-        }
-
-        # Ban user
-        if ($POST{'ban'}) {
-            LJ::set_rel($remote_id, $msg->otherid, 'B');
-            $remote->log_event('ban_set', { actiontarget => $msg->otherid, remote => $remote });
-            $body .= '<li>User banned.</li>';
-        }
-
-        $body .= "</ul>\n";
-
-        $body .= "<?p What would you like to do next? p?>\n";
-        $body .= "<ul><li><a href='$LJ::SITEROOT/inbox/'>Go to the Inbox</a></li>";
-        $body .= "<li><a href='$LJ::SITEROOT/'>Go to the Home page</a></li>";
-        $body .= "<li><a href='$LJ::SITEROOT/manage/profile/'>Edit your profile</a></li></ul>";
-
-        return $body;
-    }
-
-    $body .= "<?p Are you sure you want to mark this message as spam? p?>";
-
-    $body .= "<form method='post'>";
-    $body .= LJ::form_auth();
-
-    $body .= "<div class='highlight-box'>" . LJ::html_check({name => 'spam', id => 'spam', checked => "checked"});
-    $body .= "<label for='spam'>Mark this message as spam</label></div>";
-
-    $body .= "<div>" . LJ::html_check({ 'type' => 'check', 'name' => 'ban', 'id' => 'ban' });
-    $body .= "<label for='ban'>";
-    $body .= "Ban ". LJ::ljuser($msg->other_u) ." from sending you messages and commenting in your journal.";
-    $body .= "</label></div>";
-
-    $body .= "<div align='center' style='margin: 8px'>";
-    $body .= LJ::html_hidden({name => 'msgid', value => $msg->msgid});
-    $body .= LJ::html_submit('confirm', 'Confirm') . "</div>\n";
-    $body .= "</form>";
-
-    $body .= "<p><strong>Note:</strong> From the <a href='/manage/profile/'>Edit Profile</a> page, you can change your $LJ::SITENAMEABBREV User Messaging settings.</p>";
-
-    return $body;
-}
-_code?>
-<=body
-title=><?_code return "Mark Message as Spam"; _code?>
-<=body
-page?>
+    <p><strong>Note:</strong> From the <a href='/manage/profile/'>Edit Profile</a> page, you can change your [% site.nameabbrev %] User Messaging settings.</p>

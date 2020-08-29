@@ -11,6 +11,7 @@ use Data::Dumper;
 
 DW::Routing->register_string( '/inbox', \&index_handler,    app => 1 );
 DW::Routing->register_string( '/inbox/compose', \&compose_handler,    app => 1 );
+DW::Routing->register_string( '/inbox/markspam', \&markspam_handler,    app => 1 );
 DW::Routing->register_rpc( "inbox_actions",  \&action_handler,  format => 'html' );
 
 my $PAGE_LIMIT = 15;
@@ -535,39 +536,49 @@ sub markspam_handler {
     my $POST = $r->post_args;
     my $GET = $r->get_args;
     my $remote = $rv->{remote};
-    my $remote_id = $remote->{'userid'};
+    my $errors = DW::FormErrors->new;
 
+    my $remote_id = $remote->{'userid'};
     my $msg_id = $GET->{msgid} || $POST->{msgid};
     my $msg = LJ::Message->load({msgid => $msg_id, journalid => $remote_id});
 
-        return "<?p Message cannot be loaded p?>"
+    return $r->msg_redirect("Message cannot be loaded.", $r->ERROR, "$LJ::SITEROOT/inbox")
         unless $msg && $msg->valid;
 
-    return "<?p You cannot report a message you sent as spam. p?>"
-        if $msg->type eq "out";
+    return $r->msg_redirect("You cannot report a message you sent as spam.",
+        $r->ERROR, "$LJ::SITEROOT/inbox") if $msg->type eq "out";
 
-    return "<?p You are not allowed to report messages as spam. p?>"
-        if LJ::sysban_check( 'spamreport', $remote->user );
+    return $r->msg_redirect("You are not allowed to report messages as spam.",
+        $r->ERROR, "$LJ::SITEROOT/inbox") if LJ::sysban_check( 'spamreport', $remote->user );
 
+    if ($r->did_post && $POST->{'confirm'}) {
+        $errors->add(undef, 'error.invalidform') 
+            unless LJ::check_form_auth($POST->{lj_form_auth});
+
+        # Some action must be selected
+        $errors->add(undef, 'No action selected') 
+            unless ($POST->{spam} || $POST->{'ban'});
+
+        # Mark as spam
+        if ($POST->{spam}) {
+            $r->add_msg("Message marked as spam.", $r->SUCCESS)
+                if $msg->mark_as_spam;
+        }
+
+        # Ban user
+        if ($POST->{'ban'}) {
+            LJ::set_rel($remote_id, $msg->otherid, 'B');
+            $remote->log_event('ban_set', { actiontarget => $msg->otherid, remote => $remote });
+            $r->add_msg("User banned.", $r->SUCCESS);
+        }
+        return $r->redirect("$LJ::SITEROOT/inbox");
+    }
     my $vars = { errors        => $errors,
-        icons                  => \@icons,
-        icons_url              => $remote->allpics_base,
-        can_use_userpic_select => ($remote->can_use_userpic_select && (scalar(@icons) > 0)),
-        formdata               => $POST || { msg_to => ($GET->{'user'} || undef) },
-        msg_body               => $msg_body,
-        msg_subject            => $msg_subject,
-        msg_parent             => $msg_parent,
-        reply_u                => $reply_u,
-        reply_to               => $reply_to,
-        autocomplete           => \@flist,
-        cc_msg_option          => $cc_msg_option,
-        folder_html            => render_folders($remote),
-        commafy                => \&LJ::commafy,
-        current_icon           => $remote->userpic,
-        msg_limit              => $msg_limit
+        msg_user               => $msg->other_u,
+        msgid                  => $msg_id,
     };
 
-    return DW::Template->render_template( 'inbox/compose.tt', $vars );
+    return DW::Template->render_template( 'inbox/markspam.tt', $vars );
 
 }
 1;
