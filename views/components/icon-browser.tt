@@ -24,41 +24,35 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
         <div class="row">
             <div class="columns top-controls">
-                <form class="icon-browser-options" id="js-icon-browser-order-option">
-                    <fieldset>
-                        <legend>Order by</legend>
+                <fieldset class="icon-browser-options" id="js-icon-browser-order-option">
+                    <legend>Order by</legend>
 
-                        <input type="radio" name="js-icon-browser-order" value="date" id="js-icon-browser-order-date">
-                        <label for="js-icon-browser-order-date">Date</label>
+                    <input type="radio" name="js-icon-browser-order" value="date" id="js-icon-browser-order-date">
+                    <label for="js-icon-browser-order-date">Date</label>
 
-                        <input type="radio" name="js-icon-browser-order" value="keyword" id="js-icon-browser-order-keyword">
-                        <label for="js-icon-browser-order-keyword">Keyword</label>
-                    </fieldset>
-                </form>
+                    <input type="radio" name="js-icon-browser-order" value="keyword" id="js-icon-browser-order-keyword">
+                    <label for="js-icon-browser-order-keyword">Keyword</label>
+                </fieldset>
 
-                <form class="icon-browser-options" id="js-icon-browser-meta-option">
-                    <fieldset>
-                        <legend>Icon keywords</legend>
+                <fieldset class="icon-browser-options" id="js-icon-browser-meta-option">
+                    <legend>Icon keywords</legend>
 
-                        <input type="radio" name="js-icon-browser-meta" value="text" id="js-icon-browser-meta-text">
-                        <label for="js-icon-browser-meta-text">Show</label>
+                    <input type="radio" name="js-icon-browser-meta" value="text" id="js-icon-browser-meta-text">
+                    <label for="js-icon-browser-meta-text">Show</label>
 
-                        <input type="radio" name="js-icon-browser-meta" value="no-text" id="js-icon-browser-meta-no-text">
-                        <label for="js-icon-browser-meta-no-text">Hide</label>
-                    </fieldset>
-                </form>
+                    <input type="radio" name="js-icon-browser-meta" value="no-text" id="js-icon-browser-meta-no-text">
+                    <label for="js-icon-browser-meta-no-text">Hide</label>
+                </fieldset>
 
-                <form class="icon-browser-options" id="js-icon-browser-size-option">
-                    <fieldset>
-                        <legend>Size</legend>
+                <fieldset class="icon-browser-options" id="js-icon-browser-size-option">
+                    <legend>Size</legend>
 
-                        <input type="radio" name="js-icon-browser-size" value="small" id="js-icon-browser-size-small">
-                        <label for="js-icon-browser-size-small">Small</label>
+                    <input type="radio" name="js-icon-browser-size" value="small" id="js-icon-browser-size-small">
+                    <label for="js-icon-browser-size-small">Small</label>
 
-                        <input type="radio" name="js-icon-browser-size" value="large" id="js-icon-browser-size-large">
-                        <label for="js-icon-browser-size-large">Large</label>
-                    </fieldset>
-                </form>
+                    <input type="radio" name="js-icon-browser-size" value="large" id="js-icon-browser-size-large">
+                    <label for="js-icon-browser-size-large">Large</label>
+                </fieldset>
 
                 <label class='invisible' for='js-icon-browser-search'>Search</label>
                 <input type='search' id='js-icon-browser-search' placeholder='Search' />
