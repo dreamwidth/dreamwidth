@@ -93,6 +93,7 @@
                 margin-left: .4rem;
             }
 
+            margin-top: 0;
             margin-bottom: 1rem;
             white-space: nowrap;
         }
@@ -100,7 +101,6 @@
         // Override ultra-fluffy Foundation styling for fieldsets, we don't have
         // space for that nonsense.
         fieldset {
-            margin: 0;
             padding: .3em .8em .6em;
         }
     }
