@@ -1,3 +1,4 @@
+jQuery(function($) {
 // Icon form, lifted wholesale from jquery.replyforms.js
 var iconSelect = $("#prop_picture_keyword");
 
@@ -58,4 +59,5 @@ iconSelect.on("change", function(e) {
             iconPreview.removeClass("default");
         }
     }
+});
 });
