@@ -324,7 +324,7 @@ sub msg_redirect {
     my $level            = $_[2];
     my $location         = $_[3];
 
-    $self->add_msg($msg, $level);
+    $self->add_msg( $msg, $level );
     return $self->redirect($location);
 }
 
