@@ -1476,26 +1476,25 @@ sub talkform {
     # pre-calculate some abilities and add them to $remote, so we don't have to do it
     # in the template
     if ($remote) {
-        $remote->{can_manage_community} = $journalu->is_community
-                && $remote
-                && $remote->can_manage($journalu);
-        $remote->{can_unscreen_parent} = (
-                $parpost->{state}
-            && $parpost->{state} eq "S"
-            && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster )
-            );
+        $remote->{can_manage_community} =
+               $journalu->is_community
+            && $remote
+            && $remote->can_manage($journalu);
+        $remote->{can_unscreen_parent} =
+            (      $parpost->{state}
+                && $parpost->{state} eq "S"
+                && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) );
 
-        
-            $remote->{allowed}  = !$journalu->does_not_allow_comments_from($remote);
-            $remote->{banned}   = $journalu->has_banned($remote);
-            $remote->{screened} = (
-                       $journalu->has_autoscreen($remote)
-                    || $screening eq 'A'
-                    || ( $screening eq 'R' && !$remote->is_validated )
-                    || ( $screening eq 'F' && !$journalu->trusts($remote) )
-            );
+        $remote->{allowed} = !$journalu->does_not_allow_comments_from($remote);
+        $remote->{banned}  = $journalu->has_banned($remote);
+        $remote->{screened} =
+            (      $journalu->has_autoscreen($remote)
+                || $screening eq 'A'
+                || ( $screening eq 'R' && !$remote->is_validated )
+                || ( $screening eq 'F' && !$journalu->trusts($remote) ) );
 
-    };
+    }
+
     # Variables for talkform.tt (most of them, at least)
     my $template_args = {
         hidden_form_elements => '',
@@ -1537,7 +1536,7 @@ sub talkform {
             }
         : 0,
 
-        remote => $remote ? $remote : 0,
+        remote  => $remote ? $remote : 0,
         journal => {
             user => $journalu->{user},
 

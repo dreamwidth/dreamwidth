@@ -299,6 +299,7 @@ sub _init {
     my $min_animation;
     my $displaydate_check;
     if ($u) {
+
         # moods
         my $theme = DW::Mood->new( $u->{moodthemeid} );
 
