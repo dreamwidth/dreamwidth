@@ -11,8 +11,9 @@
     [%- ELSE -%]
       <a href="[% remote.allpics_base %]">
     [%- END -%]
-      [%- IF current_icon -%]
-        [%- current_icon.imgtag -%]
+      [%- selected = current_icon || remote.userpic -%]
+      [%- IF selected -%]
+        [%- selected.imgtag -%]
       [%- ELSE -%]
         [%- dw.img( "nouserpic_sitescheme", "" ) -%]
       [%- END -%]

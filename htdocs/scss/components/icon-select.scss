@@ -1,6 +1,11 @@
 @import "foundation/base";
 
 .block-icon {
+    height: 100px;
+    width: 100px;
+    line-height: 100px;
+    display: inline-block;
+
     img {
         max-width: 100%;
         max-height: 100%;
@@ -86,8 +91,13 @@
 
 .block-icon-controls {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     min-width: 0; // let grid shrink it
+
+    label {
+        padding-right:0.25em;
+        flex-shrink: 0;
+    }
 
     #randomicon {
         margin-left: 5px;

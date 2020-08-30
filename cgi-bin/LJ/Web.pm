@@ -905,16 +905,7 @@ sub create_qr_div {
 
             foundation_beta => !LJ::BetaFeatures->user_in_beta( $remote => "nos2foundation" ),
 
-            remote => {
-                ljuser                 => $remote->ljuser_display,
-                user                   => $remote->user,
-                icons_url              => $remote->allpics_base,
-                icons                  => \@icons,
-                can_use_userpic_select => $remote->can_use_userpic_select && ( scalar(@icons) > 0 ),
-                iconbrowser_keywordorder => $remote->iconbrowser_keywordorder ? "true" : "false",
-                iconbrowser_metatext     => $remote->iconbrowser_metatext ? "true" : "false",
-                iconbrowser_smallicons   => $remote->iconbrowser_smallicons ? "true" : "false",
-            },
+            remote => $remote,
 
             journal => {
                 is_iplogging    => $u->opt_logcommentips eq 'A',

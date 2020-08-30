@@ -1457,7 +1457,6 @@ sub talkform {
     }
 
     my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
-    my @icons = $remote->icon_keyword_menu;
 
     my $basesubject = $form->{subject} || "";
     if ( !$editid && $opts->{replyto} && !$basesubject && $parpost->{'subject'} ) {
@@ -1474,6 +1473,29 @@ sub talkform {
 
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) // '';
 
+    # pre-calculate some abilities and add them to $remote, so we don't have to do it
+    # in the template
+    if ($remote) {
+        $remote->{can_manage_community} = $journalu->is_community
+                && $remote
+                && $remote->can_manage($journalu);
+        $remote->{can_unscreen_parent} = (
+                $parpost->{state}
+            && $parpost->{state} eq "S"
+            && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster )
+            );
+
+        
+            $remote->{allowed}  = !$journalu->does_not_allow_comments_from($remote);
+            $remote->{banned}   = $journalu->has_banned($remote);
+            $remote->{screened} = (
+                       $journalu->has_autoscreen($remote)
+                    || $screening eq 'A'
+                    || ( $screening eq 'R' && !$remote->is_validated )
+                    || ( $screening eq 'F' && !$journalu->trusts($remote) )
+            );
+
+    };
     # Variables for talkform.tt (most of them, at least)
     my $template_args = {
         hidden_form_elements => '',
@@ -1515,40 +1537,7 @@ sub talkform {
             }
         : 0,
 
-        remote => $remote
-        ? {
-            icons_url => $remote ? $remote->allpics_base : '',
-            icons     => \@icons,
-
-            user            => $remote->user,
-            display_name    => LJ::ehtml( $remote->display_name ),
-            ljuser          => $remote->ljuser_display,
-            openid_identity => $remote->openid_identity,
-
-            allowed  => !$journalu->does_not_allow_comments_from($remote),
-            banned   => $journalu->has_banned($remote),
-            screened => (
-                       $journalu->has_autoscreen($remote)
-                    || $screening eq 'A'
-                    || ( $screening eq 'R' && !$remote->is_validated )
-                    || ( $screening eq 'F' && !$journalu->trusts($remote) )
-            ),
-
-            can_unscreen_parent => (
-                       $parpost->{state}
-                    && $parpost->{state} eq "S"
-                    && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster )
-            ),
-            can_manage_community => $journalu->is_community
-                && $remote
-                && $remote->can_manage($journalu),
-
-            can_use_userpic_select   => $remote->can_use_userpic_select && ( scalar(@icons) > 0 ),
-            iconbrowser_keywordorder => $remote->iconbrowser_keywordorder ? "true" : "false",
-            iconbrowser_metatext     => $remote->iconbrowser_metatext ? "true" : "false",
-            iconbrowser_smallicons   => $remote->iconbrowser_smallicons ? "true" : "false",
-            }
-        : 0,
+        remote => $remote ? $remote : 0,
         journal => {
             user => $journalu->{user},
 
@@ -1834,10 +1823,12 @@ sub init_s2journal_js {
             js/jquery/jquery.ui.widget.js
             js/jquery.replyforms.js
             stc/css/components/quick-reply.css
+            stc/css/components/icon-select.css
             js/jquery.poll.js
             js/journals/jquery.tag-nav.js
             js/jquery.mediaplaceholder.js
             js/jquery.imageshrink.js
+            js/components/jquery.icon-select.js
             stc/css/components/imageshrink.css
             )
     );
