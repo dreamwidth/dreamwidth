@@ -756,7 +756,6 @@ sub check_referer {
     return undef;
 }
 
-
 # <LJFUNC>
 # name: LJ::form_auth
 # class: web
