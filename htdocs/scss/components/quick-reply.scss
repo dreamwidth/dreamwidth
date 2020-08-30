@@ -48,12 +48,20 @@
             "name name"
             "icon more"
             "icon iconctl";
-        .qr-icon {
+        .block-icon {
             margin-bottom: 3px;
             grid-area: icon;
             align-self: self-end;
+            width: 55px;
+            height: 55px;
+
+            button {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+            }
         }
-        .qr-icon-controls {
+        .block-icon-controls {
             grid-area: iconctl;
         }
         .ljuser {
@@ -65,109 +73,6 @@
             grid-area: more;
             justify-self: start;
             align-self: self-end;
-        }
-    }
-
-    .qr-icon {
-        width: 55px;
-        height: 55px;
-
-        img {
-            max-width: 100%;
-            max-height: 100%;
-
-            @supports (object-position: bottom) {
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                object-position: bottom;
-            }
-        }
-
-        a, button {
-            position: relative;
-            display: block;
-
-            width: 100%;
-            height: 100%;
-            border: none;
-            padding: 0;
-            margin: 0;
-            background: none;
-            cursor: pointer;
-
-            &::after {
-                position: absolute;
-
-                display: block; // old browsers
-                display: flex;  // new browsers
-                align-items: flex-end;
-                justify-content: center;
-
-                top: 0;
-                margin: 0;
-                font-size: 11px;
-                font-weight: bold;
-                opacity: 0;
-                background: rgba(255, 255, 255, 0.7); // real old browsers
-                background: radial-gradient(
-                    circle farthest-side at left 50% bottom -60%,
-                    rgba(255, 255, 255, 1.0),
-                    rgba(255, 255, 255, 0.85) 50%,
-                    rgba(255, 255, 255, 0) 67%
-                );
-                color: rgba(0, 0, 0, 0.8);
-                text-shadow: 0px -1px 3px #fff;
-                text-align: center;
-                width: 100%;
-                height: 100%;
-                @include single_transition();
-            }
-
-            &:hover, &:focus {
-                &::after {
-                    opacity: 1;
-                }
-            }
-        }
-
-        a::after {
-            content: "View all";
-        }
-
-        button::after {
-            content: "Browse";
-        }
-
-        &.default {
-            a, button {
-                &::after {
-                    opacity: 1;
-                }
-            }
-        }
-
-        // Hide browse button in talkform when JS is disabled
-        &.no-label {
-            button::after {
-                opacity: 0 !important;
-            }
-        }
-    }
-
-    .qr-icon-controls {
-        display: flex;
-        align-items: flex-end;
-        min-width: 0; // let grid shrink it
-
-        #randomicon {
-            margin-left: 5px;
-        }
-
-        select#prop_picture_keyword {
-            margin-left: 0;
-            max-width: 100%;
-            min-width: 0; // Let grid/flex shrink it
         }
     }
 

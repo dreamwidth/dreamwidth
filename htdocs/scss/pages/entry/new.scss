@@ -336,16 +336,6 @@
     .icon {
         text-align: center;
         margin-bottom: $paragraph-margin-bottom;
-        height: 100px;
-        line-height: 100px;
-        cursor: pointer;
-        img {
-            vertical-align: middle;
-        }
-    }
-
-    #canvas & .inner button { // exclude from Lynx skin
-        width: 100%;
     }
 
     .no-icon {
