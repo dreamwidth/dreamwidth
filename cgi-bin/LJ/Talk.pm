@@ -1491,8 +1491,9 @@ sub talkform {
         default_usertype => 'user',
 
         comment => {
-            editid      => $editid,
-            editreason  => $comment ? $comment->edit_reason : '',
+            editid     => $editid,
+            editreason => $form->{editreason}
+                || ( $comment ? $comment->edit_reason : '' ),
             oidurl      => $form->{oidurl},
             oiddo_login => $form->{oiddo_login},
             user        => $form->{userpost},
