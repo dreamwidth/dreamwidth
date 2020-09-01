@@ -201,6 +201,9 @@ ul.pagination .arrow {
   grid-row-end: span 100;
   /* (Will be slightly misaligned after 1000 comment pages, but with auto-rows there's no way to refer to the final implicit grid line; -1 only works for the explicit list of rows.) */
   font-size: larger;
+  &.disabled {
+    opacity: 0.33;
+  }
 }
 
 ul.pagination .arrow:first-child {
@@ -214,6 +217,7 @@ ul.pagination .arrow:last-child {
 ul.pagination li a {
   padding: .0625rem .25rem .0625rem;
   flex-grow: 1;
+  opacity: 1;
 
   @media #{$small-only} {
     padding: .125rem .5rem .125rem;

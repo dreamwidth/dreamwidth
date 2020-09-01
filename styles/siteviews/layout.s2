@@ -53,26 +53,29 @@ function ItemRange::print(string{} opts) {
 
     var string anchor = $opts{"anchor"} ? "#$opts{"anchor"}" : "";
     var string class = $opts{"class"} ? $opts{"class"} : "";
-    var string url_prev = "";
-    var string url_next = "";
+    var string url_prev = $this->url_of($.current - 1);
+    var string url_next = $this->url_of($.current + 1);
 
     """<div class="$class action-box"><div class="inner">""";
     print """<p style="font-weight: bolder; margin: 0 0 .5em 0;">""" + lang_page_of_pages($.current, $.total) + "</p>";
-    if ($.current != 1) {
-        $url_prev = $this->url_of($.current - 1);
-    }
     """<ul class="pagination">""";
-    """<li class='page-prev arrow'><a href='$url_prev$anchor'>&laquo;</a></li> """;
+    if ($.current != 1) {
+        print "<li class='page-prev arrow'><a href='$url_prev$anchor'>&laquo;</a></li> ";
+    } else {
+        print "<li class='page-prev arrow disabled'>&laquo;</li> ";
+    }
 
     foreach var int i (1..$.total) {
         var string page_class = $i == $.current ? "current" : "";
         var string url_of = $this->url_of($i);
         print "<li class='$page_class'><a href='$url_of$anchor'>$i</a></li> ";
     }
+
     if ($.current != $.total) {
-        $url_next = $this->url_of($.current + 1);
+         print "<li class='page-next arrow'><a href='$url_next$anchor'>&raquo;</a></li> ";
+    } else {
+         print "<li class='page-next arrow disabled'>&raquo;</li>";
     }
-    """<li class='page-next arrow'><a href='$url_next$anchor'>&raquo;</a></li> """;
     """</ul>""";
     if ( $.url_all != "" ) {
         """<p><a href="$.url_all">View All</a></p>""";
