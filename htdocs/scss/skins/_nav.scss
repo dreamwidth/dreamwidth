@@ -299,6 +299,7 @@ $nav-small-screen-header-height: 3em;
             #content {
                 border-left: $sidebar-width solid $topbar-bg;
                 margin-left: 0; // so that it doesn't try to center the content on the page
+                padding-left: ($column-gutter/2);
                 min-height: 73rem;
             }
         }
