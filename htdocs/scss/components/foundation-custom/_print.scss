@@ -1,0 +1,37 @@
+// Print styles that don't blow up our icon links, etc. etc.
+// Partial copy of the stuff in foundation/type, which also says "Credit to Paul
+// Irish and HTML5 Boilerplate (html5boilerplate.com)"
+@media print {
+  * {
+    background: transparent !important;
+    color: $black !important; /* Black prints faster: h5bp.com/s */
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited { text-decoration: underline;}
+
+  abbr[title]:after { content: " (" attr(title) ")"; }
+
+  pre,
+  blockquote {
+    border-left: 2px solid $black;
+    page-break-inside: avoid;
+  }
+
+  thead { display: table-header-group; /* h5bp.com/t */ }
+
+  tr,
+  img { page-break-inside: avoid; }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 { page-break-after: avoid; }
+}

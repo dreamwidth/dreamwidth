@@ -71,7 +71,7 @@ $base-line-height: 1.5;
 // most of the time, we'll just want the mixins or variables
 // and not the styles themselves
 $include-html-classes: false !default;
-// $include-print-styles: true;
+$include-print-styles: false; // see components/foundation-custom/print.
 $include-html-global-classes: $include-html-classes;
 
 // b. Grid
