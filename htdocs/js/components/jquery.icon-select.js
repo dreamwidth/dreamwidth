@@ -29,8 +29,9 @@ $("#randomicon").on("click", randomIcon);
 
 // New-new icon browser, if available
 if ( $.fn.iconBrowser ) {
+    $('#js-icon-browser').removeClass('hide-icon-browser');
     iconSelect.iconBrowser({
-        triggerSelector: "#lj_userpicselect",
+        triggerSelector: "#lj_userpicselect, #js-icon-browse",
         modalId: "js-icon-browser",
         preferences: {
             "metatext": $('#lj_userpicselect').data('iconbrowserMetatext'),

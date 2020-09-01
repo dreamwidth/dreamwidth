@@ -19,7 +19,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         "stc/css/components/icon-browser.css"
     ); -%]
 
-    [%- WRAPPER components/modal.tt id="js-icon-browser" class="icon-browser" options="animation:'fade'" -%]
+    [%- WRAPPER components/modal.tt id="js-icon-browser" class="icon-browser hide-icon-browser" options="animation:'fade'" -%]
     <div class="icon-browser-flex-wrapper">
 
         <div class="row">

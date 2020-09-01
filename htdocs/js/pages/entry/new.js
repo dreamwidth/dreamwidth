@@ -631,6 +631,7 @@ var postForm = (function($) {
 
         $("#js-usejournal").triggerHandler("change");
         $("#js-entrytime-autoupdate").triggerHandler("click");
+        $(".icons-component .js-only").show();
     };
 
     return {
