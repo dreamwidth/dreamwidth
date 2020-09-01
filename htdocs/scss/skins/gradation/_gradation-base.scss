@@ -162,8 +162,7 @@ ul { list-style: circle; }
 
 #content {
     @include grid-row();
-    margin-left: 0;
-    padding: 1.5em 0 0 ($column-gutter/2);
+    padding-top: 1.5rem;
 }
 
 /**
