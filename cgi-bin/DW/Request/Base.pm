@@ -316,6 +316,18 @@ sub add_msg {
     return 1;
 }
 
+# Add a session message and redirect. This is a helper
+# method that wraps add_msg and redirect in one call.
+sub msg_redirect {
+    my DW::Request $self = $_[0];
+    my $msg              = $_[1];
+    my $level            = $_[2];
+    my $location         = $_[3];
+
+    $self->add_msg( $msg, $level );
+    return $self->redirect($location);
+}
+
 # indicates that this request has been handled
 sub OK { return 0; }
 
