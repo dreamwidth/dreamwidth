@@ -69,6 +69,10 @@
         content: "View all";
     }
 
+    a.no-icon::after {
+        content: "Upload an icon";
+    }
+
     button::after {
         content: "Browse";
     }
@@ -108,4 +112,8 @@
         max-width: 100%;
         min-width: 0; // Let grid/flex shrink it
     }
+}
+
+.hide-icon-browser {
+    display: none;
 }

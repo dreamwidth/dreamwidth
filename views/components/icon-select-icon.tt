@@ -6,20 +6,20 @@
     'js/components/jquery.icon-select.js',
 ) %]
   <div class='block-icon no-label'>
+  [% IF remote.icon_keyword_menu.size > 0 %]
     [%- IF can_use_userpic_select -%]
       <button type='button' id='lj_userpicselect' data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]" data-iconbrowser-keywordorder="[%- remote.iconbrowser_keywordorder -%]">
     [%- ELSE -%]
       <a href="[% remote.allpics_base %]">
     [%- END -%]
       [%- selected = current_icon || remote.userpic -%]
-      [%- IF selected -%]
-        [%- selected.imgtag -%]
-      [%- ELSE -%]
-        [%- dw.img( "nouserpic_sitescheme", "" ) -%]
-      [%- END -%]
+      [%- selected.imgtag -%]
     [%- IF can_use_userpic_select -%]
       </button>
     [%- ELSE -%]
       </a>
     [%- END -%]
+  [% ELSE %]
+    <a href="[% site.root %]/manage/icons" class="no-icon">[%- dw.img( "nouserpic_sitescheme", "" ) -%]</a>
+  [% END %]
   </div>
