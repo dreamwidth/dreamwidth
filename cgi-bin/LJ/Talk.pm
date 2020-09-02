@@ -1493,7 +1493,7 @@ sub talkform {
         comment => {
             editid     => $editid,
             editreason => $form->{editreason}
-                || ( $comment ? $comment->edit_reason : '' ),
+                // ( $comment ? $comment->edit_reason : '' ),
             oidurl      => $form->{oidurl},
             oiddo_login => $form->{oiddo_login},
             user        => $form->{userpost},
