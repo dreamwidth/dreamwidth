@@ -18,32 +18,31 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div class='inner'>
 
     <div class="row">
-    <div class="columns">
-    <div class="icon">[% INCLUDE "components/icon-select-icon.tt" %]</div>
+        <div class="columns">
+            <div class="icon">[% INCLUDE "components/icon-select-icon.tt" %]</div>
+        </div>
     </div>
+    [% IF remote.icon_keyword_menu.size > 0 %]
+    <div class="row">
+        <div class="columns">
+            [%- form.select(
+            name = 'prop_picture_keyword',
+            id = 'prop_picture_keyword',
+            selected = current_icon_kw,
+            items = remote.icon_keyword_menu,
+        ) -%]
+        </div>
     </div>
-[% IF remote.icon_keyword_menu.size > 0 %]
-<div class="row">
-    <div class="columns">
-        [%- form.select(
-          name = 'prop_picture_keyword',
-          id = 'prop_picture_keyword',
-          selected = current_icon_kw,
-          items = remote.icon_keyword_menu,
-      ) -%]
-    </div>
-</div>
 
-<div class="row js-only">
-    <div class="columns medium-6">
-        <input class="small secondary button" id="randomicon" value="Random" type="button"/>
+    <div class="row js-only">
+        <div class="columns medium-6">
+            <input class="small secondary button" id="randomicon" value="Random" type="button"/>
+        </div>
+        <div class="columns medium-6 end">
+            <input class="small secondary button" id="js-icon-browse" value="Browse" type="button"/>
+        </div>
     </div>
-    <div class="columns medium-6 end">
-        <input class="small secondary button" id="js-icon-browse" value="Browse" type="button"/>
-    </div>
-</div>
-[% END %]
-    </div>
+    [% END %]
 </div>
 </fieldset>
 [% END %]
