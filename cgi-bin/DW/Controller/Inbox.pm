@@ -314,16 +314,11 @@ sub compose_handler {
     my $remote = $rv->{remote};
     my $errors = DW::FormErrors->new;
 
+    return $r->msg_redirect(LJ::Lang::ml('protocol.not_validated', { sitename => $LJ::SITENAMESHORT, siteroot => $LJ::SITEROOT }), $r->ERROR,
+        "$LJ::SITEROOT/inbox") unless LJ::is_enabled( 'user_messaging' );
 
-    unless( LJ::is_enabled( 'user_messaging' )) {
-        $r->add_msg(LJ::Lang::ml('protocol.not_validated', { sitename => $LJ::SITENAMESHORT, siteroot => $LJ::SITEROOT }), $r->ERROR);
-        return $r->redirect("$LJ::SITEROOT/inbox")
-    }
-
-    if($remote->is_suspended) {
-        $r->add_msg(LJ::Lang::ml('.suspended.cannot.send'), $r->ERROR);
-        return $r->redirect("$LJ::SITEROOT/inbox")
-    }
+    return $r->msg_redirect(LJ::Lang::ml('.suspended.cannot.send'), $r->ERROR,
+        "$LJ::SITEROOT/inbox") if $remote->is_suspended;
 
     my $remote_id = $remote->{userid};
     my $reply_to; # User replying to
@@ -460,10 +455,8 @@ sub compose_handler {
                 foreach my $error (@errors) {
                     $error->add(undef, $error);
                 }
-                unless ($errors->exist) {
-                    $r->add_msg(LJ::Lang::ml("$scope.message.sent"), $r->SUCCESS);
-                    return $r->redirect("$LJ::SITEROOT/inbox");
-                }
+                return $r->msg_redirect(LJ::Lang::ml("$scope.message.sent"), $r->SUCCESS, "$LJ::SITEROOT/inbox")
+                    unless $errors->exist;
             }
         }
     }
@@ -474,10 +467,10 @@ sub compose_handler {
         next unless $msgid;
 
         my $msg = LJ::Message->load({ msgid => $msgid, journalid => $remote_id });
-        unless ($msg->can_reply($msgid, $remote_id)) {
-            $r->add_msg(LJ::Lang::ml("$scope.error.cannot.reply"), $r->ERROR);
-            return $r->redirect("$LJ::SITEROOT/inbox");
-        }
+
+        return $r->msg_redirect(LJ::Lang::ml("$scope.error.cannot.reply"), $r->ERROR, 
+            "$LJ::SITEROOT/inbox") unless $msg->can_reply($msgid, $remote_id);
+
             $reply_u = $msg->other_u;
             $reply_to = $reply_u->display_name;
             $disabled_to = 1;
