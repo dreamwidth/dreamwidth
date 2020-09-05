@@ -25,7 +25,7 @@ width: 100%;
 #action_row {
 display: grid;
     grid: [row1-start] "checkbox actions pages" auto [row1-end]
-        / 2em 1fr auto;
+        / 2em auto 1fr auto;
         padding: 5px;
 }
 
@@ -35,7 +35,7 @@ grid-area: actions;
 
 .pages {
 grid-area: pages;
-text-align: right;}
+text-align: center;}
 
 .inbox_item_row {
 display: grid;

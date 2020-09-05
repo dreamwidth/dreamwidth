@@ -1,0 +1,195 @@
+@import "foundation/base";
+
+@media #{$medium-up} {
+    #inbox {
+        display: grid;
+        grid-template-areas: "folder messages";
+        grid-template-rows: auto;
+        grid-template-columns: auto 1fr;
+        width: 100%;
+        grid-column-gap: 1em;
+        column-gap: 1em;
+        }
+
+        #folder_btn {display:none;}
+        #folder_list.even {background-color: transparent;}
+       
+}
+
+@media #{$large-up} {
+    #action_row {
+        display: grid;
+        grid: "checkbox actions pages actions-all" auto 
+                / 2em auto 1fr auto;
+        }
+        
+    .inbox_item_row {
+        display: grid;
+        grid: "checkbox message time" auto
+            / 2em 1fr 8.5em;
+        padding: 5px;
+    }
+}
+
+@media #{$medium-only} {
+    #action_row {
+        display: grid;
+        grid:  "pages pages pages" auto
+                "checkbox actions actions-all" auto
+                / 2em auto 1fr;
+
+        }
+
+        .inbox_item_row {
+            display: grid;
+            grid:"checkbox time" auto
+                "message message" auto
+                / 2em 1fr;
+            padding: 5px;
+        }
+    
+}
+
+@media #{$small-only} {
+    #inbox {
+        display: grid;
+        grid: "folder" auto
+               "messages" auto 
+                / 1fr;
+        width: 100%;
+        }
+
+    #action_row {
+        display: grid;
+        grid:  "pages pages pages" auto
+                "checkbox actions actions-all" auto
+                / 2em auto 1fr;
+
+        }
+
+    .inbox_item_row {
+        display: grid;
+        grid:"checkbox time" auto
+            "message message" auto
+            / 2em 1fr;
+        padding: 5px;
+    }
+    #folder_list {padding: 0.25rem;}
+
+    #inbox_compose { 
+        margin-top: 0.5em;
+        input.inline, select.inline, .autocomplete-container.inline input {width: 100%;}
+    
+    }
+
+
+
+    #folder_btn {
+        display: block;
+        cursor: pointer;
+
+        h3 { display: inline-block;}
+    }
+    .folder_collapsed .folders {display: none;}
+    .folder_expanded .folders {display: block;}
+}
+
+#folder-btn.no-js {display: none;}
+.folders.no-js {display: block;}
+
+.selected_filter {display: none;}
+.entry-tags {text-align: right; font-style: italic;}
+.folders {margin-top: 0;}
+.links { text-align: center;}
+#action_row {
+    ul, .button, input {
+        margin-bottom: 5px;
+    }
+    padding: 0.75rem 0.25rem 0.5rem 0.25rem;
+}
+    
+#inbox_folders {
+grid-area: folder;
+}
+
+.compose_btn {
+    width: 100%;
+}
+
+#inbox_folders li {
+margin-bottom: 0;}
+
+#inbox_messages {
+grid-area: messages;
+width: 100%;
+}
+
+.actions {
+grid-area: actions;
+}
+
+.actions-all {
+    grid-area: actions-all;
+    text-align: right;
+    padding-right: 0.5rem;
+    }
+
+.pages {
+grid-area: pages;
+text-align: center;}
+
+.checkbox {
+grid-area: checkbox;
+text-align: center;
+}
+
+.time {
+grid-area: time;
+font-size: smaller;}
+
+.item {
+    grid-area: message;
+    overflow-wrap: anywhere;
+    word-break: break-all;}
+
+    .read {
+    opacity: 0.5;}
+
+    .inbox_collapse {
+    display: none;}
+
+    #compose_header_fields, #compose_icon {
+    display: inline-block;
+    }
+
+    #compose {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+        grid-column-gap: 1em;
+        column-gap: 1em;
+    }
+
+    #metainfo {
+        grid-column-end: span 2;
+    }
+
+    #compose_header_fields label, #compose_icon {
+    padding-right: 0.5em;
+    }
+
+    #compose .pkg {
+        display: grid;
+        grid-template-columns: auto 1fr;
+    }
+
+    .qr-icon a, .qr-icon button {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: 0;
+    cursor: pointer;
+}

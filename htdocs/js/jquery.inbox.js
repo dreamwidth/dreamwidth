@@ -92,6 +92,30 @@ if ($('#msg_to').length) {
         }
     );
 }
+$('.folders').removeClass('no-js');
+$("#folder_btn").removeClass('no-js');
+$("#folder_btn").click(function() {
+    var folders = $('#folder_list');
+    var img = $(this).children();
+
+    if (folders.hasClass('folder_collapsed')) {
+        folders.removeClass('folder_collapsed');
+        folders.addClass('folder_expanded');
+        img.attr({'src': '/img/expand.gif',
+        'alt': 'Collapse',
+        'title': 'Collapse'
+        });
+
+    } else {
+        folders.removeClass('folder_expanded');
+        folders.addClass('folder_collapsed');
+        img.attr({'src': '/img/collapse.gif',
+        'alt': 'Expand',
+        'title': 'Expand'
+        });
+        }
+    }
+);
 
 // Icon form, lifted wholesale from jquery.replyforms.js
     var iconSelect = $("#prop_picture_keyword");

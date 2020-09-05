@@ -1,16 +1,7 @@
 [%- CALL dw.active_resource_group("foundation") -%]
-[% dw.need_res(
-        { group => 'foundation' },
-
-        'js/foundation/foundation/foundation.js',
-        'js/foundation/foundation/foundation.reveal.js',
-        'js/components/jquery.icon-browser.js',
-        'stc/css/components/icon-browser.css',
-        "stc/css/components/quick-reply.css"
-    ) IF can_use_userpic_select %]
 
 [% dw.need_res({ group => "foundation"}, 
-    'stc/inbox.css'
+    'stc/css/pages/inbox.css'
     "stc/css/components/button-groups.css"
 
     ## tags (autocomplete)
