@@ -13,7 +13,7 @@
                     <span class='item'> [% dw.ml('widget.themechooser.show') %]</span>
                 </div>
                 <div class="columns large-6">
-                    [% form.select( name = 'show', id = "show_dropdown_$location", selected = qargs.show, class = "inline", items = shows ) %]
+                    [% form.select( name = 'show', id = "show_dropdown_$location", selected = qargs.show, class = "inline show_dropdown", items = shows ) %]
                     <noscript>[% form.submit( name = "action:create", value = dw.ml( 'widget.themechooser.btn.show' ) ) %] </noscript>
                 </div>
             </form>

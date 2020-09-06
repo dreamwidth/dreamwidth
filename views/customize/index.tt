@@ -1,52 +1,70 @@
 [%- CALL dw.active_resource_group("foundation") -%]
-[%- dw.need_res( { group => 'foundation' }, 'js/customize/jquery.customize.js', 'stc/css/pages/customize/customize.css', "stc/monolith.min.css", 'js/colorpicker.js' ) -%]
+[%- dw.need_res( { group => 'foundation' }, 'js/jquery.customize.js', 'stc/css/pages/customize.css', "stc/monolith.min.css", 'js/colorpicker.js' ) -%]
 <script crossorigin="anonymous" src="/js/vendor/pickr.es5.min.js"></script>
+<div id="customize">
+    <div class="customize-header">
+        [% IF qargs.authas %]
+            [% form.hidden( name = "authas", value = qargs.authas, id = 'authas') %]
+        [% END %]
+        <form method="get">
+            [%- authas_html -%]
+        </form>
 
-<div class="row">
-    [% IF qargs.authas %]
-        [% form.hidden( name = "authas", value = qargs.authas, id = 'authas') %]
-    [% END %]
-    <form method="get">
-        [%- authas_html -%]
-    </form>
+        [% IF is_community %]
+            [%- sections.title = '.title.comm' | ml -%]
+        [% ELSE %]
+            [%- sections.title = '.title2' | ml -%]
+        [% END %]
 
-    [% IF is_community %]
-        [%- sections.title = '.title.comm' | ml -%]
-    [% ELSE %]
-        [%- sections.title = '.title2' | ml -%]
-    [% END %]
+        [% # if they're working as a community, reproduce the community management linkbar: %]
+        [% IF is_community %]
+            <p class='intro'> [% $u.maintainer_linkbar("customize") %] </p>
+        [% END %]
 
-    [% # if they're working as a community, reproduce the community management linkbar: %]
-    [% IF is_community %]
-        <p class='intro'> [% $u.maintainer_linkbar("customize") %] </p>
-    [% END %]
-
-    [% # would you like to set the site skin instead?  %]
-    [% IF is_community %]
-        <p> [% '.setsiteskin.desc.comm' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'") %]</p>
-    [% ELSE %]
-        <p> [% '.setsiteskin.desc' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'") %]</p>
-    [% END %]
-</div>
-<div class="row">
-    <div class="columns large-7">
-
-        [% #render journal titles widget %]
-        <div class='theme-titles pkg'>
-            [% INCLUDE 'customize/journaltitles.tt' %]
-        </div><!-- end .theme-titles -->
-
-
+        [% # would you like to set the site skin instead?  %]
+        [% IF is_community %]
+            <p> [% '.setsiteskin.desc.comm' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'") %]</p>
+        [% ELSE %]
+            <p> [% '.setsiteskin.desc' | ml( aopts = "href='$site.root/manage/settings/?cat=display#skin'") %]</p>
+        [% END %]
     </div>
-    <div class="columns large-5">
-        [% #render current theme widget  %]
-        <div class='theme-current pkg'>
-            [% render_currenttheme('no_themechooser', (content ? 1 : 0)) %]
-        </div><!-- end .theme-current -->
 
-    </div>
-</div>
-<br/>
+    [% #render journal titles widget %]
+    <div class='theme-titles'>
+        [% INCLUDE 'customize/journaltitles.tt' %]
+    </div><!-- end .theme-titles -->
+
+    [% #render current theme widget  %]
+    <div class='theme-current'>
+        [%- theme = current_data.current, options = current_data.current_options -%]
+        <div class='highlight-box'>
+            <div class="inner theme-current-content">
+                <h5 class="theme-current-title">[% dw.ml('widget.currenttheme.title', {'user' => u.ljuser_display}) %]</h5>
+                <img src='[% theme.imgurl %]' class='theme-current-image preview-image' />
+
+                <div class="theme-current-data">
+                    <h6 class='theme-current-name'>[% theme.name %]</h6>
+                    <p class='theme-current-desc'>
+                        [%- IF theme.designer_link -%]
+                            by <a href='[% theme.designer_link %]' class='theme-designer' data-designer="[% theme.designer %]">[% theme.designer %]</a>
+                        [%- END -%]
+                        for <a href='[% theme.layout_link %]' class='theme-layout' data-layout="[% theme.layout %]"><em>[% theme.layout %]</em></a> 
+                        </p>
+
+                        [% dw.ml('widget.currenttheme.options') %]
+                        <ul class='nostyle theme-current-options'>
+                        [% FOREACH item IN options %]
+                            <li><a href='[% item.url %]'> [% item.title %]</a></li>
+                            [% END %]
+                        </ul>
+
+                </div>
+                <!-- end .theme-current -->
+            </div>
+        </div>
+    </div><!-- end .theme-current -->
+
+
     [% IF content %]
         [% content %]
     [% ELSE %]
@@ -54,11 +72,32 @@
     [%  END %]
 
 [% # render layout chooser widget  %]
-<a name='layout'></a>
-<div class='layout-selector-wrapper pkg'>
-    [% render_layoutchooser() %]
-</div><!-- end .layout-selector-wrapper' -->
+<div class='layout-selector-wrapper'>
+    <a name='layout'></a>
+    <h4>[% dw.ml('widget.layoutchooser.title_nonum') %]</h4>
 
+    <div class='layout-content'>
+        [%- UNLESS !layout_data.is_system -%]
+            [%- FOREACH layout IN layout_data.layouts -%]
+                <div class='layout-item[% layout.current ? " selected " : "" %]'>
+                <img src='[% site.imgroot %]/customize/layouts/[% layout.layout %].png' class='layout-preview' />
+                <p class='layout-desc'>[% layout.name %]</p>
+                [% UNLESS layout.current -%]
+                    <form class = "layout-form" method=POST>
+                    [% dw.form_auth %]
+                    [% form.hidden( name = "layout_choice", value = layout.layout) %]
+                    [% form.hidden( name = "layout_prop", value = layout_data.layout_prop) %]
+                    [% form.hidden( name = "show_sidebar_prop", value = layout_data.show_sidebar_prop) %]
+                    [% form.submit( name = "apply_layout", class = "layout_button button", id="layout_btn_$layout.layout" , value = dw.ml( 'widget.layoutchooser.layout.apply' ) ) %]
+                    </form>
+                [% END %]
+                </div><!-- end .layout-item -->
+            [% END %]
+        [% END %]
+
+    </div>
+</div><!-- end .layout-selector-wrapper' -->
+</div>
 
 
 

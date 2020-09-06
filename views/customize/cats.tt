@@ -15,6 +15,6 @@
         -%]
         [% li_class = " class='$li_class.trim'" IF li_class %]
 
-    <li[% li_class %]><a href='[% c_url(qargs, {cat => c})%]' class='theme-nav-cat'>[% cats.$c.text %]</a></li>
+    <li[% li_class %]><a href='[% dw.create_url("/customize", keep_args => 1, args => {cat => c})%]' class='theme-nav-cat' data-cat="[% c %]">[% cats.$c.text %]</a></li>
     [% END %]
 </ul>
