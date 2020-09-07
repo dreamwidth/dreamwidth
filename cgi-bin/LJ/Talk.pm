@@ -2324,7 +2324,7 @@ sub enter_comment {
     LJ::MemCache::incr( [ $journalu->{'userid'}, "talk2ct:$journalu->{'userid'}" ] );
 
     # record IP if anonymous
-    LJ::Talk::record_anon_comment_ip( $journalu, $comment->{talkid}, LJ::get_remote_ip() )
+    LJ::Talk::record_anon_comment_ip( $journalu, $jtalkid, LJ::get_remote_ip() )
         unless $posterid;
 
     # add to poster's talkleft table, or the xfer place
@@ -2489,7 +2489,6 @@ sub enter_imported_comment {
     my $jtalkid = LJ::alloc_user_counter( $journalu, "T" );
     return $err->( "Database Error", "Could not generate a talkid necessary to post this comment." )
         unless $jtalkid;
-    $comment->{talkid} = $jtalkid;
 
     # insert the comment
     my $errstr;
@@ -3156,7 +3155,7 @@ sub edit_comment {
     # If we need to rescreen the comment, do so now.
     my $state = $comment->{state} || "";
     if ( $state eq 'S' ) {
-        LJ::Talk::screen_comment( $journalu, $item->jitemid, $comment->{talkid} );
+        LJ::Talk::screen_comment( $journalu, $item->jitemid, $comment_obj->jtalkid );
     }
 
     # cluster tracking
@@ -3183,9 +3182,6 @@ sub edit_comment {
             "poster_type:" . $pu ? $pu->journaltype_readable : 'anonymous'
         ]
     );
-
-    LJ::Hooks::run_hooks( 'edit_comment', $journalu->{userid}, $item->jitemid, $comment->{talkid} )
-        ;    # This hook is never registered by anything in -free or -nonfree. -NF
 
     return ( 1, $comment_obj->jtalkid );
 }
