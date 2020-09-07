@@ -294,3 +294,13 @@ footer { border-top: 4px double $header-image-color;
         max-width: $row-width + $sidebar-width + 2.5em; // desired content width + border width + padding
     }
 }
+
+.action-box ul.pagination li:hover a, .action-box ul.pagination li a:focus, {
+    background-color: $input-border-color;
+    
+}
+
+.action-box ul.pagination li.current:hover a, .action-box ul.pagination li.current a:focus, {
+    background-color: $primary-color;
+    
+}

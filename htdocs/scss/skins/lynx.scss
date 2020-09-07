@@ -12,6 +12,7 @@
 // Color variables required by compatibility-styles:
 $highlight-color: unset;
 $highlight-text-color: unset;
+$highlight-link-color: unset;
 $highlight-border: unset;
 @import "skins/compatibility-styles";
 
@@ -23,6 +24,16 @@ $secondary-color: #e2e2e2;
 $screened-comment-bg: #C29B9B; // old Tropo screened comment color, why not.
 @import "skins/entry-styles";
 @import "skins/icons-page";
+
+ul.pagination{
+    list-style: none;
+    padding-left: 0;
+
+    .current a{
+        color: $highlight-text-color;
+        text-decoration: none;
+    }
+}
 
 // Hacks: isolated important bits from files we really don't want to import.
 
