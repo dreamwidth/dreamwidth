@@ -37,7 +37,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
   [%- IF comment.editid -%]
     <div class="from-option" id='from-ljuser'>
-      [%- IF remote.banned -%]
+      [%- IF remote_opts.banned -%]
         [%- IF journal.is_community -%]
           [%- '.opt.bannedfrom.comm' | ml -%]
         [%- ELSE -%]
@@ -49,7 +49,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <label for='talkpostfromremote'>
           [%- '.opt.loggedin' | ml( username => remote.display_name ) -%]
         </label>
-        [%- IF remote.screened %]
+        [%- IF remote_opts.screened %]
           [%- '.opt.willscreen' | ml -%]
         [%- END -%]
         [%- form.hidden( name = 'usertype', value = 'cookieuser' ) -%]
@@ -100,11 +100,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
       [%# ...then we're legit logged in as an OpenID user, not just holding a
       temp $remote on a partial form submission (captcha, error, etc.) -%]
       <div class="from-option
-        [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
+        [%- UNLESS remote_opts.allowed %] from-option-cannot[% END -%]
       " id='from-openid-loggedin'>
 
         <input type='radio' name='usertype' value='openid_cookie' data-more="from-openid-loggedin-more" id='talkpostfromoidli' [%
-          IF remote.allowed -%]
+          IF remote_opts.allowed -%]
             [%- IF default_usertype == 'openid_cookie' -%]
               checked='checked'
             [%- END -%]
@@ -113,17 +113,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
           [%- END
         %] />
 
-        <label for='talkpostfromoidli'[% UNLESS remote.allowed %] class="disabled"[% END %]>
+        <label for='talkpostfromoidli'[% UNLESS remote_opts.allowed %] class="disabled"[% END %]>
           [% dw.img( 'id_openid', '' ) %]
           [% '.opt.openid.loggedin' | ml %]
           [% remote.display_name %]
         </label>
 
-        [%- IF remote.allowed -%]
-          [%- IF remote.screened %] [% '.opt.willscreen' | ml -%][%- END -%]
+        [%- IF remote_opts.allowed -%]
+          [%- IF remote_opts.screened %] [% '.opt.willscreen' | ml -%][%- END -%]
         [%- ELSE -%]
 
-          [%- IF remote.banned -%][%# p. cut and dried -%]
+          [%- IF remote_opts.banned -%][%# p. cut and dried -%]
             [%- journal.is_community ?
               '.opt.bannedfrom.comm' : '.opt.bannedfrom'
               | ml( journal => journal.user ) -%]
@@ -142,7 +142,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
       </div>
 
       <div class="from-login" id="from-openid-loggedin-more">
-        [%- IF remote.can_manage_community -%]
+        [%- IF remote_opts.can_manage_community -%]
           [%- form.checkbox(
             name = 'prop_admin_post'
             id = 'prop_admin_post'
@@ -198,11 +198,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%# logged-in site user -%]
     [%- IF remote && ! remote.openid_identity -%]
     <div class="from-option
-      [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
+      [%- UNLESS remote_opts.allowed %] from-option-cannot[% END -%]
     " id="from-user-loggedin">
 
       <input type='radio' name='usertype' value='cookieuser' data-more="from-user-loggedin-more" id='talkpostfromremote' [%
-        IF remote.allowed -%]
+        IF remote_opts.allowed -%]
           [%- IF default_usertype == 'cookieuser' -%]
             checked='checked'
           [%- END -%]
@@ -211,17 +211,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% END
       %] />
 
-      <label for='talkpostfromremote'[% UNLESS remote.allowed %] class="disabled"[% END %]>
+      <label for='talkpostfromremote'[% UNLESS remote_opts.allowed %] class="disabled"[% END %]>
         [% dw.img( 'id_user', '' ) %]
         [% remote.display_name %]
         [% '.opt.loggedin2' | ml %]
       </label>
 
-      [%- IF remote.allowed -%]
-        [%- IF remote.screened -%] [%- '.opt.willscreen' | ml -%][%- END -%]
+      [%- IF remote_opts.allowed -%]
+        [%- IF remote_opts.screened -%] [%- '.opt.willscreen' | ml -%][%- END -%]
       [%- ELSE -%]
 
-        [%- IF remote.banned -%]
+        [%- IF remote_opts.banned -%]
           [%- journal.is_community ?
             '.opt.bannedfrom.comm' : '.opt.bannedfrom'
             | ml( journal => journal.user ) -%]
@@ -233,13 +233,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
       [%- END -%]
 
-      [%- UNLESS remote.banned -%]
+      [%- UNLESS remote_opts.banned -%]
         <input type='hidden' name='cookieuser' value='[% remote.user %]' id='cookieuser' />
       [%- END -%]
     </div>
 
     <div class="from-login" id="from-user-loggedin-more">
-      [%- IF remote.can_manage_community -%]
+      [%- IF remote_opts.can_manage_community -%]
         [%- form.checkbox(
           name = 'prop_admin_post'
           id = 'prop_admin_post'
@@ -414,7 +414,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%# Misc checkboxes, captcha, edit reason - after body, before post buttons %]
 
 <div id="talkform-misc">
-  [%- IF remote.can_unscreen_parent -%]
+  [%- IF remote_opts.can_unscreen_parent -%]
     <br />
     [%- form.checkbox(
       label = dw.ml('.opt.unscreenparent')
@@ -517,7 +517,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
   <td>
       [%- IF comment.editid -%]
         <div class="from-option" id='from-ljuser'>
-          [%- IF remote.banned -%]
+          [%- IF remote_opts.banned -%]
             [%- IF journal.is_community -%]
               [%- '.opt.bannedfrom.comm' | ml -%]
             [%- ELSE -%]
@@ -530,7 +530,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
               <label for='talkpostfromremote'>
                 [%- '.opt.loggedin' | ml( username => remote.display_name ) -%]
               </label>
-              [%- IF remote.screened %]
+              [%- IF remote_opts.screened %]
                 [%- '.opt.willscreen' | ml -%]
               [%- END -%]
               [%- form.hidden( name = 'usertype', value = 'cookieuser' ) -%]
@@ -583,11 +583,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
           [%# ...then we're legit logged in as an OpenID user, not just holding a
           temp $remote on a partial form submission (captcha, error, etc.) -%]
           <div class="from-option
-            [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
+            [%- UNLESS remote_opts.allowed %] from-option-cannot[% END -%]
           " id='from-openid-loggedin'>
 
               <input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli' [%
-                IF remote.allowed -%]
+                IF remote_opts.allowed -%]
                   [%- IF default_usertype == 'openid_cookie' -%]
                     checked='checked'
                   [%- END -%]
@@ -596,17 +596,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 [%- END
               %] />
 
-              <label for='talkpostfromoidli'[% UNLESS remote.allowed %] class="disabled"[% END %]>
+              <label for='talkpostfromoidli'[% UNLESS remote_opts.allowed %] class="disabled"[% END %]>
                 [% dw.img( 'id_openid', '' ) %]
                 [% '.opt.openid.loggedin' | ml %]
                 [% remote.display_name %]
               </label>
 
-              [%- IF remote.allowed -%]
-                [%- IF remote.screened %] [% '.opt.willscreen' | ml -%][%- END -%]
+              [%- IF remote_opts.allowed -%]
+                [%- IF remote_opts.screened %] [% '.opt.willscreen' | ml -%][%- END -%]
               [%- ELSE -%]
 
-                [%- IF remote.banned -%][%# p. cut and dried -%]
+                [%- IF remote_opts.banned -%][%# p. cut and dried -%]
                   [%- journal.is_community ?
                     '.opt.bannedfrom.comm' : '.opt.bannedfrom'
                     | ml( journal => journal.user ) -%]
@@ -673,11 +673,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%# logged-in site user -%]
         [%- IF remote && ! remote.openid_identity -%]
         <div class="from-option
-          [%- UNLESS remote.allowed %] from-option-cannot[% END -%]
+          [%- UNLESS remote_opts.allowed %] from-option-cannot[% END -%]
         " id="from-user-loggedin">
 
             <input type='radio' name='usertype' value='cookieuser' id='talkpostfromremote' [%
-              IF remote.allowed -%]
+              IF remote_opts.allowed -%]
                 [%- IF default_usertype == 'cookieuser' -%]
                   checked='checked'
                 [%- END -%]
@@ -686,16 +686,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
               [% END
             %] />
 
-            <label for='talkpostfromremote'[% UNLESS remote.allowed %] class="disabled"[% END %]>
+            <label for='talkpostfromremote'[% UNLESS remote_opts.allowed %] class="disabled"[% END %]>
               [% dw.img( 'id_user', '' ) %]
               [% '.opt.loggedin' | ml( username => remote.display_name ) %]
             </label>
 
-            [%- IF remote.allowed -%]
-              [%- IF remote.screened -%] [%- '.opt.willscreen' | ml -%][%- END -%]
+            [%- IF remote_opts.allowed -%]
+              [%- IF remote_opts.screened -%] [%- '.opt.willscreen' | ml -%][%- END -%]
             [%- ELSE -%]
 
-              [%- IF remote.banned -%]
+              [%- IF remote_opts.banned -%]
                 [%- journal.is_community ?
                   '.opt.bannedfrom.comm' : '.opt.bannedfrom'
                   | ml( journal => journal.user ) -%]
@@ -707,7 +707,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
             [%- END -%]
 
-            [%- UNLESS remote.banned -%]
+            [%- UNLESS remote_opts.banned -%]
               <input type='hidden' name='cookieuser' value='[% remote.user %]' id='cookieuser' />
             [%- END -%]
 
@@ -870,7 +870,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
       <input type="button" id="comment-text-quote" value="Quote" class="js-only" style="display: none;" data-quote-error="[%- 'talk.error.quickquote' | ml -%]" />
 
-      [%- IF remote.can_manage_community -%]
+      [%- IF remote_opts.can_manage_community -%]
         [%- form.checkbox(
           name = 'prop_admin_post'
           id = 'prop_admin_post'
@@ -901,7 +901,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         value = comment.body
       ) -%]
 
-      [%- IF remote.can_unscreen_parent -%]
+      [%- IF remote_opts.can_unscreen_parent -%]
         <br />
         [%- form.checkbox(
           label = dw.ml('.opt.unscreenparent')

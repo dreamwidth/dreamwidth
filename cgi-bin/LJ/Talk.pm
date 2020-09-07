@@ -1475,19 +1475,21 @@ sub talkform {
 
     # pre-calculate some abilities and add them to $remote, so we don't have to do it
     # in the template
+
+    my $remote_opts;
     if ($remote) {
-        $remote->{can_manage_community} =
+        $remote_opts->{can_manage_community} =
                $journalu->is_community
             && $remote
             && $remote->can_manage($journalu);
-        $remote->{can_unscreen_parent} =
+        $remote_opts->{can_unscreen_parent} =
             (      $parpost->{state}
                 && $parpost->{state} eq "S"
                 && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) );
 
-        $remote->{allowed} = !$journalu->does_not_allow_comments_from($remote);
-        $remote->{banned}  = $journalu->has_banned($remote);
-        $remote->{screened} =
+        $remote_opts->{allowed} = !$journalu->does_not_allow_comments_from($remote);
+        $remote_opts->{banned}  = $journalu->has_banned($remote);
+        $remote_opts->{screened} =
             (      $journalu->has_autoscreen($remote)
                 || $screening eq 'A'
                 || ( $screening eq 'R' && !$remote->is_validated )
@@ -1536,8 +1538,9 @@ sub talkform {
             }
         : 0,
 
-        remote  => $remote ? $remote : 0,
-        journal => {
+        remote      => $remote ? $remote : 0,
+        remote_opts => remote_opts,
+        journal     => {
             user => $journalu->{user},
 
             is_iplogging => $journalu->opt_logcommentips eq 'A' ? 'all'
