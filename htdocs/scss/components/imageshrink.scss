@@ -1,46 +1,49 @@
 /* Constrain size of casually posted images.
     1: Don't trash the layout sideways.
-    2: Limit height to fit inside the viewport. Having to scroll to see a
-      portrait of someone is nonsense.
+    2: Limit height to fit inside the viewport. (UNLESS the aspect ratio is
+       greater than 1:2, in which case it's probably a tall comic.)
     3: Defend the native aspect ratio.
-    4: Respect the width/height HTML attributes for scaling down OR up
-      (within the limits of the container), but if they conflict with the aspect
-      ratio, treat them as maximums and let the aspect ratio win.
-    5: Let the user expand an individual image to max size by clicking.
-      (js/jquery.imageshrink.js)
+    4: Respect the width/height HTML attributes as the maximum size (in CSS
+       pixels) for the "zoomed in" state, since the image might be huge to
+       support high DPI devices.
+    5: Let the user expand an individual image to max size by clicking (UNLESS
+       it's inside a link). (js/jquery.imageshrink.js)
     6: Use a zoom-in/zoom-out cursor to show when users can zoom.
-    7: Undo zoom cursor for images that are actual size in their unexpanded
-      state (.imageshrink-actualsize; relies on JS for comparing effective and
-      natural dimensions).
-    8: NONE of the above applies to images inside tables or inline-styled divs.
-      (.imageshrink-exempt; relies on JS for heavy lifting.)
-
-      FIXME: Someday in the distant future, part 8 should be pure CSS, using
-      selectors kind of like this:
-      img:not(.journal-type-P .entry-content div[style]:not(.cuttag-open) img)
-      Unfortunately that's a CSS Selectors Level 4 thing, and as of 2020 only
-      Safari supports it (and that's just the earlier iteration; I didn't try
-      the one that skips .cuttag-open like that). Oh well.
+    7: Omit zoom cursor for images that are actual size in their unexpanded
+       state (.imageshrink-actualsize; relies on JS for comparing extrinsic and
+       intrinsic sizes).
+    8: Ignore all of the above for:
+       a: Images inside tables or inline-styled divs. (.imageshrink-exempt;
+          relies on JS for heavy lifting.)
+       b: Images with a style attribute.
 */
 
 @supports (object-fit: contain) {
   .entry-content, .comment-content {
-    img:not(.imageshrink-exempt) {
-      cursor: zoom-in;
-      height: auto;
-      max-width: 100%;
-      max-height: 95vh;
-      object-fit: contain;
-      object-position: left;
+    img:not(.imageshrink-exempt):not([style]) {
+      // A height or width value can be overridden, but it can never be truly
+      // *removed,* which means you lose the ability to default to the
+      // height/width HTML attributes as soon as you touch those CSS properties.
+      // That's why we're using this :not() selector -- once
+      // .imageshrink-expanded gets added to an image, it retroactively never
+      // had that "height: auto;" property, and thus the zoomed-in state can
+      // respect the height/width attributes.
+      &:not(.imageshrink-expanded) {
+        cursor: zoom-in;
+        height: auto; // If the image shrank, this prevents gross empty space above/below it.
+        max-width: 100%;
+        max-height: 95vh;
+        object-fit: contain;
+        object-position: left;
+
+        // Tall comics don't need to fit inside the viewport.
+        &.imageshrink-tall {
+          max-height: unset;
+        }
+      }
 
       &.imageshrink-expanded {
         cursor: zoom-out;
-        height: auto;
-        width: auto;
-        max-width: unset;
-        max-height: unset;
-        object-fit: unset;
-        object-position: unset;
       }
     }
   }
