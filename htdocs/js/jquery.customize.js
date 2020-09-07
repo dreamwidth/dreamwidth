@@ -272,4 +272,13 @@ $(".theme-selector-wrapper").on("click", ".theme-designer", function(event){
         filterThemes(event, "designer", $(this).data('designer'));
 });
 
+// Load autocomplete keywords
+if ($('#search_box').length) {
+    let source = autocomplete_list ? autocomplete_list : [];
+    $('#search_box').automplete(
+        {'source': source,
+        }
+    );
+}
+
 });

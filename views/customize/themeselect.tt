@@ -1,6 +1,6 @@
 <script>
-    confirmation = " [% dw.ml('widget.themechooser.confirmation') %] ";
-    searchwords = [% keywords_string %];
+    var confirmation = " [% dw.ml('widget.themechooser.confirmation') %] ";
+    var autocomplete_list = ['[% autocomplete.join("', '") %]'];
 </script>
 <div class='theme-selector-wrapper'>
     <h4> [% dw.ml( 'widget.themenav.title2' ) %]</h4>

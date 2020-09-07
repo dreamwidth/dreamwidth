@@ -61,8 +61,7 @@ sub customize_handler {
 
     # set up the keywords for basic search
     my @keywords        = LJ::Customize->get_search_keywords_for_js($u);
-    my $keywords_string = join( ",", @keywords );
-    $vars->{keywords_string} = $keywords_string;
+    $vars->{autocomplete} = \@keywords;
 
     # we want to have "All" selected if we're filtering by layout or designer, or if we're searching
     $vars->{viewing_all} = $queryargs->{layoutid} || $queryargs->{designer} || $queryargs->{search};

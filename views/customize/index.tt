@@ -1,5 +1,11 @@
 [%- CALL dw.active_resource_group("foundation") -%]
-[%- dw.need_res( { group => 'foundation' }, 'js/jquery.customize.js', 'stc/css/pages/customize.css', "stc/monolith.min.css", 'js/colorpicker.js' ) -%]
+[%- dw.need_res( { group => 'foundation' },
+'js/jquery/jquery.ui.menu.js'
+'js/jquery/jquery.ui.autocomplete.js'
+'js/jquery.customize.js'
+'stc/css/pages/customize.css'
+"stc/monolith.min.css"
+'js/colorpicker.js' ) -%]
 <script crossorigin="anonymous" src="/js/vendor/pickr.es5.min.js"></script>
 <div id="customize">
     <div class="customize-header">
