@@ -1539,7 +1539,7 @@ sub talkform {
         : 0,
 
         remote      => $remote ? $remote : 0,
-        remote_opts => remote_opts,
+        remote_opts => $remote_opts,
         journal     => {
             user => $journalu->{user},
 
