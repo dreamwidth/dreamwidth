@@ -185,7 +185,7 @@ postFormInitData.strings = {
                   items = editors.items
                 ) -%]
 
-                <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1">[%-
+                <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1" target="_blank">[%-
                   dw.img('help', '',
                     {
                       alt   => dw.ml('markup.helplink.alttext'),
