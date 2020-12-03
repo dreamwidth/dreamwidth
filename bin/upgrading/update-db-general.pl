@@ -1597,7 +1597,7 @@ EOC
 register_tablecreate( "spamreports", <<'EOC');    # global
 CREATE TABLE spamreports (
     reporttime  INT(10) UNSIGNED NOT NULL,
-    ip          VARCHAR(15),
+    ip          VARCHAR(45),
     journalid   INT(10) UNSIGNED NOT NULL,
     posterid    INT(10) UNSIGNED NOT NULL DEFAULT 0,
     subject     VARCHAR(255) BINARY,
@@ -4157,7 +4157,12 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
 
         # widen ip column for IPv6 addresses
         if ( column_type( "spamreports", "ip" ) eq "varchar(15)" ) {
-            do_alter( "spamreports", "ALTER TABLE spamreports " . "MODIFY ip VARCHAR(45)" );
+            do_alter( "spamreports", "ALTER TABLE spamreports MODIFY ip VARCHAR(45)" );
+        }
+
+        # widen ip column for IPv6 addresses
+        if ( column_type( "userlog", "ip" ) eq "varchar(15)" ) {
+            do_alter( "userlog", "ALTER TABLE userlog MODIFY ip VARCHAR(45)" );
         }
 
         unless ( column_type( 'ml_items', 'itcode' ) =~ /120/ ) {
@@ -4184,11 +4189,6 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
             do_alter( 'userpic2',
 "ALTER TABLE userpic2 MODIFY COLUMN description VARCHAR(600) BINARY NOT NULL default ''"
             );
-        }
-
-        # widen ip column for IPv6 addresses
-        if ( column_type( "userlog", "ip" ) eq "varchar(15)" ) {
-            do_alter( "spamreports", "ALTER TABLE userlog MODIFY ip VARCHAR(45)" );
         }
 
     }
