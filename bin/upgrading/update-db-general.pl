@@ -1614,7 +1614,7 @@ EOC
 register_tablecreate( "tempanonips", <<'EOC');    # clustered
 CREATE TABLE tempanonips (
     reporttime  INT(10) UNSIGNED NOT NULL,
-    ip          VARCHAR(15) NOT NULL,
+    ip          VARCHAR(45) NOT NULL,
     journalid   INT(10) UNSIGNED NOT NULL,
     jtalkid     INT(10) UNSIGNED NOT NULL,
 
@@ -4158,6 +4158,11 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
         # widen ip column for IPv6 addresses
         if ( column_type( "spamreports", "ip" ) eq "varchar(15)" ) {
             do_alter( "spamreports", "ALTER TABLE spamreports MODIFY ip VARCHAR(45)" );
+        }
+
+        # widen ip column for IPv6 addresses
+        if ( column_type( "tempanonips", "ip" ) eq "varchar(15)" ) {
+            do_alter( "tempanonips", "ALTER TABLE tempanonips MODIFY ip VARCHAR(45) NOT NULL" );
         }
 
         # widen ip column for IPv6 addresses
