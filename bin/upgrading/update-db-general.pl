@@ -1992,7 +1992,7 @@ CREATE TABLE loginlog (
     logintime INT UNSIGNED NOT NULL,
     INDEX     (userid, logintime),
     sessid    MEDIUMINT UNSIGNED NOT NULL,
-    ip        VARCHAR(15),
+    ip        VARCHAR(45),
     ua        VARCHAR(100)
 )
 EOC
@@ -4168,6 +4168,11 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
         # widen ip column for IPv6 addresses
         if ( column_type( "userlog", "ip" ) eq "varchar(15)" ) {
             do_alter( "userlog", "ALTER TABLE userlog MODIFY ip VARCHAR(45)" );
+        }
+
+        # widen ip column for IPv6 addresses
+        if ( column_type( "loginlog", "ip" ) eq "varchar(15)" ) {
+            do_alter( "loginlog", "ALTER TABLE loginlog MODIFY ip VARCHAR(45)" );
         }
 
         unless ( column_type( 'ml_items', 'itcode' ) =~ /120/ ) {
