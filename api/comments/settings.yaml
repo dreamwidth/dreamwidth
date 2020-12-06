@@ -1,0 +1,8 @@
+---
+paths:
+  /comments/settings:
+    get:
+      description: Returns descriptions of all possible comment settings.
+      responses:
+        200:
+          description: A list of comment settings and their descriptions.

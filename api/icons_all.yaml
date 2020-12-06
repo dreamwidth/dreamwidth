@@ -8,6 +8,9 @@ paths:
         required: true
         schema:
           type: string
+          minLength: 3
+          maxLength: 25
+          pattern: "^[0-9A-Za-z_]+$"    
     get:
       description: Returns all icons for a specified username.
       responses:
@@ -38,3 +41,5 @@ paths:
                       type: array
                       items:
                         type: string
+        404:
+          description: No such user.

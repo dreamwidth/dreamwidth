@@ -29,6 +29,7 @@ use JSON;
 use YAML::XS qw'LoadFile';
 use JSON::Validator 'validate_json';
 use Hash::MultiValue;
+use Data::Dumper;
 
 use Carp qw/ croak /;
 
@@ -146,11 +147,14 @@ sub _dispatcher {
 
     my $r      = $rv->{r};
     my $keystr = $r->header_in('Authorization');
-    $keystr =~ s/Bearer (\w+)/$1/;
-    my $apikey = DW::API::Key->get_key($keystr);
+    my $apikey;
+    if (defined($keystr) ){
+        $keystr =~ s/Bearer (\w+)/$1/;
+        $apikey = DW::API::Key->get_key($keystr);
+    }
 
 # all paths require an API key except the spec (which informs users that they need a key and where to put it)
-    unless ( $apikey || $self->{path}{name} eq "/spec" ) {
+    unless ( defined($apikey) || $self->{path}{name} eq "/spec" ) {
         $r->print( to_json( { success => 0, error => "Missing or invalid API key" } ) );
         $r->status('401');
         return;
@@ -169,23 +173,23 @@ sub _dispatcher {
 
     # check path-level parameters.
     for my $param ( keys %{ $self->{path}{params} } ) {
-        _validate_param( $param, $self->{path}{params}{$param}, $r, $path_params, $args );
+        my $valid = _validate_param( $param, $self->{path}{params}{$param}, $r, $path_params, $args );
+        return unless $valid;
     }
-
     my $method      = lc $r->method;
     my $handler     = $self->{path}{methods}->{$method}->{handler};
     my $method_self = $self->{path}{methods}->{$method};
 
     # check method-level parameters
     for my $param ( keys %{ $method_self->{params} } ) {
-        _validate_param( $param, $self->{params}{$param}, $r, $args );
+        my $valid = _validate_param( $param, $method_self->{params}{$param}, $r, undef, $args );
+        return unless $valid;
     }
-
     # if we accept a request body, validate that too.
     if ( defined $method_self->{requestBody} ) {
-        _validate_body( $method_self->{requestBody}, $r, $args );
+        my $valid = _validate_body( $method_self->{requestBody}, $r, $args );
+        return unless $valid;
     }
-
     # some handlers need to know what version they are
     $method_self->{ver} = $self->{ver};
 
@@ -196,7 +200,7 @@ sub _dispatcher {
         # Generic response for unimplemented API methods.
         $r->print( to_json( { success => 0, error => "Not Implemented" } ) );
         $r->status('501');
-        return;
+        return $r->OK;
     }
 }
 
@@ -235,9 +239,13 @@ sub _validate_param {
         unless ( defined $p ) {
             $r->print( to_json( { success => 0, error => "Missing required parameter $param" } ) );
             $r->status('400');
-            return;
+            return 0;
         }
     }
+
+    # non-required parameters may be undef without it being an error
+    # but we shouldn't try to validate them if they're undef.
+    return 1 unless ( defined $p );
 
     # run the schema validator
     my @errors = $pval->validate($p);
@@ -246,10 +254,11 @@ sub _validate_param {
         $r->print(
             to_json( { success => 0, error => "Bad format for $param. Errors: $err_str" } ) );
         $r->status('400');
-        return;
+        return 0;
     }
 
     $arg_obj->{$ploc}{$param} = $p;
+    return 1;
 }
 
 # Usage: _validate_body (requestBody config, request, arg object)
@@ -263,9 +272,9 @@ sub _validate_param {
 
 sub _validate_body {
     my ( $config, $r, $arg_obj ) = @_;
-
     my $preq         = $config->{required};
     my $content_type = lc $r->header_in('Content-Type');
+    $content_type =~ s/;.*//; # drop data that isn't the MIMEtype
     my $p;
 
     if ( $content_type eq 'application/json' ) {
@@ -283,6 +292,8 @@ sub _validate_body {
             $upload_hash->add( $item->{name} => $item->{body} );
         }
         $p = $upload_hash;
+    } else {
+        warn "Unexpected content-type $content_type";
     }
 
     # make sure that required parameters are supplied
@@ -291,21 +302,26 @@ sub _validate_body {
             $r->print(
                 to_json( { success => 0, error => "Missing or badly formatted request!" } ) );
             $r->status('400');
-            return;
+            return 0;
         }
     }
 
+    # non-required parameters may be undef without it being an error
+    # but we shouldn't try to validate them if they're undef.
+    #return 1 unless ( defined $p && defined($config->{content}->{$content_type}{validator}));
+
     # run the schema validator
-    my @errors = $config->{content}->{$content_type}{validator}->validate($p);
+    my @errors = $config->{content}{$content_type}{validator}->validate($p);
     if (@errors) {
         my $err_str = join( ', ', map { $_->{message} } @errors );
         $r->print(
             to_json( { success => 0, error => "Bad format for request body. Errors: $err_str" } ) );
         $r->status('400');
-        return;
+        return 0;
     }
-
     $arg_obj->{body} = $p;
+    
+    return 1;
 }
 
 # Usage: schema ($object_ref)
@@ -352,6 +368,78 @@ sub TO_JSON {
         $json->{ lc $key } = $self->{path}{methods}{$key};
     }
     return $json;
+}
+
+sub params {
+    my $self = $_[0];
+    my $parameters = [ values %{ $self->{path}{params} } ];
+    return $parameters;
+}
+
+sub methods {
+    my $self = $_[0];
+    my $methods = $self->{path}{methods};
+    return $methods;
+}
+sub to_template {
+    my $self = $_[0];
+    my $parameters = [ values %{ $self->{path}{params} } ];
+    my $methods = $self->{path}{methods};
+    my $vars = {
+        params => $parameters,
+        methods => $methods
+    };
+    return DW::Template->render_template( 'api/path.tt', $vars, {no_sitescheme => 1});
+
+}
+
+DW::Routing->register_string( '/api',             \&api_handler,    app => 1 );
+DW::Routing->register_string( '/api/',             \&api_handler,    app => 1 );
+
+sub api_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+    my $r             = $rv->{r};
+    my $u             = $rv->{u};
+    my $remote        = $rv->{remote};
+
+    my %api  = %API_DOCS;
+
+    my $paths = $api{1};
+    my $vars;
+    $vars->{paths} = $paths;
+    $vars->{key} = DW::API::Key->get_one($remote);
+    
+    return DW::Template->render_template( 'api.tt', $vars );
+}
+
+DW::Routing->register_string( '/api/getkey',             \&key_handler,    app => 1 );
+
+sub key_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+    my $r             = $rv->{r};
+    my $remote        = $rv->{remote};
+
+    my $key = DW::API::Key->get_one($remote);
+
+    $r->status(200);
+    $r->content_type('text/plain; charset=utf-8');
+    $r->print($key->{keyhash});
+    return $r->OK;
+}   
+
+DW::Routing->register_string('/internal/api/404', \&api_404_handler, app => 1);
+
+sub api_404_handler {
+    my ( $ok, $rv ) = controller(anonymous => 1);
+    return $rv unless $ok;
+    my $r             = $rv->{r};
+
+    $r->status(404);
+    $r->content_type('application/json; charset=utf-8');
+    $r->print(to_json( { success => 0, error => "Not found." }));
+    return $r->OK;
 }
 
 1;

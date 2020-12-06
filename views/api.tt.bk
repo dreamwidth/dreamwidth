@@ -1,0 +1,152 @@
+[%- sections.title = "API" -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+		<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+[%- dw.need_res( { group => "foundation" },
+                 "js/api.js"
+                 "js/components/jquery.collapse.js"
+        		"stc/css/components/collapse.css"
+        		"stc/css/components/foundation-icons.css"
+        ) -%]
+
+[% USE Dumper %]
+<p>This is documentation for the Dreamwidth REST API. An API is a way of providing information that is easy for programs to access and use, but isn't always particularly friendly for humans. This document attempts to show what information can be requested, and how, in a slightly more human-readable format, and provide an interface for users to test various requests without having to deal with external programs or a commandline. A machine-readable version of this spec is available at <a href="http://www.momiji.hack.dreamwidth.net/api/v1/spec">/api/v1/spec</a>.</p>
+<p>
+For this API, users are identified with an API key rather than a username and password. The API key doesn't have access to all the same functions a logged in user to the site has, but it does have access to all the private information you have access to, and the ability to make posts as you, so protect it as you would your password. If you've accidentally shared it, you can delete a key from the management page. The API key that will be used for calls on this page is <b><span id="api_key">[% key.keyhash %]</span></b>. If you'd like to see all your API keys and manage them, go to <a href="http://www.momiji.hack.dreamwidth.net/manage/emailpost">the mobile post settings page</a>.</p>
+[% FOREACH path = paths.keys.sort %]
+[% path_ref = paths.$path %]
+	  <rapi-doc
+    spec-url="http://www.momiji.hack.dreamwidth.net/api/v1/spec"
+	show-header="false" render-style="read"
+  show-info = 'false'
+  allow-authentication ='false'
+  allow-server-selection = 'false'
+  allow-api-list-style-selection ='false'
+	layout="column"
+  > </rapi-doc>
+<div class="row"><div class="columns">
+
+<h1>[% path %]</h1>
+[% IF path_ref.params.size > 0 %]
+	[% PROCESS display_params params = path_ref.params %]
+[% END %]
+
+[% PROCESS display_methods methods = path_ref.methods %]
+
+</div></div>
+[% END %]
+[% BLOCK display_params %]
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Type</th>
+				<th>Location</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+	[% FOREACH param = params %]
+		<tr>
+			<td>[% param.name %]</td>
+			<td>[% param.schema.type %]</td>
+			<td>[% param.in %]</td>
+			<td>[% param.desc %]</td>
+		</tr>
+	[% END %]
+	</table>
+[% END %]
+
+[% BLOCK display_methods %]
+	[% FOREACH method = methods.values %]
+	<h4>[% method.name.upper %] - [% method.desc %]</h4>
+
+	[% IF method.params %]
+	<h5>Request Format</h5>
+		[% PROCESS display_params params = method.params.list('values') %]
+	[% END %]
+
+	[% IF method.requestBody %]
+		[% FOREACH ct = method.requestBody %]
+			[% NEXT IF ct.key == 'required'%]
+			<h5>Request Format</h5>
+			Content-type accepted: [% ct.key %]
+			[% IF ct.value.schema %]
+				[% PROCESS display_json json = ct.value.schema %]
+				[% PROCESS try_it json = ct.value.schema %]
+			[% END %]
+		[% END %]
+	[% END %]
+
+	<h5>Responses</h5>
+	[% FOREACH resp = method.responses %]
+		<h6>[% resp.key %]</h6>
+		[% resp.value.desc %]
+	[% END %]
+	[% PROCESS try_it UNLESS method.requestBody %]
+	[% END %]
+[% END %]
+
+[% BLOCK display_json %]
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Type</th>
+				<th>Required</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+	[% FOREACH param = json.properties %]
+		<tr>
+			<td>[% param.key %]</td>
+			<td>[% IF param.value.type == 'array'%]
+					array [[%param.value.items.type %]]
+				[% ELSE %]
+					[% param.value.type %]
+				[% END %]
+			</td>
+			<td>[% 'Yes' IF json.required.grep(param.key).size > 0 %]</td>
+			<td>[% param.value.description %]</td>
+		</tr>
+	[% END %]
+	</table>
+
+[% END %]
+
+[% BLOCK try_it %]
+<div data-collapse data-collapse-state="collapsed">
+	<h4>Try it!</h4>
+	<form class="inner">
+	[%- form.hidden( "name" = "path", "value" = path) -%]
+	[%- form.hidden( "name" = "method", "value" = method.name.upper) -%]
+	[% FOREACH param = path_ref.params %]
+		[% PROCESS print_form name = param.name, type = param.schema.type, location = 'path' %]
+	[% END %]
+	[% FOREACH param = method.params.list('values') %]
+		[% PROCESS print_form name = param.name, type = param.schema.type, location = param.in %]
+	[% END %]
+	[% IF method.requestBody %]
+		[% FOREACH param = json.properties %]
+			[% PROCESS print_form name = param.key, type = param.value.type, location = 'body' %]
+		[% END %]
+	[% END %]
+	<input type="submit" class="button" value="[% method.name.upper %]">
+	<div class="request hide"></div>
+	<div class="response hide"></div>
+	</form>
+	</div>
+[% END %]
+
+[% BLOCK print_form %]
+[% IF type == 'string' || type == 'integer' %]
+	[% form.textbox( label = name
+    	placeholder = name
+    	"name" = name
+    	"data-location" = location
+    	"data-type" = type
+  	) %]
+[% ELSIF type == 'boolean' %]
+	[% name %]:
+	[%- form.radio( "name" = name, "id" = "$name_true", "value" = "true", 'label'= "True", "data-location" = location, "data-type" = type) -%]
+	[%- form.radio( "name" = name, "id" = "$name_false", "value" = "false", 'label'= "False", "data-location" = location, "data-type" = type) -%]
+[% END %]
+[% END %]

@@ -1003,6 +1003,7 @@ sub trans {
             uri         => "/v$ver$2",
             role        => 'api'
         );
+        $ret //= DW::Routing->call( uri => "/internal/api/404" );
         return $ret if defined $ret;
     }
 

@@ -20,6 +20,7 @@ package DW::API::Parameter;
 use strict;
 use warnings;
 use JSON;
+use Data::Dumper;
 
 use Carp qw(croak);
 
@@ -46,12 +47,29 @@ sub define_parameter {
     }
     elsif ( defined $args->{content} ) {
         $parameter->{content} = $args->{content};
+        $parameter->{in} = 'requestBody';
     }
 
     bless $parameter, $class;
-    $parameter->_validate;
+    $parameter->_validate_json;
     return $parameter;
 
+}
+
+sub define_body {
+    my ( $class, $args, $content ) = @_;
+    my $parameter = {
+        in       => 'requestBody',
+    };
+
+    if ( defined $args->{schema} ) {
+        $parameter->{schema} = $args->{schema};
+    }
+    bless $parameter, $class;
+    if ($content eq 'application/json') {
+        $parameter->_validate_json;
+        return $parameter;
+    }
 }
 
 # Usage: validate ( Parameter object )
@@ -59,11 +77,11 @@ sub define_parameter {
 # Makes sure required fields are present, and that the
 # location given is a valid one.
 
-sub _validate {
+sub _validate_json {
     my $self = $_[0];
-    for my $field (@REQ_ATTRIBUTES) {
-        croak "$self is missing required field $field" unless defined $self->{$field};
-    }
+    # for my $field (@REQ_ATTRIBUTES) {
+    #     croak "$self is missing required field $field" unless defined $self->{$field};
+    # }
     my $location = $self->{in};
     croak "$location isn't a valid parameter location" unless grep( $location, @LOCATIONS );
 
@@ -72,13 +90,6 @@ sub _validate {
 
     croak "Can only define one of content or schema!" if $has_schema && $has_content;
     croak "Must define at least one of content or schema!" unless $has_content || $has_schema;
-
-    # requestBody is a special instance of Parameter and has stricter rules
-    if ( $location eq "requestBody" ) {
-        if ( not defined( keys %{ $self->{content} } ) ) {
-            croak "requestBody must have at least one content-type!";
-        }
-    }
 
     # Run schema validators
     DW::Controller::API::REST::schema($self) if ( defined $self->{schema} );
@@ -102,8 +113,11 @@ sub TO_JSON {
         in          => $self->{in},
     };
 
+    # Schema fields we need to force to be numeric
+    
     if ( defined $self->{schema} ) {
         $json->{schema} = $self->{schema};
+        force_numeric($json->{schema});
     }
     elsif ( defined $self->{content} ) {
         $json->{content} = $self->{content};
@@ -111,12 +125,37 @@ sub TO_JSON {
         # content type is just a hash, but we don't want to print the validator too
         for my $content_type ( keys %{ $json->{content} } ) {
             delete $json->{content}->{$content_type}{validator};
+            force_numeric($json->{content}->{$content_type}{schema});
         }
+    }
+
+    if ($self->{in} eq "requestBody") {
+        #remove some fields that requestBody doesn't need
+        delete $json->{in};
+        delete $json->{name};
+        delete $json->{description};
     }
 
     $json->{required} = $JSON::true if defined $self->{required} && $self->{required};
     return $json;
 
+}
+
+sub force_numeric {
+    my $schema = $_[0];
+    my @numerics = ('minLength', 'maxLength', 'minimum', 'maximum', 'minItems', 'maxItems');
+
+    if ($schema->{type} eq 'object') {
+        for my $prop (keys %{ $schema->{properties} }) {
+            force_numeric($schema->{properties}{$prop});
+        }
+    } elsif ($schema->{type} eq 'array') {
+        force_numeric($schema->{items});
+    } else {
+        foreach my $item (@numerics) {
+            $schema->{$item} += 0 if defined($schema->{$item});
+        }
+    }
 }
 
 1;
