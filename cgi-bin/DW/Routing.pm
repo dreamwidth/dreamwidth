@@ -661,7 +661,7 @@ sub _apply_defaults {
     $formats = { map { ( $_, 1 ) } @$formats } if ref $formats eq 'ARRAY';
 
     $hash->{formats} = $formats;
-    $hash->{methods} = $opts->{methods} || { GET => 1, POST => 1, HEAD => 1, DELETE => 1 };
+    $hash->{methods} = $opts->{methods} || { GET => 1, POST => 1, HEAD => 1, DELETE => 1, PATCH => 1 };
 
     return $hash;
 }

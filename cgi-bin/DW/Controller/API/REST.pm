@@ -39,7 +39,7 @@ our %TYPE_REGEX = (
     integer => '(\d+)',
     boolean => '(true|false)',
 );
-our %METHODS  = ( get => 1, post => 1, delete => 1 );
+our %METHODS  = ( get => 1, post => 1, delete => 1, patch => 1 );
 our $API_PATH = "$ENV{LJHOME}/api/";
 
 # Usage: path ( yaml_source_path, ver, hash_of_HTTP_handlers )
@@ -392,42 +392,6 @@ sub to_template {
     return DW::Template->render_template( 'api/path.tt', $vars, {no_sitescheme => 1});
 
 }
-
-DW::Routing->register_string( '/api',             \&api_handler,    app => 1 );
-DW::Routing->register_string( '/api/',             \&api_handler,    app => 1 );
-
-sub api_handler {
-    my ( $ok, $rv ) = controller();
-    return $rv unless $ok;
-    my $r             = $rv->{r};
-    my $u             = $rv->{u};
-    my $remote        = $rv->{remote};
-
-    my %api  = %API_DOCS;
-
-    my $paths = $api{1};
-    my $vars;
-    $vars->{paths} = $paths;
-    $vars->{key} = DW::API::Key->get_one($remote);
-    
-    return DW::Template->render_template( 'api.tt', $vars );
-}
-
-DW::Routing->register_string( '/api/getkey',             \&key_handler,    app => 1 );
-
-sub key_handler {
-    my ( $ok, $rv ) = controller();
-    return $rv unless $ok;
-    my $r             = $rv->{r};
-    my $remote        = $rv->{remote};
-
-    my $key = DW::API::Key->get_one($remote);
-
-    $r->status(200);
-    $r->content_type('text/plain; charset=utf-8');
-    $r->print($key->{keyhash});
-    return $r->OK;
-}   
 
 DW::Routing->register_string('/internal/api/404', \&api_404_handler, app => 1);
 
