@@ -78,7 +78,7 @@ paths:
                   description: The date and time of the entry in the format `FIXME`. If omitted, the server time will be used instead.
                 security:
                   type: string
-                  description: Security level to use. Can be public, private, or a filter name.
+                  description: Security level to use. Can be `public`, `private`, or `access`.
                 age_restriction:
                   type: string
                   description: Age restriction flag. `none` puts no flags on the entry, `discretion` marks it as "viewer discretion advised", and `restricted` marks it inacessible to users under eighteen. If omitted, the journal default will be used.
@@ -94,6 +94,9 @@ paths:
                 current_music:
                   type: string
                   description: Current music
+                current_mood:
+                  type: string
+                  description: Current mood
                 tags:
                   description: An array of tags to apply to the entry.
                   type: array

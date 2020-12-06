@@ -165,6 +165,18 @@ sub rest_ok {
     return;
 }
 
+# Usage: return rest_nocontent()
+# Returns 204 No Content to indicate that a request was
+# successfully recieved and processed, but we have no new content
+# to return.
+sub rest_nocontent {
+    my $self = $_[0];
+    my $r = DW::Request->get;
+
+    $r->status(204);
+    return;
+}
+
 # Usage: return rest_error( $status_code, $msg )
 # Returns a standard format JSON error message.
 # The first argument is the status code, the second optional
