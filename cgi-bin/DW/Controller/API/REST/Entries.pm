@@ -64,7 +64,7 @@ sub rest_get {
 
         return $self->rest_error('403') unless $item->visible_to($remote);
 
-        my $entry = json_from_entry($remote, $item);
+        my $entry = $item->as_json($remote);
         return $self->rest_ok( $entry );
 
     } else {
@@ -115,37 +115,13 @@ sub rest_get {
         my @entries;
         foreach my $it ( @items ) {
             my $item = LJ::Entry->new( $journal, jitemid => $it->{itemid});
-            my $entry = json_from_entry($journal, $item);
+            my $entry = $item->as_json($remote);
             push @entries, $entry;
         }
         return $self->rest_ok( \@entries );
     }
 }
 
-sub json_from_entry {
-    my ($remote, $item) = @_;
-
-    my $entry = {};
-    $entry->{subject_html} = $item->subject_html();
-    $entry->{body_html} = $item->event_html(0);
-    $entry->{poster} = $item->poster()->{user};
-    $entry->{url} = $item->url();
-    $entry->{security} = $item->security();
-    $entry->{datetime} = $item->{eventtime};
-    my @entry_tags = $item->tags();
-    $entry->{tags} = (\@entry_tags);
-    $entry->{icon} = $item->userpic_kw || '';
-    $entry->{entry_id} = delete $item->{ditemid};
-    #$item->{metadata} = $item->currents;
-
-    if($item->editable_by($remote)) {
-        $entry->{body_raw} = $item->event_raw();
-        $entry->{subject_raw} = $item->subject_raw();
-        $entry->{allowmask} = $item->allowmask;
-    }
-
-    return $entry;
-}
 
 
 ###################################################
@@ -212,6 +188,7 @@ sub new_entry {
         my $flags = {};
         $flags->{noauth} = 1;
         $flags->{u} = $remote;
+        $flags->{xpost} = $post->{crosspost}
 
         my %auth;
         $auth{poster} = $remote;
@@ -237,6 +214,7 @@ sub _map_to_standard {
 
     # we use slightly different names for a few fields compared to the entry page
     # so map those to the 'expected' names.
+    $post->{flags_adminpost} = $post->{admin_post} || 0;
     $post->{taglist} = $post->{tags};
     $post->{flags_adminpost} = $post->{admin_post};
 
@@ -252,7 +230,7 @@ sub _do_post {
         username    => $auth->{poster} ? $auth->{poster}->user : undef,
         usejournal  => $auth->{journal} ? $auth->{journal}->user : undef,
         tz          => 'guess',
-        xpost       => '0', # don't crosspost by default; we handle this ourselves later
+        xpost       => $flags->{xpost} == 0 ? '0' : $flags->{xpost},
         %$form_req
     };
 
@@ -282,15 +260,6 @@ sub _do_post {
         my $journal = $auth->{journal};
         my $edititemlink = "$LJ::SITEROOT/entry/${journal->user}/$ditemid/edit";
 
-        my @crossposts = DW::Controller::Entry::_queue_crosspost(
-            $form_req,
-            remote  => $u,
-            journal => $journal,
-            deleted => 0,
-            editurl => $edititemlink,
-            ditemid => $ditemid,
-        );
-
     }
 
     return ($render_ret);
@@ -301,7 +270,6 @@ sub _do_post {
 #
 # Handles post of new entries, given a journal name
 #
-# FIXME: Doesn't handle crossposts yet.
 
 sub edit_entry {
 
@@ -357,6 +325,7 @@ sub edit_entry {
                 $ditemid,
                 $form_req,
                 { remote => $remote, journal => $usejournal },
+                {xpost => $post->{crosspost}}
                 );
         return $self->rest_nocontent() if $edit_res->{success} == 1;
 
@@ -367,13 +336,13 @@ sub edit_entry {
 
 
 sub _do_edit {
-    my ( $ditemid, $form_req, $auth, %opts ) = @_;
+    my ( $ditemid, $form_req, $auth, $opts ) = @_;
 
     my $req = {
         ver         => $LJ::PROTOCOL_VER,
         username    => $auth->{remote} ? $auth->{remote}->user : undef,
         usejournal  => $auth->{journal} ? $auth->{journal}->user : undef,
-        xpost       => '0', # don't crosspost by default; we handle this ourselves later
+        xpost       => $flags->{xpost} == 0 ? '0' : $flags->{xpost},
         itemid      => $ditemid >> 8,
         %$form_req
     };
@@ -389,16 +358,6 @@ sub _do_edit {
     my $remote = $auth->{remote};
     my $journal = $auth->{journal};
     my $edit_url      = "$LJ::SITEROOT/entry/${journal->user}/$ditemid/edit";
-
-    my @crossposts = DW::Controller::Entry::_queue_crosspost(
-        $form_req,
-        remote  => $remote,
-        journal => $journal,
-        deleted => 0,
-        ditemid => $ditemid,
-        editurl => $edit_url,
-    );
-
 
     my $render_ret = {success => 1,
                         url => $res->{url},

@@ -102,6 +102,15 @@ paths:
                   type: array
                   items:
                     type: string
+                admin_post:
+                  type: boolean
+                  description: Mark a post with the admin flag (ignored if you are not an admin or posting to a community)
+                sticky_entry:
+                  type: boolean
+                  description: Mark an entry sticky (ignored if you are at your max count of stickied entries)
+                crosspost:
+                  type: boolean
+                  description: Schedule for crosspost, using the account's default crosspost accounts.
       responses:
         200:
           description: The new entry in JSON format.

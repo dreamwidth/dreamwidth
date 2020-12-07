@@ -73,6 +73,15 @@ paths:
                 current_mood:
                   type: string
                   description: Current mood
+                admin_post:
+                  type: boolean
+                  description: Mark a post with the admin flag (ignored if you are not an admin or posting to a community)
+                sticky_entry:
+                  type: boolean
+                  description: Mark an entry sticky (ignored if you are at your max count of stickied entries)
+                crosspost:
+                  type: boolean
+                  description: Schedule for crosspost, using the account's default crosspost accounts.
       responses:
         204:
           description: The entry has been updated.
