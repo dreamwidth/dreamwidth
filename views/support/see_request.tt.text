@@ -47,13 +47,13 @@
 
 .error.text1=You don't have permission to read any support categories.
 
-.error.nonext=<?p No next open request found. p?>
+.error.nonext=<p>No next open request found.</p>
 
-.error.nonext_cat=<?p No next open request in the same category found. p?>
+.error.nonext_cat=<p>No next open request in the same category found.</p>
 
-.error.noprev=<?p No previous open request found. p?>
+.error.noprev=<p>No previous open request found.</p>
 
-.error.noprev_cat=<?p No previous open request in the same category found. p?>
+.error.noprev_cat=<p>No previous open request in the same category found.</p>
 
 .faq=FAQ
 
@@ -61,18 +61,18 @@
 
 .from=From:
 
-.goback.text=<?p Return to <a [[request_link]]>Request #[[spid]]</a> p?>
+.goback.text=<p>Return to <a [[request_link]]>Request #[[spid]]</a></p>
 
-.help.link2=Return to the <a [[helplink]]>list of open requests</a>.<br />
+.help.link=Return to the <a href="help">list of open requests</a>.<br />
 
 .important.notes.text2<<
 <strong>Important Notes:</strong>
 
-<?p [[sitenameshort]] Support is an open-source project run by a community of volunteers. If you think you know the answer to this question, you're welcome to submit an answer in the box below. Your answer will be screened and evaluated by senior support volunteers for content. If your answer is first and correct, it will be sent to the person who submitted the question. p?>
+<p>[[sitenameshort]] Support is an open-source project run by a community of volunteers. If you think you know the answer to this question, you're welcome to submit an answer in the box below. Your answer will be screened and evaluated by senior support volunteers for content. If your answer is first and correct, it will be sent to the person who submitted the question.</p>
 
-<?p If you have questions about Support, please read the <a href="http://wiki.dreamwidth.net/notes/Category:Support">Support Wiki category</a> for more information. p?>
+<p>If you have questions about Support, please read the <a href="http://wiki.dreamwidth.net/notes/Category:Support">Support Wiki category</a> for more information.</p>
 
-<?p Thank you! p?>
+<p>Thank you!</p>
 .
 
 .internal.comment=Internal Comment

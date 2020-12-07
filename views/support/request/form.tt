@@ -12,7 +12,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[% CALL dw.ml_scope( "/support/see_request.bml" ) %]
+[%- CALL dw.ml_scope( "/support/see_request.tt" ) -%]
+
 <form method='post' action='[% site.root%]/support/append_request' name='supportForm' class='simple-form'>
 
 [%- form.hidden(
@@ -199,12 +200,9 @@ END -%]
     </fieldset>
 [%- END -%]
 
-<fieldset class='submit'>
 [%- form.submit( value = dw.ml( is_poster ? ".postbuttoninfo" : ".postbutton" )
              name = "submitpost"
              id = "submitpost"
     )
 -%]
-</fieldset>
-
 </form>
