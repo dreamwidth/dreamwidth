@@ -64,7 +64,6 @@ _info?><?_code
         'usejournal' => $journal ne $u->{user} ? $journal : undef,
         'ver' => 1,
         'username' => $u->user,
-        'password' => $u->password,
         'event' => $event->{'event'},
         'subject' => $POST{'subject'},
         'props' => $event->{'props'},
@@ -74,7 +73,10 @@ _info?><?_code
     };
 
     my $errcode;
-    my $res = LJ::Protocol::do_request("postevent", $req, \$errcode);
+    my $res = LJ::Protocol::do_request("postevent", $req, \$errcode, {
+        "noauth" => 1,
+        "u" => $u,
+    });
     if ($errcode) {
         return $err->( "<?_ml .post.error_posting _ml?>: " . LJ::Protocol::error_message($errcode) );
     }
