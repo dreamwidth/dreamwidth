@@ -6,29 +6,9 @@
 [%- sections.title = dw.ml('.title') -%]
 
 <p>[% '.info' | ml %]</p>
-<form method='GET'>
-    <div class="row">
-        <div class="columns large-3 text-right">[% '.label.term' | ml %]:</div>
-        <div class="columns large-6">
-            [%- form.textbox( size = 30, value = q, name = 'q') -%]
-        </div>
-        <div class="columns large-3">
-            [%- form.submit( 'value' = dw.ml('.button.search')) -%]
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="columns large-3 text-right">
-            [% '.label.lang' | ml %]
-        </div>
-        <div class="columns large-3">
-            [%- form.select( name = 'lang', selected = sel, items = langs) -%]
-        </div>
-        <div class="columns large-6">
-            [% '.example' | ml %]
-        </div>
-    </div>
-</form>
+<p>[% '.example' | ml %]</p>
+
 [%- IF q && q.length < 1 -%]
 <p><i>[% '.error.noterm' | ml %]</i></p>
 [%- END -%]
@@ -36,6 +16,21 @@
 [%- IF q && q.length < 2 -%]
 <p><i>[% '.error.tooshort' | ml %]</i></p>
 [%- END -%]
+
+<form method='GET'>
+    <div>
+            [% '.label.term' | ml %]:
+            [%- form.textbox( size = 30, value = q, name = 'q',
+	                      id = 'search-q' ) -%]
+            [%- form.submit( 'value' = dw.ml('.button.search') ) -%]
+    </div>
+
+    <div>
+            [% '.label.lang' | ml %]:
+            [%- form.select( name = 'lang', selected = sel, items = langs,
+	                     id = 'search-lang' ) -%]
+    </div>
+</form>
 
 [%- IF results -%]
     [%- IF results.size < 1 -%]
