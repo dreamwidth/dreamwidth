@@ -1,11 +1,12 @@
 #!/usr/bin/perl
 #
-# DW::Controller::Support::Faq
+# DW::Controller::Support::Request
 #
-# This controller is for the Support FAQ page.
+# This controller is for the Support Request submission page.
 #
 # Authors:
 #      Ruth Hatch <ruth.s.hatch@gmail.com>
+#      Jen Griffin <kareila@livejournal.com>
 #
 # Copyright (c) 2020 by Dreamwidth Studios, LLC.
 #
@@ -32,6 +33,9 @@ sub see_request_handler {
 
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
+
+    my $scope = '/support/see_request.tt';
+    my $dbr   = LJ::get_db_reader();
 
     my $remote = $rv->{remote};
     my $POST   = $r->post_args;
@@ -62,36 +66,38 @@ sub see_request_handler {
         }
         else {
             my @filter_cats = LJ::Support::filter_cats( $remote, $cats );
-            return error_ml('/support/see_request.tt.error.text1')
-                unless @filter_cats;
+            return error_ml("$scope.error.text1") unless @filter_cats;
             my $cats_in = join( ",", map { $_->{'spcatid'} } @filter_cats );
             $spcatand = "AND spcatid IN ($cats_in)";
         }
         my $clause = "";
         $clause = "AND spid$op$spid" unless ( $find eq 'first' || $find eq 'last' );
-        my $dbr = LJ::get_db_reader();
         my ($foundspid) =
-            $dbr->selectrow_array( "SELECT spid FROM support WHERE state='open' $spcatand $clause "
-                . "ORDER BY spid $sort LIMIT 1" );
+            $dbr->selectrow_array( "SELECT spid FROM support WHERE state='open' "
+                . "$spcatand $clause ORDER BY spid $sort LIMIT 1" );
+
         if ($foundspid) {
-            return BML::redirect("see_request?id=$foundspid");
+            return $r->redirect("see_request?id=$foundspid");
         }
         else {
             my $extra = $find eq "cnext" || $find eq "cprev" ? "_cat" : "";
             my $text =
                 $find eq 'next' || $find eq 'cnext'
-                ? LJ::Lang::ml( '.error.nonext' . $extra )
-                : LJ::Lang::ml( '.error.noprev' . $extra );
+                ? LJ::Lang::ml( "$scope.error.nonext" . $extra )
+                : LJ::Lang::ml( "$scope.error.noprev" . $extra );
             my $goback =
                 $sp
-                ? LJ::Land::mln hour( '.goback.text',
+                ? LJ::Lang::ml( "$scope.goback.text",
                 { request_link => "href='see_request?id=$spid'", spid => $spid } )
-                : undef;
-            return error_ml( $text . $goback );
+                : '';
+            return DW::Template->render_template( 'error.tt', { message => "$text$goback" } );
         }
+
+        $vars->{find} = 1;
     }
 
-    unless ($sp) { return error_ml('/support/see_request.tt.unknownumber'); }
+    return error_ml("$scope.unknownumber") unless $sp;
+
     my $sth;
     my $user;
     my $user_url;
@@ -122,12 +128,11 @@ sub see_request_handler {
         $u = LJ::load_userid( $sp->{'requserid'} );
         unless ($u) {
             warn "Error: user '$sp->{requserid}' not found in request #$spid";
-            return error_ml('Unknown user');
+            return DW::Template->render_template( 'error.tt', { message => "Unknown user" } );
         }
 
         # now do a check for a down cluster?
-        my $dbr = LJ::get_cluster_reader($u);
-        $clusterdown = 1 unless $dbr;
+        $clusterdown = 1 unless LJ::get_cluster_reader($u);
 
         $email = $u->email_raw if $u->email_raw;
         $u->preload_props( "stylesys", "s2_style", "schemepref" )
@@ -138,7 +143,6 @@ sub see_request_handler {
 
     my $winner;    # who closed it?
     if ( $sp->{'state'} eq "closed" ) {
-        my $dbr = LJ::get_db_reader();
         $sth = $dbr->prepare( "SELECT u.user, sp.points FROM useridmap u, supportpoints sp "
                 . "WHERE u.userid=sp.userid AND sp.spid=?" );
         $sth->execute($spid);
@@ -147,7 +151,6 @@ sub see_request_handler {
 
     # get all replies
     my @replies;
-    my $dbr = LJ::get_db_reader();
     $sth = $dbr->prepare(
 "SELECT splid, timelogged, UNIX_TIMESTAMP()-timelogged AS 'age', type, faqid, userid, message "
             . "FROM supportlog WHERE spid=? ORDER BY timelogged" );
@@ -157,12 +160,11 @@ sub see_request_handler {
     }
 
     # load category this request is in
-    my $problemarea = $sp->{_cat}->{'catname'};
-    my $catkey      = $sp->{_cat}->{'catkey'};
-    $vars->{problemarea} = $problemarea;
+    $vars->{problemarea} = $sp->{_cat}->{'catname'};
+    $vars->{catkey}      = $sp->{_cat}->{'catkey'};
 
     unless ( LJ::Support::can_read( $sp, $remote, $auth ) ) {
-        return error_ml('/support/see_request.tt.nothaveprivilege');
+        return error_ml("$scope.nothaveprivilege");
     }
 
     # helper variables for commonly called methods
@@ -196,7 +198,18 @@ sub see_request_handler {
         }
     };
 
+    if ( $u->{'defaultpicid'} && !$u->is_suspended ) {
+        my $userpic_obj = $u->userpic;
+        my $user_img    = '';
+        $user_img .= "<a href='" . $u->allpics_base . "'>";
+        $user_img .= $userpic_obj->imgtag;
+        $user_img .= "</a>";
+        $vars->{user_img} = $user_img;
+    }
+
     my $display_name;
+
+    # show requester name + email
     {
         my $visemail = $email;
         $visemail =~ s/^.+\@/********\@/;
@@ -235,9 +248,9 @@ sub see_request_handler {
     }
     $vars->{display_name} = $display_name;
     $vars->{accounttype}  = LJ::Capabilities::name_caps( $u->{caps} )
-        || "<i>" . LJ::Lang::ml('/support/see_request.tt.unknown') . "</i>";
+        || "<i>" . LJ::Lang::ml("$scope.unknown") . "</i>";
 
-    my $ustyle;
+    my $ustyle = '';
     if ( $u->{'stylesys'} == 2 ) {
         $ustyle .= "(S2) ";
         if ( $u->{'s2_style'} ) {
@@ -254,7 +267,7 @@ sub see_request_handler {
             }
         }
         else {
-            $ustyle .= LJ::Lang::ml('/support/see_request.tt.none');
+            $ustyle .= LJ::Lang::ml("$scope.none");
         }
     }
     else {
@@ -262,13 +275,25 @@ sub see_request_handler {
     }
     $vars->{ustyle} = $ustyle;
 
-    #     LJ::Hooks::run_hooks("support_see_request_info_rows", {
-    #     'u' => $u,
-    #     'email' => $email,
-    #     'sp' => $sp,
-    #     'retref' => \$ret,
-    #     'remote' => $remote,
-    # });
+    # if the user has siteadmin:users or siteadmin:* show them link to resend validation email?
+    my $extraval = sub {
+        return '' unless $remote && $remote->has_priv( 'siteadmin', 'users' );
+        return
+            " (<a href='$LJ::SITEROOT/register?foruser=$u->{user}'>"
+            . LJ::Lang::ml("$scope.resend.validation.email") . "</a>)";
+    };
+
+    my $email_status;
+
+    if ( $u->{'status'} eq "A" ) {
+        $email_status = "<b>" . LJ::Lang::ml("$scope.yes") . "</b>";
+    }
+    if ( $u->{'status'} eq "N" ) {
+        $email_status = "<b>" . LJ::Lang::ml("$scope.no") . "</b>" . $extraval->();
+    }
+    if ( $u->{'status'} eq "T" ) {
+        $email_status = LJ::Lang::ml("$scope.transitioning") . $extraval->();
+    }
 
     $vars->{cluster_info} = LJ::DB::get_cluster_description( $u->{clusterid} ) if $u->{clusterid};
 
@@ -281,10 +306,9 @@ sub see_request_handler {
         my $percentage =
             ( $media_quota != 0 )
             ? sprintf( "%0.1f%%", $media_usage / $media_quota * 100 )
-            : LJ::Lang::ml('/support/see_request.tt.noquota');
+            : LJ::Lang::ml("$scope.noquota");
 
-        $vars->{media_mb}      = $megabytes;
-        $vars->{media_percent} = $percentage;
+        $vars->{media_usage} = "$megabytes ($percentage)";
     }
     $vars->{view_history} = $remote && $remote->has_priv('historyview');
     $vars->{view_userlog} = $remote && $remote->has_priv( 'canview', 'userlog' );
@@ -308,19 +332,17 @@ sub see_request_handler {
         if ( $sp->{'timelasthelp'} > ( $sp->{'timetouched'} + 5 ) ) {
 
             # open, answered
-            $state = LJ::Lang::ml('/support/see_request.tt.answered');
+            $state = LJ::Lang::ml("$scope.answered");
         }
         elsif ( $sp->{'timelasthelp'} && $sp->{'timetouched'} > $sp->{'timelasthelp'} + 5 ) {
 
             # open, still needs help
-            $state = LJ::Lang::ml('/support/see_request.tt.answered.need.help');
+            $state = LJ::Lang::ml("$scope.answered.need.help");
         }
         else {
             # default
             $state =
-                  "<b><span style='color: #ff0000;'>"
-                . LJ::Lang::ml('/support/see_request.tt.open')
-                . "</span></b>";
+                "<b><span style='color: #ff0000;'>" . LJ::Lang::ml("$scope.open") . "</span></b>";
         }
     }
     if ( $state eq "closed" && $winner && LJ::Support::can_see_helper( $sp, $remote ) ) {
@@ -333,7 +355,7 @@ sub see_request_handler {
         if ( $sp->{'state'} eq "open" && $can_close ) {
             $state .=
                   ", <a href='act?close;$sp->{'spid'};$sp->{'authcode'}'><b>"
-                . LJ::Lang::ml('/support/see_request.tt.close.without.credit')
+                . LJ::Lang::ml("$scope.close.without.credit")
                 . "</b></a>";
         }
         elsif ( $sp->{state} eq 'closed' ) {
@@ -341,56 +363,32 @@ sub see_request_handler {
             $state .=
                 $sp->{'state'} eq "closed" && !$permastatus
                 ? ", <a href='act?touch;$sp->{'spid'};$sp->{'authcode'}'><b>"
-                . LJ::Lang::ml('/support/see_request.tt.reopen.this.request')
+                . LJ::Lang::ml("$scope.reopen.this.request")
                 . "</b></a>"
                 : "";
             if ( LJ::Support::can_lock( $sp, $remote ) ) {
                 $state .=
                     $permastatus
                     ? ", <a href='act?unlock;$sp->{spid};$sp->{authcode}'><b>"
-                    . LJ::Lang::ml('/support/see_request.tt.unlock.request')
+                    . LJ::Lang::ml("$scope.unlock.request")
                     . "</b></a>"
                     : ", <a href='act?lock;$sp->{spid};$sp->{authcode}'><b>"
-                    . LJ::Lang::ml('/support/see_request.tt.lock.request')
+                    . LJ::Lang::ml("$scope.lock.request")
                     . "</b></a>";
             }
         }
     }
     $vars->{state} = $state;
 
-    #             LJ::Hooks::run_hooks("support_see_request_html", {
-    #     'u' => $u,
-    #     'email' => $email,
-    #     'sp' => $sp,
-    #     'retref' => \$ret,
-    #     'remote' => $remote,
-    # });
-    # if the user has siteadmin:users or siteadmin:* show them link to resend validation email?
-    my $extraval = sub {
-        return '' unless $remote && $remote->has_priv( 'siteadmin', 'users' );
-        return
-            " (<a href='$LJ::SITEROOT/register?foruser=$u->{user}'>"
-            . LJ::Lang::ml('/support/see_request.tt.resend.validation.email') . "</a>)";
-    };
-
-    my $email_status;
-    if ( $u->{'status'} eq "A" ) {
-        $email_status .= "<b>" . LJ::Lang::ml('/support/see_request.tt.yes') . "</b>";
-    }
-    if ( $u->{'status'} eq "N" ) {
-        $email_status = "<b>" . LJ::Lang::ml('/support/see_request.tt.no') . "</b>" . $extraval->();
-    }
-    if ( $u->{'status'} eq "T" ) {
-        $email_status = LJ::Lang::ml('/support/see_request.tt.transitioning') . $extraval->();
-    }
+    $vars->{private_req} = ( !$sp->{_cat}->{public_read} && $is_poster ) ? 1 : 0;
 
     my @screened;
     my @cleaned_replies;
-    my $curlang = BML::get_language();
+    my $curlang = LJ::Lang::get_effective_lang();
 
     ### reply loop
     foreach my $le (@replies) {
-        my $reply;
+        my $reply        = {};
         my $up           = LJ::load_userid( $le->{userid} );
         my $remote_is_up = $remote && $remote->equals($up);
 
@@ -408,27 +406,28 @@ sub see_request_handler {
         my %url;
         my $urlN = 0;
 
-        $message = LJ::ehtml($message);
-        $message =~ s/^\s+//;
-        $message =~ s/\s+$//;
+        $message = LJ::trim( LJ::ehtml($message) );
         $message =~ s/\n( +)/"\n" . "&nbsp;&nbsp;" x length($1) /eg;
-        $message =~ s/\n/<br \/>\n/g;
+        $message = LJ::html_newlines($message);
         $message = LJ::auto_linkify($message);
 
         # special case: original request
         if ( $le->{'type'} eq "req" ) {
 
             # insert support diagnostics from props
-            $message .=
-                  "<hr><strong>"
-                . LJ::Lang::ml('/support/see_request.tt.diagnostics')
-                . "</strong> "
-                . LJ::ehtml( $props->{useragent} )
-                if $props->{useragent};
+            if ( $props->{useragent} ) {
+                $message .= sprintf(
+                    "<hr><strong>%s</strong> %s",
+                    LJ::Lang::ml("$scope.diagnostics"),
+                    LJ::ehtml( $props->{useragent} )
+                );
+            }
+
             $reply->{msg}  = $message;
             $reply->{orig} = 1;
             next;
         }
+
         $reply->{msg}  = $message;
         $reply->{id}   = $le->{splid};
         $reply->{type} = $le->{type};
@@ -436,12 +435,11 @@ sub see_request_handler {
         # reply header
         my $header = "";
         $reply->{show_helper} = LJ::Support::can_see_helper( $sp, $remote );
-        if ( $up && LJ::Support::can_see_helper( $sp, $remote ) ) {
+        if ( $up && $reply->{show_helper} ) {
             my $picid = $up->get_picid_from_keyword('_support') || $up->{defaultpicid};
             my $icon  = $picid ? LJ::Userpic->new( $up, $picid ) : undef;
-            $reply->{show_helper} = 1;
-            $reply->{poster}      = $up;
-            $reply->{icon}        = $icon;
+            $reply->{poster} = $up;
+            $reply->{icon}   = $icon;
         }
 
         my $what = '.answer';
@@ -452,12 +450,19 @@ sub see_request_handler {
 
         $reply->{timehelped} = LJ::time_to_http( $le->{'timelogged'} );
         $reply->{age}        = LJ::ago_text( $le->{'age'} );
+
         if ( $can_close && $sp->{'state'} eq "open" && $le->{'type'} eq "answer" ) {
             $reply->{show_close} = 1;
         }
         if ( $helper_mode && $le->{type} eq "screened" ) {
             $reply->{show_approve} = 1;
         }
+
+        my $bordercolor = "default";
+        if ( $le->{'type'} eq "internal" ) { $bordercolor = "internal"; }
+        if ( $le->{'type'} eq "answer" )   { $bordercolor = "answer"; }
+        if ( $le->{'type'} eq "screened" ) { $bordercolor = "screened"; }
+        $vars->{bordercolor} = $bordercolor;
 
         if ( $le->{faqid} ) {
             $reply->{faqid} = $le->{faqid};
@@ -469,6 +474,7 @@ sub see_request_handler {
         push @cleaned_replies, $reply;
     }
     $vars->{replies} = \@cleaned_replies;
+
     my @ans_type = LJ::Support::get_answer_types( $sp, $remote, $auth );
     my %ans_type = @ans_type;
     $vars->{can_append} = LJ::Support::can_append( $sp, $remote, $auth );
@@ -478,8 +484,6 @@ sub see_request_handler {
     # FAQ reference
     my @faqlist;
     if ( $ans_type{'answer'} || $ans_type{'screened'} ) {
-        my $dbr = LJ::get_db_reader();
-
         my %faqcat;
         my %faqq;
 
@@ -501,7 +505,7 @@ sub see_request_handler {
         }
         else {
             $sth = $dbr->prepare(
-                "SELECT faqcat, faqcatname, catorder FROM faqcat " . "WHERE faqcat<>'int-abuse'" );
+                "SELECT faqcat, faqcatname, catorder FROM faqcat WHERE faqcat<>'int-abuse'");
         }
         $sth->execute;
         while ( $_ = $sth->fetchrow_hashref ) {
@@ -514,8 +518,10 @@ sub see_request_handler {
         }
 
         @faqlist = ( '0', "(don't reference FAQ)" );
-        foreach my $faqcat ( sort { $faqcat{$a}->{'catorder'} <=> $faqcat{$b}->{'catorder'} }
-            keys %faqcat )
+        foreach my $faqcat (
+            sort { $faqcat{$a}->{'catorder'} <=> $faqcat{$b}->{'catorder'} }
+            keys %faqcat
+            )
         {
             push @faqlist, ( '0', "[ $faqcat{$faqcat}->{'faqcatname'} ]" );
             foreach my $faq ( sort { $a->sortorder <=> $b->sortorder } @{ $faqq{$faqcat} || [] } ) {
@@ -532,7 +538,14 @@ sub see_request_handler {
         $vars->{faqlist} = \@faqlist;
     }
 
-    $vars->{reminder} = LJ::load_include('validationreminder');
+    # Prefill an e-mail validation reminder, if needed.
+    if (   ( $u->{status} eq "N" || $u->{status} eq "T" )
+        && !$u->is_identity
+        && !$is_poster )
+    {
+        my $reminder = LJ::load_include('validationreminder');
+        $vars->{reminder} = "\n\n$reminder" if $reminder;
+    }
 
     # add in canned answers if there are any for this category and the user can use them
     my $stocks_html = "";
@@ -559,7 +572,7 @@ sub see_request_handler {
 "<label for='canned'><a href='$LJ::SITEROOT/support/stock_answers?spcatid=$stock_spcatid'>Stock Answers</a>:</label><select id='canned'>\n";
             $stocks_html .=
                   "<option value='-1' selected>( "
-                . LJ::Lang::ml('/support/see_request.tt.select.canned.to.insert')
+                . LJ::Lang::ml("$scope.select.canned.to.insert")
                 . " )</option>\n";
             $i = 0;
             foreach my $row (@$rows) {
@@ -570,6 +583,7 @@ sub see_request_handler {
         }
     }
     $vars->{stock_answers} = $stocks_html;
+
     my $can_move_touch = LJ::Support::can_perform_actions( $sp, $remote ) && !$is_poster;
     $vars->{can_move_touch} = $can_move_touch;
     $vars->{catlist}        = [
