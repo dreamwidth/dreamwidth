@@ -15,13 +15,7 @@
 
 .no-beta=(none)
 
-.birthday=birthday
-
 .change.cat=Change Category
-
-.change.language=Change Language:
-
-.change.language.nolang=(no language set)
 
 .change.summary=Change Summary
 
@@ -35,7 +29,7 @@
 
 .credit.fix=credit fix here
 
-.dataversion=data version 
+.dataversion=data version
 
 .diagnostics=Diagnostics:
 
@@ -63,7 +57,7 @@
 
 .goback.text=<p>Return to <a [[request_link]]>Request #[[spid]]</a></p>
 
-.help.link=Return to the <a href="help">list of open requests</a>.<br />
+.help.link=Return to the <a [[helplink]]>list of open requests</a>.<br />
 
 .important.notes.text2<<
 <strong>Important Notes:</strong>
@@ -78,8 +72,6 @@
 .internal.comment=Internal Comment
 
 .lock.request=Lock Request
-
-.manualset=manual set 
 
 .mast.login=You must <a [[loginlink]]>log in</a> to answer Support requests.
 
@@ -99,7 +91,7 @@
 
 .not.have.access=You don't have authorization to answer people's support requests in this category.
 
-.nothaveprivilege=You don't have the necessary privileges to view this request. 
+.nothaveprivilege=You don't have the necessary privileges to view this request.
 
 .open=Open
 
@@ -155,20 +147,6 @@
 
 .take.out.of.queue=Take out of Queue:
 
-.tier=Tier:
-
-.tier.0=Tier 0
-
-.tier.1=Tier 1:
-
-.tier.2=Tier 2:
-
-.tier.3=Tier 3:
-
-.tier.selectone=(select one)
-
-.tier.set=Set Tier for Response:
-
 .timeposted=Time posted
 
 .title=Request #[[reqid]]
@@ -177,11 +155,7 @@
 
 .unable.connect=(unable to connect to cluster, some data temporarily unavailable)
 
-.underage=underage
-
 .uniq=Uniq:
-
-.uniquecookie=unique cookie 
 
 .unknown=Unknown
 
@@ -195,19 +169,12 @@
 
 .use.this.to.summary=(Use this to change the request summary.)
 
+.userlog=Userlog
+
 .username=Account Name
 
 .userreadonly=(this account is currently in read-only mode)
 
 .view=View
 
-.wasby=was by
-
 .yes=Yes
-
-.yesbirthday=yes because of birthday
-
-.yesmanualset=yes because of manual set
-
-.yesuniquecookie=yes because of unique cookie
-
