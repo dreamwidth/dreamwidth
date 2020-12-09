@@ -22,32 +22,31 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         ) -%]
 
 
-<div class='support-requesttable row'>
-    <div class="columns large-6">
+<div class='support-request'>
         <div class="row">
-            <div class="columns large-6 text-right"><b>[% '.from' | ml %]</b></div>
-            <div class="columns large-6">
+            <div class="columns small-3 text-right"><b>[% '.from' | ml %]</b></div>
+            <div class="columns small-9">
                 [% user_img %]
                 [% display_name %]
             </div>
         </div>
         [% IF remote && (remote.has_priv('sysban', 'uniq') || remote.has_priv('canview', 'userlog')) %]
             <div class="row">
-                <div class="columns large-6 text-right"><b>[% '.uniq' | ml %]</b></div>
-                <div class="columns large-6">[% props.uniq || "<i>" _ dw.ml('.none') _ "</i>" %]</div>
+                <div class="columns small-3 text-right"><b>[% '.uniq' | ml %]</b></div>
+                <div class="columns small-9">[% uniq || "<i>" _ dw.ml('.none') _ "</i>" %]</div>
             </div>
         [% END %]
 
         <div class="row">
-            <div class="columns large-6 text-right"><b><span
+            <div class="columns small-3 text-right"><b><span
                     style='white-space: nowrap'>[% '.accounttype' | ml %]</span>:</b></div>
-            <div class="columns large-6">[% accounttype %]</div>
+            <div class="columns small-9">[% accounttype %]</div>
         </div>
 
         [% IF u.userid %]
             <div class="row">
-                <div class="columns large-6 text-right"><b>[% site.nameshort %]:</b></div>
-                <div class="columns large-6">
+                <div class="columns small-3 text-right"><b>[% site.nameshort %]:</b></div>
+                <div class="columns small-9">
                     [%- IF u.is_expunged -%]
                         [% dw.ml('.status.deleted.and.purged'); "<br>" %]
                     [%- ELSIF clusterdown -%]
@@ -87,14 +86,16 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
                     [% IF view_history || view_userlog %]
                         <div class="row">
                             <div class="columns large-12">
-                                [% '.view' | ml %]
+                                [% '.view' | ml %]:
                                 [% IF view_history;
                                     "<a href='$site.root/admin/statushistory?user=$u.user'>";
                                     dw.ml('.statushistory');
                                     "</a> ";
                                    END %]
                                 [% IF view_userlog;
-                                    "<a href='$site.root/admin/userlog?user=$u.user'>userlog</a> ";
+                                    "<a href='$site.root/admin/userlog?user=$u.user'>";
+                                    dw.ml('.userlog');
+                                    "</a> ";
                                    END %]
                             </div>
                         </div>
@@ -112,8 +113,8 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         [% END %]
 
         <div class="row">
-            <div class="columns large-6 text-right"><b>[% '.supportcategory' | ml %]</b></div>
-            <div class="columns large-6">
+            <div class="columns small-3 text-right"><b>[% '.supportcategory' | ml %]:</b></div>
+            <div class="columns small-9">
                 [% IF show_cat_links %]
                     <a href='[% "$site.root/support/help?cat=$catkey" %]'>[% problemarea %]</a>
                     [<a href='[% "$site.root/support/see_request?id=$sp.spid&find=cprev" %]'>[% '.previous' | ml %]</a>|
@@ -125,19 +126,18 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         </div>
 
         <div class="row">
-            <div class="columns large-6 text-right"><b>[% '.timeposted' | ml %]:</b></div>
-            <div class="columns large-6">[% "$timecreate ($age)" %]</div>
+            <div class="columns small-3 text-right"><b>[% '.timeposted' | ml %]:</b></div>
+            <div class="columns small-9">[% "$timecreate ($age)" %]</div>
         </div>
         <div class="row">
-            <div class="columns large-6 text-right"><b>[% '.status' | ml %]:</b></div>
-            <div class="columns large-6">[% state %]
+            <div class="columns small-3 text-right"><b>[% '.status' | ml %]:</b></div>
+            <div class="columns small-9">[% state %]
             </div>
         </div>
         <div class="row">
-            <div class="columns large-6 text-right"><b>[% '.summary' | ml %]:</b></div>
-            <div class="columns large-6"><span class='support_subject'><b>[% sp.subject | html %]</b></span></div>
+            <div class="columns small-3 text-right"><b>[% '.summary' | ml %]:</b></div>
+            <div class="columns small-9"><span class='support_subject'><b>[% sp.subject | html %]</b></span></div>
         </div>
-    </div>
 </div>
 
 [% "<div class='alert-box'>" _ dw.ml('.private.request') _ "</div>" IF private_req %]
@@ -150,7 +150,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
     </div>
         [% NEXT %]
     [% END %]
-<div class="support-reply [% r.type %]">
+
     <div class="header"><a name='e[% r.id %]'></a>
 
         [% IF r.icon && !r.poster.is_suspended; r.icon.imgtag; END %]
@@ -167,25 +167,25 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         [%- END -%]
         [% "<span class='approve' data-dw-screened='$r.id'></span>" IF r.show_approve %]
     </div>
-    <div class='body [% "support-requesttable-$bordercolor" %]'>
+    <div class='support-reply [% r.bordercolor %]'>
         [% IF r.faqid %]
             <div style='display: table; padding: 3px; margin-left: auto; margin-right: auto;'>
-                <div class='highlight-box' style='text-align:center;'>
+                <div class='panel callout radius' style='text-align:center;'>
                     <b>[% '.faq.reference' | ml %]:</b><br/>
                     <a href='faqbrowse?faqid=[% r.faqid %]&view=full'>[% r.faq.question_html %]</a>
                 </div>
             </div>
         [% END %]
-        <p>[% r.msg %]</p>
+        [% r.msg %]
     </div>
-</div>
+
 [% END %]
 
 [% UNLESS (sp.state == 'closed') %]
     [% IF is_poster %]
-    <p style='margin-bottom: 0px;'><b>[% '.post.moreinformation' | ml %]:</b></p>
+    <p style='margin-top: 1em; margin-bottom: 0;'><b>[% '.post.moreinformation' | ml %]:</b></p>
     [% ELSIF remote %]
-    <p style='margin-bottom: 0px;'><b>[% '.post.comment' | ml %]:</b></p>
+    <p style='margin-top: 1em; margin-bottom: 0;'><b>[% '.post.comment' | ml %]:</b></p>
     [% ELSE %]
         [% needlogin = 1 %]
         [% '.mast.login' | ml( loginlink = "href='$site.root/login?ret=1'") %]
@@ -195,16 +195,18 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
         [% IF can_append %]
             [% IF show_note %]
-            <div class='highlight-box'>
+            <div class='panel'>
                 [% '.important.notes.text2' | ml( sitenameshort = site.nameshort, supportlink = "href='$site.root/doc/guide/support'") %]
             </div>
             [% END %]
 
+            <div class="request-form">
             [% INCLUDE 'support/request/form.tt' (
                 from = (remote && remote.userid ? remote.ljuser_display : "(not logged in)"),
                 request = {summary => sp.subject},
                 reply = {initial_text => reminder}
                 ) %]
+            </div>
         [% ELSE %]
             [% '.not.have.access' | ml %]
         [% END %]
@@ -213,9 +215,9 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 [% END %]
 <hr>
 [%- UNLESS find -%]
-    [% '.see.preview' | ml ( preview_link = "href='$site.root/support/see_request?id=$spid&find=prev'") %]
-    [% '.see.next'    | ml ( preview_link = "href='$site.root/support/see_request?id=$spid&find=next'") %]<br>
+    [% '.see.preview' | ml( preview_link = "href='$site.root/support/see_request?id=$spid&find=prev'" ) %]
+    [% '.see.next'    | ml( next_link = "href='$site.root/support/see_request?id=$spid&find=next'" ) %]<br>
 [%- END -%]
-[% '.help.link' | ml( helplink = "href='$site.root/support/help'") %]
-[% '.back.link' | ml( backlink = "href='$site.root/support'") %]
+[% '.help.link' | ml( helplink = "href='$site.root/support/help'" ) %]
+[% '.back.link' | ml( backlink = "href='$site.root/support'" ) %]
 

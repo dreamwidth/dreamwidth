@@ -38,11 +38,10 @@ sub see_request_handler {
     my $dbr   = LJ::get_db_reader();
 
     my $remote = $rv->{remote};
-    my $POST   = $r->post_args;
     my $GET    = $r->get_args;
     my $vars   = {};
 
-    my $spid  = $GET->{'id'} + 0;
+    my $spid  = $GET->{'id'} ? $GET->{'id'} + 0 : 0;
     my $sp    = LJ::Support::load_request($spid);
     my $props = LJ::Support::load_props($spid);
     my $cats  = LJ::Support::load_cats();
@@ -50,6 +49,7 @@ sub see_request_handler {
     $vars->{remote} = $remote;
     $vars->{sp}     = $sp;
     $vars->{spid}   = $spid;
+    $vars->{uniq}   = $props->{'uniq'};
 
     if ( $GET->{'find'} ) {
         my $find = $GET->{'find'};
@@ -259,6 +259,8 @@ sub see_request_handler {
             foreach my $lay ( sort { $a cmp $b } keys %{ $s2style->{'layer'} } ) {
                 my $lid = $s2style->{'layer'}->{$lay};
                 unless ($lid) {
+                    next if $lay eq 'i18n';     # do we even support style langcodes?
+                    next if $lay eq 'i18nc';    # do we even support style langcodes?
                     $ustyle .= "$lay: none, ";
                     next;
                 }
@@ -273,6 +275,7 @@ sub see_request_handler {
     else {
         $ustyle .= "(User on S1; why?) ";
     }
+    $ustyle =~ s/,\s*$//;
     $vars->{ustyle} = $ustyle;
 
     # if the user has siteadmin:users or siteadmin:* show them link to resend validation email?
@@ -295,6 +298,8 @@ sub see_request_handler {
         $email_status = LJ::Lang::ml("$scope.transitioning") . $extraval->();
     }
 
+    $vars->{email_status} = $email_status;
+
     $vars->{cluster_info} = LJ::DB::get_cluster_description( $u->{clusterid} ) if $u->{clusterid};
 
     if ( $u->is_personal ) {
@@ -316,8 +321,9 @@ sub see_request_handler {
     if ( %LJ::BETA_FEATURES
         && LJ::Support::has_any_support_priv($remote) )
     {
+
         $vars->{show_beta}    = 1;
-        $vars->{betafeatures} = join ", ", $u->prop( LJ::BetaFeatures->prop_name );
+        $vars->{betafeatures} = join ", ", $u->prop( LJ::BetaFeatures->prop_name ) // '';
     }
 
     $vars->{show_cat_links} = LJ::Support::can_read_cat( $sp->{_cat}, $remote );
@@ -425,6 +431,7 @@ sub see_request_handler {
 
             $reply->{msg}  = $message;
             $reply->{orig} = 1;
+            push @cleaned_replies, $reply;
             next;
         }
 
@@ -462,7 +469,7 @@ sub see_request_handler {
         if ( $le->{'type'} eq "internal" ) { $bordercolor = "internal"; }
         if ( $le->{'type'} eq "answer" )   { $bordercolor = "answer"; }
         if ( $le->{'type'} eq "screened" ) { $bordercolor = "screened"; }
-        $vars->{bordercolor} = $bordercolor;
+        $reply->{bordercolor} = $bordercolor;
 
         if ( $le->{faqid} ) {
             $reply->{faqid} = $le->{faqid};
@@ -478,8 +485,8 @@ sub see_request_handler {
     my @ans_type = LJ::Support::get_answer_types( $sp, $remote, $auth );
     my %ans_type = @ans_type;
     $vars->{can_append} = LJ::Support::can_append( $sp, $remote, $auth );
-    $vars->{show_note}  = !( LJ::Support::can_read_internal( $sp, $remote )
-        and ( $ans_type{'answer'} || $ans_type{'screened'} ) );
+    $vars->{show_note}  = !LJ::Support::can_read_internal( $sp, $remote )
+        && ( $ans_type{'answer'} || $ans_type{'screened'} );
 
     # FAQ reference
     my @faqlist;
