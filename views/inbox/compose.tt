@@ -26,37 +26,10 @@
                 [% dw.form_auth() %]
 
   <div class='qr-icon no-label' id="compose_icon">
-    [%- IF can_use_userpic_select -%]
-      <button type='button' id='lj_userpicselect' data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
-    [%- ELSE -%]
-      <a href="[% icons_url %]">
-    [%- END -%]
-    [%- IF current_icon -%]
-      [%- current_icon.imgtag -%]
-    [%- ELSE -%]
-      [%- dw.img( "nouserpic_sitescheme", "" ) -%]
-    [%- END -%]
-    [%- IF can_use_userpic_select -%]
-      </button>
-    [%- ELSE -%]
-      </a>
-    [%- END -%]
+    [% INCLUDE 'components/icon-select-icon.tt' %]
   </div>
 <div id="compose_header_fields">
-  [%- IF icons.size > 0 -%]
-    <div class='qr-icon-controls'>
-      <label for='prop_picture_keyword' class="left">[%- '/journal/talkform.tt.label.picturetouse2' | ml -%]</label>
-      [%- form.select(
-          name = 'prop_picture_keyword',
-          id = 'prop_picture_keyword',
-          selected = current_icon_kw,
-          items = icons,
-            class= 'inline'
-      ) -%]
-
-      <input type="button" id="randomicon" value="Random" style="display: none;" />
-    </div>
-  [%- END -%]
+  [% INCLUDE 'components/icon-select-dropdown.tt' %]
 
 <div class="pkg">
     <label class="left" for="msg_to">To: </label>

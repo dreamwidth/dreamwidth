@@ -1,6 +1,6 @@
 [%- CALL dw.active_resource_group( "foundation" ) -%]
-[% dw.need_res( { group => "foundation" }, 'stc/css/pages/inbox.css', 'js/jquery.inbox.js' ) %]
-[%- sections.title = '.title' | ml -%]
+[% dw.need_res( { group => "foundation" }, 'stc/css/pages/inbox.css', 'js/jquery.inbox.js', 'js/jquery.esn.js', 'js/jquery.commentmanage.js' ) %]
+[%- sections.title = 'widget.latestinbox.title' | ml -%]
 
 <div id="inbox">
     [% folder_html %]
@@ -17,7 +17,7 @@
                 <div class="actions">
                     [% form.submit(name = 'mark_read', value = dw.ml('widget.inbox.menu.mark_read.btn'), class = 'action_button button small', 'data-action' = 'mark_read') %]
                     [% form.submit(name = 'mark_unread', value = dw.ml('widget.inbox.menu.mark_unread.btn'), class = 'action_button button small', 'data-action' =  'mark_unread') %]
-                    [% form.submit(name = 'delete', value = dw.ml('.menu.delete.btn'), class = 'action_button button small', 'data-action' =  'delete') %]
+                    [% form.submit(name = 'delete', value = dw.ml('img.btn_del'), class = 'action_button button small', 'data-action' =  'delete') %]
                 </div>
                 <div class="pages">
                     [%- INCLUDE components/pagination.tt

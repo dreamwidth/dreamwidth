@@ -194,8 +194,6 @@ sub content {
     my $comment = $self->comment;
     return undef unless $self->_can_view_content( $comment, $target );
 
-    LJ::need_res('js/commentmanage.js');
-
     my $comment_body = $comment->body_html;
     my $buttons      = $comment->manage_buttons;
     my $dtalkid      = $comment->dtalkid;
