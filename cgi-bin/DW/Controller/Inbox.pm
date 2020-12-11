@@ -502,8 +502,10 @@ sub compose_handler {
                 $up = LJ::Hooks::run_hook( 'upgrade_message', $remote, 'message' );
                 $up = "<br />$up" if ($up);
                 $errors->add( undef, ".error.rate.limit", { up => $up } )
-                    unless LJ::Message::ratecheck_multi( userid => $remote_id,
-                    msg_list => \@msg_list );
+                    unless LJ::Message::ratecheck_multi(
+                    userid   => $remote_id,
+                    msg_list => \@msg_list
+                    );
             }
 
             # check if any of the messages will throw an error
