@@ -428,7 +428,7 @@ sub get_themechooser_data {
     elsif ( $queryargs->{search} ) {
         @themes    = LJ::S2Theme->load_by_search( $queryargs->{search}, $u );
         $cat_title = LJ::Lang::ml( 'widget.themechooser.header.search',
-            { 'term' => ehtml( $queryargs->{search} ) } );
+            { 'term' => LJ::ehtml( $queryargs->{search} ) } );
     }
     else {    # category is "featured"
         @themes    = LJ::S2Theme->load_by_cat("featured");

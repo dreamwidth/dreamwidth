@@ -306,3 +306,41 @@ form.theme-form, input.theme-button {
     margin-top: .2em;
     padding: .2em;
 }
+
+li.ui-menu-item {
+    list-style: none;
+    margin-left: 0em;
+
+    a {
+        display:inline-block;
+        width:100%;
+    }
+  }
+  
+  li.ui-menu-item a {
+    text-decoration: none;
+    padding: 0 0.25em;
+  }
+
+  ul.ui-autocomplete {
+    max-height: 20em;
+    overflow-y: auto;
+    margin-left: 0;
+  }
+  
+  #search_container {
+    max-height: 2em;
+  }
+
+  .customize-wrapper .appwidget-s2propgroup fieldset {
+      margin-bottom: 0;
+      padding-bottom:0;
+  }
+
+  .customize-wrapper .appwidget-s2propgroup .subheader {
+      font-size: 1em;
+  }
+
+  .customize-wrapper .customize-content {
+      border-left: 1px currentcolor solid !important;
+  }

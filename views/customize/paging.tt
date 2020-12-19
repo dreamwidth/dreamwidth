@@ -1,6 +1,7 @@
 <div class='theme-paging theme-paging-[% location %] row'>
     <div class="columns large-9">
         [%- INCLUDE components/pagination.tt current => qargs.page, total_pages => max_page, path => "/customize" -%]
+        &nbsp;
     </div>
     <div class="columns large-3">
         <div class="row">

@@ -275,8 +275,9 @@ $(".theme-selector-wrapper").on("click", ".theme-designer", function(event){
 // Load autocomplete keywords
 if ($('#search_box').length) {
     let source = autocomplete_list ? autocomplete_list : [];
-    $('#search_box').automplete(
+    $('#search_box').autocomplete(
         {'source': source,
+         'appendTo': '#search_container'
         }
     );
 }

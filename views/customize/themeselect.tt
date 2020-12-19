@@ -1,12 +1,13 @@
 <script>
     var confirmation = " [% dw.ml('widget.themechooser.confirmation') %] ";
-    var autocomplete_list = ['[% autocomplete.join("', '") %]'];
+    var autocomplete_list = [[% autocomplete.join(", ") %]];
 </script>
 <div class='theme-selector-wrapper'>
     <h4> [% dw.ml( 'widget.themenav.title2' ) %]</h4>
 
     <form id=search_form method=post>
         [% dw.form_auth %]
+        <div id="search_container">
         [%- form.textbox(
                 name = 'search'
                 id = 'search_box'
@@ -15,6 +16,7 @@
                 class = "text"
         )
         -%]
+        </div>
         [% form.submit( name = "action:search", id => "search_btn" value = dw.ml('widget.themenav.btn.search') ) %]
     </form>
 

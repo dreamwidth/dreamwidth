@@ -45,6 +45,10 @@
 .section-nav li:hover {
     background-color: $soft-accent-color;
     color: $text-color;
+
+    a {
+        color: $text-color;
+    }
     }
 
 .section-nav li.on, .section-nav hr {
