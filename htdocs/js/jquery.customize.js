@@ -1,7 +1,18 @@
+
 jQuery(function($){
 
-var authas = $('#authas').val();
 var queryArgs = new URLSearchParams(window.location.search);
+window.history.pushState(queryArgs, "", "?" + queryArgs.toString());
+
+// Handle back-button
+window.onpopstate = function(event) {
+    queryArgs = event.state;
+    filterThemes(event, null, null);
+  };
+
+
+var authas = $('#authas').val();
+
 
 // Set up journaltitles functions
 function editTitle(event) {
@@ -211,18 +222,25 @@ $(".theme-selector-wrapper").on("submit", ".theme-form", function(event){
 })
 
 function filterThemes(evt, key, value) {
-    queryArgs.set(key, value);
+
+    if (key) {
+        queryArgs.set(key, value);
+    }
+    
 
     // For some keys, we need to reset the page to 1
     if (key != 'page') {queryArgs.set('page', 1)};
 
     // Remove mutually-exclusive keys
-    if (key != 'page' && key != 'show') {
+    if (key != 'page' && key != 'show' && key != null) {
         if (key != 'cat'){ queryArgs.delete('cat');};
         if (key != 'layoutid'){ queryArgs.delete('layoutid');};
         if (key != 'designer'){ queryArgs.delete('designer');};
         if (key != 'search'){ queryArgs.delete('search');};
     }
+
+    // Save to browser navigation history
+    window.history.pushState(queryArgs, "", "?" + queryArgs.toString());
 
     $.ajax({
       type: "GET",

@@ -60,7 +60,7 @@ sub customize_handler {
     LJ::Customize->migrate_current_style($u);
 
     # set up the keywords for basic search
-    my @keywords        = LJ::Customize->get_search_keywords_for_js($u);
+    my @keywords = LJ::Customize->get_search_keywords_for_js($u);
     $vars->{autocomplete} = \@keywords;
 
     # we want to have "All" selected if we're filtering by layout or designer, or if we're searching
@@ -418,8 +418,9 @@ sub get_themechooser_data {
         $cat_title = $cats{$cat}->{text};
     }
     elsif ( $queryargs->{layoutid} ) {
-        @themes    = LJ::S2Theme->load_by_layoutid( $queryargs->{layoutid}, $u );
-        $cat_title = LJ::Lang::ml('widget.themechooser.header.all');
+        @themes = LJ::S2Theme->load_by_layoutid( $queryargs->{layoutid}, $u );
+        my $layout_name = LJ::Customize->get_layout_name( $queryargs->{layoutid}, user => $u );
+        $cat_title = LJ::ehtml($layout_name);
     }
     elsif ( $queryargs->{designer} ) {
         @themes    = LJ::S2Theme->load_by_designer( $queryargs->{designer} );
