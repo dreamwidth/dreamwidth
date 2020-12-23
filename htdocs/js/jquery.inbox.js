@@ -74,7 +74,6 @@ function mark_items(action, qid) {
       contentType: 'application/json',
       data: JSON.stringify(postData),
       success: function( data ) { $( "#inbox_message_list" ).html(data);
-                                        alert(confirmation);
                                         },
       dataType: "html"
     });
