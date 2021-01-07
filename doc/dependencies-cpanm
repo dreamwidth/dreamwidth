@@ -37,6 +37,7 @@ MIME::Lite
 MIME::Words
 Mail::GnuPG
 Math::BigInt::GMP
+Math::Random::Secure
 MogileFS::Client@1.17
 Moose
 Mozilla::CA

@@ -84,6 +84,7 @@ use DBI::Role;
 use Digest::MD5  ();
 use Digest::SHA1 ();
 use HTTP::Date   ();
+use Math::Random::Secure qw(rand irand);
 use LJ::Hooks;
 use LJ::MemCache;
 use LJ::Error;
@@ -793,7 +794,7 @@ sub rand_chars {
     die "Invalid charset $charset" unless $digits && ( $digit_len > 0 );
 
     for ( 1 .. $length ) {
-        $chal .= substr( $digits, int( rand($digit_len) ), 1 );
+        $chal .= substr( $digits, irand($digit_len), 1 );
     }
     return $chal;
 }

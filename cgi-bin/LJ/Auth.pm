@@ -19,6 +19,7 @@ use strict;
 use Digest::HMAC_SHA1 qw(hmac_sha1_hex);
 use Digest::SHA1 qw(sha1_hex);
 use Carp qw (croak);
+use Math::Random::Secure qw(irand);
 
 # Generate an auth token for AJAX requests to use.
 # Arguments: ($remote, $action, %postvars)
@@ -217,7 +218,7 @@ sub make_auth_code {
     my $length = shift;
     my $digits = "abcdefghjkmnpqrstvwxyz23456789";
     my $auth;
-    for ( 1 .. $length ) { $auth .= substr( $digits, int( rand(30) ), 1 ); }
+    for ( 1 .. $length ) { $auth .= substr( $digits, irand(30), 1 ); }
     return $auth;
 }
 
