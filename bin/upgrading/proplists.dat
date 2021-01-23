@@ -62,14 +62,6 @@ userproplist.city:
   multihomed: 0
   prettyname: City
 
-userproplist.optout_community_promo:
-  cldversion: 4
-  datatype: char
-  des: Promote this community to invited users when they create their account
-  indexed: 0
-  multihomed: 0
-  prettyname: Account creation community promo
-
 userproplist.comm_postlevel_new:
   cldversion: 4
   datatype: bool
@@ -102,14 +94,6 @@ userproplist.comment_editor:
   multihomed: 0
   prettyname: Last-used comment markup format
 
-userproplist.control_strip_display:
-  cldversion: 4
-  datatype: num
-  des: Display the control strip to the viewer on a specific page
-  indexed: 0
-  multihomed: 0
-  prettyname: Display control strip
-
 userproplist.control_strip_color:
   cldversion: 4
   datatype: char
@@ -117,6 +101,14 @@ userproplist.control_strip_color:
   indexed: 0
   multihomed: 0
   prettyname: Control strip color
+
+userproplist.control_strip_display:
+  cldversion: 4
+  datatype: num
+  des: Display the control strip to the viewer on a specific page
+  indexed: 0
+  multihomed: 0
+  prettyname: Display control strip
 
 userproplist.country:
   cldversion: 4
@@ -134,6 +126,14 @@ userproplist.crosspost_footer_append:
   multihomed: 0
   prettyname: When and where to add the crossposted text footer
 
+userproplist.crosspost_footer_nocomments:
+  cldversion: 4
+  datatype: blobchar
+  des: Custom footer for crossposted entries with comments disabled
+  indexed: 0
+  multihomed: 0
+  prettyname: Custom footer for crossposted entries with comments disabled
+
 userproplist.crosspost_footer_text:
   cldversion: 4
   datatype: blobchar
@@ -142,13 +142,13 @@ userproplist.crosspost_footer_text:
   multihomed: 0
   prettyname: Custom footer for crossposted entries
 
-userproplist.crosspost_footer_nocomments:
+userproplist.customtext_content:
   cldversion: 4
   datatype: blobchar
-  des: Custom footer for crossposted entries with comments disabled
+  des: Text for the 'Custom Text' box
   indexed: 0
   multihomed: 0
-  prettyname: Custom footer for crossposted entries with comments disabled
+  prettyname: Text for the 'Custom Text' box
 
 userproplist.customtext_title:
   cldversion: 4
@@ -166,13 +166,13 @@ userproplist.customtext_url:
   multihomed: 0
   prettyname: URL for the 'Custom Text' heading link
 
-userproplist.customtext_content:
+userproplist.cut_inbox:
   cldversion: 4
-  datatype: blobchar
-  des: Text for the 'Custom Text' box
+  datatype: bool
+  des: Respect cut tag in inbox
   indexed: 0
   multihomed: 0
-  prettyname: Text for the 'Custom Text' box
+  prettyname: Cut for Inbox
 
 userproplist.delete_reason:
   cldversion: 4
@@ -198,6 +198,14 @@ userproplist.deviantart:
   multihomed: 0
   prettyname: DeviantArt user account name
 
+userproplist.diigo:
+  cldversion: 4
+  datatype: char
+  des: Diigo user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Diigo user account name
+
 userproplist.disable_auto_formatting:
   cldversion: 4
   datatype: bool
@@ -222,14 +230,6 @@ userproplist.discord:
   multihomed: 0
   prettyname: Discord user account name
 
-userproplist.displaydate_check:
-  cldversion: 4
-  datatype: bool
-  des: Use time of posting by default for this user.
-  indexed: 0
-  multihomed: 0
-  prettyname: Automatically sets entry page to use time of posting for timestamp.
-
 userproplist.dismissed_page_notices:
   cldversion: 4
   datatype: char
@@ -238,6 +238,14 @@ userproplist.dismissed_page_notices:
   multihomed: 0
   prettyname: Dismissed Page Notices
 
+userproplist.displaydate_check:
+  cldversion: 4
+  datatype: bool
+  des: Use time of posting by default for this user.
+  indexed: 0
+  multihomed: 0
+  prettyname: Use time of posting by default
+
 userproplist.dont_load_members:
   cldversion: 4
   datatype: bool
@@ -245,6 +253,14 @@ userproplist.dont_load_members:
   indexed: 0
   multihomed: 0
   prettyname: Don't load membership information
+
+userproplist.draft_properties:
+  cldversion: 4
+  datatype: blobchar
+  des: Storable hashref of a user's most recent draft properties
+  indexed: 0
+  multihomed: 0
+  prettyname: Backup of an Entry Draft's properties (subject line, etc.)
 
 userproplist.dupsig_post:
   cldversion: 4
@@ -318,14 +334,6 @@ userproplist.entry_draft:
   multihomed: 0
   prettyname: New Entry Draft
 
-userproplist.draft_properties:
-  cldversion: 4
-  datatype: blobchar
-  des: Storable hashref of a user's most recent draft properties
-  indexed: 0
-  multihomed: 0
-  prettyname: Backup of an Entry Draft's properties (subject line, etc.)
-
 userproplist.entry_editor:
   cldversion: 4
   datatype: char
@@ -342,14 +350,6 @@ userproplist.entry_editor2:
   multihomed: 0
   prettyname: Last-used entry markup format.
 
-userproplist.entryform_width:
-  cldversion: 4
-  datatype: char
-  des: Whether the entry textarea should take up the full width "F" or partial width "P"
-  indexed: 0
-  multihomed: 0
-  prettyname: Width of the entry field when posting an entry
-
 userproplist.entryform_panels:
   cldversion: 4
   datatype: blobchar
@@ -357,6 +357,14 @@ userproplist.entryform_panels:
   indexed: 0
   multihomed: 0
   prettyname: Entry form panel configuration
+
+userproplist.entryform_width:
+  cldversion: 4
+  datatype: char
+  des: Whether the entry textarea should take up the full width "F" or partial width "P"
+  indexed: 0
+  multihomed: 0
+  prettyname: Width of the entry field when posting an entry
 
 userproplist.esn_has_managed:
   cldversion: 4
@@ -382,14 +390,6 @@ userproplist.etsy:
   multihomed: 0
   prettyname: Etsy user account name
 
-userproplist.diigo:
-  cldversion: 4
-  datatype: char
-  des: Diigo user account name
-  indexed: 0
-  multihomed: 0
-  prettyname: Diigo user account name
-
 userproplist.exclude_from_own_stats:
   cldversion: 4
   datatype: bool
@@ -406,14 +406,6 @@ userproplist.ffnet:
   multihomed: 0
   prettyname: FanFiction.net user account name
 
-userproplist.friendspagetitle:
-  cldversion: 4
-  datatype: char
-  des: Base Title of Friends Page
-  indexed: 0
-  multihomed: 0
-  prettyname: Friends Page Title
-
 userproplist.friendspagesubtitle:
   cldversion: 4
   datatype: char
@@ -421,6 +413,14 @@ userproplist.friendspagesubtitle:
   indexed: 0
   multihomed: 0
   prettyname: Friends Page Subtitle
+
+userproplist.friendspagetitle:
+  cldversion: 4
+  datatype: char
+  des: Base Title of Friends Page
+  indexed: 0
+  multihomed: 0
+  prettyname: Friends Page Title
 
 userproplist.gender:
   cldversion: 4
@@ -438,14 +438,6 @@ userproplist.github:
   multihomed: 0
   prettyname: GitHub user account name
 
-userproplist.google_talk:
-  cldversion: 0
-  datatype: char
-  des: Google's 'Hangouts' Service address
-  indexed: 1
-  multihomed: 1
-  prettyname: Google Hangouts Address
-
 userproplist.google_analytics:
   cldversion: 4
   datatype: char
@@ -453,6 +445,14 @@ userproplist.google_analytics:
   indexed: 1
   multihomed: 0
   prettyname: Google Analytics Code
+
+userproplist.google_talk:
+  cldversion: 0
+  datatype: char
+  des: Google's 'Hangouts' Service address
+  indexed: 1
+  multihomed: 1
+  prettyname: Google Hangouts Address
 
 userproplist.hide_adult_content:
   cldversion: 4
@@ -463,12 +463,12 @@ userproplist.hide_adult_content:
   prettyname: Hide adult content on journals
 
 userproplist.hide_join_post_link:
-    cldversion: 4
-    datatype: bool
-    des: Option to hide post to community link on join community success page
-    indexed: 0
-    multihomed: 0
-    prettyname: Hide post to community link on join page
+  cldversion: 4
+  datatype: bool
+  des: Option to hide post to community link on join community success page
+  indexed: 0
+  multihomed: 0
+  prettyname: Hide post to community link on join page
 
 userproplist.icbm:
   cldversion: 4
@@ -518,14 +518,6 @@ userproplist.import_job:
   multihomed: 0
   prettyname: Import JobID
 
-userproplist.cut_inbox:
-  cldversion: 4
-  datatype: bool
-  des: Respect cut tag in inbox
-  indexed: 0
-  multihomed: 0
-  prettyname: Cut for Inbox
-
 userproplist.init_bdate:
   cldversion: 4
   datatype: char
@@ -533,14 +525,6 @@ userproplist.init_bdate:
   indexed: 0
   multihomed: 0
   prettyname: Birthdate
-
-userproplist.interest_ids_blob:
-  cldversion: 4
-  datatype: blobchar
-  des: Packed blob of a user's interest ids (4 bytes per id)
-  indexed: 1
-  multihomed: 0
-  prettyname: Interest IDs blob
 
 userproplist.insanejournal:
   cldversion: 4
@@ -558,6 +542,14 @@ userproplist.instagram:
   multihomed: 0
   prettyname: Instagram Account
 
+userproplist.interest_ids_blob:
+  cldversion: 4
+  datatype: blobchar
+  des: Packed blob of a user's interest ids (4 bytes per id)
+  indexed: 1
+  multihomed: 0
+  prettyname: Interest IDs blob
+
 userproplist.jabber:
   cldversion: 0
   datatype: char
@@ -565,22 +557,6 @@ userproplist.jabber:
   indexed: 1
   multihomed: 1
   prettyname: Jabber Address
-
-userproplist.journalsubtitle:
-  cldversion: 4
-  datatype: char
-  des: Subtitle of Journal
-  indexed: 0
-  multihomed: 0
-  prettyname: Journal Subtitle
-
-userproplist.journaltitle:
-  cldversion: 4
-  datatype: char
-  des: Base Title of Journal
-  indexed: 0
-  multihomed: 0
-  prettyname: Journal Title
 
 userproplist.journal_box_entries:
   cldversion: 4
@@ -598,6 +574,22 @@ userproplist.journal_box_placement:
   multihomed: 0
   prettyname: Journal Box Placement
 
+userproplist.journalsubtitle:
+  cldversion: 4
+  datatype: char
+  des: Subtitle of Journal
+  indexed: 0
+  multihomed: 0
+  prettyname: Journal Subtitle
+
+userproplist.journaltitle:
+  cldversion: 4
+  datatype: char
+  des: Base Title of Journal
+  indexed: 0
+  multihomed: 0
+  prettyname: Journal Title
+
 userproplist.js_animations_minimal:
   cldversion: 4
   datatype: bool
@@ -614,14 +606,6 @@ userproplist.last_fm_user:
   multihomed: 0
   prettyname: LastFM user account name
 
-userproplist.livejournal:
-  cldversion: 4
-  datatype: char
-  des: LiveJournal user account name
-  indexed: 0
-  multihomed: 0
-  prettyname: LiveJournal user account name
-
 userproplist.latest_optout:
   cldversion: 4
   datatype: bool
@@ -629,6 +613,14 @@ userproplist.latest_optout:
   indexed: 0
   multihomed: 0
   prettyname: Latest Updates Opt Out
+
+userproplist.livejournal:
+  cldversion: 4
+  datatype: char
+  des: LiveJournal user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: LiveJournal user account name
 
 userproplist.medium:
   cldversion: 4
@@ -662,14 +654,6 @@ userproplist.newpost_minsecurity:
   multihomed: 0
   prettyname: Minimal Security
 
-userproplist.nonmember_posting:
-  cldversion: 4
-  datatype: bool
-  des: True if this community allows non-member posting access
-  indexed: 0
-  multihomed: 0
-  prettyname: Non-Member posting access
-
 userproplist.no_mail_alias:
   cldversion: 4
   datatype: bool
@@ -677,6 +661,14 @@ userproplist.no_mail_alias:
   indexed: 0
   multihomed: 0
   prettyname: Disable site e-mail alias
+
+userproplist.nonmember_posting:
+  cldversion: 4
+  datatype: bool
+  des: True if this community allows non-member posting access
+  indexed: 0
+  multihomed: 0
+  prettyname: Non-Member posting access
 
 userproplist.opt_allowsearchby:
   cldversion: 4
@@ -726,6 +718,14 @@ userproplist.opt_blockrobots:
   multihomed: 0
   prettyname: Block Robots & Spiders
 
+userproplist.opt_comm_promo:
+  cldversion: 4
+  datatype: bool
+  des: set to force disable of community promo
+  indexed: 0
+  multihomed: 0
+  prettyname: Administratively disable community promo features
+
 userproplist.opt_comminvitemail:
   cldversion: 4
   datatype: char
@@ -742,14 +742,6 @@ userproplist.opt_communityjoinemail:
   multihomed: 0
   prettyname: Get Emails for Join Requests
 
-userproplist.opt_comm_promo:
-  cldversion: 4
-  datatype: bool
-  des: set to force disable of community promo
-  indexed: 0
-  multihomed: 0
-  prettyname: Administratively disable community promo features
-
 userproplist.opt_ctxpopup:
   cldversion: 4
   datatype: char
@@ -757,6 +749,22 @@ userproplist.opt_ctxpopup:
   indexed: 0
   multihomed: 0
   prettyname: Contextual Popup
+
+userproplist.opt_cut_disable_journal:
+  cldversion: 4
+  datatype: bool
+  des: LJCUT disabled in lastn and day views
+  indexed: 1
+  multihomed: 0
+  prettyname: LJCUT disabled in lastn and day views
+
+userproplist.opt_cut_disable_reading:
+  cldversion: 4
+  datatype: bool
+  des: LJCUT disabled in friends view
+  indexed: 1
+  multihomed: 0
+  prettyname: LJCUT disabled in friends view
 
 userproplist.opt_echi_display:
   cldversion: 4
@@ -838,22 +846,6 @@ userproplist.opt_imageundef:
   multihomed: 0
   prettyname: Use Placeholders for Undefined-Size Images
 
-userproplist.opt_cut_disable_reading:
-  cldversion: 4
-  datatype: bool
-  des: LJCUT disabled in friends view
-  indexed: 1
-  multihomed: 0
-  prettyname: LJCUT disabled in friends view
-
-userproplist.opt_cut_disable_journal:
-  cldversion: 4
-  datatype: bool
-  des: LJCUT disabled in lastn and day views
-  indexed: 1
-  multihomed: 0
-  prettyname: LJCUT disabled in lastn and day views
-
 userproplist.opt_logcommentips:
   cldversion: 4
   datatype: char
@@ -886,14 +878,6 @@ userproplist.opt_nctalklinks:
   multihomed: 0
   prettyname: Show number of comments in URL
 
-userproplist.opt_notalkicons:
-  cldversion: 4
-  datatype: bool
-  des: 1: no forum icons shown, 0: default, show them
-  indexed: 1
-  multihomed: 0
-  prettyname: No Forum Icons
-
 userproplist.opt_no_quickreply:
   cldversion: 4
   datatype: bool
@@ -901,6 +885,14 @@ userproplist.opt_no_quickreply:
   indexed: 0
   multihomed: 0
   prettyname: Disable QuickReply
+
+userproplist.opt_notalkicons:
+  cldversion: 4
+  datatype: bool
+  des: 1: no forum icons shown, 0: default, show them
+  indexed: 1
+  multihomed: 0
+  prettyname: No Forum Icons
 
 userproplist.opt_profileemail:
   cldversion: 4
@@ -981,6 +973,14 @@ userproplist.opt_shortcuts_touch_prev:
   indexed: 0
   multihomed: 0
   prettyname: Touch Shortcut Previous
+
+userproplist.opt_show_captcha_to:
+  cldversion: 4
+  datatype: char
+  des: Show CAPTCHA before posting a comment to: A=All, N=No one, F=non-Friends, R=anonymous users
+  indexed: 0
+  multihomed: 0
+  prettyname: Show CAPTCHA on commenting
 
 userproplist.opt_showbday:
   cldversion: 4
@@ -1094,13 +1094,13 @@ userproplist.opt_xpost_disable_comments:
   multihomed: 0
   prettyname: Disable Comments on Crosspost
 
-userproplist.opt_show_captcha_to:
+userproplist.optout_community_promo:
   cldversion: 4
   datatype: char
-  des: Show CAPTCHA before posting a comment to: A=All, N=No one, F=non-Friends, R=anonymous users
+  des: Promote this community to invited users when they create their account
   indexed: 0
   multihomed: 0
-  prettyname: Show CAPTCHA on commenting
+  prettyname: Account creation community promo
 
 userproplist.patreon:
   cldversion: 4
@@ -1214,13 +1214,13 @@ userproplist.s2_style:
   multihomed: 0
   prettyname: S2 Style
 
-userproplist.schemepref:
+userproplist.safe_search:
   cldversion: 4
   datatype: char
-  des: BML scheme name
+  des: Safe search filtering settings -- "none" means no filtering, otherwise it's a number, and the greater the number the more filtering occurs
   indexed: 0
   multihomed: 0
-  prettyname: BML Scheme Preference
+  prettyname: Safe Search Filtering
 
 userproplist.scheme_manually_set:
   cldversion: 4
@@ -1230,13 +1230,13 @@ userproplist.scheme_manually_set:
   multihomed: 0
   prettyname: Explicit Scheme
 
-userproplist.safe_search:
+userproplist.schemepref:
   cldversion: 4
   datatype: char
-  des: Safe search filtering settings -- "none" means no filtering, otherwise it's a number, and the greater the number the more filtering occurs
+  des: BML scheme name
   indexed: 0
   multihomed: 0
-  prettyname: Safe Search Filtering
+  prettyname: BML Scheme Preference
 
 userproplist.shop_points:
   cldversion: 0
@@ -1316,15 +1316,7 @@ userproplist.suspendmsg:
   des: Internal notes, not shown to user
   indexed: 0
   multihomed: 0
-  prettyname: Sets message to be shown when running suspend command against this account
-
-userproplist.timeformat_24:
-  cldversion: 4
-  datatype: bool
-  des: use 24-hour time format on site
-  indexed: 0
-  multihomed: 0
-  prettyname: 24-hour time format
+  prettyname: Sets message to be shown when running suspend
 
 userproplist.theme_preview_styleid:
   cldversion: 4
@@ -1333,6 +1325,14 @@ userproplist.theme_preview_styleid:
   indexed: 0
   multihomed: 0
   prettyname: Style ID for theme preview
+
+userproplist.timeformat_24:
+  cldversion: 4
+  datatype: bool
+  des: use 24-hour time format on site
+  indexed: 0
+  multihomed: 0
+  prettyname: 24-hour time format
 
 userproplist.timezone:
   cldversion: 4
@@ -1409,331 +1409,345 @@ userproplist.who_invited:
 talkproplist.admin_post:
   datatype: bool
   des: Set to true if this is an official community administrator post.
+  ownership: user
   prettyname: Administrator post
+
+talkproplist.deleted_poster:
+  datatype: char
+  des: If the comment poster's account is deleted, this field gets added to all of their posts, so the UI can show something besides 'anonymous' when posterid gets set to 0
+  ownership: user
+  prettyname: Username of deleted poster
 
 talkproplist.edit_reason:
   datatype: char
   des: Reason for the last edit.
+  ownership: user
   prettyname: Edit Reason
 
 talkproplist.edit_time:
   datatype: num
   des: Unix time of the last edit.  undef if never edited.
+  ownership: user
   prettyname: Edit Time
-
-talkproplist.deleted_poster:
-  datatype: char
-  des: If the comment poster's account is deleted, this field gets added to all of their posts, so the UI can show something besides 'anonymous' when posterid gets set to 0
-  prettyname: Username of deleted poster
 
 talkproplist.editor:
   datatype: char
   des: Type of editor used when making this content. Values: "markdown" or undefined (plain/raw html)
+  ownership: user
   prettyname: Comment editor
 
 talkproplist.import_source:
   datatype: char
   des: Where this comment was imported from
+  ownership: user
   prettyname: Import source
 
 talkproplist.imported_from:
   datatype: char
   des: The hostname of the site where this comment was imported from.
+  ownership: user
   prettyname: Imported from
 
 talkproplist.opt_preformatted:
   datatype: bool
   des: Turn on if post contains HTML and shouldn't be formatted
+  ownership: user
   prettyname: Don't Auto-Format
 
 talkproplist.picture_keyword:
   datatype: char
   des: A keyword that should align to a defined picture
+  ownership: user
   prettyname: Picture Keyword
 
 talkproplist.picture_mapid:
   datatype: num
   des: A keyword that should align to a mapid
+  ownership: user
   prettyname: Picture Keyword MapID
 
 talkproplist.poster_ip:
   datatype: char
   des: The poster's IP address, optionally logged.
+  ownership: user
   prettyname: Poster's IP address
 
 talkproplist.subjecticon:
   datatype: char
   des: partial filename for subject icon to use
+  ownership: user
   prettyname: Subject Icon
 
 talkproplist.unknown8bit:
   datatype: bool
   des: True if text has 8-bit data that's not in UTF-8
+  ownership: user
   prettyname: Unknown 8-bit text
 
 talkproplist.useragent:
   datatype: char
   des: Name of web/mobile/sip/etc client used to post
+  ownership: user
   prettyname: User Agent
 
 logproplist.admin_post:
   datatype: bool
   des: Set to true if this is an official community administrator post.
-  prettyname: Administrator post
-  datatype: bool
-  sortorder: 99
   ownership: user
+  prettyname: Administrator post
+  sortorder: 99
 
 logproplist.adult_content:
   datatype: char
   des: Sets the entry as containing adult content (none, explicit, concepts)
+  ownership: user
   prettyname: Adult Content Flag
   sortorder: 105
-  ownership: user
 
 logproplist.adult_content_maintainer:
   datatype: char
   des: Sets the entry as containing adult content (none, explicit, concepts) -- community maintainer override
+  ownership: system
   prettyname: Adult Content Flag (Maintainer Override)
   sortorder: 105
-  ownership: system
 
 logproplist.adult_content_maintainer_reason:
   datatype: char
   des: The reason that the entry is marked as containing adult content -- community maintainer override
+  ownership: system
   prettyname: Adult Content Reason (Maintainer Override)
   sortorder: 105
-  ownership: system
 
 logproplist.adult_content_reason:
   datatype: char
   des: The reason that the entry is marked as containing adult content
+  ownership: user
   prettyname: Adult Content Reason
   sortorder: 105
-  ownership: user
 
 logproplist.commentalter:
   datatype: num
   des: Unix time of the last change to number of comments to this post.
+  ownership: system
   prettyname: Comments altered
   sortorder: 99
-  ownership: system
 
 logproplist.current_coords:
   datatype: char
   des: Current coordinates at time of post, in form '45.2935N 123.3452W'
+  ownership: user
   prettyname: Current Coordinates
   sortorder: 103
-  ownership: user
 
 logproplist.current_location:
   datatype: char
   des: Current location at time of post, free form text
+  ownership: user
   prettyname: Current Location
   sortorder: 103
-  ownership: user
 
 logproplist.current_mood:
   datatype: char
   des: Your current mood.
+  ownership: user
   prettyname: Current Mood
   sortorder: 5
-  ownership: user
 
 logproplist.current_moodid:
   datatype: num
   des: Your current mood ID number, if known.
+  ownership: user
   prettyname: Current Mood ID#
   sortorder: 6
-  ownership: user
 
 logproplist.current_music:
   datatype: char
   des: Music you're currently listening to.
+  ownership: user
   prettyname: Current Music
   sortorder: 10
-  ownership: user
 
 logproplist.editor:
   datatype: char
   des: Type of editor used when making this content. Values: "markdown" or undefined (plain/raw html)
+  ownership: user
   prettyname: Entry editor
   sortorder: 8
-  ownership: user
 
 logproplist.hasscreened:
   datatype: bool
   des: True if comments to this item include screened comments
+  ownership: system
   prettyname: Has screened replies
   sortorder: 99
-  ownership: system
 
 logproplist.import_source:
   datatype: char
   des: String describing where this entry was imported from
+  ownership: user
   prettyname: Import source
   sortorder: 99
-  ownership: user
 
 logproplist.interface:
   datatype: char
   des: String describing how this entry was posted
+  ownership: user
   prettyname: Interface used
   sortorder: 99
-  ownership: user
 
 logproplist.opt_backdated:
   datatype: bool
   des: Set to true if this item shouldn't show up on people's friends lists (because it occurred in the past)
+  ownership: user
   prettyname: Don't Show on Reading Pages
   sortorder: 35
-  ownership: user
 
 logproplist.opt_nocomments:
   datatype: bool
   des: Turn on if readers can't post comments on this entry.
+  ownership: user
   prettyname: Don't Allow Comments
   sortorder: 25
-  ownership: user
 
 logproplist.opt_nocomments_maintainer:
   datatype: bool
   des: Disables comments on this entry -- community maintainer override.
+  ownership: system
   prettyname: Don't Allow Comments (Maintainer Override)
   sortorder: 105
-  ownership: system
 
 logproplist.opt_noemail:
   datatype: bool
   des: Turn on if the poster isn't interested in receiving comments to this post by email
+  ownership: user
   prettyname: Don't email comments
   sortorder: 40
-  ownership: user
 
 logproplist.opt_preformatted:
   datatype: bool
   des: Turn on if post contains HTML and shouldn't be formatted
+  ownership: user
   prettyname: Don't Auto-Format
   sortorder: 20
-  ownership: user
 
 logproplist.opt_screening:
   datatype: char
   des: Like opt_whoscreened: A = All, R = Remote needed (anonymous only), F = non-Friends, N = None, else use userprop.
+  ownership: user
   prettyname: Custom Screening Level
   sortorder: 45
-  ownership: user
 
 logproplist.picture_keyword:
   datatype: char
   des: A keyword that should align to a defined picture
+  ownership: user
   prettyname: Picture Keyword
   sortorder: 30
-  ownership: user
 
 logproplist.picture_mapid:
   datatype: num
   des: A keyword that should align to a mapid
+  ownership: system
   prettyname: Picture Keyword MapID
   sortorder: 30
-  ownership: system
 
 logproplist.revnum:
   datatype: num
   des: Number of times this post has been edited.
+  ownership: system
   prettyname: Revision number
   sortorder: 99
-  ownership: system
 
 logproplist.revtime:
   datatype: num
   des: Unix time of the last edit
+  ownership: system
   prettyname: Revision time
   sortorder: 99
-  ownership: system
 
 logproplist.statusvis:
   datatype: char
   des: 'V' or undef for visible, 'S' for suspended
+  ownership: system
   prettyname: Visibility Status of an Entry
   sortorder: 99
-  ownership: system
 
 logproplist.syn_id:
   datatype: char
   des: Unique id of syndication item
+  ownership: user
   prettyname: Syndicated item id
   sortorder: 99
-  ownership: user
 
 logproplist.syn_link:
   datatype: char
   des: Original URL of syndication item
+  ownership: user
   prettyname: Syndication item link URL
   sortorder: 99
-  ownership: user
 
 logproplist.taglist:
   datatype: char
   des: Comma separated list of tags on the entry
+  ownership: user
   prettyname: Tag List
   sortorder: 101
-  ownership: user
 
 logproplist.unknown8bit:
   datatype: bool
   des: True if text has 8-bit data that's not in UTF-8
+  ownership: user
   prettyname: Unknown 8-bit text
   sortorder: 99
-  ownership: user
 
 logproplist.used_rte:
   datatype: bool
   des: True if entry was composed using the rich text editor
+  ownership: user
   prettyname: Composed in RTE
   sortorder: 102
-  ownership: user
 
 logproplist.useragent:
   datatype: char
   des: Name of web/mobile/sip/etc client used to post
+  ownership: user
   prettyname: User Agent
   sortorder: 103
-  ownership: user
 
 logproplist.xpost:
   datatype: char
   des: Maps to crossposts of this entry on other sites
+  ownership: user
   prettyname: Crosspost
   sortorder: 105
-  ownership: user
 
 logproplist.xpostdetail:
   datatype: blobchar
   des: Maps to crossposts of this entry on other sites
+  ownership: user
   prettyname: Crosspost Detail
   sortorder: 106
-  ownership: user
 
 usermsgproplist.userpic:
   des: Userpic chosen by the user who created the message
 
-media_prop_list.title:
-  des: Title of this object
-  prettyname: Title
+media_prop_list.alttext:
+  des: Alternative Text
   ownership: user
+  prettyname: Alt Text
 
 media_prop_list.description:
   des: Long description of this object
+  ownership: user
   prettyname: Description
-  ownership: user
-
-media_prop_list.alttext:
-  des: Alternative Text
-  prettyname: Alt Text
-  ownership: user
 
 media_prop_list.source:
   des: Source
-  prettyname: Source
   ownership: user
+  prettyname: Source
+
+media_prop_list.title:
+  des: Title of this object
+  ownership: user
+  prettyname: Title
+

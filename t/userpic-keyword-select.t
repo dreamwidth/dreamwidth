@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 6;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -30,14 +30,6 @@ my $ICON1 = do { local $/; <$fh> };
 
 open( my $fh2, 'good.jpg' ) or die $!;
 my $ICON2 = do { local $/; <$fh2> };
-
-note("called with falsy or undefined user object");
-{
-    my $bogususer;
-    my @icons = $bogususer->icon_keyword_menu;
-    my $empty = [];
-    is_deeply( \@icons, $empty, "No user, empty icons list" );
-}
 
 note("called for user with...");
 {

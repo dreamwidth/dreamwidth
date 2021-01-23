@@ -144,7 +144,9 @@ foreach my $k ( keys %output ) {
 print "Dumping proplists.dat\n";
 open( my $plg, ">$ENV{LJHOME}/bin/upgrading/proplists.dat" )       or die;
 open( my $pll, ">$ENV{LJHOME}/bin/upgrading/proplists-local.dat" ) or die;
-foreach my $table ( 'userproplist', 'talkproplist', 'logproplist', 'usermsgproplist' ) {
+foreach my $table ( 'userproplist', 'talkproplist', 'logproplist', 'usermsgproplist',
+    'media_prop_list' )
+{
     my $sth = $dbh->prepare("DESCRIBE $table");
     $sth->execute;
     my @cols = ();
@@ -181,7 +183,7 @@ foreach my $table ( 'userproplist', 'talkproplist', 'logproplist', 'usermsgpropl
 # and dump mood info
 print "Dumping moods.dat\n";
 open( F, ">$ENV{'LJHOME'}/bin/upgrading/moods.dat" ) or die;
-$sth = $dbh->prepare("SELECT moodid, mood, parentmood FROM moods ORDER BY moodid");
+$sth = $dbh->prepare("SELECT moodid, mood, parentmood, weight FROM moods ORDER BY moodid");
 $sth->execute;
 while ( @_ = $sth->fetchrow_array ) {
     print F "MOOD @_\n";

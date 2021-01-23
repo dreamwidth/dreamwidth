@@ -36,7 +36,7 @@ my $run = sub {
 
 # FIXME: make this neater.
 ok( $run->("moodtheme_list") =~ "Kanji Moods", "Got public theme" );
-ok( $run->("moodtheme_list 1") =~ "18x18 /img/mood/kanji/crazy.gif", "Got a theme" );
+ok( $run->("moodtheme_list 11") =~ "18x18 /img/mood/kanji/crazy.gif", "Got a theme" );
 
 ok( $run->("moodtheme_list") !~ "Your themes", "No logged-in stuff." );
 LJ::set_remote($u);
