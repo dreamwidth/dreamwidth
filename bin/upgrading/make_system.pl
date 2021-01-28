@@ -51,6 +51,9 @@ unless ($u) {
     exit 1;
 }
 
+# Make sure the system journal has a style to use
+$u->set_default_style;
+
 print "Giving 'system' account 'admin' priv on all areas...\n";
 if ( $u->has_priv( "admin", "*" ) ) {
     print "Already has it.\n";
