@@ -352,13 +352,13 @@ sub create {
 
     croak( "Extra args defined, (" . join( ', ', keys(%args) ) . ")" ) if keys %args;
 
-    my $sth =
-        $u->prepare( 'INSERT INTO subs ('
+    $u->do(
+        'INSERT INTO subs ('
             . join( ',', @columns ) . ')'
             . 'VALUES ('
-            . join( ',', map { '?' } @values )
-            . ')' );
-    $sth->execute(@values);
+            . join( ',', map { '?' } @values ) . ')',
+        undef, @values
+    );
     LJ::errobj($u)->throw if $u->err;
 
     $self->subscriptions_of_user($u) unless $u->{_subscriptions};
