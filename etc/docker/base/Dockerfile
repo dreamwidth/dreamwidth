@@ -22,12 +22,13 @@ RUN apt-get update && \
     dpkg-reconfigure -f noninteractive tzdata && \
     curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-system | \
         xargs apt-get -y install && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    cpanm -nq App::cpm
 
 # Split CPAN dependencies into a second step, since they change more
 # frequently than system dependencies
 RUN curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-cpanm | \
-        xargs cpanm -n -L /dw/extlib/ && \
+        cpm install -v --no-color -L /dw/extlib/ - && \
     rm -rf /root/.cpanm
 
 # Actually check out the source code now.
