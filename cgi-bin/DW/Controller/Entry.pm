@@ -254,6 +254,10 @@ sub new_handler {
     );
     $vars->{formdata}->{editor} = $vars->{editors}->{selected};
 
+    # Set up info for the icon select/preview/browse components
+    $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
+    $vars->{current_icon}    = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
+
     $vars->{editable} = { map { $_ => 1 } @modules };
 
     $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
@@ -617,6 +621,10 @@ sub _edit {
     # so we'll update it in place with what DW::Formats thinks we should use.
     $vars->{formdata}->{editor} = $vars->{editors}->{selected};
 
+    # Set up info for the icon select/preview/browse components
+    $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
+    $vars->{current_icon}    = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
+
     my %editable = map { $_ => 1 } @modules;
     $vars->{editable} = \%editable;
 
@@ -710,7 +718,8 @@ sub _form_to_backend {
             if defined $post->{$formname};
     }
     $props->{taglist}         = $post->{taglist} if defined $post->{taglist};
-    $props->{picture_keyword} = $post->{icon}    if defined $post->{icon};
+    $props->{picture_keyword} = $post->{prop_picture_keyword}
+        if defined $post->{prop_picture_keyword};
     $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
 
     # This form always uses the editor prop instead of opt_preformatted.
@@ -911,10 +920,10 @@ sub _backend_to_form {
         subject => $entry->subject_raw,
         event   => $event,
 
-        icon       => $entry->userpic_kw,
-        security   => $security,
-        custom_bit => \@custom_groups,
-        is_sticky  => $entry->journal->sticky_entries_lookup->{ $entry->ditemid },
+        prop_picture_keyword => $entry->userpic_kw,
+        security             => $security,
+        custom_bit           => \@custom_groups,
+        is_sticky            => $entry->journal->sticky_entries_lookup->{ $entry->ditemid },
 
         %formprops,
         %otherprops,
