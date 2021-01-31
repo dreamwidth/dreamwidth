@@ -1,16 +1,19 @@
 #!/bin/sh
 
-echo "CREATE USER testuser@localhost identified by '';" | mysql
-echo "CREATE DATABASE test_master;" | mysql
-echo "GRANT ALL ON test_master.* TO testuser@localhost;" | mysql
-echo "CREATE DATABASE test_c01" | mysql
-echo "GRANT ALL ON test_c01.* TO testuser@localhost;" | mysql
-echo "CREATE DATABASE test_c02;" | mysql
-echo "GRANT ALL ON test_c02.* TO testuser@localhost;" | mysql
-echo "CREATE DATABASE test_schwartz;" | mysql
-echo "GRANT ALL ON test_schwartz.* TO testuser@localhost;" | mysql
+set -xe
 
 export DW_TEST=1
+
+echo "CREATE USER testuser@localhost identified by '';" | mysql || true
+echo "CREATE DATABASE test_master;" | mysql || true
+echo "GRANT ALL ON test_master.* TO testuser@localhost;" | mysql || true
+echo "CREATE DATABASE test_c01" | mysql || true
+echo "GRANT ALL ON test_c01.* TO testuser@localhost;" | mysql || true
+echo "CREATE DATABASE test_c02;" | mysql || true
+echo "GRANT ALL ON test_c02.* TO testuser@localhost;" | mysql || true
+echo "CREATE DATABASE test_schwartz;" | mysql || true
+echo "GRANT ALL ON test_schwartz.* TO testuser@localhost;" | mysql || true
+
 $LJHOME/bin/upgrading/update-db.pl -r --innodb
 $LJHOME/bin/upgrading/update-db.pl -r --innodb # at least for now we have to run this twice
 $LJHOME/bin/upgrading/update-db.pl -r --cluster=all --innodb
