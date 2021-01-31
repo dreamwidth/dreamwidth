@@ -28,7 +28,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             [%- form.select(
             name = 'icon',
             id = 'prop_picture_keyword',
-            selected = current_icon_kw,
+
             items = remote.icon_keyword_menu,
         ) -%]
         </div>
