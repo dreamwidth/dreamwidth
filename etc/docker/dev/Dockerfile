@@ -9,6 +9,7 @@ MAINTAINER Mark Smith "mark@dreamwidth.org"
 ARG COMMIT=master
 
 # Things that commands need, but shouldn't change.
+ENV HOME /dw
 ENV LJHOME /dw
 ENV PERL5LIB /dw/extlib/lib/perl5
 
