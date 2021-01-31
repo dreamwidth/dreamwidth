@@ -7,7 +7,6 @@
           id = 'prop_picture_keyword',
           selected = current_icon_kw,
           items = icons,
-          class = 'inline'
       ) -%]
 
       <input type="button" id="randomicon" value="Random" style="display: none;" />
