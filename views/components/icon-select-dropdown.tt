@@ -1,16 +1,16 @@
 [%- icons = remote.icon_keyword_menu() -%]
 [%- IF icons.size > 0 -%]
-
     <div class='block-icon-controls'>
-      <label for='prop_picture_keyword' class="left">[%- '/journal/talkform.tt.label.picturetouse2' | ml -%]</label>
+      <label for='prop_picture_keyword' class="invisible">[%- '/journal/talkform.tt.label.picturetouse2' | ml -%]</label>
       [%- form.select(
           name = 'prop_picture_keyword',
           id = 'prop_picture_keyword',
           selected = current_icon_kw,
           items = icons,
-            class= 'inline'
       ) -%]
 
-      <input type="button" id="randomicon" value="Random" style="display: none;" />
+      [%- UNLESS omit_random_button -%]
+          <input type="button" id="randomicon" value="Random" style="display: none;" />
+      [%- END -%]
     </div>
-  [%- END -%]
+[%- END -%]
