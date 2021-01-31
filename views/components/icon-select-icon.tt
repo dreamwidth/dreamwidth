@@ -1,4 +1,5 @@
-[%- can_use_userpic_select = (remote.can_use_userpic_select && remote.icon_keyword_menu().size > 0) -%]
+[%- icons = remote.icon_keyword_menu() -%]
+[%- can_use_userpic_select = (remote.can_use_userpic_select && icons.size > 0) -%]
 [%- INCLUDE "components/icon-browser.tt" -%]
 
 [% dw.need_res({ group => "foundation"},
@@ -7,7 +8,7 @@
 ) %]
 
 <div class='block-icon no-label'>
-[% IF remote.icon_keyword_menu.size > 0 %]
+[% IF icons.size > 0 %]
   [%- IF can_use_userpic_select -%]
     <button type='button' id='lj_userpicselect' data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]" data-iconbrowser-keywordorder="[%- remote.iconbrowser_keywordorder -%]">
   [%- ELSE -%]
