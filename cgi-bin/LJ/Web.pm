@@ -875,9 +875,6 @@ sub create_qr_div {
         $hidden_form_elements .= LJ::html_hidden( "chrp1", "$chal-$res" );
     }
 
-    # For userpic selector
-    my @icons = $remote->icon_keyword_menu;
-
     # hashref with "selected" and "items" keys
     my $editors = DW::Formats::select_items( preferred => $remote->prop('comment_editor'), );
 
