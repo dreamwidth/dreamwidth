@@ -203,6 +203,7 @@ ul.pagination {
   grid-template-columns: auto auto auto;
   grid-template-areas: "prev pages next";
   text-align: center;
+  margin: 0 0 0.75em 0;
 
 }
 
@@ -210,7 +211,7 @@ ul.pagination .arrow {
   align-self: center;
   justify-self: center;
   font-size:  large;
-  padding: .0625rem .25rem .0625rem;
+  margin: 0 .25em;
   &.disabled {
     opacity: 0.33;
     padding: .0625rem .25rem .0625rem;
