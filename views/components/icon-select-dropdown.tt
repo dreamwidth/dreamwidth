@@ -9,6 +9,8 @@
           items = icons,
       ) -%]
 
-      <input type="button" id="randomicon" value="Random" style="display: none;" />
+      [%- UNLESS omit_random_button -%]
+          <input type="button" id="randomicon" value="Random" style="display: none;" />
+      [%- END -%]
     </div>
 [%- END -%]
