@@ -191,7 +191,7 @@ footer {
     }
 }
 
-.action-box ul.pagination li:hover a, .action-box ul.pagination li a:focus, {
+.action-box ul.pagination li:hover a, .action-box ul.pagination li a:focus {
     color: $highlight-color;
     
 }
@@ -199,8 +199,14 @@ footer {
 .action-box ul.pagination {
     li, li a { color: $highlight-text-color }
 
-    li a:hover, li a:focus, {
-    color: $highlight-color;
+    li a:visited {color: $link-color}
+
+    li a:hover, li a:focus {
+        color: $highlight-color;
+        }
+
+    li.current a:visited{
+        color: $pagination-link-current-font-color
     }
 }
 
