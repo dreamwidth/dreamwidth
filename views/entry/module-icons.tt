@@ -26,11 +26,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="row">
         <div class="columns">
             [%- form.select(
-            name = 'icon',
-            id = 'prop_picture_keyword',
+                name = 'icon',
+                id = 'prop_picture_keyword',
 
-            items = remote.icon_keyword_menu,
-        ) -%]
+                items = remote.icon_keyword_menu,
+            ) -%]
         </div>
     </div>
 
