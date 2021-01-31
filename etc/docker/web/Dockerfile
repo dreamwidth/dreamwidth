@@ -2,11 +2,11 @@
 # This creates a Dreamwidth webserver.
 #
 
-# Configuration can go here.
-ARG COMMIT=master
-
 FROM       194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/base:latest
 MAINTAINER Mark Smith "mark@dreamwidth.org"
+
+# Configuration can go here.
+ARG COMMIT=master
 
 # Things that commands need, but shouldn't change.
 ENV LJHOME /dw
