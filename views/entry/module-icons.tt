@@ -26,7 +26,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="row">
         <div class="columns">
             [%- form.select(
-            name = 'prop_picture_keyword',
+            name = 'icon',
             id = 'prop_picture_keyword',
             selected = current_icon_kw,
             items = remote.icon_keyword_menu,
