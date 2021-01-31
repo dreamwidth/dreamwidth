@@ -1598,13 +1598,13 @@ sub talkform {
                 || $template_args->{default_usertype} eq 'openid_cookie'
             )
             && $remote
-            && !$template_args->{remote}->{allowed}
+            && !$template_args->{remote_opts}->{allowed}
             )
         {
             $template_args->{default_usertype} = 'user';
         }
     }
-    elsif ( $remote && $template_args->{remote}->{allowed} ) {
+    elsif ( $remote && $template_args->{remote_opts}->{allowed} ) {
 
         # Whole point of logging in is to be the default user, so, yeah.
         if ( $remote->is_identity ) {
