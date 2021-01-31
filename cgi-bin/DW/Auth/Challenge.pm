@@ -39,7 +39,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 #   'dont_check_count' => if true, won't return a count field
 # the return value is 1 if 'valid' and not 'expired' and 'count'==1
 sub check {
-    my ( $class, $chal, $opts ) = @_;
+    my ( $class, $chal,    $opts )  = @_;
     my ( $valid, $expired, $count ) = ( 1, 0, 0 );
 
     my ( $c_ver, $stime, $s_age, $goodfor, $rand, $chalsig ) = split /:/, $chal;
@@ -67,7 +67,7 @@ sub check {
         }
         else {
             my $dbh = LJ::get_db_writer();
-            my $rv  = $dbh->do( q{SELECT GET_LOCK(?,5)}, undef, $chal );
+            my $rv  = $dbh->do( q{SELECT GET_LOCK(?,5)}, undef, Digest::MD5::md5_hex($chal) );
             if ($rv) {
                 $count = $dbh->selectrow_array( q{SELECT count FROM challenges WHERE challenge=?},
                     undef, $chal );
