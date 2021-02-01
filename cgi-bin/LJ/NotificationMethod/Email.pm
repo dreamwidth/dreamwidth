@@ -140,6 +140,7 @@ sub notify {
                         userid     => $u->id,
                         user       => $u->user,
                         evt_userid => $ev->u->id,
+                        evt_user   => $ev->u->user,
                         evt_class  => $ev->class,
                         evt_arg1   => $ev->arg1,
                         evt_arg2   => $ev->arg2,
@@ -185,6 +186,15 @@ sub notify {
                     headers  => \%headers,
                     html     => $html_body,
                     body     => $plain_body,
+                    logger_mdc => {
+                        userid     => $u->id,
+                        user       => $u->user,
+                        evt_userid => $ev->u->id,
+                        evt_user   => $ev->u->user,
+                        evt_class  => $ev->class,
+                        evt_arg1   => $ev->arg1,
+                        evt_arg2   => $ev->arg2,
+                    },
                 }
             ) or die "unable to send notification email";
         }
