@@ -9,6 +9,7 @@
 *.sw?
 src/proxy/proxy
 .vstags
+.perl-cpm
 
 # Ignore SCSS cache
 .sass-cache

@@ -24,6 +24,7 @@ RUN echo $COMMIT && \
     curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-cpanm | \
         cpm install -v --no-color -L /dw/extlib/ - && \
     rm -rf /root/.cpanm && \
+    rm -rf /root/.perl-cpm && \
     rm -rf /var/lib/apt/lists/*
 
 # Actually check out the source code now.

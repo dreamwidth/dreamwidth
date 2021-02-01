@@ -29,6 +29,7 @@ RUN apt-get update && \
 # frequently than system dependencies
 RUN curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-cpanm | \
         cpm install -v --no-color -L /dw/extlib/ - && \
+    rm -rf /root/.perl-cpm && \
     rm -rf /root/.cpanm
 
 # Actually check out the source code now.
