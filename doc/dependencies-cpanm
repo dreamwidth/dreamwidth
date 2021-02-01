@@ -32,6 +32,7 @@ LWP::UserAgent::Paranoid
 List::Util@1.55
 Locale::Country@3.32
 Log::Log4perl
+Log::Log4perl::Appender::Elasticsearch::Bulk
 MIME::Base64::URLSafe
 MIME::Lite
 MIME::Words
