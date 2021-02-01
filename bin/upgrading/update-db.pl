@@ -105,6 +105,7 @@ my %table_drop;      # $table -> 1
 my %table_status;    # $table -> { SHOW TABLE STATUS ... row }
 my %post_create;     # $table -> [ [ $action, $what ]* ]
 my %coltype;         # $table -> { $col -> $type }
+my %coldefault;      # $table -> { $col -> $default }
 my %indexname;       # $table -> "INDEX"|"UNIQUE" . ":" . "col1-col2-col3" -> "PRIMARY" | index_name
 my @alters;
 my $dbh;
@@ -887,6 +888,7 @@ sub load_table_info {
         my $type = $row->{'Type'};
         $type .= " $1" if $row->{'Extra'} =~ /(auto_increment)/i;
         $coltype{$table}->{ $row->{'Field'} } = lc($type);
+        $coldefault{$table}->{ $row->{'Field'} } = $row->{'Default'};
     }
 
     # current physical table properties
@@ -926,6 +928,12 @@ sub column_type {
     my $type = $coltype{$table}->{$col};
     $type ||= "";
     return $type;
+}
+
+sub column_default {
+    my ( $table, $col ) = @_;
+    load_table_info($table) unless exists $coldefault{$table};
+    return $coldefault{$table}->{$col};
 }
 
 sub table_status {
