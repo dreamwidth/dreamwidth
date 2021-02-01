@@ -63,6 +63,14 @@ ul.text-links {
   }
 }
 
+// Don't add space after last element in an entry/comment. Avoids extra
+// gaps if there's <p> tags (markdown) instead of text nodes (casual HTML).
+.comment-content, .entry-content {
+  & > :last-child {
+    margin-bottom: 0;
+  }
+}
+
 /**
 * Primary item styles:
 * (The primary item is always an entry on entry pages, but is sometimes a
