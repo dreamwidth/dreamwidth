@@ -1,3 +1,8 @@
+[%# arguments:
+  - remote (needs to be a real user object)
+  - current_icon_kw (string, icon keyword)
+  - omit_random_button (bool, defaults to false)
+#%]
 [%- icons = remote.icon_keyword_menu() -%]
 [%- IF icons.size > 0 -%]
     <div class='block-icon-controls'>
