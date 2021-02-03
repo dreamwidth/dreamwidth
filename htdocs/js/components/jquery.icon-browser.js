@@ -179,7 +179,6 @@ IconBrowser.prototype = {
             .on("dblclick", ".icon-browser-item", this.selectByDoubleClick.bind(this));
 
         $("#js-icon-browser-search").on("keyup click", this.filter.bind(this));
-        $("#js-icon-browser-select").on("click", this.updateOwner.bind(this));
 
         this.modal.on("sortByKeyword.iconbrowser", this.sortByKeyword.bind(this));
         this.modal.on("sortByDate.iconbrowser", this.sortByDate.bind(this));
