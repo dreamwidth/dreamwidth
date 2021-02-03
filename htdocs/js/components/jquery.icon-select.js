@@ -33,6 +33,7 @@ if ( $.fn.iconBrowser ) {
     iconSelect.iconBrowser({
         triggerSelector: "#lj_userpicselect, #js-icon-browse",
         modalId: "js-icon-browser",
+        focusAfterBrowse: $('#lj_userpicselect').data('iconbrowserFocusAfterBrowse'),
         preferences: {
             "keywordorder": $('#lj_userpicselect').data('iconbrowserKeywordorder'),
             "metatext": $('#lj_userpicselect').data('iconbrowserMetatext'),
