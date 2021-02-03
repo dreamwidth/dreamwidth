@@ -179,6 +179,7 @@ IconBrowser.prototype = {
             .on("dblclick", ".icon-browser-item", this.selectByDoubleClick.bind(this));
 
         $("#js-icon-browser-search").on("keyup click", this.filter.bind(this));
+        $("#icon-browser-options-visibility").on("click", this.toggleOptions.bind(this));
 
         this.modal.on("sortByKeyword.iconbrowser", this.sortByKeyword.bind(this));
         this.modal.on("sortByDate.iconbrowser", this.sortByDate.bind(this));
@@ -269,6 +270,9 @@ IconBrowser.prototype = {
     },
     close: function() {
         this.modal.foundation('reveal', 'close');
+    },
+    toggleOptions: function() {
+        this.modal.toggleClass("show-options");
     },
     sortByKeyword: function() {
         this.iconBrowserItems.sort(function(a, b) {
