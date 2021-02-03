@@ -198,9 +198,7 @@ IconBrowser.prototype = {
     keyboardNav: function(e) {
         if ( $(e.target).is('#js-icon-browser-search') ) return;
 
-        if ( e.key === 'Enter' || (! e.key && e.keyCode === 13) ) {
-            $(e.target).trigger('click');
-        } else if ( e.key === '/' || (! e.key && e.keyCode === 191) ) {
+        if ( e.key === '/' || (! e.key && e.keyCode === 191) ) {
             e.preventDefault();
             $("#js-icon-browser-search").focus();
         }
