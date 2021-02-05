@@ -4204,12 +4204,14 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
         }
 
         if ( column_default( 'subs', 'expiretime' ) ne '0' ) {
-            do_alter( 'subs', 'ALTER TABLE subs MODIFY COLUMN expiretime INT UNSIGNED NOT NULL DEFAULT 0');
-        };
+            do_alter( 'subs',
+                'ALTER TABLE subs MODIFY COLUMN expiretime INT UNSIGNED NOT NULL DEFAULT 0' );
+        }
 
         if ( column_default( 'subs', 'flags' ) ne '0' ) {
-            do_alter( 'subs', 'ALTER TABLE flags MODIFY COLUMN flags SMALLINT UNSIGNED NOT NULL DEFAULT 0');
-        };
+            do_alter( 'subs',
+                'ALTER TABLE flags MODIFY COLUMN flags SMALLINT UNSIGNED NOT NULL DEFAULT 0' );
+        }
     }
 );
 
