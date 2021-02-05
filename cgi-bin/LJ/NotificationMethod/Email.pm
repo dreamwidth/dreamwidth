@@ -178,14 +178,14 @@ sub notify {
             }
             LJ::send_mail(
                 {
-                    to       => $u->email_raw,
-                    from     => $LJ::BOGUS_EMAIL,
-                    fromname => scalar( $ev->as_email_from_name($u) ),
-                    wrap     => 1,
-                    subject  => $email_subject,
-                    headers  => \%headers,
-                    html     => $html_body,
-                    body     => $plain_body,
+                    to         => $u->email_raw,
+                    from       => $LJ::BOGUS_EMAIL,
+                    fromname   => scalar( $ev->as_email_from_name($u) ),
+                    wrap       => 1,
+                    subject    => $email_subject,
+                    headers    => \%headers,
+                    html       => $html_body,
+                    body       => $plain_body,
                     logger_mdc => {
                         userid     => $u->id,
                         user       => $u->user,

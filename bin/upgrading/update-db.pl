@@ -887,7 +887,7 @@ sub load_table_info {
     while ( my $row = $sth->fetchrow_hashref ) {
         my $type = $row->{'Type'};
         $type .= " $1" if $row->{'Extra'} =~ /(auto_increment)/i;
-        $coltype{$table}->{ $row->{'Field'} } = lc($type);
+        $coltype{$table}->{ $row->{'Field'} }    = lc($type);
         $coldefault{$table}->{ $row->{'Field'} } = $row->{'Default'};
     }
 
