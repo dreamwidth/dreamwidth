@@ -587,8 +587,8 @@ h2#pagetitle {
 }
 .comment-content { border-top: 1px transparent solid; } /* for firefox */
 
-/* Don't add space after last element in an entry/comment. Avoids extra */
-/* gaps if there's <p> tags (markdown) instead of text nodes (casual HTML). */
+/* Don't add space after last element in an entry/comment. Avoids extra gaps */
+/* if there's paragraph tags (markdown) instead of text nodes (casual HTML). */
 .entry-content > :last-child,
 .comment-content > :last-child {
     margin-bottom: 0;
