@@ -1,6 +1,5 @@
 /logs
 /temp
-/extlib
 /ext
 /etc/config*.pl
 /build
@@ -10,8 +9,14 @@
 src/proxy/proxy
 .vstags
 
+# Ignore external modules from CPAN and cpanm/cpm build directories
+/extlib
+/.perl-cpm
+/.cpanm
+
 # Ignore SCSS cache
 .sass-cache
+
 # Ignore compiled CSS
 htdocs/stc/css
 

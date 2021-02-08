@@ -1,0 +1,57 @@
+# This is the main configuration file of your Dancer2 app
+# env-related settings should go to environments/$env.yml
+# all the settings in this file will be loaded at Dancer's startup.
+
+# === Basic configuration ===
+
+# Your application's name
+appname: "DW::App"
+
+# The default layout to use for your application (located in
+# views/layouts/main.tt)
+layout: "main"
+
+# when the charset is set to UTF-8 Dancer2 will handle for you
+# all the magic of encoding and decoding. You should not care
+# about unicode within your app when this setting is set (recommended).
+charset: "UTF-8"
+
+# === Engines ===
+#
+# NOTE: All the engine configurations need to be under a single "engines:"
+# key.  If you uncomment engine configurations below, make sure to delete
+# all "engines:" lines except the first.  Otherwise, only the last
+# "engines:" block will take effect.
+
+template: "template_toolkit"
+session: Cookie
+
+engines:
+  template:
+    template_toolkit:
+      # Note: start_tag and end_tag are regexes
+      start_tag: '<%'
+      end_tag:   '%>'
+  session:
+    Cookie:
+      secret_key:           'random_string_here_208347asdlfijas#%dhavuSLIKD'
+      default_duration:     604800
+      with_request_address: 0
+
+plugins:
+  DBIC:
+    global:
+      dsn: dbi:mysql:database=test_master
+      user: testuser
+      password: ''
+      schema_class: DW::Schema
+    c1:
+      dsn: dbi:mysql:database=test_c01
+      user: testuser
+      password: ''
+      schema_class: DW::Schema
+    c2:
+      dsn: dbi:mysql:database=test_c02
+      user: testuser
+      password: ''
+      schema_class: DW::Schema

@@ -12,6 +12,10 @@ Class::Trigger
 Compress::Zlib
 Convert::Base32
 CryptX
+DBIx::Class
+Dancer2
+Dancer2::Plugin::DBIC
+Dancer2::Session::Cookie
 Danga::Socket
 Data::ObjectDriver
 Digest::HMAC_SHA1
@@ -40,6 +44,8 @@ Math::BigInt::GMP
 Math::Random::Secure
 MogileFS::Client@1.17
 Moose
+MooseX::NonMoose
+MooseX::MarkAsMethods
 Mozilla::CA
 Net::DNS
 Net::OAuth
