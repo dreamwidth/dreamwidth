@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 108;
+use Test::More tests => 104;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -48,9 +48,6 @@ note("Not logged in - init");
     # user
     ok( !$vars->{remote} );
 
-    # icon
-    ok( !@{ $vars->{icons} }, "No icons." );
-
     # mood theme
     ok( !keys %{ $vars->{moodtheme} }, "No mood theme." );
 
@@ -68,19 +65,6 @@ note("Logged in - init");
     $vars = DW::Controller::Entry::_init( { remote => $u } );
 
     ok( $u->equals( $vars->{remote} ), "Post done as currently logged in user." );
-
-    note("# Icons ");
-    note("  no icons");
-    ok( !@{ $vars->{icons} }, "No icons." );
-
-    note("  yes icons");
-    my $icon1 = LJ::Userpic->create( $u, data => \$ICON1 );
-    my $icon2 = LJ::Userpic->create( $u, data => \$ICON2 );
-    $icon1->set_keywords("b, z");
-    $icon2->set_keywords("a, c, y");
-
-    $vars = DW::Controller::Entry::_init( { remote => $u } );
-    is( @{ $vars->{icons} }, 6, "Has icons (including an entry for default)" );
 
     note("# Moodtheme");
     note("  default mood theme");
@@ -236,7 +220,6 @@ note("Altlogin - init");
 
     ok( !$vars->{tags},                "No tags" );
     ok( !keys %{ $vars->{moodtheme} }, "No mood theme." );
-    ok( !@{ $vars->{icons} },          "No icons." );
     is( @{ $vars->{security} }, 3, "Default security dropdown" );
     ok( !@{ $vars->{journallist} }, "No journal dropdown" );
 
