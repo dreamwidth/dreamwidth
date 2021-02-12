@@ -101,7 +101,7 @@
       <!---- output formatting ----->
       [% PROCESS searchcrit name = '.display_results';
          PROCESS searchform_before %]
-      <table summary=''>
+      <table class="table" summary=''>
         <tr>
           <td align='right'>[% '.display_by' | ml %]</td>
           <td>

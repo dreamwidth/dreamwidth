@@ -17,7 +17,7 @@
 <p>[% '.intro' | ml %]</p>
 
 <form method='GET'>
-  <table summary=''>
+  <table class="table" summary=''>
     <tr>
       <td><label>[% '.field.bycode.label' | ml %] </label></td>
       <td>

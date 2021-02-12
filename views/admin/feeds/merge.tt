@@ -78,7 +78,7 @@ td, th { padding: 4px; }
 [%- ELSIF token -%]
 <input type="hidden" name="token" value="[% token | html %]"/>
 [%- END -%]
-<table summary=''>
+<table class="table" summary=''>
 <thead>
 <tr>
     <th></th>

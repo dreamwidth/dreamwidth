@@ -35,7 +35,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- dw.form_auth -%]
 
 [%- SET actions = [ "approve", "reject", "ban" ] -%]
-<table class="table-as-list select-all">
+<table class="table table-as-list select-all">
     <thead>
     <tr>
         <th scope="row"></th>

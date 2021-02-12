@@ -17,7 +17,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <form method='post'>
 [% dw.form_auth %]
-<table summary='' class='shop-table-gift'>
+<table summary='' class='table shop-table-gift'>
 [% IF foru %]
     <tr><td>[% '.buying.for' | ml %]</td><td>[% foru.ljuser_display %]
         <input type='hidden' name='foruser' value='[% foru.user %]' />

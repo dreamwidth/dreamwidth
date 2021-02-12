@@ -33,7 +33,7 @@
     form.submit( value = dw.ml( ".submit" ) ) -%]</p><p>
 
     [%- IF rows.size -%]
-        <table class="results"><tr>
+        <table class="results table"><tr>
         <th>[% '.table.date' | ml %]</th>
         <th>[% '.table.req' | ml %]</th>
         <th>[% '.table.sendto' | ml %]</th>

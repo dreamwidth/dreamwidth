@@ -46,7 +46,7 @@
 <p>[% '.label.unused' | ml %] [% unused_count( u ) %]</p>
 
   [%- IF codelist.size -%]
-<table>
+<table class="table">
   <thead><tr>
     <th>[% '.col.recipient' | ml %]</th>
     <th>[% '.col.last' | ml %]</th>
@@ -82,7 +82,7 @@
 
   [%- reqlist = list_req( u );
       IF reqlist.size -%]
-<table>
+<table class="table">
   <thead><tr>
     <th>[% '.col.reqdate' | ml %]</th>
     <th>[% '.col.procdate' | ml %]</th>

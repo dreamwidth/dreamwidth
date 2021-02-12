@@ -23,7 +23,7 @@ the same terms as Perl itself. For a copy of the license, please reference
 [% IF noresults %]
     [% '.noresults' | ml %]
 [% ELSIF get_user OR get_userid OR get_email %]
-    <table><thead><tr>
+    <table class="table"><thead><tr>
         <th>[% '.table.summary' | ml %]</th>
         <th>[% '.table.state' | ml %]</th>
         <th>[% '.table.answeredby' | ml %]</th>
