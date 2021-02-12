@@ -56,7 +56,7 @@
 </div>
 
 [%- IF codelist.size -%]
-<table>
+<table class="table">
   <thead><tr>
     <th>[% '.heading.code'    | ml %]</th>
     <th>[% '.heading.active'  | ml %]</th>

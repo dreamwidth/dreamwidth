@@ -22,7 +22,7 @@
 
 <form method="POST">
   [%- dw.form_auth -%]
-  <table>
+  <table class="table">
     <thead><tr>
       <th>[% '.col.user' | ml %]</th>
       <th>[% '.col.timegen' | ml %]</th>

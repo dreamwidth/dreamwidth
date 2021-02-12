@@ -36,7 +36,7 @@
 [% END %]
 
 [%- IF existing_bans.size -%]
-<table>
+<table class="table">
   <thead><tr>
     <th>[% '.col.value'  | ml %]</th>
     <th>[% '.col.exp'    | ml %]</th>

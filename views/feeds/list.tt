@@ -22,7 +22,7 @@
 
 [% navbar %]
 
-<table id='synlist'>
+<table class="table" id='synlist'>
     <thead><tr valign='bottom'>
         <th>
         [% IF sort != "username" %]<a href='[% resort("username") %]'>[% END %]

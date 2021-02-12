@@ -64,7 +64,7 @@
 
 <form class='simple-form' method='post'>
   [% dw.form_auth %]
-  <table summary=''>
+  <table class="table" summary=''>
   [%- FOREACH f IN formrows;
         name = f.0;
         edit = f.1;

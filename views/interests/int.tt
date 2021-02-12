@@ -29,7 +29,7 @@
 [%- sections.title='.title' | ml -%]
 
 [%- IF warn_toolong %]<p>[% warn_toolong %]</p>[% END -%]
-<table summary=''><tr valign='middle'><td class='findandmodify'>
+<table class="table" summary=''><tr valign='middle'><td class='findandmodify'>
 [% 'interests.interested.in' | ml %]</td><td class='findandmodify'>
 <form method='get' action='interests'>
 <input type="text" name="int" size="20" value="[% interest # escaped in the controller %]" />&nbsp;

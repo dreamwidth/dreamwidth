@@ -22,7 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 ) -%]
 
 [% IF community_list.size > 0 %]
-<table class="table-as-list">
+<table class="table table-as-list">
     <thead>
         <tr>
             <th scope="col">[% '.table.header.community' | ml %]</th>

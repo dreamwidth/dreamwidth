@@ -123,7 +123,7 @@
 
   [%- rows = profile.basic_info_rows;
       IF rows.size -%]
-  <div class="profile"><table summary=''>
+  <div class="profile"><table class="table" summary=''>
     [%- FOREACH row IN rows -%]
       [%- NEXT UNLESS row.size; # this was a bug in the original page -%]
       [%- row_header = row.shift -%]
