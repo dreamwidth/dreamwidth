@@ -254,7 +254,7 @@ sub journal_url {
     # AND YOU WILL SEE WHAT INFINITE RECURSION LOOKS LIKE.
 
     # override this on a site-by-site basis if needed
-    return "http://$self->{hostname}/users/" . $u->user . '/';
+    return "https://$self->{hostname}/users/" . $u->user . '/';
 }
 
 # returns an entry link for this user on this site.
