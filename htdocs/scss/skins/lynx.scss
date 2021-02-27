@@ -25,7 +25,7 @@ $screened-comment-bg: #C29B9B; // old Tropo screened comment color, why not.
 @import "skins/entry-styles";
 @import "skins/icons-page";
 
-ul.pagination{
+ul.pagination, ul.pages {
     list-style: none;
     padding-left: 0;
 

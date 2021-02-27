@@ -358,8 +358,10 @@ sub create {
             . 'VALUES ('
             . join( ',', map { '?' } @values )
             . ')' );
-    $sth->execute(@values);
     LJ::errobj($u)->throw if $u->err;
+
+    $sth->execute(@values);
+    die $sth->errstr if $sth->err;
 
     $self->subscriptions_of_user($u) unless $u->{_subscriptions};
     push @{ $u->{_subscriptions} }, $self;

@@ -41,10 +41,14 @@ sub work {
     my $evt = eval { LJ::Event->new_from_raw_params(@$e_params) }
         or return $failed->("Couldn't load event: $@");
 
+    $evt->configure_logger;
+
     my ( $ct, $max ) = ( 0, scalar(@$sublist) );
     my $us   = LJ::load_userids( map { $_->[0] } @$sublist );
     my $dbcr = LJ::get_cluster_reader($cid)
         or return $failed->("Couldn't get cluster reader handle");
+
+    $log->debug( 'Filtering: got ', $max, ' subs to filter.' );
 
     my @subs;
     while ( scalar(@$sublist) > 0 ) {

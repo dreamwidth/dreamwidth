@@ -12,8 +12,12 @@
 # part of this distribution.
 
 package LJ::Event;
+
 use strict;
+use v5.10;
 no warnings 'uninitialized';
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw(croak);
 
@@ -99,6 +103,17 @@ sub raw_params {
     my @params =
         map { $_ + 0 } ( $self->etypeid, $ju->{userid}, $self->{args}[0], $self->{args}[1] );
     return wantarray ? @params : \@params;
+}
+
+# You can override this if you need, but shouldn't have to.
+sub configure_logger {
+    my $self = $_[0];
+
+    Log::Log4perl::MDC->put( "evt_class",  $self->class );
+    Log::Log4perl::MDC->put( "evt_user",   $self->u->user );
+    Log::Log4perl::MDC->put( "evt_userid", $self->u->id );
+    Log::Log4perl::MDC->put( "evt_arg1",   $self->arg1 );
+    Log::Log4perl::MDC->put( "evt_arg2",   $self->arg2 );
 }
 
 # Override this.  by default, events are rare, so subscriptions to

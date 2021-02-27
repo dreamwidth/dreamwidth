@@ -12,6 +12,7 @@
 $highlight-color: $primary-color !default;
 $highlight-border:$body-font-color !default;
 $highlight-text-color: $body-font-color !default;
+$pagination-link-visited-color: $anchor-font-color-visited !default;
 
 // Variant color variables -- most site skins can just ignore these, but we'll
 // use an explicit value if it exists.
@@ -248,4 +249,9 @@ div.disabled, div.disabled * { color: $text-color-disabled; }
 
 .even, tr.even th, tr.even td {
     background-color: $background-color-alternate;
+}
+
+// Pagination visited link color
+ul.pagination li a:visited {
+    color: $pagination-link-visited-color
 }

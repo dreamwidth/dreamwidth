@@ -40,6 +40,7 @@ sub work {
         my ( $fmt, @args ) = @_;
         $log->error( sprintf( $fmt, @args ) );
         $smtp = undef;
+        Log::Log4perl::MDC->remove;
         return DW::Task::FAILED;
     };
 
@@ -47,6 +48,7 @@ sub work {
         my ( $fmt, @args ) = @_;
         $log->error( sprintf( $fmt, @args ) );
         $smtp = undef;
+        Log::Log4perl::MDC->remove;
         return DW::Task::COMPLETED;
     };
 
@@ -74,6 +76,14 @@ sub work {
     my $rcpts    = $args->{rcpts};       # arrayref of recipients
     my $body     = $args->{data};
 
+    # The caller may have passed us a logger_mdc hashref, in which case we should use
+    # that to configure the logger vars
+    if ( ref $args->{logger_mdc} eq 'HASH' ) {
+        foreach my $key ( keys %{ $args->{logger_mdc} } ) {
+            Log::Log4perl::MDC->put( $key, $args->{logger_mdc}->{$key} );
+        }
+    }
+
     # Drop any recipient domains that we don't support/aren't allowed, and don't allow
     # duplicate emails within 24 hours
     my @recipients;
@@ -83,13 +93,13 @@ sub work {
         unless ($domain) {
             $log->error( 'Invalid email address: ', $rcpt );
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:invalid', 'via:ses' ] );
-            return DW::Task::COMPLETED;
+            continue;
         }
 
         if ( exists $LJ::DISALLOW_EMAIL_DOMAIN{$domain} ) {
             $log->info( 'Disallowing email to: ', $rcpt );
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:disallowed', 'via:ses' ] );
-            return DW::Task::COMPLETED;
+            continue;
         }
 
         # Stupid hack to prevent spamming people, check memcache to see if we've sent this
@@ -107,8 +117,12 @@ sub work {
             push @recipients, $rcpt;
         }
     }
-    return DW::Task::COMPLETED
-        unless @recipients;
+
+    unless (@recipients) {
+        $log->debug('No valid recipients, dropping email. ');
+        Log::Log4perl::MDC->remove;
+        return DW::Task::COMPLETED;
+    }
 
     $log->debug( 'Sending email to: ', join( ', ', @recipients ) );
 
@@ -173,6 +187,9 @@ sub work {
 
     $log->debug('Email sent successfully.');
     DW::Stats::increment( 'dw.email.sent', 1, [ 'status:completed', 'via:ses' ] );
+
+    # Clear the logger MDC just in case we set it
+    Log::Log4perl::MDC->remove;
 
     return DW::Task::COMPLETED;
 }

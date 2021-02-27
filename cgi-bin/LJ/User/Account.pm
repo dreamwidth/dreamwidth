@@ -75,9 +75,9 @@ sub create {
     my $dbh = LJ::get_db_writer();
 
     $dbh->do(
-        'INSERT INTO user (user, clusterid, dversion, caps, journaltype) '
-            . 'VALUES (?, ?, ?, ?, ?)',
-        undef, $username, $cluster, $LJ::MAX_DVERSION, $caps, $journaltype
+        'INSERT INTO user (user, name, clusterid, dversion, caps, journaltype) '
+            . 'VALUES (?, ?, ?, ?, ?, ?)',
+        undef, $username, '', $cluster, $LJ::MAX_DVERSION, $caps, $journaltype
     );
     return $err->( 'Database error: ', $dbh->errstr ) if $dbh->err;
 

@@ -173,47 +173,57 @@ ul.entry-management-links {
   margin: 0 4px;
 }
 
-.comment-pages-wrapper {
-  ul.pagination {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    text-align: center;
-    margin: 0 auto;
-    grid-column-gap: .3rem;
+ul.pages {
+  grid-area: pages;
+  text-align: center;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 20rem;
 
-    @media #{$small-only} {
-      grid-template-columns: repeat(7, 1fr);
-    }
+  @media #{$small-only} {
+    max-width: 10rem;
   }
 
-  ul.pagination li {
-    align-self: center;
-    @supports (display: grid) {
-      margin: 0 0 .25em;
-    }
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
+}
+
+ul.pages li {
+  align-self: center;
+  margin: 0 0.1rem;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  width: 1.8rem;
+}
+
+ul.pagination {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-areas: "prev pages next";
+  text-align: center;
+  margin: 0 0 0.75em 0;
+
+}
+
+ul.pagination .arrow {
+  align-self: center;
+  justify-self: center;
+  font-size:  large;
+  margin: 0 .25em;
+  &.disabled {
+    opacity: 0.33;
+    padding: .0625rem .25rem .0625rem;
   }
 
-  ul.pagination .arrow {
-    grid-row-start: 1;
-    grid-row-end: span 100;
-    /* (Will be slightly misaligned after 1000 comment pages, but with auto-rows there's no way to refer to the final implicit grid line; -1 only works for the explicit list of rows.) */
-    font-size: larger;
-    &.disabled {
-      opacity: 0.33;
-    }
-  }
+ul.pagination .arrow:first-child {
+  grid-area: prev;
+}
 
-  ul.pagination .arrow:first-child {
-    grid-column: 1 / 2;
-  }
-
-  ul.pagination .arrow:last-child {
-    grid-column: -1 / -2;
-  }
+ul.pagination .arrow:last-child {
+  grid-area: next;
+}
 
   ul.pagination li a {
     padding: .0625rem .25rem .0625rem;

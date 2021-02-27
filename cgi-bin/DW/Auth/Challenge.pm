@@ -67,7 +67,7 @@ sub check {
         }
         else {
             my $dbh = LJ::get_db_writer();
-            my $rv  = $dbh->do( q{SELECT GET_LOCK(?,5)}, undef, $chal );
+            my $rv  = $dbh->do( q{SELECT GET_LOCK(?,5)}, undef, Digest::MD5::md5_hex($chal) );
             if ($rv) {
                 $count = $dbh->selectrow_array( q{SELECT count FROM challenges WHERE challenge=?},
                     undef, $chal );
