@@ -1088,7 +1088,7 @@ sub manage_buttons {
 
     # Hack to strip the protocol off the return from LJ::img, so the JS is happy
     # see https://github.com/dreamwidth/dw-free/commit/317619ee029f39ecd206cec484e0bfb7fa7c4ef1
-    sub no_proto_img { my $var = LJ::img(@_); $var =~ s/https?://; return $var; }
+    sub no_proto_img { my $var = LJ::img(@_); $var =~ s/^https?://; return $var; }
 
     if ( $self->remote_can_edit ) {
         $managebtns .=

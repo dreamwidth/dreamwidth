@@ -1,5 +1,5 @@
 [%- CALL dw.active_resource_group( "foundation" ) -%]
-[% dw.need_res( { group => "foundation" }, 'stc/css/pages/inbox.css', 'js/jquery.inbox.js', 'js/jquery.esn.js', 'js/jquery.commentmanage.js' ) %]
+[% dw.need_res( { group => "foundation" }, 'stc/css/pages/inbox.css', 'js/jquery.inbox.js', 'js/jquery.esn.js', 'js/jquery.commentmanage.js', 'js/jquery.ajaxtip.js' ) %]
 [%- sections.title = '.title' | ml -%]
 
 <div id="inbox">

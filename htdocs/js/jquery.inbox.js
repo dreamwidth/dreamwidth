@@ -3,13 +3,12 @@ $('#check_all').change(function() {
     $('.item_checkbox').prop("checked", checked.is(':checked'));
 });
 
-$('.action_button').click(function () {
+$('.action_button').click(function (e) {
     var action = $(this).data('action');
-    mark_items(action);
-    return false;
+    mark_items(e, action);
 });
 
-$("#inbox_messages").on("click", ".item_expand_action", function(){
+$("#inbox_messages").on("click", ".item_expand_action", function(e){
     var qid = $(this).data('qid');
     var child = $(this).children();
     var item = $("#inbox_item_" + qid);
@@ -29,18 +28,18 @@ $("#inbox_messages").on("click", ".item_expand_action", function(){
                 'title': 'Expand'
                 });
         }
-    return false;
+    e.preventDefault();
+    e.stopPropagation();
 });
 
-$("#inbox_messages").on("click", ".item_bookmark_action", function(){
+$("#inbox_messages").on("click", ".item_bookmark_action", function(e){
     var action = $(this).data('action');
     var qid = $(this).data('qid');
-    mark_items(action, qid);
-    return false;
+    mark_items(e, action, qid);
 });
 
 
-function mark_items(action, qid) {
+function mark_items(e, action, qid) {
     // Build array of checked items to send
     if (qid == null) {
         var item_qids = [];
@@ -73,11 +72,18 @@ function mark_items(action, qid) {
       url: "/__rpc_inbox_actions",
       contentType: 'application/json',
       data: JSON.stringify(postData),
-      success: function( data ) { $( "#inbox_message_list" ).html(data);
+      success: function( data ) { 
+          if (data.success) {
+            $( "#inbox_message_list" ).html(data.success);
+          } else {
+            $( e.target ).ajaxtip()
+            .ajaxtip("error", data.error );
+          }
                                         },
-      dataType: "html"
+      dataType: "json"
     });
-    event.preventDefault();
+    e.preventDefault();
+    e.stopPropagation();
 
     // We've reloaded the view, so set the select-all checkbox to unchecked.
     $('#check_all').prop("checked", false);

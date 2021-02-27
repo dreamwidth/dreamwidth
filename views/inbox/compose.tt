@@ -1,7 +1,7 @@
 [%- CALL dw.active_resource_group("foundation") -%]
 
 [% dw.need_res({ group => "foundation"}, 
-    'stc/css/pages/inbox.css'
+    "stc/css/pages/inbox.css"
     "stc/css/components/button-groups.css"
 
     ## tags (autocomplete)
@@ -13,7 +13,7 @@
     "stc/jquery/jquery.ui.autocomplete.css"
     "stc/css/components/autocompletewithunknown.css"
 
-    'js/jquery.inbox.js'
+    "js/jquery.inbox.js"
 ) %]
 
 [% sections.title = "Compose Message" %]

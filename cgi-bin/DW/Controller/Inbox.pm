@@ -1,4 +1,22 @@
+#!/usr/bin/perl
+#
+# DW::Controller::Inbox
+#
+# Pages for exporting journal content.
+#
+# Authors:
+#      Ruth Hatch <ruth.s.hatch@gmail.com>
+#
+# Copyright (c) 2015-2020 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
 package DW::Controller::Inbox;
+
+use v5.10;
 use strict;
 use warnings;
 
@@ -12,7 +30,7 @@ use Data::Dumper;
 DW::Routing->register_string( '/inbox',          \&index_handler,    app => 1 );
 DW::Routing->register_string( '/inbox/compose',  \&compose_handler,  app => 1 );
 DW::Routing->register_string( '/inbox/markspam', \&markspam_handler, app => 1 );
-DW::Routing->register_rpc( "inbox_actions", \&action_handler, format => 'html' );
+DW::Routing->register_rpc( 'inbox_actions', \&action_handler, format => 'json' );
 
 my $PAGE_LIMIT = 15;
 
@@ -30,7 +48,7 @@ sub index_handler {
     return error_ml("$scope.error.not_ready") unless $remote->can_use_esn;
 
     my $inbox = $remote->notification_inbox
-        or return error_ml( "$scope.error.couldnt_retrieve_inbox", { 'user' => $remote->{user} } );
+        or return error_ml( "$scope.error.couldnt_retrieve_inbox", { user => $remote->{user} } );
 
     # Take a supplied filter but default it to undef unless it is valid
     my $view = $GET->{view} || $POST->{view} || undef;
@@ -165,7 +183,7 @@ sub render_items {
         my $expanded = '';
 
         if ($contents) {
-            BML::ehtml( \$contents );
+            LJ::ehtml( \$contents );
 
             my $is_expanded = $remote->prop('esn_inbox_default_expand');
             $is_expanded = 0 if $item->read;
@@ -268,7 +286,7 @@ sub action_handler {
     my $view      = $args->{view} || 'all';
     my $page      = $args->{page} || 1;
     my $itemid    = $args->{itemid} || 0;
-    my $remote    = LJ::get_remote();
+    my $remote    = $rv->{remote};
     my $form_auth = $args->{lj_form_auth};
     my $expand;
 
@@ -276,6 +294,8 @@ sub action_handler {
         $expand = $ids;
     }
     else {
+        return DW::RPC->err( LJ::Lang::ml('/inbox/index.tt.error.invalidform') )
+            unless LJ::check_form_auth($form_auth);
         handle_post( $remote, $action, $view, $itemid, $ids );
     }
 
@@ -283,8 +303,7 @@ sub action_handler {
     my $display_items = items_by_view( $inbox, $view, $itemid );
     my $items_html    = render_items( $page, $view, $remote, $display_items, $expand );
 
-    $r->print($items_html);
-    return $r->OK;
+    return DW::RPC->out( success => $items_html );
 
 }
 
@@ -388,8 +407,6 @@ sub compose_handler {
     # Submitted message
     if ( $r->did_post ) {
         my $mode = $POST->{'mode'};
-        $errors->add( undef, 'error.invalidform' )
-            unless LJ::check_form_auth( $POST->{lj_form_auth} );
 
         if ( $mode eq 'send' ) {
 
@@ -626,8 +643,6 @@ sub markspam_handler {
         if LJ::sysban_check( 'spamreport', $remote->user );
 
     if ( $r->did_post && $POST->{'confirm'} ) {
-        $errors->add( undef, 'error.invalidform' )
-            unless LJ::check_form_auth( $POST->{lj_form_auth} );
 
         # Some action must be selected
         $errors->add( undef, 'No action selected' )

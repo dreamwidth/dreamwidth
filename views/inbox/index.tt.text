@@ -2,6 +2,8 @@
 
 .error.max_bookmarks=Maximum number of flagged items reached
 
+.error.invalidform=The form on this page expired. Please refesh, and try again.
+
 .error.not_ready=Not Ready
 
 .manage_settings=Manage Settings
@@ -33,4 +35,6 @@
 .refresh=Refresh
 
 .title=Inbox
+
+
 
