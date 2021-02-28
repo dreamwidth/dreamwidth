@@ -709,6 +709,23 @@ sub _form_to_backend {
     $errors->add( undef, ".error.noentry" )
         if $errors && $req->{event} eq "" && !$opts{allow_empty};
 
+    # warn the user of any bad markup errors
+    my $clean_event = $post->{event};
+    my $errref;
+
+    # TODO: accept editor prop and thread it through to the cleaner.
+    my $editor = undef;
+    my $verbose_err;
+    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
+
+    if ($errors && $verbose_err) {
+        if (ref($verbose_err) eq 'HASH') {
+            $errors->add( undef, $verbose_err->{error}, $verbose_err->{opts} );
+        } else {
+            $errors->add( undef, $verbose_err );
+        }
+    }
+    
     # initialize props hash
     $req->{props} ||= {};
     my $props = $req->{props};
