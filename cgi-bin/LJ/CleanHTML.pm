@@ -135,7 +135,7 @@ sub clean {
     my $preserve_lj_tags_for = $opts->{preserve_lj_tags_for} || 0;    # False or site name
     my $remove_positioning   = $opts->{'remove_positioning'} || 0;
     my $errref               = $opts->{errref};
-    my $verbose_err          = $opts->{verbose_err}; # Verbose parse errors
+    my $verbose_err = $opts->{verbose_err};                           # Verbose parse errors
     my @unclosed_tags;
 
     # for ajax cut tag parsing
@@ -234,13 +234,13 @@ sub clean {
         if ($cuturl) {
             my $cutlink = LJ::ehtml($cuturl);
             $err_str = '.error.markup';
-            $extra_text = 
+            $extra_text =
                   "<strong>"
-                  . LJ::Lang::ml( 'cleanhtml.error.markup', { aopts => "href='$cutlink'" } )
-                  ."</strong>";
+                . LJ::Lang::ml( 'cleanhtml.error.markup', { aopts => "href='$cutlink'" } )
+                . "</strong>";
         }
         else {
-            $err_str = {error => '.error.markup.extra', opts => { aopts => $tag }};
+            $err_str = { error => '.error.markup.extra', opts => { aopts => $tag } };
             $extra_text =
                   LJ::Lang::ml( 'cleanhtml.error.markup.extra', { aopts => $tag } )
                 . "<br /><br />"
@@ -249,11 +249,10 @@ sub clean {
                 . '</div>';
         }
 
-        $extra_text = "<div class='ljparseerror'>$extra_text</div>";
+        $extra_text   = "<div class='ljparseerror'>$extra_text</div>";
         $$verbose_err = $err_str if $verbose_err;
-        $$errref    =  "parseerror" if $errref;
+        $$errref      = "parseerror" if $errref;
 
-        
     };
 
     my $htmlcleaner = HTMLCleaner->new( valid_stylesheet => \&LJ::valid_stylesheet_url );
@@ -1193,7 +1192,7 @@ TOKEN:
                         if ( $opencount{$tag} ) {
                             $newdata .= "</$tag>";
                             $opencount{$tag}--;
-                            
+
                         }
                     }
                     elsif ( !$allow || $form_tag->{$tag} && !$opencount{form} ) {
@@ -1390,9 +1389,9 @@ qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-co
 
     # only add verbose errors for unclosed tags if we don't have another verbose error set
     # otherwise, the tags error will overwrite more important errors like irreparable markup
-    if ($verbose_err && ref($verbose_err) eq 'SCALAR' && scalar(@unclosed_tags) > 0){
-        my $tag_str = "&lt;" . join("&gt;, &lt;", @unclosed_tags) . "&gt;";
-        $$verbose_err =  {error => ".error.markup.unclosed", opts => {tags => $tag_str }};
+    if ( $verbose_err && ref($verbose_err) eq 'SCALAR' && scalar(@unclosed_tags) > 0 ) {
+        my $tag_str = "&lt;" . join( "&gt;, &lt;", @unclosed_tags ) . "&gt;";
+        $$verbose_err = { error => ".error.markup.unclosed", opts => { tags => $tag_str } };
     }
 
     return 0;
