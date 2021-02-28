@@ -25,6 +25,12 @@
 
 .error.nofind=Could not find selected journal entry.
 
+.error.markup=Irreparable invalid markup in entry.
+
+.error.markup.extra=Irreparable invalid markup ('&lt;[[aopts]]&gt;') in entry
+
+.error.markup.unclosed=Unclosed tag(s) in entry: [[tags]]
+
 .error.nonusercantpost=Non-[[sitename]] users can't post entries because they don't have journals here, but can leave comments in other journals.
 
 .error.login=Error logging in: [[error]]
