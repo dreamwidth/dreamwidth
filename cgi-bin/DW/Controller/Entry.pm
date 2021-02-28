@@ -713,19 +713,20 @@ sub _form_to_backend {
     my $clean_event = $post->{event};
     my $errref;
 
-    # TODO: accept editor prop and thread it through to the cleaner.
     my $editor = undef;
     my $verbose_err;
-    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
+    LJ::CleanHTML::clean_event( \$clean_event,
+        { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
 
-    if ($errors && $verbose_err) {
-        if (ref($verbose_err) eq 'HASH') {
+    if ( $errors && $verbose_err ) {
+        if ( ref($verbose_err) eq 'HASH' ) {
             $errors->add( undef, $verbose_err->{error}, $verbose_err->{opts} );
-        } else {
+        }
+        else {
             $errors->add( undef, $verbose_err );
         }
     }
-    
+
     # initialize props hash
     $req->{props} ||= {};
     my $props = $req->{props};
