@@ -22,6 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
       <div>
         [%- dw.form_auth -%]
         [%- form.hidden( name = "user", value = remote.user ) -%]
+        [%- form.hidden( name = "returnto", value = returnto ) -%]
         [%- IF remote.sessid -%]
           [%- form.hidden( name = "sessid", value = remote.sessid ) -%]
         [%- END -%]
@@ -47,6 +48,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
   <div id='lj_controlstrip_login'>
     <form id="login" class="lj_login_form" action="[%- site.root -%]/login?ret=1" method="post">
       [%- form.hidden( name = "mode", value = "login" ) -%]
+      [%- form.hidden( name = "returnto", value = returnto ) -%]
       [% form.textbox(
           name = "user",
           label = dw.ml( '/login.bml.login.username' ),

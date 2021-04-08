@@ -52,12 +52,11 @@ sub logout_handler {
         }
 
         # If the logout form asked to be sent back to the original page (with a
-        # hidden 'ret=1' form input), do so (as long as the logout was
-        # successful).
-        if ( $vars->{success} && $post_args->{ret} ) {
-            my $referer = $r->header_in('Referer');
-            if ( $referer && LJ::check_referer( '', $referer ) ) {
-                return $r->redirect($referer);
+        # hidden 'ret=1' form input and a return url), do so (as long as the logout
+        # was successful).
+        if ( $vars->{success} && $post_args->{returnto} && $post_args->{ret} ) {
+            if ( LJ::check_referer( '', $post_args->{returnto} ) ) {
+                return $r->redirect( $post_args->{returnto} );
             }
         }
     }
