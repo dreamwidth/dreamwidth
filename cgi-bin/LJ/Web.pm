@@ -3303,6 +3303,9 @@ sub control_strip {
         #     .selected => ""
         'viewoptions' => [],
         'search_html' => LJ::Widget::Search->render,
+
+        # url of the rendered page, for the login/logout form to redirect back to
+        'returnto' => $euri,
     };
 
     # Shortcuts for the two nested array refs that get repeatedly dereferenced later
