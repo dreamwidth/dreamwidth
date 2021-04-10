@@ -24,7 +24,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         <label for="lj_login_password" class="left">[% '.login.password' | ml %]</label> 
         <input type="password" id="lj_login_password" name="password" class="lj_login_password text" size="20" maxlength="[% password_maxlength %]" tabindex="12" aria-required="true" />
       </fieldset>
-      <input type="hidden" name="returnto" value="[% returnto %]"/>
+      <input type="hidden" name="returnto" value="[% returnto | html %]"/>
       <fieldset class="pkg nostyle"> 
         <p><input type="checkbox" name="remember_me" id="remember_me" value="1" tabindex="13" /> <label for="remember_me">[% '.login.remember' | ml %]</label></p>
       </fieldset> 
