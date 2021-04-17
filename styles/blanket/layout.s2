@@ -784,7 +784,7 @@ ul.entry-interaction-links li {
     padding: 40px 20px;
     }
 
-.comment .admin-poster { $entry_colors }
+.comment .admin-poster { $entry_colors, white-space: nowrap; }
 
 .comment-title {
     $comment_title_font

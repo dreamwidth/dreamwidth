@@ -74,6 +74,9 @@ ul.entry-interaction-links {list-style: none outside none; display: inline; text
 .no-userpic .comment-info {padding-left:10px;}
 .edittime {padding-top:1em;}
 .comment-posted {font-weight:bold;}
+.comment .admin-poster {
+    white-space: nowrap;
+}
 
 /*Styling for comment links*/
 ul.comment-management-links {display: inline;}
