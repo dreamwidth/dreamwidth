@@ -668,6 +668,10 @@ $responsive_indent_css
     min-width: 15em;
 }
 
+.comment .admin-poster {
+    white-space: nowrap;
+}
+
 .comment .comment-title {
     $comment_title_font
     margin: 0;

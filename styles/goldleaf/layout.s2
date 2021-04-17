@@ -1507,6 +1507,10 @@ ul.entry-management-links.text-links li:hover, ul.entry-interaction-links li:hov
     font-weight:bold;
 }
 
+.comment .admin-poster {
+    white-space: nowrap;
+}
+
 .comment-wrapper {
     min-width: 15em;
 }

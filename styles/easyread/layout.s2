@@ -588,6 +588,10 @@ h2.module-header a {
     margin: 0;
     }
 
+.comment .admin-poster {
+    white-space: nowrap;
+}
+
 /* Entry header */
 
 .has-userpic .entry .header {

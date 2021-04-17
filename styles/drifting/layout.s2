@@ -843,6 +843,10 @@ function Page::print_default_stylesheet()
         font-weight:bold;
     }
 
+    .comment .admin-poster {
+    white-space: nowrap;
+}
+
     .full .comment .poster {
        display: block;
        width: auto;

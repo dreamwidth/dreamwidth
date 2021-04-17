@@ -277,7 +277,7 @@ function Comment::print_poster() {
             $this.journal->print();
         }
         if ( $this.admin_post ) {
-            """<span>(""";
+            """<span class="admin-poster">(""";
             $this->print_admin_post_icon();
             print safe $*text_admin_post_note;
             """)</span>""";
@@ -285,7 +285,7 @@ function Comment::print_poster() {
     } else {
         print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster";
         if ( $this.admin_post ) {
-            """<span>(""";
+            """<span class="admin-poster">(""";
             $this->print_admin_post_icon();
             print safe $*text_admin_post_note;
             """)</span>""";

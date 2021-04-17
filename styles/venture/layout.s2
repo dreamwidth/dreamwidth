@@ -1757,6 +1757,10 @@ $display_topnav_css
     $entry_datetime_background
     }
 
+.comment .admin-poster {
+    white-space: nowrap;
+}
+
 .comment-wrapper.partial .comment-title {
     $entry_background
     font-size: $*font_base_size$*font_base_units;

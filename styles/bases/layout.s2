@@ -915,6 +915,10 @@ li.first-item {margin-left: 0;}
 
 .comment-posted { font-weight:bold; }
 
+.comment .admin-poster {
+    white-space: nowrap;
+}
+
 .full .comment .datetime { border-top: .083em solid $*color_entry_border;}
 .full .comment-poster, .poster-ip { border-bottom: .083em solid $*color_entry_border; display: block; padding: 0 .5em; }
 
