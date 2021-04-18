@@ -20,11 +20,13 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
+use HTTP::Date; # str2time
 
 DW::Routing->register_string( '/tools/comment_crosslinks', \&crosslinks_handler, app => 1 );
 DW::Routing->register_string( '/tools/recent_email', \&recent_email_handler, app => 1 );
 DW::Routing->register_string( '/tools/recent_emailposts', \&recent_emailposts_handler, app => 1 );
 DW::Routing->register_string( '/tools/opml', \&opml_handler, app => 1 );
+DW::Routing->register_string( '/tools/emailmanage', \&emailmanage_handler, app => 1 );
 
 sub crosslinks_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
@@ -275,6 +277,88 @@ sub opml_handler {
     $r->content_type("text/plain");
     $r->print($opml);
     return $r->OK;
+}
+
+sub emailmanage_handler {
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+    my $remote = $rv->{remote};
+    my $r      = DW::Request->get;
+
+    my $dbh = LJ::get_db_writer();
+    my $authas = $r->get_args->{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+    return error_ml('error.invalidauth')
+        unless $u;
+
+    # at the point that the latest email has been on the account for 6 months, *all* previous emails should become removable. 
+    # They should be able to remove all other email addresses at that point if multiple ones are listed, 
+    # so that they can remove anything that might potentially be compromised, leaving only their current/secured email on the account.
+    # - Anne Zell, 11 december 2008 in LJSUP-3193, based on discussions in lj_core
+
+    my $firstdate = $dbh->selectrow_array(qq{
+        SELECT MIN(timechange) FROM infohistory
+        WHERE userid=? AND what='email'
+        AND oldvalue=?
+    }, undef, $u->{'userid'}, $u->email_raw);
+
+    my $lastdate_email = $dbh->selectrow_array(qq{
+        SELECT MAX(timechange) FROM infohistory
+        WHERE userid=? AND (what='email' OR what='emaildeleted' AND length(other)<=2)
+    }, undef, $u->{'userid'});
+
+    my $lastdate_deleted = $dbh->selectrow_array(qq{
+        SELECT MAX(SUBSTRING(other FROM 3)) FROM infohistory
+        WHERE userid=? AND what='emaildeleted'
+    }, undef, $u->{'userid'});
+
+    my $lastdate = defined $lastdate_deleted ? ($lastdate_email gt $lastdate_deleted ? $lastdate_email : $lastdate_deleted) : $lastdate_email;
+
+    # current address was set more, than 6 months ago?
+    my $six_month_case = time() - str2time($lastdate) > 182 * 24 * 3600; # half year
+
+    my @deleted;
+    if ($r->did_post && $u->{'status'} eq 'A') {
+        my $sth = $dbh->prepare("SELECT timechange, oldvalue " .
+                                "FROM infohistory WHERE userid=? " . 
+                                "AND what='email' ORDER BY timechange");
+        $sth->execute($u->{'userid'});
+        while (my ($time, $email) = $sth->fetchrow_array)
+        {
+            my $can_del = defined $firstdate && $time gt $firstdate || $six_month_case;
+            if ($can_del && $r->post_args->{"$email-$time"}) {
+                push @deleted, LJ::Lang::ml('/tools/emailmanage.tt.log.deleted', 
+                                       { 'email' => $email,
+                                         'time' => $time });
+
+                $dbh->do("UPDATE infohistory SET what='emaildeleted', other=CONCAT(other, ';', timechange), timechange = NOW() " .
+                         "WHERE what='email' AND userid=? AND timechange=? AND oldvalue=?",
+                         undef, $u->{'userid'}, $time, $email);
+            }            
+        }
+    }
+
+    my $sth = $dbh->prepare("SELECT timechange, oldvalue FROM infohistory " .
+                            "WHERE userid=? AND what='email' " .
+                            "ORDER BY timechange");
+    $sth->execute($u->{'userid'});
+    my @rows;
+    while (my ($time, $email) = $sth->fetchrow_array)
+    {
+        my $can_del = defined $firstdate && $time gt $firstdate || $six_month_case;
+        push @rows, {email => $email, time => $time, can_del => $can_del};
+
+    }
+
+    my $vars = { 
+        'u' => $u, 
+        'lastdate' => $lastdate, 
+        'authas_html' => $rv->{authas_html},
+        'deleted' => \@deleted,
+        'rows' => \@rows,
+        'getextra'=> ($authas ne $remote->{'user'} ? "?authas=$authas" : '')
+         };
+    return DW::Template->render_template( 'tools/emailmanage.tt', $vars );
 }
 
 1;

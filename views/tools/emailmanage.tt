@@ -1,0 +1,56 @@
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- sections.title=dw.ml('.desc.title2') -%]
+<form method='get' action='emailmanage'>
+[% authas_html %]
+</form>
+<p>[% '.desc.text' | ml %]</p>
+<p>[% '.desc.notfirst' | ml %]</p>
+<hr>
+[% IF u.status == 'A' %]
+    <h3>[% '.address.current.title' | ml %]</h3>
+    <div style='margin: 20px 0 20px 30px;'>
+    <b>[% u.email_raw %]</b>
+        [%- IF lastdate -%]
+        [%- dw.ml('.in_use_since', { 'time' => $lastdate }) -%]
+        [%- END -%]
+    </div>
+
+    <h3>[% '.address.old.title' | ml %]</h3>
+    <p>[% '.address.old.text' | ml %]</p>
+    [%- IF rows.size > 0 %]
+        <form method='post' action='emailmanage[% getextra %]'>
+        [% dw.form_auth %]
+        <table border='1' cellpadding='2' style='margin-bottom: 3px;'>
+        <thead><tr>
+            <th>[% '.header.check' | ml %]</th>
+            <th>[% '.header.email' | ml %]</th>
+            <th>[% '.header.date' | ml %]</th>
+        </tr></thead>
+       [%- FOREACH row IN rows %]
+        <tr>
+            <td>[% dw.check(name = "$row.email-$row.time", disabled = !row.can_del) %]</td>
+            <td>[% row.email %]</td>
+            <td>[% row.time %]</td>
+        </tr>
+       [% END -%]
+        </table>
+            [%- form.submit(
+            value = dw.ml('.delete_selected')
+            name = "delete"
+            )
+    %]
+        </form>
+    [%- ELSE -%]
+        <div style='margin-left: 30px; margin-top: 10px'><i>[% '.address.old.none' | ml %]</i></div>
+    [%- END -%]
+[% ELSE %]
+    <h3>[% '.notvalidated.title' | ml %]</h3>
+    <p>[% dw.ml('.notvalidated.text2', {'email' => u.email_raw, 'aopts' => "href='$site.root/register'"}) %]</p>
+[% END %]
+
+[% IF deleted.size > 0 %]
+<h3>[% '.log.deleted.title' | ml %]</h3>
+    <ul>
+    [% "<li>$d</li>" FOREACH d IN deleted %]
+    </ul>
+[% END %]
