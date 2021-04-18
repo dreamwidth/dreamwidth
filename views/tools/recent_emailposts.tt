@@ -18,7 +18,7 @@
 </form>
 [%- END -%]
 
-[% IF data.keys.length > 0 %]
+[% IF data.keys.size > 0 %]
     <table class="grid" cellspacing="0">
         <thead><tr>
             <th>When</th>

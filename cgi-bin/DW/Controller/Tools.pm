@@ -24,6 +24,7 @@ use DW::FormErrors;
 DW::Routing->register_string( '/tools/comment_crosslinks', \&crosslinks_handler, app => 1 );
 DW::Routing->register_string( '/tools/recent_email', \&recent_email_handler, app => 1 );
 DW::Routing->register_string( '/tools/recent_emailposts', \&recent_emailposts_handler, app => 1 );
+DW::Routing->register_string( '/tools/opml', \&opml_handler, app => 1 );
 
 sub crosslinks_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
@@ -179,6 +180,101 @@ sub recent_emailposts_handler {
 
     return DW::Template->render_template( 'tools/recent_emailposts.tt', $vars );
 
+}
+
+sub opml_handler {
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+    my $remote = $rv->{remote};
+    my $r      = DW::Request->get;
+    my $get_args = $r->get_args;
+    my $user = $get_args->{user};
+
+    # if we don't have a current user but somebody is logged in, redirect
+    # them to their own OPML page
+    if ( $remote && !$user ) {
+        return BML::redirect( "$LJ::SITEROOT/tools/opml?user=$remote->{user}" );
+    }
+
+    return "No 'user' argument" unless $user;
+
+    my $u = LJ::load_user_or_identity( $user )
+        or return "Invalid user.";
+
+    my @uids;
+
+    # different accounts need different userid loads
+    # will use watched accounts for personal accounts
+    # and identity accounts
+    # and members for communities
+    if( $u->is_person || $u->is_identity ) {
+        @uids = $u->watched_userids;
+    } elsif( $u->is_community ) {
+        @uids = $u->member_userids;
+    } else {
+        return "Invalid account type.";
+    }
+
+    my $us  = LJ::load_userids( @uids );
+
+    DW::Stats::increment( 'dw.opml.used', 1 );
+    my @cleaned;
+
+    # currently ordered by user ID; there might be a better way to order this
+    # but unless somebody has a strong preference about it there's no point
+    foreach my $uid ( sort { $a <=> $b } @uids ) {
+        my $w = $us->{$uid} or next;
+
+        # identity accounts do not have feeds
+        next if $w->is_identity;
+        # filter by account type
+        next if $get_args->{show} && ! ( $get_args->{show} =~ /[P]/ && $w->is_person
+                    || $get_args->{show} =~ /[C]/ && $w->is_community
+                    || $get_args->{show} =~ /[YF]/ && $w->is_syndicated );
+
+        my $title;
+
+        # use the username + site abbreviation for each feed's title if we have that
+        # option set
+        if( $get_args->{title} eq "username" ) {
+            $title = $w->display_username . " (" . $LJ::SITENAMEABBREV . ")";
+        } else {
+            # FIXXME: Should be using a function call instead! But $w->prop( "journaltitle" )
+            # returns empty here, though it's used in profile.bml
+            $title = $w->{name};
+        }
+
+        my $feed;
+
+        if ( $w->is_syndicated ) {
+            my $synd = $w->get_syndicated;
+            $feed = $synd->{synurl};
+        } else {
+            $feed = $w->journal_base;
+
+            if( $get_args->{feed} eq "atom" ) {
+                $feed .= "/data/atom";
+            } else {
+                $feed .= "/data/rss";
+            }
+
+            if( $get_args->{auth} eq "digest" ) {
+                $feed .= "?auth=digest";
+            }
+        }
+        push @cleaned, {title => $title, feed => $feed };
+    }
+
+    my $vars = { 
+        'u' => $u, 
+        'uids' => \@cleaned, 
+        'email_visible' => $u->email_visible($remote) 
+        };
+
+    my $opml = DW::Template->template_string( 'tools/opml.tt', $vars, { no_sitescheme => 1 } );
+    $r->content_type("text/plain");
+    $r->print($opml);
+    return $r->OK;
 }
 
 1;

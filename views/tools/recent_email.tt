@@ -15,11 +15,11 @@
     %]
 </form>
 
-[%- IF jobs.length > 0 -%]
+[%- IF jobs.size > 0 -%]
     [%- FOREACH job IN jobs -%]
         <div>(#[% job.jobid %]) <strong>Subject: [% job.subject %]</strong><br />
         <small>Next try: [% job.run_after %]</small><br /><br />
-        [%- IF job.failures.length > 0 -%]
+        [%- IF job.failures.size > 0 -%]
             Errors
             <ul>
             [%- FOREACH failure in job.failures -%]
