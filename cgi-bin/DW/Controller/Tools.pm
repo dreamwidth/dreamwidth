@@ -27,6 +27,7 @@ DW::Routing->register_string( '/tools/recent_email', \&recent_email_handler, app
 DW::Routing->register_string( '/tools/recent_emailposts', \&recent_emailposts_handler, app => 1 );
 DW::Routing->register_string( '/tools/opml', \&opml_handler, app => 1 );
 DW::Routing->register_string( '/tools/emailmanage', \&emailmanage_handler, app => 1 );
+DW::Routing->register_string( '/tools/tellafriend', \&tellafriend_handler, app => 1 );
 
 sub crosslinks_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
@@ -357,6 +358,166 @@ sub emailmanage_handler {
         'deleted' => \@deleted,
         'rows' => \@rows,
         'getextra'=> ($authas ne $remote->{'user'} ? "?authas=$authas" : '')
+         };
+    return DW::Template->render_template( 'tools/emailmanage.tt', $vars );
+}
+
+sub tellafriend_handler {
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+    my $remote = $rv->{remote};
+    my $r      = DW::Request->get;
+
+    my $get_args = $r->get_args;
+    my $post_args = $r->post_args;
+    my $scope = "/tools/tellafriend.tt";
+
+    my $user = $post_args->{'user'} || $get_args->{'user'};
+    my $journal = $post_args->{'journal'} || $get_args->{'journal'};
+    my $itemid = $post_args->{'itemid'} || $get_args->{'itemid'};
+    my $toemail = $post_args->{'toemail'};
+
+    return error_ml('/tools/tellafriend.tt.error.disabled')
+        unless LJ::is_enabled('tellafriend');
+
+    # Get sender's email address
+    my $u = LJ::load_userid($remote->{'userid'});
+    $u->{'emailpref'} = $u->email_raw;
+    if ( $u->can_have_email_alias ) {
+        $u->{'emailpref'} = $u->site_email_alias;
+    }
+
+
+ my $msg_footer = LJ::Lang::ml("$scope.email.body.footer1", { user => $u->{user}, sitename => $LJ::SITENAME, sitenameshort => $LJ::SITENAMESHORT, domain =>$LJ::DOMAIN } );
+ my $custom_msg = "\n\n" . LJ::Lang::ml("$scope.email.body.custom", { user => $u->{user} } );
+
+ my $email_checkbox;
+      my $errors = DW::FormErrors->new;
+
+ # Tell a friend form submitted
+ if ($r->did_post && $post_args->{'mode'} eq "mail")
+ {
+     my @emails = split /,/, $toemail;
+
+    $errors->add('toemail', ".error.noemail") unless (scalar @emails);
+    my @errors;
+     foreach my $em ( @emails ) {
+        LJ::check_email( $em, \@errors, $post_args, \$email_checkbox );
+     }
+
+    foreach my $err (@errors) {
+        $errors->add('toemail', $err);
+    }
+     # Check for images
+     if ($post_args->{'body'} =~ /<(img|forbiddenimages)\s+src/i) {
+         $errors->add('body', ".error.forbiddenimages");
+     }
+     # Check for external URLs
+     foreach ( LJ::get_urls($post_args->{'body'}) ) {
+         if ( $_ !~ m!^https?://([\w-]+\.)?$LJ::DOMAIN(/.*)?$!i ) {
+             $errors->add('body', ".error.forbiddenurl", { sitename => $LJ::SITENAME });
+         }
+     }
+
+     $errors->add(undef, ".error.maximumemails" ) unless ($u->rate_log('tellafriend', scalar @emails));
+     $errors->add('toemail', ".error.characterlimit" ) if (length($toemail) > 150);
+     unless ( $errors->exist ) {
+         # All valid, go ahead and send
+
+         my $msg_body = $post_args->{'body_start'};
+         if ($post_args->{'body'} ne '') {
+             $msg_body .= $custom_msg . "\n-----\n" .
+                          $post_args->{'body'} . "\n-----";
+         }
+         $msg_body .= $msg_footer;
+
+         LJ::send_mail({
+             'to' => $toemail,
+             'from' => $u->{'emailpref'},
+             'fromname' => $u->user . LJ::Lang::ml("$scope.via" ) . " $LJ::SITENAMESHORT",
+             'charset' => 'utf-8',
+             'subject' => $post_args->{'subject'},
+             'body' => $msg_body,
+         });
+
+         my $tolist = $toemail;
+         $tolist =~ s/(,\s*)/<br \/>/g;
+         $r->add_msg(LJ::Lang::ml('$scope.sentpage.body.mailedlist') . "<br />" . $tolist, $r->SUCCESS);
+     }
+ }
+
+  my ($subject, $msg);
+ $subject = LJ::Lang::ml("$scope.email.subject.noentry" );
+ if ($itemid =~ /^\d+$/)
+ {
+     my $uj = LJ::load_user( $journal );
+     return error_ml( "$scope.error.unknownjournal" ) unless $uj;
+
+     my $jitemid = $itemid + 0;
+     $jitemid = int( $jitemid / 256 );
+     my $entry = LJ::Entry->new($uj->{'userid'}, jitemid => $jitemid);
+
+     my $entry_subject = $entry->subject_text;
+     my $pu = $entry->poster;
+     my $url = $entry->url;
+
+     my $uisjowner = ($pu->{'user'} eq $u->{'user'});
+     if ( !$uisjowner && $entry->security ne 'public' ) {
+        return  error_ml( "$scope.email.warning.public" );
+     }
+     if ( $uisjowner && $entry->security eq 'private' ) {
+         return error_ml("$scope.email.warning.private" );
+     }
+     if ( $uisjowner && $entry->security eq 'usemask' ) {
+         $r->add_msg(LJ::Lang::ml("$scope.email.warning.usemask"), $r->WARNING);
+         $msg_footer = "\n\n" . LJ::Lang::ml("$scope.email.usemask.footer", { user => $u->{'user'}, siteroot => $LJ::SITEROOT } ) . "$msg_footer";
+     }
+
+     $msg .= LJ::Lang::ml("$scope.email.body", { user => $u->{'user'}, sitenameshort => $LJ::SITENAMESHORT } );
+     $msg .= LJ::Lang::ml("$scope.email.sharedentry.title" ) . " $entry_subject\n" if $entry_subject;
+     $msg .= LJ::Lang::ml("$scope.email.sharedentry.url" ) . " $url ";
+
+     # email subject
+     $subject = $entry_subject
+            ? LJ::Lang::ml("$scope.email.subject.entryhassubject", { sitenameshort => $LJ::SITENAMESHORT, subject => $entry_subject } )
+            : LJ::Lang::ml("$scope.email.subject.entrynosubject", { sitenameshort => $LJ::SITENAMESHORT } );
+ }
+
+ if ($get_args->{'user'} =~ /^\w{1,$LJ::USERNAME_MAXLENGTH}$/) {
+     my $user = $get_args->{'user'};
+     my $uj = LJ::load_user($user);
+     my $url = $uj->journal_base;
+
+     $subject = LJ::Lang::ml("$scope.email.subject.journal" );
+     if ($user eq $u->{'user'}) {
+         $msg .= LJ::Lang::ml("$scope.email.body.yourjournal" );
+         $msg .= "   $url ";
+     } else {
+         $msg .= LJ::Lang::ml("$scope.email.body.otherjournal" );
+         $msg .= "  $url ";
+     }
+ }
+
+  my $display_msg = $msg . $custom_msg;
+ my $display_msg_footer = $msg_footer;
+ $display_msg =~ s/\n/<br \/>/gm;
+ $display_msg_footer =~ s/\n/<br \/>/gm;
+
+    my $default_formdata = {
+        body_start => $msg, 
+        subject => $subject,
+        user => $user,
+        journal => $journal,
+        itemid => $itemid
+    };
+
+    my $vars = { 
+        'u' => $u, 
+        'errors' => $errors, 
+        'formdata' => $r->post_args || $default_formdata,
+        'display_msg' => $display_msg,
+        'display_msg_footer' => $display_msg_footer,
+        'email_checkbox' => $email_checkbox
          };
     return DW::Template->render_template( 'tools/emailmanage.tt', $vars );
 }
