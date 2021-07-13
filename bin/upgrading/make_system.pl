@@ -41,8 +41,8 @@ my $u = LJ::User->create(
 );
 unless ($u) {
     print "Already exists.\nModifying 'system' account...\n";
-    my $id = LJ::get_userid("system");
-    $dbh->do( "UPDATE password SET password=? WHERE userid=?", undef, $pass, $id );
+    my $u = LJ::load_user('system');
+    $u->set_password($pass);
 }
 
 $u ||= LJ::load_user("system");
