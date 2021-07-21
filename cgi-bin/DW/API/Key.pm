@@ -22,6 +22,8 @@ use strict;
 use warnings;
 use Carp;
 
+use LJ::Utils qw(rand_chars);
+
 # Usage: new_for_user ( user )
 # Creates a new API key for a given user, saves it to DB,
 # and returns the new key object.

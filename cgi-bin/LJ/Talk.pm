@@ -18,6 +18,7 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use Digest::MD5;
 use MIME::Words;
 use MIME::Lite;
 use Carp qw/ croak /;
@@ -25,6 +26,7 @@ use Carp qw/ croak /;
 use DW::Captcha;
 use DW::EmailPost::Comment;
 use DW::Formats;
+use LJ::Utils qw(rand_chars);
 use LJ::Comment;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;

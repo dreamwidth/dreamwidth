@@ -16,6 +16,7 @@ package LJ::UniqCookie;
 
 use strict;
 use Carp qw(croak);
+use LJ::Utils qw(rand_chars);
 
 my %req_cache_uid2uniqs = ();    # uid  => [ uniq1, uniq2, ... ]
 my %req_cache_uniq2uids = ();    # uniq => [  uid1,  uid2, ... ]

@@ -16,6 +16,8 @@
 use strict;
 no warnings 'uninitialized';
 
+use Digest::MD5;
+
 use LJ::Global::Constants;
 use LJ::Console;
 use LJ::Event::JournalNewEntry;

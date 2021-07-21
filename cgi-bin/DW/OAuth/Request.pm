@@ -17,6 +17,7 @@ package DW::OAuth::Request;
 use strict;
 use warnings;
 
+use LJ::Utils qw(rand_chars);
 use Digest::SHA qw/sha1 sha256/;
 use MIME::Base64::URLSafe;
 

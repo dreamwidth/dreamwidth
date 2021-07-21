@@ -18,6 +18,7 @@
 use strict;
 
 BEGIN { $LJ::_T_CONFIG = $ENV{DW_TEST}; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use Digest::MD5;
 use Getopt::Long;
 use File::Path ();
 use File::Basename qw/ dirname /;

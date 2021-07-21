@@ -22,7 +22,10 @@ package DW::Auth::Challenge;
 use strict;
 use v5.10;
 use Log::Log4perl;
+use Digest::MD5;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use LJ::Utils qw(rand_chars);
 
 ################################################################################
 #

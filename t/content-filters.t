@@ -20,6 +20,7 @@ use Test::More tests => 15;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw ( temp_user temp_comm );
 
+use LJ::Utils qw(rand_chars);
 use LJ::Community;
 
 my $u1 = temp_user();
