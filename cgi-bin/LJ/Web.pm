@@ -18,11 +18,14 @@ use strict;
 
 use Carp;
 use POSIX;
+use Digest::MD5;
+use Digest::SHA1;
 
 use DW::Auth::Challenge;
 use DW::External::Site;
 use DW::Request;
 use DW::Formats;
+use LJ::Utils qw(rand_chars);
 use LJ::Global::Constants;
 use LJ::Event;
 use LJ::Subscription::Pending;

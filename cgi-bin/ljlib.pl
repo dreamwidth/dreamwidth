@@ -81,10 +81,8 @@ use Apache2::Connection ();
 use Carp;
 use DBI;
 use DBI::Role;
-use Digest::MD5  ();
-use Digest::SHA1 ();
-use HTTP::Date   ();
-use Math::Random::Secure qw(rand irand);
+use HTTP::Date ();
+use LJ::Utils qw(rand_chars);
 use LJ::Hooks;
 use LJ::MemCache;
 use LJ::Error;
@@ -724,79 +722,6 @@ sub get_remote_ip {
 
     my $r = DW::Request->get;
     return ( $r ? $r->get_remote_ip : undef ) || $ENV{'FAKE_IP'};
-}
-
-sub md5_struct {
-    my ( $st, $md5 ) = @_;
-    $md5 ||= Digest::MD5->new;
-    unless ( ref $st ) {
-
-        # later Digest::MD5s die while trying to
-        # get at the bytes of an invalid utf-8 string.
-        # this really shouldn't come up, but when it
-        # does, we clear the utf8 flag on the string and retry.
-        # see http://zilla.livejournal.org/show_bug.cgi?id=851
-        eval { $md5->add($st); };
-        if ($@) {
-            $st = LJ::no_utf8_flag($st);
-            $md5->add($st);
-        }
-        return $md5;
-    }
-    if ( ref $st eq "HASH" ) {
-        foreach ( sort keys %$st ) {
-            md5_struct( $_,        $md5 );
-            md5_struct( $st->{$_}, $md5 );
-        }
-        return $md5;
-    }
-    if ( ref $st eq "ARRAY" ) {
-        foreach (@$st) {
-            md5_struct( $_, $md5 );
-        }
-        return $md5;
-    }
-}
-
-sub urandom {
-    my %args   = @_;
-    my $length = $args{size} or die 'Must Specify size';
-
-    my $result;
-    open my $fh, '<', '/dev/urandom' or die "Cannot open random: $!";
-    while ($length) {
-        my $chars;
-        $fh->read( $chars, $length ) or die "Cannot read /dev/urandom: $!";
-        $length -= length($chars);
-        $result .= $chars;
-    }
-    $fh->close;
-
-    return $result;
-}
-
-sub urandom_int {
-    my %args = @_;
-
-    return unpack( 'N', LJ::urandom( size => 4 ) );
-}
-
-my %RAND_CHARSETS = (
-    default     => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-    urlsafe_b64 => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_",
-);
-
-sub rand_chars {
-    my ( $length, $charset ) = @_;
-    my $chal      = "";
-    my $digits    = $RAND_CHARSETS{ $charset || 'default' };
-    my $digit_len = length($digits);
-    die "Invalid charset $charset" unless $digits && ( $digit_len > 0 );
-
-    for ( 1 .. $length ) {
-        $chal .= substr( $digits, irand($digit_len), 1 );
-    }
-    return $chal;
 }
 
 # ($time, $secret) = LJ::get_secret();       # will generate

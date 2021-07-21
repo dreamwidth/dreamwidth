@@ -15,6 +15,7 @@ package LJ::Session;
 use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
+use LJ::Utils qw(rand_chars);
 
 use constant VERSION => 1;
 

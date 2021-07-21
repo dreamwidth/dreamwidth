@@ -46,6 +46,7 @@ use Time::HiRes ();
 use Image::Size ();
 use POSIX       ();
 
+use LJ::Utils qw(urandom_int);
 use LJ::Hooks;
 use LJ::Faq;
 use DW::BusinessRules::InviteCodes;

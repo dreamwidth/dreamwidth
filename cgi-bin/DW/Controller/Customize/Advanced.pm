@@ -18,6 +18,7 @@ package DW::Controller::Customize::Advanced;
 
 use strict;
 use warnings;
+use Digest::MD5;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
