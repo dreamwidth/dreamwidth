@@ -88,7 +88,7 @@ sub profile_handler {
     return DW::Template->render_template('error/purged.tt') if $u->is_expunged;
 
     # redirect non-identity profiles to their subdomain urls
-    if ( $LJ::ONLY_USER_VHOSTS && !$u->is_identity ) {
+    if ( !$u->is_identity ) {
         my $url = $u->profile_url( full => $is_full );
 
         # use regexps to extract the user domain from $url and compare to $r

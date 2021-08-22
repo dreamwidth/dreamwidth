@@ -48,10 +48,10 @@ sub extcss_handler {
     my $host = lc $r->header_in("Host");
     $host =~ s/:.*//;    # remove port numbers
     if (
-        $LJ::ONLY_USER_VHOSTS
-        && (   $host eq $LJ::DOMAIN
-            || $host eq $LJ::DOMAIN_WEB )
+
+        $host eq $LJ::DOMAIN || $host eq $LJ::DOMAIN_WEB
         )
+
     {
         return $print->("/* invalid domain */");
     }

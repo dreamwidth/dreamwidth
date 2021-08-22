@@ -857,8 +857,7 @@ sub trans {
 
     # user domains
     if (
-           ( $LJ::USER_VHOSTS || $LJ::ONLY_USER_VHOSTS )
-        && $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/
+           $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/
         && $2 ne "www"
         &&
 
@@ -929,9 +928,7 @@ sub trans {
             # redirect them to their canonical URL if on wrong host/prefix
             if ( my $u = LJ::load_user($user) ) {
                 my $canon_url = $u->journal_base;
-                unless ( $canon_url =~ m!^$LJ::PROTOCOL://$host!i
-                    || $LJ::DEBUG{'user_vhosts_no_wronghost_redirect'} )
-                {
+                unless ( $canon_url =~ m!^$LJ::PROTOCOL://$host!i ) {
                     return redir( $apache_r, "$canon_url$uri$args_wq" );
                 }
             }
@@ -1006,29 +1003,12 @@ sub trans {
 
         my $srest = $rest || '/';
 
-        # need to redirect them to canonical version
-        if ( $LJ::ONLY_USER_VHOSTS && !$LJ::DEBUG{'user_vhosts_no_old_redirect'} ) {
-
-            # FIXME: skip two redirects and send them right to __setdomsess with the right
-            #        cookie-to-be-set arguments.  below is the easy/slow route.
-            my $u = LJ::load_user($cuser)
-                or return 404;
-            my $base = $u->journal_base;
-            return redir( $apache_r, "$base$srest$args_wq", correct_url_redirect_code() );
-        }
-
-        # redirect to canonical username and/or add slash if needed
-        return redir( $apache_r, "$LJ::PROTOCOL://$host$hostport/$part1$cuser$srest$args_wq" )
-            if $cuser ne $user or not $rest;
-
-        my $vhost = {
-            'users/'     => '',
-            'community/' => 'community',
-            '~'          => 'tilde'
-        }->{$part1};
-
-        my $view = $determine_view->( $user, $vhost, $rest );
-        return $view if defined $view;
+        # FIXME: skip two redirects and send them right to __setdomsess with the right
+        #        cookie-to-be-set arguments.  below is the easy/slow route.
+        my $u = LJ::load_user($cuser)
+            or return 404;
+        my $base = $u->journal_base;
+        return redir( $apache_r, "$base$srest$args_wq", correct_url_redirect_code() );
     }
 
     if ( $uri =~ m!^/palimg/! ) {

@@ -76,12 +76,7 @@
 
     # Support URLs of the form http://username.yoursite.com/ ?
     # If so, what's the part after "username." ?
-    $USER_VHOSTS = 1;
     $USER_DOMAIN = $DOMAIN;
-
-    # If you ONLY want USER_VHOSTS to work and not the typical /users/USER and /community/USER
-    # then set this option:
-    $ONLY_USER_VHOSTS = 1;
 
     # Support updating of journals via email?
     # Users can post to user@$EMAIL_POST_DOMAIN.
