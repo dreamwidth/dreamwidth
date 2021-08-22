@@ -3590,13 +3590,6 @@ sub do_request {
         return;
     }
 
-    ### see if the server's under maintenance now
-    if ($LJ::SERVER_DOWN) {
-        $res->{'success'} = "FAIL";
-        $res->{'errmsg'}  = $LJ::SERVER_DOWN_MESSAGE;
-        return;
-    }
-
     ## dispatch wrappers
     if ( $req->{'mode'} eq "login" ) {
         return login( $req, $res, $flags );

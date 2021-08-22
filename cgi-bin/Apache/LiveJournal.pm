@@ -72,12 +72,6 @@ my @req_hosts;    # client IP, and/or all proxies, real or claimed
 sub handler {
     my $apache_r = shift;
 
-    if ($LJ::SERVER_TOTALLY_DOWN) {
-        $apache_r->handler("perl-script");
-        $apache_r->set_handlers( PerlResponseHandler => [ \&totally_down_content ] );
-        return OK;
-    }
-
     # only perform this once in case of internal redirects
     if ( $apache_r->is_initial_req ) {
         $apache_r->push_handlers( PerlCleanupHandler => sub { %RQ = () } );
@@ -186,28 +180,6 @@ sub redir {
 # send the user to the URL for them to get their domain session cookie
 sub remote_domsess_bounce {
     return redir( BML::get_request(), LJ::remote_bounce_url(), HTTP_MOVED_TEMPORARILY );
-}
-
-sub totally_down_content {
-    my $apache_r = shift;
-    my $uri      = $apache_r->uri;
-
-    if ( $uri =~ m!^/cgi-bin/log\.cg! ) {
-        $apache_r->content_type("text/plain");
-        $apache_r->print("success\nFAIL\nerrmsg\n$LJ::SERVER_DOWN_MESSAGE");
-        return OK;
-    }
-
-    # set to 500 so people don't cache this error message
-    my $body =
-        "<h1>$LJ::SERVER_DOWN_SUBJECT</h1>$LJ::SERVER_DOWN_MESSAGE<!-- " . ( "x" x 1024 ) . " -->";
-    $apache_r->status(503);
-    $apache_r->status_line("503 Server Maintenance");
-    $apache_r->content_type("text/html");
-    $apache_r->headers_out->{"Content-length"} = length $body;
-
-    $apache_r->print($body);
-    return OK;
 }
 
 sub send_concat_res_response {

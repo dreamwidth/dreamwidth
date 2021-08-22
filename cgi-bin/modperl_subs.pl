@@ -179,19 +179,17 @@ DirectoryIndex index.html index.bml
         LJ::ModPerl::add_httpd_config("PerlSetVar BML_denyconfig \"$LJ::BML_DENY_CONFIG\"\n");
     }
 
-    unless ($LJ::SERVER_TOTALLY_DOWN) {
-        LJ::ModPerl::add_httpd_config(
-            q{
+    LJ::ModPerl::add_httpd_config(
+        q{
 
 # BML support:
 <Files ~ "\.bml$">
-    SetHandler perl-script
-    PerlResponseHandler Apache::BML
+SetHandler perl-script
+PerlResponseHandler Apache::BML
 </Files>
 
 }
-        );
-    }
+    );
 
     if ( LJ::is_enabled('ignore_htaccess') ) {
         LJ::ModPerl::add_httpd_config(

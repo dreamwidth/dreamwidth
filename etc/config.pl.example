@@ -156,11 +156,7 @@
     #$DEFAULT_CAPTCHA_TYPE = "T";
 
 
-    # turn $SERVER_DOWN on while you do any maintenance
-    $SERVER_TOTALLY_DOWN = 0;
-    $SERVER_DOWN = 0;
-    $SERVER_DOWN_SUBJECT = "Maintenance";
-    $SERVER_DOWN_MESSAGE = "$SITENAME is down right now while we upgrade.  It should be up in a few minutes.";
+    # Maintenance messages
     $MSG_READONLY_USER   = "This journal is in read-only mode right now while database maintenance is performed " .
                            "on the server where the journal is located.  Try again in several minutes.";
     $MSG_NO_POST    = "Due to hardware maintenance, you cannot post at this time.  Watch the news page for updates.";
