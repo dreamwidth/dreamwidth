@@ -35,7 +35,6 @@ BEGIN {
 
 use Apache::LiveJournal;
 use Apache::BML;
-use Apache::SendStats;
 use Apache::DebateSuicide;
 
 use Digest::MD5;
@@ -158,9 +157,6 @@ ErrorDocument 500 /500-error.html
 PerlOptions +GlobalRequest
 
 PerlInitHandler Apache::LiveJournal
-#PerlInitHandler Apache::SendStats
-#PerlCleanupHandler Apache::SendStats
-#PerlChildInitHandler Apache::SendStats
 DirectoryIndex index.html index.bml
 
 }

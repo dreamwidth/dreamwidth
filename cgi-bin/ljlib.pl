@@ -626,7 +626,6 @@ sub start_request {
 #      true).
 # </LJFUNC>
 sub end_request {
-    LJ::work_report_end();
     LJ::flush_cleanup_handlers();
     LJ::DB::disconnect_dbs()       if $LJ::DISCONNECT_DBS;
     LJ::MemCache::disconnect_all() if $LJ::DISCONNECT_MEMCACHE;
@@ -642,50 +641,6 @@ sub flush_cleanup_handlers {
         next unless ref $ref eq 'CODE';
         $ref->();
     }
-}
-
-my $work_open = 0;
-sub work_report_start { $work_open = 1; work_report("start"); }
-sub work_report_end { return unless $work_open; work_report("end"); $work_open = 0; }
-
-# report before/after a request, so a supervisor process can watch for
-# hangs/spins
-my $udp_sock;
-
-sub work_report {
-    my $what = shift;
-    my $dest = $LJ::WORK_REPORT_HOST;
-    return unless $dest;
-
-    my $r = DW::Request->get;
-    return unless $r;
-    return if $r->method eq "OPTIONS";
-
-    $dest = $dest->() if ref $dest eq "CODE";
-    return unless $dest;
-
-    $udp_sock ||= IO::Socket::INET->new( Proto => "udp" );
-    return unless $udp_sock;
-
-    my ( $host, $port ) = split( /:/, $dest );
-    return unless $host && $port;
-
-    my @fields = ( $$, $what );
-    if ( $what eq "start" ) {
-        my $host = $r->host;
-        my $uri  = $r->uri;
-        my $args = $r->query_string;
-        $args = substr( $args, 0, 100 ) if length $args > 100;
-        push @fields, $host, $uri, $args;
-
-        my $remote = LJ::User->remote;
-        push @fields, $remote->{user} if $remote;
-    }
-
-    my $msg = join( ",", @fields );
-
-    my $dst = Socket::sockaddr_in( $port, Socket::inet_aton($host) );
-    my $rv  = $udp_sock->send( $msg, 0, $dst );
 }
 
 # <LJFUNC>

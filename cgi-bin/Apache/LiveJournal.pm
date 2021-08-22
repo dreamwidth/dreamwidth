@@ -156,8 +156,6 @@ sub handler {
                 }
             }
         }
-
-        LJ::work_report_start();
     }
 
     $apache_r->set_handlers( PerlTransHandler => [ \&trans ] );
