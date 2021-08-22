@@ -129,6 +129,23 @@ use DW::Proxy;
 use DW::TaskQueue;
 use DW::BlobStore;
 
+# Load more modules so that we get as much advantage out of prefork
+# memory allocation as possible (as well as moving as much loading cost
+# to startup time)
+BEGIN {
+    # Do not run if we're in a test
+    unless ($LJ::_T_CONFIG) {
+        LJ::ModuleCheck->have_xmlatom;
+        LJ::Hooks::_load_hooks_dir();
+        Storable::thaw( Storable::freeze( {} ) );
+        foreach my $minifile ( "GIF89a", "\x89PNG\x0d\x0a\x1a\x0a", "\xFF\xD8" ) {
+            Image::Size::imgsize( \$minifile );
+        }
+        DBI->install_driver("mysql");
+        LJ::CleanHTML::helper_preload();
+    }
+}
+
 $Net::HTTPS::SSL_SOCKET_CLASS = "IO::Socket::SSL";
 
 # make Unicode::MapUTF8 autoload:

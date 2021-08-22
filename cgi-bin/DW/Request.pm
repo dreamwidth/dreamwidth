@@ -18,7 +18,8 @@
 
 =head1 NAME
 
-DW::Request - This module provides an abstraction layer for accessing data traditionally available through Apache::Request and similar modules.
+DW::Request - This module provides an abstraction layer for accessing data traditionally
+available through Apache::Request and similar modules.
 
 =head1 SYNOPSIS
 
@@ -129,7 +130,8 @@ Sets or gets an response header that is also included on the error pages.
 
 =head2 C<< $r->err_header_out_add( $header, $value ) >>
 
-Adds another instance of a header for headers that allow multiple instances that is also included on the error pages.
+Adds another instance of a header for headers that allow multiple instances that is
+also included on the error pages.
 
 =head2 C<< $r->get_args >>
 
