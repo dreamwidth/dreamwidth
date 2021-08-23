@@ -3393,9 +3393,9 @@ sub check_altusage {
 
     # we are going to load the alt user
     $flags->{u_owner} = LJ::load_user($alt);
-    $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;    
+    $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;
     if ( my $r = DW::Request->get ) {
-        $r->cache(journalid => $flags->{ownerid});
+        $r->cache( journalid => $flags->{ownerid} );
     }
 
     # allow usage if we're told explicitly that it's okay

@@ -25,7 +25,7 @@ sub bml_handler {
     my $dw_r = DW::Request->get;
 
     $apache_r->handler("perl-script");
-    $dw_r->cache(bml_filename => "$LJ::HTDOCS/$filename");
+    $dw_r->cache( bml_filename => "$LJ::HTDOCS/$filename" );
     $apache_r->push_handlers( PerlHandler => \&Apache::BML::handler );
     return OK;
 }

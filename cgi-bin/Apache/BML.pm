@@ -354,7 +354,7 @@ sub handler {
 
             # we got a match; remove the internal_redir setting, clear the
             # request cache, and return DECLINED.
-            $dw_r->cache(internal_redir => undef);
+            $dw_r->cache( internal_redir => undef );
             LJ::start_request();
             return DECLINED;
         }
@@ -447,7 +447,7 @@ sub handler {
 
 sub decide_file_and_stat {
     my $apache_r = shift;
-    my $dw_r = DW::Request->get;
+    my $dw_r     = DW::Request->get;
 
     my $file;
     if ( ref $apache_r eq "Apache::FakeRequest" ) {
@@ -1829,7 +1829,7 @@ sub set_language {
     my BML::Request $req = $Apache::BML::cur_req;
 
     my $dw_r = DW::Request->get;
-    $dw_r->cache(langpref => $lang);
+    $dw_r->cache( langpref => $lang );
 
     # don't rely on $req (the current BML request) being defined, as
     # we allow callers to use this interface directly from non-BML

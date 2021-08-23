@@ -508,7 +508,7 @@ sub current_uniq {
     }
 
     if ( my $r = DW::Request->get ) {
-        return $r->cache( 'uniq' );
+        return $r->cache('uniq');
     }
 
     return;

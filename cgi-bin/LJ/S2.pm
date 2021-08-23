@@ -117,7 +117,7 @@ sub make_journal {
 
     if ( $styleid && $styleid eq "siteviews" ) {
         if ( my $r = DW::Request->get ) {
-            $r->cache(no_control_strip => 1);
+            $r->cache( no_control_strip => 1 );
         }
 
         ${ $opts->{'handle_with_siteviews_ref'} } = 1;
@@ -264,8 +264,8 @@ sub s2_run {
 
             # find out what journal we're looking at
             my $dw_r = DW::Request->get;
-            if ( $dw_r && ( my $journalid = $dw_r->cache('journalid') )) {
-                my $journal = LJ::load_userid( $journalid );
+            if ( $dw_r && ( my $journalid = $dw_r->cache('journalid') ) ) {
+                my $journal = LJ::load_userid($journalid);
 
                 # expand tags
                 LJ::EmbedModule->expand_entry( $journal, \$text )
@@ -3094,7 +3094,7 @@ sub Entry__viewer_sees_ebox { 0 }
 
 sub control_strip_logged_out_userpic_css {
     my $dw_r = DW::Request->get;
-    my $u        = $dw_r ? LJ::load_userid( $dw_r->cache('journalid') ) : undef;
+    my $u    = $dw_r ? LJ::load_userid( $dw_r->cache('journalid') ) : undef;
     return '' unless $u;
 
     return LJ::Hooks::run_hook( 'control_strip_userpic', $u );
@@ -3102,7 +3102,7 @@ sub control_strip_logged_out_userpic_css {
 
 sub control_strip_logged_out_full_userpic_css {
     my $dw_r = DW::Request->get;
-    my $u        = $dw_r ? LJ::load_userid( $dw_r->cache('journalid') ) : undef;
+    my $u    = $dw_r ? LJ::load_userid( $dw_r->cache('journalid') ) : undef;
     return '' unless $u;
 
     return LJ::Hooks::run_hook( 'control_strip_loggedout_userpic', $u );
@@ -3120,8 +3120,8 @@ sub journal_current_datetime {
 
     my $ret = { '_type' => 'DateTime' };
 
-     my $dw_r = DW::Request->get;
-    my $u        = $dw_r ? LJ::load_userid( $dw_r->cache('journalid') ) : undef;
+    my $dw_r = DW::Request->get;
+    my $u    = $dw_r ? LJ::load_userid( $dw_r->cache('journalid') ) : undef;
     return $ret unless $u;
 
     # turn the timezone offset number into a four character string (plus '-' if negative)

@@ -576,7 +576,7 @@ sub trans {
                 {
                     my $adult_content_handler = sub {
                         $apache_r->handler("perl-script");
-                        $dw_r->cache(adult_content_type => $_[0]);
+                        $dw_r->cache( adult_content_type => $_[0] );
                         $apache_r->push_handlers(
                             PerlHandler => sub { adult_interstitial( $_[0] ) }, );
                         return OK;
@@ -624,7 +624,7 @@ sub trans {
 
         if ( $opts->{'mode'} eq "profile" ) {
 
-            $dw_r->cache(_journal => $opts->{user});
+            $dw_r->cache( _journal => $opts->{user} );
 
             # this is the notes field that all other s1/s2 pages use.
             # so be consistent for people wanting to read it.
@@ -633,7 +633,7 @@ sub trans {
             # passed to the profile BML page, whereas this one only
             # works if journalid exists.
             if ( my $u = LJ::load_user( $opts->{user} ) ) {
-                $dw_r->cache(journalid => $u->{userid});
+                $dw_r->cache( journalid => $u->{userid} );
             }
 
             return DW::Routing->call( uri => '/profile' );
@@ -1184,7 +1184,7 @@ sub adult_interstitial {
     my ( $apache_r, %opts ) = @_;
     my $dw_r = DW::Request->get;
 
-    my $int_redir = DW::Routing->call( uri => $dw_r->cache( 'adult_content_type' ), );
+    my $int_redir = DW::Routing->call( uri => $dw_r->cache('adult_content_type'), );
 
     if ( defined $int_redir ) {
 
@@ -1196,10 +1196,10 @@ sub adult_interstitial {
 
 sub journal_content {
     my $apache_r = shift;
-    my $dw_r = DW::Request->get;
+    my $dw_r     = DW::Request->get;
 
-    my $uri      = $apache_r->uri;
-    my %GET      = LJ::parse_args( $apache_r->args );
+    my $uri = $apache_r->uri;
+    my %GET = LJ::parse_args( $apache_r->args );
 
     if ( $RQ{'mode'} eq "robots_txt" ) {
         my $u = LJ::load_user( $RQ{'user'} );
@@ -1283,7 +1283,7 @@ sub journal_content {
         'ljentry'                   => $RQ{'ljentry'},
     };
 
-    $dw_r->cache(view => $RQ{mode});
+    $dw_r->cache( view => $RQ{mode} );
     my $user = $RQ{'user'};
 
     my $html = LJ::make_journal( $user, $RQ{'mode'}, $remote, $opts );

@@ -483,7 +483,7 @@ sub get_remote {
     }
 
     LJ::User->set_remote($u);
-    $dw_r->cache(ljuser => $u->user);
+    $dw_r->cache( ljuser => $u->user );
     return $u;
 }
 
