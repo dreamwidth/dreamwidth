@@ -814,20 +814,7 @@ sub s2_context {
     my $remote  = $opts{remote} || LJ::get_remote();
     my $style_u = $opts{style_u} || $u;
 
-    # but it doesn't matter if we're using the minimal style ...
     my %style;
-    eval {
-        if ( $r->note('use_minimal_scheme') ) {
-            my $public = get_public_layers();
-            while ( my ( $layer, $name ) = each %LJ::MINIMAL_STYLE ) {
-                next unless $name ne "";
-                next unless $public->{$name};
-                my $id = $public->{$name}->{'s2lid'};
-                $style{$layer} = $id if $id;
-            }
-        }
-    };
-
     if ( $styleid && $styleid eq "siteviews" ) {
         %style = siteviews_style( $u, $remote, $opts{mode} );
     }

@@ -189,11 +189,6 @@ no strict "vars";
         $ARCH32 = $arch;
     }
 
-    # setup default minimal style information
-    $MINIMAL_USERAGENT{$_} ||= 1 foreach qw(Links Lynx w BlackBerry WebTV);    # w is for w3m
-    $MINIMAL_BML_SCHEME    ||= 'lynx';
-    $MINIMAL_STYLE{'core'} ||= 'core1';
-
     # maximum size to cache s2compiled data
     $MAX_S2COMPILED_CACHE_SIZE ||= 7500;                                       # bytes
 

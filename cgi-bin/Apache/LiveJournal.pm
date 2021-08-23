@@ -457,16 +457,6 @@ sub trans {
         }
     }
 
-    # see if we should setup a minimal scheme based on the initial part of the
-    # user-agent string; FIXME: maybe this should do more than just look at the
-    # initial letters?
-    if ( my $ua = $apache_r->headers_in->{'User-Agent'} ) {
-        if ( ( $ua =~ /^([a-z]+)/i ) && $LJ::MINIMAL_USERAGENT{$1} ) {
-            $apache_r->notes->{use_minimal_scheme} = 1;
-            $apache_r->notes->{bml_use_scheme}     = $LJ::MINIMAL_BML_SCHEME;
-        }
-    }
-
     # See if this is a concatenated static file request. If so, the args will start with a '?'
     # which means the original URL was of the form '/foo/??bar'.
     if ( $args =~ /^\?/ ) {

@@ -467,19 +467,6 @@
     # the following line.  Default is 5000.
     #$MAX_BANS = 5000;
 
-    # Some people on portable devices may have troubles viewing the nice site
-    # scheme you've setup, so you can specify that some user-agent prefixes
-    # should instead use fallback presentation information.
-    %MINIMAL_USERAGENT = (
-        #'Foo' => 1, # if the user-agent field starts with "Foo" ...
-                     # note you can only put text here; no numbers, spaces, or symbols.
-    );
-    $MINIMAL_BML_SCHEME = 'lynx';
-    %MINIMAL_STYLE = (
-        'core' => 'core1', # default, but you can add more layers and styles... note
-                           # that they must be public styles
-    );
-
     # if you know that your installation is behind a proxy or other fence that inserts
     # X-Forwarded-For headers that you can trust (eg Perlbal), enable this.  otherwise, don't!
     # $TRUST_X_HEADERS = 1;
