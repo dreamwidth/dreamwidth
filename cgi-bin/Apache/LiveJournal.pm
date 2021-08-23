@@ -1042,8 +1042,6 @@ sub userpic_trans {
     return 404 unless $apache_r->uri =~ m!^/(?:userpic/)?(\d+)/(\d+)$!;
     my ( $picid, $userid ) = ( $1, $2 );
 
-    $apache_r->notes->{codepath} = "img.userpic";
-
     # we can safely do this without checking since we never re-use
     # picture IDs and don't let the contents get modified
     return HTTP_NOT_MODIFIED if $apache_r->headers_in->{'If-Modified-Since'};
@@ -1084,7 +1082,6 @@ sub files_trans {
     my ( $user, $domain, $rest ) = ( $1, $2, $3 );
 
     if ( my $handler = LJ::Hooks::run_hook( "files_handler:$domain", $user, $rest ) ) {
-        $apache_r->notes->{codepath} = "files.$domain";
         $apache_r->handler("perl-script");
         $apache_r->push_handlers( PerlResponseHandler => $handler );
         return OK;
@@ -1097,8 +1094,6 @@ sub vgift_trans {
     return 404 unless $apache_r->uri =~ m!^/vgift/(\d+)/(\w+)$!;
     my ( $picid, $picsize ) = ( $1, $2 );
     return 404 unless $picsize =~ /^(?:small|large)$/;
-
-    $apache_r->notes->{codepath} = "img.vgift";
 
     # we can safely do this without checking
     # unless we're using the admin interface

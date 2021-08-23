@@ -37,7 +37,6 @@ BML::register_hook(
             $uri .= ".index";
         }
         $uri =~ s!/!.!g;
-        $apache_r->notes->{"codepath"} = $uri;
     }
 );
 

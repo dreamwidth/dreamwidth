@@ -114,7 +114,6 @@ sub should_render {
 
     # Make sure we don't exclude tracking from this page or path
     return 0 if grep { $r->uri =~ /$_/ } @{ $LJ::PAGESTATS_EXCLUDE{'uripath'} };
-    return 0 if grep { $r->note('codepath') eq $_ } @{ $LJ::PAGESTATS_EXCLUDE{'codepath'} };
 
     # See if their ljuniq cookie has the PageStats flag
     if ( $r->cookie('ljuniq') =~ /[a-zA-Z0-9]{15}:\d+:pgstats([01])/ ) {
@@ -176,44 +175,6 @@ sub filename {
     $filename =~ s!$LJ::HOME/(?:ssldocs|htdocs)!!;
 
     return $filename;
-}
-
-sub codepath {
-    my ($self) = @_;
-    my $r = $self->get_request;
-
-    my $codepath = $r->notes('codepath');
-
-    # remove 's2.' or 's1.' prefix from codepath
-    $codepath =~ s/^[Ss]\d{1}\.(.*)$/$1/;
-
-    # map some s1 codepath names to s2
-    my %s1_map = (
-        'bml.talkpost'   => "reply",
-        'bml.talkread'   => "entry",
-        'bml.view.index' => "archive",
-    );
-
-    foreach my $s1code ( keys %s1_map ) {
-        $codepath = $s1_map{$s1code} if ( $codepath =~ /^$s1code$/ );
-    }
-
-    return $codepath;
-}
-
-sub pagename {
-    my ($self) = @_;
-
-    my $pagename = '';
-
-    if ( $self->is_journal_ctx ) {
-        $pagename = $self->codepath;
-    }
-    else {
-        $pagename = $self->filename;
-    }
-
-    return $pagename;
 }
 
 sub journaltype {

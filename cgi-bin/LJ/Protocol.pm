@@ -179,10 +179,6 @@ sub do_request {
     $flags ||= {};
     my @args = ( $req, $err, $flags );
 
-    my $apache_r = eval { BML::get_request() };
-    $apache_r->notes->{codepath} = "protocol.$method"
-        if $apache_r && !$apache_r->notes->{codepath};
-
     DW::Stats::increment( 'dw.protocol_request', 1, ["method:$method"] );
 
     if ( $method eq "login" )            { return login(@args); }
@@ -212,9 +208,6 @@ sub do_request {
     if ( $method eq "sendmessage" )      { return sendmessage(@args); }
     if ( $method eq "setmessageread" )   { return setmessageread(@args); }
     if ( $method eq "addcomment" )       { return addcomment(@args); }
-
-    $apache_r->notes->{codepath} = ""
-        if $apache_r;
 
     return fail( $err, 201 );
 }

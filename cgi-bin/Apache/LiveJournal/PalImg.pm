@@ -31,7 +31,6 @@ sub handler {
     my $uri      = $apache_r->uri;
 
     my ( $base, $ext, $extra ) = $uri =~ m!^/palimg/(.+)\.(\w+)(.*)$!;
-    $apache_r->notes->{codepath} = "img.palimg";
     return 404 unless $base && $base !~ m!\.\.!;
 
     my $disk_file = "$LJ::HTDOCS/palimg/$base.$ext";
