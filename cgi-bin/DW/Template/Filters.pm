@@ -43,7 +43,7 @@ sub ml {
     return sub {
         my ($code) = @_;
 
-        $code = DW::Request->get->note('ml_scope') . $code
+        $code = ( DW::Request->get->cache('ml_scope') // '' ) . $code
             if rindex( $code, '.', 0 ) == 0;
 
         my $lang = decide_language();
@@ -66,11 +66,11 @@ sub js {
 
 sub decide_language {
     my $r = DW::Request->get;
-    return $r->note('ml_lang') if $r->note('ml_lang');
+    return $r->cache('ml_lang') if $r->cache('ml_lang');
 
     my $lang = _decide_language();
 
-    $r->note( ml_lang => $lang );
+    $r->cache( ml_lang => $lang );
     return $lang;
 }
 

@@ -22,9 +22,10 @@ use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
 # Takes an Apache $apache_r and a path to BML filename relative to htdocs
 sub bml_handler {
     my ( $class, $apache_r, $filename ) = @_;
+    my $dw_r = DW::Request->get;
 
     $apache_r->handler("perl-script");
-    $apache_r->notes->{bml_filename} = "$LJ::HTDOCS/$filename";
+    $dw_r->cache(bml_filename => "$LJ::HTDOCS/$filename");
     $apache_r->push_handlers( PerlHandler => \&Apache::BML::handler );
     return OK;
 }

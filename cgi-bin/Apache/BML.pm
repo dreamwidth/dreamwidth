@@ -45,8 +45,10 @@ use APR::Table;
 use APR::Finfo ();
 use Digest::MD5;
 use File::Spec;
+
 use DW::SiteScheme;
 use LJ::Directories;
+use DW::Request;
 
 BEGIN {
     $Apache::BML::HAVE_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -100,6 +102,11 @@ sub handler {
     # get request and store for later
     my $apache_r = shift;
     $Apache::BML::r = $apache_r;
+
+    # get DW request. isn't it sad that we're adding this to BML? well,
+    # might as well not block one improvement on finishing the whole BML
+    # migration, which still has work to do :)
+    my $dw_r = DW::Request->get;
 
     # determine what file we're supposed to work with:
     my $file = Apache::BML::decide_file_and_stat($apache_r);
@@ -170,17 +177,6 @@ sub handler {
             $env->{$k} = $v;
         }
     }
-
-    # check if there are overrides in pnotes
-    # wrapped in eval because Apache::FakeRequest doesn't have
-    # pnotes support (as of 2004-04-26 at least)
-    eval {
-        if ( my $or = $apache_r->pnotes('BMLEnvOverride') ) {
-            while ( my ( $k, $v ) = each %$or ) {
-                $env->{$k} = $v;
-            }
-        }
-    };
 
     # environment loaded at this point
 
@@ -293,7 +289,7 @@ sub handler {
     }
 
     my $scheme =
-           $apache_r->notes->{'bml_use_scheme'}
+           $dw_r->cache('bml_use_scheme')
         || $env->{'ForceScheme'}
         || $BMLCodeBlock::GET{skin}
         || $BMLCodeBlock::GET{'usescheme'}
@@ -352,13 +348,13 @@ sub handler {
     $apache_r->pool->cleanup_register( \&reset_codeblock ) if $req->{'clean_package'};
 
     # internal redirect, if set previously
-    if ( $apache_r->notes->{internal_redir} ) {
-        my $int_redir = DW::Routing->call( uri => $apache_r->notes->{internal_redir} );
+    if ( $dw_r->cache('internal_redir') ) {
+        my $int_redir = DW::Routing->call( uri => $dw_r->cache('internal_redir') );
         if ( defined $int_redir ) {
 
             # we got a match; remove the internal_redir setting, clear the
             # request cache, and return DECLINED.
-            $apache_r->notes->{internal_redir} = undef;
+            $dw_r->cache(internal_redir => undef);
             LJ::start_request();
             return DECLINED;
         }
@@ -432,8 +428,6 @@ sub handler {
         my $length = length($html);
         $do_gzip = 0 if $length < 500;
         if ($do_gzip) {
-            my $pre_len = $length;
-            $apache_r->notes->{"bytes_pregzip"}          = $pre_len;
             $html                                        = Compress::Zlib::memGzip($html);
             $length                                      = length($html);
             $apache_r->headers_out->{'Content-Encoding'} = 'gzip';
@@ -453,6 +447,8 @@ sub handler {
 
 sub decide_file_and_stat {
     my $apache_r = shift;
+    my $dw_r = DW::Request->get;
+
     my $file;
     if ( ref $apache_r eq "Apache::FakeRequest" ) {
 
@@ -461,7 +457,7 @@ sub decide_file_and_stat {
         $file = $apache_r->filename;
         stat($file);
     }
-    elsif ( $file = $apache_r->notes->{"bml_filename"} ) {
+    elsif ( $file = $dw_r->cache("bml_filename") ) {
 
         # when another handler needs to invoke BML directly
         stat($file);
@@ -1429,7 +1425,7 @@ sub set_scheme {
         my $engine = $dw_scheme->engine;
         if ( $engine eq 'tt' ) {
             $scheme = 'tt_runner';
-            DW::Request->get->pnote( actual_scheme => $dw_scheme );
+            DW::Request->get->cache( actual_scheme => $dw_scheme );
         }
         elsif ( !$dw_scheme->supports_bml ) {
             die "Unknown scheme engine $engine for $scheme";
@@ -1831,8 +1827,9 @@ sub set_language_scope {
 sub set_language {
     my ( $lang, $getter ) = @_;    # getter is optional
     my BML::Request $req = $Apache::BML::cur_req;
-    my $apache_r = BML::get_request();
-    $apache_r->notes->{'langpref'} = $lang;
+
+    my $dw_r = DW::Request->get;
+    $dw_r->cache(langpref => $lang);
 
     # don't rely on $req (the current BML request) being defined, as
     # we allow callers to use this interface directly from non-BML

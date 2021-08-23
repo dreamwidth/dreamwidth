@@ -323,7 +323,6 @@ sub bad_input {
     $ret .= "<?badcontent?>\n<ul>\n";
     foreach my $ei (@errors) {
         my $err = LJ::errobj($ei) or next;
-        $err->log;
         $ret .= $err->as_bullets;
     }
     $ret .= "</ul>\n";
@@ -349,7 +348,6 @@ sub error_list {
 
     foreach my $ei (@errors) {
         my $err = LJ::errobj($ei) or next;
-        $err->log;
         $ret .= $err->as_bullets;
     }
     $ret .= " </ul> errorbar?>";
@@ -2865,7 +2863,7 @@ sub res_includes {
         my $journal_base = '';
         my $journal      = '';
         if ($r) {
-            my $journalid = $r->note('journalid');
+            my $journalid = $r->cache('journalid');
 
             my $ju;
             $ju = LJ::load_userid($journalid) if $journalid;
@@ -3132,7 +3130,7 @@ sub control_strip {
         $argshash = $r->get_args;
     }
 
-    my $view    = delete $opts{view} || $r->note('view');
+    my $view    = delete $opts{view} || $r->cache('view');
     my $view_is = sub { defined $view && $view eq $_[0] };
 
     my $baseuri = "$LJ::PROTOCOL://$host$uri";
@@ -3707,7 +3705,7 @@ sub control_strip_js_inject {
     my $host = $r->host;
     my $uri  = $r->uri;
     my $args = LJ::eurl( $r->query_string ) || '';
-    my $view = $r->note('view') || '';
+    my $view = $r->cache('view') || '';
 
     $ret .= qq{
 <script type='text/javascript'>

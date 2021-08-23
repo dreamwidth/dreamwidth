@@ -145,7 +145,7 @@ sub _dispatcher {
     return $rv unless $ok;
 
     my $r      = $rv->{r};
-    my $keystr = $r->header_in('Authorization');
+    my $keystr = $r->header_in('Authorization') // '';
     $keystr =~ s/Bearer (\w+)/$1/;
     my $apikey = DW::API::Key->get_key($keystr);
 
@@ -153,6 +153,9 @@ sub _dispatcher {
     unless ( $apikey || $self->{path}{name} eq "/spec" ) {
         $r->print( to_json( { success => 0, error => "Missing or invalid API key" } ) );
         $r->status('401');
+
+        # TODO: This results in a use of an uninitialized value because we aren't
+        # return a status code?
         return;
     }
 

@@ -17,7 +17,10 @@
 package DW::Request::Base;
 
 use strict;
-use Carp qw/ croak confess cluck /;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
 use CGI::Cookie;
 use CGI::Util qw( unescape );
 use LJ::JSON;
@@ -25,6 +28,7 @@ use LJ::JSON;
 use fields (
     'cookies_in',
     'cookies_in_multi',
+    'cache',
 
     # If you use post_args, then you must not use content. If you use
     # content, you must not use post_args. Mutually exclusive.
@@ -41,7 +45,7 @@ use fields (
 
 sub new {
     my $self = $_[0];
-    confess "This is a base class, you can't use it directly."
+    $log->logconfess("This is a base class, you can't use it directly.")
         unless ref $self;
 
     $self->{cookies_in}       = undef;
@@ -78,8 +82,8 @@ sub add_cookie {
     my DW::Request::Base $self = shift;
     my %args = (@_);
 
-    confess "Must provide name" unless $args{name};
-    confess "Must provide value (try delete_cookie if you really mean this)"
+    $log->logconfess("Must provide name") unless $args{name};
+    $log->logconfess("Must provide value (try delete_cookie if you really mean this)")
         unless exists $args{value};
 
     # we need to give all cookies the secure attribute on HTTPS sites
@@ -107,12 +111,24 @@ sub delete_cookie {
     my DW::Request::Base $self = shift;
     my %args = (@_);
 
-    confess "Must provide name" unless $args{name};
+    $log->logconfess("Must provide name") unless $args{name};
 
     $args{value}   = '';
     $args{expires} = "-1d";
 
     return $self->add_cookie(%args);
+}
+
+# Per-request caching, these just live on the request object and are expected
+# to be shared through the life of a request
+sub cache {
+    my DW::Request::Base $self = $_[0];
+    if ( exists $_[2] ) {
+        $log->debug("Request cache: set $_[1] to '$_[2]'");
+        return $self->{cache}->{ $_[1] } = $_[2];
+    }
+    $log->debug("Request cache: get $_[1]");
+    return $self->{cache}->{ $_[1] };
 }
 
 # Per RFC, method must be GET, POST, etc. We don't allow lowercase or any other
@@ -136,11 +152,11 @@ sub uploads {
         ( $self->header_in('Content-Type') =~ m!^multipart/form-data;\s*boundary=(\S+)! )
         ? $1
         : undef;
-    croak 'Unknown content type in upload.' unless defined $sep;
+    $log->logcroak('Unknown content type in upload.') unless defined $sep;
 
     my @lines = split /\r\n/, $body;
     my $line  = shift @lines;
-    croak 'Error parsing upload, it looks invalid.'
+    $log->logcroak('Error parsing upload, it looks invalid.')
         unless $line eq "--$sep";
 
     my $ret = [];
@@ -298,7 +314,8 @@ sub add_msg {
     my $msg              = $_[1];
     my $level            = $_[2];
 
-    croak "Invalid message level $level" if $level && !( grep { $level eq $_ } @MSG_LEVELS );
+    $log->logcroak("Invalid message level $level")
+        if $level && !( grep { $level eq $_ } @MSG_LEVELS );
     $msg =
         $level ? { 'item' => $msg, 'level' => $level } : { 'item' => $msg, 'level' => DEFAULT() };
 
@@ -350,7 +367,7 @@ sub FORBIDDEN                   { return 403; }
 # implement. In the future, it'd be nice to roll as many of these up to the base
 # as we can, but that's in the post-Apache days.
 sub header_out {
-    confess 'Unimplemented call on base class.';
+    $log->logconfess('Unimplemented call on base class.');
 }
 *header_out_add     = \&header_out;
 *err_header_out     = \&header_out;

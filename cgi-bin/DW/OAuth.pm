@@ -295,9 +295,9 @@ sub user_for_protected_resource {
 
 sub current_token {
     my $r = DW::Request->get;
-    $r->pnote( 'oauth_token', $_[1] )
+    return $r->cache( 'oauth_token' => $_[1] )
         if exists $_[1];
-    return $r->pnote('oauth_token');
+    return $r->cache('oauth_token');
 }
 
 sub verify_nonce {

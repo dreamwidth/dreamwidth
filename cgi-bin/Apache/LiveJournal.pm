@@ -311,6 +311,13 @@ sub resolve_path_for_uri {
 
 # trans does all the things. This is the initial entrypoint for all requests.
 sub trans {
+
+    # Use the DW::Request library (which will be a DW::Request::Apache2 in this
+    # context) so that we can start forward-converting here
+    my $dw_r = DW::Request->get;
+
+    # But, keep the apache_r for a while to ease conversion. TODO: this needs
+    # to die :)
     my $apache_r = $_[0];
 
     # don't deal with subrequests or OPTIONS
@@ -333,8 +340,8 @@ sub trans {
     # If the configuration says to log statistics and GTop is available, mark
     # values before the request runs so it can be turned into a delta later
     if ( my $gtop = LJ::gtop() ) {
-        $apache_r->pnotes->{gtop_cpu} = $gtop->cpu;
-        $apache_r->pnotes->{gtop_mem} = $gtop->proc_mem($$);
+        $dw_r->cache( gtop_cpu => $gtop->cpu );
+        $dw_r->cache( gtop_mem => $gtop->proc_mem($$) );
     }
 
     LJ::start_request();
@@ -358,7 +365,7 @@ sub trans {
 
         # handle uniq cookies
         # this will ensure that we have a correct cookie value
-        # and also add it to $apache_r->notes
+        # and also add it to request cache
         LJ::UniqCookie->ensure_cookie_value;
 
         # apply sysban block if applicable
@@ -554,9 +561,9 @@ sub trans {
                 my $returl = "$LJ::PROTOCOL://$host" . $apache_r->uri . "$args_wq";
 
                 LJ::set_active_journal($u);
-                $apache_r->pnotes->{user}  = $u;
-                $apache_r->pnotes->{entry} = $entry if $entry;
-                $apache_r->notes->{returl} = $returl;
+                $dw_r->cache( user   => $u );
+                $dw_r->cache( entry  => $entry ) if $entry;
+                $dw_r->cache( returl => $returl );
 
                 unless (
                     DW::Logic::AdultContent->user_confirmed_page(
@@ -569,7 +576,7 @@ sub trans {
                 {
                     my $adult_content_handler = sub {
                         $apache_r->handler("perl-script");
-                        $apache_r->notes->{adult_content_type} = $_[0];
+                        $dw_r->cache(adult_content_type => $_[0]);
                         $apache_r->push_handlers(
                             PerlHandler => sub { adult_interstitial( $_[0] ) }, );
                         return OK;
@@ -617,7 +624,7 @@ sub trans {
 
         if ( $opts->{'mode'} eq "profile" ) {
 
-            $apache_r->notes->{_journal} = $opts->{user};
+            $dw_r->cache(_journal => $opts->{user});
 
             # this is the notes field that all other s1/s2 pages use.
             # so be consistent for people wanting to read it.
@@ -626,7 +633,7 @@ sub trans {
             # passed to the profile BML page, whereas this one only
             # works if journalid exists.
             if ( my $u = LJ::load_user( $opts->{user} ) ) {
-                $apache_r->notes->{journalid} = $u->{userid};
+                $dw_r->cache(journalid => $u->{userid});
             }
 
             return DW::Routing->call( uri => '/profile' );
@@ -1175,7 +1182,9 @@ sub load_file_for_concat {
 
 sub adult_interstitial {
     my ( $apache_r, %opts ) = @_;
-    my $int_redir = DW::Routing->call( uri => $apache_r->notes->{adult_content_type}, );
+    my $dw_r = DW::Request->get;
+
+    my $int_redir = DW::Routing->call( uri => $dw_r->cache( 'adult_content_type' ), );
 
     if ( defined $int_redir ) {
 
@@ -1187,6 +1196,8 @@ sub adult_interstitial {
 
 sub journal_content {
     my $apache_r = shift;
+    my $dw_r = DW::Request->get;
+
     my $uri      = $apache_r->uri;
     my %GET      = LJ::parse_args( $apache_r->args );
 
@@ -1272,7 +1283,7 @@ sub journal_content {
         'ljentry'                   => $RQ{'ljentry'},
     };
 
-    $apache_r->notes->{view} = $RQ{mode};
+    $dw_r->cache(view => $RQ{mode});
     my $user = $RQ{'user'};
 
     my $html = LJ::make_journal( $user, $RQ{'mode'}, $remote, $opts );
@@ -1413,8 +1424,6 @@ sub journal_content {
     $do_gzip = 0 if $length < 500;
 
     if ($do_gzip) {
-        my $pre_len = $length;
-        $apache_r->notes->{bytes_pregzip}            = $pre_len;
         $html                                        = Compress::Zlib::memGzip($html);
         $length                                      = length($html);
         $apache_r->headers_out->{'Content-Encoding'} = 'gzip';

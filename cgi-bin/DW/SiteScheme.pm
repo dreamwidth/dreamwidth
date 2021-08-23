@@ -191,7 +191,7 @@ sub current {
 
     if ( defined $r ) {
         $rv =
-               $r->note('bml_use_scheme')
+               $r->cache('bml_use_scheme')
             || $r->get_args->{skin}
             || $r->get_args->{usescheme}
             || $r->cookie('BMLschemepref');
@@ -228,7 +228,7 @@ sub set_for_request {
     my $r = DW::Request->get;
 
     return 0 unless exists $sitescheme_data{ $_[1] };
-    $r->note( 'bml_use_scheme', $_[1] );
+    $r->cache( 'bml_use_scheme', $_[1] );
 
     return 1;
 }

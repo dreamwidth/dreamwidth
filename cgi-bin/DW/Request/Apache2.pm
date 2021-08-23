@@ -93,28 +93,6 @@ sub content {
     return $self->{content} = $buff;
 }
 
-# searches for a given note and returns the value, or sets it
-sub note {
-    my DW::Request::Apache2 $self = $_[0];
-    if ( scalar(@_) == 2 ) {
-        return $self->{r}->notes->{ $_[1] };
-    }
-    else {
-        return $self->{r}->notes->{ $_[1] } = $_[2];
-    }
-}
-
-# searches for a given pnote and returns the value, or sets it
-sub pnote {
-    my DW::Request::Apache2 $self = $_[0];
-    if ( scalar(@_) == 2 ) {
-        return $self->{r}->pnotes->{ $_[1] };
-    }
-    else {
-        return $self->{r}->pnotes->{ $_[1] } = $_[2];
-    }
-}
-
 # searches for a given header and returns the value, or sets it
 sub header_in {
     my DW::Request::Apache2 $self = $_[0];

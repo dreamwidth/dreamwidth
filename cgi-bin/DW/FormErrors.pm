@@ -172,7 +172,7 @@ sub _absolute_ml_code {
     my ( $self, $error_ml ) = @_;
 
     my $r        = DW::Request->get;
-    my $ml_scope = $r ? $r->note("ml_scope") : "";
+    my $ml_scope = $r ? $r->cache("ml_scope") : "";
     $error_ml = $ml_scope . $error_ml
         if rindex( $error_ml, '.', 0 ) == 0;
 

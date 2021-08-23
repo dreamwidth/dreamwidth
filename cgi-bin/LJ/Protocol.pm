@@ -673,13 +673,6 @@ sub login {
     $res->{'fullname'} = $u->{'name'};
     LJ::text_out( \$res->{'fullname'} ) if $ver >= 1;
 
-    if ( $req->{'clientversion'} =~ /^\S+\/\S+$/ ) {
-        eval {
-            my $apache_r = BML::get_request();
-            $apache_r->notes->{clientver} = $req->{'clientversion'};
-        };
-    }
-
     ## update or add to clientusage table
     if ( $req->{'clientversion'} =~ /^\S+\/\S+$/
         && LJ::is_enabled('clientversionlog') )
@@ -3400,10 +3393,10 @@ sub check_altusage {
 
     # we are going to load the alt user
     $flags->{u_owner} = LJ::load_user($alt);
-    $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;
-    my $apache_r = eval { BML::get_request() };
-    $apache_r->notes->{journalid} = $flags->{ownerid}
-        if $apache_r && !$apache_r->notes->{journalid};
+    $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;    
+    if ( my $r = DW::Request->get ) {
+        $r->cache(journalid => $flags->{ownerid});
+    }
 
     # allow usage if we're told explicitly that it's okay
     if ( $flags->{usejournal_okay} ) {
@@ -3482,10 +3475,8 @@ sub authenticate {
     my $ip = LJ::get_remote_ip();
 
     if ($r) {
-        $r->note( ljuser => $u->user )
-            unless $r->note('ljuser');
-        $r->note( journalid => $u->id )
-            unless $r->note('journalid');
+        $r->cache( ljuser    => $u->user );
+        $r->cache( journalid => $u->id );
     }
 
     my $ip_banned    = 0;

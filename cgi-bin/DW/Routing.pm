@@ -203,7 +203,7 @@ sub call_hash {
     my $hash = $opts->call_opts;
     return undef unless $hash && $hash->{sub};
 
-    $r->pnote( routing_opts => $opts );
+    $r->cache( routing_opts => $opts );
     return $r->call_response_handler( \&_call_hash );
 }
 
@@ -211,7 +211,7 @@ sub call_hash {
 # Perl Response Handler for call_hash
 sub _call_hash {
     my $r    = DW::Request->get;
-    my $opts = $r->pnote('routing_opts');
+    my $opts = $r->cache('routing_opts');
 
     $opts->prepare_for_call;
 
@@ -262,7 +262,6 @@ sub _call_hash {
     my $err = LJ::errobj($msg)
         or die "LJ::errobj didn't return anything.";
     unless ($T_TESTING_ERRORS) {
-        $err->log;
         warn $msg;
     }
 
@@ -304,7 +303,6 @@ sub _call_hash {
         my $err2 = LJ::errobj($msg2)
             or die "LJ::errobj didn't return anything.";
         unless ($T_TESTING_ERRORS) {
-            $err2->log;
             warn $msg2;
         }
 

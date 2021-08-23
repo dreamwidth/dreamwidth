@@ -84,7 +84,7 @@ sub log_event {
     my $ip   = delete( $info->{ip} ) || LJ::get_remote_ip() || undef;
     my $uniq = delete $info->{uniq};
     unless ($uniq) {
-        eval { $uniq = BML::get_request()->notes->{uniq}; };
+        eval { $uniq = LJ::UniqCookie->current_uniq };
     }
     my $remote = delete( $info->{remote} ) || LJ::get_remote() || undef;
     my $targetid = ( delete( $info->{actiontarget} ) + 0 ) || undef;

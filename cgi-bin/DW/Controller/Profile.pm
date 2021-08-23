@@ -45,7 +45,7 @@ sub profile_handler {
 
         # when using user domain URLs, get userarg from the request notes,
         # which was set in LiveJournal.pm
-        $userarg ||= $r->note('_journal');
+        $userarg ||= $r->cache('_journal');
 
         my $username = LJ::canonical_username($userarg);
 

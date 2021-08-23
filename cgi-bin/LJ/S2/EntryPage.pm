@@ -22,6 +22,8 @@ use DW;
 use lib DW->home . "/src/s2";
 use S2;
 
+use DW::Request;
+
 sub EntryPage {
     my ( $u, $remote, $opts ) = @_;
 
@@ -516,6 +518,7 @@ sub EntryPage_entry {
     my $entry = $opts->{ljentry};    # only defined in named-URI case.  otherwise undef.
 
     my $apache_r    = $opts->{r};
+    my $dw_r   = DW::Request->get;
     my $uri         = $apache_r->uri;
     my $ditemid_uri = ( $uri =~ /^\/(\d+)\.html$/ ) ? 1 : 0;
 
@@ -571,18 +574,18 @@ sub EntryPage_entry {
                 && $remote
                 && $entry->security ne "private" )
             {
-                $apache_r->notes->{error_key}   = ".comm.open";
-                $apache_r->notes->{journalname} = $journal->username;
+                $dw_r->cache(error_key => ".comm.open");
+                $dw_r->cache(journalname => $journal->username);
             }
             elsif ( $journal->is_community && $journal->is_closed_membership ) {
-                $apache_r->notes->{error_key}   = ".comm.closed";
-                $apache_r->notes->{journalname} = $journal->username;
+                $dw_r->cache(error_key => ".comm.closed");
+                $dw_r->cache(journalname => $journal->username);
             }
         }
 
         $opts->{internal_redir} = "/protected";
-        $apache_r->notes->{journalid} = $entry->journalid;
-        $apache_r->notes->{returnto} = LJ::create_url( undef, keep_args => 1 );
+        $dw_r->cache(journalid => $entry->journalid);
+        $dw_r->cache(returnto => LJ::create_url( undef, keep_args => 1 ));
         return;
     }
 
