@@ -76,7 +76,6 @@ sub handler {
     if ( $apache_r->is_initial_req ) {
         $apache_r->push_handlers( PerlCleanupHandler => sub { %RQ = () } );
         $apache_r->push_handlers( PerlCleanupHandler => "LJ::end_request" );
-        $apache_r->push_handlers( PerlCleanupHandler => "Apache::DebateSuicide" );
 
         if ($LJ::TRUST_X_HEADERS) {
 

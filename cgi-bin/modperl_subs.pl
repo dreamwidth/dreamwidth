@@ -35,7 +35,6 @@ BEGIN {
 
 use Apache::LiveJournal;
 use Apache::BML;
-use Apache::DebateSuicide;
 
 use Digest::MD5;
 use Text::Wrap     ();
