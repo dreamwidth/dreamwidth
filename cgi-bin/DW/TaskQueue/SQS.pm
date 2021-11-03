@@ -45,7 +45,7 @@ sub init {
 
     my $paws = Paws->new(
         config => {
-            region      => $args{region},
+            region => $args{region},
         },
     ) or $log->logcroak('Failed to initialize Paws object.');
     my $sqs = $paws->service('SQS')
