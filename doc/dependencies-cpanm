@@ -29,7 +29,7 @@ Imager::QRCode
 JSON::Validator@3.25
 JSON@2.90
 LWP::UserAgent::Paranoid
-List::Util@1.55
+List::Util
 Locale::Country@3.32
 Log::Log4perl
 Log::Log4perl::Appender::Elasticsearch::Bulk
