@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+#
+# bin/worker/dw-sphinx-copier
+#
+# DW style Sphinx copier.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2021 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use v5.10;
+use strict;
+
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use DW::TaskQueue;
+
+DW::TaskQueue->start_work(
+    'DW::Task::SphinxCopier',
+
+    # Don't let any single message wedge the worker
+    message_timeout_secs => 300,
+
+    # Exit every so often to keep memory usage in check
+    exit_after_secs     => 300 + int( rand() * 600 ),
+    exit_after_messages => 100,
+);
