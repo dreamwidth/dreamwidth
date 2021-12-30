@@ -53,6 +53,7 @@ sub work {
             . ( $args->{source} // 'unknown' )
             . "." );
     return DW::Task::COMPLETED unless $u->is_person || $u->is_community;
+    return DW::Task::COMPLETED if $u->is_expunged;
 
     # We copy comments for paid users, allowing them to search through the
     # comments to their journal.
