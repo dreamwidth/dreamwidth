@@ -302,7 +302,7 @@ sub see_request_handler {
 
     $vars->{cluster_info} = LJ::DB::get_cluster_description( $u->{clusterid} ) if $u->{clusterid};
 
-    if ( $u->is_personal ) {
+    if ( LJ::isu($u) && $u->is_personal ) {
 
         # only personal accounts can upload images
         my $media_usage = DW::Media->get_usage_for_user($u);
@@ -323,7 +323,9 @@ sub see_request_handler {
     {
 
         $vars->{show_beta}    = 1;
-        $vars->{betafeatures} = join ", ", $u->prop( LJ::BetaFeatures->prop_name ) // '';
+        $vars->{betafeatures} = LJ::isu($u)
+            ? join( ", ", $u->prop( LJ::BetaFeatures->prop_name ) ) // ''
+            : '';
     }
 
     $vars->{show_cat_links} = LJ::Support::can_read_cat( $sp->{_cat}, $remote );
