@@ -1,5 +1,12 @@
 /* support */
 
+.supporttable th,
+.supporttable td {
+    padding: 1em;
+    border: 1px solid #000;
+    background: transparent;
+}
+
 .header {
     margin-top: 2em;
 }
