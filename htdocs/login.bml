@@ -342,7 +342,7 @@ _c?>
                  $POST{'ref'} !~ /[\n\r]/ ) {                           # and no newline spoofing
                 return BML::redirect("$POST{'ref'}");
             } elsif ( $GET{'ret'} == 1 && LJ::check_referer() ) {
-                my $uniq = LJ::UniqCookie->current_uniq;
+                my $uniq = BML::get_request()->notes->{uniq};
                 LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
                 return BML::redirect( $referer || "$LJ::SITEROOT/" );
             }

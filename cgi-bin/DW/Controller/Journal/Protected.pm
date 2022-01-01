@@ -39,7 +39,7 @@ sub protected_handler {
     # returnto will either have been set as a request note or passed in as
     # a query argument.  if neither of those work, we can reconstruct it
     # using the current request url
-    my $returnto = $r->cache('returnto') || LJ::ehtml( $r->get_args->{returnto} );
+    my $returnto = $r->note('returnto') || LJ::ehtml( $r->get_args->{returnto} );
     if ( ( !$returnto ) && ( $r->uri ne '/protected' ) ) {
         $returnto = LJ::ehtml( LJ::create_url( undef, keep_args => 1 ) );
     }
@@ -53,10 +53,10 @@ sub protected_handler {
 
     if ($remote) {
         $vars->{remote} = $remote;
-        if ( $r->cache('error_key') ) {
-            my $journalname = $r->cache('journalname');
+        if ( $r->note('error_key') ) {
+            my $journalname = $r->note('journalname');
             $vars->{journalname} = $journalname;
-            $vars->{'error_key'} = '.protected.error.notauthorised' . $r->cache('error_key');
+            $vars->{'error_key'} = '.protected.error.notauthorised' . $r->note('error_key');
         }
         else {
             $vars->{'error_key'}   = '.protected.message.user';

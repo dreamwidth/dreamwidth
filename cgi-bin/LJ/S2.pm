@@ -37,7 +37,6 @@ use Storable;
 use Apache2::Const qw/ :common /;
 use POSIX ();
 
-use DW::Request;
 use DW::SiteScheme;
 use LJ::PageStats;
 
@@ -116,9 +115,7 @@ sub make_journal {
     }
 
     if ( $styleid && $styleid eq "siteviews" ) {
-        if ( my $r = DW::Request->get ) {
-            $r->cache( no_control_strip => 1 );
-        }
+        $apache_r->notes->{'no_control_strip'} = 1;
 
         ${ $opts->{'handle_with_siteviews_ref'} } = 1;
         $opts->{siteviews_extra_content} ||= {};
@@ -263,9 +260,9 @@ sub s2_run {
         if ( $text =~ /lj\-embed/i ) {
 
             # find out what journal we're looking at
-            my $dw_r = DW::Request->get;
-            if ( $dw_r && ( my $journalid = $dw_r->cache('journalid') ) ) {
-                my $journal = LJ::load_userid($journalid);
+            my $apache_r = eval { BML::get_request() };
+            if ( $apache_r && $apache_r->notes->{journalid} ) {
+                my $journal = LJ::load_userid( $apache_r->notes->{journalid} );
 
                 # expand tags
                 LJ::EmbedModule->expand_entry( $journal, \$text )
@@ -3093,16 +3090,16 @@ sub _get_Entry_ebox_args    { 0 }
 sub Entry__viewer_sees_ebox { 0 }
 
 sub control_strip_logged_out_userpic_css {
-    my $dw_r = DW::Request->get;
-    my $u    = $dw_r ? LJ::load_userid( $dw_r->cache('journalid') ) : undef;
+    my $apache_r = BML::get_request();
+    my $u        = LJ::load_userid( $apache_r->notes->{journalid} );
     return '' unless $u;
 
     return LJ::Hooks::run_hook( 'control_strip_userpic', $u );
 }
 
 sub control_strip_logged_out_full_userpic_css {
-    my $dw_r = DW::Request->get;
-    my $u    = $dw_r ? LJ::load_userid( $dw_r->cache('journalid') ) : undef;
+    my $apache_r = BML::get_request();
+    my $u        = LJ::load_userid( $apache_r->notes->{journalid} );
     return '' unless $u;
 
     return LJ::Hooks::run_hook( 'control_strip_loggedout_userpic', $u );
@@ -3120,8 +3117,8 @@ sub journal_current_datetime {
 
     my $ret = { '_type' => 'DateTime' };
 
-    my $dw_r = DW::Request->get;
-    my $u    = $dw_r ? LJ::load_userid( $dw_r->cache('journalid') ) : undef;
+    my $apache_r = BML::get_request();
+    my $u        = LJ::load_userid( $apache_r->notes->{journalid} );
     return $ret unless $u;
 
     # turn the timezone offset number into a four character string (plus '-' if negative)

@@ -16,9 +16,6 @@
 use strict;
 no warnings 'uninitialized';
 
-use Log::Log4perl;
-my $log = Log::Log4perl->get_logger(__PACKAGE__);
-
 use Digest::MD5;
 
 use LJ::Global::Constants;
@@ -675,6 +672,13 @@ sub login {
     $res->{'userid'}   = $u->{'userid'};
     $res->{'fullname'} = $u->{'name'};
     LJ::text_out( \$res->{'fullname'} ) if $ver >= 1;
+
+    if ( $req->{'clientversion'} =~ /^\S+\/\S+$/ ) {
+        eval {
+            my $apache_r = BML::get_request();
+            $apache_r->notes->{clientver} = $req->{'clientversion'};
+        };
+    }
 
     ## update or add to clientusage table
     if ( $req->{'clientversion'} =~ /^\S+\/\S+$/
@@ -3397,18 +3401,9 @@ sub check_altusage {
     # we are going to load the alt user
     $flags->{u_owner} = LJ::load_user($alt);
     $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;
-    if ( my $r = DW::Request->get ) {
-        if ( my $jid = $r->cache('journalid') ) {
-
-            # I believe this if statement is not necessary; but for now, let's log if it would have
-            # caught something and we can go back to it later
-            $log->error("WOAH! check_altusage shows ownerid $flags->{ownerid} != journalid $jid")
-                if $flags->{ownerid} != $jid;
-        }
-        else {
-            $r->cache( journalid => $flags->{ownerid} );
-        }
-    }
+    my $apache_r = eval { BML::get_request() };
+    $apache_r->notes->{journalid} = $flags->{ownerid}
+        if $apache_r && !$apache_r->notes->{journalid};
 
     # allow usage if we're told explicitly that it's okay
     if ( $flags->{usejournal_okay} ) {
@@ -3487,10 +3482,10 @@ sub authenticate {
     my $ip = LJ::get_remote_ip();
 
     if ($r) {
-        $r->cache( ljuser => $u->user )
-            unless $r->cache('ljuser');
-        $r->cache( journalid => $u->id )
-            unless $r->cache('journalid');
+        $r->note( ljuser => $u->user )
+            unless $r->note('ljuser');
+        $r->note( journalid => $u->id )
+            unless $r->note('journalid');
     }
 
     my $ip_banned    = 0;

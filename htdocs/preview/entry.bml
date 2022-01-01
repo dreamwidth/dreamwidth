@@ -87,10 +87,8 @@ _c?>
     my $preview_warn_text = $ML{".entry.preview_warn_text"};
 
     if ($u && $up) {
-        if ( my $dw_r = DW::Request->get ) {
-            $dw_r->cache(_journal => $u->{user});
-            $dw_r->cache(journalid => $u->{userid});
-        }
+        $apache_r->notes->{_journal} = $u->{user};
+        $apache_r->notes->{journalid} = $u->{userid};
 
         ### Load necessary props
         my @needed_props = qw( stylesys s2_style url urlname

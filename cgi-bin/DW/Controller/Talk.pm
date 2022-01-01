@@ -270,7 +270,7 @@ sub talkpost_do_handler {
     # argument. Obviously everyone hates this. It dates back to the old
     # talkpost_do.bml we inherited from LJ. NF's best guess is that S2.pm
     # expects this, but it might also be irrelevant. Who knows.
-    $r->cache( 'journalid', $journalu->userid ) if $r;
+    $r->note( 'journalid', $journalu->userid ) if $r;
 
     unless ( $POST->{itemid} ) {
         return error_ml('talk.error.noentry');

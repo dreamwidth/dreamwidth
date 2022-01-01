@@ -143,7 +143,7 @@ sub create_handler {
         my $uniq;
         my $is_underage = 0;
 
-        $uniq = $r->cache('uniq');
+        $uniq = $r->note('uniq');
         if ($uniq) {
             my $timeof =
                 $dbh->selectrow_array( 'SELECT timeof FROM underage WHERE uniq = ?', undef, $uniq );

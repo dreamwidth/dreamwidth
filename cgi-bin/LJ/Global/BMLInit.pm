@@ -46,6 +46,7 @@ BML::register_hook(
         my $msg = shift;
 
         my $err = LJ::errobj($msg) or return;
+        $err->log;
         $msg = $err->as_html;
 
         chomp $msg;

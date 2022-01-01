@@ -41,7 +41,7 @@ LJ::Hooks::register_hook(
         my $r       = DW::Request->get;
         my $journal = LJ::get_active_journal();
 
-        return undef if $r->cache('no_control_strip');
+        return undef if $r->note('no_control_strip');
 
         # don't display if any of these are unavailable
         return undef unless $r && $journal;

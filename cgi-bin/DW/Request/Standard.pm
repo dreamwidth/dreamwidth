@@ -29,6 +29,8 @@ use HTTP::Status qw//;
 use fields (
     'req',    # The HTTP::Request object
     'res',    # a HTTP::Response object
+    'notes',
+    'pnotes',
 
     # we have to parse these out ourselves
     'uri',
@@ -48,6 +50,8 @@ sub new {
     $self->{req}         = $_[1];
     $self->{res}         = HTTP::Response->new(200);
     $self->{uri}         = $self->{req}->uri;
+    $self->{notes}       = {};
+    $self->{pnotes}      = {};
     $self->{read_offset} = 0;
 
     # now stick ourselves as the primary request ...
@@ -110,6 +114,28 @@ sub response_content {
 sub response_as_string {
     my DW::Request::Standard $self = $_[0];
     return $self->{res}->as_string;
+}
+
+# searches for a given note and returns the value, or sets it
+sub note {
+    my DW::Request::Standard $self = $_[0];
+    if ( scalar(@_) == 2 ) {
+        return $self->{notes}->{ $_[1] };
+    }
+    else {
+        return $self->{notes}->{ $_[1] } = $_[2];
+    }
+}
+
+# searches for a given pnote and returns the value, or sets it
+sub pnote {
+    my DW::Request::Standard $self = $_[0];
+    if ( scalar(@_) == 2 ) {
+        return $self->{pnotes}->{ $_[1] };
+    }
+    else {
+        return $self->{pnotes}->{ $_[1] } = $_[2];
+    }
 }
 
 # searches for a given header and returns the value, or sets it

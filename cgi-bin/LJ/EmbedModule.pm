@@ -658,7 +658,7 @@ qq {<div class="lj_embedcontent-wrapper" style="$wrapper_style"><div class="lj_e
     # page view UNLESS the embedded content is only one embed/object
     # tag and it's whitelisted video.
     my $r    = DW::Request->get;
-    my $view = $r ? $r->cache("view") : '';
+    my $view = $r ? $r->note("view") : '';
     if ( !$placeholder_prop && $view eq 'friends' ) {
 
         # show placeholder if this is not whitelisted video

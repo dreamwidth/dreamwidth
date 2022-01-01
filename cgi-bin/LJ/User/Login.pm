@@ -145,9 +145,7 @@ sub make_login_session {
     $exptype ||= 'short';
     return 0 unless $u;
 
-    if ( my $dw_r = DW::Request->get ) {
-        $dw_r->cache( ljuser => $u->user );
-    }
+    eval { BML::get_request()->notes->{ljuser} = $u->user; };
 
     # create session and log user in
     my $sess_opts = {
@@ -440,8 +438,8 @@ sub get_remote {
     };
 
     # can't have a remote user outside of web context
-    my $dw_r = DW::Request->get;
-    return $no_remote->() unless $dw_r;
+    my $apache_r = eval { BML::get_request(); };
+    return $no_remote->() unless $apache_r;
 
     my $criterr = $opts->{criterr} || do { my $d; \$d; };
     $$criterr = 0;
@@ -483,7 +481,7 @@ sub get_remote {
     }
 
     LJ::User->set_remote($u);
-    $dw_r->cache( ljuser => $u->user );
+    $apache_r->notes->{ljuser} = $u->user;
     return $u;
 }
 

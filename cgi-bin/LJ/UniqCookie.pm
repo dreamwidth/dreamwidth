@@ -18,8 +18,6 @@ use strict;
 use Carp qw(croak);
 use LJ::Utils qw(rand_chars);
 
-use DW::Request;
-
 my %req_cache_uid2uniqs = ();    # uid  => [ uniq1, uniq2, ... ]
 my %req_cache_uniq2uids = ();    # uniq => [  uid1,  uid2, ... ]
 
@@ -493,9 +491,12 @@ sub parts_from_value {
 sub set_current_uniq {
     my ( $class, $uniq ) = @_;
 
-    if ( my $r = DW::Request->get ) {
-        $r->cache( uniq => $uniq );
-    }
+    $LJ::REQ_CACHE{current_uniq} = $uniq;
+
+    return unless LJ::is_web_context();
+
+    my $r = DW::Request->get;
+    $r->note( uniq => $uniq );
 
     return;
 }
@@ -507,11 +508,21 @@ sub current_uniq {
         return $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ;
     }
 
-    if ( my $r = DW::Request->get ) {
-        return $r->cache('uniq');
-    }
+    # should be in $LJ::REQ_CACHE, so return from
+    # there if it is
+    my $val = $LJ::REQ_CACHE{current_uniq};
+    return $val if $val;
 
-    return;
+    # otherwise, legacy place is in $r->notes
+    return unless LJ::is_web_context();
+
+    my $apache_r = BML::get_request();
+
+    # see if a uniq is set for this request
+    # -- this accounts for cases when the cookie was initially
+    #    set in this request, so it wasn't received in an
+    #    incoming headerno cookie was sent in
+    return $apache_r->notes->{uniq};
 }
 
 1;

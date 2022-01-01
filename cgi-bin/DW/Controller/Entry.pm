@@ -1490,8 +1490,8 @@ sub preview_handler {
 
     my $ctx;
     if ( $u && $up ) {
-        $r->cache( "_journal"  => $u->{user} );
-        $r->cache( "journalid" => $u->{userid} );
+        $r->note( "_journal"  => $u->{user} );
+        $r->note( "journalid" => $u->{userid} );
 
         # load necessary props
         $u->preload_props(qw( s2_style journaltitle journalsubtitle ));

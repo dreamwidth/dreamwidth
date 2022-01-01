@@ -31,8 +31,8 @@ sub is_selected {
     my $r = DW::Request->get;
 
     # make sure the checkbox is accurate immediately after post
-    return $r->cache('no_mobile_post_value')
-        if defined $r->cache('no_mobile_post_value');
+    return $r->note('no_mobile_post_value')
+        if defined $r->note('no_mobile_post_value');
 
     # normal page load, check the cookie
     return $r->cookie('no_mobile') ? 1 : 0;
@@ -58,14 +58,14 @@ sub save {
             value   => 1,
             expires => time() + 86400 * 365 * 10,    # 10 years
         );
-        $r->cache( 'no_mobile_post_value', 1 );
+        $r->note( 'no_mobile_post_value', 1 );
     }
     else {
         $r->delete_cookie(
             name   => 'no_mobile',
             domain => ".$LJ::DOMAIN"
         );
-        $r->cache( 'no_mobile_post_value', 0 );
+        $r->note( 'no_mobile_post_value', 0 );
     }
     return 1;
 }

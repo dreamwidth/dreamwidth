@@ -111,15 +111,15 @@ sub template_string {
     $opts->{sections}->{errors} = $opts->{errors};
 
     # now we have to save the scope and update it for this rendering
-    my $oldscope = $r->cache('ml_scope');
-    $r->cache( ml_scope => ( $extra->{ml_scope} || "/$filename" ) );
+    my $oldscope = $r->note('ml_scope');
+    $r->note( ml_scope => ( $extra->{ml_scope} || "/$filename" ) );
 
     my $out;
     $view_engine->process( $filename, $opts, \$out )
         or die $view_engine->error->as_string;
 
     # now revert the scope if we had one
-    $r->cache( ml_scope => $oldscope ) if $oldscope;
+    $r->note( ml_scope => $oldscope ) if $oldscope;
 
     return $out;
 }

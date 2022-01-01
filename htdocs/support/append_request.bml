@@ -171,7 +171,7 @@ body<=
             'body' => "(Bouncing mail to '" . join(', ', @emails) . "' and closing)\n\n" . $FORM{'body'},
             'posterid' => $remote,
             'type' => 'internal',
-            'uniq' => $r->cache('uniq'),
+            'uniq' => $r->note('uniq'),
             'remote' => $remote,
         });
 
@@ -237,7 +237,7 @@ body<=
             'body' => $FORM{reply},
             'type' => $userfacing_action_type,
             'faqid' => $faqid,
-            'uniq' => $r->cache('uniq'),
+            'uniq' => $r->note('uniq'),
             'remote' => $remote
         });
 
@@ -250,7 +250,7 @@ body<=
         $splid = LJ::Support::append_request($sp, {
             'body' => $status . $FORM{internal},
             'type' => $internal_action_type,
-            'uniq' => $r->cache('uniq'),
+            'uniq' => $r->note('uniq'),
             'remote' => $remote
         });
 

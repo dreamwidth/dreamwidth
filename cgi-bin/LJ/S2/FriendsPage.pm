@@ -16,8 +16,6 @@
 use strict;
 
 package LJ::S2;
-
-use LJ::UniqCookie;
 use DW::Logic::AdultContent;
 
 sub FriendsPage {
@@ -80,7 +78,7 @@ sub FriendsPage {
 
         # send back a 304 Not Modified if they say they've reloaded this
         # document in the last $newinterval seconds:
-        my $uniq = LJ::UniqCookie->current_uniq;
+        my $uniq = BML::get_request()->notes->{uniq};
         if ( $theirtime > $lastmod && !( $uniq && LJ::MemCache::get("loginout:$uniq") ) ) {
             $opts->{'handler_return'} = 304;
             return 1;

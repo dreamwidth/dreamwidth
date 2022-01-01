@@ -27,14 +27,9 @@ DW::Request - This module provides an abstraction layer for accessing data tradi
 package DW::Request;
 
 use strict;
-use v5.10;
-use Log::Log4perl;
-my $log = Log::Log4perl->get_logger(__PACKAGE__);
-
-use Hash::MultiValue;
-
 use DW::Request::Apache2;
 use DW::Request::Standard;
+use Hash::MultiValue;
 
 our ( $cur_req, $determined );
 
@@ -57,10 +52,9 @@ sub get {
     # attempt Apache 2
     eval {
         eval "use Apache2::RequestUtil ();";
-        if ( my $r = Apache2::RequestUtil->request ) {
-            $cur_req = DW::Request::Apache2->new($r);
-            $log->debug('Request set to DW::Request::Apache2.');
-        }
+        my $r = Apache2::RequestUtil->request;
+        $cur_req = DW::Request::Apache2->new($r)
+            if $r;
     };
 
     # NOTE: the Standard module is not done through this path, it is done by
@@ -170,6 +164,16 @@ This function inspects the client headers and determines if the response fulfill
 =head2 C<< $r->method >>
 
 Returns the method.
+
+=head2 C<< $r->note( $note[, $value] ) >>
+
+Set or get a note.
+This must be a plain string.
+
+=head2 C<< $r->pnote( $note[, $value] ) >>
+
+Set or get a Perl note.
+This can be any perl ref or string.
 
 =head2 C<< $r->post_args >>
 

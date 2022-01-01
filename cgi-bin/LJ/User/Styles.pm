@@ -621,7 +621,7 @@ sub make_journal {
         $opts->{pathextra} = undef;
     }
 
-    $r->cache( journalid => $u->userid )
+    $r->note( journalid => $u->userid )
         if $r;
 
     my $error = sub {

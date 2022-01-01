@@ -107,7 +107,7 @@ Get or set the ML scope of the template
 
 sub ml_scope {
     my $r = DW::Request->get;
-    return $#_ == 1 ? $r->cache( 'ml_scope', $_[1] ) : $r->cache('ml_scope');
+    return $#_ == 1 ? $r->note( 'ml_scope', $_[1] ) : $r->note('ml_scope');
 }
 
 =head2 form_auth
