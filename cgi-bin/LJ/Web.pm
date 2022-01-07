@@ -323,7 +323,6 @@ sub bad_input {
     $ret .= "<?badcontent?>\n<ul>\n";
     foreach my $ei (@errors) {
         my $err = LJ::errobj($ei) or next;
-        $err->log;
         $ret .= $err->as_bullets;
     }
     $ret .= "</ul>\n";
@@ -349,7 +348,6 @@ sub error_list {
 
     foreach my $ei (@errors) {
         my $err = LJ::errobj($ei) or next;
-        $err->log;
         $ret .= $err->as_bullets;
     }
     $ret .= " </ul> errorbar?>";
