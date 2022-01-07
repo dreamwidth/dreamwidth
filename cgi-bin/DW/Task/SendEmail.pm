@@ -86,7 +86,7 @@ sub work {
 
     # Drop any recipient domains that we don't support/aren't allowed, and don't allow
     # duplicate emails within 24 hours
-    my @recipients;
+    my %recipients;
     foreach my $rcpt (@$rcpts) {
         my ($domain) = ($1)
             if $rcpt =~ /@(.+?)$/;
@@ -113,18 +113,19 @@ sub work {
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:duplicate', 'via:ses' ] );
         }
         else {
-            LJ::MemCache::set( $key, 1, 86400 );
-            push @recipients, $rcpt;
+            # Store the address we're sending to as well as the key to set in MemCache
+            # when we've successfully sent it (so we don't duplicate later).
+            $recipients{$rcpt} = $key;
         }
     }
 
-    unless (@recipients) {
+    unless (%recipients) {
         $log->debug('No valid recipients, dropping email. ');
         Log::Log4perl::MDC->remove;
         return DW::Task::COMPLETED;
     }
 
-    $log->debug( 'Sending email to: ', join( ', ', @recipients ) );
+    $log->debug( 'Sending email to: ', join( ', ', keys %recipients ) );
 
     # remove bcc
     $body =~ s/^(.+?\r?\n\r?\n)//s;
@@ -144,39 +145,50 @@ sub work {
 
     my $not_ok = sub {
         my $cmd = $_[0];
+
+        # A status of 5 is CMD_ERROR from Net::Cmd, this kind of error is not
+        # going to go away on a retry
         return $permanent_failure->(
             'Permanent failure during %s phase to [%s]: %s',
-            $cmd, join( ', ', @recipients ),
+            $cmd, join( ', ', keys %recipients ),
             $details->()
         ) if $smtp->status == 5;
+
+        # Other failures are worth retrying (the task system handles this)
         return $failed->(
-            'Error during %s phase to [%s]: %s',
-            $cmd, join( ', ', @recipients ),
-            $details->()
+            'Error during %s phase to [%s]: %s', $cmd,
+            join( ', ', keys %recipients ), $details->()
         );
     };
 
     return $not_ok->('MAIL') unless $smtp->mail($env_from);
 
     my $got_an_okay = 0;
-    foreach my $rcpt (@recipients) {
+    foreach my $rcpt ( keys %recipients ) {
         if ( $smtp->to($rcpt) ) {
             $got_an_okay = 1;
             next;
         }
+
+        # This happens when the email address is malformed somehow, we will never be able
+        # to send to this address, so just skip it
         next if $smtp->status == 5;
 
+        # Some other error that is hopefully transient, let's abort now and we'll retry the
+        # whole group later
         return $failed->(
             'Error during TO phase to [%s]: %s',
-            join( ', ', @recipients ),
+            join( ', ', keys %recipients ),
             $details->()
         );
     }
 
+    # If there were no valid emails (all invalid), then we will never be able to send
+    # this message, so consider it a permanent failure
     unless ($got_an_okay) {
         return $permanent_failure->(
             'Permanent failure TO [%s]: %s',
-            join( ', ', @recipients ),
+            join( ', ', keys %recipients ),
             $details->()
         );
     }
@@ -187,6 +199,11 @@ sub work {
 
     $log->debug('Email sent successfully.');
     DW::Stats::increment( 'dw.email.sent', 1, [ 'status:completed', 'via:ses' ] );
+
+    # Now perform memcache duplicant recording
+    foreach my $key ( values %recipients ) {
+        LJ::MemCache::set( $key, 1, 86400 );
+    }
 
     # Clear the logger MDC just in case we set it
     Log::Log4perl::MDC->remove;
