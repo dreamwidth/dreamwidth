@@ -322,8 +322,9 @@ sub see_request_handler {
         && LJ::Support::has_any_support_priv($remote) )
     {
 
-        $vars->{show_beta}    = 1;
-        $vars->{betafeatures} = LJ::isu($u)
+        $vars->{show_beta} = 1;
+        $vars->{betafeatures} =
+            LJ::isu($u)
             ? join( ", ", $u->prop( LJ::BetaFeatures->prop_name ) ) // ''
             : '';
     }

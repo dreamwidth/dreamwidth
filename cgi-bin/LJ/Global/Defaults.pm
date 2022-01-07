@@ -190,7 +190,7 @@ no strict "vars";
     }
 
     # maximum size to cache s2compiled data
-    $MAX_S2COMPILED_CACHE_SIZE ||= 7500;                                       # bytes
+    $MAX_S2COMPILED_CACHE_SIZE ||= 7500;    # bytes
 
     # max content length we should read via ATOM api
     # 25MB
