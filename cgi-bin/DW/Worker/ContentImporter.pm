@@ -23,6 +23,10 @@ DW::Worker::ContentImporter - Generic helper functions for Content Importers
 =cut
 
 use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
 use Time::HiRes qw/ sleep time /;
 use Carp qw/ croak confess /;
 use Storable;
@@ -129,6 +133,21 @@ sub userids_to_message {
     return $u->maintainer_userids;
 }
 
+=head2 C<< $class->_should_exit( $message ) >>
+
+Determine whether or not this failure message should be considered to be more than just a
+job failure. I.e., whether we should exit the worker to try to get a new IP.
+
+=cut
+
+sub _should_exit {
+    my ( $class, $message ) = @_;
+
+    return 1 if $message =~ /Failed to connect to the server/i;
+
+    return 0;
+}
+
 =head2 C<< $class->fail( $import_data, $item, $job, "text", [arguments, ...] ) >>
 
 Permanently fail this import job.
@@ -158,6 +177,10 @@ sub fail {
     }
 
     $job->permanent_failure($msg);
+
+    $log->logcroak('Important failure: exiting worker.')
+        if $class->_should_exit($msg);
+
     return;
 }
 
@@ -194,6 +217,10 @@ sub temp_fail {
     }
 
     $job->failed($msg);
+
+    $log->logcroak('Important failure: exiting worker.')
+        if $class->_should_exit($msg);
+
     return;
 }
 
