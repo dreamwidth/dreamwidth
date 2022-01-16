@@ -403,7 +403,7 @@ sub account_isvalid {
     if  ( $extacct->{site} ne -1 ) {
         my $siteid = $extacct->{site};
         my $externalsite = DW::External::Site->get_site_by_id( $siteid );
-        $proxyurl = "http://" . $externalsite->{domain} . "/interface/xmlrpc";
+        $proxyurl = "https://" . $externalsite->{domain} . "/interface/xmlrpc";
         $protocol_id = $externalsite->servicetype;
     } else {
         $proxyurl = $extacct->{serviceurl};
