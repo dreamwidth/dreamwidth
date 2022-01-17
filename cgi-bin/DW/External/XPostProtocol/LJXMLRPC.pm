@@ -202,7 +202,7 @@ sub crosspost {
 
     # get the xml-rpc proxy and start the connection.
     # use the custom serviceurl if available, or the default using the hostname
-    my $proxyurl = $extacct->serviceurl || "http://" . $extacct->serverhost . "/interface/xmlrpc";
+    my $proxyurl = $extacct->serviceurl || "https://" . $extacct->serverhost . "/interface/xmlrpc";
 
     # load up the req.  if it's a delete, just set event as blank
     my $req;
@@ -257,7 +257,7 @@ sub get_friendgroups {
     my ( $self, $extacct, $auth ) = @_;
 
     # use the custom serviceurl if available, or the default using the hostname
-    my $proxyurl = $extacct->serviceurl || "http://" . $extacct->serverhost . "/interface/xmlrpc";
+    my $proxyurl = $extacct->serviceurl || "https://" . $extacct->serverhost . "/interface/xmlrpc";
 
     my $xpost_result = $self->call_xmlrpc( $proxyurl, 'getfriendgroups', {}, $auth );
     if ( $xpost_result->{success} ) {
@@ -531,7 +531,7 @@ sub challenge {
 
     # get the xml-rpc proxy and start the connection.
     # use the custom serviceurl if available, or the default using the hostname
-    my $proxyurl = $extacct->serviceurl || "http://" . $extacct->serverhost . "/interface/xmlrpc";
+    my $proxyurl = $extacct->serviceurl || "https://" . $extacct->serverhost . "/interface/xmlrpc";
     my $xmlrpc   = eval { XMLRPC::Lite->proxy( $proxyurl, timeout => 3 ); };
     return 0 unless $xmlrpc;
 
