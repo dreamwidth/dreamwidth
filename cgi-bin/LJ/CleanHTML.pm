@@ -1169,7 +1169,8 @@ TOKEN:
                                 $opencount{$close}--;
                                 next if $close =~ $slashclose_tags;
                                 $newdata .= "</$close>";
-                                push @unclosed_tags, "$close" unless $close eq 'p';
+                                push @unclosed_tags, "$close"
+                                    unless $close eq 'p' || $close eq 'li';
                             }
                         }
 
@@ -1359,7 +1360,7 @@ TOKEN:
         if ( $opencount{$tag} ) {
             $newdata .= "</$tag>";
             $opencount{$tag}--;
-            push @unclosed_tags, $tag unless $tag eq 'p';
+            push @unclosed_tags, $tag unless $tag eq 'p' || $tag eq 'li';
         }
     }
 
