@@ -117,7 +117,6 @@ sub errors {
     eval "\@${errclass}::ISA = ( 'LJ::Error::SettingSave' );";
 
     my $eo = eval { $errclass->new( map => \%map ) };
-    $eo->log;
     $eo->throw;
 }
 

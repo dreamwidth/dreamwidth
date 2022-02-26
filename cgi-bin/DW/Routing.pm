@@ -262,7 +262,6 @@ sub _call_hash {
     my $err = LJ::errobj($msg)
         or die "LJ::errobj didn't return anything.";
     unless ($T_TESTING_ERRORS) {
-        $err->log;
         warn $msg;
     }
 
@@ -304,7 +303,6 @@ sub _call_hash {
         my $err2 = LJ::errobj($msg2)
             or die "LJ::errobj didn't return anything.";
         unless ($T_TESTING_ERRORS) {
-            $err2->log;
             warn $msg2;
         }
 
