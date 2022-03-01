@@ -57,7 +57,7 @@ sub new_for_user {
 sub get_key {
     my ( $class, $hash ) = @_;
     return undef unless $hash;
-    my $memkey = [ $hash, "api_key:" . $hash ];
+    my $memkey = "api_key:$hash";
 
     my $keydata = LJ::MemCache::get($memkey);
     unless ( defined $keydata ) {
@@ -65,8 +65,8 @@ sub get_key {
         $keydata = $dbh->selectrow_hashref(
             "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'",
             undef, $hash );
-        LJ::MemCache::set( $memkey, $keydata, 60 * 60 * 24 );    # cache for one day
         carp $dbh->errstr if $dbh->err;
+        LJ::MemCache::set( $memkey, $keydata, 60 * 60 * 24 );    # cache for one day
     }
 
     if ($keydata) {
@@ -150,7 +150,7 @@ sub delete {
         or croak "need a user!\n";
 
     $self->valid_for_user($user) or croak "key doesn't belong to user";
-    my $memkey = [ $self->{keyhash}, "api_key:" . $self->{keyhash} ];
+    my $memkey = "api_key:" . $self->{keyhash};
 
     my $dbw = LJ::get_db_writer() or croak "Failed to get database";
     $dbw->do( q{UPDATE api_key SET state = 'D' WHERE state = 'A' AND hash = ?},
