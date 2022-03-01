@@ -224,7 +224,6 @@ ul.pagination .arrow {
     opacity: 0.33;
     padding: .0625rem .25rem .0625rem;
   }
-}
 
 ul.pagination .arrow:first-child {
   grid-area: prev;
@@ -234,13 +233,14 @@ ul.pagination .arrow:last-child {
   grid-area: next;
 }
 
-ul.pagination li a {
-  padding: .0625rem .25rem .0625rem;
-  flex-grow: 1;
-  opacity: 1;
+  ul.pagination li a {
+    padding: .0625rem .25rem .0625rem;
+    flex-grow: 1;
+    opacity: 1;
 
-  @media #{$small-only} {
-    padding: .125rem .5rem .125rem;
+    @media #{$small-only} {
+      padding: .125rem .5rem .125rem;
+    }
   }
 }
 
