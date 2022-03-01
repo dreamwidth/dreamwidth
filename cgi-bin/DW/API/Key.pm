@@ -65,7 +65,7 @@ sub get_key {
         $keydata = $dbh->selectrow_hashref(
             "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'",
             undef, $hash );
-        LJ::MemCache::set( $memkey, $keydata, 60 * 60 * 24 ); # cache for one day
+        LJ::MemCache::set( $memkey, $keydata, 60 * 60 * 24 );    # cache for one day
         carp $dbh->errstr if $dbh->err;
     }
 
@@ -156,7 +156,7 @@ sub delete {
     $dbw->do( q{UPDATE api_key SET state = 'D' WHERE state = 'A' AND hash = ?},
         undef, $self->{keyhash} );
 
-    LJ::MemCache::delete( $memkey ); 
+    LJ::MemCache::delete($memkey);
     return 1 unless $dbw->err;
 
     carp $dbw->errstr if $dbw->err;
