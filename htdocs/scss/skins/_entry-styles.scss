@@ -181,59 +181,33 @@ ul.entry-management-links {
   margin: 0 4px;
 }
 
-ul.pages {
-  grid-area: pages;
-  text-align: center;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  max-width: 20rem;
-
-  @media #{$small-only} {
-    max-width: 10rem;
-  }
-
-}
-
-ul.pages li {
-  align-self: center;
-  margin: 0 0.1rem;
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  width: 1.8rem;
-}
-
-ul.pagination {
+.action-box ul.pagination {
   display: grid;
   grid-template-columns: auto auto auto;
   grid-template-areas: "prev pages next";
   text-align: center;
   margin: 0 0 0.75em 0;
 
-}
-
-ul.pagination .arrow {
-  align-self: center;
-  justify-self: center;
-  font-size:  large;
-  margin: 0 .25em;
-  &.disabled {
-    opacity: 0.33;
-    padding: .0625rem .25rem .0625rem;
+  .arrow {
+    align-self: center;
+    justify-self: center;
+    font-size:  large;
+    margin: 0 .25em;
+    &.disabled {
+      opacity: 0.33;
+      padding: .0625rem .25rem .0625rem;
+    }
   }
 
-ul.pagination .arrow:first-child {
-  grid-area: prev;
-}
+  .arrow:first-child {
+    grid-area: prev;
+  }
 
-ul.pagination .arrow:last-child {
-  grid-area: next;
-}
+  .arrow:last-child {
+    grid-area: next;
+  }
 
-  ul.pagination li a {
+  li a {
     padding: .0625rem .25rem .0625rem;
     flex-grow: 1;
     opacity: 1;
@@ -241,6 +215,31 @@ ul.pagination .arrow:last-child {
     @media #{$small-only} {
       padding: .125rem .5rem .125rem;
     }
+  }
+
+  ul.pages {
+    grid-area: pages;
+    text-align: center;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 20rem;
+  
+    @media #{$small-only} {
+      max-width: 10rem;
+    }
+  
+  }
+  
+  ul.pages li {
+    align-self: center;
+    margin: 0 0.1rem;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    width: 1.8rem;
   }
 }
 
