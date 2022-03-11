@@ -178,8 +178,11 @@ sub fail {
 
     $job->permanent_failure($msg);
 
-    $log->logcroak('Important failure: exiting worker.')
-        if $class->_should_exit($msg);
+    if ( $class->_should_exit($msg) ) {
+        $log->fatal('Important failure: exiting worker.');
+        open FILE, '>', "$LJ::VAR/$$.please_die" or exit 2;
+        close FILE;
+    }
 
     return;
 }
