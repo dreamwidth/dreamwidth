@@ -28,7 +28,7 @@ use DW::Worker::ContentImporter::LiveJournal::Userpics;
 use DW::Worker::ContentImporter::LiveJournal::Verify;
 
 
-my ( $user, $list, $run, $type, $import_id, $schedule_copy );
+my ( $user, $list, $run, $type, $import_id, $schedule_copy, $start_id, $limit );
 GetOptions(
     'user=s' => \$user,
     'list' => \$list,
@@ -36,10 +36,12 @@ GetOptions(
     'type=s' => \$type,
     'import-id=i' => \$import_id,
     'schedule-search-copy' => \$schedule_copy,
+    'start-id=i' => \$start_id,
+    'limit=i' => \$limit,
 );
 
 my $u = LJ::load_user( $user )
-    or croak "Usage: $0 -u USER [ --list | --run --type lj_entries [--import-id N] | --schedule-search-copy ]";
+    or croak "Usage: $0 -u USER [ --list | --run --type lj_entries [--import-id N] [--start-id N] [--limit N] | --schedule-search-copy ]";
 my $dbh = LJ::get_db_writer();
 my $dbcm = LJ::get_cluster_master( $u )
     or croak "No DB!";
@@ -111,6 +113,8 @@ if ( $run ) {
     my $opts = {
         userid         => $u->id,
         import_data_id => $tmpdata->[0]->[0],
+        start_id       => $start_id,
+        limit          => $limit,
     };
 
     # Attempt to actually run the import now
