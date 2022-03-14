@@ -466,7 +466,8 @@ sub try_work {
             next if $comment->[C_done];
 
             # If we see something that has no remote ID, we've goofed somewhere
-            return $fail->('FATAL: Comment has no remote ID! Aborting!') unless $comment->[C_orig_id];
+            return $fail->('FATAL: Comment has no remote ID! Aborting!')
+                unless $comment->[C_orig_id];
 
             # status output update
             $title->(
@@ -682,6 +683,7 @@ sub try_work {
 
     # If needed, schedule another job
     if ($needs_followup_job) {
+        $log->( 'Scheduling followup job to start at %d.', $server_max_id );
         my $h = DW::TaskQueue->dispatch(
             TheSchwartz::Job->new(
                 funcname => 'DW::Worker::ContentImporter::LiveJournal::Comments',
