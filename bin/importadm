@@ -115,6 +115,7 @@ if ( $run ) {
         import_data_id => $tmpdata->[0]->[0],
         start_id       => $start_id,
         limit          => $limit,
+        suppress_followup => 1,
     };
 
     # Attempt to actually run the import now
