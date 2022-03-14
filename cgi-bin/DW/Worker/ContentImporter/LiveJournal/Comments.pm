@@ -23,10 +23,12 @@ use Carp qw/ carp croak confess /;
 use Digest::MD5 qw/ md5_hex /;
 use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
+
 use DW::XML::Parser;
 use DW::Worker::ContentImporter::Local::Comments;
 
 # to save memory, we use arrays instead of hashes.
+# Nota bene: it wasn't enough.
 use constant C_id              => 0;
 use constant C_remote_posterid => 1;
 use constant C_state           => 2;
@@ -144,10 +146,21 @@ sub try_work {
         $last_log_time = [ gettimeofday() ];
     };
 
+    # Get ID to start at (this should be a remote jtalkid, minimum 1)
+    my $server_start_id = $opts->{start_id} // 1;
+    $server_start_id = 1 if $server_start_id < 1;
+
+    # Comment limit (only import this many comments), once this limit is hit we will
+    # schedule another job to pick up where we left off
+    my $limit = $opts->{limit} // 0;
+
     # setup
     my $u = LJ::load_userid( $data->{userid} )
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
-    $log->( 'Import begun for %s(%d).', $u->user, $u->userid );
+    $log->(
+        'Import begun for %s(%d) starting at remote ID %d, limit %d.',
+        $u->user, $u->userid, $server_start_id, $limit
+    );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
 
     # title munging
@@ -159,7 +172,8 @@ sub try_work {
     };
     $title->();
 
-# this will take a entry_map (old URL -> new jitemid) and convert it into a jitemid map (old jitemid -> new jitemid)
+    # this will take a entry_map (old URL -> new jitemid) and
+    # convert it into a jitemid map (old jitemid -> new jitemid)
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map($u) || {};
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
     $log->( 'memory usage is now %dMB',          LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
@@ -175,7 +189,7 @@ sub try_work {
         # this works, see the Entries importer for more information
         my $turl = $url;
         $turl =~ s/-/_/g;    # makes \b work below
-                             #$log->( 'Filtering entry URL: %s', $turl );
+
         next
             unless $turl =~ /\Q$data->{hostname}\E/
             && ( $turl =~ /\b$data->{username}\b/
@@ -201,7 +215,8 @@ sub try_work {
             "CROSSPOSTER " . $data->{hostname} . " " . $data->{username} . " $jitemid ";
     }
 
-# this will take a talk_map (old URL -> new jtalkid) and convert it to a jtalkid map (old jtalkid -> new jtalkid)
+    # this will take a talk_map (old URL -> new jtalkid) and
+    # convert it to a jtalkid map (old jtalkid -> new jtalkid)
     my $talk_map = DW::Worker::ContentImporter::Local::Comments->get_comment_map($u) || {};
     $log->( 'Loaded comment map with %d entries.', scalar( keys %$talk_map ) );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
@@ -234,7 +249,8 @@ sub try_work {
 
     # parameters for below
     my ( %meta, %identity_map, %was_external_user );
-    my ( $maxid, $server_max_id, $server_next_id, $nextid, $lasttag ) = ( 0, undef, 1, 0, '' );
+    my ( $maxid, $server_max_id, $metadata_max_id, $server_next_id, $nextid, $lasttag, $count ) =
+        ( 0, undef, 0, $server_start_id, 0, '', 0 );
     my @fail_errors;
 
     # setup our parsing function
@@ -248,6 +264,11 @@ sub try_work {
 
         # if we were last getting a comment, start storing the info
         if ( $lasttag eq 'comment' ) {
+            $count++;
+
+            # record the highest ID we've seen for later
+            $metadata_max_id = $temp{id}
+                if $temp{id} > $metadata_max_id;
 
             # get some data on a comment
             $meta{ $temp{id} } = new_comment( $temp{id}, $temp{posterid} + 0, $temp{state} || 'A' );
@@ -296,7 +317,8 @@ sub try_work {
     # hit up the server for metadata
     while (defined $server_next_id
         && $server_next_id =~ /^\d+$/
-        && ( !defined $server_max_id || $server_next_id <= $server_max_id ) )
+        && ( !defined $server_max_id || $server_next_id <= $server_max_id )
+        && ( $count < $limit ) )
     {
         # let them know we're still working
         $job->grabbed_until( time() + 3600 );
@@ -360,6 +382,20 @@ sub try_work {
     }
     $log->('Finished fetching metadata.');
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
+
+    # If we hit our count, message that and also reset max ID so that the body
+    # fetching won't go on forever without metadata
+    if ( $count > $limit ) {
+        $log->(
+            'NOTE: Count of %d hit limit of %d. Continuation job will be scheduled.',
+            $count, $limit
+        );
+        $log->(
+            'NOTE: Resetting max ID from %d to max seen in metadata %d.',
+            $server_max_id, $metadata_max_id
+        );
+        $server_max_id = $metadata_max_id;
+    }
 
     # as an optimization, keep track of which comments are on the "to do" list
     my %in_flight;
