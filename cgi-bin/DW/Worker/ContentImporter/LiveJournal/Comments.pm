@@ -19,7 +19,7 @@ package DW::Worker::ContentImporter::LiveJournal::Comments;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use Carp qw/ carp croak confess /;
+use Carp qw/ carp /;
 use Digest::MD5 qw/ md5_hex /;
 use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
@@ -464,6 +464,9 @@ sub try_work {
         # now doing imports!
         foreach my $comment (@to_import) {
             next if $comment->[C_done];
+
+            # If we see something that has no remote ID, we've goofed somewhere
+            return $fail->('FATAL: Comment has no remote ID! Aborting!') unless $comment->[C_orig_id];
 
             # status output update
             $title->(
