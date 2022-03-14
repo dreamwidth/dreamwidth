@@ -554,7 +554,7 @@ sub try_work {
     };
 
     # body handling section now
-    my ( $lastid, $curid, $lastprop, @tags ) = ( 0, 0, undef );
+    my ( $lastid, $curid, $lastprop, @tags ) = ( $server_start_id - 1, 0, undef );
 
     # setup our handlers for body XML info
     my $body_handler = sub {
