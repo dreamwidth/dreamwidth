@@ -222,7 +222,7 @@ sub try_work {
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
 
     # now reverse it as above
-    my $jtalkid_map = {};
+    my ( $max_jtalkid, $jtalkid_map ) = ( 0, {} );
     foreach my $url ( keys %$talk_map ) {
 
         # this works, see the Entries importer for more information
@@ -236,8 +236,17 @@ sub try_work {
 
         if ( $url =~ m!(?:thread=|/)(\d+)$! ) {
             my $jtalkid = $1 >> 8;
+            $max_jtalkid = $jtalkid
+                if $jtalkid > $max_jtalkid;
             $jtalkid_map->{$jtalkid} = $talk_map->{$url};
         }
+    }
+
+    # Fast forward if we're using a start ID and we have previously imported
+    # up past that point
+    if ( $server_start_id > 1 && $max_jtalkid > $server_start_id ) {
+        $log->( 'Fast-forwarding start to max imported ID: %d.', $max_jtalkid );
+        $server_start_id = $max_jtalkid + 1;
     }
 
     # for large imports, the two maps are big (contains URLs), so let's drop it
