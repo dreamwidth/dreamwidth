@@ -251,6 +251,7 @@ sub try_work {
     my ( %meta, %identity_map, %was_external_user );
     my ( $maxid, $server_max_id, $metadata_max_id, $server_next_id, $nextid, $lasttag, $count ) =
         ( 0, undef, 0, $server_start_id, 0, '', 0 );
+    my $needs_followup_job = 0;
     my @fail_errors;
 
     # setup our parsing function
@@ -394,7 +395,8 @@ sub try_work {
             'NOTE: Resetting max ID from %d to max seen in metadata %d.',
             $server_max_id, $metadata_max_id
         );
-        $server_max_id = $metadata_max_id;
+        $server_max_id      = $metadata_max_id;
+        $needs_followup_job = $opts->{suppress_followup} ? 0 : 1;
     }
 
     # as an optimization, keep track of which comments are on the "to do" list
@@ -674,6 +676,22 @@ sub try_work {
     # now we have the final post loop...
     return unless $post_comments->();
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
+
+    # If needed, schedule another job
+    if ($needs_followup_job) {
+        my $h = DW::TaskQueue->dispatch(
+            TheSchwartz::Job->new(
+                funcname => 'DW::Worker::ContentImporter::LiveJournal::Comments',
+                uniqkey  => join( '-', ( 'lj_comments', $u->id ) ),
+                arg      => {
+                    userid         => $u->id,
+                    import_data_id => $opts->{import_data_id},
+                    start_id       => $server_max_id,
+                    limit          => $limit,
+                }
+            )
+        );
+    }
 
     # Kick off an indexing job for this user
     if (@LJ::SPHINX_SEARCHD) {
