@@ -197,7 +197,7 @@ sub _enforce_valid_settings {
         my ( $key, $regex ) = @_;
 
         $post->set( $key, $default_options->{$key} )
-            unless defined $post->{key} && $post->{$key} =~ $regex;
+            unless defined $post->{$key} && $post->{$key} =~ $regex;
     };
 
     $validate->( "membership",        qr/^(?:open|moderated|closed)$/ );
