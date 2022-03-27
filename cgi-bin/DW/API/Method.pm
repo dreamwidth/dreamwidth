@@ -151,7 +151,7 @@ sub rest_ok {
     # if we have JSON, call the formatter to pretty-print it. Otherwise, we assume
     # other content-types have already been properly formatted for us.
     if ( $content_type eq "application/json" ) {
-        $r->print( to_json( $response, { convert_blessed => 1, pretty => 1 } ) );
+        $r->print( to_json( $response, { convert_blessed => 1, latin1 => 1, pretty => 1 } ) );
     }
     else {
         $r->print($response);
