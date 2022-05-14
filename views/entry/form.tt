@@ -17,6 +17,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- dw.need_res(
     "stc/css/pages/entry/new.css"
     "stc/css/components/button-groups.css"
+    "stc/display_none.css"
 ) -%]
 
 [%- dw.need_res( { group => "foundation" },
@@ -43,6 +44,17 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     # page-specific
     "js/pages/entry/new.js"
+
+    # code required for old RTE
+    "js/6alib/httpreq.js"
+    "js/6alib/core.js"
+    "js/6alib/dom.js"
+    "js/livejournal.js"
+    "js/6alib/ippu.js"
+    "js/lj_ippu.js"
+    "js/poll.js"
+    "stc/fck/fckeditor.js"
+    "js/pages/entry/rte.js"
 
 ) -%]
 
@@ -383,3 +395,21 @@ postFormInitData.strings = {
 
 </form>
 
+[% js_for_rte %]
+<script>
+            var FCKLang;
+            if (!FCKLang) FCKLang = {};
+            FCKLang.UserPrompt = [% dw.ml('fcklang.userprompt') | js %];
+            FCKLang.UserPrompt_User = [% dw.ml('fcklang.userprompt.user') | js %];
+            FCKLang.UserPrompt_Site = [% dw.ml('fcklang.userprompt.site') | js %];
+            FCKLang.UserPrompt_SiteList =[% sitevalues %];
+            FCKLang.InvalidChars = [% dw.ml('fcklang.invalidchars') | js %];
+            FCKLang.LJUser = [% dw.ml('fcklang.ljuser') | js %];
+            FCKLang.LJVideo = [% dw.ml('fcklang.ljvideo2') | js %];
+            FCKLang.EmbedContents = [% dw.ml('fcklang.embedcontents') | js %];
+            FCKLang.EmbedPrompt = [% dw.ml('fcklang.embedprompt') | js %];
+            FCKLang.CutPrompt = [% dw.ml('fcklang.cutprompt') | js %];
+            FCKLang.ReadMore = [% dw.ml('fcklang.readmore') | js %];
+            FCKLang.CutContents = [% dw.ml('fcklang.cutcontents') | js %];
+            FCKLang.LJCut = [% dw.ml('fcklang.ljcut') | js %];
+</script>

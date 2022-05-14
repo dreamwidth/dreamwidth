@@ -31,6 +31,7 @@ use HTTP::Status qw( :constants );
 use LJ::JSON;
 
 use DW::External::Account;
+use DW::External::Site;
 
 my %form_to_props = (
 
@@ -46,6 +47,12 @@ my @modules = qw(
     currents comments age_restriction
     icons crosspost sticky
 );
+
+my @sites = DW::External::Site->get_sites;
+my @sitevalues;
+foreach my $site ( sort { $a->{sitename} cmp $b->{sitename} } @sites ) {
+    push @sitevalues, { domain => $site->{domain}, sitename => $site->{sitename} };
+}
 
 =head1 NAME
 
@@ -263,6 +270,9 @@ sub new_handler {
     $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
 
     $vars->{password_maxlength} = $LJ::PASSWORD_MAXLENGTH;
+
+    $vars->{js_for_rte} = LJ::rte_js_vars();
+    $vars->{sitevalues} = LJ::js_dumper( \@sitevalues );
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
@@ -635,6 +645,9 @@ sub _edit {
         edit => 1,
         url  => LJ::create_url( undef, keep_args => 1 ),
     };
+
+    $vars->{js_for_rte} = LJ::rte_js_vars();
+    $vars->{sitevalues} = LJ::js_dumper( \@sitevalues );
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }

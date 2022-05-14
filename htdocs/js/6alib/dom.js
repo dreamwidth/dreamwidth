@@ -780,5 +780,7 @@ OBJ.extend( DOM, {
     
 } );
 
+if (!(typeof $== 'function')) {
+    $ = DOM.getElement;
+};
 
-$ = DOM.getElement;
