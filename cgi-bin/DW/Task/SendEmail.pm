@@ -65,9 +65,13 @@ sub work {
             "Temporary failure connecting to $LJ::EMAIL_VIA_SES{hostname}, will retry.")
             unless $smtp;
 
-        $smtp->auth( $LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password} )
-            or
-            return $failed->("Couldn't authenticate to $LJ::EMAIL_VIA_SES{hostname}, will retry.");
+        # Only try auth if we have username/pw configured for mail server
+        if ( $LJ::EMAIL_VIA_SES{username} && $LJ::EMAIL_VIA_SES{password} ) {
+            $smtp->auth( $LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password} )
+                or return $failed->(
+                "Couldn't authenticate to $LJ::EMAIL_VIA_SES{hostname}, will retry.");
+        }
+
     }
     $last_email = time();
 
