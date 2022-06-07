@@ -9,4 +9,4 @@ We love having new contributors join us! Here's the quick summary of where to fi
 * Send in a [Contributor Licensing Agreement](http://wiki.dreamwidth.net/wiki/index.php/Contributor_Licensing_Agreement)
 * Start hacking!
 
-If you're having trouble, ask in the [dw-dev](https://dw-dev.dreamwidth.org) community.
+If you're having trouble, ask in the [dw-dev](https://dw-dev.dreamwidth.org) community, or join us on [Discord](https://dw-dev.dreamwidth.org/209778.html).
