@@ -64,7 +64,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url    => "http://github.com/favicon.ico",
+        url    => "https://github.com/favicon.ico",
         width  => 16,
         height => 16,
     };
