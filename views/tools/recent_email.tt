@@ -1,0 +1,34 @@
+[%- sections.title='View Outgoing Email' -%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+<p>This page lists all of the failed email messages for you from the past few days. Any recent messages not listed here have been delivered successfully or had a permanent failure.</p>
+<form method="GET">
+    [%- form.textbox( label = 'User/Email'
+            name = "what"
+            size = "25"
+            value=what
+    ) -%]
+    [%- form.submit(
+            value = 'View'
+            name = "view"
+            )
+    %]
+</form>
+
+[%- IF jobs.size > 0 -%]
+    [%- FOREACH job IN jobs -%]
+        <div>(#[% job.jobid %]) <strong>Subject: [% job.subject %]</strong><br />
+        <small>Next try: [% job.run_after %]</small><br /><br />
+        [%- IF job.failures.size > 0 -%]
+            Errors
+            <ul>
+            [%- FOREACH failure in job.failures -%]
+                <li>[% failure %]</li>
+            [%- END -%]
+            </ul>
+        [%- END -%]
+        </div>
+    [%- END -%]
+[%- ELSE -%]
+    You currently have no undelivered email.
+[%- END -%]

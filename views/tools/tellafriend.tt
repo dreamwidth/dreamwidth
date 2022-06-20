@@ -1,0 +1,50 @@
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- sections.title=dw.ml('.title') -%]
+
+[% IF u.status == 'A' %]
+<form method='post' action='tellafriend'>
+[% dw.hidden(name = 'mode', value = 'mail') %]
+[% dw.hidden(name = 'user', value = user) %]
+[% dw.hidden(name = 'journal', value = journal) %]
+[% dw.hidden(name = 'itemid', value = itemid) %]
+
+<table summary='' cellpadding=3 border=0>
+<tr>
+    <td align=right nowrap>[% ".email.fromfield" | ml %]</td>
+    <td>[% (u.name || u.user)| ml %] &lt;[% u.emailpref %]&gt;</td>
+</tr>
+<tr>
+    <td>[% dw.textbox(
+        label = dw.ml(".email.recipientfield"), 
+        name = 'toemail', 
+        value = toemail,
+        size = 60,
+        maxlength = 150) %]
+        <br>
+        <span class='detail'>[% '.email.formatinfo' | ml %]</span>
+[% email_checkbox %]
+</td></tr>
+
+ [% dw.hidden(name = 'subject', value = $subject) %]
+ [% dw.hidden(name = 'body_start', value = $msg) %]
+ <div class='message'><blockquote>
+ [% display_msg %]
+ [% dw.textarea(
+     label = dw.ml('.email.body.boxtitle"'),
+     name = 'body',
+     rows = 6,
+     cols = 55,
+     wrap = 'soft') %]
+      [% display_msg_footer %]
+     </blockquote></div></td></tr>
+
+<tr><td colspan='2' align='center'><div class='action-box'><div class='inner'>
+[% dw.submit(value = dw.ml(".sendbutton")) %]
+</div></div><div class='clear-floats'></div></td></tr>
+</table>
+</form>
+
+[% ELSE %]
+<h3>[% ".invalidemailpage.title" | ml %]</h3>
+<p>[% dw.ml(".invalidemailpage.body", { emailaddress => u.email_raw, siteroot => site.root }) %]</p>
+[% END %]
