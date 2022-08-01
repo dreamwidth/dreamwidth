@@ -247,7 +247,8 @@ the table based way can be removed when the entire site is Foundation-based.
 <!DOCTYPE html>
 <html lang="en" class="no-js">
     [% PROCESS block.head %]
-    <body [% sections.bodyopts %]>
+    [%# NOTE: Other site schemes override this block, so only gradation ends up with the class tag %]
+    <body [% sections.bodyopts %] class="gradation">
         <div id="canvas" [% canvas_opts %]>
             <div id="page">
                 [% PROCESS block.skiplink %]
@@ -314,7 +315,8 @@ the table based way can be removed when the entire site is Foundation-based.
 <!DOCTYPE html>
 <html lang="en">
     [% PROCESS block.head %]
-    <body [% sections.bodyopts %]>
+    [%# NOTE: Other site schemes override this block, so only gradation ends up with the class tag %]
+    <body [% sections.bodyopts %]  class="gradation">
         <div id="canvas" [% canvas_opts %]>
             [%- PROCESS block.msgs -%]
             [% PROCESS block.pagediv %]
