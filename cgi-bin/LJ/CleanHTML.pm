@@ -1626,6 +1626,7 @@ my @comment_all = qw(
     ul ol li dl dt dd
     area map form textarea
     img br hr p col
+    summary details
 );
 
 my $event_eat    = $subject_eat;
