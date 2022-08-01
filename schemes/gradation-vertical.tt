@@ -34,4 +34,4 @@ the same terms as Perl itself.  For a copy of the license, please reference
     -%]
 [%- END -%]
 
-[%- canvas_opts='class="gradation gradation-vertical vertical-nav"' -%]
+[%- canvas_opts='class="vertical-nav"' -%]
