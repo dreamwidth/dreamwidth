@@ -31,17 +31,37 @@ use base 'DW::Task';
 sub work {
     my $self = $_[0];
     my $a    = $self->args;
-
     my ( $cid, $e_params ) = @$a;
-    my $evt = eval { LJ::Event->new_from_raw_params(@$e_params) }
-        or die "Couldn't load event: $@";
-    my $dbch = LJ::get_cluster_master($cid)
-        or die "Couldn't connect to cluster \#cid $cid";
+
+    my $incr = sub {
+        my ( $phase, $incr, $tags ) = @_;
+        push @{ $tags ||= [] }, "etypeid:$e_params->[0]";
+        DW::Stats::increment( 'dw.esn.findsubsbycluster.' . $phase, $incr // 1, $tags );
+    };
+
+    $incr->('started');
+
+    my $evt = eval { LJ::Event->new_from_raw_params(@$e_params) };
+    unless ($evt) {
+        $log->error( 'Failed to load event from raw params: ', join( ', ', @$e_params ) );
+        $incr->( 'failed', 1, ['err:LoadEvent'] );
+        return DW::Task::FAILED;
+    }
+
+    $evt->configure_logger;
+
+    my $dbch = LJ::get_cluster_master($cid);
+    unless ($dbch) {
+        $log->error( "Couldn't connect to cluster: ", $cid );
+        $incr->( 'failed', 1, ['err:GetClusterMaster'] );
+        return DW::Task::FAILED;
+    }
 
     my @subs = $evt->subscriptions( cluster => $cid );
 
     # fast path:  job from phase2 to phase4, skipping filtering.
     if ( @subs <= $LJ::ESN::MAX_FILTER_SET ) {
+        $log->debug( 'Fast path: only found ', scalar(@subs), ' subscriptions.' );
         DW::TaskQueue->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) );
         return DW::Task::COMPLETED;
     }
@@ -95,6 +115,8 @@ sub work {
         my $sublist = [ map { [ $_->userid + 0, $_->id + 0 ] } @set ];
         push @subjobs, DW::Task::ESN::FilterSubs->new( $e_params, $sublist, $cid );
     }
+
+    $log->debug( 'Sending ', scalar(@subjobs), ' filtering subjobs.' );
 
     DW::TaskQueue->send(@subjobs);
     return DW::Task::COMPLETED;

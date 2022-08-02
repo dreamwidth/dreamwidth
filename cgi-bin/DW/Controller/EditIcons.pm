@@ -22,6 +22,7 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use Digest::MD5;
 use File::Type;
 
 use DW::BlobStore;

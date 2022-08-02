@@ -13,7 +13,7 @@
 
 .desc.text=You can view and remove past email addresses used with your account on this page. Addresses that you've removed can no longer be used to reset your password. This is useful if you no longer control a particular email address or if someone gains access to your account and adds a new email address. By removing the unwanted email addresses you'll be able to keep your account more secure.
 
-.desc.title=Description
+.desc.title2=Manage Email Addresses
 
 .header.check=Select
 

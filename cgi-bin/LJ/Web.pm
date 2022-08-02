@@ -18,11 +18,14 @@ use strict;
 
 use Carp;
 use POSIX;
+use Digest::MD5;
+use Digest::SHA1;
 
 use DW::Auth::Challenge;
 use DW::External::Site;
 use DW::Request;
 use DW::Formats;
+use LJ::Utils qw(rand_chars);
 use LJ::Global::Constants;
 use LJ::Event;
 use LJ::Subscription::Pending;
@@ -320,7 +323,6 @@ sub bad_input {
     $ret .= "<?badcontent?>\n<ul>\n";
     foreach my $ei (@errors) {
         my $err = LJ::errobj($ei) or next;
-        $err->log;
         $ret .= $err->as_bullets;
     }
     $ret .= "</ul>\n";
@@ -346,7 +348,6 @@ sub error_list {
 
     foreach my $ei (@errors) {
         my $err = LJ::errobj($ei) or next;
-        $err->log;
         $ret .= $err->as_bullets;
     }
     $ret .= " </ul> errorbar?>";
@@ -751,7 +752,7 @@ sub check_referer {
     return 1 if $LJ::DOMAIN     && $referer =~ m!^https?://\Q$LJ::DOMAIN\E$uri!;
     return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^https?://\Q$LJ::DOMAIN_WEB\E$uri!;
     return 1
-        if $LJ::USER_VHOSTS && $referer =~ m!^https?://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
+        if $referer =~ m!^https?://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
     return 1 if $origuri =~ m!^https?://! && $origreferer eq $origuri;
     return undef;
 }
@@ -874,9 +875,6 @@ sub create_qr_div {
         my $res    = Digest::MD5::md5_hex( $secret . $chal );
         $hidden_form_elements .= LJ::html_hidden( "chrp1", "$chal-$res" );
     }
-
-    # For userpic selector
-    my @icons = $remote->icon_keyword_menu;
 
     # hashref with "selected" and "items" keys
     my $editors = DW::Formats::select_items( preferred => $remote->prop('comment_editor'), );
@@ -3306,6 +3304,9 @@ sub control_strip {
         #     .selected => ""
         'viewoptions' => [],
         'search_html' => LJ::Widget::Search->render,
+
+        # url of the rendered page, for the login/logout form to redirect back to
+        'returnto' => $euri,
     };
 
     # Shortcuts for the two nested array refs that get repeatedly dereferenced later

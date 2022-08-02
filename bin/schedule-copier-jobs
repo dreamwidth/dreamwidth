@@ -23,6 +23,8 @@ BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 
+use DW::Task::SphinxCopier;
+
 die "Need to have Sphinx search enabled.\n"
     unless @LJ::SPHINX_SEARCHD;
 
@@ -32,7 +34,11 @@ $sth->execute;
 
 while ( my ( $userid ) = $sth->fetchrow_array ) {
     warn "Scheduling $userid ...\n";
-    DW::TaskQueue->dispatch( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
-                { userid => $userid, source => "schedule" } ) );
+    DW::TaskQueue->dispatch(
+        DW::Task::SphinxCopier->new( {
+            userid => $userid,
+            source => 'schedule',
+        } )
+    );
     select undef, undef, undef, 0.02;
 }

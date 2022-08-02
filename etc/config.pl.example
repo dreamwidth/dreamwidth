@@ -101,12 +101,7 @@
 
     # Support URLs of the form http://username.yoursite.com/ ?
     # If so, what's the part after "username." ?
-    $USER_VHOSTS = 1;
     $USER_DOMAIN = $DOMAIN;
-
-    # If you ONLY want USER_VHOSTS to work and not the typical /users/USER and /community/USER
-    # then set this option:
-    $ONLY_USER_VHOSTS = 1;
 
     # Support updating of journals via email?
     # Users can post to user@$EMAIL_POST_DOMAIN.
@@ -156,11 +151,7 @@
     #$DEFAULT_CAPTCHA_TYPE = "T";
 
 
-    # turn $SERVER_DOWN on while you do any maintenance
-    $SERVER_TOTALLY_DOWN = 0;
-    $SERVER_DOWN = 0;
-    $SERVER_DOWN_SUBJECT = "Maintenance";
-    $SERVER_DOWN_MESSAGE = "$SITENAME is down right now while we upgrade.  It should be up in a few minutes.";
+    # Maintenance messages
     $MSG_READONLY_USER   = "This journal is in read-only mode right now while database maintenance is performed " .
                            "on the server where the journal is located.  Try again in several minutes.";
     $MSG_NO_POST    = "Due to hardware maintenance, you cannot post at this time.  Watch the news page for updates.";
@@ -475,19 +466,6 @@
     # If you want to change the limit on how many bans a user can make, uncomment
     # the following line.  Default is 5000.
     #$MAX_BANS = 5000;
-
-    # Some people on portable devices may have troubles viewing the nice site
-    # scheme you've setup, so you can specify that some user-agent prefixes
-    # should instead use fallback presentation information.
-    %MINIMAL_USERAGENT = (
-        #'Foo' => 1, # if the user-agent field starts with "Foo" ...
-                     # note you can only put text here; no numbers, spaces, or symbols.
-    );
-    $MINIMAL_BML_SCHEME = 'lynx';
-    %MINIMAL_STYLE = (
-        'core' => 'core1', # default, but you can add more layers and styles... note
-                           # that they must be public styles
-    );
 
     # if you know that your installation is behind a proxy or other fence that inserts
     # X-Forwarded-For headers that you can trust (eg Perlbal), enable this.  otherwise, don't!

@@ -18,7 +18,7 @@ the same terms as Perl itself. For a copy of the license, please reference
 [% IF warn_nodata %]
     <blockquote>[% '.warn.support' | ml %]</blockquote>
 [% ELSE %]
-    <table id='support-highscores'><thead><tr>
+    <table id='table support-highscores'><thead><tr>
         <th>[% '.header.rank' | ml %]</th>
         <th>[% '.header.delta' | ml %]</th>
         <th>[% '.header.user' | ml %]</th>

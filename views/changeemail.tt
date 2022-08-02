@@ -68,7 +68,7 @@ the same terms as Perl itself. For a copy of the license, please reference
             </div><br />
             [% UNLESS is_identity %]
                 <div>[% '.label.password2' | ml(remote = remote.ljuser_display) %]<br />
-                <input type='password' name='password' size='50' maxlength='50' tabindex='2' /></div>
+                <input type='password' name='password' size='50' maxlength='[% password_maxlength %]' tabindex='2' /></div>
             [% END %]
         </div>
         <br />

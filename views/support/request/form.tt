@@ -12,7 +12,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[% CALL dw.ml_scope( "/support/see_request.bml" ) %]
+[%- CALL dw.ml_scope( "/support/see_request.tt" ) -%]
+
 <form method='post' action='[% site.root%]/support/append_request' name='supportForm' class='simple-form'>
 
 [%- form.hidden(
@@ -28,7 +29,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <fieldset class='external odd'>
 <legend><span>Reply</span></legend>
-<ul>
+<ul style="margin-top: 1em;">
 <li><label>[% '.from' | ml %]</label> [% from %]</li>
 
 [%- IF faqlist.size -%]
@@ -152,6 +153,7 @@ END -%]
         [%- form.checkbox( label = dw.ml( ".put.in.queue" )
                 name = "touch"
                 id = "touch"
+                value = 1
         ) -%]
         [%- '.use.this.to.re-open' | ml -%]
     </li>
@@ -162,6 +164,7 @@ END -%]
         [%- form.checkbox( label = dw.ml( '.take.out.of.queue' )
                 name = "untouch"
                 id = "untouch"
+                value = 1
         ) -%]
         [%- '.use.this.to.change.awaiting' | ml -%]
     </li>
@@ -172,6 +175,7 @@ END -%]
         [%- form.checkbox( label = dw.ml( '.change.summary' )
                 name = "changesum"
                 id = "changesum"
+                value = 1
         ) -%]
 
         [%- form.textbox(
@@ -196,10 +200,11 @@ END -%]
         )
     -%]
     </li>
+    </ul>
     </fieldset>
 [%- END -%]
 
-<fieldset class='submit'>
+<fieldset style="margin-top: 1em;">
 [%- form.submit( value = dw.ml( is_poster ? ".postbuttoninfo" : ".postbutton" )
              name = "submitpost"
              id = "submitpost"

@@ -779,7 +779,7 @@ sub append_request {
     my $qmessage = $dbh->quote($message);
     my $qtype    = $dbh->quote( $re->{'type'} );
 
-    my $qfaqid  = $re->{'faqid'} + 0;
+    my $qfaqid  = $re->{'faqid'} ? $re->{'faqid'} + 0 : 0;
     my $quserid = $posterid + 0;
     my $spid    = $sp->{'spid'} + 0;
     my $qtier   = $re->{'tier'} ? ( $re->{'tier'} + 0 ) . "0" : "NULL";

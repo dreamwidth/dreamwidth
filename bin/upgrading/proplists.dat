@@ -228,7 +228,7 @@ userproplist.displaydate_check:
   des: Use time of posting by default for this user.
   indexed: 0
   multihomed: 0
-  prettyname: Automatically sets entry page to use time of posting for timestamp.
+  prettyname: Sets entry page to use time of posting for timestamp.
 
 userproplist.dismissed_page_notices:
   cldversion: 4
@@ -1316,7 +1316,7 @@ userproplist.suspendmsg:
   des: Internal notes, not shown to user
   indexed: 0
   multihomed: 0
-  prettyname: Sets message to be shown when running suspend command against this account
+  prettyname: Message to be shown for suspended journal
 
 userproplist.timeformat_24:
   cldversion: 4

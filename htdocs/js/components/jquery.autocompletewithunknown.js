@@ -127,12 +127,12 @@
                 if (!self.options.id)
                     self.options.id = "autocomplete_"+self.element.attr("id");
 
-                self.uiAutocomplete = self.element.wrap("<div class='autocomplete-container border'></div>").parent().attr("id", self.options.id).addClass(self.element.attr("class"));
+                self.uiAutocomplete = self.element.wrap("<span class='autocomplete-container border'></span>").parent().attr("id", self.options.id).addClass(self.element.attr("class"));
 
                 self.uiAutocompletelist = $("<ul class='autocomplete-list'></ul>").appendTo(self.uiAutocomplete).attr( "aria-live", "assertive" );
 
                 // this is just frontend; will use JS to transfer contents to the original field (now hidden)
-                self.uiAutocompleteInput = $("<textarea class='autocomplete-input' rows='1'></textarea>")
+                self.uiAutocompleteInput = $("<input class='autocomplete-input' ></input>")
                         .appendTo(self.uiAutocomplete)
                         .data("autocompletewithunknown", self)
                         .focus(function(e) {
@@ -328,15 +328,22 @@
                 });
             },
 
-            populate: function(url, id) {
+            populate: function(source, id) {
                 var self = this;
 
-                $.getJSON(url, function(data) {
-                    if ( !data ) return;
+                // Source is a URL endpoint we need to fetch
+                if (typeof source === 'string' || source instanceof String) {
+                    $.getJSON(source, function(data) {
+                        if ( !data ) return;
 
-                    self._cacheData(data.tags, id);
+                        self._cacheData(data.tags, id);
+                        self.tagstatus(id);
+                    });
+                } else if (Array.isArray(source)) {
+                // Source is a static array, just store it.
+                    self._cacheData(source, id);
                     self.tagstatus(id);
-                });
+                }
             },
 
             clear: function () {

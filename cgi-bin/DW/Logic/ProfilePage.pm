@@ -710,7 +710,7 @@ sub bio {
     my $ret;
 
     if ( $ret = $u->bio ) {
-        if ( $u->is_identity && $LJ::ONLY_USER_VHOSTS ) {
+        if ( $u->is_identity ) {
             $ret = LJ::ehtml($ret);    # XXXXX FIXME: TEMP FIX
             $ret =~ s!\n!<br />!g;
         }

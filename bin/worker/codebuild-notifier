@@ -27,7 +27,6 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use List::Util qw/ sum /;
 use LWP::UserAgent;
 use Paws;
-use Paws::Credential::InstanceProfile;
 use POSIX qw/ strftime /;
 
 use LJ::JSON;
@@ -49,8 +48,7 @@ my %PHASES = (
 ## Establish SQS connection
 my $paws = Paws->new(
     config => {
-        credentials => Paws::Credential::InstanceProfile->new,
-        region      => $LJ::SQS{region},
+        region => $LJ::SQS{region},
     },
 ) or $log->logcroak('Failed to initialize Paws object.');
 my $sqs = $paws->service('SQS')

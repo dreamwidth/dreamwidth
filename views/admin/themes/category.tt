@@ -39,7 +39,7 @@ td, th { padding: 4px; }
 [%- ELSE -%]
 [% '.delete.note' | ml %]
 [%- END -%][%- END -%]<br/>
-<table summary=''>
+<table class="table" summary=''>
 <tbody id="table_data">
 [%- FOREACH lay IN layers.keys.sort -%]
 <tr data-header="1">

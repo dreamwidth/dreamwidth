@@ -66,7 +66,7 @@ _info?><?_code
     # off/old, and they get a confirmation page, and we're using their
     # mastersesion cookie anyway.
     my $domain_owner = LJ::Session->url_owner;
-    if ($LJ::ONLY_USER_VHOSTS && $domain_owner) {
+    if ($domain_owner) {
         return $bad_input->("URL doesn't match journal owner)")
             unless $domain_owner eq $u->{user};
     }

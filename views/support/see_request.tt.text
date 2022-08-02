@@ -15,13 +15,7 @@
 
 .no-beta=(none)
 
-.birthday=birthday
-
 .change.cat=Change Category
-
-.change.language=Change Language:
-
-.change.language.nolang=(no language set)
 
 .change.summary=Change Summary
 
@@ -35,7 +29,7 @@
 
 .credit.fix=credit fix here
 
-.dataversion=data version 
+.dataversion=data version
 
 .diagnostics=Diagnostics:
 
@@ -47,13 +41,13 @@
 
 .error.text1=You don't have permission to read any support categories.
 
-.error.nonext=<?p No next open request found. p?>
+.error.nonext=<p>No next open request found.</p>
 
-.error.nonext_cat=<?p No next open request in the same category found. p?>
+.error.nonext_cat=<p>No next open request in the same category found.</p>
 
-.error.noprev=<?p No previous open request found. p?>
+.error.noprev=<p>No previous open request found.</p>
 
-.error.noprev_cat=<?p No previous open request in the same category found. p?>
+.error.noprev_cat=<p>No previous open request in the same category found.</p>
 
 .faq=FAQ
 
@@ -61,25 +55,23 @@
 
 .from=From:
 
-.goback.text=<?p Return to <a [[request_link]]>Request #[[spid]]</a> p?>
+.goback.text=<p>Return to <a [[request_link]]>Request #[[spid]]</a></p>
 
-.help.link2=Return to the <a [[helplink]]>list of open requests</a>.<br />
+.help.link=Return to the <a [[helplink]]>list of open requests</a>.<br />
 
 .important.notes.text2<<
 <strong>Important Notes:</strong>
 
-<?p [[sitenameshort]] Support is an open-source project run by a community of volunteers. If you think you know the answer to this question, you're welcome to submit an answer in the box below. Your answer will be screened and evaluated by senior support volunteers for content. If your answer is first and correct, it will be sent to the person who submitted the question. p?>
+<p>[[sitenameshort]] Support is an open-source project run by a community of volunteers. If you think you know the answer to this question, you're welcome to submit an answer in the box below. Your answer will be screened and evaluated by senior support volunteers for content. If your answer is first and correct, it will be sent to the person who submitted the question.</p>
 
-<?p If you have questions about Support, please read the <a href="http://wiki.dreamwidth.net/notes/Category:Support">Support Wiki category</a> for more information. p?>
+<p>If you have questions about Support, please read the <a href="http://wiki.dreamwidth.net/notes/Category:Support">Support Wiki category</a> for more information.</p>
 
-<?p Thank you! p?>
+<p>Thank you!</p>
 .
 
 .internal.comment=Internal Comment
 
 .lock.request=Lock Request
-
-.manualset=manual set 
 
 .mast.login=You must <a [[loginlink]]>log in</a> to answer Support requests.
 
@@ -99,7 +91,7 @@
 
 .not.have.access=You don't have authorization to answer people's support requests in this category.
 
-.nothaveprivilege=You don't have the necessary privileges to view this request. 
+.nothaveprivilege=You don't have the necessary privileges to view this request.
 
 .open=Open
 
@@ -155,20 +147,6 @@
 
 .take.out.of.queue=Take out of Queue:
 
-.tier=Tier:
-
-.tier.0=Tier 0
-
-.tier.1=Tier 1:
-
-.tier.2=Tier 2:
-
-.tier.3=Tier 3:
-
-.tier.selectone=(select one)
-
-.tier.set=Set Tier for Response:
-
 .timeposted=Time posted
 
 .title=Request #[[reqid]]
@@ -177,11 +155,7 @@
 
 .unable.connect=(unable to connect to cluster, some data temporarily unavailable)
 
-.underage=underage
-
 .uniq=Uniq:
-
-.uniquecookie=unique cookie 
 
 .unknown=Unknown
 
@@ -195,19 +169,12 @@
 
 .use.this.to.summary=(Use this to change the request summary.)
 
+.userlog=Userlog
+
 .username=Account Name
 
 .userreadonly=(this account is currently in read-only mode)
 
 .view=View
 
-.wasby=was by
-
 .yes=Yes
-
-.yesbirthday=yes because of birthday
-
-.yesmanualset=yes because of manual set
-
-.yesuniquecookie=yes because of unique cookie
-

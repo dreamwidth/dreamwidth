@@ -314,7 +314,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class='qr-meta'>
 [%- current_icon = comment.current_icon;
-   current_icon_kw = comment.current_icon_kw; -%]
+   current_icon_kw = comment.current_icon_kw;
+   focus_after_browse = "#body" -%]
 [% INCLUDE "components/icon-select-icon.tt" IF remote %]
 [% INCLUDE "components/icon-select-dropdown.tt" IF remote %]
 </div>

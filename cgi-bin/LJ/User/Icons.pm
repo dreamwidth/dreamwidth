@@ -907,21 +907,21 @@ sub _create_mapid {
 #      building a drop-down icons menu.
 # args: user
 # des-user: a user object.
-# returns: An array of hashrefs like:
-#          {value => ..., text => ..., data => { url => ..., description => ... }}
-#          which can be passed directly to an LJ::html_select(). Includes an
-#          item for each keyword (thus duplicating icons with multiple
-#          keywords), and an item for the default userpic. If no userpics or if
-#          user is undefined, returns an empty array.
+# returns: An arrayref of hashrefs like:
+#          [{value => ..., text => ..., data => { url => ..., description => ... }}, ...]
+#          which can be passed directly to the form.select() template helper.
+#          Includes an item for each keyword (thus duplicating icons with
+#          multiple keywords), and an item for the default userpic. If no
+#          userpics or if user is undefined, returns an empty array.
 # </LJFUNC>
 sub icon_keyword_menu {
     my ($user) = @_;
 
-    return () unless ($user);
+    return [] unless ($user);
 
     my @icons = grep { !( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics($user);
 
-    return () unless (@icons);
+    return [] unless (@icons);
 
     # Get a sorted array of { keyword => "...", userpic => userpic_object } hashrefs:
     @icons = LJ::Userpic->separate_keywords( \@icons );
@@ -934,9 +934,9 @@ sub icon_keyword_menu {
         ? $default_icon->url
         : ( $LJ::IMGPREFIX . $LJ::Img::img{nouserpic_sitescheme}->{src} );
 
-    # Finally, return the expected format for an LJ::html_select,
+    # Finally, return the expected format for the form.select() template helper,
     # including an item for the default icon:
-    return (
+    return [
         {
             value => "",
             text  => LJ::Lang::ml('entryform.opt.defpic'),
@@ -955,7 +955,7 @@ sub icon_keyword_menu {
                 },
             }
         } @icons
-    );
+    ];
 }
 
 1;

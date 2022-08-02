@@ -1,0 +1,38 @@
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[% dw.need_res( { group => "foundation" }, 'stc/css/pages/inbox.css', 'js/jquery.inbox.js', 'js/jquery.esn.js', 'js/jquery.commentmanage.js', 'js/jquery.ajaxtip.js' ) %]
+[%- sections.title = '.title' | ml -%]
+
+<div id="inbox">
+    [% folder_html %]
+
+    <div id="inbox_messages">
+
+    <form action="[% site.root %]/inbox" method="POST">
+        [% dw.form_auth() %]
+        [% form.hidden(name = 'view', value = view) IF view %]
+        [% form.hidden(name = 'page', value = page) IF page%]
+        [% form.hidden(name = 'itemid', value = itemid) IF itemid %]
+            <div class="header searchhighlight" id="action_row">
+                <div class="checkbox">[% form.checkbox(name = 'check_all', id = 'check_all', value = 'check_all') %]</div>
+                <div class="actions">
+                    [% form.submit(name = 'mark_read', value = dw.ml('widget.inbox.menu.mark_read.btn'), class = 'action_button button small', 'data-action' = 'mark_read') %]
+                    [% form.submit(name = 'mark_unread', value = dw.ml('widget.inbox.menu.mark_unread.btn'), class = 'action_button button small', 'data-action' =  'mark_unread') %]
+                    [% form.submit(name = 'delete', value = dw.ml('.menu.delete.btn'), class = 'action_button button small', 'data-action' =  'delete') %]
+                </div>
+                <div class="pages">
+                    [%- INCLUDE components/pagination.tt
+                        current => page
+                        total_pages => last_page -%]
+                </div>
+                <div class="actions-all">
+                    [% form.submit(name = 'mark_all', value = dw.ml(mark_all), class = 'action_button button small', 'data-action' = 'mark_all') %]
+                    [% form.submit(name = 'delete_all', value = dw.ml(delete_all), class = 'action_button button small', 'data-action' = 'delete_all') %]
+                </div>
+        </div>
+
+        <div id="inbox_message_list">
+        [% item_html %]
+        </div>
+    </form>
+    </div>
+</div>

@@ -4,5 +4,7 @@
     list-style-position: outside;
 }
 
-.summary {font-weight: bold;}
+.summary { font-weight: bold; }
 
+#search-q, #search-lang { width: auto; display: inline; margin: 1em; }
+#search-lang { padding-right: 2rem; }

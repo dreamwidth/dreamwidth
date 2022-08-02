@@ -15,6 +15,7 @@ package LJ::Session;
 use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
+use LJ::Utils qw(rand_chars);
 
 use constant VERSION => 1;
 
@@ -265,7 +266,7 @@ sub update_master_cookie {
         push @expires, expires => $sess->expiration_time;
     }
 
-    my $domain = $LJ::ONLY_USER_VHOSTS ? ( $LJ::DOMAIN_WEB || $LJ::DOMAIN ) : $LJ::DOMAIN;
+    my $domain = $LJ::DOMAIN_WEB || $LJ::DOMAIN;
 
     set_cookie(
         ljmastersession => $sess->master_cookie_string,
@@ -703,7 +704,7 @@ sub destroy_sessions {
 sub clear_master_cookie {
     my ($class) = @_;
 
-    my $domain = $LJ::ONLY_USER_VHOSTS ? ( $LJ::DOMAIN_WEB || $LJ::DOMAIN ) : $LJ::DOMAIN;
+    my $domain = $LJ::DOMAIN_WEB || $LJ::DOMAIN;
 
     set_cookie(
         ljmastersession => "",

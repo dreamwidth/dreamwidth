@@ -38,8 +38,6 @@ sub make_feed {
         return undef;
     }
 
-    $r->note( 'codepath' => "feed.$feedtype" ) if $r;
-
     my $dbr = LJ::get_db_reader();
 
     my $user = $u->user;

@@ -929,6 +929,10 @@ body { $page_background $page_font margin: 0; padding: 0; }
     min-width: 15em;
 }
 
+.comment .admin-poster {
+    white-space: nowrap;
+}
+
 .userpic a {background-color: $*color_page_border; border: 0px; }
 .entry .userpic a, .comment .userpic a {background-color: $*color_entry_background; border: solid 2px $*color_page_border; display: block; position: absolute; padding: 5px; }
 

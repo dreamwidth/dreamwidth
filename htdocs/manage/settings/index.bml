@@ -19,6 +19,8 @@ body<=
     use strict;
     use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
 
+    use LJ::Setting;
+
     BML::set_language_scope('/manage/settings/index.bml');
 
     LJ::need_res("stc/tabs.css", "stc/settings.css", "js/settings.js");

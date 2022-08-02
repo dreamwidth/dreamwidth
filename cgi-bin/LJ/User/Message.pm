@@ -16,6 +16,7 @@ use strict;
 no warnings 'uninitialized';
 
 use Carp;
+use Digest::SHA1;
 use Text::Fuzzy;
 use LJ::Subscription;
 

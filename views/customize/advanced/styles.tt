@@ -28,7 +28,7 @@
         <div><h1>[% dw.ml('.yourstyles.header') %] </h1></div>
 
         [%# show style listing %]
-        <table summary='' style='margin-left: 40px'>
+        <table class="table" summary='' style='margin-left: 40px'>
         [% IF ustyle.keys %]
             [% journalbase = u.journal_base %]
             [% FOREACH styleid IN sortedustyles %]
@@ -65,7 +65,7 @@
     [%# note: this little bit of code appears whether there is an id passed or not. %]
     [%#       the textbox just has a different purpose depending on the context. %]
     <h1>[% id ? dw.ml('.styleoptions.header') : dw.ml('.createstyle.header') %]</h1>
-    <table summary='' style='margin-bottom: 10px'>
+    <table class="table" summary='' style='margin-bottom: 10px'>
     <tr><td>[% dw.ml('.createstyle.label.name') %] </td><td>
 
     [% form.textbox('name' => 'stylename', 'size' => '30', 'maxlength' => '255', 
@@ -121,7 +121,7 @@
     [%### core version %]
 
     <h1>[% dw.ml('.stylelayers.header') %] </h1>
-    <table summary=''>
+    <table class="table" summary=''>
     <tr><td>[% dw.ml('.stylelayers.label.coreversion') %] </td><td>
     [% PROCESS layerselect type = 'core', b2lid = 0 %]
     [% form.hidden( name = 'core_hidden', value = core) %]
@@ -130,7 +130,7 @@
 
     [%### i18nc / layout %]
 
-    <table summary='' style='margin: 10px 0 0 40px'>
+    <table class="table" summary='' style='margin: 10px 0 0 40px'>
 
     [%# i18nc %]
     <tr><td>[% dw.ml('.stylelayers.label.corelanguage') %] </td><td>
@@ -154,7 +154,7 @@
     [%### theme / i18n / user %]
 
     [%# theme %]
-    <table summary='' style='margin: 10px 0 0 80px'>
+    <table class="table" summary='' style='margin: 10px 0 0 80px'>
     <tr><td>[% dw.ml('.stylelayers.label.language') %]</td><td>
     [% PROCESS layerselect type = 'i18n', b2lid = layout %]    
     [% PROCESS layerother name = 'i18n' %]</td></tr>

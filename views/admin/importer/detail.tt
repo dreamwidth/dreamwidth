@@ -26,7 +26,7 @@ Pending imports for [% username %].
 [%- IF import_items.defined && import_items.size > 0 -%]
     [%- FOREACH import_id = import_items.keys.sort -%]
     <h3>Import #[% import_id %]</h3>
-    <table>
+    <table class="table">
     <thead><tr>
         <th>[% '.col.item' | ml %]</th>
         <th>[% '.col.status' | ml %]</th>

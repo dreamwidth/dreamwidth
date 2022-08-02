@@ -1,12 +1,23 @@
-th[scope="row"] {
-    text-align: left;
+$include-html-table-classes: false;
+@import 'foundation/components/tables';
+
+// You can opt into Foundation-styled tables by adding class `table`, but
+// turning them on by default makes a dumb mess (just due to the site's nature).
+table.table {
+    @include table;
+
+    th[scope="row"] {
+        text-align: left;
+    }
+
+    th label {
+        color: $table-head-font-color;
+    }
 }
 
-table th label {
-    color: $table-head-font-color;
-}
-
-table.data-table {
-    width: auto;
-    max-width: 100%;
+// Alternately, here's the padding the old site skins used.
+table:not(.table) {
+    td, th {
+        padding: 0.2em 0.8em;
+    }
 }

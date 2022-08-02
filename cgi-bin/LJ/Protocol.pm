@@ -16,6 +16,8 @@
 use strict;
 no warnings 'uninitialized';
 
+use Digest::MD5;
+
 use LJ::Global::Constants;
 use LJ::Console;
 use LJ::Event::JournalNewEntry;
@@ -177,10 +179,6 @@ sub do_request {
     $flags ||= {};
     my @args = ( $req, $err, $flags );
 
-    my $apache_r = eval { BML::get_request() };
-    $apache_r->notes->{codepath} = "protocol.$method"
-        if $apache_r && !$apache_r->notes->{codepath};
-
     DW::Stats::increment( 'dw.protocol_request', 1, ["method:$method"] );
 
     if ( $method eq "login" )            { return login(@args); }
@@ -210,9 +208,6 @@ sub do_request {
     if ( $method eq "sendmessage" )      { return sendmessage(@args); }
     if ( $method eq "setmessageread" )   { return setmessageread(@args); }
     if ( $method eq "addcomment" )       { return addcomment(@args); }
-
-    $apache_r->notes->{codepath} = ""
-        if $apache_r;
 
     return fail( $err, 201 );
 }
@@ -3585,13 +3580,6 @@ sub do_request {
     unless ($user) {
         $res->{'success'} = "FAIL";
         $res->{'errmsg'}  = "Client error: No username sent.";
-        return;
-    }
-
-    ### see if the server's under maintenance now
-    if ($LJ::SERVER_DOWN) {
-        $res->{'success'} = "FAIL";
-        $res->{'errmsg'}  = $LJ::SERVER_DOWN_MESSAGE;
         return;
     }
 

@@ -365,6 +365,10 @@ sub render_scheme {
     my $r = DW::Request->get;
     my $out;
 
+    my $args    = $r->query_string;
+    my $baseuri = "$LJ::PROTOCOL://" . $r->host . $r->uri;
+    $baseuri .= $args ? "?$args" : "";
+
     my $opts = $scheme->get_vars;
     $opts->{sections}       = $sections;
     $opts->{inheritance}    = [ map { "$_.tt" } reverse $scheme->inheritance ];
@@ -372,6 +376,7 @@ sub render_scheme {
     $opts->{get}            = $r->get_args;
     $opts->{resource_group} = $LJ::ACTIVE_RES_GROUP;
     $opts->{msgs}           = $r->msgs;
+    $opts->{returnto}       = $baseuri;
 
     $scheme_engine->process( "_init.tt", $opts, \$out )
         or die $scheme_engine->error->as_string;

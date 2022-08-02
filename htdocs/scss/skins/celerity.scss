@@ -104,8 +104,9 @@ $reveal-border-color:                   $form-border-color;
 $sub-nav-font-color:	$inactive-color;
 
 // pagination
-$pagination-link-font-color:	$inactive-color;
+$pagination-link-font-color:	$link-color;
 $pagination-link-unavailable-font-color:	$inactive-color;
+$pagination-link-current-font-color: $highlight-color;
 
 // tables
 $table-bg:              $form-bg-color;
@@ -295,12 +296,14 @@ footer { border-top: 4px double $header-image-color;
     }
 }
 
-.action-box ul.pagination li:hover a, .action-box ul.pagination li a:focus, {
+.action-box ul.pagination li:hover a, .action-box ul.pagination li a:focus {
     background-color: $input-border-color;
     
 }
 
-.action-box ul.pagination li.current:hover a, .action-box ul.pagination li.current a:focus, {
+.action-box ul.pagination li.current:hover a, .action-box ul.pagination li.current a:focus, 
+.action-box ul.pagination li.current a:visited {
     background-color: $primary-color;
+    color: $pagination-link-current-font-color;
     
 }

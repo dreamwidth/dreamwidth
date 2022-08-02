@@ -63,7 +63,7 @@
 
 <h3>[% '.header.queryone' | ml( banquery = banquery ) %]</h3>
 
-<table>
+<table class="table">
   <thead><tr>
     <th>[% '.col.type' | ml %]</th>
     <th>[% '.col.exp'  | ml %]</th>

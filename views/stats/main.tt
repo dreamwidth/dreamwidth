@@ -188,7 +188,7 @@
 
 <p>[% '.age.desc' | ml %]</p>
 
-<table summary=''>
+<table class="table" summary=''>
 [%-   FOREACH a IN ages;
         width = scale_bar( age.$a ) -%]
   <tr>

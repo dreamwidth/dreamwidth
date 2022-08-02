@@ -22,7 +22,10 @@ package DW::Auth::Challenge;
 use strict;
 use v5.10;
 use Log::Log4perl;
+use Digest::MD5;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use LJ::Utils qw(rand_chars);
 
 ################################################################################
 #
@@ -67,7 +70,7 @@ sub check {
         }
         else {
             my $dbh = LJ::get_db_writer();
-            my $rv  = $dbh->do( q{SELECT GET_LOCK(?,5)}, undef, $chal );
+            my $rv  = $dbh->do( q{SELECT GET_LOCK(?,5)}, undef, Digest::MD5::md5_hex($chal) );
             if ($rv) {
                 $count = $dbh->selectrow_array( q{SELECT count FROM challenges WHERE challenge=?},
                     undef, $chal );

@@ -636,8 +636,7 @@ sub make_journal {
         return $error->( 'error/vhost.tt', { u => $u, msg => $_[0] } );
     };
 
-    if (   $LJ::USER_VHOSTS
-        && $opts->{'vhost'} eq "users"
+    if (   $opts->{'vhost'} eq "users"
         && !$u->is_redirect
         && !LJ::get_cap( $u, "userdomain" ) )
     {
@@ -876,9 +875,6 @@ sub make_journal {
     }
 
     if ( $stylesys == 2 ) {
-        $r->note( codepath => "s2.$view" )
-            if $r;
-
         eval { LJ::S2->can("dostuff") };    # force Class::Autouse
 
         my $mj;

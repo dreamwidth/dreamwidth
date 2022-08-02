@@ -131,7 +131,7 @@ class="bargraph" />
 <h2>[% '.paid.title' | ml %]</h2>
 <p>[% '.paid.explanation1' | ml %]</p>
 [% IF paid.defined %]
-    <table class='stats-matrix'><thead><tr>
+    <table class='table stats-matrix'><thead><tr>
     [% FOREACH h = [ 'level' 'number' 'pct_total' 'pct_active' ] %]
         <th>[% ".paid.colhdr.$h" | ml %]</th>
     [% END %]

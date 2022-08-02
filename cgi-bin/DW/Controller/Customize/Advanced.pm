@@ -18,6 +18,7 @@ package DW::Controller::Customize::Advanced;
 
 use strict;
 use warnings;
+use Digest::MD5;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -397,10 +398,9 @@ sub layers_handler {
         my @ulayouts = ();
         push @ulayouts, map {
             $_,
-                BML::ml(
-                '.createlayer.layoutspecific.select.userlayer',
-                { 'name' => $ulay->{$_}->{'name'}, 'id' => $_ }
-                )
+                LJ::Lang::ml(
+                '/customize/advanced/layers.tt.createlayer.layoutspecific.select.userlayer',
+                { 'name' => $ulay->{$_}->{'name'}, 'id' => $_ } )
             }
             sort { $ulay->{$a}->{'name'} cmp $ulay->{$b}->{'name'} || $a <=> $b }
             grep { $ulay->{$_}->{'type'} eq 'layout' }

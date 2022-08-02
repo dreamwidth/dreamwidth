@@ -31,8 +31,9 @@ use DW::Auth::Password;
 
 my $styleinfo_privs = [
     sub {
+        my $remote = LJ::isu( $_[0] ) ? $_[0] : $_[0]->{remote};
         return (
-            LJ::Support::has_any_support_priv( $_[0]->{remote} ),
+            LJ::Support::has_any_support_priv($remote),
             LJ::Lang::ml("/admin/index.tt.anysupportpriv")
         );
     },

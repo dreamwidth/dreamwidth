@@ -1,0 +1,20 @@
+<script>
+LJ_cmtinfo = {};
+LJ_cmtinfo['disableInlineDelete'] = 1;
+</script>
+
+[%- count = 0 -%]
+[%- FOR m IN messages -%]
+    <div class="inbox_item_row [% count % 2 == 1 ? "odd" : "even" %]">
+    <div class="checkbox">[% form.checkbox(name = "check_$m.qid", id = "check_$m.qid", class= "item_checkbox", value = m.qid) %]</div>
+    <div class="item">
+        <div class="InboxItem_Controls"><a href='[% site.root _ "/inbox/?page=$page&view=$view&$m.bookmark=$m.qid" %]' data-qid ='[% m.qid %]' data-action ='[% m.bookmark %]' class="item_bookmark_action">
+            [% m.bookmark_img %]</a>
+            <a href="[% site.root _ "/inbox/?page=$page&view=$view&expand=$m.qid" %]" data-qid ='[% m.qid %]' class="item_expand_action">[% m.expanded_img %]</a></div>
+        <span class="[% m.read %]" id="Title_[% m.qid %]">[% m.title %]</span>
+                [% IF m.contents %]<div class="InboxItem_Content usercontent [% m.expanded %]" id="inbox_item_[% m.qid %]">[% m.contents %]</div>[% END %]
+        </div>
+        <div class="time detail">[% m.abs_time %]<br>[% m.rel_time %]</div>
+    </div>
+    [%- count = count + 1 -%]
+[%- END -%]

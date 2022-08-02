@@ -351,8 +351,6 @@
     # (16 bit unsigned int ... each bit is capability class flag)
     $NEWUSER_CAPS = 2;
 
-    $ONLY_USER_VHOSTS = 1;
-
     ## MISC SETTINGS ##
     $DOMAIN              = "test.dw";
     $USER_DOMAIN         = $DOMAIN;

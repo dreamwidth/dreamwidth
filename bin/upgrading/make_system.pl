@@ -41,8 +41,8 @@ my $u = LJ::User->create(
 );
 unless ($u) {
     print "Already exists.\nModifying 'system' account...\n";
-    my $id = LJ::get_userid("system");
-    $dbh->do( "UPDATE password SET password=? WHERE userid=?", undef, $pass, $id );
+    my $u = LJ::load_user('system');
+    $u->set_password($pass);
 }
 
 $u ||= LJ::load_user("system");
@@ -50,6 +50,9 @@ unless ($u) {
     print "ERROR: can't find newly-created system account.\n";
     exit 1;
 }
+
+# Make sure the system journal has a style to use
+$u->set_default_style;
 
 print "Giving 'system' account 'admin' priv on all areas...\n";
 if ( $u->has_priv( "admin", "*" ) ) {

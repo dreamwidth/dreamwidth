@@ -30,10 +30,8 @@ BML::register_block( "JSPREFIX",      "S", $LJ::JSPREFIX );
 # dynamic blocks to implement calling our ljuser function to generate HTML
 #    <?ljuser banana ljuser?>
 #    <?ljcomm banana ljcomm?>
-#    <?ljuserf banana ljuserf?>
-BML::register_block( "LJUSER",  "DS", sub { LJ::ljuser( $_[0]->{DATA} ); } );
-BML::register_block( "LJCOMM",  "DS", sub { LJ::ljuser( $_[0]->{DATA} ); } );
-BML::register_block( "LJUSERF", "DS", sub { LJ::ljuser( $_[0]->{DATA}, { full => 1 } ); } );
+BML::register_block( "LJUSER", "DS", sub { LJ::ljuser( $_[0]->{DATA} ); } );
+BML::register_block( "LJCOMM", "DS", sub { LJ::ljuser( $_[0]->{DATA} ); } );
 
 # dynamic needlogin block, needs to be dynamic so we can get at the full URLs and
 # so we can translate it

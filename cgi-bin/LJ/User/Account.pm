@@ -75,9 +75,9 @@ sub create {
     my $dbh = LJ::get_db_writer();
 
     $dbh->do(
-        'INSERT INTO user (user, clusterid, dversion, caps, journaltype) '
-            . 'VALUES (?, ?, ?, ?, ?)',
-        undef, $username, $cluster, $LJ::MAX_DVERSION, $caps, $journaltype
+        'INSERT INTO user (user, name, clusterid, dversion, caps, journaltype) '
+            . 'VALUES (?, ?, ?, ?, ?, ?)',
+        undef, $username, '', $cluster, $LJ::MAX_DVERSION, $caps, $journaltype
     );
     return $err->( 'Database error: ', $dbh->errstr ) if $dbh->err;
 
@@ -1399,42 +1399,19 @@ sub journal_base {
         }
     }
 
-    if ($LJ::ONLY_USER_VHOSTS) {
-        my $rule = $u ? $LJ::SUBDOMAIN_RULES->{ $u->journaltype } : undef;
-        $rule ||= $LJ::SUBDOMAIN_RULES->{P};
+    my $rule = $u ? $LJ::SUBDOMAIN_RULES->{ $u->journaltype } : undef;
+    $rule ||= $LJ::SUBDOMAIN_RULES->{P};
 
-        # if no rule, then we don't have any idea what to do ...
-        die "Site misconfigured, no %LJ::SUBDOMAIN_RULES."
-            unless $rule && ref $rule eq 'ARRAY';
+    # if no rule, then we don't have any idea what to do ...
+    die "Site misconfigured, no %LJ::SUBDOMAIN_RULES."
+        unless $rule && ref $rule eq 'ARRAY';
 
-        if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
-            $user =~ s/_/-/g;
-            return "$LJ::PROTOCOL://$user.$LJ::DOMAIN";
-        }
-        else {
-            return "$LJ::PROTOCOL://$rule->[1]/$user";
-        }
-    }
-
-    if ( $vhost eq "users" ) {
-        my $he_user = $user;
-        $he_user =~ s/_/-/g;
-        return "$LJ::PROTOCOL://$he_user.$LJ::USER_DOMAIN";
-    }
-    elsif ( $vhost eq "tilde" ) {
-        return "$LJ::SITEROOT/~$user";
-    }
-    elsif ( $vhost eq "community" ) {
-        return "$LJ::SITEROOT/community/$user";
-    }
-    elsif ( $vhost eq "front" ) {
-        return $LJ::SITEROOT;
-    }
-    elsif ( $vhost =~ /^other:(.+)/ ) {
-        return "$LJ::PROTOCOL://$1";
+    if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
+        $user =~ s/_/-/g;
+        return "$LJ::PROTOCOL://$user.$LJ::DOMAIN";
     }
     else {
-        return "$LJ::SITEROOT/users/$user";
+        return "$LJ::PROTOCOL://$rule->[1]/$user";
     }
 }
 

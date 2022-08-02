@@ -310,7 +310,7 @@ INCLUDE "components/icon-button.tt"
 
 <h2>Select All Tables</h2>
 <div class="row"><div class="large-6 columns">
-<table class="select-all">
+<table class="table select-all">
 <thead>
   <tr class="select-all-header">
     <th scope="row"><span class="select-all-label" id="select-all">Select All</span></th>

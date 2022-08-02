@@ -7,34 +7,49 @@
     background: transparent;
 }
 
-.support-requesttable td {
-    vertical-align: top;
-    padding-left: 1em;
-    padding-right: 1em;
+.header {
+    margin-top: 2em;
 }
 
-.support-requesttable-internal, .support-requesttable-answer, .support-requesttable-screened, .support-requesttable-default {
-    width: 100%;
+.request-form select {
+    display: inline;
+    width: auto;
+    padding-right: 2rem;
+    font-size: 85%;
 }
 
-.support-requesttable-internal td {
-    border: 3px dotted #ff0000;
-    padding: 1em;
+.request-form input, .request-form textarea {
+    display: inline;
+    width: auto;
 }
 
-.support-requesttable-answer td {
-    border: 3px solid #00c000;
-    padding: 1em;
+.request-form label.checkboxlabel {
+    margin: 0;
 }
 
-.support-requesttable-screened td {
-    border: 3px dashed #afaf00;
-    padding: 1em;
+.support-request {
+     margin-bottom: 2em;
 }
 
-.support-requesttable-default td, .requestdiv {
+.support-request .row {
+     padding: 0.15em 0;
+}
+
+.support-reply, .requestdiv, .default {
     border: 3px solid #000;
     padding: 1em;
+}
+
+.internal {
+    border: 3px dotted #ff0000;
+}
+
+.answer {
+    border: 3px solid #00c000;
+}
+
+.screened {
+    border: 3px dashed #afaf00;
 }
 
 fieldset.internal {

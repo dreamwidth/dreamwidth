@@ -42,7 +42,7 @@
 
 [%- IF has_codes -%]
     <p>[% '.label.send' | ml(aopts = "href='/manage/circle/invite'") %]</p>
-    <table class='invitecodes' id='invitecodes'>
+    <table class='table invitecodes' id='invitecodes'>
       <thead><tr>
         <th>[% '.header.code' | ml %]</th>
         <th>[% '.header.recipient' | ml %]</th>

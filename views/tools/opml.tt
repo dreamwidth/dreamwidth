@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<opml version='1.1'>
+<head>
+<title>[% "$u.user's $site.name reading list" | xml %]</title>
+<ownerName>[% u.name | xml %]</ownerName>
+[%- IF email_visible -%]
+<ownerEmail>[% email_visible | xml %]
+[%- END -%]
+</head>
+<body>
+
+[%- FOREACH u IN uids -%]
+<outline text="[% u.title | xml %]" xmlUrl="[% u.feed | xml %]"/>
+[% END -%]
+</body>
+</opml>

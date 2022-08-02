@@ -22,7 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
   <input type="button" id="submitmoreopts" name="submitmoreopts" value="[% '.button.more' | ml %]" />
 
-[% INCLUDE "components/icon-select-icon.tt" %]
+[% INCLUDE "components/icon-select-icon.tt" focus_after_browse = "#body" %]
 
 [% INCLUDE "components/icon-select-dropdown.tt" %]
 

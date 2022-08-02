@@ -99,6 +99,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <form action='[% site.root %]/logout' method='post'>
         [%- dw.form_auth -%]
         [%- remote.ljuser_display -%]
+        <input type="hidden" name="returnto" value="[% returnto | html %]" />
         <input type="hidden" name="ret" value="1" />
         <input class="logout button secondary" type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     </form>
@@ -129,7 +130,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <div id='nav-login-form' class="reveal-modal" data-reveal>
       <div class="row"><div class="columns">
       <form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
-        <input type="hidden" name="returnto" value="[% get.returnto | html %]" />
+        <input type="hidden" name="returnto" value="[% returnto | html %]" />
         <input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
         <input type='hidden' name='response' class='lj_login_response' value='' />
         <div class="row">
@@ -169,6 +170,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <form action='[% site.root %]/logout' method='post'>
         [%- dw.form_auth -%]
         [%- remote.ljuser_display -%]
+        <input type="hidden" name="returnto" value="[% returnto | html %]" />
         <input type="hidden" name="ret" value="1" />
         <input type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     </form>
@@ -188,7 +190,7 @@ the table based way can be removed when the entire site is Foundation-based.
 [%- ELSE -%] [%# no remote, logged out %]
     [%- chal = dw_scheme.challenge_generate(300) -%]
     [%- -%]<form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
-    [%- -%]<input type="hidden" name="returnto" value="[% get.returnto | html %]" />
+    [%- -%]<input type="hidden" name="returnto" value="[% returnto | html %]" />
     [%- -%]<input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
     <input type='hidden' name='response' class='lj_login_response' value='' />
     <table summary='' id='login-table'>
