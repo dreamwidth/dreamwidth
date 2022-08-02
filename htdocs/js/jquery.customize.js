@@ -135,6 +135,7 @@ function renderLayoutchooser(data)   {
 }
 
 function updateCurrentTheme(data){
+    console.log(data);
     $('.theme-current-desc').html(`by <a href="${data.current.designer_link}" class="theme-designer" data-designer="${data.current.designer}">${data.current.designer}</a>
                     for <a href="${data.current.layout_link}" class="theme-layout" data-layout="${data.current.layout}"><em>${data.current.layout}</em></a>`);
     $('.theme-current-image').attr('src', data.current.imgurl);
@@ -200,7 +201,7 @@ $(".theme-selector-wrapper").on("submit", ".theme-form", function(event){
     var auth_token = $(this).children("[name=lj_form_auth]").val();
     btn.attr("disabled", true).addClass("theme-button-disabled disabled");
 
-    var postData = Object.assign({}, queryArgs);
+    var postData = new URLSearchParams(queryArgs.toString()); // Object.assign({}, queryArgs);
     postData.append('apply_themeid', btn.data('themeid'));
     postData.append('apply_layoutid', btn.data('layoutid'));
     postData.append('lj_form_auth', auth_token);

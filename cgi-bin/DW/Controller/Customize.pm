@@ -40,7 +40,7 @@ sub customize_handler {
     my $post   = $r->post_args;
     my $u      = $rv->{u};
     my $remote = $rv->{remote};
-    my $GET    = $r->get_args;
+    my $get    = $r->get_args;
 
     my $vars;
     $vars->{u}            = $u;
@@ -50,9 +50,9 @@ sub customize_handler {
     $vars->{style}        = LJ::Customize->verify_and_load_style($u);
     $vars->{authas_html}  = $rv->{authas_html};
 
-    my $queryargs = make_queryargs($GET);
+    my $queryargs = make_queryargs($get);
 
-    if ( $u ne $remote ) {
+    if ( $u->user ne $remote->user ) {
         $queryargs->{authas} = $u->user;
     }
 
@@ -121,11 +121,11 @@ sub customize_handler {
             my $themeid  = $post->{apply_themeid};
             my $layoutid = $post->{apply_layoutid};
 
-            set_theme( apply_themeid => $themeid, apply_layout => $layoutid );
+            set_theme( apply_themeid => $themeid, apply_layout => $layoutid, u => $u );
 
         }
         elsif ( $post->{"save"} ) {
-
+            $post->{u} = $u;
             set_journaltitles($post);
 
         }
@@ -154,18 +154,18 @@ sub customize_handler {
                     layout_choice     => $post->{layout_choice},
                     layout_prop       => $post->{layout_prop},
                     show_sidebar_prop => $post->{show_sidebar_prop},
-                    u                 => $u
-                }
+
+                },
+                $u
             );
         }
         my $redir = LJ::create_url( $url, args => $queryargs, no_blank => 1 );
         return $r->redirect($redir);
 
     }
-
-    $vars->{theme_data}   = get_themechooser_data($queryargs);
-    $vars->{layout_data}  = get_layout_data();
-    $vars->{current_data} = get_current_data(0);
+    $vars->{theme_data}   = get_themechooser_data( $queryargs, $u );
+    $vars->{layout_data}  = get_layout_data($u);
+    $vars->{current_data} = get_current_data( $u, 0 );
 
     # Now we tell it what template to render and pass in our variables
     return DW::Template->render_template( 'customize/index.tt', $vars );
@@ -175,12 +175,13 @@ sub customize_handler {
 ## Handlers for RPC endpoints
 
 sub themechooser_handler {
-    my ( $ok, $rv ) = controller( authas => 1 );
-    return $rv unless $ok;
 
     # gets the request and args
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
+    return $rv unless $ok;
 
-    my $r        = DW::Request->get;
+    my $r        = $rv->{r};
+    my $u        = $rv->{u};
     my $args     = $r->post_args;
     my $themeid  = $args->{apply_themeid};
     my $layoutid = $args->{apply_layoutid};
@@ -188,13 +189,13 @@ sub themechooser_handler {
 
     # apply the new theme selected
 
-    set_theme( apply_themeid => $themeid, apply_layoutid => $layoutid );
+    set_theme( apply_themeid => $themeid, apply_layoutid => $layoutid, u => $u );
 
-    my $theme_data = get_themechooser_data($getargs);
+    my $theme_data = get_themechooser_data( $getargs, $u );
     my $theme_html = DW::Template->template_string( 'customize/themechooser.tt',
         { theme_data => $theme_data, qargs => $getargs } );
-    my $layout_data  = get_layout_data();
-    my $current_data = get_current_data(0);
+    my $layout_data  = get_layout_data($u);
+    my $current_data = get_current_data( $u, 0 );
 
     $r->print(
         to_json(
@@ -202,7 +203,8 @@ sub themechooser_handler {
                 theme_html   => $theme_html,
                 layout_data  => $layout_data,
                 current_data => $current_data
-            }
+            },
+            { latin1 => 1 }
         )
     );
     return $r->OK;
@@ -212,41 +214,53 @@ sub themechooser_handler {
 sub filter_handler {
 
     # gets the request and args
-    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
+    my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
 
     my $r         = $rv->{r};
+    my $u         = $rv->{u};
     my $args      = $r->get_args;
     my $queryargs = make_queryargs($args);
 
-    my $theme_data = get_themechooser_data($queryargs);
+    my $theme_data = get_themechooser_data( $queryargs, $u );
     my $theme_html = DW::Template->template_string( 'customize/themechooser.tt',
         { 'theme_data' => $theme_data, qargs => $queryargs } );
-    my $current_data = get_current_data(0);
+    my $current_data = get_current_data( $u, 0 );
 
-    $r->print( to_json( { theme_html => $theme_html, current_data => $current_data } ) );
+    $r->print(
+        to_json( { theme_html => $theme_html, current_data => $current_data }, { latin1 => 1 } ) );
     return $r->OK;
 }
 
 sub layoutchooser_handler {
 
     # gets the request and args
-    my $r    = DW::Request->get;
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+
+    my $r    = $rv->{r};
     my $args = $r->post_args;
+    my $u    = $rv->{u};
 
     # set the new titles
 
-    set_layout($args);
+    set_layout( $args, $u );
 
-    $r->print( to_json( get_layout_data($args) ) );
+    $r->print( to_json( get_layout_data($u), { latin1 => 1 } ) );
     return $r->OK;
 }
 
 sub journaltitles_handler {
 
     # gets the request and args
-    my $r    = DW::Request->get;
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+
+    my $r    = $rv->{r};
+    my $u    = $rv->{u};
     my $args = $r->post_args;
+
+    $args->{u} = $u;
 
     # set the new titles
 
@@ -260,17 +274,17 @@ sub options_handler {
     return $rv unless $ok;
 
     my $r      = $rv->{r};
-    my $POST   = $r->post_args;
+    my $post   = $r->post_args;
     my $u      = $rv->{u};
     my $remote = $rv->{remote};
-    my $GET    = $r->get_args;
+    my $get    = $r->get_args;
 
     # if using s1, switch them to s2
     unless ( $u->prop('stylesys') == 2 ) {
         $u->set_prop( stylesys => 2 );
     }
 
-    my $group = $GET->{group} ? $GET->{group} : "presentation";
+    my $group = $get->{group} ? $get->{group} : "presentation";
 
     # make sure there's a style set and load it
     my $style = LJ::Customize->verify_and_load_style($u);
@@ -295,23 +309,23 @@ sub options_handler {
     $ret .= $customize_theme->render(
         group     => $group,
         headextra => \$headextra,
-        post      => $POST,
+        post      => $post,
     );
     $ret .= "</div><!-- end .customize-wrapper -->";
 
     #handle post actions
 
     if ( LJ::did_post() ) {
-        my @errors = LJ::Widget->handle_post( $POST,
+        my @errors = LJ::Widget->handle_post( $post,
             qw(CustomizeTheme CustomTextModule MoodThemeChooser NavStripChooser S2PropGroup LinksList)
         );
         $ret .= LJ::bad_input(@errors) if @errors;
     }
 
     $vars->{content}     = $ret;
-    $vars->{layout_data} = get_layout_data();
+    $vars->{layout_data} = get_layout_data($u);
 
-    $vars->{current_data} = get_current_data(1);
+    $vars->{current_data} = get_current_data( $u, 1 );
 
     # Now we tell it what template to render and pass in our variables
     return DW::Template->render_template( 'customize/index.tt', $vars );
@@ -322,7 +336,7 @@ sub options_handler {
 
 sub set_theme {
     my %opts = @_;
-    my $u    = LJ::get_effective_remote();
+    my $u    = $opts{u};
     die "Invalid user." unless LJ::isu($u);
 
     my $themeid  = $opts{apply_themeid} + 0;
@@ -344,9 +358,8 @@ sub set_theme {
 }
 
 sub set_layout {
-    my $post = shift;
+    my ( $post, $u ) = @_;
 
-    my $u = LJ::get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
     my %override;
@@ -375,7 +388,7 @@ sub set_layout {
 sub set_journaltitles {
     my $post = shift;
 
-    my $u = LJ::get_effective_remote();
+    my $u = $post->{u};
     die "Invalid user." unless LJ::isu($u);
 
     my $eff_val = LJ::text_trim( $post->{title_value}, 0, LJ::std_max_length() );
@@ -386,18 +399,16 @@ sub set_journaltitles {
 # Functions to render backend data in a format that is simpler to process in our templates/JS
 
 sub get_themechooser_data {
-    my $queryargs = shift;
+    my ( $queryargs, $u ) = @_;
     my @themes;
-    my $u      = LJ::get_effective_remote();
     my $remote = LJ::get_remote();
     my %cats   = LJ::Customize->get_cats($u);
 
-    if ( $u ne $remote ) {
+    if ( $u->user ne $remote->user ) {
         $queryargs->{authas} = $u->user;
     }
 
     my $cat_title;
-
     my $current = LJ::Customize->get_current_theme($u);
 
     if ( $queryargs->{cat} eq "all" ) {
@@ -475,13 +486,13 @@ sub get_themechooser_data {
 
     my @theme_data = ();
     for my $theme (@themes) {
-        my $current = ( $theme->themeid && ( $theme->themeid == $current->themeid ) )
+        my $current_theme = ( $theme->themeid && ( $theme->themeid == $current->themeid ) )
             || ( ( $theme->layoutid == $current->layoutid )
             && !$theme->themeid
             && !$current->themeid ) ? 1 : 0;
         my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $u );
 
-        push @theme_data, get_theme_data( $theme, $current, $no_layer_edit );
+        push @theme_data, get_theme_data( $theme, $current_theme, $no_layer_edit );
 
     }
 
@@ -494,7 +505,7 @@ sub get_themechooser_data {
 }
 
 sub get_theme_data {
-    my ( $theme, $current, $no_layer_edit ) = shift;
+    my ( $theme, $current, $no_layer_edit ) = @_;
     my $tmp = {
         imgurl   => $theme->preview_imgurl,
         layoutid => $theme->layoutid,
@@ -533,9 +544,8 @@ sub get_theme_data {
 }
 
 sub get_current_data {
-    my $no_themechooser = shift;
-    my $u               = LJ::get_effective_remote();
-    my $remote          = LJ::get_remote();
+    my ( $u, $no_themechooser ) = @_;
+    my $remote = LJ::get_remote();
 
     my $current       = LJ::Customize->get_current_theme($u);
     my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $u );
@@ -586,7 +596,7 @@ sub get_current_data {
 }
 
 sub get_layout_data {
-    my $u = LJ::get_effective_remote();
+    my $u = $_[0];
     die "Invalid user." unless LJ::isu($u);
 
     my $current           = LJ::Customize->get_current_theme($u);
@@ -641,14 +651,14 @@ sub make_queryargs {
     my $args = shift;
     my $ret_args;
 
-    $ret_args->{cat}      = defined $args->{cat}      ? $args->{cat}      : "";
-    $ret_args->{layoutid} = defined $args->{layoutid} ? $args->{layoutid} : 0;
-    $ret_args->{designer} = defined $args->{designer} ? $args->{designer} : "";
-    $ret_args->{search}   = defined $args->{search}   ? $args->{search}   : "";
-    $ret_args->{page}     = defined $args->{page}     ? $args->{page}     : 1;
-    $ret_args->{show}     = defined $args->{show}     ? $args->{show}     : 12;
+    $args->{cat}      //= "";
+    $args->{layoutid} //= 0;
+    $args->{designer} //= "";
+    $args->{search}   //= "";
+    $args->{page}     //= 1;
+    $args->{show}     //= 12;
 
-    return $ret_args;
+    return $args;
 }
 
 1;
