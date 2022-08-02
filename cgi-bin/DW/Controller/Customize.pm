@@ -67,7 +67,7 @@ sub customize_handler {
     $vars->{viewing_all} = $queryargs->{layoutid} || $queryargs->{designer} || $queryargs->{search};
 
     # sort cats by specificed order key, then alphabetical order
-    my %cats = LJ::Customize->get_cats($remote);
+    my %cats = LJ::Customize->get_cats($u);
     $vars->{cats} = \%cats;
     my @cats_sorted =
         sort { $cats{$a}->{order} <=> $cats{$b}->{order} }
