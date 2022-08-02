@@ -36,11 +36,11 @@ sub customize_handler {
     my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
     return $rv unless $ok;
 
-    my $r      = $rv->{r};
-    my $post   = $r->post_args;
-    my $u      = $rv->{u};
-    my $remote = $rv->{remote};
-    my $get    = $r->get_args;
+    my $r         = $rv->{r};
+    my $post_args = $r->post_args;
+    my $u         = $rv->{u};
+    my $remote    = $rv->{remote};
+    my $get_args  = $r->get_args;
 
     my $vars;
     $vars->{u}            = $u;
@@ -50,7 +50,7 @@ sub customize_handler {
     $vars->{style}        = LJ::Customize->verify_and_load_style($u);
     $vars->{authas_html}  = $rv->{authas_html};
 
-    my $queryargs = make_queryargs($get);
+    my $queryargs = make_queryargs($get_args);
 
     if ( $u->user ne $remote->user ) {
         $queryargs->{authas} = $u->user;
@@ -114,46 +114,46 @@ sub customize_handler {
 
     if ( $r->did_post ) {
         return error_ml('error.invalidform')
-            unless LJ::check_form_auth( $post->{lj_form_auth} );
+            unless LJ::check_form_auth( $post_args->{lj_form_auth} );
 
-        if ( $post->{"action_apply"} ) {
+        if ( $post_args->{"action_apply"} ) {
 
-            my $themeid  = $post->{apply_themeid};
-            my $layoutid = $post->{apply_layoutid};
+            my $themeid  = $post_args->{apply_themeid};
+            my $layoutid = $post_args->{apply_layoutid};
 
             set_theme( apply_themeid => $themeid, apply_layout => $layoutid, u => $u );
 
         }
-        elsif ( $post->{"save"} ) {
-            $post->{u} = $u;
-            set_journaltitles($post);
+        elsif ( $post_args->{"save"} ) {
+            $post_args->{u} = $u;
+            set_journaltitles($post_args);
 
         }
-        elsif ( $post->{filter} ) {
+        elsif ( $post_args->{filter} ) {
             $queryargs->{page} = 1;
         }
-        elsif ( $post->{page} ) {
-            $queryargs->{page} = LJ::eurl( $post->{page} );
+        elsif ( $post_args->{page} ) {
+            $queryargs->{page} = LJ::eurl( $post_args->{page} );
         }
-        elsif ( $post->{show} ) {
-            $queryargs->{show} = LJ::eurl( $post->{show} );
+        elsif ( $post_args->{show} ) {
+            $queryargs->{show} = LJ::eurl( $post_args->{show} );
             $queryargs->{page} = 1;
         }
-        elsif ( $post->{search} ) {
-            $queryargs->{search} = LJ::eurl( $post->{search} );
+        elsif ( $post_args->{search} ) {
+            $queryargs->{search} = LJ::eurl( $post_args->{search} );
         }
-        elsif ( $post->{which_title} ) {
-            my $eff_val = LJ::text_trim( $post->{title_value}, 0, LJ::std_max_length() );
+        elsif ( $post_args->{which_title} ) {
+            my $eff_val = LJ::text_trim( $post_args->{title_value}, 0, LJ::std_max_length() );
             $eff_val = "" unless $eff_val;
-            $u->set_prop( $post->{which_title}, $eff_val );
+            $u->set_prop( $post_args->{which_title}, $eff_val );
         }
-        elsif ( $post->{apply_layout} ) {
+        elsif ( $post_args->{apply_layout} ) {
 
             set_layout(
                 {
-                    layout_choice     => $post->{layout_choice},
-                    layout_prop       => $post->{layout_prop},
-                    show_sidebar_prop => $post->{show_sidebar_prop},
+                    layout_choice     => $post_args->{layout_choice},
+                    layout_prop       => $post_args->{layout_prop},
+                    show_sidebar_prop => $post_args->{show_sidebar_prop},
 
                 },
                 $u
@@ -273,18 +273,18 @@ sub options_handler {
     my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
     return $rv unless $ok;
 
-    my $r      = $rv->{r};
-    my $post   = $r->post_args;
-    my $u      = $rv->{u};
-    my $remote = $rv->{remote};
-    my $get    = $r->get_args;
+    my $r         = $rv->{r};
+    my $post_args = $r->post_args;
+    my $u         = $rv->{u};
+    my $remote    = $rv->{remote};
+    my $get_args  = $r->get_args;
 
     # if using s1, switch them to s2
     unless ( $u->prop('stylesys') == 2 ) {
         $u->set_prop( stylesys => 2 );
     }
 
-    my $group = $get->{group} ? $get->{group} : "presentation";
+    my $group = $get_args->{group} ? $get_args->{group} : "presentation";
 
     # make sure there's a style set and load it
     my $style = LJ::Customize->verify_and_load_style($u);
@@ -309,14 +309,14 @@ sub options_handler {
     $ret .= $customize_theme->render(
         group     => $group,
         headextra => \$headextra,
-        post      => $post,
+        post      => $post_args,
     );
     $ret .= "</div><!-- end .customize-wrapper -->";
 
     #handle post actions
 
     if ( LJ::did_post() ) {
-        my @errors = LJ::Widget->handle_post( $post,
+        my @errors = LJ::Widget->handle_post( $post_args,
             qw(CustomizeTheme CustomTextModule MoodThemeChooser NavStripChooser S2PropGroup LinksList)
         );
         $ret .= LJ::bad_input(@errors) if @errors;
@@ -358,14 +358,14 @@ sub set_theme {
 }
 
 sub set_layout {
-    my ( $post, $u ) = @_;
+    my ( $post_args, $u ) = @_;
 
     die "Invalid user." unless LJ::isu($u);
 
     my %override;
-    my $layout_choice     = $post->{layout_choice};
-    my $layout_prop       = $post->{layout_prop};
-    my $show_sidebar_prop = $post->{show_sidebar_prop};
+    my $layout_choice     = $post_args->{layout_choice};
+    my $layout_prop       = $post_args->{layout_prop};
+    my $show_sidebar_prop = $post_args->{show_sidebar_prop};
     my $current_theme_id  = LJ::Customize->get_current_theme($u);
     my %layouts           = $current_theme_id->layouts;
 
@@ -386,14 +386,14 @@ sub set_layout {
 }
 
 sub set_journaltitles {
-    my $post = shift;
+    my $post_args = shift;
 
-    my $u = $post->{u};
+    my $u = $post_args->{u};
     die "Invalid user." unless LJ::isu($u);
 
-    my $eff_val = LJ::text_trim( $post->{title_value}, 0, LJ::std_max_length() );
+    my $eff_val = LJ::text_trim( $post_args->{title_value}, 0, LJ::std_max_length() );
     $eff_val = "" unless $eff_val;
-    $u->set_prop( $post->{which_title}, $eff_val );
+    $u->set_prop( $post_args->{which_title}, $eff_val );
 }
 
 # Functions to render backend data in a format that is simpler to process in our templates/JS
