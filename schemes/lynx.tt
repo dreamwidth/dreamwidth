@@ -40,7 +40,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% sections.head %]
 </head>
 
-<body [% sections.bodyopts %]>
+<body [% sections.bodyopts %] class="lynx">
 
 <div role="main" id="content">
     <div class="row">
