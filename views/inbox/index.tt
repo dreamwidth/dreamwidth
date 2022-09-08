@@ -7,7 +7,7 @@
 
     <div id="inbox_messages">
 
-    <form action="[% site.root %]/inbox" method="POST">
+    <form action="[% site.root %]/inbox/new" method="POST">
         [% dw.form_auth() %]
         [% form.hidden(name = 'view', value = view) IF view %]
         [% form.hidden(name = 'page', value = page) IF page%]

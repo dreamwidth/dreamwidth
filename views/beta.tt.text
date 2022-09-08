@@ -49,6 +49,22 @@
 
 .betafeature.nos2foundation.title=Temporarily revert updated journal page components
 
+.betafeature.inbox.cantadd=Sorry, your account is not eligible to test this feature.
+
+.betafeature.inbox.off<<
+<p>Activate the testing version of the new Inbox page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion.</p>
+
+<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.inbox.on<<
+<p>You are currently testing the new Inbox page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion.</p>
+
+<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.inbox.title=New Inbox Page
+
 .nofeatures=There are no features currently available for beta testing.
 
 .staytuned.newscomm=Stay tuned to [[news]] for upcoming testing opportunities. Thank you.
