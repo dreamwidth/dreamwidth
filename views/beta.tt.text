@@ -54,13 +54,13 @@
 .betafeature.inbox.off<<
 <p>Activate the testing version of the new Inbox page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion.</p>
 
-<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+<p>To report bugs with the new Inbox page, <a href="https://dw-beta.dreamwidth.org/15010.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
 .
 
 .betafeature.inbox.on<<
 <p>You are currently testing the new Inbox page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion.</p>
 
-<p>To report bugs with the new Create Entries page, <a href="https://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+<p>To report bugs with the new Inbox page, <a href="https://dw-beta.dreamwidth.org/15010.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
 .
 
 .betafeature.inbox.title=New Inbox Page

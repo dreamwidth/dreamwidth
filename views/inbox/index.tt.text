@@ -1,3 +1,5 @@
+.beta.on=You are beta-testing the new Inbox page. If you notice any problems, please report them in [[user]]. To turn off beta testing, visit the <a [[aopts]]>beta features</a> page.
+
 .error.couldnt_retrieve_inbox="Couldn't retrieve inbox for [[user]]"
 
 .error.max_bookmarks=Maximum number of flagged items reached

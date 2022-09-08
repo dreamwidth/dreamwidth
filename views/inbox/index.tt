@@ -2,6 +2,8 @@
 [% dw.need_res( { group => "foundation" }, 'stc/css/pages/inbox.css', 'js/jquery.inbox.js', 'js/jquery.esn.js', 'js/jquery.commentmanage.js', 'js/jquery.ajaxtip.js' ) %]
 [%- sections.title = '.title' | ml -%]
 
+<div class="alert-box secondary">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
+
 <div id="inbox">
     [% folder_html %]
 
