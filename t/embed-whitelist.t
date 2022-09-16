@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 99;
+use Test::More tests => 105;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -105,6 +105,7 @@ note("misc");
 
     # D
     test_good_url("http://www.dailymotion.com/embed/video/x1xx11x");
+    test_good_url("https://diode.zone/videos/embed/52a10666-3a18-4e73-93da-e8d3c12c305a");
     test_good_url("http://dotsub.com/media/9db493c6-6168-44b0-89ea-e33a31db48db/e/m");
     test_good_url("https://discordapp.com/widget?id=305444013354254349&theme=dark");
 
@@ -204,6 +205,7 @@ note("misc");
     test_good_url(
         "http://www.plurk.com/getWidget?uid=123123123&h=375&w=200&u_info=2&bg=cf682f&tl=cae7fd");
     test_good_url("https://pastebin.com/embed_iframe/Juks92Y2");
+    test_good_url("https://podomatic.com/embed/html5/episode/1234567?autoplay=false");
 
     # R
     test_good_url(
@@ -240,6 +242,10 @@ note("misc");
     test_good_url(
 "http://i.cdn.turner.com/cnn/.element/apps/cvp/3.0/swf/cnn_416x234_embed.swf?context=embed&videoId=bestoftv/2012/09/05/exp-tsr-dem-platform-voice-vote.cnn"
     );
+    test_good_url("https://clips.twitch.tv/embed?clip=IncredulousAbstemiousFennelImGlitch&parent=streamernews.example.com&parent=embed.example.com");
+    test_good_url("https://player.twitch.tv/?channel=dallas&parent=streamernews.example.com&muted=true");
+    test_good_url("https://player.twitch.tv/?video=v40464143&parent=streamernews.example.com&autoplay=false");
+    test_good_url("https://player.twitch.tv/?collection=abcDeF1ghIJ2kL&parent=streamernews.example.com");
 
     # V
     test_good_url("https://vid.me/e/v63?stats=1&amp;tools=1");
