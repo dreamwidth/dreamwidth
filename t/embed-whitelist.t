@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 105;
+use Test::More tests => 101;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -242,10 +242,6 @@ note("misc");
     test_good_url(
 "http://i.cdn.turner.com/cnn/.element/apps/cvp/3.0/swf/cnn_416x234_embed.swf?context=embed&videoId=bestoftv/2012/09/05/exp-tsr-dem-platform-voice-vote.cnn"
     );
-    test_good_url("https://clips.twitch.tv/embed?clip=IncredulousAbstemiousFennelImGlitch&parent=streamernews.example.com&parent=embed.example.com");
-    test_good_url("https://player.twitch.tv/?channel=dallas&parent=streamernews.example.com&muted=true");
-    test_good_url("https://player.twitch.tv/?video=v40464143&parent=streamernews.example.com&autoplay=false");
-    test_good_url("https://player.twitch.tv/?collection=abcDeF1ghIJ2kL&parent=streamernews.example.com");
 
     # V
     test_good_url("https://vid.me/e/v63?stats=1&amp;tools=1");
