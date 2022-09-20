@@ -65,9 +65,10 @@ my %host_path_match = (
     "coub.com"                => [ qr!^/embed/!,          1 ],
     "www.criticalcommons.org" => [ qr!/embed_view$!,      0 ],
 
-    "www.dailymotion.com" => [ qr!^/embed/video/!, 1 ],
-    "dotsub.com"          => [ qr!^/media/!,       1 ],
-    "discordapp.com"      => [ qr!^/widget$!,      1 ],
+    "www.dailymotion.com" => [ qr!^/embed/video/!,          1 ],
+    "diode.zone" => [ qr!^/videos/embed/[0-9a-fA-F\-]{36}!, 1 ],
+    "dotsub.com"          => [ qr!^/media/!,                1 ],
+    "discordapp.com"      => [ qr!^/widget$!,               1 ],
 
     "episodecalendar.com" => [ qr!^/icalendar/!, 0 ],
 
@@ -107,9 +108,10 @@ my %host_path_match = (
 
     "onedrive.live.com" => [ qr!^/embed$!, 1 ],
 
-    "playmoss.com"  => [ qr!^/embed/!,            1 ],
-    "www.plurk.com" => [ qr!^/getWidget$!,        1 ],
-    "pastebin.com"  => [ qr!^/embed_iframe/\w+$!, 1 ],
+    "playmoss.com"  => [ qr!^/embed/!,                  1 ],
+    "www.plurk.com" => [ qr!^/getWidget$!,              1 ],
+    "pastebin.com"  => [ qr!^/embed_iframe/\w+$!,       1 ],
+    "podomatic.com" => [ qr!^/embed/html5/episode/\d*!, 1 ],
 
     "www.reverbnation.com" => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
     "www.random.org"       => [ qr!^/widgets/integers/iframe.php$!,        1 ],
