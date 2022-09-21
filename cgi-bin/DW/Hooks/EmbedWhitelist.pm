@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 #
-# This code was based on code originally created by the LiveJournal project
-# owned and operated by Live Journal, Inc. The code has been modified and expanded
+# This code was based on code originally created by Live Journal, Inc. The code has been modified and expanded
 # by Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -127,7 +126,9 @@ my %host_path_match = (
     "www.strava.com"     => [ qr!^/activities/\d+/embed/\w+$!, 1 ],
     "streamable.com"     => [ qr!^/s/!,                        1 ],
 
-    "embed.ted.com" => [ qr!^/talks/!, 1 ],
+    "embed.ted.com" => [ qr!^/talks/!,   1 ],
+    "clips.twitch.tv" => [ qr!^/embed$!, 1 ],
+    "player.twitch.tv" => [ qr!^/$!,     1 ],
 
     "vid.me"           => [ qr!^/e/!,                              1 ],
     "player.vimeo.com" => [ qr!^/video/\d+$!,                      1 ],
