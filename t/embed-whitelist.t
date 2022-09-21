@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 101;
+use Test::More tests => 108;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -90,9 +90,8 @@ note("misc");
 "http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123/size=venti/bgcol=FFFFFF/linkcol=4285BB/"
     );
     test_good_url("http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123");
-
     test_good_url("http://blip.tv/play/x11Xx11Xx.html");
-
+    test_good_url("https://percolate.blogtalkradio.com/offsiteplayer?hostId=123456&episodeId=12345678");
     test_good_url("https://app.box.com/embed/s/eqbvgyrj6uqftb6k8vz2wcdzu4wx7yy4");
 
     # C
@@ -121,6 +120,7 @@ note("misc");
     test_good_url("//www.funnyordie.com/embed/7156588dc7");
 
     # G
+    test_good_url("https://getyarn.io/yarn-clip/embed/3e697ca5-0387-4fad-9315-f5a6d05c80cc?autoplay=false");
     test_good_url(
 "http://www.goodreads.com/widgets/user_update_widget?height=400&num_updates=3&user=12345&width=250"
     );
@@ -180,6 +180,7 @@ note("misc");
 "https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2Fvladmradio%2F25-podcast-from-august-24-2016%2F&hide_cover=1&light=1"
     );
     test_good_url("https://mixstep.co/embed/20v1uter690o");
+    test_good_url("https://www.msnbc.com/msnbc/embedded-video/mmvo123456789012");
     test_good_url("https://my.mail.ru/video/embed/420151911556087230");
     test_good_url(
 "http://player.theplatform.com/p/7wvmTC/MSNBCEmbeddedOffSite?guid=n_hayes_cmerkleyimmig_180604"
@@ -209,10 +210,11 @@ note("misc");
 
     # R
     test_good_url(
-"https://www.reverbnation.com/widget_code/html_widget/artist_299962?widget_id=55&pwc[song_ids]=4189683&context_type=song&pwc[size]=small&pwc[color]=dark"
-    );
-    test_good_url(
 "https://www.random.org/widgets/integers/iframe.php?title=True+Random+Number+Generator&buttontxt=Generate&width=160&height=200&border=on&bgcolor=%23FFFFFF&txtcolor=%23777777&altbgcolor=%23CCCCFF&alttxtcolor=%23000000&defaultmin=&defaultmax=&fixed=off"
+    );
+    test_good_url("https://www.redditmedia.com/r/groupname/comments/ab1xyz/seems_like_a_caption/?ref_source=embed&amp;ref=share&amp;embed=true");
+    test_good_url(
+"https://www.reverbnation.com/widget_code/html_widget/artist_299962?widget_id=55&pwc[song_ids]=4189683&context_type=song&pwc[size]=small&pwc[color]=dark"
     );
 
     # S
@@ -221,6 +223,7 @@ note("misc");
     test_good_url(
         "http://www.scribd.com/embeds/123123/content?start_page=1&view_mode=list&access_key=");
     test_good_url("http://www.slideshare.net/slideshow/embed_code/12312312");
+    test_good_url("https://api.smugmug.com/services/embed/10385063342_c6j9ncH?width=360&height=640&albumId=250921912&albumKey=BqhhKn");
     test_good_url(
 "http://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F23318382&show_artwork=true"
     );
@@ -234,6 +237,8 @@ note("misc");
     test_good_url(
 "https://www.strava.com/activities/1997053955/embed/54dd7dc49efe8f9b00b8fceb01fa822fcc7de662"
     );
+    test_good_url("https://streamable.com/e/asq5b/knxvuf");
+    test_good_url("https://streamable.com/o/asq5b/knxvuf");
     test_good_url("https://streamable.com/s/asq5b/knxvuf");
 
     # T
