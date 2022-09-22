@@ -56,9 +56,10 @@ my %host_path_match = (
     "archive.org"   => [ qr!^/embed/!, 1 ],
     "audiomack.com" => [ qr!^/embed/!, 1 ],
 
-    "bandcamp.com" => [ qr!^/EmbeddedPlayer/!, 1 ],
-    "blip.tv"      => [ qr!^/play/!,           1 ],
-    "app.box.com"  => [ qr!^/embed/s/!,        1 ],
+    "bandcamp.com"                => [ qr!^/EmbeddedPlayer/!, 1 ],
+    "blip.tv"                     => [ qr!^/play/!,           1 ],
+    "percolate.blogtalkradio.com" => [ qr!^/offsiteplayer$!,  1 ],
+    "app.box.com"                 => [ qr!^/embed/s/!,        1 ],
 
     "chirb.it"                => [ qr!^/wp/!,             1 ],
     "codepen.io"              => [ qr!^/enxaneta/embed/!, 1 ],
@@ -75,8 +76,9 @@ my %host_path_match = (
     "www.flickr.com"     => [ qr!/player/$!, 1 ],
     "www.funnyordie.com" => [ qr!/embed/!,   1 ],
 
-    "www.goodreads.com" => [ qr!^/widgets/!,  1 ],
-    "giphy.com"         => [ qr!^/embed/\w+!, 1 ],
+    "getyarn.io"        => [ qr!^/yarn-clip/embed/[0-9a-fA-F\-]{36}!, 1 ],
+    "www.goodreads.com" => [ qr!^/widgets/!,                          1 ],
+    "giphy.com"         => [ qr!^/embed/\w+!,                         1 ],
 
     "maps.google.com"     => [ qr!^/maps!,                   1 ],
     "www.google.com"      => [ qr!^/(calendar/|maps/embed)!, 1 ],
@@ -98,9 +100,10 @@ my %host_path_match = (
 
     "lichess.org" => [ qr!/study/embed/!, 1 ],
 
-    "www.mixcloud.com" => [ qr!^/widget/iframe/$!, 1 ],
-    "mixstep.co"       => [ qr!^/embed/!,          1 ],
-    "my.mail.ru"       => [ qr!^/video/embed/\d+!, 1 ],
+    "www.mixcloud.com" => [ qr!^/widget/iframe/$!,          1 ],
+    "mixstep.co"       => [ qr!^/embed/!,                   1 ],
+    "www.msnbc.com"    => [ qr!^/msnbc/embedded-video/\w+!, 1 ],
+    "my.mail.ru"       => [ qr!^/video/embed/\d+!,          1 ],
 
     "ext.nicovideo.jp" => [ qr!^/thumb/!,                             0 ],
     "noisetrade.com"   => [ qr!^/service/widgetv2/!,                  1 ],
@@ -113,19 +116,21 @@ my %host_path_match = (
     "pastebin.com"  => [ qr!^/embed_iframe/\w+$!,       1 ],
     "podomatic.com" => [ qr!^/embed/html5/episode/\d*!, 1 ],
 
-    "www.reverbnation.com" => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
     "www.random.org"       => [ qr!^/widgets/integers/iframe.php$!,        1 ],
+    "www.redditmedia.com"  => [ qr!^/r/\w+/comments/\w+/\w+/$!,            1 ],
+    "www.reverbnation.com" => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
 
     "www.sbs.com.au" => [ qr!/player/embed/!, 0 ]
     ,    # best guess; language parameter before /player may vary
     "scratch.mit.edu"    => [ qr!^/projects/embed/!,           1 ],
     "www.scribd.com"     => [ qr!^/embeds/!,                   1 ],
     "www.slideshare.net" => [ qr!^/slideshow/embed_code/!,     1 ],
+    "api.smugmug.com"    => [ qr!^/services/embed/\w+$!,       1 ],
     "w.soundcloud.com"   => [ qr!^/player/!,                   1 ],
     "embed.spotify.com"  => [ qr!^/$!,                         1 ],
     "open.spotify.com"   => [ qr!^/($)|(embed/[/\w]+)!,        1 ],
     "www.strava.com"     => [ qr!^/activities/\d+/embed/\w+$!, 1 ],
-    "streamable.com"     => [ qr!^/s/!,                        1 ],
+    "streamable.com"     => [ qr!^/[eos]/!,                    1 ],
 
     "embed.ted.com" => [ qr!^/talks/!, 1 ],
 
