@@ -27,9 +27,9 @@ use DW::FormErrors;
 use LJ::Hooks;
 use Data::Dumper;
 
-DW::Routing->register_string( '/inbox',          \&index_handler,    app => 1 );
-DW::Routing->register_string( '/inbox/compose',  \&compose_handler,  app => 1 );
-DW::Routing->register_string( '/inbox/markspam', \&markspam_handler, app => 1 );
+DW::Routing->register_string( '/inbox/new',          \&index_handler,    app => 1 );
+DW::Routing->register_string( '/inbox/new/compose',  \&compose_handler,  app => 1 );
+DW::Routing->register_string( '/inbox/new/markspam', \&markspam_handler, app => 1 );
 DW::Routing->register_rpc( 'inbox_actions', \&action_handler, format => 'json' );
 
 my $PAGE_LIMIT = 15;

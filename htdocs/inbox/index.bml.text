@@ -1,10 +1,7 @@
-.beta.on=You are beta-testing the new Inbox page. If you notice any problems, please report them in [[user]]. To turn off beta testing, visit the <a [[aopts]]>beta features</a> page.
-
-.error.couldnt_retrieve_inbox="Couldn't retrieve inbox for [[user]]"
+;; -*- coding: utf-8 -*-
+.error.couldnt_retrieve_inbox=Couldn't retrieve inbox for [[user]]
 
 .error.max_bookmarks=Maximum number of flagged items reached
-
-.error.invalidform=The form on this page expired. Please refesh, and try again.
 
 .error.not_ready=Not Ready
 
@@ -17,8 +14,6 @@
 .menu.bookmarks=Bookmarks
 
 .menu.delete_all.btn=Delete All
-
-.menu.delete.btn=Delete
 
 .menu.entries_and_comments=Entries and Comments
 
@@ -37,6 +32,4 @@
 .refresh=Refresh
 
 .title=Inbox
-
-
 

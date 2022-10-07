@@ -2,12 +2,14 @@
 [% dw.need_res( { group => "foundation" }, 'stc/css/pages/inbox.css', 'js/jquery.inbox.js', 'js/jquery.esn.js', 'js/jquery.commentmanage.js', 'js/jquery.ajaxtip.js' ) %]
 [%- sections.title = '.title' | ml -%]
 
+<div class="alert-box secondary">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
+
 <div id="inbox">
     [% folder_html %]
 
     <div id="inbox_messages">
 
-    <form action="[% site.root %]/inbox" method="POST">
+    <form action="[% site.root %]/inbox/new" method="POST">
         [% dw.form_auth() %]
         [% form.hidden(name = 'view', value = view) IF view %]
         [% form.hidden(name = 'page', value = page) IF page%]

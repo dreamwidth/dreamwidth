@@ -1,17 +1,17 @@
         <div id="inbox_folders">
                 <div class="links">
-                    <a href="[% dw.create_url('/inbox', keep_args => ['page', 'view', 'itemid']) %]" id="RefreshLink">[% 'inbox.refresh' | ml %]</a> |
+                    <a href="[% dw.create_url('/inbox/new', keep_args => ['page', 'view', 'itemid']) %]" id="RefreshLink">[% 'inbox.refresh' | ml %]</a> |
                     <a href="[% site.root %]/manage/settings/?cat=notifications">[% 'inbox.manage_settings' | ml %]</a>
                 </div>
             [%- IF user_messaging -%]
-                <a href="/inbox/compose">[% form.submit(value=dw.ml('inbox.menu.new_message.btn'),class="button large compose_btn") %]</a>
+                <a href="/inbox/new/compose">[% form.submit(value=dw.ml('inbox.menu.new_message.btn'),class="button large compose_btn") %]</a>
             [%- END -%]
             <div id="folder_list" class="folder_collapsed  even">
             <div id="folder_btn">
             [% dw.img('inbox_collapse') %] <h3>Folders</h3></div>
             <div class="folders">
                 [% BLOCK folder %]
-                    <a href="/inbox?view=[% f.view %]" id="esn_folder_[% f.view %]" [% 'class="selected"' IF view == f.view %]>
+                    <a href="/inbox/new?view=[% f.view %]" id="esn_folder_[% f.view %]" [% 'class="selected"' IF view == f.view %]>
                         [% "inbox.menu.${f.label}" | ml %]  <span class='unread_count'>[% "($f.unread)" IF f.unread %]</span>
                     </a>
                     [% IF f.children %]
