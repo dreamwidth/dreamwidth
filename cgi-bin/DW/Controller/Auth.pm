@@ -8,7 +8,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2017 by Dreamwidth Studios, LLC.
+# Copyright (c) 2017-2022 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -25,6 +25,8 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use LWP::UserAgent;
 
 use LJ::JSON;
+use LJ::MemCache;
+use LJ::Sysban;
 
 use DW::Captcha;
 use DW::Controller;
@@ -42,6 +44,39 @@ sub captcha_handler {
     my $r        = DW::Request->get;
     my $get_args = $r->get_args;
 
+    # Before we render, let's see if we're in a state where someone is getting
+    # sent to captcha-land in a too aggressive fashion. If so, we want to
+    # apply a sysban to the IP so we stop wasting resources.
+    my $ip    = $r->get_remote_ip;
+    my $mckey = "cct:$ip";
+    my ( $last_seen_ts, $count ) = split( /:/, LJ::MemCache::get($mckey) // "0:0" );
+    if ( $last_seen_ts > 0 ) {
+
+        # Subtract out
+        my $intervals = int( ( time() - $last_seen_ts ) / $LJ::CAPTCHA_FRAUD_INTERVAL_SECS );
+        if ( $intervals > 1 ) {
+            $count -= $LJ::CAPTCHA_FRAUD_FORGIVENESS_AMOUNT * $intervals;
+            $count = 0
+                if $count < 0;
+        }
+    }
+
+    # Set the counter
+    $log->debug( $ip, ' has seen ', $count + 1, ' captcha requests.' );
+    LJ::MemCache::set(
+        $mckey,
+        join( ':', time(), $count + 1 ),
+        $LJ::CAPTCHA_FRAUD_INTERVAL_SECS * $LJ::CAPTCHA_FRAUD_LIMIT
+    );
+
+    # Now the trigger interval, if it's over, sysban this IP but just carry
+    # on with rendering this page (simpler)
+    if ( $count >= $LJ::CAPTCHA_FRAUD_LIMIT ) {
+        $log->info( 'Banning ', $ip, ' for exceeding captcha fraud threshold.' );
+        LJ::Sysban::tempban_create( ip => $ip, $LJ::CAPTCHA_FRAUD_SYSBAN_SECS );
+    }
+
+    # Renderer for GETs
     my $render_captcha_form = sub {
         return DW::Template->render_template( 'auth/captcha.tt',
             { sitekey => $LJ::CAPTCHA_HCAPTCHA_SITEKEY, returnto => $get_args->{returnto} } );
@@ -59,7 +94,6 @@ sub captcha_handler {
     my $post_args = $r->post_args;
     my $response  = $post_args->{'h-captcha-response'}
         or return $render_captcha_form->();
-    my $ip = $r->get_remote_ip;
 
     # Hit up hCaptcha and ask nicely if this is any good
     my $ua = LWP::UserAgent->new;

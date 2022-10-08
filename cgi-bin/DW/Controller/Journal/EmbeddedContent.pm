@@ -39,7 +39,7 @@ DW::Routing->register_string( "/journal/embedcontent", \&embedcontent_handler, a
 sub embedcontent_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1, skip_domsess => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, skip_domsess => 1, skip_captcha => 1 );
     return $rv unless $ok;
 
     my $r = $rv->{r};

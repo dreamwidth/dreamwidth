@@ -299,6 +299,7 @@ sub should_captcha_view {
     # First, refresh remaining according to time since last request
     my $delta_intervals = ( time() - $last_req_ts ) / $LJ::CAPTCHA_REFILL_INTERVAL_SECS;
     if ( $delta_intervals > 1 ) {
+
         # Only add more if we've waited at least an interval
         $remaining += int( $delta_intervals * $LJ::CAPTCHA_REFILL_AMOUNT );
         $remaining = $LJ::CAPTCHA_MAX_REMAINING

@@ -13,13 +13,52 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-use strict;
-
 package LJ::Sysban;
+
+use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use LJ::MemCache;
 
 =head1 Methods
 
 =cut
+
+# Temporary ban; just throws it in memcache as a one-off which can
+# be used to more scalably determine whether or not a particular
+# thing is banned.
+sub tempban_create {
+    my ( $what, $value, $exptime ) = @_;
+
+    $exptime += time()
+        if $exptime < 86400 * 90;
+
+    $log->debug( 'Tempban for ', $what, ' of ', $value, ' until: ', $exptime );
+
+    if ( $what eq 'ip' ) {
+        LJ::MemCache::set( "tempban:ip:$value", 1, $exptime );
+    }
+    elsif ( $what eq 'uniq' ) {
+        LJ::MemCache::set( "tempban:uniq:$value", 1, $exptime );
+    }
+}
+
+# Check if something is temporarily banned. Supports checking if there
+# are multiple things to look for and returns 1 if any are banned.
+sub tempban_check {
+    my ( $what, $values ) = @_;
+
+    die "Invalid $what in tempban" unless $what eq 'ip' || $what eq 'uniq';
+
+    $values = [$values] unless ref $values eq 'ARRAY';
+
+    my $mem = LJ::MemCache::get_multi( map { "tempban:$what:$_" } @$values );
+
+    return 1 if grep { $_ } values %$mem;
+    return 0;
+}
 
 # <LJFUNC>
 # name: LJ::sysban_check
@@ -480,7 +519,9 @@ EOM
 # des-what: the criteria we're sysbanning on
 # des-value: the value we're banning
 # des-bandays: length of sysban (0 for forever)
+# des-exptime: when to expire (unix epoch time)
 # des-note: note to go with the ban (optional)
+# des-noremote: do not attribute ban to remote
 # info: Takes args as a hash.
 # returns: BanID on success, error object on failure
 # </LJFUNC>
@@ -488,7 +529,7 @@ sub create {
 
     my %opts = @_;
 
-    unless ( $opts{what} && $opts{value} && defined $opts{bandays} ) {
+    unless ( $opts{what} && $opts{value} && ( defined $opts{bandays} || defined $opts{exptime} ) ) {
         return bless { message => "Wrong arguments passed; should be a hash\n", }, 'ERROR';
     }
 
@@ -501,6 +542,9 @@ sub create {
     my $banuntil = "NULL";
     if ( $opts{'bandays'} ) {
         $banuntil = "NOW() + INTERVAL " . $dbh->quote( $opts{'bandays'} ) . " DAY";
+    }
+    elsif ( $opts{exptime} ) {
+        $banuntil = "FROM_UNIXTIME(" . ( $opts{exptime} + 0 ) . ")";
     }
 
     # strip out leading/trailing whitespace
@@ -520,13 +564,14 @@ sub create {
     my $banid = $dbh->{'mysql_insertid'};
 
     my $exptime = $opts{bandays} ? time() + 86400 * $opts{bandays} : 0;
+    $exptime = $opts{exptime} if $opts{exptime};
 
     # special case: creating ip/uniq/spamreport ban
     ban_do( $opts{what}, $opts{value}, $exptime );
 
     # log in statushistory
-    my $remote = LJ::get_remote();
-    $banuntil = $opts{'bandays'} ? LJ::mysql_time($exptime) : "forever";
+    my $remote = $opts{noremote} ? undef : LJ::get_remote();
+    $banuntil = $exptime ? LJ::mysql_time($exptime) : "forever";
 
     LJ::statushistory_add( 0, $remote, 'sysban_add',
               "banid=$banid; status=active; "

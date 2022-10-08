@@ -452,6 +452,13 @@ sub trans {
                 return OK;
             }
         }
+
+        if ( LJ::Sysban::tempban_check( ip => \@req_hosts ) ) {
+            $apache_r->handler("perl-script");
+            $apache_r->push_handlers( PerlResponseHandler => \&blocked_bot );
+            return OK;
+        }
+
         if ( LJ::Hooks::run_hook( "forbid_request", $apache_r ) ) {
             $apache_r->handler("perl-script");
             $apache_r->push_handlers( PerlResponseHandler => \&blocked_bot );
