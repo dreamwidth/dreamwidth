@@ -22,12 +22,71 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use LWP::UserAgent;
+
+use LJ::JSON;
+
+use DW::Captcha;
 use DW::Controller;
 use DW::FormErrors;
 use DW::Routing;
 use DW::Template;
 
-DW::Routing->register_string( "/logout", \&logout_handler, app => 1 );
+DW::Routing->register_string( "/captcha", \&captcha_handler, app => 1 );
+DW::Routing->register_string( "/logout",  \&logout_handler,  app => 1 );
+
+sub captcha_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1, skip_captcha => 1 );
+    return $rv unless $ok;
+
+    my $r        = DW::Request->get;
+    my $get_args = $r->get_args;
+
+    my $render_captcha_form = sub {
+        return DW::Template->render_template( 'auth/captcha.tt',
+            { sitekey => $LJ::CAPTCHA_HCAPTCHA_SITEKEY, returnto => $get_args->{returnto} } );
+    };
+    return $render_captcha_form->()
+        unless $r->did_post;
+
+    # If it was a POST and it had the reset get var, just wipe it and do
+    # absolutely nothing else
+    if ( $get_args->{reset} ) {
+        DW::Captcha->reset_captcha;
+        return $render_captcha_form->();
+    }
+
+    my $post_args = $r->post_args;
+    my $response  = $post_args->{'h-captcha-response'}
+        or return $render_captcha_form->();
+    my $ip = $r->get_remote_ip;
+
+    # Hit up hCaptcha and ask nicely if this is any good
+    my $ua = LWP::UserAgent->new;
+    $ua->agent('Dreamwidth Captcha API <accounts@dreamwidth.org>');
+
+    my $res = $ua->post(
+        qq{https://hcaptcha.com/siteverify},
+        Content =>
+qq{response=$response&secret=$LJ::CAPTCHA_HCAPTCHA_SECRET&sitekey=$LJ::CAPTCHA_HCAPTCHA_SITEKEY&remoteip=$ip},
+        'Content-Type' => 'application/x-www-form-urlencoded',
+    );
+
+    return $render_captcha_form->()
+        unless $res->is_success;
+
+    my $obj = from_json( $res->decoded_content );
+    if ( $obj->{success} ) {
+        DW::Captcha->record_success( $rv->{remote} );
+        if ( DW::Controller::validate_redirect_url( $post_args->{returnto} ) ) {
+            return $r->redirect( $post_args->{returnto} );
+        }
+    }
+
+    # Something has gone wrong, just redirect back to the main page in
+    # basically a captcha loop (hopefully they can fix their stuff)
+    return $render_captcha_form->();
+}
 
 sub logout_handler {
 
@@ -38,7 +97,7 @@ sub logout_handler {
 
     my $r      = DW::Request->get;
     my $remote = $rv->{remote};
-    my $vars   = {};
+    my $vars   = { returnto => $r->get_args->{'returnto'} // '', };
 
     if ( $remote && $r->did_post ) {
         my $post_args = $r->post_args;
