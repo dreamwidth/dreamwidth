@@ -298,9 +298,13 @@ sub should_captcha_view {
 
     # First, refresh remaining according to time since last request
     my $delta_intervals = ( time() - $last_req_ts ) / $LJ::CAPTCHA_REFILL_INTERVAL_SECS;
-    $remaining += int( $delta_intervals * $LJ::CAPTCHA_REFILL_AMOUNT );
-    $remaining = $LJ::CAPTCHA_MAX_REMAINING
-        if $remaining > $LJ::CAPTCHA_MAX_REMAINING;
+    if ( $delta_intervals > 1 ) {
+        # Only add more if we've waited at least an interval
+        $remaining += int( $delta_intervals * $LJ::CAPTCHA_REFILL_AMOUNT );
+        $remaining = $LJ::CAPTCHA_MAX_REMAINING
+            if $remaining > $LJ::CAPTCHA_MAX_REMAINING;
+        $last_req_ts = time();
+    }
 
     # Log the things
     $log->debug( $mckey, ' has ', $remaining, ' uses remaining.' );
@@ -309,7 +313,7 @@ sub should_captcha_view {
     return 1 if $remaining <= 0;
 
     # Things look good, so let's allow this to continue but update remaining
-    LJ::MemCache::set( $mckey, join( ':', $first_req_ts, time(), $remaining - 1 ) );
+    LJ::MemCache::set( $mckey, join( ':', $first_req_ts, $last_req_ts, $remaining - 1 ) );
     return 0;
 }
 
