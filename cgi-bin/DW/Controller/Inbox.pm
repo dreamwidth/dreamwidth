@@ -185,9 +185,9 @@ sub render_items {
         if ($contents) {
             LJ::ehtml( \$contents );
 
-            my $is_expanded = $remote->prop('esn_inbox_default_expand');
+            my $is_expanded = $expand && $expand == $item->qid;
+            $is_expanded ||= $remote->prop('esn_inbox_default_expand');
             $is_expanded = 0 if $item->read;
-            $is_expanded = $expand && $expand == $item->qid;
 
             $is_expanded = 1 if ( $view eq "usermsg_sent_last" );
             $expanded    = $is_expanded ? "inbox_expand" : "inbox_collapse";
@@ -260,6 +260,9 @@ sub render_folders {
         push @children,
             { view => 'usermsg_sent', label => 'sent', unread => $inbox->usermsg_sent_event_count };
     }
+
+    # put 'unread' at the very top
+    unshift @children, { view => 'unread', label => 'unread', unread => $inbox->all_event_count };
     push @children, { view => 'bookmark', label => 'bookmarks', unread => $inbox->bookmark_count };
     push @children, { view => 'archived', label => 'archive' } if LJ::is_enabled('esn_archive');
 
