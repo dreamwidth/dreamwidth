@@ -282,7 +282,6 @@ sub should_captcha_view {
     # passed a captcha. If we have information, then they *have* at some point.
     my $info_raw = LJ::MemCache::get($mckey);
     unless ($info_raw) {
-        $log->debug( $mckey, ' has never been seen before, issuing captcha.' );
         return 1;
     }
 
@@ -292,7 +291,7 @@ sub should_captcha_view {
 
     # If the first request is too long ago, then re-captcha
     if ( ( time() - $first_req_ts ) > $LJ::CAPTCHA_RETEST_INTERVAL_SECS ) {
-        $log->debug( $mckey, ' has exceeded the retest interval, issuing captcha.' );
+        $log->info( $mckey, ' has exceeded the retest interval, issuing captcha.' );
         return 1;
     }
 
@@ -307,11 +306,11 @@ sub should_captcha_view {
         $last_req_ts = time();
     }
 
-    # Log the things
-    $log->debug( $mckey, ' has ', $remaining, ' uses remaining.' );
-
     # If we are out of requests, retest
-    return 1 if $remaining <= 0;
+    if ( $remaining <= 0 ) {
+        $log->info( $mckey, ' is out of requests by usage, retesting.' );
+        return 1;
+    }
 
     # Things look good, so let's allow this to continue but update remaining
     LJ::MemCache::set( $mckey, join( ':', $first_req_ts, $last_req_ts, $remaining - 1 ) );
@@ -325,7 +324,7 @@ sub record_success {
     return 0 unless $LJ::CAPTCHA_HCAPTCHA_SITEKEY;
 
     my $mckey = _captcha_mckey();
-    $log->debug( 'Recording success for: ', $mckey );
+    $log->debug( 'Captcha success for: ', $mckey );
     LJ::MemCache::set( $mckey, join( ':', time(), time(), $LJ::CAPTCHA_INITIAL_REMAINING ) );
 }
 
