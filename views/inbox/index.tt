@@ -2,7 +2,7 @@
 [% dw.need_res( { group => "foundation" }, 'stc/css/pages/inbox.css', 'js/jquery.inbox.js', 'js/jquery.esn.js', 'js/jquery.commentmanage.js', 'js/jquery.ajaxtip.js' ) %]
 [%- sections.title = '.title' | ml -%]
 
-<div class="alert-box secondary">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
+<div class="alert-box secondary">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = dw_beta.ljuser_display ) %]</div>
 
 <div id="inbox">
     [% folder_html %]
@@ -15,7 +15,7 @@
         [% form.hidden(name = 'page', value = page) IF page%]
         [% form.hidden(name = 'itemid', value = itemid) IF itemid %]
             <div class="header searchhighlight" id="action_row">
-                <div class="checkbox">[% form.checkbox(name = 'check_all', id = 'check_all', value = 'check_all') %]</div>
+                <div class="checkbox">[% form.checkbox(name = 'check_all', class = 'check_all', value = 'check_all') %]</div>
                 <div class="actions">
                     [% form.submit(name = 'mark_read', value = dw.ml('widget.inbox.menu.mark_read.btn'), class = 'action_button button small', 'data-action' = 'mark_read') %]
                     [% form.submit(name = 'mark_unread', value = dw.ml('widget.inbox.menu.mark_unread.btn'), class = 'action_button button small', 'data-action' =  'mark_unread') %]
@@ -36,7 +36,7 @@
         [% item_html %]
         </div>
             <div class="header searchhighlight" id="action_row">
-                <div class="checkbox">[% form.checkbox(name = 'check_all', id = 'check_all', value = 'check_all') %]</div>
+                <div class="checkbox">[% form.checkbox(name = 'check_all', class = 'check_all', value = 'check_all') %]</div>
                 <div class="actions">
                     [% form.submit(name = 'mark_read', value = dw.ml('widget.inbox.menu.mark_read.btn'), class = 'action_button button small', 'data-action' = 'mark_read') %]
                     [% form.submit(name = 'mark_unread', value = dw.ml('widget.inbox.menu.mark_unread.btn'), class = 'action_button button small', 'data-action' =  'mark_unread') %]

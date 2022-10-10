@@ -25,7 +25,6 @@ use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
 use LJ::Hooks;
-use Data::Dumper;
 
 DW::Routing->register_string( '/inbox/new',          \&index_handler,    app => 1 );
 DW::Routing->register_string( '/inbox/new/compose',  \&compose_handler,  app => 1 );
@@ -133,6 +132,7 @@ sub index_handler {
     elsif ( $view eq "singleentry" ) {
         $mark_all_text   = "widget.inbox.menu.mark_all_read.entry.btn";
         $delete_all_text = "widget.inbox.menu.delete_all.entry.btn";
+        $vars->{itemid}  = $itemid;
     }
     else {
         $mark_all_text   = "widget.inbox.menu.mark_all_read.subfolder.btn";
@@ -369,6 +369,7 @@ sub items_by_view {
     else {
         @all_items = $inbox->all_items;
     }
+
     return \@all_items;
 }
 
