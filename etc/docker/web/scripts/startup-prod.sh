@@ -11,6 +11,9 @@ mkdir $LJHOME/ext/local/etc/apache2/sites-enabled || true
 cp $LJHOME/ext/local/dreamwidth-prod.conf $LJHOME/ext/local/etc/apache2/sites-enabled/dreamwidth.conf
 /usr/sbin/apache2ctl start
 
+# Kick off Varnish
+service varnish start
+
 # Sleep a few seconds to ensure things get up and running
 sleep 5
 

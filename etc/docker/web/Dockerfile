@@ -14,7 +14,7 @@ ENV LJHOME /dw
 # Install some packages we need in web only.
 RUN echo $COMMIT && \
     apt-get update && \
-    apt-get install -y mysql-client vim-tiny && \
+    apt-get install -y mysql-client vim-tiny varnish && \
     curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-system | \
         xargs apt-get -y install && \
     curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-cpanm | \
@@ -39,7 +39,10 @@ ADD config/ /dw/ext/local
 RUN bash /opt/setup.sh
 
 # We run on 80, TLS is handled by a proxy of some kind.
-EXPOSE 80
+EXPOSE 80/tcp
+
+# Varnish is here and is layered in front of Apache typically.
+EXPOSE 6081/tcp
 
 # Kick off the startup script, which does some healthcheck and then starts
 # Apache if things look good.
