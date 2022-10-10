@@ -255,3 +255,13 @@ div.disabled, div.disabled * { color: $text-color-disabled; }
 ul.pagination li a:visited {
     color: $pagination-link-visited-color
 }
+
+
+// Colors for inbox elements
+.selected-msg {
+    background-color: $highlight-color;
+}
+
+.read {
+    color: $text-color-disabled;
+}
