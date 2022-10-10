@@ -176,7 +176,7 @@ sub check_env {
         my $file = $_[0];
         my $out  = "$tempdir/out";
         my $err  = "$tempdir/err";
-        system qq($^X -c $file > $out 2>$err);
+        system qq($^X -I"$ENV{LJHOME}/extlib/lib/perl5" -c $file > $out 2>$err);
         my $err_data = $slurp->($err);
         return 1 if $err_data && $err_data eq "$file syntax OK\n";
     };
