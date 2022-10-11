@@ -1,8 +1,7 @@
-name: dw-base nightly build
+name: dw-worker build
 
 on:
-  #schedule:
-  #  - cron: "25 1 * * *"
+  #push:
   workflow_dispatch:
 
 permissions:
@@ -30,8 +29,8 @@ jobs:
       - name: Build, tag, and push Docker image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: dreamwidth/dw-base
+          REPOSITORY: dreamwidth/dw-worker
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG etc/docker/base
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG etc/docker/worker
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG

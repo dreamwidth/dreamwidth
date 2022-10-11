@@ -1,8 +1,8 @@
-name: dw-base nightly build
+name: dw-proxy build
 
+# No on-push because proxy builds are incredibly rare, so might
+# as well not waste the GHA minutes
 on:
-  #schedule:
-  #  - cron: "25 1 * * *"
   workflow_dispatch:
 
 permissions:
@@ -30,8 +30,8 @@ jobs:
       - name: Build, tag, and push Docker image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: dreamwidth/dw-base
+          REPOSITORY: dreamwidth/dw-proxy
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG etc/docker/base
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG etc/docker/proxy
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
