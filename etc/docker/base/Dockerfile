@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Ubuntu level setup for the basics
 RUN apt-get update && \
     apt-get install -y apt-transport-https && \
-    apt-get install -y curl git cpanminus tzdata rsync && \
+    apt-get install -y curl git cpanminus tzdata rsync vim && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
     dpkg-reconfigure -f noninteractive tzdata && \
     curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-system | \
