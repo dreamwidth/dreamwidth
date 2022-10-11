@@ -15,7 +15,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Ubuntu level setup for the basics
 RUN apt-get update && \
     apt-get install -y apt-transport-https && \
-    apt-get install -y curl git cpanminus tzdata rsync vim golang-go && \
+    apt-get install -y curl git tzdata rsync vim golang-go && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
     dpkg-reconfigure -f noninteractive tzdata && \
     rm -rf /var/lib/apt/lists/*
