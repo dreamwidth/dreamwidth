@@ -32,12 +32,16 @@ sub ban_handler {
 
     my $r = DW::Request->get;
 
-    my $u    = $rv->{remote};
-    my $POST = $r->post_args;
-    my $GET  = $r->get_args;
+    my $u      = $rv->{u};
+    my $remote = $rv->{remote};
+    my $POST   = $r->post_args;
+    my $GET    = $r->get_args;
 
     my $submit_msg = 0;
     my %editvals;
+
+    die "User cannot modify this community"
+        unless $remote->can_manage($u);
 
     if ( $r->did_post ) {
 
