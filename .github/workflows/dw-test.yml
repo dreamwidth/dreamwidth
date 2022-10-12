@@ -7,6 +7,7 @@ on:
 env:
   IMAGE_NAME: test
   TASK_NAME: web-canary
+  SHA_TO_DEPLOY: sha256:1bc75f1b13e94fd7a8725fbd7397a1468104d8f9cdd0d7ac217cd54f00097c55
 
 jobs:
   build:
@@ -29,6 +30,16 @@ jobs:
 
       - name: Get task definition
         run: |
-          aws ecs describe-task-definition \
+          # Get existing task definition
+          TASK_DEFINITION=$(aws ecs describe-task-definition \
             --task-definition arn:aws:ecs:us-east-1:194396987458:task-definition/$TASK_NAME \
-            --region "us-east-1"
+            --region "us-east-1")
+
+          # Update task with new SHA
+          echo $TASK_DEFINITION | \
+            jq '.taskDefinition.containerDefinitions[0].image='\"ghcr.io/dreamwidth/$IMAGE_NAME@$SHA_TO_DEPLOY\" \
+            > task-def.json
+
+          # Test
+          cat task-def.json
+
