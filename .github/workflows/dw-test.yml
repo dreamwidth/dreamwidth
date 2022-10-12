@@ -28,7 +28,7 @@ jobs:
           role-to-assume: arn:aws:iam::194396987458:role/dw-github-actions
           aws-region: us-east-1
 
-      - name: Get task definition
+      - name: Update task definition
         run: |
           # Get existing task definition
           TASK_DEFINITION=$(aws ecs describe-task-definition \
@@ -40,6 +40,8 @@ jobs:
             jq '.taskDefinition.containerDefinitions[0].image='\"ghcr.io/dreamwidth/$IMAGE_NAME@$SHA_TO_DEPLOY\" \
             > task-def.json
 
-          # Test
-          cat task-def.json
-
+          # Register new task version         
+          aws ecs register-task-definition \
+            --family $TASK_NAME \
+            --region ”us-east-1" \
+            --cli-input-json file://task-def.json
