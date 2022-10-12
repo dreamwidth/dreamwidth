@@ -4,33 +4,44 @@ on:
   #push:
   workflow_dispatch:
 
+env:
+  IMAGE_NAME: web
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: write
-      contents: read
+      packages: write
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: arn:aws:iam::194396987458:role/dw-github-actions
-          aws-region: us-east-1
+      - name: Build image
+        run: docker build -t $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}" etc/docker/$IMAGE_NAME
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
-      - name: Build, tag, and push Docker image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: dreamwidth/dw-web
-          IMAGE_TAG: ${{ github.sha }}
+      - name: Push image
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG etc/docker/web
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          # Use Docker `latest` tag convention for master/main
+          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
