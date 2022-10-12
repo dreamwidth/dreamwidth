@@ -7,6 +7,7 @@
 
 buildroot="$LJHOME/build/static"
 mkdir -p $buildroot
+rm /tmp/jcompress
 
 compressor="$LJHOME/ext/yuicompressor/yuicompressor.jar"
 uncompressed_dir="/max"
@@ -86,10 +87,11 @@ do
                 fi
 
                 mkdir -p "$final/$dir"
+                cp -p "$synced_file" "$final/$modified_file"
+
                 if [[ "$ext" = "js" || "$ext" = "css" ]]; then
-                    java -jar $compressor "$synced_file" -o "$final/$modified_file"
-                else
-                    cp -p "$synced_file" "$final/$modified_file"
+                    # Attempt to rewrite the file with compressed version
+                    echo "java -jar $compressor \"$synced_file\" -o \"$final/$modified_file\"" >> /tmp/jcompress
                 fi
             else
                 # we're deleting rather than copying
@@ -102,6 +104,10 @@ do
             fi
         fi
     done
+
+    # Now parallel execute
+    echo "Executing compression (takes a minute)..."
+    cat /tmp/jcompress | xargs -d "\n" -n 1 -P 4 -- bash -c
 done
 
 if [[ -n $compressor ]]; then
