@@ -116,3 +116,4 @@ if [[ -n $compressor ]]; then
     find $buildroot/stc $buildroot/max/stc | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
 fi
 
+exit 0
