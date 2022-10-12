@@ -2,8 +2,8 @@
 # This creates a Dreamwidth worker container.
 #
 
-FROM       194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/base:latest
-MAINTAINER Mark Smith "mark@dreamwidth.org"
+FROM  ghcr.io/dreamwidth/base:latest
+LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
 ARG COMMIT=master
@@ -16,9 +16,9 @@ RUN echo $COMMIT && \
     apt-get update && \
     apt-get install -y mysql-client && \
     curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-system | \
-        xargs apt-get -y install && \
+    xargs apt-get -y install && \
     curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-cpanm | \
-        xargs cpanm -n -L /dw/extlib/ && \
+    xargs cpanm -n -L /dw/extlib/ && \
     rm -rf /var/lib/apt/lists/*
 
 # Actually check out the source code now.

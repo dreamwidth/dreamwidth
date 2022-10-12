@@ -1,7 +1,7 @@
 name: dw-web build
 
 on:
-  #push:
+  push:
   workflow_dispatch:
 
 env:

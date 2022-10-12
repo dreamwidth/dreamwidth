@@ -4,8 +4,8 @@
 # to rebuild dependencies.
 #
 
-FROM       ubuntu:18.04
-MAINTAINER Mark Smith "mark@dreamwidth.org"
+FROM  ubuntu:18.04
+LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
 ARG COMMIT=master

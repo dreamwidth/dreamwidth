@@ -1,8 +1,8 @@
 name: dw-base nightly build
 
 on:
-  #schedule:
-  #  - cron: "25 1 * * *"
+  schedule:
+    - cron: "25 1 * * *"
   workflow_dispatch:
 
 env:

@@ -1,7 +1,7 @@
 name: dw-worker build
 
 on:
-  #push:
+  push:
   workflow_dispatch:
 
 env:

@@ -2,8 +2,8 @@
 # This creates a Dreamwidth webserver.
 #
 
-FROM       194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/base:latest
-MAINTAINER Mark Smith "mark@dreamwidth.org"
+FROM  ghcr.io/dreamwidth/base:latest
+LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
 ARG COMMIT=master
