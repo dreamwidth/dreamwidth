@@ -2,6 +2,9 @@ name: dw-worker build
 
 on:
   push:
+    paths:
+      - bin/**
+      - cgi-bin/**
   workflow_dispatch:
 
 env:

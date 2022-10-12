@@ -2,6 +2,12 @@ name: dw-web build
 
 on:
   push:
+    paths:
+      - cgi-bin/**
+      - htdocs/**
+      - views/**
+      - schemes/**
+      - src/s2/**
   workflow_dispatch:
 
 env:
