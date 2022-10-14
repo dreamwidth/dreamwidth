@@ -282,6 +282,7 @@ sub should_captcha_view {
     # passed a captcha. If we have information, then they *have* at some point.
     my $info_raw = LJ::MemCache::get($mckey);
     unless ($info_raw) {
+
         # Let's see if this is a repeat offender who is spamming requests at us
         # and hitting a bunch of 302s -- in which case, temp ban
         my $ip    = $r->get_remote_ip;

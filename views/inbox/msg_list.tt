@@ -1,5 +1,5 @@
 <script>
-LJ_cmtinfo = {};
+LJ_cmtinfo = {is_inbox: true};
 LJ_cmtinfo['disableInlineDelete'] = 1;
 </script>
 

@@ -47,7 +47,8 @@ $("#inbox_messages").on("click", ".inbox_item_row", function(e) {
     let checkbox = $(e.currentTarget).find('.item_checkbox');
 
     // Don't fire if the item clicked on was the checkbox (otherwise the change will trigger twice)
-    if (!$(e.target).hasClass('item_checkbox')) {
+    // Don't fire on link clicks
+    if (!$(e.target).hasClass('item_checkbox') && e.target.tagName != "A") {
         checkbox.prop("checked", !checkbox.is(':checked'));
         checkbox.trigger('change');
     }

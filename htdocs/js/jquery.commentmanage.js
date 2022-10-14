@@ -6,14 +6,16 @@ $.fn.commentmanagesetup = function() {
             .filter("[href^='"+Site.siteroot+"/talkscreen']")
                 .moderate({
                     journal: LJ_cmtinfo.journal,
-                    form_auth: LJ_cmtinfo.form_auth
+                    form_auth: LJ_cmtinfo.form_auth,
+                    is_inbox: LJ_cmtinfo.is_inbox
                 })
                 .end()
             .filter("[href^='"+Site.siteroot+"/delcomment']")
                 .delcomment({
                     journal: LJ_cmtinfo.journal,
                     form_auth: LJ_cmtinfo.form_auth,
-                    cmtinfo: LJ_cmtinfo
+                    cmtinfo: LJ_cmtinfo,
+                    is_inbox: LJ_cmtinfo.is_inbox
                 })
     });
 };
@@ -22,6 +24,7 @@ $.widget("dw.moderate", {
     options: {
         journal: undefined,
         form_auth: undefined,
+        is_inbox: undefined,
 
         endpoint: "talkscreen"
     },
@@ -71,7 +74,7 @@ $.widget("dw.moderate", {
                 self._abort( "Not enough context available." );
                 return;
             }
-            if ( self.linkdata.journal != self.options.journal ) {
+            if ( self.linkdata.journal != self.options.journal && !self.options.is_inbox) {
                 self._abort( "Journal in link does not match expected journal.");
                 return;
             }
@@ -122,6 +125,7 @@ $.widget("dw.delcomment", {
         cmtinfo: undefined,
         journal: undefined,
         form_auth: undefined,
+        is_inbox: undefined,
 
         endpoint: "delcomment"
     },
@@ -211,7 +215,7 @@ $.widget("dw.delcomment", {
                 self._abort( "Comment is not visible on this page." );
                 return;
             }
-            if ( self.linkdata.journal != self.options.journal ) {
+            if ( self.linkdata.journal != self.options.journal && !self.options.is_inbox ) {
                 self._abort( "Journal in link does not match expected journal.");
                 return;
             }
