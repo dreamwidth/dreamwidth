@@ -24,11 +24,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Notify Discord
-        uses: sarisia/actions-status-discord@v1
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -52,3 +47,8 @@ jobs:
             --family $TASK_NAME \
             --region ”us-east-1" \
             --cli-input-json file://task-def.json
+
+      - name: Notify Discord
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
