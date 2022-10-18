@@ -59,7 +59,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-[% worker_name %].outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-[% worker_name %]-service"
 
 [%- END %]
       - name: Notify Discord

@@ -294,7 +294,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-birthday-notify.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-birthday-notify-service"
 
       - name: (change-poster-id) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'change-poster-id'
@@ -302,7 +302,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-change-poster-id.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-change-poster-id-service"
 
       - name: (codebuild-notifier) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'codebuild-notifier'
@@ -310,7 +310,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-codebuild-notifier.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-codebuild-notifier-service"
 
       - name: (content-importer) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'content-importer'
@@ -318,7 +318,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-content-importer.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-content-importer-service"
 
       - name: (content-importer-lite) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'content-importer-lite'
@@ -326,7 +326,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-content-importer-lite.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-content-importer-lite-service"
 
       - name: (content-importer-verify) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'content-importer-verify'
@@ -334,7 +334,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-content-importer-verify.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-content-importer-verify-service"
 
       - name: (directory-meta) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'directory-meta'
@@ -342,7 +342,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-directory-meta.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-directory-meta-service"
 
       - name: (distribute-invites) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'distribute-invites'
@@ -350,7 +350,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-distribute-invites.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-distribute-invites-service"
 
       - name: (dw-esn-cluster-subs) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-esn-cluster-subs'
@@ -358,7 +358,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-dw-esn-cluster-subs.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-dw-esn-cluster-subs-service"
 
       - name: (dw-esn-filter-subs) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-esn-filter-subs'
@@ -366,7 +366,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-dw-esn-filter-subs.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-dw-esn-filter-subs-service"
 
       - name: (dw-esn-fired-event) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-esn-fired-event'
@@ -374,7 +374,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-dw-esn-fired-event.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-dw-esn-fired-event-service"
 
       - name: (dw-esn-process-sub) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-esn-process-sub'
@@ -382,7 +382,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-dw-esn-process-sub.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-dw-esn-process-sub-service"
 
       - name: (dw-send-email) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-send-email'
@@ -390,7 +390,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-dw-send-email.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-dw-send-email-service"
 
       - name: (dw-sphinx-copier) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-sphinx-copier'
@@ -398,7 +398,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-dw-sphinx-copier.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-dw-sphinx-copier-service"
 
       - name: (embeds) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'embeds'
@@ -406,7 +406,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-embeds.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-embeds-service"
 
       - name: (esn-cluster-subs) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-cluster-subs'
@@ -414,7 +414,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-esn-cluster-subs.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-esn-cluster-subs-service"
 
       - name: (esn-filter-subs) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-filter-subs'
@@ -422,7 +422,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-esn-filter-subs.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-esn-filter-subs-service"
 
       - name: (esn-fired-event) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-fired-event'
@@ -430,7 +430,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-esn-fired-event.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-esn-fired-event-service"
 
       - name: (esn-process-sub) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-process-sub'
@@ -438,7 +438,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-esn-process-sub.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-esn-process-sub-service"
 
       - name: (resolve-extacct) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'resolve-extacct'
@@ -446,7 +446,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-resolve-extacct.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-resolve-extacct-service"
 
       - name: (send-email-ses) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'send-email-ses'
@@ -454,7 +454,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-send-email-ses.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-send-email-ses-service"
 
       - name: (spellcheck-gm) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'spellcheck-gm'
@@ -462,7 +462,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-spellcheck-gm.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-spellcheck-gm-service"
 
       - name: (sphinx-copier) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-copier'
@@ -470,7 +470,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-sphinx-copier.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-sphinx-copier-service"
 
       - name: (sphinx-search-gm) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-search-gm'
@@ -478,7 +478,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-sphinx-search-gm.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-sphinx-search-gm-service"
 
       - name: (synsuck) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'synsuck'
@@ -486,7 +486,7 @@ jobs:
         with:
           task-definition: ${{ steps.render-worker-container-synsuck.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-${{ github.event.inputs.service }}-service"
+          service: "worker-synsuck-service"
 
       - name: Notify Discord
         uses: sarisia/actions-status-discord@v1
