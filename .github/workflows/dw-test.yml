@@ -45,7 +45,7 @@ jobs:
           # Register new task version         
           aws ecs register-task-definition \
             --family $TASK_NAME \
-            --region ”us-east-1" \
+            --region "us-east-1" \
             --cli-input-json file://task-def.json
 
       - name: Notify Discord
