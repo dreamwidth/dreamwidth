@@ -23,6 +23,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF features.size > 0 -%]
     [%- FOREACH feature = features -%]
+        <hr />
         [%- PROCESS item handler = feature -%]
     [%- END -%]
 [%- ELSE -%]
