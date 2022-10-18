@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    permissions:
+    # permissions:
       # id-token: write
       # contents: read
       # packages: write
