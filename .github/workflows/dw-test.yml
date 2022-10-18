@@ -37,10 +37,13 @@ jobs:
             --task-definition arn:aws:ecs:us-east-1:194396987458:task-definition/$TASK_NAME \
             --region "us-east-1")
 
-          # Update task with new SHA
+          # Update task with new SHA and extract just the fields that are valid
+          # for registering a task definition (this feels brittle? what if the API
+          # changes? oh well)
           echo $TASK_DEFINITION | \
             jq '.taskDefinition' | \
-            jq '.containerDefinitions[0].image='\"ghcr.io/dreamwidth/$IMAGE_NAME@$SHA_TO_DEPLOY\" \
+            jq '.containerDefinitions[0].image='\"ghcr.io/dreamwidth/$IMAGE_NAME@$SHA_TO_DEPLOY\" | \
+            jq '{family, taskRoleArn, executionRoleArn, networkMode, containerDefinitions, volumes, placementConstraints, requiresCompatibilities, cpu, memory, tags, pidMode, ipcMode, proxyConfiguration, inferenceAccelerators, ephemeralStorage, runtimePlatform}' \
             > task-def.json
 
           # Register new task version         
