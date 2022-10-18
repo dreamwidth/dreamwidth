@@ -1,9 +1,9 @@
 name: (package) base image nightly build
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "25 1 * * *"
-  workflow_dispatch:
 
 env:
   IMAGE_NAME: base
@@ -46,3 +46,9 @@ jobs:
           echo VERSION=$VERSION
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+
+      - name: Notify Discord
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
