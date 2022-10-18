@@ -1,0 +1,57 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "worker",
+            "image": "ghcr.io/dreamwidth/worker:latest",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": true,
+            "command": [
+                "bash",
+                "/opt/startup-prod.sh",
+                "bin/worker/content-importer",
+                "-v"
+            ],
+            "environment": [],
+            "mountPoints": [
+                {
+                    "sourceVolume": "dw-config",
+                    "containerPath": "/dw/etc",
+                    "readOnly": true
+                }
+            ],
+            "volumesFrom": [],
+            "linuxParameters": {
+                "initProcessEnabled": true
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/dreamwidth/worker",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "worker"
+                }
+            }
+        }
+    ],
+    "family": "worker-content-importer",
+    "taskRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskRole",
+    "executionRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "volumes": [
+        {
+            "name": "dw-config",
+            "efsVolumeConfiguration": {
+                "fileSystemId": "fs-f9f3e04d",
+                "rootDirectory": "/etc",
+                "transitEncryption": "DISABLED"
+            }
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "2048"
+}
