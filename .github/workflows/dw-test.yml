@@ -43,7 +43,8 @@ jobs:
           echo $TASK_DEFINITION | \
             jq '.taskDefinition' | \
             jq '.containerDefinitions[0].image='\"ghcr.io/dreamwidth/$IMAGE_NAME@$SHA_TO_DEPLOY\" | \
-            jq '{family, taskRoleArn, executionRoleArn, networkMode, containerDefinitions, volumes, placementConstraints, requiresCompatibilities, cpu, memory, tags, pidMode, ipcMode, proxyConfiguration, inferenceAccelerators, ephemeralStorage, runtimePlatform}' \
+            jq '{family, taskRoleArn, executionRoleArn, networkMode, containerDefinitions, volumes, placementConstraints, requiresCompatibilities, cpu, memory, tags, pidMode, ipcMode, proxyConfiguration, inferenceAccelerators, ephemeralStorage, runtimePlatform}' | \
+            jq 'with_entries( select( .value != null ) )' \
             > task-def.json
 
           # Register new task version         
