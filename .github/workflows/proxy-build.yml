@@ -1,14 +1,12 @@
-name: dw-worker build
+name: (package) proxy manual build
 
+# No on-push because proxy builds are incredibly rare, so might
+# as well not waste the GHA minutes
 on:
-  push:
-    paths:
-      - bin/**
-      - cgi-bin/**
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: worker
+  IMAGE_NAME: proxy
 
 jobs:
   build:

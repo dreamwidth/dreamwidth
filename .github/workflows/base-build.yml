@@ -1,17 +1,12 @@
-name: dw-web build
+name: (package) base image nightly build
 
 on:
-  push:
-    paths:
-      - cgi-bin/**
-      - htdocs/**
-      - views/**
-      - schemes/**
-      - src/s2/**
+  schedule:
+    - cron: "25 1 * * *"
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: web
+  IMAGE_NAME: base
 
 jobs:
   build:
