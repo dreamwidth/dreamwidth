@@ -39,7 +39,8 @@ jobs:
 
           # Update task with new SHA
           echo $TASK_DEFINITION | \
-            jq '.taskDefinition.containerDefinitions[0].image='\"ghcr.io/dreamwidth/$IMAGE_NAME@$SHA_TO_DEPLOY\" \
+            jq '.taskDefinition' | \
+            jq '.containerDefinitions[0].image='\"ghcr.io/dreamwidth/$IMAGE_NAME@$SHA_TO_DEPLOY\" \
             > task-def.json
 
           # Register new task version         
