@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: write
-      contents: read
-      packages: write
+      # id-token: write
+      # contents: read
+      # packages: write
 
     steps:
       - name: Checkout Code
@@ -27,7 +27,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::194396987458:role/dw-github-actions
+          # role-to-assume: arn:aws:iam::194396987458:role/dw-github-actions
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Update task definition
