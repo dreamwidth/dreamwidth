@@ -47,7 +47,7 @@ jobs:
         id: render-worker-container-[% worker_name %]
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ".github/workflows/tasks/worker-${{ github.event.inputs.service }}-service.json"
+          task-definition: ".github/workflows/tasks/worker-[% worker_name %]-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
