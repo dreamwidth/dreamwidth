@@ -25,9 +25,6 @@ RUN echo $COMMIT && \
 RUN git -C $LJHOME fetch && \
     git -C $LJHOME checkout $COMMIT && \
     git -C $LJHOME pull --ff-only origin $COMMIT && \
-    git -C $LJHOME/ext/dw-nonfree fetch && \
-    git -C $LJHOME/ext/dw-nonfree checkout master && \
-    git -C $LJHOME/ext/dw-nonfree pull --ff-only origin master && \
     $LJHOME/bin/build-static.sh
 
 # Copy in support scripts/configurations that are useful.

@@ -172,12 +172,12 @@ this set of guidelines, contact us and we'll talk it over.</p>
         is released under the GNU General Public License. Code in the dw-free
         repository authored by Dreamwidth Studios, LLC is dual-released under
         the GPL and Artistic Licenses.</li>
-    <li>Code in the dw-nonfree repository is source-available but not Open
-        Source. You may not use code from the dw-nonfree repository to run a
-        production site. You may only use code from the dw-nonfree repository
+    <li>Code in the ext/dw-nonfree directory is source-available but not Open
+        Source. You may not use code from the ext/dw-nonfree directory to run a
+        production site. You may only use code from the ext/dw-nonfree directory
         in a development environment for the purposes of improving the source
         code. If your development environment is publicly web-accessible, you
-        may only use code from the dw-nonfree repository with our express
+        may only use code from the ext/dw-nonfree directory with our express
         written permission.</li>
     <li>If you are running a production site based on the Dreamwidth code,
         please let us know! We would like to add a link to your site to our

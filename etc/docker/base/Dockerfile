@@ -41,7 +41,4 @@ RUN mv $LJHOME/extlib /dw-extlib && \
     git -C $LJHOME pull --ff-only origin $COMMIT && \
     mkdir $LJHOME/ext/yuicompressor/ && \
     curl -s -L --output $LJHOME/ext/yuicompressor/yuicompressor.jar \
-        https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.jar && \
-    git clone https://github.com/dreamwidth/dw-nonfree.git $LJHOME/ext/dw-nonfree && \
-    git -C $LJHOME/ext/dw-nonfree checkout master && \
-    git -C $LJHOME/ext/dw-nonfree pull --ff-only origin master
+        https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.jar
