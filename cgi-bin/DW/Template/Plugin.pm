@@ -43,10 +43,11 @@ sub new {
 
    # refresh on each page load, because this changes depending on whether you're using HTTP or HTTPS
     $context->stash->{site} = {
-        root     => $LJ::SITEROOT,
-        imgroot  => $LJ::IMGPREFIX,
-        jsroot   => $LJ::JSPREFIX,
-        statroot => $LJ::STATPREFIX,
+        root      => $LJ::SITEROOT,
+        imgroot   => $LJ::IMGPREFIX,
+        jsroot    => $LJ::JSPREFIX,
+        statroot  => $LJ::STATPREFIX,
+        is_canary => $LJ::IS_CANARY,
     };
 
     return $self;

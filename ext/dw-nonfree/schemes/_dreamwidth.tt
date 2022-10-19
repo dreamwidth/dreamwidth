@@ -33,4 +33,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <li><a href="[% site.root %]/support">[% 'sitescheme.accountlinks.help' | ml %]</a></li>
 </ul>
 <p>[% 'sitescheme.footer.info' | ml %]</p>
+[% IF site.is_canary %]
+<div class="canary canary-bottom-right"><span>canary</span></div>
+[% END %]
 [%- END -%]

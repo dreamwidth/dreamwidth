@@ -1,0 +1,60 @@
+/* from https://codepen.io/nxworld/pen/oLdoWb */
+
+.canary {
+    width: 150px;
+    height: 150px;
+    overflow: hidden;
+    position: fixed;
+    z-index: 999;
+}
+
+.canary::before,
+.canary::after {
+    position: absolute;
+    z-index: -1;
+    content: "";
+    display: block;
+    border: 5px solid #2980b9;
+}
+
+.canary span {
+    position: absolute;
+    display: block;
+    width: 225px;
+    padding: 15px 0;
+    background-color: #3498db;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    font: 700 18px/1 sans-serif;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* bottom right*/
+.canary-bottom-right {
+    bottom: -10px;
+    right: -10px;
+}
+
+.canary-bottom-right::before,
+.canary-bottom-right::after {
+    border-bottom-color: transparent;
+    border-right-color: transparent;
+}
+
+.canary-bottom-right::before {
+    bottom: 0;
+    left: 0;
+}
+
+.canary-bottom-right::after {
+    top: 0;
+    right: 0;
+}
+
+.canary-bottom-right span {
+    left: -25px;
+    bottom: 30px;
+    transform: rotate(-45deg);
+}
