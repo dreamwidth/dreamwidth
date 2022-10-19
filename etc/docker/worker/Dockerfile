@@ -27,7 +27,7 @@ RUN git -C $LJHOME fetch && \
     git -C $LJHOME pull --ff-only origin $COMMIT && \
     git -C $LJHOME/ext/dw-nonfree fetch && \
     git -C $LJHOME/ext/dw-nonfree checkout master && \
-    git -C $LJHOME/ext/dw-nonfree pull --ff-only origin $COMMIT
+    git -C $LJHOME/ext/dw-nonfree pull --ff-only origin master
 
 # Copy in support scripts/configurations that are useful.
 ADD scripts/ /opt/
