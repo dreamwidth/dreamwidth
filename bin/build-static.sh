@@ -21,7 +21,10 @@ done
 
 buildroot="$LJHOME/build/static"
 mkdir -p $buildroot
-rm /tmp/jcompress
+
+if [[ -e /tmp/jcompress ]]; then
+    rm /tmp/jcompress
+fi
 
 compressor="$LJHOME/ext/yuicompressor/yuicompressor.jar"
 uncompressed_dir="/max"
@@ -120,8 +123,10 @@ do
     done
 
     # Now parallel execute
-    echo "Executing compression (takes a minute)..."
-    cat /tmp/jcompress | xargs -d "\n" -n 1 -P 4 -- bash -c
+    if [[ -e /tmp/jcompress ]]; then
+        echo "Executing compression (takes a minute)..."
+        cat /tmp/jcompress | xargs -d "\n" -n 1 -P 4 -- bash -c
+    fi
 done
 
 if [[ -n $compressor ]]; then
