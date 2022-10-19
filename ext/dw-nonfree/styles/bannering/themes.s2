@@ -1,0 +1,123 @@
+#NEWLAYER: bannering/neonbutterflies
+layerinfo type = "theme";
+layerinfo name = "Neon Butterflies";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/neonbutterflies";
+
+#uses "Colorful Hearts" by spekulator (http://www.sxc.hu/photo/926340)
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#333";
+set color_page_link = "#910a1b";
+set color_page_link_visited = "#1a2fbc";
+set color_page_link_active = "#e00";
+set color_page_title = "#fff";
+set header_title_spacing_top = "3em";
+set header_title_position = "right";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#999";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#999";
+set color_navlinks_link_current = "#fff";
+set color_navlinks_link = "#b12a3b";
+set color_navlinks_link_visited = "#5a6ffc";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/neonbutterflies_tile.jpg";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_position = "top left";
+set image_background_header_height = 350;
+set image_background_header_inner_url = "bannering/neonbutterflies.jpg";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "top left";
+set image_background_header_inner_height = 350;
+
+
+#NEWLAYER: bannering/travel
+layerinfo type = "theme";
+layerinfo name = "Travel";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "bannering/travel";
+
+#uses "TRV_PL 3" by danzo08 (http://www.sxc.hu/profile/danzo08)
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#30322f";
+set color_page_text = "#fff";
+set color_page_link = "#c66";
+set color_page_link_visited = "#a44";
+set color_page_link_active = "#66c";
+set color_page_title = "#000";
+set header_title_spacing_top = "1.5em";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#ccc";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_border = "#ccc";
+set color_navlinks_link_current = "#000";
+set color_navlinks_link = "#900";
+set color_navlinks_link_visited = "#600";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading = "Times New Roman, serif";
+set font_entry_title = "Times New Roman, serif";
+set font_journal_subtitle = "Times New Roman, serif";
+set font_journal_title = "Times New Roman, serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "bannering/travel_tile.jpg";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_position = "bottom right";
+set image_background_header_height = 300;
+set image_background_header_inner_url = "bannering/travel.jpg";
+set image_background_header_inner_repeat = "no-repeat";
+set image_background_header_inner_position = "bottom right";
+set image_background_header_inner_height = 300;

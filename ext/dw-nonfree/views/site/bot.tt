@@ -1,0 +1,89 @@
+[%# site/bot.tt
+
+Dreamwidth Bot Policy.
+
+Authors:
+     Denise Paolucci <denise@dreamwidth.org>
+     Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2009-2016 by Dreamwidth Studios, LLC.
+
+This program is NOT free software or open-source; you can use it as an
+example of how to implement your own site-specific extensions to the
+Dreamwidth Studios open-source code, but you cannot use it on your site
+or redistribute it, with or without modifications.
+
+%][%-
+    sections.title='Dreamwidth Bot Policy'
+-%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>We welcome people writing bots and clients that make use of our APIs and do
+cool things with our data! In order to balance the needs of client/bot authors
+and the needs of our users, though, we've set forth some general guidelines
+that bot authors should keep in mind.</p>
+
+<p>If you have a question that isn't covered here, please
+<a href='https://www.dreamwidth.org/support/submit'>contact us</a> with details
+about your planned use. We're happy to work with you to do neat projects,
+including fixing problems on our end and making more public data available
+through our APIs. Just ask.</p>
+
+<h2>General Guidelines</h2>
+
+<p>The overall guidelines for bot/tool authors are pretty simple:</p>
+
+<ul>
+    <li>Good clients send a proper user-agent (or other info string) that
+        includes a contact email address. That will let us contact you if
+        there are any problems.</li>
+    <li>Be kind to the system! Rate-limit your requests, and try to cache
+        data whenever possible.</li>
+    <li>Don't screen-scrape the HTML/BML output of the site. If you can't
+        do something you want to do through an API, let us know, and we'll
+        try to add an API for it.</li>
+    <li>Try to avoid asking for users' passwords. If there's something you can't
+        do through the protocol or through our APIs, let us know, and we'll add
+        it. If you have to ask for users' passwords, you should tell people what
+        you'll do with them, and warn users to change their passwords before and
+        after they access your client if they're worried.</li>
+</ul>
+
+<h2>Client Applications</h2>
+
+<p>A client application is defined as a tool that runs under the control of an
+end user (whether as a downloadable program or an in-browser object).</p>
+
+<p>Generally, we don't restrict these tools. From time to time, we may need to
+restrict some of the API methods they use, if there's too much load on the
+site. We won't do this unless it's absolutely necessary to preserve the proper
+functioning of the site, and only on a temporary basis.</p>
+
+<h2>Third Party Sites/Utilities</h2>
+
+<p>We place more restrictions on things that fall into this category, since
+they have the potential to seriously impact site load. We're here to serve our
+users (which includes client applications), but third-party sites that scrape
+data sources aren't our primary audience.</p>
+
+<p>Generally speaking, if your site is going to be small and access Dreamwidth
+infrequently, you can go right ahead and do it. (Yes, these terms are
+purposefully vague -- use your best judgement, and contact us with any
+questions.) If your use becomes a problem, we'll contact you and let you know
+that your particular tool is turning out to be a load problem. This is one of
+the reasons why it's so critical to include contact information in your user
+agent.</p>
+
+<p>If you intend to run a service (or your service gets popular), and you're
+making frequent requests, contact us and let us know. This will let us examine
+your tool and see what changes we can make on our end to better support your
+use, and what changes we can suggest in your tool to be gentler on the
+site.</p>
+
+<h2>IP Rate Limiting</h2>
+
+<p>From time to time, you may find your IP address temporarily banned, if we
+determine that your site is hitting our servers too frequently or causing too
+much of a traffic or load spike. In this case, please contact us and let us
+know the IP that's been banned so we can work out a solution.</p>

@@ -1,0 +1,111 @@
+[%# site/suggest.tt
+
+Simple form suggestion generator that will take input, process it, and
+post it to a community's moderation queue.  The post will include a
+simple opinion poll to easily get the opinions of the readers. In
+addition to posting a public entry to the comm, it also posts an
+admin-only entry with the text of the suggestion formatted for autopost
+to GitHub Issues, which will not only save some time in opening up the
+bug, but also ensure that the text of the suggestion is preserved if the
+poster of the entry decides to delete it after getting some
+disagreeing comments.
+
+Authors:
+     Denise Paolucci <denise@dreamwidth.org>
+
+Copyright (c) 2009-2016 by Dreamwidth Studios, LLC.
+
+This program is NOT free software or open-source; you can use it as an
+example of how to implement your own site-specific extensions to the
+Dreamwidth Studios open-source code, but you cannot use it on your site
+or redistribute it, with or without modifications.
+
+%][%-
+    sections.title='Suggest an Improvement';
+    CALL dw.active_resource_group( "foundation" );
+    CALL dw.need_res( { group => "foundation" },
+        'js/jquery.autogrow-textarea.js'
+    )
+-%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        p.intro { font-size: smaller; margin-left: 1.5em; }
+    </style>
+[% END %]
+
+[%- IF preview -%]
+    <h2>Preview:</h2>
+    [% suggestion %]
+    [%- IF spellcheck -%]
+        <hr>
+        <h2>Spellcheck:</h2>
+        [% spellcheck %]
+        <br />
+    [%- END -%]
+    <hr>
+[%- END -%]
+
+<p class="intro">Have a way to make Dreamwidth better? This is where you submit it!
+Filling out this form will send an entry to the moderation queue of the
+[% destination.ljuser_display %] community. You may want to
+<a href='[% site.root %]/search?user=[% destination.user %]'>search the
+community</a> before making a new suggestion. If your suggestion hasn't
+been submitted before, it will be posted for discussion, voting, and
+possible implementation.</p>
+
+<p class="intro">Anyone can submit a suggestion. Other members of the Dreamwidth community
+will consider the suggestion, make comments for improvement to the suggestion,
+and talk about its benefits and drawbacks. The entry will also include a poll
+for people to register their like or dislike for an idea.</p>
+
+<p class="intro">We'll use the results of the discussion and polling, along with our plans
+for the site and our knowledge of the technical issues involved, to determine
+which suggestions get moved into our bug-tracking database. (Neither positive
+comments nor good results in the poll will guarantee that the suggestion will
+get implemented, but they're one of the tools we'll use to see how popular an
+idea is.)</p>
+
+<p class="intro">All fields are required. HTML will be escaped, so don't use any tags unless
+you want them to display as the tag.</p>
+
+[%# Build the suggestions form. All fields required. %]
+
+<hr><form method='POST'>
+
+<h2>Title</h2>
+<p>This will be the title of your entry. (Be as specific as possible.)</p>
+[% form.textbox( name='title', size=60, maxlength=100 ) %]
+
+<h2>Area</h2>
+<p>The area of the site your suggestion is about. (e.g.: tags, crossposting,
+   styles, entries, etc)</p>
+[% form.textbox( name='area', size=60, maxlength=100 ) %]
+
+<h2>Summary</h2>
+<p>A short paragraph summarizing your suggestion.</p>
+[% form.textarea( name='summary', rows=3, cols=100, wrap='soft',
+                  class='expand' ) %]
+
+<h2>Full Description</h2>
+<p>The full description of your idea. Be as specific and detailed as you can.
+   Tell us what issue or area your suggestion is intended to improve, why you
+   think your specific suggestion is the best solution, what problems or
+   drawbacks your suggestion might have if it's implemented, and if there are
+   any other ways you can think to accomplish what you'd like to improve that
+   could also be considered. The more detail you provide, the better chances
+   your suggestion has of being implemented.</p>
+[% form.textarea( name='description', rows=15, cols=100, wrap='soft',
+                  class='expand' ) %]
+
+[%# does the user want to be notified of comments? %]
+<p><label for='email' class='left options' style="margin-right: 0.5em">
+    Notify me of comments</label>
+[% form.checkbox( name='email', id='email', value=1, default=1 ) %]
+</p>
+
+<p>[%- form.submit( name='post', value="Post Suggestion" ) -%]
+&nbsp;[%- form.submit( name='preview', value="Preview & Spellcheck" ) -%]
+</p>
+
+</form>

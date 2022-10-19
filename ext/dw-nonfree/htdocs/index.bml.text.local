@@ -1,0 +1,79 @@
+;; -*- coding: utf-8 -*-
+.create.cancel=Cancel
+
+.create.createaccount=Create Free Account
+
+.create.enter_code=Enter your invite code:
+
+.create.invitelink=Enter Invite Code
+
+.create.join_dreamwidth=Join [[sitename]]
+
+.create.join_dreamwidth.codeshare=Find invite codes in <?ljcomm dw_codesharing ljcomm?>.
+
+.create.join_dreamwidth.content=Creating an account requires either a payment or an invite code. (<a [[aopts]]>Why?</a>)
+
+.create.join_dreamwidth.content.noinvites=This week only, you can create a Dreamwidth account without an invite code. If you want, you can still support Dreamwidth by making a small payment in return for <a [[aopts]]>extra features</a>.
+
+.create.join_dreamwidth.content.noinvites.nopayments=You can create an account using the link below.
+
+.create.join_dreamwidth.content.nopayments=Creating an account requires an invite code. (<a [[aopts]]>Why?</a>)
+
+.create.paymentlink2=Create Paid Account
+
+.create.use_code=Use Code
+
+.intro.what_is_dreamwidth=What is [[sitename]]?
+
+.intro.what_is_dreamwidth.content=[[sitename]] is a home for creative artists of all types. Share your writing, your artwork, or your innermost thoughts. Find others who create the sort of things you like to enjoy. Control who can see your creation with our fine-grained privacy controls. Participate in communities for any one of a hundred topics. We are an independent, Open Source, community-centric service, and we support diversity in all its forms. Come dream with us.
+
+.links.about=About
+
+.links.about.about_dreamwidth=About [[sitename]]
+
+.links.about.about_dreamwidth.desc=Learn more about the [[sitename]] project.
+
+.links.about.guiding_principles=Guiding Principles
+
+.links.about.guiding_principles.desc=Our values and commitments.
+
+.links.about.site_tour=Site Tour
+
+.links.about.site_tour.desc=Explore our features.
+
+.links.community=Community
+
+.links.community.codeshare=Code Sharing
+
+.links.community.codeshare.desc=You can find or request invite codes here.
+
+.links.community.footnote=*
+
+.links.community.latest_things=Latest Things
+
+.links.community.latest_things.desc=Read the latest things posted on the site.
+
+.links.community.no_screening=* [[sitename]] does not pre-screen content for appropriateness.
+
+.links.community.random_community=Random Community
+
+.links.community.random_community.desc=Read a random [[sitename]] community.
+
+.links.community.random_journal=Random Journal
+
+.links.community.random_journal.desc=Read a random journal on the site.
+
+.links.community.site_news=Site News
+
+.links.community.site_news.desc=Read the latest [[sitename]] news.
+
+.links.support=Support
+
+.links.support.faq=Frequently Asked Questions
+
+.links.support.faq.desc=Read common questions about [[sitename]]
+
+.links.support.support=Support
+
+.links.support.support.desc=Get help with using [[sitename]].
+

@@ -1,0 +1,51 @@
+[%# site/policy.tt
+
+Dreamwidth Policy Center.
+
+Authors:
+     Denise Paolucci <denise@dreamwidth.org>
+
+Copyright (c) 2009-2016 by Dreamwidth Studios, LLC.
+
+This program is NOT free software or open-source; you can use it as an
+example of how to implement your own site-specific extensions to the
+Dreamwidth Studios open-source code, but you cannot use it on your site
+or redistribute it, with or without modifications.
+
+%][%-
+    sections.title='Policy Center'
+-%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>In accordance with our commitment to open operations, we will make available
+as much information as we can about our policies, our operating procedures, and
+the steps we take to enforce our policies.</p>
+
+<p>We believe in providing our users with the maximum amount of free expression
+as permitted by United States law, with the exceptions of actions we choose to
+take to protect the health of the service (such as by removing spam) and actions
+we choose to take to safeguard the privacy and safety of others.</p>
+
+<p>We know that any conflict between two people has the potential to become
+heated, and that once a conflict becomes heated, it is often very difficult for
+us to determine what the best and most ethical course of action should be. We
+are committed to upholding our
+<a href='https://www.dreamwidth.org/legal/principles'>Guiding Principles</a>,
+and we will work with you to determine the best course of action in any given
+situation.</p>
+
+<p>We will provide as much information about our policies and their enforcement
+as we can while still respecting the privacy of our users. While this means
+that we will never release details about a specific conflict without the
+express permission of all parties involved, we are always willing to answer
+general questions about our policies.</p>
+
+<dl><dt><a href='https://www.dreamwidth.org/legal/tos'>Terms of Service</a></dt>
+<dd>The Terms of Service governing all usage of the site.</dd></dl>
+
+<dl><dt><a href='https://www.dreamwidth.org/legal/privacy'>Privacy Policy</a></dt>
+<dd>Our Privacy Policy, which explains how we use any information you provide us.</dd></dl>
+
+<dl><dt><a href='https://www.dreamwidth.org/support/faqbrowse?faqid=80'>Reporting a Terms of Service Violation</a></dt>
+<dd>How to report a violation of our Terms of Service agreement, or seek clarification on any of our policies.</dd></dl>

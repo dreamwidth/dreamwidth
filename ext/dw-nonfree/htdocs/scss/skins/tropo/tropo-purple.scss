@@ -1,0 +1,183 @@
+/** Tropospherical Red CSS
+ *
+ * Authors:
+ *     Janine Smith <janine@netrophic.com>
+ *     Jesse Proulx <jproulx@jproulx.net>
+ *     Elizabeth Lubowitz <grrliz@gmail.com>
+ *     Denise Paolucci <denise@dreamwidth.org>
+ *
+ * Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
+ *
+ * This program is NOT free software or open-source; you can use it as an
+ * example of how to implement your own site-specific extensions to the
+ * Dreamwidth Studios open-source code, but you cannot use it on your site
+ * or redistribute it, with or without modifications.
+ *
+ */
+
+/**
+ * Dreamwidth Site Scheme
+ *
+ * Standard layout for Dreamwidth
+ *
+ * Mockups designed by grrliz, hence grrliz.css
+ *
+ * @project         Dreamwidth Site Design
+ * @author          Jesse Proulx
+ * @date            2009-01-07
+ * @version         Alpha
+ * @revision        $Revision$
+ * @copyright       Copyright (c) 2009 by Dreamwidth Studios, LLC
+ *
+ */
+
+
+// color names. Only use these variables in the color assignment section
+$_purple:           #5e3da6;
+$_dark-purple:      #3a155a;
+$_pink:             #f3d2fc;
+$_light-purple:     #d3afec;
+
+$_light-gray:       #f5f5f5;
+$_low-contrast-gray:#ddd;
+$_mid-gray:         #e9e9e9;
+$_dark-gray:        #636363;
+$_off-black:        #111;
+$_white:            #fff;
+
+$_support-bg-blue:  #c5dff9;
+$_support-fg-blue:  darken( $_support-bg-blue, 15% );
+$_support-bg-green: #d0fbca;
+$_support-fg-green: darken( $_support-bg-green, 15% );
+
+// color assignment
+$background-color:    $_light-gray;
+$text-color:          $_off-black;
+$link-color:          $_dark-purple;
+
+$primary-color:       $_dark-purple;
+$primary-text-color:  $_white;      // color of text on a $primary-color background
+$secondary-color:     $_mid_gray;
+$strong-accent-color: $_purple;
+$soft-accent-color:   $_pink;
+$border-color:        $_low-contrast-gray;
+$highlight-color:     $_light-purple;
+$highlight-border:    $_purple;
+$highlight-text-color:$_off-black;
+
+$inactive-color:      $_dark-gray;
+
+$form-font-color:     $_off-black;
+$form-bg-color:       $_white;
+$form-border-color:   $_low-contrast-gray;
+
+@import "skins/alert-colors";
+
+
+// foundation global variables
+$body-bg:           $background-color;
+$body-font-color:   $text-color;
+$body-border-color: $strong-accent-color;
+$body-font-family:  Verdana, Helvetica, Arial, sans-serif;
+$base-line-height:  1.5;
+
+// foundation type variables
+// We use these to control header font styles
+$header-font-family:                    Arial, sans-serif;
+$page-title-color:                      $primary-color;
+$header-font-color:                     lighten( $body-font-color, 10% );
+$list-side-margin:                      1em;
+
+// we want to base these on $body-font-color rather than the random variables they're based on
+$blockquote-font-color:                 mix( #ffffff, $body-font-color, 20% );
+
+// We use these to style anchors1
+$anchor-text-decoration:               underline;
+$anchor-font-color:                    $link-color;
+$anchor-font-color-visited:            $_off-black;
+$anchor-font-color-hover:              $_purple;
+
+// forms
+$form-label-font-color:                 lighten($body-font-color, 20%);
+$input-font-color:                      $form-font-color;
+$input-bg-color:                        $form-bg-color;
+$input-focus-bg-color:                  darken($input-bg-color, 2%);
+$input-border-color:                    darken($input-bg-color, 20%);
+$input-focus-border-color:              darken($input-bg-color, 40%);
+$input-disabled-bg:                     $form-border-color;
+$fieldset-border-color:                 $form-border-color;
+$legend-bg:                             transparent;
+$input-prefix-bg:                       darken($input-bg-color, 5%);
+$input-prefix-border-color:             $input-border-color;
+$button-bg-hover:                       $strong-accent-color;
+
+// alerts
+$alert-function-factor: 20%;
+
+// panel
+$panel-bg:                              darken( $body-bg, 5% );
+
+// reveal modal
+$reveal-modal-bg:                       $panel-bg;
+$reveal-border-color:                   $form-border-color;
+$reveal-close-color:                    $link-color;
+
+// sub-nav
+$sub-nav-font-color:    $inactive-color;
+
+// pagination
+$pagination-link-font-color:    $inactive-color;
+$pagination-link-unavailable-font-color:    $inactive-color;
+$pagination-link-visited-color: $strong-accent-color;
+
+// tables
+$table-bg:              $form-bg-color;
+$table-even-row-bg:     $panel-bg;
+$table-border-color:    $border-color;
+$table-head-bg:         $highlight-color;
+$table-head-font-color: $highlight-text-color;
+$table-row-font-color:  $text-color;
+
+// navigation
+$topbar-bgimage:                       "/img/tropo-red/icon_menu_swirl_dropdown.png";
+$topbar-bgimage-hover:                 "/img/tropo-red/icon_menu_swirl_dropdown.png";
+$topbar-bgimage-position:              11px 50% no-repeat;
+
+$topbar-bg:                            $soft-accent-color url($topbar-bgimage) $topbar-bgimage-position;
+$topbar-link-weight:                   normal;
+$topbar-link-color:                    $text-color;
+$topbar-link-bg-hover:                 $primary-color url($topbar-bgimage-hover) $topbar-bgimage-position;
+$topbar-link-bg-active:                $primary-color;
+
+$topbar-dropdown-bg:                   $topbar-bg;
+$topbar-dropdown-link-color:           $primary-text-color;
+$topbar-dropdown-link-bg:              $strong-accent-color url($topbar-bgimage-hover) $topbar-bgimage-position;
+$topbar-dropdown-link-bg-hover:        $topbar-link-bg-hover;
+
+$topbar-menu-link-color:               $topbar-link-color;
+$topbar-menu-icon-color:               $topbar-link-color;
+
+$topbar-height: 2rem;
+$topbar-dropdown-toggle-alpha: 0.8;
+
+$masthead-bottom-accent-color:         $strong-accent-color;
+$body-border-color:                    $primary-color;
+
+@import "skins/tropo/tropo-base";
+
+// Hack to keep spirals from going where they don't belong.
+.main-nav:not(.expanded),
+.main-nav li.name {
+    background: $soft-accent-color;
+}
+
+footer {
+    background-color: $soft-accent-color;
+}
+
+.action-box ul.pagination a { color: $highlight-text-color }
+
+.action-box ul.pagination li.current a:visited {
+    background-color: $primary-color;
+    color: $pagination-link-current-font-color;
+}

@@ -1,0 +1,20 @@
+################################################################
+# base filename            layer type      parent
+
+siteviews/themes           theme+          siteviews/layout
+
+bannering/themes           theme+          bannering/layout
+
+colorside/themes           theme+          colorside/layout
+
+modish/themes              theme+          modish/layout
+
+modular/themes             theme+          modular/layout
+
+practicality/themes        theme+          practicality/layout
+
+sundaymorning/layout       layout          core2
+sundaymorning/themes       theme+          sundaymorning/layout
+
+transmogrified/layout      layout          core2
+transmogrified/themes      theme+          transmogrified/layout

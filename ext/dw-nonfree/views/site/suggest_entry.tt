@@ -1,0 +1,28 @@
+[%# site/suggest_entry.tt
+
+Community entry template from site/suggest.
+
+Copyright (c) 2009-2016 by Dreamwidth Studios, LLC.
+
+This program is NOT free software or open-source; you can use it as an
+example of how to implement your own site-specific extensions to the
+Dreamwidth Studios open-source code, but you cannot use it on your site
+or redistribute it, with or without modifications.
+
+-%]
+
+<p><em><strong>Title:</strong></em><br>[% post.title %]</p>
+<p><em><strong>Area:</strong></em><br>[% post.area %]</p>
+<p><em><strong>Summary:</strong></em><br>[% post.summary %]</p>
+<p><em><strong>Description:</strong></em><br>[% post.description %]</p>
+
+[% IF include_poll %]
+<poll name='[% post.title %]' whovote='all' whoview='all'>
+<poll-question type='radio'>This suggestion:
+<poll-item>Should be implemented as-is.</poll-item>
+<poll-item>Should be implemented with changes. (please comment)</poll-item>
+<poll-item>Shouldn't be implemented.</poll-item>
+<poll-item>(I have no opinion)</poll-item>
+<poll-item>(Other: please comment)</poll-item>
+</poll-question></poll>
+[% END %]

@@ -1,0 +1,442 @@
+;; -*- coding: utf-8 -*-
+
+entryform.htmlfaq=Supported HTML
+
+entryform.htmlfaq.detail=HTML examples
+
+entryform.htmlfaq.site=Site-specific markup tags
+
+entryform.pollcreator=Poll Creator
+
+invitecodes.userclass.active30d=Accounts active during the past 30 days
+
+invitecodes.userclass.basic_paid=Basic paid accounts
+
+invitecodes.userclass.noinvleft=Accounts with no unused invite codes
+
+invitecodes.userclass.noinvleft_apinv=Accounts with no unused invite codes and at least 1 active, paid, or permanent invitee
+
+invitecodes.userclass.paidusers=Paid users
+
+invitecodes.userclass.permanent_paid=Seed accounts
+
+invitecodes.userclass.permusers=Permanent users
+
+invitecodes.userclass.premium_paid=Premium Paid accounts
+
+langname.en_DW=English
+
+shop.admin.checkmoneyorder.body=[[user]] just sent a check/money order. Receipt is at: [[receipturl]]
+
+shop.admin.checkmoneyorder.subject=New Check/Money Order Pending
+
+shop.anniversarypromoblurb=Dreamwidth is currently offering a Holiday Promotion -- we're giving you 10% more points on all of your orders!
+
+shop.annivpromo.nopoints=This order will not earn you any Dreamwidth Points as part of our Holiday Promotion.  Bonus points are only given for orders that cost money.
+
+shop.annivpromo.points=This order will earn you <strong>[[points]] Dreamwidth [[?points|Point|Points]]</strong> to spend on your next order as part of our Holiday Promotion.
+
+shop.cc.charge.from=If you are using someone else's credit card, make sure you get their permission first. Charges will appear on your statement from Dreamwidth Studios, LLC.
+
+shop.email.acct.body.end<<
+
+Best,
+ Mark, Denise, and the [[sitename]] team
+
+.
+
+shop.email.comm.close<<
+
+Congratulations on your community's paid time! You can see a list of all the premium features you now have access to here:
+
+    https://www.dreamwidth.org/support/faqbrowse?faqid=4
+
+Thanks for supporting Dreamwidth, and for making it possible for us to 
+keep building an awesome service.
+
+.
+
+shop.email.confirm.checkmoneyorder.body<<
+Dear [[touser]],
+
+This email confirms your purchase from the [[sitename]] shop.  You can view your
+receipt here:
+
+    [[receipturl]]
+
+Your order will not be processed until we receive your check or money order as
+described below:
+
+    Amount Due: [[total]]
+    Payable To: [[payableto]]
+
+    Mail To:
+    [[address]]
+
+Please remember to include both the order number and the PO box number! Also, be sure to sign your check or endorse your money order.
+
+Thank you for your purchase! You can see a list of all the premium features you'll have access to here:
+
+    https://www.dreamwidth.org/support/faqbrowse?faqid=4
+
+Thanks for supporting Dreamwidth, and for making it possible for us to 
+keep building an awesome service.
+
+Best,
+ Mark, Denise, and the [[sitename]] team
+
+.
+
+shop.email.confirm.paypal.body<<
+Dear [[touser]],
+
+This email confirms your purchase from the [[sitename]] shop.  You can view your receipt here:
+
+    [[receipturl]]
+
+[[statustext]]
+
+Thank you for your purchase! You can see a list of all the premium features 
+here:
+
+    https://www.dreamwidth.org/support/faqbrowse?faqid=4
+
+Thanks for supporting Dreamwidth, and for making it possible for us to 
+keep building an awesome service.
+
+Best,
+ Mark, Denise, and the [[sitename]] team
+
+.
+
+shop.email.email.close<<
+
+We look forward to having you on the site! You can see a list of all the premium features you'll have access to here:
+
+    https://www.dreamwidth.org/support/faqbrowse?faqid=4
+
+.
+
+shop.email.user.close<<
+
+Congratulations on your paid time! You can see a list of all the premium features you now have access to here:
+
+    https://www.dreamwidth.org/support/faqbrowse?faqid=4
+
+Thanks for supporting Dreamwidth, and for making it possible for us to 
+keep building an awesome service.
+
+.
+
+shop.expiration.comm.0.body<<
+Dear [[touser]],
+
+We wanted to let you know that your [[sitename]] community 
+[[commname]]'s paid time has now expired.
+
+You can add more paid time to the community in the [[sitename]] shop:
+
+  [[shopurl]]
+
+If you don't renew your community's paid time, don't worry -- the 
+community will still be there for you and your members to post in.
+You just won't have access to the paid account features anymore. 
+
+We really hope that you'll consider renewing your paid time, though.
+All of our income comes entirely from your payments -- we don't take
+money from any outside investors, just from our users for the 
+service we provide. If there's anything we could be doing better,
+or anything we could do to make you more satisfied with the service,
+we'd love to hear from you. You can email us at:
+
+  feedback@dreamwidth.org
+
+Even if you decide not to renew your paid [[sitename]] account,
+we're still really glad to have you here. Thanks for your support.
+
+Best,
+ Denise, Mark, and the [[sitename]] team
+.
+
+shop.expiration.comm.14.body<<
+Dear [[touser]],
+
+We wanted to let you know that your paid [[sitename]] community,
+[[commname]], will be expiring in two weeks. 
+
+If you'd like, you can add more paid time to your community account
+here:
+
+  [[shopurl]]
+
+If you don't want to renew your community's paid account, don't worry -- it'll still be there for you to use. You and your community members just
+won't have access to all of the paid account features. You can see a list of those paid account features here:
+
+  https://www.dreamwidth.org/support/faqbrowse?faqid=4
+
+[[sitename]] is supported entirely by your payments. We aren't owned
+by a corporate conglomerate, we haven't taken any venture capital from
+outside investors, and we don't accept advertising, so we're 100%
+focused on making you happy with our service and our site. If there's
+anything at all that you think we're not doing right, or if there's 
+something that we could do better, we'd love to hear from you. You
+can email us at:
+
+  feedback@dreamwidth.org
+
+Thank you so much for supporting Dreamwidth and making it possible
+for us to build an awesome service.
+
+Best,
+ Denise, Mark, and the [[sitename]] team
+ 
+.
+
+shop.expiration.comm.3.body<<
+Dear [[touser]],
+
+We just wanted to remind you that your paid [[sitename]] community,
+[[commname]], will be expiring in approximately three days.
+
+You can renew your paid account in our Shop:
+
+  [[shopurl]]
+
+This is the last reminder we'll send you -- we don't want to nag! 
+Your community will automatically revert to a free account in 
+another three days if you don't renew. If that happens, you'll still
+be able to use it; you just won't have access to our paid features
+anymore. You can see a list of those paid features here:
+
+    https://www.dreamwidth.org/support/faqbrowse?faqid=4
+
+Thanks for supporting Dreamwidth, and for making it possible for us
+to build an awesome online home.
+
+Best,
+ Denise, Mark, and the [[sitename]] team
+.
+
+shop.expiration.user.0.body<<
+Dear [[touser]],
+
+We wanted to let you know that your [[sitename]] account, [[touser]],
+has now expired.
+
+You can add more paid time to your account in the [[sitename]] shop:
+
+  [[shopurl]]
+
+If you don't renew your paid time, don't worry -- your account is 
+still there, and you can keep using all of the basic features.
+You just won't have access to the paid account features anymore. 
+
+We really hope that you'll consider renewing your paid time, though.
+All of our income comes entirely from your payments -- we don't take
+money from any outside investors, just from our users for the 
+service we provide. If there's anything we could be doing better,
+or anything we could do to make you more satisfied with the service,
+we'd love to hear from you. You can email us at:
+
+  feedback@dreamwidth.org
+
+Even if you decide not to renew your paid [[sitename]] account,
+we're still really glad to have you here. Thanks for your support.
+
+Best,
+ Denise, Mark, and the [[sitename]] team
+.
+
+shop.expiration.user.14.body<<
+Dear [[touser]],
+
+We wanted to let you know that your paid [[sitename]] account will be 
+expiring in two weeks. 
+
+If you'd like, you can add more paid time to your account here:
+
+  [[shopurl]]
+
+If you don't want to renew your paid account, don't worry -- you can
+still keep using the site. You just won't have access to all of the 
+paid account features. You can see a list of those paid account features
+here:
+
+  https://www.dreamwidth.org/support/faqbrowse?faqid=4
+
+[[sitename]] is supported entirely by your payments. We aren't owned
+by a corporate conglomerate, we haven't taken any venture capital from
+outside investors, and we don't accept advertising, so we're 100%
+focused on making you happy with our service and our site. If there's
+anything at all that you think we're not doing right, or if there's 
+something that we could do better, we'd love to hear from you. You
+can email us at:
+
+  feedback@dreamwidth.org
+
+Thank you so much for supporting Dreamwidth and making it possible
+for us to build an awesome service.
+
+Best,
+ Denise, Mark, and the [[sitename]] team
+ 
+.
+
+shop.expiration.user.3.body<<
+Dear [[touser]],
+
+We just wanted to remind you that your paid [[sitename]] account,
+[[touser]], will be expiring in approximately three days.
+
+You can renew your paid account in our Shop:
+
+  [[shopurl]]
+
+This is the last reminder we'll send you -- we don't want to nag! 
+Your account will automatically revert to a free account in 
+another three days if you don't renew. If that happens, you'll still
+be able to use it; you just won't have access to our paid features
+anymore. You can see a list of those paid features here:
+
+    https://www.dreamwidth.org/support/faqbrowse?faqid=4
+
+Thanks for supporting Dreamwidth, and for making it possible for us
+to build an awesome online home.
+
+Best,
+ Denise, Mark, and the [[sitename]] team
+.
+
+shop.holidaypromoblurb=Dreamwidth is currently offering a Holiday Promotion!  For every 6 months of paid account time that you purchase for somebody else, we will give you 2 months of paid account time for free.
+
+siteskins.tropo-purple.alt=Tropospherical Purple: Black text on light grey background; light and dark purple color highlights
+
+siteskins.tropo-purple.desc=Light grey background for less glare; serif font 75% of the browser default; horizontal, drop-down expanding dynamic menus (requires fine mouse control).
+
+siteskins.tropo-red.alt=Tropospherical Red (default): Black text on light grey background; red and salmon color highlights
+
+siteskins.tropo-red.desc=Light grey background for less glare; serif font 75% of the browser default; horizontal, drop-down expanding dynamic menus (requires fine mouse control).
+
+tropo.accountlinks.account=Account Settings
+
+tropo.accountlinks.btn.login=Log In
+
+tropo.accountlinks.btn.logout=Log Out
+
+tropo.accountlinks.help=Help
+
+tropo.accountlinks.inbox=Inbox
+
+tropo.accountlinks.invitefriend=Invite Someone
+
+tropo.accountlinks.login.forgotpassword=Forgot password?
+
+tropo.accountlinks.login.openid=Log in with OpenID
+
+tropo.accountlinks.login.password=Password:
+
+tropo.accountlinks.login.rememberme=Remember me
+
+tropo.accountlinks.login.username=Account name:
+
+tropo.accountlinks.post=Post
+
+tropo.accountlinks.readinglist=Reading Page
+
+tropo.accountlinks.userpic.alt=Upload Icons
+
+tropo.footer.info=Copyright &copy; 2009-2010 Dreamwidth Studios, LLC. All rights reserved.
+
+tropo.footer.legal.abusepolicy=Abuse Policy
+
+tropo.footer.legal.diversitystatement=Diversity Statement
+
+tropo.footer.legal.guidingprinciples=Guiding Principles
+
+tropo.footer.legal.privacypolicy=Privacy Policy
+
+tropo.footer.legal.tos=Terms of Service
+
+tropo.footer.opensource=Open Source
+
+tropo.footer.sitemap=Site Map
+
+tropo.footer.suggestion=Make a Suggestion
+
+tropo.nav.create=Create
+
+tropo.nav.create.createaccount=Create Account
+
+tropo.nav.create.createcommunity=Create Community
+
+tropo.nav.create.editjournal=Edit Entries
+
+tropo.nav.create.editprofile=Edit Profile
+
+tropo.nav.create.updatejournal=Post Entry
+
+tropo.nav.create.uploaduserpics=Upload Icons ([[num]] of [[max]])
+
+tropo.nav.explore=Explore
+
+tropo.nav.explore.directorysearch=Directory Search
+
+tropo.nav.explore.faq=FAQ
+
+tropo.nav.organize=Organize
+
+tropo.nav.organize.customizestyle=Customize Style
+
+tropo.nav.organize.manageaccount=Manage Account
+
+tropo.nav.organize.managecommunities=Manage Communities
+
+tropo.nav.organize.managefilters=Manage Filters
+
+tropo.nav.organize.managerelationships=Manage Circle
+
+tropo.nav.organize.managetags=Manage Tags
+
+tropo.nav.organize.selectstyle=Select Style
+
+tropo.nav.read=Read
+
+tropo.nav.read.inbox.nounread=Inbox
+
+tropo.nav.read.inbox.unread=Inbox ([[num]])
+
+tropo.nav.read.profile=Profile
+
+tropo.nav.read.readinglist=Reading Page
+
+tropo.nav.read.recentcomments=Recent Comments
+
+tropo.nav.read.syndicatedfeeds=Feeds
+
+tropo.nav.read.tags=Tags
+
+tropo.search=Search&hellip;
+
+tropo.search.btn.go=Go
+
+tropo.search.email=Email
+
+tropo.search.faq=FAQ
+
+tropo.search.iminfo=IM Info
+
+tropo.search.interest=Interest
+
+tropo.search.region=Region
+
+tropo.search.siteuser=Site &amp; User
+
+widget.createaccountentercode.getcode=If you do not have an account creation code, you can find or request one in <?ljcomm dw_codesharing ljcomm?>.
+
+widget.createaccountentercode.info1=To create a new account, enter an account creation code (<a href="https://www.dreamwidth.org/support/faqbrowse?faqid=105">Why?</a>):
+
+widget.importchoosesource.disabled1=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more. For more information, see <a href="https://dw-maintenance.dreamwidth.org">dw_maintenance</a>.
+
+widget.shopcart.paymentmethod.creditcardpp=[N/A]
+
+widget.shopcart.paymentmethod.paypal=[N/A]
