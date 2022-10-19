@@ -6,7 +6,7 @@ FROM  ubuntu:18.04
 LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
-ARG COMMIT=master
+ARG COMMIT=main
 
 # Things that commands need, but shouldn't change.
 ENV LJHOME /dw

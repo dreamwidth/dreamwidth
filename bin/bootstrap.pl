@@ -90,7 +90,7 @@ sub configure_dw_upstream {
     git( qw{remote add dreamwidth}, $dw_repo_url );
     git(qw{fetch dreamwidth});
     git(qw{branch --set-upstream develop dreamwidth/develop});
-    git(qw{branch --set-upstream master dreamwidth/master});
+    git(qw{branch --set-upstream main dreamwidth/main});
 }
 
 # finished :-)

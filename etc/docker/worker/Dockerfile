@@ -6,7 +6,7 @@ FROM  ghcr.io/dreamwidth/base:latest
 LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
-ARG COMMIT=master
+ARG COMMIT=main
 
 # Things that commands need, but shouldn't change.
 ENV LJHOME /dw
@@ -15,9 +15,9 @@ ENV LJHOME /dw
 RUN echo $COMMIT && \
     apt-get update && \
     apt-get install -y mysql-client && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-system | \
+    curl https://raw.githubusercontent.com/dreamwidth/dw-free/main/doc/dependencies-system | \
     xargs apt-get -y install && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-cpanm | \
+    curl https://raw.githubusercontent.com/dreamwidth/dw-free/main/doc/dependencies-cpanm | \
     xargs cpanm -n -L /dw/extlib/ && \
     rm -rf /var/lib/apt/lists/*
 

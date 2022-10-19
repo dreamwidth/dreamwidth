@@ -8,7 +8,7 @@ FROM  ubuntu:18.04
 LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
-ARG COMMIT=master
+ARG COMMIT=main
 
 # Things that commands need, but shouldn't change.
 ENV LJHOME /dw
@@ -20,14 +20,14 @@ RUN apt-get update && \
     apt-get install -y curl git cpanminus tzdata rsync vim && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
     dpkg-reconfigure -f noninteractive tzdata && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-system | \
+    curl https://raw.githubusercontent.com/dreamwidth/dw-free/main/doc/dependencies-system | \
         xargs apt-get -y install && \
     rm -rf /var/lib/apt/lists/* && \
     cpanm -nq App::cpm
 
 # Split CPAN dependencies into a second step, since they change more
 # frequently than system dependencies
-RUN curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-cpanm | \
+RUN curl https://raw.githubusercontent.com/dreamwidth/dw-free/main/doc/dependencies-cpanm | \
         cpm install -v --no-color -L /dw/extlib/ - && \
     rm -rf /root/.perl-cpm && \
     rm -rf /root/.cpanm
