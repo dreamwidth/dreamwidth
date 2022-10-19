@@ -22,6 +22,8 @@ env:
 
 jobs:
   deploy:
+    if: github.repository == 'dreamwidth/dw-free'
+
     runs-on: ubuntu-latest
 
     steps:

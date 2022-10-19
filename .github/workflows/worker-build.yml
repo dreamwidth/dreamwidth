@@ -12,6 +12,8 @@ env:
 
 jobs:
   build:
+    if: github.repository == 'dreamwidth/dw-free'
+
     runs-on: ubuntu-latest
 
     permissions:
