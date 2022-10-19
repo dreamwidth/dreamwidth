@@ -168,10 +168,11 @@ this set of guidelines, contact us and we'll talk it over.</p>
 <ul>
     <li>The <a href='https://github.com/dreamwidth/'>source code</a> for
         Dreamwidth Studios is based on code developed and maintained by
-        LiveJournal.com. Code in the dw-free repository authored by LiveJournal
-        is released under the GNU General Public License. Code in the dw-free
-        repository authored by Dreamwidth Studios, LLC is dual-released under
-        the GPL and Artistic Licenses.</li>
+        LiveJournal.com. Code in the Dreamwidth repository authored by LiveJournal
+        is released under the GNU General Public License. Code in the Dreamwidth
+        repository authored by Dreamwidth Studios, LLC (excepting code in the
+        ext/dw-nonfree directory) is dual-released under the GPL and Artistic
+        Licenses.</li>
     <li>Code in the ext/dw-nonfree directory is source-available but not Open
         Source. You may not use code from the ext/dw-nonfree directory to run a
         production site. You may only use code from the ext/dw-nonfree directory

@@ -207,5 +207,5 @@ sub timestr {
 sub github_url {
     my $hash = substr( $_[0], 0, 8 );
 
-    return qq|[$hash](https://github.com/dreamwidth/dw-free/commit/$hash)|;
+    return qq|[$hash](https://github.com/dreamwidth/dreamwidth/commit/$hash)|;
 }

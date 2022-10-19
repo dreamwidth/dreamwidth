@@ -2852,7 +2852,7 @@ CREATE TABLE sitekeywords (
 )
 EOC
 
-# this table is included, even though it's not used in the stock dw-free
+# this table is included, even though it's not used in the stock Dreamwidth
 # installation.  but if you want to use it, you can, or you can ignore it
 # and make your own which you might have to do.
 register_tablecreate( 'cc_trans', <<'EOC');

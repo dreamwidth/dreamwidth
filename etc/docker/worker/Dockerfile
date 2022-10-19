@@ -15,9 +15,9 @@ ENV LJHOME /dw
 RUN echo $COMMIT && \
     apt-get update && \
     apt-get install -y mysql-client && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/main/doc/dependencies-system | \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
     xargs apt-get -y install && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/main/doc/dependencies-cpanm | \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
     xargs cpanm -n -L /dw/extlib/ && \
     rm -rf /var/lib/apt/lists/*
 

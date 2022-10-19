@@ -22,7 +22,7 @@ env:
 
 jobs:
   deploy:
-    if: github.repository == 'dreamwidth/dw-free'
+    if: github.repository == 'dreamwidth/dreamwidth'
 
     runs-on: ubuntu-latest
 

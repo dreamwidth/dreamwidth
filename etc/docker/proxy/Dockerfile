@@ -21,7 +21,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Actually check out the source code now.
-RUN git clone https://github.com/dreamwidth/dw-free.git $LJHOME && \
+RUN git clone https://github.com/dreamwidth/dreamwidth.git $LJHOME && \
     git -C $LJHOME checkout $COMMIT && \
     git -C $LJHOME pull --ff-only origin $COMMIT && \
     cd $LJHOME/src/proxy && \

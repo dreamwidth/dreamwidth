@@ -17,11 +17,11 @@ ENV PERL5LIB /dw/extlib/lib/perl5
 RUN echo $COMMIT && \
     apt-get update && \
     apt-get install -y mysql-client && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/main/doc/dependencies-system | \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
         xargs apt-get -y install && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/main/doc/dependencies-dev | \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-dev | \
         xargs apt-get -y install && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/main/doc/dependencies-cpanm | \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
         cpm install -v --no-color -L /dw/extlib/ - && \
     rm -rf /root/.cpanm && \
     rm -rf /root/.perl-cpm && \
