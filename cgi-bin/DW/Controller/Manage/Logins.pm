@@ -39,6 +39,7 @@ sub login_handler {
     if ( $adminmode && $user ) {
         $u = LJ::load_user($user);
         return error_ml('error.username_notfound') unless $u;
+        return error_ml('error.purged.text') if $u->is_expunged;
         $user = undef if $rv->{remote}->equals($u);
     }
     else {
