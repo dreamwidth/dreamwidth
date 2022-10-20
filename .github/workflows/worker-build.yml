@@ -51,8 +51,15 @@ jobs:
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
+          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_NAME)
+          echo IMAGE_DIGEST=$IMAGE_DIGEST
+
+          # Export hash for notification
+          echo "::set-env name=IMAGE_DIGEST::$IMAGE_DIGEST"
+
       - name: Notify Discord
         uses: sarisia/actions-status-discord@v1
         if: always()
         with:
+          description: "Package digest: $IMAGE_DIGEST"
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
