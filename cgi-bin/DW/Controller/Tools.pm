@@ -569,7 +569,7 @@ sub tellafriend_handler {
         'display_msg_footer' => $display_msg_footer,
         'email_checkbox'     => $email_checkbox
     };
-    return DW::Template->render_template( 'tools/emailmanage.tt', $vars );
+    return DW::Template->render_template( 'tools/tellafriend.tt', $vars );
 }
 
 1;
