@@ -56,11 +56,11 @@ jobs:
 
           # Get sha256 for later  
           IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_NAME | cut -d@ -f2)
-          echo "IMAGE_DIGEST=${{ env.IMAGE_DIGEST }}" >> $GITHUB_ENV
+          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
 
       - name: Notify Discord
         uses: sarisia/actions-status-discord@v1
         if: always()
         with:
-          description: "Package digest: $IMAGE_DIGEST"
+          description: "Package digest: ${{ env.IMAGE_DIGEST }}"
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
