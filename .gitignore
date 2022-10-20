@@ -19,6 +19,7 @@ src/proxy/proxy
 .sass-cache
 # Ignore compiled CSS
 htdocs/stc/css
+ext/dw-nonfree/htdocs/stc/css
 
 # Ignore test stuff
 t-theschwartz.sqlite
