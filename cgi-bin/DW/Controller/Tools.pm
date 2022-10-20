@@ -446,7 +446,7 @@ sub tellafriend_handler {
         }
 
         # Check for images
-        if ( $post_args->{'body'} =~ /<(img|forbiddenimages)\s+src/i ) {
+        if ( $post_args->{'body'} =~ /<(img|image)\s+src/i ) {
             $errors->add( 'body', ".error.forbiddenimages" );
         }
 
@@ -490,6 +490,7 @@ sub tellafriend_handler {
 
     my ( $subject, $msg );
     $subject = LJ::Lang::ml("$scope.email.subject.noentry");
+    $msg     = '';
     if ( $itemid =~ /^\d+$/ ) {
         my $uj = LJ::load_user($journal);
         return error_ml("$scope.error.unknownjournal") unless $uj;
