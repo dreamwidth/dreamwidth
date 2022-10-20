@@ -57,5 +57,5 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         if: always()
         with:
-          description: "Package digest: ${{ env.IMAGE_DIGEST }}"
+          description: "Package digest: `${{ env.IMAGE_DIGEST }}`"
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
