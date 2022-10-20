@@ -11,22 +11,28 @@ Hi,
 
 .email.body.custom=This is a custom message from [[user]]:
 
-.email.body.footer1<<
+.email.body.footer<<
 -[[user]]
 
 --[[sitename]] Team
-Read the latest [[sitenameshort]] news at https://news.[[domain]]/
+.
+
+.email.body.footer.news<<
+-[[user]]
+
+--[[sitename]] Team
+Read the latest [[sitenameshort]] news at [[news_url]]/
 .
 
 .email.body.otherjournal<<
 Hey,
 
-Check out my friend's journal online:
+Check out this person's journal online:
 
 .
 
 .email.body.yourjournal<<
-Dear
+Hello!
 
 Here's a link to the journal that I'm keeping online:
 

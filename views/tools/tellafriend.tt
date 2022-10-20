@@ -29,11 +29,12 @@
  [% form.textarea(
      name = 'body',
      rows = 6,
-     cols = 55,
+     cols = 80,
      value = formdata.body,
      wrap = 'soft') %]
-      [% display_msg_footer %]
-     </blockquote></div>
+ <br>
+ [% display_msg_footer %]
+ </blockquote></div>
 
 <div class='action-box'><div class='inner'>
 [% form.submit(value = dw.ml(".sendbutton")) %]

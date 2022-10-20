@@ -417,13 +417,17 @@ sub tellafriend_handler {
         $u->{'emailpref'} = $u->site_email_alias;
     }
 
+    my $news_journal = LJ::load_user($LJ::NEWS_JOURNAL);
+    my $news_url     = LJ::isu($news_journal) ? $news_journal->journal_base : '';
+    my $footer_ml    = LJ::isu($news_journal) ? 'footer.news' : 'footer';
+
     my $msg_footer = LJ::Lang::ml(
-        "$scope.email.body.footer1",
+        "$scope.email.body.$footer_ml",
         {
             user          => $u->{user},
             sitename      => $LJ::SITENAME,
             sitenameshort => $LJ::SITENAMESHORT,
-            domain        => $LJ::DOMAIN
+            news_url      => $news_url
         }
     );
     my $custom_msg = "\n\n" . LJ::Lang::ml( "$scope.email.body.custom", { user => $u->{user} } );
