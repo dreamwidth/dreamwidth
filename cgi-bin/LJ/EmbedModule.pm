@@ -659,7 +659,7 @@ qq {<div class="lj_embedcontent-wrapper" style="$wrapper_style"><div class="lj_e
     # tag and it's whitelisted video.
     my $r    = DW::Request->get;
     my $view = $r ? $r->note("view") : '';
-    if ( !$placeholder_prop && $view eq 'friends' ) {
+    if ( !$placeholder_prop && $view && $view eq 'friends' ) {
 
         # show placeholder if this is not whitelisted video
         $do_placeholder = 1 if $no_whitelist;
