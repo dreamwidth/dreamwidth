@@ -487,7 +487,7 @@ sub tellafriend_handler {
 
             my $tolist = $toemail;
             $tolist =~ s/(,\s*)/<br \/>/g;
-            $r->add_msg( LJ::Lang::ml('$scope.sentpage.body.mailedlist') . "<br />" . $tolist,
+            $r->add_msg( LJ::Lang::ml("$scope.sentpage.body.mailedlist") . "<br />" . $tolist,
                 $r->SUCCESS );
         }
     }
@@ -495,7 +495,7 @@ sub tellafriend_handler {
     my ( $subject, $msg );
     $subject = LJ::Lang::ml("$scope.email.subject.noentry");
     $msg     = '';
-    if ( $itemid =~ /^\d+$/ ) {
+    if ( defined $itemid && $itemid =~ /^\d+$/ ) {
         my $uj = LJ::load_user($journal);
         return error_ml("$scope.error.unknownjournal") unless $uj;
 
@@ -537,7 +537,7 @@ sub tellafriend_handler {
             { sitenameshort => $LJ::SITENAMESHORT } );
     }
 
-    if ( $get_args->{'user'} =~ /^\w{1,$LJ::USERNAME_MAXLENGTH}$/ ) {
+    if ( defined $get_args->{'user'} && $get_args->{'user'} =~ /^\w{1,$LJ::USERNAME_MAXLENGTH}$/ ) {
         my $user = $get_args->{'user'};
         my $uj   = LJ::load_user($user);
         my $url  = $uj->journal_base;
