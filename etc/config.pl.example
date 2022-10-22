@@ -1,16 +1,14 @@
 #!/usr/bin/perl
 # -*-perl-*-
 
-# LiveJournal configuration file.
-
 # THIS FILE IS INTENDED FOR EXAMPLE/DOCUMENTATION PURPOSES ONLY.
+# An active site should have a copy of this file, minus the .example suffix, located in ext/local/etc.
 
 # Ideally, any configuration changes for your site should go in
-# config-local.pl or config-private.pl.  If you feel like you need
-# a site-specific config.pl, make sure you copy it to ext/local/etc
-# and customize it there.  This will protect it from getting clobbered
-# when you upgrade to the newest Dreamwidth code in the future, but
+# config-local.pl or config-private.pl.  Your ext/local/etc/config.pl
+# can be customized where necessary, but be aware that as the site evolves,
 # you will not automatically inherit additions or updates to this file.
+# Any changes to etc/config.pl.example should be copied over by hand.
 
 {
     package LJ;
