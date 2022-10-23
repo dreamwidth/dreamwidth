@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd $LJHOME
+perl -I$LJHOME/extlib/lib/perl5 $LJHOME/extlib/bin/tidyall -a
+
+cd $LJHOME/ext/dw-nonfree
+perl -I$LJHOME/extlib/lib/perl5 $LJHOME/extlib/bin/tidyall -a

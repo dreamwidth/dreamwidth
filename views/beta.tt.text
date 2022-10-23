@@ -3,6 +3,24 @@
 
 .betafeature.btn.on=Turn ON beta testing
 
+.betafeature.canary.off<<
+<p>Opt in to testing on Canary. This puts you on the latest code,
+long before it's pushed live to everybody. You should probably only
+use this option if you are part of the site's development team.</p>
+
+<p><strong>Caution:</strong>
+there will be dragons and your experience may totally break.
+If something goes horribly wrong, please clear your cookies to return
+to the normal site experience.</p>
+.
+
+.betafeature.canary.on<<
+<p>You are currently opted in to testing on Canary. Disable if you would
+like to go back to the normal site experience.</p>
+.
+
+.betafeature.canary.title=Site-Wide Canary
+
 .betafeature.manage2fa.cantadd=Sorry, your account is not eligible to test this feature.
 
 .betafeature.manage2fa.off<<
@@ -48,6 +66,22 @@
 .
 
 .betafeature.nos2foundation.title=Temporarily revert updated journal page components
+
+.betafeature.inbox.cantadd=Sorry, your account is not eligible to test this feature.
+
+.betafeature.inbox.off<<
+<p>Activate the testing version of the new Inbox page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion.</p>
+
+<p>To report bugs with the new Inbox page, <a href="https://dw-beta.dreamwidth.org/15010.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.inbox.on<<
+<p>You are currently testing the new Inbox page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion.</p>
+
+<p>To report bugs with the new Inbox page, <a href="https://dw-beta.dreamwidth.org/15010.html">leave a comment</a> in <?ljuser dw_beta ljuser?>.</p>
+.
+
+.betafeature.inbox.title=New Inbox Page
 
 .nofeatures=There are no features currently available for beta testing.
 

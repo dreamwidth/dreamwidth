@@ -1,7 +1,10 @@
 /logs
 /temp
 /extlib
-/ext
+/ext/dw-private
+/ext/local
+/ext/ruby
+/ext/yuicompressor
 /etc/config*.pl
 /build
 /locks
@@ -16,6 +19,7 @@ src/proxy/proxy
 .sass-cache
 # Ignore compiled CSS
 htdocs/stc/css
+ext/dw-nonfree/htdocs/stc/css
 
 # Ignore test stuff
 t-theschwartz.sqlite

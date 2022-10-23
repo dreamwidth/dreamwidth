@@ -59,11 +59,16 @@ or
 
 =cut
 
-use strict;
-
 package DW::Captcha;
 
+use strict;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use LJ::MemCache;
 use LJ::ModuleLoader;
+use LJ::UniqCookie;
 
 my @CLASSES = LJ::ModuleLoader->module_subclasses("DW::Captcha");
 
@@ -240,6 +245,152 @@ sub enabled {
     return $page
         ? $_[0]->site_enabled() && $LJ::CAPTCHA_FOR{$page}
         : $_[0]->site_enabled();
+}
+
+# Integrated with our controller system to determine whether a user should
+# or shouldn't receive a captcha in this place.
+#
+# Returns whether or not we believe the user should receive a captcha at
+# this point based on request counting. Note, you should probably not use
+# this on things where you _definitely_ want a captcha, like creating
+# an account or something.
+sub should_captcha_view {
+    my ( $class, $remote ) = @_;
+    my $r = DW::Request->get;
+
+    # Return unless we're enabled
+    return 0 unless $LJ::CAPTCHA_HCAPTCHA_SITEKEY;
+
+    # If we're completing a captcha, no captcha
+    return 0 if $r->uri =~ m!^/captcha!;
+
+    # If the user is logged in, no captcha
+    return 0 if $remote;
+
+    # If the path matches the bypass regex, no captcha
+    if ($LJ::CAPTCHA_BYPASS_REGEX) {
+        return 0 if $r->uri =~ $LJ::CAPTCHA_BYPASS_REGEX;
+    }
+
+    # If the user is on a trusted IP range, no captcha
+    my ( $mckey, $ip ) = _captcha_mckey();
+    if ( my $matcher = $LJ::SHOULD_CAPTCHA_IP ) {
+        return 0 unless $matcher->($ip);
+    }
+
+    # Get our captcha information -- no information means that the user has not
+    # passed a captcha. If we have information, then they *have* at some point.
+    my $info_raw = LJ::MemCache::get($mckey);
+    unless ($info_raw) {
+
+        # Let's see if this is a repeat offender who is spamming requests at us
+        # and hitting a bunch of 302s -- in which case, temp ban
+        my $ip    = $r->get_remote_ip;
+        my $mckey = "cct:$ip";
+        my ( $last_seen_ts, $count ) = split( /:/, LJ::MemCache::get($mckey) // "0:0" );
+        if ( $last_seen_ts > 0 ) {
+
+            # Subtract out
+            my $intervals = int( ( time() - $last_seen_ts ) / $LJ::CAPTCHA_FRAUD_INTERVAL_SECS );
+            if ( $intervals > 1 ) {
+                $count -= $LJ::CAPTCHA_FRAUD_FORGIVENESS_AMOUNT * $intervals;
+                $count = 0
+                    if $count < 0;
+            }
+        }
+
+        # Set the counter
+        $log->debug( $ip, ' has seen ', $count + 1, ' captcha requests.' );
+        LJ::MemCache::set(
+            $mckey,
+            join( ':', time(), $count + 1 ),
+            $LJ::CAPTCHA_FRAUD_INTERVAL_SECS * $LJ::CAPTCHA_FRAUD_LIMIT
+        );
+
+        # Now the trigger interval, if it's over, sysban this IP but just carry
+        # on with rendering this page (simpler)
+        if ( $count >= $LJ::CAPTCHA_FRAUD_LIMIT ) {
+            $log->info( 'Banning ', $ip, ' for exceeding captcha fraud threshold.' );
+            LJ::Sysban::tempban_create( ip => $ip, $LJ::CAPTCHA_FRAUD_SYSBAN_SECS );
+        }
+
+        return 1;
+    }
+
+    # This is a poor rate limit system but it might be good enough
+    # for us, it's also poorly documented sorry
+    my ( $first_req_ts, $last_req_ts, $remaining ) = map { $_ + 0 } split( /:/, $info_raw );
+
+    # If the first request is too long ago, then re-captcha
+    if ( ( time() - $first_req_ts ) > $LJ::CAPTCHA_RETEST_INTERVAL_SECS ) {
+        $log->info( $mckey, ' has exceeded the retest interval, issuing captcha.' );
+        return 1;
+    }
+
+    # First, refresh remaining according to time since last request
+    my $delta_intervals = ( time() - $last_req_ts ) / $LJ::CAPTCHA_REFILL_INTERVAL_SECS;
+    if ( $delta_intervals > 1 ) {
+
+        # Only add more if we've waited at least an interval
+        $remaining += int( $delta_intervals * $LJ::CAPTCHA_REFILL_AMOUNT );
+        $remaining = $LJ::CAPTCHA_MAX_REMAINING
+            if $remaining > $LJ::CAPTCHA_MAX_REMAINING;
+        $last_req_ts = time();
+    }
+
+    # If we are out of requests, retest
+    if ( $remaining <= 0 ) {
+        $log->info( $mckey, ' is out of requests by usage, retesting.' );
+        return 1;
+    }
+
+    # Things look good, so let's allow this to continue but update remaining
+    LJ::MemCache::set( $mckey, join( ':', $first_req_ts, $last_req_ts, $remaining - 1 ) );
+    return 0;
+}
+
+# Called when the captcha page has a successful captcha.
+sub record_success {
+
+    # Return unless we're enabled
+    return 0 unless $LJ::CAPTCHA_HCAPTCHA_SITEKEY;
+
+    my $mckey = _captcha_mckey();
+    $log->debug( 'Captcha success for: ', $mckey );
+    LJ::MemCache::set( $mckey, join( ':', time(), time(), $LJ::CAPTCHA_INITIAL_REMAINING ) );
+}
+
+# Reset the captcha counter, so the user starts getting them
+# again. Mostly used for debugging.
+sub reset_captcha {
+    my $mckey = _captcha_mckey();
+    $log->debug( 'Resetting captcha for: ', $mckey );
+    LJ::MemCache::delete($mckey);
+}
+
+# Construct a redirect URL that will take us to get captchaed and
+# then back to whatever page we're on now
+sub redirect_url {
+    my $r = DW::Request->get;
+
+    my $uri = $r->uri;
+    if ( my $qs = $r->query_string ) {
+        $uri .= '?' . $qs;
+    }
+
+    my $host = $r->host;
+    $uri = LJ::eurl( $host ? "https://$host$uri" : $uri );
+
+    return "$LJ::SITEROOT/captcha?returnto=$uri";
+}
+
+sub _captcha_mckey {
+    my $r          = DW::Request->get;
+    my $ip         = $r->get_remote_ip;
+    my $ip_trimmed = join( '.', ( split( /\./, $ip ) )[ 0 .. 2 ] ) . '.0';
+    my $uniq       = LJ::UniqCookie->current_uniq;
+    my $mckey      = "$uniq:$ip_trimmed";
+    return wantarray ? ( $mckey, $ip ) : $mckey;
 }
 
 # internal method. Used to initialize the challenge and response fields

@@ -1,0 +1,66 @@
+name: (package) web automatic build
+
+on:
+  push:
+    paths:
+      - cgi-bin/**
+      - htdocs/**
+      - views/**
+      - schemes/**
+      - src/s2/**
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: web
+
+jobs:
+  build:
+    if: github.repository == 'dreamwidth/dreamwidth'
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Build image
+        run: docker build -t $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}" etc/docker/$IMAGE_NAME
+
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          # Use Docker `latest` tag convention for master/main
+          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+          # Get sha256 for later  
+          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_NAME | cut -d@ -f2)
+          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
+
+      - name: Notify Discord
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          description: "Package digest: `${{ env.IMAGE_DIGEST }}`\n\nDeploy here: https://github.com/dreamwidth/dreamwidth/actions/workflows/web-deploy.yml"
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}

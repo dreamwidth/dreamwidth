@@ -7,7 +7,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2022 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -17,10 +17,15 @@
 package DW::Controller;
 
 use strict;
-use warnings;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
 use Exporter;
-use DW::Template;
 use URI;
+
+use DW::Captcha;
+use DW::Template;
 
 our ( @ISA, @EXPORT );
 @ISA    = qw/ Exporter /;
@@ -91,6 +96,9 @@ sub render_success {
 #    On any new controller, please try and pass "form_auth => 0" if you are checking
 #      the form auth yourself, or if the automatic check will cause problems.
 #      Thank you.
+# - skip_captcha => 0 -- (default) Controller should do normal captcha logic
+#                        and may redirect to a captcha URL.
+# - skip_captcha => 1 -- (DANGEROUS) do not ever captcha on this endpoint.
 #
 # Returns one of:
 # - 0, $error_text (if there's an error)
@@ -116,7 +124,8 @@ sub controller {
         || ( $args{authas} && $args{anonymous} )
         || ( $args{privcheck} && $args{anonymous} );
 
-    $args{form_auth} //= 0;
+    $args{form_auth}    //= 0;
+    $args{skip_captcha} //= 0;
 
     # 'anonymous' pages must declare themselves, else we assume that a remote is
     # necessary as most pages require a user
@@ -137,6 +146,13 @@ sub controller {
     unless ( $args{anonymous} ) {
         $vars->{remote}
             or return $fail->( needlogin() );
+    }
+
+    # see if we should captcha this user
+    unless ( $r->did_post || $args{skip_captcha} ) {
+        if ( DW::Captcha->should_captcha_view( $vars->{remote} ) ) {
+            return $fail->( $r->redirect( DW::Captcha->redirect_url ) );
+        }
     }
 
     # if they can specify a user argument, try to load that

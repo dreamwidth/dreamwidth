@@ -2,11 +2,11 @@
 # This creates a Dreamwidth worker container.
 #
 
-FROM       dreamwidth/base:latest
-MAINTAINER Mark Smith "mark@dreamwidth.org"
+FROM  dreamwidth/base:latest
+LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
-ARG COMMIT=master
+ARG COMMIT=main
 
 # Things that commands need, but shouldn't change.
 ENV HOME /dw
@@ -17,11 +17,11 @@ ENV PERL5LIB /dw/extlib/lib/perl5
 RUN echo $COMMIT && \
     apt-get update && \
     apt-get install -y mysql-client && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-system | \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
         xargs apt-get -y install && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-dev | \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-dev | \
         xargs apt-get -y install && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-cpanm | \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
         cpm install -v --no-color -L /dw/extlib/ - && \
     rm -rf /root/.cpanm && \
     rm -rf /root/.perl-cpm && \
@@ -30,10 +30,7 @@ RUN echo $COMMIT && \
 # Actually check out the source code now.
 RUN git -C $LJHOME fetch && \
     git -C $LJHOME checkout $COMMIT && \
-    git -C $LJHOME pull --ff-only origin $COMMIT && \
-    git -C $LJHOME/ext/dw-nonfree fetch && \
-    git -C $LJHOME/ext/dw-nonfree checkout master && \
-    git -C $LJHOME/ext/dw-nonfree pull --ff-only origin $COMMIT
+    git -C $LJHOME pull --ff-only origin $COMMIT
 
 # Copy in support scripts/configurations that are useful.
 ADD scripts/ /opt/

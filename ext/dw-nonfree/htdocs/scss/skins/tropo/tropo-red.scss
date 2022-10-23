@@ -1,0 +1,200 @@
+/** Tropospherical Red CSS
+ *
+ * Authors:
+ *     Janine Smith <janine@netrophic.com>
+ *     Jesse Proulx <jproulx@jproulx.net>
+ *     Elizabeth Lubowitz <grrliz@gmail.com>
+ *     Denise Paolucci <denise@dreamwidth.org>
+ *
+ * Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
+ *
+ * This program is NOT free software or open-source; you can use it as an
+ * example of how to implement your own site-specific extensions to the
+ * Dreamwidth Studios open-source code, but you cannot use it on your site
+ * or redistribute it, with or without modifications.
+ *
+ */
+
+/**
+ * Dreamwidth Site Scheme
+ *
+ * Standard layout for Dreamwidth
+ *
+ * Mockups designed by grrliz, hence grrliz.css
+ *
+ * @project         Dreamwidth Site Design
+ * @author          Jesse Proulx
+ * @date            2009-01-07
+ * @version         Alpha
+ * @revision        $Revision$
+ * @copyright       Copyright (c) 2009 by Dreamwidth Studios, LLC
+ *
+ */
+
+
+// color names. Only use these variables in the color assignment section
+$_red:              #c1272d; // foreground red
+$_dark-red:         #a42226; // background red
+$_pink:             #f4717a;
+$_light-pink:       #ffd8d8;
+
+$_light-gray:       #f5f5f5;
+$_low-contrast-gray:#ddd;
+$_mid-gray:         #e9e9e9;
+$_dark-gray:        #636363;
+$_off-black:        #111;
+$_white:            #fff;
+
+$_support-bg-blue:  #c5dff9;
+$_support-fg-blue:  darken( $_support-bg-blue, 15% );
+$_support-bg-green: #d0fbca;
+$_support-fg-green: darken( $_support-bg-green, 15% );
+
+// color assignment
+$background-color:    $_light-gray;
+$text-color:          $_off-black;
+$link-color:          $_red;
+
+$primary-color:       $_dark-red;
+$primary-text-color:  $_white;      // color of text on a $primary-color background
+$secondary-color:     $_mid-gray;
+$strong-accent-color: $_dark-red;
+$soft-accent-color:   $_pink;
+$border-color:        $_low-contrast-gray;
+$highlight-color:     $_light-pink;
+$highlight-border:    $_red;
+$highlight-text-color:$_off-black;
+
+$inactive-color:      $_dark-gray;
+
+$form-font-color:     $_off-black;
+$form-bg-color:       $_white;
+$form-border-color:   $_low-contrast-gray;
+
+@import "skins/alert-colors";
+
+
+// foundation global variables
+$body-bg:           $background-color;
+$body-font-color:   $text-color;
+$body-border-color: $strong-accent-color;
+$body-font-family:  Verdana, Helvetica, Arial, sans-serif;
+$base-line-height:  1.5;
+
+// foundation type variables
+// We use these to control header font styles
+$header-font-family:                    Arial, sans-serif;
+$page-title-color:                      $primary-color;
+$header-font-color:                     lighten( $body-font-color, 10% );
+$list-side-margin:                      1em;
+
+// we want to base these on $body-font-color rather than the random variables they're based on
+$blockquote-font-color:                 mix( #ffffff, $body-font-color, 20% );
+
+// We use these to style anchors1
+$anchor-text-decoration:               underline;
+$anchor-font-color:                    $link-color;
+$anchor-font-color-visited:            mix( #000000, desaturate( $anchor-font-color, 20% ), 20% );
+$anchor-font-color-hover:              adjust-color( $anchor-font-color, $red: 40, $green: -80, $blue: -80 );
+
+// forms
+$form-label-font-color:                 lighten($body-font-color, 20%);
+$input-font-color:                      $form-font-color;
+$input-bg-color:                        $form-bg-color;
+$input-focus-bg-color:                  darken($input-bg-color, 2%);
+$input-border-color:                    darken($input-bg-color, 20%);
+$input-focus-border-color:              darken($input-bg-color, 40%);
+$input-disabled-bg:                     $form-border-color;
+$fieldset-border-color:                 $form-border-color;
+$legend-bg:                             transparent;
+$input-prefix-bg:                       darken($input-bg-color, 5%);
+$input-prefix-border-color:             $input-border-color;
+
+// alerts
+$alert-function-factor: 20%;
+
+// panel
+$panel-bg:                              darken( $body-bg, 5% );
+
+// reveal modal
+$reveal-modal-bg:                       $panel-bg;
+$reveal-border-color:                   $form-border-color;
+$reveal-close-color:                    $link-color;
+
+// sub-nav
+$sub-nav-font-color:	$inactive-color;
+
+// pagination
+$pagination-link-font-color:	$inactive-color;
+$pagination-link-unavailable-font-color:	$inactive-color;
+
+// tables
+$table-bg:              $form-bg-color;
+$table-even-row-bg:     $panel-bg;
+$table-border-color:    $border-color;
+$table-head-bg:         $primary-color;
+$table-head-font-color: $primary-text-color;
+$table-row-font-color:  $text-color;
+
+// navigation
+$topbar-bgimage:                       "/img/tropo-red/icon_menu_swirl.png";
+$topbar-bgimage-hover:                 "/img/tropo-red/icon_menu_swirl_dropdown.png";
+$topbar-bgimage-position:              11px 50% no-repeat;
+
+$topbar-bg:                            transparent url($topbar-bgimage) $topbar-bgimage-position;
+$topbar-link-weight:                   normal;
+$topbar-link-color:                    $text-color;
+$topbar-link-bg-hover:                 $primary-color url($topbar-bgimage-hover) $topbar-bgimage-position;
+$topbar-link-bg-active:                $primary-color;
+
+$topbar-dropdown-bg:                   $topbar-bg;
+$topbar-dropdown-link-color:           $primary-text-color;
+$topbar-dropdown-link-bg:              $soft-accent-color url($topbar-bgimage-hover) $topbar-bgimage-position;
+$topbar-dropdown-link-bg-hover:        $topbar-link-bg-hover;
+
+$topbar-menu-link-color:               $topbar-link-color;
+$topbar-menu-icon-color:               $topbar-link-color;
+
+$topbar-height: 2rem;
+$topbar-dropdown-toggle-color: $soft-accent-color;
+
+$masthead-bottom-accent-color:         $soft-accent-color;
+
+@import "skins/tropo/tropo-base";
+
+.main-nav:not(.expanded) {
+    background: #ddd url(/img/tropo-red/bg_menu_gradient.png) repeat-x;
+
+    ul, .has-form {
+        background: transparent;
+    }
+}
+
+.main-nav.expanded li {
+    background-color: #ddd;
+}
+
+footer {
+    background: #eee url(/img/tropo-red/bg_footer_gradient.png) repeat-x;
+}
+
+
+.action-box ul.pagination {
+	a { color: $highlight-text-color }
+
+	li.current:hover a, li.current a:focus {
+		background-color: $primary-color;
+	}
+
+	li:hover a, li a:focus {
+		background-color: $input-border-color;
+		
+	}
+
+	li.current a:visited {
+    background-color: $primary-color;
+    color: $pagination-link-current-font-color;
+    
+}
+	
+}

@@ -27,16 +27,18 @@ use Cwd qw/abs_path/;
 use Fcntl ':mode';
 
 use Apache::LiveJournal::PalImg;
-use DW::Auth;
-use DW::BlobStore;
-use DW::Routing;
-use DW::Template;
-use DW::VirtualGift;
 use LJ::ModuleCheck;
 use LJ::PageStats;
 use LJ::Protocol;
 use LJ::S2;
 use LJ::URI;
+
+use DW::Auth;
+use DW::BlobStore;
+use DW::Captcha;
+use DW::Routing;
+use DW::Template;
+use DW::VirtualGift;
 
 BEGIN {
     require "ljlib.pl";
@@ -450,6 +452,13 @@ sub trans {
                 return OK;
             }
         }
+
+        if ( LJ::Sysban::tempban_check( ip => \@req_hosts ) ) {
+            $apache_r->handler("perl-script");
+            $apache_r->push_handlers( PerlResponseHandler => \&blocked_bot );
+            return OK;
+        }
+
         if ( LJ::Hooks::run_hook( "forbid_request", $apache_r ) ) {
             $apache_r->handler("perl-script");
             $apache_r->push_handlers( PerlResponseHandler => \&blocked_bot );
@@ -1251,6 +1260,12 @@ sub journal_content {
         );
         $apache_r->print("<!-- xxxxxxxxxxxxxxxxxxxxxxxx -->\n") for ( 0 .. 100 );
         return OK;
+    }
+
+    # Before we actually make a journal, let's potentially bounce this user
+    # off to get captchaed
+    if ( DW::Captcha->should_captcha_view($remote) ) {
+        return redir( $apache_r, DW::Captcha->redirect_url );
     }
 
     # LJ::make_journal() will set this flag for pages that should use the site

@@ -1,0 +1,71 @@
+#NEWLAYER: modular/nnwm2010grounded
+layerinfo type = "theme";
+layerinfo name = "NNWM 2010 Grounded";
+layerinfo redist_uniq = "modular/nnwm2010grounded";
+layerinfo author_name = "cheyinka";
+
+set theme_authors = [ { "name" => "cheyinka", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#88746a";
+set color_page_link = "#0060A0";
+set color_page_link_active = "#FDB713";
+set color_page_link_hover = "#FDB713";
+set color_page_link_visited = "#60A000";
+set color_page_text = "#000";
+set color_page_title = "#e4502e";
+set color_header_background = "#f4e7d9";
+set color_header_link = "#e4502e";
+set color_footer_background = "#f4e7d9";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f4e7d9";
+set color_entry_border = "#E4502E";
+set color_entry_interaction_links = "#E4502E";
+set color_entry_link = "#0060A0";
+set color_entry_link_active = "#FDB713";
+set color_entry_link_hover = "#FDB713";
+set color_entry_link_visited = "#60A000";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_entry_title_background = "#A5C039";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f4e7d9";
+set color_module_border = "#E4502E";
+set color_module_link = "#003000";
+set color_module_link_active = "#FDB713";
+set color_module_link_hover = "#FDB713";
+set color_module_link_visited = "#200070";
+set color_module_text = "#000";
+set color_module_title = "#000";
+set color_module_title_background = "#89CCE2";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "layouts/nano-badge2010.png";
+set image_background_header_repeat = "no-repeat";
+
+function Page::print_theme_stylesheet() {
+"""
+#header {
+    background-position: 99% center;
+    min-height: 95px;
+}
+
+#title, #subtitle, #pagetitle {
+    margin-right: 125px;
+}
+""";
+}

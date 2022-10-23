@@ -5,8 +5,26 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 
+force="--force"
+
+while getopts ":n" opt; do
+    case ${opt} in
+        n )
+            force=""
+            ;;
+        \? )
+            echo "$0: illegal option -- $OPTARG" 1>&2
+            exit 1
+            ;;
+    esac
+done
+
 buildroot="$LJHOME/build/static"
 mkdir -p $buildroot
+
+if [[ -e /tmp/jcompress ]]; then
+    rm /tmp/jcompress
+fi
 
 compressor="$LJHOME/ext/yuicompressor/yuicompressor.jar"
 uncompressed_dir="/max"
@@ -25,10 +43,10 @@ if [ "$compass" != "" ]; then
     if [ $compass_version_ok ]; then
         echo "* Building SCSS..."
         cd $LJHOME
-        $compass compile -e production --force
+        $compass compile -e production $force
         if [ -d "$LJHOME/ext/dw-nonfree" ]; then
             cd $LJHOME/ext/dw-nonfree
-            $compass compile -e production --force
+            $compass compile -e production $force
         fi
     else
         echo "Compass version must be 1.0 or higher. Please upgrade."
@@ -86,10 +104,11 @@ do
                 fi
 
                 mkdir -p "$final/$dir"
+                cp -p "$synced_file" "$final/$modified_file"
+
                 if [[ "$ext" = "js" || "$ext" = "css" ]]; then
-                    java -jar $compressor "$synced_file" -o "$final/$modified_file"
-                else
-                    cp -p "$synced_file" "$final/$modified_file"
+                    # Attempt to rewrite the file with compressed version
+                    echo "java -jar $compressor \"$synced_file\" -o \"$final/$modified_file\"" >> /tmp/jcompress
                 fi
             else
                 # we're deleting rather than copying
@@ -102,6 +121,12 @@ do
             fi
         fi
     done
+
+    # Now parallel execute
+    if [[ -e /tmp/jcompress ]]; then
+        echo "Executing compression (takes a minute)..."
+        cat /tmp/jcompress | xargs -d "\n" -n 1 -P 4 -- bash -c
+    fi
 done
 
 if [[ -n $compressor ]]; then
@@ -110,3 +135,4 @@ if [[ -n $compressor ]]; then
     find $buildroot/stc $buildroot/max/stc | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
 fi
 
+exit 0

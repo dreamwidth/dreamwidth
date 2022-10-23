@@ -11,45 +11,32 @@ This program is free software; you may redistribute it and/or modify it
 under the same terms as Perl itself.  For a copy of the license, please 
 reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
-<div class="login-container">
-  <div class="appwidget appwidget-login" id="protected_login"> 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+<div class="row" id="protected_login"> 
+  <div class="columns medium-6">
     <form action="[% site.root %]/login" method="post" class="lj_login_form pkg">
     <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4> 
       [% dw.form_auth() %]
-      <fieldset class="pkg nostyle"> 
-        <label for="user" class="left">[% '.login.username' | ml %]</label> 
-        <input type="text" value="" name="user" id="user" class="text" size="18" maxlength="27" style="" tabindex="11" aria-required="true" />
-      </fieldset>
-      <fieldset class="pkg nostyle"> 
-        <label for="lj_login_password" class="left">[% '.login.password' | ml %]</label> 
-        <input type="password" id="lj_login_password" name="password" class="lj_login_password text" size="20" maxlength="[% password_maxlength %]" tabindex="12" aria-required="true" />
-      </fieldset>
-      <input type="hidden" name="returnto" value="[% returnto | html %]"/>
-      <fieldset class="pkg nostyle"> 
-        <p><input type="checkbox" name="remember_me" id="remember_me" value="1" tabindex="13" /> <label for="remember_me">[% '.login.remember' | ml %]</label></p>
-      </fieldset> 
-      <p><input name="action:login" type="submit" value="[% '.login.btn.login' | ml %]" tabindex="14" />
-      <img src="[% site.imgroot %]/padlocked.gif" width="20" height="16" class="secure-image" alt="[% '.login.secure' | ml %]" />
-      <p><a href="[% site.root %]/lostinfo" class="small-link" tabindex="15">[% '.login.forget' | ml %]</a> </p>
-    </form> 
-  </div><!-- end .appwidget-login --> 
+          
+            <input type="hidden" name="returnto" value="[% returnto | html %]"/>
+            <label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label>
+            <input name="user" id="login_user" size="20" maxlength="27" aria-required="true" type="text" />
+            <label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label>
+            <input type="password" name="password" id="login_password" size="20" aria-required="true" class="lj_login_password">
+            <label for='login_remember_me'><input type="checkbox" name="remember_me" id="login_remember_me" value="1" /> [% 'sitescheme.accountlinks.login.rememberme' | ml %]</label>
+            <input class="button expand" type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" />
+                        <p>[% 'sitescheme.accountlinks.login.otheroptions' | ml %]</p>
+            <ul>
+              <li><a href='[% site.root %]/lostinfo' >[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></li>
+              <li><a href='[% site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' >[% 'sitescheme.accountlinks.login.openid' | ml %]</a></li>
+            </ul>
+          </form> 
+          </div>
 
-   <div class="appwidget-login-openid">
-   <h4>[% '.login.openid.header' | ml %]</h4> 
-     <form method='post' action='[% site.root %]/openid/login' style='display:inline; width:auto'>
-       <b>[% '.login.openid.url' | ml %]</b><br/>
-       <input class="sexy" id="openid_url" name="openid_url" size="30" aria-required="true" tabindex="16" /><br/>
-       <input type="hidden" name="continue_to" value="[% returnto %]"/>
-       <input style="background: #ff6200; color: #fff;" type="submit" value="[% '.login.openid.submit' | ml %]" tabindex="17" />
-       <br />[% '.login.openid.example' | ml %]
-     </form>
-   </div>
-</div>
-   
-  <div class="login-create-account"> 
-    <hr class="hr" /> 
+
+   <div class="columns medium-6">
     <h4>[% '.createaccount.header' | ml( sitename = site.name ) %]</h4> 
-    <form action="[% site.root %]/create" method="get"><input type="submit" value="[% '.createaccount.button' | ml %]" class="submit" tabindex="18" /></form> 
+    <form action="[% site.root %]/create" method="get"><input type="submit" value="[% '.createaccount.button' | ml %]" class="button" tabindex="18" /></form> 
       <ul> 
         <li>[% '.createaccount.whylogin.benefit1' | ml %]</li>
         <li>[% '.createaccount.whylogin.benefit2' | ml %]</li>
@@ -58,3 +45,5 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         <li>[% '.createaccount.whylogin.benefit5' | ml %]</li>
       </ul> 
   </div><!-- end .login-create-account --> 
+   </div>
+

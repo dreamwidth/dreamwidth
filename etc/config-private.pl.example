@@ -12,6 +12,8 @@
 
 # This is where you define private, site-specific configs (e.g. passwords).
 
+use Net::Subnet;
+
 {
     package LJ;
 
@@ -209,6 +211,35 @@
     #         # If it is defined, it should match regex [a-zA-Z0-9_-]+.
     #         prefix => undef,
     #     },
+    # );
+
+    # Configuration of hCaptcha as a captcha provider.
+    #
+    # # Set this to the site key provided by hCaptcha, or leave as undef
+    # # to fully disable captcha.
+    # $CAPTCHA_HCAPTCHA_SITEKEY = undef;
+    # $CAPTCHA_HCAPTCHA_SECRET = undef;
+    #
+    # # Set to be your initial bucket fill amount as well as the refill
+    # # amount per time interval.
+    # $CAPTCHA_INITIAL_REMAINING = 200;
+    # $CAPTCHA_RETEST_INTERVAL_SECS = 3600 * 60;
+    # $CAPTCHA_MAX_REMAINING = 1000;
+    # $CAPTCHA_FRAUD_LIMIT = 10;
+    # $CAPTCHA_FRAUD_SYSBAN_SECS = 3600;
+    # $CAPTCHA_FRAUD_INTERVAL_SECS = 60;
+    # $CAPTCHA_FRAUD_FORGIVENESS_AMOUNT = 1;
+    # $CAPTCHA_REFILL_AMOUNT = 10;
+    # $CAPTCHA_REFILL_INTERVAL_SECS = 60;
+    #
+    # # Put anything in this regex that you would like to bypass captchas.
+    # $CAPTCHA_BYPASS_REGEX = qr/^\/data\//;
+    #
+    # # Put subnets in here that you want to ensure get captchad. Can be
+    # # used to store automated IP ranges or similar. (Or, you can make
+    # # this any sub that returns 1/0.)
+    # $SHOULD_CAPTCHA_IP = subnet_matcher qw(
+    #     10.0.0.0/8
     # );
 }
 

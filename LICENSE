@@ -45,6 +45,10 @@ licensed under the terms indicated in each file, specifically:
   modify it under the same terms as Perl itself. For a copy of the
   license, please reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
+Finally, files in ext/dw-nonfree are not licensed for use or
+distribution. They are provided as examples only as they are the
+Dreamwidth Studios branding and custom code.
+
 --------
 
 This program is distributed in the hope that it will be useful,

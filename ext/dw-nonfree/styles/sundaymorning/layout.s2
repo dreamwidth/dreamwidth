@@ -1,0 +1,1084 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Sunday Morning";
+layerinfo "redist_uniq" = "sundaymorning/layout";
+layerinfo "author_name" = "regna";
+layerinfo "lang" = "en";
+
+# Originally a Transmogrified theme
+
+set layout_authors = [ { "name" => "regna", "type" => "user" } ];
+
+propgroup presentation {
+    property use num_items_recent;
+    property use num_items_reading;
+    property use num_items_icons;
+    property use use_journalstyle_entry_page;
+    property use layout_type;
+    property use sidebar_width;
+    property use medium_breakpoint_width;
+    property use large_breakpoint_width;
+    property use reverse_sortorder_group;
+    property use reg_firstdayofweek;
+    property use tags_page_type;
+    property use icons_page_sort;
+    property use userpics_style_group;
+    property use userpics_position;
+    property use entry_metadata_position;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
+    property use entry_datetime_format_group;
+    property use comment_datetime_format_group;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
+}
+
+set layout_type = "two-columns-left";
+set userpics_position = "right";
+set sidebar_width = "200px";
+set tags_page_type = "";
+set entry_management_links = "text";
+set comment_management_links = "text";
+set all_commentsubjects = true;
+
+set custom_colors_template = "%%new%% .userpic a { background-color: %%background%%; border: solid 1px %%foreground%%; }";
+
+propgroup colors {
+    property use color_page_background;
+
+    property Color color_page_title_background { des = "Title background"; }
+    property use color_page_title;
+    property Color color_header_background { des = "Header background"; }
+    property Color color_header_text { des = "Header text"; }
+    property Color color_header_hover_background {des = "Header link background when hovered over"; }
+    property Color color_header_hover { des = "Header link text when hovered over"; }
+
+    property use color_page_text;
+
+    property use color_page_link;
+    property use color_page_link_hover;
+    property use color_page_link_active;
+    property use color_page_link_visited;
+
+    property use color_module_link;
+    property use color_module_link_hover;
+    property use color_module_link_active;
+    property use color_module_link_visited;
+    property use color_module_border;
+    property use color_module_text;
+    property use color_module_background;
+    property use color_module_title;
+    property Color color_module_title_background { des = "Sidebar box title background"; }
+    property Color color_module_title_border { des = "Sidebar box title border"; }
+
+    property use color_entry_border;
+    property use color_entry_background;
+    property use color_entry_link;
+    property use color_entry_link_hover;
+    property use color_entry_link_active;
+    property use color_entry_link_visited;
+    property use color_entry_text;
+    property use color_entry_title;
+    property Color color_entry_title_border { des = "Entry\Comment subject border"; }
+    property Color color_entry_title_background { des = "Entry\Comment subject background"; }
+
+    property Color color_navigation_background { des = "Page back/forwards background"; }
+    property Color color_navigation_text { des = "Page back/forwards text"; }
+    property Color color_navigation_border { des = "Page back/forwards border"; }
+}
+
+propgroup images {
+    property use image_background_page_group;
+}
+
+set image_background_page_repeat = "no-repeat";
+
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
+    property use font_sources;
+}
+
+set font_base = "Arial";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_journal_title_size = "2";
+set font_journal_title_units = "em";
+set font_module_heading_size = "1.353";
+set font_module_heading_units = "em";
+
+propgroup modules {
+    property use module_userprofile_group;
+    property use module_navlinks_group;
+    property use module_calendar_group;
+    property use module_pagesummary_group;
+    property use module_tags_group;
+    property use module_active_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+    property use module_customtext_group;
+    property use module_credit_group;
+    property use module_search_group;
+    property use module_cuttagcontrols_group;
+
+    property string module_navlinks_section_override {
+        values = "none|(none)|one|Header|two|Main Module Section|three|Footer";
+        grouped = 1;
+        }
+}
+
+set module_layout_sections = "none|(none)|two|Main Module Section|three|Footer";
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "one";
+set module_userprofile_section = "two";
+set module_pagesummary_section = "two";
+set module_tags_section = "two";
+set module_links_section = "two";
+set module_syndicate_section = "two";
+set module_calendar_section = "two";
+set module_time_section = "none";
+set module_customtext_section = "two";
+set module_active_section = "two";
+set module_credit_section = "two";
+set module_poweredby_section = "two";
+set module_poweredby_order = 20;
+set module_search_section = "two";
+set module_cuttagcontrols_section = "two";
+
+propgroup text {
+
+    property use text_module_userprofile;
+    property use text_module_links;
+    property use text_module_syndicate;
+    property use text_module_tags;
+    property use text_module_popular_tags;
+    property use text_module_pagesummary;
+    property use text_module_active_entries;
+    property use text_module_customtext;
+    property use text_module_customtext_url;
+    property use text_module_customtext_content;
+    property use text_module_credit;
+    property use text_module_search;
+    property use text_module_cuttagcontrols;
+
+    property use text_view_recent;
+    property use text_view_friends;
+    property use text_view_network;
+    property use text_view_friends_comm;
+    property use text_view_friends_filter;
+    property use text_view_archive;
+    property use text_view_userinfo;
+    property use text_view_memories;
+    property use text_view_tags;
+
+    property use text_post_comment;
+    property use text_max_comments;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+    property use text_read_comments_screened_visible;
+    property use text_read_comments_screened;
+
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+    property use text_meta_music;
+    property use text_meta_mood;
+    property use text_meta_location;
+    property use text_meta_xpost;
+    property use text_tags;
+
+    property use text_entry_prev;
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_tell_friend;
+    property use text_mem_add;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
+    property use text_permalink;
+
+    property use text_stickyentry_subject;
+
+    property use text_module_customtext;
+    property use text_module_customtext_content;
+    property use text_module_customtext_url;
+}
+
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+function Page::print()
+{
+    """
+    <!DOCTYPE html>
+    <html>
+    <head>""";
+        $this->print_meta_tags();
+        $this->print_head();
+        $this->print_stylesheets();
+        $this->print_head_title();
+    println "</head>";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="container">
+        <div id="header">
+    """;
+                $this->print_global_title();
+                $this->print_global_subtitle();
+    """
+        </div>
+    """;
+        $this->print_module_section("one");
+    """
+        <div id="wrap">
+
+    """;
+        if ($*layout_type == "one-column-split") {
+            $this->print_module_section("two");
+        }
+    """
+            <div id="content">
+    """;
+                $this->print_body();
+    """
+            </div>
+    """;
+        if ($*layout_type != "one-column-split") {
+            $this->print_module_section("two");
+        }
+    """
+        </div><div style="clear:both;"></div>
+        <div id="bottom">
+            """;
+            $this->print_module_section("three");
+            """
+        </div>
+        <div id="footer">
+        """;
+            print safe """<div class="page-top"><a href="#">$*text_page_top</a></div>""";
+        """
+        </div>
+    </div>
+    """;
+    $this->print_wrapper_end();
+    """
+    </html>
+    """;
+}
+
+function Page::print_default_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
+
+    var string sidebar_position = "";
+    var string sidebar_position_alt = "";
+    var string image_background_page_position = "100% 70px";
+    if ($*layout_type == "two-columns-right") { $sidebar_position = "right"; $sidebar_position_alt = "left"; $image_background_page_position = "0% 70px"; }
+    elseif ($*layout_type == "two-columns-left") { $sidebar_position = "left"; $sidebar_position_alt = "right"; }
+
+    var string page_background_colors = generate_color_css( new Color, $*color_page_background, new Color );
+    var string page_colors = generate_color_css( $*color_page_text, new Color, new Color );
+    var string page_link_colors = generate_color_css( $*color_page_link, new Color, new Color );
+    var string page_link_active_colors = generate_color_css( $*color_page_link_active, new Color, new Color );
+    var string page_link_hover_colors = generate_color_css( $*color_page_link_hover, new Color, new Color );
+    var string page_link_visited_colors = generate_color_css( $*color_page_link_visited, new Color, new Color );
+
+    var string page_content_title_colors = generate_color_css( $*color_entry_text, $*color_entry_background, $*color_entry_border );
+
+    var string container_background = generate_background_css( $*image_background_page_url, $*image_background_page_repeat, $image_background_page_position, new Color );
+
+    var string page_title_colors = generate_color_css( $*color_page_title, $*color_page_title_background, new Color );
+    var string page_title_anchor_colors = generate_color_css( $*color_page_title, new Color, new Color );
+    var string header_colors = generate_color_css( $*color_header_text, $*color_header_background, $*color_module_border );
+    var string header_hover_colors = generate_color_css( $*color_header_hover, $*color_header_hover_background, new Color );
+
+    var string module_base_colors = generate_color_css( $*color_module_text, new Color, new Color );
+    var string module_link_colors = generate_color_css ( $*color_module_link, new Color, new Color );
+    var string module_link_active_colors = generate_color_css( $*color_module_link_active, new Color, new Color );
+    var string module_link_hover_colors = generate_color_css( $*color_module_link_hover, new Color, new Color );
+    var string module_link_visited_colors = generate_color_css( $*color_module_link_visited, new Color, new Color );
+    var string module_title_colors = generate_color_css( $*color_module_title, $*color_module_title_background, $*color_module_title_border );
+    var string module_colors = generate_color_css( new Color, $*color_module_background, $*color_module_border );
+
+    var string entry_colors = generate_color_css( $*color_entry_text, $*color_entry_background, $*color_entry_border );
+    var string entry_title_colors = generate_color_css( $*color_entry_title, $*color_entry_title_background, new Color );
+    var string entry_title_link_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+    var string userpic_colors = generate_color_css( new Color, $*color_module_background, $*color_entry_title_border );
+
+    var string entry_link_colors = generate_color_css( $*color_entry_link, new Color, new Color );
+    var string entry_link_active_colors = generate_color_css( $*color_entry_link_active, new Color, new Color );
+    var string entry_link_hover_colors = generate_color_css( $*color_entry_link_hover, new Color, new Color );
+    var string entry_link_visited_colors = generate_color_css( $*color_entry_link_visited, new Color, new Color );
+
+    var string navigation_colors = generate_color_css( $*color_navigation_text, $*color_navigation_background, $*color_navigation_border );
+    var string postform_colors = generate_color_css( new Color, $*color_entry_background, $*color_entry_border );
+
+    var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+    var string entry_userpic_shift = "";
+    if ( $*entry_userpic_style == "" ) { $entry_userpic_shift = "-50px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_userpic_shift = "-37.5px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_userpic_shift = "-25px"; }
+
+    var string comment_userpic_shift = "";
+    if ( $*comment_userpic_style == "" ) { $comment_userpic_shift = "-50px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_userpic_shift = "-37.5px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_userpic_shift = "-25px"; }
+
+    var string entry_header_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_header_margin = "120px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_header_margin = "95px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_header_margin = "70px"; }
+
+    var string comment_header_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_header_margin = "120px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_header_margin = "95px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_header_margin = "70px"; }
+
+    var string userpic_css = "";
+    if($*userpics_position == "left") {
+        $userpic_css = """
+        .entry-title, .comment-title { margin: 0; }
+
+        /* make sure userpic can't overlap the poster's username */
+        .has-userpic .header { min-height: 55px; }
+
+        .has-userpic .entry .header { margin: 0 0 0 $entry_header_margin; }
+        .has-userpic .comment .header { margin: 0 0 0 $comment_header_margin; }
+
+        .entry .userpic a, .comment .userpic a { left: 10px; right: auto; }""";
+        }
+    elseif($*userpics_position == "right") {
+        $userpic_css = """
+        .entry-title, .comment-title { margin: 0; }
+
+        .has-userpic .entry .header { margin: 0 $entry_header_margin 0 0; }
+        .has-userpic .comment .header { margin: 0 $comment_header_margin 0 0; }
+        .has-userpic .poster-ip { padding-right: $comment_header_margin; }
+
+        .entry .userpic a, .comment .userpic a { right: 10px; left: auto; }""";
+        }
+"""
+/* believe me, this style is much easier to deal with if you
+just leave this here. It says \"let's use the IE box model\" for
+non IE browsers */
+* { box-sizing:border-box; -moz-box-sizing:border-box }
+
+body {
+    $page_background_colors
+    $page_font
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+a {
+    $page_link_colors
+    text-decoration: none;
+}
+a:visited {
+    $page_link_visited_colors
+}
+a:hover {
+    $page_link_hover_colors
+}
+a:active {
+    $page_link_active_colors
+}
+
+q { font-style: italic;
+}
+
+#container {
+    width: 100%;
+    position: relative;
+    $container_background
+}
+
+#header {
+    $page_title_colors
+    margin: 0;
+    padding: 0;
+}
+
+#header a {
+    $page_title_anchor_colors
+}
+
+#header h1 {
+    margin: 0;
+    padding: .5em 1em;
+    $page_title_font
+}
+
+#header h2 {
+    padding: 0 1em .75em 1.4em;
+    margin: 0;
+    $page_subtitle_font
+}
+
+#wrap {
+    $page_colors
+}
+
+#wrap {
+    padding-top: 10px;
+    margin: 0 2em;
+}
+
+#bottom {
+    margin: 1em 2em 0 2em;
+}
+
+@media $medium_media_query {
+    .two-columns #wrap, .two-columns #bottom {
+        margin: 0;
+        margin-$sidebar_position: $*sidebar_width;
+        padding-$sidebar_position_alt: 200px; /* Fixed: to display the bkg image */
+        padding-$sidebar_position: 60px;
+    }
+
+    .two-columns #bottom {
+        padding-top: 10px;
+    }
+}
+
+#content {
+    width: 100%;
+    z-index: 20;
+}
+
+.entry-wrapper {
+    margin-top: -20px;
+}
+
+.module h2 {
+    $module_title_font
+}
+
+.module-content {
+    $module_font
+}
+
+.module-section-two {
+    $module_base_colors
+}
+
+.one-column-split .module-section-two {
+    margin-bottom: 1em;
+}
+
+@media $medium_media_query {
+    .two-columns .module-section-two {
+        width: $*sidebar_width;
+        max-width: $*sidebar_width;
+        position: absolute;
+        $sidebar_position: 2em;
+        top: 9em;
+    }
+}
+
+.module-section-three {
+    $module_base_colors
+}
+
+.module-section-one ul {
+    $module_base_colors
+    margin: 1.5em 0 0 2em;
+    padding: .5em 0;
+}
+
+@media $medium_media_query {
+    .two-columns .module-section-one ul {
+        margin-left: 0;
+        margin-$sidebar_position: $*sidebar_width;
+        padding-$sidebar_position: 60px;
+        padding-$sidebar_position_alt: 0;
+    }
+
+    .two-columns-right .module-section-one ul {
+        text-align: right;
+    }
+}
+
+.module-section-one li {
+    position: relative;
+    display: inline;
+}
+
+.module-section-one li a {
+    line-height: 3em;
+    padding: .5em 20px;
+    $header_colors
+}
+
+.module-section-one ul li a:hover {
+    $header_hover_colors
+}
+
+.module-section-two a, .module-section-two .module-header a,
+.module-section-three a, .module-section-three .module-header a {
+    $module_link_colors
+}
+
+.module-section-two a:visited, .module-section-two .module-header a:visited,
+.module-section-three a:visited, .module-section-three .module-header a:visited {
+    $module_link_visited_colors
+}
+
+.module-section-two a:hover, .module-section-two .module-header a:hover,
+.module-section-three a:hover, .module-section-three .module-header a:hover {
+    $module_link_hover_colors
+}
+
+.module-section-two a:active, .module-section-two .module-header a:active,
+.module-section-three a:active, .module-section-three .module-header a:active {
+    $module_link_active_colors
+}
+
+.module-section-two h2,
+.module-section-three h2 {
+    margin: 0;
+    margin-bottom: 7px;
+    padding: .2em;
+    text-align: center;
+    $module_title_colors
+    border-left: none;
+    border-right: none;
+    border-top: none;
+}
+
+.module-section-two ul,
+.module-section-three ul {
+    list-style: none;
+    margin-left: .5em;
+    padding: 0;
+}
+.module-section-two ul ul,
+.module-section-two ul ul {
+    margin-left: .5em;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.module-section-two .module,
+.module-section-three .module {
+    $module_colors
+    border-top: none;
+}
+
+.module-section-two .module:first-child,
+.module-section-three .module:first-child {
+    border-top: 1px solid $*color_module_border;
+}
+
+.module-userprofile, .module-tags, .module-syndicate {
+    text-align: center;
+}
+
+.module-tags_cloud li, .tags_cloud li {
+    display: inline;
+}
+
+.module-userprofile .userpic img {
+    border: none;
+    margin: 20px;
+}
+.module-userprofile .userpic {
+    text-align: center;
+}
+.module-userprofile ul.icon-links {
+    margin: 0;
+    margin-top: 5px;
+    padding: 0;
+    text-align: center;
+}
+
+.module-userprofile ul.text-links {
+    text-align: left;
+}
+
+.module-userprofile p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.module-userprofile .icon-links li {
+    display: inline;
+    padding: 5px;
+}
+.module-calendar {
+    text-align: center;
+}
+.module-calendar table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.module-search .search-box { margin: .5em 0; }
+.module-search .search-form { margin: .5em; }
+
+@media $medium_media_query {
+    .two-columns .module-section-two .module-search .search-box { width: 100%; }
+    .two-columns .module-section-two .module-search .search-form { text-align: right; }
+}
+
+/* wrap long content, particularly openid usernames */
+.module-pagesummary .ljuser {
+    white-space: normal !important;
+}
+.module-pagesummary .module-content {
+    word-wrap: break-word;
+}
+
+.module-credit .category-title {
+    font-weight: bold;
+}
+.module-customtext .module-content {
+    padding: 0 .5em;
+}
+
+.module-section-two .module-time,
+.module-section-two .module-powered {
+    font-size: .8em;
+    text-align: center;
+}
+.module-section-two .module-navlinks ul {
+    margin-top: 0;
+    padding-top: 1em;
+}
+
+.entry, .comment, .text_noentries_day {
+    padding: 10px;
+    margin-top: 200px;
+    position: relative;
+    margin-bottom: 10px;
+}
+$userpic_css
+
+.userpic a {
+    display: block;
+    line-height: 0;
+}
+
+.entry .userpic a, .comment .userpic a {
+    position: absolute;
+    padding: 5px;
+}
+
+    .entry .userpic a {
+        top: $entry_userpic_shift;
+    }
+
+    .comment .userpic a {
+        top: $comment_userpic_shift;
+    }
+
+.entry .userpic img, .comment .userpic img {
+    border: none;
+    display: block;
+}
+
+.entry-title, .comment-title {
+    padding: .2em;
+}
+
+.entry-title {
+    $entry_title_font
+}
+
+.comment-title {
+    $comment_title_font
+    margin: 0;
+    }
+
+.entry-wrapper .entry, .comment, .text_noentries_day {
+    $entry_colors
+    margin-top: 100px;
+}
+.entry-wrapper .userpic a, .comment-wrapper .userpic a {
+    $userpic_colors
+}
+.entry-wrapper .entry-title, .comment-wrapper .comment-title {
+    border: none;
+    $entry_title_colors
+}
+
+.no-subject .entry .entry-title,
+.no-subject .comment .comment-title {
+    background: none;
+    border: none;
+    padding: 0;
+    }
+
+.entry-wrapper .entry-title a, .comment-wrapper .comment-title a {
+    $entry_title_link_colors
+}
+.entry-wrapper a, .comment-wrapper a {
+    $entry_link_colors
+}
+.entry-wrapper a:visited, .comment-wrapper a:visited {
+    $entry_link_visited_colors
+}
+.entry-wrapper a:hover, .comment-wrapper a:hover {
+    $entry_link_hover_colors
+}
+.entry-wrapper a:active, .comment-wrapper a:active {
+    $entry_link_active_colors
+}
+
+.entry .time, .entry .date {
+    padding: .2em;
+    display: inline-block;
+}
+.entry-content, .comment-content {
+    padding: 10px 0;
+}
+
+/* ensure comment content stretches out horizontally so it's readable */
+.comment-content:before {
+    content: "";
+    display: block;
+    overflow: hidden;
+    width: 10em;
+}
+.comment-content { border-top: 1px transparent solid; } /* for firefox */
+
+.comment .admin-poster {
+    white-space: nowrap;
+}
+
+.tag {
+    font-weight: bold;
+    text-align: left;
+}
+.tag a {
+    font-weight: normal;
+}
+.tag ul { display: inline; margin: 0; padding: 0; }
+
+.tag li {
+    display: inline;
+    padding: 0;
+}
+
+*+html .tag li {
+    padding: 0 5px;
+}
+
+.entry .metadata.top-metadata {
+    padding-top: 10px;
+}
+.entry .metadata.bottom-metadata {
+    clear: both;
+}
+.entry .metadata ul {
+    margin: 0;
+    padding: 0;
+}
+.entry .metadata li {
+    list-style: none;
+}
+.entry .footer, .comment .footer { clear: both; }
+.entry .footer .inner, .comment .footer .inner {
+    text-align: right;
+}
+.entry .footer a {
+    white-space: nowrap;
+}
+/* lets have a default */
+.entry-management-links li a, .comment-management-links li a, .comment-interaction-links .thread a {
+    padding-left: 1em;
+}
+
+#entries {
+    margin-top: -30px;
+}
+
+.entry-management-links, .entry-interaction-links, .comment-management-links, .comment-interaction-links {
+    margin: 0;
+    padding: 0;
+    display: inline;
+    font-size: .8em;
+    text-align: right;
+    text-transform: lowercase;
+}
+
+.entry-management-links li, .entry-interaction-links li, .comment-management-links li, .comment-interaction-links li {
+    display: inline;
+    margin: 0;
+    padding: 0 0 0 1em;
+}
+
+.entry-interaction-links li a, .entry-management-links .tell_friend a, .comment-interaction-links li a {
+    padding-left: 1em;
+    display: inline;
+}
+.entry .footer hr {
+    display: none;
+}
+
+.entry .metadata-label {
+    font-weight: bold;
+}
+
+.comment-posted {
+    font-weight:bold;
+}
+
+.full .comment-poster {
+    display: inline-block;
+    min-width: 40%;
+}
+
+#content > hr { display: none; }
+
+.navigation {
+    margin: 0;
+    margin-top: 30px;
+    padding: 0;
+    text-align: left;
+    $navigation_colors
+}
+
+.navigation ul {
+    margin-top: 0;
+    padding-top: 5px;
+    text-align: left;
+    font-size: .7em;
+}
+
+.navigation li {
+    display: inline;
+    padding: 0 1px;
+}
+.navigation .page-back a:before {
+    content: " << ";
+    font-size: .9em;
+    letter-spacing: 0;
+    vertical-align: 40%;
+    padding-right: 1px;
+}
+
+.navigation .page-forward a:after {
+    content: " >>";
+    font-size: .9em;
+    letter-spacing: 0;
+    vertical-align: 40%;
+    padding-left: 1px;
+}
+
+.manage-link {
+    text-align: center;
+    font-size: .7em;
+}
+
+.month-wrapper, #archive-month dl {
+    padding: 10px;
+    position: relative;
+    margin: 20px 0;
+    $entry_colors
+}
+
+ .month-wrapper h3 {
+    padding: .2em;
+    margin: 0;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    $page_content_title_colors
+}
+
+.month caption {
+    display: none;
+}
+.month .day span, .month .day p {
+    padding: 0;
+    margin: 0;
+}
+.month .day p {
+    margin-top: 4px;
+    margin-bottom: -4px;
+}
+.month .day, .month th {
+    line-height: 2em;
+    vertical-align: text-top;
+    padding: 5px;
+    text-align: center;
+}
+/* IE only to line up the empty days neatly */
+*+html .month .day span, *+html .month th span{
+    vertical-align: 100%;
+}
+.month .day-has-entries {
+    line-height: 1em;
+}
+.month .footer {
+    width: 250px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+#postform {
+    margin-top: 20px;
+    $postform_colors
+}
+
+.text_noentries_day {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#archive-month dt {
+    font-weight: bold;
+}
+#archive-month .entry-title {
+    display: inline-block;
+    padding-left: 5px;
+}
+
+/*--- Tags Page ---*/
+
+.tags-container {
+    $entry_colors
+    padding: 10px;
+}
+
+.tags-container h2 {
+    $page_content_title_colors
+    font-size: 1.2em;
+    margin: 0 10px 20px 0;
+    padding: .2em;
+}
+
+.tags-container ul {
+    margin: 10px;
+    padding: 0;
+    text-align: left;
+}
+.tags-container li {
+    margin-left: 10px;
+    padding: 0;
+}
+
+/*--- Icons Page ---*/
+
+.icons-container {
+    $entry_colors
+    padding: 10px;
+    }
+
+.icons-container a {
+    color: $*color_entry_link;
+    }
+
+.icons-container a;visited {
+    color: $*color_entry_link_visited;
+    }
+
+.icons-container a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+.icons-container a:active {
+    color: $*color_entry_link_active;
+    }
+
+.icons-container h2 {
+    $page_content_title_colors
+    font-size: 1.2em;
+    margin: 0 10px 20px 0;
+    padding: .2em;
+    }
+
+.sorting-options ul {
+    padding-left: 0;
+    }
+
+.sorting-options ul li {
+    display: inline;
+    }
+
+.icons-container .icon {
+    margin: 1em 0;
+    }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
+    }
+
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-keywords ul {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    }
+
+.icon-keywords ul li {
+    display: inline;
+    padding: 0;
+    }
+
+#commenttext {
+    width: 95%;
+}
+
+#footer {
+    font-size: .9em;
+    margin: 1em 0;
+    text-align: center;
+}
+
+""";
+
+}

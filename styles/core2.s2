@@ -590,6 +590,8 @@ class Page
     "Extra tags supplied by the server to go in the <head> section of the output HTML document. Layouts
     should include this in the head section if they are writing HTML.";
 
+    var readonly bool is_canary "True if this page is being rendered on the canary server.";
+
     var readonly bool show_control_strip
     "Whether the control strip will be shown on the current page.";
 
@@ -4020,6 +4022,10 @@ function Page::print_wrapper_start(string{} opts)
     }
 
     """<body class="page-$.view $column_count$column_side $column_multiple $*layout_type $opts{"class"} $logged_in $owner $subscribed $access $community_options $control_strip">\n""";
+
+    if ( $.is_canary ) {
+        """<div class="canary canary-bottom-right"><span>canary</span></div>\n""";
+    }
 }
 
 function Page::print_wrapper_end()

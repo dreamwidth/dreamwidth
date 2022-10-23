@@ -1,0 +1,210 @@
+<?_c
+#
+# index.bml
+#
+# Dreamwidth.org-specific homepage, for both logged-in and logged-out users.
+#
+# Authors:
+#      Sophie Hamilton <sophie-dw@theblob.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is NOT free software or open-source; you can use it as an
+# example of how to implement your own site-specific extensions to the
+# Dreamwidth Studios open-source code, but you cannot use it on your site
+# or redistribute it, with or without modifications.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw( %GET %POST $title $windowtitle $headextra @errors @warnings );
+
+    $windowtitle = $LJ::SITENAME;
+
+    my $remote = LJ::get_remote();
+
+    my $ret = "";
+
+    $headextra = <<HEAD;
+<meta name="description" content="<?sitename?>: A blog/journal system for people who create.">
+<meta name="keywords" content="diary,journal,blog,dreamwidth">
+<meta name="rating" content="General"> 
+<meta name="ROBOTS" content="All">
+<meta name="revisit-after" Content="14 days">
+HEAD
+
+    if ( $remote ) {
+        # logged-in homepage
+
+        use DW::Panel;
+
+        LJ::set_active_resource_group( 'jquery' );
+        LJ::need_res( { group => 'jquery' }, 'js/homepage_loggedin.js' );
+
+        my $panels = DW::Panel->init( u => $remote );
+        $ret .= '<div id="primary">';
+        $ret .= $panels->render_primary;
+        $ret .= '</div>';
+
+        $ret .= '<div id="secondary">';
+        $ret .= $panels->render_secondary;
+        $ret .= '</div><div class="clear-floats"></div>';
+    }
+    else {
+        # logged-out homepage
+
+        use DW::InviteCodes;
+
+        LJ::need_res( "js/tropo/homepage.js" );
+        LJ::need_res( "stc/tropo/homepage.css" );
+
+        $headextra .= <<HEAD;
+<script type="text/javascript">
+    var ml = new Object();
+
+HEAD
+        $headextra .= "    ml.joinheading = \"" . BML::ml( ".create.join_dreamwidth",  { sitename => $LJ::SITENAMESHORT } ) . "\";\n";
+        $headextra .= <<HEAD;
+    ml.entercode   = "$ML{'.create.enter_code'}";
+    ml.usecode     = "$ML{'.create.use_code'}";
+    ml.cancel      = "$ML{'.create.cancel'}";
+
+HEAD
+        $headextra .= "    var invitelength = " . DW::InviteCodes::CODE_LEN . ";\n";
+        $headextra .= "    var siteroot = \"" . $LJ::SITEROOT . "\";\n";
+        $headextra .= "</script>\n";
+
+        $ret .= <<HTML;
+<div id="intro-box">
+    <div id="intro-box-main">
+        <div id="intro-border-main-top"></div>
+        <div id="intro-border-main-bottom"></div>
+        <div id="intro-border-main-left">
+            <div id="intro-border-main-bottomleft"></div>
+            <div id="intro-border-main-topleft"></div>
+        </div>
+        <div id="intro-border-main-right">
+            <div id="intro-border-main-bottomright"></div>
+            <div id="intro-border-main-topright"></div>
+        </div>
+        <div id="intro-main-content">
+HTML
+        $ret .= "<h1>" . BML::ml( ".intro.what_is_dreamwidth", { sitename => $LJ::SITENAME } ) . "</h1>\n";
+        $ret .= "<p>" . BML::ml( ".intro.what_is_dreamwidth.content", { sitename => $LJ::SITENAME } ) . "</p>\n";
+        $ret .= <<HTML;
+        </div>
+    </div>
+    <div id="intro-box-create">
+        <div id="intro-border-create-top"></div>
+        <div id="intro-border-create-bottom"></div>
+        <div id="intro-border-create-right">
+            <div id="intro-border-create-bottomright"></div>
+            <div id="intro-border-create-topright"></div>
+        </div>
+        <div id="intro-create-content">
+HTML
+        $ret .= "<h1>" . BML::ml( ".create.join_dreamwidth", { sitename => $LJ::SITENAMESHORT } ) . "</h1>\n";
+
+        my $string = ".create.join_dreamwidth.content";
+        if ( ! $LJ::USE_ACCT_CODES )          { $string .= ".noinvites";  }
+        if ( ! LJ::is_enabled( 'payments' ) ) { $string .= ".nopayments"; }
+        # possible strings are:
+        # .create.join_dreamwidth.content                      - normal
+        # .create.join_dreamwidth.content.noinvites            - will be in use occasionally
+        # .create.join_dreamwidth.content.nopayments           - was in use before payments were set up
+        # .create.join_dreamwidth.content.noinvites.nopayments - highly unlikely to ever be in use on DW.org, but possible on Dreamhacks
+        $ret .= "<p>" . BML::ml( $string, { aopts => ( $LJ::USE_ACCT_CODES ?
+                                                       "href=\"$LJ::SITEROOT/support/faqbrowse?faqid=105\"" :
+                                                       "href=\"$LJ::SITEROOT/support/faqbrowse?faqid=4\"" ) } ) . "</p>\n";
+
+        my $createlink = ( $LJ::USE_ACCT_CODES ?
+                           "<a href=\"$LJ::SITEROOT/create\" onClick=\"return nocreatejs || displayCreateDiv(&quot;invite&quot;);\">$ML{'.create.invitelink'}</a>" :
+                           "<a href=\"$LJ::SITEROOT/create\">$ML{'.create.createaccount'}</a>" );
+        $ret .= <<HTML;
+            <ul id="create-links">
+HTML
+        $ret .= <<HTML if LJ::is_enabled( 'payments' );
+                <li><a href="$LJ::SITEROOT/shop/account?for=new">$ML{'.create.paymentlink2'}</a></li>
+HTML
+        $ret .= <<HTML;
+                <li class="lastli">$createlink</li>
+            </ul>
+HTML
+        if ( $LJ::USE_ACCT_CODES ) {
+          $ret .= "<p style=\"margin-top: 1em;\">" . BML::ml( ".create.join_dreamwidth.codeshare" ) . "</p>\n";
+        }
+        $ret .= <<HTML;
+        </div>
+    </div>
+</div>
+
+<div id="frontpage-links">
+HTML
+        # if you change the number of columns here, you'll need to tweak the width
+        # percentage for .links-column in the CSS file accordingly.
+        my @columns = (
+            {
+                name => 'about',
+                items => [
+                    [ '/about', 'about_dreamwidth' ],
+#                    [ '#', 'site_tour' ],
+                    [ '/legal/principles', 'guiding_principles' ],
+                ],
+            },
+            {
+                name => 'community',
+                items => [
+                    [ 'https://dw-news.dreamwidth.org/', 'site_news' ],
+                    [ '/latest', 'latest_things', 'footnote' ],
+                    [ '/random', 'random_journal', 'footnote' ],
+                    [ '/community/random', 'random_community', 'footnote' ],
+                ],
+                footnote => 'no_screening',
+            },
+            {
+                name => 'support',
+                items => [
+                    [ '/support/faq', 'faq' ],
+                    [ '/support/', 'support' ],
+                ],
+            },
+        );
+
+        push @{$columns[1]->{items}}, [ 'https://dw-codesharing.dreamwidth.org/', 'codeshare' ]
+            if $LJ::USE_ACCT_CODES;
+
+        foreach my $column ( @columns ) {
+            my $name = $column->{name};
+            $ret .= "    <div id=\"links-$name\" class=\"links-column\">\n";
+            $ret .= "        <h2>" . BML::ml( ".links.$name", { sitename => $LJ::SITENAMESHORT } ) . "</h2>\n";
+            $ret .= "        <dl>\n";
+            foreach my $item ( @{$column->{items}} ) {
+                my ( $href, $ml, $postfix ) = @{$item};
+                if ( $href=~/^\// ) {
+                    $href = "$LJ::SITEROOT$href";
+                }
+                $ret .= "            <dt><a href=\"$href\">" . BML::ml( ".links.$name.$ml", { sitename => $LJ::SITENAMESHORT } ) . "</a>";
+                $ret .= " " . $ML{".links.$name.$postfix"} if $postfix;
+                $ret .= "</dt>\n";
+                $ret .= "            <dd>" . BML::ml( ".links.$name.$ml.desc", { sitename => $LJ::SITENAMESHORT } ) . "</dd>\n";
+            }
+            $ret .= "        </dl>\n";
+            $ret .= "        <p><small>" . BML::ml( ".links.$name." . $column->{footnote}, { sitename => $LJ::SITENAMESHORT } ) . "</small></p>\n" if defined $column->{footnote};
+            $ret .= "    </div>\n";
+        }
+        $ret .= "</div>\n";
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+windowtitle=><?_code return $windowtitle; _code?>
+contentopts=>class="layout-wide-right-sidebar"
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

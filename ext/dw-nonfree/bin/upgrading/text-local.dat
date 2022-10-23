@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+domain:101:journal/news
+domain:102:widget
+
+# dreamwidth custom language
+lang:100:en_DW:English (DW):sim:en
+langdomain:en_DW:general
+langdomain:en_DW:faq
+langdomain:en_DW:journal/news:1
+langdomain:en_DW:widget:1

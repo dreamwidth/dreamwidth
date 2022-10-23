@@ -209,6 +209,8 @@ sub make_journal {
             stc/jquery/jquery.ui.button.css
             stc/jquery/jquery.ui.dialog.css
             stc/jquery/jquery.ui.theme.smoothness.css
+
+            stc/canary.css
             )
     );
 
@@ -2424,6 +2426,7 @@ sub Page {
         'global_subtitle'     => LJ::ehtml( $u->{'journalsubtitle'} ),
         'show_control_strip'  => LJ::Hooks::run_hook('show_control_strip'),
         'head_content'        => '',
+        'is_canary'           => $LJ::IS_CANARY,
         'data_link'           => {},
         'data_links_order'    => [],
         _styleopts            => LJ::viewing_style_opts(%$get),
