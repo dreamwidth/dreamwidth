@@ -233,7 +233,7 @@ sub parse_module_embed {
                     push @stack, $tag;
                 }
 
-               # append the tag contents to new embed buffer, so we can convert in to lj-embed later
+                # append the tag contents to new embed buffer, so we can convert in to lj-embed later
                 $embed .= $reconstructed;
             }
             else {
@@ -249,7 +249,7 @@ sub parse_module_embed {
                     # update tag balance, but only if we have a valid balance up to this moment
                     pop @stack if $stack[-1] eq $tag;
 
-               # switch to REGULAR if tags are balanced (stack is empty), stay in IMPLICIT otherwise
+                    # switch to REGULAR if tags are balanced (stack is empty), stay in IMPLICIT otherwise
                     $newstate = REGULAR unless @stack;
                 }
                 elsif ( $type eq 'S' ) {
@@ -642,7 +642,7 @@ sub module_iframe_tag {
 qq{//$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&preview=$preview&auth_token=$auth_token};
     my $iframe_tag =
 qq {<div class="lj_embedcontent-wrapper" style="$wrapper_style"><div class="lj_embedcontent-ratio" style="$ratio_style"><iframe src="$iframe_link"}
-        . qq{ width="$width$width_unit" height="$height$height_unit" allowtransparency="true" frameborder="0"}
+        . qq{ width="$width$width_unit" height="$height$height_unit" allowtransparency="true" frameborder="0" allowfullscreen="true"}
         . qq{ class="lj_embedcontent" id="$id" name="$name"></iframe></div></div>}
         . qq{$direct_link};
 
