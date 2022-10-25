@@ -233,7 +233,7 @@ sub parse_module_embed {
                     push @stack, $tag;
                 }
 
-                # append the tag contents to new embed buffer, so we can convert in to lj-embed later
+               # append the tag contents to new embed buffer, so we can convert in to lj-embed later
                 $embed .= $reconstructed;
             }
             else {
@@ -249,7 +249,7 @@ sub parse_module_embed {
                     # update tag balance, but only if we have a valid balance up to this moment
                     pop @stack if $stack[-1] eq $tag;
 
-                    # switch to REGULAR if tags are balanced (stack is empty), stay in IMPLICIT otherwise
+               # switch to REGULAR if tags are balanced (stack is empty), stay in IMPLICIT otherwise
                     $newstate = REGULAR unless @stack;
                 }
                 elsif ( $type eq 'S' ) {
