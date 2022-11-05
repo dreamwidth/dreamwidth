@@ -183,9 +183,6 @@ sub main_handler {
     }
 
     my %graphs = ( newbyday => 'stats/newbyday.png' );
-    foreach ( keys %graphs ) {
-        delete $graphs{$_} unless -f "$LJ::HTDOCS/$graphs{$_}";
-    }
 
     my $vars = {
         stat             => \%stat,
