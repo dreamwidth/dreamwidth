@@ -8,6 +8,7 @@ libdbi-perl
 libdbd-mysql-perl
 libgd-gd2-perl
 libgd-graph-perl
+libgd-text-perl
 libpng-dev
 perlmagick
 libapache2-mod-perl2
