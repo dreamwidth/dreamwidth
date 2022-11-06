@@ -1,6 +1,10 @@
 $('#check_all').change(function() {
     var checked = $( this );
     $('.item_checkbox').prop("checked", checked.is(':checked'));
+    $('.item_checkbox').trigger('change');
+    // This is because we have two 'check-all' boxes, and we want them to be in sync
+    $('.check_all').prop("checked", checked.is(':checked'));
+    check_selected();
 });
 
 $('.action_button').click(function (e) {
@@ -37,6 +41,33 @@ $("#inbox_messages").on("click", ".item_bookmark_action", function(e){
     var qid = $(this).data('qid');
     mark_items(e, action, qid);
 });
+
+$("#inbox_messages").on("click", ".inbox_item_row", function(e) {
+    let checkbox = $(e.currentTarget).find('.item_checkbox');
+
+    // Don't fire if the item clicked on was the checkbox (otherwise the change will trigger twice)
+    // Don't fire on link clicks
+    if (!$(e.target).hasClass('item_checkbox') && e.target.tagName != "A") {
+        console.log(e.target.tagName);
+        checkbox.prop("checked", !checkbox.is(':checked'));
+        checkbox.trigger('change');
+    }
+});
+
+
+$("#inbox_messages").on("change", ".item_checkbox", function(e) {
+    let checkbox = $(e.target);
+    let row = checkbox.parents('.inbox_item_row');
+    if (checkbox.prop('checked')) {
+        row.addClass('selected-msg');
+    } else {
+        row.removeClass('selected-msg');
+    }
+    check_selected();
+    e.preventDefault();
+    e.stopPropagation();
+});
+
 
 
 function mark_items(e, action, qid) {
@@ -121,3 +152,47 @@ $("#folder_btn").click(function() {
         }
     }
 );
+
+// Nothing is selected, show 'Mark all read' and 'Delete all' buttons
+function none_selected() {
+    $('.show_read').addClass('show-on-focus');
+    $('.show_unread').addClass('show-on-focus');
+    $('.show_all').removeClass('show-on-focus');
+}
+
+// Unread msgs selected - show 'Delete Selected' and 'Mark selected read' buttons
+// Note: this shows even if read messages are also selected.
+function unread_selected() {
+    $('.show_all').addClass('show-on-focus');
+    $('.show_read').addClass('show-on-focus');
+    $('.show_unread').removeClass('show-on-focus');
+}
+
+// Only read msgs selected - show 'Delete Selected' and 'Mark selected unread' buttons
+function read_selected() {
+    $('.show_all').addClass('show-on-focus');
+    $('.show_unread').addClass('show-on-focus');
+    $('.show_read').removeClass('show-on-focus');
+}
+
+function check_selected() {
+    var read = false;
+    var unread = false;
+    $('.selected-msg').each(function () {
+        if ($(this).children('.read').length > 0) {
+            read = true;
+        } else {
+            unread = true;
+        }
+    });
+
+    if (unread) {
+        unread_selected();
+    } else if (read) {
+        read_selected();
+    } else{
+        none_selected();
+    }
+}
+
+none_selected();
