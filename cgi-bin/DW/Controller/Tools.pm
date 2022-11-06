@@ -478,11 +478,14 @@ sub tellafriend_handler {
             LJ::send_mail(
                 {
                     'to'       => $toemail,
-                    'from'     => $u->{'emailpref'},
+                    'from'     => $LJ::BOGUS_EMAIL,
                     'fromname' => $u->user . LJ::Lang::ml("$scope.via") . " $LJ::SITENAMESHORT",
                     'charset'  => 'utf-8',
                     'subject'  => $post_args->{'subject'},
                     'body'     => $msg_body,
+                    'headers'  => {
+                        'Reply-To' => qq{"$u->{user}" <$u->{emailpref}>},
+                    }
                 }
             );
 
