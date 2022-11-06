@@ -14,3 +14,9 @@ ul.pagination {
 ul.pagination li a {
     font-weight:bold;
 }
+
+ul.pagination li.current {
+    a:focus, a:visted {
+        color: $pagination-link-current-font-color;
+    }
+}

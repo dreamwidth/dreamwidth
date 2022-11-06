@@ -154,6 +154,10 @@
   }
 }
 
+#inbox_folders .links {
+  margin-bottom: 1em;
+}
+
 #inbox_messages {
   grid-area: messages;
   width: 100%;
