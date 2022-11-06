@@ -573,7 +573,7 @@ sub tellafriend_handler {
     my $vars = {
         'u'                  => $u,
         'errors'             => $errors,
-        'formdata'           => $r->post_args || $default_formdata,
+        'formdata'           => $r->did_post ? $r->post_args : $default_formdata,
         'display_msg'        => $display_msg,
         'display_msg_footer' => $display_msg_footer,
         'email_checkbox'     => $email_checkbox
