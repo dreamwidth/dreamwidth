@@ -30,7 +30,7 @@ sub work {
     my $a    = $self->args;
 
     my $failed = sub {
-        $log->error( sprintf(@_) );
+        $log->error( sprintf($_[0], @_[1..$#_]) );
         return DW::Task::FAILED;
     };
 
