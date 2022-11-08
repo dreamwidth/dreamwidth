@@ -44,13 +44,13 @@ sub _shop_controller {
 
     # if payments are disabled, do nothing
     unless ( LJ::is_enabled('payments') ) {
-        $r->redirect("$LJ::SITEROOT/");
-        return ( 0, LJ::Lang::ml('shop.unavailable') );
+        return ( 0, error_ml('shop.unavailable') );
     }
 
     # if they're banned ...
-    my $err = DW::Shop->remote_sysban_check;
-    return ( 0, $err ) if $err;
+    if ( my $err = DW::Shop->remote_sysban_check ) {
+        return ( 0, DW::Template->render_template( 'error.tt', { message => $err } ) );
+    }
 
     # basic controller setup
     my ( $ok, $rv ) = controller(%args);
