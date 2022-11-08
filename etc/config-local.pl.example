@@ -123,6 +123,9 @@
     #    rename => [ 15, undef, undef, 150 ],
     #);
 
+    # minimum amount for check/money order (0 for no minimum)
+    # $SHOP_CMO_MINIMUM = 20;
+
     # number of days to display virtual gifts on the profile - default to two weeks
     # $VGIFT_EXPIRE_DAYS = 14;
 
