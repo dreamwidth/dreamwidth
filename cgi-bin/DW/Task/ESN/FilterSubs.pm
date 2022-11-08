@@ -43,8 +43,10 @@ sub work {
 
     $evt->configure_logger;
 
+    my $us = LJ::load_userids( map { $_->[0] } @$sublist );
+    $sublist = [ grep { $us->{ $_->[0] }->{clusterid} == $cid } @$sublist ];
+
     my ( $ct, $max ) = ( 0, scalar(@$sublist) );
-    my $us   = LJ::load_userids( map { $_->[0] } @$sublist );
     my $dbcr = LJ::get_cluster_reader($cid)
         or return $failed->("Couldn't get cluster reader handle");
 
