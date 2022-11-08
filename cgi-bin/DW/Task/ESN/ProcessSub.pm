@@ -30,7 +30,7 @@ sub work {
     my $a    = $self->args;
 
     my $failed = sub {
-        $log->error( sprintf($_[0], @_[1..$#_]) );
+        $log->error( sprintf( $_[0], @_[ 1 .. $#_ ] ) );
         return DW::Task::FAILED;
     };
 
@@ -48,8 +48,10 @@ sub work {
     $evt->configure_logger;
 
     my $subsc = $evt->get_subscriptions( $u, $subid )
-        or return $failed->( 'Failed to get subscriptions for: %s(%d) subid %d', $u->user, $u->id,
-        $subid );
+        or return $failed->(
+        'Failed to get subscriptions for: %s(%d) subid %d event (%s)',
+        $u->user, $u->id, $subid, join( ', ', @$eparams )
+        );
 
     # if the subscription doesn't exist anymore, we're done here
     # (race: if they delete the subscription between when we start processing
