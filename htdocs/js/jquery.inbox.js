@@ -8,7 +8,19 @@ $('.check_all').change(function() {
 
 $('.action_button').click(function(e) {
     var action = $(this).data('action');
-    mark_items(e, action);
+    var allow = false;
+    if(action == 'delete_all') {
+        allow = window.confirm("Delete all Inbox messages in the current folder except flagged?");
+    } else {
+        allow = true;
+    }
+
+    if (allow) {
+        mark_items(e, action);
+    } else {
+        e.preventDefault();
+        e.stopPropagation(); 
+    }
 });
 
 $("#inbox_messages").on("click", ".item_expand_action", function(e) {
