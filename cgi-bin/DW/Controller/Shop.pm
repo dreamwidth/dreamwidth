@@ -83,6 +83,8 @@ sub shop_index_handler {
     my ( $ok, $rv ) = _shop_controller( anonymous => 1 );
     return $rv unless $ok;
 
+    $rv->{shop_config} = \%LJ::SHOP;
+
     return DW::Template->render_template( 'shop/index.tt', $rv );
 }
 
@@ -270,6 +272,8 @@ sub shop_points_handler {
     $rv->{errs} = \%errs;
 
     my $r = DW::Request->get;
+    return $r->redirect("$LJ::SITEROOT/shop") unless exists $LJ::SHOP{points};
+
     if ( $r->did_post ) {
         my $args = $r->post_args;
         die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
@@ -338,6 +342,8 @@ sub shop_icons_handler {
     $rv->{errs} = \%errs;
 
     my $r = DW::Request->get;
+    return $r->redirect("$LJ::SITEROOT/shop") unless exists $LJ::SHOP{icons};
+
     if ( $r->did_post ) {
         my $args = $r->post_args;
         die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
