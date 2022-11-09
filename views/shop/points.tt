@@ -37,6 +37,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <p id='points-about'>[% '.about2' | ml %]</p>
 
+<p style='padding-top: 1em'><a href='[% site.root %]/shop'>&lt;&lt; [% '.backlink' | ml( 'sitename' => site.nameshort ) %]</a></p>
+
 [%# FIXME: move this to shop.js or something %]
 <script type='text/javascript'>
     jQuery( function($) {
