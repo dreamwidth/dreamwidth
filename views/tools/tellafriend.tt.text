@@ -38,6 +38,10 @@ Here's a link to the journal that I'm keeping online:
 
 .
 
+.email.field.replyto=Reply-To:
+
+.email.field.subject=Subject:
+
 .email.formatinfo=comma separated, maximum of 150 characters
 
 .email.fromfield=From:

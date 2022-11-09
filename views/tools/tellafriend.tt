@@ -8,8 +8,14 @@
 [% form.hidden(name = 'itemid', value = formdata.itemid) %]
 
 [% ".email.fromfield" | ml %]
-[% (u.name || u.user) | html %] &lt;[% u.emailpref %]&gt;
-<p>
+"[% u.user | html %] [% '.via' | ml %] [% site.nameshort | html %]"
+<br>
+[% ".email.field.subject" | ml %]
+[% formdata.subject | html %]
+<br>
+[% ".email.field.replyto" | ml %]
+"[% u.user | html %]" &lt;[% u.emailpref %]&gt;
+<p style="margin-top: 1em">
 [% form.textbox(
         label = dw.ml(".email.recipientfield"), 
         name = 'toemail', 
