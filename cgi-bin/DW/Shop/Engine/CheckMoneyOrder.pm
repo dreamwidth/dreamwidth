@@ -107,7 +107,7 @@ sub confirm_order {
                 {
                     touser     => LJ::isu($u) ? $u->display_name : $cart->email,
                     receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
-                    total      => '$' . $cart->total_cash . ' USD',
+                    total      => sprintf( '$%0.2f USD', $cart->total_cash ),
                     payableto  => $LJ::SITECOMPANY,
                     address    => "$LJ::SITECOMPANY${linebreak}Order #"
                         . $cart->id
