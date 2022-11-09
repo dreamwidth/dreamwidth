@@ -476,8 +476,12 @@ sub class_name {
     my $self = $_[0];
 
     foreach my $cap ( keys %LJ::CAP ) {
+
+        # skip "unused" elements in CAP
+        next unless $LJ::CAP{$cap}->{_account_type};
+
         return $LJ::CAP{$cap}->{_visible_name}
-            if $LJ::CAP{$cap} && $LJ::CAP{$cap}->{_account_type} eq $self->class;
+            if $LJ::CAP{$cap}->{_account_type} eq $self->class;
     }
 
     return 'Invalid Account Class';
