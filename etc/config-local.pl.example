@@ -118,9 +118,13 @@
     #    paid12 => [  25, 12, 'paid', 250   ],
     #    seed   => [ 200, 99, 'seed', 2000   ],
     #    points => [],     # if present, sell points
+    #    icons => [],      # if present, sell icons
     #    vgifts => [],     # if present, sell virtual gifts
     #    rename => [ 15, undef, undef, 150 ],
     #);
+
+    # minimum amount for check/money order (0 for no minimum)
+    # $SHOP_CMO_MINIMUM = 20;
 
     # number of days to display virtual gifts on the profile - default to two weeks
     # $VGIFT_EXPIRE_DAYS = 14;
