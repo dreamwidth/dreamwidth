@@ -1,5 +1,6 @@
 [PerlTidy]
 select = .github/workflows/*.pl
 select = bin/worker/dw-*
+select = bin/worker/paidstatus
 select = {bin,cgi-bin,t}/**/*.{pl,pm,t}
 argv = -ole=unix -ci=4 -l=100
