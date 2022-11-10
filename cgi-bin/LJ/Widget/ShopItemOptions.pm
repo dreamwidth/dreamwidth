@@ -213,6 +213,9 @@ sub handle_post {
                     my $ml_args =
                         { date => $exptime->ymd, premium_num => $prem_d, paid_num => $paid_d };
 
+                    # but only include date if the logged-in user owns the account
+                    delete $ml_args->{date} unless $remote && $remote->has_same_email_as($u);
+
                     # this should be handled as a special case in the caller
                     return ( error => 'premium_convert', ml_args => $ml_args );
                 }

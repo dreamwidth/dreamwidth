@@ -17,7 +17,11 @@ paid account. If you choose to proceed, the paid time you purchase will be
 converted to premium paid time at our standard conversion rate of 70% when it's applied
 to the account, granting [[premium_num]] more days of premium paid time instead of
 the [[paid_num]] more days you might have expected.
-</p><p>
+</p>
+.
+
+.error.premiumconvert.postdate<<
+<p>
 If you want to renew the account as a paid account, instead of a premium paid account,
 you'll need to adjust your order so that the paid time is scheduled to be applied on
 or after the account's expiration date of [[date]]. Doing this may result in up to a

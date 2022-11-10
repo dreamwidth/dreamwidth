@@ -94,8 +94,11 @@ body<=
         if ( $error eq 'premium_convert' ) {
             $premium_convert = 1;
 
+            my $ml_args = $from_post{ml_args};
+
             $ret .= qq{<div class="error-box">};
-            $ret .= BML::ml( '.error.premiumconvert', $from_post{ml_args} );
+            $ret .= BML::ml( '.error.premiumconvert', $ml_args );
+            $ret .= BML::ml( '.error.premiumconvert.postdate', $ml_args ) if $ml_args->{date};
             $ret .= qq{</div>};
 
         } elsif ( $error ) {
