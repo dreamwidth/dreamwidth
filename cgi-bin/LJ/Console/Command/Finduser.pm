@@ -23,7 +23,7 @@ sub desc { "Finds all accounts matching a certain criterion. Requires priv: find
 
 sub args_desc {
     [
-        'criteria' => "One of: 'user', 'userid', 'email', 'openid', or 'timeupdate'.",
+        'criteria' => "One of: 'user', 'userid', 'email', 'openid', 'delve', or 'timeupdate'.",
         'data'     => "Either a username or email address, or a userid when using 'userid',"
             . " or a URL when using 'openid'.",
     ]
@@ -43,6 +43,7 @@ sub execute {
 
     my ( $crit, $data );
     my $use_timeupdate = 0;
+    my $do_delve       = 0;
 
     if ( scalar(@args) == 1 ) {
 
@@ -60,6 +61,14 @@ sub execute {
         if ( $crit eq 'timeupdate' ) {
             $use_timeupdate = 1;
             $crit           = ( $data =~ /@/ ) ? 'email' : 'user';
+        }
+
+        # if they gave us the delve subcommand, do search by email
+        # but only do the delve if they also have the infohistory priv
+        if ( $crit eq 'delve' ) {
+            my $remote = LJ::get_remote();
+            $do_delve = 1 if $remote && $remote->has_priv( "finduser", "infohistory" );
+            $crit     = 'email';
         }
 
         # if they gave us a username and want to search by email, instead find
@@ -131,6 +140,15 @@ sub execute {
         unless @$userids;
 
     my $us = LJ::load_userids(@$userids);
+
+    if ($do_delve) {
+        $self->info( sprintf( "%d accounts found for email %s", scalar @$userids, $data ) );
+        foreach ( LJ::Hooks::run_hooks( "finduser_delve", $us ) ) {
+            next unless $_->[0];
+            $self->info($_) foreach ( split( /\n/, $_->[0] ) );
+        }
+        return 1;
+    }
 
     my $timeupdate;
     $timeupdate = LJ::get_timeupdate_multi( {}, @$userids )
