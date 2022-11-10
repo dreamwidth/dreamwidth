@@ -3,6 +3,9 @@
 
 .console_command {
     margin-top: $table-margin-bottom;
+    margin-bottom: $table-margin-bottom / 3;
+    border: solid 1px #aaa;
+    font-size: .925rem;
 }
 
 .console_text {
