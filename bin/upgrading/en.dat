@@ -3234,6 +3234,8 @@ Regards,
 The [[sitename]] Team
 .
 
+shop.email.acct.body.expires=Your new paid time expiration date is: [[date]]
+
 shop.email.acct.body.note<<
 
 

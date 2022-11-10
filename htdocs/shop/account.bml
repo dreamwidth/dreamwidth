@@ -69,24 +69,39 @@ body<=
 
     my $post_fields = {};
     my $email_checkbox;
+    my $premium_convert;
+
     if ( LJ::did_post() ) {
         return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
             unless LJ::check_form_auth();
 
         my $error;
+        my %from_post;
+
         $post_fields = LJ::Widget::ShopItemOptions->post_fields( \%POST );
+
         if ( keys %$post_fields ) { # make sure the user selected an account type
             # need to do this because all of these form fields are in the BML page instead of in the widget
             LJ::Widget->use_specific_form_fields( post => \%POST,
                                                   widget => "ShopItemOptions",
-                                                  fields => [ qw( for username email deliverydate_mm deliverydate_dd deliverydate_yyyy anonymous reason alreadyposted force_spelling ) ] );
-            my %from_post = LJ::Widget->handle_post( \%POST, 'ShopItemOptions' => { email_checkbox => \$email_checkbox } );
+                                                  fields => [ qw( for username email deliverydate_mm deliverydate_dd deliverydate_yyyy anonymous reason alreadyposted force_spelling prem_convert ) ] );
+            %from_post = LJ::Widget->handle_post( \%POST, 'ShopItemOptions' => { email_checkbox => \$email_checkbox } );
             $error = $from_post{error} if $from_post{error};
         } else {
             $error = $ML{'.error.noselection'};
         }
 
-        if ( $error ) {
+        if ( $error eq 'premium_convert' ) {
+            $premium_convert = 1;
+
+            my $ml_args = $from_post{ml_args};
+
+            $ret .= qq{<div class="error-box">};
+            $ret .= BML::ml( '.error.premiumconvert', $ml_args );
+            $ret .= BML::ml( '.error.premiumconvert.postdate', $ml_args ) if $ml_args->{date};
+            $ret .= qq{</div>};
+
+        } elsif ( $error ) {
             $ret .= qq{<div class="error-box">$error</div>};
         } else {
             return BML::redirect( "$LJ::SITEROOT/shop" );
@@ -109,12 +124,13 @@ body<=
     }
 
     $ret .= "</table>";
+	$ret .= "<table summary='' class='shop-table-gift'>";
 
     if ( $for =~ /^(?:gift|new|random)$/ ) {
-        $ret .= "<table summary='' class='shop-table-gift'>";
 
         if ( $for eq 'gift' ) {
             $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td>" . LJ::html_text( { name => 'username', value => LJ::ehtml( $POST{username} || $GET{user} ) } ) . "</td></tr>";
+
         } elsif ( $for eq 'random' ) {
             if ( my $username = LJ::ehtml( $GET{user} ) ) {
                 my $randomu = LJ::load_user( $username );
@@ -133,16 +149,19 @@ body<=
             $ret .= "<br />$email_checkbox" if $email_checkbox;
             $ret .= "</td></tr>";
         }
+    }
 
-        $ret .= "<tr><td>$ML{'.giftfor.deliverydate'}</td>";
-        my $deliverydate = $POST{deliverydate_mm} && $POST{deliverydate_dd} && $POST{deliverydate_yyyy}
-                    ? sprintf( '%04d-%02d-%02d', $POST{deliverydate_yyyy}, $POST{deliverydate_mm}, $POST{deliverydate_dd} )
-                    : DateTime->today->date;
-        $ret .= "<td>" . LJ::html_datetime( {
-            name => 'deliverydate',
-            default => $deliverydate,
-            notime => 1,
-        } ) . "</td></tr>";
+	$ret .= "<tr><td>$ML{'.giftfor.deliverydate'}</td>";
+	my $deliverydate = $POST{deliverydate_mm} && $POST{deliverydate_dd} && $POST{deliverydate_yyyy}
+				? sprintf( '%04d-%02d-%02d', $POST{deliverydate_yyyy}, $POST{deliverydate_mm}, $POST{deliverydate_dd} )
+				: DateTime->today->date;
+	$ret .= "<td>" . LJ::html_datetime( {
+		name => 'deliverydate',
+		default => $deliverydate,
+		notime => 1,
+	} ) . "</td></tr>";
+
+    if ( $for =~ /^(?:gift|new|random)$/ ) {
         $ret .= "<tr><td>$ML{'.giftfor.anonymous'}</td>";
         $ret .= "<td>" . LJ::html_check( {
             name => 'anonymous',
@@ -162,9 +181,16 @@ body<=
                                        } );
             $ret .= "</td></tr>";
         }
-
-        $ret .= "</table>";
     }
+
+	$ret .= "</table>";
+
+	if ( $premium_convert ) {
+		$ret .= "<p>";
+		$ret .= LJ::html_check( { name => 'prem_convert', id => 'prem_convert', value => 1 } );
+		$ret .= "<label for='prem_convert'>$ML{'.premiumconvert.agree'}</label>";
+		$ret .= "</p>";
+	}
 
     $ret .= LJ::html_hidden( for => $GET{for} );
     $ret .= LJ::html_hidden( alreadyposted => 1 ) if LJ::did_post();

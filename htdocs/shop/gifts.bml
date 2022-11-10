@@ -43,7 +43,7 @@ body<=
 
             if ( defined $paidstatus ) {
                 if ( $paidstatus->{permanent} ) {
-                    push @seed, $target;
+                    push @seed, $target unless $target->is_official;
                 } else {
                     # account is expired if the expiration date has passed:
                     push @expired, $target unless $paidstatus->{expiresin} > 0;
