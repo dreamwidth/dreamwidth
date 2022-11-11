@@ -32,7 +32,8 @@ RUN curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/depend
     rm -rf /root/.perl-cpm && \
     rm -rf /root/.cpanm
 
-# Actually check out the source code now.
+# Actually check out the source code now. Also build static, so that later when
+# we do individual deploys, the static build is faster.
 RUN mv $LJHOME/extlib /dw-extlib && \
     rmdir $LJHOME && \
     git clone https://github.com/dreamwidth/dreamwidth.git $LJHOME && \
@@ -41,4 +42,5 @@ RUN mv $LJHOME/extlib /dw-extlib && \
     git -C $LJHOME pull --ff-only origin $COMMIT && \
     mkdir $LJHOME/ext/yuicompressor/ && \
     curl -s -L --output $LJHOME/ext/yuicompressor/yuicompressor.jar \
-        https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.jar
+        https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.jar && \
+    $LJHOME/bin/build-static.sh
