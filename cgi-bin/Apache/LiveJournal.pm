@@ -189,7 +189,7 @@ sub send_concat_res_response {
     my $dir    = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
     my $maxdir = '/max' . $dir;
     return 404
-        unless -d $dir || -d $max_dir;
+        unless -d $dir || -d $maxdir;
 
     # Might contain cache buster "?v=3234234234" at the end;
     # plus possibly other unique args (caught by the .*)
