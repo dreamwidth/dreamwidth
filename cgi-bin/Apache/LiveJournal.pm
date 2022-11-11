@@ -186,9 +186,10 @@ sub send_concat_res_response {
     my $args     = $apache_r->args;
     my $uri      = $apache_r->uri;
 
-    my $dir = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
+    my $dir     = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
+    my $max_dir = '/max' . $dir;
     return 404
-        unless -d $dir;
+        unless -d $dir || -d $max_dir;
 
     # Might contain cache buster "?v=3234234234" at the end;
     # plus possibly other unique args (caught by the .*)
@@ -197,7 +198,7 @@ sub send_concat_res_response {
     # Collect each file
     my ( $body, $size, $mtime, $mime ) = ( '', 0, 0, undef );
     foreach my $file ( split /,/, substr( $args, 1 ) ) {
-        my $res = load_file_for_concat("$dir$file");
+        my $res = load_file_for_concat("$dir$file") // load_file_for_concat("$maxdir$file");
         return 404
             unless defined $res;
         $body .= $res->[0];
