@@ -441,10 +441,10 @@ userproplist.github:
 userproplist.google_talk:
   cldversion: 0
   datatype: char
-  des: Google's 'Hangouts' Service address
+  des: Google Chat Service address
   indexed: 1
   multihomed: 1
-  prettyname: Google Hangouts Address
+  prettyname: Google Chat Address
 
 userproplist.google_analytics:
   cldversion: 4
