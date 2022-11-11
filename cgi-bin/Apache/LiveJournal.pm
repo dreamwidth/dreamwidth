@@ -187,7 +187,7 @@ sub send_concat_res_response {
     my $uri      = $apache_r->uri;
 
     my $dir    = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
-    my $maxdir = '/max' . $dir;
+    my $maxdir = ( $LJ::STATDOCS // $LJ::HTDOCS ) . '/max' . $uri;
     return 404
         unless -d $dir || -d $maxdir;
 
