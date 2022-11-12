@@ -2,6 +2,8 @@ name: (package) worker automatic build
 
 on:
   push:
+    branches:
+      - main
     paths:
       - bin/**
       - cgi-bin/**
