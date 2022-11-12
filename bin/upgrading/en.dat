@@ -3831,6 +3831,8 @@ shop.item.account.canbeadded.nopaidforpremium=[[user]] has a Premium Paid Accoun
 
 shop.item.account.canbeadded.noperms=There are no more seed accounts available for purchase at this time.
 
+shop.item.account.canbeadded.nopremiumforpaid=[[user]] cannot receive a Premium Paid Account as a gift directly, because it would reduce the duration of their existing paid time. If you're sure they would welcome the upgrade, you can send them enough points to pay for the premium time.
+
 shop.item.account.canbeadded.notactive=[[user]] is not currently active. Submit your order again to confirm that you want to buy them paid time.
 
 shop.item.account.conflicts.differentpaid=You cannot purchase two different types of paid accounts for the same person.
