@@ -2658,6 +2658,7 @@ sub get_talktext2 {
         $sth->execute;
         while ( my ( $id, $subject, $body ) = $sth->fetchrow_array ) {
             $subject = "" unless defined $subject;
+            LJ::text_uncompress( \$subject );
             $body    = "" unless defined $body;
             LJ::text_uncompress( \$body );
             $lt->{$id} = [ $subject, $body ];
