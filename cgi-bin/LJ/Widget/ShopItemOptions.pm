@@ -185,13 +185,16 @@ sub handle_post {
         );
 
         # check for renewing premium as paid
-        if ( my $u = LJ::load_userid( $item ? $item->t_userid : undef ) ) {
+        my $u           = LJ::load_userid( $item ? $item->t_userid : undef );
+        my $paid_status = $u ? DW::Pay::get_paid_status($u) : undef;
 
-            my $paid_status  = DW::Pay::get_paid_status($u) || {};
-            my $paid_curtype = DW::Pay::type_shortname( $paid_status->{typeid} // '' );
+        if ($paid_status) {
+            my $paid_curtype = DW::Pay::type_shortname( $paid_status->{typeid} );
             my $has_premium  = $paid_curtype eq 'premium' ? 1 : 0;
 
-            if ( $has_premium && $item->class eq 'paid' && !$post->{prem_convert} ) {
+            my $ok = DW::Shop::Item::Account->allow_account_conversion( $u, $item->class );
+
+            if ( $ok && $has_premium && $item->class eq 'paid' && !$post->{prem_convert} ) {
 
                 # check account expiration date
                 my $exptime = DateTime->from_epoch( epoch => $paid_status->{expiretime} );
@@ -208,6 +211,8 @@ sub handle_post {
                     my $months = $item->months;
                     my $newexp = $exptime->clone->add( months => $months );
                     my $paid_d = $exptime->delta_days($newexp)->in_units('days');
+
+                    # FIXME: this should be DW::BusinessRules::Pay::DWS::CONVERSION_RATE
                     my $prem_d = int( $paid_d * 0.7 );
 
                     my $ml_args =
