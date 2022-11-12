@@ -85,8 +85,17 @@ body<=
             LJ::Widget->use_specific_form_fields( post => \%POST,
                                                   widget => "ShopItemOptions",
                                                   fields => [ qw( for username email deliverydate_mm deliverydate_dd deliverydate_yyyy anonymous reason alreadyposted force_spelling prem_convert ) ] );
-            %from_post = LJ::Widget->handle_post( \%POST, 'ShopItemOptions' => { email_checkbox => \$email_checkbox } );
-            $error = $from_post{error} if $from_post{error};
+
+            @BMLCodeBlock::errors = (); # LJ::Widget->handle_post uses this global variable
+            eval { %from_post = LJ::Widget->handle_post( \%POST, 'ShopItemOptions' => { email_checkbox => \$email_checkbox } ); };
+
+            my @errs = map { LJ::ehtml($_) } split "\n", $BMLCodeBlock::errors[0] // '';
+            push @errs, $@ if $@;
+            if ( $from_post{error} && ( !@errs || $from_post{error} ne 'premium_convert' ) ) {
+                push @errs, $from_post{error};
+            }
+            $error = join "<br>", @errs;
+
         } else {
             $error = $ML{'.error.noselection'};
         }
