@@ -190,7 +190,7 @@ LJ::Hooks::register_hook(
 
         if ( $uri_host eq "player.twitch.tv" ) {
             return ( 1, 1 )
-                if $uri_path eq "/" && $parsed_uri->query =~ m/\b(video|channel|collection)=/;
+                if $uri_path eq '/' && $parsed_uri->query =~ m/\b(video|channel|collection)=/;
         }
 
         if ( $uri_host eq "i.cdn.turner.com" ) {
