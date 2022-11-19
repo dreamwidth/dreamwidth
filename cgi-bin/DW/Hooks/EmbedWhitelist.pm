@@ -131,9 +131,8 @@ my %host_path_match = (
     "www.strava.com"     => [ qr!^/activities/\d+/embed/\w+$!, 1 ],
     "streamable.com"     => [ qr!^/[eos]/!,                    1 ],
 
-    "embed.ted.com" => [ qr!^/talks/!,   1 ],
+    "embed.ted.com"   => [ qr!^/talks/!, 1 ],
     "clips.twitch.tv" => [ qr!^/embed$!, 1 ],
-    "player.twitch.tv" => [ qr!^/$!,     1 ],
 
     "vid.me"           => [ qr!^/e/!,                              1 ],
     "player.vimeo.com" => [ qr!^/video/\d+$!,                      1 ],
@@ -186,6 +185,11 @@ LJ::Hooks::register_hook(
         if ( $uri_host eq "commons.wikimedia.org" ) {
             return ( 1, 1 )
                 if $uri_path =~ m!^/wiki/File:! && $parsed_uri->query =~ m/embedplayer=yes/;
+        }
+
+        if ( $uri_host eq "player.twitch.tv" ) {
+            return (1, 1)
+                if $uri_path =~m!^/$! && $parsed_uri->query =~ m/(video|channel|collection)=/;
         }
 
         if ( $uri_host eq "i.cdn.turner.com" ) {
