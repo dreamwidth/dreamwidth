@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 175;
+use Test::More tests => 189;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -522,7 +522,7 @@ qq{foo <site-embed><iframe src="http://www.youtube.com/embed/ABC123abc_-"></site
         # make sure that the only top-level iframes we have are the ones we generated
         if ( $viewed_entry =~ "<iframe" ) {
             my $userid = $u->userid;
-            my %attrs  = $viewed_entry =~ /(id|name|class|src)="?([^"]+)"?/g;
+            my %attrs  = $viewed_entry =~ /(id|name|class|src|allowfullscreen)="?([^"]+)"?/g;
             is( $attrs{id}, "embed_${userid}_1", "iframe id: $title" );
             like( $attrs{name}, qr!embed_${userid}_1_[\w]{5}!, "iframe name: $title" );
             is( $attrs{class}, "lj_embedcontent", "iframe class: $title" );
@@ -531,6 +531,7 @@ qq{foo <site-embed><iframe src="http://www.youtube.com/embed/ABC123abc_-"></site
                 qr!^(https?:)?//$LJ::EMBED_MODULE_DOMAIN/\?journalid=!,
                 "iframe src: $title"
             );
+            is( $attrs{allowfullscreen}, "true", "iframe allowfullscreen: $title" );
         }
 
         # check the iframe contents
