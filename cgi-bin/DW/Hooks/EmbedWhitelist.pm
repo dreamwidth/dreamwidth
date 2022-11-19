@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 #
-# This code was based on code originally created by Live Journal, Inc. The code has been modified and expanded
+# This code was based on code originally created by the LiveJournal project
+# owned and operated by Live Journal, Inc. The code has been modified and expanded
 # by Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -188,8 +189,8 @@ LJ::Hooks::register_hook(
         }
 
         if ( $uri_host eq "player.twitch.tv" ) {
-            return (1, 1)
-                if $uri_path =~m!^/$! && $parsed_uri->query =~ m/(video|channel|collection)=/;
+            return ( 1, 1 )
+                if $uri_path =~ m!^/$! && $parsed_uri->query =~ m/(video|channel|collection)=/;
         }
 
         if ( $uri_host eq "i.cdn.turner.com" ) {
