@@ -17,10 +17,23 @@ For this API, users are identified with an API key rather than a username and pa
 
 	  <rapi-doc
     spec-url="[% site.root %]/api/v1/spec"
+        layout="column"
+        render-style="view"
         show-header='false'
         show-info='false'
         allow-server-selection = 'false'
         allow-api-list-style-selection ='false'
-        layout="column"
 		allow-authentication="true"
+    id="apiDoc"
   > </rapi-doc>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+      const rapidocEl = document.getElementById('apiDoc');
+      rapidocEl.addEventListener('spec-loaded', (e) => {
+        const keyInputEl = document.getElementById('api_key');
+        rapidocEl.setApiKey('api_key',keyInputEl.innerText);
+      });
+    });
+
+</script>
