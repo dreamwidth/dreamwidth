@@ -15,6 +15,9 @@ src/proxy/proxy
 .vstags
 .perl-cpm
 
+# Ignore node_modules, wherever they occur
+/**/node_modules/
+
 # Ignore SCSS cache
 .sass-cache
 # Ignore compiled CSS

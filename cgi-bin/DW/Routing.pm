@@ -136,6 +136,8 @@ sub get_call_opts {
     # APIs are versioned, so we only want to check for endpoints that match
     # the version the user is requesting.
     if ( $call_opts->role eq 'api' ) {
+        # return early if we weren't given an API version
+        return unless defined( $call_opts->apiver );
 
         # check the static endpoints for this api version first
         if ( exists $api_endpoints{ $call_opts->apiver } ) {

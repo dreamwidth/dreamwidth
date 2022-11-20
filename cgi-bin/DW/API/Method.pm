@@ -66,9 +66,12 @@ sub param {
 # Creates a special instance of DW::API::Parameter object and
 # adds it as the requestBody definition for the calling method
 sub body {
-    my ( $self, @args ) = @_;
-    my $param = DW::API::Parameter->define_parameter(@args);
-    $self->{requestBody} = $param;
+    my ( $self, $config ) = @_;
+    $self->{requestBody}->{required} = $config->{required};
+    for my $ct ( keys( $config->{content} ) ) {
+        my $param = DW::API::Parameter->define_body( $config->{content}->{$ct}, $ct );
+        $self->{requestBody}{content}{$ct} = $param;
+    }
 
 }
 
@@ -197,12 +200,24 @@ sub TO_JSON {
         $json->{parameters} = [ values %{ $self->{params} } ];
     }
 
+    if ( defined $self->{requestBody} ) {
+        $json->{requestBody} = $self->{requestBody};
+        if ( defined $self->{requestBody}{required} && $self->{requestBody}{required} ) {
+            $json->{requestBody}{required} = $JSON::true;
+        }
+        else {
+            delete $json->{requestBody}{required};
+        }
+    }
+
     my $responses = $self->{responses};
 
     for my $key ( keys %{ $self->{responses} } ) {
         $json->{responses}{$key} = { description => $responses->{$key}{desc} };
-        $json->{responses}{$key}{schema} = $responses->{$key}{schema}
-            if defined $responses->{$key}{schema};
+        for my $return_type ( keys %{ $self->{responses}{$key}{content} } ) {
+            $json->{responses}{$key}{content}{$return_type}{schema} = $responses->{$key}{content}{$return_type}{schema}
+                if defined $responses->{$key}{content}{$return_type}{schema};
+        }
     }
 
     return $json;

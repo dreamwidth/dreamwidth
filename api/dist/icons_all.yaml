@@ -1,0 +1,57 @@
+paths:
+  "/users/{username}/icons":
+    parameters:
+      - name: username
+        in: path
+        description: The username you want icon information for
+        required: true
+        schema:
+          type: string
+          minLength: 3
+          maxLength: 25
+          pattern: ^[0-9A-Za-z_]+$
+          example: example
+    get:
+      description: Returns all icons for a specified username.
+      responses:
+        "200":
+          description: a list of icons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - comment
+                    - picid
+                    - username
+                    - url
+                    - keywords
+                  properties:
+                    comment:
+                      type: string
+                    picid:
+                      type: integer
+                    username:
+                      type: string
+                      description: The name of the journal this icon belongs to.
+                    url:
+                      type: string
+                    keywords:
+                      type: array
+                      items:
+                        type: string
+        "404":
+          description: Username specified does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A description of the error encountered.
+                    example: "Bad format for username. Errors: String is too long: 77/25."
+                  success:
+                    type: number

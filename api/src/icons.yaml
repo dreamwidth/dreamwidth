@@ -6,8 +6,8 @@ paths:
         in: path
         description: The username you want icon information for
         required: true
-        schema:
-          type: string
+        schema: 
+          $ref: components/schemas/username.yaml
       - name: picid
         in: path
         description: The picid you want information for.
@@ -21,20 +21,11 @@ paths:
           description: An icon with it's information
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  comment:
-                    type: string
-                  picid:
-                    type: integer
-                  username:
-                    type: string
-                  url:
-                    type: string
-                  keywords:
-                    type: array
-                    items:
-                      type: string
+              schema: 
+                $ref: components/schemas/icon.yaml
         404:
-          description: No such icon.
+          description: No such username or icon.
+          schema: 
+                $ref: components/error.yaml
+        400:
+          $ref: components/errors/400.yaml

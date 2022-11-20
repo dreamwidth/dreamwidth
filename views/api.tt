@@ -1,0 +1,26 @@
+[%- sections.title = "API" -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- dw.need_res( { group => "foundation" },
+            "js/vendor/rapidoc-min.js"
+            "js/components/jquery.collapse.js"
+        		"stc/css/components/collapse.css"
+				    "stc/api.css"
+        		"stc/css/components/foundation-icons.css"
+        ) -%]
+
+  <div class="alert-box secondary">This API, and it's documentation, are not yet fully finalized. We will do our best not to rename/remove routes listed here, but more options may be added, and there may be errors with existing routes. If you find an error or missing functionality, please report it at <a href="https://dw-beta.dreamwidth.org/15368.html">this entry</a>!</div>
+
+<p>This is documentation for the Dreamwidth REST API. An API is a way of providing information that is easy for programs to access and use, but isn't always particularly friendly for humans. This document attempts to show what information can be requested, and how, in a slightly more human-readable format, and provide an interface for users to test various requests without having to deal with external programs or a commandline. A machine-readable version of this spec is available at <a href="[% site.root %]/api/v1/spec">/api/v1/spec</a>.</p>
+<p>
+For this API, users are identified with an API key rather than a username and password. The API key doesn't have access to all the same functions a logged in user to the site has, but it does have access to all the private information you have access to, and the ability to make posts as you, so protect it as you would your password. If you've accidentally shared it, you can delete a key from the management page. The API key that will be used for calls on this page is <b><span id="api_key">[% key.keyhash %]</span></b>. If you'd like to see all your API keys and manage them, go to <a href="[% site.root %]/manage/emailpost">the mobile post settings page</a>.</p>
+
+
+	  <rapi-doc
+    spec-url="[% site.root %]/api/v1/spec"
+        show-header='false'
+        show-info='false'
+        allow-server-selection = 'false'
+        allow-api-list-style-selection ='false'
+        layout="column"
+		allow-authentication="true"
+  > </rapi-doc>
