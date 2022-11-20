@@ -109,12 +109,13 @@ body<=
     }
 
     $ret .= "</table>";
+	$ret .= "<table summary='' class='shop-table-gift'>";
 
     if ( $for =~ /^(?:gift|new|random)$/ ) {
-        $ret .= "<table summary='' class='shop-table-gift'>";
 
         if ( $for eq 'gift' ) {
             $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td>" . LJ::html_text( { name => 'username', value => LJ::ehtml( $POST{username} || $GET{user} ) } ) . "</td></tr>";
+
         } elsif ( $for eq 'random' ) {
             if ( my $username = LJ::ehtml( $GET{user} ) ) {
                 my $randomu = LJ::load_user( $username );
@@ -133,16 +134,19 @@ body<=
             $ret .= "<br />$email_checkbox" if $email_checkbox;
             $ret .= "</td></tr>";
         }
+    }
 
-        $ret .= "<tr><td>$ML{'.giftfor.deliverydate'}</td>";
-        my $deliverydate = $POST{deliverydate_mm} && $POST{deliverydate_dd} && $POST{deliverydate_yyyy}
-                    ? sprintf( '%04d-%02d-%02d', $POST{deliverydate_yyyy}, $POST{deliverydate_mm}, $POST{deliverydate_dd} )
-                    : DateTime->today->date;
-        $ret .= "<td>" . LJ::html_datetime( {
-            name => 'deliverydate',
-            default => $deliverydate,
-            notime => 1,
-        } ) . "</td></tr>";
+	$ret .= "<tr><td>$ML{'.giftfor.deliverydate'}</td>";
+	my $deliverydate = $POST{deliverydate_mm} && $POST{deliverydate_dd} && $POST{deliverydate_yyyy}
+				? sprintf( '%04d-%02d-%02d', $POST{deliverydate_yyyy}, $POST{deliverydate_mm}, $POST{deliverydate_dd} )
+				: DateTime->today->date;
+	$ret .= "<td>" . LJ::html_datetime( {
+		name => 'deliverydate',
+		default => $deliverydate,
+		notime => 1,
+	} ) . "</td></tr>";
+
+    if ( $for =~ /^(?:gift|new|random)$/ ) {
         $ret .= "<tr><td>$ML{'.giftfor.anonymous'}</td>";
         $ret .= "<td>" . LJ::html_check( {
             name => 'anonymous',
@@ -162,9 +166,9 @@ body<=
                                        } );
             $ret .= "</td></tr>";
         }
-
-        $ret .= "</table>";
     }
+
+	$ret .= "</table>";
 
     $ret .= LJ::html_hidden( for => $GET{for} );
     $ret .= LJ::html_hidden( alreadyposted => 1 ) if LJ::did_post();

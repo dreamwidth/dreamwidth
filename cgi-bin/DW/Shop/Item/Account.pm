@@ -20,6 +20,7 @@ package DW::Shop::Item::Account;
 use base 'DW::Shop::Item';
 
 use strict;
+use DateTime;
 use DW::InviteCodes;
 use DW::Pay;
 
@@ -123,6 +124,15 @@ sub _apply_userid {
     # we're applied now, regardless of what happens with the email
     $self->{applied} = 1;
 
+    # look up the account's new expiration date
+    my $expdate;
+    my $paid_status = DW::Pay::get_paid_status($u);
+
+    if ( $paid_status && !$self->permanent ) {
+        my $exptime = DateTime->from_epoch( epoch => $paid_status->{expiretime} );
+        $expdate = $exptime->ymd;
+    }
+
     # now we have to mail this code
     my ( $body, $subj );
     my $accounttype_string =
@@ -154,6 +164,10 @@ sub _apply_userid {
 
             $body .=
                 LJ::Lang::ml( "shop.email.acct.body.type", { accounttype => $accounttype_string } );
+            $body .= "\n";
+            $body .= LJ::Lang::ml( "shop.email.acct.body.expires", { date => $expdate } )
+                if $expdate;
+            $body .= "\n";
             $body .= LJ::Lang::ml( "shop.email.acct.body.note", { reason => $self->reason } )
                 if $self->reason;
 
@@ -196,6 +210,10 @@ sub _apply_userid {
 
         $body .=
             LJ::Lang::ml( "shop.email.acct.body.type", { accounttype => $accounttype_string } );
+        $body .= "\n";
+        $body .= LJ::Lang::ml( "shop.email.acct.body.expires", { date => $expdate } )
+            if $expdate;
+        $body .= "\n";
         $body .= LJ::Lang::ml( "shop.email.acct.body.note", { reason => $self->reason } )
             if $self->reason;
 
@@ -476,8 +494,12 @@ sub class_name {
     my $self = $_[0];
 
     foreach my $cap ( keys %LJ::CAP ) {
+
+        # skip "unused" elements in CAP
+        next unless $LJ::CAP{$cap}->{_account_type};
+
         return $LJ::CAP{$cap}->{_visible_name}
-            if $LJ::CAP{$cap} && $LJ::CAP{$cap}->{_account_type} eq $self->class;
+            if $LJ::CAP{$cap}->{_account_type} eq $self->class;
     }
 
     return 'Invalid Account Class';

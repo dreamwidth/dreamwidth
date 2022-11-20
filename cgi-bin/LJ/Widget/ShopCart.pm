@@ -191,8 +191,29 @@ sub render_body {
             $ret .= " &nbsp;&nbsp;";
 
             # check or money order button
-            $ret .= $class->html_submit(
-                checkout_cmo => $class->ml('widget.shopcart.paymentmethod.checkmoneyorder') );
+            my $cmo_threshold =
+                $LJ::SHOP_CMO_MINIMUM ? $cart->total_cash - $LJ::SHOP_CMO_MINIMUM : undef;
+            my $disable_cmo = defined $cmo_threshold ? $cmo_threshold < 0 : 0;
+
+            if ( LJ::is_enabled('payments_cmo') ) {
+                $ret .= $class->html_submit(
+                    checkout_cmo => $class->ml('widget.shopcart.paymentmethod.checkmoneyorder'),
+                    { disabled => $disable_cmo }
+                );
+            }
+
+            if ( !$LJ::STRIPE{enabled} ) {
+                $ret .= "</p><p>";
+                $ret .= $class->ml('widget.shopcart.paymentmethod.creditcard.whydisabled');
+            }
+
+            if ( LJ::is_enabled('payments_cmo') && $disable_cmo ) {
+                $ret .= "</p><p>";
+                $ret .= $class->ml(
+                    'widget.shopcart.paymentmethod.checkmoneyorder.whydisabled',
+                    { minimum => sprintf( '$%0.2f USD', $LJ::SHOP_CMO_MINIMUM ) }
+                );
+            }
         }
 
         $ret .= "</p></div>";

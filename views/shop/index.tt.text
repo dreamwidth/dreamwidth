@@ -13,9 +13,15 @@
 
 .for.self=yourself
 
+.icons.unavailable=Additional icons are not currently available for sale.
+
 .points.login=You must log in to a personal account to buy points.
 
+.points.unavailable=Shop points are not currently available for sale.
+
 .renames.login=You must log in to a personal account to buy a rename token.
+
+.renames.unavailable=Rename tokens are not currently available for sale.
 
 .title=[[sitename]] Shop
 

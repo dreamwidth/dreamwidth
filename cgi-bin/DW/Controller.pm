@@ -101,7 +101,7 @@ sub render_success {
 # - skip_captcha => 1 -- (DANGEROUS) do not ever captcha on this endpoint.
 #
 # Returns one of:
-# - 0, $error_text (if there's an error)
+# - 0, $error_response (if there's an error)
 # - 1, $hashref (if everything looks good)
 #
 # Returned hashref can be passed to DW::Template->render_template as the 2nd

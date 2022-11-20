@@ -51,4 +51,60 @@ LJ::Hooks::register_hook(
     }
 );
 
+LJ::Hooks::register_hook(
+    'finduser_delve',
+    sub {
+        my ($us) = @_;
+
+        my @users = sort { $a->user cmp $b->user } grep { !$_->is_community } values %$us;
+
+        my $ret = '';
+
+        my @paid;
+
+        foreach my $u (@users) {
+            my %ok    = ( $DW::Shop::STATE_PAID => 1, $DW::Shop::STATE_PROCESSED => 1 );
+            my @carts = grep { $ok{ $_->state } } DW::Shop::Cart->get_all($u);
+            push @paid, $u if @carts;
+        }
+
+        $ret .= sprintf( "%d accounts with payment history:\n", scalar @paid );
+        $ret .= sprintf( "%s\n", $_->user ) foreach @paid;
+
+        # infohistory
+
+        my $dbh = LJ::get_db_reader();
+        my $sth = $dbh->prepare("SELECT * FROM infohistory WHERE userid=?");
+
+        my %emails;
+        my %seen;
+
+        foreach my $u (@users) {
+            $sth->execute( $u->id );
+            next unless $sth->rows;
+
+            while ( my $info = $sth->fetchrow_hashref ) {
+                if ( $info->{what} && $info->{what} eq 'email' ) {
+                    my $e = $info->{oldvalue};
+                    $emails{$e} ||= [];
+                    push @{ $emails{$e} }, $u->user;
+                    $seen{ $u->user } = 1;
+                }
+            }
+        }
+
+        if ( my $num_changed = scalar keys %seen ) {
+
+            $ret .= sprintf( "%d additional historical email addresses on %d accounts:\n",
+                scalar keys %emails, $num_changed );
+        }
+
+        foreach my $e ( sort keys %emails ) {
+            $ret .= sprintf( "%s: used by %s\n", $e, join( ', ', @{ $emails{$e} } ) );
+        }
+
+        return $ret;
+    }
+);
+
 1;

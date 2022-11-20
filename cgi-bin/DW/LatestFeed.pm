@@ -270,6 +270,9 @@ sub _process_queue {
             unless $entry->poster->include_in_latest_feed
             && $entry->journal->include_in_latest_feed;
         return 0 if $entry->is_backdated;
+        return 0
+            if $entry->journal->adult_content_calculated
+            || $entry->adult_content_calculated;
 
         return 1;
     };
