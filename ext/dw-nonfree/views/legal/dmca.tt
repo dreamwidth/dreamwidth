@@ -7,10 +7,9 @@
   #
   # Copyright (c) 2009 by Dreamwidth Studios, LLC.
   #
-  # This program is NOT free software or open-source; you can use it as an
-  # example of how to implement your own site-specific extensions to the
-  # Dreamwidth Studios open-source code, but you cannot use it on your site
-  # or redistribute it, with or without modifications.
+  # This program is free software; you may redistribute it and/or modify it
+  # or redistribute it, with or without modifications, subject to the 
+  # license terms stated in the text.
   #
 %]
 
@@ -115,4 +114,5 @@
 
 <p>We also reserve the right to terminate the accounts of those who, in our opinion, misuse or abuse the DMCA notification process against other users.</p>
 
-<p>This policy is licensed under a Creative Commons Attribution-ShareAlike 2.5 License.</p>
+<p>This policy is licensed under the 
+<a href="https://creativecommons.org/licenses/by-sa/2.5/legalcode">Creative Commons Attribution-ShareAlike 2.5 License</a>.</p>
