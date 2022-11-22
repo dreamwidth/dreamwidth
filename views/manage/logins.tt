@@ -11,6 +11,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 %]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
 [%- sections.title = '.title' | ml -%]
 
 <p>[% '.intro' | ml(sitename = site.nameshort) %]</p>
@@ -29,6 +31,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- ELSE -%]
     <h1>[% '.loggedin.header' | ml %]</h1>
 [%- END -%]
+
+<form method='POST'>
+[% dw.form_auth %]
 
 <table style="width: 100%"><thead><tr>
     <th>[% '.loggedin.table.time' | ml %]</th>
@@ -57,14 +62,28 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- IF ! user %][% IF item.current %]
     <td style='whitespace: nowrap; font-size: 0.75em'>[% '.loggedin.table.current' | ml %]</td>
 [%- ELSE %]
-    <td><form method='POST'>
-    [% dw.form_auth %]
-    <input type='hidden' name='session' value='[% item.sid | html %]'/>
-    <input type='submit' value='X'/></form></td>
+    <td style='text-align: center;'>
+    [% form.checkbox( name = "logout:" _ item.sid, value = "1" ) %]
+    </td>
 [%- END %][% END %]
 </tr>
 [%- END %]
 </tbody></table><br />
+
+[% form.hidden( name = "logout", value = "some" ) %]
+[% form.submit( value = "Log Out Selected Sessions" ) %]
+</form>
+
+<h1>Log Out All</h1>
+<p>Additionally, you can log out all of your sessions with this button. You
+will be immediately logged out on any devices that are currently logged in,
+<strong>including this one.</strong></p>
+
+<form method='POST'>
+[% dw.form_auth() %]
+[% form.hidden( name = "logout", value = "all" ) %]
+[% form.submit( value = "Log Out ALL Sessions" ) %]
+</form>
 
 [%- IF oauth.size -%]
 [%- IF user -%]

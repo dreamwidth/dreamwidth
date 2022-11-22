@@ -252,6 +252,8 @@ sub note_activity {
     return 1;
 }
 
+# Record a user login in loginlog. Returns 0 if the login failed to be recorded,
+# or 1 if it was saved OK.
 sub record_login {
     my ( $u, $sessid ) = @_;
 
@@ -260,12 +262,18 @@ sub record_login {
 
     my $r  = DW::Request->get;
     my $ip = LJ::get_remote_ip();
-    my $ua = $r->header_in('User-Agent');
 
-    return $u->do(
-        "INSERT INTO loginlog SET userid=?, sessid=?, logintime=UNIX_TIMESTAMP(), " . "ip=?, ua=?",
-        undef, $u->userid, $sessid, $ip, $ua
-    );
+    # This 100 matches the 'ua' column in the loginlog table, needs to be
+    # adjusted if the column is updated
+    my $ua = LJ::text_trim( $r->header_in('User-Agent'), 100 );
+
+    $u->do( "INSERT INTO loginlog SET userid=?, sessid=?, logintime=UNIX_TIMESTAMP(), ip=?, ua=?",
+        undef, $u->userid, $sessid, $ip, $ua );
+    if ( $u->err ) {
+        $log->error( 'Failed for ', $u->user, '(', $u->userid, '): ', $u->errstr );
+        return 0;
+    }
+    return 1;
 }
 
 sub redirect_rename {
