@@ -132,7 +132,6 @@ sub enter_cc_handler {
         # load country codes, and US states
         my ( %countries, %usstates );
         DW::Countries->load( \%countries );
-        delete $countries{UK};    # UK is also GB; don't display both
         LJ::load_codes( { state => \%usstates } );
 
         # now sort the above appropriately
