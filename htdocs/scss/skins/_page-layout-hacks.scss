@@ -32,6 +32,10 @@ ul.successlinks li {
 }
 
 // fix for illegible table header links
+[id="content"] table thead {
+    background-color: $soft-accent-color;
+}
+
 [id="content"] table thead th a {
     color: $primary-text-color;
 }
