@@ -21,7 +21,7 @@ paths:
       description: Returns a single icon for a specified picid and username
       responses:
         "200":
-          description: An icon with it's information
+          description: An icon with its information
           content:
             application/json:
               schema:

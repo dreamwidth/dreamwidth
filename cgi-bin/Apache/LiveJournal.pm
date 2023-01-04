@@ -965,9 +965,9 @@ sub trans {
     if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
         my $ver = $1 + 0;
         $ret = DW::Routing->call(
-            api_version => $ver,
-            uri         => "/v$ver$2",
-            role        => 'api'
+            apiver => $ver,
+            uri    => "/v$ver$2",
+            role   => 'api'
         );
         $ret //= DW::Routing->call( uri => "/internal/api/404" );
         return $ret if defined $ret;

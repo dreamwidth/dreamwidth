@@ -68,11 +68,10 @@ sub param {
 sub body {
     my ( $self, $config ) = @_;
     $self->{requestBody}->{required} = $config->{required};
-    for my $ct ( keys( $config->{content} ) ) {
+    for my $ct ( keys( %{ $config->{content} } ) ) {
         my $param = DW::API::Parameter->define_body( $config->{content}->{$ct}, $ct );
         $self->{requestBody}{content}{$ct} = $param;
     }
-
 }
 
 # Usage: success ( desc, schema )
@@ -215,7 +214,8 @@ sub TO_JSON {
     for my $key ( keys %{ $self->{responses} } ) {
         $json->{responses}{$key} = { description => $responses->{$key}{desc} };
         for my $return_type ( keys %{ $self->{responses}{$key}{content} } ) {
-            $json->{responses}{$key}{content}{$return_type}{schema} = $responses->{$key}{content}{$return_type}{schema}
+            $json->{responses}{$key}{content}{$return_type}{schema} =
+                $responses->{$key}{content}{$return_type}{schema}
                 if defined $responses->{$key}{content}{$return_type}{schema};
         }
     }

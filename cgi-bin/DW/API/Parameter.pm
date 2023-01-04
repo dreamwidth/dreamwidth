@@ -87,7 +87,7 @@ sub _validate_json {
     croak "Must define at least one of content or schema!" unless $has_content || $has_schema;
 
     # Run schema validators
-    DW::Controller::API::REST::schema($self) if ( defined $self->{schema} );
+    DW::Controller::API::REST::schema($self) if defined $self->{schema};
 
     if ( defined $self->{content} ) {
         for my $content_type ( keys %{ $self->{content} } ) {

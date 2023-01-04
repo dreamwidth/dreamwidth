@@ -51,7 +51,7 @@ sub _spec_20 {
         openapi => '3.0.0',
         servers => [
             {
-                url => "$LJ::WEB_DOMAIN/api/v$ver"
+                url => "$LJ::SITEROOT/api/v$ver"
             },
         ],
         info => {

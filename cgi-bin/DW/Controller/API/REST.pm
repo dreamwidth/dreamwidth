@@ -2,7 +2,7 @@
 #
 # DW::Controller::API::REST
 #
-#
+# REST API.
 #
 # Authors:
 #      Allen Petersen <allen@suberic.net>
@@ -17,20 +17,23 @@
 package DW::Controller::API::REST;
 
 use strict;
-use warnings;
-use DW::Request;
-use DW::Routing;
-use DW::Controller;
-use DW::Controller::API;
-use DW::API::Parameter;
-use DW::API::Method;
-use DW::API::Key;
-use JSON;
-use YAML::XS qw'LoadFile';
-use JSON::Validator 'validate_json';
-use Hash::MultiValue;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ croak /;
+use Hash::MultiValue;
+use JSON;
+use JSON::Validator 'validate_json';
+use YAML::XS qw'LoadFile';
+
+use DW::API::Key;
+use DW::API::Method;
+use DW::API::Parameter;
+use DW::Controller;
+use DW::Controller::API;
+use DW::Request;
+use DW::Routing;
 
 our %API_DOCS   = ();
 our %TYPE_REGEX = (
@@ -38,7 +41,7 @@ our %TYPE_REGEX = (
     integer => '(\d+)',
     boolean => '(true|false)',
 );
-our %METHODS  = ( get => 1, post => 1, delete => 1 );
+our %METHODS  = ( get => 1, post => 1, delete => 1, put => 1 );
 our $API_PATH = "$ENV{LJHOME}/api/dist/";
 
 # Usage: path ( yaml_source_path, ver, hash_of_HTTP_handlers )
@@ -147,7 +150,7 @@ sub _dispatcher {
     my $r      = $rv->{r};
     my $keystr = $r->header_in('Authorization');
     my $apikey;
-    if ( defined($keystr) ) {
+    if ( defined $keystr ) {
         $keystr =~ s/Bearer (\w+)/$1/;
         $apikey = DW::API::Key->get_key($keystr);
     }
@@ -284,6 +287,11 @@ sub _validate_body {
     }
     elsif ( $content_type eq 'application/x-www-form-urlencoded' ) {
         $p = $r->post_args;
+    }
+    elsif ( $content_type eq 'application/octet-stream' ) {
+
+        # TODO: CHICKEN: IMPLEMENT
+        die "not implemented yet\n";
     }
     elsif ( $content_type eq 'multipart/form-data' ) {
 
