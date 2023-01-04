@@ -27,6 +27,7 @@ sub rest_get {
     my ( $self, $args ) = @_;
 
     my $u = LJ::load_user( $args->{path}{username} );
+    return $self->rest_error("404") unless defined $u;
 
     # if we're given a picid, try to load that userpic
     if ( defined( $args->{path}{picid} ) && $args->{path}{picid} ne "" ) {
