@@ -182,8 +182,9 @@
     # The expected location for compiled static assets; see bin/build-static.sh
     $STATDOCS = "$HOME/build/static";
 
-    # Set to true if this is a canary server. This causes very visible banner to appear
-    # on ever page rendered.
-    $IS_CANARY = 0
+    # Set to true if this is a canary server. This causes a very visible banner to appear
+    # on every page rendered.
+    $IS_CANARY = 0;
+}
 
 1;
