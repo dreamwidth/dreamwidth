@@ -1914,7 +1914,17 @@ property string[] module_navlinks_group {
 set module_navlinks_group = ["module_navlinks_show", "module_navlinks_order", "module_navlinks_section"];
 property bool module_navlinks_show { grouped = 1; }
 property int  module_navlinks_order { grouped = 1; }
-property string module_navlinks_section { grouped = 1; }
+property string module_navlinks_section { 
+    grouped = 1; }
+
+# Looks silly and redundant, but necessary to have the 'Header' section show up properly in the customization wizard
+# without allowing *every* module to be put in the header
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
+    grouped = 1;
+}
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
 
 property string[] module_calendar_group {
     des = "Calendar";
@@ -4907,6 +4917,7 @@ function Page::print()
                 <div class="inner">
                     """;
                     $this->print_header();
+                    $this->print_module_section("header");
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->

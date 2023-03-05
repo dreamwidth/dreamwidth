@@ -311,6 +311,33 @@ function Page::print_default_stylesheet() {
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
+    #for showing the navigation in the header
+    var string navlinks_css = "";
+    if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
+        #header > .inner:first-child { padding-bottom: 2em;
+            position: relative; }
+        .module-navlinks { text-align:right;}
+        .module-navlinks * {
+        display: inline !important;
+        background:  transparent !important;
+        border-left: none !important; }
+
+        /* Above standard link colors so hover and active still work */
+        .module-navlinks .module-content li a.current,
+        .module-navlinks .module-content li a.current:visited {
+            color: $*color_page_title;
+            text-decoration: none;
+        }
+
+        /* Extra specificity needed to override code below */
+        .module-navlinks .module-content li a { color: $*color_header_link; }
+        .module-navlinks .module-content li a:visited { color: $*color_header_link_visited; }
+        .module-navlinks .module-content li a:hover { color: $*color_header_link_hover; }
+        .module-navlinks .module-content li a:active { color: $*color_header_link_active; }
+
+        .module-navlinks .module-header { display: none !important; }
+        """; }
+    else { $navlinks_css = ""; }
 
      var string userpic_css = "";
          if ($*userpics_position == "right") {
@@ -876,5 +903,7 @@ ul.userlite-interaction-links.text-links {
 }
 
 $userpic_css
+
+$navlinks_css
     """;
 }
