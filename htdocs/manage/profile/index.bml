@@ -72,6 +72,7 @@ body<=
     # to store values before they undergo normalisation
     my %saved = ();
     $saved{'name'} = $u->{'name'};
+    $saved{'url'}  = $u->{'url'};
 
     # clean userprops
     foreach (values %$u) { LJ::text_out(\$_); }
@@ -732,7 +733,7 @@ body<=
             $u->set_interests( \@valid_ints );
         }
 
-        LJ::Hooks::run_hooks('profile_save', $u);
+        LJ::Hooks::run_hooks('profile_save', $u, \%saved, \%POST);
         LJ::Hooks::run_hook('set_profile_settings_extra', $u, \%POST);
 
         # tell the user all is well

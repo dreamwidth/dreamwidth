@@ -936,6 +936,43 @@ general /tools/endpoints/extacct_auth.bml.error.nouser
 
 general /tools/memadd.bml.body.added.body
 
+general /tools/tellafriend.bml.email.body
+general /tools/tellafriend.bml.email.body.boxtitle
+general /tools/tellafriend.bml.email.body.custom
+general /tools/tellafriend.bml.email.body.footer1
+general /tools/tellafriend.bml.email.body.otherjournal
+general /tools/tellafriend.bml.email.body.yourjournal
+general /tools/tellafriend.bml.email.formatinfo
+general /tools/tellafriend.bml.email.fromfield
+general /tools/tellafriend.bml.email.recipientfield
+general /tools/tellafriend.bml.email.sharedentry.title
+general /tools/tellafriend.bml.email.sharedentry.url
+general /tools/tellafriend.bml.email.subject.entryhassubject
+general /tools/tellafriend.bml.email.subject.entrynosubject
+general /tools/tellafriend.bml.email.subject.journal
+general /tools/tellafriend.bml.email.subject.noentry
+general /tools/tellafriend.bml.email.usemask.footer
+general /tools/tellafriend.bml.email.warning.otherpublic
+general /tools/tellafriend.bml.email.warning.private
+general /tools/tellafriend.bml.email.warning.usemask
+general /tools/tellafriend.bml.error.characterlimit
+general /tools/tellafriend.bml.error.disabled
+general /tools/tellafriend.bml.error.forbiddenimages
+general /tools/tellafriend.bml.error.forbiddenurl
+general /tools/tellafriend.bml.error.maximumemails
+general /tools/tellafriend.bml.error.noemail
+general /tools/tellafriend.bml.error.unknownjournal
+general /tools/tellafriend.bml.errorpage.body
+general /tools/tellafriend.bml.errorpage.title
+general /tools/tellafriend.bml.invalidemailpage.body
+general /tools/tellafriend.bml.invalidemailpage.title
+general /tools/tellafriend.bml.sendbutton
+general /tools/tellafriend.bml.sentpage.body.mailedlist
+general /tools/tellafriend.bml.sentpage.body.tellanother
+general /tools/tellafriend.bml.sentpage.title
+general /tools/tellafriend.bml.title
+general /tools/tellafriend.bml.via
+
 general /update.bml.update.about
 general /update.bml.login.success
 general /update.bml.htmlokay

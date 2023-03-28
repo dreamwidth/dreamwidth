@@ -1,0 +1,261 @@
+/* Intro borders */
+
+div#intro-box-main {
+  background-color: rgb(240, 240, 240);
+  float: left;
+  min-height: 160px;
+  width: 70%;
+  position: relative;
+}
+
+div#intro-border-main-top {
+  background-image: url(/img/tropo-red/homepage/intro-box-top.png);
+  background-position: top center;
+  background-repeat: repeat-x;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 12px;
+}
+
+div#intro-border-main-bottom {
+  background-image: url(/img/tropo-red/homepage/intro-box-bottom.png);
+  background-position: bottom center;
+  background-repeat: repeat-x;
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  height: 4px;
+}
+
+div#intro-border-main-topleft {
+  background-image: url(/img/tropo-red/homepage/intro-box-topleft.png);
+  background-position: top left;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 11px;
+  height: 12px;
+}
+
+div#intro-border-main-left {
+  background-image: url(/img/tropo-red/homepage/intro-box-left.png);
+  background-position: center left;
+  background-repeat: repeat-y;
+  position: absolute;
+  left: 0px;
+  width: 11px;
+  height: 100%;
+}
+
+div#intro-border-main-bottomleft {
+  background-image: url(/img/tropo-red/homepage/intro-box-bottomleft.png);
+  background-position: bottom left;
+  background-repeat: no-repeat;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  width: 353px;
+  height: 31px;
+}
+
+div#intro-border-main-topright {
+  background-image: url(/img/tropo-red/homepage/intro-box-topright.png);
+  background-position: top right;
+  background-repeat: no-repeat;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 44px;
+  height: 62px;
+}
+
+div#intro-border-main-right {
+  background-image: url(/img/tropo-red/homepage/intro-box-right.png);
+  background-position: center right;
+  background-repeat: repeat-y;
+  position: absolute;
+  right: 0px;
+  width: 6px;
+  height: 100%;
+}
+
+div#intro-border-main-bottomright {
+  background-image: url(/img/tropo-red/homepage/intro-box-bottomright.png);
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 256px;
+  height: 97px;
+}
+
+/* Create borders */
+
+div#intro-box-create {
+  background-color: rgb(197, 53, 60);
+  min-height: 160px;
+  float: right;
+  width: 30%;
+  position: relative;
+  text-align: center;
+}
+
+div#intro-border-create-bottom {
+  background-image: url(/img/tropo-red/homepage/create-box-bottom.png);
+  background-position: bottom center;
+  background-repeat: repeat-x;
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  height: 2px;
+}
+
+div#intro-border-create-top {
+  background-image: url(/img/tropo-red/homepage/create-box-top.png);
+  background-position: top center;
+  background-repeat: repeat-x;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 10px;
+}
+
+div#intro-border-create-topright {
+  background-image: url(/img/tropo-red/homepage/create-box-topright.png);
+  background-position: top right;
+  background-repeat: no-repeat;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 4px;
+  height: 11px;
+}
+
+div#intro-border-create-right {
+  background-image: url(/img/tropo-red/homepage/create-box-right.png);
+  background-position: center right;
+  background-repeat: repeat-y;
+  position: absolute;
+  right: 0px;
+  width: 3px;
+  height: 100%;
+}
+
+div#intro-border-create-bottomright {
+  background-image: url(/img/tropo-red/homepage/create-box-bottomright.png);
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 4px;
+  height: 3px;
+}
+
+/* Other stuff */
+
+div#intro-box {
+  width: 100%;
+  min-height: 160px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: sans-serif;
+  position: relative;
+  line-height: normal;
+}
+
+div#intro-box-main h1 {
+  color: rgb(197, 53, 60);
+  padding-left: 15px;
+  margin-top: 12px;
+  margin-bottom: 0.5em;
+  font-size: x-large;
+}
+
+div#intro-box-main p {
+  color: rgb(86, 86, 86);
+  padding-left: 15px;
+  padding-right: 4em;
+}
+
+div#intro-box-create h1 {
+  color: rgb(248, 248, 248);
+  padding-left: 15px;
+  margin-top: 12px;
+  margin-bottom: 0.5em;
+  font-size: x-large;
+}
+
+div#intro-box-create p {
+  color: rgb(248, 248, 248);
+  padding-left: 15px;
+  padding-right: 1em;
+}
+
+div#intro-box-create a {
+  color: white;
+}
+
+ul#create-links {
+  padding: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+ul#create-links li {
+/*  float: left; */
+  display: inline;
+  color: white;
+  font-size: 1.1em;
+  margin-right: 1.25em;
+}
+
+ul#create-links li:last-child,
+ul#create-links li.lastli {
+  margin-right: 0px;
+}
+
+ul#create-links a {
+  font-weight: bold;
+}
+
+form#intro-create-form {
+  padding-left: 15px;
+  margin-bottom: 0px;
+}
+
+input#intro-create-invite {
+  width: 95%;
+}
+
+input#intro-create-submit {
+  clear: both;
+  margin-top: 1em;
+  width: 10em;
+  font-weight: bold;
+}
+
+div#frontpage-links {
+  margin-top: 2em;
+}
+
+div.links-column {
+  width: 33%;
+  float: left;
+}
+
+div.links-column small {
+  font-size: smaller;
+}
+
+div.links-column dt {
+  font-weight: bold;
+}
+
+div.links-column dd {
+  margin-bottom: 1em;
+}

@@ -942,7 +942,6 @@ CREATE TABLE userusage (
     PRIMARY KEY (userid),
     timecreate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     timeupdate DATETIME,
-    timecheck DATETIME,
     lastitemid INT UNSIGNED NOT NULL DEFAULT '0',
 
     INDEX (timeupdate)
@@ -952,8 +951,8 @@ EOC
 post_create(
     "userusage",
     "sqltry" =>
-"INSERT IGNORE INTO userusage (userid, timecreate, timeupdate, timecheck, lastitemid) SELECT userid, timecreate, timeupdate, timecheck, lastitemid FROM user",
-    "sqltry" => "ALTER TABLE user DROP timecreate, DROP timeupdate, DROP timecheck, DROP lastitemid"
+"INSERT IGNORE INTO userusage (userid, timecreate, timeupdate, lastitemid) SELECT userid, timecreate, timeupdate, lastitemid FROM user",
+    "sqltry" => "ALTER TABLE user DROP timecreate, DROP timeupdate, DROP lastitemid"
 );
 
 register_tablecreate( "acctcode", <<'EOC');
@@ -2852,7 +2851,7 @@ CREATE TABLE sitekeywords (
 )
 EOC
 
-# this table is included, even though it's not used in the stock dw-free
+# this table is included, even though it's not used in the stock Dreamwidth
 # installation.  but if you want to use it, you can, or you can ignore it
 # and make your own which you might have to do.
 register_tablecreate( 'cc_trans', <<'EOC');
@@ -4211,6 +4210,11 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
         if ( column_default( 'subs', 'flags' ) ne '0' ) {
             do_alter( 'subs',
                 'ALTER TABLE subs MODIFY COLUMN flags SMALLINT UNSIGNED NOT NULL DEFAULT 0' );
+        }
+
+        if ( column_type( 'userusage', 'timecheck' ) ) {
+            do_alter( 'user',
+                'ALTER TABLE userusage DROP COLUMN timecheck, ALGORITHM=INPLACE, LOCK=NONE' );
         }
     }
 );

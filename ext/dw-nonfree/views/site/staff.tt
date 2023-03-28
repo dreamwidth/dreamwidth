@@ -1,0 +1,47 @@
+[%# site/staff.tt
+
+Some people involved in the Dreamwidth project.
+
+Authors:
+     Andrea Nall <anall@andreanall.com>
+     Denise Paolucci <denise@dreamwidth.org>
+
+Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
+
+This program is NOT free software or open-source; you can use it as an
+example of how to implement your own site-specific extensions to the
+Dreamwidth Studios open-source code, but you cannot use it on your site
+or redistribute it, with or without modifications.
+
+%][%-
+    sections.title='Our People'
+    o_keys = [ 'journal', 'community' ]
+    o_strings = {
+        'journal' => [ 'Official journal', 'Official journals' ],
+        'community' => [ 'Official community', 'Official communities' ],
+    }
+-%]
+<p>Our team has several decades of combined experience in social 
+networking architecture, design, and support. We're all passionate about 
+social networking, online community, and creating things that people 
+want to use.</p>
+
+[% FOREACH group IN groups -%]
+    <h2>[% group.name %]</h2>
+    [%- IF group.note %]<p>[% group.note %]</p><br />[% END -%]
+    [%- FOREACH who IN group.people -%]<div style="clear: both;">
+        <img src="[% who.img %]" style="float: left; padding: 5px;" />
+        [%- FOREACH paragraph IN who.bio -%]
+            
+            <p>[% IF loop.first %]<b>[% who.name %]</b> [% END %][% paragraph %]</p>
+        [%- END -%]
+        [%- IF who.official -%]
+            [%- FOREACH key IN o_keys -%]
+                <p>[%- FOREACH journal IN who.official.$key -%]
+                    [%- IF loop.first %][% IF loop.size == 1 %][% o_strings.$key.0 %][% ELSE %][% o_strings.$key.1 %][% END %]:[% END -%]
+                    [%- IF loop.last and !loop.first %] and[% END %] [% journal %][% IF !(loop.last) and loop.size > 2 %],[% END -%]
+                [%- END -%]</p>
+            [%- END -%]
+        [%- END -%]
+    </div>[%- END -%]
+[%- END -%]

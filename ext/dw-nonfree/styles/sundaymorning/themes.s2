@@ -1,0 +1,958 @@
+#NEWLAYER: sundaymorning/bluesunday
+layerinfo type = "theme";
+layerinfo name = "Blue Sunday";
+layerinfo redist_uniq = "sundaymorning/bluesunday";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#050505";
+set color_page_link = "#5bbaff";
+set color_page_link_active = "#889bff";
+set color_page_link_hover = "#6077ff";
+set color_page_link_visited = "#b468ff";
+set color_page_text = "#f4f4f4";
+set color_page_title = "#9bd5ff";
+set color_page_title_background = "#191919";
+set color_header_background = "#141414";
+set color_header_hover = "#9bd5ff";
+set color_header_hover_background = "#191919";
+set color_header_text = "#f4f4f4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#050505";
+set color_entry_border = "#141414";
+set color_entry_link = "#5bbaff";
+set color_entry_link_active = "#889bff";
+set color_entry_link_hover = "#6077ff";
+set color_entry_link_visited = "#b468ff";
+set color_entry_text = "#f4f4f4";
+set color_entry_title = "#f4f4f4";
+set color_entry_title_background = "#141414";
+set color_entry_title_border = "#141414";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#050505";
+set color_module_border = "#141414";
+set color_module_link = "#5bbaff";
+set color_module_link_active = "#889bff";
+set color_module_link_hover = "#6077ff";
+set color_module_link_visited = "#b468ff";
+set color_module_text = "#f4f4f4";
+set color_module_title = "#f4f4f4";
+set color_module_title_background = "#141414";
+set color_module_title_border = "#141414";
+set color_navigation_background = "#191919";
+set color_navigation_border = "#191919";
+set color_navigation_text = "#f4f4f4";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_url = "sundaymorning/bluesunday.png";
+
+
+#NEWLAYER: sundaymorning/brightersunday
+layerinfo type = "theme";
+layerinfo name = "Brighter Sunday";
+layerinfo redist_uniq = "sundaymorning/brightersunday";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#008280";
+set color_page_link_active = "#88d008";
+set color_page_link_hover = "#089604";
+set color_page_link_visited = "#e9570f";
+set color_page_text = "#0d0d0d";
+set color_page_title = "#0d0d0d";
+set color_page_title_background = "#93edf3";
+set color_header_background = "#c3f0f3";
+set color_header_hover = "#089604";
+set color_header_hover_background = "#d6f1f3";
+set color_header_text = "#008280";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d6f1f3";
+set color_entry_border = "#d6f1f3";
+set color_entry_link = "#008280";
+set color_entry_link_active = "#88d008";
+set color_entry_link_hover = "#089604";
+set color_entry_link_visited = "#e9570f";
+set color_entry_text = "#0d0d0d";
+set color_entry_title = "#0d0d0d";
+set color_entry_title_background = "#c3f0f3";
+set color_entry_title_border = "#d6f1f3";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d6f1f3";
+set color_module_border = "#d6f1f3";
+set color_module_link = "#008280";
+set color_module_link_active = "#88d008";
+set color_module_link_hover = "#089604";
+set color_module_link_visited = "#e9570f";
+set color_module_text = "#0d0d0d";
+set color_module_title = "#0d0d0d";
+set color_module_title_background = "#c3f0f3";
+set color_module_title_border = "#d6f1f3";
+set color_navigation_background = "#d6f1f3";
+set color_navigation_border = "#d6f1f3";
+set color_navigation_text = "#0d0d0d";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_url = "sundaymorning/brightersunday.png";
+
+
+#NEWLAYER: sundaymorning/greensquiggle
+layerinfo type = "theme";
+layerinfo name = "Green Squiggle";
+layerinfo redist_uniq = "sundaymorning/greensquiggle";
+layerinfo author_name = "regna";
+
+set layout_resources = [ { "name" => "Tuts+", "url" => "http://vector.tutsplus.com/freebies/vectors/free-vector-decorative-ornament/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e6f8e4";
+set color_page_link = "#538f4d";
+set color_page_link_hover = "#333";
+set color_page_link_visited = "#131";
+set color_page_text = "#666";
+set color_page_title = "#333";
+set color_page_title_background = "#c4c4c4";
+set color_header_background = "#fff";
+set color_header_hover = "#333";
+set color_header_hover_background = "#e7e7e7";
+set color_header_text = "#333";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#999";
+set color_entry_link = "#538f4d";
+set color_entry_link_hover = "#333";
+set color_entry_link_visited = "#131";
+set color_entry_text = "#333";
+set color_entry_title = "#333";
+set color_entry_title_background = "#c4c4c4";
+set color_entry_title_border = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7fcfe";
+set color_module_border = "#999";
+set color_module_link = "#538f4d";
+set color_module_link_hover = "#333";
+set color_module_text = "#333";
+set color_module_title = "#333";
+set color_module_title_background = "#e7e7e7";
+set color_module_title_border = "#999";
+set color_navigation_text = "#333000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "sundaymorning/greensquiggle.png";
+
+
+#NEWLAYER: sundaymorning/greenswirls
+layerinfo type = "theme";
+layerinfo name = "Green Swirls";
+layerinfo redist_uniq = "sundaymorning/greenswirls";
+layerinfo author_name = "regna";
+
+set layout_resources = [ { "name" => "Beeex.net", "url" => "http://beeex.net/freebies/vectors/vector-swooshes-and-swirls" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#599ea5";
+set color_page_link_hover = "#444";
+set color_page_link_visited = "#698e95";
+set color_page_text = "#666";
+set color_page_title = "#444";
+set color_page_title_background = "#b0e1e4";
+set color_header_background = "#e0f1e1";
+set color_header_hover = "#444";
+set color_header_hover_background = "#dceff0";
+set color_header_text = "#444";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#999";
+set color_entry_link = "#599ea5";
+set color_entry_link_hover = "#444";
+set color_entry_link_visited = "#698e95";
+set color_entry_text = "#444";
+set color_entry_title = "#444";
+set color_entry_title_background = "#e0f1e1";
+set color_entry_title_border = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7fcfe";
+set color_module_border = "#999";
+set color_module_link = "#599ea5";
+set color_module_link_hover = "#444";
+set color_module_text = "#444";
+set color_module_title = "#444";
+set color_module_title_background = "#e0f1e1";
+set color_module_title_border = "#999";
+set color_navigation_text = "#444000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "sundaymorning/greenswirls.png";
+
+
+#NEWLAYER: sundaymorning/lightondark
+layerinfo type = "theme";
+layerinfo name = "Light On Dark";
+layerinfo redist_uniq = "sundaymorning/lightondark";
+layerinfo author_name = "cesy";
+
+set theme_authors = [ { "name" => "cesy", "type" => "user" }];
+set layout_resources = [ { "name" => "Tuts+", "url" => "http://vector.tutsplus.com/freebies/vectors/free-vector-decorative-ornament/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#ddf";
+set color_page_link_active = "#fcc";
+set color_page_link_hover = "#cfc";
+set color_page_link_visited = "#ffc";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_page_title_background = "#000";
+set color_header_background = "#666";
+set color_header_hover = "#cfc";
+set color_header_hover_background = "#060";
+set color_header_text = "#ccc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#fff";
+set color_entry_link = "#ddf";
+set color_entry_link_active = "#fcc";
+set color_entry_link_hover = "#cfc";
+set color_entry_link_visited = "#ffc";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#000";
+set color_entry_title_border = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#000";
+set color_module_border = "#fff";
+set color_module_link = "#ddf";
+set color_module_link_active = "#fcc";
+set color_module_link_hover = "#cfc";
+set color_module_link_visited = "#ffc";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+set color_module_title_border = "#fff";
+set color_navigation_background = "#000";
+set color_navigation_border = "#fff";
+set color_navigation_text = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "sundaymorning/whitesquiggle.png";
+
+
+#NEWLAYER: sundaymorning/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo redist_uniq = "sundaymorning/nnwm2009";
+layerinfo author_name = "zvi";
+
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#842021";
+set color_page_link = "#429ace";
+set color_page_link_active = "#A5CF39";
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_text = "#fff";
+set color_page_title = "#ef8229";
+set color_header_background = "#ffefbd";
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffefbd";
+set color_module_text="#000";
+set color_module_title = "#ef8229";
+
+
+#NEWLAYER: sundaymorning/pinkswirls
+layerinfo type = "theme";
+layerinfo name = "Pink Swirls";
+layerinfo redist_uniq = "sundaymorning/pinkswirls";
+layerinfo author_name = "regna";
+
+set layout_resources = [ { "name" => "Beeex.net", "url" => "http://beeex.net/freebies/vectors/vector-swooshes-and-swirls" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e8eef1";
+set color_page_link = "#db127a";
+set color_page_link_hover = "#444";
+set color_page_link_visited = "#bb528a";
+set color_page_text = "#666";
+set color_page_title = "#fff";
+set color_page_title_background = "#f2a5cd";
+set color_header_background = "#f7fcfe";
+set color_header_hover = "#444";
+set color_header_hover_background = "#f0eaed";
+set color_header_text = "#444";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f7fcfe";
+set color_entry_border = "#999";
+set color_entry_link = "#db127a";
+set color_entry_link_hover = "#444";
+set color_entry_link_visited = "#bb528a";
+set color_entry_text = "#444";
+set color_entry_title = "#444";
+set color_entry_title_background = "#f0eaed";
+set color_entry_title_border = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7fcfe";
+set color_module_border = "#999";
+set color_module_link = "#e0197e";
+set color_module_link_hover = "#444";
+set color_module_text = "#444";
+set color_module_title = "#444";
+set color_module_title_background = "#f0eaed";
+set color_module_title_border = "#999";
+set color_navigation_text = "#444000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "sundaymorning/pinkswirls.png";
+
+
+#NEWLAYER: sundaymorning/purplesquiggle
+layerinfo type = "theme";
+layerinfo name = "Purple Squiggle";
+layerinfo redist_uniq = "sundaymorning/purplesquiggle";
+layerinfo author_name = "alyndra";
+
+set theme_authors = [ { "name" => "alyndra", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#49406c";
+set color_page_link = "#fed0fb";
+set color_page_link_hover = "#b6fcee";
+set color_page_link_visited = "#a5e4d6";
+set color_page_text = "#f1efdd";
+set color_page_title = "#f1efdd";
+set color_page_title_background = "#49406c";
+set color_header_background = "#49406c";
+set color_header_hover = "#b6fcee";
+set color_header_hover_background = "#49406c";
+set color_header_text = "#f1efdd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#49406c";
+set color_entry_border = "#49406c";
+set color_entry_link = "#4cedd2";
+set color_entry_link_hover = "#b6fcee";
+set color_entry_link_visited = "#a5e4d6";
+set color_entry_text = "#f1efdd";
+set color_entry_title = "#fed0fb";
+set color_entry_title_background = "#49406c";
+set color_entry_title_border = "#49406c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#49406c";
+set color_module_border = "#49406c";
+set color_module_link = "#fed0fb";
+set color_module_link_hover = "#b6fcee";
+set color_module_link_visited = "#a5e4d6";
+set color_module_text = "#f1efdd";
+set color_module_title = "#f1efdd";
+set color_module_title_background = "#49406c";
+set color_module_title_border = "#f1efdd";
+set color_navigation_background = "#49406c";
+set color_navigation_border = "#49406c";
+set color_navigation_text = "#f1efdd";
+
+##===============================
+## Fonts
+##===============================
+
+set font_module_heading_size = ".9";
+set font_module_heading_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "sundaymorning/greensquiggle.png";
+
+
+#NEWLAYER: sundaymorning/purpleswirls
+layerinfo type = "theme";
+layerinfo name = "Purple Swirls";
+layerinfo redist_uniq = "sundaymorning/purpleswirls";
+layerinfo author_name = "regna";
+
+set layout_resources = [ { "name" => "Beeex.net", "url" => "http://beeex.net/freebies/vectors/vector-swooshes-and-swirls" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#9675a7";
+set color_page_link_hover = "#444";
+set color_page_link_visited = "#8685b7";
+set color_page_text = "#666";
+set color_page_title = "#eee";
+set color_page_title_background = "#673e7b";
+set color_header_background = "#f7ebf4";
+set color_header_hover = "#444";
+set color_header_hover_background = "#e0d8e4";
+set color_header_text = "#444";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f7fcfe";
+set color_entry_border = "#999";
+set color_entry_link = "#9675a7";
+set color_entry_link_hover = "#444";
+set color_entry_link_visited = "#8685b7";
+set color_entry_text = "#666";
+set color_entry_title = "#444";
+set color_entry_title_background = "#e0d8e4";
+set color_entry_title_border = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7fcfe";
+set color_module_border = "#999";
+set color_module_link = "#9675a7";
+set color_module_link_hover = "#444";
+set color_module_text = "#444";
+set color_module_title = "#444";
+set color_module_title_background = "#f7ebf4";
+set color_module_title_border = "#999";
+set color_navigation_text = "#444000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "sundaymorning/purpleswirls.png";
+
+
+#NEWLAYER: sundaymorning/redcontrast
+layerinfo type = "theme";
+layerinfo name = "Red Contrast";
+layerinfo redist_uniq = "sundaymorning/redcontrast";
+layerinfo author_name = "ambrya";
+
+set theme_authors = [ { "name" => "ambrya", "type" => "user" }];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#5a0000";
+set color_page_link = "#fff499";
+set color_page_link_active = "#e2b586";
+set color_page_link_hover = "#e2b586";
+set color_page_link_visited = "#fff499";
+set color_page_text = "#82fa64";
+set color_page_title = "#82fa64";
+set color_header_hover = "#5a0000";
+set color_header_hover_background = "#82fa64";
+set color_header_text = "#82fa64";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#3c0000";
+set color_entry_border = "#82fa64";
+set color_entry_link = "#82fa64";
+set color_entry_link_active = "#c3ffb1";
+set color_entry_link_hover = "#c3ffb1";
+set color_entry_link_visited = "#82fa64";
+set color_entry_text = "#b7ff78";
+set color_entry_title_background = "#5a0000";
+set color_entry_title_border = "#82fa64";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#3c0000";
+set color_module_border = "#82fa64";
+set color_module_link = "#e2b586";
+set color_module_link_active = "#fff499";
+set color_module_link_hover = "#fff499";
+set color_module_link_visited = "#e2b586";
+set color_module_text = "#c3ffb1";
+set color_module_title_background = "#5a0000";
+set color_module_title_border = "#1a4918";
+
+
+#NEWLAYER: sundaymorning/redsquiggle
+layerinfo type = "theme";
+layerinfo name = "Red Squiggle";
+layerinfo redist_uniq = "sundaymorning/redsquiggle";
+layerinfo author_name = "regna";
+
+set layout_resources = [ { "name" => "Tuts+", "url" => "http://vector.tutsplus.com/freebies/vectors/free-vector-decorative-ornament/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffeeed";
+set color_page_link = "#8e2f2d";
+set color_page_link_hover = "#333";
+set color_page_link_visited = "#6e3f3d";
+set color_page_text = "#666";
+set color_page_title = "#eee";
+set color_page_title_background = "#8e2f2d";
+set color_header_background = "#fff";
+set color_header_hover = "#333";
+set color_header_hover_background = "#e5d4d4";
+set color_header_text = "#333";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#999";
+set color_entry_link = "#8e2f2d";
+set color_entry_link_hover = "#333";
+set color_entry_link_visited = "#6e3f3d";
+set color_entry_text = "#333";
+set color_entry_title = "#333";
+set color_entry_title_background = "#e5d4d4";
+set color_entry_title_border = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7fcfe";
+set color_module_border = "#999";
+set color_module_link = "#8e2f2d";
+set color_module_link_hover = "#333";
+set color_module_text = "#333";
+set color_module_title = "#333";
+set color_module_title_background = "#e5d4d4";
+set color_module_title_border = "#999";
+set color_navigation_text = "#333000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "sundaymorning/redsquiggle.png";
+
+
+#NEWLAYER: sundaymorning/seafoamsunday
+layerinfo type = "theme";
+layerinfo name = "Seafoam Sunday";
+layerinfo redist_uniq = "sundaymorning/seafoamsunday";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#050505";
+set color_page_link = "#2f9a3e";
+set color_page_link_active = "#4fdc45";
+set color_page_link_hover = "#f4f25c";
+set color_page_link_visited = "#589bb4";
+set color_page_text = "#f4f4f4";
+set color_page_title = "#237c96";
+set color_page_title_background = "#141414";
+set color_header_background = "#141414";
+set color_header_hover = "#f4f4f4";
+set color_header_hover_background = "#1e1e1e";
+set color_header_text = "#b8eaf7";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#050505";
+set color_entry_border = "#141414";
+set color_entry_link = "#2f9a3e";
+set color_entry_link_active = "#4fdc45";
+set color_entry_link_hover = "#f4f25c";
+set color_entry_link_visited = "#589bb4";
+set color_entry_text = "#f4f4f4";
+set color_entry_title = "#b8eaf7";
+set color_entry_title_background = "#141414";
+set color_entry_title_border = "#141414";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#050505";
+set color_module_border = "#141414";
+set color_module_link = "#2f9a3e";
+set color_module_link_active = "#4fdc45";
+set color_module_link_hover = "#f4f25c";
+set color_module_link_visited = "#589bb4";
+set color_module_text = "#f4f4f4";
+set color_module_title = "#b8eaf7";
+set color_module_title_background = "#141414";
+set color_module_title_border = "#141414";
+set color_navigation_background = "#141414";
+set color_navigation_border = "#141414";
+set color_navigation_text = "#b8eaf7";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_url = "sundaymorning/seafoamsunday.png";
+
+
+#NEWLAYER: sundaymorning/sundayhearts
+layerinfo type = "theme";
+layerinfo name = "Sunday Hearts";
+layerinfo redist_uniq = "sundaymorning/sundayhearts";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fefefe";
+set color_page_link = "#00a1e7";
+set color_page_link_active = "#00696c";
+set color_page_link_hover = "#56bce7";
+set color_page_link_visited = "#269e84";
+set color_page_text = "#0f0f0f";
+set color_page_title = "#0f0f0f";
+set color_header_background = "#effaeb";
+set color_header_hover = "#56bce7";
+set color_header_hover_background = "#edffe6";
+set color_header_text = "#0f0f0f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#effaeb";
+set color_entry_border = "#f2ffee";
+set color_entry_link = "#00a1e7";
+set color_entry_link_active = "#00696c";
+set color_entry_link_hover = "#56bce7";
+set color_entry_link_visited = "#269e84";
+set color_entry_text = "#0f0f0f";
+set color_entry_title = "#0f0f0f";
+set color_entry_title_background = "#edffe6";
+set color_entry_title_border = "#e4f5dd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#effaeb";
+set color_module_border = "#f2ffee";
+set color_module_link = "#00a1e7";
+set color_module_link_active = "#00696c";
+set color_module_link_hover = "#56bce7";
+set color_module_link_visited = "#269e84";
+set color_module_text = "#0f0f0f";
+set color_module_title = "#0f0f0f";
+set color_module_title_background = "#edffe6";
+set color_module_title_border = "#e4f5dd";
+set color_navigation_background = "#effaeb";
+set color_navigation_border = "#f2ffee";
+set color_navigation_text = "#0f0f0f";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_url = "sundaymorning/sundayhearts.png";
+
+
+#NEWLAYER: sundaymorning/sundaystars
+layerinfo type = "theme";
+layerinfo name = "Sunday Stars";
+layerinfo redist_uniq = "sundaymorning/sundaystars";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#050505";
+set color_page_link = "#f8f37e";
+set color_page_link_active = "#dc8670";
+set color_page_link_hover = "#fec181";
+set color_page_link_visited = "#c86565";
+set color_page_text = "#f4f4f4";
+set color_page_title = "#f4f4f4";
+set color_page_title_background = "#1e1e1e";
+set color_header_background = "#141414";
+set color_header_hover = "#fec181";
+set color_header_hover_background = "#1e1e1e";
+set color_header_text = "#f4f4f4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#050505";
+set color_entry_border = "#141414";
+set color_entry_link = "#f8f3af";
+set color_entry_link_active = "#dc8670";
+set color_entry_link_hover = "#fec181";
+set color_entry_link_visited = "#c86565";
+set color_entry_text = "#f4f4f4";
+set color_entry_title = "#f4f4f4";
+set color_entry_title_background = "#141414";
+set color_entry_title_border = "#141414";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#050505";
+set color_module_border = "#141414";
+set color_module_link = "#f8f37e";
+set color_module_link_active = "#dc8670";
+set color_module_link_hover = "#fec181";
+set color_module_link_visited = "#c86565";
+set color_module_text = "#f4f4f4";
+set color_module_title = "#f4f4f4";
+set color_module_title_background = "#141414";
+set color_module_title_border = "#141414";
+set color_navigation_background = "#1e1e1e";
+set color_navigation_border = "#1e1e1e";
+set color_navigation_text = "#fec181";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_url = "sundaymorning/sundaystars.png";
+
+
+#NEWLAYER: sundaymorning/tealdeer
+layerinfo type = "theme";
+layerinfo name = "Teal Deer";
+layerinfo redist_uniq = "sundaymorning/tealdeer";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+set layout_resources = [ { "name" => "Beeex.net", "url" => "http://beeex.net/freebies/vectors/vector-swooshes-and-swirls" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1693a5";
+set color_page_link = "#53ebff";
+set color_page_link_hover = "#003f4c";
+set color_page_link_visited = "#53ebff";
+set color_page_text = "#003f4c";
+set color_page_title = "#68b3ac";
+set color_page_title_background = "#003f4c";
+set color_header_background = "#003f4c";
+set color_header_hover_background = "#53ebff";
+set color_header_text = "#68b3ac";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#376970";
+set color_entry_border = "#003f4c";
+set color_entry_link = "#53ebff";
+set color_entry_link_hover = "#003f4c";
+set color_entry_link_visited = "#53ebff";
+set color_entry_text = "#68b3ac";
+set color_entry_title = "#5a9b93";
+set color_entry_title_background = "#003f4c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#376970";
+set color_module_border = "#003f4c";
+set color_module_link = "#53ebff";
+set color_module_link_hover = "#003f4c";
+set color_module_link_visited = "#53ebff";
+set color_module_text = "#68b3ac";
+set color_module_title = "#68b3ac";
+set color_module_title_background = "#003f4c";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "sundaymorning/tealdeer.png";
+
+
+#NEWLAYER: sundaymorning/yellowsquiggle
+layerinfo type = "theme";
+layerinfo name = "Yellow Squiggle";
+layerinfo redist_uniq = "sundaymorning/yellowsquiggle";
+layerinfo author_name = "regna";
+
+set layout_resources = [ { "name" => "Tuts+", "url" => "http://vector.tutsplus.com/freebies/vectors/free-vector-decorative-ornament/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f5f8e4";
+set color_page_link = "#998a8e";
+set color_page_link_hover = "#333";
+set color_page_link_visited = "#797a7e";
+set color_page_text = "#666";
+set color_page_title = "#333";
+set color_page_title_background = "#ccc6be";
+set color_header_background = "#fff";
+set color_header_hover = "#333";
+set color_header_hover_background = "#e6dfd6";
+set color_header_text = "#333";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#999";
+set color_entry_link = "#998a8e";
+set color_entry_link_hover = "#333";
+set color_entry_link_visited = "#797a7e";
+set color_entry_text = "#333";
+set color_entry_title = "#333";
+set color_entry_title_background = "#cbc5bd";
+set color_entry_title_border = "#ddd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7fcfe";
+set color_module_border = "#999";
+set color_module_link = "#998a8e";
+set color_module_link_hover = "#333";
+set color_module_text = "#333";
+set color_module_title = "#333";
+set color_module_title_background = "#cbc5bd";
+set color_module_title_border = "#999";
+set color_navigation_text = "#333000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "sundaymorning/yellowsquiggle.png";

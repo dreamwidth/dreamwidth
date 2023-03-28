@@ -181,6 +181,13 @@
 
 #inbox_folders li {
   margin-bottom: 0;
+  ul {
+    margin-top: 0;
+  }
+}
+
+#inbox_folders .links {
+  margin-bottom: 1em;
 }
 
 #inbox_messages {
@@ -218,10 +225,6 @@
   grid-area: message;
   overflow-wrap: anywhere;
   word-break: normal;
-}
-
-.read {
-  opacity: 0.5;
 }
 
 .inbox_collapse {

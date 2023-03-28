@@ -1,0 +1,596 @@
+/** Tropospherical Red CSS
+ *
+ * Authors:
+ *     Janine Smith <janine@netrophic.com>
+ *     Jesse Proulx <jproulx@jproulx.net>
+ *     Elizabeth Lubowitz <grrliz@gmail.com>
+ *     Denise Paolucci <denise@dreamwidth.org>
+ *
+ * Copyright (c) 2009 by Dreamwidth Studios, LLC.
+ *
+ * This program is NOT free software or open-source; you can use it as an
+ * example of how to implement your own site-specific extensions to the
+ * Dreamwidth Studios open-source code, but you cannot use it on your site
+ * or redistribute it, with or without modifications.
+ *
+ */
+
+/**
+ * Dreamwidth Site Scheme
+ *
+ * Standard layout for Dreamwidth
+ *
+ * Mockups designed by grrliz, hence grrliz.css
+ *
+ * @project         Dreamwidth Site Design
+ * @author          Jesse Proulx
+ * @date            2009-01-07
+ * @version         Alpha
+ * @revision        $Revision$
+ * @copyright       Copyright (c) 2009 by Dreamwidth Studios, LLC
+ *
+ * @colordef        #f7f7f7 Almost White (body background)
+ * @colordef        #111111 Almost Black (copy)
+ */
+
+body {
+    background-color: #f7f7f7;
+    color: #111;
+}
+
+/**
+ * Links and a pseudo link class
+ */
+
+a:link,
+.link {
+    color: #c1272d;
+}
+a:visited {
+    color: #8b0000;
+}
+a:hover,
+a:active,
+.link:hover {
+    color: #f4717a;
+}
+#canvas {
+    background-color: #f7f7f7;
+    border-color: #c1272d;
+}
+
+/**
+ * Menu navigation
+ */
+
+nav {
+    background: #ddd url(/img/tropo-red/bg_menu_gradient.png) repeat-x;
+}
+nav ul li.topnav a {
+    background: transparent url(/img/tropo-red/icon_menu_swirl.png) 0.833333em 0.916667em no-repeat;
+    color: #111;
+}
+/* .hover is a class added by js for the currently hovered/focused menu */
+nav ul li.hover a {
+    background: #f4717a url(/img/tropo-red/icon_menu_swirl_dropdown.png) 0.833333em 0.916667em no-repeat;
+    color: #fff;
+}
+nav ul li.hover a:hover {
+    background-color: #c1272d;
+}
+nav ul li.hover ul {
+    background-color: #f4717a;
+}
+
+/**
+ * Footer
+ */
+
+footer {
+    background: #ddd url(/img/tropo-red/bg_footer_gradient.png) repeat-x;
+}
+
+/**
+ * #content houses the page-specific innards, and creates margins for the absolutely
+ * positioned masthead and footer
+ */
+
+#content h1 {
+    color: #c1272d;
+}
+#content h2 {
+    color: #c1272d;
+}
+
+/**
+ * Content Layouts
+ *
+ * Content layouts are determined based on the class assigned to #content. Potential layouts include:
+ * -- wide sidebars
+ * -- thin sidebars
+ * -- equal width/height columns
+ * -- full page (default)
+ *
+ * Columns/rows inside of #content are named primary, secondary, tertiary, etc and
+ * content is placed inside based on order of importance.
+ */
+
+/**
+ * Panels are generic boxes for divs inside of #content
+ */
+
+#content #primary .panel,
+#content #secondary .panel {
+    border-color: #ccc;
+}
+#content .panel .sidebar,
+#content .panel .contents,
+#content .panel .item,
+#content .panel .actions {
+    border-color: #ccc;
+}
+#content #primary .panel h2 {
+    color: #c1272d;
+    border-bottom: 1px solid #ccc;
+}
+#content #secondary .panel h2 {
+    color: #c1272d;
+    border-bottom: 1px solid #ccc;
+}
+
+/**
+ * Panels have different styles for different content layouts
+ */
+
+.layout-wide-right-sidebar #primary .panel .contents {
+    border-left: 1px solid #ccc;
+}
+
+/**
+ * Scheme-specific blocks
+ */
+
+#shim-alpha {
+    background: #fff;
+    border-top: 0.5em solid #e3e3e3;
+    border-bottom: 0.5em solid #f4717a;
+}
+
+/* generic classes */
+
+.disabled {
+    color: #999 !important;
+    background-color: #ddd !important;
+    border-color: #ccc !important;
+}
+.read, .inactive {
+    color: #888;
+}
+.read:hover {
+    color: #000;
+}
+.read a, .inactive a {
+    color: #999 !important;
+}
+.read:hover a {
+    color: inherit !important;
+}
+
+.detail {
+    color: #555;
+}
+.status-hint {
+    color: #ccc;
+}
+
+.tablist .tab a {
+    color: #000;
+    background: #f4717a;
+    border-color: #c1272c;
+}
+.tablist .tab a:hover, .tablist .tab a.active {
+    background: #ffd8d8;
+}
+
+.tab-header {
+    background: #ffd8d8;
+    border-color: #ffd8d8;
+}
+.tab-container {
+  background-color:#fff;
+  border: 1px solid #c1272c;
+  border-top: none;
+}
+
+.action-bar {
+    text-align: center;
+    background-color: #ffd8d8;
+}
+.action-box ul {
+    color: #111;
+    background-color: #ffafb6;
+    border: 1px solid #c1272d;
+}
+
+.action-box .inner, .comment-page-list {
+    color: #111;
+    background-color: #ffafb6;
+    border: 1px solid #c1272d;
+}
+
+.select-list input {
+    color: #fff;
+    background: #f4717a;
+    border: 2px solid #f6828b;
+    border-bottom: 2px solid #c1272d;
+    border-right: 2px solid #c1272d;
+}
+.select-list input:active {
+    color: #eee;
+    background: #f9818a;
+    border: 2px solid #c1272d;
+    border-bottom: 2px solid #f6828b;
+    border-right: 2px solid #f6828b;
+}
+
+.highlight-box {
+    border: 1px solid;
+}
+.highlight, .highlight-box {
+    border-color: #c1272c;
+    background-color: #ffd8d8;
+    color: #000;
+}
+.searchhighlight {
+    background: #ffd8d8;
+    color: #000;
+    padding: 0.2em;
+    font-weight: bold;
+}
+.inset-box {
+    background-color: #fff;
+    border-right: 1px solid #f4717a;
+    border-bottom: 1px solid #f4717a;
+    color: #777;
+    padding: 3px 5px;
+}
+.warning-box {
+    border: 1px solid #c1272d;
+    background-color: #ffd8d8;
+    color: #000;
+}
+.error-box, .alert-box {
+    color: #000;
+    background-color: #fcf6db;
+    border: 1px solid #ffdfc0;
+}
+
+.odd, tr.odd th, tr.odd td {
+    background-color: #f7f7f7;
+}
+.even, tr.even th, tr.even td,
+thead th, tfoot td {
+    background-color: #efefef;
+}
+.column-table tbody th {
+    color: #777;
+    background-color: #fbfbfb;
+    border-right: 1px solid #cdcdcd;
+}
+table caption {
+    color:#C1272D;
+}
+
+table.grid, table.grid td {
+    border: 1px solid #999;
+}
+
+.select-list li, .NotificationTable td {
+    border-color: #ccc;
+}
+.select-list li img {
+    border-color: #c1272c;
+}
+.selected, .select-list li.selected, tr.selected td {
+    background-color: #ffd8d8;
+    border-color: #c1272c;
+}
+
+form, fieldset, legend, legend span {
+    border-color: #c1272c;
+}
+
+.simple-form .error input, form .error input {
+    border: 3px solid #ff0000;
+}
+.simple-form .error .error-msg, form .error .error-msg {
+    color: #ff0000;
+    display: block;
+}
+.hint-input {
+    color: #777;
+    border: 1px solid #ccc;
+}
+.hint-input:focus {
+    color: #000;
+    border: 1px solid #999;
+}
+.multiple-select {
+    background-color: #eee;
+}
+
+.table-form table {
+  background-color:#F7F7F7;
+}
+
+.section-nav {
+    background-color: #ffd8d8;
+}
+.section-nav li a, .section-nav ul, .section-nav li, .section-nav-separator {
+    border-color: #c1272c;
+}
+.section-nav-content {
+    border-color: #c1272c;
+}
+.section-nav li.on {
+    background-color: #f7f7f7;
+}
+.section-nav li a:visited {
+    color: #c1272c;
+}
+.section-nav-inner-wrapper {
+    background: url("/img/tropo-red/tropred-borderpixel.gif") repeat-y scroll 134px 50%;
+}
+
+.collapsible .collapse-button {
+    width: 20px;
+}
+.collapsible.collapsed .collapse-button {
+    background-image: url("/img/tropo-red/tropred-arrow-right.gif");
+}
+.collapsible.expanded .collapse-button {
+    background-image: url("/img/tropo-red/tropred-arrow-down.gif");
+}
+
+.header {
+    background: #ddd;
+}
+
+.subheader {
+    background-color: #ffd8d8;
+    border-bottom: 1px solid #c1272c;
+}
+
+.preview-image {
+     border: 1px solid #fff;
+}
+
+/* post page */
+.token:hover, .token.hover, .token:focus, .token.focus {
+    color: #c1272c;
+    border-color: #b66;
+}
+
+.token .token_remove:hover, .token .token_remove:focus {
+     color: #c1272c;
+     background-color: #ffd8d8;
+}
+#iconselector_icons_list li:hover, .kwmenu .selected, #iconselector_icons_list .iconselector_selected {
+    border-color: #c1272d;
+}
+.slidecontrols a:hover {
+    color: #b63333;
+}
+
+.ui-widget-header, a.component-header-hover {
+    color: #C1272D;
+}
+
+/* contextualhover.css */
+div.ContextualPopup div.Inner {
+    background-color: #fff !important;
+    color: #000 !important;
+    border: 1px solid #c1272c;
+}
+div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
+    color: #c1272c !important;
+}
+
+.ippu {
+    color: #000;
+}
+.ippu .track_title {
+    color: #f4717a;
+}
+
+/**
+ * Temporary page-specific styling
+ * /
+
+/* Comments */
+
+.talkform .disabled {
+    background: transparent !important;
+}
+
+/*S2 talkpage*/
+.comment .link, .entry .link {color: #111;} /*resets color so :before and :after elements don't get the anchor color*/
+
+.comment-depth-odd > .dwexpcomment .header {
+    border-bottom: 1px solid #c1272c;
+    border-right: 1px solid #c1272c;
+    background-color: #c0c0c0;
+}
+.comment-depth-even > .dwexpcomment .header {
+    border-bottom: 1px solid #f4717a;
+    border-right: 1px solid #f4717a;
+    background-color: #e2e2e2;
+}
+
+.screened .header{ background-color: #C29B9B !important;}
+
+/*bml talkpage*/
+
+
+.talkform .disabled {
+    background: transparent !important;
+}
+
+.cmtbar.odd {
+    border-bottom: 1px solid #c1272c;
+    border-right: 1px solid #c1272c;
+}
+.cmtbar.even {
+    border-bottom: 1px solid #f4717a;
+    border-right: 1px solid #f4717a;
+}
+td.odd { background-color: #c0c0c0; }
+td.even { background-color: #e2e2e2; }
+td.screened { background-color: #C29B9B !important;}
+
+/* inbox */
+.folders a {
+    color: #000;
+    border: 1px solid #fff;
+}
+.folders a.selected {
+    background: #ffd8d8;
+    border-color: #bbb;
+}
+.folders a:hover {
+    border-color: #bbb;
+    background: #eee;
+}
+
+/* profile.css */
+.section, .actions li {
+    background-color: #f7f7f7;
+    border-bottom: 1px dotted #666;
+    border-left: 1px dotted #666;
+    color: #c1272d;
+}
+.section span.section_link {
+    color: #000;
+}
+.section_body .inner_section_header {
+    color: #111;
+}
+.section_body_title {
+    color: #111;
+}
+.profile th {
+    color: #111;
+}
+
+/* lj_settings.css */
+.section_head, div.username {
+    background-color: #d1ced2;
+    color: #333;
+    border-bottom: 1px solid #c1272c;
+}
+.field_block .field_name {
+    color: #333;
+    background-color: #eee;
+}
+
+/* esn.css */
+.CategoryRow td {
+    border-bottom: 1px solid #ddd;
+}
+
+/* community/settings */
+.community-settings legend {
+    color: #c1272d;
+    }
+
+/* Shop pages */
+.shop-item-highlight {
+    border: 1px solid #c1272c;
+}
+
+/* entry.css */
+a#lj_userpicselect {color: #c1272c;}
+#lj_userpicselect_img {border: 1px solid #fff;}
+#lj_userpicselect_img:hover {border: 1px solid #c1272c;}
+#lj_userpicselect_img_txt {color: #c1272c !important;}
+#userpic_preview_image.userpic_loggedout {border: 1px solid #c1272c;}
+.userpic_preview_border {border: 1px solid #ccc;}
+#infobox {border-left: 1px solid #000;}
+#compose-entry {border-bottom: 1px solid #bbb;}
+#compose-entry ul li a {background-color: #fff;border: 1px solid #f4717a;border-bottom: none;}
+#compose-entry ul li.on a {border-bottom: 1px solid #fff;}
+#draft-container {border: 1px solid #bbb;border-top: none;}
+#draftstatus {background-color: #fff;}
+#spellcheck-results {border: 1px solid #f4717a; background-color: #fff;}
+#htmltools {border-right: 1px solid #bbb;border-left: 1px solid #bbb;background: #fff;}
+#htmltools ul {border-bottom: 1px solid #8d8d8d;}
+#options, #public {border: 1px solid #bbb;background-color: #eee;}
+#public {color:#666;}
+#submitbar {background-color: #ddd;border: 1px solid #aaa;}
+
+/* create flow */
+.appwidget-createaccountprogressmeter .step-block-active { color: #fff; background-color: #c1272d; }
+.appwidget-createaccountprogressmeter .step-block-inactive { color: #fff; background-color: #f4717a; }
+.appwidget-createaccountprogressmeter .step-selected, .appwidget-createaccountprofile .header { color: #c1272d; }
+.appwidget-createaccountprogressmeter .step-previous { color: #f4717a; }
+.appwidget-createaccountprogressmeter .step-next { color: #666; }
+.appwidget-createaccountprofile .field-name { background-color: #e0e0e0; }
+
+/* Profile */
+.username {
+    border-bottom: 1px solid #c7e0f6;
+    background-color: #ecf6ff;
+}
+
+/* lj_base-app.css */
+hr.hr {
+    color: #c1272d;
+    background-color: #c1272d;
+}
+.appwidget .more-link {
+    color: #c1272d !important;
+    background: url('/img/arrow-double-black.gif') no-repeat 0 60%;
+}
+.arrow-link,
+.more-link {
+    background: url('/img/arrow-double-black.gif') no-repeat 0 50%;
+}
+.message {
+    border: 5px solid #eee;
+}
+.message blockquote {
+    border: 1px solid #aaa;
+}
+.helper {
+    color: #666;
+}
+
+/* MonthPage */
+
+#archive-month .navigation li, #archive-month .navigation a { display: inline; }
+
+#archive-month .navigation a {
+    font-weight: bold;
+    background-color: transparent;
+    color: #C1272D;
+}
+
+#archive-month .navigation a:visited {
+    color: #8b0000;
+}
+#archive-month .navigation a:hover,
+#archive-month .navigation a:active {
+    color: #f4717a;
+}
+
+#archive-month .highlight-box {margin: auto; text-align: center;display: inline-block;}
+#archive-month {text-align: center;}
+#archive-month .month {text-align: left;}
+#archive-month h3.entry-title {display: inline; font-size:1em;font-weight: normal;}
+
+#archive-month .entry-title, #archive-month .access-filter, #archive-month .poster {margin-left:1em;}
+#archive-month .empty {margin: 0;}
+#archive-month .datetime {font-style: italic;}
+#archive-month .tag li {display: inline; list-style:none;}
+
+

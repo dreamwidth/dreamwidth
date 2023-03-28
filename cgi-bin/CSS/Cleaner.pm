@@ -89,11 +89,6 @@ sub _stupid_clean {
         return;
     }
 
-    if ( $reduced =~ /[\x7f-\xff]/ ) {
-        $$ref = "/* suspect CSS: high bytes */";
-        return;
-    }
-
     # returns 1 if something bad was found
     my $check_for_bad = sub {
         if ( $reduced =~ m!<\w! ) {

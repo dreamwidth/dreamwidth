@@ -822,12 +822,9 @@ sub set_cookie {
     # expires can be absolute or relative.  this is gross or clever, your pick.
     $expires += time() if $expires && $expires <= 1135217120;
 
-    if ($delete) {
-
-        # set expires to 5 seconds after 1970.  definitely in the past.
-        # so cookie will be deleted.
-        $expires = 5 if $delete;
-    }
+    # set expires to 5 seconds after 1970.  definitely in the past.
+    # so cookie will be deleted.
+    $expires = 5 if $delete;
 
     $r->add_cookie(
         name     => $key,

@@ -417,13 +417,17 @@ sub tellafriend_handler {
         $u->{'emailpref'} = $u->site_email_alias;
     }
 
+    my $news_journal = LJ::load_user($LJ::NEWS_JOURNAL);
+    my $news_url     = LJ::isu($news_journal) ? $news_journal->journal_base : '';
+    my $footer_ml    = LJ::isu($news_journal) ? 'footer.news' : 'footer';
+
     my $msg_footer = LJ::Lang::ml(
-        "$scope.email.body.footer1",
+        "$scope.email.body.$footer_ml",
         {
             user          => $u->{user},
             sitename      => $LJ::SITENAME,
             sitenameshort => $LJ::SITENAMESHORT,
-            domain        => $LJ::DOMAIN
+            news_url      => $news_url
         }
     );
     my $custom_msg = "\n\n" . LJ::Lang::ml( "$scope.email.body.custom", { user => $u->{user} } );
@@ -446,12 +450,13 @@ sub tellafriend_handler {
         }
 
         # Check for images
-        if ( $post_args->{'body'} =~ /<(img|forbiddenimages)\s+src/i ) {
+        my $custom_body = $post_args->{'body'} // '';
+        if ( $custom_body =~ /<(img|image)\s+src/i ) {
             $errors->add( 'body', ".error.forbiddenimages" );
         }
 
         # Check for external URLs
-        foreach ( LJ::get_urls( $post_args->{'body'} ) ) {
+        foreach ( LJ::get_urls($custom_body) ) {
             if ( $_ !~ m!^https?://([\w-]+\.)?$LJ::DOMAIN(/.*)?$!i ) {
                 $errors->add( 'body', ".error.forbiddenurl", { sitename => $LJ::SITENAME } );
             }
@@ -465,32 +470,36 @@ sub tellafriend_handler {
             # All valid, go ahead and send
 
             my $msg_body = $post_args->{'body_start'};
-            if ( $post_args->{'body'} ne '' ) {
-                $msg_body .= $custom_msg . "\n-----\n" . $post_args->{'body'} . "\n-----";
+            if ( $custom_body ne '' ) {
+                $msg_body .= $custom_msg . "\n-----\n" . $custom_body . "\n-----";
             }
             $msg_body .= $msg_footer;
 
             LJ::send_mail(
                 {
                     'to'       => $toemail,
-                    'from'     => $u->{'emailpref'},
+                    'from'     => $LJ::BOGUS_EMAIL,
                     'fromname' => $u->user . LJ::Lang::ml("$scope.via") . " $LJ::SITENAMESHORT",
                     'charset'  => 'utf-8',
                     'subject'  => $post_args->{'subject'},
                     'body'     => $msg_body,
+                    'headers'  => {
+                        'Reply-To' => qq{"$u->{user}" <$u->{emailpref}>},
+                    }
                 }
             );
 
             my $tolist = $toemail;
             $tolist =~ s/(,\s*)/<br \/>/g;
-            $r->add_msg( LJ::Lang::ml('$scope.sentpage.body.mailedlist') . "<br />" . $tolist,
+            $r->add_msg( LJ::Lang::ml("$scope.sentpage.body.mailedlist") . "<br />" . $tolist,
                 $r->SUCCESS );
         }
     }
 
     my ( $subject, $msg );
     $subject = LJ::Lang::ml("$scope.email.subject.noentry");
-    if ( $itemid =~ /^\d+$/ ) {
+    $msg     = '';
+    if ( defined $itemid && $itemid =~ /^\d+$/ ) {
         my $uj = LJ::load_user($journal);
         return error_ml("$scope.error.unknownjournal") unless $uj;
 
@@ -532,7 +541,7 @@ sub tellafriend_handler {
             { sitenameshort => $LJ::SITENAMESHORT } );
     }
 
-    if ( $get_args->{'user'} =~ /^\w{1,$LJ::USERNAME_MAXLENGTH}$/ ) {
+    if ( defined $get_args->{'user'} && $get_args->{'user'} =~ /^\w{1,$LJ::USERNAME_MAXLENGTH}$/ ) {
         my $user = $get_args->{'user'};
         my $uj   = LJ::load_user($user);
         my $url  = $uj->journal_base;
@@ -564,12 +573,12 @@ sub tellafriend_handler {
     my $vars = {
         'u'                  => $u,
         'errors'             => $errors,
-        'formdata'           => $r->post_args || $default_formdata,
+        'formdata'           => $r->did_post ? $r->post_args : $default_formdata,
         'display_msg'        => $display_msg,
         'display_msg_footer' => $display_msg_footer,
         'email_checkbox'     => $email_checkbox
     };
-    return DW::Template->render_template( 'tools/emailmanage.tt', $vars );
+    return DW::Template->render_template( 'tools/tellafriend.tt', $vars );
 }
 
 1;

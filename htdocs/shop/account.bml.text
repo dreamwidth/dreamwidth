@@ -9,6 +9,26 @@
 
 .error.noselection=You must select an item to add to your cart.
 
+.error.premiumconvert<<
+<p>
+The selected account is currently a premium paid account, but you've chosen
+to purchase regular paid time. A premium paid account can't be downgraded to a
+paid account. If you choose to proceed, the paid time you purchase will be
+converted to premium paid time at our standard conversion rate of 70% when it's applied
+to the account, granting [[premium_num]] more days of premium paid time instead of
+the [[paid_num]] more days you might have expected.
+</p>
+.
+
+.error.premiumconvert.postdate<<
+<p>
+If you want to renew the account as a paid account, instead of a premium paid account,
+you'll need to adjust your order so that the paid time is scheduled to be applied on
+or after the account's expiration date of [[date]]. Doing this may result in up to a
+day's wait before the paid time is applied to the account.
+</p>
+.
+
 .giftfor.anonymous=Do you want to make this an anonymous gift?
 
 .giftfor.deliverydate=Delivery date:
@@ -28,6 +48,8 @@
 .intro.random=Please choose the type of paid account that you'd like to purchase for a random active free account.
 
 .intro.self=Please choose the type of <a [[aopts]]>Paid Account</a> that you'd like to purchase for your account [[user]].
+
+.premiumconvert.agree=Yes, I want to purchase standard paid time for this premium paid account, which will be converted to a smaller amount of premium paid time if it is applied before the account expires.
 
 .title=Buy a Paid Account
 

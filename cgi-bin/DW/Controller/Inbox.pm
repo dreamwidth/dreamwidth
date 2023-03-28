@@ -25,7 +25,6 @@ use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
 use LJ::Hooks;
-use Data::Dumper;
 
 DW::Routing->register_string( '/inbox/new',          \&index_handler,    app => 1 );
 DW::Routing->register_string( '/inbox/new/compose',  \&compose_handler,  app => 1 );
@@ -133,6 +132,7 @@ sub index_handler {
     elsif ( $view eq "singleentry" ) {
         $mark_all_text   = "widget.inbox.menu.mark_all_read.entry.btn";
         $delete_all_text = "widget.inbox.menu.delete_all.entry.btn";
+        $vars->{itemid}  = $itemid;
     }
     else {
         $mark_all_text   = "widget.inbox.menu.mark_all_read.subfolder.btn";
@@ -142,6 +142,9 @@ sub index_handler {
     $vars->{mark_all}   = $mark_all_text;
     $vars->{delete_all} = $delete_all_text;
     $vars->{img}        = &LJ::img;
+
+    # TODO: Remove this when beta is over
+    $vars->{dw_beta} = LJ::load_user('dw_beta');
 
     return DW::Template->render_template( 'inbox/index.tt', $vars );
 }
@@ -153,7 +156,7 @@ sub render_items {
         or return error_ml( "/inbox/index.tt.error.couldnt_retrieve_inbox",
         { 'user' => $remote->{user} } );
     my $starting_index = ( $page - 1 ) * $PAGE_LIMIT;
-    my $ending_index   = $starting_index + $PAGE_LIMIT;
+    my $ending_index   = $starting_index - 1 + $PAGE_LIMIT;
     my @display_items  = @$items_ref;
     @display_items = sort { $b->when_unixtime <=> $a->when_unixtime } @display_items;
     @display_items = @display_items[ $starting_index .. $ending_index ];
@@ -369,6 +372,7 @@ sub items_by_view {
     else {
         @all_items = $inbox->all_items;
     }
+
     return \@all_items;
 }
 

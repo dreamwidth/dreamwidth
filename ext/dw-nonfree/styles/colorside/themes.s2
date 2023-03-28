@@ -1,0 +1,576 @@
+#NEWLAYER: colorside/atom
+layerinfo type = "theme";
+layerinfo name = "Atom";
+layerinfo redist_uniq = "colorside/atom";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#333";
+set color_page_link = "#CC0202";
+set color_page_link_visited = "#A40101";
+set color_page_text = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_title_background = "#919191";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#919191";
+set color_module_link = "#fff";
+set color_module_text = "#fff";
+set color_module_title = "#000";
+set color_module_title_background = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 250;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/atom.jpg";
+
+
+#NEWLAYER: colorside/cactus
+layerinfo type = "theme";
+layerinfo name = "Cactus";
+layerinfo redist_uniq = "colorside/cactus";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#8db640";
+set color_page_details_text = "#000";
+set color_page_link = "#dd2d15";
+set color_page_link_active = "#8db640";
+set color_page_link_hover = "#8db640";
+set color_page_link_visited = "#dd2d15";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_header_background = "#fff";
+set color_footer_background = "#fff";
+set color_footer_link = "#dd2d15";
+set color_footer_link_active = "#8fb429";
+set color_footer_link_hover = "#8fb429";
+set color_footer_link_visited = "#dd2d15";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#fff";
+set color_entry_interaction_links = "#dd2d15";
+set color_entry_link = "#dd2d15";
+set color_entry_link_active = "#8fb429";
+set color_entry_link_hover = "#8fb429";
+set color_entry_link_visited = "#dd2d15";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_entry_title_background = "#aebaae";
+set color_comment_title = "#000";
+set color_comment_title_background = "#aebaae";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#aebaae";
+set color_module_border = "#aebaae";
+set color_module_link = "#dd2d15";
+set color_module_link_active = "#8db640";
+set color_module_link_hover = "#8db640";
+set color_module_link_visited = "#dd2d15";
+set color_module_text = "#000";
+set color_module_title = "#000";
+set color_module_title_background = "#fff";
+
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 300;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/cactus.png";
+
+
+#NEWLAYER: colorside/fallleaves
+layerinfo type = "theme";
+layerinfo name = "Fall Leaves";
+layerinfo redist_uniq = "colorside/fallleaves";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#EC7C0A";
+set color_page_link = "#FF4000";
+set color_page_link_visited = "#cc2000";
+set color_page_text = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_title_background = "#F9BB7D";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#844609";
+set color_module_link = "#fff9ee";
+set color_module_text = "#fff9ee";
+set color_module_title = "#000";
+set color_module_title_background = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 250;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/fallleaves.jpg";
+
+
+#NEWLAYER: colorside/fish
+layerinfo type = "theme";
+layerinfo name = "Fish";
+layerinfo redist_uniq = "colorside/fish";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#8ABEE6";
+set color_page_link = "#8ABEE6";
+set color_page_link_visited = "#BCD2E9";
+set color_page_text = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_title_background = "#DD7D25";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#DD7D25";
+set color_module_link = "#fff9ee";
+set color_module_text = "#fff9ee";
+set color_module_title = "#000";
+set color_module_title_background = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 250;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/tribalfish.jpg";
+
+
+#NEWLAYER: colorside/halloween
+layerinfo type = "theme";
+layerinfo name = "Halloween";
+layerinfo redist_uniq = "colorside/halloween";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#1100ae";
+set color_page_details_text = "#fff";
+set color_page_link = "#ff9703";
+set color_page_link_active = "#4f00ae";
+set color_page_link_hover = "#4f00ae";
+set color_page_link_visited = "#ff9703";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#ff9703";
+set color_footer_link_active = "#4f00ae";
+set color_footer_link_hover = "#4f00ae";
+set color_footer_link_visited = "#ff9703";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#ff9703";
+set color_entry_link = "#ff9703";
+set color_entry_link_active = "#4f00ae";
+set color_entry_link_hover = "#4f00ae";
+set color_entry_link_visited = "#ff9703";
+set color_entry_text = "#fff";
+set color_entry_title = "#1100ae";
+set color_entry_title_background = "#a35411";
+set color_comment_title = "#1100ae";
+set color_comment_title_background = "#a35411";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#a35411";
+set color_module_border = "#a35411";
+set color_module_link = "#1100ae";
+set color_module_link_active = "#ff9703";
+set color_module_link_hover = "#ff9703";
+set color_module_link_visited = "#1100ae";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 300;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/halloween.png";
+
+
+#NEWLAYER: colorside/heart
+layerinfo type = "theme";
+layerinfo name = "Heart";
+layerinfo redist_uniq = "colorside/heart";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#521e00";
+set color_page_details_text = "#fff";
+set color_page_link = "#ca0800";
+set color_page_link_active = "FA6000";
+set color_page_link_hover = "FA6000";
+set color_page_link_visited = "#ca0800";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#ca0800";
+set color_footer_link_active = "FA6000";
+set color_footer_link_hover = "FA6000";
+set color_footer_link_visited = "#ca0800";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#ca0800";
+set color_entry_link = "#ca0800";
+set color_entry_link_active = "FA6000";
+set color_entry_link_hover = "FA6000";
+set color_entry_link_visited = "#ca0800";
+set color_entry_text = "#fff";
+set color_entry_title = "FA6000";
+set color_entry_title_background = "#4f2e1d";
+set color_comment_title = "FA6000";
+set color_comment_title_background = "#4f2e1d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#4f2e1d";
+set color_module_border = "#4f2e1d";
+set color_module_link = "FA6000";
+set color_module_link_active = "#ca0800";
+set color_module_link_hover = "#ca0800";
+set color_module_link_visited = "FA6000";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 300;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/heart.jpg";
+
+
+#NEWLAYER: colorside/mandala
+layerinfo type = "theme";
+layerinfo name = "Mandala";
+layerinfo redist_uniq = "colorside/mandala";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#009f43";
+set color_page_link = "#0072b5";
+set color_page_link_active = "#0072b5";
+set color_page_link_hover = "#795c60";
+set color_page_link_visited = "#6c1913";
+set color_page_text = "#000";
+set color_page_title = "#0072b5";
+set color_header_background = "#fff";
+set color_footer_background = "#fff";
+set color_footer_link = "#0072b5";
+set color_footer_link_active = "#0072b5";
+set color_footer_link_hover = "#795c60";
+set color_footer_link_visited = "#6c1913";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_interaction_links = "#0072b5";
+set color_entry_link = "#0072b5";
+set color_entry_link_active = "#0072b5";
+set color_entry_link_hover = "#795c60";
+set color_entry_link_visited = "#6c1913";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_entry_title_background = "#f19c5b";
+set color_comment_title_background = "#f19c5b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f19c5b";
+set color_module_link = "#6c1913";
+set color_module_link_active = "#6c1913";
+set color_module_link_hover = "#ffee36";
+set color_module_link_visited = "#0072b5";
+set color_module_text = "#000";
+set color_module_title = "#000";
+set color_module_title_background = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 300;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/mandala.jpg";
+
+
+#NEWLAYER: colorside/nadeshiko
+layerinfo type = "theme";
+layerinfo name = "Nadeshiko";
+layerinfo redist_uniq = "colorside/nadeshiko";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#2D3366";
+set color_page_link = "#FA2B6D";
+set color_page_link_visited = "#FBAED5";
+set color_page_text = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_title_background = "#8092CA";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#8092CA";
+set color_module_link = "#fff9ee";
+set color_module_text = "#fff9ee";
+set color_module_title = "#000";
+set color_module_title_background = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 250;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/nadeshiko.jpg";
+
+
+#NEWLAYER: colorside/redflowers
+layerinfo type = "theme";
+layerinfo name = "Red Flowers";
+layerinfo redist_uniq = "colorside/redflowers";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#762124";
+set color_page_details_text = "#dc8784";
+set color_page_link = "#c72e30";
+set color_page_link_active = "#861f23";
+set color_page_link_hover = "#861f23";
+set color_page_link_visited = "#c72e30";
+set color_page_text = "#dc8784";
+set color_page_title = "#dc8784";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#c72e30";
+set color_footer_link_active = "#762124";
+set color_footer_link_hover = "#762124";
+set color_footer_link_visited = "#c72e30";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#c72e30";
+set color_entry_link = "#c72e30";
+set color_entry_link_active = "#762124";
+set color_entry_link_hover = "#762124";
+set color_entry_link_visited = "#c72e30";
+set color_entry_text = "#dc8784";
+set color_entry_title = "#000";
+set color_entry_title_background = "#dc8784";
+set color_comment_title = "#000";
+set color_comment_title_background = "#dc8784";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#dc8784";
+set color_module_border = "#dc8784";
+set color_module_link = "#762124";
+set color_module_link_active = "#c72e30";
+set color_module_link_hover = "#c72e30";
+set color_module_link_visited = "#762124";
+set color_module_text = "#000";
+set color_module_title = "#c72e30";
+set color_module_title_background = "#000";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 300;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/redflowers.png";
+
+
+#NEWLAYER: colorside/wintergreen
+layerinfo type = "theme";
+layerinfo name = "Wintergreen";
+layerinfo redist_uniq = "colorside/wintergreen";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#5E6F45";
+set color_page_link = "#00a";
+set color_page_link_visited = "#99c";
+set color_page_text = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_title_background = "#9DC77C";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#9DC77C";
+set color_module_link = "#fff9ee";
+set color_module_text = "#fff9ee";
+set color_module_title = "#000";
+set color_module_title_background = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 250;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/wintergreen.jpg";

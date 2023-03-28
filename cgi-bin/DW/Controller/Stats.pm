@@ -57,7 +57,7 @@ sub main_handler {
     {    # load country and state stats
 
         my %countries;
-        DW::Countries->load( \%countries );
+        DW::Countries->load_legacy( \%countries );
         $sth = $dbr->prepare(
             "SELECT statkey, statval FROM stats WHERE statcat='country'
             ORDER BY statval DESC LIMIT 15"
@@ -183,9 +183,6 @@ sub main_handler {
     }
 
     my %graphs = ( newbyday => 'stats/newbyday.png' );
-    foreach ( keys %graphs ) {
-        delete $graphs{$_} unless -f "$LJ::HTDOCS/$graphs{$_}";
-    }
 
     my $vars = {
         stat             => \%stat,

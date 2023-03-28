@@ -1,0 +1,187 @@
+[%# site/brand.tt
+
+Dreamwidth Brand.
+
+Authors:
+     Denise Paolucci <denise@dreamwidth.org>
+
+Copyright (c) 2009-2016 by Dreamwidth Studios, LLC.
+
+This program is NOT free software or open-source; you can use it as an
+example of how to implement your own site-specific extensions to the
+Dreamwidth Studios open-source code, but you cannot use it on your site
+or redistribute it, with or without modifications.
+
+%][%-
+    sections.title="Using Dreamwidth's Brand"
+-%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>In order to protect our users from confusion and to protect our identity
+and reputation, we have set forth guidelines for using our name and our logos.
+This applies to anyone who would like to run a production site using any of
+the code developed or maintained by Dreamwidth Studios, LLC, as well as to
+anyone who would like to write a client or tool that interfaces with Dreamwidth
+code.</p>
+
+<p>These are basic guidelines. If you have a question that isn't covered here,
+please <a href='https://www.dreamwidth.org/support/submit'>contact us</a> with
+details about your planned use. We are happy to answer any questions you might
+have, and we are more than willing to grant express written permission for the
+use of any of our service marks in most cases as long as we feel there's no
+chance of causing confusion among our users.</p>
+
+<p>In all cases, the guiding principle in any use of our brand and/or service
+marks should be to avoid any possibility for reasonable confusion. An average
+person should never be able to accidentally mistake your use of our brand
+and/or mark as an official or sponsored use.</p>
+
+<p>If you want to do something cool, and you think it contradicts something in
+this set of guidelines, contact us and we'll talk it over.</p>
+
+<h2>Definitions</h2>
+
+<ul>
+    <li><b>Client</b>: A program (either downloadable or running via internet)
+        that is designed to interface and interact with the Dreamwidth
+        codebase.</li>
+    <li><b>Production site</b>: A publicly-accessible website that accepts
+        users, whether it uses open account creation or not, and whether it
+        accepts money for services or not.</li>
+    <li><b>Open Source license</b>: A license approved by the
+        <a href='http://www.opensource.org/licenses'>Open Source Initiative</a>
+        as meeting the definition of 'open source'. Dreamwidth Studios' code
+        is released under the user's choice of the Artistic License or the GNU
+        General Public License.</li>
+    <li><b>Trademark</b>: 'Dreamwidth', 'Dreamwidth Studios',
+        <a href='https://s.dreamwidth.org/img/tropo-red/dw_logo.png'>Dreamwidth
+        logo</a>, the
+        <a href='https://s.dreamwidth.org/img/tropo-red/icon_menu_swirl.png'>Dreamwidth
+        swirl</a>, and the
+        <a href='https://s.dreamwidth.org/img/nouserpic.png'>swirled 'd'</a>
+        are all trademarks of Dreamwidth Studios, LLC (registration pending).</li>
+</ul>
+
+<h2>General Guidelines</h2>
+
+<ul>
+    <li>You may only use Dreamwidth trademarks in a client without our express
+        written permission as long as you:
+    <ul>
+        <li>Release the source code to your client under an Open Source license;
+        <li>Clearly state, on the splash page or login screen of your client,
+            that your client is not created by or sponsored by Dreamwidth
+            Studios, LLC;</li>
+        <li>Clearly state, in the credits or About page of your client, that
+            Dreamwidth's trademarks are owned by Dreamwidth Studios, LLC;</li>
+        <li>Include your name and your contact information in a prominent place
+            in your client, indicating that people should contact you and not
+            Dreamwidth Studios, LLC with questions about the client;</li>
+        <li>Provide a prominent link to
+            <a href='https://www.dreamwidth.org'>www.dreamwidth.org</a> in your
+            client, such as by saying 'For use with
+            <a href='https://www.dreamwidth.org'>Dreamwidth Studios</a>';</li>
+        <li>Avoid giving the impression, both in your client and in your
+            end-user support, that you are affiliated with or speak for
+            Dreamwidth Studios, LLC.</li>
+    </ul></li>
+    <li>You <b>may not</b> use, alter, or adapt our trademarks for use in your
+        primary logo or identity without our express written permission. You
+        <em>may</em> use, alter, or adapt our trademarks for use in your
+        client's icons, as long as you follow all of the above rules.</li>
+    <li>If you want to do something that doesn't comply with the above rules
+    (such as making a closed-source application), contact us to discuss it.</li>
+</ul>
+
+<h2>Site Name</h2>
+
+<ul>
+    <li>The site's name is <em>Dreamwidth Studios</em>, and the company that
+        owns it is <em>Dreamwidth Studios, LLC</em>. It's also acceptable to
+        refer to the site just as <em>Dreamwidth</em>. Due to the potential
+        for confusion, please try to avoid referring to us as <em>DW</em>,
+        unless both your client's homepage and the application itself is clear
+        that it is intended for use with www.dreamwidth.org.</li>
+    <li>The site name is only capitalized at the beginning:
+        <em>Dreamwidth</em>, not <em>DreamWidth</em>.</li>
+    <li>You <b>may not</b> use the site name in merchandise, including but
+        not limited to t-shirts, stickers, mugs, or jewelry, without our
+        express written permission.</li>
+    <li>You <b>may not</b> use the site name in any way that indicates or
+        implies our sponsorship, endorsement, or approval, without our express
+        written permission.</li>
+    <li>You <b>may not</b> use the site name in conjunction with any content
+        that is explicit, hateful, discriminatory, exclusionary, or that violates
+        our <a href='https://www.dreamwidth.org/legal/principles'>Guiding
+        Principles</a>.</li>
+</ul>
+
+<h2>Site Logo</h2>
+<ul>
+    <li>You <em>may</em> use our graphic trademarks in a journalistic fashion --
+        for instance, if you are making a blog post or writing a newspaper
+        article about Dreamwidth Studios. We ask that you include, under each
+        use of our trademark, a notice: <em>&copy; Dreamwidth Studios, LLC</em>.
+        Please link the words 'Dreamwidth Studios, LLC' to the URL
+        <a href='https://www.dreamwidth.org'>www.dreamwidth.org</a>.</li>
+    <li>You <em>may</em> use these trademarks in banners, icons, and graphics
+        intended to positively promote the use and adoption of Dreamwidth
+        Studios.</li>
+    <li>You <b>may not</b> use any of these trademarks in merchandise, including
+        but not limited to t-shirts, stickers, mugs, or jewelry, without our
+        express written permission.</li>
+    <li>You <b>may not</b> use any of these trademarks in any way that
+        indicates or implies our sponsorship, endorsement, or approval,
+        without our express written permission.</li>
+    <li>You <b>may not</b> use any of our trademarks in banners, icons, and
+        graphics if doing so would cause a reasonable person to mistake your
+        use as speaking for or representing Dreamwidth Studios, LLC. (For
+        instance, in an icon captioned 'Dreamwidth Staff'.)</li>
+    <li>You <b>may not</b> use our trademarks in conjunction with any content
+        that is explicit, hateful, discriminatory, exclusionary, or that violates
+        our <a href='https://www.dreamwidth.org/legal/principles'>Guiding
+        Principles</a>.</li>
+</ul>
+
+<h2>Site Design</h2>
+<ul>
+    <li>The default site design visible on www.dreamwidth.org, known as
+        'Tropospherical Red', is our default visual identity. Because of this,
+        and because of the potential for confusion, you should refrain from
+        using these design elements in these colors for your client's website,
+        without our express written permission.</li>
+    <li>The client homepage -- whether the tool itself is web-based or the
+        page is hosting a downloadable application -- must clearly indicate
+        that the client is not created by, affiliated with, or sponsored by
+        Dreamwidth Studios, LLC.</li>
+     <li>The client homepage should include your name and contact information
+         in a prominent place, and indicate that people should contact you and
+         not Dreamwidth Studios, LLC with questions about your client.</li>
+    <li>The client homepage should not contain any content that is explicit,
+        hateful, discriminatory, exclusionary, or that violates our
+        <a href='https://www.dreamwidth.org/legal/principles'>Guiding
+        Principles</a>.</li>
+</ul>
+
+<h2>Source Code</h2>
+<ul>
+    <li>The <a href='https://github.com/dreamwidth/'>source code</a> for
+        Dreamwidth Studios is based on code developed and maintained by
+        LiveJournal.com. Code in the Dreamwidth repository authored by LiveJournal
+        is released under the GNU General Public License. Code in the Dreamwidth
+        repository authored by Dreamwidth Studios, LLC (excepting code in the
+        ext/dw-nonfree directory) is dual-released under the GPL and Artistic
+        Licenses.</li>
+    <li>Code in the ext/dw-nonfree directory is source-available but not Open
+        Source. You may not use code from the ext/dw-nonfree directory to run a
+        production site. You may only use code from the ext/dw-nonfree directory
+        in a development environment for the purposes of improving the source
+        code. If your development environment is publicly web-accessible, you
+        may only use code from the ext/dw-nonfree directory with our express
+        written permission.</li>
+    <li>If you are running a production site based on the Dreamwidth code,
+        please let us know! We would like to add a link to your site to our
+        <a href='https://www.dreamwidth.org/site/opensource'>Open Source</a>
+        page.</li>
+</ul>

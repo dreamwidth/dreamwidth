@@ -1,0 +1,75 @@
+#
+# AUTO-GENERATED. DO NOT EDIT.
+#
+
+name: (deploy) workers
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        type: choice
+        description: Which service to deploy
+        options:
+        - ALL WORKERS (*)
+[%- FOREACH worker_name IN workers.keys.sort %]
+        - [% worker_name %]
+[%- END %]
+      tag:
+        type: string
+        description: SHA256 to deploy (include "sha256:" prefix)
+        required: true
+
+env:
+  REGION: us-east-1
+  ECS_CLUSTER: dreamwidth
+  CONTAINER_NAME: worker
+  IMAGE_BASE: ghcr.io/dreamwidth/worker
+
+jobs:
+  deploy:
+    if: github.repository == 'dreamwidth/dreamwidth'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+
+[%- FOREACH worker_name IN workers.keys.sort %]
+      - name: ([% worker_name %]) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == '[% worker_name %]'
+        id: render-worker-container-[% worker_name %]
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-[% worker_name %]-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+[%- END %]
+[%- FOREACH worker_name IN workers.keys.sort %]
+      - name: ([% worker_name %]) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == '[% worker_name %]'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-[% worker_name %].outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-[% worker_name %]-service"
+
+[%- END %]
+      - name: Notify Discord
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          title: "${{ github.event.inputs.service }} DEPLOY STARTED"
+          description: "Deploying `${{ github.event.inputs.tag }}` to `${{ github.event.inputs.service }}`\n\nClick the header above to watch the deployment progress."
+          url: "https://${{ env.REGION }}.console.aws.amazon.com/ecs/v2/clusters/dreamwidth/services?region=${{ env.REGION }}"
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          nocontext: true

@@ -173,7 +173,7 @@
   var s2Props = getProps();
   var s2Methods = getMethods();
 
-  // Keyword are from  dw-free/src/s2/S2/TokenKeyword.pm
+  // Keyword are from  dreamwidth/src/s2/S2/TokenKeyword.pm
   var s2Keywords = ("class else elseif function if builtin property propgroup set static var while foreach while for print println not and or xor " + 
                     "layerinfo extends return delete defined new true false reverse size isnull null readonly instanceof as isa break continue push pop").split(" ");
 

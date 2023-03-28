@@ -1,0 +1,63 @@
+[%# Dreamwidth about page
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2015 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title='About Dreamwidth Studios' -%]
+
+<h1>Open Source. Open expression. Open operations.</h1>
+
+<p>
+Dreamwidth Studios is an Open Source social networking, content management, and personal publishing platform. Our mission in life is to make it easy for you to share the things you make, and easy to find the people who are making the things you want to enjoy. </p>
+
+<p>
+We have all the features you've come to love in social networking sites, including privacy and security features, community interaction, content aggregation, multimedia support, and more. We're committed to adding features that you'll find useful and relevant, as well as working to integrate our site with the other Internet services you regularly use. </p>
+
+<h1>Open source:</h1>
+
+<p>
+Dreamwidth Studios is based upon the <a href="http://www.livejournal.com">LiveJournal</a> codebase offered by LiveJournal, Inc. We've taken the LiveJournal server code and updated, modernized, and streamlined it -- and we make all of our changes available under an Open Source license. 
+</p>
+
+<p> 
+Our development community is already healthy and thriving. We've got room for everyone to contribute, whether you've just learned how to say "hello world" or you've been programming for thirty years. Check out our <a href="https://github.com/dreamwidth/dreamwidth/issues">bug tracker</a> for information on what projects we have open, and our <a href="http://wiki.dreamwidth.net/notes/Category:Development">Development</a> wiki category for useful getting-started notes. 
+</p>
+
+<h1>Open expression:</h1>
+
+<p>
+We know we can never be all things to all people, and we're not going to try. We are, however, hoping to be the best option available for people who want to make things and share them with other people, and we want you to have confidence in our operations and our decisions.
+</p>
+
+<p>
+We believe that you should always be able to figure out why we make the decisions we make. We'll communicate with you, openly and honestly, as people and not as a corporate face. We'll make our decisions and our process as transparent as possible, and look for community feedback and opinions at all stages. We think you should always know what we're doing, why we're doing it, and what we hope to accomplish.
+</p>
+
+<p>
+We believe in sustainability, not profiteering. We want to grow our business slowly and steadily, in a way that can support the community instead of exploiting it. We don't own you or your content -- we hope that you'll empower us to be your hands and trust us to build a community that can last.
+</p>
+
+<p>
+We will remain third-party-advertising-free. We believe it's possible to run a sustainable hosted service without resorting to third-party advertising or third-party sponsorship -- and we're committed to showing you what we're taking in, what we're spending, and where the money's going.
+</p>
+
+<p>
+To learn more about our business operations, check out our <a href="http://wiki.dreamwidth.net/notes/Category:Dreamwidth.org">Dreamwidth.org</a> wiki pages.
+</p>
+
+
+<h1>Open operations:</h1>
+
+<p> We value creative expression of all types and kinds. We will never place a limit on open expression, except as required by United States law or as required to protect the health of the service (such as by removing spam). </p>
+
+<p> We believe in providing you with the tools you want to make your chosen form of creative expression easy. We'll provide you with the tools -- what you build with them is entirely up to you. </p>
+
+<h1>Learn More</h1>
+
+<p> For even more information, you can read our <a href="http://wiki.dreamwidth.net/notes/">Dreamwidth wiki</a>. We'd also love to hear from you in our irc channel: irc.freenode.net (port 6667), channel #dreamwidth. </p>

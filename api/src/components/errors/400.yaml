@@ -1,0 +1,5 @@
+description: Bad or missing request parameters.
+content:
+  application/json:
+    schema:
+      $ref: ../error.yaml 

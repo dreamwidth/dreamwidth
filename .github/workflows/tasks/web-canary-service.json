@@ -1,0 +1,101 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "web",
+            "image": "ghcr.io/dreamwidth/web:latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 6081,
+                    "hostPort": 6081,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "command": [
+                "bash",
+                "/opt/startup-prod.sh"
+            ],
+            "environment": [],
+            "mountPoints": [
+                {
+                    "sourceVolume": "dw-config",
+                    "containerPath": "/dw/etc",
+                    "readOnly": true
+                },
+                {
+                    "sourceVolume": "log-share",
+                    "containerPath": "/var/log/apache2",
+                    "readOnly": false
+                }
+            ],
+            "volumesFrom": [],
+            "linuxParameters": {
+                "initProcessEnabled": true
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/dreamwidth/web",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "web"
+                }
+            }
+        },
+        {
+            "name": "cloudwatch-agent",
+            "image": "public.ecr.aws/cloudwatch-agent/cloudwatch-agent:latest",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [
+                {
+                    "sourceVolume": "log-share",
+                    "containerPath": "/var/log/apache2",
+                    "readOnly": true
+                }
+            ],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "CW_CONFIG_CONTENT",
+                    "valueFrom": "ecs-cwagent"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/ecs-cwagent",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "family": "web-canary",
+    "taskRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskRole",
+    "executionRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "volumes": [
+        {
+            "name": "log-share",
+            "host": {}
+        },
+        {
+            "name": "dw-config",
+            "efsVolumeConfiguration": {
+                "fileSystemId": "fs-f9f3e04d",
+                "rootDirectory": "/etc-canary",
+                "transitEncryption": "DISABLED"
+            }
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "6144"
+}

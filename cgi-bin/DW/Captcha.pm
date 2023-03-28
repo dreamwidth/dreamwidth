@@ -282,7 +282,38 @@ sub should_captcha_view {
     # passed a captcha. If we have information, then they *have* at some point.
     my $info_raw = LJ::MemCache::get($mckey);
     unless ($info_raw) {
-        $log->debug( $mckey, ' has never been seen before, issuing captcha.' );
+
+        # Let's see if this is a repeat offender who is spamming requests at us
+        # and hitting a bunch of 302s -- in which case, temp ban
+        my $ip    = $r->get_remote_ip;
+        my $mckey = "cct:$ip";
+        my ( $last_seen_ts, $count ) = split( /:/, LJ::MemCache::get($mckey) // "0:0" );
+        if ( $last_seen_ts > 0 ) {
+
+            # Subtract out
+            my $intervals = int( ( time() - $last_seen_ts ) / $LJ::CAPTCHA_FRAUD_INTERVAL_SECS );
+            if ( $intervals > 1 ) {
+                $count -= $LJ::CAPTCHA_FRAUD_FORGIVENESS_AMOUNT * $intervals;
+                $count = 0
+                    if $count < 0;
+            }
+        }
+
+        # Set the counter
+        $log->debug( $ip, ' has seen ', $count + 1, ' captcha requests.' );
+        LJ::MemCache::set(
+            $mckey,
+            join( ':', time(), $count + 1 ),
+            $LJ::CAPTCHA_FRAUD_INTERVAL_SECS * $LJ::CAPTCHA_FRAUD_LIMIT
+        );
+
+        # Now the trigger interval, if it's over, sysban this IP but just carry
+        # on with rendering this page (simpler)
+        if ( $count >= $LJ::CAPTCHA_FRAUD_LIMIT ) {
+            $log->info( 'Banning ', $ip, ' for exceeding captcha fraud threshold.' );
+            LJ::Sysban::tempban_create( ip => $ip, $LJ::CAPTCHA_FRAUD_SYSBAN_SECS );
+        }
+
         return 1;
     }
 
@@ -292,7 +323,7 @@ sub should_captcha_view {
 
     # If the first request is too long ago, then re-captcha
     if ( ( time() - $first_req_ts ) > $LJ::CAPTCHA_RETEST_INTERVAL_SECS ) {
-        $log->debug( $mckey, ' has exceeded the retest interval, issuing captcha.' );
+        $log->info( $mckey, ' has exceeded the retest interval, issuing captcha.' );
         return 1;
     }
 
@@ -307,11 +338,11 @@ sub should_captcha_view {
         $last_req_ts = time();
     }
 
-    # Log the things
-    $log->debug( $mckey, ' has ', $remaining, ' uses remaining.' );
-
     # If we are out of requests, retest
-    return 1 if $remaining <= 0;
+    if ( $remaining <= 0 ) {
+        $log->info( $mckey, ' is out of requests by usage, retesting.' );
+        return 1;
+    }
 
     # Things look good, so let's allow this to continue but update remaining
     LJ::MemCache::set( $mckey, join( ':', $first_req_ts, $last_req_ts, $remaining - 1 ) );
@@ -325,7 +356,7 @@ sub record_success {
     return 0 unless $LJ::CAPTCHA_HCAPTCHA_SITEKEY;
 
     my $mckey = _captcha_mckey();
-    $log->debug( 'Recording success for: ', $mckey );
+    $log->debug( 'Captcha success for: ', $mckey );
     LJ::MemCache::set( $mckey, join( ':', time(), time(), $LJ::CAPTCHA_INITIAL_REMAINING ) );
 }
 

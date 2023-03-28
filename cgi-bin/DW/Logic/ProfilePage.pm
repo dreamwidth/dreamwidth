@@ -471,7 +471,7 @@ sub _basic_info_location {
 
         if ($country) {
             my %countries = ();
-            DW::Countries->load( \%countries );
+            DW::Countries->load_legacy( \%countries );
 
             $country_ret = {};
             $country_ret->{url} = "$dirurl&amp;loc_cn=$ecountry"

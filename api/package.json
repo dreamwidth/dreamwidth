@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^9.0.9",
+    "yaml": "^2.1.3"
+  },
+  "name": "dreamwidth",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:json": "boats -i ./src/index.yml.njk -o ./build/${npm_package_name}.json",
+    "build:yaml": "boats -i ./src/index.yml.njk -o ./build/${npm_package_name}.yml",
+    "build": "npm run build:json && npm run build:yaml"
+  },
+  "keywords": [],
+  "author": "",
+  "description": "",
+  "private": true
+}

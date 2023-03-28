@@ -3234,6 +3234,8 @@ Regards,
 The [[sitename]] Team
 .
 
+shop.email.acct.body.expires=Your new paid time expiration date is: [[date]]
+
 shop.email.acct.body.note<<
 
 
@@ -5349,7 +5351,11 @@ widget.shopcart.paymentmethod=Select a Payment Method:
 
 widget.shopcart.paymentmethod.checkmoneyorder=Check/Money Order
 
+widget.shopcart.paymentmethod.checkmoneyorder.whydisabled=Sorry, the "Check/Money Order" payment option is disabled because the cash amount of the cart is less than [[minimum]].
+
 widget.shopcart.paymentmethod.creditcard=Credit Card
+
+widget.shopcart.paymentmethod.creditcard.whydisabled=Sorry, the "Credit Card" payment option is disabled because the site owner has not configured a payment processor.
 
 widget.shopcart.paymentmethod.creditcardpp=Credit Card
 

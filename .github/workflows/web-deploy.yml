@@ -1,0 +1,63 @@
+name: (deploy) web servers
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        type: choice
+        description: Which service to deploy
+        options:
+        - web-canary
+        - web-stable
+      tag:
+        type: string
+        description: SHA256 to deploy (include "sha256:" prefix)
+        required: true
+
+env:
+  REGION: us-east-1
+  ECS_CLUSTER: dreamwidth
+  CONTAINER_NAME: web
+  IMAGE_BASE: ghcr.io/dreamwidth/web
+
+jobs:
+  deploy:
+    if: github.repository == 'dreamwidth/dreamwidth'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+
+      - name: Render Amazon ECS task definition
+        id: render-web-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/${{ github.event.inputs.service }}-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: Deploy to Amazon ECS service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-web-container.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "${{ github.event.inputs.service }}-service"
+
+      - name: Notify Discord
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          title: "${{ github.event.inputs.service }} DEPLOY STARTED"
+          description: "Deploying `${{ github.event.inputs.tag }}` to `${{ github.event.inputs.service }}`\n\nClick the header above to watch the deployment progress."
+          url: "https://${{ env.REGION }}.console.aws.amazon.com/ecs/v2/clusters/dreamwidth/services/${{ github.event.inputs.service }}-service/deployments?region=${{ env.REGION }}"
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          nocontext: true

@@ -35,6 +35,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
                     "js/foundation/foundation/foundation.reveal.js"
                     "js/skins/jquery.focus-on-reveal.js"
         );
+
+        dw.need_res( "stc/canary.css" );
     -%]
     [%- PROCESS block.need_res -%]
     [% dw_scheme.res_includes %]
@@ -60,6 +62,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <li><a href="[% site.root %]/site/suggest">[% 'sitescheme.footer.suggestion' | ml %]</a></li>
 </ul>
 <p>[% 'sitescheme.footer.info' | ml %]</p>
+[% IF site.is_canary %]
+<div class="canary canary-bottom-right"><span>canary</span></div>
+[% END %]
 [%- END -%]
 
 [%- userpic_class = 'account-links-userpic' -%]

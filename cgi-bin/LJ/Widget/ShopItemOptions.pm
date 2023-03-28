@@ -176,14 +176,58 @@ sub handle_post {
     # build a new item and try to toss it in the cart.  this fails if there's a
     # conflict or something
     if ( $post->{accttype} ) {
-        my ( $rv, $err ) = $cart->add_item(
-            DW::Shop::Item::Account->new(
-                type           => $post->{accttype},
-                user_confirmed => $post->{alreadyposted},
-                force_spelling => $post->{force_spelling},
-                %item_data
-            )
+
+        my $item = DW::Shop::Item::Account->new(
+            type           => $post->{accttype},
+            user_confirmed => $post->{alreadyposted},
+            force_spelling => $post->{force_spelling},
+            %item_data
         );
+
+        # check for renewing premium as paid
+        my $u           = LJ::load_userid( $item ? $item->t_userid : undef );
+        my $paid_status = $u ? DW::Pay::get_paid_status($u) : undef;
+
+        if ($paid_status) {
+            my $paid_curtype = DW::Pay::type_shortname( $paid_status->{typeid} );
+            my $has_premium  = $paid_curtype eq 'premium' ? 1 : 0;
+
+            my $ok = DW::Shop::Item::Account->allow_account_conversion( $u, $item->class );
+
+            if ( $ok && $has_premium && $item->class eq 'paid' && !$post->{prem_convert} ) {
+
+                # check account expiration date
+                my $exptime = DateTime->from_epoch( epoch => $paid_status->{expiretime} );
+                my $newtime = DateTime->now;
+
+                if ( my $future_ymd = $item->deliverydate ) {
+                    my ( $y, $m, $d ) = split /-/, $future_ymd;
+                    $newtime = DateTime->new( year => $y + 0, month => $m + 0, day => $d + 0 );
+                }
+
+                my $to_day = sub { return $_[0]->truncate( to => 'day' ) };
+
+                if ( DateTime->compare( $to_day->($exptime), $to_day->($newtime) ) ) {
+                    my $months = $item->months;
+                    my $newexp = $exptime->clone->add( months => $months );
+                    my $paid_d = $exptime->delta_days($newexp)->in_units('days');
+
+                    # FIXME: this should be DW::BusinessRules::Pay::DWS::CONVERSION_RATE
+                    my $prem_d = int( $paid_d * 0.7 );
+
+                    my $ml_args =
+                        { date => $exptime->ymd, premium_num => $prem_d, paid_num => $paid_d };
+
+                    # but only include date if the logged-in user owns the account
+                    delete $ml_args->{date} unless $remote && $remote->has_same_email_as($u);
+
+                    # this should be handled as a special case in the caller
+                    return ( error => 'premium_convert', ml_args => $ml_args );
+                }
+            }
+        }
+
+        my ( $rv, $err ) = $cart->add_item($item);
         return ( error => $err ) unless $rv;
     }
     elsif ( $post->{item} eq "rename" ) {

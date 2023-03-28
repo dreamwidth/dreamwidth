@@ -53,6 +53,8 @@ sub render_body {
     my $entry = LJ::Entry->new( $news_journal,
         ditemid => ( $res{events_1_itemid} << 8 ) + $res{events_1_anum} );
 
+    return unless $entry->valid;
+
     $ret .= "<div class='sidebar'>";
     $ret .=
           "<p><a href='"

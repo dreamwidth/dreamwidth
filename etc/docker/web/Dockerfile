@@ -2,11 +2,11 @@
 # This creates a Dreamwidth webserver.
 #
 
-FROM       194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth/base:latest
-MAINTAINER Mark Smith "mark@dreamwidth.org"
+FROM  ghcr.io/dreamwidth/base:latest
+LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
-ARG COMMIT=master
+ARG COMMIT=main
 
 # Things that commands need, but shouldn't change.
 ENV LJHOME /dw
@@ -14,10 +14,10 @@ ENV LJHOME /dw
 # Install some packages we need in web only.
 RUN echo $COMMIT && \
     apt-get update && \
-    apt-get install -y mysql-client && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-system | \
+    apt-get install -y mysql-client varnish && \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
         xargs apt-get -y install && \
-    curl https://raw.githubusercontent.com/dreamwidth/dw-free/master/doc/dependencies-cpanm | \
+    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
         xargs cpanm -n -L /dw/extlib/ && \
     rm -rf /var/lib/apt/lists/*
 
@@ -25,9 +25,6 @@ RUN echo $COMMIT && \
 RUN git -C $LJHOME fetch && \
     git -C $LJHOME checkout $COMMIT && \
     git -C $LJHOME pull --ff-only origin $COMMIT && \
-    git -C $LJHOME/ext/dw-nonfree fetch && \
-    git -C $LJHOME/ext/dw-nonfree checkout master && \
-    git -C $LJHOME/ext/dw-nonfree pull --ff-only origin $COMMIT && \
     $LJHOME/bin/build-static.sh
 
 # Copy in support scripts/configurations that are useful.
@@ -39,7 +36,10 @@ ADD config/ /dw/ext/local
 RUN bash /opt/setup.sh
 
 # We run on 80, TLS is handled by a proxy of some kind.
-EXPOSE 80
+EXPOSE 80/tcp
+
+# Varnish is here and is layered in front of Apache typically.
+EXPOSE 6081/tcp
 
 # Kick off the startup script, which does some healthcheck and then starts
 # Apache if things look good.

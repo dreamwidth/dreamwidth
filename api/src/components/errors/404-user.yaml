@@ -1,0 +1,5 @@
+description: Username specified does not exist.
+content:
+  application/json:
+    schema:
+      $ref: ../error.yaml 

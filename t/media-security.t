@@ -29,7 +29,7 @@ my $u2 = temp_user();
 
 ok( !$u1->trusts($u2), "Viewer does not have access to poster" );
 
-# Use an image from dw-free for testing purposes.
+# Use an image from dreamwidth for testing purposes.
 
 my $obj = DW::Media->upload_media(
     user     => $u1,

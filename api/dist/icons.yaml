@@ -1,0 +1,65 @@
+paths:
+  "/users/{username}/icons/{picid}":
+    parameters:
+      - name: username
+        in: path
+        description: The username you want icon information for
+        required: true
+        schema:
+          type: string
+          minLength: 3
+          maxLength: 25
+          pattern: ^[0-9A-Za-z_]+$
+          example: example
+      - name: picid
+        in: path
+        description: The picid you want information for.
+        required: true
+        schema:
+          type: integer
+    get:
+      description: Returns a single icon for a specified picid and username
+      responses:
+        "200":
+          description: An icon with its information
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - comment
+                  - picid
+                  - username
+                  - url
+                  - keywords
+                properties:
+                  comment:
+                    type: string
+                  picid:
+                    type: integer
+                  username:
+                    type: string
+                    description: The name of the journal this icon belongs to.
+                  url:
+                    type: string
+                  keywords:
+                    type: array
+                    items:
+                      type: string
+        "400":
+          description: Bad or missing request parameters.
+          content:
+            application/json:
+              schema:
+                &a1
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A description of the error encountered.
+                    example: "Bad format for username. Errors: String is too long: 77/25."
+                  success:
+                    type: number
+        "404":
+          description: No such username or icon.
+          schema: *a1

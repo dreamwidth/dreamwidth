@@ -1,0 +1,31 @@
+---
+paths:
+  /users/{username}/icons/{picid}:
+    parameters:
+      - name: username
+        in: path
+        description: The username you want icon information for
+        required: true
+        schema:
+          $ref: components/schemas/username.yaml
+      - name: picid
+        in: path
+        description: The picid you want information for.
+        required: true
+        schema:
+          type: integer
+    get:
+      description: Returns a single icon for a specified picid and username
+      responses:
+        200:
+          description: An icon with its information
+          content:
+            application/json:
+              schema:
+                $ref: components/schemas/icon.yaml
+        404:
+          description: No such username or icon.
+          schema:
+                $ref: components/error.yaml
+        400:
+          $ref: components/errors/400.yaml

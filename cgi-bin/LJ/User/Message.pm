@@ -540,7 +540,7 @@ sub check_email {
 
     # Catch misspellings of gmail.com, yahoo.com, hotmail.com, outlook.com,
     # aol.com, live.com.
-    # https://github.com/dreamwidth/dw-free/issues/993#issuecomment-357466645
+    # https://github.com/dreamwidth/dreamwidth/issues/993#issuecomment-357466645
     # explains where 3 comes from.
     my $tf_domain      = Text::Fuzzy->new( $domain, max => 3, trans => 1 );
     my @common_domains = (

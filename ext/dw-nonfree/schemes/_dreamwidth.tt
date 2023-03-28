@@ -1,0 +1,39 @@
+[%#
+Common code for Dreamwidth site schemes
+
+ Converted to Template Toolkit by;
+    Andrea Nall <anall@andreanall.com>
+ Based on Tropospherical Red, authored by:
+    Janine Smith <janine@netrophic.com>
+    Jesse Proulx <jproulx@jproulx.net>
+    Elizabeth Lubowitz <grrliz@gmail.com>
+
+Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%][%- BLOCK block.logo -%]
+[%- IF ! logo_path %]
+[%- logo_path = BLOCK -%]/[% logo_path_part %]/dw_logo_[% logo_path_part %].png[%- END - %]
+[%- END -%]
+<a href="[% site.root %]/"><img alt="Dreamwidth Studios" src='[% site.imgroot %][% logo_path %]' /></a>
+[%- END -%]
+
+[%- BLOCK block.footer -%]
+<ul>
+    <li><a href="[% site.root %]/legal/privacy">[% 'sitescheme.footer.legal.privacypolicy' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/legal/tos">[% 'sitescheme.footer.legal.tos' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/legal/diversity">[% 'sitescheme.footer.legal.diversitystatement' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/legal/principles">[% 'sitescheme.footer.legal.guidingprinciples' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/site/">[% 'sitescheme.footer.sitemap' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/site/suggest">[% 'sitescheme.footer.suggestion' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/site/opensource">[% 'tropo.footer.opensource' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/support">[% 'sitescheme.accountlinks.help' | ml %]</a></li>
+</ul>
+<p>[% 'sitescheme.footer.info' | ml %]</p>
+[% IF site.is_canary %]
+<div class="canary canary-bottom-right"><span>canary</span></div>
+[% END %]
+[%- END -%]

@@ -93,10 +93,11 @@ sub matching_uids {
     my $prefix = join( "-", $country, $state, $city );
     $prefix =~ s/\%-\%$/%/;        # Country-%-%  --> Country-%
 
-    my $uids =
-        $db->selectcol_arrayref( "SELECT userid FROM userprop WHERE upropid=? AND value LIKE ?",
-        undef, $p->{id}, $prefix )
-        || [];
+    # for efficiency, do a table join here to filter on visible users
+    my $uids = $db->selectcol_arrayref(
+"SELECT up.userid FROM userprop AS up INNER JOIN user AS u ON up.userid=u.userid WHERE up.upropid=? AND u.statusvis='V' AND up.value LIKE ?",
+        undef, $p->{id}, $prefix
+    ) || [];
     return @$uids;
 }
 

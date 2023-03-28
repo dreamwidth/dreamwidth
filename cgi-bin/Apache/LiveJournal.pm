@@ -186,9 +186,10 @@ sub send_concat_res_response {
     my $args     = $apache_r->args;
     my $uri      = $apache_r->uri;
 
-    my $dir = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
+    my $dir    = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
+    my $maxdir = ( $LJ::STATDOCS // $LJ::HTDOCS ) . '/max' . $uri;
     return 404
-        unless -d $dir;
+        unless -d $dir || -d $maxdir;
 
     # Might contain cache buster "?v=3234234234" at the end;
     # plus possibly other unique args (caught by the .*)
@@ -197,7 +198,7 @@ sub send_concat_res_response {
     # Collect each file
     my ( $body, $size, $mtime, $mime ) = ( '', 0, 0, undef );
     foreach my $file ( split /,/, substr( $args, 1 ) ) {
-        my $res = load_file_for_concat("$dir$file");
+        my $res = load_file_for_concat("$dir$file") // load_file_for_concat("$maxdir$file");
         return 404
             unless defined $res;
         $body .= $res->[0];
@@ -964,10 +965,11 @@ sub trans {
     if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
         my $ver = $1 + 0;
         $ret = DW::Routing->call(
-            api_version => $ver,
-            uri         => "/v$ver$2",
-            role        => 'api'
+            apiver => $ver,
+            uri    => "/v$ver$2",
+            role   => 'api'
         );
+        $ret //= DW::Routing->call( uri => "/internal/api/404" );
         return $ret if defined $ret;
     }
 
