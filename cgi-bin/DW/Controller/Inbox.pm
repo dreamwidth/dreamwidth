@@ -308,8 +308,9 @@ sub action_handler {
     my $inbox         = $remote->notification_inbox;
     my $display_items = items_by_view( $inbox, $view, $itemid );
     my $items_html    = render_items( $page, $view, $remote, $display_items, $expand );
+    my $folder_html   = render_folders( $remote, $view );
 
-    return DW::RPC->out( success => $items_html );
+    return DW::RPC->out( success => {items => $items_html, folders => $folder_html} );
 
 }
 

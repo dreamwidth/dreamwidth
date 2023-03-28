@@ -97,6 +97,12 @@ function mark_items(e, action, qid) {
         var item_qids = qid;
     }
 
+    // When we redraw the inbox message list, we lose what was
+    // collapsed - so, note them now so we can reapply.
+    var collapsed = $( ".item_unread .inbox_collapse" ).map(function() {
+      return this.id;
+    }).get();
+    
     // Grab param data from the hidden fields
     var auth_token = $("[name=lj_form_auth]").val();
     var view = $("[name=view]").val();
@@ -119,7 +125,17 @@ function mark_items(e, action, qid) {
         data: JSON.stringify(postData),
         success: function(data) {
             if (data.success) {
-                $("#inbox_message_list").html(data.success);
+                $("#inbox_message_list").html(data.success.items);
+                $("#inbox_folders").html(data.success.folders);
+                collapsed.forEach(function(id) {
+                    var arrow = $("#" + id).siblings('.InboxItem_Controls').find('img.item_expand');
+                    arrow.attr({
+                        'src': '/img/collapse.gif',
+                        'alt': 'Expand',
+                        'title': 'Expand'
+                    });
+                    $("#" + id).addClass('inbox_collapse');
+                });
             } else {
                 $(e.target).ajaxtip()
                     .ajaxtip("error", data.error);
@@ -193,7 +209,7 @@ function check_selected() {
     var read = false;
     var unread = false;
     $('.selected-msg').each(function () {
-        if ($(this).children('.read').length > 0) {
+        if ($(this).hasClass('item_read')) {
             read = true;
         } else {
             unread = true;
