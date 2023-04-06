@@ -241,6 +241,12 @@ use Net::Subnet;
     # $SHOULD_CAPTCHA_IP = subnet_matcher qw(
     #     10.0.0.0/8
     # );
+    #
+    # # Put subnets in here that may be automated but you want to allow them
+    # # anyway for some reason.
+    # $CAPTCHA_BYPASS_IP = subnet_matcher qw(
+    #     192.168.10.10/32
+    # );
 }
 
 {

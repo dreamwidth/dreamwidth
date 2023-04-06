@@ -272,10 +272,15 @@ sub should_captcha_view {
         return 0 if $r->uri =~ $LJ::CAPTCHA_BYPASS_REGEX;
     }
 
-    # If the user is on a trusted IP range, no captcha
+    # If the user is on an automated IP range, captcha
     my ( $mckey, $ip ) = _captcha_mckey();
     if ( my $matcher = $LJ::SHOULD_CAPTCHA_IP ) {
         return 0 unless $matcher->($ip);
+    }
+
+    # Unless the user is the Google bot... then allow it
+    if ( my $matcher = $LJ::CAPTCHA_BYPASS_IP ) {
+        return 0 if $matcher->($ip);
     }
 
     # Get our captcha information -- no information means that the user has not
