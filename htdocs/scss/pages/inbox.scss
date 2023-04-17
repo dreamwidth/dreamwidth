@@ -149,6 +149,10 @@
   display: block;
 }
 
+.action_button.no-js {
+  display: none;
+}
+
 .selected_filter {
   display: none;
 }

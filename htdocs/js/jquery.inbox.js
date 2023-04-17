@@ -226,3 +226,4 @@ function check_selected() {
 }
 
 none_selected();
+$(".action_button").removeClass('no-js');
