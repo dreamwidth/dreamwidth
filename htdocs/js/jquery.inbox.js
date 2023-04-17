@@ -4,6 +4,7 @@ $('.check_all').change(function() {
     $('.item_checkbox').trigger('change');
     // This is because we have two 'check-all' boxes, and we want them to be in sync
     $('.check_all').prop("checked", checked.is(':checked'));
+    check_selected();
 });
 
 $('.action_button').click(function(e) {
@@ -75,6 +76,7 @@ $("#inbox_messages").on("change", ".item_checkbox", function(e) {
     } else {
         row.removeClass('selected-msg');
     }
+    check_selected();
     e.preventDefault();
     e.stopPropagation();
 });
@@ -95,6 +97,12 @@ function mark_items(e, action, qid) {
         var item_qids = qid;
     }
 
+    // When we redraw the inbox message list, we lose what was
+    // collapsed - so, note them now so we can reapply.
+    var collapsed = $( ".item_unread .inbox_collapse" ).map(function() {
+      return this.id;
+    }).get();
+    
     // Grab param data from the hidden fields
     var auth_token = $("[name=lj_form_auth]").val();
     var view = $("[name=view]").val();
@@ -117,7 +125,17 @@ function mark_items(e, action, qid) {
         data: JSON.stringify(postData),
         success: function(data) {
             if (data.success) {
-                $("#inbox_message_list").html(data.success);
+                $("#inbox_message_list").html(data.success.items);
+                $("#inbox_folders").html(data.success.folders);
+                collapsed.forEach(function(id) {
+                    var arrow = $("#" + id).siblings('.InboxItem_Controls').find('img.item_expand');
+                    arrow.attr({
+                        'src': '/img/collapse.gif',
+                        'alt': 'Expand',
+                        'title': 'Expand'
+                    });
+                    $("#" + id).addClass('inbox_collapse');
+                });
             } else {
                 $(e.target).ajaxtip()
                     .ajaxtip("error", data.error);
@@ -141,7 +159,7 @@ if ($('#msg_to').length) {
 }
 $('.folders').removeClass('no-js');
 $("#folder_btn").removeClass('no-js');
-$("#folder_btn").click(function() {
+$("#folder_btn").click(function(){
     var folders = $('#folder_list');
     var img = $(this).children();
 
@@ -164,3 +182,47 @@ $("#folder_btn").click(function() {
         });
     }
 });
+
+// Nothing is selected, show 'Mark all read' and 'Delete all' buttons
+function none_selected() {
+    $('.show_read').addClass('show-on-focus');
+    $('.show_unread').addClass('show-on-focus');
+    $('.show_all').removeClass('show-on-focus');
+}
+
+// Unread msgs selected - show 'Delete Selected' and 'Mark selected read' buttons
+// Note: this shows even if read messages are also selected.
+function unread_selected() {
+    $('.show_all').addClass('show-on-focus');
+    $('.show_read').addClass('show-on-focus');
+    $('.show_unread').removeClass('show-on-focus');
+}
+
+// Only read msgs selected - show 'Delete Selected' and 'Mark selected unread' buttons
+function read_selected() {
+    $('.show_all').addClass('show-on-focus');
+    $('.show_unread').addClass('show-on-focus');
+    $('.show_read').removeClass('show-on-focus');
+}
+
+function check_selected() {
+    var read = false;
+    var unread = false;
+    $('.selected-msg').each(function () {
+        if ($(this).hasClass('item_read')) {
+            read = true;
+        } else {
+            unread = true;
+        }
+    });
+
+    if (unread) {
+        unread_selected();
+    } else if (read) {
+        read_selected();
+    } else{
+        none_selected();
+    }
+}
+
+none_selected();

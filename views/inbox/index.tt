@@ -17,18 +17,16 @@
             <div class="header searchhighlight" id="action_row">
                 <div class="checkbox">[% form.checkbox(name = 'check_all', class = 'check_all', value = 'check_all') %]</div>
                 <div class="actions">
-                    [% form.submit(name = 'mark_read', value = dw.ml('widget.inbox.menu.mark_read.btn'), class = 'action_button button small show_read', 'data-action' = 'mark_read') %]
-                    [% form.submit(name = 'mark_unread', value = dw.ml('widget.inbox.menu.mark_unread.btn'), class = 'action_button button small show_unread', 'data-action' =  'mark_unread') %]
+                    [% form.submit(name = 'mark_read', value = dw.ml('widget.inbox.menu.mark_read.btn'), class = 'action_button button small show_unread', 'data-action' = 'mark_read') %]
+                    [% form.submit(name = 'mark_unread', value = dw.ml('widget.inbox.menu.mark_unread.btn'), class = 'action_button button small show_read', 'data-action' =  'mark_unread') %]
                     [% form.submit(name = 'delete', value = dw.ml('.menu.delete.btn'), class = 'action_button button small show_read show_unread', 'data-action' =  'delete') %]
+                    [% form.submit(name = 'mark_all', value = dw.ml(mark_all), class = 'action_button button small show_all', 'data-action' = 'mark_all') %]
+                    [% form.submit(name = 'delete_all', value = dw.ml(delete_all), class = 'action_button button small show_all', 'data-action' = 'delete_all') %]
                 </div>
                 <div class="pages">
                     [%- INCLUDE components/pagination.tt
                         current => page
                         total_pages => last_page -%]
-                </div>
-                <div class="actions-all">
-                    [% form.submit(name = 'mark_all', value = dw.ml(mark_all), class = 'action_button button small show_all', 'data-action' = 'mark_all') %]
-                    [% form.submit(name = 'delete_all', value = dw.ml(delete_all), class = 'action_button button small show_all', 'data-action' = 'delete_all') %]
                 </div>
         </div>
 
@@ -41,15 +39,13 @@
                     [% form.submit(name = 'mark_read', value = dw.ml('widget.inbox.menu.mark_read.btn'), class = 'action_button button small show_read', 'data-action' = 'mark_read') %]
                     [% form.submit(name = 'mark_unread', value = dw.ml('widget.inbox.menu.mark_unread.btn'), class = 'action_button button small show_unread', 'data-action' =  'mark_unread') %]
                     [% form.submit(name = 'delete', value = dw.ml('.menu.delete.btn'), class = 'action_button button small show_read show_unread', 'data-action' =  'delete') %]
+                    [% form.submit(name = 'mark_all', value = dw.ml(mark_all), class = 'action_button button small show_all', 'data-action' = 'mark_all') %]
+                    [% form.submit(name = 'delete_all', value = dw.ml(delete_all), class = 'action_button button small show_all', 'data-action' = 'delete_all') %]
                 </div>
                 <div class="pages">
                     [%- INCLUDE components/pagination.tt
                         current => page
                         total_pages => last_page -%]
-                </div>
-                <div class="actions-all">
-                    [% form.submit(name = 'mark_all', value = dw.ml(mark_all), class = 'action_button button small show_all', 'data-action' = 'mark_all') %]
-                    [% form.submit(name = 'delete_all', value = dw.ml(delete_all), class = 'action_button button small show_all', 'data-action' = 'delete_all') %]
                 </div>
         </div>
 

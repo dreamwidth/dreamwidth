@@ -16,7 +16,7 @@ ul.pagination li a {
 }
 
 ul.pagination li.current {
-    a:focus, a:visted {
+    a:focus, a:visited {
         color: $pagination-link-current-font-color;
     }
 }
