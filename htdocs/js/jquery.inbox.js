@@ -143,9 +143,10 @@ function mark_items(e, action, qid) {
         },
         dataType: "json"
     });
-    e.preventDefault();
-    e.stopPropagation();
-
+    if (e){    
+        e.preventDefault();
+        e.stopPropagation();
+    }
     // We've reloaded the view, so set the select-all checkbox to unchecked.
     $('.check_all').prop("checked", false);
 }
@@ -227,3 +228,11 @@ function check_selected() {
 
 none_selected();
 $(".action_button").removeClass('no-js');
+
+
+$("#inbox_messages").on("click", ".actions a", function(evt) {
+    if (evt && (evt.ctrlKey || evt.metaKey)) return true;
+    var qid = $(evt.target).parents(".InboxItem_Content").data('qid');
+
+    mark_items(null, 'mark_read', [qid]);
+});

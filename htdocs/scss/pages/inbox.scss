@@ -99,6 +99,10 @@
       "message message" auto
       / 2em 1fr;
     padding: 5px;
+
+    .item {
+      padding-left: 0.5em;
+    }
   }
 }
 
@@ -168,7 +172,7 @@
 }
 #action_row {
   ul,
-  .button,
+  button,
   input {
     margin-bottom: 5px;
   }
@@ -272,4 +276,11 @@
   margin: 0;
   background: 0;
   cursor: pointer;
+}
+
+.item-empty { 
+  font-size: 3em; 
+  text-align: center; 
+  opacity: .6; 
+  padding: 2rem;
 }
