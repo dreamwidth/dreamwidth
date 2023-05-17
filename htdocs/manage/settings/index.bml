@@ -107,6 +107,7 @@ body<=
                 LJ::Setting::ViewingAdultContent
                 LJ::Setting::SafeSearch
                 DW::Setting::GoogleAnalytics
+                DW::Setting::GoogleAnalytics4
                 DW::Setting::ExcludeOwnStats
                 DW::Setting::StickyEntry
                 DW::Setting::MobileView

@@ -2846,6 +2846,10 @@ setting.googleanalytics.error.invalid=Invalid Google Analytics ID entered, must 
 
 setting.googleanalytics.label=Google Analytics ID
 
+setting.googleanalytics4.error.invalid=Invalid Google Analytics ID entered, v4 ID must be of the format: G-XXXXXXXXXX (where X represents alphanumeric characters).
+
+setting.googleanalytics4.label=Google Analytics ID (v4)
+
 setting.graphicpreviews.label=Graphic Previews
 
 setting.graphicpreviews.option.comm=Allow viewers to preview external links within my community
