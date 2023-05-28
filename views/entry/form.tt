@@ -211,6 +211,7 @@ postFormInitData.strings = {
             <div class='event-container'>
                 [%- form.textarea( label = dw.ml(".event.label")
                     name = "event"
+                    id = "entry-body"
 
                     cols = "50"
                     rows = "18"
