@@ -728,7 +728,7 @@ sub _form_to_backend {
 
     my $editor = undef;
     my $verbose_err;
-    
+
     LJ::CleanHTML::clean_event( \$clean_event,
         { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
 
