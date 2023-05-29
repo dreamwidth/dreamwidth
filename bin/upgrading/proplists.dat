@@ -422,6 +422,14 @@ userproplist.friendspagesubtitle:
   multihomed: 0
   prettyname: Friends Page Subtitle
 
+userproplist.ga4_analytics:
+  cldversion: 4
+  datatype: char
+  des: Google Analytics v.4 Code
+  indexed: 1
+  multihomed: 0
+  prettyname: Google Analytics v.4 Code
+
 userproplist.gender:
   cldversion: 4
   datatype: char

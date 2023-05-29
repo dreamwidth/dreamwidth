@@ -630,6 +630,17 @@ sub google_analytics {
     return $u->prop('google_analytics');
 }
 
+sub ga4_analytics {
+    my $u = shift;
+
+    if ( defined $_[0] ) {
+        $u->set_prop( ga4_analytics => $_[0] );
+        return $_[0];
+    }
+
+    return $u->prop('ga4_analytics');
+}
+
 # is there a suspend note?
 sub get_suspend_note {
     my $u = $_[0];
