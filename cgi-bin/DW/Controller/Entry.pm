@@ -881,6 +881,9 @@ sub _backend_to_form {
         if ( LJ::CleanHTML::legacy_markdown( \$event ) ) {    # mutates $event
             $editor = 'markdown0';
         }
+        elsif ( $entry->prop('used_rte') ) {
+            $editor = 'rte0';
+        }
         elsif ( $entry->prop('opt_preformatted') ) {
             $editor = 'html_raw0';
         }
@@ -889,9 +892,6 @@ sub _backend_to_form {
         }
         elsif ( $entry->logtime_mysql lt '2019-05' ) {
             $editor = 'html_casual0';
-        }
-        elsif ( $entry->prop('used_rte') ) {
-            $editor = 'rte0';
         }
         else {
             $editor = 'html_casual1';    # For accurate state when editing posts.
