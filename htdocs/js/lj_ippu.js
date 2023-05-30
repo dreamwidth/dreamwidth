@@ -47,7 +47,7 @@ LJ_IPPU = new Class ( IPPU, {
   setup_lj_ippu: function (evt) {
     var cancelCallback = this.cancelThisFunc;
    //DOM.addEventListener($(this.uniqId + "_cancel"), "click", cancelCallback, true);
-   $(this.uniqId + "_cancel").onclick = function(){
+   document.getElementById(this.uniqId + "_cancel").onclick = function(){
 	    cancelCallback();
 	    
     };
