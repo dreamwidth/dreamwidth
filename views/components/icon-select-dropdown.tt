@@ -12,6 +12,7 @@
           id = 'prop_picture_keyword',
           selected = current_icon_kw,
           items = icons,
+          class = class
       ) -%]
 
       [%- UNLESS omit_random_button -%]

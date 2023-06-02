@@ -17,6 +17,7 @@
 package DW::Controller::Entry;
 
 use strict;
+use Storable;
 
 use LJ::Global::Constants;
 
@@ -72,6 +73,8 @@ DW::Routing->register_string(
     app     => 1,
     methods => { POST => 1 }
 );
+
+DW::Routing->register_string( '/__rpc_draft', \&draft_rpc_handler, app => 1, format  => 'json');
 
 DW::Routing->register_string( '/entry/options',      \&options_handler,     app => 1 );
 DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app => 1 );
@@ -273,6 +276,42 @@ sub new_handler {
 
     $vars->{js_for_rte} = LJ::rte_js_vars();
     $vars->{sitevalues} = LJ::js_dumper( \@sitevalues );
+
+    # Set up vars for drafts
+
+    my $draft = '""';
+    my %draft_properties;
+    my $draft_subject_raw = "";
+    if ($remote) {
+        # Here we get the value of the userprop 'draft_properties', containing
+        # a frozen Storable string, which we then thaw into a hash by the same
+        # name.
+        $draft = LJ::ejs_string($remote->prop('entry_draft'));
+        %draft_properties = $remote->prop( 'draft_properties' ) ?
+            %{ Storable::thaw( $remote->prop( 'draft_properties' ) ) } : ();
+
+        # store raw for later use; will be escaped later
+        $draft_subject_raw = $draft_properties{subject};
+
+        %draft_properties = map { $_ => LJ::ejs_string( $draft_properties{$_} ) }
+            qw( subject userpic taglist moodid mood location1 music adultreason commentset commentscr adultcnt editor );
+    }
+    my $initDraft = 'null';
+    if ( $remote && LJ::is_enabled('update_draft') ) {
+        # While transforms aren't considered posts, we don't want to
+        # prompt the user to restore from a draft on a transform
+        if (!LJ::did_post()) {
+            $initDraft = 'true';
+        } else {
+            $initDraft = 'false';
+        }
+    }
+
+    $vars->{init_draft} = $initDraft;
+    $vars->{draft} = $draft;
+    $vars->{draft_properties} = \%draft_properties;
+    $vars->{draft_subject_raw} = $draft_subject_raw;
+    $vars->{autosave_interval} = $LJ::AUTOSAVE_DRAFT_INTERVAL;
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
@@ -1887,6 +1926,108 @@ sub _options {
     }
 
     return $vars;
+}
+
+sub draft_rpc_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $u = $rv->{remote};
+    my $r      = DW::Request->get;
+    my $GET = $r->get_args;
+    my $POST = $r->post_args;
+
+    my $err = sub {
+        my $msg = shift;
+        return to_json({
+            'alert' => $msg,
+        });
+    };
+
+    my $ret = {};
+
+
+    # This property thaws the contents of the userprop 'draft_properties' and
+    # sends them back as a JS object.
+    if ( defined $GET->{getProperties} ) {
+        my $ret = $u->prop( 'draft_properties' ) ? Storable::thaw( $u->prop('draft_properties' ) ) : {};
+        $r->print(to_json($ret));
+        return $r->OK;
+    }
+        
+
+    # This property clears out all the fields of the user's draft, except the
+    # draft body itself.
+    if ( defined $POST->{clearProperties} ) {
+        $u->clear_prop( 'draft_properties' );
+    }
+
+    # If even one property of the draft was changed, this property saves them
+    # all into a new draft (in order to avoid multiple HTTP posts which would
+    # decrease performance considerably).
+    # This is set up as a long if statement to avoid tying draft property saving to
+    # the draft body save logic, so that users won't have to change their
+    # draft body every time they want to get their properties saved.
+    if ( ( defined $POST->{saveSubject}     ) || 
+         ( defined $POST->{saveEditor}      ) ||
+         ( defined $POST->{saveUserpic}     ) ||
+         ( defined $POST->{saveTaglist}     ) ||
+         ( defined $POST->{saveMoodID}      ) ||
+         ( defined $POST->{saveMood}        ) ||
+         ( defined $POST->{saveLocation}    ) ||
+         ( defined $POST->{saveMusic}       ) ||
+         ( defined $POST->{saveAdultReason} ) ||
+         ( defined $POST->{saveCommentSet}  ) ||
+         ( defined $POST->{saveCommentScr}  ) ||
+         ( defined $POST->{saveAdultCnt}    )  ) 
+        {
+        my %properties = ( subject     => $POST->{saveSubject},
+                           editor      => $POST->{saveEditor}, 
+                           userpic     => $POST->{saveUserpic},
+                           taglist     => $POST->{saveTaglist},
+                           moodid      => $POST->{saveMoodID},
+                           mood        => $POST->{saveMood},
+                           location1   => $POST->{saveLocation},
+                           music       => $POST->{saveMusic},
+                           adultreason => $POST->{saveAdultReason},
+                           commentset  => $POST->{saveCommentSet},
+                           commentscr  => $POST->{saveCommentScr},
+                           adultcnt    => $POST->{saveAdultCnt}   );
+        
+        # If the property is null, a default menu selection or a JS undefined
+        # value, we don't want to save it.
+        foreach my $key ( keys ( %properties ) ) {
+            if ( ( $properties{$key} =~ /^$/          ) ||
+                 ( $properties{$key} =~ /^0$/         ) ||
+                 ( $properties{$key} =~ /^undefined$/ ) ) {
+                delete $properties{$key};
+            };
+        };
+
+        # Freeze the hash into a frozen storable string. If the hash is not empty
+        # save it to the userprop. If it is, delete it. 
+        my $frozen_properties =  Storable::nfreeze( \%properties );
+        if ( $frozen_properties =~ /\w/ ) {
+            $u->set_prop('draft_properties', $frozen_properties);
+        } else {
+            $u->clear_prop('draft_properties');
+        };
+    }
+
+    # This property saves the main body of the draft.
+    if (defined $POST->{'saveDraft'}) {
+        $u->set_draft_text($POST->{'saveDraft'});
+
+    # This property clears out the main body of the draft.
+    } elsif ($POST->{'clearDraft'}) {
+        $u->set_draft_text('');
+
+    } else {
+        $ret->{draft} = $u->draft_text;
+    }
+
+    $r->print(to_json($ret));
+    return $r->OK;
 }
 
 1;

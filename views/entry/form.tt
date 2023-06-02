@@ -56,6 +56,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "stc/fck/fckeditor.js"
     "js/pages/entry/rte.js"
 
+    # old drafts functionality
+    "js/pages/entry/drafts.js"
+
 ) -%]
 
 [% sections.title = action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) %]
@@ -178,6 +181,7 @@ postFormInitData.strings = {
                         size = "50"
 
                         labelclass = "hidden"
+                        class = "draft"
 
                         placeholder = dw.ml(".subject.placeholder")
                 ) -%]
@@ -193,6 +197,7 @@ postFormInitData.strings = {
                   id = 'editor'
                   select = editors.selected
                   items = editors.items
+                  class = "draft"
                 ) -%]
 
                 <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1" target="_blank">[%-
@@ -218,9 +223,11 @@ postFormInitData.strings = {
                     wrap = "soft"
 
                     labelclass = "hidden"
+                    class = "draft"
 
                     placeholder = dw.ml(".event.placeholder")
                 ) -%]
+                <small id="draftstatus" type="text" disabled="disabled" name="draftstatus" role="status" aria-live="polite"></small>
             </div>
         </div></div>
 
@@ -413,4 +420,28 @@ postFormInitData.strings = {
             FCKLang.ReadMore = [% dw.ml('fcklang.readmore') | js %];
             FCKLang.CutContents = [% dw.ml('fcklang.cutcontents') | js %];
             FCKLang.LJCut = [% dw.ml('fcklang.ljcut') | js %];
+</script>
+
+<script>
+        // These JS variables contain the contents of the various draft fields.
+        var restoredDraft       = [% draft %];
+        var restoredEditor      = [% draft_properties.editor %] + '';
+        var restoredSubject     = [% draft_properties.subject %];
+        var restoredUserpic     = [% draft_properties.userpic %];
+        var restoredTaglist     = [% draft_properties.taglist %];
+        var restoredMoodID      = [% draft_properties.moodid %];
+        var restoredMood        = [% draft_properties.mood %];
+        var restoredLocation    = [% draft_properties.location1 %];
+        var restoredMusic       = [% draft_properties.music %];
+        var restoredAdultReason = [% draft_properties.adultreason %];
+        var restoredCommentSet  = [% draft_properties.commentset %];
+        var restoredCommentScr  = [% draft_properties.commentscr %];
+        var restoredAdultCnt    = [% draft_properties.adultcnt %];
+
+        var autoSaveInterval = [% autosave_interval %];
+        var savedMsg = [% dw.ml('.draft.autosave', {time => '[[time]]'}) | js %];
+        var restoredMsg = [% dw.ml('.draft.restored') | js %]
+        var confirmMsg = [% dw.ml( '.draft.confirm2', { subjectline => draft_subject_raw } ) | js %]
+
+        var should_init = [%init_draft %];
 </script>
