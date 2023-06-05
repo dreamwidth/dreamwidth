@@ -21,6 +21,7 @@ package LJ::S2;
 use DW;
 use lib DW->home . "/src/s2";
 use S2;
+use LJ::JSON;
 
 sub EntryPage {
     my ( $u, $remote, $opts ) = @_;
@@ -438,7 +439,7 @@ sub EntryPage {
 
         my $js =
             "<script>\n// don't crawl this.  read http://www.livejournal.com/developer/exporting\n";
-        $js .= "var LJ_cmtinfo = " . LJ::js_dumper($cmtinfo) . "\n";
+        $js .= "var LJ_cmtinfo = " . to_json($cmtinfo) . "\n";
         $js .= '</script>';
         $p->{'LJ_cmtinfo'} = $js if $opts->{'need_cmtinfo'};
         $p->{'head_content'} .= $js;
