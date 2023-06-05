@@ -272,7 +272,7 @@ sub new_handler {
     $vars->{password_maxlength} = $LJ::PASSWORD_MAXLENGTH;
 
     $vars->{js_for_rte} = LJ::rte_js_vars();
-    $vars->{sitevalues} = LJ::js_dumper( \@sitevalues );
+    $vars->{sitevalues} = to_json( \@sitevalues );
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
@@ -647,7 +647,7 @@ sub _edit {
     };
 
     $vars->{js_for_rte} = LJ::rte_js_vars();
-    $vars->{sitevalues} = LJ::js_dumper( \@sitevalues );
+    $vars->{sitevalues} = to_json( \@sitevalues );
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }

@@ -896,7 +896,7 @@ sub is_enabled {
         my $remote = LJ::get_remote();
         return 1 if $remote && $remote->can_beta_payments;
     }
-    return !LJ::conf_test( $LJ::DISABLED{$conf}, @_ );
+    return !LJ::conf_test( $LJ::DISABLED{$conf}, @_ ) + 0;
 }
 
 # document valid arguments for certain privs (using hooks)

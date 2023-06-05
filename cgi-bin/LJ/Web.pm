@@ -32,6 +32,7 @@ use LJ::Subscription::Pending;
 use LJ::Directory::Search;
 use LJ::Directory::Constraint;
 use LJ::PageStats;
+use LJ::JSON;
 
 # <LJFUNC>
 # name: LJ::img
@@ -1488,7 +1489,7 @@ RTE
             . LJ::ejs( BML::ml('fcklang.userprompt.user') ) . "\";\n";
         $out .= "FCKLang.UserPrompt_Site = \""
             . LJ::ejs( BML::ml('fcklang.userprompt.site') ) . "\";\n";
-        $out .= "FCKLang.UserPrompt_SiteList =" . LJ::js_dumper( \@sitevalues ) . ";\n";
+        $out .= "FCKLang.UserPrompt_SiteList =" . to_json( \@sitevalues ) . ";\n";
         $out .= "FCKLang.InvalidChars = \"" . LJ::ejs( BML::ml('fcklang.invalidchars') ) . "\";\n";
         $out .= "FCKLang.LJUser = \"" . LJ::ejs( BML::ml('fcklang.ljuser') ) . "\";\n";
         $out .= "FCKLang.LJVideo = \"" . LJ::ejs( BML::ml('fcklang.ljvideo2') ) . "\";\n";
@@ -2672,38 +2673,6 @@ sub entry_form_decode {
     return $req;
 }
 
-# Data::Dumper for JavaScript
-# use this only when printing out on a page as a JS variable
-# do not use for JSON requests -- it is not guaranteed to return
-# valid JSON
-sub js_dumper {
-    my $obj = shift;
-    if ( ref $obj eq "HASH" ) {
-        my $ret = "{";
-        foreach my $k ( keys %$obj ) {
-
-            # numbers as keys need to be quoted.  and things like "null"
-            my $kd = ( $k =~ /^\w+$/ ) ? "\"$k\"" : LJ::js_dumper($k);
-            $ret .= "$kd: " . js_dumper( $obj->{$k} ) . ",\n";
-        }
-        if ( keys %$obj ) {
-            chop $ret;
-            chop $ret;
-        }
-        $ret .= "}";
-        return $ret;
-    }
-    elsif ( ref $obj eq "ARRAY" ) {
-        my $ret = "[" . join( ", ", map { js_dumper($_) } @$obj ) . "]";
-        return $ret;
-    }
-    else {
-        $obj = '' unless defined $obj;
-        return $obj if $obj =~ /^\d+$/;
-        return "\"" . LJ::ejs($obj) . "\"";
-    }
-}
-
 {
     my %stat_cache = ();    # key -> {lastcheck, modtime}
 
@@ -2910,8 +2879,8 @@ sub res_includes {
             cmax_comment        => LJ::CMAX_COMMENT,
         );
 
-        my $site_params     = LJ::js_dumper( \%site );
-        my $site_param_keys = LJ::js_dumper( [ keys %site ] );
+        my $site_params     = to_json( \%site );
+        my $site_param_keys = to_json( [ keys %site ] );
 
         # include standard JS info
         $ret .= qq {
@@ -2920,11 +2889,7 @@ sub res_includes {
                 if (!Site)
                     Site = {};
 
-                var site_p = $site_params;
-                var site_k = $site_param_keys;
-                for (var i = 0; site_k.length > i; i++) {
-                    Site[site_k[i]] = site_p[site_k[i]];
-                }
+                Site = Object.assign(Site, $site_params);
            </script>
         };
     }
