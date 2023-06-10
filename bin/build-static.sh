@@ -22,9 +22,7 @@ done
 buildroot="$LJHOME/build/static"
 mkdir -p $buildroot
 
-if [[ -e /tmp/jcompress ]]; then
-    rm /tmp/jcompress
-fi
+jcompress=`mktemp /tmp/jcompress.XXXXXX` || exit 1
 
 compressor="$LJHOME/ext/yuicompressor/yuicompressor.jar"
 uncompressed_dir="/max"
@@ -108,7 +106,7 @@ do
 
                 if [[ "$ext" = "js" || "$ext" = "css" ]]; then
                     # Attempt to rewrite the file with compressed version
-                    echo "java -jar $compressor \"$synced_file\" -o \"$final/$modified_file\"" >> /tmp/jcompress
+                    echo "java -jar $compressor \"$synced_file\" -o \"$final/$modified_file\"" >> $jcompress
                 fi
             else
                 # we're deleting rather than copying
@@ -123,9 +121,10 @@ do
     done
 
     # Now parallel execute
-    if [[ -e /tmp/jcompress ]]; then
+    if [[ -s $jcompress ]]; then
         echo "Executing compression (takes a minute)..."
-        cat /tmp/jcompress | xargs -d "\n" -n 1 -P 4 -- bash -c
+        cat $jcompress | xargs -d "\n" -n 1 -P 4 -- bash -c
+        >$jcompress
     fi
 done
 
@@ -134,5 +133,7 @@ if [[ -n $compressor ]]; then
     find $buildroot/js $buildroot/max/js   | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
     find $buildroot/stc $buildroot/max/stc | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
 fi
+
+rm -f $jcompress
 
 exit 0
