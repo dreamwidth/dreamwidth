@@ -1,0 +1,11 @@
+;; -*- coding: utf-8 -*-
+.backlink=&lt;&lt; Back
+
+.button.suspend=Suspend Users
+
+.error.nousers=No users found to review - come back again later!
+
+.intro=The accounts listed below have been flagged for spam. Please uncheck any you believe were erroneously flagged, and submit the form to suspend the checked accounts.
+
+.title=Suspend Flagged Accounts
+

@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <title>[% '.title' | ml %]</title>
+    <style type="text/css">
+      body { margin: 0; }
+      .container iframe { width: 100%; height: 100%; }
+      .container { height: 100%; width: 100%; overflow: hidden; }
+      .headform  { height: auto; background-color: #eee; padding: 0.5em 1em; }
+      .headform  { font-family: Calibri, Helvetica, Arial, sans-serif; }
+      .headform form { display: inline; }
+      .buttons input { margin: 0.5em; }
+      .yes { background-color: #b5e7a0; }
+      .no  { background-color: #eca1a6; }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="headform">
+        <p>[% '.intro' | ml( user = user.ljuser_display, ago = ago ) %]</p>
+        <form method=post>
+          [% dw.form_auth %]
+          [% form.hidden( name = 'uid', value = user.id ) %]
+          <div class="buttons">
+            [% form.submit( name =  'yes', value = dw.ml( '.button.yes' ),
+                            class = 'yes' ) %]
+            [% form.submit( name  = 'no',  value = dw.ml( '.button.no' ),
+                            class = 'no' ) %]
+          </div>
+        </form>
+      </div>
+
+      <iframe src="[% user.journal_base %]"></iframe>
+    </div>
+  </body>
+</html>

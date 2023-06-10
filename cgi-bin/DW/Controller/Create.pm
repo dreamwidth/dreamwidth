@@ -252,6 +252,9 @@ sub create_handler {
                 }
             );
 
+            # note that this user needs to be reviewed for spam content
+            $nu->set_prop( not_approved => 1 ) if LJ::is_enabled('approvenew');
+
             # we're all done
             $nu->make_login_session;
 
