@@ -27,7 +27,7 @@ LJDraft.handleInput = function (evt) {
     }
 
     clearTimeout(LJDraft.timer);
-    LJDraft.timer = setTimeout(() => {
+    LJDraft.timer = setTimeout(function () {
             LJDraft.saveBody();
         }, LJDraft.inputDelay);
 
@@ -54,7 +54,7 @@ LJDraft.saveProperties = function () {
         saveCommentSet: $("#comment_settings").val(),
         saveCommentScr: $("#opt_screening").val(),
         saveAdultCnt: $("#age_restriction").val(),
-    }
+    };
 
     if ( $("#prop_picture_keyword") ) { //In case the user has no userpics
         newProps.saveUserpic = $("#prop_picture_keyword").val();
@@ -116,7 +116,7 @@ function initDraft(askToRestore) {
           $("#comment_settings").val(restoredCommentSet);
           $("#opt_screening").val(restoredCommentScr);
           $("#age_restriction").val(restoredAdultCnt);
-            if ( $("#prop_picture_keyword") ) {
+          if ( $("#prop_picture_keyword") ) {
               $("#prop_picture_keyword").val(restoredUserpic);
               $("#prop_picture_keyword").trigger("change");
           }
@@ -128,17 +128,17 @@ function initDraft(askToRestore) {
    }
 
     // set up event handlers
-    $("#content").on('change', '.draft', null, LJDraft.handleChange);
-    $("#content").on('input', 'textarea.draft', null, LJDraft.handleInput);
+    $("#content").on('change', 'input.draft, textarea.draft', null, LJDraft.handleChange);
+    $("#content").on('input', '#entry-body', null, LJDraft.handleInput);
 
     // Try to save draft when page is closed/hidden
-    document.onvisibilitychange = () => {
+    document.onvisibilitychange = function(){
       if (document.visibilityState === "hidden" && !LJDraft.savedUnload) {
-        unloadSave()
+        unloadSave();
       }
     };
 
-    window.onpagehide = (event) => {
+    window.onpagehide = function (event) {
       if (!LJDraft.savedUnload) {
         unloadSave();
       }
@@ -154,8 +154,8 @@ if (should_init != null) {
     initDraft(should_init);
 
     // Hook into the RTE iframe once it's loaded, if we have draft support.
-function FCKeditor_OnComplete( editor ){ 
+    function FCKeditor_OnComplete( editor ){ 
         editor.EditorDocument.addEventListener('input', LJDraft.handleInput);
-};
+    };
 }
 
