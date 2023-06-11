@@ -51,7 +51,7 @@ sub media_manage_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
-    my ($remote, $r) = ($rv->{remote}, $rv->{r});
+    my ( $remote, $r ) = ( $rv->{remote}, $rv->{r} );
 
     return error_ml(
         'error.openid',
@@ -90,8 +90,8 @@ sub media_manage_handler {
     $rv->{user}           = $user;
     $rv->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
 
-    my $media_usage = DW::Media->get_usage_for_user( $u );
-    my $media_quota = DW::Media->get_quota_for_user( $u );
+    my $media_usage = DW::Media->get_usage_for_user($u);
+    my $media_quota = DW::Media->get_quota_for_user($u);
 
     $rv->{usage}      = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
     $rv->{quota}      = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
