@@ -236,3 +236,9 @@ $("#inbox_messages").on("click", ".actions a", function(evt) {
 
     mark_items(null, 'mark_read', [qid]);
 });
+
+// Handle reloads where we have already-checked elements as some browsers will re-check them
+$(".item_checkbox:checked").each(function() {
+    $(this).parents('.inbox_item_row').addClass('selected-msg');
+});
+check_selected();
