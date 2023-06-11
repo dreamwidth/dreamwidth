@@ -136,7 +136,11 @@ sub visible_to {
     # at this point, if we don't have a remote user, fail
     return 0 unless LJ::isu($other_u);
 
-    # private check.  if it's us, allow, else fail.
+    # private check.  if it's us or an admin, allow, else fail.
+    my $refer = {DW::Request->get->headers_in}->{Referer};
+    my $is_sitepage = (defined $refer && $refer eq "$LJ::SITEROOT/") ? 1 : 0;
+    return 1 if $is_sitepage && $other_u->has_priv( 'canview', 'images' );
+
     return 1 if $u->equals($other_u);
     return 0 if $self->security eq 'private';
 

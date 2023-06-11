@@ -81,6 +81,7 @@ LJ::Hooks::register_hook(
         # have to manually maintain the other lists
         $hr = {
             entryprops    => "Access to /admin/entryprops",
+            images        => "Access to admin mode on /file/list",
             sessions      => "Access to admin mode on /manage/logins",
             subscriptions => "Access to admin mode on notification settings",
             suspended     => "Access to suspended journal content",
