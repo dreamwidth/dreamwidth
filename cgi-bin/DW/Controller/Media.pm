@@ -50,28 +50,48 @@ DW::Routing->register_string( '/file',      \&media_index_handler,    app => 1 )
 sub media_manage_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
+
+    my ( $remote, $r ) = ( $rv->{remote}, $rv->{r} );
+
     return error_ml(
         'error.openid',
         {
             sitename => $LJ::SITENAMESHORT,
             aopts    => '/create'
         }
-    ) if $rv->{remote}->is_identity;
+    ) if $remote->is_identity;
+
+    my $u         = $remote;
+    my $adminmode = $u && $u->has_priv( 'canview', 'images' );
+    my $user      = LJ::canonical_username( $r->get_args->{user} || $r->post_args->{user} );
+
+    if ( $adminmode && $user ) {
+        $u = LJ::load_user($user);
+        return error_ml('error.username_notfound') unless $u;
+        return error_ml('error.purged.text') if $u->is_expunged;
+        $user = undef if $remote->equals($u);
+    }
+    else {
+        $user = undef;
+    }
 
     # load all of a user's media.  this is inefficient and won't be like this forever,
     # but it's simple for now...
-    my @media = DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 );
+    my @media = DW::Media->get_active_for_user( $u, width => 200, height => 200 );
 
     $rv->{media}          = \@media;
     $rv->{make_embed_url} = \&make_embed_url;
-    $rv->{page}           = $rv->{r}->get_args->{page} || '1';
-    $rv->{view_type}      = $rv->{r}->get_args->{view} || '';
+    $rv->{page}           = $r->get_args->{page} || '1';
+    $rv->{view_type}      = $r->get_args->{view} || '';
     $rv->{maxpage}        = POSIX::ceil( scalar @media / 20 );
     $rv->{valid_sizes}    = [%VALID_SIZES];
     $rv->{convert_time}   = \&LJ::mysql_time;
+    $rv->{adminmode}      = $adminmode ? 1 : 0;
+    $rv->{user}           = $user;
+    $rv->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
 
-    my $media_usage = DW::Media->get_usage_for_user( $rv->{u} );
-    my $media_quota = DW::Media->get_quota_for_user( $rv->{u} );
+    my $media_usage = DW::Media->get_usage_for_user($u);
+    my $media_quota = DW::Media->get_quota_for_user($u);
 
     $rv->{usage}      = sprintf( "%0.3f MB", $media_usage / 1024 / 1024 );
     $rv->{quota}      = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
