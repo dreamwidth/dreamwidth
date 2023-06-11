@@ -106,10 +106,9 @@ sub execute {
             next;
         }
 
-        $u->update_self( { statusvis => 'V', raw => 'statusvisdate=NOW()' } );
+        my $err;
+        $self->error($err) unless $u->set_unsuspended( $remote, $reason, \$err );
         $u->{statusvis} = 'V';
-
-        LJ::statushistory_add( $u, $remote, "unsuspend", $reason );
 
         $self->print("User '$username' unsuspended.");
     }
