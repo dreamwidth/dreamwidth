@@ -2880,7 +2880,6 @@ sub res_includes {
         );
 
         my $site_params     = to_json( \%site );
-        my $site_param_keys = to_json( [ keys %site ] );
 
         # include standard JS info
         $ret .= qq {
