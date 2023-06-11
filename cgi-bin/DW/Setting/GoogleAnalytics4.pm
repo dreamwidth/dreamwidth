@@ -62,7 +62,7 @@ sub save {
     # Check that the ID matches the format G-xxxxxxxxxx
     # or is blank before proceeding.
     if ( $txt =~ /^G-[A-Z0-9]{10,}$/i or $txt eq "" ) {
-        $u->ga4_analytics(uc $txt);
+        $u->ga4_analytics( uc $txt );
     }
     else {
         $class->errors( "code" => $class->ml('setting.googleanalytics4.error.invalid') );

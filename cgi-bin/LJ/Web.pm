@@ -2879,7 +2879,7 @@ sub res_includes {
             cmax_comment        => LJ::CMAX_COMMENT,
         );
 
-        my $site_params     = to_json( \%site );
+        my $site_params = to_json( \%site );
 
         # include standard JS info
         $ret .= qq {

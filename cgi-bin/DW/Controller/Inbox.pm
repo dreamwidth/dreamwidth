@@ -310,7 +310,7 @@ sub action_handler {
     my $items_html    = render_items( $page, $view, $remote, $display_items, $expand );
     my $folder_html   = render_folders( $remote, $view );
 
-    return DW::RPC->out( success => {items => $items_html, folders => $folder_html} );
+    return DW::RPC->out( success => { items => $items_html, folders => $folder_html } );
 
 }
 

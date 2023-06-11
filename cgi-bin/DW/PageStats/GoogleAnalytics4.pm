@@ -48,7 +48,6 @@ sub _render_head {
 };
 }
 
-
 sub should_render {
     my ($self) = @_;
 
