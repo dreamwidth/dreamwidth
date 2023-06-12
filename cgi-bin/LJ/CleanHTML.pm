@@ -1826,7 +1826,7 @@ sub clean_comment {
 }
 
 sub clean_userbio {
-    my $ref = shift;
+    my ( $ref, $strip_links ) = @_;
     return undef unless ref $ref;
 
     clean(
@@ -1842,8 +1842,10 @@ sub clean_userbio {
 
             # Bios are always local, but for now, we are marking them as
             # HTML so that people don't have to reformat everything.
-            formatting  => 'html',
-            at_mentions => 1,
+            formatting   => 'html',
+            at_mentions  => 1,
+            noautolinks  => $strip_links,
+            extractlinks => $strip_links,
         }
     );
 }
