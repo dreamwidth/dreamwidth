@@ -715,7 +715,7 @@ sub bio {
             $ret =~ s!\n!<br />!g;
         }
         else {
-            LJ::CleanHTML::clean_userbio( \$ret );
+            LJ::CleanHTML::clean_userbio( \$ret, !$u->is_validated );
         }
 
         LJ::EmbedModule->expand_entry( $u, \$ret );
