@@ -177,16 +177,17 @@ sub hash {
 # Usage: get_one (user)
 # Given a user, either return the first found key for them, or
 # if they have no keys yet, generate one. Intended for use in
-# situations where we have a logged in user and want to get a working API 
+# situations where we have a logged in user and want to get a working API
 # key for them, without forcing them to jump through the menu hoops themselves.
 sub get_one {
     my ( $self, $u ) = @_;
     my $apikeys = $self->get_keys_for_user($u);
     my $key;
 
-    if (defined($apikeys->[0])) {
-        $key = $apikeys ->[0];
-    } else {
+    if ( defined( $apikeys->[0] ) ) {
+        $key = $apikeys->[0];
+    }
+    else {
         $key = $self->new_for_user($u);
     }
     return $key;

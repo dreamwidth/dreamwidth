@@ -505,7 +505,7 @@ sub alloc_global_counter {
         # pick maximum id from sitekeywords & interests
         my $max_sitekeys  = $dbh->selectrow_array("SELECT MAX(kwid) FROM sitekeywords");
         my $max_interests = $dbh->selectrow_array("SELECT MAX(intid) FROM interests");
-        $newmax = $max_sitekeys > $max_interests ? $max_sitekeys : $max_interests;
+        $newmax = ( $max_sitekeys // 0 ) > ( $max_interests // 0 ) ? $max_sitekeys : $max_interests;
     }
     elsif ( $dom eq 'I' ) {
 

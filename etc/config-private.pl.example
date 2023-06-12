@@ -128,6 +128,7 @@ use Net::Subnet;
     # site pages (www, non-journal)
     %SITE_PAGESTAT_CONFIG = (
     #    google_analytics => 'UA-xxxxxx-x',
+    #    ga4_analytics    => 'G-xxxxxxxxxx',
     );
 
     # Path (e.g. /bots) at which a informational page about your acceptable bot
