@@ -734,6 +734,7 @@ body<=
         }
 
         LJ::Hooks::run_hooks('profile_save', $u, \%saved, \%POST);
+        LJ::Hooks::run_hooks('spam_check', $u, \%saved, 'userbio');
         LJ::Hooks::run_hook('set_profile_settings_extra', $u, \%POST);
 
         # tell the user all is well
