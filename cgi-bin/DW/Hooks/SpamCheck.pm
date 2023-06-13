@@ -29,6 +29,7 @@ LJ::Hooks::register_hook(
     sub {
         my ( $user, $data, $location ) = @_;
         return unless defined $user && defined $data && defined $location;
+        my $system = LJ::load_user('system');
         my $blocked_links = [ 'google.com', 'yahoo.com' ];
         my $suspended     = 0;
         my $location_str  = $location; # same for everything but hashrefs
@@ -39,7 +40,7 @@ LJ::Hooks::register_hook(
 
             foreach my $re (@$blocked_links) {
                 if ( $item =~ $re ) {
-                    LJ::User::set_suspended( $user, 'blocklistmatch',
+                    LJ::User::set_suspended( $user, $system,
                         "auto-suspend for matching domain blocklist: $re in $location_str" );
                     $suspended = 1;
                     last;

@@ -362,7 +362,7 @@ _c?>
         LJ::do_request(\%req, \%res, $flags);
 
         # check for spam domains
-        LJ::Hooks::run_hooks('spam_check', $user, \%req, 'entry');
+        LJ::Hooks::run_hooks('spam_check', $u, \%req, 'entry');
 
         if (!$errors) {
             # examine response
