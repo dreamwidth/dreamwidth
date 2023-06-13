@@ -22,47 +22,44 @@ use warnings;
 use Scalar::Util qw/reftype/;
 
 use LJ::Hooks;
-use LJ::MemCache;
 
 LJ::Hooks::register_hook(
     'spam_check',
     sub {
-        my ( $user, $data, $location ) = @_;
-        return unless defined $user && defined $data && defined $location;
-        my $system = LJ::load_user('system');
-        my @blocked_links = grep { $_ } split( /\r?\n/, LJ::load_include('spamblocklist') );
-        my $suspended     = 0;
-        my $location_str  = $location; # same for everything but hashrefs
+        my ( $u, $data, $location ) = @_;
+        return unless defined $u && defined $data && defined $location;
+        return if $u->has_priv('siteadmin');    # some users can be trusted
+
+        my $system          = LJ::load_user('system');
+        my @blocked_domains = grep { $_ } split( /\r?\n/, LJ::load_include('spamblocklist') );
 
         my $check_item = sub {
-            my $item = shift;
-            return unless defined $item;    # don't waste time iterating over undefined items
+            my ( $item, $loc ) = @_;
+            return unless defined $item;        # don't waste time iterating over undefined items
 
-            foreach my $re (@blocked_links) {
-                if ( $item =~ $re ) {
-                    LJ::User::set_suspended( $user, $system,
-                        "auto-suspend for matching domain blocklist: $re in $location_str" );
-                    $suspended = 1;
-                    last;
+            foreach my $domain (@blocked_domains) {
+                if ( $item =~ m|\b${domain}\b| ) {
+                    $u->set_suspended( $system,
+                        "auto-suspend for matching domain blocklist: $domain in $loc" );
+                    return 1;
                 }
             }
         };
 
         if ( reftype $data eq reftype [] ) {
             foreach my $item (@$data) {
-                $check_item->($item);
+                my $suspended = $check_item->( $item, $location );
                 last if $suspended;
             }
         }
         elsif ( reftype $data eq reftype {} ) {
             foreach my $key ( keys %$data ) {
-                $location_str = "$key of $location";
-                $check_item->( $data->{$key} );
+                my $suspended = $check_item->( $data->{$key}, "$key of $location" );
                 last if $suspended;
             }
         }
         else {
-            $check_item->($data);
+            $check_item->( $data, $location );
         }
 
     }
