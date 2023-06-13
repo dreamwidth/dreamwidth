@@ -30,7 +30,7 @@ LJ::Hooks::register_hook(
         my ( $user, $data, $location ) = @_;
         return unless defined $user && defined $data && defined $location;
         my $system = LJ::load_user('system');
-        my $blocked_links = [ 'google.com', 'yahoo.com' ];
+        my @blocked_links = grep { $_ } split( /\r?\n/, LJ::load_include('spamblocklist') );
         my $suspended     = 0;
         my $location_str  = $location; # same for everything but hashrefs
 
@@ -38,7 +38,7 @@ LJ::Hooks::register_hook(
             my $item = shift;
             return unless defined $item;    # don't waste time iterating over undefined items
 
-            foreach my $re (@$blocked_links) {
+            foreach my $re (@blocked_links) {
                 if ( $item =~ $re ) {
                     LJ::User::set_suspended( $user, $system,
                         "auto-suspend for matching domain blocklist: $re in $location_str" );
