@@ -52,6 +52,8 @@ Net::Subnet
 Params::Classify@0.015
 Paws::S3
 Perl::Tidy@20190601
+Plack
+Plack::Middleware::Options
 Proc::ProcessTable
 RPC::XML
 SOAP::Lite@1.27

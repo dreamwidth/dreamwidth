@@ -74,9 +74,6 @@ use LJ::ConvUTF8;
 
 use MIME::Words;
 
-# Try to load DBI::Profile
-BEGIN { $LJ::HAVE_DBI_PROFILE = eval "use DBI::Profile (); 1;" }
-
 use LJ::Lang;
 use LJ::Links;
 use LJ::HTMLControls;

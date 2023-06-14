@@ -290,11 +290,6 @@ sub r {
     return $self;
 }
 
-# calls the method as a handler.
-sub call_response_handler {
-    return $_[1]->();
-}
-
 # spawn a process for an external program
 sub spawn {
     confess "Sorry, spawning not implemented.";
