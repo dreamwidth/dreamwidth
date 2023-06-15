@@ -24,6 +24,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- form.select( label = dw.ml( ".label.current_mood" )
             name = "current_mood"
             id = "js-current-mood"
+            class = "draft"
 
             items = moodselect
         ) -%]
@@ -33,6 +34,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- form.textbox( label = dw.ml( ".label.current_mood_other" )
           name = "current_mood_other"
           id = "js-current-mood-other"
+          class = "draft"
 
           size = "20"
           maxlength = "30"
@@ -43,6 +45,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- form.textbox( label = dw.ml( ".label.current_music" )
             name = "current_music"
             id = "current-music"
+            class = "draft"
 
             size="20"
             maxlength="80"
@@ -53,6 +56,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- form.textbox( label = dw.ml( ".label.current_location" )
             name = "current_location"
             id = "current-location"
+            class = "draft"
 
             size = "20"
             maxlength = "80"

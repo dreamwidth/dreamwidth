@@ -63,4 +63,7 @@ iconSelect.on("change", function(e) {
         }
     }
 });
+
+// in case other JS has modified the icon select HTML before we've loaded.
+iconSelect.trigger("change");
 });

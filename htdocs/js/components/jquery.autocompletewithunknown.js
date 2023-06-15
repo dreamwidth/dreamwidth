@@ -6,6 +6,7 @@
         });
 
         ele.val( tags_array.join(",") );
+        ele.trigger("change");
     }
 
     // this doesn't act on the autocompletewithunknown widget. Instead, it's called on our input field with autocompletion
