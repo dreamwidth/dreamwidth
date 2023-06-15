@@ -215,15 +215,16 @@ var postForm = (function($) {
             $.when.apply($, requests).done(function() {
                 var members_data_list = "";
                 members_data.sort();
-                for (member in members_data) {
-                    members_data_list = members_data_list + "<li>" + members_data[member] + "</li>";
-                }
+                members_data.forEach(function(member) {
+                    members_data_list = members_data_list + "<li>" + member + "</li>";
+                });
+                
                 $custom_access_group_members.html(members_data_list);
             });
         }
 
         function saveCurrentGroups() {
-            $custom_groups.data( "original_data", $custom_groups.find("input[name=custom_bit]").serializeArray() );
+           $custom_groups.data( "original_data", $custom_groups.find("input[name=custom_bit]").serializeArray() );
         }
 
         function onOpen() {
