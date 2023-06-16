@@ -106,7 +106,6 @@ my %host_path_match = (
     "www.msnbc.com"    => [ qr!^/msnbc/embedded-video/\w+!, 1 ],
     "my.mail.ru"       => [ qr!^/video/embed/\d+!,          1 ],
 
-    "nekocap.com"      => [ qr!^/view/[a-zA-Z0-9]+!,       1 ],
     "ext.nicovideo.jp" => [ qr!^/thumb/!,                             0 ],
     "noisetrade.com"   => [ qr!^/service/widgetv2/!,                  1 ],
     "www.npr.org"      => [ qr!^/templates/event/embeddedVideo\.php!, 1 ],
