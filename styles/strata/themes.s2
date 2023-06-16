@@ -234,9 +234,9 @@ set color_module_title_background = "#331003";
 layerinfo type = "theme";
 layerinfo name = "Certain Frogs";
 layerinfo redist_uniq = "strata/certainfrogs";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -314,9 +314,9 @@ set image_background_page_url = "commons/certainfrogs.png";
 layerinfo type = "theme";
 layerinfo name = "Chinese Pink";
 layerinfo redist_uniq = "strata/chinesepink";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -505,9 +505,9 @@ set color_module_title_background = "#103e70";
 layerinfo type = "theme";
 layerinfo name = "Dependable";
 layerinfo redist_uniq = "strata/dependable";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -656,9 +656,9 @@ set color_navlinks_current = "#6c4130";
 layerinfo type = "theme";
 layerinfo name = "Elegant Brown";
 layerinfo redist_uniq = "strata/elegantbrown";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -736,9 +736,9 @@ set image_background_page_url = "commons/elegantbrown.png";
 layerinfo type = "theme";
 layerinfo name = "Green Tomatoes";
 layerinfo redist_uniq = "strata/greentomatoes";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -800,9 +800,9 @@ set color_navlinks_current = "#1e1e1e";
 layerinfo type = "theme";
 layerinfo name = "Hollow Silence";
 layerinfo redist_uniq = "strata/hollowsilence";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -872,9 +872,9 @@ set color_navlinks_current = "#1d1919";
 layerinfo type = "theme";
 layerinfo name = "Lavender Mist";
 layerinfo redist_uniq = "strata/lavendermist";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1129,9 +1129,9 @@ set color_navlinks_current = "#0a566c";
 layerinfo type = "theme";
 layerinfo name = "Pebble Dark";
 layerinfo redist_uniq = "strata/pebbledark";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1202,9 +1202,9 @@ set color_navlinks_current = "#fd68ae";
 layerinfo type = "theme";
 layerinfo name = "Prized";
 layerinfo redist_uniq = "strata/prized";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1391,9 +1391,9 @@ set color_module_title_link_visited = "#a60a43";
 layerinfo type = "theme";
 layerinfo name = "Rainy Day";
 layerinfo redist_uniq = "strata/rainyday";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1464,9 +1464,9 @@ set color_navlinks_current = "#135c4f";
 layerinfo type = "theme";
 layerinfo name = "Rocket";
 layerinfo redist_uniq = "strata/rocket";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

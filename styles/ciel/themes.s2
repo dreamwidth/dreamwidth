@@ -656,9 +656,9 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 layerinfo type = "theme";
 layerinfo name = "Bold Enough";
 layerinfo redist_uniq = "ciel/boldenough";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page
@@ -926,9 +926,9 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 layerinfo type = "theme";
 layerinfo name = "Chelsea Blue";
 layerinfo redist_uniq = "ciel/chelseablue";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -970,9 +970,9 @@ set font_sources = "https://fonts.googleapis.com/css?family=Noticia+Text:400,400
 layerinfo type = "theme";
 layerinfo name = "Chelsea Light";
 layerinfo redist_uniq = "ciel/chelsealight";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1980,9 +1980,9 @@ set color_module_title_background = "#f0e5af";
 layerinfo type = "theme";
 layerinfo name = "Enamel Teapot";
 layerinfo redist_uniq = "ciel/enamelteapot";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -4049,9 +4049,9 @@ set font_navlinks = "'Palatino Linotype', Georgia, Palatino";
 layerinfo type = "theme";
 layerinfo name = "Party";
 layerinfo redist_uniq = "ciel/party";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

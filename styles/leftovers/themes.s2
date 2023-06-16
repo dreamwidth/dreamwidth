@@ -4,7 +4,7 @@ layerinfo "name" = "Elegant Brown";
 layerinfo redist_uniq = "leftovers/elegantbrown";
 layerinfo author_name = "renoir";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Presentation
