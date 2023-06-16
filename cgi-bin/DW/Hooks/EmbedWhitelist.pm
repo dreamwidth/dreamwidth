@@ -65,7 +65,7 @@ my %host_path_match = (
     "chirb.it"                => [ qr!^/wp/!,             1 ],
     "codepen.io"              => [ qr!^/enxaneta/embed/!, 1 ],
     "coub.com"                => [ qr!^/embed/!,          1 ],
-    "www.criticalcommons.org" => [ qr!/embed_view$!,      0 ],
+    "www.criticalcommons.org" => [ qr!/embed$!,      0 ],
 
     "www.dailymotion.com" => [ qr!^/embed/video/!,                   1 ],
     "diode.zone"          => [ qr!^/videos/embed/[0-9a-fA-F\-]{36}!, 1 ],
