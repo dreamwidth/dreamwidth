@@ -100,7 +100,7 @@ $domaintosite{"instagram.com"} =
 $domaintosite{"del.icio.us"} =
     DW::External::Site->new( "30", "del.icio.us", "del.icio.us", "Delicious", "delicious" );
 $domaintosite{"substack.com"} =
-    DW::External::Site->new( "31", "www.substack.com", "substack.com", "Substack", "substack");
+    DW::External::Site->new( "31", "substack.com", "substack.com", "Substack", "substack");
 
 @all_sites_without_alias = values %domaintosite;
 
