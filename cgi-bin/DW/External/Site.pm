@@ -101,7 +101,7 @@ $domaintosite{"del.icio.us"} =
     DW::External::Site->new( "30", "del.icio.us", "del.icio.us", "Delicious", "delicious" );
 
 $domaintosite{"itch.io"} =
-    DW::External::Site->new( "32", "itch.io", "itch.io", "Itch", "itch" );
+    DW::External::Site->new( "32", "www.itch.io", "itch.io", "Itch", "itch" );
 
 @all_sites_without_alias = values %domaintosite;
 
