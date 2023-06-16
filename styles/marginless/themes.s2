@@ -118,9 +118,9 @@ set font_fallback = "serif";
 layerinfo type = "theme";
 layerinfo name = "Blue Lights";
 layerinfo redist_uniq = "marginless/bluelights";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -160,9 +160,9 @@ set color_module_title = "#54cffd";
 layerinfo type = "theme";
 layerinfo name = "Exponential";
 layerinfo redist_uniq = "marginless/exponential";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -269,9 +269,9 @@ set color_module_text = "#222";
 layerinfo type = "theme";
 layerinfo name = "Hesperides Dark";
 layerinfo redist_uniq = "marginless/hesperidesdark";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -335,9 +335,9 @@ set color_module_title_background = "#51312c";
 layerinfo type = "theme";
 layerinfo name = "Lemonade";
 layerinfo redist_uniq = "marginless/lemonade";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -811,9 +811,9 @@ set font_fallback = "serif";
 layerinfo type = "theme";
 layerinfo name = "They Corrupt";
 layerinfo redist_uniq = "marginless/theycorrupt";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -878,9 +878,9 @@ set color_module_title_background = "#c3d9d5";
 layerinfo type = "theme";
 layerinfo name = "Wet Sand";
 layerinfo redist_uniq = "marginless/wetsand";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -945,9 +945,9 @@ set color_module_title_background = "#ebe4dd";
 layerinfo type = "theme";
 layerinfo name = "Zeljónyj";
 layerinfo redist_uniq = "marginless/zeljonyj";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

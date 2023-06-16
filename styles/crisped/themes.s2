@@ -538,9 +538,9 @@ set color_module_title = "#e1def9";
 layerinfo type = "theme";
 layerinfo name = "Argyle";
 layerinfo redist_uniq = "crisped/argyle";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1175,9 +1175,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Bluebird";
 layerinfo redist_uniq = "crisped/bluebird";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1245,9 +1245,9 @@ set color_calendar_text = "#eed9bf";
 layerinfo type = "theme";
 layerinfo name = "Blue Lights";
 layerinfo redist_uniq = "crisped/bluelights";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1315,9 +1315,9 @@ set color_calendar_text = "#fdfdfd";
 layerinfo type = "theme";
 layerinfo name = "Cloud Sounds";
 layerinfo redist_uniq = "crisped/cloudsounds";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1385,9 +1385,9 @@ set color_calendar_text = "#060606";
 layerinfo type = "theme";
 layerinfo name = "Coastal";
 layerinfo redist_uniq = "crisped/coastal";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1455,9 +1455,9 @@ set color_calendar_text = "#1c1c1c";
 layerinfo type = "theme";
 layerinfo name = "Coloured Glass";
 layerinfo redist_uniq = "crisped/colouredglass";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1885,9 +1885,9 @@ set color_calendar_background = "#ddc3d2";
 layerinfo type = "theme";
 layerinfo name = "Crisp Circus";
 layerinfo redist_uniq = "crisped/crispcircus";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2534,9 +2534,9 @@ set color_module_title = "#6378a9";
 layerinfo type = "theme";
 layerinfo name = "Elegant Brown";
 layerinfo redist_uniq = "crisped/elegantbrown";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -4492,9 +4492,9 @@ set color_calendar_text = "#7f4538";
 layerinfo type = "theme";
 layerinfo name = "Gentle Breeze";
 layerinfo redist_uniq = "crisped/gentlebreeze";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -4561,9 +4561,9 @@ set color_calendar_text = "#191919";
 layerinfo type = "theme";
 layerinfo name = "Ice Chic";
 layerinfo redist_uniq = "crisped/icechic";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -5824,9 +5824,9 @@ set image_background_page_url = "crisped/lawlessspeckles.png";
 layerinfo type = "theme";
 layerinfo name = "Le Marin";
 layerinfo redist_uniq = "crisped/lemarin";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -6782,9 +6782,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Memories";
 layerinfo redist_uniq = "crisped/memories";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -8133,9 +8133,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Ombre";
 layerinfo redist_uniq = "crisped/ombre";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -8203,9 +8203,9 @@ set color_footer_background = "#f7f5f3";
 layerinfo type = "theme";
 layerinfo name = "Orange Lights";
 layerinfo redist_uniq = "crisped/orangelights";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -8899,9 +8899,9 @@ set color_calendar_background = "#d8d8a8";
 layerinfo type = "theme";
 layerinfo name = "Prized";
 layerinfo redist_uniq = "crisped/prized";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -9271,9 +9271,9 @@ set color_calendar_background = "#e6dc9b";
 layerinfo type = "theme";
 layerinfo name = "Rainy Day";
 layerinfo redist_uniq = "crisped/rainyday";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -9341,9 +9341,9 @@ set color_calendar_text = "#282828";
 layerinfo type = "theme";
 layerinfo name = "Raspberry Kiss";
 layerinfo redist_uniq = "crisped/raspberrykiss";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -9524,9 +9524,9 @@ function Page::print_theme_stylesheet() { """
 layerinfo type = "theme";
 layerinfo name = "Séjour";
 layerinfo redist_uniq = "crisped/sejour";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -10325,9 +10325,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Simple Terminal";
 layerinfo redist_uniq = "crisped/simpleterminal";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -10974,9 +10974,9 @@ set image_background_page_url = "crisped/softoliveflowers.png";
 layerinfo type = "theme";
 layerinfo name = "Sol y Luna";
 layerinfo redist_uniq = "crisped/solyluna";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -11974,9 +11974,9 @@ set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 layerinfo type = "theme";
 layerinfo name = "Valkyrie";
 layerinfo redist_uniq = "crisped/valkyrie";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -13072,9 +13072,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Wonderland";
 layerinfo redist_uniq = "crisped/wonderland";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -13141,9 +13141,9 @@ set color_calendar_text = "#333";
 layerinfo type = "theme";
 layerinfo name = "Zoned";
 layerinfo redist_uniq = "crisped/zoned";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

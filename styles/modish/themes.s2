@@ -2,9 +2,9 @@
 layerinfo type = "theme";
 layerinfo name = "Argyle";
 layerinfo redist_uniq = "modish/argyle";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -289,9 +289,9 @@ set color_module_link_hover ="#B31B1B";
 layerinfo type = "theme";
 layerinfo name = "Dependable";
 layerinfo redist_uniq = "modish/dependable";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
