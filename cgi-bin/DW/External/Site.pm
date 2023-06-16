@@ -105,6 +105,11 @@ $domaintosite{"substack.com"} =
 $domaintosite{"itch.io"} =
     DW::External::Site->new( "32", "www.itch.io", "itch.io", "Itch", "itch" );
 
+$domaintosite{"furaffinity.com"} =
+    DW::External::Site->new( "33", "www.furaffinity.com", "furaffinity.com", "FurAffinity", "fa" );
+$domaintosite{"artstation.com"} =
+    DW::External::Site->new( "33", "www.artstation.com", "artstation.com", "ArtStation", "artstation" );
+
 @all_sites_without_alias = values %domaintosite;
 
 # without tld
@@ -150,6 +155,8 @@ $domaintosite{"facebook"}        = $domaintosite{"facebook.com"};
 $domaintosite{"fb"}              = $domaintosite{"facebook.com"};
 $domaintosite{"instagram"}       = $domaintosite{"instagram.com"};
 $domaintosite{"ig"}              = $domaintosite{"instagram.com"};
+$domaintosite{"fa"}              = $domaintosite{"furaffinity.com"};
+$domaintosite{"artstation"}      = $domaintosite{"artstation.com"};
 $domaintosite{"substack"}        = $domaintosite{"substack.com"};
 $domaintosite{"itch"}            = $domaintosite{"itch.io"};
 
