@@ -2,9 +2,9 @@
 layerinfo type = "theme";
 layerinfo name = "Blue Sunday";
 layerinfo redist_uniq = "sundaymorning/bluesunday";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -68,9 +68,9 @@ set image_background_page_url = "sundaymorning/bluesunday.png";
 layerinfo type = "theme";
 layerinfo name = "Brighter Sunday";
 layerinfo redist_uniq = "sundaymorning/brightersunday";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -649,9 +649,9 @@ set image_background_page_url = "sundaymorning/redsquiggle.png";
 layerinfo type = "theme";
 layerinfo name = "Seafoam Sunday";
 layerinfo redist_uniq = "sundaymorning/seafoamsunday";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -715,9 +715,9 @@ set image_background_page_url = "sundaymorning/seafoamsunday.png";
 layerinfo type = "theme";
 layerinfo name = "Sunday Hearts";
 layerinfo redist_uniq = "sundaymorning/sundayhearts";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -780,9 +780,9 @@ set image_background_page_url = "sundaymorning/sundayhearts.png";
 layerinfo type = "theme";
 layerinfo name = "Sunday Stars";
 layerinfo redist_uniq = "sundaymorning/sundaystars";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
