@@ -447,9 +447,9 @@ set color_module_title_background = "#333";
 layerinfo type = "theme";
 layerinfo name = "Histories";
 layerinfo redist_uniq = "basicboxes/histories";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -857,9 +857,9 @@ set color_module_title_background = "#e0dfae";
 layerinfo type = "theme";
 layerinfo name = "Profundity";
 layerinfo redist_uniq = "basicboxes/profundity";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1049,9 +1049,9 @@ set color_module_title_background = "#003f4c";
 layerinfo type = "theme";
 layerinfo name = "With Your Rain";
 layerinfo redist_uniq = "basicboxes/withyourrain";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

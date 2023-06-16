@@ -138,9 +138,9 @@ set color_calendar_text_hover = "#444f72";
 layerinfo type = "theme";
 layerinfo name = "Celadon Blues";
 layerinfo redist_uniq = "fiveam/celadonblues";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -326,9 +326,9 @@ set color_calendar_text_hover = "#5EAB92";
 layerinfo type = "theme";
 layerinfo name = "Dóma";
 layerinfo redist_uniq = "fiveam/doma";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -429,9 +429,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Dryads";
 layerinfo redist_uniq = "fiveam/dryads";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -604,9 +604,9 @@ set image_blockquote_background_url = "fiveam/earlyedition-blockquote.png";
 layerinfo type = "theme";
 layerinfo name = "Hesperides";
 layerinfo redist_uniq = "fiveam/hesperides";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -724,9 +724,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Hollow Silence";
 layerinfo redist_uniq = "fiveam/hollowsilence";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -926,9 +926,9 @@ set color_calendar_text_hover = "#fbf5e2";
 layerinfo type = "theme";
 layerinfo name = "Lavender Mist";
 layerinfo redist_uniq = "fiveam/lavendermist";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1128,9 +1128,9 @@ set color_calendar_text_hover = "#964436";
 layerinfo type = "theme";
 layerinfo name = "Limeade";
 layerinfo redist_uniq = "fiveam/limeade";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1358,9 +1358,9 @@ set color_calendar_text_hover = "#FFE29B";
 layerinfo type = "theme";
 layerinfo name = "Meteors";
 layerinfo redist_uniq = "fiveam/meteors";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1517,9 +1517,9 @@ set color_calendar_border = "#115714";
 layerinfo type = "theme";
 layerinfo name = "Nebesá";
 layerinfo redist_uniq = "fiveam/nebesa";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1624,9 +1624,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Poetic";
 layerinfo redist_uniq = "fiveam/poetic";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1732,9 +1732,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Právda";
 layerinfo redist_uniq = "fiveam/pravda";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1844,9 +1844,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Prized";
 layerinfo redist_uniq = "fiveam/prized";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2030,9 +2030,9 @@ set color_calendar_text_hover = "#836f5e";
 layerinfo type = "theme";
 layerinfo name = "Rainy Day";
 layerinfo redist_uniq = "fiveam/rainyday";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2300,9 +2300,9 @@ set color_calendar_text_hover = "#9303a7";
 layerinfo type = "theme";
 layerinfo name = "Spectrum";
 layerinfo redist_uniq = "fiveam/spectrum";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2420,9 +2420,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Suitcase";
 layerinfo redist_uniq = "fiveam/suitcase";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2540,9 +2540,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Sunset";
 layerinfo redist_uniq = "fiveam/sunset";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2784,9 +2784,9 @@ set color_calendar_text_hover = "#404040";
 layerinfo type = "theme";
 layerinfo name = "Yellow Highlighter";
 layerinfo redist_uniq = "fiveam/yellowhighlighter";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2904,9 +2904,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Your Smile";
 layerinfo redist_uniq = "fiveam/yoursmile";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

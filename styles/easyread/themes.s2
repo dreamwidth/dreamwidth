@@ -2,9 +2,9 @@
 layerinfo type = "theme";
 layerinfo name = "Aqua";
 layerinfo redist_uniq = "easyread/aqua";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -57,9 +57,9 @@ set color_entry_background = "#fff";
 layerinfo type = "theme";
 layerinfo name = "Desert";
 layerinfo redist_uniq = "easyread/desert";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -85,9 +85,9 @@ set color_entry_text = "#080808";
 layerinfo type = "theme";
 layerinfo name = "Desert Dark";
 layerinfo redist_uniq = "easyread/desertdark";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -113,9 +113,9 @@ set color_entry_text = "#fff1d7";
 layerinfo type = "theme";
 layerinfo name = "Full Sky";
 layerinfo redist_uniq = "easyread/fullsky";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -274,9 +274,9 @@ set color_entry_text = "#000";
 layerinfo type = "theme";
 layerinfo name = "Like Light";
 layerinfo redist_uniq = "easyread/likelight";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -495,9 +495,9 @@ set color_entry_text = "#bda2b8";
 layerinfo type = "theme";
 layerinfo name = "Mint Julep";
 layerinfo redist_uniq = "easyread/mintjulep";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -569,9 +569,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Slowing Down";
 layerinfo redist_uniq = "easyread/slowingdown";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -594,9 +594,9 @@ set color_entry_background = "#37e47c";
 layerinfo type = "theme";
 layerinfo name = "Spectrum";
 layerinfo redist_uniq = "easyread/spectrum";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

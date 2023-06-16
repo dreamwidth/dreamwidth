@@ -190,9 +190,9 @@ set font_module_text_units = "pt";
 layerinfo type = "theme";
 layerinfo name = "Bold Enough";
 layerinfo redist_uniq = "forthebold/boldenough";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -336,9 +336,9 @@ set font_module_text_units = "pt";
 layerinfo type = "theme";
 layerinfo name = "Certain Frogs";
 layerinfo redist_uniq = "forthebold/certainfrogs";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1488,9 +1488,9 @@ set font_module_text_units = "pt";
 layerinfo type = "theme";
 layerinfo name = "Fantastic Cyan";
 layerinfo redist_uniq = "forthebold/fantasticcyan";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1633,9 +1633,9 @@ set font_module_text_units = "pt";
 layerinfo type = "theme";
 layerinfo name = "Fleur";
 layerinfo redist_uniq = "forthebold/fleur";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1698,9 +1698,9 @@ set color_module_profile_userpic_border = "#988772";
 layerinfo type = "theme";
 layerinfo name = "Gentle Sunshine";
 layerinfo redist_uniq = "forthebold/gentlesunshine";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1762,9 +1762,9 @@ set color_module_profile_userpic_border = "#fff7af";
 layerinfo type = "theme";
 layerinfo name = "Heureux";
 layerinfo redist_uniq = "forthebold/heureux";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1920,9 +1920,9 @@ set font_module_text_units = "pt";
 layerinfo type = "theme";
 layerinfo name = "Le Marin";
 layerinfo redist_uniq = "forthebold/lemarin";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1988,9 +1988,9 @@ set color_module_profile_userpic_border = "#d9cbb2";
 layerinfo type = "theme";
 layerinfo name = "Mossy";
 layerinfo redist_uniq = "forthebold/mossy";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2049,9 +2049,9 @@ set color_module_profile_userpic_border = "#d5d4b3";
 layerinfo type = "theme";
 layerinfo name = "Royal";
 layerinfo redist_uniq = "forthebold/royal";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2250,9 +2250,9 @@ set color_module_profile_userpic_border = "#fff";
 layerinfo type = "theme";
 layerinfo name = "Well-Behaved Dragons";
 layerinfo redist_uniq = "forthebold/wellbehaveddragons";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
