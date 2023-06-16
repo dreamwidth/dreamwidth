@@ -57,6 +57,7 @@ my %host_path_match = (
     "audiomack.com" => [ qr!^/embed/!, 1 ],
 
     "bandcamp.com"                => [ qr!^/EmbeddedPlayer/!, 1 ],
+    "player.bilibili.com"         => [ qr!^/player.html!,     1 ],
     "blip.tv"                     => [ qr!^/play/!,           1 ],
     "percolate.blogtalkradio.com" => [ qr!^/offsiteplayer$!,  1 ],
     "app.box.com"                 => [ qr!^/embed/s/!,        1 ],
