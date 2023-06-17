@@ -344,3 +344,10 @@ div.CodeMirror-dragcursors {
 
 /* Help users use markselection to safely style text background */
 span.CodeMirror-selectedtext { background: none; }
+
+/* Styles for the custom css page */
+.prop-input .CodeMirror {
+    width: 550px;
+    max-width: 100%;
+    font-size: 1.2em;
+}
