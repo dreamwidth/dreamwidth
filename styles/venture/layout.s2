@@ -988,7 +988,7 @@ propgroup customcss {
 function Page::print_default_stylesheet() {
     var string medium_media_query = generate_medium_media_query();
     var string large_media_query = generate_large_media_query();
-    
+
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
@@ -1334,6 +1334,37 @@ $module_layout_css
 .three-columns-left #tertiary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
 
 .one-column-split #tertiary > .inner:first-child { padding: 0; }
+
+@media $medium_media_query {
+    .column-right #content {
+        box-sizing: border-box;
+    }
+
+    #content {
+        padding: 1em;
+    }
+
+    .two-columns-right #content, .three-columns-sides #content {
+        border: none;
+    }
+
+    #content .inner #primary,
+    #content .inner #secondary,
+    #content .inner #tertiary {
+        width: 100%;
+        margin: 0;
+        float: none;
+    }
+
+    .two-columns-left #secondary > .inner:first-child,
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-sides #secondary > .inner:first-child,
+    .two-columns-right #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child,
+    .three-columns-sides #tertiary > .inner:first-child {
+        padding: 0;
+    }
+}
 /* -------------------------------------------------------------------------------------------------------- */
 
 
