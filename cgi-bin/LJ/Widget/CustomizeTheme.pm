@@ -223,6 +223,27 @@ sub render_body {
             groupprops => $groups{groupprops}->{customcss},
         );
         $ret .= "</div>";
+        $ret .= "<script type='text/javascript'>";
+        $ret .= "   $(document).ready(function() {";
+        $ret .= "       let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name=\"Widget[S2PropGroup]_custom_css\"]'), {";
+        $ret .= "           mode:  'css',";
+        $ret .= "           lineWrapping: true,";
+        $ret .= "           lineNumbers: true,";
+        $ret .= "           lineWiseCopyCut: false,";
+        $ret .= "           inputStyle: 'contenteditable',";
+        $ret .= "           cursorScrollMargin: 4,";
+        $ret .= "           extraKeys: {'Tab': function(cm) {";
+        $ret .= "               var cur = cm.getCursor(), token = cm.getTokenAt(cur);";
+         $ret .= "              var m = token.string.match(/([\s]+)/);";
+        $ret .= "               if (!m) { cm.showHint(); }";
+        $ret .= "               else {";
+        $ret .= "                   var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');";
+        $ret .= "                   cm.replaceSelection(spaces);";
+        $ret .= "               }";
+        $ret .= "           }}";
+        $ret .= "       }";
+        $ret .= "   });";
+        $ret .= "</script>";
     }
 
     # Other Groups
