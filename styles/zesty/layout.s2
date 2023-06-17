@@ -674,8 +674,6 @@ to cleaning it up yet. Sorry!
 /* extra boxes below main content */
 
 .extra-box {
-    float:left;
-    width: 25%;
     margin: 20px;
     padding: 10px;
 }
@@ -687,6 +685,13 @@ to cleaning it up yet. Sorry!
 .extra-box .title {
     color: #3c0;
     font: normal 1.4em Verdana, sans-serif;
+}
+
+@media $medium_media_query {
+    .extra-box {
+        float:left;
+        width: 25%;
+    }
 }
 
 /* entries */
@@ -1401,7 +1406,13 @@ function Page::lay_print_entry_header(Entry e) {
 
 function Page::lay_print_entry_left(Entry e) : void {
     """
-    <div class="userpic">
+    <div class="userpic
+    """;
+    if ($e.userpic) {
+        print " empty";
+    }
+    """
+    ">
     """;
     if ($e.userpic) {
         print $e.userpic->as_string();
