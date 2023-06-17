@@ -223,27 +223,27 @@ sub render_body {
             groupprops => $groups{groupprops}->{customcss},
         );
         $ret .= "</div>";
-        $ret .= "<script type='text/javascript'>";
-        $ret .= "   \$(window).load(function() {";
-        $ret .= "       let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name=\"Widget[S2PropGroup]_custom_css\"]'), {";
-        $ret .= "           mode:  'css',";
-        $ret .= "           lineWrapping: true,";
-        $ret .= "           lineNumbers: true,";
-        $ret .= "           lineWiseCopyCut: false,";
-        $ret .= "           inputStyle: 'contenteditable',";
-        $ret .= "           cursorScrollMargin: 4,";
-        $ret .= "           extraKeys: {'Tab': function(cm) {";
-        $ret .= "               var cur = cm.getCursor(), token = cm.getTokenAt(cur);";
-        $ret .= "              var m = token.string.match(/([\s]+)/);";
-        $ret .= "               if (!m) { cm.showHint(); }";
-        $ret .= "               else {";
-        $ret .= "                   var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');";
-        $ret .= "                   cm.replaceSelection(spaces);";
-        $ret .= "               }";
-        $ret .= "           }}";
-        $ret .= "       }";
-        $ret .= "   });";
-        $ret .= "</script>";
+        $ret .= "\n\n<script type='text/javascript'>\n";
+        $ret .= "   \$(window).load(function() {\n";
+        $ret .= "       let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name=\"Widget[S2PropGroup]_custom_css\"]'), {\n";
+        $ret .= "           mode:  'css',\n";
+        $ret .= "           lineWrapping: true,\n";
+        $ret .= "           lineNumbers: true,\n";
+        $ret .= "           lineWiseCopyCut: false,\n";
+        $ret .= "           inputStyle: 'contenteditable',\n";
+        $ret .= "           cursorScrollMargin: 4,\n";
+        $ret .= "           extraKeys: {'Tab': function(cm) {\n";
+        $ret .= "               var cur = cm.getCursor(), token = cm.getTokenAt(cur);\n";
+        $ret .= "              var m = token.string.match(/([\\s]+)/);\n";
+        $ret .= "               if (!m) { cm.showHint(); }\n";
+        $ret .= "               else {\n";
+        $ret .= "                   var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');\n";
+        $ret .= "                   cm.replaceSelection(spaces);\n";
+        $ret .= "               }\n";
+        $ret .= "           }}\n";
+        $ret .= "       })\n";
+        $ret .= "   });\n";
+        $ret .= "</script>\n\n";
     }
 
     # Other Groups
