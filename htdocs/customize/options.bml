@@ -18,7 +18,7 @@ body<=
 {
     use strict;
     use vars qw(%GET %POST $title $headextra @errors @warnings);
-    LJ::need_res(qw( stc/customize.css js/customize.js stc/select-list.css /js/vendor/codemirror/codemirror.js /js/vendor/codemirror/modes/css.js));
+    LJ::need_res(qw( stc/customize.css js/customize.js stc/select-list.css));
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
