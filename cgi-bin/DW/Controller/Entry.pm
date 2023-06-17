@@ -237,6 +237,9 @@ sub new_handler {
             my $form_req = {};
             _form_to_backend( $form_req, $post, errors => $errors );
 
+            # check for spam domains
+            LJ::Hooks::run_hooks( 'spam_check', $auth{poster}, $form_req, 'entry' );
+
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( $errors->exist ) {
                 my %post_res = _do_post( $form_req, $flags, \%auth, warnings => $warnings );
@@ -574,6 +577,9 @@ sub _edit {
                 allow_empty => $mode_delete,
                 errors      => $errors
             );
+
+            # check for spam domains
+            LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
 
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( $errors->exist ) {
@@ -1489,6 +1495,9 @@ sub preview_handler {
 
     my $form_req = {};
     _form_to_backend( $form_req, $post );
+
+    # check for spam domains
+    LJ::Hooks::run_hooks( 'spam_check', $up, $form_req, 'entry' );
 
     my ( $event, $subject ) = ( $form_req->{event}, $form_req->{subject} );
     LJ::CleanHTML::clean_subject( \$subject );

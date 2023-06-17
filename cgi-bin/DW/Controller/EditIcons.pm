@@ -74,6 +74,8 @@ sub editicons_handler {
         my $post = $r->post_args;
         return error_ml("error.utf8") unless LJ::text_in($post);
 
+        LJ::Hooks::run_hooks( 'spam_check', $u, $post, 'icons' );
+
         ### save changes to existing pics
         if ( $post->{'action:save'} ) {
 
@@ -111,6 +113,7 @@ sub editicons_handler {
 
                 # parse the post parameters into an array of new pics
                 @uploaded_userpics = parse_post_uploads( $post, $u, $MAX_UPLOAD );
+                LJ::Hooks::run_hooks( 'spam_check', $u, $post, 'icons' );
             }
 
             # if we're (c) coming from the factory, then we don't
