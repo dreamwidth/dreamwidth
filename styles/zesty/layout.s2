@@ -700,11 +700,21 @@ to cleaning it up yet. Sorry!
 .entry .left {
     text-align: center;
     float: left;
-    width: 120px;
+    width: 80px;
     padding-top: 10px;
 }
 .entry .right {
-    margin-left: 150px;
+    margin-left: 80px;
+}
+
+@media $medium_media_query {
+    .entry .left {
+        width: 120px;
+    }
+
+    .entry .right {
+        margin-left: 150px;
+    }
 }
 
 
@@ -759,11 +769,19 @@ h3 {
 }
 .userpic {
     margin-bottom: 5px;
+    width: 80%;
 }
 .userpic.empty {
-    height: 100px;
-    margin: 0 10px 5px 10px;
+    width: calc(100% - 20px);
+    padding-top: calc(100% - 20px);
+    margin-bottom: 10px;
     border: 1px solid #eee;
+}
+
+@media $medium_media_query {
+    .userpic {
+        width: auto;
+    }
 }
 
 
@@ -2350,7 +2368,11 @@ function EntryPage::print_comments(Comment[] comments) {
 
 function EntryPage::lay_print_entry_left(Entry e) : void {
     """
-    <div class="userpic">
+    <div class="userpic"""
+    if ($e.userpic->as_string() eq "") {
+        print " empty";
+    }
+    """">
     """;
     if ($e.userpic) {
         print $e.userpic->as_string();
