@@ -1198,13 +1198,15 @@ code, pre {
 
 .has-navstrip #header_navwrapper { padding: 0 }
 
-@media $medium_media_query {
-    .has-navstrip #header_navwrapper { padding: 2.8175em $*margins_size$*margins_unit 0; }
-}
-
 #header_navwrapper, #content, #footer { padding: 0 $*margins_size$*margins_unit 0 $*margins_size$*margins_unit; }
 
-#header_titlewrapper { padding: 2.4em $*margins_size$*margins_unit 2.1em $*margins_size$*margins_unit; }
+#header_titlewrapper { padding: 2.4em; }
+
+@media $medium_media_query {
+    .has-navstrip #header_navwrapper { padding: 2.8175em $*margins_size$*margins_unit 0; }
+
+    #header_titlewrapper { padding: 2.4em $*margins_size$*margins_unit 2.1em $*margins_size$*margins_unit; }
+}
 
 a { $page_link_colors; text-decoration: none; }
 a:visited { $page_link_visited_colors }
