@@ -1408,7 +1408,7 @@ function Page::lay_print_entry_left(Entry e) : void {
     """
     <div class="userpic
     """;
-    if ($e.userpic == "" || !defined $e.userpic) {
+    if ($e.userpic == "") {
         print " empty";
     }
     """
