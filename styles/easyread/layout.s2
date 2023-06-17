@@ -36,6 +36,8 @@ propgroup presentation {
     property use all_entrysubjects;
     property use all_commentsubjects;
     property use custom_control_strip_colors;
+    property use medium_breakpoint_width;
+    property use large_breakpoint_width;
 
 }
 

@@ -153,6 +153,8 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
+    property use medium_breakpoint_width;
+    property use large_breakpoint_width;
 }
 
 set num_items_recent = 10;
@@ -503,7 +505,11 @@ function lay_print_extra_boxes() : void
 #      #                                          #
 ###################################################
 
-function print_stylesheet() { """
+function print_stylesheet() {
+var string medium_media_query = generate_medium_media_query();
+var string large_media_query = generate_large_media_query();
+    
+"""
 
 html, body {
     margin: 0;
