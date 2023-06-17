@@ -2369,7 +2369,7 @@ function EntryPage::print_comments(Comment[] comments) {
 function EntryPage::lay_print_entry_left(Entry e) : void {
     """
     <div class="userpic"""
-    if ($e.userpic->as_string() eq "") {
+    if ($e.userpic) {
         print " empty";
     }
     """">
