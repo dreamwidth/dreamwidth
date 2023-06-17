@@ -1405,7 +1405,7 @@ function Page::lay_print_entry_header(Entry e) {
 
 
 function Page::lay_print_entry_left(Entry e) : void {
-    var string userpic_class = ($e.userpic != "" ? "userpic" : "userpic empty");
+    var string userpic_class = ($e.userpic->as_string() != "" ? "userpic" : "userpic empty");
     """
     <div class="$userpic_class">
     """;
