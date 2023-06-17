@@ -90,6 +90,7 @@ note("misc");
 "http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123/size=venti/bgcol=FFFFFF/linkcol=4285BB/"
     );
     test_good_url("http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123");
+    test_good_url("https://player.bilibili.com/player.html?aid=593134119&bvid=BV1Dq4y1y7Zj&cid=483765371&page=1");
     test_good_url("http://blip.tv/play/x11Xx11Xx.html");
     test_good_url(
         "https://percolate.blogtalkradio.com/offsiteplayer?hostId=123456&episodeId=12345678");
@@ -99,9 +100,7 @@ note("misc");
     test_good_url("https://chirb.it/wp/pnC9Kh");
     test_good_url("//codepen.io/enxaneta/embed/gPeZdP/?height=268&theme-id=0&default-tab=result");
     test_good_url("http://coub.com/embed/x1xx2xxxxxX");
-    test_good_url(
-"http://www.criticalcommons.org/Members/china_shop/clips/handle-with-care-white-collar-fanvid/embed_view"
-    );
+    test_good_url("https://criticalcommons.org/embed?m=XycozAvcH");
 
     # D
     test_good_url("http://www.dailymotion.com/embed/video/x1xx11x");
@@ -220,6 +219,7 @@ note("misc");
     test_good_url(
 "https://www.reverbnation.com/widget_code/html_widget/artist_299962?widget_id=55&pwc[song_ids]=4189683&context_type=song&pwc[size]=small&pwc[color]=dark"
     );
+    test_good_url("https://rumble.com/embed/vr722g/?pub=4");
 
     # S
     test_good_url("http://www.sbs.com.au/yourlanguage//player/embed/id/163111");
