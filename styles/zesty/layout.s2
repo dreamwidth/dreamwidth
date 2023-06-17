@@ -542,15 +542,22 @@ img {
     margin: 0px;
 }
 #header h1 {
-    font: normal 4em Georgia, serif;
+    font-weight: normal;
+    font-family: Georgia, serif;
+    font-size: 2.5em;
     color: #333;
     margin: 0px;
-    padding: 40px 0 0 0;
+    padding: 20px 0 0 0;
 }
 #header p {
     color: #999;
     font: 1.2em normal Verdana, sans-serif;
     margin-top: 5px;
+}
+
+@media $medium_media_query {
+    font-size: 4em;
+    padding: 40px 0 0 0;
 }
 
 /* the navigation menu */
