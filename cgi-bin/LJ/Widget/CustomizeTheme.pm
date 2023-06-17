@@ -224,7 +224,7 @@ sub render_body {
         );
         $ret .= "</div>";
         $ret .= "\n\n<script type='text/javascript'>\n";
-        $ret .= "   \$(window).load(function() {\n";
+        $ret .= "   window.addEventListener('load', function() {\n";
         $ret .= "       let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name=\"Widget[S2PropGroup]_custom_css\"]'), {\n";
         $ret .= "           mode:  'css',\n";
         $ret .= "           lineWrapping: true,\n";
