@@ -1406,13 +1406,11 @@ function Page::lay_print_entry_header(Entry e) {
 
 function Page::lay_print_entry_left(Entry e) : void {
     """
-    <div class="userpic
-    """;
-    if ($e.userpic) {
+    <div class="userpic""";
+    if (!$e.userpic) {
         print " empty";
     }
-    """
-    ">
+    """">
     """;
     if ($e.userpic) {
         print $e.userpic->as_string();
