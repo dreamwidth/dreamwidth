@@ -224,7 +224,7 @@ sub render_body {
         );
         $ret .= "</div>";
         $ret .= "<script type='text/javascript'>";
-        $ret .= "   $(document).ready(function() {";
+        $ret .= "   \$(window).load(function() {";
         $ret .= "       let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name=\"Widget[S2PropGroup]_custom_css\"]'), {";
         $ret .= "           mode:  'css',";
         $ret .= "           lineWrapping: true,";
@@ -234,7 +234,7 @@ sub render_body {
         $ret .= "           cursorScrollMargin: 4,";
         $ret .= "           extraKeys: {'Tab': function(cm) {";
         $ret .= "               var cur = cm.getCursor(), token = cm.getTokenAt(cur);";
-         $ret .= "              var m = token.string.match(/([\s]+)/);";
+        $ret .= "              var m = token.string.match(/([\s]+)/);";
         $ret .= "               if (!m) { cm.showHint(); }";
         $ret .= "               else {";
         $ret .= "                   var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');";
