@@ -1249,12 +1249,6 @@ $module_layout_css
 
 .one-column #primary { float: none; }
 
-.two-columns-left #primary {
-    float: right;
-    margin-left:-100%;
-    margin-right: 0;
-    }
-
 #primary > .inner:first-child { padding: 0; }
 
 @media $medium_media_query {
@@ -1263,6 +1257,12 @@ $module_layout_css
         margin-right:-100%;
         margin-left: 0;
         width:100%;
+    }
+
+    .two-columns-left #primary {
+        float: right;
+        margin-left:-100%;
+        margin-right: 0;
     }
 }
 
