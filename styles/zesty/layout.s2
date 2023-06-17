@@ -2368,11 +2368,13 @@ function EntryPage::print_comments(Comment[] comments) {
 
 function EntryPage::lay_print_entry_left(Entry e) : void {
     """
-    <div class="userpic"""
-    if ($e.userpic) {
-        print " empty";
-    }
-    """">
+    <div class="userpic
+    """;
+        if ($e.userpic) {
+            print " empty";
+        }
+    """
+    ">
     """;
     if ($e.userpic) {
         print $e.userpic->as_string();
