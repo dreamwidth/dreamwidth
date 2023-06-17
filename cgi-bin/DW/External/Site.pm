@@ -110,7 +110,7 @@ $domaintosite{"furaffinity.com"} =
 $domaintosite{"artstation.com"} =
     DW::External::Site->new( "33", "www.artstation.com", "artstation.com", "ArtStation", "artstation" );
 $domaintosite{"ko-fi.com"} =
-    DW::External::Site->new( "34", "www.ko-fi.com", "ko-fi.com", "Ko-Fi", "kofi" );
+    DW::External::Site->new( "34", "www.ko-fi.com", "ko-fi.com", "Kofi", "kofi" );
 
 @all_sites_without_alias = values %domaintosite;
 

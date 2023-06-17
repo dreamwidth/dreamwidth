@@ -14,7 +14,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::External::Site::KoFi;
+package DW::External::Site::Kofi;
 
 use strict;
 use base 'DW::External::Site';
