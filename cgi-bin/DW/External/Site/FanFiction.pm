@@ -63,7 +63,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url    => "https://www.fanfiction.net/static/icons3/ff-icon-192.png",
+        url    => "/img/userheads/ff-icon-192.png",
         width  => 16,
         height => 16,
     };
