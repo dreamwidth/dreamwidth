@@ -422,13 +422,19 @@ q { font-style: italic;
 
 /* All posts & all navigation */
 #primary, #secondary, #tertiary, #footer {
-    width: 80%;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
     font-family: $page_font
     $entry_colors
     padding: 0px 1em;
 
+}
+
+@media $medium_media_query {
+    #primary, #secondary, #tertiary, #footer {
+        width: 80%;
+    }
 }
 
 /* General page background */
