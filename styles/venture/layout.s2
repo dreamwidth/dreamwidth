@@ -1222,7 +1222,10 @@ $module_layout_css
 .one-column #content .module-content { text-align: left;}
 
 .two-columns-left #content,
-.three-columns-sides #content { border: none; }
+.three-columns-sides #content { border-left: $*sidebar_width solid transparent; }
+
+.two-columns-right #content,
+.three-columns-sides #content { border-right: $*sidebar_width solid transparent; }
 
 .three-columns-left #content { border-left: $*sidebar_width_doubled solid transparent; }
 
@@ -1232,19 +1235,14 @@ $module_layout_css
 
 #content { padding: 1em; }
 
-@media $medium_media_query {
-    .two-columns-left #content,
-    .three-columns-sides #content { border-right: $*sidebar_width solid transparent; }
-
-
-}
-
 
 /* ---------- PRIMARY COLUMN ---------- */
 #primary {
-    width: 100%;
-    margin: 0;
-}
+    float: left;
+    margin-right:-100%;
+    margin-left: 0;
+    width:100%;
+    }
 
 .one-column #primary { float: none; }
 
@@ -1256,103 +1254,111 @@ $module_layout_css
 
 #primary > .inner:first-child { padding: 0; }
 
-@media $medium_media_query {
-    #primary {
-        float: left;
-        margin-right:-100%;
-        margin-left: 0;
-        width:100%;
-    }
-}
-
 
 /* ---------- SECONDARY COLUMN ---------- */
 .one-column #secondary { width: auto; text-align: center; }
 
-@media $medium_media_query {
-    .two-columns-left #secondary,
-    .three-columns-sides #secondary,
-    .two-columns-left #tertiary {
-        float: left;
-        margin-left: -$*sidebar_width;
-        padding: 0;
-        width: $*sidebar_width;
-        }
+.two-columns-left #secondary,
+.three-columns-sides #secondary,
+.two-columns-left #tertiary {
+    float: left;
+    margin-left: -$*sidebar_width;
+    padding: 0;
+    width: $*sidebar_width;
+    }
 
-    .two-columns-right #secondary {
-        float: right;
-        margin-right: -$*sidebar_width;
-        width: $*sidebar_width;
-        }
+.two-columns-right #secondary {
+    float: right;
+    margin-right: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
 
-    .three-columns-left #secondary {
-        float: left;
-        margin-left: -$*sidebar_width_doubled;
-        width: $*sidebar_width;
-        }
+.three-columns-left #secondary {
+    float: left;
+    margin-left: -$*sidebar_width_doubled;
+    width: $*sidebar_width;
+    }
 
-    .three-columns-right #secondary {
-        float: right;
-        margin-right: -$*sidebar_width;
-        width: $*sidebar_width;
-        }
+.three-columns-right #secondary {
+    float: right;
+    margin-right: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
 
-    .two-columns-right #secondary > .inner:first-child,
-    .three-columns-right #secondary > .inner:first-child  { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
+.two-columns-right #secondary > .inner:first-child,
+.three-columns-right #secondary > .inner:first-child  { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
 
-    .two-columns-left #secondary > .inner:first-child,
-    .three-columns-left #secondary > .inner:first-child,
-    .three-columns-sides #secondary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
-}
+.two-columns-left #secondary > .inner:first-child,
+.three-columns-left #secondary > .inner:first-child,
+.three-columns-sides #secondary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
 
 
 /* ---------- TERTIARY COLUMN ---------- */
 .one-column #tertiary { text-align: center; width: auto; overflow: hidden; }
 
+.two-columns-left #tertiary {
+    clear: left;
+    margin-left: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.two-columns-right #tertiary {
+    clear: right;
+    float: right;
+    margin-right: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.three-columns-left #tertiary {
+    float: left;
+    margin-left: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.three-columns-right #tertiary {
+    float: right;
+    margin-right: -$*sidebar_width_doubled;
+    margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
+    width: $*sidebar_width;
+    }
+
+.three-columns-sides #tertiary {
+    float: right;
+    margin-right: -$*sidebar_width;
+    width: $*sidebar_width;
+    }
+
+.two-columns-right #tertiary > .inner:first-child,
+.three-columns-right #tertiary > .inner:first-child,
+.three-columns-sides #tertiary > .inner:first-child { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
+
+.two-columns-left #tertiary > .inner:first-child,
+.three-columns-left #tertiary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
+
 .one-column-split #tertiary > .inner:first-child { padding: 0; }
 
 @media $medium_media_query {
-    .two-columns-left #tertiary {
-        clear: left;
-        margin-left: -$*sidebar_width;
-        width: $*sidebar_width;
-        }
+    .two-columns-right #content, .three-columns-sides #content {
+        border: none;
+    }
 
-    .two-columns-right #tertiary {
-        clear: right;
-        float: right;
-        margin-right: -$*sidebar_width;
-        width: $*sidebar_width;
-        }
+    #content .inner #primary,
+    #content .inner #secondary,
+    #content .inner #tertiary {
+        width: 100%;
+        margin: 0;
+        float: none;
+    }
 
-    .three-columns-left #tertiary {
-        float: left;
-        margin-left: -$*sidebar_width;
-        width: $*sidebar_width;
-        }
-
-    .three-columns-right #tertiary {
-        float: right;
-        margin-right: -$*sidebar_width_doubled;
-        margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
-        width: $*sidebar_width;
-        }
-
-    .three-columns-sides #tertiary {
-        float: right;
-        margin-right: -$*sidebar_width;
-        width: $*sidebar_width;
-        }
-
+    .two-columns-left #secondary > .inner:first-child,
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-sides #secondary > .inner:first-child,
     .two-columns-right #tertiary > .inner:first-child,
     .three-columns-right #tertiary > .inner:first-child,
-    .three-columns-sides #tertiary > .inner:first-child { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
-
-    .two-columns-left #tertiary > .inner:first-child,
-    .three-columns-left #tertiary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
-
+    .three-columns-sides #tertiary > .inner:first-child {
+        padding: 0;
+    }
 }
-
 /* -------------------------------------------------------------------------------------------------------- */
 
 
