@@ -1196,7 +1196,11 @@ code, pre {
     word-bread: break-word;
     }
 
-.has-navstrip #header_navwrapper { padding: 2.8175em $*margins_size$*margins_unit 0; }
+.has-navstrip #header_navwrapper { padding: 0 }
+
+@media $medium_media_query {
+    .has-navstrip #header_navwrapper { padding: 2.8175em $*margins_size$*margins_unit 0; }
+}
 
 #header_navwrapper, #content, #footer { padding: 0 $*margins_size$*margins_unit 0 $*margins_size$*margins_unit; }
 
@@ -1230,7 +1234,7 @@ $module_layout_css
 
 @media $medium_media_query {
     .two-columns-left #content,
-    .three-columns-sides #content { border-left: $*sidebar_width solid transparent; }
+    .three-columns-sides #content { border-left: $*sidebar_width solid transparent; border-right: $*sidebar_width solid transparent; }
 
     .three-columns-left #content { border-left: $*sidebar_width_doubled solid transparent; }
 
