@@ -44,7 +44,7 @@ sub journal_url {
 }
 
 # argument: DW::External::User
-# returns URL to this account's profile
+# there's no separate about page so just return the same thing
 sub profile_url {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
