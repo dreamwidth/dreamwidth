@@ -100,7 +100,7 @@ $domaintosite{"instagram.com"} =
 $domaintosite{"del.icio.us"} =
     DW::External::Site->new( "30", "del.icio.us", "del.icio.us", "Delicious", "delicious" );
 $domaintosite{"substack.com"} =
-    DW::External::Site->new( "31", "substack.com", "substack.com", "Substack", "substack");
+    DW::External::Site->new( "31", "substack.com", "substack.com", "Substack", "substack" );
 
 $domaintosite{"itch.io"} =
     DW::External::Site->new( "32", "www.itch.io", "itch.io", "Itch", "itch" );
@@ -108,7 +108,8 @@ $domaintosite{"itch.io"} =
 $domaintosite{"furaffinity.com"} =
     DW::External::Site->new( "33", "www.furaffinity.com", "furaffinity.com", "FurAffinity", "fa" );
 $domaintosite{"artstation.com"} =
-    DW::External::Site->new( "33", "www.artstation.com", "artstation.com", "ArtStation", "artstation" );
+    DW::External::Site->new( "33", "www.artstation.com", "artstation.com", "ArtStation",
+    "artstation" );
 $domaintosite{"ko-fi.com"} =
     DW::External::Site->new( "34", "www.ko-fi.com", "ko-fi.com", "Kofi", "kofi" );
 

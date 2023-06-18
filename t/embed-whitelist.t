@@ -90,7 +90,9 @@ note("misc");
 "http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123/size=venti/bgcol=FFFFFF/linkcol=4285BB/"
     );
     test_good_url("http://bandcamp.com/EmbeddedPlayer/v=2/track=123123123");
-    test_good_url("https://player.bilibili.com/player.html?aid=593134119&bvid=BV1Dq4y1y7Zj&cid=483765371&page=1");
+    test_good_url(
+"https://player.bilibili.com/player.html?aid=593134119&bvid=BV1Dq4y1y7Zj&cid=483765371&page=1"
+    );
     test_good_url("http://blip.tv/play/x11Xx11Xx.html");
     test_good_url(
         "https://percolate.blogtalkradio.com/offsiteplayer?hostId=123456&episodeId=12345678");
