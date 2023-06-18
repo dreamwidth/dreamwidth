@@ -1710,6 +1710,9 @@ general setting.contentpromotion.option
 
 general setting.prod.display.title
 
+general setting.shortcuts.des
+general setting.shortcuts_touch.des
+
 general settings.settingprod.intro
 general settings.settingprod.outro
 general settings.settingprod.update
