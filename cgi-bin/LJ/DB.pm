@@ -467,7 +467,7 @@ sub alloc_global_counter {
         $newmax = 0;
         foreach my $cid (@LJ::CLUSTERS) {
             my $dbcm = LJ::get_cluster_master($cid) or return undef;
-            my $max  = $dbcm->selectrow_array('SELECT MAX(picid) FROM userpic2') + 0;
+            my $max  = $dbcm->selectrow_array('SELECT MAX(picid) FROM userpic2') // 0;
             $newmax = $max if $max > $newmax;
         }
     }
