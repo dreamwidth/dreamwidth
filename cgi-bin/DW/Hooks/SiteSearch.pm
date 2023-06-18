@@ -18,13 +18,14 @@ package DW::Hooks::SiteSearch;
 
 use strict;
 use LJ::Hooks;
+use Carp;
 
 sub _sphinx_db {
 
     # ensure we can talk to our system
     return unless @LJ::SPHINX_SEARCHD;
     my $dbh = LJ::get_dbh('sphinx_search')
-        or die "Unable to get sphinx_search database handle.\n";
+        or carp "Unable to get sphinx_search database handle.";
     return $dbh;
 }
 
