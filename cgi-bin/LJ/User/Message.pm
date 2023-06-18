@@ -545,7 +545,8 @@ sub check_email {
     my $tf_domain      = Text::Fuzzy->new( $domain, max => 3, trans => 1 );
     my @common_domains = (
         'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
-        'aol.com',   'live.com',  'mail.com',    'ymail.com'
+        'aol.com',   'live.com',  'mail.com',    'fastmail.com',
+        'ymail.com', 'me.com'
     );
     my $nearest      = $tf_domain->nearest( \@common_domains );
     my $bad_spelling = defined $nearest && $tf_domain->last_distance > 0;
