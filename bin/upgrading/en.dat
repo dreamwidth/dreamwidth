@@ -2960,7 +2960,7 @@ setting.searchinclusion.option.comm=Attempt to block outside search engines from
 
 setting.searchinclusion.option.self=Attempt to block outside search engines from indexing my journal
 
-setting.shortcuts.des=Enables keyboard shorcuts.
+setting.shortcuts.desc=Enables keyboard shortcuts.
 
 setting.shortcuts.label=Keyboard shortcuts
 
@@ -2972,7 +2972,7 @@ setting.shortcuts.prev.des=Previous entry/top-level comment
 
 setting.shortcuts.prev.label=Previous
 
-setting.shortcuts_touch.des=Enables touch shorcuts.
+setting.shortcuts_touch.desc=Enables touch shortcuts.
 
 setting.shortcuts_touch.label=Touch shortcuts
 
