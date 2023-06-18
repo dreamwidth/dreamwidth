@@ -1,0 +1,31 @@
+name: (pull request) run tests
+
+on:
+#  pull-request:
+#    branches:
+#      - main
+#    paths:
+#      - cgi-bin/**
+#      - htdocs/**
+#      - views/**
+#      - schemes/**
+#      - src/s2/**
+  workflow_dispatch:
+
+jobs:
+  test:
+    if: github.repository == 'dreamwidth/dreamwidth'
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/dreamwidth/web:latest
+    
+    steps:
+      - name: see what's up
+        run: |
+          pwd
+          ls -la
+          cd /github/workspace
+          pwd
+          ls -la
