@@ -1,0 +1,65 @@
+[%- sections.title = ".title" | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[% dw.need_res( { group => "foundation" }, 'js/tags.js', "stc/tags.css" ) %]
+
+
+
+
+    <p>[% '.intro'| ml %] </p>
+    [% IF ent.prop('xpost') && remote.can_post_to(u) %]
+        <p>[% dw.ml( 'xpost.notrespected', { aopts => "href='${site.root}/manage/settings/?cat=othersites'" } ) %]
+         [% dw.ml( '.xpost.notrespected.editentry', { aopts => "href='${site.root}/editjournal?journal=$journal&amp;itemid=$ditemid'" } ) %]
+         </p><br />
+    [% END %]
+
+    <script type='text/javascript'> var cur_taglist = '[% logtagstr %]'; </script>
+
+    <table summary="" class="edittbl" cellpadding="0" cellspacing="0" width="50%">
+    [%IF u.is_community %]
+        <tr><td class='l'>[% '.poster' | ml %]</td><td>[% ent.poster.ljuser_display %]</td></tr>
+    [% END %]
+    [% IF subj %]<tr><td class='l'>[% '.subject' | ml %]</td><td>[% subj %]</td></tr>[% END %]
+
+    <form method="POST" action="/edittags" id="edit_tagform">
+    [% form.hidden( name => 'journal', value => journal) %]
+    [% form.hidden(name => 'itemid', value => itemid) %]
+    [% dw.form_auth() %]
+
+    <tr><td class='l'>[% '.current' | ml %]</td>
+    <td class='sep'>
+
+    [% IF can_add_entry_tags %]
+        [% form.textbox(
+                name  => 'edittags',
+                value => edittags,
+                size  => 40,
+                class => 'tagfield',
+                id    => 'tagfield',
+        ) %]
+        &nbsp;&nbsp;
+        [% form.submit( name => 'save', value => dw.ml('.button.save')) %]
+    [% ELSE %]
+        [% '.permissions.none' | ml %];
+    [% END %]
+    </td></tr>
+
+    <tr><td class='l'>[% dw.ml('.users', { user => u.user }) %]</td><td class='curtags'>
+
+    [% IF usertags.size > 0 %]
+        <select name='tags' multiple='multiple' class='multiple-select tagbox_nohist' onChange='edit_tagselect(this)'>
+        [% FOREACH tag IN usertags %]
+            <option value='[% tag.name | html %]'>[% tag.name | html %]</option>
+        [% END %]
+        </select>
+    [% END %]
+
+    <br /><br />
+    [% IF can_add_entry_tags %][% '.permissions.add.yes' | ml %]<br />[% END %]
+    [% IF can_control_tags(u, remote) %][% '.permissions.control.yes' | ml %]<br />[% END %]
+    [% dw.ml('.view', { aopts => "href='${ent.url}'" }) %]
+    </td></tr>
+    </form>
+
+    <tr><td class='l'>[% '.entry' | ml %]</td><td class='sep' style='white-space: normal'>[% evt %]</td></tr>
+
+    </table>
