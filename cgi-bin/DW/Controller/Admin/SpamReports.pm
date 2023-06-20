@@ -397,8 +397,6 @@ sub main_controller {
         $rv->{useronly} = sub { "spamreports?mode=${_[0]}_u" };
         $rv->{anononly} = sub { "spamreports?mode=${_[0]}_a" };
 
-        $rv->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
-
         return DW::Template->render_template( 'admin/spamreports/index.tt', $rv );
     }
 }

@@ -120,7 +120,7 @@
 
   <p>
         [% form.textbox( label = dw.ml( '.label.grantuser' ), name = 'grantuser',
-                         size = maxlength_user, maxlength = maxlength_user ) %]
+                         size = site.maxlength_user, maxlength = site.maxlength_user ) %]
 
         [% form.textbox( label = dw.ml( '.label.grantarg' ), name = 'arg',
                          size = 20, maxlength = 40, value = arg ) %]

@@ -114,8 +114,6 @@ sub impersonate_controller {
     $vars->{errors}   = $errors;
     $vars->{formdata} = $form_args;
 
-    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
-
     return DW::Template->render_template( 'admin/impersonate.tt', $vars );
 }
 
@@ -128,8 +126,6 @@ sub recent_comments_controller {
     my $r         = DW::Request->get;
     my $form_args = $r->get_args;
     my $vars      = {};
-
-    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
 
     if ( my $user = $form_args->{user} ) {
         $vars->{u} = ( $user =~ /^\#(\d+)/ ) ? LJ::load_userid($1) : LJ::load_user($user);
@@ -177,8 +173,6 @@ sub styleinfo_controller {
     my $vars      = {};
 
     $vars->{formdata} = $form_args;
-
-    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
 
     return DW::Template->render_template( 'admin/styleinfo.tt', $vars )
         unless $form_args->{user};

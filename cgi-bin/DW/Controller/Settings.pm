@@ -496,10 +496,7 @@ sub lostinfo_handler {
     my $form_args = $r->post_args;
     my $captcha   = DW::Captcha->new( 'lostinfo', %{$form_args} );
 
-    my $vars = {
-        captcha            => $captcha,
-        username_maxlength => $LJ::USERNAME_MAXLENGTH,
-    };
+    my $vars = { captcha => $captcha };
 
     return DW::Template->render_template( 'settings/lostinfo.tt', $vars )
         unless $r->did_post;
