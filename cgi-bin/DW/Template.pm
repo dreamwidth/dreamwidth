@@ -56,6 +56,7 @@ my $site_constants = Template::Namespace::Constants->new(
         },
 
         maxlength_user => $LJ::USERNAME_MAXLENGTH,
+        maxlength_pass => $LJ::PASSWORD_MAXLENGTH,
     }
 );
 

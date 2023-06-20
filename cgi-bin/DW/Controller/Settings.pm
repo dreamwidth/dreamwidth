@@ -481,9 +481,6 @@ sub changepassword_handler {
 
         formdata => $post || { user => $remote ? $remote->user : "" },
         errors   => $errors,
-
-        username_maxlength => $LJ::USERNAME_MAXLENGTH,
-        password_maxlength => $LJ::PASSWORD_MAXLENGTH,
     };
     return DW::Template->render_template( 'settings/changepassword.tt', $vars );
 }

@@ -276,7 +276,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
           id = 'username'
           label = dw.ml('Username')
           size = 13
-          maxlength = username_maxlength
+          maxlength = site.maxlength_user
           value = comment.user
           style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 50%; padding-left: 18px; color: #00C; font-weight: bold;"
         ) -%]
@@ -287,7 +287,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
           name = 'password'
           id= 'password'
           label = dw.ml('Password')
-          maxlength = password_maxlength
+          maxlength = site.maxlength_pass
           value = comment.password
           size = 18
         ) -%]
@@ -743,7 +743,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
               id = 'username'
               label = dw.ml('Username')
               size = 13
-              maxlength = username_maxlength
+              maxlength = site.maxlength_user
               value = comment.user
               style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;"
             ) -%]
@@ -754,7 +754,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
               name = 'password'
               id= 'password'
               label = dw.ml('Password')
-              maxlength = password_maxlength
+              maxlength = site.maxlength_pass
               value = comment.password
               size = 18
             ) -%]
