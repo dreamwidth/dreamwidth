@@ -421,11 +421,24 @@ Returns a hashref of hashes in the format:
 
 sub populate_full_by_value {
     my ( $value, @types ) = @_;
-    return _db_sysban_populate_full_by_value( $value, @types );
+    return _db_sysban_populate_full_by_value( $value, 1, @types );
+}
+
+=head2 C<< LJ::Sysban::populate_full_by_value_with_expired( $value, @types ) >>
+
+List all sysbans for the given value, of the specified types, including expired bans.
+Returns a hashref of hashes in the format:
+    what => { expire => expiration, note => note, banid => banid }
+
+=cut
+
+sub populate_full_by_value_with_expired {
+    my ( $value, @types ) = @_;
+    return _db_sysban_populate_full_by_value( $value, 0, @types );
 }
 
 sub _db_sysban_populate_full_by_value {
-    my ( $value, @types ) = @_;
+    my ( $value, $no_expired, @types ) = @_;
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
@@ -437,6 +450,8 @@ sub _db_sysban_populate_full_by_value {
     $in_what = " AND what IN ( $in_what )"
         if $in_what;
 
+    my $banuntil = $no_expired ? "AND ( NOW() < banuntil OR banuntil IS NULL )" : "";
+
     # build cache from db
     my $sth = $dbh->prepare(
         qq{SELECT banid, what, UNIX_TIMESTAMP(banuntil), note
@@ -445,7 +460,7 @@ sub _db_sysban_populate_full_by_value {
                  AND value = ?
                  $in_what
                  AND NOW() > bandate
-                 AND ( NOW() < banuntil OR banuntil IS NULL )
+                 $banuntil
         }
     );
     $sth->execute($value);
