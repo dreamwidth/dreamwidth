@@ -153,8 +153,12 @@ sub sysban_controller {
 
         # these results are displayed within the index form
 
-        $vars->{sysbans} = LJ::Sysban::populate_full_by_value( $form_args->{queryvalue},
-            @{ $vars->{sysban_privs} } );
+        my $lookup =
+            $form_args->{expiredcheck}
+            ? sub { LJ::Sysban::populate_full_by_value_with_expired(@_) }
+            : sub { LJ::Sysban::populate_full_by_value(@_) };
+
+        $vars->{sysbans} = $lookup->( $form_args->{queryvalue}, @{ $vars->{sysban_privs} } );
     }
 
     return DW::Template->render_template( 'admin/sysban/index.tt', $vars );

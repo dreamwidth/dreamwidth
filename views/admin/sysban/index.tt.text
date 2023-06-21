@@ -29,6 +29,8 @@
 
 .header.queryone=Sysbans for [[banquery]]
 
+.label.expiredcheck=Include info for bans that have expired
+
 .label.queryone=Query all sysbans for this value:
 
 .label.type=Act on sysbans of the following type:

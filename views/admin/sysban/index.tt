@@ -47,15 +47,20 @@
 </form>
 </p>
 
-<p>
 <form method='post' action='sysban'>
 [% dw.form_auth %]
+<p>
 [% form.textbox( label = dw.ml( '.label.queryone' ), value = '',
                  name = 'queryvalue', id = 'queryvalue' );
 
    form.submit( name = 'queryone',  value = dw.ml( '.btn.queryone'  ) ) %]
-</form>
 </p>
+<p>
+[% form.checkbox( label = dw.ml( '.label.expiredcheck' ), value = '1',
+                  name = 'expiredcheck', id = 'expiredcheck',
+                  selected = formdata.expiredcheck ) %]
+</p>
+</form>
 
 [%- IF action == 'queryone';
     banquery = formdata.queryvalue | html;
@@ -79,7 +84,7 @@
       [%- END -%]
 </table>
 
-  [%- ELSE -%]
+  [%- ELSIF banquery -%]
 <p>[% '.txt.nomatch' | ml( banquery = banquery ) %]</p>
   [%- END -%]
 
