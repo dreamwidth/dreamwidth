@@ -468,9 +468,13 @@ sub _db_sysban_populate_full_by_value {
 
     my $where;
     while ( my ( $banid, $what, $exp, $note ) = $sth->fetchrow_array ) {
-        $where->{$what}->{banid}  = $banid || 0;
-        $where->{$what}->{expire} = $exp   || 0;
-        $where->{$what}->{note}   = $note  || 0;
+        my $data = {
+            banid  => $banid || 0,
+            expire => $exp   || 0,
+            note   => $note  || 0,
+        };
+        $where->{$what} //= [];
+        push @{ $where->{$what} }, $data;
     }
 
     return $where;

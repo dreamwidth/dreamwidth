@@ -75,12 +75,14 @@
     <th>[% '.col.note' | ml %]</th>
   </tr></thead>
 
-      [%- FOREACH ban IN sysbans.pairs -%]
+      [%- FOREACH bantype IN sysbans.keys.sort -%]
+      [%- FOREACH banrow IN sysbans.$bantype -%]
   <tr>
-    <td>[% ban.key %]</td>
-    <td>[% localtime( ban.value.expire ) %]</td>
-    <td>[% ban.value.note | html %]</td>
+    <td>[% bantype %]</td>
+    <td>[% localtime( banrow.expire ) %]</td>
+    <td>[% banrow.note | html %]</td>
   </tr>
+      [%- END -%]
       [%- END -%]
 </table>
 
