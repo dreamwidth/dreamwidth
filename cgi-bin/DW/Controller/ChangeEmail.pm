@@ -37,10 +37,7 @@ sub changeemail_handler {
     my $u      = $rv->{u};
     my $remote = $rv->{remote};
 
-    my $vars;
-    $vars->{password_maxlength} = $LJ::PASSWORD_MAXLENGTH;
-    $vars->{u}                  = $u;
-    $vars->{remote}             = $remote;
+    my $vars = { u => $u, remote => $remote };
 
     return error_ml('/changeemail.tt.error.suspended') if $u->is_suspended;
 

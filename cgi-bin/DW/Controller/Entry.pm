@@ -275,8 +275,6 @@ sub new_handler {
 
     $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
 
-    $vars->{password_maxlength} = $LJ::PASSWORD_MAXLENGTH;
-
     $vars->{js_for_rte} = LJ::rte_js_vars();
     $vars->{sitevalues} = to_json( \@sitevalues );
 

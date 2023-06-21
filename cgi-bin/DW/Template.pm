@@ -29,7 +29,7 @@ DW::Template - Template Toolkit helpers for Apache2.
 
 =head1 SYNOPSIS
 
-=cut 
+=cut
 
 # setting this to false -- have to explicitly specify which plugins we want.
 $Template::Plugins::PLUGIN_BASE = '';
@@ -54,6 +54,9 @@ my $site_constants = Template::Namespace::Constants->new(
             coppa   => $LJ::COPPA_EMAIL,
             privacy => $LJ::PRIVACY_EMAIL,
         },
+
+        maxlength_user => $LJ::USERNAME_MAXLENGTH,
+        maxlength_pass => $LJ::PASSWORD_MAXLENGTH,
     }
 );
 
@@ -252,7 +255,7 @@ This will be ignored for 'bml' scopes.
 
 =item B< journal > $opts hashref passed into LJ::make_journal and beyond.
 
-=back 
+=back
 
 =back
 

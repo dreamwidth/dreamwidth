@@ -47,7 +47,7 @@ window.onload = function() {
 
 [%- IF adminmode %]
 <form method='GET'><p>
-  [% form.textbox( maxlength = maxlength_user, size = maxlength_user,
+  [% form.textbox( maxlength = site.maxlength_user, size = site.maxlength_user,
                    label = dw.ml( '.user' ), name = 'user', value = user );
      form.submit( value = dw.ml( '.user.submit' ) ) %]
 </p></form>

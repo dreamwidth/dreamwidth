@@ -1507,8 +1507,6 @@ sub talkform {
         create_link          => '',
         subjecticon_ids      => \@subjecticon_ids,
         editors              => $editors,
-        username_maxlength   => $LJ::USERNAME_MAXLENGTH,
-        password_maxlength   => $LJ::PASSWORD_MAXLENGTH,
 
         foundation_beta => !LJ::BetaFeatures->user_in_beta( $remote => "nos2foundation" ),
 

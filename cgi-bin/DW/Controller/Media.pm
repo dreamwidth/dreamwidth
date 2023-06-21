@@ -88,7 +88,6 @@ sub media_manage_handler {
     $rv->{convert_time}   = \&LJ::mysql_time;
     $rv->{adminmode}      = $adminmode ? 1 : 0;
     $rv->{user}           = $user;
-    $rv->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
 
     my $media_usage = DW::Media->get_usage_for_user($u);
     my $media_quota = DW::Media->get_quota_for_user($u);
