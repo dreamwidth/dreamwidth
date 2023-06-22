@@ -957,3 +957,38 @@ div#cf-edit select {
     padding: 1.5em 1.5em 0em;
     margin-bottom: -2em;
 }
+
+/** Dark theme for color picker **/
+
+#clr-picker {
+  background-color: #444;
+}
+
+#clr-picker .clr-segmented {
+  border-color: #777;
+}
+
+#clr-picker .clr-swatches button:after {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.3);
+}
+
+#clr-picker input.clr-color {
+  color: #fff;
+  border-color: #777;
+  background-color: #555;
+}
+
+#clr-picker input.clr-color:focus {
+  border-color: #1e90ff;
+}
+
+#clr-picker .clr-preview:after {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.5);
+}
+
+#clr-picker .clr-alpha,
+#clr-picker .clr-alpha div,
+#clr-picker .clr-swatches button,
+#clr-picker .clr-preview:before {
+  background-image: repeating-linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #888 75%, #888), repeating-linear-gradient(45deg, #888 25%, #444 25%, #444 75%, #888 75%, #888);
+}

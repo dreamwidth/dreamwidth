@@ -137,7 +137,8 @@ sub visible_to {
     return 0 unless LJ::isu($other_u);
 
     # private check.  if it's us or an admin, allow, else fail.
-    my $refer       = { DW::Request->get->headers_in }->{Referer};
+    my %headers     = defined DW::Request->get ? DW::Request->get->headers_in : ();
+    my $refer       = $headers{Referer};
     my $is_sitepage = ( defined $refer && $refer eq "$LJ::SITEROOT/" ) ? 1 : 0;
     return 1 if $is_sitepage && $other_u->has_priv( 'canview', 'images' );
 

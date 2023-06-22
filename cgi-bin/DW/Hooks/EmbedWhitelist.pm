@@ -57,6 +57,7 @@ my %host_path_match = (
     "audiomack.com" => [ qr!^/embed/!, 1 ],
 
     "bandcamp.com"                => [ qr!^/EmbeddedPlayer/!, 1 ],
+    "player.bilibili.com"         => [ qr!^/player.html!,     1 ],
     "blip.tv"                     => [ qr!^/play/!,           1 ],
     "percolate.blogtalkradio.com" => [ qr!^/offsiteplayer$!,  1 ],
     "app.box.com"                 => [ qr!^/embed/s/!,        1 ],
@@ -64,7 +65,7 @@ my %host_path_match = (
     "chirb.it"                => [ qr!^/wp/!,             1 ],
     "codepen.io"              => [ qr!^/enxaneta/embed/!, 1 ],
     "coub.com"                => [ qr!^/embed/!,          1 ],
-    "www.criticalcommons.org" => [ qr!/embed_view$!,      0 ],
+    "www.criticalcommons.org" => [ qr!/embed$!,           0 ],
 
     "www.dailymotion.com" => [ qr!^/embed/video/!,                   1 ],
     "diode.zone"          => [ qr!^/videos/embed/[0-9a-fA-F\-]{36}!, 1 ],
@@ -119,6 +120,7 @@ my %host_path_match = (
     "www.random.org"       => [ qr!^/widgets/integers/iframe.php$!,        1 ],
     "www.redditmedia.com"  => [ qr!^/r/\w+/comments/\w+/\w+/$!,            1 ],
     "www.reverbnation.com" => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
+    "rumble.com"           => [ qr!^/embed/[a-zA-Z0-9]+/!,                 1 ],
 
     "www.sbs.com.au" => [ qr!/player/embed/!, 0 ]
     ,    # best guess; language parameter before /player may vary

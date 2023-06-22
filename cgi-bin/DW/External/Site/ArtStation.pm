@@ -1,21 +1,20 @@
 #!/usr/bin/perl
 #
-# DW::External::Site::FanFiction
+# DW::External::Site::ArtStation
 #
-# Class to support FanFiction.net linking.
+# Class to support ArtStation linking.
 #
 # Authors:
-#      Mark Smith <mark@dreamwidth.org>
-#      NinetyD <ninetydtoo@gmail.com>
+#      Carly Ho <carlymho@fastmail.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011/2023 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::External::Site::FanFiction;
+package DW::External::Site::ArtStation;
 
 use strict;
 use base 'DW::External::Site';
@@ -41,7 +40,7 @@ sub journal_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/~' . $u->user;
+    return 'http://' . $self->{hostname} . '/' . $u->user;
 }
 
 # argument: DW::External::User
@@ -51,7 +50,7 @@ sub profile_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/~' . $u->user;
+    return 'http://' . $self->{hostname} . '/' . $u->user . '/profile';
 }
 
 # argument: DW::External::User
@@ -63,7 +62,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url    => "/img/userheads/ff-icon-192.png",
+        url    => "https://www.artstation.com/assets/favicon.ico",
         width  => 16,
         height => 16,
     };

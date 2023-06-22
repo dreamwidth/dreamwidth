@@ -37,7 +37,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <li><form method="GET" action="spamreports" class="usersearch">
       [% form.textbox( label = dw.ml( '.reports.user.individual' ),
                        id = "repu", name = "what",
-                       size = maxlength_user, maxlength = maxlength_user ) %]
+                       size = site.maxlength_user, maxlength = site.maxlength_user ) %]
       [% form.hidden( name = "by", value = "poster" ) %]
       [% form.hidden( name = "mode", value = "view" ) %]
       </form>
@@ -47,7 +47,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <li><form method="GET" action="spamreports" class="usersearch">
       [% form.textbox( label = dw.ml( '.reports.journal.individual' ),
                        id = "repj", name = "what",
-                       size = maxlength_user, maxlength = maxlength_user ) %]
+                       size = site.maxlength_user, maxlength = site.maxlength_user ) %]
       [% form.hidden( name = "by", value = "journal" ) %]
       [% form.hidden( name = "mode", value = "view" ) %]
       </form>

@@ -457,6 +457,9 @@ sub talkpost_do_handler {
     my $wasscreened = ( $parent->{state} eq 'S' );
     my $talkid;
 
+    # check for spam domains
+    LJ::Hooks::run_hooks( 'spam_check', $comment->{u}, $comment, 'comment' );
+
     if ($editid) {
         my ( $postok, $talkid_or_err ) = LJ::Talk::Post::edit_comment($comment);
         unless ($postok) {

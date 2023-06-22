@@ -1,21 +1,20 @@
 #!/usr/bin/perl
 #
-# DW::External::Site::FanFiction
+# DW::External::Site::KoFi
 #
-# Class to support FanFiction.net linking.
+# Class to support KoFi linking.
 #
 # Authors:
-#      Mark Smith <mark@dreamwidth.org>
-#      NinetyD <ninetydtoo@gmail.com>
+#      Carly Ho <carlymho@fastmail.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011/2023 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::External::Site::FanFiction;
+package DW::External::Site::Kofi;
 
 use strict;
 use base 'DW::External::Site';
@@ -41,17 +40,17 @@ sub journal_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/~' . $u->user;
+    return 'http://' . $self->{hostname} . '/' . $u->user;
 }
 
 # argument: DW::External::User
-# returns URL to this account's profile
+# there's no separate about page so just return the same thing
 sub profile_url {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/~' . $u->user;
+    return 'http://' . $self->{hostname} . '/' . $u->user;
 }
 
 # argument: DW::External::User
@@ -63,7 +62,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url    => "/img/userheads/ff-icon-192.png",
+        url    => "https://ko-fi.com/favicon.png",
         width  => 16,
         height => 16,
     };
