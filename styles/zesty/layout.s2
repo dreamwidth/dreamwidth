@@ -783,6 +783,12 @@ h3 {
     margin-bottom: 5px;
     width: 80%;
 }
+
+.userpic img {
+    width: 100%;
+    height: 100%;
+}
+
 .userpic.empty {
     width: calc(100% - 20px);
     padding-top: calc(100% - 20px);
@@ -1817,6 +1823,7 @@ function Page::print() {
 <head>
 <title>"""+$this->title()+"""</title>
 """;
+    $this->print_meta_tags();
     $this->print_head();
 """
 <link rel="stylesheet" type="text/css" href="$.stylesheet_url" />
