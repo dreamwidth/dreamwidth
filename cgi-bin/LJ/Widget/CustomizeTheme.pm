@@ -229,6 +229,7 @@ sub render_body {
         $ret .= "           mode:  'css',\n";
         $ret .= "           lineWrapping: true,\n";
         $ret .= "           lineNumbers: true,\n";
+        $ret .= "           theme: document.querySelector('body').classList.contains('gradation') ? 'twilight' : 'default',\n";
         $ret .= "           lineWiseCopyCut: false,\n";
         $ret .= "           inputStyle: 'contenteditable',\n";
         $ret .= "           cursorScrollMargin: 4,\n";
