@@ -18,7 +18,6 @@ SECURITYPROTECTED=>{Ss}<img src="<?imgprefix?>/silk/entry/locked.png" alt="prote
 SECURITYGROUPS=>{Ss}<img src="<?imgprefix?>/silk/entry/filtered.png" alt="custom" idth=21 height=13 align=absmiddle>
 HELP=>{DR}(<a href="%%data%%"><i>help</i></a>)
 INERR=>{DR}<font color="#ff0000"><b>%%data%%</b></font>
-EMAILEX=><div style='font-family: courier; border: solid black 1px; padding: 5px;'>%%data%%</div>
 
 BADINPUT<=
 <?h1 <?_ml bml.badinput.head _ml?> h1?>

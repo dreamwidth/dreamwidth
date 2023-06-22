@@ -1,0 +1,65 @@
+;; -*- coding: utf-8 -*-
+.addresses.header=Allowed sender addresses
+
+.addresses.table.address=Address
+
+.addresses.text=Only the addresses listed below are allowed to post to your account via the email gateway.  If no addresses are listed, you won't be able to post via the email gateway.  We'll send errors only to the address(es) you've selected.
+
+.api.header=Manage API Keys
+
+.api.none=You have no API keys generated yet!
+
+.api.text=You can use these keys with the Dreamwidth API to authenticate yourself. Anyone with access to a key can act as you, so keys should not be shared. Deleting a key here will make it unusable.
+
+.button.api.delete=Delete
+
+.button.api.generate=Generate new API key
+
+.button.reply=Reset secret address
+
+.button.save=Save Settings
+
+.error.acct=Updating your journal by email isn't available for your account type.
+
+.error.sitenotconfigured=This site isn't configured to allow updating your journal via email.
+
+.intro=If you'd like to be able to post to your journal by email, please fill out the fields on this page. You can consult the <a [[aopts]]>instructions</a> for more help using this feature.
+
+.pin.header=PIN
+
+.pin.text=Your PIN is used only for the email gateway.  Don't use your regular password for this.  That way anyone who obtains your PIN won't get full access to your journal.  The PIN should be at least [[num]] [[?num|character|characters]] long and may only contain letters and numbers.
+
+.reply.header=Reply by email
+
+.reply.text=You can reply to a comment by using the "Reply" function of your email client. These emails reply to a secret address so we can identify who the comment is coming from. You should reset the secret address if you've accidentally exposed it to anyone else.
+
+.settings.entry.comments=Comments:
+
+.settings.entry.comments.select.default=Default
+
+.settings.entry.comments.select.noemail=No email
+
+.settings.entry.comments.select.off=Off
+
+.settings.entry.header=Journal entry defaults
+
+.settings.entry.security=Security:
+
+.settings.entry.security.select.access=Access
+
+.settings.entry.security.select.default=Default
+
+.settings.entry.security.select.private=Private
+
+.settings.entry.security.select.public=Public
+
+.settings.entry.userpic=Icon:
+
+.settings.entry.userpic.select.none=(none)
+
+.settings.header=Default settings
+
+.settings.text=These settings apply to all journal updates made by email. If you leave these options alone your journal defaults will take over, or you can override them on a message by message basis using post-headers. <a [[aopts]]>More information about email settings and post-header overrides</a>.
+
+.title=Mobile Post Settings
+
