@@ -19,7 +19,6 @@ use Digest::SHA1 qw(sha1_hex);
 
 use LJ::Directory::SetHandle;
 
-use LJ::Directory::Constraint::Age;
 use LJ::Directory::Constraint::Interest;
 use LJ::Directory::Constraint::UpdateTime;
 use LJ::Directory::Constraint::Trusts;
@@ -38,7 +37,7 @@ sub constraints_from_formargs {
 
     my @ret;
     foreach my $type (
-        qw(Age Location UpdateTime Interest Trusts TrustedBy Watches WatchedBy MemberOf JournalType)
+        qw(Location UpdateTime Interest Trusts TrustedBy Watches WatchedBy MemberOf JournalType)
         )
     {
         my $class = "LJ::Directory::Constraint::$type";
