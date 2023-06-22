@@ -197,7 +197,7 @@ postFormInitData.strings = {
                   id = 'editor'
                   select = editors.selected
                   items = editors.items
-                  class = "draft"
+                  class = "draft-autosave"
                 ) -%]
 
                 <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1" target="_blank">[%-
@@ -223,7 +223,7 @@ postFormInitData.strings = {
                     wrap = "soft"
 
                     labelclass = "hidden"
-                    class = "draft"
+                    class = "draft-autosave"
 
                     placeholder = dw.ml(".event.placeholder")
                 ) -%]
