@@ -24,7 +24,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </div>
     <div class="row">
         <div class="columns">
-            [% INCLUDE "components/icon-select-dropdown.tt" omit_random_button = 1 class = "draft" %]
+            [% INCLUDE "components/icon-select-dropdown.tt" omit_random_button = 1 class = "draft-autosave" %]
         </div>
     </div>
 
