@@ -1240,7 +1240,7 @@ $module_layout_css
 
     .three-columns-left #content { border-left: $*sidebar_width_doubled solid transparent; }
 
-    .two-columns-right #content,
+    .two-columns-right #content { border-right: $*sidebar_width solid transparent; }
     .three-columns-right #content { border-right: $*sidebar_width_doubled solid transparent; }
 
     .column-right #content { box-sizing: content-box; }
