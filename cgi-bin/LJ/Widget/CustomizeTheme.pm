@@ -222,29 +222,31 @@ sub render_body {
             propgroup  => "customcss",
             groupprops => $groups{groupprops}->{customcss},
         );
-        $ret .= "</div>";
-        $ret .= "\n\n<script type='text/javascript'>\n";
-        $ret .= "   window.addEventListener('load', function() {\n";
-        $ret .= "       let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name=\"Widget[S2PropGroup]_custom_css\"]'), {\n";
-        $ret .= "           mode:  'css',\n";
-        $ret .= "           lineWrapping: true,\n";
-        $ret .= "           lineNumbers: true,\n";
-        $ret .= "           theme: document.querySelector('body').classList.contains('gradation') ? 'twilight' : 'default',\n";
-        $ret .= "           lineWiseCopyCut: false,\n";
-        $ret .= "           inputStyle: 'contenteditable',\n";
-        $ret .= "           cursorScrollMargin: 4,\n";
-        $ret .= "           extraKeys: {'Tab': function(cm) {\n";
-        $ret .= "               var cur = cm.getCursor(), token = cm.getTokenAt(cur);\n";
-        $ret .= "              var m = token.string.match(/([\\s]+)/);\n";
-        $ret .= "               if (!m) { cm.showHint(); }\n";
-        $ret .= "               else {\n";
-        $ret .= "                   var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');\n";
-        $ret .= "                   cm.replaceSelection(spaces);\n";
-        $ret .= "               }\n";
-        $ret .= "           }}\n";
-        $ret .= "       })\n";
-        $ret .= "   });\n";
-        $ret .= "</script>\n\n";
+        $ret .= <<EOF
+            </div>
+            <script type='text/javascript'>
+                window.addEventListener('load', function() {
+                let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name="Widget[S2PropGroup]_custom_css"]'), {
+                    mode:  'css',
+                    lineWrapping: true,
+                    lineNumbers: true,
+                    theme: document.querySelector('body').classList.contains('gradation') ? 'twilight' : 'default',
+                    lineWiseCopyCut: false,
+                    inputStyle: 'contenteditable',
+                    cursorScrollMargin: 4,
+                    extraKeys: {'Tab': function(cm) {
+                        var cur = cm.getCursor(), token = cm.getTokenAt(cur);
+                        var m = token.string.match(/([\\s]+)/);
+                        if (!m) { cm.showHint(); }
+                        else {
+                            var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');
+                            cm.replaceSelection(spaces);
+                        }
+                     }}
+                })
+            });
+        </script>
+EOF
     }
 
     # Other Groups
