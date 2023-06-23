@@ -71,6 +71,8 @@ sub ljuser_display {
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
     @deadsites =  qw(delicious delicious.com diigo imzy inksome journalfen);
 
+    print $domain;
+    print @deadsites;
     if (grep( /^$domain$/, @deadsites )) {
         $nolink = 1;
     }
