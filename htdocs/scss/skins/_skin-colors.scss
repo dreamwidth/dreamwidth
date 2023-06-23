@@ -54,7 +54,7 @@ a:hover, a:active {
  * Menu navigation
  */
 
-nav {
+nav[role="navigation"] {
     background-color: $topbar-bg;
 }
 

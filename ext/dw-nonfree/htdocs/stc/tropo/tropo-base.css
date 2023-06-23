@@ -137,7 +137,7 @@ body {
  * The menu follows the content in the markup source, so we absolutely position it underneath the masthead
  */
 
-nav {
+nav[role="navigation"] {
     position: absolute;
     top: 8.833333em;
     left: 0;
@@ -146,20 +146,20 @@ nav {
     line-height: 2.5em;
     clear: both;
 }
-nav ul {
+nav[role="navigation"] ul {
     margin-left: 0;
 }
-nav ul li {
+nav[role="navigation"] ul li {
     float: left;
     position: relative;
     display: block;
     height: 100%;
     width: 0;
 }
-nav ul > li {
+nav[role="navigation"] ul > li {
     width: auto;
 }
-nav ul li a {
+nav[role="navigation"] ul li a {
     display: block;
     text-decoration: none;
     text-indent: 2em;
@@ -167,17 +167,17 @@ nav ul li a {
 }
 
 /* .hover is a class added by js for the currently hovered/focused menu */
-nav ul li.hover a {
+nav[role="navigation"] ul li.hover a {
     height: 100%;
     width: auto;
 }
-nav ul li.hover a:hover {
+nav[role="navigation"] ul li.hover a:hover {
     cursor: pointer;
 }
-nav ul li ul {
+nav[role="navigation"] ul li ul {
     display: none;
 }
-nav ul li.hover ul {
+nav[role="navigation"] ul li.hover ul {
     display: block;
     position: absolute;
     top: 2.5em;
@@ -188,30 +188,30 @@ nav ul li ul li {
     float: none;
     width: 100%;
 }
-nav ul li ul li a {
+nav[role="navigation"] ul li ul li a {
     text-align: left;
     display: block;
     width: 100%;
 }
-nav .appwidget-search {
+nav[role="navigation"] .appwidget-search {
     text-align: right;
     line-height: 2.1em;
     padding-right: .833333em;
     position: static;
 }
-nav .appwidget-search input#search {
+nav[role="navigation"] .appwidget-search input#search {
     width: 15.5em;
 }
-nav .appwidget-search {
+nav[role="navigation"] .appwidget-search {
     margin-left: 25em;
 }
-nav .appwidget-search {
+nav[role="navigation"] .appwidget-search {
     white-space: nowrap;
 }
-nav .appwidget-search input {
+nav[role="navigation"] .appwidget-search input {
     max-width: 30%;
 }
-nav .appwidget-search select {
+nav[role="navigation"] .appwidget-search select {
     max-width: 20%;
 }
 

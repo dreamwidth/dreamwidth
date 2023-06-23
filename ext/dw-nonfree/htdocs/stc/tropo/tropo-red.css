@@ -63,22 +63,22 @@ a:active,
  * Menu navigation
  */
 
-nav {
+nav[role="navigation"] {
     background: #ddd url(/img/tropo-red/bg_menu_gradient.png) repeat-x;
 }
-nav ul li.topnav a {
+nav[role="navigation"] ul li.topnav a {
     background: transparent url(/img/tropo-red/icon_menu_swirl.png) 0.833333em 0.916667em no-repeat;
     color: #111;
 }
 /* .hover is a class added by js for the currently hovered/focused menu */
-nav ul li.hover a {
+nav[role="navigation"] ul li.hover a {
     background: #f4717a url(/img/tropo-red/icon_menu_swirl_dropdown.png) 0.833333em 0.916667em no-repeat;
     color: #fff;
 }
-nav ul li.hover a:hover {
+nav[role="navigation"] ul li.hover a:hover {
     background-color: #c1272d;
 }
-nav ul li.hover ul {
+nav[role="navigation"] ul li.hover ul {
     background-color: #f4717a;
 }
 
@@ -592,5 +592,3 @@ hr.hr {
 #archive-month .empty {margin: 0;}
 #archive-month .datetime {font-style: italic;}
 #archive-month .tag li {display: inline; list-style:none;}
-
-
