@@ -1091,4 +1091,3 @@ function Page::print()
     $this->print_wrapper_end();
     println "</html>";
 }
-
