@@ -77,7 +77,7 @@ sub ljuser_display {
     $nolink = $nolink || $opts{no_link};
 
     return
-          (first {$domain eq $_} @DW::External::Site::deadsites)."<span style='white-space: nowrap;'$display_class>"
+          (@DW::External::Site::deadsites)."<span style='white-space: nowrap;'$display_class>"
         . ( $nolink ? '' : "<a href='$profile_url'>" )
         . "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: text-bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>"
         . ( $nolink ? '' : "</a><a href='$journal_url'>" )
