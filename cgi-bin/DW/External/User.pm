@@ -61,7 +61,7 @@ sub site {
 sub ljuser_display {
     my ( $self, %opts ) = @_;
     my @deadsites;
-    my $nolink;
+    my $nolink = 0;
     my $user        = $self->user;
     my $profile_url = $self->site->profile_url($self);
     my $journal_url = $self->site->journal_url($self);
@@ -71,7 +71,7 @@ sub ljuser_display {
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
     @deadsites =  qw(delicious delicious.com diigo imzy inksome journalfen);
 
-    if (grep( /^$domain$/, @deadsites )) {
+    if ($domain ~~ @deadsites) {
         $nolink = 1;
     }
 
