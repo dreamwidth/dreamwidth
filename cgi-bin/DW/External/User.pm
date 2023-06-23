@@ -60,6 +60,7 @@ sub site {
 # return the ljuser_display block
 sub ljuser_display {
     my ( $self, %opts ) = @_;
+    my @deadsites;
     my $nolink;
     my $user        = $self->user;
     my $profile_url = $self->site->profile_url($self);
@@ -68,7 +69,7 @@ sub ljuser_display {
     $badge_image->{url} = LJ::CleanHTML::https_url( $badge_image->{url} );
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
-    my @deadsites = DW::External::Site::get_deadsites()
+    @deadsites = DW::External::Site::get_deadsites()
 
     if (grep( /^$domain$/, @deadsites)) {
         $nolink = 1;
