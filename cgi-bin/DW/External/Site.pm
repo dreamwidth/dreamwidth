@@ -111,7 +111,7 @@ $domaintosite{"furaffinity.com"} =
 $domaintosite{"artstation.com"} =
     DW::External::Site->new( "33", "www.artstation.com", "artstation.com", "ArtStation", "artstation" );
 
-@deadsites =  qw(delicious delicious.com diigo imzy inksome journalfen);
+@deadsites = ("del.icio.us", "diigo.com", "imzy.com", "inksome.com", "journalfen.net");
 
 @all_sites_without_alias = values %domaintosite;
 

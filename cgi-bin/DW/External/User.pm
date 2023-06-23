@@ -70,14 +70,14 @@ sub ljuser_display {
     $badge_image->{url} = LJ::CleanHTML::https_url( $badge_image->{url} );
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
-    @deadsites =  qw(del.icio.us diigo.com imzy.com inksome.com journalfen.net);
+    @deadsites = ("del.icio.us", "diigo.com", "imzy.com", "inksome.com", "journalfen.net");
 
     $nolink = 1 if (first {$domain eq $_} @DW::External::Site::deadsites);
 
     $nolink = $nolink || $opts{no_link};
 
     return
-          @DW::External::Site::deadsites."<span style='white-space: nowrap;'$display_class>"
+          $domain."<span style='white-space: nowrap;'$display_class>"
         . ( $nolink ? '' : "<a href='$profile_url'>" )
         . "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: text-bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>"
         . ( $nolink ? '' : "</a><a href='$journal_url'>" )
