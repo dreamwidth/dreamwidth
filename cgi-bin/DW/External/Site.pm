@@ -160,7 +160,7 @@ $domaintosite{"artstation"}      = $domaintosite{"artstation.com"};
 $domaintosite{"substack"}        = $domaintosite{"substack.com"};
 $domaintosite{"itch"}            = $domaintosite{"itch.io"};
 
-@my deadsites = qw(delicious delicious.com diigo imzy inksome journalfen);
+my @deadsites = qw(delicious delicious.com diigo imzy inksome journalfen);
 
 foreach my $value (@all_sites_without_alias) {
     $idtosite{ $value->{siteid} } = $value;
