@@ -71,8 +71,6 @@ sub ljuser_display {
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
     @deadsites =  qw(delicious delicious.com diigo imzy inksome journalfen);
 
-    print $domain;
-    print @deadsites;
     if (grep( /^$domain$/, @deadsites )) {
         $nolink = 1;
     }
@@ -80,7 +78,7 @@ sub ljuser_display {
     $nolink = $nolink || $opts{no_link};
 
     return
-          @deadsites."<span style='white-space: nowrap;'$display_class>"
+          $domain.$nolink.grep( /^$domain$/, @deadsites )."<span style='white-space: nowrap;'$display_class>"
         . ( $nolink ? '' : "<a href='$profile_url'>" )
         . "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: text-bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>"
         . ( $nolink ? '' : "</a><a href='$journal_url'>" )
