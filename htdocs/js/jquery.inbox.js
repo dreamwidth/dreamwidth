@@ -149,6 +149,9 @@ function mark_items(e, action, qid) {
     }
     // We've reloaded the view, so set the select-all checkbox to unchecked.
     $('.check_all').prop("checked", false);
+
+    // Update the navbar inbox count
+    $.update_inbox();
 }
 
 // Only load this on the compose page

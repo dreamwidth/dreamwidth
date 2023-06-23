@@ -104,6 +104,25 @@ $.fn.throbber = function(jqxhr) {
     return $this;
 };
 
+$.update_inbox = function() {
+    if (!$("#Inbox_Unread_Count, #Inbox_Unread_Count_Menu").length) return;
+
+    $.ajax($.endpoint('esn_inbox'), {
+        'type': "POST",
+        'data': { 'action': 'get_unread_items'},
+        'success': function(resp) {
+            let unread = $("#Inbox_Unread_Count, #Inbox_Unread_Count_Menu");
+            if (!unread.length) return;
+            let unread_count = resp.unread_count? ` (${resp.unread_count})` : "";
+            unread[0].innerHTML = unread_count;
+         }
+    });
+};
+
+if ($("#Inbox_Unread_Count, #Inbox_Unread_Count_Menu").length) {
+    window.setInterval($.update_inbox, 1000 * 60 * 5);
+}
+
 Unique = {
     count: 0,
 
