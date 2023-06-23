@@ -31,6 +31,7 @@ LJ::ModuleLoader->require_subclasses("DW::External::Site");
 my %domaintosite;
 my %idtosite;
 my @all_sites_without_alias;
+my @deadsites;
 
 ### static initializers
 # with tld
@@ -110,6 +111,8 @@ $domaintosite{"furaffinity.com"} =
 $domaintosite{"artstation.com"} =
     DW::External::Site->new( "33", "www.artstation.com", "artstation.com", "ArtStation", "artstation" );
 
+@deadsites =  qw(delicious delicious.com diigo imzy inksome journalfen);
+
 @all_sites_without_alias = values %domaintosite;
 
 # without tld
@@ -159,8 +162,6 @@ $domaintosite{"fa"}              = $domaintosite{"furaffinity.com"};
 $domaintosite{"artstation"}      = $domaintosite{"artstation.com"};
 $domaintosite{"substack"}        = $domaintosite{"substack.com"};
 $domaintosite{"itch"}            = $domaintosite{"itch.io"};
-
-my @deadsites = qw(delicious delicious.com diigo imzy inksome journalfen);
 
 foreach my $value (@all_sites_without_alias) {
     $idtosite{ $value->{siteid} } = $value;
@@ -219,6 +220,8 @@ sub get_site {
 
     return $mapped || undef;
 }
+
+sub get_deadsites { return @deadsites; }
 
 # returns a list of all supported sites for linking
 sub get_sites { return @all_sites_without_alias; }

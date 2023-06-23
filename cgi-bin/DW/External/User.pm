@@ -69,7 +69,7 @@ sub ljuser_display {
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
-    if (grep( /^$domain$/, DW::External::Site::@deadsites)) {
+    if (grep( /^$domain$/, DW::External::Site::get_deadsites)) {
         $opts{no_link} = 1;
     }
 
