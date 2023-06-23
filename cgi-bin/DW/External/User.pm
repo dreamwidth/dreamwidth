@@ -72,7 +72,7 @@ sub ljuser_display {
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
     @deadsites =  qw(del.icio.us diigo.com imzy.com inksome.com journalfen.net);
 
-    $nolink = 1 if (first {$domain eq $_} @deadsites);
+    $nolink = 1 if (first {$domain eq $_} DW::External::Site->get_deadsites);
 
     $nolink = $nolink || $opts{no_link};
 
