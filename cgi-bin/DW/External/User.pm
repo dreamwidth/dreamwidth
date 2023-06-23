@@ -70,7 +70,7 @@ sub ljuser_display {
     $badge_image->{url} = LJ::CleanHTML::https_url( $badge_image->{url} );
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
-    @deadsites =  qw(delicious delicious.com diigo imzy inksome journalfen);
+    @deadsites =  qw(del.icio.us diigo.com imzy.com inksome.com journalfen.net);
 
     $nolink = 1 if (first {$domain eq $_} @deadsites);
 
