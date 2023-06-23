@@ -221,7 +221,7 @@ sub get_site {
     return $mapped || undef;
 }
 
-sub get_deadsites { return \@deadsites; }
+sub get_deadsites { return @deadsites; }
 
 # returns a list of all supported sites for linking
 sub get_sites { return @all_sites_without_alias; }
