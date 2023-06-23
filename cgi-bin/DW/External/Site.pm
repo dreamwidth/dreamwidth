@@ -31,7 +31,7 @@ LJ::ModuleLoader->require_subclasses("DW::External::Site");
 my %domaintosite;
 my %idtosite;
 my @all_sites_without_alias;
-my @deadsites;
+our @deadsites;
 
 ### static initializers
 # with tld
