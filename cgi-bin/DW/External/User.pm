@@ -20,6 +20,7 @@ package DW::External::User;
 use strict;
 use Carp qw/ croak /;
 use DW::External::Site;
+use List::Util qw(first); 
 use LJ::CleanHTML;
 
 # given a site (url) and a user (string), construct an external
@@ -71,9 +72,7 @@ sub ljuser_display {
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
     @deadsites =  qw(delicious delicious.com diigo imzy inksome journalfen);
 
-    if ($domain ~~ @deadsites) {
-        $nolink = 1;
-    }
+    $nolink = 1 if (first {$domain eq $_} @deadsites);
 
     $nolink = $nolink || $opts{no_link};
 
