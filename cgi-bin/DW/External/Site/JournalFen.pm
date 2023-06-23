@@ -35,6 +35,18 @@ sub accepts {
     return bless { hostname => 'journalfen.net' }, $class;
 }
 
+sub badge_image {
+    my ( $self, $u ) = @_;
+    croak 'need a DW::External::User'
+        unless $u && ref $u eq 'DW::External::User';
+
+    return {
+        url    => "/silk/identity/user.png",
+        width  => 16,
+        height => 16,
+    };
+}
+
 sub canonical_username {
     return LJ::canonical_username( $_[1] );
 }

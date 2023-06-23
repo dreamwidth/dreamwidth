@@ -54,4 +54,16 @@ sub profile_url {
     return 'http://' . $self->{hostname} . '/profile/' . $u->user;
 }
 
+sub badge_image {
+    my ( $self, $u ) = @_;
+    croak 'need a DW::External::User'
+        unless $u && ref $u eq 'DW::External::User';
+
+    return {
+        url    => "/silk/identity/user.png",
+        width  => 16,
+        height => 16,
+    };
+}
+
 1;
