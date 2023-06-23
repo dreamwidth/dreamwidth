@@ -48,19 +48,4 @@ sub journal_url {
     return "http://$user.$self->{domain}/";
 }
 
-# argument: DW::External::User
-# returns info for the badge image (head icon) for this user
-sub badge_image {
-    my ( $self, $u ) = @_;
-    croak 'need a DW::External::User'
-        unless $u && ref $u eq 'DW::External::User';
-
-    # Inksome went away, so just assume every account is personal
-    return {
-        url    => "$LJ::IMGPREFIX/external/ink-userinfo.gif",
-        width  => 17,
-        height => 17,
-    };
-}
-
 1;

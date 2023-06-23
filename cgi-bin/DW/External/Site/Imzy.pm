@@ -53,19 +53,4 @@ sub profile_url {
     return 'https://' . $self->{hostname} . "/@" . $u->user;
 }
 
-# argument: DW::External::User
-# returns info for the badge image (userhead icon) for this user
-sub badge_image {
-    my ( $self, $u ) = @_;
-    croak 'need a DW::External::User'
-        unless $u && ref $u eq 'DW::External::User';
-
-    # for lack of anything better, let's use the favicon
-    return {
-        url    => $LJ::IMGPREFIX . '/external/imzy.png',
-        width  => 16,
-        height => 16,
-    };
-}
-
 1;

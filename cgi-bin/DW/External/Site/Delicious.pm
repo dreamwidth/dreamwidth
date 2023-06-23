@@ -57,19 +57,4 @@ sub profile_url {
     return 'http://' . $self->{hostname} . '/stacks/' . $u->user;
 }
 
-# argument: DW::External::User
-# returns info for the badge image (userhead icon) for this user
-sub badge_image {
-    my ( $self, $u ) = @_;
-    croak 'need a DW::External::User'
-        unless $u && ref $u eq 'DW::External::User';
-
-    # for lack of anything better, let's use the favicon
-    return {
-        url    => "https://del.icio.us/favicon.ico",
-        width  => 16,
-        height => 16,
-    };
-}
-
 1;

@@ -69,6 +69,10 @@ sub ljuser_display {
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
+    if (grep( /^$value$/, DW::External::Site::deadsites)) {
+        $opts{no_link} = 1;
+    }
+    
     return
           "<span style='white-space: nowrap;'$display_class>"
         . ( $opts{no_link} ? '' : "<a href='$profile_url'>" )
