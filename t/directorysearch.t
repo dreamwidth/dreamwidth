@@ -73,6 +73,13 @@ $is->(
 );
 
 $is->(
+    "Age Range + last week",
+"loc_cn=&loc_st=&loc_ci=&ut_days=7&age_min=14&age_max=27&int_like=&fr_user=&fro_user=&opt_format=pics&opt_sort=ut&opt_pagesize=100",
+    LJ::Directory::Constraint::Age->new( from => 14, to => 27 ),
+    LJ::Directory::Constraint::UpdateTime->new( days => 7 )
+);
+
+$is->(
     "Interest",
     "int_like=lindenz&opt_sort=ut",
     LJ::Directory::Constraint::Interest->new( interest => 'lindenz' )
