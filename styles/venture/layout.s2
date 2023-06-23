@@ -1235,7 +1235,7 @@ $module_layout_css
 #content { padding: 1em; }
 
 @media $medium_media_query {
-    .two-columns-left #content,
+    .two-columns-left #content { border-left: $*sidebar_width solid transparent; }
     .three-columns-sides #content { border-left: $*sidebar_width solid transparent; border-right: $*sidebar_width solid transparent; }
 
     .three-columns-left #content { border-left: $*sidebar_width_doubled solid transparent; }
