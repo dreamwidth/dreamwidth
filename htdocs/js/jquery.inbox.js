@@ -127,6 +127,14 @@ function mark_items(e, action, qid) {
             if (data.success) {
                 $("#inbox_message_list").html(data.success.items);
                 $("#inbox_folders").html(data.success.folders);
+                $(".pagination").html(data.success.pages);
+
+                // Navbar unread count
+                let unread = $("#Inbox_Unread_Count, #Inbox_Unread_Count_Menu");
+                if (!unread.length) return;
+                let unread_count = data.success.unread_count? ` (${data.success.unread_count})` : "";
+                unread[0].innerHTML = unread_count;
+
                 collapsed.forEach(function(id) {
                     var arrow = $("#" + id).siblings('.InboxItem_Controls').find('img.item_expand');
                     arrow.attr({
@@ -149,9 +157,6 @@ function mark_items(e, action, qid) {
     }
     // We've reloaded the view, so set the select-all checkbox to unchecked.
     $('.check_all').prop("checked", false);
-
-    // Update the navbar inbox count
-    $.update_inbox();
 }
 
 // Only load this on the compose page
