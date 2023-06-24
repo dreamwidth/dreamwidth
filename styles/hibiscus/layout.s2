@@ -34,14 +34,6 @@ set image_background_header_height = 185;
 ##===============================
 ## Modules
 ##===============================
-
-property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
-    grouped = 1;
-    }
-
-set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
-set module_navlinks_section = "header";
 set module_tags_opts_count_type = "title";
 
 ##===============================
@@ -57,26 +49,6 @@ set text_mem_add = "Memory";
 set text_tell_friend = "Share";
 set text_watch_comments = "Track";
 set text_unwatch_comments = "Untrack";
-
-##===============================
-## Functions
-##===============================
-
- # Give a title to the navlinks module
-function print_module_navlinks() {
-    var Page p = get_page();
-    var string title = "Navigation";
-    open_module("navlinks", "$title", "");
-    var string{}[] links = [];
-    foreach var string k ($p.views_order) {
-        var string class = "list-item-$k";
-        var string css = """ class="$k" """;
-        if ($p.view == $k) { $css = """ class="current $k" """; }
-        $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""" };
-    }
-    print_module_list($links);
-    close_module();
-}
 
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();

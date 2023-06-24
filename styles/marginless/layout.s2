@@ -42,39 +42,6 @@ propgroup colors_child {
     }
 
 ##===============================
-## Modules
-##===============================
-
-property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
-    grouped = 1;
-    }
-
-set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
-set module_navlinks_section = "one";
-
-##===============================
-## Functions
-##===============================
-
-# Give a title to the navlinks module
-function print_module_navlinks() {
-    var Page p = get_page();
-    var string title = "Navigation";
-    open_module("navlinks", "$title", "");
-    var string{}[] links = [];
-    foreach var string k ($p.views_order) {
-        var string class = "list-item-$k";
-        var string css = """ class="$k" """;
-        if ($p.view == $k) { $css = """ class="current $k" """; }
-        $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""" };
-    }
-    print_module_list($links);
-    close_module();
-}
-
-
-##===============================
 ## Stylesheet
 ##===============================
 

@@ -201,18 +201,6 @@ set image_comment_border_end_even_position = "top left";
 set image_comment_border_end_even_repeat = "no-repeat";
 
 ##===============================
-## Modules
-##===============================
-
-    property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Main Module Section|two|Main Module Section";
-       grouped = 1;
-       }
-
-set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
-set module_navlinks_section = "header";
-
-##===============================
 ## Text
 ##===============================
 
