@@ -535,7 +535,7 @@ sub _basic_info_website {
         $urlname = LJ::ehtml( $urlname || $url );
         if ($url) {
             $ret->[0] = _profile_ml('.label.website');
-            my $spam_time_threshold = (localtime() - (ONE_DAY * 10)) > LJ::mysql_time( $u->timecreate );
+            my $spam_time_threshold = scalar (localtime() - (ONE_DAY * 10)) <= scalar LJ::mysql_time( $u->timecreate );
             if ($spam_time_threshold) {
                 $ret->[1] = { url => $url, text => $urlname };
             } else {
