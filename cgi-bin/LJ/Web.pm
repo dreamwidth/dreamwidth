@@ -204,7 +204,8 @@ sub make_authas_select {
                 name     => 'authas',
                 selected => $authas,
                 class    => 'hideable',
-                id       => 'authas'
+                id       => 'authas',
+                style    => 'width: 100%'
             },
             map { $_, $_ } @list
         );
@@ -215,14 +216,14 @@ sub make_authas_select {
         }
         else {
             $ret = $foundation
-                ? q{<div class='row collapse'><div class='columns medium-1'><label class='inline'>}
+                ? q{<div class='row collapse'><div class='columns small-3 medium-1'><label class='inline'>}
                 . LJ::Lang::ml('web.authas.select.label')
                 . q{</label></div>}
-                . q{<div class='columns medium-11'><div class='row'>}
-                . q{<div class="columns medium-2">}
+                . q{<div class='columns small-9 medium-11'><div class='row'>}
+                . q{<div class="columns small-8 medium-4">}
                 . $menu
                 . q{</div>}
-                . q{<div class='columns medium-2 end'>}
+                . q{<div class='columns small-4 medium-2 end'>}
                 . LJ::html_submit( undef, $button, { class => "secondary button" } )
                 . q{</div>}
                 . q{</div></div>}
