@@ -521,26 +521,31 @@ sub _basic_info_website {
     my $self = $_[0];
 
     my $u   = $self->{u};
+    my $remote = $self->{remote};
     my $ret = [];
 
     return $ret if $u->is_syndicated;
 
     my ( $url, $urlname ) = ( $u->url, $u->prop('urlname') );
-    if ($url) {
-        $url = LJ::ehtml($url);
-        unless ( $url =~ /^https?:\/\// ) {
-            $url =~ s/^http\W*//;
-            $url = "http://$url";
-        }
-        $urlname = LJ::ehtml( $urlname || $url );
+
+    my $spam_time_threshold = scalar (localtime() - (ONE_DAY * 10)) <= scalar LJ::mysql_time( $u->timecreate );
+    if ($spam_time_threshold) {
         if ($url) {
-            $ret->[0] = _profile_ml('.label.website');
-            my $spam_time_threshold = scalar (localtime() - (ONE_DAY * 10)) <= scalar LJ::mysql_time( $u->timecreate );
-            if ($spam_time_threshold) {
-                $ret->[1] = { url => $url, text => $urlname };
-            } else {
-                $ret->[1] = "Other people will not see this link on your profile until your account is at least 10 days old.";
+            $url = LJ::ehtml($url);
+            unless ( $url =~ /^https?:\/\// ) {
+                $url =~ s/^http\W*//;
+                $url = "http://$url";
             }
+            $urlname = LJ::ehtml( $urlname || $url );
+            if ($url) {
+                $ret->[0] = _profile_ml('.label.website');
+                $ret->[1] = { url => $url, text => $urlname };
+            }
+        }
+    } else {
+        if ($remote && $remote->can_manage($u)) {
+            $ret->[0] = _profile_ml('.label.website');
+            $ret->[1] = "Other people will not see this link on your profile until your account is at least 10 days old.";
         }
     }
 
