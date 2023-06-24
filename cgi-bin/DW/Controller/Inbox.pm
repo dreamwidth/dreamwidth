@@ -305,12 +305,21 @@ sub action_handler {
         handle_post( $remote, $action, $view, $itemid, $ids );
     }
 
+    my $getextra = '';
+    if ( $view eq 'singleentry' ) {
+        $getextra = "?view=$view&itemid=$itemid";
+
+    }
+    elsif ( $view ne 'all' ) {
+        $getextra = "?view=$view";
+    }
+
     my $inbox         = $remote->notification_inbox;
     my $display_items = items_by_view( $inbox, $view, $itemid );
     my $last_page     = POSIX::ceil( ( scalar @$display_items ) / $PAGE_LIMIT );
     my $items_html    = render_items( $page, $view, $remote, $display_items, $expand );
     my $folder_html   = render_folders( $remote, $view );
-    my $path          = "$LJ::SITEROOT/inbox/new";
+    my $path          = "/inbox/new$getextra";
     my $pages_html    = DW::Template->template_string( 'components/pagination.tt',
         { current => $page, total_pages => $last_page, path => $path } );
 
