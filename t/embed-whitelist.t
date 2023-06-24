@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 110;
+use Test::More tests => 113;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -190,6 +190,7 @@ note("misc");
     );
 
     # N
+    test_good_url("https://nekocap.com/view/OUHX8PYzJE?embed=true");
     test_good_url("http://ext.nicovideo.jp/thumb/sm123123123");
     test_good_url("http://ext.nicovideo.jp/thumb/nm123123123");
     test_good_url("http://ext.nicovideo.jp/thumb/123123123");
