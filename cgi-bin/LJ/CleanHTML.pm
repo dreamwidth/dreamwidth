@@ -613,8 +613,8 @@ TOKEN:
                         . $journal . "_"
                         . $ditemid . "_"
                         . $cutcount
-                        . "\" class=\"cuttag\"></span></span>";
-                    $newdata .= "<b class=\"cut-open\">(&nbsp;</b><b class=\"cut-text\"><a href=\"$url#cutid$cutcount\">$etext</a></b><b class=\"cut-close\">&nbsp;)</b>";
+                        . "\" class=\"cuttag\"></span>";
+                    $newdata .= "<b class=\"cut-open\">(&nbsp;</b><b class=\"cut-text\"><a href=\"$url#cutid$cutcount\">$etext</a></b><b class=\"cut-close\">&nbsp;)</b></span>";
                     $newdata .=
                           "<div style=\"display: none;\" id=\"div-cuttag_"
                         . $journal . "_"
