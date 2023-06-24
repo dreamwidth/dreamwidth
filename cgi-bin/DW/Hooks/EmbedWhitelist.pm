@@ -121,6 +121,7 @@ my %host_path_match = (
     "www.redditmedia.com"  => [ qr!^/r/\w+/comments/\w+/\w+/$!,            1 ],
     "www.reverbnation.com" => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
     "rumble.com"           => [ qr!^/embed/[a-zA-Z0-9]+/!,                 1 ],
+    "rutube.ru"            => [ qr!^/play/embed/[0-9]+/$!,                 1 ],
 
     "www.sbs.com.au" => [ qr!/player/embed/!, 0 ]
     ,    # best guess; language parameter before /player may vary

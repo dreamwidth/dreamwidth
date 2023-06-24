@@ -222,6 +222,7 @@ note("misc");
 "https://www.reverbnation.com/widget_code/html_widget/artist_299962?widget_id=55&pwc[song_ids]=4189683&context_type=song&pwc[size]=small&pwc[color]=dark"
     );
     test_good_url("https://rumble.com/embed/vr722g/?pub=4");
+    test_good_url("https://rutube.ru/play/embed/7189654");
 
     # S
     test_good_url("http://www.sbs.com.au/yourlanguage//player/embed/id/163111");
