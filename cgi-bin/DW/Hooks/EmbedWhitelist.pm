@@ -136,6 +136,7 @@ my %host_path_match = (
     "streamable.com"     => [ qr!^/[eos]/!,                    1 ],
 
     "embed.ted.com" => [ qr!^/talks/!, 1 ],
+    "twitch.tv"     => [ qr!^/player.twitch.tv/!, 1],
 
     "vid.me"           => [ qr!^/e/!,                              1 ],
     "player.vimeo.com" => [ qr!^/video/\d+$!,                      1 ],
