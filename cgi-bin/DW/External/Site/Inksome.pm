@@ -54,7 +54,7 @@ sub badge_image {
         unless $u && ref $u eq 'DW::External::User';
 
     return {
-        url    => "/img/silk/identity/user_other.png",
+        url    => $LJ::IMGPREFIX."/silk/identity/user_other.png",
         width  => 16,
         height => 16,
     };
