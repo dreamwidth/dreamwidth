@@ -172,6 +172,7 @@ note("misc");
 
     # L
     test_good_url("https://lichess.org/study/embed/JYjprYmJ/CeyjnPCj");
+    test_good_url("https://www.loc.gov/item/mbrs01991430/?embed=resources");
 
     test_good_url("https://shad-tkhom.livejournal.com/1244088.html?embed");
     test_bad_url( "https://shad-tkhom.livejournal.com/1244088.html",         "missing embed flag" );

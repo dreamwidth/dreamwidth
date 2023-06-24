@@ -100,6 +100,7 @@ my %host_path_match = (
     "www.kickstarter.com" => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
     "lichess.org" => [ qr!/study/embed/!, 1 ],
+    "loc.gov"     => [ qr!/item/[a-z0-9]+/!, 1],
 
     "www.mixcloud.com" => [ qr!^/widget/iframe/$!,          1 ],
     "mixstep.co"       => [ qr!^/embed/!,                   1 ],
