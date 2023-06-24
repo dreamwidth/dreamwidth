@@ -70,12 +70,12 @@ sub ljuser_display {
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
-    $nolink = 1 if exists $DW::External::Site::deadsites->{$domain};
+    $nolink = 1 if exists $DW::External::Site::deadsites{$domain};
 
     $nolink = $nolink || $opts{no_link};
 
     return
-        (exists $DW::External::Site::deadsites{$domain})."<span style='white-space: nowrap;'$display_class>"
+        "<span style='white-space: nowrap;'$display_class>"
         . ( $nolink ? '' : "<a href='$profile_url'>" )
         . "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: text-bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>"
         . ( $nolink ? '' : "</a><a href='$journal_url'>" )
