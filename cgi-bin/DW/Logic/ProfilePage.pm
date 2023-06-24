@@ -21,6 +21,8 @@ package DW::Logic::ProfilePage;
 use strict;
 use DW::Countries;
 use DW::Logic::UserLinkBar;
+use Time::Piece;
+use Time::Seconds 'ONE_DAY';
 
 # returns a new profile page object
 sub profile_page {
@@ -533,7 +535,12 @@ sub _basic_info_website {
         $urlname = LJ::ehtml( $urlname || $url );
         if ($url) {
             $ret->[0] = _profile_ml('.label.website');
-            $ret->[1] = { url => $url, text => $urlname };
+            my $spam_time_threshold = (localtime() - (ONE_DAY * 10)) > $u->createdate;
+            if ($spam_time_threshold) {
+                $ret->[1] = { url => $url, text => $urlname };
+            } else {
+                $ret->[1] = "Other people will not see this link on your profile until your account is at least 10 days old.";
+            }
         }
     }
 
