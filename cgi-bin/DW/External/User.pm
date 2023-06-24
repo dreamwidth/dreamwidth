@@ -61,7 +61,6 @@ sub site {
 # return the ljuser_display block
 sub ljuser_display {
     my ( $self, %opts ) = @_;
-    my @deadsites;
     my $nolink = 0;
     my $user        = $self->user;
     my $profile_url = $self->site->profile_url($self);
@@ -71,7 +70,7 @@ sub ljuser_display {
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
-    $nolink = 1 if (first {$domain eq $_} @DW::External::Site::deadsites);
+    $nolink = 1 if exists $deadsites{$domain};
 
     $nolink = $nolink || $opts{no_link};
 

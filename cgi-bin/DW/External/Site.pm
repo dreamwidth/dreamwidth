@@ -31,7 +31,7 @@ LJ::ModuleLoader->require_subclasses("DW::External::Site");
 my %domaintosite;
 my %idtosite;
 my @all_sites_without_alias;
-our @deadsites;
+our %deadsites;
 
 ### static initializers
 # with tld
@@ -111,7 +111,11 @@ $domaintosite{"furaffinity.com"} =
 $domaintosite{"artstation.com"} =
     DW::External::Site->new( "33", "www.artstation.com", "artstation.com", "ArtStation", "artstation" );
 
-@deadsites = ("del.icio.us", "diigo.com", "imzy.com", "inksome.com", "journalfen.net");
+%deadsites = ("del.icio.us" => 1,
+              "diigo.com"   => 1,
+              "imzy.com"    => 1,
+              "inksome.com" => 1,
+              "journalfen.net" => 1);
 
 @all_sites_without_alias = values %domaintosite;
 
