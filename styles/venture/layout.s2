@@ -1776,6 +1776,7 @@ $display_topnav_css
     margin: 0;
     padding: 0;
     background-color: $*color_entry_background;
+    clear: both;
     }
 
 .comment .comment-title {
