@@ -1416,6 +1416,8 @@ You can:
 
 esn.removedfromcircle.watched.subject=[[who]] has unsubscribed from your journal
 
+esn.show_unsubscribed_journal=[[openlink]]View [[postername]]'s journal[[closelink]]
+
 esn.remove_trust=[[openlink]]Remove access from [[postername]][[closelink]]
 
 esn.remove_watch=[[openlink]]Unsubscribe from [[postername]][[closelink]]

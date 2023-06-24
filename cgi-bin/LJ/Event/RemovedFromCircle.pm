@@ -45,6 +45,7 @@ my @_ml_strings_en = qw(
     esn.removedfromcircle.watched.subject
     esn.removedfromcircle.trusted.email_text
     esn.removedfromcircle.watched.email_text
+    esn.show_unsubscribed_circle
     esn.remove_trust
     esn.remove_watch
     esn.post_entry
