@@ -219,7 +219,7 @@ sub make_authas_select {
                 . LJ::Lang::ml('web.authas.select.label')
                 . q{</label></div>}
                 . q{<div class='columns medium-11'><div class='row'>}
-                . q{<div class="columns medium-2">}
+                . q{<div class="columns medium-3">}
                 . $menu
                 . q{</div>}
                 . q{<div class='columns medium-2 end'>}
