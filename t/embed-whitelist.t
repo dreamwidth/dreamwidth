@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 113;
+use Test::More tests => 115;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -109,6 +109,7 @@ note("misc");
     test_good_url("https://diode.zone/videos/embed/52a10666-3a18-4e73-93da-e8d3c12c305a");
     test_good_url("http://dotsub.com/media/9db493c6-6168-44b0-89ea-e33a31db48db/e/m");
     test_good_url("https://discordapp.com/widget?id=305444013354254349&theme=dark");
+    test_good_url("https://drive.google.com/file/d/0B65w91gNVFP0OFVsMGxpVmlvRzA/preview");
 
     # E
     test_good_url( "http://episodecalendar.com/icalendar/sampleuser\@example.com/abcde/",
