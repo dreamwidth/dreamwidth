@@ -1149,6 +1149,12 @@ sub _do_post {
     # post succeeded, time to do some housecleaning
     _persist_props( $auth->{poster}, $form_req, 0 );
 
+    # Clear out a draft
+    if ( $auth->{poster} ) {
+        $auth->{poster}->set_prop( 'entry_draft',      '' );
+        $auth->{poster}->set_prop( 'draft_properties', '' );
+    }
+
     my $render_ret;
     my @links;
 
@@ -1422,12 +1428,6 @@ sub _persist_props {
     return unless $u;
 
     $u->displaydate_check( $form->{update_displaydate} ? 1 : 0 ) unless $is_edit;
-
-    # FIXME:
-    #
-    #                 # Clear out a draft
-    #                 $remote->set_prop('entry_draft', '')
-    #                     if $remote;
 
 }
 
