@@ -181,7 +181,7 @@ postFormInitData.strings = {
                         size = "50"
 
                         labelclass = "hidden"
-                        class = "draft"
+                        class = "draft-autosave"
 
                         placeholder = dw.ml(".subject.placeholder")
                 ) -%]
@@ -441,7 +441,7 @@ postFormInitData.strings = {
         var autoSaveInterval = [% autosave_interval %];
         var savedMsg = [% dw.ml('.draft.autosave', {time => '[[time]]'}) | js %];
         var restoredMsg = [% dw.ml('.draft.restored') | js %]
-        var confirmMsg = [% dw.ml( '.draft.confirm2', { subjectline => draft_subject_raw } ) | js %]
+        var confirmMsg = [% draft_subject_raw.length > 0 ? dw.ml( '.draft.confirm2', { subjectline => draft_subject_raw } ) : dw.ml('.draft.confirm') | js %]
 
         var should_init = [%init_draft %];
 </script>
