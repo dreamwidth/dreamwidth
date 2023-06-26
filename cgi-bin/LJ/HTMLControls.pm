@@ -518,6 +518,7 @@ sub html_submit {
         $disabled = " disabled='disabled'" if $opts->{'disabled'};
         $raw      = " $opts->{'raw'}"      if $opts->{'raw'};
         $type     = 'reset'                if $opts->{type} && $opts->{type} eq 'reset';
+        $type     = 'button'               if $opts->{type} && $opts->{type} eq 'button';
 
         $ehtml = $opts->{'noescape'} ? 0 : 1;
         foreach ( grep { !/^(raw|disabled|noescape|type)$/ } keys %$opts ) {
