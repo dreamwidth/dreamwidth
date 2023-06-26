@@ -6,7 +6,9 @@ on:
       - main
     paths:
       - bin/**
+      - ext/dw-nonfree/bin/**
       - cgi-bin/**
+      - ext/dw-nonfree/cgi-bin/**
   workflow_dispatch:
 
 env:

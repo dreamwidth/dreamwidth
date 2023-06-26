@@ -6,9 +6,13 @@ on:
       - main
     paths:
       - cgi-bin/**
+      - ext/dw-nonfree/cgi-bin/**
       - htdocs/**
+      - ext/dw-nonfree/htdocs/**
       - views/**
+      - ext/dw-nonfree/views/**
       - schemes/**
+      - ext/dw-nonfree/schemes/**
       - src/s2/**
   workflow_dispatch:
 
