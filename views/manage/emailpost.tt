@@ -39,6 +39,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <p>[% '.intro' | ml({aopts => "href='${site.root}/manage/emailpost?mode=help'"}) %]</p>
 
+[%- info_box -%]
+
+[%- INCLUDE components/errors.tt errors = errors -%]
+
 <h1>[% '.addresses.header' | ml %]</h1>
 <p>[% '.addresses.text' | ml %]</p>
 
@@ -53,16 +57,18 @@ the same terms as Perl itself.  For a copy of the license, please reference
       </tr></thead>
 
 [%- address = addrlist.keys.sort;
-    # Limited to 3 addresses.
-    FOREACH idx IN [ 0 .. 2 ] -%]
+    # Limited to addr_max number of addresses.
+    FOREACH idx IN [ 0 .. addr_max ]; a_name = "addresses_$idx" -%]
       <tr><td>
-        [% form.textbox( name = 'addresses', size = 40, maxlength = 80,
-                         value = address.$idx ) %]
+        [% form.textbox( name = a_name, size = 40, maxlength = 80,
+                         value = formdata.$a_name || address.$idx ) %]
       </td><td class='center'>
-        [% selected = addrlist.${address.$idx}.get_errors ? 1 : 0 %]
-        [% form.checkbox( name = "check_$idx", selected => selected ) %]
+        [% selected = addrlist.${address.$idx}.get_errors ? 1 : 0;
+           c_sel = "check_$idx";
+           form.checkbox( name = c_sel, selected => formdata.$c_sel || selected ) %]
       </td><td class='center'>
-        [% form.checkbox( name = "help_$idx", selected => 0 ) %]
+        [% h_sel = "help_$idx";
+           form.checkbox( name = h_sel, selected => formdata.$h_sel || 0 ) %]
       </td></tr>
 [% END %]
     </table>
@@ -72,7 +78,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
   <h1>[% '.pin.header' | ml %]</h1>
   <p>[% '.pin.text' | ml({num => 4}) %]</p>
   <div class='indent'>
-    [% form.textbox( name = 'pin', size = 10, maxlength = 20, value = u.emailpost_pin,
+    [% form.textbox( name = 'pin', size = 10, maxlength = 20,
+                     value = formdata.pin || u.emailpost_pin,
                      type = 'password', autocomplete='new-password' ) %]
   </div>
   <br />
@@ -84,13 +91,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
   <h1>[% '.api.header' | ml %]</h1>
   <p>[% '.api.text' | ml %]</p>
 
-[%- IF apikeys.size > 0 -%]
+[%- IF apikeys.size && apikeys.size > 0 -%]
   <table border="0">
-  [% FOREACH key IN apikeys %]
+  [% FOREACH key IN apikeys; idx = loop.index %]
     <tr>
       <td>[% key.keyhash %]</td>
       <td>
-        [% form.checkbox( name = 'delete', value => key.keyhash ) %]
+        [% form.checkbox( name = "delete_$idx", value = key.keyhash ) %]
       </td>
     </tr>
   [% END %]
@@ -101,7 +108,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% END %]
 
   [% form.submit( name = 'action:apikey', value = dw.ml('.button.api.generate') ) %]
-[%- IF apikeys.size > 0 -%]
+[%- IF apikeys.size && apikeys.size > 0 -%]
   [% form.submit( name = 'action:delete', value = dw.ml('.button.api.delete') ) %]
 [% END %]
 
