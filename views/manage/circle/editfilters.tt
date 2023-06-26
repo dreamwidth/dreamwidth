@@ -5,14 +5,15 @@
     "js/access-filters.js"
 
 ) -%]
-
+[% USE Dumper %]
    
-<div class='action-box'>[% dw::ml( '.subfilters', { aopts => "href='${site.root}/manage/subscriptions/filters'" } ) %]</div>
+<div class='action-box'>[% dw.ml( '.subfilters', { aopts => "href='${site.root}/manage/subscriptions/filters'" } ) %]</div>
 
     <p>[% dw.ml('.text') %]</p>
     <p>[% dw.ml('.text.sec') %]</p>
     <form method='post' name='fg' action='editfilters$getextra'>
     [% dw.form_auth() %]
+    [% Dumper.dump(trust_groups) %]
     <input type='hidden' name='mode' value='save' />
     [% i = 0 %]
     [% WHILE i <= 0 %]
@@ -21,7 +22,7 @@
            public = 0
         %]
 
-        [% if trust_groups.defined(i) %]
+        [% IF trust_groups.defined(i) %]
             [% sort = trust_groups.i.sortorder 
             name = trust_groups.i.groupname
             public = trust_groups.i.is_public
@@ -49,7 +50,7 @@
 
     <tr style='vertical-align: top;'>
     <td><select name='list_groups' style='width: 150px;' size='15' onchange='groupClicked();'>
-    [% FOREACH group IN u.trust_groups %]
+    [% FOREACH group IN trust_groups.values() %]
         [% listname = group.is_public ? group.groupname _ dw.ml('.group.public') : group.groupname %]
         <option value='[% group.groupnum %]'>[% listname | html %]</option>
     [% END %]
@@ -85,10 +86,10 @@
     </form>
 
 <script>
-    var public = '[% dw.ml('.group.public') | ejs %]';
-    var rename = '[% dw.ml('.prompt.rename') | ejs %]';
-    var newname = '[% dw.ml('.prompt.newname') | ejs %]';
-    var delete = '[% dw.ml('.confirm.delete') | ejs %]';
-    var max60 = '[% dw.ml('.error.max60') | ejs %]';
-    var comma = '[% dw.ml('.error.comma') | ejs %]';
+    var public = '[% dw.ml('.group.public') | js %]';
+    var rename = '[% dw.ml('.prompt.rename') | js %]';
+    var newname = '[% dw.ml('.prompt.newname') | js %]';
+    var del = '[% dw.ml('.confirm.delete') | js %]';
+    var max60 = '[% dw.ml('.error.max60') | js %]';
+    var comma = '[% dw.ml('.error.comma') | js %]';
 </script>

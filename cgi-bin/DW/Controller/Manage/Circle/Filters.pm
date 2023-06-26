@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# DW::Controller::Manage::Subscriptions
+# DW::Controller::Manage::Circle::Filters
 #
-# /manage/subscriptions
+# /manage/circle/editfilters
 #
 # Authors:
 #      Cocoa <momijizukamori@gmail.com>
@@ -14,7 +14,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::Controller::Manage::Subscriptions;
+package DW::Controller::Manage::Circle::Filters;
 
 use strict;
 
@@ -22,7 +22,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 
-DW::Routing->register_string( "/manage/subscriptions/filters", \&filter_handler, app => 1 );
+DW::Routing->register_string( "/manage/circle/editfilters", \&filter_handler, app => 1 );
 
 sub filter_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
@@ -51,9 +51,11 @@ sub filter_handler {
         # check all creations/renames first
         for ( my $i = 1 ; $i <= 60 ; $i++ ) {
             my $name = $POST->{"efg_set_${i}_name"};
-            if ( $name
+            if (
+                $name
                 && ( ref $trust_groups->{$i} ne 'HASH'
-                    || $name ne $trust_groups->{$i}->{groupname} ) )
+                    || $name ne $trust_groups->{$i}->{groupname} )
+                )
             {
                 if ( $name =~ /,/ ) {
                     return error_ml('.error.comma');
@@ -135,7 +137,8 @@ sub filter_handler {
 
     foreach my $uid (
         sort { $trusted_us->{$a}->display_username cmp $trusted_us->{$b}->display_username }
-        keys %$trust_list )
+        keys %$trust_list
+        )
     {
         my $trusted_u = $trusted_us->{$uid};
 
