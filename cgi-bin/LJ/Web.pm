@@ -205,7 +205,7 @@ sub make_authas_select {
                 selected => $authas,
                 class    => 'hideable',
                 id       => 'authas',
-                style    => 'width: 100%'
+                style    => $foundation ? 'width: 100%' : '',
             },
             map { $_, $_ } @list
         );
