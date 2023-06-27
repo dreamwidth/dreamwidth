@@ -32,7 +32,6 @@ use DW::FormErrors;
 
 use DW::API::Key;
 use LJ::Emailpost::Web;
-use LJ::Setting::EmailPosting;
 
 DW::Routing->register_string( "/manage/emailpost", \&emailpost_handler, app => 1 );
 
@@ -154,7 +153,7 @@ sub emailpost_handler {
             }
 
             LJ::Emailpost::Web::set_allowed_senders( $u, \%allowed );
-            LJ::Setting::EmailPosting->email_helpmessage( $u, $_ ) foreach @send_helpmessage;
+            email_helpmessage( $u, $_ ) foreach @send_helpmessage;
 
             return success_ml( "$ml_scope.success.message", undef, $success_links );
         }
@@ -205,6 +204,34 @@ sub emailpost_handler {
     }
 
     return DW::Template->render_template( 'manage/emailpost.tt', $rv );
+}
+
+sub email_helpmessage {
+    my ( $u, $address ) = @_;
+    return unless $u && $address;
+    my $user = LJ::isu($u) ? $u->user : $u;    # allow object or string
+
+    my $format_to = sub { sprintf "%s@%s", $_[0], $LJ::EMAIL_POST_DOMAIN };
+
+    LJ::send_mail(
+        {
+            to       => $address,
+            from     => $LJ::BOGUS_EMAIL,
+            fromname => $LJ::SITENAME,
+            subject  => LJ::Lang::ml(
+                'setting.emailposting.helpmessage.subject',
+                { sitenameshort => $LJ::SITENAMESHORT }
+            ),
+            body => LJ::Lang::ml(
+                'setting.emailposting.helpmessage.body',
+                {
+                    email => $format_to->("$user+PIN"),
+                    comm  => $format_to->("$user.communityname"),
+                    url   => "$LJ::SITEROOT/manage/emailpost"
+                }
+            ),
+        }
+    );
 }
 
 1;

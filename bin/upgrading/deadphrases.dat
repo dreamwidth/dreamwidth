@@ -2482,6 +2482,14 @@ general setting.display.secretquestion.actionlink.set
 general setting.display.secretquestion.label
 general setting.display.smshistory.label
 general setting.display.smshistory.option
+general setting.emailposting.error.email.invalid
+general setting.emailposting.error.pin.invalid
+general setting.emailposting.error.pin.invalidaccount
+general setting.emailposting.option
+general setting.emailposting.option.addr
+general setting.emailposting.option.advanced
+general setting.emailposting.option.pin
+general setting.emailposting.option.pin.note
 general setting.gettingstarted.label
 general setting.gettingstarted.option
 general setting.language.error.invalid
