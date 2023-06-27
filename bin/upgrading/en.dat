@@ -2928,6 +2928,16 @@ setting.randompaidgifts.option.paid=If your paid account expires, include yourse
 
 setting.randompaidgifts.option.paid.comm=If this community's paid account expires, include it in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
+setting.resetreplyemail.act=Reset secret address
+
+setting.resetreplyemail.des=You can reply to a comment by using the "Reply" function of your email client. <br> These emails reply to a secret address so that we can identify the author of the reply. <br> You should reset the secret address if you've accidentally exposed it to anyone else.
+
+setting.resetreplyemail.error=Problem generating a new secret address. Please try again.
+
+setting.resetreplyemail.label=Reply By Email
+
+setting.resetreplyemail.reset=Your new secret address has been generated and will be used for future comment notification emails.
+
 setting.rpaccount.label=Roleplaying Account?
 
 setting.rpaccount.des=Check to identify your account as a roleplaying account on your profile.

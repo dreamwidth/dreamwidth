@@ -23,8 +23,6 @@
 
 .button.api.generate=Generate new API key
 
-.button.reply=Reset secret address
-
 .button.save=Save Settings
 
 .error.acct=Updating your journal by email isn't available for your account type.
@@ -42,14 +40,6 @@
 .pin.header=PIN
 
 .pin.text=Your PIN is used only for the email gateway.  Don't use your regular password for this.  That way anyone who obtains your PIN won't get full access to your journal.  The PIN should be at least [[num]] [[?num|character|characters]] long and may only contain letters and numbers.
-
-.reply.header=Reply by email
-
-.reply.status.error=Problem generating a new secret address. Please try again.
-
-.reply.status.success=New secret address has been generated and will be used for future comment notification emails.
-
-.reply.text=You can reply to a comment by using the "Reply" function of your email client. These emails reply to a secret address so we can identify who the comment is coming from. You should reset the secret address if you've accidentally exposed it to anyone else.
 
 .settings.entry.comments=Comments:
 

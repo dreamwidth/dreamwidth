@@ -166,15 +166,6 @@ sub emailpost_handler {
 
         $rv->{info_box} = '';
 
-        # if we just reset the token, add a header but show the original page still
-        if ( $form_args->{'action:token'} ) {
-            $rv->{info_box} = $info_box->(
-                $u->generate_emailpost_auth,
-                LJ::Lang::ml("$ml_scope.reply.status.success"),
-                LJ::Lang::ml("$ml_scope.reply.status.error"),
-            );
-        }
-
         if ( $form_args->{'action:apikey'} ) {
             $rv->{info_box} = $info_box->(
                 DW::API::Key->new_for_user($u),

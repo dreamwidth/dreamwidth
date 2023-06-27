@@ -84,10 +84,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
   </div>
   <br />
 
-  <h1>[% '.reply.header' | ml %]</h1>
-  <p>[% '.reply.text' | ml %]</p>
-  [% form.submit( name = 'action:token', value = dw.ml('.button.reply') ) %]
-
   <h1>[% '.api.header' | ml %]</h1>
   <p>[% '.api.text' | ml %]</p>
 
