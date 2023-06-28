@@ -147,6 +147,7 @@ body<=
             settings => [qw(
                 LJ::Setting::EmailPosting
                 DW::Setting::ResetReplyEmail
+                DW::Setting::ApiKeyDelete
             )],
         },
         privacy => {

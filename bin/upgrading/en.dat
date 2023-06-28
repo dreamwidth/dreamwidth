@@ -2437,6 +2437,14 @@ setting.allowvgiftsfrom.sel.r=Registered users
 
 setting.allowvgiftsfrom.sel.t=Trusted users
 
+setting.apikeydelete.des=Check any keys you wish to delete. Deleting a key will make it unusable.
+
+setting.apikeydelete.error=Problem deleting API key. Please try again later, or contact support if the problem persists.
+
+setting.apikeydelete.label=Manage API Keys
+
+setting.apikeydelete.none=You have no API keys generated yet!
+
 setting.bio.desc|notes=There shouldn't be a description unless the page specifies one
 setting.bio.desc=_none
 
