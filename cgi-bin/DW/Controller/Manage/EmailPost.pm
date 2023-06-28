@@ -30,7 +30,6 @@ use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
 
-use DW::API::Key;
 use LJ::Emailpost::Web;
 
 DW::Routing->register_string( "/manage/emailpost", \&emailpost_handler, app => 1 );
@@ -74,11 +73,10 @@ sub emailpost_handler {
         return DW::Template->render_template( 'manage/emailpost_help.tt', $rv );
     }
 
-    # this was 2, but it's 4 on mobile settings - should be consistent
+    # this was 4 on mobile settings - should be consistent
+    # FIXME: dynamically create form fields based on number of existing addresses?
     $rv->{addr_max} = 4;
-
     $rv->{addrlist} = LJ::Emailpost::Web::get_allowed_senders($u);
-    $rv->{apikeys}  = DW::API::Key->get_keys_for_user($u);
 
     if ( $r->did_post ) {
         my $success_links = [
@@ -157,41 +155,6 @@ sub emailpost_handler {
 
             return success_ml( "$ml_scope.success.message", undef, $success_links );
         }
-
-        my $info_box = sub {
-            my ( $bool, $succ, $err ) = @_;
-            my @sp_args = $bool ? ( 'highlight', $succ ) : ( 'error', $err );
-            return sprintf "<div class='%s-box'>%s</div>", @sp_args;
-        };
-
-        $rv->{info_box} = '';
-
-        if ( $form_args->{'action:apikey'} ) {
-            $rv->{info_box} = $info_box->(
-                DW::API::Key->new_for_user($u),
-                LJ::Lang::ml("$ml_scope.api.status.success"),
-                LJ::Lang::ml("$ml_scope.api.status.error"),
-            );
-        }
-
-        if ( $form_args->{'action:delete'} ) {
-            for ( my $api_idx = 0 ; $api_idx < @{ $rv->{apikeys} } ; $api_idx++ ) {
-                my $deleted = $form_args->{"delete_${api_idx}"} or next;
-                $deleted =~ s/\s+//g;
-                next unless $deleted;
-                my $key = DW::API::Key->get_key($deleted);
-                next unless defined $key;
-
-                $rv->{info_box} .= $info_box->(
-                    $key->delete($u),
-                    LJ::Lang::ml( "$ml_scope.api.delete.success", { key => $key->{keyhash} } ),
-                    LJ::Lang::ml( "$ml_scope.api.delete.error",   { key => $key->{keyhash} } ),
-                );
-            }
-        }
-
-        # regenerate list to reflect key changes
-        $rv->{apikeys} = DW::API::Key->get_keys_for_user($u);
     }
 
     return DW::Template->render_template( 'manage/emailpost.tt', $rv );

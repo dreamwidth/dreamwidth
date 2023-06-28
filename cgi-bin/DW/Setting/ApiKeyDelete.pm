@@ -24,12 +24,7 @@ use DW::API::Key;
 sub should_render {
     my ( $class, $u ) = @_;
 
-    return 0 unless $u && $u->is_personal;
-
-    my $apikeys = DW::API::Key->get_keys_for_user($u);
-    my $numkeys = scalar @{$apikeys};
-
-    return $numkeys ? 1 : 0;
+    return $u && $u->is_personal ? 1 : 0;
 }
 
 sub label {

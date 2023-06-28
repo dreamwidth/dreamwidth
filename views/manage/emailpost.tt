@@ -21,13 +21,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         td.center {
             text-align: center;
         }
-        #content ul input.submit {
-            margin: inherit;
-        }
-        #content input.submit {
-            margin-bottom: 1em;
-            margin-right: 0.5em;
-        }
         #content select.select {
             min-width: 100px;
         }
@@ -38,8 +31,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- END -%]
 
 <p>[% '.intro' | ml({aopts => "href='${site.root}/manage/emailpost?mode=help'"}) %]</p>
-
-[%- info_box -%]
 
 [%- INCLUDE components/errors.tt errors = errors -%]
 
@@ -83,30 +74,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
                      type = 'password', autocomplete='new-password' ) %]
   </div>
   <br />
-
-  <h1>[% '.api.header' | ml %]</h1>
-  <p>[% '.api.text' | ml %]</p>
-
-[%- IF apikeys.size && apikeys.size > 0 -%]
-  <table border="0">
-  [% FOREACH key IN apikeys; idx = loop.index %]
-    <tr>
-      <td>[% key.keyhash %]</td>
-      <td>
-        [% form.checkbox( name = "delete_$idx", value = key.keyhash ) %]
-      </td>
-    </tr>
-  [% END %]
-  </table>
-  <br />
-[%- ELSE -%]
-  <p><b>[% '.api.none' | ml %]</b></p>
-[% END %]
-
-  [% form.submit( name = 'action:apikey', value = dw.ml('.button.api.generate') ) %]
-[%- IF apikeys.size && apikeys.size > 0 -%]
-  [% form.submit( name = 'action:delete', value = dw.ml('.button.api.delete') ) %]
-[% END %]
 
   <h1>[% '.settings.header' | ml %]</h1>
   <p>[% '.settings.text' | ml({aopts => "href='${site.root}/manage/emailpost?mode=help'"}) %]</p>

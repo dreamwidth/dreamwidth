@@ -5,24 +5,6 @@
 
 .addresses.text=Only the addresses listed below are allowed to post to your account via the email gateway.  If no addresses are listed, you won't be able to post via the email gateway.  We'll send errors only to the address(es) you've selected.
 
-.api.delete.error=Problem deleting API key <b>[[key]]</b>. Please try again later, or contact support if the problem persists.
-
-.api.delete.success=API key <b>[[key]]</b> has been deleted.
-
-.api.header=Manage API Keys
-
-.api.none=You have no API keys generated yet!
-
-.api.status.error=Problem generating new API key. Please try again later, or contact support if the problem persists.
-
-.api.status.success=New API key has been generated.
-
-.api.text=You can use these keys with the Dreamwidth API to authenticate yourself. Anyone with access to a key can act as you, so keys should not be shared. Deleting a key here will make it unusable.
-
-.button.api.delete=Delete
-
-.button.api.generate=Generate new API key
-
 .button.save=Save Settings
 
 .error.acct=Updating your journal by email isn't available for your account type.

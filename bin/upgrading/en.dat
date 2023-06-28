@@ -2445,6 +2445,16 @@ setting.apikeydelete.label=Manage API Keys
 
 setting.apikeydelete.none=You have no API keys generated yet!
 
+setting.apikeygenerate.act=Generate a new API key
+
+setting.apikeygenerate.des=You can use these keys with the Dreamwidth API to authenticate yourself. <br> Anyone with access to a key can act as you, so keys should not be shared.
+
+setting.apikeygenerate.error=Problem generating new API key. Please try again later, or contact support if the problem persists.
+
+setting.apikeygenerate.label=Generate API Key
+
+setting.apikeygenerate.ok=New API key: [[keyval]]
+
 setting.bio.desc|notes=There shouldn't be a description unless the page specifies one
 setting.bio.desc=_none
 
