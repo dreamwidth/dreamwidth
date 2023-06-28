@@ -1,0 +1,22 @@
+paths:
+  "/journals/{username}/xpostaccounts":
+    parameters:
+      - name: username
+        in: path
+        description: The journal you want entry information for
+        required: true
+        schema:
+          type: string
+          minLength: 3
+          maxLength: 25
+          pattern: ^[0-9A-Za-z_]+$
+          example: example
+    get:
+      description: Returns a list of crosspost identities for the given journal
+      responses:
+        "200":
+          description: A list of accounts.
+        "403":
+          description: Not allowed to view crosspost accounts for that user.
+        "404":
+          description: No user found.

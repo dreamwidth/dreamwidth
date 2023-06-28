@@ -1,0 +1,54 @@
+paths:
+  "/journals/{username}/accesslists/{accesslistid}":
+    parameters:
+      - name: username
+        in: path
+        description: The username you want accesslist information for
+        required: true
+        schema:
+          &a1
+          type: string
+          minLength: 3
+          maxLength: 25
+          pattern: ^[0-9A-Za-z_]+$
+          example: example
+      - name: accesslistid
+        in: path
+        description: The id of the accesslist you want information for.
+        required: true
+        schema:
+          type: integer
+    get:
+      description: Returns a list journals on a given access list.
+      responses:
+        "200":
+          description: A list of journals on this accesslist.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: *a1
+        "400":
+          description: Missing or invalid parameters.
+        "403":
+          description: You cannot view accesslists on that journal.
+        "404":
+          description: No user found.
+    post:
+      description: Add users to a given accesslist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items: *a1
+      responses:
+        "200":
+          description: The newly updated accesslist.
+        "400":
+          description: Missing or invalid parameters.
+        "403":
+          description: You cannot update accesslists on that journal.
+        "404":
+          description: No user found.

@@ -1,0 +1,68 @@
+---
+paths:
+  /journals/{username}:
+    parameters:
+      - name: username
+        in: path
+        description: The journal you want entry information for
+        required: true
+        schema:
+          $ref: components/schemas/username.yaml 
+    get:
+      description: Returns information about a specific journal.
+      responses:
+        200:
+          description: An array of journal information.
+          content:
+            application/json:
+              schema:
+                type: object
+                items: 
+                  account_type:
+                    type: string
+                    description: Type of account the journal has
+                    enum:
+                      - Free Account
+                      - Paid Account
+                      - Paid Premium Account
+                      - Feed Account
+                  bio:
+                    type: string
+                    description: The journal's profile bio, in HTML format.
+                  comments_posted:
+                    type: integer
+                    description: Number of comments posted by the journal
+                  comments_recieved:
+                    type: integer
+                    description: Number of comments posted by other journals in the journal
+                  created:
+                    type: string
+                    description: Creation date for journal.
+                  entries_count:
+                    type: integer
+                    description: Number of entries posted in the journal.
+                  journal_title:
+                    type: string
+                    description: Title displayed for the journal
+                  journal_subtitle:
+                    type: string
+                    description: Subtitle displayed for the journal
+                  last_updated:
+                    type: string
+                    description: When the last entry was posted in the journal
+                  memories_count:
+                    type: integer
+                    description: Number of memories saved by the journal.
+                  name:
+                    type: string
+                    description: Display name for the journal.
+                  tags_count:
+                    type: integer
+                    description: Number of tags created in the journal.
+                  userid:
+                    type: integer
+                    description: userid for the journal.
+        404:
+          $ref: components/schemas/404-user.yaml
+        400:
+          $ref: components/schemas/400.yaml
