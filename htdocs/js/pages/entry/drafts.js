@@ -122,8 +122,7 @@ function initDraft(askToRestore) {
           }
         } else {
             // Clear out their current draft
-            LJDraft.save('');
-            $.post("/__rpc_draft", {clearProperties: 1});
+            $.post("/__rpc_draft", {clearProperties: 1, clearDraft: 1});
         }
    }
 
