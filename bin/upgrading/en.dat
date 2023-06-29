@@ -4821,12 +4821,6 @@ widget.createaccountprogressmeter.step3=Upgrade (optional)
 
 widget.createaccountprogressmeter.step4=Finish
 
-widget.createaccounttheme.info=Choose from more themes later:
-
-widget.createaccounttheme.preview=Preview
-
-widget.createaccounttheme.title=Select Your Journal's Theme
-
 widget.createaccountupgrade.btn.purchase=Purchase a Paid Account
 
 widget.createaccountupgrade.nextstep=No thanks, I'm not interested at this time.
@@ -4887,16 +4881,6 @@ widget.cuttag.expandall=Expand All Cut Tags
 
 widget.cuttag.expanded=Collapse
 
-widget.feeds.btn.add=Add
-
-widget.feeds.enterRSS=enter RSS url
-
-widget.feeds.find=Find or create feed:
-
-widget.feeds.title=Feeds
-
-widget.feeds.viewall=view all
-
 widget.friendbirthdays.friends_link=View birthdays for everyone in your circle
 
 widget.friendbirthdays.gift=Gift
@@ -4906,14 +4890,6 @@ widget.friendbirthdays.title=Birthdays
 widget.friendbirthdays.userbirthday=[[month]] [[day]]
 
 widget.friendbirthdays.viewall=More
-
-widget.friendupdates.noupdates=You have no updates.
-
-widget.friendupdates.noupdates.setup=Set up your notifications in <a [[aopts]]>Manage Settings</a>.
-
-widget.friendupdates.title=Friend Updates
-
-widget.friendupdates.viewall=More
 
 widget.importchoosedata.btn.continue=Continue &rarr;
 
