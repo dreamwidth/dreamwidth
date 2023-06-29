@@ -29,11 +29,29 @@ paths:
                 type: array
                 items: *a1
         "400":
-          description: Missing or invalid parameters.
+          &a3
+          description: Bad or missing request parameters.
+          content:
+            application/json:
+              schema:
+                &a2
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A description of the error encountered.
+                    example: "Bad format for username. Errors: String is too long: 77/25."
+                  success:
+                    type: number
         "403":
           description: You cannot view accesslists on that journal.
+          schema: *a2
         "404":
-          description: No user found.
+          &a4
+          description: Username specified does not exist.
+          content:
+            application/json:
+              schema: *a2
     post:
       description: Add users to a given accesslist
       requestBody:
@@ -46,9 +64,8 @@ paths:
       responses:
         "200":
           description: The newly updated accesslist.
-        "400":
-          description: Missing or invalid parameters.
+        "400": *a3
         "403":
           description: You cannot update accesslists on that journal.
-        "404":
-          description: No user found.
+          schema: *a2
+        "404": *a4

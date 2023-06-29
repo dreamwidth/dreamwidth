@@ -28,7 +28,7 @@ paths:
         403:
           description: You cannot view accesslists on that journal.
           schema:
-                $ref: components/error.yaml
+                $ref: ../components/error.yaml
         404:
           $ref: ../components/errors/404-user.yaml
         400:
@@ -49,7 +49,7 @@ paths:
         403:
           description: You cannot update accesslists on that journal.
           schema:
-                $ref: components/error.yaml
+                $ref: ../components/error.yaml
         404:
           $ref: ../components/errors/404-user.yaml
         400:

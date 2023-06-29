@@ -18,4 +18,4 @@ paths:
         403:
           description: Not allowed to view crosspost accounts for that user.
           schema:
-                $ref: components/error.yaml
+                $ref: ../components/error.yaml

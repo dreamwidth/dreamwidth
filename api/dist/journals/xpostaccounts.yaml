@@ -18,5 +18,18 @@ paths:
           description: A list of accounts.
         "403":
           description: Not allowed to view crosspost accounts for that user.
+          schema:
+            &a1
+            type: object
+            properties:
+              error:
+                type: string
+                description: A description of the error encountered.
+                example: "Bad format for username. Errors: String is too long: 77/25."
+              success:
+                type: number
         "404":
-          description: No user found.
+          description: Username specified does not exist.
+          content:
+            application/json:
+              schema: *a1

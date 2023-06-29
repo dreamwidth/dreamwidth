@@ -71,7 +71,7 @@ sub accesslists_new {
         is_public => $body->{is_public}
     );
 
-    return $self->rest_ok($group);
+    return $self->rest_ok( { id => $group } );
 }
 
 sub accesslists_delete {
@@ -86,7 +86,7 @@ sub accesslists_delete {
 
     my $group = $user->delete_trust_group( { id => $id } );
 
-    return $self->rest_ok($group);
+    return $self->rest_ok();
 }
 
 ################################################
@@ -128,22 +128,25 @@ sub accesslist_edit {
     return $self->rest_error("404") unless $user;
     return $self->rest_error("403") unless $user == $remote;
 
-    my $journals = $args->{query}{journal};
+    my $journals = $args->{body}{journals};
     my $id       = $args->{path}{accesslistid};
 
     my $trust_group = $user->trust_groups( { id => $id } );
-
-    # invalid group id?
-    return $self->rest_error( "400", "Invalid accesslist id." ) unless $trust_group;
-    my $groupmask = $trust_group->{groupmask};
+    my $groupmask   = $trust_group->{groupmask};
 
     foreach my $journal ( @{$journals} ) {
         my $trusted_u = LJ::load_user($journal);
 
-        # invalid journal?
-        next unless $trusted_u;
-
-        $user->edit_trustmask( $trusted_u, add => $id );
+        # User might have been removed from circle between load and
+        # submit; don't re-add.
+        next unless $trusted_u && $user->trusts($trusted_u);
+        $user->add_edge(
+            $trusted_u,
+            trust => {
+                mask     => $groupmask,
+                nonotify => 1,
+            }
+        );
     }
     return $self->rest_ok("added successfully");
 }
@@ -160,20 +163,23 @@ sub accesslist_delete {
     my $id       = $args->{path}{accesslistid};
 
     my $trust_group = $user->trust_groups( { id => $id } );
-
-    # invalid group id?
-    return $self->rest_error( "400", "Invalid accesslist id." ) unless $trust_group;
-    my $groupmask = $trust_group->{groupmask};
+    my $groupmask   = $trust_group->{groupmask};
 
     foreach my $journal ( @{$journals} ) {
         my $trusted_u = LJ::load_user($journal);
 
-        # invalid journal?
-        next unless $trusted_u;
-
-        $user->edit_trustmask( $trusted_u, remove => $id );
+        # User might have been removed from circle between load and
+        # submit; don't re-add.
+        next unless $trusted_u && $user->trusts($trusted_u);
+        $user->add_edge(
+            $trusted_u,
+            trust => {
+                mask     => $groupmask,
+                nonotify => 1,
+            }
+        );
     }
-    return $self->rest_ok("added successfully");
+    return $self->rest_ok();
 }
 ################################################
 # /journals/{journal}/tags
@@ -231,7 +237,7 @@ sub tags_post {
     }
 
     return $self->rest_error( 'GET', 400 ) if $#errors > 0;
-    return $self->rest_ok($tags);
+    return $self->rest_ok();
 }
 
 sub tags_delete {
@@ -246,7 +252,7 @@ sub tags_delete {
 
     LJ::Tags::delete_usertag( $user, 'name', $tag );
 
-    return $self->rest_ok($tag);
+    return $self->rest_ok();
 }
 
 ################################################

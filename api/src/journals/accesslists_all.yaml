@@ -16,7 +16,7 @@ paths:
         403:
           description: You cannot view accesslists on that journal.
           schema:
-                $ref: components/error.yaml
+                $ref: ../components/error.yaml
         404:
           $ref: ../components/errors/404-user.yaml
     post:
@@ -32,7 +32,7 @@ paths:
         403:
           description: You cannot create accesslists on that journal.
           schema:
-                $ref: components/error.yaml
+                $ref: ../components/error.yaml
         400:
           $ref: ../components/errors/400.yaml
         404:
@@ -52,7 +52,7 @@ paths:
         403:
           description: You can't remove that accesslist.
           schema:
-                $ref: components/error.yaml
+                $ref: ../components/error.yaml
         404:
           $ref: ../components/errors/404-user.yaml
         400:

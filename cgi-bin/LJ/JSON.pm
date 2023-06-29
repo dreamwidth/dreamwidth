@@ -170,7 +170,7 @@ sub decode_unknown_type {
     my ( $class, $what ) = @_;
 
     # booleans get converted to undef for false and 1 for true
-    return $what ? 1 : undef if JSON::XS::is_bool($what);
+    return $what ? 1 : 0 if JSON::XS::is_bool($what);
 
     # otherwise, stringify
     return "$what";

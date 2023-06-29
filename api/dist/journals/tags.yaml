@@ -1,6 +1,5 @@
----
 paths:
-  /journals/{username}/tags:
+  "/journals/{username}/tags":
     parameters:
       - name: username
         in: path
@@ -8,11 +7,15 @@ paths:
         type: string
         required: true
         schema:
-          $ref: ../components/schemas/username.yaml
+          type: string
+          minLength: 3
+          maxLength: 25
+          pattern: ^[0-9A-Za-z_]+$
+          example: example
     get:
       description: Returns a list of tags for the given journal
       responses:
-        200:
+        "200":
           description: A list of tags and the number of times they've been used.
           content:
             application/json:
@@ -37,7 +40,8 @@ paths:
                       properties:
                         group:
                           type: integer
-                          description: The number of times the tag has been used on entries filtered to an accesslist
+                          description: The number of times the tag has been used on entries filtered to an
+                            accesslist
                         private:
                           type: integer
                           description: The number of times the tag has been used on private entries
@@ -47,8 +51,21 @@ paths:
                         public:
                           type: integer
                           description: The number of times the tag has been used on public entries
-        404:
-          $ref: ../components/errors/404-user.yaml
+        "404":
+          &a2
+          description: Username specified does not exist.
+          content:
+            application/json:
+              schema:
+                &a1
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A description of the error encountered.
+                    example: "Bad format for username. Errors: String is too long: 77/25."
+                  success:
+                    type: number
     post:
       description: Add new tags for a given journal
       requestBody:
@@ -60,14 +77,12 @@ paths:
               items:
                 type: string
       responses:
-        204:
+        "204":
           description: Tags were successfully created.
-        403:
+        "403":
           description: You cannot create tags on that journal.
-          schema:
-                $ref: ../components/error.yaml
-        404:
-          $ref: ../components/errors/404-user.yaml
+          schema: *a1
+        "404": *a2
     delete:
       description: Delete tags for a given journal
       parameters:
@@ -77,13 +92,14 @@ paths:
           schema:
             type: string
       responses:
-        204:
+        "204":
           description: The tags were successfully deleted.
-        403:
+        "400":
+          description: Bad or missing request parameters.
+          content:
+            application/json:
+              schema: *a1
+        "403":
           description: You cannot remove tags on that journal.
-          schema:
-                $ref: ../components/error.yaml
-        404:
-          $ref: ../components/errors/404-user.yaml
-        400:
-          $ref: ../components/errors/400.yaml         
+          schema: *a1
+        "404": *a2

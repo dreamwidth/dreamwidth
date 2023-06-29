@@ -1,0 +1,16 @@
+type: object
+required:
+  - name
+properties:
+  name:
+    description: The name of the new accesslist.
+    type: string
+    minLength: 1
+  sortorder:
+    description: Sort order for the new accesslist, 0 to 255.
+    type: integer
+    minimum: 0
+    maximum: 255
+  is_public:
+    description: The visibility of the new accesslist. Default is false (private).
+    type: boolean
