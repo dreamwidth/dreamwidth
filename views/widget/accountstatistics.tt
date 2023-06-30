@@ -1,0 +1,44 @@
+<h2>[% dw.ml('widget.accountstatistics.title') %]</h2>
+<ul>
+    <li>[% dw.ml( 
+        'widget.accountstatistics.member_since',
+        { date => mysql_time( remote.timecreate ) }
+        ) %]</li>
+    <li>[% dw.ml(
+        'widget.accountstatistics.entries2',
+        {
+            num_raw   => remote.number_of_posts,
+            num_comma => commafy( remote.number_of_posts )
+        }
+        ) %]</li>
+    <li>[% dw.ml(
+        'widget.accountstatistics.last_updated',
+        { date => mysql_time( remote.timeupdate ) }
+        ) %]</li>
+    <li>[% dw.ml(
+        'widget.accountstatistics.comments2',
+        {
+            num_received_raw   => remote.num_comments_received,
+            num_received_comma => commafy( remote.num_comments_received ),
+            num_posted_raw     => remote.num_comments_posted,
+            num_posted_comma   => commafy( remote.num_comments_posted )
+        }
+        ) %]</li>
+    <li>[% dw.ml(
+        'widget.accountstatistics.memories2',
+        {
+            num_raw   => memories_count,
+            num_comma => commafy(memories_count),
+            aopts     => "href='${site.root}/tools/memories?user=${remote.user}'",
+        }
+        ) %],
+        [% dw.ml(
+        'widget.accountstatistics.tags2',
+        {
+            num_raw   => tags_count,
+            num_comma => commafy(tags_count),
+            aopts     => "href='${remote.journal_base}/tag/'"
+        }
+        ) %]</li>
+    <li>[% accttype_string %]</li>
+</ul>

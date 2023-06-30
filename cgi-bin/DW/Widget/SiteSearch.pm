@@ -18,6 +18,7 @@ package DW::Widget::SiteSearch;
 
 use strict;
 use base qw/ LJ::Widget /;
+use DW::Template;
 
 sub render_body {
 
@@ -26,15 +27,7 @@ sub render_body {
     my $remote = LJ::get_remote()
         or return;
 
-    my $ret = "<h2>"
-        . $class->ml( 'widget.sitesearch.title', { sitename => $LJ::SITENAMESHORT } ) . "</h2>";
-    $ret .= "<p>" . $class->ml('widget.sitesearch.desc') . "</p>";
-
-    $ret .= "<form method='post' action='$LJ::SITEROOT/search'>" . LJ::form_auth();
-    $ret .= "<input type='text' name='query' maxlength='255' size='30'>";
-    $ret .= "<input type='submit' value='Search'></form>";
-
-    return $ret;
+    return DW::Template->template_string('widget/sitesearch.tt');
 
 }
 

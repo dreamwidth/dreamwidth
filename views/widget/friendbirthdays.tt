@@ -1,0 +1,29 @@
+<h2><span>[% dw.ml('widget.friendbirthdays.title') %]</span></h2>
+<p><a href='[% site.root %]/birthdays' class='more-link'>
+    [% dw.ml('widget.friendbirthdays.viewall') %]
+</a></p>
+<div class='indent_sm'><table summary=''>
+
+    [% FOREACH bday IN bdays %]
+    [%  my $u     = load_user( bday.2 )
+        my $month = bday.0
+        my $day   = bday.1.replace('^0', '')
+    %]
+    [% NEXT UNLESS u && month && day %]
+        <tr>
+        <td>" . $u->ljuser_display . "</td>
+        <td>
+            [% dw.ml( 'widget.friendbirthdays.userbirthday',
+            { 'month' => month_short(month), 'day' => day } ) %]
+        </td>
+        <td><a href='[% u.gift_link %]' class='gift-link'>
+            [% dw.ml('widget.friendbirthdays.gift') %]
+        </a></td>
+        </tr>
+[% END %]
+</table></div>
+[% IF friends_link %]
+    <p class='indent_sm'>&raquo; <a href='[% site.root %]/birthdays'>"
+        [% dw.ml('widget.friendbirthdays.friends_link') %]
+    </a></p>
+[% END %]
