@@ -288,7 +288,7 @@ sub new_handler {
         # Here we get the value of the userprop 'draft_properties', containing
         # a frozen Storable string, which we then thaw into a hash by the same
         # name.
-        $draft = LJ::ejs_string( $remote->prop('entry_draft') );
+        $draft = $remote->prop('entry_draft');
         %draft_properties =
             $remote->prop('draft_properties')
             ? %{ Storable::thaw( $remote->prop('draft_properties') ) }
@@ -296,9 +296,6 @@ sub new_handler {
 
         # store raw for later use; will be escaped later
         $draft_subject_raw = $draft_properties{subject};
-
-        %draft_properties = map { $_ => LJ::ejs_string( $draft_properties{$_} ) }
-            qw( subject userpic taglist moodid mood location1 music adultreason commentset commentscr adultcnt editor );
     }
     my $initDraft = 'null';
     if ( $remote && LJ::is_enabled('update_draft') ) {

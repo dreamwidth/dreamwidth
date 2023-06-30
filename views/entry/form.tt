@@ -424,24 +424,24 @@ postFormInitData.strings = {
 
 <script>
         // These JS variables contain the contents of the various draft fields.
-        var restoredDraft       = [% draft %];
-        var restoredEditor      = [% draft_properties.editor %] + '';
-        var restoredSubject     = [% draft_properties.subject %];
-        var restoredUserpic     = [% draft_properties.userpic %];
-        var restoredTaglist     = [% draft_properties.taglist %];
-        var restoredMoodID      = [% draft_properties.moodid %];
-        var restoredMood        = [% draft_properties.mood %];
-        var restoredLocation    = [% draft_properties.location1 %];
-        var restoredMusic       = [% draft_properties.music %];
-        var restoredAdultReason = [% draft_properties.adultreason %];
-        var restoredCommentSet  = [% draft_properties.commentset %];
-        var restoredCommentScr  = [% draft_properties.commentscr %];
-        var restoredAdultCnt    = [% draft_properties.adultcnt %];
+        var restoredDraft       = [% draft | js %];
+        var restoredEditor      = [% draft_properties.editor | js %];
+        var restoredSubject     = [% draft_properties.subject | js %];
+        var restoredUserpic     = [% draft_properties.userpic | js %];
+        var restoredTaglist     = [% draft_properties.taglist | js %];
+        var restoredMoodID      = [% draft_properties.moodid | js %];
+        var restoredMood        = [% draft_properties.mood | js %];
+        var restoredLocation    = [% draft_properties.location1 | js %];
+        var restoredMusic       = [% draft_properties.music | js %];
+        var restoredAdultReason = [% draft_properties.adultreason | js %];
+        var restoredCommentSet  = [% draft_properties.commentset | js %];
+        var restoredCommentScr  = [% draft_properties.commentscr | js %];
+        var restoredAdultCnt    = [% draft_properties.adultcnt | js %];
 
-        var autoSaveInterval = [% autosave_interval %];
+        var autoSaveInterval = [% autosave_interval || 3 %];
         var savedMsg = [% dw.ml('.draft.autosave', {time => '[[time]]'}) | js %];
         var restoredMsg = [% dw.ml('.draft.restored') | js %]
         var confirmMsg = [% draft_subject_raw.length > 0 ? dw.ml( '.draft.confirm2', { subjectline => draft_subject_raw } ) : dw.ml('.draft.confirm') | js %]
 
-        var should_init = [%init_draft %];
+        var should_init = [%init_draft || 'null' %];
 </script>
