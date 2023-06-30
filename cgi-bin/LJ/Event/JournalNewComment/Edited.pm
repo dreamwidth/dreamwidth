@@ -15,6 +15,7 @@ package LJ::Event::JournalNewComment::Edited;
 use strict;
 
 use base 'LJ::Event::JournalNewComment';
+use LJ::JSON;
 
 sub content {
     my ( $self, $target ) = @_;
