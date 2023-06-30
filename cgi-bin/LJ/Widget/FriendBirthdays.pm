@@ -16,6 +16,7 @@ package LJ::Widget::FriendBirthdays;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
+use DW::Template;
 
 sub need_res {
     return qw( stc/widgets/friendbirthdays.css );
@@ -39,43 +40,13 @@ sub render_body {
 
     return "" unless @bdays;
 
-    my $ret;
-    $ret .= "<h2><span>" . $class->ml('widget.friendbirthdays.title') . "</span></h2>";
-    $ret .=
-          "<a href='$LJ::SITEROOT/birthdays' class='more-link'>"
-        . $class->ml('widget.friendbirthdays.viewall')
-        . "</a></p>";
-    $ret .= "<div class='indent_sm'><table summary=''>";
+    my $vars = {
+        bdays       => \@bdays,
+        load_user   => \&LJ::load_user,
+        month_short => \&LJ::Lang::month_short
+    };
 
-    foreach my $bday (@bdays) {
-        my $u     = LJ::load_user( $bday->[2] );
-        my $month = $bday->[0];
-        my $day   = $bday->[1];
-        next unless $u && $month && $day;
-
-        # remove leading zero on day
-        $day =~ s/^0//;
-
-        $ret .= "<tr>";
-        $ret .= "<td>" . $u->ljuser_display . "</td>";
-        $ret .= "<td>"
-            . $class->ml( 'widget.friendbirthdays.userbirthday',
-            { 'month' => LJ::Lang::month_short($month), 'day' => $day } )
-            . "</td>";
-        $ret .= "<td><a href='" . $u->gift_url . "' class='gift-link'>";
-        $ret .= $class->ml('widget.friendbirthdays.gift') . "</a></td>";
-        $ret .= "</tr>";
-    }
-
-    $ret .= "</table></div>";
-
-    $ret .=
-          "<p class='indent_sm'>&raquo; <a href='$LJ::SITEROOT/birthdays'>"
-        . $class->ml('widget.friendbirthdays.friends_link')
-        . "</a></p>"
-        if $opts{friends_link};
-
-    return $ret;
+    return DW::Template->template_string( 'widget/friendbirthdays.tt', $vars );
 }
 
 1;
