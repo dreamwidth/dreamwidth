@@ -1,0 +1,8 @@
+<h2>[% dw.ml( 'widget.sitesearch.title', { sitename => site.nameshort } ) %]</h2>
+<p>[% dw.ml('widget.sitesearch.desc') %]</p>
+
+<form method='post' action='[% site.root %]/search'>
+    [% dw.form_auth %]
+    [% form.textbox( name => 'query', maxlength => 255, size => 30) %]
+    [% form.submit( value='Search') %]
+</form>
