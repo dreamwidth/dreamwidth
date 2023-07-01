@@ -402,6 +402,9 @@ sub setup_handler {
     if ( $r->did_post ) {
         $post = $r->post_args;
 
+        # Check for spam strings
+        LJ::Hooks::run_hooks( 'spam_check', $u, $post, 'userbio' );
+
         # name
         $errors->add( 'name', '/manage/profile/index.bml.error.noname' )
             unless LJ::trim( $post->{name} ) || defined $post->{name_absent};
