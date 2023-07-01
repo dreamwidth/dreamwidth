@@ -4916,8 +4916,8 @@ function Page::print()
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_header();
                     $this->print_module_section("header");
+                    $this->print_header();
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
