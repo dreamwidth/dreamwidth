@@ -316,7 +316,6 @@ function Page::print_default_stylesheet() {
     if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
         #header > .inner:first-child { padding-bottom: 2em;
             position: relative; }
-        .module-navlinks { text-align:right;}
         .module-navlinks * {
         display: inline !important;
         background:  transparent !important;
