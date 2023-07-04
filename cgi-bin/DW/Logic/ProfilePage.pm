@@ -770,318 +770,37 @@ sub external_services {
 
     return [] unless $u->is_personal && ( $u->share_contactinfo($remote) || $self->{viewall} );
 
-    # this has gotten big enough that we should improve database efficiency
-    $u->preload_props(
-        qw/
-            ao3 deviantart diigo discord etsy ffnet github google_talk
-            icq insanejournal instagram jabber last_fm_user livejournal
-            medium patreon pillowfort pinboard pinterest plurk ravelry
-            reddit skype tumblr twitter wattpad
-            /
-    );
+    # load services from database
+    my $dbr  = LJ::get_db_reader();
+    my $data = $dbr->selectall_hashref(
+        "SELECT name, userprop, imgfile, title_ml, url_format FROM profile_services", "name" );
+    die $dbr->errstr if $dbr->err;
 
-    if ( my $ao3 = $u->prop('ao3') ) {
-        my $url = sprintf( "//archiveofourown.org/users/%s", LJ::eurl($ao3) );
-        push @ret,
-            {
-            type     => 'ao3',
-            text     => LJ::ehtml($ao3),
-            url      => $url,
-            image    => 'ao3.png',
-            title_ml => '.service.ao3',
-            };
+    my ( @services, @userprops );
+
+    foreach my $name ( sort keys %$data ) {
+        my $row = $data->{$name};
+        push @services,  $row;
+        push @userprops, $row->{userprop} if defined $row->{userprop};
     }
 
-    if ( my $deviantart = $u->prop('deviantart') ) {
-        my $url = sprintf( "//%s.deviantart.com", LJ::eurl($deviantart) );
-        push @ret,
-            {
-            type     => 'deviantart',
-            text     => LJ::ehtml($deviantart),
-            url      => $url,
-            image    => 'deviantart.png',
-            title_ml => '.service.deviantart',
-            };
-    }
+    $u->preload_props(@userprops);
 
-    if ( my $diigo = $u->prop('diigo') ) {
-        my $url = sprintf( "//www.diigo.com/user/%s", LJ::eurl($diigo) );
-        push @ret,
-            {
-            type     => 'diigo',
-            text     => LJ::ehtml($diigo),
-            url      => $url,
-            image    => 'diigo.png',
-            title_ml => '.service.diigo',
-            };
-    }
-
-    if ( my $discord = $u->prop('discord') ) {
-        push @ret,
-            {
-            type     => 'discord',
-            text     => LJ::ehtml($discord),
-            image    => 'discord.png',
-            title_ml => '.service.discord',
-            };
-    }
-
-    if ( my $etsy = $u->prop('etsy') ) {
-        my $url = sprintf( "//www.etsy.com/people/%s", LJ::eurl($etsy) );
-        push @ret,
-            {
-            type     => 'etsy',
-            text     => LJ::ehtml($etsy),
-            url      => $url,
-            image    => 'etsy.png',
-            title_ml => '.service.etsy',
-            };
-    }
-
-    if ( my $ffnet = $u->prop('ffnet') ) {
-        my $url = sprintf( "//www.fanfiction.net/~%s", LJ::eurl($ffnet) );
-        push @ret,
-            {
-            type     => 'ffnet',
-            text     => LJ::ehtml($ffnet),
-            url      => $url,
-            image    => 'ffnet.png',
-            title_ml => '.service.ffnet',
-            };
-    }
-
-    if ( my $github = $u->prop('github') ) {
-        my $url = sprintf( "//github.com/%s", LJ::eurl($github) );
-        push @ret,
-            {
-            type     => 'github',
-            text     => LJ::ehtml($github),
-            url      => $url,
-            image    => 'github.png',
-            title_ml => '.service.github',
-            };
-    }
-
-    if ( my $google = $u->prop('google_talk') ) {
-        push @ret,
-            {
-            type     => 'google',
-            email    => LJ::ehtml($google),
-            image    => 'google_hangouts.png',
-            title_ml => '.service.hangouts',
-            };
-    }
-
-    if ( my $icq = $u->prop('icq') ) {
-        my $url = sprintf( "//wwp.icq.com/%s", LJ::eurl($icq) );
-        push @ret,
-            {
-            type     => 'icq',
-            text     => LJ::ehtml($icq),
-            url      => $url,
-            image    => 'icq.gif',
-            title_ml => '.service.icq',
-            };
-    }
-
-    if ( my $insanejournal = $u->prop('insanejournal') ) {
-        my $url = sprintf( "//%s.insanejournal.com", LJ::eurl($insanejournal) );
-        push @ret,
-            {
-            type     => 'insanejournal',
-            text     => LJ::ehtml($insanejournal),
-            url      => $url,
-            image    => 'insanejournal.png',
-            title_ml => '.service.insanejournal',
-            };
-    }
-
-    if ( my $instagram = $u->prop('instagram') ) {
-        my $url = sprintf( "//www.instagram.com/%s", LJ::eurl($instagram) );
-        push @ret,
-            {
-            type     => 'instagram',
-            text     => LJ::ehtml($instagram),
-            url      => $url,
-            image    => 'instagram.png',
-            title_ml => '.service.instagram',
-            };
-    }
-
-    if ( my $jabber = $u->prop('jabber') ) {
-        push @ret,
-            {
-            type     => 'jabber',
-            email    => LJ::ehtml($jabber),
-            image    => 'jabber.gif',
-            title_ml => '.service.jabber',
-            };
-    }
-
-    if ( my $lastfm = $u->prop('last_fm_user') ) {
-        my $url = sprintf( "//www.last.fm/user/%s", LJ::eurl($lastfm) );
-        push @ret,
-            {
-            type     => 'lastfm',
-            text     => LJ::ehtml($lastfm),
-            url      => $url,
-            image    => 'lastfm.gif',
-            title_ml => '.service.lastfm',
-            };
-    }
-
-    if ( my $livejournal = $u->prop('livejournal') ) {
-        my $url = sprintf( "//%s.livejournal.com", LJ::eurl($livejournal) );
-        push @ret,
-            {
-            type     => 'livejournal',
-            text     => LJ::ehtml($livejournal),
-            url      => $url,
-            image    => 'livejournal.gif',
-            title_ml => '.service.livejournal',
-            };
-    }
-
-    if ( my $medium = $u->prop('medium') ) {
-        my $url = sprintf( "//medium.com/@%s/latest", LJ::eurl($medium) );
-        push @ret,
-            {
-            type     => 'medium',
-            text     => LJ::ehtml($medium),
-            url      => $url,
-            image    => 'medium.png',
-            title_ml => '.service.medium',
-            };
-    }
-
-    if ( my $patreon = $u->prop('patreon') ) {
-        my $url = sprintf( "//www.patreon.com/%s", LJ::eurl($patreon) );
-        push @ret,
-            {
-            type     => 'patreon',
-            text     => LJ::ehtml($patreon),
-            url      => $url,
-            image    => 'patreon.png',
-            title_ml => '.service.patreon',
-            };
-    }
-
-    if ( my $pillowfort = $u->prop('pillowfort') ) {
-        my $url = sprintf( "//www.pillowfort.social/%s", LJ::eurl($pillowfort) );
-        push @ret,
-            {
-            type     => 'pillowfort',
-            text     => LJ::ehtml($pillowfort),
-            url      => $url,
-            image    => 'pillowfort.png',
-            title_ml => '.service.pillowfort',
-            };
-    }
-
-    if ( my $pinboard = $u->prop('pinboard') ) {
-        my $url = sprintf( "//pinboard.in/u:%s", LJ::eurl($pinboard) );
-        push @ret,
-            {
-            type     => 'pinboard',
-            text     => LJ::ehtml($pinboard),
-            url      => $url,
-            image    => 'pinboard.png',
-            title_ml => '.service.pinboard',
-            };
-    }
-
-    if ( my $pinterest = $u->prop('pinterest') ) {
-        my $url = sprintf( "//www.pinterest.com/%s", LJ::eurl($pinterest) );
-        push @ret,
-            {
-            type     => 'pinterest',
-            text     => LJ::ehtml($pinterest),
-            url      => $url,
-            image    => 'pinterest.png',
-            title_ml => '.service.pinterest',
-            };
-    }
-
-    if ( my $plurk = $u->prop('plurk') ) {
-        my $url = sprintf( "//www.plurk.com/%s", LJ::eurl($plurk) );
-        push @ret,
-            {
-            type     => 'plurk',
-            text     => LJ::ehtml($plurk),
-            url      => $url,
-            image    => 'plurk.png',
-            title_ml => '.service.plurk',
-            };
-    }
-
-    if ( my $ravelry = $u->prop('ravelry') ) {
-        my $url = sprintf( "//www.ravelry.com/people/%s", LJ::eurl($ravelry) );
-        push @ret,
-            {
-            type     => 'ravelry',
-            text     => LJ::ehtml($ravelry),
-            url      => $url,
-            image    => 'ravelry.png',
-            title_ml => '.service.ravelry',
-            };
-    }
-
-    if ( my $reddit = $u->prop('reddit') ) {
-        my $url = sprintf( "//www.reddit.com/user/%s", LJ::eurl($reddit) );
-        push @ret,
-            {
-            type     => 'reddit',
-            text     => LJ::ehtml($reddit),
-            url      => $url,
-            image    => 'reddit.png',
-            title_ml => '.service.reddit',
-            };
-    }
-
-    if ( my $skype = $u->prop('skype') ) {
-        my $service = {
-            type     => 'skype',
-            email    => LJ::ehtml($skype),
-            image    => 'skype.gif',
-            title_ml => '.service.skype',
-        };
-        push @ret, $service;
-    }
-
-    if ( my $tumblr = $u->prop('tumblr') ) {
-        my $url = sprintf( "//%s.tumblr.com", LJ::eurl($tumblr) );
-        push @ret,
-            {
-            type     => 'tumblr',
-            text     => LJ::ehtml($tumblr),
-            url      => $url,
-            image    => 'tumblr.png',
-            title_ml => '.service.tumblr',
-            };
-    }
-
-    if ( my $twitter = $u->prop('twitter') ) {
-        my $url = sprintf( "//www.twitter.com/%s", LJ::eurl($twitter) );
-        push @ret,
-            {
-            type     => 'twitter',
-            text     => LJ::ehtml($twitter),
-            url      => $url,
-            image    => 'twitter_bird.png',
-            title_ml => '.service.twitter',
-            };
-    }
-
-    if ( my $wattpad = $u->prop('wattpad') ) {
-        my $url = sprintf( "//www.wattpad.com/user/%s", LJ::eurl($wattpad) );
-        push @ret,
-            {
-            type     => 'wattpad',
-            text     => LJ::ehtml($wattpad),
-            url      => $url,
-            image    => 'wattpad.png',
-            title_ml => '.service.wattpad',
-            };
+    foreach my $site (@services) {
+        if ( my $acct = $u->prop( $site->{userprop} ) ) {
+            my $url =
+                defined $site->{url_format}
+                ? sprintf( $site->{url_format}, LJ::eurl($acct) )
+                : undef;
+            push @ret,
+                {
+                type     => $site->{name},
+                text     => LJ::ehtml($acct),
+                url      => $url,
+                image    => $site->{imgfile},
+                title_ml => $site->{title_ml},
+                };
+        }
     }
 
     return \@ret;

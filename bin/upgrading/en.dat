@@ -2295,6 +2295,58 @@ post.security.private.p=The entry is only visible to you (private).
 
 post.security.public=The entry is visible to everyone (public).
 
+profile.service.ao3=Archive of Our Own
+
+profile.service.deviantart=DeviantArt
+
+profile.service.diigo=Diigo
+
+profile.service.discord=Discord
+
+profile.service.etsy=Etsy
+
+profile.service.ffnet=FanFiction.net
+
+profile.service.github=GitHub
+
+profile.service.hangouts=Google Chat
+
+profile.service.icq=ICQ
+
+profile.service.insanejournal=InsaneJournal
+
+profile.service.instagram=Instagram
+
+profile.service.jabber=Jabber
+
+profile.service.lastfm=Last.fm
+
+profile.service.livejournal=LiveJournal
+
+profile.service.medium=Medium
+
+profile.service.patreon=Patreon
+
+profile.service.pillowfort=Pillowfort
+
+profile.service.pinboard=Pinboard
+
+profile.service.pinterest=Pinterest
+
+profile.service.plurk=Plurk
+
+profile.service.ravelry=Ravelry
+
+profile.service.reddit=Reddit
+
+profile.service.skype=Skype
+
+profile.service.tumblr=Tumblr
+
+profile.service.twitter=Twitter
+
+profile.service.wattpad=Wattpad
+
 protocol.bad_password=Your password is too easy to guess.  We strongly recommend you change it, otherwise you risk having your journal hijacked.  Visit [[siteroot]]/changepassword to change your password.
 
 protocol.mail_bouncing=You are currently using a bad email address.  All mail we try to send you is bouncing.  We require a valid email address for continued use.  Visit the support area for more information.
