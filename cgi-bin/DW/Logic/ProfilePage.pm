@@ -21,6 +21,7 @@ package DW::Logic::ProfilePage;
 use strict;
 use DW::Countries;
 use DW::Logic::UserLinkBar;
+use DW::External::ProfileServices;
 
 # returns a new profile page object
 sub profile_page {
@@ -770,23 +771,12 @@ sub external_services {
 
     return [] unless $u->is_personal && ( $u->share_contactinfo($remote) || $self->{viewall} );
 
-    # load services from database
-    my $dbr  = LJ::get_db_reader();
-    my $data = $dbr->selectall_hashref(
-        "SELECT name, userprop, imgfile, title_ml, url_format FROM profile_services", "name" );
-    die $dbr->errstr if $dbr->err;
+    my $services  = DW::External::ProfileServices->list;
+    my $userprops = DW::External::ProfileServices->userprops;
 
-    my ( @services, @userprops );
+    $u->preload_props(@$userprops);
 
-    foreach my $name ( sort keys %$data ) {
-        my $row = $data->{$name};
-        push @services,  $row;
-        push @userprops, $row->{userprop} if defined $row->{userprop};
-    }
-
-    $u->preload_props(@userprops);
-
-    foreach my $site (@services) {
+    foreach my $site (@$services) {
         if ( my $acct = $u->prop( $site->{userprop} ) ) {
             my $url =
                 defined $site->{url_format}

@@ -20,6 +20,7 @@ body<=
     use strict;
     use vars qw(%POST %GET $headextra @errors);
     use LJ::Setting;
+    use DW::External::ProfileServices;
 
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/lj_settings.css' );
 
@@ -54,10 +55,6 @@ body<=
     # props in this list will be preloaded on page load and saved on post
     my @uprops = qw/
         opt_whatemailshow comm_theme
-        ao3 deviantart diigo discord etsy ffnet github google_talk
-        icq insanejournal instagram jabber last_fm_user livejournal
-        medium patreon pillowfort pinboard pinterest plurk ravelry
-        reddit skype tumblr twitter wattpad
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
@@ -65,6 +62,10 @@ body<=
         opt_showbday opt_showlocation
         opt_sharebday
     /;
+
+    my %legacy_service_props = map { $_ => 1 } @{ DW::External::ProfileServices->userprops };
+
+    push @uprops, $_ foreach keys %legacy_service_props;
 
     # load user props
     $u->preload_props( { use_master => 1 }, @uprops );
@@ -404,35 +405,13 @@ body<=
             $ret .= "<tr><td colspan=3><table summary=''>";
             my $oddeven = 0;
 
-            foreach my $p (
-                           ["ao3", $ML{ '.services.ao3' }, 40],
-                           ["deviantart", $ML{'.services.deviantart'}, 20],
-                           ["diigo", $ML{ '.services.diigo' }, 16],
-                           ["discord", $ML{ '.services.discord' }, 40],
-                           ["etsy", $ML{ '.services.etsy' }, 20],
-                           ["ffnet", $ML{ '.services.ffnet' }, 30],
-                           ["github", $ML{'.services.github'}, 39],
-                           ["google_talk", $ML{'.chat.googlehangouts'}, 60],
-                           ["icq", $ML{'.chat.icquin'}, 12],
-                           ["insanejournal", $ML{'.services.insanejournal'}, 15],
-                           ["instagram", $ML{'.services.instagram'}, 30],
-                           ["jabber", $ML{'.chat.jabber'}, 60],
-                           ["last_fm_user", $ML{'.services.last_fm'}, 255],
-                           ["livejournal", $ML{'.services.livejournal'}, 30],
-                           ["medium", $ML{'.services.medium'}, 25],
-                           ["patreon", $ML{'.services.patreon'}, 255],
-                           ["pillowfort", $ML{'.services.pillowfort'}, 255],
-                           ["pinboard", $ML{'.services.pinboard'}, 30],
-                           ["pinterest", $ML{'.services.pinterest'}, 30],
-                           ["plurk", $ML{ '.services.plurk' }, 255],
-                           ["ravelry", $ML{ '.services.ravelry' }, 40],
-                           ["reddit", $ML{ '.services.reddit' }, 20],
-                           ["skype", $ML{'.chat.skype'}, 40],
-                           ["tumblr", $ML{ '.services.tumblr' }, 255],
-                           ["twitter", $ML{ '.services.twitter' }, 40],
-                           ["wattpad", $ML{ '.services.wattpad' }, 20],
-                          )
+            my $service_info = sub {
+                my ($site) = @_;
+                my $txt = sprintf "%s Username", LJ::Lang::ml( $site->{title_ml} );
+                return [ $site->{userprop}, $txt, $site->{maxlen} ];
+            };
 
+            foreach my $p ( map $service_info->($_), @{ DW::External::ProfileServices->list } )
             {
                 $oddeven = !$oddeven;
                 $ret .= "<tr class='field_block'>" if $oddeven;
