@@ -18,6 +18,7 @@ $('.action_button').click(function(e) {
 
     if (allow) {
         mark_items(e, action);
+        this.blur();
     } else {
         e.preventDefault();
         e.stopPropagation(); 
@@ -144,6 +145,10 @@ function mark_items(e, action, qid) {
                     });
                     $("#" + id).addClass('inbox_collapse');
                 });
+                // We've reloaded the view, so set the select-all checkbox to unchecked.
+                $('.check_all').prop("checked", false);
+                // reset buttons
+                check_selected();
             } else {
                 $(e.target).ajaxtip()
                     .ajaxtip("error", data.error);
@@ -155,8 +160,6 @@ function mark_items(e, action, qid) {
         e.preventDefault();
         e.stopPropagation();
     }
-    // We've reloaded the view, so set the select-all checkbox to unchecked.
-    $('.check_all').prop("checked", false);
 }
 
 // Only load this on the compose page
