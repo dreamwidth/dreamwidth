@@ -18,6 +18,7 @@ package DW::Widget::QuickUpdate;
 
 use strict;
 use base qw/ LJ::Widget /;
+use DW::Template;
 
 sub need_res { qw( stc/widgets/quickupdate.css ) }
 
@@ -27,50 +28,40 @@ sub render_body {
     my $remote = LJ::get_remote()
         or return;
 
-    my $ret = "<h2>" . $class->ml('widget.quickupdate.title') . "</h2>";
-    $ret .=
-          "<div class='sidebar'>"
-        . LJ::Hooks::run_hook( 'entryforminfo', $remote->user, $remote )
-        . "</div>";
-    $ret .= "<div class='contents'>";
+    my @accounts = DW::External::Account->get_external_accounts($remote);
+    @accounts = grep { $_->xpostbydefault } @accounts;
 
-    # not using the LJ::Widget form of the HTML methods, because we're directing this to update.bml
-    $ret .= $class->start_form( action => "/update" );
-    $ret .= LJ::entry_form_date_widget();
-    $ret .= LJ::entry_form_xpost_widget($remote);
+    my @journallist = ( $remote, $remote->posting_access_list );
+    my $sidebar     = LJ::Hooks::run_hook( 'entryforminfo', $remote->user, $remote );
+    my @security    = (
+        "public" => {
+            value  => "public",
+            label  => ".public.label",
+            format => ".public.format",
+        },
+        "private" => {
+            value  => "private",
+            label  => ".private.label",
+            format => ".private.format",
+            image  => $LJ::Img::img{"security-private"},
+        },
+        "access" => {
+            value  => "access",
+            label  => ".access.label",
+            format => ".access.format",
+            image  => $LJ::Img::img{"security-protected"},
+        },
+    );
+    my $vars = {
+        remote      => $remote,
+        journallist => \@journallist,
+        security    => \@security,
+        sidebar     => $sidebar,
+        accounts    => \@accounts,
 
-    $ret .= LJ::labelfy( "subject", $class->ml('widget.quickupdate.subject') );
-    $ret .= LJ::entry_form_subject_widget();
-    $ret .= LJ::labelfy( "event",   $class->ml('widget.quickupdate.entry') );
-    $ret .= LJ::entry_form_entry_widget();
+    };
 
-    $ret .= "<div class='metadata'>";
-    $ret .= "<div class='form-input'>";
-    $ret .= LJ::labelfy( "usejournal", $class->ml('entryform.postto') );
-    $ret .= LJ::entry_form_postto_widget($remote) || "";
-    $ret .= "</div>";
-    $ret .= "<div class='form-input'>";
-    $ret .= LJ::labelfy( "security", $class->ml('entryform.security') );
-    $ret .= LJ::entry_form_security_widget();
-    $ret .= "</div>";
-    $ret .= "<div class='form-input'>";
-    $ret .= LJ::labelfy( "prop_picture_keyword", $class->ml('entryform.userpic') );
-    $ret .= LJ::entry_form_usericon_widget($remote);
-    $ret .= "</div>";
-    $ret .= "<div class='form-input'>";
-    $ret .= LJ::labelfy( "prop_taglist", $class->ml('entryform.tags') );
-    $ret .= LJ::entry_form_tags_widget();
-    $ret .= "</div>";
-    $ret .= "</div>";
-
-    $ret .= "<div class='submit'>";
-    $ret .= LJ::html_submit( $class->ml('widget.quickupdate.update') );
-    $ret .= LJ::html_submit( 'moreoptsbtn', $class->ml('widget.quickupdate.moreopts') );
-    $ret .= "</div>";
-    $ret .= $class->end_form;
-    $ret .= "</div>";
-
-    return $ret;
+    return DW::Template->template_string( 'widget/quickupdate.tt', $vars );
 }
 
 1;
