@@ -259,6 +259,7 @@ REPLACE INTO codes (code, item, sortorder, type) VALUES ('th', 'Thueringen', '0'
 REPLACE INTO codes (code, item, sortorder, type) VALUES ('vi', 'Victoria', '0', 'stateau');
 REPLACE INTO codes (code, item, sortorder, type) VALUES ('wa', 'Western Australia', '0', 'stateau');
 REPLACE INTO codes (code, item, sortorder, type) VALUES ('yt', 'Yukon Territory', '0', 'stateca');
+
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to grant or revoke privileges to/from other users. arg=Unique privcode that the user has access to grant/deny for, or \"*\" for all privileges.', '0', 'admin', 'Administer privileges', 'general');
 UPDATE priv_list SET des='Allows a user to grant or revoke privileges to/from other users. arg=Unique privcode that the user has access to grant/deny for, or \"*\" for all privileges.',is_public='0',privname='Administer privileges',scope='general' WHERE privcode='admin';
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to view information that isn\'t otherwise available.  All use is logged.  arg=Arg=\"*\": can view everything, Arg=\"suspended\": can view public posts in a suspended journal, Arg=\"userlog\": can see userlog data.', '0', 'canview', 'View All Entries', 'general');
@@ -319,6 +320,7 @@ INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES 
 UPDATE priv_list SET des='Allows a user to edit site text in a given language. arg=Unique language code, optionally appended by |domainid.domaincode',is_public='1',privname='Translate/Update Text',scope='general' WHERE privcode='translate';
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to add/edit vgifts. arg=Tag in case restricting priv to a particular category is needed, or "*" for all tags.', '1', 'vgifts', 'Virtual Gifts', 'general');
 UPDATE priv_list SET des='Allows a user to add/edit vgifts. arg=Tag in case restricting priv to a particular category is needed, or "*" for all tags.',is_public='1',privname='Virtual Gifts',scope='general' WHERE privcode='vgifts';
+
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user adds someone to their Friends list', 'addfriend');
 UPDATE ratelist SET des='Logged when a user adds someone to their Friends list' WHERE name='addfriend';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user creates a community.', 'commcreate');
@@ -335,5 +337,33 @@ INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a users sends a mes
 UPDATE ratelist SET des='Logged when a users sends a message via Tell A Friend' WHERE name='tellafriend';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a users sends a message to another user', 'usermessage');
 UPDATE ratelist SET des='Logged when a users sends a message to another user' WHERE name='usermessage';
+
 INSERT IGNORE INTO supportcat (allow_screened, basepoints, catkey, catname, hide_helpers, is_selectable, no_autoreply, public_help, public_read, replyaddress, scope, sortorder, user_closeable) VALUES ('1', '1', 'general', 'General/Unknown', '0', '1', '0', '0', '1', NULL, 'general', '2', '1');
 UPDATE supportcat SET allow_screened='1',basepoints='1',catname='General/Unknown',hide_helpers='0',is_selectable='1',no_autoreply='0',public_help='0',public_read='1',replyaddress=NULL,scope='general',sortorder='2',user_closeable='1' WHERE catkey='general';
+
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('ao3', 'ao3', 'ao3.png', 'profile.service.ao3', '//archiveofourown.org/users/%s', 40);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('deviantart', 'deviantart', 'deviantart.png', 'profile.service.deviantart', '//%s.deviantart.com', 20);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('diigo', 'diigo', 'diigo.png', 'profile.service.diigo', '//www.diigo.com/user/%s', 16);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('discord', 'discord', 'discord.png', 'profile.service.discord', NULL, 40);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('etsy', 'etsy', 'etsy.png', 'profile.service.etsy', '//www.etsy.com/people/%s', 20);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('ffnet', 'ffnet', 'ffnet.png', 'profile.service.ffnet', '//www.fanfiction.net/~%s', 30);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('github', 'github', 'github.png', 'profile.service.github', '//github.com/%s', 39);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('google_chat', 'google_talk', 'google_hangouts.png', 'profile.service.hangouts', NULL, 60);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('icq', 'icq', 'icq.gif', 'profile.service.icq', '"//wwp.icq.com/%s', 12);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('insanejournal', 'insanejournal', 'insanejournal.png', 'profile.service.insanejournal', '//%s.insanejournal.com', 15);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('instagram', 'instagram', 'instagram.png', 'profile.service.instagram', '//www.instagram.com/%s', 30);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('jabber', 'jabber', 'jabber.gif', 'profile.service.jabber', NULL, 60);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('lastfm', 'last_fm_user', 'lastfm.gif', 'profile.service.lastfm', '//www.last.fm/user/%s', 255);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('livejournal', 'livejournal', 'livejournal.gif', 'profile.service.livejournal', '//%s.livejournal.com', 30);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('medium', 'medium', 'medium.png', 'profile.service.medium', '//medium.com/@%s/latest', 25);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('patreon', 'patreon', 'patreon.png', 'profile.service.patreon', '//www.patreon.com/%s', 255);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('pillowfort', 'pillowfort', 'pillowfort.png', 'profile.service.pillowfort', '//www.pillowfort.social/%s', 255);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('pinboard', 'pinboard', 'pinboard.png', 'profile.service.pinboard', '//pinboard.in/u:%s', 30);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('pinterest', 'pinterest', 'pinterest.png', 'profile.service.pinterest', '//www.pinterest.com/%s', 30);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('plurk', 'plurk', 'plurk.png', 'profile.service.plurk', '//www.plurk.com/%s', 255);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('ravelry', 'ravelry', 'ravelry.png', 'profile.service.ravelry', '//www.ravelry.com/people/%s', 40);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('reddit', 'reddit', 'reddit.png', 'profile.service.reddit', '//www.reddit.com/user/%s', 20);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('skype', 'skype', 'skype.gif', 'profile.service.skype', NULL, 40);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('tumblr', 'tumblr', 'tumblr.png', 'profile.service.tumblr', '//%s.tumblr.com', 255);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('twitter', 'twitter', 'twitter_bird.png', 'profile.service.twitter', '//www.twitter.com/%s', 40);
+REPLACE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('wattpad', 'wattpad', 'wattpad.png', 'profile.service.wattpad', '//www.wattpad.com/user/%s', 20);
