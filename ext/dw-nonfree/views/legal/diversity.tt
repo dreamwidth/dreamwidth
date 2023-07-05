@@ -7,7 +7,7 @@
   # Text by:
   #     The Dreamwidth Community
   #
-  # Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+  # Copyright (c) 2009-2023 by Dreamwidth Studios, LLC.
   #
   # This program is NOT free software or open-source; you can use it as an
   # example of how to implement your own site-specific extensions to the
@@ -25,7 +25,7 @@ stance on it:</p>
 <p>We welcome you.</p>
 
 <p>We welcome people of any gender identity or expression, race, ethnicity, 
-size, nationality, sexual orientation, ability level, neurotype, religion, 
+caste, size, nationality, sexual orientation, ability level, neurotype, religion, 
 elder status, family structure, culture, subculture, political opinion,
 identity, and self-identification. We welcome activists, artists, bloggers, 
 crafters, dilettantes, musicians, photographers, readers, writers, ordinary people,
@@ -84,5 +84,5 @@ pageviews. You're not demographic groups. You're people.</p>
 
 <p>Come dream with us.</p>
 <br />
-<p style="float:right; text-align:right;"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
-<img alt="Creative Commons BY-SA 3.0" style="border-width: 0;" src="https://licensebuttons.net/l/by-sa/3.0/us/88x31.png" /></a><br /><em>This document is usable under a Creative Commons 3.0 BY-SA license.</em></p>
+<p style="float:right; text-align:right;"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">
+<img alt="Creative Commons BY-SA 3.0" style="border-width: 0;" src="https://licensebuttons.net/l/by-sa/3.0/us/88x31.png" /></a><br /><em>This document is usable under a Creative Commons 4.0 BY-SA license.</em></p>
