@@ -3133,6 +3133,18 @@ CREATE TABLE profile_services (
 )
 EOC
 
+# clustered
+register_tablecreate( "user_profile_accts", <<'EOC');
+CREATE TABLE user_profile_accts (
+    userid INT(10) UNSIGNED NOT NULL,
+    name VARCHAR(40) NOT NULL,
+    value VARCHAR(255) NOT NULL,
+
+    PRIMARY KEY (userid, name, value),
+    INDEX (userid)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes
