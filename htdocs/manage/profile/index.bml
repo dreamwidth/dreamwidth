@@ -48,8 +48,7 @@ body<=
     push @settings, "LJ::Setting::FindByEmail" if LJ::is_enabled('opt_findbyemail');
     push @settings, "DW::Setting::ProfileEmail";
 
-    my $dbr = LJ::get_db_reader();
-    my $sth;
+    my $profile_accts = $u->load_profile_accts;
 
     # list the userprops that are handled explicitly by code on this page
     # props in this list will be preloaded on page load and saved on post
@@ -65,7 +64,9 @@ body<=
 
     my %legacy_service_props = map { $_ => 1 } @{ DW::External::ProfileServices->userprops };
 
-    push @uprops, $_ foreach keys %legacy_service_props;
+    unless (%$profile_accts) {
+        push @uprops, $_ foreach keys %legacy_service_props;
+    }
 
     # load user props
     $u->preload_props( { use_master => 1 }, @uprops );
@@ -407,20 +408,30 @@ body<=
 
             my $service_info = sub {
                 my ($site) = @_;
-                my $txt = sprintf "%s Username", LJ::Lang::ml( $site->{title_ml} );
-                return [ $site->{userprop}, $txt, $site->{maxlen} ];
+                $site->{title} = sprintf "%s Username", LJ::Lang::ml( $site->{title_ml} );
+                return $site;
             };
+
+            # ignore legacy userprops if %$profile_accts has been populated
 
             foreach my $p ( map $service_info->($_), @{ DW::External::ProfileServices->list } )
             {
+                my $val;
+                if (%$profile_accts) {
+                    my $accts = $profile_accts->{$p->{name}} // [];
+                    $val = $accts->[0];  # FIXME: support multiple accounts
+                } else {
+                    $val = $u->{$p->{userprop}};
+                }
+
                 $oddeven = !$oddeven;
                 $ret .= "<tr class='field_block'>" if $oddeven;
-                $ret .= "<td class='field_name' width='20%'>$p->[1]</td><td width='30%'>";
-                $ret .= LJ::html_text( { name => $p->[0],
-                                         value => $u->{$p->[0]},
-                                         title => $p->[1],
+                $ret .= "<td class='field_name' width='20%'>$p->{title}</td><td width='30%'>";
+                $ret .= LJ::html_text( { name => $p->{userprop},
+                                         value => $val,
+                                         title => $p->{title},
                                          size => '20',
-                                         maxlength => $p->[2] } );
+                                         maxlength => $p->{maxlen} } );
                 $ret .= "</td>\n";
                 $ret .= "</tr>" unless $oddeven;
             }
@@ -672,11 +683,22 @@ body<=
             # set userprops
             my %prop;
             foreach my $uprop (@uprops) {
+                next if $legacy_service_props{$uprop};
                 my $eff_val = $POST{$uprop};   # effective value, since 0 isn't stored
                 $eff_val = "" unless $eff_val;
                 $prop{$uprop} = $eff_val;
             }
             $u->set_prop( \%prop, undef, { skip_db => 1 } );
+
+            # update external services
+            my %new_accts;
+
+            foreach my $site (@{ DW::External::ProfileServices->list }) {
+                my $name = $site->{name};
+                $new_accts{$name} = [$POST{ $site->{userprop} }];
+            }
+
+            $u->save_profile_accts( \%new_accts );
 
             # location or bday could've changed... (who cares about checking exactly)
             $u->invalidate_directory_record;

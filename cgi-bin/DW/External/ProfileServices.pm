@@ -89,4 +89,87 @@ sub load_profile_accts {
 *LJ::User::load_profile_accts = \&load_profile_accts;
 *DW::User::load_profile_accts = \&load_profile_accts;
 
+sub save_profile_accts {
+    my ( $u, $new_accts, %opts ) = @_;
+    $u = LJ::want_user($u) or confess 'invalid user object';
+    my $old_accts = $u->load_profile_accts;
+
+    # expire memcache after updating db
+    my $uid    = $u->userid;
+    my $memkey = [ $uid, "profile_accts:$uid" ];
+
+    return unless $u->writer;
+
+    my %sites = map { $_->{name} => 1 } @{ DW::External::ProfileServices->list };
+
+    # if %$old_accts is empty, we need to clear out the user's legacy userprops
+    # to avoid an edge case where if a user clears out all of their accounts
+    # later, the old userprop values will suddenly reappear on their profile
+    unless (%$old_accts) {
+        my $userprops = DW::External::ProfileServices->userprops;
+        my %prop      = map { $_ => '' } @$userprops;
+        $u->set_prop( \%prop, undef, { skip_db => 1 } );
+    }
+
+    # convert listref vals to sanitized hashref vals
+    # note: we now lowercase to avoid value duplication
+    # when allowing multiple values per account type
+    my $remap = sub {
+        my $href = shift;
+        my %ret;
+
+        foreach my $name ( keys %$href ) {
+            next unless $sites{$name};
+            foreach my $val ( @{ $href->{$name} } ) {
+                $val = LJ::text_trim( lc( $val // '' ) );
+                next unless $val;
+                $ret{$name} //= {};
+                $ret{$name}->{$val} = 1;
+            }
+        }
+        return %ret;
+    };
+
+    my %old = $remap->($old_accts);
+    my %new = $remap->($new_accts);
+
+    my $process = sub {
+        my ( $hr1, $hr2 ) = @_;
+        my %ret;
+
+        foreach my $name ( keys %$hr1 ) {
+            foreach my $val ( keys %{ $hr1->{$name} } ) {
+                unless ( $hr2->{$name} && $hr2->{$name}->{$val} ) {
+                    $ret{$name} //= [];
+                    push @{ $ret{$name} }, $val;
+                }
+            }
+        }
+        return %ret;
+    };
+
+    my %del = $process->( \%old, \%new );
+    my %add = $process->( \%new, \%old );
+
+    foreach my $name ( keys %del ) {
+        foreach my $val ( @{ $del{$name} } ) {
+            $u->do( "DELETE FROM user_profile_accts WHERE userid = ? AND name = ? AND value = ?",
+                undef, $uid, $name, $val );
+        }
+    }
+
+    foreach my $name ( keys %add ) {
+        foreach my $val ( @{ $add{$name} } ) {
+            $u->do( "INSERT INTO user_profile_accts (userid, name, value) VALUES (?,?,?)",
+                undef, $uid, $name, $val );
+        }
+    }
+
+    LJ::MemCache::delete($memkey);
+
+    return 1;
+}
+*LJ::User::save_profile_accts = \&save_profile_accts;
+*DW::User::save_profile_accts = \&save_profile_accts;
+
 1;
