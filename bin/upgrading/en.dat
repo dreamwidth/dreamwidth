@@ -4727,6 +4727,8 @@ widget.createaccount.error.password.toolong=Password must not be longer than 30 
 
 widget.createaccount.error.password.tooshort=Your password must be at least 6 characters for security reasons.
 
+widget.createaccount.error.suspended=Your account has been automatically suspended because our detection systems have determined it is likely to be spam. Please contact us by emailing [[accounts_email]] if you feel this suspension is in error.
+
 widget.createaccount.error.tos=You must agree to the Terms of Service.
 
 widget.createaccount.error.username.inuse=That account name is already in use.
