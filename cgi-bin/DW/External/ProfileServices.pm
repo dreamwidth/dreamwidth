@@ -19,6 +19,8 @@ package DW::External::ProfileServices;
 use strict;
 use warnings;
 
+use Carp qw/ confess /;
+
 sub list {
     my ( $class, %opts ) = @_;
 
@@ -52,5 +54,39 @@ sub userprops {
 
     return \@userprops;
 }
+
+### user methods
+
+sub load_profile_accts {
+    my ( $u, %args ) = @_;
+    $u = LJ::want_user($u) or confess 'invalid user object';
+    my $uid = $u->userid;
+
+    # load accounts from memcache
+    my $memkey   = [ $uid, "profile_accts:$uid" ];
+    my $accounts = LJ::MemCache::get($memkey);
+    return $accounts if $accounts;
+
+    $accounts = {};
+
+    # load accounts from database and add to memcache (no expiration)
+    my $dbcr = LJ::get_cluster_reader($u) or die;
+    my $data = $dbcr->selectall_arrayref(
+        "SELECT name, value FROM user_profile_accts WHERE userid=? ORDER BY name, value",
+        { Slice => {} }, $uid );
+    die $dbcr->errstr if $dbcr->err;
+
+    foreach my $acct (@$data) {
+        my $name = $acct->{name};
+        $accounts->{$name} //= [];
+        push @{ $accounts->{$name} }, $acct->{value};
+    }
+
+    LJ::MemCache::set( $memkey, $accounts );
+
+    return $accounts;
+}
+*LJ::User::load_profile_accts = \&load_profile_accts;
+*DW::User::load_profile_accts = \&load_profile_accts;
 
 1;

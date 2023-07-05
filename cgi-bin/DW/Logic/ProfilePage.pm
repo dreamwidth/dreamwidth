@@ -771,25 +771,47 @@ sub external_services {
 
     return [] unless $u->is_personal && ( $u->share_contactinfo($remote) || $self->{viewall} );
 
-    my $services  = DW::External::ProfileServices->list;
+    my $info = sub {
+        my ( $acct, $site ) = @_;
+
+        my $url =
+            defined $site->{url_format}
+            ? sprintf( $site->{url_format}, LJ::eurl($acct) )
+            : undef;
+
+        return {
+            type     => $site->{name},
+            text     => LJ::ehtml($acct),
+            url      => $url,
+            image    => $site->{imgfile},
+            title_ml => $site->{title_ml},
+        };
+    };
+
+    my $services = DW::External::ProfileServices->list;
+    my $accounts = $u->load_profile_accts;
+
+    if (%$accounts) {
+        foreach my $site (@$services) {
+            my $name = $site->{name};
+            my $vals = $accounts->{$name} // [];
+
+            foreach my $acct (@$vals) {
+                push @ret, $info->( $acct, $site );
+            }
+        }
+
+        return \@ret;
+    }
+
+    # legacy path for users who still have data in userprops
     my $userprops = DW::External::ProfileServices->userprops;
 
     $u->preload_props(@$userprops);
 
     foreach my $site (@$services) {
         if ( my $acct = $u->prop( $site->{userprop} ) ) {
-            my $url =
-                defined $site->{url_format}
-                ? sprintf( $site->{url_format}, LJ::eurl($acct) )
-                : undef;
-            push @ret,
-                {
-                type     => $site->{name},
-                text     => LJ::ehtml($acct),
-                url      => $url,
-                image    => $site->{imgfile},
-                title_ml => $site->{title_ml},
-                };
+            push @ret, $info->( $acct, $site );
         }
     }
 
