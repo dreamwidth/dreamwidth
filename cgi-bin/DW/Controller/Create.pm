@@ -663,6 +663,10 @@ sub upgrade_handler {
     my $r      = $rv->{r};
     my $remote = $rv->{remote};
 
+    return error_ml( 'widget.createaccount.error.suspended',
+        { accounts_email => $LJ::ACCOUNTS_EMAIL } )
+        if $remote && $remote->is_suspended;
+
     return $r->redirect( LJ::create_url( $urls{next} ) )
         unless LJ::is_enabled('payments') && $remote->is_personal && !$remote->is_paid;
 
