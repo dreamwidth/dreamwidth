@@ -420,6 +420,7 @@ sub setup_handler {
 
         # location
         my $state_from_dropdown = LJ::Lang::ml('states.head.defined');
+        $post->{stateother} //= "";
         $post->{stateother} = "" if $post->{stateother} eq $state_from_dropdown;
 
         my %countries;
@@ -458,7 +459,7 @@ sub setup_handler {
         }
 
         # interests
-        my @interests_strings = (
+        my @interests_strings = grep { defined $_ } (
             $post->{interests_music},   $post->{interests_moviestv}, $post->{interests_books},
             $post->{interests_hobbies}, $post->{interests_other},
         );
@@ -495,7 +496,7 @@ sub setup_handler {
 
         # bio
         $errors->add( 'bio', '/manage/profile/index.bml.error.bio.toolong' )
-            if length $post->{bio} >= LJ::BMAX_BIO;
+            if defined $post->{bio} && length $post->{bio} >= LJ::BMAX_BIO;
         LJ::EmbedModule->parse_module_embed( $u, \$post->{bio} );
 
         # inviter / communities
