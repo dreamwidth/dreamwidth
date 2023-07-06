@@ -1,6 +1,7 @@
 
-<h2>[% dw.ml( 'widget.latestnews.title', { sitename => $LJ::SITENAMESHORT } ) %]</h2>
-<div class='sidebar'>
+<h2 class="smaller">[% dw.ml( 'widget.latestnews.title', { sitename => $LJ::SITENAMESHORT } ) %]</h2>
+<div class="row">
+<div class='sidebar columns medium-3'>
     <p><a href='[% entry.url %]#comments'>
         [% dw.ml( 'widget.latestnews.comments', { num_comments => entry.reply_count } ) %]
     </a></p>
@@ -28,7 +29,7 @@
     [% END %]
 </div>
 
-<div class='contents'>
+<div class='contents columns medium-9'>
     <p><a href='[% entry.url %]'>[% entry.subject_html %]</a></p>
     
     [% IF entry.event_raw.match('<(?:lj-)?cut') %]
@@ -39,4 +40,5 @@
         [% entry->event_summary %]
     [% END %]
 
+</div>
 </div>

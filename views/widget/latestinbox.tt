@@ -1,12 +1,14 @@
-<h2>[% dw.ml('widget.latestinbox.title') %]</h2>
-
-<div class='sidebar'><ul>
+<h2 class="smaller">[% dw.ml('widget.latestinbox.title') %]</h2>
+<div class="row">
+<div class='sidebar columns medium-3'>
+<ul>
     <li><a href='/inbox/'>[% dw.ml('widget.latestinbox.links.inbox') %]</a></li>
     <li><a href='/inbox/compose'>[% dw.ml('widget.latestinbox.links.compose') %]</a></li>
     <li><a href='/manage/settings/?cat=notifications'>[% dw.ml('widget.latestinbox.links.manage') %]</a></li>
-</ul></div>
+</ul>
+</div>
 
-<div class='contents'>
+<div class='contents columns medium-9'>
     [% IF error %]
         [% error %]
     [% ELSE %]
@@ -18,7 +20,8 @@
                 </div>
             [%END %]
         [% ELSE %]
-            <div class='item'>" [% dw.ml('widget.latestinbox.empty') %]</div>
+            <div class='item'>[% dw.ml('widget.latestinbox.empty') %]</div>
         [% END %]
     [% END %]
-</div>  
+</div>
+</div>

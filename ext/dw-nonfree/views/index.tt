@@ -1,0 +1,93 @@
+[%- sections.windowtitle = site.name -%]
+[%- sections.head = BLOCK %]
+    <meta name="description" content="[% site.name %]: A blog/journal system for people who create.">
+    <meta name="keywords" content="diary,journal,blog,dreamwidth">
+    <meta name="rating" content="General"> 
+    <meta name="ROBOTS" content="All">
+    <meta name="revisit-after" Content="14 days">
+    <script type="text/javascript">
+    var ml = {
+        joinheading : [% dw.ml(".create.join_dreamwidth",  { sitename => site.nameshort }) | js %],
+        entercode: [% dw.ml('.create.enter_code') | js %],
+        usecode: [% dw.ml('.create.use_code') | js %],
+        cancel: [% dw.ml('.create.cancel') | js %],
+    };
+    var invitelength = [% invitelength %];
+    var siteroot = [% site.root | js %];
+    </script>
+
+    <style type="text/css">
+    .primary-panel .sidebar li {margin: 0;}
+    .primary-panel .contents {border-left: 1px solid;}
+    #canvas .primary-panel .entry-quick-metadata select {top: 0; margin-right: 0.75em;}
+    </style>
+[% END %]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+        "js/homepage_loggedin.js",
+        "js/tropo/homepage.js",
+        "stc/tropo/homepage.css"
+) -%]
+
+[% IF remote %]
+<div class="row">
+    <div class="primary columns large-8">
+    [% panel.render_primary %]
+    </div>
+
+    <div class="secondary columns large-4">
+    [% panel.render_secondary %]
+    </div>
+</div>
+[% ELSE %]
+<div id="intro-box">
+    <div id="intro-box-main">
+            <h1>[% dw.ml( ".intro.what_is_dreamwidth", { sitename => site.name } ) %]</h1>
+            <p>[% dw.ml( ".intro.what_is_dreamwidth.content", { sitename => site.name } ) %]</p>
+    </div>
+    <div id="intro-box-create">
+            <h2>[% dw.ml( ".create.join_dreamwidth", { sitename => site.nameshort } ) %]</h2>
+            <p>[% dw.ml( string, { aopts => ( use_acct_codes ?
+                                                       "href=${site.root}/support/faqbrowse?faqid=105" :
+                                                       "href=${site.root}/support/faqbrowse?faqid=4" ) } ) %]</p>
+            <ul id="create-links">
+            [% IF use_payments %]
+                <li><a href="[% site.root %]/shop/account?for=new">[% dw.ml('.create.paymentlink2') %]</a></li>
+            [% END %]
+            [% IF use_acct_codes %]
+                <li class="lastli"><a href="[% site.root %]/create" onClick="return nocreatejs || displayCreateDiv(&quot;invite&quot;);">[% dw.ml('.create.invitelink') %]</a></li>
+            [% ELSE %]
+                <li class="lastli"><a href="[% site.root %]/create">[% dw.ml('.create.createaccount') %]</a></li>
+            [% END %]
+            </ul>
+        [% IF use_acct_codes %]
+            <p style="margin-top: 1em;">[% dw.ml( ".create.join_dreamwidth.codeshare" ) %]</p>
+        [% END %]
+    </div>
+</div>
+
+<div id="frontpage-links" class="row">
+    [% colwidth = (12 / columns.size) %]
+    [% FOREACH column IN columns %]
+        <div id="links-[% column.name %]" class="links-column columns medium-[% colwidth %]">
+            <h2>[% dw.ml( ".links.${column.name}", { sitename => site.nameshort } ) %]</h2>
+            <dl>
+            [% FOREACH item IN column.items %]
+                [% href = item.0 
+                    ml = item.1
+                    postfix = item.2 
+                %]
+                <dt><a href="[% href %]">[% dw.ml( ".links.${column.name}.${name}$ml", { sitename => site.nameshort } ) %]</a>
+                [% dw.ml(".links.${column.name}.$postfix") IF postfix %]
+                </dt>
+                <dd>[% dw.ml( ".links.${column.name}.${name}${ml}.desc", { sitename => site.nameshort } ) %]</dd>
+            [% END %]
+            </dl>
+            [% IF column.footnote %]
+            <p><small>[% dw.ml( ".links.${column.name}.${column.footnote}", { sitename => site.nameshort } ) %]</small></p>
+            [% END %]
+        </div>
+    [% END %]
+</div>
+[% END %]

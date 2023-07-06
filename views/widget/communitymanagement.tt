@@ -1,4 +1,4 @@
-<h2>[% dw.ml('widget.communitymanagement.title') %]</h2>
+<h2 class="smaller">[% dw.ml('widget.communitymanagement.title') %]</h2>
 
 [% IF list.size > 0 %]
     <p>[% dw.ml('widget.communitymanagement.pending.header') %]</p>

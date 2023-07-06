@@ -1,10 +1,12 @@
-<div class='highlight-box'><h2 class='widget-header'><span>
-        
+<div class='highlight-box'><h2 class='widget-header smaller'>
 [% dw.ml( 'widget.currenttheme.title', { 'user' => u.ljuser_display } ) %]
-        </span></h2>
-    <div class='theme-current-content pkg'>
+</h2>
+    <div class='theme-current-content pkg row'>
+    <div class="columns medium-6 theme-preview">
 <img src='[% theme.preview_imgurl %]' class='theme-current-image preview-image' />
-    <h3>[% theme.name %]</h3>
+</div>
+<div class="columns medium-6">
+    <h3 class="smaller">[% theme.name %]</h3>
 
     [% layout_link = "<a href='${site.root}/customize/$getextra${getsep}layoutid=${theme.layoutid}$showarg' class='theme-current-layout'><em>$layout_name</em></a>" %]
     [% special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'" %]
@@ -59,5 +61,6 @@
 
     </ul>
     </div><!-- end .theme-current-links -->
+    </div>
     </div><!-- end .theme-current-content -->
     </div>
