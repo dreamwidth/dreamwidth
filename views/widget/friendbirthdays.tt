@@ -1,4 +1,4 @@
-<h2><span>[% dw.ml('widget.friendbirthdays.title') %]</span></h2>
+<h2 class="smaller"><span>[% dw.ml('widget.friendbirthdays.title') %]</span></h2>
 <p><a href='[% site.root %]/birthdays' class='more-link'>
     [% dw.ml('widget.friendbirthdays.viewall') %]
 </a></p>

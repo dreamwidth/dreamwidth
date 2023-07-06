@@ -1,8 +1,16 @@
-<h2>[% dw.ml( 'widget.sitesearch.title', { sitename => site.nameshort } ) %]</h2>
+<h2 class="smaller">[% dw.ml( 'widget.sitesearch.title', { sitename => site.nameshort } ) %]</h2>
 <p>[% dw.ml('widget.sitesearch.desc') %]</p>
 
 <form method='post' action='[% site.root %]/search'>
     [% dw.form_auth %]
-    [% form.textbox( name => 'query', maxlength => 255, size => 30) %]
-    [% form.submit( value='Search') %]
+    <div class="row collapse">
+        <div class="small-9 columns">
+            [% form.textbox( name => 'query', maxlength => 255, size => 30) %]
+        </div>
+        <div class="small-3 columns">
+            [% form.submit( value='Search', class="postfix button") %]
+        </div>
+      </div>
+
+    
 </form>

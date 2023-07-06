@@ -20,7 +20,7 @@ use strict;
 use base qw/ LJ::Widget /;
 use DW::Template;
 
-sub need_res { qw( stc/widgets/quickupdate.css ) }
+sub need_res { qw( stc/css/pages/entry/new.css) }
 
 sub render_body {
     my ( $class, %opts ) = @_;
@@ -34,23 +34,9 @@ sub render_body {
     my @journallist = ( $remote, $remote->posting_access_list );
     my $sidebar     = LJ::Hooks::run_hook( 'entryforminfo', $remote->user, $remote );
     my @security    = (
-        "public" => {
-            value  => "public",
-            label  => ".public.label",
-            format => ".public.format",
-        },
-        "private" => {
-            value  => "private",
-            label  => ".private.label",
-            format => ".private.format",
-            image  => $LJ::Img::img{"security-private"},
-        },
-        "access" => {
-            value  => "access",
-            label  => ".access.label",
-            format => ".access.format",
-            image  => $LJ::Img::img{"security-protected"},
-        },
+        ( "public", LJ::Lang::ml("/entry/form.tt.select.security.public.label") ),
+        ( "private", LJ::Lang::ml("/entry/form.tt.select.security.private.label") ),
+        ( "access",  LJ::Lang::ml("/entry/form.tt.select.security.access.label") ),
     );
     my $vars = {
         remote      => $remote,

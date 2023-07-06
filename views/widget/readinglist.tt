@@ -1,17 +1,14 @@
-<h2>[% dw.ml('widget.readinglist.title2') %]</h2>
+<h2 class="smaller">[% dw.ml('widget.readinglist.title2') %]</h2>
 <p>
     [% dw.ml( 'widget.readinglist.readpage2', { aopts => "href='${remote.journal_base}/read'" } ) %]
 </p>
 
-<p>[% dw.ml('widget.readinglist.breakdown.header') %]</p>
-
+[% dw.ml('widget.readinglist.breakdown.header') %]
 <ul>
     <li>[% dw.ml( 'widget.readinglist.breakdown.personal', { num => count.personal } ) %]</li>
     <li>[% dw.ml( 'widget.readinglist.breakdown.communities', { num => count.community } ) %]</li>
     <li>[% dw.ml( 'widget.readinglist.breakdown.feeds', { num => count.syndicated } ) %]</li>
 </ul>
-<br />
-
 [% IF filters.size > 0 %]
     [% dw.ml('widget.readinglist.filters.title') %]
     <ul>
