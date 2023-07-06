@@ -405,33 +405,64 @@ body<=
 
             $ret .= "<tr><td colspan=3><table summary=''>";
             my $oddeven = 0;
+            my $ct = 1;
 
             my $service_info = sub {
                 my ($site) = @_;
-                $site->{title} = sprintf "%s Username", LJ::Lang::ml( $site->{title_ml} );
+                $site->{title} = LJ::Lang::ml( $site->{title_ml} );
                 return $site;
             };
 
-            # ignore legacy userprops if %$profile_accts has been populated
+            my @services = map $service_info->($_), @{ DW::External::ProfileServices->list };
+            my @dropdown = ( '' => '' );
+            push @dropdown, ( $_->{name} => $_->{title} ) foreach @services;
 
-            foreach my $p ( map $service_info->($_), @{ DW::External::ProfileServices->list } )
-            {
-                my $val;
-                if (%$profile_accts) {
-                    my $accts = $profile_accts->{$p->{name}} // [];
-                    $val = $accts->[0];  # FIXME: support multiple accounts
-                } else {
-                    $val = $u->{$p->{userprop}};
-                }
-
+            my $service_td = sub {
+                my ( $p, $val ) = @_;
                 $oddeven = !$oddeven;
                 $ret .= "<tr class='field_block'>" if $oddeven;
                 $ret .= "<td class='field_name' width='20%'>$p->{title}</td><td width='30%'>";
-                $ret .= LJ::html_text( { name => $p->{userprop},
+                $ret .= LJ::html_hidden( "extservice_name_$ct", $p->{name} );
+                $ret .= LJ::html_text( { name => "extservice_val_" . $ct++,
                                          value => $val,
-                                         title => $p->{title},
+                                         title => $p->{title} . " Username",
                                          size => '20',
                                          maxlength => $p->{maxlen} } );
+                $ret .= "</td>\n";
+                $ret .= "</tr>" unless $oddeven;
+            };
+
+            # ignore legacy userprops if %$profile_accts has been populated
+            if (%$profile_accts) {
+                my %services = map { $_->{name} => $_ } @services;
+                foreach my $name ( sort keys %$profile_accts ) {
+                    my $p = $services{$name};
+                    foreach my $val ( @{ $profile_accts->{$name} } ) {
+                        $service_td->( $p, $val ) ;
+                    }
+                }
+            } else {
+                foreach my $p ( @services )
+                {
+                    next unless $p->{userprop};
+                    my $val = $u->{$p->{userprop}};
+                    next unless $val;
+                    $service_td->( $p, $val ) ;
+                }
+            }
+
+            foreach my $n ( $ct .. 26 )  # same number of fields as static form
+            {
+                $oddeven = !$oddeven;
+                $ret .= "<tr class='field_block'>" if $oddeven;
+                $ret .= "<td class='field_name' width='20%'>";
+                $ret .= LJ::html_select( { name => "extservice_name_$n" }, @dropdown );
+                $ret .= "</td><td width='30%'>";
+                $ret .= LJ::html_text( { name => "extservice_val_$n",
+                                         value => '',
+                                         title => "Username \#$n",
+                                         size => '20',
+                                         maxlength => 255 } );
                 $ret .= "</td>\n";
                 $ret .= "</tr>" unless $oddeven;
             }
@@ -691,11 +722,17 @@ body<=
             $u->set_prop( \%prop, undef, { skip_db => 1 } );
 
             # update external services
+            my %services = map { $_->{name} => $_ } @{ DW::External::ProfileServices->list };
             my %new_accts;
 
-            foreach my $site (@{ DW::External::ProfileServices->list }) {
-                my $name = $site->{name};
-                $new_accts{$name} = [$POST{ $site->{userprop} }];
+            foreach my $ct (1..26) {
+                my $name = $POST{"extservice_name_$ct"};
+                next unless $name;
+                my $val = $POST{"extservice_val_$ct"} // '';
+                # this isn't great but it's better than not enforcing maxlen at all
+                $val = substr $val, 0, $services{$name}->{maxlen};
+                $new_accts{$name} //= [];
+                push @{ $new_accts{$name} }, $val;
             }
 
             $u->save_profile_accts( \%new_accts );
