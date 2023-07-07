@@ -9,15 +9,15 @@
     <li>[% dw.ml( 'widget.readinglist.breakdown.communities', { num => count.community } ) %]</li>
     <li>[% dw.ml( 'widget.readinglist.breakdown.feeds', { num => count.syndicated } ) %]</li>
 </ul>
-[% IF filters.size > 0 %]
+[%- IF filters.size > 0 -%]
     [% dw.ml('widget.readinglist.filters.title') %]
     <ul>
-    [% FOREACH filter IN filters %]
+    [%- FOREACH filter IN filters -%]
         <li><a href='[% remote.journal_base %]/read/[% filter.name | url %]'>
             [% filter.name | html %]
         </a></li>
-    [% END %]
+    [%- END -%]
     </ul>
-[% ELSE %]
+[%- ELSE -%]
     [% dw.ml( 'widget.readinglist.filters.nofilters', { aopts => "href='${site.root}/manage/subscriptions/filters'" } ) %]
-[% END %]
+[%- END -%]

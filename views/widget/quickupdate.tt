@@ -21,7 +21,6 @@
 
         [%- form.textbox( label = dw.ml("widget.quickupdate.subject")
                 name = "subject"
-
                 maxlength = limits.subject_length
                 size = "50"
         ) -%]
@@ -98,7 +97,6 @@
                 </div>
             </div>
         </div>
-
         </form>
     </div>
 </div>

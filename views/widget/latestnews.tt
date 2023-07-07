@@ -6,7 +6,7 @@
         [% dw.ml( 'widget.latestnews.comments', { num_comments => entry.reply_count } ) %]
     </a></p>
 
-    [% IF remote.watches(news_journal) %]
+    [%- IF remote.watches(news_journal) -%]
         <p>
             [% dw.ml(
             'widget.latestnews.subscribe.modify',
@@ -16,7 +16,7 @@
             }
             ) %]
         </p>
-    [% ELSE %]
+    [%- ELSE -%]
         <p>
             [% dw.ml(
             'widget.latestnews.subscribe.add2',
@@ -26,19 +26,18 @@
             }
             ) %]
         </p>
-    [% END %]
+    [%- END -%]
 </div>
 
 <div class='contents columns medium-9'>
     <p><a href='[% entry.url %]'>[% entry.subject_html %]</a></p>
     
-    [% IF entry.event_raw.match('<(?:lj-)?cut') %]
+    [%- IF entry.event_raw.match('<(?:lj-)?cut') -%]
         [%# if we have a cut, then use it %]
         [% entry.event_html( { cuturl => entry.url } ) %]
-    [% ELSE %]
+    [%- ELSE -%]
         [%# if we don't have a cut, we want to output in summary mode %]
         [% entry->event_summary %]
-    [% END %]
-
+    [%- END -%]
 </div>
 </div>
