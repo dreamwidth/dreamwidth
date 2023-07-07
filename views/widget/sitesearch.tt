@@ -11,6 +11,4 @@
             [% form.submit( value='Search', class="postfix button") %]
         </div>
       </div>
-
-    
 </form>

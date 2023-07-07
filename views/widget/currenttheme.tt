@@ -8,16 +8,16 @@
 <div class="columns medium-6">
     <h3 class="smaller">[% theme.name %]</h3>
 
-    [% layout_link = "<a href='${site.root}/customize/$getextra${getsep}layoutid=${theme.layoutid}$showarg' class='theme-current-layout'><em>$layout_name</em></a>" %]
-    [% special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'" %]
+    [%- layout_link = "<a href='${site.root}/customize/$getextra${getsep}layoutid=${theme.layoutid}$showarg' class='theme-current-layout'><em>$layout_name</em></a>" -%]
+    [%- special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'" -%]
     <p class='theme-current-desc'>
-    [% IF designer %]
-        [% designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=${dw.url(designer)$showarg' class='theme-current-designer'>$designer</a>" %]
+    [%- IF designer -%]
+        [%- designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=${dw.url(designer)$showarg' class='theme-current-designer'>$designer</a>" -%]
         [% dw.ml( 'widget.currenttheme.designer', { 'designer' => designer_link } ) %]
         [% dw.ml( 'widget.currenttheme.desc2', { 'style' => layout_link } ) %]
-    [% ELSIF layout_name %]
+    [%- ELSIF layout_name -%]
         [% dw.ml( 'widget.currenttheme.desc2', { 'style' => layout_link } ) %]
-    [% END %]
+    [%- END -%]
     </p>
 
 <div class='theme-current-links inset-box'>
@@ -27,37 +27,37 @@
         <li><a href='[% site.root %]/customize/[% getextra %]'>
             [% dw.ml('widget.currenttheme.options.newtheme') %]
         </a></li>
-   [% ELSE %]
+    [% ELSE %]
         <li><a href='[% site.root %]/customize/options[% getextra %]'>
             [% dw.ml('widget.currenttheme.options.change') %]
         </a></li>
-    [% END %]
+    [%- END -%]
 
     [% UNLESS no_layer_edit %]
         <li><a href='[% site.root %]/customize/advanced/'>
             [% dw.ml('widget.currenttheme.options.advancedcust') %]
         </a></li>
-        [% IF theme.layoutid && !theme.layout_uniq %]
+        [% IF theme.layoutid && !theme.layout_uniq -%]
             <li><a href='[% site.root %]/customize/advanced/layeredit?id=[% theme.layoutid %]'>
                 [% dw.ml('widget.currenttheme.options.editlayoutlayer') %]
             </a></li>
-        [% END %]
-        [% IF theme.themeid && !theme.uniq %]
+        [%- END -%]
+        [%- IF theme.themeid && !theme.uniq -%]
             <li><a href='[% site.root %]/customize/advanced/layeredit?id=[% theme.themid %]'>
                 [% dw.ml('widget.currenttheme.options.editthemelayer') %]
             </a></li>
-        [% END %]
-    [% END %]
+        [%- END -%]
+    [%- END -%]
 
-    [% IF no_theme_chooser %]
+    [%- IF no_theme_chooser -%]
         <li><a href='[% site.root %]/customize/options[% getextra %]#layout'>
             [% dw.ml('widget.currenttheme.options.layout') %]
         </a></li>
-   [% ELSE %]
+   [%- ELSE -%]
         <li><a href='[% site.root %]/customize/[% getextra %]#layout'>
             [% dw.ml('widget.currenttheme.options.layout') %]
         </a></li>
-    [% END %]
+    [%- END -%]
 
     </ul>
     </div><!-- end .theme-current-links -->
