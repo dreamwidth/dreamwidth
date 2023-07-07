@@ -1028,11 +1028,6 @@ sub trans {
         return redir( $apache_r, $new, HTTP_MOVED_PERMANENTLY );
     }
 
-    # confirm
-    if ( $uri =~ m!^/confirm/(\w+\.\w+)! ) {
-        return redir( $apache_r, "$LJ::SITEROOT/register.bml?$1" );
-    }
-
     return FORBIDDEN if $uri =~ m!^/userpics!;
 
     return DECLINED;

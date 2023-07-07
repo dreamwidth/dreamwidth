@@ -3,15 +3,7 @@
 
 .ask.button=Send Validation Email
 
-.ask.select=Select account
-
-.ask.switch=Switch
-
-.asterisk.comment=(Accounts marked with an * haven't been confirmed yet)
-
-.asterisk.name=* [[journal]]
-
-.email.body2<<
+.email.body<<
 You have changed the address for your [[sitename]] account "[[username]]" to this address: [[email]].
 
 To finish confirming your email address, please visit this URL:
@@ -29,7 +21,7 @@ Sincerely,
 [[siteroot]]/
 .
 
-.email.subject2=Confirm Email - [[sitename]]
+.email.subject=Confirm Email - [[sitename]]
 
 .error.emailchanged=This verification link is out of date.  Please <a [[aopts]]>request a new verification email</a>.
 
@@ -67,17 +59,13 @@ Sincerely,
 
 .new.101.title=[[sitename]] 101
 
-.new.bodyuser2=Thanks!  The email address [[address]] for [[user]] has now been verified.  Now that you're registered, what to do first?
+.new.bodyuser=Thanks!  The email address [[address]] for [[user]] has now been verified.  Now that you're registered, what to do first?
 
 .new.title=Welcome to [[sitename]]
 
-.sent.body=A validation email has been sent to <b>[[email]]</b>. In order to complete validation, you need to click the link in that email.
+.success.sent=A validation email has been sent to <b>[[email]]</b>. In order to complete validation, you need to click the link in that email.
 
-.sent.header=Success
+.success.trans=Your new email address has been validated.
 
 .title=Validate Email
-
-.trans.body=Your new email address has been validated.
-
-.trans.header=Success
 
