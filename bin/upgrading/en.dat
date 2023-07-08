@@ -2087,13 +2087,13 @@ menunav.explore.sitesearch=Site and Journal Search
 
 menunav.organize=Organize
 
+menunav.organize.acctsettings=Account Settings
+
 menunav.organize.beta=Test Beta Features
 
-menunav.organize.customizestyle=Customize Style
+menunav.organize.customizejournalstyle=Customize Journal Style
 
 menunav.organize.importcontent=Import Content
-
-menunav.organize.manageaccount=Manage Account
 
 menunav.organize.managecommunities=Manage Communities
 
@@ -2105,7 +2105,7 @@ menunav.organize.managerelationships=Manage Circle
 
 menunav.organize.managetags=Manage Tags
 
-menunav.organize.selectstyle=Select Style
+menunav.organize.selectjournalstyle=Select Journal Style
 
 menunav.read=Read
 
