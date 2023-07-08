@@ -56,10 +56,11 @@ sub work {
     # more than 10 seconds
     if ( ( $email_counter++ % 30 == 0 ) || ( time() - $last_email > 10 ) || !defined $smtp ) {
         $smtp = Net::SMTPS->new(
-            $LJ::EMAIL_VIA_SES{hostname},
-            doSSL   => 'starttls',
-            Port    => 587,
-            Timeout => 60,
+            Host         => $LJ::EMAIL_VIA_SES{hostname},
+            SSL_hostname => $LJ::EMAIL_VIA_SES{hostname},
+            Port         => 587,
+            doSSL        => 'starttls',
+            Timeout      => 60,
         );
         return $failed->(
             "Temporary failure connecting to $LJ::EMAIL_VIA_SES{hostname}, will retry.")
