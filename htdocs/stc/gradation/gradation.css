@@ -251,7 +251,8 @@ nav .subnav a {font-weight: normal;
     position: absolute;
     top: 2.5em;
     left: 0;
-    width: 14em;
+    width: inherit;
+    white-space: nowrap;
     background-color: #333;
 }
 #canvas.horizontal-nav nav ul li ul li {
