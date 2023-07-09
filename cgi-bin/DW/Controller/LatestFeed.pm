@@ -98,7 +98,7 @@ sub generate_vars {
     my ( $type, $max, $fmt, $feed, $tag ) =
         ( $get->{type}, $get->{max}, $get->{fmt}, $get->{feed}, $get->{tag} );
 
-    my $tagname = $tag;
+    my $tagname = LJ::get_interest($tag);    # this function needs a better name
     my $now     = time();
 
     # if they want a format we don't support ... FIXME: implement all formats
