@@ -437,15 +437,16 @@ body<=
     my $ret = "<div id='settings_page'>";
 
     my ($getextra, $getsep) = ("", "?");
-    $title = $windowtitle = $ML{'.title.self'};
     if ( $u && $u->user ne $remote->user ) {
         $getextra = "?authas=$authas";
         $getsep = "&";
-        $title = BML::ml('.title.comm', { user => $u->ljuser_display });
-        $windowtitle = BML::ml('.title.comm', { user => $u->display_username });
     }
 
+    $title = $windowtitle = LJ::Lang::ml('.title.anon');
     if ($u) {
+        $title = LJ::Lang::ml('.title.page', { user => $u->ljuser_display({ head_size => "24x24" }) });
+        $windowtitle = LJ::Lang::ml('.title.page', { user => $u->display_username });
+
         $ret .= "<div id='authas_select'>";
         $ret .= "<form action='$LJ::SITEROOT/manage/settings/' method='get'>";
         $ret .= LJ::make_authas_select( $remote, { authas => $GET{authas}, showall => ( $given_cat eq "account" ) } );

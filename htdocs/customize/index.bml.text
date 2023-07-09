@@ -1,9 +1,11 @@
 ;; -*- coding: utf-8 -*-
 .btn.nextpage=Customize Selected Theme ->
 
-.setsiteskin.desc=This will set the look and style of your journal. If you'd like to change the way the main site pages look instead, you can do this at the "Site Skin" option on the <a [[aopts]]>Manage Settings</a> page.
+.setstyle.comm=This will set the look and style of your community.
 
-.setsiteskin.desc.comm=This will set the look and style of your community. If you'd like to change the way the main site pages look instead, you can do this at the "Site Skin" option on the <a [[aopts]]>Manage Settings</a> page.
+.setstyle.user=This will set the look and style of your journal.
+
+.setsiteskin=If you would like to change the way the main site pages look instead, you can do this at the "Site Skin" option on the <a [[aopts]]>Account Settings</a> page.
 
 .title=Choose Journal Style
 
