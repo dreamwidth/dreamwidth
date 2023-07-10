@@ -3895,43 +3895,31 @@ sub subscribe_interface {
         my $unavailable_subs = 0;
         my $sub_count        = 0;
         foreach my $pending_sub (@pending_subscriptions) {
-            my $upgrade_notice = ( !$u->is_paid && $pending_sub->disabled($u) ) ? " &dagger;" : "";
-            my $sub_data       = { upgrade_notice => $upgrade_notice };
+            my $sub_data = $u->pending_sub_data($pending_sub);
+            next unless $sub_data;
 
-            if ( !ref $pending_sub ) {
-                next if $u->is_identity && $pending_sub->disabled($u);
+            $sub_data->{altrow_class}   = $sub_count % 2 == 1   ? "odd"      : "even";
+            $sub_data->{inactive_class} = $sub_data->{inactive} ? "inactive" : "";
+            $sub_data->{disabled_class} = $sub_data->{disabled} ? "disabled" : "";
 
-                $sub_data->{special_sub} = 1;
+            $sub_data->{hidden_style} = $sub_data->{hidden} ? " style='visibility: hidden;'" : "";
 
-                $sub_data->{disabled_class} = $pending_sub->disabled($u) ? "inactive" : "";
-                $sub_data->{altrow_class}   = $sub_count % 2 == 1        ? "odd"      : "even";
-
-                $sub_data->{hidden_style} =
-                    $pending_sub->selected($u) ? "" : " style='visibility: hidden;'";
+            if ( $sub_data->{special_sub} ) {
+                $special_subs++;
 
                 push @{ $cat_data->{pending_subs} }, $sub_data;
-
-                $special_subs++;
                 $sub_count++;
                 next;
             }
 
-            next if $u->is_identity && !$pending_sub->enabled;
-
-            # print option to subscribe to this event, checked if already subscribed
-            $sub_data->{input_name} = $pending_sub->freeze or next;
-            my $title      = $pending_sub->as_html or next;
-            my $subscribed = !$pending_sub->pending;
-
-            unless ( $pending_sub->enabled ) {
-                $title .= $upgrade_notice;
-                $unavailable_subs++;
-            }
-            $sub_data->{title}      = $title;
-            $sub_data->{subscribed} = $subscribed;
+            $unavailable_subs++ if $sub_data->{disabled};
 
             my $evt_class = $pending_sub->event_class or next;
             next if !$evt_class->is_visible && $showtracking;
+
+            # override disabled below if always_checked (can't uncheck)
+            my $always_checked = eval { "$evt_class"->always_checked; };
+            $sub_data->{disabled} = 1 if $always_checked;
 
             if ($is_tracking_category) {
                 my $no_show = 0;
@@ -3961,12 +3949,7 @@ sub subscribe_interface {
                     && $pending_sub->journalid != $u->{userid};
             }
 
-            my $selected      = $pending_sub->default_selected;
-            my $inactiveclass = $pending_sub->active ? '' : 'inactive';
-            my $disabledclass = $pending_sub->enabled ? '' : 'disabled';
-            my $altrowclass   = $sub_count % 2 == 1 ? "odd" : "even";
-
-            $sub_data->{sub_class} = join ' ', ( $inactiveclass, $disabledclass, $altrowclass );
+            $cat_empty = 0;    # no more nexts
 
             # it could be cleaner to do this by splicing pending_subs
             # but then you wouldn't be able to count how many active subs there are
@@ -3980,7 +3963,7 @@ sub subscribe_interface {
             }
             $sub_data->{do_show} = $do_show;
 
-            if ( $do_show && $is_tracking_category && !$pending_sub->pending ) {
+            if ( $do_show && $is_tracking_category && $sub_data->{subscribed} ) {
                 my $subid = $pending_sub->id;
 
                 $sub_data->{subid}      = $subid;
@@ -3991,25 +3974,12 @@ sub subscribe_interface {
                     action => 'delsub'
                 );
             }
-            my $always_checked = eval { "$evt_class"->always_checked; };
-            my $disabled       = $always_checked ? 1 : !$pending_sub->enabled;
 
-            $sub_data->{disabled} = $disabled;
-            $sub_data->{selected} = $selected;
-
-            if ( !$disabled && ( $is_tracking_category || $selected ) ) {
+            if ( !$sub_data->{disabled} && ( $is_tracking_category || $sub_data->{selected} ) ) {
                 $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{total}++;
-                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{active}++ if $selected;
+                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{active}++
+                    if $sub_data->{selected};
             }
-
-            $cat_empty = 0;
-
-            # print out notification options for this subscription (hidden if not subscribed)
-            my $hidden =
-                ( $pending_sub->default_selected || ( $subscribed && $pending_sub->active ) )
-                ? ''
-                : 'style="visibility: hidden;"';
-            $sub_data->{hidden_style} = $hidden;
 
             # is there an inbox notification for this?
             my %sub_args = $pending_sub->sub_info;
@@ -4036,29 +4006,34 @@ sub subscribe_interface {
                 }
 
                 # select email method by default
-                my $note_selected = !$selected && $note_class eq 'LJ::NotificationMethod::Email';
+                my $note_selected =
+                    !$sub_data->{selected} && $note_class eq 'LJ::NotificationMethod::Email';
                 $note_selected = 1 if @subs;
 
                 # check the box if it's marked as being selected by default UNLESS
                 # there exists an inbox subscription and no email subscription
-                $note_selected = 1 if ( !$inbox_sub || scalar @subs ) && $selected;
-                $note_selected &&= grep { $note_class eq $_ } @$def_notes;
+                my $in_def_notes = grep { $note_class eq $_ } @$def_notes ? 1 : 0;
+                $note_selected = 1
+                    if ( !$inbox_sub || @subs ) && $sub_data->{selected} && $in_def_notes;
                 $note_selected &&= $note_pending->active && $note_pending->enabled;
 
-                my $disabled = !$pending_sub->enabled;
-                $disabled = 1 unless $note_class->configured_for_user($u);
+                my $note_disabled = !$pending_sub->enabled;
+                $note_disabled = 1 unless $note_class->configured_for_user($u);
 
                 push @{ $sub_data->{notif_options} },
                     {
                     notify_input_name => $note_pending->freeze,
                     note_selected     => $note_selected,
                     note_pending      => $note_pending->pending,
-                    disabled          => $disabled,
+                    disabled          => $note_disabled,
                     ntypeid           => $ntypeid,
                     has_subs          => ( scalar @subs ) ? 1 : 0,
                     };
 
-                if ( !$disabled && !$hidden && ( $is_tracking_category || $note_selected ) ) {
+                if (   !$note_disabled
+                    && !$sub_data->{hidden}
+                    && ( $is_tracking_category || $note_selected ) )
+                {
                     $num_subs_by_type{$note_class}->{total}++;
                     $num_subs_by_type{$note_class}->{active}++ if $note_selected;
                 }

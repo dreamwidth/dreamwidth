@@ -53,8 +53,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
       </tr>
 
   [% FOREACH sub IN cat.pending_subs %]
+    [%- sub_classes = [ sub.inactive_class, sub.disabled_class, sub.altrow_class ] -%]
+      <tr class='[% sub_classes.join(" ") %]'>
+
     [% IF sub.special_sub %]
-      <tr class='[% sub.disabled_class _ ' ' _ sub.altrow_class %]'>
         <td>*[% sub.upgrade_notice %]</td>
         <td>&nbsp;</td>
       [% FOREACH class IN notify_classes %]
@@ -66,7 +68,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
       [% END %]
 
     [% ELSIF sub.do_show %]
-      <tr class='[% sub.sub_class %]'>
         <td>
       [% IF sub.subid %]
         [%- deletesub_url = settings_page

@@ -433,6 +433,43 @@ sub opt_usermsg {
     }
 }
 
+# extracted from LJ::subscribe_interface
+sub pending_sub_data {
+    my ( $u, $pending_sub ) = @_;
+    my %ret;
+
+    $ret{upgrade_notice} = ( !$u->is_paid && $pending_sub->disabled($u) ) ? " &dagger;" : "";
+
+    if ( !ref $pending_sub ) {
+        $ret{special_sub} = 1;
+
+        return if $u->is_identity && $pending_sub->disabled($u);
+
+        $ret{inactive} = $pending_sub->disabled($u);
+        $ret{hidden}   = !$pending_sub->selected($u);
+
+        return \%ret;
+    }
+
+    return if $u->is_identity && !$pending_sub->enabled;
+    return unless $ret{input_name} = $pending_sub->freeze;
+
+    my $title = $pending_sub->as_html;
+    return unless $title;
+    $title .= $ret{upgrade_notice} unless $pending_sub->enabled;
+
+    $ret{title}      = $title;
+    $ret{subscribed} = !$pending_sub->pending;
+    $ret{disabled}   = !$pending_sub->enabled;
+    $ret{inactive}   = !$pending_sub->active;
+    $ret{selected}   = $pending_sub->default_selected;
+
+    # notification options for this subscription are hidden if not subscribed
+    $ret{hidden} = !$ret{selected} && ( !$ret{subscribed} || $ret{inactive} );
+
+    return \%ret;
+}
+
 # subscribe to an event
 sub subscribe {
     my ( $u, %opts ) = @_;
