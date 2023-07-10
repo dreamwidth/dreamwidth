@@ -3975,70 +3975,17 @@ sub subscribe_interface {
                 );
             }
 
-            if ( !$sub_data->{disabled} && ( $is_tracking_category || $sub_data->{selected} ) ) {
-                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{total}++;
-                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{active}++
-                    if $sub_data->{selected};
-            }
-
-            # is there an inbox notification for this?
-            my %sub_args = $pending_sub->sub_info;
-            $sub_args{ntypeid} = LJ::NotificationMethod::Inbox->ntypeid;
-            delete $sub_args{flags};
-            my ($inbox_sub) = $u->find_subscriptions(%sub_args);
-
-            $sub_data->{notif_options} = [];
-
-            foreach my $note_class (@notify_classes) {
-                my $ntypeid = eval { $note_class->ntypeid } or next;
-                $sub_args{ntypeid} = $ntypeid;
-
-                my $note_pending = LJ::Subscription::Pending->new( $u, %sub_args );
-
-                my @subs = $u->has_subscription(%sub_args);
-                $note_pending = $subs[0] if @subs;
-
-                if ( ( $is_tracking_category || $pending_sub->is_tracking_category )
-                    && $note_pending->pending )
-                {
-                    # flag this as a "tracking" subscription
-                    $note_pending->set_tracking;
-                }
-
-                # select email method by default
-                my $note_selected =
-                    !$sub_data->{selected} && $note_class eq 'LJ::NotificationMethod::Email';
-                $note_selected = 1 if @subs;
-
-                # check the box if it's marked as being selected by default UNLESS
-                # there exists an inbox subscription and no email subscription
-                my $in_def_notes = grep { $note_class eq $_ } @$def_notes ? 1 : 0;
-                $note_selected = 1
-                    if ( !$inbox_sub || @subs ) && $sub_data->{selected} && $in_def_notes;
-                $note_selected &&= $note_pending->active && $note_pending->enabled;
-
-                my $note_disabled = !$pending_sub->enabled;
-                $note_disabled = 1 unless $note_class->configured_for_user($u);
-
-                push @{ $sub_data->{notif_options} },
-                    {
-                    notify_input_name => $note_pending->freeze,
-                    note_selected     => $note_selected,
-                    note_pending      => $note_pending->pending,
-                    disabled          => $note_disabled,
-                    ntypeid           => $ntypeid,
-                    has_subs          => ( scalar @subs ) ? 1 : 0,
-                    };
-
-                if (   !$note_disabled
-                    && !$sub_data->{hidden}
-                    && ( $is_tracking_category || $note_selected ) )
-                {
-                    $num_subs_by_type{$note_class}->{total}++;
-                    $num_subs_by_type{$note_class}->{active}++ if $note_selected;
-                }
-
-            }
+            # this hook also populates %num_subs_by_type
+            $sub_data->{notif_options} = LJ::Hooks::run_hook(
+                'subscription_notif_options',
+                u                    => $u,
+                sub_data             => $sub_data,
+                pending_sub          => $pending_sub,
+                def_notes            => $def_notes,
+                is_tracking_category => $is_tracking_category,
+                num_subs_by_type     => \%num_subs_by_type,
+                notify_classes       => \@notify_classes,
+            );
 
             push @{ $cat_data->{pending_subs} }, $sub_data;
             $sub_count++;
