@@ -1,0 +1,173 @@
+[%# HTML fragment for the notification subscription interface
+  # converted from LJ::subscribe_interface in LJ/Web.pm
+
+Authors:
+    Jen Griffin <kareila@livejournal.com>
+
+Copyright (c) 2023 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+
+[% dw.need_res( 'stc/esn.css', 'js/6alib/core.js', 'js/6alib/dom.js',
+                'js/6alib/checkallbutton.js', 'js/esn.js' ) %]
+
+<div id='manageSettings'>
+
+[%- # the settings page already has form tags, so don't print <form> in that context
+    form_action = settings_page ? '' : "/manage/tracking/$getextra";
+    IF post_to_settings_page; form_action = "/manage/settings/?cat=notifications"; END
+-%]
+
+[% IF form_action %]
+  <form method='POST' action='[% site.root _ form_action %]'>[% formauth %]
+[% END %]
+
+[% form.hidden( name = 'ntypeids', id = 'ntypeids', value = ntypeids ) %]
+[% form.hidden( name = 'catids',   id = 'catids',   value = catids ) %]
+
+[%- ui_notify = "subscribe_interface.notify_me2" | ml( sitenameabbrev = site.nameabbrev ) -%]
+[%- table_style = settings_page ? 'style="clear: none;"' : '' -%]
+
+  <table class="Subscribe select-all" [% table_style %] cellpadding="0" cellspacing="0">
+
+[% FOREACH cat IN catdata %]
+    <div class="CategoryRow-[% cat.catid %]">
+    [%- first_class = cat.catid == 0 ? " CategoryRowFirst" : "" -%]
+    [%- cat_title = "subscribe_interface.category.${cat.title_key}" | ml -%]
+      <tr class="CategoryRow[% first_class %]" id="category-[% cat.title_key %]">
+        <td>
+          <span class="CategoryHeading">[% cat_title %]</span><br />
+          <span class="CategoryHeadingNote">[% ui_notify %]</span>
+        </td>
+        <td class="Caption">[% 'subscribe_interface.by2' | ml %]</td>
+  [% FOREACH cat.notify_headers %]
+        <td style='vertical-align: bottom;'>
+    [% form.checkbox( 'label' => title, 'class' => "CheckAll", 'disabled' => disabled,
+                      'id' => "CheckAll-${cat.catid}-$ntypeid", 'noescape' => 1,
+                      'data-select-all' => "${cat.catid}-$ntypeid", 'selected' => 0 ) %]
+        </td>
+  [% END %]
+      </tr>
+
+  [% FOREACH sub IN cat.pending_subs %]
+    [% IF sub.special_sub %]
+      <tr class='[% sub.disabled_class _ ' ' _ sub.altrow_class %]'>
+        <td>*[% sub.upgrade_notice %]</td>
+        <td>&nbsp;</td>
+      [% FOREACH class IN notify_classes %]
+        <td class='NotificationOptions'[% sub.hidden_style %]>
+        [% IF class != "LJ::NotificationMethod::Email" %]
+          [% form.checkbox( disabled = 1, selected = 0 ) %]
+        [% END %]
+        </td>
+      [% END %]
+
+    [% ELSIF sub.do_show %]
+      <tr class='[% sub.sub_class %]'>
+        <td>
+      [% IF sub.subid %]
+        [%- deletesub_url = settings_page
+                          ? "${site.root}/manage/settings/?cat=notifications&"
+                          : "?";
+            deletesub_url = deletesub_url _ "deletesub_${sub.subid}=1" -%]
+          <a href='[% deletesub_url %]' class='delete-button'
+             subid=[% sub.subid %] auth_token=[% sub.auth_token %]>[% sub.btn_trash %]</a>
+      [% END %]
+      [% form.checkbox( name = sub.input_name, id = sub.input_name, label = sub.title,
+                        selected = sub.selected, disabled = sub.disabled,
+                        class = "SubscriptionInboxCheck", noescape = 1 ) %]
+        </td>
+      [% IF sub.subscribed %]
+        [% form.hidden( name = "${sub.input_name}-old", value = 1 ) %]
+      [% END %]
+
+        <td>&nbsp;</td>
+
+      [% FOREACH opt IN sub.notif_options %]
+        <td class='NotificationOptions' [% sub.hidden_style %]>
+        [% form.checkbox( 'name' => opt.notify_input_name, 'id' => opt.notify_input_name,
+                          'selected' => opt.note_selected, 'disabled' => opt.disabled,
+                          'class' => "SubscribeCheckbox-${cat.catid}-${opt.ntypeid}",
+                          'data-selected-by' => "${cat.catid}-${opt.ntypeid}",
+                          'noescape' => 1 ) %]
+        </td>
+        [% UNLESS opt.note_pending %]
+          [% form.hidden( 'data-selected-by' => "${cat.catid}-${opt.ntypeid}",
+                          'name' => "${opt.notify_input_name}-old",
+                          'value' => opt.has_subs ) %]
+        [% END %]
+      [% END %]
+    [% END %]
+
+      </tr>
+  [% END %]
+
+  [%- cols = 2 + notify_classes.size -%]
+
+  [% IF cat.empty_blurb %]
+      <tr>
+        <td colspan='[% cols %]'>
+          <p>
+            <strong>[% 'subscribe_interface.nosubs.title2' | ml %]</strong><br />
+            [% 'subscribe_interface.nosubs.text' | ml( img = cat.track_img ) %]
+          </p>
+        </td>
+      </tr>
+  [% END %]
+
+  [% IF cat.special_subs %]
+      <tr>
+        <td colspan='[% cols %]' style='font-size: smaller;'>
+          * [% 'subscribe_interface.special_subs.note' | ml( sitenameabbrev = site.nameabbrev ) %]
+        </td>
+      </tr>
+  [% END %]
+
+  [% IF cat.show_upgrade_note %]
+      <tr>
+        <td colspan='[% cols %]' style='font-size: smaller;'>
+          &dagger; [% 'subscribe_interface.unavailable_subs.note' | ml %]
+        </td>
+      </tr>
+  [% END %]
+
+    </div>
+[% END %]
+  </table>
+
+[% IF settings_page %]
+  [% pagination %]
+  <div class='subscription_stats'>
+    [% 'subscribe_interface.subs.total2' | ml( subscription_stats ) %]
+  </div>
+[% END %]
+
+[% form.hidden( name = 'mode',                  value = 'save_subscriptions' )  %]
+[% form.hidden( name = 'ret_url',               value = ret_url )               %]
+[% form.hidden( name = 'post_to_settings_page', value = post_to_settings_page ) %]
+
+[% UNLESS settings_page %]
+  <div class="action-box">
+    <ul class="inner nostyle">
+      <li>
+        [% form.submit( value = dw.ml( 'subscribe_interface.save') ) %]
+      </li>
+  [% IF do_refer %]
+      <li>
+        <input type='button' value='[% "subscribe_interface.cancel" | ml %]'
+               onclick='window.location="[% referer %]"' />
+      </li>
+  [% END %]
+    </ul>
+  </div>
+  <div class='clear-floats'></div>
+[% END %]
+
+[% IF form_action %]
+  </form>
+[% END %]
+
+</div>

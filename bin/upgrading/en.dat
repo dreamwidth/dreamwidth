@@ -4011,12 +4011,6 @@ subscribe_interface.category.track-journal=Track Entries to this Journal
 
 subscribe_interface.category.track-user=Track This User
 
-subscribe_interface.inbox=Inbox
-
-subscribe_interface.manage=Manage settings
-
-subscribe_interface.manage_settings=Manage Settings
-
 subscribe_interface.nosubs.text=Track entries, comments, and account updates by clicking the [[img]] icon or the "Track This" link that appears on entries, comments, and the Profile page.
 
 subscribe_interface.nosubs.title2=You aren't tracking any items
