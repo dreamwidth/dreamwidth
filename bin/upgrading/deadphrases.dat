@@ -829,6 +829,10 @@ general /site/index.bml.maplinks.upload-images
 general /site/index.bml.maplinks
 general /site/index.bml.title
 
+general /site/index.tt.maplinks.customizestyle
+general /site/index.tt.maplinks.manage-settings
+general /site/index.tt.maplinks.selectstyle
+
 general /site/opensource.bml.development.directions3
 
 general /support/faqbrowse.bml.backfaq
@@ -1379,8 +1383,6 @@ general /community/members.bml.settings
 general /community/members.bml.success.return
 general /community/settings.bml.members
 general /editinfo.bml.allowshowcontact.email.withdomainaddr
-
-general /customize/index.bml.s2.advanced.permitted
 general /editinfo.bml.login.enterinfo
 general /editinfo.bml.login.forgot.header
 general /editinfo.bml.login.forgot.recover
@@ -1418,6 +1420,9 @@ general /userinfo.bml.userinfo.body
 general lostinfo.text
 
 general /customize/index.bml.s2.advanced.denied
+general /customize/index.bml.s2.advanced.permitted
+general /customize/index.bml.setsiteskin.desc
+general /customize/index.bml.setsiteskin.desc.comm
 
 general /stats.bml.age.desc
 general /stats.bml.age.header
@@ -2086,6 +2091,8 @@ general /manage/settings/index.bml.navstrip.options.show
 general /manage/settings/index.bml.public.helper
 general /manage/settings/index.bml.stylealwaysmine
 general /manage/settings/index.bml.stylealwaysmine.text
+general /manage/settings/index.bml.title.comm
+general /manage/settings/index.bml.title.self
 general /manage/settings/index.bml.verticalincl
 general /manage/settings/index.bml.verticalincl.text
 general /manage/settings/index.bml.weblogscom
@@ -2409,6 +2416,9 @@ general inbox.menu.friend_updates
 general inbox.menu.new_friends
 general label.security.friends
 general menunav.explore.journalsearch
+general menunav.organize.customizestyle
+general menunav.organize.manageaccount
+general menunav.organize.selectstyle
 general menunav.read.inbox.unread
 general notification_method.im.title
 general notification_method.sms.title
