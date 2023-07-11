@@ -265,3 +265,21 @@ ul.pagination li a:visited {
 .read {
     color: $text-color-disabled;
 }
+
+// Colors for checkbox-multiselect
+
+.checkbox-multiselect {
+
+    //  TODO: Seperate because as of July 2023, combining it
+    // with the clause below causes the whole thing to not work.
+    .checkbox-multiselect-item:has(:checked) {
+        background-color: $highlight-color;
+        color: $highlight-text-color;
+     }
+
+     :checked + label, input:checked~label::before {
+        background-color: $highlight-color;
+        color: $highlight-text-color;
+     }
+
+}

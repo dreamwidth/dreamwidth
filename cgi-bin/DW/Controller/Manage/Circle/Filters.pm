@@ -21,114 +21,140 @@ use strict;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use DW::FormErrors;
 
 DW::Routing->register_string( "/manage/circle/editfilters", \&filter_handler, app => 1 );
 
 sub filter_handler {
-    my ( $ok, $rv ) = controller( authas => 1 );
+    my ( $ok, $rv ) = controller();
     return $rv unless $ok;
     my $r = DW::Request->get;
 
     my $u    = $rv->{remote};
     my $POST = $r->post_args;
-
-    # these are only used by the client-side for JS to play with.
-    # we delete them because they may contain embedded NULLs, which
-    # text_in won't like.
-    delete $POST->{'list_in'};
-    delete $POST->{'list_out'};
-
-    unless ( LJ::text_in($POST) ) {
-
-        # $body = "<?badinput?>";
-        return;
-    }
+    my $GET  = $r->get_args;
+    my $vars;
+    my $members;
 
     my $trust_groups = $u->trust_groups;
 
-    if ( $POST->{mode} eq 'save' ) {
+    my $errors = DW::FormErrors->new;
+    if ( $r->did_post ) {
 
-        # check all creations/renames first
-        for ( my $i = 1 ; $i <= 60 ; $i++ ) {
-            my $name = $POST->{"efg_set_${i}_name"};
-            if (
-                $name
-                && ( ref $trust_groups->{$i} ne 'HASH'
-                    || $name ne $trust_groups->{$i}->{groupname} )
-                )
-            {
-                if ( $name =~ /,/ ) {
-                    return error_ml('.error.comma');
-                }
+        # no-JS group selector, just redirect.
+        if ( $POST->{select_group} ) {
+            my $current_group = $POST->{current_group};
+
+            unless ( exists $trust_groups->{$current_group} ) {
+                $r->add_msg( LJ::Lang::ml('/mange/circle/editfilters.tt.error.badgroup'),
+                    $r->WARNING );
+                $current_group = undef;
             }
+            my $url =
+                LJ::create_url( undef, keep_args => 1, args => { group_id => $current_group } );
+            return $r->redirect($url);
         }
 
-        # add/edit/delete groups
-        for ( my $i = 1 ; $i <= 60 ; $i++ ) {
-            if ( $POST->{"efg_delete_$i"} ) {
-                $u->delete_trust_group( id => $i );
+        # handle group delete
+        if ( $POST->{delete_group} ) {
+            my $i = $POST->{"delete_group"};
+            $u->delete_trust_group( id => $i );
+        }
+
+        # handle rename/new/sortorder
+        if ( $POST->{edit_group} ) {
+            my @group_ids = keys %$trust_groups;
+            for my $id (@group_ids) {
+                my $groupname = $POST->{"name_$id"};
+                my $sortorder = $POST->{"sortorder_$id"};
+
+                # if we haven't actually updated anything, move on.
+                next
+                    if $sortorder == $trust_groups->{$id}->{sortorder}
+                    && $groupname eq $trust_groups->{$id}->{groupname};
+
+                # Check for bad input
+                $errors->add( "name_$id",      ".error.comma" ) if $groupname =~ /,/;
+                $errors->add( "sortorder_$id", ".error.sortorder" )
+                    if $sortorder < 0 || $sortorder > 255;
+
+                unless ( $errors->exist ) {
+                    my $err = $u->edit_trust_group(
+                        id        => $id,
+                        groupname => $groupname,
+                        sortorder => $sortorder
+                    );
+                    r->add_msg( LJ::Lang::ml('/mange/circle/editfilters.tt.saved.text'),
+                        $r->SUCCESS );
+                }
             }
-            elsif ( $POST->{"efg_set_${i}_name"} ) {
-                my $create = ref $trust_groups->{$i} eq 'HASH' ? 0 : 1;
-                my $name   = $POST->{"efg_set_${i}_name"};
-                my $sort   = $POST->{"efg_set_${i}_sort"};
-                my $public = $POST->{"efg_set_${i}_public"} ? 1 : 0;
-                if ($create) {
+
+            my $groupcount = scalar(@group_ids);
+
+            # Handle new groups
+            my @new_keys = grep { $_ =~ /new_name_\d+/ } keys %$POST;
+            foreach my $new (@new_keys) {
+                $new =~ /new_name_(\d+)/;
+                my $groupname = $POST->{"new_name_$1"};
+                my $sortorder = $POST->{"new_sortorder_$1"} || 0;
+                $errors->add( "new_name_$1",      ".error.comma" ) if $groupname =~ /,/;
+                $errors->add( "new_sortorder_$1", ".error.sortorder" )
+                    if $sortorder < 0 || $sortorder > 255;
+                $errors->add( "new_name_$1", ".error.max60" ) if $groupcount > 60;
+
+                unless ( $errors->exist ) {
                     $u->create_trust_group(
-                        id        => $i,
-                        groupname => $name,
-                        sortorder => $sort,
-                        is_public => $public
+                        groupname => $groupname,
+                        sortorder => $sortorder
                     );
-                }
-                else {
-                    $u->edit_trust_group(
-                        id        => $i,
-                        groupname => $name,
-                        sortorder => $sort,
-                        is_public => $public
-                    );
+                    $groupcount += 1;
+                    r->add_msg( LJ::Lang::ml('/mange/circle/editfilters.tt.saved.text'),
+                        $r->SUCCESS );
                 }
             }
         }
 
-        # update users' trustmasks
-        foreach my $post_key ( keys %$POST ) {
-
-            # If someone tries to edit their trust list at the wrong time,
-            # they may get a page sent out with the old format (groupmask) and
-            # processed with the new (maskhi and masklo). So make sure not to
-            # give users the wrong trust masks, by accepting both. (Since no
-            # page will mix both, there's no need to check for contradicting
-            # data.)
-            next unless $post_key =~ /^editfriend_(groupmask|maskhi)_(\w+)$/;
-
-            my $trusted_u = LJ::load_user($2);
-
-            # User might have been removed from circle between load and
-            # submit; don't re-add.
-            next unless $trusted_u && $u->trusts($trusted_u);
-            my $groupmask;
-            if ( $1 eq 'groupmask' ) {
-                $groupmask = $POST->{$post_key};
-            }
-            else {
-                $groupmask = ( $POST->{$post_key} << 31 ) | $POST->{"editfriend_masklo_$2"};
-            }
-
-            $u->add_edge(
-                $trusted_u,
-                trust => {
-                    mask     => $groupmask,
-                    nonotify => 1,
-                }
-            );
+        # handle filter update
+        if ( $POST->{save_members} ) {
+            my $current_group = $POST->{current_group};
+            my @group_members = $POST->get_all('members');
+            handle_action( $u, $current_group, \@group_members );
+            r->add_msg( LJ::Lang::ml('/mange/circle/editfilters.tt.saved.text'), $r->SUCCESS );
         }
 
-#        $body .= "<?h1 $ML{'.saved.header'} h1?><?p $ML{'.saved.text'} p?>";
-#        $body .= "<ul><li><a href='$LJ::SITEROOT/update'>$ML{'.saved.action.post'}</li><li><a href='$LJ::SITEROOT/manage/subscriptions/filters'>$ML{'.saved.action.subscription'}</li></ul>";
+    }
 
-        return;
+    # Reload our trustgroups, because we may have edited them above.
+    $trust_groups = $u->trust_groups;
+
+    my @groups = ();
+    foreach my $group ( values %$trust_groups ) {
+        push( @groups, { value => $group->{groupnum}, text => $group->{groupname} } );
+    }
+
+    # this forms the dropdown select, sort it alphabetically
+    my @groupselect = sort { $a->{text} cmp $b->{text} } @groups;
+
+    # ...and add a placeholder entry at the top
+    unshift @groupselect, { text => "Select a group", value => "" };
+
+    # this is for the list of groups to edit and re-sort, sort it by sortorder then by name.
+    my @trust_groups =
+        sort { $a->{sortorder} cmp $b->{sortorder} || $a->{groupname} cmp $b->{groupname} }
+        values %$trust_groups;
+
+    # no-JS fallback for switching between groups.
+    if ( $GET->{group_id} ) {
+        my $id = $GET->{group_id};
+        if ( exists $trust_groups->{$id} ) {
+            my $group_members = $u->trust_group_members( id => $GET->{group_id} );
+            $members = LJ::load_userids( keys %$group_members );
+            $vars->{current_group} = $GET->{group_id};
+        }
+        else {
+            $r->add_msg( LJ::Lang::ml('/mange/circle/editfilters.tt.error.badgroup'), $r->WARNING );
+        }
+
     }
 
     my $trust_list = $u->trust_list;
@@ -142,27 +168,72 @@ sub filter_handler {
     {
         my $trusted_u = $trusted_us->{$uid};
 
-        my $user      = $trusted_u->user;
-        my $groupmask = $trust_list->{$uid}->{groupmask} || 1;
-
-        # Work around JS 64-bit lossitude
-        my $maskhi = ( $groupmask & ~( 7 << 61 ) ) >> 31;
-        my $masklo = $groupmask & ~( ~0 << 31 );
+        my $user     = $trusted_u->user;
+        my $in_group = exists $members->{$uid};
 
         push @trusted_us,
             (
             {
-                user   => $user,
-                masklo => $masklo,
-                maskhi => $maskhi,
-                is_id  => $trusted_u->is_identity,
-                dn     => $trusted_u->display_name
+                selected => $in_group,
+                value    => $user,
+                name     => $trusted_u->display_name
             }
             );
     }
+    $vars->{u}            = $u;
+    $vars->{trust_groups} = \@trust_groups;
+    $vars->{trusted_us}   = \@trusted_us;
+    $vars->{groupselect}  = \@groupselect;
+    $vars->{errors}       = $errors;
 
-    return DW::Template->render_template( 'manage/circle/editfilters.tt',
-        { u => $u, trust_groups => $trust_groups, trusted_us => \@trusted_us } );
+    return DW::Template->render_template( 'manage/circle/editfilters.tt', $vars );
+}
+
+sub handle_action {
+    my ( $u, $group_id, $userlist ) = @_;
+
+    my $group_members = $u->trust_group_members( id => $group_id );
+    my @accesslist;
+    my $members = LJ::load_userids( keys %$group_members );
+
+    foreach my $userid ( keys %$members ) {
+        my $name = $members->{$userid}->user;
+        push @accesslist, ($name);
+    }
+
+    my %old = map { $_ => 1 } @accesslist;
+    my @new;
+
+    foreach my $user (@$userlist) {
+        if ( $old{$user} ) {
+
+            # user is on both lists, no updates necessary
+            # delete from the old hash and move on.
+            delete $old{$user};
+        }
+        else {
+            # user is only on the new list, save for later processing
+            push @new, ($user);
+        }
+    }
+
+    # old hash only has items that were NOT on the new userlist - remove them
+    foreach my $user ( keys %old ) {
+        my $trusted_u = LJ::load_user($user);
+
+        # User might have been removed from circle between load and submit;
+        next unless $trusted_u && $u->trusts($trusted_u);
+        $u->edit_trustmask( $trusted_u, remove => [$group_id] );
+    }
+
+    # new list only has items that were NOT in the old hash - add them
+    foreach my $user (@new) {
+        my $trusted_u = LJ::load_user($user);
+
+        # User might have been removed from circle between load and submit;
+        next unless $trusted_u && $u->trusts($trusted_u);
+        $u->edit_trustmask( $trusted_u, add => [$group_id] );
+    }
 }
 
 1;

@@ -1,0 +1,38 @@
+[%# 
+    A psuedo-multiselect using a group of checkboxes. It is more accessible to screenreaders and easier
+    for most users to understand, compared to regular multiselects. It is based on Adrian Rosselli in
+    https://adrianroselli.com/2022/05/under-engineered-multi-selects.html which is licensed as CC BY-SA 4.0
+
+    Inputs:
+        - label: text label for input group
+        - id: container id + name field for the inputs
+        - items: list of hashrefs to turn into checkboxes.
+
+        Each item should have the following keys:
+        - name: visually displayed name
+        - value: input element value
+        - selected: whether the input should be selected (will default to false if this isn't set)
+#%]
+
+[% dw.need_res( { group => "foundation" },
+        "stc/css/components/checkbox-multiselect.css"
+) %]
+
+<span id="[% id %]_label" class="label">[% label %]</span>
+<div role="group" aria-labelledby="[% id %]_label" tabindex="0" id="[% id %]" class="checkbox-multiselect">
+    <span class="checkbox-multiselect-item">
+      <a href="#[% id %]-multiselect-skip">Skip to next group</a>
+    </span>
+
+    [% FOREACH item IN items %]
+        <span class="checkbox-multiselect-item">
+        [% form.checkbox( 
+            name = id 
+            value = item.value
+            label = item.name
+            selected = item.selected 
+        ) %]
+            </span>
+    [% END %]
+</div>
+<span id="[% id %]-multiselect-skip"></span>

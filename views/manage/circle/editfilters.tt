@@ -1,4 +1,11 @@
 [%- sections.title='.title2' | ml -%]
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+    .edit-bar {display: flex;}
+    .primary-panel .contents {border-left: 1px solid;}
+    #canvas .primary-panel .entry-quick-metadata select {top: 0; margin-right: 0.75em;}
+    </style>
+[% END %]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- dw.need_res( { group => "foundation" },
@@ -9,82 +16,62 @@
    
 <div class='action-box'>[% dw.ml( '.subfilters', { aopts => "href='${site.root}/manage/subscriptions/filters'" } ) %]</div>
 
-    <p>[% dw.ml('.text') %]</p>
-    <p>[% dw.ml('.text.sec') %]</p>
-    <form method='post' name='fg' action='editfilters$getextra'>
-    [% dw.form_auth() %]
-    [% Dumper.dump(trust_groups) %]
-    <input type='hidden' name='mode' value='save' />
-    [% i = 0 %]
-    [% WHILE i <= 0 %]
-        [% sort = 225 
-           name = ''
-           public = 0
-        %]
-
-        [% IF trust_groups.defined(i) %]
-            [% sort = trust_groups.i.sortorder 
-            name = trust_groups.i.groupname
-            public = trust_groups.i.is_public
-            %]
-        [% END %]
-
-        [% form.hidden( name => "efg_set_${i}_name", value => name ) %]
-        [% form.hidden( name => "efg_set_${i}_sort", value => sort ) %]
-        [% form.hidden( name => "efg_delete_${i}", value => 0 ) %]
-        [% form.hidden( name => "efg_set_${i}_public", value => public ) %]
-        [% i = i+1 %]
-
+<p>[% dw.ml('.text') %]</p>
+<p>[% dw.ml('.text.sec') %]</p>
+<form method='post' name='accessfilters' autocomplete="off">
+[% dw.form_auth() %]
+<div class="row">
+<div class="columns medium-7">
+    <table><tr><th>Group Name</th><th>Group order</th><th>[% dw.ml('.btn.ge.del') %]</th></tr>
+    [% FOREACH group IN trust_groups %]
+    [%- gid = group.groupnum -%]
+        <tr>
+        <td>[% form.textbox(name = "name_$gid", id = "name_$gid", value = group.groupname ) %]</td>
+        <td><input type="number" name = "sortorder_[% gid %]" id = "sortorder_[% gid %]" value="[% group.sortorder %]" min=0 max=255></td>
+        <td><button name="delete_group" value="[% gid %]" type="submit">[% dw.ml('.btn.ge.del') %]</button></td>
+        </tr>
     [% END %]
-    [% FOREACH u IN trusted_us %]
-        [% form.hidden(name=> "editfriend_maskhi_${u.user}", value=> u.maskhi) %]
-        [% form.hidden(name=> "editfriend_masklo_${u.user}", value=> u.masklo) %]
-        [% form.hidden(name=>"nameremap_${u.user}" id=> "nameremap_${u.user}" value=> u.dn ) IF u.is_id %]
+        <tr>
+        <td>[% form.textbox(name = "new_name_1", id = "new_name_1" ) %]</td>
+        <td><input type="number" name = "new_sortorder_1" id = "new_sortorder_1"></td>
+        <td></td>
+        </tr>
+    </table>
+    [% form.submit(
+        name = "edit_group"
+        id = "edit_group"
+        value = dw.ml('.done.btn')
+        class = "button"
+    ) %]
+</div>
+<div class="columns medium-5">
+    <div class="edit-bar">
+    [% form.select(
+        name = "current_group"
+        id = "current_group"
+        items = groupselect
+        selected = current_group
+    ) %]
+    [% form.submit(
+        name = "select_group"
+        id = "select_group"
+        value = dw.ml('.btn.edit')
+        class = "hide-js button"
+    ) %]
+    </div>
 
-    [% END %]
+    <div class="[% "no-js" UNLESS current_group %]">
+    [% INCLUDE "components/checkbox-multiselect.tt" 
+        items => trusted_us 
+        label => "Group Members" 
+        id => "members" 
+    %]
 
-    <table summary='' class='editfilters'><tr style='vertical-align: bottom;'>
-    <td nowrap='1' colspan='2'><strong>[% dw.ml('.yourgroups') %]</strong></td>
-    <td nowrap='1' colspan='2'><strong>[% dw.ml('.ingroup.not') %]</strong></td>
-    <td nowrap='1'><strong>[% dw.ml('.ingroup') %]</strong></td></tr>
-
-    <tr style='vertical-align: top;'>
-    <td><select name='list_groups' style='width: 150px;' size='15' onchange='groupClicked();'>
-    [% FOREACH group IN trust_groups.values() %]
-        [% listname = group.is_public ? group.groupname _ dw.ml('.group.public') : group.groupname %]
-        <option value='[% group.groupnum %]'>[% listname | html %]</option>
-    [% END %]
-    </select></td>
- 
-    <td style='vertical-align: middle;'>
-    <input type='button' value='[% dw.ml('.btn.mv.up') %]' onClick='moveGroup(-1);' /><br /><br />
-    <input type='button' value='[% dw.ml('.btn.mv.down') %]' onClick='moveGroup(1);' /></td>
-
-    <td><select name='list_out' multiple='1' size='15'>
-    <option value=''>---------------</option></select></td>
-
-    <td style='vertical-align: middle;'>
-    <input type='button' onClick='moveIn();' value='[% dw.ml('.btn.add') %]' /><br /><br />
-    <input type='button' onClick='moveOut();' value='[% dw.ml('.btn.remove') %]' /></td>
-
-    <td><select name='list_in' multiple='1' size='15'>
-    <option value=''>---------------</option></select></td>
-
-    </tr><tr><td colspan='2'>
-    <nobr>
-
-    <input type='button' value='[% dw.ml('.btn.ge.new') %]' onClick='newGroup();' /> 
-    <input type='button' value='[% dw.ml('.btn.ge.del') %]' onClick='deleteGroup();' /> 
-    <input type='button' value='[% dw.ml('.btn.ge.ren') %]' onClick='renameGroup();' />
-    </nobr></td><td></td><td></td><td></td>
-
-    </tr></table>
-
-    <h1>[% dw.ml('.done.header') %]</h1>
-    <p>[% dw.ml('.done.text') %]</p>
-    <p><input type='submit' value='[% dw.ml('.done.btn') %]' /></p>
-    </form>
-
+    [% form.submit(id="save_members" name="save_members" value=dw.ml('.done.btn')) %]
+    </div>
+</div>
+</div>
+</form>
 <script>
     var public = '[% dw.ml('.group.public') | js %]';
     var rename = '[% dw.ml('.prompt.rename') | js %]';

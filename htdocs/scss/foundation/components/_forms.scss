@@ -388,7 +388,7 @@ $select-hover-bg-color: scale-color($select-bg-color, $lightness: -3%) !default;
     form .row { @include form-row-base; }
 
     /* Label Styles */
-    label { @include form-label;
+    label, .label { @include form-label;
       &.right { @include form-label(right, false); }
       &.inline { @include form-label(inline, false); }
       /* Styles for required inputs */
