@@ -3760,15 +3760,17 @@ sub subscribe_interface {
     $page_vars->{notify_classes} = \@notify_classes;
 
     # print cancel button?
-    my $referer = BML::get_client_header('Referer') || '';
-    my $uri     = $LJ::SITEROOT . DW::Request->get->uri;
+    if ( my $r = DW::Request->get ) {
+        my $referer = { $r->headers_in }->{'Referer'} || '';
+        my $uri     = $LJ::SITEROOT . $r->uri;
 
-    # normalize the URLs -- ../index.tt doesn't make it a different page.
-    $uri     =~ s/index\.bml//;
-    $referer =~ s/index\.bml//;
+        # normalize the URLs -- ../index.tt doesn't make it a different page.
+        $uri     =~ s/index\.bml//;
+        $referer =~ s/index\.bml//;
 
-    $page_vars->{referer}  = $referer;
-    $page_vars->{do_refer} = $referer && $referer ne $uri;
+        $page_vars->{referer}  = $referer;
+        $page_vars->{do_refer} = $referer && $referer ne $uri;
+    }
 
     # title of the tracking category
     my $tracking_cat = "Subscription Tracking";
@@ -3841,54 +3843,13 @@ sub subscribe_interface {
                 { ntypeid => $ntypeid, title => $title, disabled => $disabled };
         }
 
-        my @pending_subscriptions;
-
         # build list of subscriptions to show the user
-        if ($is_tracking_category) {
-            push @pending_subscriptions, @$tracking;
-        }
-        else {
-            # pending subscription objects
-            my $pending = [];
-
-            # build table of subscribable events
-            foreach my $cat_event (@$cat_events) {
-                if ( ( ref $cat_event ) =~ /Subscription/ ) {
-                    push @$pending, $cat_event;
-                }
-                elsif ( $cat_event =~ /^LJ::Setting/ ) {
-
-                    # special subscription that's an LJ::Setting instead of an LJ::Subscription
-                    next unless $page_vars->{settings_page};
-                    push @$pending, $cat_event;
-                }
-                else {
-                    my $pending_sub = LJ::Subscription::Pending->new(
-                        $u,
-                        event   => $cat_event,
-                        journal => $journalu
-                    );
-                    push @$pending, $pending_sub;
-                }
-            }
-
-            foreach my $pending_sub (@$pending) {
-                if ( !ref $pending_sub ) {
-                    push @pending_subscriptions, $pending_sub;
-                }
-                else {
-                    my %sub_args = $pending_sub->sub_info;
-                    delete $sub_args{ntypeid};
-                    $sub_args{method} = 'Inbox';
-
-                    my @existing_subs = $u->has_subscription(%sub_args);
-                    push @pending_subscriptions,
-                        ( scalar @existing_subs ? @existing_subs : $pending_sub );
-                }
-            }
-        }
-
         $cat_data->{pending_subs} = [];
+
+        my @pending_subscriptions =
+              $is_tracking_category
+            ? @$tracking
+            : $u->subscription_event_filter( $cat_events, $journalu, $page_vars->{settings_page} );
 
         # inbox method
         my $special_subs     = 0;
@@ -3922,24 +3883,7 @@ sub subscribe_interface {
             $sub_data->{disabled} = 1 if $always_checked;
 
             if ($is_tracking_category) {
-                my $no_show = 0;
-
-                foreach my $cat_info_ref (@$catref) {
-                    while ( my ( $_cat_name, $_cat_events ) = each %$cat_info_ref ) {
-                        foreach my $_cat_event (@$_cat_events) {
-                            next if $_cat_event =~ /^LJ::Setting/;
-                            unless ( ref $_cat_event ) {
-                                $_cat_event =
-                                    LJ::Subscription::Pending->new( $u, event => $_cat_event );
-                            }
-                            next unless $pending_sub->equals($_cat_event);
-                            $no_show = 1;
-                            last;
-                        }
-                    }
-                }
-
-                next if $no_show;
+                next if $u->tracked_event_exclude( $pending_sub, $catref );
             }
             else {
                 next unless eval { $evt_class->subscription_applicable($pending_sub) };

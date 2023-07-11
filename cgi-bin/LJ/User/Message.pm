@@ -483,9 +483,71 @@ sub subscription_count {
     return scalar LJ::Subscription->subscriptions_of_user($u);
 }
 
+# extracted from LJ::subscribe_interface
+sub subscription_event_filter {
+    my ( $u, $cat_events, $journalu, $include_settings ) = @_;
+    my @pending;
+    my @ret;
+
+    # build table of events that can be subscribed to
+    foreach my $cat_event (@$cat_events) {
+        if ( ( ref $cat_event ) =~ /Subscription/ ) {
+            push @pending, $cat_event;
+        }
+        elsif ( $cat_event =~ /^LJ::Setting/ ) {
+
+            # special subscription that's an LJ::Setting instead of an LJ::Subscription
+            push @pending, $cat_event if $include_settings;
+        }
+        else {
+            my $pending_sub = LJ::Subscription::Pending->new(
+                $u,
+                event   => $cat_event,
+                journal => $journalu
+            );
+            push @pending, $pending_sub;
+        }
+    }
+
+    # check for existing subscriptions
+    foreach my $pending_sub (@pending) {
+        if ( !ref $pending_sub ) {
+            push @ret, $pending_sub;
+        }
+        else {
+            my %sub_args = $pending_sub->sub_info;
+            delete $sub_args{ntypeid};
+            $sub_args{method} = 'Inbox';
+
+            my @existing_subs = $u->has_subscription(%sub_args);
+            push @ret, ( @existing_subs ? @existing_subs : $pending_sub );
+        }
+    }
+
+    return @ret;
+}
+
 sub subscriptions {
     my $u = shift;
     return LJ::Subscription->subscriptions_of_user($u);
+}
+
+# extracted from LJ::subscribe_interface
+sub tracked_event_exclude {
+    my ( $u, $pending_sub, $cats ) = @_;
+
+    # return 1 if $pending_sub is already shown in another displayed category
+    foreach (@$cats) {
+        foreach my $cat_events ( values %$_ ) {
+            foreach my $event (@$cat_events) {
+                next if $event =~ /^LJ::Setting/;
+                $event = LJ::Subscription::Pending->new( $u, event => $event )
+                    unless ref $event;
+                return 1 if $pending_sub->equals($event);
+            }
+        }
+    }
+    return 0;
 }
 
 ########################################################################
