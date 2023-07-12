@@ -24,6 +24,7 @@ use DW::Template;
 use DW::FormErrors;
 
 DW::Routing->register_string( "/manage/circle/editfilters", \&filter_handler, app => 1 );
+DW::Routing->register_rpc( "accessfilters", \&accessfilters_handler, format => 'json' );
 
 sub filter_handler {
     my ( $ok, $rv ) = controller();
@@ -34,7 +35,7 @@ sub filter_handler {
     my $POST = $r->post_args;
     my $GET  = $r->get_args;
     my $vars;
-    my $members;
+    my @bad_groups;
 
     my $trust_groups = $u->trust_groups;
 
@@ -108,8 +109,13 @@ sub filter_handler {
                         sortorder => $sortorder
                     );
                     $groupcount += 1;
-                    r->add_msg( LJ::Lang::ml('/mange/circle/editfilters.tt.saved.text'),
-                        $r->SUCCESS );
+                    r->add_msg(
+                        LJ::Lang::ml(
+                            '/mange/circle/editfilters.tt.saved.new',
+                            { name => LJ::ehtml($groupname) }
+                        ),
+                        $r->SUCCESS
+                    );
                 }
             }
         }
@@ -118,8 +124,8 @@ sub filter_handler {
         if ( $POST->{save_members} ) {
             my $current_group = $POST->{current_group};
             my @group_members = $POST->get_all('members');
-            handle_action( $u, $current_group, \@group_members );
-            r->add_msg( LJ::Lang::ml('/mange/circle/editfilters.tt.saved.text'), $r->SUCCESS );
+            update_filter_members( $u, $current_group, \@group_members );
+            $r->add_msg( LJ::Lang::ml('/mange/circle/editfilters.tt.saved.text'), $r->SUCCESS );
         }
 
     }
@@ -147,8 +153,6 @@ sub filter_handler {
     if ( $GET->{group_id} ) {
         my $id = $GET->{group_id};
         if ( exists $trust_groups->{$id} ) {
-            my $group_members = $u->trust_group_members( id => $GET->{group_id} );
-            $members = LJ::load_userids( keys %$group_members );
             $vars->{current_group} = $GET->{group_id};
         }
         else {
@@ -157,39 +161,17 @@ sub filter_handler {
 
     }
 
-    my $trust_list = $u->trust_list;
-    my $trusted_us = LJ::load_userids( keys %$trust_list );
-    my @trusted_us;
-
-    foreach my $uid (
-        sort { $trusted_us->{$a}->display_username cmp $trusted_us->{$b}->display_username }
-        keys %$trust_list
-        )
-    {
-        my $trusted_u = $trusted_us->{$uid};
-
-        my $user     = $trusted_u->user;
-        my $in_group = exists $members->{$uid};
-
-        push @trusted_us,
-            (
-            {
-                selected => $in_group,
-                value    => $user,
-                name     => $trusted_u->display_name
-            }
-            );
-    }
     $vars->{u}            = $u;
     $vars->{trust_groups} = \@trust_groups;
-    $vars->{trusted_us}   = \@trusted_us;
+    $vars->{trusted_us}   = get_filter_members( $u, $vars->{current_group} );
     $vars->{groupselect}  = \@groupselect;
     $vars->{errors}       = $errors;
+    $vars->{postdata}     = $POST;
 
     return DW::Template->render_template( 'manage/circle/editfilters.tt', $vars );
 }
 
-sub handle_action {
+sub update_filter_members {
     my ( $u, $group_id, $userlist ) = @_;
 
     my $group_members = $u->trust_group_members( id => $group_id );
@@ -234,6 +216,86 @@ sub handle_action {
         next unless $trusted_u && $u->trusts($trusted_u);
         $u->edit_trustmask( $trusted_u, add => [$group_id] );
     }
+}
+
+sub accessfilters_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r    = $rv->{r};
+    my $post = $r->json;
+    my $u    = $rv->{remote};
+
+    my $trust_groups = $u->trust_groups;
+
+    my $mode = $post->{mode}
+        or return DW::RPC->alert('No mode passed.');
+
+    if ( $mode eq 'getmembers' ) {
+        my $current_group = $post->{current_group};
+        return DW::RPC->alert('Invalid access filter id')
+            if defined $current_group && !( exists $trust_groups->{$current_group} );
+        my $members = get_filter_members( $u, $current_group );
+        my $vars    = {
+            items => $members,
+            label => "Group Members",
+            id    => "members"
+        };
+        my $memberslist =
+            DW::Template->template_string( 'components/checkbox-multiselect.tt', $vars );
+        return DW::RPC->out( success => { members => $memberslist } );
+
+    }
+
+    if ( $mode eq 'savemembers' ) {
+        my $current_group = $post->{current_group};
+        my $group_members = $post->{'members'};
+        return DW::RPC->alert('Invalid access filter id')
+            if defined $current_group && !( exists $trust_groups->{$current_group} );
+        update_filter_members( $u, $current_group, $group_members );
+        return DW::RPC->out( success => { msg => 'Save successful!' } );
+    }
+}
+
+# Helper method for retrieving and formatting the list of
+# users a given user trusts, optionally marked with whether
+# or not they're in a given access filter.
+sub get_filter_members {
+    my ( $u, $current_group ) = @_;
+    my $trust_groups = $u->trust_groups;
+    my $members;
+
+    # if we were given a group, load it's members.
+    if ( defined $current_group ) {
+        my $group_members = $u->trust_group_members( id => $current_group );
+        $members = LJ::load_userids( keys %$group_members );
+    }
+
+    my $trust_list = $u->trust_list;
+    my $trusted_us = LJ::load_userids( keys %$trust_list );
+    my @trusted_us;
+
+    foreach my $uid (
+        sort { $trusted_us->{$a}->display_username cmp $trusted_us->{$b}->display_username }
+        keys %$trust_list
+        )
+    {
+        my $trusted_u = $trusted_us->{$uid};
+
+        my $user     = $trusted_u->user;
+        my $in_group = exists $members->{$uid};
+
+        push @trusted_us,
+            (
+            {
+                selected => $in_group,
+                value    => $user,
+                name     => $trusted_u->display_name
+            }
+            );
+    }
+    return \@trusted_us;
+
 }
 
 1;

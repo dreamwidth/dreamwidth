@@ -17,7 +17,21 @@
 [% dw.need_res( { group => "foundation" },
         "stc/css/components/checkbox-multiselect.css"
 ) %]
-
+<span id="[% id %]_wrapper">
+[% form.textbox(
+    name = "$id-search"
+    id = "$id-search"
+) %]
+[% form.button(
+    name = "select-all"
+    id = "select-all"
+    value = 'Select All'
+) %]
+[% form.button(
+    name = "selected-only"
+    id = "selected-only"
+    value = 'Only Show Selected'
+) %]
 <span id="[% id %]_label" class="label">[% label %]</span>
 <div role="group" aria-labelledby="[% id %]_label" tabindex="0" id="[% id %]" class="checkbox-multiselect">
     <span class="checkbox-multiselect-item">
@@ -36,3 +50,4 @@
     [% END %]
 </div>
 <span id="[% id %]-multiselect-skip"></span>
+</span>

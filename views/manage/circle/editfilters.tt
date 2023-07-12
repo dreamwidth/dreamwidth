@@ -9,7 +9,7 @@
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- dw.need_res( { group => "foundation" },
-    "js/access-filters.js"
+    "js/jquery.accessfilters.js"
 
 ) -%]
 [% USE Dumper %]
@@ -22,12 +22,12 @@
 [% dw.form_auth() %]
 <div class="row">
 <div class="columns medium-7">
-    <table><tr><th>Group Name</th><th>Group order</th><th>[% dw.ml('.btn.ge.del') %]</th></tr>
+    <table><tr><th>[% dw.ml('.header.filtername') %]</th><th>[% dw.ml('.header.sortorder') %]</th><th>[% dw.ml('.btn.ge.del') %]</th></tr>
     [% FOREACH group IN trust_groups %]
     [%- gid = group.groupnum -%]
         <tr>
-        <td>[% form.textbox(name = "name_$gid", id = "name_$gid", value = group.groupname ) %]</td>
-        <td><input type="number" name = "sortorder_[% gid %]" id = "sortorder_[% gid %]" value="[% group.sortorder %]" min=0 max=255></td>
+        <td>[% form.textbox(name = "name_$gid", id = "name_$gid", value = (postdata.${"name_$gid"} || group.groupname )) %]</td>
+        <td><input type="number" name = "sortorder_[% gid %]" id = "sortorder_[% gid %]" value="[% postdata.${"sortorder_$gid"} || group.sortorder %]" min=0 max=255></td>
         <td><button name="delete_group" value="[% gid %]" type="submit">[% dw.ml('.btn.ge.del') %]</button></td>
         </tr>
     [% END %]
@@ -56,7 +56,7 @@
         name = "select_group"
         id = "select_group"
         value = dw.ml('.btn.edit')
-        class = "hide-js button"
+        class = "no-js button"
     ) %]
     </div>
 
