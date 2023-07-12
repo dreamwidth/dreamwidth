@@ -11,7 +11,7 @@
 
 .btn.onlyselected=Show Selected Only
 
-.confirm.delete=Are you sure you want to delete this access filter?
+.confirm.delete=Are you sure you want to delete this access filter? This cannot be undone.
 
 .done.btn=Save Changes
 
@@ -45,25 +45,25 @@
 
 .saved.header=Saved
 
-.saved.text=Your access filters have been edited.
+.saved.text=Your access filter [[name]] has been edited.
 
 .saved.new=Your new access filter [[name]] has been created.
 
-.subfilters=You are currently managing your access filters.  <a [[aopts]]>Manage your subscription filters?</a>
+.subfilters=You are currently managing your access filters. <a [[aopts]]>Manage your subscription filters?</a>
 
 .text<<
 You can edit your filters on this page.  Dreamwidth provides two types of filters: Access Filters, which are used for setting security on items, and Reading Filters, which are used for filtering your Reading Page.
-
-This page requires JavaScript to work.
 .
 
 .text.sec=<strong>Security note:</strong> If you wish to delete an access filter and make a new access filter, do <strong>not</strong> do this by renaming one access filter and then editing it. If you do that, all your entries which were accessible to the old access filter will be accessible to the new access filter.
 
-.title2=Manage Access Filters
+.title=Manage Access Filters
 
-.yourgroups=Your access filters:
+.title.edit=Edit Access Filters
 
-.comm.nofilters=Communities cannot currently use access filters. Please select a journal user to work as.
+.title.add=Add Access Filters
+
+.title.members=Edit Access Filter Members
 
 .header.filtername=Filter Name
 

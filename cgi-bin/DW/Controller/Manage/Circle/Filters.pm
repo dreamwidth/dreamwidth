@@ -35,6 +35,7 @@ sub filter_handler {
     my $POST = $r->post_args;
     my $GET  = $r->get_args;
     my $vars;
+    my $first_new = 1;
     my @bad_groups;
 
     my $trust_groups = $u->trust_groups;
@@ -75,18 +76,22 @@ sub filter_handler {
                     && $groupname eq $trust_groups->{$id}->{groupname};
 
                 # Check for bad input
-                $errors->add( "name_$id",      ".error.comma" ) if $groupname =~ /,/;
-                $errors->add( "sortorder_$id", ".error.sortorder" )
-                    if $sortorder < 0 || $sortorder > 255;
+                my $check =
+                    check_group( $errors, $groupname, $sortorder, "name_$id", "sortorder_$id" );
 
-                unless ( $errors->exist ) {
+                if ($check) {
                     my $err = $u->edit_trust_group(
                         id        => $id,
                         groupname => $groupname,
                         sortorder => $sortorder
                     );
-                    r->add_msg( LJ::Lang::ml('/mange/circle/editfilters.tt.saved.text'),
-                        $r->SUCCESS );
+                    $r->add_msg(
+                        LJ::Lang::ml(
+                            '/manage/circle/editfilters.tt.saved.text',
+                            { name => LJ::ehtml($groupname) }
+                        ),
+                        $r->SUCCESS
+                    );
                 }
             }
 
@@ -98,24 +103,33 @@ sub filter_handler {
                 $new =~ /new_name_(\d+)/;
                 my $groupname = $POST->{"new_name_$1"};
                 my $sortorder = $POST->{"new_sortorder_$1"} || 0;
-                $errors->add( "new_name_$1",      ".error.comma" ) if $groupname =~ /,/;
-                $errors->add( "new_sortorder_$1", ".error.sortorder" )
-                    if $sortorder < 0 || $sortorder > 255;
-                $errors->add( "new_name_$1", ".error.max60" ) if $groupcount > 60;
+                my $check     = check_group( $errors, $groupname, $sortorder, "new_name_$1",
+                    "new_sortorder_$1" );
 
-                unless ( $errors->exist ) {
+                if ( $groupcount > 60 ) {
+                    $errors->add( "new_name_$1", ".error.max60" );
+                    last;
+                }
+
+                if ($check) {
                     $u->create_trust_group(
                         groupname => $groupname,
                         sortorder => $sortorder
                     );
                     $groupcount += 1;
-                    r->add_msg(
+                    $r->add_msg(
                         LJ::Lang::ml(
-                            '/mange/circle/editfilters.tt.saved.new',
+                            '/manage/circle/editfilters.tt.saved.new',
                             { name => LJ::ehtml($groupname) }
                         ),
                         $r->SUCCESS
                     );
+                    delete $POST->{"new_name_$1"};
+                    delete $POST->{"new_sortorder_$1"};
+                }
+                else {
+                    $first_new = $1 + 1;
+                    push( @bad_groups, $1 );
                 }
             }
         }
@@ -167,8 +181,73 @@ sub filter_handler {
     $vars->{groupselect}  = \@groupselect;
     $vars->{errors}       = $errors;
     $vars->{postdata}     = $POST;
+    $vars->{bad_groups}   = \@bad_groups;
+    $vars->{first_new}    = $first_new;
 
     return DW::Template->render_template( 'manage/circle/editfilters.tt', $vars );
+}
+
+sub check_group {
+    my ( $errors, $groupname, $sortorder, $namekey, $sortkey ) = @_;
+    my $check = 1;
+
+    if ( $groupname =~ /,/ ) {
+        $errors->add( $namekey, ".error.comma" );
+        $check = 0;
+    }
+
+    if ( $sortorder < 0 || $sortorder > 255 ) {
+        $errors->add( $sortkey, ".error.sortorder" );
+        $check = 0;
+    }
+
+    return $check;
+}
+
+sub accessfilters_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r    = $rv->{r};
+    my $post = $r->json;
+    my $u    = $rv->{remote};
+
+    my $trust_groups = $u->trust_groups;
+
+    my $mode = $post->{mode}
+        or return DW::RPC->alert('No mode passed.');
+
+    if ( $mode eq 'getmembers' ) {
+        my $current_group = $post->{current_group};
+        return DW::RPC->alert('Invalid access filter id')
+            if defined $current_group && !( exists $trust_groups->{$current_group} );
+        my $members = get_filter_members( $u, $current_group );
+        my $vars    = {
+            items     => $members,
+            label     => "Group Members",
+            id        => "members",
+            nowrapper => 1
+        };
+        my $memberslist =
+            DW::Template->template_string( 'components/checkbox-multiselect.tt', $vars );
+        return DW::RPC->out( success => { members => $memberslist } );
+
+    }
+
+    if ( $mode eq 'savemembers' ) {
+        my $current_group = $post->{current_group};
+        my $group_members = $post->{'members'};
+        return DW::RPC->alert('Invalid access filter id')
+            if defined $current_group && !( exists $trust_groups->{$current_group} );
+        update_filter_members( $u, $current_group, $group_members );
+        return DW::RPC->out( success => { msg => 'Save successful!' } );
+    }
+
+    if ( $mode eq 'deletegroup' ) {
+        my $id = $post->{id};
+        $u->delete_trust_group( id => $id );
+        return DW::RPC->out( success => { msg => 'Delete successful!' } );
+    }
 }
 
 sub update_filter_members {
@@ -215,45 +294,6 @@ sub update_filter_members {
         # User might have been removed from circle between load and submit;
         next unless $trusted_u && $u->trusts($trusted_u);
         $u->edit_trustmask( $trusted_u, add => [$group_id] );
-    }
-}
-
-sub accessfilters_handler {
-    my ( $ok, $rv ) = controller();
-    return $rv unless $ok;
-
-    my $r    = $rv->{r};
-    my $post = $r->json;
-    my $u    = $rv->{remote};
-
-    my $trust_groups = $u->trust_groups;
-
-    my $mode = $post->{mode}
-        or return DW::RPC->alert('No mode passed.');
-
-    if ( $mode eq 'getmembers' ) {
-        my $current_group = $post->{current_group};
-        return DW::RPC->alert('Invalid access filter id')
-            if defined $current_group && !( exists $trust_groups->{$current_group} );
-        my $members = get_filter_members( $u, $current_group );
-        my $vars    = {
-            items => $members,
-            label => "Group Members",
-            id    => "members"
-        };
-        my $memberslist =
-            DW::Template->template_string( 'components/checkbox-multiselect.tt', $vars );
-        return DW::RPC->out( success => { members => $memberslist } );
-
-    }
-
-    if ( $mode eq 'savemembers' ) {
-        my $current_group = $post->{current_group};
-        my $group_members = $post->{'members'};
-        return DW::RPC->alert('Invalid access filter id')
-            if defined $current_group && !( exists $trust_groups->{$current_group} );
-        update_filter_members( $u, $current_group, $group_members );
-        return DW::RPC->out( success => { msg => 'Save successful!' } );
     }
 }
 

@@ -7,6 +7,7 @@
         - label: text label for input group
         - id: container id + name field for the inputs
         - items: list of hashrefs to turn into checkboxes.
+        - nowrapper: print without the wrapper span (useful if you want to re-render the contents with AJAX). Defaults to false.
 
         Each item should have the following keys:
         - name: visually displayed name
@@ -16,30 +17,41 @@
 
 [% dw.need_res( { group => "foundation" },
         "stc/css/components/checkbox-multiselect.css"
+        "js/components/jquery.checkbox-multiselect.js"
 ) %]
-<span id="[% id %]_wrapper">
+
+[% "<span id='$id-wrapper' class='checkbox-multiselect-wrapper'>" UNLESS nowrapper %]
 [% form.textbox(
     name = "$id-search"
     id = "$id-search"
+    class = "multiselect-search no-js"
 ) %]
 [% form.button(
     name = "select-all"
     id = "select-all"
     value = 'Select All'
+    class = "no-js button"
 ) %]
 [% form.button(
     name = "selected-only"
     id = "selected-only"
     value = 'Only Show Selected'
+    class = "no-js button"
+) %]
+[% form.button(
+    name = "clear-filters"
+    id = "clear-filters"
+    value = 'Clear Search'
+    class = "no-js button"
 ) %]
 <span id="[% id %]_label" class="label">[% label %]</span>
 <div role="group" aria-labelledby="[% id %]_label" tabindex="0" id="[% id %]" class="checkbox-multiselect">
     <span class="checkbox-multiselect-item">
-      <a href="#[% id %]-multiselect-skip">Skip to next group</a>
+      <a href="#[% id %]-multiselect-skip">Skip</a>
     </span>
 
     [% FOREACH item IN items %]
-        <span class="checkbox-multiselect-item">
+        <span class="checkbox-multiselect-item input-row">
         [% form.checkbox( 
             name = id 
             value = item.value
@@ -50,4 +62,4 @@
     [% END %]
 </div>
 <span id="[% id %]-multiselect-skip"></span>
-</span>
+[% "</span>" UNLESS nowrapper %]

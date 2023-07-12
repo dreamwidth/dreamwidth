@@ -1,9 +1,7 @@
-[%- sections.title='.title2' | ml -%]
+[%- sections.title='.title' | ml -%]
 [%- sections.head = BLOCK %]
     <style type="text/css">
     .edit-bar {display: flex;}
-    .primary-panel .contents {border-left: 1px solid;}
-    #canvas .primary-panel .entry-quick-metadata select {top: 0; margin-right: 0.75em;}
     </style>
 [% END %]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
@@ -22,19 +20,28 @@
 [% dw.form_auth() %]
 <div class="row">
 <div class="columns medium-7">
+<h2>[% dw.ml('.title.edit') %]</h2>
     <table><tr><th>[% dw.ml('.header.filtername') %]</th><th>[% dw.ml('.header.sortorder') %]</th><th>[% dw.ml('.btn.ge.del') %]</th></tr>
     [% FOREACH group IN trust_groups %]
     [%- gid = group.groupnum -%]
         <tr>
         <td>[% form.textbox(name = "name_$gid", id = "name_$gid", value = (postdata.${"name_$gid"} || group.groupname )) %]</td>
         <td><input type="number" name = "sortorder_[% gid %]" id = "sortorder_[% gid %]" value="[% postdata.${"sortorder_$gid"} || group.sortorder %]" min=0 max=255></td>
-        <td><button name="delete_group" value="[% gid %]" type="submit">[% dw.ml('.btn.ge.del') %]</button></td>
+        <td><button name="delete_group" value="[% gid %]" type="submit" class="delete_group">[% dw.ml('.btn.ge.del') %]</button></td>
+        </tr>
+    [% END %]
+    </table>
+    <h2>[% dw.ml('.title.add') %]</h2>
+    <table><tr><th>[% dw.ml('.header.filtername') %]</th><th>[% dw.ml('.header.sortorder') %]</th></tr>
+    [% FOREACH gid IN bad_groups %]
+        <tr>
+        <td>[% form.textbox(name = "new_name_$gid", id = "_newname_$gid", value = postdata.${"new_name_$gid"} ) %]</td>
+        <td><input type="number" name = "new_sortorder_[% gid %]" id = "new_sortorder_[% gid %]" value="[% postdata.${"new_sortorder_$gid"} %]" min=0 max=255></td>
         </tr>
     [% END %]
         <tr>
-        <td>[% form.textbox(name = "new_name_1", id = "new_name_1" ) %]</td>
-        <td><input type="number" name = "new_sortorder_1" id = "new_sortorder_1"></td>
-        <td></td>
+        <td>[% form.textbox(name = "new_name_${first_new}", id = "new_name_${first_new}" ) %]</td>
+        <td><input type="number" name = "new_sortorder_[% first_new %]" id = "new_sortorder_[% first_new %]"></td>
         </tr>
     </table>
     [% form.submit(
@@ -45,6 +52,7 @@
     ) %]
 </div>
 <div class="columns medium-5">
+<h2>[% dw.ml('.title.members') %]</h2>
     <div class="edit-bar">
     [% form.select(
         name = "current_group"
@@ -60,7 +68,7 @@
     ) %]
     </div>
 
-    <div class="[% "no-js" UNLESS current_group %]">
+    <div class="[% "only-js" UNLESS current_group %]">
     [% INCLUDE "components/checkbox-multiselect.tt" 
         items => trusted_us 
         label => "Group Members" 
@@ -73,10 +81,11 @@
 </div>
 </form>
 <script>
-    var public = '[% dw.ml('.group.public') | js %]';
-    var rename = '[% dw.ml('.prompt.rename') | js %]';
-    var newname = '[% dw.ml('.prompt.newname') | js %]';
-    var del = '[% dw.ml('.confirm.delete') | js %]';
-    var max60 = '[% dw.ml('.error.max60') | js %]';
-    var comma = '[% dw.ml('.error.comma') | js %]';
+    var public = [% dw.ml('.group.public') | js %];
+    var rename = [% dw.ml('.prompt.rename') | js %];
+    var newname = [% dw.ml('.prompt.newname') | js %];
+    var del = [% dw.ml('.confirm.delete') | js %];
+    var max60 = [% dw.ml('.error.max60') | js %];
+    var comma = [% dw.ml('.error.comma') | js %];
+    var first_new = [% first_new %];
 </script>
