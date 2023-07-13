@@ -108,6 +108,7 @@ sub accesslist_get {
 
     my $id            = $args->{path}{accesslistid};
     my $group_members = $user->trust_group_members( id => $id );
+    return $self->rest_error( "400", "Access filter doesn't exist." ) unless $group_members;
     my @accesslist;
     my $members = LJ::load_userids( keys %$group_members );
 
@@ -132,7 +133,7 @@ sub accesslist_edit {
     my $id       = $args->{path}{accesslistid};
 
     my $trust_group = $user->trust_groups( { id => $id } );
-    my $groupmask   = $trust_group->{groupmask};
+    return $self->rest_error( "400", "Access filter doesn't exist." ) unless $trust_group;
 
     foreach my $journal ( @{$journals} ) {
         my $trusted_u = LJ::load_user($journal);
@@ -140,15 +141,9 @@ sub accesslist_edit {
         # User might have been removed from circle between load and
         # submit; don't re-add.
         next unless $trusted_u && $user->trusts($trusted_u);
-        $user->add_edge(
-            $trusted_u,
-            trust => {
-                mask     => $groupmask,
-                nonotify => 1,
-            }
-        );
+        $user->edit_trustmask( $trusted_u, add => $id );
     }
-    return $self->rest_ok("added successfully");
+    return $self->rest_ok();
 }
 
 sub accesslist_delete {
@@ -163,7 +158,7 @@ sub accesslist_delete {
     my $id       = $args->{path}{accesslistid};
 
     my $trust_group = $user->trust_groups( { id => $id } );
-    my $groupmask   = $trust_group->{groupmask};
+    return $self->rest_error( "400", "Access filter doesn't exist." ) unless $trust_group;
 
     foreach my $journal ( @{$journals} ) {
         my $trusted_u = LJ::load_user($journal);
@@ -171,13 +166,7 @@ sub accesslist_delete {
         # User might have been removed from circle between load and
         # submit; don't re-add.
         next unless $trusted_u && $user->trusts($trusted_u);
-        $user->add_edge(
-            $trusted_u,
-            trust => {
-                mask     => $groupmask,
-                nonotify => 1,
-            }
-        );
+        $user->edit_trustmask( $trusted_u, remove => $id );
     }
     return $self->rest_ok();
 }
