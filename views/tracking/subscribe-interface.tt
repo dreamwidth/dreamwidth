@@ -17,12 +17,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div id='manageSettings'>
 
 [%- # the settings page already has form tags, so don't print <form> in that context
-    form_action = settings_page ? '' : "/manage/tracking/$getextra";
-    IF post_to_settings_page; form_action = "/manage/settings/?cat=notifications"; END
+    # but other calling contexts need a form tag that posts to the settings page
+    form_action = post_to_settings_page ? '/manage/settings/?cat=notifications' : '';
 -%]
 
 [% IF form_action %]
-  <form method='POST' action='[% site.root _ form_action %]'>[% formauth %]
+  <form method='POST' action='[% site.root _ form_action %]'>[% dw.form_auth %]
 [% END %]
 
 [% form.hidden( name = 'ntypeids', id = 'ntypeids', value = ntypeids ) %]

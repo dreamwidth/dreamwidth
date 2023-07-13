@@ -645,7 +645,6 @@ body<=
         $ret .= LJ::subscribe_interface($u,
             journal       => $u,
             categories    => \@categories,
-            showtracking  => 1,
             settings_page => 1,
             num_per_page  => 250,
             page          => int( $GET{page} || 0 ),

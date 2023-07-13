@@ -3730,19 +3730,15 @@ sub subscribe_interface {
 
     croak "subscribe_interface wants a \$u" unless LJ::isu($u);
 
-    my $catref       = delete $opts{categories} || [];
-    my @categories   = @$catref;
-    my $journalu     = delete $opts{journal} || LJ::get_remote();
+    my $catref       = delete $opts{categories}                     || [];
+    my $journalu     = delete $opts{journal}                        || LJ::get_remote();
     my $def_notes    = delete $opts{default_selected_notifications} || [];
-    my $showtracking = delete $opts{showtracking} || 0;
-    my $num_per_page = delete $opts{num_per_page} || 250;
-    my $page         = delete $opts{page} || 1;
+    my $num_per_page = delete $opts{num_per_page}                   || 250;
+    my $page         = delete $opts{page}                           || 1;
 
     croak "Invalid user object passed to subscribe_interface" unless LJ::isu($journalu);
 
     my $page_vars = {
-        formauth              => delete $opts{formauth}              || LJ::form_auth(),
-        getextra              => delete $opts{getextra}              || '',
         ret_url               => delete $opts{ret_url}               || '',
         settings_page         => delete $opts{settings_page}         || 0,
         post_to_settings_page => delete $opts{post_to_settings_page} || 0,
@@ -3772,11 +3768,15 @@ sub subscribe_interface {
         $page_vars->{do_refer} = $referer && $referer ne $uri;
     }
 
+    my @categories = @$catref;
+
     # title of the tracking category
     my $tracking_cat = "Subscription Tracking";
     my $tracking     = [];
 
     # if showtracking, add things the user is tracking to the categories
+    my $showtracking = $page_vars->{settings_page} ? 1 : 0;
+
     if ($showtracking) {
         my @subscriptions = $u->find_subscriptions( method => 'Inbox' );
 
@@ -3792,9 +3792,9 @@ sub subscribe_interface {
 
             push @$tracking, $subsc;
         }
-    }
 
-    push @categories, { $tracking_cat => $tracking };
+        push @categories, { $tracking_cat => $tracking };
+    }
 
     my @catids;
     my $catid = 0;
@@ -3949,7 +3949,7 @@ sub subscribe_interface {
         $cat_data->{special_subs}      = $special_subs;
         $cat_data->{show_upgrade_note} = !$u->is_paid && ( $special_subs || $unavailable_subs );
 
-        push @catdata, $cat_data unless ( $is_tracking_category && !$showtracking );
+        push @catdata, $cat_data;
 
         $catid++;
     }
