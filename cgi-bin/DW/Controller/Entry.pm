@@ -179,7 +179,7 @@ sub new_handler {
     $errors->add( undef, ".error.invalidusejournal" )
         if defined $usejournal && !$vars->{usejournal};
 
-    if ( $r->did_post && !$post->{"more-options"} ) {
+    if ( $r->did_post ) {
         my $mode_preview = $post->{"action:preview"} ? 1 : 0;
 
         $errors->add( undef, 'bml.badinput.body1' )

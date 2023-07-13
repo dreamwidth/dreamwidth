@@ -93,7 +93,7 @@
                         </li>
                     [%- END -%]
                 </ul>
-                [% form.submit( name = 'more-options', class = 'button secondary', value = dw.ml('widget.quickupdate.moreopts') ) %]
+                [% form.submit( name = 'showform', class = 'button secondary', value = dw.ml('widget.quickupdate.moreopts') ) %]
                 </div>
             </div>
         </div>
