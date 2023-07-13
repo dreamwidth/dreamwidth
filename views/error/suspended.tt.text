@@ -1,0 +1,4 @@
+;; -*- coding: utf-8 -*-
+.text.viewhist=View statushistory data for this account
+
+.text.viewlogs=View userlog data for this account

@@ -115,7 +115,7 @@ sub profile_handler {
     ($viewall) = $remote->view_priv_check( $u, $get->{viewall}, 'profile' ) if $remote;
 
     unless ($viewall) {
-        return DW::Template->render_template( 'error/suspended.tt', { u => $u } )
+        return DW::Template->render_template( 'error/suspended.tt', { u => $u, remote => $remote } )
             if $u->is_suspended;
 
         return $u->display_journal_deleted($remote) if $u->is_deleted;
