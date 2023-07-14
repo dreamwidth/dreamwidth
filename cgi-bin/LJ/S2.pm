@@ -3784,7 +3784,7 @@ sub _print_quickreply_link {
     # FIXME: I THINK the next line is incoherent on reading/network pages. -NF
     $onclick = "" if $page->{'_u'}->does_not_allow_comments_from_non_access($remote);
 
-    $replyurl = LJ::ehtml( $replyurl );
+    $replyurl = LJ::ehtml($replyurl);
 
     $S2::pout->("<a $onclick href='$replyurl' $opt_class>$linktext</a>");
 }
