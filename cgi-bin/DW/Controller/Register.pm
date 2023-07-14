@@ -34,13 +34,7 @@ use DW::Captcha;
 
 DW::Routing->register_regex( '^/confirm/(\w+\.\w+)', \&confirm_handler, app => 1 );
 
-DW::Routing->register_string(
-    '/register', \&main_handler,
-    anonymous => 1,
-    app       => 1,
-    form_auth => 1,
-    no_cache  => 1
-);
+DW::Routing->register_string( '/register', \&main_handler, app => 1, no_cache => 1 );
 
 sub confirm_handler {
     my ( $opts, $auth_string ) = @_;
@@ -48,7 +42,7 @@ sub confirm_handler {
 }
 
 sub main_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
@@ -68,7 +62,7 @@ sub main_handler {
     }
 
     if ( $r->post_args->{'action:send'} || $foru ) {
-        my $u = $foru ? $foru : $remote;
+        my $u = $foru ? $foru : $rv->{u};    # u is authas || remote
         return error_ml('error.invalidauth') unless $u;
 
         my $aa = LJ::register_authaction( $u->userid, "validateemail", $u->email_raw );
@@ -98,7 +92,7 @@ sub main_handler {
         return success_ml( '/register.tt.success.sent', { email => $u->email_raw } );
     }
 
-    my $vars = {};
+    my $vars = { authas_form => $rv->{authas_form}, u => $rv->{u} };
     my $qs   = ( $r->post_args->{qs} || $r->query_string ) // '';
 
     if ( $qs =~ /^(\d+)[;\.](.+)$/ ) {
@@ -136,7 +130,6 @@ sub main_handler {
             }
         }
 
-        $vars->{u} = $u;
         $u->update_self( { status => 'A' } );
         $u->update_email_alias;
         LJ::Hooks::run_hook( 'email_verified', $u );
@@ -150,15 +143,9 @@ sub main_handler {
             }
         );
 
-        return success_ml('/register.tt.success.trans') if $u->{status} eq "T";
-    }
+        return success_ml('/register.tt.success.trans') if $u->email_status eq "T";
 
-    else {
-        my $u = $remote;
-        return DW::Controller::needlogin() unless $u;
         $vars->{u} = $u;
-        return error_ml( '/register.tt.error.useralreadyvalidated', { user => $u->ljuser_display } )
-            if $u->{status} eq "A";
     }
 
     return DW::Template->render_template( 'register.tt', $vars );
