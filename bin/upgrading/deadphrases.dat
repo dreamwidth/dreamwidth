@@ -733,8 +733,63 @@ general /profile.bml.userpic.user.alt
 general /profile.bml.userpic.viewall
 general /profile.bml.userpic.viewall.edit
 
+general /register.bml.ask.body
+general /register.bml.ask.button
+general /register.bml.ask.header
+general /register.bml.ask.select
+general /register.bml.ask.switch
+general /register.bml.asterisk.comment
+general /register.bml.asterisk.name
+general /register.bml.email.body
+general /register.bml.email.body2
+general /register.bml.email.subject2
+general /register.bml.error.alreadyvalidated
+general /register.bml.error.emailchanged
+general /register.bml.error.identity_no_email
+general /register.bml.error.invalidcode
+general /register.bml.error.noaccess
+general /register.bml.error.useralreadyvalidated
+general /register.bml.error.usernonexistent
+general /register.bml.error.usernotfound
+general /register.bml.error.valid
+general /register.bml.form.submit
+general /register.bml.new.101.community.answer
+general /register.bml.new.101.community.question
+general /register.bml.new.101.friends.answer
+general /register.bml.new.101.friends.question
+general /register.bml.new.101.journal.answer
+general /register.bml.new.101.journal.question
+general /register.bml.new.101.profile.answer
+general /register.bml.new.101.profile.question
+general /register.bml.new.101.reading.answer
+general /register.bml.new.101.reading.question
+general /register.bml.new.101.title
 general /register.bml.new.body
+general /register.bml.new.bodyuser
+general /register.bml.new.bodyuser2
+general /register.bml.new.customize
+general /register.bml.new.customize2
+general /register.bml.new.editinfo
+general /register.bml.new.editinfo2
+general /register.bml.new.editinfo3
+general /register.bml.new.header
+general /register.bml.new.login
+general /register.bml.new.login2
+general /register.bml.new.modify
 general /register.bml.new.modify2
+general /register.bml.new.search
+general /register.bml.new.update
+general /register.bml.new.update2
+general /register.bml.new.update3
+general /register.bml.new.userpics
+general /register.bml.new.title
+general /register.bml.sent.body
+general /register.bml.sent.header
+general /register.bml.title
+general /register.bml.trans.body
+general /register.bml.trans.header
+general /register.bml.validate.human.submit
+general /register.bml.validate.human.title
 
 general /setlang.bml.select
 general /setlang.bml.switch
@@ -1161,8 +1216,6 @@ general /userinfo.bml.userpic.openid.alt
 general /userinfo.bml.userpic.upload
 general /userinfo.bml.userpic.user.alt
 
-general /register.bml.error.alreadyvalidated
-
 general /tools/memories.bml.entry
 general /tools/memories.bml.entries
 
@@ -1289,10 +1342,6 @@ general /modify_do.bml.overrides.note
 general /modify_do.bml.journaloptions.about
 
 general /multisearch.bml.region.bodytext
-general /register.bml.new.editinfo
-general /register.bml.new.login
-general /register.bml.new.modify
-general /register.bml.new.update
 general /talkpost_do.bml.error.badpassword
 general /talkpost_do.bml.error.badusername
 general /talkpost_do.bml.error.noverify
@@ -1609,19 +1658,6 @@ general /manage/profile/index.bml.pop_interests18.v2
 general /manage/profile/index.bml.pop_interests19.v2
 general /manage/profile/index.bml.pop_interests20.v2
 general /manage/profile/index.bml.pop_interests21.v2
-
-general /htdocs/register.bml.new.customize
-general /htdocs/register.bml.new.editinfo2
-general /htdocs/register.bml.new.header
-general /htdocs/register.bml.new.login2
-general /htdocs/register.bml.new.update2
-
-general /htdocs/register.bml.new.customize2
-general /htdocs/register.bml.new.editinfo3
-general /htdocs/register.bml.new.modify2
-general /htdocs/register.bml.new.search
-general /htdocs/register.bml.new.update3
-general /htdocs/register.bml.new.userpics
 
 general widget.qotd.title
 general widget.sitemessages.title
@@ -2122,13 +2158,6 @@ general /openid/options.bml.main.trust.content
 general /openid/options.bml.main.trust.heading
 general /openid/options.bml.title
 general /poll/index.bml.gotocreate2
-general /register.bml.ask.header
-general /register.bml.email.body
-general /register.bml.new.101.friends.answer
-general /register.bml.new.101.friends.question
-general /register.bml.new.bodyuser
-general /register.bml.validate.human.submit
-general /register.bml.validate.human.title
 general /reject.bml.comm.success
 general /reject.bml.commreject.text
 general /reject.bml.error.actionperformed
