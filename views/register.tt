@@ -62,13 +62,19 @@ the same terms as Perl itself. For a copy of the license, please reference
   [% END %]
 
 [%- ELSE -%]
+  [% authas_form %]
+
+  [% IF u.email_status == "A" %]
+<p>[% '.error.useralreadyvalidated' | ml( user => u.ljuser_display ) %]</p>
+  [% ELSE %]
 
 <p>[% '.ask.body' | ml( email => u.email_raw ) %]</p>
-<form action='[% site.root %]/register' method='post'>
+<form action='[% dw.create_url( undef, keep_args => 1 ) %]' method='post'>
   [% dw.form_auth %]
   <blockquote>
     [% form.submit( name = "action:send", value = dw.ml( '.ask.button' ) ) %]
   </blockquote>
 </form>
 
+  [% END %]
 [%- END -%]
