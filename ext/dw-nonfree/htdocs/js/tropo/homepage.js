@@ -16,7 +16,7 @@ var nocreatejs = false;
 var createboxmaincontent = "";
 
 var loadfunction = function() {
-    createboxmaincontent = document.getElementById('intro-create-content').innerHTML;
+    createboxmaincontent = document.getElementById('intro-box-create').innerHTML;
 };
 
 if (window.addEventListener) {
@@ -38,16 +38,16 @@ function displayCreateDiv(divname) {
     }
     else if (divname == "invite") {
         content = '\n \
-        <h1>' + ml.joinheading + '</h1>\n \
+        <h2>' + ml.joinheading + '</h2>\n \
         <p>' + ml.entercode + '</p>\n \
         <form method="get" action="' + siteroot + '/create" id="intro-create-form">\n \
             <input type="text" name="code" id="intro-create-invite" size="' + invitelength + '" maxlength="' + invitelength + '">\n \
-            <input type="submit" value="' + ml.usecode + '" id="intro-create-submit">\n \
+            <button type="submit" id="intro-create-submit">' + ml.usecode + '</button>\n \
             <button type="button" id="intro-create-cancel" onClick="return displayCreateDiv(&quot;main&quot;);">' + ml.cancel + '</button>\n \
         </form>\n';
         setfocuson = "intro-create-invite";
     }
-    document.getElementById("intro-create-content").innerHTML = content;
+    document.getElementById("intro-box-create").innerHTML = content;
     if (setfocuson != "") { document.getElementById(setfocuson).focus(); }
     return false;
 }
