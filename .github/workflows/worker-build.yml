@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - canary
     paths:
       - bin/**
       - ext/dw-nonfree/bin/**

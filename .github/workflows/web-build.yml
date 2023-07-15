@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - canary
     paths:
       - cgi-bin/**
       - ext/dw-nonfree/cgi-bin/**
