@@ -37,7 +37,7 @@
         [% entry.event_html( { cuturl => entry.url } ) %]
     [%- ELSE -%]
         [%# if we don't have a cut, we want to output in summary mode %]
-        [% entry->event_summary %]
+        [% entry.event_summary %]
     [%- END -%]
 </div>
 </div>
