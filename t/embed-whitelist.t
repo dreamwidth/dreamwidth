@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 110;
+use Test::More tests => 115;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -109,6 +109,7 @@ note("misc");
     test_good_url("https://diode.zone/videos/embed/52a10666-3a18-4e73-93da-e8d3c12c305a");
     test_good_url("http://dotsub.com/media/9db493c6-6168-44b0-89ea-e33a31db48db/e/m");
     test_good_url("https://discordapp.com/widget?id=305444013354254349&theme=dark");
+    test_good_url("https://drive.google.com/file/d/0B65w91gNVFP0OFVsMGxpVmlvRzA/preview");
 
     # E
     test_good_url( "http://episodecalendar.com/icalendar/sampleuser\@example.com/abcde/",
@@ -172,6 +173,7 @@ note("misc");
 
     # L
     test_good_url("https://lichess.org/study/embed/JYjprYmJ/CeyjnPCj");
+    test_good_url("https://www.loc.gov/item/mbrs01991430/?embed=resources");
 
     test_good_url("https://shad-tkhom.livejournal.com/1244088.html?embed");
     test_bad_url( "https://shad-tkhom.livejournal.com/1244088.html",         "missing embed flag" );
@@ -190,6 +192,7 @@ note("misc");
     );
 
     # N
+    test_good_url("https://nekocap.com/view/OUHX8PYzJE?embed=true");
     test_good_url("http://ext.nicovideo.jp/thumb/sm123123123");
     test_good_url("http://ext.nicovideo.jp/thumb/nm123123123");
     test_good_url("http://ext.nicovideo.jp/thumb/123123123");
@@ -222,6 +225,7 @@ note("misc");
 "https://www.reverbnation.com/widget_code/html_widget/artist_299962?widget_id=55&pwc[song_ids]=4189683&context_type=song&pwc[size]=small&pwc[color]=dark"
     );
     test_good_url("https://rumble.com/embed/vr722g/?pub=4");
+    test_good_url("https://rutube.ru/play/embed/7189654");
 
     # S
     test_good_url("http://www.sbs.com.au/yourlanguage//player/embed/id/163111");
@@ -255,6 +259,7 @@ note("misc");
     test_good_url(
 "http://i.cdn.turner.com/cnn/.element/apps/cvp/3.0/swf/cnn_416x234_embed.swf?context=embed&videoId=bestoftv/2012/09/05/exp-tsr-dem-platform-voice-vote.cnn"
     );
+    test_good_url("https://player.twitch.tv/?autoplay=false&video=v582773417");
 
     # V
     test_good_url("https://vid.me/e/v63?stats=1&amp;tools=1");
