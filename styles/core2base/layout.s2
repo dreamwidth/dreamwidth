@@ -314,30 +314,12 @@ function Page::print_default_stylesheet() {
     #for showing the navigation in the header
     var string navlinks_css = "";
     if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
-        #header > .inner:first-child { padding-bottom: 2em;
-            position: relative; }
-        .module-navlinks { text-align:right;}
-        .module-navlinks * {
-        display: inline !important;
-        background:  transparent !important;
-        border-left: none !important; }
+        .module-navlinks li {
+        display: inline-block; }
 
-        /* Above standard link colors so hover and active still work */
-        .module-navlinks .module-content li a.current,
-        .module-navlinks .module-content li a.current:visited {
-            color: $*color_page_title;
-            text-decoration: none;
-        }
-
-        /* Extra specificity needed to override code below */
-        .module-navlinks .module-content li a { color: $*color_header_link; }
-        .module-navlinks .module-content li a:visited { color: $*color_header_link_visited; }
-        .module-navlinks .module-content li a:hover { color: $*color_header_link_hover; }
-        .module-navlinks .module-content li a:active { color: $*color_header_link_active; }
-
-        .module-navlinks .module-header { display: none !important; }
+        .module-navlinks .module-header { display: none; }
         """; }
-    else { $navlinks_css = ""; }
+    else { $navlinks_css = "#header .module-wrapper {display: none;}"; }
 
      var string userpic_css = "";
          if ($*userpics_position == "right") {

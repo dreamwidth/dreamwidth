@@ -846,7 +846,7 @@ sub make_journal {
     {    # don't check style sheets
         return $u->display_journal_deleted( $remote, journal_opts => $opts ) if $u->is_deleted;
 
-        return $error->( "error/suspended.tt", { u => $u } ) if $u->is_suspended;
+        return $error->( "error/suspended.tt", { u => $u, remote => $remote } ) if $u->is_suspended;
 
         my $entry = $opts->{ljentry};
         return $error->( "error/suspended-entry.tt", { u => $u } )

@@ -2087,13 +2087,13 @@ menunav.explore.sitesearch=Site and Journal Search
 
 menunav.organize=Organize
 
+menunav.organize.acctsettings=Account Settings
+
 menunav.organize.beta=Test Beta Features
 
-menunav.organize.customizestyle=Customize Style
+menunav.organize.customizejournalstyle=Customize Journal Style
 
 menunav.organize.importcontent=Import Content
-
-menunav.organize.manageaccount=Manage Account
 
 menunav.organize.managecommunities=Manage Communities
 
@@ -2105,7 +2105,7 @@ menunav.organize.managerelationships=Manage Circle
 
 menunav.organize.managetags=Manage Tags
 
-menunav.organize.selectstyle=Select Style
+menunav.organize.selectjournalstyle=Select Journal Style
 
 menunav.read=Read
 
@@ -4727,6 +4727,8 @@ widget.createaccount.error.password.toolong=Password must not be longer than 30 
 
 widget.createaccount.error.password.tooshort=Your password must be at least 6 characters for security reasons.
 
+widget.createaccount.error.suspended=Your account has been automatically suspended because our detection systems have determined it is likely to be spam. Please contact us by emailing [[accounts_email]] if you feel this suspension is in error.
+
 widget.createaccount.error.tos=You must agree to the Terms of Service.
 
 widget.createaccount.error.username.inuse=That account name is already in use.
@@ -4821,12 +4823,6 @@ widget.createaccountprogressmeter.step3=Upgrade (optional)
 
 widget.createaccountprogressmeter.step4=Finish
 
-widget.createaccounttheme.info=Choose from more themes later:
-
-widget.createaccounttheme.preview=Preview
-
-widget.createaccounttheme.title=Select Your Journal's Theme
-
 widget.createaccountupgrade.btn.purchase=Purchase a Paid Account
 
 widget.createaccountupgrade.nextstep=No thanks, I'm not interested at this time.
@@ -4887,16 +4883,6 @@ widget.cuttag.expandall=Expand All Cut Tags
 
 widget.cuttag.expanded=Collapse
 
-widget.feeds.btn.add=Add
-
-widget.feeds.enterRSS=enter RSS url
-
-widget.feeds.find=Find or create feed:
-
-widget.feeds.title=Feeds
-
-widget.feeds.viewall=view all
-
 widget.friendbirthdays.friends_link=View birthdays for everyone in your circle
 
 widget.friendbirthdays.gift=Gift
@@ -4906,14 +4892,6 @@ widget.friendbirthdays.title=Birthdays
 widget.friendbirthdays.userbirthday=[[month]] [[day]]
 
 widget.friendbirthdays.viewall=More
-
-widget.friendupdates.noupdates=You have no updates.
-
-widget.friendupdates.noupdates.setup=Set up your notifications in <a [[aopts]]>Manage Settings</a>.
-
-widget.friendupdates.title=Friend Updates
-
-widget.friendupdates.viewall=More
 
 widget.importchoosedata.btn.continue=Continue &rarr;
 

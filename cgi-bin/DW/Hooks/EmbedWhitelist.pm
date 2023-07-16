@@ -204,7 +204,7 @@ LJ::Hooks::register_hook(
             return ( 1, 1 )
                 if $uri_path eq '/plugins/video.php'
                 && $parsed_uri->query =~
-                m/^href=https%3A%2F%2Fwww.facebook.com%2F[^%]+%2Fvideos%2F/;
+                m/^(height=\d+&)?href=https%3A%2F%2Fwww.facebook.com%2F[^%]+%2Fvideos%2F/;
         }
 
         if ( $uri_host eq "www.jigsawplanet.com" ) {

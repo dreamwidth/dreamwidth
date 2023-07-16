@@ -12,13 +12,13 @@
 
 [% BLOCK actions %]
 <div class="header searchhighlight" id="action_row">
-    <div class="checkbox">[% form.checkbox(name = 'check_all', class = 'check_all', value = 'check_all') %]</div>
+    <div class="checkbox">[% form.checkbox(name = 'check_all', class = 'check_all', value = 'check_all', autocomplete = 'off') %]</div>
     <div class="actions">
-        <button name='mark_read' class ='action_button show_unread no-js' data-action='mark_read'>[% dw.ml('widget.inbox.menu.mark_read.btn') %]</button>
-        <button name='mark_unread' class='action_button show_read no-js' data-action='mark_unread'>[% dw.ml('widget.inbox.menu.mark_unread.btn') %]</button>
-        <button name='delete' class='action_button show_read show_unread no-js fi-icon--decorative' data-action='delete'><span class="fi-icon fi-trash" aria-hidden="true"></span> [% dw.ml('.menu.delete.btn') %]</button>
-        <button name='mark_all' class='action_button show_all' data-action='mark_all'>[% dw.ml(mark_all) %]</button>
-        <button name='delete_all' class='action_button show_all fi-icon--decorative' data-action='delete_all'><span class="fi-icon fi-trash" aria-hidden="true"></span> [% dw.ml(delete_all) %]</button>
+        <button name='mark_read' class ='large action_button show_unread no-js' data-action='mark_read'>[% dw.ml('widget.inbox.menu.mark_read.btn') %]</button>
+        <button name='mark_unread' class='large action_button show_read no-js' data-action='mark_unread'>[% dw.ml('widget.inbox.menu.mark_unread.btn') %]</button>
+        <button name='delete' class='large action_button show_read show_unread no-js fi-icon--decorative' data-action='delete'><span class="fi-icon fi-trash" aria-hidden="true"></span> [% dw.ml('.menu.delete.btn') %]</button>
+        <button name='mark_all' class='large action_button show_all' data-action='mark_all'>[% dw.ml(mark_all) %]</button>
+        <button name='delete_all' class='large action_button show_all fi-icon--decorative' data-action='delete_all'><span class="fi-icon fi-trash" aria-hidden="true"></span> [% dw.ml(delete_all) %]</button>
     </div>
     <div class="pages">
         [%- INCLUDE components/pagination.tt

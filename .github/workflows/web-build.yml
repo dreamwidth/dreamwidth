@@ -4,11 +4,16 @@ on:
   push:
     branches:
       - main
+      - canary
     paths:
       - cgi-bin/**
+      - ext/dw-nonfree/cgi-bin/**
       - htdocs/**
+      - ext/dw-nonfree/htdocs/**
       - views/**
+      - ext/dw-nonfree/views/**
       - schemes/**
+      - ext/dw-nonfree/schemes/**
       - src/s2/**
   workflow_dispatch:
 
@@ -29,7 +34,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build image
-        run: docker build -t $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}" etc/docker/$IMAGE_NAME
+        run: docker build -t $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}" etc/docker/$IMAGE_NAME --build-arg="COMMIT=$GITHUB_REF_NAME"
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin

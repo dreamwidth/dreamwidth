@@ -73,7 +73,7 @@
  <dl>
   <dt>[% '.maplinks.title.manage-account' | ml( sitename = site.nameshort ) %]</dt>
   <dd><ul>
-   <li><a href='/manage/settings/'>[% '.maplinks.manage-settings' | ml %]</a></li>
+   <li><a href='/manage/settings/'>[% '.maplinks.account-settings' | ml %]</a></li>
    <li><a href='/inbox/'>[% '.maplinks.inbox' | ml %]</a></li>
    <li><a href='/shop'>[% '.maplinks.upgrade' | ml %]</a></li>
    <li><a href='/changepassword'>[% '.maplinks.changepassword' | ml %]</a></li>
@@ -85,8 +85,8 @@
  <dl>
   <dt>[% '.maplinks.title.customize' | ml( sitename = site.nameshort ) %]</dt>
   <dd><ul>
-   <li><a href='/customize/'>[% '.maplinks.selectstyle' | ml %]</a></li>
-   <li><a href='/customize/options'>[% '.maplinks.customizestyle' | ml %]</a></li>
+   <li><a href='/customize/'>[% '.maplinks.selectjournalstyle' | ml %]</a></li>
+   <li><a href='/customize/options'>[% '.maplinks.customizejournalstyle' | ml %]</a></li>
    <li><a href='/customize/options?group=linkslist'>[% '.maplinks.manage-linkslist' | ml %]</a></li>
    <li><a href='/support/faqbrowse?faqcat=styles'>[% '.maplinks.about-customizing' | ml %]</a></li>
    <li><a href='/customize/advanced/'>[% '.maplinks.advanced-customization' | ml %]</a></li>
