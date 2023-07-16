@@ -1,0 +1,63 @@
+;; -*- coding: utf-8 -*-
+.addresses.header=Allowed sender addresses
+
+.addresses.table.address=Address
+
+.addresses.text=Only the addresses listed below are allowed to post to your account via the email gateway.  If no addresses are listed, you won't be able to post via the email gateway.  We'll send errors only to the address(es) you've selected.
+
+.button.save=Save Settings
+
+.error.acct=Updating your journal by email isn't available for your account type.
+
+.error.invalidemail=[[email]] is an invalid address: [[error]]
+
+.error.invalidpin=Your PIN is limited to alphanumeric characters and must be at least [[num]] [[?num|character|characters]] long.
+
+.error.invalidpinuser=This PIN is invalid.  You should change it to something that is completely unrelated to the name of your account.
+
+.error.sitenotconfigured=This site isn't configured to allow updating your journal via email.
+
+.intro=If you'd like to be able to post to your journal by email, please fill out the fields on this page. You can consult the <a [[aopts]]>instructions</a> for more help using this feature.
+
+.pin.header=PIN
+
+.pin.text=Your PIN is used only for the email gateway.  Don't use your regular password for this.  That way anyone who obtains your PIN won't get full access to your journal.  The PIN should be at least [[num]] [[?num|character|characters]] long and may only contain letters and numbers.
+
+.settings.entry.comments=Comments:
+
+.settings.entry.comments.select.default=Default
+
+.settings.entry.comments.select.noemail=No email
+
+.settings.entry.comments.select.off=Off
+
+.settings.entry.header=Journal entry defaults
+
+.settings.entry.security=Security:
+
+.settings.entry.security.select.access=Access
+
+.settings.entry.security.select.default=Default
+
+.settings.entry.security.select.private=Private
+
+.settings.entry.security.select.public=Public
+
+.settings.entry.userpic=Icon:
+
+.settings.entry.userpic.select.none=(none)
+
+.settings.header=Default settings
+
+.settings.text=These settings apply to all journal updates made by email. If you leave these options alone your journal defaults will take over, or you can override them on a message by message basis using post-headers. <a [[aopts]]>More information about email settings and post-header overrides</a>.
+
+.success.back=Back to Mobile Post Settings
+
+.success.info=More information on how to use this feature
+
+.success.message=You've successfully saved your email gateway settings. If you requested a summary of posting instructions, it should arrive in your email inbox shortly.
+
+.success.settings=Back to Account Settings
+
+.title=Mobile Post Settings
+

@@ -2437,6 +2437,24 @@ setting.allowvgiftsfrom.sel.r=Registered users
 
 setting.allowvgiftsfrom.sel.t=Trusted users
 
+setting.apikeydelete.des=Check any keys you wish to delete. Deleting a key will make it unusable.
+
+setting.apikeydelete.error=Problem deleting API key. Please try again later, or contact support if the problem persists.
+
+setting.apikeydelete.label=Manage API Keys
+
+setting.apikeydelete.none=You have no API keys generated yet!
+
+setting.apikeygenerate.act=Generate a new API key
+
+setting.apikeygenerate.des=You can use these keys with the Dreamwidth API to authenticate yourself. <br> Anyone with access to a key can act as you, so keys should not be shared.
+
+setting.apikeygenerate.error=Problem generating new API key. Please try again later, or contact support if the problem persists.
+
+setting.apikeygenerate.label=Generate API Key
+
+setting.apikeygenerate.ok=New API key: [[keyval]]
+
 setting.bio.desc|notes=There shouldn't be a description unless the page specifies one
 setting.bio.desc=_none
 
@@ -2741,12 +2759,6 @@ setting.emailformat.option.html=HTML
 
 setting.emailformat.option.plaintext=Plain Text
 
-setting.emailposting.error.email.invalid=This email address is not valid.
-
-setting.emailposting.error.pin.invalid=Your PIN can only contain alphanumeric characters (a-z and 0-9); for improved security it must be at least [[num]] [[?num|character|characters]] long.
-
-setting.emailposting.error.pin.invalidaccount=This PIN is invalid. You should change it to something that doesn't have anything to do with your [[sitename]] account.
-
 setting.emailposting.helpmessage.body<<
 PIN is required, embedded in one of: to address, subject or body.
   To: [[email]]
@@ -2772,21 +2784,15 @@ setting.emailposting.helpmessage.subject=Summary of Email Posting Instructions f
 
 setting.emailposting.label=Email Posting
 
+setting.emailposting.manage=Manage Mobile Post Settings
+
 setting.emailposting.notavailable=Your account level does not permit you to use this feature.
 
 setting.emailposting.notavailable.upgrade=Would you like to <a [[aopts]]>upgrade your account?</a>
 
-setting.emailposting.option=Make entries in your journal by sending an email from one of your confirmed email addresses to account name+pin@[[domain]].  <a [[aopts]]>View more posting instructions</a>.
-
-setting.emailposting.option.addr=Email Address:
-
-setting.emailposting.option.advanced=Advanced Setup Options
+setting.emailposting.note=Click the link below to set up email posting for your account.
 
 setting.emailposting.option.helpmessage=Email summary of posting instructions?
-
-setting.emailposting.option.pin=PIN:
-
-setting.emailposting.option.pin.note=(numbers and/or letters)
 
 setting.emailposting.option.senderrors=Send errors?
 
@@ -2939,6 +2945,16 @@ setting.randompaidgifts.option.note.comm=The community may receive paid time fro
 setting.randompaidgifts.option.paid=If your paid account expires, include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
 setting.randompaidgifts.option.paid.comm=If this community's paid account expires, include it in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
+
+setting.resetreplyemail.act=Reset secret address
+
+setting.resetreplyemail.des=You can reply to a comment by using the "Reply" function of your email client. <br> These emails reply to a secret address so that we can identify the author of the reply. <br> You should reset the secret address if you've accidentally exposed it to anyone else.
+
+setting.resetreplyemail.error=Problem generating a new secret address. Please try again.
+
+setting.resetreplyemail.label=Reply By Email
+
+setting.resetreplyemail.reset=Your new secret address has been generated and will be used for future comment notification emails.
 
 setting.rpaccount.label=Roleplaying Account?
 

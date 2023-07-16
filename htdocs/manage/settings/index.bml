@@ -146,6 +146,9 @@ body<=
             desc => $ML{'.cat.mobile.desc2'},
             settings => [qw(
                 LJ::Setting::EmailPosting
+                DW::Setting::ResetReplyEmail
+                DW::Setting::ApiKeyDelete
+                DW::Setting::ApiKeyGenerate
             )],
         },
         privacy => {

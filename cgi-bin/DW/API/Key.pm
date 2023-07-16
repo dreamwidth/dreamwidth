@@ -99,7 +99,8 @@ sub get_keys_for_user {
         push @keylist, $new;
     }
 
-    return \@keylist;
+    # sort oldest to newest (predictable ordering for management page)
+    return [ sort { $a->{keyid} <=> $b->{keyid} } @keylist ];
 }
 
 # Usage: create ( user, key )
