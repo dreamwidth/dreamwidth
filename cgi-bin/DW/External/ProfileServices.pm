@@ -121,7 +121,7 @@ sub save_profile_accts {
         foreach my $name ( keys %$href ) {
             next unless $sites{$name};
             foreach my $val ( @{ $href->{$name} } ) {
-                $val = LJ::text_trim( lc( $val // '' ) );
+                $val = lc( $val // '' );
                 next unless $val;
                 $ret{$name} //= {};
                 $ret{$name}->{$val} = 1;

@@ -729,8 +729,7 @@ body<=
                 my $name = $POST{"extservice_name_$ct"};
                 next unless $name;
                 my $val = $POST{"extservice_val_$ct"} // '';
-                # this isn't great but it's better than not enforcing maxlen at all
-                $val = substr $val, 0, $services{$name}->{maxlen};
+                $val = LJ::text_trim( $val, 255, $services{$name}->{maxlen} );
                 $new_accts{$name} //= [];
                 push @{ $new_accts{$name} }, $val;
             }
