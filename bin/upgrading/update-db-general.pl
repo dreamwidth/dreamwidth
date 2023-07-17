@@ -3122,6 +3122,7 @@ EOC
 
 register_tablecreate( "profile_services", <<'EOC');
 CREATE TABLE profile_services (
+    service_id MEDIUMINT(8) UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(40) NOT NULL,
     userprop VARCHAR(40),
     imgfile VARCHAR(40) NOT NULL,
@@ -3129,7 +3130,8 @@ CREATE TABLE profile_services (
     url_format VARCHAR(255),
     maxlen TINYINT(3) UNSIGNED NOT NULL,
 
-    PRIMARY KEY (name)
+    PRIMARY KEY (service_id),
+    UNIQUE KEY (name)
 )
 EOC
 
@@ -3137,11 +3139,12 @@ EOC
 register_tablecreate( "user_profile_accts", <<'EOC');
 CREATE TABLE user_profile_accts (
     userid INT(10) UNSIGNED NOT NULL,
-    name VARCHAR(40) NOT NULL,
+    account_id MEDIUMINT(8) UNSIGNED NOT NULL,
+    service_id MEDIUMINT(8) UNSIGNED NOT NULL,
     value VARCHAR(255) NOT NULL,
 
-    PRIMARY KEY (userid, name, value),
-    INDEX (userid)
+    PRIMARY KEY (userid, account_id),
+    INDEX (value)
 )
 EOC
 

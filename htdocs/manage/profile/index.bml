@@ -48,7 +48,7 @@ body<=
     push @settings, "LJ::Setting::FindByEmail" if LJ::is_enabled('opt_findbyemail');
     push @settings, "DW::Setting::ProfileEmail";
 
-    my $profile_accts = $u->load_profile_accts;
+    my $profile_accts = $u->load_profile_accts( force_db => 1 );
 
     # list the userprops that are handled explicitly by code on this page
     # props in this list will be preloaded on page load and saved on post
@@ -415,16 +415,17 @@ body<=
 
             my @services = map $service_info->($_), @{ DW::External::ProfileServices->list };
             my @dropdown = ( '' => '' );
-            push @dropdown, ( $_->{name} => $_->{title} ) foreach @services;
+            push @dropdown, ( $_->{service_id} => $_->{title} ) foreach @services;
 
             my $service_td = sub {
                 my ( $p, $val ) = @_;
                 $oddeven = !$oddeven;
                 $ret .= "<tr class='field_block'>" if $oddeven;
                 $ret .= "<td class='field_name' width='20%'>$p->{title}</td><td width='30%'>";
-                $ret .= LJ::html_hidden( "extservice_name_$ct", $p->{name} );
+                $ret .= LJ::html_hidden( "extservice_site_$ct", $p->{service_id} );
+                $ret .= LJ::html_hidden( "extservice_dbid_$ct", $val->[0] ) if $val->[0];
                 $ret .= LJ::html_text( { name => "extservice_val_" . $ct++,
-                                         value => $val,
+                                         value => $val->[1],
                                          title => $p->{title} . " Username",
                                          size => '20',
                                          maxlength => $p->{maxlen} } );
@@ -434,10 +435,10 @@ body<=
 
             # ignore legacy userprops if %$profile_accts has been populated
             if (%$profile_accts) {
-                my %services = map { $_->{name} => $_ } @services;
-                foreach my $name ( sort keys %$profile_accts ) {
-                    my $p = $services{$name};
-                    foreach my $val ( @{ $profile_accts->{$name} } ) {
+                foreach my $p ( @services ) {
+                    my $s_id = $p->{service_id};
+                    next unless $profile_accts->{$s_id};
+                    foreach my $val ( @{ $profile_accts->{$s_id} } ) {
                         $service_td->( $p, $val ) ;
                     }
                 }
@@ -447,7 +448,7 @@ body<=
                     next unless $p->{userprop};
                     my $val = $u->{$p->{userprop}};
                     next unless $val;
-                    $service_td->( $p, $val ) ;
+                    $service_td->( $p, [0, $val] ) ;
                 }
             }
 
@@ -456,7 +457,7 @@ body<=
                 $oddeven = !$oddeven;
                 $ret .= "<tr class='field_block'>" if $oddeven;
                 $ret .= "<td class='field_name' width='20%'>";
-                $ret .= LJ::html_select( { name => "extservice_name_$n" }, @dropdown );
+                $ret .= LJ::html_select( { name => "extservice_site_$n" }, @dropdown );
                 $ret .= "</td><td width='30%'>";
                 $ret .= LJ::html_text( { name => "extservice_val_$n",
                                          value => '',
@@ -722,16 +723,20 @@ body<=
             $u->set_prop( \%prop, undef, { skip_db => 1 } );
 
             # update external services
-            my %services = map { $_->{name} => $_ } @{ DW::External::ProfileServices->list };
+            my %services = map { $_->{service_id} => $_ } @{ DW::External::ProfileServices->list };
             my %new_accts;
 
             foreach my $ct (1..26) {
-                my $name = $POST{"extservice_name_$ct"};
-                next unless $name;
+                my $s_id = $POST{"extservice_site_$ct"};
+                next unless $s_id;
                 my $val = $POST{"extservice_val_$ct"} // '';
-                $val = LJ::text_trim( $val, 255, $services{$name}->{maxlen} );
-                $new_accts{$name} //= [];
-                push @{ $new_accts{$name} }, $val;
+                $val = LJ::text_trim( $val, 255, $services{$s_id}->{maxlen} );
+                $new_accts{$s_id} //= [];
+                if ( my $a_id = $POST{"extservice_dbid_$ct"} ) {
+                    push @{ $new_accts{$s_id} }, [ $a_id, $val ];
+                } else {
+                    push @{ $new_accts{$s_id} }, $val;
+                }
             }
 
             $u->save_profile_accts( \%new_accts );

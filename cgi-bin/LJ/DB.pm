@@ -539,8 +539,10 @@ sub alloc_global_counter {
 #       'Z' == import status item, 'X' == eXternal account
 #       'F' == filter id, 'Y' = pic/keYword mapping id
 #       'A' == mediA item id, 'O' == cOllection id,
-#       'N' == collectioN item id
-#       'B' == api key id
+#       'N' == collectioN item id, 'B' == api key id,
+#       'P' == Profile account id
+#
+#       remaining unused letters: G H J U W
 #
 sub alloc_user_counter {
     my ( $u, $dom, $opts ) = @_;
@@ -548,7 +550,7 @@ sub alloc_user_counter {
 
     ##################################################################
     # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFYAB]$/;    #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQDIZXFYABN]$/;
     ##################################################################
 
     my $dbh = LJ::get_db_writer();
@@ -706,6 +708,11 @@ sub alloc_user_counter {
     elsif ( $dom eq "N" ) {
         $newmax =
             $u->selectrow_array( "SELECT MAX(colitemid) FROM collection_items WHERE userid = ?",
+            undef, $uid );
+    }
+    elsif ( $dom eq "P" ) {
+        $newmax =
+            $u->selectrow_array( "SELECT MAX(account_id) FROM user_profile_accts WHERE userid = ?",
             undef, $uid );
     }
     else {

@@ -32,8 +32,10 @@ sub list {
     # load services from database and add to memcache (expiring hourly)
     my $dbr  = LJ::get_db_reader();
     my $data = $dbr->selectall_hashref(
-        "SELECT name, userprop, imgfile, title_ml, url_format, maxlen FROM profile_services",
-        "name" );
+        "SELECT service_id, name, userprop, imgfile, title_ml,"
+            . " url_format, maxlen FROM profile_services",
+        "name"
+    );
     confess $dbr->errstr if $dbr->err;
 
     $services = [ map { $data->{$_} } sort keys %$data ];
@@ -72,14 +74,17 @@ sub load_profile_accts {
     # load accounts from database and add to memcache (no expiration)
     my $dbcr = LJ::get_cluster_reader($u) or die;
     my $data = $dbcr->selectall_arrayref(
-        "SELECT name, value FROM user_profile_accts WHERE userid=? ORDER BY name, value",
-        { Slice => {} }, $uid );
+        "SELECT service_id, account_id, value FROM user_profile_accts"
+            . " WHERE userid=? ORDER BY value",
+        { Slice => {} },
+        $uid
+    );
     confess $dbcr->errstr if $dbcr->err;
 
     foreach my $acct (@$data) {
-        my $name = $acct->{name};
-        $accounts->{$name} //= [];
-        push @{ $accounts->{$name} }, $acct->{value};
+        my $s_id = $acct->{service_id};
+        $accounts->{$s_id} //= [];
+        push @{ $accounts->{$s_id} }, [ $acct->{account_id}, $acct->{value} ];
     }
 
     LJ::MemCache::set( $memkey, $accounts );
@@ -100,8 +105,6 @@ sub save_profile_accts {
 
     return unless $u->writer;
 
-    my %sites = map { $_->{name} => 1 } @{ DW::External::ProfileServices->list };
-
     # if %$old_accts is empty, we need to clear out the user's legacy userprops
     # to avoid an edge case where if a user clears out all of their accounts
     # later, the old userprop values will suddenly reappear on their profile
@@ -111,58 +114,30 @@ sub save_profile_accts {
         $u->set_prop( \%prop, undef, { skip_db => 1 } );
     }
 
-    # convert listref vals to sanitized hashref vals
-    # note: we now lowercase to avoid value duplication
-    # when allowing multiple values per account type
-    my $remap = sub {
-        my $href = shift;
-        my %ret;
+    while ( my ( $s_id, $multival ) = each %$new_accts ) {
+        foreach my $val (@$multival) {
+            if ( ref $val && $val->[1] ) {
 
-        foreach my $name ( keys %$href ) {
-            next unless $sites{$name};
-            foreach my $val ( @{ $href->{$name} } ) {
-                $val = lc( $val // '' );
-                next unless $val;
-                $ret{$name} //= {};
-                $ret{$name}->{$val} = 1;
+                # update the value of the existing row
+                $u->do(
+                    "UPDATE user_profile_accts SET value = ? WHERE account_id = ? AND userid = ?",
+                    undef, $val->[1], $val->[0], $uid );
             }
-        }
-        return %ret;
-    };
+            elsif ( ref $val ) {
 
-    my %old = $remap->($old_accts);
-    my %new = $remap->($new_accts);
-
-    my $process = sub {
-        my ( $hr1, $hr2 ) = @_;
-        my %ret;
-
-        foreach my $name ( keys %$hr1 ) {
-            foreach my $val ( keys %{ $hr1->{$name} } ) {
-                unless ( $hr2->{$name} && $hr2->{$name}->{$val} ) {
-                    $ret{$name} //= [];
-                    push @{ $ret{$name} }, $val;
-                }
+                # delete the existing row
+                $u->do( "DELETE FROM user_profile_accts WHERE account_id = ? AND userid = ?",
+                    undef, $val->[0], $uid );
             }
-        }
-        return %ret;
-    };
-
-    my %del = $process->( \%old, \%new );
-    my %add = $process->( \%new, \%old );
-
-    foreach my $name ( keys %del ) {
-        foreach my $val ( @{ $del{$name} } ) {
-            $u->do( "DELETE FROM user_profile_accts WHERE userid = ? AND name = ? AND value = ?",
-                undef, $uid, $name, $val );
-            confess $u->errstr if $u->err;
-        }
-    }
-
-    foreach my $name ( keys %add ) {
-        foreach my $val ( @{ $add{$name} } ) {
-            $u->do( "INSERT INTO user_profile_accts (userid, name, value) VALUES (?,?,?)",
-                undef, $uid, $name, $val );
+            else {
+                # new addition or legacy upgrade
+                my $a_id = LJ::alloc_user_counter( $u, 'P' );
+                $u->do(
+                    "INSERT INTO user_profile_accts (userid, account_id, service_id, value)"
+                        . " VALUES (?,?,?,?)",
+                    undef, $uid, $a_id, $s_id, $val
+                );
+            }
             confess $u->errstr if $u->err;
         }
     }

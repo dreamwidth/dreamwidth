@@ -793,11 +793,11 @@ sub external_services {
 
     if (%$accounts) {
         foreach my $site (@$services) {
-            my $name = $site->{name};
-            my $vals = $accounts->{$name} // [];
+            my $s_id = $site->{service_id};
+            my $vals = $accounts->{$s_id} // [];
 
             foreach my $acct (@$vals) {
-                push @ret, $info->( $acct, $site );
+                push @ret, $info->( $acct->[1], $site );
             }
         }
 
