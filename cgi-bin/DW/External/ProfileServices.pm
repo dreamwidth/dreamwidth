@@ -34,7 +34,7 @@ sub list {
     my $data = $dbr->selectall_hashref(
         "SELECT name, userprop, imgfile, title_ml, url_format, maxlen FROM profile_services",
         "name" );
-    die $dbr->errstr if $dbr->err;
+    confess $dbr->errstr if $dbr->err;
 
     $services = [ map { $data->{$_} } sort keys %$data ];
     LJ::MemCache::set( $memkey, $services, 3600 );
@@ -74,7 +74,7 @@ sub load_profile_accts {
     my $data = $dbcr->selectall_arrayref(
         "SELECT name, value FROM user_profile_accts WHERE userid=? ORDER BY name, value",
         { Slice => {} }, $uid );
-    die $dbcr->errstr if $dbcr->err;
+    confess $dbcr->errstr if $dbcr->err;
 
     foreach my $acct (@$data) {
         my $name = $acct->{name};
@@ -155,6 +155,7 @@ sub save_profile_accts {
         foreach my $val ( @{ $del{$name} } ) {
             $u->do( "DELETE FROM user_profile_accts WHERE userid = ? AND name = ? AND value = ?",
                 undef, $uid, $name, $val );
+            confess $u->errstr if $u->err;
         }
     }
 
@@ -162,6 +163,7 @@ sub save_profile_accts {
         foreach my $val ( @{ $add{$name} } ) {
             $u->do( "INSERT INTO user_profile_accts (userid, name, value) VALUES (?,?,?)",
                 undef, $uid, $name, $val );
+            confess $u->errstr if $u->err;
         }
     }
 
