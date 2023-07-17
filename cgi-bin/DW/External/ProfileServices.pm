@@ -65,7 +65,7 @@ sub load_profile_accts {
     # load accounts from memcache
     my $memkey   = [ $uid, "profile_accts:$uid" ];
     my $accounts = LJ::MemCache::get($memkey);
-    return $accounts if $accounts;
+    return $accounts if $accounts && !$args{force_db};
 
     $accounts = {};
 
@@ -92,7 +92,7 @@ sub load_profile_accts {
 sub save_profile_accts {
     my ( $u, $new_accts, %opts ) = @_;
     $u = LJ::want_user($u) or confess 'invalid user object';
-    my $old_accts = $u->load_profile_accts;
+    my $old_accts = $u->load_profile_accts( force_db => 1 );
 
     # expire memcache after updating db
     my $uid    = $u->userid;
