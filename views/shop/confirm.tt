@@ -1,0 +1,40 @@
+[% sections.title =  dw.ml( '.title' ) %]
+[% IF showform %]
+     [% widget %]
+    <form method='post' action='[% site.root %]/shop/confirm?ordernum=[% ordernum %]'>
+    [% dw.form_auth() %]
+    [% IF cart.total_cash > 0.00 %]
+        <p>[% dw.ml( '.confirm', { sitename => site.name, total => "<strong>${cart.display_total_cash}</strong>" } ) %]</p>
+        <p>[% dw.ml(".confirm.$paymentmethod") %]</p>
+    [% ELSIF cart.total_points > 0 %]
+        <p>[% dw.ml( '.confirm.onlypoints', { sitename => site.name } ) %]</p>
+    [% END %]
+
+    [% UNLESS cart.userid %]
+        <p>[% dw.ml('.confirm.email') %]</p>
+        <p>[% form.textbox(  name => 'email', value => email, label =  dw.ml('.confirm.email.label')  ) %]</p>
+        [% IF email_errors %]
+            <div class='error-box'><p>join( '<br />', @email_errors ) %]</p>
+            if ( $email_checkbox ) {
+                <?p $email_checkbox p?>
+            }
+            </div>
+        [% END %]
+    [% END %]
+
+    <p>[% form.submit( name => 'confirm', value => dw.ml('.btn.confirm') ) %]
+        <a href='[% site.root %]/shop/cancel?ordernum=[% ordernum %]'>[% dw.ml('.btn.cancel') %]</a>
+        </p>
+    </form>
+
+[% ELSE %]
+    [% IF confirm == 1 %]
+        <p>[% dw.ml(".success.${paymentmethod}.immediate") %]</p>
+    [% ELSIF confirm == 2 %]
+        [% address = "<p>${site.company}<br />Order #${cart.id}<br />${site.address}</p>" %]
+        <p>[% dw.ml( ".success.${paymentmethod}.processing", { sitecompany => "<strong>${site.company}</strong>", address => address } ) %]</p>
+    [% END %]
+
+    <p><a href='[% site.root %]/shop/receipt?ordernum=[% ordernum %]'>[% dw.ml(".btn.viewreceipt") %]</a><br />
+    <a href='[% site.root %]/shop'>[% dw.ml('.btn.back') %]</a></p>
+[% END %]
