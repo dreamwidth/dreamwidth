@@ -13,12 +13,7 @@
 %]
 
 [%- sections.title='.title' | ml( num = cart.id ) -%]
-
-[%- sections.head = BLOCK %]
-    <style type="text/css">
-        table th { border: 1px solid #000; }
-    </style>
-[% END %]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- pmethod = cart.paymentmethod_visible -%]
 <p>
