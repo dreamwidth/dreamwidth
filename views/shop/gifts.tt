@@ -1,0 +1,81 @@
+[%- sections.title = '.title' | ml(sitename = site.nameshort) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%# define a subroutine for formatting each list item %]
+[% BLOCK list_items %]
+    [% FOREACH person IN userlist %]
+        <li>[% person.ljuser_display %]: [% person.name_html %],
+         [% person.last_updated %]
+
+        [%- UNLESS nopaid -%]
+             [<a href='[% person.gift_url  %]'>
+            [% dw.ml( '.buy.gift' ) %]</a>]
+        [%- END -%]
+
+        [%- IF person.is_personal -%]
+             [<a href='[% person.gift_points_url  %]'>
+            [% dw.ml( '.buy.points' ) %]</a>]
+        [%- END -%]
+
+        [% IF person.is_personal && ! person.equals( remote ) -%]
+             [<a href='[% person.transfer_points_url  %]'>
+            [% dw.ml( '.buy.points.transfer' ) %]</a>]
+        [%- END -%]
+        </li>
+    [% END %]
+[% END %]
+
+<p>[% dw.ml( '.about', { sitename => site.nameshort } ) %]</p>
+
+[% UNLESS freeusers.size || freecommunities.size || expusers.size  || lapsedusers.size %]
+    <p>
+    [% dw.ml( (paidusers ? '.none.free.text' : '.none.text'), { sitename => site.nameshort,
+                                    aopts => "href='${site.root}/shop/'" } ) %]
+    </p>
+[% END %]
+
+[% IF freeusers.size || freecommunities.size %]
+    <h2>[% dw.ml( '.free.header' ) %]</h2>
+    <p>
+    [% dw.ml( '.free.about',
+            { aopts => "href='${site.root}/support/faqbrowse?faqid=153'" } ) %]
+    </p>
+
+    [%#build different lists for personal and community accounts %]
+    [% IF freeusers.size %]
+        <h3>[% dw.ml( '.free.header.personal' ) %]</h3>
+        <ul>[% PROCESS list_items userlist = freeusers %]</ul><br />
+    [% END %]
+    [% IF freecommunities.size %]
+        <h3>[% dw.ml( '.free.header.communities' ) %]</h3>
+        <ul>[% PROCESS list_items userlist = freecommunities %]</ul>
+    [% END %]
+    <br />
+[% END %]
+
+[% IF lapsedusers.size %]
+    <h2>[% dw.ml( '.paid.header.lapsed' ) %]</h2>
+    <p>[% dw.ml( '.paid.lapsed.about' ) %]</p>
+    <ul>[% PROCESS list_items userlist = lapsedusers %]</ul>
+    <br />
+[% END %]
+
+[% IF expusers.size %]
+    <h2>[% dw.ml( '.paid.header.soon' ) %]</h2>
+    <p>[% dw.ml( '.paid.soon.about' ) %]</p>
+    <ul>[% PROCESS list_items userlist = expusers %]</ul>
+    <br />
+[% END %]
+
+[% IF paidusers.size %]
+    <h2>[% dw.ml( '.paid.header.other' ) %]</h2>
+    <p>[% dw.ml( '.paid.other.about' ) %]</p>
+    <ul>[% PROCESS list_items userlist = paidusers %]</ul>
+    <br />
+[% END %]
+
+[% IF seedusers.size %]
+    <h2>[% dw.ml( '.seed.header' ) %]</h2>
+    <p>[% dw.ml( '.seed.about' ) %]</p>
+    <ul>[% PROCESS list_items userlist = seedusers, nopaid = 1 %]</ul>
+[% END %]
