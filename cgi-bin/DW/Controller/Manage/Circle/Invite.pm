@@ -26,7 +26,7 @@ use DW::FormErrors;
 DW::Routing->register_string( "/manage/circle/invite", \&invite_handler, app => 1 );
 
 sub invite_handler {
-    my ( $ok, $rv ) = controller( authas => 1 );
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
     return $rv unless $ok;
     my $r    = DW::Request->get;
     my $POST = $r->post_args;
@@ -44,8 +44,7 @@ sub invite_handler {
         @invitecodes = DW::InviteCodes->by_owner_unused( userid => $u->id );
 
         if ( $u->is_identity ) {
-            $body = LJ::Lang::ml( '.error.openid', { sitename => $LJ::SITENAMESHORT } );
-            return;
+            return error_ml( '.error.openid', { sitename => $LJ::SITENAMESHORT } );
         }
 
         unless (@invitecodes) {
@@ -117,8 +116,6 @@ sub invite_handler {
 
         unless ( $errors->exist ) {
             if ( $u->rate_log( 'invitefriend', 1 ) ) {
-
-                my $given_msg_custom = $POST->{msg} ? "$POST->{msg}\n\n" : "";
 
                 $u->log_event(
                     'friend_invite_sent',
