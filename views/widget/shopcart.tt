@@ -1,0 +1,125 @@
+[% UNLESS confirm || admin %]
+    <form method="post">
+    [% dw.form_auth() %] 
+[% END %]
+
+<table class='shop-cart grid table'>
+    <thead>
+    <tr>
+        [% "<th></th>" UNLESS receipt %]
+        <th>[% dw.ml('widget.shopcart.header.item') %]</th>
+        <th>[% dw.ml('widget.shopcart.header.deliverydate') %]</th>
+        <th>[% dw.ml('widget.shopcart.header.to') %]</th>
+        <th>[% dw.ml('widget.shopcart.header.from') %]</th>
+        [% "<th>" _ dw.ml('widget.shopcart.header.random') _ "</th>" IF admin %]</th>
+        <th>[% dw.ml('widget.shopcart.header.price') %]</th>
+        [% "<th>ADMIN</th>" IF admin %]
+    </tr>
+    </thead>
+
+<tfoot>
+<tr>
+    <td class='total' style='border-right: none; text-align: left;' colspan='3'>
+    [% UNLESS receipt %]
+    [% form.submit( name = 'removeselected', value = dw.ml('widget.shopcart.btn.removeselected'), class="button secondary") %]
+    [% form.submit( name = 'discard', value = dw.ml('widget.shopcart.btn.discard'), class="button secondary") %]
+    [% END %]
+    </td>
+    <td style='border-left: none;' colspan='[% colspan %]' class='total'>
+        [% dw.ml('widget.shopcart.total') %] [% cart.display_total %]
+    </td>
+    </tr>
+</tfoot>
+
+<tbody>
+[% FOREACH item IN cart.items %]
+    <tr>
+        [% IF receipt %]
+        [%# empty column for receipt %]
+        [% ELSIF item.noremove %]
+            <td></td>
+        [% ELSE %]
+            <td>[% form.checkbox( name => "remove_${item.id}" value => 1 ) %]</td>
+        [% END %]
+
+        <td>[% item.name_html %]
+            [% "<p class='note'>${item.note}</p>" IF item.note %]
+        </td>
+
+        <td>
+            [% item.deliverydate ? item.deliverydate : dw.ml('widget.shopcart.deliverydate.asap') %]
+        </td>
+        <td>[% item.t_html( 'admin' => admin ) %]</td>
+        <td>[% item.from_html %]</td>
+        [% "<td>" _ is_random(item) _ "</td>" IF admin %]
+        <td>[% item.display_paid %]</td>
+
+        [% IF admin %]
+        <td>
+            [% item.t_email ? admin_col(item) : '--' %]
+        </td>
+        [% END %]
+
+            </tr>
+        [% END %]
+    </tbody>
+</table>
+
+[% IF checkout_ready %]
+    <div class='shop-cart-btn'>
+        <p>
+        <strong>
+            [% dw.ml('widget.shopcart.paymentmethod') %]
+        </strong> 
+
+    [%# if the cart is zero cost, then we can just let them check out %]
+    [% IF cart.total_cash == 0.00 %]
+        [% form.submit(
+            name = 'checkout_free',
+            value = dw.ml('widget.shopcart.paymentmethod.free') 
+        ) %]
+    [% ELSE %]
+        [%# google has very specific rules about where the buttons go and how to display them
+        # ... so we have to abide by that %]
+
+        [% IF gco_avail %]
+            <input type="image" name="checkout_gco" 
+                src="https://checkout.google.com/buttons/checkout.gif?merchant_id=&w=180&h=46&style=trans&variant=text&loc=en_US" 
+                alt="Use Google Checkout" style="vertical-align: middle;" /> or use 
+                &nbsp;&nbsp;
+        [% END %]
+
+        [%# Stripe credit card processing %]
+        [% form.submit(
+            name = 'checkout_stripe', 
+            value = dw.ml('widget.shopcart.paymentmethod.creditcard'),
+            disabled = !cc_avail
+        ) %]
+
+        [% IF cmo_avail %]
+            [% form.submit(
+                name = 'checkout_cmo', 
+                value = dw.ml('widget.shopcart.paymentmethod.checkmoneyorder'),
+                disabled = disable_cmo
+            ) %]
+        [% END %]
+
+        [% IF !cc_avail %]
+            </p><p>
+            [% dw.ml('widget.shopcart.paymentmethod.creditcard.whydisabled') %]
+        [% END %]
+
+        [% IF cmo_avail && disable_cmo %]
+            </p><p>
+            [% dw.ml(
+                'widget.shopcart.paymentmethod.checkmoneyorder.whydisabled',
+                { minimum => cmo_min }
+            ) %]
+        [% END %]
+        [% END %]
+    </p></div>
+[% END %]
+
+[% UNLESS confirm || admin %]
+    </form>
+[% END %]
