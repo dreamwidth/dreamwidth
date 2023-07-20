@@ -470,6 +470,139 @@ sub pending_sub_data {
     return \%ret;
 }
 
+# extracted from /manage/settings
+sub save_subscriptions {
+    my ( $u, $post_args ) = @_;
+
+    my @notif_errors;
+    my @sub_edit;
+    my @to_consider;
+    my @to_activate;
+
+    foreach my $postkey ( keys %$post_args ) {
+        my $subscr;
+        my $is_old = $postkey =~ /-old$/;
+
+        # are there other options for this pending subscription?
+        # if so, process those not this one
+        next if $postkey =~ /\.arg\d/;
+
+        $subscr = LJ::Subscription->thaw( $postkey, $u, $post_args ) or next;
+
+        if ( $subscr->pending ) {
+            push @to_consider, $subscr;
+        }
+        else {
+            push @to_activate, $subscr if !$is_old && !$subscr->active;
+        }
+
+        next unless $is_old;
+        my $old_postkey = $postkey;
+
+        # remove old string
+        $postkey =~ s/-old$//;
+
+        my $oldvalue = $post_args->{$old_postkey};
+        my $checked  = $post_args->{$postkey};
+
+        push @sub_edit, [ $subscr, $checked, $oldvalue ];
+    }
+
+    # first process deletions
+    foreach my $edit_info (@sub_edit) {
+        my ( $subscr, $checked, $oldvalue ) = @$edit_info;
+
+        if ( !$checked && $oldvalue && $subscr->method->configured_for_user($u) ) {
+
+            # if it's not checked and is currently a real subscription, deactivate it
+            # unless we disabled it for them (disabled checkboxes don't POST)
+            $subscr->deactivate;
+        }
+    }
+
+    # then process new subs and activations
+    foreach my $subscr (@to_activate) {
+        my @inbox_subs =
+            grep { $_->active && $_->enabled } $u->find_subscriptions( method => 'Inbox' );
+
+        if ( @inbox_subs >= $u->max_subscriptions ) {
+
+            # too many, sorry
+            push @notif_errors, LJ::errobj( "Subscription::TooMany", subscr => $subscr, u => $u );
+        }
+        else {
+            # all is good, reactivate it
+            $subscr->activate;
+        }
+    }
+
+    # Define limits
+    my $paid_max = LJ::get_cap( 'paid', 'subscriptions' );
+    my $u_max    = $u->max_subscriptions;
+
+    # max for total number of subscriptions (generally it is $paid_max)
+    my $system_max = $u_max > $paid_max ? $u_max : $paid_max;
+
+    my $inbox_ntypeid = LJ::NotificationMethod::Inbox->ntypeid;
+    my @other_ntypeid_to_consider;
+
+    my $process_pending = sub {
+        my ( $subscr, $method ) = @_;
+
+        my @all_subs    = $u->find_subscriptions( method => $method );
+        my @active_subs = grep { $_->active && $_->enabled } @all_subs;
+
+        if ( @active_subs >= $u_max ) {
+            push @notif_errors, LJ::errobj( "Subscription::TooMany", subscr => $subscr, u => $u );
+            return 0;
+        }
+        if ( @all_subs >= $system_max ) {
+            push @notif_errors,
+                LJ::errobj(
+                "Subscription::TooManySystemMax",
+                subscr => $subscr,
+                u      => $u,
+                max    => $system_max
+                );
+            return 0;
+        }
+        return 1;
+    };
+
+    # process new inbox subs
+    foreach my $subscr (@to_consider) {
+        if ( $subscr->ntypeid != $inbox_ntypeid ) {
+
+            # save this for consideration after we've processed all inbox subscriptions first
+            push @other_ntypeid_to_consider, $subscr;
+        }
+        else {
+
+            # this is an inbox subscription, save it
+            $subscr->commit if $process_pending->( $subscr, 'Inbox' );
+        }
+    }
+
+    # process all other new subs
+    foreach my $subscr (@other_ntypeid_to_consider) {
+        my %inbox_sub_params = $subscr->sub_info;
+
+        # don't save a subscription if there is no corresponding inbox sub for it
+        $inbox_sub_params{ntypeid} = $inbox_ntypeid;
+        delete $inbox_sub_params{flags};
+
+        my ($inbox_sub) = $u->has_subscription(%inbox_sub_params);
+
+        # If Inbox is always on, then act like an Inbox sub exists
+        my $always_checked = $subscr->event_class->always_checked ? 1 : 0;
+        next if !$always_checked && !( $inbox_sub && $inbox_sub->active && $inbox_sub->enabled );
+
+        $subscr->commit if $process_pending->( $subscr, $subscr->method );
+    }
+
+    return @notif_errors;
+}
+
 # subscribe to an event
 sub subscribe {
     my ( $u, %opts ) = @_;
