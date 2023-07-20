@@ -3889,7 +3889,6 @@ sub subscribe_interface {
                     my $subid = $pending_sub->id;
 
                     $sub_data->{subid}      = $subid;
-                    $sub_data->{btn_trash}  = LJ::img( 'btn_trash', '' );
                     $sub_data->{auth_token} = $u->ajax_auth_token(
                         "/__rpc_esn_subs",
                         subid  => $subid,
@@ -3928,16 +3927,7 @@ sub subscribe_interface {
         }
 
         # show blurb if not tracking anything
-        if ( $cat_empty && $is_tracking_category ) {
-            my $ui_notify = LJ::Lang::ml( 'subscribe_interface.notify_me2',
-                { sitenameabbrev => $LJ::SITENAMEABBREV } );
-
-            $cat_data->{track_img} =
-                LJ::img( 'track', '', { align => 'absmiddle', alt => $ui_notify } );
-
-            $cat_data->{empty_blurb} = 1;
-        }
-
+        $cat_data->{empty_blurb}       = $cat_empty && $is_tracking_category;
         $cat_data->{special_subs}      = $special_subs;
         $cat_data->{show_upgrade_note} = !$u->is_paid && ( $special_subs || $unavailable_subs );
 
@@ -3948,6 +3938,8 @@ sub subscribe_interface {
 
     $page_vars->{catdata} = \@catdata;
     $page_vars->{catids}  = join ',', @catids;
+
+    $page_vars->{lj_img} = sub { LJ::img( $_[0], '', $_[1] ) };
 
     # show how many subscriptions we have active / inactive
     $page_vars->{subscription_stats} =

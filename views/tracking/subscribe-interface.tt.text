@@ -1,0 +1,33 @@
+;; -*- coding: utf-8 -*-
+
+.btn.cancel=Cancel
+
+.btn.save=Save
+
+.category.friends-and-communities=People and Communities
+
+.category.my-account=My Account
+
+.category.subscription-tracking=Notification Tracking
+
+.category.track-comments=Track These Comments
+
+.category.track-entry=Track This Entry
+
+.category.track-journal=Track Entries to this Journal
+
+.category.track-user=Track This User
+
+.nosubs.text=Track entries, comments, and account updates by clicking the [[img]] icon or the "Track This" link that appears on entries, comments, and the Profile page.
+
+.nosubs.title=You aren't tracking any items
+
+.notify_me=Notify me in my [[sitenameabbrev]] Inbox when:
+
+.notify_me.by=Also notify me by
+
+.special_subs.note=These notification options are only available by email and won't show in your [[sitenameabbrev]] Inbox.
+
+.subs.total=You are using [[active]] out of [[max_active]] active notifications.
+
+.unavailable_subs.note=These notification options are only available to certain account types.
