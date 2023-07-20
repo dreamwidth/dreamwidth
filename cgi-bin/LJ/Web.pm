@@ -3730,21 +3730,21 @@ sub subscribe_interface {
 
     croak "subscribe_interface wants a \$u" unless LJ::isu($u);
 
-    my $catref       = delete $opts{categories}                     || [];
-    my $journalu     = delete $opts{journal}                        || LJ::get_remote();
-    my $def_notes    = delete $opts{default_selected_notifications} || [];
-    my $num_per_page = delete $opts{num_per_page}                   || 250;
-    my $page         = delete $opts{page}                           || 1;
+    my $catref        = delete $opts{categories}                     || [];
+    my $journalu      = delete $opts{journal}                        || LJ::get_remote();
+    my $def_notes     = delete $opts{default_selected_notifications} || [];
+    my $num_per_page  = delete $opts{num_per_page}                   || 250;
+    my $page          = delete $opts{page}                           || 1;
+    my $settings_page = delete $opts{settings_page}                  || 0;
 
     croak "Invalid user object passed to subscribe_interface" unless LJ::isu($journalu);
-
-    my $page_vars = { settings_page => delete $opts{settings_page} || 0, };
 
     croak "Invalid options passed to subscribe_interface" if ( scalar keys %opts );
 
     my @notify_classes = LJ::NotificationMethod->all_classes;
     return "No notification methods" unless @notify_classes;
 
+    my $page_vars = { settings_page => $settings_page };
     $page_vars->{ntypeids} = join ',', map { $_->ntypeid } @notify_classes;
 
     # skip the inbox type; it's always on
@@ -3770,10 +3770,8 @@ sub subscribe_interface {
     my $tracking_cat = "Subscription Tracking";
     my $tracking     = [];
 
-    # if showtracking, add things the user is tracking to the categories
-    my $showtracking = $page_vars->{settings_page} ? 1 : 0;
-
-    if ($showtracking) {
+    # add things the user is tracking to the categories on the settings page
+    if ($settings_page) {
         my @subscriptions = $u->find_subscriptions( method => 'Inbox' );
 
         foreach my $subsc ( sort { $a->id <=> $b->id } @subscriptions ) {
@@ -3845,7 +3843,7 @@ sub subscribe_interface {
         my @pending_subscriptions =
               $is_tracking_category
             ? @$tracking
-            : $u->subscription_event_filter( $cat_events, $journalu, $page_vars->{settings_page} );
+            : $u->subscription_event_filter( $cat_events, $journalu, $settings_page );
 
         # inbox method
         my $special_subs     = 0;
@@ -3872,7 +3870,7 @@ sub subscribe_interface {
             $unavailable_subs++ if $sub_data->{disabled};
 
             my $evt_class = $pending_sub->event_class or next;
-            next if !$evt_class->is_visible && $showtracking;
+            next if !$evt_class->is_visible && $settings_page;
 
             # override disabled below if always_checked (can't uncheck)
             my $always_checked = eval { "$evt_class"->always_checked; };
