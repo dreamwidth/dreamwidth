@@ -1,0 +1,68 @@
+[%# HTML fragment for the notification subscription interface on /manage/settings
+  #
+  # Authors:
+  #     Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2023 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+
+[%- CALL dw.active_resource_group( "jquery" ) -%]
+
+[%- dw.need_res( { group => "jquery" }, "js/notifications.js",
+                 "js/components/jquery.select-all-special.js",
+                 "stc/css/components/select-all.css" ) -%]
+
+[%- CALL dw.ml_scope( "/manage/settings/index.bml" ) -%]
+
+<div class='settings_content'>
+  <div class='notifications'>
+
+[% IF has_admin_form %]
+    <div id='settings_save' class='action-bar'>
+      <form action='[% site.root %]/manage/settings/' method='get'>
+        [% IF get_args.authas; form.hidden( name = 'authas', value = get_args.authas ); END %]
+        [% form.hidden( name = 'cat', value = "notifications" ) %]
+        [% form.textbox( label = dw.ml( '.user' ), name = 'user', id = 'user', size = 15,
+                         maxlength = site.maxlength_user, value = get_args.user ) %]
+        [% form.submit( value = dw.ml( ".user.submit" ) ) %]
+      </form>
+    </div>
+[% END %]
+
+[% IF has_user_form %]
+    <form class='table-form' id='settings_form' action='[% post_action %]' method='post'>
+  [% dw.form_auth %]
+[% END %]
+
+[%- UNLESS has_admin_form; # reprint the save buttons here
+-%]
+    <div id='settings_save' class='action-bar'>
+  [% IF has_user_form; form.submit( value = dw.ml( ".btn.save" ) ); END %]&nbsp;
+  [%- del_conf = '.confirm.deleteinactive2' | ml;
+      form.submit( name = 'deleteinactive', value = dw.ml( ".btn.deleteinactive2" ),
+                   title = dw.ml( ".btn.deleteinactive2" ), class => 'btn',
+                   onclick = "return confirm( '$del_conf' )" )
+   %]
+    </div>
+[%- END -%]
+
+[% subscribe_interface %]
+    <br />
+  </div>
+</div>
+
+<div id='settings_save' class='action-bar'>
+  [% IF has_user_form; form.submit( value = dw.ml( ".btn.save" ) ); END %]&nbsp;
+  [%- IF viewing_self -%]
+  [%- del_conf = '.confirm.deleteinactive2' | ml;
+      form.submit( name = 'deleteinactive', value = dw.ml( ".btn.deleteinactive2" ),
+                   title = dw.ml( ".btn.deleteinactive2" ), class => 'btn',
+                   onclick = "return confirm( '$del_conf' )" );
+      END -%]
+</div>
+
+[% IF has_user_form; "</form>"; END %]

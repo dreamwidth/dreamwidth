@@ -20,6 +20,7 @@ body<=
     use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
 
     use LJ::Setting;
+    use DW::Template;
 
     BML::set_language_scope('/manage/settings/index.bml');
 
@@ -485,65 +486,41 @@ body<=
     $ret .= $cats_with_settings{$given_cat}->{desc};
     $ret .= "</p></div>";
 
-    $ret .= "<div class='settings_content'>";
-    $ret .= "<div class='$given_cat'>";
-
-    if ( $given_cat eq "notifications" && $can_view_other ) {
-        # form for viewing another user's notifications
-        # must go above the post form declaration
-        $ret .= "<div id='settings_save' class='action-bar'>";
-        $ret .= "<form action='$LJ::SITEROOT/manage/settings/' method='get'>";
-        $ret .= LJ::html_hidden( authas => $GET{authas} );
-        $ret .= LJ::html_hidden( cat => $given_cat );
-        $ret .= "<label for='user'>$ML{'.user'}</label>";
-        $ret .= "<input name='user' id='user' value='$GET{user}' maxlength='25' size='15'/>";
-        $ret .= "<input type='submit' value='$ML{'.user.submit'}'>";
-        $ret .= "</form>";
-        $ret .= "</div>";
-    }
-
-    if ($cats_with_settings{$given_cat}->{form}) {
-        if ( $LJ::ACTIVE_RES_GROUP ne "jquery"  ) {
-            my $confirm_msg = LJ::ejs($ML{'.form.confirm1'});
-            $ret .= "<script>Settings.confirm_msg = \"$confirm_msg\";</script>";
-        }
-        $ret .= "<form class='table-form' id='settings_form' action='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat' method='post'>";
-        $ret .= LJ::form_auth();
-    }
-
     if ($given_cat eq "notifications") {
-
-        LJ::set_active_resource_group( 'jquery' );
-        LJ::need_res( { group => 'jquery' }, 'js/notifications.js',
-            "js/components/jquery.select-all-special.js",
-            "stc/css/components/select-all.css"  );
-
-        # don't reprint the save buttons here if we displayed the admin form
-        if ( ! $can_view_other ) {
-            $ret .= "<div id='settings_save' class='action-bar'>";
-            $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
-            $ret .= "&nbsp;";
-            my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
-            $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'},
-                                     {
-                                       class => 'btn',
-                                       title => $ML{'.btn.deleteinactive2'},
-                                       onClick => "return confirm( '$del_conf' )"
-                                     } );
-            $ret .= "</div>";
-        }
 
         $u = $u->subscription_default_setup;
 
-        $ret .= LJ::subscribe_interface($u,
-            journal       => $u,
-            categories    => $u->subscription_categories_for_settings_page,
-            settings_page => 1,
-            num_per_page  => 250,
-            page          => int( $GET{page} || 0 ),
-        ) . "<br />";
+        my $template_vars = {
+            has_admin_form      => $can_view_other,
+            has_user_form       => $cats_with_settings{$given_cat}->{form},
+            post_action         => "$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat",
+            viewing_self        => ( $u->user eq $authas ) ? 1 : 0,
+            get_args            => \%GET,
+            subscribe_interface => LJ::subscribe_interface(
+                $u,
+                journal       => $u,
+                categories    => $u->subscription_categories_for_settings_page,
+                settings_page => 1,
+                num_per_page  => 250,
+                page          => int( $GET{page} || 0 ),
+            )
+        };
+
+        $ret .= DW::Template->template_string( 'tracking/settings-interface.tt', $template_vars );
 
     } else {
+
+        $ret .= "<div class='settings_content'>";
+        $ret .= "<div class='$given_cat'>";
+
+        if ($cats_with_settings{$given_cat}->{form}) {
+            if ( $LJ::ACTIVE_RES_GROUP ne "jquery"  ) {
+                my $confirm_msg = LJ::ejs($ML{'.form.confirm1'});
+                $ret .= "<script>Settings.confirm_msg = \"$confirm_msg\";</script>";
+            }
+            $ret .= "<form class='table-form' id='settings_form' action='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat' method='post'>";
+            $ret .= LJ::form_auth();
+        }
         my $setting_ct = 0;
         $ret .= "<table summary=''>";
         foreach my $setting (@settings) {
@@ -577,24 +554,16 @@ body<=
                 $ret .= "</div>";
             }
         }
-    }
 
-    $ret .= "</div>";
-    $ret .= "</div>";
+        $ret .= "</div>";
+        $ret .= "</div>";
 
-    $ret .= "<div id='settings_save' class='action-bar'>";
-    $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
-    if ( $given_cat eq "notifications" && $u->user eq $authas ) {
-        $ret .= "&nbsp;";
-        my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
-        $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'}, {
-            class => 'btn',
-            title => $ML{'.btn.deleteinactive2'},
-            onClick => "return confirm( '$del_conf' )"
-            } );
+        $ret .= "<div id='settings_save' class='action-bar'>";
+        $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
+        $ret .= "</div>";
+
+        $ret .= "</form>" if $cats_with_settings{$given_cat}->{form};
     }
-    $ret .= "</div>";
-    $ret .= "</form>" if $cats_with_settings{$given_cat}->{form};
 
     $ret .= "</div>";
 
