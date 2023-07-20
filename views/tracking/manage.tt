@@ -16,6 +16,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <form method='POST' action='[% site.root _ form_action %]'>
 [% dw.form_auth %]
 [% form.hidden( name = 'post_to_settings_page', value = 1 ) %]
+[% form.hidden( name = 'ret_url', value = ret_url ) %]
 
 [% subscribe_interface %]
 

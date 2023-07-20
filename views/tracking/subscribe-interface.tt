@@ -135,11 +135,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
   <div class='subscription_stats'>
     [% 'subscribe_interface.subs.total2' | ml( subscription_stats ) %]
   </div>
-[% END %]
-
-[% form.hidden( name = 'ret_url', value = ret_url )               %]
-
-[% UNLESS settings_page %]
+[% ELSE %]
   <div class="action-box">
     <ul class="inner nostyle">
       <li>

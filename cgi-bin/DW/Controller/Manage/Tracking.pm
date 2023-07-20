@@ -72,10 +72,10 @@ sub _page_template {
     my ($rv) = @_;
 
     my $vars = {
+        ret_url             => $rv->{ret_url},
         subscribe_interface => LJ::subscribe_interface(
             $rv->{remote},
             journal                        => $rv->{journal},
-            ret_url                        => $rv->{ret_url},
             categories                     => $rv->{categories},
             default_selected_notifications => $rv->{default_selected},
         )
