@@ -78,7 +78,6 @@ sub _page_template {
             ret_url                        => $rv->{ret_url},
             categories                     => $rv->{categories},
             default_selected_notifications => $rv->{default_selected},
-            post_to_settings_page          => 1,
         )
     };
 

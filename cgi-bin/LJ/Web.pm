@@ -3739,9 +3739,8 @@ sub subscribe_interface {
     croak "Invalid user object passed to subscribe_interface" unless LJ::isu($journalu);
 
     my $page_vars = {
-        ret_url               => delete $opts{ret_url}               || '',
-        settings_page         => delete $opts{settings_page}         || 0,
-        post_to_settings_page => delete $opts{post_to_settings_page} || 0,
+        ret_url       => delete $opts{ret_url}       || '',
+        settings_page => delete $opts{settings_page} || 0,
     };
 
     croak "Invalid options passed to subscribe_interface" if ( scalar keys %opts );

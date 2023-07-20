@@ -12,4 +12,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- sections.title = ".title" | ml -%]
 
+[% form_action = '/manage/settings/?cat=notifications' %]
+<form method='POST' action='[% site.root _ form_action %]'>
+[% dw.form_auth %]
+[% form.hidden( name = 'post_to_settings_page', value = 1 ) %]
+
 [% subscribe_interface %]
+
+</form>
