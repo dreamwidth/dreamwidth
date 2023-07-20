@@ -100,8 +100,8 @@ my %host_path_match = (
 
     "www.kickstarter.com" => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
-    "lichess.org" => [ qr!/study/embed/!, 1 ],
-    "loc.gov"     => [ qr!/item/[a-z0-9]+!, 1],
+    "lichess.org" => [ qr!/study/embed/!,   1 ],
+    "loc.gov"     => [ qr!/item/[a-z0-9]+!, 1 ],
 
     "www.mixcloud.com" => [ qr!^/widget/iframe/$!,          1 ],
     "mixstep.co"       => [ qr!^/embed/!,                   1 ],
@@ -124,7 +124,7 @@ my %host_path_match = (
     "www.redditmedia.com"  => [ qr!^/r/\w+/comments/\w+/\w+/$!,            1 ],
     "www.reverbnation.com" => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
     "rumble.com"           => [ qr!^/embed/[a-zA-Z0-9]+/!,                 1 ],
-    "rutube.ru"            => [ qr!^/play/embed/[0-9]+$!,                 1 ],
+    "rutube.ru"            => [ qr!^/play/embed/[0-9]+$!,                  1 ],
 
     "www.sbs.com.au" => [ qr!/player/embed/!, 0 ]
     ,    # best guess; language parameter before /player may vary
@@ -138,8 +138,8 @@ my %host_path_match = (
     "www.strava.com"     => [ qr!^/activities/\d+/embed/\w+$!, 1 ],
     "streamable.com"     => [ qr!^/[eos]/!,                    1 ],
 
-    "embed.ted.com" => [ qr!^/talks/!, 1 ],
-    "twitch.tv"     => [ qr!^/player.twitch.tv/!, 1],
+    "embed.ted.com" => [ qr!^/talks/!,            1 ],
+    "twitch.tv"     => [ qr!^/player.twitch.tv/!, 1 ],
 
     "vid.me"           => [ qr!^/e/!,                              1 ],
     "player.vimeo.com" => [ qr!^/video/\d+$!,                      1 ],
