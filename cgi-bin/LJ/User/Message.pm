@@ -478,6 +478,118 @@ sub subscribe {
     return LJ::Subscription->create( $u, %opts );
 }
 
+sub subscription_default_setup {
+    my ($u) = @_;
+
+    # set up default subscriptions for users that have not managed ESN stuff
+    if ( !$u->prop('esn_has_managed') && !$u->subscription_count ) {
+        $u->set_prop( esn_has_managed => 1 );
+
+        my @default_subscriptions =
+            ( LJ::Subscription::Pending->new( $u, event => 'OfficialPost', ), );
+
+        if ( $u->prop('opt_gettalkemail') ne 'N' ) {
+            push @default_subscriptions, (
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'JournalNewComment',
+                    journal => $u,
+                    method  => 'Inbox',
+                ),
+
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'JournalNewComment',
+                    journal => $u,
+                    method  => 'Email',
+                ),
+            );
+        }
+
+        $_->commit foreach @default_subscriptions;
+    }
+
+    # Translate legacy pre-ESN notifs to ESN notifs
+    LJ::Event::JournalNewComment::Reply->migrate_user($u);
+
+    return $u;
+}
+
+sub subscription_categories_for_settings_page {
+    my ($u) = @_;
+
+    return [
+        {
+            "My Account" => [
+                LJ::Subscription::Pending->new( $u, event => 'OfficialPost', ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'JournalNewComment',
+                    journal => $u,
+                ),
+
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event => 'JournalNewComment::Reply',
+                    arg2  => 0,
+                ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event => 'JournalNewComment::Reply',
+                    arg2  => 1,
+                ),
+
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event => 'JournalNewComment::Reply',
+                    arg2  => 2,
+                ),
+
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'PollVote',
+                    journal => $u,
+                ),
+                'AddedToCircle',
+                'RemovedFromCircle',
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'XPostSuccess',
+                    journal => $u,
+                ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event            => 'XPostFailure',
+                    journal          => $u,
+                    default_selected => 1,
+                ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event            => 'VgiftDelivered',
+                    journal          => $u,
+                    default_selected => 1,
+                ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event            => 'UserMessageRecvd',
+                    journal          => $u,
+                    default_selected => 1,
+                ),
+            ],
+        },
+        {
+            "Friends and Communities" => [
+                'InvitedFriendJoins',
+                'CommunityInvite',
+                'CommunityJoinRequest',
+                'CommunityModeratedEntryNew',
+                LJ::Subscription::Pending->new( $u, event => 'NewUserpic', ),
+                LJ::Subscription::Pending->new( $u, event => 'Birthday', ),
+            ],
+        },
+    ];
+}
+
 sub subscription_count {
     my $u = shift;
     return scalar LJ::Subscription->subscriptions_of_user($u);
