@@ -1,0 +1,11 @@
+;; -*- coding: utf-8 -*-
+
+.btn.deleteinactive=Delete all inactive tracked items
+
+.btn.save=Save
+
+.confirm.deleteinactive=Are you sure you want to delete all inactive tracked items?
+
+.user=View notifications for user:
+
+.user.submit=View

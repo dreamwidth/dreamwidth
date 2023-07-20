@@ -16,19 +16,17 @@
                  "js/components/jquery.select-all-special.js",
                  "stc/css/components/select-all.css" ) -%]
 
-[%- CALL dw.ml_scope( "/manage/settings/index.bml" ) -%]
-
 <div class='settings_content'>
   <div class='notifications'>
 
 [% IF has_admin_form %]
     <div id='settings_save' class='action-bar'>
       <form action='[% site.root %]/manage/settings/' method='get'>
-        [% IF get_args.authas; form.hidden( name = 'authas', value = get_args.authas ); END %]
-        [% form.hidden( name = 'cat', value = "notifications" ) %]
-        [% form.textbox( label = dw.ml( '.user' ), name = 'user', id = 'user', size = 15,
-                         maxlength = site.maxlength_user, value = get_args.user ) %]
-        [% form.submit( value = dw.ml( ".user.submit" ) ) %]
+    [% IF get_args.authas; form.hidden( name = 'authas', value = get_args.authas ); END %]
+    [% form.hidden( name = 'cat', value = "notifications" ) %]
+    [% form.textbox( label = dw.ml( '.user' ), name = 'user', id = 'user', size = 15,
+                     maxlength = site.maxlength_user, value = get_args.user ) %]
+    [% form.submit( value = dw.ml( ".user.submit" ) ) %]
       </form>
     </div>
 [% END %]
@@ -38,15 +36,18 @@
   [% dw.form_auth %]
 [% END %]
 
+[%- btn_txt = '.btn.deleteinactive' | ml;
+    del_conf = '.confirm.deleteinactive' | ml;
+    del_btn = form.submit( name = 'deleteinactive', value = btn_txt, title = btn_txt,
+                           class => 'btn', onclick = "return confirm( '$del_conf' )" )
+-%]
+
+
 [%- UNLESS has_admin_form; # reprint the save buttons here
 -%]
     <div id='settings_save' class='action-bar'>
   [% IF has_user_form; form.submit( value = dw.ml( ".btn.save" ) ); END %]&nbsp;
-  [%- del_conf = '.confirm.deleteinactive2' | ml;
-      form.submit( name = 'deleteinactive', value = dw.ml( ".btn.deleteinactive2" ),
-                   title = dw.ml( ".btn.deleteinactive2" ), class => 'btn',
-                   onclick = "return confirm( '$del_conf' )" )
-   %]
+  [% del_btn %]
     </div>
 [%- END -%]
 
@@ -57,12 +58,7 @@
 
 <div id='settings_save' class='action-bar'>
   [% IF has_user_form; form.submit( value = dw.ml( ".btn.save" ) ); END %]&nbsp;
-  [%- IF viewing_self -%]
-  [%- del_conf = '.confirm.deleteinactive2' | ml;
-      form.submit( name = 'deleteinactive', value = dw.ml( ".btn.deleteinactive2" ),
-                   title = dw.ml( ".btn.deleteinactive2" ), class => 'btn',
-                   onclick = "return confirm( '$del_conf' )" );
-      END -%]
+  [% IF viewing_self; del_btn; END %]
 </div>
 
 [% IF has_user_form; "</form>"; END %]
