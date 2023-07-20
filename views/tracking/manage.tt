@@ -18,6 +18,25 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% form.hidden( name = 'post_to_settings_page', value = 1 ) %]
 [% form.hidden( name = 'ret_url', value = ret_url ) %]
 
+<div id='manageSettings'>
+
 [% subscribe_interface %]
+
+  <div class="action-box">
+    <ul class="inner nostyle">
+      <li>
+        [% form.submit( value = dw.ml( '.btn.save') ) %]
+      </li>
+  [% IF do_refer %]
+      <li>
+        <input type='button' value='[% ".btn.cancel" | ml %]'
+               onclick='window.location="[% referer %]"' />
+      </li>
+  [% END %]
+    </ul>
+  </div>
+  <div class='clear-floats'></div>
+
+</div>
 
 </form>

@@ -3751,19 +3751,6 @@ sub subscribe_interface {
     @notify_classes = grep { $_ ne 'LJ::NotificationMethod::Inbox' } @notify_classes;
     $page_vars->{notify_classes} = \@notify_classes;
 
-    # print cancel button?
-    if ( my $r = DW::Request->get ) {
-        my $referer = { $r->headers_in }->{'Referer'} || '';
-        my $uri     = $LJ::SITEROOT . $r->uri;
-
-        # normalize the URLs -- ../index.tt doesn't make it a different page.
-        $uri     =~ s/index\.bml//;
-        $referer =~ s/index\.bml//;
-
-        $page_vars->{referer}  = $referer;
-        $page_vars->{do_refer} = $referer && $referer ne $uri;
-    }
-
     my @catids;
     my $catid = 0;
     my @catdata;    # this is eventually passed to the display template

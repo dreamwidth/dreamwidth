@@ -1,5 +1,9 @@
 ;; -*- coding: utf-8 -*-
 
+.btn.cancel=Cancel
+
+.btn.save=Save
+
 .error.disabled=Notification management is currently unavailable.
 
 .error.hiddenentry=You are not authorized to subscribe to this entry.

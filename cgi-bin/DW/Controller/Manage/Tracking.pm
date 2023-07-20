@@ -81,6 +81,19 @@ sub _page_template {
         )
     };
 
+    # print cancel button?
+    if ( my $r = DW::Request->get ) {
+        my $referer = { $r->headers_in }->{'Referer'} || '';
+        my $uri     = $LJ::SITEROOT . $r->uri;
+
+        # normalize the URLs -- ../index.tt doesn't make it a different page.
+        $uri     =~ s/index\.bml//;
+        $referer =~ s/index\.bml//;
+
+        $vars->{referer}  = $referer;
+        $vars->{do_refer} = $referer && $referer ne $uri;
+    }
+
     return DW::Template->render_template( 'tracking/manage.tt', $vars );
 }
 

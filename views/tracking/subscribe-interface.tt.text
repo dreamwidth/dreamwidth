@@ -1,9 +1,5 @@
 ;; -*- coding: utf-8 -*-
 
-.btn.cancel=Cancel
-
-.btn.save=Save
-
 .category.friends-and-communities=People and Communities
 
 .category.my-account=My Account

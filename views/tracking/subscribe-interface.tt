@@ -14,8 +14,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% dw.need_res( 'stc/esn.css', 'js/6alib/core.js', 'js/6alib/dom.js',
                 'js/6alib/checkallbutton.js', 'js/esn.js' ) %]
 
-<div id='manageSettings'>
-
 [% form.hidden( name = 'ntypeids', id = 'ntypeids', value = ntypeids ) %]
 [% form.hidden( name = 'catids',   id = 'catids',   value = catids ) %]
 
@@ -136,21 +134,4 @@ the same terms as Perl itself.  For a copy of the license, please reference
   <div class='subscription_stats'>
     [% '.subs.total' | ml( subscription_stats ) %]
   </div>
-[% ELSE %]
-  <div class="action-box">
-    <ul class="inner nostyle">
-      <li>
-        [% form.submit( value = dw.ml( '.btn.save') ) %]
-      </li>
-  [% IF do_refer %]
-      <li>
-        <input type='button' value='[% ".btn.cancel" | ml %]'
-               onclick='window.location="[% referer %]"' />
-      </li>
-  [% END %]
-    </ul>
-  </div>
-  <div class='clear-floats'></div>
 [% END %]
-
-</div>
