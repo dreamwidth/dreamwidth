@@ -3883,8 +3883,30 @@ sub subscribe_interface {
 
             if ($is_tracking_category) {
                 next if $u->tracked_event_exclude( $pending_sub, $catref );
+
+                my $do_show = 1;
+                $do_show = 0
+                    unless $displayed_tracking_count >= $displayed_tracking_start
+                    && $displayed_tracking_count <= $displayed_tracking_end;
+                $displayed_tracking_count++;
+
+                if ( $do_show && $sub_data->{subscribed} ) {
+                    my $subid = $pending_sub->id;
+
+                    $sub_data->{subid}      = $subid;
+                    $sub_data->{btn_trash}  = LJ::img( 'btn_trash', '' );
+                    $sub_data->{auth_token} = $u->ajax_auth_token(
+                        "/__rpc_esn_subs",
+                        subid  => $subid,
+                        action => 'delsub'
+                    );
+                }
+
+                $sub_data->{do_show} = $do_show;
             }
             else {
+                $sub_data->{do_show} = 1;
+
                 next unless eval { $evt_class->subscription_applicable($pending_sub) };
                 next
                     if $u->equals($journalu)
@@ -3893,30 +3915,6 @@ sub subscribe_interface {
             }
 
             $cat_empty = 0;    # no more nexts
-
-            # it could be cleaner to do this by splicing pending_subs
-            # but then you wouldn't be able to count how many active subs there are
-            # one of the many ways in which ESN is painful
-            my $do_show = 1;
-            if ($is_tracking_category) {
-                $do_show = 0
-                    unless $displayed_tracking_count >= $displayed_tracking_start
-                    && $displayed_tracking_count <= $displayed_tracking_end;
-                $displayed_tracking_count++;
-            }
-            $sub_data->{do_show} = $do_show;
-
-            if ( $do_show && $is_tracking_category && $sub_data->{subscribed} ) {
-                my $subid = $pending_sub->id;
-
-                $sub_data->{subid}      = $subid;
-                $sub_data->{btn_trash}  = LJ::img( 'btn_trash', '' );
-                $sub_data->{auth_token} = $u->ajax_auth_token(
-                    "/__rpc_esn_subs",
-                    subid  => $subid,
-                    action => 'delsub'
-                );
-            }
 
             # this hook also populates %num_subs_by_type
             $sub_data->{notif_options} = LJ::Hooks::run_hook(

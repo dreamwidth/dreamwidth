@@ -274,10 +274,6 @@ body<=
             $submit_msg .= "<?errorbar $ML{'.success.deleteinactive2'} errorbar?><br />";
         } elsif ( $given_cat eq "notifications" ) {
             my @notif_errors;
-
-            # do they want to add or edit subscriptions?
-            next unless $POST{mode} eq 'save_subscriptions';
-
             my @sub_edit;
             my @to_consider;
             my @to_activate;

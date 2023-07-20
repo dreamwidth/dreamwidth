@@ -137,7 +137,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
   </div>
 [% END %]
 
-[% form.hidden( name = 'mode',    value = 'save_subscriptions' )  %]
 [% form.hidden( name = 'ret_url', value = ret_url )               %]
 
 [% UNLESS settings_page %]
