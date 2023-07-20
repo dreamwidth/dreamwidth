@@ -3730,7 +3730,7 @@ sub subscribe_interface {
 
     croak "subscribe_interface wants a \$u" unless LJ::isu($u);
 
-    my $catref        = delete $opts{categories}                     || [];
+    my $categories    = delete $opts{categories}                     || [];
     my $journalu      = delete $opts{journal}                        || LJ::get_remote();
     my $def_notes     = delete $opts{default_selected_notifications} || [];
     my $num_per_page  = delete $opts{num_per_page}                   || 250;
@@ -3764,35 +3764,10 @@ sub subscribe_interface {
         $page_vars->{do_refer} = $referer && $referer ne $uri;
     }
 
-    my @categories = @$catref;
-
-    # title of the tracking category
-    my $tracking_cat = "Subscription Tracking";
-    my $tracking     = [];
-
-    # add things the user is tracking to the categories on the settings page
-    if ($settings_page) {
-        my @subscriptions = $u->find_subscriptions( method => 'Inbox' );
-
-        foreach my $subsc ( sort { $a->id <=> $b->id } @subscriptions ) {
-
-            # if this event class is already being displayed above, skip over it
-            my $etypeid = $subsc->etypeid or next;
-            my ($evt_class) = ( LJ::Event->class($etypeid) =~ /LJ::Event::(.+)/i );
-            next unless $evt_class;
-
-            # search for this class in categories
-            next if grep { $_ eq $evt_class } map { @$_ } map { values %$_ } @categories;
-
-            push @$tracking, $subsc;
-        }
-
-        push @categories, { $tracking_cat => $tracking };
-    }
-
     my @catids;
     my $catid = 0;
     my @catdata;    # this is eventually passed to the display template
+    my @prev_cats;
 
     my %num_subs_by_type = ();    # for the subscription_stats hook
 
@@ -3801,11 +3776,11 @@ sub subscribe_interface {
     my $displayed_tracking_end   = $displayed_tracking_start + $num_per_page - 1;
     my $displayed_tracking_count = 0;
 
-    foreach my $cat_hash (@categories) {
+    foreach my $cat_hash (@$categories) {
         my ( $category, $cat_events ) = %$cat_hash;
 
         # is this category the tracking category?
-        my $is_tracking_category = $category eq $tracking_cat;
+        my $is_tracking_category = $category eq "Subscription Tracking";
 
         my $cat_data = { catid => $catid };
         push @catids, $catid;
@@ -3842,7 +3817,7 @@ sub subscribe_interface {
 
         my @pending_subscriptions =
               $is_tracking_category
-            ? @$tracking
+            ? @$cat_events
             : $u->subscription_event_filter( $cat_events, $journalu, $settings_page );
 
         # inbox method
@@ -3877,7 +3852,7 @@ sub subscribe_interface {
             $sub_data->{disabled} = 1 if $always_checked;
 
             if ($is_tracking_category) {
-                next if $u->tracked_event_exclude( $pending_sub, $catref );
+                next if $u->tracked_event_exclude( $pending_sub, \@prev_cats );
 
                 my $do_show = 1;
                 $do_show = 0
@@ -3931,7 +3906,8 @@ sub subscribe_interface {
         $cat_data->{special_subs}      = $special_subs;
         $cat_data->{show_upgrade_note} = !$u->is_paid && ( $special_subs || $unavailable_subs );
 
-        push @catdata, $cat_data;
+        push @catdata,   $cat_data;
+        push @prev_cats, $cat_hash;
 
         $catid++;
     }

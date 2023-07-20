@@ -518,7 +518,7 @@ sub subscription_default_setup {
 sub subscription_categories_for_settings_page {
     my ($u) = @_;
 
-    return [
+    my @cats = (
         {
             "My Account" => [
                 LJ::Subscription::Pending->new( $u, event => 'OfficialPost', ),
@@ -587,7 +587,26 @@ sub subscription_categories_for_settings_page {
                 LJ::Subscription::Pending->new( $u, event => 'Birthday', ),
             ],
         },
-    ];
+    );
+
+    # add things the user is tracking
+    my @tracking;
+    my @subscriptions = $u->find_subscriptions( method => 'Inbox' );
+
+    foreach my $subsc ( sort { $a->id <=> $b->id } @subscriptions ) {
+
+        # if this event class is already being displayed above, skip over it
+        my $etypeid = $subsc->etypeid or next;
+        my ($evt_class) = ( LJ::Event->class($etypeid) =~ /LJ::Event::(.+)/i );
+        next unless $evt_class;
+
+        # search for this class in categories
+        next if grep { $_ eq $evt_class } map { @$_ } map { values %$_ } @cats;
+
+        push @tracking, $subsc;
+    }
+
+    return [ @cats, { "Subscription Tracking" => \@tracking } ];
 }
 
 sub subscription_count {
