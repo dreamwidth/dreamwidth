@@ -269,9 +269,13 @@ LJ::Hooks::register_hook(
     'list_iframe_embed_domains',
     sub {
         my @list = ( keys %host_path_match, keys %complex_match );
-        my $dom  = sub { [ split /\./, $_[0] ]->[-2] };
+        my $tld  = sub {
+            my ($dom) = @_;
+            my $idx = ( $dom =~ /\.com?\.\w+$/ ) ? -3 : -2;
+            return [ split /\./, $dom ]->[$idx];
+        };
 
-        my $sort_domain = sub { $dom->($a) cmp $dom->($b) || $a cmp $b };
+        my $sort_domain = sub { $tld->($a) cmp $tld->($b) || $a cmp $b };
         return [ sort $sort_domain @list ];
     }
 );
