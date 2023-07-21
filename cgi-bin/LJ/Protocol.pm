@@ -1721,10 +1721,15 @@ sub postevent {
             if %logprops;
     }
 
-    $dbh->do(
-        "UPDATE userusage SET timeupdate=NOW(), lastitemid=$jitemid " . "WHERE userid=$ownerid" )
+    $dbh->do("UPDATE userusage SET timeupdate=NOW(), lastitemid=$jitemid WHERE userid=$ownerid")
         unless $flags->{'notimeupdate'};
     LJ::MemCache::set( [ $ownerid, "tu:$ownerid" ], pack( "N", time() ), 30 * 60 );
+
+    # update timeupdate_public for stats page
+    if ( $security eq 'public' ) {
+        $dbh->do("UPDATE userusage SET timeupdate_public=NOW() WHERE userid=$ownerid")
+            unless $flags->{'notimeupdate'};
+    }
 
     # argh, this is all too ugly.  need to unify more postpost stuff into async
     $u->invalidate_directory_record;
