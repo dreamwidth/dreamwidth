@@ -139,8 +139,7 @@ my %host_path_match = (
     "www.strava.com"     => [ qr!^/activities/\d+/embed/\w+$!, 1 ],
     "streamable.com"     => [ qr!^/[eos]/!,                    1 ],
 
-    "embed.ted.com" => [ qr!^/talks/!,            1 ],
-    "twitch.tv"     => [ qr!^/player.twitch.tv/!, 1 ],
+    "embed.ted.com" => [ qr!^/talks/!, 1 ],
 
     "vid.me"           => [ qr!^/e/!,                              1 ],
     "player.vimeo.com" => [ qr!^/video/\d+$!,                      1 ],
@@ -228,6 +227,10 @@ LJ::Hooks::register_hook(
 
         if ( $uri_host eq "music.yandex.ru" ) {
             return ( 1, 1 ) if $parsed_uri->fragment =~ m!track/\d+/\d+!;
+        }
+
+        if ( $uri_host eq "player.twitch.tv" ) {
+            return ( 1, 1 ) if $parsed_uri->query =~ m/video=v\d+/;
         }
 
         return 0;
