@@ -57,7 +57,7 @@ my %host_path_match = (
     "audiomack.com" => [ qr!^/embed/!, 1 ],
 
     "bandcamp.com"                => [ qr!^/EmbeddedPlayer/!, 1 ],
-    "player.bilibili.com"         => [ qr!^/player.html!,     1 ],
+    "player.bilibili.com"         => [ qr!^/player.html$!,    1 ],
     "blip.tv"                     => [ qr!^/play/!,           1 ],
     "percolate.blogtalkradio.com" => [ qr!^/offsiteplayer$!,  1 ],
     "app.box.com"                 => [ qr!^/embed/s/!,        1 ],
@@ -65,13 +65,13 @@ my %host_path_match = (
     "chirb.it"                => [ qr!^/wp/!,             1 ],
     "codepen.io"              => [ qr!^/enxaneta/embed/!, 1 ],
     "coub.com"                => [ qr!^/embed/!,          1 ],
-    "www.criticalcommons.org" => [ qr!/embed$!,           0 ],
+    "criticalcommons.org"     => [ qr!^/embed$!,          1 ],
+    "www.criticalcommons.org" => [ qr!/embed_view$!,      0 ],
 
     "www.dailymotion.com" => [ qr!^/embed/video/!,                   1 ],
     "diode.zone"          => [ qr!^/videos/embed/[0-9a-fA-F\-]{36}!, 1 ],
     "dotsub.com"          => [ qr!^/media/!,                         1 ],
     "discordapp.com"      => [ qr!^/widget$!,                        1 ],
-    "drive.google.com"    => [ qr!^/file/d/[a-zA-Z0-9]+/preview$!,   1 ],
 
     "episodecalendar.com" => [ qr!^/icalendar/!, 0 ],
 
@@ -90,6 +90,7 @@ my %host_path_match = (
     # forms arent being allowed for security concerns.
     "docs.google.com"        => [ qr!^/(document|spreadsheets?|presentation)/!, 1 ],
     "books.google.com"       => [ qr!^/ngrams/!,                                1 ],
+    "drive.google.com"       => [ qr!^/file/d/[a-zA-Z0-9]+/preview$!,           1 ],
     "player.gimletmedia.com" => [ qr!^/\w+$!,                                   1 ],
 
     "imgur.com"     => [ qr!^/a/.+?/embed!,     1 ],
@@ -100,15 +101,15 @@ my %host_path_match = (
 
     "www.kickstarter.com" => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
-    "lichess.org" => [ qr!/study/embed/!,   1 ],
-    "loc.gov"     => [ qr!/item/[a-z0-9]+!, 1 ],
+    "lichess.org" => [ qr!/study/embed/!,     1 ],
+    "www.loc.gov" => [ qr!/item/[a-z0-9]+/$!, 1 ],
 
     "www.mixcloud.com" => [ qr!^/widget/iframe/$!,          1 ],
     "mixstep.co"       => [ qr!^/embed/!,                   1 ],
     "www.msnbc.com"    => [ qr!^/msnbc/embedded-video/\w+!, 1 ],
     "my.mail.ru"       => [ qr!^/video/embed/\d+!,          1 ],
 
-    "nekocap.com"      => [ qr!^/view/[a-zA-Z0-9]+/!,                 1 ],
+    "nekocap.com"      => [ qr!^/view/[a-zA-Z0-9]+$!,                 1 ],
     "ext.nicovideo.jp" => [ qr!^/thumb/!,                             0 ],
     "noisetrade.com"   => [ qr!^/service/widgetv2/!,                  1 ],
     "www.npr.org"      => [ qr!^/templates/event/embeddedVideo\.php!, 1 ],
@@ -123,7 +124,7 @@ my %host_path_match = (
     "www.random.org"       => [ qr!^/widgets/integers/iframe.php$!,        1 ],
     "www.redditmedia.com"  => [ qr!^/r/\w+/comments/\w+/\w+/$!,            1 ],
     "www.reverbnation.com" => [ qr!^/widget_code/html_widget/artist_\d+$!, 1 ],
-    "rumble.com"           => [ qr!^/embed/[a-zA-Z0-9]+/!,                 1 ],
+    "rumble.com"           => [ qr!^/embed/[a-zA-Z0-9]+/$!,                1 ],
     "rutube.ru"            => [ qr!^/play/embed/[0-9]+$!,                  1 ],
 
     "www.sbs.com.au" => [ qr!/player/embed/!, 0 ]
