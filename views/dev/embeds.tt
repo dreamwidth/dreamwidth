@@ -26,10 +26,13 @@
 <li style="margin-bottom: 1em;">... if it does <em>not</em> use &lt;script&gt; tags (or you're not sure either way), you can send the code to us in a <a href="/support/submit">support request</a>. The support team will forward your request to the development team.</li>
 </ul>
 
-<h2>Currently Supported Domains</h2>
+<h2 style="margin: 1em 0;">Currently Supported Domains</h2>
 
-<ol>
-[% FOREACH domain IN embed_domains %]
+[% FOREACH dom_key IN embed_domains.keys.sort %]
+<h4>[% dom_key %]</h4>
+<ul>
+  [% FOREACH domain IN embed_domains.$dom_key %]
     <li>[% domain %]</li>
+  [% END %]
+</ul>
 [% END %]
-</ol>

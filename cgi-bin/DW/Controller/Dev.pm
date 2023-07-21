@@ -108,8 +108,33 @@ sub embeds_handler {
     return $rv unless $ok;
 
     my $embed_domains = LJ::Hooks::run_hook('list_iframe_embed_domains');
+    my $domain_groups = {};
 
-    return DW::Template->render_template( 'dev/embeds.tt', { embed_domains => $embed_domains } );
+    my $tld = sub {
+        my ($dom) = @_;
+        my $idx = ( $dom =~ /\.com?\.\w+$/ ) ? -3 : -2;
+        return [ split /\./, $dom ]->[$idx];
+    };
+
+    foreach my $dom (@$embed_domains) {
+        my $key;
+        my $chr_start = substr( uc $tld->($dom), 0, 1 );
+
+        if ( $chr_start =~ /\d/ ) {
+            $key = '0 - 9';
+        }
+        elsif ( $chr_start =~ /[A-Z]/ ) {
+            $key = $chr_start;
+        }
+        else {
+            $key = '(Other)';
+        }
+
+        $domain_groups->{$key} //= [];
+        push @{ $domain_groups->{$key} }, $dom;
+    }
+
+    return DW::Template->render_template( 'dev/embeds.tt', { embed_domains => $domain_groups } );
 }
 
 sub tests_index_handler {
