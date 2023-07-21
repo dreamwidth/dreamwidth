@@ -71,9 +71,6 @@ sub multisearch_handler {
 
         my $eq = LJ::ehtml($q);
         return error_ml( '/multisearch.tt.errorpage.nomatch.nav', { query => $eq } );
-
-        return DW::Template->render_template( $tpl, $rv );
-
     };
 
     $f_user = sub {
@@ -144,12 +141,32 @@ sub multisearch_handler {
         elsif ( @uids > 1 ) {
             $rv->{type} = 'im';
 
-            my $us = [ values %{ LJ::load_userids(@uids) } ];
-            $rv->{results} = LJ::user_search_display(
-                users    => $us,
-                timesort => 1,
-                perpage  => 50
-            );
+            my $loaded_users = LJ::load_userids(@uids);
+
+            my $updated = LJ::get_timeupdate_multi( keys %$loaded_users );
+            my $def_upd = sub { $updated->{ $_[0]->userid } || 0 };
+
+            # let undefined values be zero for sorting purposes
+            my $disp_sort = sub { $def_upd->($b) <=> $def_upd->($a) };
+            my @display   = sort $disp_sort values %$loaded_users;
+
+            $rv->{sorted_users} = [ grep { LJ::isu($_) } @display ];
+
+            $rv->{updated} = $def_upd;
+            $rv->{userpic} = sub {
+                my ($u) = @_;
+                my $ret = '';
+
+                if ( my $picid = $u->{'defaultpicid'} ) {
+                    $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/" . $u->userid . "' alt='";
+                    $ret .= $u->user . " userpic' style='border: 1px solid #000;' />";
+                }
+                else {
+                    $ret .= LJ::img( "nouserpic", "", { style => 'border: 1px solid #000;' } );
+                }
+                return $ret;
+            };
+            $rv->{diff_ago_text} = sub { LJ::diff_ago_text(@_) };
 
             return DW::Template->render_template( $tpl, $rv );
         }

@@ -13,8 +13,62 @@
 
 [%- sections.title=".title.$type" | ml -%]
 
-[%- IF type == 'im'; results; END -%]
-
 [%- IF type == 'region';
     '.region.bodytext' | ml(aopts = "href='$site.root/directorysearch'");
     END -%]
+
+[%- IF type == 'im' -%]
+  [% FOREACH u IN sorted_users %]
+
+<div class='user-search-display'>
+  <table summary='' style='height: 105px'><tr>
+
+    <td style='width: 100px; text-align: center;'>
+      <a href='[% u.allpics_base %]'>[% userpic(u) %]</a>
+    </td>
+    <td style='padding-left: 5px;' valign='top'>
+      <table summary=''><tr>
+        <td class='searchusername' colspan='2' style='text-align: left;'>
+          [% u.ljuser_display( { head_size => "24x24" } ) %]
+        </td>
+      </tr>
+
+    [% IF u.name_orig %]
+      <tr>
+        <td width='1%' style='font-size: smaller' valign='top'>
+          [% 'search.user.name' | ml %]
+        </td>
+        <td style='font-size: smaller'>
+          <a href='[% u.profile_url %]'>[% u.name_html %]</a>
+        </td>
+      </tr>
+    [% END %]
+
+    [% jtitle = u.prop('journaltitle');
+       IF jtitle %]
+      <tr>
+        <td width='1%' style='font-size: smaller' valign='top'>
+          [% 'search.user.journal' | ml %]
+        </td>
+        <td style='font-size: smaller'>
+          <a href='[% u.journal_base %]'>[% jtitle | html %]</a>
+        </td>
+      </tr>
+    [% END %]
+
+      <tr>
+        <td colspan='2' style='text-align: left; font-size: smaller' class='lastupdated'>
+    [%- upd = updated(u);
+        IF upd > 0 %]
+          [% 'search.user.update.last' | ml( time => diff_ago_text(upd) ) %]
+    [%- ELSE -%]
+          [% 'search.user.update.never' | ml %]
+    [%- END -%]
+        </td>
+      </tr></table>
+    </td>
+  </tr></table>
+</div>
+
+  [% END %]
+[%- END -%]
