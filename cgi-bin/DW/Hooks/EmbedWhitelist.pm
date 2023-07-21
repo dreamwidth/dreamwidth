@@ -157,6 +157,82 @@ my %host_path_match = (
 
 );
 
+# note: these hash keys are for reference, only the value is checked
+my %complex_match = (
+    "youtube.com" => sub {
+
+        ## YouTube (http://apiblog.youtube.com/2010/07/new-way-to-embed-youtube-videos.html)
+        if (   match_subdomain( "youtube.com", $_[0]->host )
+            || match_subdomain( "youtube-nocookie.com", $_[0]->host ) )
+        {
+            return ( 1, 1 ) if match_full_path( qr!/embed/[-_a-zA-Z0-9]{11,}!, $_[0]->path );
+        }
+    },
+
+    "commons.wikimedia.org" => sub {
+        if ( $_[0]->host eq "commons.wikimedia.org" ) {
+            return ( 1, 1 )
+                if $_[0]->path =~ m!^/wiki/File:! && $_[0]->query =~ m/embedplayer=yes/;
+        }
+    },
+
+    "turner.com" => sub {
+        if ( $_[0]->host eq "i.cdn.turner.com" ) {
+            return ( 1, 1 )
+                if $_[0]->path =~ '/cnn_\d+x\d+_embed.swf$'
+                && $_[0]->query =~ m/^context=embed&videoId=/;
+        }
+    },
+
+    "player.theplatform.com" => sub {
+        if ( $_[0]->host eq "player.theplatform.com" ) {
+            return ( 1, 1 )
+                if $_[0]->path =~ 'MSNBCEmbeddedOffSite' && $_[0]->query =~ m/^guid=/;
+        }
+    },
+
+    "www.facebook.com" => sub {
+        if ( $_[0]->host eq "www.facebook.com" ) {
+            return ( 1, 1 )
+                if $_[0]->path eq '/plugins/video.php'
+                && $_[0]->query =~
+                m/^(height=\d+&)?href=https%3A%2F%2Fwww.facebook.com%2F[^%]+%2Fvideos%2F/;
+        }
+
+    },
+
+    "www.jigsawplanet.com" => sub {
+        if ( $_[0]->host eq "www.jigsawplanet.com" ) {
+            return ( 1, 1 ) if $_[0]->query =~ m/rc=play/;
+        }
+    },
+
+    "screen.yahoo.com" => sub {
+        if ( $_[0]->host eq "screen.yahoo.com" ) {
+            return ( 1, 1 ) if $_[0]->query =~ m/format=embed/;
+        }
+    },
+
+    "livejournal.com" => sub {
+        if ( match_subdomain( "livejournal.com", $_[0]->host ) ) {
+            return ( 1, 1 )
+                if match_full_path( qr!/\d+\.html!, $_[0]->path ) && $_[0]->query =~ m/embed/;
+        }
+    },
+
+    "music.yandex.ru" => sub {
+        if ( $_[0]->host eq "music.yandex.ru" ) {
+            return ( 1, 1 ) if $_[0]->fragment =~ m!track/\d+/\d+!;
+        }
+    },
+
+    "player.twitch.tv" => sub {
+        if ( $_[0]->host eq "player.twitch.tv" ) {
+            return ( 1, 1 ) if $_[0]->query =~ m/video=v\d+/;
+        }
+    },
+);
+
 LJ::Hooks::register_hook(
     'allow_iframe_embeds',
     sub {
@@ -182,59 +258,10 @@ LJ::Hooks::register_hook(
 
         return ( 1, $host_details->[1] ) if $path_regex && ( $uri_path =~ $path_regex );
 
-        ## YouTube (http://apiblog.youtube.com/2010/07/new-way-to-embed-youtube-videos.html)
-        if (   match_subdomain( "youtube.com", $uri_host )
-            || match_subdomain( "youtube-nocookie.com", $uri_host ) )
-        {
-            return ( 1, 1 ) if match_full_path( qr!/embed/[-_a-zA-Z0-9]{11,}!, $uri_path );
-        }
-
-        if ( $uri_host eq "commons.wikimedia.org" ) {
-            return ( 1, 1 )
-                if $uri_path =~ m!^/wiki/File:! && $parsed_uri->query =~ m/embedplayer=yes/;
-        }
-
-        if ( $uri_host eq "i.cdn.turner.com" ) {
-            return ( 1, 1 )
-                if $uri_path =~ '/cnn_\d+x\d+_embed.swf$'
-                && $parsed_uri->query =~ m/^context=embed&videoId=/;
-        }
-
-        if ( $uri_host eq "player.theplatform.com" ) {
-            return ( 1, 1 )
-                if $uri_path =~ 'MSNBCEmbeddedOffSite' && $parsed_uri->query =~ m/^guid=/;
-        }
-
-        if ( $uri_host eq "www.facebook.com" ) {
-            return ( 1, 1 )
-                if $uri_path eq '/plugins/video.php'
-                && $parsed_uri->query =~
-                m/^(height=\d+&)?href=https%3A%2F%2Fwww.facebook.com%2F[^%]+%2Fvideos%2F/;
-        }
-
-        if ( $uri_host eq "www.jigsawplanet.com" ) {
-            return ( 1, 1 ) if $parsed_uri->query =~ m/rc=play/;
-        }
-
-        if ( $uri_host eq "screen.yahoo.com" ) {
-            return ( 1, 1 ) if $parsed_uri->query =~ m/format=embed/;
-        }
-
-        if ( match_subdomain( "livejournal.com", $uri_host ) ) {
-            return ( 1, 1 )
-                if match_full_path( qr!/\d+\.html!, $uri_path ) && $parsed_uri->query =~ m/embed/;
-        }
-
-        if ( $uri_host eq "music.yandex.ru" ) {
-            return ( 1, 1 ) if $parsed_uri->fragment =~ m!track/\d+/\d+!;
-        }
-
-        if ( $uri_host eq "player.twitch.tv" ) {
-            return ( 1, 1 ) if $parsed_uri->query =~ m/video=v\d+/;
-        }
+        my @complex_ok = grep { $_ } map { $_->($parsed_uri) } values %complex_match;
+        return @complex_ok if @complex_ok;
 
         return 0;
-
     }
 );
 
