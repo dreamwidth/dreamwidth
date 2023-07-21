@@ -1,0 +1,35 @@
+[%# Generate a user-visible list of whitelisted embed domains.
+  #
+  # Authors:
+  #     Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2023 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.title = "Supported Domains for Site Embed Codes" -%]
+
+<p>[% site.nameshort %] curates a whitelist of allowed domains and formats for embed codes shared from other sites.</p>
+
+<p>If the site you are trying to use is included on this list, but it doesn't seem to be working in your journal, please <a href="/support/submit">open a support request</a> so we can investigate. You should include in your support request the exact code you are trying to use, so that we can compare it with what our code is expecting.</p>
+
+<p>If the site you are trying to use is <em>not</em> included on this list, we might be able to include it in the future! Look at the embed code you are trying to use and:</p>
+
+<ul>
+<li style="margin-bottom: 1em;">... if it uses &lt;script&gt; tags, sorry! We can't allow embed codes that use script tags, for security reasons.</li>
+
+<li style="margin-bottom: 1em;">... if it does <em>not</em> use &lt;script&gt; tags (or you're not sure either way), you can send the code to us in a <a href="/support/submit">support request</a>. The support team will forward your request to the development team.</li>
+</ul>
+
+<h2>Currently Supported Domains</h2>
+
+<ol>
+[% FOREACH domain IN embed_domains %]
+    <li>[% domain %]</li>
+[% END %]
+</ol>

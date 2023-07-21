@@ -26,9 +26,9 @@ use DW::Formats;
 
 use LJ::JSON;
 
+DW::Routing->register_string( '/dev/embeds',      \&embeds_handler,      app => 1 );
+DW::Routing->register_string( '/dev/formats',     \&formats_handler,     app => 1 );
 DW::Routing->register_string( '/dev/style-guide', \&style_guide_handler, app => 1 );
-
-DW::Routing->register_string( '/dev/formats', \&formats_handler, app => 1 );
 
 if ($LJ::IS_DEV_SERVER) {
     DW::Routing->register_string( '/dev/tests/index', \&tests_index_handler, app => 1 );
@@ -101,6 +101,15 @@ sub formats_handler {
             aliases        => \%aliases,
         }
     );
+}
+
+sub embeds_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my $embed_domains = LJ::Hooks::run_hook('list_iframe_embed_domains');
+
+    return DW::Template->render_template( 'dev/embeds.tt', { embed_domains => $embed_domains } );
 }
 
 sub tests_index_handler {
