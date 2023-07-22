@@ -97,10 +97,6 @@ sub foreach_cluster {
     }
 }
 
-sub bindstr {
-    return join( ', ', map { '?' } @_ );
-}
-
 # when calling a supported function (currently: LJ::load_user() or LJ::load_userid*)
 # ignores in-process request cache, memcache, and selects directly
 # from the global master
