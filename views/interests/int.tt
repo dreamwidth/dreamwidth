@@ -75,13 +75,13 @@
         END -%]
   </div>
     [%- FOREACH not_interested -%]
-        <p class='interestinfo'>
+        <p>
         [%- intadd = dw.create_url( '/interests', args =>
                                     { mode = 'add', intid = intid } ) -%]
         [%- '.addint3' | ml(int = int, aopts = "href='${intadd}'") -%]</p>
     [%- END -%]
     [%- UNLESS comm_count -%]
-        <p class='interestinfo'>
+        <p>
         [%- '.nocomms2' | ml(aopts = "href='$site.root/communities/new'", num = query_count) %]</p>
     [%- END -%]
     <h4>
@@ -116,15 +116,15 @@
         <p>[% '.noshown' | ml %]</p>
     [%- END -%]
 [%- ELSE -%]
-    <p class='interestinfo'>
+    <p>
     [%- '.nocomms2' | ml(aopts = "href='$site.root/communities/new'", num = query_count) %]</p>
-    <p class='interestinfo'>
+    <p>
     [%- IF no_users -%]
         [%- '.nousers3' | ml(aopts = "href='$site.root/interests?mode=addnew&amp;keyword=$no_users'", num = no_users_count, interests = no_users ) %]</p>
     [%- ELSE -%]
         [%- '.notall' | ml %]</p>
         [%- FOREACH not_interested -%]
-            <p class='interestinfo'>
+            <p>
             [%- intadd = dw.create_url( '/interests', args =>
                                         { mode = 'add', intid = intid } ) -%]
             [%- '.addint3' | ml(int = int, aopts = "href='${intadd}'") -%]</p>
