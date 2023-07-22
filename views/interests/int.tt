@@ -13,7 +13,6 @@
 
 [%- sections.head = BLOCK %]
 <style type='text/css'>
-    div.tagcloud a { text-decoration: none; }
     ul.contentlist { list-style-type: none; }
     ul.contentlist li { padding-bottom: 1em; font-size: 125%; clear: both; }
     ul.contentlist .userpic-img { border: 1px solid #000; }
@@ -44,6 +43,8 @@
 <input type="text" name="fromuser" size="20" />&nbsp;
 <input type='submit' value='[% "interests.enmasse.btn" | ml %]' />
 </form></td></tr></table>
+<p style='margin-top: 1em;'>
+[% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
 <h1>[% ".header" | ml(interest = interest) %]</h1>
 [%- IF allcount -%]
   <div class='typefilter'>[% '.filterlink.label' | ml %]&nbsp;
@@ -65,10 +66,8 @@
         <p class='interestinfo'>
         [%- '.nocomms2' | ml(aopts = "href='$site.root/communities/new'", num = query_count) %]</p>
     [%- END -%]
-    <p class='interestinfo'>
-    [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
     <p class='matches'><b>
-    [%- IF type_count -%]
+    [%- IF type_count.defined -%]
         [% '.filtered' | ml(num = allcount, count = type_count) %]</p>
     [%- ELSE -%]
         [% '.matches2' | ml(num = allcount) %]
@@ -93,8 +92,10 @@
         </ul>
 
         <div class='navbar'>[% navbar %]</div>
-    [%- ELSE -%]
+    [%- ELSIF filtered -%]
         <p>[% '.nomatch' | ml(link = type_link('none')) %]</p>
+    [%- ELSIF allcount && ! filtered -%]
+        <p>[% '.noshown' | ml %]</p>
     [%- END -%]
 [%- ELSE -%]
     <p class='interestinfo'>
@@ -111,6 +112,4 @@
             [%- '.addint3' | ml(int = int, aopts = "href='${intadd}'") -%]</p>
         [%- END -%]
     [%- END -%]
-    <p class='interestinfo'>
-    [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
 [%- END -%]

@@ -367,7 +367,7 @@ sub interest_handler {
         $rv->{query_count}    = scalar @intdata;
         $rv->{no_users}       = join ', ', @no_users;
         $rv->{no_users_count} = scalar @no_users;
-        $rv->{not_interested} = \@not_interested;
+        $rv->{not_interested} = $remote ? \@not_interested : [];
 
         # if any one interest is unused, the search can't succeed
         undef @intids if @no_users;
@@ -380,6 +380,8 @@ sub interest_handler {
         my $type = $args->{type};
         $type = 'none' unless $type    && $type =~ /^[PCIF]$/;
         $type = 'none' if $type eq 'F' && !$remote;              # just in case
+
+        $rv->{filtered} = $type ne 'none' ? 1 : 0;
 
         # constructor for filter links
         $rv->{type_link} = sub {
