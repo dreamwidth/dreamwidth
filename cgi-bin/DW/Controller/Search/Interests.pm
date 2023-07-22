@@ -85,7 +85,8 @@ sub interest_handler {
             };
         }
         $rv->{pop_cloud} = LJ::tag_cloud( \%interests );
-        $rv->{pop_ints}  = [ sort { $b->{value} <=> $a->{value} } values %interests ]
+        $rv->{pop_ints} =
+            [ sort { $b->{value} <=> $a->{value} || $a->{eint} cmp $b->{eint} } values %interests ]
             if %interests;
         return DW::Template->render_template( 'interests/popular.tt', $rv );
     }
