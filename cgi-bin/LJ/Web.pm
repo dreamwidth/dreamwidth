@@ -3902,8 +3902,6 @@ sub subscribe_interface {
     $page_vars->{catdata} = \@catdata;
     $page_vars->{catids}  = join ',', @catids;
 
-    $page_vars->{lj_img} = sub { LJ::img( $_[0], '', $_[1] ) };
-
     # show how many subscriptions we have active / inactive
     $page_vars->{subscription_stats} =
         LJ::Hooks::run_hook( 'subscription_stats', $u, \%num_subs_by_type );

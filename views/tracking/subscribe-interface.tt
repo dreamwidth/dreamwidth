@@ -64,7 +64,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                           : "?";
             deletesub_url = deletesub_url _ "deletesub_${sub.subid}=1" -%]
           <a href='[% deletesub_url %]' class='delete-button' subid=[% sub.subid %]
-             auth_token=[% sub.auth_token %]>[% lj_img( 'btn_trash' ) %]</a>
+             auth_token=[% sub.auth_token %]>[% dw.img( 'btn_trash', '' ) %]</a>
       [% END %]
       [% form.checkbox( name = sub.input_name, id = sub.input_name, label = sub.title,
                         selected = sub.selected, disabled = sub.disabled,
@@ -98,7 +98,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%- cols = 2 + notify_classes.size -%]
 
   [% IF cat.empty_blurb;
-       track_img = lj_img( 'track', { align => 'absmiddle', alt => ui_notify } ) %]
+       track_img = dw.img( 'track', '', { align => 'absmiddle', alt => ui_notify } ) %]
       <tr>
         <td colspan='[% cols %]'>
           <p>
