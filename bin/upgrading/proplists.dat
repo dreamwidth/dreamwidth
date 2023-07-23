@@ -833,10 +833,10 @@ userproplist.opt_hidememberofs:
 userproplist.opt_imagelinks:
   cldversion: 4
   datatype: char
-  des: width|height: specifies maximum image size on a user's friends page.  0 for either field replaces all images.
+  des: width|height: specifies maximum image size on a user's reading page.  0 for either field replaces all images.
   indexed: 0
   multihomed: 0
-  prettyname: Use Placeholders on Your Friend's Page
+  prettyname: Use Placeholders on Your Reading Page
 
 userproplist.opt_imageundef:
   cldversion: 4
@@ -849,10 +849,10 @@ userproplist.opt_imageundef:
 userproplist.opt_cut_disable_reading:
   cldversion: 4
   datatype: bool
-  des: LJCUT disabled in friends view
+  des: LJCUT disabled on reading page
   indexed: 1
   multihomed: 0
-  prettyname: LJCUT disabled in friends view
+  prettyname: LJCUT disabled on reading page
 
 userproplist.opt_cut_disable_journal:
   cldversion: 4
@@ -1017,7 +1017,7 @@ userproplist.opt_showmutualfriends:
 userproplist.opt_stylemine:
   cldversion: 4
   datatype: bool
-  des: 1: use journal style when commenting on other journals from friends page
+  des: 1: use journal style when commenting on other journals from reading page
   indexed: 0
   multihomed: 0
   prettyname: Style=Mine
@@ -1049,7 +1049,7 @@ userproplist.opt_usermsg:
 userproplist.opt_usesharedpic:
   cldversion: 4
   datatype: bool
-  des: 1: friends view uses shared pictures, 0: uses poster's picture
+  des: 1: reading page uses shared pictures, 0: uses poster's picture
   indexed: 1
   multihomed: 0
   prettyname: Use Shared Journal Pic
@@ -1436,7 +1436,7 @@ talkproplist.deleted_poster:
 
 talkproplist.editor:
   datatype: char
-  des: Type of editor used when making this content. Values: "markdown" or undefined (plain/raw html)
+  des: Type of editor used when making this content. Values: see /dev/formats for current list.
   prettyname: Comment editor
 
 talkproplist.import_source:
@@ -1564,7 +1564,7 @@ logproplist.current_music:
 
 logproplist.editor:
   datatype: char
-  des: Type of editor used when making this content. Values: "markdown" or undefined (plain/raw html)
+  des: Type of editor used when making this content. Values: see /dev/formats for current list.
   prettyname: Entry editor
   sortorder: 8
   ownership: user
@@ -1592,7 +1592,7 @@ logproplist.interface:
 
 logproplist.opt_backdated:
   datatype: bool
-  des: Set to true if this item shouldn't show up on people's friends lists (because it occurred in the past)
+  des: Set to true if this item shouldn't show up on people's reading lists (because it occurred in the past)
   prettyname: Don't Show on Reading Pages
   sortorder: 35
   ownership: user
