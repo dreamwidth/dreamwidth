@@ -119,7 +119,6 @@ my %e = (
     "407" => [ E_TEMP, "Moderation queue full" ],
     "408" => [ E_TEMP, "Maximum queued posts for this community+poster combination reached." ],
     "409" => [ E_PERM, "Post too large." ],
-    "410" => [ E_PERM, "Your trial account has expired.  Posting now disabled." ],
     "411" => [ E_PERM, "Subject too long." ],
     "412" => [ E_PERM, "Maximum number of comments reached" ],
 
@@ -1259,9 +1258,6 @@ sub postevent {
 
     # is the user allowed to post?
     return fail( $err, 404, $LJ::MSG_NO_POST ) unless $importer_bypass || $u->can_post;
-
-    # is the user allowed to post?
-    return fail( $err, 410 ) if $u->can_post_disabled;
 
     # read-only accounts can't post
     return fail( $err, 316 ) if $u->is_readonly;

@@ -149,10 +149,6 @@ sub can_post {
     return $_[0]->get_cap('can_post') ? 1 : 0;
 }
 
-sub can_post_disabled {
-    return $_[0]->get_cap('disable_can_post') ? 1 : 0;
-}
-
 sub can_import_comm {
     return $_[0]->get_cap('import_comm') ? 1 : 0;
 }
