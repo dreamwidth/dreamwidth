@@ -121,9 +121,6 @@ sub new_handler {
 
         return error_ml("/entry/form.tt.error.cantpost")
             unless $remote->can_post;
-
-        return error_ml('/entry/form.tt.error.disabled')
-            if $remote->can_post_disabled;
     }
 
     my $errors   = DW::FormErrors->new;
