@@ -294,10 +294,9 @@ sub _as_email {
     my $tags = '';
 
     # add tag info for entries that have tags
-    if ( $self->entry->tags ) {
+    if ( my @taglist = sort { $a cmp $b } $self->entry->tags ) {
         $tags = ' '
-            . LJ::Lang::get_text( $lang, 'esn.tags', undef,
-            { tags => join( ', ', $self->entry->tags ) } );
+            . LJ::Lang::get_text( $lang, 'esn.tags', undef, { tags => join( ', ', @taglist ) } );
     }
 
     # indicate post security if it is locked or filtered
