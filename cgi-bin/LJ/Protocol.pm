@@ -1274,6 +1274,9 @@ sub postevent {
         "You must have an authenticated email address in order to post to another account" )
         unless $u->equals($uowner) || $u->{'status'} eq 'A' || $flags->{'nomod'};
 
+    return fail( $err, 155, "You must confirm your email address before posting." )
+        if $u->{'status'} eq 'N';
+
     # post content too large
     # NOTE: requires $req->{event} be binary data, but we've already
     # removed the utf-8 flag in the XML-RPC path, and it never gets
