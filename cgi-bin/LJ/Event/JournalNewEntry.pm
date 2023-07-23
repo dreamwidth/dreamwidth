@@ -125,7 +125,8 @@ sub as_html_tags {
     my $tags = '';
     my $url  = $self->entry->journal->journal_base;
 
-    my @taglist = $self->entry->tags;
+    # this is retrieving the values of a hash - needs sorting
+    my @taglist = sort { $a cmp $b } $self->entry->tags;
 
     # add tag info for entries that have tags
     if (@taglist) {
