@@ -92,9 +92,9 @@ sub main_handler {
         if ( LJ::is_enabled('stats-recentupdates') ) {
 
             $sth = $dbr->prepare(
-                "SELECT u.userid, uu.timeupdate FROM user u, userusage uu WHERE
-                u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY)
-                AND u.journaltype = ? ORDER BY uu.timeupdate DESC LIMIT 20"
+                "SELECT u.userid, uu.timeupdate_public AS 'timeupdate' FROM user u, userusage uu
+                WHERE u.userid=uu.userid AND uu.timeupdate_public > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                AND u.journaltype = ? ORDER BY uu.timeupdate_public DESC LIMIT 20"
             );
 
             $sth->execute('P');
