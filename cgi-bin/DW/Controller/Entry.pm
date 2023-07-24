@@ -788,8 +788,7 @@ sub _form_to_backend {
     my $props = $req->{props};
 
     while ( my ( $formname, $propname ) = each %form_to_props ) {
-        $props->{$propname} = $post->{$formname}
-            if defined $post->{$formname};
+        $props->{$propname} = $post->{$formname} // '';
     }
     $props->{taglist}         = $post->{taglist} if defined $post->{taglist};
     $props->{picture_keyword} = $post->{prop_picture_keyword}
