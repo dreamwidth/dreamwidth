@@ -1215,6 +1215,10 @@ sub _do_post {
             {
                 url       => "$LJ::SITEROOT/editjournal",
                 ml_string => '.links.manageentries',
+            },
+            {
+                url       => "$LJ::SITEROOT/logout",
+                ml_string => '.links.logout',
             }
             );
 
@@ -1340,6 +1344,10 @@ sub _do_edit {
             {
             url       => "$LJ::SITEROOT/editjournal",
             ml_string => '.links.manageentries',
+            },
+            {
+            url       => "$LJ::SITEROOT/logout",
+            ml_string => '.links.logout',
             };
 
     }
@@ -1378,6 +1386,10 @@ sub _do_edit {
             {
                 url       => "$LJ::SITEROOT/editjournal",
                 ml_string => '.links.manageentries',
+            },
+            {
+                url       => "$LJ::SITEROOT/logout",
+                ml_string => '.links.logout',
             }
             );
 
