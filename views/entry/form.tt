@@ -441,7 +441,7 @@ postFormInitData.strings = {
         var autoSaveInterval = [% autosave_interval || 3 %];
         var savedMsg = [% dw.ml('.draft.autosave', {time => '[[time]]'}) | js %];
         var restoredMsg = [% dw.ml('.draft.restored') | js %]
-        var confirmMsg = [% draft_subject_raw.length > 0 ? dw.ml( '.draft.confirm2', { subjectline => draft_subject_raw } ) : dw.ml('.draft.confirm') | js %]
+        var confirmMsg = [% draft_subject_raw.defined && draft_subject_raw.length > 0 ? dw.ml( '.draft.confirm2', { subjectline => draft_subject_raw } ) : dw.ml('.draft.confirm') | js %]
 
         var should_init = [%init_draft || 'null' %];
 </script>
