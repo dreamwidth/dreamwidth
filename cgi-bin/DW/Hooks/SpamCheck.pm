@@ -38,7 +38,7 @@ LJ::Hooks::register_hook(
             return unless defined $item;        # don't waste time iterating over undefined items
 
             foreach my $domain (@blocked_domains) {
-                if ( $item =~ m|\b${domain}\b| ) {
+                if ( $item =~ m|\b${domain}\b|i ) {
                     $u->set_suspended( $system,
                         "auto-suspend for matching domain blocklist: $domain in $loc" );
                     return 1;
