@@ -1032,10 +1032,19 @@ general /tools/tellafriend.bml.sentpage.title
 general /tools/tellafriend.bml.title
 general /tools/tellafriend.bml.via
 
-general /update.bml.update.about
-general /update.bml.login.success
+general /update.bml.currmood
+general /update.bml.error.disabled
+general /update.bml.error.disabled.title
 general /update.bml.htmlokay
+general /update.bml.loggedinas
+general /update.bml.login.success
 general /update.bml.opt.defpic
+general /update.bml.picture
+general /update.bml.simple
+general /update.bml.update.about
+general /update.bml.update.alternate
+general /update.bml.update.success
+general /update.bml.updating
 
 general /uploadpic.bml.success.text
 general /uploadpic.bml.btn.proceed
@@ -1411,9 +1420,6 @@ general /talkpost_do.bml.title
 general /talkpost_do.bml.title.error
 general /talkpost_do.bml.title.preview
 
-general /update.bml.currmood
-general /update.bml.update.alternate
-
 general /editpics.bml.curpics.desc
 
 general error.noremote
@@ -1458,10 +1464,6 @@ general /talkpost_do.bml.success.screened.user
 general /talkpost_do.bml.success.screened.user.anon
 general /tools/memadd.bml.login.forgot.header
 general /tools/memadd.bml.login.forgot.recover
-general /update.bml.loggedinas
-general /update.bml.picture
-general /update.bml.simple
-general /update.bml.update.success
 general /userinfo.bml.label.clientsused
 general /userinfo.bml.sendmessage.body
 general /userinfo.bml.syndinfo.body
@@ -2264,7 +2266,6 @@ general /talkpost.bml.opt.ljuser
 general /talkpost.bml.opt.ljuser2
 general /talkpost.bml.warnscreened
 general /tools/recent_comments.bml.latest.comments
-general /update.bml.updating
 general /interests/findsim.tt.findsim_do.similar.head
 general /interests/findsim.tt.findsim_do.similar.text
 general /interests/int.tt.communities.header
@@ -3465,6 +3466,8 @@ general /go.bml.link.to.journal
 general talk.error.nosuchjournal
 general talk.spellcheck
 general /talkform.tt.opt.noautoformat
+
+general /views/entry/form.tt.error.disabled
 
 general /views/entry/success.tt.edit.edited
 general /views/entry/success.tt.edit.edited.comm
