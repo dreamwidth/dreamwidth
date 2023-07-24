@@ -11,40 +11,59 @@
   #
 %]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
 [%- sections.head = BLOCK %]
 <style type='text/css'>
-    div.tagcloud a { text-decoration: none; }
+    #content p { font-size: 85%; }
     ul.contentlist { list-style-type: none; }
-    ul.contentlist li { padding-bottom: 1em; font-size: 125%; clear: both; }
+    ul.contentlist li { padding-bottom: 1em; font-size: 115%; clear: both; }
     ul.contentlist .userpic-img { border: 1px solid #000; }
     .imgpos { float: left; width: 100px; min-height: 4em; text-align: right;
               margin: 0 .5em .5em 0; }
     .navbar { text-align: center; clear: both; }
-    .typefilter { font-weight: bold; font-size: 125%; margin: 1em 0; }
+    .typefilter { font-weight: bold; font-size: 105%; margin: 1em 0; }
+    .lastupdated { color: #666; }
 </style>
 [% END -%]
-
-[%- dw.need_res( 'stc/interests.css' ) -%]
 
 [%- sections.title='.title' | ml -%]
 
 [%- IF warn_toolong %]<p>[% warn_toolong %]</p>[% END -%]
-<table class="table" summary=''><tr valign='middle'><td class='findandmodify'>
-[% 'interests.interested.in' | ml %]</td><td class='findandmodify'>
 <form method='get' action='interests'>
-<input type="text" name="int" size="20" value="[% interest # escaped in the controller %]" />&nbsp;
-<input type='submit' value='[% "interests.interested.btn" | ml %]' />
-</form></td>
-<td class='findandmodify'>[% '/directory/index.tt.int_multiple' | ml %]
-</td></tr>
-<tr valign='middle'><td class='findandmodify'>
-[% 'interests.enmasse.intro' | ml %]</td><td colspan='2' class='findandmodify'>
+<div class="row">
+  <div class="small-6 medium-5 column">
+    <label for='int'>[% 'interests.interested.in' | ml %]</label>
+<p>[% '/directory/index.tt.int_multiple' | ml %]</p>
+  </div>
+  <div class="small-4 medium-5 column">
+[% form.textbox( name = 'int', value = interest, # escaped in the controller
+                 size = 20 ) %]
+  </div>
+  <div class="small-2 medium-2 column">
+[% form.submit( value = dw.ml( "interests.interested.btn" ) ) %]
+  </div>
+</div>
+</form>
+
 <form method='get' action='interests'>
-<input type='hidden' name='mode' value='enmasse' />
-<input type="text" name="fromuser" size="20" />&nbsp;
-<input type='submit' value='[% "interests.enmasse.btn" | ml %]' />
-</form></td></tr></table>
-<h1>[% ".header" | ml(interest = interest) %]</h1>
+[% form.hidden( name = 'mode', value = 'enmasse' ) %]
+<div class="row">
+  <div class="small-6 medium-5 column">
+    <label for='fromuser'>[% 'interests.enmasse.intro' | ml %]</label>
+  </div>
+  <div class="small-4 medium-5 column">
+[% form.textbox( name = 'fromuser', size = 20 ) %]
+  </div>
+  <div class="small-2 medium-2 column">
+[% form.submit( value = dw.ml( "interests.enmasse.btn" ) ) %]
+  </div>
+</div>
+</form>
+
+<p style='margin-top: 1em;'>
+[% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
+<h2>[% ".header" | ml(interest = interest) %]</h2>
 [%- IF allcount -%]
   <div class='typefilter'>[% '.filterlink.label' | ml %]&nbsp;
     [%- FOREACH type = type_list;
@@ -56,24 +75,22 @@
         END -%]
   </div>
     [%- FOREACH not_interested -%]
-        <p class='interestinfo'>
+        <p>
         [%- intadd = dw.create_url( '/interests', args =>
                                     { mode = 'add', intid = intid } ) -%]
         [%- '.addint3' | ml(int = int, aopts = "href='${intadd}'") -%]</p>
     [%- END -%]
     [%- UNLESS comm_count -%]
-        <p class='interestinfo'>
+        <p>
         [%- '.nocomms2' | ml(aopts = "href='$site.root/communities/new'", num = query_count) %]</p>
     [%- END -%]
-    <p class='interestinfo'>
-    [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
-    <p class='matches'><b>
-    [%- IF type_count -%]
-        [% '.filtered' | ml(num = allcount, count = type_count) %]</p>
+    <h4>
+    [%- IF type_count.defined -%]
+        [% '.filtered' | ml(num = allcount, count = type_count) %]
     [%- ELSE -%]
         [% '.matches2' | ml(num = allcount) %]
     [%- END -%]
-    </b></p>
+    </h4>
     [%- IF data -%]
         <div class='navbar'>[% navbar %]</div><br />
 
@@ -93,24 +110,24 @@
         </ul>
 
         <div class='navbar'>[% navbar %]</div>
-    [%- ELSE -%]
+    [%- ELSIF filtered -%]
         <p>[% '.nomatch' | ml(link = type_link('none')) %]</p>
+    [%- ELSIF allcount && ! filtered -%]
+        <p>[% '.noshown' | ml %]</p>
     [%- END -%]
 [%- ELSE -%]
-    <p class='interestinfo'>
+    <p>
     [%- '.nocomms2' | ml(aopts = "href='$site.root/communities/new'", num = query_count) %]</p>
-    <p class='interestinfo'>
+    <p>
     [%- IF no_users -%]
         [%- '.nousers3' | ml(aopts = "href='$site.root/interests?mode=addnew&amp;keyword=$no_users'", num = no_users_count, interests = no_users ) %]</p>
     [%- ELSE -%]
         [%- '.notall' | ml %]</p>
         [%- FOREACH not_interested -%]
-            <p class='interestinfo'>
+            <p>
             [%- intadd = dw.create_url( '/interests', args =>
                                         { mode = 'add', intid = intid } ) -%]
             [%- '.addint3' | ml(int = int, aopts = "href='${intadd}'") -%]</p>
         [%- END -%]
     [%- END -%]
-    <p class='interestinfo'>
-    [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
 [%- END -%]

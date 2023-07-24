@@ -29,6 +29,8 @@
 
 .nomatch=No matching users for the specified account type. <a href="[[link]]">View all accounts with this interest.</a>
 
+.noshown=No accounts with this interest are currently visible on the site.
+
 .notall=There are no users matching all of the interests you specified.  You may want to modify your search.
 
 .nousers3=No one currently has [[num]] of the interests you're searching for. If you're interested, <a [[aopts]]>click here to add "[[interests]]" to your profile</a>.
