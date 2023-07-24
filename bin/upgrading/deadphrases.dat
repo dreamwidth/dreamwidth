@@ -2516,7 +2516,11 @@ general portal.update.portalname
 general portal.update.portaltitle
 general portal.update.subject
 general protocol.old_win32_client
+
+general search.user.journal
+general search.user.name
 general search.user.nopic
+
 general setting.display.domainmapping.actionlink
 general setting.display.domainmapping.actionlink.remove
 general setting.display.domainmapping.label
@@ -2725,8 +2729,20 @@ general widget.qotdresponses.previous
 general widget.qotdresponses.read.more
 general widget.qotdresponses.read.your.friends.page
 general widget.qotdresponses.there.are.no.answers
+
+general widget.search.aim
+general widget.search.existingtitle
+general widget.search.icq
+general widget.search.iminfo
+general widget.search.interestonly
+general widget.search.interestonly.btn
+general widget.search.jabber
+general widget.search.msn
 general widget.search.note
+general widget.search.submit
+general widget.search.username
 general widget.search.yahoo
+
 general widget.shopcart.deliverydate.today
 general widget.shopcartstatusbar.header
 general widget.shopcartstatusbar.itemcount
@@ -3370,7 +3386,6 @@ general /admin/supportcat/category.tt.field.sortorder.label
 general /admin/supportcat/category.tt.field.user_closeable.label
 general /admin/supportcat/category.tt.saved
 
-general widget.search.msn
 general /manage/profile/index.bml.chat.msnusername
 general /profile.bml.im.msn
 general /profile.bml.label.msnusername
@@ -3486,6 +3501,14 @@ general /views/entry/success.tt.new.links.memories
 general /views/entry/success.tt.new.links.myentries
 general /views/entry/success.tt.new.links.tags
 general /views/entry/success.tt.new.links.view
+
+general /views/multisearch.tt.text.head.site
+general /views/multisearch.tt.text.head.user
+general /views/multisearch.tt.text.region.bodytext
+general /views/multisearch.tt.text.text.site
+general /views/multisearch.tt.text.text.user
+general /views/multisearch.tt.text.title.im
+general /views/multisearch.tt.text.title.nav
 
 general /views/settings/accountstatus.tt.btn.status
 
