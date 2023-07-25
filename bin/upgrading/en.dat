@@ -4905,8 +4905,6 @@ widget.friendbirthdays.title=Birthdays
 
 widget.friendbirthdays.userbirthday=[[month]] [[day]]
 
-widget.friendbirthdays.viewall=More
-
 widget.friendupdates.noupdates=You have no updates.
 
 widget.friendupdates.noupdates.setup=Set up your notifications in <a [[aopts]]>Manage Settings</a>.

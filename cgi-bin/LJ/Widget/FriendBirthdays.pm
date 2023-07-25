@@ -41,11 +41,10 @@ sub render_body {
     return "" unless @bdays;
 
     my $vars = {
-        bdays        => \@bdays,
-        load_user    => \&LJ::load_user,
-        month_short  => \&LJ::Lang::month_short,
-        friends_link => $opts{friends_link},
-        u            => $u
+        bdays       => \@bdays,
+        load_user   => \&LJ::load_user,
+        month_short => \&LJ::Lang::month_short,
+        u           => $u
     };
 
     return DW::Template->template_string( 'widget/friendbirthdays.tt', $vars );
