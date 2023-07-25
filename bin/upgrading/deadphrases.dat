@@ -2876,7 +2876,9 @@ general talk.comments.disabled_maintainer
 
 general /manage/circle/add.bml.groups.reading.feed1
 
+general /manage/invites.bml.back
 general /manage/invites.bml.fromline
+general /manage/invites.bml.manage
 
 general settings.usermessaging.obsolete
 
