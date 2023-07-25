@@ -1,10 +1,7 @@
 <h2 class="smaller"><span>[% dw.ml('widget.friendbirthdays.title') %]</span></h2>
-<p><a href='[% site.root %]/birthdays' class='more-link'>
-    [% dw.ml('widget.friendbirthdays.viewall') %]
-</a></p>
 
 <div class="row">
-<div class='columns small-12'>
+  <div class='columns small-12'>
 [%- FOREACH bday IN bdays -%]
     [%- u     = load_user( bday.2 )
         month = bday.0
@@ -22,10 +19,10 @@
         </a></div>
         </div>
 [%- END -%]
+  </div>
 </div>
-</div>
-[%- IF friends_link -%]
-    <p class='indent_sm'>&raquo; <a href='[% site.root %]/birthdays'>"
-        [% dw.ml('widget.friendbirthdays.friends_link') %]
-    </a></p>
-[%- END -%]
+
+<p style="margin: 1em 0 0 0;">
+  &raquo; <a href='[% site.root %]/birthdays' class='more-link'>
+  [% dw.ml('widget.friendbirthdays.friends_link') %]</a>
+</p>
