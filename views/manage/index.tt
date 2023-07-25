@@ -93,7 +93,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
   {
     href = dw.create_url( '/manage/settings/', keep_args => [ 'authas' ] )
     title = dw.ml( '.information.settings.about' )
-    text = dw.ml( '/manage/settings/index.bml.title' )
+    text = dw.ml( '/manage/settings/index.bml.title.anon' )
   } ];
 
 IF u.email_raw; infoitems.push(
@@ -267,7 +267,7 @@ INCLUDE linklist header=dw.ml( '.circle.header' )
   {
     href = dw.create_url( '/manage/invites' )
     title = dw.ml( '.communities.invites.about ' )
-    text = dw.ml( '/manage/invites.bml.title2' )
+    text = dw.ml( '/manage/invites.tt.title' )
   } ];
 
 UNLESS remote.is_identity; commitems.unshift(
