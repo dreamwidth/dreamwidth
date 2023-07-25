@@ -13,6 +13,8 @@
 
 [%- sections.title = '.title' | ml -%]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
 [%- sections.head = BLOCK %]
     <style type="text/css">
         #invites-list {
@@ -28,6 +30,9 @@
         .invite-accept,
         .invite-decline {
             white-space: nowrap;
+        }
+        #content input[type="radio"] {
+            margin: 0;
         }
     </style>
 [%- END -%]
@@ -107,23 +112,20 @@
        END %]
         </td>
         <td class='invite-accept'>
-          [% form.radio( name = inv.key, id = "yes${inv.key}", value = "yes" ) %]
-          <label for='[% "yes${inv.key}" %]'>[% '.invite.accept' | ml %]</label>
+          [% form.radio( name = inv.key, id = "yes${inv.key}", value = "yes",
+                         label = dw.ml( '.invite.accept' ) ) %]
         </td>
         <td class='invite-decline'>
-          [% form.radio( name = inv.key, id = "no${inv.key}", value = "no" ) %]
-          <label for='[% "no${inv.key}" %]'>[% '.invite.decline' | ml %]</label>
+          [% form.radio( name = inv.key, id = "no${inv.key}", value = "no",
+                         label = dw.ml( '.invite.decline' ) ) %]
         </td>
       </tr>
   [% END %]
 
     </table><br />
     <div class='action-box'>
-      <ul class='nostyle inner'>
-        <li>[% form.submit( name = 'submit', value = dw.ml( ".invite.submit" ) ) %]</li>
-      </ul>
+      [% form.submit( name = 'submit', value = dw.ml( ".invite.submit" ) ) %]
     </div>
-    <div class='clear-floats'></div>
   </div>
 </form>
 
