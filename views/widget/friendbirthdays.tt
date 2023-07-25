@@ -1,28 +1,26 @@
 <h2 class="smaller"><span>[% dw.ml('widget.friendbirthdays.title') %]</span></h2>
 
-<div class="row">
-  <div class='columns small-12'>
 [%- FOREACH bday IN bdays -%]
     [%- u     = load_user( bday.2 )
         month = bday.0
         day   = bday.1.replace('^0', '')
     -%]
     [%- NEXT UNLESS u && month && day -%]
-        <div class="row">
-        <div class="columns small-6">[% u.ljuser_display %]</div>
-        <div class="columns small-3">
-            [% dw.ml( 'widget.friendbirthdays.userbirthday',
-            { 'month' => month_short(month), 'day' => day } ) %]
-        </div>
-        <div class="columns small-3"><a href='[% u.gift_link %]' class='gift-link'>
-            [% dw.ml('widget.friendbirthdays.gift') %]
-        </a></div>
-        </div>
-[%- END -%]
-  </div>
+<div class="user-block">
+  <ul>
+    <li class="bdate">
+        [% dw.ml( 'widget.friendbirthdays.userbirthday',
+        { 'month' => month_short(month), 'day' => day } ) %]
+    </li>
+    <li>[% u.ljuser_display %]</li>
+    <li><a href='[% u.gift_link %]' class='gift-link'>
+        [% dw.ml('widget.friendbirthdays.gift') %]</a>
+    </li>
+  </ul>
 </div>
+[%- END -%]
 
-<p style="margin: 1em 0 0 0;">
+<p>
   &raquo; <a href='[% site.root %]/birthdays' class='more-link'>
   [% dw.ml('widget.friendbirthdays.friends_link') %]</a>
 </p>
