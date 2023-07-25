@@ -34,9 +34,9 @@ sub render_body {
     my @journallist = ( $remote, $remote->posting_access_list );
     my $sidebar     = LJ::Hooks::run_hook( 'entryforminfo', $remote->user, $remote );
     my @security    = (
-        ( "public", LJ::Lang::ml("/entry/form.tt.select.security.public.label") ),
-        ( "private", LJ::Lang::ml("/entry/form.tt.select.security.private.label") ),
-        ( "access",  LJ::Lang::ml("/entry/form.tt.select.security.access.label") ),
+        "public"  => LJ::Lang::ml("/entry/form.tt.select.security.public.label"),
+        "private" => LJ::Lang::ml("/entry/form.tt.select.security.private.label"),
+        "access"  => LJ::Lang::ml("/entry/form.tt.select.security.access.label"),
     );
     my $vars = {
         remote      => $remote,

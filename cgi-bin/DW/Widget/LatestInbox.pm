@@ -28,9 +28,7 @@ sub render_body {
 
     my $remote = LJ::get_remote()
         or return "";
-    my $vars = {};
-
-    my $vars->{limit} = $opts{limit} || 5;
+    my $vars = { limit => $opts{limit} || 5 };
 
     # get the user's inbox
     my $error;
