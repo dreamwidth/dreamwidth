@@ -224,6 +224,7 @@ sub render_body {
         );
         $ret .= <<EOF
             </div>
+            <p class='detail'>To insert indentation or open the code hint menu, press Tab + Space.</p>
             <script type='text/javascript'>
                 window.addEventListener('load', function() {
                 let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name="Widget[S2PropGroup]_custom_css"]'), {
