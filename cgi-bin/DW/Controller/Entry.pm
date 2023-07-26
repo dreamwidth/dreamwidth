@@ -2017,7 +2017,8 @@ sub draft_rpc_handler {
         # If the property is null, a default menu selection or a JS undefined
         # value, we don't want to save it.
         foreach my $key ( keys(%properties) ) {
-            if (   ( $properties{$key} =~ /^$/ )
+            if (   !defined $properties{$key}
+                || ( $properties{$key} =~ /^$/ )
                 || ( $properties{$key} =~ /^0$/ )
                 || ( $properties{$key} =~ /^undefined$/ ) )
             {
