@@ -1,0 +1,77 @@
+[%- sections.title='.title' | ml -%]
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        .action-box {padding: 0 1em;}
+        .action-box .inner { text-align: left; padding: 1em; }
+    </style>
+[% END %]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[% IF findfriends_intro %]
+    [% findfriends_intro %]
+[% ELSIF use_codes %]
+    <p>[% dw.ml('.intro.code3', { aopts => "href='${site.root}/invite'" , num => unusedinvites, notif => "href='${site.root}/manage/settings/?cat=notifications'" } ) %]</p>
+[% ELSE %]
+    <p>[% dw.ml('.intro', { aopts => "href='$create_link'", createlink => create_link} ) %]
+[% END %]
+
+<form method='post'>
+[% dw.form_auth %]
+
+<div class="row">
+    <div class="columns medium-4"><label for='email' class="right inline">[% dw.ml('.form.input.email') %]</label></div>
+    <div class="columns medium-4">[% form.textbox(name => "email", id => "email", class => 'text', value => email) %]</div>
+    <div class="columns medium-4">[% form.submit(value = dw.ml('.btn.invite2')) %]
+    [% IF email_checkbox %]<br>[% email_checkbox %][% END %]</div>
+</div>
+
+[% IF use_codes %]
+    <br />
+    <label for=[% invitecodes.0.code %]>[% dw.ml('.form.input.code') %]</label>
+
+    [% FOREACH invitecode IN invitecodes.splice(0, 5) %]
+        [% label = invitecode.code %]
+        [% IF invitecode.code == formdata.code && code_sent %]
+            [% label = label _ " - " _ dw.ml('.form.codelist.justsent') %]
+        [% ELSIF invitecode.timesent %]
+            [% label = label _ " - " _ dw.ml( '.form.codelist.alreadysent', {
+                date => time_to_http( invitecode.timesent )
+                }) %]
+        [% END %]
+        [% form.checkbox(
+                selected => loop.first(),
+                name => "code",
+                id => "code-${invitecode.code}",
+                type=> "radio",
+                value => invitecode.code,
+                label => label,
+        ) %]
+        <br>
+    [% END %]
+[% END %]
+
+
+<p>[% dw.ml('.form.input.message') %]</p>
+<div class='action-box'>
+    <div class="inner">
+        <p><strong>[% dw.ml('.msg_subject.header') %]</strong> 
+        [% dw.ml('.msg_subject', { username => u.display_username, sitenameshort => site.nameshort }) %]</p>
+        <p><strong>[% dw.ml('.msg.header') %]</strong></p>
+        <div style='margin-left: 15px;'>
+            <p>[% dw.ml('.msg_body_top', { displayname => u.name_html, username => u.display_username, sitename => site.nameshort }) | html_line_break %]</p>
+            [% form.textarea(
+                name => "msg",
+                class => "text",
+                rows => 5,
+                cols => 70
+            ) %]
+            <p>
+            [% dw.ml('.msg_body_bottom', { createlink => create_link, username => u.display_username }).replace('(&code=).{20}', '$1xxxxxxxxxxxxx') | html_line_break %]
+            </p>
+        </div>
+        [% dw.ml('.msg_sig', { sitename => site.nameshort, siteroot => site.root }) | html_line_break %]
+    </div>
+</div>
+
+[% form.submit(value = dw.ml('.btn.invite2')) %]
+</form>
