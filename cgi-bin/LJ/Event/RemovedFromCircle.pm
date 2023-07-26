@@ -91,7 +91,7 @@ sub _as_email {
             {
                 'esn.show_unsubscribed_journal' => [ 0, $journal_url ],
                 'esn.remove_trust' => [
-                    !$u->trusts( $self->fromuser ) ? 1 : 2,
+                    !$u->trusts( $self->fromuser ) ? 0 : 2,
                     "$LJ::SITEROOT/circle/$postername/edit"
                 ],
                 'esn.post_entry'   => [ 3, "$LJ::SITEROOT/update" ],
@@ -107,7 +107,7 @@ sub _as_email {
             {
                 'esn.show_unsubscribed_journal' => [ 0, $journal_url ],
                 'esn.remove_watch' => [
-                    !$u->watches( $self->fromuser ) ? 1 : 2,
+                    !$u->watches( $self->fromuser ) ? 0 : 2,
                     "$LJ::SITEROOT/circle/$postername/edit"
                 ],
                 'esn.post_entry'   => [ 3, "$LJ::SITEROOT/update" ],
