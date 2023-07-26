@@ -20,7 +20,6 @@ package DW::External::User;
 use strict;
 use Carp qw/ croak /;
 use DW::External::Site;
-use List::Util qw(first); 
 use LJ::CleanHTML;
 
 # given a site (url) and a user (string), construct an external
