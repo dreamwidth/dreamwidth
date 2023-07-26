@@ -562,7 +562,33 @@ sub module_iframe_tag {
                     }
                 }
 
-                my $flashvars = $attr->{flashvars};
+                # parse the style attribute for width and height
+                if ( my $style = $attr->{style} ) {
+                    unless ($width) {
+                        my ( $style_width, $style_width_unit ) =
+                            ( $style =~ /width:\s+(\d+)([^;"'\s])/ );
+                        if ($style_width) {
+                            $style_width_unit = "%"
+                                if $style_width_unit && $style_width_unit =~ /^%/;
+                            $style_width_unit = "" if $style_width_unit && $style_width_unit ne "%";
+                            $width            = $style_width;
+                            $width_unit       = $style_width_unit;
+                        }
+                    }
+
+                    unless ($height) {
+                        my ( $style_height, $style_height_unit ) =
+                            ( $style =~ /height:\s+(\d+)([^;"'\s])/ );
+                        if ($style_height) {
+                            $style_height_unit = "%"
+                                if $style_height_unit && $style_height_unit =~ /^%/;
+                            $style_height_unit = ""
+                                if $style_height_unit && $style_height_unit ne "%";
+                            $height      = $style_height;
+                            $height_unit = $style_height_unit;
+                        }
+                    }
+                }
 
                 if ( $embeddable_tags{$tag} ) {
                     my $src;
