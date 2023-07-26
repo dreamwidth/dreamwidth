@@ -2492,6 +2492,7 @@ general widget.createaccount.error.username.reserved
 general widget.createaccount.field.captcha
 general widget.createaccountnextsteps.steps.explore
 general widget.friendbirthdays.paidtime_link
+general widget.friendbirthdays.viewall
 general widget.friendinterests.intro
 general widget.gettingstarted.entry.link
 general widget.gettingstarted.entry.note
