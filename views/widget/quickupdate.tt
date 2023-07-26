@@ -1,3 +1,8 @@
+
+[%- dw.need_res( { group => "foundation" }
+        "js/quickupdate.js"
+) -%]
+
 <h2 class="smaller">[% dw.ml('widget.quickupdate.title') %]</h2>
 <div class="row">
     <div class='sidebar columns medium-3'>[% sidebar %]</div>
@@ -66,24 +71,17 @@
                             label = dw.ml( '/entry/form.tt.select.security' )
 
                             items = security
+                            selected = minsec
                     ) -%]</li>
                     <li>&nbsp; to &nbsp;</li>
 
                     [%~ IF journallist.size > 1 %]
-                        [%-
-                            journalselect = [];
-                            FOREACH journal IN journallist;
-                                journalselect.push( journal.user journal.user
-                                );
-                            END
-                        ~%]
-
                         <li>[%- form.select(
                                 name = "usejournal"
                                 id = "js-usejournal"
                                 label = dw.ml( '/entry/form.tt.select.usejournal' )
 
-                                items = journalselect
+                                items = journallist
                             )-%]</li>
                     [%~ ELSE ~%]
                         <li>

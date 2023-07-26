@@ -17,8 +17,8 @@
 
 
 jQuery( function( $ ) {
-    var security = $( '#security' );
-    var usejournal = $( '#usejournal' );
+    var security = $( '#js-security' );
+    var usejournal = $( '#js-usejournal' );
 
     security.find( 'option' ).each( function() {
         $( this ).data( 'journallabel', $( this ).text() );
@@ -31,7 +31,7 @@ jQuery( function( $ ) {
 
         function tooPublic( actual ) {
             return min && actual && ( ( min == 'private' && actual != 'private' )
-                    || ( min == 'friends' && actual == 'public' ) );
+                    || ( min == 'access' && actual == 'public' ) );
         }
 
         if ( tooPublic( security.val() ) ) {
