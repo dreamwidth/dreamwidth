@@ -234,9 +234,9 @@ sub render_body {
                     lineWiseCopyCut: false,
                     inputStyle: 'contenteditable',
                     cursorScrollMargin: 4,
-                    extraKeys: {'Tab': function(cm) {
+                    extraKeys: {'Tab-Space': function(cm) {
                         var cur = cm.getCursor(), token = cm.getTokenAt(cur);
-                        var m = token.string.match(/([\\s]+)/);
+                        var m = token.string.match(/([\\s]+)/) || token.string == "";
                         if (!m) { cm.showHint(); }
                         else {
                             var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');
