@@ -253,7 +253,7 @@ sub _process_queue {
     my @uids = map { $_->{obj}->posterid } grep { $_->{type} eq 'entry' } @pq;
     push @uids,
         map { $_->{obj}->posterid, $_->{obj_entry}->posterid } grep { $_->{type} eq 'comment' } @pq;
-    @uids = grep { !exists $us->{$_} } @uids;
+    @uids = grep { !exists $us->{$_} } grep { defined $_ } @uids;
 
     # load the new users, backport to $us
     my $us2 = LJ::load_userids(@uids);
@@ -265,7 +265,7 @@ sub _process_queue {
     my $show_entry = sub {
         my $entry = $_[0];
 
-        return 0 unless $entry->security eq 'public';
+        return 0 unless $entry->security && $entry->security eq 'public';
         return 0
             unless $entry->poster->include_in_latest_feed
             && $entry->journal->include_in_latest_feed;
