@@ -1555,7 +1555,7 @@ sub load_userid {
 # </LJFUNC>
 sub load_userids {
     my %u;
-    LJ::load_userids_multiple( [ map { $_ => \$u{$_} } @_ ] );
+    LJ::load_userids_multiple( [ map { $_ => \$u{$_} } grep { defined $_ } @_ ] );
     return \%u;
 }
 
@@ -1588,6 +1588,7 @@ sub load_userids_multiple {
     while (@$map) {
         my $id  = shift @$map;
         my $ref = shift @$map;
+        next unless defined $id;
         next unless int($id);
         push @{ $need{$id} }, $ref;
 
