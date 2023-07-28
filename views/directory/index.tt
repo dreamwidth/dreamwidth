@@ -67,16 +67,6 @@
       </select>
       [% PROCESS searchform_after %]
 
-      <!---- age (s_age) ----->
-      [%- UNLESS comm_page -%]
-        [% PROCESS searchcrit name = '.by_age';
-           PROCESS searchform_before;
-           '.between' | ml %]
-        <input name="age_min" size='3' maxlength='3' /> [% '.and' | ml %]
-        <input name="age_max" size='3' maxlength='3' /> [% '.years_old' | ml %]
-        [% PROCESS searchform_after %]
-      [%- END -%]
-
       <!---- interest (s_int) ----->
       [% PROCESS searchcrit name = '.by_interest';
          PROCESS searchform_before %]
