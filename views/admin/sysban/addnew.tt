@@ -40,7 +40,7 @@
 
   <div id="spelling" style="[% spellstyle %]">
 
-[% form.checkbox( label = dw.ml( '.label.spelling' ), value = 0,
+[% form.checkbox( label = dw.ml( '.label.spelling' ), value = 1,
                   name = "force_spelling", id = "force_spelling" ) %]
   </div>
 

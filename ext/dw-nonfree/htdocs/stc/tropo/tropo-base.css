@@ -182,7 +182,9 @@ nav ul li.hover ul {
     position: absolute;
     top: 2.5em;
     left: 0;
-    width: 18em;
+    width: inherit;
+    white-space: nowrap;
+    padding-right: 0.5rem;
 }
 nav ul li ul li {
     float: none;

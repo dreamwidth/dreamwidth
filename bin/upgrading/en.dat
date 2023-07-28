@@ -2087,13 +2087,13 @@ menunav.explore.sitesearch=Site and Journal Search
 
 menunav.organize=Organize
 
+menunav.organize.acctsettings=Account Settings
+
 menunav.organize.beta=Test Beta Features
 
-menunav.organize.customizestyle=Customize Style
+menunav.organize.customizejournalstyle=Customize Journal Style
 
 menunav.organize.importcontent=Import Content
-
-menunav.organize.manageaccount=Manage Account
 
 menunav.organize.managecommunities=Manage Communities
 
@@ -2105,7 +2105,7 @@ menunav.organize.managerelationships=Manage Circle
 
 menunav.organize.managetags=Manage Tags
 
-menunav.organize.selectstyle=Select Style
+menunav.organize.selectjournalstyle=Select Journal Style
 
 menunav.read=Read
 
@@ -2381,11 +2381,7 @@ s2theme.themename.notheme=(Layout Default)
 
 search.user.commdesc=Community Description:
 
-search.user.journal=Journal:
-
 search.user.journaltitle=Journal Title:
-
-search.user.name=Name:
 
 search.user.update.last=Updated [[time]]
 
@@ -2436,6 +2432,24 @@ setting.allowvgiftsfrom.sel.n=Nobody
 setting.allowvgiftsfrom.sel.r=Registered users
 
 setting.allowvgiftsfrom.sel.t=Trusted users
+
+setting.apikeydelete.des=Check any keys you wish to delete. Deleting a key will make it unusable.
+
+setting.apikeydelete.error=Problem deleting API key. Please try again later, or contact support if the problem persists.
+
+setting.apikeydelete.label=Manage API Keys
+
+setting.apikeydelete.none=You have no API keys generated yet!
+
+setting.apikeygenerate.act=Generate a new API key
+
+setting.apikeygenerate.des=You can use these keys with the Dreamwidth API to authenticate yourself. <br> Anyone with access to a key can act as you, so keys should not be shared.
+
+setting.apikeygenerate.error=Problem generating new API key. Please try again later, or contact support if the problem persists.
+
+setting.apikeygenerate.label=Generate API Key
+
+setting.apikeygenerate.ok=New API key: [[keyval]]
 
 setting.bio.desc|notes=There shouldn't be a description unless the page specifies one
 setting.bio.desc=_none
@@ -2741,12 +2755,6 @@ setting.emailformat.option.html=HTML
 
 setting.emailformat.option.plaintext=Plain Text
 
-setting.emailposting.error.email.invalid=This email address is not valid.
-
-setting.emailposting.error.pin.invalid=Your PIN can only contain alphanumeric characters (a-z and 0-9); for improved security it must be at least [[num]] [[?num|character|characters]] long.
-
-setting.emailposting.error.pin.invalidaccount=This PIN is invalid. You should change it to something that doesn't have anything to do with your [[sitename]] account.
-
 setting.emailposting.helpmessage.body<<
 PIN is required, embedded in one of: to address, subject or body.
   To: [[email]]
@@ -2772,21 +2780,15 @@ setting.emailposting.helpmessage.subject=Summary of Email Posting Instructions f
 
 setting.emailposting.label=Email Posting
 
+setting.emailposting.manage=Manage Mobile Post Settings
+
 setting.emailposting.notavailable=Your account level does not permit you to use this feature.
 
 setting.emailposting.notavailable.upgrade=Would you like to <a [[aopts]]>upgrade your account?</a>
 
-setting.emailposting.option=Make entries in your journal by sending an email from one of your confirmed email addresses to account name+pin@[[domain]].  <a [[aopts]]>View more posting instructions</a>.
-
-setting.emailposting.option.addr=Email Address:
-
-setting.emailposting.option.advanced=Advanced Setup Options
+setting.emailposting.note=Click the link below to set up email posting for your account.
 
 setting.emailposting.option.helpmessage=Email summary of posting instructions?
-
-setting.emailposting.option.pin=PIN:
-
-setting.emailposting.option.pin.note=(numbers and/or letters)
 
 setting.emailposting.option.senderrors=Send errors?
 
@@ -2939,6 +2941,16 @@ setting.randompaidgifts.option.note.comm=The community may receive paid time fro
 setting.randompaidgifts.option.paid=If your paid account expires, include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
 setting.randompaidgifts.option.paid.comm=If this community's paid account expires, include it in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
+
+setting.resetreplyemail.act=Reset secret address
+
+setting.resetreplyemail.des=You can reply to a comment by using the "Reply" function of your email client. <br> These emails reply to a secret address so that we can identify the author of the reply. <br> You should reset the secret address if you've accidentally exposed it to anyone else.
+
+setting.resetreplyemail.error=Problem generating a new secret address. Please try again.
+
+setting.resetreplyemail.label=Reply By Email
+
+setting.resetreplyemail.reset=Your new secret address has been generated and will be used for future comment notification emails.
 
 setting.rpaccount.label=Roleplaying Account?
 
@@ -4727,6 +4739,8 @@ widget.createaccount.error.password.toolong=Password must not be longer than 30 
 
 widget.createaccount.error.password.tooshort=Your password must be at least 6 characters for security reasons.
 
+widget.createaccount.error.suspended=Your account has been automatically suspended because our detection systems have determined it is likely to be spam. Please contact us by emailing [[accounts_email]] if you feel this suspension is in error.
+
 widget.createaccount.error.tos=You must agree to the Terms of Service.
 
 widget.createaccount.error.username.inuse=That account name is already in use.
@@ -4821,12 +4835,6 @@ widget.createaccountprogressmeter.step3=Upgrade (optional)
 
 widget.createaccountprogressmeter.step4=Finish
 
-widget.createaccounttheme.info=Choose from more themes later:
-
-widget.createaccounttheme.preview=Preview
-
-widget.createaccounttheme.title=Select Your Journal's Theme
-
 widget.createaccountupgrade.btn.purchase=Purchase a Paid Account
 
 widget.createaccountupgrade.nextstep=No thanks, I'm not interested at this time.
@@ -4887,16 +4895,6 @@ widget.cuttag.expandall=Expand All Cut Tags
 
 widget.cuttag.expanded=Collapse
 
-widget.feeds.btn.add=Add
-
-widget.feeds.enterRSS=enter RSS url
-
-widget.feeds.find=Find or create feed:
-
-widget.feeds.title=Feeds
-
-widget.feeds.viewall=view all
-
 widget.friendbirthdays.friends_link=View birthdays for everyone in your circle
 
 widget.friendbirthdays.gift=Gift
@@ -4906,14 +4904,6 @@ widget.friendbirthdays.title=Birthdays
 widget.friendbirthdays.userbirthday=[[month]] [[day]]
 
 widget.friendbirthdays.viewall=More
-
-widget.friendupdates.noupdates=You have no updates.
-
-widget.friendupdates.noupdates.setup=Set up your notifications in <a [[aopts]]>Manage Settings</a>.
-
-widget.friendupdates.title=Friend Updates
-
-widget.friendupdates.viewall=More
 
 widget.importchoosedata.btn.continue=Continue &rarr;
 
@@ -5293,37 +5283,19 @@ widget.s2propgroup.presentation.basic=Basic Options
 
 widget.s2propgroup.presentation.note=Note: Additional options may vary based on the layout selected.
 
-widget.search.aim=AIM
-
 widget.search.btn.go=Go
 
 widget.search.email=Email
 
-widget.search.existingtitle=Or search for an individual user:
-
 widget.search.faq=FAQ
 
-widget.search.icq=ICQ Number
-
-widget.search.iminfo=IM Info
-
 widget.search.interest=Interest
-
-widget.search.interestonly=Find people and communities interested in:
-
-widget.search.interestonly.btn=Find
-
-widget.search.jabber=Jabber ID
 
 widget.search.region=Region
 
 widget.search.siteuser=Site and Account
 
-widget.search.submit=Search existing users
-
 widget.search.title=Search
-
-widget.search.username=Username
 
 widget.shopcart.anonymous=Anonymous
 

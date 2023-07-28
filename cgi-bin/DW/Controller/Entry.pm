@@ -121,9 +121,6 @@ sub new_handler {
 
         return error_ml("/entry/form.tt.error.cantpost")
             unless $remote->can_post;
-
-        return error_ml('/entry/form.tt.error.disabled')
-            if $remote->can_post_disabled;
     }
 
     my $errors   = DW::FormErrors->new;
@@ -288,7 +285,7 @@ sub new_handler {
         # Here we get the value of the userprop 'draft_properties', containing
         # a frozen Storable string, which we then thaw into a hash by the same
         # name.
-        $draft = LJ::ejs_string( $remote->prop('entry_draft') );
+        $draft = $remote->prop('entry_draft');
         %draft_properties =
             $remote->prop('draft_properties')
             ? %{ Storable::thaw( $remote->prop('draft_properties') ) }
@@ -296,9 +293,6 @@ sub new_handler {
 
         # store raw for later use; will be escaped later
         $draft_subject_raw = $draft_properties{subject};
-
-        %draft_properties = map { $_ => LJ::ejs_string( $draft_properties{$_} ) }
-            qw( subject userpic taglist moodid mood location1 music adultreason commentset commentscr adultcnt editor );
     }
     my $initDraft = 'null';
     if ( $remote && LJ::is_enabled('update_draft') ) {
@@ -794,8 +788,7 @@ sub _form_to_backend {
     my $props = $req->{props};
 
     while ( my ( $formname, $propname ) = each %form_to_props ) {
-        $props->{$propname} = $post->{$formname}
-            if defined $post->{$formname};
+        $props->{$propname} = $post->{$formname} // '';
     }
     $props->{taglist}         = $post->{taglist} if defined $post->{taglist};
     $props->{picture_keyword} = $post->{prop_picture_keyword}
@@ -1149,6 +1142,12 @@ sub _do_post {
     # post succeeded, time to do some housecleaning
     _persist_props( $auth->{poster}, $form_req, 0 );
 
+    # Clear out a draft
+    if ( $auth->{poster} ) {
+        $auth->{poster}->set_prop( 'entry_draft',      '' );
+        $auth->{poster}->set_prop( 'draft_properties', '' );
+    }
+
     my $render_ret;
     my @links;
 
@@ -1216,6 +1215,10 @@ sub _do_post {
             {
                 url       => "$LJ::SITEROOT/editjournal",
                 ml_string => '.links.manageentries',
+            },
+            {
+                url       => "$LJ::SITEROOT/logout",
+                ml_string => '.links.logout',
             }
             );
 
@@ -1341,6 +1344,10 @@ sub _do_edit {
             {
             url       => "$LJ::SITEROOT/editjournal",
             ml_string => '.links.manageentries',
+            },
+            {
+            url       => "$LJ::SITEROOT/logout",
+            ml_string => '.links.logout',
             };
 
     }
@@ -1379,6 +1386,10 @@ sub _do_edit {
             {
                 url       => "$LJ::SITEROOT/editjournal",
                 ml_string => '.links.manageentries',
+            },
+            {
+                url       => "$LJ::SITEROOT/logout",
+                ml_string => '.links.logout',
             }
             );
 
@@ -1422,12 +1433,6 @@ sub _persist_props {
     return unless $u;
 
     $u->displaydate_check( $form->{update_displaydate} ? 1 : 0 ) unless $is_edit;
-
-    # FIXME:
-    #
-    #                 # Clear out a draft
-    #                 $remote->set_prop('entry_draft', '')
-    #                     if $remote;
 
 }
 

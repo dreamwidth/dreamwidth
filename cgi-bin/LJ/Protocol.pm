@@ -119,7 +119,6 @@ my %e = (
     "407" => [ E_TEMP, "Moderation queue full" ],
     "408" => [ E_TEMP, "Maximum queued posts for this community+poster combination reached." ],
     "409" => [ E_PERM, "Post too large." ],
-    "410" => [ E_PERM, "Your trial account has expired.  Posting now disabled." ],
     "411" => [ E_PERM, "Subject too long." ],
     "412" => [ E_PERM, "Maximum number of comments reached" ],
 
@@ -1260,9 +1259,6 @@ sub postevent {
     # is the user allowed to post?
     return fail( $err, 404, $LJ::MSG_NO_POST ) unless $importer_bypass || $u->can_post;
 
-    # is the user allowed to post?
-    return fail( $err, 410 ) if $u->can_post_disabled;
-
     # read-only accounts can't post
     return fail( $err, 316 ) if $u->is_readonly;
 
@@ -1277,6 +1273,9 @@ sub postevent {
     return fail( $err, 155,
         "You must have an authenticated email address in order to post to another account" )
         unless $u->equals($uowner) || $u->{'status'} eq 'A' || $flags->{'nomod'};
+
+    return fail( $err, 155, "You must confirm your email address before posting." )
+        if $u->{'status'} eq 'N';
 
     # post content too large
     # NOTE: requires $req->{event} be binary data, but we've already
@@ -1721,10 +1720,15 @@ sub postevent {
             if %logprops;
     }
 
-    $dbh->do(
-        "UPDATE userusage SET timeupdate=NOW(), lastitemid=$jitemid " . "WHERE userid=$ownerid" )
+    $dbh->do("UPDATE userusage SET timeupdate=NOW(), lastitemid=$jitemid WHERE userid=$ownerid")
         unless $flags->{'notimeupdate'};
     LJ::MemCache::set( [ $ownerid, "tu:$ownerid" ], pack( "N", time() ), 30 * 60 );
+
+    # update timeupdate_public for stats page
+    if ( $security eq 'public' ) {
+        $dbh->do("UPDATE userusage SET timeupdate_public=NOW() WHERE userid=$ownerid")
+            unless $flags->{'notimeupdate'};
+    }
 
     # argh, this is all too ugly.  need to unify more postpost stuff into async
     $u->invalidate_directory_record;

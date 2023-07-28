@@ -609,12 +609,16 @@ TOKEN:
                     # include empty span and div to be filled in on page
                     # load if javascript is enabled
                     $newdata .=
-                          "<span style=\"display: none;\" id=\"span-cuttag_"
+                          "<span class=\"cut-wrapper\">"
+                        . "<span style=\"display: none;\" id=\"span-cuttag_"
                         . $journal . "_"
                         . $ditemid . "_"
                         . $cutcount
                         . "\" class=\"cuttag\"></span>";
-                    $newdata .= "<b>(&nbsp;<a href=\"$url#cutid$cutcount\">$etext</a>&nbsp;)</b>";
+                    $newdata .=
+                          "<b class=\"cut-open\">(&nbsp;</b><b class=\"cut-text\">"
+                        . "<a href=\"$url#cutid$cutcount\">$etext</a>"
+                        . "</b><b class=\"cut-close\">&nbsp;)</b></span>";
                     $newdata .=
                           "<div style=\"display: none;\" id=\"div-cuttag_"
                         . $journal . "_"

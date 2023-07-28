@@ -505,11 +505,6 @@ sub set_suspended {
 
     LJ::Hooks::run_hooks( "account_cancel", $u );
 
-    if ( my $err = LJ::Hooks::run_hook( "cdn_purge_userpics", $u ) ) {
-        $$errref = $err if ref $errref and $err;
-        return 0;
-    }
-
     return $res;    # success
 }
 

@@ -73,7 +73,7 @@
 .mobile td.setting_label {
     text-align: right;
 }
-.mobile_label, .mobile .help {
+.mobile .help {
     vertical-align: top;
 }
 .mobile_option p {

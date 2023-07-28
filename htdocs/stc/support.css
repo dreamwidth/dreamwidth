@@ -18,9 +18,13 @@
     font-size: 85%;
 }
 
-.request-form input, .request-form textarea {
+.request-form input {
     display: inline;
     width: auto;
+}
+
+.request-form textarea {
+    width: 95%;
 }
 
 .request-form label.checkboxlabel {

@@ -27,10 +27,6 @@
 
 .error.cantpost.title=Can't Post
 
-.error.disabled=You can't post because of the type of account you have.
-
-.error.disabled.title=Posting access disabled
-
 .error.invalidusejournal=Invalid usejournal argument.
 
 .error.login=Error logging on:

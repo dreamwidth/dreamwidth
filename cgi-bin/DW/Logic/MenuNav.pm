@@ -115,7 +115,7 @@ sub get_menu_navigation {
             items => [
                 {
                     url     => "$LJ::SITEROOT/manage/settings/",
-                    text    => "menunav.organize.manageaccount",
+                    text    => "menunav.organize.acctsettings",
                     display => $loggedin,
                 },
                 {
@@ -150,12 +150,12 @@ sub get_menu_navigation {
                 },
                 {
                     url     => "$LJ::SITEROOT/customize/",
-                    text    => "menunav.organize.selectstyle",
+                    text    => "menunav.organize.selectjournalstyle",
                     display => $loggedin,
                 },
                 {
                     url     => "$LJ::SITEROOT/customize/options",
-                    text    => "menunav.organize.customizestyle",
+                    text    => "menunav.organize.customizejournalstyle",
                     display => $loggedin,
                 },
                 {

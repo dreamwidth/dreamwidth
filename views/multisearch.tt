@@ -3,7 +3,7 @@
   # Authors:
   #      Jen Griffin <kareila@livejournal.com>
   #
-  # Copyright (c) 2011 by Dreamwidth Studios, LLC.
+  # Copyright (c) 2011-2023 by Dreamwidth Studios, LLC.
   #
   # This program is free software; you may redistribute it and/or modify it
   # under the same terms as Perl itself. For a copy of the license, please
@@ -13,8 +13,26 @@
 
 [%- sections.title=".title.$type" | ml -%]
 
-[%- IF type == 'im'; results; END -%]
+[%- IF type == 'region' -%]
+<p>Your search criteria were incorrectly specified.</p>
 
-[%- IF type == 'region';
-    '.region.bodytext' | ml(aopts = "href='$site.root/directorysearch'");
-    END -%]
+<p>You can search by region in one of the following formats:</p>
+<ul class='bullet-list'>
+ <li>Country</li>
+ <li>City *</li>
+ <li>City, State *</li>
+ <li>State, Country</li>
+ <li>City, State, Country</li>
+</ul>
+
+<p>Notes:</p>
+<ul class='bullet-list'>
+ <li>* Searching for only a city or a city and state defaults to assuming
+     the country is the United States.</li>
+ <li>Country can either be the country's full name, or its two letter
+     country code.</li>
+</ul>
+
+<p>If you want to do a different type of search, check out the
+<a href='[% site.root %]/directorysearch'>directory search</a>.</p>
+[%- END -%]

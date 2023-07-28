@@ -18,6 +18,7 @@ $('.action_button').click(function(e) {
 
     if (allow) {
         mark_items(e, action);
+        this.blur();
     } else {
         e.preventDefault();
         e.stopPropagation(); 
@@ -127,6 +128,14 @@ function mark_items(e, action, qid) {
             if (data.success) {
                 $("#inbox_message_list").html(data.success.items);
                 $("#inbox_folders").html(data.success.folders);
+                $(".pagination").html(data.success.pages);
+
+                // Navbar unread count
+                let unread = $("#Inbox_Unread_Count, #Inbox_Unread_Count_Menu");
+                if (!unread.length) return;
+                let unread_count = data.success.unread_count? ` (${data.success.unread_count})` : "";
+                unread[0].innerHTML = unread_count;
+
                 collapsed.forEach(function(id) {
                     var arrow = $("#" + id).siblings('.InboxItem_Controls').find('img.item_expand');
                     arrow.attr({
@@ -136,6 +145,10 @@ function mark_items(e, action, qid) {
                     });
                     $("#" + id).addClass('inbox_collapse');
                 });
+                // We've reloaded the view, so set the select-all checkbox to unchecked.
+                $('.check_all').prop("checked", false);
+                // reset buttons
+                check_selected();
             } else {
                 $(e.target).ajaxtip()
                     .ajaxtip("error", data.error);
@@ -147,8 +160,6 @@ function mark_items(e, action, qid) {
         e.preventDefault();
         e.stopPropagation();
     }
-    // We've reloaded the view, so set the select-all checkbox to unchecked.
-    $('.check_all').prop("checked", false);
 }
 
 // Only load this on the compose page

@@ -62,16 +62,6 @@ _c?>
             $$body = $LJ::MSG_NO_POST || $ML{'.error.cantpost'};
             return;
         }
-
-        if ( $remote->can_post_disabled ) {
-            unless (LJ::Hooks::run_hook("update.bml_disable_can_post", {
-                title => $title, body => $body,
-            })) {
-                $$title = $ML{'.error.disabled.title'};
-                $$body = $ML{'.error.disabled'};
-            }
-            return;
-        }
     }
 
     my %res = ();

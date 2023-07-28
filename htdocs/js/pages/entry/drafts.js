@@ -122,13 +122,12 @@ function initDraft(askToRestore) {
           }
         } else {
             // Clear out their current draft
-            LJDraft.save('');
-            $.post("/__rpc_draft", {clearProperties: 1});
+            $.post("/__rpc_draft", {clearProperties: 1, clearDraft: 1});
         }
    }
 
     // set up event handlers
-    $("#content").on('change', 'input.draft, textarea.draft', null, LJDraft.handleChange);
+    $("#content").on('change', 'input.draft-autosave, textarea.draft-autosave', null, LJDraft.handleChange);
     $("#content").on('input', '#entry-body', null, LJDraft.handleInput);
 
     // Try to save draft when page is closed/hidden

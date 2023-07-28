@@ -1,0 +1,103 @@
+;; -*- coding: utf-8 -*-
+.basic.header=How does this feature work?
+
+.basic.text1=Email posting uses normal email messages to post to your journal or a community.  Your PIN needs to be embedded in the email address, subject, or body of the message.  Embed your PIN by prefixing it with the [[plus]] symbol.  You must be sending the message from an email address on your "Allowed sender addresses" list.  If you embed your PIN in either the subject or the body, it will be automatically removed before posting.
+
+.basic.text2=Posting via email permits many options to be set on a per message basis. Because there are so many options, we've separated examples into different topics.  Please select from the list below:
+
+.headers.compat.header=Compatibility with other sites
+
+.headers.compat.text=[[sitename]] also accepts old-style headers of the form "lj-headername" for backwards compatibility.  That means you can post to multiple LJ-based sites in the same email, using the same headers in the message, and have them interpreted correctly.
+
+.headers.header=Post headers and security
+
+.headers.options.example.comments=("off" or "noemail")
+
+.headers.options.example.format=("markdown" or "html"; defaults to "markdown")
+
+.headers.options.example.icon=icon keywords
+
+.headers.options.example.location=Paris, France
+
+.headers.options.example.mood=happy
+
+.headers.options.example.music=The Pixies: Where Is My Mind?
+
+.headers.options.example.tags=greyhounds, potato, wool
+
+.headers.options.header=Journal entry options
+
+.headers.options.text=Most journal-specific features can be set via "post-headers" in the body of your message. The post-headers should be at the top of your message, separated by a blank line. All post-headers are completely optional and simply override your journal defaults.
+
+.headers.security.access.desc=The entry can only be viewed by those on your Access List.
+
+.headers.security.access.word=access (or friends)
+
+.headers.security.group.desc=This is the name of a filter.  Only accounts on that filter can view the entry.
+
+.headers.security.group.example=Example: [[header]] <strong>Access List</strong>
+
+.headers.security.group.word|notes=A single word that tells the person to put a friend group name in its place.
+.headers.security.group.word=filter
+
+.headers.security.header=Journal entry security
+
+.headers.security.private.desc=The entry is posted privately.
+
+.headers.security.public.desc=The entry is posted publicly.
+
+.headers.security.text=Security options are set via the post-header "[[header]]". If the security type specified is unknown, the journal entry defaults to private. If no security type is specified, the entry is posted according to your default journal security.
+
+.help.allowedsenderemail|notes=A made-up email address for users that haven't specified an allowed email address for email posts to be sent from.
+.help.allowedsenderemail=allowed_sender@example.com
+
+.help.body|notes=Example body text for the example email.
+.help.body=This is the body of an email entry.
+
+.help.examplecommhyphen|notes=This is the example community username used to show the underscore/hyphen change -- leave as is unless your translations has its own example community account with hyphens.
+.help.examplecommhyphen=comm-example
+
+.help.examplecommunity|notes=This is the example community username used -- leave as is unless your translation has its own example community account.
+.help.examplecommunity=communityname
+
+.help.exampleuserhyphen|notes=This is the example username used to show the underscore/hyphen change -- leave as is unless your translation has its own example username account with hyphens.
+.help.exampleuserhyphen=user-example
+
+.help.from|notes=The "email" variable will be replaced with the .help.allowedsenderemail string if the user has not specified an allowed sender.
+.help.from=From: [[email]]
+
+.help.pin=PIN
+
+.help.subject|notes=An example subject line for the example email.  The "pin" variable is only filled in in certain cases.
+.help.subject=Subject: [[pin]] Neat, I can post via email.
+
+.help.to|notes=The "email" variable will be replaced with the .help.exampleusername string + @LJ::EMAIL_POST_DOMAIN OR .help.exampleusername + .help.pin + @LJ::EMAIL_POST_DOMAIN (unless the user is logged in and/or has specified a PIN, in which case it uses the user's actual username and/or PIN).
+.help.to=To: [[email]]
+
+.manage.header=Manage your emailpost settings
+
+.optionalfeatures.header=Optional features
+
+.optionalfeatures.hyphens.header=Hyphens and underscores
+
+.optionalfeatures.hyphens.text=With cell phones that don't have an underscore key, you can substitute a hyphen for an underscore in any account or community name.  The hyphens will be automatically converted to underscores.
+
+.optionalfeatures.posttocommunity.header=Posting to a community
+
+.optionalfeatures.posttocommunity.text=Simply embed the community name in the email address.
+
+.optionalfeatures.removetext.example=<font color='red'>This text and anything underneath it will be ignored, including automatic signatures added by free email services.<br />__________________________________________________<br />Try the all new SUPER FREE MAIL version 17 today!!!</font>
+
+.optionalfeatures.removetext.header=Removing unwanted text
+
+.optionalfeatures.removetext.text=All text below two or more dashes or underscores ("--" or "__") on a line by itself will be automatically removed. The red text below won't show up in your posting.
+
+.pinusage.header=PIN usage examples
+
+.pinusage.inbody.header=PIN in body:
+
+.pinusage.inemail.header=PIN in email address:
+
+.pinusage.insubject.header=PIN in subject:
+
+.title=Help for Mobile Post Settings

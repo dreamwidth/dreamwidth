@@ -41,10 +41,8 @@ sub multisearch_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
-    my $tpl = 'multisearch.tt';
-
     # functions for handling various call types
-    my ( $f_nav, $f_user, $f_int, $f_email, $f_im, $f_faq, $f_region );
+    my ( $f_nav, $f_user, $f_int, $f_email, $f_faq, $f_region );
 
     $f_nav = sub {
 
@@ -71,9 +69,6 @@ sub multisearch_handler {
 
         my $eq = LJ::ehtml($q);
         return error_ml( '/multisearch.tt.errorpage.nomatch.nav', { query => $eq } );
-
-        return DW::Template->render_template( $tpl, $rv );
-
     };
 
     $f_user = sub {
@@ -129,39 +124,12 @@ sub multisearch_handler {
         return error_ml('/multisearch.tt.errorpage.nomatch');
     };
 
-    $f_im = sub {
-        eval "use LJ::Directory::Constraint::ContactInfo;";
-        return error_ml('error.tempdisabled') if $@;
-
-        my $c    = LJ::Directory::Constraint::ContactInfo->new( screenname => $q );
-        my @uids = $c->matching_uids;
-
-        if ( @uids == 1 ) {
-            my $u = LJ::load_userid( $uids[0] );
-            return $r->redirect( $u->profile_url );
-
-        }
-        elsif ( @uids > 1 ) {
-            $rv->{type} = 'im';
-
-            my $us = [ values %{ LJ::load_userids(@uids) } ];
-            $rv->{results} = LJ::user_search_display(
-                users    => $us,
-                timesort => 1,
-                perpage  => 50
-            );
-
-            return DW::Template->render_template( $tpl, $rv );
-        }
-        return error_ml('/multisearch.tt.errorpage.nomatch');
-    };
-
     $f_region = sub {
         $q = LJ::trim($q);
         my @parts = split /\s*,\s*/, $q;
         if ( @parts == 0 || @parts > 3 ) {
             $rv->{type} = 'region';
-            return DW::Template->render_template( $tpl, $rv );
+            return DW::Template->render_template( 'multisearch.tt', $rv );
         }
 
         my $ctc = $parts[-1];
@@ -217,23 +185,11 @@ sub multisearch_handler {
         user         => $f_user,
         int          => $f_int,
         email        => $f_email,
-        im           => $f_im,
-        icq          => $f_im,
-        jabber       => $f_im,
         region       => $f_region,
         faq          => $f_faq,
     };
 
     return $dispatch->{$type}->() if exists $dispatch->{$type};
-
-    # Unknown type, try running site hooks
-    if ($type) {
-
-        # TODO: check return value of this hook, and fall back to another hook
-        # that shows the results here, rather than redirecting to another page
-        return LJ::Hooks::run_hook( 'multisearch_custom_search_redirect',
-            { type => $type, query => $q } );
-    }
 
     # No type specified - redirect them somewhere useful.
     return $r->redirect("$LJ::SITEROOT/tools/search");

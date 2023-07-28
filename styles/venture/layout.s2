@@ -35,6 +35,8 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
+    property use medium_breakpoint_width;
+    property use large_breakpoint_width;
 }
 
 
@@ -984,6 +986,9 @@ propgroup customcss {
 }
 
 function Page::print_default_stylesheet() {
+    var string medium_media_query = generate_medium_media_query();
+    var string large_media_query = generate_large_media_query();
+
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
@@ -1191,11 +1196,21 @@ code, pre {
     word-bread: break-word;
     }
 
-.has-navstrip #header_navwrapper { padding: 2.8175em $*margins_size$*margins_unit 0; }
+.has-navstrip #header_navwrapper { padding: 0 }
 
-#header_navwrapper, #content, #footer { padding: 0 $*margins_size$*margins_unit 0 $*margins_size$*margins_unit; }
+#header_titlewrapper { padding: 2.4em; }
 
-#header_titlewrapper { padding: 2.4em $*margins_size$*margins_unit 2.1em $*margins_size$*margins_unit; }
+#footer { padding: 0 1em; }
+
+@media $medium_media_query {
+    .has-navstrip #header_navwrapper { padding: 2.8175em $*margins_size$*margins_unit 0; }
+
+    #header_navwrapper { padding: 0 $*margins_size$*margins_unit 0 $*margins_size$*margins_unit; }
+
+    #header_titlewrapper { padding: 2.4em $*margins_size$*margins_unit 2.1em $*margins_size$*margins_unit; }
+
+    #footer { padding: 0 $*margins_size$*margins_unit 0 $*margins_size$*margins_unit; }
+}
 
 a { $page_link_colors; text-decoration: none; }
 a:visited { $page_link_visited_colors }
@@ -1217,118 +1232,140 @@ $module_layout_css
 .one-column #content .module-content { text-align: left;}
 
 .two-columns-left #content,
-.three-columns-sides #content { border-left: $*sidebar_width solid transparent; }
+.three-columns-sides #content { border: none; float: none; }
 
-.two-columns-right #content,
-.three-columns-sides #content { border-right: $*sidebar_width solid transparent; }
+.column-right #content { min-width: $*sidebar_width; box-sizing: border-box; }
 
-.three-columns-left #content { border-left: $*sidebar_width_doubled solid transparent; }
+#content { padding: 1em; }
 
-.three-columns-right #content { border-right: $*sidebar_width_doubled solid transparent; }
+@media $medium_media_query {
+    .two-columns-left #content { border-left: $*sidebar_width solid transparent; }
+    .three-columns-sides #content { border-left: $*sidebar_width solid transparent; border-right: $*sidebar_width solid transparent; }
 
-.column-right #content { min-width: $*sidebar_width; }
+    .three-columns-left #content { border-left: $*sidebar_width_doubled solid transparent; }
+
+    .two-columns-right #content { border-right: $*sidebar_width solid transparent; }
+    .three-columns-right #content { border-right: $*sidebar_width_doubled solid transparent; }
+
+    .column-right #content { box-sizing: content-box; }
+
+    #content { padding: 0 $*margins_size$*margins_unit 0 $*margins_size$*margins_unit; }
+}
 
 
 /* ---------- PRIMARY COLUMN ---------- */
 #primary {
-    float: left;
-    margin-right:-100%;
-    margin-left: 0;
-    width:100%;
-    }
+    width: 100%;
+    margin: 0;
+}
 
 .one-column #primary { float: none; }
 
-.two-columns-left #primary {
-    float: right;
-    margin-left:-100%;
-    margin-right: 0;
+#primary > .inner:first-child { padding: 0; }
+
+@media $medium_media_query {
+    #primary {
+        float: left;
+        margin-right:-100%;
+        margin-left: 0;
+        width:100%;
     }
 
-#primary > .inner:first-child { padding: 0; }
+    .two-columns-left #primary {
+        float: right;
+        margin-left:-100%;
+        margin-right: 0;
+    }
+}
 
 
 /* ---------- SECONDARY COLUMN ---------- */
 .one-column #secondary { width: auto; text-align: center; }
 
-.two-columns-left #secondary,
-.three-columns-sides #secondary,
-.two-columns-left #tertiary {
-    float: left;
-    margin-left: -$*sidebar_width;
-    padding: 0;
-    width: $*sidebar_width;
-    }
+@media $medium_media_query {
+    .two-columns-left #secondary,
+    .three-columns-sides #secondary,
+    .two-columns-left #tertiary {
+        float: left;
+        margin-left: -$*sidebar_width;
+        padding: 0;
+        width: $*sidebar_width;
+        }
 
-.two-columns-right #secondary {
-    float: right;
-    margin-right: -$*sidebar_width;
-    width: $*sidebar_width;
-    }
+    .two-columns-right #secondary {
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;
+        }
 
-.three-columns-left #secondary {
-    float: left;
-    margin-left: -$*sidebar_width_doubled;
-    width: $*sidebar_width;
-    }
+    .three-columns-left #secondary {
+        float: left;
+        margin-left: -$*sidebar_width_doubled;
+        width: $*sidebar_width;
+        }
 
-.three-columns-right #secondary {
-    float: right;
-    margin-right: -$*sidebar_width;
-    width: $*sidebar_width;
-    }
+    .three-columns-right #secondary {
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;
+        }
 
-.two-columns-right #secondary > .inner:first-child,
-.three-columns-right #secondary > .inner:first-child  { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
+    .two-columns-right #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child  { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
 
-.two-columns-left #secondary > .inner:first-child,
-.three-columns-left #secondary > .inner:first-child,
-.three-columns-sides #secondary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
+    .two-columns-left #secondary > .inner:first-child,
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-sides #secondary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
+}
 
 
 /* ---------- TERTIARY COLUMN ---------- */
 .one-column #tertiary { text-align: center; width: auto; overflow: hidden; }
 
-.two-columns-left #tertiary {
-    clear: left;
-    margin-left: -$*sidebar_width;
-    width: $*sidebar_width;
-    }
-
-.two-columns-right #tertiary {
-    clear: right;
-    float: right;
-    margin-right: -$*sidebar_width;
-    width: $*sidebar_width;
-    }
-
-.three-columns-left #tertiary {
-    float: left;
-    margin-left: -$*sidebar_width;
-    width: $*sidebar_width;
-    }
-
-.three-columns-right #tertiary {
-    float: right;
-    margin-right: -$*sidebar_width_doubled;
-    margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
-    width: $*sidebar_width;
-    }
-
-.three-columns-sides #tertiary {
-    float: right;
-    margin-right: -$*sidebar_width;
-    width: $*sidebar_width;
-    }
-
-.two-columns-right #tertiary > .inner:first-child,
-.three-columns-right #tertiary > .inner:first-child,
-.three-columns-sides #tertiary > .inner:first-child { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
-
-.two-columns-left #tertiary > .inner:first-child,
-.three-columns-left #tertiary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
-
 .one-column-split #tertiary > .inner:first-child { padding: 0; }
+
+@media $medium_media_query {
+    .two-columns-left #tertiary {
+        clear: left;
+        margin-left: -$*sidebar_width;
+        width: $*sidebar_width;
+        }
+
+    .two-columns-right #tertiary {
+        clear: right;
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;
+        }
+
+    .three-columns-left #tertiary {
+        float: left;
+        margin-left: -$*sidebar_width;
+        width: $*sidebar_width;
+        }
+
+    .three-columns-right #tertiary {
+        float: right;
+        margin-right: -$*sidebar_width_doubled;
+        margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
+        width: $*sidebar_width;
+        }
+
+    .three-columns-sides #tertiary {
+        float: right;
+        margin-right: -$*sidebar_width;
+        width: $*sidebar_width;
+        }
+
+    .two-columns-right #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child,
+    .three-columns-sides #tertiary > .inner:first-child { padding: 0 0 0 $*margins_between_size$*margins_between_unit; }
+
+    .two-columns-left #tertiary > .inner:first-child,
+    .three-columns-left #tertiary > .inner:first-child { padding: 0 $*margins_between_size$*margins_between_unit 0 0; }
+
+}
+
 /* -------------------------------------------------------------------------------------------------------- */
 
 
@@ -1739,6 +1776,7 @@ $display_topnav_css
     margin: 0;
     padding: 0;
     background-color: $*color_entry_background;
+    clear: both;
     }
 
 .comment .comment-title {

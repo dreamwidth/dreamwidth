@@ -79,11 +79,14 @@ body<=
     }
 
     # would you like to set the site skin instead?
+    $ret .= "<p>";
     if ( $u && $u->is_community ) {
-        $ret .= "<p>" . BML::ml( '.setsiteskin.desc.comm', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } ) . "</p>";
+        $ret .= LJ::Lang::ml( '.setstyle.comm' ) . " ";
     } else {
-        $ret .= "<p>" . BML::ml( '.setsiteskin.desc', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } ) . "</p>";
+        $ret .= LJ::Lang::ml( '.setstyle.user' ) . " ";
     }
+    $ret .= LJ::Lang::ml( '.setsiteskin', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } );
+    $ret .= "</p>";
 
     my $current_theme = LJ::Widget::CurrentTheme->new;
     $headextra .= $current_theme->wrapped_js( page_js_obj => "Customize" );

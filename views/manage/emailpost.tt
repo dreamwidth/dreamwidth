@@ -1,0 +1,136 @@
+[%# manage/emailpost.tt
+
+Authors:
+    Jen Griffin <kareila@livejournal.com>
+
+Copyright (c) 2023 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        div.indent {
+            margin-left: 40px;
+        }
+        td.center {
+            text-align: center;
+        }
+        #content select.select {
+            min-width: 100px;
+        }
+        .settings td {
+            padding: 3px;
+        }
+    </style>
+[%- END -%]
+
+<p>[% '.intro' | ml({aopts => "href='${site.root}/manage/emailpost?mode=help'"}) %]</p>
+
+[%- INCLUDE components/errors.tt errors = errors -%]
+
+<h1>[% '.addresses.header' | ml %]</h1>
+<p>[% '.addresses.text' | ml %]</p>
+
+<form method='post' action='emailpost'>
+  [% dw.form_auth %]
+  <div class='indent'>
+    <table border="0">
+      <thead><tr>
+        <th>[% '.addresses.table.address' | ml %]</th>
+        <th>[% 'setting.emailposting.option.senderrors' | ml %]</th>
+        <th>[% 'setting.emailposting.option.helpmessage' | ml %]</th>
+      </tr></thead>
+
+[%- address = addrlist.keys.sort;
+    # Limited to addr_max number of addresses.
+    FOREACH idx IN [ 0 .. addr_max ]; a_name = "addresses_$idx" -%]
+      <tr><td>
+        [% form.textbox( name = a_name, size = 40, maxlength = 80,
+                         value = formdata.$a_name || address.$idx ) %]
+      </td><td class='center'>
+        [% selected = addrlist.${address.$idx}.get_errors ? 1 : 0;
+           c_sel = "check_$idx";
+           form.checkbox( name = c_sel, selected => formdata.$c_sel || selected ) %]
+      </td><td class='center'>
+        [% h_sel = "help_$idx";
+           form.checkbox( name = h_sel, selected => formdata.$h_sel || 0 ) %]
+      </td></tr>
+[% END %]
+    </table>
+  </div>
+  <br />
+
+  <h1>[% '.pin.header' | ml %]</h1>
+  <p>[% '.pin.text' | ml({num => 4}) %]</p>
+  <div class='indent'>
+    [% form.textbox( name = 'pin', size = 10, maxlength = 20,
+                     value = formdata.pin || u.emailpost_pin,
+                     type = 'password', autocomplete='new-password' ) %]
+  </div>
+  <br />
+
+  <h1>[% '.settings.header' | ml %]</h1>
+  <p>[% '.settings.text' | ml({aopts => "href='${site.root}/manage/emailpost?mode=help'"}) %]</p>
+  <div class='indent'>
+    <table summary='' cellspacing='0' class='settings'>
+      <tr><td colspan='2'><h2>[% '.settings.entry.header' | ml %]</h2></td></tr>
+      <tr>
+        <td>[% '.settings.entry.userpic' | ml %]</td>
+        <td>
+[%- icons = u.icon_keyword_menu;
+    IF icons.size > 0;
+      form.select( name = 'emailpost_userpic', items = icons,
+                   selected = u.emailpost_userpic );
+    ELSE; '.settings.entry.userpic.select.none' | ml;
+    END -%]
+        </td>
+      </tr>
+
+      <tr>
+        <td>[% '.settings.entry.security' | ml %]</td>
+        <td>
+[%- groups = [ 'default', dw.ml('.settings.entry.security.select.default'),
+               'public',  dw.ml('.settings.entry.security.select.public'),
+               'private', dw.ml('.settings.entry.security.select.private'),
+               'friends', dw.ml('.settings.entry.security.select.access') ];
+    IF u.trust_groups.size && u.trust_groups.size > 0;
+      groups.push('--------'); groups.push('--------');
+    END;
+    FOREACH grp IN u.trust_groups;
+      groups.push(grp.groupname); groups.push(grp.groupname);
+    END;
+
+    form.select( name = 'emailpost_security', items = groups,
+                 selected = u.emailpost_security ) -%]
+        </td>
+      </tr>
+
+      <tr>
+        <td>[% '.settings.entry.comments' | ml %]</td>
+        <td>
+[%- opts = [ 'default', dw.ml('.settings.entry.comments.select.default'),
+             'noemail', dw.ml('.settings.entry.comments.select.noemail'),
+             'off',     dw.ml('.settings.entry.comments.select.off') ];
+    form.select( name = 'emailpost_comments', items = opts,
+                 selected = u.emailpost_comments ) -%]
+        </td>
+      </tr>
+    </table>
+  </div>
+  <br />
+
+  <div class='action-box'>
+    <ul class='inner nostyle'>
+      <li>
+      [% form.submit( name = 'save', value = dw.ml('.button.save'), raw = 'action=save' ) %]
+      </li>
+    </ul>
+  </div>
+  <div class='clear-floats'></div>
+</form>

@@ -1,0 +1,194 @@
+[%# manage/emailpost_help.tt
+
+Authors:
+    Jen Griffin <kareila@livejournal.com>
+
+Copyright (c) 2023 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        fieldset {
+            border: 1px solid #cdcdcd;
+            margin-bottom: 15px;
+        }
+        legend {
+            padding: 2px 10px 2px 10px;
+            border: 1px solid #cdcdcd;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        div.indent {
+            margin-left: 40px;
+        }
+        div.emailex {
+            font-family: courier;
+            border: solid black 1px;
+            padding: 5px;
+        }
+    </style>
+[%- END -%]
+
+[%- # stash some ML string expansions
+  community   = '.help.examplecommunity'  | ml;
+  user_hyphen = '.help.exampleuserhyphen' | ml;
+  comm_hyphen = '.help.examplecommhyphen' | ml;
+  msg_body    = '.help.body'              | ml;
+
+  pin = u.emailpost_pin || dw.ml( '.help.pin' );
+
+  to           = dw.ml( '.help.to', { email => format_to( u.user ) } );
+  to_pin       = dw.ml( '.help.to', { email => format_to( "${u.user}+${pin}" ) } );
+  to_pin_bold  = dw.ml( '.help.to', { email => format_to( "${u.user}<b>+${pin}</b>" ) } );
+  to_community = dw.ml( '.help.to', { email => format_to( "${u.user}.<b>${community}</b>+${pin}" ) } );
+  to_hyphens   = dw.ml( '.help.to', { email => format_to( "<b>${user_hyphen}.${comm_hyphen}</b>+${pin}" ) } );
+
+  subject      = dw.ml( '.help.subject', { pin => "" } );
+  subject_pin  = dw.ml( '.help.subject', { pin => "<b>+${pin}</b>" } );
+
+  addr = example || dw.ml( '.help.allowedsenderemail' );
+  from = dw.ml( '.help.from', { email => addr } );
+
+  removetext_extra = '.optionalfeatures.removetext.example' | ml;
+
+  option_types = [ 'icon', 'format', 'tags', 'mood', 'music', 'location', 'comments' ];
+  options_list = [ '', msg_body ];
+
+  FOREACH opt IN option_types.reverse;
+    example = ".headers.options.example.${opt}" | ml;
+    options_list.unshift("<b>post-${opt}:</b> $example");
+  END;
+
+  # all elements of messages will be wrapped in a div.emailex
+
+  messages.pin.inemail = [ to_pin_bold, from, subject, '', msg_body ];
+  messages.pin.insubject = [ to, from, subject_pin, '', msg_body ];
+  messages.pin.inbody = [ to, from, subject, '', "<b>+${pin}</b> ${msg_body}" ];
+
+  messages.optional.posttocommunity = [ to_community, from, subject, '', msg_body ];
+  messages.optional.removetext = [ to_pin, from, subject, '', msg_body, '--', removetext_extra ];
+  messages.optional.hyphens = [ to_hyphens, from, subject, '', msg_body ];
+
+  messages.headers.options = [ to_pin, from, subject, '', options_list.join('<br>') ];
+
+  # this would be messages.headers.security but it's not wrapped
+
+  security_list = [
+    { word => 'public', desc => dw.ml('.headers.security.public.desc') },
+    { word => 'private', desc => dw.ml('.headers.security.private.desc') },
+    { word => dw.ml('.headers.security.access.word'),
+      desc => dw.ml('.headers.security.access.desc') },
+    { word => dw.ml('.headers.security.group.word'),
+      desc => dw.ml('.headers.security.group.desc'),
+      example => dw.ml('.headers.security.group.example', {header => 'post-security:'}) },
+  ];
+
+  security_body = [];
+  indented_div = "<div class='indent'>";
+
+  FOREACH kind IN security_list;
+    security_body.push(indented_div _ "<b>post-security:</b> " _ kind.word);
+    IF kind.exists('example');
+      security_body.push(indented_div _ kind.desc);
+      security_body.push(kind.example _ "</div><br></div>");
+    ELSE;
+      security_body.push(indented_div _ kind.desc _ "</div></div>");
+    END;
+  END;
+
+  # there is no div for messages.headers.compat
+
+  paragraphs.optional = { posttocommunity => {}, removetext => {}, hyphens => {} };
+  paragraphs.headers  = { options => {}, security => { header => 'post-security' } };
+  paragraphs.headers.compat = { sitename => site.name };
+
+-%]
+
+[%- # build the display data structure for the help topics
+  topics = [ 'pin', 'optional', 'headers' ];
+
+  topics_by_name = {
+    pin => {
+      code  => 'pinusage',
+      sects => [ 'inemail', 'insubject', 'inbody' ],
+      order => 0,
+    },
+    optional => {
+      code  => 'optionalfeatures',
+      sects => [ 'posttocommunity', 'removetext', 'hyphens' ],
+      order => 1,
+    },
+    headers => {
+      code  => 'headers',
+      sects => [ 'options', 'security', 'compat' ],
+      order => 2,
+    },
+  }
+-%]
+
+[%- # now we display something? maybe?
+  UNLESS type %]
+<h1>[% '.basic.header' | ml %]</h1>
+<p>[% dw.ml('.basic.text1', { plus => "<b>+</b>" }) %]</p>
+<p>[% '.basic.text2' | ml %]</p>
+[%- END -%]
+
+<ul>
+[%- FOREACH t IN topics;
+      key = topics_by_name.$t.code;
+      title = ".${key}.header" | ml -%]
+  <li>
+  [%- IF type == t -%]
+    <b>[% title %]</b>
+  [%- ELSE -%]
+    <a href='?mode=help&type=[% t %]'>[% title %]</a>
+  [%- END -%]
+  </li>
+[% END %]
+  <li><a href='emailpost'>[% '.manage.header' | ml %]</a></li>
+</ul>
+
+[%- topic = topics_by_name.$type;
+    IF topic -%]
+<hr /><br />
+
+<h1>[% ".${topic.code}.header" | ml %]</h1>
+<br />
+  [% FOREACH sect IN topic.sects %]
+<fieldset>
+  <legend>[% ".${topic.code}.${sect}.header" | ml %]</legend>
+    [% IF paragraphs.${type}.exists(sect) %]
+  <p>[% ".${topic.code}.${sect}.text" | ml(paragraphs.${type}.$sect) %]</p>
+    [% END %]
+    [% IF messages.${type}.exists(sect) %]
+  <div class='emailex'>[% messages.${type}.${sect}.join('<br>'); %]</div>
+    [% ELSIF sect == 'security'; security_body.join('<br>'); END %]
+</fieldset>
+  [%- END -%]
+[%- END -%]
+
+<br />
+
+[%- order = topic ? topic.order : -1;
+    prev = order - 1; next = order + 1;
+
+    IF prev >= 0 && topics.$prev.defined;
+      key = topics_by_name.${topics.$prev}.code;
+      title = ".${key}.header" | ml -%]
+[ &lt;&lt; <a href='?mode=help&type=[% topics.$prev %]'>[% title %]</a> ] &nbsp;
+[%- END -%]
+
+[%- IF topics.$next.defined;
+      key = topics_by_name.${topics.$next}.code;
+      title = ".${key}.header" | ml -%]
+[ <a href='?mode=help&type=[% topics.$next %]'>[% title %]</a> &gt;&gt; ]
+[%- ELSE -%]
+[ <a href='emailpost'>[% '.manage.header' | ml %]</a> &gt;&gt; ]
+[%- END -%]

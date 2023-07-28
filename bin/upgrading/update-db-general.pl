@@ -4213,8 +4213,15 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
         }
 
         if ( column_type( 'userusage', 'timecheck' ) ) {
-            do_alter( 'user',
+            do_alter( 'userusage',
                 'ALTER TABLE userusage DROP COLUMN timecheck, ALGORITHM=INPLACE, LOCK=NONE' );
+        }
+
+        if ( table_relevant("userusage") && column_type( "userusage", "timeupdate_public" ) eq '' )
+        {
+            do_alter( 'userusage',
+                      "ALTER TABLE userusage ADD COLUMN timeupdate_public DATETIME, "
+                    . "ADD INDEX (timeupdate_public)" );
         }
     }
 );
