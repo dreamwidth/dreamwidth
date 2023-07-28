@@ -3,7 +3,7 @@
 
 }
 .appwidget-latestinbox .item {
-  border-top: solid 1px;
+  border-width: 1px 0 0 0;
   padding: 0.5em 0.5em 0.5em 1em;
   width: 100%;
 }

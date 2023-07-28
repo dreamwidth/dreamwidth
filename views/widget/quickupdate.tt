@@ -6,7 +6,7 @@
 <h2 class="smaller">[% dw.ml('widget.quickupdate.title') %]</h2>
 <div class="row">
     <div class='sidebar columns medium-3'>[% sidebar %]</div>
-    <div class='contents columns medium-9'>
+    <div class='contents columns medium-9 border'>
         <form method="POST" action="/entry/new">
         [% dw.form_auth() %]
         [% IF accounts.size > 1 %]

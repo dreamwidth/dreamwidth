@@ -29,7 +29,7 @@
     [%- END -%]
 </div>
 
-<div class='contents columns medium-9'>
+<div class='contents columns medium-9 border'>
     <p><a href='[% entry.url %]'>[% entry.subject_html %]</a></p>
     
     [%- IF entry.event_raw.match('<(?:lj-)?cut') -%]

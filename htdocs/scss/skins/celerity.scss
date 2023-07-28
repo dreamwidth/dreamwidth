@@ -42,7 +42,7 @@ $primary-text-color: $_white;
 $secondary-color:    $_mid-gray;
 $strong-accent-color:$_very-dark-olive;
 $soft-accent-color:  $_light-olive-green;
-$border-color:       $_low-contrast-gray;
+$border-color:       darken($_low-contrast-gray, 10%);
 $highlight-color:    $_lightest-olive-green;
 $highlight-border:   $_dark-olive-green;
 $highlight-text-color:$_off-black;
