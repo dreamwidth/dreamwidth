@@ -84,9 +84,6 @@ sub invites_handler {
         return DW::Template->render_template( 'manage/invites.tt', $rv );
     }
 
-    # for styling alternating rows
-    $rv->{oddeven} = sub { ( $_[0] & 1 ) ? "even" : "odd" };
-
     my @invites;
 
     foreach my $invite (@$pending) {

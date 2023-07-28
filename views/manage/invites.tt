@@ -17,8 +17,15 @@
 
 [%- sections.head = BLOCK %]
     <style type="text/css">
+        .invite-responses {
+            list-style: none;
+            margin-left: 0;
+        }
         #invites-list {
             width: 100%;
+        }
+        #invites-list th {
+            text-align: center;
         }
         #invites-list td.invite-info {
             padding-left: 22px;
@@ -41,33 +48,33 @@
   [% IF responses.accepted.size %]
 <h2>[% '.head.accepted' | ml %]</h2>
 <p>[% '.body.accepted' | ml %]</p>
-<dl>[% FOREACH row IN responses.accepted %]
-  <dd>[% row.0.ljuser_display %]:
-      [% FOREACH attr IN row.1;
+<ul class='invite-responses'>[% FOREACH row IN responses.accepted %]
+  <li>[% row.0.ljuser_display %]:
+      [% FOREACH attr IN row.1;  # construct a comma-separated list
            IF loop.count != 1; ", "; END; ".label.$attr" | ml;
-         END %]</dd>
+         END %]</li>
     [% END %]
-</dl>
+</ul>
 <br />
   [% END %]
 
   [% IF responses.rejected.size %]
 <h2>[% '.head.rejected' | ml %]</h2>
 <p>[% '.body.rejected' | ml %]</p>
-<dl>[% FOREACH comm IN responses.rejected %]
-  <dd>[% comm.ljuser_display %]</dd>
+<ul class='invite-responses'>[% FOREACH comm IN responses.rejected %]
+  <li>[% comm.ljuser_display %]</li>
     [% END %]
-</dl>
+</ul>
 <br />
   [% END %]
 
   [% IF responses.undecided.size %]
 <h2>[% '.head.undecided' | ml %]</h2>
 <p>[% '.body.undecided' | ml %]</p>
-<dl>[% FOREACH comm IN responses.undecided %]
-  <dd>[% comm.ljuser_display %]</dd>
+<ul class='invite-responses'>[% FOREACH comm IN responses.undecided %]
+  <li>[% comm.ljuser_display %]</li>
     [% END %]
-</dl>
+</ul>
 <br />
   [% END %]
 
@@ -88,14 +95,14 @@
 <form method='post'>
   [% dw.form_auth %]
   <div align='center'>
-    <table id='invites-list' cellspacing='0' cellpadding='0'>
+    <table class='table' id='invites-list' cellspacing='0' cellpadding='0'>
       <thead><tr>
         <th>[% '.acton.community' | ml %]</th><th>[% '.acton.abilities' | ml %]</th>
         <th colspan='2'>[% '.acton.answer' | ml %]</th>
       </tr></thead>
 
   [% FOREACH inv IN invites %]
-      <tr class='[% oddeven(loop.index) %]'>
+      <tr>
         <td class='invite-info'>
           [% inv.cu.ljuser_display %]<br />
           [% inv.cu.name_html %]</br />
