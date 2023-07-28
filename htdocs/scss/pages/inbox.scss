@@ -37,6 +37,10 @@
       width: 100%;
     }
   }
+
+  .pages ul.pagination li a {
+    padding: 0.05rem 0.5rem 0.05rem;
+  }
 }
 
 @media #{$medium-only} {
@@ -111,7 +115,7 @@
     display: grid;
     grid:
       "checkbox actions pages" auto
-      / 2em auto auto;
+      / 2em 1fr auto;
   }
 
   .pages {
