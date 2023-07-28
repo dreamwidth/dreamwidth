@@ -231,7 +231,7 @@ memcache_stress(
                 [ 98, 95, 90 ],
                 "got correct answer (explicit set + first 50)"
             );
-            
+
             # test sub major regions
             $search = LJ::Directory::Search->new;
             $search->add_constraint(

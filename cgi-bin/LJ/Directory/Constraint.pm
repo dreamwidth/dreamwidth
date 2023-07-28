@@ -37,8 +37,7 @@ sub constraints_from_formargs {
 
     my @ret;
     foreach my $type (
-        qw(Location UpdateTime Interest Trusts TrustedBy Watches WatchedBy MemberOf JournalType)
-        )
+        qw(Location UpdateTime Interest Trusts TrustedBy Watches WatchedBy MemberOf JournalType))
     {
         my $class = "LJ::Directory::Constraint::$type";
         my $con   = eval { $class->new_from_formargs($postargs) };
