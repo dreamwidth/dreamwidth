@@ -149,6 +149,16 @@ sub index_handler {
     return DW::Template->render_template( 'inbox/index.tt', $vars );
 }
 
+sub check_page {
+    my ( $page, $items ) = @_;
+
+    # If we're on the first page or have no page
+    unless page && page > 1 return page;
+
+    my $starting_index = ( $page - 1 ) * $PAGE_LIMIT;
+    my $item_count     = scalar @{$arrayref};
+}
+
 sub render_items {
     my ( $page, $view, $remote, $items_ref, $expand ) = @_;
 
@@ -317,10 +327,13 @@ sub action_handler {
     my $inbox         = $remote->notification_inbox;
     my $display_items = items_by_view( $inbox, $view, $itemid );
     my $last_page     = POSIX::ceil( ( scalar @$display_items ) / $PAGE_LIMIT );
-    my $items_html    = render_items( $page, $view, $remote, $display_items, $expand );
-    my $folder_html   = render_folders( $remote, $view );
-    my $path          = "/inbox/new$getextra";
-    my $pages_html    = DW::Template->template_string( 'components/pagination.tt',
+    $last_page ||= 1;
+    $page = $last_page if $page > $last_page;
+
+    my $items_html  = render_items( $page, $view, $remote, $display_items, $expand );
+    my $folder_html = render_folders( $remote, $view );
+    my $path        = "/inbox/new$getextra";
+    my $pages_html  = DW::Template->template_string( 'components/pagination.tt',
         { current => $page, total_pages => $last_page, path => $path } );
 
     return DW::RPC->out(
