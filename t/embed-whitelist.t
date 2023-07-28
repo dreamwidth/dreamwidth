@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 115;
+use Test::More tests => 116;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -181,6 +181,7 @@ note("misc");
     test_bad_url( "https://shad_tkhom.livejournal.com/1244sd088.html?embed", "bad username" );
 
     # M
+    test_good_url("https://mega.nz/embed/yr5VEDDZ#6vvZAnbmADkNc6KX5fKUB9GXYYrYGOhkgsx-xw9_SMw");
     test_good_url(
 "https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2Fvladmradio%2F25-podcast-from-august-24-2016%2F&hide_cover=1&light=1"
     );
