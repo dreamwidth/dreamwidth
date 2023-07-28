@@ -131,8 +131,8 @@ $pagination-link-unavailable-font-color:    $inactive-color;
 $pagination-link-visited-color: $strong-accent-color;
 
 // tables
-$table-bg:              $form-bg-color;
-$table-even-row-bg:     $panel-bg;
+$table-bg:              $background-color;
+$table-even-row-bg:     darken( $body-bg, 3% );
 $table-border-color:    $border-color;
 $table-head-bg:         $highlight-color;
 $table-head-font-color: $highlight-text-color;
