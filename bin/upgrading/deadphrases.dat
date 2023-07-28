@@ -2629,6 +2629,7 @@ general widget.feeds.find
 general widget.feeds.title
 general widget.feeds.viewall
 general widget.friendbirthdays.paidtime_link
+general widget.friendbirthdays.viewall
 general widget.friendinterests.intro
 general widget.friendupdates.noupdate
 general widget.friendupdates.noupdates

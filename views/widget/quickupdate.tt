@@ -1,0 +1,100 @@
+
+[%- dw.need_res( { group => "foundation" }
+        "js/quickupdate.js"
+) -%]
+
+<h2 class="smaller">[% dw.ml('widget.quickupdate.title') %]</h2>
+<div class="row">
+    <div class='sidebar columns medium-3'>[% sidebar %]</div>
+    <div class='contents columns medium-9'>
+        <form method="POST" action="/entry/new">
+        [% dw.form_auth() %]
+        [% IF accounts.size > 1 %]
+            [% form.hidden(
+                name  => 'crosspost_entry',
+                id    => 'crosspost_entry',
+                value => 1)
+            %]
+            [% FOREACH acct IN accounts %]
+                [% form.hidden(
+                    name  => "crosspost",
+                    value => acct.acctid,
+                ) %]
+            [% END %]
+        [% END %]
+        [%- form.hidden( id = "js-remote", name = "poster_remote", value = remote.user ) -%]
+
+        [%- form.textbox( label = dw.ml("widget.quickupdate.subject")
+                name = "subject"
+                maxlength = limits.subject_length
+                size = "50"
+        ) -%]
+
+        [%- form.textarea( label = dw.ml("widget.quickupdate.entry")
+            name = "event"
+            id = "entry-body"
+
+            cols = "50"
+            rows = "9"
+            wrap = "soft"
+
+        ) -%]
+
+        <div class='metadata'>
+            <div class="row">
+                <div class="columns medium-8">
+                    [%- form.textbox( label = dw.ml("entryform.tags")
+                        name = "taglist"
+                        id = "js-taglist"
+                        size = '35',
+                        maxlength = '255'
+                        labelclass = "hidden"
+                        placeholder = dw.ml("entryform.tags")
+                    ) -%]
+                </div>
+                <div class="columns medium-4">
+                    [% INCLUDE "components/icon-select-dropdown.tt" omit_random_button = 1 %]
+                </div>
+            </div>
+            <div class="row">
+                <div class="button-bar entry-quick-actions columns">
+                <ul class="no-bullet entry-quick-metadata">
+                    <li>
+                    [%- form.submit(
+                            value = dw.ml('/entry/form.tt.button.post.quick')
+                            name = "action:post"
+                            )
+                    %]</li>
+                    <li>[%- form.select(
+                            name = "security"
+                            id = "js-security"
+                            label = dw.ml( '/entry/form.tt.select.security' )
+
+                            items = security
+                            selected = minsec
+                    ) -%]</li>
+                    <li>&nbsp; to &nbsp;</li>
+
+                    [%~ IF journallist.size > 1 %]
+                        <li>[%- form.select(
+                                name = "usejournal"
+                                id = "js-usejournal"
+                                label = dw.ml( '/entry/form.tt.select.usejournal' )
+
+                                items = journallist
+                            )-%]</li>
+                    [%~ ELSE ~%]
+                        <li>
+                        [% journallist.first.ljuser_display %]
+                        [% form.hidden( name = "usejournal", id = "js-usejournal", value = journallist.first.user,
+                        ) %]
+                        </li>
+                    [%- END -%]
+                </ul>
+                [% form.submit( name = 'showform', class = 'button secondary', value = dw.ml('widget.quickupdate.moreopts') ) %]
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,2 @@
+<h2 class="smaller">[% dw.ml('widget.usertagcloud.title') %]</h2>
+[% tagcloud %]

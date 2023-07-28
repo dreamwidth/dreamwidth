@@ -1,0 +1,29 @@
+<h2 class="smaller">[% dw.ml('widget.communitymanagement.title') %]</h2>
+
+[%- IF list.size > 0 -%]
+    <p>[% dw.ml('widget.communitymanagement.pending.header') %]</p>
+    <dl>
+    [%- FOREACH comm IN list -%]
+        <dt>[% comm.cu.ljuser_display %]
+        <dd>[% dw.ml('widget.communitymanagement.pending') %]
+            [%- IF comm.pending_entries -%]
+                [<a href='[% comm.cu.moderation_queue_url %]'>
+                    [% dw.ml( 'widget.communitymanagement.pending.entry',
+                        { num => comm.pending_entries } ) %]
+                </a>]
+            [%- END -%]
+
+            [%- IF comm.pending_members -%]
+                [<a href='[% comm.cu.moderation_queue_url %]'>
+                    [% dw.ml(
+                    'widget.communitymanagement.pending.member',
+                    { num => comm.pending_members }
+                    ) %]
+                </a>]
+            [%- END -%]
+        </dd>
+    [%- END -%]
+    </dl>
+[%- ELSE -%]
+    <p>[% dw.ml('widget.communitymanagement.nopending') %]</p>
+[%- END -%]

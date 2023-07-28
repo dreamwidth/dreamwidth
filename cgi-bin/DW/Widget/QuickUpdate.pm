@@ -18,8 +18,9 @@ package DW::Widget::QuickUpdate;
 
 use strict;
 use base qw/ LJ::Widget /;
+use DW::Template;
 
-sub need_res { qw( stc/widgets/quickupdate.css ) }
+sub need_res { qw( stc/css/pages/entry/new.css ) }
 
 sub render_body {
     my ( $class, %opts ) = @_;
@@ -27,50 +28,64 @@ sub render_body {
     my $remote = LJ::get_remote()
         or return;
 
-    my $ret = "<h2>" . $class->ml('widget.quickupdate.title') . "</h2>";
-    $ret .=
-          "<div class='sidebar'>"
-        . LJ::Hooks::run_hook( 'entryforminfo', $remote->user, $remote )
-        . "</div>";
-    $ret .= "<div class='contents'>";
+    my @accounts = DW::External::Account->get_external_accounts($remote);
+    @accounts = grep { $_->xpostbydefault } @accounts;
 
-    # not using the LJ::Widget form of the HTML methods, because we're directing this to update.bml
-    $ret .= $class->start_form( action => "/update" );
-    $ret .= LJ::entry_form_date_widget();
-    $ret .= LJ::entry_form_xpost_widget($remote);
+    my @journallist = map {
+        {
+            value => $_->user,
+            text  => $_->user,
+            data  => { minsecurity => minsec_for_user($_), iscomm => 1 }
+        }
+    } $remote->posting_access_list;
 
-    $ret .= LJ::labelfy( "subject", $class->ml('widget.quickupdate.subject') );
-    $ret .= LJ::entry_form_subject_widget();
-    $ret .= LJ::labelfy( "event",   $class->ml('widget.quickupdate.entry') );
-    $ret .= LJ::entry_form_entry_widget();
+    my $journal_minsec = $remote && $remote->prop('newpost_minsecurity');
 
-    $ret .= "<div class='metadata'>";
-    $ret .= "<div class='form-input'>";
-    $ret .= LJ::labelfy( "usejournal", $class->ml('entryform.postto') );
-    $ret .= LJ::entry_form_postto_widget($remote) || "";
-    $ret .= "</div>";
-    $ret .= "<div class='form-input'>";
-    $ret .= LJ::labelfy( "security", $class->ml('entryform.security') );
-    $ret .= LJ::entry_form_security_widget();
-    $ret .= "</div>";
-    $ret .= "<div class='form-input'>";
-    $ret .= LJ::labelfy( "prop_picture_keyword", $class->ml('entryform.userpic') );
-    $ret .= LJ::entry_form_usericon_widget($remote);
-    $ret .= "</div>";
-    $ret .= "<div class='form-input'>";
-    $ret .= LJ::labelfy( "prop_taglist", $class->ml('entryform.tags') );
-    $ret .= LJ::entry_form_tags_widget();
-    $ret .= "</div>";
-    $ret .= "</div>";
+#FIXME: this is because the setting can be the old 'friends' level from LJ. If we ever fix that, this can be removed.
+    $journal_minsec = 'access' if $journal_minsec =~ 'friends';
 
-    $ret .= "<div class='submit'>";
-    $ret .= LJ::html_submit( $class->ml('widget.quickupdate.update') );
-    $ret .= LJ::html_submit( 'moreoptsbtn', $class->ml('widget.quickupdate.moreopts') );
-    $ret .= "</div>";
-    $ret .= $class->end_form;
-    $ret .= "</div>";
+    push @journallist,
+        {
+        value => $remote->{'user'},
+        text  => $remote->{'user'},
+        data  => { minsecurity => $journal_minsec, iscomm => 0 }
+        };
+    @journallist = sort { $a->{'value'} cmp $b->{'value'} } @journallist;
 
-    return $ret;
+    my $sidebar  = LJ::Hooks::run_hook( 'entryforminfo', $remote->user, $remote );
+    my @security = (
+        { value => "public", text => LJ::Lang::ml("/entry/form.tt.select.security.public.label") },
+        {
+            value => "access",
+            text  => LJ::Lang::ml("/entry/form.tt.select.security.access.label"),
+            data  => { commlabel => LJ::Lang::ml("/entry/form.tt.select.security.members.label") }
+        },
+        {
+            value => "private",
+            text  => LJ::Lang::ml("/entry/form.tt.select.security.private.label"),
+            data  => { commlabel => LJ::Lang::ml("/entry/form.tt.select.security.admin.label") }
+        },
+    );
+
+    my $vars = {
+        remote      => $remote,
+        journallist => \@journallist,
+        security    => \@security,
+        sidebar     => $sidebar,
+        accounts    => \@accounts,
+        minsec      => $journal_minsec,
+
+    };
+
+    return DW::Template->template_string( 'widget/quickupdate.tt', $vars );
+}
+
+sub minsec_for_user {
+    my $user = LJ::load_user(shift);
+    if ( !$user ) {
+        return undef;
+    }
+    return $user->prop('newpost_minsecurity');
 }
 
 1;

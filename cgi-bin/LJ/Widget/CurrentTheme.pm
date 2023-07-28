@@ -17,6 +17,7 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 use LJ::Customize;
+use DW::Template;
 
 sub ajax     { 1 }
 sub authas   { 1 }
@@ -38,102 +39,21 @@ sub render_body {
     my $no_theme_chooser = defined $opts{no_theme_chooser} ? $opts{no_theme_chooser} : 0;
     my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $u );
 
-    my $theme       = LJ::Customize->get_current_theme($u);
-    my $userlay     = LJ::S2::get_layers_of_user($u);
-    my $layout_name = $theme->layout_name;
-    my $designer    = $theme->designer;
+    my $theme = LJ::Customize->get_current_theme($u);
 
-    my $ret;
-    $ret .=
-          "<div class='highlight-box'><h2 class='widget-header'><span>"
-        . $class->ml( 'widget.currenttheme.title', { 'user' => $u->ljuser_display } )
-        . "</span></h2>";
-    $ret .= "<div class='theme-current-content pkg'>";
-    $ret .=
-        "<img src='" . $theme->preview_imgurl . "' class='theme-current-image preview-image' />";
-    $ret .= "<h3>" . $theme->name . "</h3>";
+    my $vars = {
+        theme            => $theme,
+        layout_name      => $theme->layout_name,
+        designer         => $theme->designer,
+        getextra         => $getextra,
+        no_theme_chooser => $no_theme_chooser,
+        no_layer_edit    => $no_layer_edit,
+        getsep           => $getsep,
+        showarg          => $showarg,
+        u                => $u
+    };
 
-    my $layout_link =
-          "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid="
-        . $theme->layoutid
-        . "$showarg' class='theme-current-layout'><em>$layout_name</em></a>";
-    my $special_link_opts =
-"href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'";
-    $ret .= "<p class='theme-current-desc'>";
-    if ($designer) {
-        my $designer_link =
-              "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer="
-            . LJ::eurl($designer)
-            . "$showarg' class='theme-current-designer'>$designer</a>";
-        $ret .= $class->ml( 'widget.currenttheme.designer', { 'designer' => $designer_link } );
-        if ( LJ::Hooks::run_hook( "layer_is_special", $theme->uniq ) ) {
-            $ret .= " "
-                . $class->ml( 'widget.currenttheme.specialdesc2',
-                { 'aopts' => $special_link_opts } );
-        }
-        else {
-            $ret .= " " . $class->ml( 'widget.currenttheme.desc2', { 'style' => $layout_link } );
-        }
-    }
-    elsif ($layout_name) {
-        $ret .= $class->ml( 'widget.currenttheme.desc2', { 'style' => $layout_link } );
-    }
-    $ret .= "</p>";
-
-    $ret .= "<div class='theme-current-links inset-box'>";
-    $ret .= $class->ml('widget.currenttheme.options');
-    $ret .= "<ul class='nostyle'>";
-    if ($no_theme_chooser) {
-        $ret .=
-              "<li><a href='$LJ::SITEROOT/customize/$getextra'>"
-            . $class->ml('widget.currenttheme.options.newtheme')
-            . "</a></li>";
-    }
-    else {
-        $ret .=
-              "<li><a href='$LJ::SITEROOT/customize/options$getextra'>"
-            . $class->ml('widget.currenttheme.options.change')
-            . "</a></li>";
-    }
-    if ( !$no_layer_edit ) {
-        $ret .=
-              "<li><a href='$LJ::SITEROOT/customize/advanced/'>"
-            . $class->ml('widget.currenttheme.options.advancedcust')
-            . "</a></li>";
-        if ( $theme->layoutid && !$theme->layout_uniq ) {
-            $ret .=
-                  "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit?id="
-                . $theme->layoutid . "'>"
-                . $class->ml('widget.currenttheme.options.editlayoutlayer')
-                . "</a></li>";
-        }
-        if ( $theme->themeid && !$theme->uniq ) {
-            $ret .=
-                  "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit?id="
-                . $theme->themeid . "'>"
-                . $class->ml('widget.currenttheme.options.editthemelayer')
-                . "</a></li>";
-        }
-    }
-    if ($no_theme_chooser) {
-        $ret .=
-              "<li><a href='$LJ::SITEROOT/customize/options$getextra#layout'>"
-            . $class->ml('widget.currenttheme.options.layout')
-            . "</a></li>";
-    }
-    else {
-        $ret .=
-              "<li><a href='$LJ::SITEROOT/customize/$getextra#layout'>"
-            . $class->ml('widget.currenttheme.options.layout')
-            . "</a></li>";
-    }
-
-    $ret .= "</ul>";
-    $ret .= "</div><!-- end .theme-current-links -->";
-    $ret .= "</div><!-- end .theme-current-content -->";
-    $ret .= "</div>";
-
-    return $ret;
+    return DW::Template->template_string( 'widget/currenttheme.tt', $vars );
 }
 
 sub js {
