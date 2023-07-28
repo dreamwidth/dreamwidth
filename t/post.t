@@ -261,6 +261,11 @@ my $postdecoded_bare = {
         adult_content        => '',
         adult_content_reason => '',
 
+        current_location => '',
+        current_music    => '',
+        current_mood     => '',
+        current_moodid   => '',
+
         admin_post => 0,
     }
 };
