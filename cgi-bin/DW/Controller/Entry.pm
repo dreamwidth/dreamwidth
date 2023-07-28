@@ -811,7 +811,7 @@ sub _form_to_backend {
     if ( $props->{current_mood} ) {
         if ( my $moodid = DW::Mood->mood_id( $props->{current_mood} ) ) {
             $props->{current_moodid} = $moodid;
-            delete $props->{current_mood};
+            $props->{current_mood}   = '';
         }
     }
 
