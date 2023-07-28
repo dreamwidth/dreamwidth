@@ -86,8 +86,8 @@ $reveal-modal-bg:                       $panel-bg;
 $reveal-border-color:                   $form-border-color;
 
 // tables
-$table-bg:                              $form-bg-color;
-$table-even-row-bg:                     $panel-bg;
+$table-bg:                              $background-color;
+$table-even-row-bg:                     lighten( $background-color, 5% );
 $table-border-color:                    $border-color;
 $table-head-bg:                         $primary-color;
 $table-head-font-color:                 $primary-text-color;

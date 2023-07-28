@@ -129,8 +129,8 @@ $pagination-link-font-color:	$inactive-color;
 $pagination-link-unavailable-font-color:	$inactive-color;
 
 // tables
-$table-bg:              $form-bg-color;
-$table-even-row-bg:     $panel-bg;
+$table-bg:              $background-color;
+$table-even-row-bg:     darken( $body-bg, 3% );
 $table-border-color:    $border-color;
 $table-head-bg:         $primary-color;
 $table-head-font-color: $primary-text-color;
