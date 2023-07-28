@@ -528,7 +528,7 @@ sub _basic_info_website {
 
     my ( $url, $urlname ) = ( $u->url, $u->prop('urlname') );
 
-    my $spam_time_threshold = scalar (localtime() - (ONE_DAY * 10)) <= scalar LJ::mysql_time( $u->timecreate );
+    my $spam_time_threshold = (time - (ONE_DAY * 10)) <= $u->timecreate;
     if ($remote->has_priv('suspend') || $spam_time_threshold) {
         if ($url) {
             $url = LJ::ehtml($url);
