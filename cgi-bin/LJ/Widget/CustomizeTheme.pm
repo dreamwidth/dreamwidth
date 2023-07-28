@@ -222,7 +222,37 @@ sub render_body {
             propgroup  => "customcss",
             groupprops => $groups{groupprops}->{customcss},
         );
-        $ret .= "</div>";
+        $ret .= <<EOF
+            </div>
+            <p class='detail'>To insert indentation or open the code hint menu, press Ctrl + m.</p>
+            <script type='text/javascript'>
+                window.addEventListener('load', function() {
+                let prev = document.querySelector('[name="Widget[S2PropGroup]_linked_stylesheet"]');
+                let next = document.querySelector('[name="Widget[CustomizeTheme]_save"]');
+                let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name="Widget[S2PropGroup]_custom_css"]'), {
+                    mode:  'css',
+                    lineWrapping: true,
+                    lineNumbers: true,
+                    theme: document.querySelector('body').classList.contains('gradation') ? 'twilight' : 'default',
+                    lineWiseCopyCut: false,
+                    inputStyle: 'contenteditable',
+                    cursorScrollMargin: 4,
+                    extraKeys: {
+                        'Tab': function(cm) {next.focus()},
+                        'Shift-Tab': function(cm) {prev.focus()},
+                        'Ctrl-M': function(cm) {
+                        var cur = cm.getCursor(), token = cm.getTokenAt(cur);
+                        var m = token.string.match(/([\\s]+)/) || token.string == "";
+                        if (!m) { cm.showHint(); }
+                        else {
+                            var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');
+                            cm.replaceSelection(spaces);
+                        }
+                     }}
+                })
+            });
+        </script>
+EOF
     }
 
     # Other Groups
