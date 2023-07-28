@@ -89,7 +89,7 @@ sub _as_email {
             . $self->format_options(
             $is_html, undef, $vars,
             {
-                'esn.show_unsubscribed_journal' => [ 0, $journal_url ],
+                'esn.show_unsubscribed_journal' => [ 1, $journal_url ],
                 'esn.remove_trust' => [
                     !$u->trusts( $self->fromuser ) ? 0 : 2,
                     "$LJ::SITEROOT/circle/$postername/edit"
@@ -105,7 +105,7 @@ sub _as_email {
             . $self->format_options(
             $is_html, undef, $vars,
             {
-                'esn.show_unsubscribed_journal' => [ 0, $journal_url ],
+                'esn.show_unsubscribed_journal' => [ 1, $journal_url ],
                 'esn.remove_watch' => [
                     !$u->watches( $self->fromuser ) ? 0 : 2,
                     "$LJ::SITEROOT/circle/$postername/edit"
