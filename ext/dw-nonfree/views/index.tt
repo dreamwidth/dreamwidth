@@ -18,7 +18,7 @@
 
     <style type="text/css">
     .primary-panel .sidebar li {margin: 0;}
-    .primary-panel .contents {border-left: 1px solid;}
+    .primary-panel .contents {border-width: 0 0 0 1px;}
     #canvas .primary-panel .entry-quick-metadata select {top: 0; margin-right: 0.75em;}
     </style>
 [% END %]
