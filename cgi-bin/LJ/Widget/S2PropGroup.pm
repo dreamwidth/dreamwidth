@@ -20,7 +20,7 @@ use LJ::Customize;
 use List::Util qw( first );
 
 sub authas        { 1 }
-sub need_res      { qw( stc/widgets/s2propgroup.css js/colorpicker.js stc/collapsible.css js/vendor/codemirror/codemirror.js js/vendor/codemirror/modes/css.js stc/cssedit/codemirror.css stc/cssedit/twilight.css stc/cssedit/show-hint.js stc/cssedit/show-hint.css stc/cssedit/css-hint.js ) }
+sub need_res      { qw( stc/coloris.css js/vendor/coloris.js stc/collapsible.css stc/collapsible.css js/vendor/codemirror/codemirror.js js/vendor/codemirror/modes/css.js stc/cssedit/codemirror.css stc/cssedit/twilight.css stc/cssedit/show-hint.js stc/cssedit/show-hint.css stc/cssedit/css-hint.js ) }
 sub need_res_opts { ( priority => $LJ::OLD_RES_PRIORITY ) }
 
 sub render_body {
