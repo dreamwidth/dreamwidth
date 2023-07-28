@@ -528,9 +528,9 @@ sub _basic_info_website {
 
     my ( $url, $urlname ) = ( $u->url, $u->prop('urlname') );
 
-    my $spam_time_threshold = (time - (ONE_DAY * 10)) <= $u->timecreate;
-    if ($remote->has_priv('suspend') || $spam_time_threshold) {
-        if ($url) {
+    if ($url) {
+        my $spam_time_threshold = (time - (ONE_DAY * 10)) <= $u->timecreate;
+        if ($spam_time_threshold || ($remote && $remote->has_priv('suspend'))) {
             $url = LJ::ehtml($url);
             unless ( $url =~ /^https?:\/\// ) {
                 $url =~ s/^http\W*//;
@@ -541,11 +541,11 @@ sub _basic_info_website {
                 $ret->[0] = _profile_ml('.label.website');
                 $ret->[1] = { url => $url, text => $urlname };
             }
-        }
-    } else {
-        if ($remote && $remote->can_manage($u)) {
-            $ret->[0] = _profile_ml('.label.website');
-            $ret->[1] = "Other people will not see this link on your profile until your account is at least 10 days old.";
+        } else {
+            if ($remote && $remote->can_manage($u)) {
+                $ret->[0] = _profile_ml('.label.website');
+                $ret->[1] = "Other people will not see this link on your profile until your account is at least 10 days old.";
+            }
         }
     }
 
