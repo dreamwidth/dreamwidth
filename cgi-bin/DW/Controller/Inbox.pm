@@ -149,16 +149,6 @@ sub index_handler {
     return DW::Template->render_template( 'inbox/index.tt', $vars );
 }
 
-sub check_page {
-    my ( $page, $items ) = @_;
-
-    # If we're on the first page or have no page
-    unless page && page > 1 return page;
-
-    my $starting_index = ( $page - 1 ) * $PAGE_LIMIT;
-    my $item_count     = scalar @{$arrayref};
-}
-
 sub render_items {
     my ( $page, $view, $remote, $items_ref, $expand ) = @_;
 
@@ -315,13 +305,14 @@ sub action_handler {
         handle_post( $remote, $action, $view, $itemid, $ids );
     }
 
-    my $getextra = '';
+    my $getextra = {};
     if ( $view eq 'singleentry' ) {
-        $getextra = "?view=$view&itemid=$itemid";
+        $getextra->{view}   = $view;
+        $getextra->{itemid} = $itemid;
 
     }
     elsif ( $view ne 'all' ) {
-        $getextra = "?view=$view";
+        $getextra->{view} = $view;
     }
 
     my $inbox         = $remote->notification_inbox;
@@ -332,9 +323,9 @@ sub action_handler {
 
     my $items_html  = render_items( $page, $view, $remote, $display_items, $expand );
     my $folder_html = render_folders( $remote, $view );
-    my $path        = "/inbox/new$getextra";
+    my $path        = "/inbox/new";
     my $pages_html  = DW::Template->template_string( 'components/pagination.tt',
-        { current => $page, total_pages => $last_page, path => $path } );
+        { current => $page, total_pages => $last_page, path => $path, cur_args => $getextra } );
 
     return DW::RPC->out(
         success => {
