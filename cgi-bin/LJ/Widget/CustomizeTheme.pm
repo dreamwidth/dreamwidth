@@ -224,7 +224,7 @@ sub render_body {
         );
         $ret .= <<EOF
             </div>
-            <p class='detail'>To insert indentation or open the code hint menu, press Ctrl/Cmd + m.</p>
+            <p class='detail'>To insert indentation or open the code hint menu, press Ctrl + m.</p>
             <script type='text/javascript'>
                 window.addEventListener('load', function() {
                 let prev = document.querySelector('[name="Widget[S2PropGroup]_linked_stylesheet"]');
