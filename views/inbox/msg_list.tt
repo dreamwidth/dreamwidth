@@ -3,14 +3,14 @@ LJ_cmtinfo = {is_inbox: true};
 LJ_cmtinfo['disableInlineDelete'] = 1;
 </script>
 
-[%- count = 0 -%]
+
 [% IF messages.size == 0 %]
-    <div class="[% count % 2 == 1 ? "odd" : "even" %]">
+    <div class="odd">
         <div class="item-empty">No Messages</div>
     </div>
 [%- ELSE -%]
     [%- FOR m IN messages -%]
-        <div class="inbox_item_row [% count % 2 == 1 ? "odd" : "even" %] item_[% m.read %]">
+        <div class="inbox_item_row border [% loop.count() % 2 == 1 ? "odd" : "even" %] item_[% m.read %]">
         <div class="checkbox">[% form.checkbox(name = "check_$m.qid", id = "check_$m.qid", class= "item_checkbox", value = m.qid, autocomplete = 'off') %]</div>
         <div class="item">
             <div class="InboxItem_Controls"><a href='[% site.root _ "/inbox/?page=$page&view=$view&$m.bookmark=$m.qid" %]' data-qid ='[% m.qid %]' data-action ='[% m.bookmark %]' class="item_bookmark_action">
@@ -21,6 +21,5 @@ LJ_cmtinfo['disableInlineDelete'] = 1;
             </div>
             <div class="time detail">[% m.abs_time %]<br>[% m.rel_time %]</div>
         </div>
-        [%- count = count + 1 -%]
     [%- END -%]
 [%- END -%]

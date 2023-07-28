@@ -284,3 +284,15 @@
   opacity: .6; 
   padding: 2rem;
 }
+
+.unread {
+  font-weight: bold;
+}
+
+.inbox_item_row {
+  border-width: 1px 0 0 0;
+}
+
+.inbox_item_row:first-of-type{
+  border-width: 0;
+}
