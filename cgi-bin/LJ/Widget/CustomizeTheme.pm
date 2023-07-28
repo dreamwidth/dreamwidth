@@ -224,9 +224,11 @@ sub render_body {
         );
         $ret .= <<EOF
             </div>
-            <p class='detail'>To insert indentation or open the code hint menu, press Tab + Space.</p>
+            <p class='detail'>To insert indentation or open the code hint menu, press Ctrl/Cmd + m.</p>
             <script type='text/javascript'>
                 window.addEventListener('load', function() {
+                let prev = document.querySelector('[name="Widget[S2PropGroup]_linked_stylesheet"]');
+                let next = document.querySelector('[name="Widget[CustomizeTheme]_save"]');
                 let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name="Widget[S2PropGroup]_custom_css"]'), {
                     mode:  'css',
                     lineWrapping: true,
@@ -235,7 +237,10 @@ sub render_body {
                     lineWiseCopyCut: false,
                     inputStyle: 'contenteditable',
                     cursorScrollMargin: 4,
-                    extraKeys: {'Tab-Space': function(cm) {
+                    extraKeys: {
+                        'Tab': function(cm) {next.focus()},
+                        'Shift-Tab': function(cm) {prev.focus()},
+                        'Ctrl-M': function(cm) {
                         var cur = cm.getCursor(), token = cm.getTokenAt(cur);
                         var m = token.string.match(/([\\s]+)/) || token.string == "";
                         if (!m) { cm.showHint(); }
