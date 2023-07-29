@@ -392,9 +392,11 @@ sub _process_queue {
         unshift @{ $lists{latest_items} }, $item;
     }
 
+    my %omit_tags = map { $_ => 1 } grep { $_ } split( /\r?\n/, LJ::load_include('tagblocklist') );
+
     # re-sort and update our tag frequency map, then store it
     my $cutoff = time() - 86400;    # ignore tags staler than this
-    @$tfmap = sort { $b->[2] <=> $a->[2] }
+    @$tfmap = sort { $b->[2] <=> $a->[2] } grep { !$omit_tags{ $_->[0] } }
         grep { $_->[3] > $cutoff } @$tfmap;
     @$tfmap = splice @$tfmap, 0, NUM_TOP_TAGS;
     LJ::MemCache::set( latest_items_tag_frequency_map => $tfmap );
