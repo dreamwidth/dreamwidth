@@ -222,7 +222,7 @@ sub render_body {
             propgroup  => "customcss",
             groupprops => $groups{groupprops}->{customcss},
         );
-        $ret .= <<EOF
+        $ret .= <<EOF;
             </div>
             <p class='detail'>To insert indentation or open the code hint menu, press Ctrl + m.</p>
             <script type='text/javascript'>
