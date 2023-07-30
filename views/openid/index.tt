@@ -23,7 +23,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         background-position: 3px 50%;
         padding-left: 21px;
     }
-    input.button {
+    input.openid {
         background: #ff6200;
         color: #fff;
     }
@@ -74,7 +74,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
       [% IF continue_to;
             form.hidden( name = "continue_to", value = continue_to );
          END %]
-      <input class="button" type="submit" value="[% '.login.submit' | ml %]" />
+      <input class="button openid" type="submit" value="[% '.login.submit' | ml %]" />
     </nobr><br />[% '.login.example' | ml %]
   </form>
 </div>
