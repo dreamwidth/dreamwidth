@@ -13,44 +13,48 @@
 
 [%- sections.title = '.title' | ml -%]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content select {
+            display: inline;
+            height: auto;
+            width: auto;
+            margin: 1em;
+            padding-right: 2rem;
+        }
+        #content ul {
+            list-style: none;
+        }
+    </style>
+[% END %]
+
 <p>[% '.changenotify.text' | ml %]</p>
 
 <form method='post' action='changenotify'>[% dw.form_auth %]
 
-[%- valname = { "off" => dw.ml('.option.off'),
-                "new" => dw.ml('.option.new'),
-                "all" => dw.ml('.option.all'),
-              } -%]
-
-<div style='margin-left: 30px'>
-[% FOREACH cat IN filter_cats %]
-  <p>
-    <select name='[% "spcatid_${cat.spcatid}" %]'>
-    [% FOREACH val IN [ "off", "new", "all" ];
-         sel = notify.${cat.spcatid} == val ? " selected='selected'" : "" %]
-      <option value='[% val %]'[% sel %]>[% valname.$val %]</option>
-    [% END %]
-    </select> [% cat.catname %]
-  </p>
-[% END %]
-</div>
-
 <p>
-  <label for='opt_getselfsupport'>[% '.getownresponses' | ml %]</label>
   [% form.checkbox( type => 'check', name => 'opt_getselfsupport',
-                    id => 'opt_getselfsupport',
+                    id => 'opt_getselfsupport', label = dw.ml( '.getownresponses' ),
                     selected => remote.prop( 'opt_getselfsupport' ) ) %]
 </p>
 
+<ul>
+[% FOREACH cat IN filter_cats %]
+  <li>
+  [% form.select( name = "spcatid_${cat.spcatid}", selected = notify.${cat.spcatid},
+                  items = [ "off", dw.ml('.option.off'),
+                            "new", dw.ml('.option.new'),
+                            "all", dw.ml('.option.all'),
+                          ] ) %]
+  [% cat.catname %]
+  </li>
+[% END %]
+</ul>
+
 <p>[% '.done.text' | ml %]</p>
 
-<div class='action-box'>
-  <ul class='inner nostyle'>
-    <li>
-      <input type='submit' value='[% ".submit.button" | ml %]' />
-    </li>
-  </ul>
-</div>
+<div class='action-box'>[% form.submit( value = dw.ml( ".submit.button" ) ) %]</div>
 
-<div class='clear-floats'></div>
 </form>
