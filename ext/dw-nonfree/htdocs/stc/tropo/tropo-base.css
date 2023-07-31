@@ -186,7 +186,7 @@ nav[role="navigation"] ul li.hover ul {
     white-space: nowrap;
     padding-right: 0.5rem;
 }
-nav ul li ul li {
+nav[role="navigation"] ul li ul li {
     float: none;
     width: 100%;
 }
