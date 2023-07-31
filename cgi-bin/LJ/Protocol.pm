@@ -1275,7 +1275,7 @@ sub postevent {
         unless $u->equals($uowner) || $u->{'status'} eq 'A' || $flags->{'nomod'};
 
     return fail( $err, 155, "You must confirm your email address before posting." )
-        if $u->{'status'} eq 'N' && !$LJ::_T_CONFIG;
+        if $u->{'status'} eq 'N' && !$u->is_syndicated && !$LJ::_T_CONFIG;
 
     # post content too large
     # NOTE: requires $req->{event} be binary data, but we've already
