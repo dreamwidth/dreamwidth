@@ -59,7 +59,7 @@
 
 .error.invalidlayertype=Invalid layer type.
 
-.error.layerdoesntexist=The specified layer does't exist.
+.error.layerdoesntexist=The specified layer doesn't exist.
 
 .error.maxlayers=You've reached your maximum number of allowed layers.
 

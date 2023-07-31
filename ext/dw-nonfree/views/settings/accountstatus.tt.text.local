@@ -1,0 +1,8 @@
+;; -*- coding: utf-8 -*-
+.delete.openid1=If you delete your OpenID account, you can no longer delete comments imported by other users that are associated with your OpenID account. Deleting your OpenID account will not prevent other users from importing comments you have left on journals under their control. Comments that you already deleted on this site might be reimported. More information on OpenID accounts can be found <a href=http://www.dreamwidth.org/support/faqbrowse?faqid=62>here</a>.
+
+.error.nochange.expunged=You can't undelete this account because it's been permanently removed.
+
+.error.nochange.suspend|notes=You can't change a journal to be unsuspended. This message is for users who attempt to do so.
+.error.nochange.suspend=You can't change the status of a journal that's been suspended.  Please email abuse@dreamwidth.org if you would like more information.
+
