@@ -13,7 +13,7 @@
 
 .create.join_dreamwidth.content=Creating an account requires either a payment or an invite code. (<a [[aopts]]>Why?</a>)
 
-.create.join_dreamwidth.content.noinvites=This week only, you can create a Dreamwidth account without an invite code. If you want, you can still support Dreamwidth by making a small payment in return for <a [[aopts]]>extra features</a>.
+.create.join_dreamwidth.content.noinvites=Creating a basic Dreamwidth account is free. Or, you can help support the site for everyone, and get <a [[aopts]]>extra features</a>, for a small payment.
 
 .create.join_dreamwidth.content.noinvites.nopayments=You can create an account using the link below.
 
