@@ -37,6 +37,10 @@ sub cn_handler {
     LJ::Support::init_remote($remote);
     my $remote_id = $remote->id;
 
+    my $ml_scope = '/support/changenotify.tt';
+    return error_ml( "$ml_scope.error.noemail", { aopts => "/register" } )
+        unless $remote->is_validated;
+
     my $cats        = LJ::Support::load_cats();
     my @filter_cats = LJ::Support::filter_cats( $remote, $cats );
 
@@ -67,8 +71,6 @@ sub cn_handler {
         }
 
         $dbh->do($sql) if $sql;
-
-        my $ml_scope = '/support/changenotify.tt';
 
         return success_ml(
             "$ml_scope.success.text",

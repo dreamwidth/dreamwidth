@@ -1289,6 +1289,15 @@ sub should_block_robots {
     return 0;
 }
 
+sub should_receive_support_notifications {
+    my ( $u, $spcatid ) = @_;
+    return 0 unless $u->is_visible;
+    return 0 unless $u->is_validated;
+    return 0 unless $spcatid;
+    return 0 unless LJ::Support::can_read_cat( $spcatid, $u );
+    return 1;
+}
+
 sub support_points_count {
     my $u = shift;
 

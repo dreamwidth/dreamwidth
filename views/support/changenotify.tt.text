@@ -3,6 +3,8 @@
 
 .done.text=When you're finished, press the "Save Changes" button.
 
+.error.noemail=Please <a href="[[aopts]]">validate your email address</a> to receive support notifications.
+
 .getownresponses=Check here if you'd also like to include notifications for your own responses.
 
 .option.all=All
