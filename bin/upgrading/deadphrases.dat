@@ -733,8 +733,63 @@ general /profile.bml.userpic.user.alt
 general /profile.bml.userpic.viewall
 general /profile.bml.userpic.viewall.edit
 
+general /register.bml.ask.body
+general /register.bml.ask.button
+general /register.bml.ask.header
+general /register.bml.ask.select
+general /register.bml.ask.switch
+general /register.bml.asterisk.comment
+general /register.bml.asterisk.name
+general /register.bml.email.body
+general /register.bml.email.body2
+general /register.bml.email.subject2
+general /register.bml.error.alreadyvalidated
+general /register.bml.error.emailchanged
+general /register.bml.error.identity_no_email
+general /register.bml.error.invalidcode
+general /register.bml.error.noaccess
+general /register.bml.error.useralreadyvalidated
+general /register.bml.error.usernonexistent
+general /register.bml.error.usernotfound
+general /register.bml.error.valid
+general /register.bml.form.submit
+general /register.bml.new.101.community.answer
+general /register.bml.new.101.community.question
+general /register.bml.new.101.friends.answer
+general /register.bml.new.101.friends.question
+general /register.bml.new.101.journal.answer
+general /register.bml.new.101.journal.question
+general /register.bml.new.101.profile.answer
+general /register.bml.new.101.profile.question
+general /register.bml.new.101.reading.answer
+general /register.bml.new.101.reading.question
+general /register.bml.new.101.title
 general /register.bml.new.body
+general /register.bml.new.bodyuser
+general /register.bml.new.bodyuser2
+general /register.bml.new.customize
+general /register.bml.new.customize2
+general /register.bml.new.editinfo
+general /register.bml.new.editinfo2
+general /register.bml.new.editinfo3
+general /register.bml.new.header
+general /register.bml.new.login
+general /register.bml.new.login2
+general /register.bml.new.modify
 general /register.bml.new.modify2
+general /register.bml.new.search
+general /register.bml.new.update
+general /register.bml.new.update2
+general /register.bml.new.update3
+general /register.bml.new.userpics
+general /register.bml.new.title
+general /register.bml.sent.body
+general /register.bml.sent.header
+general /register.bml.title
+general /register.bml.trans.body
+general /register.bml.trans.header
+general /register.bml.validate.human.submit
+general /register.bml.validate.human.title
 
 general /setlang.bml.select
 general /setlang.bml.switch
@@ -828,6 +883,10 @@ general /site/index.bml.maplinks.upgrade
 general /site/index.bml.maplinks.upload-images
 general /site/index.bml.maplinks
 general /site/index.bml.title
+
+general /site/index.tt.maplinks.customizestyle
+general /site/index.tt.maplinks.manage-settings
+general /site/index.tt.maplinks.selectstyle
 
 general /site/opensource.bml.development.directions3
 
@@ -973,10 +1032,19 @@ general /tools/tellafriend.bml.sentpage.title
 general /tools/tellafriend.bml.title
 general /tools/tellafriend.bml.via
 
-general /update.bml.update.about
-general /update.bml.login.success
+general /update.bml.currmood
+general /update.bml.error.disabled
+general /update.bml.error.disabled.title
 general /update.bml.htmlokay
+general /update.bml.loggedinas
+general /update.bml.login.success
 general /update.bml.opt.defpic
+general /update.bml.picture
+general /update.bml.simple
+general /update.bml.update.about
+general /update.bml.update.alternate
+general /update.bml.update.success
+general /update.bml.updating
 
 general /uploadpic.bml.success.text
 general /uploadpic.bml.btn.proceed
@@ -1157,8 +1225,6 @@ general /userinfo.bml.userpic.openid.alt
 general /userinfo.bml.userpic.upload
 general /userinfo.bml.userpic.user.alt
 
-general /register.bml.error.alreadyvalidated
-
 general /tools/memories.bml.entry
 general /tools/memories.bml.entries
 
@@ -1285,10 +1351,6 @@ general /modify_do.bml.overrides.note
 general /modify_do.bml.journaloptions.about
 
 general /multisearch.bml.region.bodytext
-general /register.bml.new.editinfo
-general /register.bml.new.login
-general /register.bml.new.modify
-general /register.bml.new.update
 general /talkpost_do.bml.error.badpassword
 general /talkpost_do.bml.error.badusername
 general /talkpost_do.bml.error.noverify
@@ -1358,9 +1420,6 @@ general /talkpost_do.bml.title
 general /talkpost_do.bml.title.error
 general /talkpost_do.bml.title.preview
 
-general /update.bml.currmood
-general /update.bml.update.alternate
-
 general /editpics.bml.curpics.desc
 
 general error.noremote
@@ -1379,8 +1438,6 @@ general /community/members.bml.settings
 general /community/members.bml.success.return
 general /community/settings.bml.members
 general /editinfo.bml.allowshowcontact.email.withdomainaddr
-
-general /customize/index.bml.s2.advanced.permitted
 general /editinfo.bml.login.enterinfo
 general /editinfo.bml.login.forgot.header
 general /editinfo.bml.login.forgot.recover
@@ -1407,10 +1464,6 @@ general /talkpost_do.bml.success.screened.user
 general /talkpost_do.bml.success.screened.user.anon
 general /tools/memadd.bml.login.forgot.header
 general /tools/memadd.bml.login.forgot.recover
-general /update.bml.loggedinas
-general /update.bml.picture
-general /update.bml.simple
-general /update.bml.update.success
 general /userinfo.bml.label.clientsused
 general /userinfo.bml.sendmessage.body
 general /userinfo.bml.syndinfo.body
@@ -1418,6 +1471,9 @@ general /userinfo.bml.userinfo.body
 general lostinfo.text
 
 general /customize/index.bml.s2.advanced.denied
+general /customize/index.bml.s2.advanced.permitted
+general /customize/index.bml.setsiteskin.desc
+general /customize/index.bml.setsiteskin.desc.comm
 
 general /stats.bml.age.desc
 general /stats.bml.age.header
@@ -1604,19 +1660,6 @@ general /manage/profile/index.bml.pop_interests18.v2
 general /manage/profile/index.bml.pop_interests19.v2
 general /manage/profile/index.bml.pop_interests20.v2
 general /manage/profile/index.bml.pop_interests21.v2
-
-general /htdocs/register.bml.new.customize
-general /htdocs/register.bml.new.editinfo2
-general /htdocs/register.bml.new.header
-general /htdocs/register.bml.new.login2
-general /htdocs/register.bml.new.update2
-
-general /htdocs/register.bml.new.customize2
-general /htdocs/register.bml.new.editinfo3
-general /htdocs/register.bml.new.modify2
-general /htdocs/register.bml.new.search
-general /htdocs/register.bml.new.update3
-general /htdocs/register.bml.new.userpics
 
 general widget.qotd.title
 general widget.sitemessages.title
@@ -2086,6 +2129,8 @@ general /manage/settings/index.bml.navstrip.options.show
 general /manage/settings/index.bml.public.helper
 general /manage/settings/index.bml.stylealwaysmine
 general /manage/settings/index.bml.stylealwaysmine.text
+general /manage/settings/index.bml.title.comm
+general /manage/settings/index.bml.title.self
 general /manage/settings/index.bml.verticalincl
 general /manage/settings/index.bml.verticalincl.text
 general /manage/settings/index.bml.weblogscom
@@ -2115,13 +2160,6 @@ general /openid/options.bml.main.trust.content
 general /openid/options.bml.main.trust.heading
 general /openid/options.bml.title
 general /poll/index.bml.gotocreate2
-general /register.bml.ask.header
-general /register.bml.email.body
-general /register.bml.new.101.friends.answer
-general /register.bml.new.101.friends.question
-general /register.bml.new.bodyuser
-general /register.bml.validate.human.submit
-general /register.bml.validate.human.title
 general /reject.bml.comm.success
 general /reject.bml.commreject.text
 general /reject.bml.error.actionperformed
@@ -2228,7 +2266,6 @@ general /talkpost.bml.opt.ljuser
 general /talkpost.bml.opt.ljuser2
 general /talkpost.bml.warnscreened
 general /tools/recent_comments.bml.latest.comments
-general /update.bml.updating
 general /interests/findsim.tt.findsim_do.similar.head
 general /interests/findsim.tt.findsim_do.similar.text
 general /interests/int.tt.communities.header
@@ -2409,6 +2446,9 @@ general inbox.menu.friend_updates
 general inbox.menu.new_friends
 general label.security.friends
 general menunav.explore.journalsearch
+general menunav.organize.customizestyle
+general menunav.organize.manageaccount
+general menunav.organize.selectstyle
 general menunav.read.inbox.unread
 general notification_method.im.title
 general notification_method.sms.title
@@ -2476,7 +2516,11 @@ general portal.update.portalname
 general portal.update.portaltitle
 general portal.update.subject
 general protocol.old_win32_client
+
+general search.user.journal
+general search.user.name
 general search.user.nopic
+
 general setting.display.domainmapping.actionlink
 general setting.display.domainmapping.actionlink.remove
 general setting.display.domainmapping.label
@@ -2685,8 +2729,20 @@ general widget.qotdresponses.previous
 general widget.qotdresponses.read.more
 general widget.qotdresponses.read.your.friends.page
 general widget.qotdresponses.there.are.no.answers
+
+general widget.search.aim
+general widget.search.existingtitle
+general widget.search.icq
+general widget.search.iminfo
+general widget.search.interestonly
+general widget.search.interestonly.btn
+general widget.search.jabber
+general widget.search.msn
 general widget.search.note
+general widget.search.submit
+general widget.search.username
 general widget.search.yahoo
+
 general widget.shopcart.deliverydate.today
 general widget.shopcartstatusbar.header
 general widget.shopcartstatusbar.itemcount
@@ -3330,7 +3386,6 @@ general /admin/supportcat/category.tt.field.sortorder.label
 general /admin/supportcat/category.tt.field.user_closeable.label
 general /admin/supportcat/category.tt.saved
 
-general widget.search.msn
 general /manage/profile/index.bml.chat.msnusername
 general /profile.bml.im.msn
 general /profile.bml.label.msnusername
@@ -3427,6 +3482,8 @@ general talk.error.nosuchjournal
 general talk.spellcheck
 general /talkform.tt.opt.noautoformat
 
+general /views/entry/form.tt.error.disabled
+
 general /views/entry/success.tt.edit.edited
 general /views/entry/success.tt.edit.edited.comm
 general /views/entry/success.tt.edit.delete
@@ -3444,6 +3501,14 @@ general /views/entry/success.tt.new.links.memories
 general /views/entry/success.tt.new.links.myentries
 general /views/entry/success.tt.new.links.tags
 general /views/entry/success.tt.new.links.view
+
+general /views/multisearch.tt.text.head.site
+general /views/multisearch.tt.text.head.user
+general /views/multisearch.tt.text.region.bodytext
+general /views/multisearch.tt.text.text.site
+general /views/multisearch.tt.text.text.user
+general /views/multisearch.tt.text.title.im
+general /views/multisearch.tt.text.title.nav
 
 general /views/settings/accountstatus.tt.btn.status
 
