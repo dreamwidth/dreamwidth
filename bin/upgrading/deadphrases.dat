@@ -194,14 +194,40 @@ general /create.bml.username.text
 
 general /editinfo.bml.allowshocontact.email.if_domainaddy
 general /editinfo.bml.allowshowcontact.email.reason
+general /editinfo.bml.allowshowcontact.email.withdomainaddr
+general /editinfo.bml.error.invalidbio
+general /editinfo.bml.error.invalidints
+general /editinfo.bml.error.invalidname
+general /editinfo.bml.login.enterinfo
+general /editinfo.bml.login.forgot.header
+general /editinfo.bml.login.forgot.recover
+general /editinfo.bml.navstrip.about
+general /editinfo.bml.navstrip.about.provides.links
+general /editinfo.bml.navstrip.about.provides.management
+general /editinfo.bml.navstrip.about.provides.options
+general /editinfo.bml.navstrip.choose
+general /editinfo.bml.navstrip.choose.dark
+general /editinfo.bml.navstrip.choose.light
+general /editinfo.bml.navstrip.header
+general /editinfo.bml.navstrip.options
+general /editinfo.bml.navstrip.options.myjournal
+general /editinfo.bml.navstrip.options.viewjournals
 general /editinfo.bml.newemail.body
+general /editinfo.bml.newemail.body2
+general /editinfo.bml.newemail.subject
+general /editinfo.bml.newemail_old.body2
+general /editinfo.bml.newemail_old.subject
+general /editinfo.bml.persinfo.disclaimer
+general /editinfo.bml.schools.title
 general /editinfo.bml.settings.about
 general /editinfo.bml.showsubjicons.about
 general /editinfo.bml.showsubjicons.header
+general /editinfo.bml.success.message
 general /editinfo.bml.tm.about
-general /editinfo.bml.schools.title
+general /editinfo.bml.tm.details
 general /editinfo.bml.topicdir.about
 general /editinfo.bml.topicdir.header
+general /editinfo.bml.userpic.edit
 
 general /editicons.bml.error.badurl
 general /editicons.bml.error.filetoolarge
@@ -212,6 +238,7 @@ general /editicons.bml.error.invalidimage
 general /editicons.bml.error.keywords
 general /editicons.bml.error.multipleresize
 general /editicons.bml.error.nofile
+general /editicons.bml.error.nokeywords
 general /editicons.bml.error.nomediauploads.delete
 general /editicons.bml.error.nourl
 general /editicons.bml.error.rename.blankkw
@@ -233,13 +260,71 @@ general /editicons.bml.restriction.imagesize2
 general /editicons.bml.restriction.keywords
 general /editicons.bml.restriction.keywords.faq
 general /editicons.bml.title
+general /editicons.bml.title3
+general /editicons.bml.uploaddesc
 general /editicons.bml.uploaddesc.userpicfactory
 general /editicons.bml.warning.keywords
 general /editicons.bml.warning.keywords.faq
 
+general /editpics.bml.about.icons
+general /editpics.bml.btn.addfile
+general /editpics.bml.btn.addurl
+general /editpics.bml.btn.proceed
+general /editpics.bml.btn.remove
+general /editpics.bml.btn.save
+general /editpics.bml.curpics
+general /editpics.bml.curpics.desc
+general /editpics.bml.curpics.desc2
+general /editpics.bml.error.badurl
+general /editpics.bml.error.filetoolarge
+general /editpics.bml.error.generatinguserpic
+general /editpics.bml.error.giffiledimensions
+general /editpics.bml.error.imagetoolarge
+general /editpics.bml.error.keywords
+general /editpics.bml.error.multipleresize
+general /editpics.bml.error.nofile
+general /editpics.bml.error.nomediauploads.delete
+general /editpics.bml.error.nourl
+general /editpics.bml.error.toolarge.separately
+general /editpics.bml.error.toomanykeywords
 general /editpics.bml.error.toomanypics2
 general /editpics.bml.error.toomanypics3
+general /editpics.bml.error.toomanypics4
+general /editpics.bml.error.toomanypics_standout
+general /editpics.bml.error.unknowntype
+general /editpics.bml.error.unsupportedtype
+general /editpics.bml.error.urlerror
+general /editpics.bml.error.urlfiletoolarge
+general /editpics.bml.fromfile
+general /editpics.bml.fromfile.key
+general /editpics.bml.fromurl
+general /editpics.bml.fromurl.key
+general /editpics.bml.kilobytes
+general /editpics.bml.label.comment
+general /editpics.bml.label.comment.desc
+general /editpics.bml.label.default
+general /editpics.bml.label.delete
+general /editpics.bml.label.description
+general /editpics.bml.label.description.desc
+general /editpics.bml.label.formats.desc
+general /editpics.bml.label.keepdefault
+general /editpics.bml.label.keywords
+general /editpics.bml.label.keywords.desc
+general /editpics.bml.makedefault
+general /editpics.bml.makedefault.key
+general /editpics.bml.nodefault
+general /editpics.bml.noneupload
+general /editpics.bml.noneupload2
+general /editpics.bml.nopics
+general /editpics.bml.piclimitstatus
 general /editpics.bml.restriction.imagesize
+general /editpics.bml.title3
+general /editpics.bml.uploaddesc
+general /editpics.bml.uploaddesc.fb
+general /editpics.bml.uploadheader
+general /editpics.bml.uploadheader.fb
+general /editpics.bml.uploadsuccessful
+general /editpics.bml.userpic
 
 entryform.htmlokay.norich
 entryform.htmlokay.rich
@@ -265,6 +350,7 @@ general /editjournal.bml.lostinfo.text
 general /editjournal.bml.success.editedunsuspend
 
 general /editjournal_do.bml.error.mustlogin
+general /editjournal_do.bml.error.nofind
 general /editjournal_do.bml.success.edit
 
 general /friends/editgroups.bml.login.header
@@ -1326,13 +1412,6 @@ general /support/encodings.bml.edit.text
 general /support/encodings.bml.groups.text
 general /support/encodings.bml.still.text
 
-general /editinfo.bml.error.invalidbio
-general /editinfo.bml.error.invalidints
-general /editinfo.bml.error.invalidname
-general /editinfo.bml.persinfo.disclaimer
-general /editinfo.bml.success.message
-general /editinfo.bml.tm.details
-general /editinfo.bml.userpic.edit
 general /userinfo.bml.body.leave
 general /userinfo.bml.error.notloggedin
 general /userinfo.bml.membership.body
@@ -1420,8 +1499,6 @@ general /talkpost_do.bml.title
 general /talkpost_do.bml.title.error
 general /talkpost_do.bml.title.preview
 
-general /editpics.bml.curpics.desc
-
 general error.noremote
 
 general bml.needlogin.body3
@@ -1437,10 +1514,6 @@ general /community/manage.bml.create.text
 general /community/members.bml.settings
 general /community/members.bml.success.return
 general /community/settings.bml.members
-general /editinfo.bml.allowshowcontact.email.withdomainaddr
-general /editinfo.bml.login.enterinfo
-general /editinfo.bml.login.forgot.header
-general /editinfo.bml.login.forgot.recover
 general /editjournal_do.bml.currmood
 general /editjournal_do.bml.picture
 general /friends/add.bml.add.text
@@ -1518,9 +1591,6 @@ general /styles/index.bml.about
 general /support/see_overrides.bml.header
 
 general /poll/create.bml.error.accttype
-
-general /editpics.bml.noneupload
-general /editpics.bml.kilobytes
 
 general /allpics.bml.edit3
 
@@ -1690,18 +1760,6 @@ general /misc/adult_content.bml.message.concepts.blocked
 general /misc/adult_content.bml.message.explicit
 general /misc/adult_content.bml.message.explicit.blocked
 
-general /htdocs/editinfo.bml.navstrip.about
-general /htdocs/editinfo.bml.navstrip.about.provides.links
-general /htdocs/editinfo.bml.navstrip.about.provides.management
-general /htdocs/editinfo.bml.navstrip.about.provides.options
-general /htdocs/editinfo.bml.navstrip.choose
-general /htdocs/editinfo.bml.navstrip.choose.dark
-general /htdocs/editinfo.bml.navstrip.choose.light
-general /htdocs/editinfo.bml.navstrip.header
-general /htdocs/editinfo.bml.navstrip.options
-general /htdocs/editinfo.bml.navstrip.options.myjournal
-general /htdocs/editinfo.bml.navstrip.options.viewjournals
-
 general /htdocs/manage/settings/index.bml.fn.navstrip
 general /htdocs/manage/settings/index.bml.navstrip
 general /htdocs/manage/settings/index.bml.navstrip.choose.dark
@@ -1837,7 +1895,6 @@ general /directorysearch.bml.by_friends
 general /directorysearch.bml.lists_user_as_a_friend
 general /directorysearch.bml.use_this_dir
 general /directorysearch.bml.user_lists_as_a_friend
-general /editprivacy.bml.calendar
 general /login.bml.createaccount.tour
 general /lostinfo.bml.btn.proceed
 general /lostinfo.bml.captcha.invalid
@@ -3458,7 +3515,10 @@ general /export.bml.label.field.logtime
 general /export.bml.label.field.security
 general /export.bml.label.field.subject
 general /export.bml.label.format
+general /export.bml.label.header
 general /export.bml.label.month
+general /export.bml.label.month.month
+general /export.bml.label.month.year
 general /export.bml.label.notranslation
 general /export.bml.label.what
 general /export.bml.label.year
@@ -3466,6 +3526,46 @@ general /export.bml.title
 general /export.bml.what.entries
 
 general /export_do.bml.error.encoding
+
+general /feeds/index.bml.account
+general /feeds/index.bml.add
+general /feeds/index.bml.add.byurl.text
+general /feeds/index.bml.add.byurl.title
+general /feeds/index.bml.add.pop.text
+general /feeds/index.bml.add.pop.title
+general /feeds/index.bml.add.selected
+general /feeds/index.bml.back
+general /feeds/index.bml.create
+general /feeds/index.bml.create.name2
+general /feeds/index.bml.feed.url
+general /feeds/index.bml.invalid.accountname
+general /feeds/index.bml.invalid.cantadd
+general /feeds/index.bml.invalid.http.text
+general /feeds/index.bml.invalid.http.title
+general /feeds/index.bml.invalid.inuse.text
+general /feeds/index.bml.invalid.inuse.text2
+general /feeds/index.bml.invalid.inuse.title
+general /feeds/index.bml.invalid.needurl
+general /feeds/index.bml.invalid.notrss.text
+general /feeds/index.bml.invalid.notrss.title
+general /feeds/index.bml.invalid.port
+general /feeds/index.bml.invalid.reserved
+general /feeds/index.bml.invalid.submission
+general /feeds/index.bml.invalid.url
+general /feeds/index.bml.table.account
+general /feeds/index.bml.table.feed
+general /feeds/index.bml.table.watchers
+general /feeds/index.bml.title
+general /feeds/index.bml.top1000.text
+general /feeds/index.bml.user.nomatch
+general /feeds/index.bml.using.text
+general /feeds/index.bml.using.title
+
+general /feeds/list.bml.feeddesc
+general /feeds/list.bml.numreaders
+general /feeds/list.bml.title
+general /feeds/list.bml.username
+general /feeds/list.bml.xml_icon.alt
 
 general /go.bml.defaultbody
 general /go.bml.defaulttitle
@@ -3674,6 +3774,8 @@ general /changeemail.bml.title
 
 general /changeemail.bml/editinfo.bml.newemail_old.body2
 general /changeemail.bml/editinfo.bml.newemail_old.subject
+
+general /changeemail.tt.newemail_old.body2
 
 general /changepassword.bml.btn.proceed
 general /changepassword.bml.changepassword.instructions
@@ -4000,3 +4102,29 @@ general /customize/advanced/styles.bml.title
 general /customize/advanced/styles.bml.yourstyles.header
 general /customize/advanced/styles.bml.yourstyles.layername
 general /customize/advanced/styles.bml.yourstyles.none
+
+general /didyouknow/index.bml.available.subtitle
+general /didyouknow/index.bml.available.title
+general /didyouknow/index.bml.noshow.text
+general /didyouknow/index.bml.notdisplayed.subtitle
+general /didyouknow/index.bml.notdisplayed.title
+general /didyouknow/index.bml.notips.text
+general /didyouknow/index.bml.notips.title
+general /didyouknow/index.bml.notips.value
+general /didyouknow/index.bml.title
+
+general /editprivacy.bml.button.update
+general /editprivacy.bml.button.ya.rly
+general /editprivacy.bml.calendar
+general /editprivacy.bml.intro
+general /editprivacy.bml.matching
+general /editprivacy.bml.notified
+general /editprivacy.bml.privacy
+general /editprivacy.bml.rusure
+general /editprivacy.bml.timeframe
+general /editprivacy.bml.timeframe.all
+general /editprivacy.bml.timeframe.range
+general /editprivacy.bml.timeframe.range.end
+general /editprivacy.bml.timeframe.range.start
+general /editprivacy.bml.title
+general /editprivacy.bml.unable

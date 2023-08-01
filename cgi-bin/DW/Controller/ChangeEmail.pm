@@ -135,7 +135,7 @@ sub changeemail_handler {
                     'charset'  => 'utf-8',
                     'subject'  => LJ::Lang::ml('/changeemail.tt.newemail_old.subject'),
                     'body'     => LJ::Lang::ml(
-                        '/changeemail.tt.newemail_old.body2',
+                        '/changeemail.tt.newemail_old.body3',
                         {
                             username          => $u->display_username,
                             ip                => $r->get_remote_ip,
