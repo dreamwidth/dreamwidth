@@ -55,6 +55,7 @@ Perl::Tidy@20190601
 Proc::ProcessTable
 RPC::XML
 SOAP::Lite@1.27
+Sort::Naturally::XS
 Sphinx::Search@0.28
 String::CRC32
 Sys::Syscall

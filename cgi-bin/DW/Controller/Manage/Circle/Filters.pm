@@ -17,6 +17,7 @@
 package DW::Controller::Manage::Circle::Filters;
 
 use strict;
+use Sort::Naturally::XS;
 
 use DW::Controller;
 use DW::Routing;
@@ -153,15 +154,16 @@ sub filter_handler {
     }
 
     # this forms the dropdown select, sort it alphabetically
-    my @groupselect = sort { $a->{text} cmp $b->{text} } @groups;
+    my @groupselect = sort { ncmp( lc( $a->{text} ), lc( $b->{text} ) ) } @groups;
 
     # ...and add a placeholder entry at the top
     unshift @groupselect, { text => "Select a group", value => "" };
 
     # this is for the list of groups to edit and re-sort, sort it by sortorder then by name.
     my @trust_groups =
-        sort { $a->{sortorder} cmp $b->{sortorder} || $a->{groupname} cmp $b->{groupname} }
-        values %$trust_groups;
+        sort {
+        $a->{sortorder} <=> $b->{sortorder} || ncmp( lc( $a->{groupname} ), lc( $b->{groupname} ) )
+        } values %$trust_groups;
 
     # no-JS fallback for switching between groups.
     if ( $GET->{group_id} ) {
@@ -316,7 +318,7 @@ sub get_filter_members {
     my @trusted_us;
 
     foreach my $uid (
-        sort { $trusted_us->{$a}->display_username cmp $trusted_us->{$b}->display_username }
+        sort { ncmp( $trusted_us->{$a}->display_username, $trusted_us->{$b}->display_username ) }
         keys %$trust_list
         )
     {

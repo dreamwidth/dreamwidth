@@ -42,10 +42,20 @@
         height: 100%;
     }
 
+
 }
 
 .checkbox-multiselect-wrapper {
     .no-js {
         display: none;
+    }
+
+    fieldset.switch{
+        margin: 0;
+        display: inline-block;
+
+        input[type="checkbox"] {
+            margin: 0;
+        }
     }
 }

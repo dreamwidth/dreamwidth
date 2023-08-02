@@ -283,3 +283,48 @@ ul.pagination li a:visited {
      }
 
 }
+
+// Colors for toggle buttons
+
+.toggles button[aria-pressed] {
+    &::before {
+        border-color: $input-border-color;
+        background: $border-color;
+      }
+
+     &::after {
+        background-color: $background-color;
+        border-color: $input-border-color;
+        color: $input-border-color;
+    }
+
+    &:focus::after, &:hover::after {
+        border-color:$input-focus-border-color;
+
+    }
+
+    &[disabled], &[disabled]:hover {
+        color: $input-disabled-bg;
+
+        &::before, &::after {
+            border-color: $input-disabled-bg;              
+        }
+
+        &::before{
+            background: $input-disabled-bg;
+        }
+    }
+
+}
+
+.toggles button[aria-pressed=true]{
+    &::after{
+        border-color: $primary-color;
+        color: $primary-color;
+    }
+  
+  &::before {
+    background-color: $primary-color;
+    border-color: $primary-color;
+  }
+}

@@ -1,6 +1,6 @@
 [%# 
     A psuedo-multiselect using a group of checkboxes. It is more accessible to screenreaders and easier
-    for most users to understand, compared to regular multiselects. It is based on Adrian Rosselli in
+    for most users to understand, compared to regular multiselects. It is based on Adrian Rosselli's code in
     https://adrianroselli.com/2022/05/under-engineered-multi-selects.html which is licensed as CC BY-SA 4.0
 
     Inputs:
@@ -8,6 +8,7 @@
         - id: container id + name field for the inputs
         - items: list of hashrefs to turn into checkboxes.
         - nowrapper: print without the wrapper span (useful if you want to re-render the contents with AJAX). Defaults to false.
+        - placeholder: placeholder text for the search bar
 
         Each item should have the following keys:
         - name: visually displayed name
@@ -21,22 +22,15 @@
 ) %]
 
 [% "<span id='$id-wrapper' class='checkbox-multiselect-wrapper'>" UNLESS nowrapper %]
+<div class="row">
+<div class="columns edit-bar">
 [% form.textbox(
     name = "$id-search"
     id = "$id-search"
     class = "multiselect-search no-js"
-) %]
-[% form.button(
-    name = "select-all"
-    id = "select-all"
-    value = 'Select All'
-    class = "no-js button"
-) %]
-[% form.button(
-    name = "selected-only"
-    id = "selected-only"
-    value = 'Only Show Selected'
-    class = "no-js button"
+    label = placeholder
+    labelclass = 'show-for-sr'
+    placeholder = placeholder
 ) %]
 [% form.button(
     name = "clear-filters"
@@ -44,12 +38,37 @@
     value = 'Clear Search'
     class = "no-js button"
 ) %]
+</div>
+</div>
+[%# form.button(
+    name = "select-all"
+    id = "select-all"
+    value = 'Select All'
+    class = "no-js button"
+) %]
+[%# form.button(
+    name = "selected-only"
+    id = "selected-only"
+    value = 'Only Show Selected'
+    class = "no-js button"
+) %]
+<div class="row">
+<div class="columns">
+[% INCLUDE 'components/toggle-button.tt' id = 'show-selected' label = "Only show selected usernames" %]
+</div>
+</div>
+
 <span id="[% id %]_label" class="label">[% label %]</span>
 <div role="group" aria-labelledby="[% id %]_label" tabindex="0" id="[% id %]" class="checkbox-multiselect">
-    <span class="checkbox-multiselect-item">
-      <a href="#[% id %]-multiselect-skip">Skip</a>
+    <span class="checkbox-multiselect-item  show-on-focus">
+      <a href="#[% id %]-multiselect-skip" class="show-on-focus">Skip</a>
     </span>
-
+    <span class="checkbox-multiselect-item input-row highlight" style="background-color: #ddd">
+    [% form.checkbox( 
+        name = "select-all" 
+        label = "Select All"
+    ) %]
+    </span>
     [% FOREACH item IN items %]
         <span class="checkbox-multiselect-item input-row">
         [% form.checkbox( 
@@ -58,7 +77,7 @@
             label = item.name
             selected = item.selected 
         ) %]
-            </span>
+        </span>
     [% END %]
 </div>
 <span id="[% id %]-multiselect-skip"></span>

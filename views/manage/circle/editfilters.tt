@@ -59,6 +59,8 @@
         id = "current_group"
         items = groupselect
         selected = current_group
+        label = "Select a group"
+        labelclass = "show-for-sr"
     ) %]
     [% form.submit(
         name = "select_group"
@@ -73,6 +75,7 @@
         items => trusted_us 
         label => "Group Members" 
         id => "members" 
+        placeholder => "Type to filter username list"
     %]
 
     [% form.submit(id="save_members" name="save_members" value=dw.ml('.done.btn')) %]
