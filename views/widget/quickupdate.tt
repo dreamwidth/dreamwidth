@@ -73,7 +73,7 @@
                             items = security
                             selected = minsec
                     ) -%]</li>
-                    <li>&nbsp; to &nbsp;</li>
+                    <li style="margin-top: 0.4em;">&nbsp; to &nbsp;</li>
 
                     [%~ IF journallist.size > 1 %]
                         <li>[%- form.select(
@@ -82,6 +82,7 @@
                                 label = dw.ml( '/entry/form.tt.select.usejournal' )
 
                                 items = journallist
+                                selected = remote.user
                             )-%]</li>
                     [%~ ELSE ~%]
                         <li>
