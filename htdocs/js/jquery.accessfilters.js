@@ -1,8 +1,26 @@
+let unsaved_changes = false;
+
+let rowcount = $("#content tr").length - 3; // We have two header rows and one footer row to remove from the count.
+if ( rowcount >= 60) {
+	$("#add-more-row").hide();
+}
+
+
+
 $("#current_group").on("change", (evt) => {
+	let confirm = true;
+	if (unsaved_changes) {
+		confirm = window.confirm(unsaved);
+	}
+	if (confirm) {
 	let group_id = $("#current_group").val();
 	let success = function(data) {
 		let state = {memberlist: $("#members-wrapper").html()};
 		$("#members-wrapper").html(data.members);
+		// we just loaded more data, so reset our 'unsaved changes' flag.
+		$('#unsaved-warn').hide();
+		unsaved_changes = false;
+		$(".only-js").removeClass('only-js');
 
 		// let url =  new URL(window.location);
 		// url.searchParams.set('group_id', group_id);
@@ -10,7 +28,10 @@ $("#current_group").on("change", (evt) => {
 		// history.pushState(state, "", url);
 	};
 	handle_post({current_group: group_id, mode: 'getmembers'}, success, evt);
-
+ } else {
+    evt.preventDefault();
+    evt.stopPropagation(); 
+ }
 });
 
 // addEventListener("popstate", (event) => {
@@ -26,6 +47,36 @@ $("#save_members").on("click", (evt) => {
 	handle_post({current_group: group_id, members: selected, mode: 'savemembers'}, success, evt);
 
 });
+
+$("#members-wrapper").on("click", ".input-row", (evt) => {
+	unsaved_changes = true;
+	$('#unsaved-warn').show();
+
+});
+
+$('#add-more').click( function(evt) {
+    evt.preventDefault();
+    evt.stopPropagation(); 
+	first_new = first_new + 1;
+
+	let clone_row = $("#add-more-row").prev('.clone').clone();
+
+	let textbox = clone_row.find('.name');
+	textbox.attr('name', `new_name_${first_new}`);
+	textbox.attr('id', `new_name_${first_new}`);
+
+	let numbox = clone_row.find('.sortorder');
+	numbox.attr('name', `new_sortorder_${first_new}`);
+	numbox.attr('id', `new_sortorder_${first_new}`);
+
+	clone_row.insertBefore("#add-more-row");
+
+	rowcount = rowcount + 1;
+	if ( rowcount >= 60) {
+		$("#add-more-row").hide();
+	}
+
+})
 
 $('.delete_group').click(function(evt) {
     var allow = window.confirm(del);

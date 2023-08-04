@@ -39,6 +39,10 @@
 
 .error.badgroup=Invalid access filter supplied.
 
+.warn.unsaved=You have unsaved changes!
+
+.warn.unsaved.confirm=You have unsaved changes! Continue anyway?
+
 .saved.action.post=Post an entry
 
 .saved.action.subscription=Manage subscription filters
@@ -68,3 +72,5 @@ You can edit your filters on this page.  Dreamwidth provides two types of filter
 .header.filtername=Filter Name
 
 .header.sortorder=Sort Order
+
+.row.addmore=+ Add more access filters

@@ -2,7 +2,16 @@
 [%- sections.head = BLOCK %]
     <style type="text/css">
     .edit-bar {display: flex;}
+    .only-js {display: none;}
+    #add-more-row td {padding-bottom: 1rem; padding-top: 0; font-size: 1.5rem;}
     </style>
+
+    <noscript>
+    <style type="text/css">
+        #select_group.only-js {display: inline-block !important;}
+        #add-more{display:none;}
+    </style>
+    </noscript>
 [% END %]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
@@ -39,9 +48,12 @@
         <td><input type="number" name = "new_sortorder_[% gid %]" id = "new_sortorder_[% gid %]" value="[% postdata.${"new_sortorder_$gid"} %]" min=0 max=255></td>
         </tr>
     [% END %]
-        <tr>
-        <td>[% form.textbox(name = "new_name_${first_new}", id = "new_name_${first_new}" ) %]</td>
-        <td><input type="number" name = "new_sortorder_[% first_new %]" id = "new_sortorder_[% first_new %]"></td>
+        <tr class="clone">
+        <td>[% form.textbox(name = "new_name_${first_new}", id = "new_name_${first_new}" class="text name") %]</td>
+        <td><input type="number" name = "new_sortorder_[% first_new %]" id = "new_sortorder_[% first_new %]" class="sortorder"></td>
+        </tr>
+        <tr id="add-more-row">
+        <td colspan=2><a href="#" id="add-more">[% dw.ml(".row.addmore") %]</a></td>
         </tr>
     </table>
     [% form.submit(
@@ -66,19 +78,22 @@
         name = "select_group"
         id = "select_group"
         value = dw.ml('.btn.edit')
-        class = "no-js button"
+        class = "button only-js"
     ) %]
     </div>
 
     <div class="[% "only-js" UNLESS current_group %]">
-    [% INCLUDE "components/checkbox-multiselect.tt" 
-        items => trusted_us 
-        label => "Group Members" 
-        id => "members" 
-        placeholder => "Type to filter username list"
-    %]
-
-    [% form.submit(id="save_members" name="save_members" value=dw.ml('.done.btn')) %]
+        [% INCLUDE "components/checkbox-multiselect.tt" 
+            items => (current_group ? trusted_us : []) 
+            label => "Group Members" 
+            id => "members" 
+            placeholder => "Type to filter username list"
+            selected_label => "Only show filter members"
+        %]
+        <div class="row">
+            <div class="columns small-4">[% form.submit(id="save_members" name="save_members" value=dw.ml('.done.btn')) %]</div>
+            <div id="unsaved-warn" class="columns small-8" style="display:none"><b>[% dw.ml('.warn.unsaved') %]</b></div>
+        </div>
     </div>
 </div>
 </div>
@@ -90,5 +105,6 @@
     var del = [% dw.ml('.confirm.delete') | js %];
     var max60 = [% dw.ml('.error.max60') | js %];
     var comma = [% dw.ml('.error.comma') | js %];
+    var unsaved = [% dw.ml('.warn.unsaved.confirm') | js %];
     var first_new = [% first_new %];
 </script>

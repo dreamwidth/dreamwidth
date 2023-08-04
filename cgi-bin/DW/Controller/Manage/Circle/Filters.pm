@@ -162,7 +162,8 @@ sub filter_handler {
     # this is for the list of groups to edit and re-sort, sort it by sortorder then by name.
     my @trust_groups =
         sort {
-        $a->{sortorder} <=> $b->{sortorder} || ncmp( lc( $a->{groupname} ), lc( $b->{groupname} ) )
+        $a->{sortorder} <=> $b->{sortorder}
+            || ncmp( lc( $a->{groupname} ), lc( $b->{groupname} ) )
         } values %$trust_groups;
 
     # no-JS fallback for switching between groups.
@@ -225,10 +226,13 @@ sub accessfilters_handler {
             if defined $current_group && !( exists $trust_groups->{$current_group} );
         my $members = get_filter_members( $u, $current_group );
         my $vars    = {
-            items     => $members,
-            label     => "Group Members",
-            id        => "members",
-            nowrapper => 1
+            items          => $members,
+            label          => "Group Members",
+            id             => "members",
+            selected_label => "Only show filter members",
+            placeholder    => "Type to filter username list",
+            nowrapper      => 1,
+            use_js         => 1
         };
         my $memberslist =
             DW::Template->template_string( 'components/checkbox-multiselect.tt', $vars );

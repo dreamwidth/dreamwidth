@@ -9,6 +9,8 @@
         - items: list of hashrefs to turn into checkboxes.
         - nowrapper: print without the wrapper span (useful if you want to re-render the contents with AJAX). Defaults to false.
         - placeholder: placeholder text for the search bar
+        - select_label: Label for the select-all toggle
+        - use_js: whether to write classes assuming we have JS. Default false.
 
         Each item should have the following keys:
         - name: visually displayed name
@@ -20,6 +22,7 @@
         "stc/css/components/checkbox-multiselect.css"
         "js/components/jquery.checkbox-multiselect.js"
 ) %]
+[% js_class = use_js ? "" : "no-js" %]
 
 [% "<span id='$id-wrapper' class='checkbox-multiselect-wrapper'>" UNLESS nowrapper %]
 <div class="row">
@@ -27,7 +30,7 @@
 [% form.textbox(
     name = "$id-search"
     id = "$id-search"
-    class = "multiselect-search no-js"
+    class = "multiselect-search $js_class"
     label = placeholder
     labelclass = 'show-for-sr'
     placeholder = placeholder
@@ -36,25 +39,13 @@
     name = "clear-filters"
     id = "clear-filters"
     value = 'Clear Search'
-    class = "no-js button"
+    class = "$js_class button"
 ) %]
 </div>
 </div>
-[%# form.button(
-    name = "select-all"
-    id = "select-all"
-    value = 'Select All'
-    class = "no-js button"
-) %]
-[%# form.button(
-    name = "selected-only"
-    id = "selected-only"
-    value = 'Only Show Selected'
-    class = "no-js button"
-) %]
-<div class="row">
+<div class="row toggle-row [% js_class %]">
 <div class="columns">
-[% INCLUDE 'components/toggle-button.tt' id = 'show-selected' label = "Only show selected usernames" %]
+[% INCLUDE 'components/toggle-button.tt' id = 'show-selected' label = (selected_label || "Only show selected") %]
 </div>
 </div>
 
@@ -63,10 +54,11 @@
     <span class="checkbox-multiselect-item  show-on-focus">
       <a href="#[% id %]-multiselect-skip" class="show-on-focus">Skip</a>
     </span>
-    <span class="checkbox-multiselect-item input-row highlight" style="background-color: #ddd">
+    <span class="checkbox-multiselect-item [% js_class %]" style="background-color: #ddd">
     [% form.checkbox( 
-        name = "select-all" 
-        label = "Select All"
+        name = "select-all"
+        id = "select-all" 
+        label = "Select All Visible"
     ) %]
     </span>
     [% FOREACH item IN items %]
