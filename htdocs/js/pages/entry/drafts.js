@@ -11,7 +11,6 @@ LJDraft.saveInProg = false;
 LJDraft.maxTimeout = 15000; // Maximum length of time to go between saves, even if user is still typing
 LJDraft.inputDelay = 3000; // Input debounce delay, so we're not saving on each individual keypress
 LJDraft.savedMsg = "Autosaved at [[time]]";
-LJDraft.savedUnload = false; // Flag so we don't double-post when trying various methods of page unload saves.
 
 LJDraft.handleInput = function (evt) {
     const date = Date.now();
@@ -92,12 +91,6 @@ LJDraft.saveBody = function () {
 
 };
 
-function unloadSave() {
-    LJDraft.savedUnload = true;
-    LJDraft.saveBody();
-    LJDraft.saveProperties();
-}
-
 function initDraft(askToRestore) {
     if (askToRestore && restoredDraft) {
         if (confirm(confirmMsg)) {
@@ -130,18 +123,6 @@ function initDraft(askToRestore) {
     $("#content").on('change', 'input.draft-autosave, textarea.draft-autosave', null, LJDraft.handleChange);
     $("#content").on('input', '#entry-body', null, LJDraft.handleInput);
 
-    // Try to save draft when page is closed/hidden
-    document.onvisibilitychange = function(){
-      if (document.visibilityState === "hidden" && !LJDraft.savedUnload) {
-        unloadSave();
-      }
-    };
-
-    window.onpagehide = function (event) {
-      if (!LJDraft.savedUnload) {
-        unloadSave();
-      }
-    };
 }
 
 
