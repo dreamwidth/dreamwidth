@@ -15,18 +15,34 @@
 [%- sections.title='.title' | ml -%]
 [%- sections.head = BLOCK %]
     <style type="text/css">
-        .exc { padding-left: 1em; font-style: italic; font-size: smaller; }
-        .stats { font-style: italic;  }
+        .exc { padding-left: 1em; font-style: italic; font-size: 90%; }
+        .stats { font-style: italic; margin-left: 1em; }
+        .detail { font-style: italic; font-size: 90%; }
         .searchres { margin: 0.2em 0em 0.2em 2em; }
-        .error { color: #f04124; }
+        #content select { padding-right: 2rem; }
+        #content input, #content select {
+            display: inline;
+            height: auto;
+            width: auto;
+            margin: 0.25em 1em;
+        }
+        #content input[type="radio"], #content input[type="checkbox"] {
+            margin: 0 0 1rem 0;
+        }
+        #content small.error, label[for="sort_by"] {
+            display: inline;
+        }
+        input[type="radio"]+label[for="m-user"] {
+            margin-right: 0;
+        }
     </style>
 [% END %]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- UNLESS did_post -%]
     <p>[% '.blurb' | ml( sitename = site.name ) %]</p>
 [%- END -%]
-
-[%- INCLUDE components/errors.tt errors = errors -%]
 
 <form method="POST" action='[% site.root %]/search'>
 [% dw.form_auth %]
@@ -53,7 +69,8 @@
     [% sortopts = [ 'new', dw.ml( '.sort.date.new' ),
                     'old', dw.ml( '.sort.date.old' ),
                     'rel', dw.ml( '.sort.relevance' ) ];
-       form.select( label = dw.ml( '.sortby' ), name = "sort_by", selected = sort_by,
+       form.select( label = dw.ml( '.sortby' ), name = "sort_by",
+                    id = "sort_by", selected = sort_by,
                     items = sortopts );
     %]
 
@@ -70,10 +87,11 @@
            wc_hide = 1;
        END;
 
+           "<div class='panel'>";
            form.checkbox( label = wc_label, selected = wc_select,
                           name = "with_comments", id = "with_comments",
                           disabled = wc_hide );
-           "<br><em>$wc_note</em>";
+           "<br><span class='detail'>$wc_note</span></div>";
     %]
 </p>
 </form>
@@ -124,11 +142,11 @@
                    skip = '.results.skipped' | ml( offset = offset );
                END -%]
 
-               <span class='stats'>
+               <p><span class='stats'>
                    [% '.results.displayed' | ml( results = matchct, total = result.total,
                                                  skipped = " $skip", query = q ) %]
                    [% '.results.time' | ml( time = result.time ) %]
-               </span>
+               </span></p>
 
             [%- offsetm = offset + matchct;
                 IF result.total > offsetm -%]
