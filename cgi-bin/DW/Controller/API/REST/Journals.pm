@@ -62,13 +62,11 @@ sub accesslists_new {
     return $self->rest_error("403") unless $user == $remote;
 
     my $body = $args->{body};
-    $body->{is_public} ||= 0;    #default false
     $body->{sortorder} ||= 0;
 
     my $group = $user->create_trust_group(
         groupname => $body->{name},
-        sortorder => $body->{sortorder},
-        is_public => $body->{is_public}
+        sortorder => $body->{sortorder}
     );
 
     return $self->rest_ok( { id => $group } );
