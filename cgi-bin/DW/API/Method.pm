@@ -138,8 +138,8 @@ sub rest_ok {
     my ( $self, $response, $content_type, $status_code ) = @_;
     my $r = DW::Request->get;
 
-    $content_type = defined $content_type ? $content_type : 'application/json';
-    $status_code  = defined $status_code  ? $status_code  : 200;
+    $content_type ||= 'application/json';
+    $status_code  ||= defined $response && length $response ? 200 : 204;
     my $validator = $self->{responses}{$status_code}{content}{$content_type}{validator};
 
     # guarantee that we're returning what we say we return.
@@ -150,13 +150,16 @@ sub rest_ok {
         }
     }
 
-    # if we have JSON, call the formatter to pretty-print it. Otherwise, we assume
-    # other content-types have already been properly formatted for us.
-    if ( $content_type eq "application/json" ) {
-        $r->print( to_json( $response, { convert_blessed => 1, latin1 => 1, pretty => 1 } ) );
-    }
-    else {
-        $r->print($response);
+    if ( defined $response ) {
+
+        # if we have JSON, call the formatter to pretty-print it. Otherwise, we assume
+        # other content-types have already been properly formatted for us.
+        if ( $content_type eq "application/json" ) {
+            $r->print( to_json( $response, { convert_blessed => 1, latin1 => 1, pretty => 1 } ) );
+        }
+        else {
+            $r->print($response);
+        }
     }
 
     $r->status($status_code);

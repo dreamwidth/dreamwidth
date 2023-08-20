@@ -1,0 +1,59 @@
+---
+paths:
+  /journals/{username}/accesslists:
+    parameters:
+      - name: username
+        in: path
+        description: The username you want accesslist information for
+        required: true
+        schema:
+          $ref: ../components/schemas/username.yaml 
+    get:
+      description: Returns a list of entry accesslists for the journal
+      responses:
+        200:
+          description: A list of accesslists.
+        403:
+          description: You cannot view accesslists on that journal.
+          schema:
+                $ref: ../components/error.yaml
+        404:
+          $ref: ../components/errors/404-user.yaml
+    post:
+      description: Create a new entry accesslist for the journal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/accesslist.yaml
+      responses:
+        200:
+          description: The id of the newly created accesslist.
+        403:
+          description: You cannot create accesslists on that journal.
+          schema:
+                $ref: ../components/error.yaml
+        400:
+          $ref: ../components/errors/400.yaml
+        404:
+          $ref: ../components/errors/404-user.yaml
+    delete:
+      description: Permanently delete an access group, removing it from all entries.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: ID of accesslist to delete.
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Successfully deleted accesslist.
+        403:
+          description: You can't remove that accesslist.
+          schema:
+                $ref: ../components/error.yaml
+        404:
+          $ref: ../components/errors/404-user.yaml
+        400:
+          $ref: ../components/errors/400.yaml

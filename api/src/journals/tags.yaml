@@ -1,0 +1,89 @@
+---
+paths:
+  /journals/{username}/tags:
+    parameters:
+      - name: username
+        in: path
+        description: The journal you want tag information for
+        type: string
+        required: true
+        schema:
+          $ref: ../components/schemas/username.yaml
+    get:
+      description: Returns a list of tags for the given journal
+      responses:
+        200:
+          description: A list of tags and the number of times they've been used.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    visibility:
+                      type: string
+                    url:
+                      type: string
+                      description: A link to the journal filtered by this tag
+                    name:
+                      type: string
+                      description: The tag name
+                    use_count:
+                      type: integer
+                      description: The total number of times the tag has been used on the journal.
+                    security_counts:
+                      type: object
+                      properties:
+                        group:
+                          type: integer
+                          description: The number of times the tag has been used on entries filtered to an accesslist
+                        private:
+                          type: integer
+                          description: The number of times the tag has been used on private entries
+                        protected:
+                          type: integer
+                          description: The number of times the tag has been used on access-locked
+                        public:
+                          type: integer
+                          description: The number of times the tag has been used on public entries
+        404:
+          $ref: ../components/errors/404-user.yaml
+    post:
+      description: Add new tags for a given journal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: An array of tags to add to the journal.
+              type: array
+              items:
+                type: string
+      responses:
+        204:
+          description: Tags were successfully created.
+        403:
+          description: You cannot create tags on that journal.
+          schema:
+                $ref: ../components/error.yaml
+        404:
+          $ref: ../components/errors/404-user.yaml
+    delete:
+      description: Delete tags for a given journal
+      parameters:
+        - name: tag
+          in: query
+          description: A tag to remove from the journal.
+          schema:
+            type: string
+      responses:
+        204:
+          description: The tags were successfully deleted.
+        403:
+          description: You cannot remove tags on that journal.
+          schema:
+                $ref: ../components/error.yaml
+        404:
+          $ref: ../components/errors/404-user.yaml
+        400:
+          $ref: ../components/errors/400.yaml         
