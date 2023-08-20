@@ -11,6 +11,3 @@ properties:
     type: integer
     minimum: 0
     maximum: 255
-  is_public:
-    description: The visibility of the new accesslist. Default is false (private).
-    type: boolean
