@@ -71,6 +71,29 @@ general /edittags.bml.title
 general /edittags.bml.users
 general /edittags.bml.view
 
+general /imgupload.bml.gallery.label
+general /imgupload.bml.login.message2
+general /imgupload.bml.size
+
 general /index.bml.create.paymentlink
+
+general /journal/adult_content.tt.action.age.yes
+general /journal/adult_content.tt.action.view.no
+general /journal/adult_content.tt.message.concepts.bycommunity
+general /journal/adult_content.tt.message.concepts.byjournal.reason
+general /journal/adult_content.tt.message.concepts.byposter
+general /journal/adult_content.tt.message.concepts.byposter.reason
+general /journal/adult_content.tt.message.concepts.communityreason
+general /journal/adult_content.tt.message.concepts.journalreason
+general /journal/adult_content.tt.message.explicit.blocked.byjournal
+general /journal/adult_content.tt.message.explicit.blocked.byposter
+general /journal/adult_content.tt.message.explicit.bycommunity
+general /journal/adult_content.tt.message.explicit.byjournal
+general /journal/adult_content.tt.message.explicit.byjournal.reason
+general /journal/adult_content.tt.message.explicit.byposter
+general /journal/adult_content.tt.message.explicit.communityreason
+general /journal/adult_content.tt.message.explicit.journalreason
+general /journal/adult_content.tt.title.18
+general /journal/adult_content.tt.title.18.blocked
 
 general tropo.search.iminfo
