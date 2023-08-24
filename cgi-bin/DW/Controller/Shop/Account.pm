@@ -78,28 +78,15 @@ sub shop_account_handler {
     my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
 
-        my %item_data;
+        my $item_data = {};
 
-        $item_data{from_userid} = $remote ? $remote->id : 0;
+        $item_data->{from_userid} = $remote ? $remote->id : 0;
 
         if ( $post->{for} eq 'self' ) {
-            if ( $remote && $remote->is_personal ) {
-                $item_data{target_userid} = $remote->id;
-            }
-            else {
-                return error_ml('widget.shopitemoptions.error.notloggedin');
-            }
+            DW::Pay::for_self( $remote, $item_data );
         }
         elsif ( $post->{for} eq 'gift' ) {
-            my $target_u   = LJ::load_user( $post->{username} );
-            my $user_check = validate_target_user( $target_u, $remote );
-
-            if ( defined $user_check->{error} ) {
-                $errors->add( 'username', $user_check->{error} );
-            }
-            else {
-                $item_data{target_userid} = $target_u->id;
-            }
+            DW::Pay::for_gift( $remote, $post->{username}, $errors, $item_data );
         }
         elsif ( $post->{for} eq 'random' ) {
             my $target_u;
@@ -107,7 +94,7 @@ sub shop_account_handler {
                 $target_u = DW::Pay::get_random_active_free_user();
                 return error_ml('widget.shopitemoptions.error.nousers')
                     unless LJ::isu($target_u);
-                $item_data{anonymous_target} = 1;
+                $item_data->{anonymous_target} = 1;
             }
             else {
                 $target_u = LJ::load_user( $post->{username} );
@@ -119,8 +106,8 @@ sub shop_account_handler {
                 $errors->add( 'username', $user_check->{error} );
             }
             else {
-                $item_data{target_userid} = $target_u->id;
-                $item_data{random}        = 1;
+                $item_data->{target_userid} = $target_u->id;
+                $item_data->{random}        = 1;
             }
         }
         elsif ( $post->{for} eq 'new' ) {
@@ -130,37 +117,19 @@ sub shop_account_handler {
                 $errors->add( 'email', join( ', ', @email_errors ) );
             }
             else {
-                $item_data{target_email} = $post->{email};
+                $item_data->{target_email} = $post->{email};
             }
         }
 
         if ( $post->{deliverydate} ) {
-            $post->{deliverydate} =~ /(\d{4})-(\d{2})-(\d{2})/;
-            my $given_date = DateTime->new(
-                year  => $1,
-                month => $2,
-                day   => $3,
-            );
-
-            my $time_check = DateTime->compare( $given_date, DateTime->today );
-
-            if ( $time_check < 0 ) {
-
-                # we were given a date in the past
-                $errors->add( 'deliverydate', 'time cannot be in the past' );    #FIXME
-            }
-            elsif ( $time_check > 0 ) {
-
-                # date is in the future, add it.
-                $item_data{deliverydate} = $given_date->date;
-            }
-
+            DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data );
         }
+
         unless ( $errors->exist ) {
-            $item_data{anonymous} = 1
+            $item_data->{anonymous} = 1
                 if $post->{anonymous} || !$remote;
 
-            $item_data{reason} = LJ::strip_html( $post->{reason} );    # plain text
+            $item_data->{reason} = LJ::strip_html( $post->{reason} );    # plain text
 
             # build a new item and try to toss it in the cart.  this fails if there's a
             # conflict or something
@@ -169,7 +138,7 @@ sub shop_account_handler {
                 type           => $post->{accttype},
                 user_confirmed => $post->{alreadyposted},
                 force_spelling => $post->{force_spelling},
-                %item_data
+                %$item_data
             );
 
             # check for renewing premium as paid
@@ -233,7 +202,7 @@ sub shop_account_handler {
 
     $vars->{errors} = $errors;
 
-    sub get_opts {
+    my $get_opts = sub {
         my $given_item = shift;
         my %month_values;
         foreach my $item ( keys %LJ::SHOP ) {
@@ -247,7 +216,7 @@ sub shop_account_handler {
             }
         }
         return \%month_values;
-    }
+    };
 
     $vars->{for}             = $for;
     $vars->{remote}          = $remote;
@@ -259,25 +228,11 @@ sub shop_account_handler {
     $vars->{acct_reason}     = DW::Shop::Item::Account->can_have_reason;
     $vars->{premium_convert} = $premium_convert;
     $vars->{email_checkbox}  = $email_checkbox;
-    $vars->{get_opts}        = \&get_opts;
+    $vars->{get_opts}        = $get_opts;
     $vars->{date}            = DateTime->today;
     $vars->{allow_convert}   = DW::Shop::Item::Account->allow_account_conversion( $remote, 'paid' );
 
     return DW::Template->render_template( 'shop/account.tt', $vars );
-}
-
-sub validate_target_user {
-    my ( $target_u, $remote ) = shift;
-    return { error => 'widget.shopitemoptions.error.invalidusername' }
-        unless LJ::isu($target_u);
-
-    return { error => 'widget.shopitemoptions.error.expungedusername' }
-        if $target_u->is_expunged;
-
-    return { error => 'widget.shopitemoptions.error.banned' }
-        if $remote && $target_u->has_banned($remote);
-
-    return { success => 1 };
 }
 
 1;

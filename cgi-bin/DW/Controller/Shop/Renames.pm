@@ -61,62 +61,29 @@ sub shop_renames_handler {
 
     my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
-        my %item_data;
-        $item_data{from_userid} = $remote ? $remote->id : 0;
+        my $item_data = {};
+        $item_data->{from_userid} = $remote ? $remote->id : 0;
 
         if ( $post->{for} eq 'self' ) {
-            if ( $remote && $remote->is_personal ) {
-                $item_data{target_userid} = $remote->id;
-            }
-            else {
-                return error_ml('widget.shopitemoptions.error.notloggedin');
-            }
+            DW::Pay::for_self( $remote, $item_data );
         }
         elsif ( $post->{for} eq 'gift' ) {
-            my $target_u   = LJ::load_user( $post->{username} );
-            my $user_check = validate_target_user( $target_u, $remote );
-
-            if ( defined $user_check->{error} ) {
-                $errors->add( 'username', $user_check->{error} );
-            }
-            else {
-                $item_data{target_userid} = $target_u->id;
-            }
-
+            DW::Pay::for_gift( $remote, $post->{username}, $errors, $item_data );
         }
 
         if ( $post->{deliverydate} ) {
-            $post->{deliverydate} =~ /(\d{4})-(\d{2})-(\d{2})/;
-            my $given_date = DateTime->new(
-                year  => $1,
-                month => $2,
-                day   => $3,
-            );
-
-            my $time_check = DateTime->compare( $given_date, DateTime->today );
-
-            if ( $time_check < 0 ) {
-
-                # we were given a date in the past
-                $errors->add( 'deliverydate', 'time cannot be in the past' );    #FIXME
-            }
-            elsif ( $time_check > 0 ) {
-
-                # date is in the future, add it.
-                $item_data{deliverydate} = $given_date->date;
-            }
-
+            DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data );
         }
 
         unless ( $errors->exist ) {
-            $item_data{anonymous} = 1
+            $item_data->{anonymous} = 1
                 if $post->{anonymous} || !$remote;
 
-            $item_data{reason} = LJ::strip_html( $post->{reason} );
+            $item_data->{reason} = LJ::strip_html( $post->{reason} );
 
             my ( $rv, $err ) =
                 $rv->{cart}
-                ->add_item( DW::Shop::Item::Rename->new( cannot_conflict => 1, %item_data ) );
+                ->add_item( DW::Shop::Item::Rename->new( cannot_conflict => 1, %$item_data ) );
 
             $errors->add( '', $err ) unless $rv;
 
@@ -130,20 +97,6 @@ sub shop_renames_handler {
     $vars->{errors} = $errors;
 
     return DW::Template->render_template( 'shop/renames.tt', $vars );
-}
-
-sub validate_target_user {
-    my ( $target_u, $remote ) = shift;
-    return { error => 'widget.shopitemoptions.error.invalidusername' }
-        unless LJ::isu($target_u);
-
-    return { error => 'widget.shopitemoptions.error.expungedusername' }
-        if $target_u->is_expunged;
-
-    return { error => 'widget.shopitemoptions.error.banned' }
-        if $remote && $target_u->has_banned($remote);
-
-    return { success => 1 };
 }
 
 1;
