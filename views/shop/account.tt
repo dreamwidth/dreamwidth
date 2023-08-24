@@ -1,11 +1,5 @@
 [% sections.title =  dw.ml( ".title" ) %]
 [%- dw.need_res( { group => "foundation" },
-    ## date
-    "js/vendor/pickadate.js/picker.js"
-    "js/vendor/pickadate.js/picker.date.js"
-    "js/vendor/pickadate.js/picker.time.js"
-    "js/vendor/pickadate.js/legacy.js"
-    "stc/css/components/pickadate/datetime.css"
     "js/jquery.shop.js"
 
 ) -%]
@@ -123,60 +117,31 @@
         [% END %]
     [% END %]
 
-    <div class="row collapse" id="deliverydate">
-        <div class="columns medium-6">
-            <label for="deliverydate" class="inline">[% dw.ml( '.giftfor.deliverydate') %]</label>
-        </div>
-        <div class="columns medium-5 small-10">
-            [%- form.textbox(
-                name = "deliverydate"
-                id = "js-deliverydate"
-
-                maxlength = "10"
-                size = "10"
-
-                default = date.iso8601.substr(0, 10)
-
-                autocomplete = "off"
-            ) -%]
-        </div>
-        <div class="columns medium-1 small-2">
-            [%- INCLUDE "components/icon-button.tt"
-                    button = {
-                        class = "postfix primary"
-                        id = "js-deliverydate-button"
-                    }
-                    icon = "calendar"
-                    text = dw.ml('.label.picker.date')
-            -%]
-
-        </div>
-                <div class="picker-output"></div>
-    </div>
+    [%- INCLUDE "shop/deliverydate.tt" -%]
 
     [% IF for && ! (for == 'self') %]
-    <div class="row">
-        <div class="columns">
-        [% form.checkbox(
-            name => 'anonymous',
-            label => dw.ml( '.giftfor.anonymous'),
-            value => 1,
-            disabled => remote ? 0 : 1,
-            ) %]
+        <div class="row">
+            <div class="columns">
+            [% form.checkbox(
+                name => 'anonymous',
+                label => dw.ml( '.giftfor.anonymous'),
+                value => 1,
+                disabled => remote ? 0 : 1,
+                ) %]
+            </div>
         </div>
-    </div>
-    </div>
-    <div class="columns large-6">
-        [% IF acct_reason %]
-                [% form.textarea(
-                            name => 'reason',
-                            rows => 6,
-                            cols => 60,
-                            wrap => 'soft'
-                            label = dw.ml( '.giftfor.reason')
-                            ) %]
-        [% END %]
         </div>
+        <div class="columns large-6">
+            [% IF acct_reason %]
+                    [% form.textarea(
+                                name => 'reason',
+                                rows => 6,
+                                cols => 60,
+                                wrap => 'soft'
+                                label = dw.ml( '.giftfor.reason')
+                                ) %]
+            [% END %]
+            </div>
 
     [% END %]
 </div>
