@@ -62,4 +62,10 @@
             margin: 0;
         }
     }
+
+    button, .button {
+        margin: 0 0 1rem;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
 }

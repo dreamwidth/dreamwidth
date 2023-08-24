@@ -15,8 +15,9 @@ $(".checkbox-multiselect-wrapper").on('input', ".multiselect-search", (evt) => {
 });
 
 $(".checkbox-multiselect-wrapper").on('click', "#select-all", () => {
+	let state = $("#select-all").attr('checked') ? true : false;
 	let checkboxlist = $('.checkbox-multiselect-item.input-row ');
-	checkboxlist.each((i, el) => {$(el).find('input:visible').attr('checked', true)});
+	checkboxlist.each((i, el) => {$(el).find('input:visible').attr('checked', state)});
 })
 
 $(".checkbox-multiselect-wrapper").on('click', "#show-selected", () => {
