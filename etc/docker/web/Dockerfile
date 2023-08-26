@@ -14,18 +14,18 @@ ENV LJHOME /dw
 # Install some packages we need in web only.
 RUN echo $COMMIT && \
     apt-get update && \
-    apt-get install -y mysql-client varnish && \
-    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
-        xargs apt-get -y install && \
-    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
-        xargs cpanm -n -L /dw/extlib/ && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y mysql-client varnish
 
-# Actually check out the source code now.
+
+# Actually check out the source code now & install branch dependencies.
 RUN git -C $LJHOME fetch && \
     git -C $LJHOME checkout $COMMIT && \
     git -C $LJHOME pull --ff-only origin $COMMIT && \
-    $LJHOME/bin/build-static.sh
+    cat $LJHOME/doc/dependencies-system | xargs apt-get -y install && \
+    cat $LJHOME/doc/dependencies-cpanm | xargs cpanm -n -L /dw/extlib/ && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN $LJHOME/bin/build-static.sh
 
 # Copy in support scripts/configurations that are useful.
 ADD scripts/ /opt/
