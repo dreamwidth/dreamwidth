@@ -163,7 +163,8 @@ $z-index-base: 1005;
   line-height: 1;
   position: absolute;
   top: $reveal-close-top;
-  #{$opposite-direction}: $reveal-close-side;
+  border: 0;
+  #{$opposite-direction}: $reveal-close-top;
 }
 
 @include exports("reveal") {

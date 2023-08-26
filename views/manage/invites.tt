@@ -1,0 +1,141 @@
+[%# manage/invites.tt
+  #
+  # Authors:
+  #     Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2023 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        .invite-responses {
+            list-style: none;
+            margin-left: 0;
+        }
+        #invites-list {
+            width: 100%;
+        }
+        #invites-list th {
+            text-align: center;
+        }
+        #invites-list td.invite-info {
+            padding-left: 22px;
+            text-indent: -18px;
+        }
+        .invite-from {
+            color: #777;
+        }
+        .invite-accept,
+        .invite-decline {
+            white-space: nowrap;
+        }
+        #content input[type="radio"] {
+            margin: 0;
+        }
+    </style>
+[%- END -%]
+
+[% IF responses %]
+  [% IF responses.accepted.size %]
+<h2>[% '.head.accepted' | ml %]</h2>
+<p>[% '.body.accepted' | ml %]</p>
+<ul class='invite-responses'>[% FOREACH row IN responses.accepted %]
+  <li>[% row.0.ljuser_display %]:
+      [% FOREACH attr IN row.1;  # construct a comma-separated list
+           IF loop.count != 1; ", "; END; ".label.$attr" | ml;
+         END %]</li>
+    [% END %]
+</ul>
+<br />
+  [% END %]
+
+  [% IF responses.rejected.size %]
+<h2>[% '.head.rejected' | ml %]</h2>
+<p>[% '.body.rejected' | ml %]</p>
+<ul class='invite-responses'>[% FOREACH comm IN responses.rejected %]
+  <li>[% comm.ljuser_display %]</li>
+    [% END %]
+</ul>
+<br />
+  [% END %]
+
+  [% IF responses.undecided.size %]
+<h2>[% '.head.undecided' | ml %]</h2>
+<p>[% '.body.undecided' | ml %]</p>
+<ul class='invite-responses'>[% FOREACH comm IN responses.undecided %]
+  <li>[% comm.ljuser_display %]</li>
+    [% END %]
+</ul>
+<br />
+  [% END %]
+
+<p>[% '.success.fromhere' | ml %]</p>
+
+<ul>
+  [% IF responses.undecided.size %]
+    <li><a href="[% site.root %]/manage/invites">[% '.success.manageinvites' | ml %]</a></li>
+  [% END %]
+    <li><a href="[% u.journal_base %]/read">[% '.success.readingpage' | ml %]</a></li>
+    <li><a href="[% site.root %]/manage/circle/edit">[% '.success.managecircle' | ml %]</a></li>
+    <li><a href="[% site.root %]/communities/list">[% '.success.managecomm' | ml %]</a></li>
+</ul>
+
+[% ELSIF invites.size %]
+<p>[% '.body.pending' | ml %]</p>
+<br />
+<form method='post'>
+  [% dw.form_auth %]
+  <div align='center'>
+    <table class='table' id='invites-list' cellspacing='0' cellpadding='0'>
+      <thead><tr>
+        <th>[% '.acton.community' | ml %]</th><th>[% '.acton.abilities' | ml %]</th>
+        <th colspan='2'>[% '.acton.answer' | ml %]</th>
+      </tr></thead>
+
+  [% FOREACH inv IN invites %]
+      <tr>
+        <td class='invite-info'>
+          [% inv.cu.ljuser_display %]<br />
+          [% inv.cu.name_html %]</br />
+          <span class='invite-from'>
+    [% IF inv.mu.defined %]
+            [% '.invite.from' | ml( user => inv.mu.ljuser_display ) %]<br />
+    [% END %]
+            [% '.invite.date' | ml( date => inv.date ) %]
+          </span>
+        </td>
+        <td>
+    [% FOREACH attr IN inv.tags;
+         IF loop.count != 1; ", "; END; ".label.$attr" | ml;
+       END %]
+        </td>
+        <td class='invite-accept'>
+          [% form.radio( name = inv.key, id = "yes${inv.key}", value = "yes",
+                         label = dw.ml( '.invite.accept' ) ) %]
+        </td>
+        <td class='invite-decline'>
+          [% form.radio( name = inv.key, id = "no${inv.key}", value = "no",
+                         label = dw.ml( '.invite.decline' ) ) %]
+        </td>
+      </tr>
+  [% END %]
+
+    </table><br />
+    <div class='action-box'>
+      [% form.submit( name = 'submit', value = dw.ml( ".invite.submit" ) ) %]
+    </div>
+  </div>
+</form>
+
+[% ELSE %]
+<p>[% '.body.noinvites' | ml %]</p>
+[% END %]

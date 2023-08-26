@@ -42,7 +42,7 @@ sub render_body {
     my $journal_minsec = $remote && $remote->prop('newpost_minsecurity');
 
 #FIXME: this is because the setting can be the old 'friends' level from LJ. If we ever fix that, this can be removed.
-    $journal_minsec = 'access' if $journal_minsec =~ 'friends';
+    $journal_minsec = 'access' if $journal_minsec && $journal_minsec eq 'friends';
 
     push @journallist,
         {

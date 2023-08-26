@@ -60,7 +60,7 @@ $primary-text-color:  $_white;      // color of text on a $primary-color backgro
 $secondary-color:     $_mid-gray;
 $strong-accent-color: $_dark-red;
 $soft-accent-color:   $_pink;
-$border-color:        $_low-contrast-gray;
+$border-color:        darken($_low-contrast-gray, 10%);
 $highlight-color:     $_light-pink;
 $highlight-border:    $_red;
 $highlight-text-color:$_off-black;

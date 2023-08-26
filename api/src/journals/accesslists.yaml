@@ -1,0 +1,56 @@
+---
+paths:
+  /journals/{username}/accesslists/{accesslistid}:
+    parameters:
+      - name: username
+        in: path
+        description: The username you want accesslist information for
+        required: true
+        schema:
+          $ref: ../components/schemas/username.yaml
+      - name: accesslistid
+        in: path
+        description: The id of the accesslist you want information for.
+        required: true
+        schema:
+          type: integer
+    get:
+      description: Returns a list journals on a given access list.
+      responses:
+        200:
+          description: A list of journals on this accesslist.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../components/schemas/username.yaml
+        403:
+          description: You cannot view accesslists on that journal.
+          schema:
+                $ref: ../components/error.yaml
+        404:
+          $ref: ../components/errors/404-user.yaml
+        400:
+          $ref: ../components/errors/400.yaml
+    post:
+      description: Add users to a given accesslist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items: 
+                $ref: ../components/schemas/username.yaml
+      responses:
+        200:
+          description: The newly updated accesslist.
+        403:
+          description: You cannot update accesslists on that journal.
+          schema:
+                $ref: ../components/error.yaml
+        404:
+          $ref: ../components/errors/404-user.yaml
+        400:
+          $ref: ../components/errors/400.yaml

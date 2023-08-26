@@ -1,0 +1,55 @@
+;; -*- coding: utf-8 -*-
+.acton.abilities=Relationships and Abilities
+
+.acton.answer=Answer
+
+.acton.community=Community
+
+.body.accepted=You've joined the following communities, with the listed relationships and abilities:
+
+.body.noinvites=You don't have any pending community invitations at this time.
+
+.body.pending=You've been invited to join the following communities. You can either accept or decline each invitation. To leave an invitation pending, don't select either answer.
+
+.body.rejected=You've rejected invitations to the following communities:
+
+.body.undecided=You haven't answered invitations to the following communities:
+
+.head.accepted=Invitations Accepted
+
+.head.rejected=Invitations Rejected
+
+.head.undecided=Invitations Still Pending
+
+.invite.accept=Accept
+
+.invite.date=([[date]])
+
+.invite.decline=Decline
+
+.invite.from=from [[user]]
+
+.invite.submit=Submit Answers
+
+.label.admin=Administrator
+
+.label.member=Subscriber, Member
+
+.label.moderate=Moderator
+
+.label.post=Can Post
+
+.label.preapprove=Unmoderated
+
+.success.fromhere=From here, you can:
+
+.success.manageinvites=Answer your community invitations
+
+.success.managecircle=Manage your Circle
+
+.success.managecomm=Manage your communities
+
+.success.readingpage=View your Reading Page
+
+.title=Answer Community Invitations
+
