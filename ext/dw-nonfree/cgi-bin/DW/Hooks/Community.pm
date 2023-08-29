@@ -77,7 +77,7 @@ LJ::Hooks::register_hook(
 
         $ret .= "<li>"
             . $promo->ljuser_display . ": "
-            . LJ::Lang::ml('/community/index.tt.promo.explain') . "</li>";
+            . LJ::Lang::ml('/communities/index.tt.promo.explain') . "</li>";
         return $ret;
     }
 );
@@ -94,10 +94,10 @@ LJ::Hooks::register_hook(
             qw/ dw_news dw_maintenance dw_biz dw_suggestions dw_nifty dw_dev dw_styles dw_design /;
 
         $ret .= "<h2>"
-            . LJ::Lang::ml( '/community/index.tt.official.title',
+            . LJ::Lang::ml( '/communities/index.tt.official.title',
             { sitename => $LJ::SITENAMESHORT } )
             . "</h2>"
-            . LJ::Lang::ml( '/community/index.tt.official.explain',
+            . LJ::Lang::ml( '/communities/index.tt.official.explain',
             { sitename => $LJ::SITENAMESHORT } )
             . "<ul>";
 
