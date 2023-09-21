@@ -5629,8 +5629,10 @@ function Entry::print_interaction_links(string target)
         if ($count > 0) {
             "</ul>";
         }
-    } elseif ($p.view == "read" or $p.view == "day" or $p.view == "recent" or $p.view == "network") {
+    } elseif ($p.view == "read" or $p.view == "network") {
         $this.comments->print($this, { "linktext" => $*text_post_comment_friends, "target" => $this.dom_id + "-reply" });
+    } elseif ($p.view == "day" or $p.view == "recent") {
+        $this.comments->print($this, { "linktext" => $*text_post_comment, "target" => $this.dom_id + "-reply" });
     } else {
         $this.comments->print();
     }
