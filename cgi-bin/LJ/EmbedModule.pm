@@ -318,6 +318,21 @@ sub _extract_num_unit {
     return ( $num, "%" );
 }
 
+sub _extract_style_keyvals {
+    my $style_arg = $_[0];
+    return unless $style_arg;
+
+    my @stylevals = grep { $_ } map { LJ::trim($_) } split /;/, $style_arg;
+    return unless @stylevals;
+
+    my %styles;
+    foreach my $s (@stylevals) {
+        my ( $key, $val ) = split /\s*:\s*/, $s;
+        $styles{$key} = $val;
+    }
+    return %styles;
+}
+
 # Returns a hash of link text, url
 # Provides the fallback link text for when host API has not been contacted for title
 # Currently handles: YouTube, Vimeo
@@ -562,7 +577,33 @@ sub module_iframe_tag {
                     }
                 }
 
-                my $flashvars = $attr->{flashvars};
+                # parse the style attribute for width and height
+                if ( my %style = _extract_style_keyvals( $attr->{style} ) ) {
+                    if ( $style{width} && !$width ) {
+                        my ( $style_width, $style_width_unit ) =
+                            ( $style{width} =~ /^(\d+)(.*)/ );
+                        if ($style_width) {
+                            $style_width_unit = "%"
+                                if $style_width_unit && $style_width_unit =~ /^%/;
+                            $style_width_unit = "" if $style_width_unit && $style_width_unit ne "%";
+                            $width            = $style_width;
+                            $width_unit       = $style_width_unit;
+                        }
+                    }
+
+                    if ( $style{height} && !$height ) {
+                        my ( $style_height, $style_height_unit ) =
+                            ( $style{height} =~ /^(\d+)(.*)/ );
+                        if ($style_height) {
+                            $style_height_unit = "%"
+                                if $style_height_unit && $style_height_unit =~ /^%/;
+                            $style_height_unit = ""
+                                if $style_height_unit && $style_height_unit ne "%";
+                            $height      = $style_height;
+                            $height_unit = $style_height_unit;
+                        }
+                    }
+                }
 
                 if ( $embeddable_tags{$tag} ) {
                     my $src;
