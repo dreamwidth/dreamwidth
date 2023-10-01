@@ -132,3 +132,5 @@ invite_code_try_ip:<ip> = stores a value of 1 for the IP address of the person w
 <uid> api_keys_list:<uid> = arrayref of all keyhashes owned by a given userid
 
 profile_editors = arrayref of uids used by profile_save hook
+profile_services = arrayref of sorted hashrefs returned from profile_services table
+<uid> profile_accts:<uid> = hashref of user data from user_profile_accts table

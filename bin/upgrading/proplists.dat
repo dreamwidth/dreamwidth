@@ -20,7 +20,7 @@ userproplist.ao3:
   des: AO3 user account name
   indexed: 0
   multihomed: 0
-  prettyname: Archive of Our Own user account name
+  prettyname: Archive of Our Own user account name (legacy value)
 
 userproplist.betafeatures_list:
   cldversion: 4
@@ -196,7 +196,7 @@ userproplist.deviantart:
   des: DeviantArt user account name
   indexed: 0
   multihomed: 0
-  prettyname: DeviantArt user account name
+  prettyname: DeviantArt user account name (legacy value)
 
 userproplist.disable_auto_formatting:
   cldversion: 4
@@ -220,7 +220,7 @@ userproplist.discord:
   des: Discord user account name
   indexed: 0
   multihomed: 0
-  prettyname: Discord user account name
+  prettyname: Discord user account name (legacy value)
 
 userproplist.displaydate_check:
   cldversion: 4
@@ -380,7 +380,7 @@ userproplist.etsy:
   des: Etsy user account name
   indexed: 0
   multihomed: 0
-  prettyname: Etsy user account name
+  prettyname: Etsy user account name (legacy value)
 
 userproplist.diigo:
   cldversion: 4
@@ -388,7 +388,7 @@ userproplist.diigo:
   des: Diigo user account name
   indexed: 0
   multihomed: 0
-  prettyname: Diigo user account name
+  prettyname: Diigo user account name (legacy value)
 
 userproplist.exclude_from_own_stats:
   cldversion: 4
@@ -404,7 +404,7 @@ userproplist.ffnet:
   des: FanFiction.net user account name
   indexed: 0
   multihomed: 0
-  prettyname: FanFiction.net user account name
+  prettyname: FanFiction.net user account name (legacy value)
 
 userproplist.friendspagetitle:
   cldversion: 4
@@ -444,7 +444,7 @@ userproplist.github:
   des: GitHub user account name
   indexed: 0
   multihomed: 0
-  prettyname: GitHub user account name
+  prettyname: GitHub user account name (legacy value)
 
 userproplist.google_talk:
   cldversion: 0
@@ -452,7 +452,7 @@ userproplist.google_talk:
   des: Google Chat Service address
   indexed: 1
   multihomed: 1
-  prettyname: Google Chat Address
+  prettyname: Google Chat Address (legacy value)
 
 userproplist.google_analytics:
   cldversion: 4
@@ -516,7 +516,7 @@ userproplist.icq:
   des: ICQ Number
   indexed: 1
   multihomed: 1
-  prettyname: ICQ
+  prettyname: ICQ (legacy value)
 
 userproplist.import_job:
   cldversion: 4
@@ -556,7 +556,7 @@ userproplist.insanejournal:
   des: InsaneJournal account name for user profile
   indexed: 0
   multihomed: 0
-  prettyname: InsaneJournal Account
+  prettyname: InsaneJournal Account (legacy value)
 
 userproplist.instagram:
   cldversion: 4
@@ -564,7 +564,7 @@ userproplist.instagram:
   des: Instagram account name for user profile
   indexed: 0
   multihomed: 0
-  prettyname: Instagram Account
+  prettyname: Instagram Account (legacy value)
 
 userproplist.jabber:
   cldversion: 0
@@ -572,7 +572,7 @@ userproplist.jabber:
   des: Jabber address (username@server)
   indexed: 1
   multihomed: 1
-  prettyname: Jabber Address
+  prettyname: Jabber Address (legacy value)
 
 userproplist.journalsubtitle:
   cldversion: 4
@@ -620,7 +620,7 @@ userproplist.last_fm_user:
   des: LastFM user account name
   indexed: 0
   multihomed: 0
-  prettyname: LastFM user account name
+  prettyname: LastFM user account name (legacy value)
 
 userproplist.livejournal:
   cldversion: 4
@@ -628,7 +628,7 @@ userproplist.livejournal:
   des: LiveJournal user account name
   indexed: 0
   multihomed: 0
-  prettyname: LiveJournal user account name
+  prettyname: LiveJournal user account name (legacy value)
 
 userproplist.latest_optout:
   cldversion: 4
@@ -644,7 +644,7 @@ userproplist.medium:
   des: Medium user account name
   indexed: 0
   multihomed: 0
-  prettyname: Medium user account name
+  prettyname: Medium user account name (legacy value)
 
 userproplist.moderated:
   cldversion: 4
@@ -1116,7 +1116,7 @@ userproplist.patreon:
   des: Patreon user account name
   indexed: 0
   multihomed: 0
-  prettyname: Patreon user account name
+  prettyname: Patreon user account name (legacy value)
 
 userproplist.pillowfort:
   cldversion: 4
@@ -1124,7 +1124,7 @@ userproplist.pillowfort:
   des: Pillowfort user account name
   indexed: 0
   multihomed: 0
-  prettyname: Pillowfort user account name
+  prettyname: Pillowfort user account name (legacy value)
 
 userproplist.pinboard:
   cldversion: 4
@@ -1132,7 +1132,7 @@ userproplist.pinboard:
   des: Pinboard user account name
   indexed: 0
   multihomed: 0
-  prettyname: Pinboard user account name
+  prettyname: Pinboard user account name (legacy value)
 
 userproplist.pinterest:
   cldversion: 4
@@ -1140,7 +1140,7 @@ userproplist.pinterest:
   des: Pinterest user account name
   indexed: 0
   multihomed: 0
-  prettyname: Pinterest user account name
+  prettyname: Pinterest user account name (legacy value)
 
 userproplist.plurk:
   cldversion: 4
@@ -1148,7 +1148,7 @@ userproplist.plurk:
   des: Plurk user account name
   indexed: 0
   multihomed: 0
-  prettyname: Plurk user account name
+  prettyname: Plurk user account name (legacy value)
 
 userproplist.posting_guidelines_entry:
   cldversion: 4
@@ -1180,7 +1180,7 @@ userproplist.ravelry:
   des: Ravelry user account name
   indexed: 0
   multihomed: 0
-  prettyname: Ravelry user account name
+  prettyname: Ravelry user account name (legacy value)
 
 userproplist.reddit:
   cldversion: 4
@@ -1188,7 +1188,7 @@ userproplist.reddit:
   des: Reddit user account name
   indexed: 0
   multihomed: 0
-  prettyname: Reddit user account name
+  prettyname: Reddit user account name (legacy value)
 
 userproplist.renamedto:
   cldversion: 4
@@ -1292,7 +1292,7 @@ userproplist.skype:
   des: Skype Account ID
   indexed: 1
   multihomed: 1
-  prettyname: Skype ID
+  prettyname: Skype ID (legacy value)
 
 userproplist.state:
   cldversion: 4
@@ -1356,7 +1356,7 @@ userproplist.tumblr:
   des: Tumblr user account name
   indexed: 0
   multihomed: 0
-  prettyname: Tumblr user account name
+  prettyname: Tumblr user account name (legacy value)
 
 userproplist.twitter:
   cldversion: 4
@@ -1364,7 +1364,7 @@ userproplist.twitter:
   des: Twitter user account name
   indexed: 0
   multihomed: 0
-  prettyname: Twitter user account name
+  prettyname: Twitter user account name (legacy value)
 
 userproplist.url:
   cldversion: 4
@@ -1404,7 +1404,7 @@ userproplist.wattpad:
   des: Wattpad user account name
   indexed: 0
   multihomed: 0
-  prettyname: Wattpad user account name
+  prettyname: Wattpad user account name (legacy value)
 
 userproplist.who_invited:
   cldversion: 4

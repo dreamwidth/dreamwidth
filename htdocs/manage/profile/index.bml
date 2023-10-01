@@ -20,6 +20,7 @@ body<=
     use strict;
     use vars qw(%POST %GET $headextra @errors);
     use LJ::Setting;
+    use DW::External::ProfileServices;
 
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/lj_settings.css' );
 
@@ -47,17 +48,12 @@ body<=
     push @settings, "LJ::Setting::FindByEmail" if LJ::is_enabled('opt_findbyemail');
     push @settings, "DW::Setting::ProfileEmail";
 
-    my $dbr = LJ::get_db_reader();
-    my $sth;
+    my $profile_accts = $u->load_profile_accts( force_db => 1 );
 
     # list the userprops that are handled explicitly by code on this page
     # props in this list will be preloaded on page load and saved on post
     my @uprops = qw/
         opt_whatemailshow comm_theme
-        ao3 deviantart diigo discord etsy ffnet github google_talk
-        icq insanejournal instagram jabber last_fm_user livejournal
-        medium patreon pillowfort pinboard pinterest plurk ravelry
-        reddit skype tumblr twitter wattpad
         url urlname gender
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
@@ -65,6 +61,12 @@ body<=
         opt_showbday opt_showlocation
         opt_sharebday
     /;
+
+    my %legacy_service_props = map { $_ => 1 } @{ DW::External::ProfileServices->userprops };
+
+    unless (%$profile_accts) {
+        push @uprops, $_ foreach keys %legacy_service_props;
+    }
 
     # load user props
     $u->preload_props( { use_master => 1 }, @uprops );
@@ -403,45 +405,65 @@ body<=
 
             $ret .= "<tr><td colspan=3><table summary=''>";
             my $oddeven = 0;
+            my $ct = 1;
 
-            foreach my $p (
-                           ["ao3", $ML{ '.services.ao3' }, 40],
-                           ["deviantart", $ML{'.services.deviantart'}, 20],
-                           ["diigo", $ML{ '.services.diigo' }, 16],
-                           ["discord", $ML{ '.services.discord' }, 40],
-                           ["etsy", $ML{ '.services.etsy' }, 20],
-                           ["ffnet", $ML{ '.services.ffnet' }, 30],
-                           ["github", $ML{'.services.github'}, 39],
-                           ["google_talk", $ML{'.chat.googlehangouts'}, 60],
-                           ["icq", $ML{'.chat.icquin'}, 12],
-                           ["insanejournal", $ML{'.services.insanejournal'}, 15],
-                           ["instagram", $ML{'.services.instagram'}, 30],
-                           ["jabber", $ML{'.chat.jabber'}, 60],
-                           ["last_fm_user", $ML{'.services.last_fm'}, 255],
-                           ["livejournal", $ML{'.services.livejournal'}, 30],
-                           ["medium", $ML{'.services.medium'}, 25],
-                           ["patreon", $ML{'.services.patreon'}, 255],
-                           ["pillowfort", $ML{'.services.pillowfort'}, 255],
-                           ["pinboard", $ML{'.services.pinboard'}, 30],
-                           ["pinterest", $ML{'.services.pinterest'}, 30],
-                           ["plurk", $ML{ '.services.plurk' }, 255],
-                           ["ravelry", $ML{ '.services.ravelry' }, 40],
-                           ["reddit", $ML{ '.services.reddit' }, 20],
-                           ["skype", $ML{'.chat.skype'}, 40],
-                           ["tumblr", $ML{ '.services.tumblr' }, 255],
-                           ["twitter", $ML{ '.services.twitter' }, 40],
-                           ["wattpad", $ML{ '.services.wattpad' }, 20],
-                          )
+            my $service_info = sub {
+                my ($site) = @_;
+                $site->{title} = LJ::Lang::ml( $site->{title_ml} );
+                return $site;
+            };
 
+            my @services = map $service_info->($_), @{ DW::External::ProfileServices->list };
+            my @dropdown = ( '' => '' );
+            push @dropdown, ( $_->{service_id} => $_->{title} ) foreach @services;
+
+            my $service_td = sub {
+                my ( $p, $val ) = @_;
+                $oddeven = !$oddeven;
+                $ret .= "<tr class='field_block'>" if $oddeven;
+                $ret .= "<td class='field_name' width='20%'>$p->{title}</td><td width='30%'>";
+                $ret .= LJ::html_hidden( "extservice_site_$ct", $p->{service_id} );
+                $ret .= LJ::html_hidden( "extservice_dbid_$ct", $val->[0] ) if $val->[0];
+                $ret .= LJ::html_text( { name => "extservice_val_" . $ct++,
+                                         value => $val->[1],
+                                         title => $p->{title} . " Username",
+                                         size => '20',
+                                         maxlength => $p->{maxlen} } );
+                $ret .= "</td>\n";
+                $ret .= "</tr>" unless $oddeven;
+            };
+
+            # ignore legacy userprops if %$profile_accts has been populated
+            if (%$profile_accts) {
+                foreach my $p ( @services ) {
+                    my $s_id = $p->{service_id};
+                    next unless $profile_accts->{$s_id};
+                    foreach my $val ( @{ $profile_accts->{$s_id} } ) {
+                        $service_td->( $p, $val ) ;
+                    }
+                }
+            } else {
+                foreach my $p ( @services )
+                {
+                    next unless $p->{userprop};
+                    my $val = $u->{$p->{userprop}};
+                    next unless $val;
+                    $service_td->( $p, [0, $val] ) ;
+                }
+            }
+
+            foreach my $n ( $ct .. 26 )  # same number of fields as static form
             {
                 $oddeven = !$oddeven;
                 $ret .= "<tr class='field_block'>" if $oddeven;
-                $ret .= "<td class='field_name' width='20%'>$p->[1]</td><td width='30%'>";
-                $ret .= LJ::html_text( { name => $p->[0],
-                                         value => $u->{$p->[0]},
-                                         title => $p->[1],
+                $ret .= "<td class='field_name' width='20%'>";
+                $ret .= LJ::html_select( { name => "extservice_site_$n" }, @dropdown );
+                $ret .= "</td><td width='30%'>";
+                $ret .= LJ::html_text( { name => "extservice_val_$n",
+                                         value => '',
+                                         title => "Username \#$n",
                                          size => '20',
-                                         maxlength => $p->[2] } );
+                                         maxlength => 255 } );
                 $ret .= "</td>\n";
                 $ret .= "</tr>" unless $oddeven;
             }
@@ -693,11 +715,31 @@ body<=
             # set userprops
             my %prop;
             foreach my $uprop (@uprops) {
+                next if $legacy_service_props{$uprop};
                 my $eff_val = $POST{$uprop};   # effective value, since 0 isn't stored
                 $eff_val = "" unless $eff_val;
                 $prop{$uprop} = $eff_val;
             }
             $u->set_prop( \%prop, undef, { skip_db => 1 } );
+
+            # update external services
+            my %services = map { $_->{service_id} => $_ } @{ DW::External::ProfileServices->list };
+            my %new_accts;
+
+            foreach my $ct (1..26) {
+                my $s_id = $POST{"extservice_site_$ct"};
+                next unless $s_id;
+                my $val = $POST{"extservice_val_$ct"} // '';
+                $val = LJ::text_trim( $val, 255, $services{$s_id}->{maxlen} );
+                $new_accts{$s_id} //= [];
+                if ( my $a_id = $POST{"extservice_dbid_$ct"} ) {
+                    push @{ $new_accts{$s_id} }, [ $a_id, $val ];
+                } else {
+                    push @{ $new_accts{$s_id} }, $val;
+                }
+            }
+
+            $u->save_profile_accts( \%new_accts );
 
             # location or bday could've changed... (who cares about checking exactly)
             $u->invalidate_directory_record;
