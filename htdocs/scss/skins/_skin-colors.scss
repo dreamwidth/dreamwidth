@@ -263,7 +263,7 @@ ul.pagination li a:visited {
     background-color: $highlight-color;
 }
 
-.read {
+.read, .item_read .time {
     color: $text-color-disabled;
 
     a {
