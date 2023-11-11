@@ -7,7 +7,7 @@
 jQuery(function($) {
 
     // First: Basic click-to-zoom. (.imageshrink-expanded on/off)
-    $(document).on('click', '.entry-content img, .comment-content img', function(e) {
+    $(document).on('click', '.entry-content img, .comment-content img, .InboxItem_Content .Body img', function(e) {
         var $that = $(e.target);
         if ( ! $that.is('a img, .poll-response img, .imageshrink-actualsize') ) {
             $that.toggleClass('imageshrink-expanded');

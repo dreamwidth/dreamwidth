@@ -77,6 +77,8 @@ $input-prefix-font-color:               $input-font-color;
 $input-prefix-border-color:             $input-border-color;
 $button-color:                          $primary-text-color;
 $select-bg-color:                       $form-bg-color;
+$text-color-disabled:                   scale-color($text-color, $lightness: -30%, $saturation: -80%);
+$anchor-font-color-disabled:            scale-color($anchor-font-color, $lightness: -50%, $saturation: -80%);
 
 // panel
 $panel-bg:                              lighten( $background-color, 20% );
