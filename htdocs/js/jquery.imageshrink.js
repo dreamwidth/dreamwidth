@@ -5,9 +5,16 @@
 // - Hiding zoom cursors for images that won't zoom
 // - Marking tall images so they get modified squish behavior
 jQuery(function($) {
+    // Entry-like things that might have images in them we want to possibly shrink. Should be in CSS-selector format
+    const imgHolders = ['.entry-content', '.comment-content', '.InboxItem_Content .Body'];
+    // containers to observe for changes. Should be a plain id name.
+    const observedContainers = ['entries', 'comments', 'inbox_message_list'];
+
+    // This just turns imgHolders into a single CSS query string.
+    const imgQuery = imgHolders.join(" img, ") + " img";
 
     // First: Basic click-to-zoom. (.imageshrink-expanded on/off)
-    $(document).on('click', '.entry-content img, .comment-content img, .InboxItem_Content .Body img', function(e) {
+    $(document).on('click', imgQuery, function(e) {
         var $that = $(e.target);
         if ( ! $that.is('a img, .poll-response img, .imageshrink-actualsize') ) {
             $that.toggleClass('imageshrink-expanded');
@@ -18,19 +25,19 @@ jQuery(function($) {
     // Only shrink casual pics; leave artisanal HTML alone. Can't predict
     // everything, but 99% of the time that's a <div style="..."> or a table.
     function protectTheCodes(container) {
-        // Expanded cut tags have style='display: block', but aren't decorations.
-        // Feeds (.journal-type-Y) always make a mess, so no mercy.
-        var exemptImages = container.querySelectorAll(
-            '.journal-type-P .entry-content div[style]:not(.cuttag-open) img, ' +
-            '.journal-type-P .entry-content table img, ' +
-            '.journal-type-C .entry-content div[style]:not(.cuttag-open) img, ' +
-            '.journal-type-C .entry-content table img, ' +
-            '.comment-content div[style] img, ' +
-            '.comment-content table img'
-        );
+        let queryStrings = imgHolders.map(function(holderName) {
+            // Expanded cut tags have style='display: block', but aren't decorations.
+            return `${holderName} div[style]:not(.cuttag-open) img, ${holderName} table img`;
+        });
+
+        var exemptImages = container.querySelectorAll( queryStrings.join(', ') );
         for (var i = 0; i < exemptImages.length; i++) {
             exemptImages[i].classList.add('imageshrink-exempt');
         }
+
+        // Feeds (.journal-type-Y) always make a mess, so no mercy.
+        container.querySelectorAll('.journal-type-Y img').forEach( function(img) { img.classList.remove('imageshrink-exempt')})
+
     }
 
     // Check the whole document to start with.
@@ -92,7 +99,7 @@ jQuery(function($) {
 
         // And now the real version:
         observeImages = function(container) {
-            let images = container.querySelectorAll('.entry-content img, .comment-content img');
+            let images = container.querySelectorAll(imgQuery);
             // Anything with ResizeObserver definitely has NodeList.forEach.
             images.forEach(function(img) {
                 imageShrinkResizeObserver.observe(img);
@@ -116,14 +123,12 @@ jQuery(function($) {
         });
 
         var opts = {childList: true, subtree: true};
-        var entries = document.getElementById('entries');
-        var comments = document.getElementById('comments');
-        if (entries) {
-            imageUpdater.observe(entries, opts);
-        }
-        if (comments) {
-            imageUpdater.observe(comments, opts);
-        }
+        observedContainers.forEach(function (conName) {
+            var container = document.getElementById(conName);
+            if (container) {
+                imageUpdater.observe(container, opts);
+            }
+        })
     }
 
 });
