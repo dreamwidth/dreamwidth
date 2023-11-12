@@ -84,7 +84,7 @@ $("#inbox_messages").on("change", ".item_checkbox", function(e) {
 
 
 
-function mark_items(e, action, qid) {
+function mark_items(e, action, qid, func) {
     // Build array of checked items to send
     if (qid == null) {
         var item_qids = [];
@@ -149,6 +149,7 @@ function mark_items(e, action, qid) {
                 $('.check_all').prop("checked", false);
                 // reset buttons
                 check_selected();
+                if (func) func();
             } else {
                 $(e.target).ajaxtip()
                     .ajaxtip("error", data.error);
@@ -243,9 +244,10 @@ $(".action_button").removeClass('no-js');
 
 $("#inbox_messages").on("click", ".actions a", function(evt) {
     if (evt && (evt.ctrlKey || evt.metaKey)) return true;
+    evt.preventDefault();
     var qid = $(evt.target).parents(".InboxItem_Content").data('qid');
 
-    mark_items(null, 'mark_read', [qid]);
+    mark_items(null, 'mark_read', [qid], function() { window.location.href = $(evt.target).attr("href"); });
 });
 
 // Handle reloads where we have already-checked elements as some browsers will re-check them
