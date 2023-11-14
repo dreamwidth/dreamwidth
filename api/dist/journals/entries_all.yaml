@@ -1,18 +1,20 @@
----
 paths:
-  /journals/{username}/entries:
+  "/journals/{username}/entries":
     parameters:
       - name: username
         in: path
         description: The journal you want entry information for
         required: true
         schema:
+          &a1
           type: string
           minLength: 3
           maxLength: 25
-          pattern: "^[0-9A-Za-z_]+$"    
+          pattern: ^[0-9A-Za-z_]+$
+          example: example
     get:
-      description: Returns recent entries for a specified journal, optionally filtered by the extra parameters given.
+      description: Returns recent entries for a specified journal, optionally filtered
+        by the extra parameters given.
       parameters:
         - name: count
           in: query
@@ -33,9 +35,9 @@ paths:
             type: string
         - name: poster
           in: query
-          description: The poster to filter fetched entries by (only valid if journal is a community)
-          schema:
-            type: string
+          description: The poster to filter fetched entries by (only valid if journal is a
+            community)
+          schema: *a1
         - name: security
           in: query
           description: The security level to filter fetched entries by
@@ -47,12 +49,29 @@ paths:
           schema:
             type: boolean
       responses:
-        200:
+        "200":
           description: a list of recent entries
-        404:
-          description: Journal specified does not exist
-        400:
-          description: Bad parameters
+        "400":
+          &a3
+          description: Bad or missing request parameters.
+          content:
+            application/json:
+              schema:
+                &a2
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A description of the error encountered.
+                    example: "Bad format for username. Errors: String is too long: 77/25."
+                  success:
+                    type: number
+        "404":
+          &a4
+          description: Username specified does not exist.
+          content:
+            application/json:
+              schema: *a2
     post:
       description: Post a new journal entry.
       requestBody:
@@ -61,7 +80,7 @@ paths:
             schema:
               type: object
               required:
-              - text
+                - text
               properties:
                 subject:
                   type: string
@@ -75,19 +94,26 @@ paths:
                   description: Keyword of icon to use
                 datetime:
                   type: string
-                  description: The date and time of the entry in the format `FIXME`. If omitted, the server time will be used instead.
+                  description: The date and time of the entry in the format `FIXME`. If omitted,
+                    the server time will be used instead.
                 security:
                   type: string
                   description: Security level to use. Can be `public`, `private`, or `access`.
                 age_restriction:
                   type: string
-                  description: Age restriction flag. `none` puts no flags on the entry, `discretion` marks it as "viewer discretion advised", and `restricted` marks it inacessible to users under eighteen. If omitted, the journal default will be used.
+                  description: Age restriction flag. `none` puts no flags on the entry,
+                    `discretion` marks it as "viewer discretion advised", and
+                    `restricted` marks it inacessible to users under eighteen.
+                    If omitted, the journal default will be used.
                 age_restriction_reason:
                   type: string
-                  description: A optional description of why you chose the age-restriction setting you did.
+                  description: A optional description of why you chose the age-restriction setting
+                    you did.
                 comment_settings:
                   type: string
-                  description: Comment settings for the new entry. `nocomments` disables comments, and `noemail` disables notifications. If omitted, the journal default will be used.
+                  description: Comment settings for the new entry. `nocomments` disables comments,
+                    and `noemail` disables notifications. If omitted, the
+                    journal default will be used.
                 current_location:
                   type: string
                   description: Current location (does not have to be a real location)
@@ -104,19 +130,21 @@ paths:
                     type: string
                 admin_post:
                   type: boolean
-                  description: Mark a post with the admin flag (ignored if you are not an admin or posting to a community)
+                  description: Mark a post with the admin flag (ignored if you are not an admin or
+                    posting to a community)
                 sticky_entry:
                   type: boolean
-                  description: Mark an entry sticky (ignored if you are at your max count of stickied entries)
+                  description: Mark an entry sticky (ignored if you are at your max count of
+                    stickied entries)
                 crosspost:
                   type: boolean
-                  description: Schedule for crosspost, using the account's default crosspost accounts.
+                  description: Schedule for crosspost, using the account's default crosspost
+                    accounts.
       responses:
-        200:
+        "200":
           description: The new entry in JSON format.
-        400:
-          description: Bad input value supplied.
-        404:
-          description: Journal specified does not exist.
-        403:
+        "400": *a3
+        "403":
           description: You aren't allowed to post in that journal.
+          schema: *a2
+        "404": *a4
