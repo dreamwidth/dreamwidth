@@ -647,7 +647,6 @@ sub register_api_rest_endpoints {
 sub _apply_defaults {
     my ( $opts, $hash ) = @_;
 
-    warn $opts->{methods} if defined $opts->{methods};
     $hash ||= {};
     $opts->{app}  = 1 if !defined $opts->{app} && !$opts->{user} && !$opts->{api};
     $hash->{args} = $opts->{args};
