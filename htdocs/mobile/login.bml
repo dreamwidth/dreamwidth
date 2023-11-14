@@ -17,6 +17,13 @@ _c?>
     use strict;
     use vars qw(%POST);
 
+    my $remote = LJ::get_remote();
+
+    if ( $remote && ! LJ::did_post() ) {
+        # need to log the remote user out per the "log out" link on mobile/index
+        $remote->logout;
+    }
+
     return "" unless LJ::did_post();
 
     my $err = sub {

@@ -37,9 +37,7 @@ sub changeemail_handler {
     my $u      = $rv->{u};
     my $remote = $rv->{remote};
 
-    my $vars;
-    $vars->{u}      = $u;
-    $vars->{remote} = $remote;
+    my $vars = { u => $u, remote => $remote };
 
     return error_ml('/changeemail.tt.error.suspended') if $u->is_suspended;
 
@@ -137,7 +135,7 @@ sub changeemail_handler {
                     'charset'  => 'utf-8',
                     'subject'  => LJ::Lang::ml('/changeemail.tt.newemail_old.subject'),
                     'body'     => LJ::Lang::ml(
-                        '/changeemail.tt.newemail_old.body2',
+                        '/changeemail.tt.newemail_old.body3',
                         {
                             username          => $u->display_username,
                             ip                => $r->get_remote_ip,

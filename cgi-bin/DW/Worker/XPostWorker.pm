@@ -87,6 +87,15 @@ sub work {
         return $job->permanent_failure($ljr_msg);
     }
 
+    # LiveJournal has broken (or disabled) client posts - notify the user
+    if ( $acct->externalsite && $acct->externalsite->{sitename} eq 'LiveJournal' ) {
+        my $ljr_msg =
+              "Crossposting to LiveJournal is temporarily disabled due to LiveJournal refusing "
+            . "connections from us. Please see https://dw-maintenance.dreamwidth.org/86004.html for more details.";
+        $notify_fail->($ljr_msg);
+        return $job->permanent_failure($ljr_msg);
+    }
+
     my $domain = $acct->externalsite ? $acct->externalsite->{domain} : 'unknown';
 
     my $entry = LJ::Entry->new( $u, ditemid => $ditemid );

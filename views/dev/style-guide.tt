@@ -87,6 +87,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
       <div class="large-12 columns">
         [%- form.textbox( label = "Input Label"
               placeholder = "large-12.columns"
+              id   = "field-1"
+              name = "field-1"
          ) -%]
       </div>
     </div>
@@ -95,12 +97,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
       <div class="large-4 columns error">
         [%- form.textbox( label = "Input Label"
               placeholder = "large-4.columns"
+              id   = "field-2"
               name = "has_error"
          ) -%]
       </div>
       <div class="large-4 columns">
         [%- form.textbox( label = "Input Label"
               placeholder = "large-4.columns"
+              id   = "field-3"
+              name = "field-3"
          ) -%]
       </div>
       <div class="large-4 columns">
@@ -120,6 +125,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
      <div class="large-12 columns">
         [%- form.select( label = "Select Dropdown"
               placeholder = "large-12.columns"
+              id   = "field-4"
+              name = "field-4"
               items = [ {
                 optgroup = "foo bar baz"
                 items = [ { text = "foo", value = "" }, { text = "bar", value = "" }, { text = "baz", value = "" }, ]
@@ -132,6 +139,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
       <div class="large-12 columns">
         [%- form.textarea( label = "Textarea Label"
               placeholder = "small-12.columns"
+              id   = "field-5"
+              name = "field-5"
         ) -%]
       </div>
     </div>
@@ -163,9 +172,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 
   <fieldset><legend>Buttons</legend>
-      <input type="button" class="small button" value=".small.button" /><br>
-      <input type="button" class="button" value="(default) .button" /><br>
-      <input type="button" class="large button" value=".large.button" /><br>
+      [% form.button( class = "small button", value = ".small.button" ) %]<br>
+      [% form.button( class = "button", value = "(default) .button" ) %]<br>
+      [% form.button( class = "large button", value = ".large.button" ) %]<br>
   </fieldset>
 
   <fieldset>
@@ -301,7 +310,7 @@ INCLUDE "components/icon-button.tt"
 
 <h2>Select All Tables</h2>
 <div class="row"><div class="large-6 columns">
-<table class="select-all">
+<table class="table select-all">
 <thead>
   <tr class="select-all-header">
     <th scope="row"><span class="select-all-label" id="select-all">Select All</span></th>

@@ -1,0 +1,21 @@
+---
+paths:
+  /journals/{username}/xpostaccounts:
+    parameters:
+      - name: username
+        in: path
+        description: The journal you want entry information for
+        required: true
+        schema:
+          $ref: ../components/schemas/username.yaml     
+    get:
+      description: Returns a list of crosspost identities for the given journal
+      responses:
+        200:
+          description: A list of accounts.
+        404:
+          $ref: ../components/errors/404-user.yaml
+        403:
+          description: Not allowed to view crosspost accounts for that user.
+          schema:
+                $ref: ../components/error.yaml

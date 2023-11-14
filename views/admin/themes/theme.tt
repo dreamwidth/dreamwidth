@@ -34,7 +34,7 @@ td, th { padding: 4px; }
 <input type="submit" value="[% '.commit' | ml %]" />
 
 <p>[% '.categories' | ml %]</p>
-<table>
+<table class="table">
 <thead>
 <tr>
     <th>[% '.header.active' | ml %]</th>

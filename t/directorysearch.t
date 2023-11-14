@@ -73,13 +73,6 @@ $is->(
 );
 
 $is->(
-    "Age Range + last week",
-"loc_cn=&loc_st=&loc_ci=&ut_days=7&age_min=14&age_max=27&int_like=&fr_user=&fro_user=&opt_format=pics&opt_sort=ut&opt_pagesize=100",
-    LJ::Directory::Constraint::Age->new( from => 14, to => 27 ),
-    LJ::Directory::Constraint::UpdateTime->new( days => 7 )
-);
-
-$is->(
     "Interest",
     "int_like=lindenz&opt_sort=ut",
     LJ::Directory::Constraint::Interest->new( interest => 'lindenz' )
@@ -238,27 +231,6 @@ memcache_stress(
                 [ 98, 95, 90 ],
                 "got correct answer (explicit set + first 50)"
             );
-
-            # test ages
-            $search = LJ::Directory::Search->new;
-            $search->add_constraint( LJ::Directory::Constraint::Age->new( from => 20, to => 35 ) );
-            $res = $search->search_no_dispatch;
-            is_deeply(
-                [ $res->userids ],
-                [ reverse( 20 .. 35 ) ],
-                "got correct answer for age range (35..20)"
-            );
-
-            # test ages after filter
-            $search = LJ::Directory::Search->new;
-            $search->add_constraint(
-                LJ::Directory::Constraint::UpdateTime->new(
-                    since => ( $inittime - $usercount + 5 )
-                )
-            );
-            $search->add_constraint( LJ::Directory::Constraint::Age->new( from => 97, to => 99 ) );
-            $res = $search->search_no_dispatch;
-            is_deeply( [ $res->userids ], [ 99, 98, 97 ], "ut + age correct" );
 
             # test sub major regions
             $search = LJ::Directory::Search->new;

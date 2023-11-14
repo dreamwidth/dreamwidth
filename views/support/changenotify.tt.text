@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+.changenotify.text=Select which categories of support requests you'd like to be notified for.  Choices are <b>off</b> (the default), <b>new</b> (you'll get a notification when a new support request in that category is posted), or <b>all</b> (you'll get a notification and then a copy of each comment/solution posted).
+
+.done.text=When you're finished, press the "Save Changes" button.
+
+.error.noemail=Please <a href="[[aopts]]">validate your email address</a> to receive support notifications.
+
+.getownresponses=Check here if you'd also like to include notifications for your own responses.
+
+.option.all=All
+
+.option.new=New Only
+
+.option.off=Off
+
+.submit.button=Save Changes
+
+.success.fromhere.board=Return to the Support Board
+
+.success.fromhere.support=Go to the Support Area
+
+.success.text=You've successfully changed your notification settings.
+
+.title=Change Notification Settings
+

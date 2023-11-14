@@ -16,6 +16,8 @@
 use strict;
 no warnings 'uninitialized';
 
+use Digest::MD5;
+
 use LJ::Global::Constants;
 use LJ::Console;
 use LJ::Event::JournalNewEntry;
@@ -117,7 +119,6 @@ my %e = (
     "407" => [ E_TEMP, "Moderation queue full" ],
     "408" => [ E_TEMP, "Maximum queued posts for this community+poster combination reached." ],
     "409" => [ E_PERM, "Post too large." ],
-    "410" => [ E_PERM, "Your trial account has expired.  Posting now disabled." ],
     "411" => [ E_PERM, "Subject too long." ],
     "412" => [ E_PERM, "Maximum number of comments reached" ],
 
@@ -177,10 +178,6 @@ sub do_request {
     $flags ||= {};
     my @args = ( $req, $err, $flags );
 
-    my $apache_r = eval { BML::get_request() };
-    $apache_r->notes->{codepath} = "protocol.$method"
-        if $apache_r && !$apache_r->notes->{codepath};
-
     DW::Stats::increment( 'dw.protocol_request', 1, ["method:$method"] );
 
     if ( $method eq "login" )            { return login(@args); }
@@ -210,9 +207,6 @@ sub do_request {
     if ( $method eq "sendmessage" )      { return sendmessage(@args); }
     if ( $method eq "setmessageread" )   { return setmessageread(@args); }
     if ( $method eq "addcomment" )       { return addcomment(@args); }
-
-    $apache_r->notes->{codepath} = ""
-        if $apache_r;
 
     return fail( $err, 201 );
 }
@@ -1265,9 +1259,6 @@ sub postevent {
     # is the user allowed to post?
     return fail( $err, 404, $LJ::MSG_NO_POST ) unless $importer_bypass || $u->can_post;
 
-    # is the user allowed to post?
-    return fail( $err, 410 ) if $u->can_post_disabled;
-
     # read-only accounts can't post
     return fail( $err, 316 ) if $u->is_readonly;
 
@@ -1282,6 +1273,9 @@ sub postevent {
     return fail( $err, 155,
         "You must have an authenticated email address in order to post to another account" )
         unless $u->equals($uowner) || $u->{'status'} eq 'A' || $flags->{'nomod'};
+
+    return fail( $err, 155, "You must confirm your email address before posting." )
+        if $u->{'status'} eq 'N' && !$importer_bypass && !$u->is_syndicated && !$LJ::_T_CONFIG;
 
     # post content too large
     # NOTE: requires $req->{event} be binary data, but we've already
@@ -1726,10 +1720,15 @@ sub postevent {
             if %logprops;
     }
 
-    $dbh->do(
-        "UPDATE userusage SET timeupdate=NOW(), lastitemid=$jitemid " . "WHERE userid=$ownerid" )
+    $dbh->do("UPDATE userusage SET timeupdate=NOW(), lastitemid=$jitemid WHERE userid=$ownerid")
         unless $flags->{'notimeupdate'};
     LJ::MemCache::set( [ $ownerid, "tu:$ownerid" ], pack( "N", time() ), 30 * 60 );
+
+    # update timeupdate_public for stats page
+    if ( $security eq 'public' ) {
+        $dbh->do("UPDATE userusage SET timeupdate_public=NOW() WHERE userid=$ownerid")
+            unless $flags->{'notimeupdate'};
+    }
 
     # argh, this is all too ugly.  need to unify more postpost stuff into async
     $u->invalidate_directory_record;
@@ -3585,13 +3584,6 @@ sub do_request {
     unless ($user) {
         $res->{'success'} = "FAIL";
         $res->{'errmsg'}  = "Client error: No username sent.";
-        return;
-    }
-
-    ### see if the server's under maintenance now
-    if ($LJ::SERVER_DOWN) {
-        $res->{'success'} = "FAIL";
-        $res->{'errmsg'}  = $LJ::SERVER_DOWN_MESSAGE;
         return;
     }
 

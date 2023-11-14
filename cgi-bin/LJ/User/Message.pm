@@ -16,6 +16,7 @@ use strict;
 no warnings 'uninitialized';
 
 use Carp;
+use Digest::SHA1;
 use Text::Fuzzy;
 use LJ::Subscription;
 
@@ -539,12 +540,13 @@ sub check_email {
 
     # Catch misspellings of gmail.com, yahoo.com, hotmail.com, outlook.com,
     # aol.com, live.com.
-    # https://github.com/dreamwidth/dw-free/issues/993#issuecomment-357466645
+    # https://github.com/dreamwidth/dreamwidth/issues/993#issuecomment-357466645
     # explains where 3 comes from.
     my $tf_domain      = Text::Fuzzy->new( $domain, max => 3, trans => 1 );
     my @common_domains = (
         'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
-        'aol.com',   'live.com',  'mail.com',    'ymail.com'
+        'aol.com',   'live.com',  'mail.com',    'fastmail.com',
+        'ymail.com', 'me.com'
     );
     my $nearest      = $tf_domain->nearest( \@common_domains );
     my $bad_spelling = defined $nearest && $tf_domain->last_distance > 0;

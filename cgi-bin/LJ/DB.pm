@@ -56,7 +56,7 @@ $LJ::DBIRole = new DBI::Role {
     "notifybookmarks", "embedcontent_preview", "logprop_history",     "import_status",
     "externalaccount", "content_filters",      "content_filter_data", "userpicmap3",
     "media",           "collections",          "collection_items",    "logslugs",
-    "media_versions",  "media_props",
+    "media_versions",  "media_props",          "user_profile_accts",
 );
 
 # keep track of what db locks we have out
@@ -95,10 +95,6 @@ sub foreach_cluster {
         my $dbr = LJ::get_cluster_reader($cluster_id);
         $coderef->( $cluster_id, $dbr );
     }
-}
-
-sub bindstr {
-    return join( ', ', map { '?' } @_ );
 }
 
 # when calling a supported function (currently: LJ::load_user() or LJ::load_userid*)
@@ -467,7 +463,7 @@ sub alloc_global_counter {
         $newmax = 0;
         foreach my $cid (@LJ::CLUSTERS) {
             my $dbcm = LJ::get_cluster_master($cid) or return undef;
-            my $max  = $dbcm->selectrow_array('SELECT MAX(picid) FROM userpic2') + 0;
+            my $max  = $dbcm->selectrow_array('SELECT MAX(picid) FROM userpic2') // 0;
             $newmax = $max if $max > $newmax;
         }
     }
@@ -505,7 +501,7 @@ sub alloc_global_counter {
         # pick maximum id from sitekeywords & interests
         my $max_sitekeys  = $dbh->selectrow_array("SELECT MAX(kwid) FROM sitekeywords");
         my $max_interests = $dbh->selectrow_array("SELECT MAX(intid) FROM interests");
-        $newmax = $max_sitekeys > $max_interests ? $max_sitekeys : $max_interests;
+        $newmax = ( $max_sitekeys // 0 ) > ( $max_interests // 0 ) ? $max_sitekeys : $max_interests;
     }
     elsif ( $dom eq 'I' ) {
 
@@ -539,8 +535,10 @@ sub alloc_global_counter {
 #       'Z' == import status item, 'X' == eXternal account
 #       'F' == filter id, 'Y' = pic/keYword mapping id
 #       'A' == mediA item id, 'O' == cOllection id,
-#       'N' == collectioN item id
-#       'B' == api key id
+#       'N' == collectioN item id, 'B' == api key id,
+#       'P' == Profile account id
+#
+#       remaining unused letters: G H J U W
 #
 sub alloc_user_counter {
     my ( $u, $dom, $opts ) = @_;
@@ -548,7 +546,7 @@ sub alloc_user_counter {
 
     ##################################################################
     # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFYAB]$/;    #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQDIZXFYABN]$/;
     ##################################################################
 
     my $dbh = LJ::get_db_writer();
@@ -706,6 +704,11 @@ sub alloc_user_counter {
     elsif ( $dom eq "N" ) {
         $newmax =
             $u->selectrow_array( "SELECT MAX(colitemid) FROM collection_items WHERE userid = ?",
+            undef, $uid );
+    }
+    elsif ( $dom eq "P" ) {
+        $newmax =
+            $u->selectrow_array( "SELECT MAX(account_id) FROM user_profile_accts WHERE userid = ?",
             undef, $uid );
     }
     else {

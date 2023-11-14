@@ -636,8 +636,7 @@ sub make_journal {
         return $error->( 'error/vhost.tt', { u => $u, msg => $_[0] } );
     };
 
-    if (   $LJ::USER_VHOSTS
-        && $opts->{'vhost'} eq "users"
+    if (   $opts->{'vhost'} eq "users"
         && !$u->is_redirect
         && !LJ::get_cap( $u, "userdomain" ) )
     {
@@ -847,7 +846,7 @@ sub make_journal {
     {    # don't check style sheets
         return $u->display_journal_deleted( $remote, journal_opts => $opts ) if $u->is_deleted;
 
-        return $error->( "error/suspended.tt", { u => $u } ) if $u->is_suspended;
+        return $error->( "error/suspended.tt", { u => $u, remote => $remote } ) if $u->is_suspended;
 
         my $entry = $opts->{ljentry};
         return $error->( "error/suspended-entry.tt", { u => $u } )
@@ -876,9 +875,6 @@ sub make_journal {
     }
 
     if ( $stylesys == 2 ) {
-        $r->note( codepath => "s2.$view" )
-            if $r;
-
         eval { LJ::S2->can("dostuff") };    # force Class::Autouse
 
         my $mj;

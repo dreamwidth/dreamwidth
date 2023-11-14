@@ -105,6 +105,42 @@
         }
     }
 
+    // Stash the options toggles out of the way on mobile
+    #icon-browser-options-visibility {
+        display: none;
+    }
+    @media #{$small-only} {
+        #icon-browser-options-visibility {
+            display: block;
+        }
+        &:not(.show-options) {
+            .top-controls fieldset {
+                display: none;
+            }
+        }
+        &.show-options {
+            #icon-browser-options-visibility img {
+                transform: rotate(90deg);
+            }
+        }
+    }
+    // Make the toggle button summarize the current options
+    .icon-browser-options-summary-small {display: none;}
+    .icon-browser-options-summary-no-meta {display: none;}
+    .icon-browser-options-summary-keyword {display: none;}
+    &.small-icons {
+        .icon-browser-options-summary-large {display: none;}
+        .icon-browser-options-summary-small {display: inline;}
+    }
+    &.no-meta {
+        .icon-browser-options-summary-meta {display: none;}
+        .icon-browser-options-summary-no-meta {display: inline;}
+    }
+    &.keyword-order {
+        .icon-browser-options-summary-date {display: none;}
+        .icon-browser-options-summary-keyword {display: inline;}
+    }
+
     p.icon-browser-help {
         font-size: smaller;
         margin-bottom: 1rem;

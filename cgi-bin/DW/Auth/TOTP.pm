@@ -23,6 +23,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Authen::OATH;
 use Convert::Base32 qw/ decode_base32 encode_base32 /;
+use Math::Random::Secure qw/ rand irand /;
 
 use DW::Auth::Helpers;
 use DW::Auth::Password;
@@ -134,7 +135,7 @@ sub generate_secret {
     # For convenience, always deal with base32'd secrets, as specified
     # by Google Authenticator
     my $string;
-    $string .= chr( int( rand(256) ) ) for 1 .. 16;
+    $string .= chr( irand(256) ) for 1 .. 16;
     return encode_base32($string);
 }
 

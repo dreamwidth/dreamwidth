@@ -33,7 +33,7 @@ sub work {
     my $a    = $self->args;
 
     my $failed = sub {
-        $log->error( sprintf(@_) );
+        $log->error( sprintf( $_[0], @_[ 1 .. $#_ ] ) );
         return DW::Task::FAILED;
     };
 
@@ -41,10 +41,16 @@ sub work {
     my $evt = eval { LJ::Event->new_from_raw_params(@$e_params) }
         or return $failed->("Couldn't load event: $@");
 
+    $evt->configure_logger;
+
+    my $us = LJ::load_userids( map { $_->[0] } @$sublist );
+    $sublist = [ grep { $us->{ $_->[0] }->{clusterid} == $cid } @$sublist ];
+
     my ( $ct, $max ) = ( 0, scalar(@$sublist) );
-    my $us   = LJ::load_userids( map { $_->[0] } @$sublist );
     my $dbcr = LJ::get_cluster_reader($cid)
         or return $failed->("Couldn't get cluster reader handle");
+
+    $log->debug( 'Filtering: got ', $max, ' subs to filter.' );
 
     my @subs;
     while ( scalar(@$sublist) > 0 ) {

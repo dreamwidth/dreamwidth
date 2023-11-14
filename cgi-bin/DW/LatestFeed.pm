@@ -253,7 +253,7 @@ sub _process_queue {
     my @uids = map { $_->{obj}->posterid } grep { $_->{type} eq 'entry' } @pq;
     push @uids,
         map { $_->{obj}->posterid, $_->{obj_entry}->posterid } grep { $_->{type} eq 'comment' } @pq;
-    @uids = grep { !exists $us->{$_} } @uids;
+    @uids = grep { !exists $us->{$_} } grep { defined $_ } @uids;
 
     # load the new users, backport to $us
     my $us2 = LJ::load_userids(@uids);
@@ -265,11 +265,16 @@ sub _process_queue {
     my $show_entry = sub {
         my $entry = $_[0];
 
-        return 0 unless $entry->security eq 'public';
+        return 0 unless $entry->security && $entry->security eq 'public';
         return 0
             unless $entry->poster->include_in_latest_feed
             && $entry->journal->include_in_latest_feed;
         return 0 if $entry->is_backdated;
+
+        foreach ( $entry->journal, $entry ) {
+            my $ac = $_->adult_content_calculated;
+            return 0 if $ac && $ac ne 'none';
+        }
 
         return 1;
     };
@@ -387,9 +392,11 @@ sub _process_queue {
         unshift @{ $lists{latest_items} }, $item;
     }
 
+    my %omit_tags = map { $_ => 1 } grep { $_ } split( /\r?\n/, LJ::load_include('tagblocklist') );
+
     # re-sort and update our tag frequency map, then store it
     my $cutoff = time() - 86400;    # ignore tags staler than this
-    @$tfmap = sort { $b->[2] <=> $a->[2] }
+    @$tfmap = sort { $b->[2] <=> $a->[2] } grep { !$omit_tags{ $_->[0] } }
         grep { $_->[3] > $cutoff } @$tfmap;
     @$tfmap = splice @$tfmap, 0, NUM_TOP_TAGS;
     LJ::MemCache::set( latest_items_tag_frequency_map => $tfmap );

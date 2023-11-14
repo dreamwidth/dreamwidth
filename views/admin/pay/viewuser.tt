@@ -102,7 +102,7 @@
 <h2>[% '.header.viewcarts' | ml %]</h2>
 
 [% IF carts.size %]
-<table class="cartlist">
+<table class="table cartlist">
   <thead><tr>
     <th>[% '.col.cartnum' | ml %]</th>
     <th>[% '.col.date'    | ml %]</th>

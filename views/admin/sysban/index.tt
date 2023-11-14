@@ -47,15 +47,20 @@
 </form>
 </p>
 
-<p>
 <form method='post' action='sysban'>
 [% dw.form_auth %]
+<p>
 [% form.textbox( label = dw.ml( '.label.queryone' ), value = '',
                  name = 'queryvalue', id = 'queryvalue' );
 
    form.submit( name = 'queryone',  value = dw.ml( '.btn.queryone'  ) ) %]
-</form>
 </p>
+<p>
+[% form.checkbox( label = dw.ml( '.label.expiredcheck' ), value = '1',
+                  name = 'expiredcheck', id = 'expiredcheck',
+                  selected = formdata.expiredcheck ) %]
+</p>
+</form>
 
 [%- IF action == 'queryone';
     banquery = formdata.queryvalue | html;
@@ -63,23 +68,25 @@
 
 <h3>[% '.header.queryone' | ml( banquery = banquery ) %]</h3>
 
-<table>
+<table class="table">
   <thead><tr>
     <th>[% '.col.type' | ml %]</th>
     <th>[% '.col.exp'  | ml %]</th>
     <th>[% '.col.note' | ml %]</th>
   </tr></thead>
 
-      [%- FOREACH ban IN sysbans.pairs -%]
+      [%- FOREACH bantype IN sysbans.keys.sort -%]
+      [%- FOREACH banrow IN sysbans.$bantype -%]
   <tr>
-    <td>[% ban.key %]</td>
-    <td>[% localtime( ban.value.expire ) %]</td>
-    <td>[% ban.value.note | html %]</td>
+    <td>[% bantype %]</td>
+    <td>[% localtime( banrow.expire ) %]</td>
+    <td>[% banrow.note | html %]</td>
   </tr>
+      [%- END -%]
       [%- END -%]
 </table>
 
-  [%- ELSE -%]
+  [%- ELSIF banquery -%]
 <p>[% '.txt.nomatch' | ml( banquery = banquery ) %]</p>
   [%- END -%]
 

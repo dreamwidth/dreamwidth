@@ -1,0 +1,131 @@
+-   name: Dreamwidth Studios, LLC's Owners
+    people:
+        -   name: Denise Paolucci
+            img: https://www.dreamwidth.org/userpic/256/6
+            bio:
+                - |
+                    (the Suit) began working on the
+                    LiveJournal.com project in 2001. Since then, she's done everything from
+                    customer service to product planning to documentation to user advocacy
+                    to QA testing to falling over exhausted because she's trying to do too
+                    much at once. She left LiveJournal in 2007 to pursue a career in
+                    writing. She hopes that with Dreamwidth Studios, she'll be able to use
+                    her experience to create a place where creative people of all types will
+                    find a home for their expression where they feel safe, welcomed, and
+                    supported.
+                - |
+                    Denise lives in Baltimore, Maryland, with her long-suffering
+                    wife, who fortunately enjoys the frequent "c'mere, look, isn't
+                    this <em>cool</em>?" invocations, and three cats, who don't care about
+                    the internet as long as they get fed on time.
+            official:
+                - denise
+                - dw_biz
+        -   name: Mark Smith
+            img: https://www.dreamwidth.org/userpic/257/6
+            bio:
+                - |
+                    (the Geek) began volunteering with LiveJournal.com in 2001 in technical
+                    support and code development. He joined the staff in 2004, where he
+                    contributed heavily to all areas of the site and worked on utilities
+                    such as Perlbal and MogileFS that are now used by many other web sites.
+                    After transitioning to Six Apart, Mark worked to design and build out
+                    the systems infrastructure for the Vox.com product launch.
+                - |
+                    Since those days, Mark has been a MySQL DBA, managed an operations team,
+                    and maintained a cadre of open source projects of his own while working
+                    for companies such as Google, Mozilla, and Bump.
+                - |
+                    He currently resides near San Francisco, CA with his partner, Ari, and
+                    their two small sons. In his free time, he enjoys motorcycles, tabletop
+                    and LARP gaming, and amateur radio (license KC8BCW).
+            official:
+                - mark
+                - dw_dev
+-   name: Dreamwidth Studios, LLC's Employees
+    people:
+        -   name: Alierak
+            img: https://www.dreamwidth.org/userpic/314317/7805
+            bio:
+                - |
+                    is Dreamwidth's backup sysadmin on call, helping Mark wrangle servers
+                    and keeping an eye out for problems. He has approximately two decades of
+                    experience with Unix systems and open source, resulting in ninja-like reflexes
+                    for troubleshooting and bug hunting. He became <s>disillusioned</s> familiar
+                    with the LiveJournal codebase in 2006 when Brad announced a cross-site
+                    scripting contest offering permanent accounts for reporting security bugs
+                    (Alierak won three and maintains a healthy mistrust of our HTML cleaner).
+                - |
+                    He is also a sysadmin at a major university, husband and father of two, and
+                    enjoys building or fixing things, cooking, and playing with math. He can
+                    often be found singing or playing various instruments in church.
+            official:
+                - alierak
+        -   name: Jennifer Griffin
+            img: https://www.dreamwidth.org/userpic/210571/6
+            bio:
+                - |
+                    does Terms of Service enforcement because Mark
+                    asked her to, and submits tons of Bugzilla patches because it's fun.  An
+                    MIT graduate, she has been on the internet since before the invention of
+                    this newfangled "World Wide Web" thing.  She runs the MU* where Mark &amp;
+                    Janine met, which lets her claim indirect partial responsibility for the
+                    existence of Dreamwidth.  You're welcome.
+                - |
+                    Jen is passionate about computers, communities, crafts, all varieties
+                    of music, speculative fiction, space exploration... basically the whole
+                    damn universe.  She grew up and currently lives in the reddest of the
+                    red states, but also spent 12 years residing in the bluest of the blue
+                    states, so she is used to navigating ideological extremes.  After spending
+                    several years working as top-tier IT support in a non-profit organization,
+                    she changed gears and is now a full-time mom to two precious, precocious
+                    children.
+            official:
+                - dw_tos
+-   name: Community Project Leaders
+    note: "People who are currently working on major projects for Dreamwidth!"
+    people:
+        -   name: Azurelunatic
+            img: https://www.dreamwidth.org/userpic/529546/6
+            bio:
+                - |
+                    came into the LiveJournal volunteer IRC channel during one of the early
+                    data center "power events" to find out what was going on. Denise obtained
+                    another minion shortly thereafter. Azz specializes in thoughtful analysis
+                    of any social media system she immerses herself in, and enjoys finding the
+                    root needs underlying any request for more bells and whistles, and thinking
+                    up a way to fulfil that need that fits in with the site's gestalt and actually
+                    could be implemented. She was in IRC not looking busy enough when Denise and
+                    Mark needed a team leader for spam, and now enjoys squashing spammers.
+                - |
+                    By day, Azz is a mild-mannered minion in the cloudy part of Silicon Valley
+                    (and lives in the foggy part of the Bay Area). She dreamed of becoming a
+                    Communications Officer like Lt. Uhura when she was a child; now she spends
+                    most of her commute using a suspiciously similar headset. Her hobbies include
+                    talking to Kat, crocheting, IRC, and having bizarre, one-sided conversations
+                    with the characters in her current draft novel.
+            official:
+                - dw_antispam
+        -   name: Deborah
+            img: https://www.dreamwidth.org/userpic/5456520/37793
+            bio:
+                - |
+                    co-leads the accessibility team. She spends her time writing accessibility
+                    improvements for the Dreamwidth code, as well as educating the other developers
+                    and designers about accessibility. In her other life she works in library
+                    technology, where she's gained a reputation as That Person Who Will Glare
+                    at You If Your Library Software Isn't Accessible.
+            official:
+                - dw_accessibility
+        -   name: Sarah
+            img: https://www.dreamwidth.org/userpic/529553/6
+            bio:
+                - |
+                    serves as Dreamwidth's executive assistant, which involves
+                    much filing of paperwork and weekly trips to the credit union. Yes, she
+                    will get you coffee, but only if she's already getting some for herself.
+                    And if you drink it full-octane. And if she can find a second clean mug.
+                - |
+                    Sarah's superpowers include paying the bills on time, keeping the taxman
+                    from battering down the door, and keeping the pantry she shares with
+                    Denise well-stocked with Diet Coke with Lime.

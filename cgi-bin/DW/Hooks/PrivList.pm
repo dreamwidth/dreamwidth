@@ -3,7 +3,7 @@
 # DW::Hooks::PrivList
 #
 # This module implements the listing of valid arguments for each
-# known user privilege in dw-free.  Any site that defines a different
+# known user privilege in Dreamwidth.  Any site that defines a different
 # set of privs or privargs must create additional hooks to supplement
 # this list.
 #
@@ -81,6 +81,7 @@ LJ::Hooks::register_hook(
         # have to manually maintain the other lists
         $hr = {
             entryprops    => "Access to /admin/entryprops",
+            images        => "Access to admin mode on /file/list",
             sessions      => "Access to admin mode on /manage/logins",
             subscriptions => "Access to admin mode on notification settings",
             suspended     => "Access to suspended journal content",

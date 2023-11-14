@@ -18,6 +18,7 @@ package DW::Widget::AccountStatistics;
 
 use strict;
 use base qw/ LJ::Widget /;
+use DW::Template;
 
 sub should_render { 1; }
 
@@ -40,59 +41,16 @@ sub render_body {
             { type => $accttype, date => DateTime->from_epoch( epoch => $expire_time )->date } )
             : $accttype;
     }
+    my $vars = {
+        remote          => $remote,
+        commafy         => \&LJ::commafy,
+        mysql_time      => \&LJ::mysql_time,
+        tags_count      => $tags_count,
+        memories_count  => $memories_count,
+        accttype_string => $accttype_string
+    };
 
-    my $ret = "<h2>" . $class->ml('widget.accountstatistics.title') . "</h2>";
-    $ret .= "<ul>";
-    $ret .= "<li>"
-        . $class->ml(
-        'widget.accountstatistics.member_since',
-        { date => LJ::mysql_time( $remote->timecreate ) }
-        ) . "</li>";
-    $ret .= "<li>"
-        . $class->ml(
-        'widget.accountstatistics.entries2',
-        {
-            num_raw   => $remote->number_of_posts,
-            num_comma => LJ::commafy( $remote->number_of_posts )
-        }
-        ) . "</li>";
-    $ret .= "<li>"
-        . $class->ml(
-        'widget.accountstatistics.last_updated',
-        { date => LJ::mysql_time( $remote->timeupdate ) }
-        ) . "</li>";
-    $ret .= "<li>"
-        . $class->ml(
-        'widget.accountstatistics.comments2',
-        {
-            num_received_raw   => $remote->num_comments_received,
-            num_received_comma => LJ::commafy( $remote->num_comments_received ),
-            num_posted_raw     => $remote->num_comments_posted,
-            num_posted_comma   => LJ::commafy( $remote->num_comments_posted )
-        }
-        ) . "</li>";
-    $ret .= "<li>"
-        . $class->ml(
-        'widget.accountstatistics.memories2',
-        {
-            num_raw   => $memories_count,
-            num_comma => LJ::commafy($memories_count),
-            aopts     => "href='$LJ::SITEROOT/tools/memories?user=" . $remote->user . "'",
-        }
-        );
-    $ret .= ", "
-        . $class->ml(
-        'widget.accountstatistics.tags2',
-        {
-            num_raw   => $tags_count,
-            num_comma => LJ::commafy($tags_count),
-            aopts     => 'href="' . $remote->journal_base . '/tag/"'
-        }
-        ) . "</li>";
-    $ret .= "<li>" . $accttype_string . "</li>";
-    $ret .= "</ul>";
-
-    return $ret;
+    return DW::Template->template_string( 'widget/accountstatistics.tt', $vars );
 }
 
 1;

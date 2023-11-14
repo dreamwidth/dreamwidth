@@ -18,8 +18,6 @@
 </style>
 [% END -%]
 
-[%- dw.need_res( 'stc/interests.css' ) -%]
-
 [%- sections.title='.title' | ml -%]
 
 <h1>[% '.popular.head' | ml %]</h1><p>[% '.popular.text' | ml %]
@@ -30,7 +28,7 @@
 </p>
 [%- IF pop_ints -%]
     [%- IF no_text_mode; pop_cloud; ELSE -%]
-        <p><table><thead><tr>
+        <p><table class="table"><thead><tr>
             <th width='150' style="text-align: left">
             [% '.interest' | ml %]</th>
             <th>[% '.count' | ml %]</th>

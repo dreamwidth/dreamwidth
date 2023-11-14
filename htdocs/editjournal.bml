@@ -254,6 +254,9 @@ body<=
                         });
                 }
 
+                # check for spam domains
+                LJ::Hooks::run_hooks('spam_check', $u, \%req, 'entry');
+
                 # do editevent request
                 LJ::do_request(\%req, \%res, { 'noauth' => 1, 'u' => $u });
 

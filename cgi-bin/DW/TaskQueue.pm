@@ -134,7 +134,7 @@ sub start_work {
     my $start_time    = time();
     my $messages_done = 0;
 
-    $log->debug( sprintf( '[%s %0.3fs] Worker starting', $class, 0.0 ) );
+    $log->info( sprintf( '[%s %0.3fs] Worker starting', $class, 0.0 ) );
 
     while (1) {
         my $recv_start_time = time();
@@ -199,7 +199,11 @@ sub start_work {
                 $res = $message->work($handle);
             };
             alarm 0;
-            die if $@;          # Reraise if the work call died.
+            die if $@;    # Reraise if the work call died.
+
+            # Clear out MDC so we don't continue to log with whatever the worker might
+            # have put into context
+            Log::Log4perl::MDC->remove;
             return if $abort;
 
             $messages_done++;

@@ -295,10 +295,6 @@ sub call_response_handler {
     return $_[1]->();
 }
 
-sub call_bml {
-    confess "call_bml not (yet) supported";
-}
-
 # spawn a process for an external program
 sub spawn {
     confess "Sorry, spawning not implemented.";

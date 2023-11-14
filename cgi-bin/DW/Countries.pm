@@ -48,7 +48,21 @@ sub load {
     foreach my $code ( all_country_codes() ) {
         $countries->{ uc $code } = code2country($code);
     }
-    $countries->{UK} = $countries->{GB};
+}
+
+=head2 C<< DW::Countries->load_legacy( $hashref ) >>
+
+Adds some additional legacy codes for displaying older data where appropriate.
+
+=cut
+
+sub load_legacy {
+    my ( $class, $countries ) = @_;
+
+    $class->load($countries);
+
+    $countries->{LJSC} = $countries->{GB};    # Scotland
+    $countries->{UK}   = $countries->{GB};    # United Kingdom
 }
 
 1;

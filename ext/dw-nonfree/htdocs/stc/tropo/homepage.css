@@ -1,0 +1,103 @@
+div#intro-box {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+div#intro-box-main {
+  background: 
+              no-repeat top left url(/img/tropo-red/homepage/intro-box-topleft.png),
+              no-repeat top right url(/img/tropo-red/homepage/intro-box-topright.png),
+              no-repeat bottom left url(/img/tropo-red/homepage/intro-box-bottomleft.png),
+              no-repeat bottom right url(/img/tropo-red/homepage/intro-box-bottomright.png),
+              repeat-x top center url(/img/tropo-red/homepage/intro-box-top.png),
+              repeat-y center left url(/img/tropo-red/homepage/intro-box-left.png),
+              repeat-y center right url(/img/tropo-red/homepage/intro-box-right.png),
+              repeat-x bottom center url(/img/tropo-red/homepage/intro-box-bottom.png),
+              rgb(240, 240, 240);
+  min-height: 160px;
+  width: 70%;
+  flex: 1 1 auto;
+}
+
+div#intro-box-main h1 {
+  color: rgb(197, 53, 60);
+  padding-left: 1em;
+  margin: 0.5em 0;
+}
+
+div#intro-box-main p {
+  color: rgb(86, 86, 86);
+  padding-left: 1em;
+  padding-right: 2em;
+  padding-bottom: 1em;
+}
+
+div#intro-box-create {
+  background-color: #c5353c;
+  min-height: 160px;
+  min-width: 200px;
+  width: 30%;
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+div#intro-box-create h2 {
+  color: rgb(248, 248, 248);
+  margin: 0.5em 0;
+}
+
+div#intro-box-create p {
+  color: rgb(248, 248, 248);
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+div#intro-box-create a {
+  color: white;
+}
+
+ul#create-links {
+  padding: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+ul#create-links li {
+  display: inline-block;
+  color: white;
+  font-size: 1.1em;
+  margin: 0 1em;
+}
+
+ul#create-links a {
+  font-weight: bold;
+}
+
+form#intro-create-form {
+  padding-left: 15px;
+  margin-bottom: 0px;
+}
+
+input#intro-create-invite {
+  width: 95%;
+}
+
+input#intro-create-submit {
+  clear: both;
+  margin-top: 1em;
+  width: 10em;
+  font-weight: bold;
+}
+
+div#frontpage-links {
+  margin-top: 2em;
+}
+
+div.links-column dt {
+  font-weight: bold;
+}
+
+div.links-column dd {
+  margin-bottom: 1em;
+}

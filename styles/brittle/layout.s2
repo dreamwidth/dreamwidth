@@ -944,6 +944,10 @@ textarea.textbox  { width: 90%!important; }
 
 .comment-posted { font-weight:bold; }
 
+.comment .admin-poster {
+    white-space: nowrap;
+}
+
 .comment-wrapper { margin: 20px 0; padding: 0; }
 .comment-content { margin: 10px 0; }
 

@@ -18,9 +18,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 [%- IF total_pages > 1 -%]
+[% opts = {keep_args => 1};
+  IF cur_args; 
+    opts.cur_args = cur_args;
+  END %]
 <ul class="pagination">
   [% IF current > 1 %]
-    <li class="arrow"><a href="[% dw.create_url( undef, keep_args => 1, args => { page => (current - 1) } ) %]">&laquo;</a></li>
+  [% opts.args = { page => (current - 1) } %]
+    <li class="arrow"><a href="[% dw.create_url( path, opts ) %]">&laquo;</a></li>
   [% END %]
 
   [% IF total_pages <= 7 %]
@@ -60,14 +65,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [% END %]
 
   [% IF current < total_pages %]
-    <li class="arrow"><a href="[% dw.create_url( undef, keep_args => 1, args => { page => (current + 1) } ) %]">&raquo;</a></li>
+  [% opts.args = { page => (current + 1) } %]
+    <li class="arrow"><a href="[% dw.create_url( path, opts) %]">&raquo;</a></li>
   [% END %]
 </ul>
 [%- END -%]
 
 [%- BLOCK print_pages -%]
   [%- FOREACH page_num = range -%]
-      <li[% IF page_num == current %] class="current" [% END %]><a href="[% dw.create_url( undef, keep_args => 1, args => { page => page_num } ) %]">[% page_num %]</a></li>
+  [% opts.args = { page => page_num } %]
+      <li[% IF page_num == current %] class="current" [% END %]><a href="[% dw.create_url( path, opts ) %]">[% page_num %]</a></li>
   [%- END -%]
 [%- END -%]
 

@@ -9,7 +9,7 @@
 
 .development.header=Development
 
-.development.main2=Information about installing and maintaining a Dreamwidth-powered site can be found at <a href="http://wiki.dreamwidth.net">the Dreamwidth Wiki</a>. If you'd like to submit a patch to us, or see a list of the bugs available for someone to work on, check out our <a href="http://github.com/dreamwidth/dw-free">GitHub repository</a>.
+.development.main2=Information about installing and maintaining a Dreamwidth-powered site can be found at <a href="http://wiki.dreamwidth.net">the Dreamwidth Wiki</a>. If you'd like to submit a patch to us, or see a list of the bugs available for someone to work on, check out our <a href="http://github.com/dreamwidth/dreamwidth">GitHub repository</a>.
 
 .licensing.header=Licensing Information:
 

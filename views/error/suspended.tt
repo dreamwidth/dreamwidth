@@ -20,3 +20,21 @@
 
 <p>[% 'error.suspended.text' | ml( user = u.ljuser_display,
                                    sitename = site.name ) %]</p>
+
+[% IF remote;
+     has_viewlogs = remote.has_priv( 'canview', 'userlog' );
+     has_viewhist = remote.has_priv( 'historyview' );
+     IF has_viewlogs || has_viewhist %]
+<ul>
+    [% IF has_viewlogs  %]
+  <li><a href="[% site.root %]/admin/userlog?user=[% u.user %]">
+    [% '.text.viewlogs' | ml %]</a>
+  </li>
+    [% END %]
+    [% IF has_viewhist  %]
+  <li><a href="[% site.root %]/admin/statushistory?user=[% u.user %]">
+    [% '.text.viewhist' | ml %]</a>
+  </li>
+    [% END %]
+</ul>
+[% END; END %]

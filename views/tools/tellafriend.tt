@@ -1,0 +1,53 @@
+[%- sections.title=dw.ml('.title') -%]
+
+[% IF u.status == 'A' %]
+<form method='post' action='tellafriend'>
+[% form.hidden(name = 'mode', value = 'mail') %]
+[% form.hidden(name = 'user', value = formdata.user) %]
+[% form.hidden(name = 'journal', value = formdata.journal) %]
+[% form.hidden(name = 'itemid', value = formdata.itemid) %]
+
+[% ".email.fromfield" | ml %]
+"[% u.user | html %] [% '.via' | ml %] [% site.nameshort | html %]"
+<br>
+[% ".email.field.subject" | ml %]
+[% formdata.subject | html %]
+<br>
+[% ".email.field.replyto" | ml %]
+"[% u.user | html %]" &lt;[% u.emailpref %]&gt;
+<p style="margin-top: 1em">
+[% form.textbox(
+        label = dw.ml(".email.recipientfield"), 
+        name = 'toemail', 
+        value = toemail,
+        size = 60,
+        maxlength = 150) %]
+        <br>
+        <span class='detail'>[% '.email.formatinfo' | ml %]</span>
+[% IF email_checkbox; "<br>" _ email_checkbox; END %]
+ [% form.hidden(name = 'subject', value = formdata.subject) %]
+ [% form.hidden(name = 'body_start', value = formdata.body_start) %]
+ <p>
+ [% '.email.body.boxtitle' | ml %]
+ <div class='message'><blockquote>
+ [% display_msg %]
+ <br>
+ [% form.textarea(
+     name = 'body',
+     rows = 6,
+     cols = 80,
+     value = formdata.body,
+     wrap = 'soft') %]
+ <br>
+ [% display_msg_footer %]
+ </blockquote></div>
+
+<div class='action-box'><div class='inner'>
+[% form.submit(value = dw.ml(".sendbutton")) %]
+</div></div><div class='clear-floats'></div>
+</form>
+
+[% ELSE %]
+<h3>[% ".invalidemailpage.title" | ml %]</h3>
+<p>[% dw.ml(".invalidemailpage.body", { emailaddress => u.email_raw, siteroot => site.root }) %]</p>
+[% END %]

@@ -1,0 +1,80 @@
+[%# register.tt
+
+Page for confirming the email address associated with an account.
+
+Authors:
+    Jen Griffin <kareila@livejournal.com>
+
+Copyright (c) 2023 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- IF query_str && ! captcha;
+      sections.title = '.new.title' | ml( sitename => site.nameshort );
+    ELSE;
+      sections.title = '.title' | ml;
+    END -%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- IF query_str -%]
+  [% IF captcha %]
+
+<h2>[% 'captcha.title' | ml %]</h2>
+<form method='POST' action='[% site.root %]/register'>
+  [% form.hidden( name = 'qs', value = query_str ) %]
+  [% captcha.print %]
+  [% dw.form_auth %]
+  [% form.submit( value = dw.ml( '.form.submit' ) ) %]
+</form>
+
+  [% ELSE %]
+
+<div class="message-box highlight-box">
+  [% '.new.bodyuser' | ml( user => u.ljuser_display, address => u.email_raw ) %]
+</div>
+
+<h2 style='margin: 0.5em 0 0 0;'>
+  [%- '.new.101.title' | ml( sitename => site.nameshort ) -%]
+</h2><br />
+
+<p>
+  <strong><a href='[% u.journal_base %]/'>[% '.new.101.journal.question' | ml %]</a></strong>
+  <br />[% '.new.101.journal.answer' | ml %]
+</p>
+<p>
+  <strong><a href='[% u.profile_url %]'>[% '.new.101.profile.question' | ml %]</a></strong>
+  <br />[% '.new.101.profile.answer' | ml %]
+</p>
+<p>
+  <strong><a href='[% u.journal_base %]/read'>[% '.new.101.reading.question' | ml %]</a></strong>
+  <br />[% '.new.101.reading.answer' | ml %]
+</p>
+<p>
+  <strong><a href='[% site.root %]/community/search'>[% '.new.101.community.question' | ml %]</a></strong>
+  <br />[% '.new.101.community.answer' | ml %]
+</p>
+
+  [% END %]
+
+[%- ELSE -%]
+  [% authas_form %]
+
+  [% IF u.email_status == "A" %]
+<p>[% '.error.useralreadyvalidated' | ml( user => u.ljuser_display ) %]</p>
+  [% ELSE %]
+
+<p>[% '.ask.body' | ml( email => u.email_raw ) %]</p>
+<form action='[% dw.create_url( undef, keep_args => 1 ) %]' method='post'>
+  [% dw.form_auth %]
+  <blockquote>
+    [% form.submit( name = "action:send", value = dw.ml( '.ask.button' ) ) %]
+  </blockquote>
+</form>
+
+  [% END %]
+[%- END -%]

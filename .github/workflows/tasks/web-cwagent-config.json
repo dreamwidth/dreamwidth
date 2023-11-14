@@ -1,0 +1,23 @@
+{
+    "logs": {
+        "logs_collected": {
+            "files": {
+                "collect_list": [
+                    {
+                        "file_path": "/var/log/apache2/dreamwidth_access-DISABLED.log",
+                        "log_group_name": "/dreamwidth/web-requests",
+                        "log_stream_name": "{hostname}",
+                        "timezone": "UTC",
+                        "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ",
+                        "filters": [
+                            {
+                                "type": "exclude",
+                                "expression": "ELB-HealthChecker"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

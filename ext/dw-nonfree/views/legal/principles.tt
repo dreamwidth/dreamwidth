@@ -1,0 +1,97 @@
+[%# legal/principles.tt
+  #
+  # Guiding Principles
+  #
+  # Authors:
+  #     Janine Smith <janine@netrophic.com>
+  #
+  # Copyright (c) 2009 by Dreamwidth Studios, LLC.
+  #
+  # This program is NOT free software or open-source; you can use it as an
+  # example of how to implement your own site-specific extensions to the
+  # Dreamwidth Studios open-source code, but you cannot use it on your site
+  # or redistribute it, with or without modifications.
+  #
+%]
+
+[%- sections.head = BLOCK %]
+<style type='text/css'>
+#content ul li { margin-bottom: 1em; }
+</style>
+[% END -%]
+
+[%- sections.title='Guiding Principles' -%]
+
+<h2>We are committed to:</h2>
+
+<ul><li><strong>Open access</strong>. We will never make it hard for you to get
+your data back from us or move to a different service if you want 
+to. We will provide you with tools to facilitate backing up your data, and we will
+never try to lock you into using our service in any way.</li>
+
+<li><strong>Interoperability</strong>. We will seek to integrate our service with 
+other services on the Internet, following open standards, to allow you 
+to work with other sites as much as you want to.</li>
+
+<li><strong>Open source</strong>. We will release every code change we make under 
+a generally-accepted open source license, aside from internal 
+configuration files and anything we are contractually obligated not to 
+publish. We will provide details on what code we don't publish, and let 
+you know why. We will work with a community of volunteer developers, and encourage
+and nurture the volunteer development process. We are committed to making it easy
+for others to install and maintain their own instances of our server code.</li>
+
+<li><strong>Community review</strong>. We will make our development process and 
+our business decisions as transparent as possible, and look for 
+community feedback at all stages. While we know we can't please everyone all the
+time, we know that our users are incredibly diverse, and the ways they use the
+site are just as diverse. We will strive to take your feedback into account as 
+much as we can.</li>
+
+<li><strong>Respecting privacy</strong>. We will provide you with tools to make 
+choices about your privacy, and respect those choices at all times. We 
+will never sell or trade your private data. We as a company are committed to 
+maintaining your privacy and making it easy for you to show your journal and its
+contents to as many -- or as few -- people as you'd like.</li></ul>
+
+
+<h2>We operate our service under the principles of:</h2>
+
+
+<ul><li><strong>Transparency</strong>: We believe that you should know why we
+make the decisions we make. We will explain our reasoning as much as 
+possible. We will make it easy for you to know as much as you want to 
+about what we're doing. We will always err on the side of providing more information,
+rather than less, whenever possible. At any point, you should feel comfortable that you
+understand why we're making the choices we're making.</li>
+
+<li><strong>Freedom</strong>: We believe in free expression. We will not place 
+limits on your expression, except as required by United States law or to 
+protect the quality and long-term viability of the service (such as 
+removing spam). We will provide you with tools that make creativity and 
+free expression easy. If, at any point, we have to place restrictions on your
+expression, we will tell you why, and work to find the best solutions possible.</li>
+
+<li><strong>Respect</strong>: We believe in the inherent dignity of all human 
+beings. We will never discriminate against any group of people. We will 
+work hard to maintain inclusive attitudes, use inclusive language, and 
+promote inclusiveness at all times. Our <a href="[% site.root %]/legal/diversity">Diversity
+Statement</a> isn't just there so we can pat ourselves on the back. It's there because 
+we believe that our diversity is our greatest strength.</li></ul>
+
+<h2>We will remain advertising-free.</h2>
+
+<p>We won't accept or display third-party advertising on our service, whether 
+text-based or banner ads. We are personally and ideologically against displaying 
+advertising on a community-based service. Advertising dilutes the community experience. 
+It also changes the site's focus from "pleasing the userbase" to "pleasing the 
+advertisers". We believe that our users are our customers, not unpaid content-generators 
+who exist only to provide content for others to advertise on. We are committed to 
+remaining advertising-free for as long as the site exists.</p>
+
+<p>By "third-party advertising", we mean anything where a company pays us to show 
+their banners, graphics, or text advertisement to our users. We may make partnerships 
+with other sites in order to add features that we don't have the resources for ourselves. 
+If we do this, we will clearly indicate any such features, and we will include 
+information in our
+<a href="[% site.root %]/legal/privacy">Privacy Policy</a>.</p>

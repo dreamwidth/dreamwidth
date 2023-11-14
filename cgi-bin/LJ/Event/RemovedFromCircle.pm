@@ -45,6 +45,7 @@ my @_ml_strings_en = qw(
     esn.removedfromcircle.watched.subject
     esn.removedfromcircle.trusted.email_text
     esn.removedfromcircle.watched.email_text
+    esn.show_unsubscribed_journal
     esn.remove_trust
     esn.remove_watch
     esn.post_entry
@@ -88,13 +89,14 @@ sub _as_email {
             . $self->format_options(
             $is_html, undef, $vars,
             {
-                'esn.remove_trust' => [
-                    !$u->trusts( $self->fromuser ) ? 0 : 1,
+                'esn.show_unsubscribed_journal' => [ 1, $journal_url ],
+                'esn.remove_trust'              => [
+                    !$u->trusts( $self->fromuser ) ? 0 : 2,
                     "$LJ::SITEROOT/circle/$postername/edit"
                 ],
-                'esn.post_entry'   => [ 2, "$LJ::SITEROOT/update" ],
-                'esn.edit_friends' => [ 3, "$LJ::SITEROOT/manage/circle/edit" ],
-                'esn.edit_groups'  => [ 4, "$LJ::SITEROOT/manage/circle/editfilters" ],
+                'esn.post_entry'   => [ 3, "$LJ::SITEROOT/update" ],
+                'esn.edit_friends' => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
+                'esn.edit_groups'  => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
             }
             );
     }
@@ -103,13 +105,14 @@ sub _as_email {
             . $self->format_options(
             $is_html, undef, $vars,
             {
-                'esn.remove_watch' => [
-                    !$u->watches( $self->fromuser ) ? 0 : 1,
+                'esn.show_unsubscribed_journal' => [ 1, $journal_url ],
+                'esn.remove_watch'              => [
+                    !$u->watches( $self->fromuser ) ? 0 : 2,
                     "$LJ::SITEROOT/circle/$postername/edit"
                 ],
-                'esn.post_entry'   => [ 2, "$LJ::SITEROOT/update" ],
-                'esn.edit_friends' => [ 3, "$LJ::SITEROOT/manage/circle/edit" ],
-                'esn.edit_groups'  => [ 4, "$LJ::SITEROOT/manage/circle/editfilters" ],
+                'esn.post_entry'   => [ 3, "$LJ::SITEROOT/update" ],
+                'esn.edit_friends' => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
+                'esn.edit_groups'  => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
             }
             );
     }

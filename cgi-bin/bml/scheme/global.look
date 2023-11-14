@@ -18,7 +18,6 @@ SECURITYPROTECTED=>{Ss}<img src="<?imgprefix?>/silk/entry/locked.png" alt="prote
 SECURITYGROUPS=>{Ss}<img src="<?imgprefix?>/silk/entry/filtered.png" alt="custom" idth=21 height=13 align=absmiddle>
 HELP=>{DR}(<a href="%%data%%"><i>help</i></a>)
 INERR=>{DR}<font color="#ff0000"><b>%%data%%</b></font>
-EMAILEX=><div style='font-family: courier; border: solid black 1px; padding: 5px;'>%%data%%</div>
 
 BADINPUT<=
 <?h1 <?_ml bml.badinput.head _ml?> h1?>
@@ -69,25 +68,6 @@ DE<=
 <=DE
 
 HOTCOLOR=>{S}#ff0000
-
-CHOICE=>{P}<dt><a href="%%data2%%"><font size="+1"><tt><b>%%data1%%</b></tt></font></a><dd><font size="2">%%data3%%</font>
-
-CHOICES<=
-{F}<table summary="" width="100%" cellpadding="2" cellspacing="5">
-<tr>
-<td valign='top' width="50%">
-<dl>
-%%items%%
-</dl>
-</td>
-<td valign='top' width="50%">
-<dl>
-%%itemsb%%
-</dl>
-</td>
-</tr>
-</table>
-<=CHOICES
 
 PAGE<=
 {Fp}<html>

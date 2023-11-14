@@ -21,6 +21,8 @@ package DW::Controller::Comments;
 use strict;
 use warnings;
 
+use LJ::JSON;
+
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -248,7 +250,7 @@ sub received_handler {
         }
     }
 
-    $vars->{LJ_cmtinfo} = LJ::js_dumper( \%LJ_cmtinfo );
+    $vars->{LJ_cmtinfo} = to_json( \%LJ_cmtinfo );
 
     return DW::Template->render_template( 'comments/recent.tt', $vars );
 }
@@ -383,7 +385,7 @@ sub posted_handler {
         }
     }
 
-    $vars->{LJ_cmtinfo} = LJ::js_dumper( \%LJ_cmtinfo );
+    $vars->{LJ_cmtinfo} = to_json( \%LJ_cmtinfo );
 
     return DW::Template->render_template( 'comments/posted.tt', $vars );
 }

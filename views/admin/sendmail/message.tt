@@ -20,7 +20,7 @@
 [% END %]
 
 [%- IF row.size -%]
-    <p><table class="results"><tr>
+    <p><table class="results table"><tr>
     <th>[% '.table.date' | ml %]</th><td>[% row.time_sent_view | html %]</td>
     </tr><tr>
     <th>[% '.table.account' | ml %]</th><td>[% row.account_view | html %]</td>

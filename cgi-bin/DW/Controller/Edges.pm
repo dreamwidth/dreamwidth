@@ -44,6 +44,9 @@ sub edges_handler {
         return $r->OK;
     };
 
+    # Don't allow access unless we have a logged-in user
+    return $error_out->( 404, 'Must log in first' ) unless LJ::get_remote();
+
     # Load the account or error
     return $error_out->( 404, 'Need account name as user parameter' ) unless $opts->username;
     my $u = LJ::load_user_or_identity( $opts->username )

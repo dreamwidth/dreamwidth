@@ -146,116 +146,6 @@ sub cond_throw {
     return defined $ret_value ? $ret_value : undef;
 }
 
-# log error to database; don't override
-sub log {
-    my $err = shift;
-    return unless $LJ::LOG_ERRORS;
-    return if $err->{_logged}++;
-
-    my $dbl = LJ::get_dbh("logs") or return;
-
-    my $now = time;
-    my @now = localtime($now);
-
-    my $table_name =
-        sprintf( "errors%04d%02d%02d%02d", $now[5] + 1900, $now[4] + 1, $now[3], $now[2] );
-
-    my $create_sql = qq {
-        (
-         whn INT (10) UNSIGNED NOT NULL,
-         description VARCHAR(255),
-         errclass VARCHAR(255),
-         usercaused TINYINT,
-         server VARCHAR(30),
-         addr VARCHAR(15) NOT NULL,
-
-         remote VARCHAR(15),
-         remoteid INT UNSIGNED, # remote user's userid
-         remotecaps INT UNSIGNED,
-
-         journalid INT UNSIGNED, # userid of what's being looked at
-         journaltype CHAR(1),   # journalid's journaltype
-
-         codepath VARCHAR(80),  # protocol.getevents / s[12].friends / bml.update / bml.friends.index
-         langpref VARCHAR(5),
-         method VARCHAR(10) NOT NULL,
-         uri VARCHAR(255) NOT NULL,
-         args VARCHAR(255),
-         ref VARCHAR(255),
-         browser VARCHAR(100),
-         clientver VARCHAR(100)
-         )
-    };
-    $create_sql =~ s/\#.+//g;
-
-    $dbl->do("CREATE TABLE IF NOT EXISTS $table_name $create_sql") or return;
-
-    my $whn = time();
-
-    my %insert = (
-        'whn'         => $whn,
-        'description' => $err->as_string || $err->as_html,
-        'errclass'    => ref $err,
-        'server'      => $LJ::SERVER_NAME,
-        'usercaused'  => $err->user_caused,                  # 0, 1 or NULL
-    );
-
-    if ( my $apache_r = eval { BML::get_request() } ) {
-        my $apache_rl = $apache_r->last;
-
-        my $remote     = eval { LJ::load_user( $apache_rl->notes('ljuser') ) };
-        my $remotecaps = $remote ? $remote->{caps} : undef;
-        my $remoteid   = $remote ? $remote->{userid} : 0;
-        my $ju         = eval { LJ::load_userid( $apache_rl->notes('journalid') ) };
-        my $uri        = $apache_r->uri;
-
-        my %insert_r = (
-            'addr'        => $apache_r->connection->client_ip,
-            'remote'      => $apache_rl->notes('ljuser'),
-            'remotecaps'  => $remotecaps,
-            'remoteid'    => $remoteid,
-            'journalid'   => $apache_rl->notes('journalid'),
-            'journaltype' => $ju ? $ju->{journaltype} : "",
-            'codepath'    => $apache_rl->notes('codepath'),
-            'langpref'    => $apache_rl->notes('langpref'),
-            'clientver'   => $apache_rl->notes('clientver'),
-            'method'      => $apache_r->method,
-            'uri'         => $uri,
-            'args'        => scalar $apache_r->args,
-            'browser'     => $apache_r->header_in("User-Agent"),
-            'ref'         => $apache_r->header_in("Referer"),
-        );
-
-        while ( my ( $k, $v ) = each %insert_r ) {
-            $insert{$k} = $v;
-        }
-    }
-
-    my $ins = sub {
-        my $insert_sql =
-              "INSERT INTO $table_name ("
-            . join( ", ", keys %insert )
-            . ") VALUES ("
-            . join( ",", map { "?" } values %insert ) . ")";
-
-        $dbl->do( $insert_sql, undef, values %insert );
-    };
-
-    # insert time!
-
-    # support for widening the schema at runtime.  if we detect a bogus column,
-    # we just don't log that column until the next (wider) table is made at next
-    # hour boundary.
-    $ins->();
-    while ( $dbl->err && $dbl->errstr =~ /Unknown column \'(\w+)/ ) {
-        my $col = $1;
-        delete $insert{$col};
-        $ins->();
-    }
-
-    $dbl->disconnect if $LJ::DISCONNECT_DB_LOG && LJ::DB::use_diff_db( "master", "logs" );
-}
-
 # override this: whether it was user-defined.  should return 0 or 1.
 sub user_caused { undef }
 
@@ -315,14 +205,6 @@ sub fields { qw(errors); }    # arrayref of errors
 sub as_bullets {
     my $self = shift;
     return join( '', map { $_->as_bullets } @{ $self->{errors} } );
-}
-
-sub log {
-    my $self = shift;
-    return if $self->{_logged}++;
-    foreach my $suberr ( @{ $self->{errors} } ) {
-        $suberr->log;
-    }
 }
 
 package LJ::Error::WithSubError;

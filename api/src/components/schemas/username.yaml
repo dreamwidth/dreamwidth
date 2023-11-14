@@ -1,0 +1,5 @@
+type: string
+minLength: 3
+maxLength: 25
+pattern: "^[0-9A-Za-z_]+$"
+example: example  

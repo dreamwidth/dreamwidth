@@ -1,0 +1,43 @@
+[%- sections.title='View Outgoing Email' -%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+<p>This page displays up to the last 50 emailposts to your account, and their individual status.</p>
+
+[%- IF admin -%]
+<form method="POST">
+    [%- form.textbox( label = 'User/Email'
+            name = "user"
+            size = "20"
+            value=user
+    ) -%]
+    [%- form.submit(
+            value = 'Show User'
+            name = "show"
+            )
+    %]
+</form>
+[%- END -%]
+
+[% IF data.keys.size > 0 %]
+    <table class="grid" cellspacing="0">
+        <thead><tr>
+            <th>When</th>
+            <th>Type</th>
+            <th>Subject</th>
+            <th>Error?</th>
+            <th>Server Message</th>
+        </tr></thead>
+    [%- FOREACH d in data -%]
+            <tr>
+            <td nowrap="1">[% d.when %]</td>
+            <td nowrap="1">[% d.type %]</td>
+            <td nowrap="1"><em>[% d.subj %]</em></td>
+            <td nowrap="1">[% d.e %]</td>
+            <td width='100%'>[% d.msg %]</td>
+        </tr>
+    [% END %]
+    </table>
+
+[% ELSE %]
+    There are currently no emailposts logged.
+[% END %]

@@ -311,6 +311,15 @@ function Page::print_default_stylesheet() {
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
+    #for showing the navigation in the header
+    var string navlinks_css = "";
+    if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
+        .module-navlinks li {
+        display: inline-block; }
+
+        .module-navlinks .module-header { display: none; }
+        """; }
+    else { $navlinks_css = "#header .module-wrapper {display: none;}"; }
 
      var string userpic_css = "";
          if ($*userpics_position == "right") {
@@ -587,6 +596,13 @@ h2#pagetitle {
 }
 .comment-content { border-top: 1px transparent solid; } /* for firefox */
 
+/* Don't add space after last element in an entry/comment. Avoids extra gaps */
+/* if there's paragraph tags (markdown) instead of text nodes (casual HTML). */
+.entry-content > :last-child,
+.comment-content > :last-child {
+    margin-bottom: 0;
+}
+
 /* To prevent overlapping when icon's on the left */
 /* and list is the first thing in content */
 .entry-content li,
@@ -659,6 +675,10 @@ $responsive_indent_css
 .comment-wrapper {
     padding: .5em 0;
     min-width: 15em;
+}
+
+.comment .admin-poster {
+    white-space: nowrap;
 }
 
 .comment .comment-title {
@@ -865,5 +885,7 @@ ul.userlite-interaction-links.text-links {
 }
 
 $userpic_css
+
+$navlinks_css
     """;
 }

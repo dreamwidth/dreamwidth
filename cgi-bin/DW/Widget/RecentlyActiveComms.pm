@@ -39,9 +39,10 @@ sub render_body {
 
     # prep the stats we're interested in using here
 
-    $sth = $dbr->prepare(
-"SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) AND u.journaltype = 'C' ORDER BY uu.timeupdate DESC LIMIT 10"
-    );
+    $sth =
+        $dbr->prepare( "SELECT u.user, u.name, uu.timeupdate_public FROM user u, userusage uu"
+            . " WHERE u.userid=uu.userid AND uu.timeupdate_public > DATE_SUB(NOW(), INTERVAL 30 DAY)"
+            . " AND u.journaltype = 'C' ORDER BY uu.timeupdate_public DESC LIMIT 10" );
     $sth->execute;
 
     $ret .= "<h2>" . $class->ml('widget.comms.recentactive') . "</h2>";

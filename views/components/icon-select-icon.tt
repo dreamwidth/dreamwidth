@@ -1,0 +1,37 @@
+[%# Arguments:
+  - remote (needs to be a real user object)
+  - current_icon (optional, should be a real userpic object)
+  - focus_after_browse (optional CSS selector for the form element we should focus upon dismissal; defaults (in JS) to the icon menu select element)
+#%]
+[%- icons = remote.icon_keyword_menu() -%]
+[%- can_use_userpic_select = (remote.can_use_userpic_select && icons.size > 0) -%]
+[%- INCLUDE "components/icon-browser.tt" -%]
+
+[% dw.need_res({ group => "foundation"},
+    'stc/css/components/icon-select.css',
+    'js/components/jquery.icon-select.js',
+) %]
+
+<div class='block-icon no-label'>
+[% IF icons.size > 0 %]
+  [%- IF can_use_userpic_select -%]
+    <button type='button' id='lj_userpicselect'
+        data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]"
+        data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]"
+        data-iconbrowser-keywordorder="[%- remote.iconbrowser_keywordorder -%]"
+        data-iconbrowser-focus-after-browse="[%- focus_after_browse -%]"
+    >
+  [%- ELSE -%]
+    <a href="[% remote.allpics_base %]">
+  [%- END -%]
+    [%- selected = current_icon || remote.userpic -%]
+    [%- selected.imgtag -%]
+  [%- IF can_use_userpic_select -%]
+    </button>
+  [%- ELSE -%]
+    </a>
+  [%- END -%]
+[% ELSE %]
+  <a href="[% site.root %]/manage/icons" class="no-icon">[%- dw.img( "nouserpic_sitescheme", "" ) -%]</a>
+[% END %]
+</div>

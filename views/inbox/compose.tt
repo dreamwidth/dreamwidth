@@ -1,0 +1,76 @@
+[%- CALL dw.active_resource_group("foundation") -%]
+
+[% dw.need_res({ group => "foundation"}, 
+    "stc/css/pages/inbox.css"
+    "stc/css/components/button-groups.css"
+
+    ## tags (autocomplete)
+    "js/vendor/jquery.vertigro.js"
+    "js/jquery/jquery.ui.menu.js"
+    "js/jquery/jquery.ui.autocomplete.js"
+    "js/components/jquery.autocompletewithunknown.js"
+    "stc/jquery/jquery.ui.menu.css"
+    "stc/jquery/jquery.ui.autocomplete.css"
+    "stc/css/components/autocompletewithunknown.css"
+
+    "js/jquery.inbox.js"
+) %]
+
+[% sections.title = "Compose Message" %]
+
+<div id="inbox">
+    [%  folder_html %]
+
+            <div id="inbox_compose">
+            <form action="./compose" method="POST" id="compose">
+                [% dw.form_auth() %]
+
+  <div class='qr-icon no-label' id="compose_icon">
+    [% INCLUDE 'components/icon-select-icon.tt' %]
+  </div>
+<div id="compose_header_fields">
+  [% INCLUDE 'components/icon-select-dropdown.tt' %]
+
+<div class="pkg">
+    <label class="left" for="msg_to">To: </label>
+
+    [% IF disabled_to %]
+        [% reply_u.ljuser_display %]
+        [% form.hidden( 'name' = 'msg_to', 'value' = reply_u.username) %]
+    [% ELSE %]
+        [% form.textbox( 'name' = 'msg_to', size = 15, id = 'msg_to', value = msg_to, autocomplete = 'off', class='inline') %]
+    [% END %]
+
+    [% form.hidden( name = 'force', value = force, id = 'force') %]
+
+</div>
+
+
+[% form.checkbox( name = 'cc_msg', id = 'cc_msg', selected = cc_msg_option, label = dw.ml('.form.label.cc')) %]
+
+
+</div>
+                <div id='metainfo'>
+
+
+                    <div class='inbox_formmes'><p>
+                        [% form.textbox( name = 'msg_subject', size = 50, maxlength = subject_limit, label = "Subject:") %]
+
+                    </p>
+                        <div class='msg_txt'>
+                            [% form.textarea( name = 'msg_body', rows = 6, cols = 55, wrap = 'soft') %]
+                            <span class='helper'>Up to [% commafy(msg_limit) %] characters. Plain text, no HTML.</span>
+                        </div>
+
+                    </div>
+                        [% msg_parent %]
+                        [% form.hidden( name = 'mode', value = 'send') %]
+                        [% form.submit( value = 'Send') %]
+                </div>
+               <script>
+               var autocomplete_list = ['[% autocomplete.join("', '") %]'];
+              </script>
+
+            </form>
+</div>
+</div>

@@ -28,7 +28,7 @@
 
 <form method='POST'>
 [% form.textbox( label = dw.ml( '.label.viewuser' ), name = 'user',
-                 size = maxlength_user, maxlength = maxlength_user );
+                 size = site.maxlength_user, maxlength = site.maxlength_user );
 
    form.submit( value = dw.ml( '.btn.view' ) ) %]
 </form>
@@ -46,7 +46,7 @@
   <ul>
     [%- FOREACH layer IN sort_keys( s2style.layer );
           layerid = s2style.layer.$layer -%]
-    <li>[% layer %]: 
+    <li>[% layer %]:
       [%- IF layerid %]
       <a href='[% dw.create_url( '/customize/advanced/layerbrowse',
                                  args => { id => layerid } ) %]'>

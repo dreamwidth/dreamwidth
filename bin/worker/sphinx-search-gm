@@ -235,7 +235,7 @@ sub _build_output {
 
                 } else {
                     # something happened, couldn't get the comment
-                    $match->{entry} = '(sorry, this coment has been deleted or is otherwise unavailable)';
+                    $match->{entry} = '(sorry, this comment has been deleted or is otherwise unavailable)';
                     $match->{subject} = 'Comment deleted or unavailable.';
                 }
                 push @out, $match;

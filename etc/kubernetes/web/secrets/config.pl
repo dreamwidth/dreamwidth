@@ -76,12 +76,7 @@
 
     # Support URLs of the form http://username.yoursite.com/ ?
     # If so, what's the part after "username." ?
-    $USER_VHOSTS = 1;
     $USER_DOMAIN = $DOMAIN;
-
-    # If you ONLY want USER_VHOSTS to work and not the typical /users/USER and /community/USER
-    # then set this option:
-    $ONLY_USER_VHOSTS = 1;
 
     # Support updating of journals via email?
     # Users can post to user@$EMAIL_POST_DOMAIN.
@@ -115,17 +110,10 @@
                  tellafriend => 0,
                  );
 
-    # turn $SERVER_DOWN on while you do any maintenance
-    $SERVER_TOTALLY_DOWN = 0;
-    $SERVER_DOWN = 0;
-    $SERVER_DOWN_SUBJECT = "Maintenance";
-    $SERVER_DOWN_MESSAGE = "$SITENAME is down right now while we upgrade.  It should be up in a few minutes.";
+    # Maintenance messages
     $MSG_READONLY_USER   = "This journal is in read-only mode right now while database maintenance is performed " .
                            "on the server where the journal is located.  Try again in several minutes.";
     $MSG_NO_POST    = "Due to hardware maintenance, you cannot post at this time.  Watch the news page for updates.";
-    $MSG_NO_COMMENT = "Due to hardware maintenance, you cannot leave comments at this time.  Watch the news " .
-                      "page for updates.";
-    #$MSG_DB_UNAVAILABLE = "Sorry, database temporarily unavailable.  Please see <a href='...'>...</a> for status updates.";
 
     # can also disable media uploads/modifications, if for some reason you need to
     # turn off your MogileFS install, for example.

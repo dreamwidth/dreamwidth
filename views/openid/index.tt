@@ -23,32 +23,13 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         background-position: 3px 50%;
         padding-left: 21px;
     }
-    input.button {
+    input.openid {
         background: #ff6200;
         color: #fff;
-        padding: 0.25rem 1rem;
-        margin-bottom: 0.25rem;
     }
-    div.formdiv {
-        padding: 0.4em;
-        margin-left: 25px;
-        margin-right: 25px;
-        margin-bottom: 0.75rem;
-        width: auto;
-        text-align: center;
-        background: #ccc;
-        border: #000;
-    }
-    div.formdiv form {
-        display: inline;
-        width: auto;
-    }
-    h2 {
-        font-size: 125%;
-    }
-    p.expository {
-        font-size: 85%;
-    }
+
+    .formdiv {text-align: center;}
+
     </style>
 
     <script type="text/javascript">
@@ -74,17 +55,17 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 <h2>[% '.main.what_is_openid' | ml %]</h2>
 
-<p class="expository">[% ".main.what_is_openid.content" | ml( sitename => site.nameshort ) %]</p>
+<p>[% ".main.what_is_openid.content" | ml( sitename => site.nameshort ) %]</p>
 
 <h2>[% '.main.using_your_openid_here' | ml %]</h2>
 
-<p class="expository">[% ".main.using_your_openid_here.content" | ml( sitename => site.nameshort ) %]</p>
+<p>[% ".main.using_your_openid_here.content" | ml( sitename => site.nameshort ) %]</p>
 
 [%- uselinks = [ "$site.root/changeemail", "$site.root/register" ] %]
-<p class="expository">[% ".main.using_your_openid_here.email" | ml( aopts1 =>
+<p>[% ".main.using_your_openid_here.email" | ml( aopts1 =>
         "href='$uselinks.0'", aopts2 => "href='$uselinks.1'" ) %]</p>
 
-<div class='formdiv'>
+<div class='panel formdiv'>
   <form method="post" action="[% site.root %]/openid/login">
     [% dw.form_auth() %]
     <nobr>
@@ -93,12 +74,12 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
       [% IF continue_to;
             form.hidden( name = "continue_to", value = continue_to );
          END %]
-      <input class="button" type="submit" value="[% '.login.submit' | ml %]" />
+      <input class="button openid" type="submit" value="[% '.login.submit' | ml %]" />
     </nobr><br />[% '.login.example' | ml %]
   </form>
 </div>
 
 <h2>[% '.main.openid_other_sites' | ml %]</h2>
 
-<p class="expository">[% ".main.openid_other_sites.content" | ml( sitename => site.nameshort,
+<p>[% ".main.openid_other_sites.content" | ml( sitename => site.nameshort,
                                                domain => site.domain ) %]</p>

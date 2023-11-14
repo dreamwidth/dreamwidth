@@ -28,7 +28,7 @@
 <p>
 <form method='get' action='index'>
   [% form.textbox( name = 'user', label = dw.ml( '.label.viewuserprivs' ),
-                   size = maxlength_user, maxlength = maxlength_user ) %]
+                   size = site.maxlength_user, maxlength = site.maxlength_user ) %]
   [% form.submit(  value = dw.ml( '.btn.load' ) ) %]
 </form>
 </p>

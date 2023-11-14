@@ -48,19 +48,19 @@ function IconBrowser($el, options) {
             }
 
             // the browser blew away the user's tab-through position, so restore
-            // it on whatever makes most sense to focus. Defaulting to the icon
+            // it on whatever makes most sense to focus. Defaults to the icon
             // menu, since that's what they just indirectly set a value for, but
-            // if you want something else, set
-            // data-focus-after-browse="selector" on the icon menu.
+            // in comment forms we ask to focus the message body instead.
             var $focusTarget = $el;
-            if ( $el.data('focusAfterBrowse') ) {
-                var $altTarget = $( $el.data('focusAfterBrowse') ).first();
+            if ( options.focusAfterBrowse ) {
+                var $altTarget = $( options.focusAfterBrowse ).first();
                 if ( $altTarget.length === 1 ) {
                     $focusTarget = $altTarget;
                 }
             }
-            // Avoid yanking the focus if the user somehow managed to focus
-            // something else before this handler fired.
+            // Only force-reset the focus if we know it's still wrong! If the
+            // user somehow managed to focus something else before this handler
+            // fired, don't jerk them around.
             if ( document.activeElement.tagName === 'BODY' ) {
                 $focusTarget.focus();
             }
@@ -179,7 +179,7 @@ IconBrowser.prototype = {
             .on("dblclick", ".icon-browser-item", this.selectByDoubleClick.bind(this));
 
         $("#js-icon-browser-search").on("keyup click", this.filter.bind(this));
-        $("#js-icon-browser-select").on("click", this.updateOwner.bind(this));
+        $("#icon-browser-options-visibility").on("click", this.toggleOptions.bind(this));
 
         this.modal.on("sortByKeyword.iconbrowser", this.sortByKeyword.bind(this));
         this.modal.on("sortByDate.iconbrowser", this.sortByDate.bind(this));
@@ -199,9 +199,7 @@ IconBrowser.prototype = {
     keyboardNav: function(e) {
         if ( $(e.target).is('#js-icon-browser-search') ) return;
 
-        if ( e.key === 'Enter' || (! e.key && e.keyCode === 13) ) {
-            $(e.target).trigger('click');
-        } else if ( e.key === '/' || (! e.key && e.keyCode === 191) ) {
+        if ( e.key === '/' || (! e.key && e.keyCode === 191) ) {
             e.preventDefault();
             $("#js-icon-browser-search").focus();
         }
@@ -272,6 +270,9 @@ IconBrowser.prototype = {
     },
     close: function() {
         this.modal.foundation('reveal', 'close');
+    },
+    toggleOptions: function() {
+        this.modal.toggleClass("show-options");
     },
     sortByKeyword: function() {
         this.iconBrowserItems.sort(function(a, b) {
@@ -400,6 +401,7 @@ $.fn.extend({
             var defaults = {
                 // triggerSelector: "#icon-browse-button, #icon-preview",
                 // modalId: "icon-browser",
+                // focusAfterBrowse: "",
                 // preferences: { metatext: true, smallicons: false, keywordorder: false }
             };
 

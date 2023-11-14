@@ -19,7 +19,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 
 [%- IF jobs.size > 0 -%]
-<table>
+<table class="table">
 <thead><tr><th>Order</th><th>User</th><th>Job Type</th><th>Job Import ID</th><th>Latest Queued ID</th><th>Details</th></tr>
 <tbody>
     [%- FOREACH job = jobs -%]

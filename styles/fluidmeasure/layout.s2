@@ -71,6 +71,7 @@ function Page::print()
                 <div class="inner">
                     """;
                     $this->print_header();
+                    $this->print_module_section("header");
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->

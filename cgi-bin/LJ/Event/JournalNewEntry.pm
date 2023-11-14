@@ -125,7 +125,8 @@ sub as_html_tags {
     my $tags = '';
     my $url  = $self->entry->journal->journal_base;
 
-    my @taglist = $self->entry->tags;
+    # this is retrieving the values of a hash - needs sorting
+    my @taglist = sort { $a cmp $b } $self->entry->tags;
 
     # add tag info for entries that have tags
     if (@taglist) {
@@ -293,10 +294,9 @@ sub _as_email {
     my $tags = '';
 
     # add tag info for entries that have tags
-    if ( $self->entry->tags ) {
+    if ( my @taglist = sort { $a cmp $b } $self->entry->tags ) {
         $tags = ' '
-            . LJ::Lang::get_text( $lang, 'esn.tags', undef,
-            { tags => join( ', ', $self->entry->tags ) } );
+            . LJ::Lang::get_text( $lang, 'esn.tags', undef, { tags => join( ', ', @taglist ) } );
     }
 
     # indicate post security if it is locked or filtered

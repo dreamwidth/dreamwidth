@@ -1,22 +1,49 @@
-@import "foundation/base", "foundation/components/forms", "mixins/bare-button";
+@import "foundation/base", "foundation/components/forms", "mixins/bare-button", "components/foundation-icons";
 
 $half-form-spacing: $form-spacing / 2;
 .autocomplete-container {
     margin-bottom: $form-spacing;
+    display: block;
+    width: 100%;
+    box-shadow: $input-box-shadow;
     padding: $half-form-spacing 0 0 $half-form-spacing;
 
-    textarea {
+    &.inline {
+        display:inline-block;
+        width: auto;
+        padding: 0;
+        margin-bottom: 0;
+
+        input {
+            display: inline-block;
+            width: auto;
+            padding: 0.2em 0 0.2em 0.5em;
+
+        }
+
+        ul {
+            margin-bottom: 0;
+        }
+    }
+    
+    input {
         min-height: auto;
         width: 100%;
         padding: 0 0 $half-form-spacing $half-form-spacing;
         margin: 0;
         border: none;
         box-shadow: none;
+        background-color:transparent;
 
         // this forces the autocomplete dropdown to have z-index: 2 (to overcome buttons z-index)
         // see jquery.ui.autocomplete.js
         position: relative;
         z-index: 1;
+
+        &:focus{
+            box-shadow: none;
+            background-color:transparent;
+        }
     }
 
     .token {
@@ -49,6 +76,8 @@ $half-form-spacing: $form-spacing / 2;
 
 .autocomplete-list {
     list-style-type: none;
+    display: inline;
+    margin-left: 0;
 }
 
 .autocomplete-count {

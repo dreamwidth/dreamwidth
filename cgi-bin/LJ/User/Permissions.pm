@@ -149,10 +149,6 @@ sub can_post {
     return $_[0]->get_cap('can_post') ? 1 : 0;
 }
 
-sub can_post_disabled {
-    return $_[0]->get_cap('disable_can_post') ? 1 : 0;
-}
-
 sub can_import_comm {
     return $_[0]->get_cap('import_comm') ? 1 : 0;
 }
@@ -628,6 +624,17 @@ sub google_analytics {
     }
 
     return $u->prop('google_analytics');
+}
+
+sub ga4_analytics {
+    my $u = shift;
+
+    if ( defined $_[0] ) {
+        $u->set_prop( ga4_analytics => $_[0] );
+        return $_[0];
+    }
+
+    return $u->prop('ga4_analytics');
 }
 
 # is there a suspend note?
@@ -1280,6 +1287,15 @@ sub should_block_robots {
     return 1
         if $LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{block_robots};
     return 0;
+}
+
+sub should_receive_support_notifications {
+    my ( $u, $spcatid ) = @_;
+    return 0 unless $u->is_visible;
+    return 0 unless $u->is_validated;
+    return 0 unless $spcatid;
+    return 0 unless LJ::Support::can_read_cat( $spcatid, $u );
+    return 1;
 }
 
 sub support_points_count {

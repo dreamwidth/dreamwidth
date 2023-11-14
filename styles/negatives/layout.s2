@@ -545,6 +545,10 @@ function Page::print_default_stylesheet()
     .comment-posted {
         font-weight:bold;
     }
+
+    .comment .admin-poster {
+    white-space: nowrap;
+}
     .comment-management-links {
         display: inline;
         padding-left: 0;
@@ -1087,4 +1091,3 @@ function Page::print()
     $this->print_wrapper_end();
     println "</html>";
 }
-

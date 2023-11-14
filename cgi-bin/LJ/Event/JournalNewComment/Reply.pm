@@ -77,7 +77,7 @@ sub migrate_user {
     # Cannot use $u->migrate_prop_to_esn
     #  * opt_gettalkemail isn't really a prop
     #  * ->migrate_prop_to_esn won't take arg1/arg2
-    #  * it no longer exists following https://github.com/dreamwidth/dw-free/issues/2052
+    #  * it no longer exists following https://github.com/dreamwidth/dreamwidth/issues/2052
 
     my $opt_gettalkemail = $u->prop('opt_gettalkemail') // '';
     my $opt_getselfemail = $u->prop('opt_getselfemail') // '';

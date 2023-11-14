@@ -1,12 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.chat.googlehangouts=Google Hangouts
-
-.chat.icquin=ICQ UIN
-
-.chat.jabber=Jabber
-
-.chat.skype=Skype
-
 .comms2=Display communities of which you are a member or administrator.
 
 .display.title=Display Settings for [[name]]
@@ -178,50 +170,6 @@
 .security.visibility.admins=Administrators
 
 .select.provider=-- Select Carrier --
-
-.services.ao3=AO3 Username
-
-.services.deviantart=DeviantArt Username
-
-.services.diigo=Diigo Username
-
-.services.discord=Discord Username
-
-.services.etsy=Etsy Username
-
-.services.ffnet=FanFiction.net Username
-
-.services.github=GitHub Username
-
-.services.insanejournal=InsaneJournal Username
-
-.services.instagram=Instagram Username
-
-.services.last_fm=Last.fm Username
-
-.services.livejournal=LiveJournal Username
-
-.services.medium=Medium Username
-
-.services.patreon=Patreon Username
-
-.services.pillowfort=Pillowfort Username
-
-.services.pinboard=Pinboard Username
-
-.services.pinterest=Pinterest Username
-
-.services.plurk=Plurk Username
-
-.services.ravelry=Ravelry Username
-
-.services.reddit=Reddit Username
-
-.services.tumblr=Tumblr Username
-
-.services.twitter=Twitter Username
-
-.services.wattpad=Wattpad Username
 
 .show.birthday.day2=Show only month and day
 

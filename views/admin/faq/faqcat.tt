@@ -44,7 +44,7 @@
   [% dw.form_auth %]
   [% form.hidden( name = 'faqcats', value = faqcats ) %]
 
-  <table>
+  <table class="table">
     <thead><tr>
       <th>[% '.label.catname'  | ml( '_' => '' ) %]</th>
       <th>[% '.label.catkey'   | ml( '_' => '' ) %]</th>

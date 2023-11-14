@@ -23,6 +23,9 @@ body<=
     return BML::redirect( "$LJ::SITEROOT/" )
         unless LJ::is_enabled( 'payments' );
 
+    return BML::redirect( "$LJ::SITEROOT/shop" )
+        unless exists $LJ::SHOP{rename};
+
     # this page uses new style JS
     LJ::need_res( 'stc/shop.css' );
     LJ::set_active_resource_group( 'jquery' );

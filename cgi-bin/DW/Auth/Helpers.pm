@@ -23,6 +23,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Crypt::Mode::CBC;
 use MIME::Base64 qw/ encode_base64 decode_base64 /;
+use Math::Random::Secure qw(rand);
 
 ################################################################################
 #

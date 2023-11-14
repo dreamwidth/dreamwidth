@@ -1,0 +1,22 @@
+[%# site/suggest_ghi.tt
+
+GHI entry template from site/suggest.
+
+Copyright (c) 2009-2016 by Dreamwidth Studios, LLC.
+
+This program is NOT free software or open-source; you can use it as an
+example of how to implement your own site-specific extensions to the
+Dreamwidth Studios open-source code, but you cannot use it on your site
+or redistribute it, with or without modifications.
+
+-%]
+
+<p>To post this entry to GitHub, use this link and change
+    any of the fields as appropriate:</p>
+
+<blockquote>
+    <p><a href='https://github.com/dreamwidth/dreamwidth/issues/new?[% ghi_args %]'>Post
+    '[% title | html %]' to GitHub Issues</a>.</p>
+</blockquote>
+
+<p>Once you do, retag both this entry and the public entry it belongs with.</p>

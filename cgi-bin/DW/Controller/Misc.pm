@@ -11,8 +11,9 @@
 #      Mark Smith <mark@dreamwidth.org>
 #      idonotlikepeas <peasbugs@gmail.com>
 #      Afuna <coder.dw@afunamatata.com>
+#      Jen Griffin <kareila@livejournal.com>
 #
-# Copyright (c) 2009-2013 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2023 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -23,6 +24,7 @@ package DW::Controller::Misc;
 
 use strict;
 use warnings;
+
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -38,6 +40,7 @@ DW::Routing->register_string( "/community/random/index",  \&random_community_han
 DW::Routing->register_string( "/beta",                    \&beta_handler,             app  => 1 );
 DW::Routing->register_string( "/site/index",              \&sitemap_handler,          app  => 1 );
 
+DW::Routing->register_static( '/index',           'index-free.tt',      app => 1 );
 DW::Routing->register_static( '/internal/404',    'error/404.tt',       app => 1 );
 DW::Routing->register_static( '/site/opensource', 'site/opensource.tt', app => 1 );
 DW::Routing->register_static( '/doc/s2',          'doc/s2/index.tt',    app => 1 );

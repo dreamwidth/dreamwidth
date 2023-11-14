@@ -223,9 +223,9 @@ set color_module_title = "#082d06";
 layerinfo type = "theme";
 layerinfo name = "Coloured Glass";
 layerinfo redist_uniq = "steppingstones/colouredglass";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -365,9 +365,9 @@ set color_module_link_visited = "#ff6700";
 layerinfo type = "theme";
 layerinfo name = "El mar";
 layerinfo redist_uniq = "steppingstones/elmar";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -583,9 +583,9 @@ function Page::print_theme_stylesheet () {
 layerinfo type = "theme";
 layerinfo name = "Full Sky";
 layerinfo redist_uniq = "steppingstones/fullsky";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -725,9 +725,9 @@ set color_module_link_visited = "#7c1427";
 layerinfo type = "theme";
 layerinfo name = "Ice Chic";
 layerinfo redist_uniq = "steppingstones/icechic";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -786,9 +786,9 @@ set color_module_title_background = "#f0f5e7";
 layerinfo type = "theme";
 layerinfo name = "Innocence";
 layerinfo redist_uniq = "steppingstones/innocence";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -891,9 +891,9 @@ set color_module_text = "#c39363";
 layerinfo type = "theme";
 layerinfo name = "Myrtilles";
 layerinfo redist_uniq = "steppingstones/myrtilles";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1020,9 +1020,9 @@ set color_module_title = "#fff";
 layerinfo type = "theme";
 layerinfo name = "Paisaje";
 layerinfo redist_uniq = "steppingstones/paisaje";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1278,9 +1278,9 @@ set color_module_title = "#000";
 layerinfo type = "theme";
 layerinfo name = "Valkyrie";
 layerinfo redist_uniq = "steppingstones/valkyrie";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

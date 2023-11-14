@@ -1,0 +1,32 @@
+[%#
+    auth/captcha.tt
+
+    Allow a user to perform a sitewide captcha.
+
+    Authors:
+        Mark Smith <mark@dreamwidth.org>
+
+    Copyright (c) 2022 by Dreamwidth Studios, LLC.
+
+    This program is free software; you may redistribute it and/or modify it under
+    the same terms as Perl itself.  For a copy of the license, please reference
+    'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.windowtitle = "Captcha Check" -%]
+[%- sections.title = "Captcha Check" -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+
+<p>
+Hello, you've been (semi-randomly) selected to take a CAPTCHA to validate
+your requests. Please complete it below and hit the button!
+</p>
+
+<form method='post'>
+    [% dw.form_auth %]
+    <div class="h-captcha" data-sitekey="[% sitekey %]"></div>
+    [%- form.hidden( name = "returnto", value = returnto ) -%]
+    [%- form.submit( name = "submit", value = "Press to Validate") -%]
+</form>

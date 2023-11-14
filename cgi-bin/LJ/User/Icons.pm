@@ -900,4 +900,62 @@ sub _create_mapid {
     return $mapid;
 }
 
+# <LJFUNC>
+# name: LJ::icon_keyword_menu
+# class: web
+# des: Gets all userpics for a given user, separated by keyword. Use this when
+#      building a drop-down icons menu.
+# args: user
+# des-user: a user object.
+# returns: An arrayref of hashrefs like:
+#          [{value => ..., text => ..., data => { url => ..., description => ... }}, ...]
+#          which can be passed directly to the form.select() template helper.
+#          Includes an item for each keyword (thus duplicating icons with
+#          multiple keywords), and an item for the default userpic. If no
+#          userpics or if user is undefined, returns an empty array.
+# </LJFUNC>
+sub icon_keyword_menu {
+    my ($user) = @_;
+
+    return [] unless ($user);
+
+    my @icons = grep { !( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics($user);
+
+    return [] unless (@icons);
+
+    # Get a sorted array of { keyword => "...", userpic => userpic_object } hashrefs:
+    @icons = LJ::Userpic->separate_keywords( \@icons );
+
+    # Sort out the default icon -- either it's a real one, or it's nothing
+    # and we should use a placeholder image in previews.
+    my $default_icon = $user->userpic;    # userpic object or nothing
+    my $default_icon_url =
+          $default_icon
+        ? $default_icon->url
+        : ( $LJ::IMGPREFIX . $LJ::Img::img{nouserpic_sitescheme}->{src} );
+
+    # Finally, return the expected format for the form.select() template helper,
+    # including an item for the default icon:
+    return [
+        {
+            value => "",
+            text  => LJ::Lang::ml('entryform.opt.defpic'),
+            data  => {
+                url         => $default_icon_url,
+                description => LJ::Lang::ml('entryform.opt.defpic'),
+            },
+        },
+        map {
+            {
+                value => $_->{keyword},
+                text  => $_->{keyword},
+                data  => {
+                    url         => $_->{userpic}->url,
+                    description => $_->{userpic}->description || $_->{keyword},
+                },
+            }
+        } @icons
+    ];
+}
+
 1;

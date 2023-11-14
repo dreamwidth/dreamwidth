@@ -1,0 +1,35 @@
+;; -*- coding: utf-8 -*-
+.address.current.title=Current Email Address
+
+.address.old.none=None
+
+.address.old.text=If you've used other email addresses with your account, they're displayed with the time you switched to a different primary email address.  Select any email addresses you'd like to delete. Please note that for security reasons some addresses may not be deletable.
+
+.address.old.title=Previous Email Addresses
+
+.delete_selected=Delete Selected
+
+.desc.notfirst=Please note there are some restrictions on which email addresses you can remove.  The system is specifically designed to prevent anyone who gets unauthorized access to your account from locking you out of your account by changing the password and removing your original email address.
+
+.desc.text=You can view and remove past email addresses used with your account on this page. Addresses that you've removed can no longer be used to reset your password. This is useful if you no longer control a particular email address or if someone gains access to your account and adds a new email address. By removing the unwanted email addresses you'll be able to keep your account more secure.
+
+.desc.title2=Manage Email Addresses
+
+.header.check=Select
+
+.header.date=Date Added
+
+.header.email=Email Address
+
+.in_use_since=is in use since [[time]] 
+
+.log.deleted=Deleted: [[email]] @ [[time]]
+
+.log.deleted.title=Changes Saved
+
+.notvalidated.text2=Your current email address, [[email]], must be confirmed to use this tool. If you've lost the confirmation email, you can <a [[aopts]]>have it re-sent</a>. After you confirm your email, come back here.
+
+.notvalidated.title=Email not confirmed
+
+.title=Email Management
+

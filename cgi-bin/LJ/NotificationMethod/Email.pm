@@ -129,13 +129,22 @@ sub notify {
         elsif ( $u->{opt_htmlemail} eq 'N' ) {
             LJ::send_mail(
                 {
-                    to       => $u->email_raw,
-                    from     => $LJ::BOGUS_EMAIL,
-                    fromname => scalar( $ev->as_email_from_name($u) ),
-                    wrap     => 1,
-                    subject  => $email_subject,
-                    headers  => \%headers,
-                    body     => $plain_body,
+                    to         => $u->email_raw,
+                    from       => $LJ::BOGUS_EMAIL,
+                    fromname   => scalar( $ev->as_email_from_name($u) ),
+                    wrap       => 1,
+                    subject    => $email_subject,
+                    headers    => \%headers,
+                    body       => $plain_body,
+                    logger_mdc => {
+                        userid     => $u->id,
+                        user       => $u->user,
+                        evt_userid => $ev->u->id,
+                        evt_user   => $ev->u->user,
+                        evt_class  => $ev->class,
+                        evt_arg1   => $ev->arg1,
+                        evt_arg2   => $ev->arg2,
+                    },
                 }
             ) or die "unable to send notification email";
         }
@@ -169,14 +178,23 @@ sub notify {
             }
             LJ::send_mail(
                 {
-                    to       => $u->email_raw,
-                    from     => $LJ::BOGUS_EMAIL,
-                    fromname => scalar( $ev->as_email_from_name($u) ),
-                    wrap     => 1,
-                    subject  => $email_subject,
-                    headers  => \%headers,
-                    html     => $html_body,
-                    body     => $plain_body,
+                    to         => $u->email_raw,
+                    from       => $LJ::BOGUS_EMAIL,
+                    fromname   => scalar( $ev->as_email_from_name($u) ),
+                    wrap       => 1,
+                    subject    => $email_subject,
+                    headers    => \%headers,
+                    html       => $html_body,
+                    body       => $plain_body,
+                    logger_mdc => {
+                        userid     => $u->id,
+                        user       => $u->user,
+                        evt_userid => $ev->u->id,
+                        evt_user   => $ev->u->user,
+                        evt_class  => $ev->class,
+                        evt_arg1   => $ev->arg1,
+                        evt_arg2   => $ev->arg2,
+                    },
                 }
             ) or die "unable to send notification email";
         }

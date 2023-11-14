@@ -1,0 +1,179 @@
+/** Tropospherical CSS
+ *
+ * Authors:
+ *     Janine Smith <janine@netrophic.com>
+ *     Jesse Proulx <jproulx@jproulx.net>
+ *     Elizabeth Lubowitz <grrliz@gmail.com>
+ *     Denise Paolucci <denise@dreamwidth.org>
+ *
+ * Copyright (c) 2009 by Dreamwidth Studios, LLC.
+ *
+ * This program is NOT free software or open-source; you can use it as an
+ * example of how to implement your own site-specific extensions to the
+ * Dreamwidth Studios open-source code, but you cannot use it on your site
+ * or redistribute it, with or without modifications.
+ *
+ */
+
+/**
+ * Dreamwidth Site Scheme
+ *
+ * Standard layout for Dreamwidth
+ *
+ * Mockups designed by grrliz, hence grrliz.css
+ *
+ * @project         Dreamwidth Site Design
+ * @author          Jesse Proulx
+ * @date            2009-01-07
+ * @version         Alpha
+ * @revision        $Revision$
+ * @copyright       Copyright (c) 2009 by Dreamwidth Studios, LLC
+ */
+
+$journal-content-font-size: 0.85rem;
+@import "skins/global-styles", "skins/nav", "skins/skiplink";
+$header-height: 7em;
+
+#canvas {
+    border-color: $body-border-color;
+    margin: 0;
+    border-style: solid;
+    border-width: 1em 0;
+}
+
+// You know the colored stripe at the very bottom of the page? The following is
+// a hack to position it at the bottom of the viewport on pages that are less
+// than one full viewport high, so that it doesn't appear in the middle of the
+// screen (i.e. at the bottom of the [short] content). Screen only, bc on
+// print it will cut content off after a single page.
+@media screen {
+    // exclude IE11 bc it can't handle min-height + flex-direction: column.
+    @supports (display: flex) {
+        #canvas, #page {
+          display: flex;
+          flex-direction: column;
+        }
+
+        #canvas {
+            min-height: 100vh;
+        }
+
+        #content, #page {
+          flex-grow: 1;
+        }
+    }
+}
+
+#page {
+    position: relative;
+    z-index: 1;
+    max-width: $row-width;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/**
+ * Masthead is the space for our logo and account links
+ */
+
+#masthead {
+    background: none repeat scroll 0 0 #ffffff;
+    border-bottom: 0.5em solid $masthead-bottom-accent-color;
+}
+
+@media #{$small-only} {
+    #masthead {
+        padding-top: .5em;
+    }
+
+    #canvas {
+        border-width: 2em 0;
+    }
+}
+
+#account-links-wrapper {
+    position: absolute;
+    top: 0;
+}
+#account-links {
+    right: 0;
+    margin-right: 0;
+}
+
+/**
+ * Menu navigation
+ */
+
+@include main-nav( horizontal, right, $header-height, -$header-height, 0 );
+
+// reset the way we position #content
+// #masthead is otuside #page, unlike most other site skins
+#content {
+    margin-top: 0 !important;
+    padding-top: $nav-small-screen-header-height;
+}
+
+.main-nav {
+    top: 0;
+}
+
+.main-nav .top-bar-section  {
+    li.has-dropdown {
+        // all links in the dropdown menus
+        & a {
+            text-indent: 15px;
+            text-decoration: none;
+        }
+    }
+}
+
+
+.nav-search {
+    line-height: $topbar-height;
+    input, select {
+        line-height: $base-line-height;
+        top: 0;
+    }
+}
+
+/**
+ * Footer
+ */
+
+footer {
+    @include grid-row( nested-collapse );
+    clear: both;
+    padding: .45em 0 0 .63em;
+    overflow: auto;
+    background-color: $topbar-bg;
+
+    ul {
+        overflow: hidden;
+        font-size: .8em;
+        margin: 0;
+
+        li {
+            list-style: none;
+            float: left;
+            margin-right: .8em;
+        }
+
+    }
+
+    p {
+        font-size: .8em;
+        margin: 0 0 0.5em 0;
+    }
+}
+
+/**
+ * #content houses the page-specific innards, and creates margins for the absolutely
+ * positioned masthead and footer
+ */
+
+#content {
+    @include grid-row( nested-collapse );
+    margin-bottom: 2.75em;
+}
+
+@import "skins/page-layout-hacks";

@@ -38,6 +38,8 @@
 
 .latest-entry .event {
     padding: 1em;
+    position: relative;
+    overflow: hidden;
 }
 
 .latest-entry .tags {

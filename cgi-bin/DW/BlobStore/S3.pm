@@ -23,7 +23,6 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5 qw/ md5_hex /;
 use Paws;
-use Paws::Credential::InstanceProfile;
 
 sub type { 's3' }
 
@@ -38,19 +37,9 @@ sub init {
     $log->logcroak('Prefix does not match required regex: [a-zA-Z0-9_-]+$.')
         if defined $args{prefix} && $args{prefix} !~ /^[a-zA-Z0-9_-]+$/;
 
-    my $credentials = Paws::Credential::InstanceProfile->new;
-    if ( defined $args{access_key} && defined $args{secret_key} ) {
-        $log->warn('Using INSECURE AWS configuration!');
-        $credentials = Paws::Credential::Local->new(
-            access_key => $args{access_key},
-            secret_key => $args{secret_key},
-        );
-    }
-
     my $paws = Paws->new(
         config => {
-            credentials => $credentials,
-            region      => $args{region},
+            region => $args{region},
         },
     ) or $log->logcroak('Failed to initialize Paws object.');
     my $s3 = $paws->service('S3')
@@ -144,26 +133,5 @@ sub delete {
     $log->debug( 'Deleted path from S3: ', $fqfn );
     return 1;
 }
-
-################################################################################
-#
-# Paws::Credential::Local
-#
-# Implements the Paws::Credential role for passing in the access credentials
-# directly. You would think this would be a default package supplied
-# by the library...
-#
-
-package Paws::Credential::Local;
-
-use Moose;
-
-has access_key    => ( is => 'ro' );
-has secret_key    => ( is => 'ro' );
-has session_token => ( is => 'ro', default => sub { undef } );
-
-with 'Paws::Credential';
-
-no Moose;
 
 1;

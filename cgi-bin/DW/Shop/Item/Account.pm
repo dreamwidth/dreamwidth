@@ -20,6 +20,7 @@ package DW::Shop::Item::Account;
 use base 'DW::Shop::Item';
 
 use strict;
+use DateTime;
 use DW::InviteCodes;
 use DW::Pay;
 
@@ -123,6 +124,15 @@ sub _apply_userid {
     # we're applied now, regardless of what happens with the email
     $self->{applied} = 1;
 
+    # look up the account's new expiration date
+    my $expdate;
+    my $paid_status = DW::Pay::get_paid_status($u);
+
+    if ( $paid_status && !$self->permanent ) {
+        my $exptime = DateTime->from_epoch( epoch => $paid_status->{expiretime} );
+        $expdate = $exptime->ymd;
+    }
+
     # now we have to mail this code
     my ( $body, $subj );
     my $accounttype_string =
@@ -154,6 +164,10 @@ sub _apply_userid {
 
             $body .=
                 LJ::Lang::ml( "shop.email.acct.body.type", { accounttype => $accounttype_string } );
+            $body .= "\n";
+            $body .= LJ::Lang::ml( "shop.email.acct.body.expires", { date => $expdate } )
+                if $expdate;
+            $body .= "\n";
             $body .= LJ::Lang::ml( "shop.email.acct.body.note", { reason => $self->reason } )
                 if $self->reason;
 
@@ -196,6 +210,10 @@ sub _apply_userid {
 
         $body .=
             LJ::Lang::ml( "shop.email.acct.body.type", { accounttype => $accounttype_string } );
+        $body .= "\n";
+        $body .= LJ::Lang::ml( "shop.email.acct.body.expires", { date => $expdate } )
+            if $expdate;
+        $body .= "\n";
         $body .= LJ::Lang::ml( "shop.email.acct.body.note", { reason => $self->reason } )
             if $self->reason;
 
@@ -360,7 +378,14 @@ sub can_be_added {
             $$errref = LJ::Lang::ml(
                 'shop.item.account.canbeadded.nopaidforpremium',
                 { user => $target_u->ljuser_display }
-            );
+            ) if $self->class eq 'paid';
+
+            # paid accounts can't get premium time as a gift
+            $$errref = LJ::Lang::ml(
+                'shop.item.account.canbeadded.nopremiumforpaid',
+                { user => $target_u->ljuser_display }
+            ) if $self->class eq 'premium';
+
             return 0;
         }
     }
@@ -368,9 +393,7 @@ sub can_be_added {
     return 1;
 }
 
-# this checks whether we can downgrade the premium to paid
-# FIXME: a better fix for this is to have an autorenewal system, and have the paid time
-# applied to their account once their current premium time expires
+# this checks whether we can upgrade/downgrade between premium & paid
 sub allow_account_conversion {
     my ( $class, $u, $to ) = @_;
 
@@ -383,11 +406,21 @@ sub allow_account_conversion {
 
     my $from = DW::Pay::type_shortname( $paid_status->{typeid} );
 
-    # doesn't match premium => paid, so allow it
-    return 1 unless $from eq 'premium' && $to eq 'paid';
+    # ok unless we're going from premium to paid or paid to premium
+    my $changing = 0;
+
+    $changing = 1 if $from eq 'premium' && $to eq 'paid';
+    $changing = 1 if $from eq 'paid'    && $to eq 'premium';
+
+    # doesn't match either scenario, so allow it
+    return 1 unless $changing;
 
     # allow if we're within two weeks of expiration
     return 1 if $paid_status->{expiresin} <= 3600 * 24 * 14;
+
+    # allow upgrading to premium if the remote user owns this account
+    my $remote = LJ::get_remote();
+    return 1 if $to eq 'premium' && $remote && $remote->has_same_email_as($u);
 
     return 0;
 }
@@ -476,8 +509,12 @@ sub class_name {
     my $self = $_[0];
 
     foreach my $cap ( keys %LJ::CAP ) {
+
+        # skip "unused" elements in CAP
+        next unless $LJ::CAP{$cap}->{_account_type};
+
         return $LJ::CAP{$cap}->{_visible_name}
-            if $LJ::CAP{$cap} && $LJ::CAP{$cap}->{_account_type} eq $self->class;
+            if $LJ::CAP{$cap}->{_account_type} eq $self->class;
     }
 
     return 'Invalid Account Class';

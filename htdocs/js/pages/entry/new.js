@@ -215,15 +215,16 @@ var postForm = (function($) {
             $.when.apply($, requests).done(function() {
                 var members_data_list = "";
                 members_data.sort();
-                for (member in members_data) {
-                    members_data_list = members_data_list + "<li>" + members_data[member] + "</li>";
-                }
+                members_data.forEach(function(member) {
+                    members_data_list = members_data_list + "<li>" + member + "</li>";
+                });
+                
                 $custom_access_group_members.html(members_data_list);
             });
         }
 
         function saveCurrentGroups() {
-            $custom_groups.data( "original_data", $custom_groups.find("input[name=custom_bit]").serializeArray() );
+           $custom_groups.data( "original_data", $custom_groups.find("input[name=custom_bit]").serializeArray() );
         }
 
         function onOpen() {
@@ -380,50 +381,6 @@ var postForm = (function($) {
                 $usejournal.removeAttr("data-is-admin");
             }
         });
-    };
-
-    var initIcons = function($form, iconBrowserOptions) {
-        var $preview = $( "#js-icon-preview" );
-        if ( $preview.is(".no-icon") ) return;
-
-        var $select = $("#js-icon-select");
-
-        function buttonHTML(id, text, columnClass) {
-            return '<div class="columns medium-6 ' + columnClass + '">' +
-                "<button id='" + id + "' class='small secondary button'>" + text + "</button>" +
-                '</div>'
-        }
-        $select.closest('.row')
-                .after('<div class="row">' +
-                    buttonHTML('js-icon-browse', 'browse', '') +
-                    buttonHTML('js-icon-random', 'random', 'end') +
-                    '</div>');
-
-        function update_icon_preview() {
-            if ( this.selectedIndex != null ) {
-                var selection = $(this).find("option:selected");
-                $("#js-icon-preview-image").attr({
-                    "src": selection.data('url'),
-                    "alt": selection.data('description')
-                });
-            }
-        }
-
-        $select
-            .iconrandom( { trigger: "#js-icon-random" } )
-            .change( update_icon_preview )
-            .triggerHandler( "change" );
-
-        if ( $.fn.iconBrowser ) {
-            if ( ! iconBrowserOptions ) iconBrowserOptions = {};
-            $select.iconBrowser({
-                triggerSelector: "#js-icon-preview, #js-icon-browse",
-                modalId: "js-icon-browser",
-                preferences: iconBrowserOptions
-            });
-        } else {
-            $("#js-icon-browse").remove();
-        }
     };
 
     var initSlug = function($form, $dateElement) {
@@ -667,7 +624,6 @@ var postForm = (function($) {
         initCurrents(entryForm, formData.moodpics);
         initSecurity(entryForm, formData.security, { edit: formData.edit } );
         initJournal(entryForm);
-        initIcons(entryForm, formData.iconBrowser);
         initSlug(entryForm, $("#js-entrytime-date"));
         initTags(entryForm);
         initDate(entryForm);
@@ -676,6 +632,7 @@ var postForm = (function($) {
 
         $("#js-usejournal").triggerHandler("change");
         $("#js-entrytime-autoupdate").triggerHandler("click");
+        $(".icons-component .js-only").show();
     };
 
     return {

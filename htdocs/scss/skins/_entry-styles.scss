@@ -63,6 +63,14 @@ ul.text-links {
   }
 }
 
+// Don't add space after last element in an entry/comment. Avoids extra gaps
+// if there's paragraph tags (markdown) instead of text nodes (casual HTML).
+.comment-content, .entry-content {
+  & > :last-child {
+    margin-bottom: 0;
+  }
+}
+
 /**
 * Primary item styles:
 * (The primary item is always an entry on entry pages, but is sometimes a
@@ -173,54 +181,65 @@ ul.entry-management-links {
   margin: 0 4px;
 }
 
-ul.pagination {
+.action-box ul.pagination {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: auto auto auto;
+  grid-template-areas: "prev pages next";
   text-align: center;
-  margin: 0 auto;
-  grid-column-gap: .3rem;
+  margin: 0 0 0.75em 0;
 
-  @media #{$small-only} {
-    grid-template-columns: repeat(7, 1fr);
+  .arrow {
+    align-self: center;
+    justify-self: center;
+    font-size:  large;
+    margin: 0 .25em;
+    &.disabled {
+      opacity: 0.33;
+      padding: .0625rem .25rem .0625rem;
+    }
   }
-}
 
-ul.pagination li {
-  align-self: center;
-  @supports (display: grid) {
-    margin: 0 0 .25em;
+  .arrow:first-child {
+    grid-area: prev;
   }
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
 
-ul.pagination .arrow {
-  grid-row-start: 1;
-  grid-row-end: span 100;
-  /* (Will be slightly misaligned after 1000 comment pages, but with auto-rows there's no way to refer to the final implicit grid line; -1 only works for the explicit list of rows.) */
-  font-size: larger;
-  &.disabled {
-    opacity: 0.33;
+  .arrow:last-child {
+    grid-area: next;
   }
-}
 
-ul.pagination .arrow:first-child {
-  grid-column: 1 / 2;
-}
+  li a {
+    padding: .0625rem .25rem .0625rem;
+    flex-grow: 1;
+    opacity: 1;
 
-ul.pagination .arrow:last-child {
-  grid-column: -1 / -2;
-}
+    @media #{$small-only} {
+      padding: .125rem .5rem .125rem;
+    }
+  }
 
-ul.pagination li a {
-  padding: .0625rem .25rem .0625rem;
-  flex-grow: 1;
-  opacity: 1;
-
-  @media #{$small-only} {
-    padding: .125rem .5rem .125rem;
+  ul.pages {
+    grid-area: pages;
+    text-align: center;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 20rem;
+  
+    @media #{$small-only} {
+      max-width: 10rem;
+    }
+  
+  }
+  
+  ul.pages li {
+    align-self: center;
+    margin: 0 0.1rem;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    width: 1.8rem;
   }
 }
 
@@ -318,6 +337,10 @@ ul.pagination li a {
   .comment-info, .userpic {
     background: $screened-comment-bg;
   }
+}
+
+.comment .admin-poster {
+  white-space: nowrap;
 }
 
 .comment-content {

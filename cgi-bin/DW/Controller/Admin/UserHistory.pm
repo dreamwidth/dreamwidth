@@ -57,8 +57,6 @@ sub statushistory_controller {
     my $form_args = $r->did_post ? $r->post_args : $r->get_args;
     my $vars      = {};
 
-    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
-
     $vars->{formdata} = $form_args;
     $vars->{showtable} =
         ( $form_args->{'user'} || $form_args->{'admin'} || $form_args->{'type'} ) ? 1 : 0;
@@ -166,8 +164,6 @@ sub userlog_controller {
     my $r         = DW::Request->get;
     my $form_args = $r->did_post ? $r->post_args : $r->get_args;
     my $vars      = {};
-
-    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
 
     $vars->{user} = LJ::canonical_username( $form_args->{user} );
 

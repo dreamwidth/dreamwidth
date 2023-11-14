@@ -1,0 +1,180 @@
+;; -*- coding: utf-8 -*-
+.accounttype=Account Type
+
+.answer=Answer
+
+.answered=<strong><span style='color: #ff0000;'>answered</span></strong> (awaiting close)
+
+.answered.need.help=<strong><span style='color: #ff0000;'>answered</span></strong> (<strong>still needs help</strong>)
+
+.approve.screened=Approve Screened Response
+
+.back.link=Back to the <a [[backlink]]>Support Area</a>.
+
+.betatesting=Beta testing
+
+.no-beta=(none)
+
+.change.cat=Change Category
+
+.change.summary=Change Summary
+
+.clear=Clear
+
+.close.without.credit=Close Without Credit
+
+.cluster=cluster
+
+.comment=Comment
+
+.credit.fix=credit fix here
+
+.dataversion=data version
+
+.diagnostics=Diagnostics:
+
+.email.user=Email/Account Owner:
+
+.email.validated=Email confirmed?
+
+.error=Error
+
+.error.text1=You don't have permission to read any support categories.
+
+.error.nonext=<p>No next open request found.</p>
+
+.error.nonext_cat=<p>No next open request in the same category found.</p>
+
+.error.noprev=<p>No previous open request found.</p>
+
+.error.noprev_cat=<p>No previous open request in the same category found.</p>
+
+.faq=FAQ
+
+.faq.reference=FAQ Reference
+
+.from=From:
+
+.goback.text=<p>Return to <a [[request_link]]>Request #[[spid]]</a></p>
+
+.help.link=Return to the <a [[helplink]]>list of open requests</a>.<br />
+
+.important.notes.text2<<
+<strong>Important Notes:</strong>
+
+<p>[[sitenameshort]] Support is an open-source project run by a community of volunteers. If you think you know the answer to this question, you're welcome to submit an answer in the box below. Your answer will be screened and evaluated by senior support volunteers for content. If your answer is first and correct, it will be sent to the person who submitted the question.</p>
+
+<p>If you have questions about Support, please read the <a href="http://wiki.dreamwidth.net/notes/Category:Support">Support Wiki category</a> for more information.</p>
+
+<p>Thank you!</p>
+.
+
+.internal.comment=Internal Comment
+
+.lock.request=Lock Request
+
+.mast.login=You must <a [[loginlink]]>log in</a> to answer Support requests.
+
+.media=Media storage used
+
+.message=Message
+
+.next=Next
+
+.no=No
+
+.no.html.allowed3=Any HTML in your submission will be escaped, not rendered. Don't worry about escaping &lt; and &gt; if you're including example code.<br />URLs are automatically link-ified, so just reference those.
+
+.none=None
+
+.noquota=no quota
+
+.not.have.access=You don't have authorization to answer people's support requests in this category.
+
+.nothaveprivilege=You don't have the necessary privileges to view this request.
+
+.open=Open
+
+.original.request=Original Request
+
+.overrides=overrides
+
+.post.comment=Post a comment or solution
+
+.post.moreinformation=Include more information
+
+.postbutton=Post Comment/Solution
+
+.postbuttoninfo=Submit More Information
+
+.posted=Posted
+
+.previous=Previous
+
+.private.request=<strong>This is a private request.</strong> It isn't publicly visible.
+
+.put.in.queue=Put in Queue
+
+.reference=Reference
+
+.reopen.this.request=Reopen this Request
+
+.reply.type=Reply Type:
+
+.resend.validation.email=resend confirmation email
+
+.scheme=scheme
+
+.screened.response=Screened Response
+
+.see.next=<a [[next_link]]>next open request</a>
+
+.see.preview=Go to: <a [[preview_link]]>previous open request</a>,
+
+.select.canned.to.insert=Select canned to insert
+
+.status=Status
+
+.status.deleted.and.purged=Status: <strong>deleted and purged</strong>
+
+.statushistory=Statushistory
+
+.style=Style
+
+.summary=Summary
+
+.supportcategory=Support category
+
+.take.out.of.queue=Take out of Queue:
+
+.timeposted=Time posted
+
+.title=Request #[[reqid]]
+
+.transitioning=<strong>transitioning</strong> (used to have a confirmed email address, but changed addresses and hasn't reconfirmed)
+
+.unable.connect=(unable to connect to cluster, some data temporarily unavailable)
+
+.uniq=Uniq:
+
+.unknown=Unknown
+
+.unknownumber=Unknown support number.
+
+.unlock.request=Unlock Request
+
+.use.this.to.change.awaiting=(Use this to change status to &quot;awaiting close&quot;.)
+
+.use.this.to.re-open=(Use this to re-open the request.)
+
+.use.this.to.summary=(Use this to change the request summary.)
+
+.userlog=Userlog
+
+.username=Account Name
+
+.userreadonly=(this account is currently in read-only mode)
+
+.view=View
+
+.yes=Yes

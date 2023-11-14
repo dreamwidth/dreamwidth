@@ -19,11 +19,23 @@ the same terms as Perl itself.  For a copy of the license, please reference
         "stc/css/components/icon-browser.css"
     ); -%]
 
-    [%- WRAPPER components/modal.tt id="js-icon-browser" class="icon-browser" options="animation:'fade'" -%]
+    [%- WRAPPER components/modal.tt id="js-icon-browser" class="icon-browser hide-icon-browser" options="animation:'fade'" -%]
     <div class="icon-browser-flex-wrapper">
 
         <div class="row">
             <div class="columns top-controls">
+                <button type="button" id="icon-browser-options-visibility" aria-label="Show or hide icon browser display options">
+                    <img alt="" src="[% site.imgroot %]/collapse.svg" style="border: 0; width: 1em; padding: 0.2em; box-sizing: content-box; vertical-align: text-bottom;">
+                    <span class="icon-browser-options-summary-large">Large</span>
+                    <span class="icon-browser-options-summary-small">Small</span>
+                    /
+                    <span class="icon-browser-options-summary-meta">Text</span>
+                    <span class="icon-browser-options-summary-no-meta">No text</span>
+                    /
+                    <span class="icon-browser-options-summary-date">By date</span>
+                    <span class="icon-browser-options-summary-keyword">By keyword</span>
+                </button>
+
                 <fieldset class="icon-browser-options" id="js-icon-browser-order-option">
                     <legend>Order by</legend>
 

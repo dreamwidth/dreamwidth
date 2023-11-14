@@ -22,38 +22,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
   <input type="button" id="submitmoreopts" name="submitmoreopts" value="[% '.button.more' | ml %]" />
 
-  <div class='qr-icon'>
-    [%- IF remote.can_use_userpic_select -%]
-      <button type='button' id='lj_userpicselect' data-iconbrowser-keywordorder="[%- remote.iconbrowser_keywordorder -%]" data-iconbrowser-metatext="[%- remote.iconbrowser_metatext -%]" data-iconbrowser-smallicons="[%- remote.iconbrowser_smallicons -%]">
-    [%- ELSE -%]
-      <a href="[% remote.icons_url %]">
-    [%- END -%]
-    [%- IF current_icon -%]
-      [%- current_icon.imgtag -%]
-    [%- ELSE -%]
-      [%- dw.img( "nouserpic_sitescheme", "" ) -%]
-    [%- END -%]
-    [%- IF remote.can_use_userpic_select -%]
-      </button>
-    [%- ELSE -%]
-      </a>
-    [%- END -%]
-  </div>
+[% INCLUDE "components/icon-select-icon.tt" focus_after_browse = "#body" %]
 
-  [%- IF remote.icons.size > 0 -%]
-    <div class='qr-icon-controls'>
-      <label for='prop_picture_keyword' class='invisible'>[%- '/journal/talkform.tt.label.picturetouse2' | ml -%]</label>
-      [%- form.select(
-          name = 'prop_picture_keyword',
-          id = 'prop_picture_keyword',
-          selected = current_icon_kw,
-          items = remote.icons
-          'data-focus-after-browse' = '#body'
-      ) -%]
-
-      <input type="button" id="randomicon" value="Random" style="display: none;" />
-    </div>
-  [%- END -%]
+[% INCLUDE "components/icon-select-dropdown.tt" %]
 
 </div>
 
@@ -83,7 +54,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
       items = editors.items
     ) -%]
 
-    <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1">[%-
+    <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1" target="_blank">[%-
       dw.img('help', '',
         {
           alt   => dw.ml('markup.helplink.alttext'),
@@ -142,7 +113,3 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 </form></div>
 </div>
-
-[%- IF remote.can_use_userpic_select AND foundation_beta -%]
-  [%- INCLUDE "components/icon-browser.tt" -%]
-[%- END -%]

@@ -35,11 +35,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div class='shop-category'>
     <div class='shop-category-title'>[% '.title.points' | ml(site=site.nameshort) %]</div>
     <div class='shop-category-items'>
-[% IF remote AND remote.is_personal %]
+[% IF shop_config.points %]
+  [% IF remote AND remote.is_personal %]
         <span class='shop-category-item'><a href="[% site.root %]/shop/points?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
         <span class='shop-category-item'><a href="[% site.root %]/shop/points?for=gift">[% '.for.different' | ml %]</a></span>
-[% ELSE %]
+  [% ELSE %]
         <span class='shop-category-item'>[% '.points.login' | ml %]</span>
+  [% END %]
+[% ELSE %]
+        <span class='shop-category-item'>[% '.points.unavailable' | ml %]</span>
 [% END %]
     </div>
 </div>
@@ -47,11 +51,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div class='shop-category'>
     <div class='shop-category-title'>[% '.title.renames' | ml %]</div>
     <div class='shop-category-items'>
-[% IF remote AND remote.is_personal %]
+[% IF shop_config.rename %]
+  [% IF remote AND remote.is_personal %]
         <span class='shop-category-item'><a href="[% site.root %]/shop/renames?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
         <span class='shop-category-item'><a href="[% site.root %]/shop/renames?for=gift">[% '.for.different' | ml %]</a></span>
-[% ELSE %]
+  [% ELSE %]
         <span class='shop-category-item'>[% '.renames.login' | ml %]</span>
+  [% END %]
+[% ELSE %]
+        <span class='shop-category-item'>[% '.renames.unavailable' | ml %]</span>
 [% END %]
     </div>
 </div>
@@ -59,13 +67,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div class='shop-category'>
     <div class='shop-category-title'>[% '.title.icons' | ml %]</div>
     <div class='shop-category-items'>
-[% IF remote AND remote.is_personal %]
+[% IF shop_config.icons %]
+  [% IF remote AND remote.is_personal %]
         <span class='shop-category-item'><a href="[% site.root %]/shop/icons?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
-[% END %]
-[% IF remote AND remote.is_personal %]
         <span class='shop-category-item'><a href="[% site.root %]/shop/icons?for=gift">[% '.for.different' | ml %]</a></span>
-[% ELSE %]
+  [% ELSE %]
         <span class='shop-category-item'><a href="[% site.root %]/shop/icons?for=gift">[% '.for.existing' | ml %]</a></span>
+  [% END %]
+[% ELSE %]
+        <span class='shop-category-item'>[% '.icons.unavailable' | ml %]</span>
 [% END %]
     </div>
 </div>

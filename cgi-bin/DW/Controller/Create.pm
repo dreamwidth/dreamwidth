@@ -402,6 +402,9 @@ sub setup_handler {
     if ( $r->did_post ) {
         $post = $r->post_args;
 
+        # Check for spam strings
+        LJ::Hooks::run_hooks( 'spam_check', $u, $post, 'userbio' );
+
         # name
         $errors->add( 'name', '/manage/profile/index.bml.error.noname' )
             unless LJ::trim( $post->{name} ) || defined $post->{name_absent};
@@ -417,6 +420,7 @@ sub setup_handler {
 
         # location
         my $state_from_dropdown = LJ::Lang::ml('states.head.defined');
+        $post->{stateother} //= "";
         $post->{stateother} = "" if $post->{stateother} eq $state_from_dropdown;
 
         my %countries;
@@ -455,7 +459,7 @@ sub setup_handler {
         }
 
         # interests
-        my @interests_strings = (
+        my @interests_strings = grep { defined $_ } (
             $post->{interests_music},   $post->{interests_moviestv}, $post->{interests_books},
             $post->{interests_hobbies}, $post->{interests_other},
         );
@@ -492,7 +496,7 @@ sub setup_handler {
 
         # bio
         $errors->add( 'bio', '/manage/profile/index.bml.error.bio.toolong' )
-            if length $post->{bio} >= LJ::BMAX_BIO;
+            if defined $post->{bio} && length $post->{bio} >= LJ::BMAX_BIO;
         LJ::EmbedModule->parse_module_embed( $u, \$post->{bio} );
 
         # inviter / communities
@@ -659,6 +663,10 @@ sub upgrade_handler {
 
     my $r      = $rv->{r};
     my $remote = $rv->{remote};
+
+    return error_ml( 'widget.createaccount.error.suspended',
+        { accounts_email => $LJ::ACCOUNTS_EMAIL } )
+        if $remote && $remote->is_suspended;
 
     return $r->redirect( LJ::create_url( $urls{next} ) )
         unless LJ::is_enabled('payments') && $remote->is_personal && !$remote->is_paid;

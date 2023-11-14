@@ -1,0 +1,223 @@
+[%# support/see_request.tt
+
+View or act on a support request.
+
+Authors:
+      Ruth Hatch <ruth.s.hatch@gmail.com>
+      Jen Griffin <kareila@livejournal.com>
+
+Copyright (c) 2020 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it
+under the same terms as Perl itself.  For a copy of the license, please
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%]
+
+[%- sections.title = '.title' | ml( reqid = spid) -%]
+[%- CALL dw.active_resource_group("foundation") -%]
+
+[%- dw.need_res({ group => "foundation"},
+        "js/jquery.supportform.js", "stc/simple-form.css", "stc/support.css"
+        ) -%]
+
+
+<div class='support-request'>
+        <div class="row">
+            <div class="columns small-3 text-right"><b>[% '.from' | ml %]</b></div>
+            <div class="columns small-9">
+                [% user_img %]
+                [% display_name %]
+            </div>
+        </div>
+        [% IF remote && (remote.has_priv('sysban', 'uniq') || remote.has_priv('canview', 'userlog')) %]
+            <div class="row">
+                <div class="columns small-3 text-right"><b>[% '.uniq' | ml %]</b></div>
+                <div class="columns small-9">[% uniq || "<i>" _ dw.ml('.none') _ "</i>" %]</div>
+            </div>
+        [% END %]
+
+        <div class="row">
+            <div class="columns small-3 text-right"><b><span
+                    style='white-space: nowrap'>[% '.accounttype' | ml %]</span>:</b></div>
+            <div class="columns small-9">[% accounttype %]</div>
+        </div>
+
+        [% IF u.userid %]
+            <div class="row">
+                <div class="columns small-3 text-right"><b>[% site.nameshort %]:</b></div>
+                <div class="columns small-9">
+                    [%- IF u.is_expunged -%]
+                        [% dw.ml('.status.deleted.and.purged'); "<br>" %]
+                    [%- ELSIF clusterdown -%]
+                        [% "<span style='color: red; font-weight: bold;'>";
+                           dw.ml('.unable.connect'); "</span><br>" %]
+                    [%- END -%]
+
+                    [%- IF u.readonly -%]
+                        [% "<span style='color: red; font-weight: bold;'>";
+                           dw.ml('.userreadonly'); "</span><br>" %]
+                    [%- END -%]
+
+                    <div class="row">
+                        <div class="columns large-12">
+                            [% '.username' | ml %]: [% u.ljuser_display( { full => 1 } ) %]
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="columns large-12">[% '.style' | ml %]: [% ustyle %]</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="columns large-12">[% '.email.validated' | ml %]
+                            [% email_status %]</div>
+                    </div>
+                    [% dw.ml('.cluster') _ ": <b>$cluster_info</b><br>" IF cluster_info %]
+                    <div class="row">
+                        <div class="columns large-12">[% '.dataversion' | ml %]: <b>[% u.dversion %]</b></div>
+                    </div>
+                    <div class="row">
+                        <div class="columns large-12">[% '.scheme' | ml %]:
+                            <b>[% u.prop('schemepref') || "default" %]</b></div>
+                    </div>
+
+                    [% dw.ml('.media') _ ": $media_usage<br>" IF media_usage %]
+
+                    [% IF view_history || view_userlog %]
+                        <div class="row">
+                            <div class="columns large-12">
+                                [% '.view' | ml %]:
+                                [% IF view_history;
+                                    "<a href='$site.root/admin/statushistory?user=$u.user'>";
+                                    dw.ml('.statushistory');
+                                    "</a> ";
+                                   END %]
+                                [% IF view_userlog;
+                                    "<a href='$site.root/admin/userlog?user=$u.user'>";
+                                    dw.ml('.userlog');
+                                    "</a> ";
+                                   END %]
+                            </div>
+                        </div>
+                    [% END %]
+                    [% IF show_beta %]
+                        <div class="row">
+                            <div class="columns large-12">
+                                [% '.betatesting' | ml %]: [% betafeatures || dw.ml('.no-beta') %]
+                            </div>
+                        </div>
+                    [% END %]
+
+                </div>
+            </div>
+        [% END %]
+
+        <div class="row">
+            <div class="columns small-3 text-right"><b>[% '.supportcategory' | ml %]:</b></div>
+            <div class="columns small-9">
+                [% IF show_cat_links %]
+                    <a href='[% "$site.root/support/help?cat=$catkey" %]'>[% problemarea %]</a>
+                    [<a href='[% "$site.root/support/see_request?id=$sp.spid&find=cprev" %]'>[% '.previous' | ml %]</a>|
+                    <a href='[% "$site.root/support/see_request?id=$sp.spid&find=cnext" %]'>[% '.next' | ml %]</a>]
+                [% ELSE %]
+                    [% problemarea %]
+                [% END %]
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="columns small-3 text-right"><b>[% '.timeposted' | ml %]:</b></div>
+            <div class="columns small-9">[% "$timecreate ($age)" %]</div>
+        </div>
+        <div class="row">
+            <div class="columns small-3 text-right"><b>[% '.status' | ml %]:</b></div>
+            <div class="columns small-9">[% state %]
+            </div>
+        </div>
+        <div class="row">
+            <div class="columns small-3 text-right"><b>[% '.summary' | ml %]:</b></div>
+            <div class="columns small-9"><span class='support_subject'><b>[% sp.subject | html %]</b></span></div>
+        </div>
+</div>
+
+[% "<div class='alert-box'>" _ dw.ml('.private.request') _ "</div>" IF private_req %]
+
+[% FOR r IN replies %]
+    [% IF r.orig %]
+    <div style='margin-top: 15px;'>
+        <b>[% '.original.request' | ml %]:</b>
+        <div class='requestdiv'>[% r.msg %]</div>
+    </div>
+        [% NEXT %]
+    [% END %]
+
+    <div class="header"><a name='e[% r.id %]'></a>
+
+        [% IF r.icon && !r.poster.is_suspended; r.icon.imgtag; END %]
+        [% r.poster.ljuser_display( { full => 1 } ) %]
+        [% UNLESS r.poster.is_suspended; " - $r.poster.name_html"; END %]
+    <br>
+        <span><b>[% r.type_title | ml %]</b> (<a
+            href='[% "$site.root/support/see_request?id=$spid#e$r.id" %]'>#[% r.id %]</a>)</span>
+    <br>
+    <b>[% '.posted' | ml %]:</b> [% r.timehelped %] ([% r.age %])
+        [%- IF r.show_close -%]
+          [% ", <a href='act?close;$sp.spid;$sp.authcode;$r.id'><b>";
+             dw.ml('.credit.fix'); "</b></a>" %]
+        [%- END -%]
+        [% "<span class='approve' data-dw-screened='$r.id'></span>" IF r.show_approve %]
+    </div>
+    <div class='support-reply [% r.bordercolor %]'>
+        [% IF r.faqid %]
+            <div style='display: table; padding: 3px; margin-left: auto; margin-right: auto;'>
+                <div class='panel callout radius' style='text-align:center;'>
+                    <b>[% '.faq.reference' | ml %]:</b><br/>
+                    <a href='faqbrowse?faqid=[% r.faqid %]&view=full'>[% r.faq.question_html %]</a>
+                </div>
+            </div>
+        [% END %]
+        [% r.msg %]
+    </div>
+
+[% END %]
+
+[% UNLESS (sp.state == 'closed') %]
+    [% IF is_poster %]
+    <p style='margin-top: 1em; margin-bottom: 0;'><b>[% '.post.moreinformation' | ml %]:</b></p>
+    [% ELSIF remote %]
+    <p style='margin-top: 1em; margin-bottom: 0;'><b>[% '.post.comment' | ml %]:</b></p>
+    [% ELSE %]
+        [% needlogin = 1 %]
+        [% '.mast.login' | ml( loginlink = "href='$site.root/login?ret=1'") %]
+    [% END %]
+
+    [%- UNLESS needlogin -%]
+
+        [% IF can_append %]
+            [% IF show_note %]
+            <div class='panel'>
+                [% '.important.notes.text2' | ml( sitenameshort = site.nameshort, supportlink = "href='$site.root/doc/guide/support'") %]
+            </div>
+            [% END %]
+
+            <div class="request-form">
+            [% INCLUDE 'support/request/form.tt' (
+                from = (remote && remote.userid ? remote.ljuser_display : "(not logged in)"),
+                request = {summary => sp.subject},
+                reply = {initial_text => reminder}
+                ) %]
+            </div>
+        [% ELSE %]
+            [% '.not.have.access' | ml %]
+        [% END %]
+
+    [%- END -%]
+[% END %]
+<hr>
+[%- UNLESS find -%]
+    [% '.see.preview' | ml( preview_link = "href='$site.root/support/see_request?id=$spid&find=prev'" ) %]
+    [% '.see.next'    | ml( next_link = "href='$site.root/support/see_request?id=$spid&find=next'" ) %]<br>
+[%- END -%]
+[% '.help.link' | ml( helplink = "href='$site.root/support/help'" ) %]
+[% '.back.link' | ml( backlink = "href='$site.root/support'" ) %]
+

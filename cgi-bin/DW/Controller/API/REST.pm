@@ -2,7 +2,7 @@
 #
 # DW::Controller::API::REST
 #
-#
+# REST API.
 #
 # Authors:
 #      Allen Petersen <allen@suberic.net>
@@ -17,21 +17,23 @@
 package DW::Controller::API::REST;
 
 use strict;
-use warnings;
-use DW::Request;
-use DW::Routing;
-use DW::Controller;
-use DW::Controller::API;
-use DW::API::Parameter;
-use DW::API::Method;
-use DW::API::Key;
-use JSON;
-use YAML::XS qw'LoadFile';
-use JSON::Validator 'validate_json';
-use Hash::MultiValue;
-use Data::Dumper;
+use v5.10;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ croak /;
+use Hash::MultiValue;
+use JSON;
+use JSON::Validator 'validate_json';
+use YAML::XS qw'LoadFile';
+
+use DW::API::Key;
+use DW::API::Method;
+use DW::API::Parameter;
+use DW::Controller;
+use DW::Controller::API;
+use DW::Request;
+use DW::Routing;
 
 our %API_DOCS   = ();
 our %TYPE_REGEX = (
@@ -39,8 +41,8 @@ our %TYPE_REGEX = (
     integer => '(\d+)',
     boolean => '(true|false)',
 );
-our %METHODS  = ( get => 1, post => 1, delete => 1, patch => 1 );
-our $API_PATH = "$ENV{LJHOME}/api/";
+our %METHODS  = ( get => 1, post => 1, delete => 1, put => 1 );
+our $API_PATH = "$ENV{LJHOME}/api/dist/";
 
 # Usage: path ( yaml_source_path, ver, hash_of_HTTP_handlers )
 # Creates a new path object for use in DW::Controller::API::REST
@@ -148,7 +150,7 @@ sub _dispatcher {
     my $r      = $rv->{r};
     my $keystr = $r->header_in('Authorization');
     my $apikey;
-    if (defined($keystr) ){
+    if ( defined $keystr ) {
         $keystr =~ s/Bearer (\w+)/$1/;
         $apikey = DW::API::Key->get_key($keystr);
     }
@@ -173,7 +175,8 @@ sub _dispatcher {
 
     # check path-level parameters.
     for my $param ( keys %{ $self->{path}{params} } ) {
-        my $valid = _validate_param( $param, $self->{path}{params}{$param}, $r, $path_params, $args );
+        my $valid =
+            _validate_param( $param, $self->{path}{params}{$param}, $r, $path_params, $args );
         return unless $valid;
     }
     my $method      = lc $r->method;
@@ -274,7 +277,7 @@ sub _validate_body {
     my ( $config, $r, $arg_obj ) = @_;
     my $preq         = $config->{required};
     my $content_type = lc $r->header_in('Content-Type');
-    $content_type =~ s/;.*//; # drop data that isn't the MIMEtype
+    $content_type =~ s/;.*//;    # drop data that isn't the MIMEtype
     my $p;
 
     if ( $content_type eq 'application/json' ) {
@@ -282,6 +285,11 @@ sub _validate_body {
     }
     elsif ( $content_type eq 'application/x-www-form-urlencoded' ) {
         $p = $r->post_args;
+    }
+    elsif ( $content_type eq 'application/octet-stream' ) {
+
+        # TODO: CHICKEN: IMPLEMENT
+        die "not implemented yet\n";
     }
     elsif ( $content_type eq 'multipart/form-data' ) {
 
@@ -293,6 +301,9 @@ sub _validate_body {
         }
         $p = $upload_hash;
     } else {
+        warn "Unexpected content-type $content_type";
+    }
+    else {
         warn "Unexpected content-type $content_type";
     }
 
@@ -320,7 +331,6 @@ sub _validate_body {
         return 0;
     }
     $arg_obj->{body} = $p;
-    
     return 1;
 }
 
@@ -371,38 +381,75 @@ sub TO_JSON {
 }
 
 sub params {
-    my $self = $_[0];
+    my $self       = $_[0];
     my $parameters = [ values %{ $self->{path}{params} } ];
     return $parameters;
 }
 
 sub methods {
-    my $self = $_[0];
+    my $self    = $_[0];
     my $methods = $self->{path}{methods};
     return $methods;
 }
+
 sub to_template {
-    my $self = $_[0];
+    my $self       = $_[0];
     my $parameters = [ values %{ $self->{path}{params} } ];
-    my $methods = $self->{path}{methods};
-    my $vars = {
-        params => $parameters,
+    my $methods    = $self->{path}{methods};
+    my $vars       = {
+        params  => $parameters,
         methods => $methods
     };
-    return DW::Template->render_template( 'api/path.tt', $vars, {no_sitescheme => 1});
+    return DW::Template->render_template( 'api/path.tt', $vars, { no_sitescheme => 1 } );
 
 }
 
-DW::Routing->register_string('/internal/api/404', \&api_404_handler, app => 1);
+DW::Routing->register_string( '/api',  \&api_handler, app => 1 );
+DW::Routing->register_string( '/api/', \&api_handler, app => 1 );
+
+sub api_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+    my $r      = $rv->{r};
+    my $u      = $rv->{u};
+    my $remote = $rv->{remote};
+
+    my %api = %API_DOCS;
+
+    my $paths = $api{1};
+    my $vars;
+    $vars->{paths} = $paths;
+    $vars->{key}   = DW::API::Key->get_one($remote);
+
+    return DW::Template->render_template( 'api.tt', $vars );
+}
+
+DW::Routing->register_string( '/api/getkey', \&key_handler, app => 1 );
+
+sub key_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+    my $r      = $rv->{r};
+    my $remote = $rv->{remote};
+
+    my $key = DW::API::Key->get_one($remote);
+
+    $r->status(200);
+    $r->content_type('text/plain; charset=utf-8');
+    $r->print( $key->{keyhash} );
+    return $r->OK;
+}
+
+DW::Routing->register_string( '/internal/api/404', \&api_404_handler, app => 1 );
 
 sub api_404_handler {
-    my ( $ok, $rv ) = controller(anonymous => 1);
+    my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
-    my $r             = $rv->{r};
+    my $r = $rv->{r};
 
     $r->status(404);
     $r->content_type('application/json; charset=utf-8');
-    $r->print(to_json( { success => 0, error => "Not found." }));
+    $r->print( to_json( { success => 0, error => "Not found." } ) );
     return $r->OK;
 }
 

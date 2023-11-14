@@ -39,7 +39,7 @@ DW::Routing->register_string( "/journal/embedcontent", \&embedcontent_handler, a
 sub embedcontent_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1, skip_domsess => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, skip_domsess => 1, skip_captcha => 1 );
     return $rv unless $ok;
 
     my $r = $rv->{r};
@@ -54,8 +54,11 @@ sub embedcontent_handler {
         unless $r->header_in("Host") =~ /.*$LJ::EMBED_MODULE_DOMAIN$/i;
 
     # we should have three GET params: journalid, moduleid, auth_token
-    my $get       = $r->get_args;
-    my $journalid = $get->{journalid} + 0 or return $print->("No journalid specified");
+    my $get = $r->get_args;
+
+    my $journalid = $get->{journalid};
+    return $print->("No journalid specified") unless defined $journalid;
+    $journalid += 0;
 
     my $moduleid = $get->{moduleid};
     return $print->("No module id specified") unless defined $moduleid;

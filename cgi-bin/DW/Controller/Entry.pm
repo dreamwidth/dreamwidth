@@ -17,6 +17,7 @@
 package DW::Controller::Entry;
 
 use strict;
+use Storable;
 
 use LJ::Global::Constants;
 
@@ -31,6 +32,7 @@ use HTTP::Status qw( :constants );
 use LJ::JSON;
 
 use DW::External::Account;
+use DW::External::Site;
 
 my %form_to_props = (
 
@@ -46,6 +48,12 @@ my @modules = qw(
     currents comments age_restriction
     icons crosspost sticky
 );
+
+my @sites = DW::External::Site->get_sites;
+my @sitevalues;
+foreach my $site ( sort { $a->{sitename} cmp $b->{sitename} } @sites ) {
+    push @sitevalues, { domain => $site->{domain}, sitename => $site->{sitename} };
+}
 
 =head1 NAME
 
@@ -65,6 +73,8 @@ DW::Routing->register_string(
     app     => 1,
     methods => { POST => 1 }
 );
+
+DW::Routing->register_string( '/__rpc_draft', \&draft_rpc_handler, app => 1, format => 'json' );
 
 DW::Routing->register_string( '/entry/options',      \&options_handler,     app => 1 );
 DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app => 1 );
@@ -111,9 +121,6 @@ sub new_handler {
 
         return error_ml("/entry/form.tt.error.cantpost")
             unless $remote->can_post;
-
-        return error_ml('/entry/form.tt.error.disabled')
-            if $remote->can_post_disabled;
     }
 
     my $errors   = DW::FormErrors->new;
@@ -227,6 +234,9 @@ sub new_handler {
             my $form_req = {};
             _form_to_backend( $form_req, $post, errors => $errors );
 
+            # check for spam domains
+            LJ::Hooks::run_hooks( 'spam_check', $auth{poster}, $form_req, 'entry' );
+
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( $errors->exist ) {
                 my %post_res = _do_post( $form_req, $flags, \%auth, warnings => $warnings );
@@ -254,11 +264,54 @@ sub new_handler {
     );
     $vars->{formdata}->{editor} = $vars->{editors}->{selected};
 
+    # Set up info for the icon select/preview/browse components
+    $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
+    $vars->{current_icon}    = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
+
     $vars->{editable} = { map { $_ => 1 } @modules };
 
     $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
 
-    $vars->{password_maxlength} = $LJ::PASSWORD_MAXLENGTH;
+    $vars->{js_for_rte} = LJ::rte_js_vars();
+    $vars->{sitevalues} = to_json( \@sitevalues );
+
+    # Set up vars for drafts
+
+    my $draft = '""';
+    my %draft_properties;
+    my $draft_subject_raw = "";
+    if ($remote) {
+
+        # Here we get the value of the userprop 'draft_properties', containing
+        # a frozen Storable string, which we then thaw into a hash by the same
+        # name.
+        $draft = $remote->prop('entry_draft');
+        %draft_properties =
+            $remote->prop('draft_properties')
+            ? %{ Storable::thaw( $remote->prop('draft_properties') ) }
+            : ();
+
+        # store raw for later use; will be escaped later
+        $draft_subject_raw = $draft_properties{subject};
+    }
+    my $initDraft = 'null';
+    if ( $remote && LJ::is_enabled('update_draft') ) {
+
+        # While transforms aren't considered posts, we don't want to
+        # prompt the user to restore from a draft on a transform
+        if ( !LJ::did_post() ) {
+            $initDraft = 'true';
+        }
+        else {
+            $initDraft = 'false';
+        }
+    }
+
+    $vars->{init_draft}        = $initDraft;
+    $vars->{draft}             = $draft;
+    $vars->{draft_properties}  = \%draft_properties;
+    $vars->{draft_subject_raw} = $draft_subject_raw;
+    $vars->{autosave_interval} = $LJ::AUTOSAVE_DRAFT_INTERVAL;
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
@@ -276,8 +329,6 @@ sub _init {
 
     my $u    = $form_opts->{remote};
     my $vars = {};
-
-    my @icons;
 
     my %moodtheme;
     my @moodlist;
@@ -301,9 +352,6 @@ sub _init {
     my $min_animation;
     my $displaydate_check;
     if ($u) {
-
-        # icons
-        @icons = LJ::icon_keyword_menu($u);
 
         # moods
         my $theme = DW::Mood->new( $u->{moodthemeid} );
@@ -430,14 +478,6 @@ sub _init {
     $vars = {
         remote => $u,
 
-        icons => \@icons,
-
-        icon_browser => {
-            keywordorder => $u ? $u->iconbrowser_keywordorder : "",
-            metatext     => $u ? $u->iconbrowser_metatext     : "",
-            smallicons   => $u ? $u->iconbrowser_smallicons   : "",
-        },
-
         moodtheme => \%moodtheme,
         moods     => \@moodlist,
 
@@ -535,6 +575,9 @@ sub _edit {
                 errors      => $errors
             );
 
+            # check for spam domains
+            LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
+
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( $errors->exist ) {
 
@@ -630,6 +673,10 @@ sub _edit {
     # so we'll update it in place with what DW::Formats thinks we should use.
     $vars->{formdata}->{editor} = $vars->{editors}->{selected};
 
+    # Set up info for the icon select/preview/browse components
+    $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
+    $vars->{current_icon}    = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
+
     my %editable = map { $_ => 1 } @modules;
     $vars->{editable} = \%editable;
 
@@ -640,6 +687,9 @@ sub _edit {
         edit => 1,
         url  => LJ::create_url( undef, keep_args => 1 ),
     };
+
+    $vars->{js_for_rte} = LJ::rte_js_vars();
+    $vars->{sitevalues} = to_json( \@sitevalues );
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
@@ -714,16 +764,35 @@ sub _form_to_backend {
     $errors->add( undef, ".error.noentry" )
         if $errors && $req->{event} eq "" && !$opts{allow_empty};
 
+    # warn the user of any bad markup errors
+    my $clean_event = $post->{event};
+    my $errref;
+
+    my $editor = undef;
+    my $verbose_err;
+
+    LJ::CleanHTML::clean_event( \$clean_event,
+        { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
+
+    if ( $errors && $verbose_err ) {
+        if ( ref($verbose_err) eq 'HASH' ) {
+            $errors->add( undef, $verbose_err->{error}, $verbose_err->{opts} );
+        }
+        else {
+            $errors->add( undef, $verbose_err );
+        }
+    }
+
     # initialize props hash
     $req->{props} ||= {};
     my $props = $req->{props};
 
     while ( my ( $formname, $propname ) = each %form_to_props ) {
-        $props->{$propname} = $post->{$formname}
-            if defined $post->{$formname};
+        $props->{$propname} = $post->{$formname} // '';
     }
     $props->{taglist}         = $post->{taglist} if defined $post->{taglist};
-    $props->{picture_keyword} = $post->{icon}    if defined $post->{icon};
+    $props->{picture_keyword} = $post->{prop_picture_keyword}
+        if defined $post->{prop_picture_keyword};
     $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
 
     # This form always uses the editor prop instead of opt_preformatted.
@@ -742,7 +811,7 @@ sub _form_to_backend {
     if ( $props->{current_mood} ) {
         if ( my $moodid = DW::Mood->mood_id( $props->{current_mood} ) ) {
             $props->{current_moodid} = $moodid;
-            delete $props->{current_mood};
+            $props->{current_mood}   = '';
         }
     }
 
@@ -853,6 +922,9 @@ sub _backend_to_form {
         if ( LJ::CleanHTML::legacy_markdown( \$event ) ) {    # mutates $event
             $editor = 'markdown0';
         }
+        elsif ( $entry->prop('used_rte') ) {
+            $editor = 'rte0';
+        }
         elsif ( $entry->prop('opt_preformatted') ) {
             $editor = 'html_raw0';
         }
@@ -924,10 +996,10 @@ sub _backend_to_form {
         subject => $entry->subject_raw,
         event   => $event,
 
-        icon       => $entry->userpic_kw,
-        security   => $security,
-        custom_bit => \@custom_groups,
-        is_sticky  => $entry->journal->sticky_entries_lookup->{ $entry->ditemid },
+        prop_picture_keyword => $entry->userpic_kw,
+        security             => $security,
+        custom_bit           => \@custom_groups,
+        is_sticky            => $entry->journal->sticky_entries_lookup->{ $entry->ditemid },
 
         %formprops,
         %otherprops,
@@ -1070,6 +1142,12 @@ sub _do_post {
     # post succeeded, time to do some housecleaning
     _persist_props( $auth->{poster}, $form_req, 0 );
 
+    # Clear out a draft
+    if ( $auth->{poster} ) {
+        $auth->{poster}->set_prop( 'entry_draft',      '' );
+        $auth->{poster}->set_prop( 'draft_properties', '' );
+    }
+
     my $render_ret;
     my @links;
 
@@ -1137,6 +1215,10 @@ sub _do_post {
             {
                 url       => "$LJ::SITEROOT/editjournal",
                 ml_string => '.links.manageentries',
+            },
+            {
+                url       => "$LJ::SITEROOT/logout",
+                ml_string => '.links.logout',
             }
             );
 
@@ -1262,6 +1344,10 @@ sub _do_edit {
             {
             url       => "$LJ::SITEROOT/editjournal",
             ml_string => '.links.manageentries',
+            },
+            {
+            url       => "$LJ::SITEROOT/logout",
+            ml_string => '.links.logout',
             };
 
     }
@@ -1300,6 +1386,10 @@ sub _do_edit {
             {
                 url       => "$LJ::SITEROOT/editjournal",
                 ml_string => '.links.manageentries',
+            },
+            {
+                url       => "$LJ::SITEROOT/logout",
+                ml_string => '.links.logout',
             }
             );
 
@@ -1343,12 +1433,6 @@ sub _persist_props {
     return unless $u;
 
     $u->displaydate_check( $form->{update_displaydate} ? 1 : 0 ) unless $is_edit;
-
-    # FIXME:
-    #
-    #                 # Clear out a draft
-    #                 $remote->set_prop('entry_draft', '')
-    #                     if $remote;
 
 }
 
@@ -1419,6 +1503,9 @@ sub preview_handler {
 
     my $form_req = {};
     _form_to_backend( $form_req, $post );
+
+    # check for spam domains
+    LJ::Hooks::run_hooks( 'spam_check', $up, $form_req, 'entry' );
 
     my ( $event, $subject ) = ( $form_req->{event}, $form_req->{subject} );
     LJ::CleanHTML::clean_subject( \$subject );
@@ -1856,6 +1943,116 @@ sub _options {
     }
 
     return $vars;
+}
+
+sub draft_rpc_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $u    = $rv->{remote};
+    my $r    = DW::Request->get;
+    my $GET  = $r->get_args;
+    my $POST = $r->post_args;
+
+    my $err = sub {
+        my $msg = shift;
+        return to_json(
+            {
+                'alert' => $msg,
+            }
+        );
+    };
+
+    my $ret = {};
+
+    # This property thaws the contents of the userprop 'draft_properties' and
+    # sends them back as a JS object.
+    if ( defined $GET->{getProperties} ) {
+        my $ret =
+            $u->prop('draft_properties') ? Storable::thaw( $u->prop('draft_properties') ) : {};
+        $r->print( to_json($ret) );
+        return $r->OK;
+    }
+
+    # This property clears out all the fields of the user's draft, except the
+    # draft body itself.
+    if ( defined $POST->{clearProperties} ) {
+        $u->clear_prop('draft_properties');
+    }
+
+    # If even one property of the draft was changed, this property saves them
+    # all into a new draft (in order to avoid multiple HTTP posts which would
+    # decrease performance considerably).
+    # This is set up as a long if statement to avoid tying draft property saving to
+    # the draft body save logic, so that users won't have to change their
+    # draft body every time they want to get their properties saved.
+    if (   ( defined $POST->{saveSubject} )
+        || ( defined $POST->{saveEditor} )
+        || ( defined $POST->{saveUserpic} )
+        || ( defined $POST->{saveTaglist} )
+        || ( defined $POST->{saveMoodID} )
+        || ( defined $POST->{saveMood} )
+        || ( defined $POST->{saveLocation} )
+        || ( defined $POST->{saveMusic} )
+        || ( defined $POST->{saveAdultReason} )
+        || ( defined $POST->{saveCommentSet} )
+        || ( defined $POST->{saveCommentScr} )
+        || ( defined $POST->{saveAdultCnt} ) )
+    {
+        my %properties = (
+            subject     => $POST->{saveSubject},
+            editor      => $POST->{saveEditor},
+            userpic     => $POST->{saveUserpic},
+            taglist     => $POST->{saveTaglist},
+            moodid      => $POST->{saveMoodID},
+            mood        => $POST->{saveMood},
+            location1   => $POST->{saveLocation},
+            music       => $POST->{saveMusic},
+            adultreason => $POST->{saveAdultReason},
+            commentset  => $POST->{saveCommentSet},
+            commentscr  => $POST->{saveCommentScr},
+            adultcnt    => $POST->{saveAdultCnt}
+        );
+
+        # If the property is null, a default menu selection or a JS undefined
+        # value, we don't want to save it.
+        foreach my $key ( keys(%properties) ) {
+            if (   !defined $properties{$key}
+                || ( $properties{$key} =~ /^$/ )
+                || ( $properties{$key} =~ /^0$/ )
+                || ( $properties{$key} =~ /^undefined$/ ) )
+            {
+                delete $properties{$key};
+            }
+        }
+
+        # Freeze the hash into a frozen storable string. If the hash is not empty
+        # save it to the userprop. If it is, delete it.
+        my $frozen_properties = Storable::nfreeze( \%properties );
+        if ( $frozen_properties =~ /\w/ ) {
+            $u->set_prop( 'draft_properties', $frozen_properties );
+        }
+        else {
+            $u->clear_prop('draft_properties');
+        }
+    }
+
+    # This property saves the main body of the draft.
+    if ( defined $POST->{'saveDraft'} ) {
+        $u->set_draft_text( $POST->{'saveDraft'} );
+
+        # This property clears out the main body of the draft.
+    }
+    elsif ( $POST->{'clearDraft'} ) {
+        $u->set_draft_text('');
+
+    }
+    else {
+        $ret->{draft} = $u->draft_text;
+    }
+
+    $r->print( to_json($ret) );
+    return $r->OK;
 }
 
 1;

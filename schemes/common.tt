@@ -34,7 +34,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
         dw.need_res( { group => "foundation" },
                     "js/foundation/foundation/foundation.reveal.js"
                     "js/skins/jquery.focus-on-reveal.js"
+                    "stc/css/components/foundation-icons.css"
         );
+
+        dw.need_res( "stc/canary.css" );
     -%]
     [%- PROCESS block.need_res -%]
     [% dw_scheme.res_includes %]
@@ -60,6 +63,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <li><a href="[% site.root %]/site/suggest">[% 'sitescheme.footer.suggestion' | ml %]</a></li>
 </ul>
 <p>[% 'sitescheme.footer.info' | ml %]</p>
+[% IF site.is_canary %]
+<div class="canary canary-bottom-right"><span>canary</span></div>
+[% END %]
 [%- END -%]
 
 [%- userpic_class = 'account-links-userpic' -%]
@@ -99,6 +105,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <form action='[% site.root %]/logout' method='post'>
         [%- dw.form_auth -%]
         [%- remote.ljuser_display -%]
+        <input type="hidden" name="returnto" value="[% returnto | html %]" />
         <input type="hidden" name="ret" value="1" />
         <input class="logout button secondary" type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     </form>
@@ -116,7 +123,10 @@ the table based way can be removed when the entire site is Foundation-based.
 </ul>
 </div></div>
 
-<a class="close-reveal-modal">&#215;</a>
+<button type="button" class="fi-icon--with-fallback close-reveal-modal">
+    <span class="fi-icon fi-x" aria-hidden="true"></span>
+    <span class="fi-icon--fallback">Close</span>
+</button>
 </div><!-- end #account-links-text -->
 </div>
 </div><!-- end #account-links.row -->
@@ -129,7 +139,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <div id='nav-login-form' class="reveal-modal" data-reveal>
       <div class="row"><div class="columns">
       <form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
-        <input type="hidden" name="returnto" value="[% get.returnto | html %]" />
+        <input type="hidden" name="returnto" value="[% returnto | html %]" />
         <input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
         <input type='hidden' name='response' class='lj_login_response' value='' />
         <div class="row">
@@ -151,7 +161,11 @@ the table based way can be removed when the entire site is Foundation-based.
         </div>
       </form>
       </div></div>
-      <a class="close-reveal-modal">&#215;</a>
+    <button type="button" class="fi-icon--with-fallback close-reveal-modal">
+        <span class="fi-icon fi-x" aria-hidden="true"></span>
+        <span class="fi-icon--fallback">Close</span>
+    </button>
+
     </div>
     </div>
     </div>
@@ -169,6 +183,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <form action='[% site.root %]/logout' method='post'>
         [%- dw.form_auth -%]
         [%- remote.ljuser_display -%]
+        <input type="hidden" name="returnto" value="[% returnto | html %]" />
         <input type="hidden" name="ret" value="1" />
         <input type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     </form>
@@ -188,7 +203,7 @@ the table based way can be removed when the entire site is Foundation-based.
 [%- ELSE -%] [%# no remote, logged out %]
     [%- chal = dw_scheme.challenge_generate(300) -%]
     [%- -%]<form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
-    [%- -%]<input type="hidden" name="returnto" value="[% get.returnto | html %]" />
+    [%- -%]<input type="hidden" name="returnto" value="[% returnto | html %]" />
     [%- -%]<input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
     <input type='hidden' name='response' class='lj_login_response' value='' />
     <table summary='' id='login-table'>
@@ -245,7 +260,8 @@ the table based way can be removed when the entire site is Foundation-based.
 <!DOCTYPE html>
 <html lang="en" class="no-js">
     [% PROCESS block.head %]
-    <body [% sections.bodyopts %]>
+    [%# NOTE: Other site schemes override this block, so only gradation ends up with the class tag %]
+    <body [% sections.bodyopts %] class="gradation">
         <div id="canvas" [% canvas_opts %]>
             <div id="page">
                 [% PROCESS block.skiplink %]
@@ -312,7 +328,8 @@ the table based way can be removed when the entire site is Foundation-based.
 <!DOCTYPE html>
 <html lang="en">
     [% PROCESS block.head %]
-    <body [% sections.bodyopts %]>
+    [%# NOTE: Other site schemes override this block, so only gradation ends up with the class tag %]
+    <body [% sections.bodyopts %]  class="gradation">
         <div id="canvas" [% canvas_opts %]>
             [%- PROCESS block.msgs -%]
             [% PROCESS block.pagediv %]

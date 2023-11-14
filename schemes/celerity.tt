@@ -46,7 +46,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <!DOCTYPE html>
 <html lang="en" class="no-js">
     [% PROCESS block.head %]
-    <body [% sections.bodyopts %]>
+    <body [% sections.bodyopts %] class="celerity">
         <div id="canvas">
             <div id="page">
                 [%- PROCESS block.skiplink -%]
@@ -116,7 +116,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <!DOCTYPE html>
 <html lang="en">
     [% PROCESS block.head %]
-    <body [% sections.bodyopts %]>
+    <body [% sections.bodyopts %] class="celerity">
         <div id="canvas">
             <div id="page">
                 [%- PROCESS block.skiplink -%]

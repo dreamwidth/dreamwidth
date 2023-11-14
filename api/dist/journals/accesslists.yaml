@@ -1,0 +1,71 @@
+paths:
+  "/journals/{username}/accesslists/{accesslistid}":
+    parameters:
+      - name: username
+        in: path
+        description: The username you want accesslist information for
+        required: true
+        schema:
+          &a1
+          type: string
+          minLength: 3
+          maxLength: 25
+          pattern: ^[0-9A-Za-z_]+$
+          example: example
+      - name: accesslistid
+        in: path
+        description: The id of the accesslist you want information for.
+        required: true
+        schema:
+          type: integer
+    get:
+      description: Returns a list journals on a given access list.
+      responses:
+        "200":
+          description: A list of journals on this accesslist.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: *a1
+        "400":
+          &a3
+          description: Bad or missing request parameters.
+          content:
+            application/json:
+              schema:
+                &a2
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A description of the error encountered.
+                    example: "Bad format for username. Errors: String is too long: 77/25."
+                  success:
+                    type: number
+        "403":
+          description: You cannot view accesslists on that journal.
+          schema: *a2
+        "404":
+          &a4
+          description: Username specified does not exist.
+          content:
+            application/json:
+              schema: *a2
+    post:
+      description: Add users to a given accesslist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items: *a1
+      responses:
+        "200":
+          description: The newly updated accesslist.
+        "400": *a3
+        "403":
+          description: You cannot update accesslists on that journal.
+          schema: *a2
+        "404": *a4

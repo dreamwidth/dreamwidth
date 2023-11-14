@@ -50,7 +50,7 @@ sub option {
 sub des {
     my $class = $_[0];
 
-    return $class->ml('setting.shortcuts_touch.des');
+    return $class->ml('setting.shortcuts_touch.desc');
 }
 
 1;

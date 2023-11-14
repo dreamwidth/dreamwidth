@@ -1,0 +1,3 @@
+[PerlTidy]
+select = {bin,cgi-bin,t}/**/*.{pl,pm,t}
+argv = -ole=unix -ci=4 -l=100

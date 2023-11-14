@@ -1,0 +1,30 @@
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- sections.title = 'Mark Message as Spam' -%]
+
+<p>Are you sure you want to mark this message as spam?</p>
+
+    <form method='post'>
+    [% dw.form_auth() %]
+
+        <div class='highlight-box'>
+        [% form.checkbox( 
+            name = 'spam', 
+            id = 'spam', 
+            selected = "checked", 
+            label = "Mark this message as spam") %]
+        </div>
+
+        <div>
+        [% form.checkbox( 
+            name = 'ban', 
+            id = 'ban', 
+            label = "Ban $msg_user.display_name from sending you messages and commenting in your journal.") %]
+        </div>
+
+        <div align='center' style='margin: 8px'>
+        [% form.hidden( name = 'msgid', value = msgid) %]
+        [% form.submit( name = 'confirm', value = 'Confirm') %]
+        </div>
+    </form>
+
+    <p><strong>Note:</strong> From the <a href='/manage/profile/'>Edit Profile</a> page, you can change your [% site.nameabbrev %] User Messaging settings.</p>

@@ -336,33 +336,16 @@
     .icon {
         text-align: center;
         margin-bottom: $paragraph-margin-bottom;
-        height: 100px;
-        line-height: 100px;
-        cursor: pointer;
-        img {
-            vertical-align: middle;
-        }
     }
 
-    #canvas & .inner button { // exclude from Lynx skin
+    #canvas & .inner .button { // exclude from Lynx skin
         width: 100%;
     }
 
-    .no-icon {
-        position: relative;
-        width: 100px;
-        height: 100px;
-        margin: 0 auto;
-
-        a {
-            display: block;
-            height: 50%;
-            position: absolute;
-            overflow: auto;
-            margin: auto;
-            top: 0; left: 0; bottom: 0; right: 0;
-        }
+    .js-only {
+        display: none;
     }
+
 }
 
 /* Slug */

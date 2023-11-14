@@ -1,0 +1,27 @@
+<h2 class="smaller">[% dw.ml('widget.latestinbox.title') %]</h2>
+<div class="row">
+<div class='sidebar columns medium-3'>
+<ul>
+    <li><a href='/inbox/'>[% dw.ml('widget.latestinbox.links.inbox') %]</a></li>
+    <li><a href='/inbox/compose'>[% dw.ml('widget.latestinbox.links.compose') %]</a></li>
+    <li><a href='/manage/settings/?cat=notifications'>[% dw.ml('widget.latestinbox.links.manage') %]</a></li>
+</ul>
+</div>
+
+<div class='contents columns medium-9 border'>
+    [%- IF error -%]
+        [% error %]
+    [%- ELSE -%]
+        [%- IF inbox_items.size > 0 -%]
+            [%~ FOREACH item IN inbox_items.splice(0, limit) ~%]
+                <div class='item border'>
+                    <div class='title'>[% item.title %]</div>
+                    [% "<div class='summary'>${item.as_html_summary}</div>" IF item.as_html_summary %]
+                </div>
+            [%- END -%]
+        [%- ELSE -%]
+            <div class='item'>[% dw.ml('widget.latestinbox.empty') %]</div>
+        [%- END -%]
+    [%- END -%]
+</div>
+</div>

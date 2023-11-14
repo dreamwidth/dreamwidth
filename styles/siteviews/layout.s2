@@ -65,12 +65,13 @@ function ItemRange::print(string{} opts) {
         print "<li class='page-prev arrow disabled'>&laquo;</li> ";
     }
 
+    """<ul class="pages">""";
     foreach var int i (1..$.total) {
         var string page_class = $i == $.current ? "current" : "";
         var string url_of = $this->url_of($i);
         print "<li class='$page_class'><a href='$url_of$anchor'>$i</a></li> ";
     }
-
+    """</ul>""";
     if ($.current != $.total) {
          print "<li class='page-next arrow'><a href='$url_next$anchor'>&raquo;</a></li> ";
     } else {
@@ -276,7 +277,7 @@ function Comment::print_poster() {
             $this.journal->print();
         }
         if ( $this.admin_post ) {
-            """<span>(""";
+            """<span class="admin-poster">(""";
             $this->print_admin_post_icon();
             print safe $*text_admin_post_note;
             """)</span>""";
@@ -284,7 +285,7 @@ function Comment::print_poster() {
     } else {
         print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster";
         if ( $this.admin_post ) {
-            """<span>(""";
+            """<span class="admin-poster">(""";
             $this->print_admin_post_icon();
             print safe $*text_admin_post_note;
             """)</span>""";

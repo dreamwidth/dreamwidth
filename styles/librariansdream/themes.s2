@@ -801,9 +801,9 @@ set color_navigation_link_visited = "#fff";
 layerinfo type = "theme";
 layerinfo name = "Blue Days";
 layerinfo redist_uniq = "librariansdream/bluedays";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -978,9 +978,9 @@ set font_module_text_units = "pt";
 layerinfo type = "theme";
 layerinfo name = "Certain Frogs";
 layerinfo redist_uniq = "librariansdream/certainfrogs";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1314,9 +1314,9 @@ set color_module_title_background = "#454545";
 layerinfo type = "theme";
 layerinfo name = "Coloured Glass";
 layerinfo redist_uniq = "librariansdream/colouredglass";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1563,9 +1563,9 @@ set font_module_text_units = "pt";
 layerinfo type = "theme";
 layerinfo name = "Cvětý";
 layerinfo redist_uniq = "librariansdream/cvety";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2431,9 +2431,9 @@ set color_module_title_background = "#b28238";
 layerinfo type = "theme";
 layerinfo name = "Elegant Brown";
 layerinfo redist_uniq = "librariansdream/elegantbrown";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2977,9 +2977,9 @@ set font_module_text_units = "pt";
 layerinfo type = "theme";
 layerinfo name = "Full Sky";
 layerinfo redist_uniq = "librariansdream/fullsky";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -4989,9 +4989,9 @@ set color_module_title_background = "#0a0809";
 layerinfo type = "theme";
 layerinfo name = "Vintage Modern";
 layerinfo redist_uniq = "librariansdream/vintagemodern";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -5108,9 +5108,9 @@ set color_module_title = "#eee";
 layerinfo type = "theme";
 layerinfo name = "Wonderland";
 layerinfo redist_uniq = "librariansdream/wonderland";
-layerinfo author_name = "rising";
+layerinfo author_name = "krja";
 
-set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+set theme_authors = [ { "name" => "krja", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

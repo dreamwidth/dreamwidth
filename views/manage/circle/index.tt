@@ -1,0 +1,42 @@
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- sections.title='.title' | ml -%]
+[%- sections.head = BLOCK %]
+<style>
+.name {
+    text-align: right;
+    font-weight: bold;
+    }
+.table {margin-bottom: 2rem;}
+</style>
+[% END %]
+
+<p>[% dw.ml('.about') %]</p>
+<div class="columns table">
+<div class="row">
+  <div class="name columns large-2 medium-3"><a href="[% site.root %]/manage/circle/invite">[% dw.ml('.invite.title') %]</a></div>
+  <div class="columns large-10 medium-9">[% dw.ml('.invite.about2', { sitename => site.nameshort }) %]</div>
+</div>
+<div class="row">
+  <div class="name columns large-2 medium-3"><a href="[% site.root %]/manage/circle/edit">[% dw.ml('/manage/circle/edit.bml.title3') %]</a></div>
+  <div class="columns large-10 medium-9">[% dw.ml('.edit.about') %]</div>
+</div>
+<div class="row">
+  <div class="name columns large-2 medium-3"><a href="[% site.root %]/manage/circle/editfilters">[% dw.ml('/manage/circle/editfilters.bml.title2') %]</a></div>
+  <div class="columns large-10 medium-9">[% dw.ml('.editgroups.about') %] [% dw.ml('.filter') %]</div>
+</div>
+<div class="row">
+  <div class="name columns large-2 medium-3"><a href="[% site.root %]/manage/circle/filter">[% dw.ml('/manage/circle/filter.tt.title3') %]</a></div>
+  <div class="columns large-10 medium-9">[% dw.ml('.filter.about') %]</div>
+</div>
+<div class="row">
+  <div class="name columns large-2 medium-3"><a href="[% site.root %]/manage/circle/popsubscriptions">[% dw.ml('/manage/circle/popsubscriptions.tt.title') %]</a></div>
+  <div class="columns large-10 medium-9">[% dw.ml('.popsub.about') %]</div>
+</div>
+</div>
+
+<h2>[% dw.ml('.security.header') %]</h2>
+<p>[% dw.ml('.security') %]</p>
+<ul>
+  <li>[% dw.ml('.security.only') %]</li>
+  <li>[% dw.ml('.security.custom') %]</li>
+</ul>

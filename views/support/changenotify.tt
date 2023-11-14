@@ -1,0 +1,60 @@
+[%# support/changenotify.tt
+  #
+  # Select support notifications by category.
+  #
+  # Authors:
+  #     Jen Griffin <kareila@livejournal.com>
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself. For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content select {
+            display: inline;
+            height: auto;
+            width: auto;
+            margin: 1em;
+            padding-right: 2rem;
+        }
+        #content ul {
+            list-style: none;
+        }
+    </style>
+[% END %]
+
+<p>[% '.changenotify.text' | ml %]</p>
+
+<form method='post' action='changenotify'>[% dw.form_auth %]
+
+<p>
+  [% form.checkbox( type => 'check', name => 'opt_getselfsupport',
+                    id => 'opt_getselfsupport', label = dw.ml( '.getownresponses' ),
+                    selected => remote.prop( 'opt_getselfsupport' ) ) %]
+</p>
+
+<ul>
+[% FOREACH cat IN filter_cats %]
+  <li>
+  [% form.select( name = "spcatid_${cat.spcatid}", selected = notify.${cat.spcatid},
+                  items = [ "off", dw.ml('.option.off'),
+                            "new", dw.ml('.option.new'),
+                            "all", dw.ml('.option.all'),
+                          ] ) %]
+  [% cat.catname %]
+  </li>
+[% END %]
+</ul>
+
+<p>[% '.done.text' | ml %]</p>
+
+<div class='action-box'>[% form.submit( value = dw.ml( ".submit.button" ) ) %]</div>
+
+</form>

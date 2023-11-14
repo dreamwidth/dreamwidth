@@ -1,0 +1,156 @@
+#NEWLAYER: modish/lotus
+layerinfo type = "theme";
+layerinfo name = "Lotus";
+layerinfo redist_uniq = "modish/lotus";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#262512";
+set color_page_link = "#8E8D31";
+set color_page_link_active = "#57561E";
+set color_page_link_visited = "#737329";
+set color_page_text = "#EDE8E2";
+set color_page_title = "#fff";
+set color_header_background = "#737329";
+set color_footer_background = "#737329";
+set color_footer_link = "#fff";
+set color_footer_link_hover = "#fff";
+set color_footer_link_visited = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#8E8D31";
+set color_entry_title = "#EDE8E2";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#8E8D31";
+set color_module_title = "#EDE8E2";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 105;
+set image_background_header_position = "bottom right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "modish/lotus.jpg";
+
+
+#NEWLAYER: modish/scarlet
+layerinfo type = "theme";
+layerinfo name = "Scarlet";
+layerinfo redist_uniq = "modish/scarlet";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#B82015";
+set color_page_link_active = "#444";
+set color_page_link_visited = "#850B0D";
+set color_page_text = "#222";
+set color_page_title = "#fff";
+set color_header_background = "#B82015";
+set color_footer_background = "#B82015";
+set color_footer_link = "#fff";
+set color_footer_link_hover = "#fff";
+set color_footer_link_visited = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#B82015";
+set color_entry_title = "#222";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#B82015";
+set color_module_title = "#222";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 100;
+set image_background_header_position = "bottom right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "modish/scarlet.jpg";
+
+
+#NEWLAYER: modish/teal
+layerinfo type = "theme";
+layerinfo name = "Teal";
+layerinfo redist_uniq = "modish/teal";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Stock.XCHNG", "url" => "http://www.sxc.hu" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#222";
+set color_page_link = "#59a4c4";
+set color_page_link_active = "#155671";
+set color_page_link_visited = "#3984A4";
+set color_page_text = "#eee";
+set color_page_title = "#fff";
+set color_header_background = "#4f98b8";
+set color_footer_background = "#4f98b8";
+set color_footer_link = "#fff";
+set color_footer_link_hover = "#fff";
+set color_footer_link_visited = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#3984A4";
+set color_entry_title = "#eee";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#3984A4";
+set color_module_title = "#eee";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_position = "top right";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_url = "modish/bluestrip.jpg";
+
+# To add second header background image
+function Page::print_theme_stylesheet() {
+    if ($*image_background_header_url == "modish/bluestrip.jpg") {
+        print safe """
+            #header .inner {
+            background: url('$*STATDIR/modish/whtleaves.jpg') top right no-repeat;
+            margin-right: -200px;
+            min-height: 75px;
+            padding-right: 200px;
+            padding-top: 1px;
+            }
+        """;
+    }
+}

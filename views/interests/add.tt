@@ -18,8 +18,6 @@
 </style>
 [% END -%]
 
-[%- dw.need_res( 'stc/interests.css' ) -%]
-
 [%- sections.title='.title' | ml -%]
 
 [%- IF need_post -%]

@@ -18,6 +18,7 @@
 package DW::Worker::ContentImporter::Local::Userpics;
 use strict;
 use Carp qw/ croak /;
+use Digest::MD5;
 
 =head1 NAME
 

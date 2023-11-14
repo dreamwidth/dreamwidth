@@ -32,7 +32,7 @@
   <p>[% '.lostpassword.text' | ml( sitename = site.nameshort ) %]</p>
 
   [% form.textbox( label = dw.ml( '.enter_username' ), id = 'userlost',
-                   name = 'user', size = 30, maxlength = username_maxlength,
+                   name = 'user', size = 30, maxlength = site.maxlength_user,
                    onkeyup = 'enable_pass();', onchange = 'enable_pass();' ) %]
 
   <br />

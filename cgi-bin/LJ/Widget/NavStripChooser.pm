@@ -20,7 +20,7 @@ use LJ::Customize;
 
 sub ajax     { 1 }
 sub authas   { 1 }
-sub need_res { qw( stc/widgets/navstripchooser.css js/colorpicker.js ) }
+sub need_res { qw( stc/widgets/navstripchooser.css stc/coloris.css js/vendor/coloris.js  ) }
 
 sub render_body {
     my $class = shift;

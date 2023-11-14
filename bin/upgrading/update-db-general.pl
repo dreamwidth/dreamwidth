@@ -92,7 +92,7 @@ register_tablecreate( "authactions", <<'EOC');
 CREATE TABLE authactions (
     aaid int(10) unsigned NOT NULL auto_increment,
     userid int(10) unsigned NOT NULL default '0',
-    datecreate datetime NOT NULL default '0000-00-00 00:00:00',
+    datecreate datetime NOT NULL default CURRENT_TIMESTAMP,
     authcode varchar(20) default NULL,
     action varchar(50) default NULL,
     arg1 varchar(255) default NULL,
@@ -125,7 +125,7 @@ register_tablecreate( "clientusage", <<'EOC');
 CREATE TABLE clientusage (
     userid int(10) unsigned NOT NULL default '0',
     clientid smallint(5) unsigned NOT NULL default '0',
-    lastlogin datetime NOT NULL default '0000-00-00 00:00:00',
+    lastlogin datetime NOT NULL default CURRENT_TIMESTAMP,
 
     PRIMARY KEY  (clientid,userid),
     UNIQUE KEY userid (userid,clientid)
@@ -161,7 +161,7 @@ CREATE TABLE duplock (
     userid int(10) unsigned NOT NULL default '0',
     digest char(32) NOT NULL default '',
     dupid int(10) unsigned NOT NULL default '0',
-    instime datetime NOT NULL default '0000-00-00 00:00:00',
+    instime datetime NOT NULL default CURRENT_TIMESTAMP,
 
     KEY (realm,reid,userid)
 )
@@ -195,7 +195,7 @@ register_tablecreate( "faquses", <<'EOC');
 CREATE TABLE faquses (
     faqid MEDIUMINT UNSIGNED NOT NULL,
     userid INT UNSIGNED NOT NULL,
-    dateview DATETIME NOT NULL,
+    dateview DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (userid, faqid),
     KEY (faqid),
@@ -736,7 +736,7 @@ CREATE TABLE talk2 (
     nodeid INT UNSIGNED NOT NULL default '0',
     parenttalkid MEDIUMINT UNSIGNED NOT NULL,
     posterid INT UNSIGNED NOT NULL default '0',
-    datepost DATETIME NOT NULL default '0000-00-00 00:00:00',
+    datepost DATETIME NOT NULL default CURRENT_TIMESTAMP,
     state CHAR(1) default 'A',
 
     PRIMARY KEY  (journalid,jtalkid),
@@ -915,7 +915,7 @@ register_tablecreate( "infohistory", <<'EOC');
 CREATE TABLE infohistory (
     userid int(10) unsigned NOT NULL default '0',
     what varchar(15) NOT NULL default '',
-    timechange datetime NOT NULL default '0000-00-00 00:00:00',
+    timechange datetime NOT NULL default CURRENT_TIMESTAMP,
     oldvalue varchar(255) default NULL,
     other varchar(30) default NULL,
 
@@ -940,9 +940,8 @@ register_tablecreate( "userusage", <<'EOC');
 CREATE TABLE userusage (
     userid INT UNSIGNED NOT NULL,
     PRIMARY KEY (userid),
-    timecreate DATETIME NOT NULL,
+    timecreate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     timeupdate DATETIME,
-    timecheck DATETIME,
     lastitemid INT UNSIGNED NOT NULL DEFAULT '0',
 
     INDEX (timeupdate)
@@ -952,8 +951,8 @@ EOC
 post_create(
     "userusage",
     "sqltry" =>
-"INSERT IGNORE INTO userusage (userid, timecreate, timeupdate, timecheck, lastitemid) SELECT userid, timecreate, timeupdate, timecheck, lastitemid FROM user",
-    "sqltry" => "ALTER TABLE user DROP timecreate, DROP timeupdate, DROP timecheck, DROP lastitemid"
+"INSERT IGNORE INTO userusage (userid, timecreate, timeupdate, lastitemid) SELECT userid, timecreate, timeupdate, lastitemid FROM user",
+    "sqltry" => "ALTER TABLE user DROP timecreate, DROP timeupdate, DROP lastitemid"
 );
 
 register_tablecreate( "acctcode", <<'EOC');
@@ -1171,12 +1170,12 @@ register_tablecreate( "ml_langs", <<'EOC');
 CREATE TABLE ml_langs (
     lnid      SMALLINT UNSIGNED NOT NULL,
     UNIQUE (lnid),
-    lncode   VARCHAR(16) NOT NULL,  # en_US en_LJ en ch_HK ch_B5 etc... de_DE
+    lncode   VARCHAR(16) NOT NULL,
     UNIQUE (lncode),
-    lnname   VARCHAR(60) NOT NULL,   # "Deutsch"
+    lnname   VARCHAR(60) NOT NULL,
     parenttype   ENUM('diff','sim') NOT NULL,
     parentlnid   SMALLINT UNSIGNED NOT NULL,
-    lastupdate  DATETIME NOT NULL
+    lastupdate  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
 EOC
 
@@ -1200,7 +1199,7 @@ CREATE TABLE ml_latest (
     itid     SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (lnid, dmid, itid),
     txtid    INT UNSIGNED NOT NULL,
-    chgtime  DATETIME NOT NULL,
+    chgtime  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     staleness  TINYINT UNSIGNED DEFAULT 0 NOT NULL, # better than ENUM('0','1','2');
     INDEX (lnid, staleness),
     INDEX (dmid, itid),
@@ -1235,7 +1234,7 @@ register_tablecreate( "syndicated", <<'EOC');
 CREATE TABLE syndicated (
     userid  INT UNSIGNED NOT NULL,
     synurl  VARCHAR(255),
-    checknext  DATETIME NOT NULL,
+    checknext  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     lastcheck  DATETIME,
     lastmod    INT UNSIGNED, # unix time
     etag       VARCHAR(80),
@@ -1252,7 +1251,7 @@ register_tablecreate( "synitem", <<'EOC');
 CREATE TABLE synitem (
     userid  INT UNSIGNED NOT NULL,
     item   CHAR(22),    # base64digest of rss $item
-    dateadd DATETIME NOT NULL,
+    dateadd DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     INDEX (userid, item(3)),
     INDEX (userid, dateadd)
@@ -1597,7 +1596,7 @@ EOC
 register_tablecreate( "spamreports", <<'EOC');    # global
 CREATE TABLE spamreports (
     reporttime  INT(10) UNSIGNED NOT NULL,
-    ip          VARCHAR(15),
+    ip          VARCHAR(45),
     journalid   INT(10) UNSIGNED NOT NULL,
     posterid    INT(10) UNSIGNED NOT NULL DEFAULT 0,
     subject     VARCHAR(255) BINARY,
@@ -1614,7 +1613,7 @@ EOC
 register_tablecreate( "tempanonips", <<'EOC');    # clustered
 CREATE TABLE tempanonips (
     reporttime  INT(10) UNSIGNED NOT NULL,
-    ip          VARCHAR(15) NOT NULL,
+    ip          VARCHAR(45) NOT NULL,
     journalid   INT(10) UNSIGNED NOT NULL,
     jtalkid     INT(10) UNSIGNED NOT NULL,
 
@@ -1992,7 +1991,7 @@ CREATE TABLE loginlog (
     logintime INT UNSIGNED NOT NULL,
     INDEX     (userid, logintime),
     sessid    MEDIUMINT UNSIGNED NOT NULL,
-    ip        VARCHAR(15),
+    ip        VARCHAR(45),
     ua        VARCHAR(100)
 )
 EOC
@@ -2078,8 +2077,8 @@ CREATE TABLE subs (
     ntypeid    SMALLINT UNSIGNED NOT NULL,
 
     createtime INT UNSIGNED NOT NULL,
-    expiretime INT UNSIGNED NOT NULL,
-    flags      SMALLINT UNSIGNED NOT NULL
+    expiretime INT UNSIGNED NOT NULL DEFAULT 0,
+    flags      SMALLINT UNSIGNED NOT NULL DEFAULT 0
 )
 EOC
 
@@ -2325,7 +2324,7 @@ CREATE TABLE pollsubmission2 (
     journalid INT UNSIGNED NOT NULL,
     pollid INT UNSIGNED NOT NULL,
     userid INT UNSIGNED NOT NULL,
-    datesubmit DATETIME NOT NULL,
+    datesubmit DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY  (journalid,pollid),
     KEY (userid)
@@ -2852,7 +2851,7 @@ CREATE TABLE sitekeywords (
 )
 EOC
 
-# this table is included, even though it's not used in the stock dw-free
+# this table is included, even though it's not used in the stock Dreamwidth
 # installation.  but if you want to use it, you can, or you can ignore it
 # and make your own which you might have to do.
 register_tablecreate( 'cc_trans', <<'EOC');
@@ -3121,6 +3120,34 @@ CREATE TABLE `key_prop_list` (
 )
 EOC
 
+register_tablecreate( "profile_services", <<'EOC');
+CREATE TABLE profile_services (
+    service_id MEDIUMINT(8) UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(40) NOT NULL,
+    userprop VARCHAR(40),
+    imgfile VARCHAR(40) NOT NULL,
+    title_ml VARCHAR(80) NOT NULL,
+    url_format VARCHAR(255),
+    maxlen TINYINT(3) UNSIGNED NOT NULL,
+
+    PRIMARY KEY (service_id),
+    UNIQUE KEY (name)
+)
+EOC
+
+# clustered
+register_tablecreate( "user_profile_accts", <<'EOC');
+CREATE TABLE user_profile_accts (
+    userid INT(10) UNSIGNED NOT NULL,
+    account_id MEDIUMINT(8) UNSIGNED NOT NULL,
+    service_id MEDIUMINT(8) UNSIGNED NOT NULL,
+    value VARCHAR(255) NOT NULL,
+
+    PRIMARY KEY (userid, account_id),
+    INDEX (value)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes
@@ -3351,13 +3378,15 @@ register_alter(
         }
 
         # Add BLOB flag to proplist
-        unless ( column_type( "userproplist", "datatype" ) =~ /blobchar/ ) {
-            if ( column_type( "userproplist", "is_blob" ) ) {
-                do_alter( "userproplist", "ALTER TABLE userproplist DROP is_blob" );
+        foreach my $table (qw/ userproplist logproplist talkproplist /) {
+            unless ( column_type( $table, "datatype" ) =~ /blobchar/ ) {
+                if ( column_type( $table, "is_blob" ) ) {
+                    do_alter( $table, "ALTER TABLE $table DROP is_blob" );
+                }
+                do_alter( $table,
+"ALTER TABLE $table MODIFY datatype ENUM('char','num','bool','blobchar') NOT NULL DEFAULT 'char'"
+                );
             }
-            do_alter( "userproplist",
-"ALTER TABLE userproplist MODIFY datatype ENUM('char','num','bool','blobchar') NOT NULL DEFAULT 'char'"
-            );
         }
 
         if ( column_type( "challenges", "count" ) eq "" ) {
@@ -4157,7 +4186,22 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
 
         # widen ip column for IPv6 addresses
         if ( column_type( "spamreports", "ip" ) eq "varchar(15)" ) {
-            do_alter( "spamreports", "ALTER TABLE spamreports " . "MODIFY ip VARCHAR(45)" );
+            do_alter( "spamreports", "ALTER TABLE spamreports MODIFY ip VARCHAR(45)" );
+        }
+
+        # widen ip column for IPv6 addresses
+        if ( column_type( "tempanonips", "ip" ) eq "varchar(15)" ) {
+            do_alter( "tempanonips", "ALTER TABLE tempanonips MODIFY ip VARCHAR(45) NOT NULL" );
+        }
+
+        # widen ip column for IPv6 addresses
+        if ( column_type( "userlog", "ip" ) eq "varchar(15)" ) {
+            do_alter( "userlog", "ALTER TABLE userlog MODIFY ip VARCHAR(45)" );
+        }
+
+        # widen ip column for IPv6 addresses
+        if ( column_type( "loginlog", "ip" ) eq "varchar(15)" ) {
+            do_alter( "loginlog", "ALTER TABLE loginlog MODIFY ip VARCHAR(45)" );
         }
 
         unless ( column_type( 'ml_items', 'itcode' ) =~ /120/ ) {
@@ -4186,11 +4230,27 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
             );
         }
 
-        # widen ip column for IPv6 addresses
-        if ( column_type( "userlog", "ip" ) eq "varchar(15)" ) {
-            do_alter( "spamreports", "ALTER TABLE userlog MODIFY ip VARCHAR(45)" );
+        if ( column_default( 'subs', 'expiretime' ) ne '0' ) {
+            do_alter( 'subs',
+                'ALTER TABLE subs MODIFY COLUMN expiretime INT UNSIGNED NOT NULL DEFAULT 0' );
         }
 
+        if ( column_default( 'subs', 'flags' ) ne '0' ) {
+            do_alter( 'subs',
+                'ALTER TABLE subs MODIFY COLUMN flags SMALLINT UNSIGNED NOT NULL DEFAULT 0' );
+        }
+
+        if ( column_type( 'userusage', 'timecheck' ) ) {
+            do_alter( 'userusage',
+                'ALTER TABLE userusage DROP COLUMN timecheck, ALGORITHM=INPLACE, LOCK=NONE' );
+        }
+
+        if ( table_relevant("userusage") && column_type( "userusage", "timeupdate_public" ) eq '' )
+        {
+            do_alter( 'userusage',
+                      "ALTER TABLE userusage ADD COLUMN timeupdate_public DATETIME, "
+                    . "ADD INDEX (timeupdate_public)" );
+        }
     }
 );
 

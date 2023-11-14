@@ -46,10 +46,14 @@ h3.entry-title {
 .entry .footer {text-align: center;}
 hr.above-entry-interaction-links, hr.below-entry-interaction-links {margin: 1em 0;}
 .entry-interaction-links, .comment-pages {text-align: center; font-weight:bold; float:none;}
+.comment-page-list.action-box, .comment-page-list.action-box .inner {left: 0; }
+.comment-page-list.action-box .inner {border-width: 0;}
 .entry-interaction-links li {display:inline;}
 ul.entry-interaction-links {list-style: none outside none; display: inline; text-align: center; padding: 0.5em 0; margin:0;}
 .comment-page-list { margin: 1em auto; padding: .5em;display:inline-block;}
 .page-prev, .page-next, .page-links {display: table-cell;}
+.pagination li.current a:before {content: '['}
+.pagination li.current a:after {content: ']'}
 .page-prev, .page-next { vertical-align: middle; padding:0 .5em;}
 .commment-pages-wrapper {text-align: center;}
 /* give talkread styling to management links without S2 overrides*/
@@ -70,6 +74,9 @@ ul.entry-interaction-links {list-style: none outside none; display: inline; text
 .no-userpic .comment-info {padding-left:10px;}
 .edittime {padding-top:1em;}
 .comment-posted {font-weight:bold;}
+.comment .admin-poster {
+    white-space: nowrap;
+}
 
 /*Styling for comment links*/
 ul.comment-management-links {display: inline;}
