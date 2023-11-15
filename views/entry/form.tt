@@ -160,7 +160,7 @@ postFormInitData.strings = {
                             newwindow = 1
                         }
                         icon = "widget"
-                        text = "Settings"
+                        text = "Rearrange Panels"
                 -%]
                 </span>
             </div>
