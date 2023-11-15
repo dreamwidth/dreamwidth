@@ -16,7 +16,7 @@ table.table {
 }
 
 // Alternately, here's the padding the old site skins used.
-table:not(.table) {
+table:not(.table, .picker__table),  {
     td, th {
         padding: 0.2em 0.8em;
     }
