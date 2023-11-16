@@ -36,57 +36,55 @@ sub index_handler {
 
     if ($remote) {
         $vars->{remote} = $remote;
-        $vars->{panel} = DW::Panel->init( u => $remote )
-    } else {
-        # possible strings are:
-        # .create.join_dreamwidth.content                      - normal
-        # .create.join_dreamwidth.content.noinvites            - will be in use occasionally
-        # .create.join_dreamwidth.content.nopayments           - was in use before payments were set up
-        # .create.join_dreamwidth.content.noinvites.nopayments - highly unlikely to ever be in use on DW.org, but possible on Dreamhacks
+        $vars->{panel}  = DW::Panel->init( u => $remote );
+    }
+    else {
+# possible strings are:
+# .create.join_dreamwidth.content                      - normal
+# .create.join_dreamwidth.content.noinvites            - will be in use occasionally
+# .create.join_dreamwidth.content.nopayments           - was in use before payments were set up
+# .create.join_dreamwidth.content.noinvites.nopayments - highly unlikely to ever be in use on DW.org, but possible on Dreamhacks
         my $string = ".create.join_dreamwidth.content";
-        if ( ! $LJ::USE_ACCT_CODES )          { $string .= ".noinvites";  }
-        if ( ! LJ::is_enabled( 'payments' ) ) { $string .= ".nopayments"; }
+        if ( !$LJ::USE_ACCT_CODES )        { $string .= ".noinvites"; }
+        if ( !LJ::is_enabled('payments') ) { $string .= ".nopayments"; }
 
         # if you change the number of columns here, you'll need to tweak the width
         # percentage for .links-column in the CSS file accordingly.
         my @columns = (
             {
-                name => 'about',
+                name  => 'about',
                 items => [
                     [ '/about', 'about_dreamwidth' ],
-#                    [ '#', 'site_tour' ],
+
+                    #                    [ '#', 'site_tour' ],
                     [ '/legal/principles', 'guiding_principles' ],
                 ],
             },
             {
-                name => 'community',
+                name  => 'community',
                 items => [
                     [ 'https://dw-news.dreamwidth.org/', 'site_news' ],
-                    [ '/latest', 'latest_things', 'footnote' ],
-                    [ '/random', 'random_journal', 'footnote' ],
+                    [ '/latest',           'latest_things',    'footnote' ],
+                    [ '/random',           'random_journal',   'footnote' ],
                     [ '/community/random', 'random_community', 'footnote' ],
                 ],
                 footnote => 'no_screening',
             },
             {
-                name => 'support',
-                items => [
-                    [ '/support/faq', 'faq' ],
-                    [ '/support/', 'support' ],
-                ],
+                name  => 'support',
+                items => [ [ '/support/faq', 'faq' ], [ '/support/', 'support' ], ],
             },
         );
 
-        push @{$columns[1]->{items}}, [ 'https://dw-codesharing.dreamwidth.org/', 'codeshare' ]
+        push @{ $columns[1]->{items} }, [ 'https://dw-codesharing.dreamwidth.org/', 'codeshare' ]
             if $LJ::USE_ACCT_CODES;
 
-        $vars->{invite_length} = DW::InviteCodes::CODE_LEN;
-        $vars->{string} = $string;
-        $vars->{columns} = \@columns;
+        $vars->{invite_length}  = DW::InviteCodes::CODE_LEN;
+        $vars->{string}         = $string;
+        $vars->{columns}        = \@columns;
         $vars->{use_acct_codes} = $LJ::USE_ACCT_CODES;
-        $vars->{use_payments} = LJ::is_enabled( 'payments' );
+        $vars->{use_payments}   = LJ::is_enabled('payments');
     }
-
 
     return DW::Template->render_template( 'index.tt', $vars );
 }
