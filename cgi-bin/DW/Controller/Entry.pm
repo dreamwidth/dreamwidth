@@ -890,7 +890,8 @@ sub _form_to_backend {
         }
     }
 
-    $req->{sticky_entry} = $post->{sticky_entry};
+    $req->{sticky_entry}  = $post->{sticky_entry};
+    $req->{sticky_select} = $post->{sticky_select};
 
     return 1;
 }
