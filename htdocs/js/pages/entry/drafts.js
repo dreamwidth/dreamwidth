@@ -120,7 +120,7 @@ function initDraft(askToRestore) {
    }
 
     // set up event handlers
-    $("#content").on('change', 'input.draft-autosave, textarea.draft-autosave', null, LJDraft.handleChange);
+    $("#content").on('change', '.draft-autosave', null, LJDraft.handleChange);
     $("#content").on('input', '#entry-body', null, LJDraft.handleInput);
 
 }
