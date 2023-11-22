@@ -28,29 +28,6 @@ general /delcomment.bml.success.noban
 general /delcomment.bml.success.spam
 general /delcomment.bml.title
 
-general /editjournal.bml.auth.poster
-general /editjournal.bml.btn.proceed
-general /editjournal.bml.certainday
-general /editjournal.bml.desc
-general /editjournal.bml.edit.this.entry
-general /editjournal.bml.in
-general /editjournal.bml.no.entries.exist
-general /editjournal.bml.no.entries.found
-general /editjournal.bml.no.entries.match
-general /editjournal.bml.recententries
-general /editjournal.bml.recententry
-general /editjournal.bml.success.delete
-general /editjournal.bml.success.deletespam
-general /editjournal.bml.success.edited
-general /editjournal.bml.success.editedstillsuspended
-general /editjournal.bml.success.fromhere
-general /editjournal.bml.success.fromhere.manageentries
-general /editjournal.bml.success.fromhere.viewentries
-general /editjournal.bml.success.fromhere.viewentry
-general /editjournal.bml.success.head
-general /editjournal.bml.title
-general /editjournal.bml.viewwhat
-
 general /edittags.bml.button.save
 general /edittags.bml.current
 general /edittags.bml.disabled
