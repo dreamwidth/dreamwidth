@@ -2865,6 +2865,15 @@ sub prepare_and_validate_comment {
         $state = 'S';
     }
 
+    # Finally, ensure that the comment ends up screen if it runs afoul of some
+    # testing we do. I.e., if the journal is in the auto-screen list and the IP is
+    # in the bad IPs list.
+    if ( exists $LJ::AUTOSCREEN_COMMENTS_IN{ $journalu->user } ) {
+        if ( $LJ::SHOULD_SCREEN_IP && $LJ::SHOULD_SCREEN_IP->( LJ::get_remote_ip() ) ) {
+            $state = 'S';
+	}
+    }
+
     # Assemble the final prepared comment!
     my $parent = {
         state    => $parent_state,
