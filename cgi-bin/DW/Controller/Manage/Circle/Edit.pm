@@ -1,18 +1,15 @@
 #!/usr/bin/perl
 #
-# DW::Controller::Manage::Circle::PopSubscriptions
+# DW::Controller::Manage::Circle::Eit
 #
-# Page that shows a sorted list of popular accounts in the user's circle.
-# User can pick which circle group to base these calculations on by selecting
-# from a drop-down menu. Results are displayed in three sections: personal
-# accounts, community accounts, feed accounts. Page for listing subscriptions
-# that are popular with other members of the user's circle.
+# Page that shows an overview of accounts a user subscribes to
+# or grants access to, and vice-versa, with an interface for editing
+# or adding accounts.
 #
 # Authors:
-#   Rebecca Freiburg <beckyvi@gmail.com>   (BML version)
-#   Jen Griffin <kareila@livejournal.com>  (TT conversion)
+#   Momiji <momijizukamori@gmail.com>
 #
-# Copyright (c) 2009-2022 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2023 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -28,12 +25,10 @@ use DW::Template;
 use DW::Controller;
 use LJ::JSON;
 
-my $popsub_path = '/manage/circle/edit';
-
 DW::Routing->register_string( '/manage/circle/edit', \&edit_handler, app => 1 );
 
 sub edit_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
     return $rv unless $ok;
 
     my $r = DW::Request->get;
@@ -42,13 +37,11 @@ sub edit_handler {
 
     my $GET  = $r->get_args;
     my $POST = $r->post_args;
+    my $u    = $rv->{u};
     my $vars = {};
-    my $ret  = "";
 
-    my $authas      = $GET->{'authas'} || $remote->user;
     my $view_banned = $GET->{view} eq 'banned';
 
-    my $u = LJ::get_authas_user($authas);
     return error_ml('error.invalidauth')
         unless $u;
     return $r->redirect( $u->community_manage_members_url )
@@ -112,25 +105,6 @@ sub edit_handler {
             $vars->{feed_userids}   = \@feed_userids;
             $vars->{person_userids} = \@person_userids;
 
-        }
-
-        if ( $u->circle_userids >= $u->count_maxfriends ) {
-
-            # different message if account upgrade is possible
-            my $acttype = DW::Pay::get_account_type($u);
-            my $noup    = ( $acttype eq "seed" || $acttype eq "premium" ) ? 1 : 0;
-            my $warnml =
-                $noup
-                ? '.addrelationships.warning.noupgrade'
-                : '.addrelationships.warning.canupgrade';
-            $ret .= "<?p "
-                . BML::ml(
-                $warnml,
-                {
-                    maxnum => $u->count_maxfriends,
-                    aopts  => "href='$LJ::SITEROOT/shop/account?for=self'"
-                }
-                ) . " p?>";
         }
 
         my $show_watch_col = $u->can_watch ? 1 : 0;
