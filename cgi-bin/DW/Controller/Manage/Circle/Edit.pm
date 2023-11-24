@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::Controller::Manage::Circle::Eit
+# DW::Controller::Manage::Circle::Edit
 #
 # Page that shows an overview of accounts a user subscribes to
 # or grants access to, and vice-versa, with an interface for editing
