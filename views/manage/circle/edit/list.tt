@@ -1,0 +1,149 @@
+    <a name='edit[% type %]'></a>
+    <table class='editfriends table' id='edit[% type %]' summary='[% dw.ml(".table.summary.$type") %]' role="table">
+    <caption>[% dw.ml(".circle.header.$type", { num => uids.size } ) %]</caption>
+    <thead>
+    <tr>
+    [% table_span = type == "people" ? 2 : 1 %]
+    <th id='edit[% type %]_1' scope='col' rowspan=[% table_span %] role="columnheader">[% dw.ml('.table.header1') %]</th>
+    <th id='edit[% type %]_0' abbr='Custom colors' rowspan=[% table_span %] role="columnheader">&nbsp;</th>
+    <th id='edit[% type %]_2' scope='col' colspan=[% table_span %] role="columnheader">[% dw.ml('.table.header2') %]</th>
+    [% UNLESS type == "feeds" %]
+    <th id='edit[% type %]_3' scope='col' colspan=[% table_span %] role="columnheader">[% dw.ml(".table.header3.$type") %]</th>
+    [% END %]
+    </tr>
+    [% IF type == "people" %]
+    <tr>
+    <th role="columnheader">Subscribe</th>
+    <th role="columnheader">Subscribes to You</th>
+    <th role="columnheader">Give Access</th>
+    <th role="columnheader">Gives You Access</th>
+    </tr>
+    [% END %]
+</thead>
+    [% FOREACH uid IN uids %]
+        [% other_u = us.$uid %]
+        [% NEXT UNLESS other_u %]
+        <tr role="row">
+        [%# name %]
+        <td scope='col' abbr='[% other_u.display_username %]' role="cell" class="name-cell">
+            [% form.hidden( name => "editfriend_edit_${uid}_user", selected => 1 ) %]
+            [% other_u.ljuser_display %]
+            <br /><span style='font-size: smaller;'>[% other_u.last_updated %]</span>
+        </td>
+
+        [%# color %]
+        <td role="cell" class="swatch-cell">
+            [% IF watch_list.$uid %]
+
+            <span class="swatch" style="background-color: [% watch_list.$uid.bgcolor %]; color: [% watch_list.$uid.fgcolor %];">
+                <span class="text-color" aria-hidden="true">[% other_u.username.substr(0, 1) %]</span>
+            </span>
+            [% END %]
+        </td>
+
+        [%# subscription status %]
+        <td role="cell">
+            [% IF watch_list.$uid || u.can_watch(other_u) %]
+                [% form.checkbox(
+                        name => "editfriend_edit_${uid}_watch",
+                        value => 1,
+                        selected => watch_list.$uid ? 1 : 0,
+                        id => "editfriend_edit_${uid}_watch",
+                        label => dw.ml('.circle.subscribe')
+                    ) %]
+            [% ELSE %]
+                <span class="empty">[% dw.ml('.circle.na') %]</span>
+            [% END %]
+        </td>
+
+        [% IF type == "people" %]
+        <td role="cell" class="center-icon">
+            [% IF is_watched_by_userid.$uid %]
+            <span class="fi-icon--with-fallback">
+                <span class="fi-icon fi-check" aria-hidden="true"></span>
+                <span class="fi-icon--fallback">[% dw.ml('.circle.subscribe.y') %]</span>
+            </span>
+            [% ELSIF other_u.can_watch(u) %]
+            <span class="fi-icon--with-fallback">
+                <span class="fi-icon fi-x" aria-hidden="true"></span>
+                <span class="fi-icon--fallback">[% dw.ml('.circle.subscribe.n') %]</span>
+            </span>
+            [% ELSE %]
+                <span class="empty">[% dw.ml('.circle.na') %]</span>
+            [% END %]
+        </td>
+        [% END %]
+
+        [%# ...and access/membership %]
+        [% IF type=="people" %]
+        <td role="cell">
+            [% IF trust_list.$uid || u.can_trust(other_u) %]
+                [% form.checkbox(
+                        name => "editfriend_edit_${uid}_trust",
+                        value => 1,
+                        selected => trust_list.$uid ? 1 : 0,
+                        id => "editfriend_edit_${uid}_trust",
+                        label => dw.ml('.circle.access')
+                    ) %]
+            [% ELSE %]
+                <span class="empty">[% dw.ml('.circle.na') %]</span>
+            [% END %]
+        </td>
+        [% END %]
+
+        [% IF type == "people" %]
+            <td role="cell" class="center-icon">
+                [% IF is_trusted_by_userid.$uid %]
+                <span class="fi-icon--with-fallback">
+                    <span class="fi-icon fi-check" aria-hidden="true"></span>
+                    <span class="fi-icon--fallback">[% dw.ml('.circle.access.y') %]</span>
+                </span>
+                [% ELSIF other_u.can_trust(u) %]
+                <span class="fi-icon--with-fallback">
+                    <span class="fi-icon fi-x" aria-hidden="true"></span>
+                    <span class="fi-icon--fallback">[% dw.ml('.circle.access.n') %]</span>
+                </span>
+                [% ELSE %]
+                    <span class="empty">[% dw.ml('.circle.na') %]</span>
+                [% END %]
+            </td>
+        [% ELSIF type == "comms" %]
+            [% jointext = dw.ml('.circle.member') %]
+            [% joinvals = {
+                    name => "editfriend_edit_$uid_join",
+                    id => "editfriend_edit_$uid_join",
+                    value => 1,} 
+            %]
+
+            [%# check membership %]
+            [% IF is_member_of_userid(uid) %]
+                [% SET jointext = dw.ml('.circle.admin') IF u.can_manage(other_u) %]
+                [% joinvals.selected = 1 %]
+                [% joinvals.disabled = u.can_leave( other_u ) ? 0 : 1 %]
+            [% ELSE %]
+                [% status = other_u.membership_level %]
+                [% jointext = (status ? dw.ml(".circle.join.$status") : dw.ml('.circle.none')) %]
+                [% IF status == 'moderated' %]
+                    [% jointext = jointext _ " " _
+                        dw.ml( '.circle.join.apply', { aopts => "href='$site.root/circle/$other_u{user}/edit'" } ) %]
+                [% END %]
+                [% joinvals.selected = 0 %]
+                [% joinvals.disabled = u.can_leave( other_u ) ? 0 : 1 %]
+            [% END %]
+            [% joinvals.label = jointext %]
+            <td role="cell">
+            [% form.checkbox(joinvals) %]
+            </td>
+
+        [% END %]
+
+   </tr>
+
+    [% END %]
+
+    [% UNLESS uids.size > 0 %]
+        <tr role="row"><td colspan='[% type == "feeds" ? "4" : "5" %]"' role="cell">
+        <span class="empty">[% dw.ml('.circle.none') %]</span>
+        </td></tr>
+    [% END %]
+    </table>

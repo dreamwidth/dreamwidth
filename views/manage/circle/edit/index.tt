@@ -1,0 +1,140 @@
+[%- sections.title='.title3' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- dw.need_res( { group => "foundation" },
+      "stc/css/pages/manage/circle-edit.css"
+      "stc/css/components/foundation-icons.css"
+      "stc/coloris.css"
+      "js/vendor/coloris.js"
+      "js/pages/manage/circle-edit.js"
+) -%]
+
+<form method='post' name='editFriends' action='edit'>
+        [% dw.form_auth() %]
+        <p>[% dw.ml( '.circle.intro2', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'", aopts4 => "href='${site.root}/manage/settings/?cat=notifications'", aopts5 => "href='${site.root}/manage/banusers'" }) %]</p>
+        <p>[% dw.ml( '.circle.intro.feeds', { sitename => site.nameshort, aopts => "href='${site.root}/feeds'" }) %]</p>
+
+        [% IF view_banned %]
+            <p>[% dw.ml( '.circle.hide_banned', { aopts => "href='/manage/circle/edit'"} ) %]</p>
+        [% ELSIF banned_userids %]
+            <p>[% dw.ml( '.circle.show_banned', { aopts => "href='/manage/circle/edit?view=banned'" } ) %]</p>
+        [% END %]
+
+        <h2>[% dw.ml('.circle.header') %]</h2>
+        [% BLOCK standoutbox %]
+        <div class="action-box">
+            <div class="inner">
+            <p>[% dw.ml( '.circle.standout', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'" }) %]</p>
+            [% form.submit(value=dw.ml('.btn.save')) %]
+            </div>
+        </div>
+        [% END %]
+
+        [% IF all_circle_userids %]
+
+            [%# print tables %]
+            <div class='editfriendsframe'>
+            [% PROCESS standoutbox %]
+            [%- INCLUDE manage/circle/edit/list.tt
+                type => 'people'
+                uids => person_userids -%]
+            [% PROCESS standoutbox %]
+            [%- INCLUDE manage/circle/edit/list.tt
+                type => 'comms'
+                uids => comm_userids -%]
+            [% PROCESS standoutbox %]
+            [%- INCLUDE manage/circle/edit/list.tt
+                type => 'feeds'
+                uids => feed_userids -%]
+            [% PROCESS standoutbox %]
+            </div>
+
+
+        [% ELSE %]
+            <p>[% dw.ml('.circle.nocircle') %]</p><br><br>
+        [% END %]
+
+    [%# Add friends %]
+    <h2>[% dw.ml('.addrelationships.head') %]</h2>
+    <p>[% dw.ml( '.addrelationships.text', { sitename => site.nameshort, aopts => "href='${site.root}/manage/circle/invite'" } ) %]</p>
+    <p>[% dw.ml( '.customcolors.enable', { aopts => "href='${site.root}/customize/options'", sitename => site.nameshort } ) %]</p>
+
+        [% IF u.circle_userids.size > u.count_maxfriends %]
+            [% # different message if account upgrade is possible %]
+            [% warn_str = ( acttype == "seed" || acttype == "premium" ) ? 
+                    '.addrelationships.warning.noupgrade' : '.addrelationships.warning.canupgrade' %]
+            <p> [% dw.ml(warn_str,  { maxnum => u.count_maxfriends, aopts => "href='${site.root}/shop/account?for=self'" } ) %]</p>
+        [% END %]
+
+        <table id='addfriends' class="table">
+        <thead>
+        <tr><th>[% dw.ml('.circle.username') %]</th>
+        [% "<th abbr='Custom colors' role='columnheader'>&nbsp;</th>" IF show_colors %]
+        [% "<th>${dw.ml('.circle.trust')}</th>" IF show_trust_col %]
+        [% "<th>${dw.ml('.circle.watch')}</th>" IF show_watch_col %]
+        [% "<th>${dw.ml('.foreground')}</th><th>${dw.ml('.background')}</th>" IF show_colors %]
+        </tr>
+        </thead>
+        [% FOREACH i IN [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] %]
+            <tr><td class="name-cell">
+            [% form.textbox( 'name' => "editfriend_add_${i}_user",
+                                    'size' => '20', 'maxlength' => site.maxlength_user,
+                                    'onchange' => "updatePreview(); return true;",
+                                    'onfocus' => "setFriend($i);" ) %]
+            </td>
+            [% IF show_colors %]
+            <td role="cell" class="swatch-cell">
+            <span class="swatch hidden" id="swatch-[% i %]" style="background-color: #ffffff; color: #000000;">
+                <span class="text-color" aria-hidden="true">a</span>
+            </span>
+            </td>
+            [% END %]
+
+            [% IF show_trust_col %]
+                <td>
+                [% form.checkbox( name => "editfriend_add_${i}_trust",
+                                         value => 1,
+                                         onfocus => "setFriend($i);",
+                                         label => dw.ml('.circle.access'),
+                                         autocomplete => 'off' ) %]
+                </td>
+            [% END %]
+
+            [% IF show_watch_col %]
+                <td>
+                [% form.checkbox( name => "editfriend_add_${i}_watch",
+                                         value => 1,
+                                         onfocus => "setFriend($i);",
+                                    label => dw.ml('.circle.subscribe'),
+                                         class=> "sub-box",
+                                         autocomplete => 'off') %]
+                </td>
+            [% END %]
+
+            [% IF show_colors %]
+                <td class="color-cell full">
+                [% form.textbox( 'name' => "editfriend_add_${i}_fg",
+                                'id' => "editfriend_add_${i}_fg",
+                                'value' => '#000000',
+                                class => 'fg-color coloris',
+                                label => dw.ml('.foreground'),
+                                autocomplete => 'off' ) %]
+                </td><td class="color-cell full">
+                [% form.textbox( 'name' => "editfriend_add_${i}_bg",
+                                'id' => "editfriend_add_${i}_bg",
+                                'value' => '#ffffff',
+                                class=> 'bg-color coloris',
+                                label => dw.ml('.background'),
+                                raw => " data-coloris"
+                                autocomplete => 'off' ) %]
+                </td>
+            [% END %]
+
+            </tr>
+        [% END %]
+        </table>
+
+        <div class="action-box"><div class=".inner">[% form.submit(value = dw.ml( '.btn.save2')) %]</div></div>
+        </form>
+<script>
+var colors = [% colors %];
+</script>

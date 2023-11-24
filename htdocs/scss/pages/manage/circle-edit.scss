@@ -1,0 +1,98 @@
+
+
+@import "foundation/base";
+
+@media #{$small-only} {
+    table#editpeople, table#editcomms, table#editfeeds, table#addfriends {
+        tr td {
+            display: inline-block; 
+            width: 49%;
+        
+            &.swatch-cell {
+                width: auto;
+            }
+
+            &.name-cell {
+                width: 80%;
+            }
+
+            &.color-cell label {
+                display:inline-block;
+            }
+        }
+
+        thead {display: none;}
+
+        td .fi-icon--fallback {
+            display: inline;
+            width: auto;
+            height: auto;
+            position: relative !important;
+            font-size: 1rem;
+            margin-left: 0.5rem;        
+        }
+    } 
+
+    table.table tr td.center-icon {
+        text-align: left !important;
+    }
+
+}
+
+table.table tr td.center-icon {
+    text-align: center;
+}
+
+table.table thead tr {
+    /* without the !important, multi-row headers get wrong styling */
+    background-color: transparent !important;
+}
+
+table .swatch {
+    display: inline-block;
+    text-align: center;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 3px;
+    border-width: 1px;
+    border-style: solid;
+}
+table .swatch-cell {
+    width: 3em;
+}
+table .color-cell label {
+    display:none;
+}
+
+table .swatch.hidden {
+    display: none;
+}
+
+thead {
+    position: sticky;
+    z-index: 10; /* color-picker box overlaps otherwise */
+  top: 0; /* Don't forget this, required for the stickiness */
+}
+table.table {
+    margin: auto; 
+    input {
+        margin: 0;
+    }
+
+    td .empty {
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+    }
+}
+table.table thead th {text-align: center;}
+
+.full .clr-field button {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+}
+
+.coloris {
+    max-width: 4em;
+}

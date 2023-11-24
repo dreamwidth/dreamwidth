@@ -127,9 +127,9 @@
 
 .success.friendspage=View your Reading Page
 
-.success.fromhere=From here, you can:
+.success.message=Your circle has been updated!
 
-.success.head=Success
+.success.title=Success
 
 .table.header1=Account
 
