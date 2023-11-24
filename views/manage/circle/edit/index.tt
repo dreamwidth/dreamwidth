@@ -5,9 +5,8 @@
       "stc/css/components/foundation-icons.css"
       "stc/coloris.css"
       "js/vendor/coloris.js"
-      "js/circle-edit.js"
+      "js/pages/manage/circle-edit.js"
 ) -%]
-<p>[% '.intro' | ml %]</p>
 
 <form method='post' name='editFriends' action='edit'>
         [% dw.form_auth() %]
@@ -125,6 +124,7 @@
                                 'value' => '#ffffff',
                                 class=> 'bg-color coloris',
                                 label => dw.ml('.background'),
+                                raw => " data-coloris"
                                 autocomplete => 'off' ) %]
                 </td>
             [% END %]

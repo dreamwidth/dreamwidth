@@ -146,11 +146,9 @@ sub edit_handler {
 
             # load the colors
             LJ::load_codes( { "color" => \@color } );
-            my @color_opts  = map { lc( $_->{'code'} ), $_->{'item'} } @color;
             my @color_codes = map { $_->{'code'} } @color;
 
-            $vars->{color_opts} = \@color_opts;
-            $vars->{colors}     = to_json( \@color_codes );
+            $vars->{colors} = to_json( \@color_codes );
         }
     }
 
@@ -286,22 +284,27 @@ sub edit_handler {
             }
         }
 
-#if there are entries in the not_user array, tell the user there were problems.
-# if ( @not_user > 0 ) {
-#     $ret .= "<?h1 $ML{'.error.adding.header'} h1?>";
-#     $ret .= "<br>" . BML::ml('.error.adding.text', { username => LJ::ehtml( $_ ) } ) foreach @not_user;
-# } else {
-#     $ret .= "<?h1 $ML{'.success.head'} h1?>";
-# }
-# $ret .= "<?p $ML{'.success.fromhere'} p?>";
-# $ret .= "<ul>";
-# $ret .= "<li><a href='" . $u->journal_base . "/read'>$ML{'.success.friendspage'}</a></li>";
-# $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/edit'>$ML{'.success.editfriends'}</a></li>";
-# $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/editfilters'>$ML{'.success.editaccess_filters'}</a></li>";
-# $ret .= "<li><a href='$LJ::SITEROOT/manage/subscriptions/filters'>$ML{'.success.editsubscr_filters'}</a></li>";
-# $ret .= "</ul>";
+        #if there are entries in the not_user array, tell the user there were problems.
+        if ( @not_user > 0 ) {
+            foreach my $not_u (@not_user) {
+                $r->add_msg(
+                    LJ::Lang::ml(
+                        '/manage/circle/edit/index.tt.error.adding.text',
+                        { username => LJ::ehtml($not_u) }
+                    ),
+                    $r->WARNING
+                );
+            }
+        }
+        my @success_items = [
+            { text_ml => '.success.friendspage',        url => $u->journal_base . "/read" },
+            { text_ml => '.success.editfriends',        url => '/manage/circle/edit' },
+            { text_ml => '.success.editaccess_filters', url => '/manage/circle/editfilters' },
+            { text_ml => '.success.editsubscr_filters', url => '/manage/subscriptions/filters' }
+        ];
 
-        return $ret;
+        return DW::Controller->render_success( 'manage/circle/edit/index.tt', undef,
+            @success_items );
     }
 
     return DW::Template->render_template( 'manage/circle/edit/index.tt', $vars );
