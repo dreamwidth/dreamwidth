@@ -7,7 +7,7 @@
 # Authors:
 #      Cocoa <momijizukamori@gmail.com>
 #
-# Copyright (c) 20123 by Dreamwidth Studios, LLC.
+# Copyright (c) 2023 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
