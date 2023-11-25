@@ -64,6 +64,10 @@ table .color-cell label {
     display:none;
 }
 
+table .check-cell {
+    white-space: nowrap;
+}
+
 table .swatch.hidden {
     display: none;
 }

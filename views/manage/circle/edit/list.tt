@@ -42,7 +42,7 @@
         </td>
 
         [%# subscription status %]
-        <td role="cell">
+        <td role="cell" class="check-cell">
             [% IF watch_list.$uid || u.can_watch(other_u) %]
                 [% form.checkbox(
                         name => "editfriend_edit_${uid}_watch",
@@ -76,7 +76,7 @@
 
         [%# ...and access/membership %]
         [% IF type=="people" %]
-        <td role="cell">
+        <td role="cell" class="check-cell">
             [% IF trust_list.$uid || u.can_trust(other_u) %]
                 [% form.checkbox(
                         name => "editfriend_edit_${uid}_trust",
