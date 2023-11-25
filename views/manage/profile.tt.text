@@ -1,0 +1,227 @@
+;; -*- coding: utf-8 -*-
+.comms2=Display communities of which you are a member or administrator.
+
+.display.title=Display Settings for [[name]]
+
+.email.change.system=Change email used by system
+
+.email.opt.both.actual=Show actual email + [[sitenameshort]] email
+
+.email.opt.both.display=Show display email + [[sitenameshort]] email
+
+.email.opt.site=[[sitenameshort]] email only
+
+.email.profile=If specified, this address will be displayed <i>instead of</i> the system email if shown.
+
+.error.bio.toolong=Your bio is too long.
+
+.error.day.notinmonth=Invalid day for that month.
+
+.error.day.outofrange=Invalid date.  Enter a day from 1-31.
+
+.error.email.lj_domain2=You can't enter an @[[domain]] email address.  Enter your real email address in that field.  If you have a paid account, your [[user]]@[[domain]] address will forward to your real email address.  To choose which email address (or both) is displayed publicly, use the drop-down menu next to the Contact Information header.
+
+.error.email.none=You must provide your email address
+
+.error.email.no_space=No spaces are allowed in an email address.
+
+.error.findbyemail=Invalid option for find by email.
+
+.error.invalidbio=Your stored bio contains invalid characters. You must visit the <a [[aopts]]><b>conversion page</b></a> to convert it to Unicode.
+
+.error.invalidname2=Your name contains invalid characters. You must visit the <a [[aopts]]><b>conversion page</b></a> to convert it to Unicode.
+
+.error.locale.country_ne_state=You specified United States as your country, but you typed in a non-US state in the "other state" field.
+
+.error.locale.invalid_country=You selected an invalid country.
+
+.error.locale.state_ne_country=You specified a non-US country but selected a US state.
+
+.error.month.outofrange=Invalid birthday month.  Enter a month from 1-12.  (Jan-Dec)
+
+.error.name.toolong=That name is too long.
+
+.error.noname=Your name is a required field.  You must provide a first name or nickname.
+
+.error.year.notenoughdigits=Invalid birthday year.  Enter a 4-digit year.
+
+.error.year.outofrange=Invalid birthday year.
+
+.fn.bio=Tell others about yourself or your journal. If you want to display graphics, counters, or other HTML, you can enter it here.
+
+.fn.bio.comm=Tell others about this community. If you want to display graphics, counters, or other HTML, you can enter it here.
+
+.fn.bio.openid=Tell others about yourself. No HTML is allowed.
+
+.fn.birthday=Birthday
+
+.fn.birthday.day=Day of birth
+
+.fn.birthday.level=Amount of birthday information to share
+
+.fn.birthday.month=Month of birth
+
+.fn.birthday.year=Year of birth
+
+.fn.city=City
+
+.fn.commdesc=Community Description
+
+.fn.commdescription2=Briefly describe the central focus of your community. This community description will be shown in interest searches.
+
+.fn.comms=Communities
+
+.fn.country=Country
+
+.fn.email.display=Profile email
+
+.fn.email.site=[[siteabbrev]] email
+
+.fn.email.system=System email
+
+.fn.friendof3=Circled By
+
+.fn.gender1=Gender<br /> (for statistics)
+
+.fn.interests=List all your interests, separated by commas, to allow other users to find you using the Interest Search.
+
+.fn.interests.comm=List interests relevant to this community, separated by commas, to allow users to find it using the Interest Search.
+
+.fn.link2=Link URL
+
+.fn.location=Location
+
+.fn.mutualfriends3=Mutual Lists
+
+.fn.name2=Display Name
+
+.fn.privacy=Privacy Level
+
+.fn.province=or non-US State/province/territory
+
+.fn.servprov=Service Provider
+
+.fn.sitename2=Link Name
+
+.fn.state=State
+
+.fn.subscriberof=Subscriber list
+
+.fn.timezone=Timezone
+
+.fn.userpic2=Default icon
+
+.friendof3=Show all accounts that have given you access or subscribed to you, and not just the ones you reciprocate.
+
+.gender.female=Female
+
+.gender.male=Male
+
+.gender.other=Other
+
+.gender.unspecified=Rather not say
+
+.intro1=This is where you fill in your Profile.  You don't have to display all of your information to everyone; you can set options below.  You may also want to edit your <a [[aopts1]]>comment settings</a> or your <a [[aopts2]]>viewing options</a>.
+
+.intro1.comm=This is where you fill in your community's profile.  You don't have to display all of the information to everyone; you can set options below.  You may also want to edit the community's <a [[aopts1]]>comment settings</a> or <a [[aopts2]]>viewing options</a>.
+
+.jumpto=Jump to:
+
+.mutualfriends3=Split access list into "mutual access", "also has access to", and "also gives access to". <br />Split subscriptions into "mutual subscriptions", "other subscriptions", and "other subscribers".
+
+.name=Your name will be displayed on your profile and in search results
+
+.privacy.title=Privacy Settings for [[name]]
+
+.save_button=Save Changes
+
+.section.bio2=Mini Bio
+
+.section.contact=Contact Information
+
+.section.contact2=Contact Information and Links
+
+.section.display=Display Options
+
+.section.display.circle=Circle Display Options
+
+.section.display.members=Member Display Options
+
+.section.id=Identity
+
+.section.interests=Interests
+
+.security.visibility.access=Access List Only
+
+.security.visibility.everybody2=Everyone
+
+.security.visibility.nobody=Nobody
+
+.security.visibility.noshow=Do not show
+
+.security.visibility.privacy=Obey privacy level
+
+.security.visibility.regusers=Registered Accounts
+
+.security.visibility.same=Same as above
+
+.security.visibility.members=Members
+
+.security.visibility.admins=Administrators
+
+.select.provider=-- Select Carrier --
+
+.show.birthday.day2=Show only month and day
+
+.show.birthday.full2=Show month, day, and year
+
+.show.birthday.nothing2=Don't show on profile
+
+.show.birthday.year2=Show only year
+
+.showto=Show to:
+
+.state.us=US States
+
+.subscriberof=Show subscribers of the community
+
+.subsection.messaging=Email and Messaging
+
+.subsection.other=Other Sites
+
+.subsection.web=Website (Optional)
+
+.success.editicons=Manage your icons
+
+.success.editicons.comm=Manage this community's icons
+
+.success.editprofile=Edit your profile
+
+.success.editprofile.comm=Edit this community's profile
+
+.success.gonext=What would you like to do next?
+
+.success.header=Success.
+
+.success.text=Your profile has been revised.
+
+.success.text.comm=The profile for your community [[commname]] has been revised.
+
+.success.viewprofile=View your profile
+
+.success.viewprofile.comm=View this community's profile
+
+.timezone.select=(Select your timezone)
+
+.title=Edit Profile
+
+.txt.details=(<a [[aopts]]>details</a>)
+
+.userpic=This is the icon that will be displayed on your profile.  It will also be displayed on your entries and comments unless you select a different one at the time you post your entry or comment.
+
+.userpic.comm=This is the icon that will be displayed on the community's profile.
+
+.userpic.change=Change default icon
+
+.userpic.none=no icon uploaded
+
