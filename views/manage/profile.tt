@@ -1,89 +1,84 @@
 [%- sections.title='.title' | ml -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
-[%- dw.need_res( { group => "foundation" },
-      "stc/lj_settings.css"
-) -%]
+[%- dw.need_res( { group => "foundation" }, "stc/lj_settings.css") -%]
 
-<div>
 <form method="get">
 	[%- authas_html -%]
 </form>
 
-        [%# if they're working as a community, reproduce the community management linkbar: %]
-        [% IF iscomm %]
-            <p class='intro'>[% u.maintainer_linkbar( "profile" ) %]</p>
-        [% END %]
+[%# if they're working as a community, reproduce the community management linkbar: %]
+[% IF iscomm %]
+    <p class='intro'>[% u.maintainer_linkbar( "profile" ) %]</p>
+[% END %]
 
-        <div style='margin: 1em 0;'>
-        [% dw.ml( ".intro1$iscomm", { aopts1 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'",
-                                     aopts2 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=display'" } ) %]
-        </div>
+<div style='margin: 1em 0;'>
+[% dw.ml( ".intro1$iscomm", { aopts1 => "href='" _ dw.create_url('/manage/settings/', keep_args => 1, args => { cat => 'privacy' }) _ "'",
+                                aopts2 => "href='" _ dw.create_url('/manage/settings/', keep_args => 1, args => { cat => 'display' }) _ "'" } ) %]
+</div>
 
-        <h2>[% dw.ml('.jumpto') %] <a href='#identity'>[% dw.ml('.section.id') %]</a> |
-            <a href='#contact'>[% dw.ml('.section.contact') %]</a> |
-            <a href='#bio'>[% dw.ml('.section.bio2') %]</a> |
-            <a href='#interests'>[% dw.ml('.section.interests') %]</a> |
-            <a href='#display'>[% dw.ml('.section.display') %]</a>
-        </h2>
-        </div>
+<h2>[% dw.ml('.jumpto') %] <a href='#identity'>[% dw.ml('.section.id') %]</a> |
+    <a href='#contact'>[% dw.ml('.section.contact') %]</a> |
+    <a href='#bio'>[% dw.ml('.section.bio2') %]</a> |
+    <a href='#interests'>[% dw.ml('.section.interests') %]</a> |
+    <a href='#display'>[% dw.ml('.section.display') %]</a>
+</h2>
 
-        <div class='ljclear'></div>
+<div class='ljclear'></div>
 
-        <form method='post' action='./$getextra'>
-        [%- dw.form_auth %]
-
-        <table summary='' width='100%' style='margin: 1em 0;' class="table">
+<form method='post'>
+    [%- dw.form_auth %]
+    <table summary='' width='100%' style='margin: 1em 0;'>
 
         [%# personal information %]
         <tr class='section_head'><td width='75%' colspan=2>
         <a name='identity'></a>[% dw.ml('.section.id') %]
-        </td><td class='view_options'>
+        </td><td class='view_options'>[% dw.ml('.showto') %]
         </td></tr>
 
         [%### Picture Settings %]
-        <tr class='field_block' ><td class='field_name'>[% dw.ml('.fn.userpic2') %]</td>
-        <td>
-        <div style='width: 100px; height: 100px; float: left; text-align: center; border: 1px solid #ddd'>
-        [% IF u.defaultpicid %]
-            [% u.userpic.imgtag %]
-        [% ELSE %]
-            <br /><i>([% dw.ml('.userpic.none') %])</i>
-        [% END %]
-        </div><div style='margin-left: 110px'>
-        <span class='helper'>[% dw.ml(".userpic$iscomm") %]</span>
-        $ret .= LJ::help_icon('upic_keywords');
-        <p><a href='$LJ::SITEROOT/manage/icons$getextra'>[% dw.ml('.userpic.change') %]</a></p>
-        </td>
+        <tr class='field_block' >
+            <td class='field_name'>[% dw.ml('.fn.userpic2') %]</td>
+            <td><div style='width: 100px; height: 100px; float: left; text-align: center; border: 1px solid #ddd'>
+                [% IF u.defaultpicid %]
+                    [% u.userpic.imgtag %]
+                [% ELSE %]
+                    <br /><i>([% dw.ml('.userpic.none') %])</i>
+                [% END %]
+                </div><div style='margin-left: 110px'>
+                <span class='helper'>[% dw.ml(".userpic$iscomm") %]</span>
+                [% help_icon('upic_keywords') %]
+                <p><a href='[% dw.create_url("/manage/icons", keep_args => 1 ) %]'>[% dw.ml('.userpic.change') %]</a></p>
+            </td>
 
-        <td>
-        <p><i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
-        </td></tr>
+            <td><p><i> [% dw.ml('.security.visibility.everybody2') %] </i></p></td>
+        </tr>
 
         [%# name %]
         <tr class='field_block'><td class='field_name'>[% dw.ml('.fn.name2') %]</td>
-        <td>
-        [% IF text_in(saved.name) %]
-            <div style='float: left'>
-            [% form.textbox( name => 'name', value => u.name_orig,
-                                     title => dw.ml('.fn.name2'),
-                                     size => '35', maxlength => '50' ) %]
-            &nbsp; </div><div class='helper'>[% dw.ml('.name') %]</div>
-        [% ELSE %]
-            [% form.hidden( name => 'name_absent', value =>'yes' ) %]
-            <?inerr " . BML::ml( '.error.invalidname2', {'aopts' => "href='$LJ::SITEROOT/utf8convert'"} ) . " inerr?>";
-        [% END %]
+            <td>
+            [% IF text_in(saved.name) %]
+                <div style='float: left'>
+                [% form.textbox( name => 'name', value => u.name_orig,
+                                        title => dw.ml('.fn.name2'),
+                                        size => '35', maxlength => '50' ) %]
+                &nbsp; </div><div class='helper'>[% dw.ml('.name') %]</div>
+            [% ELSE %]
+                [% form.hidden( name => 'name_absent', value =>'yes' ) %]
+                <div class="alert">[% dw.ml('.error.invalidname2', {'aopts' => "href='${site.root}/utf8convert'"}) %]</div>
+            [% END %]
+            </td>
 
-        </td>
-        <td class='selectvis'>
-        <p><i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
-        </td></tr>
+            <td class='selectvis'>
+                <p><i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
+            </td>
+        </tr>
 
         [% IF u.is_individual %]
-            [%# gender %]
-            <tr class='field_block'><td class='field_name'>[% dw.ml('.fn.gender1') %]</td>
+        [%# gender %]
+        <tr class='field_block'><td class='field_name'>[% dw.ml('.fn.gender1') %]</td>
             <td>
-            [%# strip HTML out of title %]
-            [% form.select(  name => 'gender', title => dw.ml('.fn.gender1'),
+                [%# strip HTML out of title %]
+                [% form.select(  name => 'gender', title => dw.ml('.fn.gender1'),
                                        selected => (u.prop( 'gender' ) || 'U' ),
                                     items => [
                                      'F', dw.ml('.gender.female'),
@@ -92,30 +87,32 @@
                                      'U', dw.ml('.gender.unspecified') ] )%]
             </td>
             <td class='selectvis'>
-            <p><i> [% dw.ml('.security.visibility.nobody') %] </i></p>
-            </td></tr>
+                <p><i> [% dw.ml('.security.visibility.nobody') %] </i></p>
+            </td>
+        </tr>
         [% END %]
 
         [%# birthday %]
-        <tr class='field_block'><td class='field_name'>[% dw.ml('.fn.birthday') %]</td>
-        <td>
-
-
-        [% form.select( name => 'month', title => dw.ml('.fn.birthday.month'),
+        <tr class='field_block'>
+            <td class='field_name'>[% dw.ml('.fn.birthday') %]</td>
+            <td class='bday_field'>
+                [%- form.select( name => 'month', title => dw.ml('.fn.birthday.month'),
                                  selected => int( bdpart.month ),
-                                items => month_select
-                                 ) %]
-        [% form.textbox( name => 'day', value => bdpart.day,
+                                items => month_select,
+                                class => 'inline'
+                                 ) -%]
+                [%- form.textbox( name => 'day', value => bdpart.day,
                                  size => '3', maxlength => '2',
-                                 title => dw.ml('.fn.birthday.day') ) %]
+                                 title => dw.ml('.fn.birthday.day'),
+                                class => 'inline' ) -%]
 
-        [% form.textbox( name => 'year', value => bdpart.year,
+                [%- form.textbox( name => 'year', value => bdpart.year,
                                  size => '5', maxlength => '4',
-                                 title => dw.ml('.fn.birthday.year') ) %]
+                                 title => dw.ml('.fn.birthday.year'),
+                                class => 'inline' ) -%]
 
-        <div style="padding-top: .5em;">
-        
-        [% form.select( name => 'opt_showbday',
+                <div style="padding-top: .5em;">
+                [% form.select( name => 'opt_showbday',
                                    title => dw.ml('.fn.birthday.level'),
                                    selected => u.opt_showbday,
                                 items => [
@@ -123,103 +120,109 @@
                                  'D', dw.ml('.show.birthday.day2'),
                                  'Y', dw.ml('.show.birthday.year2'),
                                  'F', dw.ml('.show.birthday.full2') ]) %]
-        </div>
-
-        </td>
-        <td class='selectvis'>
-        [% form.select( name => 'opt_sharebday',
+                </div>
+            </td>
+            <td class='selectvis'>
+                [% form.select( name => 'opt_sharebday',
                                    title => dw.ml( '.privacy.title',
                                             { name => dw.ml('.fn.birthday' ) } ),
                                    selected => opt_sharebday,
                                    items => showtoopts) %]
-        </td></tr>
+            </td>
+        </tr>
 
         [%# location %]
-        <tr class='field_block'><td class='field_name'>[% dw.ml('.fn.location') %]</td>
-        <td>
-        $ret .= LJ::Widget::Location->render( skip_timezone => 1, minimal_display => 1 );
-
-        </td><td class='selectvis'>
-        [% form.select(  name => 'opt_showlocation',
+        <tr class='field_block'>
+            <td class='field_name'>[% dw.ml('.fn.location') %]</td>
+            <td>[% location %]</td>
+            <td class='selectvis'>
+            [% form.select(  name => 'opt_showlocation',
                                    title => dw.ml( '.privacy.title',
                                             { name => dw.ml('.fn.location') } ),
                                    selected => u.opt_showlocation ,
                                    items => showtoopts ) %]
-        </td></tr>
+            </td>
+        </tr>
 
         [%## CONTACT INFO %]
-        <tr class='section_head'><td width='75%' colspan=2>
-        <a name='contact'></a>[% dw.ml('.section.contact2') %]</td>
-        <td class='view_options'> [% dw.ml('.showto') %]</td></tr>
+        <tr class='section_head'>
+            <td width='75%' colspan=2><a name='contact'></a>[% dw.ml('.section.contact2') %]</td>
+            <td class='view_options'> [% dw.ml('.showto') %]</td>
+        </tr>
 
-        <tr class='section_subhead'><td colspan=3>
-        [% dw.ml('.subsection.web') %]</td></tr>
+        <tr class='section_subhead'>
+            <td colspan=3>[% dw.ml('.subsection.web') %]</td>
+        </tr>
 
         [%# url %]
-        <tr class='field_block'><td class='field_name'>
-        [% dw.ml('.fn.link2') %]</td><td>
-        [% form.textbox( name => 'url', 
+        <tr class='field_block'>
+            <td class='field_name'>[% dw.ml('.fn.link2') %]</td>
+            <td>[% form.textbox( name => 'url', 
                             value => u.url,
                             title => dw.ml('.fn.link2'),
                             size => '45', 
-                            maxlength => '255'
-        ) %]
-        </td><td class='selectvis'>
-        <p><i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
-        </td></tr>
+                            maxlength => '255') %]
+            </td>
+            <td class='selectvis'>
+                <p><i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
+            </td>
+        </tr>
 
         [%# urlname %]
-        <tr class='field_block'><td class='field_name'>
-        [% dw.ml('.fn.sitename2') %]</td><td>
-        [% form.textbox( name => 'urlname', 
-                        value => u.urlname,
-                        title => dw.ml('.fn.sitename2'),
-                        size => '45', 
-                        maxlength => '255'
-        )%]
-        </td><td class='selectvis'>
-        <p><i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
-        </td></tr>
+        <tr class='field_block'>
+            <td class='field_name'>[% dw.ml('.fn.sitename2') %]</td>
+            <td>[% form.textbox( name => 'urlname', 
+                            value => u.urlname,
+                            title => dw.ml('.fn.sitename2'),
+                            size => '45', 
+                            maxlength => '255' )%]
+            </td>
+            <td class='selectvis'>
+                <p><i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
+            </td>
+        </tr>
 
         [%# email %]
+        <tr class='section_subhead'>
+            <td colspan=2>[% dw.ml('.subsection.messaging') %]</td>
+            <td class='view_options'>
+                <a href='[% dw.create_url('/manage/settings/', keep_args => 1, args => { cat => 'privacy' }) %]'>
+                [% dw.ml('.fn.privacy') %]: [% curr_privacy %]</a>
+            </td>
+        </tr>
 
-        <tr class='section_subhead'><td colspan=2>[% dw.ml('.subsection.messaging') %]
-        </td><td class='view_options'>
-        <a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'>
-        [% dw.ml('.fn.privacy') %]: [% curr_privacy %]</a></td></tr>
-
-        <tr class='field_block'><td class='field_name'>
-        [% dw.ml('.fn.email.system') %]</td><td style='vertical-align: middle'>
-        <b>[% u.email_raw %]</b> &nbsp; <a href='$LJ::SITEROOT/changeemail$getextra'>
-        [% dw.ml('.email.change.system') %]</a></td><td>
-
-        [% form.select( name => 'opt_whatemailshow',
+        <tr class='field_block'>
+            <td class='field_name'>[% dw.ml('.fn.email.system') %]</td>
+            <td style='vertical-align: middle'>
+                <b>[% u.email_raw %]</b> &nbsp; <a href='[% dw.create_url("/changeemail", keep_args => 1 ) %]'>
+                [% dw.ml('.email.change.system') %]</a>
+            </td>
+            <td>[% form.select( name => 'opt_whatemailshow',
                         title => dw.ml( '.display.title',
                                 { name => dw.ml('.fn.email.system') } ),
                         selected => cur,
                         items => [
                                  'A', dw.ml('.security.visibility.privacy'),
                                  'N', dw.ml('.security.visibility.noshow') ] ) %]
-        </td></tr>
+            </td>
+        </tr>
 
-        <tr class='field_block'><td class='field_name'> [% dw.ml('.fn.email.display') %]</td>
-        <td>
-
-        $ret .= DW::Setting::ProfileEmail->option( $u );
-        <br /><span class='helper'>[% dw.ml('.email.profile') %]</span>
-
-        </td><td>
-
-        </td></tr>
+        <tr class='field_block'>
+            <td class='field_name'> [% dw.ml('.fn.email.display') %]</td>
+            <td>[% profile_email %]<span class='helper'>[% dw.ml('.email.profile') %]</span></td>
+            <td></td>
+        </tr>
 
         [% IF u.can_have_email_alias && !u.prop("no_mail_alias") %]
-            <tr class='field_block'><td class='field_name'>
-            [% dw.ml( '.fn.email.site', { siteabbrev => site.nameabbrev } ) %]
-            </td><td style='vertical-align: middle'>
-            [% u.site_email_alias %]
-            </td><td class='selectvis'>
-            [%# this is where we get BVL back %]
-            [% form.select(
+        <tr class='field_block'>
+            <td class='field_name'>
+                [% dw.ml( '.fn.email.site', { siteabbrev => site.nameabbrev } ) %]
+            </td>
+            <td style='vertical-align: middle'>
+                [% u.site_email_alias %]
+            </td>
+            <td class='selectvis'>
+                [% form.select(
                     name => 'opt_usesite',
                     title => dw.ml( '.display.title',
                         { name => dw.ml( '.fn.email.site', { siteabbrev => site.nameabbrev } ) } ),
@@ -229,186 +232,188 @@
                         'N', dw.ml('.security.visibility.noshow')
                     ]
                     ) %]
-            </td></tr>
+            </td>
+        </tr>
         [% END %]
 
         [% IF u.is_person %]
-            if ( LJ::is_enabled( 'opt_findbyemail' ) ) {
-                <tr class='field_block'><td class='field_name'>";
-                $ret .= LJ::Setting::FindByEmail->label . "</td>";
-                <td><span class='helper'>";
-                [% dw.ml( 'settings.findbyemail.helper', {
-                    sitename => site.nameshort,
-                    siteabbrev => site.nameabbrev } ) %]
-                </span></td>
-                <td class='selectvis'>
-                $ret .= LJ::Setting::FindByEmail->as_html( $u, undef, { minimal_display => 1, helper => 0 } );
-                </td></tr>
-            }
+            [% IF findbyemail %]
+            <tr class='field_block'>
+                <td class='field_name'>[% findbyemail.label %]</td>
+                <td><span class='helper'>
+                    [% dw.ml( 'settings.findbyemail.helper', {
+                        sitename => site.nameshort,
+                        siteabbrev => site.nameabbrev } ) %]
+                    </span>
+                </td>
+                <td class='selectvis'>[% findbyemail.html %]</td>
+            </tr>
+            [% END %]
 
             [%# chat thingies %]
-            <tr id='iminfo' class='section_subhead'><td colspan=2><a name='iminfo'></a>[% dw.ml('.subsection.other') %]
-            </td><td class='view_options'>
-            <a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'>
-            [% dw.ml('.fn.privacy') %]: [% curr_privacy %]</a></td></tr>\n
-
-
-            <tr><td colspan=3><table summary=''>
-            my $oddeven = 0;
-            my $ct = 1;
-
-            my $service_info = sub {
-                my ($site) = @_;
-                $site->{title} = LJ::Lang::ml( $site->{title_ml} );
-                return $site;
-            };
-
-            my @services = map $service_info->($_), @{ DW::External::ProfileServices->list };
-            my @dropdown = ( '' => '' );
-            push @dropdown, ( $_->{service_id} => $_->{title} ) foreach @services;
-
-            my $service_td = sub {
-                my ( $p, $val ) = @_;
-                $oddeven = !$oddeven;
-                <tr class='field_block'>" if $oddeven;
-                <td class='field_name' width='20%'>$p->{title}</td><td width='30%'>";
-                $ret .= LJ::html_hidden( "extservice_site_$ct", $p->{service_id} );
-                $ret .= LJ::html_hidden( "extservice_dbid_$ct", $val->[0] ) if $val->[0];
-                $ret .= LJ::html_text( { name => "extservice_val_" . $ct++,
-                                         value => $val->[1],
-                                         title => $p->{title} . " Username",
-                                         size => '20',
-                                         maxlength => $p->{maxlen} } );
+            <tr id='iminfo' class='section_subhead'>
+                <td colspan=2><a name='iminfo'></a>[% dw.ml('.subsection.other') %]</td>
+                <td class='view_options'>
+                    <a href='[% dw.create_url('/manage/settings/', keep_args => 1, args => { cat => 'privacy' }) %]'>
+                    [% dw.ml('.fn.privacy') %]: [% curr_privacy %]</a>
                 </td>
-                </tr>" unless $oddeven;
-            };
+            </tr>
+            <tr>
+            <td colspan=3><table summary='' class="table">
+        [% oddeven = 0; ct = 1; %]
+        [% MACRO service(p, val, oddeven) BLOCK %]
 
-            # ignore legacy userprops if %$profile_accts has been populated
-            if (%$profile_accts) {
-                foreach my $p ( @services ) {
-                    my $s_id = $p->{service_id};
-                    next unless $profile_accts->{$s_id};
-                    foreach my $val ( @{ $profile_accts->{$s_id} } ) {
-                        $service_td->( $p, $val ) ;
-                    }
-                }
-            } else {
-                foreach my $p ( @services )
-                {
-                    next unless $p->{userprop};
-                    my $val = $u->{$p->{userprop}};
-                    next unless $val;
-                    $service_td->( $p, [0, $val] ) ;
-                }
-            }
-
-            foreach my $n ( $ct .. 26 )  # same number of fields as static form
-            {
-                $oddeven = !$oddeven;
-                <tr class='field_block'>" if $oddeven;
-                <td class='field_name' width='20%'>";
-                $ret .= LJ::html_select( { name => "extservice_site_$n" }, @dropdown );
-                </td><td width='30%'>";
-                $ret .= LJ::html_text( { name => "extservice_val_$n",
-                                         value => '',
-                                         title => "Username \#$n",
-                                         size => '20',
-                                         maxlength => 255 } );
+            [% IF oddeven %]<tr class='field_block'>[% END %]
+                <td class='field_name' width='20%'>[% p.title %]</td>
+                <td width='30%'>[% form.hidden( name => "extservice_site_$ct", value => p.service_id ) %]
+                [% form.hidden( name => "extservice_dbid_$ct", value => val.0 ) IF val.0 %]
+                [% form.textbox( name => "extservice_val_$ct",
+                                id => "extservice_val_$ct",
+                                value => val.1,
+                                title => "$p.title Username",
+                                size => 20,
+                                maxlength => p.maxlen )
+                                %]
                 </td>
-                </tr>" unless $oddeven;
-            }
+            [% UNLESS oddeven %]</tr>[% END %]
+            [% ct = ct + 1 %]
+        [% END %]
 
-            <td></td><td></td></tr>" if $oddeven;
+            [%# ignore legacy userprops if %$profile_accts has been populated %] 
+            [% IF profile_accts %]
+                [% FOREACH p IN services %]
+                    [% s_id = p.service_id;
+                    NEXT UNLESS profile_accts.$s_id %]
+                    [% FOREACH val IN profile_accts.$s_id %]
+                        [% service( p, val ) %]
+                    [% END %]
+                [% END %]
+            [% ELSE %]
+                [% FOREACH p IN services %]
+                    [% NEXT UNLESS p.userprop;
+                        val = u.${p.userprop};
+                        NEXT UNLESS val %]
+                    [% oddeven = !oddeven %]
+                    [% service(p, [0, val], oddeven) %]
+
+                [% END %]
+            [% END %]
+
+            [% WHILE ct <= 26 %]
+                [% oddeven = !oddeven %]
+                [% IF oddeven %]<tr class='field_block'>[% END %]
+                <td class='field_name' width='20%'>
+                [% form.select( name => "extservice_site_$ct" , items => service_dropdown ) %]
+                </td><td width='30%'>
+                [% form.textbox(name => "extservice_val_$ct",
+                                id => "extservice_val_$ct",
+                                value => '',
+                                title => "Username \#$ct",
+                                size => '20',
+                                maxlength => 255 ) %]
+                </td>
+                [% UNLESS oddeven %]</tr>[% END %]
+                [% ct = ct + 1 %]
+            [% END %]
+
+            [% IF oddeven %]<td></td><td></td></tr>[% END %]
             </table></td></tr>
 
         [% END %]
 
-        </table>
+    </table>
 
-        [%## BIO %]
+    [%## BIO %]
+    <div class='section_head'><a name='bio'></a>[% dw.ml('.section.bio2') %]</div>
+    [% IF text_in(saved.bio ) %]
+        [% u.is_identity ? dw.ml('.fn.bio.openid') : dw.ml(".fn.bio$iscomm") %]
+        <br />
+        [% form.textarea( name => 'bio',
+                        title => dw.ml('.section.bio2'),
+                        rows => '10', cols => '50',
+                        wrap => 'soft',
+                        style => "width: 90%",
+                        value => bio ) %]
+    [% ELSE %]
+        [% form.hidden( name =>'bio_absent', value =>'yes') %]
+        <div class="alert">[% dw.ml('.error.invalidbio', {'aopts' => "href='${site.root}/utf8convert'"}) %]</div>
+    [% END %]
 
-        <div class='section_head'><a name='bio'></a>[% dw.ml('.section.bio2') %]</div>
-        [% IF text_in(saved.bio ) %]
-            [% u.is_identity ? dw.ml('.fn.bio.openid') : dw.ml(".fn.bio$iscomm") %]
-            <br />
-            [% form.textarea( name => 'bio',
-                                         title => dw.ml('.section.bio2'),
-                                         rows => '10', cols => '50',
-                                         wrap => 'soft',
-                                         style => "width: 90%",
-                                         value => bio ) %]
-        [% ELSE %]
-            [% form.hidden( name =>'bio_absent', value =>'yes') %]
-            <p><?inerr " . BML::ml('.error.invalidbio', {'aopts' => "href='$LJ::SITEROOT/utf8convert'"}) . " inerr?> p?>
-        [% END %]
+    [%## INTERESTS %]
+    <div class='section_head'><a name='interests'></a>[% dw.ml('.section.interests') %]</div>
+    [% IF u.is_community %]
+        [% dw.ml('.fn.commdescription2') %]
+        <br />
+        [% form.textbox( name => 'comm_theme',
+                        title => dw.ml('.fn.commdesc'),
+                        value => u.comm_theme,
+                        size => '50', maxlength => '100' ) %]
+        <br /><br />
+    [% END %]
 
-        [%## INTERESTS %]
+    [% dw.ml(".fn.interests$iscomm") %]
+    [% form.textarea( name => 'interests',
+                        title => dw.ml('.section.interests'),
+                        value => interests,
+                        rows => '10', cols => '50', wrap => 'soft',
+                        style => "width: 90%" ) %]
 
-        <div class='section_head'><a name='interests'></a>[% dw.ml('.section.interests') %]</div>
-
-        [% IF u.is_community %]
-            [% dw.ml('.fn.commdescription2') %]
-            <br />
-            [% form.textbox( name => 'comm_theme',
-                                     title => dw.ml('.fn.commdesc'),
-                                     value => u.comm_theme,
-                                     size => '50', maxlength => '100' ) %]
-            <br /><br />
-        [% END %]
-
-        [% dw.ml(".fn.interests$iscomm") %]
-        [% form.textarea( name => 'interests',
-                                     title => dw.ml('.section.interests'),
-                                     value => interests,
-                                     rows => '10', cols => '50', wrap => 'soft',
-                                     style => "width: 90%" ) %]
-
-        [%## CIRCLE %]
-        <table summary='' width='100%' style='margin: 1em 0;'>
-        <tr class='section_head'><td width='75%' colspan=3>
-        <a name='display'></a>
-        [% u.is_community ? dw.ml('.section.display.members') : dw.ml('.section.display.circle') %]
-        </td></tr>
+    [%## CIRCLE %]
+    <table summary='' width='100%' style='margin: 1em 0;'>
+        <tr class='section_head'>
+            <td width='75%' colspan=3>
+                <a name='display'></a>
+                [% u.is_community ? dw.ml('.section.display.members') : dw.ml('.section.display.circle') %]
+            </td>
+        </tr>
 
         [% UNLESS u.is_community %]
-            <tr class='field_block'><td class='field_name'>
-            [% dw.ml('.fn.mutualfriends3') %]</td><td width='10px'>
-            [% form.checkbox( 
+        <tr class='field_block'>
+            <td class='field_name'>[% dw.ml('.fn.mutualfriends3') %]</td>
+            <td width='10px'>
+                [% form.checkbox( 
                             name => 'opt_showmutualfriends',
                             id => 'opt_showmutualfriends', 
-                            selected => u.opt_showmutualfriends 
-            ) %]
-            </td><td style='vertical-align: middle'>
-            <label for='opt_showmutualfriends'>[% dw.ml('.mutualfriends3') %]</label>
-            </td></tr>
+                            selected => u.opt_showmutualfriends ) %]
+            </td>
+            <td style='vertical-align: middle'>
+                <label for='opt_showmutualfriends'>[% dw.ml('.mutualfriends3') %]</label>
+            </td>
+        </tr>
         [% END %]
 
-        <tr class='field_block'><td class='field_name' width='15%'>
-        [% u.is_community ? dw.ml('.fn.subscriberof') : dw.ml('.fn.friendof3') %]
-        </td><td width='10px'>
-        [% form.checkbox(  name => 'opt_hidefriendofs',
+        <tr class='field_block'>
+            <td class='field_name' width='15%'>
+                [% u.is_community ? dw.ml('.fn.subscriberof') : dw.ml('.fn.friendof3') %]
+            </td>
+            <td width='10px'>
+                [% form.checkbox(  name => 'opt_hidefriendofs',
                             id => 'opt_hidefriendofs', 
-                            selected => !u.opt_hidefriendofs
-        )  %]
-        </td><td style='vertical-align: middle'><label for='opt_hidefriendofs'>
-        [% u.is_community ? dw.ml('.subscriberof') : dw.ml('.friendof3') %]
-        </label></td></tr>
+                            selected => !u.opt_hidefriendofs )  %]
+            </td>
+            <td style='vertical-align: middle'>
+                <label for='opt_hidefriendofs'>
+                    [% u.is_community ? dw.ml('.subscriberof') : dw.ml('.friendof3') %]
+                </label>
+            </td>
+        </tr>
 
         [% UNLESS u.is_community %]
-            <tr class='field_block'><td class='field_name'>
-            [% dw.ml('.fn.comms') %]</td><td width='10px'>
-            [% form.checkbox( name => 'opt_hidememberofs',
+        <tr class='field_block'>
+            <td class='field_name'>[% dw.ml('.fn.comms') %]</td>
+            <td width='10px'>
+                [% form.checkbox( name => 'opt_hidememberofs',
                                 id => 'opt_hidememberofs', 
-                                selected => ! u.opt_hidememberofs 
-            ) %]
-            </td><td style='vertical-align: middle'>
-            <label for='opt_hidememberofs'>[% dw.ml('.comms2') %]</label></td></tr>
+                                selected => ! u.opt_hidememberofs ) %]
+            </td>
+            <td style='vertical-align: middle'>
+                <label for='opt_hidememberofs'>[% dw.ml('.comms2') %]</label>
+            </td>
+        </tr>
         [% END %]
 
-        </table>
+    </table>
 
-        $ret .= LJ::Hooks::run_hook("profile_settings_extra", $u);
-
-        # ending submit block
-        <?standout " . LJ::html_submit(undef, dw.ml('.save_button')) . " standout?>
-        </form>
+    [% profile_settings_extra %]
+    [% form.submit(value = dw.ml('.save_button'), name = "submit") %]
+</form>

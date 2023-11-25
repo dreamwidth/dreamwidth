@@ -40,36 +40,31 @@ sub profile_handler {
     my $r      = $rv->{r};
     my $u      = $rv->{u};
     my $remote = $rv->{remote};
-    my $GET    = $r->get_args;
     my $POST   = $r->post_args;
+    my $scope  = '/manage/profile.tt';
 
     # create $iscomm to help with community-specific translation strings
     my $iscomm = $u->is_community ? '.comm' : '';
     my $curr_privacy =
         $iscomm
         ? {
-        Y => LJ::Lang::ml('.security.visibility.everybody2'),
-        R => LJ::Lang::ml('.security.visibility.regusers'),
-        F => LJ::Lang::ml('.security.visibility.members'),
-        N => LJ::Lang::ml('.security.visibility.admins'),
+        Y => LJ::Lang::ml("$scope.security.visibility.everybody2"),
+        R => LJ::Lang::ml("$scope.security.visibility.regusers"),
+        F => LJ::Lang::ml("$scope.security.visibility.members"),
+        N => LJ::Lang::ml("$scope.security.visibility.admins"),
         }->{ $u->opt_showcontact }
         : {
-        Y => LJ::Lang::ml('.security.visibility.everybody2'),
-        R => LJ::Lang::ml('.security.visibility.regusers'),
-        F => LJ::Lang::ml('.security.visibility.access'),
-        N => LJ::Lang::ml('.security.visibility.nobody'),
+        Y => LJ::Lang::ml("$scope.security.visibility.everybody2"),
+        R => LJ::Lang::ml("$scope.security.visibility.regusers"),
+        F => LJ::Lang::ml("$scope.security.visibility.access"),
+        N => LJ::Lang::ml("$scope.security.visibility.nobody"),
         }->{ $u->opt_showcontact };
 
     my $errors = DW::FormErrors->new;
     my @errors;
-    my $scope = '/manage/profile.tt';
 
     return DW::Template->render_template( 'error.tt', { message => $LJ::MSG_READONLY_USER } )
         if $u->is_readonly;
-
-    # extra arguments for get requests
-    my $getextra = $u->{'user'} ne $remote->{'user'} ? "?authas=" . $u->{'user'} : '';
-    my $getsep = $getextra ? "&" : "?";
 
     ### user is now authenticated ###
 
@@ -119,6 +114,12 @@ sub profile_handler {
     # load interests: $interests{name} = intid
     my %interests = %{ $u->interests( { forceids => 1 } ) };
 
+    my @eintsl;
+    foreach ( sort keys %interests ) {
+        push @eintsl, $_ if LJ::text_in($_);
+    }
+    my $interests_str = join( ", ", @eintsl );
+
     # determine what the options in "Show to:" dropdowns should be, depending
     #  on user or community
 
@@ -140,9 +141,67 @@ sub profile_handler {
         );
     }
 
-    my @eintsl;
-    foreach ( sort keys %interests ) {
-        push @eintsl, $_ if LJ::text_in($_);
+    # Birthday form
+    my %bdpart;
+    if ( $u->{'bdate'} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/ ) {
+        ( $bdpart{'year'}, $bdpart{'month'}, $bdpart{'day'} ) = ( $1, $2, $3 );
+        if ( $bdpart{'year'} eq "0000" ) { $bdpart{'year'} = ""; }
+        if ( $bdpart{'day'} eq "00" )    { $bdpart{'day'}  = ""; }
+    }
+
+    my @months = map { $_, LJ::Lang::month_long_ml($_) } ( 1 .. 12 );
+    $u->{'opt_showbday'} = "D" unless $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
+    my $opt_sharebday = ( $u->opt_sharebday =~ m/^(A|F|N|R)$/ ) ? $u->opt_sharebday : 'F';
+
+    # 'Other Services' display
+    my $service_info = sub {
+        my ($site) = @_;
+        $site->{title} = LJ::Lang::ml( $site->{title_ml} );
+        return $site;
+    };
+
+    my @services = map $service_info->($_), @{ DW::External::ProfileServices->list };
+    my @dropdown = ( '' => '' );
+    push @dropdown, ( $_->{service_id} => $_->{title} ) foreach @services;
+
+    # Email display
+    # This is one prop in the backend, but two form fields on the settings page
+    # so we need to do some jumping around to get the correct values for both fields
+    my $checked = ( $u->{'opt_whatemailshow'} =~ /[BVL]/ ) ? 'Y' : 'N';
+    my $cur     = $u->opt_whatemailshow;
+
+    # drop BVL values that govern site alias; we input that below instead
+    $cur =~ tr/BVL/AAN/;    # D reset later
+
+    my $vars = {
+        u                => $u,
+        authas_html      => $rv->{authas_html},
+        curr_privacy     => $curr_privacy,
+        opt_sharebday    => $opt_sharebday,
+        text_in          => \&LJ::text_in,
+        help_icon        => \&LJ::help_icon,
+        showtoopts       => \@showtoopts,
+        interests        => $interests_str,
+        month_select     => \@months,
+        services         => \@services,
+        service_dropdown => \@dropdown,
+        saved            => \%saved,
+        bdpart           => \%bdpart,
+        checked          => $checked,
+        cur              => $cur,
+        profile_accts    => $profile_accts,
+        profile_email    => DW::Setting::ProfileEmail->option($u),
+        location => LJ::Widget::Location->render( skip_timezone => 1, minimal_display => 1 ),
+        set_profile_settings_extra => LJ::Hooks::run_hook( "profile_settings_extra", $u )
+    };
+
+    if ( LJ::is_enabled('opt_findbyemail') ) {
+        $vars->{findbyemail} = {
+            label => LJ::Setting::FindByEmail->label,
+            html  => LJ::Setting::FindByEmail->as_html(
+                $u, undef, { minimal_display => 1, helper => 0 }
+            )
+        };
     }
 
     if ( $r->did_post ) {
@@ -392,33 +451,6 @@ sub profile_handler {
 #          "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
 # }
     }
-
-    my $vars = {};
-    my %bdpart;
-    if ( $u->{'bdate'} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/ ) {
-        ( $bdpart{'year'}, $bdpart{'month'}, $bdpart{'day'} ) = ( $1, $2, $3 );
-        if ( $bdpart{'year'} eq "0000" ) { $bdpart{'year'} = ""; }
-        if ( $bdpart{'day'} eq "00" )    { $bdpart{'day'}  = ""; }
-    }
-    $vars->{bdpart}       = \%bdpart;
-    $vars->{curr_privacy} = $curr_privacy;
-    $u->{'opt_showbday'}  = "D" unless $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
-    my @months = map { $_, LJ::Lang::month_long_ml($_) } ( 1 .. 12 );
-    $vars->{month_select}  = \@months;
-    $vars->{u}             = $u;
-    $vars->{authas_html}   = $rv->{authas_html};
-    $vars->{getextra}      = ( $u ne $remote ) ? { authas => $u->user } : {};
-    $vars->{text_in}       = \&LJ::text_in;
-    $vars->{opt_sharebday} = ( $u->opt_sharebday =~ m/^(A|F|N|R)$/ ) ? $u->opt_sharebday : 'F';
-    $vars->{showtoopts}    = \@showtoopts;
-    $vars->{interests}     = join( ", ", @eintsl );
-    $vars->{saved}         = \%saved;
-    $vars->{checked}       = ( $u->{'opt_whatemailshow'} =~ /[BVL]/ ) ? 'Y' : 'N';
-    my $cur = $u->opt_whatemailshow;
-
-    # drop BVL values that govern site alias; we input that below instead
-    $cur =~ tr/BVL/AAN/;    # D reset later
-    $vars->{cur} = $cur;
 
     return DW::Template->render_template( 'manage/profile.tt', $vars );
 }
