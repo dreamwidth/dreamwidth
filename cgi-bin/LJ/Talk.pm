@@ -2871,7 +2871,7 @@ sub prepare_and_validate_comment {
     if ( exists $LJ::AUTOSCREEN_COMMENTS_IN{ $journalu->user } ) {
         if ( $LJ::SHOULD_SCREEN_IP && $LJ::SHOULD_SCREEN_IP->( LJ::get_remote_ip() ) ) {
             $state = 'S';
-	}
+        }
     }
 
     # Assemble the final prepared comment!
