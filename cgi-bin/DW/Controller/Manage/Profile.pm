@@ -176,6 +176,8 @@ sub profile_handler {
     my $vars = {
         u                => $u,
         authas_html      => $rv->{authas_html},
+        errors           => $errors,
+        formdata         => $POST,
         curr_privacy     => $curr_privacy,
         opt_sharebday    => $opt_sharebday,
         text_in          => \&LJ::text_in,
