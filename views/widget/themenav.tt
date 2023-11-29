@@ -1,0 +1,60 @@
+<h2 class='widget-header'>[% dw.ml('widget.themenav.title2') %]</h2>
+
+<script>Customize.ThemeNav.searchwords = [[% keywords_string %]];</script>
+<form id="search_form" method="POST">
+[% dw.form_auth() %]
+<p class='detail theme-nav-search-box'>
+    [% form.textbox(
+        name => 'Widget[ThemeNav]_search',
+        id   => 'search_box',
+        size => 30,
+        raw  => "autocomplete='off'"
+    ) %]
+    [% form.submit(
+        name => "Widget[ThemeNav]_search_submit", 
+        value => dw.ml('widget.themenav.btn.search'),
+        id => "search_btn"
+    ) %]
+</p>
+</form>
+
+<div class='theme-nav-inner-wrapper section-nav-inner-wrapper'>
+<div class='theme-selector-nav section-nav'>
+
+    <ul class='theme-nav nostyle'>
+        [% main_cat_list %]
+    </ul>
+
+    [% IF cats_sorted.len %]
+    <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
+
+    <ul class='theme-nav nostyle section-nav'>
+        [% cat_list %]
+    </ul>
+
+    <div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>
+    [% END %]
+
+    <ul class='theme-nav-small nostyle section-nav'>
+        <li class='first'>
+            <a href='[%dw.url("/customize/advanced/", keep_args => 1) %]'>
+                [% dw.ml('widget.themenav.developer') %]
+            </a>
+            [% upsell %]
+        </li>
+    </ul>
+
+</div>
+
+<div class='theme-nav-content section-nav-content'>
+    [% form.hidden(name => "theme_chooser_id", value => $theme_chooser_id, id => "theme_chooser_id") %]
+    [% theme_chooser.render(
+        'cat'      => cat,
+        'layoutid' => layoutid,
+        'designer' => designer,
+        'search'   => search,
+        'page'     => page,
+        'show'     => show,
+    ) %]
+</div>
+</div>
