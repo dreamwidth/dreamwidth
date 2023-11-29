@@ -16,7 +16,7 @@
 # part of this distribution.
 #
 # Authors:
-#      Jen Griffin <kareila@livejournal.com>
+#      Momiji <momijizukamori@gmail.com>
 #
 # Copyright (c) 2023 by Dreamwidth Studios, LLC.
 #
