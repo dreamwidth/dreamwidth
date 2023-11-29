@@ -72,7 +72,7 @@ sub render_body {
     }
 
     my $ret;
-    $ret .= "<h2 class='widget-header'>" . $class->ml('widget.themenav.title') . "</h2>";
+    $ret .= "<h2 class='widget-header'>" . $class->ml('widget.themenav.title2') . "</h2>";
 
     my @keywords        = LJ::Customize->get_search_keywords_for_js($u);
     my $keywords_string = join( ",", @keywords );

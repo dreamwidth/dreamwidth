@@ -28,61 +28,15 @@ sub render_body {
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
-    my $no_theme_chooser = defined $opts{no_theme_chooser} ? $opts{no_theme_chooser} : 0;
+    my @ids = qw( journaltitle journalsubtitle friendspagetitle friendspagesubtitle );
 
-    my $ret;
-    $ret .= "<h2 class='widget-header'>";
-    $ret .=
-          $no_theme_chooser
-        ? $class->ml('widget.journaltitles.title_nonum')
-        : $class->ml('widget.journaltitles.title');
-    $ret .= "</h2>";
-    $ret .= "<div class='theme-titles-content'><p class='detail'>";
-    $ret .=
-          $u->is_community
-        ? $class->ml('widget.journaltitles.desc.comm')
-        : $class->ml('widget.journaltitles.desc');
-    $ret .= " " . LJ::help_icon('journal_titles') . "</p>";
+    my $vars = {
+        u         => $u,
+        help_icon => \&LJ::help_icon,
+        ids       => \@ids
+    };
 
-    foreach my $id (qw( journaltitle journalsubtitle friendspagetitle friendspagesubtitle )) {
-        my $eprop = LJ::ehtml( $u->prop($id) ) || '';
-        $ret .= $class->start_form( id => "${id}_form" );
-
-        $ret .= "<p>";
-        $ret .=
-            ( $u->is_community )
-            ? "<label>" . $class->ml("widget.journaltitles.$id.comm") . "</label> "
-            : "<label>" . $class->ml("widget.journaltitles.$id") . "</label> ";
-        $ret .= "<span id='${id}_view'>";
-        $ret .= "<strong>$eprop</strong> ";
-        $ret .= "<a href='' class='theme-title-control' id='${id}_edit'>"
-            . $class->ml('widget.journaltitles.edit') . "</a>";
-        $ret .= "</span>";
-
-        $ret .= "<span id='${id}_modify'>";
-        $ret .= $class->html_text(
-            name      => 'title_value',
-            id        => $id,
-            value     => $u->prop($id),
-            size      => '30',
-            maxlength => LJ::std_max_length(),
-            raw       => "class='text'",
-        ) . " ";
-        $ret .= $class->html_hidden( which_title => $id );
-        $ret .= $class->html_submit(
-            save => $class->ml('widget.journaltitles.btn'),
-            { raw => "id='save_btn_$id'" },
-        ) . " ";
-        $ret .= "<a href='' class='theme-title-control' id='${id}_cancel'>"
-            . $class->ml('widget.journaltitles.cancel') . "</a>";
-        $ret .= "</span></p>";
-
-        $ret .= $class->end_form;
-    }
-
-    $ret .= "</div>";
-
-    return $ret;
+    return DW::Template->template_string( 'widget/journaltitles.tt', $vars );
 }
 
 sub handle_post {

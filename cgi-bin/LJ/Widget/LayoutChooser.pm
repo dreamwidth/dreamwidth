@@ -34,15 +34,6 @@ sub render_body {
 
     my $headextra = $opts{headextra};
 
-    my $ret;
-    $ret .= "<h2 class='widget-header'>";
-    $ret .=
-          $no_theme_chooser
-        ? $class->ml('widget.layoutchooser.title_nonum')
-        : $class->ml('widget.layoutchooser.title');
-    $ret .= "</h2>";
-    $ret .= "<ul class='layout-content select-list'>";
-
     # Column option
     my $current_theme     = LJ::Customize->get_current_theme($u);
     my %layouts           = $current_theme->layouts;
@@ -68,36 +59,16 @@ sub render_body {
         }
     }
 
-    unless ( !$current_theme->is_system_layout ) {
-        foreach my $layout ( sort keys %layouts ) {
-            my $current =
-                ( !$layout_prop ) || ( $layout_prop && $layouts{$layout} eq $prop_value ) ? 1 : 0;
-            my $current_class = $current ? " selected" : "";
+    my $vars = {
+        current_theme     => $current_theme,
+        layouts           => \%layouts,
+        layout_prop       => $layout_prop,
+        show_sidebar_prop => $show_sidebar_prop,
+        layout_names      => \%layout_names,
+        prop_value        => $prop_value
+    };
 
-            $ret .= "<li class='layout-item$current_class'>";
-            $ret .=
-                "<img src='$LJ::IMGPREFIX/customize/layouts/$layout.png' class='layout-preview' />";
-            $ret .= "<p class='layout-desc'>$layout_names{$layout}</p>";
-            unless ($current) {
-                $ret .= $class->start_form( class => "layout-form" );
-                $ret .= $class->html_hidden(
-                    layout_choice     => $layout,
-                    layout_prop       => $layout_prop,
-                    show_sidebar_prop => $show_sidebar_prop,
-                );
-                $ret .= $class->html_submit(
-                    apply => $class->ml('widget.layoutchooser.layout.apply'),
-                    { raw => "class='layout-button' id='layout_btn_$layout'" },
-                );
-                $ret .= $class->end_form;
-            }
-            $ret .= "</li><!-- end .theme-item -->";
-        }
-    }
-
-    $ret .= "</ul>";
-
-    return $ret;
+    return DW::Template->template_string( 'widget/layoutchooser.tt', $vars );
 }
 
 sub handle_post {
@@ -105,6 +76,7 @@ sub handle_post {
     my $post  = shift;
     my %opts  = @_;
 
+    print "handle post";
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
