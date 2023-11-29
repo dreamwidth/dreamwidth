@@ -47,14 +47,7 @@
 </div>
 
 <div class='theme-nav-content section-nav-content'>
-    [% form.hidden(name => "theme_chooser_id", value => $theme_chooser_id, id => "theme_chooser_id") %]
-    [% theme_chooser.render(
-        'cat'      => cat,
-        'layoutid' => layoutid,
-        'designer' => designer,
-        'search'   => search,
-        'page'     => page,
-        'show'     => show,
-    ) %]
+    [% form.hidden(name => "Widget[ThemeNav]_theme_chooser_id", value => theme_chooser_id, id => "theme_chooser_id") %]
+    [% themechooser_html %]
 </div>
 </div>

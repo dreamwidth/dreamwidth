@@ -93,18 +93,29 @@ sub render_body {
         getextra     => $getextra,
         showarg      => $showarg,
     );
+
+    my $themechooser_html = $theme_chooser->render(
+        'cat'      => $cat,
+        'layoutid' => $layoutid,
+        'designer' => $designer,
+        'search'   => $search,
+        'page'     => $page,
+        'show'     => $show
+    );
+
     my $vars = {
-        cat           => $cat,
-        layoutid      => $layoutid,
-        designer      => $designer,
-        search        => $search,
-        page          => $page,
-        show          => $show,
-        theme_chooser => $theme_chooser,
-        upsell        => $upsell,
-        cats_sorted   => \@cats_sorted,
-        main_cat_list => $main_cat_list,
-        cat_list      => $cat_list
+        cat               => $cat,
+        layoutid          => $layoutid,
+        designer          => $designer,
+        search            => $search,
+        page              => $page,
+        show              => $show,
+        themechooser_html => $themechooser_html,
+        keywords_string   => $keywords_string,
+        upsell            => $upsell,
+        cats_sorted       => \@cats_sorted,
+        main_cat_list     => $main_cat_list,
+        cat_list          => $cat_list
     };
 
     return DW::Template->template_string( 'widget/themenav.tt', $vars );
