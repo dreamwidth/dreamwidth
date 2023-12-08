@@ -64,55 +64,16 @@ sub render_body {
     my $custom_text_content =
         $u->prop('customtext_content') || $module_custom_text_content{override};
 
-    my $row_class = $count % 2 == 0 ? " even" : " odd";
+    my $row_class = $count % 2 == 0 ? "even" : "odd";
 
-    $ret .=
-          "<tr class='prop-row "
-        . $row_class
-        . "' valign='top' width='100%'><td class='prop-header' valign='top'>"
-        . $class->ml('widget.customtext.title') . "</td>";
-    $ret .= "<td valign='top'>"
-        . $class->html_text(
-        name  => "module_customtext_title",
-        size  => 20,
-        value => $custom_text_title,
-        ) . "</td></tr>";
+    my $vars = {
+        custom_text_title   => $custom_text_title,
+        custom_text_url     => $custom_text_url,
+        custom_text_content => $custom_text_content,
+        row_class           => $row_class
+    };
 
-    $count++;
-    $row_class = $count % 2 == 0 ? " even" : " odd";
-
-    $ret .=
-          "<tr class='prop-row "
-        . $row_class
-        . "' valign='top' width='100%'><td class='prop-header' valign='top'>"
-        . $class->ml('widget.customtext.url') . "</td>";
-    $ret .= "<td valign='top'>"
-        . $class->html_text(
-        name  => "module_customtext_url",
-        size  => 20,
-        value => $custom_text_url,
-        ) . "</td></tr>";
-
-    $count++;
-    $row_class = $count % 2 == 0 ? " even" : " odd";
-
-    $ret .=
-          "<tr class='prop-row "
-        . $row_class
-        . "' valign='top' width='100%'><td class='prop-header' valign='top'>"
-        . $class->ml('widget.customtext.content')
-        . "<br />";
-    $ret .= "<td valign='top'>"
-        . $class->html_textarea(
-        name  => "module_customtext_content",
-        rows  => 10,
-        cols  => 50,
-        wrap  => 'soft',
-        value => $custom_text_content,
-        ) . "</td></tr>";
-    $ret .= "</div>";
-
-    return $ret;
+    return DW::Template->template_string( 'widget/customtextmodule.tt', $vars );
 }
 
 sub handle_post {
