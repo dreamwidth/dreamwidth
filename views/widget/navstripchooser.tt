@@ -1,0 +1,82 @@
+<fieldset>
+    <legend>[% dw.ml('widget.navstripchooser.title') %]</legend>
+</fieldset>
+<p class='detail'>
+    [% dw.ml( 'widget.navstripchooser.desc',
+        { aopts => "href='/manage/settings/?cat=display'" } ) %]
+    [% help_icon('navstrip') %]
+</p>
+<p>[% dw.ml('widget.navstripchooser.colors') %]</p>
+
+<div class='option'>
+        [% form.radio(
+        type     => "radio",
+        name     => "Widget[NavStripChooser]_control_strip_color",
+        id       => "control_strip_color_dark",
+        value    => "dark",
+        selected => color_selected == "dark" ? 1 : 0,
+        ) %]
+</div>
+<div>
+    <label for='control_strip_color_dark' class='color-dark'>
+        <strong>[% dw.ml('widget.navstripchooser.option.color.dark') %]</strong>
+    </label>
+</div>
+
+<div class='option'>
+    [% form.radio(
+        type     => "radio",
+        name     => "Widget[NavStripChooser]_control_strip_color",
+        id       => "control_strip_color_light",
+        value    => "light",
+        selected => color_selected == "light" ? 1 : 0,
+        ) %]
+</div>
+<div>
+    <label for='control_strip_color_light' class='color-light'>
+        <strong>[% dw.ml('widget.navstripchooser.option.color.light') %]</strong>
+    </label>
+</div>
+
+[% IF custom_colors %]
+    <div class='option'>
+        [% form.checkbox(
+            name     => "Widget[NavStripChooser]_control_strip_custom",
+            id       => "control_strip_color_custom",
+            value    => "custom",
+            selected => color_custom,
+            ) %]
+        </div>
+        <div>
+            <label for='control_strip_color_custom'>
+                <strong>[% dw.ml('widget.navstripchooser.option.color.custom') %]</strong>
+            </label>
+            <br />
+        </div>
+
+    <div id='custom_subdiv' class='option'>
+        [% form.checkbox(
+            name     => "Widget[NavStripChooser]_control_strip_no_gradient_custom",
+            id       => "control_strip_gradient_custom",
+            selected => no_gradient,
+        ) %]
+        <label for='control_strip_gradient_custom'>
+            [% dw.ml('widget.navstripchooser.option.color.no_gradient') %]
+        </label>
+        <br/>
+        <table summary='' class='color-picker'>
+        [% FOREACH color IN custom_colors %]
+            [% "<tr valign='top'>" IF loop.index % 2 == 0 %]
+            <td>[% color.des %]</td>
+            <td>
+                [% form.color(
+                    name    => "Widget[NavStripChooser]_${color.name}",
+                    default => color.default,
+                    no_btn  => 1,
+                    ) %]
+            </td>
+            [% "</tr>" IF loop.index % 2 == 1 %]
+            [% END %]
+        </table>
+    </div>
+[% END %]
