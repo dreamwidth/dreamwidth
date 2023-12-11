@@ -48,21 +48,6 @@ my $entries = DW::Controller::API::REST->path( 'journals/entries.yaml', 1,
 #
 # FIXME: Doesn't handle crossposts yet.
 
-my %form_to_props = (
-
-    # currents / metadata
-    current_mood       => "current_moodid",
-    current_mood_other => "current_mood",
-    current_music      => "current_music",
-    current_location   => "current_location",
-);
-
-my @modules = qw(
-    tags displaydate slug
-    currents comments age_restriction
-    icons crosspost sticky
-);
-
 sub new_entry {
     my ( $self, $args ) = @_;
 
@@ -124,7 +109,10 @@ sub new_entry {
     $auth{journal} = $usejournal ? $usejournal : $remote;
 
     my $form_req = {};
-    _form_to_backend( $form_req, $post );
+    DW::Entry::_form_to_backend( 1, $form_req, $post );
+
+    # check for spam domains
+    LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
 
     # if we didn't have any errors with decoding the form, proceed to post
     my $post_res = _do_post( $form_req, $flags, \%auth );
@@ -136,207 +124,12 @@ sub new_entry {
 
 }
 
-# decodes the posted form into a hash suitable for use with the protocol
-# $post is expected to be an instance of Hash::MultiValue
-sub _form_to_backend {
-    my ( $req, $post, %opts ) = @_;
-
-    # handle event subject and body
-    $req->{subject} = $post->{subject} || $req->{subject};
-    $req->{event}   = $post->{text}    || $req->{event} || "";
-
-    # initialize props hash
-    $req->{props} ||= {};
-    my $props = $req->{props};
-
-    while ( my ( $formname, $propname ) = each %form_to_props ) {
-        $props->{$propname} = $post->{$formname}
-            if defined $post->{$formname};
-    }
-    $props->{taglist}         = $post->{tags}         if defined $post->{tags};
-    $props->{picture_keyword} = $post->{icon_keyword} if defined $post->{icon_keyword};
-    $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
-
-    # FIXME
-
-    # old implementation of comments
-    # FIXME: remove this before taking the page out of beta
-    $props->{opt_screening} = $post->{opt_screening};
-    $props->{opt_nocomments} =
-        $post->{comment_settings} && $post->{comment_settings} eq "nocomments" ? 1 : 0;
-    $props->{opt_noemail} =
-        $post->{comment_settings} && $post->{comment_settings} eq "noemail" ? 1 : 0;
-
-    # see if an "other" mood they typed in has an equivalent moodid
-    if ( $props->{current_mood} ) {
-        if ( my $moodid = DW::Mood->mood_id( $props->{current_mood} ) ) {
-            $props->{current_moodid} = $moodid;
-            delete $props->{current_mood};
-        }
-    }
-
-    # nuke taglists that are just blank
-    $props->{taglist} = "" unless $props->{taglist} && $props->{taglist} =~ /\S/;
-
-    if ( LJ::is_enabled('adult_content') ) {
-        my $restriction_key = $post->{age_restriction} || '';
-        $props->{adult_content} = {
-            ''           => '',
-            'none'       => 'none',
-            'discretion' => 'concepts',
-            'restricted' => 'explicit',
-        }->{$restriction_key}
-            || "";
-
-        $props->{adult_content_reason} = $post->{age_restriction_reason} || "";
-    }
-
-    # Set entry slug if it's been specified
-    $req->{slug} = LJ::canonicalize_slug( $post->{entry_slug} // '' );
-
-    # Check if this is a community.
-    $props->{admin_post} = $post->{flags_adminpost} || $props->{admin_post} || 0;
-
-    # entry security
-    my $sec   = "public";
-    my $amask = 0;
-    {
-        my $security = $post->{security} || $req->{security} || "";
-        if ( $security eq "private" ) {
-            $sec = "private";
-        }
-        elsif ( $security eq "access" ) {
-            $sec   = "usemask";
-            $amask = 1;
-        }
-        elsif ( $security eq "custom" ) {
-            $sec = "usemask";
-            foreach my $bit ( $post->get_all("custom_bit") ) {
-                $amask |= ( 1 << $bit );
-            }
-        }
-    }
-    $req->{security}  = $sec;
-    $req->{allowmask} = $amask;
-
-    # date/time
-    my ( $year, $month, $day ) = split( /\D/, $post->{entrytime_date} || "" );
-    my ( $hour, $min ) = split( /\D/, $post->{entrytime_time} || "" );
-
-# if we trust_datetime, it's because we either are in a mode where we've saved the datetime before (e.g., edit)
-# or we have run the JS that syncs the datetime with the user's current time
-# we also have to trust the datetime when the user has JS disabled, because otherwise we won't have any fallback value
-    if ( $post->{trust_datetime} || $post->{nojs} ) {
-        delete $req->{tz};
-        $req->{year} = $year;
-        $req->{mon}  = $month;
-        $req->{day}  = $day;
-        $req->{hour} = $hour;
-        $req->{min}  = $min;
-    }
-
-    $req->{update_displaydate} = $post->{update_displaydate};
-
-    # crosspost
-    $req->{crosspost_entry} = $post->{crosspost_entry} ? 1 : 0;
-    if ( $req->{crosspost_entry} ) {
-        foreach my $acctid ( $post->get_all("crosspost") ) {
-            $req->{crosspost}->{$acctid} = {
-                id       => $acctid,
-                password => $post->{"crosspost_password_$acctid"},
-                chal     => $post->{"crosspost_chal_$acctid"},
-                resp     => $post->{"crosspost_resp_$acctid"},
-            };
-        }
-    }
-
-    $req->{sticky_entry} = $post->{sticky_entry};
-
-    return 1;
-}
-
-# given an LJ::Entry object, returns a hashref populated with data suitable for use in generating the form
-sub _backend_to_form {
-    my ($entry) = @_;
-
-    # direct translation of prop values to the form
-
-    my %formprops = map { $_ => $entry->prop( $form_to_props{$_} ) } keys %form_to_props;
-
-    # some properties aren't in the hash above, so go through them manually
-    my %otherprops = (
-        taglist => join( ', ', $entry->tags ),
-
-        entrytime_outoforder => $entry->prop("opt_backdated"),
-
-        age_restriction => {
-            ''         => '',
-            'none'     => 'none',
-            'concepts' => 'discretion',
-            'explicit' => 'restricted',
-        }->{ $entry->prop("adult_content") || '' },
-        age_restriction_reason => $entry->prop("adult_content_reason"),
-
-        entry_slug => $entry->slug,
-
-        flags_adminpost => $entry->prop("admin_post"),
-
-        # FIXME: remove before taking the page out of beta
-        opt_screening      => $entry->prop("opt_screening"),
-          comment_settings => $entry->prop("opt_nocomments") ? "nocomments"
-        : $entry->prop("opt_noemail") ? "noemail"
-        :                               undef,
-    );
-
-    my $security = $entry->security || "";
-    my @custom_groups;
-    if ( $security eq "usemask" ) {
-        my $amask = $entry->allowmask;
-
-        if ( $amask == 1 ) {
-            $security = "access";
-        }
-        else {
-            $security      = "custom";
-            @custom_groups = grep { $amask & ( 1 << $_ ) } 1 .. 60;
-        }
-    }
-
-    # allow editing of embedded content
-    my $event = $entry->event_raw;
-    my $ju    = $entry->journal;
-    LJ::EmbedModule->parse_module_embed( $ju, \$event, edit => 1 );
-
-    return {
-        subject => $entry->subject_raw,
-        event   => $event,
-
-        icon       => $entry->userpic_kw,
-        security   => $security,
-        custom_bit => \@custom_groups,
-        is_sticky  => $entry->journal->sticky_entries_lookup->{ $entry->ditemid },
-
-        %formprops,
-        %otherprops,
-    };
-}
-
 sub _do_post {
     my ( $form_req, $flags, $auth, %opts ) = @_;
 
-    my $req = {
-        ver        => $LJ::PROTOCOL_VER,
-        username   => $auth->{poster} ? $auth->{poster}->user : undef,
-        usejournal => $auth->{journal} ? $auth->{journal}->user : undef,
-        tz         => 'guess',
-        xpost => '0',    # don't crosspost by default; we handle this ourselves later
-        %$form_req
-    };
+    my $res = DW::Entry::_save_new_entry( $form_req, $flags, $auth );
 
-    my $err = 0;
-    my $res = LJ::Protocol::do_request( "postevent", $req, \$err, $flags );
-
-    return { { success => 0, errors => LJ::Protocol::error_message($err) } } unless $res;
+    return { { success => 0, errors => { $res->{errors} } } } if $res->{errors};
 
     # post succeeded, time to do some housecleaning
 
@@ -518,10 +311,13 @@ sub edit_entry {
 # FIXME: handle communities
 # return $self->rest_error('POST', 401, "IS AN ADMIN") unless $entry_obj->poster->equals( $remote );
 
-    my $form_req = _backend_to_form($entry_obj);
-    _form_to_backend( $form_req, $post );
+    my $form_req = DW::Entry::_backend_to_form( 1, $entry_obj );
+    DW::Entry::_form_to_backend( 1, $form_req, $post );
 
-    my $edit_res = _do_edit( $ditemid, $form_req, { remote => $remote, journal => $usejournal }, );
+    # check for spam domains
+    LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
+
+    my $edit_res = _do_edit( $ditemid, $form_req, { poster => $remote, journal => $usejournal }, );
     return $self->rest_ok($edit_res) if $edit_res->{success} == 1;
 
     # oops errors when posting: show error, fall through to show form
@@ -531,27 +327,8 @@ sub edit_entry {
 sub _do_edit {
     my ( $ditemid, $form_req, $auth, %opts ) = @_;
 
-    my $req = {
-        ver        => $LJ::PROTOCOL_VER,
-        username   => $auth->{remote} ? $auth->{remote}->user : undef,
-        usejournal => $auth->{journal} ? $auth->{journal}->user : undef,
-        xpost  => '0',             # don't crosspost by default; we handle this ourselves later
-        itemid => $ditemid >> 8,
-        %$form_req
-    };
-
-    my $err = 0;
-    my $res = LJ::Protocol::do_request(
-        "editevent",
-        $req,
-        \$err,
-        {
-            noauth => 1,
-            u      => $auth->{remote},
-        }
-    );
-
-    return { { success => 0, errors => LJ::Protocol::error_message($err) } } unless $res;
+    my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth );
+    return { { success => 0, errors => { $res->{errors} } } } if $res->{errors};
 
     my $remote  = $auth->{remote};
     my $journal = $auth->{journal};
