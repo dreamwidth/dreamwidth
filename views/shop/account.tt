@@ -1,0 +1,162 @@
+[% sections.title =  dw.ml( ".title" ) %]
+[%- dw.need_res( { group => "foundation" },
+    "js/jquery.shop.js"
+
+) -%]
+<p><a href='[% site.root %]/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
+
+[% BLOCK print_opts %]
+    [% FOREACH key IN opts.keys.nsort.reverse %]
+        [% opt = opts.$key %]
+        <div class="row">
+        <div class="columns">
+        [% form.checkbox(
+                type     => 'radio',
+                name     => 'accttype',
+                id       => opt.name,
+                value    => opt.name,
+                label    => dw.ml( 'widget.shopitemoptions.price',
+                {
+                    num    => key
+                    price  => opt.price,
+                    points => opt.points
+                }
+            )
+        ) %]
+        </div>
+        </div>
+    [% END %]
+[% END %]
+[% cart_display %]
+    [% IF prem_convert %]
+           <div class="error-box">
+            [% dw.ml( '.error.premiumconvert', ml_args) %]
+            [% dw.ml( '.error.premiumconvert.postdate', ml_args ) IF ml_args.date %]
+            </div>
+[% END %]
+
+    [% IF for == 'self' %]
+        <div class='leftybox'>[% dw.ml( '.intro.self', { user => remote.ljuser_display, aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) %]</div>
+        [% paid_status %]
+    [% ELSIF for.size > 0 %]
+        <p>[% dw.ml( ".intro.$for", { aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) %]</p>
+    [% END %]
+
+    <div style='clear: both;'></div>
+    <form method='post'>
+    [% dw.form_auth() %]
+    <div class="row">
+    <div class="columns medium-6">
+        <strong>[% dw.ml("widget.shopitemoptions.header.prem") %]</strong>
+        [% PROCESS print_opts opts = get_opts('prem') %]
+    </div>
+    <div class="columns medium-6">
+    [% IF for != 'self' || allow_convert %]
+        <strong>[% dw.ml("widget.shopitemoptions.header.paid") %]</strong>
+        [% PROCESS print_opts opts = get_opts('paid') %]
+    [% END %]
+    </div>
+</div>
+   [% IF seed_avail %]
+        <div class="row">
+        <div class="columns medium-6 end">
+        <span class='shop-item-highlight'>[% dw.ml( "widget.shopitemoptions.highlight.seed", { num => num_perms } ) %]</span>
+
+        <strong>[% dw.ml("widget.shopitemoptions.header.seed") %]</strong>
+        [% PROCESS print_opts opts = get_opts('seed') %]
+        </div>
+        </div>
+    [% END %]
+
+
+<div class="row bottom-block">
+<div class="columns large-6">
+    [% IF for && ! (for == 'self') %]
+        [% IF for == 'gift' %]
+        <div class="row collapse">
+            <div class="columns medium-6">
+                <label for="username">[% dw.ml( '.giftfor.username') %]</label>
+            </div>
+            <div class="columns medium-6">
+                [% form.textbox(  name => 'username')  %]
+            </div>
+        </div>
+        [% ELSIF for == 'random' %]
+            [% IF randomu %]
+            <div class="row collapse foru">
+                <div class="columns medium-6">
+                    <label for="username">[% dw.ml( '.giftfor.username') %]</label>
+                </div>
+                <div class="columns medium-6">
+                    [% randomu.ljuser_display %]
+                    [% form.hidden( name = 'username', value = randomu.user ) %]
+                </div>
+            </div>             
+            [% ELSE %]
+            <div class="row collapse">
+                <div class="columns medium-6">
+                    <label for="username">[% dw.ml( '.giftfor.username') %]</label>
+                </div>
+                <div class="columns medium-6">
+                    [% dw.ml('.giftfor.username.random') %]
+                    [% form.hidden( name = 'username', value = 'random') %]
+                </div>
+            </div>  
+            [% END %]
+        [% ELSE %]
+        <div class="row collapse">
+            <div class="columns medium-6">
+                <label for="email">[% dw.ml( '.giftfor.email') %]</label>
+            </div>
+            <div class="columns medium-6">
+                [% form.textbox(  name => 'email')  %]
+                            <br />
+            [% email_checkbox %]
+            </div>
+        </div>  
+        [% END %]
+    [% END %]
+
+    [%- INCLUDE "shop/deliverydate.tt" -%]
+
+    [% IF for && ! (for == 'self') %]
+        <div class="row">
+            <div class="columns">
+            [% form.checkbox(
+                name => 'anonymous',
+                label => dw.ml( '.giftfor.anonymous'),
+                value => 1,
+                disabled => remote ? 0 : 1,
+                ) %]
+            </div>
+        </div>
+        </div>
+        <div class="columns large-6">
+            [% IF acct_reason %]
+                    [% form.textarea(
+                                name => 'reason',
+                                rows => 6,
+                                cols => 60,
+                                wrap => 'soft'
+                                label = dw.ml( '.giftfor.reason')
+                                ) %]
+            [% END %]
+            </div>
+
+    [% END %]
+</div>
+</div>
+
+    [% IF prem_convert %]
+		<p>
+		[% form.checkbox(  name => 'prem_convert', id => 'prem_convert', value => 1 ) %]
+		<label for='prem_convert'>[% dw.ml('.premiumconvert.agree') %]</label>
+		</p>
+	[% END %]
+
+    [% form.hidden( name = 'for', value = for ) %]
+    [% form.hidden( name = 'alreadyposted' value = 1 ) IF did_post %]
+    <p>[% form.submit( value = dw.ml('.btn.addtocart') ) %]</p>
+    </form>
+
+    <p><a href='$LJ::SITEROOT/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>

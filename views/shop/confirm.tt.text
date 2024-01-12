@@ -29,7 +29,7 @@
 
 .success.checkmoneyorder.immediate=Your order has been successfully placed. We will process your order shortly. Thank you for your purchase!
 
-.success.checkmoneyorder.processing=Your order has been successfully placed. It will be processed once we receive your check or money order. p?><?p Please make it out to [[sitecompany]] and mail it to: [[address]] p?><?p <strong>Be sure to include both the order number and the PO box number!</strong>
+.success.checkmoneyorder.processing=Your order has been successfully placed. It will be processed once we receive your check or money order. </p><p> Please make it out to [[sitecompany]] and mail it to: [[address]] <strong>Be sure to include both the order number and the PO box number!</strong>
 
 .success.paypal.immediate=Your order has been successfully placed. We will process your order shortly. Thank you for your purchase!
 

@@ -1,0 +1,58 @@
+[% sections.title =  dw.ml( ".title" ) %]
+[%- dw.need_res( { group => "foundation" },
+    ## date
+    "js/vendor/pickadate.js/picker.js"
+    "js/vendor/pickadate.js/picker.date.js"
+    "js/vendor/pickadate.js/picker.time.js"
+    "js/vendor/pickadate.js/legacy.js"
+    "stc/css/components/pickadate/datetime.css"
+    "js/jquery.shop.js"
+
+) -%]
+
+<p><a href='[% site.root %]/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } )  %]</a></p>
+
+[% cart_display %]
+
+<p>[% dw.ml( ".intro.$for" ) %]</p>
+<p>[% dw.ml( '.action', { aopts => "href='/rename'" } )  %]</p>
+
+<div style='clear: both;'></div>
+<form method='post'>
+[% dw.form_auth() %]
+
+[% IF for == "gift" %]
+<div class="row">
+<div class="columns large-6 end">
+<div class="row collapse">
+    <div class="columns medium-6">
+        <label for="username">[% dw.ml( '.giftfor.username') %]</label>
+    </div>
+    <div class="columns medium-6">
+        [% form.textbox(  name => 'username')  %]
+    </div>
+</div>
+[%- INCLUDE "shop/deliverydate.tt" -%]
+<div class="row">
+    <div class="columns">
+    [% form.checkbox(
+        name => 'anonymous',
+        label => dw.ml( '.giftfor.anonymous'),
+        value => 1,
+        selected => remote ? 0 : 1,
+        disabled => remote ? 0 : 1,
+        ) %]
+    </div>
+</div>
+</div>
+</div>
+
+[% END %]
+
+[% form.hidden( name = 'for', value = for) %]
+[% form.hidden( name = "item", value = "rename") %]
+<p>[% form.submit( value = dw.ml( '.btn.addtocart') ) %]</p>
+</form>
+
+<p><a href='[% site.root %]/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
+

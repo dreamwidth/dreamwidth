@@ -147,6 +147,7 @@
 .shop-status-left {
     width: 25%;
     float: left;
+    text-align: left;
 }
 
 .shop-status-right {
@@ -159,4 +160,13 @@
     float: left;
     width: 50%;
     text-align: center;
+}
+
+.foru .ljuser {
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+div.row.bottom-block {
+    margin-top: 2em;
 }
