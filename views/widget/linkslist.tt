@@ -1,0 +1,106 @@
+<fieldset><legend>[% dw.ml('widget.linkslist.title') %]</legend></fieldset>
+<p class='detail'>[% dw.ml('widget.linkslist.about') %]</p>
+<table summary='' cellspacing='2' cellpadding='0'><tr valign='top'>
+<tr>
+    <td>
+        <div class='highlight-box'>
+            <p class='tips-header'><strong>
+            [% dw.ml('widget.linkslist.tips') %]
+            </strong></p>
+            <ul>
+                <li>[% dw.ml('widget.linkslist.about.reorder') %]</li>
+                <li>[% dw.ml('widget.linkslist.about.blank') %]</li>
+                <li>[% dw.ml('widget.linkslist.about.heading') %]</li>
+                <li>[% dw.ml('widget.linkslist.about.hover') %]</li>
+                <li>[% dw.ml('widget.linkslist.about.hoverhead') %]</li>
+            </ul>
+        </div>
+    </td>
+</tr>
+</table>
+
+<table border='0' cellspacing='5' cellpadding='0'>
+    <thead>
+    <tr>
+        <th>[% dw.ml('widget.linkslist.table.order') %]</th>
+        <th></th>
+        <th>[% dw.ml('widget.linkslist.table.title') %]</th>
+    </tr>
+    </thead>
+    [% ct = 1 %]
+    [% WHILE ct <= showlinks %]
+        [% i = ct - 1; it = linkobj.$i || {} %]
+
+        <tr>
+            <td>
+            [% form.textbox(
+                    name  => "Widget[LinksList]_link_${ct}_ordernum",
+                    size  => 4,
+                    value => ct * order_step,
+                ) %]
+            </td>
+            <td><label for="link_[% ct %]_url">Link</label></td>
+            <td>
+                [% form.textbox(
+                    name      => "Widget[LinksList]_link_${ct}_url",
+                    id        => "link_${ct}_url",
+                    size      => 50,
+                    maxlength => 255,
+                    value     => it.url || "http://",
+                ) %]
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><label for="link_[% ct %]_title">Link text</label></td>
+            <td>
+                [% form.textbox(
+                    name      => "Widget[LinksList]_link_${ct}_title",
+                    id        => "link_${ct}_title",
+                    size      => 50,
+                    maxlength => 255,
+                    value     => it.title
+                ) %]
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><label for="link_[% ct %]_url">Hover text<label></td>
+            <td>
+                [% form.textbox(
+                    name      => "Widget[LinksList]_link_${ct}_hover",
+                    id        => "link_${ct}_hover",
+                    size      => 50,
+                    maxlength => 255,
+                    value     => it.hover,
+                ) %]
+            </td>
+        </tr>
+        <tr>
+            [%# more button at the end of the last line, but only if
+            # they are allowed more than the minimum %]
+            <td>
+                [% IF ct >= showlinks && caplinks > link_min %]
+                    [% form.submit(
+                        name => 'Widget[LinksList]_action:morelinks', 
+                        value => dw.ml('widget.linkslist.table.more') _ " &rarr;",
+                    'disabled' => (ct >= caplinks),
+                    raw => 1
+                    ) %]
+                [% END %]
+
+            </td>
+            <td></td>
+            <td>
+                [% dw.ml('cprod.links.text3.v1') IF ct >= caplinks %]
+            </td>
+        </tr>
+        [% UNLESS ct >= showlinks %]
+            [%# blank line unless this is the last line %]
+        <tr><td colspan='3'>&nbsp;</td></tr>
+        [% END %]
+
+    [% ct = ct + 1 %]
+    [% END %]
+    [% form.hidden( name => 'Widget[LinksList]_numlinks', value => showlinks ) %]
+</table>
