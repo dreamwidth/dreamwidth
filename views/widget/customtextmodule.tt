@@ -1,0 +1,38 @@
+<tr class='prop-row [% row_class == "even" ? "even" : "odd" %]' valign='top' width='100%'>
+    <td class='prop-header' valign='top'>
+        [% dw.ml('widget.customtext.title') %]
+    </td>
+    <td valign='top'>
+        [% form.textbox(
+            name  => "Widget[CustomTextModule]_module_customtext_title",
+            size  => 20,
+            value => custom_text_title,
+        ) %]
+    </td>
+</tr>
+<tr class='prop-row [% row_class == "odd" ? "even" : "odd" %]' valign='top' width='100%'>
+    <td class='prop-header' valign='top'>
+        [% dw.ml('widget.customtext.url') %]
+    </td>
+    <td valign='top'>
+        [% form.textbox(
+            name  => "Widget[CustomTextModule]_module_customtext_url",
+            size  => 20,
+            value => custom_text_url,
+        ) %]
+    </td>
+</tr>
+<tr class='prop-row [% row_class == "even" ? "even" : "odd" %]' valign='top' width='100%'>
+    <td class='prop-header' valign='top'>
+        [% dw.ml('widget.customtext.content') %]
+    </td>
+    <td valign='top'>
+        [%form.textarea(
+            name  => "Widget[CustomTextModule]_module_customtext_content",
+            rows  => 10,
+            cols  => 50,
+            wrap  => 'soft',
+            value => custom_text_content,
+        ) %]
+    </td>
+</tr>

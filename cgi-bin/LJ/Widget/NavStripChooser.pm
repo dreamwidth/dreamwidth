@@ -29,102 +29,41 @@ sub render_body {
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
-    my $ret = "<fieldset><legend>" . $class->ml('widget.navstripchooser.title') . "</legend>";
-    $ret .= "</fieldset>" if $u->prop('stylesys') == 2;
-    $ret .= "<p class='detail'>"
-        . $class->ml( 'widget.navstripchooser.desc',
-        { aopts => "href='/manage/settings/?cat=display'" } )
-        . " "
-        . LJ::help_icon('navstrip') . "</p>";
-
-    $ret .= "<p>" . $class->ml('widget.navstripchooser.colors') . "</p>";
-
-    # choose colors
     my $chosen_color   = $u->prop('control_strip_color') // '';
     my $color_selected = $chosen_color ne '' ? $chosen_color : "dark";
 
-    my (
-        $theme,              @props,            %prop_is_used,
-        %colors_values,      %bgcolor_values,   %fgcolor_values,
-        %bordercolor_values, %linkcolor_values, $color_custom
-    );
-    if ( $u->prop('stylesys') == 2 ) {
-        $theme        = LJ::Customize->get_current_theme($u);
-        @props        = S2::get_properties( $theme->layoutid );
-        %prop_is_used = map { $_ => 1 } @props;
+    my $theme        = LJ::Customize->get_current_theme($u);
+    my @props        = S2::get_properties( $theme->layoutid );
+    my %prop_is_used = map { $_ => 1 } @props;
 
-        my $style = LJ::S2::load_style( $u->prop('s2_style') );
-        die "Style not found." unless $style && $style->{userid} == $u->id;
+    my $style = LJ::S2::load_style( $u->prop('s2_style') );
+    die "Style not found." unless $style && $style->{userid} == $u->id;
 
-        %colors_values =
-            LJ::Customize->get_s2_prop_values( "custom_control_strip_colors", $u, $style );
-        %bgcolor_values = LJ::Customize->get_s2_prop_values( "control_strip_bgcolor", $u, $style );
-        %fgcolor_values = LJ::Customize->get_s2_prop_values( "control_strip_fgcolor", $u, $style );
-        %bordercolor_values =
-            LJ::Customize->get_s2_prop_values( "control_strip_bordercolor", $u, $style );
-        %linkcolor_values =
-            LJ::Customize->get_s2_prop_values( "control_strip_linkcolor", $u, $style );
+    my %colors_values =
+        LJ::Customize->get_s2_prop_values( "custom_control_strip_colors", $u, $style );
+    my %bgcolor_values = LJ::Customize->get_s2_prop_values( "control_strip_bgcolor", $u, $style );
+    my %fgcolor_values = LJ::Customize->get_s2_prop_values( "control_strip_fgcolor", $u, $style );
+    my %bordercolor_values =
+        LJ::Customize->get_s2_prop_values( "control_strip_bordercolor", $u, $style );
+    my %linkcolor_values =
+        LJ::Customize->get_s2_prop_values( "control_strip_linkcolor", $u, $style );
 
-        $color_custom = 0;
-        unless ( $colors_values{override} eq "off" ) {
-            $color_custom = 1;
-        }
+    my $color_custom = 0;
+
+    unless ( $colors_values{override} eq "off" ) {
+        $color_custom = 1;
     }
 
-    $ret .= "<div class='option'>"
-        . $class->html_check(
-        type     => "radio",
-        name     => "control_strip_color",
-        id       => "control_strip_color_dark",
-        value    => "dark",
-        selected => $color_selected eq "dark" ? 1 : 0,
-        ) . "</div>";
-    $ret .=
-          "<div><label for='control_strip_color_dark' class='color-dark'><strong>"
-        . $class->ml('widget.navstripchooser.option.color.dark')
-        . "</strong></label></div>";
+    my $vars = {
+        color_selected => $color_selected,
+        color_custom   => $color_custom,
+        help_icon      => \&LJ::help_icon
+    };
 
-    $ret .= "<div class='option'>"
-        . $class->html_check(
-        type     => "radio",
-        name     => "control_strip_color",
-        id       => "control_strip_color_light",
-        value    => "light",
-        selected => $color_selected eq "light" ? 1 : 0,
-        ) . "</div>";
-    $ret .=
-          "<div><label for='control_strip_color_light' class='color-light'><strong>"
-        . $class->ml('widget.navstripchooser.option.color.light')
-        . "</strong></label></div>";
-
-    if ( $u->prop('stylesys') == 2 && $prop_is_used{custom_control_strip_colors} ) {
+    if ( $prop_is_used{custom_control_strip_colors} ) {
         my $no_gradient = $colors_values{override} eq "on_no_gradient" ? 1 : 0;
 
-        $ret .= "<div class='option'>"
-            . $class->html_check(
-            name     => "control_strip_custom",
-            id       => "control_strip_color_custom",
-            value    => "custom",
-            selected => $color_custom,
-            ) . "</div>";
-        $ret .=
-              "<div><label for='control_strip_color_custom'><strong>"
-            . $class->ml('widget.navstripchooser.option.color.custom')
-            . "</strong></label><br /></div>";
-
-        $ret .= "<div id='custom_subdiv' class='option'>";
-        $ret .= $class->html_check(
-            name     => "control_strip_no_gradient_custom",
-            id       => "control_strip_gradient_custom",
-            selected => $no_gradient,
-        );
-        $ret .=
-              " <label for='control_strip_gradient_custom'>"
-            . $class->ml('widget.navstripchooser.option.color.no_gradient')
-            . "</label><br/>";
-
-        my $count = 0;
-        $ret .= "<table summary='' class='color-picker'>";
+        my $custom_colors = [];
         foreach my $prop (@props) {
             $prop = S2::get_property( $theme->coreid, $prop )
                 unless ref $prop;
@@ -152,22 +91,18 @@ sub render_body {
 
             my $des = $class->ml("widget.navstripchooser.option.color.${prop_name}");
 
-            $ret .= "<tr valign='top'>" if $count % 2 == 0;
-            $ret .= "<td>$des</td>";
-            $ret .= "<td>"
-                . $class->html_color(
+            my $custom_color = {
                 name    => $prop_name,
                 default => $override,
-                des     => $prop->{des},
-                no_btn  => 1,
-                ) . "</td>";
-            $ret .= "</tr>" if $count % 2 == 1;
-            $count++;
+                des     => $des,
+            };
+            push $custom_colors, $custom_color;
         }
-        $ret .= "</table></div>";
+        $vars->{no_gradient}   = $no_gradient;
+        $vars->{custom_colors} = $custom_colors;
     }
 
-    return $ret;
+    return DW::Template->template_string( 'widget/navstripchooser.tt', $vars );
 }
 
 sub handle_post {
