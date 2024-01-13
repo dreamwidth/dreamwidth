@@ -3,6 +3,7 @@
     "js/vendor/pickadate.js/picker.date.js"
     "js/vendor/pickadate.js/picker.time.js"
     "js/vendor/pickadate.js/legacy.js"
+    "js/jquery.deliverydate.js"
     "stc/css/components/pickadate/datetime.css"
     ); -%]
 
