@@ -159,4 +159,4 @@
     <p>[% form.submit( value = dw.ml('.btn.addtocart') ) %]</p>
     </form>
 
-    <p><a href='$LJ::SITEROOT/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
+    <p><a href='[% site.root %]/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
