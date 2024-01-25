@@ -17,6 +17,7 @@
     </style>
     </noscript>
 [% END %]
+
 <div class="alert-box secondary">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = dw_beta.ljuser_display ) %]</div>
 
 [% BLOCK actions %]

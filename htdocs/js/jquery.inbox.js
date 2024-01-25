@@ -126,33 +126,96 @@ function mark_items(e, action, qid, func) {
         data: JSON.stringify(postData),
         success: function(data) {
             if (data.success) {
-                $("#inbox_message_list").html(data.success.items);
-                $("#inbox_folders").html(data.success.folders);
-                $(".pagination").html(data.success.pages);
+                console.log(action);
+                switch(action) {
+                    case 'delete_all':
+                    case 'delete':
+                        $("#inbox_message_list").html(data.success.items);
+                        $(".pagination").html(data.success.pages);
+          
+                        collapsed.forEach(function(id) {
+                            var arrow = $("#" + id).siblings('.InboxItem_Controls').find('img.item_expand');
+                            arrow.attr({
+                                'src': '/img/collapse.gif',
+                                'alt': 'Expand',
+                                'title': 'Expand'
+                            });
+                            $("#" + id).addClass('inbox_collapse');
+                        });
+                        // We've reloaded the view, so set the select-all checkbox to unchecked.
+                        $('.check_all').prop("checked", false);
+                        break;
+                    case 'mark_unread':
+                        item_qids.forEach(function(qid) {
+                            var item = $(`div[data-qid=${qid}]`);
+                            item.addClass('inbox_expand').removeClass('inbox_collapse');
+                            item.parents(".inbox_item_row").addClass('item_unread').removeClass('item_read');
+                            $(`#Title_${qid}`).addClass('unread').removeClass('read');
+    
+                        });
+                        break;
+                    case 'mark_read':
+                        item_qids.forEach(function(qid) {
+                            var item = $(`div[data-qid=${qid}]`);
+                            item.addClass('inbox_collapse').removeClass('inbox_expand');
+                            item.parents(".inbox_item_row").addClass('item_read').removeClass('item_unread');
+                            $(`#Title_${qid}`).addClass('read').removeClass('unread');
+    
+                        });
+                        break;
+                    case 'mark_all':
+                        $('.InboxItem_Content').addClass('inbox_collapse').removeClass('inbox_expand');
+                        $(".inbox_item_row").addClass('item_read').removeClass('item_unread');
+                        $('.item span.unread').addClass('read').removeClass('unread');
+                        break;
+                    case 'bookmark_off':
+                        var item = $(`.item_bookmark_action[data-qid=${qid}]`)
+                        var child = item.children('.item_bookmark');
+                        var url = item.attr('href');
+                        item.data('action', 'bookmark_on');
+                        item.attr('href', url.replace('bookmark_off', 'bookmark_on'));
+                        child.attr({
+                            'src': '/img/flag_on.gif',
+                            'alt': 'Remove Bookmark',
+                            'title': 'Remove Bookmark'
+                        });
+                        break;
+                    case 'bookmark_on':
+                        var item = $(`.item_bookmark_action[data-qid=${qid}]`)
+                        var child = item.children('.item_bookmark');
+                        var url = item.attr('href');
+                        item.data('action', 'bookmark_off');
+                        item.attr('href', url.replace('bookmark_on', 'bookmark_off'));
+                        child.attr({
+                            'src': '/img/flag_off.gif',
+                            'alt': 'Bookmark This',
+                            'title': 'Bookmark This'
+                        });
+                        break;
+                }
 
+                // Steps we do no matter what
+                
                 // Navbar unread count
                 let unread = $("#Inbox_Unread_Count, #Inbox_Unread_Count_Menu");
                 if (!unread.length) return;
                 let unread_count = data.success.unread_count? ` (${data.success.unread_count})` : "";
                 unread[0].innerHTML = unread_count;
 
-                collapsed.forEach(function(id) {
-                    var arrow = $("#" + id).siblings('.InboxItem_Controls').find('img.item_expand');
-                    arrow.attr({
-                        'src': '/img/collapse.gif',
-                        'alt': 'Expand',
-                        'title': 'Expand'
-                    });
-                    $("#" + id).addClass('inbox_collapse');
-                });
-                // We've reloaded the view, so set the select-all checkbox to unchecked.
-                $('.check_all').prop("checked", false);
+                // Update folder info
+                $("#inbox_folders").html(data.success.folders);
+
                 // reset buttons
                 check_selected();
                 if (func) func();
+
             } else {
-                $(e.target).ajaxtip()
-                    .ajaxtip("error", data.error);
+                data.errors.forEach( (error) =>
+                {
+                    $(e.target).ajaxtip()
+                    .ajaxtip("error", error);
+                });
+
             }
         },
         dataType: "json"
@@ -246,6 +309,8 @@ $("#inbox_messages").on("click", ".actions a", function(evt) {
     if (evt && (evt.ctrlKey || evt.metaKey)) return true;
     evt.preventDefault();
     var qid = $(evt.target).parents(".InboxItem_Content").data('qid');
+
+    console.log($(evt.target).attr("href"));
 
     mark_items(null, 'mark_read', [qid], function() { window.location.href = $(evt.target).attr("href"); });
 });

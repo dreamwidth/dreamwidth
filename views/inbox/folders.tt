@@ -13,6 +13,7 @@
                 [% BLOCK folder %]
                     <a href="/inbox/new?view=[% f.view %]" id="esn_folder_[% f.view %]" [% 'class="selected"' IF view == f.view %]>
                         [% "inbox.menu.${f.label}" | ml %]  <span class='unread_count'>[% "($f.unread)" IF f.unread %]</span>
+                        [% dw.img('bookmark_on', '', {'alt' => ' '}) IF f.label == 'bookmarks' %] 
                     </a>
                     [% IF f.children %]
                         <ul>
