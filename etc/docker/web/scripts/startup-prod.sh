@@ -9,7 +9,7 @@ perl -I$LJHOME/extlib/ $LJHOME/bin/checkconfig.pl || sleep infinity
 # Kick off Apache
 mkdir $LJHOME/ext/local/etc/apache2/sites-enabled || true
 cp $LJHOME/ext/local/dreamwidth-prod.conf $LJHOME/ext/local/etc/apache2/sites-enabled/dreamwidth.conf
-trap "cat /var/log/apache2/error_log 1>&2" ERR
+trap "cat /var/log/apache2/error.log 1>&2" ERR
 /usr/sbin/apache2ctl configtest
 /usr/sbin/apache2ctl start
 trap - ERR
