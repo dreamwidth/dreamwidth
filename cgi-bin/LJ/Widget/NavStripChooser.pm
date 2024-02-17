@@ -96,7 +96,7 @@ sub render_body {
                 default => $override,
                 des     => $des,
             };
-            push $custom_colors, $custom_color;
+            push @$custom_colors, $custom_color;
         }
         $vars->{no_gradient}   = $no_gradient;
         $vars->{custom_colors} = $custom_colors;
