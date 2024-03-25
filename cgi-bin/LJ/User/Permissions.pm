@@ -1294,8 +1294,9 @@ sub should_receive_support_notifications {
     return 0 unless $u->is_visible;
     return 0 unless $u->is_validated;
     return 0 unless $spcatid;
-    return 0 unless LJ::Support::can_read_cat( $spcatid, $u );
-    return 1;
+
+    my $cat = LJ::Support::load_cats($spcatid)->{$spcatid};
+    return LJ::Support::can_read_cat( $cat, $u );
 }
 
 sub support_points_count {
