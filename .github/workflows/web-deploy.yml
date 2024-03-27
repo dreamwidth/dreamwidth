@@ -9,6 +9,7 @@ on:
         options:
         - web-canary
         - web-stable
+        - web-unauthenticated
       tag:
         type: string
         description: SHA256 to deploy (include "sha256:" prefix)
