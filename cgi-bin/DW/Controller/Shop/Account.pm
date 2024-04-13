@@ -71,6 +71,18 @@ sub shop_account_handler {
         }
     }
 
+    if ( $for eq 'gift' ) {
+        if ( my $username = LJ::ehtml( $GET->{user} ) ) {
+            my $randomu = LJ::load_user($username);
+            if ( LJ::isu($randomu) ) {
+                $vars->{randomu} = $randomu;
+            }
+            else {
+                return $r->redirect("$LJ::SITEROOT/shop");
+            }
+        }
+    }
+
     if ( $for eq 'self' ) {
         $vars->{paid_status} = DW::Widget::PaidAccountStatus->render;
     }
@@ -100,7 +112,7 @@ sub shop_account_handler {
                 $target_u = LJ::load_user( $post->{username} );
             }
 
-            my $user_check = validate_target_user( $target_u, $remote );
+            my $user_check = DW::Pay::validate_target_user( $target_u, $remote );
 
             if ( defined $user_check->{error} ) {
                 $errors->add( 'username', $user_check->{error} );
@@ -220,10 +232,11 @@ sub shop_account_handler {
 
     $vars->{for}             = $for;
     $vars->{remote}          = $remote;
+    $vars->{user}            = $GET->{user};
     $vars->{cart_display}    = $rv->{cart_display};
     $vars->{seed_avail}      = DW::Pay::num_permanent_accounts_available() > 0;
     $vars->{num_perms}       = DW::Pay::num_permanent_accounts_available_estimated();
-    $vars->{formdata}        = $post || { username => $GET->{user}, anonymous => };
+    $vars->{formdata}        = $post || { username => ( $GET->{user} ), anonymous => !$remote };
     $vars->{did_post}        = $r->did_post;
     $vars->{acct_reason}     = DW::Shop::Item::Account->can_have_reason;
     $vars->{premium_convert} = $premium_convert;
