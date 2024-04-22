@@ -1,0 +1,419 @@
+[%- sections.title='.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- dw.need_res( { group => "foundation" }, "stc/css/pages/manage/profile.css") -%]
+
+<form method="get">
+	[%- authas_html -%]
+</form>
+
+[%# if they're working as a community, reproduce the community management linkbar: %]
+[% IF iscomm %]
+    <p class='intro'>[% u.maintainer_linkbar( "profile" ) %]</p>
+[% END %]
+
+<div style='margin: 1em 0;'>
+[% dw.ml( ".intro1$iscomm", { aopts1 => "href='" _ dw.create_url('/manage/settings/', keep_args => 1, args => { cat => 'privacy' }) _ "'",
+                                aopts2 => "href='" _ dw.create_url('/manage/settings/', keep_args => 1, args => { cat => 'display' }) _ "'" } ) %]
+</div>
+
+<div class="action-box">
+<div class="inner">
+    [% dw.ml('.jumpto') %] <a href='#identity'>[% dw.ml('.section.id') %]</a> |
+    <a href='#contact'>[% dw.ml('.section.contact') %]</a> |
+    <a href='#bio'>[% dw.ml('.section.bio2') %]</a> |
+    <a href='#interests'>[% dw.ml('.section.interests') %]</a> |
+    <a href='#display'>[% dw.ml('.section.display') %]</a>
+</div></div>
+
+<form method='post'>
+    [%- dw.form_auth %]
+    <table summary='' width='100%' style='margin: 1em 0;'>
+
+        [%# personal information %]
+        <thead><tr class='section_head' role="row">
+        <th width='75%' colspan=2 role="cell"><a name='identity'></a>[% dw.ml('.section.id') %]</th>
+        <th class='view_options' role="columnheader">[% dw.ml('.showto') %]</th>
+        </tr></thead>
+
+        [%### Picture Settings %]
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell">[% dw.ml('.fn.userpic2') %]</td>
+            <td role="cell"><div style='width: 100px; height: 100px; float: left; text-align: center; border: 1px solid #ddd'>
+                [% IF u.defaultpicid %]
+                    [% u.userpic.imgtag %]
+                [% ELSE %]
+                    <br /><i>([% dw.ml('.userpic.none') %])</i>
+                [% END %]
+                </div><div style='margin-left: 110px'>
+                <span class='helper'>[% dw.ml(".userpic$iscomm") %]</span>
+                [% help_icon('upic_keywords') %]
+                <p><a href='[% dw.create_url("/manage/icons", keep_args => 1 ) %]'>[% dw.ml('.userpic.change') %]</a></p>
+            </td>
+
+            <td class='selectvis' role="cell"><p><span class="view_options">[% dw.ml('.showto') %]</span> <i> [% dw.ml('.security.visibility.everybody2') %] </i></p></td>
+        </tr>
+
+        [%# name %]
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell">[% dw.ml('.fn.name2') %]</td>
+            <td role="cell">
+            [% IF text_in(saved.name) %]
+                [% form.textbox( name => 'name', value => u.name_orig,
+                                        title => dw.ml('.fn.name2'),
+                                        size => '35', maxlength => '50' ) %]
+                <div class='helper'>[% dw.ml('.name') %]</div>
+            [% ELSE %]
+                [% form.hidden( name => 'name_absent', value =>'yes' ) %]
+                <div class="alert">[% dw.ml('.error.invalidname2', {'aopts' => "href='${site.root}/utf8convert'"}) %]</div>
+            [% END %]
+            </td>
+
+            <td class='selectvis' role="cell">
+                <p><span class="view_options">[% dw.ml('.showto') %]</span> <i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
+            </td>
+        </tr>
+
+        [% IF u.is_individual %]
+        [%# gender %]
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell">[% dw.ml('.fn.gender1') %]</td>
+            <td role="cell">
+                [%# strip HTML out of title %]
+                [% form.select(  name => 'gender', title => dw.ml('.fn.gender1'),
+                                       selected => (u.prop( 'gender' ) || 'U' ),
+                                    items => [
+                                     'F', dw.ml('.gender.female'),
+                                     'M', dw.ml('.gender.male'),
+                                     'O', dw.ml('.gender.other'),
+                                     'U', dw.ml('.gender.unspecified') ] )%]
+            </td>
+            <td class='selectvis' role="cell">
+                <p><span class="view_options">[% dw.ml('.showto') %]</span> <i> [% dw.ml('.security.visibility.nobody') %] </i></p>
+            </td>
+        </tr>
+        [% END %]
+
+        [%# birthday %]
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell">[% dw.ml('.fn.birthday') %]</td>
+            <td class='bday_field' role="cell">
+                [%- form.select( name => 'month', title => dw.ml('.fn.birthday.month'),
+                                 selected => int( bdpart.month ),
+                                items => month_select,
+                                class => 'inline'
+                                 ) -%]
+                [%- form.textbox( name => 'day', value => bdpart.day,
+                                 size => '3', maxlength => '2',
+                                 title => dw.ml('.fn.birthday.day'),
+                                class => 'inline' ) -%]
+
+                [%- form.textbox( name => 'year', value => bdpart.year,
+                                 size => '5', maxlength => '4',
+                                 title => dw.ml('.fn.birthday.year'),
+                                class => 'inline' ) -%]
+
+                <div style="padding-top: .5em;">
+                [% form.select( name => 'opt_showbday',
+                                   title => dw.ml('.fn.birthday.level'),
+                                   selected => u.opt_showbday,
+                                items => [
+                                 'N', dw.ml('.show.birthday.nothing2'),
+                                 'D', dw.ml('.show.birthday.day2'),
+                                 'Y', dw.ml('.show.birthday.year2'),
+                                 'F', dw.ml('.show.birthday.full2') ]) %]
+                </div>
+            </td>
+            <td class='selectvis' role="cell">
+                [% form.select( name => 'opt_sharebday',
+                                   title => dw.ml( '.privacy.title',
+                                            { name => dw.ml('.fn.birthday' ) } ),
+                                   selected => opt_sharebday,
+                                   items => showtoopts,
+                                   label =>  dw.ml('.showto')) %]
+            </td>
+        </tr>
+
+        [%# location %]
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell">[% dw.ml('.fn.location') %]</td>
+            <td role="cell">[% location %]</td>
+            <td class='selectvis' role="cell">
+            [% form.select(  name => 'opt_showlocation',
+                                   title => dw.ml( '.privacy.title',
+                                            { name => dw.ml('.fn.location') } ),
+                                   selected => u.opt_showlocation ,
+                                   items => showtoopts,
+                                   label =>  dw.ml('.showto')) %]
+            </td>
+        </tr>
+        </table>
+        [%## CONTACT INFO %]
+        <table>
+        <thead>
+        <tr class='section_head' role="row">
+            <th width='75%' colspan=2 role="cell"><a name='contact'></a>[% dw.ml('.section.contact2') %]</th>
+            <th class='view_options' role="cell"> [% dw.ml('.showto') %]</th>
+        </tr>
+        </thead>
+        <tr class='section_subhead'>
+            <td colspan=3 role="cell">[% dw.ml('.subsection.web') %]</td>
+        </tr>
+
+        [%# url %]
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell">[% dw.ml('.fn.link2') %]</td>
+            <td role="cell">[% form.textbox( name => 'url', 
+                            value => u.url,
+                            title => dw.ml('.fn.link2'),
+                            size => '45', 
+                            maxlength => '255') %]
+            </td>
+            <td class='selectvis' role="cell">
+                <p><span class="view_options">[% dw.ml('.showto') %]</span> <i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
+            </td>
+        </tr>
+
+        [%# urlname %]
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell">[% dw.ml('.fn.sitename2') %]</td>
+            <td role="cell">[% form.textbox( name => 'urlname', 
+                            value => u.urlname,
+                            title => dw.ml('.fn.sitename2'),
+                            size => '45', 
+                            maxlength => '255' )%]
+            </td>
+            <td class='selectvis' role="cell">
+                <p><span class="view_options">[% dw.ml('.showto') %]</span> <i> [% dw.ml('.security.visibility.everybody2') %] </i></p>
+            </td>
+        </tr>
+
+        [%# email %]
+        <tr class='section_subhead' role="row">
+            <td colspan=2 role="cell">[% dw.ml('.subsection.messaging') %]</td>
+            <td class='view_options' role="cell">
+                <span class="view_options">[% dw.ml('.showto') %]</span> <a href='[% dw.create_url('/manage/settings/', keep_args => 1, args => { cat => 'privacy' }) %]'>
+                [% dw.ml('.fn.privacy') %]: [% curr_privacy %]</a>
+            </td>
+        </tr>
+
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell">[% dw.ml('.fn.email.system') %]</td>
+            <td style='vertical-align: middle' role="cell">
+                <b>[% u.email_raw %]</b> &nbsp; <a href='[% dw.create_url("/changeemail", keep_args => 1 ) %]'>
+                [% dw.ml('.email.change.system') %]</a>
+            </td>
+            <td class="selectvis" role="cell">[% form.select( name => 'opt_whatemailshow',
+                        title => dw.ml( '.display.title',
+                                { name => dw.ml('.fn.email.system') } ),
+                        selected => cur,
+                        items => [
+                                 'A', dw.ml('.security.visibility.privacy'),
+                                 'N', dw.ml('.security.visibility.noshow') ],
+                                 label => dw.ml('.showto') ) %]
+            </td>
+        </tr>
+
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell"> [% dw.ml('.fn.email.display') %]</td>
+            <td role="cell">[% profile_email %]<span class='helper'>[% dw.ml('.email.profile') %]</span></td>
+            <td role="cell"></td>
+        </tr>
+
+        [% IF u.can_have_email_alias && !u.prop("no_mail_alias") %]
+        <tr class='field_block' role="row">
+            <td class='field_name' role="cell">
+                [% dw.ml( '.fn.email.site', { siteabbrev => site.nameabbrev } ) %]
+            </td>
+            <td style='vertical-align: middle' role="cell">
+                [% u.site_email_alias %]
+            </td>
+            <td class='selectvis' role="cell">
+                [% form.select(
+                    name => 'opt_usesite',
+                    title => dw.ml( '.display.title',
+                        { name => dw.ml( '.fn.email.site', { siteabbrev => site.nameabbrev } ) } ),
+                    selected => checked,
+                    items => [
+                        'Y', dw.ml('.security.visibility.privacy'),
+                        'N', dw.ml('.security.visibility.noshow')
+                    ],
+                    label => dw.ml('.showto')
+                    ) %]
+            </td>
+        </tr>
+        [% END %]
+
+        [% IF u.is_person %]
+            [% IF findbyemail %]
+            <tr class='field_block' role="row">
+                <td class='field_name' role="cell">[% findbyemail.label %]</td>
+                <td role="cell"><span class='helper'>
+                    [% dw.ml( 'settings.findbyemail.helper', {
+                        sitename => site.nameshort,
+                        siteabbrev => site.nameabbrev } ) %]
+                    </span>
+                </td>
+                <td class='selectvis' role="cell">[% findbyemail.html %]</td>
+            </tr>
+            [% END %]
+
+            [%# chat thingies %]
+            <tr id='iminfo' class='section_subhead' role="row">
+                <td colspan=2 role="cell"><a name='iminfo'></a>[% dw.ml('.subsection.other') %]</td>
+                <td class='view_options' role="cell">
+                    <span class="view_options">[% dw.ml('.showto') %]</span> <a href='[% dw.create_url('/manage/settings/', keep_args => 1, args => { cat => 'privacy' }) %]'>
+                    [% dw.ml('.fn.privacy') %]: [% curr_privacy %]</a>
+                </td>
+            </tr>
+            <tr role="row">
+            <td colspan=3 class="services" role="cell">
+             <div class="other_services">
+        [% ct = 1; %]
+        [% MACRO service(p, val, ct) BLOCK %]
+            <div class="service_block">
+                <div class='field_name'>[% p.title %]</div>
+                [% form.hidden( name => "extservice_site_$ct", value => p.service_id ) %]
+                [% form.hidden( name => "extservice_dbid_$ct", value => val.0 ) IF val.0 %]
+                [% form.textbox( name => "extservice_val_$ct",
+                                id => "extservice_val_$ct",
+                                value => val.1,
+                                title => "$p.title Username",
+                                size => 20,
+                                class => "inline",
+                                maxlength => p.maxlen )
+                                %]
+            </div>
+        [% END %]
+
+            [%# ignore legacy userprops if %$profile_accts has been populated %] 
+            [% IF profile_accts %]
+                [% FOREACH p IN services %]
+                    [% s_id = p.service_id;
+                    NEXT UNLESS profile_accts.$s_id %]
+                    [% FOREACH val IN profile_accts.$s_id %]
+                        [% service( p, val, ct ) %]
+                        [% ct = ct + 1 %]
+                    [% END %]
+                [% END %]
+            [% ELSE %]
+                [% FOREACH p IN services %]
+                    [% NEXT UNLESS p.userprop;
+                        val = u.${p.userprop};
+                        NEXT UNLESS val %]
+                    [% service(p, [0, val]) %]
+
+                [% END %]
+            [% END %]
+
+            [% WHILE ct <= 26 %]
+                <div class="service_block">
+                <div class='field_name service_new'>
+                [% form.select( name => "extservice_site_$ct" , class = "inline", items => service_dropdown ) %]
+                </div>
+                [% form.textbox(name => "extservice_val_$ct",
+                                id => "extservice_val_$ct",
+                                value => '',
+                                title => "Username \#$ct",
+                                size => '20',
+                                class => 'inline'
+                                maxlength => 255 ) %]
+                </div>
+                [% ct = ct + 1 %]
+            [% END %]
+            </div>
+</td></tr>
+
+        [% END %]
+
+    </table>
+
+    [%## BIO %]
+    <div class='section_head'><a name='bio'></a>[% dw.ml('.section.bio2') %]</div>
+    [% IF text_in(saved.bio ) %]
+        <p>[% u.is_identity ? dw.ml('.fn.bio.openid') : dw.ml(".fn.bio$iscomm") %]</p>
+        [% form.textarea( name => 'bio',
+                        title => dw.ml('.section.bio2'),
+                        rows => '10', cols => '50',
+                        wrap => 'soft',
+                        value => saved.bio ) %]
+    [% ELSE %]
+        [% form.hidden( name =>'bio_absent', value =>'yes') %]
+        <div class="alert">[% dw.ml('.error.invalidbio', {'aopts' => "href='${site.root}/utf8convert'"}) %]</div>
+    [% END %]
+
+    [%## INTERESTS %]
+    <div class='section_head'><a name='interests'></a>[% dw.ml('.section.interests') %]</div>
+    [% IF u.is_community %]
+        <p>[% dw.ml('.fn.commdescription2') %]</p>
+        [% form.textbox( name => 'comm_theme',
+                        title => dw.ml('.fn.commdesc'),
+                        value => u.comm_theme,
+                        size => '50', maxlength => '100' ) %]
+    [% END %]
+
+    <p>[% dw.ml(".fn.interests$iscomm") %]</p>
+    [% form.textarea( name => 'interests',
+                        title => dw.ml('.section.interests'),
+                        value => interests,
+                        rows => '10', cols => '50', wrap => 'soft' ) %]
+
+    [%## CIRCLE %]
+    <table summary='' width='100%' style='margin: 1em 0;' id="viewopts">
+    <thead>
+        <tr class='section_head'>
+            <td width='75%' colspan=3 role="cell">
+                <a name='display'></a>
+                [% u.is_community ? dw.ml('.section.display.members') : dw.ml('.section.display.circle') %]
+            </td>
+        </tr>
+    </thead>
+        [% UNLESS u.is_community %]
+        <tr class='field_block'>
+            <td class='field_name' role="cell">[% dw.ml('.fn.mutualfriends3') %]</td>
+            <td class="check-cell" role="cell">
+                [% form.checkbox( 
+                            name => 'opt_showmutualfriends',
+                            id => 'opt_showmutualfriends', 
+                            selected => u.opt_showmutualfriends ) %]
+            </td>
+            <td class="label-cell" role="cell">
+                <label for='opt_showmutualfriends'>[% dw.ml('.mutualfriends3') %]</label>
+            </td>
+        </tr>
+        [% END %]
+
+        <tr class='field_block'>
+            <td class='field_name' width='15%' role="cell">
+                [% u.is_community ? dw.ml('.fn.subscriberof') : dw.ml('.fn.friendof3') %]
+            </td>
+            <td class="check-cell" role="cell">
+                [% form.checkbox(  name => 'opt_hidefriendofs',
+                            id => 'opt_hidefriendofs', 
+                            selected => !u.opt_hidefriendofs )  %]
+            </td>
+            <td class="label-cell" role="cell">
+                <label for='opt_hidefriendofs'>
+                    [% u.is_community ? dw.ml('.subscriberof') : dw.ml('.friendof3') %]
+                </label>
+            </td>
+        </tr>
+
+        [% UNLESS u.is_community %]
+        <tr class='field_block'>
+            <td class='field_name' role="cell">[% dw.ml('.fn.comms') %]</td>
+            <td class="check-cell" role="cell">
+                [% form.checkbox( name => 'opt_hidememberofs',
+                                id => 'opt_hidememberofs', 
+                                selected => ! u.opt_hidememberofs ) %]
+            </td>
+            <td class="label-cell" role="cell">
+                <label for='opt_hidememberofs'>[% dw.ml('.comms2') %]</label>
+            </td>
+        </tr>
+        [% END %]
+
+    </table>
+
+    [% profile_settings_extra %]
+    [% form.submit(value = dw.ml('.save_button'), name = "submit") %]
+</form>
