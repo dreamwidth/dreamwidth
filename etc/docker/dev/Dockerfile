@@ -2,7 +2,7 @@
 # This creates a Dreamwidth worker container.
 #
 
-FROM  dreamwidth/base:latest
+FROM  ghcr.io/dreamwidth/base:latest
 LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.

@@ -33,7 +33,7 @@ DW::Routing->register_string( '/shop/gifts',      \&shop_gifts_handler,      app
 # Gives a person a random active free user that they can choose to purchase a
 # paid account for.
 sub shop_randomgift_handler {
-    my ( $ok, $rv ) = my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
