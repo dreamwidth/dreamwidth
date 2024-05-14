@@ -587,14 +587,10 @@ sub start_request {
         );
 
         my @ctx_popup_libraries = qw(
-            js/jquery/jquery.ui.core.js
-            js/jquery/jquery.ui.widget.js
+            js/jquery/jquery.ui.js
 
-            js/jquery/jquery.ui.tooltip.js
             js/jquery.ajaxtip.js
-            js/jquery/jquery.ui.position.js
-            stc/jquery/jquery.ui.core.css
-            stc/jquery/jquery.ui.tooltip.css
+            stc/jquery/jquery.ui.css
 
             js/jquery.hoverIntent.js
             js/jquery.contextualhover.js

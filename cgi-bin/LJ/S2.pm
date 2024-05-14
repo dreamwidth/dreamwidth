@@ -196,18 +196,10 @@ sub make_journal {
 
     LJ::need_res(
         { group => "all" }, qw(
-            js/jquery/jquery.ui.core.js
-            js/jquery/jquery.ui.widget.js
-            js/jquery/jquery.ui.tooltip.js
-            js/jquery/jquery.ui.button.js
-            js/jquery/jquery.ui.dialog.js
-            js/jquery/jquery.ui.position.js
+            js/jquery/jquery.ui.js
             js/jquery.ajaxtip.js
 
-            stc/jquery/jquery.ui.core.css
-            stc/jquery/jquery.ui.tooltip.css
-            stc/jquery/jquery.ui.button.css
-            stc/jquery/jquery.ui.dialog.css
+            stc/jquery/jquery.ui.css
             stc/jquery/jquery.ui.theme.smoothness.css
 
             stc/canary.css
@@ -1844,15 +1836,10 @@ sub tracking_popup_js {
     return LJ::is_enabled('esn_ajax')
         ? (
         { group => 'all' }, qw(
-            js/jquery/jquery.ui.core.js
-            js/jquery/jquery.ui.widget.js
-
-            js/jquery/jquery.ui.tooltip.js
+            js/jquery/jquery.ui.js
             js/jquery.ajaxtip.js
-            js/jquery/jquery.ui.position.js
 
-            stc/jquery/jquery.ui.core.css
-            stc/jquery/jquery.ui.tooltip.css
+            stc/jquery/jquery.ui.css
 
             js/jquery.esn.js
             )

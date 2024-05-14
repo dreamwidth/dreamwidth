@@ -1760,13 +1760,8 @@ sub init_iconbrowser_js {
         { group => 'jquery' },
 
         # base libraries
-        'js/jquery/jquery.ui.core.js',
-        'js/jquery/jquery.ui.widget.js',
-        'stc/jquery/jquery.ui.core.css',
-
-        # for the formatting of the icon selector popup
-        'js/jquery/jquery.ui.dialog.js',
-        'stc/jquery/jquery.ui.dialog.css',
+        'js/jquery/jquery.ui.js',
+        'stc/jquery/jquery.ui.css',
 
         # logic for the icon selector
         'js/jquery.iconselector.js',
@@ -1822,7 +1817,7 @@ sub init_s2journal_js {
     # quick-reply.css is for both reply forms. (TODO: rename that.)
     LJ::need_res(
         { group => "all" }, qw(
-            js/jquery/jquery.ui.widget.js
+            js/jquery/jquery.ui.js
             js/jquery.replyforms.js
             stc/css/components/quick-reply.css
             stc/css/components/icon-select.css
@@ -1839,9 +1834,8 @@ sub init_s2journal_js {
     # threadexpander is only for EntryPage, but whatever.
     LJ::need_res(
         { group => "all" }, qw(
-            js/jquery/jquery.ui.core.js
-            stc/jquery/jquery.ui.core.css
-            js/jquery/jquery.ui.widget.js
+            js/jquery/jquery.ui.js
+            stc/jquery/jquery.ui.css
             js/jquery.quickreply.js
             js/jquery.threadexpander.js
             )
@@ -1872,7 +1866,7 @@ sub init_s2journal_js {
     # load for ajax cuttag and ajax quickreply - only needed on lastn-type pages
     LJ::need_res(
         { group => "all" }, qw(
-            js/jquery/jquery.ui.widget.js
+            js/jquery/jquery.ui.js
             js/jquery.cuttag-ajax.js
             js/jquery.default-editor.js
             )

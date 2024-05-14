@@ -447,17 +447,10 @@ sub EntryPage {
 
     LJ::need_res(
         { group => "all" }, qw(
-            js/jquery/jquery.ui.core.js
-            js/jquery/jquery.ui.tooltip.js
+            js/jquery/jquery.ui.js
             js/jquery.ajaxtip.js
-            js/jquery/jquery.ui.button.js
-            js/jquery/jquery.ui.dialog.js
             js/jquery.commentmanage.js
-            js/jquery/jquery.ui.position.js
-            stc/jquery/jquery.ui.core.css
-            stc/jquery/jquery.ui.tooltip.css
-            stc/jquery/jquery.ui.button.css
-            stc/jquery/jquery.ui.dialog.css
+            stc/jquery/jquery.ui.css
             stc/jquery.commentmanage.css
             )
     );

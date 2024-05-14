@@ -159,7 +159,7 @@
                     },
                     autoFocus: true,
                     select: _handleComplete
-                }).bind("keydown.autocompleteselect", function( event ) {
+                }).on("keydown.autocompleteselect", function( event ) {
                     var keyCode = $.ui.keyCode;
                     var $input = $(this);
 
@@ -189,7 +189,7 @@
                             }
                             return;
                     }
-                }).bind("keyup.autocompleteselect", function( event ) {
+                }).on("keyup.autocompleteselect", function( event ) {
                     var $input = $(this);
                     if ( $input.val().indexOf(",") > -1 )
                         _handleComplete.apply( $input, [event, { item: { value: $input.val() } } ]);
@@ -210,7 +210,7 @@
 
 
                 // so other things can reinitialize the widget with their own text
-                $(self.element).bind("autocomplete_inittext", function( event, new_text ) {
+                $(self.element).on("autocomplete_inittext", function( event, new_text ) {
                     self.tagslist = {};
                     self.uiAutocompletelist.empty();
                     _handleComplete.apply( self.uiAutocompleteInput, [ event, { item: { value: new_text } } ] );
@@ -218,7 +218,7 @@
                 $(self.element).trigger("autocomplete_inittext", self.element.val());
 
                 // replace one text
-                $(self.element).bind("autocomplete_edittext", function ( event, $element, new_text ) {
+                $(self.element).on("autocomplete_edittext", function ( event, $element, new_text ) {
                     _handleComplete.apply( self.uiAutocompleteInput, [ event, { item: { value: new_text } }, $element ] );
                 });
 
@@ -229,8 +229,8 @@
                 const tokenInputElement = "input."+self.options.tokenTextClass;
                 const removeTokenClass = "."+self.options.tokenRemoveClass;
 
-                $("span."+self.options.tokenTextClass, self.uiAutocomplete.get(0))
-                .on("click", function(event) {
+                $(self.uiAutocomplete, self.uiAutocomplete.get(0))
+                .on("click", "span."+self.options.tokenTextClass, function(event) {
                     delete self.tagslist[$(this).text()];
                     _arrayToVal(self.tagslist, self.element);
                     var $input = $("<input type='text' />")
@@ -243,14 +243,14 @@
                     event.stopPropagation();
                 });
 
-                $(tokenInputElement, self.uiAutocomplete.get(0))
-                .on("blur", function(event) {
+                $(self.uiAutocomplete, self.uiAutocomplete.get(0))
+                .on("blur", tokenInputElement, function(event) {
                     $(self.element).trigger("autocomplete_edittext", [ $(this).closest("li"), $(this).val() ] );
                 });
 
 
 
-                $(tokenInputElement, self.uiAutocomplete.get(0)).on("click", removeTokenClass, function(e) {
+                $(self.uiAutocomplete, self.uiAutocomplete.get(0)).on("click", removeTokenClass, function(e) {
                     var $token = $(this).closest("."+self.options.tokenClass);
 
                     delete self.tagslist[$token.children("."+self.options.tokenTextClass).text()];

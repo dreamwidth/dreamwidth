@@ -93,11 +93,7 @@ jQuery(function($) {
     }
 
     if ($(".sortable-column-text").length == 0) {
-        $.getScript(Site.siteroot + "/js/jquery/jquery.ui.mouse.min.js",
-            function() { $.getScript(Site.siteroot + "/js/jquery/jquery.ui.sortable.min.js",
-                setupSortable
-            ) }
-        );
+        setupSortable();
     }
 
     function setupSortable() {
