@@ -4,7 +4,7 @@
 # to rebuild dependencies.
 #
 
-FROM  ubuntu:18.04
+FROM  ubuntu:22.04
 LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
@@ -17,10 +17,19 @@ ENV DEBIAN_FRONTEND noninteractive
 # Ubuntu level setup for the basics
 RUN apt-get update && \
     apt-get install -y apt-transport-https && \
-    apt-get install -y curl git cpanminus tzdata rsync vim ruby-compass && \
+    apt-get install -y curl git cpanminus tzdata rsync vim && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
-    dpkg-reconfigure -f noninteractive tzdata && \
-    curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
+    dpkg-reconfigure -f noninteractive tzdata
+
+# Install ruby compass
+RUN apt-get update && \
+    apt-get install -y ruby-rubygems ruby-dev build-essential bison openssl \
+       libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev \
+       libxml2-dev autoconf libc6-dev ncurses-dev automake libtool && \
+    gem install compass
+
+# Install base system dependencies, then clean up
+RUN curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
         xargs apt-get -y install && \
     rm -rf /var/lib/apt/lists/* && \
     cpanm -nq App::cpm

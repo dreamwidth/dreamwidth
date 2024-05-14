@@ -1,4 +1,4 @@
-name: (deploy) web servers
+name: (deploy) shop servers
 
 on:
   workflow_dispatch:
@@ -7,9 +7,7 @@ on:
         type: choice
         description: Which service to deploy
         options:
-        - web-canary
-        - web-stable
-        - web-unauthenticated
+        - web-shop
       tag:
         type: string
         description: SHA256 to deploy (include "sha256:" prefix)
@@ -19,7 +17,7 @@ env:
   REGION: us-east-1
   ECS_CLUSTER: dreamwidth
   CONTAINER_NAME: web
-  IMAGE_BASE: ghcr.io/dreamwidth/web
+  IMAGE_BASE: ghcr.io/dreamwidth/shop
 
 jobs:
   deploy:
