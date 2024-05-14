@@ -9,7 +9,7 @@ Captcha::reCAPTCHA@0.99
 Class::Autouse
 Class::Data::Inheritable
 Class::Trigger
-Compress::Zlib~!=2.207
+Compress::Zlib@2.212
 Convert::Base32
 CryptX
 Danga::Socket
