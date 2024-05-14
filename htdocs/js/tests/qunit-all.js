@@ -82,7 +82,7 @@ var _r = {
         _r.current_iframe = iframe;
 
 
-        iframe.load(function () {
+        iframe.on("load", function () {
             _r.poll_iframe();
         });
         strong.click(function () {
@@ -100,7 +100,7 @@ var _r = {
         var content = iframe.contents();
 
         var notests = content.find("#notests");
-        if( notests.size() > 0 ) {
+        if( notests.length > 0 ) {
             _r.current_li
                 .find(".counts").text("No tests defined for " + _r.cur_test).end()
                 .find("iframe").remove();
@@ -110,7 +110,7 @@ var _r = {
 
         var results = content.find("#qunit-testresult");
 
-        if ( results.size() == 0 ) {
+        if ( results.length == 0 ) {
             setTimeout(_r.poll_iframe, 10);
             return;
         }
@@ -119,7 +119,7 @@ var _r = {
         var total_i  = results.find(".total");
         var failed_i = results.find(".failed");
 
-        var tct = passed_i.size() + total_i.size() + failed_i.size();
+        var tct = passed_i.length + total_i.length + failed_i.length;
 
         if ( tct != 3 ) {
             setTimeout(_r.poll_iframe, 10);

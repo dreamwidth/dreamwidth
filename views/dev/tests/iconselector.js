@@ -1,7 +1,5 @@
 /* INCLUDE:
-jquery: js/jquery/jquery.ui.core.js
-jquery: js/jquery/jquery.ui.widget.js
-jquery: js/jquery/jquery.ui.dialog.js
+jquery: js/jquery/jquery.ui.js
 jquery: js/jquery.iconselector.js
 */
 

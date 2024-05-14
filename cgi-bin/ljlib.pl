@@ -530,7 +530,7 @@ sub start_request {
         # are the new style global items
         LJ::need_res(
             { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
-            'js/jquery/jquery-1.8.3.js',
+            'js/jquery/jquery-3.7.1.js',
             'js/foundation/vendor/custom.modernizr.js',
             'js/foundation/foundation/foundation.js',
             'js/foundation/foundation/foundation.topbar.js',
@@ -541,7 +541,7 @@ sub start_request {
             { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
 
             # jquery library is the big one, load first
-            'js/jquery/jquery-1.8.3.js',
+            'js/jquery/jquery-3.7.1.js',
 
             # the rest of the libraries
             qw(
@@ -587,14 +587,12 @@ sub start_request {
         );
 
         my @ctx_popup_libraries = qw(
-            js/jquery/jquery.ui.core.js
-            js/jquery/jquery.ui.widget.js
+            js/jquery/jquery.ui.js
 
-            js/jquery/jquery.ui.tooltip.js
             js/jquery.ajaxtip.js
-            js/jquery/jquery.ui.position.js
-            stc/jquery/jquery.ui.core.css
-            stc/jquery/jquery.ui.tooltip.css
+            stc/jquery/jquery.ui.css
+            stc/jquery/jquery-ui.structure.css
+            stc/jquery/jquery-ui.theme.css
 
             js/jquery.hoverIntent.js
             js/jquery.contextualhover.js

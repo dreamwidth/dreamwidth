@@ -61,6 +61,7 @@
             self.locked = true;
 
             if (typeof ajax === 'undefined') {
+              console.log("in events: ", self, element);
               self.open.call(self, element);
             } else {
               var url = ajax === true ? element.attr('href') : ajax;
@@ -141,7 +142,7 @@
           modal;
 
       if (target) {
-        if (typeof target.selector !== 'undefined') {
+        if (target instanceof jQuery) {
           // Find the named node; only use the first one found, since the rest of the code assumes there's only one node
           modal = self.S('#' + target.data(self.data_attr('reveal-id'))).first();
         } else {
@@ -165,6 +166,7 @@
         var open_modal = self.S('[' + self.attr_name() + '].open');
 
         if (typeof modal.data('css-top') === 'undefined') {
+          console.log("Modal is ", modal);
           modal.data('css-top', parseInt(modal.css('top'), 10))
             .data('offset', this.cache_offset(modal));
         }

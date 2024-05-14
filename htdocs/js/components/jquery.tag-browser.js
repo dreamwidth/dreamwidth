@@ -37,7 +37,7 @@ TagBrowser.prototype = {
     isLoaded: false,
     listenersRegistered: false,
     tagsData: function(full) {
-        var tags_data = this.element.data("autocompletewithunknown");
+        var tags_data = this.element.siblings(".autocomplete-input").data("autocompletewithunknown");
         if (!tags_data)
             return null;
 

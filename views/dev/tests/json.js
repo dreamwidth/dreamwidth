@@ -18,15 +18,15 @@
 var expected_results = {
     setup: function() {
         this.js_dumper = {
-            array: [ 7, "string", 123, "123.", { foo: "bar" }, "", "", "", 0, "\"',;:", "<a href=\"#\">blah</a>", "テスト" ],
+            array: [ 7, "string", "123", "123.", { foo: "bar" }, null, null, "", 0, "\"',;:", "<a href=\"#\">blah</a>", "テスト" ],
             hash: {
                 string: "string",
                 num   : 42,
                 numdot: "42.",
                 array : [ "a", "b", 2 ],
                 hash  : { a: "apple", b: "bazooka" },
-                nil   : "",
-                nilvar: "",
+                nil   : null,
+                nilvar: null,
                 blank : "",
                 zero  : 0,
                 symbols: "\"',;:",

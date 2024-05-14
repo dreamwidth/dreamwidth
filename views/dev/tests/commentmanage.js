@@ -1,13 +1,10 @@
 /* INCLUDE:
 
 old: js/commentmanage.js
-jquery: js/jquery/jquery.ui.widget.js
+jquery: js/jquery/jquery.ui.js
 jquery: js/jquery.ajaxtip.js
 jquery: js/jquery.commentmanage.js
-jquery: js/jquery/jquery.ui.core.js
-jquery: js/jquery/jquery.ui.dialog.js
-jquery: js/jquery/jquery.ui.tooltip.js
-jquery: js/jquery/jquery.ui.position.js
+
 */
 
 var lifecycle = {

@@ -35,11 +35,11 @@ jQuery(function($) {
                     var post = $(this.form).serialize();
                     var sep = ( post == "" ) ? "" : "&";
                     var jqxhr = $.post( Site.siteroot + "/__rpc_entryoptions", post + sep + $.param(postPanels) )
-                        .success(function () {
+                        .done(function () {
                             stopEditing();
                             saveOriginalValues($inputs);
                         } )
-                        .error(function(response) {
+                        .fail(function(response) {
                             $("#js-settings-panel").html(response.responseText)
                         });
 
@@ -93,11 +93,7 @@ jQuery(function($) {
     }
 
     if ($(".sortable-column-text").length == 0) {
-        $.getScript(Site.siteroot + "/js/jquery/jquery.ui.mouse.min.js",
-            function() { $.getScript(Site.siteroot + "/js/jquery/jquery.ui.sortable.min.js",
-                setupSortable
-            ) }
-        );
+        setupSortable();
     }
 
     function setupSortable() {

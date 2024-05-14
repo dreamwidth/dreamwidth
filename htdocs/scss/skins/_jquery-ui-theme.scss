@@ -1,3 +1,8 @@
+.ui-menu-item-wrapper {
+        display: block;
+        margin: 1px;
+    }
+
 .ui-menu {
     background-color: $input-bg-color;
     border: 1px solid $input-border-color;
@@ -6,9 +11,11 @@
         color: $input-font-color;
     }
 
-    .ui-state-focus {
+    .ui-state-active {
         background-color: $primary-color;
         color: $primary-text-color;
+        border-color: $primary-color;
+        margin: 1px;
         @include radius();
     }
 }

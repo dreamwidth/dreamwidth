@@ -1,5 +1,5 @@
 /* INCLUDE:
-jquery: js/jquery/jquery.ui.widget.js
+jquery: js/jquery/jquery.ui.js
 jquery: js/jquery.quickreply.js
 */
 
