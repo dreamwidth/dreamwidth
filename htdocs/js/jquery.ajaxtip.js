@@ -14,7 +14,11 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
         }
     },
     _create: function() {
-        // we override completely because we want to control what events trigger this widget
+        // we override completely because we want to control what events trigger this widget.
+        // HEY!!!!!! If you're upgrading jquery-ui, that means you need to inspect the `_create`
+        // method on the builtin `ui.tooltip` widget and see if it's doing any new setup that the
+        // `open` method relies on, and if so copy it over, because we DO use the `open` method
+        // unchanged despite not calling `_super()` here. -NF
         var self = this;
 
         // attach (and remove) custom handlers
@@ -35,6 +39,15 @@ $.widget("dw.ajaxtip", $.ui.tooltip, {
 
         this.tooltips = {};
         this.requests = [];
+        // Append the aria-live region so tooltips announce correctly
+        this.liveRegion = $( "<div>" )
+            .attr( {
+                role: "log",
+                "aria-live": "assertive",
+                "aria-relevant": "additions"
+            } )
+            .appendTo( this.document[ 0 ].body );
+        this._addClass( this.liveRegion, null, "ui-helper-hidden-accessible" );
     },
     // close everything except the target (if it was a tooltip)
     closeinactive: function($target) {
