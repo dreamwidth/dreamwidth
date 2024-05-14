@@ -591,6 +591,8 @@ sub start_request {
 
             js/jquery.ajaxtip.js
             stc/jquery/jquery.ui.css
+            stc/jquery/jquery-ui.structure.css
+            stc/jquery/jquery-ui.theme.css
 
             js/jquery.hoverIntent.js
             js/jquery.contextualhover.js
