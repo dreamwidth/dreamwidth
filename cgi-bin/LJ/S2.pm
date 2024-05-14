@@ -196,10 +196,7 @@ sub make_journal {
 
     LJ::need_res(
         { group => "all" }, qw(
-            js/jquery/jquery.ui.js
             js/jquery.ajaxtip.js
-
-            stc/jquery/jquery.ui.css
             stc/jquery/jquery.ui.theme.smoothness.css
 
             stc/canary.css

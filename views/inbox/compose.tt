@@ -6,9 +6,7 @@
 
     ## tags (autocomplete)
     "js/vendor/jquery.vertigro.js"
-    "js/jquery/jquery.ui.js"
     "js/components/jquery.autocompletewithunknown.js"
-    "stc/jquery/jquery.ui.css"
     "stc/css/components/autocompletewithunknown.css"
 
     "js/jquery.inbox.js"

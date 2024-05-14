@@ -447,10 +447,8 @@ sub EntryPage {
 
     LJ::need_res(
         { group => "all" }, qw(
-            js/jquery/jquery.ui.js
             js/jquery.ajaxtip.js
             js/jquery.commentmanage.js
-            stc/jquery/jquery.ui.css
             stc/jquery.commentmanage.css
             )
     );
