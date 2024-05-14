@@ -8,6 +8,7 @@ on:
         description: Which service to deploy
         options:
         - web-canary
+        - web-shop
         - web-stable
         - web-unauthenticated
       tag:
