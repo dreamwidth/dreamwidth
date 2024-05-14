@@ -35,11 +35,11 @@ jQuery(function($) {
                     var post = $(this.form).serialize();
                     var sep = ( post == "" ) ? "" : "&";
                     var jqxhr = $.post( Site.siteroot + "/__rpc_entryoptions", post + sep + $.param(postPanels) )
-                        .success(function () {
+                        .done(function () {
                             stopEditing();
                             saveOriginalValues($inputs);
                         } )
-                        .error(function(response) {
+                        .fail(function(response) {
                             $("#js-settings-panel").html(response.responseText)
                         });
 

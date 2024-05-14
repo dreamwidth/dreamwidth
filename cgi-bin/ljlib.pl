@@ -530,7 +530,7 @@ sub start_request {
         # are the new style global items
         LJ::need_res(
             { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
-            'js/jquery/jquery-1.8.3.js',
+            'js/jquery/jquery-3.7.1.js',
             'js/foundation/vendor/custom.modernizr.js',
             'js/foundation/foundation/foundation.js',
             'js/foundation/foundation/foundation.topbar.js',
@@ -541,7 +541,7 @@ sub start_request {
             { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
 
             # jquery library is the big one, load first
-            'js/jquery/jquery-1.8.3.js',
+            'js/jquery/jquery-3.7.1.js',
 
             # the rest of the libraries
             qw(

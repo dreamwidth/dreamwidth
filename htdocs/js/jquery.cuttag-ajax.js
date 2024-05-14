@@ -10,14 +10,7 @@ var loadPending = 0;
 // pulled out of this file.
 function supportsSVG() {
             return !!document.createElementNS
-         && !!document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect
-         // FF 3.6.8 supports SVG but not inline
-         && !isOldFirefox();
-}
-
-function isOldFirefox () {
-           // check for 3.6.8 or older (hardware limitations cap some users here)
-           return !!(jQuery.browser.mozilla && jQuery.browser.version < '1.9.3')
+         && !!document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect;
 }
 
 if ( supportsSVG() ) {
@@ -212,7 +205,7 @@ $.widget("dw.cuttag_controls", {
         var self = this;
         var cuttags = $("span.cuttag[id]");
 
-        if ( cuttags.size() == 0 ) return;
+        if ( cuttags.length == 0 ) return;
 
         self.update();
     },

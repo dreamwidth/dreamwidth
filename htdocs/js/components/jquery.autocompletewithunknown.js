@@ -57,12 +57,6 @@
 
         _arrayToVal(self.tagslist, ele)
 
-        if ( $.browser.opera ) {
-            var keyCode = $.ui.keyCode;
-            if( e.which == keyCode.ENTER || e.which == keyCode.TAB )
-                self.justCompleted = true;
-        }
-
         // this prevents the default behavior of having the
         // form field filled with the autocompleted text.
         // Target the event type, to avoid issues with selecting using TAB
@@ -206,11 +200,6 @@
 
                     _handleComplete.apply( $(this), [event, { item: { value: $(event.currentTarget).val() } } ]);
 
-                    // workaround for autocompleting with TAB in opera
-                    if ( $.browser.opera && self.justCompleted ) {
-                        $(this).focus();
-                        self.justCompleted = false;
-                    }
                 })
                 .data("ui-autocomplete")._renderItem = function( ul, item ) {
                         return $( "<li></li>" )
@@ -237,8 +226,11 @@
                     self.uiAutocompleteInput.focus();
                 });
 
+                const tokenInputElement = "input."+self.options.tokenTextClass;
+                const removeTokenClass = "."+self.options.tokenRemoveClass;
+
                 $("span."+self.options.tokenTextClass, self.uiAutocomplete.get(0))
-                .live("click", function(event) {
+                .on("click", function(event) {
                     delete self.tagslist[$(this).text()];
                     _arrayToVal(self.tagslist, self.element);
                     var $input = $("<input type='text' />")
@@ -251,12 +243,14 @@
                     event.stopPropagation();
                 });
 
-                $("input."+self.options.tokenTextClass,self.uiAutocomplete.get(0))
-                .live("blur", function(event) {
+                $(tokenInputElement, self.uiAutocomplete.get(0))
+                .on("blur", function(event) {
                     $(self.element).trigger("autocomplete_edittext", [ $(this).closest("li"), $(this).val() ] );
                 });
 
-                $("."+self.options.tokenRemoveClass, self.uiAutocomplete.get(0)).live("click", function(e) {
+
+
+                $(tokenInputElement, self.uiAutocomplete.get(0)).on("click", removeTokenClass, function(e) {
                     var $token = $(this).closest("."+self.options.tokenClass);
 
                     delete self.tagslist[$token.children("."+self.options.tokenTextClass).text()];
@@ -265,11 +259,11 @@
 
                     e.preventDefault();
                     e.stopPropagation();
-                }).live("focus", function(event) {
+                }).on("focus", removeTokenClass, function(event) {
                     $(this).parent().addClass("focus");
-                }).live("blur", function(event) {
+                }).on("blur", removeTokenClass, function(event) {
                     $(this).parent().removeClass("focus");
-                }).live("keydown", function(event) {
+                }).on("keydown", removeTokenClass, function(event) {
                     if ( event.which == $.ui.keyCode.BACKSPACE ) {
                         event.preventDefault();
                         var $prevToken = $(this).closest("."+self.options.tokenClass).prev("."+self.options.tokenClass);
@@ -281,25 +275,6 @@
                             self.uiAutocompleteInput.focus();
                     } else if (event.which != $.ui.keyCode.TAB) {
                         $(this).siblings("."+self.options.tokenTextClass).click();
-                    }
-                });
-
-                // workaround for autocompleting with ENTER in opera
-                self.justCompleted = false;
-                $.browser.opera && $(self.element.get(0).form).bind("submit.autocomplete", function(e) {
-                    // this tries to make sure that we don't try to validate crossposting, if we only hit enter
-                    // to autocomplete. Workaround for opera.
-                    // Sort of like a lock, to mark which handler last prevented the form submission.
-                    // TODO: refactor this out into something that we're sure works. We are at the mercy
-                    // of the way that Opera and other browsers order the handlers.
-                    if ( self.element.data("preventedby") == self.options.id)
-                        self.element.data("preventedby", null)
-
-                    if( self.justCompleted ) {
-                        if ( ! self.element.data("preventedby") )
-                            self.element.data("preventedby", self.options.id);
-                        self.justCompleted = false;
-                        return false;
                     }
                 });
             },

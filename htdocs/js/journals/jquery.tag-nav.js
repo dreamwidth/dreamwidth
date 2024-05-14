@@ -102,7 +102,7 @@ jQuery(document).ready(function() {
 // properly, so the position is calculated accurately
 var hash = location.hash;
 if ( hash.indexOf( "#tagnav-" ) == 0 ) {
-    $(window).load(function() {
+    $(window).on("load", function() {
         var tagnav_tag = decodeURIComponent(hash.slice(8));
         var scrollPosition = $(window).scrollTop();
 
