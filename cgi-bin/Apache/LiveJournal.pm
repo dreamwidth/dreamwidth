@@ -854,7 +854,7 @@ sub trans {
         );
     };
 
-    # user domains
+    # user or shop domains
     if (
            $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/
         && $2 ne "www"
@@ -945,9 +945,17 @@ sub trans {
             return 404;    # bogus ljconfig
         }
         else {
-            my $view = $determine_view->( $user, "users", $uri );
-            return $view if defined $view;
-            return 404;
+            # if this is the shop, manage domain cookie if needed, else just render
+            if ( $user eq 'shop' ) {
+                if ( $uri eq '/__setdomsess' ) {
+                    return redir( $apache_r, LJ::Session->setdomsess_handler );
+                }
+            }
+            else {
+                my $view = $determine_view->( $user, "users", $uri );
+                return $view if defined $view;
+                return 404;
+            }
         }
     }
 
