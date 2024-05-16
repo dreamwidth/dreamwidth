@@ -6,7 +6,7 @@
     "js/vendor/pickadate.js/picker.time.js"
     "js/vendor/pickadate.js/legacy.js"
     "stc/css/components/pickadate/datetime.css"
-    "js/jquery.shop.js"
+    "js/shop.js"
 
 ) -%]
 

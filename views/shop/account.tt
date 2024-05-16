@@ -1,7 +1,6 @@
 [% sections.title =  dw.ml( ".title" ) %]
 [%- dw.need_res( { group => "foundation" },
-    "js/jquery.shop.js"
-
+    "js/shop.js"
 ) -%]
 <p><a href='[% site.shoproot %]'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
 

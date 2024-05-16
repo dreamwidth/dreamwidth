@@ -524,13 +524,28 @@ sub start_request {
     DW::Request->reset;
 
     # include standard files if this is web-context
-    if ( DW::Request->get ) {
+    if ( my $r = DW::Request->get ) {
+
+        # sorry everybody, this is a gross hack ... we need to not use jquery on the shop since
+        # jquery is pretty old and crufty and PCI compliance etc, so we're just not going to include
+        # it here if we're on that domain
+        my $NO_JQUERY = 0;
+        if (   $LJ::DOMAIN_SHOP
+            && $LJ::DOMAIN_SHOP ne $LJ::DOMAIN_WEB
+            && $r->host eq $LJ::DOMAIN_SHOP )
+        {
+            $NO_JQUERY = 1;
+        }
+
+        # start with jquery core unless we've disabled it
+        LJ::need_res( { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
+            'js/jquery/jquery-1.8.3.js' )
+            unless $NO_JQUERY;
 
         # note that we're calling need_res and advising that these items
         # are the new style global items
         LJ::need_res(
             { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
-            'js/jquery/jquery-1.8.3.js',
             'js/foundation/vendor/custom.modernizr.js',
             'js/foundation/foundation/foundation.js',
             'js/foundation/foundation/foundation.topbar.js',
@@ -603,8 +618,11 @@ sub start_request {
 
         LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'jquery' },
             @ctx_popup_libraries );
+
+        # foundation only gets this sometimes
         LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'foundation' },
-            @ctx_popup_libraries );
+            @ctx_popup_libraries )
+            unless $NO_JQUERY;
 
         # development JS
         LJ::need_res(
