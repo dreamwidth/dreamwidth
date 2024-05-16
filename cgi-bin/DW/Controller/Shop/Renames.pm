@@ -39,12 +39,12 @@ sub shop_renames_handler {
     my $GET    = $r->get_args;
     my $post   = $r->post_args;
 
-    return $r->redirect("$LJ::SITEROOT/shop")
+    return $r->redirect("$LJ::SHOPROOT")
         unless exists $LJ::SHOP{rename};
 
     # let's see what they're trying to do
     my $for = $GET->{for};
-    return $r->redirect("$LJ::SITEROOT/shop")
+    return $r->redirect("$LJ::SHOPROOT")
         unless $for && $for =~ /^(?:self|gift)$/;
 
     # ensure they have a user if it's for self
@@ -88,7 +88,7 @@ sub shop_renames_handler {
             $errors->add( '', $err ) unless $rv;
 
             unless ( $errors->exist ) {
-                return $r->redirect("$LJ::SITEROOT/shop");
+                return $r->redirect($LJ::SHOPROOT);
             }
         }
 

@@ -49,7 +49,7 @@ sub shop_randomgift_handler {
         my $username = $POST->{username};
         my $u        = LJ::load_user($username);
         if ( LJ::isu($u) ) {
-            return $r->redirect("$LJ::SITEROOT/shop/account?for=random&user=$username");
+            return $r->redirect("$LJ::SHOPROOT/account?for=random&user=$username");
         }
     }
 

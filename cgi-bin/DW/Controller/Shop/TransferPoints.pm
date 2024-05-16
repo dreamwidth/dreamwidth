@@ -157,7 +157,7 @@ sub shop_transfer_points_handler {
                         points   => $points,
                         from     => $remote->display_username,
                         sitename => $LJ::SITENAMESHORT,
-                        store    => "$LJ::SITEROOT/shop/",
+                        store    => "$LJ::SHOPROOT/",
                         reason   => $reason,
                     }
                 );

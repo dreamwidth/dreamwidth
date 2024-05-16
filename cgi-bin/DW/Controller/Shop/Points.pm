@@ -38,7 +38,7 @@ sub shop_points_handler {
     $rv->{errs} = \%errs;
 
     my $r = DW::Request->get;
-    return $r->redirect("$LJ::SITEROOT/shop") unless exists $LJ::SHOP{points};
+    return $r->redirect($LJ::SHOPROOT) unless exists $LJ::SHOP{points};
 
     if ( $r->did_post ) {
         my $args = $r->post_args;
@@ -80,7 +80,7 @@ sub shop_points_handler {
         # looks good, add it!
         unless ( keys %errs ) {
             $rv->{cart}->add_item($item);
-            return $r->redirect("$LJ::SITEROOT/shop");
+            return $r->redirect($LJ::SHOPROOT);
         }
 
     }

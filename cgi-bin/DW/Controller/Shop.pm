@@ -123,7 +123,7 @@ sub shop_receipt_handler {
         $DW::Shop::STATE_CLOSED   => 1,
         $DW::Shop::STATE_CHECKOUT => 1,
     );
-    return $r->redirect("$LJ::SITEROOT/shop/cart") if $invalid_state{ $cart->state };
+    return $r->redirect("$LJ::SHOPROOT/cart") if $invalid_state{ $cart->state };
 
     # set up variables for template
     my $vars = { cart => $cart };
@@ -220,12 +220,12 @@ sub shop_cancel_handler {
     }
 
     # cart must be in open state
-    return $r->redirect("$LJ::SITEROOT/shop/receipt?ordernum=$ordernum")
+    return $r->redirect("$LJ::SHOPROOT/receipt?ordernum=$ordernum")
         unless $cart->state == $DW::Shop::STATE_OPEN;
 
     # cancel payment and discard cart
     if ( $eng->cancel_order ) {
-        return $r->redirect("$LJ::SITEROOT/shop?newcart=1");
+        return $r->redirect("$LJ::SHOPROOT?newcart=1");
     }
 
     return error_ml("$scope.error.cantcancel");
@@ -247,15 +247,11 @@ sub shop_cart_handler {
 
         # checkout methods depend on which button was clicked
         my $cm;
-        $cm = 'gco'
-            if LJ::is_enabled('googlecheckout')
-            && ( $POST->{checkout_gco} || $POST->{'checkout_gco.x'} );
-        $cm = 'creditcard'      if $POST->{checkout_creditcard};
         $cm = 'checkmoneyorder' if $POST->{checkout_cmo} || $POST->{checkout_free};
         $cm = 'stripe'          if $POST->{checkout_stripe};
 
         # check out?
-        return $r->redirect("$LJ::SITEROOT/shop/checkout?method=$cm")
+        return $r->redirect("$LJ::SHOPROOT/checkout?method=$cm")
             if defined $cm;
 
         # remove selected items
@@ -271,7 +267,7 @@ sub shop_cart_handler {
 
         # discard entire cart
         if ( $POST->{'discard'} ) {
-            return $r->redirect("$LJ::SITEROOT/shop?newcart=1");
+            return $r->redirect("$LJ::SHOPROOT?newcart=1");
         }
 
     }
@@ -329,7 +325,7 @@ sub shop_confirm_handler {
     }
 
     # cart must be in open/checkout state
-    return $r->redirect("$LJ::SITEROOT/shop/receipt?ordernum=$ordernum")
+    return $r->redirect("$LJ::SHOPROOT/receipt?ordernum=$ordernum")
         unless $cart->state == $DW::Shop::STATE_OPEN || $cart->state == $DW::Shop::STATE_CHECKOUT;
 
     # check email early so we can re-render the form on error

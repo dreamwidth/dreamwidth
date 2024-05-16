@@ -38,7 +38,7 @@ sub shop_icons_handler {
     $rv->{errs} = \%errs;
 
     my $r = DW::Request->get;
-    return $r->redirect("$LJ::SITEROOT/shop") unless exists $LJ::SHOP{icons};
+    return $r->redirect($LJ::SHOPROOT) unless exists $LJ::SHOP{icons};
 
     if ( $r->did_post ) {
         my $args = $r->post_args;
@@ -80,7 +80,7 @@ sub shop_icons_handler {
         # looks good, add it!
         unless ( keys %errs ) {
             $rv->{cart}->add_item($item);
-            return $r->redirect("$LJ::SITEROOT/shop");
+            return $r->redirect($LJ::SHOPROOT);
         }
 
     }

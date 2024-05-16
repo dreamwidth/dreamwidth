@@ -45,7 +45,7 @@ sub shop_account_handler {
 
     # let's see what they're trying to do
     my $for = $GET->{for};
-    return $r->redirect("$LJ::SITEROOT/shop")
+    return $r->redirect("$LJ::SHOPROOT")
         unless $for && $for =~ /^(?:self|gift|new|random)$/;
 
     return error_ml("$scope.error.invalidself")
@@ -66,7 +66,7 @@ sub shop_account_handler {
                 $vars->{randomu} = $randomu;
             }
             else {
-                return $r->redirect("$LJ::SITEROOT/shop");
+                return $r->redirect("$LJ::SHOPROOT");
             }
         }
     }
@@ -193,7 +193,7 @@ sub shop_account_handler {
                 $errors->add( '', $err ) unless $rv;
 
                 unless ( $errors->exist ) {
-                    return $r->redirect("$LJ::SITEROOT/shop");
+                    return $r->redirect($LJ::SHOPROOT);
                 }
             }
         }
