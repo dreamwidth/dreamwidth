@@ -42,7 +42,7 @@ sub shop_randomgift_handler {
     my $POST   = $r->post_args;
 
     my $type = $GET->{type};
-    $type = 'P' unless $type eq 'C';
+    $type = 'P' unless $type && $type eq 'C';
     my $othertype = $type eq 'P' ? 'C' : 'P';
 
     if ( $r->did_post() ) {

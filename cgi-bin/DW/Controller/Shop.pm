@@ -53,6 +53,11 @@ sub _shop_controller {
         return ( 0, DW::Template->render_template( 'error.tt', { message => $err } ) );
     }
 
+    # if they aren't on the shop domain, redirect
+    if ( $LJ::DOMAIN_SHOP && $r->host ne $LJ::DOMAIN_SHOP ) {
+        return ( 0, $r->redirect("$LJ::SHOPROOT/") );
+    }
+
     # basic controller setup
     my ( $ok, $rv ) = controller(%args);
     return ( $ok, $rv ) unless $ok;

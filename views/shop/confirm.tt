@@ -1,7 +1,7 @@
 [% sections.title =  dw.ml( '.title' ) %]
 [% IF showform %]
      [% widget %]
-    <form method='post' action='[% site.root %]/shop/confirm?ordernum=[% ordernum %]'>
+    <form method='post' action='[% site.shoproot %]/confirm?ordernum=[% ordernum %]'>
     [% dw.form_auth() %]
     [% IF cart.total_cash > 0.00 %]
         <p>[% dw.ml( '.confirm', { sitename => site.name, total => "<strong>${cart.display_total_cash}</strong>" } ) %]</p>
@@ -23,7 +23,7 @@
     [% END %]
 
     <p>[% form.submit( name => 'confirm', value => dw.ml('.btn.confirm') ) %]
-        <a href='[% site.root %]/shop/cancel?ordernum=[% ordernum %]'>[% dw.ml('.btn.cancel') %]</a>
+        <a href='[% site.shoproot %]/cancel?ordernum=[% ordernum %]'>[% dw.ml('.btn.cancel') %]</a>
         </p>
     </form>
 
@@ -35,6 +35,6 @@
         <p>[% dw.ml( ".success.${paymentmethod}.processing", { sitecompany => "<strong>${site.company}</strong>", address => address } ) %]</p>
     [% END %]
 
-    <p><a href='[% site.root %]/shop/receipt?ordernum=[% ordernum %]'>[% dw.ml(".btn.viewreceipt") %]</a><br />
-    <a href='[% site.root %]/shop'>[% dw.ml('.btn.back') %]</a></p>
+    <p><a href='[% site.shoproot %]/receipt?ordernum=[% ordernum %]'>[% dw.ml(".btn.viewreceipt") %]</a><br />
+    <a href='[% site.shoproot %]'>[% dw.ml('.btn.back') %]</a></p>
 [% END %]

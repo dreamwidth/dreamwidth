@@ -1,10 +1,10 @@
 [% sections.title =  dw.ml( ".title.$type" ) %]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
-<p><a href='[% site.root %]/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
+<p><a href='[% site.shoproot %]'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
 
 [% IF randomu %]
-    <p>[% dw.ml( ".intro.$type", { aopts => "href='${site.root}/shop/randomgift?type=$type'", aopts2 => "href='${site.root}/shop/account?for=random'" } )  %]</p>
+    <p>[% dw.ml( ".intro.$type", { aopts => "href='${site.shoproot}/randomgift?type=$type'", aopts2 => "href='${site.shoproot}/account?for=random'" } )  %]</p>
     <p><strong>[% dw.ml('.label.username') %]</strong> [% randomu.ljuser_display %]<br />
     <strong>[% dw.ml('.label.createdate') %]</strong> [% mysql_time( randomu.timecreate ) %]<br />
     <strong>[% dw.ml('.label.lastupdated') %]</strong> [% mysql_time( randomu.timeupdate ).substr( 0, 10 ) %]<br />
@@ -21,13 +21,13 @@
     <form method='post'>
     [% form.hidden( name = 'username', value = randomu.user ) %]
     [% form.submit( value = dw.ml( '.form.submit', { username => randomu.user } ) ) %] 
-    <a href='[% site.root %]/shop/randomgift?type=[% type %]'>[% dw.ml( ".form.getanother.$type") %]</a>
-    &nbsp;&nbsp;<a href='[% site.root %]/shop/randomgift?type=[% othertype %]'>[% dw.ml( ".form.switchtype.$type") %]</a>
+    <a href='[% site.shoproot %]/randomgift?type=[% type %]'>[% dw.ml( ".form.getanother.$type") %]</a>
+    &nbsp;&nbsp;<a href='[% site.shoproot %]/randomgift?type=[% othertype %]'>[% dw.ml( ".form.switchtype.$type") %]</a>
     </form><br />
 [% ELSE %]
     <p>[% dw.ml( ".nousers.$type") %]</p>
-    &nbsp;&nbsp;<a href='[% site.root %]/shop/randomgift?type=[% othertype %]'>[% dw.ml( ".form.switchtype.$type") %]</a>
+    &nbsp;&nbsp;<a href='[% site.shoproot %]/randomgift?type=[% othertype %]'>[% dw.ml( ".form.switchtype.$type") %]</a>
 [% END %]
 
-<p><a href='[% site.root %]/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } )  %]</a></p>
+<p><a href='[% site.shoproot %]'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } )  %]</a></p>
 

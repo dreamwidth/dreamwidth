@@ -51,7 +51,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <p>[% '.about' | ml(sitename = site.nameshort) %]</p>
 
     [% IF ! has_points %]
-        [% '.about.nopoints' | ml(sitename = site.nameshort, aopts = "href='$site.root/shop/points'") %]
+        [% '.about.nopoints' | ml(sitename = site.nameshort, aopts = "href='$site.shoproot/points'") %]
     [% ELSE %]
 
         <p>[% '.about.points' | ml(points = has_points) %]</p>

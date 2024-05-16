@@ -950,6 +950,10 @@ sub trans {
                 if ( $uri eq '/__setdomsess' ) {
                     return redir( $apache_r, LJ::Session->setdomsess_handler );
                 }
+                else {
+                    $uri =~ s/\/$//;
+                    $uri = "/shop$uri";
+                }
             }
             else {
                 my $view = $determine_view->( $user, "users", $uri );
@@ -966,7 +970,7 @@ sub trans {
 
     # Attempt to handle a URI given the old-style LJ handler, falling back to
     # the new style Dreamwidth routing system.
-    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call();
+    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call( uri => $uri );
     return $ret if defined $ret;
 
     # API role

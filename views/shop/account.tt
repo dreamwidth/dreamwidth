@@ -3,7 +3,7 @@
     "js/jquery.shop.js"
 
 ) -%]
-<p><a href='[% site.root %]/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
+<p><a href='[% site.shoproot %]'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
 
 [% BLOCK print_opts %]
     [% FOREACH key IN opts.keys.nsort.reverse %]
@@ -159,4 +159,4 @@
     <p>[% form.submit( value = dw.ml('.btn.addtocart') ) %]</p>
     </form>
 
-    <p><a href='[% site.root %]/shop'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>
+    <p><a href='[% site.shoproot %]'>&lt;&lt; [% dw.ml( '.backlink', { sitename => site.nameshort } ) %]</a></p>

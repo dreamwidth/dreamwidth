@@ -30,7 +30,7 @@
 [% UNLESS freeusers.size || freecommunities.size || expusers.size  || lapsedusers.size %]
     <p>
     [% dw.ml( (paidusers ? '.none.free.text' : '.none.text'), { sitename => site.nameshort,
-                                    aopts => "href='${site.root}/shop/'" } ) %]
+                                    aopts => "href='${site.shoproot}'" } ) %]
     </p>
 [% END %]
 

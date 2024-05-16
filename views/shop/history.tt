@@ -11,10 +11,10 @@
         <td>[% cart.display_total %]</td>
         <td>[% dw.ml("/shop/receipt.tt.cart.paymentmethod.${cart.paymentmethod_visible}") %]</td>
         <td>[% dw.ml("/shop/receipt.tt.cart.status.${cart.state}") %]</td>
-        <td><a href='[% site.root %]/shop/receipt?ordernum=[% cart.ordernum %]'>[% dw.ml('.cart.details') %]</a></td>
+        <td><a href='[% site.shoproot %]/receipt?ordernum=[% cart.ordernum %]'>[% dw.ml('.cart.details') %]</a></td>
         </tr>
     [% END %]
 </table>
 [% ELSE %]
-    [% dw.ml( '.nocarts.extra', { aopts => "href='${site.root}/shop'" } ) %]
+    [% dw.ml( '.nocarts.extra', { aopts => "href='${site.shoproot}'" } ) %]
 [% END %]
