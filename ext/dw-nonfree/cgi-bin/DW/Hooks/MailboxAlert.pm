@@ -34,7 +34,7 @@ LJ::Hooks::register_hook(
                     'shop.admin.checkmoneyorder.body',
                     {
                         user       => LJ::isu($u) ? $u->display_name : $cart->email,
-                        receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
+                        receipturl => "$LJ::SHOPROOT/receipt?ordernum=" . $cart->ordernum,
                     }
                 ),
             }

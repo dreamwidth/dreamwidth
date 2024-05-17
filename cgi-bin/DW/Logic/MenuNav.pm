@@ -263,28 +263,28 @@ sub get_menu_navigation {
             name  => 'shop',
             items => [
                 {
-                    url       => "$LJ::SITEROOT/shop",
+                    url       => "$LJ::SHOPROOT",
                     text      => "menunav.shop.paidtime2",
                     text_opts => { sitenameshort => $LJ::SITENAMESHORT },
                     display   => LJ::is_enabled('payments') ? 1 : 0,
                 },
                 {
-                    url     => "$LJ::SITEROOT/shop/history",
+                    url     => "$LJ::SHOPROOT/history",
                     text    => "menunav.shop.history",
                     display => LJ::is_enabled('payments') && $loggedin ? 1 : 0,
                 },
                 {
-                    url     => "$LJ::SITEROOT/shop/gifts",
+                    url     => "$LJ::SHOPROOT/gifts",
                     text    => "menunav.shop.gifts",
                     display => LJ::is_enabled('payments') && $loggedin ? 1 : 0,
                 },
                 {
-                    url     => "$LJ::SITEROOT/shop/randomgift",
+                    url     => "$LJ::SHOPROOT/randomgift",
                     text    => "menunav.shop.sponsor",
                     display => LJ::is_enabled('payments') ? 1 : 0,
                 },
                 {
-                    url     => "$LJ::SITEROOT/shop/transferpoints",
+                    url     => "$LJ::SHOPROOT/transferpoints",
                     text    => "menunav.shop.transferpoints",
                     display => LJ::is_enabled('payments') && $loggedin_person ? 1 : 0,
                 },

@@ -194,7 +194,7 @@ sub expire_user {
                         {
                             touser   => $maintu->display_name,
                             commname => $u->display_name,
-                            shopurl  => "$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user,
+                            shopurl  => "$LJ::SHOPROOT/account?for=gift&user=" . $u->user,
                             sitename => $LJ::SITENAME,
                         }
                     ),
@@ -214,7 +214,7 @@ sub expire_user {
                     "shop.expiration.user.0.body",
                     {
                         touser   => $u->display_name,
-                        shopurl  => "$LJ::SITEROOT/shop/account?for=self",
+                        shopurl  => "$LJ::SHOPROOT/account?for=self",
                         sitename => $LJ::SITENAME,
                     }
                 ),
@@ -273,7 +273,7 @@ sub warn_user {
                         {
                             touser   => $maintu->display_name,
                             commname => $u->display_name,
-                            shopurl  => "$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user,
+                            shopurl  => "$LJ::SHOPROOT/account?for=gift&user=" . $u->user,
                             sitename => $LJ::SITENAME,
                         }
                     ),
@@ -295,7 +295,7 @@ sub warn_user {
                     "shop.expiration.user.$bodytype.body",
                     {
                         touser   => $u->display_name,
-                        shopurl  => "$LJ::SITEROOT/shop/account?for=self",
+                        shopurl  => "$LJ::SHOPROOT/account?for=self",
                         sitename => $LJ::SITENAME,
                     }
                 ),
