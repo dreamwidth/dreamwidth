@@ -316,6 +316,15 @@ sub resolve_path_for_uri {
 sub trans {
     my $apache_r = $_[0];
 
+    # include some modern security headers for best practices; we put these on everything
+    # so that no matter how a user reaches us, they get the configs
+    $apache_r->headers_out->{'X-Content-Type-Options'} = 'nosniff';
+    if ( $LJ::PROTOCOL eq 'https' ) {
+        # TODO: Raise HSTS timer here, but I want it low while I test to make sure that
+        # the world doesn't implode; suggested value is 31536000.
+        $apache_r->headers_out->{'Strict-Transport-Security'} = 'max-age=300; includeSubDomains';
+    }
+
     # don't deal with subrequests or OPTIONS
     return DECLINED
         if defined $apache_r->main || $apache_r->method_number == M_OPTIONS;
