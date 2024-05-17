@@ -78,7 +78,7 @@ sub shop_account_handler {
                 $vars->{randomu} = $randomu;
             }
             else {
-                return $r->redirect("$LJ::SITEROOT/shop");
+                return $r->redirect("$LJ::SHOPROOT");
             }
         }
     }
