@@ -57,7 +57,7 @@
                                                        "href=${site.root}/support/faqbrowse?faqid=4" ) } ) %]</p>
             <ul id="create-links">
             [% IF use_payments %]
-                <li><a href="[% site.root %]/shop/account?for=new">[% dw.ml('.create.paymentlink2') %]</a></li>
+                <li><a href="[% site.shoproot %]/account?for=new">[% dw.ml('.create.paymentlink2') %]</a></li>
             [% END %]
             [% IF use_acct_codes %]
                 <li class="lastli"><a href="[% site.root %]/create" onClick="return nocreatejs || displayCreateDiv(&quot;invite&quot;);">[% dw.ml('.create.invitelink') %]</a></li>

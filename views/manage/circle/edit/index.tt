@@ -62,7 +62,7 @@
             [% # different message if account upgrade is possible %]
             [% warn_str = ( acttype == "seed" || acttype == "premium" ) ? 
                     '.addrelationships.warning.noupgrade' : '.addrelationships.warning.canupgrade' %]
-            <p> [% dw.ml(warn_str,  { maxnum => u.count_maxfriends, aopts => "href='${site.root}/shop/account?for=self'" } ) %]</p>
+            <p> [% dw.ml(warn_str,  { maxnum => u.count_maxfriends, aopts => "href='${site.shoproot}/account?for=self'" } ) %]</p>
         [% END %]
 
         <table id='addfriends' class="table">

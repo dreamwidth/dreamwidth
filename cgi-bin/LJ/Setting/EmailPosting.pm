@@ -44,7 +44,7 @@ sub option {
             $ret .= " "
                 . $class->ml(
                 'setting.emailposting.notavailable.upgrade',
-                { aopts => "href='$LJ::SITEROOT/shop'" }
+                { aopts => "href='$LJ::SHOPROOT'" }
                 );
         }
     }
