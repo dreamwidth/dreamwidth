@@ -1,0 +1,71 @@
+.checkbox-multiselect {
+    border: .1em solid;
+    max-height: 80vh;
+    overflow: auto;
+    margin-bottom: 1rem;
+
+    .checkbox-multiselect-item {
+        display: flex;
+        align-items: stretch;
+        position: relative 
+    }
+
+    .checkbox-multiselect-item:first-child {
+        padding: 0.5rem;
+    }
+
+
+    input {
+        z-index: 2;
+        flex: 0 0 auto;
+        margin: 0.5rem;
+    }
+
+    input[type="checkbox"] + label {
+        padding: .5rem;
+        width: 100%;
+        margin: 0;
+    }
+
+     // TODO: Someday, in the far future from July 2023, hopefully
+     // we will have :has() in all browsers. Until then, this hack
+     // puts a background color behind the checkbox when it's checked.
+     input:checked~label::before { 
+        position: absolute; 
+        top: 0; 
+        bottom: 0; 
+        left: 0; 
+        right: 0; 
+        content: ""; 
+        z-index: 1;
+        width: 2em;
+        height: 100%;
+    }
+
+    .filtered {
+        display: none !important;
+    }
+
+
+}
+
+.checkbox-multiselect-wrapper {
+    .no-js {
+        display: none;
+    }
+
+    fieldset.switch{
+        margin: 0;
+        display: inline-block;
+
+        input[type="checkbox"] {
+            margin: 0;
+        }
+    }
+
+    button, .button {
+        margin: 0 0 1rem;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+}
