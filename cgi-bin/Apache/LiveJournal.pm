@@ -315,11 +315,13 @@ sub resolve_path_for_uri {
 # trans does all the things. This is the initial entrypoint for all requests.
 sub trans {
     my $apache_r = $_[0];
+    my $dw_r     = DW::Request->get;
 
     # include some modern security headers for best practices; we put these on everything
     # so that no matter how a user reaches us, they get the configs
     $apache_r->headers_out->{'X-Content-Type-Options'} = 'nosniff';
     if ( $LJ::PROTOCOL eq 'https' ) {
+
         # TODO: Raise HSTS timer here, but I want it low while I test to make sure that
         # the world doesn't implode; suggested value is 31536000.
         $apache_r->headers_out->{'Strict-Transport-Security'} = 'max-age=300; includeSubDomains';
@@ -363,7 +365,7 @@ sub trans {
 
         # handle uniq cookies
         # this will ensure that we have a correct cookie value
-        # and also add it to $apache_r->notes
+        # and also add it to request notes
         LJ::UniqCookie->ensure_cookie_value;
 
         # apply sysban block if applicable
@@ -566,7 +568,7 @@ sub trans {
                 my $returl = "$LJ::PROTOCOL://$host" . $apache_r->uri . "$args_wq";
 
                 LJ::set_active_journal($u);
-                $apache_r->notes->{returl} = $returl;
+                $dw_r->note( returl => $returl );
 
                 unless (
                     DW::Logic::AdultContent->user_confirmed_page(
@@ -579,9 +581,8 @@ sub trans {
                 {
                     my $adult_content_handler = sub {
                         $apache_r->handler("perl-script");
-                        $apache_r->notes->{adult_content_type} = $_[0];
-                        $apache_r->push_handlers(
-                            PerlHandler => sub { adult_interstitial( $_[0] ) }, );
+                        $dw_r->note( adult_content_type => $_[0] );
+                        $apache_r->push_handlers( PerlHandler => sub { adult_interstitial() }, );
                         return OK;
                     };
 
@@ -627,7 +628,7 @@ sub trans {
 
         if ( $opts->{'mode'} eq "profile" ) {
 
-            $apache_r->notes->{_journal} = $opts->{user};
+            $dw_r->note( _journal => $opts->{user} );
 
             # this is the notes field that all other s1/s2 pages use.
             # so be consistent for people wanting to read it.
@@ -636,7 +637,7 @@ sub trans {
             # passed to the profile BML page, whereas this one only
             # works if journalid exists.
             if ( my $u = LJ::load_user( $opts->{user} ) ) {
-                $apache_r->notes->{journalid} = $u->{userid};
+                $dw_r->note( journalid => $u->{userid} );
             }
 
             return DW::Routing->call( uri => '/profile' );
@@ -1192,19 +1193,19 @@ sub load_file_for_concat {
 }
 
 sub adult_interstitial {
-    my ( $apache_r, %opts ) = @_;
-    my $int_redir = DW::Routing->call( uri => $apache_r->notes->{adult_content_type}, );
 
-    if ( defined $int_redir ) {
+    # if this is not set, bail
+    return
+        unless defined DW::Routing->call( uri => DW::Request->get->note->('adult_content_type') );
 
-        # we got a match; clear the request cache and return DECLINED.
-        LJ::start_request();
-        return DECLINED;
-    }
+    # we got a match; clear the request cache and return DECLINED.
+    LJ::start_request();
+    return DECLINED;
 }
 
 sub journal_content {
     my $apache_r = shift;
+    my $dw_r     = DW::Request->get;
     my $uri      = $apache_r->uri;
     my %GET      = LJ::parse_args( $apache_r->args );
 
@@ -1255,7 +1256,7 @@ sub journal_content {
 
         # reset all cookies
         foreach my $dom ( "", $LJ::DOMAIN, $LJ::COOKIE_DOMAIN ) {
-            DW::Request->get->add_cookie(
+            $dw_r->add_cookie(
                 name     => 'ljsession',
                 expires  => LJ::time_to_cookie(1),
                 domain   => $dom ? $dom : undef,
@@ -1296,7 +1297,7 @@ sub journal_content {
         'ljentry'                   => $RQ{'ljentry'},
     };
 
-    $apache_r->notes->{view} = $RQ{mode};
+    $dw_r->note( view => $RQ{mode} );
     my $user = $RQ{'user'};
 
     my $html = LJ::make_journal( $user, $RQ{'mode'}, $remote, $opts );
@@ -1438,7 +1439,6 @@ sub journal_content {
 
     if ($do_gzip) {
         my $pre_len = $length;
-        $apache_r->notes->{bytes_pregzip}            = $pre_len;
         $html                                        = Compress::Zlib::memGzip($html);
         $length                                      = length($html);
         $apache_r->headers_out->{'Content-Encoding'} = 'gzip';

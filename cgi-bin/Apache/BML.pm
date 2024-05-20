@@ -422,7 +422,6 @@ sub handler {
         $do_gzip = 0 if $length < 500;
         if ($do_gzip) {
             my $pre_len = $length;
-            $apache_r->notes->{"bytes_pregzip"}          = $pre_len;
             $html                                        = Compress::Zlib::memGzip($html);
             $length                                      = length($html);
             $apache_r->headers_out->{'Content-Encoding'} = 'gzip';

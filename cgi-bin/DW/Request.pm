@@ -170,11 +170,6 @@ Returns the method.
 Set or get a note.
 This must be a plain string.
 
-=head2 C<< $r->pnote( $note[, $value] ) >>
-
-Set or get a Perl note.
-This can be any perl ref or string.
-
 =head2 C<< $r->post_args >>
 
 Return the POST arguments.
@@ -251,7 +246,7 @@ Turn off caching for this resource.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2008-2013 by Dreamwidth Studios, LLC.
+Copyright (c) 2008-2024 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference

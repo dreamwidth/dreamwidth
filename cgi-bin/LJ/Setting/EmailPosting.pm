@@ -42,10 +42,8 @@ sub option {
         $ret .= $class->ml('setting.emailposting.notavailable');
         if ( LJ::is_enabled('payments') ) {
             $ret .= " "
-                . $class->ml(
-                'setting.emailposting.notavailable.upgrade',
-                { aopts => "href='$LJ::SHOPROOT'" }
-                );
+                . $class->ml( 'setting.emailposting.notavailable.upgrade',
+                { aopts => "href='$LJ::SHOPROOT'" } );
         }
     }
 

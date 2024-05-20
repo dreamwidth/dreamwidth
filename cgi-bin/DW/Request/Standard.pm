@@ -27,9 +27,9 @@ use HTTP::Response;
 use HTTP::Status qw//;
 
 use fields (
-    'req',    # The HTTP::Request object
-    'res',    # a HTTP::Response object
-    'notes',  # storage for request-lifetime data
+    'req',      # The HTTP::Request object
+    'res',      # a HTTP::Response object
+    'notes',    # storage for request-lifetime data
 
     # we have to parse these out ourselves
     'uri',
