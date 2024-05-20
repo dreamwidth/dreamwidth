@@ -171,17 +171,6 @@ sub handler {
         }
     }
 
-    # check if there are overrides in pnotes
-    # wrapped in eval because Apache::FakeRequest doesn't have
-    # pnotes support (as of 2004-04-26 at least)
-    eval {
-        if ( my $or = $apache_r->pnotes('BMLEnvOverride') ) {
-            while ( my ( $k, $v ) = each %$or ) {
-                $env->{$k} = $v;
-            }
-        }
-    };
-
     # environment loaded at this point
 
     if ( $env->{'AllowOldSyntax'} ) {

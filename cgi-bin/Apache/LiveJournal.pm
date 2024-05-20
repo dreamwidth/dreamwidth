@@ -342,13 +342,6 @@ sub trans {
     # a trace to get the LJ cookies in the echo)
     return FORBIDDEN if $apache_r->method_number == M_TRACE;
 
-    # If the configuration says to log statistics and GTop is available, mark
-    # values before the request runs so it can be turned into a delta later
-    if ( my $gtop = LJ::gtop() ) {
-        $apache_r->pnotes->{gtop_cpu} = $gtop->cpu;
-        $apache_r->pnotes->{gtop_mem} = $gtop->proc_mem($$);
-    }
-
     LJ::start_request();
     LJ::Procnotify::check();
     S2::set_domain('LJ');
@@ -573,8 +566,6 @@ sub trans {
                 my $returl = "$LJ::PROTOCOL://$host" . $apache_r->uri . "$args_wq";
 
                 LJ::set_active_journal($u);
-                $apache_r->pnotes->{user}  = $u;
-                $apache_r->pnotes->{entry} = $entry if $entry;
                 $apache_r->notes->{returl} = $returl;
 
                 unless (

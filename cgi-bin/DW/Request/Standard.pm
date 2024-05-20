@@ -29,8 +29,7 @@ use HTTP::Status qw//;
 use fields (
     'req',    # The HTTP::Request object
     'res',    # a HTTP::Response object
-    'notes',
-    'pnotes',
+    'notes',  # storage for request-lifetime data
 
     # we have to parse these out ourselves
     'uri',
@@ -51,7 +50,6 @@ sub new {
     $self->{res}         = HTTP::Response->new(200);
     $self->{uri}         = $self->{req}->uri;
     $self->{notes}       = {};
-    $self->{pnotes}      = {};
     $self->{read_offset} = 0;
 
     # now stick ourselves as the primary request ...
@@ -124,17 +122,6 @@ sub note {
     }
     else {
         return $self->{notes}->{ $_[1] } = $_[2];
-    }
-}
-
-# searches for a given pnote and returns the value, or sets it
-sub pnote {
-    my DW::Request::Standard $self = $_[0];
-    if ( scalar(@_) == 2 ) {
-        return $self->{pnotes}->{ $_[1] };
-    }
-    else {
-        return $self->{pnotes}->{ $_[1] } = $_[2];
     }
 }
 
