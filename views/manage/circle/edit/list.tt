@@ -26,7 +26,7 @@
         <tr role="row">
         [%# name %]
         <td scope='col' abbr='[% other_u.display_username %]' role="cell" class="name-cell">
-            [% form.hidden( name => "editfriend_edit_${uid}_user", selected => 1 ) %]
+            [% form.hidden( name => "editfriend_edit_${uid}_user", value => 1 ) %]
             [% other_u.ljuser_display %]
             <br /><span style='font-size: smaller;'>[% other_u.last_updated %]</span>
         </td>
