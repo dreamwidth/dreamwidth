@@ -75,7 +75,7 @@ sub do_request {
             }
         },
         setup_dw_request => sub {
-            $_[0]->pnote( $_ => $data->{$_} ) foreach %$data;
+            $_[0]->note( $_ => $data->{$_} ) foreach %$data;
         },
         routing_data => \%routing_data,
     );
