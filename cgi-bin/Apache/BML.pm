@@ -1417,7 +1417,7 @@ sub set_scheme {
         my $engine = $dw_scheme->engine;
         if ( $engine eq 'tt' ) {
             $scheme = 'tt_runner';
-            DW::Request->get->pnote( actual_scheme => $dw_scheme );
+            DW::Request->get->note( actual_scheme => $dw_scheme );
         }
         elsif ( !$dw_scheme->supports_bml ) {
             die "Unknown scheme engine $engine for $scheme";
