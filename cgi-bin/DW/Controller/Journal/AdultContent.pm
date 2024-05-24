@@ -55,7 +55,7 @@ sub _extract_from_request {
     my $post = $r->post_args;
 
     return ( $r->note('returl') || $post->{ret} || $get->{ret},
-        $r->note('entry'), $r->note('user'), );
+        $r->pnote('entry'), $r->pnote('user'), );
 }
 
 sub adult_concepts_handler {

@@ -171,6 +171,17 @@ sub handler {
         }
     }
 
+    # check if there are overrides in pnotes
+    # wrapped in eval because Apache::FakeRequest doesn't have
+    # pnotes support (as of 2004-04-26 at least)
+    eval {
+        if ( my $or = $apache_r->pnotes('BMLEnvOverride') ) {
+            while ( my ( $k, $v ) = each %$or ) {
+                $env->{$k} = $v;
+            }
+        }
+    };
+
     # environment loaded at this point
 
     if ( $env->{'AllowOldSyntax'} ) {
@@ -422,6 +433,7 @@ sub handler {
         $do_gzip = 0 if $length < 500;
         if ($do_gzip) {
             my $pre_len = $length;
+            $apache_r->notes->{"bytes_pregzip"}          = $pre_len;
             $html                                        = Compress::Zlib::memGzip($html);
             $length                                      = length($html);
             $apache_r->headers_out->{'Content-Encoding'} = 'gzip';
@@ -1417,7 +1429,7 @@ sub set_scheme {
         my $engine = $dw_scheme->engine;
         if ( $engine eq 'tt' ) {
             $scheme = 'tt_runner';
-            DW::Request->get->note( actual_scheme => $dw_scheme );
+            DW::Request->get->pnote( actual_scheme => $dw_scheme );
         }
         elsif ( !$dw_scheme->supports_bml ) {
             die "Unknown scheme engine $engine for $scheme";
