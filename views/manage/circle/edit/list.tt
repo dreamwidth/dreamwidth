@@ -110,13 +110,14 @@
         [% ELSIF type == "comms" %]
             [% jointext = dw.ml('.circle.member') %]
             [% joinvals = {
-                    name => "editfriend_edit_$uid_join",
-                    id => "editfriend_edit_$uid_join",
-                    value => 1,} 
+                    name => "editfriend_edit_${uid}_join",
+                    id => "editfriend_edit_${uid}_join",
+                    value => 1,
+                    autocomplete => "off"} 
             %]
 
             [%# check membership %]
-            [% IF is_member_of_userid(uid) %]
+            [% IF is_member_of_userid.$uid %]
                 [% SET jointext = dw.ml('.circle.admin') IF u.can_manage(other_u) %]
                 [% joinvals.selected = 1 %]
                 [% joinvals.disabled = u.can_leave( other_u ) ? 0 : 1 %]
