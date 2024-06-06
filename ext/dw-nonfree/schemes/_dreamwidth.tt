@@ -30,7 +30,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <li><a href="[% site.root %]/site/">[% 'sitescheme.footer.sitemap' | ml %]</a> &bull; </li>
     <li><a href="[% site.root %]/site/suggest">[% 'sitescheme.footer.suggestion' | ml %]</a> &bull; </li>
     <li><a href="[% site.root %]/site/opensource">[% 'tropo.footer.opensource' | ml %]</a> &bull; </li>
-    <li><a href="[% site.root %]/support">[% 'sitescheme.accountlinks.help' | ml %]</a></li>
+    <li><a href="[% site.root %]/support/">[% 'sitescheme.accountlinks.help' | ml %]</a></li>
 </ul>
 <p>[% 'sitescheme.footer.info' | ml %]</p>
 [% IF site.is_canary %]
