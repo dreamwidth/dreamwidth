@@ -1,15 +1,15 @@
 ;; -*- coding: utf-8 -*-
-.button.editpoll=Edit Poll
+.button.editpoll2=← Edit Poll
 
 .button.insert=Insert Question
 
-.button.postpoll=Post Poll
+.button.postpoll2=Post Poll →
 
-.button.preview=Preview Poll
+.button.preview2=Preview Poll →
 
-.button.seecode=Display Code
+.button.seecode2=Display Code →
 
-.button.startover=Start Over
+.button.startover2=← Start Over
 
 .checknumber=Require at least [[min]] but no more than [[max]] selections.
 
@@ -25,11 +25,11 @@
 
 .error.notext=You must include a question
 
-.error.parsing=Error parsing poll:
+.error.parsing2=Error parsing poll: [[err]]
 
-.error.pqmaxlengthinvalid=Max length must be between [[min]] and[[max]].
+.error.pqmaxlengthinvalid2=Max length must be between [[min]] and [[max]].
 
-.error.pqsizeinvalid=Size must be between [[min]] and[[max]].
+.error.pqsizeinvalid2=Size must be between [[min]] and [[max]].
 
 .error.scalemaxlessmin=Scale 'from' value must be less than 'to' value.
 
@@ -49,7 +49,7 @@
 
 .options.limitreached2=[You've reached the maximum number of responses you can add.]
 
-.pollname=Poll Name: <em>(optional)</em>
+.pollname2=Poll Name (optional) 
 
 .preview.desc=Below is a preview of how your poll will look once it is placed on your journal.  Use the buttons below to go back and make changes, or to post the poll.
 
@@ -66,6 +66,12 @@
 .scale.lowlabel=Low label:
 
 .scale.highlabel=High label:
+
+.scale.from=From
+
+.scale.to=to
+
+.scale.by=in steps of
 
 .seecode.desc=This is the code for your poll. Use the buttons below to go back and make changes, or to post it to your journal.
 

@@ -510,6 +510,8 @@ sub _process_errors {
 
     my @errors;
     @errors = $self->{errors}->get( $args->{name} ) if $self->{errors};
+    push @errors, ( { "message" => $args->{error} } )
+        if exists $args->{error} && length $args->{error};
 
     $args->{class} .= " error" if @errors;
 

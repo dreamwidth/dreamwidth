@@ -192,6 +192,7 @@ sub make_authas_select {
 
     my $authas = $opts->{authas} || $u->user;
     my $button = $opts->{button} || $BML::ML{'web.authas.btn'};
+    my $label  = $opts->{label}  || $BML::ML{'web.authas.select.label'};
 
     my $foundation = $opts->{foundation} || 0;
 
@@ -217,7 +218,7 @@ sub make_authas_select {
         else {
             $ret = $foundation
                 ? q{<div class='row collapse'><div class='columns small-3 medium-1'><label class='inline'>}
-                . LJ::Lang::ml('web.authas.select.label')
+                . $label
                 . q{</label></div>}
                 . q{<div class='columns small-9 medium-11'><div class='row'>}
                 . q{<div class="columns small-8 medium-4">}
@@ -239,40 +240,6 @@ sub make_authas_select {
         }
 
         return $ret;
-    }
-
-    # no communities to choose from, give the caller a hidden
-    return LJ::html_hidden( authas => $authas );
-}
-
-# <LJFUNC>
-# name: LJ::make_postto_select
-# des: Given a u object and some options, determines which users the given user
-#      can post to.  If the list exists, returns a select list and a submit
-#      button with labels.  Otherwise returns a hidden element.
-# returns: string of HTML elements
-# args: u, opts?
-# des-opts: Optional.  Valid keys are:
-#           'authas' - current user, gets selected in drop-down;
-#           'label' - label to go before form elements;
-#           'button' - button label for submit button;
-# </LJFUNC>
-sub make_postto_select {
-    my ( $u, $opts ) = @_;
-
-    my $authas = $opts->{authas} || $u->user;
-    my $label  = $opts->{label}  || $BML::ML{'web.postto.label'};
-    my $button = $opts->{button} || $BML::ML{'web.postto.btn'};
-
-    my @list = ( $u, $u->posting_access_list );
-
-    # only do most of form if there are options to select from
-    if ( @list > 1 ) {
-        return "$label "
-            . LJ::html_select( { name => 'authas', selected => $authas },
-            map { $_->user, $_->user } @list )
-            . " "
-            . LJ::html_submit( undef, $button );
     }
 
     # no communities to choose from, give the caller a hidden
