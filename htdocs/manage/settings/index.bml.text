@@ -13,8 +13,6 @@
 
 .bdayreminder=Receive email reminders for the birthdays of people in your Circle.
 
-.btn.deleteinactive2=Delete all inactive tracked items
-
 .btn.save=Save
 
 .cat.account=Account
@@ -56,8 +54,6 @@
 .commentpage=View comment pages in your own journal style
 
 .commentpage.text=When you follow a comment link from your Reading page, you can view that comment page in your own journal style.
-
-.confirm.deleteinactive2=Are you sure you want to delete all inactive tracked items?
 
 .contextualhover=Show contextual hover menu
 
@@ -181,10 +177,6 @@
 .title.anon=Account Settings
 
 .title.page=Account Settings for [[user]]
-
-.user=View notifications for user:
-
-.user.submit=View
 
 .viewingadult=Collapse content marked as inappropriate for:
 
