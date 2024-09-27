@@ -105,7 +105,7 @@ sub fix_link {
     $link->{image} = "$LJ::IMGPREFIX/silk/profile/$link->{image}"
         if $link->{image} && $link->{image} !~ /^$LJ::IMGPREFIX/;
     $link->{url} = "$LJ::SITEROOT/$link->{url}"
-        if $link->{url} && $link->{url} !~ /^$LJ::SITEROOT/;
+        if $link->{url} && $link->{url} !~ /^(?:$LJ::SITEROOT|$LJ::SHOPROOT)/;
 
     if ( my $ml = delete $link->{title_ml} ) {
         $link->{title} = LJ::Lang::ml($ml);
@@ -557,7 +557,9 @@ sub buyaccount {
         $type = 'comm' if $u->is_community;
 
         my $link = {
-            url      => $remote_is_u ? "shop/account?for=self" : "shop/account?for=gift&user=$user",
+            url => $remote_is_u
+            ? "$LJ::SHOPROOT/account?for=self"
+            : "$LJ::SHOPROOT/account?for=gift&user=$user",
             image    => 'buy_account.png',
             text_ml  => "userlinkbar.buyaccount.$type",
             title_ml => "userlinkbar.buyaccount.title.$type",
