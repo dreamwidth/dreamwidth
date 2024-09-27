@@ -101,9 +101,9 @@ html body
 
 /* Make sure all form elements use default colors and control strip fonts */
 #lj_controlstrip select,
-#lj_controlstrip input#xc_user,
-#lj_controlstrip input#xc_password,
-#lj_controlstrip input#xc_remember,
+#lj_controlstrip input#login_user,
+#lj_controlstrip input#login_password,
+#lj_controlstrip input#login_remember,
 #lj_controlstrip input#search
 {
     font-family: Arial, sans-serif;
@@ -115,17 +115,33 @@ html body
     margin: 0;
 }
 
-#lj_controlstrip input#xc_user,
-#lj_controlstrip input#xc_password
+#lj_controlstrip input#login_submit {
+    margin-left:0.5em;
+}
+
+#lj_controlstrip input#login_user,
+#lj_controlstrip input#login_password
 {
     width: 7em;
 }
 
-#lj_controlstrip input#xc_remember
+#lj_controlstrip input#login_remember_me
 {
     height: 10px;
     width: 10px;
 }
+
+#lj_controlstrip #login-other ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
+#lj_controlstrip #login-other li {
+    display: inline;
+}
+
 
 #lj_controlstrip_statustext
 {

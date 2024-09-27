@@ -3,6 +3,7 @@
 Login page.
 
 Authors:
+    Momiji <momijizukamori@gmail.com>
     Allen Petersen <allen@suberic.net>
 
 Copyright (c) 2015 by Dreamwidth Studios, LLC.
@@ -12,27 +13,92 @@ under the same terms as Perl itself.  For a copy of the license, please
 reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
+[% IF remote %]
+    [% sections.title = dw.ml(".loggedin.head2", { 'sitename' => site.nameshort}) %]
+
+    <p> [% dw.ml(".loggedin.text2", { 'username' => remote.user} ) %]</p>
+    [% IF remote.is_identity && !remote.is_validated %]
+      <div class="alert">[% dw.ml('.loggedin.openidemail', { aopts1 => "href='${site.root}/changeemail'", aopts2 => "href='${site.root}/register'" }) %]</div>
+    [% END %]
+
+    [% IF continue_to %]
+        <div style='margin-left: 36px'>
+        <h2><a href="[% continue_to | html %]">
+        [% dw.ml( '.loggedin.continueto', { 'continue_url' => html ( continue_to ) } ) %]</a></h2>
+        </div>
+        <br />
+    [% END %]
+
+   [% UNLESS remote.is_identity %]
+        <div style='float: left; padding: 1em 0.5em 0;'>
+        [% dw.img( 'post', '' ) %]</div>
+        <div style='margin-left: 36px;'>
+        <h2><a href='[% site.root %]/update'>[% dw.ml('.loggedin.suggesthead1') %]</a></h2>
+        [% dw.ml('.loggedin.suggest1') %]<br />&nbsp;
+        </div>
+    [% END %]
+
+    <div style='float: left; padding: 1em 0.5em 0;'>
+    [% dw.img( 'id_user', '', { alt => '' } ) %]</div>
+    <div style='margin-left: 36px'>
+    <h2><a href='[% remote.journal_base %]/read'>[% dw.ml('.loggedin.suggesthead2') %]</a></h2>
+    [% dw.ml('.loggedin.suggest2') %]<br />&nbsp;</div>
+    <br />
+
+    <form action='login' method='post' id='login'>
+    [% dw.form_auth() %]
+    <h2>[% dw.ml('.login.changelog') %]</h2>
+    <div class="border columns medium-4">
+      <div class="row">
+        <div class="columns">
+          [%# expiration %]
+          [% curexp = cursess ? cursess.exptype : "short"; 
+            form.checkbox(
+              'type'     => 'check',
+              'name'     => 'expire',
+              'id'       => 'expire',
+              'value'    => 'never',
+              'selected' => (remote && curexp == 'long'),
+              'style'    => 'margin-top: 1em; margin-bottom: 0;',
+              'label'    => dw.ml('.login.remember'))
+          %]
+        </div>
+      </div>
+      <div class="row" style='font-size: 0.8em'>
+        <div class="columns">[% dw.ml('.login.autologin') %]</div>
+      </div>
+      <div class="row">
+        <div class="columns">
+          [% curbind = cursess && cursess.ipfixed ? "yes" : "no";
+            form.checkbox(
+              'type'     => 'check',
+              'name'     => 'bindip',
+              'id'       => 'bindip',
+              'value'    => 'yes',
+              'selected' => (curbind == 'yes'),
+              'style'    => 'margin-top: 1em;',
+              'label'    => dw.ml('.login.bindcookie')
+          ) %]
+          [% IF site.help.loginoptions.defined %]
+              <br /><font size='1'><a href='[% site.help.loginoptions %]'>[% dw.ml('.login.bindcookie.learnmore') %]</a></font>
+          [% END %]
+        </div>
+      </div>
+      <div class="row">
+        <div class="columns">
+          <input name='action:change' type='submit' value='[% dw.ml('.login.btn.save') %]' />
+          <input type='submit' name='action:logout' value='[% dw.ml('.logout.btn1') %]' />
+        </div>
+      </div>
+    </div>
+    </form>
+[% ELSE %]
+[% sections.title = dw.ml(".login.title", { 'sitename' => site.nameshort} ) %]
 <div class="row" id="protected_login"> 
   <div class="columns medium-6">
-    <form action="[% site.root %]/login" method="post" class="lj_login_form pkg">
-    <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4> 
-      [% dw.form_auth() %]
-          
-            <input type="hidden" name="returnto" value="[% returnto | html %]"/>
-            <label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label>
-            <input name="user" id="login_user" size="20" maxlength="27" aria-required="true" type="text" />
-            <label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label>
-            <input type="password" name="password" id="login_password" size="20" aria-required="true" class="lj_login_password">
-            <label for='login_remember_me'><input type="checkbox" name="remember_me" id="login_remember_me" value="1" /> [% 'sitescheme.accountlinks.login.rememberme' | ml %]</label>
-            <input class="button expand" type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" />
-                        <p>[% 'sitescheme.accountlinks.login.otheroptions' | ml %]</p>
-            <ul>
-              <li><a href='[% site.root %]/lostinfo' >[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></li>
-              <li><a href='[% site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' >[% 'sitescheme.accountlinks.login.openid' | ml %]</a></li>
-            </ul>
-          </form> 
-          </div>
-
+      <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4> 
+        [% PROCESS "components/login.tt" %]
+    </div>
 
    <div class="columns medium-6">
     <h4>[% '.createaccount.header' | ml( sitename = site.name ) %]</h4> 
@@ -46,4 +112,4 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
       </ul> 
   </div><!-- end .login-create-account --> 
    </div>
-
+[% END %]
