@@ -175,8 +175,10 @@ sub shop_history_handler {
     my $r      = DW::Request->get;
     my $remote = $rv->{remote};
 
-    my @carts    = DW::Shop::Cart->get_all( $remote, finished => 1 );
-    my @cartrows = map { $_->{date} => DateTime->from_epoch( epoch => $_->starttime ) } @carts;
+    my @carts = DW::Shop::Cart->get_all( $remote, finished => 1 );
+    foreach my $cart (@carts) {
+        $cart->{date} = DateTime->from_epoch( epoch => $cart->starttime );
+    }
 
     return DW::Template->render_template( 'shop/history.tt', { carts => \@carts } );
 }
