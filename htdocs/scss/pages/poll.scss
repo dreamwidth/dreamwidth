@@ -1,0 +1,46 @@
+@import "foundation/base";
+
+input.inline,
+.response label {
+  display: inline-block;
+}
+.opt-row,
+.question {
+  display: flex;
+}
+
+.question,
+.repsonse {
+  margin-left: 1rem;
+}
+.opt-row .checkbox,
+.question .actions {
+  flex: 0 0 auto;
+  margin-right: 0.5rem;
+}
+.opt-row .text {
+  flex: 1 0 0;
+  margin-bottom: 0.5rem;
+}
+.question .actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+
+@media #{$medium-up} {
+    .add {
+        display: flex;
+        select,
+        input {
+          margin-bottom: 0;
+        }
+        label {
+          padding-top: 0.25em;
+          flex: 0 0 auto;
+          margin-right: 0.5rem;
+        }
+      }
+}
