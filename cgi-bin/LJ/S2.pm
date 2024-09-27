@@ -2432,7 +2432,9 @@ sub Page {
         _styleopts            => LJ::viewing_style_opts(%$get),
         timeformat24          => $remote && $remote->use_24hour_time,
         include_meta_viewport => $r->cookie('no_mobile') ? 0 : 1,
+        session_msgs          => $r->msgs
     };
+    $r->clear_msgs;
 
     if ( $opts && $opts->{'saycharset'} ) {
         $p->{'head_content'} .=
