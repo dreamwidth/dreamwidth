@@ -94,6 +94,7 @@ my $scheme_engine = Template->new(
         PLUGINS  => {
             dw        => 'DW::Template::Plugin',
             dw_scheme => 'DW::Template::Plugin::SiteScheme',
+            form      => 'DW::Template::Plugin::FormHTML',
         },
     }
 );
