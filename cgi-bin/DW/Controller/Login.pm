@@ -36,7 +36,6 @@ sub login_handler {
     my $remote = $rv->{remote};
 
     my $vars = {
-        remote      => $remote,
         continue_to => $get->{continue_to},
         return_to   => $get->{return_to}
     };
@@ -239,10 +238,9 @@ sub login_handler {
         }
     }
 
-    # return if $want_success_redirect->();
-
     $vars->{cursess} = $cursess;
     $vars->{errors}  = \@errors;
+    $vars->{remote}  = $remote;
     return DW::Template->render_template( 'login.tt', $vars );
 }
 1;
