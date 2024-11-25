@@ -86,8 +86,8 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
       </div>
       <div class="row">
         <div class="columns">
-          <input name='action:change' type='submit' value='[% dw.ml('.login.btn.save') %]' />
-          <input type='submit' name='action:logout' value='[% dw.ml('.logout.btn1') %]' />
+          <input name='action:change' class="button" type='submit' value='[% dw.ml('.login.btn.save') %]' />
+          <input type='submit' class="button" name='action:logout' value='[% dw.ml('.logout.btn1') %]' />
         </div>
       </div>
     </div>
