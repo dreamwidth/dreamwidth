@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
 .createaccount.button=Create an Account
 
-.createaccount.header=Not a <?sitename?> member?
+.createaccount.header=Not a [[sitename]] member?
 
 .createaccount.whylogin.benefit1=Read filtered entries that you have access to.
 
@@ -9,7 +9,7 @@
 
 .createaccount.whylogin.benefit3=Post entries in your own journal.
 
-.createaccount.whylogin.benefit4=Add any journal or community to your Reading Page.
+.createaccount.whylogin.benefit4=Add any journal or community to your Reading page.
 
 .createaccount.whylogin.benefit5=Use features that are only visible when you're logged in.
 
@@ -34,6 +34,8 @@
 .loggedin.suggesthead3=My [[siteabbrev]]
 
 .loggedin.text2=You're logged in as [[username]]. From here you can:
+
+.login.header=Log in to [[sitename]]
 
 .login.autologin=Log in automatically on this computer
 
