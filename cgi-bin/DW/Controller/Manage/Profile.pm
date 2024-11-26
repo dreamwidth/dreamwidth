@@ -30,6 +30,8 @@ use DW::Routing;
 use DW::Template;
 use LJ::Setting;
 use DW::External::ProfileServices;
+use DW::FormErrors;
+use Data::Dumper;
 
 DW::Routing->register_string( "/manage/profile", \&profile_handler, app => 1 );
 
@@ -176,7 +178,6 @@ sub profile_handler {
     my $vars = {
         u                => $u,
         authas_html      => $rv->{authas_html},
-        errors           => $errors,
         formdata         => $POST,
         curr_privacy     => $curr_privacy,
         opt_sharebday    => $opt_sharebday,
@@ -208,16 +209,14 @@ sub profile_handler {
 
     if ( $r->did_post ) {
 
-        # return "<?badinput?>" unless LJ::text_in($POST);
-
         # name
         unless ( LJ::trim( $POST->{'name'} ) || defined( $POST->{'name_absent'} ) ) {
-            push @errors, LJ::Lang::ml('.error.noname');
+            $errors->add( 'name', '.error.noname' );
         }
 
         # name is stored in an 80-char column
         if ( length $POST->{'name'} > 80 ) {
-            push @errors, LJ::Lang::ml('.error.name.toolong');
+            $errors->add( 'name', '.error.name.toolong' );
         }
 
         # birthday
@@ -409,23 +408,28 @@ sub profile_handler {
             my @interrors = ();
 
             # Don't bother validating the interests if there are already too many
-            return LJ::bad_input(
-                LJ::Lang::ml(
+            if ( $intcount > $maxinterests ) {
+                $errors->add(
+                    'interests',
                     'error.interest.excessive2',
                     {
                         intcount     => $intcount,
                         maxinterests => $maxinterests
                     }
-                )
-            ) if $intcount > $maxinterests;
-
-            # Clean interests, and make sure they're valid
-            my @valid_ints = LJ::validate_interest_list( \@interrors, @ints );
-            if ( @interrors > 0 ) {
-                return LJ::bad_input( map { LJ::Lang::ml(@$_) } @interrors );
+                );
             }
-
-            $u->set_interests( \@valid_ints );
+            else {
+                # Clean interests, and make sure they're valid
+                my @valid_ints = LJ::validate_interest_list( \@interrors, @ints );
+                if ( @interrors > 0 ) {
+                    map { $errors->add( 'interests', @$_ ) } @interrors;
+                }
+                else {
+                    my $updated_interests_str = join( ", ", @valid_ints );
+                    $u->set_interests( \@valid_ints );
+                    $vars->{interests} = $updated_interests_str;
+                }
+            }
         }
 
         LJ::Hooks::run_hooks( 'profile_save', $u, \%saved, $POST );
@@ -435,24 +439,35 @@ sub profile_handler {
         # tell the user all is well
         my $base        = $u->journal_base;
         my $profile_url = $u->profile_url;
+        my $success_msg;
+        my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
 
-# if ($u->is_community) {
-#     return "<?h1 $ML{'.success.header'} h1?>\n" .
-#          "<?p " . BML::ml( '.success.text.comm',
-#             {commname => LJ::ljuser($u->{user}) } ) . " p?>" .
-#          "<?p $ML{'.success.gonext'} p?>" .
-#          "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile.comm'}</a></li>" .
-#          "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile.comm'}</a></li>" .
-#          "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>$ML{'.success.editicons.comm'}</a></li></ul>";
-# } else {
-#     return "<?h1 $ML{'.success.header'} h1?>\n" .
-#          "<?p $ML{'.success.text'} p?>" .
-#          "<?p $ML{'.success.gonext'} p?>" .
-#          "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
-#          "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
-#          "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
-# }
+        if ( $u->is_community ) {
+            $success_msg = "<p>"
+                . LJ::Lang::ml( "$scope.success.text.comm",
+                { commname => LJ::ljuser( $u->{user} ) } )
+                . "</p>"
+                . "<ul><li><a href='$LJ::SITEROOT/manage/profile/$getextra'>"
+                . LJ::Lang::ml("$scope.success.editprofile.comm")
+                . "</a></li>"
+                . "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>"
+                . LJ::Lang::ml("$scope.success.editicons.comm")
+                . "</a></li></ul>";
+        }
+        else {
+            $success_msg = "<p>"
+                . LJ::Lang::ml("$scope.success.text") . "</p>"
+                . "<ul><li><a href='$LJ::SITEROOT/manage/profile/$getextra'>"
+                . LJ::Lang::ml("$scope.success.editprofile")
+                . "</a></li>"
+                . "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>"
+                . LJ::Lang::ml("$scope.success.editicons")
+                . "</a></li></ul>";
+        }
+        return $r->msg_redirect( $success_msg, $r->SUCCESS, $profile_url );
     }
+
+    $vars->{errors} = $errors;
 
     return DW::Template->render_template( 'manage/profile.tt', $vars );
 }
