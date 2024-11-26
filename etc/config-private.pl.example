@@ -254,6 +254,10 @@ use Net::Subnet;
     package DW::PRIVATE;
 
     $DOMAIN = "ljsite.com";
+    
+    # Set this to use a custom domain for the shop, if needed for PCI compliance
+    # separation purposes
+    # $DOMAIN_SHOP = "shop.ljsite.com";
 
     #%PAYPAL = (
     #    user => ,

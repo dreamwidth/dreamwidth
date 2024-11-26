@@ -316,6 +316,16 @@ sub resolve_path_for_uri {
 sub trans {
     my $apache_r = $_[0];
 
+    # include some modern security headers for best practices; we put these on everything
+    # so that no matter how a user reaches us, they get the configs
+    $apache_r->headers_out->{'X-Content-Type-Options'} = 'nosniff';
+    if ( $LJ::PROTOCOL eq 'https' ) {
+
+        # TODO: Raise HSTS timer here, but I want it low while I test to make sure that
+        # the world doesn't implode; suggested value is 31536000.
+        $apache_r->headers_out->{'Strict-Transport-Security'} = 'max-age=300; includeSubDomains';
+    }
+
     # don't deal with subrequests or OPTIONS
     return DECLINED
         if defined $apache_r->main || $apache_r->method_number == M_OPTIONS;
@@ -854,7 +864,7 @@ sub trans {
         );
     };
 
-    # user domains
+    # user or shop domains
     if (
            $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/
         && $2 ne "www"
@@ -945,9 +955,21 @@ sub trans {
             return 404;    # bogus ljconfig
         }
         else {
-            my $view = $determine_view->( $user, "users", $uri );
-            return $view if defined $view;
-            return 404;
+            # if this is the shop, manage domain cookie if needed, else just render
+            if ( $user eq 'shop' ) {
+                if ( $uri eq '/__setdomsess' ) {
+                    return redir( $apache_r, LJ::Session->setdomsess_handler );
+                }
+                else {
+                    $uri =~ s/\/$//;
+                    $uri = "/shop$uri";
+                }
+            }
+            else {
+                my $view = $determine_view->( $user, "users", $uri );
+                return $view if defined $view;
+                return 404;
+            }
         }
     }
 
@@ -958,7 +980,7 @@ sub trans {
 
     # Attempt to handle a URI given the old-style LJ handler, falling back to
     # the new style Dreamwidth routing system.
-    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call();
+    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call( uri => $uri );
     return $ret if defined $ret;
 
     # API role

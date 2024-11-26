@@ -18,14 +18,14 @@
 .shopbox, div.appwidget-shopitemgroupdisplay {
     margin: 10px;
     padding: 5px;
-    min-width: 30em;
-    max-width: 35em;
+    min-width: 25em;
+    max-width: 30em;
     min-height: 20em;
     float: left;
 }
 
 .leftybox {
-    max-width: 35em;
+    max-width: 40em;
     float: left;
     margin: 10px;
 }
@@ -37,7 +37,7 @@
 .shop-account-status {
     font-weight: normal;
     float: right;
-    width: 30em;
+    width: 25em;
     padding: 5px;
     margin: 10px;
 }
@@ -147,6 +147,7 @@
 .shop-status-left {
     width: 25%;
     float: left;
+    text-align: left;
 }
 
 .shop-status-right {
@@ -159,4 +160,13 @@
     float: left;
     width: 50%;
     text-align: center;
+}
+
+.foru .ljuser {
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+div.row.bottom-block {
+    margin-top: 2em;
 }

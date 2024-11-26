@@ -26,7 +26,7 @@
         <tr role="row">
         [%# name %]
         <td scope='col' abbr='[% other_u.display_username %]' role="cell" class="name-cell">
-            [% form.hidden( name => "editfriend_edit_${uid}_user", selected => 1 ) %]
+            [% form.hidden( name => "editfriend_edit_${uid}_user", value => 1 ) %]
             [% other_u.ljuser_display %]
             <br /><span style='font-size: smaller;'>[% other_u.last_updated %]</span>
         </td>
@@ -42,7 +42,7 @@
         </td>
 
         [%# subscription status %]
-        <td role="cell">
+        <td role="cell" class="check-cell">
             [% IF watch_list.$uid || u.can_watch(other_u) %]
                 [% form.checkbox(
                         name => "editfriend_edit_${uid}_watch",
@@ -76,7 +76,7 @@
 
         [%# ...and access/membership %]
         [% IF type=="people" %]
-        <td role="cell">
+        <td role="cell" class="check-cell">
             [% IF trust_list.$uid || u.can_trust(other_u) %]
                 [% form.checkbox(
                         name => "editfriend_edit_${uid}_trust",

@@ -269,7 +269,7 @@ sub handle_swap_post {
     $errors->add(
         '',
         '/rename/swap.tt.numtokens.toofew',
-        { aopts => "href='/shop/renames?for=self'" }
+        { aopts => "href='$LJ::SHOPROOT/renames?for=self'" }
     ) unless @unused_tokens > 1;
 
     return 0 if $errors->exist;

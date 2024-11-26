@@ -1,0 +1,20 @@
+[% sections.title = dw.ml( '.title' ) %]
+
+[% IF carts.size > 0 %]
+<table class='shop-cart table'>
+    <thead><tr><th>[% dw.ml('.cart.header.ordernumber') %]</th><th>[% dw.ml('.cart.header.date') %]</th><th>[% dw.ml('.cart.header.total') %]</th>
+    <th>[% dw.ml('.cart.header.paymentmethod') %]</th><th>[% dw.ml('.cart.header.status') %]</th><th>[% dw.ml('.cart.header.details') %]</th></tr></thead>
+    [% FOREACH cart IN carts %]
+        <tr>
+        <td>[% cart.id %]</td>
+        <td>[% cart.date.strftime( "%F %r %Z" )  %]</td>
+        <td>[% cart.display_total %]</td>
+        <td>[% dw.ml("/shop/receipt.tt.cart.paymentmethod.${cart.paymentmethod_visible}") %]</td>
+        <td>[% dw.ml("/shop/receipt.tt.cart.status.${cart.state}") %]</td>
+        <td><a href='[% site.shoproot %]/receipt?ordernum=[% cart.ordernum %]'>[% dw.ml('.cart.details') %]</a></td>
+        </tr>
+    [% END %]
+</table>
+[% ELSE %]
+    [% dw.ml( '.nocarts.extra', { aopts => "href='${site.shoproot}'" } ) %]
+[% END %]

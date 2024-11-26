@@ -18,5 +18,4 @@ libdatetime-perl
 libio-aio-perl
 libssl-dev
 apache2
-ruby-compass
 default-jre

@@ -47,11 +47,11 @@ sub render_body {
 
         $ret .= "<ul>";
         $ret .=
-              "<li><a href='$LJ::SITEROOT/shop/cart'><strong>"
+              "<li><a href='$LJ::SHOPROOT/cart'><strong>"
             . $class->ml('widget.shopcartstatusbar.viewcart')
             . "</strong></a></li>";
         $ret .=
-              "<li><a href='$LJ::SITEROOT/shop?newcart=1'><strong>"
+              "<li><a href='$LJ::SHOPROOT/?newcart=1'><strong>"
             . $class->ml('widget.shopcartstatusbar.newcart')
             . "</strong></a></li>";
         $ret .= "</ul>";

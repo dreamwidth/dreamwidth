@@ -32,8 +32,7 @@ sub option {
     my ( $class, $u, $errs, $args ) = @_;
 
     return
-        "<a href='$LJ::SITEROOT/shop/history'>"
-        . $class->ml('setting.display.orders.option') . "</a>";
+        "<a href='$LJ::SHOPROOT/history'>" . $class->ml('setting.display.orders.option') . "</a>";
 }
 
 1;

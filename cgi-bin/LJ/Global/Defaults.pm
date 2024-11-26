@@ -60,9 +60,11 @@ no strict "vars";
 
     $MSG_READONLY_USER ||= "Database temporarily in read-only mode during maintenance.";
 
-    $PROTOCOL     ||= "https";                     # Should always be https except on dev servers
+    $PROTOCOL     ||= "https";                        # Should always be https except on dev servers
     $DOMAIN_WEB   ||= "www.$DOMAIN";
+    $DOMAIN_SHOP  ||= $DOMAIN_WEB;
     $SITEROOT     ||= "$PROTOCOL://$DOMAIN_WEB";
+    $SHOPROOT     ||= "$PROTOCOL://$DOMAIN_WEB/shop";
     $IMGPREFIX    ||= "$SITEROOT/img";
     $STATPREFIX   ||= "$SITEROOT/stc";
     $WSTATPREFIX  ||= "$SITEROOT/stc";

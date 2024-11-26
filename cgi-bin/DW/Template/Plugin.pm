@@ -46,6 +46,7 @@ sub new {
         root      => $LJ::SITEROOT,
         imgroot   => $LJ::IMGPREFIX,
         jsroot    => $LJ::JSPREFIX,
+        shoproot  => $LJ::SHOPROOT,
         statroot  => $LJ::STATPREFIX,
         is_canary => $LJ::IS_CANARY,
     };

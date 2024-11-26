@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Ubuntu level setup for the basics
 RUN apt-get update && \
     apt-get install -y apt-transport-https && \
-    apt-get install -y curl git cpanminus tzdata rsync vim && \
+    apt-get install -y curl git cpanminus tzdata rsync vim ruby-compass && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
     dpkg-reconfigure -f noninteractive tzdata && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
@@ -28,7 +28,7 @@ RUN apt-get update && \
 # Split CPAN dependencies into a second step, since they change more
 # frequently than system dependencies
 RUN curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
-        cpm install -v --no-color -L /dw/extlib/ - && \
+        cpm install -v --show-build-log-on-failure --no-color -L /dw/extlib/ - && \
     rm -rf /root/.perl-cpm && \
     rm -rf /root/.cpanm
 

@@ -1,0 +1,33 @@
+@import "foundation/base";
+
+.l, .lsep {
+    font-weight: bold;
+    padding: .75rem;
+}
+
+#edittbl {
+    .tagbox_nohist {
+        height: 250px;
+    }
+    .border {
+        padding: .75rem;
+        border-width: 0;
+    }
+}
+
+@media #{$medium-up} {
+    #edittbl {
+        .border {
+            border-width: 0 0 0 1px;
+            padding: .75rem;
+        }
+     .sep {
+        border-width: 1px 0 0 1px;
+        }
+    }
+
+    .l, .lsep {
+        text-align: right;
+    }
+    
+}

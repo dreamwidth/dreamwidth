@@ -58,7 +58,7 @@ sub checkout_url {
 
     # the cart is in a good state, so just send them to the confirmation page which
     # gives them instructions on where to send it
-    return "$LJ::SITEROOT/shop/confirm?ordernum=" . $cart->ordernum;
+    return "$LJ::SHOPROOT/confirm?ordernum=" . $cart->ordernum;
 }
 
 # confirm_order()
@@ -106,7 +106,7 @@ sub confirm_order {
                 'shop.email.confirm.checkmoneyorder.body',
                 {
                     touser     => LJ::isu($u) ? $u->display_name : $cart->email,
-                    receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
+                    receipturl => "$LJ::SHOPROOT/receipt?ordernum=" . $cart->ordernum,
                     total      => sprintf( '$%0.2f USD', $cart->total_cash ),
                     payableto  => $LJ::SITECOMPANY,
                     address    => "$LJ::SITECOMPANY${linebreak}Order #"
