@@ -35,7 +35,7 @@
     <h2>[% dw.ml( '.free.header' ) %]</h2>
     <p>
     [% dw.ml( '.free.about',
-            { aopts => "href='${site.root}/support/faqbrowse?faqid=153'" } ) %]
+            { aopts => "href='${site.help.paidaccountinfo}'" } ) %]
     </p>
 
     [%#build different lists for personal and community accounts %]
