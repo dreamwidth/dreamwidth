@@ -78,9 +78,10 @@ my %host_path_match = (
     "www.flickr.com"     => [ qr!/player/$!, 1 ],
     "www.funnyordie.com" => [ qr!/embed/!,   1 ],
 
-    "getyarn.io"        => [ qr!^/yarn-clip/embed/[0-9a-fA-F\-]{36}!, 1 ],
-    "www.goodreads.com" => [ qr!^/widgets/!,                          1 ],
-    "giphy.com"         => [ qr!^/embed/\w+!,                         1 ],
+    "embed.gettyimages.com"   => [ qr!/iframe/!,                            1 ],
+    "getyarn.io"              => [ qr!^/yarn-clip/embed/[0-9a-fA-F\-]{36}!, 1 ],
+    "www.goodreads.com"       => [ qr!^/widgets/!,                          1 ],
+    "giphy.com"               => [ qr!^/embed/\w+!,                         1 ],
 
     "maps.google.com"     => [ qr!^/maps!,                   1 ],
     "www.google.com"      => [ qr!^/(calendar/|maps/embed)!, 1 ],

@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 119;
+use Test::More tests => 120;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -125,6 +125,9 @@ note("misc");
     # G
     test_good_url(
         "https://getyarn.io/yarn-clip/embed/3e697ca5-0387-4fad-9315-f5a6d05c80cc?autoplay=false");
+    test_good_url(
+"http://embed.gettyimages.com/embed/1346778162?et=tmUM_QxBRNBC0ZdAX7yudA&tld=com&sig=TU07b1wHvu0M_PGI59qhyV0-8AB7Fx6tT46Eoe4_UO8=&caption=true&ver=1"
+    );
     test_good_url(
 "http://www.goodreads.com/widgets/user_update_widget?height=400&num_updates=3&user=12345&width=250"
     );
