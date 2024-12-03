@@ -18,6 +18,7 @@
 </style>
 [% END -%]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title='.title' | ml -%]
 
 [%- IF need_post -%]
