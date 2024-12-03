@@ -4230,7 +4230,7 @@ taglib.error.mergenoname=You did not provide a tag name you want to merge to.
 
 taglib.error.mergetoexisting=The tag name '[[tagname]]' is already in use, but you did not select it. Please select the tag or merge to a different tag name.
 
-taglib.error.notcanonical=The tag name '[[beforetag]]' is too long or not canonical. You may want to try '[[aftertag]]' instead.
+taglib.error.toolong=The tag name '[[beforetag]]' is too long. You may want to try '[[aftertag]]' instead.
 
 taglib.error.toomany3=Adding this tag would exceed your maximum of [[max]] tags.  You will not be able to add new tags until you delete [[excess]] existing [[?excess|tag|tags]].
 
