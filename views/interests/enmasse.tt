@@ -13,11 +13,18 @@
 
 [%- sections.head = BLOCK %]
 <style type='text/css'>
-    div.tagcloud a { text-decoration: none; }
-    ul.contentlist li { padding-bottom: 3px; }
+    #interests {
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: 
+    space-evenly; 
+    gap: 0.5em
+    }
+    #interests div {width:15em;}
 </style>
 [% END -%]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title='.title' | ml -%]
 
 <form method='get' action='interests'>
@@ -26,33 +33,26 @@
 [% authas_html %]</form>
 <form method='post' action='interests[% getextra %]'>
 [%- dw.form_auth %]
-<h1>[% '.enmasse.header' | ml %]</h1>
+<h2>[% '.enmasse.header' | ml %]</h2>
 <p>[% enmasse_body | ml(user = fromu.ljuser_display,
                         target = u.ljuser_display) %]</p>
-<div style='margin-left: 40px; margin-top: 20px;'>
-<table summary='' cellpadding='0' cellspacing='0' border='0' width='100%'>
-[%- USE table(enmasse_data, cols=3) -%]
-[%- FOREACH rows = table.rows %]
-<tr valign='middle'>
-    [%- FOREACH cell = rows -%]
-        [%- IF cell.int -%]
-            <td align='left' nowrap='nowrap'>
-            <input type='checkbox' [% IF cell.is_checked %] checked='checked' [% END %]
-                name='[% cell.checkid %]' id='[% cell.checkid %]' value='1' />
-            <label for='[% cell.checkid %]'>
-            [%- IF cell.is_checked %] <strong> [% END -%]
-            [%- cell.int -%]
-            [%- IF cell.is_checked %] </strong> [% END -%]
-            </label></td>
-        [%- ELSE -%]
-            <td></td>
-        [%- END -%]
+<div id="interests">
+    [%- FOREACH int = enmasse_data -%]
+        <div>
+            <label>
+            <input type='checkbox' [% "checked='checked'" IF cell.is_checked %]
+                name='[% int.checkid %]' id='[% int.checkid %]' value='1' class="inline" />
+
+            [%- "<strong>" IF int.is_checked %]
+            [%- int.int -%]
+            [%- "</strong>" IF int.is_checked %]
+            </label>
+        </div>
     [%- END -%]
-</tr>
-[%- END -%]
-</table></div>
+</div>
 <input type='hidden' name='mode' value='enmasse_do' />
 <input type='hidden' name='fromuser' value='[% fromu.user %]' />
 <input type='hidden' name='allintids' value='[% allintids %]' />
-<h1>[% '.finished.header' | ml %]</h1><p>[% '.finished.about' | ml %]</p>
-<div class='action-box'><div class='inner'><input type='submit' value='[% ".finished.save_button" | ml %]' /></div></div><div class='clear-floats'></div></form>
+<h2>[% '.finished.header' | ml %]</h2>
+<p>[% '.finished.about' | ml %]</p>
+<input class="button" type='submit' value='[% ".finished.save_button" | ml %]' /></form>

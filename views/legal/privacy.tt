@@ -14,6 +14,7 @@
 %]
 
 [%- sections.title='Privacy Policy' -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 <p>We hate legalese, so we've tried to make ours readable. If you've got any questions, feel free to <a href='[% site.root %]/support/submit'>ask us</a>, and we'll do our best to answer.</p>
 
