@@ -18,39 +18,66 @@
 </style>
 [% END -%]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title='.title' | ml -%]
 
 <p>[% '.interests.text' | ml %]</p>
-<table summary='' cellspacing='5' style='margin-top: 10px; margin-left: 30px; margin-bottom: 10px;'>
+<div class="columns">
 
 [%- IF can_use_popular -%]
-<tr valign='top'><td colspan='2'>
-<a href="interests?view=popular">[% '.interests.viewpop' | ml %]</a>
-</td></tr>
+<div class="row">
+  <div class="columns small-12">
+    <a href="interests?view=popular">[% '.interests.viewpop' | ml %]</a>
+  </div>
+</div>
 [%- END -%]
 
-<tr valign='top'><td align='left'>[% 'interests.interested.in' | ml %]</td>
-<td><form method='get' action='interests'>
-<input type="text" name="int" size="20" />&nbsp;
-<input type='submit' value='[% "interests.interested.btn" | ml %]' />
-<br />[% '/directory/index.tt.int_multiple' | ml %]
-</form></td></tr>
+<div class="row">
+<form method='get' action='interests'>
+  <div class="columns medium-5">
+    <label for="int">[% 'interests.interested.in' | ml %]</label>
+  </div>
+  <div class="columns medium-5">
+    <input type="text" name="int" size="20" style="margin-bottom:0;"/>
+    <small>[% '/directory/index.tt.int_multiple' | ml %]</small>
+  </div>
+  <div class="columns medium-2">
+    <input type='submit' class="button" value='[% "interests.interested.btn" | ml %]' />
+    </div>
+</form>
+</div>
 
 [%- IF can_use_findsim -%]
-<tr valign='top'><td>[% '.interests.findsim' | ml %]</td><td>
+<div class="row">
 <form method='get' action='interests'>
-<input type='hidden' name='mode' value='findsim_do' />
-<input type="text" name="user" size="20" value="[% remote.user %]" />&nbsp;
-<input type='submit' value='[% "interests.interested.btn" | ml %]' />
-</form></td></tr>
+  <div class="columns medium-5">
+    <label for="user">[% '.interests.findsim' | ml %]</label>
+  </div>
+  <div class="columns medium-5">
+     <input type='hidden' name='mode' value='findsim_do' />
+    <input type="text" name="user" size="20" value="[% remote.user %]" />
+  </div>
+  <div class="columns medium-2">
+    <input type='submit' class="button" value='[% "interests.interested.btn" | ml %]' />
+    </div>
+</form>
+</div>
 [%- END -%]
 
-<tr valign='top'><td>[% 'interests.enmasse.intro' | ml %]</td><td>
+<div class="row">
 <form method='get' action='interests'>
-<input type='hidden' name='mode' value='enmasse' />
-<input type="text" name="fromuser" size="20" />&nbsp;
-<input type='submit' value='[% "interests.enmasse.btn" | ml %]' />
-</form></td></tr>
+  <div class="columns medium-5">
+    <label for="fromuser">[% 'interests.enmasse.intro' | ml %]</label>
+  </div>
+  <div class="columns medium-5">
+    <input type='hidden' name='mode' value='enmasse' />
+    <input type="text" name="fromuser" size="20" />
+  </div>
+  <div class="columns medium-2">
+    <input type='submit' class="button" value='[% "interests.enmasse.btn" | ml %]' />
+    </div>
+</form>
+</div>
 
-</table>
-[% '.nointerests.text2' | ml(aopts = "href='$site.root/manage/profile/'") %]
+</div>
+[% '.nointerests.text3' | ml(aopts = "href='$site.root/manage/profile/'") %]

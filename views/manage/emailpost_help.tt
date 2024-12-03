@@ -10,28 +10,18 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 %]
-
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title = '.title' | ml -%]
 
 [%- sections.head = BLOCK %]
     <style type="text/css">
-        fieldset {
-            border: 1px solid #cdcdcd;
-            margin-bottom: 15px;
-        }
-        legend {
-            padding: 2px 10px 2px 10px;
-            border: 1px solid #cdcdcd;
-            font-size: 14px;
-            font-weight: bold;
-        }
         div.indent {
-            margin-left: 40px;
+            margin-left:3rem;
         }
         div.emailex {
-            font-family: courier;
-            border: solid black 1px;
-            padding: 5px;
+            font-family: monospace, courier;
+            border-style: dashed;
+            padding: 0.5rem;
         }
     </style>
 [%- END -%]
@@ -157,24 +147,22 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- topic = topics_by_name.$type;
     IF topic -%]
-<hr /><br />
+<hr />
 
 <h1>[% ".${topic.code}.header" | ml %]</h1>
-<br />
+
   [% FOREACH sect IN topic.sects %]
-<fieldset>
-  <legend>[% ".${topic.code}.${sect}.header" | ml %]</legend>
+<fieldset class="border">
+  <legend class="border">[% ".${topic.code}.${sect}.header" | ml %]</legend>
     [% IF paragraphs.${type}.exists(sect) %]
   <p>[% ".${topic.code}.${sect}.text" | ml(paragraphs.${type}.$sect) %]</p>
     [% END %]
     [% IF messages.${type}.exists(sect) %]
-  <div class='emailex'>[% messages.${type}.${sect}.join('<br>'); %]</div>
+  <div class='emailex border'>[% messages.${type}.${sect}.join('<br>'); %]</div>
     [% ELSIF sect == 'security'; security_body.join('<br>'); END %]
 </fieldset>
   [%- END -%]
 [%- END -%]
-
-<br />
 
 [%- order = topic ? topic.order : -1;
     prev = order - 1; next = order + 1;
