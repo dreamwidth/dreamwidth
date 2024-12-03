@@ -959,6 +959,11 @@ div#cf-edit select {
     margin-bottom: -2em;
 }
 
+#canvas .appwidget-currenttheme .row {
+    margin: 0;
+    padding: 0;
+}
+
 /** Dark theme for color picker **/
 
 #clr-picker {
