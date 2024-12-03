@@ -610,6 +610,13 @@ dw.need_res( { group => "foundation" },
   </section>
 </nav>
 
+<div class="row">
+<div class="columns large-6">
+[% INCLUDE 'components/toggle-button.tt' id = 'toggle1' label = "Toggle switch using a button" %]
+[% INCLUDE 'components/toggle-button.tt' id = 'toggle2' selected = 'true' label = "Selected toggle switch using a button" %]
+[% INCLUDE 'components/toggle-button.tt' id = 'toggle3' disabled = 'true' label = "Disabled toggle switch showing a button" %]
+</div>
+</div>
 
 [%# Helper blocks for formatting examples above %]
 [%- BLOCK ljuser -%]
