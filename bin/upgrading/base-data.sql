@@ -393,3 +393,5 @@ INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_form
 UPDATE profile_services SET userprop='twitter', imgfile='twitter_bird.png', title_ml='profile.service.twitter', url_format='//www.twitter.com/%s', maxlen=40 WHERE name='twitter';
 INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('wattpad', 'wattpad', 'wattpad.png', 'profile.service.wattpad', '//www.wattpad.com/user/%s', 20);
 UPDATE profile_services SET userprop='wattpad', imgfile='wattpad.png', title_ml='profile.service.wattpad', url_format='//www.wattpad.com/user/%s', maxlen=20 WHERE name='wattpad';
+INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('steam', 'steam', 'steam.png', 'profile.service.steam', '//steamcommunity.com/id/%s/', 32);
+UPDATE profile_services SET userprop='steam', imgfile='steam.png', title_ml='profile.service.steam', url_format='//steamcommunity.com/id/%s/', maxlen=20 WHERE name='steam';
