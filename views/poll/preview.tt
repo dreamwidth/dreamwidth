@@ -1,0 +1,49 @@
+[%- sections.title = '/poll/create.tt.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<h2>[% dw.ml('/poll/create.tt.preview.options') %]</h2>
+<p>[% dw.ml(see_code ? '/poll/create.tt.seecode.desc' : '/poll/create.tt.preview.desc') %]</p>
+<div align='center'>
+
+[%# edit poll %]
+<form method='post' action='create[% getextra %]' style='display: inline'>
+[% dw.form_auth() %]
+[% hidden_items = poll_hidden(poll).hash;
+    FOREACH el IN hidden_items.keys;
+        form.hidden(name = el value = hidden_items.$el);
+    END %]
+[% form.submit( name = 'edit_poll', value = dw.ml('/poll/create.tt.button.editpoll2')) %]
+
+[%# need one more button, depending on which page they're currently on %]
+[% IF see_code;
+        form.submit( name ="see_preview", value = dw.ml('/poll/create.tt.button.preview2'));
+    ELSE;
+        form.submit(name = "see_code", value = dw.ml('/poll/create.tt.button.seecode2'));
+END %]
+</form>
+
+[%# submit button / form %]
+
+
+<form method='post' action='[% update_url %]' style='display: inline'>
+[% dw.form_auth() %]
+[% form.hidden(name = 'event', value = code) %]
+[% form.submit( name ='showform', value = dw.ml('/poll/create.tt.button.postpoll2')) %]
+</form>
+
+[%# preview code or ... preview %]
+</div><div style='margin: 20px 0 20px 40px; width: 90%'>
+
+[%# viewing code, show preview button %]
+[% IF see_code %]
+    <form action='#'>
+    [% form.textarea( 'style' => 'width: 100%', 'rows' => '16', 'cols' => '60', 'value' => code )%]
+    </form>
+
+[%# seeing preview, show code button%]
+[%- ELSE -%]
+    [%# this has its own form open / close %]
+    [% pollobj.preview() %]
+[% END %]
+
+ </div>
