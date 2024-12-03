@@ -12,7 +12,7 @@
   # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
   #
 %]
-
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title='Terms of Service' -%]
 
 <p>We hate legalese, so we've tried to make ours readable. If you've got
