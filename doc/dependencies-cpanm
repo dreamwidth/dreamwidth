@@ -1,9 +1,9 @@
 Authen::OATH
-Authen::Passphrase::Clear
 Authen::Passphrase::BlowfishCrypt
+Authen::Passphrase::Clear
 Business::CreditCard
-CGI@4.50
 CGI::Cookie
+CGI@4.50
 Cache::Memcached
 Captcha::reCAPTCHA@0.99
 Class::Autouse
