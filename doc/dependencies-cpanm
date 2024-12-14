@@ -11,6 +11,7 @@ Class::Data::Inheritable
 Class::Trigger
 Compress::Zlib@2.212
 Convert::Base32
+Crypt::SSLeay@0.58
 CryptX
 Danga::Socket
 Data::ObjectDriver
