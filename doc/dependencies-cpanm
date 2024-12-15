@@ -11,7 +11,6 @@ Class::Data::Inheritable
 Class::Trigger
 Compress::Zlib@2.212
 Convert::Base32
-Crypt::SSLeay@0.58
 CryptX
 Danga::Socket
 Data::ObjectDriver
@@ -48,7 +47,6 @@ Net::OAuth
 Net::OpenID::Consumer
 Net::OpenID::Server
 Net::SMTPS
-Net::SSL@2.85
 Net::Subnet
 Params::Classify@0.015
 Paws::S3
