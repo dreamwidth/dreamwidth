@@ -29,8 +29,12 @@ perl -I$LJHOME/extlib/lib/perl5 $LJHOME/bin/upgrading/update-db.pl -r -p
 perl -I$LJHOME/extlib/lib/perl5 $LJHOME/bin/upgrading/texttool.pl load
 
 # make the system account
+# commented out until this works to create a random password (or a boring default
+# like 'password')
 # perl -I$LJHOME/extlib/lib/perl5 $LJHOME/bin/upgrading/make_system.pl
 
 # config apache
 mkdir $LJHOME/ext/local/etc/apache2/sites-enabled || true
 cp $LJHOME/ext/local/dreamwidth-dev.conf $LJHOME/ext/local/etc/apache2/sites-enabled/dreamwidth.conf
+rm -rf /etc/apache2
+ln -s $LJHOME/ext/local/etc/apache2 /etc/apache2
