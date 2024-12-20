@@ -1,0 +1,65 @@
+[%# Login component to unify the absurd number of places you can log in, covering:
+    - /login
+    - protected entry passthrough page
+    - navigation bar login on Foundation pages
+    - control strip on journals.
+
+    This does NOT cover the comment or entry forms, which post to different places.
+
+    variables: 
+    - 'short' - determines whether to render a compact version (for the controlstrip)
+    - 'returnto' -
+  %]
+  [%- BLOCK remember_me; # form element is in a different spot in controlstrip, sigh
+    form.checkbox(
+        value => 1,
+        id => "login_remember_me",
+        name => "remember_me",
+        label => dw.ml('sitescheme.accountlinks.login.rememberme' ),
+        tabindex => (short ? "3" : "0")
+    );
+    END -%]
+<form action="[% site.root %]/login" method="post" class="lj_login_form pkg">
+    <div id="login-form">
+    [%- dw.form_auth() -%]
+    [%- form.hidden( name = "returnto", value = returnto ) IF returnto -%]
+    [%- form.textbox(
+        label => dw.ml('sitescheme.accountlinks.login.username')
+        name => "user",
+        labelclass => (short ? "invisible" : ""),
+        placeholder => (short ? dw.ml('/login.bml.login.username' ): ""),
+        id => "login_user",
+        maxlength => 27,
+        tabindex => (short ? "1" : "0")
+        size => (short ? 7 : 20),
+        'aria-required'=> "true"
+    ) -%]
+    [%- form.password(
+        label => dw.ml('sitescheme.accountlinks.login.password')
+        name => "password",
+        id => "login_password",
+        placeholder => (short ? dw.ml('/login.bml.login.password' ): ""),
+        size => (short ? 7 : 20),
+        tabindex => (short ? "2" : "0")
+        labelclass => (short ? "invisible" : ""),
+        'aria-required'=> "true"
+    ) -%]
+    [%- PROCESS remember_me IF !short -%]
+    [%- form.submit(
+        id => "login_submit",
+          value = dw.ml( 'sitescheme.accountlinks.btn.login' ),
+          class => (short ? "submit" : "submit expand"),
+          tabindex => (short ? "4" : "0")
+    ) -%]
+    </div>
+    <div id="login-other">
+    [%- IF !short -%]
+        <p>[% 'sitescheme.accountlinks.login.otheroptions' | ml %]</p>
+    [%- END -%]
+    <ul>
+        <li><a href='[% site.root %]/lostinfo' >[% short ? dw.ml('web.controlstrip.login.forgot' ) : dw.ml('sitescheme.accountlinks.login.forgotpassword') %]</a></li>
+        <li><a href='[% site.root %]/openid/[% IF returnto %]?returnto=[% returnto | html %][% END %]' >[% short ? dw.ml('web.controlstrip.login.openid' ) : dw.ml('sitescheme.accountlinks.login.openid') %]</a></li>
+    </ul>
+    [%- PROCESS remember_me IF short -%]
+    </div>
+</form>
