@@ -654,7 +654,7 @@ sub get_permission_levels {
 # </LJFUNC>
 sub canonical_tag {
     my $tag = shift;
-    $tag =~ s/\s+/ /g;                         # condense multiple spaces to a single space
+    $tag =~ s/\s+/ /g;    # condense multiple spaces to a single space
     $tag = LJ::text_trim( $tag, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
     $tag = LJ::utf8_lc($tag);
     return $tag;
@@ -700,7 +700,7 @@ sub is_valid_tagstring {
     foreach my $tag (@list) {
 
         # canonicalize and determine validity
-        $tag = LJ::Tags::canonical_tag( $tag );
+        $tag = LJ::Tags::canonical_tag($tag);
         return 0 unless $valid_tag->($tag);
 
         # now push on our list
@@ -1354,11 +1354,15 @@ sub rename_usertag {
     ) unless $newkw eq $newname;    # Far from ideal UX-wise.
 
     # validate tag length (in bytes)
-    return $err->( LJ::Lang::ml( 'taglib.error.toolong', {
-            beforetag => LJ::ehtml($newkw),
-            aftertag  => LJ::ehtml($newname)
-        } ) )
-        unless length LJ::Tags::canonical_tag( $newkw ) <= LJ::BMAX_KEYWORD;
+    return $err->(
+        LJ::Lang::ml(
+            'taglib.error.toolong',
+            {
+                beforetag => LJ::ehtml($newkw),
+                aftertag  => LJ::ehtml($newname)
+            }
+        )
+    ) unless length LJ::Tags::canonical_tag($newkw) <= LJ::BMAX_KEYWORD;
 
     # get a list of keyword ids to operate on
     my $kwid;

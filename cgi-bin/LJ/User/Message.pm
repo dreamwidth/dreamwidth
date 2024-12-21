@@ -309,11 +309,16 @@ sub can_receive_message {
 
     my $u_age = $u->init_age;
     my $s_age = $sender->init_age;
+
     # init_age returns undef for init_bdate year 0000.
-    return 0 if defined($u_age) && $u_age < 18
-		&& (!defined($s_age) || $s_age >= 18);
-    return 0 if (!defined($u_age) || $u_age >= 18)
-		&& defined($s_age) && $s_age < 18;
+    return 0
+        if defined($u_age)
+        && $u_age < 18
+        && ( !defined($s_age) || $s_age >= 18 );
+    return 0
+        if ( !defined($u_age) || $u_age >= 18 )
+        && defined($s_age)
+        && $s_age < 18;
 
     return 1;
 }
