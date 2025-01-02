@@ -12,7 +12,7 @@
         [% dw.form_auth() %]
         <p>
         [% IF u.is_community %]
-            <label>[% dw.ml("widget.journaltitles.$id.comm") %]</label>
+            <label>[% dw.ml("widget.journaltitles.${id}.comm") %]</label>
         [% ELSE %]
             <label>[% dw.ml("widget.journaltitles.$id") %]</label>
         [% END %]
