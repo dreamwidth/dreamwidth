@@ -57,6 +57,11 @@ body<=
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
     $ret .= "</form>";
 
+    if ($GET{authas}) {
+        $ret .= LJ::html_hidden(
+                { name => "authas", value => $GET{authas}, id => "_widget_authas" } );
+    }
+
     my $current_theme = LJ::Widget::CurrentTheme->new;
     $headextra .= $current_theme->wrapped_js( page_js_obj => "Customize" );
     $ret .= "<div class='theme-current pkg'>";
