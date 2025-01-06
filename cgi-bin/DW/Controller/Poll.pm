@@ -50,8 +50,6 @@ sub index_handler {
         return;
     }
 
-    my $remote = LJ::get_remote();
-
     my $pollid = ( $form->{'id'} || $form->{'pollid'} ) + 0;
 
     unless ($pollid) {
