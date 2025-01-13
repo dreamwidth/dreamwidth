@@ -179,6 +179,7 @@ sub profile_handler {
         u                => $u,
         authas_html      => $rv->{authas_html},
         formdata         => $POST,
+        iscomm           => $iscomm,
         curr_privacy     => $curr_privacy,
         opt_sharebday    => $opt_sharebday,
         text_in          => \&LJ::text_in,
