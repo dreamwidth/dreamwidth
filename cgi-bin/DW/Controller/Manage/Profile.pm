@@ -255,7 +255,7 @@ sub profile_handler {
         }
 
         # bio
-        if ( length( $POST->{'bio'} ) >= LJ::BMAX_BIO ) {
+        if ( defined $POST->{'bio'} and length( $POST->{'bio'} ) >= LJ::BMAX_BIO ) {
             $errors->add( 'bio', "$scope.error.bio.toolong" );
         }
 
@@ -282,7 +282,8 @@ sub profile_handler {
         $newname = LJ::text_trim( $newname, LJ::BMAX_NAME, LJ::CMAX_NAME );
 
         my $newbio = defined( $POST->{'bio_absent'} ) ? $saved{'bio'} : $POST->{'bio'};
-        my $has_bio = ( $newbio =~ /\S/ ) ? "Y" : "N";
+        $newbio = "" unless defined $newbio;
+        my $has_bio   = ( $newbio =~ /\S/ ) ? "Y" : "N";
         my $new_bdate = sprintf( "%04d-%02d-%02d",
             $POST->{'year'}  || 0,
             $POST->{'month'} || 0,
@@ -344,7 +345,11 @@ sub profile_handler {
             if ( $POST->{'opt_sharebday'} =~ /^[AR]$/ ) {
 
                 # and actually provided a birthday
-                if ( $POST->{'month'} && $POST->{'month'} > 0 && $POST->{'day'} > 0 ) {
+                if (   $POST->{'month'}
+                    && $POST->{'month'} > 0
+                    && $POST->{'day'}
+                    && $POST->{'day'} > 0 )
+                {
 
                     # and allow the entire thing to be displayed
                     if ( $POST->{'opt_showbday'} eq "F" && $POST->{'year'} ) {
