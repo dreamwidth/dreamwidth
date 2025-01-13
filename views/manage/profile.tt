@@ -98,7 +98,7 @@
             <td class='field_name' role="cell">[% dw.ml('.fn.birthday') %]</td>
             <td class='bday_field' role="cell">
                 [%- form.select( name => 'month', title => dw.ml('.fn.birthday.month'),
-                                 selected => int( bdpart.month ),
+                                 selected => ( bdpart.month + 0 ),
                                 items => month_select,
                                 class => 'inline'
                                  ) -%]
