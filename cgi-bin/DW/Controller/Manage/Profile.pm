@@ -151,7 +151,9 @@ sub profile_handler {
         if ( $bdpart{'day'} eq "00" )    { $bdpart{'day'}  = ""; }
     }
 
-    my @months = map { $_, LJ::Lang::month_long_ml($_) } ( 1 .. 12 );
+    my @months = ( 0, "" );
+    push @months, map { $_, LJ::Lang::month_long_ml($_) } ( 1 .. 12 );
+
     $u->{'opt_showbday'} = "D"
         unless defined $u->{'opt_showbday'} and $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
     my $opt_sharebday = ( $u->opt_sharebday =~ m/^(A|F|N|R)$/ ) ? $u->opt_sharebday : 'F';
