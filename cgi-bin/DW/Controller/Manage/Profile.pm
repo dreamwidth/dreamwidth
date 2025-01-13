@@ -152,7 +152,8 @@ sub profile_handler {
     }
 
     my @months = map { $_, LJ::Lang::month_long_ml($_) } ( 1 .. 12 );
-    $u->{'opt_showbday'} = "D" unless $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
+    $u->{'opt_showbday'} = "D"
+        unless defined $u->{'opt_showbday'} and $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
     my $opt_sharebday = ( $u->opt_sharebday =~ m/^(A|F|N|R)$/ ) ? $u->opt_sharebday : 'F';
 
     # 'Other Services' display
@@ -169,7 +170,7 @@ sub profile_handler {
     # Email display
     # This is one prop in the backend, but two form fields on the settings page
     # so we need to do some jumping around to get the correct values for both fields
-    my $checked = ( $u->{'opt_whatemailshow'} =~ /[BVL]/ ) ? 'Y' : 'N';
+    my $checked = ( ( $u->{'opt_whatemailshow'} // '' ) =~ /[BVL]/ ) ? 'Y' : 'N';
     my $cur     = $u->opt_whatemailshow;
 
     # drop BVL values that govern site alias; we input that below instead
