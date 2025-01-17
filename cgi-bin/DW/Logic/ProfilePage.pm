@@ -810,6 +810,7 @@ sub external_services {
     $u->preload_props(@$userprops);
 
     foreach my $site (@$services) {
+        next unless defined $site->{userprop};
         if ( my $acct = $u->prop( $site->{userprop} ) ) {
             push @ret, $info->( $acct, $site );
         }
