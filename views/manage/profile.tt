@@ -25,7 +25,7 @@
     <a href='#display'>[% dw.ml('.section.display') %]</a>
 </div></div>
 
-<form method='post'>
+<form method='post' action="[% dw.create_url('/manage/profile/', keep_args => ["authas"]) %]">
     [%- dw.form_auth %]
     <table summary='' width='100%' style='margin: 1em 0;'>
 
@@ -38,7 +38,7 @@
         [%### Picture Settings %]
         <tr class='field_block' role="row">
             <td class='field_name' role="cell">[% dw.ml('.fn.userpic2') %]</td>
-            <td role="cell"><div style='width: 100px; height: 100px; float: left; text-align: center; border: 1px solid #ddd'>
+            <td role="cell"><div style='width: 102px; height: 102px; float: left; text-align: center;' class="border">
                 [% IF u.defaultpicid %]
                     [% u.userpic.imgtag %]
                 [% ELSE %]
