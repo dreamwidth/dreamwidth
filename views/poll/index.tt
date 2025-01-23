@@ -13,7 +13,7 @@
 <a href='[% entry.url %]'>[ [% dw.ml('.discuss') %] ]</a>
 
 [%# Links for closing/reopening polls %]
-[%- IF poll.is_owner(remote || remote && remote.can_manage(u)) -%]
+[%- IF poll.is_owner(remote) || (remote && remote.can_manage(u)) -%]
     [%- IF poll.is_closed -%]
     <a href='[% dw.create_url('/poll', args => {id => pollid, mode => 'open'}) %]'>[ [% dw.ml('.reopen') %] ]</a>
     [%- ELSE -%]
