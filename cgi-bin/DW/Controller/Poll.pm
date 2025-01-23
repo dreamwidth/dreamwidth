@@ -62,13 +62,6 @@ sub index_handler {
 
     my $u = $poll->journal;
 
-    my $vars = {
-        remote => $remote,
-        poll   => $poll,
-        pollid => $pollid,
-        u      => $u
-    };
-
     my $mode = "";
     $mode = $form->{'mode'}
         if ( defined $form->{'mode'} && $form->{'mode'} =~ /(enter|results|ans|clear)/ );
@@ -90,6 +83,17 @@ sub index_handler {
 
     return error_ml('/poll/index.tt.error.cantview') unless ( $entry->visible_to($remote) );
 
+    # bundle variables to be passed to the template
+    my $vars = {
+        remote    => $remote,
+        u         => $u,
+        poll      => $poll,
+        pollid    => $pollid,
+        poll_form => $form,
+        mode      => $mode,
+        entry     => $entry,
+    };
+
     if ( defined $form->{'poll-submit'} && $r->did_post ) {
         my $error;
         my $error_code = LJ::Poll->process_submission( $form, \$error );
@@ -102,9 +106,6 @@ sub index_handler {
         }
     }
 
-    $vars->{poll}      = $poll;
-    $vars->{mode}      = $mode;
-    $vars->{poll_form} = $form;
     return DW::Template->render_template( 'poll/index.tt', $vars );
 }
 
