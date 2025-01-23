@@ -70,12 +70,13 @@ sub index_handler {
     };
 
     my $mode = "";
-    $mode = $form->{'mode'} if ( $form->{'mode'} =~ /(enter|results|ans|clear)/ );
+    $mode = $form->{'mode'}
+        if ( defined $form->{'mode'} && $form->{'mode'} =~ /(enter|results|ans|clear)/ );
 
     # Handle opening and closing of polls
     # We do this first because a closed poll will alter how a poll is displayed
     if ( $poll->is_owner($remote) || $remote && $remote->can_manage($u) ) {
-        if ( $form->{'mode'} =~ /(close|open)/ ) {
+        if ( defined $form->{'mode'} && $form->{'mode'} =~ /(close|open)/ ) {
             $mode = $form->{'mode'};
             $poll->close_poll if ( $mode eq 'close' );
             $poll->open_poll  if ( $mode eq 'open' );
@@ -540,7 +541,9 @@ sub create_handler {
                 }
 
                 # catches moves
-                if ( $post->{"$act:$q:up.x"} =~ /\d+/ || $post->{"$act:$q:dn.x"} =~ /\d+/ ) {
+                if ( defined $post->{"$act:$q:up.x"} && $post->{"$act:$q:up.x"} =~ /\d+/
+                    || ( defined $post->{"$act:$q:dn.x"} && $post->{"$act:$q:dn.x"} =~ /\d+/ ) )
+                {
                     $do_action->( $act, $q, $post->{"$act:$q:up.x"} ? 'up' : 'dn' );
                     next;
                 }
@@ -602,7 +605,7 @@ sub create_handler {
                 # make <poll-item> tags
                 foreach my $o ( 0 .. $elem->{'opts'} ) {
                     $ret .= "<poll-item>$elem->{'opt'}->[$o]</poll-item>\n"
-                        if $elem->{'opt'}->[$o] ne '';
+                        if defined $elem->{'opt'}->[$o] && $elem->{'opt'}->[$o] ne '';
                 }
             }
             $ret .= "</poll-question>\n";

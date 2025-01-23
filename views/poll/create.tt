@@ -88,7 +88,8 @@
 [% PROCESS insert_element_html after = 0 %]
 
 [%# go through our elements in order %]
-[%  poll_length = poll.count - 1;
+[%  IF poll.count && poll.count > 0;
+    poll_length = poll.count - 1;
     FOREACH q IN [0 .. poll_length] %]
     [%- elem = poll.pq.$q;
         qnr = q + 1 -%]
@@ -130,8 +131,8 @@
         FOREACH o IN [0 .. opts_length] %]
             <div class="opt-row">
 
-                [% form.checkbox( 'type' => 'radio', 'name' => "dummy_$q", 'disabled' => 'disabled' ) IF elem.type == 'radio' %]
-                [% form.checkbox('type' => 'checkbox', 'disabled' => 'disabled' ) IF elem.type == 'check' %]
+                [% form.checkbox( 'type' => 'radio', 'name' => "dummy_$q", 'value' => '', 'disabled' => 'disabled' ) IF elem.type == 'radio' %]
+                [% form.checkbox('type' => 'checkbox', 'value' => '', 'disabled' => 'disabled' ) IF elem.type == 'check' %]
 
                 [% form.textbox( 'type' => 'text', 'name' => "pq_${q}_opt_$o", 'size' => '35',
                                         'maxlength' => rules.items.maxlength, 'value' => elem.opt.$o) %]
@@ -208,7 +209,6 @@
     [% PROCESS insert_element_html after = q+1 %]
 [% END %]
 
-[% IF poll.count > 0 %]
     <h2> When you're done ... </h2>
     <div style='margin: 20px 0 20px 40px'>
     [% form.submit( name = 'start_over', value = dw.ml('.button.startover2')) %]

@@ -324,9 +324,10 @@ TOKEN:
 
         if ( $type eq "S" )    # start tag
         {
-            my $tag       = $update_tag->( $token->[1] );
-            my $attr      = $token->[2];                                     # hashref
-            my $ljcut_div = $tag eq "div" && lc $attr->{class} eq "ljcut";
+            my $tag  = $update_tag->( $token->[1] );
+            my $attr = $token->[2];                    # hashref
+            my $ljcut_div =
+                $tag eq "div" && defined lc $attr->{class} && lc $attr->{class} eq "ljcut";
 
             $good_until = length $newdata;
 
@@ -431,7 +432,10 @@ TOKEN:
             }
 
             # deprecated - will always print an error msg (see #1869)
-            if ( ( $tag eq "div" || $tag eq "span" ) && lc $attr->{class} eq "ljvideo" ) {
+            if (   ( $tag eq "div" || $tag eq "span" )
+                && defined $attr->{class}
+                && lc $attr->{class} eq "ljvideo" )
+            {
                 $start_capture->(
                     $tag, $token,
                     sub {

@@ -606,7 +606,7 @@ sub close_poll {
     my $self = $_[0];
 
     # Nothing to do if poll is already closed
-    return if ( $self->{status} eq 'X' );
+    return if ( defined $self->{status} && $self->{status} eq 'X' );
 
     my $u = LJ::load_userid( $self->journalid )
         or die "Invalid journalid " . $self->journalid;
