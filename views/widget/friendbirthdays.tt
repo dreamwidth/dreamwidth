@@ -13,7 +13,7 @@
         { 'month' => month_short(month), 'day' => day } ) %]
     </li>
     <li>[% u.ljuser_display %]</li>
-    <li><a href='[% u.gift_link %]' class='gift-link'>
+    <li><a href='[% u.gift_url %]' class='gift-link'>
         [% dw.ml('widget.friendbirthdays.gift') %]</a>
     </li>
   </ul>
