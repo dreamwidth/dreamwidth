@@ -25,7 +25,8 @@ use DW::Template;
 use DW::FormErrors;
 use LJ::Poll;
 
-DW::Routing->register_string( '/poll',        \&index_handler,  app => 1 );
+DW::Routing->register_string( '/poll',  \&index_handler, app => 1, no_redirects => 1 );
+DW::Routing->register_string( '/poll/', \&index_handler, app => 1, no_redirects => 1 );
 DW::Routing->register_string( '/poll/create', \&create_handler, app => 1 );
 
 sub index_handler {
