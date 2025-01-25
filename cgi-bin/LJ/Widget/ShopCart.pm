@@ -93,7 +93,7 @@ sub render_body {
     $vars->{is_random} = sub { return ref $_ =~ /Account/ && $_->random ? 'Y' : 'N'; };
 
     my $checkout_ready =
-        !$opts{receipt} || ( !$opts{confirm} && $cart->state == $DW::Shop::STATE_CHECKOUT );
+        !$receipt || ( !$opts{confirm} && $cart->state == $DW::Shop::STATE_CHECKOUT );
     if ($checkout_ready) {
 
         # check or money order button
