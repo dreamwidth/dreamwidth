@@ -103,7 +103,7 @@ sub index_handler {
             $vars->{error_code} = $error_code;
         }
         else {
-            return $r->redirect( $entry->url( style_opts => LJ::viewing_style_opts($form) ) );
+            return $r->redirect( $entry->url( style_opts => LJ::viewing_style_opts(%$form) ) );
         }
     }
 
