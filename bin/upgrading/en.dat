@@ -2409,6 +2409,8 @@ rename.error.isself=Cannot rename back to your own username.
 
 rename.error.noto=No username provided to rename to.
 
+rename.error.notoken=Rename token not provided or unavailable.
+
 rename.error.reserved="[[to]]" is a reserved username.
 
 rename.error.tokenapplied=This token has already been used.
