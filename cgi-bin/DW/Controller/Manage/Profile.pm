@@ -33,7 +33,8 @@ use DW::External::ProfileServices;
 use DW::FormErrors;
 use Data::Dumper;
 
-DW::Routing->register_string( "/manage/profile", \&profile_handler, app => 1 );
+DW::Routing->register_string( "/manage/profile",  \&profile_handler, app => 1, no_redirects => 1 );
+DW::Routing->register_string( "/manage/profile/", \&profile_handler, app => 1, no_redirects => 1 );
 
 sub profile_handler {
     my ( $ok, $rv ) = controller( anonymous => 0, form_auth => 1, authas => 1 );
