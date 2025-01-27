@@ -339,7 +339,7 @@ sub emailmanage_handler {
         : $lastdate_email;
 
     # current address was set more, than 6 months ago?
-    my $six_month_case = time() - str2time($lastdate) > 182 * 24 * 3600;    # half year
+    my $six_month_case = time() - ( str2time($lastdate) // 0 ) > 182 * 24 * 3600;    # half year
 
     my @deleted;
     if ( $r->did_post && $u->{'status'} eq 'A' ) {
