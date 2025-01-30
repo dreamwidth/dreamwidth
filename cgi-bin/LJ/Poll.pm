@@ -923,7 +923,7 @@ sub render {
 
         my @userids;
 
-        my $respondents = $self->journal->selectall_arrayref(
+        my $respondents = $self->journal->selectcol_arrayref(
             "SELECT DISTINCT(userid) FROM pollresult2 WHERE pollid=? AND journalid=? ",
             undef, $pollid, $self->journalid );
 
