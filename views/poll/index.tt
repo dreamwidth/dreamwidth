@@ -1,6 +1,8 @@
 [%- sections.title = '.title' | ml -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
+[%- dw.need_res( { group => "foundation" }, "js/jquery.poll.js" ) -%]
+
 [%- FOREACH m IN [[ "enter", dw.ml('.filloutpoll') ], [ "results" , dw.ml('.viewresults') ]] -%]
     [%- NEXT IF m.0 == "enter" && poll.is_closed -%]
     [%- IF mode == m.0 -%]
