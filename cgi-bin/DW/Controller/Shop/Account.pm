@@ -190,8 +190,9 @@ sub shop_account_handler {
                         # but only include date if the logged-in user owns the account
                         delete $ml_args->{date} unless $remote && $remote->has_same_email_as($u);
 
-                        $errors->add( undef, '.error.premiumconvert',          $ml_args );
-                        $errors->add( undef, '.error.premiumconvert.postdate', $ml_args )
+                        $errors->add( undef, '/shop/account.tt.error.premiumconvert', $ml_args );
+                        $errors->add( undef, '/shop/account.tt.error.premiumconvert.postdate',
+                            $ml_args )
                             if $ml_args->{date};
                         $premium_convert = 1;
 
