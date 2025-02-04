@@ -193,7 +193,7 @@ sub shop_account_handler {
                         $errors->add( undef, '.error.premiumconvert',          $ml_args );
                         $errors->add( undef, '.error.premiumconvert.postdate', $ml_args )
                             if $ml_args->{date};
-                        $vars->{premium_convert} = 1;
+                        $premium_convert = 1;
 
                     }
                 }
@@ -230,20 +230,20 @@ sub shop_account_handler {
         return \%month_values;
     };
 
-    $vars->{for}             = $for;
-    $vars->{remote}          = $remote;
-    $vars->{user}            = $GET->{user};
-    $vars->{cart_display}    = $rv->{cart_display};
-    $vars->{seed_avail}      = DW::Pay::num_permanent_accounts_available() > 0;
-    $vars->{num_perms}       = DW::Pay::num_permanent_accounts_available_estimated();
-    $vars->{formdata}        = $post || { username => ( $GET->{user} ), anonymous => !$remote };
-    $vars->{did_post}        = $r->did_post;
-    $vars->{acct_reason}     = DW::Shop::Item::Account->can_have_reason;
-    $vars->{premium_convert} = $premium_convert;
-    $vars->{email_checkbox}  = $email_checkbox;
-    $vars->{get_opts}        = $get_opts;
-    $vars->{date}            = DateTime->today;
-    $vars->{allow_convert}   = DW::Shop::Item::Account->allow_account_conversion( $remote, 'paid' );
+    $vars->{for}            = $for;
+    $vars->{remote}         = $remote;
+    $vars->{user}           = $GET->{user};
+    $vars->{cart_display}   = $rv->{cart_display};
+    $vars->{seed_avail}     = DW::Pay::num_permanent_accounts_available() > 0;
+    $vars->{num_perms}      = DW::Pay::num_permanent_accounts_available_estimated();
+    $vars->{formdata}       = $post || { username => ( $GET->{user} ), anonymous => !$remote };
+    $vars->{did_post}       = $r->did_post;
+    $vars->{acct_reason}    = DW::Shop::Item::Account->can_have_reason;
+    $vars->{prem_convert}   = $premium_convert;
+    $vars->{email_checkbox} = $email_checkbox;
+    $vars->{get_opts}       = $get_opts;
+    $vars->{date}           = DateTime->today;
+    $vars->{allow_convert}  = DW::Shop::Item::Account->allow_account_conversion( $remote, 'paid' );
 
     return DW::Template->render_template( 'shop/account.tt', $vars );
 }
