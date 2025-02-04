@@ -126,7 +126,7 @@ sub shop_account_handler {
             my @email_errors;
             LJ::check_email( $post->{email}, \@email_errors, $post, $post->{email_checkbox} );
             if (@email_errors) {
-                $errors->add( 'email', join( ', ', @email_errors ) );
+                $errors->add_string( 'email', join( ', ', @email_errors ) );
             }
             else {
                 $item_data->{target_email} = $post->{email};
@@ -202,7 +202,7 @@ sub shop_account_handler {
             unless ( $errors->exist ) {
 
                 my ( $rv, $err ) = $rv->{cart}->add_item($item);
-                $errors->add( '', $err ) unless $rv;
+                $errors->add_string( '', $err ) unless $rv;
 
                 unless ( $errors->exist ) {
                     return $r->redirect($LJ::SHOPROOT);
