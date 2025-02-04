@@ -964,7 +964,7 @@ sub validate_deliverydate {
     if ( $time_check < 0 ) {
 
         # we were given a date in the past
-        $errors->add( 'deliverydate', 'time cannot be in the past' );    #FIXME
+        $errors->add_string( 'deliverydate', 'time cannot be in the past' );    #FIXME
     }
     elsif ( $time_check > 0 ) {
 
