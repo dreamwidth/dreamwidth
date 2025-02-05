@@ -5417,6 +5417,8 @@ widget.shopitemoptions.error.notforsale=This purchase type is currently not for 
 
 widget.shopitemoptions.error.notloggedin=You must be logged in as a personal account in order to purchase paid time for yourself.
 
+widget.shopitemoptions.error.notype=Please select which type of account time you wish to purchase.
+
 widget.shopitemoptions.error.nousers=There are currently no active free users.
 
 widget.shopitemoptions.header.paid=Paid Account

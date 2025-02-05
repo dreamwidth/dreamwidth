@@ -137,6 +137,10 @@ sub shop_account_handler {
             DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data );
         }
 
+        unless ( $post->{accttype} ) {
+            $errors->add( 'accttype', 'widget.shopitemoptions.error.notype' );
+        }
+
         unless ( $errors->exist ) {
             $item_data->{anonymous} = 1
                 if $post->{anonymous} || !$remote;
