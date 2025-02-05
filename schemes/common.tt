@@ -138,28 +138,8 @@ the table based way can be removed when the entire site is Foundation-based.
     <a href="[% site.root %]/login" class="button radius" data-reveal-id="nav-login-form">[% 'sitescheme.accountlinks.btn.login' | ml %]</a>
     <div id='nav-login-form' class="reveal-modal" data-reveal>
       <div class="row"><div class="columns">
-      <form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
-        <input type="hidden" name="returnto" value="[% returnto | html %]" />
-        <input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
-        <input type='hidden' name='response' class='lj_login_response' value='' />
-        <div class="row">
-          <div class="columns medium-6">
-            <label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label>
-            <input name="user" id="login_user" size="20" maxlength="27" aria-required="true" type="text" />
-            <label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label>
-            <input type="password" name="password" id="login_password" size="20" aria-required="true" class="lj_login_password">
-            <label for='login_remember_me'><input type="checkbox" name="remember_me" id="login_remember_me" value="1" /> [% 'sitescheme.accountlinks.login.rememberme' | ml %]</label>
-            <input class="button expand" type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" />
-          </div>
-          <div class="columns medium-6">
-            <p>[% 'sitescheme.accountlinks.login.otheroptions' | ml %]</p>
-            <ul>
-              <li><a href='[% site.root %]/lostinfo' >[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></li>
-              <li><a href='[% site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' >[% 'sitescheme.accountlinks.login.openid' | ml %]</a></li>
-            </ul>
-          </div>
-        </div>
-      </form>
+      [% PROCESS 'login.tt' %]
+
       </div></div>
     <button type="button" class="fi-icon--with-fallback close-reveal-modal">
         <span class="fi-icon fi-x" aria-hidden="true"></span>

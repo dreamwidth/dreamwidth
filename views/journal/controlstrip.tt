@@ -45,48 +45,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- links.view_friends_page -%]&nbsp;&nbsp;[%- links.settings -%]&nbsp;&nbsp;[%- links.inbox -%]
   </div>
 [%- ELSIF show_login_form -%]
-  <div id='lj_controlstrip_login'>
-    <form id="login" class="lj_login_form" action="[%- site.root -%]/login?ret=1" method="post">
-      [%- form.hidden( name = "mode", value = "login" ) -%]
-      [%- form.hidden( name = "returnto", value = returnto ) -%]
-      [% form.textbox(
-          name = "user",
-          label = dw.ml( '/login.bml.login.username' ),
-          labelclass = "invisible",
-          placeholder = dw.ml( '/login.bml.login.username' ),
-          size = "7",
-          maxlength = "27",
-          tabindex = "1",
-          id = "xc_user",
-          value = ""
-      ) %]
-      [% form.password(
-          name = "password",
-          label = dw.ml( '/login.bml.login.password' ),
-          labelclass = "invisible",
-          placeholder = dw.ml( '/login.bml.login.password' ),
-          size = "7",
-          tabindex = "2",
-          id = "xc_password",
-          class = "lj_login_password"
-      ) %]
-      [% form.submit(
-          value = dw.ml( 'web.controlstrip.btn.login' ),
-          tabindex = "4"
-      ) %]
-
-      <div id='lj_controlstrip_login_secondary_controls'>
-        <a href='[%- site.root -%]/openid/' tabindex='5'>[%- 'web.controlstrip.login.openid' | ml -%]</a>
-        <a href='[%- site.root -%]/lostinfo' tabindex='6'>[%- 'web.controlstrip.login.forgot' | ml -%]</a>
-        [% form.checkbox(
-            name = "remember_me",
-            label = dw.ml( 'web.controlstrip.login.remember' ),
-            id = "xc_remember",
-            value = "1",
-            tabindex = "3"
-        ) %]
-      </div>
-    </form>
+  <div id='lj_controlstrip_login'>[% PROCESS 'components/login.tt' short = 1 %]
   </div>
 [%- END -%]
 
