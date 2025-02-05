@@ -188,7 +188,7 @@ sub shop_account_handler {
                             { date => $exptime->ymd, premium_num => $prem_d, paid_num => $paid_d };
 
                         # but only include date if the logged-in user owns the account
-                        delete $ml_args->{date} unless $remote && $remote->has_same_email_as($u);
+                        delete $ml_args->{date} unless $remote && $remote->can_purchase_for($u);
 
                         $errors->add( undef, '/shop/account.tt.error.premiumconvert', $ml_args );
                         $errors->add( undef, '/shop/account.tt.error.premiumconvert.postdate',
