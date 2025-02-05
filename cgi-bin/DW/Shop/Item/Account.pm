@@ -420,7 +420,7 @@ sub allow_account_conversion {
 
     # allow upgrading to premium if the remote user owns this account
     my $remote = LJ::get_remote();
-    return 1 if $to eq 'premium' && $remote && $remote->has_same_email_as($u);
+    return 1 if $to eq 'premium' && $remote && $remote->can_purchase_for($u);
 
     return 0;
 }
