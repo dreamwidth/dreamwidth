@@ -1411,11 +1411,21 @@ sub sticky_entries {
     return @entries;
 }
 
-# returns a list of sticky entry ids
+# returns a list of all sticky entry ids
 sub sticky_entry_ids {
     my $prop = $_[0]->prop('sticky_entry');
     return unless defined $prop;
     return split /,/, $prop;
+}
+
+# returns a list of active sticky entry ids
+sub sticky_entry_active_ids {
+    my ($u) = @_;
+    my $max = $u->count_max_stickies || 0;
+    my @ids = $u->sticky_entry_ids;
+    return unless @ids;
+    @ids = @ids[ 0 .. $max - 1 ] if scalar @ids > $max;
+    return @ids;
 }
 
 # returns a map of ditemid => 1 of the sticky entries
