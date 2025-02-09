@@ -446,6 +446,176 @@ sub opt_usermsg {
     }
 }
 
+# extracted from LJ::subscribe_interface
+sub pending_sub_data {
+    my ( $u, $pending_sub ) = @_;
+    my %ret;
+
+    $ret{upgrade_notice} = ( !$u->is_paid && $pending_sub->disabled($u) ) ? " &dagger;" : "";
+
+    if ( !ref $pending_sub ) {
+        $ret{special_sub} = 1;
+
+        return if $u->is_identity && $pending_sub->disabled($u);
+
+        $ret{inactive} = $pending_sub->disabled($u);
+        $ret{hidden}   = !$pending_sub->selected($u);
+
+        return \%ret;
+    }
+
+    return if $u->is_identity && !$pending_sub->enabled;
+    return unless $ret{input_name} = $pending_sub->freeze;
+
+    my $title = $pending_sub->as_html;
+    return unless $title;
+    $title .= $ret{upgrade_notice} unless $pending_sub->enabled;
+
+    $ret{title}      = $title;
+    $ret{subscribed} = !$pending_sub->pending;
+    $ret{disabled}   = !$pending_sub->enabled;
+    $ret{inactive}   = !$pending_sub->active;
+    $ret{selected}   = $pending_sub->default_selected;
+
+    # notification options for this subscription are hidden if not subscribed
+    $ret{hidden} = !$ret{selected} && ( !$ret{subscribed} || $ret{inactive} );
+
+    return \%ret;
+}
+
+# extracted from /manage/settings
+sub save_subscriptions {
+    my ( $u, $post_args ) = @_;
+
+    my @notif_errors;
+    my @sub_edit;
+    my @to_consider;
+    my @to_activate;
+
+    foreach my $postkey ( keys %$post_args ) {
+        my $subscr;
+        my $is_old = $postkey =~ /-old$/;
+
+        # are there other options for this pending subscription?
+        # if so, process those not this one
+        next if $postkey =~ /\.arg\d/;
+
+        $subscr = LJ::Subscription->thaw( $postkey, $u, $post_args ) or next;
+
+        if ( $subscr->pending ) {
+            push @to_consider, $subscr;
+        }
+        else {
+            push @to_activate, $subscr if !$is_old && !$subscr->active;
+        }
+
+        next unless $is_old;
+        my $old_postkey = $postkey;
+
+        # remove old string
+        $postkey =~ s/-old$//;
+
+        my $oldvalue = $post_args->{$old_postkey};
+        my $checked  = $post_args->{$postkey};
+
+        push @sub_edit, [ $subscr, $checked, $oldvalue ];
+    }
+
+    # first process deletions
+    foreach my $edit_info (@sub_edit) {
+        my ( $subscr, $checked, $oldvalue ) = @$edit_info;
+
+        if ( !$checked && $oldvalue && $subscr->method->configured_for_user($u) ) {
+
+            # if it's not checked and is currently a real subscription, deactivate it
+            # unless we disabled it for them (disabled checkboxes don't POST)
+            $subscr->deactivate;
+        }
+    }
+
+    # then process new subs and activations
+    foreach my $subscr (@to_activate) {
+        my @inbox_subs =
+            grep { $_->active && $_->enabled } $u->find_subscriptions( method => 'Inbox' );
+
+        if ( @inbox_subs >= $u->max_subscriptions ) {
+
+            # too many, sorry
+            push @notif_errors, LJ::errobj( "Subscription::TooMany", subscr => $subscr, u => $u );
+        }
+        else {
+            # all is good, reactivate it
+            $subscr->activate;
+        }
+    }
+
+    # Define limits
+    my $paid_max = LJ::get_cap( 'paid', 'subscriptions' );
+    my $u_max    = $u->max_subscriptions;
+
+    # max for total number of subscriptions (generally it is $paid_max)
+    my $system_max = $u_max > $paid_max ? $u_max : $paid_max;
+
+    my $inbox_ntypeid = LJ::NotificationMethod::Inbox->ntypeid;
+    my @other_ntypeid_to_consider;
+
+    my $process_pending = sub {
+        my ( $subscr, $method ) = @_;
+
+        my @all_subs    = $u->find_subscriptions( method => $method );
+        my @active_subs = grep { $_->active && $_->enabled } @all_subs;
+
+        if ( @active_subs >= $u_max ) {
+            push @notif_errors, LJ::errobj( "Subscription::TooMany", subscr => $subscr, u => $u );
+            return 0;
+        }
+        if ( @all_subs >= $system_max ) {
+            push @notif_errors,
+                LJ::errobj(
+                "Subscription::TooManySystemMax",
+                subscr => $subscr,
+                u      => $u,
+                max    => $system_max
+                );
+            return 0;
+        }
+        return 1;
+    };
+
+    # process new inbox subs
+    foreach my $subscr (@to_consider) {
+        if ( $subscr->ntypeid != $inbox_ntypeid ) {
+
+            # save this for consideration after we've processed all inbox subscriptions first
+            push @other_ntypeid_to_consider, $subscr;
+        }
+        else {
+
+            # this is an inbox subscription, save it
+            $subscr->commit if $process_pending->( $subscr, 'Inbox' );
+        }
+    }
+
+    # process all other new subs
+    foreach my $subscr (@other_ntypeid_to_consider) {
+        my %inbox_sub_params = $subscr->sub_info;
+
+        # don't save a subscription if there is no corresponding inbox sub for it
+        $inbox_sub_params{ntypeid} = $inbox_ntypeid;
+        delete $inbox_sub_params{flags};
+
+        my ($inbox_sub) = $u->has_subscription(%inbox_sub_params);
+
+        # If Inbox is always on, then act like an Inbox sub exists
+        my $always_checked = $subscr->event_class->always_checked ? 1 : 0;
+        next if !$always_checked && !( $inbox_sub && $inbox_sub->active && $inbox_sub->enabled );
+
+        $subscr->commit if $process_pending->( $subscr, $subscr->method );
+    }
+
+    return @notif_errors;
+}
+
 # subscribe to an event
 sub subscribe {
     my ( $u, %opts ) = @_;
@@ -454,14 +624,207 @@ sub subscribe {
     return LJ::Subscription->create( $u, %opts );
 }
 
+sub subscription_default_setup {
+    my ($u) = @_;
+
+    # set up default subscriptions for users that have not managed ESN stuff
+    if ( !$u->prop('esn_has_managed') && !$u->subscription_count ) {
+        $u->set_prop( esn_has_managed => 1 );
+
+        my @default_subscriptions =
+            ( LJ::Subscription::Pending->new( $u, event => 'OfficialPost', ), );
+
+        if ( $u->prop('opt_gettalkemail') ne 'N' ) {
+            push @default_subscriptions, (
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'JournalNewComment',
+                    journal => $u,
+                    method  => 'Inbox',
+                ),
+
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'JournalNewComment',
+                    journal => $u,
+                    method  => 'Email',
+                ),
+            );
+        }
+
+        $_->commit foreach @default_subscriptions;
+    }
+
+    # Translate legacy pre-ESN notifs to ESN notifs
+    LJ::Event::JournalNewComment::Reply->migrate_user($u);
+
+    return $u;
+}
+
+sub subscription_categories_for_settings_page {
+    my ($u) = @_;
+
+    my @cats = (
+        {
+            "My Account" => [
+                LJ::Subscription::Pending->new( $u, event => 'OfficialPost', ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'JournalNewComment',
+                    journal => $u,
+                ),
+
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event => 'JournalNewComment::Reply',
+                    arg2  => 0,
+                ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event => 'JournalNewComment::Reply',
+                    arg2  => 1,
+                ),
+
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event => 'JournalNewComment::Reply',
+                    arg2  => 2,
+                ),
+
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'PollVote',
+                    journal => $u,
+                ),
+                'AddedToCircle',
+                'RemovedFromCircle',
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event   => 'XPostSuccess',
+                    journal => $u,
+                ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event            => 'XPostFailure',
+                    journal          => $u,
+                    default_selected => 1,
+                ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event            => 'VgiftDelivered',
+                    journal          => $u,
+                    default_selected => 1,
+                ),
+                LJ::Subscription::Pending->new(
+                    $u,
+                    event            => 'UserMessageRecvd',
+                    journal          => $u,
+                    default_selected => 1,
+                ),
+            ],
+        },
+        {
+            "Friends and Communities" => [
+                'InvitedFriendJoins',
+                'CommunityInvite',
+                'CommunityJoinRequest',
+                'CommunityModeratedEntryNew',
+                LJ::Subscription::Pending->new( $u, event => 'NewUserpic', ),
+                LJ::Subscription::Pending->new( $u, event => 'Birthday', ),
+            ],
+        },
+    );
+
+    # add things the user is tracking
+    my @tracking;
+    my @subscriptions = $u->find_subscriptions( method => 'Inbox' );
+
+    foreach my $subsc ( sort { $a->id <=> $b->id } @subscriptions ) {
+
+        # if this event class is already being displayed above, skip over it
+        my $etypeid = $subsc->etypeid or next;
+        my ($evt_class) = ( LJ::Event->class($etypeid) =~ /LJ::Event::(.+)/i );
+        next unless $evt_class;
+
+        # search for this class in categories
+        next if grep { $_ eq $evt_class } map { @$_ } map { values %$_ } @cats;
+
+        push @tracking, $subsc;
+    }
+
+    return [ @cats, { "Subscription Tracking" => \@tracking } ];
+}
+
 sub subscription_count {
     my $u = shift;
     return scalar LJ::Subscription->subscriptions_of_user($u);
 }
 
+# extracted from LJ::subscribe_interface
+sub subscription_event_filter {
+    my ( $u, $cat_events, $journalu, $include_settings ) = @_;
+    my @pending;
+    my @ret;
+
+    # build table of events that can be subscribed to
+    foreach my $cat_event (@$cat_events) {
+        if ( ( ref $cat_event ) =~ /Subscription/ ) {
+            push @pending, $cat_event;
+        }
+        elsif ( $cat_event =~ /^LJ::Setting/ ) {
+
+            # special subscription that's an LJ::Setting instead of an LJ::Subscription
+            push @pending, $cat_event if $include_settings;
+        }
+        else {
+            my $pending_sub = LJ::Subscription::Pending->new(
+                $u,
+                event   => $cat_event,
+                journal => $journalu
+            );
+            push @pending, $pending_sub;
+        }
+    }
+
+    # check for existing subscriptions
+    foreach my $pending_sub (@pending) {
+        if ( !ref $pending_sub ) {
+            push @ret, $pending_sub;
+        }
+        else {
+            my %sub_args = $pending_sub->sub_info;
+            delete $sub_args{ntypeid};
+            $sub_args{method} = 'Inbox';
+
+            my @existing_subs = $u->has_subscription(%sub_args);
+            push @ret, ( @existing_subs ? @existing_subs : $pending_sub );
+        }
+    }
+
+    return @ret;
+}
+
 sub subscriptions {
     my $u = shift;
     return LJ::Subscription->subscriptions_of_user($u);
+}
+
+# extracted from LJ::subscribe_interface
+sub tracked_event_exclude {
+    my ( $u, $pending_sub, $cats ) = @_;
+
+    # return 1 if $pending_sub is already shown in another displayed category
+    foreach (@$cats) {
+        foreach my $cat_events ( values %$_ ) {
+            foreach my $event (@$cat_events) {
+                next if $event =~ /^LJ::Setting/;
+                $event = LJ::Subscription::Pending->new( $u, event => $event )
+                    unless ref $event;
+                return 1 if $pending_sub->equals($event);
+            }
+        }
+    }
+    return 0;
 }
 
 ########################################################################
