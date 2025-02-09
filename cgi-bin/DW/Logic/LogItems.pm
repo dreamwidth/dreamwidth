@@ -387,8 +387,9 @@ sub recent_items {
     my $logdb = LJ::get_dbh(@sources);
 
     # community/friend views need to post by log time, not event time
-    $sort_key = "rlogtime" if ( $args{'order'} eq "logtime"
-        || $args{'friendsview'} );
+    $sort_key = "rlogtime"
+        if $args{'order'} eq "logtime"
+        || $args{'friendsview'};
 
     # 'notafter':
     #   the friends view doesn't want to load things that it knows it
@@ -583,7 +584,7 @@ sub recent_items {
                allowmask, eventtime, logtime
         FROM log2 USE INDEX ($sort_key)
         WHERE journalid=$userid $sql_select $secwhere $jitemidwhere $securitywhere $posterwhere
-        ORDER BY journalid, $sort_key
+        ORDER BY jitemid DESC, $sort_key
         $sql_limit
     };
 
