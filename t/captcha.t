@@ -20,7 +20,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-my $recaptcha_enabled   = DW::Captcha::reCAPTCHA->site_enabled;
+my $recaptcha_enabled = DW::Captcha::reCAPTCHA->site_enabled;
 
 if ( !DW::Captcha->site_enabled ) {
     plan skip_all => "CAPTCHA functionality disabled.";
