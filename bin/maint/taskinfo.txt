@@ -16,9 +16,5 @@ generic.pl:
   joinmail - Generates daily email digests for community join requests
   clean_spamreports - Clean out data from the spamreports table older than 90 days.
 
-captcha.pl:
-  cache_textcaptcha - Generates textcaptcha instances
-  clean_captchas - Clean out captchas that have been used
-
 search.pl:
   copy_supportlog - Puts supportlog data into the Sphinx database

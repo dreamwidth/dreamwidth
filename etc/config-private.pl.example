@@ -284,13 +284,6 @@ use Net::Subnet;
     #    public_key  => ,
     #    private_key => ,
     #);
-
-    #%TEXTCAPTCHA = (
-    #   # this works for testing purposes.
-    #   # sign up at the textcaptcha website for a key for production use
-    #    api_key => "demo",
-    #    timeout => 10,
-    #);
 }
 
 1;
