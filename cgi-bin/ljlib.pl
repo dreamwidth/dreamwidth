@@ -40,18 +40,8 @@ BEGIN {
     # mod_perl does this early too, make sure we do as well
     LJ::Config->load;
 
-    # arch support has to be done pretty early
-    if ($LJ::ARCH32) {
-        $LJ::ARCH       = 32;
-        $LJ::LOGMEMCFMT = 'NNNLN';
-        $LJ::PUBLICBIT  = 2**31;
-    }
-    else {
-        $LJ::ARCH32     = 0;
-        $LJ::ARCH       = 64;
-        $LJ::LOGMEMCFMT = 'NNNQN';
-        $LJ::PUBLICBIT  = 2**63;
-    }
+    $LJ::LOGMEMCFMT = 'NNNQN';
+    $LJ::PUBLICBIT  = 2**63;
 }
 
 # Now set up logging support for everybody else to access; this is done

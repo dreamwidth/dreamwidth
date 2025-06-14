@@ -182,15 +182,6 @@ no strict "vars";
     $MOGILEFS_CONFIG{classes}->{vgifts}   ||= 3;
     $MOGILEFS_CONFIG{classes}->{media}    ||= 3;
 
-    # detect whether we are running on 32-bit architecture
-    my $arch = ( length( pack "L!", 0 ) == 4 ) ? 1 : 0;
-    if ( defined $ARCH32 ) {
-        die "Can't have ARCH32 set to false on a 32-bit architecture" if $ARCH32 < $arch;
-    }
-    else {
-        $ARCH32 = $arch;
-    }
-
     # maximum size to cache s2compiled data
     $MAX_S2COMPILED_CACHE_SIZE ||= 7500;    # bytes
 
