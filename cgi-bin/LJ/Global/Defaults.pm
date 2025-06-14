@@ -304,7 +304,7 @@ no strict "vars";
     %CAPTCHA_TYPES = (
         "I" => "recaptcha",    # "I" is for image
     ) unless %CAPTCHA_TYPES;
-    $DEFAULT_CAPTCHA_TYPE ||= "T";
+    $DEFAULT_CAPTCHA_TYPE ||= "I";
 
     # default location of community posting guidelines
     $DEFAULT_POSTING_GUIDELINES_LOC ||= "N";
