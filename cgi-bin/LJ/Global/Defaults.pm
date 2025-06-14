@@ -302,8 +302,7 @@ no strict "vars";
 
     # mapping of captcha type to specific desired implementation
     %CAPTCHA_TYPES = (
-        "T" => "textcaptcha",    # "T" is for text
-        "I" => "recaptcha",      # "I" is for image
+        "I" => "recaptcha",    # "I" is for image
     ) unless %CAPTCHA_TYPES;
     $DEFAULT_CAPTCHA_TYPE ||= "T";
 

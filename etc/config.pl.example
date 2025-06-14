@@ -139,17 +139,6 @@
     #    ref $_[0] && defined $_[0]->{sitename} &&
     #        $_[0]->{sitename} eq 'LiveJournal' ? 1 : 0 };
 
-    # disable the recaptcha module, but keep textcaptcha enabled
-    # you'd probably want to edit $LJ::DEFAULT_CAPTCHA_TYPE in this case
-    #$DISABLED{captcha} = sub {
-    #   my $module = $_[0];
-    #   return 1 if $module eq "recaptcha";
-    #   return 0 if $module eq "textcaptcha";
-    #   return 0;
-    #};
-    #$DEFAULT_CAPTCHA_TYPE = "T";
-
-
     # Maintenance messages
     $MSG_READONLY_USER   = "This journal is in read-only mode right now while database maintenance is performed " .
                            "on the server where the journal is located.  Try again in several minutes.";

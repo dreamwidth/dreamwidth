@@ -60,11 +60,6 @@
             private_key => $DW::PRIVATE::RECAPTCHA{private_key},
         );
 
-    # setup textcaptcha
-    %TEXTCAPTCHA = (
-            api_key => $DW::PRIVATE::TEXTCAPTCHA{api_key},
-    );
-
     # PayPal configuration.  If you want to use PayPal, uncomment this
     # section and make sure to fill in the fields at the bottom of config-private.pl.
     #%PAYPAL_CONFIG = (
