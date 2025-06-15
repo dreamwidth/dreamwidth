@@ -39,6 +39,7 @@ use DW::Captcha;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
+use DW::RateLimit;
 
 BEGIN {
     require "ljlib.pl";
@@ -324,6 +325,54 @@ sub trans {
         # TODO: Raise HSTS timer here, but I want it low while I test to make sure that
         # the world doesn't implode; suggested value is 31536000.
         $apache_r->headers_out->{'Strict-Transport-Security'} = 'max-age=300; includeSubDomains';
+    }
+
+    # Apply rate limiting
+    my $remote = LJ::get_remote();
+    my $ip     = LJ::get_remote_ip();
+
+    # Get the appropriate rate limit based on whether user is logged in
+    my $limit;
+    if ($remote) {
+        $limit = DW::RateLimit->get(
+            "authenticated_requests",
+            max_count         => 100,    # 100 requests
+            per_interval_secs => 60      # per minute
+        );
+    }
+    else {
+        $limit = DW::RateLimit->get(
+            "anonymous_requests",
+            max_count         => 30,     # 30 requests
+            per_interval_secs => 60      # per minute
+        );
+    }
+
+    # Check if rate limit is exceeded
+    if (
+        $limit
+        && $limit->exceeded(
+            userid => $remote ? $remote->userid : undef,
+            ip     => $ip
+        )
+        )
+    {
+        $apache_r->status(429);
+        $apache_r->status_line("429 Too Many Requests");
+        $apache_r->content_type("text/html");
+
+        my $retry_after = $limit->time_remaining(
+            userid => $remote ? $remote->userid : undef,
+            ip     => $ip
+        );
+        $apache_r->headers_out->{'Retry-After'} = $retry_after;
+
+        $apache_r->print("<h1>429 Too Many Requests</h1>");
+        $apache_r->print("<p>You have made too many requests. Please try again later.</p>");
+        if ($retry_after) {
+            $apache_r->print("<p>Please wait $retry_after seconds before trying again.</p>");
+        }
+        return OK;
     }
 
     # don't deal with subrequests or OPTIONS

@@ -14,7 +14,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 44;
+use Test::More tests => 80;
 use Test::MockTime qw(set_fixed_time restore_time);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -189,4 +189,65 @@ LJ::Test::with_fake_memcache {
 
     # Restore real time
     restore_time();
+};
+
+# Test configuration overrides
+LJ::Test::with_fake_memcache {
+
+    # Set up test configuration
+    $LJ::RATE_LIMITS{test_override} = {
+        max_count         => 5,
+        per_interval_secs => 30,
+        mode              => 'ignore'
+    };
+
+    # Test that configuration is applied
+    my $limit = DW::RateLimit->get(
+        "test_override",
+        max_count         => 10,    # Should be overridden
+        per_interval_secs => 60     # Should be overridden
+    );
+    ok( $limit, "Created rate limit object with overrides" );
+    is( $limit->{max_count},     5,        "max_count overridden correctly" );
+    is( $limit->{interval_secs}, 30,       "interval_secs overridden correctly" );
+    is( $limit->{mode},          'ignore', "mode overridden correctly" );
+    is( $limit->{refill_rate},   5 / 30,   "refill rate calculated with overridden values" );
+
+    # Test ignore mode behavior
+    my $result = $limit->check( userid => 123 );
+    ok( !$result->{exceeded}, "Ignore mode: request not exceeded" );
+    is( $result->{count},          0, "Ignore mode: count remains 0" );
+    is( $result->{time_remaining}, 0, "Ignore mode: no time remaining" );
+
+    # Test that multiple requests in ignore mode don't increment
+    for ( 1 .. 10 ) {
+        $result = $limit->check( userid => 123 );
+        ok( !$result->{exceeded}, "Ignore mode: request $_ not exceeded" );
+        is( $result->{count}, 0, "Ignore mode: count still 0 after request $_" );
+    }
+
+    # Test block mode (default)
+    my $block_limit = DW::RateLimit->get(
+        "test_block",
+        max_count         => 2,
+        per_interval_secs => 60
+    );
+    is( $block_limit->{mode}, 'block', "Default mode is block" );
+
+    # Test block mode behavior
+    $result = $block_limit->check( userid => 123 );
+    ok( !$result->{exceeded}, "Block mode: first request not exceeded" );
+    is( $result->{count}, 1, "Block mode: count incremented" );
+
+    $result = $block_limit->check( userid => 123 );
+    ok( !$result->{exceeded}, "Block mode: second request not exceeded" );
+    is( $result->{count}, 2, "Block mode: count incremented again" );
+
+    $result = $block_limit->check( userid => 123 );
+    ok( $result->{exceeded}, "Block mode: third request exceeded" );
+    is( $result->{count}, 2, "Block mode: count capped at max" );
+    ok( $result->{time_remaining} > 0, "Block mode: time remaining when exceeded" );
+
+    # Clean up test configuration
+    delete $LJ::RATE_LIMITS{test_override};
 };
