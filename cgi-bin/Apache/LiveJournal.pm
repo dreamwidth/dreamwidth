@@ -352,8 +352,11 @@ sub trans {
     if (
         $limit
         && $limit->exceeded(
+
+            # For logged in users, only check userid
+            # For anonymous users, only check IP
             userid => $remote ? $remote->userid : undef,
-            ip     => $ip
+            ip     => $remote ? undef           : $ip
         )
         )
     {
@@ -363,7 +366,7 @@ sub trans {
 
         my $retry_after = $limit->time_remaining(
             userid => $remote ? $remote->userid : undef,
-            ip     => $ip
+            ip     => $remote ? undef           : $ip
         );
         $apache_r->headers_out->{'Retry-After'} = $retry_after;
 

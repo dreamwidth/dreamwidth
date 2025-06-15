@@ -14,7 +14,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 80;
+use Test::More tests => 91;
 use Test::MockTime qw(set_fixed_time restore_time);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -25,23 +25,55 @@ use Time::HiRes qw(time);
 
 # Test basic rate limit creation
 {
-    my $limit = DW::RateLimit->get(
-        "test_key",
-        max_count         => 10,
-        per_interval_secs => 60
-    );
-    ok( $limit, "Created rate limit object" );
+    my $limit = DW::RateLimit->get( "test_key", rate => "10/60s" );
+    ok( $limit, "Created rate limit object with rate string" );
     isa_ok( $limit, "DW::RateLimit::Limit" );
-    is( $limit->{refill_rate}, 10 / 60, "Refill rate calculated correctly" );
+    is( $limit->{refill_rate}, 10 / 60, "Refill rate calculated correctly from rate string" );
+}
+
+# Test different rate string units
+{
+    my $limit = DW::RateLimit->get( "test_key", rate => "10/1m" );
+    ok( $limit, "Created rate limit object with minutes" );
+    is( $limit->{interval_secs}, 60, "Minutes converted to seconds correctly" );
+
+    $limit = DW::RateLimit->get( "test_key", rate => "10/1h" );
+    ok( $limit, "Created rate limit object with hours" );
+    is( $limit->{interval_secs}, 3600, "Hours converted to seconds correctly" );
+
+    $limit = DW::RateLimit->get( "test_key", rate => "10/1d" );
+    ok( $limit, "Created rate limit object with days" );
+    is( $limit->{interval_secs}, 86400, "Days converted to seconds correctly" );
+}
+
+# Test invalid rate strings
+{
+    my $limit = DW::RateLimit->get( "test_key", rate => "invalid" );
+    ok( !$limit, "Invalid rate string rejected" );
+
+    $limit = DW::RateLimit->get(
+        "test_key",
+        rate => "10/60"    # Missing unit
+    );
+    ok( !$limit, "Rate string without unit rejected" );
+
+    $limit = DW::RateLimit->get(
+        "test_key",
+        rate => "10/60x"    # Invalid unit
+    );
+    ok( !$limit, "Rate string with invalid unit rejected" );
+}
+
+# Test missing rate parameter
+{
+    my $limit = DW::RateLimit->get("test_key");
+    ok( !$limit, "Missing rate parameter rejected" );
 }
 
 # Test key generation
 {
-    my $limit = DW::RateLimit->get(
-        "test_key",
-        max_count         => 10,
-        per_interval_secs => 60
-    );
+    my $limit = DW::RateLimit->get( "test_key", rate => "10/60s" );
+    ok( $limit, "Created rate limit object for key generation test" );
 
     # Test key generation for user ID
     my $key = $limit->_get_key( userid => 123 );
@@ -62,11 +94,7 @@ use Time::HiRes qw(time);
 
 # Test rate limit functionality
 LJ::Test::with_fake_memcache {
-    my $limit = DW::RateLimit->get(
-        "test_key",
-        max_count         => 2,
-        per_interval_secs => 60
-    );
+    my $limit = DW::RateLimit->get( "test_key", rate => "2/60s" );
 
     # Test first request
     my $result = $limit->check( userid => 123 );
@@ -89,11 +117,7 @@ LJ::Test::with_fake_memcache {
 
 # Test leaky bucket refill behavior
 LJ::Test::with_fake_memcache {
-    my $limit = DW::RateLimit->get(
-        "test_key",
-        max_count         => 10,
-        per_interval_secs => 60
-    );
+    my $limit = DW::RateLimit->get( "test_key", rate => "10/60s" );
 
     # Set initial time
     set_fixed_time(1000);
@@ -135,16 +159,8 @@ LJ::Test::with_fake_memcache {
 
 # Test rate limit caching
 LJ::Test::with_fake_memcache {
-    my $limit1 = DW::RateLimit->get(
-        "test_key",
-        max_count         => 10,
-        per_interval_secs => 60
-    );
-    my $limit2 = DW::RateLimit->get(
-        "test_key",
-        max_count         => 10,
-        per_interval_secs => 60
-    );
+    my $limit1 = DW::RateLimit->get( "test_key", rate => "10/60s" );
+    my $limit2 = DW::RateLimit->get( "test_key", rate => "10/60s" );
 
     # Test that we get the same object back by comparing properties
     is( $limit1->{name},      $limit2->{name},      "Rate limit objects have same name" );
@@ -158,8 +174,7 @@ LJ::Test::with_fake_memcache {
     # Test that different parameters create new objects
     my $limit3 = DW::RateLimit->get(
         "test_key",
-        max_count         => 20,    # Different max_count
-        per_interval_secs => 60
+        rate => "20/60s"    # Different rate
     );
     isnt( $limit1->{max_count}, $limit3->{max_count},
         "Different parameters create new rate limit objects" );
@@ -167,11 +182,7 @@ LJ::Test::with_fake_memcache {
 
 # Test reset functionality
 LJ::Test::with_fake_memcache {
-    my $limit = DW::RateLimit->get(
-        "test_key",
-        max_count         => 10,
-        per_interval_secs => 60
-    );
+    my $limit = DW::RateLimit->get( "test_key", rate => "10/60s" );
 
     # Set initial time
     set_fixed_time(1000);
@@ -196,16 +207,14 @@ LJ::Test::with_fake_memcache {
 
     # Set up test configuration
     $LJ::RATE_LIMITS{test_override} = {
-        max_count         => 5,
-        per_interval_secs => 30,
-        mode              => 'ignore'
+        rate => "5/30s",
+        mode => 'ignore'
     };
 
     # Test that configuration is applied
     my $limit = DW::RateLimit->get(
         "test_override",
-        max_count         => 10,    # Should be overridden
-        per_interval_secs => 60     # Should be overridden
+        rate => "10/60s"    # Should be overridden
     );
     ok( $limit, "Created rate limit object with overrides" );
     is( $limit->{max_count},     5,        "max_count overridden correctly" );
@@ -227,11 +236,7 @@ LJ::Test::with_fake_memcache {
     }
 
     # Test block mode (default)
-    my $block_limit = DW::RateLimit->get(
-        "test_block",
-        max_count         => 2,
-        per_interval_secs => 60
-    );
+    my $block_limit = DW::RateLimit->get( "test_block", rate => "2/60s" );
     is( $block_limit->{mode}, 'block', "Default mode is block" );
 
     # Test block mode behavior

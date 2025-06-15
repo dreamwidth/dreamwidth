@@ -21,6 +21,7 @@ use warnings;
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
+use DW::API::RateLimit;
 use JSON;
 use Data::Dumper;
 
@@ -30,8 +31,27 @@ use Data::Dumper;
 # Get a list of accesslists, or create a new accesslist
 ################################################
 
-my $accesslists_all = DW::Controller::API::REST->path( 'journals/accesslists_all.yaml',
-    1, { get => \&accesslists_get, post => \&accesslists_new, delete => \&accesslists_delete } );
+my $accesslists_all = DW::Controller::API::REST->path(
+    'journals/accesslists_all.yaml',
+    1,
+    {
+        get => DW::API::RateLimit->wrap(
+            \&accesslists_get,
+            name => 'accesslists_get',
+            rate => '100/60s'
+        ),
+        post => DW::API::RateLimit->wrap(
+            \&accesslists_new,
+            name => 'accesslists_post',
+            rate => '10/60s'
+        ),
+        delete => DW::API::RateLimit->wrap(
+            \&accesslists_delete,
+            name => 'accesslists_delete',
+            rate => '10/60s'
+        )
+    }
+);
 
 sub accesslists_get {
     my ( $self, $args ) = @_;
@@ -93,8 +113,22 @@ sub accesslists_delete {
 # Get details about a specific accesslist
 ################################################
 
-my $accesslists = DW::Controller::API::REST->path( 'journals/accesslists.yaml', 1,
-    { get => \&accesslist_get, post => \&accesslist_edit } );
+my $accesslists = DW::Controller::API::REST->path(
+    'journals/accesslists.yaml',
+    1,
+    {
+        get => DW::API::RateLimit->wrap(
+            \&accesslist_get,
+            name => 'accesslist_get',
+            rate => '100/60s'
+        ),
+        post => DW::API::RateLimit->wrap(
+            \&accesslist_edit,
+            name => 'accesslist_edit',
+            rate => '10/60s'
+        )
+    }
+);
 
 sub accesslist_get {
     my ( $self, $args ) = @_;
@@ -174,8 +208,27 @@ sub accesslist_delete {
 # Get a list of tags, create new tags, or delete tags
 ################################################
 
-my $tags = DW::Controller::API::REST->path( 'journals/tags.yaml', 1,
-    { get => \&tags_get, post => \&tags_post, delete => \&tags_delete } );
+my $tags = DW::Controller::API::REST->path(
+    'journals/tags.yaml',
+    1,
+    {
+        get => DW::API::RateLimit->wrap(
+            \&tags_get,
+            name => 'tags_get',
+            rate => '100/60s'
+        ),
+        post => DW::API::RateLimit->wrap(
+            \&tags_post,
+            name => 'tags_post',
+            rate => '10/60s'
+        ),
+        delete => DW::API::RateLimit->wrap(
+            \&tags_delete,
+            name => 'tags_delete',
+            rate => '10/60s'
+        )
+    }
+);
 
 sub tags_get {
     my ( $self, $args ) = @_;
@@ -248,8 +301,17 @@ sub tags_delete {
 # Get a list of crosspost accounts
 ################################################
 
-my $xpost =
-    DW::Controller::API::REST->path( 'journals/xpostaccounts.yaml', 1, { get => \&xpost_get } );
+my $xpost = DW::Controller::API::REST->path(
+    'journals/xpostaccounts.yaml',
+    1,
+    {
+        get => DW::API::RateLimit->wrap(
+            \&xpost_get,
+            name => 'xpost_get',
+            rate => '100/60s'
+        )
+    }
+);
 
 sub xpost_get {
     my ( $self, $args ) = @_;
