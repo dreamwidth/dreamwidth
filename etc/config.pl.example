@@ -521,31 +521,43 @@
     #     log: Log when limit is exceeded but don't block
     %RATE_LIMITS = (
 
-      # Example configuration, this will configure a rate limit of 5 requests per 5 minutes
-      # and block the request when the limit is exceeded:
-      #
-      # 'failed_login' => {
-      #     max_count => 5,
-      #     per_interval_secs => 300,  # 5 minutes
-      #     mode => 'block',           # default mode
-      # },
-      #
-      # If you just want to disable a rate limit, you can set it to ignore mode:
-      #
-      # 'failed_login' => {
-      #     mode => 'ignore',
-      # },
-      #
-      # If you want to log when a rate limit is exceeded, but not block, you can set it to log mode:
-      #
-      # 'failed_login' => {
-      #     mode => 'log',
-      # },
+        # Example configuration, this will configure a rate limit of 5 requests per 5 minutes
+        # and block the request when the limit is exceeded:
+        #
+        # 'failed_login' => {
+        #     max_count => 5,
+        #     per_interval_secs => 300,  # 5 minutes
+        #     mode => 'block',           # default mode
+        # },
+        #
+        # If you just want to disable a rate limit, you can set it to ignore mode:
+        #
+        # 'failed_login' => {
+        #     mode => 'ignore',
+        # },
+        #
+        # If you want to log when a rate limit is exceeded, but not block, you can set
+        # it to log mode:
+        #
+        # 'failed_login' => {
+        #     mode => 'log',
+        # },
 
-     # Put all rate limits in the RATE_LIMITS hash with an empty hashref, this will use the defaults
-     # for all settings from the code.
+        # Default site rate limits
         'unauthenticated_requests' => {},
         'anonymous_requests'       => {},
+
+        # API rate limits
+        'tags_get'           => {},
+        'tags_post'          => {},
+        'tags_delete'        => {},
+        'xpost_get'          => {},
+        'accesslists_get'    => {},
+        'accesslists_post'   => {},
+        'accesslists_delete' => {},
+        'accesslist_get'     => {},
+        'accesslist_post'    => {},
+        'accesslist_delete'  => {},
     );
 }
 

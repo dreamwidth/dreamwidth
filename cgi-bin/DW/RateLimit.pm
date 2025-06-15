@@ -159,26 +159,55 @@ package DW::RateLimit;
 use strict;
 use warnings;
 
+# Parse a rate limit string in the format "count/interval[unit]"
+# Examples: "1/5s", "10/1m", "100/1h", "1000/1d"
+sub _parse_rate_string {
+    my ( $class, $rate_string ) = @_;
+    return undef unless $rate_string && $rate_string =~ /^(\d+)\/(\d+)([smhd])$/;
+
+    my ( $max_count, $interval, $unit ) = ( $1, $2, $3 );
+
+    # Convert interval to seconds based on unit
+    my $per_interval_secs = $interval;
+    $per_interval_secs *= 60    if $unit eq 'm';
+    $per_interval_secs *= 3600  if $unit eq 'h';
+    $per_interval_secs *= 86400 if $unit eq 'd';
+
+    return {
+        max_count         => $max_count,
+        per_interval_secs => $per_interval_secs
+    };
+}
+
 # Get a rate limit object
 sub get {
     my ( $class, $name, %opts ) = @_;
 
     # Validate required parameters
-    return undef unless $name && $opts{max_count} && $opts{per_interval_secs};
+    return undef unless $name && $opts{rate};
+
+    # Parse the rate string
+    my $parsed = $class->_parse_rate_string( $opts{rate} );
+    return undef unless $parsed;
 
     # Check for configuration overrides
     if ( $LJ::RATE_LIMITS{$name} ) {
         my $config = $LJ::RATE_LIMITS{$name};
-        $opts{max_count}         = $config->{max_count} if defined $config->{max_count};
-        $opts{per_interval_secs} = $config->{per_interval_secs}
-            if defined $config->{per_interval_secs};
+
+        # Handle rate string in config
+        if ( $config->{rate} ) {
+            my $config_parsed = $class->_parse_rate_string( $config->{rate} );
+            if ($config_parsed) {
+                $parsed = $config_parsed;
+            }
+        }
         $opts{mode} = $config->{mode} if defined $config->{mode};
     }
 
     return DW::RateLimit::Limit->new(
         name              => $name,
-        max_count         => $opts{max_count},
-        per_interval_secs => $opts{per_interval_secs},
+        max_count         => $parsed->{max_count},
+        per_interval_secs => $parsed->{per_interval_secs},
         mode              => $opts{mode},
     );
 }
