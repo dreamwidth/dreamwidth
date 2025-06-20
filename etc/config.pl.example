@@ -77,9 +77,6 @@
     ### System Information
     ###
 
-    # path to sendmail and any necessary options
-    $SENDMAIL = "/usr/sbin/sendmail -t";
-
     # command-line to spell checker, or undefined if you don't want spell checking
     #$SPELLER = "/usr/local/bin/ispell -a";
     #$SPELLER = "/usr/bin/aspell pipe --mode=html --sug-mode=fast --ignore-case";

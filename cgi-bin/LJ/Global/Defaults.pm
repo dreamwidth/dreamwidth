@@ -74,13 +74,6 @@ no strict "vars";
     $PALIMGROOT        ||= "$RELATIVE_SITEROOT/palimg";
     $JSPREFIX          ||= "$RELATIVE_SITEROOT/js";
 
-    # path to sendmail and any necessary options
-    $SENDMAIL ||= "/usr/sbin/sendmail -t -oi";
-
-    # protocol, mailserver hostname, and preferential weight.
-    # qmtp, smtp, dmtp, and sendmail are the currently supported protocols.
-    @MAIL_TRANSPORTS = ( [ 'sendmail', $SENDMAIL, 1 ] ) unless @MAIL_TRANSPORTS;
-
     # roles that slow support queries should use in order of precedence
     @SUPPORT_SLOW_ROLES = ('slow') unless @SUPPORT_SLOW_ROLES;
 

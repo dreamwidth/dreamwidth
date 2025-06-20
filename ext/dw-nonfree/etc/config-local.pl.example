@@ -51,10 +51,6 @@
     @MEMCACHE_SERVERS = ('127.0.0.1:11211');
     #$MEMCACHE_COMPRESS_THRESHOLD = 1_000; # bytes
 
-    # optional SMTP server if it is to be used instead of sendmail
-    $SMTP_SERVER = "localhost";
-    $MAIL_TO_THESCHWARTZ = 1;
-
     # setup recaptcha
     %RECAPTCHA = (
             public_key  => $DW::PRIVATE::RECAPTCHA{public_key},
