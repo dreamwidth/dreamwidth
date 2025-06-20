@@ -115,7 +115,6 @@ LJ::Hooks::register_hook(
 
         $hr = {
             commentview   => "Access to /admin/recent_comments",
-            emailqueue    => "Access to /tools/recent_email",
             invites       => "Access to some invites functionality under /admin/invites",
             largefeedsize => "Overrides synsuck_max_size for a feed",
             memcacheclear => "Access to /admin/memcache_clear",

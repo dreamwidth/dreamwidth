@@ -23,7 +23,6 @@ use DW::FormErrors;
 use HTTP::Date;    # str2time
 
 DW::Routing->register_string( '/tools/comment_crosslinks', \&crosslinks_handler,        app => 1 );
-DW::Routing->register_string( '/tools/recent_email',       \&recent_email_handler,      app => 1 );
 DW::Routing->register_string( '/tools/recent_emailposts',  \&recent_emailposts_handler, app => 1 );
 DW::Routing->register_string( '/tools/opml',               \&opml_handler,              app => 1 );
 DW::Routing->register_string( '/tools/emailmanage',        \&emailmanage_handler,       app => 1 );
@@ -55,70 +54,6 @@ where
 
     my $vars = { 'base' => $base, 'props' => $props, 'authas_html' => $rv->{authas_html} };
     return DW::Template->render_template( 'tools/comment_crosslinks.tt', $vars );
-}
-
-sub recent_email_handler {
-    my ( $ok, $rv ) = controller();
-    return $rv unless $ok;
-    my $r = DW::Request->get;
-    my $u = $rv->{u};
-
-    my $is_admin = $u->has_priv( "siteadmin", "emailqueue" );
-    my $email;
-
-    if ($is_admin) {
-        my $what = $r->get_args->{'what'} || $r->post_args->{'what'};
-        if ( $what =~ /@/ ) {    # looking up an email address
-            $email = $what;
-        }
-        else {                   # looking up a user
-            $what = LJ::canonical_username($what);
-            $u    = LJ::load_user($what) if $what;
-            return LJ::error_list("There is no user $what")
-                unless $u;
-        }
-
-        $email ||= $u->email_raw;
-        my ( $username, $domain ) = $email =~ /(.*)\@(.*)/;
-
-        # TODO: Figure out how to make this work when TheSchwartz has gone away
-        # and is no longer being used for stuff.
-        my $sclient = LJ::theschwartz();
-        my @jobs    = $sclient->list_jobs(
-            {
-                funcname    => 'TheSchwartz::Worker::SendEmail',
-                coalesce_op => 'LIKE',
-                coalesce    => "$domain\@$username",
-                want_handle => 1
-            }
-        );
-
-        my @cleaned_jobs;
-        foreach my $job ( sort { $a->run_after <=> $b->run_after } @jobs ) {
-            my $email = $job->arg->{data};
-            my ($subject) = $email =~ /Subject:(.*)/;
-
-            my $temp = {
-                subject   => $subject,
-                jobid     => $job->jobid,
-                run_after => LJ::time_to_http( $job->run_after )
-            };
-
-            if ( $job->failures ) {
-                $temp->{failures} = $job->handle->failure_log;
-            }
-
-            push @cleaned_jobs, $temp;
-        }
-
-        my $vars = { 'what' => $what, 'jobs' => \@cleaned_jobs };
-        return DW::Template->render_template( 'tools/recent_email.tt', $vars );
-    }
-    else {
-        $r->add_msg( "You do not have access to use this page.", $r->WARNING );
-        return $r->redirect($LJ::SITEROOT);
-    }
-
 }
 
 sub recent_emailposts_handler {
