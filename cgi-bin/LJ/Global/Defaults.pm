@@ -77,6 +77,11 @@ no strict "vars";
     # roles that slow support queries should use in order of precedence
     @SUPPORT_SLOW_ROLES = ('slow') unless @SUPPORT_SLOW_ROLES;
 
+    # Backward compatibility: if EMAIL_VIA_SES is configured, import it into SMTP_SERVER
+    if ( %EMAIL_VIA_SES && !%SMTP_SERVER ) {
+        %SMTP_SERVER = %EMAIL_VIA_SES;
+    }
+
     # where we set the cookies (note the period before the domain)
     $COOKIE_DOMAIN ||= ".$DOMAIN";
 

@@ -12,72 +12,54 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
+use v5.10;
 use strict;
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 
+use Carp qw/ croak /;
 use LJ::Worker::TheSchwartz;
-use TheSchwartz::Worker::SendEmail;
-use Time::HiRes ();
-
-# Intercept the email from the worker class so we can generate some statistics
-# on it.
-my $COUNT = 0;
-my $send_job = \&TheSchwartz::Worker::SendEmail::_send_job_on_connection;
-*TheSchwartz::Worker::SendEmail::_send_job_on_connection = sub {
-    my ( $class, $smtp, $job ) = @_;
-    my $fjob = FakeJob->new( $job );
-
-    $COUNT++;
-    my $rv = $send_job->( $class, $smtp, $fjob );
-    DW::Stats::increment( 'dw.email.sent', 1, [ "status:$fjob->{invoked_last}", "via:direct" ] );
-
-    return $rv;
-};
-
-TheSchwartz::Worker::SendEmail->set_HELO($LJ::DOMAIN);
-TheSchwartz::Worker::SendEmail->set_keep_exit_status(sub { $LJ::KEEP_EXITSTATUS{'SendEmail'} || 0 });
-TheSchwartz::Worker::SendEmail->set_on_5xx(sub {
-    my ($rcpt, $job, $details) = @_;
-    LJ::errobj('DieString', message => "send_email to $rcpt failed: $details")->log;
-});
-
-my $sclient = LJ::theschwartz();
-$sclient->set_verbose(sub {
-    my ($msg, $job) = @_;
-    $msg =~ s/\s+$//;
-    warn "$msg\n";
-    return unless $LJ::DEBUG{'ts-sendemail'};
-    return if $msg =~ /found no jobs$/;
-
-    my $handle = $job->handle->as_string;
-    my $now = sprintf("%0.05f", Time::HiRes::time());
-    LJ::errobj('DieString', message => "ts_info: $now: [$handle] $msg")->log;
-});
 
 schwartz_decl('TheSchwartz::Worker::SendEmail');
 schwartz_on_idle(sub {
-    $0 = "send-email [idle, $COUNT]";
+    $0 = "send-email [idle, $TheSchwartz::Worker::SendEmail::_COUNT, $TheSchwartz::Worker::SendEmail::_BAD]";
 });
 schwartz_work();
 
+# ============================================================================
+package TheSchwartz::Worker::SendEmail;
+use base 'TheSchwartz::Worker';
+use Carp qw/ croak /;
 
-################################################################################
-## FakeJob
-##
+our $_COUNT = 0;
+our $_BAD = 0;
 
-package FakeJob;
-
-sub new {
+sub work {
     my ( $class, $job ) = @_;
-    my $self = { job => $job };
-    return bless $self, $class;
+    my $args = $job->arg;
+
+    # Convert TheSchwartz job to DW::Task::SendEmail task
+    my $task = DW::Task::SendEmail->new($args);
+    
+    # Enqueue the task for processing by the task queue system
+    my $result = DW::TaskQueue->dispatch($task);
+    
+    if ($result) {
+        # Task was successfully enqueued, mark job as completed
+        $job->completed;
+        $_COUNT++;
+        DW::Stats::increment( 'dw.email.sent', 1, [ "status:enqueued", "via:direct" ] );
+    } else {
+        # Failed to enqueue task, retry the job
+        $job->failed("Failed to enqueue email task, will retry");
+    }
 }
 
-sub AUTOLOAD {
-    my $self = shift;
-    my $method = $FakeJob::AUTOLOAD =~ /^FakeJob::(.+)$/ ? $1 : undef;
-    $self->{invoked_last} = $method;
-    return $self->{job}->$method( @_ );
+sub keep_exit_status_for { 0 }
+sub grab_for { 500 }
+sub max_retries { 5 * 24 }  # 5 days * 24 hours
+sub retry_delay {
+    my ($class, $fails) = @_;
+    return ((5*60, 5*60, 15*60, 30*60)[$fails] || 3600);
 }

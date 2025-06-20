@@ -21,6 +21,8 @@ use LJ::Worker::TheSchwartz;
 use TheSchwartz::Worker::SendEmail;
 use Time::HiRes ();
 
+# This worker exists to send emails in bulk. Because of the argument
+# to schwartz_decl, it only processes jobs that are marked as 'mass'.
 schwartz_decl('TheSchwartz::Worker::SendEmail', 'mass');
 
 TheSchwartz::Worker::SendEmail->set_HELO($LJ::DOMAIN);

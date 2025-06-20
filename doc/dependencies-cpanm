@@ -46,7 +46,7 @@ Net::DNS
 Net::OAuth
 Net::OpenID::Consumer
 Net::OpenID::Server
-Net::SMTPS
+Net::SMTP
 Net::Subnet
 Params::Classify@0.015
 Paws::S3

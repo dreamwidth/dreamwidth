@@ -158,13 +158,15 @@ use Net::Subnet;
     # $PROXY_URL = "https://proxy.myhost.net";
     # $PROXY_SALT_FILE = "$HOME/etc/proxy-salt";
 
-    # If you want to use Amazon SES (e.g. bin/worker/send-email-ses) then you
-    # need to do a lot of setup on the Amazon side and then fill this out. The
-    # settings are from the SMTP Settings page in SES.
-    # %EMAIL_VIA_SES = (
-    #     hostname => '...',
-    #     username => '...',
-    #     password => '...',
+    # If you want to use SMTP for email delivery (e.g. Amazon SES, Gmail, etc.) then you
+    # need to configure your SMTP server settings here. The settings are from your SMTP
+    # provider's configuration page.
+    # %SMTP_SERVER = (
+    #     hostname  => 'email-smtp.us-east-1.amazonaws.com',  # SES example
+    #     username  => 'YOUR_SMTP_USERNAME',
+    #     password  => 'YOUR_SMTP_PASSWORD',
+    #     port      => 587,  # optional, defaults to 587
+    #     plaintext => 0,    # optional, set to 1 to disable TLS
     # );
 
     # Configuration of BlobStore. This is the new storage abstraction used to
