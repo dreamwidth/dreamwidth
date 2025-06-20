@@ -54,7 +54,6 @@ my %workers = (
     'dw-send-email'      => [ 1, 50, 512, 256, 50, ],
     'embeds'             => [ 1, 15, 512, 256, 50, ],
     'resolve-extacct'    => [ 1, 1,  512, 256, 50, ],
-    'send-email-ses'     => [ 1, 1,  512, 256, 50, ],
     'spellcheck-gm'      => [ 1, 1,  512, 256, 50, ],
     'sphinx-copier'      => [ 1, 1,  512, 256, 50, ],
     'sphinx-search-gm'   => [ 1, 1,  512, 256, 50, ],

@@ -32,7 +32,6 @@ on:
         - esn-fired-event
         - esn-process-sub
         - resolve-extacct
-        - send-email-ses
         - spellcheck-gm
         - sphinx-copier
         - sphinx-search-gm
@@ -245,15 +244,6 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
-      - name: (send-email-ses) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'send-email-ses'
-        id: render-worker-container-send-email-ses
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-send-email-ses-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
       - name: (spellcheck-gm) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'spellcheck-gm'
         id: render-worker-container-spellcheck-gm
@@ -449,14 +439,6 @@ jobs:
           task-definition: ${{ steps.render-worker-container-resolve-extacct.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-resolve-extacct-service"
-
-      - name: (send-email-ses) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'send-email-ses'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-send-email-ses.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-send-email-ses-service"
 
       - name: (spellcheck-gm) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'spellcheck-gm'
