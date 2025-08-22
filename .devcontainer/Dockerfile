@@ -9,32 +9,16 @@ ENV LJHOME /workspaces/dreamwidth
 ENV PERL5LIB /workspaces/dreamwidth/extlib/lib/perl5
 ENV DEBIAN_FRONTEND noninteractive
 
-# Install basic dependencies
+# Install basic dependencies needed for Docker build process
 RUN apt-get update && \
     apt-get install -y apt-transport-https curl git cpanminus tzdata rsync vim && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
     dpkg-reconfigure -f noninteractive tzdata
 
-# Install system dependencies required for tests
-RUN apt-get install -y \
-    libexpat1-dev \
-    g++ \
-    make \
-    libgtop2-dev \
-    libgmp3-dev \
-    libxml2-dev \
-    libdbi-perl \
-    libdbd-mysql-perl \
-    libgd-gd2-perl \
-    libgd-graph-perl \
-    libgd-text-perl \
-    libpng-dev \
-    perlmagick \
-    libdbd-sqlite3-perl \
-    libdatetime-perl \
-    libio-aio-perl \
-    libssl-dev \
-    default-jre && \
+# Copy and install system dependencies automatically from dependencies-system file
+COPY doc/dependencies-system /tmp/dependencies-system
+RUN apt-get install -y $(cat /tmp/dependencies-system | grep -v '^#' | grep -v '^$' | tr '\n' ' ') && \
+    rm /tmp/dependencies-system && \
     rm -rf /var/lib/apt/lists/*
 
 # Install cpm for faster CPAN module installation
