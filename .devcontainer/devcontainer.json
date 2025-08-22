@@ -21,7 +21,7 @@
   },
   "containerEnv": {
     "LJHOME": "/workspaces/dreamwidth",
-    "PERL5LIB": "/workspaces/dreamwidth/extlib/lib/perl5",
+    "PERL5LIB": "/opt/dreamwidth-extlib/lib/perl5",
     "DEBIAN_FRONTEND": "noninteractive"
   },
   "postCreateCommand": "echo 'Dreamwidth test environment ready! Run: prove t/00-compile.t' && ls -la t/ | head -10",

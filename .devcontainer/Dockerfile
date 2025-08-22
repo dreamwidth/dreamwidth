@@ -40,14 +40,11 @@ RUN apt-get install -y \
 # Install cpm for faster CPAN module installation
 RUN cpanm -nq App::cpm
 
-# Create the workspace directory structure
-RUN mkdir -p /workspaces/dreamwidth/extlib
-
 # Copy dependency files to install Perl modules
 COPY doc/dependencies-cpanm /tmp/dependencies-cpanm
 
-# Install CPAN dependencies
-RUN cpm install -v --show-build-log-on-failure --no-color -L /workspaces/dreamwidth/extlib/ - < /tmp/dependencies-cpanm && \
+# Install CPAN dependencies to system location (won't be overwritten by volume mount)
+RUN cpm install -v --show-build-log-on-failure --no-color -L /opt/dreamwidth-extlib/ - < /tmp/dependencies-cpanm && \
     rm -rf /root/.perl-cpm && \
     rm -rf /root/.cpanm && \
     rm /tmp/dependencies-cpanm
