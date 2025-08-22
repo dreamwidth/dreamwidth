@@ -1,0 +1,30 @@
+{
+  "name": "Dreamwidth Test Environment",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.perl",
+        "ms-vscode.test-adapter-converter",
+        "hbenl.vscode-test-explorer"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "containerEnv": {
+    "LJHOME": "/workspaces/dreamwidth",
+    "PERL5LIB": "/workspaces/dreamwidth/extlib/lib/perl5",
+    "DEBIAN_FRONTEND": "noninteractive"
+  },
+  "postCreateCommand": "echo 'Dreamwidth test environment ready! Run: prove t/00-compile.t' && ls -la t/ | head -10",
+  "remoteUser": "root",
+  "workspaceFolder": "/workspaces/dreamwidth"
+}
