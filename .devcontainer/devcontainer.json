@@ -27,16 +27,7 @@
     "PERL5LIB": "/opt/dreamwidth-extlib/lib/perl5",
     "DEBIAN_FRONTEND": "noninteractive"
   },
-  "forwardPorts": [
-    22
-  ],
-  "portsAttributes": {
-    "22": {
-      "label": "SSH",
-      "onAutoForward": "notify"
-    }
-  },
-  "postCreateCommand": "service ssh start && echo 'Dreamwidth test environment ready! SSH is available on port 22.' && echo 'Run: prove t/00-compile.t' && ls -la t/ | head -10",
+  "postCreateCommand": "echo 'Dreamwidth test environment ready! SSH is available on port 22.' && echo 'Run: prove t/00-compile.t' && ls -la t/ | head -10",
   "remoteUser": "root",
   "workspaceFolder": "/workspaces/dreamwidth"
 }
