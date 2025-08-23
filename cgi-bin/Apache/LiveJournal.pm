@@ -351,7 +351,6 @@ sub trans {
     }
 
     LJ::start_request();
-    LJ::Procnotify::check();
     S2::set_domain('LJ');
 
     my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
