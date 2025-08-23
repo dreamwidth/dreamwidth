@@ -796,6 +796,7 @@ CREATE TABLE talkleft_xfp (
 )
 EOC
 
+register_tabledrop("procnotify");
 register_tabledrop("ibill_codes");
 register_tabledrop("paycredit");
 register_tabledrop("payments");
@@ -1221,14 +1222,6 @@ CREATE TABLE ml_text (
 ) ENGINE=MYISAM
 EOC
 
-register_tablecreate( "procnotify", <<'EOC');
-CREATE TABLE procnotify (
-    nid   INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (nid),
-    cmd   VARCHAR(50),
-    args  VARCHAR(255)
-)
-EOC
 
 register_tablecreate( "syndicated", <<'EOC');
 CREATE TABLE syndicated (
