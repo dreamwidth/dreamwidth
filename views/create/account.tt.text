@@ -8,7 +8,7 @@
 
 .field.news=Yes, email me [[sitename]] announcements.
 
-.field.tn_state=I am a resident of Tennessee.
+.field.tn_state=Are you a resident of Tennessee?
 
 .field.paidaccount=<strong>Note:</strong> This account will be a [[type]] for [[nummonths]] [[?nummonths|month|months]].
 
@@ -30,7 +30,7 @@
 
 .tip.password=Choose a secure password that's between [[password_minlength]] and [[password_maxlength]] characters long with at least 4 unique characters and one non-letter character (digit or symbol). Passwords can't be based on your account name, your real name, or your email address for security reasons.
 
-.tip.tn_state=This question is required for compliance with Tennessee state law regarding minors.
+.tip.tn_state=For legal reasons, we can't allow new signups from people under 18 who live in TN.
 
 .tip.username=Use lower-case letters (a-z), digits (0-9), and underscores (_), and choose a name between 2 and 25 characters long. You can't start or end your account name with an underscore, nor have two consecutive underscores.
 

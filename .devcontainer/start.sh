@@ -40,4 +40,4 @@ ln -ns $LJHOME/.devcontainer/config/etc/apache2 /etc/apache2 || true
 
 # Start services and boom!
 service memcached start
-/usr/sbin/apache2ctl -DFOREGROUND
+apache2ctl start
