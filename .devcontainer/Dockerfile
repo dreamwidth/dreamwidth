@@ -11,9 +11,11 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Install basic dependencies needed for Docker build process
 RUN apt-get update && \
-    apt-get install -y apt-transport-https curl git cpanminus tzdata rsync vim openssh-server && \
+    apt-get install -y apt-transport-https curl git cpanminus tzdata rsync vim openssh-server locales && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
-    dpkg-reconfigure -f noninteractive tzdata
+    dpkg-reconfigure -f noninteractive tzdata && \
+    locale-gen en_US.UTF-8 && \
+    update-locale LANG=en_US.UTF-8
 
 # Copy and install system dependencies automatically from dependencies-system file
 COPY doc/dependencies-system /tmp/dependencies-system

@@ -25,9 +25,11 @@
   "containerEnv": {
     "LJHOME": "/workspaces/dreamwidth",
     "PERL5LIB": "/opt/dreamwidth-extlib/lib/perl5",
-    "DEBIAN_FRONTEND": "noninteractive"
+    "DEBIAN_FRONTEND": "noninteractive",
+    "LANG": "en_US.UTF-8",
+    "LC_ALL": "en_US.UTF-8"
   },
-  "postCreateCommand": "echo 'Dreamwidth test environment ready! SSH is available on port 22.' && echo 'Run: prove t/00-compile.t' && ls -la t/ | head -10",
+  "postCreateCommand": "echo 'Dreamwidth test environment ready! SSH is available on port 22.' && echo 'Locale:' && locale && echo 'Run: prove t/00-compile.t' && ls -la t/ | head -10",
   "remoteUser": "root",
   "workspaceFolder": "/workspaces/dreamwidth"
 }
