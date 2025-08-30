@@ -1222,7 +1222,6 @@ CREATE TABLE ml_text (
 ) ENGINE=MYISAM
 EOC
 
-
 register_tablecreate( "syndicated", <<'EOC');
 CREATE TABLE syndicated (
     userid  INT UNSIGNED NOT NULL,
