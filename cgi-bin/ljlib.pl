@@ -104,7 +104,6 @@ use DW::Logic::LogItems;
 use LJ::CleanHTML;
 use DW::LatestFeed;
 use LJ::Keywords;
-// ...existing code...
 use LJ::DB;
 use LJ::Tags;
 use LJ::TextUtil;
