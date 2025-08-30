@@ -60,19 +60,31 @@ no strict "vars";
 
     $MSG_READONLY_USER ||= "Database temporarily in read-only mode during maintenance.";
 
-    $PROTOCOL     ||= "https";                        # Should always be https except on dev servers
-    $DOMAIN_WEB   ||= "www.$DOMAIN";
-    $DOMAIN_SHOP  ||= $DOMAIN_WEB;
-    $SITEROOT     ||= "$PROTOCOL://$DOMAIN_WEB";
-    $SHOPROOT     ||= "$PROTOCOL://$DOMAIN_WEB/shop";
+    if ( $IS_DEV_SERVER && $IS_DEV_CONTAINER ) {
+
+        # Do not redirect or set domains
+        $PROTOCOL          = "";
+        $DOMAIN            = "";
+        $DOMAIN_WEB        = "";
+        $SITEROOT          = "";
+        $SHOPROOT          = "";
+        $RELATIVE_SITEROOT = "";
+    }
+    else {
+        # Should always be https except on dev servers
+        $PROTOCOL          ||= "https";
+        $DOMAIN_WEB        ||= "www.$DOMAIN";
+        $DOMAIN_SHOP       ||= $DOMAIN_WEB;
+        $SITEROOT          ||= "$PROTOCOL://$DOMAIN_WEB";
+        $SHOPROOT          ||= "$PROTOCOL://$DOMAIN_WEB/shop";
+        $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
+    }
     $IMGPREFIX    ||= "$SITEROOT/img";
     $STATPREFIX   ||= "$SITEROOT/stc";
     $WSTATPREFIX  ||= "$SITEROOT/stc";
     $USERPIC_ROOT ||= "$LJ::SITEROOT/userpic";
-
-    $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
-    $PALIMGROOT        ||= "$RELATIVE_SITEROOT/palimg";
-    $JSPREFIX          ||= "$RELATIVE_SITEROOT/js";
+    $PALIMGROOT   ||= "$RELATIVE_SITEROOT/palimg";
+    $JSPREFIX     ||= "$RELATIVE_SITEROOT/js";
 
     # roles that slow support queries should use in order of precedence
     @SUPPORT_SLOW_ROLES = ('slow') unless @SUPPORT_SLOW_ROLES;

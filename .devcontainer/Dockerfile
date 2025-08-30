@@ -1,7 +1,7 @@
 # Dreamwidth Test Environment for GitHub Codespaces
 # Optimized for running tests only (no database, Apache, etc.)
 
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Set working directory
@@ -27,6 +27,13 @@ RUN apt-get install -y $(cat /tmp/dependencies-system | grep -v '^#' | grep -v '
 
 # Install dependencies for local development full-stack
 RUN apt-get install -y mysql-server mysql-client memcached htop
+
+# Install ruby compass for building static files
+RUN apt-get update && \
+    apt-get install -y ruby-rubygems ruby-dev build-essential bison openssl \
+    libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev \
+    libxml2-dev autoconf libc6-dev ncurses-dev automake libtool && \
+    gem install compass
 
 # Install cpm for faster CPAN module installation
 RUN cpanm -nq App::cpm
