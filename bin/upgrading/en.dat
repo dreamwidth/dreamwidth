@@ -4769,6 +4769,8 @@ widget.createaccount.error.birthdate.invalid2=You must enter a valid birthdate, 
 
 widget.createaccount.error.birthdate.underage=You must be over 13 to create an account.
 
+widget.createaccount.error.tn_underage=Due to Tennessee state law, users under 18 who are residents of Tennessee cannot create an account at this time.
+
 widget.createaccount.error.cannotcreate=There was an error creating your account.
 
 widget.createaccount.error.captcha.invalid=Invalid answer to previous challenge.  Try another.

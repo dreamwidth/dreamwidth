@@ -122,6 +122,19 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 </div>
 
+<div class="row">
+<div class="columns medium-8">
+    [%- form.checkbox_nested(
+        label = dw.ml( '.field.tn_state' )
+        name = 'tn_state'
+        value = 1
+    ) -%]
+</div>
+
+<div class="columns medium-4">
+    [%- INCLUDE tooltip text='.tip.tn_state' id='tn_state' -%]
+</div>
+</div>
 
 <div class="row"><div class="columns medium-8">
     [%- form.checkbox_nested(
