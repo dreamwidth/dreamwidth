@@ -63,8 +63,9 @@ no strict "vars";
     if ( $IS_DEV_SERVER && $IS_DEV_CONTAINER ) {
 
         # Do not redirect or set domains
-        $PROTOCOL          = "";
+        $PROTOCOL          = "http";
         $DOMAIN            = "";
+        $USER_DOMAIN       = "";
         $DOMAIN_WEB        = "";
         $SITEROOT          = "";
         $SHOPROOT          = "";
