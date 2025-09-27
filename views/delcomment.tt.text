@@ -17,13 +17,13 @@ only <em>community members</em> to post comments.
 
 .confirm.body=Are you sure you want to delete this comment?
 
-.confirm.delthread=Delete thread (all subcomments):
+.confirm.delthread2=Delete thread (all subcomments)
 
 .confirm.head=Delete this comment?
 
-.confirm.spam=Mark this comment as spam:
+.confirm.spam2=Mark this comment as spam
 
-.confirm.submit=Delete Comment:
+.confirm.submit2=Delete Comment
 
 .error.alreadydeleted=The specified comment has already been deleted.
 

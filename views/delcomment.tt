@@ -1,0 +1,41 @@
+[% IF done %]
+    [%- sections.title = ".success.head" | ml -%]
+    [%- CALL dw.active_resource_group( "foundation" ) -%]
+     <p>[% msg %]</p>
+[% ELSE %]
+    [%- sections.title = ".confirm.head" | ml -%]
+    [%- CALL dw.active_resource_group( "foundation" ) -%]
+    <p>[% ".confirm.body" | ml %]</p>
+        <form method='post' action='delcomment?journal=[% u.user %]&id=[% id %]'>
+    [% dw.form_auth() %]
+    <div class='highlight-box'>
+
+    <div align='center' style='margin: 8px'>[% form.submit(name => 'confirm', value => dw.ml('.confirm.submit2')) %]</div>
+
+    [%- IF can_ban -%]
+        <div>[% form.checkbox({ 'type' => 'check', 'name' => 'ban', 'id' => 'ban', 'noescape' => 1
+        label => dw.ml(".confirm.banuser$iscomm", { 'user' => tp_user })})%]
+        </div>
+    [%- END -%]
+
+    [%- IF can_spam -%]
+    [%# Despite the idea of natural selection, don't let users report their own comments as spam %]
+        <div>[% form.checkbox({name => 'spam', id => 'spam', label => dw.ml('.confirm.spam2')}) %]
+        </div>
+    [%- END -%]
+
+    [%- IF can_delthread -%]
+        <div>[% form.checkbox({name => 'delthread', id => 'delthread', label => dw.ml('.confirm.delthread2')}) %]
+        </div>
+    [%- END -%]
+
+    </div>
+[%- IF can_manage -%]
+<p>
+       [% dw.ml(".changeoptions$iscomm", { 'link' =>
+            "<a href='/manage/settings/?cat=privacy&authas=$u.user'>" _ dw.ml('/manage/settings/index.bml.title.self') _ "</a>" }) %]
+    </p>
+    [%- END -%]
+
+    </form>\n";
+[% END %]
