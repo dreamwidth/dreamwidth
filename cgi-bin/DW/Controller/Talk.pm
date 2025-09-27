@@ -11,6 +11,16 @@ DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 DW::Routing->register_string( '/talkmulti',   \&talkmulti_handler,   app => 1 );
 DW::Routing->register_string( '/talkscreen',  \&talkscreen_handler,  app => 1 );
 DW::Routing->register_string( '/delcomment',  \&delcomment_handler,  app => 1 );
+DW::Routing->register_rpc(
+    "delcomment", \&delcomment_handler,
+    format  => 'json',
+    methods => { POST => 1 }
+);
+DW::Routing->register_rpc(
+    "talkscreen", \&talkscreen_handler,
+    format  => 'json',
+    methods => { POST => 1 }
+);
 
 # I think this canon isn't written down anywhere else, so HWAET: I sing a record
 # of every damn form field that comes through in reply form POSTs. -NF
@@ -970,18 +980,18 @@ sub talkmulti_handler {
         $title = '.title.delete';
     }
     else {
-        return error_ml('.error.invalid_mode');
+        return error_ml('/talkmulti.tt.error.invalid_mode');
     }
 
     my $sth;
 
-    return error_ml("<?requirepost?>") unless $r->did_post;
+    return error_ml("bml.requirepost") unless $r->did_post;
 
     my @talkids;
     foreach ( keys %{$POST} ) {
         push @talkids, $1 if /^selected_(\d+)$/;
     }
-    return error_ml('.error.none_selected') unless @talkids;
+    return error_ml('/talkmulti.tt.error.none_selected') unless @talkids;
 
     my $u = LJ::load_user( $POST->{'journal'} );
     return error_ml('talk.error.bogusargs') unless $u && $u->{'clusterid'};
@@ -996,15 +1006,16 @@ sub talkmulti_handler {
     my $itemid      = $ditemid >> 8;
     my $log = $dbcr->selectrow_hashref( "SELECT * FROM log2 WHERE journalid=? AND jitemid=?",
         undef, $jid, $itemid );
-    return error_ml('.error.inconsistent_data') unless $log && $log->{'anum'} == ( $ditemid & 255 );
+    return error_ml('/talkmulti.tt.error.inconsistent_data')
+        unless $log && $log->{'anum'} == ( $ditemid & 255 );
     my $up = LJ::load_userid( $log->{'posterid'} );
 
     # check permissions
-    return error_ml('.error.privs.screen')
+    return error_ml('/talkmulti.tt.error.privs.screen')
         if $mode eq "screen" && !LJ::Talk::can_screen( $remote, $u, $up );
-    return error_ml('.error.privs.unscreen')
+    return error_ml('/talkmulti.tt.error.privs.unscreen')
         if $mode eq "unscreen" && !LJ::Talk::can_unscreen( $remote, $u, $up );
-    return error_ml('.error.privs.delete')
+    return error_ml('/talkmulti.tt.error.privs.delete')
         if ( $mode eq "delete" || $mode eq 'deletespam' )
         && !LJ::Talk::can_delete( $remote, $u, $up );
 
@@ -1082,19 +1093,15 @@ sub talkscreen_handler {
 
     my $jsmode = !!$GET->{jsmode};
 
-    # explicitly set language scope for use when called as an
-    # endpoint from users' journals:
-    # BML::set_language_scope('/talkscreen.bml');
-
     my $error = sub {
         if ($jsmode) {
 
             # FIXME: remove once we've switched over completely to jquery
             if ( !!$GET->{json} ) {
-                return to_json( { error => $_[0] } );
+                return to_json( { error => LJ::Lang::ml( $_[0] ) } );
             }
             else {
-                return "alert('" . LJ::ejs( $_[0] ) . "'); 0;";
+                return "alert('" . LJ::ejs( LJ::Lang::ml( $_[0] ) ) . "'); 0;";
             }
         }
         return error_ml( $_[0] );
@@ -1153,7 +1160,7 @@ sub talkscreen_handler {
     # mastersesion cookie anyway.
     my $domain_owner = LJ::Session->url_owner;
     if ($domain_owner) {
-        return $error->("URL doesn't match journal owner") unless $domain_owner eq $u->{user};
+        return $error->('talk.error.bad_owner') unless $domain_owner eq $u->{user};
     }
 
     my $dbcr = LJ::get_cluster_def_reader($u);
@@ -1199,14 +1206,14 @@ sub talkscreen_handler {
 
     if ( $mode eq 'screen' ) {
         my $can_screen = LJ::Talk::can_screen( $remote, $u, $up, $post->{'userpost'} );
-        return $error->('.error.privs.screen') unless $can_screen;
+        return $error->('/talkscreen.tt.error.privs.screen') unless $can_screen;
         if ( $POST->{'confirm'} eq 'Y' ) {
             if ( $state ne 'S' ) {
                 LJ::Talk::screen_comment( $u, $qitemid, $qtalkid );
             }
 
             # FIXME: no error checking?
-            return $jsres->( $mode, '.screened.body' ) if $jsmode;
+            return $jsres->( $mode, '/talkscreen.tt.screened.body' ) if $jsmode;
             $vars->{done}   = 1;
             $vars->{action} = 'screened';
             return;
@@ -1215,14 +1222,14 @@ sub talkscreen_handler {
     }
     elsif ( $mode eq 'unscreen' ) {
         my $can_unscreen = LJ::Talk::can_unscreen( $remote, $u, $up, $post->{'userpost'} );
-        return $error->('.error.privs.unscreen') unless $can_unscreen;
+        return $error->('/talkscreen.tt.error.privs.unscreen') unless $can_unscreen;
         if ( $POST->{'confirm'} eq 'Y' ) {
             if ( $state ne 'A' ) {
                 LJ::Talk::unscreen_comment( $u, $qitemid, $qtalkid );
             }
 
             # FIXME: no error checking?
-            return $jsres->( $mode, '.unscreened.body' ) if $jsmode;
+            return $jsres->( $mode, '/talkscreen.tt.unscreened.body' ) if $jsmode;
             $vars->{done}   = 1;
             $vars->{action} = 'unscreened';
         }
@@ -1230,13 +1237,13 @@ sub talkscreen_handler {
     }
     elsif ( $mode eq 'freeze' ) {
         my $can_freeze = LJ::Talk::can_freeze( $remote, $u, $up, $post->{userpost} );
-        return $error->('.error.privs.freeze') unless $can_freeze;
+        return $error->('/talkscreen.tt.error.privs.freeze') unless $can_freeze;
 
         if ( $POST->{confirm} eq 'Y' ) {
             if ( $state ne 'F' ) {
                 LJ::Talk::freeze_thread( $u, $qitemid, $qtalkid );
             }
-            return $jsres->( $mode, '.frozen.body' ) if $jsmode;
+            return $jsres->( $mode, '/talkscreen.tt.frozen.body' ) if $jsmode;
 
             $vars->{done}   = 1;
             $vars->{action} = 'frozen';
@@ -1249,7 +1256,7 @@ sub talkscreen_handler {
             if ( $state eq 'F' ) {
                 LJ::Talk::unfreeze_thread( $u, $qitemid, $qtalkid );
             }
-            return $jsres->( $mode, '.unfrozen.body' ) if $jsmode;
+            return $jsres->( $mode, '/talkscreen.tt.unfrozen.body' ) if $jsmode;
 
             $vars->{done}   = 1;
             $vars->{action} = 'unfrozen';
@@ -1281,10 +1288,10 @@ sub delcomment_handler {
             # FIXME: remove once we've switched over completely to jquery
             if ( !!$GET->{json} ) {
                 sleep 1 if $LJ::IS_DEV_SERVER;
-                return to_json( { error => $_[0] } );
+                return to_json( { error => LJ::Lang::ml( $_[0] ) } );
             }
             else {
-                return "alert('" . LJ::ejs( $_[0] ) . "'); 0;";
+                return "alert('" . LJ::ejs( LJ::Lang::ml( $_[0] ) ) . "'); 0;";
             }
         }
         return error_ml( $_[0] );
@@ -1296,7 +1303,7 @@ sub delcomment_handler {
 
     return $error->( LJ::error_noremote() ) unless $remote;
 
-    return $error->("Missing parameters.") unless $GET->{'journal'} ne "" && $GET->{'id'};
+    return $error->('talk.error.bogusargs') unless $GET->{'journal'} ne "" && $GET->{'id'};
 
     # $u is user object of journal that owns the talkpost
     my $u = LJ::load_user( $GET->{'journal'} );
@@ -1314,7 +1321,7 @@ sub delcomment_handler {
     # mastersesion cookie anyway.
     my $domain_owner = LJ::Session->url_owner;
     if ($domain_owner) {
-        return $bad_input->("URL doesn't match journal owner)")
+        return $bad_input->('talk.error.bad_owner')
             unless $domain_owner eq $u->{user};
     }
 

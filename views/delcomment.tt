@@ -1,20 +1,20 @@
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
 [% IF done %]
     [%- sections.title = ".success.head" | ml -%]
-    [%- CALL dw.active_resource_group( "foundation" ) -%]
      <p>[% msg %]</p>
 [% ELSE %]
     [%- sections.title = ".confirm.head" | ml -%]
-    [%- CALL dw.active_resource_group( "foundation" ) -%]
+
     <p>[% ".confirm.body" | ml %]</p>
         <form method='post' action='delcomment?journal=[% u.user %]&id=[% id %]'>
     [% dw.form_auth() %]
-    <div class='highlight-box'>
-
-    <div align='center' style='margin: 8px'>[% form.submit(name => 'confirm', value => dw.ml('.confirm.submit2')) %]</div>
+    [% form.submit(name => 'confirm', value => dw.ml('.confirm.submit2')) %]
 
     [%- IF can_ban -%]
-        <div>[% form.checkbox({ 'type' => 'check', 'name' => 'ban', 'id' => 'ban', 'noescape' => 1
-        label => dw.ml(".confirm.banuser$iscomm", { 'user' => tp_user })})%]
+        <div>[% form.checkbox({ 'type' => 'check', 'name' => 'ban', 'id' => 'ban' })%]
+        [%# label is separate because the userlink causes issues with the HTML when generated as part of the checkbox %]
+        <label class="checkboxlabel" for='ban'>[% dw.ml(".confirm.banuser$iscomm", { 'user' => tp_user })%]</label>
         </div>
     [%- END -%]
 
@@ -31,11 +31,10 @@
 
     </div>
 [%- IF can_manage -%]
-<p>
-       [% dw.ml(".changeoptions$iscomm", { 'link' =>
+    <p>[% dw.ml(".changeoptions$iscomm", { 'link' =>
             "<a href='/manage/settings/?cat=privacy&authas=$u.user'>" _ dw.ml('/manage/settings/index.bml.title.self') _ "</a>" }) %]
     </p>
     [%- END -%]
 
-    </form>\n";
+    </form>
 [% END %]
