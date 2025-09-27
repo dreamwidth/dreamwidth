@@ -128,3 +128,10 @@
 .theme-paging select, .theme-paging input {
     font-size: 11px;
 }
+
+/*TODO: These should be removed after /customize is converted to Foundation*/
+.pagination li {display: inline;}
+
+#canvas .theme-paging .row, #canvas .theme-paging.row  {margin: 0; padding: 0;}
+.theme-paging .large-9 {width: 74%; display: inline-block; padding-left: 2em}
+.theme-paging .large-3 {width: 24%; display: inline-block;}

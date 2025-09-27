@@ -1,0 +1,79 @@
+<div class='theme-selector-content pkg'>
+<script>Customize.ThemeChooser.confirmation = "[% dw.ml('widget.themechooser.confirmation') %]";</script>
+<h3>[% cat_title %]</h3>
+
+[% BLOCK paging %]
+<div class='theme-paging theme-paging-[% location %] row'>
+    <div class="columns large-9">
+    [%- INCLUDE components/pagination.tt current => qargs.page, total_pages => max_page, path => "/customize/" -%]
+    </div>
+    <div class="columns large-3">
+            [% shows = [ 6 6 12 12 24 24 48 48 96 96 "all" "All" ] %]
+
+            <form method=POST>
+                [% dw.form_auth %]
+                    <span class='item'> [% dw.ml('widget.themechooser.show') %]</span>
+                    [% form.select( name = 'Widget[ThemeNav]_show', id = "show_dropdown_$location", selected = qargs.show, class = "inline show_dropdown", items = shows ) %]
+                    <noscript>[% form.submit( name = "Widget[ThemeNav]_show_dropdown_submit", value = dw.ml( 'widget.themechooser.btn.show' ) ) %] </noscript>
+            </form>
+    </div>
+    <span id='paging_msg_area_[% location %]'></span>
+</div>
+[% END %]
+
+[%# code for the top paging area %]
+[% PROCESS paging location = "top" %]
+
+<div class='themes-area'>
+<ul class='select-list'>
+[% FOREACH theme IN themes %]
+    [% NEXT UNLESS theme %]
+
+    <li class='theme-item[% theme.current ? " selected" : "" %]'>
+    <img src="[% theme.imgurl %]" class='theme-preview' />
+
+    <a href='[% theme.preview_url %]' target='_blank' class='theme-preview-link' title="[% dw.ml('widget.themechooser.theme.preview') %]">
+        <img src='[% site.imgroot %]/customize/preview-theme.gif' class='theme-preview-image' />
+    </a>
+
+    <h4>[% theme.name %]</h4>
+    <div class='theme-action'>
+        <span class='theme-desc'>
+            [%- IF theme.designer_link -%]
+                by <a href='[% theme.designer_link %]' class='theme-designer' data-designer="[% theme.designer %]">[% theme.designer %]</a>
+            [%- END -%]
+            for <a href='[% theme.layout_link %]' class='theme-layout' data-layout="[% theme.layoutid %]"><em>[% theme.layout %]</em></a>
+        </span>
+
+        [% IF theme.current %]
+            <strong><a href='[% dw.create_url("/customize/options", keep_args => ['authas']) %]'>
+                [% dw.ml('widget.themechooser.theme.customize') %]
+            </a></strong>
+            [%- IF theme.can_edit_layout -%]
+                <strong><a href='[% site.root %]/customize/advanced/layeredit?id=[% theme.layoutid %]'>
+                    [% dw.ml('widget.themechooser.theme.editlayoutlayer') %]
+                </a></strong>
+            [%- END -%]
+            [%- IF theme.can_edit_theme -%]
+                <strong><a href='[% site.root %]/customize/advanced/layeredit?id=[% theme.themeid %]'>
+                    [% dw.ml('widget.themechooser.theme.editthemelayer') %]
+                </a></strong>
+            [%- END -%]
+            
+        [% ELSE %]
+            <form method="POST" class="theme-form">
+            [% dw.form_auth %]
+            [% form.hidden( name = "Widget[ThemeChooser]_apply_themeid", value = theme.themeid) %]
+            [% form.hidden( name = "Widget[ThemeChooser]_apply_layoutid", value = theme.layoutid) %]
+            [% form.submit( name = "Widget[ThemeChooser]_action_apply", 'data-themeid' = theme.themeid, 'data-layoutid' = theme.layoutid , class = "theme_button button", id="theme_btn_$theme.layoutid$theme.themeid" , value = dw.ml( 'widget.themechooser.theme.apply' ) ) %]
+            </form>
+        [% END %]
+    </div><!-- end .theme-action -->
+</li><!-- end .theme-item -->
+[% END %]
+</ul>
+</div><!-- end .themes-area -->
+
+[%# code for the bottom paging area %]
+[% PROCESS paging location = "bottom" %]
+</div>
