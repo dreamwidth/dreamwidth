@@ -1,6 +1,7 @@
 package DW::Controller::Talk;
 
 use strict;
+use LJ::JSON;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -1098,7 +1099,9 @@ sub talkscreen_handler {
 
             # FIXME: remove once we've switched over completely to jquery
             if ( !!$GET->{json} ) {
-                return to_json( { error => LJ::Lang::ml( $_[0] ) } );
+                $r->print( to_json( { error => LJ::Lang::ml( $_[0] ) } ) );
+
+                return $r->OK;
             }
             else {
                 return "alert('" . LJ::ejs( LJ::Lang::ml( $_[0] ) ) . "'); 0;";
@@ -1132,7 +1135,7 @@ sub talkscreen_handler {
         my $imgprefix = $LJ::IMGPREFIX;
         $imgprefix =~ s/^https?://;
 
-        my %ret = (
+        my $ret = {
             id       => $dtalkid,
             mode     => $mode,
             newalt   => $alttext,
@@ -1140,11 +1143,12 @@ sub talkscreen_handler {
             newimage => "$imgprefix/$stockimg->{$newmode}",
             newurl   => "$LJ::SITEROOT/talkscreen?mode=$newmode&journal=$journal&talkid=$dtalkid",
             msg      => LJ::Lang::ml($message),
-        );
+        };
 
         sleep 1 if $LJ::IS_DEV_SERVER;
 
-        return to_json( \%ret );
+        $r->print( to_json($ret) );
+        return $r->OK;
     };
 
     # we need to find out: $u, $up (poster of the entry this is a comment to),
@@ -1283,12 +1287,12 @@ sub delcomment_handler {
 
     my $error = sub {
         if ($jsmode) {
-            BML::finish();
 
             # FIXME: remove once we've switched over completely to jquery
             if ( !!$GET->{json} ) {
                 sleep 1 if $LJ::IS_DEV_SERVER;
-                return to_json( { error => LJ::Lang::ml( $_[0] ) } );
+                $r->print( to_json( { error => LJ::Lang::ml( $_[0] ) } ) );
+                return $r->OK;
             }
             else {
                 return "alert('" . LJ::ejs( LJ::Lang::ml( $_[0] ) ) . "'); 0;";
@@ -1434,7 +1438,8 @@ sub delcomment_handler {
         if ($jsmode) {
             if ( !!$GET->{json} ) {
                 sleep 1 if $LJ::IS_DEV_SERVER;
-                return to_json( { msg => LJ::strip_html($msg) } );
+                $r->print( to_json( { msg => LJ::strip_html($msg) } ) );
+                return $r->OK;
             }
             else {
                 return "1;";
