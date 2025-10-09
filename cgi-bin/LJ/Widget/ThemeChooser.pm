@@ -228,11 +228,16 @@ sub js {
             filter_links = filter_links.concat(DOM.getElementsByClassName(document, "theme-layout"));
             filter_links = filter_links.concat(DOM.getElementsByClassName(document, "theme-designer"));
             filter_links = filter_links.concat(DOM.getElementsByClassName(document, "theme-page"));
+            page_links = document.querySelectorAll(".pagination a");
+            page_links.forEach(link => {
+                filter_links.push(link);
+            })
 
             // add event listeners to all of the category, layout, designer, and page links
             // adding an event listener to page is done separately because we need to be sure to use that if it is there,
             //     and we will miss it if it is there but there was another arg before it in the URL
             filter_links.forEach(function (filter_link) {
+                console.log(filter_link);
                 var getArgs = LiveJournal.parseGetArgs(filter_link.href);
                 if (getArgs["page"]) {
                     DOM.addEventListener(filter_link, "click", function (evt) { Customize.ThemeNav.filterThemes(evt, "page", getArgs["page"]) });
@@ -259,8 +264,8 @@ sub js {
             });
 
             // add event listener to the page and show dropdowns
-            DOM.addEventListener($('page_dropdown_top'), "change", function (evt) { Customize.ThemeNav.filterThemes(evt, "page", $('page_dropdown_top').value) });
-            DOM.addEventListener($('page_dropdown_bottom'), "change", function (evt) { Customize.ThemeNav.filterThemes(evt, "page", $('page_dropdown_bottom').value) });
+            //DOM.addEventListener($('.pagination a'), "click", function (evt) { Customize.ThemeNav.filterThemes(evt, "page", $('page_dropdown_top').value) });
+            // DOM.addEventListener($('page_dropdown_bottom'), "change", function (evt) { Customize.ThemeNav.filterThemes(evt, "page", $('page_dropdown_bottom').value) });
             DOM.addEventListener($('show_dropdown_top'), "change", function (evt) { Customize.ThemeNav.filterThemes(evt, "show", $('show_dropdown_top').value) });
             DOM.addEventListener($('show_dropdown_bottom'), "change", function (evt) { Customize.ThemeNav.filterThemes(evt, "show", $('show_dropdown_bottom').value) });
         },

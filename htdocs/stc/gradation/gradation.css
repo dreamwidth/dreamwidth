@@ -497,7 +497,7 @@ textarea, input {
 .highlight-box {
     border: 1px solid;
 }
-.highlight, .highlight-box {
+.highlight, .highlight-box, .pagination .current {
     border-color: #888888;
     background: #333333;
     color: #fff;

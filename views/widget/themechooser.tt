@@ -5,7 +5,7 @@
 [% BLOCK paging %]
 <div class='theme-paging theme-paging-[% location %] row'>
     <div class="columns large-9">
-    [%- INCLUDE components/pagination.tt current => qargs.page, total_pages => max_page, path => "/customize/" -%]
+    [%- INCLUDE components/pagination.tt cur_args => qargs current => qargs.page, total_pages => max_page, path => "/customize/" -%]
     </div>
     <div class="columns large-3">
             [% shows = [ 6 6 12 12 24 24 48 48 96 96 "all" "All" ] %]
