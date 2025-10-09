@@ -71,7 +71,7 @@ $domaintosite{"ravelry.com"} =
 $domaintosite{"wordpress.com"} =
     DW::External::Site->new( "18", "wordpress.com", "wordpress.com", "Wordpress", "WP" );
 $domaintosite{"plurk.com"} =
-    DW::External::Site->new( "19", "plurk.com", "plurk.com", "Plurk", "Plurk" );
+    DW::External::Site->new( "19", "www.plurk.com", "plurk.com", "Plurk", "Plurk" );
 $domaintosite{"pinboard.in"} =
     DW::External::Site->new( "20", "www.pinboard.in", "pinboard.in", "Pinboard", "Pinboard" );
 $domaintosite{"fanfiction.net"} =
