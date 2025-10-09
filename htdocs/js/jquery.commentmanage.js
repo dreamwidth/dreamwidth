@@ -157,7 +157,7 @@ $.widget("dw.delcomment", {
             }
 
             var endpoint = self.options.endpoint +
-                "?"+$.param({ mode: "js", json: 1, journal: self.options.journal, id: self.linkdata.id});
+                "?"+$.param({ jsmode: 1, json: 1, journal: self.options.journal, id: self.linkdata.id});
 
             var postdata = { confirm: 1 };
             if($("#popdel"+self.linkdata.id+"ban").is(":checked")) postdata["ban"] = 1;

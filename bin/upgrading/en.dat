@@ -4283,6 +4283,8 @@ talk.curname_xpost=<b>Crossposts:</b>
 
 talk.error.bogusargs=Bogus arguments
 
+talk.error.bad_owner=URL doesn't match journal owner
+
 talk.error.cantedit=You can't edit comments.
 
 talk.error.cantedit.banned=You can't edit this comment because you've been banned from commenting in this journal.
