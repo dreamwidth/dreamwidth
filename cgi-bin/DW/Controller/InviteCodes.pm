@@ -42,10 +42,10 @@ sub management_handler {
             unless LJ::check_form_auth( $args->{lj_form_auth} );
 
         if ( DW::InviteCodeRequests->create( userid => $remote->id, reason => $args->{reason} ) ) {
-            $rv->{req_yes} = 1;
+            $r->add_msg( LJ::Lang::ml('/invite/index.tt.msg.request.success'), $r->SUCCESS );
         }
         else {
-            $rv->{req_no} = 1;
+            $r->add_msg( LJ::Lang::ml('/invite/index.tt.msg.request.error'), $r->ERROR );
         }
     }
 
