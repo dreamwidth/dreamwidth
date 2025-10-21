@@ -102,9 +102,13 @@ body<=
               }
             $ret .= "<br />\n";
 
-            my $event = LJ::ehtml(LJ::durl($res{"events_${i}_event"}));
-            $event =~ s!\n!<br />!g;
-            $ret .= $event;
+            # Use LJ::Entry object and event_html_summary for cleaner HTML handling
+            my $journal_u = $usejournal ? LJ::load_user($usejournal) : $u;
+            my $entry = LJ::Entry->new($journal_u, ditemid => $ditemid);
+            if ($entry && $entry->valid) {
+                my $event = $entry->event_html_summary(300);
+                $ret .= $event if defined $event && length $event;
+            }
 
             $ret .= "</td></tr></table>\n";
         }
