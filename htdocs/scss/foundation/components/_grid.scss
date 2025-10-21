@@ -160,6 +160,18 @@ $last-child-float: $opposite-direction !default;
     }
   }
 
+  .#{$size}-right {
+    text-align:right;
+  }
+
+  .#{$size}-left {
+    text-align:left;
+  }
+
+  .#{$size}-center {
+    text-align:center;
+  }
+
   .column,
   .columns { @include grid-column($columns:false, $position:true); }
 
