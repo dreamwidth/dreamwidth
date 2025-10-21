@@ -657,10 +657,6 @@ sub do_authed_comment_fetch {
     my $url =
 "https://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems&props=1$authas";
 
-    # clear "request" cache of db handles to force revalidation, whenever fetching a block
-    # of comments, to avoid possibly using one that was idle too long without testing it.
-    $LJ::DBIRole->clear_req_cache();
-
     # see if the file is cached and recent. this is mostly a hack useful for debugging
     # when something goes bad, or if we somehow get stuck in a loop. at least we won't
     # unintentionally DoS the target.

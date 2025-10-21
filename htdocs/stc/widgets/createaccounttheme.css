@@ -1,0 +1,43 @@
+.appwidget-createaccounttheme .rounded-box .rounded-box-content {
+    padding: 0;
+}
+
+.appwidget-createaccounttheme h2 {
+    color: #213368;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px;
+}
+
+.appwidget-createaccounttheme p {
+    margin: 10px;
+    margin-top: 0;
+}
+
+.appwidget-createaccounttheme .theme-image {
+    border: 0;
+}
+
+.appwidget-createaccounttheme .theme-box {
+    text-align: center;
+}
+
+.appwidget-createaccounttheme table,
+.appwidget-createaccounttheme .theme-box-inner {
+    position: relative;
+}
+
+.appwidget-createaccounttheme .theme-preview-link {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    width: 31px;
+    height: 31px;
+}
+
+.appwidget-createaccounttheme .theme-preview-image {
+    width: 31px;
+    height: 31px;
+    border: none;
+}

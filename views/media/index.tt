@@ -40,33 +40,21 @@ window.onload = function() {
 }
 };
 </script>
-<style type="text/css">
-    #content input { height: auto; width: auto; display: inline; }
-</style>
 [% END  # sections.head %]
 
-[%- IF adminmode %]
-<form method='GET'><p>
-  [% form.textbox( maxlength = site.maxlength_user, size = site.maxlength_user,
-                   label = dw.ml( '.user' ), name = 'user', value = user );
-     form.submit( value = dw.ml( '.user.submit' ) ) %]
-</p></form>
-[%- END %]
+<p>[% dw.ml(".intro2" {aopts1 => '/file/edit', aopts2 => '/file/new'}) %]</p>
 
-[%- IF user -%]
-    <p>[% '.intro.admin' | ml(user => user) %]</p>
-[%- ELSE -%]
-    <p>[% '.intro2' | ml(aopts1 => '/file/edit', aopts2 => '/file/new') %]</p>
+<p>[% '.usage' | ml( usage => usage, percentage => percentage, quota => quota ) %]</p>
 
-    <p>[% '.usage' | ml( usage => usage, percentage => percentage, quota => quota ) %]</p>
-[%- END -%]
+[% getextra = page == 1 ? '' : "?page=$page" %]
+[% getsep = getextra == '' ? "?" : "&" %]
 
 [% IF media.size %]
 <p>
 [% IF view_type == 'grid' %]
-    <a href="[% dw.create_url( undef, keep_args => 1, args => { view => 'list' } ) %]">[% '.view.list' | ml %]</a> | [% '.view.grid' | ml %]
+    <a href="[% "$site.root/file/list$getextra${getsep}view=list" %]">[% '.view.list' | ml %]</a> | [% '.view.grid' | ml %]
 [% ELSE %]
-    [% '.view.list' | ml %] | <a href="[% dw.create_url( undef, keep_args => 1, args => { view => 'grid' } ) %]">[% '.view.grid' | ml %]</a>
+    [% '.view.list' | ml %] | <a href="[% "$site.root/file/list$getextra${getsep}view=grid" %]">[% '.view.grid' | ml %]</a>
 [% END %]
 </p>
 [% IF maxpage > 1 %]
@@ -140,6 +128,7 @@ window.onload = function() {
             </div>
             </div>
             </div>
+            
         </div>
         </div>
     [%- END -%]

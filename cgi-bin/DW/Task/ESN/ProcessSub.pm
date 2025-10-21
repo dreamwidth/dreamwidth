@@ -30,54 +30,39 @@ sub work {
     my $a    = $self->args;
 
     my $failed = sub {
-        $log->error( sprintf( $_[0], @_[ 1 .. $#_ ] ) );
+        $log->error( sprintf(@_) );
         return DW::Task::FAILED;
     };
 
     my ( $userid, $subid, $eparams ) = @$a;
-    Log::Log4perl::MDC->put( 'userid', $userid );
-
     my $u = LJ::load_userid($userid)
         or return $failed->( 'Failed to load user: %d', $userid );
-    Log::Log4perl::MDC->put( 'user', $u->user );
-
     $log->debug( 'Processing event for user: ', $u->user, '(', $u->id, ') subscription ', $subid );
 
     my $evt = LJ::Event->new_from_raw_params(@$eparams)
         or return $failed->( 'Failed to get event from params: %s', join( ', ', @$eparams ) );
-    $evt->configure_logger;
-
     my $subsc = $evt->get_subscriptions( $u, $subid )
-        or return $failed->(
-        'Failed to get subscriptions for: %s(%d) subid %d event (%s)',
-        $u->user, $u->id, $subid, join( ', ', @$eparams )
-        );
+        or return $failed->( 'Failed to get subscriptions for: %s(%d) subid %d', $u->user, $u->id,
+        $subid );
 
     # if the subscription doesn't exist anymore, we're done here
     # (race: if they delete the subscription between when we start processing
     # events and when we get here, LJ::Subscription->new_by_id will return undef)
     # We won't reach here if we get DB errors because new_by_id will die, so we're
     # safe to mark the job completed and return.
-    unless ($subsc) {
-        $log->debug('Subscription not found on load, skipping notification.');
-        return DW::Task::COMPLETED;
-    }
+    return DW::Task::COMPLETED unless $subsc;
 
     # If the user hasn't logged in in a year, complete the sub and let's
     # move on
     my $user_idle_days = int( ( time() - $u->get_timeactive ) / 86400 );
-    if ( $user_idle_days > 365 && !$LJ::_T_CONFIG ) {
-        $log->debug('User inactive, skipping notification.');
-        return DW::Task::COMPLETED;
-    }
+    return DW::Task::COMPLETED if $user_idle_days > 365 && !$LJ::_T_CONFIG;
 
     # if the user deleted their account (or otherwise isn't visible), bail
-    unless ( $u->is_visible || $evt->is_significant ) {
-        $log->debug('User not visible, and event is not significant, skipping notification.');
-        return DW::Task::COMPLETED;
-    }
+    return DW::Task::COMPLETED unless $u->is_visible || $evt->is_significant;
 
-    # Send notification.
+    # TODO: do inbox notification method here, first.
+
+    # NEXT: do sub's ntypeid, unless it's inbox, then we're done.
     $subsc->process($evt)
         or return $failed->(
         "Failed to process notification method for userid=$userid/subid=$subid, evt=[@$eparams]");

@@ -75,9 +75,9 @@ sub create {
     my $dbh = LJ::get_db_writer();
 
     $dbh->do(
-        'INSERT INTO user (user, name, clusterid, dversion, caps, journaltype) '
-            . 'VALUES (?, ?, ?, ?, ?, ?)',
-        undef, $username, '', $cluster, $LJ::MAX_DVERSION, $caps, $journaltype
+        'INSERT INTO user (user, clusterid, dversion, caps, journaltype) '
+            . 'VALUES (?, ?, ?, ?, ?)',
+        undef, $username, $cluster, $LJ::MAX_DVERSION, $caps, $journaltype
     );
     return $err->( 'Database error: ', $dbh->errstr ) if $dbh->err;
 
@@ -254,6 +254,22 @@ sub create_personal {
         }
     }
 
+    # populate some default friends groups
+    # FIXME(mark): this should probably be removed or refactored, especially
+    # since editfriendgroups is dying/dead
+    #    LJ::do_request(
+    #                   {
+    #                       'mode'           => 'editfriendgroups',
+    #                       'user'           => $u->user,
+    #                       'ver'            => $LJ::PROTOCOL_VER,
+    #                       'efg_set_1_name' => 'Family',
+    #                       'efg_set_2_name' => 'Local Friends',
+    #                       'efg_set_3_name' => 'Online Friends',
+    #                       'efg_set_5_name' => 'Work',
+    #                       'efg_set_6_name' => 'Mobile View',
+    #                   }, \%res, { 'u' => $u, 'noauth' => 1, }
+    #                   );
+    #
     # subscribe to default events
     $u->subscribe( event => 'OfficialPost',      method  => 'Inbox' );
     $u->subscribe( event => 'OfficialPost',      method  => 'Email' ) if $opts{get_news};
@@ -366,6 +382,15 @@ sub get_previous_statusvis {
         push @statusvis, $fields{old};
     }
     return @statusvis;
+}
+
+sub is_approved {
+    my $u = $_[0];
+
+    # if a dev server hasn't configured this, assume they don't want it
+    return 1 if $LJ::IS_DEV_SERVER && !exists $LJ::DISABLED{approvenew};
+    return 1 unless LJ::is_enabled('approvenew');
+    return $u->prop('not_approved') ? 0 : 1;
 }
 
 sub is_deleted {
@@ -503,7 +528,15 @@ sub set_suspended {
 
     LJ::statushistory_add( $u, $who, "suspend", $reason );
 
+    # if not_approved was set, clear it
+    $u->set_prop( not_approved => 0 );
+
     LJ::Hooks::run_hooks( "account_cancel", $u );
+
+    if ( my $err = LJ::Hooks::run_hook( "cdn_purge_userpics", $u ) ) {
+        $$errref = $err if ref $errref and $err;
+        return 0;
+    }
 
     return $res;    # success
 }
@@ -526,6 +559,9 @@ sub set_unsuspended {
     }
 
     LJ::statushistory_add( $u, $who, "unsuspend", $reason );
+
+    # if not_approved was set, clear it
+    $u->set_prop( not_approved => 0 );
 
     return $res;    # success
 }
@@ -719,7 +755,8 @@ sub load_random_user {
             or next;
 
         # situational checks to ensure this user is a good one to show
-        next unless $u->is_visible;           # no suspended/deleted/etc users
+        next unless $u->is_visible;     # no suspended/deleted/etc users
+        next unless $u->is_approved;    # ignore accounts in holding pen
         next if $u->prop('latest_optout');    # they have chosen to be excluded
 
         # they've passed the checks, return this user
@@ -1394,19 +1431,42 @@ sub journal_base {
         }
     }
 
-    my $rule = $u ? $LJ::SUBDOMAIN_RULES->{ $u->journaltype } : undef;
-    $rule ||= $LJ::SUBDOMAIN_RULES->{P};
+    if ($LJ::ONLY_USER_VHOSTS) {
+        my $rule = $u ? $LJ::SUBDOMAIN_RULES->{ $u->journaltype } : undef;
+        $rule ||= $LJ::SUBDOMAIN_RULES->{P};
 
-    # if no rule, then we don't have any idea what to do ...
-    die "Site misconfigured, no %LJ::SUBDOMAIN_RULES."
-        unless $rule && ref $rule eq 'ARRAY';
+        # if no rule, then we don't have any idea what to do ...
+        die "Site misconfigured, no %LJ::SUBDOMAIN_RULES."
+            unless $rule && ref $rule eq 'ARRAY';
 
-    if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
-        $user =~ s/_/-/g;
-        return "$LJ::PROTOCOL://$user.$LJ::DOMAIN";
+        if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
+            $user =~ s/_/-/g;
+            return "$LJ::PROTOCOL://$user.$LJ::DOMAIN";
+        }
+        else {
+            return "$LJ::PROTOCOL://$rule->[1]/$user";
+        }
+    }
+
+    if ( $vhost eq "users" ) {
+        my $he_user = $user;
+        $he_user =~ s/_/-/g;
+        return "$LJ::PROTOCOL://$he_user.$LJ::USER_DOMAIN";
+    }
+    elsif ( $vhost eq "tilde" ) {
+        return "$LJ::SITEROOT/~$user";
+    }
+    elsif ( $vhost eq "community" ) {
+        return "$LJ::SITEROOT/community/$user";
+    }
+    elsif ( $vhost eq "front" ) {
+        return $LJ::SITEROOT;
+    }
+    elsif ( $vhost =~ /^other:(.+)/ ) {
+        return "$LJ::PROTOCOL://$1";
     }
     else {
-        return "$LJ::PROTOCOL://$rule->[1]/$user";
+        return "$LJ::SITEROOT/users/$user";
     }
 }
 
@@ -1555,7 +1615,7 @@ sub load_userid {
 # </LJFUNC>
 sub load_userids {
     my %u;
-    LJ::load_userids_multiple( [ map { $_ => \$u{$_} } grep { defined $_ } @_ ] );
+    LJ::load_userids_multiple( [ map { $_ => \$u{$_} } @_ ] );
     return \%u;
 }
 
@@ -1588,7 +1648,6 @@ sub load_userids_multiple {
     while (@$map) {
         my $id  = shift @$map;
         my $ref = shift @$map;
-        next unless defined $id;
         next unless int($id);
         push @{ $need{$id} }, $ref;
 
@@ -1715,7 +1774,7 @@ sub want_user {
 sub want_userid {
     my $uuserid = shift;
     return ( $uuserid->{userid} + 0 ) if ref $uuserid;
-    return ( $uuserid ? $uuserid + 0 : 0 );
+    return ( $uuserid + 0 );
 }
 
 ########################################################################

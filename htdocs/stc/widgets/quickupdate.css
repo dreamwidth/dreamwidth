@@ -1,0 +1,32 @@
+#panel-quickupdate .sidebar p {
+    height: 3em;
+    line-height: 3em;
+}
+#panel-quickupdate .contents label {
+    display: block;
+    width: 100%;
+    color: #555;
+    font-weight: bold;
+}
+#panel-quickupdate .contents .metadata label {
+    display: inline;
+}
+#panel-quickupdate .contents input,
+#panel-quickupdate .contents textarea {
+    width: 95%;
+}
+#panel-quickupdate .contents textarea {
+    height: 120px;
+}
+#panel-quickupdate .metadata .form-input {
+    width: 45%;
+    float: left;
+}
+#panel-quickupdate .metadata input,
+#panel-quickupdate .metadata select {
+     width: 60%;
+}
+
+#panel-quickupdate .submit input {
+     width: auto;
+}

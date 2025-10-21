@@ -126,9 +126,9 @@ set color_module_title = "#e1def9";
 layerinfo type = "theme";
 layerinfo name = "Argyle";
 layerinfo redist_uniq = "dustyfoot/argyle";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -269,9 +269,9 @@ set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 layerinfo type = "theme";
 layerinfo name = "Blue Days";
 layerinfo redist_uniq = "dustyfoot/bluedays";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -399,9 +399,9 @@ set font_base = "'Trebuchet MS'";
 layerinfo type = "theme";
 layerinfo name = "Certain Frogs";
 layerinfo redist_uniq = "dustyfoot/certainfrogs";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -635,9 +635,9 @@ set color_module_text = "#fff";
 layerinfo type = "theme";
 layerinfo name = "Dependable";
 layerinfo redist_uniq = "dustyfoot/dependable";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -868,9 +868,9 @@ set color_module_title = "#6378a9";
 layerinfo type = "theme";
 layerinfo name = "Elegant Brown";
 layerinfo redist_uniq = "dustyfoot/elegantbrown";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -944,9 +944,9 @@ set image_background_header_url = "commons/elegantbrown.png";
 layerinfo type = "theme";
 layerinfo name = "El mar";
 layerinfo redist_uniq = "dustyfoot/elmar";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1567,9 +1567,9 @@ set color_module_text = "#3c3d32";
 layerinfo type = "theme";
 layerinfo name = "Monochrome Brown";
 layerinfo redist_uniq = "dustyfoot/monochromebrown";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1634,9 +1634,9 @@ set color_module_title_background = "#e6d3b8";
 layerinfo type = "theme";
 layerinfo name = "Monochrome Purple";
 layerinfo redist_uniq = "dustyfoot/monochromepurple";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1701,9 +1701,9 @@ set color_module_title_background = "#f5e6f4";
 layerinfo type = "theme";
 layerinfo name = "Ombre";
 layerinfo redist_uniq = "dustyfoot/ombre";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1879,9 +1879,9 @@ set color_module_title = "#aa9568";
 layerinfo type = "theme";
 layerinfo name = "Radiant";
 layerinfo redist_uniq = "dustyfoot/radiant";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1951,9 +1951,9 @@ set image_background_header_url = "dustyfoot/radiant.png";
 layerinfo type = "theme";
 layerinfo name = "Raspberry Kiss";
 layerinfo redist_uniq = "dustyfoot/raspberrykiss";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2076,9 +2076,9 @@ set font_base = "'Trebuchet MS'";
 layerinfo type = "theme";
 layerinfo name = "Rocket";
 layerinfo redist_uniq = "dustyfoot/rocket";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2151,9 +2151,9 @@ set image_background_header_url = "commons/rocket.png";
 layerinfo type = "theme";
 layerinfo name = "Stranger Days";
 layerinfo redist_uniq = "dustyfoot/strangerdays";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2451,9 +2451,9 @@ set color_module_title = "#47456b";
 layerinfo type = "theme";
 layerinfo name = "Zoned";
 layerinfo redist_uniq = "dustyfoot/zoned";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

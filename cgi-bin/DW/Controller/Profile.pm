@@ -88,7 +88,7 @@ sub profile_handler {
     return DW::Template->render_template('error/purged.tt') if $u->is_expunged;
 
     # redirect non-identity profiles to their subdomain urls
-    if ( !$u->is_identity ) {
+    if ( $LJ::ONLY_USER_VHOSTS && !$u->is_identity ) {
         my $url = $u->profile_url( full => $is_full );
 
         # use regexps to extract the user domain from $url and compare to $r
@@ -115,7 +115,7 @@ sub profile_handler {
     ($viewall) = $remote->view_priv_check( $u, $get->{viewall}, 'profile' ) if $remote;
 
     unless ($viewall) {
-        return DW::Template->render_template( 'error/suspended.tt', { u => $u, remote => $remote } )
+        return DW::Template->render_template( 'error/suspended.tt', { u => $u } )
             if $u->is_suspended;
 
         return $u->display_journal_deleted($remote) if $u->is_deleted;
@@ -163,7 +163,7 @@ sub profile_handler {
         if ( $l->{text} ) {
             my $ret = "";
             $ret .= $l->{secimg} if $l->{secimg};
-            $ret .= $l->{url} ? qq(<a href="$l->{url}" rel="nofollow">$l->{text}</a>) : $l->{text};
+            $ret .= $l->{url} ? qq(<a href="$l->{url}">$l->{text}</a>) : $l->{text};
             return $ret;
         }
         elsif ( $l->{email} ) {

@@ -78,7 +78,6 @@ exit 1 unless
                "sync" => \$opts{sync},
                "user=s" => \$opts{user},
                "help" => \$opts{help},
-               "protocol=s" => \$opts{protocol},
                "server=s" => \$opts{server},
                "port=i" => \$opts{port},
                "quiet" => \$opts{quiet},
@@ -104,15 +103,11 @@ if (-e "$ENV{HOME}/.jbackup") {
 }
 
 # setup some nice, sane defaults
-$opts{protocol} ||= 'https';
 $opts{server} ||= 'www.dreamwidth.org';
-$opts{baseurl} = $opts{protocol} . '://' . $opts{server};
 $opts{port} += 0;
-$opts{baseurl} .= ":$opts{port}"
-    unless ( $opts{port} == 0 ||
-             $opts{protocol} eq 'http' && $opts{port} == 80 ||
-             $opts{protocol} eq 'https' && $opts{port} == 443 );
 $opts{verbose} = $opts{quiet} ? 0 : 1;
+$opts{server} = "$opts{server}:$opts{port}"
+    if $opts{port} && $opts{port} != 80;
 
 # set some constants that should never need to change.
 my $COMMENTS_FETCH_META = 10000;   # up to 10000 comments, the maximum for comment_meta
@@ -130,13 +125,11 @@ jbackup.pl -- journal database generator and formatter
   Authentication options:
     --user=X        Specify the user to use for authentication.
     --password=X    Specify the password to use for the user.
-                    NOTE: For Dreamwidth, this must be an API key.
     --md5pass=X     Alternately, provide the MD5 digest of the password.
     --journal=X     Specify an alternate journal to use.
                     NOTE: You must be maintainer of the journal.
-    --protocol=X    Use a different protocol. (Default: https)
-    --server=X      Use a different server.   (Default: www.dreamwidth.org)
-    --port=X        Use a non-default port.   (Default: 80 or 443)
+    --server=X      Use a different server.  (Default: www.dreamwidth.org)
+    --port=X        Use a non-default port.  (Default: 80)
 
   Data update options:
     --sync          Update or create the database.
@@ -506,7 +499,7 @@ sub do_authed_fetch {
     my $ua = LWP::UserAgent->new;
     $ua->agent('JBackup/1.0');
     my $authas = $opts{usejournal} ? "&authas=$opts{usejournal}" : '';
-    my $request = HTTP::Request->new(GET => "$opts{baseurl}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas");
+    my $request = HTTP::Request->new(GET => "http://$opts{server}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas");
     $request->push_header(Cookie => "ljsession=$sess");
     my $response = $ua->request($request);
     return if $response->is_error();
@@ -607,7 +600,7 @@ sub do_alter_security {
             my ($subj, $time) = ($evt->{subject} || '(no subject)', $evt->{eventtime});
             my $ditemid = $evt->{itemid} * 256 + $evt->{anum};
             $subj = substr($subj, 0, 40);
-            printf "\%-45s\%s\n", $subj, "$opts{baseurl}/users/$opts{linkuser}/$ditemid.html";
+            printf "\%-45s\%s\n", $subj, "http://$opts{server}/users/$opts{linkuser}/$ditemid.html";
         }
         return;
     }
@@ -651,7 +644,7 @@ sub do_alter_security {
         # print success
         my $ditemid = $hash->{itemid} * 256 + $hash->{anum};
         printf "\%s\n%-35s\%s\n\n", ($evt->{subject} || "(no subject)"), "public -> $security ($allowmask)",
-            "$opts{baseurl}/users/$opts{linkuser}/$ditemid.html";
+            "http://$opts{server}/users/$opts{linkuser}/$ditemid.html";
     }
 
     # tell user to run --sync
@@ -771,7 +764,7 @@ sub dump_html {
                 my $ditemid = $data->{id} * 256 + $anum;
                 my $commentlink = "$link?thread=$ditemid#t$ditemid";
                 $ret .= $data->{posterid} ?
-                        "<a href='$commentlink'>Comment</a> by <a href='$opts{baseurl}/profile.bml?user=$users->{$data->{posterid}}'>$users->{$data->{posterid}}</a> " :
+                        "<a href='$commentlink'>Comment</a> by <a href='http://$opts{server}/profile.bml?user=$users->{$data->{posterid}}'>$users->{$data->{posterid}}</a> " :
                         "<a href='$commentlink'>Anonymous comment</a> ";
                 $ret .= "on $data->{date}<br />\n";
                 $data->{subject} = $opts{clean} ? clean_subject($data->{subject}) : ehtml($data->{subject});
@@ -797,7 +790,7 @@ sub dump_html {
     foreach my $evt (sort { $a->{eventtime} cmp $b->{eventtime} } values %{$events || {}}) {
         $ret .= "<br /><div style='background-color: #eee; border: blue 1px solid;'>\n";
         my $itemid = $evt->{itemid} * 256 + $evt->{anum};
-        my $link = "$opts{baseurl}/users/$opts{linkuser}/$itemid.html";
+        my $link = "http://$opts{server}/users/$opts{linkuser}/$itemid.html";
         $evt->{subject} = $opts{clean} ? clean_subject($evt->{subject}) : ehtml($evt->{subject});
         $ret .= "<b>$evt->{subject}</b>" if $evt->{subject};
         my $altposter = $evt->{poster} ? " (posted by $evt->{poster})" : "";
@@ -937,7 +930,7 @@ sub call_xmlrpc {
     $hash ||= {};
 
     my $xmlrpc = new XMLRPC::Lite;
-    $xmlrpc->proxy("$opts{baseurl}/interface/xmlrpc");
+    $xmlrpc->proxy("http://$opts{server}/interface/xmlrpc");
     my $chal;
     while (!$chal) {
         my $get_chal = xmlrpc_call_helper($xmlrpc, 'LJ.XMLRPC.getchallenge');
@@ -1030,7 +1023,7 @@ sub ehtml {
 # they specify --clean, we will just replace poll tags with links to the poll, and not do much else.
 sub clean_event {
     my $input = shift;
-    $input =~ s!<(?:lj-)?poll-(\d+)>!<a href="$opts{baseurl}/poll/?id=$1">View poll.</a>!g;
+    $input =~ s!<(?:lj-)?poll-(\d+)>!<a href="http://$opts{server}/poll/?id=$1">View poll.</a>!g;
     return $input;
 }
 

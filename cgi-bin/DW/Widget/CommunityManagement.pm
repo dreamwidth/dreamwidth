@@ -29,6 +29,8 @@ sub render_body {
     my $remote = LJ::get_remote()
         or return;
 
+    my $ret = "<h2>" . $class->ml('widget.communitymanagement.title') . "</h2>";
+
     my %show;
 
     # keep track of what communities remote maintains
@@ -45,7 +47,7 @@ sub render_body {
         $mods{$_} = $show{$_} = 1 foreach @$mids;
     }
 
-    my @list;
+    my $list;
     if (%show) {
         my $us = LJ::load_userids( keys %show );
 
@@ -62,21 +64,40 @@ sub render_body {
             $pending_members_count = $cu->get_pending_members_count
                 if $membership && $membership eq "moderated" && $admin{ $cu->userid };
             if ( $pending_members_count || $pending_entries_count ) {
+                $list .= "<dt>" . $cu->ljuser_display;
+                $list .= "<dd>" . $class->ml('widget.communitymanagement.pending');
 
-                push @list,
-                    (
-                    {
-                        cu              => $cu,
-                        pending_members => $pending_members_count,
-                        pending_entries => $pending_entries_count
-                    }
-                    );
+                $list .=
+                      " [<a href='"
+                    . $cu->moderation_queue_url . "'>"
+                    . $class->ml( 'widget.communitymanagement.pending.entry',
+                    { num => $pending_entries_count } )
+                    . "</a>]"
+                    if $pending_entries_count;
 
+                $list .=
+                      " [<a href='"
+                    . $cu->moderation_queue_url . "'>"
+                    . $class->ml(
+                    'widget.communitymanagement.pending.member',
+                    { num => $pending_members_count }
+                    )
+                    . "</a>]"
+                    if $pending_members_count;
+
+                $list .= "</dd>";
             }
         }
     }
 
-    return DW::Template->template_string( 'widget/communitymanagement.tt', { list => \@list } );
+    if ($list) {
+        $ret .= "<p>" . $class->ml('widget.communitymanagement.pending.header') . "</p>";
+        $ret .= "<dl>$list</dl>";
+    }
+    else {
+        $ret .= "<p>" . $class->ml('widget.communitymanagement.nopending') . "</p>";
+    }
+    return $ret;
 }
 
 1;

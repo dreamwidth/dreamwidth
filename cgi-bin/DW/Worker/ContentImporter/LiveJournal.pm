@@ -495,7 +495,7 @@ sub call_xmlrpc {
 
     my $xmlrpc = XMLRPC::Lite->new;
     $xmlrpc->proxy(
-        "https://" . ( $opts->{server} || $opts->{hostname} ) . "/interface/xmlrpc",
+        "http://" . ( $opts->{server} || $opts->{hostname} ) . "/interface/xmlrpc",
         agent => "$LJ::SITENAME Content Importer ($LJ::ADMIN_EMAIL)"
     );
 

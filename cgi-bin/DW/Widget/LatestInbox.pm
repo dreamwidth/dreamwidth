@@ -28,7 +28,24 @@ sub render_body {
 
     my $remote = LJ::get_remote()
         or return "";
-    my $vars = { limit => $opts{limit} || 5 };
+
+    my $limit = $opts{limit} || 5;
+
+    my $ret = "<h2>" . $class->ml('widget.latestinbox.title') . "</h2>";
+
+    $ret .= "<div class='sidebar'><ul>";
+    $ret .= "<li><a href='/inbox/'>" . $class->ml('widget.latestinbox.links.inbox') . "</a></li>";
+    $ret .=
+          "<li><a href='/inbox/compose'>"
+        . $class->ml('widget.latestinbox.links.compose')
+        . "</a></li>";
+    $ret .=
+          "<li><a href='/manage/settings/?cat=notifications'>"
+        . $class->ml('widget.latestinbox.links.manage')
+        . "</a></li>";
+    $ret .= "</ul></div>";
+
+    $ret .= "<div class='contents'>";
 
     # get the user's inbox
     my $error;
@@ -37,14 +54,28 @@ sub render_body {
         $class->ml( 'inbox.error.couldnt_retrieve_inbox', { 'user' => $remote->{user} } ) );
 
     if ($error) {
-        $vars->{error} = $error;
+        $ret .= $error;
     }
     else {
         my @inbox_items = reverse $inbox->all_items;
-        $vars->{inbox_items} = \@inbox_items;
+
+        if (@inbox_items) {
+            foreach my $item ( splice( @inbox_items, 0, $limit ) ) {
+                $ret .= "<div class='item'>";
+                $ret .= "<div class='title'>" . $item->title . "</div>";
+
+                my $summary = $item->as_html_summary;
+                $ret .= "<div class='summary'>$summary</div>" if $summary;
+
+                $ret .= "</div>";
+            }
+        }
+        else {
+            $ret .= "<div class='item'>" . $class->ml('widget.latestinbox.empty') . "</div>";
+        }
     }
 
-    my $ret = DW::Template->template_string( 'widget/latestinbox.tt', $vars );
+    $ret .= "</div>";
     LJ::warn_for_perl_utf8($ret);
     return $ret;
 }

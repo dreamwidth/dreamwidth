@@ -2,6 +2,7 @@ stats.pl:
   genstats - Generates the nightly statistics
   genstats_size - Generates the site size stats
   genstats_weekly - Generates the weekly statistics
+  memeclean - Removes things from meme summary that are excluded by new URL cleaner rules
 
 statspics.pl:
   genstatspics - Makes a bunch of graphs to show on the statistics page.
@@ -15,6 +16,10 @@ synsuck.pl:
 generic.pl:
   joinmail - Generates daily email digests for community join requests
   clean_spamreports - Clean out data from the spamreports table older than 90 days.
+
+captcha.pl:
+  cache_textcaptcha - Generates textcaptcha instances
+  clean_captchas - Clean out captchas that have been used
 
 search.pl:
   copy_supportlog - Puts supportlog data into the Sphinx database

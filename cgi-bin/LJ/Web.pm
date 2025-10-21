@@ -18,21 +18,17 @@ use strict;
 
 use Carp;
 use POSIX;
-use Digest::MD5;
-use Digest::SHA1;
 
 use DW::Auth::Challenge;
 use DW::External::Site;
 use DW::Request;
 use DW::Formats;
-use LJ::Utils qw(rand_chars);
 use LJ::Global::Constants;
 use LJ::Event;
 use LJ::Subscription::Pending;
 use LJ::Directory::Search;
 use LJ::Directory::Constraint;
 use LJ::PageStats;
-use LJ::JSON;
 
 # <LJFUNC>
 # name: LJ::img
@@ -192,7 +188,6 @@ sub make_authas_select {
 
     my $authas = $opts->{authas} || $u->user;
     my $button = $opts->{button} || $BML::ML{'web.authas.btn'};
-    my $label  = $opts->{label}  || $BML::ML{'web.authas.select.label'};
 
     my $foundation = $opts->{foundation} || 0;
 
@@ -205,8 +200,7 @@ sub make_authas_select {
                 name     => 'authas',
                 selected => $authas,
                 class    => 'hideable',
-                id       => 'authas',
-                style    => $foundation ? 'width: 100%' : '',
+                id       => 'authas'
             },
             map { $_, $_ } @list
         );
@@ -217,14 +211,14 @@ sub make_authas_select {
         }
         else {
             $ret = $foundation
-                ? q{<div class='row collapse'><div class='columns small-3 medium-1'><label class='inline'>}
-                . $label
+                ? q{<div class='row collapse'><div class='columns medium-1'><label class='inline'>}
+                . LJ::Lang::ml('web.authas.select.label')
                 . q{</label></div>}
-                . q{<div class='columns small-9 medium-11'><div class='row'>}
-                . q{<div class="columns small-8 medium-4">}
+                . q{<div class='columns medium-11'><div class='row'>}
+                . q{<div class="columns medium-2">}
                 . $menu
                 . q{</div>}
-                . q{<div class='columns small-4 medium-2 end'>}
+                . q{<div class='columns medium-2 end'>}
                 . LJ::html_submit( undef, $button, { class => "secondary button" } )
                 . q{</div>}
                 . q{</div></div>}
@@ -240,6 +234,40 @@ sub make_authas_select {
         }
 
         return $ret;
+    }
+
+    # no communities to choose from, give the caller a hidden
+    return LJ::html_hidden( authas => $authas );
+}
+
+# <LJFUNC>
+# name: LJ::make_postto_select
+# des: Given a u object and some options, determines which users the given user
+#      can post to.  If the list exists, returns a select list and a submit
+#      button with labels.  Otherwise returns a hidden element.
+# returns: string of HTML elements
+# args: u, opts?
+# des-opts: Optional.  Valid keys are:
+#           'authas' - current user, gets selected in drop-down;
+#           'label' - label to go before form elements;
+#           'button' - button label for submit button;
+# </LJFUNC>
+sub make_postto_select {
+    my ( $u, $opts ) = @_;
+
+    my $authas = $opts->{authas} || $u->user;
+    my $label  = $opts->{label}  || $BML::ML{'web.postto.label'};
+    my $button = $opts->{button} || $BML::ML{'web.postto.btn'};
+
+    my @list = ( $u, $u->posting_access_list );
+
+    # only do most of form if there are options to select from
+    if ( @list > 1 ) {
+        return "$label "
+            . LJ::html_select( { name => 'authas', selected => $authas },
+            map { $_->user, $_->user } @list )
+            . " "
+            . LJ::html_submit( undef, $button );
     }
 
     # no communities to choose from, give the caller a hidden
@@ -292,6 +320,7 @@ sub bad_input {
     $ret .= "<?badcontent?>\n<ul>\n";
     foreach my $ei (@errors) {
         my $err = LJ::errobj($ei) or next;
+        $err->log;
         $ret .= $err->as_bullets;
     }
     $ret .= "</ul>\n";
@@ -317,6 +346,7 @@ sub error_list {
 
     foreach my $ei (@errors) {
         my $err = LJ::errobj($ei) or next;
+        $err->log;
         $ret .= $err->as_bullets;
     }
     $ret .= " </ul> errorbar?>";
@@ -480,6 +510,154 @@ sub paging {
     return %self;
 }
 
+# Returns HTML to display user search results
+# Args: %args
+# des-args:
+#           users    => hash ref of userid => u object like LJ::load userids
+#                       returns or array ref of user objects
+#           userids  => array ref of userids to include in results, ignored
+#                       if users is defined
+#           timesort => set to 1 to sort by last updated instead
+#                       of username
+#           perpage  => Enable pagination and how many users to display on
+#                       each page
+#           curpage  => What page of results to display
+#           navbar   => Scalar reference for paging bar
+#           pickwd   => userpic keyword to display instead of default if it
+#                       exists for the user
+#           self_link => Sub ref to generate link to use for pagination
+sub user_search_display {
+    my %args = @_;
+
+    my $loaded_users;
+    unless ( defined $args{users} ) {
+        $loaded_users = LJ::load_userids( @{ $args{userids} } );
+    }
+    else {
+        if ( ref $args{users} eq 'HASH' ) {    # Assume this is direct from LJ::load_userids
+            $loaded_users = $args{users};
+        }
+        elsif ( ref $args{users} eq 'ARRAY' ) {    # They did a grep on it or something
+            foreach ( @{ $args{users} } ) {
+                $loaded_users->{ $_->userid } = $_;
+            }
+        }
+        else {
+            return undef;
+        }
+    }
+
+    # If we're sorting by last updated, we need to load that
+    # info for all users before the sort.  If sorting by
+    # username we can load it for a subset of users later,
+    # if paginating.
+    my $updated;
+    my $disp_sort;
+
+    if ( $args{timesort} ) {
+        $updated = LJ::get_timeupdate_multi( keys %$loaded_users );
+        my $def_upd = sub { $updated->{ $_[0]->userid } || 0 };
+
+        # let undefined values be zero for sorting purposes
+        $disp_sort = sub { $def_upd->($b) <=> $def_upd->($a) };
+    }
+    else {
+        $disp_sort = sub { $a->{user} cmp $b->{user} };
+    }
+
+    my @display = sort $disp_sort values %$loaded_users;
+
+    if ( defined $args{perpage} ) {
+        my %items = LJ::paging( \@display, $args{curpage}, $args{perpage} );
+
+        # Fancy paging bar
+        my $opts;
+        $opts->{self_link} = $args{self_link} if $args{self_link};
+        ${ $args{navbar} } = LJ::paging_bar( $items{'page'}, $items{'pages'}, $opts );
+
+        # Now pull out the set of users to display
+        @display = @{ $items{'items'} };
+    }
+
+    # If we aren't sorting by time updated, load last updated time for the
+    # set of users we are displaying.
+    $updated = LJ::get_timeupdate_multi( map { $_->userid } @display )
+        unless $args{timesort};
+
+    # Allow caller to specify a custom userpic to use instead
+    # of the user's default all userpics
+    my $get_picid = sub {
+        my $u = shift;
+        return $u->{'defaultpicid'} unless defined $args{'pickwd'};
+        return $u->get_picid_from_keyword( $args{pickwd} );
+    };
+
+    my $ret;
+    foreach my $u (@display) {
+
+        # We should always have loaded user objects, but it seems
+        # when the site is overloaded we don't always load the users
+        # we request.
+        next unless LJ::isu($u);
+
+        $ret .= "<div class='user-search-display'>";
+        $ret .= "<table summary='' style='height: 105px'><tr>";
+
+        $ret .= "<td style='width: 100px; text-align: center;'>";
+        $ret .= "<a href='" . $u->allpics_base . "'>";
+        if ( my $picid = $get_picid->($u) ) {
+            $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/" . $u->userid . "' alt='";
+            $ret .= $u->user . " userpic' style='border: 1px solid #000;' />";
+        }
+        else {
+            $ret .= LJ::img( "nouserpic", "", { style => 'border: 1px solid #000;' } );
+        }
+        $ret .= "</a>";
+
+        $ret .= "</td><td style='padding-left: 5px;' valign='top'><table summary=''>";
+
+        $ret .= "<tr><td class='searchusername' colspan='2' style='text-align: left;'>";
+        $ret .= $u->ljuser_display( { head_size => $args{head_size} } );
+        $ret .= "</td></tr><tr>";
+
+        if ( $u->{name} ) {
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>"
+                . BML::ml('search.user.name');
+            $ret .= "</td><td style='font-size: smaller'><a href='" . $u->profile_url . "'>";
+            $ret .= LJ::ehtml( $u->{name} );
+            $ret .= "</a>";
+            $ret .= "</td></tr><tr>";
+        }
+
+        if ( my $jtitle = $u->prop('journaltitle') ) {
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>"
+                . BML::ml('search.user.journal');
+            $ret .= "</td><td style='font-size: smaller'><a href='" . $u->journal_base . "'>";
+            $ret .= LJ::ehtml($jtitle) . "</a>";
+            $ret .= "</td></tr>";
+        }
+
+        $ret .=
+            "<tr><td colspan='2' style='text-align: left; font-size: smaller' class='lastupdated'>";
+
+        my $upd = $updated->{ $u->userid };
+        if ( defined $upd && $upd > 0 ) {
+            $ret .= LJ::Lang::ml( 'search.user.update.last', { time => LJ::diff_ago_text($upd) } );
+        }
+        else {
+            $ret .= LJ::Lang::ml('search.user.update.never');
+        }
+
+        $ret .= "</td></tr>";
+
+        $ret .= "</table>";
+        $ret .= "</td></tr>";
+        $ret .= "</table></div>";
+    }
+
+    return $ret;
+}
+
 # <LJFUNC>
 # class: web
 # name: LJ::make_cookie
@@ -573,9 +751,67 @@ sub check_referer {
     return 1 if $LJ::DOMAIN     && $referer =~ m!^https?://\Q$LJ::DOMAIN\E$uri!;
     return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^https?://\Q$LJ::DOMAIN_WEB\E$uri!;
     return 1
-        if $referer =~ m!^https?://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
+        if $LJ::USER_VHOSTS && $referer =~ m!^https?://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
     return 1 if $origuri =~ m!^https?://! && $origreferer eq $origuri;
     return undef;
+}
+
+# <LJFUNC>
+# name: LJ::icon_keyword_menu
+# class: web
+# des: Gets all userpics for a given user, separated by keyword. Use this when
+#      building a drop-down icons menu.
+# args: user
+# des-user: a user object.
+# returns: An array of hashrefs like:
+#          {value => ..., text => ..., data => { url => ..., description => ... }}
+#          which can be passed directly to an LJ::html_select(). Includes an
+#          item for each keyword (thus duplicating icons with multiple
+#          keywords), and an item for the default userpic. If no userpics or if
+#          user is undefined, returns an empty array.
+# </LJFUNC>
+sub icon_keyword_menu {
+    my ($user) = @_;
+
+    return () unless ($user);
+
+    my @icons = grep { !( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics($user);
+
+    return () unless (@icons);
+
+    # Get a sorted array of { keyword => "...", userpic => userpic_object } hashrefs:
+    @icons = LJ::Userpic->separate_keywords( \@icons );
+
+    # Sort out the default icon -- either it's a real one, or it's nothing
+    # and we should use a placeholder image in previews.
+    my $default_icon = $user->userpic;    # userpic object or nothing
+    my $default_icon_url =
+          $default_icon
+        ? $default_icon->url
+        : ( $LJ::IMGPREFIX . $LJ::Img::img{nouserpic_sitescheme}->{src} );
+
+    # Finally, return the expected format for an LJ::html_select,
+    # including an item for the default icon:
+    return (
+        {
+            value => "",
+            text  => LJ::Lang::ml('entryform.opt.defpic'),
+            data  => {
+                url         => $default_icon_url,
+                description => LJ::Lang::ml('entryform.opt.defpic'),
+            },
+        },
+        map {
+            {
+                value => $_->{keyword},
+                text  => $_->{keyword},
+                data  => {
+                    url         => $_->{userpic}->url,
+                    description => $_->{userpic}->description || $_->{keyword},
+                },
+            }
+        } @icons
+    );
 }
 
 # <LJFUNC>
@@ -697,6 +933,9 @@ sub create_qr_div {
         $hidden_form_elements .= LJ::html_hidden( "chrp1", "$chal-$res" );
     }
 
+    # For userpic selector
+    my @icons = icon_keyword_menu($remote);
+
     # hashref with "selected" and "items" keys
     my $editors = DW::Formats::select_items( preferred => $remote->prop('comment_editor'), );
 
@@ -723,7 +962,15 @@ sub create_qr_div {
 
             foundation_beta => !LJ::BetaFeatures->user_in_beta( $remote => "nos2foundation" ),
 
-            remote => $remote,
+            remote => {
+                ljuser                 => $remote->ljuser_display,
+                user                   => $remote->user,
+                icons_url              => $remote->allpics_base,
+                icons                  => \@icons,
+                can_use_userpic_select => $remote->can_use_userpic_select && ( scalar(@icons) > 0 ),
+                iconbrowser_metatext   => $remote->iconbrowser_metatext ? "true" : "false",
+                iconbrowser_smallicons => $remote->iconbrowser_smallicons ? "true" : "false",
+            },
 
             journal => {
                 is_iplogging    => $u->opt_logcommentips eq 'A',
@@ -1309,7 +1556,7 @@ RTE
             . LJ::ejs( BML::ml('fcklang.userprompt.user') ) . "\";\n";
         $out .= "FCKLang.UserPrompt_Site = \""
             . LJ::ejs( BML::ml('fcklang.userprompt.site') ) . "\";\n";
-        $out .= "FCKLang.UserPrompt_SiteList =" . to_json( \@sitevalues ) . ";\n";
+        $out .= "FCKLang.UserPrompt_SiteList =" . LJ::js_dumper( \@sitevalues ) . ";\n";
         $out .= "FCKLang.InvalidChars = \"" . LJ::ejs( BML::ml('fcklang.invalidchars') ) . "\";\n";
         $out .= "FCKLang.LJUser = \"" . LJ::ejs( BML::ml('fcklang.ljuser') ) . "\";\n";
         $out .= "FCKLang.LJVideo = \"" . LJ::ejs( BML::ml('fcklang.ljvideo2') ) . "\";\n";
@@ -2074,6 +2321,20 @@ PREVIEW
                 ) . "&nbsp;\n";
             }
 
+            if ( !$opts->{'disabled_save'} && $opts->{suspended} && !$opts->{unsuspend_supportid} )
+            {
+                $out .= LJ::html_submit(
+                    'action:saveunsuspend',
+                    BML::ml('entryform.saveandrequestunsuspend2'),
+                    {
+                        'onclick'  => $onclick,
+                        'disabled' => $opts->{'disabled_save'},
+                        'class'    => 'xpost_submit',
+                        'tabindex' => $tabindex->()
+                    }
+                ) . "&nbsp;\n";
+            }
+
             # do a double-confirm on delete if we have crossposts that
             # would also get removed
             my $delete_onclick =
@@ -2116,6 +2377,231 @@ PREVIEW
         $out .= "</script>\n";
     }
     return $out;
+}
+
+# entry form subject
+sub entry_form_subject_widget {
+    my $class = $_[0];
+
+    $class = $class ? qq { class="$class" } : '';
+
+    return qq { <input name="subject" id="subject" $class/> };
+}
+
+# entry form hidden date field
+sub entry_form_date_widget {
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
+    $year += 1900;
+    $mon  = sprintf( "%02d", $mon + 1 );
+    $mday = sprintf( "%02d", $mday );
+    $min  = sprintf( "%02d", $min );
+    return LJ::html_hidden(
+        { 'name' => 'date_ymd_yyyy', 'value' => $year, 'id' => 'update_year' },
+        { 'name' => 'date_ymd_dd',   'value' => $mday, 'id' => 'update_day' },
+        { 'name' => 'date_ymd_mm',   'value' => $mon,  'id' => 'update_mon' },
+        { 'name' => 'hour',          'value' => $hour, 'id' => 'update_hour' },
+        { 'name' => 'min',           'value' => $min,  'id' => 'update_min' }
+    );
+}
+
+# entry form event text box
+sub entry_form_entry_widget {
+    my $class = $_[0];
+
+    $class = $class ? qq { class="$class" } : '';
+
+    return qq { <textarea cols=50 rows=10 name="event" id="event" $class></textarea> };
+}
+
+sub minsec_for_user {
+    my $user = LJ::load_user(shift);
+    if ( !$user ) {
+        return undef;
+    }
+    return $user->prop('newpost_minsecurity');
+}
+
+# entry form "journals can post to" dropdown
+# NOTE!!! returns undef if no other journals user can post to
+sub entry_form_postto_widget {
+    my $remote = shift;
+
+    return undef unless LJ::isu($remote);
+
+    my $ret;
+
+    # log in to get journals can post to
+    my $res;
+    $res = LJ::Protocol::do_request(
+        "login",
+        {
+            "ver"      => $LJ::PROTOCOL_VER,
+            "username" => $remote->{'user'},
+        },
+        undef,
+        {
+            "noauth" => 1,
+            "u"      => $remote,
+        }
+    );
+
+    return undef unless $res;
+
+    LJ::need_res( { group => 'jquery' }, 'js/quickupdate.js' );
+
+    my @journals = map {
+        {
+            value => $_,
+            text  => $_,
+            data  => { minsecurity => minsec_for_user($_), iscomm => 1 }
+        }
+    } @{ $res->{'usejournals'} };
+
+    return undef unless @journals;
+
+    my $journal_minsec = $remote && $remote->prop('newpost_minsecurity');
+    push @journals,
+        {
+        value => $remote->{'user'},
+        text  => $remote->{'user'},
+        data  => { minsecurity => $journal_minsec, iscomm => 0 }
+        };
+    @journals = sort { $a->{'value'} cmp $b->{'value'} } @journals;
+    $ret .= LJ::html_select(
+        {
+            name     => 'usejournal',
+            id       => 'usejournal',
+            selected => $remote->user
+        },
+        @journals
+    ) . "\n";
+    return $ret;
+}
+
+sub entry_form_security_widget {
+    my $ret    = '';
+    my $remote = LJ::get_remote();
+    my $minsec = $remote && $remote->prop('newpost_minsecurity');
+
+    # Don't disable options here: they may be valid to post to a community.
+    # quickupdate.js will dynamically disable/enable options according to the
+    # post-to dropdown, if JS is on.
+    my @secs;
+    push @secs,
+        {
+        value => 'public',
+        text  => BML::ml('label.security.public2')
+        };
+    push @secs,
+        {
+        value => 'friends',
+        text  => BML::ml('label.security.accesslist'),
+        data  => { commlabel => BML::ml('label.security.members') }
+        };
+    push @secs,
+        {
+        value => 'private',
+        text  => BML::ml('label.security.private2'),
+        data  => { commlabel => BML::ml('label.security.maintainers') }
+        };
+
+    $ret .= LJ::html_select(
+        {
+            name     => 'security',
+            id       => 'security',
+            selected => $minsec
+        },
+        @secs
+    );
+
+    return $ret;
+}
+
+sub entry_form_tags_widget {
+    my $ret = '';
+
+    return '' unless LJ::is_enabled('tags');
+
+    $ret .= LJ::html_text(
+        {
+            'name'      => 'prop_taglist',
+            'id'        => 'prop_taglist',
+            'size'      => '35',
+            'maxlength' => '255',
+        }
+    );
+    $ret .= LJ::help_icon('addtags');
+
+    return $ret;
+}
+
+sub entry_form_usericon_widget {
+    my $remote = shift;
+    return undef unless LJ::isu($remote);
+
+    my $ret = '';
+
+    my %res;
+    LJ::do_request(
+        {
+            mode      => "login",
+            ver       => $LJ::PROTOCOL_VER,
+            user      => $remote->user,
+            getpickws => 1,
+        },
+        \%res,
+        { noauth => 1, userid => $remote->userid }
+    );
+
+    if ( $res{pickw_count} ) {
+
+        my @icons;
+        for ( my $i = 1 ; $i <= $res{pickw_count} ; $i++ ) {
+            push @icons, $res{"pickw_$i"};
+        }
+
+        @icons = sort { lc($a) cmp lc($b) } @icons;
+        $ret .= LJ::html_select(
+            {
+                name => 'prop_picture_keyword',
+                id   => 'prop_picture_keyword'
+            },
+            ( "", BML::ml('entryform.opt.defpic'), map { ( $_, $_ ) } @icons )
+        );
+    }
+    return $ret;
+}
+
+sub entry_form_xpost_widget {
+    my ($remote) = @_;
+    return unless $remote;
+
+    my $ret      = '';
+    my @accounts = DW::External::Account->get_external_accounts($remote);
+    @accounts = grep { $_->xpostbydefault } @accounts;
+
+    if (@accounts) {
+        $ret .= LJ::html_hidden(
+            {
+                name  => 'prop_xpost_check',
+                id    => 'prop_xpost_check',
+                value => 1,
+            }
+        );
+
+        foreach my $acct (@accounts) {
+            my $acctid = $acct->acctid;
+            $ret .= LJ::html_hidden(
+                {
+                    name  => "prop_xpost_$acctid",
+                    id    => "prop_xpost_$acctid",
+                    value => 1,
+                }
+            );
+        }
+    }
+
+    return $ret;
 }
 
 # <LJFUNC>
@@ -2266,6 +2752,38 @@ sub entry_form_decode {
     LJ::Hooks::run_hooks( 'decode_entry_form', $POST, $req );
 
     return $req;
+}
+
+# Data::Dumper for JavaScript
+# use this only when printing out on a page as a JS variable
+# do not use for JSON requests -- it is not guaranteed to return
+# valid JSON
+sub js_dumper {
+    my $obj = shift;
+    if ( ref $obj eq "HASH" ) {
+        my $ret = "{";
+        foreach my $k ( keys %$obj ) {
+
+            # numbers as keys need to be quoted.  and things like "null"
+            my $kd = ( $k =~ /^\w+$/ ) ? "\"$k\"" : LJ::js_dumper($k);
+            $ret .= "$kd: " . js_dumper( $obj->{$k} ) . ",\n";
+        }
+        if ( keys %$obj ) {
+            chop $ret;
+            chop $ret;
+        }
+        $ret .= "}";
+        return $ret;
+    }
+    elsif ( ref $obj eq "ARRAY" ) {
+        my $ret = "[" . join( ", ", map { js_dumper($_) } @$obj ) . "]";
+        return $ret;
+    }
+    else {
+        $obj = '' unless defined $obj;
+        return $obj if $obj =~ /^\d+$/;
+        return "\"" . LJ::ejs($obj) . "\"";
+    }
 }
 
 {
@@ -2474,7 +2992,8 @@ sub res_includes {
             cmax_comment        => LJ::CMAX_COMMENT,
         );
 
-        my $site_params = to_json( \%site );
+        my $site_params     = LJ::js_dumper( \%site );
+        my $site_param_keys = LJ::js_dumper( [ keys %site ] );
 
         # include standard JS info
         $ret .= qq {
@@ -2483,7 +3002,11 @@ sub res_includes {
                 if (!Site)
                     Site = {};
 
-                Site = Object.assign(Site, $site_params);
+                var site_p = $site_params;
+                var site_k = $site_param_keys;
+                for (var i = 0; site_k.length > i; i++) {
+                    Site[site_k[i]] = site_p[site_k[i]];
+                }
            </script>
         };
     }
@@ -2863,9 +3386,6 @@ sub control_strip {
         #     .selected => ""
         'viewoptions' => [],
         'search_html' => LJ::Widget::Search->render,
-
-        # url of the rendered page, for the login/logout form to redirect back to
-        'returnto' => $baseuri,
     };
 
     # Shortcuts for the two nested array refs that get repeatedly dereferenced later

@@ -17,8 +17,6 @@
 
 .extradata.subj.no_subject=(no subject)
 
-.htmlonly=(this entry only contains HTML content)
-
 .in=In community:
 
 .invalid_encoding=This entry may contain unknown characters, which have been replaced with a "?". Please ensure the entry is exactly as intended before posting.
@@ -44,6 +42,8 @@
 .success.edited.comm=Community entry was edited.
 
 .success.editedstillsuspended=Please note that your entry is still suspended.
+
+.success.editedunsuspend=Additionally, an unsuspension request has been opened at [[url]], and your entry will be reviewed soon.
 
 .success.fromhere=From here you can:
 

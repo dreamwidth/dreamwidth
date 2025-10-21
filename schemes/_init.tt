@@ -10,7 +10,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 [%- USE dw -%]
-[%- USE form -%]
 [%- USE dw_scheme -%]
 [%- FOREACH current_scheme IN inheritance -%][%- PROCESS $current_scheme -%][%- END -%]
 [%- PROCESS block.page -%]

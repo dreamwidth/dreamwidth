@@ -35,6 +35,7 @@ my %workers = (
     'dw-send-email'       => [    5,    20,  '300M',  '100m',  $hpa_sqs->('dw-prod-dw-task-sendemail') ],
     'embeds'              => [    5,    15,  '300M',   '50m',  undef ],
     'resolve-extacct'     => [    1,     1,  '300M',   '50m',  undef ],
+    'send-email-ses'      => [    1,     1,  '300M',   '50m',  undef ],
     'spellcheck-gm'       => [    1,     1,  '300M',   '50m',  undef ],
     'sphinx-copier'       => [    3,     5,  '300M',   '50m',  undef ],
     'sphinx-search-gm'    => [    1,     1,  '300M',   '50m',  undef ],

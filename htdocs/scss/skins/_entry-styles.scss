@@ -63,14 +63,6 @@ ul.text-links {
   }
 }
 
-// Don't add space after last element in an entry/comment. Avoids extra gaps
-// if there's paragraph tags (markdown) instead of text nodes (casual HTML).
-.comment-content, .entry-content {
-  & > :last-child {
-    margin-bottom: 0;
-  }
-}
-
 /**
 * Primary item styles:
 * (The primary item is always an entry on entry pages, but is sometimes a
@@ -181,68 +173,6 @@ ul.entry-management-links {
   margin: 0 4px;
 }
 
-.action-box ul.pagination {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  grid-template-areas: "prev pages next";
-  text-align: center;
-  margin: 0 0 0.75em 0;
-
-  .arrow {
-    align-self: center;
-    justify-self: center;
-    font-size:  large;
-    margin: 0 .25em;
-    &.disabled {
-      opacity: 0.33;
-      padding: .0625rem .25rem .0625rem;
-    }
-  }
-
-  .arrow:first-child {
-    grid-area: prev;
-  }
-
-  .arrow:last-child {
-    grid-area: next;
-  }
-
-  li a {
-    padding: .0625rem .25rem .0625rem;
-    flex-grow: 1;
-    opacity: 1;
-
-    @media #{$small-only} {
-      padding: .125rem .5rem .125rem;
-    }
-  }
-
-  ul.pages {
-    grid-area: pages;
-    text-align: center;
-    margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    max-width: 20rem;
-  
-    @media #{$small-only} {
-      max-width: 10rem;
-    }
-  
-  }
-  
-  ul.pages li {
-    align-self: center;
-    margin: 0 0.1rem;
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    width: 1.8rem;
-  }
-}
-
 /**
 * Comment styles:
 */
@@ -275,13 +205,11 @@ ul.entry-management-links {
     }
 
     .comment-info, .userpic {
-      // Using "exploded" border properties so we can set the color later.
-      border-bottom-width: 1px;
-      border-bottom-style: solid;
+      border-bottom: 1px solid;
     }
     .comment-info {
-      border-right-width: 1px;
-      border-right-style: solid;
+      border-right: 1px solid;
+      border-color: $soft-accent-color;
       flex-grow: 1;
     }
 
@@ -308,7 +236,7 @@ ul.entry-management-links {
   }
 }
 
-// Comment header backgrounds/borders
+// Comment header backgrounds
 // Structure is:
 // .comment-thread.comment-depth(odd|even)
   // .dwexpcomment
@@ -322,14 +250,13 @@ ul.entry-management-links {
 .comment-depth-odd > .dwexpcomment .header {
   .comment-info, .userpic {
     background-color: $secondary-color-alternate;
-    border-color: $strong-accent-color;
+    border-color: $strong-accent-color !important;
   }
 }
 
 .comment-depth-even > .dwexpcomment .header {
   .comment-info, .userpic {
     background-color: $secondary-color;
-    border-color: $soft-accent-color;
   }
 }
 
@@ -339,22 +266,13 @@ ul.entry-management-links {
   }
 }
 
-.comment .admin-poster {
-  white-space: nowrap;
-}
-
-.comment-content {
-  padding: .5em 0 .25em;
-}
-
 .comment .footer {
   margin-top: .6em;
   margin-bottom: 1em;
 }
 
 .comment-info {
-  padding: .25em;
-  padding-left: .5em;
+  padding-left: .3em;
 
   & > span, & > ul, & > div {
     margin-right: .9em;
@@ -367,10 +285,10 @@ ul.entry-management-links {
   }
 
   .comment-title {
+    // TODO: Use media query to vary this depending on if we're mobile. We'd prefer not
+    // to take up this space on devices where space is at a premium! Once we do that,
+    // set this back to 0.6em for mobile deevices.
     min-height: 1.4em; // take up as much space as a subject would.
-    @media #{$small-only} {
-      min-height: 0.6em; // except on mobile, where we can't spare the space.
-    }
 
     margin: 0;
   }
@@ -410,4 +328,9 @@ ul.entry-management-links {
   .entry .footer {
     display: none;
   }
+}
+
+.entry table tr, .entry table {
+  background: none;
+  border: none;
 }

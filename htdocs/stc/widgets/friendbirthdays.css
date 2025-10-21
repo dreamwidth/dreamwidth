@@ -1,24 +1,15 @@
-div.user-block {
-    display: inline-block;
-    padding-right: 0.5em;
-}
-
-div.user-block ul {
-    list-style: none;
-    display: inline;
-}
-
-li.bdate {
-    padding-left: 20px;
-}
-
-.appwidget-friendbirthdays p {
-    margin: 1em 0 0 0;
+.appwidget-friendbirthdays table {
+    width: 100%;
+    border: 0;
 }
 
 .appwidget-friendbirthdays .gift-link {
     display: block;
-    padding: 5px 0 0 20px;
-    line-height: 14px;
+    padding: 0 0 0 20px;
+    line-height: 20px;
     background: url(/img/gift.gif) no-repeat 0 50%;
+    float: right;
+}
+* html .appwidget-friendbirthdays .gift-link {
+    line-height: 14px;
 }

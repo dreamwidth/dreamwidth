@@ -69,12 +69,6 @@ $maint{'genstats'} = sub {
 
                 return {} unless LJ::is_enabled('interests-popular');
 
-                # first, look for interest counts that have overflowed
-                # and reset them to zero so they don't appear here
-                my $dbh = LJ::Stats::get_db("dbh");
-                $dbh->do( "UPDATE interests SET intcount=0 WHERE intcount>?", undef, 16777200 );
-                die $dbh->errstr if $dbh->err;
-
                 # see what the previous min was, then subtract 20% of max from it
                 my ( $prev_min, $prev_max ) =
                     $db->selectrow_array( "SELECT MIN(statval), MAX(statval) "

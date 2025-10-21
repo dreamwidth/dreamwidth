@@ -7,7 +7,7 @@
 
 .form.request.reason=Reason:
 
-.form.request.submit2=Request invites
+.form.request.submit=Request invites:
 
 .header.code=Code:
 

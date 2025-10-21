@@ -260,9 +260,9 @@ set color_module_title_background = "#74a3fd";
 layerinfo type = "theme";
 layerinfo name = "Happy Now";
 layerinfo redist_uniq = "tranquilityiii/happynow";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

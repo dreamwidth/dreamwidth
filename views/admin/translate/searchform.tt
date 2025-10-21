@@ -74,7 +74,7 @@
 <input type='hidden' name='search' value='flg'>
 
 <p>
-<table class="table" summary="">
+<table summary="">
 
   <tr><td>Prf:</td>
   <td><input type='radio' name='searchflagproofed' value='whatev'>Both</td>

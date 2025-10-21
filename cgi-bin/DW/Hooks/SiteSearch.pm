@@ -18,14 +18,13 @@ package DW::Hooks::SiteSearch;
 
 use strict;
 use LJ::Hooks;
-use Carp;
 
 sub _sphinx_db {
 
     # ensure we can talk to our system
     return unless @LJ::SPHINX_SEARCHD;
     my $dbh = LJ::get_dbh('sphinx_search')
-        or carp "Unable to get sphinx_search database handle.";
+        or die "Unable to get sphinx_search database handle.\n";
     return $dbh;
 }
 
@@ -33,13 +32,26 @@ LJ::Hooks::register_hook(
     'setprop',
     sub {
         my %opts = @_;
-        return unless $opts{prop} eq 'opt_blockglobalsearch';
+        my $bool;
+        if ( $opts{prop} eq 'opt_blockglobalsearch' ) {
+            $bool = $opts{value} eq 'Y' ? 0 : 1;
+        }
+        elsif ( $opts{prop} eq 'not_approved' ) {
+
+            # only act on this if it is being cleared from a visible user
+            return if $opts{value};
+            return if $opts{u}->is_suspended;
+            $bool = 1;
+        }
+        else {
+            return;
+        }
 
         my $dbh = _sphinx_db() or return 0;
         $dbh->do(
             q{UPDATE items_raw SET allow_global_search = ?, touchtime = UNIX_TIMESTAMP()
           WHERE journalid = ?},
-            undef, $opts{value} eq 'Y' ? 0 : 1, $opts{u}->id
+            undef, $bool, $opts{u}->id
         );
         die $dbh->errstr if $dbh->err;
 

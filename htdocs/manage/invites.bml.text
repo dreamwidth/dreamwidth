@@ -1,0 +1,63 @@
+;; -*- coding: utf-8 -*-
+.abilities.title2=Relationships and Abilities
+
+.accept=Accept
+
+.accepted.body2=You've joined the following communities, with the listed relationships and abilities:
+
+.accepted.title=Invitations Accepted
+
+.answer.title=Answer
+
+.back=Manage invites
+
+.community.title=Community
+
+.date=([[date]])
+
+.decline=Decline
+
+.from=from [[user]]
+
+.label.admin=Administrator
+
+.label.member=Subscriber, Member
+
+.label.moderate=Moderator
+
+.label.post=Can Post
+
+.label.preapprove=Unmoderated
+
+.manage=Manage account
+
+.none.body=You don't have any pending community invitations at this time.
+
+.none.title=Nothing Pending
+
+.pending.body=You've been invited to join the following communities. You can either accept or decline each invitation. To leave an invitation pending don't select any answer.
+
+.rejected.body2=You've rejected invitations to the following communities:
+
+.rejected.title=Invitations Rejected
+
+.submit2=Submit Answers
+
+.success.fromhere=From here, you can:
+
+.success.head=Success
+
+.success.manageinvites=Answer your community invitations
+
+.success.managecircle=Manage your Circle
+
+.success.managecomm=Manage your communities
+
+.success.readingpage=View your Reading Page
+
+.title2=Answer Community Invitations
+
+.undecided.body2=You haven't answered invitations to the following communities:
+
+.undecided.title=Invitations Still Pending
+

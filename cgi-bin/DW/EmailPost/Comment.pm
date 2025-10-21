@@ -20,7 +20,6 @@ use strict;
 
 use Digest::SHA;
 
-use LJ::Utils qw(rand_chars);
 use LJ::Protocol;
 use DW::CleanEmail;
 use LJ::Comment;

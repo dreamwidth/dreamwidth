@@ -36,7 +36,7 @@ sub get_handler {
 
     my $use_key = 'default';
     foreach my $cl ( @HANDLER_LIST, @DW_HANDLER_LIST ) {
-        my $subcl = lc( ( split( "::", $cl ) )[-1] );
+        my $subcl = ( split( "::", $cl ) )[-1];
         next if $subcl eq 'default';
         next unless $subcl eq $key;
 
@@ -74,7 +74,6 @@ sub add_to_beta {
     push @features, $key;
     my $newval = join( ",", @features );
     $u->set_prop( $class->prop_name => $newval );
-    $handler->add_to_beta($u);
     return 1;
 }
 
@@ -97,7 +96,6 @@ sub remove_from_beta {
     # they're a member of no active beta tests?
     unless (@newkeys) {
         $u->clear_prop( $class->prop_name );
-        $handler->remove_from_beta($u);
         $u->remove_from_class( $class->cap_name );
         return 1;
     }
@@ -107,7 +105,6 @@ sub remove_from_beta {
 
     # they're already in the cap class
     $u->set_prop( $class->prop_name => $newval );
-    $handler->remove_from_beta($u);
     return 1;
 }
 

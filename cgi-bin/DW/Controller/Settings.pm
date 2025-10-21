@@ -481,6 +481,9 @@ sub changepassword_handler {
 
         formdata => $post || { user => $remote ? $remote->user : "" },
         errors   => $errors,
+
+        username_maxlength => $LJ::USERNAME_MAXLENGTH,
+        password_maxlength => $LJ::PASSWORD_MAXLENGTH,
     };
     return DW::Template->render_template( 'settings/changepassword.tt', $vars );
 }
@@ -493,7 +496,10 @@ sub lostinfo_handler {
     my $form_args = $r->post_args;
     my $captcha   = DW::Captcha->new( 'lostinfo', %{$form_args} );
 
-    my $vars = { captcha => $captcha };
+    my $vars = {
+        captcha            => $captcha,
+        username_maxlength => $LJ::USERNAME_MAXLENGTH,
+    };
 
     return DW::Template->render_template( 'settings/lostinfo.tt', $vars )
         unless $r->did_post;

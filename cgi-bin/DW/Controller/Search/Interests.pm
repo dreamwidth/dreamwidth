@@ -22,9 +22,7 @@ use warnings;
 use DW::Routing;
 use DW::Template;
 use DW::Controller;
-
 use LJ::Global::Constants;
-use LJ::Stats;
 
 DW::Routing->register_string( '/interests', \&interest_handler, app => 1 );
 
@@ -85,8 +83,7 @@ sub interest_handler {
             };
         }
         $rv->{pop_cloud} = LJ::tag_cloud( \%interests );
-        $rv->{pop_ints} =
-            [ sort { $b->{value} <=> $a->{value} || $a->{eint} cmp $b->{eint} } values %interests ]
+        $rv->{pop_ints}  = [ sort { $b->{value} <=> $a->{value} } values %interests ]
             if %interests;
         return DW::Template->render_template( 'interests/popular.tt', $rv );
     }
@@ -368,7 +365,7 @@ sub interest_handler {
         $rv->{query_count}    = scalar @intdata;
         $rv->{no_users}       = join ', ', @no_users;
         $rv->{no_users_count} = scalar @no_users;
-        $rv->{not_interested} = $remote ? \@not_interested : [];
+        $rv->{not_interested} = \@not_interested;
 
         # if any one interest is unused, the search can't succeed
         undef @intids if @no_users;
@@ -381,8 +378,6 @@ sub interest_handler {
         my $type = $args->{type};
         $type = 'none' unless $type    && $type =~ /^[PCIF]$/;
         $type = 'none' if $type eq 'F' && !$remote;              # just in case
-
-        $rv->{filtered} = $type ne 'none' ? 1 : 0;
 
         # constructor for filter links
         $rv->{type_link} = sub {

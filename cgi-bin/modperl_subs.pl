@@ -35,6 +35,8 @@ BEGIN {
 
 use Apache::LiveJournal;
 use Apache::BML;
+use Apache::SendStats;
+use Apache::DebateSuicide;
 
 use Digest::MD5;
 use Text::Wrap     ();
@@ -44,7 +46,6 @@ use Time::HiRes ();
 use Image::Size ();
 use POSIX       ();
 
-use LJ::Utils qw(urandom_int);
 use LJ::Hooks;
 use LJ::Faq;
 use DW::BusinessRules::InviteCodes;
@@ -156,6 +157,9 @@ ErrorDocument 500 /500-error.html
 PerlOptions +GlobalRequest
 
 PerlInitHandler Apache::LiveJournal
+#PerlInitHandler Apache::SendStats
+#PerlCleanupHandler Apache::SendStats
+#PerlChildInitHandler Apache::SendStats
 DirectoryIndex index.html index.bml
 
 }
@@ -174,17 +178,19 @@ DirectoryIndex index.html index.bml
         LJ::ModPerl::add_httpd_config("PerlSetVar BML_denyconfig \"$LJ::BML_DENY_CONFIG\"\n");
     }
 
-    LJ::ModPerl::add_httpd_config(
-        q{
+    unless ($LJ::SERVER_TOTALLY_DOWN) {
+        LJ::ModPerl::add_httpd_config(
+            q{
 
 # BML support:
 <Files ~ "\.bml$">
-SetHandler perl-script
-PerlResponseHandler Apache::BML
+    SetHandler perl-script
+    PerlResponseHandler Apache::BML
 </Files>
 
 }
-    );
+        );
+    }
 
     if ( LJ::is_enabled('ignore_htaccess') ) {
         LJ::ModPerl::add_httpd_config(

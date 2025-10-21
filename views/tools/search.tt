@@ -30,7 +30,7 @@
 <ul>
   <li>
     [% ".journal" | ml( aopts = "href='${site.root}/search'" ) %]
-    &mdash; [% ".journal.desc" | ml( aopts = "href='${site.shoproot}'" ) %]
+    &mdash; [% ".journal.desc" | ml( aopts = "href='${site.root}/shop'" ) %]
   </li>
   <li>
     [% ".directory" | ml( aopts = "href='${site.root}/directorysearch'" ) %]

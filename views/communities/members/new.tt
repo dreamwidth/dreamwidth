@@ -15,14 +15,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- sections.title = ".title" | ml -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
-[%- sections.head = BLOCK %]
-    <style type="text/css">
-        #content input[type="text"] {
-            width: auto;
-        }
-    </style>
-[%- END -%]
-
 [%- dw.need_res( { group => "foundation" }
     "stc/css/components/inline-lists.css"
     "stc/css/components/queues.css"
@@ -35,13 +27,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <ul class="no-bullet">
     [%- FOREACH row = [1..rows] -%]
     <li class="row">
-        <div class="columns small-3">
+        <div class="columns large-3">
             [%- form.textbox( title = dw.ml( "Username" )
                               name  = "user_$row",
                               class = "journaltype-textbox user-textbox"
                             ) -%]
         </div>
-        <div class="columns small-9"><ul class="inline-list">
+        <div class="columns large-9"><ul class="inline-list">
             [%- FOREACH role = roles -%]
               <li>[%- form.checkbox_nested(
                         label=dw.ml( "/communities/members/edit.tt.role.$role" ),
@@ -51,7 +43,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
                   -%]</li>
             [%- END -%]
         </ul></div>
-    </li>
     [%- END -%]
 </ul>
 
@@ -73,22 +64,18 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <form method="POST" action="[%- form_revoke_action_url -%]">
                 [%- form.hidden( name = "revoke", value = invite.userid ) -%]
                 [%- dw.form_auth -%]
-                <div class="columns small-3">[%- invite.user -%]</div>
-                <div class="columns small-4">[%- role_strings = [] -%]
+                <div class="columns large-3">[%- invite.user -%]</div>
+                <div class="columns large-4">[%- role_strings = [] -%]
                     [%- FOREACH role = invite.roles -%]
                         [%- role_strings.push( dw.ml( "/communities/members/edit.tt.role.$role" ) ) -%]
                     [%- END -%]
                     [%- role_strings.join( ", " ) -%]</div>
-                <div class="columns small-3">
+                <div class="columns large-3">
                     [% ".invite.header.inviter" | ml( user = invite.invited_by ) %]
                     <div class="timestamp">[%- invite.date -%]</div>
                 </div>
-                <div class="columns small-2">
-                    [%- IF invite.status == "outstanding" -%]
-		    <input type="submit" class="small secondary button" value="[%- ".button.cancel" | ml -%]">
-		    [%- ELSE -%]
-		    [%- invite.status -%]
-		    [%- END -%]</div>
+                <div class="columns large-2">[%- invite.status -%]
+                    [%- IF invite.status == "outstanding" -%]<input type="submit" class="small secondary button" value="[%- ".button.cancel" | ml -%]">[%- END -%]</div>
             </form>
             </li>
         [%- END -%]

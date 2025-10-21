@@ -50,7 +50,7 @@ sub option {
 sub des {
     my $class = $_[0];
 
-    return $class->ml('setting.shortcuts.desc');
+    return $class->ml('setting.shortcuts.des');
 }
 
 1;

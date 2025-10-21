@@ -18,31 +18,29 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     [%- WRAPPER components/modal.tt id="js-custom-groups" class="custom-groups" -%]
     <fieldset>
+    <div class="row"><div class="columns">
       <legend>[% ".header.custom" | ml %]</legend>
-      <div class="row"><div class="columns">
-        <ul class="no-bullet">
-          [% FOREACH group IN customgroups %]
-              <li>[%- form.checkbox( label = group.label
-                          name = "custom_bit"
-                          id = "custom-bit-$group.value"
+      <ul class="no-bullet">
+        [% FOREACH group IN customgroups %]
+            <li>[%- form.checkbox( label = group.label
+                        name = "custom_bit"
+                        id = "custom-bit-$group.value"
 
-                          value = group.value
-              ) -%]</li>
-          [% END %]
-        </ul>
-      </div></div>
-      <div class="row"><div class="columns">
-        <button id='js-custom-groups-select'>[% '.select' | ml %]</button>
-      </div></div>
+                        value = group.value
+            ) -%]</li>
+        [% END %]
+      </ul>
+    </div></div>
+    <div class="row"><div class="columns">
+      <button id='js-custom-groups-select'>[% '.select' | ml %]</button>
+    </div></div>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="row"><div class="columns">
       <legend>[% ".header.custom_member" | ml %]</legend>
-      <div class="row"><div class="columns">
-        <ul class="no-bullet" id="js-custom-group-members">
-        </ul>
-      </div></div>
-    </fieldset>
+      <ul class="no-bullet" id="js-custom-group-members">
+      </ul>
+    </div></fieldset>
     [% END %]
 
     [% END %]

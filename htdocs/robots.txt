@@ -2,7 +2,6 @@ User-Agent: *
 Disallow: /directorysearch
 Disallow: /latest
 Disallow: /search
-Disallow: /tools/tellafriend
 
 #
 # Blocked journals aren't listed here because robots.txt files

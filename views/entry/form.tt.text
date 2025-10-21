@@ -13,15 +13,9 @@
 
 .button.post.quick=Post
 
-.draft.autosave=Autosaved draft at [[time]]
-
-.draft.confirm=Restore from saved draft?
-
-.draft.confirm2=Restore from saved draft entitled [[subjectline]]?
-
-.draft.restored=Restored last saved draft
-
 .error.cantpost=Sorry: you can't post at this time.
+
+.error.disabled=You can't post because of the type of account you have.
 
 .error.header=Error
 
@@ -30,12 +24,6 @@
 .error.noentry=Must provide entry text.
 
 .error.nofind=Could not find selected journal entry.
-
-.error.markup=Irreparable invalid markup in entry.
-
-.error.markup.extra=Irreparable invalid markup ('&lt;[[aopts]]&gt;') in entry
-
-.error.markup.unclosed=Unclosed tag(s) in entry: [[tags]]
 
 .error.nonusercantpost=Non-[[sitename]] users can't post entries because they don't have journals here, but can leave comments in other journals.
 

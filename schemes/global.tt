@@ -56,6 +56,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [ "nav_and_user", "siteuser" ]
     [ "faq", "faq"]
     [ "email", "email" ]
+    [ "im", "iminfo" ]
 ] ~%]
     <option value="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
 [%- END -%]

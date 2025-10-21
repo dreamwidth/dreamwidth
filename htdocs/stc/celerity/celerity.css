@@ -398,7 +398,7 @@ footer { border-top: 4px double #999966;
 .highlight-box {
     border: 1px solid;
 }
-.highlight, .highlight-box, .pagination .current {
+.highlight, .highlight-box {
     border-color: #999966;
     background: #EEEECC;
     color: #000;

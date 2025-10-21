@@ -3,7 +3,7 @@
 */
 
 // make .submit act the same as a .button
-.submit, .LJ_PollSubmit, input[type="submit"] {
+.submit {
   @include button-base;
   @include button-size;
   @include button-style;

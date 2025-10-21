@@ -29,7 +29,7 @@
 
 <form method='GET'>
 [% form.textbox( label = dw.ml( '.label.form' ), name='user',
-                 size = site.maxlength_user, maxlength = site.maxlength_user );
+                 size = maxlength_user, maxlength = maxlength_user );
 
    form.submit( value = dw.ml( '.btn.load' ) ) %]
 </form>

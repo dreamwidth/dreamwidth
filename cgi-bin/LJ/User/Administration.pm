@@ -238,13 +238,18 @@ sub banned_userids {
 
 sub ban_note {
     my ( $u, $ban_u, $text ) = @_;
+    my @banned;
 
-    # This function might receive users, or ids, and might be a single one, or an
-    # arrayref. Coerce to arrayref...
-    my @banned = ref $ban_u eq 'ARRAY' ? @$ban_u : ($ban_u);
-
-    # ...and now coerce to userids...
-    @banned = grep { defined $_ } map { LJ::isu($_) ? $_->id : LJ::want_userid($_) } @banned;
+    if ( ref $ban_u eq 'ARRAY' ) {
+        @banned = @$ban_u;    # array of userids
+    }
+    elsif ( LJ::isu($ban_u) ) {
+        @banned = ( $ban_u->id );
+    }
+    elsif ( defined $ban_u ) {
+        my $uid = LJ::want_userid($ban_u);
+        @banned = ($uid) if defined $uid;
+    }
     return unless @banned;
 
     if ( defined $text ) {
@@ -254,7 +259,7 @@ sub ban_note {
         my @data      = map { ( $u->id, $_, $remote_id, $text ) } @banned;
         my $qps       = join( ', ', map { '(?,?,?,?)' } @banned );
 
-        $dbh->do( "REPLACE INTO bannotes (journalid, banid, remoteid, notetext) VALUES $qps",
+        $dbh->do( "REPLACE INTO bannotes (journalid, banid, remoteid, notetext) " . "VALUES $qps",
             undef, @data );
         die $dbh->errstr if $dbh->err;
         return 1;

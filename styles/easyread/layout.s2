@@ -36,8 +36,6 @@ propgroup presentation {
     property use all_entrysubjects;
     property use all_commentsubjects;
     property use custom_control_strip_colors;
-    property use medium_breakpoint_width;
-    property use large_breakpoint_width;
 
 }
 
@@ -422,19 +420,13 @@ q { font-style: italic;
 
 /* All posts & all navigation */
 #primary, #secondary, #tertiary, #footer {
-    width: 100%;
+    width: 80%;
     margin-left: auto;
     margin-right: auto;
     font-family: $page_font
     $entry_colors
     padding: 0px 1em;
 
-}
-
-@media $medium_media_query {
-    #primary, #secondary, #tertiary, #footer {
-        width: 80%;
-    }
 }
 
 /* General page background */
@@ -595,10 +587,6 @@ h2.module-header a {
     $comment_title_font
     margin: 0;
     }
-
-.comment .admin-poster {
-    white-space: nowrap;
-}
 
 /* Entry header */
 

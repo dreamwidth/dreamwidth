@@ -23,10 +23,6 @@ DW::Worker::ContentImporter - Generic helper functions for Content Importers
 =cut
 
 use strict;
-use v5.10;
-use Log::Log4perl;
-my $log = Log::Log4perl->get_logger(__PACKAGE__);
-
 use Time::HiRes qw/ sleep time /;
 use Carp qw/ croak confess /;
 use Storable;
@@ -133,21 +129,6 @@ sub userids_to_message {
     return $u->maintainer_userids;
 }
 
-=head2 C<< $class->_should_exit( $message ) >>
-
-Determine whether or not this failure message should be considered to be more than just a
-job failure. I.e., whether we should exit the worker to try to get a new IP.
-
-=cut
-
-sub _should_exit {
-    my ( $class, $message ) = @_;
-
-    return 1 if $message =~ /Failed to connect to the server/i;
-
-    return 0;
-}
-
 =head2 C<< $class->fail( $import_data, $item, $job, "text", [arguments, ...] ) >>
 
 Permanently fail this import job.
@@ -157,10 +138,6 @@ Permanently fail this import job.
 sub fail {
     my ( $class, $imp, $item, $job, $msgt, @args ) = @_;
     $0 = 'content-importer [bored]';
-
-    # clear "request" cache of db handles to force revalidation in case one we need now
-    # has been idle during a long import
-    $LJ::DBIRole->clear_req_cache();
 
     if ( my $dbh = LJ::get_db_writer() ) {
         $dbh->do(
@@ -181,13 +158,6 @@ sub fail {
     }
 
     $job->permanent_failure($msg);
-
-    if ( $class->_should_exit($msg) ) {
-        $log->fatal('Important failure: exiting worker.');
-        open FILE, '>', "$LJ::VAR/$$.please_die" or exit 2;
-        close FILE;
-    }
-
     return;
 }
 
@@ -200,10 +170,6 @@ Temporarily fail this import job, it will get retried if it hasn't failed too ma
 sub temp_fail {
     my ( $class, $imp, $item, $job, $msgt, @args ) = @_;
     $0 = 'content-importer [bored]';
-
-    # clear "request" cache of db handles to force revalidation in case one we need now
-    # has been idle during a long import
-    $LJ::DBIRole->clear_req_cache();
 
     # Check if we are out of failures
     my $max_fails = $class->max_retries;
@@ -228,13 +194,6 @@ sub temp_fail {
     }
 
     $job->failed($msg);
-
-    if ( $class->_should_exit($msg) ) {
-        $log->fatal('Important failure: exiting worker.');
-        open FILE, '>', "$LJ::VAR/$$.please_die" or exit 2;
-        close FILE;
-    }
-
     return;
 }
 
@@ -247,10 +206,6 @@ Successfully end this import job.
 sub ok {
     my ( $class, $imp, $item, $job, $show ) = @_;
     $0 = 'content-importer [bored]';
-
-    # clear "request" cache of db handles to force revalidation in case one we need now
-    # has been idle during a long import
-    $LJ::DBIRole->clear_req_cache();
 
     if ( my $dbh = LJ::get_db_writer() ) {
         $dbh->do(

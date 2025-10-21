@@ -35,25 +35,34 @@ sub render_body {
 
     my $dbr = LJ::get_db_reader();
     my $sth;
+    my $ret;
 
     # prep the stats we're interested in using here
 
-    $sth =
-        $dbr->prepare( "SELECT u.user, u.name, uu.timeupdate_public FROM user u, userusage uu"
-            . " WHERE u.userid=uu.userid AND uu.timeupdate_public > DATE_SUB(NOW(), INTERVAL 30 DAY)"
-            . " AND u.journaltype = 'C' ORDER BY uu.timeupdate_public DESC LIMIT 10" );
+    $sth = $dbr->prepare(
+"SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) AND u.journaltype = 'C' ORDER BY uu.timeupdate DESC LIMIT 10"
+    );
     $sth->execute;
 
+    $ret .= "<h2>" . $class->ml('widget.comms.recentactive') . "</h2>";
+    $ret .= "<ul>";
+
+    # build the list
+
+    my $ct;
     my $targetu;
-    my @rowdata;
 
     while ( my ( $iuser, $iname, $itime ) = $sth->fetchrow_array ) {
         $targetu = LJ::load_user($iuser);
-        push @rowdata, { user => $targetu, name => $iname, time => $itime };
+        $ret .= "<li>" . $targetu->ljuser_display . ": " . $iname . ", " . $itime . "</li>\n";
+        $ct++;
     }
 
-    return DW::Template->template_string( 'widget/comms.tt',
-        { title => 'widget.comms.recentactive', rowdata => \@rowdata } );
+    $ret .= "<li><em> " . BML::ml('widget.comms.notavailable') . "</em></li>" unless $ct;
+    $ret .= "</ul>\n";
+
+    LJ::warn_for_perl_utf8($ret);
+    return $ret;
 }
 
 1;

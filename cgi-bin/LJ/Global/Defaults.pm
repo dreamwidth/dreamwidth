@@ -60,40 +60,27 @@ no strict "vars";
 
     $MSG_READONLY_USER ||= "Database temporarily in read-only mode during maintenance.";
 
-    if ( $IS_DEV_SERVER && $IS_DEV_CONTAINER ) {
-
-        # Do not redirect or set domains
-        $PROTOCOL          = "http";
-        $DOMAIN            = "";
-        $USER_DOMAIN       = "";
-        $DOMAIN_WEB        = "";
-        $SITEROOT          = "";
-        $SHOPROOT          = "";
-        $RELATIVE_SITEROOT = "";
-    }
-    else {
-        # Should always be https except on dev servers
-        $PROTOCOL          ||= "https";
-        $DOMAIN_WEB        ||= "www.$DOMAIN";
-        $DOMAIN_SHOP       ||= $DOMAIN_WEB;
-        $SITEROOT          ||= "$PROTOCOL://$DOMAIN_WEB";
-        $SHOPROOT          ||= "$PROTOCOL://$DOMAIN_WEB/shop";
-        $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
-    }
+    $PROTOCOL     ||= "https";                     # Should always be https except on dev servers
+    $DOMAIN_WEB   ||= "www.$DOMAIN";
+    $SITEROOT     ||= "$PROTOCOL://$DOMAIN_WEB";
     $IMGPREFIX    ||= "$SITEROOT/img";
     $STATPREFIX   ||= "$SITEROOT/stc";
     $WSTATPREFIX  ||= "$SITEROOT/stc";
     $USERPIC_ROOT ||= "$LJ::SITEROOT/userpic";
-    $PALIMGROOT   ||= "$RELATIVE_SITEROOT/palimg";
-    $JSPREFIX     ||= "$RELATIVE_SITEROOT/js";
+
+    $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
+    $PALIMGROOT        ||= "$RELATIVE_SITEROOT/palimg";
+    $JSPREFIX          ||= "$RELATIVE_SITEROOT/js";
+
+    # path to sendmail and any necessary options
+    $SENDMAIL ||= "/usr/sbin/sendmail -t -oi";
+
+    # protocol, mailserver hostname, and preferential weight.
+    # qmtp, smtp, dmtp, and sendmail are the currently supported protocols.
+    @MAIL_TRANSPORTS = ( [ 'sendmail', $SENDMAIL, 1 ] ) unless @MAIL_TRANSPORTS;
 
     # roles that slow support queries should use in order of precedence
     @SUPPORT_SLOW_ROLES = ('slow') unless @SUPPORT_SLOW_ROLES;
-
-    # Backward compatibility: if EMAIL_VIA_SES is configured, import it into SMTP_SERVER
-    if ( %EMAIL_VIA_SES && !%SMTP_SERVER ) {
-        %SMTP_SERVER = %EMAIL_VIA_SES;
-    }
 
     # where we set the cookies (note the period before the domain)
     $COOKIE_DOMAIN ||= ".$DOMAIN";
@@ -167,6 +154,9 @@ no strict "vars";
         'application/xhtml+xml' => 1,    # XHTML 1.1 "should" be this
     ) unless %GZIP_OKAY;
 
+    # maximum number of friendofs to load/memcache (affects profile.bml display)
+    $MAX_FRIENDOF_LOAD ||= 5000;
+
     # block size is used in stats generation code that gets n rows from the db at a time
     $STATS_BLOCK_SIZE ||= 10_000;
 
@@ -193,8 +183,22 @@ no strict "vars";
     $MOGILEFS_CONFIG{classes}->{vgifts}   ||= 3;
     $MOGILEFS_CONFIG{classes}->{media}    ||= 3;
 
+    # detect whether we are running on 32-bit architecture
+    my $arch = ( length( pack "L!", 0 ) == 4 ) ? 1 : 0;
+    if ( defined $ARCH32 ) {
+        die "Can't have ARCH32 set to false on a 32-bit architecture" if $ARCH32 < $arch;
+    }
+    else {
+        $ARCH32 = $arch;
+    }
+
+    # setup default minimal style information
+    $MINIMAL_USERAGENT{$_} ||= 1 foreach qw(Links Lynx w BlackBerry WebTV);    # w is for w3m
+    $MINIMAL_BML_SCHEME    ||= 'lynx';
+    $MINIMAL_STYLE{'core'} ||= 'core1';
+
     # maximum size to cache s2compiled data
-    $MAX_S2COMPILED_CACHE_SIZE ||= 7500;    # bytes
+    $MAX_S2COMPILED_CACHE_SIZE ||= 7500;                                       # bytes
 
     # max content length we should read via ATOM api
     # 25MB
@@ -268,6 +272,11 @@ no strict "vars";
         #'DE' => { type => 'statede', save_region_code => 0, },
     );
 
+    %LJ::VALID_PAGE_NOTICES = (
+        profile_design  => 1,
+        settings_design => 1,
+    );
+
     $SUBDOMAIN_RULES = {
         P => [ 1, "users.$LJ::DOMAIN" ],
         Y => [ 1, "syndicated.$LJ::DOMAIN" ],
@@ -304,9 +313,10 @@ no strict "vars";
 
     # mapping of captcha type to specific desired implementation
     %CAPTCHA_TYPES = (
-        "I" => "recaptcha",    # "I" is for image
+        "T" => "textcaptcha",    # "T" is for text
+        "I" => "recaptcha",      # "I" is for image
     ) unless %CAPTCHA_TYPES;
-    $DEFAULT_CAPTCHA_TYPE ||= "I";
+    $DEFAULT_CAPTCHA_TYPE ||= "T";
 
     # default location of community posting guidelines
     $DEFAULT_POSTING_GUIDELINES_LOC ||= "N";
@@ -319,6 +329,15 @@ no strict "vars";
 
     # number of days to display virtual gifts on the profile - default to two weeks
     $VGIFT_EXPIRE_DAYS ||= 14;
+
+    # BML pages that should be forced to not use SSL
+    # this should be *temporary*
+    %SSL_DISABLED_URI = map { $_ => 1 } qw(
+        /preview/entry
+        /entry/preview
+        /latest
+        /edittags
+    );
 
     # Selective screening limit. No user can have more than this.
     $LJ::SEL_SCREEN_LIMIT ||= 500;

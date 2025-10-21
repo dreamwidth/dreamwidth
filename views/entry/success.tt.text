@@ -22,8 +22,6 @@
 
 .links.manageentries=Manage your journal entries
 
-.links.logout=Log out of your account
-
 .extradata.subj=The entry was posted with the following subject: 
 
 .extradata.subject.no_subject=(no subject)

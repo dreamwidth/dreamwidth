@@ -896,9 +896,9 @@ set color_module_title_background = "#fff0c4";
 layerinfo type = "theme";
 layerinfo name = "Retro Circus";
 layerinfo redist_uniq = "colorside/retrocircus";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -930,9 +930,9 @@ set color_module_border = "#b54418";
 layerinfo type = "theme";
 layerinfo name = "Retro Circus II";
 layerinfo redist_uniq = "colorside/retrocircusii";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1045,9 +1045,9 @@ function Page::print_theme_stylesheet () {
 layerinfo type = "theme";
 layerinfo name = "Sea Foam";
 layerinfo redist_uniq = "colorside/seafoam";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

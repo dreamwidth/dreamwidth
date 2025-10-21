@@ -76,7 +76,7 @@
                   name = 'suggest_journal', id = 'suggest_journal',
                   value = suggest_u ? suggest_u.username
                                     : formdata.suggest_journal,
-                  size = 28, maxlength = site.maxlength_user ) -%]
+                  size = 28, maxlength = maxlength_user ) -%]
   </p>
   <p>
 

@@ -1513,9 +1513,9 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
 
 #lj_controlstrip select,
 #lj_controlstrip input,
-#lj_controlstrip input#login_user,
-#lj_controlstrip input#login_password,
-#lj_controlstrip input#login_remember {
+#lj_controlstrip input#xc_user,
+#lj_controlstrip input#xc_password,
+#lj_controlstrip input#xc_remember {
     border: 1px solid;
     padding: 1px 0;
     }

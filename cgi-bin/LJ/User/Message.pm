@@ -16,7 +16,6 @@ use strict;
 no warnings 'uninitialized';
 
 use Carp;
-use Digest::SHA1;
 use Text::Fuzzy;
 use LJ::Subscription;
 
@@ -307,19 +306,6 @@ sub can_receive_message {
     return 0 if $opt_usermsg eq 'M' && !$u->mutually_trusts($sender);
     return 0 if $opt_usermsg eq 'F' && !$u->trusts($sender);
 
-    my $u_age = $u->init_age;
-    my $s_age = $sender->init_age;
-
-    # init_age returns undef for init_bdate year 0000.
-    return 0
-        if defined($u_age)
-        && $u_age < 18
-        && ( !defined($s_age) || $s_age >= 18 );
-    return 0
-        if ( !defined($u_age) || $u_age >= 18 )
-        && defined($s_age)
-        && $s_age < 18;
-
     return 1;
 }
 
@@ -553,13 +539,12 @@ sub check_email {
 
     # Catch misspellings of gmail.com, yahoo.com, hotmail.com, outlook.com,
     # aol.com, live.com.
-    # https://github.com/dreamwidth/dreamwidth/issues/993#issuecomment-357466645
+    # https://github.com/dreamwidth/dw-free/issues/993#issuecomment-357466645
     # explains where 3 comes from.
     my $tf_domain      = Text::Fuzzy->new( $domain, max => 3, trans => 1 );
     my @common_domains = (
         'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
-        'aol.com',   'live.com',  'mail.com',    'fastmail.com',
-        'ymail.com', 'me.com'
+        'aol.com',   'live.com',  'mail.com',    'ymail.com'
     );
     my $nearest      = $tf_domain->nearest( \@common_domains );
     my $bad_spelling = defined $nearest && $tf_domain->last_distance > 0;

@@ -153,8 +153,6 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
-    property use medium_breakpoint_width;
-    property use large_breakpoint_width;
 }
 
 set num_items_recent = 10;
@@ -505,11 +503,7 @@ function lay_print_extra_boxes() : void
 #      #                                          #
 ###################################################
 
-function print_stylesheet() {
-var string medium_media_query = generate_medium_media_query();
-var string large_media_query = generate_large_media_query();
-    
-"""
+function print_stylesheet() { """
 
 html, body {
     margin: 0;
@@ -542,22 +536,15 @@ img {
     margin: 0px;
 }
 #header h1 {
-    font-weight: normal;
-    font-family: Georgia, serif;
-    font-size: 2.5em;
+    font: normal 4em Georgia, serif;
     color: #333;
     margin: 0px;
-    padding: 20px 0 0 0;
+    padding: 40px 0 0 0;
 }
 #header p {
     color: #999;
     font: 1.2em normal Verdana, sans-serif;
     margin-top: 5px;
-}
-
-@media $medium_media_query {
-    font-size: 4em;
-    padding: 40px 0 0 0;
 }
 
 /* the navigation menu */
@@ -681,6 +668,8 @@ to cleaning it up yet. Sorry!
 /* extra boxes below main content */
 
 .extra-box {
+    float:left;
+    width: 25%;
     margin: 20px;
     padding: 10px;
 }
@@ -694,13 +683,6 @@ to cleaning it up yet. Sorry!
     font: normal 1.4em Verdana, sans-serif;
 }
 
-@media $medium_media_query {
-    .extra-box {
-        float:left;
-        width: 25%;
-    }
-}
-
 /* entries */
 
 #entries {
@@ -712,21 +694,11 @@ to cleaning it up yet. Sorry!
 .entry .left {
     text-align: center;
     float: left;
-    width: 80px;
+    width: 120px;
     padding-top: 10px;
 }
 .entry .right {
-    margin-left: 80px;
-}
-
-@media $medium_media_query {
-    .entry .left {
-        width: 120px;
-    }
-
-    .entry .right {
-        margin-left: 150px;
-    }
+    margin-left: 150px;
 }
 
 
@@ -781,25 +753,11 @@ h3 {
 }
 .userpic {
     margin-bottom: 5px;
-    width: 80%;
 }
-
-.userpic img {
-    width: 100%;
-    height: 100%;
-}
-
 .userpic.empty {
-    width: calc(100% - 20px);
-    padding-top: calc(100% - 20px);
-    margin-bottom: 10px;
+    height: 100px;
+    margin: 0 10px 5px 10px;
     border: 1px solid #eee;
-}
-
-@media $medium_media_query {
-    .userpic {
-        width: auto;
-    }
 }
 
 
@@ -1418,9 +1376,8 @@ function Page::lay_print_entry_header(Entry e) {
 
 
 function Page::lay_print_entry_left(Entry e) : void {
-    var string userpic_class = ($e.userpic ? "userpic" : "userpic empty");
     """
-    <div class="$userpic_class">
+    <div class="userpic">
     """;
     if ($e.userpic) {
         print $e.userpic->as_string();
@@ -1823,7 +1780,6 @@ function Page::print() {
 <head>
 <title>"""+$this->title()+"""</title>
 """;
-    $this->print_meta_tags();
     $this->print_head();
 """
 <link rel="stylesheet" type="text/css" href="$.stylesheet_url" />
@@ -2388,13 +2344,7 @@ function EntryPage::print_comments(Comment[] comments) {
 
 function EntryPage::lay_print_entry_left(Entry e) : void {
     """
-    <div class="userpic
-    """;
-        if ($e.userpic) {
-            print " empty";
-        }
-    """
-    ">
+    <div class="userpic">
     """;
     if ($e.userpic) {
         print $e.userpic->as_string();

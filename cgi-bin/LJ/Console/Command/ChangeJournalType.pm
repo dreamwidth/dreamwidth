@@ -16,7 +16,6 @@ package LJ::Console::Command::ChangeJournalType;
 use strict;
 use base qw(LJ::Console::Command);
 use Carp qw(croak);
-use LJ::Utils qw(rand_chars);
 
 sub cmd { "change_journal_type" }
 

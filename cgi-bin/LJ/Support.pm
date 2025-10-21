@@ -779,7 +779,7 @@ sub append_request {
     my $qmessage = $dbh->quote($message);
     my $qtype    = $dbh->quote( $re->{'type'} );
 
-    my $qfaqid  = $re->{'faqid'} ? $re->{'faqid'} + 0 : 0;
+    my $qfaqid  = $re->{'faqid'} + 0;
     my $quserid = $posterid + 0;
     my $spid    = $sp->{'spid'} + 0;
     my $qtier   = $re->{'tier'} ? ( $re->{'tier'} + 0 ) . "0" : "NULL";
@@ -1128,7 +1128,7 @@ sub work {
     # now branch a bit to select the right user information
     my $level = $type eq 'new' ? "'new', 'all'" : "'all'";
     my $data  = $dbr->selectcol_arrayref(
-        "SELECT userid FROM supportnotify WHERE spcatid=? AND level IN ($level)",
+        "SELECT userid FROM supportnotify " . "WHERE spcatid=? AND level IN ($level)",
         undef, $sp->{_cat}{spcatid} );
     my $userids = LJ::load_userids(@$data);
 
@@ -1164,7 +1164,8 @@ sub work {
         );
 
         foreach my $u ( values %$userids ) {
-            next unless $u->should_receive_support_notifications( $sp->{_cat}{spcatid} );
+            next unless $u->is_visible;
+            next unless $u->{status} eq "A";
             push @emails, $u->email_raw;
         }
 
@@ -1250,9 +1251,12 @@ sub work {
 
         # now see who this should be sent to
         foreach my $u ( values %$userids ) {
-            next unless $u->should_receive_support_notifications( $sp->{_cat}{spcatid} );
+            next unless $u->is_visible;
+            next unless $u->{status} eq "A";
             next unless LJ::Support::can_read_response( $sp, $u, $rtype, $posterid );
-            next if $posterid == $u->id && !$u->prop('opt_getselfsupport');
+            next
+                if $posterid == $u->id
+                && !$u->prop('opt_getselfsupport');
             push @emails, $u->email_raw;
         }
     }

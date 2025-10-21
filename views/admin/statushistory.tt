@@ -40,11 +40,11 @@
   [% form.hidden( name = "flow" ) %]
 
   [% form.textbox( label = dw.ml( '.label.user' ),
-                   maxlength = site.maxlength_user, size = site.maxlength_user,
+                   maxlength = maxlength_user, size = maxlength_user,
                    name = 'user' ) %]
 
   [% form.textbox( label = dw.ml( '.label.admin' ),
-                   maxlength = site.maxlength_user, size = site.maxlength_user,
+                   maxlength = maxlength_user, size = maxlength_user,
                    name = 'admin' ) %]
 
   [% form.textbox( label = dw.ml( '.label.type' ),

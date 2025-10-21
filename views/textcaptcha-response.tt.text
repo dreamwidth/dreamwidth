@@ -1,0 +1,4 @@
+;; -*- coding: utf-8 -*-
+.response.iframe.label=Captcha Response (copy this)
+
+.response.user.label=Captcha Response (paste here)

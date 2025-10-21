@@ -15,7 +15,6 @@ package LJ::Event::JournalNewComment::Edited;
 use strict;
 
 use base 'LJ::Event::JournalNewComment';
-use LJ::JSON;
 
 sub content {
     my ( $self, $target ) = @_;
@@ -46,7 +45,7 @@ sub content {
 
     my $cmt_info = $comment->info;
     $cmt_info->{form_auth} = LJ::form_auth(1);
-    my $cmt_info_js = to_json($cmt_info) || '{}';
+    my $cmt_info_js = LJ::js_dumper($cmt_info) || '{}';
 
     my $posterusername = $self->comment->poster ? $self->comment->poster->{user} : "";
 
@@ -62,7 +61,7 @@ sub content {
 
     my $dtid_cmt_info = { u => $posterusername, rc => [] };
 
-    $ret .= "LJ_cmtinfo['$dtalkid'] = " . to_json($dtid_cmt_info) . "\n";
+    $ret .= "LJ_cmtinfo['$dtalkid'] = " . LJ::js_dumper($dtid_cmt_info) . "\n";
 
     $ret .= qq {
         </script>

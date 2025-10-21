@@ -166,11 +166,9 @@ sub faqbrowse_handler {
     my $GET    = $r->get_args;
     my $user;
     my $user_url;
-    my $vars = {};
+    my $vars;
 
     if ($remote) {
-        $vars->{remote} = $remote;
-
         $user     = $remote->user;
         $user_url = $remote->journal_base;
     }

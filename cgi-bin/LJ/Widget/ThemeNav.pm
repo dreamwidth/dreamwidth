@@ -71,12 +71,34 @@ sub render_body {
         }
     }
 
+    my $ret;
+    $ret .= "<h2 class='widget-header'>" . $class->ml('widget.themenav.title') . "</h2>";
+
     my @keywords        = LJ::Customize->get_search_keywords_for_js($u);
     my $keywords_string = join( ",", @keywords );
+    $ret .= "<script>Customize.ThemeNav.searchwords = [$keywords_string];</script>";
 
-    my $upsell = LJ::Hooks::run_hook( 'customize_advanced_area_upsell', $u ) || '';
+    $ret .= $class->start_form( id => "search_form" );
+    $ret .= "<p class='detail theme-nav-search-box'>";
+    $ret .= $class->html_text(
+        name => 'search',
+        id   => 'search_box',
+        size => 30,
+        raw  => "autocomplete='off'"
+    );
+    $ret .= " "
+        . $class->html_submit(
+        "search_submit" => $class->ml('widget.themenav.btn.search'),
+        { id => "search_btn" }
+        );
+    $ret .= "</p>";
+    $ret .= $class->end_form;
 
-    my $main_cat_list = $class->print_cat_list(
+    $ret .= "<div class='theme-nav-inner-wrapper section-nav-inner-wrapper'>";
+    $ret .= "<div class='theme-selector-nav section-nav'>";
+
+    $ret .= "<ul class='theme-nav nostyle'>";
+    $ret .= $class->print_cat_list(
         user         => $u,
         selected_cat => $cat,
         viewing_all  => $viewing_all,
@@ -84,41 +106,49 @@ sub render_body {
         getextra     => $getextra,
         showarg      => $showarg,
     );
+    $ret .= "</ul>";
 
-    my $cat_list = $class->print_cat_list(
-        user         => $u,
-        selected_cat => $cat,
-        viewing_all  => $viewing_all,
-        cat_list     => \@cats_sorted,
-        getextra     => $getextra,
-        showarg      => $showarg,
+    if ( scalar @cats_sorted ) {
+        $ret .= "<div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>";
+
+        $ret .= "<ul class='theme-nav nostyle section-nav'>";
+        $ret .= $class->print_cat_list(
+            user         => $u,
+            selected_cat => $cat,
+            viewing_all  => $viewing_all,
+            cat_list     => \@cats_sorted,
+            getextra     => $getextra,
+            showarg      => $showarg,
+        );
+        $ret .= "</ul>";
+
+        $ret .= "<div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>";
+    }
+
+    $ret .= "<ul class='theme-nav-small nostyle section-nav'>";
+    $ret .= "<li class='first'><a href='$LJ::SITEROOT/customize/advanced/'>"
+        . $class->ml('widget.themenav.developer') . "</a>";
+    my $upsell = LJ::Hooks::run_hook( 'customize_advanced_area_upsell', $u ) || '';
+    $ret .= "$upsell</li>";
+    $ret .= "</ul>";
+
+    $ret .= "</div>";
+
+    $ret .= "<div class='theme-nav-content section-nav-content'>";
+    $ret .= $class->html_hidden(
+        { name => "theme_chooser_id", value => $theme_chooser_id, id => "theme_chooser_id" } );
+    $ret .= $theme_chooser->render(
+        cat      => $cat,
+        layoutid => $layoutid,
+        designer => $designer,
+        search   => $search,
+        page     => $page,
+        show     => $show,
     );
+    $ret .= "</div>";
+    $ret .= "</div>";
 
-    my $themechooser_html = $theme_chooser->render(
-        'cat'      => $cat,
-        'layoutid' => $layoutid,
-        'designer' => $designer,
-        'search'   => $search,
-        'page'     => $page,
-        'show'     => $show
-    );
-
-    my $vars = {
-        cat               => $cat,
-        layoutid          => $layoutid,
-        designer          => $designer,
-        search            => $search,
-        page              => $page,
-        show              => $show,
-        themechooser_html => $themechooser_html,
-        keywords_string   => $keywords_string,
-        upsell            => $upsell,
-        cats_sorted       => \@cats_sorted,
-        main_cat_list     => $main_cat_list,
-        cat_list          => $cat_list
-    };
-
-    return DW::Template->template_string( 'widget/themenav.tt', $vars );
+    return $ret;
 }
 
 sub print_cat_list {

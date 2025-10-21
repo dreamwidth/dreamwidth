@@ -100,23 +100,6 @@ sub can_post_to {
     return 0;
 }
 
-sub can_purchase_for {
-    my ( $remote, $u ) = @_;
-    croak "Invalid users passed to LJ::User->can_purchase_for."
-        unless LJ::isu($u) && LJ::isu($remote);
-
-    # if it's a community, allow if admin
-    return 1 if $u->is_community && $remote->can_manage($u);
-
-    # otherwise, you have to be acting on an individual
-    return 0 unless $u->is_individual;
-
-    # allow if both accounts are registered to the same address
-    return 1 if $remote->has_same_email_as($u);
-
-    return 0;
-}
-
 # list of communities that $u manages
 sub communities_managed_list {
     my ($u) = @_;
@@ -877,6 +860,62 @@ sub set_draft_text {
         }
     }
     return 0;
+}
+
+sub third_party_notify_list {
+    my $u = shift;
+
+    my $val      = $u->prop('third_party_notify_list');
+    my @services = split( ',', $val );
+
+    return @services;
+}
+
+# Add a service to a user's notify list
+sub third_party_notify_list_add {
+    my ( $u, $svc ) = @_;
+    return 0 unless $svc;
+
+    # Is it already there?
+    return 1 if $u->third_party_notify_list_contains($svc);
+
+    # Create the new list of services
+    my @cur_services = $u->third_party_notify_list;
+    push @cur_services, $svc;
+    my $svc_list = join( ',', @cur_services );
+
+    # Trim a service from the list if it is too long
+    if ( length $svc_list > 255 ) {
+        shift @cur_services;
+        $svc_list = join( ',', @cur_services );
+    }
+
+    # Set it
+    $u->set_prop( 'third_party_notify_list', $svc_list );
+    return 1;
+}
+
+# Check if the user's notify list contains a particular service
+sub third_party_notify_list_contains {
+    my ( $u, $val ) = @_;
+
+    return 1 if grep { $_ eq $val } $u->third_party_notify_list;
+
+    return 0;
+}
+
+# Remove a service to a user's notify list
+sub third_party_notify_list_remove {
+    my ( $u, $svc ) = @_;
+    return 0 unless $svc;
+
+    # Is it even there?
+    return 1 unless $u->third_party_notify_list_contains($svc);
+
+    # Remove it!
+    $u->set_prop( 'third_party_notify_list',
+        join( ',', grep { $_ ne $svc } $u->third_party_notify_list ) );
+    return 1;
 }
 
 ########################################################################

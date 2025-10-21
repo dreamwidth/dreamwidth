@@ -105,22 +105,6 @@ All methods which generate an HTML element can accept the following optional arg
 
 =back
 
-=head2 [% form.button( name =... ) %]
-
-Return a generic button for use as a script target. Values are prepopulated by the plugin's datasource.
-
-=cut
-
-sub button {
-    my ( $self, $args ) = @_;
-
-    $args->{class} ||= "button";
-    $args->{type} = "button";
-
-    $self->_process_value_and_label($args);
-    return LJ::html_submit( delete $args->{name}, delete $args->{value}, $args );
-}
-
 =head2 [% form.checkbox( label="A label", id="elementid", name="elementname", .... ) %]
 
 Return a checkbox with a matching label, if provided. Values are prepopulated by the plugin's datasource.
@@ -451,7 +435,7 @@ sub password {
 # ensures that we can easily associate the form element to its label
 sub generate_id {
     my ( $self, $args ) = @_;
-    return "id-" . ( $args->{name} // '' ) . "-" . $self->{_id_gen_counter}++;
+    return "id-" . $args->{name} . "-" . $self->{_id_gen_counter}++;
 }
 
 # populate the element's value, modifying the $args hashref
@@ -510,8 +494,6 @@ sub _process_errors {
 
     my @errors;
     @errors = $self->{errors}->get( $args->{name} ) if $self->{errors};
-    push @errors, ( { "message" => $args->{error} } )
-        if exists $args->{error} && length $args->{error};
 
     $args->{class} .= " error" if @errors;
 

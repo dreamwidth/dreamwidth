@@ -102,7 +102,7 @@
 <h2>[% '.header.viewcarts' | ml %]</h2>
 
 [% IF carts.size %]
-<table class="table cartlist">
+<table class="cartlist">
   <thead><tr>
     <th>[% '.col.cartnum' | ml %]</th>
     <th>[% '.col.date'    | ml %]</th>
@@ -115,8 +115,8 @@
   [% FOREACH cart = carts;
      date = from_epoch( cart.starttime );
      pay_method = cart.paymentmethod_visible;
-     pay_string = '/shop/receipt.tt.cart.paymentmethod';
-     status_string = '/shop/receipt.tt.cart.status';
+     pay_string = '/shop/receipt.bml.cart.paymentmethod';
+     status_string = '/shop/receipt.bml.cart.status';
      view_pay_method = dw.ml( pay_method ? "${pay_string}.${pay_method}"
                                          : '.cart.notyet' ) -%]
   <tr>

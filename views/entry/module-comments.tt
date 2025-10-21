@@ -21,7 +21,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- form.select( label = "Comments:"
             name = "comment_settings"
             id = "comment_settings"
-            class = "draft-autosave"
 
             items = [
                 ""              "Journal Default"
@@ -35,7 +34,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- form.select( label = "Screening:"
             name = "opt_screening"
             id = "opt_screening"
-            class = "draft-autosave"
 
             items = [
                 ""      "Journal Default"

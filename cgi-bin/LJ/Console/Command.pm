@@ -125,7 +125,7 @@ sub execute_safely {
             if $cmd->requires_remote && !$remote;
 
         return $cmd->error("Your account status prevents you from using the console.")
-            if $cmd->requires_remote && $remote->is_inactive && !$remote->has_priv("suspend");
+            if $cmd->requires_remote && !$remote->is_visible;
 
         return $cmd->error("You are not authorized to run this command.")
             unless $cmd->can_execute;

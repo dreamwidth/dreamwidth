@@ -44,7 +44,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                                     -%]
                                 [%- END -%]
                             </span>
-                            <span class='datetime'> [% displaydate %]</span>
+                            <span class='datetime'>@ [% displaydate %]</span>
                         </div>
                     </div>
                 </div>
@@ -74,8 +74,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
             <div class="footer">
                 <div class="inner">
-                    <div class='alert-box secondary'>
-                        [% '.entry.preview_warn_text' | ml %]
+                    <div class='alert-box'>
+                        <p>[% '.entry.preview_warn_text' | ml %]</p>
                     </div>
                 </div>
             </div>

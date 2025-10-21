@@ -121,7 +121,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 <strong>[% '.report.individual.sysban.done' | ml %]</strong>
                 [%- IF remote.has_priv( 'sysban' ) -%]
                     <br/><textarea name='sysban_note' rows='3' cols='60' readonly='1'>
-                    [%- note = reason.talk_ip_test.last.note;
+                    [%- note = reason.talk_ip_test.note;
                         IF note; note | html; ELSE;
                         ".report.individual.syban.nonote" | ml;
                         END -%]

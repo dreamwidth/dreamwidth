@@ -1,0 +1,31 @@
+;; -*- coding: utf-8 -*-
+.about=We let you define two different kinds of relationship between your account and the other accounts you add to your Circle: Subscription and Access. When you subscribe to a personal journal, community, or feed, its new entries will be included on your Reading Page.  That account will be able to read your public entries even if it doesn't subscribe to you in return, but your public entries won't appear on its Reading Page unless it also subscribes to you.  People you've Granted Access to will be able to read the protected content (locked entries) you post to your journal.
+
+.edit.about=Add people or communities to your Circle or modify existing relationships.
+
+.editgroups.about=Create, edit, or delete filters for your Circle.
+
+.filter=You can use access filters to control who has access to custom-security entries, and use reading filters to show subsets of your Reading Page.
+
+.filter.about=Filter your Reading Page according to specific sub groups you have defined.
+
+.groups=In addition, subgroups of friends can be specified.
+
+.invite.about2=Invite someone you know to create a [[sitename]] account
+
+.invite.title=Invite Someone
+
+.popsub.about=Discover new journals to follow, by seeing which other accounts are popular with the current members of your circle.
+
+.security=You use your Access List to restrict access to some or all of your entries; only the people to whom you've given access will be able to view them. This doesn't apply to communities or feeds.
+
+.security.custom=You can specify which access groups can view your entry with "Custom" access.  If you select multiple groups for one entry, it will be visible to anyone in any of those groups.
+
+.security.header=Security
+
+.security.only=With "Friends-Only" posts, all of the other users on your friends list can view your post.
+
+.security.only=When you use "Access List" security, everyone on your access list can view your entry.
+
+.title=Circle Management Tools
+

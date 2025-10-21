@@ -77,7 +77,7 @@ sub as_html {
         $color = "#008800";
     }
     else {
-        $color = "inherit";
+        $color = "#000000";
     }
 
     return "<span style='color:$color;'>" . LJ::eall( $self->text ) . "</span>";

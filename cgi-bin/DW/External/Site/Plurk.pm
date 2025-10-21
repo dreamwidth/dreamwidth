@@ -62,7 +62,7 @@ sub badge_image {
         unless $u && ref $u eq 'DW::External::User';
 
     return {
-        url    => "http://www.plurk.com/favicon.ico",
+        url    => "http://plurk.com/favicon.ico",
         width  => 16,
         height => 16,
     };

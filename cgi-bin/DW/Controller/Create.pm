@@ -124,8 +124,7 @@ sub create_handler {
         elsif ( $post->{password1} ne $post->{password2} ) {
             $errors->add( 'password2', 'widget.createaccount.error.password.nomatch' );
         }
-        elsif ( !$LJ::IS_DEV_SERVER ) {
-            # Dev servers can use any password
+        else {
             my $checkpass = LJ::CreatePage->verify_password(
                 password => $post->{password1},
                 username => $user,
@@ -143,7 +142,6 @@ sub create_handler {
 
         my $uniq;
         my $is_underage = 0;
-        my $is_tn_underage = 0;
 
         $uniq = $r->note('uniq');
         if ($uniq) {
@@ -165,28 +163,19 @@ sub create_handler {
         if ( $year && $mon && $day && $year >= 1900 && $year < $nyear ) {
             my $age = LJ::calc_age( $year, $mon, $day );
             $is_underage = 1 if $age < 13;
-            
-            # TN underage check - if user is in TN and under 18
-            if ( $post->{tn_state} eq '1' && $age < 18 ) {
-                $is_tn_underage = 1;
-            }
         }
         else {
             $errors->add( 'birthdate', 'widget.createaccount.error.birthdate.invalid2' );
         }
 
         # note this unique cookie as underage (if we have a unique cookie)
-        if ( ( $is_underage || $is_tn_underage ) && $uniq ) {
+        if ( $is_underage && $uniq ) {
             $dbh->do( "REPLACE INTO underage (uniq, timeof) VALUES (?, UNIX_TIMESTAMP())",
                 undef, $uniq );
         }
 
-        # Add appropriate error messages
-        if ( $is_tn_underage ) {
-            $errors->add( 'tn_state', 'widget.createaccount.error.tn_underage' );
-        } elsif ( $is_underage ) {
-            $errors->add( 'birthdate', 'widget.createaccount.error.birthdate.underage' );
-        }
+        $errors->add( 'birthdate', 'widget.createaccount.error.birthdate.underage' )
+            if $is_underage;
 
         # check the email address
         my @email_errors;
@@ -262,6 +251,9 @@ sub create_handler {
                     body => $body,
                 }
             );
+
+            # note that this user needs to be reviewed for spam content
+            $nu->set_prop( not_approved => 1 ) if LJ::is_enabled('approvenew');
 
             # we're all done
             $nu->make_login_session;
@@ -413,9 +405,6 @@ sub setup_handler {
     if ( $r->did_post ) {
         $post = $r->post_args;
 
-        # Check for spam strings
-        LJ::Hooks::run_hooks( 'spam_check', $u, $post, 'userbio' );
-
         # name
         $errors->add( 'name', '/manage/profile/index.bml.error.noname' )
             unless LJ::trim( $post->{name} ) || defined $post->{name_absent};
@@ -431,7 +420,6 @@ sub setup_handler {
 
         # location
         my $state_from_dropdown = LJ::Lang::ml('states.head.defined');
-        $post->{stateother} //= "";
         $post->{stateother} = "" if $post->{stateother} eq $state_from_dropdown;
 
         my %countries;
@@ -470,7 +458,7 @@ sub setup_handler {
         }
 
         # interests
-        my @interests_strings = grep { defined $_ } (
+        my @interests_strings = (
             $post->{interests_music},   $post->{interests_moviestv}, $post->{interests_books},
             $post->{interests_hobbies}, $post->{interests_other},
         );
@@ -507,7 +495,7 @@ sub setup_handler {
 
         # bio
         $errors->add( 'bio', '/manage/profile/index.bml.error.bio.toolong' )
-            if defined $post->{bio} && length $post->{bio} >= LJ::BMAX_BIO;
+            if length $post->{bio} >= LJ::BMAX_BIO;
         LJ::EmbedModule->parse_module_embed( $u, \$post->{bio} );
 
         # inviter / communities
@@ -674,10 +662,6 @@ sub upgrade_handler {
 
     my $r      = $rv->{r};
     my $remote = $rv->{remote};
-
-    return error_ml( 'widget.createaccount.error.suspended',
-        { accounts_email => $LJ::ACCOUNTS_EMAIL } )
-        if $remote && $remote->is_suspended;
 
     return $r->redirect( LJ::create_url( $urls{next} ) )
         unless LJ::is_enabled('payments') && $remote->is_personal && !$remote->is_paid;

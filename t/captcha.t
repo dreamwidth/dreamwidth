@@ -20,12 +20,13 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-my $recaptcha_enabled = DW::Captcha::reCAPTCHA->site_enabled;
+my $recaptcha_enabled   = DW::Captcha::reCAPTCHA->site_enabled;
+my $textcaptcha_enabled = DW::Captcha::textCAPTCHA->site_enabled;
 
 if ( !DW::Captcha->site_enabled ) {
     plan skip_all => "CAPTCHA functionality disabled.";
 }
-elsif ( !$recaptcha_enabled ) {
+elsif ( !$recaptcha_enabled && !$textcaptcha_enabled ) {
     plan skip_all => "No valid CAPTCHA configuration.";
 }
 else {
@@ -67,6 +68,14 @@ SKIP: {
         ok( $captcha->site_enabled, "reCAPTCHA is enabled and configured on this site" );
     }
 
+SKIP: {
+        skip "textCAPTCHA disabled.", 2 unless $textcaptcha_enabled;
+
+        $captcha = DW::Captcha->new( 'testpage', want => 'T' );
+        is( $captcha->name, "textcaptcha", "Using textCAPTCHA" );
+        ok( $captcha->site_enabled, "textCAPTCHA is enabled and configured on this site" );
+    }
+
     $captcha = DW::Captcha->new( 'testpage', want => 'abc' );
     is( $captcha->name, $default, "not a valid captcha implementation, so used default" );
     ok( $captcha->site_enabled,
@@ -81,6 +90,7 @@ note("user tries to use a disabled captcha type");
         captcha => sub {
             my $module = $_[0] // '';
             return !$recaptcha_enabled if $module eq "recaptcha";
+            return $recaptcha_enabled  if $module eq "textcaptcha";
         }
     );
     local $LJ::DEFAULT_CAPTCHA_TYPE = $recaptcha_enabled ? "I" : "T";

@@ -26,9 +26,9 @@ use DW::Formats;
 
 use LJ::JSON;
 
-DW::Routing->register_string( '/dev/embeds',      \&embeds_handler,      app => 1 );
-DW::Routing->register_string( '/dev/formats',     \&formats_handler,     app => 1 );
 DW::Routing->register_string( '/dev/style-guide', \&style_guide_handler, app => 1 );
+
+DW::Routing->register_string( '/dev/formats', \&formats_handler, app => 1 );
 
 if ($LJ::IS_DEV_SERVER) {
     DW::Routing->register_string( '/dev/tests/index', \&tests_index_handler, app => 1 );
@@ -101,40 +101,6 @@ sub formats_handler {
             aliases        => \%aliases,
         }
     );
-}
-
-sub embeds_handler {
-    my ( $ok, $rv ) = controller( anonymous => 1 );
-    return $rv unless $ok;
-
-    my $embed_domains = LJ::Hooks::run_hook('list_iframe_embed_domains');
-    my $domain_groups = {};
-
-    my $tld = sub {
-        my ($dom) = @_;
-        my $idx = ( $dom =~ /\.com?\.\w+$/ ) ? -3 : -2;
-        return [ split /\./, $dom ]->[$idx];
-    };
-
-    foreach my $dom (@$embed_domains) {
-        my $key;
-        my $chr_start = substr( uc $tld->($dom), 0, 1 );
-
-        if ( $chr_start =~ /\d/ ) {
-            $key = '0 - 9';
-        }
-        elsif ( $chr_start =~ /[A-Z]/ ) {
-            $key = $chr_start;
-        }
-        else {
-            $key = '(Other)';
-        }
-
-        $domain_groups->{$key} //= [];
-        push @{ $domain_groups->{$key} }, $dom;
-    }
-
-    return DW::Template->render_template( 'dev/embeds.tt', { embed_domains => $domain_groups } );
 }
 
 sub tests_index_handler {
@@ -247,7 +213,7 @@ sub testhelper_json_handler {
         }
 
         if ( $args->{function} eq "js_dumper" ) {
-            $r->print( to_json($ret) );
+            $r->print( LJ::js_dumper($ret) );
         }
         elsif ( $args->{function} eq "json" ) {
             $r->print( to_json($ret) );

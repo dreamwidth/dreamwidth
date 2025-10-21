@@ -20,7 +20,7 @@ userproplist.ao3:
   des: AO3 user account name
   indexed: 0
   multihomed: 0
-  prettyname: Archive of Our Own user account name (legacy value)
+  prettyname: Archive of Our Own user account name
 
 userproplist.betafeatures_list:
   cldversion: 4
@@ -196,7 +196,7 @@ userproplist.deviantart:
   des: DeviantArt user account name
   indexed: 0
   multihomed: 0
-  prettyname: DeviantArt user account name (legacy value)
+  prettyname: DeviantArt user account name
 
 userproplist.disable_auto_formatting:
   cldversion: 4
@@ -220,7 +220,7 @@ userproplist.discord:
   des: Discord user account name
   indexed: 0
   multihomed: 0
-  prettyname: Discord user account name (legacy value)
+  prettyname: Discord user account name
 
 userproplist.displaydate_check:
   cldversion: 4
@@ -228,7 +228,7 @@ userproplist.displaydate_check:
   des: Use time of posting by default for this user.
   indexed: 0
   multihomed: 0
-  prettyname: Sets entry page to use time of posting for timestamp.
+  prettyname: Automatically sets entry page to use time of posting for timestamp.
 
 userproplist.dismissed_page_notices:
   cldversion: 4
@@ -380,7 +380,7 @@ userproplist.etsy:
   des: Etsy user account name
   indexed: 0
   multihomed: 0
-  prettyname: Etsy user account name (legacy value)
+  prettyname: Etsy user account name
 
 userproplist.diigo:
   cldversion: 4
@@ -388,7 +388,7 @@ userproplist.diigo:
   des: Diigo user account name
   indexed: 0
   multihomed: 0
-  prettyname: Diigo user account name (legacy value)
+  prettyname: Diigo user account name
 
 userproplist.exclude_from_own_stats:
   cldversion: 4
@@ -404,7 +404,7 @@ userproplist.ffnet:
   des: FanFiction.net user account name
   indexed: 0
   multihomed: 0
-  prettyname: FanFiction.net user account name (legacy value)
+  prettyname: FanFiction.net user account name
 
 userproplist.friendspagetitle:
   cldversion: 4
@@ -422,14 +422,6 @@ userproplist.friendspagesubtitle:
   multihomed: 0
   prettyname: Friends Page Subtitle
 
-userproplist.ga4_analytics:
-  cldversion: 4
-  datatype: char
-  des: Google Analytics v.4 Code
-  indexed: 1
-  multihomed: 0
-  prettyname: Google Analytics v.4 Code
-
 userproplist.gender:
   cldversion: 4
   datatype: char
@@ -444,15 +436,15 @@ userproplist.github:
   des: GitHub user account name
   indexed: 0
   multihomed: 0
-  prettyname: GitHub user account name (legacy value)
+  prettyname: GitHub user account name
 
 userproplist.google_talk:
   cldversion: 0
   datatype: char
-  des: Google Chat Service address
+  des: Google's 'Hangouts' Service address
   indexed: 1
   multihomed: 1
-  prettyname: Google Chat Address (legacy value)
+  prettyname: Google Hangouts Address
 
 userproplist.google_analytics:
   cldversion: 4
@@ -486,14 +478,6 @@ userproplist.icbm:
   multihomed: 0
   prettyname: ICBM Address
 
-userproplist.iconbrowser_keywordorder:
-  cldversion: 4
-  datatype: bool
-  des: Whether to sort the icon browser by keyword, instead of upload date
-  indexed: 0
-  multihomed: 0
-  prettyname: Icon browser keyword order
-
 userproplist.iconbrowser_metatext:
   cldversion: 4
   datatype: bool
@@ -516,7 +500,7 @@ userproplist.icq:
   des: ICQ Number
   indexed: 1
   multihomed: 1
-  prettyname: ICQ (legacy value)
+  prettyname: ICQ
 
 userproplist.import_job:
   cldversion: 4
@@ -556,7 +540,7 @@ userproplist.insanejournal:
   des: InsaneJournal account name for user profile
   indexed: 0
   multihomed: 0
-  prettyname: InsaneJournal Account (legacy value)
+  prettyname: InsaneJournal Account
 
 userproplist.instagram:
   cldversion: 4
@@ -564,7 +548,7 @@ userproplist.instagram:
   des: Instagram account name for user profile
   indexed: 0
   multihomed: 0
-  prettyname: Instagram Account (legacy value)
+  prettyname: Instagram Account
 
 userproplist.jabber:
   cldversion: 0
@@ -572,7 +556,7 @@ userproplist.jabber:
   des: Jabber address (username@server)
   indexed: 1
   multihomed: 1
-  prettyname: Jabber Address (legacy value)
+  prettyname: Jabber Address
 
 userproplist.journalsubtitle:
   cldversion: 4
@@ -620,7 +604,7 @@ userproplist.last_fm_user:
   des: LastFM user account name
   indexed: 0
   multihomed: 0
-  prettyname: LastFM user account name (legacy value)
+  prettyname: LastFM user account name
 
 userproplist.livejournal:
   cldversion: 4
@@ -628,7 +612,7 @@ userproplist.livejournal:
   des: LiveJournal user account name
   indexed: 0
   multihomed: 0
-  prettyname: LiveJournal user account name (legacy value)
+  prettyname: LiveJournal user account name
 
 userproplist.latest_optout:
   cldversion: 4
@@ -644,7 +628,7 @@ userproplist.medium:
   des: Medium user account name
   indexed: 0
   multihomed: 0
-  prettyname: Medium user account name (legacy value)
+  prettyname: Medium user account name
 
 userproplist.moderated:
   cldversion: 4
@@ -677,6 +661,14 @@ userproplist.nonmember_posting:
   indexed: 0
   multihomed: 0
   prettyname: Non-Member posting access
+
+userproplist.not_approved:
+  cldversion: 0
+  datatype: char
+  des: 1 if unexamined, 2 if flagged as spam
+  indexed: 1
+  multihomed: 0
+  prettyname: Awaiting Approval
 
 userproplist.no_mail_alias:
   cldversion: 4
@@ -833,10 +825,10 @@ userproplist.opt_hidememberofs:
 userproplist.opt_imagelinks:
   cldversion: 4
   datatype: char
-  des: width|height: specifies maximum image size on a user's reading page.  0 for either field replaces all images.
+  des: width|height: specifies maximum image size on a user's friends page.  0 for either field replaces all images.
   indexed: 0
   multihomed: 0
-  prettyname: Use Placeholders on Your Reading Page
+  prettyname: Use Placeholders on Your Friend's Page
 
 userproplist.opt_imageundef:
   cldversion: 4
@@ -849,10 +841,10 @@ userproplist.opt_imageundef:
 userproplist.opt_cut_disable_reading:
   cldversion: 4
   datatype: bool
-  des: LJCUT disabled on reading page
+  des: LJCUT disabled in friends view
   indexed: 1
   multihomed: 0
-  prettyname: LJCUT disabled on reading page
+  prettyname: LJCUT disabled in friends view
 
 userproplist.opt_cut_disable_journal:
   cldversion: 4
@@ -1017,7 +1009,7 @@ userproplist.opt_showmutualfriends:
 userproplist.opt_stylemine:
   cldversion: 4
   datatype: bool
-  des: 1: use journal style when commenting on other journals from reading page
+  des: 1: use journal style when commenting on other journals from friends page
   indexed: 0
   multihomed: 0
   prettyname: Style=Mine
@@ -1049,7 +1041,7 @@ userproplist.opt_usermsg:
 userproplist.opt_usesharedpic:
   cldversion: 4
   datatype: bool
-  des: 1: reading page uses shared pictures, 0: uses poster's picture
+  des: 1: friends view uses shared pictures, 0: uses poster's picture
   indexed: 1
   multihomed: 0
   prettyname: Use Shared Journal Pic
@@ -1116,7 +1108,7 @@ userproplist.patreon:
   des: Patreon user account name
   indexed: 0
   multihomed: 0
-  prettyname: Patreon user account name (legacy value)
+  prettyname: Patreon user account name
 
 userproplist.pillowfort:
   cldversion: 4
@@ -1124,7 +1116,7 @@ userproplist.pillowfort:
   des: Pillowfort user account name
   indexed: 0
   multihomed: 0
-  prettyname: Pillowfort user account name (legacy value)
+  prettyname: Pillowfort user account name
 
 userproplist.pinboard:
   cldversion: 4
@@ -1132,7 +1124,7 @@ userproplist.pinboard:
   des: Pinboard user account name
   indexed: 0
   multihomed: 0
-  prettyname: Pinboard user account name (legacy value)
+  prettyname: Pinboard user account name
 
 userproplist.pinterest:
   cldversion: 4
@@ -1140,7 +1132,7 @@ userproplist.pinterest:
   des: Pinterest user account name
   indexed: 0
   multihomed: 0
-  prettyname: Pinterest user account name (legacy value)
+  prettyname: Pinterest user account name
 
 userproplist.plurk:
   cldversion: 4
@@ -1148,7 +1140,7 @@ userproplist.plurk:
   des: Plurk user account name
   indexed: 0
   multihomed: 0
-  prettyname: Plurk user account name (legacy value)
+  prettyname: Plurk user account name
 
 userproplist.posting_guidelines_entry:
   cldversion: 4
@@ -1180,7 +1172,7 @@ userproplist.ravelry:
   des: Ravelry user account name
   indexed: 0
   multihomed: 0
-  prettyname: Ravelry user account name (legacy value)
+  prettyname: Ravelry user account name
 
 userproplist.reddit:
   cldversion: 4
@@ -1188,7 +1180,7 @@ userproplist.reddit:
   des: Reddit user account name
   indexed: 0
   multihomed: 0
-  prettyname: Reddit user account name (legacy value)
+  prettyname: Reddit user account name
 
 userproplist.renamedto:
   cldversion: 4
@@ -1292,7 +1284,7 @@ userproplist.skype:
   des: Skype Account ID
   indexed: 1
   multihomed: 1
-  prettyname: Skype ID (legacy value)
+  prettyname: Skype ID
 
 userproplist.state:
   cldversion: 4
@@ -1324,7 +1316,7 @@ userproplist.suspendmsg:
   des: Internal notes, not shown to user
   indexed: 0
   multihomed: 0
-  prettyname: Message to be shown for suspended journal
+  prettyname: Sets message to be shown when running suspend command against this account
 
 userproplist.timeformat_24:
   cldversion: 4
@@ -1342,6 +1334,14 @@ userproplist.theme_preview_styleid:
   multihomed: 0
   prettyname: Style ID for theme preview
 
+userproplist.third_party_notify_list:
+  cldversion: 4
+  datatype: char
+  des: Comma-separated list of third-party services that should be notified when a user takes an action.
+  indexed: 0
+  multihomed: 0
+  prettyname: Third-Party Notify List
+
 userproplist.timezone:
   cldversion: 4
   datatype: char
@@ -1356,7 +1356,7 @@ userproplist.tumblr:
   des: Tumblr user account name
   indexed: 0
   multihomed: 0
-  prettyname: Tumblr user account name (legacy value)
+  prettyname: Tumblr user account name
 
 userproplist.twitter:
   cldversion: 4
@@ -1364,7 +1364,7 @@ userproplist.twitter:
   des: Twitter user account name
   indexed: 0
   multihomed: 0
-  prettyname: Twitter user account name (legacy value)
+  prettyname: Twitter user account name
 
 userproplist.url:
   cldversion: 4
@@ -1404,7 +1404,7 @@ userproplist.wattpad:
   des: Wattpad user account name
   indexed: 0
   multihomed: 0
-  prettyname: Wattpad user account name (legacy value)
+  prettyname: Wattpad user account name
 
 userproplist.who_invited:
   cldversion: 4
@@ -1436,7 +1436,7 @@ talkproplist.deleted_poster:
 
 talkproplist.editor:
   datatype: char
-  des: Type of editor used when making this content. Values: see /dev/formats for current list.
+  des: Type of editor used when making this content. Values: "markdown" or undefined (plain/raw html)
   prettyname: Comment editor
 
 talkproplist.import_source:
@@ -1564,7 +1564,7 @@ logproplist.current_music:
 
 logproplist.editor:
   datatype: char
-  des: Type of editor used when making this content. Values: see /dev/formats for current list.
+  des: Type of editor used when making this content. Values: "markdown" or undefined (plain/raw html)
   prettyname: Entry editor
   sortorder: 8
   ownership: user
@@ -1592,7 +1592,7 @@ logproplist.interface:
 
 logproplist.opt_backdated:
   datatype: bool
-  des: Set to true if this item shouldn't show up on people's reading lists (because it occurred in the past)
+  des: Set to true if this item shouldn't show up on people's friends lists (because it occurred in the past)
   prettyname: Don't Show on Reading Pages
   sortorder: 35
   ownership: user
@@ -1694,6 +1694,13 @@ logproplist.unknown8bit:
   prettyname: Unknown 8-bit text
   sortorder: 99
   ownership: user
+
+logproplist.unsuspend_supportid:
+  datatype: num
+  des: The support request ID of the unsuspension request submitted by a user whose entry was suspended. Undef or 0 if no request is currently open.
+  prettyname: Support Request ID for Unsuspension Request
+  sortorder: 99
+  ownership: system
 
 logproplist.used_rte:
   datatype: bool

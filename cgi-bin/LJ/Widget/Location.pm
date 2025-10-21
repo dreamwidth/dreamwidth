@@ -238,7 +238,7 @@ sub handle_post {
 
     # load country codes
     my %countries;
-    DW::Countries->load_legacy( \%countries );
+    DW::Countries->load( \%countries );
 
     my $state_inline_desc   = $class->ml('widget.location.fn.state.inline2');
     my $state_from_dropdown = $class->ml('states.head.defined');
@@ -315,6 +315,10 @@ sub country_options {
 
     # load country codes
     DW::Countries->load( \%countries );
+    delete $countries{UK}
+        ;    # we need to include UK in the hash for legacy reasons -- some users still have
+             # their country set as UK -- but UK is mapped to GB, so there's no need to confuse
+             # users by offering them expansions of both "UK" and "GB" in the drop-down.
 
     my $options = [
         ''   => $class->ml('widget.location.country.choose'),

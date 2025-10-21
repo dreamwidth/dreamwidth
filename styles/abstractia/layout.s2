@@ -1139,10 +1139,6 @@ q {
     min-width: 15em;
 }
 
-.comment .admin-poster {
-    white-space: nowrap;
-}
-
 .comment-title {
     $comment_title_font
 }

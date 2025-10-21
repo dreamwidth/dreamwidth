@@ -209,8 +209,6 @@ sub make_journal {
             stc/jquery/jquery.ui.button.css
             stc/jquery/jquery.ui.dialog.css
             stc/jquery/jquery.ui.theme.smoothness.css
-
-            stc/canary.css
             )
     );
 
@@ -816,7 +814,20 @@ sub s2_context {
     my $remote  = $opts{remote} || LJ::get_remote();
     my $style_u = $opts{style_u} || $u;
 
+    # but it doesn't matter if we're using the minimal style ...
     my %style;
+    eval {
+        if ( $r->note('use_minimal_scheme') ) {
+            my $public = get_public_layers();
+            while ( my ( $layer, $name ) = each %LJ::MINIMAL_STYLE ) {
+                next unless $name ne "";
+                next unless $public->{$name};
+                my $id = $public->{$name}->{'s2lid'};
+                $style{$layer} = $id if $id;
+            }
+        }
+    };
+
     if ( $styleid && $styleid eq "siteviews" ) {
         %style = siteviews_style( $u, $remote, $opts{mode} );
     }
@@ -2426,15 +2437,12 @@ sub Page {
         'global_subtitle'     => LJ::ehtml( $u->{'journalsubtitle'} ),
         'show_control_strip'  => LJ::Hooks::run_hook('show_control_strip'),
         'head_content'        => '',
-        'is_canary'           => $LJ::IS_CANARY,
         'data_link'           => {},
         'data_links_order'    => [],
         _styleopts            => LJ::viewing_style_opts(%$get),
         timeformat24          => $remote && $remote->use_24hour_time,
         include_meta_viewport => $r->cookie('no_mobile') ? 0 : 1,
-        session_msgs          => $r->msgs
     };
-    $r->clear_msgs;
 
     if ( $opts && $opts->{'saycharset'} ) {
         $p->{'head_content'} .=
@@ -3785,8 +3793,6 @@ sub _print_quickreply_link {
 
     # FIXME: I THINK the next line is incoherent on reading/network pages. -NF
     $onclick = "" if $page->{'_u'}->does_not_allow_comments_from_non_access($remote);
-
-    $replyurl = LJ::ehtml($replyurl);
 
     $S2::pout->("<a $onclick href='$replyurl' $opt_class>$linktext</a>");
 }

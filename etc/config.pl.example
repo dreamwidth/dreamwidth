@@ -1,14 +1,16 @@
 #!/usr/bin/perl
 # -*-perl-*-
 
+# LiveJournal configuration file.
+
 # THIS FILE IS INTENDED FOR EXAMPLE/DOCUMENTATION PURPOSES ONLY.
-# An active site should have a copy of this file, minus the .example suffix, located in ext/local/etc.
 
 # Ideally, any configuration changes for your site should go in
-# config-local.pl or config-private.pl.  Your ext/local/etc/config.pl
-# can be customized where necessary, but be aware that as the site evolves,
+# config-local.pl or config-private.pl.  If you feel like you need
+# a site-specific config.pl, make sure you copy it to ext/local/etc
+# and customize it there.  This will protect it from getting clobbered
+# when you upgrade to the newest Dreamwidth code in the future, but
 # you will not automatically inherit additions or updates to this file.
-# Any changes to etc/config.pl.example should be copied over by hand.
 
 {
     package LJ;
@@ -77,6 +79,9 @@
     ### System Information
     ###
 
+    # path to sendmail and any necessary options
+    $SENDMAIL = "/usr/sbin/sendmail -t";
+
     # command-line to spell checker, or undefined if you don't want spell checking
     #$SPELLER = "/usr/local/bin/ispell -a";
     #$SPELLER = "/usr/bin/aspell pipe --mode=html --sug-mode=fast --ignore-case";
@@ -96,7 +101,12 @@
 
     # Support URLs of the form http://username.yoursite.com/ ?
     # If so, what's the part after "username." ?
+    $USER_VHOSTS = 1;
     $USER_DOMAIN = $DOMAIN;
+
+    # If you ONLY want USER_VHOSTS to work and not the typical /users/USER and /community/USER
+    # then set this option:
+    $ONLY_USER_VHOSTS = 1;
 
     # Support updating of journals via email?
     # Users can post to user@$EMAIL_POST_DOMAIN.
@@ -110,6 +120,7 @@
     # CPU & database intensive or that you simply don't want to use
     %DISABLED = (
                  adult_content => 0,
+                 approvenew => 1,
                  loggedout_support_requests => 1,
                  'community-logins' => 0,
                  captcha => 0,
@@ -123,7 +134,6 @@
                  memories => 0,
                  opt_findbyemail => 1,
                  payments => 0,
-                 payments_cmo => 0,
                  'show-talkleft' => 0,
                  'stats-recentupdates' => 0,
                  'stats-newjournals' => 0,
@@ -136,10 +146,28 @@
     #    ref $_[0] && defined $_[0]->{sitename} &&
     #        $_[0]->{sitename} eq 'LiveJournal' ? 1 : 0 };
 
-    # Maintenance messages
+    # disable the recaptcha module, but keep textcaptcha enabled
+    # you'd probably want to edit $LJ::DEFAULT_CAPTCHA_TYPE in this case
+    #$DISABLED{captcha} = sub {
+    #   my $module = $_[0];
+    #   return 1 if $module eq "recaptcha";
+    #   return 0 if $module eq "textcaptcha";
+    #   return 0;
+    #};
+    #$DEFAULT_CAPTCHA_TYPE = "T";
+
+
+    # turn $SERVER_DOWN on while you do any maintenance
+    $SERVER_TOTALLY_DOWN = 0;
+    $SERVER_DOWN = 0;
+    $SERVER_DOWN_SUBJECT = "Maintenance";
+    $SERVER_DOWN_MESSAGE = "$SITENAME is down right now while we upgrade.  It should be up in a few minutes.";
     $MSG_READONLY_USER   = "This journal is in read-only mode right now while database maintenance is performed " .
                            "on the server where the journal is located.  Try again in several minutes.";
     $MSG_NO_POST    = "Due to hardware maintenance, you cannot post at this time.  Watch the news page for updates.";
+    $MSG_NO_COMMENT = "Due to hardware maintenance, you cannot leave comments at this time.  Watch the news " .
+                      "page for updates.";
+    #$MSG_DB_UNAVAILABLE = "Sorry, database temporarily unavailable.  Please see <a href='...'>...</a> for status updates.";
 
     ###
     ### Language / Scheme support
@@ -451,6 +479,19 @@
     # If you want to change the limit on how many bans a user can make, uncomment
     # the following line.  Default is 5000.
     #$MAX_BANS = 5000;
+
+    # Some people on portable devices may have troubles viewing the nice site
+    # scheme you've setup, so you can specify that some user-agent prefixes
+    # should instead use fallback presentation information.
+    %MINIMAL_USERAGENT = (
+        #'Foo' => 1, # if the user-agent field starts with "Foo" ...
+                     # note you can only put text here; no numbers, spaces, or symbols.
+    );
+    $MINIMAL_BML_SCHEME = 'lynx';
+    %MINIMAL_STYLE = (
+        'core' => 'core1', # default, but you can add more layers and styles... note
+                           # that they must be public styles
+    );
 
     # if you know that your installation is behind a proxy or other fence that inserts
     # X-Forwarded-For headers that you can trust (eg Perlbal), enable this.  otherwise, don't!

@@ -2,9 +2,9 @@
 layerinfo type = "theme";
 layerinfo name = "Aging Copper";
 layerinfo redist_uniq = "fluidmeasure/agingcopper";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -73,9 +73,9 @@ set font_module_text = "'News Gothic MT'";
 layerinfo "type" = "theme";
 layerinfo "name" = "Aqualicious";
 layerinfo redist_uniq = "fluidmeasure/aqualicious";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -264,9 +264,9 @@ set color_module_title_background = "#1f6b68";
 layerinfo type = "theme";
 layerinfo name = "Blue Lights";
 layerinfo redist_uniq = "fluidmeasure/bluelights";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -336,9 +336,9 @@ set font_module_text = "'News Gothic MT'";
 layerinfo type = "theme";
 layerinfo name = "Citrusy";
 layerinfo redist_uniq = "fluidmeasure/citrusy";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -407,9 +407,9 @@ set font_module_text = "'News Gothic MT'";
 layerinfo type = "theme";
 layerinfo name = "Dependable";
 layerinfo redist_uniq = "fluidmeasure/dependable";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -718,9 +718,9 @@ set color_module_title_background = "#212f31";
 layerinfo type = "theme";
 layerinfo name = "Full Sky";
 layerinfo redist_uniq = "fluidmeasure/fullsky";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -790,9 +790,9 @@ set font_module_text = "'News Gothic MT'";
 layerinfo type = "theme";
 layerinfo name = "Hollow Silence";
 layerinfo redist_uniq = "fluidmeasure/hollowsilence";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -921,9 +921,9 @@ set color_module_title_background = "#262c0a";
 layerinfo type = "theme";
 layerinfo name = "Lavender Mist";
 layerinfo redist_uniq = "fluidmeasure/lavendermist";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -993,9 +993,9 @@ set font_module_text = "'News Gothic MT'";
 layerinfo type = "theme";
 layerinfo name = "Lemonade";
 layerinfo redist_uniq = "fluidmeasure/lemonade";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1549,9 +1549,9 @@ set color_module_title_background = "#010200";
 layerinfo type = "theme";
 layerinfo name = "Orange Lights";
 layerinfo redist_uniq = "fluidmeasure/orangelights";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1860,9 +1860,9 @@ set color_module_title_background = "#b5ad8a";
 layerinfo type = "theme";
 layerinfo name = "Raspberry Kiss";
 layerinfo redist_uniq = "fluidmeasure/raspberrykiss";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2679,9 +2679,9 @@ set color_module_title_background = "#cca66a";
 layerinfo type = "theme";
 layerinfo name = "Wonderland";
 layerinfo redist_uniq = "fluidmeasure/wonderland";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

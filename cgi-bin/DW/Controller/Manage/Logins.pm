@@ -39,7 +39,6 @@ sub login_handler {
     if ( $adminmode && $user ) {
         $u = LJ::load_user($user);
         return error_ml('error.username_notfound') unless $u;
-        return error_ml('error.purged.text') if $u->is_expunged;
         $user = undef if $rv->{remote}->equals($u);
     }
     else {
@@ -51,25 +50,13 @@ sub login_handler {
 
     if ( $r->did_post ) {
 
-        # Does not support editing another user's sessions, so bail
-        return $r->redirect( LJ::create_url() )
-            if $user;
-
-        if ( $r->post_args->{logout} eq 'some' ) {
-            foreach my $arg ( keys %{ $r->post_args } ) {
-                next unless $arg =~ /^logout:(\d+)$/;
-                $sessions->{$1}->destroy if exists $sessions->{$1};
-            }
+        # Form auth is automagically checked.
+        if ( !$user ) {
+            my $sid = $r->post_args->{session};
+            $sessions->{$sid}->destroy if $sessions->{$sid};
         }
-        elsif ( $r->post_args->{logout} eq 'all' ) {
-            foreach my $sess ( values %$sessions ) {
-                $sess->destroy;
-            }
-        }
-
-        return $r->redirect( LJ::create_url() );
+        return $r->redirect( LJ::create_url(undef) );
     }
-
     my $sth = $u->prepare("SELECT logintime, sessid, ip, ua FROM loginlog WHERE userid=?")
         or die('Unable to prepare loginlog');
     $sth->execute( $u->userid )

@@ -71,11 +71,6 @@ body<=
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
     $ret .= "</form>";
 
-    if ($GET{authas}) {
-        $ret .= LJ::html_hidden(
-                { name => "authas", value => $GET{authas}, id => "_widget_authas" } );
-    }
-
     # if they're working as a community, reproduce the community management linkbar:
     if ( $u && $u->is_community ) {
         my $linkbar;
@@ -84,14 +79,11 @@ body<=
     }
 
     # would you like to set the site skin instead?
-    $ret .= "<p>";
     if ( $u && $u->is_community ) {
-        $ret .= LJ::Lang::ml( '.setstyle.comm' ) . " ";
+        $ret .= "<p>" . BML::ml( '.setsiteskin.desc.comm', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } ) . "</p>";
     } else {
-        $ret .= LJ::Lang::ml( '.setstyle.user' ) . " ";
+        $ret .= "<p>" . BML::ml( '.setsiteskin.desc', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } ) . "</p>";
     }
-    $ret .= LJ::Lang::ml( '.setsiteskin', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } );
-    $ret .= "</p>";
 
     my $current_theme = LJ::Widget::CurrentTheme->new;
     $headextra .= $current_theme->wrapped_js( page_js_obj => "Customize" );

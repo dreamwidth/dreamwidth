@@ -14,7 +14,6 @@ the same terms as Perl itself. For a copy of the license, please reference
 %]
 
 [%- sections.title = '.title' | ml -%]
-[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [% IF otheruser %]
     <p>[% '.description.others' | ml(user = u.ljuser_display) %]</p>
@@ -31,20 +30,18 @@ the same terms as Perl itself. For a copy of the license, please reference
 <form method='GET' action='[% site.root %]/birthdays'>
     [%- form.textbox( label = dw.ml( '.findothers' )
         name = 'user'
-        class = 'inline'
         maxlength = 25
         size = 15
-        style = "display: inline-block"
     )
     -%]
 
-    <input class="button" type="submit" value="[% '.view' | ml %]" />
+    <input type="submit" value="[% '.view' | ml %]" />
 </form>
 
 [% FOREACH month = bdaymonths %]
-    <h2> [% month %] </h2>
+    <h1> [% month %] </h1>
     [% FOREACH bdayuser = bdays.$month %]
-        <ul><li>[% bdayuser.day %]:
-            [% bdayuser.ljname %] - [% bdayuser.name %]</li></ul>
+        <ul>[% bdayuser.day %]:
+            [% bdayuser.ljname %] - [% bdayuser.name %]</ul>
     [% END %]
 [% END %]

@@ -11,11 +11,17 @@ If you have any additional questions or comments, you can add them to your reque
 
 .error.email.required=An email address is required if you're not logged in.
 
-.error.loginrequired=At this time, support requests are only being accepted from logged-in users. <a [[loginlink]]>Please log in</a> to submit your request.
+.error.mustbeloggedin=At this time, new support requests are only being accepted from logged-in users.
 
 .help.header=Did You Know?
 
 .help.text2=[[sitename]] Support is run primarily by volunteers. Do you have some extra time? <strong><a [[aopts]]>Help someone!</a></strong>
+
+.language=Language
+
+.language.note=Select the language in which you'd prefer to receive a response.
+
+.language.other=(Other)
 
 .login.note=If you're a [[sitename]] user, <a [[loginlink]]>please log in</a> before submitting your request.
 

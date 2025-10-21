@@ -1,7 +1,7 @@
-.theme-current-content p, .theme-current-links {
-   font-size: smaller;
+
+.theme-current-content {
+    padding: 0 8px 8px 8px;
 }
-/*
 .theme-current-content h3 {
     font-size: 14px;
     font-style: normal;
@@ -26,32 +26,9 @@
 .theme-current ul {
     margin-top: 3px;
 }
-*/
-
-/* temporary fix while the widget appears in both Foundation and old contexts */
-.medium-6 {
-    width: 49%;
-    display: inline-block;
-}
-
-.theme-current-content h3 {
-    margin:0;
-    padding: 0;
-}
-
-.theme-current-content ul {
-    list-style: none;
-    margin: 0;
-}
-.theme-current-content ul li {
+.theme-current ul li {
     padding: 0 0 0 8px;
-    margin-left: 0px;
     margin-bottom: 2px;
-    font-size: small;
+    font-size: 11px;
     background: url("/img/customize/arrow.gif") no-repeat 0 5px;
-}
-
-.theme-preview {
-    text-align: center;
-    vertical-align: top;
 }

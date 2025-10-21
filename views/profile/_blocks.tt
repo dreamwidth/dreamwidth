@@ -109,7 +109,9 @@
   [% dw.img( 'id_openid', '' ); "[$s] "; %]
     [%- site_users = [];
         i = 0;
-        FOREACH user IN openid_info.sites.$s;
+        i_max = openid_info.sites.$s.size;
+        WHILE i < i_max;
+          user = openid_info.sites.$s.$i;
           text = openid_info.shortnames.$s.$i;
           linked_u = linkify( { url => user.profile_url, text => text } );
           PROCESS format_userlink;

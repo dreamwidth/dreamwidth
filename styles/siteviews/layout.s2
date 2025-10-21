@@ -52,32 +52,36 @@ function ItemRange::print(string{} opts) {
     if ($.all_subitems_displayed) { return; }
 
     var string anchor = $opts{"anchor"} ? "#$opts{"anchor"}" : "";
-    var string class = $opts{"class"} ? $opts{"class"} : "";
-    var string url_prev = $this->url_of($.current - 1);
-    var string url_next = $this->url_of($.current + 1);
+    var string class = $opts{"class"} ? $opts{"class"} : "action-box";
 
-    """<div class="$class action-box"><div class="inner">""";
+    """<div class="$class"><div>""";
     print """<p style="font-weight: bolder; margin: 0 0 .5em 0;">""" + lang_page_of_pages($.current, $.total) + "</p>";
-    """<ul class="pagination">""";
+    var string url_prev = $this->url_of($.current - 1);
+    """<span class="page-prev">""";
     if ($.current != 1) {
-        print "<li class='page-prev arrow'><a href='$url_prev$anchor'>&laquo;</a></li> ";
+        print " <b><a href='$url_prev$anchor'>$*comment_page_prev</a></b> ";
     } else {
-        print "<li class='page-prev arrow disabled'>&laquo;</li> ";
+        print " <b>$*comment_page_prev</b> ";
     }
-
-    """<ul class="pages">""";
+    """</span>
+    <span style="text-align: center" class="page-links">""";
     foreach var int i (1..$.total) {
-        var string page_class = $i == $.current ? "current" : "";
-        var string url_of = $this->url_of($i);
-        print "<li class='$page_class'><a href='$url_of$anchor'>$i</a></li> ";
-    }
-    """</ul>""";
+        if ($i == $.current) { "<b>[$i]</b> "; }
+        else {
+            var string url_of = $this->url_of($i);
+            "<a href='$url_of$anchor'><b>[$i]</b></a> ";
+        }
+        if ($i % 10 == 0){ """<br />"""; }
+        }
+    """</span>""";
+    var string url_next = $this->url_of($.current + 1);
+    """<span class="page-next">""";
     if ($.current != $.total) {
-         print "<li class='page-next arrow'><a href='$url_next$anchor'>&raquo;</a></li> ";
+         print " <b><a href='$url_next$anchor'>$*comment_page_next</a></b> ";
     } else {
-         print "<li class='page-next arrow disabled'>&raquo;</li>";
+         print " <b>$*comment_page_next</b> ";
     }
-    """</ul>""";
+    """</span>""";
     if ( $.url_all != "" ) {
         """<p><a href="$.url_all">View All</a></p>""";
     }
@@ -277,7 +281,7 @@ function Comment::print_poster() {
             $this.journal->print();
         }
         if ( $this.admin_post ) {
-            """<span class="admin-poster">(""";
+            """<span>(""";
             $this->print_admin_post_icon();
             print safe $*text_admin_post_note;
             """)</span>""";
@@ -285,7 +289,7 @@ function Comment::print_poster() {
     } else {
         print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster";
         if ( $this.admin_post ) {
-            """<span class="admin-poster">(""";
+            """<span>(""";
             $this->print_admin_post_icon();
             print safe $*text_admin_post_note;
             """)</span>""";

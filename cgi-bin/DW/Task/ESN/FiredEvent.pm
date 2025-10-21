@@ -48,8 +48,6 @@ sub work {
         return DW::Task::FAILED;
     }
 
-    $evt->configure_logger;
-
     $log->debug( 'Processing event from raw params: ', join( ', ', @$a ) );
 
     # step 1:  see if we can split this into a bunch of ProcessSub directly.

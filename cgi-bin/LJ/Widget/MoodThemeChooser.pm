@@ -39,43 +39,79 @@ sub render_body {
     my $forcemoodtheme =
         defined $opts{forcemoodtheme} ? $opts{forcemoodtheme} : $u->{opt_forcemoodtheme} eq 'Y';
 
+    my $ret = "<fieldset><legend>" . $class->ml('widget.moodthemechooser.title') . "</legend>";
+    $ret .= "</fieldset>" if $u->prop('stylesys') == 2;
+    $ret .=
+          "<p class='detail'>"
+        . $class->ml('widget.moodthemechooser.desc') . " "
+        . LJ::help_icon('mood_themes') . "</p>";
+
     my @themes = LJ::Customize->get_moodtheme_select_list($u);
-    my @theme_dropdown =
+
+    $ret .= "<br /><br /><div class='moodtheme-form'>";
+    $ret .= $class->html_select(
+        {
+            name     => 'moodthemeid',
+            id       => 'moodtheme_dropdown',
+            selected => $preview_moodthemeid
+        },
         map { { value => $_->{moodthemeid}, text => $_->{name}, disabled => $_->{disabled} } }
-        @themes;
+            @themes,
+    ) . "<br />";
+    $ret .= $class->html_check(
+        name     => 'opt_forcemoodtheme',
+        id       => 'opt_forcemoodtheme',
+        selected => $forcemoodtheme,
+    );
+    $ret .=
+          "<label for='opt_forcemoodtheme'>"
+        . $class->ml('widget.moodthemechooser.forcetheme')
+        . "</label>";
 
     my $journalarg = $getextra ? "?journal=" . $u->user : "";
+    $ret .= "<ul class='moodtheme-links nostyle'>";
+    $ret .=
+          "<li><a href='$LJ::SITEROOT/moodlist$journalarg'>"
+        . $class->ml('widget.moodthemechooser.links.allthemes')
+        . "</a></li>";
+    $ret .=
+          "<li><a href='$LJ::SITEROOT/manage/moodthemes$getextra'>"
+        . $class->ml('widget.moodthemechooser.links.customthemes')
+        . "</a></li>";
+    $ret .= "</ul>";
+    $ret .= "</div>";
+
     my $mobj       = DW::Mood->new($preview_moodthemeid);
     my @show_moods = qw( happy sad angry tired );
 
-    my $vars = {
-        forcemoodtheme      => $forcemoodtheme,
-        theme_dropdown      => \@theme_dropdown,
-        journalarg          => $journalarg,
-        preview_moodthemeid => $preview_moodthemeid,
-        getextra            => $getextra,
-        mobj                => $mobj
-    };
-
     if ($mobj) {
-        my $mood_des = $mobj->des;
-        LJ::CleanHTML::clean( \$mood_des );
-        my @cleaned_moods;
+        my $count = 0;
+
+        $ret .= "<div class='moodtheme-preview moodtheme-preview highlight-box'>";
         foreach my $mood (@show_moods) {
             my %pic;
             if ( $mobj->get_picture( $mobj->mood_id($mood), \%pic ) ) {
-                my $clean_mood = {
-                    mood => $mood,
-                    pic  => \%pic
-                };
-                push @cleaned_moods, $clean_mood;
+                $ret .= "<div class='moodtheme-mood'>";
+                $ret .= "<img alt='$mood' src=\"$pic{pic}\" width='$pic{w}' height='$pic{h}' />";
+                $ret .= "<p>$mood</p>";
+                $ret .= "</div>";
+                $count++;
             }
         }
-        $vars->{mood_des}      = $mood_des;
-        $vars->{cleaned_moods} = \@cleaned_moods;
+        $ret .= "<div class='moodtheme-view-link'>";
+        $ret .= "<a href='$LJ::SITEROOT/moodlist?moodtheme=$preview_moodthemeid'>";
+        $ret .= $class->ml('widget.moodthemechooser.viewtheme') . "</a>";
+        $ret .= "</div>";
+        my $mood_des = $mobj->des;
+        LJ::CleanHTML::clean( \$mood_des );
+        $ret .= "<div class='moodtheme-description'>";
+        $ret .= "<p>$mood_des</p></div>";
+        $ret .= "</div>";
     }
 
-    return DW::Template->template_string( 'widget/moodthemechooser.tt', $vars );
+    $ret .= "</fieldset>" unless $u->prop('stylesys') == 2;
+
+    return $ret;
 }
 
 sub handle_post {

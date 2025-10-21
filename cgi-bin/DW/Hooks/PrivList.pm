@@ -3,7 +3,7 @@
 # DW::Hooks::PrivList
 #
 # This module implements the listing of valid arguments for each
-# known user privilege in Dreamwidth.  Any site that defines a different
+# known user privilege in dw-free.  Any site that defines a different
 # set of privs or privargs must create additional hooks to supplement
 # this list.
 #
@@ -81,7 +81,6 @@ LJ::Hooks::register_hook(
         # have to manually maintain the other lists
         $hr = {
             entryprops    => "Access to /admin/entryprops",
-            images        => "Access to admin mode on /file/list",
             sessions      => "Access to admin mode on /manage/logins",
             subscriptions => "Access to admin mode on notification settings",
             suspended     => "Access to suspended journal content",
@@ -98,8 +97,8 @@ LJ::Hooks::register_hook(
 
         # extracted from grep -r statushistory_add
         if ( $priv eq 'historyview' ) {
-            my @shtypes = qw/ account_level_change b2lid_remap capedit
-                change_journal_type comment_action communityxfer
+            my @shtypes = qw/ account_level_change approvenew b2lid_remap
+                capedit change_journal_type comment_action communityxfer
                 create_from_invite create_from_promo
                 entry_action email_changed expunge_userpic
                 impersonate journal_status logout_user
@@ -114,7 +113,9 @@ LJ::Hooks::register_hook(
         }
 
         $hr = {
+            approvenew    => "Access to /admin/recent_accounts",
             commentview   => "Access to /admin/recent_comments",
+            emailqueue    => "Access to /tools/recent_email",
             invites       => "Access to some invites functionality under /admin/invites",
             largefeedsize => "Overrides synsuck_max_size for a feed",
             memcacheclear => "Access to /admin/memcache_clear",
@@ -134,7 +135,10 @@ LJ::Hooks::register_hook(
             }
             if $priv eq 'siteadmin';
 
-        $hr = { openid => "Only allowed to suspend OpenID accounts", }
+        $hr = {
+            openid => "Only allowed to suspend OpenID accounts",
+            recent => "Only allowed to suspend from /admin/recent_accounts",
+            }
             if $priv eq 'suspend';
 
         # extracted from LJ::Sysban::validate

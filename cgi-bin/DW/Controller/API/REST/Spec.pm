@@ -42,25 +42,22 @@ sub _spec_20 {
 
     my $security_defs =
         { "api_key" =>
-            { "type" => "http", "scheme" => "bearer", "bearerFormat" => "Bearer <api_key>" } };
+            { "type" => "http", "scheme" => "Bearer", "bearerFormat" => "Bearer <api_key>" } };
 
-    my @security = map {
-        { $_ => [] }
-    } keys(%$security_defs);
     my %spec = (
         openapi => '3.0.0',
-        servers => [
+        servers => (
             {
-                url => "$LJ::SITEROOT/api/v$ver"
+                url => "$LJ::WEB_DOMAIN/api/v$ver"
             },
-        ],
+        ),
         info => {
             title       => "$LJ::SITENAME API",
             description => "An OpenAPI-compatible API for $LJ::SITENAME",
             version     => $ver,
 
         },
-        security   => \@security,
+        security   => keys(%$security_defs),
         components => {
             securitySchemes => $security_defs,
         }

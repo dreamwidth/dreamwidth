@@ -10,8 +10,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 [%- sections.title = 'success' | ml -%]
-[%- CALL dw.active_resource_group( "foundation" ) -%]
-
 <p>[% message %]</p>
 
 [% IF links %]

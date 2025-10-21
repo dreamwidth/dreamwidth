@@ -8,13 +8,12 @@
   # Copyright (c) 2009 by Dreamwidth Studios, LLC.
   #
   # This program is free software; you may redistribute it and/or modify it
-  # or redistribute it, with or without modifications, subject to the 
-  # license terms stated in the text.
+  # under the same terms as Perl itself.  For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
   #
 %]
 
 [%- sections.title='Privacy Policy' -%]
-[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 <p>We hate legalese, so we've tried to make ours readable. If you've got any questions, feel free to <a href='[% site.root %]/support/submit'>ask us</a>, and we'll do our best to answer.</p>
 
@@ -168,7 +167,6 @@
 
 <h2>Creative Commons</h2>
 
-<p>This privacy policy is based on one developed by Automattic (http://automattic.com/privacy/) and is licensed under the 
-<a href="https://creativecommons.org/licenses/by-sa/2.5/legalcode">Creative Commons Attribution-ShareAlike 2.5 License</a>.</p>
+<p>This privacy policy is based on one developed by Automattic (http://automattic.com/privacy/) and is licensed under a Creative Commons Attribution-ShareAlike 2.5 License.</p>
 
 <p class='note'>Last revised June 6, 2010</p>

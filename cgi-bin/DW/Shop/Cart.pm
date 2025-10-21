@@ -626,7 +626,7 @@ sub _notify_buyer_paid {
                     touser     => LJ::isu($u) ? $u->display_name : $self->email,
                     price      => join( ", ", @payment_methods ),
                     itemlist   => $itemlist,
-                    receipturl => "$LJ::SHOPROOT/receipt?ordernum=" . $self->ordernum,
+                    receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $self->ordernum,
                     sitename   => $LJ::SITENAME,
                 }
             ),

@@ -241,6 +241,16 @@ sub call_response_handler {
     return Apache2::Const::OK;
 }
 
+# FIXME: Temporary, until BML is gone / converted
+# FIXME: This is only valid from a response handler
+sub call_bml {
+    my DW::Request::Apache2 $self = shift;
+
+    $self->note( bml_filename => $_[0] );
+
+    return Apache::BML::handler( $self->{r} );
+}
+
 # constants
 sub OK {
     return Apache2::Const::OK;

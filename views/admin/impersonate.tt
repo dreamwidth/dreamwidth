@@ -23,11 +23,11 @@
 <form method='POST'>
 [% dw.form_auth %]
 [% form.textbox( label = dw.ml( '.form.username' ), id='impersonate_username',
-                 size = site.maxlength_user, maxlength = site.maxlength_user,
+                 size = maxlength_user, maxlength = maxlength_user,
                  name = 'username' ) %]
 <br />
 [% form.textbox( label = dw.ml( '.form.password' ), id='impersonate_password',
-                 size = site.maxlength_user, type = 'password', value = '',
+                 size = maxlength_user, type = 'password', value = '',
                  name = 'password' ) %]
 <br />
 [% form.textbox( label = dw.ml( '.form.reason' ), id='impersonate_reason',

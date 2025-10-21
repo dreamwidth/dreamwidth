@@ -1,0 +1,249 @@
+;; -*- coding: utf-8 -*-
+.addresses.header=Allowed sender addresses
+
+.addresses.table.address=Address:
+
+.addresses.text=Only the addresses listed below are allowed to post to your account via the email gateway.  If no addresses are listed, you won't be able to post via the email gateway.  We'll send errors only to the address(es) you've selected.
+
+.error.invalidemail=[[email]] is an invalid address.
+
+.error.invalidpin=Your PIN is limited to alphanumeric characters and must be at least [[num]] [[?num|character|characters]] long.
+
+.error.invalidpinaccount=This PIN is invalid.  You should change it to something that is completely unrelated to your [[sitename]] account.
+
+.error.notloggedin.header=Please log in.
+
+.error.sitenotconfigured=This site isn't configured to allow updating your journal via email.
+
+.help.advanced.header=Advanced usage
+
+.help.allowedsenderemail|notes=A made-up email address for users that haven't specified an allowed email address for email posts to be sent from.
+.help.allowedsenderemail=allowed_sender@example.com
+
+.help.body|notes=Example body text for the example email.
+.help.body=This is the body of an email entry.
+
+.help.body_images|notes=Example body text for the example picture email.
+.help.body_images=This is the body of an email entry with image attachments.
+
+.help.examplecommhyphen|notes=This is the example community username used to show the underscore/hyphen change -- leave as is unless your translations has its own example community account with hyphens.
+.help.examplecommhyphen=comm-example
+
+.help.examplecommunity|notes=This is the example community username used -- leave as is unless your translation has its own example community account.
+.help.examplecommunity=communityname
+
+.help.exampleuserhyphen|notes=This is the example username used to show the underscore/hyphen change -- leave as is unless your translation has its own example username account with hyphens.
+.help.exampleuserhyphen=user-example
+
+.help.exampleusername|notes=This is the username used if you're not logged in -- leave as is unless your translation has its own example username account.
+.help.exampleusername=exampleusername
+
+.help.from|notes=The "email" variable will be replaced with the .help.allowedsenderemail string if the user has not specified an allowed sender.
+.help.from=From: [[email]]
+
+.help.header=How does this feature work?
+
+.help.headers.compat.header=Compatibility with other sites
+
+.help.headers.compat.text=[[sitename]] also accepts old-style headers of the form "lj-headername" for backwards compatibility.  That means you can post to multiple LJ-based sites in the same email, using the same headers in the message, and have them interpreted correctly.
+
+.help.headers.header2=Post headers and security
+
+.help.headers.options.comments.example=("[[off]]" or "[[noemail]]")
+
+.help.headers.options.format.example=("markdown" or "html"; defaults to "markdown")
+
+.help.headers.options.header=Journal entry options
+
+.help.headers.options.location.example=Paris, France
+
+.help.headers.options.mood.example=happy
+
+.help.headers.options.music.example=The Pixies: Where Is My Mind?
+
+.help.headers.options.tags.example=greyhounds, potato, wool
+
+.help.headers.options.text=Most journal-specific features can be set via "post-headers" in the body of your message. The post-headers should be at the top of your message, separated by a blank line. All post-headers are completely optional and simply override your journal defaults. The <strong>post-icon</strong> and <strong>post-format</strong> headers can also be used when replying to comments by email.
+
+.help.headers.options.userpic.example=icon keywords
+
+.help.headers.security.friends.desc=The entry can only be viewed by those on your Access List.
+
+.help.headers.security.group.desc=This is the name of a filter.  Only accounts on that filter can view the entry.
+
+.help.headers.security.group.example=Example: [[header]] <strong>Access List</strong>
+
+.help.headers.security.group.word|notes=A single word that tells the person to put a friend group name in its place.
+.help.headers.security.group.word=filter
+
+.help.headers.security.header=Journal entry security
+
+.help.headers.security.private.desc=The entry is posted privately.
+
+.help.headers.security.public.desc=The entry is posted publicly.
+
+.help.headers.security.text=Security options are set via the post-header "[[header]]". If the security type specified is unknown, the journal entry defaults to private. If no security type is specified, the entry is posted according to your default journal security.
+
+.help.manage.header=Manage your emailpost settings
+
+.help.optionalfeatures.header=Optional features
+
+.help.optionalfeatures.hyphens.header=Hyphens and underscores
+
+.help.optionalfeatures.hyphens.text=With cell phones that don't have an underscore key, you can substitute a hyphen for an underscore in any account or community name.  The hyphens will be automatically converted to underscores.
+
+.help.optionalfeatures.posttocommunity.header=Posting to a community
+
+.help.optionalfeatures.posttocommunity.text=Simply embed the community name in the email address.
+
+.help.optionalfeatures.removetext.example=This text and anything underneath it will be ignored, including automatic signatures added by free email services.<br />__________________________________________________<br />Try the all new SUPER FREE MAIL version 17 today!!!
+
+.help.optionalfeatures.removetext.header=Removing unwanted text
+
+.help.optionalfeatures.removetext.text=All text below two or more dashes or underscores ("[[dashes]]" or "[[underscores]]") on a line by itself will be automatically removed. The red text below won't show up in your posting.
+
+.help.pin=PIN
+
+.help.pinusage.header=PIN usage examples:
+
+.help.pinusage.inbody.header=PIN in body:
+
+.help.pinusage.inemail.header=PIN in email address:
+
+.help.pinusage.insubject.header=PIN in subject:
+
+.help.subject|notes=An example subject line for the example email.  The "pin" variable is only filled in in certain cases.
+.help.subject=Subject: [[pin]] Neat, I can post via email.
+
+.help.subject_images|notes=An example subject line for the example picture email.
+.help.subject_images=Subject: Neat, I can post pictures via email.
+
+.help.text1=Email posting uses normal email messages to post to your journal or a community.  Your PIN needs to be embedded in the email address, subject, or body of the message.  Embed your PIN by prefixing it with the [[plus]] symbol.  You must be sending the message from an email address on your "Allowed sender addresses" list.  If you embed your PIN in either the subject or the body, it will be automatically removed before posting.
+
+.help.text2=Posting via email permits many options to be set on a per message basis. Because there are so many options, we've separated examples into different topics.  Please select from the list below:
+
+.help.to|notes=The "email" variable will be replaced with the .help.exampleusername string + @post.livejournal.com OR .help.exampleusername + .help.pin + @post.livejournal.com (unless the user is logged in and/or has specified a PIN, in which case it uses the user's actual username and/or PIN).
+.help.to=To: [[email]]
+
+.instructions.header=Instructions
+
+.intro=If you'd like to be able to post to your journal by email, please fill out the fields on this page. You can consult the <a [[aopts]]>instructions</a> for more help using this feature.
+
+.pin.header=PIN
+
+.pin.text=Your PIN is used only for the email gateway.  Don't use your regular password for this.  That way anyone who obtains your PIN won't get full access to your journal.  The PIN should be at least [[num]] [[?num|character|characters]] long and may only contain letters and numbers.
+
+.reply.button=Reset secret address
+
+.reply.header=Reply by email
+
+.reply.status.error=Problem generating a new secret address. Please try again.
+
+.reply.status.success=New secret address has been generated and will be used for future comment notification emails.
+
+.reply.text=You can reply to a comment by using the "Reply" function of your email client. These emails reply to a secret address so we can identify who the comment is coming from. You should reset the secret address if you've accidentally exposed it to anyone else.
+
+.api.button=Generate new API key 
+
+.api.button.delete=Delete 
+
+.api.header=Manage API Keys
+
+.api.status.error=Problem generating new API key. Please try again later, or contact support if the problem persists.
+
+.api.status.success=New API key has been generated.
+
+.api.delete.error=Problem deleting API key <b>[[key]]</b>. Please try again later, or contact support if the problem persists.
+
+.api.delete.success=API key <b>[[key]]</b> has been deleted.
+
+.api.text=You can use these keys with the Dreamwidth API to authenticate youself. Anyone with access to a key can act as you, so keys should not be shared. Deleting a key here will make it unusable.
+
+.api.none=You have no API keys generated yet!
+
+.save=Save Settings
+
+.settings.entry.comments=Comments:
+
+.settings.entry.comments.select.default=Default
+
+.settings.entry.comments.select.noemail=No email
+
+.settings.entry.comments.select.off=Off
+
+.settings.entry.header=Journal entry defaults
+
+.settings.entry.security=Security:
+
+.settings.entry.security.select.default=Default
+
+.settings.entry.security.select.friends=Access
+
+.settings.entry.security.select.private=Private
+
+.settings.entry.security.select.public=Public
+
+.settings.entry.userpic=Icon:
+
+.settings.entry.userpic.select.default=Default:
+
+.settings.header=Default settings
+
+.settings.image.cut=Image cut type:
+
+.settings.image.cut.select.count=count
+
+.settings.image.cut.select.default=default
+
+.settings.image.cut.select.titles=titles
+
+.settings.image.galname=Gallery name:
+
+.settings.image.header=Image hosting defaults:
+
+.settings.image.layout=Image layout:
+
+.settings.image.layout.select.default=Default
+
+.settings.image.layout.select.horizontal=horizontal
+
+.settings.image.layout.select.vertical=vertical
+
+.settings.image.security=Image security:
+
+.settings.image.security.select.default=Default
+
+.settings.image.security.select.friends=Access Group
+
+.settings.image.security.select.private=Private
+
+.settings.image.security.select.public=Public
+
+.settings.image.security.select.regusers=registered accounts
+
+.settings.image.size=Image size:
+
+.settings.image.size.select.100x100=100x100
+
+.settings.image.size.select.320x240=320x240
+
+.settings.image.size.select.640x480=640x480
+
+.settings.image.size.select.default=Default
+
+.settings.text=These settings apply to all journal updates made by email. If you leave these options alone your journal defaults will take over, or you can override them on a message by message basis using post-headers. <a [[aopts]]>More information about email settings and post-header overrides</a>.
+
+.sorry.acct=Updating your journal by email isn't available for your account type.
+
+.success.apigen=You've successfully generated a new API key! Your new key is <b>[[key]]</b>.
+
+.success.header=Success.
+
+.success.helpmessage=If you requested a summary of posting instructions, it should arrive in your email inbox shortly.
+
+.success.info=<a [[aopts]]>More information on how to use this feature</a>.
+
+.success.saved=You've successfully saved your email gateway settings.
+
+.title=Mobile Post Settings
+

@@ -608,10 +608,6 @@ hr,
     text-decoration: none;
 }
 
-#header .module-wrapper {
-    display: block;
-}
-
 #header h2 {
     line-height: 1em;
 }

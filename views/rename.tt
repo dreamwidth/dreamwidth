@@ -138,7 +138,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% END %]
         </ul>
     [% ELSE %]
-        [%- '.token.notoken' | ml(aopts = "href='${site.shoproot}/renames?for=self'") -%]
+        [%- '.token.notoken' | ml(aopts = "href='/shop/renames?for=self'") -%]
     [% END %]
     <p>[% '.token.manual.header' | ml %]</p>
     <form method="GET" id="entermanualtoken">

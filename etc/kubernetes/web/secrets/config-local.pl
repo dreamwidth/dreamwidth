@@ -25,6 +25,10 @@
     # MemCache information, if you have MemCache servers running
     #@MEMCACHE_SERVERS = ('memcached:11211');
 
+    # optional SMTP server if it is to be used instead of sendmail
+    $SMTP_SERVER = "localhost";
+    $MAIL_TO_THESCHWARTZ = 1;
+
     # if you define these, little help bubbles appear next to common
     # widgets to the URL you define:
     %HELPURL = (

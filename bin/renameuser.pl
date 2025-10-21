@@ -155,7 +155,13 @@ sub rename_user {
     LJ::MemCache::delete("uidof:$from");
     LJ::MemCache::delete("uidof:$to");
 
-    # ...existing code...
+    LJ::Procnotify::add(
+        "rename_user",
+        {
+            user   => $u->user,
+            userid => $u->userid
+        }
+    );
 
     $dbh->do(
         "INSERT INTO renames (renid, auth, cartid, renuserid, fromuser, touser, rendate) "

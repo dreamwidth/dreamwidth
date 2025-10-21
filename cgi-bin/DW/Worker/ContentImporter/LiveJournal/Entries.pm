@@ -309,10 +309,6 @@ sub try_work {
         $job->grabbed_until( time() + 3600 );
         $job->save;
 
-        # clear "request" cache of db handles to force revalidation, whenever fetching a block
-        # of entries, to avoid possibly using one that was idle too long without testing it.
-        $LJ::DBIRole->clear_req_cache();
-
         $log->( 'Fetching %d items.', scalar @_ );
         $title->( 'getevents - %d to %d', $_[0], $_[-1] );
 

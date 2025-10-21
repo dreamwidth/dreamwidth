@@ -15,7 +15,6 @@ package LJ::SynSuck;
 use strict;
 use HTTP::Status;
 
-use LJ::Utils qw(md5_struct);
 use LJ::Protocol;
 use LJ::ParseFeed;
 use LJ::CleanHTML;

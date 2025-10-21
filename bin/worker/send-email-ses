@@ -1,0 +1,142 @@
+#!/usr/bin/perl
+#
+# send-email-ses -- worker for sending email through Amazon SES
+#
+# This is a replacement for the direct sending email client, this module uses
+# Amazon's SES to deliver the email for us so we don't have to manage
+# reputation, etc. Much easier.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2015 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use v5.10;
+use strict;
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use Carp qw/ croak /;
+use LJ::Worker::TheSchwartz;
+
+croak 'SES is not configured. What do!'
+    unless $LJ::EMAIL_VIA_SES{hostname};
+
+schwartz_decl('TheSchwartz::Worker::SendEmail');
+schwartz_on_idle(sub {
+    $0 = "send-email-ses [idle, $TheSchwartz::Worker::SendEmail::_COUNT, $TheSchwartz::Worker::SendEmail::_BAD]";
+});
+schwartz_work();
+
+# ============================================================================
+package TheSchwartz::Worker::SendEmail;
+use base 'TheSchwartz::Worker';
+use Carp qw/ croak /;
+use Net::SMTPS;
+
+my $_SMTP = undef;
+our $_COUNT = 0;
+our $_BAD = 0;
+
+sub work {
+    my ( $class, $job ) = @_;
+    my $args = $job->arg;
+    my $hstr = $job->handle->as_string;
+
+    my $smtp = $_SMTP;
+
+    unless ( defined $smtp ) {
+        $smtp = Net::SMTPS->new(
+            $LJ::EMAIL_VIA_SES{hostname},
+            doSSL   => 'starttls',
+            Port    => 587,
+            Timeout => 60,
+        );
+        return $job->failed( "Temporary failure connecting to $LJ::EMAIL_VIA_SES{hostname}, will retry." )
+            unless defined $smtp;
+
+        $smtp->auth($LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password})
+            or return $job->failed( "Couldn't authenticate to $LJ::EMAIL_VIA_SES{hostname}, will retry." );
+
+#        this can cause permanent failures, need to investigate further
+#        $_SMTP = $smtp;
+    }
+
+    my $env_from = $args->{env_from};  # Envelope From
+    my $rcpts    = $args->{rcpts};     # arrayref of recipients
+    my $body     = $args->{data};
+
+    # remove bcc
+    $body =~ s/^(.+?\r?\n\r?\n)//s;
+    my $headers = $1;
+    $headers =~ s/^bcc:.+\r?\n//mig;
+
+    # unless they specified a message ID, let's prepend our own:
+    unless ($headers =~ m!^message-id:.+!mi) {
+        my ($this_domain) = $env_from =~ /\@(.+)/;
+        $headers = "Message-ID: <sch-$hstr\@$this_domain>\r\n" . $headers;
+    }
+
+    my $details = sub {
+        return eval {
+            $smtp->code . " " . $smtp->message;
+        }
+    };
+
+    my $not_ok = sub {
+        my $cmd = $_[0];
+        if ($smtp->status == 5) {
+            $job->permanent_failure("Permanent failure during $cmd phase to [@$rcpts]: " . $details->());
+            $_SMTP = undef;
+            return;
+        }
+        croak "Error during $cmd phase to [@$rcpts]: " . $details->();
+    };
+
+    return $not_ok->("MAIL") unless $smtp->mail($env_from);
+
+    my $got_an_okay = 0;
+    foreach my $rcpt (@$rcpts) {
+        if ( $LJ::BAD_EMAILS{$rcpt} ) {
+            $_BAD++;
+            next;
+        }
+
+        if ( $smtp->to($rcpt) ) {
+            $got_an_okay = 1;
+            next;
+        }
+        next if $smtp->status == 5;
+
+        croak "Error during TO phase to [@$rcpts]: " . $details->();
+    }
+
+    unless ($got_an_okay) {
+        $job->permanent_failure("Permanent failure TO [@$rcpts]: " . $details->() . "\n");
+        return;
+    }
+
+    return $not_ok->("DATA")     unless $smtp->data;
+    return $not_ok->("DATASEND") unless $smtp->datasend($headers . $body);
+    return $not_ok->("DATAEND")  unless $smtp->dataend;
+
+    $job->completed;
+
+    DW::Stats::increment( 'dw.email.sent', 1, [ "status:completed", "via:ses" ] );
+
+    $_COUNT++;
+}
+
+sub keep_exit_status_for { 0 }
+sub grab_for { 500 }
+sub max_retries { 5 * 24 }  # 5 days * 24 hours
+sub retry_delay {
+    my ($class, $fails) = @_;
+    return ((5*60, 5*60, 15*60, 30*60)[$fails] || 3600);
+}

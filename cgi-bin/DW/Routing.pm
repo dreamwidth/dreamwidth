@@ -137,9 +137,6 @@ sub get_call_opts {
     # the version the user is requesting.
     if ( $call_opts->role eq 'api' ) {
 
-        # return early if we weren't given an API version
-        return unless defined( $call_opts->apiver );
-
         # check the static endpoints for this api version first
         if ( exists $api_endpoints{ $call_opts->apiver } ) {
             my $hash = $api_endpoints{ $call_opts->apiver }->{$uri};
@@ -265,6 +262,7 @@ sub _call_hash {
     my $err = LJ::errobj($msg)
         or die "LJ::errobj didn't return anything.";
     unless ($T_TESTING_ERRORS) {
+        $err->log;
         warn $msg;
     }
 
@@ -306,6 +304,7 @@ sub _call_hash {
         my $err2 = LJ::errobj($msg2)
             or die "LJ::errobj didn't return anything.";
         unless ($T_TESTING_ERRORS) {
+            $err2->log;
             warn $msg2;
         }
 
@@ -660,7 +659,7 @@ sub _apply_defaults {
     $formats = { map { ( $_, 1 ) } @$formats } if ref $formats eq 'ARRAY';
 
     $hash->{formats} = $formats;
-    $hash->{methods} = $opts->{methods} || { GET => 1, POST => 1, HEAD => 1, DELETE => 1 };
+    $hash->{methods} = $opts->{methods} || { GET => 1, POST => 1, HEAD => 1 };
 
     return $hash;
 }

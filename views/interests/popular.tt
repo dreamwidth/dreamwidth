@@ -18,10 +18,11 @@
 </style>
 [% END -%]
 
-[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- dw.need_res( 'stc/interests.css' ) -%]
+
 [%- sections.title='.title' | ml -%]
 
-<h2>[% '.popular.head' | ml %]</h2><p>[% '.popular.text' | ml %]
+<h1>[% '.popular.head' | ml %]</h1><p>[% '.popular.text' | ml %]
 [%- IF no_text_mode -%]
     [% '.popular.textmode'
      | ml(aopts = "href='$site.root/interests?view=popular&mode=text'") %]
@@ -29,7 +30,7 @@
 </p>
 [%- IF pop_ints -%]
     [%- IF no_text_mode; pop_cloud; ELSE -%]
-        <table class="table"><thead><tr>
+        <p><table><thead><tr>
             <th width='150' style="text-align: left">
             [% '.interest' | ml %]</th>
             <th>[% '.count' | ml %]</th>
@@ -40,6 +41,6 @@
             <td>[% i.value %]</td>
         </tr>
         [%- END -%]
-        </table>
+        </table></p>
     [%- END -%]
 [%- ELSE; '.error.nodata' | ml; END -%]

@@ -2,9 +2,9 @@
 layerinfo type = "theme";
 layerinfo name = "Aging Copper";
 layerinfo redist_uniq = "planetcaravan/agingcopper";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -70,9 +70,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Bright Purple";
 layerinfo redist_uniq = "planetcaravan/brightpurple";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -202,9 +202,9 @@ set color_navlinks_current = "#bbb";
 layerinfo type = "theme";
 layerinfo name = "Chinese Pink";
 layerinfo redist_uniq = "planetcaravan/chinesepink";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -284,9 +284,9 @@ function Page::print_theme_stylesheet() { """
 layerinfo type = "theme";
 layerinfo name = "Coastal";
 layerinfo redist_uniq = "planetcaravan/coastal";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -358,9 +358,9 @@ function Page::print_theme_stylesheet() { """
 layerinfo type = "theme";
 layerinfo name = "Devenir";
 layerinfo redist_uniq = "planetcaravan/devenir";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -435,9 +435,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Eager";
 layerinfo redist_uniq = "planetcaravan/eager";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -499,9 +499,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Enamel Teapot";
 layerinfo redist_uniq = "planetcaravan/enamelteapot";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -578,9 +578,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Fantastic Cyan";
 layerinfo redist_uniq = "planetcaravan/fantasticcyan";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -656,9 +656,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Green Tomatoes";
 layerinfo redist_uniq = "planetcaravan/greentomatoes";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -733,9 +733,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Je t'adore";
 layerinfo redist_uniq = "planetcaravan/jetadore";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -866,9 +866,9 @@ set color_navlinks_current = "#bbb";
 layerinfo type = "theme";
 layerinfo name = "Pebble Dark";
 layerinfo redist_uniq = "planetcaravan/pebbledark";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -943,9 +943,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "One Man's Soul";
 layerinfo redist_uniq = "planetcaravan/onemanssoul";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1009,9 +1009,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Orange Lights";
 layerinfo redist_uniq = "planetcaravan/orangelights";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1082,9 +1082,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Pressed Flowers";
 layerinfo redist_uniq = "planetcaravan/pressedflowers";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1152,9 +1152,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Seafoam Sunday";
 layerinfo redist_uniq = "planetcaravan/seafoamsunday";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1235,9 +1235,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Séjour";
 layerinfo redist_uniq = "planetcaravan/sejour";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1313,9 +1313,9 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Stardust";
 layerinfo redist_uniq = "planetcaravan/stardust";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1434,9 +1434,9 @@ set image_background_page_url = "planetcaravan/starrysky.png";
 layerinfo type = "theme";
 layerinfo name = "Sunday Stars";
 layerinfo redist_uniq = "planetcaravan/sundaystars";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1569,9 +1569,9 @@ set color_module_title = "#fff";
 layerinfo type = "theme";
 layerinfo name = "Wet Sand";
 layerinfo redist_uniq = "planetcaravan/wetsand";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

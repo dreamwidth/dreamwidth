@@ -13,28 +13,11 @@
 %]
 
 [%- sections.title='.title' | ml -%]
-[%- CALL dw.active_resource_group( "foundation" ) -%]
 
-[%- sections.head = BLOCK %]
-  <style type="text/css">
-    @media only screen and (max-width:40em) {
-      thead, th, tr:first-of-type {display: none;}
-      tbody, tr, td {display: block !important; width: 100%}
-
-        table {width: 100%}
-
-        td::before {
-          display: inline;
-          font-weight: bold;
-        }
-
-        td:nth-child(1)::before { content: "[% '.header.code' | ml %] "; }
-        td:nth-child(2)::before { content: "[% '.header.recipient' | ml %] "; }
-        td:nth-child(3)::before { content: "[% '.header.used' | ml %] "; }
-        td:nth-child(4)::before { content: "[% '.header.sent' | ml %] "; }
-        td:nth-child(5)::before { content: "[% '.header.email' | ml %] "; }
-    }
-  </style>
+[%- IF req_yes -%]
+    <div class='highlight-box'>[% '.msg.request.success' | ml %]</div>
+[%- ELSIF req_no -%]
+    <div class='error-box'>[% '.msg.request.error' | ml %]</div>
 [%- END -%]
 
 [%- IF print_req_form -%]
@@ -43,7 +26,7 @@
     <div><form method='POST'>
     [% dw.form_auth;
     reason_label = '.form.request.reason' | ml;
-    submit_label = '.form.request.submit2' | ml;
+    submit_label = '.form.request.submit' | ml;
     form.textbox( label = reason_label, name = 'reason', id = 'reason',
                   size = 75, maxlength = 255 );
     form.submit( value = submit_label ) %]
@@ -59,12 +42,12 @@
 
 [%- IF has_codes -%]
     <p>[% '.label.send' | ml(aopts = "href='/manage/circle/invite'") %]</p>
-    <table class='table invitecodes' id='invitecodes'>
+    <table class='invitecodes' id='invitecodes'>
       <thead><tr>
         <th>[% '.header.code' | ml %]</th>
         <th>[% '.header.recipient' | ml %]</th>
-        <th>[% '.header.used' | ml %]</th>
-        <th>[% '.header.sent' | ml %]</th>
+        <th width='200'>[% '.header.used' | ml %]</th>
+        <th width='200'>[% '.header.sent' | ml %]</th>
         <th>[% '.header.email' | ml %]</th>
       </tr></thead>
 

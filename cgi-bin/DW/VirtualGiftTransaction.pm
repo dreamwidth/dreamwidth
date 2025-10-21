@@ -71,7 +71,7 @@ sub save {
 
     my $u       = LJ::want_user( $opts{user} ) or return;
     my $id      = LJ::alloc_user_counter( $u, 'V' ) or return;
-    my $secs    = $opts{time} || time;
+    my $secs    = $opts{time} || localtime;
     my $buyer   = LJ::want_user( $opts{buyer} );
     my $buyerid = $buyer ? $buyer->id : 0;
 

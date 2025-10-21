@@ -452,25 +452,19 @@ sub make_journal {
     $opts->{getargs} = $geta;
 
     my $u = $opts->{'u'} || LJ::load_user($user);
-
     unless ($u) {
-        ${ $opts->{handle_with_siteviews_ref} } = 1;
-        return DW::Template->render_template_misc(
-            "error/unknown-user.tt",
-            { user  => $user },
-            { scope => 'journal', scope_data => $opts }
-        );
+        $opts->{'baduser'} = 1;
+        return "<!-- No such user -->";    # return value ignored
     }
-
     LJ::set_active_journal($u);
 
     my ($styleid);
-    if ( $opts->{'styleid'} ) {    # s1 styleid
+    if ( $opts->{'styleid'} ) {            # s1 styleid
         confess 'S1 was removed, sorry.';
     }
     else {
 
-        $view ||= "lastn";         # default view when none specified explicitly in URLs
+        $view ||= "lastn";                 # default view when none specified explicitly in URLs
         if (   $LJ::viewinfo{$view}
             || $view eq "month"
             || $view eq "entry"
@@ -624,36 +618,53 @@ sub make_journal {
     $r->note( journalid => $u->userid )
         if $r;
 
-    my $error = sub {
-        my ( $file, $fileopts ) = @_;
-        $fileopts //= {};
-
-        ${ $opts->{handle_with_siteviews_ref} } = 1;
-        return DW::Template->render_template_misc( $file, $fileopts,
-            { scope => 'journal', scope_data => $opts } );
-    };
     my $notice = sub {
-        return $error->( 'error/vhost.tt', { u => $u, msg => $_[0] } );
-    };
+        my ( $msg, $status ) = @_;
 
-    if (   $opts->{'vhost'} eq "users"
+        my $url = "$LJ::SITEROOT/users/$user/";
+        $opts->{'status'} = $status if $status;
+
+        my $head = $u->meta_discovery_links( feeds => 1, openid => 1, remote => $remote );
+
+        return qq{
+            <html>
+            <head>
+            $head
+            </head>
+            <body>
+             <h1>Notice</h1>
+             <p>$msg</p>
+             <p>Instead, please use <nobr><a href=\"$url\">$url</a></nobr></p>
+            </body>
+            </html>
+        } . ( "<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->\n" x 50 );
+    };
+    my $error = sub {
+        my ( $msg, $status, $header ) = @_;
+        $header ||= 'Error';
+        $opts->{'status'} = $status if $status;
+
+        return qq{
+            <h1>$header</h1>
+            <p>$msg</p>
+        } . ( "<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->\n" x 50 );
+    };
+    if (   $LJ::USER_VHOSTS
+        && $opts->{'vhost'} eq "users"
         && !$u->is_redirect
         && !LJ::get_cap( $u, "userdomain" ) )
     {
-        return $notice->(
-            LJ::Lang::ml( 'error.vhost.nodomain1', { user_domain => $LJ::USER_DOMAIN } ) );
+        return $notice->( BML::ml( 'error.vhost.nodomain1', { user_domain => $LJ::USER_DOMAIN } ) );
     }
     if ( $opts->{'vhost'} =~ /^other:/ ) {
-        return $notice->( LJ::Lang::ml('error.vhost.noalias1') );
+        return $notice->( BML::ml('error.vhost.noalias1') );
     }
     if ( $opts->{'vhost'} eq "community" && $u->journaltype !~ /[CR]/ ) {
-        $opts->{'badargs'} = 1;
-        return;    # 404 Not Found
+        $opts->{'badargs'} = 1;    # Output a generic 'bad URL' message if available
+        return $notice->( BML::ml('error.vhost.nocomm') );
     }
-
     if ( $view eq "network" && !LJ::get_cap( $u, "friendsfriendsview" ) ) {
-        my $errmsg = LJ::Lang::ml('cprod.friendsfriendsinline.text3.v1');
-        return $error->( 'error.tt', { message => $errmsg } );
+        return BML::ml('cprod.friendsfriendsinline.text3.v1');
     }
 
     # signal to LiveJournal.pm that we can't handle this
@@ -681,21 +692,18 @@ sub make_journal {
         }
 
         # error if disabled
-        return $error->( "error/tagview.tt", { errmsg => 'error.tag.disabled' } )
+        return $error->( BML::ml('error.tag.disabled'), "404 Not Found", BML::ml('error.tag.name') )
             unless LJ::is_enabled('tags');
 
         # throw an error if we're rendering in S1, but not for renamed accounts
-        if ( $stylesys == 1 && $view ne 'data' && !$u->is_redirect ) {
-            return $error->( "error/tagview.tt", { errmsg => 'error.tag.s1' } );
-        }
+        return $error->( BML::ml('error.tag.s1'), "404 Not Found", BML::ml('error.tag.name') )
+            if $stylesys == 1 && $view ne 'data' && !$u->is_redirect;
 
         # overwrite any tags that exist
         $opts->{tags} = [];
-        my $check_tagstring = LJ::Tags::is_valid_tagstring( $tagfilter, $opts->{tags},
+        return $error->( BML::ml('error.tag.invalid'), "404 Not Found", BML::ml('error.tag.name') )
+            unless LJ::Tags::is_valid_tagstring( $tagfilter, $opts->{tags},
             { omit_underscore_check => 1 } );
-
-        return $error->( "error/tagview.tt", { errmsg => 'error.tag.invalid' } )
-            unless $check_tagstring;
 
         # get user's tags so we know what remote can see, and setup an inverse mapping
         # from keyword to tag
@@ -704,9 +712,9 @@ sub make_journal {
         my %kwref = ( map { $tags->{$_}->{name}          => $_ } keys %{ $tags || {} } );
 
         foreach ( @{ $opts->{tags} } ) {
-            return $error->( "error/tagview.tt", { errmsg => 'error.tag.undef' } )
+            return $error->( BML::ml('error.tag.undef'), "404 Not Found",
+                BML::ml('error.tag.name') )
                 unless $kwref{$_};
-
             push @{ $opts->{tagids} }, $kwref{$_};
         }
 
@@ -846,23 +854,36 @@ sub make_journal {
     {    # don't check style sheets
         return $u->display_journal_deleted( $remote, journal_opts => $opts ) if $u->is_deleted;
 
-        return $error->( "error/suspended.tt", { u => $u, remote => $remote } ) if $u->is_suspended;
+        if ( $u->is_suspended ) {
+            my $warning = BML::ml( 'error.suspended.text',
+                { user => $u->ljuser_display, sitename => $LJ::SITENAME } );
+            return $error->( $warning, "403 Forbidden", BML::ml('error.suspended.name') );
+        }
 
         my $entry = $opts->{ljentry};
-        return $error->( "error/suspended-entry.tt", { u => $u } )
-            if $entry && $entry->is_suspended_for($remote);
+        if ( $entry && $entry->is_suspended_for($remote) ) {
+            my $journal_base = $u->journal_base;
+            my $warning = BML::ml( 'error.suspended.entry', { aopts => "href='$journal_base/'" } );
+            return $error->( $warning, "403 Forbidden", BML::ml('error.suspended.name') );
+        }
     }
-
-    return $error->("error/purged.tt") if $u->is_expunged;
+    return $error->( BML::ml('error.purged.text'), "410 Gone", BML::ml('error.purged.name') )
+        if $u->is_expunged;
 
     my %valid_identity_views = (
         read  => 1,
-        res   => 1,    # res is a resource, such as an external stylesheet
+        res   => 1,
         icons => 1,
     );
 
+    # FIXME: pretty this up at some point, to maybe auto-redirect to
+    # the external URL or something, but let's just do this for now
+    # res is a resource, such as an external stylesheet
     if ( $u->is_identity && !$valid_identity_views{$view} ) {
-        return $error->( "error/openid-user.tt", { u => $u } );
+        my $location = $u->openid_identity;
+        my $warning =
+            BML::ml( 'error.nojournal.openid', { aopts => "href='$location'", id => $location } );
+        return $error->( $warning, "404 Not here" );
     }
 
     $opts->{'view'} = $view;
@@ -875,6 +896,9 @@ sub make_journal {
     }
 
     if ( $stylesys == 2 ) {
+        $r->note( codepath => "s2.$view" )
+            if $r;
+
         eval { LJ::S2->can("dostuff") };    # force Class::Autouse
 
         my $mj;

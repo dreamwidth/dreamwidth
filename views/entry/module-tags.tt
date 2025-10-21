@@ -20,7 +20,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- form.textarea( label = dw.ml(".label.tags")
             name = "taglist"
             id = "js-taglist"
-            class = "draft-autosave"
 
             cols = "20"
             rows = "1"

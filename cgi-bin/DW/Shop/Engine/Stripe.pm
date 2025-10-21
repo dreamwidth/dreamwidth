@@ -121,8 +121,8 @@ sub checkout_url {
     my $res = _post(
         'checkout/sessions',
         {
-            cancel_url           => "$LJ::SHOPROOT",
-            success_url          => "$LJ::SHOPROOT/receipt?ordernum=" . $cart->ordernum,
+            cancel_url           => "$LJ::SITEROOT/shop",
+            success_url          => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
             payment_method_types => ['card'],
             client_reference_id  => $cart->id,
             line_items           => \@items,
@@ -139,7 +139,7 @@ sub checkout_url {
     }
 
     # return URL to cc entry
-    return "$LJ::SHOPROOT/stripe-checkout?ordernum=" . $cart->ordernum;
+    return "$LJ::SITEROOT/shop/stripe-checkout?ordernum=" . $cart->ordernum;
 }
 
 # process an incoming webhook

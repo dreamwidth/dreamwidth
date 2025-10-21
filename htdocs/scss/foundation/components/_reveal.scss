@@ -156,15 +156,13 @@ $z-index-base: 1005;
 // $color - Default: $reveal-close-color || $base
 @mixin reveal-close($color:$reveal-close-color) {
   color: $color;
-  background-color: inherit; // prevent gross overlaps if a box impinges on its space
   cursor: $cursor-pointer-value;
   font-size: $reveal-close-font-size;
   font-weight: $reveal-close-weight;
   line-height: 1;
   position: absolute;
   top: $reveal-close-top;
-  border: 0;
-  #{$opposite-direction}: $reveal-close-top;
+  #{$opposite-direction}: $reveal-close-side;
 }
 
 @include exports("reveal") {

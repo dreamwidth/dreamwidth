@@ -25,7 +25,7 @@
 // @import 'foundation/components/inline-lists';
 // @import 'foundation/components/joyride';
 // @import 'foundation/components/keystrokes';
-// @import 'foundation/components/labels';
+@import 'foundation/components/labels';
 // @import 'foundation/components/magellan';
 // @import 'foundation/components/orbit';
 @import 'foundation/components/pagination';
@@ -38,7 +38,7 @@
 @import 'foundation/components/split-buttons';
 @import 'foundation/components/sub-nav';
 // @import 'foundation/components/switches';
-// @import 'foundation/components/tables';
+@import 'foundation/components/tables';
 // @import 'foundation/components/tabs';
 @import 'foundation/components/thumbs';
 // @import 'foundation/components/tooltips';
@@ -51,12 +51,11 @@
 // replaces foundation components above
 @import
   "components/foundation-custom/alert-boxes",
-  "components/foundation-custom/panels",
-  "components/foundation-custom/tables";
+  "components/foundation-custom/panels";
 
 // tweaks to foundation components above
 @import
   "components/foundation-custom/buttons",
   "components/foundation-custom/pagination",
-  "components/foundation-custom/print",
+  "components/foundation-custom/tables",
   "components/foundation-custom/reveal";

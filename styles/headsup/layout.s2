@@ -491,7 +491,7 @@ ul.entry-interaction-links, .comment-interaction-links {
     margin-top: .5em;
     }
 
-#primary .comment-management-links a, #primary .comment-interaction-links a, #primary .entry-management-links a, #primary .entry-interaction-links a {
+#primary .coment-management-links a, #primary .comment-interaction-links a, #primary .entry-management-links a, #primary .entry-interaction-links a {
     color: $*color_entry_interaction_links;
     }
 

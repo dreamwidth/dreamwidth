@@ -57,7 +57,9 @@ sub execute {
         return $self->error("Entry is not currently suspended.")
             if $entry->is_visible;
 
-        $entry->set_prop( statusvis => "V" );
+        $entry->set_prop( statusvis           => "V" );
+        $entry->set_prop( unsuspend_supportid => 0 )
+            if $entry->prop("unsuspend_supportid");
 
         $reason = "entry: " . $entry->url . "; reason: $reason";
         LJ::statushistory_add( $journal, $remote, "unsuspend", $reason );
@@ -107,7 +109,9 @@ sub execute {
         }
 
         my $err;
-        $self->error($err) unless $u->set_unsuspended( $remote, $reason, \$err );
+        $self->error($err)
+            unless $u->set_unsuspended( $remote, $reason, \$err );
+
         $u->{statusvis} = 'V';
 
         $self->print("User '$username' unsuspended.");

@@ -101,6 +101,58 @@
 
 .section.edit=Edit
 
+.service.ao3=Archive of Our Own
+
+.service.deviantart=DeviantArt
+
+.service.diigo=Diigo
+
+.service.discord=Discord
+
+.service.etsy=Etsy
+
+.service.ffnet=FanFiction.net
+
+.service.github=GitHub
+
+.service.hangouts=Google Hangouts
+
+.service.icq=ICQ
+
+.service.insanejournal=InsaneJournal
+
+.service.instagram=Instagram
+
+.service.jabber=Jabber
+
+.service.lastfm=Last.fm
+
+.service.livejournal=LiveJournal
+
+.service.medium=Medium
+
+.service.patreon=Patreon
+
+.service.pillowfort=Pillowfort
+
+.service.pinboard=Pinboard
+
+.service.pinterest=Pinterest
+
+.service.plurk=Plurk
+
+.service.ravelry=Ravelry
+
+.service.reddit=Reddit
+
+.service.skype=Skype
+
+.service.tumblr=Tumblr
+
+.service.twitter=Twitter
+
+.service.wattpad=Wattpad
+
 .title=Profile
 
 .title.communityprofile=Community Profile

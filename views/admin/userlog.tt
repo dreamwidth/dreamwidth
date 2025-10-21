@@ -40,7 +40,7 @@
 <form method='post' action='userlog'>
   [% dw.form_auth %]
   [% form.textbox( label = dw.ml( '.label.username' ),
-                   maxlength = site.maxlength_user, size = site.maxlength_user,
+                   maxlength = maxlength_user, size = maxlength_user,
                    name = 'user', value = user );
      form.submit( value = dw.ml( '.btn.view' ) ) %]
 </form>

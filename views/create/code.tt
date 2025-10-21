@@ -43,7 +43,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [% 'widget.createaccountentercode.getcode' | ml %]
 
     [%- IF payments_enabled -%]
-        [% 'widget.createaccountentercode.pay2' | ml( aopts = "href='${site.shoproot}/account?for=new'", sitename = site.nameshort ) %]
+        [% 'widget.createaccountentercode.pay2' | ml( aopts = "href='$site.root/shop/account?for=new'", sitename = site.nameshort ) %]
     [%- END -%]
 
     [% 'widget.createaccountentercode.comm' | ml( aopts = "href='$site.root/communities/new'" ) %]

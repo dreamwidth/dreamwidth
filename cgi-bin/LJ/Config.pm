@@ -17,8 +17,6 @@ package LJ::Config;
 use strict;
 use warnings;
 
-use LJ::Directories;
-
 $LJ::HOME ||= $ENV{LJHOME};
 $LJ::CONFIG_LOADED        = 0;
 $LJ::CACHE_CONFIG_MODTIME = 0;

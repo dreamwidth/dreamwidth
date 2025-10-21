@@ -78,7 +78,7 @@ my $onechar;
 #
 # In HTML5 these are called "void elements".
 my $slashclose_tags =
-qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|source|track|wbr|lj-embed|site-embed|poll-\d+|lj-poll-\d+)$/i;
+qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|wbr|lj-embed|site-embed)$/i;
 
 # <LJFUNC>
 # name: LJ::CleanHTML::clean
@@ -130,13 +130,12 @@ sub clean {
           ( exists $opts->{'blocked_link_substitute'} ) ? $opts->{'blocked_link_substitute'}
         : ($LJ::BLOCKED_LINK_SUBSTITUTE)                ? $LJ::BLOCKED_LINK_SUBSTITUTE
         :                                                 '#';
-    my $suspend_msg          = $opts->{'suspend_msg'}        || 0;
-    my $to_external_site     = $opts->{to_external_site}     || 0;
-    my $preserve_lj_tags_for = $opts->{preserve_lj_tags_for} || 0;    # False or site name
-    my $remove_positioning   = $opts->{'remove_positioning'} || 0;
+    my $suspend_msg          = $opts->{'suspend_msg'}         || 0;
+    my $unsuspend_supportid  = $opts->{'unsuspend_supportid'} || 0;
+    my $to_external_site     = $opts->{to_external_site}      || 0;
+    my $preserve_lj_tags_for = $opts->{preserve_lj_tags_for}  || 0;    # False or site name
+    my $remove_positioning   = $opts->{'remove_positioning'}  || 0;
     my $errref               = $opts->{errref};
-    my $verbose_err = $opts->{verbose_err};                           # Verbose parse errors
-    my @unclosed_tags;
 
     # for ajax cut tag parsing
     my $cut_retrieve = $opts->{cut_retrieve} || 0;
@@ -226,21 +225,18 @@ sub clean {
     my $total_fail = sub {
         my ( $cuturl, $tag ) = @_;
         $tag = LJ::ehtml($tag);
-        my $err_str;
 
         my $edata = LJ::ehtml($$data);
         $edata =~ s/\r?\n/<br \/>/g if $addbreaks;
 
         if ($cuturl) {
             my $cutlink = LJ::ehtml($cuturl);
-            $err_str = '.error.markup';
             $extra_text =
                   "<strong>"
                 . LJ::Lang::ml( 'cleanhtml.error.markup', { aopts => "href='$cutlink'" } )
                 . "</strong>";
         }
         else {
-            $err_str = { error => '.error.markup.extra', opts => { aopts => $tag } };
             $extra_text =
                   LJ::Lang::ml( 'cleanhtml.error.markup.extra', { aopts => $tag } )
                 . "<br /><br />"
@@ -249,10 +245,8 @@ sub clean {
                 . '</div>';
         }
 
-        $extra_text   = "<div class='ljparseerror'>$extra_text</div>";
-        $$verbose_err = $err_str if $verbose_err;
-        $$errref      = "parseerror" if $errref;
-
+        $extra_text = "<div class='ljparseerror'>$extra_text</div>";
+        $$errref    = "parseerror" if $errref;
     };
 
     my $htmlcleaner = HTMLCleaner->new( valid_stylesheet => \&LJ::valid_stylesheet_url );
@@ -324,10 +318,9 @@ TOKEN:
 
         if ( $type eq "S" )    # start tag
         {
-            my $tag  = $update_tag->( $token->[1] );
-            my $attr = $token->[2];                    # hashref
-            my $ljcut_div =
-                $tag eq "div" && defined lc $attr->{class} && lc $attr->{class} eq "ljcut";
+            my $tag       = $update_tag->( $token->[1] );
+            my $attr      = $token->[2];                                     # hashref
+            my $ljcut_div = $tag eq "div" && lc $attr->{class} eq "ljcut";
 
             $good_until = length $newdata;
 
@@ -432,10 +425,7 @@ TOKEN:
             }
 
             # deprecated - will always print an error msg (see #1869)
-            if (   ( $tag eq "div" || $tag eq "span" )
-                && defined $attr->{class}
-                && lc $attr->{class} eq "ljvideo" )
-            {
+            if ( ( $tag eq "div" || $tag eq "span" ) && lc $attr->{class} eq "ljvideo" ) {
                 $start_capture->(
                     $tag, $token,
                     sub {
@@ -613,16 +603,12 @@ TOKEN:
                     # include empty span and div to be filled in on page
                     # load if javascript is enabled
                     $newdata .=
-                          "<span class=\"cut-wrapper\">"
-                        . "<span style=\"display: none;\" id=\"span-cuttag_"
+                          "<span style=\"display: none;\" id=\"span-cuttag_"
                         . $journal . "_"
                         . $ditemid . "_"
                         . $cutcount
                         . "\" class=\"cuttag\"></span>";
-                    $newdata .=
-                          "<b class=\"cut-open\">(&nbsp;</b><b class=\"cut-text\">"
-                        . "<a href=\"$url#cutid$cutcount\">$etext</a>"
-                        . "</b><b class=\"cut-close\">&nbsp;)</b></span>";
+                    $newdata .= "<b>(&nbsp;<a href=\"$url#cutid$cutcount\">$etext</a>&nbsp;)</b>";
                     $newdata .=
                           "<div style=\"display: none;\" id=\"div-cuttag_"
                         . $journal . "_"
@@ -694,7 +680,7 @@ TOKEN:
                 foreach (@attrstrip) {
 
                     # maybe there's a better place for this?
-                    next if ( lc $tag eq 'lj-embed' && lc $_ eq 'id' );
+                    next if ( lc $tag eq 'lj-embed' && lc $_ eq 'id' && !$nodwtags );
                     delete $hash->{$_};
                 }
 
@@ -1175,10 +1161,7 @@ TOKEN:
                             my $close;
                             while ( ( $close = pop @tagstack ) && $close ne $tag ) {
                                 $opencount{$close}--;
-                                next if $close =~ $slashclose_tags;
                                 $newdata .= "</$close>";
-                                push @unclosed_tags, "$close"
-                                    unless $close eq 'p' || $close eq 'li';
                             }
                         }
 
@@ -1201,7 +1184,6 @@ TOKEN:
                         if ( $opencount{$tag} ) {
                             $newdata .= "</$tag>";
                             $opencount{$tag}--;
-
                         }
                     }
                     elsif ( !$allow || $form_tag->{$tag} && !$opencount{form} ) {
@@ -1355,7 +1337,6 @@ TOKEN:
     # if we have a textarea open, we *MUST* close it first
     if ( $opencount{textarea} ) {
         $newdata .= "</textarea>";
-        push @unclosed_tags, "textarea";
     }
     $opencount{textarea} = 0;
 
@@ -1368,7 +1349,6 @@ TOKEN:
         if ( $opencount{$tag} ) {
             $newdata .= "</$tag>";
             $opencount{$tag}--;
-            push @unclosed_tags, $tag unless $tag eq 'p' || $tag eq 'li';
         }
     }
 
@@ -1389,18 +1369,26 @@ TOKEN:
     if ($suspend_msg) {
         my $msg =
 qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-color: #ffeeee; background-repeat: repeat-x; border: 1px solid #ff9999; padding: 8px; margin: 5px auto; width: auto; text-align: left; background-image: url('$LJ::IMGPREFIX/message-error.gif');">};
+        my $link_style =
+            "color: #00c; text-decoration: underline; background: transparent; border: 0;";
 
-        $msg .= LJ::Lang::ml('cleanhtml.suspend_msg');
+        if ($unsuspend_supportid) {
+            $msg .= LJ::Lang::ml(
+                'cleanhtml.suspend_msg_with_supportid',
+                {
+                    aopts =>
+"href='$LJ::SITEROOT/support/see_request?id=$unsuspend_supportid' style='$link_style'"
+                }
+            );
+        }
+        else {
+            $msg .= LJ::Lang::ml( 'cleanhtml.suspend_msg',
+                { aopts => "href='$LJ::SITEROOT/abuse/report' style='$link_style'" } );
+        }
+
         $msg .= "</div>";
 
         $$data = $msg . $$data;
-    }
-
-    # only add verbose errors for unclosed tags if we don't have another verbose error set
-    # otherwise, the tags error will overwrite more important errors like irreparable markup
-    if ( $verbose_err && ref($verbose_err) eq 'SCALAR' && scalar(@unclosed_tags) > 0 ) {
-        my $tag_str = "&lt;" . join( "&gt;, &lt;", @unclosed_tags ) . "&gt;";
-        $$verbose_err = { error => ".error.markup.unclosed", opts => { tags => $tag_str } };
     }
 
     return 0;
@@ -1634,7 +1622,6 @@ my @comment_all = qw(
     ul ol li dl dt dd
     area map form textarea
     img br hr p col
-    summary details
 );
 
 my $event_eat    = $subject_eat;
@@ -1728,13 +1715,13 @@ sub clean_event {
             transform_embed_wmode   => $opts->{transform_embed_wmode},
             rewrite_embed_param     => $opts->{rewrite_embed_param} ? 1 : 0,
             suspend_msg             => $opts->{suspend_msg} ? 1 : 0,
+            unsuspend_supportid     => $opts->{unsuspend_supportid},
             to_external_site        => $opts->{to_external_site} ? 1 : 0,
             preserve_lj_tags_for    => $opts->{preserve_lj_tags_for} || 0,
             cut_retrieve            => $opts->{cut_retrieve},
             journal                 => $opts->{journal},
             ditemid                 => $opts->{ditemid},
             errref                  => $opts->{errref},
-            verbose_err             => $opts->{verbose_err},
         }
     );
 }
@@ -1834,7 +1821,7 @@ sub clean_comment {
 }
 
 sub clean_userbio {
-    my ( $ref, $strip_links ) = @_;
+    my $ref = shift;
     return undef unless ref $ref;
 
     clean(
@@ -1850,10 +1837,8 @@ sub clean_userbio {
 
             # Bios are always local, but for now, we are marking them as
             # HTML so that people don't have to reformat everything.
-            formatting   => 'html',
-            at_mentions  => 1,
-            noautolinks  => $strip_links,
-            extractlinks => $strip_links,
+            formatting  => 'html',
+            at_mentions => 1,
         }
     );
 }

@@ -146,9 +146,6 @@ sub render {
 
         #        $class->handle_error;
     }
-    else {
-        return "";
-    }
 
     $ret .= "</div><!-- end .appwidget-$css_subclass -->\n";
 

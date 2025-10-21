@@ -74,7 +74,7 @@ sub render_primary {
 
     my $ret;
     foreach my $widget ( @{ $self->{primary} } ) {
-        $ret .= DW::Panel->_render( $widget, 'primary-panel' );
+        $ret .= DW::Panel->_render($widget);
     }
 
     return $ret;
@@ -89,7 +89,7 @@ sub render_secondary {
 
     my $ret;
     foreach my $widget ( @{ $self->{secondary} } ) {
-        $ret .= DW::Panel->_render( $widget, 'secondary-panel panel' );
+        $ret .= DW::Panel->_render($widget);
     }
 
     return $ret;
@@ -100,7 +100,7 @@ Render the widget and its container.
 =cut
 
 sub _render {
-    my ( $object, $widget, $class ) = @_;
+    my ( $object, $widget ) = @_;
 
     eval "use $widget; 1" or return "";
 
@@ -110,7 +110,7 @@ sub _render {
     my $css_subclass = lc $widget->subclass;
 
     # TODO: this can contain the non-js controls to enable customization of display
-    return "<div class='$class' id='panel-$css_subclass' >$widget_body</div>";
+    return "<div class='panel' id='panel-$css_subclass' >$widget_body</div>";
 }
 
 =head1 BUGS

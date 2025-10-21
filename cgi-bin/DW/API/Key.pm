@@ -22,8 +22,6 @@ use strict;
 use warnings;
 use Carp;
 
-use LJ::Utils qw(rand_chars);
-
 # Usage: new_for_user ( user )
 # Creates a new API key for a given user, saves it to DB,
 # and returns the new key object.
@@ -57,17 +55,12 @@ sub new_for_user {
 sub get_key {
     my ( $class, $hash ) = @_;
     return undef unless $hash;
-    my $memkey = "api_key:$hash";
 
-    my $keydata = LJ::MemCache::get($memkey);
-    unless ( defined $keydata ) {
-        my $dbh = LJ::get_db_writer() or croak "Failed to get database";
-        $keydata = $dbh->selectrow_hashref(
-            "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'",
-            undef, $hash );
-        carp $dbh->errstr if $dbh->err;
-        LJ::MemCache::set( $memkey, $keydata, 60 * 60 * 24 );    # cache for one day
-    }
+    my $dbh     = LJ::get_db_writer() or croak "Failed to get database";
+    my $keydata = $dbh->selectrow_hashref(
+        "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'",
+        undef, $hash );
+    carp $dbh->errstr if $dbh->err;
 
     if ($keydata) {
         my $user = LJ::want_user( $keydata->{userid} );
@@ -99,14 +92,13 @@ sub get_keys_for_user {
         push @keylist, $new;
     }
 
-    # sort oldest to newest (predictable ordering for management page)
-    return [ sort { $a->{keyid} <=> $b->{keyid} } @keylist ];
+    return \@keylist;
 }
 
 # Usage: create ( user, key )
 # Creates and returns a new key object given a user and key hash.
 # Don't call this directly, as it neither verifies nor saves keys.
-# new_for_user() or get_key() is probably what you want instead.
+# new() or lookup() is probably what you want instead.
 sub _create {
     my ( $class, $user, $keyid, $keyhash ) = @_;
 
@@ -151,13 +143,11 @@ sub delete {
         or croak "need a user!\n";
 
     $self->valid_for_user($user) or croak "key doesn't belong to user";
-    my $memkey = "api_key:" . $self->{keyhash};
 
     my $dbw = LJ::get_db_writer() or croak "Failed to get database";
     $dbw->do( q{UPDATE api_key SET state = 'D' WHERE state = 'A' AND hash = ?},
         undef, $self->{keyhash} );
 
-    LJ::MemCache::delete($memkey);
     return 1 unless $dbw->err;
 
     carp $dbw->errstr if $dbw->err;
@@ -173,25 +163,6 @@ sub hash {
 
     # Returns the "key" itself, or the hash of it
     return $_[0]->{keyhash};
-}
-
-# Usage: get_one (user)
-# Given a user, either return the first found key for them, or
-# if they have no keys yet, generate one. Intended for use in
-# situations where we have a logged in user and want to get a working API
-# key for them, without forcing them to jump through the menu hoops themselves.
-sub get_one {
-    my ( $self, $u ) = @_;
-    my $apikeys = $self->get_keys_for_user($u);
-    my $key;
-
-    if ( defined( $apikeys->[0] ) ) {
-        $key = $apikeys->[0];
-    }
-    else {
-        $key = $self->new_for_user($u);
-    }
-    return $key;
 }
 
 1;

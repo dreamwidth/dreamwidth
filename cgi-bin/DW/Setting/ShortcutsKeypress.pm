@@ -48,7 +48,7 @@ sub option {
         $metaval = $class->get_arg( $args, $class->prop_key . 'meta' );
     }
     else {
-        $keyval  = $u->prop( $class->prop_name ) // '';
+        $keyval  = $u->prop( $class->prop_name );
         $ctrlval = $keyval =~ m/ctrl\+/;
         $altval  = $keyval =~ m/alt\+/;
         $metaval = $keyval =~ m/meta\+/;

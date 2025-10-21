@@ -18,8 +18,6 @@ propgroup presentation {
     property use use_shared_pic;
     property use use_journalstyle_entry_page;
     property use custom_control_strip_colors;
-    property use medium_breakpoint_width;
-    property use large_breakpoint_width;
 
     property use reverse_sortorder_group;
     property use reg_firstdayofweek;
@@ -786,7 +784,7 @@ ul.entry-interaction-links li {
     padding: 40px 20px;
     }
 
-.comment .admin-poster { $entry_colors, white-space: nowrap; }
+.comment .admin-poster { $entry_colors }
 
 .comment-title {
     $comment_title_font

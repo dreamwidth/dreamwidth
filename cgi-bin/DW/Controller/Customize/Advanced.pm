@@ -18,7 +18,6 @@ package DW::Controller::Customize::Advanced;
 
 use strict;
 use warnings;
-use Digest::MD5;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -234,7 +233,7 @@ sub layers_handler {
 
     # id is optional
     my $id;
-    $id = $POST->{'id'} if $POST->{'id'} && $POST->{'id'} =~ /^\d+$/;
+    $id = $POST->{'id'} if $POST->{'id'} =~ /^\d+$/;
 
     # this catches core_hidden if it's set
     $POST->{'parid'} ||= $POST->{'parid_hidden'};
@@ -398,9 +397,10 @@ sub layers_handler {
         my @ulayouts = ();
         push @ulayouts, map {
             $_,
-                LJ::Lang::ml(
-                '/customize/advanced/layers.tt.createlayer.layoutspecific.select.userlayer',
-                { 'name' => $ulay->{$_}->{'name'}, 'id' => $_ } )
+                BML::ml(
+                '.createlayer.layoutspecific.select.userlayer',
+                { 'name' => $ulay->{$_}->{'name'}, 'id' => $_ }
+                )
             }
             sort { $ulay->{$a}->{'name'} cmp $ulay->{$b}->{'name'} || $a <=> $b }
             grep { $ulay->{$_}->{'type'} eq 'layout' }

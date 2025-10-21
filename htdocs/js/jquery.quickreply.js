@@ -66,9 +66,9 @@ function update(data,widget) {
         // .width() always gives content width, which is what we want here.
         var maxAvailableCommentWidth = firstCommentWidgetParent.width();
         var plannedWidth = widget.parent().width();
-        // 750px seems a reasonable size on desktop. If we're mobile or
+        // 640 = 40em @ 16px, reasonable size on desktop. If we're mobile or
         // otherwise too small for that, just max out what we've got.
-        var minWidth = Math.min( 750, maxAvailableCommentWidth );
+        var minWidth = Math.min( 640, maxAvailableCommentWidth );
         if ( plannedWidth < minWidth ) {
             // Ascend and grab the first non-transparent background color we
             // see, so the form fields aren't just dangling out in space

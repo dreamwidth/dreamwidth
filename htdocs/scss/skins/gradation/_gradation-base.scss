@@ -29,7 +29,6 @@ $highlight-color:     $_dark-gray;
 $highlight-border:    $_low-contrast-gray;
 $highlight-text-color:$_white;
 
-
 $inactive-color:      $_light-gray;
 
 $form-font-color:     $_white;
@@ -77,8 +76,6 @@ $input-prefix-font-color:               $input-font-color;
 $input-prefix-border-color:             $input-border-color;
 $button-color:                          $primary-text-color;
 $select-bg-color:                       $form-bg-color;
-$text-color-disabled:                   scale-color($text-color, $lightness: -30%, $saturation: -80%);
-$anchor-font-color-disabled:            scale-color($anchor-font-color, $lightness: -50%, $saturation: -80%);
 
 // panel
 $panel-bg:                              lighten( $background-color, 20% );
@@ -88,8 +85,8 @@ $reveal-modal-bg:                       $panel-bg;
 $reveal-border-color:                   $form-border-color;
 
 // tables
-$table-bg:                              $background-color;
-$table-even-row-bg:                     lighten( $background-color, 5% );
+$table-bg:                              $form-bg-color;
+$table-even-row-bg:                     $panel-bg;
 $table-border-color:                    $border-color;
 $table-head-bg:                         $primary-color;
 $table-head-font-color:                 $primary-text-color;
@@ -165,7 +162,8 @@ ul { list-style: circle; }
 
 #content {
     @include grid-row();
-    padding-top: 1.5rem;
+    margin-left: 0;
+    padding: 1.5em 0 0 ($column-gutter/2);
 }
 
 /**
@@ -193,61 +191,5 @@ footer {
     }
 }
 
-.action-box ul.pagination li:hover a, .action-box ul.pagination li a:focus {
-    color: $highlight-color;
-    
-}
-
-.action-box ul.pagination {
-    li, li a { color: $highlight-text-color }
-
-    li a:visited {color: $link-color}
-
-    li a:hover, li a:focus {
-        color: $highlight-color;
-        }
-
-    li.current a:visited{
-        color: $pagination-link-current-font-color
-    }
-}
 
 @import "skins/page-layout-hacks";
-
-/** Dark theme for color picker **/
-#clr-picker {
-  background-color: #444;
-}
-
-#clr-picker .clr-segmented {
-  border-color: #777;
-}
-
-#clr-picker .clr-swatches button:after {
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.3);
-}
-
-#clr-picker input.clr-color {
-  color: #fff;
-  border-color: #777;
-  background-color: #555;
-}
-
-#clr-picker input.clr-color:focus {
-  border-color: #1e90ff;
-}
-
-#clr-picker .clr-preview:after {
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.5);
-}
-
-#clr-picker .clr-alpha,
-#clr-picker .clr-alpha div,
-#clr-picker .clr-swatches button,
-#clr-picker .clr-preview:before {
-  background-image: repeating-linear-gradient(45deg, #666 25%, transparent 25%, transparent 75%, #888 75%, #888), repeating-linear-gradient(45deg, #888 25%, #444 25%, #444 75%, #888 75%, #888);
-}
-
-select {
-    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgeD0iMTJweCIgeT0iMHB4IiB3aWR0aD0iMjRweCIgaGVpZ2h0PSIzcHgiIHZpZXdCb3g9IjAgMCA2IDMiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDYgMyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBvbHlnb24gcG9pbnRzPSI1Ljk5MiwwIDIuOTkyLDMgLTAuMDA4LDAgIiBzdHlsZT0iZmlsbDojZmZmZmZmIiAvPjwvc3ZnPg==');
-}

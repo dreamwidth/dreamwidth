@@ -176,10 +176,9 @@ sub send_mail {
     my $h = DW::TaskQueue->dispatch(
         DW::Task::SendEmail->new(
             {
-                env_from   => $env_from,
-                rcpts      => \@rcpts,
-                data       => $msg->as_string,
-                logger_mdc => ref $opt eq 'HASH' ? $opt->{logger_mdc} : undef,
+                env_from => $env_from,
+                rcpts    => \@rcpts,
+                data     => $msg->as_string,
             },
         )
     );

@@ -27,6 +27,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use List::Util qw/ sum /;
 use LWP::UserAgent;
 use Paws;
+use Paws::Credential::InstanceProfile;
 use POSIX qw/ strftime /;
 
 use LJ::JSON;
@@ -48,7 +49,8 @@ my %PHASES = (
 ## Establish SQS connection
 my $paws = Paws->new(
     config => {
-        region => $LJ::SQS{region},
+        credentials => Paws::Credential::InstanceProfile->new,
+        region      => $LJ::SQS{region},
     },
 ) or $log->logcroak('Failed to initialize Paws object.');
 my $sqs = $paws->service('SQS')
@@ -207,5 +209,5 @@ sub timestr {
 sub github_url {
     my $hash = substr( $_[0], 0, 8 );
 
-    return qq|[$hash](https://github.com/dreamwidth/dreamwidth/commit/$hash)|;
+    return qq|[$hash](https://github.com/dreamwidth/dw-free/commit/$hash)|;
 }

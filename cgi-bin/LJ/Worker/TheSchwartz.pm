@@ -103,12 +103,7 @@ sub schwartz_work {
         my $now = time();
         if ( $now != $last_death_check ) {
             $last_death_check = $now;
-            if ( -e "$LJ::VAR/$$.please_die" ) {
-                unlink "$LJ::VAR/$$.please_die";
-
-                # Using exit here since "die" would be caught by an eval block
-                exit 1;
-            }
+            exit 0 if -e "/var/run/gearman/$$.please_die" || -e "/var/run/ljworker/$$.please_die";
         }
 
         my $did_work = 0;

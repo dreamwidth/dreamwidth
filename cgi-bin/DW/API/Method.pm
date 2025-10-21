@@ -66,12 +66,10 @@ sub param {
 # Creates a special instance of DW::API::Parameter object and
 # adds it as the requestBody definition for the calling method
 sub body {
-    my ( $self, $config ) = @_;
-    $self->{requestBody}->{required} = $config->{required};
-    for my $ct ( keys( %{ $config->{content} } ) ) {
-        my $param = DW::API::Parameter->define_body( $config->{content}->{$ct}, $ct );
-        $self->{requestBody}{content}{$ct} = $param;
-    }
+    my ( $self, @args ) = @_;
+    my $param = DW::API::Parameter->define_parameter(@args);
+    $self->{requestBody} = $param;
+
 }
 
 # Usage: success ( desc, schema )
@@ -138,8 +136,8 @@ sub rest_ok {
     my ( $self, $response, $content_type, $status_code ) = @_;
     my $r = DW::Request->get;
 
-    $content_type ||= 'application/json';
-    $status_code  ||= defined $response && length $response ? 200 : 204;
+    $content_type = defined $content_type ? $content_type : 'application/json';
+    $status_code  = defined $status_code  ? $status_code  : 200;
     my $validator = $self->{responses}{$status_code}{content}{$content_type}{validator};
 
     # guarantee that we're returning what we say we return.
@@ -150,16 +148,13 @@ sub rest_ok {
         }
     }
 
-    if ( defined $response ) {
-
-        # if we have JSON, call the formatter to pretty-print it. Otherwise, we assume
-        # other content-types have already been properly formatted for us.
-        if ( $content_type eq "application/json" ) {
-            $r->print( to_json( $response, { convert_blessed => 1, latin1 => 1, pretty => 1 } ) );
-        }
-        else {
-            $r->print($response);
-        }
+    # if we have JSON, call the formatter to pretty-print it. Otherwise, we assume
+    # other content-types have already been properly formatted for us.
+    if ( $content_type eq "application/json" ) {
+        $r->print( to_json( $response, { convert_blessed => 1, pretty => 1 } ) );
+    }
+    else {
+        $r->print($response);
     }
 
     $r->status($status_code);
@@ -202,25 +197,12 @@ sub TO_JSON {
         $json->{parameters} = [ values %{ $self->{params} } ];
     }
 
-    if ( defined $self->{requestBody} ) {
-        $json->{requestBody} = $self->{requestBody};
-        if ( defined $self->{requestBody}{required} && $self->{requestBody}{required} ) {
-            $json->{requestBody}{required} = $JSON::true;
-        }
-        else {
-            delete $json->{requestBody}{required};
-        }
-    }
-
     my $responses = $self->{responses};
 
     for my $key ( keys %{ $self->{responses} } ) {
         $json->{responses}{$key} = { description => $responses->{$key}{desc} };
-        for my $return_type ( keys %{ $self->{responses}{$key}{content} } ) {
-            $json->{responses}{$key}{content}{$return_type}{schema} =
-                $responses->{$key}{content}{$return_type}{schema}
-                if defined $responses->{$key}{content}{$return_type}{schema};
-        }
+        $json->{responses}{$key}{schema} = $responses->{$key}{schema}
+            if defined $responses->{$key}{schema};
     }
 
     return $json;

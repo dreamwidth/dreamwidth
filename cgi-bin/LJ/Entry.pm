@@ -913,13 +913,14 @@ sub event_html {
 
     my $remote      = LJ::get_remote();
     my $suspend_msg = $self->should_show_suspend_msg_to($remote) ? 1 : 0;
-    $opts->{suspend_msg}   = $suspend_msg;
-    $opts->{journal}       = $self->{u}->user;
-    $opts->{ditemid}       = $self->{ditemid};
-    $opts->{is_syndicated} = $self->{u}->is_syndicated;
-    $opts->{is_imported}   = defined $self->{props}{import_source};
-    $opts->{editor}        = $self->prop('editor');
-    $opts->{logtime_mysql} = $self->logtime_mysql;                    # for format guessing
+    $opts->{suspend_msg}         = $suspend_msg;
+    $opts->{unsuspend_supportid} = $suspend_msg ? $self->prop("unsuspend_supportid") : 0;
+    $opts->{journal}             = $self->{u}->user;
+    $opts->{ditemid}             = $self->{ditemid};
+    $opts->{is_syndicated}       = $self->{u}->is_syndicated;
+    $opts->{is_imported}         = defined $self->{props}{import_source};
+    $opts->{editor}              = $self->prop('editor');
+    $opts->{logtime_mysql} = $self->logtime_mysql;    # for format guessing
 
     $self->_load_text unless $self->{_loaded_text};
     my $event = $self->{event};
@@ -2658,8 +2659,7 @@ sub get_talktext2 {
         $sth->execute;
         while ( my ( $id, $subject, $body ) = $sth->fetchrow_array ) {
             $subject = "" unless defined $subject;
-            LJ::text_uncompress( \$subject );
-            $body = "" unless defined $body;
+            $body    = "" unless defined $body;
             LJ::text_uncompress( \$body );
             $lt->{$id} = [ $subject, $body ];
             LJ::MemCache::add( [ $journalid, "talkbody:$clusterid:$journalid:$id" ], $body )

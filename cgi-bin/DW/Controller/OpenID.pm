@@ -377,8 +377,7 @@ sub openid_login_handler {
         my $etime     = 0;
 
         # yes, we're looking at post args in a get request again.
-        my $expire_arg = $r->post_args->{expire} // '';
-        if ( $expire_arg eq "never" ) {
+        if ( $r->post_args->{'expire'} eq "never" ) {
             $etime = time() + 60 * 60 * 24 * 60;
             $sess_opts->{'exptype'} = "long";
         }

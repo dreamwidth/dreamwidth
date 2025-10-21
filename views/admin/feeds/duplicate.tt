@@ -20,7 +20,7 @@ td, th { padding: 4px; }
 <p>[% '.noduplicates' | ml %]</p>
 [%- ELSE -%]
 <p>[% '.feedcount' | ml(count = data.size) %]</p>
-<table class="table" summary=''>
+<table summary=''>
 <thead>
 <tr>
     <th>Count</th>

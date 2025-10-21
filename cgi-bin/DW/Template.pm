@@ -29,7 +29,7 @@ DW::Template - Template Toolkit helpers for Apache2.
 
 =head1 SYNOPSIS
 
-=cut
+=cut 
 
 # setting this to false -- have to explicitly specify which plugins we want.
 $Template::Plugins::PLUGIN_BASE = '';
@@ -54,9 +54,6 @@ my $site_constants = Template::Namespace::Constants->new(
             coppa   => $LJ::COPPA_EMAIL,
             privacy => $LJ::PRIVACY_EMAIL,
         },
-
-        maxlength_user => $LJ::USERNAME_MAXLENGTH,
-        maxlength_pass => $LJ::PASSWORD_MAXLENGTH,
     }
 );
 
@@ -94,7 +91,6 @@ my $scheme_engine = Template->new(
         PLUGINS  => {
             dw        => 'DW::Template::Plugin',
             dw_scheme => 'DW::Template::Plugin::SiteScheme',
-            form      => 'DW::Template::Plugin::FormHTML',
         },
     }
 );
@@ -256,7 +252,7 @@ This will be ignored for 'bml' scopes.
 
 =item B< journal > $opts hashref passed into LJ::make_journal and beyond.
 
-=back
+=back 
 
 =back
 
@@ -369,10 +365,6 @@ sub render_scheme {
     my $r = DW::Request->get;
     my $out;
 
-    my $args    = $r->query_string;
-    my $baseuri = "$LJ::PROTOCOL://" . $r->host . $r->uri;
-    $baseuri .= $args ? "?$args" : "";
-
     my $opts = $scheme->get_vars;
     $opts->{sections}       = $sections;
     $opts->{inheritance}    = [ map { "$_.tt" } reverse $scheme->inheritance ];
@@ -380,7 +372,6 @@ sub render_scheme {
     $opts->{get}            = $r->get_args;
     $opts->{resource_group} = $LJ::ACTIVE_RES_GROUP;
     $opts->{msgs}           = $r->msgs;
-    $opts->{returnto}       = $baseuri;
 
     $scheme_engine->process( "_init.tt", $opts, \$out )
         or die $scheme_engine->error->as_string;

@@ -18,32 +18,31 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div class='inner'>
 
     <div class="row">
-        <div class="columns">
-            <div class="icon">[% INCLUDE "components/icon-select-icon.tt" %]</div>
+    <div class="columns">
+        <div id="js-icon-preview" class="[% IF icons.size==0 %] no-icon border [% ELSE %] icon [% END %]">
+        [% IF icons.size > 0 %]
+            <img id="js-icon-preview-image" src="[% icons.0.data.url | url %]" alt="[% icons.0.data.description | html %]" data-no-ctx="true" />
+        [% ELSE %]
+            <a href='[% site.root %]/manage/icons'>[% 'entryform.userpic.upload' | ml %]</a>
+        [% END %]
         </div>
     </div>
-    <div class="row">
-        <div class="columns">
-            [% INCLUDE "components/icon-select-dropdown.tt" omit_random_button = 1 class = "draft-autosave" %]
-        </div>
     </div>
 
-    [% IF remote.icon_keyword_menu.size > 0 %]
-    <div class="row js-only">
-        [% IF remote.can_use_userpic_select %]
-        <div class="columns medium-6">
-            <input class="small secondary button" id="randomicon" value="Random" type="button"/>
-        </div>
-        <div class="columns medium-6 end">
-            <input class="small secondary button" id="js-icon-browse" value="Browse" type="button"/>
-        </div>
-        [% ELSE %]
-        <div class="columns medium-6 medium-offset-3 end">
-            <input class="small secondary button" id="randomicon" value="Random" type="button"/>
-        </div>
-        [% END %]
-    </div>
+    [%- IF icons.size > 0 -%]
+
+    [%- INCLUDE "components/icon-browser.tt" -%]
+
+    <div class="row"><div class="columns">
+        [%- form.select(
+            name = "icon"
+            id = "js-icon-select"
+
+            items = icons
+        ) -%]
+    </div></div>
     [% END %]
+
 </div>
 </fieldset>
 [% END %]

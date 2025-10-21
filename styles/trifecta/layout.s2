@@ -1244,7 +1244,6 @@ table.month td {
 
 #header .module-wrapper,
 #footer .module-wrapper {
-    display: block;
     margin-top: 1em;
     text-align: right;
 }

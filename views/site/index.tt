@@ -73,9 +73,9 @@
  <dl>
   <dt>[% '.maplinks.title.manage-account' | ml( sitename = site.nameshort ) %]</dt>
   <dd><ul>
-   <li><a href='/manage/settings/'>[% '.maplinks.account-settings' | ml %]</a></li>
+   <li><a href='/manage/settings/'>[% '.maplinks.manage-settings' | ml %]</a></li>
    <li><a href='/inbox/'>[% '.maplinks.inbox' | ml %]</a></li>
-   <li><a href='[% site.shoproot %]'>[% '.maplinks.upgrade' | ml %]</a></li>
+   <li><a href='/shop'>[% '.maplinks.upgrade' | ml %]</a></li>
    <li><a href='/changepassword'>[% '.maplinks.changepassword' | ml %]</a></li>
    <li><a href='/accountstatus'>[% '.maplinks.changestatus' | ml %]</a></li>
    <li><a href='/beta'>[% '.maplinks.beta' | ml %]</a></li>
@@ -85,8 +85,8 @@
  <dl>
   <dt>[% '.maplinks.title.customize' | ml( sitename = site.nameshort ) %]</dt>
   <dd><ul>
-   <li><a href='/customize/'>[% '.maplinks.selectjournalstyle' | ml %]</a></li>
-   <li><a href='/customize/options'>[% '.maplinks.customizejournalstyle' | ml %]</a></li>
+   <li><a href='/customize/'>[% '.maplinks.selectstyle' | ml %]</a></li>
+   <li><a href='/customize/options'>[% '.maplinks.customizestyle' | ml %]</a></li>
    <li><a href='/customize/options?group=linkslist'>[% '.maplinks.manage-linkslist' | ml %]</a></li>
    <li><a href='/support/faqbrowse?faqcat=styles'>[% '.maplinks.about-customizing' | ml %]</a></li>
    <li><a href='/customize/advanced/'>[% '.maplinks.advanced-customization' | ml %]</a></li>
@@ -110,16 +110,16 @@
   <dt>[% '.maplinks.title.shop' | ml( sitename = site.nameshort ) %]</dt>
   <dd><ul>
   [%- IF shop_enabled -%]
-   <li><a href='[% site.shoproot %]'>[% '.maplinks.buy-points' | ml %]</a></li>
-   <li><a href='[% site.shoproot %]/gifts'>[% '.maplinks.buy-circle' | ml %]</a></li>
-   <li><a href='[% site.shoproot %]/randomgift'>[% '.maplinks.buy-random' | ml %]</a></li>
-   <li><a href='[% site.shoproot %]/transferpoints'>[% '.maplinks.transfer-points' | ml %]</a></li>
+   <li><a href='/shop'>[% '.maplinks.buy-points' | ml %]</a></li>
+   <li><a href='/shop/gifts'>[% '.maplinks.buy-circle' | ml %]</a></li>
+   <li><a href='/shop/randomgift'>[% '.maplinks.buy-random' | ml %]</a></li>
+   <li><a href='/shop/transferpoints'>[% '.maplinks.transfer-points' | ml %]</a></li>
   [%- END -%]
   [%- IF merch_url -%]
    <li><a href='[% merch_url %]'>[% '.maplinks.buy-merchandise' | ml %]</a></li>
   [%- END -%]
   [%- IF shop_enabled -%]
-   <li><a href='[% site.shoproot %]/history'>[% '.maplinks.payment-history' | ml %]</a></li>
+   <li><a href='/shop/history'>[% '.maplinks.payment-history' | ml %]</a></li>
   [%- END -%]
   </ul></dd>
  </dl>

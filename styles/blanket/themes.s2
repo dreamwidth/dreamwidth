@@ -161,9 +161,9 @@ set color_module_title = "#ffcaae";
 layerinfo type = "theme";
 layerinfo name = "Dóma";
 layerinfo redist_uniq = "blanket/doma";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -333,9 +333,9 @@ set color_module_title = "#000";
 layerinfo type = "theme";
 layerinfo name = "Green Tomatoes";
 layerinfo redist_uniq = "blanket/greentomatoes";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -743,9 +743,9 @@ set color_module_title = "#000";
 layerinfo type = "theme";
 layerinfo name = "Outer Rings";
 layerinfo redist_uniq = "blanket/outerrings";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -826,9 +826,9 @@ set color_module_title = "#099aaf";
 layerinfo type = "theme";
 layerinfo name = "Pebble Dark";
 layerinfo redist_uniq = "blanket/pebbledark";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1482,9 +1482,9 @@ set color_module_title = "#c8bdc1";
 layerinfo type = "theme";
 layerinfo name = "Wet Sand";
 layerinfo redist_uniq = "blanket/wetsand";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

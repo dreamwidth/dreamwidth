@@ -1,0 +1,15 @@
+/* manage community invites */
+#invites-list {
+    width: 100%;
+}
+#invites-list td.invite-info {
+    padding-left: 22px; 
+    text-indent: -18px;
+}
+.invite-from {
+    color: #777;
+}
+.invite-accept,
+.invite-decline {
+    white-space: nowrap;
+}

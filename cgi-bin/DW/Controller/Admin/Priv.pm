@@ -75,6 +75,8 @@ sub main_controller {
         $vars->{map_codeid}->{ $_->{privcode} } = $_->{prlid};
     }
 
+    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
+
     my $mode = $form_args->{mode};
 
     $mode ||= "viewpriv" if $form_args->{priv};

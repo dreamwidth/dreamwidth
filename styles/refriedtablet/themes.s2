@@ -337,9 +337,9 @@ set color_module_title_background = "#ccc";
 layerinfo type = "theme";
 layerinfo name = "Damage";
 layerinfo redist_uniq = "refriedtablet/damage";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -480,9 +480,9 @@ set color_module_title_background = "#482d36";
 layerinfo type = "theme";
 layerinfo name = "Easier";
 layerinfo redist_uniq = "refriedtablet/easier";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -562,9 +562,9 @@ $userpic_css
 layerinfo type = "theme";
 layerinfo name = "Faerie";
 layerinfo redist_uniq = "refriedtablet/faerie";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -655,9 +655,9 @@ set color_module_title_background = "#4B6B47";
 layerinfo type = "theme";
 layerinfo name = "Gentle Earth";
 layerinfo redist_uniq = "refriedtablet/gentleearth";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -821,9 +821,9 @@ set color_module_title_background = "#000302";
 layerinfo type = "theme";
 layerinfo name = "Paisaje";
 layerinfo redist_uniq = "refriedtablet/paisaje";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -956,9 +956,9 @@ set color_module_title_background = "#ddd8bb";
 layerinfo type = "theme";
 layerinfo name = "Právda";
 layerinfo redist_uniq = "refriedtablet/pravda";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1209,9 +1209,9 @@ set color_module_title_background = "#556b80";
 layerinfo type = "theme";
 layerinfo name = "Teals";
 layerinfo redist_uniq = "refriedtablet/teals";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1381,9 +1381,9 @@ set color_module_title_background = "#516624";
 layerinfo type = "theme";
 layerinfo name = "Vintage Modern";
 layerinfo redist_uniq = "refriedtablet/vintagemodern";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

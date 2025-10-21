@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+.close=Close Poll
+
+.discuss=Discuss Results
+
+.error.cantview=You're not permitted to view this poll.
+
+.error.postdeleted=The entry containing the poll has been deleted. The poll is no longer available.
+
+.filloutpoll=Fill out Poll
+
+.pollnotfound=Poll not found.
+
+.reopen=Reopen Poll
+
+.submitted.head=Thanks
+
+.submitted.text=Your poll answers have been submitted.
+
+.submitted.title=Submitted!
+
+.title=Poll
+
+.viewresults=View Poll Results
+

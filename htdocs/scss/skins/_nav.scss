@@ -38,8 +38,9 @@ $nav-small-screen-header-height: 3em;
         }
     }
 
-    /* Adjustments to the account links display in the masthead */
-    @media #{$small-only}, print {
+    @media #{$small-only} {
+        /* Adjustments to the static account links display in the masthead */
+
         #account-links-userpic {
             margin-top: -11px;
             img {
@@ -47,15 +48,7 @@ $nav-small-screen-header-height: 3em;
                 width: auto;
             }
         }
-    }
 
-    @media print {
-        #account-links-text {
-            display: none;
-        }
-    }
-
-    @media #{$small-only} {
         /* This makes the account links text into a modal when the screen is small */
         #account-links-text {
             @include reveal-modal-base(
@@ -85,7 +78,7 @@ $nav-small-screen-header-height: 3em;
 
             .logout.button { display: block; margin-top: .5em; }
             ul { list-style: none; margin-left: 0; }
-            button.close-reveal-modal {
+            a.close-reveal-modal {
                 @include reveal-close();
             }
         }
@@ -183,16 +176,6 @@ $nav-small-screen-header-height: 3em;
 
         a {
             line-height: 2em;
-        }
-    }
-
-    #nav-login-form {
-        #login-form, #login-other {
-            display: inline-block;
-            width: 49%;
-            vertical-align: top;
-            padding-left: .9375rem;
-        padding-right: .9375rem;
         }
     }
 
@@ -309,7 +292,6 @@ $nav-small-screen-header-height: 3em;
             #content {
                 border-left: $sidebar-width solid $topbar-bg;
                 margin-left: 0; // so that it doesn't try to center the content on the page
-                padding-left: ($column-gutter/2);
                 min-height: 73rem;
             }
         }

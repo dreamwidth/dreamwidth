@@ -1,0 +1,8 @@
+---
+paths:
+  /spec:
+    get:
+      description: Returns the API specification
+      responses:
+        200:
+          description: This API specification!

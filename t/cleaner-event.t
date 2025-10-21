@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 41;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
@@ -277,12 +277,6 @@ qq{&lt;select ... &gt;&lt;option ... &gt;hello&lt;/option&gt;&lt;option ... &gt;
     $clean->();
     is( $orig_post, $clean_post,
         "self-closing tags that aren't actually self-closing should still be closed." );
-
-    $orig_post  = qq{<p>line one<br>line two<br>line three<br>line four</p><p>new paragraph</p>};
-    $clean_post = qq{<p>line one<br>line two<br>line three<br>line four</p><p>new paragraph</p>};
-    $clean->( { editor => 'html_raw0' } );
-    is( $orig_post, $clean_post,
-        "empty tags don't get erroneously closed when closing their parent element." );
 
     $entry_text = qq{before <strong><cut text="cut">in strong</strong>out strong</cut>after};
 

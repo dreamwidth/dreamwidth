@@ -27,18 +27,16 @@ use Cwd qw/abs_path/;
 use Fcntl ':mode';
 
 use Apache::LiveJournal::PalImg;
+use DW::Auth;
+use DW::BlobStore;
+use DW::Routing;
+use DW::Template;
+use DW::VirtualGift;
 use LJ::ModuleCheck;
 use LJ::PageStats;
 use LJ::Protocol;
 use LJ::S2;
 use LJ::URI;
-
-use DW::Auth;
-use DW::BlobStore;
-use DW::Captcha;
-use DW::Routing;
-use DW::Template;
-use DW::VirtualGift;
 
 BEGIN {
     require "ljlib.pl";
@@ -74,10 +72,17 @@ my @req_hosts;    # client IP, and/or all proxies, real or claimed
 sub handler {
     my $apache_r = shift;
 
+    if ($LJ::SERVER_TOTALLY_DOWN) {
+        $apache_r->handler("perl-script");
+        $apache_r->set_handlers( PerlResponseHandler => [ \&totally_down_content ] );
+        return OK;
+    }
+
     # only perform this once in case of internal redirects
     if ( $apache_r->is_initial_req ) {
         $apache_r->push_handlers( PerlCleanupHandler => sub { %RQ = () } );
         $apache_r->push_handlers( PerlCleanupHandler => "LJ::end_request" );
+        $apache_r->push_handlers( PerlCleanupHandler => "Apache::DebateSuicide" );
 
         if ($LJ::TRUST_X_HEADERS) {
 
@@ -157,6 +162,8 @@ sub handler {
                 }
             }
         }
+
+        LJ::work_report_start();
     }
 
     $apache_r->set_handlers( PerlTransHandler => [ \&trans ] );
@@ -181,15 +188,36 @@ sub remote_domsess_bounce {
     return redir( BML::get_request(), LJ::remote_bounce_url(), HTTP_MOVED_TEMPORARILY );
 }
 
+sub totally_down_content {
+    my $apache_r = shift;
+    my $uri      = $apache_r->uri;
+
+    if ( $uri =~ m!^/cgi-bin/log\.cg! ) {
+        $apache_r->content_type("text/plain");
+        $apache_r->print("success\nFAIL\nerrmsg\n$LJ::SERVER_DOWN_MESSAGE");
+        return OK;
+    }
+
+    # set to 500 so people don't cache this error message
+    my $body =
+        "<h1>$LJ::SERVER_DOWN_SUBJECT</h1>$LJ::SERVER_DOWN_MESSAGE<!-- " . ( "x" x 1024 ) . " -->";
+    $apache_r->status(503);
+    $apache_r->status_line("503 Server Maintenance");
+    $apache_r->content_type("text/html");
+    $apache_r->headers_out->{"Content-length"} = length $body;
+
+    $apache_r->print($body);
+    return OK;
+}
+
 sub send_concat_res_response {
     my $apache_r = $_[0];
     my $args     = $apache_r->args;
     my $uri      = $apache_r->uri;
 
-    my $dir    = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
-    my $maxdir = ( $LJ::STATDOCS // $LJ::HTDOCS ) . '/max' . $uri;
+    my $dir = ( $LJ::STATDOCS // $LJ::HTDOCS ) . $uri;
     return 404
-        unless -d $dir || -d $maxdir;
+        unless -d $dir;
 
     # Might contain cache buster "?v=3234234234" at the end;
     # plus possibly other unique args (caught by the .*)
@@ -198,7 +226,7 @@ sub send_concat_res_response {
     # Collect each file
     my ( $body, $size, $mtime, $mime ) = ( '', 0, 0, undef );
     foreach my $file ( split /,/, substr( $args, 1 ) ) {
-        my $res = load_file_for_concat("$dir$file") // load_file_for_concat("$maxdir$file");
+        my $res = load_file_for_concat("$dir$file");
         return 404
             unless defined $res;
         $body .= $res->[0];
@@ -316,16 +344,6 @@ sub resolve_path_for_uri {
 sub trans {
     my $apache_r = $_[0];
 
-    # include some modern security headers for best practices; we put these on everything
-    # so that no matter how a user reaches us, they get the configs
-    $apache_r->headers_out->{'X-Content-Type-Options'} = 'nosniff';
-    if ( $LJ::PROTOCOL eq 'https' ) {
-
-        # TODO: Raise HSTS timer here, but I want it low while I test to make sure that
-        # the world doesn't implode; suggested value is 31536000.
-        $apache_r->headers_out->{'Strict-Transport-Security'} = 'max-age=300; includeSubDomains';
-    }
-
     # don't deal with subrequests or OPTIONS
     return DECLINED
         if defined $apache_r->main || $apache_r->method_number == M_OPTIONS;
@@ -351,6 +369,7 @@ sub trans {
     }
 
     LJ::start_request();
+    LJ::Procnotify::check();
     S2::set_domain('LJ');
 
     my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
@@ -462,17 +481,20 @@ sub trans {
                 return OK;
             }
         }
-
-        if ( LJ::Sysban::tempban_check( ip => \@req_hosts ) ) {
-            $apache_r->handler("perl-script");
-            $apache_r->push_handlers( PerlResponseHandler => \&blocked_bot );
-            return OK;
-        }
-
         if ( LJ::Hooks::run_hook( "forbid_request", $apache_r ) ) {
             $apache_r->handler("perl-script");
             $apache_r->push_handlers( PerlResponseHandler => \&blocked_bot );
             return OK;
+        }
+    }
+
+    # see if we should setup a minimal scheme based on the initial part of the
+    # user-agent string; FIXME: maybe this should do more than just look at the
+    # initial letters?
+    if ( my $ua = $apache_r->headers_in->{'User-Agent'} ) {
+        if ( ( $ua =~ /^([a-z]+)/i ) && $LJ::MINIMAL_USERAGENT{$1} ) {
+            $apache_r->notes->{use_minimal_scheme} = 1;
+            $apache_r->notes->{bml_use_scheme}     = $LJ::MINIMAL_BML_SCHEME;
         }
     }
 
@@ -863,9 +885,10 @@ sub trans {
         );
     };
 
-    # user or shop domains
+    # user domains
     if (
-           $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/
+           ( $LJ::USER_VHOSTS || $LJ::ONLY_USER_VHOSTS )
+        && $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/
         && $2 ne "www"
         &&
 
@@ -936,7 +959,9 @@ sub trans {
             # redirect them to their canonical URL if on wrong host/prefix
             if ( my $u = LJ::load_user($user) ) {
                 my $canon_url = $u->journal_base;
-                unless ( $canon_url =~ m!^$LJ::PROTOCOL://$host!i ) {
+                unless ( $canon_url =~ m!^$LJ::PROTOCOL://$host!i
+                    || $LJ::DEBUG{'user_vhosts_no_wronghost_redirect'} )
+                {
                     return redir( $apache_r, "$canon_url$uri$args_wq" );
                 }
             }
@@ -954,21 +979,9 @@ sub trans {
             return 404;    # bogus ljconfig
         }
         else {
-            # if this is the shop, manage domain cookie if needed, else just render
-            if ( $user eq 'shop' ) {
-                if ( $uri eq '/__setdomsess' ) {
-                    return redir( $apache_r, LJ::Session->setdomsess_handler );
-                }
-                else {
-                    $uri =~ s/\/$//;
-                    $uri = "/shop$uri";
-                }
-            }
-            else {
-                my $view = $determine_view->( $user, "users", $uri );
-                return $view if defined $view;
-                return 404;
-            }
+            my $view = $determine_view->( $user, "users", $uri );
+            return $view if defined $view;
+            return 404;
         }
     }
 
@@ -979,18 +992,17 @@ sub trans {
 
     # Attempt to handle a URI given the old-style LJ handler, falling back to
     # the new style Dreamwidth routing system.
-    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call( uri => $uri );
+    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call();
     return $ret if defined $ret;
 
     # API role
     if ( $uri =~ m!^/api/v(\d+)(/.+)$! ) {
         my $ver = $1 + 0;
         $ret = DW::Routing->call(
-            apiver => $ver,
-            uri    => "/v$ver$2",
-            role   => 'api'
+            api_version => $ver,
+            uri         => "/v$ver$2",
+            role        => 'api'
         );
-        $ret //= DW::Routing->call( uri => "/internal/api/404" );
         return $ret if defined $ret;
     }
 
@@ -1024,12 +1036,29 @@ sub trans {
 
         my $srest = $rest || '/';
 
-        # FIXME: skip two redirects and send them right to __setdomsess with the right
-        #        cookie-to-be-set arguments.  below is the easy/slow route.
-        my $u = LJ::load_user($cuser)
-            or return 404;
-        my $base = $u->journal_base;
-        return redir( $apache_r, "$base$srest$args_wq", correct_url_redirect_code() );
+        # need to redirect them to canonical version
+        if ( $LJ::ONLY_USER_VHOSTS && !$LJ::DEBUG{'user_vhosts_no_old_redirect'} ) {
+
+            # FIXME: skip two redirects and send them right to __setdomsess with the right
+            #        cookie-to-be-set arguments.  below is the easy/slow route.
+            my $u = LJ::load_user($cuser)
+                or return 404;
+            my $base = $u->journal_base;
+            return redir( $apache_r, "$base$srest$args_wq", correct_url_redirect_code() );
+        }
+
+        # redirect to canonical username and/or add slash if needed
+        return redir( $apache_r, "$LJ::PROTOCOL://$host$hostport/$part1$cuser$srest$args_wq" )
+            if $cuser ne $user or not $rest;
+
+        my $vhost = {
+            'users/'     => '',
+            'community/' => 'community',
+            '~'          => 'tilde'
+        }->{$part1};
+
+        my $view = $determine_view->( $user, $vhost, $rest );
+        return $view if defined $view;
     }
 
     if ( $uri =~ m!^/palimg/! ) {
@@ -1049,6 +1078,11 @@ sub trans {
         return redir( $apache_r, $new, HTTP_MOVED_PERMANENTLY );
     }
 
+    # confirm
+    if ( $uri =~ m!^/confirm/(\w+\.\w+)! ) {
+        return redir( $apache_r, "$LJ::SITEROOT/register.bml?$1" );
+    }
+
     return FORBIDDEN if $uri =~ m!^/userpics!;
 
     return DECLINED;
@@ -1058,6 +1092,8 @@ sub userpic_trans {
     my $apache_r = shift;
     return 404 unless $apache_r->uri =~ m!^/(?:userpic/)?(\d+)/(\d+)$!;
     my ( $picid, $userid ) = ( $1, $2 );
+
+    $apache_r->notes->{codepath} = "img.userpic";
 
     # we can safely do this without checking since we never re-use
     # picture IDs and don't let the contents get modified
@@ -1099,6 +1135,7 @@ sub files_trans {
     my ( $user, $domain, $rest ) = ( $1, $2, $3 );
 
     if ( my $handler = LJ::Hooks::run_hook( "files_handler:$domain", $user, $rest ) ) {
+        $apache_r->notes->{codepath} = "files.$domain";
         $apache_r->handler("perl-script");
         $apache_r->push_handlers( PerlResponseHandler => $handler );
         return OK;
@@ -1111,6 +1148,8 @@ sub vgift_trans {
     return 404 unless $apache_r->uri =~ m!^/vgift/(\d+)/(\w+)$!;
     my ( $picid, $picsize ) = ( $1, $2 );
     return 404 unless $picsize =~ /^(?:small|large)$/;
+
+    $apache_r->notes->{codepath} = "img.vgift";
 
     # we can safely do this without checking
     # unless we're using the admin interface
@@ -1280,12 +1319,6 @@ sub journal_content {
         return OK;
     }
 
-    # Before we actually make a journal, let's potentially bounce this user
-    # off to get captchaed
-    if ( DW::Captcha->should_captcha_view($remote) ) {
-        return redir( $apache_r, DW::Captcha->redirect_url );
-    }
-
     # LJ::make_journal() will set this flag for pages that should use the site
     # skin and therefore need to be processed by siteviews (e.g., style=site)
     my $handle_with_siteviews = 0;
@@ -1350,6 +1383,12 @@ sub journal_content {
         # No special information to give to the user, so just let
         # Apache handle the 404
         return 404;
+    }
+    elsif ( $opts->{'baduser'} ) {
+        $status = "404 Unknown User";
+        $html =
+"<h1>Unknown User</h1><p>There is no user <b>$user</b> at <a href='$LJ::SITEROOT'>$LJ::SITENAME.</a></p>";
+        $generate_iejunk = 1;
     }
     elsif ( $opts->{'badfriendgroup'} ) {
 

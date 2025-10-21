@@ -7,8 +7,6 @@
 
 .maplinks.aboutus=About Us
 
-.maplinks.account-settings=Account Settings
-
 .maplinks.advanced-customization=Advanced Customization
 
 .maplinks.beta=Test Beta Features
@@ -35,7 +33,7 @@
 
 .maplinks.create-poll=Create a poll
 
-.maplinks.customizejournalstyle=Customize Journal Style
+.maplinks.customizestyle=Customize Style
 
 .maplinks.directory=Search the Directory
 
@@ -79,6 +77,8 @@
 
 .maplinks.manage-readlist=Manage Circle
 
+.maplinks.manage-settings=Manage Settings
+
 .maplinks.manage-tags=Manage Tags
 
 .maplinks.manage-userpics=Manage Icons
@@ -103,7 +103,7 @@
 
 .maplinks.search.site=Site search
 
-.maplinks.selectjournalstyle=Select Journal Style
+.maplinks.selectstyle=Select Style
 
 .maplinks.sitestats=Site Statistics
 

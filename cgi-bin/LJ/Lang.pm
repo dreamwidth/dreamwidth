@@ -612,7 +612,7 @@ sub get_text {
         ? $from_files->()
         : $from_db->();
 
-    if ( defined $vars && ref $vars eq 'HASH' ) {
+    if ($vars) {
         $text =~ s/\[\[\?([\w\-]+)\|(.+?)\]\]/resolve_plural($lang, $vars, $1, $2)/eg;
         $text =~ s/\[\[([^\[]+?)\]\]/$vars->{$1}/g;
     }

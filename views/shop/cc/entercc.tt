@@ -1,0 +1,104 @@
+[%# Form for entering credit card info.
+  #
+  # Authors:
+  #      Mark Smith <mark@dreamwidth.org -- original page
+  #      Jen Griffin <kareila@livejournal.com> -- TT conversion
+  #
+  # Copyright (c) 2010-2020 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[%- dw.need_res( { group => 'jquery' }, 'js/shop/creditcard.js' ) -%]
+
+[%- # raw concatenation of function calls doesn't seem to work
+    ust = form.select( name = 'usstate', id = 'usstate', items = usstates );
+    ost = form.textbox( name = 'otherstate', id = 'otherstate', maxlength = 40 );
+    ccn = form.textbox( name = 'ccnum', id = 'ccnum', maxlength = 19,
+                        autocomplete = 'off' );
+
+    formrows = [
+  [ 'firstname',
+     form.textbox( name = 'firstname', maxlength = 25, id = 'firstname' ) ],
+  [ 'lastname',
+     form.textbox( name = 'lastname',  maxlength = 25, id = 'lastname' ) ],
+  [ '--', '' ],
+
+  [ 'country',
+     form.select( name = 'country', id = 'country', items = countries ) ],
+  [ '--', '' ],
+
+  [ 'street1',
+     form.textbox( name = 'street1', maxlength = 100, size = 40, id = 'street1' ) ],
+  [ 'street2',
+     form.textbox( name = 'street2', maxlength = 100, size = 40, id = 'street2' ) ],
+  [ 'city',
+     form.textbox( name = 'city', maxlength = 40, id = 'city' ) ],
+  [ 'state',
+     "$ust $ost" ],
+  [ 'zip',
+     form.textbox( name = 'zip', id = 'zip', maxlength = 20 ) ],
+  [ 'phone',
+     form.textbox( name = 'phone', id = 'phone', maxlength = 40 ) ],
+  [ '--', '' ],
+
+  [ 'ccnum',
+     "$ccn $accepted_ccs" ],
+  [ 'cvv2',
+     form.textbox( name = 'cvv2', id = 'cvv2', maxlength = 4, size = 5,
+                autocomplete = 'off' ) ],
+  [ 'expmon',
+     form.select( name = 'expmon',  id = 'expmon', items = accepted_months ) ],
+  [ 'expyear',
+     form.select( name = 'expyear', id = 'expyear', items = accepted_years ) ]
+] -%]
+
+<p>[% '.about' | ml %]</p>
+
+<p><strong>[% '.about.security' | ml( sitename = site.name ) %]</strong></p>
+
+<form class='simple-form' method='post'>
+  [% dw.form_auth %]
+  <table summary=''>
+  [%- FOREACH f IN formrows;
+        name = f.0;
+        edit = f.1;
+
+        IF name == '--' -%]
+    <tr><td colspan='2'>&nbsp;</td></tr>
+    [%- NEXT; END -%]
+
+    [%- class =  err.$name ? 'ccrow error' : 'ccrow';
+        msgtxt = err.$name ? dw.ml( err.$name ) : '';
+        errormsg = err.$name ? "<strong class='error-msg'>${msgtxt}</strong>"
+                             : "" -%]
+
+    <tr>
+      <td class='[% class %]'><label for='[% name %]'>
+        [% ".form.$name" | ml %][% errormsg %]</label></td>
+      <td class='[% class %]'>[% edit %]</td>
+      <td class='[% class %]'></td>
+    </tr>
+
+  [%- END; # FOREACH -%]
+
+  </table>
+
+  <br />
+
+  <p>
+    [% '.confirm.para' | ml( amount = cart.display_total_cash,
+                             sitename = site.company ) %]
+    [% run_hook( 'cc_charge_from' ) %]
+  </p>
+
+  <br />
+
+  [% form.submit( value = dw.ml( '.confirm.button',
+                                 { amount => cart.display_total_cash } ) ) %]
+</form>

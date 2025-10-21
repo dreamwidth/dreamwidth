@@ -31,34 +31,22 @@ use DW::FormErrors;
 
 DW::Routing->register_string( "/latest", \&index_handler, app => 1 );
 
-sub _process_get_args {
-    my ($r) = @_;
-    my $GET = $r->get_args;
-
-    my $max = $GET->{max} ? $GET->{max} + 0 : 100;
-    $max = 100 if $max < 0 || 1000 < $max;
-
-    my $type = $GET->{type} // 'entries';
-    $type = { entries => 'entry', comments => 'comment' }->{$type};
-
-    my $fmt = $GET->{fmt} // 'html';
-    $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt};
-
-    my ( $feed, $tag ) = ( $GET->{feed}, $GET->{tag} );
-    $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
-    $tag  = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
-
-    return { type => $type, max => $max, fmt => $fmt, feed => $feed, tag => $tag };
-}
-
 sub index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
-    my $get = _process_get_args( $rv->{r} );
-
+    my $r   = $rv->{r};
+    my $GET = $r->get_args;
     my ( $type, $max, $fmt, $feed, $tag ) =
-        ( $get->{type}, $get->{max}, $get->{fmt}, $get->{feed}, $get->{tag} );
+        ( $GET->{type}, ( $GET->{max} + 0 ) || 100, $GET->{fmt}, $GET->{feed}, $GET->{tag} );
+    my $tagname = $tag;
+    my $now     = time();
+
+    $type = { entries => 'entry', comments => 'comment' }->{$type} || 'entry';
+    $max = 100 if $max < 0 || 1000 < $max;
+    $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
+    $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
+    $tag  = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
 
     # if they want a format we don't support ... FIXME: implement all formats
     return "Sorry, that format is not supported yet."
@@ -93,13 +81,18 @@ sub generate_vars {
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
-    my $get = _process_get_args( $rv->{r} );
-
+    my $r   = $rv->{r};
+    my $GET = $r->get_args;
     my ( $type, $max, $fmt, $feed, $tag ) =
-        ( $get->{type}, $get->{max}, $get->{fmt}, $get->{feed}, $get->{tag} );
-
-    my $tagname = LJ::get_interest($tag);    # this function needs a better name
+        ( $GET->{type}, ( $GET->{max} + 0 ) || 100, $GET->{fmt}, $GET->{feed}, $GET->{tag} );
+    my $tagname = $tag;
     my $now     = time();
+
+    $type = { entries => 'entry', comments => 'comment' }->{$type} || 'entry';
+    $max = 100 if $max < 0 || 1000 < $max;
+    $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
+    $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
+    $tag  = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
 
     # if they want a format we don't support ... FIXME: implement all formats
     return "Sorry, that format is not supported yet."

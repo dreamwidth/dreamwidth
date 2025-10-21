@@ -18,7 +18,8 @@
 </style>
 [% END -%]
 
-[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- dw.need_res( 'stc/interests.css' ) -%]
+
 [%- sections.title='.title' | ml -%]
 
 [%- IF need_post -%]

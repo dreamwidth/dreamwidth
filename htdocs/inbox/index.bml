@@ -29,9 +29,6 @@ body<=
 
     return $ML{'.error.not_ready'} unless $remote->can_use_esn;
 
-    return BML::redirect( LJ::create_url( "/inbox/new", cur_args => \%GET, keep_args => 1 ) )
-            if ! LJ::did_post() && LJ::BetaFeatures->user_in_beta( $remote => "inbox" );
-
     LJ::need_res(qw(
                   js/6alib/core.js
                   js/6alib/dom.js

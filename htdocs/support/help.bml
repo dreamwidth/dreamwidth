@@ -14,8 +14,6 @@
 _c?>
 <?page
 head<=
-<?_code return LJ::robot_meta_tags(); _code?>
-
 <style type='text/css'>
 .green, .green td {
     background-color: #d0eed0;

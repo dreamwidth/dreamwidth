@@ -2,8 +2,6 @@
 
 .intro2=Below are the images you have uploaded to the site. <a href="[[aopts1]]">Manage your images</a> or <a href="[[aopts2]]">upload new images</a>.
 
-.intro.admin=Below are the images that [[user]] has uploaded to the site.
-
 .title2=Your Images
 
 .embed.full=Image Embed:
@@ -13,10 +11,6 @@
 .embed.short=Embed:
 
 .usage=You have used [[usage]] ([[percentage]]) of your [[quota]] quota.
-
-.user=Account:
-
-.user.submit=View
 
 .view.list=List View
 

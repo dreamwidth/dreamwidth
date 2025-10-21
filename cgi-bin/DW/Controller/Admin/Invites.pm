@@ -307,6 +307,8 @@ sub promo_controller {
 
     $vars->{mysql_date} = sub { $_[0] ? LJ::mysql_date( $_[0] ) : "" };
 
+    $vars->{maxlength_user} = $LJ::USERNAME_MAXLENGTH;
+
     if ( $r->did_post ) {
 
         $vars->{code}  = $r->post_args->{code} || "";

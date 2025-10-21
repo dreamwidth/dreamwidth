@@ -114,8 +114,4 @@ sub args_list {
     return ();
 }
 
-# a user is being added or removed
-sub add_to_beta      { }
-sub remove_from_beta { }
-
 1;

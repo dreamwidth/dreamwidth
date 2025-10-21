@@ -86,11 +86,12 @@ sub load_cuttext {
 
     my $suspend_msg    = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
     my $cleanhtml_opts = {
-        cuturl       => $entry_obj->url,
-        journal      => $journal->username,
-        ditemid      => $ditemid,
-        suspend_msg  => $suspend_msg,
-        cut_retrieve => $cutid,
+        cuturl              => $entry_obj->url,
+        journal             => $journal->username,
+        ditemid             => $ditemid,
+        suspend_msg         => $suspend_msg,
+        unsuspend_supportid => $suspend_msg ? $entry_obj->prop('unsuspend_supportid') : 0,
+        cut_retrieve        => $cutid,
     };
 
     #load and prepare text of entry

@@ -1,13 +1,13 @@
 jQuery(document).ready(function($) {
 
     // save previously focused item when we open
-    $(document).on('open.fndtn.reveal', '[data-reveal]', function () {
+    $(document).on('open', '[data-reveal]', function () {
       var $modal = $(this);
       $modal.data( "previously_focused", $( ":focus" ) );
     });
 
     // focus on the first input, for keyboard users
-    $(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
+    $(document).on('opened', '[data-reveal]', function () {
       var $modal = $(this);
 
       $modal.data( "previously_focused", $( ":focus" ) );
@@ -15,7 +15,7 @@ jQuery(document).ready(function($) {
     });
 
     // switch back focus
-    $(document).on('closed.fndtn.reveal', '[data-reveal]', function () {
+    $(document).on('closed', '[data-reveal]', function () {
         var $modal = $(this);
 
         var focused = $modal.data( "previously_focused" );

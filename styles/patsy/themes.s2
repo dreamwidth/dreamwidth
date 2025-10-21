@@ -98,9 +98,9 @@ set font_base = "Calibri";
 layerinfo "type" = "theme";
 layerinfo "name" = "Evening";
 layerinfo redist_uniq = "patsy/evening";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -306,9 +306,9 @@ set color_module_title = "2b0919";
 layerinfo "type" = "theme";
 layerinfo "name" = "Hollow Silence";
 layerinfo redist_uniq = "patsy/hollowsilence";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Presentation
@@ -493,9 +493,9 @@ set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
 layerinfo "type" = "theme";
 layerinfo "name" = "Today I'm happy";
 layerinfo redist_uniq = "patsy/todayimhappy";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Presentation

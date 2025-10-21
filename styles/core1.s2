@@ -565,9 +565,6 @@ class Page
     function print_stylesheets
     "Prints all defined stylesheets, including default and user-defined ones.";
 
-    function builtin print_script_tags
-    "Prints the JavaScript tags that this page requires. If a layout overrides the Page::print function, it must call this function before closing the body tag.";
-
     function builtin print_trusted(string key)
     "Prints a trusted string by key.";
 }
@@ -2228,9 +2225,7 @@ body, td, th, table, p, div {
     $this->print_body();
     """\n<hr><address>""";
     server_sig();
-    """</address>\n""";
-    $this->print_script_tags();
-    """</body></html>""";
+    """</address>\n</body></html>""";
 }
 
 function Page::print_body() {

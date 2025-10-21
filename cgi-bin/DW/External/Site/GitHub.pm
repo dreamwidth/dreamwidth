@@ -62,10 +62,9 @@ sub badge_image {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    # we altered the favicon to show up on dark backgrounds
-    # original source: https://github.com/favicon.ico
+    # for lack of anything better, let's use the favicon
     return {
-        url    => "$LJ::IMGPREFIX/profile_icons/github.png",
+        url    => "http://github.com/favicon.ico",
         width  => 16,
         height => 16,
     };

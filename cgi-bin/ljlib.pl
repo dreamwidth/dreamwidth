@@ -40,8 +40,18 @@ BEGIN {
     # mod_perl does this early too, make sure we do as well
     LJ::Config->load;
 
-    $LJ::LOGMEMCFMT = 'NNNQN';
-    $LJ::PUBLICBIT  = 2**63;
+    # arch support has to be done pretty early
+    if ($LJ::ARCH32) {
+        $LJ::ARCH       = 32;
+        $LJ::LOGMEMCFMT = 'NNNLN';
+        $LJ::PUBLICBIT  = 2**31;
+    }
+    else {
+        $LJ::ARCH32     = 0;
+        $LJ::ARCH       = 64;
+        $LJ::LOGMEMCFMT = 'NNNQN';
+        $LJ::PUBLICBIT  = 2**63;
+    }
 }
 
 # Now set up logging support for everybody else to access; this is done
@@ -71,8 +81,9 @@ use Apache2::Connection ();
 use Carp;
 use DBI;
 use DBI::Role;
-use HTTP::Date ();
-use LJ::Utils qw(rand_chars);
+use Digest::MD5  ();
+use Digest::SHA1 ();
+use HTTP::Date   ();
 use LJ::Hooks;
 use LJ::MemCache;
 use LJ::Error;
@@ -104,6 +115,7 @@ use DW::Logic::LogItems;
 use LJ::CleanHTML;
 use DW::LatestFeed;
 use LJ::Keywords;
+use LJ::Procnotify;
 use LJ::DB;
 use LJ::Tags;
 use LJ::TextUtil;
@@ -513,28 +525,13 @@ sub start_request {
     DW::Request->reset;
 
     # include standard files if this is web-context
-    if ( my $r = DW::Request->get ) {
-
-        # sorry everybody, this is a gross hack ... we need to not use jquery on the shop since
-        # jquery is pretty old and crufty and PCI compliance etc, so we're just not going to include
-        # it here if we're on that domain
-        my $NO_JQUERY = 0;
-        if (   $LJ::DOMAIN_SHOP
-            && $LJ::DOMAIN_SHOP ne $LJ::DOMAIN_WEB
-            && $r->host eq $LJ::DOMAIN_SHOP )
-        {
-            $NO_JQUERY = 1;
-        }
-
-        # start with jquery core unless we've disabled it
-        LJ::need_res( { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
-            'js/jquery/jquery-1.8.3.js' )
-            unless $NO_JQUERY;
+    if ( DW::Request->get ) {
 
         # note that we're calling need_res and advising that these items
         # are the new style global items
         LJ::need_res(
             { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
+            'js/jquery/jquery-1.8.3.js',
             'js/foundation/vendor/custom.modernizr.js',
             'js/foundation/foundation/foundation.js',
             'js/foundation/foundation/foundation.topbar.js',
@@ -607,11 +604,8 @@ sub start_request {
 
         LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'jquery' },
             @ctx_popup_libraries );
-
-        # foundation only gets this sometimes
         LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'foundation' },
-            @ctx_popup_libraries )
-            unless $NO_JQUERY;
+            @ctx_popup_libraries );
 
         # development JS
         LJ::need_res(
@@ -633,6 +627,7 @@ sub start_request {
 #      true).
 # </LJFUNC>
 sub end_request {
+    LJ::work_report_end();
     LJ::flush_cleanup_handlers();
     LJ::DB::disconnect_dbs()       if $LJ::DISCONNECT_DBS;
     LJ::MemCache::disconnect_all() if $LJ::DISCONNECT_MEMCACHE;
@@ -648,6 +643,50 @@ sub flush_cleanup_handlers {
         next unless ref $ref eq 'CODE';
         $ref->();
     }
+}
+
+my $work_open = 0;
+sub work_report_start { $work_open = 1; work_report("start"); }
+sub work_report_end { return unless $work_open; work_report("end"); $work_open = 0; }
+
+# report before/after a request, so a supervisor process can watch for
+# hangs/spins
+my $udp_sock;
+
+sub work_report {
+    my $what = shift;
+    my $dest = $LJ::WORK_REPORT_HOST;
+    return unless $dest;
+
+    my $r = DW::Request->get;
+    return unless $r;
+    return if $r->method eq "OPTIONS";
+
+    $dest = $dest->() if ref $dest eq "CODE";
+    return unless $dest;
+
+    $udp_sock ||= IO::Socket::INET->new( Proto => "udp" );
+    return unless $udp_sock;
+
+    my ( $host, $port ) = split( /:/, $dest );
+    return unless $host && $port;
+
+    my @fields = ( $$, $what );
+    if ( $what eq "start" ) {
+        my $host = $r->host;
+        my $uri  = $r->uri;
+        my $args = $r->query_string;
+        $args = substr( $args, 0, 100 ) if length $args > 100;
+        push @fields, $host, $uri, $args;
+
+        my $remote = LJ::User->remote;
+        push @fields, $remote->{user} if $remote;
+    }
+
+    my $msg = join( ",", @fields );
+
+    my $dst = Socket::sockaddr_in( $port, Socket::inet_aton($host) );
+    my $rv  = $udp_sock->send( $msg, 0, $dst );
 }
 
 # <LJFUNC>
@@ -684,6 +723,79 @@ sub get_remote_ip {
 
     my $r = DW::Request->get;
     return ( $r ? $r->get_remote_ip : undef ) || $ENV{'FAKE_IP'};
+}
+
+sub md5_struct {
+    my ( $st, $md5 ) = @_;
+    $md5 ||= Digest::MD5->new;
+    unless ( ref $st ) {
+
+        # later Digest::MD5s die while trying to
+        # get at the bytes of an invalid utf-8 string.
+        # this really shouldn't come up, but when it
+        # does, we clear the utf8 flag on the string and retry.
+        # see http://zilla.livejournal.org/show_bug.cgi?id=851
+        eval { $md5->add($st); };
+        if ($@) {
+            $st = LJ::no_utf8_flag($st);
+            $md5->add($st);
+        }
+        return $md5;
+    }
+    if ( ref $st eq "HASH" ) {
+        foreach ( sort keys %$st ) {
+            md5_struct( $_,        $md5 );
+            md5_struct( $st->{$_}, $md5 );
+        }
+        return $md5;
+    }
+    if ( ref $st eq "ARRAY" ) {
+        foreach (@$st) {
+            md5_struct( $_, $md5 );
+        }
+        return $md5;
+    }
+}
+
+sub urandom {
+    my %args   = @_;
+    my $length = $args{size} or die 'Must Specify size';
+
+    my $result;
+    open my $fh, '<', '/dev/urandom' or die "Cannot open random: $!";
+    while ($length) {
+        my $chars;
+        $fh->read( $chars, $length ) or die "Cannot read /dev/urandom: $!";
+        $length -= length($chars);
+        $result .= $chars;
+    }
+    $fh->close;
+
+    return $result;
+}
+
+sub urandom_int {
+    my %args = @_;
+
+    return unpack( 'N', LJ::urandom( size => 4 ) );
+}
+
+my %RAND_CHARSETS = (
+    default     => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    urlsafe_b64 => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_",
+);
+
+sub rand_chars {
+    my ( $length, $charset ) = @_;
+    my $chal      = "";
+    my $digits    = $RAND_CHARSETS{ $charset || 'default' };
+    my $digit_len = length($digits);
+    die "Invalid charset $charset" unless $digits && ( $digit_len > 0 );
+
+    for ( 1 .. $length ) {
+        $chal .= substr( $digits, int( rand($digit_len) ), 1 );
+    }
+    return $chal;
 }
 
 # ($time, $secret) = LJ::get_secret();       # will generate
@@ -903,7 +1015,7 @@ sub is_enabled {
         my $remote = LJ::get_remote();
         return 1 if $remote && $remote->can_beta_payments;
     }
-    return !LJ::conf_test( $LJ::DISABLED{$conf}, @_ ) + 0;
+    return !LJ::conf_test( $LJ::DISABLED{$conf}, @_ );
 }
 
 # document valid arguments for certain privs (using hooks)

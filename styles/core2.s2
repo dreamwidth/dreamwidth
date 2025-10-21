@@ -280,13 +280,6 @@ class UserLink
     var readonly UserLink[] children "Not Implemented: An array of child UserLink objects.";
 }
 
-class SessionMsg
-"A site session message to show the user."
-{
-    var readonly string level "The message importance level";
-    var readonly string item "The text content of the message";
-}
-
 class UserLite
 "A 'lite' version of a [class[User]] which the system often has more readily-available than a full version."
 {
@@ -597,8 +590,6 @@ class Page
     "Extra tags supplied by the server to go in the <head> section of the output HTML document. Layouts
     should include this in the head section if they are writing HTML.";
 
-    var readonly bool is_canary "True if this page is being rendered on the canary server.";
-
     var readonly bool show_control_strip
     "Whether the control strip will be shown on the current page.";
 
@@ -631,8 +622,6 @@ class Page
 
     var Link{} data_link "Links to various machine-readable data sources relating to this page";
     var string[] data_links_order "An array of data views which can be used to order the data_link hash";
-
-    var SessionMsg[] session_msgs "An array of session messages to display at the top of the page";
 
     var readonly string customtext_title "Header of customtext module";
     var readonly string customtext_url "URL for header of customtext module";
@@ -1923,17 +1912,7 @@ property string[] module_navlinks_group {
 set module_navlinks_group = ["module_navlinks_show", "module_navlinks_order", "module_navlinks_section"];
 property bool module_navlinks_show { grouped = 1; }
 property int  module_navlinks_order { grouped = 1; }
-property string module_navlinks_section { 
-    grouped = 1; }
-
-# Looks silly and redundant, but necessary to have the 'Header' section show up properly in the customization wizard
-# without allowing *every* module to be put in the header
-property string module_navlinks_section_override {
-    values = "none|(none)|header|Header|one|Main Module Section|two|Secondary Module Section";
-    grouped = 1;
-}
-
-set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+property string module_navlinks_section { grouped = 1; }
 
 property string[] module_calendar_group {
     des = "Calendar";
@@ -4041,10 +4020,6 @@ function Page::print_wrapper_start(string{} opts)
     }
 
     """<body class="page-$.view $column_count$column_side $column_multiple $*layout_type $opts{"class"} $logged_in $owner $subscribed $access $community_options $control_strip">\n""";
-
-    if ( $.is_canary ) {
-        """<div class="canary canary-bottom-right"><span>canary</span></div>\n""";
-    }
 }
 
 function Page::print_wrapper_end()
@@ -4925,7 +4900,6 @@ function Page::print()
             <div id="header">
                 <div class="inner">
                     """;
-                    $this->print_module_section("header");
                     $this->print_header();
     """
                 </div><!-- end header>inner -->
@@ -4945,18 +4919,6 @@ function Page::print()
     """
                     <div id="primary"><div class="inner">
                         """;
-                        foreach var SessionMsg msg ($.session_msgs) {
-                            """
-                            <div class="radius session-msg-box $msg.level">
-                                <span class="invisible"><b>$msg.level:</b> </span>
-                            """;
-                            print safe """
-                                $msg.item
-                            """;
-                            """
-                            </div>
-                            """;
-                        }
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -5650,10 +5612,8 @@ function Entry::print_interaction_links(string target)
         if ($count > 0) {
             "</ul>";
         }
-    } elseif ($p.view == "read" or $p.view == "network") {
+    } elseif ($p.view == "read" or $p.view == "day" or $p.view == "recent" or $p.view == "network") {
         $this.comments->print($this, { "linktext" => $*text_post_comment_friends, "target" => $this.dom_id + "-reply" });
-    } elseif ($p.view == "day" or $p.view == "recent") {
-        $this.comments->print($this, { "linktext" => $*text_post_comment, "target" => $this.dom_id + "-reply" });
     } else {
         $this.comments->print();
     }

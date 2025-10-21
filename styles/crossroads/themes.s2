@@ -493,9 +493,9 @@ set color_module_title = "#fff";
 layerinfo type = "theme";
 layerinfo name = "Blue Lights";
 layerinfo redist_uniq = "crossroads/bluelights";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -750,9 +750,9 @@ set color_module_title = "#000";
 layerinfo type = "theme";
 layerinfo name = "Cloud Sounds";
 layerinfo redist_uniq = "crossroads/cloudsounds";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1284,9 +1284,9 @@ set color_module_title = "#a8286a";
 layerinfo type = "theme";
 layerinfo name = "Green Light";
 layerinfo redist_uniq = "crossroads/greenlight";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -1591,9 +1591,9 @@ set color_module_title = "#35372D";
 layerinfo type = "theme";
 layerinfo name = "Light in the Dark";
 layerinfo redist_uniq = "crossroads/lightinthedark";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2085,9 +2085,9 @@ set color_module_title = "#fff";
 layerinfo type = "theme";
 layerinfo name = "Orange Lights";
 layerinfo redist_uniq = "crossroads/orangelights";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -2451,9 +2451,9 @@ set color_module_title = "#890C43";
 layerinfo type = "theme";
 layerinfo name = "Pinked";
 layerinfo redist_uniq = "crossroads/pinked";
-layerinfo author_name = "krja";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "krja", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

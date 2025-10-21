@@ -71,7 +71,7 @@ $domaintosite{"ravelry.com"} =
 $domaintosite{"wordpress.com"} =
     DW::External::Site->new( "18", "wordpress.com", "wordpress.com", "Wordpress", "WP" );
 $domaintosite{"plurk.com"} =
-    DW::External::Site->new( "19", "www.plurk.com", "plurk.com", "Plurk", "Plurk" );
+    DW::External::Site->new( "19", "plurk.com", "plurk.com", "Plurk", "Plurk" );
 $domaintosite{"pinboard.in"} =
     DW::External::Site->new( "20", "www.pinboard.in", "pinboard.in", "Pinboard", "Pinboard" );
 $domaintosite{"fanfiction.net"} =
@@ -99,19 +99,6 @@ $domaintosite{"instagram.com"} =
     DW::External::Site->new( "29", "www.instagram.com", "instagram.com", "Instagram", "instagram" );
 $domaintosite{"del.icio.us"} =
     DW::External::Site->new( "30", "del.icio.us", "del.icio.us", "Delicious", "delicious" );
-$domaintosite{"substack.com"} =
-    DW::External::Site->new( "31", "substack.com", "substack.com", "Substack", "substack" );
-
-$domaintosite{"itch.io"} =
-    DW::External::Site->new( "32", "www.itch.io", "itch.io", "Itch", "itch" );
-
-$domaintosite{"furaffinity.com"} =
-    DW::External::Site->new( "33", "www.furaffinity.com", "furaffinity.com", "FurAffinity", "fa" );
-$domaintosite{"artstation.com"} =
-    DW::External::Site->new( "33", "www.artstation.com", "artstation.com", "ArtStation",
-    "artstation" );
-$domaintosite{"ko-fi.com"} =
-    DW::External::Site->new( "34", "www.ko-fi.com", "ko-fi.com", "Kofi", "kofi" );
 
 @all_sites_without_alias = values %domaintosite;
 
@@ -158,11 +145,6 @@ $domaintosite{"facebook"}        = $domaintosite{"facebook.com"};
 $domaintosite{"fb"}              = $domaintosite{"facebook.com"};
 $domaintosite{"instagram"}       = $domaintosite{"instagram.com"};
 $domaintosite{"ig"}              = $domaintosite{"instagram.com"};
-$domaintosite{"fa"}              = $domaintosite{"furaffinity.com"};
-$domaintosite{"artstation"}      = $domaintosite{"artstation.com"};
-$domaintosite{"substack"}        = $domaintosite{"substack.com"};
-$domaintosite{"itch"}            = $domaintosite{"itch.io"};
-$domaintosite{"kofi"}            = $domaintosite{"ko-fi.com"};
 
 foreach my $value (@all_sites_without_alias) {
     $idtosite{ $value->{siteid} } = $value;
@@ -272,7 +254,7 @@ sub journal_url {
     # AND YOU WILL SEE WHAT INFINITE RECURSION LOOKS LIKE.
 
     # override this on a site-by-site basis if needed
-    return "https://$self->{hostname}/users/" . $u->user . '/';
+    return "http://$self->{hostname}/users/" . $u->user . '/';
 }
 
 # returns an entry link for this user on this site.

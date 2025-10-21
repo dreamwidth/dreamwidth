@@ -318,21 +318,6 @@ sub _extract_num_unit {
     return ( $num, "%" );
 }
 
-sub _extract_style_keyvals {
-    my $style_arg = $_[0];
-    return unless $style_arg;
-
-    my @stylevals = grep { $_ } map { LJ::trim($_) } split /;/, $style_arg;
-    return unless @stylevals;
-
-    my %styles;
-    foreach my $s (@stylevals) {
-        my ( $key, $val ) = split /\s*:\s*/, $s;
-        $styles{$key} = $val;
-    }
-    return %styles;
-}
-
 # Returns a hash of link text, url
 # Provides the fallback link text for when host API has not been contacted for title
 # Currently handles: YouTube, Vimeo
@@ -577,33 +562,7 @@ sub module_iframe_tag {
                     }
                 }
 
-                # parse the style attribute for width and height
-                if ( my %style = _extract_style_keyvals( $attr->{style} ) ) {
-                    if ( $style{width} && !$width ) {
-                        my ( $style_width, $style_width_unit ) =
-                            ( $style{width} =~ /^(\d+)(.*)/ );
-                        if ($style_width) {
-                            $style_width_unit = "%"
-                                if $style_width_unit && $style_width_unit =~ /^%/;
-                            $style_width_unit = "" if $style_width_unit && $style_width_unit ne "%";
-                            $width            = $style_width;
-                            $width_unit       = $style_width_unit;
-                        }
-                    }
-
-                    if ( $style{height} && !$height ) {
-                        my ( $style_height, $style_height_unit ) =
-                            ( $style{height} =~ /^(\d+)(.*)/ );
-                        if ($style_height) {
-                            $style_height_unit = "%"
-                                if $style_height_unit && $style_height_unit =~ /^%/;
-                            $style_height_unit = ""
-                                if $style_height_unit && $style_height_unit ne "%";
-                            $height      = $style_height;
-                            $height_unit = $style_height_unit;
-                        }
-                    }
-                }
+                my $flashvars = $attr->{flashvars};
 
                 if ( $embeddable_tags{$tag} ) {
                     my $src;
@@ -683,7 +642,7 @@ sub module_iframe_tag {
 qq{//$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&preview=$preview&auth_token=$auth_token};
     my $iframe_tag =
 qq {<div class="lj_embedcontent-wrapper" style="$wrapper_style"><div class="lj_embedcontent-ratio" style="$ratio_style"><iframe src="$iframe_link"}
-        . qq{ width="$width$width_unit" height="$height$height_unit" allowtransparency="true" frameborder="0" allowfullscreen="true"}
+        . qq{ width="$width$width_unit" height="$height$height_unit" allowtransparency="true" frameborder="0"}
         . qq{ class="lj_embedcontent" id="$id" name="$name"></iframe></div></div>}
         . qq{$direct_link};
 
@@ -700,7 +659,7 @@ qq {<div class="lj_embedcontent-wrapper" style="$wrapper_style"><div class="lj_e
     # tag and it's whitelisted video.
     my $r    = DW::Request->get;
     my $view = $r ? $r->note("view") : '';
-    if ( !$placeholder_prop && $view && $view eq 'friends' ) {
+    if ( !$placeholder_prop && $view eq 'friends' ) {
 
         # show placeholder if this is not whitelisted video
         $do_placeholder = 1 if $no_whitelist;

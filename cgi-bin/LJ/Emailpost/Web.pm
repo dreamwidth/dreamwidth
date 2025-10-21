@@ -19,7 +19,7 @@ use strict;
 
 # Retrieves an allowed email addr list for a given user object.
 # Returns a hashref with addresses / flags.
-# Used for ljemailgateway and manage/emailpost
+# Used for ljemailgateway and manage/emailpost.bml
 sub get_allowed_senders {
     my ( $u, $include_user_email ) = @_;
     return undef unless LJ::isu($u);
@@ -48,7 +48,7 @@ sub get_allowed_senders {
 
 # Inserts email addresses into the database.
 # Adds flags if needed.
-# Used in manage/emailpost
+# Used in manage/emailpost.bml
 #  $addr is hashref of { $email_address -> {$flag -> 1} } where possible values of $flag
 #  currently include only 'get_errors', to receive errors at that email address
 sub set_allowed_senders {

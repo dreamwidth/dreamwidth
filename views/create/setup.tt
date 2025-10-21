@@ -62,11 +62,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class="row">
 [%- INCLUDE components/error.tt error_name='interests' -%]
-[%- INCLUDE interests type='music' examples='beyonce, kpop, queen' -%]
-[%- INCLUDE interests type='moviestv' examples='game of thrones, marvel, star wars' -%]
-[%- INCLUDE interests type='books' examples='discworld, lord of the rings, jane austen' -%]
-[%- INCLUDE interests type='hobbies' examples='knitting, gaming, gardening' -%]
-[%- INCLUDE interests type='other' examples='folklore, linguistics, tarot' -%]
+[%- INCLUDE interests type='music'      examples='the beatles, kanye west, metal' -%]
+[%- INCLUDE interests type='moviestv'   examples='lost, brad pitt, real world' -%]
+[%- INCLUDE interests type='books'      examples='fiction, david sedaris, harry potter' -%]
+[%- INCLUDE interests type='hobbies'    examples='snowboarding, painting, making music' -%]
+[%- INCLUDE interests type='other'      examples='whiskers on kittens, motocross racing' -%]
 </div>
 
 </fieldset>

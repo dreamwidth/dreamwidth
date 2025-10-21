@@ -35,6 +35,7 @@ sub render_body {
 
     my $dbr = LJ::get_db_reader();
     my $sth;
+    my $ret;
 
     # prep the stats we're interested in using here
 
@@ -43,16 +44,24 @@ sub render_body {
     );
     $sth->execute;
 
+    $ret .= "<h2>" . $class->ml('widget.comms.recentcreate') . "</h2>";
+    $ret .= "<ul>";
+
+    # build the list
+
+    my $ct;
     my $targetu;
-    my @rowdata;
 
     while ( my ( $iuser, $iname, $itime ) = $sth->fetchrow_array ) {
         $targetu = LJ::load_user($iuser);
-        push @rowdata, { user => $targetu, name => $iname, time => $itime };
+        $ret .= "<li>" . $targetu->ljuser_display . ": " . $iname . ", " . $itime . "</li>\n";
+        $ct++;
     }
 
-    return DW::Template->template_string( 'widget/comms.tt',
-        { title => 'widget.comms.recentcreate', rowdata => \@rowdata } );
+    $ret .= "<li><em> " . BML::ml('widget.comms.notavailable') . "</em></li>" unless $ct;
+    $ret .= "</ul>\n";
+
+    return $ret;
 }
 
 1;

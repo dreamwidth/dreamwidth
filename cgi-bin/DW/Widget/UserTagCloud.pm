@@ -18,7 +18,6 @@ package DW::Widget::UserTagCloud;
 
 use strict;
 use base qw/ LJ::Widget /;
-use DW::Template;
 
 sub render_body {
     my ( $class, %opts ) = @_;
@@ -30,6 +29,7 @@ sub render_body {
     return "" unless $tags;
 
     my $limit = $opts{limit} || 10;
+    my $ret   = "<h2>" . $class->ml('widget.usertagcloud.title') . "</h2>";
 
     my @by_size = sort { $tags->{$b}->{uses} <=> $tags->{$a}->{uses} } keys %$tags;
     @by_size = splice @by_size, 0, $limit;
@@ -45,8 +45,7 @@ sub render_body {
         };
     }
 
-    my $tagcloud = LJ::tag_cloud($tag_items);
-    my $ret = DW::Template->template_string( 'widget/usertagcloud.tt', { tagcloud => $tagcloud } );
+    $ret .= LJ::tag_cloud($tag_items);
 
     LJ::warn_for_perl_utf8($ret);
     return $ret;

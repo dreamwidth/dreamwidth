@@ -1,0 +1,12 @@
+.commname .ljuser,
+.searchusername .ljuser,
+.findandmodify,
+.matches,
+.commname,
+.interestinfo {
+    font-size: 12px;
+}
+
+.lastupdated {
+    color: #666;
+}

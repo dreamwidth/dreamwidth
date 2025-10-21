@@ -115,7 +115,7 @@ sub get_menu_navigation {
             items => [
                 {
                     url     => "$LJ::SITEROOT/manage/settings/",
-                    text    => "menunav.organize.acctsettings",
+                    text    => "menunav.organize.manageaccount",
                     display => $loggedin,
                 },
                 {
@@ -150,12 +150,12 @@ sub get_menu_navigation {
                 },
                 {
                     url     => "$LJ::SITEROOT/customize/",
-                    text    => "menunav.organize.selectjournalstyle",
+                    text    => "menunav.organize.selectstyle",
                     display => $loggedin,
                 },
                 {
                     url     => "$LJ::SITEROOT/customize/options",
-                    text    => "menunav.organize.customizejournalstyle",
+                    text    => "menunav.organize.customizestyle",
                     display => $loggedin,
                 },
                 {
@@ -263,28 +263,28 @@ sub get_menu_navigation {
             name  => 'shop',
             items => [
                 {
-                    url       => "$LJ::SHOPROOT",
+                    url       => "$LJ::SITEROOT/shop",
                     text      => "menunav.shop.paidtime2",
                     text_opts => { sitenameshort => $LJ::SITENAMESHORT },
                     display   => LJ::is_enabled('payments') ? 1 : 0,
                 },
                 {
-                    url     => "$LJ::SHOPROOT/history",
+                    url     => "$LJ::SITEROOT/shop/history",
                     text    => "menunav.shop.history",
                     display => LJ::is_enabled('payments') && $loggedin ? 1 : 0,
                 },
                 {
-                    url     => "$LJ::SHOPROOT/gifts",
+                    url     => "$LJ::SITEROOT/shop/gifts",
                     text    => "menunav.shop.gifts",
                     display => LJ::is_enabled('payments') && $loggedin ? 1 : 0,
                 },
                 {
-                    url     => "$LJ::SHOPROOT/randomgift",
+                    url     => "$LJ::SITEROOT/shop/randomgift",
                     text    => "menunav.shop.sponsor",
                     display => LJ::is_enabled('payments') ? 1 : 0,
                 },
                 {
-                    url     => "$LJ::SHOPROOT/transferpoints",
+                    url     => "$LJ::SITEROOT/shop/transferpoints",
                     text    => "menunav.shop.transferpoints",
                     display => LJ::is_enabled('payments') && $loggedin_person ? 1 : 0,
                 },

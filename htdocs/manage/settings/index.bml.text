@@ -178,9 +178,9 @@
 
 .title=Viewing Options
 
-.title.anon=Account Settings
+.title.comm=[[user]]'s Account Settings
 
-.title.page=Account Settings for [[user]]
+.title.self=My Account Settings
 
 .user=View notifications for user:
 

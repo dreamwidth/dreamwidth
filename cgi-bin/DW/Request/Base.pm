@@ -82,10 +82,6 @@ sub add_cookie {
     confess "Must provide value (try delete_cookie if you really mean this)"
         unless exists $args{value};
 
-    # if the domain is just '.', remove it since that means 'current domain'.
-    # this is primarily needed for devcontainer since that uses localhost.
-    delete $args{domain} if $args{domain} eq '.';
-
     # we need to give all cookies the secure attribute on HTTPS sites
     if ( $LJ::PROTOCOL eq "https" ) {
         $args{secure} = 1;
@@ -318,18 +314,6 @@ sub add_msg {
     LJ::MemCache::set( $msgkey, $msgs ) if $msgkey;
     $self->{msgs} = $msgs;
     return 1;
-}
-
-# Add a session message and redirect. This is a helper
-# method that wraps add_msg and redirect in one call.
-sub msg_redirect {
-    my DW::Request $self = $_[0];
-    my $msg              = $_[1];
-    my $level            = $_[2];
-    my $location         = $_[3];
-
-    $self->add_msg( $msg, $level );
-    return $self->redirect($location);
 }
 
 # indicates that this request has been handled
