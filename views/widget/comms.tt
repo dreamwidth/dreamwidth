@@ -1,0 +1,10 @@
+<h2>[% dw.ml(title) %]</h2>
+<ul>
+[% IF rowdata.length > 0 %]
+    [% FOREACH row IN rowdata %]
+    <li>[% row.user.ljuser_display %]: [% row.name %], [% row.time %]</li>
+    [% END %]
+[% ELSE %]
+    <li><em>[% dw.ml('widget.comms.notavailable') %]</em></li>
+[% END %]
+</ul>
