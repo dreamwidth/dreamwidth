@@ -223,7 +223,7 @@ sub RecentPage {
 
     $opts->{cut_disable} = ( $remote && $remote->prop('opt_cut_disable_journal') );
 
-    my $sticky_entries = $u->sticky_entries_lookup;
+    my $sticky_entries = { map { $_ => 1 } $u->sticky_entry_active_ids };
 
 ENTRY:
     foreach my $item (@items) {
