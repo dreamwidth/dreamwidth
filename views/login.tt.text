@@ -11,23 +11,57 @@
 
 .createaccount.whylogin.benefit4=Add any journal or community to your Reading page.
 
-.createaccount.whylogin.benefit5=Access features that are only visible when you're logged in.
+.createaccount.whylogin.benefit5=Use features that are only visible when you're logged in.
 
-.login.btn.login=Log in
+.error.notuser=This account name was not found.  Would you like to <a [[aopts]]>create an account</a> using this account name?
 
-.login.forget=Forgot password?
+.loggedin.continueto=Continue to [[continue_url]]
+
+.loggedin.head2=Welcome back to [[sitename]]!
+
+.loggedin.openidemail=Please <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address to begin.
+
+.loggedin.suggest1=You can easily add a photo.
+
+.loggedin.suggest2=Read the latest additions to the journals, communities, and feeds you're subscribed to.
+
+.loggedin.suggest4=Customize your [[siteabbrev]] experience.
+
+.loggedin.suggesthead1=Post to your Journal
+
+.loggedin.suggesthead2=View your Reading Page
+
+.loggedin.suggesthead3=My [[siteabbrev]]
+
+.loggedin.text2=You're logged in as [[username]]. From here you can:
 
 .login.header=Log in to [[sitename]]
 
-.login.openid.example=For example: <tt>melody.someblog.com</tt> (if your host supports OpenID)
+.login.autologin=Log in automatically on this computer
 
-.login.openid.header=Log in with OpenID
+.login.bindcookie=Bind cookie to IP address
 
-.login.openid.submit=Login
+.login.bindcookie.learnmore=Learn more about this option
 
-.login.openid.url=Your OpenID URL:
+.login.btn.login=Log in
 
-.login.password=Password:
+.login.btn.save=Save
+
+.login.changelog=Change login options
+
+.login.expiration=Expiration:
+
+.login.forget2=Forgot your password?
+
+.login.head=Log in
+
+.login.openid=Log in with OpenID
+
+.login.optionssaved=Login options saved.
+
+.login.otheropts=Other Options:
+
+.login.password=Password
 
 .login.remember=Remember me
 
@@ -35,5 +69,14 @@
 
 .login.standard=Standard
 
-.login.username=Account name:
+.login.title=Log in
 
+.login.username=Username
+
+.login.welcome=Welcome to [[sitename]]!
+
+.logout.btn1=Log out
+
+.login.dbreadonly=The database is temporarily in read-only mode, so creating new login sessions is temporarily down.  Please try again later.
+
+.login.tempfailban=Your IP address is temporarily banned for exceeding the login failure rate.
