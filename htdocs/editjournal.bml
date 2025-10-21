@@ -107,7 +107,12 @@ body<=
             my $entry = LJ::Entry->new($journal_u, ditemid => $ditemid);
             if ($entry && $entry->valid && $entry->visible_to($remote)) {
                 my $event = $entry->event_html_summary(300);
-                $ret .= $event if defined $event && length $event;
+                if ( defined $event && length $event ) {
+                    $ret .= $event;
+                }
+                else {
+                    $ret .= $ML{'.htmlonly'};
+                }
             }
 
             $ret .= "</td></tr></table>\n";
