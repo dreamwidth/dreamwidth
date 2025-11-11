@@ -31,10 +31,24 @@ on:
         - esn-filter-subs
         - esn-fired-event
         - esn-process-sub
+        - expunge-users
+        - import-eraser
+        - import-scheduler
+        - incoming-email
+        - latest-feed
+        - lazy-cleanup
+        - paidstatus
+        - process-privacy
         - resolve-extacct
+        - schedule-synsuck
+        - search-constraints
+        - search-lookup
+        - search-updater
+        - shop-creditcard-charge
         - spellcheck-gm
         - sphinx-copier
         - sphinx-search-gm
+        - support-notify
         - synsuck
       tag:
         type: string
@@ -235,12 +249,129 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
+      - name: (expunge-users) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'expunge-users'
+        id: render-worker-container-expunge-users
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-expunge-users-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (import-eraser) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'import-eraser'
+        id: render-worker-container-import-eraser
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-import-eraser-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (import-scheduler) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'import-scheduler'
+        id: render-worker-container-import-scheduler
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-import-scheduler-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (incoming-email) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'incoming-email'
+        id: render-worker-container-incoming-email
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-incoming-email-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (latest-feed) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'latest-feed'
+        id: render-worker-container-latest-feed
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-latest-feed-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (lazy-cleanup) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'lazy-cleanup'
+        id: render-worker-container-lazy-cleanup
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-lazy-cleanup-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (paidstatus) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'paidstatus'
+        id: render-worker-container-paidstatus
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-paidstatus-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (process-privacy) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'process-privacy'
+        id: render-worker-container-process-privacy
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-process-privacy-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
       - name: (resolve-extacct) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'resolve-extacct'
         id: render-worker-container-resolve-extacct
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-resolve-extacct-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (schedule-synsuck) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'schedule-synsuck'
+        id: render-worker-container-schedule-synsuck
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-schedule-synsuck-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (search-constraints) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-constraints'
+        id: render-worker-container-search-constraints
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-search-constraints-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (search-lookup) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-lookup'
+        id: render-worker-container-search-lookup
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-search-lookup-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (search-updater) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-updater'
+        id: render-worker-container-search-updater
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-search-updater-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (shop-creditcard-charge) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'shop-creditcard-charge'
+        id: render-worker-container-shop-creditcard-charge
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-shop-creditcard-charge-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -268,6 +399,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-sphinx-search-gm-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (support-notify) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'support-notify'
+        id: render-worker-container-support-notify
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-support-notify-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -432,6 +572,70 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-esn-process-sub-service"
 
+      - name: (expunge-users) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'expunge-users'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-expunge-users.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-expunge-users-service"
+
+      - name: (import-eraser) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'import-eraser'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-import-eraser.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-import-eraser-service"
+
+      - name: (import-scheduler) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'import-scheduler'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-import-scheduler.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-import-scheduler-service"
+
+      - name: (incoming-email) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'incoming-email'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-incoming-email.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-incoming-email-service"
+
+      - name: (latest-feed) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'latest-feed'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-latest-feed.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-latest-feed-service"
+
+      - name: (lazy-cleanup) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'lazy-cleanup'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-lazy-cleanup.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-lazy-cleanup-service"
+
+      - name: (paidstatus) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'paidstatus'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-paidstatus.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-paidstatus-service"
+
+      - name: (process-privacy) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'process-privacy'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-process-privacy.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-process-privacy-service"
+
       - name: (resolve-extacct) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'resolve-extacct'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -439,6 +643,46 @@ jobs:
           task-definition: ${{ steps.render-worker-container-resolve-extacct.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-resolve-extacct-service"
+
+      - name: (schedule-synsuck) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'schedule-synsuck'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-schedule-synsuck.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-schedule-synsuck-service"
+
+      - name: (search-constraints) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-constraints'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-search-constraints.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-search-constraints-service"
+
+      - name: (search-lookup) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-lookup'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-search-lookup.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-search-lookup-service"
+
+      - name: (search-updater) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-updater'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-search-updater.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-search-updater-service"
+
+      - name: (shop-creditcard-charge) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'shop-creditcard-charge'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-shop-creditcard-charge.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-shop-creditcard-charge-service"
 
       - name: (spellcheck-gm) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'spellcheck-gm'
@@ -463,6 +707,14 @@ jobs:
           task-definition: ${{ steps.render-worker-container-sphinx-search-gm.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-sphinx-search-gm-service"
+
+      - name: (support-notify) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'support-notify'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-support-notify.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-support-notify-service"
 
       - name: (synsuck) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'synsuck'

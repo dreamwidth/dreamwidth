@@ -125,6 +125,7 @@ sub create_handler {
             $errors->add( 'password2', 'widget.createaccount.error.password.nomatch' );
         }
         elsif ( !$LJ::IS_DEV_SERVER ) {
+
             # Dev servers can use any password
             my $checkpass = LJ::CreatePage->verify_password(
                 password => $post->{password1},
@@ -142,7 +143,7 @@ sub create_handler {
         my $dbh = LJ::get_db_writer();
 
         my $uniq;
-        my $is_underage = 0;
+        my $is_underage    = 0;
         my $is_tn_underage = 0;
 
         $uniq = $r->note('uniq');
@@ -165,7 +166,7 @@ sub create_handler {
         if ( $year && $mon && $day && $year >= 1900 && $year < $nyear ) {
             my $age = LJ::calc_age( $year, $mon, $day );
             $is_underage = 1 if $age < 13;
-            
+
             # TN underage check - if user is in TN and under 18
             if ( $post->{tn_state} eq '1' && $age < 18 ) {
                 $is_tn_underage = 1;
@@ -182,9 +183,10 @@ sub create_handler {
         }
 
         # Add appropriate error messages
-        if ( $is_tn_underage ) {
+        if ($is_tn_underage) {
             $errors->add( 'tn_state', 'widget.createaccount.error.tn_underage' );
-        } elsif ( $is_underage ) {
+        }
+        elsif ($is_underage) {
             $errors->add( 'birthdate', 'widget.createaccount.error.birthdate.underage' );
         }
 

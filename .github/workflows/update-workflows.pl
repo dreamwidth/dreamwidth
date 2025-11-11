@@ -59,6 +59,27 @@ my %workers = (
     'sphinx-search-gm'   => [ 1, 1,  512, 256, 50, ],
     'synsuck'            => [ 1, 20, 512, 256, 50, ],
 
+    # Workers to replace admin/angel configs
+    'paidstatus'             => [ 1, 1, 512, 256, 50, ],
+    'import-scheduler'       => [ 1, 1, 512, 256, 50, ],
+    'schedule-synsuck'       => [ 1, 1, 512, 256, 50, ],
+    'search-updater'         => [ 1, 1, 512, 256, 50, ],
+    'latest-feed'            => [ 1, 1, 512, 256, 50, ],
+    'expunge-users'          => [ 1, 1, 512, 256, 50, ],
+    'shop-creditcard-charge' => [ 1, 1, 512, 256, 50, ],
+    'incoming-email'         => [ 1, 1, 512, 256, 50, ],
+    'process-privacy'        => [ 1, 1, 512, 256, 50, ],
+    'import-eraser'          => [ 1, 1, 512, 256, 50, ],
+    'search-constraints'     => [ 1, 1, 512, 256, 50, ],
+    'support-notify'         => [ 1, 1, 512, 256, 50, ],
+    'lazy-cleanup'           => [ 1, 1, 512, 256, 50, ],
+    'search-lookup'          => [ 1, 1, 512, 256, 50, ],
+
+    # Remaining admin workers
+    #bin/ddlockd
+    #xpost
+    #/home/dw/ghi-env/bin/python bin/server.py
+
     # Misc site utilities
     'codebuild-notifier' => [ 1, 1, 512, 256, 50, ],
 
