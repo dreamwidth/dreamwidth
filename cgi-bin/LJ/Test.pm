@@ -246,7 +246,7 @@ sub incr {
     my $key = _key($fkey);
     return 0 unless exists $self->{data}{$key};
     $self->{data}{$key} += $optval;
-    return 1;
+    return $self->{data}{$key};
 }
 
 sub decr {
