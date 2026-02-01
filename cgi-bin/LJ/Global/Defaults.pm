@@ -268,11 +268,22 @@ no strict "vars";
         #'DE' => { type => 'statede', save_region_code => 0, },
     );
 
-    $SUBDOMAIN_RULES = {
-        P => [ 1, "users.$LJ::DOMAIN" ],
-        Y => [ 1, "syndicated.$LJ::DOMAIN" ],
-        C => [ 1, "community.$LJ::DOMAIN" ],
-    };
+    if ( $IS_DEV_SERVER && $IS_DEV_CONTAINER ) {
+
+        # Dev container: use path-based journal URLs (/~username)
+        $SUBDOMAIN_RULES = {
+            P => [ 0, "" ],
+            Y => [ 0, "" ],
+            C => [ 0, "" ],
+        };
+    }
+    else {
+        $SUBDOMAIN_RULES = {
+            P => [ 1, "users.$LJ::DOMAIN" ],
+            Y => [ 1, "syndicated.$LJ::DOMAIN" ],
+            C => [ 1, "community.$LJ::DOMAIN" ],
+        };
+    }
 
     $LJ::USERSEARCH_METAFILE_PATH ||= "$HOME/var/usersearch.data";
 

@@ -1405,6 +1405,14 @@ sub journal_base {
         $user =~ s/_/-/g;
         return "$LJ::PROTOCOL://$user.$LJ::DOMAIN";
     }
+    elsif ( !$rule->[1] && $LJ::IS_DEV_SERVER ) {
+
+        # Dev container: path-based URLs from request host
+        my $host = 'localhost';
+        my $r    = eval { DW::Request->get };
+        $host = $r->host if $r;
+        return "$LJ::PROTOCOL://$host/~$user";
+    }
     else {
         return "$LJ::PROTOCOL://$rule->[1]/$user";
     }
