@@ -69,7 +69,7 @@ no strict "vars";
         $USER_DOMAIN       = "";
         $DOMAIN_WEB        = "";
         $SITEROOT          = "";
-        $SHOPROOT          = "";
+        $SHOPROOT          = "/shop";
         $RELATIVE_SITEROOT = "";
         $COOKIE_DOMAIN     = "";
     }
