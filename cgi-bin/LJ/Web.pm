@@ -165,7 +165,7 @@ sub valid_stylesheet_url {
         || $href =~ /^\Q$LJ::STATPREFIX\E/;
 
     # S2 stylesheets:
-    return 1 if $path =~ m!^(/\w+)?/res/(\d+)/stylesheet(\?\d+)?$!;
+    return 1 if $path =~ m!^(/~\w+|/users/\w+|/\w+)?/res/(\d+)/stylesheet(\?\d+)?$!;
 
     # unknown, reject.
     return $cleanit->();

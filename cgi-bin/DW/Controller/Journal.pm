@@ -70,7 +70,7 @@ sub determine_view {
             or return 404;
 
         $ljentry = LJ::Entry->new( $u, ditemid => $1 );
-        if ( $GET{'mode'} eq "reply" || $GET{'replyto'} || $GET{'edit'} ) {
+        if ( ( $GET{'mode'} // '' ) eq "reply" || $GET{'replyto'} || $GET{'edit'} ) {
             $mode = "reply";
         }
         else {
@@ -90,7 +90,7 @@ sub determine_view {
             return 404 unless $dt eq $date;
         }
 
-        if ( $GET{'mode'} eq "reply" || $GET{'replyto'} || $GET{'edit'} ) {
+        if ( ( $GET{'mode'} // '' ) eq "reply" || $GET{'replyto'} || $GET{'edit'} ) {
             $mode = "reply";
         }
         else {
@@ -129,7 +129,7 @@ sub determine_view {
         $uuri =~ m!
              /([a-z\_]+)?           # optional /<viewname>
              (.*)                   # path extra
-             !x && ( $1 eq "" || defined $LJ::viewinfo{$1} )
+             !x && ( ( $1 // '' ) eq "" || defined $LJ::viewinfo{ $1 // '' } )
         )
     {
         ( $mode, $pe ) = ( $1, $2 );
@@ -242,7 +242,7 @@ sub render {
     # Handle special modes that redirect away
     if ( $mode eq "info" ) {
         $u or return 404;
-        my $m = $GET{mode} eq 'full' ? '?mode=full' : '';
+        my $m = ( $GET{mode} // '' ) eq 'full' ? '?mode=full' : '';
         return $r->redirect( $u->profile_url . $m );
     }
 
@@ -298,7 +298,7 @@ sub render {
         'vhost'     => 'users',
         'pathextra' => $pe,
         'header'    => {
-            'If-Modified-Since' => $r->header_in("If-Modified-Since"),
+            'If-Modified-Since' => $r->header_in("If-Modified-Since") // '',
         },
         'handle_with_siteviews_ref' => \$handle_with_siteviews,
         'siteviews_extra_content'   => {},

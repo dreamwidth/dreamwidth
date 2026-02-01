@@ -25,6 +25,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use DW::Request::Base;
 use base 'DW::Request::Base';
 
+use HTTP::Date ();
 use Plack::Request;
 use Plack::Response;
 use URI;
@@ -96,6 +97,30 @@ sub header_out_add {
 }
 
 *err_header_out_add = \&header_out_add;
+
+sub set_last_modified {
+    my DW::Request::Plack $self = $_[0];
+    my $mtime = $_[1];
+    $self->{res}->headers->header( 'Last-Modified' => HTTP::Date::time2str($mtime) );
+}
+
+sub meets_conditions {
+    my DW::Request::Plack $self = $_[0];
+
+    my $ims = $self->{req}->header('If-Modified-Since');
+    return 0 unless $ims;    # 0 = OK, proceed normally
+
+    my $lm = $self->{res}->headers->header('Last-Modified');
+    return 0 unless $lm;
+
+    my $ims_time = HTTP::Date::str2time($ims);
+    my $lm_time  = HTTP::Date::str2time($lm);
+    return 0 unless defined $ims_time && defined $lm_time;
+
+    # If not modified, return 304
+    return 304 if $lm_time <= $ims_time;
+    return 0;
+}
 
 # incoming headers, from request
 sub header_in {

@@ -519,7 +519,7 @@ sub check_depth {
     my %seen;
     while (1) {
         my ($pkg, $filename, $line) = caller($i++);
-        return if ! $pkg || ! $line;
+        return unless defined $pkg && defined $filename && defined $line;
         if (++$seen{"$filename:$line"} >= $max_recursion) {
             die "Excessive recursion detected and stopped.\n";
         }
