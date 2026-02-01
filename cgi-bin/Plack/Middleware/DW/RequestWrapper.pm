@@ -32,7 +32,6 @@ sub call {
     # Request setup -- TODO: all this per-request caching that happens in the LJ namespace
     # should really be excised and moved into the DW::Request object
     LJ::start_request();
-    LJ::Procnotify::check();
 
     # Standardize into a DW::Request module
     my $r = DW::Request->get( plack_env => $env );

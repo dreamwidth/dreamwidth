@@ -56,12 +56,15 @@ my $app = sub {
     # of systems ourselves.
     my $uri = $r->path;
     $log->debug( 'Routing for URI: ', $uri );
-    if ( $uri =~ qr!^/api/v\d+/! ) {
-        DW::Routing->call( uri => $uri );
-    }
+    my $ret = DW::Routing->call( uri => $uri );
 
-    # Ensure we always have a status set; default to 404 if nothing handled the request
-    $r->status(404) unless $r->status;
+    # If routing returned OK (0), default status to 200; otherwise 404
+    if ( defined $ret && $ret == 0 ) {
+        $r->status(200) unless $r->status;
+    }
+    else {
+        $r->status(404) unless $r->status;
+    }
 
     return $r->res;
 };

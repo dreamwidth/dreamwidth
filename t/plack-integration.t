@@ -48,9 +48,6 @@ die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE'
 {
     no warnings 'redefine';
 
-    # Stub out request lifecycle functions that require full server environment
-    *LJ::Procnotify::check = sub { };
-
     *DW::Routing::call = sub {
         my ( $class, %args ) = @_;
         my $uri = $args{uri} || '';

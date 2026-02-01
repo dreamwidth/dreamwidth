@@ -29,14 +29,14 @@ use Plack::Request;
 use Plack::Response;
 use URI;
 
-use fields ( 'env', 'req', 'req_addr', 'res', 'res_body', 'res_length' );
+use fields ( 'env', 'req', 'req_addr', 'res', 'res_body', 'res_length', 'notes', 'pnotes' );
 
 $DW::Request::PLACK_AVAILABLE = 1;
 
 BEGIN {
     # Do initialization for pass-throughs that will go to the Plack::Request
     # object inside
-    foreach my $method (qw/ uri method content_type query_string /) {
+    foreach my $method (qw/ uri method query_string /) {
         no strict 'refs';
         *{"DW::Request::Plack::$method"} = sub {
             my DW::Request::Plack $self = shift;
@@ -161,6 +161,57 @@ sub uri_for {
     $uri->path( $uri->path . $path );
     $uri->query_form(@$args) if %$args;
     return $uri;
+}
+
+# content_type: getter reads from request, setter sets on response
+sub content_type {
+    my DW::Request::Plack $self = $_[0];
+    if ( scalar @_ >= 2 ) {
+        return $self->{res}->content_type( $_[1] );
+    }
+    return $self->{req}->content_type;
+}
+
+# content: return raw request body
+sub content {
+    my DW::Request::Plack $self = $_[0];
+    return $self->{req}->content;
+}
+
+# pnote: per-request notes hash (used by routing)
+sub pnote {
+    my DW::Request::Plack $self = $_[0];
+    if ( scalar(@_) == 2 ) {
+        return $self->{pnotes}->{ $_[1] };
+    }
+    else {
+        return $self->{pnotes}->{ $_[1] } = $_[2];
+    }
+}
+
+# note: per-request notes hash (separate from pnotes)
+sub note {
+    my DW::Request::Plack $self = $_[0];
+    if ( scalar(@_) == 2 ) {
+        return $self->{notes}->{ $_[1] };
+    }
+    else {
+        return $self->{notes}->{ $_[1] } = $_[2];
+    }
+}
+
+# no_cache: set cache-control headers to prevent caching
+sub no_cache {
+    my DW::Request::Plack $self = $_[0];
+    $self->{res}->header( 'Cache-Control' => 'no-cache, no-store, must-revalidate' );
+    $self->{res}->header( 'Pragma'        => 'no-cache' );
+    $self->{res}->header( 'Expires'       => '0' );
+}
+
+# get_remote_ip: return the client IP address
+sub get_remote_ip {
+    my DW::Request::Plack $self = $_[0];
+    return $self->address;
 }
 
 # Some things we need to pass to our base class
