@@ -73,7 +73,7 @@ package main;
     *DW::Routing::call = sub {
         my ( $class, %args ) = @_;
         my $r      = DW::Request->get;
-        my $remote = LJ::get_remote();
+        my $remote = $LJ::CACHE_REMOTE;
         $r->status(200);
         $r->header_out( 'Content-Type' => 'text/plain' );
         if ($remote) {
@@ -96,16 +96,24 @@ package main;
     };
 
     # Disable sysban checks for auth tests
-    *LJ::sysban_check                  = sub { return 0 };
-    *LJ::Sysban::tempban_check         = sub { return 0 };
-    *LJ::UniqCookie::parts_from_cookie = sub { return () };
+    *LJ::sysban_check                    = sub { return 0 };
+    *LJ::Sysban::tempban_check           = sub { return 0 };
+    *LJ::UniqCookie::parts_from_cookie   = sub { return () };
+    *LJ::UniqCookie::ensure_cookie_value = sub { return };
+
+    # Prevent LJ::get_remote() from going through Login.pm's full path
+    # which requires a real LJ::User object. The Auth middleware sets
+    # $CACHE_REMOTE directly; we just need get_remote to return it.
+    *LJ::User::Login::get_remote = sub { return $LJ::CACHE_REMOTE };
 }
 
 # Helper to reset state
 sub reset_mocks {
-    $mock_sessobj   = undef;
-    $mock_load_user = undef;
-    LJ::User->unset_remote;
+    $mock_sessobj         = undef;
+    $mock_load_user       = undef;
+    @LJ::CLEANUP_HANDLERS = ();
+    $LJ::CACHED_REMOTE    = 0;
+    $LJ::CACHE_REMOTE     = undef;
 }
 
 # Test 1: No session cookie -> anonymous

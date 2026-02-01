@@ -43,21 +43,24 @@ sub call {
     my $sessobj =
         LJ::Session->session_from_cookies( redirect_ref => \$LJ::CACHE_REMOTE_BOUNCE_URL, );
 
-    if ($sessobj) {
+    if ( $sessobj && $sessobj->owner ) {
         my $u = $sessobj->owner;
-        if ($u) {
-            $sessobj->try_renew;
-            $u->{'_session'} = $sessobj;
-            LJ::User->set_remote($u);
+        $sessobj->try_renew;
+        $u->{'_session'} = $sessobj;
+        LJ::User->set_remote($u);
 
-            # Activity tracking (matches Apache path behavior)
-            if ( @LJ::MEMCACHE_SERVERS && LJ::is_enabled('active_user_tracking') ) {
-                push @LJ::CLEANUP_HANDLERS, sub { $u->note_activity('A') };
-            }
+        # Activity tracking (matches Apache path behavior)
+        if ( @LJ::MEMCACHE_SERVERS && LJ::is_enabled('active_user_tracking') ) {
+            push @LJ::CLEANUP_HANDLERS, sub { $u->note_activity('A') };
         }
     }
+    else {
+        # Mark auth as resolved so LJ::get_remote() won't re-enter session resolution
+        LJ::User->set_remote(undef);
+    }
 
-    # Dev server: allow ?as=username to impersonate a user (or log out)
+    # Dev-only: allow ?as=username to impersonate any user for testing.
+    # Pass ?as=<invalid> to view as logged out. NEVER enable in production.
     if ($LJ::IS_DEV_SERVER) {
         my $as = $r->get_args->{as};
         if ( defined $as && $as =~ /^\w{1,25}$/ ) {

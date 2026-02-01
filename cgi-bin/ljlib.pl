@@ -26,7 +26,10 @@ BEGIN {
     die "No \$LJ::HOME set, or not a directory!\n"
         unless $LJ::HOME && -d $LJ::HOME;
 
-    # allow setting dev server mode from environment
+    # Allow setting dev server mode from environment. This is needed because
+    # Plack startup doesn't go through Apache config where $IS_DEV_SERVER is
+    # normally set. WARNING: Must NEVER be set in production — it enables
+    # ?as= user impersonation, auto-verified accounts, and skips domain logic.
     $LJ::IS_DEV_SERVER = 1 if $ENV{LJ_IS_DEV_SERVER};
 
     use lib ( $LJ::HOME || $ENV{LJHOME} ) . "/extlib/lib/perl5";
@@ -644,8 +647,7 @@ sub register_standard_resources {
         stc/jquery.contextualhover.css
     );
 
-    LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'jquery' },
-        @ctx_popup_libraries );
+    LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'jquery' }, @ctx_popup_libraries );
 
     # foundation only gets this sometimes
     LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'foundation' },
