@@ -96,8 +96,7 @@ builder {
     # ...
 
     # Middleware for ensuring we have the Unique Cookie set up
-    # LJ::UniqCookie->ensure_cookie_value;
-    # ...
+    enable 'DW::UniqCookie';
 
     # Middleware for doing user authentication (get remote)
     #   NOTE: must support 'as=' parameter in dev servers, this is not done in the core auth

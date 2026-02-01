@@ -757,7 +757,9 @@ sub get_secret {
 }
 
 sub is_web_context {
-    return $ENV{MOD_PERL} ? 1 : 0;
+    return 1 if $ENV{MOD_PERL};
+    return 1 if $DW::Request::cur_req;
+    return 0;
 }
 
 # loads an include file, given the bare name of the file.

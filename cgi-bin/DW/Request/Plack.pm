@@ -79,6 +79,17 @@ sub header_out {
     return $self->{res}->header( $_[1] => $_[2] );
 }
 
+# In Plack there's no distinction between error and normal headers
+*err_header_out = \&header_out;
+
+# _add variants append instead of replacing (needed for Set-Cookie)
+sub header_out_add {
+    my DW::Request::Plack $self = $_[0];
+    $self->{res}->headers->push_header( $_[1] => $_[2] );
+}
+
+*err_header_out_add = \&header_out_add;
+
 # incoming headers, from request
 sub header_in {
     my DW::Request::Plack $self = $_[0];
