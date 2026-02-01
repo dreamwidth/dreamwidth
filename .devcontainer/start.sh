@@ -13,9 +13,13 @@ mysql -u root -e "\
     CREATE DATABASE IF NOT EXISTS dw_cluster01 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
     CREATE DATABASE IF NOT EXISTS dw_schwartz CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
     CREATE USER IF NOT EXISTS 'dw'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'dw'; \
+    CREATE USER IF NOT EXISTS 'dw'@'localhost' IDENTIFIED WITH mysql_native_password BY 'dw'; \
     GRANT ALL PRIVILEGES ON dw_global.* TO 'dw'@'127.0.0.1'; \
     GRANT ALL PRIVILEGES ON dw_cluster01.* TO 'dw'@'127.0.0.1'; \
     GRANT ALL PRIVILEGES ON dw_schwartz.* TO 'dw'@'127.0.0.1'; \
+    GRANT ALL PRIVILEGES ON dw_global.* TO 'dw'@'localhost'; \
+    GRANT ALL PRIVILEGES ON dw_cluster01.* TO 'dw'@'localhost'; \
+    GRANT ALL PRIVILEGES ON dw_schwartz.* TO 'dw'@'localhost'; \
     FLUSH PRIVILEGES;"
 cat $LJHOME/doc/schwartz-schema.sql | mysql -u root dw_schwartz
 
