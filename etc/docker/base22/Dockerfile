@@ -37,7 +37,7 @@ RUN curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/depend
 # Split CPAN dependencies into a second step, since they change more
 # frequently than system dependencies
 RUN curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
-        cpm install -v --show-build-log-on-failure --no-color -L /dw/extlib/ - && \
+        cpm install -v --show-build-log-on-failure --no-color --resolver metadb -L /dw/extlib/ - && \
     rm -rf /root/.perl-cpm && \
     rm -rf /root/.cpanm
 

@@ -42,7 +42,7 @@ RUN cpanm -nq App::cpm
 COPY doc/dependencies-cpanm /tmp/dependencies-cpanm
 
 # Install CPAN dependencies to system location (won't be overwritten by volume mount)
-RUN cpm install -v --show-build-log-on-failure --no-color -L /opt/dreamwidth-extlib/ - < /tmp/dependencies-cpanm && \
+RUN cpm install -v --show-build-log-on-failure --no-color --resolver metadb -L /opt/dreamwidth-extlib/ - < /tmp/dependencies-cpanm && \
     rm -rf /root/.perl-cpm && \
     rm -rf /root/.cpanm && \
     rm /tmp/dependencies-cpanm

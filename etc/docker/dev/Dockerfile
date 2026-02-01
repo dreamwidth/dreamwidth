@@ -22,7 +22,7 @@ RUN echo $COMMIT && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-dev | \
         xargs apt-get -y install && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
-        cpm install -v --show-build-log-on-failure --no-color -L /dw/extlib/ - && \
+        cpm install -v --show-build-log-on-failure --no-color --resolver metadb -L /dw/extlib/ - && \
     rm -rf /root/.cpanm && \
     rm -rf /root/.perl-cpm && \
     rm -rf /var/lib/apt/lists/*
