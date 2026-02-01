@@ -230,6 +230,11 @@ sub create_handler {
         # now go on and do post-create stuff
         if ($nu) {
 
+            # In dev containers, auto-validate email so accounts are immediately usable
+            if ($LJ::IS_DEV_SERVER) {
+                $nu->update_self( { status => 'A' } );
+            }
+
             # send welcome mail
             my $aa = LJ::register_authaction( $nu->id, "validateemail", $email );
 

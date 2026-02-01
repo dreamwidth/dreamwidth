@@ -41,6 +41,69 @@ use LJ::Directories;
 # If Apache::BML is already loaded (mod_perl), we skip all of this.
 unless ( defined &BML::ml ) {
 
+    # Load Apache::BML for the core BML engine functions (bml_decode,
+    # load_conffile, parsein, modified_time, etc.). Since Apache::BML
+    # uses Apache2/APR modules at compile time, we install stubs for
+    # those modules first so it can load without mod_perl present.
+    #
+    # This must happen BEFORE the BML::* overrides below so that our
+    # Plack-safe versions replace the Apache-dependent originals.
+    unless ( $INC{'Apache/BML.pm'} ) {
+        for my $mod (
+            qw( Apache2::Const Apache2::Log Apache2::Request
+            Apache2::RequestRec Apache2::RequestUtil Apache2::RequestIO
+            APR::Table APR::Finfo )
+            )
+        {
+            ( my $file = $mod ) =~ s!::!/!g;
+            $file .= '.pm';
+            $INC{$file} //= __FILE__;
+        }
+
+        # Provide the Apache2::Const symbols that Apache::BML imports.
+        # Apache2::Const uses an export-on-import model with tag groups;
+        # we define the constants and an import() that pushes them into
+        # the caller's namespace.
+        {
+
+            package Apache2::Const;
+            my %const = (
+                OK                => 0,
+                NOT_FOUND         => 404,
+                REDIRECT          => 302,
+                SERVER_ERROR      => 500,
+                HTTP_NOT_MODIFIED => 304,
+                FORBIDDEN         => 403,
+                DECLINED          => -1,
+                DONE              => -2,
+            );
+            my %tag =
+                ( common => [qw(OK NOT_FOUND REDIRECT SERVER_ERROR FORBIDDEN DECLINED DONE)] );
+
+            sub import {
+                my ( $class, @args ) = @_;
+                my $caller = caller;
+                my @names;
+                for my $arg (@args) {
+                    if ( $arg =~ /^:(.+)/ && $tag{$1} ) {
+                        push @names, @{ $tag{$1} };
+                    }
+                    elsif ( exists $const{$arg} ) {
+                        push @names, $arg;
+                    }
+                }
+                no strict 'refs';
+                for my $name (@names) {
+                    my $val = $const{$name};
+                    *{"${caller}::${name}"} = sub () { $val };
+                }
+            }
+        }
+
+        package DW::BML;
+        require Apache::BML;
+    }
+
     # BML::ml stub — gets redefined by BML::set_language()
     *BML::ml = sub { return "[ml_getter not defined]"; };
 
@@ -430,27 +493,15 @@ unless ( defined &BML::ml ) {
             $vars );
     };
 
-    *BML::decl_params = sub { };    # stub — full impl only needed in BML pages
-
-    *BML::register_block    = sub { };    # stub — only valid in look file context
-    *BML::register_hook     = sub { };    # stub — only valid in conf file context
-    *BML::set_config        = sub { };    # stub — only valid in conf file context
-    *BML::register_language = sub { };    # stub
-    *BML::register_isocode  = sub { };    # stub
-
-    *BML::do_later = sub { return 0; };   # no-op under Plack
-
-    *BML::paging      = sub { };              # stub
-    *BML::page_newurl = sub { return ''; };
-    *BML::randlist    = sub { return @_; };
+    *BML::do_later = sub { return 0; };    # no-op under Plack
 
     *BML::decide_language = sub {
         return undef unless Apache::BML::is_initialized();
         my $req = $Apache::BML::cur_req;
         my $env = $req->{'env'};
 
-        my $uselang = $BMLCodeBlock::GET{'uselang'};
-        if ( exists $env->{"Langs-$uselang"} || ( $uselang && $uselang eq "debug" ) ) {
+        my $uselang = $BMLCodeBlock::GET{'uselang'} // '';
+        if ( exists $env->{"Langs-$uselang"} || $uselang eq "debug" ) {
             return $uselang;
         }
 
@@ -468,7 +519,7 @@ unless ( defined &BML::ml ) {
             else {
                 $lang_weight{$_} = 1.0;
             }
-            if ( $lang_weight{$_} > $winner_weight && defined $env->{"ISOCode-$_"} ) {
+            if ( ( $lang_weight{$_} // 0 ) > $winner_weight && defined $env->{"ISOCode-$_"} ) {
                 $winner_weight = $lang_weight{$_};
                 $winner        = $env->{"ISOCode-$_"};
             }
@@ -476,30 +527,6 @@ unless ( defined &BML::ml ) {
         return $winner if $winner;
         return $LJ::LANGS[0] if @LJ::LANGS;
         return "en";
-    };
-
-    # Apache::BML package stubs needed by the BML:: functions above
-    $Apache::BML::cur_req         = undef unless defined $Apache::BML::cur_req;
-    $Apache::BML::r               = undef unless defined $Apache::BML::r;
-    %Apache::BML::CodeBlockOpts   = ()    unless %Apache::BML::CodeBlockOpts;
-    $Apache::BML::base_recent_mod = 0     unless $Apache::BML::base_recent_mod;
-    %Apache::BML::FileModTime     = ()    unless %Apache::BML::FileModTime;
-
-    *Apache::BML::is_initialized = sub {
-        return $Apache::BML::cur_req ? 1 : 0;
-    };
-
-    *Apache::BML::note_mod_time = sub {
-        my ( $req, $mod_time ) = @_;
-        if ($req) {
-            $req->{'most_recent_mod'} = $mod_time
-                if $mod_time
-                && ( !$req->{'most_recent_mod'} || $mod_time > $req->{'most_recent_mod'} );
-        }
-        else {
-            $Apache::BML::base_recent_mod = $mod_time
-                if $mod_time && $mod_time > $Apache::BML::base_recent_mod;
-        }
     };
 
 }
@@ -776,10 +803,9 @@ sub render {
             BML::set_scheme($scheme);
         }
 
-        # Language setup
-        my $path_info  = '';     # Plack doesn't separate path_info for BML
+        # Language setup — keep .bml in scope so LJ::Lang::get_text can
+        # match the scope to .bml.text files (regex: ^(/.+\.bml)(\..+))
         my $lang_scope = $uri;
-        $lang_scope =~ s/\.bml$//;
         BML::set_language_scope($lang_scope);
         my $lang = BML::decide_language();
         BML::set_language($lang);
