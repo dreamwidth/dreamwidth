@@ -84,7 +84,7 @@ sub add_cookie {
 
     # if the domain is just '.', remove it since that means 'current domain'.
     # this is primarily needed for devcontainer since that uses localhost.
-    delete $args{domain} if $args{domain} eq '.';
+    delete $args{domain} if defined $args{domain} && $args{domain} eq '.';
 
     # we need to give all cookies the secure attribute on HTTPS sites
     if ( $LJ::PROTOCOL eq "https" ) {

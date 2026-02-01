@@ -110,18 +110,19 @@ sub login_handler {
         if ( $do_change && $form_auth_ok ) {
             my $bindip;
             $bindip = $r->get_remote_ip
-                if $post->{'bindip'} eq "yes";
+                if ( $post->{'bindip'} // '' ) eq "yes";
 
+            my $expire = $post->{expire} // '';
             DW::Stats::increment(
                 'dw.action.session.update',
                 1,
                 [
-                    'bindip:' . $bindip                     ? 'yes'  : 'no',
-                    'exptype:' . $post->{expire} eq 'never' ? 'long' : 'short'
+                    'bindip:' . $bindip          ? 'yes'  : 'no',
+                    'exptype:' . $expire eq 'never' ? 'long' : 'short'
                 ]
             );
             $cursess->set_ipfixed($bindip) or die "failed to set ipfixed";
-            $cursess->set_exptype( $post->{expire} eq 'never' ? 'long' : 'short' )
+            $cursess->set_exptype( $expire eq 'never' ? 'long' : 'short' )
                 or die "failed to set exptype";
             $cursess->update_master_cookie;
         }
@@ -187,8 +188,10 @@ sub login_handler {
                 $u->preload_props("schemepref");
 
                 my $exptype =
-                    ( $post->{'expire'} eq "never" || $post->{'remember_me'} ) ? "long" : "short";
-                my $bindip = ( $post->{'bindip'} eq "yes" ) ? $r->get_remote_ip : "";
+                    ( ( $post->{'expire'} // '' ) eq "never" || $post->{'remember_me'} )
+                    ? "long"
+                    : "short";
+                my $bindip = ( ( $post->{'bindip'} // '' ) eq "yes" ) ? $r->get_remote_ip : "";
 
                 $u->make_login_session( $exptype, $bindip );
                 LJ::Hooks::run_hook( 'user_login', $u );
