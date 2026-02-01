@@ -150,8 +150,7 @@ test_psgi $app, sub {
     my $cb  = shift;
     my $res = $cb->( GET "/community.bml?foo=bar" );
 
-    is( $res->header('Location'), '/community/?foo=bar',
-        "redirect.dat preserves query string" );
+    is( $res->header('Location'), '/community/?foo=bar', "redirect.dat preserves query string" );
 };
 
 # Test 12: non-redirect.dat path passes through

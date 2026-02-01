@@ -23,6 +23,7 @@ BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use Plack::Builder;
 
+use DW::BML;
 use DW::Request::Plack;
 use DW::Routing;
 
@@ -58,12 +59,23 @@ my $app = sub {
     $log->debug( 'Routing for URI: ', $uri );
     my $ret = DW::Routing->call( uri => $uri );
 
-    # If routing returned OK (0), default status to 200; otherwise 404
+    # If routing returned OK (0), default status to 200; otherwise try BML
     if ( defined $ret && $ret == 0 ) {
         $r->status(200) unless $r->status;
     }
     else {
-        $r->status(404) unless $r->status;
+        # Routing didn't handle it — try BML file resolution as fallback
+        my ( $redirect_url, $bml_uri, $bml_file ) = DW::BML->resolve_path($uri);
+        if ($redirect_url) {
+            return $r->redirect($redirect_url);
+        }
+        elsif ($bml_file) {
+            $log->debug( 'BML rendering: ', $bml_file );
+            DW::BML->render( $bml_file, $bml_uri );
+        }
+        else {
+            $r->status(404) unless $r->status;
+        }
     }
 
     return $r->res;
