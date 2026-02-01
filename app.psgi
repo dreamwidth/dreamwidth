@@ -59,6 +59,10 @@ my $app = sub {
     $log->debug( 'Routing for URI: ', $uri );
     my $ret = DW::Routing->call( uri => $uri );
 
+    # If routing returned a finalized Plack response (arrayref), e.g. from
+    # a controller redirect, return it directly — it already has cookies/headers set.
+    return $ret if ref $ret;
+
     # If routing returned OK (0), default status to 200; otherwise try BML
     if ( defined $ret && $ret == 0 ) {
         $r->status(200) unless $r->status;

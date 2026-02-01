@@ -164,10 +164,19 @@ sub query_parameters {
 sub redirect {
     my DW::Request::Plack $self = $_[0];
 
-    # This is a 303 because we want to be explicit that when we do a redirect we expect
+    # Use a 303 because we want to be explicit that when we do a redirect we expect
     # the user-agent to switch to a GET; this is an old assumption baked into the LJ/DW
     # code now made explicit here.
-    return Plack::Response->new( 303, { 'Location' => $_[1] }, '' )->finalize;
+    #
+    # Set status and Location on the existing response object so that any cookies
+    # or headers already set (e.g. login session cookies) are preserved in the
+    # redirect response.
+    $self->{res}->status(303);
+    $self->{res}->header( 'Location' => $_[1] );
+    $self->{res_body}   = undef;
+    $self->{res_length} = 0;
+
+    return $self->res;
 }
 
 # assemble a URL for something
