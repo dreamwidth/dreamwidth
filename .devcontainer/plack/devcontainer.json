@@ -1,0 +1,33 @@
+{
+  "name": "Dreamwidth Test Environment",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.perl",
+        "ms-vscode.test-adapter-converter",
+        "hbenl.vscode-test-explorer"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "containerEnv": {
+    "LJHOME": "/workspaces/dreamwidth",
+    "PERL5LIB": "/opt/dreamwidth-extlib/lib/perl5",
+    "DEBIAN_FRONTEND": "noninteractive"
+  },
+  "postCreateCommand": "echo 'Dreamwidth test environment ready! SSH is available on port 22.' && echo 'Run: prove t/00-compile.t' && ls -la t/ | head -10",
+  "remoteUser": "root",
+  "workspaceFolder": "/workspaces/dreamwidth"
+}

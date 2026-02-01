@@ -365,6 +365,12 @@ sub header_out {
 *err_header_in_add  = \&header_out;
 *method             = \&header_out;
 
+sub call_response_handler {
+
+    # Default behavior is to call immediately
+    return $_[1]->();
+}
+
 #
 # Following sub was copied from CGI::Cookie and modified.
 #

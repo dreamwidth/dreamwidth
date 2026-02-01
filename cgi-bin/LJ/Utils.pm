@@ -11,13 +11,16 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-package LJ;
+package LJ::Utils;
 
 use strict;
 no warnings 'uninitialized';
 
 use Digest::MD5;
 use Math::Random::Secure qw(irand);
+
+use base 'Exporter';
+our @EXPORT_OK = qw(rand_chars md5_struct urandom urandom_int);
 
 my %RAND_CHARSETS = (
     default     => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -36,6 +39,7 @@ sub rand_chars {
     }
     return $chal;
 }
+*LJ::rand_chars = \&rand_chars;
 
 sub md5_struct {
     my ( $st, $md5 ) = @_;
@@ -68,6 +72,7 @@ sub md5_struct {
         return $md5;
     }
 }
+*LJ::md5_struct = \&md5_struct;
 
 sub urandom {
     my %args   = @_;
@@ -85,10 +90,13 @@ sub urandom {
 
     return $result;
 }
+*LJ::urandom = \&urandom;
 
 sub urandom_int {
     my %args = @_;
 
     return unpack( 'N', LJ::urandom( size => 4 ) );
 }
+*LJ::urandom_int = \&urandom_int;
 
+1;

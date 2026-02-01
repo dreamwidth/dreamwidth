@@ -17,6 +17,7 @@ package LJ::S2;
 
 use strict;
 use DW;
+use DW::Request;
 use lib DW->home . "/src/s2";
 use S2;
 use S2::Color;
@@ -34,7 +35,6 @@ use LJ::S2::ReplyPage;
 use LJ::S2::TagsPage;
 use LJ::S2::IconsPage;
 use Storable;
-use Apache2::Const qw/ :common /;
 use POSIX ();
 
 use DW::SiteScheme;
@@ -65,7 +65,7 @@ sub make_journal {
             $use_modtime = 1;
         }
         else {
-            $opts->{'handler_return'} = 404;
+            $opts->{'handler_return'} = $apache_r->NOT_FOUND;
             return;
         }
     }
@@ -76,7 +76,7 @@ sub make_journal {
     my $ctx =
         s2_context( $styleid, use_modtime => $use_modtime, u => $u, style_u => $opts->{style_u} );
     unless ($ctx) {
-        $opts->{'handler_return'} = OK;
+        $opts->{'handler_return'} = $apache_r->OK;
         return;
     }
 

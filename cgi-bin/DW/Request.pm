@@ -18,7 +18,8 @@
 
 =head1 NAME
 
-DW::Request - This module provides an abstraction layer for accessing data traditionally available through Apache::Request and similar modules.
+DW::Request - This module provides an abstraction layer for accessing data traditionally
+available through Apache::Request and similar modules.
 
 =head1 SYNOPSIS
 
@@ -27,9 +28,10 @@ DW::Request - This module provides an abstraction layer for accessing data tradi
 package DW::Request;
 
 use strict;
-use DW::Request::Apache2;
-use DW::Request::Standard;
 use Hash::MultiValue;
+use Carp qw/ cluck /;
+
+use DW::Request::Standard;
 
 our ( $cur_req, $determined );
 
@@ -44,18 +46,25 @@ Returns a DW::Request object, based on what type of server environment are runni
 # creates a new DW::Request object, based on what type of server environment we
 # are running under
 sub get {
+    my $class = shift;
+    my %opts  = @_;
 
     # if we have already run this logic, return it.  makes it safe for us in case
     # the logic below is a little heavy so it doesn't run over and over.
     return $cur_req if $determined;
 
-    # attempt Apache 2
-    eval {
-        eval "use Apache2::RequestUtil ();";
+    # attempt Apache 2 if it's available
+    if ($DW::Request::APACHE2_AVAILABLE) {
         my $r = Apache2::RequestUtil->request;
         $cur_req = DW::Request::Apache2->new($r)
             if $r;
-    };
+    }
+
+    # attempt plack if we're in that space
+    if ($DW::Request::PLACK_AVAILABLE) {
+        $cur_req = DW::Request::Plack->new( $opts{plack_env} )
+            if $opts{plack_env};
+    }
 
     # NOTE: the Standard module is not done through this path, it is done by
     # someone instantiating the module.  the module itself then sets $determined
@@ -123,7 +132,8 @@ Sets or gets an response header that is also included on the error pages.
 
 =head2 C<< $r->err_header_out_add( $header, $value ) >>
 
-Adds another instance of a header for headers that allow multiple instances that is also included on the error pages.
+Adds another instance of a header for headers that allow multiple instances that is
+also included on the error pages.
 
 =head2 C<< $r->get_args >>
 
