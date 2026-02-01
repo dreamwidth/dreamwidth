@@ -42,19 +42,8 @@ sub login_handler {
 
     my @errors = ();
 
-    # ! after username overrides expire to never
-    # < after username overrides ipfixed to yes
-    if ( $post->{user} =~ s/([!<]{1,2})$// ) {
-        $post->{expire} = 'never' if index( $1, "!" ) >= 0;
-        $post->{bindip} = 'yes'   if index( $1, "<" ) >= 0;
-    }
-
-    my $user     = LJ::canonical_username( $post->{'user'} );
-    my $password = $post->{'password'};
-
-    my $cursess      = $remote ? $remote->session : undef;
-    my $form_auth_ok = LJ::check_form_auth( $post->{lj_form_auth} );
-    my $old_remote   = $remote;
+    my $cursess    = $remote ? $remote->session : undef;
+    my $old_remote = $remote;
 
     return error_ml("/login.tt.dbreadonly") if $remote && $remote->readonly;
 
@@ -79,6 +68,18 @@ sub login_handler {
     };
 
     if ( $r->did_post ) {
+
+        # ! after username overrides expire to never
+        # < after username overrides ipfixed to yes
+        if ( $post->{user} =~ s/([!<]{1,2})$// ) {
+            $post->{expire} = 'never' if index( $1, "!" ) >= 0;
+            $post->{bindip} = 'yes'   if index( $1, "<" ) >= 0;
+        }
+
+        my $user         = LJ::canonical_username( $post->{'user'} );
+        my $password     = $post->{'password'};
+        my $form_auth_ok = LJ::check_form_auth( $post->{lj_form_auth} );
+
         my $do_change = $post->{'action:change'};
         my $do_login  = $post->{'action:login'};
         my $do_logout = $post->{'action:logout'};
