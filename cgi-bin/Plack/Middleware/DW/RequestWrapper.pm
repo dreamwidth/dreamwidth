@@ -33,6 +33,10 @@ sub call {
     # should really be excised and moved into the DW::Request object
     LJ::start_request();
 
+    # TODO: BML language setup needed here when we port BML rendering to Plack
+    # my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
+    # BML::set_language( $lang, \&LJ::Lang::get_text );
+
     # Standardize into a DW::Request module
     my $r = DW::Request->get( plack_env => $env );
 

@@ -36,13 +36,7 @@ BEGIN {
     # Configure S2
     S2::set_domain('LJ');
 
-    # Configure language library
-    # TODO: Why is this commented out here?
-    # my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
-    # BML::set_language( $lang, \&LJ::Lang::get_text );
-
     # Initialize random
-    # TODO: Make sure this is fired once per child if we're in preforking mode?
     srand( LJ::urandom_int() );
 }
 
@@ -107,8 +101,8 @@ builder {
     #   flows in the Apache path
     # ...
 
-    # Middleware for doing sysban blocking
-    # ...
+    # Middleware for doing sysban blocking (IP bans, uniq bans, tempbans, noanon_ip)
+    enable 'DW::Sysban';
 
     # Middleware for bailing out to handle embedded journal content
     # return DW::Routing->call( uri => '/journal/embedcontent' );
