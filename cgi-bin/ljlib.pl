@@ -541,117 +541,123 @@ sub start_request {
     DW::Request->reset;
 
     # include standard files if this is web-context
-    if ( my $r = DW::Request->get ) {
-
-        # sorry everybody, this is a gross hack ... we need to not use jquery on the shop since
-        # jquery is pretty old and crufty and PCI compliance etc, so we're just not going to include
-        # it here if we're on that domain
-        my $NO_JQUERY = 0;
-        if (   $LJ::DOMAIN_SHOP
-            && $LJ::DOMAIN_SHOP ne $LJ::DOMAIN_WEB
-            && $r->host eq $LJ::DOMAIN_SHOP )
-        {
-            $NO_JQUERY = 1;
-        }
-
-        # start with jquery core unless we've disabled it
-        LJ::need_res( { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
-            'js/jquery/jquery-1.8.3.js' )
-            unless $NO_JQUERY;
-
-        # note that we're calling need_res and advising that these items
-        # are the new style global items
-        LJ::need_res(
-            { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
-            'js/foundation/vendor/custom.modernizr.js',
-            'js/foundation/foundation/foundation.js',
-            'js/foundation/foundation/foundation.topbar.js',
-            'js/dw/dw-core.js'
-        );
-
-        LJ::need_res(
-            { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
-
-            # jquery library is the big one, load first
-            'js/jquery/jquery-1.8.3.js',
-
-            # the rest of the libraries
-            qw(
-                js/dw/dw-core.js
-                ),
-        );
-
-        # old/standard libraries are below here.
-
-        # standard site-wide JS and CSS
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                js/6alib/core.js
-                js/6alib/dom.js
-                js/6alib/httpreq.js
-                js/livejournal.js
-                )
-        );
-
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY, group => "all" }, qw (
-                stc/lj_base.css
-                )
-        );
-
-        # esn ajax
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                js/esn.js
-                stc/esn.css
-                )
-        ) if LJ::is_enabled('esn_ajax');
-
-        # contextual popup JS
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw(
-                js/6alib/ippu.js
-                js/lj_ippu.js
-                js/6alib/hourglass.js
-                js/contextualhover.js
-                stc/contextualhover.css
-                )
-        );
-
-        my @ctx_popup_libraries = qw(
-            js/jquery/jquery.ui.core.js
-            js/jquery/jquery.ui.widget.js
-
-            js/jquery/jquery.ui.tooltip.js
-            js/jquery.ajaxtip.js
-            js/jquery/jquery.ui.position.js
-            stc/jquery/jquery.ui.core.css
-            stc/jquery/jquery.ui.tooltip.css
-
-            js/jquery.hoverIntent.js
-            js/jquery.contextualhover.js
-            stc/jquery.contextualhover.css
-        );
-
-        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'jquery' },
-            @ctx_popup_libraries );
-
-        # foundation only gets this sometimes
-        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'foundation' },
-            @ctx_popup_libraries )
-            unless $NO_JQUERY;
-
-        # development JS
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                js/6alib/devel.js
-                )
-        ) if $LJ::IS_DEV_SERVER;
-    }
+    LJ::register_standard_resources();
 
     LJ::Hooks::run_hooks("start_request");
 
     return 1;
+}
+
+# Register standard site-wide CSS/JS resources. Called from start_request
+# (for Apache, where DW::Request is already available) and from the Plack
+# middleware (where the request must be created before this can run).
+sub register_standard_resources {
+    my $r = DW::Request->get or return;
+
+    # sorry everybody, this is a gross hack ... we need to not use jquery on the shop since
+    # jquery is pretty old and crufty and PCI compliance etc, so we're just not going to include
+    # it here if we're on that domain
+    my $NO_JQUERY = 0;
+    if (   $LJ::DOMAIN_SHOP
+        && $LJ::DOMAIN_SHOP ne $LJ::DOMAIN_WEB
+        && $r->host eq $LJ::DOMAIN_SHOP )
+    {
+        $NO_JQUERY = 1;
+    }
+
+    # start with jquery core unless we've disabled it
+    LJ::need_res( { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
+        'js/jquery/jquery-1.8.3.js' )
+        unless $NO_JQUERY;
+
+    # note that we're calling need_res and advising that these items
+    # are the new style global items
+    LJ::need_res(
+        { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
+        'js/foundation/vendor/custom.modernizr.js',
+        'js/foundation/foundation/foundation.js',
+        'js/foundation/foundation/foundation.topbar.js',
+        'js/dw/dw-core.js'
+    );
+
+    LJ::need_res(
+        { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
+
+        # jquery library is the big one, load first
+        'js/jquery/jquery-1.8.3.js',
+
+        # the rest of the libraries
+        qw(
+            js/dw/dw-core.js
+            ),
+    );
+
+    # old/standard libraries are below here.
+
+    # standard site-wide JS and CSS
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY }, qw(
+            js/6alib/core.js
+            js/6alib/dom.js
+            js/6alib/httpreq.js
+            js/livejournal.js
+            )
+    );
+
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY, group => "all" }, qw (
+            stc/lj_base.css
+            )
+    );
+
+    # esn ajax
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY }, qw(
+            js/esn.js
+            stc/esn.css
+            )
+    ) if LJ::is_enabled('esn_ajax');
+
+    # contextual popup JS
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw(
+            js/6alib/ippu.js
+            js/lj_ippu.js
+            js/6alib/hourglass.js
+            js/contextualhover.js
+            stc/contextualhover.css
+            )
+    );
+
+    my @ctx_popup_libraries = qw(
+        js/jquery/jquery.ui.core.js
+        js/jquery/jquery.ui.widget.js
+
+        js/jquery/jquery.ui.tooltip.js
+        js/jquery.ajaxtip.js
+        js/jquery/jquery.ui.position.js
+        stc/jquery/jquery.ui.core.css
+        stc/jquery/jquery.ui.tooltip.css
+
+        js/jquery.hoverIntent.js
+        js/jquery.contextualhover.js
+        stc/jquery.contextualhover.css
+    );
+
+    LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'jquery' },
+        @ctx_popup_libraries );
+
+    # foundation only gets this sometimes
+    LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'foundation' },
+        @ctx_popup_libraries )
+        unless $NO_JQUERY;
+
+    # development JS
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY }, qw(
+            js/6alib/devel.js
+            )
+    ) if $LJ::IS_DEV_SERVER;
 }
 
 # <LJFUNC>

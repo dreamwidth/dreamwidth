@@ -29,12 +29,18 @@ use DW::Request;
 sub call {
     my ( $self, $env ) = @_;
 
-    # Request setup -- TODO: all this per-request caching that happens in the LJ namespace
-    # should really be excised and moved into the DW::Request object
+    # Request setup -- clears caches, reloads config, resets DW::Request
     LJ::start_request();
 
-    # Standardize into a DW::Request module
+    # Standardize into a DW::Request module. Must happen after start_request
+    # (which calls DW::Request->reset) but before we need the request object.
     my $r = DW::Request->get( plack_env => $env );
+
+    # Register standard CSS/JS resources. Under Apache, start_request handles
+    # this because DW::Request is auto-discoverable via Apache2::RequestUtil.
+    # Under Plack, the request doesn't exist until we explicitly create it
+    # above, so start_request's resource registration was skipped.
+    LJ::register_standard_resources();
 
     # Initialize BML language getter so LJ::Lang::ml / BML::ml work for all pages
     my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
