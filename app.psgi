@@ -48,7 +48,13 @@ my $app = sub {
     # be a call to DW::Routing and let it sort it out with all the controllers and
     # such, but until then, we're having to dispatch between various generations
     # of systems ourselves.
-    my $uri = $r->path;
+    # If this is the embed module domain, force routing to embedcontent handler
+    # regardless of the requested path (matches Apache::LiveJournal::trans behavior)
+    my $host = $r->host;
+    my $uri =
+        ( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ )
+        ? '/journal/embedcontent'
+        : $r->path;
     $log->debug( 'Routing for URI: ', $uri );
     my $ret = DW::Routing->call( uri => $uri );
 
@@ -101,10 +107,6 @@ builder {
 
     # Middleware for doing sysban blocking (IP bans, uniq bans, tempbans, noanon_ip)
     enable 'DW::Sysban';
-
-    # Middleware for bailing out to handle embedded journal content
-    # return DW::Routing->call( uri => '/journal/embedcontent' );
-    # ...
 
     $app;
 };
