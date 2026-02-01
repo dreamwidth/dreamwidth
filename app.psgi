@@ -24,6 +24,7 @@ BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use Plack::Builder;
 
 use DW::BML;
+use DW::Controller::Journal;
 use DW::Request::Plack;
 use DW::Routing;
 
@@ -63,22 +64,46 @@ my $app = sub {
     # a controller redirect, return it directly — it already has cookies/headers set.
     return $ret if ref $ret;
 
-    # If routing returned OK (0), default status to 200; otherwise try BML
+    # If routing returned OK (0), default status to 200; otherwise try journals, then BML
     if ( defined $ret && $ret == 0 ) {
         $r->status(200) unless $r->status;
     }
     else {
-        # Routing didn't handle it — try BML file resolution as fallback
-        my ( $redirect_url, $bml_uri, $bml_file ) = DW::BML->resolve_path($uri);
-        if ($redirect_url) {
-            return $r->redirect($redirect_url);
+        # Journal path-based routing: /~user/... and /users/user/...
+        unless ( defined $ret ) {
+            if ( $uri =~ m!^/(?:~|users/)([\w-]+)(.*)$! ) {
+                my ( $journal_user, $journal_path ) = ( $1, $2 || '/' );
+                $ret = DW::Controller::Journal->render(
+                    user => $journal_user,
+                    uri  => $journal_path,
+                    args => $r->query_string,
+                );
+            }
         }
-        elsif ($bml_file) {
-            $log->debug( 'BML rendering: ', $bml_file );
-            DW::BML->render( $bml_file, $bml_uri );
+
+        # If journal routing handled it, finalize
+        if ( ref $ret ) {
+            return $ret;
+        }
+        elsif ( defined $ret && $ret == 0 ) {
+            $r->status(200) unless $r->status;
+        }
+        elsif ( defined $ret && $ret > 0 ) {
+            $r->status($ret);
         }
         else {
-            $r->status(404) unless $r->status;
+            # Routing didn't handle it — try BML file resolution as fallback
+            my ( $redirect_url, $bml_uri, $bml_file ) = DW::BML->resolve_path($uri);
+            if ($redirect_url) {
+                return $r->redirect($redirect_url);
+            }
+            elsif ($bml_file) {
+                $log->debug( 'BML rendering: ', $bml_file );
+                DW::BML->render( $bml_file, $bml_uri );
+            }
+            else {
+                $r->status(404) unless $r->status;
+            }
         }
     }
 

@@ -1054,6 +1054,20 @@ sub dir_config {
     return undef;
 }
 
+# Apache constant stubs for code that calls $r->OK, $r->NOT_FOUND, etc.
+sub OK        { return 0; }
+sub NOT_FOUND { return 404; }
+sub DECLINED  { return -1; }
+
+sub status_line {
+    my ( $self, $val ) = @_;
+    if ( defined $val ) {
+        $self->{_status_line} = $val;
+        return;
+    }
+    return $self->{_status_line};
+}
+
 # finfo: no-op
 sub finfo { }
 
