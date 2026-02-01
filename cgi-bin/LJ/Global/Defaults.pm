@@ -62,7 +62,8 @@ no strict "vars";
 
     if ( $IS_DEV_SERVER && $IS_DEV_CONTAINER ) {
 
-        # Do not redirect or set domains
+        # Do not redirect or set domains; cookies should have no domain
+        # so they default to the request host (e.g. localhost)
         $PROTOCOL          = "http";
         $DOMAIN            = "";
         $USER_DOMAIN       = "";
@@ -70,6 +71,7 @@ no strict "vars";
         $SITEROOT          = "";
         $SHOPROOT          = "";
         $RELATIVE_SITEROOT = "";
+        $COOKIE_DOMAIN     = "";
     }
     else {
         # Should always be https except on dev servers

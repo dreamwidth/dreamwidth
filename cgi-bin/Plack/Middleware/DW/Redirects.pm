@@ -37,8 +37,7 @@ sub call {
     my $path = $r->path;
     my $args = $r->query_parameters;
 
-    # Handle base domain -> web domain
-    local $LJ::DOMAIN_WEB = "www.$LJ::DOMAIN";
+    # Handle base domain -> web domain (matches Apache::LiveJournal::trans)
     if (   $LJ::DOMAIN_WEB
         && $r->method eq "GET"
         && $host eq $LJ::DOMAIN
