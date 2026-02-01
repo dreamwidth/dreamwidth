@@ -6,12 +6,13 @@
 # Runs a single-worker Starman instance suitable for development and testing.
 #
 # Usage:
-#   bin/dev-plack-server [--port PORT] [--host HOST]
+#   bin/starman [--port PORT] [--host HOST] [--workers COUNT] [--log DIR]
 #
 # Options:
 #   --port PORT      Port to listen on (default: 8080)
 #   --host HOST      Host/address to bind to (default: 0.0.0.0)
 #   --workers COUNT  Number of workers to run in parallel
+#   --log DIR        Directory for access and error logs (default: none)
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -36,15 +37,17 @@ $ENV{LJHOME} //= "$FindBin::Bin/..";
 # Mark as dev server
 $ENV{LJ_IS_DEV_SERVER} = 1;
 
-my $port = 8080;
-my $host = '0.0.0.0';
+my $port    = 8080;
+my $host    = '0.0.0.0';
 my $workers = 3;
+my $log_dir;
 
 GetOptions(
-    'port=i' => \$port,
-    'host=s' => \$host,
+    'port=i'    => \$port,
+    'host=s'    => \$host,
     'workers=i' => \$workers,
-) or die "Usage: $0 [--port PORT] [--host HOST]\n";
+    'log=s'     => \$log_dir,
+) or die "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR]\n";
 
 my $app_psgi = "$ENV{LJHOME}/app.psgi";
 die "Cannot find $app_psgi\n" unless -f $app_psgi;
@@ -53,13 +56,22 @@ say "Starting Dreamwidth Plack dev server...";
 say "  LJHOME: $ENV{LJHOME}";
 say "  Listening on: http://$host:$port/";
 say "  Workers: $workers (dev mode)";
+say "  Logs: " . ( $log_dir ? $log_dir : "stderr" );
 say "";
 
-my $runner = Plack::Runner->new;
-$runner->parse_options(
+my @opts = (
     '--server',  'Starman',
     '--listen',  "$host:$port",
     '--workers', $workers,
     '--app',     $app_psgi,
 );
+
+if ($log_dir) {
+    mkdir $log_dir unless -d $log_dir;
+    push @opts, '--access-log', "$log_dir/access.log";
+    push @opts, '--error-log', "$log_dir/error.log";
+}
+
+my $runner = Plack::Runner->new;
+$runner->parse_options(@opts);
 $runner->run;

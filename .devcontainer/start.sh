@@ -44,4 +44,7 @@ ln -ns $LJHOME/.devcontainer/config/etc/apache2 /etc/apache2 || true
 
 # Start services and boom!
 service memcached start
-apache2ctl start
+mkdir -p $LJHOME/logs
+perl bin/starman --port 80 --log $LJHOME/logs &  # Plack/Starman on port 80
+
+# Apache available on port 8081 if needed: apache2ctl start

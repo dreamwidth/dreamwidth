@@ -26,6 +26,7 @@
   "containerEnv": {
     "LJHOME": "/workspaces/dreamwidth",
     "PERL5LIB": "/opt/dreamwidth-extlib/lib/perl5",
+    "LJ_IS_DEV_SERVER": "1",
     "DEBIAN_FRONTEND": "noninteractive",
     "LANG": "en_US.UTF-8",
     "LC_ALL": "en_US.UTF-8"

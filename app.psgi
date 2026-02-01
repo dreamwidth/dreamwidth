@@ -57,7 +57,6 @@ my $app = sub {
         ( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ )
         ? '/journal/embedcontent'
         : $r->path;
-    $log->debug( 'Routing for URI: ', $uri );
     my $ret = DW::Routing->call( uri => $uri );
 
     # If routing returned a finalized Plack response (arrayref), e.g. from
@@ -98,7 +97,6 @@ my $app = sub {
                 return $r->redirect($redirect_url);
             }
             elsif ($bml_file) {
-                $log->debug( 'BML rendering: ', $bml_file );
                 DW::BML->render( $bml_file, $bml_uri );
             }
             else {
