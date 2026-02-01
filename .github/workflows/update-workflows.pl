@@ -60,9 +60,10 @@ my %workers = (
     'synsuck'            => [ 1, 20, 512, 256, 50, ],
 
     # Workers to replace admin/angel configs
-    'paidstatus'             => [ 1, 1, 512, 256, 50, ],
-    'import-scheduler'       => [ 1, 1, 512, 256, 50, ],
-    'schedule-synsuck'       => [ 1, 1, 512, 256, 50, ],
+    'paidstatus'       => [ 1, 1, 512, 256, 50, ],
+    'import-scheduler' => [ 1, 1, 512, 256, 50, ],
+    'schedule-synsuck' => [ 1, 1, 512, 256, 50, ],
+
     # 'search-updater'         => [ 1, 1, 512, 256, 50, ],
     'latest-feed'            => [ 1, 1, 512, 256, 50, ],
     'expunge-users'          => [ 1, 1, 512, 256, 50, ],
@@ -70,9 +71,11 @@ my %workers = (
     'incoming-email'         => [ 1, 1, 512, 256, 50, ],
     'process-privacy'        => [ 1, 1, 512, 256, 50, ],
     'import-eraser'          => [ 1, 1, 512, 256, 50, ],
+
     # 'search-constraints'     => [ 1, 1, 512, 256, 50, ],
-    'support-notify'         => [ 1, 1, 512, 256, 50, ],
-    'lazy-cleanup'           => [ 1, 1, 512, 256, 50, ],
+    'support-notify' => [ 1, 1, 512, 256, 50, ],
+    'lazy-cleanup'   => [ 1, 1, 512, 256, 50, ],
+
     # 'search-lookup'          => [ 1, 1, 512, 256, 50, ],
 
     # Remaining admin workers

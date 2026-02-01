@@ -117,7 +117,7 @@ sub login_handler {
                 'dw.action.session.update',
                 1,
                 [
-                    'bindip:' . $bindip          ? 'yes'  : 'no',
+                    'bindip:' . $bindip             ? 'yes'  : 'no',
                     'exptype:' . $expire eq 'never' ? 'long' : 'short'
                 ]
             );
