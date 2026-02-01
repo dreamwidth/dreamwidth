@@ -33,6 +33,465 @@ use DW::Request;
 use DW::SiteScheme;
 use LJ::Directories;
 
+# Provide BML::* package functions for the Plack environment. Under mod_perl these
+# are defined by Apache::BML, but that module can't be loaded without Apache2::*.
+# Many non-BML callers (LJ::Lang::ml, LJ::Web, etc.) rely on these existing in any
+# web context, so we define them here at load time.
+#
+# If Apache::BML is already loaded (mod_perl), we skip all of this.
+unless ( defined &BML::ml ) {
+
+    # BML::ml stub — gets redefined by BML::set_language()
+    *BML::ml = sub { return "[ml_getter not defined]"; };
+
+    # BML::ML tied hash support — must be defined before tie calls
+    *BML::ML::TIEHASH = sub { return bless {}, $_[0]; };
+    *BML::ML::FETCH   = sub { return "[ml_getter not defined]"; };
+    *BML::ML::CLEAR   = sub { };
+
+    # BML::Cookie tied hash support — must be defined before tie calls
+    *BML::Cookie::TIEHASH = sub { return bless {}, $_[0]; };
+    *BML::Cookie::FETCH   = sub {
+        my ( $t, $key ) = @_;
+        my $r = BML::get_request();
+        unless ($BML::COOKIES_PARSED) {
+            my $cookie_header = eval { $r->headers_in->{"Cookie"} } // '';
+            foreach ( split( /;\s+/, $cookie_header ) ) {
+                next unless /(.*)=(.*)/;
+                my ( $name, $value ) = ( $1, $2 );
+                push @{ $BML::COOKIE_M{ BML::durl($name) } ||= [] }, BML::durl($value);
+            }
+            $BML::COOKIES_PARSED = 1;
+        }
+        return $BML::COOKIE_M{$key} || [] if $key =~ s/\[\]$//;
+        return ( $BML::COOKIE_M{$key} || [] )->[-1];
+    };
+    *BML::Cookie::STORE = sub {
+        my ( $t, $key, $val ) = @_;
+        my $etime     = 0;
+        my $http_only = 0;
+        ( $val, $etime, $http_only ) = @$val if ref $val eq "ARRAY";
+        $etime = undef unless $val ne "";
+        BML::set_cookie( $key, $val, $etime, undef, undef, $http_only );
+    };
+    *BML::Cookie::DELETE = sub { BML::Cookie::STORE( $_[0], $_[1], undef ); };
+    *BML::Cookie::CLEAR  = sub {
+        foreach ( keys %BML::COOKIE_M ) { BML::Cookie::STORE( $_[0], $_, undef ); }
+    };
+    *BML::Cookie::EXISTS   = sub { return defined $BML::COOKIE_M{ $_[1] }; };
+    *BML::Cookie::FIRSTKEY = sub { keys %BML::COOKIE_M; return each %BML::COOKIE_M; };
+    *BML::Cookie::NEXTKEY  = sub { return each %BML::COOKIE_M; };
+
+    # Now tie the hashes
+    tie %BML::ML,     'BML::ML'     unless tied %BML::ML;
+    tie %BML::COOKIE, 'BML::Cookie' unless tied %BML::COOKIE;
+
+    # Language scope
+    $BML::ML_SCOPE = '' unless defined $BML::ML_SCOPE;
+
+    # The BML::set_language function — redefines BML::ml and BML::ML::FETCH
+    *BML::set_language = sub {
+        my ( $lang, $getter ) = @_;
+        my $apache_r = BML::get_request();
+        if ($apache_r) {
+            eval { $apache_r->notes->set( 'langpref', $lang ); };
+        }
+
+        if ( Apache::BML::is_initialized() ) {
+            my $req = $Apache::BML::cur_req;
+            $req->{'lang'} = $lang;
+            $getter ||= $req->{'env'}->{'HOOK-ml_getter'};
+        }
+
+        no strict 'refs';
+        if ( $lang eq "debug" ) {
+            no warnings 'redefine';
+            *{"BML::ml"} = sub {
+                return $_[0];
+            };
+            *{"BML::ML::FETCH"} = sub {
+                return $_[1];
+            };
+        }
+        elsif ($getter) {
+            no warnings 'redefine';
+            *{"BML::ml"} = sub {
+                my ( $code, $vars ) = @_;
+                $code = $BML::ML_SCOPE . $code
+                    if rindex( $code, '.', 0 ) == 0;
+                return $getter->( $lang, $code, undef, $vars );
+            };
+            *{"BML::ML::FETCH"} = sub {
+                my $code = $_[1];
+                $code = $BML::ML_SCOPE . $code
+                    if rindex( $code, '.', 0 ) == 0;
+                return $getter->( $lang, $code );
+            };
+        }
+    };
+
+    *BML::set_language_scope = sub {
+        $BML::ML_SCOPE = $_[0];
+    };
+
+    *BML::get_language_scope = sub {
+        return $BML::ML_SCOPE;
+    };
+
+    *BML::get_language = sub {
+        return undef unless Apache::BML::is_initialized();
+        return $Apache::BML::cur_req->{'lang'};
+    };
+
+    *BML::get_language_default = sub {
+        return "en" unless Apache::BML::is_initialized();
+        return $Apache::BML::cur_req->{'env'}->{'DefaultLanguage'} || "en";
+    };
+
+    *BML::get_request = sub {
+        return $Apache::BML::r if $Apache::BML::r;
+        my $r = DW::Request->get;
+        return unless $r;
+        return DW::BML::RequestAdapter->new($r);
+    };
+
+    *BML::get_uri = sub {
+        my $r   = BML::get_request() or return '';
+        my $uri = $r->uri;
+        $uri =~ s/\.bml$//;
+        return $uri;
+    };
+
+    *BML::get_hostname = sub {
+        my $r = BML::get_request() or return '';
+        return $r->hostname;
+    };
+
+    *BML::get_method = sub {
+        my $r = BML::get_request() or return '';
+        return $r->method;
+    };
+
+    *BML::get_query_string = sub {
+        my $r = BML::get_request() or return '';
+        return scalar( $r->args );
+    };
+
+    *BML::get_path_info = sub {
+        my $r = BML::get_request() or return '';
+        return $r->path_info;
+    };
+
+    *BML::get_remote_ip = sub {
+        my $r = BML::get_request() or return '';
+        return $r->connection->client_ip;
+    };
+
+    *BML::get_remote_host = sub {
+        my $r = BML::get_request() or return '';
+        return $r->connection->remote_host;
+    };
+
+    *BML::get_client_header = sub {
+        my $hdr = shift;
+        my $r   = BML::get_request() or return '';
+        return $r->headers_in->{$hdr};
+    };
+
+    *BML::ehtml = sub {
+        my $a = $_[0];
+        $a =~ s/\&/&amp;/g;
+        $a =~ s/\"/&quot;/g;
+        $a =~ s/\'/&\#39;/g;
+        $a =~ s/</&lt;/g;
+        $a =~ s/>/&gt;/g;
+        return $a;
+    };
+
+    *BML::eurl = sub {
+        my $a = $_[0];
+        $a =~ s/([^a-zA-Z0-9_\-.\/\\\: ])/uc sprintf("%%%02x",ord($1))/eg;
+        $a =~ tr/ /+/;
+        return $a;
+    };
+
+    *BML::durl = sub {
+        my ($a) = @_;
+        $a =~ tr/+/ /;
+        $a =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+        return $a;
+    };
+
+    *BML::ebml = sub {
+        my $a  = $_[0];
+        my $ra = ref $a ? $a : \$a;
+        $$ra =~ s/\(=(\w)/\(= $1/g;
+        $$ra =~ s/(\w)=\)/$1 =\)/g;
+        $$ra =~ s/<\?/&lt;?/g;
+        $$ra =~ s/\?>/?&gt;/g;
+        return if ref $a;
+        return $a;
+    };
+
+    *BML::eall = sub {
+        return BML::ebml( BML::ehtml( $_[0] ) );
+    };
+
+    *BML::noparse = sub {
+        $Apache::BML::CodeBlockOpts{'raw'} = 1;
+        return $_[0];
+    };
+
+    *BML::set_content_type = sub {
+        return undef unless Apache::BML::is_initialized();
+        $Apache::BML::cur_req->{'content_type'} = $_[0] if $_[0];
+    };
+
+    *BML::set_status = sub {
+        my $r = $Apache::BML::r or return;
+        $r->status( $_[0] + 0 ) if $_[0];
+    };
+
+    *BML::redirect = sub {
+        return undef unless Apache::BML::is_initialized();
+        $Apache::BML::cur_req->{'location'} = $_[0];
+        BML::finish_suppress_all();
+    };
+
+    *BML::finish = sub {
+        return undef unless Apache::BML::is_initialized();
+        $Apache::BML::cur_req->{'stop_flag'} = 1;
+    };
+
+    *BML::suppress_headers = sub {
+        return undef unless Apache::BML::is_initialized();
+        BML::send_cookies();
+        $Apache::BML::cur_req->{'env'}->{'NoHeaders'} = 1;
+    };
+
+    *BML::suppress_content = sub {
+        return undef unless Apache::BML::is_initialized();
+        $Apache::BML::cur_req->{'env'}->{'NoContent'} = 1;
+    };
+
+    *BML::finish_suppress_all = sub {
+        BML::finish();
+        BML::suppress_headers();
+        BML::suppress_content();
+    };
+
+    *BML::http_response = sub {
+        my ( $code, $msg ) = @_;
+        my $r = $Apache::BML::r or return;
+        $r->status($code);
+        $r->content_type('text/html');
+        $r->print($msg);
+        BML::finish_suppress_all();
+    };
+
+    *BML::http_only = sub {
+        my $ua = BML::get_client_header("User-Agent") // '';
+        return 0 if $ua =~ /MSIE.+Mac_/;
+        return 1;
+    };
+
+    *BML::get_scheme = sub {
+        return undef unless Apache::BML::is_initialized();
+        return $Apache::BML::cur_req->{'scheme'};
+    };
+
+    *BML::set_etag = sub {
+        return undef unless Apache::BML::is_initialized();
+        $Apache::BML::cur_req->{'etag'} = $_[0];
+    };
+
+    *BML::want_last_modified = sub {
+        return undef unless Apache::BML::is_initialized();
+        $Apache::BML::cur_req->{'want_last_modified'} = $_[0] if defined $_[0];
+        return $Apache::BML::cur_req->{'want_last_modified'};
+    };
+
+    *BML::note_mod_time = sub {
+        Apache::BML::note_mod_time( $Apache::BML::cur_req, $_[0] );
+    };
+
+    *BML::self_link = sub {
+        my $newvars = shift;
+        my $r       = $Apache::BML::r or return '';
+        my $link    = $r->uri;
+        my $form    = \%BMLCodeBlock::FORM;
+        $link .= "?";
+        foreach ( keys %$newvars ) {
+            if ( !exists $form->{$_} ) { $form->{$_} = ""; }
+        }
+        foreach ( sort keys %$form ) {
+            if ( defined $newvars->{$_} && !$newvars->{$_} ) { next; }
+            my $val = $newvars->{$_} || $form->{$_};
+            next unless $val;
+            $link .= BML::eurl($_) . "=" . BML::eurl($val) . "&";
+        }
+        chop $link;
+        return $link;
+    };
+
+    *BML::page_newurl = sub {
+        my $page = $_[0];
+        my @pair = ();
+        foreach ( sort grep { $_ ne "page" } keys %BMLCodeBlock::FORM ) {
+            push @pair, ( BML::eurl($_) . "=" . BML::eurl( $BMLCodeBlock::FORM{$_} ) );
+        }
+        push @pair, "page=$page";
+        my $r = $Apache::BML::r or return '';
+        return $r->uri . "?" . join( "&", @pair );
+    };
+
+    *BML::reset_cookies = sub {
+        %BML::COOKIE_M       = ();
+        $BML::COOKIES_PARSED = 0;
+    };
+
+    *BML::send_cookies = sub {
+        my $req = shift();
+        unless ($req) {
+            return undef unless Apache::BML::is_initialized();
+            $req = $Apache::BML::cur_req;
+        }
+        foreach ( values %{ $req->{'cookies'} } ) {
+            $req->{'r'}->err_headers_out->add( "Set-Cookie" => $_ );
+        }
+        $req->{'cookies'} = {};
+        $req->{'env'}->{'SentCookies'} = 1;
+    };
+
+    *BML::set_cookie = sub {
+        return undef unless Apache::BML::is_initialized();
+        my ( $name, $value, $expires, $path, $domain, $http_only ) = @_;
+        my $req = $Apache::BML::cur_req;
+        my $e   = $req->{'env'};
+        $path   = $e->{'CookiePath'}   unless defined $path;
+        $domain = $e->{'CookieDomain'} unless defined $domain;
+
+        if ( $domain && ref $domain eq "ARRAY" ) {
+            foreach (@$domain) {
+                BML::set_cookie( $name, $value, $expires, $path, $_, $http_only );
+            }
+            return;
+        }
+
+        my ( $sec, $min, $hour, $mday, $mon, $year, $wday ) = gmtime($expires);
+        $year += 1900;
+        my @day    = qw{Sunday Monday Tuesday Wednesday Thursday Friday Saturday};
+        my @month  = qw{Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec};
+        my $cookie = BML::eurl($name) . "=" . BML::eurl($value);
+
+        unless ( defined $expires && $expires == 0 ) {
+            $cookie .= sprintf( "; expires=$day[$wday], %02d-$month[$mon]-%04d %02d:%02d:%02d GMT",
+                $mday, $year, $hour, $min, $sec );
+        }
+        $cookie .= "; path=$path"     if $path;
+        $cookie .= "; domain=$domain" if $domain;
+        $cookie .= "; HttpOnly"       if $http_only && BML::http_only();
+
+        if ( $e->{'SentCookies'} ) {
+            $req->{'r'}->err_headers_out->add( "Set-Cookie" => $cookie );
+        }
+        else {
+            $req->{'cookies'}->{"$name:$domain"} = $cookie;
+        }
+
+        if ( defined $expires ) {
+            $BML::COOKIE_M{$name} = [$value];
+        }
+        else {
+            delete $BML::COOKIE_M{$name};
+        }
+    };
+
+    *BML::get_GET  = sub { return \%BMLCodeBlock::GET; };
+    *BML::get_POST = sub { return \%BMLCodeBlock::POST; };
+    *BML::get_FORM = sub { return \%BMLCodeBlock::FORM; };
+
+    *BML::fill_template = sub {
+        my ( $name, $vars ) = @_;
+        die "Can't use BML::fill_template in non-BML context" unless $Apache::BML::cur_req;
+        return Apache::BML::parsein( ${ $Apache::BML::cur_req->{'blockref'}->{ uc($name) } },
+            $vars );
+    };
+
+    *BML::decl_params = sub { };    # stub — full impl only needed in BML pages
+
+    *BML::register_block    = sub { };    # stub — only valid in look file context
+    *BML::register_hook     = sub { };    # stub — only valid in conf file context
+    *BML::set_config        = sub { };    # stub — only valid in conf file context
+    *BML::register_language = sub { };    # stub
+    *BML::register_isocode  = sub { };    # stub
+
+    *BML::do_later = sub { return 0; };   # no-op under Plack
+
+    *BML::paging      = sub { };              # stub
+    *BML::page_newurl = sub { return ''; };
+    *BML::randlist    = sub { return @_; };
+
+    *BML::decide_language = sub {
+        return undef unless Apache::BML::is_initialized();
+        my $req = $Apache::BML::cur_req;
+        my $env = $req->{'env'};
+
+        my $uselang = $BMLCodeBlock::GET{'uselang'};
+        if ( exists $env->{"Langs-$uselang"} || ( $uselang && $uselang eq "debug" ) ) {
+            return $uselang;
+        }
+
+        my $r = $req->{'r'};
+        my %lang_weight;
+        my @langs =
+            split( /\s*,\s*/, lc( eval { $r->headers_in->{"Accept-Language"} } // '' ) );
+        my $winner_weight = 0.0;
+        my $winner;
+        foreach (@langs) {
+            s/-\w+//;
+            if (/(.+);q=(.+)/) {
+                $lang_weight{$1} = $2;
+            }
+            else {
+                $lang_weight{$_} = 1.0;
+            }
+            if ( $lang_weight{$_} > $winner_weight && defined $env->{"ISOCode-$_"} ) {
+                $winner_weight = $lang_weight{$_};
+                $winner        = $env->{"ISOCode-$_"};
+            }
+        }
+        return $winner if $winner;
+        return $LJ::LANGS[0] if @LJ::LANGS;
+        return "en";
+    };
+
+    # Apache::BML package stubs needed by the BML:: functions above
+    $Apache::BML::cur_req         = undef unless defined $Apache::BML::cur_req;
+    $Apache::BML::r               = undef unless defined $Apache::BML::r;
+    %Apache::BML::CodeBlockOpts   = ()    unless %Apache::BML::CodeBlockOpts;
+    $Apache::BML::base_recent_mod = 0     unless $Apache::BML::base_recent_mod;
+    %Apache::BML::FileModTime     = ()    unless %Apache::BML::FileModTime;
+
+    *Apache::BML::is_initialized = sub {
+        return $Apache::BML::cur_req ? 1 : 0;
+    };
+
+    *Apache::BML::note_mod_time = sub {
+        my ( $req, $mod_time ) = @_;
+        if ($req) {
+            $req->{'most_recent_mod'} = $mod_time
+                if $mod_time
+                && ( !$req->{'most_recent_mod'} || $mod_time > $req->{'most_recent_mod'} );
+        }
+        else {
+            $Apache::BML::base_recent_mod = $mod_time
+                if $mod_time && $mod_time > $Apache::BML::base_recent_mod;
+        }
+    };
+
+}
+
 # Cache for file lookups, mirrors Apache::LiveJournal's %FILE_LOOKUP_CACHE
 my %FILE_LOOKUP_CACHE;
 
@@ -571,18 +1030,13 @@ sub filename {
 
 package DW::BML::RequestAdapter::HeadersIn;
 
-use overload '%{}' => \&_as_hash, fallback => 1;
-
 sub new {
     my ( $class, $r ) = @_;
-    return bless { r => $r }, $class;
+    tie my %h, 'DW::BML::RequestAdapter::HeadersIn::Tie', $r;
+    return bless [ $r, \%h ], $class;
 }
 
-sub _as_hash {
-    my $self = shift;
-    tie my %h, 'DW::BML::RequestAdapter::HeadersIn::Tie', $self->{r};
-    return \%h;
-}
+use overload '%{}' => sub { return $_[0]->[1]; }, fallback => 1;
 
 package DW::BML::RequestAdapter::HeadersIn::Tie;
 
@@ -597,18 +1051,13 @@ sub STORE  { }                                                 # read-only
 
 package DW::BML::RequestAdapter::HeadersOut;
 
-use overload '%{}' => \&_as_hash, fallback => 1;
-
 sub new {
     my ( $class, $r ) = @_;
-    return bless { r => $r }, $class;
+    tie my %h, 'DW::BML::RequestAdapter::HeadersOut::Tie', $r;
+    return bless [ $r, \%h ], $class;
 }
 
-sub _as_hash {
-    my $self = shift;
-    tie my %h, 'DW::BML::RequestAdapter::HeadersOut::Tie', $self->{r};
-    return \%h;
-}
+use overload '%{}' => sub { return $_[0]->[1]; }, fallback => 1;
 
 package DW::BML::RequestAdapter::HeadersOut::Tie;
 
@@ -638,18 +1087,20 @@ sub add {
 
 package DW::BML::RequestAdapter::Notes;
 
-use overload '%{}' => \&_as_hash, fallback => 1;
-
 sub new {
     my ( $class, $r ) = @_;
-    return bless { r => $r }, $class;
+    tie my %h, 'DW::BML::RequestAdapter::Notes::Tie', $r;
+
+    # Use array-based object to avoid hash dereference triggering overload
+    return bless [ $r, \%h ], $class;
 }
 
-sub _as_hash {
-    my $self = shift;
-    tie my %h, 'DW::BML::RequestAdapter::Notes::Tie', $self->{r};
-    return \%h;
+sub set {
+    my ( $self, $key, $value ) = @_;
+    $self->[0]->note( $key, $value );
 }
+
+use overload '%{}' => sub { return $_[0]->[1]; }, fallback => 1;
 
 package DW::BML::RequestAdapter::Notes::Tie;
 
