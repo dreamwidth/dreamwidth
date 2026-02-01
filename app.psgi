@@ -96,10 +96,8 @@ builder {
     # Middleware for ensuring we have the Unique Cookie set up
     enable 'DW::UniqCookie';
 
-    # Middleware for doing user authentication (get remote)
-    #   NOTE: must support 'as=' parameter in dev servers, this is not done in the core auth
-    #   flows in the Apache path
-    # ...
+    # Middleware for doing user authentication (get remote, dev server ?as= support)
+    enable 'DW::Auth';
 
     # Middleware for doing sysban blocking (IP bans, uniq bans, tempbans, noanon_ip)
     enable 'DW::Sysban';
