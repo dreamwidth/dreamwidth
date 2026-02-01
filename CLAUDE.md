@@ -1,0 +1,115 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+Dreamwidth is a Perl-based journaling/blogging platform forked from LiveJournal. It runs on Apache mod_perl with MySQL, Memcached, and TheSchwartz job queue. All code must be GPL-licensed.
+
+## Development Environment
+
+Code is edited on the host, but **all commands must be run inside the devcontainer** (`.devcontainer/`). The devcontainer runs Ubuntu 22.04 with MySQL, Memcached, and Apache mod_perl. The workspace is mounted at `/workspaces/dreamwidth` (`$LJHOME`). Perl modules are pre-installed at `/opt/dreamwidth-extlib/lib/perl5` (`$PERL5LIB`).
+
+### Container Management
+
+Build and start the devcontainer from the repo root:
+
+```bash
+npx devcontainer up --workspace-folder .
+```
+
+Find the running container ID:
+
+```bash
+docker ps --format "{{.ID}} {{.Names}}"
+```
+
+Run commands inside the container (omit `-it` when not in a TTY, e.g. from Claude Code):
+
+```bash
+# Interactive shell
+docker exec -it <container-id> bash
+
+# Non-interactive command execution (use this from Claude Code)
+docker exec <container-id> <command>
+```
+
+### Commands (run inside devcontainer)
+
+```bash
+# Run a single test
+perl t/sometest.t
+
+# Check code formatting (must pass before PR)
+perl t/02-tidy.t
+
+# Apply code formatting
+perl extlib/bin/tidyall
+
+# Check all modules compile (1472 subtests)
+perl t/00-compile.t
+
+# Compile static assets (CSS/JS)
+bin/build-static.sh
+
+# Restart Apache after code changes
+apache2ctl restart
+```
+
+## Code Formatting
+
+Enforced via Perl::Tidy (`.tidyallrc`): Unix line endings, 4-space continuation indent, 100-char line limit. Applies to `bin/`, `cgi-bin/`, `t/`, and worker scripts. Run `bin/tidyall` to auto-format; `t/02-tidy.t` validates in CI.
+
+## Architecture
+
+### Module Namespaces
+
+- **`DW::*`** — Modern Dreamwidth code (controllers, auth, blob storage, templates)
+- **`LJ::*`** — Legacy LiveJournal modules (still heavily used for core entities: users, entries, comments)
+- **`Apache::*`** — mod_perl request handlers
+- **`S2::*`** — S2 style/theming language compiler
+
+### Key Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `cgi-bin/` | Core Perl modules and CGI scripts (DW::*, LJ::*, handlers) |
+| `views/` | Template Toolkit (.tt) templates for page rendering |
+| `htdocs/` | Static assets (CSS, JS, images) and legacy BML pages |
+| `styles/` | S2 style layer definitions (theming system) |
+| `bin/` | CLI utilities, maintenance scripts, worker processes |
+| `t/` | Test suite (139 test files) |
+| `etc/` | Config templates and Docker configs |
+| `api/` | REST API OpenAPI spec (YAML fragments built via Node.js) |
+| `ext/` | Optional modules (dw-nonfree) |
+
+### Request Flow
+
+1. Apache mod_perl receives request → `Apache::*` handlers
+2. `DW::Routing` dispatches to `DW::Controller::*` modules
+3. Controllers use `DW::Controller` helpers (`controller()`, `needlogin()`, `error_ml()`, `success_ml()`)
+4. Views rendered via `DW::Template` using Template Toolkit (`.tt` files in `views/`)
+5. Legacy pages use BML (Block Markup Language) templates in `htdocs/`
+
+### Core Entities
+
+- **Users**: `LJ::User` (main class), `DW::User` (extensions)
+- **Entries**: `LJ::Entry`, with `DW::Entry::*` extensions
+- **Comments**: `LJ::Comment`
+- **Communities**: `LJ::Community`
+
+### Database
+
+Multi-database MySQL architecture with cluster sharding (`dw_global`, `dw_cluster01+`). Uses `DBI` directly and `Data::ObjectDriver` as a lightweight ORM. Tests can use SQLite via `t/bin/initialize-db`.
+
+### Storage Backends
+
+Media/blob storage via `DW::BlobStore` with pluggable backends: S3, MogileFS, or local disk.
+
+### Job Queue
+
+Background processing via `DW::TaskQueue` with pluggable backends: SQS (`DW::TaskQueue::SQS`) or local disk (`DW::TaskQueue::LocalDisk`). Tasks are defined in `DW::Task::*`. Legacy jobs use TheSchwartz. Worker scripts in `bin/worker/`.
+
+## Troubleshooting
+
+If the container startup fails (`postCreateCommand`), the container still exists. Check the error output, fix the issue, remove the container (`docker rm <id>`), and rebuild.

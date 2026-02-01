@@ -22,6 +22,7 @@
       }
     }
   },
+  "runArgs": ["--security-opt", "label=disable"],
   "containerEnv": {
     "LJHOME": "/workspaces/dreamwidth",
     "PERL5LIB": "/opt/dreamwidth-extlib/lib/perl5",

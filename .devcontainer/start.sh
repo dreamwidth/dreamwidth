@@ -2,7 +2,7 @@ set -xe
 
 # Instantiate our configs
 mkdir -p $LJHOME/ext/local
-ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc/ || true
+ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc || true
 
 # Get database going, all we need for now
 service mysql start
