@@ -94,9 +94,14 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
     </form>
 [% ELSE %]
 [% sections.title = dw.ml(".login.title", { 'sitename' => site.nameshort} ) %]
-<div class="row" id="protected_login"> 
+[% IF errors.size %]
+    [% FOREACH err = errors %]
+        <div class="alert-box alert radius">[% err.1 %]</div>
+    [% END %]
+[% END %]
+<div class="row" id="protected_login">
   <div class="columns medium-6">
-      <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4> 
+      <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4>
         [% PROCESS "components/login.tt" %]
     </div>
 

@@ -117,14 +117,26 @@ unless ( defined &BML::ml ) {
             no warnings 'redefine';
             *{"BML::ml"} = sub {
                 my ( $code, $vars ) = @_;
-                $code = $BML::ML_SCOPE . $code
-                    if rindex( $code, '.', 0 ) == 0;
+                if ( rindex( $code, '.', 0 ) == 0 ) {
+                    my $scope = $BML::ML_SCOPE;
+                    unless ($scope) {
+                        my $r = eval { DW::Request->get };
+                        $scope = $r->note('ml_scope') if $r;
+                    }
+                    $code = $scope . $code if $scope;
+                }
                 return $getter->( $lang, $code, undef, $vars );
             };
             *{"BML::ML::FETCH"} = sub {
                 my $code = $_[1];
-                $code = $BML::ML_SCOPE . $code
-                    if rindex( $code, '.', 0 ) == 0;
+                if ( rindex( $code, '.', 0 ) == 0 ) {
+                    my $scope = $BML::ML_SCOPE;
+                    unless ($scope) {
+                        my $r = eval { DW::Request->get };
+                        $scope = $r->note('ml_scope') if $r;
+                    }
+                    $code = $scope . $code if $scope;
+                }
                 return $getter->( $lang, $code );
             };
         }

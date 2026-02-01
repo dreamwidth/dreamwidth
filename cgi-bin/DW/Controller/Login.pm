@@ -35,6 +35,10 @@ sub login_handler {
     my $post   = $r->post_args;
     my $remote = $rv->{remote};
 
+    # Set ML scope early so LJ::Lang::ml calls with relative codes (e.g.,
+    # '.error.notuser') resolve correctly before render_template runs.
+    $r->note( ml_scope => '/login.tt' );
+
     my $vars = {
         continue_to => $get->{continue_to},
         return_to   => $get->{return_to}

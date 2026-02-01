@@ -36,13 +36,20 @@ $DW::Request::PLACK_AVAILABLE = 1;
 BEGIN {
     # Do initialization for pass-throughs that will go to the Plack::Request
     # object inside
-    foreach my $method (qw/ uri method query_string /) {
+    foreach my $method (qw/ method query_string /) {
         no strict 'refs';
         *{"DW::Request::Plack::$method"} = sub {
             my DW::Request::Plack $self = shift;
             return $self->{req}->$method(@_);
         };
     }
+}
+
+# uri: return just the path component, matching Apache's $r->uri behavior.
+# Plack::Request->uri returns the full URL which breaks code expecting a path.
+sub uri {
+    my DW::Request::Plack $self = $_[0];
+    return $self->{req}->path_info || '/';
 }
 
 # creates a new DW::Request object, based on what type of server environment we
