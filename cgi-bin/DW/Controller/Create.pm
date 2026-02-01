@@ -419,10 +419,10 @@ sub setup_handler {
         LJ::Hooks::run_hooks( 'spam_check', $u, $post, 'userbio' );
 
         # name
-        $errors->add( 'name', '/manage/profile/index.bml.error.noname' )
+        $errors->add( 'name', '/manage/profile.tt.error.noname' )
             unless LJ::trim( $post->{name} ) || defined $post->{name_absent};
 
-        $errors->add( 'name', '/manage/profile/index.bml.error.name.toolong' )
+        $errors->add( 'name', '/manage/profile.tt.error.name.toolong' )
             if length $post->{name} > 80;
 
         $post->{name} =~ s/[\n\r]//g;
@@ -508,7 +508,7 @@ sub setup_handler {
         }
 
         # bio
-        $errors->add( 'bio', '/manage/profile/index.bml.error.bio.toolong' )
+        $errors->add( 'bio', '/manage/profile.tt.error.bio.toolong' )
             if defined $post->{bio} && length $post->{bio} >= LJ::BMAX_BIO;
         LJ::EmbedModule->parse_module_embed( $u, \$post->{bio} );
 
@@ -623,10 +623,10 @@ sub setup_handler {
 
         form_url    => LJ::create_url(),
         gender_list => [
-            F => LJ::Lang::ml('/manage/profile/index.bml.gender.female'),
-            M => LJ::Lang::ml('/manage/profile/index.bml.gender.male'),
-            O => LJ::Lang::ml('/manage/profile/index.bml.gender.other'),
-            U => LJ::Lang::ml('/manage/profile/index.bml.gender.unspecified'),
+            F => LJ::Lang::ml('/manage/profile.tt.gender.female'),
+            M => LJ::Lang::ml('/manage/profile.tt.gender.male'),
+            O => LJ::Lang::ml('/manage/profile.tt.gender.other'),
+            U => LJ::Lang::ml('/manage/profile.tt.gender.unspecified'),
         ],
         interests => \@current_interests,
 
