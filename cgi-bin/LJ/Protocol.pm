@@ -26,6 +26,7 @@ use LJ::Entry;
 use LJ::Poll;
 use LJ::Config;
 use LJ::Comment;
+use DW::Task::SphinxCopier;
 
 LJ::Config->load;
 
@@ -1754,7 +1755,7 @@ sub postevent {
         );
     }
 
-    my @jobs;    # jobs to add into TheSchwartz
+    my @jobs;    # jobs to add into TaskQueue
 
     my $entry = LJ::Entry->new( $uowner, jitemid => $jitemid, anum => $anum );
 
@@ -1805,7 +1806,7 @@ sub postevent {
     # update the sphinx search engine
     if ( @LJ::SPHINX_SEARCHD && !$importer_bypass ) {
         push @jobs,
-            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            DW::Task::SphinxCopier->new(
             { userid => $uowner->id, jitemid => $jitemid, source => "entrynew" } );
     }
 
@@ -2290,7 +2291,7 @@ sub editevent {
     my @jobs;
     if (@LJ::SPHINX_SEARCHD) {
         push @jobs,
-            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            DW::Task::SphinxCopier->new(
             { userid => $ownerid, jitemid => $itemid, source => "entryedt" } );
     }
     LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );

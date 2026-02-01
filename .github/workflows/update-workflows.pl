@@ -27,12 +27,16 @@ my %workers = (
 
     # Name                    MinCt, MaxCt, Memory, MilliCpu, TgtCpu
 
-    # New SQS based workers
+    # SQS based workers
     'dw-esn-cluster-subs' => [ 1, 50, 512, 256, 50, ],
     'dw-esn-filter-subs'  => [ 1, 50, 512, 256, 50, ],
     'dw-esn-fired-event'  => [ 1, 50, 512, 256, 50, ],
     'dw-esn-process-sub'  => [ 1, 50, 512, 256, 50, ],
+    'dw-latest-feed'      => [ 1, 1,  512, 256, 50, ],
+    'dw-lazy-cleanup'     => [ 1, 1,  512, 256, 50, ],
+    'dw-mass-privacy'     => [ 1, 1,  512, 256, 50, ],
     'dw-sphinx-copier'    => [ 1, 50, 512, 256, 50, ],
+    'dw-synsuck'          => [ 1, 20, 512, 256, 50, ],
 
     # Old style ESN workers, mostly deprecated, we keep one each around just
     # in case something ends up in the queue
