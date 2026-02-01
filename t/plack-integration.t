@@ -36,7 +36,7 @@ BEGIN {
     };
 }
 
-plan tests => 13;
+plan tests => 17;
 
 # Load the Plack app first — this pulls in DW::Routing and other modules
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -44,7 +44,47 @@ my $app      = do $app_file;
 die "Failed to load app.psgi: $@" if $@;
 die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE';
 
-# Monkey-patch after loading so we override the real implementations
+# ---- Tests using real routing (before monkey-patch) ----
+
+# Test 1: Homepage returns 200
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/index" );
+
+    is( $res->code, 200, "Homepage (/index) returns 200" );
+};
+
+# Test 2: Homepage renders with tropo-red site scheme
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/index" );
+
+    like(
+        $res->content,
+        qr/<body[^>]*class="[^"]*tropo-red[^"]*"/,
+        "Homepage body has tropo-red class"
+    );
+};
+
+# Test 3: Homepage includes tropo-red CSS
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/index" );
+
+    like( $res->content, qr/tropo-red\.css/, "Homepage includes tropo-red.css stylesheet" );
+};
+
+# Test 4: Homepage has text/html content type
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/index" );
+
+    like( $res->content_type, qr{text/html}, "Homepage has text/html content type" );
+};
+
+# ---- Tests with stubbed routing ----
+
+# Monkey-patch after the real-routing tests so we can test middleware behavior
 {
     no warnings 'redefine';
 
@@ -67,7 +107,7 @@ die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE'
     };
 }
 
-# Test 1: Basic GET request to root
+# Test 5: Basic GET request to root
 test_psgi $app, sub {
     my $cb  = shift;
     my $res = $cb->( GET "/" );
