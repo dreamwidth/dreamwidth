@@ -22,6 +22,7 @@ use Carp qw/ croak /;
 use Getopt::Long;
 
 use DW::Logic::Importer;
+use DW::Task::SphinxCopier;
 use DW::Worker::ContentImporter::LiveJournal::Comments;
 use DW::Worker::ContentImporter::LiveJournal::Entries;
 use DW::Worker::ContentImporter::LiveJournal::Userpics;
@@ -70,9 +71,8 @@ if ( $list ) {
 }
 
 if ( $schedule_copy ) {
-    LJ::theschwartz()->insert_jobs(
-        TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
-            { userid => $u->id, source => "importen" } )
+    DW::TaskQueue->dispatch(
+        DW::Task::SphinxCopier->new( { userid => $u->id, source => "importen" } )
     );
     print "Scheduled copier job.\n";
     exit 0;
