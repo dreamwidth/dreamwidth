@@ -196,6 +196,16 @@ CLUSTER: foreach my $cluster (@clusters) {
         drop_table($t);
     }
 
+    # If dbnotes didn't exist before but was just created, we can now run alters
+    if ( !$run_alter && $opt_sql ) {
+        my ($exists) =
+            $dbh->selectrow_array( "SHOW TABLES LIKE 'dbnotes'" );
+        if ($exists) {
+            print "## dbnotes table was just created, running alters.\n";
+            $run_alter = 1;
+        }
+    }
+
     if ($run_alter) {
         ## do all the alters
         foreach my $s (@alters) {
@@ -203,7 +213,7 @@ CLUSTER: foreach my $cluster (@clusters) {
         }
     }
     else {
-        print "## Skipping alters this pass, please re-run once the 'dbnotes' table exists.";
+        print "## Skipping alters this pass, re-run with -r to create tables and then run alters.\n";
     }
 
     $status{$cluster} = "OKAY";

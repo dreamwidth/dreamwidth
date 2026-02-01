@@ -3666,7 +3666,7 @@ register_alter(
                 "ALTER TABLE expunged_users MODIFY COLUMN user VARCHAR(25) NOT NULL" );
         }
 
-        unless ( column_type( "acctcode", "timegenerate" ) =~ /^\Qint(10) unsigned\E/ ) {
+        unless ( column_type( "acctcode", "timegenerate" ) =~ /^int(?:\(10\))? unsigned/ ) {
             do_alter( "acctcode", "ALTER TABLE acctcode MODIFY COLUMN timegenerate INT UNSIGNED" );
         }
 
