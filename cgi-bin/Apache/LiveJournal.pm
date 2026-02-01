@@ -1029,6 +1029,18 @@ sub trans {
         my $u = LJ::load_user($cuser)
             or return 404;
         my $base = $u->journal_base;
+
+        # If journal_base is path-based on this host (dev container), handle
+        # the request here instead of redirecting to ourselves in a loop.
+        if (   $LJ::IS_DEV_SERVER
+            && $LJ::IS_DEV_CONTAINER
+            && $base =~ m!^$LJ::PROTOCOL://$host\Q$hostport\E/~! )
+        {
+            my $view = $determine_view->( $cuser, "users", $srest );
+            return $view if defined $view;
+            return 404;
+        }
+
         return redir( $apache_r, "$base$srest$args_wq", correct_url_redirect_code() );
     }
 
