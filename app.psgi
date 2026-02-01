@@ -106,10 +106,15 @@ builder {
     # Concatenated static resources (CSS/JS combo handler)
     enable 'DW::ConcatRes';
 
-    # Plain static file serving from htdocs (matches Apache DocumentRoot behavior)
-    enable 'Static',
-        path => qr{^/(img|stc|js)/},
-        root => $LJ::HTDOCS // "$ENV{LJHOME}/htdocs";
+    # Plain static file serving from all htdocs directories (main + extensions like
+    # dw-nonfree). Ordered by scope priority so extension files override base files.
+    # pass_through lets each layer fall through to the next if the file isn't found.
+    for my $dir ( LJ::get_all_directories('htdocs') ) {
+        enable 'Static',
+            path         => qr{^/(img|stc|js)/},
+            root         => $dir,
+            pass_through => 1;
+    }
 
     # Middleware for ensuring we have the Unique Cookie set up
     enable 'DW::UniqCookie';
