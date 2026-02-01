@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+#
+# bin/dev-plack-server
+#
+# Development startup script for running Dreamwidth under Plack/Starman.
+# Runs a single-worker Starman instance suitable for development and testing.
+#
+# Usage:
+#   bin/dev-plack-server [--port PORT] [--host HOST]
+#
+# Options:
+#   --port PORT   Port to listen on (default: 8080)
+#   --host HOST   Host/address to bind to (default: 0.0.0.0)
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2025-2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use v5.10;
+
+use FindBin;
+use Getopt::Long;
+use Plack::Runner;
+
+# Ensure LJHOME is set
+$ENV{LJHOME} //= "$FindBin::Bin/..";
+
+# Mark as dev server
+$ENV{LJ_IS_DEV_SERVER} = 1;
+
+my $port = 8080;
+my $host = '0.0.0.0';
+
+GetOptions(
+    'port=i' => \$port,
+    'host=s' => \$host,
+) or die "Usage: $0 [--port PORT] [--host HOST]\n";
+
+my $app_psgi = "$ENV{LJHOME}/app.psgi";
+die "Cannot find $app_psgi\n" unless -f $app_psgi;
+
+say "Starting Dreamwidth Plack dev server...";
+say "  LJHOME: $ENV{LJHOME}";
+say "  Listening on: http://$host:$port/";
+say "  Workers: 1 (dev mode)";
+say "";
+
+my $runner = Plack::Runner->new;
+$runner->parse_options(
+    '--server',  'Starman',
+    '--listen',  "$host:$port",
+    '--workers', '1',
+    '--app',     $app_psgi,
+);
+$runner->run;
