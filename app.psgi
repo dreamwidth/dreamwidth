@@ -82,7 +82,6 @@ builder {
     # Middleware for doing domain redirect management, i.e., we want to ensure that the
     # user has ended up on the right domain (www.dreamwidth.org instead of dreamwidth.co.uk
     # and the like), is also responsible for managing redirect.dat etc
-    # TODO: still need to implement redirect.dat
     enable 'DW::Redirects';
 
     if ($LJ::IS_DEV_SERVER) {

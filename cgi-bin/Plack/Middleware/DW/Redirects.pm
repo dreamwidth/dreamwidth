@@ -82,9 +82,36 @@ sub call {
         }
     }
 
-    # TODO: redirect.dat
+    # Static redirects from redirect.dat (301 Moved Permanently, matching Apache behavior)
+    my $redir = _load_redirects();
+    if ( my $dest = $redir->{$path} ) {
+        if ( $env->{QUERY_STRING} && length $env->{QUERY_STRING} ) {
+            $dest .= ( $dest =~ /\?/ ? '&' : '?' ) . $env->{QUERY_STRING};
+        }
+        return [ 301, [ 'Location' => $dest, 'Content-Type' => 'text/html' ], [''] ];
+    }
 
     return $self->app->($env);
+}
+
+my $_redirects;
+
+sub _load_redirects {
+    return $_redirects if $_redirects;
+
+    my %redir;
+    foreach my $file ( 'redirect.dat', 'redirect-local.dat' ) {
+        open my $fh, '<', "$LJ::HOME/cgi-bin/$file"
+            or next;
+        while (<$fh>) {
+            next unless /^(\S+)\s+(\S+)/;
+            $redir{$1} = $2;
+        }
+        close $fh;
+    }
+
+    $_redirects = \%redir;
+    return $_redirects;
 }
 
 1;

@@ -36,7 +36,7 @@ BEGIN {
     };
 }
 
-plan tests => 8;
+plan tests => 13;
 
 # Load the Plack app first — this pulls in DW::Routing and other modules
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -127,4 +127,45 @@ test_psgi $app, sub {
     my $res = $cb->($req);
 
     ok( defined $res, "Request with X-Forwarded-For header is handled" );
+};
+
+# Test 9: redirect.dat entry returns 301
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/community.bml" );
+
+    is( $res->code, 301, "redirect.dat entry returns 301" );
+};
+
+# Test 10: redirect.dat Location header is correct
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/community.bml" );
+
+    is( $res->header('Location'), '/community/', "redirect.dat sets correct Location" );
+};
+
+# Test 11: redirect.dat preserves query string
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/community.bml?foo=bar" );
+
+    is( $res->header('Location'), '/community/?foo=bar',
+        "redirect.dat preserves query string" );
+};
+
+# Test 12: non-redirect.dat path passes through
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/not-in-redirect-dat" );
+
+    isnt( $res->code, 301, "Path not in redirect.dat is not 301" );
+};
+
+# Test 13: redirect.dat with path that has no query keeps dest clean
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/support.bml" );
+
+    is( $res->header('Location'), '/support/', "redirect.dat without query has clean Location" );
 };
