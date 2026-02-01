@@ -49,6 +49,14 @@ sub get {
     my $class = shift;
     my %opts  = @_;
 
+    # If a plack_env is explicitly provided, always create a fresh request —
+    # this is the Plack entry point signaling a new request has started
+    if ( $opts{plack_env} && $DW::Request::PLACK_AVAILABLE ) {
+        $cur_req    = DW::Request::Plack->new( $opts{plack_env} );
+        $determined = 1;
+        return $cur_req;
+    }
+
     # if we have already run this logic, return it.  makes it safe for us in case
     # the logic below is a little heavy so it doesn't run over and over.
     return $cur_req if $determined;

@@ -305,7 +305,7 @@ sub theschwartz {
 }
 
 sub gtop {
-    unless ( $LJ::GTOP_LOADED ) {
+    unless ($LJ::GTOP_LOADED) {
         eval "use GTop;";
         die "Couldn't load GTop: $@" if $@;
         $LJ::GTOP_LOADED = 1;

@@ -107,7 +107,8 @@ sub host {
 # set the status
 sub status {
     my DW::Request::Plack $self = $_[0];
-    $self->{res}->status( $_[1] );
+    $self->{res}->status( $_[1] ) if defined $_[1];
+    return $self->{res}->status;
 }
 
 # append to the body

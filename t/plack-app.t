@@ -44,7 +44,7 @@ $mock->fake_module(
     'LJ' => (
         start_request => sub { },
         end_request   => sub { },
-        urandom_int   => sub { return int(rand(1000000)); },
+        urandom_int   => sub { return int( rand(1000000) ); },
     )
 );
 
@@ -62,7 +62,7 @@ $mock->fake_module(
 
 # Test that we can load the app.psgi file
 my $app_file = "$ENV{LJHOME}/app.psgi";
-ok(-f $app_file, 'app.psgi file exists');
+ok( -f $app_file, 'app.psgi file exists' );
 
 # Test 3: File existence
 
@@ -73,14 +73,14 @@ eval {
     local @ARGV = ();
     $app = do $app_file;
 };
-ok(!$@, 'app.psgi loads without compilation errors') or diag("Error: $@");
+ok( !$@, 'app.psgi loads without compilation errors' ) or diag("Error: $@");
 
 # app.psgi might return undef in test environment due to missing config
 # so let's just test that it compiled successfully
 SKIP: {
     skip "app.psgi may not return app in test environment", 2 unless defined $app;
-    ok(defined $app, 'app.psgi returns a defined value');
-    ok(ref $app eq 'CODE', 'app.psgi returns a code reference');
+    ok( defined $app,       'app.psgi returns a defined value' );
+    ok( ref $app eq 'CODE', 'app.psgi returns a code reference' );
 }
 
 # Tests 4: Basic app loading (compilation only, since app may not initialize in test env)
@@ -94,7 +94,7 @@ my $basic_env = {
     'SERVER_PORT'       => 80,
     'HTTP_HOST'         => 'test.dreamwidth.org',
     'SCRIPT_NAME'       => '',
-    'psgi.version'      => [1, 1],
+    'psgi.version'      => [ 1, 1 ],
     'psgi.url_scheme'   => 'http',
     'psgi.input'        => '',
     'psgi.errors'       => '',
@@ -107,41 +107,36 @@ my $basic_env = {
 
 # Test DW::Request::Plack object creation
 my $request;
-eval {
-    $request = DW::Request::Plack->new($basic_env);
-};
-ok(!$@, 'DW::Request::Plack->new() works without errors') or diag("Error: $@");
-ok(defined $request, 'DW::Request::Plack->new() returns a defined object');
-isa_ok($request, 'DW::Request::Plack', 'Created object is a DW::Request::Plack');
+eval { $request = DW::Request::Plack->new($basic_env); };
+ok( !$@,              'DW::Request::Plack->new() works without errors' ) or diag("Error: $@");
+ok( defined $request, 'DW::Request::Plack->new() returns a defined object' );
+isa_ok( $request, 'DW::Request::Plack', 'Created object is a DW::Request::Plack' );
 
 # Tests 5-7: Request object creation
 
 # Test basic request object methods
-is($request->method, 'GET', 'Request method is correctly extracted');
-is($request->path, '/', 'Request path is correctly extracted');
-is($request->host, 'test.dreamwidth.org', 'Request host is correctly extracted');
+is( $request->method, 'GET',                 'Request method is correctly extracted' );
+is( $request->path,   '/',                   'Request path is correctly extracted' );
+is( $request->host,   'test.dreamwidth.org', 'Request host is correctly extracted' );
 
 # Tests 8-10: Request object methods
 
 # Test response object creation and basic methods
 $request->status(200);
-$request->header_out('Content-Type', 'text/html');
+$request->header_out( 'Content-Type', 'text/html' );
 $request->print('<html><body>Test</body></html>');
 
 my $response = $request->res;
-ok(defined $response, 'Response object is created');
-is($response->[0], 200, 'Response status is set correctly');
+ok( defined $response, 'Response object is created' );
+is( $response->[0], 200, 'Response status is set correctly' );
 
 # Tests 11-12: Response handling
 
 # Test API routing detection (the core logic in app.psgi)
-my $api_env = {
-    %$basic_env,
-    'PATH_INFO' => '/api/v1/test'
-};
+my $api_env = { %$basic_env, 'PATH_INFO' => '/api/v1/test' };
 
 my $api_request = DW::Request::Plack->new($api_env);
-is($api_request->path, '/api/v1/test', 'API path is correctly extracted');
+is( $api_request->path, '/api/v1/test', 'API path is correctly extracted' );
 
 # Tests 13: API routing
 

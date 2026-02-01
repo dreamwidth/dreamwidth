@@ -47,7 +47,7 @@ BEGIN {
 }
 
 my $app = sub {
-    my $r = DW::Request->get( plack_env => $_[0] );
+    my $r = DW::Request->get;
 
     # Main request dispatch; this will determine what kind of request we're getting
     # and then pass it to the appropriate handler. In the future, this should just
@@ -59,6 +59,9 @@ my $app = sub {
     if ( $uri =~ qr!^/api/v\d+/! ) {
         DW::Routing->call( uri => $uri );
     }
+
+    # Ensure we always have a status set; default to 404 if nothing handled the request
+    $r->status(404) unless $r->status;
 
     return $r->res;
 };

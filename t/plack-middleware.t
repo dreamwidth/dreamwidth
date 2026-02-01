@@ -36,7 +36,7 @@ $mock->fake_module(
     'LJ' => (
         start_request => sub { },
         end_request   => sub { },
-        urandom_int   => sub { return int(rand(1000000)); },
+        urandom_int   => sub { return int( rand(1000000) ); },
     )
 );
 
@@ -56,40 +56,36 @@ use_ok('Plack::Middleware::DW::Dev');
 
 # Test RequestWrapper middleware
 my $request_wrapper;
-eval {
-    $request_wrapper = Plack::Middleware::DW::RequestWrapper->new;
-};
-ok(!$@, 'RequestWrapper middleware instantiates without errors') or diag("Error: $@");
-isa_ok($request_wrapper, 'Plack::Middleware::DW::RequestWrapper', 'RequestWrapper is correct type');
+eval { $request_wrapper = Plack::Middleware::DW::RequestWrapper->new; };
+ok( !$@, 'RequestWrapper middleware instantiates without errors' ) or diag("Error: $@");
+isa_ok(
+    $request_wrapper,
+    'Plack::Middleware::DW::RequestWrapper',
+    'RequestWrapper is correct type'
+);
 
 # Tests 5-6: RequestWrapper instantiation
 
-# Test Redirects middleware  
+# Test Redirects middleware
 my $redirects;
-eval {
-    $redirects = Plack::Middleware::DW::Redirects->new;
-};
-ok(!$@, 'Redirects middleware instantiates without errors') or diag("Error: $@");
-isa_ok($redirects, 'Plack::Middleware::DW::Redirects', 'Redirects is correct type');
+eval { $redirects = Plack::Middleware::DW::Redirects->new; };
+ok( !$@, 'Redirects middleware instantiates without errors' ) or diag("Error: $@");
+isa_ok( $redirects, 'Plack::Middleware::DW::Redirects', 'Redirects is correct type' );
 
 # Tests 7-8: Redirects instantiation
 
 # Test XForwardedFor middleware
 my $xff;
-eval {
-    $xff = Plack::Middleware::DW::XForwardedFor->new;
-};
-ok(!$@, 'XForwardedFor middleware instantiates without errors') or diag("Error: $@");
-isa_ok($xff, 'Plack::Middleware::DW::XForwardedFor', 'XForwardedFor is correct type');
+eval { $xff = Plack::Middleware::DW::XForwardedFor->new; };
+ok( !$@, 'XForwardedFor middleware instantiates without errors' ) or diag("Error: $@");
+isa_ok( $xff, 'Plack::Middleware::DW::XForwardedFor', 'XForwardedFor is correct type' );
 
 # Tests 9-10: XForwardedFor instantiation
 
 # Test Dev middleware
 my $dev;
-eval {
-    $dev = Plack::Middleware::DW::Dev->new;
-};
-ok(!$@, 'Dev middleware instantiates without errors') or diag("Error: $@");
-isa_ok($dev, 'Plack::Middleware::DW::Dev', 'Dev is correct type');
+eval { $dev = Plack::Middleware::DW::Dev->new; };
+ok( !$@, 'Dev middleware instantiates without errors' ) or diag("Error: $@");
+isa_ok( $dev, 'Plack::Middleware::DW::Dev', 'Dev is correct type' );
 
 # Tests 11-12: Dev instantiation
