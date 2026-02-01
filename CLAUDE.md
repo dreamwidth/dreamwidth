@@ -112,11 +112,11 @@ Background processing via `DW::TaskQueue` with pluggable backends: SQS (`DW::Tas
 
 ### Plack Server (development)
 
-The codebase is being ported to run under Plack/Starman alongside the existing Apache mod_perl stack. To run the Plack dev server:
+The codebase runs under both Apache/mod_perl and Plack/Starman. See **`doc/PLACK.md`** for full architecture details (middleware stack, routing, security notes, testing).
 
 ```bash
 # Inside the devcontainer
-perl bin/dev-plack-server --port 8080
+perl bin/starman --port 8080
 ```
 
 This runs a single-worker Starman instance. The Plack entry point is `app.psgi`. Plack-specific middleware lives in `cgi-bin/Plack/Middleware/DW/`. The `DW::Request` abstraction layer (`DW::Request::Plack`, `DW::Request::Apache2`) allows most code to work under both servers.
