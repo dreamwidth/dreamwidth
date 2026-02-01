@@ -92,8 +92,13 @@ builder {
     # Ensure that we get the real user's IP address instead of a proxy
     enable 'DW::XForwardedFor';
 
-    # Middleware for doing static content (concat res)
-    # ...
+    # Concatenated static resources (CSS/JS combo handler)
+    enable 'DW::ConcatRes';
+
+    # Plain static file serving from htdocs (matches Apache DocumentRoot behavior)
+    enable 'Static',
+        path => qr{^/(img|stc|js)/},
+        root => $LJ::HTDOCS // "$ENV{LJHOME}/htdocs";
 
     # Middleware for ensuring we have the Unique Cookie set up
     enable 'DW::UniqCookie';
