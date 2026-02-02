@@ -29,11 +29,13 @@ use strict;
 use v5.10;
 
 use FindBin;
+
+# Ensure LJHOME is set and extlib is in @INC (production doesn't set PERL5LIB)
+$ENV{LJHOME} //= "$FindBin::Bin/..";
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
+
 use Getopt::Long;
 use Plack::Runner;
-
-# Ensure LJHOME is set
-$ENV{LJHOME} //= "$FindBin::Bin/..";
 
 my $port    = 8080;
 my $host    = '0.0.0.0';
