@@ -17,9 +17,13 @@ trap - ERR
 # Kick off Varnish
 service varnish start
 
+# Starman on port 8080 (direct, no Varnish)
+mkdir -p /var/log/starman
+perl $LJHOME/bin/starman --port 8080 --workers 10 --log /var/log/starman --daemonize
+
 # Sleep a few seconds to ensure things get up and running
 sleep 5
 
 # Now we "wait" by tailing the error log, so we can see it without having
 # to attach to the container
-tail -F /var/log/apache2/error.log
+tail -F /var/log/apache2/error.log /var/log/starman/error.log

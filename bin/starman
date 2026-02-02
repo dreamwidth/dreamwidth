@@ -2,8 +2,8 @@
 #
 # bin/starman
 #
-# Development startup script for running Dreamwidth under Plack/Starman.
-# Runs a single-worker Starman instance suitable for development and testing.
+# Startup script for running Dreamwidth under Plack/Starman.
+# Suitable for both development and production use.
 #
 # Usage:
 #   bin/starman [--port PORT] [--host HOST] [--workers COUNT] [--log DIR]
@@ -35,9 +35,6 @@ use Plack::Runner;
 # Ensure LJHOME is set
 $ENV{LJHOME} //= "$FindBin::Bin/..";
 
-# Mark as dev server
-$ENV{LJ_IS_DEV_SERVER} = 1;
-
 my $port    = 8080;
 my $host    = '0.0.0.0';
 my $workers = 3;
@@ -55,10 +52,10 @@ GetOptions(
 my $app_psgi = "$ENV{LJHOME}/app.psgi";
 die "Cannot find $app_psgi\n" unless -f $app_psgi;
 
-say "Starting Dreamwidth Plack dev server...";
+say "Starting Dreamwidth Plack server...";
 say "  LJHOME: $ENV{LJHOME}";
 say "  Listening on: http://$host:$port/";
-say "  Workers: $workers (dev mode)";
+say "  Workers: $workers";
 say "  Logs: " . ( $log_dir ? $log_dir : "stderr" );
 say "";
 

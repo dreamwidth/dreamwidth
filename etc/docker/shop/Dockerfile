@@ -40,6 +40,9 @@ EXPOSE 80/tcp
 # Varnish is here and is layered in front of Apache typically.
 EXPOSE 6081/tcp
 
+# Starman runs here, direct (no Varnish).
+EXPOSE 8080/tcp
+
 # Kick off the startup script, which does some healthcheck and then starts
 # Apache if things look good.
 CMD bash /opt/startup-prod.sh
