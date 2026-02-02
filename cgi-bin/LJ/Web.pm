@@ -165,7 +165,7 @@ sub valid_stylesheet_url {
         || $href =~ /^\Q$LJ::STATPREFIX\E/;
 
     # S2 stylesheets:
-    return 1 if $path =~ m!^(/\w+)?/res/(\d+)/stylesheet(\?\d+)?$!;
+    return 1 if $path =~ m!^(/~\w+|/users/\w+|/\w+)?/res/(\d+)/stylesheet(\?\d+)?$!;
 
     # unknown, reject.
     return $cleanit->();
@@ -575,6 +575,16 @@ sub check_referer {
     return 1
         if $referer =~ m!^https?://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
     return 1 if $origuri =~ m!^https?://! && $origreferer eq $origuri;
+
+    # Dev container: $LJ::DOMAIN is empty, so match referer host against request host
+    if ( $LJ::IS_DEV_SERVER && !$LJ::DOMAIN ) {
+        my $r = eval { DW::Request->get };
+        if ($r) {
+            my $host = $r->host;
+            return 1 if $referer =~ m!^https?://\Q$host\E$uri!;
+        }
+    }
+
     return undef;
 }
 

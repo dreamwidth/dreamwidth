@@ -62,14 +62,16 @@ no strict "vars";
 
     if ( $IS_DEV_SERVER && $IS_DEV_CONTAINER ) {
 
-        # Do not redirect or set domains
+        # Do not redirect or set domains; cookies should have no domain
+        # so they default to the request host (e.g. localhost)
         $PROTOCOL          = "http";
         $DOMAIN            = "";
         $USER_DOMAIN       = "";
         $DOMAIN_WEB        = "";
         $SITEROOT          = "";
-        $SHOPROOT          = "";
+        $SHOPROOT          = "/shop";
         $RELATIVE_SITEROOT = "";
+        $COOKIE_DOMAIN     = "";
     }
     else {
         # Should always be https except on dev servers
@@ -268,11 +270,22 @@ no strict "vars";
         #'DE' => { type => 'statede', save_region_code => 0, },
     );
 
-    $SUBDOMAIN_RULES = {
-        P => [ 1, "users.$LJ::DOMAIN" ],
-        Y => [ 1, "syndicated.$LJ::DOMAIN" ],
-        C => [ 1, "community.$LJ::DOMAIN" ],
-    };
+    if ( $IS_DEV_SERVER && $IS_DEV_CONTAINER ) {
+
+        # Dev container: use path-based journal URLs (/~username)
+        $SUBDOMAIN_RULES = {
+            P => [ 0, "" ],
+            Y => [ 0, "" ],
+            C => [ 0, "" ],
+        };
+    }
+    else {
+        $SUBDOMAIN_RULES = {
+            P => [ 1, "users.$LJ::DOMAIN" ],
+            Y => [ 1, "syndicated.$LJ::DOMAIN" ],
+            C => [ 1, "community.$LJ::DOMAIN" ],
+        };
+    }
 
     $LJ::USERSEARCH_METAFILE_PATH ||= "$HOME/var/usersearch.data";
 

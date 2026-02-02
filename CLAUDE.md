@@ -110,6 +110,30 @@ Media/blob storage via `DW::BlobStore` with pluggable backends: S3, MogileFS, or
 
 Background processing via `DW::TaskQueue` with pluggable backends: SQS (`DW::TaskQueue::SQS`) or local disk (`DW::TaskQueue::LocalDisk`). Tasks are defined in `DW::Task::*`. Legacy jobs use TheSchwartz. Worker scripts in `bin/worker/`.
 
+### Plack Server (development)
+
+The codebase runs under both Apache/mod_perl and Plack/Starman. See **`doc/PLACK.md`** for full architecture details (middleware stack, routing, security notes, testing).
+
+```bash
+# Inside the devcontainer
+perl bin/starman --port 8080
+```
+
+This runs a single-worker Starman instance. The Plack entry point is `app.psgi`. Plack-specific middleware lives in `cgi-bin/Plack/Middleware/DW/`. The `DW::Request` abstraction layer (`DW::Request::Plack`, `DW::Request::Apache2`) allows most code to work under both servers.
+
+Key differences from Apache:
+- `$r->uri` must return the path only (not full URL) — `DW::Request::Plack` handles this
+- In the dev container, `$LJ::DOMAIN`, `$LJ::SITEROOT`, etc. are empty — URLs are built from the request Host header via `LJ::create_url()`
+- BML pages render via `DW::BML` (Plack) instead of `Apache::BML` (mod_perl); both share the same BML engine internals
+
+### Dev Container Config
+
+The dev container (`$IS_DEV_SERVER && $IS_DEV_CONTAINER`) intentionally sets `$LJ::DOMAIN = ""`, `$LJ::SITEROOT = ""`, etc. in `LJ::Global::Defaults`. This means domain/redirect logic is skipped and URLs are constructed dynamically from request headers. Do not use `local` to override these globals in middleware — it leaks into downstream code.
+
+## Git Workflow
+
+**Only commit when explicitly asked.** Ask before committing. Follow the repository's existing commit message style.
+
 ## Troubleshooting
 
 If the container startup fails (`postCreateCommand`), the container still exists. Check the error output, fix the issue, remove the container (`docker rm <id>`), and rebuild.
