@@ -29,7 +29,7 @@ BEGIN {
     };
 }
 
-plan tests => 18;
+plan tests => 26;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -37,27 +37,46 @@ my $app      = do $app_file;
 die "Failed to load app.psgi: $@" if $@;
 die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE';
 
-# Stub routing so we can observe what URI reaches the app
+# Stub routing and journal rendering so we can observe what reaches the app
 my $routed_uri;
+my ( $journal_render_user, $journal_render_uri );
 {
     no warnings 'redefine';
+
     *DW::Routing::call = sub {
         my ( $class, %args ) = @_;
         $routed_uri = $args{uri} || '';
+
+        # Return undef for journal subdomain paths so journal rendering kicks in
         my $r = DW::Request->get;
+        if ( $r->{env} && $r->{env}{'dw.journal_user'} ) {
+            return undef;
+        }
+
         $r->status(200);
         $r->header_out( 'Content-Type' => 'text/plain' );
         $r->print("routed:$routed_uri");
         return;
     };
+
+    *DW::Controller::Journal::render = sub {
+        my ( $class, %args ) = @_;
+        $journal_render_user = $args{user};
+        $journal_render_uri  = $args{uri};
+        my $r = DW::Request->get;
+        $r->status(200);
+        $r->header_out( 'Content-Type' => 'text/plain' );
+        $r->print("journal:$journal_render_user:$journal_render_uri");
+        return $r->res;
+    };
 }
 
 # Configure subdomain functions for testing
-local $LJ::USER_DOMAIN   = 'example.org';
-local $LJ::DOMAIN_WEB    = 'www.example.org';
-local $LJ::DOMAIN        = 'example.org';
-local $LJ::SITEROOT      = 'https://www.example.org';
-local $LJ::PROTOCOL      = 'https';
+local $LJ::USER_DOMAIN        = 'example.org';
+local $LJ::DOMAIN_WEB         = 'www.example.org';
+local $LJ::DOMAIN             = 'example.org';
+local $LJ::SITEROOT           = 'https://www.example.org';
+local $LJ::PROTOCOL           = 'https';
 local %LJ::SUBDOMAIN_FUNCTION = (
     shop    => 'shop',
     support => 'support',
@@ -254,21 +273,121 @@ test_psgi $app, sub {
     };
 }
 
-# --- Non-functional subdomain passes through ---
+# --- User journal subdomain (no SUBDOMAIN_FUNCTION entry) ---
 
-# Test 17-18: Unknown subdomain is not handled by SubdomainFunction
+# Test 17-18: username.example.org renders journal
 test_psgi $app, sub {
-    my $cb  = shift;
-    my $req = GET "http://someuser.example.org/profile";
+    my $cb = shift;
+    $journal_render_user = undef;
+    my $req = GET "http://someuser.example.org/2026/01/01/hello";
     my $res = $cb->($req);
 
-    ok( defined $res, "unknown subdomain returns a response" );
+    is( $res->code, 200, "journal subdomain returns 200" );
 };
 
 test_psgi $app, sub {
-    my $cb  = shift;
-    my $req = GET "http://someuser.example.org/profile";
+    my $cb = shift;
+    $journal_render_user = undef;
+    $journal_render_uri  = undef;
+    my $req = GET "http://someuser.example.org/2026/01/01/hello";
     $cb->($req);
 
-    is( $routed_uri, '/profile', "unknown subdomain does not rewrite URI" );
+    is( $journal_render_user, 'someuser', "journal subdomain passes username to render" );
 };
+
+# Test 19: journal subdomain passes path to render
+test_psgi $app, sub {
+    my $cb = shift;
+    $journal_render_uri = undef;
+    my $req = GET "http://someuser.example.org/2026/01/01/hello";
+    $cb->($req);
+
+    is( $journal_render_uri, '/2026/01/01/hello', "journal subdomain passes path to render" );
+};
+
+# Test 20: journal subdomain root
+test_psgi $app, sub {
+    my $cb = shift;
+    $journal_render_uri = undef;
+    my $req = GET "http://someuser.example.org/";
+    $cb->($req);
+
+    is( $journal_render_uri, '/', "journal subdomain root passes / to render" );
+};
+
+# --- "journal" SUBDOMAIN_FUNCTION (community, users, syndicated) ---
+
+# Test 21-22: journal function extracts user from path
+{
+    local %LJ::SUBDOMAIN_FUNCTION = ( community => 'journal' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+        $journal_render_user = undef;
+        $journal_render_uri  = undef;
+        my $req = GET "http://community.example.org/examplecomm/profile";
+        $cb->($req);
+
+        is( $journal_render_user, 'examplecomm', "journal function extracts username from path" );
+    };
+
+    test_psgi $app, sub {
+        my $cb = shift;
+        $journal_render_uri = undef;
+        my $req = GET "http://community.example.org/examplecomm/profile";
+        $cb->($req);
+
+        is( $journal_render_uri, '/profile', "journal function extracts path after username" );
+    };
+}
+
+# --- "normal" SUBDOMAIN_FUNCTION ---
+
+# Test 23-24: normal function passes through to app as-is
+{
+    local %LJ::SUBDOMAIN_FUNCTION = ( somefunc => 'normal' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+        $routed_uri = undef;
+        my $req = GET "http://somefunc.example.org/index";
+        $cb->($req);
+
+        is( $routed_uri, '/index', "normal function passes URI through unchanged" );
+    };
+
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $req = GET "http://somefunc.example.org/index";
+        my $res = $cb->($req);
+
+        is( $res->code, 200, "normal function returns 200" );
+    };
+}
+
+# --- changehost SUBDOMAIN_FUNCTION ---
+
+# Test 25-26: changehost redirects to new host
+{
+    local %LJ::SUBDOMAIN_FUNCTION = ( old => [ 'changehost', 'new.example.com' ] );
+
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $req = GET "http://old.example.org/some/path";
+        my $res = $cb->($req);
+
+        is( $res->code, 303, "changehost returns redirect" );
+    };
+
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $req = GET "http://old.example.org/some/path";
+        my $res = $cb->($req);
+
+        is(
+            $res->header('Location'),
+            'https://new.example.com/some/path',
+            "changehost redirects to correct host"
+        );
+    };
+}

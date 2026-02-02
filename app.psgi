@@ -43,7 +43,8 @@ BEGIN {
 }
 
 my $app = sub {
-    my $r = DW::Request->get;
+    my $env = $_[0];
+    my $r   = DW::Request->get;
 
     # Main request dispatch; this will determine what kind of request we're getting
     # and then pass it to the appropriate handler. In the future, this should just
@@ -57,6 +58,15 @@ my $app = sub {
         ( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ )
         ? '/journal/embedcontent'
         : $r->path;
+    # Handle legacy RPC URIs (/__rpc_delcomment, /__rpc_talkscreen) that
+    # Apache routes via LJ::URI->handle() to BML files
+    if ( my ($rpc) = $uri =~ m!^.*/__rpc_(\w+)$! ) {
+        if ( my $bml_file = $LJ::AJAX_URI_MAP{$rpc} ) {
+            DW::BML->render( "$LJ::HTDOCS/$bml_file", $uri );
+            return $r->res;
+        }
+    }
+
     my $ret = DW::Routing->call( uri => $uri );
 
     # If routing returned a finalized Plack response (arrayref), e.g. from
@@ -68,10 +78,20 @@ my $app = sub {
         $r->status(200) unless $r->status;
     }
     else {
-        # Journal path-based routing: /~user/... and /users/user/...
+        # Journal routing: subdomain-based (set by SubdomainFunction middleware)
+        # or path-based (/~user/... and /users/user/...)
         unless ( defined $ret ) {
-            if ( $uri =~ m!^/(?:~|users/)([\w-]+)(.*)$! ) {
-                my ( $journal_user, $journal_path ) = ( $1, $2 || '/' );
+            my ( $journal_user, $journal_path );
+
+            if ( $env->{'dw.journal_user'} ) {
+                $journal_user = $env->{'dw.journal_user'};
+                $journal_path = $env->{'dw.journal_path'} || '/';
+            }
+            elsif ( $uri =~ m!^/(?:~|users/)([\w-]+)(.*)$! ) {
+                ( $journal_user, $journal_path ) = ( $1, $2 || '/' );
+            }
+
+            if ($journal_user) {
                 $ret = DW::Controller::Journal->render(
                     user => $journal_user,
                     uri  => $journal_path,
@@ -113,6 +133,9 @@ builder {
     # Handle OPTIONs requests and otherwise only allow the methods that we expect
     # to be allowed; this will abort any calls that are methods that not accepted
     enable 'Options', allowed => [qw /DELETE GET HEAD POST PUT/];
+
+    # Security headers on all responses (matches Apache::LiveJournal::trans)
+    enable 'DW::SecurityHeaders';
 
     # Manages start/end request and things we might want to do around the entire
     # request lifecycle such as logging, resource checking, etc
