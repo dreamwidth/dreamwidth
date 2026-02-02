@@ -140,7 +140,6 @@ sub check_sessionless_auth_token {
 
 package LJ;
 use Digest::MD5 ();
-use Math::Random::Secure qw(irand);
 
 # <LJFUNC>
 # name: LJ::auth_okay

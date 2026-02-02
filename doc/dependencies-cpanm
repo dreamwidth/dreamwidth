@@ -13,7 +13,6 @@ Convert::Base32
 CryptX@0.080
 Danga::Socket
 Data::ObjectDriver
-DBIx::Class
 Digest::HMAC_SHA1
 Digest::SHA1
 File::Type
