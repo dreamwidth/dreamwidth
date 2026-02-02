@@ -25,6 +25,7 @@ BEGIN {
 }
 
 use Apache2::ServerUtil ();
+use Apache2::Connection ();
 use DW::Request::Apache2;
 
 use LJ::Config;
