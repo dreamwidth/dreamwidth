@@ -123,6 +123,10 @@ builder {
     # and the like), is also responsible for managing redirect.dat etc
     enable 'DW::Redirects';
 
+    # Handle functional subdomains (shop.dw.org, support.dw.org, etc) by redirecting
+    # or rewriting URIs to match Apache::LiveJournal::trans behavior
+    enable 'DW::SubdomainFunction';
+
     if ($LJ::IS_DEV_SERVER) {
         enable 'DW::Dev';
     }
