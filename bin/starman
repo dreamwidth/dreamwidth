@@ -13,6 +13,7 @@
 #   --host HOST      Host/address to bind to (default: 0.0.0.0)
 #   --workers COUNT  Number of workers to run in parallel
 #   --log DIR        Directory for access and error logs (default: none)
+#   --daemonize      Fork into background (writes PID to log dir)
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -41,13 +42,15 @@ my $port    = 8080;
 my $host    = '0.0.0.0';
 my $workers = 3;
 my $log_dir;
+my $daemonize;
 
 GetOptions(
     'port=i'    => \$port,
     'host=s'    => \$host,
     'workers=i' => \$workers,
     'log=s'     => \$log_dir,
-) or die "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR]\n";
+    'daemonize' => \$daemonize,
+) or die "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR] [--daemonize]\n";
 
 my $app_psgi = "$ENV{LJHOME}/app.psgi";
 die "Cannot find $app_psgi\n" unless -f $app_psgi;
@@ -70,6 +73,11 @@ if ($log_dir) {
     mkdir $log_dir unless -d $log_dir;
     push @opts, '--access-log', "$log_dir/access.log";
     push @opts, '--error-log', "$log_dir/error.log";
+}
+
+if ($daemonize) {
+    push @opts, '--daemonize';
+    push @opts, '--pid', "$log_dir/starman.pid" if $log_dir;
 }
 
 my $runner = Plack::Runner->new;

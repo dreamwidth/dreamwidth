@@ -31,7 +31,8 @@
     "LANG": "en_US.UTF-8",
     "LC_ALL": "en_US.UTF-8"
   },
-  "postCreateCommand": "/bin/bash .devcontainer/start.sh",
+  "postCreateCommand": "/bin/bash .devcontainer/setup.sh",
+  "postStartCommand": "/bin/bash .devcontainer/start.sh",
   "remoteUser": "root",
   "workspaceFolder": "/workspaces/dreamwidth"
 }
