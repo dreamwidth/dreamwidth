@@ -1,0 +1,136 @@
+#!/bin/bash
+#
+# ecs-shell - Connect to ECS tasks in the Dreamwidth cluster
+#
+# Usage:
+#   bin/ecs-shell                     - List all services
+#   bin/ecs-shell <service>           - Connect to a random task in the service
+#   bin/ecs-shell <service> list      - List tasks in the service
+#   bin/ecs-shell <service> <taskid>  - Connect to a specific task
+
+set -e
+
+CLUSTER="dreamwidth"
+SHELL_CMD="/bin/bash"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+error() {
+    echo -e "${RED}Error:${NC} $1" >&2
+    exit 1
+}
+
+info() {
+    echo -e "${GREEN}$1${NC}"
+}
+
+warn() {
+    echo -e "${YELLOW}$1${NC}"
+}
+
+# List all services in the cluster
+list_services() {
+    info "Services in cluster '$CLUSTER':"
+    echo
+    aws ecs list-services --cluster "$CLUSTER" --output text --query 'serviceArns[*]' \
+        | tr '\t' '\n' \
+        | sed 's|.*/||' \
+        | sort
+}
+
+# List tasks for a service
+list_tasks() {
+    local service="$1"
+
+    info "Tasks for service '$service' in cluster '$CLUSTER':"
+    echo
+
+    local task_arns
+    task_arns=$(aws ecs list-tasks --cluster "$CLUSTER" --service-name "$service" \
+        --query 'taskArns[*]' --output text)
+
+    if [[ -z "$task_arns" ]]; then
+        warn "No running tasks found for service '$service'"
+        return 1
+    fi
+
+    # Get task details including container info
+    aws ecs describe-tasks --cluster "$CLUSTER" --tasks $task_arns \
+        --query 'tasks[*].[taskArn,lastStatus,containers[0].name]' --output text \
+        | while read -r arn status container; do
+            task_id=$(echo "$arn" | sed 's|.*/||')
+            printf "%-40s %-10s %s\n" "$task_id" "$status" "$container"
+        done
+}
+
+# Connect to a task
+connect_to_task() {
+    local service="$1"
+    local task_id="$2"
+
+    # If no task_id provided, pick a random running task
+    if [[ -z "$task_id" ]]; then
+        local task_arns
+        task_arns=$(aws ecs list-tasks --cluster "$CLUSTER" --service-name "$service" \
+            --desired-status RUNNING --query 'taskArns[*]' --output text)
+
+        if [[ -z "$task_arns" ]]; then
+            error "No running tasks found for service '$service'"
+        fi
+
+        # Pick the first task (could randomize but first is fine)
+        local first_arn
+        first_arn=$(echo "$task_arns" | awk '{print $1}')
+        task_id=$(echo "$first_arn" | sed 's|.*/||')
+
+        info "Connecting to task: $task_id"
+    fi
+
+    # Get the container name for this task
+    local container_name
+    container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
+        --query 'tasks[0].containers[0].name' --output text)
+
+    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
+        error "Could not determine container name for task '$task_id'"
+    fi
+
+    info "Connecting to container '$container_name' in task '$task_id'..."
+    echo
+
+    aws ecs execute-command \
+        --cluster "$CLUSTER" \
+        --task "$task_id" \
+        --container "$container_name" \
+        --interactive \
+        --command "$SHELL_CMD"
+}
+
+# Main
+case "$#" in
+    0)
+        list_services
+        ;;
+    1)
+        connect_to_task "$1"
+        ;;
+    2)
+        if [[ "$2" == "list" ]]; then
+            list_tasks "$1"
+        else
+            connect_to_task "$1" "$2"
+        fi
+        ;;
+    *)
+        echo "Usage:"
+        echo "  $0                     - List all services"
+        echo "  $0 <service>           - Connect to a random task in the service"
+        echo "  $0 <service> list      - List tasks in the service"
+        echo "  $0 <service> <taskid>  - Connect to a specific task"
+        exit 1
+        ;;
+esac

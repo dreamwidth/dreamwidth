@@ -9,7 +9,7 @@
             "command": [
                 "bash",
                 "/opt/startup-prod.sh",
-                "bin/worker/[% name %]",
+                "bin/worker/send-email-ses",
                 "-v"
             ],
             "environment": [],
@@ -35,7 +35,7 @@
             }
         }
     ],
-    "family": "worker-[% name %]",
+    "family": "worker-send-email-ses",
     "taskRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskRole",
     "executionRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskExecutionRole",
     "networkMode": "awsvpc",
@@ -52,6 +52,6 @@
     "requiresCompatibilities": [
         "FARGATE"
     ],
-    "cpu": "[% cpu %]",
-    "memory": "[% memory %]"
+    "cpu": "256",
+    "memory": "512"
 }
