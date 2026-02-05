@@ -41,37 +41,39 @@ locals {
   sg_alb     = "sg-0609957b"
 
   # Web service definitions
+  # NOTE: target_groups uses "tg_ref" to reference resources defined in load-balancing.tf
+  # The actual ARNs are resolved in web.tf using the target_group_refs local
   web_services = {
     "stable" = {
-      cpu               = 1024
-      memory            = 6144
-      target_group_arns = [
-        "arn:aws:elasticloadbalancing:us-east-1:194396987458:targetgroup/web-stable-tg/e7d3d77ceb1ee71b",
-        "arn:aws:elasticloadbalancing:us-east-1:194396987458:targetgroup/web-stable-2-tg/4aebdaca897e1021",
+      cpu           = 1024
+      memory        = 6144
+      target_groups = [
+        { tg_ref = "web_stable", port = 6081 },
+        { tg_ref = "web_stable_2", port = 6081 },  # TODO: change to 8080 when upgraded to web22
       ]
     }
     "canary" = {
-      cpu               = 1024
-      memory            = 6144
-      target_group_arns = [
-        "arn:aws:elasticloadbalancing:us-east-1:194396987458:targetgroup/web-canary-tg/55962470111f6226",
-        "arn:aws:elasticloadbalancing:us-east-1:194396987458:targetgroup/web-canary-2-tg/58bba4ac63aa2ac1",
+      cpu           = 1024
+      memory        = 6144
+      target_groups = [
+        { tg_ref = "web_canary", port = 6081 },
+        { tg_ref = "web_canary_2", port = 8080 },
       ]
     }
     "shop" = {
-      cpu               = 1024
-      memory            = 6144
-      target_group_arns = [
-        "arn:aws:elasticloadbalancing:us-east-1:194396987458:targetgroup/web-shop-tg/5d9416d1dc3cb8ef",
-        "arn:aws:elasticloadbalancing:us-east-1:194396987458:targetgroup/web-shop-2-tg/0573939999de3a97",
+      cpu           = 1024
+      memory        = 6144
+      target_groups = [
+        { tg_ref = "web_shop", port = 6081 },
+        { tg_ref = "web_shop_2", port = 8080 },
       ]
     }
     "unauthenticated" = {
-      cpu               = 1024
-      memory            = 6144
-      target_group_arns = [
-        "arn:aws:elasticloadbalancing:us-east-1:194396987458:targetgroup/web-unauthenticated-tg/75c59cc4fa81999e",
-        "arn:aws:elasticloadbalancing:us-east-1:194396987458:targetgroup/web-unauthenticated-2-tg/5797063f5a87cffd",
+      cpu           = 1024
+      memory        = 6144
+      target_groups = [
+        { tg_ref = "web_unauthenticated", port = 6081 },
+        { tg_ref = "web_unauthenticated_2", port = 6081 },  # TODO: change to 8080 when upgraded to web22
       ]
     }
   }

@@ -1,5 +1,19 @@
 # web.tf - Web server task definitions and services
 
+# Map target group references to actual resources
+locals {
+  target_group_arns = {
+    web_stable            = aws_lb_target_group.web_stable.arn
+    web_stable_2          = aws_lb_target_group.web_stable_2.arn
+    web_canary            = aws_lb_target_group.web_canary.arn
+    web_canary_2          = aws_lb_target_group.web_canary_2.arn
+    web_shop              = aws_lb_target_group.web_shop.arn
+    web_shop_2            = aws_lb_target_group.web_shop_2.arn
+    web_unauthenticated   = aws_lb_target_group.web_unauthenticated.arn
+    web_unauthenticated_2 = aws_lb_target_group.web_unauthenticated_2.arn
+  }
+}
+
 # CloudWatch Log Group for web services
 resource "aws_cloudwatch_log_group" "web" {
   name              = "/dreamwidth/web"
@@ -153,11 +167,11 @@ resource "aws_ecs_service" "web" {
 
   # Load balancers - each web service has target groups
   dynamic "load_balancer" {
-    for_each = each.value.target_group_arns
+    for_each = each.value.target_groups
     content {
-      target_group_arn = load_balancer.value
+      target_group_arn = local.target_group_arns[load_balancer.value.tg_ref]
       container_name   = "web"
-      container_port   = 6081
+      container_port   = load_balancer.value.port
     }
   }
 

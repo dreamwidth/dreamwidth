@@ -525,7 +525,7 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_45" {
       }
       target_group {
         arn    = aws_lb_target_group.web_shop_2.arn
-        weight = 0
+        weight = 100
       }
       target_group {
         arn    = aws_lb_target_group.dw_maint.arn
@@ -533,7 +533,7 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_45" {
       }
       stickiness {
         enabled  = false
-        duration = 1
+        duration = 3600
       }
     }
   }
@@ -547,10 +547,6 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_45" {
   tags = {
     Name = "Shop Traffic"
   }
-
-  lifecycle {
-    ignore_changes = [action, condition]
-  }
 }
 
 # Rule 50: canary traffic
@@ -563,35 +559,32 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_50" {
     forward {
       target_group {
         arn    = aws_lb_target_group.web_canary.arn
-        weight = 0
+        weight = 100
       }
       target_group {
         arn    = aws_lb_target_group.web_canary_2.arn
-        weight = 0
+        weight = 100
       }
       target_group {
         arn    = aws_lb_target_group.dw_maint.arn
-        weight = 100
+        weight = 0
       }
       stickiness {
         enabled  = false
-        duration = 1
+        duration = 3600
       }
     }
   }
 
   condition {
-    host_header {
-      values = ["www-canary.dreamwidth.org"]
+    http_header {
+      http_header_name = "Cookie"
+      values           = ["*dwcanary=1*"]
     }
   }
 
   tags = {
     Name = "Canary Traffic"
-  }
-
-  lifecycle {
-    ignore_changes = [action, condition]
   }
 }
 
