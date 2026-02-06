@@ -58,9 +58,9 @@ list_tasks() {
         return 1
     fi
 
-    # Get task details including container info
+    # Get task details including container info (prefer 'web' container name)
     aws ecs describe-tasks --cluster "$CLUSTER" --tasks $task_arns \
-        --query 'tasks[*].[taskArn,lastStatus,containers[0].name]' --output text \
+        --query "tasks[*].[taskArn,lastStatus,containers[?name=='web'].name | [0] || containers[0].name]" --output text \
         | while read -r arn status container; do
             task_id=$(echo "$arn" | sed 's|.*/||')
             printf "%-40s %-10s %s\n" "$task_id" "$status" "$container"
@@ -90,10 +90,22 @@ connect_to_task() {
         info "Connecting to task: $task_id"
     fi
 
-    # Get the container name for this task
+    # Get the container name for this task - prefer 'web' container over sidecars
     local container_name
     container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
-        --query 'tasks[0].containers[0].name' --output text)
+        --query "tasks[0].containers[?name=='web'].name | [0]" --output text)
+
+    # Fall back to first non-cloudwatch-agent container if 'web' not found
+    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
+        container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
+            --query "tasks[0].containers[?name!='cloudwatch-agent'].name | [0]" --output text)
+    fi
+
+    # Last resort: just use the first container
+    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
+        container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
+            --query 'tasks[0].containers[0].name' --output text)
+    fi
 
     if [[ -z "$container_name" || "$container_name" == "None" ]]; then
         error "Could not determine container name for task '$task_id'"

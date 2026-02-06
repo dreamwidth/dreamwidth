@@ -295,8 +295,9 @@ sub get_dbh_conn {
         }
         else {
             $connection_opts = {
-                PrintError => 0,
-                AutoCommit => 1,
+                PrintError        => 0,
+                AutoCommit        => 1,
+                mysql_enable_utf8 => 0,    # Preserve binary data (gzip in TEXT columns)
             };
         }
 
