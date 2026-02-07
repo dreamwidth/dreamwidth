@@ -32,6 +32,9 @@ RUN curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/depend
     rm -rf /root/.perl-cpm && \
     rm -rf /root/.cpanm
 
+# Legacy build-static.sh for Compass/YUI (this image is being deprecated)
+COPY build-static-legacy.sh /dw-build/build-static-legacy.sh
+
 # Actually check out the source code now. Also build static, so that later when
 # we do individual deploys, the static build is faster.
 RUN mv $LJHOME/extlib /dw-extlib && \
@@ -43,4 +46,5 @@ RUN mv $LJHOME/extlib /dw-extlib && \
     mkdir $LJHOME/ext/yuicompressor/ && \
     curl -s -L --output $LJHOME/ext/yuicompressor/yuicompressor.jar \
         https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.jar && \
+    cp /dw-build/build-static-legacy.sh $LJHOME/bin/build-static.sh && \
     $LJHOME/bin/build-static.sh
