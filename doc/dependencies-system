@@ -19,3 +19,4 @@ libdatetime-perl
 libio-aio-perl
 libssl-dev
 apache2
+mysql-client
