@@ -19,4 +19,3 @@ libdatetime-perl
 libio-aio-perl
 libssl-dev
 apache2
-default-jre

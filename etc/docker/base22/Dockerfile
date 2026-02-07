@@ -21,18 +21,16 @@ RUN apt-get update && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
     dpkg-reconfigure -f noninteractive tzdata
 
-# Install ruby compass
-RUN apt-get update && \
-    apt-get install -y ruby-rubygems ruby-dev build-essential bison openssl \
-       libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev \
-       libxml2-dev autoconf libc6-dev ncurses-dev automake libtool && \
-    gem install compass
+# Install Node.js 20 LTS (for sass and esbuild)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs
 
 # Install base system dependencies, then clean up
 RUN curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
         xargs apt-get -y install && \
     rm -rf /var/lib/apt/lists/* && \
-    cpanm -nq App::cpm
+    cpanm -nq App::cpm && \
+    npm install -g sass esbuild
 
 # Split CPAN dependencies into a second step, since they change more
 # frequently than system dependencies
@@ -49,7 +47,4 @@ RUN mv $LJHOME/extlib /dw-extlib && \
     mv /dw-extlib $LJHOME/extlib && \
     git -C $LJHOME checkout $COMMIT && \
     git -C $LJHOME pull --ff-only origin $COMMIT && \
-    mkdir $LJHOME/ext/yuicompressor/ && \
-    curl -s -L --output $LJHOME/ext/yuicompressor/yuicompressor.jar \
-        https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.jar && \
     $LJHOME/bin/build-static.sh

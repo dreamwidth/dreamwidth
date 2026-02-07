@@ -4,54 +4,69 @@
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
+# Parse flags. If none specified, run everything.
+# The rsync to build/static always runs since all steps feed into it.
+do_sass=0
+do_compress=0
 
-force="--force"
-
-while getopts ":n" opt; do
-    case ${opt} in
-        n )
-            force=""
+for arg in "$@"; do
+    case "$arg" in
+        --sass)     do_sass=1 ;;
+        --compress) do_compress=1 ;;
+        --help|-h)
+            echo "Usage: $0 [--sass] [--compress]"
+            echo "  --sass       Compile SCSS files with Dart Sass"
+            echo "  --compress   Minify JS with esbuild"
+            echo "  (no flags runs all steps)"
+            echo ""
+            echo "  Asset sync (rsync to build/static/) always runs."
+            exit 0
             ;;
-        \? )
-            echo "$0: illegal option -- $OPTARG" 1>&2
+        *)
+            echo "$0: unknown option -- $arg" >&2
             exit 1
             ;;
     esac
 done
 
+# No flags = run everything
+if [[ $do_sass -eq 0 && $do_compress -eq 0 ]]; then
+    do_sass=1
+    do_compress=1
+fi
+
 buildroot="$LJHOME/build/static"
 mkdir -p $buildroot
 
-jcompress=`mktemp /tmp/jcompress.XXXXXX` || exit 1
-
-compressor="$LJHOME/ext/yuicompressor/yuicompressor.jar"
-uncompressed_dir="/max"
-if [ ! -e $compressor ]
-then
-    echo "Warning: No compressor found ($compressor)" >&2
-    compressor=""
-    uncompressed_dir=""
-fi
-
-# if compass is installed, build that first
-compass=$(which compass)
-if [ "$compass" != "" ]; then
-    # see if we have Compass version 1.0 or later
-    compass_version_ok=$(compass version | perl -ne '/^Compass (\d\.\d+)/ && print $1 >= 1.0')
-    if [ $compass_version_ok ]; then
+# --- SCSS compilation ---
+if [[ $do_sass -eq 1 ]]; then
+    sass=$(which sass)
+    if [ "$sass" != "" ]; then
         echo "* Building SCSS..."
-        cd $LJHOME
-        $compass compile -e production $force
-        if [ -d "$LJHOME/ext/dw-nonfree" ]; then
-            cd $LJHOME/ext/dw-nonfree
-            $compass compile -e production $force
+        $sass --style=compressed --no-source-map \
+            --load-path=$LJHOME/htdocs/scss \
+            $LJHOME/htdocs/scss:$LJHOME/htdocs/stc/css
+        if [ -d "$LJHOME/ext/dw-nonfree/htdocs/scss" ]; then
+            $sass --style=compressed --no-source-map \
+                --load-path=$LJHOME/htdocs/scss \
+                --load-path=$LJHOME/ext/dw-nonfree/htdocs/scss \
+                $LJHOME/ext/dw-nonfree/htdocs/scss:$LJHOME/ext/dw-nonfree/htdocs/stc/css
         fi
     else
-        echo "Compass version must be 1.0 or higher. Please upgrade."
-        echo "Warning: Skipping compass compile..."
+        echo "Warning: No sass command found"
     fi
-else
-    echo "Warning: No compass command found"
+fi
+
+# --- Asset sync (always runs) and optional compression ---
+compressor=""
+uncompressed_dir=""
+if [[ $do_compress -eq 1 ]]; then
+    compressor=$(which esbuild)
+    uncompressed_dir="/max"
+    if [ -z "$compressor" ]; then
+        echo "Warning: No esbuild command found" >&2
+        uncompressed_dir=""
+    fi
 fi
 
 # check the relevant paths using the same logic as the codebase
@@ -102,11 +117,14 @@ do
                 fi
 
                 mkdir -p "$final/$dir"
-                cp -p "$synced_file" "$final/$modified_file"
 
-                if [[ "$ext" = "js" || "$ext" = "css" ]]; then
-                    # Attempt to rewrite the file with compressed version
-                    echo "java -jar $compressor \"$synced_file\" -o \"$final/$modified_file\"" >> $jcompress
+                if [[ "$ext" = "js" ]]; then
+                    # Minify JS with esbuild
+                    $compressor --minify "$synced_file" --outfile="$final/$modified_file" 2>/dev/null \
+                        || cp -p "$synced_file" "$final/$modified_file"
+                else
+                    # CSS is already minified by Dart Sass; other files copy as-is
+                    cp -p "$synced_file" "$final/$modified_file"
                 fi
             else
                 # we're deleting rather than copying
@@ -119,13 +137,6 @@ do
             fi
         fi
     done
-
-    # Now parallel execute
-    if [[ -s $jcompress ]]; then
-        echo "Executing compression (takes a minute)..."
-        cat $jcompress | xargs -d "\n" -n 1 -P 4 -- bash -c
-        >$jcompress
-    fi
 done
 
 if [[ -n $compressor ]]; then
@@ -133,7 +144,5 @@ if [[ -n $compressor ]]; then
     find $buildroot/js $buildroot/max/js   | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
     find $buildroot/stc $buildroot/max/stc | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
 fi
-
-rm -f $jcompress
 
 exit 0

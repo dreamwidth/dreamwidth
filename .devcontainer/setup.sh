@@ -31,10 +31,10 @@ bin/upgrading/texttool.pl load
 # Set up testing database(s)
 t/bin/initialize-db
 
-# Copy pre-built static assets from the image (fast).
-# If you change CSS/JS, run bin/build-static.sh manually.
-mkdir -p $LJHOME/build/static
-cp -a /opt/dreamwidth-static/* $LJHOME/build/static/
+# Symlink pre-built static assets from the image.
+# If you change CSS/JS, run bin/build-static.sh — writes go through the symlink.
+mkdir -p $LJHOME/build
+ln -snf /opt/dreamwidth-static $LJHOME/build/static
 
 # Set up apache config
 rm -rf /etc/apache2

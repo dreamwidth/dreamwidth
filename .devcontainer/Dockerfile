@@ -28,12 +28,10 @@ RUN apt-get install -y $(cat /tmp/dependencies-system | grep -v '^#' | grep -v '
 # Install dependencies for local development full-stack
 RUN apt-get install -y mysql-server mysql-client memcached htop
 
-# Install ruby compass for building static files
-RUN apt-get update && \
-    apt-get install -y ruby-rubygems ruby-dev build-essential bison openssl \
-    libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev \
-    libxml2-dev autoconf libc6-dev ncurses-dev automake libtool && \
-    gem install compass
+# Install Node.js 20 LTS (for sass and esbuild)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g sass esbuild
 
 # Install cpm for faster CPAN module installation
 RUN cpanm -nq App::cpm
@@ -56,11 +54,6 @@ COPY . /workspaces/dreamwidth/
 # Set up config symlink needed by update-db.pl and build-static.sh
 RUN mkdir -p $LJHOME/ext/local && \
     ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc
-
-# Download YUI compressor (needed by build-static.sh)
-RUN mkdir -p $LJHOME/ext/yuicompressor/ && \
-    curl -sL -o $LJHOME/ext/yuicompressor/yuicompressor.jar \
-        https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.jar
 
 # Pre-populate database schema and build static assets into the image.
 # Start MySQL, run all schema migrations, build statics, copy to a safe
