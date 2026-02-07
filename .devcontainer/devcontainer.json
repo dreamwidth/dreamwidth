@@ -22,7 +22,6 @@
       }
     }
   },
-  "forwardPorts": [8080, 8081],
   "runArgs": ["--security-opt", "label=disable", "-p", "8080:8080", "-p", "8081:8081"],
   "containerEnv": {
     "LJHOME": "/workspaces/dreamwidth",
