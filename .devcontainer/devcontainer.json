@@ -23,7 +23,7 @@
     }
   },
   "forwardPorts": [8080, 8081],
-  "runArgs": ["--security-opt", "label=disable"],
+  "runArgs": ["--security-opt", "label=disable", "-p", "8080:8080", "-p", "8081:8081"],
   "containerEnv": {
     "LJHOME": "/workspaces/dreamwidth",
     "PERL5LIB": "/opt/dreamwidth-extlib/lib/perl5",
