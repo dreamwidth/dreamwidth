@@ -7,7 +7,7 @@ ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc || true
 # Get database going, all we need for now
 service mysql start
 
-# Basic config
+# Basic config (all IF NOT EXISTS — instant no-op when pre-baked)
 mysql -u root -e "\
     CREATE DATABASE IF NOT EXISTS dw_global CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
     CREATE DATABASE IF NOT EXISTS dw_cluster01 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
@@ -21,9 +21,8 @@ mysql -u root -e "\
     GRANT ALL PRIVILEGES ON dw_cluster01.* TO 'dw'@'localhost'; \
     GRANT ALL PRIVILEGES ON dw_schwartz.* TO 'dw'@'localhost'; \
     FLUSH PRIVILEGES;"
-cat $LJHOME/doc/schwartz-schema.sql | mysql -u root dw_schwartz
 
-# Configure database and load initial data
+# Configure database and load initial data (idempotent — instant when no new migrations)
 bin/upgrading/update-db.pl -r
 bin/upgrading/update-db.pl -r --cluster=all
 bin/upgrading/update-db.pl -r -p
@@ -32,11 +31,10 @@ bin/upgrading/texttool.pl load
 # Set up testing database(s)
 t/bin/initialize-db
 
-# Compile static files for usage
-mkdir $LJHOME/ext/yuicompressor/ && \
-    curl -s -L --output $LJHOME/ext/yuicompressor/yuicompressor.jar \
-        https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.jar
-bin/build-static.sh
+# Copy pre-built static assets from the image (fast).
+# If you change CSS/JS, run bin/build-static.sh manually.
+mkdir -p $LJHOME/build/static
+cp -a /opt/dreamwidth-static/* $LJHOME/build/static/
 
 # Set up apache config
 rm -rf /etc/apache2
