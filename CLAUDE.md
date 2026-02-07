@@ -132,7 +132,7 @@ The dev container (`$IS_DEV_SERVER && $IS_DEV_CONTAINER`) intentionally sets `$L
 
 ## Git Workflow
 
-**Only commit when explicitly asked.** Ask before committing. Follow the repository's existing commit message style.
+**Only commit when explicitly asked.** Ask before committing. Follow the repository's existing commit message style. **NEVER amend commits unless explicitly instructed** — assume commits have already been pushed.
 
 ## Troubleshooting
 
