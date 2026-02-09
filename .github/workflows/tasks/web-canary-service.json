@@ -42,9 +42,9 @@
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-create-group": "true",
-                    "awslogs-group": "/dreamwidth/web",
+                    "awslogs-group": "/dreamwidth/web/canary",
                     "awslogs-region": "us-east-1",
-                    "awslogs-stream-prefix": "web"
+                    "awslogs-stream-prefix": "canary"
                 }
             }
         },

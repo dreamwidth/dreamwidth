@@ -37,9 +37,9 @@
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-create-group": "true",
-                    "awslogs-group": "/dreamwidth/web",
+                    "awslogs-group": "/dreamwidth/web/unauthenticated",
                     "awslogs-region": "us-east-1",
-                    "awslogs-stream-prefix": "web"
+                    "awslogs-stream-prefix": "unauthenticated"
                 }
             }
         },

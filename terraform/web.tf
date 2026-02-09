@@ -14,9 +14,17 @@ locals {
   }
 }
 
-# CloudWatch Log Group for web services
-resource "aws_cloudwatch_log_group" "web" {
+# Legacy shared log group - keep until all services have cycled to per-service logs
+resource "aws_cloudwatch_log_group" "web_legacy" {
   name              = "/dreamwidth/web"
+  retention_in_days = 30
+}
+
+# CloudWatch Log Groups - one per web service for easier debugging
+resource "aws_cloudwatch_log_group" "web" {
+  for_each = local.web_services
+
+  name              = "/dreamwidth/web/${each.key}"
   retention_in_days = 30
 }
 
@@ -85,9 +93,9 @@ resource "aws_ecs_task_definition" "web" {
         logDriver = "awslogs"
         options = {
           "awslogs-create-group"  = "true"
-          "awslogs-group"         = "/dreamwidth/web"
+          "awslogs-group"         = "/dreamwidth/web/${each.key}"
           "awslogs-region"        = local.aws_region
-          "awslogs-stream-prefix" = "web-${each.key}"
+          "awslogs-stream-prefix" = each.key
         }
       }
 
