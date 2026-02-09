@@ -127,7 +127,6 @@ sub header_in {
     my DW::Request::Plack $self = $_[0];
     return $self->{req}->header( $_[1] ) if scalar @_ == 2;
 
-    $log->info( 'Set ', $_[1], ' => ', $_[2] );
     return $self->{req}->header( $_[1] => $_[2] );
 }
 
@@ -137,7 +136,6 @@ sub address {
     my DW::Request::Plack $self = $_[0];
     return $self->{req_addr} // $self->{req}->address if scalar @_ == 1;
 
-    $log->info( 'Address set to ', $_[1] );
     return $self->{req_addr} = $_[1];
 }
 
