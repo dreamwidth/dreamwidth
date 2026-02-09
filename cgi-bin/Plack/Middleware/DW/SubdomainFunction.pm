@@ -26,6 +26,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use parent qw/ Plack::Middleware /;
 
 use DW::Request;
+use LJ::Session;
 
 sub call {
     my ( $self, $env ) = @_;
@@ -43,6 +44,14 @@ sub call {
             if $1 && $1 eq 'www.';
 
         my $user = $2;
+
+        # Handle __setdomsess on any subdomain — sets the domain session cookie
+        # and redirects to the destination. Matches Apache::LiveJournal::trans
+        # behavior for shop (line 959) and journal subdomains (line 704).
+        if ( $r->path eq '/__setdomsess' ) {
+            return $r->redirect( LJ::Session->setdomsess_handler );
+        }
+
         my $func = $LJ::SUBDOMAIN_FUNCTION{$user};
 
         # "normal" means treat as www (ignore subdomain)
