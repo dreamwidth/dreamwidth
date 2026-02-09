@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    if: github.repository == 'dreamwidth/dreamwidth'
+
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/dreamwidth/devcontainer:latest
+
+    env:
+      LJHOME: ${{ github.workspace }}
+      PERL5LIB: /opt/dreamwidth-extlib/lib/perl5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        run: |
+          # Config symlink (needed for Perl modules to load site config)
+          mkdir -p $LJHOME/ext/local
+          ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc
+
+          # Symlink pre-built static assets from the image
+          mkdir -p $LJHOME/build
+          ln -snf /opt/dreamwidth-static $LJHOME/build/static
+
+          # Start MySQL and initialize test databases
+          service mysql start
+          t/bin/initialize-db
+
+      - name: Code formatting (t/02-tidy.t)
+        run: prove -v t/02-tidy.t
+
+      - name: Module compilation (t/00-compile.t)
+        run: prove -v t/00-compile.t
