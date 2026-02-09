@@ -261,15 +261,6 @@
       "max_count": 1,
       "target_cpu": 50
     },
-    "send-email-ses": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "email",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 1,
-      "target_cpu": 50
-    },
     "shop-creditcard-charge": {
       "cpu": 256,
       "memory": 512,
