@@ -132,7 +132,7 @@ The dev container (`$IS_DEV_SERVER && $IS_DEV_CONTAINER`) intentionally sets `$L
 
 ## Git Workflow
 
-**Only commit when explicitly asked.** Ask before committing. Follow the repository's existing commit message style. **NEVER amend commits unless explicitly instructed** — assume commits have already been pushed.
+**ABSOLUTE RULE — NEVER run `git commit` unless the user has explicitly asked you to commit in that moment.** Not after making changes. Not as part of a workflow. Not proactively. Not because the changes look ready. Not for any reason whatsoever. The ONLY acceptable trigger is the user saying words like "commit this" or "go ahead and commit". If in doubt, ASK. Violating this rule destroys trust. Follow the repository's existing commit message style. **NEVER amend commits unless explicitly instructed** — assume commits have already been pushed.
 
 ## Troubleshooting
 
