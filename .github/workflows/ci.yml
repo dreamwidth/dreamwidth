@@ -32,10 +32,6 @@ jobs:
           mkdir -p $LJHOME/build
           ln -snf /opt/dreamwidth-static $LJHOME/build/static
 
-          # Add mod_perl lib path so Apache2::* modules compile outside of Apache
-          MODPERL_DIR=$(dpkg -L libapache2-mod-perl2 | grep -m1 'Apache2/Const.pm' | xargs dirname | xargs dirname)
-          echo "PERL5LIB=$PERL5LIB:$MODPERL_DIR" >> $GITHUB_ENV
-
           # Start MySQL and initialize test databases
           service mysql start
           t/bin/initialize-db

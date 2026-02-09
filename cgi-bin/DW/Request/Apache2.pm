@@ -20,7 +20,8 @@ use strict;
 use DW::Request::Base;
 use base 'DW::Request::Base';
 
-use Apache2::Const -compile => qw/ :common :http /;
+use Apache2::Const ();
+BEGIN { Apache2::Const->compile(qw/ :common :http /); }
 use Apache2::Log ();
 use Apache2::Request;
 use Apache2::Response    ();
