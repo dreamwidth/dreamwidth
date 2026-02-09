@@ -38,6 +38,8 @@ my %SKIP = (
     'cgi-bin/modperl.pl'      => 'Special file',
     'cgi-bin/modperl_subs.pl' => 'Special file',
 
+    'DW/Request/Apache2.pm' => 'Apache2::Const :http group not available after load-order conflict',
+
     'bin/ljumover.pl' => 'Requires configs to be loaded, easier to skip',
 );
 
