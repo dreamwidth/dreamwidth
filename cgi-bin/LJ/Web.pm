@@ -3334,178 +3334,56 @@ sub subscribe_interface {
 
     croak "subscribe_interface wants a \$u" unless LJ::isu($u);
 
-    my $catref                = delete $opts{'categories'};
-    my $journalu              = delete $opts{'journal'} || LJ::get_remote();
-    my $formauth              = delete $opts{'formauth'} || LJ::form_auth();
-    my $showtracking          = delete $opts{'showtracking'} || 0;
-    my $getextra              = delete $opts{'getextra'} || '';
-    my $ret_url               = delete $opts{ret_url} || '';
-    my $def_notes             = delete $opts{'default_selected_notifications'} || [];
-    my $settings_page         = delete $opts{'settings_page'} || 0;
-    my $post_to_settings_page = delete $opts{'post_to_settings_page'} || 0;
-    my $num_per_page          = delete $opts{num_per_page} || 250;
-    my $page                  = delete $opts{page} || 1;
+    my $categories    = delete $opts{categories}                     || [];
+    my $journalu      = delete $opts{journal}                        || LJ::get_remote();
+    my $def_notes     = delete $opts{default_selected_notifications} || [];
+    my $num_per_page  = delete $opts{num_per_page}                   || 250;
+    my $page          = delete $opts{page}                           || 1;
+    my $settings_page = delete $opts{settings_page}                  || 0;
 
     croak "Invalid user object passed to subscribe_interface" unless LJ::isu($journalu);
 
     croak "Invalid options passed to subscribe_interface" if ( scalar keys %opts );
 
-    LJ::need_res('stc/esn.css');
-    LJ::need_res('js/6alib/core.js');
-    LJ::need_res('js/6alib/dom.js');
-    LJ::need_res('js/6alib/checkallbutton.js');
-    LJ::need_res('js/esn.js');
+    my @notify_classes = LJ::NotificationMethod->all_classes;
+    return "No notification methods" unless @notify_classes;
 
-    my @categories = $catref ? @$catref : ();
-    my $ui_inbox   = BML::ml('subscribe_interface.inbox');
-    my $ui_manage  = BML::ml('subscribe_interface.manage_settings');
-    my $ui_notify =
-        BML::ml( 'subscribe_interface.notify_me2', { sitenameabbrev => $LJ::SITENAMEABBREV } );
-    my $ui_by = BML::ml('subscribe_interface.by2');
-
-    my $ret = "<div id='manageSettings'>";
-
-    unless ($settings_page) {
-        $ret .=
-"<span class='esnlinks'><a href='$LJ::SITEROOT/inbox/'>$ui_inbox</a> | $ui_manage</span>";
-    }
-
-    if ($post_to_settings_page) {
-        $ret .=
-"<form method='POST' action='$LJ::SITEROOT/manage/settings/?cat=notifications'>$formauth";
-    }
-    elsif ( !$settings_page ) {
-        $ret .= "<form method='POST' action='$LJ::SITEROOT/manage/tracking/$getextra'>$formauth";
-    }
-
-    my $events_table =
-        $settings_page
-        ? '<table class="Subscribe select-all" style="clear: none;" cellpadding="0" cellspacing="0">'
-        : '<table class="Subscribe select-all" cellpadding="0" cellspacing="0">';
-
-    my @notify_classes = LJ::NotificationMethod->all_classes or return "No notification methods";
+    my $page_vars = { settings_page => $settings_page };
+    $page_vars->{ntypeids} = join ',', map { $_->ntypeid } @notify_classes;
 
     # skip the inbox type; it's always on
     @notify_classes = grep { $_ ne 'LJ::NotificationMethod::Inbox' } @notify_classes;
-
-    my $tracking = [];
-
-    # title of the tracking category
-    my $tracking_cat = "Subscription Tracking";
-
-    # if showtracking, add things the user is tracking to the categories
-    if ($showtracking) {
-        my @subscriptions = $u->find_subscriptions( method => 'Inbox' );
-
-        foreach my $subsc ( sort { $a->id <=> $b->id } @subscriptions ) {
-
-            # if this event class is already being displayed above, skip over it
-            my $etypeid = $subsc->etypeid or next;
-            my ($evt_class) = ( LJ::Event->class($etypeid) =~ /LJ::Event::(.+)/i );
-            next unless $evt_class;
-
-            # search for this class in categories
-            next if grep { $_ eq $evt_class } map { @$_ } map { values %$_ } @categories;
-
-            push @$tracking, $subsc;
-        }
-    }
-
-    push @categories, { $tracking_cat => $tracking };
+    $page_vars->{notify_classes} = \@notify_classes;
 
     my @catids;
     my $catid = 0;
+    my @catdata;    # this is eventually passed to the display template
+    my @prev_cats;
 
-    my %shown_subids = ();
+    my %num_subs_by_type = ();    # for the subscription_stats hook
 
-# ( LJ::NotificationMethod::Inbox => {active => x, total => y }, LJ::NotificationMethod::Email => ...)
-    my %num_subs_by_type = ();
-
+    # pagination variables
     my $displayed_tracking_start = ( $page - 1 ) * $num_per_page;
     my $displayed_tracking_end   = $displayed_tracking_start + $num_per_page - 1;
     my $displayed_tracking_count = 0;
 
-    foreach my $cat_hash (@categories) {
+    foreach my $cat_hash (@$categories) {
         my ( $category, $cat_events ) = %$cat_hash;
 
-        push @catids, $catid;
-
-        # pending subscription objects
-        my $pending = [];
-
-        my $cat_empty = 1;
-        my $cat_html  = '';
-
         # is this category the tracking category?
-        my $is_tracking_category = $category eq $tracking_cat;
+        my $is_tracking_category = $category eq "Subscription Tracking";
 
-        # build table of subscribeble events
-        foreach my $cat_event (@$cat_events) {
-            if ( ( ref $cat_event ) =~ /Subscription/ ) {
-                push @$pending, $cat_event;
-            }
-            elsif ( $cat_event =~ /^LJ::Setting/ ) {
-
-                # special subscription that's an LJ::Setting instead of an LJ::Subscription
-                if ($settings_page) {
-                    push @$pending, $cat_event;
-                }
-                else {
-                    next;
-                }
-            }
-            else {
-                my $pending_sub = LJ::Subscription::Pending->new(
-                    $u,
-                    event   => $cat_event,
-                    journal => $journalu
-                );
-                push @$pending, $pending_sub;
-            }
-        }
+        my $cat_data = { catid => $catid };
+        push @catids, $catid;
+        my $cat_empty = 1;
 
         my $cat_title_key = lc($category);
         $cat_title_key =~ s/ /-/g;
-        my $cat_title   = BML::ml( 'subscribe_interface.category.' . $cat_title_key );
-        my $first_class = $catid == 0 ? " CategoryRowFirst" : "";
-        $cat_html .= qq {
-            <div class="CategoryRow-$catid">
-                <tr class="CategoryRow$first_class" id="category-$cat_title_key">
-                <td>
-                <span class="CategoryHeading">$cat_title</span><br />
-                <span class="CategoryHeadingNote">$ui_notify</span>
-                </td>
-                <td class="Caption">
-                $ui_by
-                </td>
-            };
-
-        my @pending_subscriptions;
-
-        # build list of subscriptions to show the user
-        {
-            unless ($is_tracking_category) {
-                foreach my $pending_sub (@$pending) {
-                    if ( !ref $pending_sub ) {
-                        push @pending_subscriptions, $pending_sub;
-                    }
-                    else {
-                        my %sub_args = $pending_sub->sub_info;
-                        delete $sub_args{ntypeid};
-                        $sub_args{method} = 'Inbox';
-
-                        my @existing_subs = $u->has_subscription(%sub_args);
-                        push @pending_subscriptions,
-                            ( scalar @existing_subs ? @existing_subs : $pending_sub );
-                    }
-                }
-            }
-            else {
-                push @pending_subscriptions, @$tracking;
-            }
-        }
+        $cat_data->{title_key} = $cat_title_key;
 
         # add notifytype headings
+        $cat_data->{notify_headers} = [];
+
         foreach my $notify_class (@notify_classes) {
             my $title   = eval { $notify_class->title($u) } or next;
             my $ntypeid = $notify_class->ntypeid            or next;
@@ -3521,329 +3399,118 @@ sub subscribe_interface {
             }
             $title .= " " . LJ::help_icon( $notify_class->help_url ) if $notify_class->help_url;
 
-            my $checkall_box = LJ::html_check(
-                {
-                    id                => "CheckAll-$catid-$ntypeid",
-                    'data-select-all' => "$catid-$ntypeid",
-                    label             => $title,
-                    class             => "CheckAll",
-                    noescape          => 1,
-                    disabled          => $disabled,
-                }
-            );
-
-            $cat_html .= qq {
-                <td style='vertical-align: bottom;'>
-                    $checkall_box
-                    </td>
-                };
+            push @{ $cat_data->{notify_headers} },
+                { ntypeid => $ntypeid, title => $title, disabled => $disabled };
         }
 
-        $cat_html .= '</tr>';
+        # build list of subscriptions to show the user
+        $cat_data->{pending_subs} = [];
+
+        my @pending_subscriptions =
+              $is_tracking_category
+            ? @$cat_events
+            : $u->subscription_event_filter( $cat_events, $journalu, $settings_page );
 
         # inbox method
         my $special_subs     = 0;
         my $unavailable_subs = 0;
         my $sub_count        = 0;
         foreach my $pending_sub (@pending_subscriptions) {
-            my $upgrade_notice = ( !$u->is_paid && $pending_sub->disabled($u) ) ? " &dagger;" : "";
-            if ( !ref $pending_sub ) {
-                next if $u->is_identity && $pending_sub->disabled($u);
+            my $sub_data = $u->pending_sub_data($pending_sub);
+            next unless $sub_data;
 
-                my $disabled_class = $pending_sub->disabled($u) ? "inactive" : "";
-                my $altrow_class   = $sub_count % 2 == 1        ? "odd"      : "even";
-                my $hidden    = $pending_sub->selected($u) ? "" : " style='visibility: hidden;'";
-                my $sub_title = " " . $pending_sub->htmlcontrol_label($u);
-                $sub_title = LJ::Hooks::run_hook( "disabled_esn_sub", $u ) . $sub_title
-                    if $pending_sub->disabled($u);
+            $sub_data->{altrow_class}   = $sub_count % 2 == 1   ? "odd"      : "even";
+            $sub_data->{inactive_class} = $sub_data->{inactive} ? "inactive" : "";
+            $sub_data->{disabled_class} = $sub_data->{disabled} ? "disabled" : "";
 
-                $cat_html .= "<tr class='$disabled_class $altrow_class'>";
-                $cat_html .= "<td>" . $pending_sub->htmlcontrol($u) . "$sub_title*";
-                $cat_html .= "$upgrade_notice";
-                $cat_html .= "</td>";
-                $cat_html .= "<td>&nbsp;</td>";
-                foreach my $notify_class (@notify_classes) {
-                    if ( $notify_class eq "LJ::NotificationMethod::Email" ) {
-                        $cat_html .= "<td class='NotificationOptions'$hidden>"
-                            . $pending_sub->htmlcontrol(
-                            $u, undef, undef,
-                            notif         => 1,
-                            notif_catid   => $catid,
-                            notif_ntypeid => 2
-                            ) . "</td>";
-                    }
-                    else {
-                        $cat_html .= "<td class='NotificationOptions'$hidden>"
-                            . LJ::html_check( { disabled => 1 } ) . "</td>";
-                    }
-                }
-                $cat_html .= "</tr>";
+            $sub_data->{hidden_style} = $sub_data->{hidden} ? " style='visibility: hidden;'" : "";
 
+            if ( $sub_data->{special_sub} ) {
                 $special_subs++;
+
+                push @{ $cat_data->{pending_subs} }, $sub_data;
                 $sub_count++;
                 next;
             }
 
-            next if $u->is_identity && !$pending_sub->enabled;
-
-            # print option to subscribe to this event, checked if already subscribed
-            my $input_name = $pending_sub->freeze  or next;
-            my $title      = $pending_sub->as_html or next;
-            my $subscribed = !$pending_sub->pending;
-
-            unless ( $pending_sub->enabled ) {
-                my $hooktext = LJ::Hooks::run_hook( "disabled_esn_sub", $u ) // '';
-                $title = $hooktext . $title . $upgrade_notice;
-                $unavailable_subs++;
-            }
-            next if !$pending_sub->event_class->is_visible && $showtracking;
+            $unavailable_subs++ if $sub_data->{disabled};
 
             my $evt_class = $pending_sub->event_class or next;
-            unless ($is_tracking_category) {
+            next if !$evt_class->is_visible && $settings_page;
+
+            # override disabled below if always_checked (can't uncheck)
+            my $always_checked = eval { "$evt_class"->always_checked; };
+            $sub_data->{disabled} = 1 if $always_checked;
+
+            if ($is_tracking_category) {
+                next if $u->tracked_event_exclude( $pending_sub, \@prev_cats );
+
+                my $do_show = 1;
+                $do_show = 0
+                    unless $displayed_tracking_count >= $displayed_tracking_start
+                    && $displayed_tracking_count <= $displayed_tracking_end;
+                $displayed_tracking_count++;
+
+                if ( $do_show && $sub_data->{subscribed} ) {
+                    my $subid = $pending_sub->id;
+
+                    $sub_data->{subid}      = $subid;
+                    $sub_data->{auth_token} = $u->ajax_auth_token(
+                        "/__rpc_esn_subs",
+                        subid  => $subid,
+                        action => 'delsub'
+                    );
+                }
+
+                $sub_data->{do_show} = $do_show;
+            }
+            else {
+                $sub_data->{do_show} = 1;
+
                 next unless eval { $evt_class->subscription_applicable($pending_sub) };
                 next
                     if $u->equals($journalu)
                     && $pending_sub->journalid
                     && $pending_sub->journalid != $u->{userid};
             }
-            else {
-                my $no_show = 0;
 
-                foreach my $cat_info_ref (@$catref) {
-                    while ( my ( $_cat_name, $_cat_events ) = each %$cat_info_ref ) {
-                        foreach my $_cat_event (@$_cat_events) {
-                            next if $_cat_event =~ /^LJ::Setting/;
-                            unless ( ref $_cat_event ) {
-                                $_cat_event =
-                                    LJ::Subscription::Pending->new( $u, event => $_cat_event );
-                            }
-                            next unless $pending_sub->equals($_cat_event);
-                            $no_show = 1;
-                            last;
-                        }
-                    }
-                }
+            $cat_empty = 0;    # no more nexts
 
-                next if $no_show;
-            }
+            # this hook also populates %num_subs_by_type
+            $sub_data->{notif_options} = LJ::Hooks::run_hook(
+                'subscription_notif_options',
+                u                    => $u,
+                sub_data             => $sub_data,
+                pending_sub          => $pending_sub,
+                def_notes            => $def_notes,
+                is_tracking_category => $is_tracking_category,
+                num_subs_by_type     => \%num_subs_by_type,
+                notify_classes       => \@notify_classes,
+            );
 
-            my $special_selected = 0;
-
-            my $selected = $special_selected || $pending_sub->default_selected;
-
-            my $inactiveclass = $pending_sub->active  ? ''    : 'inactive';
-            my $disabledclass = $pending_sub->enabled ? ''    : 'disabled';
-            my $altrowclass   = $sub_count % 2 == 1   ? "odd" : "even";
-
-            # it could be cleaner to do this by splicing pending_subs
-            # but then you wouldn't be able to count how many active subs there are
-            # one of the many ways in which ESN is painful
-            my $do_show = 1;
-            if ($is_tracking_category) {
-                $do_show = 0
-                    unless $displayed_tracking_count >= $displayed_tracking_start
-                    && $displayed_tracking_count <= $displayed_tracking_end;
-                $displayed_tracking_count++;
-            }
-
-            $cat_html .= "<tr class='$inactiveclass $disabledclass $altrowclass'><td>"
-                if $do_show;
-
-            if ( $do_show && $is_tracking_category && !$pending_sub->pending ) {
-                my $subid      = $pending_sub->id;
-                my $auth_token = $u->ajax_auth_token(
-                    "/__rpc_esn_subs",
-                    subid  => $subid,
-                    action => 'delsub'
-                );
-                my $deletesub_url =
-                    $settings_page
-                    ? "$LJ::SITEROOT/manage/settings/?cat=notifications&deletesub_$subid=1"
-                    : "?deletesub_$subid=1";
-                $cat_html .=
-"<a href='$deletesub_url' class='delete-button' subid=$subid auth_token=$auth_token>";
-                $cat_html .= LJ::img( 'btn_trash', '' ) . "</a>\n";
-            }
-            my $always_checked = eval { "$evt_class"->always_checked; };
-            my $disabled       = $always_checked ? 1 : !$pending_sub->enabled;
-
-            if ($do_show) {
-                $cat_html .= LJ::html_check(
-                    {
-                        id       => $input_name,
-                        name     => $input_name,
-                        class    => "SubscriptionInboxCheck",
-                        selected => $selected,
-                        noescape => 1,
-                        label    => $title,
-                        disabled => $disabled,
-                    }
-                ) . "</td>";
-
-                unless ( $pending_sub->pending ) {
-                    $cat_html .= LJ::html_hidden(
-                        {
-                            name  => "${input_name}-old",
-                            value => $subscribed,
-                        }
-                    );
-                }
-                $shown_subids{ $pending_sub->id }++ unless $pending_sub->pending;
-            }
-
-        # for the inbox
-        # "total" includes default subs (those at the top) which are active
-        #   and any subs for tracking an entry/comment, whether active or inactive
-        # "active" only counts subs which are selected
-        # don't count disabled, even if they're checked, because they don't count against your limit
-            if ( !$disabled && ( $is_tracking_category || $selected ) ) {
-                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{total}++;
-                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{active}++ if $selected;
-            }
-
-            $cat_empty = 0;
-
-            # print out notification options for this subscription (hidden if not subscribed)
-            $cat_html .= "<td>&nbsp;</td>" if $do_show;
-            my $hidden =
-                (      $special_selected
-                    || $pending_sub->default_selected
-                    || ( $subscribed && $pending_sub->active ) )
-                ? ''
-                : 'style="visibility: hidden;"';
-
-            # is there an inbox notification for this?
-            my %sub_args = $pending_sub->sub_info;
-            $sub_args{ntypeid} = LJ::NotificationMethod::Inbox->ntypeid;
-            delete $sub_args{flags};
-            my ($inbox_sub) = $u->find_subscriptions(%sub_args);
-
-            foreach my $note_class (@notify_classes) {
-                my $ntypeid = eval { $note_class->ntypeid } or next;
-
-                $sub_args{ntypeid} = $ntypeid;
-                my @subs = $u->has_subscription(%sub_args);
-
-                my $note_pending = LJ::Subscription::Pending->new( $u, %sub_args );
-                if (@subs) {
-                    $note_pending = $subs[0];
-                }
-
-                if ( ( $is_tracking_category || $pending_sub->is_tracking_category )
-                    && $note_pending->pending )
-                {
-                    # flag this as a "tracking" subscription
-                    $note_pending->set_tracking;
-                }
-
-                my $notify_input_name = $note_pending->freeze;
-
-                # select email method by default
-                my $note_selected =
-                    ( scalar @subs )
-                    ? 1
-                    : ( ( !$selected || $special_selected )
-                        && $note_class eq 'LJ::NotificationMethod::Email' );
-
-                # check the box if it's marked as being selected by default UNLESS
-                # there exists an inbox subscription and no email subscription
-                $note_selected = 1
-                    if ( !$inbox_sub || scalar @subs ) && $selected && grep { $note_class eq $_ }
-                    @$def_notes;
-                $note_selected &&= $note_pending->active && $note_pending->enabled;
-
-                my $disabled = !$pending_sub->enabled;
-                $disabled = 1 unless $note_class->configured_for_user($u);
-
-                $cat_html .= qq {
-                    <td class='NotificationOptions' $hidden>
-                    }
-                    . LJ::html_check(
-                    {
-                        id                 => $notify_input_name,
-                        name               => $notify_input_name,
-                        'data-selected-by' => "$catid-$ntypeid",
-                        class              => "SubscribeCheckbox-$catid-$ntypeid",
-                        selected           => $note_selected,
-                        noescape           => 1,
-                        disabled           => $disabled,
-                    }
-                    )
-                    . '</td>'
-                    if $do_show;
-
-                unless ( $note_pending->pending ) {
-                    $cat_html .= LJ::html_hidden(
-                        {
-                            name               => "${notify_input_name}-old",
-                            value              => ( scalar @subs ) ? 1 : 0,
-                            'data-selected-by' => "$catid-$ntypeid",
-                        }
-                    ) if $do_show;
-                }
-
-        # for other notification methods
-        # "total" includes default subs (those at the top) which are active,
-        #   and any subs for tracking an entry/comment, where the sub is active
-        #   (because inbox is selected, revealing the notification checkbox)
-        # "active" only counts subs which are selected
-        # don't count disabled, even if they're checked, because they don't count against your limit
-                if ( !$disabled && !$hidden && ( $is_tracking_category || $note_selected ) ) {
-                    $num_subs_by_type{$note_class}->{total}++;
-                    $num_subs_by_type{$note_class}->{active}++ if $note_selected;
-                }
-
-            }
-
-            $cat_html .= "</tr>" if $do_show;
+            push @{ $cat_data->{pending_subs} }, $sub_data;
             $sub_count++;
         }
 
-        my $cols = 2 + ( scalar @notify_classes );
-
         # show blurb if not tracking anything
-        if ( $cat_empty && $is_tracking_category ) {
-            my $blurb =
-                  "<?p <strong>"
-                . LJ::Lang::ml('subscribe_interface.nosubs.title2')
-                . "</strong><br />";
-            $blurb .= LJ::Lang::ml(
-                'subscribe_interface.nosubs.text',
-                {
-                    img => LJ::img(
-                        'track', '',
-                        {
-                            align => 'absmiddle',
-                            alt   => $ui_notify
-                        }
-                    )
-                }
-            ) . " p?>";
+        $cat_data->{empty_blurb}       = $cat_empty && $is_tracking_category;
+        $cat_data->{special_subs}      = $special_subs;
+        $cat_data->{show_upgrade_note} = !$u->is_paid && ( $special_subs || $unavailable_subs );
 
-            $cat_html .= "<td colspan='$cols'>$blurb</td>";
-        }
-
-        $cat_html .= "</tr>";
-        $cat_html .= "<tr><td colspan='$cols' style='font-size: smaller;'>* "
-            . LJ::Lang::ml( 'subscribe_interface.special_subs.note',
-            { sitenameabbrev => $LJ::SITENAMEABBREV } )
-            . "</td></tr>"
-            if $special_subs;
-        $cat_html .=
-              "<tr><td colspan='$cols' style='font-size: smaller;'>&dagger; "
-            . LJ::Lang::ml('subscribe_interface.unavailable_subs.note')
-            . "</td></tr>"
-            if !$u->is_paid && ( $special_subs || $unavailable_subs );
-        $cat_html     .= "</div>";
-        $events_table .= $cat_html unless ( $is_tracking_category && !$showtracking );
+        push @catdata,   $cat_data;
+        push @prev_cats, $cat_hash;
 
         $catid++;
     }
 
-    $events_table .= '</table>';
+    $page_vars->{catdata} = \@catdata;
+    $page_vars->{catids}  = join ',', @catids;
 
-    my $pagination = "";
-    $pagination = LJ::paging_bar(
+    # show how many subscriptions we have active / inactive
+    $page_vars->{subscription_stats} =
+        LJ::Hooks::run_hook( 'subscription_stats', $u, \%num_subs_by_type );
+
+    $page_vars->{pagination} = LJ::paging_bar(
         $page,
         ceil( $displayed_tracking_count / $num_per_page ),
         {
@@ -3857,99 +3524,9 @@ sub subscribe_interface {
                 );
             }
         }
-    ) if $settings_page;
-
-    # pass some info to javascript
-    my $catids = LJ::html_hidden(
-        {
-            'id'    => 'catids',
-            'value' => join( ',', @catids ),
-        }
-    );
-    my $ntypeids = LJ::html_hidden(
-        {
-            'id'    => 'ntypeids',
-            'value' => join( ',', map { $_->ntypeid } LJ::NotificationMethod->all_classes ),
-        }
     );
 
-    my $subscription_stats = "";
-    if ($settings_page) {
-
-        # show how many subscriptions we have active / inactive
-        # there's a bit of a trick here: each row counts as a maximum of one subscription.
-        # However, forced subscriptions don't count (e.g., "Someone sends me a message" for inbox)
-        # Also, if we activate an inbox subscription but not its email, the total number of subs
-        # per notification method goes out of sync.
-        # Regardless, once we hit the limit for *any* method, we get a warning. So we take
-        # whichever method has the most total / active and use that figure in our message.
-
-        my $max_active_method = 0;
-        my $max_total_method  = 0;
-
-        foreach my $method_class ( keys %num_subs_by_type ) {
-            $max_active_method = $num_subs_by_type{$method_class}->{active}
-                if $num_subs_by_type{$method_class}->{active} > $max_active_method;
-            $max_total_method = $num_subs_by_type{$method_class}->{total}
-                if $num_subs_by_type{$method_class}->{total} > $max_total_method;
-        }
-
-        my $paid_max = LJ::get_cap( 'paid', 'subscriptions' );
-        my $u_max    = $u->max_subscriptions;
-
-        # max for total number of subscriptions (generally it is $paid_max)
-        my $system_max = $u_max > $paid_max ? $u_max : $paid_max;
-
-        $subscription_stats .= "<div class='subscription_stats'>"
-            . LJ::Lang::ml(
-            'subscribe_interface.subs.total2',
-            {
-                active     => $max_active_method,
-                max_active => $u_max,
-                total      => $max_total_method,
-                max_total  => $system_max,
-            }
-            ) . "</div>";
-    }
-
-    $ret .= qq {
-        $ntypeids
-            $catids
-            $events_table
-            $pagination
-            $subscription_stats
-        };
-
-    $ret .= LJ::html_hidden( { name => 'mode',                  value => 'save_subscriptions' } );
-    $ret .= LJ::html_hidden( { name => 'ret_url',               value => $ret_url } );
-    $ret .= LJ::html_hidden( { name => 'post_to_settings_page', value => $post_to_settings_page } );
-
-    # print buttons
-    my $referer = BML::get_client_header('Referer') || '';
-    my $uri     = $LJ::SITEROOT . DW::Request->get->uri;
-
-    # normalize the URLs -- ../index.tt doesn't make it a different page.
-    $uri     =~ s/index\.bml//;
-    $referer =~ s/index\.bml//;
-
-    unless ($settings_page) {
-        $ret .=
-              '<div class="action-box"><ul class="inner nostyle">' . "<li>"
-            . LJ::html_submit( BML::ml('subscribe_interface.save') ) . '</li>'
-            . (
-            $referer && $referer ne $uri
-            ? "<li><input type='button' value='"
-                . BML::ml('subscribe_interface.cancel')
-                . "' onclick='window.location=\"$referer\"' /></li>"
-            : ''
-            );
-        $ret .= "</div><div class='clear-floats'></div>";
-    }
-
-    $ret .= "</div>";
-    $ret .= "</form>" if !$settings_page || $post_to_settings_page;
-
-    return $ret;
+    return DW::Template->template_string( 'tracking/subscribe-interface.tt', $page_vars );
 }
 
 # returns a placeholder link

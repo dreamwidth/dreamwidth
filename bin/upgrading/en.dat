@@ -4063,50 +4063,6 @@ statusvis_message.memorial=This is a memorial journal. New entries can't be post
 
 statusvis_message.readonly=This journal is read-only. New entries and comments can't be posted to it.
 
-subscribe_interface.by=By
-
-subscribe_interface.by2=Also notify me by
-
-subscribe_interface.cancel=Cancel
-
-subscribe_interface.category.friends-and-communities=People and Communities
-
-subscribe_interface.category.my-account=My Account
-
-subscribe_interface.category.notices=Notices
-
-subscribe_interface.category.subscription-tracking=Notification Tracking
-
-subscribe_interface.category.track-comments=Track These Comments
-
-subscribe_interface.category.track-entry=Track This Entry
-
-subscribe_interface.category.track-journal=Track Entries to this Journal
-
-subscribe_interface.category.track-user=Track This User
-
-subscribe_interface.inbox=Inbox
-
-subscribe_interface.manage=Manage settings
-
-subscribe_interface.manage_settings=Manage Settings
-
-subscribe_interface.nosubs.text=Track entries, comments, and account updates by clicking the [[img]] icon or the "Track This" link that appears on entries, comments, and the Profile page.
-
-subscribe_interface.nosubs.title2=You aren't tracking any items
-
-subscribe_interface.notify_me=Notify me when...
-
-subscribe_interface.notify_me2=Notify me in my [[sitenameabbrev]] Inbox when:
-
-subscribe_interface.save=Save
-
-subscribe_interface.special_subs.note=These notification options are only available by email and won't show in your [[sitenameabbrev]] Inbox.
-
-subscribe_interface.subs.total2=You are using [[active]] out of [[max_active]] active notifications.
-
-subscribe_interface.unavailable_subs.note=These notification options are only available to certain account types.
-
 success=Success
 
 success.next.header=Next steps:
