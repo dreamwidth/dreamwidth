@@ -45,6 +45,14 @@ sub execute {
     my $remote = LJ::get_remote();
     my $openid_only =
         $remote->has_priv( "suspend", "openid" ) && !$remote->has_priv( "suspend", "*" );
+    my $recent_only =
+        $remote->has_priv( "suspend", "recent" )
+        && !$remote->has_priv( "suspend", "*" )
+        && !$remote->has_priv( "suspend", "openid" )
+        && !$remote->has_priv( "suspend", "" );
+
+    return $self->error("You can only suspend users using /admin/recent_accounts.")
+        if $recent_only;
 
     my $entry = LJ::Entry->new_from_url($user);
     if ($entry) {

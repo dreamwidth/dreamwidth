@@ -368,6 +368,15 @@ sub get_previous_statusvis {
     return @statusvis;
 }
 
+sub is_approved {
+    my $u = $_[0];
+
+    # if a dev server hasn't configured this, assume they don't want it
+    return 1 if $LJ::IS_DEV_SERVER && !exists $LJ::DISABLED{approvenew};
+    return 1 unless LJ::is_enabled('approvenew');
+    return $u->prop('not_approved') ? 0 : 1;
+}
+
 sub is_deleted {
     my $u = shift;
     return $u->statusvis eq 'D';
@@ -503,6 +512,9 @@ sub set_suspended {
 
     LJ::statushistory_add( $u, $who, "suspend", $reason );
 
+    # if not_approved was set, clear it
+    $u->set_prop( not_approved => 0 );
+
     LJ::Hooks::run_hooks( "account_cancel", $u );
 
     return $res;    # success
@@ -526,6 +538,9 @@ sub set_unsuspended {
     }
 
     LJ::statushistory_add( $u, $who, "unsuspend", $reason );
+
+    # if not_approved was set, clear it
+    $u->set_prop( not_approved => 0 );
 
     return $res;    # success
 }
@@ -719,7 +734,8 @@ sub load_random_user {
             or next;
 
         # situational checks to ensure this user is a good one to show
-        next unless $u->is_visible;           # no suspended/deleted/etc users
+        next unless $u->is_visible;     # no suspended/deleted/etc users
+        next unless $u->is_approved;    # ignore accounts in holding pen
         next if $u->prop('latest_optout');    # they have chosen to be excluded
 
         # they've passed the checks, return this user
