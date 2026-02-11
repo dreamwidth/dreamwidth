@@ -179,5 +179,8 @@ builder {
     # Middleware for doing sysban blocking (IP bans, uniq bans, tempbans, noanon_ip)
     enable 'DW::Sysban';
 
+    # Rate limiting (after auth and sysban, before request dispatch)
+    enable 'DW::RateLimit';
+
     $app;
 };
