@@ -16,7 +16,6 @@ ENV PERL5LIB /dw/extlib/lib/perl5
 # Install some packages we need in workers only.
 RUN echo $COMMIT && \
     apt-get update && \
-    apt-get install -y mysql-client && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
         xargs apt-get -y install && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-dev | \
