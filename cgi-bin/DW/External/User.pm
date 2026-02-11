@@ -60,7 +60,6 @@ sub site {
 # return the ljuser_display block
 sub ljuser_display {
     my ( $self, %opts ) = @_;
-
     my $user        = $self->user;
     my $profile_url = $self->site->profile_url($self);
     my $journal_url = $self->site->journal_url($self);
@@ -69,13 +68,18 @@ sub ljuser_display {
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
+    my %deadsites = DW::External::Site::get_deadsites();
+    my $nolink    = exists $deadsites{$domain} ? 1 : 0;
+    $nolink ||= $opts{no_link};
+
     return
           "<span style='white-space: nowrap;'$display_class>"
-        . ( $opts{no_link} ? '' : "<a href='$profile_url'>" )
+        . ( $nolink ? '' : "<a href='$profile_url'>" )
         . "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: text-bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>"
-        . ( $opts{no_link} ? '' : "</a><a href='$journal_url'>" )
-        . "<b>$user</b>"
-        . ( $opts{no_link} ? '' : "</a>" )
+        . ( $nolink ? '' : "</a><a href='$journal_url'>" )
+        . "<b>$user"
+        . ( $nolink ? ' [' . $self->site->{sitename} . ']' : '' ) . "</b>"
+        . ( $nolink ? '' : "</a>" )
         . "</span>";
 }
 
