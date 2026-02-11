@@ -22,6 +22,7 @@ use strict;
 use DW::Countries;
 use DW::Logic::UserLinkBar;
 use DW::External::ProfileServices;
+use Time::Seconds 'ONE_DAY';
 
 # returns a new profile page object
 sub profile_page {
@@ -519,22 +520,33 @@ sub _basic_info_location {
 sub _basic_info_website {
     my $self = $_[0];
 
-    my $u   = $self->{u};
-    my $ret = [];
+    my $u      = $self->{u};
+    my $remote = $self->{remote};
+    my $ret    = [];
 
     return $ret if $u->is_syndicated;
 
     my ( $url, $urlname ) = ( $u->url, $u->prop('urlname') );
+
     if ($url) {
-        $url = LJ::ehtml($url);
-        unless ( $url =~ /^https?:\/\// ) {
-            $url =~ s/^http\W*//;
-            $url = "http://$url";
+        my $spam_time_threshold = ( time - ( ONE_DAY * 10 ) ) > $u->timecreate;
+        if ( $spam_time_threshold || ( $remote && $remote->has_priv('suspend') ) ) {
+            $url = LJ::ehtml($url);
+            unless ( $url =~ /^https?:\/\// ) {
+                $url =~ s/^http\W*//;
+                $url = "http://$url";
+            }
+            $urlname = LJ::ehtml( $urlname || $url );
+            if ($url) {
+                $ret->[0] = _profile_ml('.label.website');
+                $ret->[1] = { url => $url, text => $urlname };
+            }
         }
-        $urlname = LJ::ehtml( $urlname || $url );
-        if ($url) {
-            $ret->[0] = _profile_ml('.label.website');
-            $ret->[1] = { url => $url, text => $urlname };
+        else {
+            if ( $remote && $remote->can_manage($u) ) {
+                $ret->[0] = _profile_ml('.label.website');
+                $ret->[1] = _profile_ml('.label.website.toonew');
+            }
         }
     }
 
