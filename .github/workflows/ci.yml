@@ -22,6 +22,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install CPAN dependencies
+        run: cpm install -v --show-build-log-on-failure --no-color --resolver metadb -L /opt/dreamwidth-extlib/ - < doc/dependencies-cpanm
+
       - name: Setup environment
         run: |
           # Config symlink (needed for Perl modules to load site config)
@@ -41,3 +44,6 @@ jobs:
 
       - name: Module compilation (t/00-compile.t)
         run: prove -v t/00-compile.t
+
+      - name: Rate limiting (t/rate-limit.t)
+        run: prove -v t/rate-limit.t

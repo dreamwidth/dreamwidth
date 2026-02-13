@@ -39,6 +39,7 @@ use DW::Captcha;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
+use DW::RateLimit;
 
 BEGIN {
     require "ljlib.pl";
@@ -353,6 +354,49 @@ sub trans {
     LJ::start_request();
     S2::set_domain('LJ');
 
+    # Apply rate limiting (after start_request so get_remote returns fresh data)
+    my $remote = LJ::get_remote();
+    my $ip     = LJ::get_remote_ip();
+
+    # Get the appropriate rate limit based on whether user is logged in
+    my $limit;
+    if ($remote) {
+        $limit = DW::RateLimit->get(
+            "authenticated_requests",
+            rate => "100/60s"    # 100 requests per minute
+        );
+    }
+    else {
+        $limit = DW::RateLimit->get(
+            "anonymous_requests",
+            rate => "30/60s"     # 30 requests per minute
+        );
+    }
+
+    # Check if rate limit is exceeded
+    if ($limit) {
+        my $result = $limit->check(
+            userid => $remote ? $remote->userid : undef,
+            ip     => $remote ? undef           : $ip
+        );
+
+        if ( $result->{exceeded} ) {
+            $apache_r->status(429);
+            $apache_r->status_line("429 Too Many Requests");
+            $apache_r->content_type("text/html");
+
+            my $retry_after = $result->{time_remaining};
+            $apache_r->headers_out->{'Retry-After'} = $retry_after;
+
+            $apache_r->print("<h1>429 Too Many Requests</h1>");
+            $apache_r->print("<p>You have made too many requests. Please try again later.</p>");
+            if ($retry_after) {
+                $apache_r->print("<p>Please wait $retry_after seconds before trying again.</p>");
+            }
+            return OK;
+        }
+    }
+
     my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
     BML::set_language( $lang, \&LJ::Lang::get_text );
 
@@ -432,7 +476,7 @@ sub trans {
         }
     }
 
-    my $remote = LJ::get_remote();
+    $remote = LJ::get_remote();
 
     # block on IP address for anonymous users but allow users to log in,
     # and logged in users to go through
