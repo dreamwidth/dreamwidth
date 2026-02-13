@@ -392,7 +392,7 @@ sub profile_handler {
                     push @{ $new_accts{$s_id} }, [ $a_id, $val ];
                 }
                 else {
-                    push @{ $new_accts{$s_id} }, $val;
+                    push @{ $new_accts{$s_id} }, $val if $val ne '';
                 }
             }
 

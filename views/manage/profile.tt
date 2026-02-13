@@ -285,8 +285,8 @@
             </div>
         [% END %]
 
-            [%# ignore legacy userprops if %$profile_accts has been populated %] 
-            [% IF profile_accts %]
+            [%# ignore legacy userprops if %$profile_accts has been populated %]
+            [% IF profile_accts.size %]
                 [% FOREACH p IN services %]
                     [% s_id = p.service_id;
                     NEXT UNLESS profile_accts.$s_id %]
@@ -300,8 +300,8 @@
                     [% NEXT UNLESS p.userprop;
                         val = u.${p.userprop};
                         NEXT UNLESS val %]
-                    [% service(p, [0, val]) %]
-
+                    [% service(p, [0, val], ct) %]
+                    [% ct = ct + 1 %]
                 [% END %]
             [% END %]
 
