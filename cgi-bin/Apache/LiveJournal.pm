@@ -369,7 +369,7 @@ sub trans {
     else {
         $limit = DW::RateLimit->get(
             "anonymous_requests",
-            rate => "30/60s"    # 30 requests per minute
+            rate => "30/60s"     # 30 requests per minute
         );
     }
 
@@ -391,8 +391,7 @@ sub trans {
             $apache_r->print("<h1>429 Too Many Requests</h1>");
             $apache_r->print("<p>You have made too many requests. Please try again later.</p>");
             if ($retry_after) {
-                $apache_r->print(
-                    "<p>Please wait $retry_after seconds before trying again.</p>");
+                $apache_r->print("<p>Please wait $retry_after seconds before trying again.</p>");
             }
             return OK;
         }

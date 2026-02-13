@@ -34,16 +34,10 @@ sub call {
     # Get the appropriate rate limit based on whether user is logged in
     my $limit;
     if ($remote) {
-        $limit = DW::RateLimit->get(
-            "authenticated_requests",
-            rate => "100/60s"
-        );
+        $limit = DW::RateLimit->get( "authenticated_requests", rate => "100/60s" );
     }
     else {
-        $limit = DW::RateLimit->get(
-            "anonymous_requests",
-            rate => "30/60s"
-        );
+        $limit = DW::RateLimit->get( "anonymous_requests", rate => "30/60s" );
     }
 
     # Check if rate limit is exceeded

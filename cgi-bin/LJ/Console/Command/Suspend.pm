@@ -46,7 +46,7 @@ sub execute {
     my $openid_only =
         $remote->has_priv( "suspend", "openid" ) && !$remote->has_priv( "suspend", "*" );
     my $recent_only =
-        $remote->has_priv( "suspend", "recent" )
+           $remote->has_priv( "suspend", "recent" )
         && !$remote->has_priv( "suspend", "*" )
         && !$remote->has_priv( "suspend", "openid" )
         && !$remote->has_priv( "suspend", "" );
