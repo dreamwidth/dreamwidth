@@ -61,7 +61,7 @@ sub render_body {
     };
 
     $vars->{admin_col} = sub {
-        my $item = $_;
+        my $item = shift;
         my $ret;
         my $dbh = LJ::get_db_writer();
         my $acid =
@@ -90,7 +90,7 @@ sub render_body {
         return $ret;
     };
 
-    $vars->{is_random} = sub { return ref $_ =~ /Account/ && $_->random ? 'Y' : 'N'; };
+    $vars->{is_random} = sub { return ref $_[0] =~ /Account/ && $_[0]->random ? 'Y' : 'N'; };
 
     my $checkout_ready =
         !$receipt || ( !$opts{confirm} && $cart->state == $DW::Shop::STATE_CHECKOUT );
