@@ -693,7 +693,7 @@ sub contact_rows {
     if ( ( $u->is_personal || $u->is_identity ) && $remote && $u->can_receive_message($remote) ) {
         push @ret,
             {
-            url  => "$LJ::SITEROOT/inbox/compose?user=" . $u->user,
+            url  => $u->message_url,
             text => _profile_ml('.contact.pm')
             };
     }

@@ -400,12 +400,19 @@ sub max_subscriptions {
 }
 
 # return the URL to the send message page
+# respects $remote's beta inbox selection
 sub message_url {
     my $u = shift;
     croak "invalid user object passed" unless LJ::isu($u);
 
     return undef unless LJ::is_enabled('user_messaging');
-    return "$LJ::SITEROOT/inbox/compose?user=" . $u->user;
+
+    my $remote = LJ::get_remote();
+    my $path =
+        ( $remote && LJ::BetaFeatures->user_in_beta( $remote => "inbox" ) )
+        ? "inbox/new/compose"
+        : "inbox/compose";
+    return "$LJ::SITEROOT/$path?user=" . $u->user;
 }
 
 sub new_message_count {

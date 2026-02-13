@@ -49,8 +49,11 @@ sub as_email_subject {
 sub _as_email {
     my ( $self, $u, $is_html ) = @_;
 
-    my $msg      = $self->load_message;
-    my $replyurl = "$LJ::SITEROOT/inbox/compose?mode=reply&msgid=" . $msg->msgid;
+    my $msg         = $self->load_message;
+    my $compose_url = LJ::BetaFeatures->user_in_beta( $u => "inbox" )
+        ? "$LJ::SITEROOT/inbox/new/compose"
+        : "$LJ::SITEROOT/inbox/compose";
+    my $replyurl = "$compose_url?mode=reply&msgid=" . $msg->msgid;
     my $other_u  = $msg->other_u;
     my $sender   = $other_u->user;
     my $inbox    = "$LJ::SITEROOT/inbox/";
@@ -137,9 +140,12 @@ sub as_html_actions {
     my $u       = LJ::want_user( $msg->journalid );
     my $other_u = $msg->other_u;
 
+    my $compose_url = LJ::BetaFeatures->user_in_beta( $u => "inbox" )
+        ? "$LJ::SITEROOT/inbox/new/compose"
+        : "$LJ::SITEROOT/inbox/compose";
     my $ret = "<div class='actions'>";
     if ( !$other_u->is_suspended ) {
-        $ret .= " <a href='$LJ::SITEROOT/inbox/compose?mode=reply&msgid=$msgid'>Reply</a>";
+        $ret .= " <a href='$compose_url?mode=reply&msgid=$msgid'>Reply</a>";
         $ret .=
               " | <a href='$LJ::SITEROOT/circle/"
             . $msg->other_u->user
