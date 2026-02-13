@@ -1,0 +1,74 @@
+  .toggles button[aria-pressed] {
+    display: inline-block;
+    box-sizing: border-box;
+    border: none;
+    background: none;
+    text-align: left;
+    padding: .4em 0 .4em 4em;
+    position: relative;
+    color:inherit;
+    font-size: 1rem;
+    box-shadow: none; // Fix for Gradation.
+
+    &::before, &::after {
+      content: "";
+      position: absolute;
+      height: 1.5em;
+      transition: all 0.25s ease;
+    }
+
+    &::before {
+        left: 0;
+        width: 3em;
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 5px;
+      }
+
+     &::after {
+        left: 0;
+        background-position: center center;
+        border-radius: 5px;
+        width: 1.5em;
+        border-width: 0.15em;
+        border-style: solid;
+    }
+
+    &:active{
+        box-shadow: none;
+    }
+
+    &[disabled], &[disabled]:hover {
+        &::before, &::after {
+            background-color: transparent;         
+            box-shadow: none;
+            background-image: none;
+        }
+    }
+
+    &:focus::after, &:hover::after {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='50' fill='rgba(127,127,127,.5)'/%3E%3C/svg%3E");
+      background-size: 30%;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+ 
+
+}
+  
+  
+  .toggles button[aria-pressed=true]::after {
+    left: 1.5em;
+  }
+
+  
+
+  /* Reduced motion */
+  @media screen and (prefers-reduced-motion: reduce) {
+    .toggles [aria-pressed]::before,
+    .toggles [aria-pressed]::after {
+      transition: none;
+    }
+  }
+  
+

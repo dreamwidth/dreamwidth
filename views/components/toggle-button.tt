@@ -1,0 +1,22 @@
+[%# Based on code by Adrian Roselli from https://adrianroselli.com/2019/08/under-engineered-toggles-too.html  which is licensed as CC BY-SA 4.0%]
+
+[% dw.need_res( { group => "foundation" },
+        "stc/css/components/toggle-button.css"
+) %]
+
+  <div class="toggles">
+    <button type="button" id="[% id %]" aria-pressed="[% selected || 'false' %]" onclick="toggle(this.id);" [% disabled ? 'disabled' : '' %]>
+      [% label %]
+    </button>
+  </div>
+
+<script>
+function toggle(btnID) {
+  var theButton = document.getElementById(btnID);
+  if (theButton.getAttribute("aria-pressed") == "false") {
+    theButton.setAttribute("aria-pressed", "true");
+  } else {
+    theButton.setAttribute("aria-pressed", "false");
+  }
+}
+</script> 
