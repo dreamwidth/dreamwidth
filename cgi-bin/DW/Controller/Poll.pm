@@ -39,19 +39,21 @@ sub index_handler {
     my $form   = $r->did_post ? $r->post_args : $r->get_args;
     my $remote = $rv->{remote};
 
-    # answers to checkbox questions are null-separated sequences
-    # since our inout correctness check rules out nulls, we change them
-    # to commas here rather than inside LJ::Poll::submit() .
-    foreach ( values %$form ) {
-        s/\0/,/g;
+    # Flatten Hash::MultiValue into a regular hash, joining multiple values
+    # with commas.  This is needed for checkbox poll questions, which submit
+    # multiple values under the same "pollq-N" key.
+    my %flat;
+    foreach my $key ( keys %$form ) {
+        $flat{$key} = join( ",", $form->get_all($key) );
     }
-    unless ( LJ::text_in($form) ) {
+
+    unless ( LJ::text_in( \%flat ) ) {
 
         #    $body = "<?badinput?>";
         return;
     }
 
-    my $pollid = ( $form->{'id'} || $form->{'pollid'} ) + 0;
+    my $pollid = ( $flat{'id'} || $flat{'pollid'} ) + 0;
 
     unless ($pollid) {
         return $r->redirect("$LJ::SITEROOT/poll/create");
@@ -64,14 +66,14 @@ sub index_handler {
     my $u = $poll->journal;
 
     my $mode = "";
-    $mode = $form->{'mode'}
-        if ( defined $form->{'mode'} && $form->{'mode'} =~ /(enter|results|ans|clear)/ );
+    $mode = $flat{'mode'}
+        if ( defined $flat{'mode'} && $flat{'mode'} =~ /(enter|results|ans|clear)/ );
 
     # Handle opening and closing of polls
     # We do this first because a closed poll will alter how a poll is displayed
     if ( $poll->is_owner($remote) || $remote && $remote->can_manage($u) ) {
-        if ( defined $form->{'mode'} && $form->{'mode'} =~ /(close|open)/ ) {
-            $mode = $form->{'mode'};
+        if ( defined $flat{'mode'} && $flat{'mode'} =~ /(close|open)/ ) {
+            $mode = $flat{'mode'};
             $poll->close_poll if ( $mode eq 'close' );
             $poll->open_poll  if ( $mode eq 'open' );
             $mode = 'results';
@@ -90,20 +92,20 @@ sub index_handler {
         u         => $u,
         poll      => $poll,
         pollid    => $pollid,
-        poll_form => $form,
+        poll_form => \%flat,
         mode      => $mode,
         entry     => $entry,
     };
 
-    if ( defined $form->{'poll-submit'} && $r->did_post ) {
+    if ( defined $flat{'poll-submit'} && $r->did_post ) {
         my $error;
-        my $error_code = LJ::Poll->process_submission( $form, \$error );
+        my $error_code = LJ::Poll->process_submission( \%flat, \$error );
         if ($error) {
             $vars->{error}      = $error;
             $vars->{error_code} = $error_code;
         }
         else {
-            return $r->redirect( $entry->url( style_opts => LJ::viewing_style_opts(%$form) ) );
+            return $r->redirect( $entry->url( style_opts => LJ::viewing_style_opts(%flat) ) );
         }
     }
 
