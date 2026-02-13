@@ -320,6 +320,7 @@ sub trans {
     # include some modern security headers for best practices; we put these on everything
     # so that no matter how a user reaches us, they get the configs
     $apache_r->headers_out->{'X-Content-Type-Options'} = 'nosniff';
+    $apache_r->headers_out->{'Referrer-Policy'}        = 'same-origin';
     if ( $LJ::PROTOCOL eq 'https' ) {
 
         # TODO: Raise HSTS timer here, but I want it low while I test to make sure that

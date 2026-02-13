@@ -34,6 +34,7 @@ sub call {
             my $res = shift;
 
             push @{ $res->[1] }, 'X-Content-Type-Options' => 'nosniff';
+            push @{ $res->[1] }, 'Referrer-Policy'        => 'same-origin';
 
             if ( $LJ::PROTOCOL eq 'https' ) {
                 push @{ $res->[1] },
