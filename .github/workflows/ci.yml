@@ -41,3 +41,6 @@ jobs:
 
       - name: Module compilation (t/00-compile.t)
         run: prove -v t/00-compile.t
+
+      - name: Rate limiting (t/rate-limit.t)
+        run: prove -v t/rate-limit.t
