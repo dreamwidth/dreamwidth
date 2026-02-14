@@ -136,6 +136,14 @@ The dev container (`$IS_DEV_SERVER && $IS_DEV_CONTAINER`) intentionally sets `$L
 
 Always use `--no-gpg-sign` when committing, as GPG signing requires interactive passphrase entry which hangs in this environment.
 
+### Before Pushing
+
+Before pushing any branch, run these checks inside the devcontainer and fix any failures — CI runs them and the build fails if they don't pass, even for files you didn't touch:
+
+1. `perl extlib/bin/tidyall -a` — auto-format all files
+2. `perl t/02-tidy.t` — verify formatting passes
+3. `perl t/00-compile.t` — verify all modules compile
+
 ## Pull Requests
 
 PRs target `dreamwidth/dreamwidth`. If the working repo is a fork, use `--head <fork-owner>:<branch-name>` (check the `origin` remote to determine the fork owner).
