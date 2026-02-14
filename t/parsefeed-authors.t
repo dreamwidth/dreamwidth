@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -79,6 +79,16 @@ xmlns:dc='http://purl.org/dc/elements/1.1/'>
 <dw:poster>example-dw-poster</dw:poster>
 <dw:security>public</dw:security>
 <dw:reply-count>0</dw:reply-count>
+</item>
+
+<item>
+<guid isPermaLink='true'>http://examplecomm.dream.fu/789.html</guid>
+<pubDate>Mon, 07 Feb 2011 12:00:00 GMT</pubDate>
+<title>yo</title>
+<link>http://examplecomm.dream.fu/789.html</link>
+<description>yo</description>
+<dc:creator>First Author</dc:creator>
+<dc:creator>Second Author</dc:creator>
 </item>
 
 </channel>
@@ -158,6 +168,11 @@ SKIP: {
     is( $parse_rss->{items}->[0]->{author}, "example-dc-creator", "<dc:creator> tag" );
     is( $parse_rss->{items}->[1]->{author}, "example-lj-poster",  "<lj:poster> tag" );
     is( $parse_rss->{items}->[2]->{author}, "example-dw-poster",  "<dw:poster> tag" );
+    is(
+        $parse_rss->{items}->[3]->{author},
+        "First Author, Second Author",
+        "multiple <dc:creator> tags"
+    );
 }
 
 my ( $parse_atom, $atom_error ) = LJ::ParseFeed::parse_feed( $feed_atom, "atom" );

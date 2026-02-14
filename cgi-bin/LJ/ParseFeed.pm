@@ -131,7 +131,10 @@ sub parse_feed {
 
         # Dublin Core
         if ( $_->{dc} && ref $_->{dc} eq "HASH" ) {
-            $author = $_->{dc}->{creator} if $_->{dc}->{creator};
+            if ( $_->{dc}->{creator} ) {
+                my $creator = $_->{dc}->{creator};
+                $author = ref $creator eq 'ARRAY' ? join( ', ', @$creator ) : $creator;
+            }
             $time = w3cdtf_to_time( $_->{dc}->{date} ) if $_->{dc}->{date};
         }
 
