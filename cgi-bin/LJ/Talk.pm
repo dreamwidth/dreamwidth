@@ -596,6 +596,12 @@ sub unscreen_comment {
     LJ::Talk::invalidate_talk2row_memcache( $u->id, @jtalkids );
     LJ::MemCache::delete( [ $userid, "activeentries:$userid" ] );
 
+    # update in-memory singletons so they reflect the new state
+    foreach my $jtalkid (@jtalkids) {
+        my $c = LJ::Comment->new( $u, jtalkid => $jtalkid );
+        $c->{state} = 'A' if $c->{_loaded_row};
+    }
+
     if ( $updated > 0 ) {
         LJ::replycount_do( $u, $itemid, "incr", $updated );
         my $dbcm        = LJ::get_cluster_master($u);
@@ -607,6 +613,17 @@ sub unscreen_comment {
     LJ::MemCache::delete( [ $userid, "screenedcount:$userid:$itemid" ] );
 
     LJ::Talk::update_commentalter( $u, $itemid );
+
+    # fire events so that users who missed the original notification
+    # (because the comment was screened) get notified now
+    my @jobs;
+    foreach my $jtalkid (@jtalkids) {
+        push @jobs,
+            LJ::Event::JournalNewComment->new_for_unscreen(
+            LJ::Comment->new( $u, jtalkid => $jtalkid ) );
+    }
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
+
     return;
 }
 
