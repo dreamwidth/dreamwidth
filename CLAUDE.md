@@ -134,6 +134,24 @@ The dev container (`$IS_DEV_SERVER && $IS_DEV_CONTAINER`) intentionally sets `$L
 
 **ABSOLUTE RULE — NEVER run `git commit` unless the user has explicitly asked you to commit in that moment.** Not after making changes. Not as part of a workflow. Not proactively. Not because the changes look ready. Not for any reason whatsoever. The ONLY acceptable trigger is the user saying words like "commit this" or "go ahead and commit". If in doubt, ASK. Violating this rule destroys trust. Follow the repository's existing commit message style. **NEVER amend commits unless explicitly instructed** — assume commits have already been pushed.
 
+Always use `--no-gpg-sign` when committing, as GPG signing requires interactive passphrase entry which hangs in this environment.
+
+## Pull Requests
+
+PRs target `dreamwidth/dreamwidth`. If the working repo is a fork, use `--head <fork-owner>:<branch-name>` (check the `origin` remote to determine the fork owner).
+
+PR body format:
+
+```
+<Technical description of the change — what code was modified and why, referencing specific
+functions/files/mechanics as appropriate. This is for developers reviewing the PR.>
+
+CODE TOUR: <Non-technical description for the Dreamwidth community. Explain what changed from a
+user's perspective, skipping implementation details. Keep it conversational.>
+
+Fixes #<issue-number>
+```
+
 ## Troubleshooting
 
 If the container startup fails (`postCreateCommand`), the container still exists. Check the error output, fix the issue, remove the container (`docker rm <id>`), and rebuild.
