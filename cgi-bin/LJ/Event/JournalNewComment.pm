@@ -30,6 +30,21 @@ sub new {
     return $class->SUPER::new( $comment->journal, $comment->jtalkid );
 }
 
+# Create an event for a comment that was just unscreened.
+# Uses arg2 as a flag so matches_filter can skip users
+# who were already notified when the comment was screened.
+sub new_for_unscreen {
+    my ( $class, $comment ) = @_;
+    croak 'Not an LJ::Comment' unless blessed $comment && $comment->isa("LJ::Comment");
+    return $class->SUPER::new( $comment->journal, $comment->jtalkid, 1 );
+}
+
+# Returns true if this event was fired because a comment was unscreened
+# (as opposed to newly posted).
+sub is_unscreen_event {
+    return $_[0]->{args}[1] ? 1 : 0;
+}
+
 sub arg_list {
     return ("Comment jtalkid");
 }
@@ -521,6 +536,15 @@ sub matches_filter {
 
         # not a match if this user posted the comment
         return 0 if $watcher->equals( $comment->poster );
+
+        # For unscreen events, skip users who were already notified
+        # when the comment was screened (they could already see it).
+        if ( $self->is_unscreen_event ) {
+            return 0 if $watcher->can_manage( $comment->journal );
+            return 0
+                if $entry->poster
+                && $watcher->equals( $entry->poster );
+        }
 
         # not a match if opt_noemail applies
         return 0 if $self->apply_noemail( $watcher, $comment, $subscr->method );
