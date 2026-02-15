@@ -7,11 +7,9 @@
 # Dispatcher: detects available tools and delegates to the appropriate
 # build-static implementation.
 
-if command -v sass >/dev/null 2>&1; then
-    exec "$LJHOME/bin/build-static-modern.sh" "$@"
-elif command -v compass >/dev/null 2>&1; then
+release=$(cat /etc/lsb-release 2>/dev/null)
+if echo "$release" | grep -q '18.04'; then
     exec "$LJHOME/bin/build-static-legacy.sh" "$@"
 else
-    echo "Error: neither sass nor compass found in PATH" >&2
-    exit 1
+    exec "$LJHOME/bin/build-static-modern.sh" "$@"
 fi
