@@ -229,9 +229,6 @@ sub available_for_user {
     return 1;
 }
 
-# override for very hard events
-sub schwartz_role { 'default' }
-
 # Quick way to bypass during subscription lookup
 sub early_filter_event {
 
