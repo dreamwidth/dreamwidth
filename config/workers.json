@@ -120,7 +120,7 @@
     "dw-sphinx-copier": {
       "cpu": 256,
       "memory": 512,
-      "category": "esn",
+      "category": "search",
       "spot": true,
       "min_count": 1,
       "max_count": 50,
@@ -133,42 +133,6 @@
       "spot": true,
       "min_count": 1,
       "max_count": 15,
-      "target_cpu": 50
-    },
-    "esn-cluster-subs": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "esn-legacy",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 10,
-      "target_cpu": 50
-    },
-    "esn-filter-subs": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "esn-legacy",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 10,
-      "target_cpu": 50
-    },
-    "esn-fired-event": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "esn-legacy",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 10,
-      "target_cpu": 50
-    },
-    "esn-process-sub": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "esn-legacy",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 10,
       "target_cpu": 50
     },
     "expunge-users": {
