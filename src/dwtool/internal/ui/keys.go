@@ -11,6 +11,7 @@ type keyMap struct {
 	Logs      key.Binding
 	Shell     key.Binding
 	Filter    key.Binding
+	Traffic   key.Binding
 	Help      key.Binding
 	Refresh   key.Binding
 	Quit      key.Binding
@@ -49,6 +50,10 @@ var keys = keyMap{
 	Filter: key.NewBinding(
 		key.WithKeys("/"),
 		key.WithHelp("/", "filter"),
+	),
+	Traffic: key.NewBinding(
+		key.WithKeys("t"),
+		key.WithHelp("t", "traffic"),
 	),
 	Help: key.NewBinding(
 		key.WithKeys("?"),

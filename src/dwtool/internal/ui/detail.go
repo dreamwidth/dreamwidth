@@ -171,7 +171,7 @@ func renderDetailView(ds detailState, width, height int) string {
 	}
 
 	b.WriteString("\n")
-	b.WriteString(dimStyle.Render("   j/k:navigate  s:shell  d:deploy  r:refresh  esc:back"))
+	b.WriteString(dimStyle.Render("   j/k:navigate  s:shell  d:deploy  t:traffic  r:refresh  esc:back"))
 	b.WriteString("\n")
 
 	return b.String()

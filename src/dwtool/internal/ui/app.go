@@ -26,6 +26,7 @@ const (
 	viewDetail
 	viewDeploy
 	viewLogs
+	viewTraffic
 )
 
 // App is the root Bubble Tea model.
@@ -59,6 +60,9 @@ type App struct {
 
 	// Logs state
 	logs logsState
+
+	// Traffic state
+	traffic trafficState
 }
 
 // servicesDescribedMsg is sent when service descriptions have been fetched (phase 1).
@@ -138,6 +142,17 @@ type logsTailMsg struct {
 
 // logsTailTickMsg triggers the next tail poll.
 type logsTailTickMsg struct{}
+
+// trafficRuleFetchedMsg is sent when the ALB traffic rule has been fetched.
+type trafficRuleFetchedMsg struct {
+	rule model.TrafficRule
+	err  error
+}
+
+// trafficRuleUpdatedMsg is sent when traffic weights have been applied.
+type trafficRuleUpdatedMsg struct {
+	err error
+}
 
 // refreshTickMsg triggers a periodic dashboard refresh.
 type refreshTickMsg struct{}
@@ -244,6 +259,8 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return a.handleDeployKey(msg)
 		case viewLogs:
 			return a.handleLogsKey(msg)
+		case viewTraffic:
+			return a.handleTrafficKey(msg)
 		default:
 			return a.handleDashboardKey(msg)
 		}
@@ -281,6 +298,34 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			a.updateServices(msg.services)
 		}
 		return a, nil
+
+	case trafficRuleFetchedMsg:
+		if a.view != viewTraffic {
+			return a, nil
+		}
+		a.traffic.loading = false
+		if msg.err != nil {
+			a.traffic.err = msg.err
+			return a, nil
+		}
+		a.traffic.rule = msg.rule
+		// Snapshot original weights for diff display
+		a.traffic.originalWeights = make([]int, len(msg.rule.Targets))
+		for i, t := range msg.rule.Targets {
+			a.traffic.originalWeights[i] = t.Weight
+		}
+		return a, nil
+
+	case trafficRuleUpdatedMsg:
+		if a.view != viewTraffic {
+			return a, nil
+		}
+		if msg.err != nil {
+			a.traffic.err = msg.err
+			a.traffic.step = trafficEditing
+			return a, nil
+		}
+		return a.exitTraffic("Traffic weights updated")
 
 	case refreshTickMsg:
 		// Auto-refresh: only fetch if on dashboard, always re-arm the tick
@@ -501,6 +546,8 @@ func (a App) View() string {
 		return a.viewDeploy()
 	case viewLogs:
 		return a.viewLogs()
+	case viewTraffic:
+		return a.viewTrafficScreen()
 	default:
 		return a.viewDashboard()
 	}
@@ -680,6 +727,24 @@ func (a App) handleDashboardKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return a.openLogs(*svc)
 
+	case key.Matches(msg, keys.Traffic):
+		svc := a.selectedService()
+		if svc == nil {
+			return a, nil
+		}
+		if svc.Group != "web" {
+			a.message = "Traffic weights only available for web services"
+			return a, nil
+		}
+		serviceKey := strings.TrimSuffix(svc.Name, "-service")
+		a.traffic = trafficState{
+			service:  *svc,
+			prevView: viewDashboard,
+			loading:  true,
+		}
+		a.view = viewTraffic
+		return a, a.fetchTrafficRule(serviceKey)
+
 	case key.Matches(msg, keys.Filter):
 		a.filterActive = true
 		return a, nil
@@ -773,6 +838,21 @@ func (a App) handleDetailKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case key.Matches(msg, keys.Logs):
 		return a.openLogs(a.detail.service)
+
+	case key.Matches(msg, keys.Traffic):
+		svc := a.detail.service
+		if svc.Group != "web" {
+			a.message = "Traffic weights only available for web services"
+			return a, nil
+		}
+		serviceKey := strings.TrimSuffix(svc.Name, "-service")
+		a.traffic = trafficState{
+			service:  svc,
+			prevView: viewDetail,
+			loading:  true,
+		}
+		a.view = viewTraffic
+		return a, a.fetchTrafficRule(serviceKey)
 
 	case key.Matches(msg, keys.Refresh):
 		a.detail.loading = true
@@ -1398,6 +1478,154 @@ func (a App) pollRun(repo string, runID int) tea.Cmd {
 	return func() tea.Msg {
 		status, conclusion, err := github.GetWorkflowRun(repo, runID)
 		return workflowPollMsg{status: status, conclusion: conclusion, err: err}
+	}
+}
+
+func (a App) handleTrafficKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch a.traffic.step {
+	case trafficEditing:
+		return a.handleTrafficEditKey(msg)
+	case trafficConfirm:
+		return a.handleTrafficConfirmKey(msg)
+	case trafficSaving:
+		// No input during save
+		return a, nil
+	}
+	return a, nil
+}
+
+func (a App) handleTrafficEditKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch {
+	case key.Matches(msg, keys.Escape):
+		return a.exitTraffic("")
+
+	case key.Matches(msg, keys.Quit):
+		return a, tea.Quit
+
+	case key.Matches(msg, keys.Up):
+		if a.traffic.tgCursor > 0 {
+			a.traffic.tgCursor--
+		}
+		return a, nil
+
+	case key.Matches(msg, keys.Down):
+		if a.traffic.tgCursor < len(a.traffic.rule.Targets)-1 {
+			a.traffic.tgCursor++
+		}
+		return a, nil
+
+	case msg.Type == tea.KeyLeft:
+		if len(a.traffic.rule.Targets) > 0 {
+			idx := a.traffic.tgCursor
+			w := a.traffic.rule.Targets[idx].Weight - 10
+			if w < 0 {
+				w = 0
+			}
+			a.traffic.rule.Targets[idx].Weight = w
+		}
+		return a, nil
+
+	case msg.Type == tea.KeyRight:
+		if len(a.traffic.rule.Targets) > 0 {
+			idx := a.traffic.tgCursor
+			w := a.traffic.rule.Targets[idx].Weight + 10
+			if w > 999 {
+				w = 999
+			}
+			a.traffic.rule.Targets[idx].Weight = w
+		}
+		return a, nil
+
+	case msg.Type == tea.KeyRunes && string(msg.Runes) == "1":
+		applyPreset(&a.traffic.rule, 1)
+		return a, nil
+
+	case msg.Type == tea.KeyRunes && string(msg.Runes) == "2":
+		applyPreset(&a.traffic.rule, 2)
+		return a, nil
+
+	case msg.Type == tea.KeyRunes && string(msg.Runes) == "3":
+		applyPreset(&a.traffic.rule, 3)
+		return a, nil
+
+	case msg.Type == tea.KeyRunes && string(msg.Runes) == "4":
+		applyPreset(&a.traffic.rule, 4)
+		return a, nil
+
+	case key.Matches(msg, keys.Enter):
+		if len(a.traffic.rule.Targets) == 0 || a.traffic.loading {
+			return a, nil
+		}
+		if !weightsChanged(a.traffic.rule, a.traffic.originalWeights) {
+			return a.exitTraffic("No changes to apply")
+		}
+		a.traffic.step = trafficConfirm
+		return a, nil
+	}
+
+	return a, nil
+}
+
+func (a App) handleTrafficConfirmKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	// Only Shift+Y confirms
+	if msg.String() == "Y" {
+		a.traffic.step = trafficSaving
+		return a, a.updateTrafficWeights(a.traffic.rule)
+	}
+
+	// Any other key cancels back to editing
+	a.traffic.step = trafficEditing
+	return a, nil
+}
+
+// exitTraffic returns to wherever the user came from (dashboard or detail).
+func (a App) exitTraffic(msg string) (tea.Model, tea.Cmd) {
+	a.message = msg
+	a.view = a.traffic.prevView
+	return a, nil
+}
+
+func (a App) viewTrafficScreen() string {
+	var b strings.Builder
+
+	// Title bar
+	title := titleStyle.Render("dwtool")
+	info := titleInfoStyle.Render(fmt.Sprintf(" - %s (%s)", a.cfg.Cluster, a.cfg.Region))
+	rightHelp := titleInfoStyle.Render("esc:cancel  q:quit")
+
+	titleLine := title + info
+	padding := a.width - lipgloss.Width(titleLine) - lipgloss.Width(rightHelp)
+	if padding < 1 {
+		padding = 1
+	}
+	b.WriteString(titleLine + strings.Repeat(" ", padding) + rightHelp)
+	b.WriteString("\n")
+
+	// Separator
+	b.WriteString(renderSeparator(a.width))
+	b.WriteString("\n")
+
+	// Traffic content
+	b.WriteString(renderTrafficView(a.traffic, a.width, a.height))
+
+	return b.String()
+}
+
+// fetchTrafficRule fetches the ALB traffic rule for a web service.
+func (a App) fetchTrafficRule(serviceKey string) tea.Cmd {
+	return func() tea.Msg {
+		ctx := context.Background()
+		rule, err := a.client.FetchTrafficRule(ctx, serviceKey)
+		return trafficRuleFetchedMsg{rule: rule, err: err}
+	}
+}
+
+// updateTrafficWeights applies new traffic weights to the ALB.
+func (a App) updateTrafficWeights(rule model.TrafficRule) tea.Cmd {
+	return func() tea.Msg {
+		ctx := context.Background()
+		err := a.client.UpdateTrafficWeights(ctx, rule)
+		return trafficRuleUpdatedMsg{err: err}
 	}
 }
 

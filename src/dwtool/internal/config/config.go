@@ -14,6 +14,8 @@ const (
 	WorkflowWeb22    = "web22-deploy.yml"
 	WorkflowWorker   = "worker-deploy.yml"
 	WorkflowWorker22 = "worker22-deploy.yml"
+
+	ALBName = "dw-prod"
 )
 
 // Config holds runtime configuration for dwtool.

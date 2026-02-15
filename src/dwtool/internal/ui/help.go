@@ -24,6 +24,7 @@ func renderHelpOverlay(width, height int) string {
 				{"enter", "service detail"},
 				{"d", "deploy service"},
 				{"D", "deploy all workers"},
+				{"t", "traffic weights (web only)"},
 				{"l", "view logs"},
 				{"s", "shell into service"},
 				{"/", "filter services"},
@@ -38,6 +39,7 @@ func renderHelpOverlay(width, height int) string {
 				{"j/k", "select task"},
 				{"s", "shell into selected task"},
 				{"d", "deploy service"},
+				{"t", "traffic weights (web only)"},
 				{"l", "view logs"},
 				{"r", "refresh"},
 				{"esc", "back to dashboard"},
@@ -52,6 +54,16 @@ func renderHelpOverlay(width, height int) string {
 				{"/", "search"},
 				{"n/N", "next/previous match"},
 				{"esc", "back"},
+			},
+		},
+		{
+			title: "Traffic",
+			bindings: []helpBinding{
+				{"j/k", "select target group"},
+				{"\u2190/\u2192", "adjust weight \u00b110"},
+				{"1-4", "presets"},
+				{"enter", "apply"},
+				{"esc", "cancel"},
 			},
 		},
 		{

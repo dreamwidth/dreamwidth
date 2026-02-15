@@ -63,6 +63,23 @@ type Image struct {
 	CommitMsg string // first line of git commit message, if resolvable from tags
 }
 
+// TrafficRule represents an ALB listener rule with weighted target groups.
+type TrafficRule struct {
+	RuleARN     string              // empty for the listener's default action
+	ListenerARN string              // needed for modifying the default action
+	IsDefault   bool                // true = listener default action (unauthenticated)
+	ServiceKey  string              // "web-stable", "web-canary", etc.
+	Label       string              // human-readable: "Rule 55", "Default"
+	Targets     []TargetGroupWeight // the weighted target groups
+}
+
+// TargetGroupWeight represents one target group and its weight within a rule.
+type TargetGroupWeight struct {
+	ARN    string
+	Name   string // TG name: "web-stable-tg"
+	Weight int    // current weight (0-999)
+}
+
 // LogEvent represents a single CloudWatch log event.
 type LogEvent struct {
 	Timestamp time.Time
