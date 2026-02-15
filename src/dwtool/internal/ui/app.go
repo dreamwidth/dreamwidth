@@ -788,6 +788,16 @@ func (a App) handleDashboardKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		a.ensureCursorVisible()
 		return a, nil
 
+	case key.Matches(msg, keys.PageUp):
+		a.moveCursorPage(-1)
+		a.ensureCursorVisible()
+		return a, nil
+
+	case key.Matches(msg, keys.PageDown):
+		a.moveCursorPage(1)
+		a.ensureCursorVisible()
+		return a, nil
+
 	case key.Matches(msg, keys.Enter):
 		svc := a.selectedService()
 		if svc == nil {
@@ -942,6 +952,20 @@ func (a App) handleDetailKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return a, nil
 
+	case key.Matches(msg, keys.PageUp):
+		a.detail.taskCursor -= a.viewportHeight()
+		if a.detail.taskCursor < 0 {
+			a.detail.taskCursor = 0
+		}
+		return a, nil
+
+	case key.Matches(msg, keys.PageDown):
+		a.detail.taskCursor += a.viewportHeight()
+		if a.detail.taskCursor >= len(a.detail.tasks) {
+			a.detail.taskCursor = max(0, len(a.detail.tasks)-1)
+		}
+		return a, nil
+
 	case key.Matches(msg, keys.Shell):
 		task := a.detail.selectedTask()
 		if task == nil {
@@ -1047,6 +1071,26 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		if a.logs.scrollOffset < maxScroll {
 			a.logs.scrollOffset++
+		}
+		return a, nil
+
+	case key.Matches(msg, keys.PageUp):
+		a.logs.follow = false
+		a.logs.scrollOffset -= visibleLogLines(a.height)
+		if a.logs.scrollOffset < 0 {
+			a.logs.scrollOffset = 0
+		}
+		return a, nil
+
+	case key.Matches(msg, keys.PageDown):
+		a.logs.follow = false
+		maxScroll := len(a.logs.events) - visibleLogLines(a.height)
+		if maxScroll < 0 {
+			maxScroll = 0
+		}
+		a.logs.scrollOffset += visibleLogLines(a.height)
+		if a.logs.scrollOffset > maxScroll {
+			a.logs.scrollOffset = maxScroll
 		}
 		return a, nil
 
@@ -1389,6 +1433,13 @@ func (a App) startCategoryDeploy(categoryName string, services []model.Service) 
 	// Multiple targets — show target picker first
 	a.deploy.step = stepSelectTarget
 	return a, nil
+}
+
+func (a *App) moveCursorPage(direction int) {
+	pageSize := a.viewportHeight()
+	for i := 0; i < pageSize; i++ {
+		a.moveCursor(direction)
+	}
 }
 
 func (a *App) moveCursor(direction int) {

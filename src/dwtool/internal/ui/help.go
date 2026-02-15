@@ -21,6 +21,7 @@ func renderHelpOverlay(width, height int) string {
 			title: "Dashboard",
 			bindings: []helpBinding{
 				{"j/k", "move cursor up/down"},
+				{"PgUp/Dn", "page up/down"},
 				{"enter", "service detail"},
 				{"d", "deploy service"},
 					{"D", "deploy all workers"},
@@ -38,6 +39,7 @@ func renderHelpOverlay(width, height int) string {
 			title: "Service Detail",
 			bindings: []helpBinding{
 				{"j/k", "select task"},
+				{"PgUp/Dn", "page up/down"},
 				{"s", "shell into selected task"},
 				{"d", "deploy service"},
 				{"t", "traffic weights (web only)"},
@@ -50,6 +52,7 @@ func renderHelpOverlay(width, height int) string {
 			title: "Logs",
 			bindings: []helpBinding{
 				{"j/k", "scroll up/down"},
+				{"PgUp/Dn", "page up/down"},
 				{"g/G", "jump to top/bottom"},
 				{"f", "toggle follow mode"},
 				{"/", "search"},
