@@ -73,7 +73,7 @@ locals {
       memory        = 6144
       target_groups = [
         { tg_ref = "web_unauthenticated", port = 6081 },
-        { tg_ref = "web_unauthenticated_2", port = 6081 },  # TODO: change to 8080 when upgraded to web22
+        { tg_ref = "web_unauthenticated_2", port = 8080 },
       ]
     }
   }

@@ -258,6 +258,7 @@ func classifyService(name string) (group, workflow, workflowSvc, imageBase strin
 	case "web-unauthenticated":
 		return "web", config.WorkflowWeb, "web-unauthenticated", config.ImageBaseWeb, []model.DeployTarget{
 			{Label: "web", Workflow: config.WorkflowWeb, WorkflowSvc: "web-unauthenticated", ImageBase: config.ImageBaseWeb},
+			{Label: "web22", Workflow: config.WorkflowWeb22, WorkflowSvc: "web-unauthenticated", ImageBase: config.ImageBaseWeb22},
 		}
 	case "web-shop":
 		return "web", config.WorkflowWeb22, "web-shop", config.ImageBaseWeb22, []model.DeployTarget{
