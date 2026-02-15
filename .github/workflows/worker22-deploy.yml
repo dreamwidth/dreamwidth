@@ -24,13 +24,13 @@ on:
         - dw-esn-filter-subs
         - dw-esn-fired-event
         - dw-esn-process-sub
+        - dw-latest-feed
+        - dw-lazy-cleanup
+        - dw-mass-privacy
         - dw-send-email
         - dw-sphinx-copier
+        - dw-synsuck
         - embeds
-        - esn-cluster-subs
-        - esn-filter-subs
-        - esn-fired-event
-        - esn-process-sub
         - expunge-users
         - import-eraser
         - import-scheduler
@@ -183,6 +183,33 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
+      - name: (dw-latest-feed) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-latest-feed'
+        id: render-worker-container-dw-latest-feed
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-dw-latest-feed-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (dw-lazy-cleanup) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-lazy-cleanup'
+        id: render-worker-container-dw-lazy-cleanup
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-dw-lazy-cleanup-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (dw-mass-privacy) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-mass-privacy'
+        id: render-worker-container-dw-mass-privacy
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-dw-mass-privacy-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
       - name: (dw-send-email) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-send-email'
         id: render-worker-container-dw-send-email
@@ -201,48 +228,21 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
+      - name: (dw-synsuck) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-synsuck'
+        id: render-worker-container-dw-synsuck
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-dw-synsuck-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
       - name: (embeds) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'embeds'
         id: render-worker-container-embeds
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-embeds-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (esn-cluster-subs) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-cluster-subs'
-        id: render-worker-container-esn-cluster-subs
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-esn-cluster-subs-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (esn-filter-subs) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-filter-subs'
-        id: render-worker-container-esn-filter-subs
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-esn-filter-subs-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (esn-fired-event) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-fired-event'
-        id: render-worker-container-esn-fired-event
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-esn-fired-event-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (esn-process-sub) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-process-sub'
-        id: render-worker-container-esn-process-sub
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-esn-process-sub-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -486,6 +486,30 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-dw-esn-process-sub-service"
 
+      - name: (dw-latest-feed) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-latest-feed'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-dw-latest-feed.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-dw-latest-feed-service"
+
+      - name: (dw-lazy-cleanup) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-lazy-cleanup'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-dw-lazy-cleanup.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-dw-lazy-cleanup-service"
+
+      - name: (dw-mass-privacy) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-mass-privacy'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-dw-mass-privacy.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-dw-mass-privacy-service"
+
       - name: (dw-send-email) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-send-email'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -502,6 +526,14 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-dw-sphinx-copier-service"
 
+      - name: (dw-synsuck) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-synsuck'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-dw-synsuck.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-dw-synsuck-service"
+
       - name: (embeds) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'embeds'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -509,38 +541,6 @@ jobs:
           task-definition: ${{ steps.render-worker-container-embeds.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-embeds-service"
-
-      - name: (esn-cluster-subs) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-cluster-subs'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-esn-cluster-subs.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-esn-cluster-subs-service"
-
-      - name: (esn-filter-subs) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-filter-subs'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-esn-filter-subs.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-esn-filter-subs-service"
-
-      - name: (esn-fired-event) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-fired-event'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-esn-fired-event.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-esn-fired-event-service"
-
-      - name: (esn-process-sub) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'esn-process-sub'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-esn-process-sub.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-esn-process-sub-service"
 
       - name: (expunge-users) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'expunge-users'
