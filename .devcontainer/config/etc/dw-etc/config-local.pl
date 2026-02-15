@@ -276,4 +276,7 @@
     };
 }
 
+
+# Enable shop point transfers
+%LJ::SHOP = ( points => [] );
 1;
