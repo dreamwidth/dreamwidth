@@ -126,6 +126,27 @@ type workflowPollMsg struct {
 // pollTickMsg triggers the next poll cycle.
 type pollTickMsg struct{}
 
+// categoryTriggeredMsg is sent after a single worker's workflow trigger completes in a category deploy.
+type categoryTriggeredMsg struct {
+	workerName string
+	err        error
+}
+
+// categoryRunFoundMsg is sent when a triggered worker's run ID is found.
+type categoryRunFoundMsg struct {
+	workerName string
+	runID      int
+	err        error
+}
+
+// categoryPollMsg is sent with the latest run status for a worker in a category deploy.
+type categoryPollMsg struct {
+	workerName string
+	status     string
+	conclusion string
+	err        error
+}
+
 // logsMsg is sent when initial log events have been fetched.
 type logsMsg struct {
 	events      []model.LogEvent
@@ -496,10 +517,107 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return pollTickMsg{}
 		})
 
+	case categoryTriggeredMsg:
+		if a.view != viewDeploy || !a.deploy.categoryDeploy {
+			return a, nil
+		}
+		for i := range a.deploy.categoryRuns {
+			if a.deploy.categoryRuns[i].workerName == msg.workerName {
+				if msg.err != nil {
+					a.deploy.categoryRuns[i].err = msg.err
+				} else {
+					a.deploy.categoryRuns[i].triggered = true
+				}
+				break
+			}
+		}
+		// Check if all have been triggered (or errored), then start polling
+		allTriggered := true
+		for _, cr := range a.deploy.categoryRuns {
+			if !cr.triggered && cr.err == nil {
+				allTriggered = false
+				break
+			}
+		}
+		if allTriggered {
+			return a, tea.Tick(2*time.Second, func(t time.Time) tea.Msg {
+				return pollTickMsg{}
+			})
+		}
+		return a, nil
+
+	case categoryRunFoundMsg:
+		if a.view != viewDeploy || !a.deploy.categoryDeploy {
+			return a, nil
+		}
+		for i := range a.deploy.categoryRuns {
+			if a.deploy.categoryRuns[i].workerName == msg.workerName {
+				if msg.err != nil {
+					a.deploy.categoryRuns[i].err = msg.err
+				} else if msg.runID != 0 {
+					a.deploy.categoryRuns[i].runID = msg.runID
+				}
+				break
+			}
+		}
+		return a, nil
+
+	case categoryPollMsg:
+		if a.view != viewDeploy || !a.deploy.categoryDeploy {
+			return a, nil
+		}
+		for i := range a.deploy.categoryRuns {
+			if a.deploy.categoryRuns[i].workerName == msg.workerName {
+				if msg.err != nil {
+					a.deploy.categoryRuns[i].err = msg.err
+				} else {
+					a.deploy.categoryRuns[i].status = msg.status
+					a.deploy.categoryRuns[i].conclusion = msg.conclusion
+				}
+				break
+			}
+		}
+		return a, nil
+
 	case pollTickMsg:
 		if a.view != viewDeploy || a.deploy.step != stepProgress {
 			return a, nil
 		}
+
+		// Category deploy: batch poll all pending runs
+		if a.deploy.categoryDeploy {
+			var cmds []tea.Cmd
+			anyPending := false
+			target := a.deploy.selectedTarget()
+			for _, cr := range a.deploy.categoryRuns {
+				if cr.err != nil || cr.status == "completed" {
+					continue
+				}
+				anyPending = true
+				if cr.runID == 0 {
+					// Still looking for the run
+					workerName := cr.workerName
+					cmds = append(cmds, a.findCategoryRun(a.cfg.Repo, target.Workflow, workerName, a.deploy.triggered))
+				} else {
+					// Poll the known run
+					workerName := cr.workerName
+					runID := cr.runID
+					cmds = append(cmds, a.pollCategoryRun(a.cfg.Repo, workerName, runID))
+				}
+			}
+			if anyPending {
+				// Schedule another poll tick
+				cmds = append(cmds, tea.Tick(5*time.Second, func(t time.Time) tea.Msg {
+					return pollTickMsg{}
+				}))
+			}
+			if len(cmds) > 0 {
+				return a, tea.Batch(cmds...)
+			}
+			return a, nil
+		}
+
+		// Single deploy: existing logic
 		target := a.deploy.selectedTarget()
 		if a.deploy.runID == 0 {
 			// Still looking for the run
@@ -719,6 +837,22 @@ func (a App) handleDashboardKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			},
 		}
 		return a.startDeploy(allSvc, true)
+
+	case key.Matches(msg, keys.DeployCategory):
+		svc := a.selectedService()
+		if svc == nil {
+			return a, nil
+		}
+		if svc.Group != "worker" {
+			a.message = "Category deploy only available for workers"
+			return a, nil
+		}
+		categoryName, categorySvcs := categoryForCursor(a.rows, a.cursor)
+		if categoryName == "" || len(categorySvcs) == 0 {
+			a.message = "Could not determine worker category"
+			return a, nil
+		}
+		return a.startCategoryDeploy(categoryName, categorySvcs)
 
 	case key.Matches(msg, keys.Logs):
 		svc := a.selectedService()
@@ -1069,7 +1203,19 @@ func (a App) handleDeployKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case stepProgress:
 		// Only Esc to go back
 		if key.Matches(msg, keys.Escape) {
-			if a.deploy.runStatus != "completed" {
+			if a.deploy.categoryDeploy {
+				// Check if all category runs are completed
+				allDone := true
+				for _, cr := range a.deploy.categoryRuns {
+					if cr.status != "completed" && cr.err == nil {
+						allDone = false
+						break
+					}
+				}
+				if !allDone {
+					a.message = "Deploys continue on GitHub"
+				}
+			} else if a.deploy.runStatus != "completed" {
 				a.message = "Deploy continues on GitHub"
 			}
 			a.view = viewDashboard
@@ -1156,9 +1302,20 @@ func (a App) handleConfirmKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		a.deploy.step = stepProgress
 		a.deploy.triggered = time.Now()
 
-		// Use the selected target's workflow and service input
 		target := a.deploy.selectedTarget()
 		img := a.deploy.images[a.deploy.imageCursor]
+
+		// Category deploy: trigger one workflow per worker
+		if a.deploy.categoryDeploy {
+			var cmds []tea.Cmd
+			for _, cr := range a.deploy.categoryRuns {
+				workerName := cr.workerName
+				cmds = append(cmds, a.triggerCategoryDeploy(a.cfg.Repo, target.Workflow, workerName, img.Digest))
+			}
+			return a, tea.Batch(cmds...)
+		}
+
+		// Single/all-workers deploy
 		inputs := map[string]string{
 			"service": target.WorkflowSvc,
 			"tag":     img.Digest, // already has "sha256:" prefix
@@ -1197,6 +1354,41 @@ func (a App) startDeploy(svc model.Service, allWorkers bool) (tea.Model, tea.Cmd
 		imageBase = svc.DeployTargets[0].ImageBase
 	}
 	return a, a.fetchImages(a.cfg.Repo, imageBase)
+}
+
+// startCategoryDeploy initiates the deploy flow for all workers in a category.
+func (a App) startCategoryDeploy(categoryName string, services []model.Service) (tea.Model, tea.Cmd) {
+	// Build category runs list
+	runs := make([]categoryRun, len(services))
+	for i, svc := range services {
+		runs[i] = categoryRun{workerName: svc.WorkflowSvc}
+	}
+
+	// Build a synthetic service for the deploy flow, using worker targets
+	catSvc := model.Service{
+		Name:        fmt.Sprintf("WORKERS: %s", categoryName),
+		Workflow:    config.WorkflowWorker,
+		WorkflowSvc: fmt.Sprintf("WORKERS: %s", categoryName),
+		ImageBase:   config.ImageBaseWorker,
+		DeployTargets: []model.DeployTarget{
+			{Label: "worker", Workflow: config.WorkflowWorker, WorkflowSvc: fmt.Sprintf("WORKERS: %s", categoryName), ImageBase: config.ImageBaseWorker},
+			{Label: "worker22", Workflow: config.WorkflowWorker22, WorkflowSvc: fmt.Sprintf("WORKERS: %s", categoryName), ImageBase: config.ImageBaseWorker22},
+		},
+	}
+
+	a.view = viewDeploy
+	a.deploy = deployState{
+		service:        catSvc,
+		targets:        catSvc.DeployTargets,
+		categoryDeploy: true,
+		categoryName:   categoryName,
+		categoryRuns:   runs,
+	}
+	a.message = ""
+
+	// Multiple targets — show target picker first
+	a.deploy.step = stepSelectTarget
+	return a, nil
 }
 
 func (a *App) moveCursor(direction int) {
@@ -1481,6 +1673,34 @@ func (a App) pollRun(repo string, runID int) tea.Cmd {
 	}
 }
 
+// triggerCategoryDeploy dispatches a GitHub Actions workflow for a single worker in a category deploy.
+func (a App) triggerCategoryDeploy(repo, workflow, workerName, tag string) tea.Cmd {
+	return func() tea.Msg {
+		inputs := map[string]string{
+			"service": workerName,
+			"tag":     tag,
+		}
+		err := github.TriggerWorkflow(repo, workflow, inputs)
+		return categoryTriggeredMsg{workerName: workerName, err: err}
+	}
+}
+
+// findCategoryRun looks for the workflow run for a worker in a category deploy.
+func (a App) findCategoryRun(repo, workflow, workerName string, since time.Time) tea.Cmd {
+	return func() tea.Msg {
+		runID, err := github.FindWorkflowRun(repo, workflow, since)
+		return categoryRunFoundMsg{workerName: workerName, runID: runID, err: err}
+	}
+}
+
+// pollCategoryRun checks the status of a workflow run for a worker in a category deploy.
+func (a App) pollCategoryRun(repo, workerName string, runID int) tea.Cmd {
+	return func() tea.Msg {
+		status, conclusion, err := github.GetWorkflowRun(repo, runID)
+		return categoryPollMsg{workerName: workerName, status: status, conclusion: conclusion, err: err}
+	}
+}
+
 func (a App) handleTrafficKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch a.traffic.step {
 	case trafficEditing:
@@ -1650,10 +1870,11 @@ func (a App) renderFooter() string {
 		return footerStyle.Render(left + hint + strings.Repeat(" ", padding) + right)
 	}
 
-	left := fmt.Sprintf(" %s:%s  %s:%s  %s:%s  %s:%s  %s:%s  %s:%s",
+	left := fmt.Sprintf(" %s:%s  %s:%s  %s:%s  %s:%s  %s:%s  %s:%s  %s:%s",
 		footerKeyStyle.Render("enter"), "detail",
 		footerKeyStyle.Render("d"), "deploy",
-		footerKeyStyle.Render("D"), "deploy-all-workers",
+		footerKeyStyle.Render("D"), "deploy-all",
+		footerKeyStyle.Render("^D"), "deploy-category",
 		footerKeyStyle.Render("s"), "shell",
 		footerKeyStyle.Render("l"), "logs",
 		footerKeyStyle.Render("/"), "filter",

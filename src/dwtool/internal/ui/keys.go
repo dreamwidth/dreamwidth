@@ -3,19 +3,20 @@ package ui
 import "github.com/charmbracelet/bubbles/key"
 
 type keyMap struct {
-	Up        key.Binding
-	Down      key.Binding
-	Enter     key.Binding
-	Deploy    key.Binding
-	DeployAll key.Binding
-	Logs      key.Binding
-	Shell     key.Binding
-	Filter    key.Binding
-	Traffic   key.Binding
-	Help      key.Binding
-	Refresh   key.Binding
-	Quit      key.Binding
-	Escape    key.Binding
+	Up             key.Binding
+	Down           key.Binding
+	Enter          key.Binding
+	Deploy         key.Binding
+	DeployAll      key.Binding
+	DeployCategory key.Binding
+	Logs           key.Binding
+	Shell          key.Binding
+	Filter         key.Binding
+	Traffic        key.Binding
+	Help           key.Binding
+	Refresh        key.Binding
+	Quit          key.Binding
+	Escape         key.Binding
 }
 
 var keys = keyMap{
@@ -38,6 +39,10 @@ var keys = keyMap{
 	DeployAll: key.NewBinding(
 		key.WithKeys("D"),
 		key.WithHelp("D", "deploy all workers"),
+	),
+	DeployCategory: key.NewBinding(
+		key.WithKeys("ctrl+d"),
+		key.WithHelp("ctrl+d", "deploy category"),
 	),
 	Logs: key.NewBinding(
 		key.WithKeys("l"),

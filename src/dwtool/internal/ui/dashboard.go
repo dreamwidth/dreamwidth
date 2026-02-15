@@ -279,6 +279,46 @@ func sortByOrder(services []model.Service, order map[string]int) {
 	}
 }
 
+// categoryForCursor walks the rows to find the group header that contains the
+// cursor row, then collects all services in that group. Returns the category
+// name (e.g. "email") and the list of services, or empty if the cursor isn't
+// on a worker row.
+func categoryForCursor(rows []dashboardRow, cursor int) (string, []model.Service) {
+	if cursor < 0 || cursor >= len(rows) || rows[cursor].isGroup {
+		return "", nil
+	}
+
+	// Walk backward to find the group header
+	groupIdx := -1
+	for i := cursor - 1; i >= 0; i-- {
+		if rows[i].isGroup {
+			groupIdx = i
+			break
+		}
+	}
+	if groupIdx < 0 {
+		return "", nil
+	}
+
+	groupName := rows[groupIdx].group
+	// Must be a "Workers - <category>" group
+	if !strings.HasPrefix(groupName, "Workers - ") {
+		return "", nil
+	}
+	category := strings.TrimPrefix(groupName, "Workers - ")
+
+	// Walk forward from the group header to collect all services until next header
+	var services []model.Service
+	for i := groupIdx + 1; i < len(rows); i++ {
+		if rows[i].isGroup {
+			break
+		}
+		services = append(services, rows[i].service)
+	}
+
+	return category, services
+}
+
 // sortByName sorts services alphabetically.
 func sortByName(services []model.Service) {
 	for i := 0; i < len(services); i++ {

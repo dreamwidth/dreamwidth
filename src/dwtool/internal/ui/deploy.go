@@ -20,6 +20,16 @@ const (
 	stepProgress
 )
 
+// categoryRun tracks the deploy status of a single worker in a category deploy.
+type categoryRun struct {
+	workerName string
+	triggered  bool
+	runID      int
+	status     string // "queued", "in_progress", "completed"
+	conclusion string // "success", "failure", "cancelled"
+	err        error
+}
+
 // deployState holds all state for the deploy flow.
 type deployState struct {
 	service     model.Service
@@ -36,6 +46,11 @@ type deployState struct {
 
 	// for "all workers" deploy
 	allWorkers bool
+
+	// for category deploy
+	categoryDeploy bool
+	categoryName   string
+	categoryRuns   []categoryRun
 
 	// Progress tracking
 	triggered  time.Time
@@ -84,8 +99,14 @@ func renderDeployView(ds deployState, width, height int) string {
 	case stepSelectImage:
 		return renderImageSelectView(ds, width, height)
 	case stepConfirm:
+		if ds.categoryDeploy {
+			return renderCategoryConfirmView(ds, width)
+		}
 		return renderConfirmView(ds, width)
 	case stepProgress:
+		if ds.categoryDeploy {
+			return renderCategoryProgressView(ds, width)
+		}
 		return renderProgressView(ds, width)
 	default:
 		return ""
@@ -99,6 +120,8 @@ func renderTargetSelectView(ds deployState, width int) string {
 	serviceName := ds.service.Name
 	if ds.allWorkers {
 		serviceName = "ALL WORKERS"
+	} else if ds.categoryDeploy {
+		serviceName = fmt.Sprintf("WORKERS: %s", ds.categoryName)
 	}
 	b.WriteString(labelStyle.Render(fmt.Sprintf(" Deploy %s — Select Image Source", serviceName)))
 	b.WriteString("\n\n")
@@ -133,6 +156,8 @@ func renderImageSelectView(ds deployState, width, height int) string {
 	serviceName := ds.service.Name
 	if ds.allWorkers {
 		serviceName = "ALL WORKERS"
+	} else if ds.categoryDeploy {
+		serviceName = fmt.Sprintf("WORKERS: %s", ds.categoryName)
 	}
 	target := ds.selectedTarget()
 	sourceLabel := ""
@@ -420,4 +445,131 @@ func spinnerFrame(since time.Time) int {
 	elapsed := time.Since(since)
 	idx := int(elapsed.Milliseconds()/100) % len(spinnerFrames)
 	return idx
+}
+
+// renderCategoryConfirmView shows the confirmation prompt for a category deploy.
+func renderCategoryConfirmView(ds deployState, width int) string {
+	var b strings.Builder
+
+	b.WriteString(confirmStyle.Render(" Confirm Deploy"))
+	b.WriteString("\n\n")
+
+	b.WriteString(fmt.Sprintf("   %s  WORKERS: %s\n", labelStyle.Render("Category:"), ds.categoryName))
+
+	// List all workers in the category
+	b.WriteString(fmt.Sprintf("   %s  ", labelStyle.Render("Workers: ")))
+	for i, cr := range ds.categoryRuns {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		b.WriteString(cr.workerName)
+	}
+	b.WriteString(fmt.Sprintf(" (%d workers)\n", len(ds.categoryRuns)))
+
+	// Image info
+	img := ds.images[ds.imageCursor]
+	shortDigest := img.Digest
+	if strings.HasPrefix(shortDigest, "sha256:") {
+		shortDigest = shortDigest[7:]
+	}
+	if len(shortDigest) > 12 {
+		shortDigest = shortDigest[:12]
+	}
+
+	tags := strings.Join(img.Tags, ", ")
+	if tags == "" {
+		tags = "(untagged)"
+	}
+
+	target := ds.selectedTarget()
+
+	b.WriteString(fmt.Sprintf("   %s  %s\n", labelStyle.Render("Image:   "), shortDigest))
+	b.WriteString(fmt.Sprintf("   %s  %s\n", labelStyle.Render("Tags:    "), tags))
+	if img.CommitMsg != "" {
+		b.WriteString(fmt.Sprintf("   %s  %s\n", labelStyle.Render("Commit:  "), img.CommitMsg))
+	}
+
+	b.WriteString("\n")
+	b.WriteString(fmt.Sprintf("   %s  %s\n", labelStyle.Render("Workflow:"), target.Workflow))
+	b.WriteString(fmt.Sprintf("   %s  %s\n", labelStyle.Render("Source:  "), target.ImageBase))
+
+	b.WriteString("\n")
+	b.WriteString(confirmStyle.Render("   Press Y (Shift+Y) to deploy, any other key to cancel."))
+	b.WriteString("\n")
+
+	return b.String()
+}
+
+// renderCategoryProgressView shows per-worker deploy progress for a category deploy.
+func renderCategoryProgressView(ds deployState, width int) string {
+	var b strings.Builder
+
+	b.WriteString(labelStyle.Render(fmt.Sprintf(" Deploying WORKERS: %s", ds.categoryName)))
+	b.WriteString("\n\n")
+
+	// Show image
+	img := ds.images[ds.imageCursor]
+	shortDigest := img.Digest
+	if strings.HasPrefix(shortDigest, "sha256:") {
+		shortDigest = shortDigest[7:]
+	}
+	if len(shortDigest) > 12 {
+		shortDigest = shortDigest[:12]
+	}
+	b.WriteString(fmt.Sprintf("   %s  %s\n", labelStyle.Render("Image:"), shortDigest))
+	b.WriteString("\n")
+
+	// Per-worker status table
+	for _, cr := range ds.categoryRuns {
+		name := padRight(cr.workerName, 30)
+		var status string
+		if cr.err != nil {
+			status = failureStyle.Render(fmt.Sprintf("ERROR: %v", cr.err))
+		} else if cr.status == "completed" {
+			switch cr.conclusion {
+			case "success":
+				status = successStyle.Render("SUCCESS")
+			case "failure":
+				status = failureStyle.Render("FAILED")
+			case "cancelled":
+				status = confirmStyle.Render("CANCELLED")
+			default:
+				status = fmt.Sprintf("%s (%s)", cr.status, cr.conclusion)
+			}
+		} else if cr.status == "in_progress" {
+			status = fmt.Sprintf("%s In progress...", spinnerFrames[spinnerFrame(ds.triggered)])
+		} else if cr.status == "queued" {
+			status = fmt.Sprintf("%s Queued...", spinnerFrames[spinnerFrame(ds.triggered)])
+		} else if cr.triggered {
+			if cr.runID == 0 {
+				status = fmt.Sprintf("%s Finding run...", spinnerFrames[spinnerFrame(ds.triggered)])
+			} else {
+				status = fmt.Sprintf("%s Polling...", spinnerFrames[spinnerFrame(ds.triggered)])
+			}
+		} else {
+			status = dimStyle.Render("pending")
+		}
+
+		b.WriteString(fmt.Sprintf("   %s %s\n", name, status))
+	}
+
+	b.WriteString("\n")
+
+	// Check if all completed
+	allDone := true
+	for _, cr := range ds.categoryRuns {
+		if cr.status != "completed" && cr.err == nil {
+			allDone = false
+			break
+		}
+	}
+
+	if allDone && len(ds.categoryRuns) > 0 {
+		b.WriteString(dimStyle.Render("   Press Esc to go back."))
+	} else {
+		b.WriteString(dimStyle.Render("   Press Esc to go back (deploys continue on GitHub)."))
+	}
+	b.WriteString("\n")
+
+	return b.String()
 }
