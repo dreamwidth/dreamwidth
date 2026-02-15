@@ -29,7 +29,12 @@ sub work {
     my ( $self, $handle ) = @_;
 
     my $opts = $self->args->[0];
-    DW::LatestFeed->_process_item($opts);
+
+    eval { DW::LatestFeed->_process_item($opts); };
+    if ($@) {
+        $log->error("Exception processing latest feed item: $@");
+        return DW::Task::FAILED;
+    }
 
     return DW::Task::COMPLETED;
 }

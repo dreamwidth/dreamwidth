@@ -59,7 +59,11 @@ sub work {
         return DW::Task::COMPLETED;
     }
 
-    LJ::SynSuck::update_feed( $row, 1 );
+    eval { LJ::SynSuck::update_feed( $row, 1 ); };
+    if ($@) {
+        $log->error("Exception updating feed for userid $a->{userid}: $@");
+        return DW::Task::FAILED;
+    }
 
     return DW::Task::COMPLETED;
 }

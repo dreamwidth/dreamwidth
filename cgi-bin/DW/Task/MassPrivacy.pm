@@ -31,11 +31,15 @@ sub work {
     my $opts = $self->args->[0];
 
     unless ($opts) {
-        $log->error("Missing options argument");
-        return DW::Task::FAILED;
+        $log->error("Missing options argument, dropping message.");
+        return DW::Task::COMPLETED;
     }
 
-    LJ::MassPrivacy->handle($opts);
+    eval { LJ::MassPrivacy->handle($opts); };
+    if ($@) {
+        $log->error("Exception processing mass privacy change: $@");
+        return DW::Task::FAILED;
+    }
 
     return DW::Task::COMPLETED;
 }
