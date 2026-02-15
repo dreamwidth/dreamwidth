@@ -62,7 +62,7 @@ sub _print {
 sub _validate {
     my $self    = $_[0];
     my $captcha = Captcha::reCAPTCHA->new;
-    my $result  = $captcha->check_answer_v2( _private_key(), $self->response, LJ::get_remote_ip(), );
+    my $result = $captcha->check_answer_v2( _private_key(), $self->response, LJ::get_remote_ip(), );
     return 1 if $result->{is_valid} eq '1';
 }
 
