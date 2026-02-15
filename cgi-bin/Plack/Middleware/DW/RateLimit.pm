@@ -29,7 +29,7 @@ sub call {
     my ( $self, $env ) = @_;
 
     my $remote = LJ::get_remote();
-    my $ip     = $env->{REMOTE_ADDR};
+    my $ip     = LJ::get_remote_ip();
 
     # Get the appropriate rate limit based on whether user is logged in
     my $limit;
