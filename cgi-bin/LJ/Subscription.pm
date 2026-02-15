@@ -566,17 +566,7 @@ sub notification {
     my $subscr = shift;
     my $class  = LJ::NotificationMethod->class( $subscr->{ntypeid} );
 
-    my $note;
-    if ( $LJ::DEBUG{'official_post_esn'} && $subscr->etypeid == LJ::Event::OfficialPost->etypeid ) {
-
-        # we had (are having) some problems with subscriptions to millions of people, so
-        # this exists for now for debugging that, without actually emailing/inboxing
-        # those people while we debug
-        $note = LJ::NotificationMethod::DebugLog->new_from_subscription( $subscr, $class );
-    }
-    else {
-        $note = $class->new_from_subscription($subscr);
-    }
+    my $note = $class->new_from_subscription($subscr);
 
     return $note;
 }
@@ -584,9 +574,6 @@ sub notification {
 sub process {
     my ( $self, @events ) = @_;
     my $note = $self->notification or return;
-
-    # pass along debugging information from the schwartz job
-    $note->{_debug_headers} = $self->{_debug_headers} if $LJ::DEBUG{esn_email_headers};
 
     return 1
         if $self->etypeid == LJ::Event::OfficialPost->etypeid

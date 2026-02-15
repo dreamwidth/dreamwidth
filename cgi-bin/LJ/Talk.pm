@@ -825,8 +825,6 @@ sub fixup_logitem_replycount {
     );
     $u->do( "UPDATE log2 SET replycount=? WHERE journalid=? AND jitemid=?",
         undef, int($ct), $u->{'userid'}, $jitemid );
-    print STDERR "Fixing replycount for $u->{'userid'}/$jitemid from $rp_count to $ct\n"
-        if $LJ::DEBUG{'replycount_fix'};
 
     # now, commit or unlock as appropriate
     if ( $u->is_innodb ) {
@@ -3291,33 +3289,6 @@ WATCH:
             my ( $allowed, $period ) = ( $rate->[0], $rate->[1] );
             my $events = scalar grep { $_ > $now - $period } @times;
             if ( $events > $allowed ) {
-
-                if ( $LJ::DEBUG{'talkrate'}
-                    && LJ::MemCache::add( "warn:$key", 1, 600 ) )
-                {
-
-                    my $ruser = ( exists $remote->{'user'} ) ? $remote->{'user'} : 'Not logged in';
-                    my $nowtime = localtime($now);
-                    my $body    = <<EOM;
-Talk spam from $key:
-$events comments > $allowed allowed / $period secs
-     Remote user: $ruser
-     Remote IP:   $ip
-     Time caught: $nowtime
-     Posting to:  $journalu->{'user'}
-EOM
-
-                    LJ::send_mail(
-                        {
-                            'to'       => $LJ::DEBUG{'talkrate'},
-                            'from'     => $LJ::ADMIN_EMAIL,
-                            'fromname' => $LJ::SITENAME,
-                            'charset'  => 'utf-8',
-                            'subject'  => "talk spam: $key",
-                            'body'     => $body,
-                        }
-                    );
-                }    # end sending email
 
                 last WATCH;
             }

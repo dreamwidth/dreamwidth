@@ -171,9 +171,6 @@ sub redir {
     $apache_r->content_type("text/html");
     $apache_r->headers_out->{Location} = $url;
 
-    if ( $LJ::DEBUG{'log_redirects'} ) {
-        $apache_r->log_error( "redirect to $url from: " . join( ", ", caller(0) ) );
-    }
     return $code || REDIRECT;
 }
 
@@ -402,16 +399,6 @@ sub trans {
     BML::set_language( $lang, \&LJ::Lang::get_text );
 
     if ( $apache_r->is_initial_req ) {
-
-        # delete cookies if there are any we want gone
-        if ( my $cookie = $LJ::DEBUG{"delete_cookie"} ) {
-            LJ::Session::set_cookie(
-                $cookie => 0,
-                delete  => 1,
-                domain  => $LJ::DOMAIN,
-                path    => "/"
-            );
-        }
 
         # handle uniq cookies
         # this will ensure that we have a correct cookie value

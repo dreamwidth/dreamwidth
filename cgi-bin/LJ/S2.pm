@@ -550,13 +550,10 @@ sub load_layers {
         next if S2::layer_loaded($lid);
 
         unless ( $us->{$lid} ) {
-            print STDERR "Style $lid has no available owner.\n" if $LJ::DEBUG{"s2style_load"};
             next;
         }
 
         if ( $us->{$lid}->{userid} == $sysid ) {
-            print STDERR "Style $lid is owned by system but failed load from global.\n"
-                if $LJ::DEBUG{"s2style_load"};
             next;
         }
 

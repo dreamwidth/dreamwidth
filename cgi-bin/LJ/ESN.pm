@@ -343,19 +343,6 @@ sub work {
     # if the user deleted their account (or otherwise isn't visible), bail
     return $job->completed unless $u->is_visible || $evt->is_significant;
 
-    if ( $LJ::DEBUG{esn_email_headers} ) {
-
-        # if debugging esn emails, stick the debug headers
-        # in the subscription object so the email notifier can access them
-        my $debug_headers = {
-            'X-ESN_Debug-sch_jobid' => $job->jobid,
-            'X-ESN_Debug-subid'     => $subid,
-            'X-ESN_Debug-eparams'   => join( ', ', @$eparams ),
-        };
-
-        $subsc->{_debug_headers} = $debug_headers;
-    }
-
     # TODO: do inbox notification method here, first.
 
     # NEXT: do sub's ntypeid, unless it's inbox, then we're done.

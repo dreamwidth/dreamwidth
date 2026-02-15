@@ -287,15 +287,6 @@ sub fire {
 sub fire_job {
     my $self = shift;
 
-    if ( my $val = $LJ::DEBUG{'firings'} ) {
-        if ( ref $val eq "CODE" ) {
-            $val->($self);
-        }
-        else {
-            warn $self->as_string . "\n";
-        }
-    }
-
     return unless $self->should_enqueue;
 
     return TheSchwartz::Job->new_from_array( "LJ::Worker::FiredEvent", [ $self->raw_params ] );

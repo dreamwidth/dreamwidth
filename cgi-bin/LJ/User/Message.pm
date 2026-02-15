@@ -963,9 +963,6 @@ sub set_email {
     my ( $userid, $email ) = @_;
 
     my $dbh = LJ::get_db_writer();
-    if ( $LJ::DEBUG{'write_emails_to_user_table'} ) {
-        $dbh->do( "UPDATE user SET email=? WHERE userid=?", undef, $email, $userid );
-    }
     $dbh->do( "REPLACE INTO email (userid, email) VALUES (?, ?)", undef, $userid, $email );
 
     # update caches

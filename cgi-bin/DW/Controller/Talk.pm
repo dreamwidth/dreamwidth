@@ -5,7 +5,6 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::Formats;
-use Carp;
 
 DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 
@@ -281,11 +280,6 @@ sub talkpost_do_handler {
     # validate the challenge/response value (anti-spammer)
     my ( $chrp_ok, $chrp_err ) = LJ::Talk::validate_chrp1( $POST->{'chrp1'} );
     unless ($chrp_ok) {
-        if ( $LJ::DEBUG{'talkspam'} ) {
-            my $ip    = LJ::get_remote_ip();
-            my $ruser = $remote ? $remote->{user} : "[nonuser]";
-            carp("talkhash error: from $ruser \@ $ip - $chrp_err - $talkurl\n");
-        }
         if ($LJ::REQUIRE_TALKHASH) {
             push @errors, "Sorry, form expired. Please re-submit."
                 if $chrp_err eq "too_old";

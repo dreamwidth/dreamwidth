@@ -323,16 +323,6 @@ sub get_dbh {
         }
     }
 
-    if ( $LJ::DEBUG{'get_dbh'} && $_[0] ne "logs" ) {
-        my $errmsg = "get_dbh(@_) at \n";
-        my $i      = 0;
-        while ( my ( $p, $f, $l ) = caller( $i++ ) ) {
-            next if $i > 3;
-            $errmsg .= "  $p, $f, $l\n";
-        }
-        warn $errmsg;
-    }
-
     my $nodb = sub {
         my $roles = shift;
         my $err   = LJ::errobj( "Database::Unavailable", roles => $roles );
