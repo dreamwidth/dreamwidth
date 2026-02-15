@@ -376,6 +376,10 @@ resource "aws_lb_listener" "r_51c219f8069621b6_443" {
       }
       target_group {
         arn    = aws_lb_target_group.web_unauthenticated_2.arn
+        weight = 100
+      }
+      target_group {
+        arn    = aws_lb_target_group.dw_maint.arn
         weight = 0
       }
       stickiness {
