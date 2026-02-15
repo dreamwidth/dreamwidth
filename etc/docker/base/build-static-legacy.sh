@@ -41,17 +41,24 @@ if [ "$compass" != "" ]; then
     if [ $compass_version_ok ]; then
         echo "* Building SCSS..."
         cd $LJHOME
-        $compass compile -e production $force
+        if ! $compass compile -e production $force; then
+            echo "Error: Compass compilation failed" >&2
+            exit 1
+        fi
         if [ -d "$LJHOME/ext/dw-nonfree" ]; then
             cd $LJHOME/ext/dw-nonfree
-            $compass compile -e production $force
+            if ! $compass compile -e production $force; then
+                echo "Error: Compass compilation failed (dw-nonfree)" >&2
+                exit 1
+            fi
         fi
     else
-        echo "Compass version must be 1.0 or higher. Please upgrade."
-        echo "Warning: Skipping compass compile..."
+        echo "Error: Compass version must be 1.0 or higher. Please upgrade." >&2
+        exit 1
     fi
 else
-    echo "Warning: No compass command found"
+    echo "Error: No compass command found" >&2
+    exit 1
 fi
 
 # check the relevant paths using the same logic as the codebase

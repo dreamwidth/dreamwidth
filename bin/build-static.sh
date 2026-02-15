@@ -43,17 +43,24 @@ if [[ $do_sass -eq 1 ]]; then
     sass=$(which sass)
     if [ "$sass" != "" ]; then
         echo "* Building SCSS..."
-        $sass --style=compressed --no-source-map \
+        if ! $sass --style=compressed --no-source-map \
             --load-path=$LJHOME/htdocs/scss \
-            $LJHOME/htdocs/scss:$LJHOME/htdocs/stc/css
+            $LJHOME/htdocs/scss:$LJHOME/htdocs/stc/css; then
+            echo "Error: Sass compilation failed" >&2
+            exit 1
+        fi
         if [ -d "$LJHOME/ext/dw-nonfree/htdocs/scss" ]; then
-            $sass --style=compressed --no-source-map \
+            if ! $sass --style=compressed --no-source-map \
                 --load-path=$LJHOME/htdocs/scss \
                 --load-path=$LJHOME/ext/dw-nonfree/htdocs/scss \
-                $LJHOME/ext/dw-nonfree/htdocs/scss:$LJHOME/ext/dw-nonfree/htdocs/stc/css
+                $LJHOME/ext/dw-nonfree/htdocs/scss:$LJHOME/ext/dw-nonfree/htdocs/stc/css; then
+                echo "Error: Sass compilation failed (dw-nonfree)" >&2
+                exit 1
+            fi
         fi
     else
-        echo "Warning: No sass command found"
+        echo "Error: No sass command found" >&2
+        exit 1
     fi
 fi
 
