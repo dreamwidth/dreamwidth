@@ -81,15 +81,7 @@ sub dispatch {
             push @tsq_tasks, $task;
         }
         elsif ( $task->isa('LJ::Event') ) {
-
-            # Do the TSQ check, because these tasks could go either way, and we
-            # want to be able to ramp up the traffic slowly.
-            if ( $LJ::ESN_OVER_SQS && rand() < $LJ::ESN_OVER_SQS ) {
-                push @tsq_tasks, $task->fire_task;
-            }
-            else {
-                push @schwartz_jobs, $task->fire_job;
-            }
+            push @tsq_tasks, $task->fire_task;
         }
         else {
             $log->error( 'Unknown job/task type, dropping: ' . ref($task) );

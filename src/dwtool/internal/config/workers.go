@@ -28,7 +28,6 @@ type WorkersConfig struct {
 var CategoryOrder = []string{
 	"email",
 	"esn",
-	"esn-legacy",
 	"importer",
 	"misc",
 	"scheduled",

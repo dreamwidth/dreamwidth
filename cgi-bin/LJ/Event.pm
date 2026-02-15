@@ -229,9 +229,6 @@ sub available_for_user {
     return 1;
 }
 
-# override for very hard events
-sub schwartz_role { 'default' }
-
 # Quick way to bypass during subscription lookup
 sub early_filter_event {
 
@@ -264,10 +261,38 @@ sub arg1          { $_[0]->{args}[0] }
 sub arg2          { $_[0]->{args}[1] }
 
 # class method
+# Drains all ESN tasks from the TaskQueue synchronously. Each phase of the ESN
+# pipeline can enqueue tasks for the next phase, so we loop until all four
+# queues are empty.
 sub process_fired_events {
     my $class = shift;
     croak("Can't call in web context") if LJ::is_web_context();
-    LJ::ESN->process_fired_events;
+
+    my $tsq = DW::TaskQueue->get;
+
+    my @esn_classes = qw(
+        DW::Task::ESN::FiredEvent
+        DW::Task::ESN::FindSubsByCluster
+        DW::Task::ESN::FilterSubs
+        DW::Task::ESN::ProcessSub
+    );
+
+    my $found = 1;
+    while ($found) {
+        $found = 0;
+        foreach my $task_class (@esn_classes) {
+            while (1) {
+                my $messages = $tsq->receive( $task_class, 100, 0 );
+                last unless @{ $messages || [] };
+                $found = 1;
+                foreach my $pair (@$messages) {
+                    my ( $handle, $task ) = @$pair;
+                    $task->work($handle);
+                    $tsq->completed( $task_class, $handle );
+                }
+            }
+        }
+    }
 }
 
 # instance method.
@@ -279,17 +304,6 @@ sub fire {
     # The TaskQueue knows how to convert us to an appropriate job or task and
     # schedule is in the correct place.
     return DW::TaskQueue->dispatch( $_[0] ) ? 1 : 0;
-}
-
-# returns the job object that would've fired, so callers can batch them together
-# in one insert_jobs (plural) call.  returns empty list or single item.  doesn't
-# return undef.
-sub fire_job {
-    my $self = shift;
-
-    return unless $self->should_enqueue;
-
-    return TheSchwartz::Job->new_from_array( "LJ::Worker::FiredEvent", [ $self->raw_params ] );
 }
 
 sub fire_task {
