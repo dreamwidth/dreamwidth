@@ -27,18 +27,7 @@ use constant FAILED    => 101;
 sub new {
     my ( $class, @args ) = @_;
 
-    # Support task options passed as a hashref with _task_opts flag
-    my $opts = {};
-    if ( @args && ref $args[-1] eq 'HASH' && $args[-1]->{_task_opts} ) {
-        $opts = pop @args;
-        delete $opts->{_task_opts};
-    }
-
-    my $self = {
-        args      => \@args,
-        uniqkey   => $opts->{uniqkey},
-        dedup_ttl => $opts->{dedup_ttl},
-    };
+    my $self = { args => \@args };
     return bless $self, $class;
 }
 
@@ -46,6 +35,13 @@ sub args {
     my $self = $_[0];
 
     return $self->{args};
+}
+
+sub with_dedup {
+    my ( $self, %opts ) = @_;
+    $self->{uniqkey}   = $opts{uniqkey};
+    $self->{dedup_ttl} = $opts{dedup_ttl};
+    return $self;
 }
 
 sub uniqkey {

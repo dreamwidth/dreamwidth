@@ -673,8 +673,7 @@ sub update_paid_status {
     # needs to have their search index setup/messed with.
     if (@LJ::SPHINX_SEARCHD) {
         DW::TaskQueue->dispatch(
-            DW::Task::SphinxCopier->new( { userid => $u->id, source => "paidstat" } )
-        );
+            DW::Task::SphinxCopier->new( { userid => $u->id, source => "paidstat" } ) );
     }
 
     return 1;

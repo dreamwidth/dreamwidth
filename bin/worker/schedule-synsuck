@@ -66,14 +66,8 @@ sub work {
     # iterate and schedule jobs with dedup
     foreach my $row (@$rows) {
         my $rv = DW::TaskQueue->dispatch(
-            DW::Task::SynSuck->new(
-                { userid => $row },
-                {
-                    _task_opts => 1,
-                    uniqkey    => "synsuck:$row",
-                    dedup_ttl  => 1800,
-                }
-            )
+            DW::Task::SynSuck->new( { userid => $row } )
+                ->with_dedup( uniqkey => "synsuck:$row", dedup_ttl => 1800 )
         );
 
         # advise only if we got the job scheduled

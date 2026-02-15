@@ -98,8 +98,7 @@ LJ::Hooks::register_hook(
 
        # queue up a copier job, which will notice that the entries by this user have been deleted...
         DW::TaskQueue->dispatch(
-            DW::Task::SphinxCopier->new( { userid => $u->id, source => "purghook" } )
-        );
+            DW::Task::SphinxCopier->new( { userid => $u->id, source => "purghook" } ) );
 
     }
 );

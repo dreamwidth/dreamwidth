@@ -34,7 +34,7 @@ sub work {
         unless LJ::delete_entry(
         $args->{uid},
         $args->{jitemid},
-        0,              # not quick, do it all
+        0,    # not quick, do it all
         $args->{anum},
         );
 

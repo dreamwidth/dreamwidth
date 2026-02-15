@@ -643,8 +643,7 @@ sub try_work {
     # Kick off an indexing job for this user
     if (@LJ::SPHINX_SEARCHD) {
         DW::TaskQueue->dispatch(
-            DW::Task::SphinxCopier->new( { userid => $u->id, source => "importcm" } )
-        );
+            DW::Task::SphinxCopier->new( { userid => $u->id, source => "importcm" } ) );
     }
 
     return $ok->();
