@@ -50,6 +50,10 @@ sub call {
                 @hosts = ();
             }
             $r->address($real);
+
+            # Also update the PSGI env so infrastructure that reads it
+            # directly (Starman access log, Sysban, etc.) sees the real IP.
+            $env->{REMOTE_ADDR} = $real;
         }
         $r->header_in( 'X-Forwarded-For' => join( ", ", @hosts ) );
     }

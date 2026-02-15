@@ -94,7 +94,7 @@ Tests use mocking (`LJ::Session`, `LJ::load_user`, `DW::Routing::call`, etc.) to
 
 - `LJ_IS_DEV_SERVER` must never be set in production. It enables `?as=` user impersonation, auto-verified accounts, and skips domain validation. See comment in `cgi-bin/ljlib.pl`.
 - Auth middleware always marks auth resolution (calls `set_remote` even for anonymous) to prevent `LJ::get_remote()` from re-entering session resolution.
-- Sysban middleware checks `REMOTE_ADDR` plus all X-Forwarded-For IPs, matching the Apache `@req_hosts` pattern.
+- Sysban middleware checks `LJ::get_remote_ip()` plus all X-Forwarded-For IPs, matching the Apache `@req_hosts` pattern.
 - XForwardedFor only processes proxy headers when `$LJ::TRUST_X_HEADERS` is configured.
 
 ## Adding New Middleware

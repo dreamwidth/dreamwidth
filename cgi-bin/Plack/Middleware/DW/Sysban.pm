@@ -73,8 +73,8 @@ sub call {
 sub _request_ips {
     my ($env) = @_;
 
-    # Use the remote IP as determined by the XForwardedFor middleware
-    my $ip  = $env->{REMOTE_ADDR};
+    # Use the remote IP as resolved by XForwardedFor middleware
+    my $ip  = LJ::get_remote_ip();
     my @ips = ($ip) if $ip;
 
     # Also check all X-Forwarded-For IPs, same as Apache path
