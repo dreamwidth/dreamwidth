@@ -21,6 +21,7 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use DW::TaskQueue::Dedup;
 use DW::TaskQueue::SQS;
 use DW::TaskQueue::LocalDisk;
 
@@ -78,6 +79,16 @@ sub dispatch {
             push @schwartz_jobs, $task;
         }
         elsif ( $task->isa('DW::Task') ) {
+
+            # Check dedup before enqueuing
+            if ( my $uniqkey = $task->uniqkey ) {
+                my $queue_name = ref $task;
+                my $ttl        = $task->dedup_ttl || 3600;
+                unless ( DW::TaskQueue::Dedup->claim_unique( $queue_name, $uniqkey, $ttl ) ) {
+                    $log->debug( 'Skipping duplicate task: ' . ref($task) . " key=$uniqkey" );
+                    next;
+                }
+            }
             push @tsq_tasks, $task;
         }
         elsif ( $task->isa('LJ::Event') ) {
@@ -207,10 +218,21 @@ sub start_work {
 
             if ( $res == DW::Task::COMPLETED ) {
                 push @completed, $handle;
+
+                # Release dedup key on successful completion
+                if ( my $uniqkey = $message->uniqkey ) {
+                    DW::TaskQueue::Dedup->release_unique( ref($message), $uniqkey );
+                }
             }
             else {
                 $log->warn( sprintf( '[%s] Message "%s" failed', $class, $handle ) );
                 push @failed, $handle;
+
+                # Release dedup key on failure so the task can be
+                # re-dispatched by the next scheduler run
+                if ( my $uniqkey = $message->uniqkey ) {
+                    DW::TaskQueue::Dedup->release_unique( ref($message), $uniqkey );
+                }
             }
         }
 

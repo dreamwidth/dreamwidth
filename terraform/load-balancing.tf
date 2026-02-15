@@ -299,11 +299,10 @@ resource "aws_lb_target_group" "dw_maint" {
   target_type = "instance"
 
   health_check {
-    path = "/health-check"
-  }
-
-  lifecycle {
-    ignore_changes = [health_check]
+    path                = "/health-check"
+    port                = "82"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
   }
 }
 
@@ -315,11 +314,9 @@ resource "aws_lb_target_group" "dw_stats" {
   target_type = "instance"
 
   health_check {
-    path = "/"
-  }
-
-  lifecycle {
-    ignore_changes = [health_check]
+    path                = "/"
+    healthy_threshold   = 5
+    unhealthy_threshold = 2
   }
 }
 
@@ -331,11 +328,9 @@ resource "aws_lb_target_group" "ghi_assist" {
   target_type = "instance"
 
   health_check {
-    path = "/health-check"
-  }
-
-  lifecycle {
-    ignore_changes = [health_check]
+    path                = "/health-check"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
   }
 }
 
@@ -347,11 +342,10 @@ resource "aws_lb_target_group" "dw_embedded" {
   target_type = "instance"
 
   health_check {
-    path = "/"
-  }
-
-  lifecycle {
-    ignore_changes = [health_check]
+    path                = "/"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 60
   }
 }
 
@@ -372,7 +366,7 @@ resource "aws_lb_listener" "r_51c219f8069621b6_443" {
     forward {
       target_group {
         arn    = aws_lb_target_group.web_unauthenticated.arn
-        weight = 100
+        weight = 0
       }
       target_group {
         arn    = aws_lb_target_group.web_unauthenticated_2.arn
@@ -384,13 +378,9 @@ resource "aws_lb_listener" "r_51c219f8069621b6_443" {
       }
       stickiness {
         enabled  = false
-        duration = 3600
+        duration = 1
       }
     }
-  }
-
-  lifecycle {
-    ignore_changes = [default_action]
   }
 }
 
@@ -408,10 +398,6 @@ resource "aws_lb_listener" "r_51c219f8069621b6_80" {
       status_code = "HTTP_301"
     }
   }
-
-  lifecycle {
-    ignore_changes = [default_action]
-  }
 }
 
 # Proxy ALB - HTTPS (port 443)
@@ -423,12 +409,17 @@ resource "aws_lb_listener" "r_35f0700031428f07_443" {
   certificate_arn   = "arn:aws:acm:us-east-1:194396987458:certificate/23c066c3-f228-4144-b29f-b0aa98ef8945"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.proxy.arn
-  }
-
-  lifecycle {
-    ignore_changes = [default_action]
+    type = "forward"
+    forward {
+      target_group {
+        arn    = aws_lb_target_group.proxy.arn
+        weight = 1
+      }
+      stickiness {
+        enabled  = false
+        duration = 3600
+      }
+    }
   }
 }
 
@@ -439,12 +430,17 @@ resource "aws_lb_listener" "r_35f0700031428f07_80" {
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.proxy.arn
-  }
-
-  lifecycle {
-    ignore_changes = [default_action]
+    type = "forward"
+    forward {
+      target_group {
+        arn    = aws_lb_target_group.proxy.arn
+        weight = 1
+      }
+      stickiness {
+        enabled  = false
+        duration = 1
+      }
+    }
   }
 }
 
@@ -469,11 +465,11 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_3" {
   }
 
   lifecycle {
-    ignore_changes = [action, condition]
+    ignore_changes = [action]
   }
 }
 
-# Rule 4: maintenance paths -> dw-maint
+# Rule 4: server-status -> dw-maint
 resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_4" {
   listener_arn = aws_lb_listener.r_51c219f8069621b6_443.arn
   priority     = 4
@@ -485,12 +481,12 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_4" {
 
   condition {
     path_pattern {
-      values = ["/admin/*"]
+      values = ["/server-status"]
     }
   }
 
   lifecycle {
-    ignore_changes = [action, condition]
+    ignore_changes = [action]
   }
 }
 
@@ -506,12 +502,12 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_5" {
 
   condition {
     path_pattern {
-      values = ["/stats/*"]
+      values = ["/stats/newbyday.png", "/stats/stats.txt"]
     }
   }
 
   lifecycle {
-    ignore_changes = [action, condition]
+    ignore_changes = [action]
   }
 }
 
@@ -550,6 +546,10 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_45" {
 
   tags = {
     Name = "Shop Traffic"
+  }
+
+  lifecycle {
+    ignore_changes = [action]
   }
 }
 
@@ -590,9 +590,13 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_50" {
   tags = {
     Name = "Canary Traffic"
   }
+
+  lifecycle {
+    ignore_changes = [action]
+  }
 }
 
-# Rule 55: stable traffic (default web)
+# Rule 55: traffic with ljuniq cookie -> stable web
 resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_55" {
   listener_arn = aws_lb_listener.r_51c219f8069621b6_443.arn
   priority     = 55
@@ -620,8 +624,9 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_55" {
   }
 
   condition {
-    host_header {
-      values = ["www.dreamwidth.org"]
+    http_header {
+      http_header_name = "Cookie"
+      values           = ["*ljuniq=*"]
     }
   }
 
@@ -630,7 +635,7 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_443_rule_55" {
   }
 
   lifecycle {
-    ignore_changes = [action, condition]
+    ignore_changes = [action]
   }
 }
 
@@ -646,12 +651,12 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_80_rule_1" {
 
   condition {
     path_pattern {
-      values = ["/.well-known/*"]
+      values = ["/test-maint-page"]
     }
   }
 
   lifecycle {
-    ignore_changes = [action, condition]
+    ignore_changes = [action]
   }
 }
 
@@ -666,11 +671,11 @@ resource "aws_lb_listener_rule" "r_51c219f8069621b6_80_rule_2" {
 
   condition {
     path_pattern {
-      values = ["/health-check"]
+      values = ["/server-status"]
     }
   }
 
   lifecycle {
-    ignore_changes = [action, condition]
+    ignore_changes = [action]
   }
 }

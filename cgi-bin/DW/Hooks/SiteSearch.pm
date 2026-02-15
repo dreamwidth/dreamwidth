@@ -19,6 +19,7 @@ package DW::Hooks::SiteSearch;
 use strict;
 use LJ::Hooks;
 use Carp;
+use DW::Task::SphinxCopier;
 
 sub _sphinx_db {
 
@@ -97,10 +98,7 @@ LJ::Hooks::register_hook(
 
        # queue up a copier job, which will notice that the entries by this user have been deleted...
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "purghook" }
-            )
-        );
+            DW::Task::SphinxCopier->new( { userid => $u->id, source => "purghook" } ) );
 
     }
 );
