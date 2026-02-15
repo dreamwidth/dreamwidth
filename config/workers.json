@@ -126,6 +126,42 @@
       "max_count": 50,
       "target_cpu": 50
     },
+    "dw-latest-feed": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "dw-lazy-cleanup": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "dw-mass-privacy": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "dw-synsuck": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 20,
+      "target_cpu": 50
+    },
     "embeds": {
       "cpu": 256,
       "memory": 512,
