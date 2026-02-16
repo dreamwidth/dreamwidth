@@ -14,6 +14,8 @@
 package LJ::SynSuck;
 use strict;
 use HTTP::Status;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use LJ::Utils qw(md5_struct);
 use LJ::Protocol;
@@ -22,7 +24,7 @@ use LJ::CleanHTML;
 use DW::FeedCanonicalizer;
 
 sub update_feed {
-    my ( $urow, $verbose ) = @_;
+    my ($urow) = @_;
     return unless $urow;
 
     my ( $user, $userid, $synurl, $lastmod, $etag, $readers ) =
@@ -39,24 +41,57 @@ sub update_feed {
     # get a new database handle
     LJ::start_request();
 
-    my $resp = get_content( $urow, $verbose ) or return 0;
-    return process_content( $urow, $resp, $verbose );
+    my $resp = get_content($urow) or return 0;
+    return process_content( $urow, $resp );
+}
+
+sub _backoff_multiplier {
+    my ($failcount) = @_;
+    return 2**( $failcount > 7 ? 7 : $failcount );
 }
 
 sub delay {
-    my ( $userid, $minutes, $status, $synurl ) = @_;
-
-    # add some random backoff to avoid waves building up
-    $minutes += int( rand(5) );
+    my ( $userid, $minutes, $status, $synurl, $opts ) = @_;
+    $opts //= {};
+    my $backoff = $opts->{backoff} // 'escalate';
 
     my $token = defined $synurl ? DW::FeedCanonicalizer::canonicalize($synurl) : undef;
 
     my $dbh = LJ::get_db_writer();
 
+    my $failcount =
+        $dbh->selectrow_array( "SELECT failcount FROM syndicated WHERE userid=?", undef, $userid )
+        || 0;
+
+    if ( $backoff eq 'reset' ) {
+        $failcount = 0;
+    }
+    elsif ( $backoff eq 'escalate' ) {
+        $failcount++;
+    }
+
+    # 'hold' leaves failcount unchanged
+
+    # apply exponential backoff on escalate/hold (if failcount > 0)
+    if ($failcount) {
+        $minutes = $minutes * _backoff_multiplier($failcount);
+
+        # cap at 30 days
+        my $max_minutes = 30 * 24 * 60;
+        $minutes = $max_minutes if $minutes > $max_minutes;
+    }
+
+    # add some random backoff to avoid waves building up
+    $minutes += int( rand(5) );
+
+    $log->info(
+        "userid=$userid: status=$status backoff=$backoff failcount=$failcount delay=${minutes}m");
+
     $dbh->do(
         "UPDATE syndicated SET lastcheck=NOW(), checknext=DATE_ADD(NOW(), "
-            . "INTERVAL ? MINUTE), laststatus=?, fuzzy_token = COALESCE(?,fuzzy_token) WHERE userid=?",
-        undef, $minutes, $status, $token, $userid
+            . "INTERVAL ? MINUTE), laststatus=?, failcount=?, "
+            . "fuzzy_token = COALESCE(?,fuzzy_token) WHERE userid=?",
+        undef, $minutes, $status, $failcount, $token, $userid
     );
     return undef;
 }
@@ -73,7 +108,7 @@ sub max_size {
 }
 
 sub get_content {
-    my ( $urow, $verbose ) = @_;
+    my ($urow) = @_;
 
     my ( $user, $userid, $synurl, $lastmod, $etag, $readers ) =
         map { $urow->{$_} } qw(user userid synurl lastmod etag numreaders);
@@ -93,7 +128,7 @@ sub get_content {
     $ua->agent(
         "$LJ::SITENAME ($LJ::ADMIN_EMAIL; for $LJ::SITEROOT/users/$user/" . $reader_info . ")" );
 
-    print "[$$] Synsuck: $user ($synurl)\n" if $verbose;
+    $log->info("Synsuck: $user ($synurl)");
 
     my $req        = HTTP::Request->new( "GET", $synurl );
     my $can_accept = HTTP::Message::decodable;
@@ -127,7 +162,7 @@ sub get_content {
     if ( $res->is_error() ) {
 
         # http error
-        print "HTTP error!\n" if $verbose;
+        $log->warn( "HTTP error for $user: " . $res->status_line() );
 
         # overload parseerror here because it's already there -- we'll
         # never have both an http error and a parse error on the
@@ -140,8 +175,9 @@ sub get_content {
 
     # check if not modified
     if ( $res->code() == RC_NOT_MODIFIED ) {
-        print "  not modified.\n" if $verbose;
-        return delay( $userid, $readers ? 60 : 24 * 60, "notmodified", $synurl );
+        $log->debug("$user: not modified");
+        return delay( $userid, $readers ? 60 : 24 * 60,
+            "notmodified", $synurl, { backoff => 'reset' } );
     }
 
     return [ $res, $content ];
@@ -151,7 +187,7 @@ sub get_content {
 # and returns a list of $num items from the feed
 # in proper order
 sub parse_items_from_feed {
-    my ( $content, $num, $verbose ) = @_;
+    my ( $content, $num ) = @_;
     $num ||= 20;
     return ( 0, { type => "noitems" } ) unless defined $content;
 
@@ -180,7 +216,7 @@ sub parse_items_from_feed {
 
         # They claimed they were iso-8859-1, but they are lying.
         # Assume it was Windows-1252.
-        print "Invalid ISO-8859-1; assuming Windows-1252...\n" if $verbose;
+        $log->debug("Invalid ISO-8859-1; assuming Windows-1252");
         $content =~ s/encoding=([\"\'])(.+?)\1/encoding='windows-1252'/;
     }
 
@@ -217,7 +253,7 @@ sub parse_items_from_feed {
 }
 
 sub process_content {
-    my ( $urow, $resp, $verbose ) = @_;
+    my ( $urow, $resp ) = @_;
 
     my ( $res, $content ) = @$resp;
     my ( $user, $userid, $synurl, $lastmod, $etag, $readers, $fuzzy_token ) =
@@ -225,14 +261,14 @@ sub process_content {
 
     my $dbh = LJ::get_db_writer();
 
-    my ( $ok, $rv ) = parse_items_from_feed( $content, 20, $verbose );
+    my ( $ok, $rv ) = parse_items_from_feed( $content, 20 );
     unless ($ok) {
         if ( $rv->{type} eq "parseerror" ) {
 
             # parse error!
             delay( $userid, 3 * 60, "parseerror", $synurl );
             if ( my $error = $rv->{message} ) {
-                print "Parse error! $error\n" if $verbose;
+                $log->warn("$user: parse error: $error");
                 $error =~ s! at /.*!!;
                 $error =~ s/^\n//;       # cleanup of newline at the beginning of the line
                 my $syn_u = LJ::load_user($user);
@@ -244,7 +280,7 @@ sub process_content {
             return delay( $userid, 3 * 60, "noitems", $synurl );
         }
         else {
-            print "Unknown error type!\n" if $verbose;
+            $log->warn("$user: unknown error type");
             return delay( $userid, 3 * 60, "unknown" );
         }
     }
@@ -267,7 +303,7 @@ sub process_content {
 
     my $udbh = LJ::get_cluster_master($su);
     unless ($udbh) {
-        return delay( $userid, 15, "nodb" );
+        return delay( $userid, 15, "nodb", undef, { backoff => 'hold' } );
     }
 
     # TAG:LOG2:synsuck_delete_olderitems
@@ -277,12 +313,11 @@ sub process_content {
     $sth->execute($userid);
     die $udbh->errstr if $udbh->err;
     while ( my ( $jitemid, $anum ) = $sth->fetchrow_array ) {
-        print "DELETE itemid: $jitemid, anum: $anum... \n" if $verbose;
         if ( LJ::delete_entry( $su, $jitemid, 0, $anum ) ) {
-            print "success.\n" if $verbose;
+            $log->debug("$user: deleted itemid=$jitemid anum=$anum");
         }
         else {
-            print "fail.\n" if $verbose;
+            $log->warn("$user: failed to delete itemid=$jitemid anum=$anum");
         }
     }
 
@@ -363,7 +398,7 @@ sub process_content {
             undef, $userid, $dig, $now_dateadd );
         $notedate->($now_dateadd);
 
-        print "[$$] $dig - $it->{'subject'}\n" if $verbose;
+        $log->debug("$user: $dig - $it->{'subject'}");
         $it->{'text'} =~ s/^\s+//;
         $it->{'text'} =~ s/\s+$//;
 
@@ -491,7 +526,7 @@ sub process_content {
         my $err;
         my $pres = LJ::Protocol::do_request( $command, $req, \$err, $flags );
         unless ( $pres && !$err ) {
-            print "  Error: $err\n" if $verbose;
+            $log->error("$user: $err");
             $errorflag = 1;
         }
     }
@@ -514,7 +549,7 @@ sub process_content {
 
     # bail out if errors, and try again shortly
     if ($errorflag) {
-        delay( $userid, 30, "posterror" );
+        delay( $userid, 30, "posterror", undef, { backoff => 'hold' } );
         return;
     }
 
@@ -558,9 +593,11 @@ sub process_content {
     # if readers are gone, don't check for a whole day
     $int = 60 * 24 unless $readers;
 
+    $log->info("userid=$userid: status=$status failcount=0 (reset) delay=${int}m");
+
     $dbh->do(
         "UPDATE syndicated SET fuzzy_token=?, checknext=DATE_ADD(NOW(), INTERVAL ? MINUTE), "
-            . "lastcheck=NOW(), lastmod=?, etag=?, laststatus=?, numreaders=? $updatenew "
+            . "lastcheck=NOW(), lastmod=?, etag=?, laststatus=?, numreaders=?, failcount=0 $updatenew "
             . "WHERE userid=?",
         undef,
         $fuzzy_token,

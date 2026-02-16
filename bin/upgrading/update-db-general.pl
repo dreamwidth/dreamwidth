@@ -1232,6 +1232,8 @@ CREATE TABLE syndicated (
     etag       VARCHAR(80),
     fuzzy_token  VARCHAR(255),
 
+    failcount  SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+
     PRIMARY KEY (userid),
     UNIQUE (synurl),
     INDEX (checknext),
@@ -4184,6 +4186,12 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
             do_alter( 'userusage',
                       "ALTER TABLE userusage ADD COLUMN timeupdate_public DATETIME, "
                     . "ADD INDEX (timeupdate_public)" );
+        }
+
+        if ( column_type( "syndicated", "failcount" ) eq '' ) {
+            do_alter( 'syndicated',
+                "ALTER TABLE syndicated ADD COLUMN failcount SMALLINT UNSIGNED NOT NULL DEFAULT 0"
+            );
         }
     }
 );

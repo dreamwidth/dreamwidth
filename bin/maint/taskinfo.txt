@@ -9,9 +9,6 @@ statspics.pl:
 clean_caches.pl:
   clean_caches - removes old cache files
 
-synsuck.pl:
-  synsuck - Polls needed remote, syndicated RSS/etc and updates journals.
-
 generic.pl:
   joinmail - Generates daily email digests for community join requests
   clean_spamreports - Clean out data from the spamreports table older than 90 days.
