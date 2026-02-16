@@ -18,6 +18,8 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use DW::Task::SupportNotify;
+
 use Digest::MD5 qw(md5_hex);
 
 use LJ::Sysban;
@@ -1102,8 +1104,7 @@ sub mini_auth {
 sub support_notify {
     my $params = shift;
 
-    my $h = DW::TaskQueue->dispatch(
-        TheSchwartz::Job->new_from_array( "LJ::Worker::SupportNotify", $params ) );
+    my $h = DW::TaskQueue->dispatch( DW::Task::SupportNotify->new($params) );
     return $h ? 1 : 0;
 }
 

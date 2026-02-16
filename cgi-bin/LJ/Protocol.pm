@@ -27,6 +27,7 @@ use LJ::Poll;
 use LJ::Config;
 use LJ::Comment;
 use DW::Task::SphinxCopier;
+use DW::Task::XPost;
 
 LJ::Config->load;
 
@@ -1193,8 +1194,7 @@ sub schedule_xposts {
             %{$info}
         };
 
-        DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array( 'DW::Worker::XPostWorker', $jobargs ) );
+        DW::TaskQueue->dispatch( DW::Task::XPost->new($jobargs) );
         push @successes, $acct;
     }
 

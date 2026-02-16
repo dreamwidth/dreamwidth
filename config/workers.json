@@ -162,6 +162,69 @@
       "max_count": 20,
       "target_cpu": 50
     },
+    "dw-xpost": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 15,
+      "target_cpu": 50
+    },
+    "dw-embeds": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 15,
+      "target_cpu": 50
+    },
+    "dw-support-notify": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "dw-distribute-invites": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "dw-change-poster-id": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "dw-incoming-email": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "dw-import-eraser": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
     "embeds": {
       "cpu": 256,
       "memory": 512,
