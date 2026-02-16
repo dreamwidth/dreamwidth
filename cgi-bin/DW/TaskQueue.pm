@@ -114,10 +114,16 @@ sub dispatch {
         }
     }
 
-    # Dispatch to TaskQueue
+    # Dispatch to TaskQueue, grouping by task type since send() routes
+    # the entire batch to the queue of the first task
     if (@tsq_tasks) {
-        $log->debug( 'Inserting ' . scalar(@tsq_tasks) . ' tasks into TaskQueue.' );
-        $rv &&= $self->send(@tsq_tasks);
+        my %by_type;
+        push @{ $by_type{ ref $_ } }, $_ for @tsq_tasks;
+        for my $type ( keys %by_type ) {
+            my $batch = $by_type{$type};
+            $log->debug( 'Inserting ' . scalar(@$batch) . " $type tasks into TaskQueue." );
+            $rv &&= $self->send(@$batch);
+        }
     }
 
     # Returns the "worse" of the return values. If either are falsey, we will
@@ -133,6 +139,7 @@ sub start_work {
     $self = $self->get unless ref $self;
 
     eval "use $class;";
+    $log->logcroak("Failed to load task class $class: $@") if $@;
 
     my $start_time    = time();
     my $messages_done = 0;
