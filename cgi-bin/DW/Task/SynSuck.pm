@@ -62,7 +62,13 @@ sub work {
     eval { LJ::SynSuck::update_feed( $row, 1 ); };
     if ($@) {
         $log->error("Exception updating feed for userid $a->{userid}: $@");
-        return DW::Task::FAILED;
+
+        # Push checknext into the future so the scheduler doesn't
+        # immediately re-enqueue this broken feed.  Unhandled exceptions
+        # bypass the normal delay() calls inside SynSuck, so without
+        # this the feed would spin in a tight retry loop.
+        LJ::SynSuck::delay( $a->{userid}, 6 * 60, "exception" );
+        return DW::Task::COMPLETED;
     }
 
     return DW::Task::COMPLETED;
