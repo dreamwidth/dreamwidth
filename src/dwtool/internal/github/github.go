@@ -91,7 +91,7 @@ func TriggerWorkflow(repo, workflow string, inputs map[string]string) error {
 	cmd := exec.Command("gh", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("gh workflow run failed: %s (%w)", strings.TrimSpace(string(out)), err)
+		return fmt.Errorf("gh workflow run failed: %s", strings.TrimSpace(string(out)))
 	}
 	return nil
 }

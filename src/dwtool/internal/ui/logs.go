@@ -28,7 +28,9 @@ type logsState struct {
 	matchCursor  int   // current match index within matchLines
 }
 
-// visibleLogLines returns the number of log lines visible in the viewport.
+const logMsgIndent = 11 // prefix: space(1) + timestamp(8) + spaces(2)
+
+// visibleLogLines returns the number of screen lines visible in the viewport.
 // Layout: title(1) + info(1) + blank(1) + [viewport] + footer(1) = 4 fixed.
 func visibleLogLines(height int) int {
 	h := height - 4
@@ -36,6 +38,73 @@ func visibleLogLines(height int) int {
 		return 1
 	}
 	return h
+}
+
+// msgColWidth returns the available width for log message text.
+func msgColWidth(termWidth int) int {
+	w := termWidth - logMsgIndent
+	if w < 20 {
+		return 20
+	}
+	return w
+}
+
+// screenLinesFor returns how many screen lines a single message occupies
+// when wrapped to fit the given column width.
+func screenLinesFor(msg string, colWidth int) int {
+	n := len(msg)
+	if n <= colWidth {
+		return 1
+	}
+	lines := n / colWidth
+	if n%colWidth != 0 {
+		lines++
+	}
+	return lines
+}
+
+// wrapMessage inserts line breaks into msg so each segment fits within
+// colWidth characters, with continuation lines indented to align with the
+// message start.
+func wrapMessage(msg string, colWidth int) string {
+	if len(msg) <= colWidth {
+		return msg
+	}
+	pad := strings.Repeat(" ", logMsgIndent)
+	var b strings.Builder
+	first := true
+	for len(msg) > 0 {
+		w := colWidth
+		if len(msg) < w {
+			w = len(msg)
+		}
+		if !first {
+			b.WriteString("\n")
+			b.WriteString(pad)
+		}
+		b.WriteString(msg[:w])
+		msg = msg[w:]
+		first = false
+	}
+	return b.String()
+}
+
+// maxLogScroll returns the maximum scroll offset (event index) such that
+// events from that index onward fill the viewport without overflowing.
+func maxLogScroll(events []model.LogEvent, vpHeight, termWidth int) int {
+	if len(events) == 0 {
+		return 0
+	}
+	colWidth := msgColWidth(termWidth)
+	used := 0
+	for i := len(events) - 1; i >= 0; i-- {
+		lines := screenLinesFor(events[i].Message, colWidth)
+		if used+lines > vpHeight {
+			return i + 1
+		}
+		used += lines
+	}
+	return 0
 }
 
 // renderLogsView renders the log viewer.
@@ -68,30 +137,22 @@ func renderLogsView(ls logsState, width, height int) string {
 	}
 
 	vpHeight := visibleLogLines(height)
+	colWidth := msgColWidth(width)
 
-	// Render visible slice of events
-	end := ls.scrollOffset + vpHeight
-	if end > len(ls.events) {
-		end = len(ls.events)
-	}
 	start := ls.scrollOffset
 	if start < 0 {
 		start = 0
 	}
 
-	for i := start; i < end; i++ {
+	// Render events starting from scrollOffset, filling screen lines
+	screenLines := 0
+	for i := start; i < len(ls.events) && screenLines < vpHeight; i++ {
 		ev := ls.events[i]
 		ts := ev.Timestamp.Format("15:04:05")
 
 		msg := ev.Message
-		// Truncate long lines to terminal width
-		maxMsg := width - 12 // timestamp(8) + spaces(4)
-		if maxMsg < 20 {
-			maxMsg = 20
-		}
-		if len(msg) > maxMsg {
-			msg = msg[:maxMsg-3] + "..."
-		}
+		lines := screenLinesFor(msg, colWidth)
+		wrapped := wrapMessage(msg, colWidth)
 
 		// Highlight search matches
 		isMatch := false
@@ -101,24 +162,26 @@ func renderLogsView(ls logsState, width, height int) string {
 			}
 		}
 
-		line := fmt.Sprintf(" %s  %s", dimStyle.Render(ts), msg)
+		line := fmt.Sprintf(" %s  %s", dimStyle.Render(ts), wrapped)
 		if isMatch {
-			line = fmt.Sprintf(" %s  %s", dimStyle.Render(ts), confirmStyle.Render(msg))
+			line = fmt.Sprintf(" %s  %s", dimStyle.Render(ts), confirmStyle.Render(wrapped))
 		}
 
 		b.WriteString(line)
 		b.WriteString("\n")
+		screenLines += lines
 	}
 
 	// Scroll indicator
-	if len(ls.events) > vpHeight {
+	maxScroll := maxLogScroll(ls.events, vpHeight, width)
+	if maxScroll > 0 {
 		pos := ""
 		if ls.scrollOffset == 0 {
 			pos = "TOP"
-		} else if ls.scrollOffset >= len(ls.events)-vpHeight {
+		} else if ls.scrollOffset >= maxScroll {
 			pos = "END"
 		} else {
-			pct := ls.scrollOffset * 100 / (len(ls.events) - vpHeight)
+			pct := ls.scrollOffset * 100 / maxScroll
 			pos = fmt.Sprintf("%d%%", pct)
 		}
 		b.WriteString(dimStyle.Render(fmt.Sprintf("   %d events  %s", len(ls.events), pos)))
@@ -170,7 +233,7 @@ func (ls *logsState) updateSearchMatches() {
 }
 
 // scrollToMatch scrolls to the current match.
-func (ls *logsState) scrollToMatch(vpHeight int) {
+func (ls *logsState) scrollToMatch(vpHeight, termWidth int) {
 	if len(ls.matchLines) == 0 {
 		return
 	}
@@ -180,10 +243,7 @@ func (ls *logsState) scrollToMatch(vpHeight int) {
 	if ls.scrollOffset < 0 {
 		ls.scrollOffset = 0
 	}
-	maxScroll := len(ls.events) - vpHeight
-	if maxScroll < 0 {
-		maxScroll = 0
-	}
+	maxScroll := maxLogScroll(ls.events, vpHeight, termWidth)
 	if ls.scrollOffset > maxScroll {
 		ls.scrollOffset = maxScroll
 	}

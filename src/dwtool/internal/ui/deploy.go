@@ -372,7 +372,9 @@ func renderProgressView(ds deployState, width int) string {
 	b.WriteString("\n")
 
 	if ds.err != nil {
-		b.WriteString(fmt.Sprintf("   %s\n", failureStyle.Render(fmt.Sprintf("Error: %v", ds.err))))
+		errMsg := fmt.Sprintf("Error: %v", ds.err)
+		wrapped := wrapText(errMsg, width-6, "   ")
+		b.WriteString(fmt.Sprintf("   %s\n", failureStyle.Render(wrapped)))
 		b.WriteString("\n")
 		b.WriteString(dimStyle.Render("   Press Esc to go back."))
 		b.WriteString("\n")
@@ -436,6 +438,28 @@ func nextWebService(currentService string) string {
 		}
 	}
 	return ""
+}
+
+// wrapText wraps a long string to fit within the given width, indenting
+// continuation lines with the given prefix.
+func wrapText(s string, width int, indent string) string {
+	if width <= 0 || len(s) <= width {
+		return s
+	}
+	var b strings.Builder
+	for len(s) > 0 {
+		if b.Len() > 0 {
+			b.WriteString("\n")
+			b.WriteString(indent)
+		}
+		lineLen := width
+		if lineLen > len(s) {
+			lineLen = len(s)
+		}
+		b.WriteString(s[:lineLen])
+		s = s[lineLen:]
+	}
+	return b.String()
 }
 
 // Simple text spinner for progress display (no dependency on bubbletea spinner).
@@ -524,7 +548,8 @@ func renderCategoryProgressView(ds deployState, width int) string {
 		name := padRight(cr.workerName, 30)
 		var status string
 		if cr.err != nil {
-			status = failureStyle.Render(fmt.Sprintf("ERROR: %v", cr.err))
+			errMsg := fmt.Sprintf("ERROR: %v", cr.err)
+			status = failureStyle.Render(wrapText(errMsg, width-34, strings.Repeat(" ", 34)))
 		} else if cr.status == "completed" {
 			switch cr.conclusion {
 			case "success":

@@ -18,18 +18,30 @@ func renderHelpOverlay(width, height int) string {
 		bindings []helpBinding
 	}{
 		{
-			title: "Dashboard",
+			title: "Dashboard (ECS)",
 			bindings: []helpBinding{
 				{"j/k", "move cursor up/down"},
 				{"PgUp/Dn", "page up/down"},
+				{"\u2192", "switch to SQS Queues"},
 				{"enter", "service detail"},
 				{"d", "deploy service"},
-					{"D", "deploy all workers"},
+				{"D", "deploy all workers"},
 				{"ctrl+d", "deploy worker category"},
 				{"t", "traffic weights (web only)"},
 				{"l", "view logs"},
 				{"s", "shell into service"},
 				{"/", "filter services"},
+				{"r", "refresh"},
+				{"?", "toggle help"},
+				{"q", "quit"},
+			},
+		},
+		{
+			title: "SQS Queues",
+			bindings: []helpBinding{
+				{"j/k", "move cursor up/down"},
+				{"PgUp/Dn", "page up/down"},
+				{"\u2190/esc", "back to ECS Services"},
 				{"r", "refresh"},
 				{"?", "toggle help"},
 				{"q", "quit"},

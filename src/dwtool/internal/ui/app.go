@@ -27,6 +27,7 @@ const (
 	viewDeploy
 	viewLogs
 	viewTraffic
+	viewSQS
 )
 
 // App is the root Bubble Tea model.
@@ -63,6 +64,9 @@ type App struct {
 
 	// Traffic state
 	traffic trafficState
+
+	// SQS state
+	sqs sqsState
 }
 
 // servicesDescribedMsg is sent when service descriptions have been fetched (phase 1).
@@ -175,6 +179,12 @@ type trafficRuleUpdatedMsg struct {
 	err error
 }
 
+// sqsFetchedMsg is sent when SQS queue data has been fetched.
+type sqsFetchedMsg struct {
+	queues []model.SQSQueue
+	err    error
+}
+
 // refreshTickMsg triggers a periodic dashboard refresh.
 type refreshTickMsg struct{}
 
@@ -282,6 +292,8 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return a.handleLogsKey(msg)
 		case viewTraffic:
 			return a.handleTrafficKey(msg)
+		case viewSQS:
+			return a.handleSQSKey(msg)
 		default:
 			return a.handleDashboardKey(msg)
 		}
@@ -348,11 +360,32 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return a.exitTraffic("Traffic weights updated")
 
+	case sqsFetchedMsg:
+		if a.view != viewSQS {
+			return a, nil
+		}
+		a.sqs.loading = false
+		if msg.err != nil {
+			a.sqs.err = msg.err
+			return a, nil
+		}
+		a.sqs.queues = msg.queues
+		// Clamp cursor
+		rows := buildSQSRows(a.sqs.queues)
+		if a.sqs.cursor >= len(rows) {
+			a.sqs.cursor = max(0, len(rows)-1)
+		}
+		return a, nil
+
 	case refreshTickMsg:
-		// Auto-refresh: only fetch if on dashboard, always re-arm the tick
+		// Auto-refresh: fetch for whichever top-level view is active, always re-arm the tick
 		if a.view == viewDashboard && !a.loading {
 			a.loading = true
 			return a, tea.Batch(a.spinner.Tick, a.fetchServiceDescriptions(), refreshTick())
+		}
+		if a.view == viewSQS && !a.sqs.loading {
+			a.sqs.loading = true
+			return a, tea.Batch(a.spinner.Tick, a.fetchSQSQueues(), refreshTick())
 		}
 		return a, refreshTick()
 
@@ -391,11 +424,7 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.logs.lastEventMs = msg.lastEventMs
 		// Start in follow mode: scroll to bottom
 		if a.logs.follow {
-			maxScroll := len(a.logs.events) - visibleLogLines(a.height)
-			if maxScroll < 0 {
-				maxScroll = 0
-			}
-			a.logs.scrollOffset = maxScroll
+			a.logs.scrollOffset = maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
 		}
 		// Start tailing
 		if a.logs.follow {
@@ -425,11 +454,7 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			a.logs.lastEventMs = msg.lastEventMs
 			// If following, scroll to bottom
 			if a.logs.follow {
-				maxScroll := len(a.logs.events) - visibleLogLines(a.height)
-				if maxScroll < 0 {
-					maxScroll = 0
-				}
-				a.logs.scrollOffset = maxScroll
+				a.logs.scrollOffset = maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
 			}
 		}
 		if a.logs.follow {
@@ -666,6 +691,8 @@ func (a App) View() string {
 		return a.viewLogs()
 	case viewTraffic:
 		return a.viewTrafficScreen()
+	case viewSQS:
+		return a.viewSQSScreen()
 	default:
 		return a.viewDashboard()
 	}
@@ -677,9 +704,10 @@ func (a App) viewDashboard() string {
 	// Title bar (1 line)
 	title := titleStyle.Render("dwtool")
 	info := titleInfoStyle.Render(fmt.Sprintf(" - %s (%s)", a.cfg.Cluster, a.cfg.Region))
-	rightHelp := titleInfoStyle.Render("r:refresh  ?:help  q:quit")
+	pageIndicator := titleStyle.Render("  [ECS Services]")
+	rightHelp := titleInfoStyle.Render("\u2192:SQS  r:refresh  ?:help  q:quit")
 
-	titleLine := title + info
+	titleLine := title + info + pageIndicator
 	padding := a.width - lipgloss.Width(titleLine) - lipgloss.Width(rightHelp)
 	if padding < 1 {
 		padding = 1
@@ -892,6 +920,13 @@ func (a App) handleDashboardKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case key.Matches(msg, keys.Filter):
 		a.filterActive = true
 		return a, nil
+
+	case msg.Type == tea.KeyRight:
+		// Navigate to SQS page
+		a.view = viewSQS
+		a.sqs.loading = true
+		a.sqs.err = nil
+		return a, tea.Batch(a.spinner.Tick, a.fetchSQSQueues())
 	}
 
 	return a, nil
@@ -931,6 +966,125 @@ func (a *App) applyFilter() {
 	a.cursor = 0
 	a.advanceCursorToService(1)
 	a.scrollOffset = 0
+}
+
+func (a App) handleSQSKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch {
+	case key.Matches(msg, keys.Quit):
+		return a, tea.Quit
+
+	case key.Matches(msg, keys.Escape), msg.Type == tea.KeyLeft:
+		// Navigate back to ECS dashboard
+		a.view = viewDashboard
+		return a, nil
+
+	case key.Matches(msg, keys.Up):
+		a.moveSQSCursor(-1)
+		return a, nil
+
+	case key.Matches(msg, keys.Down):
+		a.moveSQSCursor(1)
+		return a, nil
+
+	case key.Matches(msg, keys.PageUp):
+		for i := 0; i < a.viewportHeight(); i++ {
+			a.moveSQSCursor(-1)
+		}
+		return a, nil
+
+	case key.Matches(msg, keys.PageDown):
+		for i := 0; i < a.viewportHeight(); i++ {
+			a.moveSQSCursor(1)
+		}
+		return a, nil
+
+	case key.Matches(msg, keys.Refresh):
+		a.sqs.loading = true
+		a.sqs.err = nil
+		return a, tea.Batch(a.spinner.Tick, a.fetchSQSQueues())
+
+	case key.Matches(msg, keys.Help):
+		a.showHelp = true
+		return a, nil
+	}
+
+	return a, nil
+}
+
+// moveSQSCursor moves the SQS cursor, skipping group headers.
+func (a *App) moveSQSCursor(direction int) {
+	rows := buildSQSRows(a.sqs.queues)
+	if len(rows) == 0 {
+		return
+	}
+	newPos := a.sqs.cursor + direction
+	// Skip group headers
+	for newPos >= 0 && newPos < len(rows) && rows[newPos].isGroup {
+		newPos += direction
+	}
+	if newPos >= 0 && newPos < len(rows) && !rows[newPos].isGroup {
+		a.sqs.cursor = newPos
+	}
+}
+
+func (a App) viewSQSScreen() string {
+	var b strings.Builder
+
+	// Title bar (1 line)
+	title := titleStyle.Render("dwtool")
+	info := titleInfoStyle.Render(fmt.Sprintf(" - %s (%s)", a.cfg.Cluster, a.cfg.Region))
+	pageIndicator := titleStyle.Render("  [SQS Queues]")
+	rightHelp := titleInfoStyle.Render("\u2190:ECS  r:refresh  ?:help  q:quit")
+
+	titleLine := title + info + pageIndicator
+	padding := a.width - lipgloss.Width(titleLine) - lipgloss.Width(rightHelp)
+	if padding < 1 {
+		padding = 1
+	}
+	b.WriteString(titleLine + strings.Repeat(" ", padding) + rightHelp)
+	b.WriteString("\n")
+
+	// Column header (1 line)
+	b.WriteString(renderSQSColumnHeader())
+	b.WriteString("\n")
+
+	// Separator (1 line)
+	b.WriteString(renderSeparator(a.width))
+	b.WriteString("\n")
+
+	if a.sqs.err != nil && len(a.sqs.queues) == 0 {
+		b.WriteString(fmt.Sprintf("\n %s\n", errorStyle.Render(fmt.Sprintf("Error: %v", a.sqs.err))))
+	} else if a.sqs.loading && len(a.sqs.queues) == 0 {
+		b.WriteString(fmt.Sprintf("\n %s Loading SQS queues...\n", a.spinner.View()))
+	} else {
+		b.WriteString(renderSQSView(a.sqs, a.width, a.height))
+	}
+
+	// Pad to push footer to last line
+	currentLines := strings.Count(b.String(), "\n")
+	target := a.height - 1
+	for i := currentLines; i < target; i++ {
+		b.WriteString("\n")
+	}
+
+	// Footer (1 line)
+	spinnerView := ""
+	if a.sqs.loading {
+		spinnerView = a.spinner.View()
+	}
+	b.WriteString(renderSQSFooter(a.sqs, a.width, a.sqs.loading, spinnerView))
+
+	return b.String()
+}
+
+// fetchSQSQueues fetches SQS queue data.
+func (a App) fetchSQSQueues() tea.Cmd {
+	prefix := a.cfg.SQSPrefix
+	return func() tea.Msg {
+		ctx := context.Background()
+		queues, err := a.client.ListSQSQueues(ctx, prefix)
+		return sqsFetchedMsg{queues: queues, err: err}
+	}
 }
 
 func (a App) handleDetailKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -1065,10 +1219,7 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case key.Matches(msg, keys.Down):
 		a.logs.follow = false
-		maxScroll := len(a.logs.events) - visibleLogLines(a.height)
-		if maxScroll < 0 {
-			maxScroll = 0
-		}
+		maxScroll := maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
 		if a.logs.scrollOffset < maxScroll {
 			a.logs.scrollOffset++
 		}
@@ -1084,10 +1235,7 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case key.Matches(msg, keys.PageDown):
 		a.logs.follow = false
-		maxScroll := len(a.logs.events) - visibleLogLines(a.height)
-		if maxScroll < 0 {
-			maxScroll = 0
-		}
+		maxScroll := maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
 		a.logs.scrollOffset += visibleLogLines(a.height)
 		if a.logs.scrollOffset > maxScroll {
 			a.logs.scrollOffset = maxScroll
@@ -1098,22 +1246,14 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		a.logs.follow = !a.logs.follow
 		if a.logs.follow {
 			// Scroll to bottom and start tailing
-			maxScroll := len(a.logs.events) - visibleLogLines(a.height)
-			if maxScroll < 0 {
-				maxScroll = 0
-			}
-			a.logs.scrollOffset = maxScroll
+			a.logs.scrollOffset = maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
 			return a, logsTailTick()
 		}
 		return a, nil
 
 	case msg.Type == tea.KeyRunes && string(msg.Runes) == "G":
 		// Jump to end
-		maxScroll := len(a.logs.events) - visibleLogLines(a.height)
-		if maxScroll < 0 {
-			maxScroll = 0
-		}
-		a.logs.scrollOffset = maxScroll
+		a.logs.scrollOffset = maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
 		return a, nil
 
 	case msg.Type == tea.KeyRunes && string(msg.Runes) == "g":
@@ -1134,7 +1274,7 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		// Next match
 		if len(a.logs.matchLines) > 0 {
 			a.logs.matchCursor = (a.logs.matchCursor + 1) % len(a.logs.matchLines)
-			a.logs.scrollToMatch(visibleLogLines(a.height))
+			a.logs.scrollToMatch(visibleLogLines(a.height), a.width)
 		}
 		return a, nil
 
@@ -1145,7 +1285,7 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			if a.logs.matchCursor < 0 {
 				a.logs.matchCursor = len(a.logs.matchLines) - 1
 			}
-			a.logs.scrollToMatch(visibleLogLines(a.height))
+			a.logs.scrollToMatch(visibleLogLines(a.height), a.width)
 		}
 		return a, nil
 	}
@@ -1168,7 +1308,7 @@ func (a App) handleLogsSearchKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			a.logs.search = a.logs.search[:len(a.logs.search)-1]
 			a.logs.updateSearchMatches()
 			if len(a.logs.matchLines) > 0 {
-				a.logs.scrollToMatch(visibleLogLines(a.height))
+				a.logs.scrollToMatch(visibleLogLines(a.height), a.width)
 			}
 		}
 		return a, nil
@@ -1176,7 +1316,7 @@ func (a App) handleLogsSearchKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		a.logs.search += string(msg.Runes)
 		a.logs.updateSearchMatches()
 		if len(a.logs.matchLines) > 0 {
-			a.logs.scrollToMatch(visibleLogLines(a.height))
+			a.logs.scrollToMatch(visibleLogLines(a.height), a.width)
 		}
 		return a, nil
 	}

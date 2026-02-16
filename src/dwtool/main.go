@@ -18,6 +18,7 @@ func main() {
 	flag.StringVar(&cfg.Cluster, "cluster", config.DefaultCluster, "ECS cluster name")
 	flag.StringVar(&cfg.Repo, "repo", config.DefaultRepo, "GitHub repository (owner/name)")
 	flag.StringVar(&cfg.WorkersDir, "workers-json", "", "path to config/workers.json (auto-detected if empty)")
+	flag.StringVar(&cfg.SQSPrefix, "sqs-prefix", config.DefaultSQSPrefix, "SQS queue name prefix for discovery")
 	flag.Parse()
 
 	// Load workers config

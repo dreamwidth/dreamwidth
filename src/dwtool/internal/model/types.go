@@ -80,6 +80,17 @@ type TargetGroupWeight struct {
 	Weight int    // current weight (0-999)
 }
 
+// SQSQueue represents an SQS queue with its current metrics.
+type SQSQueue struct {
+	Name       string // display name (prefix stripped)
+	URL        string
+	Pending    int    // ApproximateNumberOfMessages
+	InFlight   int    // ApproximateNumberOfMessagesNotVisible
+	Delayed    int    // ApproximateNumberOfMessagesDelayed
+	IsDLQ      bool
+	Throughput string // computed: "~N/min" or "-"
+}
+
 // LogEvent represents a single CloudWatch log event.
 type LogEvent struct {
 	Timestamp time.Time

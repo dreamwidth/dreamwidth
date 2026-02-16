@@ -32,6 +32,7 @@ var CategoryOrder = []string{
 	"misc",
 	"scheduled",
 	"search",
+	"sqs",
 	"syndication",
 }
 

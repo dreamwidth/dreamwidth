@@ -1,9 +1,10 @@
 package config
 
 const (
-	DefaultCluster = "dreamwidth"
-	DefaultRegion  = "us-east-1"
-	DefaultRepo    = "dreamwidth/dreamwidth"
+	DefaultCluster   = "dreamwidth"
+	DefaultRegion    = "us-east-1"
+	DefaultRepo      = "dreamwidth/dreamwidth"
+	DefaultSQSPrefix = "dw-prod-"
 
 	ImageBaseWeb      = "ghcr.io/dreamwidth/web"
 	ImageBaseWeb22    = "ghcr.io/dreamwidth/web22"
@@ -24,6 +25,7 @@ type Config struct {
 	Region     string
 	Repo       string
 	WorkersDir string // path to config/workers.json (auto-detected or flag)
+	SQSPrefix  string // prefix for SQS queue names (e.g. "dw-prod-")
 }
 
 // WebServices returns the web services in deployment order.

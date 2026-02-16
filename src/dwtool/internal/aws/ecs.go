@@ -9,20 +9,24 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	elbv2 "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 
 	"dreamwidth.org/dwtool/internal/config"
 	"dreamwidth.org/dwtool/internal/model"
 )
 
-// Client wraps the AWS ECS, CloudWatch Logs, and ELBv2 clients.
+// Client wraps the AWS ECS, CloudWatch, ELBv2, and SQS clients.
 type Client struct {
 	ecs     *ecs.Client
+	cw      *cloudwatch.Client
 	cwl     *cloudwatchlogs.Client
 	elbv2   *elbv2.Client
+	sqs     *sqs.Client
 	cluster string
 }
 
@@ -36,8 +40,10 @@ func NewClient(region, cluster string) (*Client, error) {
 	}
 	return &Client{
 		ecs:     ecs.NewFromConfig(cfg),
+		cw:      cloudwatch.NewFromConfig(cfg),
 		cwl:     cloudwatchlogs.NewFromConfig(cfg),
 		elbv2:   elbv2.NewFromConfig(cfg),
+		sqs:     sqs.NewFromConfig(cfg),
 		cluster: cluster,
 	}, nil
 }
