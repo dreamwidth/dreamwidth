@@ -29,7 +29,7 @@ BEGIN {
     };
 }
 
-plan tests => 26;
+plan tests => 32;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -39,20 +39,24 @@ die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE'
 
 # Stub routing and journal rendering so we can observe what reaches the app
 my $routed_uri;
+my $routed_username;
 my ( $journal_render_user, $journal_render_uri );
 {
-    no warnings 'redefine';
+    no warnings 'redefine', 'once';
 
     *DW::Routing::call = sub {
         my ( $class, %args ) = @_;
-        $routed_uri = $args{uri} || '';
+        $routed_uri      = $args{uri} || '';
+        $routed_username = $args{username};
 
-        # Return undef for journal subdomain paths so journal rendering kicks in
-        my $r = DW::Request->get;
-        if ( $r->{env} && $r->{env}{'dw.journal_user'} ) {
+        # When username is passed, use 'user' role — app-only routes like
+        # the homepage (/) don't match, so return undef to let journal
+        # rendering handle it.  This mirrors real DW::Routing behavior.
+        if ( $args{username} ) {
             return undef;
         }
 
+        my $r = DW::Request->get;
         $r->status(200);
         $r->header_out( 'Content-Type' => 'text/plain' );
         $r->print("routed:$routed_uri");
@@ -391,3 +395,63 @@ test_psgi $app, sub {
         );
     };
 }
+
+# --- Username passed to routing for journal subdomains ---
+
+# Test 27: routing receives username for journal subdomains
+test_psgi $app, sub {
+    my $cb = shift;
+    $routed_username = undef;
+    my $req = GET "http://someuser.example.org/2026/01/01/hello";
+    $cb->($req);
+
+    is( $routed_username, 'someuser', "routing receives username for journal subdomain" );
+};
+
+# Test 28: routing receives no username for main domain
+test_psgi $app, sub {
+    my $cb = shift;
+    $routed_username = 'should-be-cleared';
+    my $req = GET "http://www.example.org/some/page";
+    $cb->($req);
+
+    is( $routed_username, undef, "routing receives no username for main domain" );
+};
+
+# Test 29-30: journal subdomain root URI renders journal, not homepage
+test_psgi $app, sub {
+    my $cb = shift;
+    $journal_render_user = undef;
+    my $req = GET "http://someuser.example.org/";
+    $cb->($req);
+
+    is( $journal_render_user, 'someuser',
+        "journal subdomain root URI renders journal (not homepage)" );
+};
+
+test_psgi $app, sub {
+    my $cb = shift;
+    $routed_username = undef;
+    my $req = GET "http://someuser.example.org/";
+    $cb->($req);
+
+    is( $routed_username, 'someuser', "journal subdomain root URI passes username to routing" );
+};
+
+# Test 31-32: main domain root URI renders homepage, not journal
+test_psgi $app, sub {
+    my $cb = shift;
+    $journal_render_user = undef;
+    my $req = GET "http://www.example.org/";
+    my $res = $cb->($req);
+
+    is( $journal_render_user, undef, "main domain root URI does not render journal" );
+};
+
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $req = GET "http://www.example.org/";
+    my $res = $cb->($req);
+
+    like( $res->content, qr/^routed:/, "main domain root URI routes to homepage" );
+};

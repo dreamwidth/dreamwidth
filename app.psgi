@@ -67,7 +67,10 @@ my $app = sub {
         }
     }
 
-    my $ret = DW::Routing->call( uri => $uri );
+    my $ret = DW::Routing->call(
+        uri      => $uri,
+        username => $env->{'dw.journal_user'},
+    );
 
     # If routing returned a finalized Plack response (arrayref), e.g. from
     # a controller redirect, return it directly — it already has cookies/headers set.
