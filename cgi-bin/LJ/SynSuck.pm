@@ -167,9 +167,8 @@ sub get_content {
         # overload parseerror here because it's already there -- we'll
         # never have both an http error and a parse error on the
         # same request
-        delay( $userid, 3 * 60, "parseerror" );
-
         $syn_u->set_prop( "rssparseerror", $res->status_line() ) if $syn_u;
+        delay( $userid, 3 * 60, "parseerror" );
         return;
     }
 
@@ -266,7 +265,6 @@ sub process_content {
         if ( $rv->{type} eq "parseerror" ) {
 
             # parse error!
-            delay( $userid, 3 * 60, "parseerror", $synurl );
             if ( my $error = $rv->{message} ) {
                 $log->warn("$user: parse error: $error");
                 $error =~ s! at /.*!!;
@@ -274,6 +272,7 @@ sub process_content {
                 my $syn_u = LJ::load_user($user);
                 $syn_u->set_prop( "rssparseerror", $error ) if $syn_u;
             }
+            delay( $userid, 3 * 60, "parseerror", $synurl );
             return;
         }
         elsif ( $rv->{type} eq "noitems" ) {
