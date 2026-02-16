@@ -30,10 +30,3 @@ t-theschwartz.sqlite
 
 # No tidying
 .tidyall.d/
-
-# Terraform
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-terraform/*.tfstate
-terraform/*.tfstate.backup
-terraform/*.tfplan
