@@ -33,8 +33,8 @@
       "category": "importer",
       "spot": false,
       "min_count": 2,
-      "max_count": 2,
-      "target_cpu": 50
+      "max_count": 5,
+      "target_cpu": 25
     },
     "content-importer-lite": {
       "cpu": 256,
@@ -124,7 +124,7 @@
       "spot": true,
       "min_count": 1,
       "max_count": 50,
-      "target_cpu": 50
+      "target_cpu": 30
     },
     "dw-latest-feed": {
       "cpu": 256,
