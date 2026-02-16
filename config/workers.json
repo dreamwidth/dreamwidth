@@ -368,15 +368,6 @@
       "min_count": 1,
       "max_count": 1,
       "target_cpu": 50
-    },
-    "synsuck": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "syndication",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 20,
-      "target_cpu": 50
     }
   }
 }

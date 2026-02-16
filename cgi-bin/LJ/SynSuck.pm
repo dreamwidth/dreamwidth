@@ -49,12 +49,6 @@ sub delay {
     # add some random backoff to avoid waves building up
     $minutes += int( rand(5) );
 
-    # in old ljmaint-based codepath, LJ::Worker::SynSuck won't be loaded.  hence the eval.
-    eval {
-        LJ::Worker::SynSuck->cond_debug(
-            "Syndication userid $userid rescheduled for $minutes minutes due to $status");
-    };
-
     my $token = defined $synurl ? DW::FeedCanonicalizer::canonicalize($synurl) : undef;
 
     my $dbh = LJ::get_db_writer();
@@ -577,7 +571,6 @@ sub process_content {
         $readers,
         $userid
     ) or die $dbh->errstr;
-    eval { LJ::Worker::SynSuck->cond_debug("Syndication userid $userid updated w/ new items") };
     return 1;
 }
 

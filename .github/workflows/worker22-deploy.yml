@@ -53,7 +53,6 @@ on:
         - sphinx-copier
         - sphinx-search-gm
         - support-notify
-        - synsuck
       tag:
         type: string
         description: SHA256 to deploy (include "sha256:" prefix)
@@ -451,15 +450,6 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
-      - name: (synsuck) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'synsuck'
-        id: render-worker-container-synsuck
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-synsuck-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
       - name: (birthday-notify) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'birthday-notify'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -787,14 +777,6 @@ jobs:
           task-definition: ${{ steps.render-worker-container-support-notify.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-support-notify-service"
-
-      - name: (synsuck) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'synsuck'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-synsuck.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-synsuck-service"
 
       - name: Notify Discord
         uses: sarisia/actions-status-discord@v1
