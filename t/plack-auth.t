@@ -30,7 +30,7 @@ BEGIN {
     };
 }
 
-plan tests => 8;
+plan tests => 11;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -41,6 +41,7 @@ die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE'
 # Mock state
 my $mock_sessobj;
 my $mock_load_user;
+my $mock_bounce_url;
 
 # Minimal mock session object
 package MockSession;
@@ -62,6 +63,7 @@ sub new {
     return bless \%opts, $class;
 }
 sub user          { return $_[0]->{user} }
+sub userid        { return $_[0]->{userid} }
 sub note_activity { }
 
 package main;
@@ -86,6 +88,14 @@ package main;
     };
 
     *LJ::Session::session_from_cookies = sub {
+        my ( $class, %opts ) = @_;
+
+        # Simulate domain session bounce: if mock_bounce_url is set and
+        # session_from_cookies was called with redirect_ref, populate it
+        if ( $mock_bounce_url && $opts{redirect_ref} ) {
+            ${ $opts{redirect_ref} } = $mock_bounce_url;
+        }
+
         return $mock_sessobj;
     };
 
@@ -109,11 +119,13 @@ package main;
 
 # Helper to reset state
 sub reset_mocks {
-    $mock_sessobj         = undef;
-    $mock_load_user       = undef;
-    @LJ::CLEANUP_HANDLERS = ();
-    $LJ::CACHED_REMOTE    = 0;
-    $LJ::CACHE_REMOTE     = undef;
+    $mock_sessobj                = undef;
+    $mock_load_user              = undef;
+    $mock_bounce_url             = undef;
+    @LJ::CLEANUP_HANDLERS        = ();
+    $LJ::CACHED_REMOTE           = 0;
+    $LJ::CACHE_REMOTE            = undef;
+    $LJ::CACHE_REMOTE_BOUNCE_URL = "";
 }
 
 # Test 1: No session cookie -> anonymous
@@ -136,7 +148,7 @@ test_psgi $app, sub {
 
 # Test 3: Valid session cookie -> user is set as remote
 reset_mocks();
-my $mock_user = MockUser->new( user => 'testuser' );
+my $mock_user = MockUser->new( user => 'testuser', userid => 42 );
 $mock_sessobj = MockSession->new( owner => $mock_user );
 test_psgi $app, sub {
     my $cb  = shift;
@@ -157,9 +169,9 @@ test_psgi $app, sub {
 
 # Test 5: Dev server ?as= parameter overrides remote
 reset_mocks();
-$mock_user    = MockUser->new( user => 'testuser' );
+$mock_user    = MockUser->new( user => 'testuser', userid => 42 );
 $mock_sessobj = MockSession->new( owner => $mock_user );
-my $dev_user = MockUser->new( user => 'devuser' );
+my $dev_user = MockUser->new( user => 'devuser', userid => 43 );
 $mock_load_user = sub { return $_[0] eq 'devuser' ? $dev_user : undef };
 local $LJ::IS_DEV_SERVER = 1;
 test_psgi $app, sub {
@@ -171,7 +183,7 @@ test_psgi $app, sub {
 
 # Test 6: Dev server ?as= with invalid user -> logs out
 reset_mocks();
-$mock_user      = MockUser->new( user => 'testuser' );
+$mock_user      = MockUser->new( user => 'testuser', userid => 42 );
 $mock_sessobj   = MockSession->new( owner => $mock_user );
 $mock_load_user = sub { return undef };
 local $LJ::IS_DEV_SERVER = 1;
@@ -184,7 +196,7 @@ test_psgi $app, sub {
 
 # Test 7: ?as= without a value doesn't change remote
 reset_mocks();
-$mock_user    = MockUser->new( user => 'testuser' );
+$mock_user    = MockUser->new( user => 'testuser', userid => 42 );
 $mock_sessobj = MockSession->new( owner => $mock_user );
 local $LJ::IS_DEV_SERVER = 1;
 test_psgi $app, sub {
@@ -196,13 +208,37 @@ test_psgi $app, sub {
 
 # Test 8: ?as= rejects invalid username format
 reset_mocks();
-$mock_user      = MockUser->new( user => 'testuser' );
+$mock_user      = MockUser->new( user => 'testuser', userid => 42 );
 $mock_sessobj   = MockSession->new( owner => $mock_user );
-$mock_load_user = sub { return MockUser->new( user => 'badguy' ) };
+$mock_load_user = sub { return MockUser->new( user => 'badguy', userid => 99 ) };
 local $LJ::IS_DEV_SERVER = 1;
 test_psgi $app, sub {
     my $cb  = shift;
     my $res = $cb->( GET "/?as=invalid!user" );
 
     like( $res->content, qr/user:testuser/, "?as= with invalid username format is ignored" );
+};
+
+# Test 9: Stale domain session cookie triggers bounce redirect on GET
+reset_mocks();
+$mock_bounce_url =
+    "https://www.example.com/misc/get_domain_session?return=http%3A%2F%2Fmark.example.com%2F";
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( GET "/" );
+
+    is( $res->code, 303, "Stale domain session triggers redirect" );
+    is( $res->header('Location'),
+        $mock_bounce_url, "Redirect goes to get_domain_session bounce URL" );
+};
+
+# Test 10: Stale domain session does NOT redirect on POST
+reset_mocks();
+$mock_bounce_url =
+    "https://www.example.com/misc/get_domain_session?return=http%3A%2F%2Fmark.example.com%2F";
+test_psgi $app, sub {
+    my $cb  = shift;
+    my $res = $cb->( POST "/" );
+
+    isnt( $res->code, 303, "Stale domain session does not redirect POST requests" );
 };

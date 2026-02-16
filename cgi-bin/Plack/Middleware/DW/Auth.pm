@@ -57,6 +57,16 @@ sub call {
     else {
         # Mark auth as resolved so LJ::get_remote() won't re-enter session resolution
         LJ::User->set_remote(undef);
+
+        # If we're on a journal subdomain and the domain session cookie is
+        # missing or stale, session_from_cookies will have set a bounce URL
+        # pointing to /misc/get_domain_session. Redirect now so the cookie
+        # gets refreshed before we render the page as logged-out.
+        # Skip on POST (form submissions shouldn't be redirected).
+        unless ( $r->did_post ) {
+            my $burl = LJ::remote_bounce_url();
+            return $r->redirect($burl) if $burl;
+        }
     }
 
     # Dev-only: allow ?as=username to impersonate any user for testing.
