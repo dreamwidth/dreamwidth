@@ -6,6 +6,7 @@ on:
       - main
       - canary
     paths:
+      - app.psgi
       - cgi-bin/**
       - ext/dw-nonfree/cgi-bin/**
       - htdocs/**
