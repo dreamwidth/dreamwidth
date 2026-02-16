@@ -69,7 +69,7 @@ sub note_activity { }
 package main;
 
 {
-    no warnings 'redefine';
+    no warnings 'redefine', 'once';
 
     # Mock routing: return the remote user as seen by the app
     *DW::Routing::call = sub {

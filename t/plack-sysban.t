@@ -47,15 +47,16 @@ my $mock_remote  = undef;
 my @mock_uniq_cookie;
 
 {
-    no warnings 'redefine';
+    no warnings 'redefine', 'once';
 
-    # Mock routing so requests that pass through sysban return 200
+    # Mock routing so requests that pass through sysban return 200.
+    # Return 0 to signal "handled" — returning undef falls through to BML.
     *DW::Routing::call = sub {
         my ( $class, %args ) = @_;
         my $r = DW::Request->get;
         $r->status(200);
         $r->print('OK');
-        return;
+        return 0;
     };
 
     *LJ::sysban_check = sub {
@@ -77,6 +78,12 @@ my @mock_uniq_cookie;
     *LJ::UniqCookie::parts_from_cookie = sub {
         return @mock_uniq_cookie;
     };
+
+    # Disable middleware concerns not under test
+    *LJ::Session::session_from_cookies   = sub { return undef };
+    *LJ::UniqCookie::ensure_cookie_value = sub { return };
+    *LJ::User::Login::get_remote         = sub { return $mock_remote };
+    *DW::RateLimit::get                  = sub { return undef };
 }
 
 # Helper to reset all mocks

@@ -37,6 +37,19 @@ my $app      = do $app_file;
 die "Failed to load app.psgi: $@" if $@;
 die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE';
 
+# Disable middleware concerns not under test (auth, sysban, rate limiting)
+{
+    no warnings 'redefine', 'once';
+
+    *LJ::Session::session_from_cookies   = sub { return undef };
+    *LJ::sysban_check                    = sub { return 0 };
+    *LJ::Sysban::tempban_check           = sub { return 0 };
+    *LJ::UniqCookie::parts_from_cookie   = sub { return () };
+    *LJ::UniqCookie::ensure_cookie_value = sub { return };
+    *LJ::User::Login::get_remote         = sub { return undef };
+    *DW::RateLimit::get                  = sub { return undef };
+}
+
 # ---- Userpic tests ----
 
 # Test 1: Userpic with If-Modified-Since returns 304

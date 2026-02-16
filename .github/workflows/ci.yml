@@ -1,4 +1,4 @@
-name: CI
+name: CI (fast)
 
 on:
   pull_request:
@@ -45,5 +45,14 @@ jobs:
       - name: Module compilation (t/00-compile.t)
         run: prove -v t/00-compile.t
 
-      - name: Rate limiting (t/rate-limit.t)
+      - name: Plack integration tests
+        run: prove t/plack-*.t
+
+      - name: Text cleaner tests
+        run: prove t/cleaner-*.t
+
+      - name: Routing tests
+        run: prove t/routing-*.t
+
+      - name: Rate limiting tests
         run: prove -v t/rate-limit.t

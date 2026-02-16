@@ -86,7 +86,7 @@ test_psgi $app, sub {
 
 # Monkey-patch after the real-routing tests so we can test middleware behavior
 {
-    no warnings 'redefine';
+    no warnings 'redefine', 'once';
 
     *DW::Routing::call = sub {
         my ( $class, %args ) = @_;

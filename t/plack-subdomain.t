@@ -60,7 +60,7 @@ my ( $journal_render_user, $journal_render_uri );
         $r->status(200);
         $r->header_out( 'Content-Type' => 'text/plain' );
         $r->print("routed:$routed_uri");
-        return;
+        return 0;
     };
 
     *DW::Controller::Journal::render = sub {
@@ -73,6 +73,15 @@ my ( $journal_render_user, $journal_render_uri );
         $r->print("journal:$journal_render_user:$journal_render_uri");
         return $r->res;
     };
+
+    # Disable middleware concerns not under test
+    *LJ::Session::session_from_cookies   = sub { return undef };
+    *LJ::sysban_check                    = sub { return 0 };
+    *LJ::Sysban::tempban_check           = sub { return 0 };
+    *LJ::UniqCookie::parts_from_cookie   = sub { return () };
+    *LJ::UniqCookie::ensure_cookie_value = sub { return };
+    *LJ::User::Login::get_remote         = sub { return undef };
+    *DW::RateLimit::get                  = sub { return undef };
 }
 
 # Configure subdomain functions for testing
