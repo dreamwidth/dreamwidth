@@ -191,7 +191,6 @@ def generate_task_definition(name, cpu, memory):
 
 # Generate deployment workflows
 for image_name, workflow_name, filename in [
-    ("worker", "workers", "worker-deploy.yml"),
     ("worker22", "workers (22.04)", "worker22-deploy.yml"),
 ]:
     print(f"Generating {workflows_dir / filename}...")

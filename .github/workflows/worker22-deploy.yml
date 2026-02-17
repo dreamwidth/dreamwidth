@@ -48,6 +48,7 @@ on:
         - process-privacy
         - resolve-extacct
         - schedule-synsuck
+        - ses-incoming-email
         - shop-creditcard-charge
         - spellcheck-gm
         - sphinx-copier
@@ -405,6 +406,15 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
+      - name: (ses-incoming-email) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'ses-incoming-email'
+        id: render-worker-container-ses-incoming-email
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-ses-incoming-email-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
       - name: (shop-creditcard-charge) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'shop-creditcard-charge'
         id: render-worker-container-shop-creditcard-charge
@@ -737,6 +747,14 @@ jobs:
           task-definition: ${{ steps.render-worker-container-schedule-synsuck.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-schedule-synsuck-service"
+
+      - name: (ses-incoming-email) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'ses-incoming-email'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-ses-incoming-email.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-ses-incoming-email-service"
 
       - name: (shop-creditcard-charge) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'shop-creditcard-charge'
