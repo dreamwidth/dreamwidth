@@ -186,10 +186,12 @@ sub process_message {
     return 1 if $spam_verdict eq 'FAIL';
     return 1 if $virus_verdict eq 'FAIL';
 
-    # Extract S3 location from the SES receipt action
+    # Extract S3 location from the SES receipt action.
+    # Each receipt rule action generates its own SNS notification,
+    # so we only process the one from the S3 action and skip the rest.
     my $action = $receipt->{action};
     unless ( $action && $action->{type} eq 'S3' ) {
-        $log->error("SES notification missing S3 action");
+        $log->info("Skipping non-S3 action notification: " . ( $action->{type} || 'unknown' ));
         return 1;
     }
 

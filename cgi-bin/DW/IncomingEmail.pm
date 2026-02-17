@@ -46,7 +46,7 @@ sub process {
     my ( $class, $raw_email ) = @_;
 
     unless ( defined $raw_email && length $raw_email ) {
-        $log->error("Empty email data, dropping");
+        $log->warn("Empty email data, dropping");
         return 1;
     }
 
@@ -238,7 +238,7 @@ sub _route_to_support {
     }
 
     unless ($to) {
-        $log->error("Not deliverable to support system (no match To:)");
+        $log->info("Not deliverable to support system (no match To:)");
         return 1;
     }
 
