@@ -273,9 +273,11 @@ sub receive {
         $self->{sqs}->ReceiveMessage(
             QueueUrl            => $queue_url,
             MaxNumberOfMessages => $count,
-            WaitTimeSeconds     => 10
+            WaitTimeSeconds     => 10,
+            AttributeNames      => ['ApproximateReceiveCount'],
         );
     };
+
     if ( $@ && $@->isa('Paws::Exception') ) {
         $log->warn( 'Failed to retrieve SQS messages: ' . $@->message );
         DW::Stats::increment( 'dw.taskqueue.action.receive_error', 1, $tags );
@@ -292,10 +294,10 @@ sub receive {
     DW::Stats::increment( 'dw.taskqueue.received_messages', scalar(@$messages), $tags );
     $messages = [
         map {
-            [
-                $_->ReceiptHandle,
-                thaw( decode_base64( $self->_reload_large_message_if_necessary( $_->Body ) ) )
-            ]
+            my $task =
+                thaw( decode_base64( $self->_reload_large_message_if_necessary( $_->Body ) ) );
+            $task->receive_count( $_->Attributes->{ApproximateReceiveCount} || 0 );
+            [ $_->ReceiptHandle, $task ]
         } @$messages
     ];
     return $messages;

@@ -232,8 +232,21 @@ sub start_work {
                 }
             }
             else {
-                $log->warn( sprintf( '[%s] Message "%s" failed', $class, $handle ) );
-                push @failed, $handle;
+                # If we've exceeded max retries, give up and mark complete
+                # instead of letting SQS send it to the DLQ
+                if ( $opts{max_retries} && $message->receive_count >= $opts{max_retries} ) {
+                    $log->warn(
+                        sprintf(
+                            '[%s] Message "%s" failed after %d attempts, giving up',
+                            $class, $handle, $message->receive_count
+                        )
+                    );
+                    push @completed, $handle;
+                }
+                else {
+                    $log->warn( sprintf( '[%s] Message "%s" failed', $class, $handle ) );
+                    push @failed, $handle;
+                }
 
                 # Release dedup key on failure so the task can be
                 # re-dispatched by the next scheduler run

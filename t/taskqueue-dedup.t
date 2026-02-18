@@ -14,7 +14,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 32;
+use Test::More tests => 39;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(with_fake_memcache);
@@ -33,8 +33,11 @@ use DW::TaskQueue::Dedup;
     my $task = DW::Task->new( { foo => 1 } );
     isa_ok( $task, 'DW::Task', 'base task isa DW::Task' );
     is_deeply( $task->args, [ { foo => 1 } ], 'args accessor returns constructor args' );
-    is( $task->uniqkey,   undef, 'uniqkey is undef by default' );
-    is( $task->dedup_ttl, undef, 'dedup_ttl is undef by default' );
+    is( $task->uniqkey,          undef, 'uniqkey is undef by default' );
+    is( $task->dedup_ttl,        undef, 'dedup_ttl is undef by default' );
+    is( $task->receive_count,    0,     'receive_count defaults to 0' );
+    is( $task->receive_count(3), 3,     'receive_count setter returns new value' );
+    is( $task->receive_count,    3,     'receive_count getter returns set value' );
 }
 
 # --- with_dedup on base class ---
@@ -77,6 +80,26 @@ use DW::TaskQueue::Dedup;
     is_deeply( $thawed->args, [ { userid => 7 } ], 'args survive freeze/thaw' );
     is( $thawed->uniqkey,   'synsuck:7', 'uniqkey survives freeze/thaw' );
     is( $thawed->dedup_ttl, 900,         'dedup_ttl survives freeze/thaw' );
+}
+
+# --- receive_count (set by SQS layer post-thaw) ---
+
+{
+    my $task = DW::Task::SynSuck->new( { userid => 10 } );
+    is( $task->receive_count, 0, 'receive_count defaults to 0 on subclass' );
+
+    $task->receive_count(5);
+    is( $task->receive_count, 5, 'receive_count works on subclass' );
+
+    # In production, receive_count is never set before freeze — tasks are
+    # serialized at send time (no count yet) and the count is set by the
+    # SQS layer after thaw. Verify that flow works.
+    my $fresh  = DW::Task::SynSuck->new( { userid => 11 } );
+    my $thawed = thaw( freeze($fresh) );
+    is( $thawed->receive_count, 0, 'thawed task has receive_count 0' );
+
+    $thawed->receive_count(3);
+    is( $thawed->receive_count, 3, 'receive_count can be set after thaw' );
 }
 
 # --- Other task subclass construction ---

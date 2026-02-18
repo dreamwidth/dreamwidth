@@ -52,6 +52,12 @@ sub dedup_ttl {
     return $_[0]->{dedup_ttl};
 }
 
+sub receive_count {
+    my ( $self, $val ) = @_;
+    $self->{_receive_count} = $val if defined $val;
+    return $self->{_receive_count} || 0;
+}
+
 sub queue_attributes {
     my ( $self, %opts ) = @_;
 

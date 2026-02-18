@@ -28,4 +28,5 @@ DW::TaskQueue->start_work(
     message_timeout_secs => 600,
     exit_after_secs      => 300 + int( rand() * 600 ),
     exit_after_messages  => 100,
+    max_retries          => 3,
 );
