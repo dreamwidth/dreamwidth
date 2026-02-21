@@ -61,14 +61,7 @@ sub login_handler {
 
     return error_ml("/login.tt.dbreadonly") if $remote && $remote->readonly;
 
-    my $set_cache = sub {
-
-        # changes some responses if user has recently logged in/out to prevent browsers
-        # from caching stale data on some pages.
-        my $uniq = $r->note('uniq');
-        LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
-
-    };
+    my $set_cache = sub { _set_loginout_cache($r) };
 
     my $logout_remote = sub {
         $remote->kill_session if $remote;
@@ -307,9 +300,7 @@ sub login_2fa_handler {
 
             LJ::set_remote($u);
 
-            # Set cache to prevent stale pages
-            my $uniq = $r->note('uniq');
-            LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
+            _set_loginout_cache($r);
 
             my $returnto = $payload->{returnto};
             if ( $returnto && DW::Controller::validate_redirect_url($returnto) ) {
@@ -414,6 +405,14 @@ sub _clear_mfa_cookie {
         name => $MFA_COOKIE_NAME,
         path => '/login',
     );
+}
+
+# Briefly marks the user's uniq as recently logged-in/out so downstream
+# pages avoid serving stale cached content.
+sub _set_loginout_cache {
+    my ($r) = @_;
+    my $uniq = $r->note('uniq');
+    LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
 }
 
 1;
