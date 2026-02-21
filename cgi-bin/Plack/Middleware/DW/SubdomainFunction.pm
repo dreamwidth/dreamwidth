@@ -96,7 +96,7 @@ sub call {
             # Rewrite to /userpic/{picid}/{userid} to match DW::Controller::Userpic's
             # route. Skip domain session bounce since userpics are public images that
             # don't need authentication. (Apache::LiveJournal::trans line 982)
-            $env->{PATH_INFO}             = "/userpic" . $r->path;
+            $env->{PATH_INFO}               = "/userpic" . $r->path;
             $env->{'dw.skip_domain_bounce'} = 1;
 
         }
