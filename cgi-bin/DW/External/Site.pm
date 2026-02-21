@@ -113,6 +113,11 @@ $domaintosite{"artstation.com"} =
 $domaintosite{"ko-fi.com"} =
     DW::External::Site->new( "34", "www.ko-fi.com", "ko-fi.com", "Kofi", "kofi" );
 
+$domaintosite{"bsky.app"} =
+    DW::External::Site->new( "35", "bsky.app", "bsky.app", "Bluesky", "atproto" );
+$domaintosite{"bsky.social"} =
+    DW::External::Site->new( "36", "bsky.app", "bsky.social", "BlueskySocial", "atproto" );
+
 @all_sites_without_alias = values %domaintosite;
 
 # without tld
@@ -163,6 +168,7 @@ $domaintosite{"artstation"}      = $domaintosite{"artstation.com"};
 $domaintosite{"substack"}        = $domaintosite{"substack.com"};
 $domaintosite{"itch"}            = $domaintosite{"itch.io"};
 $domaintosite{"kofi"}            = $domaintosite{"ko-fi.com"};
+$domaintosite{"bsky"}            = $domaintosite{"bsky.app"};
 
 foreach my $value (@all_sites_without_alias) {
     $idtosite{ $value->{siteid} } = $value;

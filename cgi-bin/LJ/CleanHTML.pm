@@ -23,6 +23,7 @@ use LJ::Config;
 use Text::Markdown;
 use LJ::TextUtil;
 use DW::Formats;
+use DW::External::Site;
 
 LJ::Config->load;
 
@@ -1969,6 +1970,15 @@ sub convert_user_mentions {
 
     my $usertag = sub {
         my ( $orig, $user, $site ) = ( $_[0], $_[1], $_[2] || $LJ::DOMAIN );
+
+        # atproto sites use FQDNs as usernames, so if the final segment of $site
+        # refers to one, the rest of $site is actually a part of the username.
+        my ( $atuser, $atsitename ) = split /\.([^.]+)$/, ( $orig =~ tr/@//dr );
+        if ($atsitename) {
+            my $atsite = DW::External::Site->get_site( site => $atsitename );
+            return user_link_html( $atuser, $atsitename, $opts )
+                if $atsite && $atsite->servicetype eq "atproto";
+        }
         return user_link_html( $user, $site, $opts );
     };
 
