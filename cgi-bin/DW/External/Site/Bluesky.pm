@@ -20,19 +20,6 @@ use strict;
 use base 'DW::External::Site::Atproto';
 use Carp qw/ croak /;
 
-# new does nothing for these classes
-sub new { croak 'cannot build with new'; }
-
-# returns an object if we allow this domain; else undef
-sub accepts {
-    my ( $class, $parts ) = @_;
-
-    # let's just assume the last two parts are good if we have them
-    return undef unless scalar(@$parts) >= 2;
-
-    return bless { hostname => "$parts->[-2].$parts->[-1]" }, $class;
-}
-
 # argument: DW::External::User
 # returns URL to this account's journal
 sub journal_url {
@@ -40,7 +27,7 @@ sub journal_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/profile/' . $u->user;
+    return 'https://' . $self->{hostname} . '/profile/' . $u->user;
 }
 
 # argument: DW::External::User

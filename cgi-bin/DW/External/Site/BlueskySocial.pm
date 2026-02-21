@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::External::Site::Bluesky
+# DW::External::Site::BlueskySocial
 #
 # Class to support the special case of users with @*.bsky.social usernames (so
 # you don't have to tack a .bsky on the end).

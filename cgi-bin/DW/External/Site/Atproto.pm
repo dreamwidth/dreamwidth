@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::External::Site::Bluesky
+# DW::External::Site::Atproto
 #
 # Support class for elements shared between atproto-based sites. Links to
 # aturi.to to provide a whole-account overview for atproto..
@@ -46,7 +46,7 @@ sub journal_url {
     # sending the user to aturi is the correct way to handle that since it
     # presents the well-known sites the account DOES have a profile on in and
     # end-user friendly way.
-    return 'http://aturi.to/' . $u->user;
+    return 'https://aturi.to/' . $u->user;
 }
 
 # argument: DW::External::User
