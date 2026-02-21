@@ -253,7 +253,7 @@ sub blocked_anon {
 
     my $subject = "403 Denied";
     my $message =
-"You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login.bml?skin=lynx'>log in</a>.";
+"You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login'>log in</a>.";
 
     $apache_r->print("<html><head><title>$subject</title></head><body>");
     $apache_r->print("<h1>$subject</h1> $message");

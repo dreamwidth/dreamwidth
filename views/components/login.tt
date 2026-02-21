@@ -27,7 +27,7 @@
         label => dw.ml('sitescheme.accountlinks.login.username')
         name => "user",
         labelclass => (short ? "invisible" : ""),
-        placeholder => (short ? dw.ml('/login.bml.login.username' ): ""),
+        placeholder => (short ? dw.ml('/login.tt.login.username') : ""),
         id => "login_user",
         maxlength => 27,
         tabindex => (short ? "1" : "0")
@@ -38,7 +38,7 @@
         label => dw.ml('sitescheme.accountlinks.login.password')
         name => "password",
         id => "login_password",
-        placeholder => (short ? dw.ml('/login.bml.login.password' ): ""),
+        placeholder => (short ? dw.ml('/login.tt.login.password') : ""),
         size => (short ? 7 : 20),
         tabindex => (short ? "2" : "0")
         labelclass => (short ? "invisible" : ""),

@@ -52,6 +52,34 @@ sub check_code {
     return 0;
 }
 
+# Check if a recovery code is valid. If valid, marks the code as used
+# (status A -> U) so it cannot be reused.
+sub check_recovery_code {
+    my ( $class, $u, $code ) = @_;
+    return 0 unless $u && $code;
+
+    my $dbh = LJ::get_db_writer() or $log->logcroak('Failed to get db writer.');
+
+    # Get all active recovery codes and check against each
+    my $rows = $dbh->selectcol_arrayref(
+        q{SELECT code FROM totp_recovery_codes WHERE userid = ? AND status = 'A'},
+        undef, $u->userid )
+        || [];
+
+    for my $encrypted_code (@$rows) {
+        my $stored_code = DW::Auth::Helpers->decrypt_token($encrypted_code);
+        if ( $stored_code eq $code ) {
+
+            # Mark as used
+            $dbh->do( q{UPDATE totp_recovery_codes SET status = 'U' WHERE userid = ? AND code = ?},
+                undef, $u->userid, $encrypted_code );
+            $u->infohistory_add( '2fa_totp', 'recovery_code_used' );
+            return 1;
+        }
+    }
+    return 0;
+}
+
 sub get_recovery_codes {
     my ( $class, $u ) = @_;
 

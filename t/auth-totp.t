@@ -19,7 +19,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-plan tests => 17;
+plan tests => 22;
 
 use DW::Auth::Password;
 use DW::Auth::TOTP;
@@ -44,6 +44,19 @@ ok( scalar @codes == 2, 'Got 2 codes.' );
 ok( DW::Auth::TOTP->check_code( $u, $codes[0] ), 'Older code works.' );
 ok( DW::Auth::TOTP->check_code( $u, $codes[0] ), 'Newer code works.' );
 ok( !DW::Auth::TOTP->check_code( $u, '000000' ), 'Bad code fails.' );
+
+# Recovery code tests
+my @recovery = DW::Auth::TOTP->get_recovery_codes($u);
+is( scalar @recovery, 10, 'User has 10 recovery codes.' );
+
+my $rc = $recovery[0];
+ok( DW::Auth::TOTP->check_recovery_code( $u, $rc ), 'Recovery code validates.' );
+ok( !DW::Auth::TOTP->check_recovery_code( $u, $rc ), 'Same recovery code cannot be reused.' );
+
+my @remaining = DW::Auth::TOTP->get_recovery_codes($u);
+is( scalar @remaining, 9, 'One fewer recovery code after use.' );
+
+ok( !DW::Auth::TOTP->check_recovery_code( $u, 'not-real' ), 'Invalid recovery code rejected.' );
 
 # TODO: maybe we care, but there is _technicaly_ a race condition since we're
 # using time based authentication, and we could just implement a way to set

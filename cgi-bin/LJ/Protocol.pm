@@ -33,6 +33,7 @@ LJ::Config->load;
 
 use DW::API::Key;
 use DW::Auth::Challenge;
+use DW::Auth::TOTP;
 use LJ::Tags;
 use LJ::Feed;
 use LJ::EmbedModule;
@@ -111,6 +112,7 @@ my %e = (
     "317" => [ E_TEMP, "Journal is read-only and entries cannot be posted to it." ],
     "318" => [ E_TEMP, "Poster is read-only and cannot edit entries." ],
     "319" => [ E_TEMP, "Journal is read-only and its entries cannot be edited." ],
+    "320" => [ E_PERM, "Account has two-factor authentication enabled; use the web login." ],
 
     # Limit errors
     "402" =>
@@ -2906,6 +2908,9 @@ sub sessiongenerate {
 
     # do not let locked people do this
     return fail( $err, 308 ) if $u->is_locked;
+
+    # MFA users must log in via the web UI where they can provide a TOTP code
+    return fail( $err, 320 ) if DW::Auth::TOTP->is_enabled($u);
 
     my $sess = LJ::Session->create( $u, %$sess_opts );
 

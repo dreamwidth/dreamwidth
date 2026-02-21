@@ -16,6 +16,7 @@ _c?>
 {
     use strict;
     use vars qw(%GET %POST %ML);
+    use DW::Auth::TOTP;
     use DW::External::Page;
     BML::decl_params(_default => qr/./);
 
@@ -280,7 +281,18 @@ _c?>
 
             # Verify entered password, if it is present.
             my $ok = LJ::auth_okay($u, $POST{password});
-            $flags = { 'noauth' => 1, 'u' => $u } if $ok;
+
+            if ( $ok && DW::Auth::TOTP->is_enabled($u) ) {
+                # MFA users cannot log in via the entry form
+                $errors .= "<?h1 $ML{'Error'} h1?><?p "
+                    . "Your account has two-factor authentication enabled. "
+                    . "Please <a href='$LJ::SITEROOT/login'>log in</a> "
+                    . "before posting an entry. p?>";
+                $showform = 1;
+            }
+            elsif ($ok) {
+                $flags = { 'noauth' => 1, 'u' => $u };
+            }
 
         } elsif ($remote && LJ::check_referer()) {
             # assume remote if we have it

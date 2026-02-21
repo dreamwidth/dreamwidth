@@ -18,13 +18,23 @@ package DW::Controller::Login;
 
 use v5.10;
 use strict;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-use DW::Routing;
-use DW::Template;
+use DW::Auth::Helpers;
+use DW::Auth::TOTP;
 use DW::Controller;
 use DW::FormErrors;
+use DW::Routing;
+use DW::Template;
+use LJ::JSON;
 
-DW::Routing->register_string( '/login', \&login_handler, app => 1 );
+DW::Routing->register_string( '/login',     \&login_handler,     app => 1 );
+DW::Routing->register_string( '/login/2fa', \&login_2fa_handler, app => 1 );
+
+# Maximum age of a pending-MFA token in seconds
+my $MFA_TOKEN_MAX_AGE = 300;              # 5 minutes
+my $MFA_COOKIE_NAME   = 'ljmfapending';
 
 sub login_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
@@ -51,14 +61,7 @@ sub login_handler {
 
     return error_ml("/login.tt.dbreadonly") if $remote && $remote->readonly;
 
-    my $set_cache = sub {
-
-        # changes some responses if user has recently logged in/out to prevent browsers
-        # from caching stale data on some pages.
-        my $uniq = $r->note('uniq');
-        LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
-
-    };
+    my $set_cache = sub { _set_loginout_cache($r) };
 
     my $logout_remote = sub {
         $remote->kill_session if $remote;
@@ -169,6 +172,27 @@ sub login_handler {
                 return error_ml('login.tt.tempfailban');
             }
 
+            # For MFA users: redirect to /login/2fa regardless of password
+            # result. This avoids leaking whether the password was correct
+            # before the second factor is verified.
+            if ( $u && !$u->is_locked && DW::Auth::TOTP->is_enabled($u) ) {
+                my ( $exptype, $bindip ) = _session_opts( $r, $post );
+                my $returnto = _resolve_return_url( $r, $get, $post );
+
+                my $token = _create_mfa_token(
+                    userid      => $u->userid,
+                    password_ok => $ok ? 1 : 0,
+                    exptype     => $exptype,
+                    bindip      => $bindip,
+                    returnto    => $returnto // '',
+                );
+
+                _set_mfa_cookie( $r, $token );
+
+                $log->info( 'login_mfa_redirect user=', $u->user );
+                return $r->redirect("$LJ::SITEROOT/login/2fa");
+            }
+
             if ( $u && !$ok ) {
                 push @errors,
                     [
@@ -188,14 +212,10 @@ sub login_handler {
                     foreach @errors;    # Many errors, increment a failure for each reason.
             }
             else {
-                # at this point, $u is known good
+                # at this point, $u is known good (non-MFA)
                 $u->preload_props("schemepref");
 
-                my $exptype =
-                    ( ( $post->{'expire'} // '' ) eq "never" || $post->{'remember_me'} )
-                    ? "long"
-                    : "short";
-                my $bindip = ( ( $post->{'bindip'} // '' ) eq "yes" ) ? $r->get_remote_ip : "";
+                my ( $exptype, $bindip ) = _session_opts( $r, $post );
 
                 $u->make_login_session( $exptype, $bindip );
                 LJ::Hooks::run_hook( 'user_login', $u );
@@ -203,43 +223,15 @@ sub login_handler {
 
                 DW::Stats::increment( 'dw.action.session.login_ok', 1,
                     [ 'bindip:' . $bindip ? 'yes' : 'no', "exptype:$exptype" ] );
+                $log->info( 'login_source=main user=', $u->user );
 
                 LJ::set_remote($u);
                 $remote = $u;
 
                 $set_cache->();
 
-# handle redirects
-# these take two different forms
-# 1) the form has a `returnto` value OR has a `ret` value and it is equal to something other than one
-# this is the url to return to after doing login
-# 2) the form has a `ret` value and it is equal to 1
-# the url to return to should be pulled from the Referer header
-#
-# In both cases, we need to validate the URL before we redirect to it, to prevent XSS and similar attacks
-
-                my $redirect_url;
-                if ( $post->{returnto} ) {
-
-                    # this passes in the URI of the page to redirect to on success, eg:
-                    # /manage/profile/index?authas=test or whatever
-                    $redirect_url = $post->{returnto};
-                    if ( $redirect_url =~ /^\// ) {
-                        $redirect_url = $LJ::SITEROOT . $redirect_url;
-                    }
-                }
-                elsif ( $post->{ret} && $post->{ret} != 1 ) {
-                    $redirect_url = $post->{ret};
-                }
-                elsif ($get->{'ret'} && $get->{'ret'} == 1
-                    || $post->{'ret'} && $post->{'ret'} == 1 )
-                {
-                    $redirect_url = $r->header_out('Referer');
-                }
-
-                if ( $redirect_url && DW::Controller::validate_redirect_url($redirect_url) ) {
-                    return $r->redirect($redirect_url);
-                }
+                my $redirect_url = _resolve_return_url( $r, $get, $post );
+                return $r->redirect($redirect_url) if $redirect_url;
 
             }
 
@@ -251,4 +243,176 @@ sub login_handler {
     $vars->{remote}  = $remote;
     return DW::Template->render_template( 'login.tt', $vars );
 }
+
+sub login_2fa_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
+    return $rv unless $ok;
+
+    my $r    = $rv->{r};
+    my $post = $r->post_args;
+
+    $r->note( ml_scope => '/login/2fa.tt' );
+
+    my $errors = DW::FormErrors->new;
+
+    # Validate the pending-MFA cookie
+    my $token_val = $r->cookie($MFA_COOKIE_NAME);
+    my $payload   = _validate_mfa_token($token_val);
+
+    unless ($payload) {
+        _clear_mfa_cookie($r);
+        return $r->redirect("$LJ::SITEROOT/login");
+    }
+
+    my $u = LJ::load_userid( $payload->{userid} );
+    unless ( $u && DW::Auth::TOTP->is_enabled($u) ) {
+        _clear_mfa_cookie($r);
+        return $r->redirect("$LJ::SITEROOT/login");
+    }
+
+    if ( $r->did_post ) {
+        my $code = $post->{code} // '';
+        $code =~ s/\s+//g;    # strip whitespace for usability
+
+        my $valid = 0;
+
+        if ( $code =~ /^\d{6}$/ ) {
+
+            # Looks like a TOTP code
+            $valid = DW::Auth::TOTP->check_code( $u, $code );
+        }
+        elsif ( $code =~ /^[a-z0-9]{4}-[a-z0-9]{4}$/ ) {
+
+            # Looks like a recovery code
+            $valid = DW::Auth::TOTP->check_recovery_code( $u, $code );
+        }
+
+        if ( $valid && $payload->{password_ok} ) {
+            _clear_mfa_cookie($r);
+
+            $u->preload_props("schemepref");
+            $u->make_login_session( $payload->{exptype}, $payload->{bindip} );
+            LJ::Hooks::run_hook( 'user_login', $u );
+
+            DW::Stats::increment( 'dw.action.session.login_ok', 1,
+                [ "exptype:$payload->{exptype}", 'mfa:yes' ] );
+            $log->info( 'login_source=main_mfa user=', $u->user );
+
+            LJ::set_remote($u);
+
+            _set_loginout_cache($r);
+
+            my $returnto = $payload->{returnto};
+            if ( $returnto && DW::Controller::validate_redirect_url($returnto) ) {
+                return $r->redirect($returnto);
+            }
+
+            return $r->redirect("$LJ::SITEROOT/");
+        }
+        else {
+            my $reason = !$valid ? 'bad_mfa_code' : 'bad_password_mfa';
+            DW::Stats::increment( 'dw.action.session.login_failed', 1, ["reason:$reason"] );
+            $errors->add( 'code', '.error.badcredentials' );
+        }
+    }
+
+    return DW::Template->render_template(
+        'login/2fa.tt',
+        {
+            errors   => $errors,
+            formdata => $post,
+            user     => $u->display_name,
+        }
+    );
+}
+
+sub _resolve_return_url {
+    my ( $r, $get, $post ) = @_;
+
+    my $url;
+    if ( $post->{returnto} ) {
+        $url = $post->{returnto};
+        $url = $LJ::SITEROOT . $url if $url =~ /^\//;
+    }
+    elsif ( $post->{ret} && $post->{ret} != 1 ) {
+        $url = $post->{ret};
+    }
+    elsif ($get->{'ret'} && $get->{'ret'} == 1
+        || $post->{'ret'} && $post->{'ret'} == 1 )
+    {
+        $url = $r->header_out('Referer');
+    }
+
+    return undef unless $url && DW::Controller::validate_redirect_url($url);
+    return $url;
+}
+
+sub _session_opts {
+    my ( $r, $post ) = @_;
+
+    my $exptype =
+        ( ( $post->{'expire'} // '' ) eq "never" || $post->{'remember_me'} )
+        ? "long"
+        : "short";
+    my $bindip = ( ( $post->{'bindip'} // '' ) eq "yes" ) ? $r->get_remote_ip : "";
+
+    return ( $exptype, $bindip );
+}
+
+sub _create_mfa_token {
+    my (%args) = @_;
+
+    my $payload = to_json(
+        {
+            userid      => $args{userid},
+            password_ok => $args{password_ok},
+            exptype     => $args{exptype},
+            bindip      => $args{bindip},
+            returnto    => $args{returnto},
+            timestamp   => time(),
+        }
+    );
+    return DW::Auth::Helpers->encrypt_token($payload);
+}
+
+sub _validate_mfa_token {
+    my ($token) = @_;
+    return undef unless $token;
+
+    my $payload = eval { from_json( DW::Auth::Helpers->decrypt_token($token) ) };
+    return undef if $@ || !$payload;
+
+    # Check expiration
+    my $age = time() - ( $payload->{timestamp} // 0 );
+    return undef if $age > $MFA_TOKEN_MAX_AGE || $age < 0;
+
+    return $payload;
+}
+
+sub _set_mfa_cookie {
+    my ( $r, $token ) = @_;
+    $r->add_cookie(
+        name     => $MFA_COOKIE_NAME,
+        value    => $token,
+        httponly => 1,
+        path     => '/login',
+    );
+}
+
+sub _clear_mfa_cookie {
+    my ($r) = @_;
+    $r->delete_cookie(
+        name => $MFA_COOKIE_NAME,
+        path => '/login',
+    );
+}
+
+# Briefly marks the user's uniq as recently logged-in/out so downstream
+# pages avoid serving stale cached content.
+sub _set_loginout_cache {
+    my ($r) = @_;
+    my $uniq = $r->note('uniq');
+    LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
+}
+
 1;
