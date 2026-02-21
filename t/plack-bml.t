@@ -40,10 +40,10 @@ die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE'
 # Test 1: DW::BML module loads
 use_ok('DW::BML');
 
-# Test 2: resolve_path finds a known BML file (login.bml exists in htdocs)
+# Test 2: resolve_path finds a known BML file (update.bml exists in htdocs)
 {
-    my ( $redirect, $uri, $file ) = DW::BML->resolve_path('/login');
-    ok( defined $file && $file =~ /login\.bml$/, "resolve_path finds login.bml" );
+    my ( $redirect, $uri, $file ) = DW::BML->resolve_path('/update');
+    ok( defined $file && $file =~ /update\.bml$/, "resolve_path finds update.bml" );
 }
 
 # Test 3: resolve_path returns undef for nonexistent path
@@ -83,7 +83,6 @@ test_psgi $app, sub {
     my $cb  = shift;
     my $res = $cb->( GET "/login" );
 
-    # login.bml should render successfully
     is( $res->code, 200, "GET /login returns 200" );
 };
 
