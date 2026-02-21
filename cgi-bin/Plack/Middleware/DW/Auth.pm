@@ -63,7 +63,9 @@ sub call {
         # pointing to /misc/get_domain_session. Redirect now so the cookie
         # gets refreshed before we render the page as logged-out.
         # Skip on POST (form submissions shouldn't be redirected).
-        unless ( $r->did_post ) {
+        # Skip when dw.skip_domain_bounce is set (e.g., userpic subdomain
+        # serving public images that don't need authentication).
+        unless ( $r->did_post || $env->{'dw.skip_domain_bounce'} ) {
             my $burl = LJ::remote_bounce_url();
             return $r->redirect($burl) if $burl;
         }

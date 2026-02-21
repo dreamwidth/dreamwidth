@@ -90,6 +90,16 @@ sub call {
             return $r->redirect($dest);
 
         }
+        elsif ( $func && $func eq 'userpics' ) {
+
+            # Userpic subdomain (e.g., v.dreamwidth.org): URLs are /{picid}/{userid}.
+            # Rewrite to /userpic/{picid}/{userid} to match DW::Controller::Userpic's
+            # route. Skip domain session bounce since userpics are public images that
+            # don't need authentication. (Apache::LiveJournal::trans line 982)
+            $env->{PATH_INFO}             = "/userpic" . $r->path;
+            $env->{'dw.skip_domain_bounce'} = 1;
+
+        }
         elsif ( $func && $func eq 'journal' ) {
 
             # "journal" function: URI contains /username/path
