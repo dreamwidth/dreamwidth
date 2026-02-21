@@ -30,3 +30,6 @@ t-theschwartz.sqlite
 
 # No tidying
 .tidyall.d/
+
+# Worktrees
+.worktrees/
