@@ -1,9 +1,13 @@
 package DW::Controller::Talk;
 
 use strict;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use DW::Auth::TOTP;
 use DW::Formats;
 
 DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
@@ -704,6 +708,14 @@ sub authenticate_user_and_mutate_form {
 
         # GREAT, they're in!
 
+        # If user has MFA enabled, they cannot use inline comment login.
+        # They must log in via /login first.
+        if ( DW::Auth::TOTP->is_enabled($up) ) {
+            return $err->( "Your account has two-factor authentication enabled. "
+                    . "Please <a href='$LJ::SITEROOT/login'>log in</a> "
+                    . "before commenting." );
+        }
+
         # if the user chooses to log in, do so
         if ( $form->{do_login} ) {
             $didlogin = $up->make_login_session( $exptype, $ipfixed );
@@ -713,6 +725,8 @@ sub authenticate_user_and_mutate_form {
             # "currently logged-in user" option.
             $form->{usertype}   = 'cookieuser';
             $form->{cookieuser} = $up->user;
+
+            $log->info( 'login_source=comment user=', $up->user );
         }
 
         return $got_user->($up);

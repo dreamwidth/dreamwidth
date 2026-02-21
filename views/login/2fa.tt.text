@@ -1,0 +1,14 @@
+;; -*- coding: utf-8 -*-
+.title=Two-Factor Authentication
+
+.instructions=Enter the six-digit code from your authenticator app to finish logging in as <strong>[[user]]</strong>.
+
+.code.label=Authentication code
+
+.code.hint=Enter a 6-digit code from your authenticator app, or a recovery code (xxxx-xxxx).
+
+.btn.verify=Verify
+
+.error.badcredentials=Invalid password or authentication code. Please try again.
+
+.link.back=Back to login

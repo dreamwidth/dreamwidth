@@ -183,6 +183,7 @@ the table based way can be removed when the entire site is Foundation-based.
 [%- ELSE -%] [%# no remote, logged out %]
     [%- chal = dw_scheme.challenge_generate(300) -%]
     [%- -%]<form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
+    [%- dw.form_auth() -%]
     [%- -%]<input type="hidden" name="returnto" value="[% returnto | html %]" />
     [%- -%]<input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
     <input type='hidden' name='response' class='lj_login_response' value='' />

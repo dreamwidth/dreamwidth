@@ -1,0 +1,42 @@
+[%# login/2fa.tt
+
+Two-factor authentication page.
+
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it
+under the same terms as Perl itself.  For a copy of the license, please
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[% sections.title = dw.ml('.title') %]
+
+<div class="row">
+  <div class="columns medium-6">
+    <p>[% dw.ml('.instructions', { user => user }) %]</p>
+
+    <form action="[% site.root %]/login/2fa" method="post">
+      [%- dw.form_auth() -%]
+
+      [%- form.textbox(
+          label => dw.ml('.code.label'),
+          name  => "code",
+          id    => "mfa_code",
+          size  => 20,
+          maxlength => 20,
+          autocomplete => "one-time-code",
+          autofocus => "autofocus",
+          'aria-required' => "true"
+      ) -%]
+
+      <p class="hint">[% dw.ml('.code.hint') %]</p>
+
+      [%- form.submit(
+          value => dw.ml('.btn.verify'),
+          class => "button"
+      ) -%]
+    </form>
+
+    <p><a href="[% site.root %]/login">[% dw.ml('.link.back') %]</a></p>
+  </div>
+</div>
