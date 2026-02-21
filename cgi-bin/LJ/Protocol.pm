@@ -224,8 +224,9 @@ sub addcomment {
     my $journal;
     if ( $req->{journal} ) {
         $journal = LJ::load_user( $req->{journal} ) or return fail( $err, 100 );
+        my $entry = LJ::Entry->new( $journal, ditemid => $req->{ditemid} );
         return fail( $err, 214 )
-            if LJ::Talk::Post::require_captcha_test( $u, $journal, $req->{body}, $req->{ditemid} );
+            if LJ::Talk::Post::require_captcha_test( $u, $journal, $req->{body}, $entry );
     }
     else {
         $journal = $u;

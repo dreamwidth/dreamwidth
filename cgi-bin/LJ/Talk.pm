@@ -2859,7 +2859,7 @@ sub prepare_and_validate_comment {
     }
     else {
         $$need_captcha =
-            LJ::Talk::Post::require_captcha_test( $commenter, $journalu, $body, $entry->ditemid );
+            LJ::Talk::Post::require_captcha_test( $commenter, $journalu, $body, $entry );
 
         $err->( LJ::Lang::ml('captcha.title') ) if $$need_captcha;
     }
@@ -2922,14 +2922,15 @@ sub prepare_and_validate_comment {
 # <LJFUNC>
 # name: LJ::Talk::Post::require_captcha_test
 # des: returns true if user must answer CAPTCHA (human test) before posting a comment
-# args: commenter, journal, body, ditemid
+# args: commenter, journal, body, entry
 # des-commenter: User object of author of comment, undef for anonymous commenter
 # des-journal: User object of journal where to post comment
 # des-body: Text of the comment (may be checked for spam, may be empty)
-# des-ditemid: identifier of post, need for checking reply-count
+# des-entry: LJ::Entry object for the entry being commented on
 # </LJFUNC>
 sub require_captcha_test {
-    my ( $commenter, $journal, $body, $ditemid ) = @_;
+    my ( $commenter, $journal, $body, $entry ) = @_;
+    my $ditemid = $entry->ditemid;
 
     # only require captcha if the site is properly configured for it
     return 0 unless DW::Captcha->site_enabled;
@@ -2957,7 +2958,11 @@ sub require_captcha_test {
     if ( LJ::Talk::get_replycount( $journal, $ditemid >> 8 ) >=
         $journal->count_maxcomments_before_captcha )
     {
-        return 1;
+        # Skip the forced captcha for recent entries (posted within the last
+        # 30 days). High-comment spam mostly targets old/abandoned entries,
+        # and active anon memes shouldn't be penalized for popularity.
+        my $age_days = ( time() - $entry->logtime_unix ) / 86400;
+        return 1 if $age_days > 30;
     }
 
     ##
