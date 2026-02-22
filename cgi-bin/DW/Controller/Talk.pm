@@ -1220,7 +1220,6 @@ sub talkscreen_handler {
             return $jsres->( $mode, '/talkscreen.tt.screened.body' ) if $jsmode;
             $vars->{done}   = 1;
             $vars->{action} = 'screened';
-            return;
         }
 
     }
@@ -1396,6 +1395,7 @@ sub delcomment_handler {
         can_ban       => $can_ban,
         can_spam      => $can_spam,
         can_delthread => $can_delthread,
+        iscomm        => $iscomm,
         u             => $u,
         id            => $GET->{'id'},
         tp_user       => LJ::ljuser( $tp->{'userpost'} )

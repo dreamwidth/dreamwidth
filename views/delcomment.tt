@@ -29,7 +29,6 @@
         </div>
     [%- END -%]
 
-    </div>
 [%- IF can_manage -%]
     <p>[% dw.ml(".changeoptions$iscomm", { 'link' =>
             "<a href='/manage/settings/?cat=privacy&authas=$u.user'>" _ dw.ml('/manage/settings/index.bml.title.anon') _ "</a>" }) %]
