@@ -1,0 +1,20 @@
+[% IF done %]
+    [%- sections.title = ".${action}.title" | ml -%]
+    [%- CALL dw.active_resource_group( "foundation" ) -%]
+     <p>[% dw.ml(".${action}.body") %] [% dw.ml( '.link', { aopts => "href='$itemlink'" } ) %]</p>
+[% ELSE %]
+    [%- sections.title = ".${mode}.sure.title" | ml -%]
+    [%- CALL dw.active_resource_group( "foundation" ) -%]
+    <p>[% dw.ml(".${mode}.sure.body", { aopts => "href='$commentlink'" }) %]</p>
+    <form method='POST' action='talkscreen'>
+    <center>
+    [% dw.form_auth() %]
+    [% form.hidden(name => "mode", value => mode) %]
+    [% form.hidden(name = 'talkid', value => talkid) %]
+    [% form.hidden(name => 'journal', value => u.user) %]
+    [% form.hidden(name => 'confirm', value => 'Y') %]
+
+    [% form.submit(value => dw.ml(".${mode}.doit")) %]
+    </center>
+    </form>
+[% END %]

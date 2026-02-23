@@ -247,10 +247,7 @@ no strict "vars";
 
     # "RPC" URI mappings
     # add default URI handler mappings
-    my %ajaxmapping = (
-        delcomment => "delcomment.bml",
-        talkscreen => "talkscreen.bml",
-    );
+    my %ajaxmapping = ();
 
     foreach my $src ( keys %ajaxmapping ) {
         $LJ::AJAX_URI_MAP{$src} ||= $ajaxmapping{$src};

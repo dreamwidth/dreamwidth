@@ -1,0 +1,39 @@
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[% IF done %]
+    [%- sections.title = ".success.head" | ml -%]
+     <p>[% msg %]</p>
+[% ELSE %]
+    [%- sections.title = ".confirm.head" | ml -%]
+
+    <p>[% ".confirm.body" | ml %]</p>
+        <form method='post' action='delcomment?journal=[% u.user %]&id=[% id %]'>
+    [% dw.form_auth() %]
+    [% form.submit(name => 'confirm', value => dw.ml('.confirm.submit2')) %]
+
+    [%- IF can_ban -%]
+        <div>[% form.checkbox({ 'type' => 'check', 'name' => 'ban', 'id' => 'ban' })%]
+        [%# label is separate because the userlink causes issues with the HTML when generated as part of the checkbox %]
+        <label class="checkboxlabel" for='ban'>[% dw.ml(".confirm.banuser$iscomm", { 'user' => tp_user })%]</label>
+        </div>
+    [%- END -%]
+
+    [%- IF can_spam -%]
+    [%# Despite the idea of natural selection, don't let users report their own comments as spam %]
+        <div>[% form.checkbox({name => 'spam', id => 'spam', label => dw.ml('.confirm.spam2')}) %]
+        </div>
+    [%- END -%]
+
+    [%- IF can_delthread -%]
+        <div>[% form.checkbox({name => 'delthread', id => 'delthread', label => dw.ml('.confirm.delthread2')}) %]
+        </div>
+    [%- END -%]
+
+[%- IF can_manage -%]
+    <p>[% dw.ml(".changeoptions$iscomm", { 'link' =>
+            "<a href='/manage/settings/?cat=privacy&authas=$u.user'>" _ dw.ml('/manage/settings/index.bml.title.anon') _ "</a>" }) %]
+    </p>
+    [%- END -%]
+
+    </form>
+[% END %]
