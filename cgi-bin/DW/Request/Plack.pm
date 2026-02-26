@@ -130,6 +130,15 @@ sub header_in {
     return $self->{req}->header( $_[1] => $_[2] );
 }
 
+# return all request headers as a flat list of (key, value) pairs,
+# matching DW::Request::Apache2::headers_in behavior
+sub headers_in {
+    my DW::Request::Plack $self = $_[0];
+    my @headers;
+    $self->{req}->headers->scan( sub { push @headers, @_ } );
+    return @headers;
+}
+
 # get client address; allow overriding it because we need to set it in some
 # cases when we're dealing with proxies
 sub address {
@@ -149,6 +158,16 @@ sub host {
 sub status {
     my DW::Request::Plack $self = $_[0];
     $self->{res}->status( $_[1] ) if defined $_[1];
+    return $self->{res}->status;
+}
+
+# set or get the status line (e.g. "200 OK")
+sub status_line {
+    my DW::Request::Plack $self = $_[0];
+    if ( scalar @_ == 2 ) {
+        my ($status) = $_[1] =~ m/^(\d+)/;
+        $self->{res}->status($status);
+    }
     return $self->{res}->status;
 }
 
