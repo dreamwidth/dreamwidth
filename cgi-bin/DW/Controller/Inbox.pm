@@ -52,6 +52,7 @@ sub index_handler {
 
     # Take a supplied filter but default it to undef unless it is valid
     my $view = $GET->{view} || $POST->{view} || undef;
+    $view = undef if $view && $view =~ /\W/;
     $view = undef if $view eq 'archive' && !LJ::is_enabled('esn_archive');
     $view = undef if $view && !LJ::NotificationInbox->can("${view}_items");
     $view ||= 'all';
