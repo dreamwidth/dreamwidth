@@ -5,4 +5,4 @@ use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use Test::More;
 use Test::Code::TidyAll 0.20;
 
-tidyall_ok();
+tidyall_ok( jobs => 10 );

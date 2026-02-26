@@ -49,6 +49,7 @@ Net::OpenID::Server
 Net::SMTP
 Net::Subnet
 Params::Classify@0.015
+Parallel::ForkManager
 Paws::S3
 Perl::Tidy@20190601
 Plack
