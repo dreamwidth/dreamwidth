@@ -526,14 +526,12 @@ subtest 'did_post, post_args, and get_args through Plack' => sub {
 ###########################################################################
 
 subtest 'XMLRPCTransport handler works under Plack' => sub {
-    plan tests => 3;
+    plan tests => 7;
 
     use DW::Request::XMLRPCTransport;
 
     # Minimal XMLRPC request — calls LJ.XMLRPC.getchallenge which needs
-    # no authentication or database.  Even if the dispatch fails, the test
-    # verifies that the transport layer (headers_in, status_line, header_out,
-    # content_type, print) all work without dying.
+    # no authentication or database, so it works in test environments.
     my $xmlrpc_body = <<'XMLRPC';
 <?xml version="1.0"?>
 <methodCall>
@@ -550,9 +548,10 @@ XMLRPC
         _body            => $xmlrpc_body,
     );
 
-    # Call the handler — this is the code path that was crashing.
-    # The XMLRPC dispatch may succeed or fail depending on what LJ::XMLRPC
-    # does, but the transport layer itself must not die.
+    # Call the handler — exercises headers_in, status_line, header_out,
+    # content_type, and print on DW::Request::Plack, plus verifies that
+    # LJ::Protocol::xmlrpc_method is reachable (it used to live only in
+    # Apache/LiveJournal.pm and was invisible under Plack).
     my $server;
     eval { $server = DW::Request::XMLRPCTransport->dispatch_to('LJ::XMLRPC')->handle(); };
     ok( !$@, 'XMLRPCTransport->handle() does not die under Plack' )
@@ -561,9 +560,19 @@ XMLRPC
     # The handler should have written a response via $r->print / status_line
     ok( defined $r->status, 'status was set on the response' );
 
-    # Response body should be non-empty XML (either a result or a fault)
+    # Finalize the response and extract the body
     $r->status( $r->status || 200 );    # ensure status for finalize
     my $res  = $r->res;
     my $body = join '', @{ $res->[2] || [] };
-    ok( length($body) > 0, 'response body is non-empty' );
+
+    # Must be a successful methodResponse, not a fault — a fault here would
+    # mean LJ::Protocol::xmlrpc_method wasn't found (the sub used to live
+    # only in Apache/LiveJournal.pm).
+    like( $body, qr/<methodResponse>/, 'response is a valid methodResponse' );
+    unlike( $body, qr/<fault>/i, 'response is not a SOAP fault' );
+
+    # Verify getchallenge returned the expected fields
+    like( $body, qr/<name>challenge<\/name>/,   'response contains challenge' );
+    like( $body, qr/<name>server_time<\/name>/, 'response contains server_time' );
+    like( $body, qr/<name>auth_scheme<\/name>/, 'response contains auth_scheme' );
 };

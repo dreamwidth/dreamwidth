@@ -17,6 +17,8 @@ use strict;
 no warnings 'uninitialized';
 
 use Digest::MD5;
+use Encode     ();
+use SOAP::Lite ();
 
 use LJ::Global::Constants;
 use LJ::Console;
@@ -3555,6 +3557,83 @@ sub un_utf8_request {
         next if ref $props->{$k};    # if this is multiple levels deep?  don't think so.
         $props->{$k} = LJ::no_utf8_flag( $props->{$k} );
     }
+}
+
+# xmlrpc_method: dispatch an XMLRPC method call to do_request and wrap the
+# result in SOAP types.  Originally lived in Apache/LiveJournal.pm but moved
+# here so it is available under Plack as well.
+sub xmlrpc_method {
+    my $method = shift;
+    shift;    # get rid of package name that dispatcher includes.
+    my $req = shift;
+
+    if (@_) {
+
+        # don't allow extra arguments
+        die SOAP::Fault->faultstring( LJ::Protocol::error_message(202) )->faultcode(202);
+    }
+    my $error = 0;
+    if ( ref $req eq "HASH" ) {
+
+        # get rid of the UTF8 flag in scalars
+        while ( my ( $k, $v ) = each %$req ) {
+            $req->{$k} = Encode::encode_utf8($v) if Encode::is_utf8($v);
+        }
+    }
+    my $res = LJ::Protocol::do_request( $method, $req, \$error );
+    if ($error) {
+
+        # FIXME [#1709]: which errors don't start with numbers?
+        print STDERR "[#1709] xmlrpc error for $method needs faultcode: $error\n"
+            unless $error =~ /^\d{3}/;
+
+        # existing behavior
+        die SOAP::Fault->faultstring( LJ::Protocol::error_message($error) )
+            ->faultcode( substr( $error, 0, 3 ) );
+    }
+
+    # Perl is untyped language and XML-RPC is typed.
+    # When library XMLRPC::Lite tries to guess type, it errors sometimes
+    # (e.g. string username goes as int, if username contains digits only).
+    # As workaround, we can select some elements by it's names
+    # and label them by correct types.
+
+    # Key - field name, value - type.
+    my %lj_types_map = (
+        journalname => 'string',
+        fullname    => 'string',
+        username    => 'string',
+        poster      => 'string',
+        postername  => 'string',
+        name        => 'string',
+    );
+
+    my $recursive_mark_elements;
+    $recursive_mark_elements = sub {
+        my $structure = shift;
+        my $ref       = ref($structure);
+
+        if ( $ref eq 'HASH' ) {
+            foreach my $hash_key ( keys %$structure ) {
+                if ( exists( $lj_types_map{$hash_key} ) ) {
+                    $structure->{$hash_key} = SOAP::Data->type( $lj_types_map{$hash_key} )
+                        ->value( $structure->{$hash_key} );
+                }
+                else {
+                    $recursive_mark_elements->( $structure->{$hash_key} );
+                }
+            }
+        }
+        elsif ( $ref eq 'ARRAY' ) {
+            foreach my $idx (@$structure) {
+                $recursive_mark_elements->($idx);
+            }
+        }
+    };
+
+    $recursive_mark_elements->($res);
+
+    return $res;
 }
 
 #### Old interface (flat key/values) -- wrapper aruond LJ::Protocol
