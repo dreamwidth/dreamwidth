@@ -1,0 +1,45 @@
+<h2 class='widget-header'>
+[% dw.ml('widget.journaltitles.title_nonum') %]
+</h2>
+<div class='theme-titles-content'>
+    <p class='detail'>
+        [% u.is_community ? dw.ml('widget.journaltitles.desc.comm') : dw.ml('widget.journaltitles.desc') %]
+        [% help_icon('journal_titles') %]
+    </p>
+
+    [% FOREACH id IN ids %]
+    <form id="[% id %]_form" method="POST">
+        [% dw.form_auth() %]
+        <p>
+        [% IF u.is_community %]
+            <label>[% dw.ml("widget.journaltitles.${id}.comm") %]</label>
+        [% ELSE %]
+            <label>[% dw.ml("widget.journaltitles.$id") %]</label>
+        [% END %]
+        <span id='[% id %]_view'>
+            <strong>[% u.prop(id) || '' | html %]</strong> 
+            <a href='' class='theme-title-control' id='[% id %]_edit'>
+                [% dw.ml('widget.journaltitles.edit') %]</a>
+        </span>
+
+        <span id='[% id %]_modify'>
+            [% form.textbox(
+                name      => 'Widget[JournalTitles]_title_value',
+                id        => id,
+                value     => u.prop(id),
+                size      => '30',
+                maxlength => 100,
+                class => "text"
+            ) %]
+            [% form.hidden( name => "Widget[JournalTitles]_which_title", value => id ) %]
+            [% form.submit(
+                name => 'Widget[JournalTitles]_save',
+                value => dw.ml('widget.journaltitles.btn'),
+                id => "save_btn_$id",
+            ) %]
+        <a href='' class='theme-title-control' id='[% id %]_cancel'>
+                [% dw.ml('widget.journaltitles.cancel') %]</a>
+        </span></p>
+    </form>
+    [% END %]
+</div>

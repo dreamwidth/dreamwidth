@@ -497,7 +497,7 @@ textarea, input {
 .highlight-box {
     border: 1px solid;
 }
-.highlight, .highlight-box {
+.highlight, .highlight-box, .pagination .current {
     border-color: #888888;
     background: #333333;
     color: #fff;
@@ -957,6 +957,11 @@ div#cf-edit select {
     margin-top: 2em;
     padding: 1.5em 1.5em 0em;
     margin-bottom: -2em;
+}
+
+#canvas .appwidget-currenttheme .row {
+    margin: 0;
+    padding: 0;
 }
 
 /** Dark theme for color picker **/

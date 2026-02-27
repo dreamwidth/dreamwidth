@@ -19,7 +19,7 @@
 */
 
 @supports (object-fit: contain) {
-  .entry-content, .comment-content {
+  .entry-content, .comment-content, .InboxItem_Content .Body {
     img:not(.imageshrink-exempt):not([style]) {
       // A height or width value can be overridden, but it can never be truly
       // *removed,* which means you lose the ability to default to the

@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+
+.btn.cancel=Cancel
+
+.btn.save=Save
+
+.error.disabled=Notification management is currently unavailable.
+
+.error.hiddenentry=You are not authorized to subscribe to this entry.
+
+.error.invalidentry=Invalid entry.
+
+.error.invalidcomment=Invalid comment.
+
+.error.invalidjournal=<b>[[journal]]</b> is not a valid journal.
+
+.error.nocomment=This comment has been deleted.
+
+.error.noentry=No entry specified.
+
+.error.nojournal=No journal specified.
+
+.error.talkid=No talkid specified.
+
+.title=Manage Message Settings

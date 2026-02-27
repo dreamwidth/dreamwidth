@@ -60,27 +60,42 @@ no strict "vars";
 
     $MSG_READONLY_USER ||= "Database temporarily in read-only mode during maintenance.";
 
-    $PROTOCOL     ||= "https";                     # Should always be https except on dev servers
-    $DOMAIN_WEB   ||= "www.$DOMAIN";
-    $SITEROOT     ||= "$PROTOCOL://$DOMAIN_WEB";
+    if ( $IS_DEV_SERVER && $IS_DEV_CONTAINER ) {
+
+        # Do not redirect or set domains; cookies should have no domain
+        # so they default to the request host (e.g. localhost)
+        $PROTOCOL          = "http";
+        $DOMAIN            = "";
+        $USER_DOMAIN       = "";
+        $DOMAIN_WEB        = "";
+        $SITEROOT          = "";
+        $SHOPROOT          = "/shop";
+        $RELATIVE_SITEROOT = "";
+        $COOKIE_DOMAIN     = "";
+    }
+    else {
+        # Should always be https except on dev servers
+        $PROTOCOL          ||= "https";
+        $DOMAIN_WEB        ||= "www.$DOMAIN";
+        $DOMAIN_SHOP       ||= $DOMAIN_WEB;
+        $SITEROOT          ||= "$PROTOCOL://$DOMAIN_WEB";
+        $SHOPROOT          ||= "$PROTOCOL://$DOMAIN_WEB/shop";
+        $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
+    }
     $IMGPREFIX    ||= "$SITEROOT/img";
     $STATPREFIX   ||= "$SITEROOT/stc";
     $WSTATPREFIX  ||= "$SITEROOT/stc";
     $USERPIC_ROOT ||= "$LJ::SITEROOT/userpic";
-
-    $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
-    $PALIMGROOT        ||= "$RELATIVE_SITEROOT/palimg";
-    $JSPREFIX          ||= "$RELATIVE_SITEROOT/js";
-
-    # path to sendmail and any necessary options
-    $SENDMAIL ||= "/usr/sbin/sendmail -t -oi";
-
-    # protocol, mailserver hostname, and preferential weight.
-    # qmtp, smtp, dmtp, and sendmail are the currently supported protocols.
-    @MAIL_TRANSPORTS = ( [ 'sendmail', $SENDMAIL, 1 ] ) unless @MAIL_TRANSPORTS;
+    $PALIMGROOT   ||= "$RELATIVE_SITEROOT/palimg";
+    $JSPREFIX     ||= "$RELATIVE_SITEROOT/js";
 
     # roles that slow support queries should use in order of precedence
     @SUPPORT_SLOW_ROLES = ('slow') unless @SUPPORT_SLOW_ROLES;
+
+    # Backward compatibility: if EMAIL_VIA_SES is configured, import it into SMTP_SERVER
+    if ( %EMAIL_VIA_SES && !%SMTP_SERVER ) {
+        %SMTP_SERVER = %EMAIL_VIA_SES;
+    }
 
     # where we set the cookies (note the period before the domain)
     $COOKIE_DOMAIN ||= ".$DOMAIN";
@@ -180,15 +195,6 @@ no strict "vars";
     $MOGILEFS_CONFIG{classes}->{vgifts}   ||= 3;
     $MOGILEFS_CONFIG{classes}->{media}    ||= 3;
 
-    # detect whether we are running on 32-bit architecture
-    my $arch = ( length( pack "L!", 0 ) == 4 ) ? 1 : 0;
-    if ( defined $ARCH32 ) {
-        die "Can't have ARCH32 set to false on a 32-bit architecture" if $ARCH32 < $arch;
-    }
-    else {
-        $ARCH32 = $arch;
-    }
-
     # maximum size to cache s2compiled data
     $MAX_S2COMPILED_CACHE_SIZE ||= 7500;    # bytes
 
@@ -241,10 +247,7 @@ no strict "vars";
 
     # "RPC" URI mappings
     # add default URI handler mappings
-    my %ajaxmapping = (
-        delcomment => "delcomment.bml",
-        talkscreen => "talkscreen.bml",
-    );
+    my %ajaxmapping = ();
 
     foreach my $src ( keys %ajaxmapping ) {
         $LJ::AJAX_URI_MAP{$src} ||= $ajaxmapping{$src};
@@ -264,11 +267,22 @@ no strict "vars";
         #'DE' => { type => 'statede', save_region_code => 0, },
     );
 
-    $SUBDOMAIN_RULES = {
-        P => [ 1, "users.$LJ::DOMAIN" ],
-        Y => [ 1, "syndicated.$LJ::DOMAIN" ],
-        C => [ 1, "community.$LJ::DOMAIN" ],
-    };
+    if ( $IS_DEV_SERVER && $IS_DEV_CONTAINER ) {
+
+        # Dev container: use path-based journal URLs (/~username)
+        $SUBDOMAIN_RULES = {
+            P => [ 0, "" ],
+            Y => [ 0, "" ],
+            C => [ 0, "" ],
+        };
+    }
+    else {
+        $SUBDOMAIN_RULES = {
+            P => [ 1, "users.$LJ::DOMAIN" ],
+            Y => [ 1, "syndicated.$LJ::DOMAIN" ],
+            C => [ 1, "community.$LJ::DOMAIN" ],
+        };
+    }
 
     $LJ::USERSEARCH_METAFILE_PATH ||= "$HOME/var/usersearch.data";
 
@@ -300,10 +314,9 @@ no strict "vars";
 
     # mapping of captcha type to specific desired implementation
     %CAPTCHA_TYPES = (
-        "T" => "textcaptcha",    # "T" is for text
-        "I" => "recaptcha",      # "I" is for image
+        "I" => "recaptcha",    # "I" is for image
     ) unless %CAPTCHA_TYPES;
-    $DEFAULT_CAPTCHA_TYPE ||= "T";
+    $DEFAULT_CAPTCHA_TYPE ||= "I";
 
     # default location of community posting guidelines
     $DEFAULT_POSTING_GUIDELINES_LOC ||= "N";

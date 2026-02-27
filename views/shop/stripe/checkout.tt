@@ -15,7 +15,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <script src="https://js.stripe.com/v3/"></script>
 <script>
 
-$(window).on('load', function() {
+window.addEventListener("load", (event) => {
     var stripe = Stripe('[% stripe_published_key %]');
 
     stripe.redirectToCheckout({

@@ -16,12 +16,13 @@
 
 [%- sections.head = BLOCK %]
 <style type='text/css'>
-#content dl dt { font-size: bigger; font-weight: bold; }
+#content dl dt { font-size: larger; font-weight: bold; }
 #content dl dd { margin-left: 2em; margin-bottom: 1em; }
 </style>
 [% END -%]
 
 [%- sections.title='.title' | ml(sitename = site.name) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 <dl>
 [% FOREACH topic = index %]

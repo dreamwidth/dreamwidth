@@ -82,6 +82,10 @@ sub add_cookie {
     confess "Must provide value (try delete_cookie if you really mean this)"
         unless exists $args{value};
 
+    # if the domain is just '.', remove it since that means 'current domain'.
+    # this is primarily needed for devcontainer since that uses localhost.
+    delete $args{domain} if defined $args{domain} && $args{domain} eq '.';
+
     # we need to give all cookies the secure attribute on HTTPS sites
     if ( $LJ::PROTOCOL eq "https" ) {
         $args{secure} = 1;
@@ -360,6 +364,12 @@ sub header_out {
 *err_header_in      = \&header_out;
 *err_header_in_add  = \&header_out;
 *method             = \&header_out;
+
+sub call_response_handler {
+
+    # Default behavior is to call immediately
+    return $_[1]->();
+}
 
 #
 # Following sub was copied from CGI::Cookie and modified.

@@ -51,35 +51,59 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <p>[% '.about' | ml(sitename = site.nameshort) %]</p>
 
     [% IF ! has_points %]
-        [% '.about.nopoints' | ml(sitename = site.nameshort, aopts = "href='$site.root/shop/points'") %]
+        [% '.about.nopoints' | ml(sitename = site.nameshort, aopts = "href='$site.shoproot/points'") %]
     [% ELSE %]
 
         <p>[% '.about.points' | ml(points = has_points) %]</p>
 
         <form method='post'>
             [% dw.form_auth %]
-            <table summary='' class='table shop-table-gift'>
-            [% IF foru %]
-                <tr><td>[% '.buying.for' | ml %]</td><td>[% foru.ljuser_display %]
-                    <input type='hidden' name='foruser' value='[% foru.user %]' />
-                </td></tr>
-            [% ELSE %]
-                <tr><td>[% '.buying.for' | ml %]</td><td><input type='text' name='foruser' maxlength='25' size='15' />
-                    [% IF errs.foruser %]<br /><strong>[% errs.foruser %]</strong>[% END %]
-                </td></tr>
-            [% END %]
-            <tr><td>[% '.buying.points' | ml %]</td><td><input type='text' name='points' id='points' maxlength='4' size='10' value='[% points %]' />
-                [% '.buying.points.range' | ml %]
-                [% IF errs.points %]<br /><strong>[% errs.points %]</strong>[% END %]
-            </td></tr>
-            [% IF can_have_reason %]
-                <tr><td>[% '.buying.note' | ml %]</td><td>
-                [% form.textarea( name = 'reason', rows = '6', cols = '60', wrap = 'soft', value = reason ) %]
-                </td></tr>
-            [% END %]
-            <tr><td></td><td><input type='checkbox' name='anon' id='anon'> <label for='anon'>[% '.anon' | ml %]</label></td></tr>
-            <tr><td></td><td><input type='submit' value='[% '.btn.transfer' | ml %]' /></td></tr>
-            </table>
+            <div class="row">
+                <div class="columns large-6 end">
+                    <div class="row">
+                        <div class="columns medium-5">
+                            <label for="foruser">[% dw.ml('.buying.for') %]</label>
+                        </div>
+                    [% IF foru %]
+                        <div class="columns medium-7 foru">
+                            [% foru.ljuser_display %]
+                            <input type='hidden' name='foruser' value='[% foru.user %]' />
+                        </div>
+                    [% ELSE %]
+                        <div class="columns medium-7">
+                            [% form.textbox(  name => 'foruser', maxlength => 25)  %]
+                            [% IF errs.foruser %]<br /><strong>[% errs.foruser %]</strong>[% END %]
+                        </div>
+                    [% END %]
+                    </div>
+                    <div class="row">
+                        <div class="columns medium-5">
+                            <label for="points">[% dw.ml('.buying.points') %]</label>
+                        </div>
+                        <div class="columns medium-3 small-6">
+                            <input type='number' name='points' id='points' maxlength='4' value='[% points %]' />
+                        </div>
+                        <div class="columns medium-4 small-6">
+                            [% dw.ml('.buying.points.range') %]
+                            [% IF errs.points %]<br /><strong>[% errs.points %]</strong>[% END %]
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="columns medium-5">
+                        </div>
+                        <div class="columns medium-7">
+                            <label for='anon'><input type='checkbox' name='anon' id='anon' /> [% dw.ml('.anon') %]</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="columns small-5">
+                        </div>
+                        <div class="columns small-7">
+                            [% form.submit(value = dw.ml('.btn.transfer'), class = "button primary") %]
+                        </div>
+                    </div>
+                </div>
+            </div>
         </form>
 
     [% END %]

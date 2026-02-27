@@ -236,7 +236,7 @@ footer {
 .highlight-box {
     border: 1px solid;
 }
-.highlight, .highlight-box {
+.highlight, .highlight-box, .pagination .current {
     border-color: #c1272c;
     background-color: #ffd8d8;
     color: #000;

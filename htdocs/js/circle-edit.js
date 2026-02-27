@@ -58,3 +58,11 @@ function updatePreview () {
     d.write("</body></html>");
     d.close();
 }
+
+
+    Coloris({
+        el: '.coloris',
+        swatches: colors,
+        theme: 'polaroid',
+        swatchesOnly: true
+      });

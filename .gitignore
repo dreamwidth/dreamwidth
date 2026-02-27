@@ -1,3 +1,4 @@
+_build
 /logs
 /temp
 /extlib
@@ -29,3 +30,6 @@ t-theschwartz.sqlite
 
 # No tidying
 .tidyall.d/
+
+# Worktrees
+.worktrees/

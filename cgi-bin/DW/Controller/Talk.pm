@@ -1,13 +1,26 @@
 package DW::Controller::Talk;
 
 use strict;
+use LJ::JSON;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::Formats;
-use Carp;
 
 DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
+DW::Routing->register_string( '/talkmulti',   \&talkmulti_handler,   app => 1 );
+DW::Routing->register_string( '/talkscreen',  \&talkscreen_handler,  app => 1 );
+DW::Routing->register_string( '/delcomment',  \&delcomment_handler,  app => 1 );
+DW::Routing->register_rpc(
+    "delcomment", \&delcomment_handler,
+    format  => 'json',
+    methods => { POST => 1 }
+);
+DW::Routing->register_rpc(
+    "talkscreen", \&talkscreen_handler,
+    format  => 'json',
+    methods => { POST => 1 }
+);
 
 # I think this canon isn't written down anywhere else, so HWAET: I sing a record
 # of every damn form field that comes through in reply form POSTs. -NF
@@ -281,11 +294,6 @@ sub talkpost_do_handler {
     # validate the challenge/response value (anti-spammer)
     my ( $chrp_ok, $chrp_err ) = LJ::Talk::validate_chrp1( $POST->{'chrp1'} );
     unless ($chrp_ok) {
-        if ( $LJ::DEBUG{'talkspam'} ) {
-            my $ip    = LJ::get_remote_ip();
-            my $ruser = $remote ? $remote->{user} : "[nonuser]";
-            carp("talkhash error: from $ruser \@ $ip - $chrp_err - $talkurl\n");
-        }
         if ($LJ::REQUIRE_TALKHASH) {
             push @errors, "Sorry, form expired. Please re-submit."
                 if $chrp_err eq "too_old";
@@ -943,6 +951,501 @@ sub preview_parent_args {
             entry_url   => $entry->url,
         };
     }
+}
+
+sub talkmulti_handler {
+    my ( $ok, $rv ) = controller( form_auth => 0, anonymous => 0 );
+    return $rv unless $ok;
+
+    my $r      = $rv->{r};
+    my $POST   = $r->post_args;
+    my $remote = $rv->{remote};
+    my $GET    = $r->get_args;
+    my $title;
+    my $vars;
+
+    my $mode = $POST->{'mode'};
+    if ( $mode eq 'screen' ) {
+        $title = '.title.screen';
+    }
+    elsif ( $mode eq 'unscreen' ) {
+        $title = '.title.unscreen';
+    }
+    elsif ( $mode eq 'delete' || $mode eq 'deletespam' ) {
+        $title = '.title.delete';
+    }
+    else {
+        return error_ml('/talkmulti.tt.error.invalid_mode');
+    }
+
+    my $sth;
+
+    return error_ml("bml.requirepost") unless $r->did_post;
+
+    my @talkids;
+    foreach ( keys %{$POST} ) {
+        push @talkids, $1 if /^selected_(\d+)$/;
+    }
+    return error_ml('/talkmulti.tt.error.none_selected') unless @talkids;
+
+    my $u = LJ::load_user( $POST->{'journal'} );
+    return error_ml('talk.error.bogusargs') unless $u && $u->{'clusterid'};
+    return error_ml($LJ::MSG_READONLY_USER) if $u->is_readonly;
+
+    my $dbcr = LJ::get_cluster_def_reader($u);
+
+    my $jid         = $u->userid;
+    my $ditemid     = $POST->{'ditemid'} + 0;
+    my $e           = LJ::Entry->new( $u, ditemid => $ditemid );
+    my $commentlink = $e->url;
+    my $itemid      = $ditemid >> 8;
+    my $log = $dbcr->selectrow_hashref( "SELECT * FROM log2 WHERE journalid=? AND jitemid=?",
+        undef, $jid, $itemid );
+    return error_ml('/talkmulti.tt.error.inconsistent_data')
+        unless $log && $log->{'anum'} == ( $ditemid & 255 );
+    my $up = LJ::load_userid( $log->{'posterid'} );
+
+    # check permissions
+    return error_ml('/talkmulti.tt.error.privs.screen')
+        if $mode eq "screen" && !LJ::Talk::can_screen( $remote, $u, $up );
+    return error_ml('/talkmulti.tt.error.privs.unscreen')
+        if $mode eq "unscreen" && !LJ::Talk::can_unscreen( $remote, $u, $up );
+    return error_ml('/talkmulti.tt.error.privs.delete')
+        if ( $mode eq "delete" || $mode eq 'deletespam' )
+        && !LJ::Talk::can_delete( $remote, $u, $up );
+
+    # filter our talkids down to those that are actually attached to the log2
+    # specified.  also, learn the state and poster of all the items.
+    my $in = join( ',', @talkids );
+    $sth =
+        $dbcr->prepare( "SELECT jtalkid, state, posterid FROM talk2 "
+            . "WHERE journalid=? AND jtalkid IN ($in) "
+            . "AND nodetype='L' AND nodeid=?" );
+    $sth->execute( $jid, $itemid );
+    my %talkinfo;
+    while ( my ( $id, $state, $posterid ) = $sth->fetchrow_array ) {
+        $talkinfo{$id} = [ $state, $posterid ];
+    }
+    @talkids = keys %talkinfo;
+
+    # do the work:
+    if ( $mode eq "delete" || $mode eq 'deletespam' ) {
+
+        # first, unscreen everything for replycount and hasscreened to adjust
+        my @unscreen = grep { $talkinfo{$_}->[0] eq "S" } @talkids;
+        LJ::Talk::unscreen_comment( $u, $itemid, @unscreen );
+
+        # FIXME: race condition here... somebody could get lucky and view items while unscreened.
+        # then delete, updating the log2 replycount as necessary
+
+        # Mark as spam
+        if ( $mode eq 'deletespam' && !LJ::sysban_check( 'spamreport', $u->user ) ) {
+
+            # don't let $remote mark their own comments as spam
+            foreach ( grep { $talkinfo{$_}->[1] != $remote->id } @talkids ) {
+                my $s = LJ::Talk::mark_comment_as_spam( $u, $_ );
+            }
+        }
+
+        my $num = LJ::delete_comments( $u, "L", $itemid, @talkids );
+        LJ::replycount_do( $u, $itemid, "decr", $num );
+        LJ::Talk::update_commentalter( $u, $itemid );
+        $vars = {
+            title   => '.deleted.title',
+            body    => '.deleted.body2',
+            'aopts' => "href='$commentlink'"
+        };
+
+    }
+    elsif ( $mode eq "unscreen" ) {
+        LJ::Talk::unscreen_comment( $u, $itemid, @talkids );
+        $vars = {
+            title   => '.unscreened.title',
+            body    => '.unscreened.body2',
+            'aopts' => "href='$commentlink'"
+        };
+
+    }
+    elsif ( $mode eq "screen" ) {
+        LJ::Talk::screen_comment( $u, $itemid, @talkids );
+        $vars = {
+            title   => '.screened.title',
+            body    => '.screened.body2',
+            'aopts' => "href='$commentlink'"
+        };
+    }
+    return DW::Template->render_template( 'talkmulti.tt', $vars );
+}
+
+sub talkscreen_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 0 );
+    return $rv unless $ok;
+
+    my $r      = $rv->{r};
+    my $POST   = $r->post_args;
+    my $remote = $rv->{remote};
+    my $GET    = $r->get_args;
+
+    my $jsmode = !!$GET->{jsmode};
+
+    my $error = sub {
+        if ($jsmode) {
+
+            # FIXME: remove once we've switched over completely to jquery
+            if ( !!$GET->{json} ) {
+                $r->print( to_json( { error => LJ::Lang::ml( $_[0] ) } ) );
+
+                return $r->OK;
+            }
+            else {
+                return "alert('" . LJ::ejs( LJ::Lang::ml( $_[0] ) ) . "'); 0;";
+            }
+        }
+        return error_ml( $_[0] );
+    };
+
+    my $mode    = $POST->{'mode'}    || $GET->{'mode'};
+    my $talkid  = $POST->{'talkid'}  || $GET->{'talkid'};
+    my $journal = $POST->{'journal'} || $GET->{'journal'};
+    my $qtalkid = $talkid + 0;
+    my $dtalkid = $qtalkid;    # display talkid, for use in URL later
+
+    my $jsres = sub {
+        my ( $mode, $message ) = @_;
+
+        # flip case of 'un'
+        my $newmode = "un$mode";
+        $newmode =~ s/^unun//;
+        my $alttext = $newmode;
+        $alttext =~ s/(\w+)/\u\L$1/g;
+
+        my $stockimg = {
+            'screen'   => "silk/comments/screen.png",
+            'unscreen' => "silk/comments/unscreen.png",
+            'freeze'   => "silk/comments/freeze.png",
+            'unfreeze' => "silk/comments/unfreeze.png",
+        };
+
+        my $imgprefix = $LJ::IMGPREFIX;
+        $imgprefix =~ s/^https?://;
+
+        my $ret = {
+            id       => $dtalkid,
+            mode     => $mode,
+            newalt   => $alttext,
+            oldimage => "$imgprefix/$stockimg->{$mode}",
+            newimage => "$imgprefix/$stockimg->{$newmode}",
+            newurl   => "$LJ::SITEROOT/talkscreen?mode=$newmode&journal=$journal&talkid=$dtalkid",
+            msg      => LJ::Lang::ml($message),
+        };
+
+        sleep 1 if $LJ::IS_DEV_SERVER;
+
+        $r->print( to_json($ret) );
+        return $r->OK;
+    };
+
+    # we need to find out: $u, $up (poster of the entry this is a comment to),
+    # userpost (username of this comment's author). Then we can check permissions.
+
+    my $u = LJ::load_user($journal);
+    return $error->('talk.error.bogusargs') unless $u;
+
+    # if we're on a user vhost, our remote was authed using that vhost,
+    # so let's let them only modify the journal that their session
+    # was authed against.  if they're on www., then their javascript is
+    # off/old, and they get a confirmation page, and we're using their
+    # mastersesion cookie anyway.
+    my $domain_owner = LJ::Session->url_owner;
+    if ($domain_owner) {
+        return $error->('talk.error.bad_owner') unless $domain_owner eq $u->{user};
+    }
+
+    my $dbcr = LJ::get_cluster_def_reader($u);
+    return $error->('error.nodb') unless $dbcr;
+
+    my $post;
+    $qtalkid = int( $qtalkid / 256 );      # get rid of anum
+    $post    = $dbcr->selectrow_hashref(
+              "SELECT jtalkid AS 'talkid', nodetype, state, nodeid AS 'itemid', "
+            . "parenttalkid, journalid, posterid FROM talk2 "
+            . "WHERE journalid=$u->{'userid'} AND jtalkid=$qtalkid" );
+
+    return $error->('talk.error.nocomment') unless $post;
+    return $error->('talk.error.comm_deleted') if $post->{'state'} eq "D";
+
+    my $state = $post->{'state'};
+
+    $u ||= LJ::load_userid( $post->{'journalid'} );
+    return $error->($LJ::MSG_READONLY_USER) if $u->is_readonly;
+
+    if ( $post->{'posterid'} ) {
+        $post->{'userpost'} = LJ::get_username( $post->{'posterid'} );
+    }
+
+    my $qitemid = $post->{'itemid'} + 0;
+
+    my $e = LJ::Entry->new( $u, jitemid => $qitemid );
+
+    my $up = $e->poster;
+
+    my $itemlink = $e->url;
+
+    my $commentlink = LJ::Talk::talkargs( $itemlink, "view=" . $talkid, "", "" )
+        . LJ::Talk::comment_anchor($talkid);
+
+    my $vars = {
+        itemlink    => $itemlink,
+        commentlink => $commentlink,
+        mode        => $mode,
+        talkid      => $talkid,
+        u           => $u
+    };
+
+    if ( $mode eq 'screen' ) {
+        my $can_screen = LJ::Talk::can_screen( $remote, $u, $up, $post->{'userpost'} );
+        return $error->('/talkscreen.tt.error.privs.screen') unless $can_screen;
+        if ( $POST->{'confirm'} eq 'Y' ) {
+            if ( $state ne 'S' ) {
+                LJ::Talk::screen_comment( $u, $qitemid, $qtalkid );
+            }
+
+            # FIXME: no error checking?
+            return $jsres->( $mode, '/talkscreen.tt.screened.body' ) if $jsmode;
+            $vars->{done}   = 1;
+            $vars->{action} = 'screened';
+        }
+
+    }
+    elsif ( $mode eq 'unscreen' ) {
+        my $can_unscreen = LJ::Talk::can_unscreen( $remote, $u, $up, $post->{'userpost'} );
+        return $error->('/talkscreen.tt.error.privs.unscreen') unless $can_unscreen;
+        if ( $POST->{'confirm'} eq 'Y' ) {
+            if ( $state ne 'A' ) {
+                LJ::Talk::unscreen_comment( $u, $qitemid, $qtalkid );
+            }
+
+            # FIXME: no error checking?
+            return $jsres->( $mode, '/talkscreen.tt.unscreened.body' ) if $jsmode;
+            $vars->{done}   = 1;
+            $vars->{action} = 'unscreened';
+        }
+
+    }
+    elsif ( $mode eq 'freeze' ) {
+        my $can_freeze = LJ::Talk::can_freeze( $remote, $u, $up, $post->{userpost} );
+        return $error->('/talkscreen.tt.error.privs.freeze') unless $can_freeze;
+
+        if ( $POST->{confirm} eq 'Y' ) {
+            if ( $state ne 'F' ) {
+                LJ::Talk::freeze_thread( $u, $qitemid, $qtalkid );
+            }
+            return $jsres->( $mode, '/talkscreen.tt.frozen.body' ) if $jsmode;
+
+            $vars->{done}   = 1;
+            $vars->{action} = 'frozen';
+        }
+    }
+    elsif ( $mode eq 'unfreeze' ) {
+        my $can_unfreeze = LJ::Talk::can_unfreeze( $remote, $u, $up, $post->{userpost} );
+        return $error->("You are not allowed to unfreeze this thread") unless $can_unfreeze;
+        if ( $POST->{confirm} eq 'Y' ) {
+            if ( $state eq 'F' ) {
+                LJ::Talk::unfreeze_thread( $u, $qitemid, $qtalkid );
+            }
+            return $jsres->( $mode, '/talkscreen.tt.unfrozen.body' ) if $jsmode;
+
+            $vars->{done}   = 1;
+            $vars->{action} = 'unfrozen';
+        }
+    }
+    else {
+        return error_ml('error.unknownmode');
+    }
+
+    return DW::Template->render_template( 'talkscreen.tt', $vars );
+}
+
+sub delcomment_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 0 );
+    return $rv unless $ok;
+
+    my $r      = $rv->{r};
+    my $POST   = $r->post_args;
+    my $remote = $rv->{remote};
+    my $GET    = $r->get_args;
+    my $vars;
+
+    my $jsmode = !!$GET->{jsmode};
+
+    my $error = sub {
+        if ($jsmode) {
+
+            # FIXME: remove once we've switched over completely to jquery
+            if ( !!$GET->{json} ) {
+                sleep 1 if $LJ::IS_DEV_SERVER;
+                $r->print( to_json( { error => LJ::Lang::ml( $_[0] ) } ) );
+                return $r->OK;
+            }
+            else {
+                return "alert('" . LJ::ejs( LJ::Lang::ml( $_[0] ) ) . "'); 0;";
+            }
+        }
+        return error_ml( $_[0] );
+    };
+    my $bad_input = sub {
+        return $error->( "Bad input: " . LJ::Lang::ml( $_[0] ) ) if $jsmode;
+        return error_ml( $_[0] );
+    };
+
+    return $error->( LJ::error_noremote() ) unless $remote;
+
+    return $error->('talk.error.bogusargs') unless $GET->{'journal'} ne "" && $GET->{'id'};
+
+    # $u is user object of journal that owns the talkpost
+    my $u = LJ::load_user( $GET->{'journal'} );
+    return $bad_input->('error.nojournal')
+        unless $u;
+
+    # find out whether $u is a community. We'll use this to refer to ML strings
+    #  later
+    my $iscomm = $u->is_community ? '.comm' : '';
+
+    # if we're on a user vhost, our remote was authed using that vhost,
+    # so let's let them only modify the journal that their session
+    # was authed against.  if they're on www., then their javascript is
+    # off/old, and they get a confirmation page, and we're using their
+    # mastersesion cookie anyway.
+    my $domain_owner = LJ::Session->url_owner;
+    if ($domain_owner) {
+        return $bad_input->('talk.error.bad_owner')
+            unless $domain_owner eq $u->{user};
+    }
+
+    # can't delete if you're suspended
+    return $bad_input->('/delcomment.tt.error.suspended')
+        if $remote->is_suspended;
+
+    return $error->($LJ::MSG_READONLY_USER) if $u->is_readonly;
+
+    my $dbcr = LJ::get_cluster_def_reader($u);
+    return $error->('error.nodb')
+        unless $dbcr;
+
+    # $tp is a hashref of info about this individual talkpost row
+    my $tpid = $GET->{'id'} >> 8;
+    my $tp   = $dbcr->selectrow_hashref(
+        "SELECT jtalkid AS 'talkid', nodetype, state, "
+            . "nodeid AS 'itemid', parenttalkid, journalid, posterid "
+            . "FROM talk2 "
+            . "WHERE journalid=? AND jtalkid=?",
+        undef, $u->userid, $tpid
+    );
+
+    return $bad_input->('/delcomment.tt.error.nocomment')
+        unless $tp;
+
+    return $bad_input->('/delcomment.tt.error.invalidtype2')
+        unless $tp->{'nodetype'} eq 'L';
+
+    return $bad_input->('/delcomment.tt.error.alreadydeleted')
+        if $tp->{'state'} eq "D";
+
+    # get username of poster
+    $tp->{'userpost'} = LJ::get_username( $tp->{'posterid'} );
+
+    # userid of user who posted journal entry
+    my $jposterid =
+        $dbcr->selectrow_array( "SELECT posterid FROM log2 WHERE " . "journalid=? AND jitemid=?",
+        undef, $u->userid, $tp->{itemid} );
+    my $jposter = LJ::load_userid($jposterid);
+
+    # can $remote delete this comment?
+    unless ( LJ::Talk::can_delete( $remote, $u, $jposter, $tp->{'userpost'} ) ) {
+        my $err =
+            $u->is_community
+            ? '/delcomment.tt.error.cantdelete.comm'
+            : '/delcomment.tt.error.cantdelete';
+        return $error->($err);
+    }
+
+    my $can_manage = $remote->can_manage($u);
+
+    # can ban if can manage and the comment is by someone else and not anon
+    my $can_ban =
+           $can_manage
+        && $tp->{posterid}
+        && $remote
+        && $remote->userid != $tp->{posterid};
+    my $can_delthread = $can_manage || $jposterid == $remote->userid;
+
+    # can mark as spam if they're not the comment poster
+    # or if the account is not sysbanned
+    my $can_spam =
+        $remote && $remote->id != $tp->{'posterid'} && !LJ::sysban_check( 'spamreport', $u->user );
+
+    $vars = {
+        can_manage    => $can_manage,
+        can_ban       => $can_ban,
+        can_spam      => $can_spam,
+        can_delthread => $can_delthread,
+        iscomm        => $iscomm,
+        u             => $u,
+        id            => $GET->{'id'},
+        tp_user       => LJ::ljuser( $tp->{'userpost'} )
+    };
+
+    ### perform actions
+    if ( $r->did_post && $POST->{'confirm'} ) {
+        return $error->( LJ::Lang::ml('/talkpost_do.tt.error.invalidform') )
+            unless LJ::check_form_auth( $POST->{lj_form_auth} );
+
+        # mark this as spam?
+        LJ::Talk::mark_comment_as_spam( $u, $tp->{talkid} )
+            if $POST->{spam} && $can_spam;
+
+        # delete entire thread? or just the one comment?
+        if ( $POST->{delthread} && $can_delthread ) {
+
+            # delete entire thread ...
+            LJ::Talk::delete_thread( $u, $tp->{'itemid'}, $tpid );
+        }
+        else {
+            # delete single comment...
+            LJ::Talk::delete_comment( $u, $tp->{'itemid'}, $tpid, $tp->{'state'} );
+        }
+
+        # ban the user, if selected
+        my $msg;
+        if ( $POST->{'ban'} && $can_ban ) {
+            LJ::set_rel( $u->{'userid'}, $tp->{'posterid'}, 'B' );
+            $u->log_event( 'ban_set', { actiontarget => $tp->{'posterid'}, remote => $remote } );
+            $msg = LJ::Lang::ml(
+                "/delcomment.tt.success.andban$iscomm",
+                { 'user' => LJ::ljuser( $tp->{'userpost'} ) }
+            );
+        }
+        $msg ||= LJ::Lang::ml('/delcomment.tt.success.noban');
+        $msg .= " <p>" . LJ::Lang::ml('/delcomment.tt.success.spam') . "</p>"
+            if $POST->{spam} && $can_spam;
+
+        if ($jsmode) {
+            if ( !!$GET->{json} ) {
+                sleep 1 if $LJ::IS_DEV_SERVER;
+                $r->print( to_json( { msg => LJ::strip_html($msg) } ) );
+                return $r->OK;
+            }
+            else {
+                return "1;";
+            }
+        }
+        else {
+            $vars->{done} = 1;
+            $vars->{msg}  = $msg;
+        }
+    }
+
+    return DW::Template->render_template( 'delcomment.tt', $vars );
 }
 
 1;

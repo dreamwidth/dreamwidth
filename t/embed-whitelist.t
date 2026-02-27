@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 116;
+use Test::More tests => 120;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -126,6 +126,9 @@ note("misc");
     test_good_url(
         "https://getyarn.io/yarn-clip/embed/3e697ca5-0387-4fad-9315-f5a6d05c80cc?autoplay=false");
     test_good_url(
+"http://embed.gettyimages.com/embed/1346778162?et=tmUM_QxBRNBC0ZdAX7yudA&tld=com&sig=TU07b1wHvu0M_PGI59qhyV0-8AB7Fx6tT46Eoe4_UO8=&caption=true&ver=1"
+    );
+    test_good_url(
 "http://www.goodreads.com/widgets/user_update_widget?height=400&num_updates=3&user=12345&width=250"
     );
     test_good_url("https://giphy.com/embed/Om0tF9bYdLCKI");
@@ -172,6 +175,9 @@ note("misc");
     );
 
     # L
+    test_good_url(
+"//html5-player.libsyn.com/embed/episode/id/16608338/height/360/theme/standard-mini/thumbnail/yes/direction/backward/"
+    );
     test_good_url("https://lichess.org/study/embed/JYjprYmJ/CeyjnPCj");
     test_good_url("https://www.loc.gov/item/mbrs01991430/?embed=resources");
 
@@ -181,6 +187,7 @@ note("misc");
     test_bad_url( "https://shad_tkhom.livejournal.com/1244sd088.html?embed", "bad username" );
 
     # M
+    test_good_url("https://makertube.net/videos/embed/52a10666-3a18-4e73-93da-e8d3c12c305a");
     test_good_url("https://mega.nz/embed/yr5VEDDZ#6vvZAnbmADkNc6KX5fKUB9GXYYrYGOhkgsx-xw9_SMw");
     test_good_url(
 "https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2Fvladmradio%2F25-podcast-from-august-24-2016%2F&hide_cover=1&light=1"
@@ -209,6 +216,7 @@ note("misc");
     );
 
     # P
+    test_good_url("https://player.pbs.org/viralplayer/2318689287/");
     test_good_url("https://playmoss.com/embed/wingedbeastie/the-swamp-witch-nix-s-playlist");
     test_good_url(
         "http://www.plurk.com/getWidget?uid=123123123&h=375&w=200&u_info=2&bg=cf682f&tl=cae7fd");

@@ -1,0 +1,399 @@
+{
+  "workers": {
+    "birthday-notify": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "change-poster-id": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "misc",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "codebuild-notifier": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "misc",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "content-importer": {
+      "cpu": 256,
+      "memory": 2048,
+      "category": "importer",
+      "spot": false,
+      "min_count": 2,
+      "max_count": 5,
+      "target_cpu": 25
+    },
+    "content-importer-lite": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "importer",
+      "spot": true,
+      "min_count": 4,
+      "max_count": 4,
+      "target_cpu": 50
+    },
+    "content-importer-verify": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "importer",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "directory-meta": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "distribute-invites": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "dw-esn-cluster-subs": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "esn",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 50,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-esn-findsubsbycluster"
+    },
+    "dw-esn-filter-subs": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "esn",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 50,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-esn-filtersubs"
+    },
+    "dw-esn-fired-event": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "esn",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 50,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-esn-firedevent"
+    },
+    "dw-esn-process-sub": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "esn",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 50,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-esn-processsub"
+    },
+    "dw-send-email": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "email",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 50,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-sendemail"
+    },
+    "dw-sphinx-copier": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "search",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 50,
+      "target_cpu": 30,
+      "sqs_queue_name": "dw-prod-dw-task-sphinxcopier"
+    },
+    "dw-latest-feed": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-latestfeed"
+    },
+    "dw-lazy-cleanup": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "dw-mass-privacy": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-massprivacy"
+    },
+    "dw-synsuck": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 20,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-synsuck"
+    },
+    "dw-xpost": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 15,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-xpost"
+    },
+    "dw-embeds": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 15,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-embedworker"
+    },
+    "dw-support-notify": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-supportnotify"
+    },
+    "dw-distribute-invites": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-distributeinvites"
+    },
+    "dw-change-poster-id": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-changeposterid"
+    },
+    "dw-incoming-email": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-incomingemail"
+    },
+    "ses-incoming-email": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "email",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-ses-incoming-email"
+    },
+    "dw-import-eraser": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "sqs",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-dw-task-importeraser"
+    },
+    "embeds": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "misc",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 15,
+      "target_cpu": 50
+    },
+    "expunge-users": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "import-eraser": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "importer",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "import-scheduler": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "importer",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "incoming-email": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "email",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "latest-feed": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "lazy-cleanup": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "paidstatus": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "process-privacy": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "resolve-extacct": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "misc",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "schedule-synsuck": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "shop-creditcard-charge": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "misc",
+      "spot": false,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "spellcheck-gm": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "misc",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "sphinx-copier": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "search",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "sphinx-search-gm": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "search",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    },
+    "support-notify": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "scheduled",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50
+    }
+  }
+}

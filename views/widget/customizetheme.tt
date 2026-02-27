@@ -1,0 +1,152 @@
+<h2 class='widget-header'>[% dw.ml('widget.customizetheme.title') %]</h2>
+<form method="post" id="customize-form">
+[% dw.form_auth() %]
+<div class='customize-inner-wrapper section-nav-inner-wrapper'>
+<div class='customize-nav section-nav'>
+
+    [%### Navigation ###%]
+
+<ul class='customize-nav nostyle' id='customize_theme_nav_links'>
+    <li[% nav_class("display") %]>
+        <a class='customize-nav-group' href='[% dw.create_url("/customize/options", keep_args => 1, args => { group => "display" }) %]'>
+            [% dw.ml('widget.customizetheme.nav.display') %]
+        </a>
+    </li>
+
+    [% FOREACH g IN group_names %]
+        [% NEXT IF g == "customcss" %]
+        <li[% nav_class(g) %]>
+            <a class='customize-nav-group' href='[% dw.create_url("/customize/options", keep_args => 1, args => { group => g }) %]'>
+                [% propgroup_name( g ) %]
+            </a>
+        </li>
+    [% END %]
+
+    <li[% nav_class("linkslist") %]>
+        <a class='customize-nav-group' href='[% dw.create_url("/customize/options", keep_args => 1, args => { group => 'linkslist'}) %]'>
+            [% dw.ml('widget.customizetheme.nav.linkslist') %]
+        </a>
+    </li>
+
+    [% IF has_group.customcss %]
+    <li[% nav_class("customcss") %]>
+        <a class='customize-nav-group' href='[% dw.create_url("/customize/options", keep_args => 1, args => { group => 'customcss'}) %]'>
+            [% propgroup_name( "customcss") %]
+        </a>
+    </li>
+    [% END %]
+
+</ul>
+</div>
+
+[%### Content ###%]
+
+<div class='customize-content section-nav-content'>
+    [%# Display Group %]
+    [% IF group == "display" %]
+        <div id='display-group' class='customize-group'>
+            <div class='pkg'>
+                [% mood_theme_chooser %]
+            </div>
+
+            <div class='pkg'>
+                [% nav_strip_chooser %]
+            </div>
+        </div>
+
+    [%# Presentation Group %]
+    [% ELSIF group == "presentation" %]
+        <div id='presentation-group' class='customize-group'>
+            <div class='pkg'>
+                [% s2_propgroup %]
+            </div>
+        </div>
+
+    [%# Colors Group %]
+    [% ELSIF group == "colors" %]
+        <div id='colors-group' class='customize-group'>
+            [% s2_propgroup %]
+        </div>
+
+    [%# Fonts Group %]
+    [% ELSIF group == "fonts" %]
+        <div id='fonts-group' class='customize-group'>
+            [% s2_propgroup %]
+        </div>
+
+    [%# Images Group %]
+    [% ELSIF group == "images" %]
+        <div id='images-group' class='customize-group'>
+            [% s2_propgroup %]
+        </div>
+
+    [%# Text Group %]
+
+    [% ELSIF group == "text" %]
+        <div id='text-group' class='customize-group'>
+            [% s2_propgroup %]
+        </div>
+
+    [%# Links List Group %]
+    [% ELSIF group == "linkslist" %]
+        <div id='linkslist-group' class='customize-group'>
+            [% linkslist %]
+        </div>
+
+    [%# Custom CSS Group %]
+    [% ELSIF group == "customcss" %]
+        <div id='customcss-group' class='customize-group pkg'>
+        [% s2_propgroup %]
+        </div>
+        <p class='detail'>To insert indentation or open the code hint menu, press Ctrl + m.</p>
+        <script type='text/javascript'>
+            window.addEventListener('load', function() {
+            let prev = document.querySelector('[name="Widget[S2PropGroup]_linked_stylesheet"]');
+            let next = document.querySelector('[name="Widget[CustomizeTheme]_save"]');
+            let codeMirror = CodeMirror.fromTextArea(document.querySelector('[name="Widget[S2PropGroup]_custom_css"]'), {
+                mode:  'css',
+                lineWrapping: true,
+                lineNumbers: true,
+                theme: document.querySelector('body').classList.contains('gradation') ? 'twilight' : 'default',
+                lineWiseCopyCut: false,
+                inputStyle: 'contenteditable',
+                cursorScrollMargin: 4,
+                extraKeys: {
+                    'Tab': function(cm) {next.focus()},
+                    'Shift-Tab': function(cm) {prev.focus()},
+                    'Ctrl-M': function(cm) {
+                    var cur = cm.getCursor(), token = cm.getTokenAt(cur);
+                    var m = token.string.match(/([\\s]+)/) || token.string == "";
+                    if (!m) { cm.showHint(); }
+                    else {
+                        var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');
+                        cm.replaceSelection(spaces);
+                    }
+                    }}
+            })
+        });
+    </script>
+
+    [%# Other Groups %]
+    [% ELSE %]
+    <div id='[% group %]-group' class='customize-group pkg'>
+        [% s2_propgroup %]
+    </div>
+    [% END %]
+
+<div class='customize-buttons action-bar'>
+    [% form.submit(
+        name => 'Widget[CustomizeTheme]_save',
+        value => dw.ml('widget.customizetheme.btn.save'),
+        class => 'customize-button'
+    ) %]
+    [% form.submit(
+        name => 'Widget[CustomizeTheme]_reset'
+        value => dw.ml('widget.customizetheme.btn.reset'),
+    ) %]
+</div>
+
+</div><!-- end .customize-content -->
+</div><!-- end .customize-inner-wrapper -->
+
+</form>

@@ -22,6 +22,7 @@ use Digest::MD5;
 use MIME::Words;
 use MIME::Lite;
 use Carp qw/ croak /;
+use DW::Task::SphinxCopier;
 
 use DW::Captcha;
 use DW::EmailPost::Comment;
@@ -596,6 +597,12 @@ sub unscreen_comment {
     LJ::Talk::invalidate_talk2row_memcache( $u->id, @jtalkids );
     LJ::MemCache::delete( [ $userid, "activeentries:$userid" ] );
 
+    # update in-memory singletons so they reflect the new state
+    foreach my $jtalkid (@jtalkids) {
+        my $c = LJ::Comment->new( $u, jtalkid => $jtalkid );
+        $c->{state} = 'A' if $c->{_loaded_row};
+    }
+
     if ( $updated > 0 ) {
         LJ::replycount_do( $u, $itemid, "incr", $updated );
         my $dbcm        = LJ::get_cluster_master($u);
@@ -607,6 +614,17 @@ sub unscreen_comment {
     LJ::MemCache::delete( [ $userid, "screenedcount:$userid:$itemid" ] );
 
     LJ::Talk::update_commentalter( $u, $itemid );
+
+    # fire events so that users who missed the original notification
+    # (because the comment was screened) get notified now
+    my @jobs;
+    foreach my $jtalkid (@jtalkids) {
+        push @jobs,
+            LJ::Event::JournalNewComment->new_for_unscreen(
+            LJ::Comment->new( $u, jtalkid => $jtalkid ) );
+    }
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
+
     return;
 }
 
@@ -808,8 +826,6 @@ sub fixup_logitem_replycount {
     );
     $u->do( "UPDATE log2 SET replycount=? WHERE journalid=? AND jitemid=?",
         undef, int($ct), $u->{'userid'}, $jitemid );
-    print STDERR "Fixing replycount for $u->{'userid'}/$jitemid from $rp_count to $ct\n"
-        if $LJ::DEBUG{'replycount_fix'};
 
     # now, commit or unlock as appropriate
     if ( $u->is_innodb ) {
@@ -2452,7 +2468,7 @@ sub enter_comment {
 
     if (@LJ::SPHINX_SEARCHD) {
         push @jobs,
-            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            DW::Task::SphinxCopier->new(
             { userid => $journalu->id, jtalkid => $jtalkid, source => "commtnew" } );
     }
 
@@ -2843,7 +2859,7 @@ sub prepare_and_validate_comment {
     }
     else {
         $$need_captcha =
-            LJ::Talk::Post::require_captcha_test( $commenter, $journalu, $body, $entry->ditemid );
+            LJ::Talk::Post::require_captcha_test( $commenter, $journalu, $body, $entry );
 
         $err->( LJ::Lang::ml('captcha.title') ) if $$need_captcha;
     }
@@ -2863,6 +2879,15 @@ sub prepare_and_validate_comment {
         || ( $screening eq 'F' && !( $commenter && $journalu->trusts_or_has_member($commenter) ) ) )
     {
         $state = 'S';
+    }
+
+    # Finally, ensure that the comment ends up screen if it runs afoul of some
+    # testing we do. I.e., if the journal is in the auto-screen list and the IP is
+    # in the bad IPs list.
+    if ( exists $LJ::AUTOSCREEN_COMMENTS_IN{ $journalu->user } ) {
+        if ( $LJ::SHOULD_SCREEN_IP && $LJ::SHOULD_SCREEN_IP->( LJ::get_remote_ip() ) ) {
+            $state = 'S';
+        }
     }
 
     # Assemble the final prepared comment!
@@ -2897,14 +2922,15 @@ sub prepare_and_validate_comment {
 # <LJFUNC>
 # name: LJ::Talk::Post::require_captcha_test
 # des: returns true if user must answer CAPTCHA (human test) before posting a comment
-# args: commenter, journal, body, ditemid
+# args: commenter, journal, body, entry
 # des-commenter: User object of author of comment, undef for anonymous commenter
 # des-journal: User object of journal where to post comment
 # des-body: Text of the comment (may be checked for spam, may be empty)
-# des-ditemid: identifier of post, need for checking reply-count
+# des-entry: LJ::Entry object for the entry being commented on
 # </LJFUNC>
 sub require_captcha_test {
-    my ( $commenter, $journal, $body, $ditemid ) = @_;
+    my ( $commenter, $journal, $body, $entry ) = @_;
+    my $ditemid = $entry->ditemid;
 
     # only require captcha if the site is properly configured for it
     return 0 unless DW::Captcha->site_enabled;
@@ -2932,7 +2958,11 @@ sub require_captcha_test {
     if ( LJ::Talk::get_replycount( $journal, $ditemid >> 8 ) >=
         $journal->count_maxcomments_before_captcha )
     {
-        return 1;
+        # Skip the forced captcha for recent entries (posted within the last
+        # 30 days). High-comment spam mostly targets old/abandoned entries,
+        # and active anon memes shouldn't be penalized for popularity.
+        my $age_days = ( time() - $entry->logtime_unix ) / 86400;
+        return 1 if $age_days > 30;
     }
 
     ##
@@ -3161,7 +3191,7 @@ sub edit_comment {
 
     if (@LJ::SPHINX_SEARCHD) {
         push @jobs,
-            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            DW::Task::SphinxCopier->new(
             { userid => $journalu->id, jtalkid => $comment_obj->jtalkid, source => "commtedt" } );
     }
 
@@ -3265,33 +3295,6 @@ WATCH:
             my ( $allowed, $period ) = ( $rate->[0], $rate->[1] );
             my $events = scalar grep { $_ > $now - $period } @times;
             if ( $events > $allowed ) {
-
-                if ( $LJ::DEBUG{'talkrate'}
-                    && LJ::MemCache::add( "warn:$key", 1, 600 ) )
-                {
-
-                    my $ruser = ( exists $remote->{'user'} ) ? $remote->{'user'} : 'Not logged in';
-                    my $nowtime = localtime($now);
-                    my $body    = <<EOM;
-Talk spam from $key:
-$events comments > $allowed allowed / $period secs
-     Remote user: $ruser
-     Remote IP:   $ip
-     Time caught: $nowtime
-     Posting to:  $journalu->{'user'}
-EOM
-
-                    LJ::send_mail(
-                        {
-                            'to'       => $LJ::DEBUG{'talkrate'},
-                            'from'     => $LJ::ADMIN_EMAIL,
-                            'fromname' => $LJ::SITENAME,
-                            'charset'  => 'utf-8',
-                            'subject'  => "talk spam: $key",
-                            'body'     => $body,
-                        }
-                    );
-                }    # end sending email
 
                 last WATCH;
             }

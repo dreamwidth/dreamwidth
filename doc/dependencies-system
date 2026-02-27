@@ -6,6 +6,7 @@ libgmp3-dev
 libxml2-dev
 libdbi-perl
 libdbd-mysql-perl
+libgd-dev
 libgd-gd2-perl
 libgd-graph-perl
 libgd-text-perl
@@ -18,5 +19,5 @@ libdatetime-perl
 libio-aio-perl
 libssl-dev
 apache2
-ruby-compass
 default-jre
+mysql-client

@@ -420,7 +420,7 @@ sub allow_account_conversion {
 
     # allow upgrading to premium if the remote user owns this account
     my $remote = LJ::get_remote();
-    return 1 if $to eq 'premium' && $remote && $remote->has_same_email_as($u);
+    return 1 if $to eq 'premium' && $remote && $remote->can_purchase_for($u);
 
     return 0;
 }
@@ -460,11 +460,11 @@ sub conflicts {
 
 # override
 sub t_html {
-    my ( $self, %opts ) = @_;
+    my ( $self, $opts ) = @_;
 
     if ( $self->anonymous_target ) {
         my $random_user_string = LJ::Lang::ml('shop.item.account.randomuser');
-        if ( $opts{admin} ) {
+        if ( $opts->{admin} ) {
             my $u = LJ::load_userid( $self->t_userid );
             return "<strong>invalid userid " . $self->t_userid . "</strong>"
                 unless $u;
@@ -476,7 +476,7 @@ sub t_html {
     }
 
     # otherwise, fall back upon default display
-    return $self->SUPER::t_html(%opts);
+    return $self->SUPER::t_html($opts);
 }
 
 # override

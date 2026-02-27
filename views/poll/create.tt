@@ -1,0 +1,221 @@
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[% dw.need_res( { group => "foundation" }, 
+    'stc/css/pages/poll.css', 
+    ) %]
+
+[% postto_html %]
+
+<form method='post' action='create[% getextra %]#new'>
+[% dw.form_auth() %]
+[% form.hidden(name =>'count', value => poll.count) %]
+[%- IF err.size -%]
+<div class="alert-box alert radius">[% dw.ml('.haserrors') %]</div>
+[%- END -%]
+
+[%### Poll Properties -- name, isanon, whovote, whoview %]
+
+<h2>[% dw.ml('.properties') %]</h2>
+
+[% form.checkbox(
+    name => 'isanon',
+    id => 'isanon',
+    label => dw.ml('.isanon'),
+    value => "yes",
+    selected => ( poll.isanon == "yes" )
+) %]
+
+[% form.select(
+    name => 'whoview',
+    label => dw.ml('.whoview2')
+    selected => poll.whoview,
+    items => [
+        'all', dw.ml('poll.security.whoview.all'), 
+        'trusted', dw.ml('poll.security.whoview.trusted'), 
+        'none', dw.ml('poll.security.whoview.none_remote')
+        ],
+) %]
+
+[% form.select(
+    name => 'whovote',
+    label => dw.ml('.whovote'),
+    selected => poll.whovote,
+    items => [
+        'all', dw.ml('poll.security.whovote.all'),
+        'trusted', dw.ml('poll.security.whovote.trusted')
+    ]
+)  %]
+[% form.textbox( 'name' => 'name', 'size' => '50',
+                        'maxlength' => rules.pollname.maxlength,
+                        'label' => dw.ml('.pollname2'),
+                        'value' => poll.name ) %]
+
+[%### Poll Questions %]
+
+<h2>[% dw.ml('.questions') %]</h2>
+
+[%# closure for an html select box to insert element %]
+[%- BLOCK insert_element_html -%]
+    <div class='action-box'>
+    <div class='inner'>
+    <div class="add">
+    [%- IF after >= rules.elements.max -%]
+        <b>[% dw.ml('.elements.limitreached') %]</b>
+    [%- ELSE -%]
+        [%- form.select(
+            name => "insert:$after",
+            label => dw.ml('.insertquestion'),
+            items => [
+                '--', '',
+                'radio', dw.ml('.type.radio'),
+                'check', dw.ml('.type.check'),
+                'drop', dw.ml('.type.drop'),
+                'text', dw.ml('.type.text'),
+                'scale', dw.ml('.type.scale')
+            ]
+        )%]
+
+        [% form.submit( name = "insert:$after:do", value = dw.ml('.button.insert')) %]
+    [%- END -%]
+    </div>
+    </div>
+    </div>
+[%- END -%]
+
+
+
+[%# if they have no elements, we need to manually give them an insert option %]
+[% PROCESS insert_element_html after = 0 %]
+
+[%# go through our elements in order %]
+[%  IF poll.count && poll.count > 0;
+    poll_length = poll.count - 1;
+    FOREACH q IN [0 .. poll_length] %]
+    [%- elem = poll.pq.$q;
+        qnr = q + 1 -%]
+
+    <a name='question_[% qnr %]'><h3 [% "id='new'" IF focuson == q %]>[% dw.ml('.questionnum', { 'num' => qnr }) %] - [% dw.ml(".type.${elem.type}")%]</h3></a>
+
+    <div class="question">
+        <div class="actions">
+        [%# can't move the first element up %]
+        [% dw.img('btn_up', 'input', 'name' => "move:$q:up", 'value' => "move:$q:up") IF q > 0 %]
+
+        [%# delete button %] 
+        [% "<br />" _ dw.img('btn_del', 'input', 'name' => "delete:$q:do", 'value' => "delete:$q:do") %]
+
+        [%# can't move the last element down%]
+        [% "<br />" _ dw.img('btn_down', 'input', 'name' => "move:$q:dn", 'value' => "move:$q:dn") IF q < (poll.count - 1) %]
+        </div>
+    <div>
+
+    [%# question text and hidden fields %]
+    [% form.hidden(name = "pq_${q}_type", value = elem.type) %]
+    [% form.hidden(name = "pq_${q}_opts", value = elem.opts) %]
+    [% dw.ml('.question') %]
+    [% form.textbox(
+        'name' => "pq_${q}_question", 
+        'size' => '50',
+        'maxlength' => rules.question.maxlength,
+        'value' => elem.question,
+        'error' => err.$q.question
+    ) %]
+
+    <div class="response">
+
+    [%# spit out opts -- choices for drop-down, radio, etc questions %]
+    [%- SWITCH elem.type -%]
+    [% CASE ['radio', 'check', 'drop'] %]
+        [% dw.ml( ".options2" ) %]
+        [% opts_length = elem.opts - 1;
+        FOREACH o IN [0 .. opts_length] %]
+            <div class="opt-row">
+
+                [% form.checkbox( 'type' => 'radio', 'name' => "dummy_$q", 'value' => '', 'disabled' => 'disabled' ) IF elem.type == 'radio' %]
+                [% form.checkbox('type' => 'checkbox', 'value' => '', 'disabled' => 'disabled' ) IF elem.type == 'check' %]
+
+                [% form.textbox( 'type' => 'text', 'name' => "pq_${q}_opt_$o", 'size' => '35',
+                                        'maxlength' => rules.items.maxlength, 'value' => elem.opt.$o) %]
+            </div>
+        [% END %]
+        [% IF err.$q.items %]
+            <small class="error"><b>[% err.$q.items %]</b></small>
+        [% END %]
+        [% IF elem.opts < rules.items.max;
+            form.submit(name = "request:$q:do", value = 'More >>' );
+            ELSE;
+            dw.ml(".options.limitreached2");
+            END %]
+
+        [% IF elem.type == 'check';
+            "<br/>";
+            minnumber = form.textbox( 'name' => "pq_${q}_checkmin",
+                                        'class' => 'inline',
+                                        'value' => (elem.checkmin.defined ? elem.checkmin : rules.checkbox.checkmin),
+                                        'size' => '3', 'maxlength' => '9', 'error' => err.$q.checkmin );
+            maxnumber = form.textbox( 'name' => "pq_${q}_checkmax",
+                                        'class' => 'inline',
+                                        'value' => (elem.checkmax.defined ? elem.checkmax : rules.checkbox.checkmax),
+                                        'size' => '3', 'maxlength' => '9', 'error' => err.$q.checkmax );
+            dw.ml( ".checknumber", { min => minnumber.trim, max => maxnumber.trim } );
+         END %]
+
+    [% CASE 'text' %]
+        [% FOREACH atr IN ['size', 'maxlength'];
+            form.textbox( 
+                'name' => "pq_${q}_$atr",
+                'value' => (elem.$atr.defined ? elem.$atr : rules.text.$atr),
+                'label' => atr.ucfirst,
+                'class' => "text inline"
+                'size' => '3', 
+                'maxlength' => '3',
+                'error' => err.$q.$atr
+            );
+        END %]
+
+    [% CASE 'scale' %]
+        [% FOREACH atr IN ['from', 'to', 'by'];
+            form.textbox( 
+                'name' => "pq_${q}_$atr",
+                'label' => dw.ml(".scale.$atr"),
+                'class' => "text inline"
+                'value' => (elem.$atr.defined ? elem.$atr : rules.scale.$atr),
+                'size' => '3', 
+                'maxlength' => '9',
+                'error' => err.$q.$atr
+            );
+         END %]
+        <div class="row">
+        [% FOREACH atr IN ['lowlabel', 'highlabel'] %]
+            <div class="columns medium-6">
+            [% form.textbox( 
+                'name' => "pq_${q}_$atr",
+                'label' => dw.ml(".scale.$atr")
+                'value' => (elem.$atr.defined ? elem.$atr : ""),
+                'size' => '20', 
+                'maxlength' => '50',
+                'error' => err.$q.$atr
+            ) %]
+            </div>
+        [% END %]
+        </div>
+    [% END %]
+
+    </div>
+    </div>
+    </div>
+
+    [%# add a new element unless they're already at the max %]
+    [% PROCESS insert_element_html after = q+1 %]
+[% END %]
+
+    <h2> When you're done ... </h2>
+    <div style='margin: 20px 0 20px 40px'>
+    [% form.submit( name = 'start_over', value = dw.ml('.button.startover2')) %]
+    [% form.submit( name = 'see_code', value = dw.ml('.button.seecode2')) %]
+    [% form.submit( name = 'see_preview', value = dw.ml('.button.preview2')) %]
+    </div>
+[% END %]
+
+
+</form>

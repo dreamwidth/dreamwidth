@@ -124,7 +124,9 @@ sub create_handler {
         elsif ( $post->{password1} ne $post->{password2} ) {
             $errors->add( 'password2', 'widget.createaccount.error.password.nomatch' );
         }
-        else {
+        elsif ( !$LJ::IS_DEV_SERVER ) {
+
+            # Dev servers can use any password
             my $checkpass = LJ::CreatePage->verify_password(
                 password => $post->{password1},
                 username => $user,
@@ -141,7 +143,8 @@ sub create_handler {
         my $dbh = LJ::get_db_writer();
 
         my $uniq;
-        my $is_underage = 0;
+        my $is_underage    = 0;
+        my $is_tn_underage = 0;
 
         $uniq = $r->note('uniq');
         if ($uniq) {
@@ -163,19 +166,29 @@ sub create_handler {
         if ( $year && $mon && $day && $year >= 1900 && $year < $nyear ) {
             my $age = LJ::calc_age( $year, $mon, $day );
             $is_underage = 1 if $age < 13;
+
+            # TN underage check - if user is in TN and under 18
+            if ( $post->{tn_state} eq '1' && $age < 18 ) {
+                $is_tn_underage = 1;
+            }
         }
         else {
             $errors->add( 'birthdate', 'widget.createaccount.error.birthdate.invalid2' );
         }
 
         # note this unique cookie as underage (if we have a unique cookie)
-        if ( $is_underage && $uniq ) {
+        if ( ( $is_underage || $is_tn_underage ) && $uniq ) {
             $dbh->do( "REPLACE INTO underage (uniq, timeof) VALUES (?, UNIX_TIMESTAMP())",
                 undef, $uniq );
         }
 
-        $errors->add( 'birthdate', 'widget.createaccount.error.birthdate.underage' )
-            if $is_underage;
+        # Add appropriate error messages
+        if ($is_tn_underage) {
+            $errors->add( 'tn_state', 'widget.createaccount.error.tn_underage' );
+        }
+        elsif ($is_underage) {
+            $errors->add( 'birthdate', 'widget.createaccount.error.birthdate.underage' );
+        }
 
         # check the email address
         my @email_errors;
@@ -217,6 +230,11 @@ sub create_handler {
         # now go on and do post-create stuff
         if ($nu) {
 
+            # In dev containers, auto-validate email so accounts are immediately usable
+            if ($LJ::IS_DEV_SERVER) {
+                $nu->update_self( { status => 'A' } );
+            }
+
             # send welcome mail
             my $aa = LJ::register_authaction( $nu->id, "validateemail", $email );
 
@@ -251,6 +269,9 @@ sub create_handler {
                     body => $body,
                 }
             );
+
+            # note that this user needs to be reviewed for spam content
+            $nu->set_prop( not_approved => 1 ) if LJ::is_enabled('approvenew');
 
             # we're all done
             $nu->make_login_session;
@@ -406,10 +427,10 @@ sub setup_handler {
         LJ::Hooks::run_hooks( 'spam_check', $u, $post, 'userbio' );
 
         # name
-        $errors->add( 'name', '/manage/profile/index.bml.error.noname' )
+        $errors->add( 'name', '/manage/profile.tt.error.noname' )
             unless LJ::trim( $post->{name} ) || defined $post->{name_absent};
 
-        $errors->add( 'name', '/manage/profile/index.bml.error.name.toolong' )
+        $errors->add( 'name', '/manage/profile.tt.error.name.toolong' )
             if length $post->{name} > 80;
 
         $post->{name} =~ s/[\n\r]//g;
@@ -495,7 +516,7 @@ sub setup_handler {
         }
 
         # bio
-        $errors->add( 'bio', '/manage/profile/index.bml.error.bio.toolong' )
+        $errors->add( 'bio', '/manage/profile.tt.error.bio.toolong' )
             if defined $post->{bio} && length $post->{bio} >= LJ::BMAX_BIO;
         LJ::EmbedModule->parse_module_embed( $u, \$post->{bio} );
 
@@ -610,10 +631,10 @@ sub setup_handler {
 
         form_url    => LJ::create_url(),
         gender_list => [
-            F => LJ::Lang::ml('/manage/profile/index.bml.gender.female'),
-            M => LJ::Lang::ml('/manage/profile/index.bml.gender.male'),
-            O => LJ::Lang::ml('/manage/profile/index.bml.gender.other'),
-            U => LJ::Lang::ml('/manage/profile/index.bml.gender.unspecified'),
+            F => LJ::Lang::ml('/manage/profile.tt.gender.female'),
+            M => LJ::Lang::ml('/manage/profile.tt.gender.male'),
+            O => LJ::Lang::ml('/manage/profile.tt.gender.other'),
+            U => LJ::Lang::ml('/manage/profile.tt.gender.unspecified'),
         ],
         interests => \@current_interests,
 

@@ -78,9 +78,10 @@ my %host_path_match = (
     "www.flickr.com"     => [ qr!/player/$!, 1 ],
     "www.funnyordie.com" => [ qr!/embed/!,   1 ],
 
-    "getyarn.io"        => [ qr!^/yarn-clip/embed/[0-9a-fA-F\-]{36}!, 1 ],
-    "www.goodreads.com" => [ qr!^/widgets/!,                          1 ],
-    "giphy.com"         => [ qr!^/embed/\w+!,                         1 ],
+    "embed.gettyimages.com" => [ qr!^/embed/!,                            1 ],
+    "getyarn.io"            => [ qr!^/yarn-clip/embed/[0-9a-fA-F\-]{36}!, 1 ],
+    "www.goodreads.com"     => [ qr!^/widgets/!,                          1 ],
+    "giphy.com"             => [ qr!^/embed/\w+!,                         1 ],
 
     "maps.google.com"     => [ qr!^/maps!,                   1 ],
     "www.google.com"      => [ qr!^/(calendar/|maps/embed)!, 1 ],
@@ -101,14 +102,16 @@ my %host_path_match = (
 
     "www.kickstarter.com" => [ qr!/widget/[a-zA-Z]+\.html$!, 1 ],
 
-    "lichess.org" => [ qr!/study/embed/!,     1 ],
-    "www.loc.gov" => [ qr!/item/[a-z0-9]+/$!, 1 ],
+    "html5-player.libsyn.com" => [ qr!^/embed/!,          1 ],
+    "lichess.org"             => [ qr!/study/embed/!,     1 ],
+    "www.loc.gov"             => [ qr!/item/[a-z0-9]+/$!, 1 ],
 
-    "mega.nz"          => [ qr!^/embed/!,                   1 ],
-    "www.mixcloud.com" => [ qr!^/widget/iframe/$!,          1 ],
-    "mixstep.co"       => [ qr!^/embed/!,                   1 ],
-    "www.msnbc.com"    => [ qr!^/msnbc/embedded-video/\w+!, 1 ],
-    "my.mail.ru"       => [ qr!^/video/embed/\d+!,          1 ],
+    "makertube.net"    => [ qr!^/videos/embed/[0-9a-fA-F\-]{36}!, 1 ],
+    "mega.nz"          => [ qr!^/embed/!,                         1 ],
+    "www.mixcloud.com" => [ qr!^/widget/iframe/$!,                1 ],
+    "mixstep.co"       => [ qr!^/embed/!,                         1 ],
+    "www.msnbc.com"    => [ qr!^/msnbc/embedded-video/\w+!,       1 ],
+    "my.mail.ru"       => [ qr!^/video/embed/\d+!,                1 ],
 
     "nekocap.com"      => [ qr!^/view/[a-zA-Z0-9]+$!,                 1 ],
     "ext.nicovideo.jp" => [ qr!^/thumb/!,                             0 ],
@@ -117,10 +120,11 @@ my %host_path_match = (
 
     "onedrive.live.com" => [ qr!^/embed$!, 1 ],
 
-    "playmoss.com"  => [ qr!^/embed/!,                  1 ],
-    "www.plurk.com" => [ qr!^/getWidget$!,              1 ],
-    "pastebin.com"  => [ qr!^/embed_iframe/\w+$!,       1 ],
-    "podomatic.com" => [ qr!^/embed/html5/episode/\d*!, 1 ],
+    "player.pbs.org" => [ qr!^/viralplayer/[0-9]+!,      1 ],
+    "playmoss.com"   => [ qr!^/embed/!,                  1 ],
+    "www.plurk.com"  => [ qr!^/getWidget$!,              1 ],
+    "pastebin.com"   => [ qr!^/embed_iframe/\w+$!,       1 ],
+    "podomatic.com"  => [ qr!^/embed/html5/episode/\d*!, 1 ],
 
     "www.random.org"       => [ qr!^/widgets/integers/iframe.php$!,        1 ],
     "www.redditmedia.com"  => [ qr!^/r/\w+/comments/\w+/\w+/$!,            1 ],

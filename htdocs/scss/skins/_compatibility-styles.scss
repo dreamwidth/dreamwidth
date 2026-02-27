@@ -23,7 +23,34 @@
     }
 }
 
+.highlight-box {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: $highlight-color;
+    color: $highlight-text-color;
+    border: 1px solid;
+    border-color: $highlight-border;
+    display: block;
+    padding: 5px;
+    text-align: center;
+}
+
 .searchhighlight {
         background-color: $highlight-color;
         color: $highlight-text-color;
+}
+
+.section_head {
+    background-color: $highlight-color;
+    color: $highlight-text-color;
+    border-bottom: 1px solid;
+    border-color: $highlight-border;
+}
+
+.field_name, .field_block:nth-of-type(even) {
+    background-color: $table-even-row-bg;
+}
+
+.field_block, .service_block {
+    border-color: $background-color;
 }

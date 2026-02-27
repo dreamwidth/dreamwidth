@@ -1,0 +1,84 @@
+#!/usr/bin/perl
+#
+# bin/starman
+#
+# Startup script for running Dreamwidth under Plack/Starman.
+# Suitable for both development and production use.
+#
+# Usage:
+#   bin/starman [--port PORT] [--host HOST] [--workers COUNT] [--log DIR]
+#
+# Options:
+#   --port PORT      Port to listen on (default: 8080)
+#   --host HOST      Host/address to bind to (default: 0.0.0.0)
+#   --workers COUNT  Number of workers to run in parallel
+#   --log DIR        Directory for access and error logs (default: none)
+#   --daemonize      Fork into background (writes PID to log dir)
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use v5.10;
+
+use FindBin;
+
+# Ensure LJHOME is set and extlib is in @INC (production doesn't set PERL5LIB)
+$ENV{LJHOME} //= "$FindBin::Bin/..";
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
+
+use Getopt::Long;
+use Plack::Runner;
+
+my $port    = 8080;
+my $host    = '0.0.0.0';
+my $workers = 3;
+my $log_dir;
+my $daemonize;
+
+GetOptions(
+    'port=i'    => \$port,
+    'host=s'    => \$host,
+    'workers=i' => \$workers,
+    'log=s'     => \$log_dir,
+    'daemonize' => \$daemonize,
+) or die "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR] [--daemonize]\n";
+
+my $app_psgi = "$ENV{LJHOME}/app.psgi";
+die "Cannot find $app_psgi\n" unless -f $app_psgi;
+
+say "Starting Dreamwidth Plack server...";
+say "  LJHOME: $ENV{LJHOME}";
+say "  Listening on: http://$host:$port/";
+say "  Workers: $workers";
+say "  Logs: " . ( $log_dir ? $log_dir : "stderr" );
+say "";
+
+my @opts = (
+    '--server',  'Starman',
+    '--listen',  "$host:$port",
+    '--workers', $workers,
+    '--app',     $app_psgi,
+);
+
+if ($log_dir) {
+    mkdir $log_dir unless -d $log_dir;
+    push @opts, '--access-log', "$log_dir/access.log";
+    push @opts, '--error-log', "$log_dir/error.log";
+}
+
+if ($daemonize) {
+    push @opts, '--daemonize';
+    push @opts, '--pid', "$log_dir/starman.pid" if $log_dir;
+}
+
+my $runner = Plack::Runner->new;
+$runner->parse_options(@opts);
+$runner->run;

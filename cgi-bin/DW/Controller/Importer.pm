@@ -20,6 +20,7 @@ use strict;
 use warnings;
 
 use DW::Routing;
+use DW::Task::ImportEraser;
 use DW::Template;
 use LJ::Hooks;
 
@@ -475,8 +476,7 @@ sub erase_handler {
 
     # Confirmed, let's schedule.
     DW::TaskQueue->dispatch(
-        TheSchwartz::Job->new_from_array(
-            'DW::Worker::ImportEraser',
+        DW::Task::ImportEraser->new(
             {
                 userid => $rv->{u}->userid
             }

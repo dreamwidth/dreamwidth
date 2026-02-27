@@ -9,7 +9,7 @@ function TagBrowser($el, options) {
         modalId: options.modalId
     });
 
-    $("<button class='small secondary'>browse</button>")
+    $("<button class='small secondary' type='button'>browse</button>")
         .attr("data-reveal-id", options.modalId)
         .insertAfter(options.fallbackLink || $(this).closest("div"));
 

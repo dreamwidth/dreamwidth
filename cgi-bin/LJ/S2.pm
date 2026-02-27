@@ -17,6 +17,7 @@ package LJ::S2;
 
 use strict;
 use DW;
+use DW::Request;
 use lib DW->home . "/src/s2";
 use S2;
 use S2::Color;
@@ -34,7 +35,6 @@ use LJ::S2::ReplyPage;
 use LJ::S2::TagsPage;
 use LJ::S2::IconsPage;
 use Storable;
-use Apache2::Const qw/ :common /;
 use POSIX ();
 
 use DW::SiteScheme;
@@ -65,7 +65,7 @@ sub make_journal {
             $use_modtime = 1;
         }
         else {
-            $opts->{'handler_return'} = 404;
+            $opts->{'handler_return'} = $apache_r->NOT_FOUND;
             return;
         }
     }
@@ -76,7 +76,7 @@ sub make_journal {
     my $ctx =
         s2_context( $styleid, use_modtime => $use_modtime, u => $u, style_u => $opts->{style_u} );
     unless ($ctx) {
-        $opts->{'handler_return'} = OK;
+        $opts->{'handler_return'} = $apache_r->OK;
         return;
     }
 
@@ -550,13 +550,10 @@ sub load_layers {
         next if S2::layer_loaded($lid);
 
         unless ( $us->{$lid} ) {
-            print STDERR "Style $lid has no available owner.\n" if $LJ::DEBUG{"s2style_load"};
             next;
         }
 
         if ( $us->{$lid}->{userid} == $sysid ) {
-            print STDERR "Style $lid is owned by system but failed load from global.\n"
-                if $LJ::DEBUG{"s2style_load"};
             next;
         }
 
@@ -2432,7 +2429,9 @@ sub Page {
         _styleopts            => LJ::viewing_style_opts(%$get),
         timeformat24          => $remote && $remote->use_24hour_time,
         include_meta_viewport => $r->cookie('no_mobile') ? 0 : 1,
+        session_msgs          => $r->msgs
     };
+    $r->clear_msgs;
 
     if ( $opts && $opts->{'saycharset'} ) {
         $p->{'head_content'} .=

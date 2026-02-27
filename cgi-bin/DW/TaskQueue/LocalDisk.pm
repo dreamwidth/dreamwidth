@@ -76,20 +76,22 @@ sub send {
 }
 
 sub receive {
-    my ( $self, $class, $count ) = @_;
+    my ( $self, $class, $count, $wait_secs ) = @_;
     $count ||= 10;
+    $wait_secs = 10 unless defined $wait_secs;
 
     my $dir = $self->_queue_dir($class);
 
-    # To emulate SQS, we will wait for messages for 10 seconds
+    # To emulate SQS, we will wait for messages up to $wait_secs seconds.
+    # Always scan at least once so that wait_secs=0 (non-blocking) works.
     my @tasks;
-    my $abort_after = time() + 10;
-    while ( time() < $abort_after ) {
+    my $abort_after = time() + $wait_secs;
+    while (1) {
         opendir DIR, $dir or $log->logcroak('Failed to open directory!');
         @tasks = grep { /^[0-9a-f]/ && -f "$dir/$_" } readdir DIR;
         closedir DIR;
 
-        last if @tasks;
+        last if @tasks || time() >= $abort_after;
     }
 
     my $thaw_task = sub {

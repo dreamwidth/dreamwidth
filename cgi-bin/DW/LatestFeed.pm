@@ -28,6 +28,8 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use DW::Task::LatestFeed;
+
 # time in seconds to hold events for.  until an event is this old, we will not
 # show it on any page.
 use constant EVENT_HORIZON => 300;
@@ -38,7 +40,7 @@ use constant EVENT_HORIZON => 300;
 use constant NUM_TOP_TAGS => 200;
 
 # call this with whatever you want to stick onto the latest feed, and note that
-# this just fires off TheSchwartz jobs, the work isn't actually done until the
+# this just fires off TaskQueue jobs, the work isn't actually done until the
 # worker process it
 sub new_item {
     my ( $class, $obj ) = @_;
@@ -51,8 +53,7 @@ sub new_item {
             || $obj->journal->is_individual;
 
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::LatestFeed',
+            DW::Task::LatestFeed->new(
                 {
                     type      => 'entry',
                     journalid => $obj->journalid,
@@ -66,8 +67,7 @@ sub new_item {
     }
     elsif ( $obj->isa('LJ::Comment') ) {
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::LatestFeed',
+            DW::Task::LatestFeed->new(
                 {
                     type      => 'comment',
                     journalid => $obj->journalid,

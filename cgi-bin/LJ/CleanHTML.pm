@@ -23,6 +23,7 @@ use LJ::Config;
 use Text::Markdown;
 use LJ::TextUtil;
 use DW::Formats;
+use DW::External::Site;
 
 LJ::Config->load;
 
@@ -324,9 +325,10 @@ TOKEN:
 
         if ( $type eq "S" )    # start tag
         {
-            my $tag       = $update_tag->( $token->[1] );
-            my $attr      = $token->[2];                                     # hashref
-            my $ljcut_div = $tag eq "div" && lc $attr->{class} eq "ljcut";
+            my $tag  = $update_tag->( $token->[1] );
+            my $attr = $token->[2];                    # hashref
+            my $ljcut_div =
+                $tag eq "div" && defined lc $attr->{class} && lc $attr->{class} eq "ljcut";
 
             $good_until = length $newdata;
 
@@ -431,7 +433,10 @@ TOKEN:
             }
 
             # deprecated - will always print an error msg (see #1869)
-            if ( ( $tag eq "div" || $tag eq "span" ) && lc $attr->{class} eq "ljvideo" ) {
+            if (   ( $tag eq "div" || $tag eq "span" )
+                && defined $attr->{class}
+                && lc $attr->{class} eq "ljvideo" )
+            {
                 $start_capture->(
                     $tag, $token,
                     sub {
@@ -1965,6 +1970,15 @@ sub convert_user_mentions {
 
     my $usertag = sub {
         my ( $orig, $user, $site ) = ( $_[0], $_[1], $_[2] || $LJ::DOMAIN );
+
+        # atproto sites use FQDNs as usernames, so if the final segment of $site
+        # refers to one, the rest of $site is actually a part of the username.
+        my ( $atuser, $atsitename ) = split /\.([^.]+)$/, ( $orig =~ tr/@//dr );
+        if ($atsitename) {
+            my $atsite = DW::External::Site->get_site( site => $atsitename );
+            return user_link_html( $atuser, $atsitename, $opts )
+                if $atsite && $atsite->servicetype eq "atproto";
+        }
         return user_link_html( $user, $site, $opts );
     };
 

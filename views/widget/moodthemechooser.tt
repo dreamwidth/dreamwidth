@@ -1,0 +1,52 @@
+<fieldset><legend>[% dw.ml('widget.moodthemechooser.title') %]</legend>
+<p class='detail'>
+    [% dw.ml('widget.moodthemechooser.desc') %]
+    [% help_icon('mood_themes') %]
+</p>
+<br />
+<br />
+<div class='moodtheme-form'>
+    [% form.select(
+            name     => 'Widget[MoodThemeChooser]_moodthemeid',
+            id       => 'moodtheme_dropdown',
+            selected => preview_moodthemeid,
+            items    => theme_dropdown
+    ) %]
+    <br />
+    [% form.checkbox(
+        name     => 'Widget[MoodThemeChooser]_opt_forcemoodtheme',
+        id       => 'opt_forcemoodtheme',
+        selected => forcemoodtheme,
+    ) %]
+    <label for='opt_forcemoodtheme'>
+        [% dw.ml('widget.moodthemechooser.forcetheme') %]
+    </label>
+
+
+    <ul class='moodtheme-links nostyle'>
+        <li><a href='[% site.root %]/moodlist[% journalarg %]'>
+            [% dw.ml('widget.moodthemechooser.links.allthemes') %]
+        </a></li>
+        <li><a href='[% site.root %]/manage/moodthemes[% getextra %]'>
+            [% dw.ml('widget.moodthemechooser.links.customthemes') %]
+        </a></li>
+    </ul>
+</div>
+[% IF mobj %]
+<div class='moodtheme-preview moodtheme-preview highlight-box'>
+    [% FOREACH mood IN cleaned_moods %]
+    <div class='moodtheme-mood'>
+        <img alt='[% mood.mood %]' src="[% mood.pic.pic %]" width='[% mood.pic.w %]' height='[% mood.pic.h %]' />
+        <p>[% mood.mood %]</p>
+    </div>
+    [% END %]
+    <div class='moodtheme-view-link'>
+       <a href='[% site.root %]/moodlist?moodtheme=[% preview_moodthemeid %]'>
+        [% dw.ml('widget.moodthemechooser.viewtheme') %]</a>
+    </div>
+
+    <div class='moodtheme-description'>
+        <p>[% mood_des %]</p>
+    </div>
+</div>
+[% END %]

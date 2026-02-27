@@ -39,6 +39,7 @@ use DW::Captcha;
 use DW::Routing;
 use DW::Template;
 use DW::VirtualGift;
+use DW::RateLimit;
 
 BEGIN {
     require "ljlib.pl";
@@ -170,9 +171,6 @@ sub redir {
     $apache_r->content_type("text/html");
     $apache_r->headers_out->{Location} = $url;
 
-    if ( $LJ::DEBUG{'log_redirects'} ) {
-        $apache_r->log_error( "redirect to $url from: " . join( ", ", caller(0) ) );
-    }
     return $code || REDIRECT;
 }
 
@@ -316,6 +314,17 @@ sub resolve_path_for_uri {
 sub trans {
     my $apache_r = $_[0];
 
+    # include some modern security headers for best practices; we put these on everything
+    # so that no matter how a user reaches us, they get the configs
+    $apache_r->headers_out->{'X-Content-Type-Options'} = 'nosniff';
+    $apache_r->headers_out->{'Referrer-Policy'}        = 'same-origin';
+    if ( $LJ::PROTOCOL eq 'https' ) {
+
+        # TODO: Raise HSTS timer here, but I want it low while I test to make sure that
+        # the world doesn't implode; suggested value is 31536000.
+        $apache_r->headers_out->{'Strict-Transport-Security'} = 'max-age=300; includeSubDomains';
+    }
+
     # don't deal with subrequests or OPTIONS
     return DECLINED
         if defined $apache_r->main || $apache_r->method_number == M_OPTIONS;
@@ -341,23 +350,55 @@ sub trans {
     }
 
     LJ::start_request();
-    LJ::Procnotify::check();
     S2::set_domain('LJ');
+
+    # Apply rate limiting (after start_request so get_remote returns fresh data)
+    my $remote = LJ::get_remote();
+    my $ip     = LJ::get_remote_ip();
+
+    # Get the appropriate rate limit based on whether user is logged in
+    my $limit;
+    if ($remote) {
+        $limit = DW::RateLimit->get(
+            "authenticated_requests",
+            rate => "100/60s"    # 100 requests per minute
+        );
+    }
+    else {
+        $limit = DW::RateLimit->get(
+            "anonymous_requests",
+            rate => "30/60s"     # 30 requests per minute
+        );
+    }
+
+    # Check if rate limit is exceeded
+    if ($limit) {
+        my $result = $limit->check(
+            userid => $remote ? $remote->userid : undef,
+            ip     => $remote ? undef           : $ip
+        );
+
+        if ( $result->{exceeded} ) {
+            $apache_r->status(429);
+            $apache_r->status_line("429 Too Many Requests");
+            $apache_r->content_type("text/html");
+
+            my $retry_after = $result->{time_remaining};
+            $apache_r->headers_out->{'Retry-After'} = $retry_after;
+
+            $apache_r->print("<h1>429 Too Many Requests</h1>");
+            $apache_r->print("<p>You have made too many requests. Please try again later.</p>");
+            if ($retry_after) {
+                $apache_r->print("<p>Please wait $retry_after seconds before trying again.</p>");
+            }
+            return OK;
+        }
+    }
 
     my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
     BML::set_language( $lang, \&LJ::Lang::get_text );
 
     if ( $apache_r->is_initial_req ) {
-
-        # delete cookies if there are any we want gone
-        if ( my $cookie = $LJ::DEBUG{"delete_cookie"} ) {
-            LJ::Session::set_cookie(
-                $cookie => 0,
-                delete  => 1,
-                domain  => $LJ::DOMAIN,
-                path    => "/"
-            );
-        }
 
         # handle uniq cookies
         # this will ensure that we have a correct cookie value
@@ -423,7 +464,7 @@ sub trans {
         }
     }
 
-    my $remote = LJ::get_remote();
+    $remote = LJ::get_remote();
 
     # block on IP address for anonymous users but allow users to log in,
     # and logged in users to go through
@@ -854,7 +895,7 @@ sub trans {
         );
     };
 
-    # user domains
+    # user or shop domains
     if (
            $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/
         && $2 ne "www"
@@ -945,9 +986,21 @@ sub trans {
             return 404;    # bogus ljconfig
         }
         else {
-            my $view = $determine_view->( $user, "users", $uri );
-            return $view if defined $view;
-            return 404;
+            # if this is the shop, manage domain cookie if needed, else just render
+            if ( $user eq 'shop' ) {
+                if ( $uri eq '/__setdomsess' ) {
+                    return redir( $apache_r, LJ::Session->setdomsess_handler );
+                }
+                else {
+                    $uri =~ s/\/$//;
+                    $uri = "/shop$uri";
+                }
+            }
+            else {
+                my $view = $determine_view->( $user, "users", $uri );
+                return $view if defined $view;
+                return 404;
+            }
         }
     }
 
@@ -958,7 +1011,7 @@ sub trans {
 
     # Attempt to handle a URI given the old-style LJ handler, falling back to
     # the new style Dreamwidth routing system.
-    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call();
+    my $ret = LJ::URI->handle( $uri, $apache_r ) // DW::Routing->call( uri => $uri );
     return $ret if defined $ret;
 
     # API role
@@ -1008,6 +1061,18 @@ sub trans {
         my $u = LJ::load_user($cuser)
             or return 404;
         my $base = $u->journal_base;
+
+        # If journal_base is path-based on this host (dev container), handle
+        # the request here instead of redirecting to ourselves in a loop.
+        if (   $LJ::IS_DEV_SERVER
+            && $LJ::IS_DEV_CONTAINER
+            && $base =~ m!^$LJ::PROTOCOL://$host\Q$hostport\E/~! )
+        {
+            my $view = $determine_view->( $cuser, "users", $srest );
+            return $view if defined $view;
+            return 404;
+        }
+
         return redir( $apache_r, "$base$srest$args_wq", correct_url_redirect_code() );
     }
 
@@ -1446,83 +1511,6 @@ sub correct_url_redirect_code {
         return HTTP_MOVED_PERMANENTLY;
     }
     return REDIRECT;
-}
-
-package LJ::Protocol;
-use Encode();
-
-sub xmlrpc_method {
-    my $method = shift;
-    shift;    # get rid of package name that dispatcher includes.
-    my $req = shift;
-
-    if (@_) {
-
-        # don't allow extra arguments
-        die SOAP::Fault->faultstring( LJ::Protocol::error_message(202) )->faultcode(202);
-    }
-    my $error = 0;
-    if ( ref $req eq "HASH" ) {
-
-        # get rid of the UTF8 flag in scalars
-        while ( my ( $k, $v ) = each %$req ) {
-            $req->{$k} = Encode::encode_utf8($v) if Encode::is_utf8($v);
-        }
-    }
-    my $res = LJ::Protocol::do_request( $method, $req, \$error );
-    if ($error) {
-
-        # FIXME [#1709]: which errors don't start with numbers?
-        print STDERR "[#1709] xmlrpc error for $method needs faultcode: $error\n"
-            unless $error =~ /^\d{3}/;
-
-        # existing behavior
-        die SOAP::Fault->faultstring( LJ::Protocol::error_message($error) )
-            ->faultcode( substr( $error, 0, 3 ) );
-    }
-
-    # Perl is untyped language and XML-RPC is typed.
-    # When library XMLRPC::Lite tries to guess type, it errors sometimes
-    # (e.g. string username goes as int, if username contains digits only).
-    # As workaround, we can select some elements by it's names
-    # and label them by correct types.
-
-    # Key - field name, value - type.
-    my %lj_types_map = (
-        journalname => 'string',
-        fullname    => 'string',
-        username    => 'string',
-        poster      => 'string',
-        postername  => 'string',
-        name        => 'string',
-    );
-
-    my $recursive_mark_elements;
-    $recursive_mark_elements = sub {
-        my $structure = shift;
-        my $ref       = ref($structure);
-
-        if ( $ref eq 'HASH' ) {
-            foreach my $hash_key ( keys %$structure ) {
-                if ( exists( $lj_types_map{$hash_key} ) ) {
-                    $structure->{$hash_key} = SOAP::Data->type( $lj_types_map{$hash_key} )
-                        ->value( $structure->{$hash_key} );
-                }
-                else {
-                    $recursive_mark_elements->( $structure->{$hash_key} );
-                }
-            }
-        }
-        elsif ( $ref eq 'ARRAY' ) {
-            foreach my $idx (@$structure) {
-                $recursive_mark_elements->($idx);
-            }
-        }
-    };
-
-    $recursive_mark_elements->($res);
-
-    return $res;
 }
 
 1;

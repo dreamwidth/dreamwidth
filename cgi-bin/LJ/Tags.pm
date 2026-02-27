@@ -645,6 +645,22 @@ sub get_permission_levels {
 }
 
 # <LJFUNC>
+# name: LJ::Tags::canonical_tag
+# class: tags
+# des: Convert a string to a canonical tag.
+# args: tag
+# des-tag: Opaque tag string provided by the user.
+# returns: Canonical tag (lowercase, spaces squashed, trimmed to CMAX_KEYWORD chars)
+# </LJFUNC>
+sub canonical_tag {
+    my $tag = shift;
+    $tag =~ s/\s+/ /g;    # condense multiple spaces to a single space
+    $tag = LJ::text_trim( $tag, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
+    $tag = LJ::utf8_lc($tag);
+    return $tag;
+}
+
+# <LJFUNC>
 # name: LJ::Tags::is_valid_tagstring
 # class: tags
 # des: Determines if a string contains a valid list of tags.
@@ -673,13 +689,6 @@ sub is_valid_tagstring {
         return 0 unless $tag =~ /^(?:.+\s?)+$/;    # one or more "words"
         return 1;
     };
-    my $canonical_tag = sub {
-        my $tag = shift;
-        $tag =~ s/\s+/ /g;                         # condense multiple spaces to a single space
-        $tag = LJ::text_trim( $tag, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
-        $tag = LJ::utf8_lc($tag);
-        return $tag;
-    };
 
     # now iterate
     my @list = grep { length $_ }                  # only keep things that are something
@@ -691,7 +700,7 @@ sub is_valid_tagstring {
     foreach my $tag (@list) {
 
         # canonicalize and determine validity
-        $tag = $canonical_tag->($tag);
+        $tag = LJ::Tags::canonical_tag($tag);
         return 0 unless $valid_tag->($tag);
 
         # now push on our list
@@ -1343,6 +1352,17 @@ sub rename_usertag {
             }
         )
     ) unless $newkw eq $newname;    # Far from ideal UX-wise.
+
+    # validate tag length (in bytes)
+    return $err->(
+        LJ::Lang::ml(
+            'taglib.error.toolong',
+            {
+                beforetag => LJ::ehtml($newkw),
+                aftertag  => LJ::ehtml($newname)
+            }
+        )
+    ) unless length LJ::Tags::canonical_tag($newkw) <= LJ::BMAX_KEYWORD;
 
     # get a list of keyword ids to operate on
     my $kwid;

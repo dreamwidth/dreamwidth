@@ -1,0 +1,159 @@
+;; -*- coding: utf-8 -*-
+.addrelationships.head=Add Relationships
+
+.addrelationships.text=Enter the [[sitename]] account names or OpenID URLs of people you want to add to your Circle. You can also use this form to change the colors associated with an account you subscribe to.  To return to the default colors, select a Black foreground on a White background.
+
+.addrelationships.warning.canupgrade=<b><i>Note: you will not be able to add more users to your circle, because you have met or exceeded your limit of [[maxnum]] [[?maxnum|journal|journals]] in your circle. You may still use the following form to edit the colors associated with an account if it is already in your circle, or you can <a [[aopts]]>upgrade your account</a> in order to increase the maximum size of your circle.</i></b>
+
+.addrelationships.warning.noupgrade=<b><i>Note: you will not be able to add more users to your circle, because you have met or exceeded your limit of [[maxnum]] [[?maxnum|journal|journals]] in your circle. You may still use the following form to edit the colors associated with an account if it is already in your circle.</i></b>
+
+.background=Background
+
+.bgcolor=Background Color:
+
+.btn.close=Close
+
+.btn.save=Save Changes
+
+.btn.save2=Add/Save
+
+.btn.toggle=Preview
+
+.circle.access=Give access
+
+.circle.access.n=Does not give you access
+
+.circle.access.y=Gives you access
+
+.circle.admin=Administrator
+
+.circle.header=Current Relationships
+
+.circle.show_banned=<a [[aopts]]>Show accounts you have banned?</a>
+
+.circle.hide_banned=<a [[aopts]]>Hide accounts you have banned?</a>
+
+.circle.header.comms=Communities ([[num]])
+
+.circle.header.feeds=Feeds ([[num]])
+
+.circle.header.people=People ([[num]])
+
+.circle.intro=Here are the <a [[aopts1]]>people</a>, <a [[aopts2]]>communities</a>, and <a [[aopts3]]>feeds</a> that are in your circle.  You can change who appears on your Reading Page and who you give access to by using the check boxes.  You can also <a [[aopts4]]>edit your notification tracking options</a>.
+
+.circle.intro2=Here are the <a [[aopts1]]>people</a>, <a [[aopts2]]>communities</a>, and <a [[aopts3]]>feeds</a> that are in your circle.  You can change who appears on your Reading Page and who you give access to by using the check boxes.  You can also <a [[aopts4]]>edit your notification tracking options</a>.  To ban or unban Dreamwidth users from commenting on your posts, visit <a [[aopts5]]>Ban and Unban Accounts</a>.
+
+.circle.intro.feeds=You can also use [[sitename]] as a syndicated feed reader to have posts from other sites show up on your [[sitename]] reading page. To browse existing feeds or add a new one, visit <a [[aopts]]>the list of popular feeds.</a>
+
+.circle.intro.nonpeople=These are the communities and feeds in your Circle. You can use the checkboxes to unsubscribe from these accounts.
+
+.circle.join.apply=<a [[aopts]]>Apply to join?</a>
+
+.circle.join.closed=(Closed)
+
+.circle.join.moderated=(Moderated)
+
+.circle.join.open=(Open)
+
+.circle.member=Member
+
+.circle.na=N/A
+
+.circle.name=Name
+
+.circle.nocircle=(You do not have any accounts in your circle.)
+
+.circle.none=(None)
+
+.circle.standout=Jump to: <a [[aopts1]]>People</a> | <a [[aopts2]]>Communities</a> | <a [[aopts3]]>Feeds</a>
+
+.circle.status=Circle status
+
+.circle.subscribe=Subscribe
+
+.circle.subscribe.n=Does not subscribe to you
+
+.circle.subscribe.y=Subscribes to you
+
+.circle.trust=Give access?
+
+.circle.trusted_by=Gives you access?
+
+.circle.username=Account name or OpenID URL
+
+.circle.watch=Subscribe?
+
+.circle.watched_by=Subscribes to you?
+
+.comm.join=Join
+
+.comm.leave=Leave
+
+.customcolors.enable=For your Reading Page to display these colors, you need to enable the 'Use my custom reading page colors' option at <a [[aopts]]>Customize Journal Style</a>. All official [[sitename]] styles support this option except for Zesty; custom styles may not.
+
+.editfriends.friend=Friend?
+
+.editfriends.head=Edit Friends
+
+.editfriends.name=Name
+
+.editfriends.text=You can add or remove anyone from your Friends list at any time. The green arrows ([[img1]]) indicate that someone is on your Friends list, while the blue arrows ([[img2]]) indicate that you're on their Friends list.
+
+.editfriends.username=Username
+
+.error.adding.header=Problems Encountered
+
+.error.adding.text=User <strong>[[username]]</strong> does not exist.
+
+.error.badjournaltype=You can't modify the Circle of this journal type.
+
+.error.updating=There was an error updating your circle.
+
+.foreground=Foreground
+
+.friend=Friend
+
+.hover=Hover your mouse pointer over a color to display its name and hex value.
+
+.mrcolor=Mr. Color Viewer
+
+.name=Name
+
+.success.editfriends=Manage your Circle
+
+.success.editaccess_filters=Manage your access filters
+
+.success.editsubscr_filters=Manage your subscription filters
+
+.success.friendspage=View your Reading Page
+
+.success.message=Your circle has been updated!
+
+.success.title=Success
+
+.table.header1=Account
+
+.table.header2=Subscription
+
+.table.header3.comms=Membership
+
+.table.header3.people=Access
+
+.table.summary.comms=Each row represents a community in your circle; columns are the information about that community, some of which you can change.
+
+.table.summary.feeds=Each row represents a feed account you are subscribed to; columns are the information about that feed, some of which you can change.
+
+.table.summary.people=Each row represents a person in your circle; columns are the information about that person, some of which you can change.
+
+.textcolor=Text Color:
+
+.title=Manage Circle
+
+.title2=Manage Circle
+
+.title3=Manage Circle
+
+.user=User
+
+.viewer=Color Viewer
+

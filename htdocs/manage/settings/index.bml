@@ -20,6 +20,7 @@ body<=
     use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
 
     use LJ::Setting;
+    use DW::Template;
 
     BML::set_language_scope('/manage/settings/index.bml');
 
@@ -275,127 +276,8 @@ body<=
             $u->delete_all_inactive_subscriptions;
             $submit_msg .= "<?errorbar $ML{'.success.deleteinactive2'} errorbar?><br />";
         } elsif ( $given_cat eq "notifications" ) {
-            my @notif_errors;
 
-            # do they want to add or edit subscriptions?
-            next unless $POST{mode} eq 'save_subscriptions';
-
-            my @sub_edit;
-            my @to_consider;
-            my @to_activate;
-
-            foreach my $postkey (keys %POST) {
-                my $subscr;
-                my $old_postkey = $postkey;
-                my $old = $postkey =~ /-old$/;
-
-                # are there other options for this pending subscription? if so, process those not this one
-                next if $postkey =~ /\.arg\d/;
-
-                $subscr = LJ::Subscription->thaw($postkey, $u, \%POST) or next;
-
-                if ($subscr->pending) {
-                    push @to_consider, $subscr;
-                } else {
-                    push @to_activate, $subscr if !$old && !$subscr->active;
-                }
-
-                # remove old string
-                $postkey =~ s/-old// if $old;
-
-                next unless $old;
-
-                my $oldvalue = $POST{$old_postkey};
-                my $checked = $POST{$postkey};
-
-                push @sub_edit, [
-                                 $subscr,
-                                 $checked,
-                                 $oldvalue,
-                                 ];
-            }
-
-            # first process deletions
-            foreach my $edit_info (@sub_edit) {
-                my ($subscr, $checked, $oldvalue) = @$edit_info;
-
-                if (!$checked && $oldvalue && $subscr->method->configured_for_user($u)) {
-                    # if it's not checked and is currently a real subscription, deactivate it
-                    # unless we disabled it for them (disabled checkboxes don't POST)
-                    $subscr->deactivate;
-                }
-            }
-
-            # then process new subs and activations
-            foreach my $subscr (@to_activate) {
-                my @inbox_subs = grep { $_->active && $_->enabled } $u->find_subscriptions(method => 'Inbox');
-
-                if ((scalar @inbox_subs) >= $u->max_subscriptions) {
-                    # too many, sorry
-                    push @notif_errors, LJ::errobj("Subscription::TooMany", subscr => $subscr, u => $u);
-                } else {
-                    # all is good, reactivate it
-                    $subscr->activate;
-                }
-            }
-
-            # Define limits
-            my $paid_max = LJ::get_cap('paid', 'subscriptions');
-            my $u_max  = $u->max_subscriptions;
-            # max for total number of subscriptions (generally it is $paid_max)
-            my $system_max  = $u_max > $paid_max ? $u_max : $paid_max;
-
-            my $inbox_ntypeid = LJ::NotificationMethod::Inbox->ntypeid;
-            my @other_ntypeid_to_consider;
-
-            # process new inbox subs
-            foreach my $subscr (@to_consider) {
-                # if this is not an inbox sub, check it
-                if ($subscr->ntypeid != $inbox_ntypeid) {
-                    push @other_ntypeid_to_consider, $subscr;
-                } else {
-                    # this is an inbox subscription, save it
-                    my @all_subs = $u->find_subscriptions(method => 'Inbox');
-                    my @active_subs = grep { $_->active && $_->enabled } @all_subs;
-
-                    if (@active_subs >= $u_max) {
-                        push @notif_errors, LJ::errobj("Subscription::TooMany", subscr => $subscr, u => $u);
-                    } elsif (@all_subs >= $system_max) {
-                        push @notif_errors, LJ::errobj("Subscription::TooManySystemMax", subscr => $subscr, u => $u, max => $system_max);
-                    } else {
-                        # save this for consideration after we've processed all inbox subscriptions first
-                        $subscr->commit;
-                    }
-                }
-            }
-
-            # process all other new subs
-            foreach my $subscr (@other_ntypeid_to_consider) {
-                my %inbox_sub_params = $subscr->sub_info;
-                # don't save a subscription if there is no corresponding inbox sub for it
-                $inbox_sub_params{ntypeid} = $inbox_ntypeid;
-                delete $inbox_sub_params{flags};
-
-                my ($inbox_sub) = $u->has_subscription(%inbox_sub_params);
-
-                # If Inbox is always on, then act like an Inbox sub exists
-                my $always_checked = $subscr->event_class->always_checked ? 1 : 0;
-                next if (!$always_checked && !($inbox_sub && $inbox_sub->active && $inbox_sub->enabled));
-
-                my @all_subs = $u->find_subscriptions(method => $subscr->method);
-                my @active_subs = grep { $_->active && $_->enabled } @all_subs;
-
-                if (@active_subs >= $u_max) {
-                    push @notif_errors, LJ::errobj("Subscription::TooMany", subscr => $subscr, u => $u);
-                    next;
-                } elsif (@all_subs >= $system_max) {
-                    push @notif_errors, LJ::errobj("Subscription::TooManySystemMax", subscr => $subscr, u => $u, max => $system_max);
-                    next;
-                }
-
-                $subscr->commit;
-            }
-
+            my @notif_errors = $u->save_subscriptions( \%POST );
             delete $u->{_subscriptions};
 
             return BML::redirect($POST{ret_url}) if $POST{ret_url} && !scalar @notif_errors;
@@ -489,173 +371,41 @@ body<=
     $ret .= $cats_with_settings{$given_cat}->{desc};
     $ret .= "</p></div>";
 
-    $ret .= "<div class='settings_content'>";
-    $ret .= "<div class='$given_cat'>";
-
-    if ( $given_cat eq "notifications" && $can_view_other ) {
-        # form for viewing another user's notifications
-        # must go above the post form declaration
-        $ret .= "<div id='settings_save' class='action-bar'>";
-        $ret .= "<form action='$LJ::SITEROOT/manage/settings/' method='get'>";
-        $ret .= LJ::html_hidden( authas => $GET{authas} );
-        $ret .= LJ::html_hidden( cat => $given_cat );
-        $ret .= "<label for='user'>$ML{'.user'}</label>";
-        $ret .= "<input name='user' id='user' value='$GET{user}' maxlength='25' size='15'/>";
-        $ret .= "<input type='submit' value='$ML{'.user.submit'}'>";
-        $ret .= "</form>";
-        $ret .= "</div>";
-    }
-
-    if ($cats_with_settings{$given_cat}->{form}) {
-        if ( $LJ::ACTIVE_RES_GROUP ne "jquery"  ) {
-            my $confirm_msg = LJ::ejs($ML{'.form.confirm1'});
-            $ret .= "<script>Settings.confirm_msg = \"$confirm_msg\";</script>";
-        }
-        $ret .= "<form class='table-form' id='settings_form' action='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat' method='post'>";
-        $ret .= LJ::form_auth();
-    }
-
     if ($given_cat eq "notifications") {
 
-        LJ::set_active_resource_group( 'jquery' );
-        LJ::need_res( { group => 'jquery' }, 'js/notifications.js',
-            "js/components/jquery.select-all-special.js",
-            "stc/css/components/select-all.css"  );
+        $u = $u->subscription_default_setup;
 
-        # don't reprint the save buttons here if we displayed the admin form
-        if ( ! $can_view_other ) {
-            $ret .= "<div id='settings_save' class='action-bar'>";
-            $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
-            $ret .= "&nbsp;";
-            my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
-            $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'},
-                                     {
-                                       class => 'btn',
-                                       title => $ML{'.btn.deleteinactive2'},
-                                       onClick => "return confirm( '$del_conf' )"
-                                     } );
-            $ret .= "</div>";
-        }
+        my $template_vars = {
+            has_admin_form      => $can_view_other,
+            has_user_form       => $cats_with_settings{$given_cat}->{form},
+            post_action         => "$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat",
+            viewing_self        => ( $u->user eq $authas ) ? 1 : 0,
+            get_args            => \%GET,
+            subscribe_interface => LJ::subscribe_interface(
+                $u,
+                journal       => $u,
+                categories    => $u->subscription_categories_for_settings_page,
+                settings_page => 1,
+                num_per_page  => 250,
+                page          => int( $GET{page} || 0 ),
+            )
+        };
 
-        my $my_account_extra = LJ::Hooks::run_hook('subscriptions_manage_my_account_extra', $u);
-
-        # set up default subscriptions for users that have not managed ESN stuff
-        if (!$u->prop('esn_has_managed') && !$u->subscription_count) {
-            $u->set_prop( esn_has_managed => 1 );
-
-            my @default_subscriptions = (
-                LJ::Subscription::Pending->new($u,
-                    event => 'OfficialPost',
-                ),
-            );
-
-            push @default_subscriptions, $my_account_extra
-                if $my_account_extra;
-
-            if ($u->prop('opt_gettalkemail') ne 'N') {
-                push @default_subscriptions, (
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment',
-                        journal => $u,
-                        method => 'Inbox',
-                    ),
-
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment',
-                        journal => $u,
-                        method => 'Email',
-                    ),
-                );
-            }
-
-            $_->commit foreach @default_subscriptions;
-        }
-
-        # Translate legacy pre-ESN notifs to ESN notifs
-        LJ::Event::JournalNewComment::Reply->migrate_user( $u );
-
-        my @categories = (
-            {
-                "My Account" => [
-                    LJ::Subscription::Pending->new($u,
-                        event => 'OfficialPost',
-                    ),
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment',
-                        journal => $u,
-                    ),
-
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment::Reply',
-                        arg2 => 0,
-                    ),
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment::Reply',
-                        arg2 => 1,
-                    ),
-
-                    LJ::Subscription::Pending->new($u,
-                        event => 'JournalNewComment::Reply',
-                        arg2 => 2,
-                    ),
-
-                    LJ::Subscription::Pending->new($u,
-                        event => 'PollVote',
-                        journal => $u,
-                    ),
-                    'AddedToCircle',
-                    'RemovedFromCircle',
-                    LJ::Subscription::Pending->new($u,
-                        event => 'XPostSuccess',
-                        journal => $u,
-                    ),
-                    LJ::Subscription::Pending->new($u,
-                        event => 'XPostFailure',
-                        journal => $u,
-                        default_selected => 1,
-                    ),
-                    LJ::Subscription::Pending->new($u,
-                        event => 'VgiftDelivered',
-                        journal => $u,
-                        default_selected => 1,
-                    ),
-                    LJ::Subscription::Pending->new($u,
-                        event => 'UserMessageRecvd',
-                        journal => $u,
-                        default_selected => 1,
-                    ),
-                ],
-            },
-            {
-                "Friends and Communities" => [
-                    'InvitedFriendJoins',
-                    'CommunityInvite',
-                    'CommunityJoinRequest',
-                    'CommunityModeratedEntryNew',
-                    LJ::Subscription::Pending->new($u,
-                        event => 'NewUserpic',
-                    ),
-                    LJ::Subscription::Pending->new($u,
-                        event => 'Birthday',
-                    ),
-                    (LJ::Hooks::run_hook('subscriptions_manage_friend_pending_extra', $u) || ()),
-                ],
-            },
-        );
-
-        unshift @{$categories[0]->{'My Account'}}, $my_account_extra
-            if $my_account_extra;
-
-        $ret .= LJ::subscribe_interface($u,
-            journal       => $u,
-            categories    => \@categories,
-            showtracking  => 1,
-            settings_page => 1,
-            num_per_page  => 250,
-            page          => int( $GET{page} || 0 ),
-        ) . "<br />";
+        $ret .= DW::Template->template_string( 'tracking/settings-interface.tt', $template_vars );
 
     } else {
+
+        $ret .= "<div class='settings_content'>";
+        $ret .= "<div class='$given_cat'>";
+
+        if ($cats_with_settings{$given_cat}->{form}) {
+            if ( $LJ::ACTIVE_RES_GROUP ne "jquery"  ) {
+                my $confirm_msg = LJ::ejs($ML{'.form.confirm1'});
+                $ret .= "<script>Settings.confirm_msg = \"$confirm_msg\";</script>";
+            }
+            $ret .= "<form class='table-form' id='settings_form' action='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat' method='post'>";
+            $ret .= LJ::form_auth();
+        }
         my $setting_ct = 0;
         $ret .= "<table summary=''>";
         foreach my $setting (@settings) {
@@ -689,24 +439,16 @@ body<=
                 $ret .= "</div>";
             }
         }
-    }
 
-    $ret .= "</div>";
-    $ret .= "</div>";
+        $ret .= "</div>";
+        $ret .= "</div>";
 
-    $ret .= "<div id='settings_save' class='action-bar'>";
-    $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
-    if ( $given_cat eq "notifications" && $u->user eq $authas ) {
-        $ret .= "&nbsp;";
-        my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
-        $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'}, {
-            class => 'btn',
-            title => $ML{'.btn.deleteinactive2'},
-            onClick => "return confirm( '$del_conf' )"
-            } );
+        $ret .= "<div id='settings_save' class='action-bar'>";
+        $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
+        $ret .= "</div>";
+
+        $ret .= "</form>" if $cats_with_settings{$given_cat}->{form};
     }
-    $ret .= "</div>";
-    $ret .= "</form>" if $cats_with_settings{$given_cat}->{form};
 
     $ret .= "</div>";
 

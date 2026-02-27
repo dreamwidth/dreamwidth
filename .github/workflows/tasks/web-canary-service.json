@@ -9,6 +9,11 @@
                     "containerPort": 6081,
                     "hostPort": 6081,
                     "protocol": "tcp"
+                },
+                {
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "tcp"
                 }
             ],
             "essential": true,
@@ -37,9 +42,9 @@
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-create-group": "true",
-                    "awslogs-group": "/dreamwidth/web",
+                    "awslogs-group": "/dreamwidth/web/canary",
                     "awslogs-region": "us-east-1",
-                    "awslogs-stream-prefix": "web"
+                    "awslogs-stream-prefix": "canary"
                 }
             }
         },

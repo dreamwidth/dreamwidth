@@ -1,0 +1,35 @@
+{
+  "name": "Dreamwidth Test Environment",
+  "image": "ghcr.io/dreamwidth/devcontainer:latest",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.perl",
+        "ms-vscode.test-adapter-converter",
+        "hbenl.vscode-test-explorer"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "runArgs": ["--security-opt", "label=disable", "-p", "8080:8080", "-p", "8081:8081"],
+  "containerEnv": {
+    "LJHOME": "/workspaces/dreamwidth",
+    "PERL5LIB": "/opt/dreamwidth-extlib/lib/perl5",
+    "LJ_IS_DEV_SERVER": "1",
+    "DEBIAN_FRONTEND": "noninteractive",
+    "LANG": "en_US.UTF-8",
+    "LC_ALL": "en_US.UTF-8"
+  },
+  "postCreateCommand": "/bin/bash .devcontainer/setup.sh",
+  "postStartCommand": "/bin/bash .devcontainer/start.sh",
+  "remoteUser": "root",
+  "workspaceFolder": "/workspaces/dreamwidth"
+}

@@ -27,7 +27,7 @@ use constant FAILED    => 101;
 sub new {
     my ( $class, @args ) = @_;
 
-    my $self = { args => \@args, };
+    my $self = { args => \@args };
     return bless $self, $class;
 }
 
@@ -35,6 +35,27 @@ sub args {
     my $self = $_[0];
 
     return $self->{args};
+}
+
+sub with_dedup {
+    my ( $self, %opts ) = @_;
+    $self->{uniqkey}   = $opts{uniqkey};
+    $self->{dedup_ttl} = $opts{dedup_ttl};
+    return $self;
+}
+
+sub uniqkey {
+    return $_[0]->{uniqkey};
+}
+
+sub dedup_ttl {
+    return $_[0]->{dedup_ttl};
+}
+
+sub receive_count {
+    my ( $self, $val ) = @_;
+    $self->{_receive_count} = $val if defined $val;
+    return $self->{_receive_count} || 0;
 }
 
 sub queue_attributes {

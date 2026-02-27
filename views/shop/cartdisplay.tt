@@ -15,7 +15,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             [% IF remote.is_person %]
                 You have <strong>[% remote.shop_points %] points</strong>.<br />
                 [% IF site.help.shoppoints %]<a href="[% site.help.shoppoints %]">What is this?</a> |[% END %]
-                <a href="[% site.root %]/shop/points">Buy More</a>
+                <a href="[% site.shoproot %]/points">Buy More</a>
             [% ELSE %]
                 Only personal accounts can carry a point balance.
             [% END %]
@@ -26,8 +26,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class='shop-status-middle'>
         [% IF cart AND cart.has_items %]
             <img src="[% site.imgroot %]/silk/site/cart.png" /> Order Cost: <strong>[% cart.display_total %]</strong><br />
-            <a href='[% site.root %]/shop/cart'>View/Check Out Order</a> | 
-            <a href='[% site.root %]/shop?newcart=1'>Cancel Order</a>
+            <a href='[% site.shoproot %]/cart'>View/Check Out Order</a> | 
+            <a href='[% site.shoproot %]?newcart=1'>Cancel Order</a>
         [% ELSE %]
             <img src="[% site.imgroot %]/silk/site/cart.png" /> Your shopping cart is empty.
         [% END %]
@@ -35,7 +35,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class='shop-status-right'>
         [%# Also use this section for sales links and stuff. %]
         [% IF site.help.paidaccountinfo %]<a href="[% site.help.paidaccountinfo %]">About the Shop</a><br />[% END %]
-        <a href="[% site.root %]/shop/history">Order History</a>
+        <a href="[% site.shoproot %]/history">Order History</a>
     </div>
     <div style='clear: both;'></div>
 </div>

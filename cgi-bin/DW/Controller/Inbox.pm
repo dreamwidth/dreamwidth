@@ -42,7 +42,8 @@ sub index_handler {
     my $GET    = $r->get_args;
     my $remote = $rv->{remote};
     my $vars;
-    my $scope = '/inbox/index.tt';
+    my $scope  = '/inbox/index.tt';
+    my $errors = DW::FormErrors->new;
 
     return error_ml("$scope.error.not_ready") unless $remote->can_use_esn;
 
@@ -51,15 +52,15 @@ sub index_handler {
 
     # Take a supplied filter but default it to undef unless it is valid
     my $view = $GET->{view} || $POST->{view} || undef;
+    $view = undef if $view              && $view =~ /\W/;
     $view = undef if $view eq 'archive' && !LJ::is_enabled('esn_archive');
-    $view = undef if $view && !LJ::NotificationInbox->can("${view}_items");
+    $view = undef if $view              && !LJ::NotificationInbox->can("${view}_items");
     $view ||= 'all';
 
     my $itemid = $view eq "singleentry" ? int( $POST->{itemid} || $GET->{itemid} || 0 ) : 0;
     my $expand = $GET->{expand};
 
     my $page = int( $POST->{page} || $GET->{page} || 1 );
-    my @errors;
     if ( $r->did_post ) {
         my $action;
 
@@ -83,13 +84,18 @@ sub index_handler {
             next unless $key =~ /check_(\d+)/;
             push @item_ids, $POST->{$key};
         }
-        handle_post( $remote, $action, $view, $itemid, \@item_ids );
+        my $res = handle_post( $remote, $action, $view, $itemid, \@item_ids );
+        unless ( $res->{success} ) {
+            for my $error ( @{ $res->{errors} } ) {
+                $errors->add( undef, $error );
+            }
+        }
     }
 
     # Allow bookmarking to work without Javascript
     # or before JS events are bound
     if ( $GET->{bookmark_off} && $GET->{bookmark_off} =~ /^\d+$/ ) {
-        push @errors, LJ::Lang::ml("$scope.error.max_bookmarks")
+        $errors->add( undef, "$scope.error.max_bookmarks" )
             unless $inbox->add_bookmark( $GET->{bookmark_off} );
     }
     if ( $GET->{bookmark_on} && $GET->{bookmark_on} =~ /^\d+$/ ) {
@@ -141,7 +147,7 @@ sub index_handler {
 
     $vars->{mark_all}   = $mark_all_text;
     $vars->{delete_all} = $delete_all_text;
-    $vars->{img}        = &LJ::img;
+    $vars->{errors}     = $errors;
 
     # TODO: Remove this when beta is over
     $vars->{dw_beta} = LJ::load_user('dw_beta');
@@ -302,7 +308,10 @@ sub action_handler {
     else {
         return DW::RPC->err( LJ::Lang::ml('/inbox/index.tt.error.invalidform') )
             unless LJ::check_form_auth($form_auth);
-        handle_post( $remote, $action, $view, $itemid, $ids );
+        my $res = handle_post( $remote, $action, $view, $itemid, $ids );
+        unless ( $res->{success} ) {
+            return DW::RPC->out( errors => $res->{errors} );
+        }
     }
 
     my $getextra = {};
@@ -315,27 +324,39 @@ sub action_handler {
         $getextra->{view} = $view;
     }
 
-    my $inbox         = $remote->notification_inbox;
-    my $display_items = items_by_view( $inbox, $view, $itemid );
-    my $last_page     = POSIX::ceil( ( scalar @$display_items ) / $PAGE_LIMIT );
-    $last_page ||= 1;
-    $page = $last_page if $page > $last_page;
-
-    my $items_html  = render_items( $page, $view, $remote, $display_items, $expand );
+    my $inbox       = $remote->notification_inbox;
     my $folder_html = render_folders( $remote, $view );
-    my $path        = "/inbox/new";
-    my $pages_html  = DW::Template->template_string( 'components/pagination.tt',
-        { current => $page, total_pages => $last_page, path => $path, cur_args => $getextra } );
 
-    return DW::RPC->out(
-        success => {
-            items        => $items_html,
-            folders      => $folder_html,
-            pages        => $pages_html,
-            unread_count => $inbox->unread_count
-        }
-    );
+    # if we've removed items from the view, we need to rebuild the list and recalculate pages
+    if ( $action eq 'delete' || $action eq 'delete_all' ) {
 
+        my $display_items = items_by_view( $inbox, $view, $itemid );
+        my $last_page     = POSIX::ceil( ( scalar @$display_items ) / $PAGE_LIMIT );
+        $last_page ||= 1;
+        $page = $last_page if $page > $last_page;
+
+        my $items_html = render_items( $page, $view, $remote, $display_items, $expand );
+        my $path       = "/inbox/new";
+        my $pages_html = DW::Template->template_string( 'components/pagination.tt',
+            { current => $page, total_pages => $last_page, path => $path, cur_args => $getextra } );
+
+        return DW::RPC->out(
+            success => {
+                items        => $items_html,
+                folders      => $folder_html,
+                pages        => $pages_html,
+                unread_count => $inbox->unread_count
+            }
+        );
+    }
+    else {
+        return DW::RPC->out(
+            success => {
+                unread_count => $inbox->unread_count,
+                folders      => $folder_html,
+            }
+        );
+    }
 }
 
 sub handle_post {
@@ -345,7 +366,7 @@ sub handle_post {
     my $inbox = $remote->notification_inbox
         or return error_ml( "/inbox/index.tt.error.couldnt_retrieve_inbox",
         { 'user' => $remote->{user} } );
-    return 0 unless $action;
+    return { 'errors' => ["No action specified!"] } unless $action;
 
     if ( $action eq 'mark_all' ) {
         $inbox->mark_all_read( $view, itemid => $itemid );
@@ -354,7 +375,7 @@ sub handle_post {
         $inbox->delete_all( $view, itemid => $itemid );
     }
     elsif ( $action eq 'bookmark_off' ) {
-        push @errors, LJ::Lang::ml("/inbox.index.tt.error.max_bookmarks")
+        push @errors, LJ::Lang::ml("/inbox/index.tt.error.max_bookmarks")
             unless $inbox->add_bookmark($item_ids);
     }
     elsif ( $action eq 'bookmark_on' ) {
@@ -377,7 +398,13 @@ sub handle_post {
         }
 
     }
-    return 1;
+
+    if (@errors) {
+        return { 'errors' => \@errors };
+    }
+    else {
+        return { 'success' => 1 };
+    }
 
 }
 

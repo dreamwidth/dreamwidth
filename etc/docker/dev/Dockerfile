@@ -2,7 +2,7 @@
 # This creates a Dreamwidth worker container.
 #
 
-FROM  dreamwidth/base:latest
+FROM  ghcr.io/dreamwidth/base:latest
 LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.
@@ -16,13 +16,12 @@ ENV PERL5LIB /dw/extlib/lib/perl5
 # Install some packages we need in workers only.
 RUN echo $COMMIT && \
     apt-get update && \
-    apt-get install -y mysql-client && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
         xargs apt-get -y install && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-dev | \
         xargs apt-get -y install && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
-        cpm install -v --no-color -L /dw/extlib/ - && \
+        cpm install -v --show-build-log-on-failure --no-color --resolver metadb -L /dw/extlib/ - && \
     rm -rf /root/.cpanm && \
     rm -rf /root/.perl-cpm && \
     rm -rf /var/lib/apt/lists/*

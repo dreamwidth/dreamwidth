@@ -263,6 +263,7 @@ sub do_sync {
     # setup our download hash
     my $lastgrab = $bak{"event:lastgrab"};
     my %data;
+
     while (1) {
         # shortcut to maybe not have to hit getvents
         last if $lastgrab eq $lastsync;
@@ -502,12 +503,15 @@ sub do_authed_fetch {
     my ($mode, $startid, $numitems, $sess) = @_;
     d("do_authed_fetch: mode = $mode, startid = $startid, numitems = $numitems, sess = $sess");
 
-    # hit up the server with the specified information and return the raw content
+    # hit up the server with the specified information and return the raw content.
+    # use a cookie jar so the ljsession cookie survives any redirects
+    # (e.g. dreamwidth.org -> www.dreamwidth.org)
     my $ua = LWP::UserAgent->new;
     $ua->agent('JBackup/1.0');
+    $ua->cookie_jar({});
+    $ua->cookie_jar->set_cookie(0, 'ljsession', $sess, '/', $opts{server}, undef, 0, 0, 86400, 0);
     my $authas = $opts{usejournal} ? "&authas=$opts{usejournal}" : '';
     my $request = HTTP::Request->new(GET => "$opts{baseurl}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas");
-    $request->push_header(Cookie => "ljsession=$sess");
     my $response = $ua->request($request);
     return if $response->is_error();
     my $xml = $response->content();

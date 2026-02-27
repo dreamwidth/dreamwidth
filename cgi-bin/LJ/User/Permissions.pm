@@ -524,25 +524,25 @@ sub get_cap {
 # returns the gift shop URL to buy a gift for that user
 sub gift_url {
     my ($u) = @_;
-    return "$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user;
+    return "$LJ::SHOPROOT/account?for=gift&user=" . $u->user;
 }
 
 # returns the gift shop URL to buy points for that user
 sub gift_points_url {
     my ($u) = @_;
-    return "$LJ::SITEROOT/shop/points?for=" . $u->user;
+    return "$LJ::SHOPROOT/points?for=" . $u->user;
 }
 
 # returns the gift shop URL to transfer your own points to that user
 sub transfer_points_url {
     my ($u) = @_;
-    return "$LJ::SITEROOT/shop/transferpoints?for=" . $u->user;
+    return "$LJ::SHOPROOT/transferpoints?for=" . $u->user;
 }
 
 # returns the shop URL to buy a virtual gift for that user
 sub virtual_gift_url {
     my ($u) = @_;
-    return "$LJ::SITEROOT/shop/vgift?user=" . $u->user;
+    return "$LJ::SHOPROOT/vgift?user=" . $u->user;
 }
 
 =head3 C<< $self->give_shop_points( %options ) >>
@@ -741,6 +741,9 @@ sub include_in_global_search {
     # only P/C accounts should be globally searched
     return 0 unless $u->is_person || $u->is_community;
 
+    # ignore any accounts that haven't been screened for spam yet
+    return 0 unless $u->is_approved;
+
     # default) check opt_blockglobalsearch and use that if it's defined
     my $bgs = $u->prop('opt_blockglobalsearch');
     return $bgs eq 'Y' ? 0 : 1 if defined $bgs && length $bgs;
@@ -756,6 +759,7 @@ sub include_in_global_search {
 # whether this user wants to have their content included in the latest feeds or not
 sub include_in_latest_feed {
     my $u = $_[0];
+    return 0 unless $u->is_approved;
     return $u->prop('latest_optout') ? 0 : 1;
 }
 
@@ -1294,8 +1298,9 @@ sub should_receive_support_notifications {
     return 0 unless $u->is_visible;
     return 0 unless $u->is_validated;
     return 0 unless $spcatid;
-    return 0 unless LJ::Support::can_read_cat( $spcatid, $u );
-    return 1;
+
+    my $cat = LJ::Support::load_cats($spcatid)->{$spcatid};
+    return LJ::Support::can_read_cat( $cat, $u );
 }
 
 sub support_points_count {
@@ -1410,11 +1415,21 @@ sub sticky_entries {
     return @entries;
 }
 
-# returns a list of sticky entry ids
+# returns a list of all sticky entry ids
 sub sticky_entry_ids {
     my $prop = $_[0]->prop('sticky_entry');
     return unless defined $prop;
     return split /,/, $prop;
+}
+
+# returns a list of active sticky entry ids
+sub sticky_entry_active_ids {
+    my ($u) = @_;
+    my $max = $u->count_max_stickies || 0;
+    my @ids = $u->sticky_entry_ids;
+    return unless @ids;
+    @ids = @ids[ 0 .. $max - 1 ] if scalar @ids > $max;
+    return @ids;
 }
 
 # returns a map of ditemid => 1 of the sticky entries

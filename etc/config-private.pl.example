@@ -66,14 +66,6 @@ use Net::Subnet;
             },
         );
 
-    # 32 vs 64 bit arch. By default everything goes to a 64 bit arch.
-    # Automatically detected. Uncomment to force 32 bit arch support.
-    #
-    # WARNING: This must be set prior to setting up your site.  If you change it
-    # later on a running site, things may go badly for you.
-    #
-    #$ARCH32 = "1";
-
     # allow changelog posting.  this allows unauthenticated posts to the changelog
     # community from the IP and users specified.  this does not work on its own,
     # you have to configure your version control server to do the posting.  see
@@ -166,13 +158,15 @@ use Net::Subnet;
     # $PROXY_URL = "https://proxy.myhost.net";
     # $PROXY_SALT_FILE = "$HOME/etc/proxy-salt";
 
-    # If you want to use Amazon SES (e.g. bin/worker/send-email-ses) then you
-    # need to do a lot of setup on the Amazon side and then fill this out. The
-    # settings are from the SMTP Settings page in SES.
-    # %EMAIL_VIA_SES = (
-    #     hostname => '...',
-    #     username => '...',
-    #     password => '...',
+    # If you want to use SMTP for email delivery (e.g. Amazon SES, Gmail, etc.) then you
+    # need to configure your SMTP server settings here. The settings are from your SMTP
+    # provider's configuration page.
+    # %SMTP_SERVER = (
+    #     hostname  => 'email-smtp.us-east-1.amazonaws.com',  # SES example
+    #     username  => 'YOUR_SMTP_USERNAME',
+    #     password  => 'YOUR_SMTP_PASSWORD',
+    #     port      => 587,  # optional, defaults to 587
+    #     plaintext => 0,    # optional, set to 1 to disable TLS
     # );
 
     # Configuration of BlobStore. This is the new storage abstraction used to
@@ -254,6 +248,10 @@ use Net::Subnet;
     package DW::PRIVATE;
 
     $DOMAIN = "ljsite.com";
+    
+    # Set this to use a custom domain for the shop, if needed for PCI compliance
+    # separation purposes
+    # $DOMAIN_SHOP = "shop.ljsite.com";
 
     #%PAYPAL = (
     #    user => ,
@@ -279,13 +277,6 @@ use Net::Subnet;
     #%RECAPTCHA = (
     #    public_key  => ,
     #    private_key => ,
-    #);
-
-    #%TEXTCAPTCHA = (
-    #   # this works for testing purposes.
-    #   # sign up at the textcaptcha website for a key for production use
-    #    api_key => "demo",
-    #    timeout => 10,
     #);
 }
 

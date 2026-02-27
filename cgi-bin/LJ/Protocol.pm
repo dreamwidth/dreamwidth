@@ -17,6 +17,8 @@ use strict;
 no warnings 'uninitialized';
 
 use Digest::MD5;
+use Encode     ();
+use SOAP::Lite ();
 
 use LJ::Global::Constants;
 use LJ::Console;
@@ -26,6 +28,8 @@ use LJ::Entry;
 use LJ::Poll;
 use LJ::Config;
 use LJ::Comment;
+use DW::Task::SphinxCopier;
+use DW::Task::XPost;
 
 LJ::Config->load;
 
@@ -222,8 +226,9 @@ sub addcomment {
     my $journal;
     if ( $req->{journal} ) {
         $journal = LJ::load_user( $req->{journal} ) or return fail( $err, 100 );
+        my $entry = LJ::Entry->new( $journal, ditemid => $req->{ditemid} );
         return fail( $err, 214 )
-            if LJ::Talk::Post::require_captcha_test( $u, $journal, $req->{body}, $req->{ditemid} );
+            if LJ::Talk::Post::require_captcha_test( $u, $journal, $req->{body}, $entry );
     }
     else {
         $journal = $u;
@@ -1192,8 +1197,7 @@ sub schedule_xposts {
             %{$info}
         };
 
-        DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array( 'DW::Worker::XPostWorker', $jobargs ) );
+        DW::TaskQueue->dispatch( DW::Task::XPost->new($jobargs) );
         push @successes, $acct;
     }
 
@@ -1754,7 +1758,7 @@ sub postevent {
         );
     }
 
-    my @jobs;    # jobs to add into TheSchwartz
+    my @jobs;    # jobs to add into TaskQueue
 
     my $entry = LJ::Entry->new( $uowner, jitemid => $jitemid, anum => $anum );
 
@@ -1805,7 +1809,7 @@ sub postevent {
     # update the sphinx search engine
     if ( @LJ::SPHINX_SEARCHD && !$importer_bypass ) {
         push @jobs,
-            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            DW::Task::SphinxCopier->new(
             { userid => $uowner->id, jitemid => $jitemid, source => "entrynew" } );
     }
 
@@ -2290,7 +2294,7 @@ sub editevent {
     my @jobs;
     if (@LJ::SPHINX_SEARCHD) {
         push @jobs,
-            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            DW::Task::SphinxCopier->new(
             { userid => $ownerid, jitemid => $itemid, source => "entryedt" } );
     }
     LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );
@@ -3553,6 +3557,83 @@ sub un_utf8_request {
         next if ref $props->{$k};    # if this is multiple levels deep?  don't think so.
         $props->{$k} = LJ::no_utf8_flag( $props->{$k} );
     }
+}
+
+# xmlrpc_method: dispatch an XMLRPC method call to do_request and wrap the
+# result in SOAP types.  Originally lived in Apache/LiveJournal.pm but moved
+# here so it is available under Plack as well.
+sub xmlrpc_method {
+    my $method = shift;
+    shift;    # get rid of package name that dispatcher includes.
+    my $req = shift;
+
+    if (@_) {
+
+        # don't allow extra arguments
+        die SOAP::Fault->faultstring( LJ::Protocol::error_message(202) )->faultcode(202);
+    }
+    my $error = 0;
+    if ( ref $req eq "HASH" ) {
+
+        # get rid of the UTF8 flag in scalars
+        while ( my ( $k, $v ) = each %$req ) {
+            $req->{$k} = Encode::encode_utf8($v) if Encode::is_utf8($v);
+        }
+    }
+    my $res = LJ::Protocol::do_request( $method, $req, \$error );
+    if ($error) {
+
+        # FIXME [#1709]: which errors don't start with numbers?
+        print STDERR "[#1709] xmlrpc error for $method needs faultcode: $error\n"
+            unless $error =~ /^\d{3}/;
+
+        # existing behavior
+        die SOAP::Fault->faultstring( LJ::Protocol::error_message($error) )
+            ->faultcode( substr( $error, 0, 3 ) );
+    }
+
+    # Perl is untyped language and XML-RPC is typed.
+    # When library XMLRPC::Lite tries to guess type, it errors sometimes
+    # (e.g. string username goes as int, if username contains digits only).
+    # As workaround, we can select some elements by it's names
+    # and label them by correct types.
+
+    # Key - field name, value - type.
+    my %lj_types_map = (
+        journalname => 'string',
+        fullname    => 'string',
+        username    => 'string',
+        poster      => 'string',
+        postername  => 'string',
+        name        => 'string',
+    );
+
+    my $recursive_mark_elements;
+    $recursive_mark_elements = sub {
+        my $structure = shift;
+        my $ref       = ref($structure);
+
+        if ( $ref eq 'HASH' ) {
+            foreach my $hash_key ( keys %$structure ) {
+                if ( exists( $lj_types_map{$hash_key} ) ) {
+                    $structure->{$hash_key} = SOAP::Data->type( $lj_types_map{$hash_key} )
+                        ->value( $structure->{$hash_key} );
+                }
+                else {
+                    $recursive_mark_elements->( $structure->{$hash_key} );
+                }
+            }
+        }
+        elsif ( $ref eq 'ARRAY' ) {
+            foreach my $idx (@$structure) {
+                $recursive_mark_elements->($idx);
+            }
+        }
+    };
+
+    $recursive_mark_elements->($res);
+
+    return $res;
 }
 
 #### Old interface (flat key/values) -- wrapper aruond LJ::Protocol

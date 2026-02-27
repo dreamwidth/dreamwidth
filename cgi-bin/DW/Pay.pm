@@ -25,6 +25,7 @@ use Carp qw/ confess /;
 use HTTP::Request;
 use LWP::UserAgent;
 use DW::BusinessRules::Pay;
+use DW::Task::SphinxCopier;
 
 our $error_code = undef;
 our $error_text = undef;
@@ -672,10 +673,7 @@ sub update_paid_status {
     # needs to have their search index setup/messed with.
     if (@LJ::SPHINX_SEARCHD) {
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "paidstat" }
-            )
-        );
+            DW::Task::SphinxCopier->new( { userid => $u->id, source => "paidstat" } ) );
     }
 
     return 1;
@@ -909,6 +907,69 @@ sub get_db_reader {
 
 sub get_db_writer {
     return LJ::get_db_writer();
+}
+
+# return whether we're allowed to buy something for another user
+# retuning an error if we can't.
+sub validate_target_user {
+    my ( $target_u, $remote ) = @_;
+    return { error => 'widget.shopitemoptions.error.invalidusername' }
+        unless LJ::isu($target_u);
+
+    return { error => 'widget.shopitemoptions.error.expungedusername' }
+        if $target_u->is_expunged;
+
+    return { error => 'widget.shopitemoptions.error.banned' }
+        if $remote && $target_u->has_banned($remote);
+
+    return { success => 1 };
+}
+
+sub for_self {
+    my ( $remote, $item_data ) = @_;
+    if ( $remote && $remote->is_personal ) {
+        $item_data->{target_userid} = $remote->id;
+    }
+    else {
+        return error_ml('widget.shopitemoptions.error.notloggedin');
+    }
+}
+
+sub for_gift {
+    my ( $remote, $target, $errors, $item_data ) = @_;
+    my $target_u   = LJ::load_user($target);
+    my $user_check = validate_target_user( $target_u, $remote );
+
+    if ( defined $user_check->{error} ) {
+        $errors->add( 'username', $user_check->{error} );
+    }
+    else {
+        $item_data->{target_userid} = $target_u->id;
+    }
+}
+
+sub validate_deliverydate {
+    my ( $deliverydate, $errors, $item_data ) = @_;
+    $deliverydate =~ /(\d{4})-(\d{2})-(\d{2})/;
+    my $given_date = DateTime->new(
+        year  => $1,
+        month => $2,
+        day   => $3,
+    );
+
+    my $time_check = DateTime->compare( $given_date, DateTime->today );
+
+    if ( $time_check < 0 ) {
+
+        # we were given a date in the past
+        $errors->add_string( 'deliverydate', 'time cannot be in the past' );    #FIXME
+    }
+    elsif ( $time_check > 0 ) {
+
+        # date is in the future, add it.
+        $item_data->{deliverydate} = $given_date->date;
+    }
+
 }
 
 1;

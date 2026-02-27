@@ -71,7 +71,7 @@ $domaintosite{"ravelry.com"} =
 $domaintosite{"wordpress.com"} =
     DW::External::Site->new( "18", "wordpress.com", "wordpress.com", "Wordpress", "WP" );
 $domaintosite{"plurk.com"} =
-    DW::External::Site->new( "19", "plurk.com", "plurk.com", "Plurk", "Plurk" );
+    DW::External::Site->new( "19", "www.plurk.com", "plurk.com", "Plurk", "Plurk" );
 $domaintosite{"pinboard.in"} =
     DW::External::Site->new( "20", "www.pinboard.in", "pinboard.in", "Pinboard", "Pinboard" );
 $domaintosite{"fanfiction.net"} =
@@ -112,6 +112,11 @@ $domaintosite{"artstation.com"} =
     "artstation" );
 $domaintosite{"ko-fi.com"} =
     DW::External::Site->new( "34", "www.ko-fi.com", "ko-fi.com", "Kofi", "kofi" );
+
+$domaintosite{"bsky.app"} =
+    DW::External::Site->new( "35", "bsky.app", "bsky.app", "Bluesky", "atproto" );
+$domaintosite{"bsky.social"} =
+    DW::External::Site->new( "36", "bsky.app", "bsky.social", "BlueskySocial", "atproto" );
 
 @all_sites_without_alias = values %domaintosite;
 
@@ -163,6 +168,7 @@ $domaintosite{"artstation"}      = $domaintosite{"artstation.com"};
 $domaintosite{"substack"}        = $domaintosite{"substack.com"};
 $domaintosite{"itch"}            = $domaintosite{"itch.io"};
 $domaintosite{"kofi"}            = $domaintosite{"ko-fi.com"};
+$domaintosite{"bsky"}            = $domaintosite{"bsky.app"};
 
 foreach my $value (@all_sites_without_alias) {
     $idtosite{ $value->{siteid} } = $value;
@@ -220,6 +226,16 @@ sub get_site {
     }
 
     return $mapped || undef;
+}
+
+sub get_deadsites {
+    return (
+        "del.icio.us"    => 1,
+        "diigo.com"      => 1,
+        "imzy.com"       => 1,
+        "inksome.com"    => 1,
+        "journalfen.net" => 1
+    );
 }
 
 # returns a list of all supported sites for linking
