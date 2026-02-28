@@ -57,6 +57,7 @@ Plack::Middleware::Options
 Proc::ProcessTable
 RPC::XML
 SOAP::Lite@1.27
+Sort::Naturally::XS
 Sphinx::Search@0.28
 Starman
 String::CRC32
