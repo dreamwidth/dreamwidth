@@ -150,7 +150,7 @@ paths:
                     accounts.
       responses:
         "200":
-          description: The new entry in JSON format.
+          description: A link to the new entry.
         "400": *a3
         "403":
           description: You aren't allowed to post in that journal.

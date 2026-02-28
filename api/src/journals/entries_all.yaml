@@ -118,7 +118,7 @@ paths:
                   description: Schedule for crosspost, using the account's default crosspost accounts.
       responses:
         200:
-          description: The new entry in JSON format.
+          description: A link to the new entry.
         400:
           $ref: ../components/errors/400.yaml
         404:
