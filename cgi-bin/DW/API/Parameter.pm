@@ -75,8 +75,7 @@ sub define_body {
 # location given is a valid one.
 
 sub _validate_json {
-    my $self = $_[0];
-
+    my $self     = $_[0];
     my $location = $self->{in};
     croak "$location isn't a valid parameter location" unless grep( $location, @LOCATIONS );
 

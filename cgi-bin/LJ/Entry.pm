@@ -2911,4 +2911,32 @@ sub currents_div {
     return $ret;
 }
 
+# Cleaned representation of entry object for JSON APIs
+# remote is required for access to private fields.
+sub as_json {
+    my ( $self, $remote ) = @_;
+
+    my $entry = {};
+    $entry->{subject_html} = $self->subject_html();
+    $entry->{body_html}    = $self->event_html(0);
+    $entry->{poster}       = $self->poster()->{user};
+    $entry->{url}          = $self->url();
+    $entry->{security}     = $self->security();
+    $entry->{datetime}     = $self->{eventtime};
+    my @entry_tags = $self->tags();
+    $entry->{tags}     = ( \@entry_tags );
+    $entry->{icon}     = $self->userpic_kw || '';
+    $entry->{entry_id} = $self->{ditemid};
+
+    #$item->{metadata} = $item->currents;
+
+    if ( $self->editable_by($remote) ) {
+        $entry->{body_raw}    = $self->event_raw();
+        $entry->{subject_raw} = $self->subject_raw();
+        $entry->{allowmask}   = $self->allowmask;
+    }
+
+    return $entry;
+}
+
 1;

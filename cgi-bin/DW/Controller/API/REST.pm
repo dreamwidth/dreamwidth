@@ -332,7 +332,6 @@ sub _validate_body {
         return 0;
     }
     $arg_obj->{body} = $p;
-
     return 1;
 }
 
