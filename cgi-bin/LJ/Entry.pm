@@ -2926,7 +2926,7 @@ sub as_json {
     my @entry_tags = $self->tags();
     $entry->{tags}     = ( \@entry_tags );
     $entry->{icon}     = $self->userpic_kw || '';
-    $entry->{entry_id} = delete $self->{ditemid};
+    $entry->{entry_id} = $self->{ditemid};
 
     #$item->{metadata} = $item->currents;
 

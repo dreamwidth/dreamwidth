@@ -30,16 +30,16 @@ my %form_to_props = (
 
 # given an LJ::Entry object, returns a hashref populated with data suitable for use in generating the form
 sub _backend_to_form {
-    my $for_api = shift;
+    my $is_api = shift;
     my ($entry) = @_;
 
     # direct translation of prop values to the form
 
     my $event = $entry->event_raw;
-    unless ($for_api) {
 
-        # Look up formatting for newer entries...
-        my $editor = $entry->prop('editor');
+    # Look up formatting for newer entries...
+    my $editor = $entry->prop('editor');
+    unless ($is_api) {
 
         # ...or, figure out formatting when editing old entries.
         # TODO: This duplicates some logic from LJ::CleanHTML for guessing an editor
@@ -155,36 +155,37 @@ sub _backend_to_form {
 sub _form_to_backend {
     my ( $is_api, $req, $post, %opts ) = @_;
 
+    my $errors = $opts{errors};
+
     # handle event subject and body
     if ($is_api) {
         $req->{subject} = $post->{subject} || $req->{subject};
         $req->{event}   = $post->{text}    || $req->{event} || "";
     }
     else {
-        # handle event subject and body
         $req->{subject} = $post->{subject};
         $req->{event}   = $post->{event} || "";
+    }
 
-        $errors->add( undef, ".error.noentry" )
-            if $errors && $req->{event} eq "" && !$opts{allow_empty};
+    $errors->add( undef, ".error.noentry" )
+        if $errors && $req->{event} eq "" && !$opts{allow_empty};
 
-        # warn the user of any bad markup errors
-        my $clean_event = $post->{event};
-        my $errref;
+    # warn the user of any bad markup errors
+    my $clean_event = $post->{event};
+    my $errref;
 
-        my $editor = undef;
-        my $verbose_err;
+    my $editor = undef;
+    my $verbose_err;
 
-        LJ::CleanHTML::clean_event( \$clean_event,
-            { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
+    LJ::CleanHTML::clean_event( \$clean_event,
+        { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
 
-        if ( $errors && $verbose_err ) {
-            if ( ref($verbose_err) eq 'HASH' ) {
-                $errors->add( undef, $verbose_err->{error}, $verbose_err->{opts} );
-            }
-            else {
-                $errors->add( undef, $verbose_err );
-            }
+    if ( $errors && $verbose_err ) {
+        if ( ref($verbose_err) eq 'HASH' ) {
+            $errors->add( undef, $verbose_err->{error}, $verbose_err->{opts} );
+        }
+        else {
+            $errors->add( undef, $verbose_err );
         }
     }
 
@@ -202,11 +203,9 @@ sub _form_to_backend {
         }
     }
 
-    # a few of the fields have different names between the web UI and the API
-    my $tag_name     = $is_api ? 'taglist'      : 'tags';
-    my $userpic_name = $is_api ? 'icon_keyword' : 'prop_picture_keyword';
-    $props->{taglist}         = $post->{$tag_name}     if defined $post->{$tag_name};
-    $props->{picture_keyword} = $post->{$userpic_name} if defined $post->{$userpic_name};
+    $props->{taglist}         = $post->{taglist} if defined $post->{taglist};
+    $props->{picture_keyword} = $post->{prop_picture_keyword}
+        if defined $post->{prop_picture_keyword};
     $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
 
     unless ($is_api) {

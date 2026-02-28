@@ -23,6 +23,7 @@ use DW::Request;
 use DW::Controller;
 use JSON;
 use Data::Dumper;
+use DW::Entry;
 
 ################################################
 # /journals/{journal}/entries
@@ -46,7 +47,6 @@ my $entries = DW::Controller::API::REST->path( 'journals/entries.yaml', 1,
 #
 # Handles post of new entries, given a journal name
 #
-# FIXME: Doesn't handle crossposts yet.
 
 sub new_entry {
     my ( $self, $args ) = @_;
@@ -60,16 +60,11 @@ sub new_entry {
 
     # these kinds of errors prevent us from initializing the form at all
     # so abort and return it without the form
-    if ($remote) {
-        return $self->rest_error('402')
-            if $remote->is_identity;
+    return $self->rest_error('402')
+        if $remote->is_identity;
 
-        return $self->rest_error('400')
-            unless $remote->can_post;
-
-        return $self->rest_error('403')
-            if $remote->can_post_disabled;
-    }
+    return $self->rest_error('403')
+        unless $remote->can_post;
 
     # figure out times
     my $datetime;
@@ -108,8 +103,16 @@ sub new_entry {
     $auth{poster}  = $remote;
     $auth{journal} = $usejournal ? $usejournal : $remote;
 
+    # rename some fields to match what the web form uses
+    $post->{taglist}              = delete $post->{tags}         if defined $post->{tags};
+    $post->{prop_picture_keyword} = delete $post->{icon_keyword} if defined $post->{icon_keyword};
+    $post->{current_mood_other}   = delete $post->{current_mood} if defined $post->{current_mood};
+
     my $form_req = {};
-    DW::Entry::_form_to_backend( 1, $form_req, $post );
+    my $errors   = DW::FormErrors->new;
+    DW::Entry::_form_to_backend( 1, $form_req, $post, errors => $errors );
+
+    return $self->rest_error( '400', $errors ) if $errors->exist;
 
     # check for spam domains
     LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
@@ -117,10 +120,15 @@ sub new_entry {
     # if we didn't have any errors with decoding the form, proceed to post
     my $post_res = _do_post( $form_req, $flags, \%auth );
 
-    return $self->rest_ok($post_res) if $post_res->{success} == 1;
-
     # oops errors when posting: show error, fall through to show form
-    return $self->rest_error( '500', $post_res->{errors} ) if $post_res->{errors};
+    return $self->rest_error( '400', $post_res->{errors} ) if $post_res->{errors};
+
+    if ( $post_res->{success} == 1 ) {
+        return $self->rest_ok($post_res);
+    }
+    else {
+        return $self->rest_error( '500', "Could not post." );
+    }
 
 }
 
@@ -129,7 +137,7 @@ sub _do_post {
 
     my $res = DW::Entry::_save_new_entry( $form_req, $flags, $auth );
 
-    return { { success => 0, errors => { $res->{errors} } } } if $res->{errors};
+    return { success => 0, errors => [ $res->{errors} ] } if $res->{errors};
 
     # post succeeded, time to do some housecleaning
 

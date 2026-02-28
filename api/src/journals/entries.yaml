@@ -51,9 +51,17 @@ paths:
                 security:
                   type: string
                   description: Security level to use. Can be `public`, `private`, or `access`.
+                  enum:
+                    - public
+                    - private
+                    - access
                 age_restriction:
                   type: string
                   description: Age restriction flag. `none` puts no flags on the entry, `discretion` marks it as "viewer discretion advised", and `restricted` marks it inacessible to users under eighteen. If omitted, the journal default will be used.
+                  enum:
+                    - none
+                    - discretion
+                    - restricted
                 age_restriction_reason:
                   type: string
                   description: A optional description of why you chose the age-restriction setting you did.
