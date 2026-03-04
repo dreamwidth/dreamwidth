@@ -33,6 +33,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g sass esbuild
 
+# Install Go (for building devtool and other Go utilities)
+RUN curl -fsSL https://go.dev/dl/go1.22.2.linux-amd64.tar.gz | tar -C /usr/local -xzf -
+ENV PATH="/usr/local/go/bin:${PATH}"
+
 # Install cpm for faster CPAN module installation
 RUN cpanm -nq App::cpm
 
@@ -83,6 +87,11 @@ RUN service mysql start && \
     mkdir -p /opt/dreamwidth-static && \
     cp -a build/static/* /opt/dreamwidth-static/ && \
     service mysql stop
+
+# Save pre-baked MySQL data as seed for persistent volumes.
+# When a named volume is mounted at /var/lib/mysql (empty on first use),
+# setup.sh copies this seed so the full schema is immediately available.
+RUN cp -a /var/lib/mysql /opt/dreamwidth-mysql
 
 # Default command
 CMD ["bash"]

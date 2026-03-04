@@ -19,6 +19,9 @@
       }
     }
   },
+  "mounts": [
+    "type=volume,source=dreamwidth-mysql,target=/var/lib/mysql"
+  ],
   "runArgs": ["--security-opt", "label=disable", "-p", "8080:8080", "-p", "8081:8081"],
   "containerEnv": {
     "LJHOME": "/workspaces/dreamwidth",
