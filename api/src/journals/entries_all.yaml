@@ -50,6 +50,10 @@ paths:
           $ref: ../components/errors/404-user.yaml
         400:
           $ref: ../components/errors/400.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml
     post:
       description: Post a new journal entry.
       requestBody:
@@ -127,3 +131,7 @@ paths:
           description: You aren't allowed to post in that journal.
           schema:
             $ref: ../components/error.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml

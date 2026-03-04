@@ -27,6 +27,10 @@ paths:
           description: You aren't authorized to view that entry.
           schema:
             $ref: ../components/error.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml
     post:
       description: Edit a specified journal entry.
       requestBody:
@@ -104,3 +108,7 @@ paths:
           description: You aren't allowed to edit that entry.
           schema:
             $ref: ../components/error.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml

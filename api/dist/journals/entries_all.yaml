@@ -66,9 +66,22 @@ paths:
                     example: "Bad format for username. Errors: String is too long: 77/25."
                   success:
                     type: number
-        "404":
+        "401":
           &a4
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema: *a2
+        "404":
+          &a5
           description: Username specified does not exist.
+          content:
+            application/json:
+              schema: *a2
+        "500":
+          &a6
+          description: Server error, please try again later. If it persists, open a
+            support ticket.
           content:
             application/json:
               schema: *a2
@@ -152,7 +165,9 @@ paths:
         "200":
           description: A link to the new entry.
         "400": *a3
+        "401": *a4
         "403":
           description: You aren't allowed to post in that journal.
           schema: *a2
-        "404": *a4
+        "404": *a5
+        "500": *a6

@@ -5,3 +5,23 @@ paths:
       responses:
         "200":
           description: A list of comment settings and their descriptions.
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                &a1
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A description of the error encountered.
+                    example: "Bad format for username. Errors: String is too long: 77/25."
+                  success:
+                    type: number
+        "500":
+          description: Server error, please try again later. If it persists, open a
+            support ticket.
+          content:
+            application/json:
+              schema: *a1

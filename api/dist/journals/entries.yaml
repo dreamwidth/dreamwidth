@@ -22,21 +22,34 @@ paths:
       responses:
         "200":
           description: A single entry
+        "401":
+          &a2
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                &a1
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A description of the error encountered.
+                    example: "Bad format for username. Errors: String is too long: 77/25."
+                  success:
+                    type: number
         "403":
           description: You aren't authorized to view that entry.
-          schema:
-            &a1
-            type: object
-            properties:
-              error:
-                type: string
-                description: A description of the error encountered.
-                example: "Bad format for username. Errors: String is too long: 77/25."
-              success:
-                type: number
+          schema: *a1
         "404":
           description: Journal or entry specified does not exist.
           schema: *a1
+        "500":
+          &a3
+          description: Server error, please try again later. If it persists, open a
+            support ticket.
+          content:
+            application/json:
+              schema: *a1
     post:
       description: Edit a specified journal entry.
       requestBody:
@@ -119,9 +132,11 @@ paths:
           content:
             application/json:
               schema: *a1
+        "401": *a2
         "403":
           description: You aren't allowed to edit that entry.
           schema: *a1
         "404":
           description: Journal or entry specified does not exist.
           schema: *a1
+        "500": *a3
