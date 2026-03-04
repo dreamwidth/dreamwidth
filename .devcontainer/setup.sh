@@ -39,3 +39,15 @@ ln -snf /opt/dreamwidth-static $LJHOME/build/static
 # Set up apache config
 rm -rf /etc/apache2
 ln -ns $LJHOME/.devcontainer/config/etc/apache2 /etc/apache2 || true
+
+# Install Go if not already present (baked into image on next rebuild)
+if ! command -v go &>/dev/null; then
+    curl -fsSL https://go.dev/dl/go1.22.2.linux-amd64.tar.gz | tar -C /usr/local -xzf -
+    export PATH="/usr/local/go/bin:$PATH"
+fi
+
+# Ensure Go is on PATH for interactive shells
+echo 'export PATH="/usr/local/go/bin:$PATH"' > /etc/profile.d/golang.sh
+
+# Build devtool TUI
+(cd $LJHOME/src/devtool && go build -buildvcs=false -o /usr/local/bin/devtool .)

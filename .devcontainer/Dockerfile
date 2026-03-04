@@ -33,6 +33,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g sass esbuild
 
+# Install Go (for building devtool and other Go utilities)
+RUN curl -fsSL https://go.dev/dl/go1.22.2.linux-amd64.tar.gz | tar -C /usr/local -xzf -
+ENV PATH="/usr/local/go/bin:${PATH}"
+
 # Install cpm for faster CPAN module installation
 RUN cpanm -nq App::cpm
 
