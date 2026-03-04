@@ -51,9 +51,9 @@ paths:
                         public:
                           type: integer
                           description: The number of times the tag has been used on public entries
-        "404":
+        "401":
           &a2
-          description: Username specified does not exist.
+          description: Missing or invalid API key.
           content:
             application/json:
               schema:
@@ -66,6 +66,19 @@ paths:
                     example: "Bad format for username. Errors: String is too long: 77/25."
                   success:
                     type: number
+        "404":
+          &a3
+          description: Username specified does not exist.
+          content:
+            application/json:
+              schema: *a1
+        "500":
+          &a4
+          description: Server error, please try again later. If it persists, open a
+            support ticket.
+          content:
+            application/json:
+              schema: *a1
     post:
       description: Add new tags for a given journal
       requestBody:
@@ -79,10 +92,12 @@ paths:
       responses:
         "204":
           description: Tags were successfully created.
+        "401": *a2
         "403":
           description: You cannot create tags on that journal.
           schema: *a1
-        "404": *a2
+        "404": *a3
+        "500": *a4
     delete:
       description: Delete tags for a given journal
       parameters:
@@ -99,7 +114,9 @@ paths:
           content:
             application/json:
               schema: *a1
+        "401": *a2
         "403":
           description: You cannot remove tags on that journal.
           schema: *a1
-        "404": *a2
+        "404": *a3
+        "500": *a4

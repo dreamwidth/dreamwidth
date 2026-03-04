@@ -1,0 +1,5 @@
+description: Server error, please try again later. If it persists, open a support ticket.
+content:
+  application/json:
+    schema:
+      $ref: ../error.yaml 
