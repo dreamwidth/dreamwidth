@@ -12,6 +12,8 @@ type keyMap struct {
 	Tidy     key.Binding
 	Compile  key.Binding
 	Build    key.Binding
+	UpdateDB key.Binding
+	TextTool key.Binding
 	Follow   key.Binding
 	Help     key.Binding
 	Quit     key.Binding
@@ -28,6 +30,8 @@ var keys = keyMap{
 	Tidy:     key.NewBinding(key.WithKeys("t"), key.WithHelp("t", "tidy")),
 	Compile:  key.NewBinding(key.WithKeys("c"), key.WithHelp("c", "compile")),
 	Build:    key.NewBinding(key.WithKeys("b"), key.WithHelp("b", "build")),
+	UpdateDB: key.NewBinding(key.WithKeys("u"), key.WithHelp("u", "update-db")),
+	TextTool: key.NewBinding(key.WithKeys("x"), key.WithHelp("x", "texttool")),
 	Follow:   key.NewBinding(key.WithKeys("f"), key.WithHelp("f", "follow")),
 	Help:     key.NewBinding(key.WithKeys("?"), key.WithHelp("?", "help")),
 	Quit:     key.NewBinding(key.WithKeys("q", "ctrl+c"), key.WithHelp("q", "quit")),

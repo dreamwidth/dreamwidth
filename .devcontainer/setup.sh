@@ -4,6 +4,11 @@ set -xe
 mkdir -p $LJHOME/ext/local
 ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc || true
 
+# Seed MySQL data from pre-baked image if the volume is empty (first run)
+if [ ! -d /var/lib/mysql/mysql ]; then
+    cp -a /opt/dreamwidth-mysql/* /var/lib/mysql/
+fi
+
 # Get database going, all we need for now
 service mysql start
 

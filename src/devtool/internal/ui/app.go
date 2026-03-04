@@ -347,6 +347,13 @@ func (a App) handleNormalKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case key.Matches(msg, keys.Build):
 		return a.startCommand("build static", filepath.Join(a.ljHome, "bin", "build-static.sh"))
+
+	case key.Matches(msg, keys.UpdateDB):
+		return a.startCommand("update-db", "bash", "-c",
+			"bin/upgrading/update-db.pl -r && bin/upgrading/update-db.pl -r --cluster=all && bin/upgrading/update-db.pl -r -p")
+
+	case key.Matches(msg, keys.TextTool):
+		return a.startCommand("texttool load", "perl", "bin/upgrading/texttool.pl", "load")
 	}
 
 	return a, nil
@@ -465,6 +472,8 @@ func (a App) renderFooter() string {
 		{"t", "tidy"},
 		{"c", "compile test"},
 		{"b", "build static"},
+		{"u", "update-db"},
+		{"x", "texttool"},
 		{"f", "follow"},
 		{"tab", "focus"},
 		{"?", "help"},
@@ -489,6 +498,8 @@ func (a App) viewHelp() string {
 		{"t", "Run tidyall (auto-format code)"},
 		{"c", "Run compile test (t/00-compile.t)"},
 		{"b", "Build static assets (CSS/JS)"},
+		{"u", "Run update-db.pl (global + cluster + populate)"},
+		{"x", "Run texttool.pl load"},
 		{"f", "Toggle follow mode on focused pane"},
 		{"Tab", "Switch focus between log panes"},
 		{"↑/k", "Scroll up in focused pane"},

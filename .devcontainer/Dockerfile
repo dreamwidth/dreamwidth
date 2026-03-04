@@ -88,5 +88,10 @@ RUN service mysql start && \
     cp -a build/static/* /opt/dreamwidth-static/ && \
     service mysql stop
 
+# Save pre-baked MySQL data as seed for persistent volumes.
+# When a named volume is mounted at /var/lib/mysql (empty on first use),
+# setup.sh copies this seed so the full schema is immediately available.
+RUN cp -a /var/lib/mysql /opt/dreamwidth-mysql
+
 # Default command
 CMD ["bash"]
