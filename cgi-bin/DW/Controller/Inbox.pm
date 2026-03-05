@@ -665,6 +665,7 @@ sub compose_handler {
         reply_to      => $reply_to,
         autocomplete  => \@flist,
         cc_msg_option => $cc_msg_option,
+        disabled_to   => $disabled_to,
         folder_html   => render_folders($remote),
         commafy       => \&LJ::commafy,
         remote        => $remote,
