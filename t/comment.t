@@ -21,7 +21,7 @@ use warnings;
 use Test::More tests => 405;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::Protocol;
 use LJ::Comment;
 use LJ::Talk;
