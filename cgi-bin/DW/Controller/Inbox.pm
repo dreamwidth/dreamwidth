@@ -470,10 +470,10 @@ sub compose_handler {
         if ( $mode eq 'send' ) {
 
             # test encoding
-            my $msg_subject_text = $POST->{'msg_subject'};
+            $msg_subject = $POST->{'msg_subject'};
             $errors->add( 'msg_subject', "$scope.error.text.encoding.subject" )
-                unless LJ::text_in($msg_subject_text);
-            my ( $subject_length_b, $subject_length_c ) = LJ::text_length($msg_subject_text);
+                unless LJ::text_in($msg_subject);
+            my ( $subject_length_b, $subject_length_c ) = LJ::text_length($msg_subject);
             $errors->add(
                 'msg_subject',
                 "$scope.error.subject.length",
@@ -484,10 +484,10 @@ sub compose_handler {
             ) unless $subject_length_c <= $subject_limit;
 
             # test encoding and length
-            my $msg_body_text = $POST->{'msg_body'};
+            $msg_body = $POST->{'msg_body'};
             $errors->add( 'msg_body', "$scope.error.text.encoding.text" )
-                unless LJ::text_in($msg_body_text);
-            my ( $msg_len_b, $msg_len_c ) = LJ::text_length($msg_body_text);
+                unless LJ::text_in($msg_body);
+            my ( $msg_len_b, $msg_len_c ) = LJ::text_length($msg_body);
             $errors->add(
                 'msg_body',
                 ".error.message.length",
@@ -562,8 +562,8 @@ sub compose_handler {
                     {
                         journalid    => $remote_id,
                         otherid      => $tou->{userid},
-                        subject      => $msg_subject_text,
-                        body         => $msg_body_text,
+                        subject      => $msg_subject,
+                        body         => $msg_body,
                         parent_msgid => $POST->{'msg_parent'} || undef,
                         userpic      => $msguserpic,
                     }
@@ -657,7 +657,7 @@ sub compose_handler {
 
     my $vars = {
         errors        => $errors,
-        formdata      => $POST || { msg_to => ( $GET->{'user'} || undef ) },
+        msg_to        => ( $POST->{msg_to} || $GET->{'user'} || undef ),
         msg_body      => $msg_body,
         msg_subject   => $msg_subject,
         msg_parent    => $msg_parent,
@@ -669,7 +669,8 @@ sub compose_handler {
         folder_html   => render_folders($remote),
         commafy       => \&LJ::commafy,
         remote        => $remote,
-        msg_limit     => $msg_limit
+        msg_limit     => $msg_limit,
+        force         => $force
     };
 
     return DW::Template->render_template( 'inbox/compose.tt', $vars );
