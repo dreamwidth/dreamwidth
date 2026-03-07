@@ -25,7 +25,7 @@ use DW::Auth::Challenge;
 use DW::External::Site;
 use DW::Request;
 use DW::Formats;
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::Global::Constants;
 use LJ::Event;
 use LJ::Subscription::Pending;
