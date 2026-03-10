@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use v5.10;
 
-use Test::More tests => 23;
+use Test::More tests => 25;
 
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
@@ -381,6 +381,74 @@ subtest 'res with no body omits content-length' => sub {
         $cl = $v if lc($k) eq 'content-length';
     }
     is( $cl, undef, 'no content-length when body was never written' );
+};
+
+###########################################################################
+# 12b. print with multiple arguments — regression test
+#      Before the fix, print() only captured $_[1] (the first argument
+#      after $self), silently dropping all subsequent arguments.  This
+#      broke any caller that passed multiple args, e.g.:
+#        $r->print( $key, "\n", $val, "\n" )
+###########################################################################
+
+subtest 'print accepts multiple arguments' => sub {
+    plan tests => 2;
+
+    my $r = make_request();
+    $r->status(200);
+
+    $r->print( "aaa", "bbb", "ccc" );
+
+    my $res  = $r->res;
+    my $body = join '', @{ $res->[2] };
+
+    is( $body, 'aaabbbccc', 'all arguments are present in the body' );
+
+    # content-length must account for all arguments
+    my @hdrs = @{ $res->[1] };
+    my $cl;
+    while ( my ( $k, $v ) = splice( @hdrs, 0, 2 ) ) {
+        $cl = $v if lc($k) eq 'content-length';
+    }
+    is( $cl, 9, 'content-length reflects total length of all arguments' );
+};
+
+###########################################################################
+# 12c. flat protocol pattern — the exact call pattern used by
+#      DW::Controller::Interface::Flat to emit key\nvalue\n pairs.
+#      This was broken under Plack: only the key was emitted, with
+#      the newline, value, and trailing newline all silently dropped.
+###########################################################################
+
+subtest 'print reproduces flat protocol key/value output' => sub {
+    plan tests => 3;
+
+    my $r = make_request();
+    $r->status(200);
+
+    # Exactly how the flat interface controller emits each pair
+    $r->print( "success",  "\n", "OK",    "\n" );
+    $r->print( "username", "\n", "test",  "\n" );
+
+    my $res  = $r->res;
+    my $body = join '', @{ $res->[2] };
+
+    my $expected = "success\nOK\nusername\ntest\n";
+    is( $body, $expected, 'flat protocol output contains keys, values, and newlines' );
+
+    # Verify we can parse it back into key/value pairs
+    my @lines = split /\n/, $body;
+    is( scalar @lines, 4, 'four lines: two key/value pairs' );
+
+    my %parsed;
+    while ( my ( $k, $v ) = splice( @lines, 0, 2 ) ) {
+        $parsed{$k} = $v;
+    }
+    is_deeply(
+        \%parsed,
+        { success => 'OK', username => 'test' },
+        'parsed key/value pairs match expected output'
+    );
 };
 
 ###########################################################################

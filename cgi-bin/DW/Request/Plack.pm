@@ -173,9 +173,10 @@ sub status_line {
 
 # append to the body
 sub print {
-    my DW::Request::Plack $self = $_[0];
-    push @{ $self->{res_body} ||= [] }, $_[1];
-    $self->{res_length} += length( $_[1] );
+    my DW::Request::Plack $self = shift;
+    my $data = join( '', @_ );
+    push @{ $self->{res_body} ||= [] }, $data;
+    $self->{res_length} += length($data);
 }
 
 # flatten out the body and return the response
