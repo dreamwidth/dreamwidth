@@ -127,7 +127,7 @@ do
 
                 if [[ "$ext" = "js" ]]; then
                     # Minify JS with esbuild
-                    $compressor --minify "$synced_file" --outfile="$final/$modified_file" 2>/dev/null \
+                    $compressor --target=es6 --minify "$synced_file" --outfile="$final/$modified_file" 2>/dev/null \
                         || cp -p "$synced_file" "$final/$modified_file"
                 else
                     # CSS is already minified by Dart Sass; other files copy as-is
