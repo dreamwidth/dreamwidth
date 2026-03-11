@@ -8,16 +8,22 @@
 # The rsync to build/static always runs since all steps feed into it.
 do_sass=0
 do_compress=0
+force=0
+is_dev=${DW_DEV:-0}
 
 for arg in "$@"; do
     case "$arg" in
         --sass)     do_sass=1 ;;
         --compress) do_compress=1 ;;
+        --force) force=1 ;;
+        --prod) is_dev=0 ;;
         --help|-h)
-            echo "Usage: $0 [--sass] [--compress]"
+            echo "Usage: $0 [--sass] [--compress] [--prod] [--force]"
             echo "  --sass       Compile SCSS files with Dart Sass"
-            echo "  --compress   Minify JS with esbuild"
-            echo "  (no flags runs all steps)"
+            echo "  --compress   Minify JS & CSS with esbuild"
+            echo "  --prod       Apply heavier minification for prod environments - defaults to true if the DW_DEV envvar is not set to 1"
+            echo "  --force      Force rebuild/re-sync of all static assets - defaults to true if --prod is true "
+            echo "  (no flags runs both sass compilation and minification)"
             echo ""
             echo "  Asset sync (rsync to build/static/) always runs."
             exit 0
@@ -35,6 +41,15 @@ if [[ $do_sass -eq 0 && $do_compress -eq 0 ]]; then
     do_compress=1
 fi
 
+# set up our commandline options to sass for prod and dev
+# and set --force to true in prod environments
+sass_options=''
+
+if [[ $is_dev -eq 0 ]]; then
+    sass_options="--style=compressed --no-source-map"
+    force=1
+fi
+
 buildroot="$LJHOME/build/static"
 mkdir -p $buildroot
 
@@ -43,14 +58,14 @@ if [[ $do_sass -eq 1 ]]; then
     sass=$(which sass)
     if [ "$sass" != "" ]; then
         echo "* Building SCSS..."
-        if ! $sass --style=compressed --no-source-map \
+        if ! $sass $sass_options \
             --load-path=$LJHOME/htdocs/scss \
             $LJHOME/htdocs/scss:$LJHOME/htdocs/stc/css; then
             echo "Error: Sass compilation failed" >&2
             exit 1
         fi
         if [ -d "$LJHOME/ext/dw-nonfree/htdocs/scss" ]; then
-            if ! $sass --style=compressed --no-source-map \
+            if ! $sass $sass_options \
                 --load-path=$LJHOME/htdocs/scss \
                 --load-path=$LJHOME/ext/dw-nonfree/htdocs/scss \
                 $LJHOME/ext/dw-nonfree/htdocs/scss:$LJHOME/ext/dw-nonfree/htdocs/stc/css; then
@@ -104,6 +119,8 @@ do
     if [[ ! -e $final ]];   then mkdir -p "$final"; fi
 
     from=`echo $line | cut -d ":" -f 3`
+    
+    if [[ $force -eq 1 ]]; then rm -rf "$sync_to"; fi
 
     echo "* Syncing to $sync_to..."
     rsync --archive --out-format="%n" --delete $from $sync_to | while read -r modified_file
@@ -125,9 +142,9 @@ do
 
                 mkdir -p "$final/$dir"
 
-                if [[ "$ext" = "js" ]]; then
-                    # Minify JS with esbuild
-                    $compressor --minify "$synced_file" --outfile="$final/$modified_file" 2>/dev/null \
+                if [[ ("$ext" = "js" || "$ext" = "css") && (is_dev -eq 0) ]]; then
+                    # Minify JS & CSS with esbuild - Dart Sass will minify compiled CSS but not vanilla
+                    $compressor --target=es6 --minify "$synced_file" --outfile="$final/$modified_file" 2>/dev/null \
                         || cp -p "$synced_file" "$final/$modified_file"
                 else
                     # CSS is already minified by Dart Sass; other files copy as-is
