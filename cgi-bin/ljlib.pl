@@ -883,6 +883,13 @@ sub get_useragent {
             # also needed for LWP::Protocol::https < 6.06
             SSL_verify_mode => 0,
 
+            # LWP does not support HTTP/2, but IO::Socket::SSL on
+            # Ubuntu 22.04+ advertises h2 via ALPN by default.
+            # Servers that honor ALPN then speak HTTP/2, which LWP
+            # can't parse, causing "500 Server closed connection"
+            # errors.  Force HTTP/1.1 only.
+            SSL_alpn_protocols => ['http/1.1'],
+
             #ca_file => Mozilla::CA::SSL_ca_file()
         }
     );

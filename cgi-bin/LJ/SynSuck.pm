@@ -47,7 +47,7 @@ sub update_feed {
 
 sub _backoff_multiplier {
     my ($failcount) = @_;
-    return 2**( $failcount > 7 ? 7 : $failcount );
+    return 2**( $failcount > 4 ? 4 : $failcount );
 }
 
 sub delay {
@@ -76,13 +76,13 @@ sub delay {
     if ($failcount) {
         $minutes = $minutes * _backoff_multiplier($failcount);
 
-        # cap at 30 days
-        my $max_minutes = 30 * 24 * 60;
+        # cap at 48 hours
+        my $max_minutes = 48 * 60;
         $minutes = $max_minutes if $minutes > $max_minutes;
     }
 
-    # add some random backoff to avoid waves building up
-    $minutes += int( rand(5) );
+    # add jitter proportional to delay (up to 10%) to stagger retries
+    $minutes += int( rand( $minutes * 0.1 + 1 ) );
 
     $log->info(
         "userid=$userid: status=$status backoff=$backoff failcount=$failcount delay=${minutes}m");
