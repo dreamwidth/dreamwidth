@@ -1201,8 +1201,27 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return a.handleLogsSearchKey(msg)
 	}
 
+	filtered := a.logs.isFiltered()
+	vpHeight := visibleLogLines(a.height)
+
+	// Helper to get the max scroll for the current mode
+	currentMaxScroll := func() int {
+		if filtered {
+			return maxFilteredScroll(a.logs.events, a.logs.matchLines, vpHeight, a.width)
+		}
+		return maxLogScroll(a.logs.events, vpHeight, a.width)
+	}
+
 	switch {
 	case key.Matches(msg, keys.Escape):
+		// If filtered, clear the filter first; otherwise leave the view
+		if filtered {
+			a.logs.search = ""
+			a.logs.matchLines = nil
+			a.logs.matchCursor = 0
+			a.logs.scrollOffset = 0
+			return a, nil
+		}
 		a.view = a.logs.prevView
 		a.logs.follow = false
 		return a, nil
@@ -1219,15 +1238,14 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case key.Matches(msg, keys.Down):
 		a.logs.follow = false
-		maxScroll := maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
-		if a.logs.scrollOffset < maxScroll {
+		if a.logs.scrollOffset < currentMaxScroll() {
 			a.logs.scrollOffset++
 		}
 		return a, nil
 
 	case key.Matches(msg, keys.PageUp):
 		a.logs.follow = false
-		a.logs.scrollOffset -= visibleLogLines(a.height)
+		a.logs.scrollOffset -= vpHeight
 		if a.logs.scrollOffset < 0 {
 			a.logs.scrollOffset = 0
 		}
@@ -1235,25 +1253,27 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case key.Matches(msg, keys.PageDown):
 		a.logs.follow = false
-		maxScroll := maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
-		a.logs.scrollOffset += visibleLogLines(a.height)
-		if a.logs.scrollOffset > maxScroll {
-			a.logs.scrollOffset = maxScroll
+		a.logs.scrollOffset += vpHeight
+		if max := currentMaxScroll(); a.logs.scrollOffset > max {
+			a.logs.scrollOffset = max
 		}
 		return a, nil
 
 	case msg.Type == tea.KeyRunes && string(msg.Runes) == "f":
+		if filtered {
+			return a, nil // follow doesn't make sense while filtered
+		}
 		a.logs.follow = !a.logs.follow
 		if a.logs.follow {
 			// Scroll to bottom and start tailing
-			a.logs.scrollOffset = maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
+			a.logs.scrollOffset = currentMaxScroll()
 			return a, logsTailTick()
 		}
 		return a, nil
 
 	case msg.Type == tea.KeyRunes && string(msg.Runes) == "G":
 		// Jump to end
-		a.logs.scrollOffset = maxLogScroll(a.logs.events, visibleLogLines(a.height), a.width)
+		a.logs.scrollOffset = currentMaxScroll()
 		return a, nil
 
 	case msg.Type == tea.KeyRunes && string(msg.Runes) == "g":
@@ -1268,13 +1288,14 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		a.logs.search = ""
 		a.logs.matchLines = nil
 		a.logs.matchCursor = 0
+		a.logs.scrollOffset = 0
 		return a, nil
 
 	case msg.Type == tea.KeyRunes && string(msg.Runes) == "n":
 		// Next match
 		if len(a.logs.matchLines) > 0 {
 			a.logs.matchCursor = (a.logs.matchCursor + 1) % len(a.logs.matchLines)
-			a.logs.scrollToMatch(visibleLogLines(a.height), a.width)
+			a.logs.scrollToMatch(vpHeight, a.width)
 		}
 		return a, nil
 
@@ -1285,7 +1306,7 @@ func (a App) handleLogsKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			if a.logs.matchCursor < 0 {
 				a.logs.matchCursor = len(a.logs.matchLines) - 1
 			}
-			a.logs.scrollToMatch(visibleLogLines(a.height), a.width)
+			a.logs.scrollToMatch(vpHeight, a.width)
 		}
 		return a, nil
 	}
@@ -1297,11 +1318,13 @@ func (a App) handleLogsSearchKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.Type {
 	case tea.KeyEnter:
 		a.logs.searchActive = false
+		a.logs.scrollOffset = 0
 		return a, nil
 	case tea.KeyEscape:
 		a.logs.searchActive = false
 		a.logs.search = ""
 		a.logs.matchLines = nil
+		a.logs.scrollOffset = 0
 		return a, nil
 	case tea.KeyBackspace:
 		if len(a.logs.search) > 0 {
