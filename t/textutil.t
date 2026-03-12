@@ -16,10 +16,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 37;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use LJ::TextUtil;
+use LJ::Hooks;
 
 note("html breaks");
 ok( LJ::has_too_many( "abcdn<br />" x 1, linebreaks => 0 ), "0 max, 1 break" );
@@ -67,3 +68,29 @@ is( LJ::strip_html(qq{<lj site="dreamwidth.org" user="test">}),
     "test", qq{ <lj site="dreamwidth.org" user="test"> } );
 is( LJ::strip_html(qq{<user site="dreamwidth.org" name="test">}),
     "test", qq{ <user site="dreamwidth.org" name="test"> } );
+
+note("text_in - valid UTF-8");
+ok( LJ::text_in("hello world"),        "ASCII is valid UTF-8" );
+ok( LJ::text_in("caf\xc3\xa9"),        "valid multi-byte UTF-8" );
+ok( LJ::text_in("\xe2\x9c\x93 check"), "valid 3-byte UTF-8 char" );
+ok( LJ::text_in(""),                   "empty string is valid" );
+
+note("text_in - invalid UTF-8");
+ok( !LJ::text_in("\xff\xfe"),       "invalid bytes fail text_in" );
+ok( !LJ::text_in("hello\x80world"), "lone continuation byte fails" );
+ok( !LJ::text_in("caf\xc3"),        "truncated multi-byte sequence fails" );
+
+note("text_trim - UTF-8 safety");
+is( LJ::text_trim( "abcdef", 3, 0 ), "abc", "text_trim respects byte limit on ASCII" );
+is( LJ::text_trim( "a\xc3\xa9b", 3, 0 ),
+    "a\xc3\xa9", "text_trim does not cut inside a multi-byte char" );
+is( LJ::text_trim( "a\xe2\x9c\x93b", 4, 0 ),
+    "a\xe2\x9c\x93", "text_trim keeps complete 3-byte char within byte limit" );
+
+note("clean_utf8");
+is( LJ::clean_utf8("hello"),       "hello",       "clean ASCII is unchanged" );
+is( LJ::clean_utf8("caf\xc3\xa9"), "caf\xc3\xa9", "clean multi-byte UTF-8 is unchanged" );
+is( LJ::clean_utf8(""),            "",            "empty string is unchanged" );
+like( LJ::clean_utf8("caf\xc3"), qr/^caf/, "truncated multi-byte gets cleaned" );
+ok( LJ::text_in( LJ::clean_utf8("caf\xc3") ),            "clean_utf8 output passes text_in" );
+ok( LJ::text_in( LJ::clean_utf8("\xff\xfe junk \x80") ), "arbitrary bad bytes become valid UTF-8" );
