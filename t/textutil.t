@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 37;
+use Test::More tests => 40;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use LJ::TextUtil;
@@ -94,3 +94,9 @@ is( LJ::clean_utf8(""),            "",            "empty string is unchanged" );
 like( LJ::clean_utf8("caf\xc3"), qr/^caf/, "truncated multi-byte gets cleaned" );
 ok( LJ::text_in( LJ::clean_utf8("caf\xc3") ),            "clean_utf8 output passes text_in" );
 ok( LJ::text_in( LJ::clean_utf8("\xff\xfe junk \x80") ), "arbitrary bad bytes become valid UTF-8" );
+is( LJ::clean_utf8(undef), "", "undef input returns empty string" );
+
+note("clean_utf8 - 4-byte UTF-8 (emoji)");
+is( LJ::clean_utf8("\xf0\x9f\x8e\x89"), "\xf0\x9f\x8e\x89", "4-byte emoji preserved" );
+is( LJ::clean_utf8("\xe4\xb8\xad\xf0\x9f\x8e"),
+    "\xe4\xb8\xad", "valid CJK preserved, truncated 4-byte emoji stripped" );
