@@ -133,6 +133,10 @@ my $app = sub {
 
 # Apply the middleware. Ordering is important!
 builder {
+    # Set a write timeout on the client socket so workers don't block for minutes
+    # if the ALB/client disconnects mid-response
+    enable 'DW::WriteTimeout', timeout => 5;
+
     # Handle OPTIONs requests and otherwise only allow the methods that we expect
     # to be allowed; this will abort any calls that are methods that not accepted
     enable 'Options', allowed => [qw /DELETE GET HEAD POST PUT/];
