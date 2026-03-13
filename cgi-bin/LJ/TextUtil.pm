@@ -431,6 +431,33 @@ sub text_out {
 }
 
 # <LJFUNC>
+# name: LJ::clean_utf8
+# des: Clean a string by removing invalid UTF-8 byte sequences.
+#      Unlike text_out which replaces all non-ASCII with '?', this preserves
+#      valid multi-byte characters and only strips broken sequences.
+# args: text
+# des-text: string to clean
+# returns: cleaned string with invalid sequences removed
+# </LJFUNC>
+sub clean_utf8 {
+    my $text = shift;
+    return '' unless defined $text;
+    return $text if LJ::is_utf8($text);
+
+    # Decode as UTF-8, replacing invalid byte sequences with U+FFFD,
+    # then re-encode back to UTF-8 bytes and strip the replacement chars.
+    my $decoded = Encode::decode( 'UTF-8', $text, Encode::FB_DEFAULT );
+    my $cleaned = Encode::encode( 'UTF-8', $decoded );
+
+    # Remove the UTF-8 encoding of U+FFFD (ef bf bd) so corrupted
+    # trailing bytes simply disappear rather than showing as the
+    # replacement character
+    $cleaned =~ s/\xef\xbf\xbd//g;
+
+    return $cleaned;
+}
+
+# <LJFUNC>
 # name: LJ::text_in
 # des: do appropriate checks on input text. Should be called on all
 #      user-generated text.

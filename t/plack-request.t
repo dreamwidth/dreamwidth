@@ -427,8 +427,8 @@ subtest 'print reproduces flat protocol key/value output' => sub {
     $r->status(200);
 
     # Exactly how the flat interface controller emits each pair
-    $r->print( "success",  "\n", "OK",    "\n" );
-    $r->print( "username", "\n", "test",  "\n" );
+    $r->print( "success",  "\n", "OK",   "\n" );
+    $r->print( "username", "\n", "test", "\n" );
 
     my $res  = $r->res;
     my $body = join '', @{ $res->[2] };

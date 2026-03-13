@@ -57,15 +57,10 @@
         <tr class='field_block' role="row">
             <td class='field_name' role="cell">[% dw.ml('.fn.name2') %]</td>
             <td role="cell">
-            [% IF text_in(saved.name) %]
                 [% form.textbox( name => 'name', value => u.name_orig,
                                         title => dw.ml('.fn.name2'),
                                         size => '35', maxlength => '50' ) %]
                 <div class='helper'>[% dw.ml('.name') %]</div>
-            [% ELSE %]
-                [% form.hidden( name => 'name_absent', value =>'yes' ) %]
-                <div class="alert">[% dw.ml('.error.invalidname2', {'aopts' => "href='${site.root}/utf8convert'"}) %]</div>
-            [% END %]
             </td>
 
             <td class='selectvis' role="cell">
@@ -329,17 +324,12 @@
 
     [%## BIO %]
     <div class='section_head'><a name='bio'></a>[% dw.ml('.section.bio2') %]</div>
-    [% IF text_in(saved.bio ) %]
         <p>[% u.is_identity ? dw.ml('.fn.bio.openid') : dw.ml(".fn.bio$iscomm") %]</p>
         [% form.textarea( name => 'bio',
                         title => dw.ml('.section.bio2'),
                         rows => '10', cols => '50',
                         wrap => 'soft',
                         value => saved.bio ) %]
-    [% ELSE %]
-        [% form.hidden( name =>'bio_absent', value =>'yes') %]
-        <div class="alert">[% dw.ml('.error.invalidbio', {'aopts' => "href='${site.root}/utf8convert'"}) %]</div>
-    [% END %]
 
     [%## INTERESTS %]
     <div class='section_head'><a name='interests'></a>[% dw.ml('.section.interests') %]</div>
