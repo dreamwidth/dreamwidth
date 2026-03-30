@@ -18,30 +18,35 @@ use v5.10;
 use strict;
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-use LJ::MemCache;
+use IO::Socket::INET;
 
 unless (@LJ::MEMCACHE_SERVERS) {
     say "No memcache servers configured.";
     exit 1;
 }
 
-my $memc = LJ::MemCache::get_memcache();
-
 say "Flushing " . scalar(@LJ::MEMCACHE_SERVERS) . " memcache server(s)...";
 
 for my $server (@LJ::MEMCACHE_SERVERS) {
     my $name = ref $server ? $server->[0] : $server;
-    my $sock = $memc->get_sock($name);
+    my $sock = IO::Socket::INET->new(
+        PeerAddr => $name,
+        Timeout  => 3,
+    );
     unless ($sock) {
         say "  $name - FAILED (could not connect)";
         next;
     }
 
-    my $result = $memc->run_command($sock, "flush_all\r\n");
+    print $sock "flush_all\r\n";
+    my $result = <$sock>;
+    close $sock;
+
     if ( $result && $result =~ /^OK/ ) {
         say "  $name - OK";
     }
     else {
+        chomp $result if $result;
         say "  $name - FAILED ($result)";
     }
 }
