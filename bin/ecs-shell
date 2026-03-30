@@ -3,10 +3,11 @@
 # ecs-shell - Connect to ECS tasks in the Dreamwidth cluster
 #
 # Usage:
-#   bin/ecs-shell                     - List all services
-#   bin/ecs-shell <service>           - Connect to a random task in the service
-#   bin/ecs-shell <service> list      - List tasks in the service
-#   bin/ecs-shell <service> <taskid>  - Connect to a specific task
+#   bin/ecs-shell                              - List all services
+#   bin/ecs-shell <service>                    - Connect to a random task in the service
+#   bin/ecs-shell <service> list               - List tasks in the service
+#   bin/ecs-shell <service> <taskid>           - Connect to a specific task
+#   bin/ecs-shell <service> exec <file> [args] - Copy and run a script on a task
 
 set -e
 
@@ -122,27 +123,108 @@ connect_to_task() {
         --command "$SHELL_CMD"
 }
 
+# Resolve a task for a service (reusable by connect and exec)
+resolve_task() {
+    local service="$1"
+
+    local task_arns
+    task_arns=$(aws ecs list-tasks --cluster "$CLUSTER" --service-name "$service" \
+        --desired-status RUNNING --query 'taskArns[*]' --output text)
+
+    if [[ -z "$task_arns" ]]; then
+        error "No running tasks found for service '$service'"
+    fi
+
+    local first_arn
+    first_arn=$(echo "$task_arns" | awk '{print $1}')
+    echo "$first_arn" | sed 's|.*/||'
+}
+
+# Resolve the container name for a task (reusable by connect and exec)
+resolve_container() {
+    local task_id="$1"
+
+    local container_name
+    container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
+        --query "tasks[0].containers[?name=='web'].name | [0]" --output text)
+
+    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
+        container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
+            --query "tasks[0].containers[?name!='cloudwatch-agent'].name | [0]" --output text)
+    fi
+
+    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
+        container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
+            --query 'tasks[0].containers[0].name' --output text)
+    fi
+
+    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
+        error "Could not determine container name for task '$task_id'"
+    fi
+
+    echo "$container_name"
+}
+
+# Copy a local file to a task and execute it
+exec_on_task() {
+    local service="$1"
+    local local_file="$2"
+    shift 2
+    local script_args="$*"
+
+    if [[ ! -f "$local_file" ]]; then
+        error "File not found: $local_file"
+    fi
+
+    local task_id
+    task_id=$(resolve_task "$service")
+    info "Using task: $task_id"
+
+    local container_name
+    container_name=$(resolve_container "$task_id")
+    info "Using container: $container_name"
+
+    local remote_path="/tmp/$(basename "$local_file")"
+
+    # Base64-encode the file, pipe it into the container, decode it there.
+    # ECS execute-command doesn't support file copy natively, so we push
+    # the file contents through a shell command.
+    local encoded
+    encoded=$(base64 -w0 "$local_file")
+
+    info "Copying $(basename "$local_file") to $remote_path..."
+    aws ecs execute-command \
+        --cluster "$CLUSTER" \
+        --task "$task_id" \
+        --container "$container_name" \
+        --interactive \
+        --command "/bin/bash -c 'echo $encoded | base64 -d > $remote_path && chmod +x $remote_path'"
+
+    info "Running: perl $remote_path $script_args"
+    echo
+
+    aws ecs execute-command \
+        --cluster "$CLUSTER" \
+        --task "$task_id" \
+        --container "$container_name" \
+        --interactive \
+        --command "/bin/bash -c 'cd \$LJHOME && perl $remote_path $script_args'"
+}
+
 # Main
-case "$#" in
-    0)
-        list_services
-        ;;
-    1)
-        connect_to_task "$1"
-        ;;
-    2)
-        if [[ "$2" == "list" ]]; then
-            list_tasks "$1"
-        else
-            connect_to_task "$1" "$2"
-        fi
-        ;;
-    *)
-        echo "Usage:"
-        echo "  $0                     - List all services"
-        echo "  $0 <service>           - Connect to a random task in the service"
-        echo "  $0 <service> list      - List tasks in the service"
-        echo "  $0 <service> <taskid>  - Connect to a specific task"
-        exit 1
-        ;;
-esac
+if [[ $# -eq 0 ]]; then
+    list_services
+elif [[ $# -eq 1 ]]; then
+    connect_to_task "$1"
+elif [[ "$2" == "list" ]]; then
+    list_tasks "$1"
+elif [[ "$2" == "exec" ]]; then
+    if [[ $# -lt 3 ]]; then
+        error "Usage: $0 <service> exec <file> [args...]"
+    fi
+    service="$1"
+    shift 2
+    exec_on_task "$service" "$@"
+else
+    connect_to_task "$1" "$2"
+fi
