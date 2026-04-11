@@ -21,6 +21,7 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use DW::Stats;
 use DW::TaskQueue;
 use LJ::Event;
 use LJ::ESN;
@@ -44,7 +45,33 @@ sub work {
     $evt->configure_logger;
 
     my $us = LJ::load_userids( map { $_->[0] } @$sublist );
-    $sublist = [ grep { $us->{ $_->[0] }->{clusterid} == $cid } @$sublist ];
+
+    # Filter out subs whose users don't live on this cluster, logging each
+    # drop. Previously this was a silent grep which made it impossible to
+    # tell "user moved cluster" apart from "user failed to load under DB
+    # pressure" -- both being live sources of silently dropped notifications.
+    my @kept;
+    foreach my $item (@$sublist) {
+        my $uid  = $item->[0];
+        my $user = $us->{$uid};
+        if ( $user && $user->{clusterid} == $cid ) {
+            push @kept, $item;
+            next;
+        }
+
+        my $reason = $user ? 'cluster_mismatch' : 'user_not_loaded';
+        my $uname  = $user ? $user->{user}      : '?';
+        my $got    = $user ? $user->{clusterid} : 'none';
+        $log->info(
+            sprintf(
+                'ESN drop filtersubs user=%s(%d) sub=%d cluster=%d->%s reason=%s',
+                $uname, $uid, $item->[1], $cid, $got, $reason
+            )
+        );
+        DW::Stats::increment( 'dw.esn.filtersubs.dropped', 1,
+            [ "etypeid:$e_params->[0]", "cluster:$cid", "reason:$reason" ] );
+    }
+    $sublist = \@kept;
 
     my ( $ct, $max ) = ( 0, scalar(@$sublist) );
     my $dbcr = LJ::get_cluster_reader($cid)

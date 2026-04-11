@@ -20,6 +20,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ croak confess /;
 
+use DW::Stats;
 use LJ::Event;
 use LJ::NotificationMethod;
 use LJ::Subscription::Pending;
@@ -575,14 +576,36 @@ sub process {
     my ( $self, @events ) = @_;
     my $note = $self->notification or return;
 
-    return 1
-        if $self->etypeid == LJ::Event::OfficialPost->etypeid
-        && !LJ::is_enabled('officialpost_esn');
+    if ( $self->etypeid == LJ::Event::OfficialPost->etypeid
+        && !LJ::is_enabled('officialpost_esn') )
+    {
+        DW::Stats::increment( 'dw.esn.process.skipped', 1,
+            [ 'reason:officialpost_disabled', "etypeid:" . $self->etypeid ] );
+        return 1;
+    }
 
   # significant events (such as SecurityAttributeChanged) must be processed even for inactive users.
-    return 1
-        unless $self->notify_class->configured_for_user( $self->owner )
-        || LJ::Event->class( $self->etypeid )->is_significant;
+    unless ( $self->notify_class->configured_for_user( $self->owner )
+        || LJ::Event->class( $self->etypeid )->is_significant )
+    {
+        my $owner = $self->owner;
+        $log->debug(
+            sprintf(
+                'ESN skip process user=%s(%d) sub=%d method=%s reason=not_configured_for_user',
+                $owner->user, $owner->id, $self->id, $self->notify_class
+            )
+        );
+        DW::Stats::increment(
+            'dw.esn.process.skipped',
+            1,
+            [
+                'reason:not_configured_for_user',
+                "method:" . $self->notify_class,
+                "etypeid:" . $self->etypeid,
+            ]
+        );
+        return 1;
+    }
 
     return $note->notify(@events);
 }

@@ -19,6 +19,10 @@ package LJ::NotificationInbox;
 
 use strict;
 use Carp qw(croak);
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use DW::Stats;
 use LJ::NotificationItem;
 use LJ::Event;
 use LJ::NotificationArchive;
@@ -452,9 +456,19 @@ sub enqueue {
         );
 
         if ($too_old_qid) {
-            $u->do( "DELETE FROM notifyqueue WHERE userid=? AND qid <= ? $bookmark_sql",
+            my $rv = $u->do( "DELETE FROM notifyqueue WHERE userid=? AND qid <= ? $bookmark_sql",
                 undef, $u->id, $too_old_qid );
             $self->expire_cache;
+
+            my $deleted = ( defined $rv && $rv ne '0E0' ) ? $rv + 0 : 0;
+            $log->info(
+                sprintf(
+                    'ESN inbox eviction user=%s(%d) oldest_kept_qid=%d rows_deleted=%d max_size=%d',
+                    $u->user, $u->id, $too_old_qid, $deleted, $max
+                )
+            );
+            DW::Stats::increment( 'dw.esn.inbox.evicted', $deleted, ['reason:over_max'] )
+                if $deleted;
         }
     }
 
