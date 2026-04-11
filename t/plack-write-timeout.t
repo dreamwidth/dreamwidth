@@ -100,8 +100,11 @@ my ( $secs, $usecs ) = unpack( 'l!l!', $packed );
 is( $secs, 5, 'SO_SNDTIMEO set to 5 seconds' );
 
 # Verify the response passed through unchanged
-is_deeply( $res, [ 200, [ 'Content-Type' => 'text/plain' ], ['OK'] ],
-    'Response passed through unchanged' );
+is_deeply(
+    $res,
+    [ 200, [ 'Content-Type' => 'text/plain' ], ['OK'] ],
+    'Response passed through unchanged'
+);
 
 # Clean up
 close $server_sock;
@@ -110,7 +113,7 @@ close $listener;
 
 # Test 8-9: Works without psgix.io (shouldn't crash)
 my $no_socket_called = 0;
-my $mw_no_sock = Plack::Middleware::DW::WriteTimeout->new(
+my $mw_no_sock       = Plack::Middleware::DW::WriteTimeout->new(
     app     => sub { $no_socket_called = 1; return [ 200, [], ['OK'] ]; },
     timeout => 5,
 );
@@ -131,7 +134,7 @@ my $env_no_sock = {
 
 my $res2;
 eval { $res2 = $mw_no_sock->call($env_no_sock); };
-ok( !$@, 'No crash when psgix.io is absent' );
+ok( !$@,               'No crash when psgix.io is absent' );
 ok( $no_socket_called, 'Inner app still called without psgix.io' );
 
 # Tests 10-11: Functional tests — contrast WITH and WITHOUT SO_SNDTIMEO
@@ -249,20 +252,22 @@ SKIP: {
         timeout => 7,
     );
 
-    $mw_int->call( {
-        'REQUEST_METHOD'  => 'GET',
-        'PATH_INFO'       => '/',
-        'QUERY_STRING'    => '',
-        'SERVER_NAME'     => 'localhost',
-        'SERVER_PORT'     => 8080,
-        'HTTP_HOST'       => 'localhost',
-        'SCRIPT_NAME'     => '',
-        'psgix.io'        => $sock,
-        'psgi.version'    => [ 1, 1 ],
-        'psgi.url_scheme' => 'http',
-        'psgi.input'      => \*STDIN,
-        'psgi.errors'     => \*STDERR,
-    } );
+    $mw_int->call(
+        {
+            'REQUEST_METHOD'  => 'GET',
+            'PATH_INFO'       => '/',
+            'QUERY_STRING'    => '',
+            'SERVER_NAME'     => 'localhost',
+            'SERVER_PORT'     => 8080,
+            'HTTP_HOST'       => 'localhost',
+            'SCRIPT_NAME'     => '',
+            'psgix.io'        => $sock,
+            'psgi.version'    => [ 1, 1 ],
+            'psgi.url_scheme' => 'http',
+            'psgi.input'      => \*STDIN,
+            'psgi.errors'     => \*STDERR,
+        }
+    );
 
     my $packed = getsockopt( $sock, SOL_SOCKET, SO_SNDTIMEO );
     my ( $s, $us ) = unpack( 'l!l!', $packed );

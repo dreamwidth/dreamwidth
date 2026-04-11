@@ -35,7 +35,7 @@ sub call {
 
     my $sock = $env->{'psgix.io'};
     if ($sock) {
-        my $secs = $self->timeout || 30;
+        my $secs    = $self->timeout || 30;
         my $timeval = pack( 'l!l!', $secs, 0 );
         setsockopt( $sock, SOL_SOCKET, SO_SNDTIMEO, $timeval )
             or $log->warn("Failed to set SO_SNDTIMEO: $!");
