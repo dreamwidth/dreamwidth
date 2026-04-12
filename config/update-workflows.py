@@ -132,7 +132,7 @@ def generate_task_definition(name, cpu, memory):
 
     account_id = "194396987458"
     region = "us-east-1"
-    fluent_bit_image = f"{account_id}.dkr.ecr.{region}.amazonaws.com/dreamwidth-fluent-bit:latest"
+    fluent_bit_image = f"{account_id}.dkr.ecr.{region}.amazonaws.com/dreamwidth-fluent-bit:3"
 
     task = {
         "containerDefinitions": [
@@ -159,10 +159,6 @@ def generate_task_definition(name, cpu, memory):
                     }
                 },
                 "secrets": [
-                    {
-                        "name": "LOKI_URL",
-                        "valueFrom": f"arn:aws:ssm:{region}:{account_id}:parameter/dreamwidth/grafana-cloud/loki-write-url"
-                    },
                     {
                         "name": "LOKI_USER",
                         "valueFrom": f"arn:aws:ssm:{region}:{account_id}:parameter/dreamwidth/grafana-cloud/loki-username"
@@ -206,14 +202,17 @@ def generate_task_definition(name, cpu, memory):
                 "logConfiguration": {
                     "logDriver": "awsfirelens",
                     "options": {
-                        "Name": "grafana-loki",
-                        "Url": "${LOKI_URL}",
-                        "TenantID": "",
-                        "Labels": "{source=\"dreamwidth\",service=\"" + name + "\"}",
-                        "HttpUser": "${LOKI_USER}",
-                        "HttpPasswd": "${LOKI_PASSWORD}",
-                        "BatchWait": "1",
-                        "BatchSize": "1048576"
+                        "Name": "loki",
+                        "host": "logs-prod-042.grafana.net",
+                        "port": "443",
+                        "tls": "on",
+                        "tls.verify": "on",
+                        "http_user": "${LOKI_USER}",
+                        "http_passwd": "${LOKI_PASSWORD}",
+                        "labels": "source=dreamwidth,service=" + name,
+                        "label_keys": "$container_name,$ecs_task_arn",
+                        "remove_keys": "container_id,ecs_task_definition,ecs_cluster",
+                        "line_format": "key_value"
                     }
                 }
             }

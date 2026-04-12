@@ -2,7 +2,7 @@
     "containerDefinitions": [
         {
             "name": "log_router",
-            "image": "194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth-fluent-bit:latest",
+            "image": "194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth-fluent-bit:3",
             "essential": true,
             "firelensConfiguration": {
                 "type": "fluentbit",
@@ -21,10 +21,6 @@
                 }
             },
             "secrets": [
-                {
-                    "name": "LOKI_URL",
-                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-write-url"
-                },
                 {
                     "name": "LOKI_USER",
                     "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-username"
@@ -67,14 +63,17 @@
             "logConfiguration": {
                 "logDriver": "awsfirelens",
                 "options": {
-                    "Name": "grafana-loki",
-                    "Url": "${LOKI_URL}",
-                    "TenantID": "",
-                    "Labels": "{source=\"dreamwidth\",service=\"dw-change-poster-id\"}",
-                    "HttpUser": "${LOKI_USER}",
-                    "HttpPasswd": "${LOKI_PASSWORD}",
-                    "BatchWait": "1",
-                    "BatchSize": "1048576"
+                    "Name": "loki",
+                    "host": "logs-prod-042.grafana.net",
+                    "port": "443",
+                    "tls": "on",
+                    "tls.verify": "on",
+                    "http_user": "${LOKI_USER}",
+                    "http_passwd": "${LOKI_PASSWORD}",
+                    "labels": "source=dreamwidth,service=dw-change-poster-id",
+                    "label_keys": "$container_name,$ecs_task_arn",
+                    "remove_keys": "container_id,ecs_task_definition,ecs_cluster",
+                    "line_format": "key_value"
                 }
             }
         }
