@@ -498,6 +498,7 @@ sub call_xmlrpc {
         "https://" . ( $opts->{server} || $opts->{hostname} ) . "/interface/xmlrpc",
         agent    => "$LJ::SITENAME Content Importer ($LJ::ADMIN_EMAIL)",
         ssl_opts => {
+
             # TLS 1.3 handshakes hang under IO::Socket::SSL 2.098 + OpenSSL 3.0
             # due to session ticket handling (see openssl/openssl#7967). Force
             # TLS 1.2 as a workaround.
