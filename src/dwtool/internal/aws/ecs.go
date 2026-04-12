@@ -256,8 +256,7 @@ func classifyService(name string) (group, workflow, workflowSvc, imageBase strin
 
 	switch svc {
 	case "web-canary":
-		return "web", config.WorkflowWeb, "web-canary", config.ImageBaseWeb, []model.DeployTarget{
-			{Label: "web", Workflow: config.WorkflowWeb, WorkflowSvc: "web-canary", ImageBase: config.ImageBaseWeb},
+		return "web", config.WorkflowWeb22, "web-canary", config.ImageBaseWeb22, []model.DeployTarget{
 			{Label: "web22", Workflow: config.WorkflowWeb22, WorkflowSvc: "web-canary", ImageBase: config.ImageBaseWeb22},
 		}
 	case "web-stable":
@@ -265,8 +264,7 @@ func classifyService(name string) (group, workflow, workflowSvc, imageBase strin
 			{Label: "web", Workflow: config.WorkflowWeb, WorkflowSvc: "web-stable", ImageBase: config.ImageBaseWeb},
 		}
 	case "web-unauthenticated":
-		return "web", config.WorkflowWeb, "web-unauthenticated", config.ImageBaseWeb, []model.DeployTarget{
-			{Label: "web", Workflow: config.WorkflowWeb, WorkflowSvc: "web-unauthenticated", ImageBase: config.ImageBaseWeb},
+		return "web", config.WorkflowWeb22, "web-unauthenticated", config.ImageBaseWeb22, []model.DeployTarget{
 			{Label: "web22", Workflow: config.WorkflowWeb22, WorkflowSvc: "web-unauthenticated", ImageBase: config.ImageBaseWeb22},
 		}
 	case "web-shop":
