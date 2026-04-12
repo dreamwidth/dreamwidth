@@ -130,8 +130,55 @@ jobs:
 def generate_task_definition(name, cpu, memory):
     """Generate a task definition JSON file for a worker."""
 
+    account_id = "194396987458"
+    region = "us-east-1"
+    fluent_bit_image = f"{account_id}.dkr.ecr.{region}.amazonaws.com/dreamwidth-fluent-bit:latest"
+
     task = {
         "containerDefinitions": [
+            # Fluent Bit log router — ships worker logs directly to Grafana
+            # Cloud Loki, bypassing CloudWatch. ~15MB RSS.
+            {
+                "name": "log_router",
+                "image": fluent_bit_image,
+                "essential": True,
+                "firelensConfiguration": {
+                    "type": "fluentbit",
+                    "options": {
+                        "config-file-type": "file",
+                        "config-file-value": "/fluent-bit/configs/minimize-log-loss.conf"
+                    }
+                },
+                "logConfiguration": {
+                    "logDriver": "awslogs",
+                    "options": {
+                        "awslogs-create-group": "true",
+                        "awslogs-group": "/dreamwidth/fluent-bit",
+                        "awslogs-region": region,
+                        "awslogs-stream-prefix": name
+                    }
+                },
+                "secrets": [
+                    {
+                        "name": "LOKI_URL",
+                        "valueFrom": f"arn:aws:ssm:{region}:{account_id}:parameter/dreamwidth/grafana-cloud/loki-write-url"
+                    },
+                    {
+                        "name": "LOKI_USER",
+                        "valueFrom": f"arn:aws:ssm:{region}:{account_id}:parameter/dreamwidth/grafana-cloud/loki-username"
+                    },
+                    {
+                        "name": "LOKI_PASSWORD",
+                        "valueFrom": f"arn:aws:ssm:{region}:{account_id}:parameter/dreamwidth/grafana-cloud/loki-password"
+                    }
+                ],
+                "environment": [],
+                "portMappings": [],
+                "mountPoints": [],
+                "volumesFrom": [],
+                "systemControls": []
+            },
+            # The actual worker container
             {
                 "name": "worker",
                 "image": "ghcr.io/dreamwidth/worker:latest",
@@ -157,19 +204,23 @@ def generate_task_definition(name, cpu, memory):
                     "initProcessEnabled": True
                 },
                 "logConfiguration": {
-                    "logDriver": "awslogs",
+                    "logDriver": "awsfirelens",
                     "options": {
-                        "awslogs-create-group": "true",
-                        "awslogs-group": f"/dreamwidth/worker/{name}",
-                        "awslogs-region": "us-east-1",
-                        "awslogs-stream-prefix": "worker"
+                        "Name": "grafana-loki",
+                        "Url": "${LOKI_URL}",
+                        "TenantID": "",
+                        "Labels": "{source=\"dreamwidth\",service=\"" + name + "\"}",
+                        "HttpUser": "${LOKI_USER}",
+                        "HttpPasswd": "${LOKI_PASSWORD}",
+                        "BatchWait": "1",
+                        "BatchSize": "1048576"
                     }
                 }
             }
         ],
         "family": f"worker-{name}",
-        "taskRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskRole",
-        "executionRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskExecutionRole",
+        "taskRoleArn": f"arn:aws:iam::{account_id}:role/dreamwidth-ecsTaskRole",
+        "executionRoleArn": f"arn:aws:iam::{account_id}:role/dreamwidth-ecsTaskExecutionRole",
         "networkMode": "awsvpc",
         "volumes": [
             {

@@ -1,6 +1,46 @@
 {
     "containerDefinitions": [
         {
+            "name": "log_router",
+            "image": "194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth-fluent-bit:latest",
+            "essential": true,
+            "firelensConfiguration": {
+                "type": "fluentbit",
+                "options": {
+                    "config-file-type": "file",
+                    "config-file-value": "/fluent-bit/configs/minimize-log-loss.conf"
+                }
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/dreamwidth/fluent-bit",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "sphinx-copier"
+                }
+            },
+            "secrets": [
+                {
+                    "name": "LOKI_URL",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-write-url"
+                },
+                {
+                    "name": "LOKI_USER",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-username"
+                },
+                {
+                    "name": "LOKI_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-password"
+                }
+            ],
+            "environment": [],
+            "portMappings": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "systemControls": []
+        },
+        {
             "name": "worker",
             "image": "ghcr.io/dreamwidth/worker:latest",
             "cpu": 0,
@@ -25,12 +65,16 @@
                 "initProcessEnabled": true
             },
             "logConfiguration": {
-                "logDriver": "awslogs",
+                "logDriver": "awsfirelens",
                 "options": {
-                    "awslogs-create-group": "true",
-                    "awslogs-group": "/dreamwidth/worker/sphinx-copier",
-                    "awslogs-region": "us-east-1",
-                    "awslogs-stream-prefix": "worker"
+                    "Name": "grafana-loki",
+                    "Url": "${LOKI_URL}",
+                    "TenantID": "",
+                    "Labels": "{source=\"dreamwidth\",service=\"sphinx-copier\"}",
+                    "HttpUser": "${LOKI_USER}",
+                    "HttpPasswd": "${LOKI_PASSWORD}",
+                    "BatchWait": "1",
+                    "BatchSize": "1048576"
                 }
             }
         }
