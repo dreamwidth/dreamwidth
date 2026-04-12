@@ -25,6 +25,11 @@ func main() {
 		return
 	}
 
+	if len(os.Args) > 1 && os.Args[1] == "esn-trace" {
+		runESNTrace(os.Args[2:])
+		return
+	}
+
 	var cfg config.Config
 	flag.StringVar(&cfg.Region, "region", config.DefaultRegion, "AWS region")
 	flag.StringVar(&cfg.Cluster, "cluster", config.DefaultCluster, "ECS cluster name")
@@ -234,6 +239,129 @@ func runLogScan(args []string) {
 	} else {
 		fmt.Fprintf(os.Stderr, "Done. %d total match(es).\n", totalMatches)
 	}
+}
+
+func runESNTrace(args []string) {
+	fs := flag.NewFlagSet("esn-trace", flag.ExitOnError)
+	since := fs.String("since", "1h", "how far back to search (e.g. 1h, 24h, 7d)")
+	region := fs.String("region", config.DefaultRegion, "AWS region")
+	limit := fs.Int("limit", 1000, "max results per log group")
+
+	fs.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: dwtool esn-trace <trace-id> [options]\n\n")
+		fmt.Fprintf(os.Stderr, "Trace an ESN event through the full notification pipeline.\n\n")
+		fmt.Fprintf(os.Stderr, "The trace-id is the event's raw params joined with colons:\n")
+		fmt.Fprintf(os.Stderr, "  ETYPEID:JOURNALID:ARG1:ARG2  (e.g. 3:48205:2847193:0)\n\n")
+		fmt.Fprintf(os.Stderr, "Options:\n")
+		fs.PrintDefaults()
+		fmt.Fprintf(os.Stderr, "\nExamples:\n")
+		fmt.Fprintf(os.Stderr, "  dwtool esn-trace 3:48205:2847193:0\n")
+		fmt.Fprintf(os.Stderr, "  dwtool esn-trace 3:48205:2847193:0 -since 24h\n")
+	}
+
+	if err := fs.Parse(args); err != nil {
+		os.Exit(1)
+	}
+
+	traceID := fs.Arg(0)
+	if traceID == "" {
+		fmt.Fprintf(os.Stderr, "Error: trace-id is required\n\n")
+		fs.Usage()
+		os.Exit(1)
+	}
+
+	duration, err := parseDuration(*since)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: invalid -since value %q: %v\n", *since, err)
+		os.Exit(1)
+	}
+
+	ctx := context.Background()
+
+	client, err := dwaws.NewClient(*region, config.DefaultCluster)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error initializing AWS client: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Search all 4 ESN log groups
+	esnLogGroups := []string{
+		"/dreamwidth/worker/dw-esn-fired-event",
+		"/dreamwidth/worker/dw-esn-cluster-subs",
+		"/dreamwidth/worker/dw-esn-filter-subs",
+		"/dreamwidth/worker/dw-esn-process-sub",
+	}
+
+	now := time.Now()
+	startTime := now.Add(-duration)
+	pattern := fmt.Sprintf("\"[esn %s]\"", traceID)
+
+	fmt.Fprintf(os.Stderr, "Searching for trace %s (last %s)...\n", traceID, *since)
+
+	type taggedEvent struct {
+		logGroup string
+		event    model.LogEvent
+	}
+
+	var allEvents []taggedEvent
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
+	for _, lg := range esnLogGroups {
+		wg.Add(1)
+		go func(logGroup string) {
+			defer wg.Done()
+			events, err := client.SearchLogs(ctx, logGroup, pattern, startTime, now, *limit)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "  error: %s: %v\n", logGroup, err)
+				return
+			}
+			mu.Lock()
+			for _, ev := range events {
+				allEvents = append(allEvents, taggedEvent{logGroup: logGroup, event: ev})
+			}
+			mu.Unlock()
+		}(lg)
+	}
+
+	wg.Wait()
+
+	if len(allEvents) == 0 {
+		fmt.Fprintf(os.Stderr, "No events found for trace %s\n", traceID)
+		os.Exit(0)
+	}
+
+	// Sort by timestamp
+	sort.Slice(allEvents, func(i, j int) bool {
+		return allEvents[i].event.Timestamp.Before(allEvents[j].event.Timestamp)
+	})
+
+	// Pretty-print with stage labels
+	stageNames := map[string]string{
+		"/dreamwidth/worker/dw-esn-fired-event":  "fired-event",
+		"/dreamwidth/worker/dw-esn-cluster-subs": "cluster-subs",
+		"/dreamwidth/worker/dw-esn-filter-subs":  "filter-subs",
+		"/dreamwidth/worker/dw-esn-process-sub":  "process-sub",
+	}
+
+	fmt.Fprintf(os.Stderr, "Found %d events:\n\n", len(allEvents))
+
+	for _, te := range allEvents {
+		ts := te.event.Timestamp.Format("15:04:05.000")
+		stage := stageNames[te.logGroup]
+		if stage == "" {
+			stage = te.logGroup
+		}
+		// Strip the [esn ...] prefix from the message since we're already showing the trace
+		msg := te.event.Message
+		prefix := fmt.Sprintf("[esn %s] ", traceID)
+		if idx := strings.Index(msg, prefix); idx >= 0 {
+			msg = msg[:idx] + msg[idx+len(prefix):]
+		}
+		fmt.Printf("%s  [%-13s]  %s\n", ts, stage, strings.TrimSpace(msg))
+	}
+
+	fmt.Fprintf(os.Stderr, "\nDone. %d events across %s.\n", len(allEvents), *since)
 }
 
 // parseDuration parses a duration string that supports "d" for days

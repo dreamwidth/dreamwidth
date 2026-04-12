@@ -19,6 +19,9 @@ use LJ::JSON;
 use DW::EmailPost::Comment;
 use Carp qw(croak);
 use base 'LJ::Event';
+use DW::Stats;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 # we don't allow subscriptions to comments on friends' journals, so
 # setting undef on this skips some nasty queries
@@ -514,14 +517,30 @@ sub subscription_as_html {
 sub matches_filter {
     my ( $self, $subscr ) = @_;
 
-    return 0 unless $subscr->available_for_user;
+    my $trace   = $LJ::ESN::CURRENT_TRACE // '';
+    my $etypeid = $self->etypeid;
+    my $reject  = sub {
+        my ( $reason, $extra ) = @_;
+        my $owner = $subscr->owner;
+        $log->debug(
+            sprintf(
+                '[esn %s] filter: user=%s(%d) sub=%d reason=%s%s',
+                $trace, $owner ? $owner->user : '?', $subscr->userid,
+                $subscr->id || 0, $reason, $extra ? " $extra" : ''
+            )
+        );
+        DW::Stats::increment( 'dw.esn.matches_filter', 1,
+            [ "result:rejected", "etypeid:$etypeid", "reason:$reason" ] );
+        return 0;
+    };
+
+    return $reject->('not_available_for_user') unless $subscr->available_for_user;
 
     my $sjid = $subscr->journalid;
     my $ejid = $self->event_journal->userid;
 
-    # if subscription is for a specific journal (not a wildcard like 0
-    # for all friends) then it must match the event's journal exactly.
-    return 0 if $sjid && $sjid != $ejid;
+    return $reject->( 'journal_mismatch', "sjid=$sjid ejid=$ejid" )
+        if $sjid && $sjid != $ejid;
 
     my ( $earg1, $earg2 ) = ( $self->arg1,   $self->arg2 );
     my ( $sarg1, $sarg2 ) = ( $subscr->arg1, $subscr->arg2 );
@@ -530,40 +549,28 @@ sub matches_filter {
     my $entry   = $comment->entry;
 
     my $watcher = $subscr->owner;
-    return 0 unless $comment->visible_to($watcher);
+    return $reject->('not_visible_to_watcher') unless $comment->visible_to($watcher);
 
     if ($watcher) {
+        return $reject->('poster_is_watcher') if $watcher->equals( $comment->poster );
 
-        # not a match if this user posted the comment
-        return 0 if $watcher->equals( $comment->poster );
-
-        # For unscreen events, skip users who were already notified
-        # when the comment was screened (they could already see it).
         if ( $self->is_unscreen_event ) {
-            return 0 if $watcher->can_manage( $comment->journal );
-            return 0
-                if $entry->poster
-                && $watcher->equals( $entry->poster );
+            return $reject->('unscreen_manager_already_notified')
+                if $watcher->can_manage( $comment->journal );
+            return $reject->('unscreen_entry_poster_already_notified')
+                if $entry->poster && $watcher->equals( $entry->poster );
         }
 
-        # not a match if opt_noemail applies
-        return 0 if $self->apply_noemail( $watcher, $comment, $subscr->method );
+        return $reject->('opt_noemail')
+            if $self->apply_noemail( $watcher, $comment, $subscr->method );
     }
 
     # watching a specific journal
-    if ( $sarg1 == 0 && $sarg2 == 0 ) {
-
-        # TODO: friend group filtering in case of $sjid == 0 when
-        # a subprop is filtering on a friend group
-        return 1;
-    }
+    return 1 if $sarg1 == 0 && $sarg2 == 0;
 
     my $wanted_ditemid = $sarg1;
-
-    # a (journal, dtalkid) pair identifies a comment uniquely, as does
-    # a (journal, ditemid, dtalkid pair). So ditemid is optional. If we have
-    # it, though, it needs to be correct.
-    return 0 if $wanted_ditemid && $entry->ditemid != $wanted_ditemid;
+    return $reject->( 'ditemid_mismatch', "wanted=$wanted_ditemid got=" . $entry->ditemid )
+        if $wanted_ditemid && $entry->ditemid != $wanted_ditemid;
 
     # watching a post
     return 1 if $sarg2 == 0;
@@ -574,7 +581,7 @@ sub matches_filter {
         return 1 if $comment->jtalkid == $wanted_jtalkid;
         $comment = $comment->parent;
     }
-    return 0;
+    return $reject->( 'not_in_watched_thread', "wanted_jtalkid=$wanted_jtalkid" );
 }
 
 sub apply_noemail {

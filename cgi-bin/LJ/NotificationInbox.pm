@@ -467,7 +467,8 @@ sub enqueue {
                     $u->user, $u->id, $too_old_qid, $deleted, $max
                 )
             );
-            DW::Stats::increment( 'dw.esn.inbox.evicted', $deleted, ['reason:over_max'] )
+            DW::Stats::increment( 'dw.esn.inbox', $deleted,
+                [ 'result:evicted', 'reason:over_max' ] )
                 if $deleted;
         }
     }
@@ -510,6 +511,15 @@ sub enqueue {
             values %item
         ) or die $u->errstr;
     }
+
+    DW::Stats::increment( 'dw.esn.inbox', 1, ['result:delivered'] );
+    $log->debug(
+        sprintf(
+            '[esn %s] inbox delivered user=%s(%d) qid=%d',
+            join( ':', $evt->etypeid, $evt->u->{userid}, $evt->arg1, $evt->arg2 ),
+            $u->user, $u->id, $qid
+        )
+    );
 
     # invalidate memcache
     $self->expire_cache;

@@ -574,13 +574,33 @@ sub notification {
 
 sub process {
     my ( $self, @events ) = @_;
-    my $note = $self->notification or return;
+
+    my $trace = @events ? join( ':', $events[0]->raw_params ) : '';
+
+    my $note = $self->notification;
+    unless ($note) {
+        $log->debug(
+            sprintf(
+'[esn %s] ESN skip process user=%s(%d) sub=%d reason=notification_construction_failed',
+                $trace, $self->owner->user, $self->owner->id, $self->id
+            )
+        );
+        DW::Stats::increment(
+            'dw.esn.process',
+            1,
+            [
+                'result:failed', 'reason:notification_construction_failed',
+                "etypeid:" . $self->etypeid
+            ]
+        );
+        return;
+    }
 
     if ( $self->etypeid == LJ::Event::OfficialPost->etypeid
         && !LJ::is_enabled('officialpost_esn') )
     {
-        DW::Stats::increment( 'dw.esn.process.skipped', 1,
-            [ 'reason:officialpost_disabled', "etypeid:" . $self->etypeid ] );
+        DW::Stats::increment( 'dw.esn.process', 1,
+            [ 'result:skipped', 'reason:officialpost_disabled', "etypeid:" . $self->etypeid ] );
         return 1;
     }
 
@@ -591,17 +611,16 @@ sub process {
         my $owner = $self->owner;
         $log->debug(
             sprintf(
-                'ESN skip process user=%s(%d) sub=%d method=%s reason=not_configured_for_user',
-                $owner->user, $owner->id, $self->id, $self->notify_class
+'[esn %s] ESN skip process user=%s(%d) sub=%d method=%s reason=not_configured_for_user',
+                $trace, $owner->user, $owner->id, $self->id, $self->notify_class
             )
         );
         DW::Stats::increment(
-            'dw.esn.process.skipped',
+            'dw.esn.process',
             1,
             [
-                'reason:not_configured_for_user',
-                "method:" . $self->notify_class,
-                "etypeid:" . $self->etypeid,
+                'result:skipped',                'reason:not_configured_for_user',
+                "method:" . $self->notify_class, "etypeid:" . $self->etypeid,
             ]
         );
         return 1;

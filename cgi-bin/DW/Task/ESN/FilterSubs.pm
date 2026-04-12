@@ -33,12 +33,15 @@ sub work {
     my $self = $_[0];
     my $a    = $self->args;
 
+    my ( $e_params, $sublist, $cid ) = @$a;
+    my $trace = join( ':', @$e_params );
+
     my $failed = sub {
-        $log->error( sprintf( $_[0], @_[ 1 .. $#_ ] ) );
+        $log->error( sprintf( "[esn $trace] " . $_[0], @_[ 1 .. $#_ ] ) );
+        DW::Stats::increment( 'dw.esn.filtersubs', 1,
+            [ "result:failed", "etypeid:$e_params->[0]" ] );
         return DW::Task::FAILED;
     };
-
-    my ( $e_params, $sublist, $cid ) = @$a;
     my $evt = eval { LJ::Event->new_from_raw_params(@$e_params) }
         or return $failed->("Couldn't load event: $@");
 
@@ -64,12 +67,12 @@ sub work {
         my $got    = $user ? $user->{clusterid} : 'none';
         $log->info(
             sprintf(
-                'ESN drop filtersubs user=%s(%d) sub=%d cluster=%d->%s reason=%s',
+                "[esn $trace] ESN drop filtersubs user=%s(%d) sub=%d cluster=%d->%s reason=%s",
                 $uname, $uid, $item->[1], $cid, $got, $reason
             )
         );
-        DW::Stats::increment( 'dw.esn.filtersubs.dropped', 1,
-            [ "etypeid:$e_params->[0]", "cluster:$cid", "reason:$reason" ] );
+        DW::Stats::increment( 'dw.esn.filtersubs', 1,
+            [ "result:dropped", "etypeid:$e_params->[0]", "cluster:$cid", "reason:$reason" ] );
     }
     $sublist = \@kept;
 
@@ -77,7 +80,7 @@ sub work {
     my $dbcr = LJ::get_cluster_reader($cid)
         or return $failed->("Couldn't get cluster reader handle");
 
-    $log->debug( 'Filtering: got ', $max, ' subs to filter.' );
+    $log->debug("[esn $trace] Filtering: got $max subs to filter.");
 
     my @subs;
     while ( scalar(@$sublist) > 0 ) {
@@ -107,7 +110,11 @@ sub work {
 
     $0 = 'esn-filter-subs [bored]';
 
-    DW::TaskQueue->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) );
+    unless ( DW::TaskQueue->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) ) ) {
+        return $failed->("Failed to send tasks to queue");
+    }
+    DW::Stats::increment( 'dw.esn.filtersubs', 1,
+        [ "result:completed", "etypeid:$e_params->[0]" ] );
     return DW::Task::COMPLETED;
 }
 

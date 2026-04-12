@@ -32,18 +32,20 @@ sub work {
     my $self = $_[0];
     my $a    = $self->args;
     my ( $cid, $e_params ) = @$a;
+    my $trace = join( ':', @$e_params );
 
     my $incr = sub {
         my ( $phase, $incr, $tags ) = @_;
-        push @{ $tags ||= [] }, "etypeid:$e_params->[0]";
-        DW::Stats::increment( 'dw.esn.findsubsbycluster.' . $phase, $incr // 1, $tags );
+        push @{ $tags ||= [] }, "etypeid:$e_params->[0]", "result:$phase";
+        DW::Stats::increment( 'dw.esn.findsubsbycluster', $incr // 1, $tags );
     };
 
     $incr->('started');
 
     my $evt = eval { LJ::Event->new_from_raw_params(@$e_params) };
     unless ($evt) {
-        $log->error( 'Failed to load event from raw params: ', join( ', ', @$e_params ) );
+        $log->error( "[esn $trace] Failed to load event from raw params: ",
+            join( ', ', @$e_params ) );
         $incr->( 'failed', 1, ['err:LoadEvent'] );
         return DW::Task::FAILED;
     }
@@ -52,7 +54,7 @@ sub work {
 
     my $dbch = LJ::get_cluster_master($cid);
     unless ($dbch) {
-        $log->error( "Couldn't connect to cluster: ", $cid );
+        $log->error( "[esn $trace] Couldn't connect to cluster: ", $cid );
         $incr->( 'failed', 1, ['err:GetClusterMaster'] );
         return DW::Task::FAILED;
     }
@@ -61,8 +63,12 @@ sub work {
 
     # fast path:  job from phase2 to phase4, skipping filtering.
     if ( @subs <= $LJ::ESN::MAX_FILTER_SET ) {
-        $log->debug( 'Fast path: only found ', scalar(@subs), ' subscriptions.' );
-        DW::TaskQueue->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) );
+        $log->debug( "[esn $trace] Fast path: only found ", scalar(@subs), ' subscriptions.' );
+        unless ( DW::TaskQueue->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) ) ) {
+            $incr->( 'failed', 1, ['err:FailedSend'] );
+            return DW::Task::FAILED;
+        }
+        $incr->('completed');
         return DW::Task::COMPLETED;
     }
 
@@ -89,6 +95,13 @@ sub work {
                 # if a user for some reason has more than 5,000 matching subscriptions,
                 # uh, skip them.  that's messed up.
                 if ( $size > $LJ::ESN::MAX_FILTER_SET ) {
+                    $log->info(
+                        sprintf(
+                            '[esn %s] Skipping userid %d with %d subs (exceeds max %d)',
+                            $trace, $uid, $size, $LJ::ESN::MAX_FILTER_SET
+                        )
+                    );
+                    $incr->( 'completed', 1, ['err:UserSubsExceedMax'] );
                     delete $by_userid{$uid};
                     next UID;
                 }
@@ -116,9 +129,13 @@ sub work {
         push @subjobs, DW::Task::ESN::FilterSubs->new( $e_params, $sublist, $cid );
     }
 
-    $log->debug( 'Sending ', scalar(@subjobs), ' filtering subjobs.' );
+    $log->debug( "[esn $trace] Sending ", scalar(@subjobs), ' filtering subjobs.' );
 
-    DW::TaskQueue->send(@subjobs);
+    unless ( DW::TaskQueue->send(@subjobs) ) {
+        $incr->( 'failed', 1, ['err:FailedSend'] );
+        return DW::Task::FAILED;
+    }
+    $incr->('completed');
     return DW::Task::COMPLETED;
 }
 
