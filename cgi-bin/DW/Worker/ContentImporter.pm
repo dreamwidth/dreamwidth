@@ -33,6 +33,7 @@ use Storable;
 use LWP::UserAgent;
 use XMLRPC::Lite;
 use Digest::MD5 qw/ md5_hex /;
+use DW::Stats;
 
 use LJ::Protocol;
 use LJ::Talk;
@@ -175,6 +176,9 @@ sub fail {
     warn "Permanent failure: $msg\n"
         if $LJ::IS_DEV_SERVER;
 
+    DW::Stats::increment( 'dw.worker.importer.job_completed', 1,
+        [ "item:$item", "result:fail", "hostname:" . ( $imp->{hostname} || 'unknown' ) ] );
+
     # fire an event for the user to know that it failed
     foreach my $uid ( $class->userids_to_message( $imp->{userid} ) ) {
         LJ::Event::ImportStatus->new( $uid, $item, { type => 'fail', msg => $msg } )->fire;
@@ -213,6 +217,9 @@ sub temp_fail {
     my $msg = sprintf( $msgt, @args );
     warn "Temporary failure: $msg\n"
         if $LJ::IS_DEV_SERVER;
+
+    DW::Stats::increment( 'dw.worker.importer.job_completed', 1,
+        [ "item:$item", "result:temp_fail", "hostname:" . ( $imp->{hostname} || 'unknown' ) ] );
 
     # fire an event for the user to know that it failed (temporarily)
     foreach my $uid ( $class->userids_to_message( $imp->{userid} ) ) {
@@ -261,6 +268,9 @@ sub ok {
         warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
     }
 
+    DW::Stats::increment( 'dw.worker.importer.job_completed', 1,
+        [ "item:$item", "result:ok", "hostname:" . ( $imp->{hostname} || 'unknown' ) ] );
+
     # advise the user this finished
     unless ( defined $show && $show == 0 ) {
         foreach my $uid ( $class->userids_to_message( $imp->{userid} ) ) {
@@ -280,6 +290,8 @@ Decline to process the job for now. Will retry again later. (Does not count agai
 
 sub decline {
     my ( $class, $job, %opts ) = @_;
+
+    DW::Stats::increment( 'dw.worker.importer.job_completed', 1, ['result:decline'] );
 
     $opts{delay} ||= 3600 * 24;
     $job->run_after( time() + $opts{delay} );
