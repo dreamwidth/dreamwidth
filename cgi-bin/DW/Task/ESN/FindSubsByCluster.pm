@@ -64,9 +64,12 @@ sub work {
     # fast path:  job from phase2 to phase4, skipping filtering.
     if ( @subs <= $LJ::ESN::MAX_FILTER_SET ) {
         $log->debug( "[esn $trace] Fast path: only found ", scalar(@subs), ' subscriptions.' );
-        unless ( DW::TaskQueue->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) ) ) {
-            $incr->( 'failed', 1, ['err:FailedSend'] );
-            return DW::Task::FAILED;
+        my @tasks = LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs );
+        if (@tasks) {
+            unless ( DW::TaskQueue->send(@tasks) ) {
+                $incr->( 'failed', 1, ['err:FailedSend'] );
+                return DW::Task::FAILED;
+            }
         }
         $incr->('completed');
         return DW::Task::COMPLETED;

@@ -4,9 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -20,14 +23,18 @@ import (
 )
 
 func main() {
-	if len(os.Args) > 1 && os.Args[1] == "logscan" {
-		runLogScan(os.Args[2:])
-		return
-	}
-
-	if len(os.Args) > 1 && os.Args[1] == "esn-trace" {
-		runESNTrace(os.Args[2:])
-		return
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "logscan":
+			runLogScan(os.Args[2:])
+			return
+		case "esn-trace":
+			runESNTrace(os.Args[2:])
+			return
+		case "help", "--help", "-h":
+			printUsage()
+			return
+		}
 	}
 
 	var cfg config.Config
@@ -58,6 +65,18 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func printUsage() {
+	fmt.Fprintf(os.Stderr, `Usage: dwtool <command> [options]
+
+Commands:
+  (default)     Interactive ECS service dashboard (TUI)
+  logscan       Search CloudWatch logs across all Dreamwidth services
+  esn-trace     Trace an ESN event through the full notification pipeline
+
+Run 'dwtool <command> --help' for details on a specific command.
+`)
 }
 
 func runLogScan(args []string) {
@@ -248,24 +267,26 @@ func runESNTrace(args []string) {
 	limit := fs.Int("limit", 1000, "max results per log group")
 
 	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: dwtool esn-trace <trace-id> [options]\n\n")
+		fmt.Fprintf(os.Stderr, "Usage: dwtool esn-trace <trace-id-or-url> [options]\n\n")
 		fmt.Fprintf(os.Stderr, "Trace an ESN event through the full notification pipeline.\n\n")
-		fmt.Fprintf(os.Stderr, "The trace-id is the event's raw params joined with colons:\n")
-		fmt.Fprintf(os.Stderr, "  ETYPEID:JOURNALID:ARG1:ARG2  (e.g. 3:48205:2847193:0)\n\n")
+		fmt.Fprintf(os.Stderr, "Accepts either a trace ID or a comment URL:\n")
+		fmt.Fprintf(os.Stderr, "  ETYPEID:JOURNALID:ARG1:ARG2  (e.g. 3:48205:2847193:0)\n")
+		fmt.Fprintf(os.Stderr, "  https://community.dreamwidth.org/12345.html?thread=67890\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		fs.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nExamples:\n")
 		fmt.Fprintf(os.Stderr, "  dwtool esn-trace 3:48205:2847193:0\n")
 		fmt.Fprintf(os.Stderr, "  dwtool esn-trace 3:48205:2847193:0 -since 24h\n")
+		fmt.Fprintf(os.Stderr, "  dwtool esn-trace 'https://rp-community.dreamwidth.org/5678.html?thread=1234567#cmt1234567'\n")
 	}
 
 	if err := fs.Parse(args); err != nil {
 		os.Exit(1)
 	}
 
-	traceID := fs.Arg(0)
-	if traceID == "" {
-		fmt.Fprintf(os.Stderr, "Error: trace-id is required\n\n")
+	input := fs.Arg(0)
+	if input == "" {
+		fmt.Fprintf(os.Stderr, "Error: trace-id or comment URL is required\n\n")
 		fs.Usage()
 		os.Exit(1)
 	}
@@ -284,7 +305,6 @@ func runESNTrace(args []string) {
 		os.Exit(1)
 	}
 
-	// Search all 4 ESN log groups
 	esnLogGroups := []string{
 		"/dreamwidth/worker/dw-esn-fired-event",
 		"/dreamwidth/worker/dw-esn-cluster-subs",
@@ -294,8 +314,14 @@ func runESNTrace(args []string) {
 
 	now := time.Now()
 	startTime := now.Add(-duration)
-	pattern := fmt.Sprintf("\"[esn %s]\"", traceID)
 
+	// Resolve input: either a trace ID or a comment URL
+	traceID := input
+	if strings.HasPrefix(input, "http") {
+		traceID = resolveCommentURL(ctx, client, input, startTime, now)
+	}
+
+	pattern := fmt.Sprintf("\"[esn %s]\"", traceID)
 	fmt.Fprintf(os.Stderr, "Searching for trace %s (last %s)...\n", traceID, *since)
 
 	type taggedEvent struct {
@@ -366,6 +392,74 @@ func runESNTrace(args []string) {
 
 // parseDuration parses a duration string that supports "d" for days
 // in addition to Go's standard time.ParseDuration units.
+// resolveCommentURL parses a Dreamwidth comment URL, extracts the jtalkid,
+// and searches the fired-event logs to find the full trace ID.
+//
+// URL format: https://JOURNAL.dreamwidth.org/DITEMID.html?thread=DTALKID#cmt...
+// jtalkid = dtalkid >> 8 (Dreamwidth's display-to-internal ID conversion)
+func resolveCommentURL(ctx context.Context, client *dwaws.Client, rawURL string, startTime, endTime time.Time) string {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error parsing URL: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Extract dtalkid from ?thread= parameter
+	dtalkidStr := u.Query().Get("thread")
+	if dtalkidStr == "" {
+		fmt.Fprintf(os.Stderr, "Error: URL has no ?thread= parameter. Need a comment URL, not an entry URL.\n")
+		fmt.Fprintf(os.Stderr, "  Example: https://community.dreamwidth.org/12345.html?thread=67890\n")
+		os.Exit(1)
+	}
+
+	dtalkid, err := strconv.ParseInt(dtalkidStr, 10, 64)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: invalid thread ID %q: %v\n", dtalkidStr, err)
+		os.Exit(1)
+	}
+
+	jtalkid := dtalkid >> 8
+
+	fmt.Fprintf(os.Stderr, "Parsed URL: dtalkid=%d → jtalkid=%d\n", dtalkid, jtalkid)
+	fmt.Fprintf(os.Stderr, "Searching fired-event logs for matching trace...\n")
+
+	// Search fired-event for lines containing this jtalkid in a trace prefix.
+	// Trace format: [esn 3:JOURNALID:JTALKID:0] or [esn 3:JOURNALID:JTALKID:1]
+	// Search for ":[jtalkid]:" which appears in the trace string.
+	pattern := fmt.Sprintf("\"[esn 3:\" \":%d:\"", jtalkid)
+
+	events, err := client.SearchLogs(ctx, "/dreamwidth/worker/dw-esn-fired-event", pattern, startTime, endTime, 10)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error searching logs: %v\n", err)
+		os.Exit(1)
+	}
+
+	if len(events) == 0 {
+		fmt.Fprintf(os.Stderr, "No fired-event found for jtalkid=%d in the given time range.\n", jtalkid)
+		fmt.Fprintf(os.Stderr, "Try expanding the time range with -since (e.g. -since 24h)\n")
+		os.Exit(1)
+	}
+
+	// Extract the full trace ID from the first matching log line
+	// Log line looks like: "... [esn 3:48205:265:0] Processing event..."
+	re := regexp.MustCompile(`\[esn (\d+:\d+:` + strconv.FormatInt(jtalkid, 10) + `:\d+)\]`)
+	for _, ev := range events {
+		m := re.FindStringSubmatch(ev.Message)
+		if m != nil {
+			traceID := m[1]
+			fmt.Fprintf(os.Stderr, "Found trace: %s\n\n", traceID)
+			return traceID
+		}
+	}
+
+	fmt.Fprintf(os.Stderr, "Found log lines but couldn't extract trace ID. Raw matches:\n")
+	for _, ev := range events {
+		fmt.Fprintf(os.Stderr, "  %s\n", ev.Message)
+	}
+	os.Exit(1)
+	return "" // unreachable
+}
+
 func parseDuration(s string) (time.Duration, error) {
 	if strings.HasSuffix(s, "d") {
 		s = strings.TrimSuffix(s, "d")

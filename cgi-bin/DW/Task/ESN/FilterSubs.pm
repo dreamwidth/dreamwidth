@@ -110,8 +110,11 @@ sub work {
 
     $0 = 'esn-filter-subs [bored]';
 
-    unless ( DW::TaskQueue->send( LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs ) ) ) {
-        return $failed->("Failed to send tasks to queue");
+    my @tasks = LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs );
+    if (@tasks) {
+        unless ( DW::TaskQueue->send(@tasks) ) {
+            return $failed->("Failed to send tasks to queue");
+        }
     }
     DW::Stats::increment( 'dw.esn.filtersubs', 1,
         [ "result:completed", "etypeid:$e_params->[0]" ] );
