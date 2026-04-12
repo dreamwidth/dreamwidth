@@ -4,6 +4,13 @@ set -xe
 mkdir -p $LJHOME/ext/local
 ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc || true
 
+# Symlink extlib from image into workspace so extlib/bin/tidyall etc. work.
+# The main repo may already have a real extlib/ dir (from local CPAN installs);
+# worktrees won't — create the symlink only when extlib/ doesn't exist.
+if [ ! -e $LJHOME/extlib ]; then
+    ln -s /opt/dreamwidth-extlib $LJHOME/extlib
+fi
+
 # Seed MySQL data from pre-baked image if the volume is empty (first run)
 if [ ! -d /var/lib/mysql/mysql ]; then
     cp -a /opt/dreamwidth-mysql/* /var/lib/mysql/

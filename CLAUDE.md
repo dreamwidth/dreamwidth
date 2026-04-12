@@ -18,9 +18,13 @@ Build and start the devcontainer from the repo root:
 npx devcontainer up --workspace-folder .
 ```
 
-Find the running container ID:
+Find the running container ID for your workspace:
 
 ```bash
+# Filter by your workspace path to avoid grabbing another session's container
+docker ps --filter label=devcontainer.local_folder=$(pwd) --format "{{.ID}}"
+
+# Or list all devcontainers
 docker ps --format "{{.ID}} {{.Names}}"
 ```
 
@@ -55,6 +59,34 @@ bin/build-static.sh
 # Restart Apache after code changes
 apache2ctl restart
 ```
+
+### Worktree Workflow (multiple Claudes in parallel)
+
+Each Claude session can work in an isolated git worktree with its own devcontainer. This allows multiple Claudes to work simultaneously without stepping on each other.
+
+**Create a worktree** using Claude Code's built-in `EnterWorktree` tool. This creates a worktree under `.claude/worktrees/<name>` and switches your session into it.
+
+**Start a devcontainer for the worktree:**
+
+```bash
+npx devcontainer up --workspace-folder <worktree-path>
+```
+
+This works because `devcontainer.json` uses `workspaceMount` to always mount at `/workspaces/dreamwidth` (matching `$LJHOME`) regardless of the host folder name, and each worktree gets its own MySQL volume (`dreamwidth-mysql-<foldername>`).
+
+**Find your container** (filter by the worktree label to avoid grabbing someone else's):
+
+```bash
+docker ps --filter label=devcontainer.local_folder=<worktree-path> --format "{{.ID}}"
+```
+
+**Port isolation:** All devcontainers use dynamic host ports (container ports 8080/8081 are mapped to random available host ports). Use `docker port <container-id>` to find the assigned ports.
+
+**Important rules:**
+- Never touch another session's worktree or its devcontainer
+- Each worktree gets its own devcontainer — never share containers between worktrees
+- The `extlib/` symlink is created automatically by `setup.sh` (points to `/opt/dreamwidth-extlib` in the image)
+- All the same commands work: `perl extlib/bin/tidyall -a`, `perl t/02-tidy.t`, `perl t/00-compile.t`
 
 ## Code Formatting
 

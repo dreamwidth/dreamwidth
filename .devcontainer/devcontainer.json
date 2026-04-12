@@ -20,9 +20,10 @@
     }
   },
   "mounts": [
-    "type=volume,source=dreamwidth-mysql,target=/var/lib/mysql"
+    "type=volume,source=dreamwidth-mysql-${localWorkspaceFolderBasename},target=/var/lib/mysql"
   ],
-  "runArgs": ["--security-opt", "label=disable", "-p", "8080:8080", "-p", "8081:8081"],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/dreamwidth,type=bind",
+  "runArgs": ["--security-opt", "label=disable", "-p", "0:8080", "-p", "0:8081"],
   "containerEnv": {
     "LJHOME": "/workspaces/dreamwidth",
     "PERL5LIB": "/opt/dreamwidth-extlib/lib/perl5",
