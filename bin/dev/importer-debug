@@ -1,0 +1,339 @@
+#!/usr/bin/perl
+#
+# importer-debug
+#
+# Diagnostic tool for debugging content-importer-verify connectivity issues.
+# Run this on the ECS container to test each layer of the connection to a
+# remote LJ-based site: DNS resolution, TCP connect, TLS handshake, HTTP,
+# and XMLRPC protocol.
+#
+# Usage:
+#   perl bin/dev/importer-debug <hostname>
+#   perl bin/dev/importer-debug www.livejournal.com
+#   perl bin/dev/importer-debug --userid=12345    # test using actual import_data
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use warnings;
+
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use Getopt::Long;
+use Socket;
+use IO::Socket::SSL;
+use LWP::UserAgent;
+use XMLRPC::Lite;
+use Time::HiRes qw(gettimeofday tv_interval);
+
+my $userid;
+my $import_data_id;
+GetOptions(
+    'userid=i'         => \$userid,
+    'import-data-id=i' => \$import_data_id,
+) or die "Usage: $0 [--userid=N [--import-data-id=N]] [hostname]\n";
+
+my $hostname = shift @ARGV;
+
+# If --userid given, look up the import_data to get the hostname (and optionally test auth)
+my $import_data;
+if ($userid) {
+    my $dbh = LJ::get_db_writer()
+        or die "FAIL: Cannot connect to database\n";
+
+    my $query;
+    my @bind;
+    if ($import_data_id) {
+        $query =
+            'SELECT userid, hostname, username, usejournal, password_md5, import_data_id FROM import_data WHERE userid = ? AND import_data_id = ?';
+        @bind = ( $userid, $import_data_id );
+    }
+    else {
+        $query =
+            'SELECT userid, hostname, username, usejournal, password_md5, import_data_id FROM import_data WHERE userid = ? ORDER BY import_data_id DESC LIMIT 1';
+        @bind = ($userid);
+    }
+
+    $import_data = $dbh->selectrow_hashref( $query, undef, @bind );
+    if ($import_data) {
+        print "== Import data found ==\n";
+        print "  userid:         $import_data->{userid}\n";
+        print "  import_data_id: $import_data->{import_data_id}\n";
+        print "  hostname:       $import_data->{hostname}\n";
+        print "  username:       $import_data->{username}\n";
+        print "  usejournal:     " . ( $import_data->{usejournal} || '(none)' ) . "\n";
+        print "  has password:   " . ( $import_data->{password_md5} ? 'yes' : 'NO' ) . "\n";
+        print "\n";
+
+        $hostname ||= $import_data->{hostname};
+    }
+    else {
+        die "FAIL: No import_data found for userid=$userid"
+            . ( $import_data_id ? " import_data_id=$import_data_id" : "" ) . "\n";
+    }
+}
+
+die "Usage: $0 [--userid=N [--import-data-id=N]] <hostname>\n"
+    unless $hostname;
+
+my $pass = 1;
+my $fail = 0;
+
+sub check {
+    my ( $label, $code ) = @_;
+    my $t0 = [gettimeofday];
+    my ( $ok, $detail ) = eval { $code->() };
+    my $elapsed = tv_interval($t0);
+    if ($@) {
+        printf "FAIL  [%6.3fs] %s\n", $elapsed, $label;
+        printf "      Exception: %s\n", $@;
+        $fail++;
+        return 0;
+    }
+    elsif ($ok) {
+        printf "OK    [%6.3fs] %s\n", $elapsed, $label;
+        printf "      %s\n", $detail if $detail;
+        $pass++;
+        return 1;
+    }
+    else {
+        printf "FAIL  [%6.3fs] %s\n", $elapsed, $label;
+        printf "      %s\n", $detail if $detail;
+        $fail++;
+        return 0;
+    }
+}
+
+print "== Diagnosing connectivity to: $hostname ==\n\n";
+
+# 1. DNS resolution (IPv4)
+my @addrs;
+check "DNS resolution (A record) for $hostname" => sub {
+    my $packed = gethostbyname($hostname);
+    unless ($packed) {
+        return ( 0, "gethostbyname failed: $!" );
+    }
+    my $ip = inet_ntoa($packed);
+    push @addrs, $ip;
+    return ( 1, "resolved to $ip" );
+};
+
+# 1b. DNS resolution (IPv6 / AAAA via getaddrinfo)
+check "DNS resolution (AAAA record) for $hostname" => sub {
+    require Socket;
+    my ( $err, @res ) = Socket::getaddrinfo(
+        $hostname, 443,
+        { family => Socket::AF_INET6(), socktype => Socket::SOCK_STREAM() }
+    );
+    if ($err) {
+        return ( 1, "no AAAA record ($err) — IPv4-only, good" );
+    }
+    my $count = scalar @res;
+    my @ips;
+    for my $r (@res) {
+        my ( $err2, $ip ) = Socket::getnameinfo( $r->{addr}, Socket::NI_NUMERICHOST() );
+        push @ips, $ip unless $err2;
+    }
+    return ( 0,
+        "HAS AAAA records: " . join( ', ', @ips )
+            . " — IO::Socket::IP will try IPv6 first, this likely causes the TLS hang"
+    );
+};
+
+# 2. TCP connect to port 443
+check "TCP connect to $hostname:443" => sub {
+    my $sock = IO::Socket::INET->new(
+        PeerAddr => $hostname,
+        PeerPort => 443,
+        Proto    => 'tcp',
+        Timeout  => 10,
+    );
+    unless ($sock) {
+        return ( 0, "connect failed: $!" );
+    }
+    my $peer = $sock->peerhost . ':' . $sock->peerport;
+    close $sock;
+    return ( 1, "connected to $peer" );
+};
+
+# 3. TLS handshake (with explicit SNI)
+check "TLS handshake with $hostname:443" => sub {
+    my $sock = IO::Socket::SSL->new(
+        PeerAddr        => $hostname,
+        PeerPort        => 443,
+        SSL_hostname    => $hostname,
+        SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_PEER(),
+        Timeout         => 10,
+    );
+    unless ($sock) {
+        return ( 0, "TLS failed: " . IO::Socket::SSL::errstr() );
+    }
+    my $ver     = $sock->get_sslversion();
+    my $cipher  = $sock->get_cipher();
+    my $subject = $sock->peer_certificate('subject');
+    close $sock;
+    return ( 1, "$ver $cipher (cert: $subject)" );
+};
+
+# 3b. TLS handshake forced IPv4
+check "TLS handshake with $hostname:443 (forced IPv4)" => sub {
+    my $sock = IO::Socket::SSL->new(
+        PeerAddr        => $hostname,
+        PeerPort        => 443,
+        Domain          => Socket::AF_INET(),
+        SSL_hostname    => $hostname,
+        SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_PEER(),
+        Timeout         => 10,
+    );
+    unless ($sock) {
+        return ( 0, "TLS failed: " . IO::Socket::SSL::errstr() );
+    }
+    my $ver     = $sock->get_sslversion();
+    my $cipher  = $sock->get_cipher();
+    my $subject = $sock->peer_certificate('subject');
+    close $sock;
+    return ( 1, "$ver $cipher (cert: $subject)" );
+};
+
+# 3c. IO::Socket::SSL diagnostics
+check "IO::Socket::SSL version and config" => sub {
+    my $ssl_ver  = IO::Socket::SSL->VERSION;
+    my $net_ver  = eval { require Net::SSLeay; Net::SSLeay->VERSION } || 'not found';
+    my $iosock   = eval { require IO::Socket::IP; 'IO::Socket::IP ' . IO::Socket::IP->VERSION }
+        || 'IO::Socket::INET (fallback)';
+    return ( 1, "IO::Socket::SSL $ssl_ver, Net::SSLeay $net_ver, transport: $iosock" );
+};
+
+# 4. HTTP GET to the XMLRPC endpoint
+my $xmlrpc_url = "https://$hostname/interface/xmlrpc";
+check "HTTP GET $xmlrpc_url" => sub {
+    my $ua = LWP::UserAgent->new(
+        timeout => 15,
+        agent   => "$LJ::SITENAME Importer Debug",
+    );
+    my $resp = $ua->get($xmlrpc_url);
+    if ( $resp->is_success || $resp->code == 405 ) {
+
+        # 405 Method Not Allowed is expected (XMLRPC needs POST)
+        return ( 1, "HTTP " . $resp->code . " " . $resp->message );
+    }
+    return ( 0, "HTTP " . $resp->code . " " . $resp->message );
+};
+
+# 5. XMLRPC getchallenge
+my $challenge;
+check "XMLRPC LJ.XMLRPC.getchallenge" => sub {
+    my $xmlrpc = XMLRPC::Lite->new;
+    $xmlrpc->proxy(
+        $xmlrpc_url,
+        agent   => "$LJ::SITENAME Importer Debug",
+        timeout => 15,
+    );
+
+    my $res = $xmlrpc->call('LJ.XMLRPC.getchallenge');
+    if ( !$res ) {
+        return ( 0, "No response from XMLRPC call (timeout or connection error)" );
+    }
+    if ( $res->fault ) {
+        return ( 0,
+            "XMLRPC fault: " . ( $res->fault->{faultString} || $res->fault->{faultCode} ) );
+    }
+
+    my $result = $res->result;
+    $challenge = $result->{challenge};
+    return ( 1, "got challenge: $challenge" );
+};
+
+# 6. If we have import_data with credentials, test actual auth
+if ( $import_data && $import_data->{password_md5} && $challenge ) {
+    check "XMLRPC LJ.XMLRPC.getusertags (auth test)" => sub {
+        require Digest::MD5;
+
+        my $xmlrpc = XMLRPC::Lite->new;
+        $xmlrpc->proxy(
+            $xmlrpc_url,
+            agent   => "$LJ::SITENAME Importer Debug",
+            timeout => 15,
+        );
+
+        # Need a fresh challenge (the old one may have expired)
+        my $cres = $xmlrpc->call('LJ.XMLRPC.getchallenge');
+        return ( 0, "Failed to get fresh challenge" ) unless $cres && !$cres->fault;
+        my $chal = $cres->result->{challenge};
+
+        my $response = Digest::MD5::md5_hex( $chal . $import_data->{password_md5} );
+
+        my %usejournal;
+        $usejournal{usejournal} = $import_data->{usejournal}
+            if $import_data->{usejournal};
+
+        my $res = $xmlrpc->call(
+            'LJ.XMLRPC.getusertags',
+            {
+                username       => $import_data->{username},
+                auth_method    => 'challenge',
+                auth_challenge => $chal,
+                auth_response  => $response,
+                %usejournal,
+            }
+        );
+
+        if ( !$res ) {
+            return ( 0, "No response (timeout or connection error)" );
+        }
+        if ( $res->fault ) {
+            my $msg = $res->fault->{faultString} || 'unknown error';
+            if ( $msg =~ /Invalid password/ ) {
+                return ( 0, "AUTHENTICATION FAILED: $msg" );
+            }
+            return ( 0, "XMLRPC fault: $msg" );
+        }
+
+        my $result = $res->result;
+        my $count  = ref $result->{tags} eq 'ARRAY' ? scalar @{ $result->{tags} } : 0;
+        return ( 1, "authenticated OK, got $count tags" );
+    };
+}
+
+# 7. Check what IPs this container can reach from (outbound source)
+check "Outbound source IP" => sub {
+    my $sock = IO::Socket::INET->new(
+        PeerAddr => $hostname,
+        PeerPort => 443,
+        Proto    => 'tcp',
+        Timeout  => 5,
+    );
+    unless ($sock) {
+        return ( 0, "connect failed: $!" );
+    }
+    my $local = $sock->sockhost;
+    close $sock;
+    return ( 1, "outbound from $local" );
+};
+
+# Summary
+print "\n== Summary ==\n";
+print "  $pass checks passed, $fail checks failed\n";
+
+if ($fail) {
+    print "\nDebugging tips:\n";
+    print "  - DNS failure: check /etc/resolv.conf and VPC DNS settings\n";
+    print "  - TCP failure: check security groups, NACLs, NAT gateway, route tables\n";
+    print "  - TLS failure: check if the remote site's cert is valid, or if\n";
+    print "    the container is missing CA certs (apt-get install ca-certificates)\n";
+    print "  - HTTP/XMLRPC failure: the remote site may be blocking this IP,\n";
+    print "    rate-limiting, or the endpoint may have moved\n";
+    print "  - Auth failure: password may have changed on the remote site\n";
+}
+
+exit( $fail ? 1 : 0 );

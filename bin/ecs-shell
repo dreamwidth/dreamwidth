@@ -190,7 +190,11 @@ exec_on_task() {
     # ECS execute-command doesn't support file copy natively, so we push
     # the file contents through a shell command.
     local encoded
-    encoded=$(base64 -w0 "$local_file")
+    if [[ "$(uname)" == "Darwin" ]]; then
+        encoded=$(base64 -i "$local_file")
+    else
+        encoded=$(base64 -w0 "$local_file")
+    fi
 
     info "Copying $(basename "$local_file") to $remote_path..."
     aws ecs execute-command \
