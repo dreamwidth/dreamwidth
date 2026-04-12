@@ -1,31 +1,27 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"net/url"
 	"os"
-	"path/filepath"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 
 	dwaws "dreamwidth.org/dwtool/internal/aws"
 	"dreamwidth.org/dwtool/internal/config"
-	"dreamwidth.org/dwtool/internal/model"
+	"dreamwidth.org/dwtool/internal/loki"
 	"dreamwidth.org/dwtool/internal/ui"
 )
 
 func main() {
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
-		case "logscan":
+		case "log-scan":
 			runLogScan(os.Args[2:])
 			return
 		case "esn-trace":
@@ -72,32 +68,40 @@ func printUsage() {
 
 Commands:
   (default)     Interactive ECS service dashboard (TUI)
-  logscan       Search CloudWatch logs across all Dreamwidth services
+  log-scan      Search logs across all Dreamwidth services (via Loki)
   esn-trace     Trace an ESN event through the full notification pipeline
 
+Loki credentials: ~/.config/dwtool/config.json or DWTOOL_LOKI_* env vars.
 Run 'dwtool <command> --help' for details on a specific command.
 `)
 }
 
+// lokiClient creates a Loki client from config, exiting on error.
+func lokiClient() *loki.Client {
+	cfg, err := config.LoadLokiConfig()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	return loki.NewClient(cfg)
+}
+
 func runLogScan(args []string) {
-	fs := flag.NewFlagSet("logscan", flag.ExitOnError)
+	fs := flag.NewFlagSet("log-scan", flag.ExitOnError)
 	keyword := fs.String("keyword", "", "search keyword (required)")
 	since := fs.String("since", "24h", "how far back to search (e.g. 1h, 24h, 7d)")
-	region := fs.String("region", config.DefaultRegion, "AWS region")
-	cluster := fs.String("cluster", config.DefaultCluster, "ECS cluster name")
-	groups := fs.String("groups", "", "glob pattern to filter log groups (e.g. '*esn*', '*web*')")
-	limit := fs.Int("limit", 500, "max results per log group (0 = unlimited)")
+	service := fs.String("service", "", "filter to a specific service label (e.g. 'dw-esn-process-sub')")
+	limit := fs.Int("limit", 500, "max results")
 
 	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: dwtool logscan -keyword <term> [options]\n\n")
-		fmt.Fprintf(os.Stderr, "Search CloudWatch logs across all Dreamwidth services.\n\n")
+		fmt.Fprintf(os.Stderr, "Usage: dwtool log-scan -keyword <term> [options]\n\n")
+		fmt.Fprintf(os.Stderr, "Search logs across all Dreamwidth services via Loki.\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		fs.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nExamples:\n")
-		fmt.Fprintf(os.Stderr, "  dwtool logscan -keyword exampleuser\n")
-		fmt.Fprintf(os.Stderr, "  dwtool logscan -keyword exampleuser -since 7d\n")
-		fmt.Fprintf(os.Stderr, "  dwtool logscan -keyword exampleuser -since 7d -groups '*esn*'\n")
-		fmt.Fprintf(os.Stderr, "  dwtool logscan -keyword 'error.*timeout' -groups '*web*' -since 1h\n")
+		fmt.Fprintf(os.Stderr, "  dwtool log-scan -keyword exampleuser\n")
+		fmt.Fprintf(os.Stderr, "  dwtool log-scan -keyword exampleuser -since 7d\n")
+		fmt.Fprintf(os.Stderr, "  dwtool log-scan -keyword exampleuser -service dw-esn-process-sub\n")
 	}
 
 	if err := fs.Parse(args); err != nil {
@@ -110,161 +114,74 @@ func runLogScan(args []string) {
 		os.Exit(1)
 	}
 
-	// Parse duration
 	duration, err := parseDuration(*since)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: invalid -since value %q: %v\n", *since, err)
 		os.Exit(1)
 	}
 
-	ctx := context.Background()
+	client := lokiClient()
 
-	// Create AWS client
-	client, err := dwaws.NewClient(*region, *cluster)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error initializing AWS client: %v\n", err)
-		os.Exit(1)
+	// Build LogQL query
+	selector := `{source="dreamwidth"}`
+	if *service != "" {
+		selector = fmt.Sprintf(`{source="dreamwidth",service="%s"}`, *service)
 	}
-
-	// Discover log groups
-	fmt.Fprintf(os.Stderr, "Discovering log groups...\n")
-	logGroups, err := client.ListLogGroups(ctx, "/dreamwidth/")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error listing log groups: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Filter by glob if specified
-	if *groups != "" {
-		var filtered []string
-		for _, lg := range logGroups {
-			// Match against the full path and just the last segment
-			name := lg[strings.LastIndex(lg, "/")+1:]
-			matched, _ := filepath.Match(*groups, name)
-			if !matched {
-				matched, _ = filepath.Match(*groups, lg)
-			}
-			if matched {
-				filtered = append(filtered, lg)
-			}
-		}
-		logGroups = filtered
-	}
-
-	if len(logGroups) == 0 {
-		fmt.Fprintf(os.Stderr, "No log groups found")
-		if *groups != "" {
-			fmt.Fprintf(os.Stderr, " matching %q", *groups)
-		}
-		fmt.Fprintf(os.Stderr, "\n")
-		os.Exit(1)
-	}
-
-	fmt.Fprintf(os.Stderr, "Searching %d log groups for %q (last %s)...\n", len(logGroups), *keyword, *since)
+	logQL := fmt.Sprintf(`%s |= %q`, selector, *keyword)
 
 	now := time.Now()
+	startTime := now.Add(-duration)
 
-	// Wrap keyword in quotes for CloudWatch literal substring matching
-	pattern := fmt.Sprintf("%q", *keyword)
+	fmt.Fprintf(os.Stderr, "Searching for %q (last %s)...\n", *keyword, *since)
 
-	// Build 1-hour chunks from newest to oldest
-	type timeChunk struct {
-		start time.Time
-		end   time.Time
-	}
-	var chunks []timeChunk
-	chunkEnd := now
-	oldest := now.Add(-duration)
-	for chunkEnd.After(oldest) {
-		chunkStart := chunkEnd.Add(-time.Hour)
-		if chunkStart.Before(oldest) {
-			chunkStart = oldest
-		}
-		chunks = append(chunks, timeChunk{start: chunkStart, end: chunkEnd})
-		chunkEnd = chunkStart
+	events, err := client.Search(logQL, startTime, now, *limit)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
 
-	// Search chunk by chunk, newest first
-	type result struct {
-		logGroup string
-		events   []model.LogEvent
-		err      error
-	}
-
-	totalMatches := 0
-	totalErrors := 0
-
-	for ci, chunk := range chunks {
-		label := chunk.start.Format("2006-01-02 15:04") + " to " + chunk.end.Format("15:04")
-		fmt.Fprintf(os.Stderr, "[%d/%d] %s\n", ci+1, len(chunks), label)
-
-		// Search all log groups concurrently within this chunk
-		results := make(chan result, len(logGroups))
-		var wg sync.WaitGroup
-
-		for _, lg := range logGroups {
-			wg.Add(1)
-			go func(logGroup string) {
-				defer wg.Done()
-				events, err := client.SearchLogs(ctx, logGroup, pattern, chunk.start, chunk.end, *limit)
-				results <- result{logGroup: logGroup, events: events, err: err}
-			}(lg)
-		}
-
-		go func() {
-			wg.Wait()
-			close(results)
-		}()
-
-		// Collect this chunk's results
-		type taggedEvent struct {
-			logGroup string
-			event    model.LogEvent
-		}
-		var chunkEvents []taggedEvent
-
-		for r := range results {
-			if r.err != nil {
-				fmt.Fprintf(os.Stderr, "  error: %s: %v\n", r.logGroup, r.err)
-				totalErrors++
-				continue
-			}
-			for _, ev := range r.events {
-				chunkEvents = append(chunkEvents, taggedEvent{logGroup: r.logGroup, event: ev})
-			}
-		}
-
-		if len(chunkEvents) == 0 {
-			continue
-		}
-
-		// Sort within chunk by timestamp
-		sort.Slice(chunkEvents, func(i, j int) bool {
-			return chunkEvents[i].event.Timestamp.Before(chunkEvents[j].event.Timestamp)
-		})
-
-		totalMatches += len(chunkEvents)
-		fmt.Fprintf(os.Stderr, "  %d match(es)\n", len(chunkEvents))
-
-		for _, te := range chunkEvents {
-			ts := te.event.Timestamp.Format("2006-01-02 15:04:05")
-			group := strings.TrimPrefix(te.logGroup, "/dreamwidth/")
-			fmt.Printf("[%s] %-30s %s\n", ts, group, te.event.Message)
-		}
-	}
-
-	if totalMatches == 0 {
+	if len(events) == 0 {
 		fmt.Fprintf(os.Stderr, "No matches found.\n")
-	} else {
-		fmt.Fprintf(os.Stderr, "Done. %d total match(es).\n", totalMatches)
+		os.Exit(0)
 	}
+
+	for _, ev := range events {
+		ts := ev.Timestamp.Format("2006-01-02 15:04:05")
+		if *service != "" {
+			fmt.Printf("[%s] %s\n", ts, ev.Message)
+		} else {
+			svc := ev.Stream
+			if svc == "" {
+				svc = "-"
+			}
+			fmt.Printf("[%s] %-25s %s\n", ts, svc, ev.Message)
+		}
+	}
+
+	fmt.Fprintf(os.Stderr, "Done. %d match(es).\n", len(events))
 }
 
 func runESNTrace(args []string) {
 	fs := flag.NewFlagSet("esn-trace", flag.ExitOnError)
 	since := fs.String("since", "1h", "how far back to search (e.g. 1h, 24h, 7d)")
-	region := fs.String("region", config.DefaultRegion, "AWS region")
-	limit := fs.Int("limit", 1000, "max results per log group")
+	limit := fs.Int("limit", 1000, "max results")
+
+	// Go's flag package stops parsing at the first non-flag argument.
+	// Reorder args so flags come first, positional args last.
+	var reordered []string
+	var positional []string
+	for i := 0; i < len(args); i++ {
+		if strings.HasPrefix(args[i], "-") {
+			reordered = append(reordered, args[i])
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				reordered = append(reordered, args[i+1])
+				i++
+			}
+		} else {
+			positional = append(positional, args[i])
+		}
+	}
+	args = append(reordered, positional...)
 
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: dwtool esn-trace <trace-id-or-url> [options]\n\n")
@@ -297,107 +214,65 @@ func runESNTrace(args []string) {
 		os.Exit(1)
 	}
 
-	ctx := context.Background()
-
-	client, err := dwaws.NewClient(*region, config.DefaultCluster)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error initializing AWS client: %v\n", err)
-		os.Exit(1)
-	}
-
-	esnLogGroups := []string{
-		"/dreamwidth/worker/dw-esn-fired-event",
-		"/dreamwidth/worker/dw-esn-cluster-subs",
-		"/dreamwidth/worker/dw-esn-filter-subs",
-		"/dreamwidth/worker/dw-esn-process-sub",
-	}
-
+	client := lokiClient()
 	now := time.Now()
 	startTime := now.Add(-duration)
 
 	// Resolve input: either a trace ID or a comment URL
 	traceID := input
 	if strings.HasPrefix(input, "http") {
-		traceID = resolveCommentURL(ctx, client, input, startTime, now)
+		traceID = resolveCommentURL(client, input, startTime, now)
 	}
 
-	pattern := fmt.Sprintf("\"[esn %s]\"", traceID)
+	// Search all ESN services for this trace
+	esnServices := []string{
+		"dw-esn-fired-event",
+		"dw-esn-cluster-subs",
+		"dw-esn-filter-subs",
+		"dw-esn-process-sub",
+	}
+	selector := `{source="dreamwidth",service=~"` + strings.Join(esnServices, "|") + `"}`
+	logQL := fmt.Sprintf(`%s |= "[esn %s]"`, selector, traceID)
+
 	fmt.Fprintf(os.Stderr, "Searching for trace %s (last %s)...\n", traceID, *since)
 
-	type taggedEvent struct {
-		logGroup string
-		event    model.LogEvent
+	events, err := client.Search(logQL, startTime, now, *limit)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
 
-	var allEvents []taggedEvent
-	var mu sync.Mutex
-	var wg sync.WaitGroup
-
-	for _, lg := range esnLogGroups {
-		wg.Add(1)
-		go func(logGroup string) {
-			defer wg.Done()
-			events, err := client.SearchLogs(ctx, logGroup, pattern, startTime, now, *limit)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "  error: %s: %v\n", logGroup, err)
-				return
-			}
-			mu.Lock()
-			for _, ev := range events {
-				allEvents = append(allEvents, taggedEvent{logGroup: logGroup, event: ev})
-			}
-			mu.Unlock()
-		}(lg)
-	}
-
-	wg.Wait()
-
-	if len(allEvents) == 0 {
+	if len(events) == 0 {
 		fmt.Fprintf(os.Stderr, "No events found for trace %s\n", traceID)
 		os.Exit(0)
 	}
 
-	// Sort by timestamp
-	sort.Slice(allEvents, func(i, j int) bool {
-		return allEvents[i].event.Timestamp.Before(allEvents[j].event.Timestamp)
-	})
+	fmt.Fprintf(os.Stderr, "Found %d events:\n\n", len(events))
 
-	// Pretty-print with stage labels
-	stageNames := map[string]string{
-		"/dreamwidth/worker/dw-esn-fired-event":  "fired-event",
-		"/dreamwidth/worker/dw-esn-cluster-subs": "cluster-subs",
-		"/dreamwidth/worker/dw-esn-filter-subs":  "filter-subs",
-		"/dreamwidth/worker/dw-esn-process-sub":  "process-sub",
-	}
-
-	fmt.Fprintf(os.Stderr, "Found %d events:\n\n", len(allEvents))
-
-	for _, te := range allEvents {
-		ts := te.event.Timestamp.Format("15:04:05.000")
-		stage := stageNames[te.logGroup]
+	for _, ev := range events {
+		ts := ev.Timestamp.Format("15:04:05.000")
+		stage := ev.Stream
 		if stage == "" {
-			stage = te.logGroup
+			stage = "-"
 		}
 		// Strip the [esn ...] prefix from the message since we're already showing the trace
-		msg := te.event.Message
+		msg := ev.Message
 		prefix := fmt.Sprintf("[esn %s] ", traceID)
 		if idx := strings.Index(msg, prefix); idx >= 0 {
 			msg = msg[:idx] + msg[idx+len(prefix):]
 		}
-		fmt.Printf("%s  [%-13s]  %s\n", ts, stage, strings.TrimSpace(msg))
+		fmt.Printf("%s  [%-20s]  %s\n", ts, stage, strings.TrimSpace(msg))
 	}
 
-	fmt.Fprintf(os.Stderr, "\nDone. %d events across %s.\n", len(allEvents), *since)
+	fmt.Fprintf(os.Stderr, "\nDone. %d events across %s.\n", len(events), *since)
 }
 
-// parseDuration parses a duration string that supports "d" for days
-// in addition to Go's standard time.ParseDuration units.
 // resolveCommentURL parses a Dreamwidth comment URL, extracts the jtalkid,
-// and searches the fired-event logs to find the full trace ID.
+// and searches the fired-event logs in Loki to find the full trace ID.
 //
 // URL format: https://JOURNAL.dreamwidth.org/DITEMID.html?thread=DTALKID#cmt...
 // jtalkid = dtalkid >> 8 (Dreamwidth's display-to-internal ID conversion)
-func resolveCommentURL(ctx context.Context, client *dwaws.Client, rawURL string, startTime, endTime time.Time) string {
+func resolveCommentURL(client *loki.Client, rawURL string, startTime, endTime time.Time) string {
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing URL: %v\n", err)
@@ -423,12 +298,10 @@ func resolveCommentURL(ctx context.Context, client *dwaws.Client, rawURL string,
 	fmt.Fprintf(os.Stderr, "Parsed URL: dtalkid=%d → jtalkid=%d\n", dtalkid, jtalkid)
 	fmt.Fprintf(os.Stderr, "Searching fired-event logs for matching trace...\n")
 
-	// Search fired-event for lines containing this jtalkid in a trace prefix.
-	// Trace format: [esn 3:JOURNALID:JTALKID:0] or [esn 3:JOURNALID:JTALKID:1]
-	// Search for ":[jtalkid]:" which appears in the trace string.
-	pattern := fmt.Sprintf("\"[esn 3:\" \":%d:\"", jtalkid)
-
-	events, err := client.SearchLogs(ctx, "/dreamwidth/worker/dw-esn-fired-event", pattern, startTime, endTime, 10)
+	// Search for lines containing this jtalkid in a trace prefix.
+	// Match ":JTALKID:" which appears in the trace string.
+	logQL := fmt.Sprintf(`{source="dreamwidth",service="dw-esn-fired-event"} |= ":%d:"`, jtalkid)
+	events, err := client.Search(logQL, startTime, endTime, 10)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error searching logs: %v\n", err)
 		os.Exit(1)
@@ -441,7 +314,6 @@ func resolveCommentURL(ctx context.Context, client *dwaws.Client, rawURL string,
 	}
 
 	// Extract the full trace ID from the first matching log line
-	// Log line looks like: "... [esn 3:48205:265:0] Processing event..."
 	re := regexp.MustCompile(`\[esn (\d+:\d+:` + strconv.FormatInt(jtalkid, 10) + `:\d+)\]`)
 	for _, ev := range events {
 		m := re.FindStringSubmatch(ev.Message)
