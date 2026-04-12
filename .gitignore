@@ -1,4 +1,5 @@
 _build
+/docs
 /logs
 /temp
 /extlib
@@ -33,3 +34,4 @@ t-theschwartz.sqlite
 
 # Worktrees
 .worktrees/
+.claude/worktrees/
