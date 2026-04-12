@@ -146,6 +146,18 @@
     #$FACEBOOK_PREVIEW_ICON = "$LJ::RELATIVE_SITEROOT/img/Swirly-d-square.png";
 
     ###
+    ### ESN (Event-Subscription-Notification)
+    ###
+
+    # Number of days a user must be idle before ESN deactivates their
+    # subscriptions that require capabilities they no longer have (e.g.
+    # thread tracking after paid time expires). Active users keep their
+    # subs visible in the UI even if notifications don't fire. Also used
+    # as the threshold for skipping notification delivery entirely.
+    # Default: 365
+    #$ESN_INACTIVE_DAYS = 365;
+
+    ###
     ### Task Queue
     ###
 

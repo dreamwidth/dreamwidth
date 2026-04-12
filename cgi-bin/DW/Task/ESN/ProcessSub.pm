@@ -72,10 +72,10 @@ sub work {
         return DW::Task::COMPLETED;
     }
 
-    # If the user hasn't logged in in a year, complete the sub and let's
-    # move on
+    # If the user hasn't logged in in over a year, deactivate the sub so it
+    # stops generating wasted ProcessSub jobs on future events, then move on.
     my $user_idle_days = int( ( time() - $u->get_timeactive ) / 86400 );
-    if ( $user_idle_days > 365 && !$LJ::_T_CONFIG ) {
+    if ( $user_idle_days > ( $LJ::ESN_INACTIVE_DAYS // 365 ) && !$LJ::_T_CONFIG ) {
         $log->debug(
             sprintf(
                 "[esn $trace] ESN skip processsub user=%s(%d) sub=%d reason=user_idle idle_days=%d",
@@ -84,6 +84,7 @@ sub work {
         );
         DW::Stats::increment( 'dw.esn.processsub', 1,
             [ "result:skipped", 'reason:user_idle', "etypeid:$eparams->[0]" ] );
+        $subsc->_deactivate if $subsc;
         return DW::Task::COMPLETED;
     }
 

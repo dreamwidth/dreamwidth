@@ -47,6 +47,31 @@ sub unique_matching_subs {
     local $LJ::ESN::CURRENT_TRACE = $trace;
 
     foreach my $s (@subs) {
+
+        # If the sub requires a capability the user no longer has (e.g. paid
+        # expired but thread-tracking sub remains) AND the user has been idle
+        # for over a year, deactivate the sub so it stops generating wasted
+        # ProcessSub jobs. We only do this for idle users — active users who
+        # just lost paid time should keep their subs (they still show in the UI
+        # even if notifications don't fire) so they don't have to re-find them.
+        unless ( $s->available_for_user ) {
+            my $owner     = $s->owner;
+            my $idle_days = $owner ? int( ( time() - $owner->get_timeactive ) / 86400 ) : 0;
+            if ( $idle_days > ( $LJ::ESN_INACTIVE_DAYS // 365 ) ) {
+                $log->debug(
+                    sprintf(
+'[esn %s] deactivating unavailable sub user=%s(%d) sub=%d etypeid=%d idle_days=%d',
+                        $trace, $owner->user, $owner->id, $s->id || 0,
+                        $s->etypeid, $idle_days
+                    )
+                );
+                DW::Stats::increment( 'dw.esn.filter', 1,
+                    [ "result:deactivated", "etypeid:" . $s->etypeid ] );
+                $s->_deactivate;
+            }
+            next;
+        }
+
         my $matched;
         if ( $related{ $s->etypeid } ) {
             $matched = bless( $evt, $s->event_class )->matches_filter($s);
