@@ -145,6 +145,35 @@
     # Similarly for the icon used by Facebook for previews on links
     #$FACEBOOK_PREVIEW_ICON = "$LJ::RELATIVE_SITEROOT/img/Swirly-d-square.png";
 
+    ###
+    ### Task Queue
+    ###
+
+    # The task queue backend is selected automatically:
+    # - If %SQS is configured, DW::TaskQueue::SQS is used (production).
+    # - Otherwise on dev servers ($IS_DEV_SERVER), DW::TaskQueue::LocalDisk
+    #   is used, storing tasks as files under $HOME/var/taskqueue/ (hardcoded).
+
+    # SQS configuration (production). Requires IAM credentials via environment
+    # or instance role. All three fields are required.
+    #%SQS = (
+    #    region  => 'us-east-1',         # AWS region
+    #    prefix  => 'dw-prod-',          # queue name prefix (alphanumeric, hyphens, underscores)
+    #    account => '123456789012',       # AWS account ID (used for DLQ ARN construction)
+    #);
+
+    # Task queue serialization format. Controls what fraction of task queue
+    # messages are serialized as JSON instead of Perl Storable. JSON messages
+    # can be read by non-Perl consumers (e.g. Go workers).
+    #
+    # Set to 0 (default) for all Storable, 1.0 for all JSON, or a float
+    # between 0 and 1 for gradual rollout (e.g. 0.01 = 1% JSON). All
+    # consumers can read both formats regardless of this setting.
+    #
+    # If a message fails JSON encoding (e.g. args contain blessed objects),
+    # it falls back to Storable automatically.
+    #$TASK_QUEUE_JSON = 0;
+
     # sphinx search daemon
     #@SPHINX_SEARCHD = ( '127.0.0.1', 3312 );
 
