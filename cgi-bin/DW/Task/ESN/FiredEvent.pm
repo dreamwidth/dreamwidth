@@ -56,13 +56,22 @@ sub work {
     # step 1:  see if we can split this into a bunch of ProcessSub directly.
     # we can only do this if A) all clusters are up, and B) subs is reasonably
     # small.  say, under 5,000.
+    #
+    # We use require_master here because the event was just created and the
+    # data it references (e.g. a new comment row) may not have replicated to
+    # cluster slaves yet.  Without this, subscription lookup can fail to load
+    # the comment, return zero subscriptions, and silently drop notifications.
     my $split_per_cluster = 0;    # bool: died or hit limit, split into per-cluster jobs
     my @subs;
     foreach my $cid (@LJ::CLUSTERS) {
         my @more_subs = eval {
-            $evt->subscriptions(
-                cluster => $cid,
-                limit   => $LJ::ESN::MAX_FILTER_SET - @subs + 1
+            LJ::DB::require_master(
+                sub {
+                    $evt->subscriptions(
+                        cluster => $cid,
+                        limit   => $LJ::ESN::MAX_FILTER_SET - @subs + 1
+                    );
+                }
             );
         };
         if ($@) {
