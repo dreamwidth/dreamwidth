@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"regexp"
@@ -267,8 +269,44 @@ func runESNTrace(args []string) {
 	fmt.Fprintf(os.Stderr, "\nDone. %d events across %s.\n", len(events), *since)
 }
 
+// resolveUserID fetches the Dreamwidth profile page for a journal and extracts
+// the userid from the "Created on ... (#USERID)" text.
+func resolveUserID(username string) (int64, error) {
+	profileURL := fmt.Sprintf("https://%s.dreamwidth.org/profile", username)
+	req, err := http.NewRequest("GET", profileURL, nil)
+	if err != nil {
+		return 0, fmt.Errorf("building request: %w", err)
+	}
+	req.Header.Set("User-Agent", "dwtool/1.0")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return 0, fmt.Errorf("fetching profile: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return 0, fmt.Errorf("profile returned %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, fmt.Errorf("reading profile: %w", err)
+	}
+
+	// Look for "(#USERID)" which appears near the "Created on" line
+	re := regexp.MustCompile(`\(#(\d+)\),\s+last updated`)
+	m := re.FindSubmatch(body)
+	if m == nil {
+		return 0, fmt.Errorf("could not find userid on profile page")
+	}
+
+	return strconv.ParseInt(string(m[1]), 10, 64)
+}
+
 // resolveCommentURL parses a Dreamwidth comment URL, extracts the jtalkid,
-// and searches the fired-event logs in Loki to find the full trace ID.
+// resolves the journal's userid from the profile page, and searches the
+// fired-event logs in Loki to find the full trace ID.
 //
 // URL format: https://JOURNAL.dreamwidth.org/DITEMID.html?thread=DTALKID#cmt...
 // jtalkid = dtalkid >> 8 (Dreamwidth's display-to-internal ID conversion)
@@ -278,6 +316,14 @@ func resolveCommentURL(client *loki.Client, rawURL string, startTime, endTime ti
 		fmt.Fprintf(os.Stderr, "Error parsing URL: %v\n", err)
 		os.Exit(1)
 	}
+
+	// Extract journal username from hostname (e.g. "mark" from "mark.dreamwidth.org")
+	hostParts := strings.Split(u.Hostname(), ".")
+	if len(hostParts) < 3 || hostParts[len(hostParts)-2]+"."+hostParts[len(hostParts)-1] != "dreamwidth.org" {
+		fmt.Fprintf(os.Stderr, "Error: expected a *.dreamwidth.org URL\n")
+		os.Exit(1)
+	}
+	username := strings.Join(hostParts[:len(hostParts)-2], ".")
 
 	// Extract dtalkid from ?thread= parameter
 	dtalkidStr := u.Query().Get("thread")
@@ -296,11 +342,20 @@ func resolveCommentURL(client *loki.Client, rawURL string, startTime, endTime ti
 	jtalkid := dtalkid >> 8
 
 	fmt.Fprintf(os.Stderr, "Parsed URL: dtalkid=%d → jtalkid=%d\n", dtalkid, jtalkid)
+
+	// Resolve journal username to userid via profile page
+	fmt.Fprintf(os.Stderr, "Resolving userid for %s...\n", username)
+	journalid, err := resolveUserID(username)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: could not resolve userid for %s: %v\n", username, err)
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stderr, "Resolved %s → userid %d\n", username, journalid)
+
 	fmt.Fprintf(os.Stderr, "Searching fired-event logs for matching trace...\n")
 
-	// Search for lines containing this jtalkid in a trace prefix.
-	// Match ":JTALKID:" which appears in the trace string.
-	logQL := fmt.Sprintf(`{source="dreamwidth",service="dw-esn-fired-event"} |= ":%d:"`, jtalkid)
+	logQL := fmt.Sprintf(`{source="dreamwidth",service="dw-esn-fired-event"} |~ "\\[esn \\d+:%d:%d:\\d+\\]"`, journalid, jtalkid)
+
 	events, err := client.Search(logQL, startTime, endTime, 10)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error searching logs: %v\n", err)
