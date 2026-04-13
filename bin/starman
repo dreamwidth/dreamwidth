@@ -66,11 +66,12 @@ my @opts = (
     '--listen',  "$host:$port",
     '--workers', $workers,
     '--app',     $app_psgi,
+    '--no-default-middleware',
 );
 
 if ($log_dir) {
     mkdir $log_dir unless -d $log_dir;
-    push @opts, '--access-log', "$log_dir/access.log";
+    $ENV{DW_ACCESS_LOG} = "$log_dir/access.log";
     push @opts, '--error-log', "$log_dir/error.log";
 }
 

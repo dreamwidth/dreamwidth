@@ -133,6 +133,12 @@ my $app = sub {
 
 # Apply the middleware. Ordering is important!
 builder {
+
+    # Render exceptions as an HTML stack trace in dev so developers see the error
+    # in the browser (Plack enables this by default but we run with
+    # --no-default-middleware). Production omits it so errors don't leak internals.
+    enable 'StackTrace' if $LJ::IS_DEV_SERVER;
+
     # Set a write timeout on the client socket so workers don't block for minutes
     # if the ALB/client disconnects mid-response
     enable 'DW::WriteTimeout', timeout => 5;
@@ -163,6 +169,15 @@ builder {
 
     # Ensure that we get the real user's IP address instead of a proxy
     enable 'DW::XForwardedFor';
+
+    # JSON access log for Grafana Loki (after XForwardedFor so we log the real IP).
+    # Also writes to $ENV{DW_ACCESS_LOG} on disk when set (e.g. via bin/starman --log).
+    enable 'DW::AccessLog',
+        ( $ENV{DW_ACCESS_LOG} ? ( log_file => $ENV{DW_ACCESS_LOG} ) : () );
+
+    # Set Content-Length on responses so Starman doesn't fall back to chunked
+    # transfer encoding when the app doesn't set it itself
+    enable 'ContentLength';
 
     # Concatenated static resources (CSS/JS combo handler)
     enable 'DW::ConcatRes';
