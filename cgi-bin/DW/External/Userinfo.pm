@@ -118,7 +118,7 @@ sub save {
     my $user = $u->user;
     my $site = $u->site->{siteid};
 
-    my $stat_tags = [ "username:$user", "site:" . DW::External::Site->get_site_by_id($site) ];
+    my $stat_tags = [ "site:" . DW::External::Site->get_site_by_id($site) ];
 
     my $memkey = "ext_userinfo:$site:$user";
     my $dbh    = LJ::get_db_writer() or return undef;
