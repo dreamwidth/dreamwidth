@@ -136,8 +136,8 @@ def generate_task_definition(name, cpu, memory):
 
     task = {
         "containerDefinitions": [
-            # Fluent Bit log router — ships worker logs directly to Grafana
-            # Cloud Loki, bypassing CloudWatch. ~15MB RSS.
+            # Fluent Bit log router — ships worker logs to self-hosted
+            # VictoriaLogs via the Tailscale subnet router. ~15MB RSS.
             {
                 "name": "log_router",
                 "image": fluent_bit_image,
@@ -158,16 +158,6 @@ def generate_task_definition(name, cpu, memory):
                         "awslogs-stream-prefix": name
                     }
                 },
-                "secrets": [
-                    {
-                        "name": "LOKI_USER",
-                        "valueFrom": f"arn:aws:ssm:{region}:{account_id}:parameter/dreamwidth/grafana-cloud/loki-username"
-                    },
-                    {
-                        "name": "LOKI_PASSWORD",
-                        "valueFrom": f"arn:aws:ssm:{region}:{account_id}:parameter/dreamwidth/grafana-cloud/loki-password"
-                    }
-                ],
                 "environment": [],
                 "portMappings": [],
                 "mountPoints": [],
@@ -203,12 +193,10 @@ def generate_task_definition(name, cpu, memory):
                     "logDriver": "awsfirelens",
                     "options": {
                         "Name": "loki",
-                        "host": "logs-prod-042.grafana.net",
-                        "port": "443",
-                        "tls": "on",
-                        "tls.verify": "on",
-                        "http_user": "${LOKI_USER}",
-                        "http_passwd": "${LOKI_PASSWORD}",
+                        "host": "dw-observability.dreamwidth.org",
+                        "port": "9428",
+                        "uri": "/insert/loki/api/v1/push",
+                        "tls": "off",
                         "labels": "source=dreamwidth,service=" + name,
                         "label_keys": "$container_name,$ecs_task_arn",
                         "remove_keys": "container_id,ecs_task_definition,ecs_cluster",
