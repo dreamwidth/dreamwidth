@@ -20,6 +20,16 @@
                     "awslogs-stream-prefix": "resolve-extacct"
                 }
             },
+            "secrets": [
+                {
+                    "name": "LOKI_USER",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-username"
+                },
+                {
+                    "name": "LOKI_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-password"
+                }
+            ],
             "environment": [],
             "portMappings": [],
             "mountPoints": [],
@@ -54,10 +64,12 @@
                 "logDriver": "awsfirelens",
                 "options": {
                     "Name": "loki",
-                    "host": "dw-observability.dreamwidth.org",
-                    "port": "9428",
-                    "uri": "/insert/loki/api/v1/push",
-                    "tls": "off",
+                    "host": "logs-prod-042.grafana.net",
+                    "port": "443",
+                    "tls": "on",
+                    "tls.verify": "on",
+                    "http_user": "${LOKI_USER}",
+                    "http_passwd": "${LOKI_PASSWORD}",
                     "labels": "source=dreamwidth,service=resolve-extacct",
                     "label_keys": "$container_name,$ecs_task_arn",
                     "remove_keys": "container_id,ecs_task_definition,ecs_cluster",
