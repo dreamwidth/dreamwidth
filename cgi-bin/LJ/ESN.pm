@@ -81,15 +81,6 @@ sub unique_matching_subs {
         }
 
         unless ($matched) {
-            my $owner = $s->owner;
-            $log->debug(
-                sprintf(
-                    '[esn %s] filter_reject user=%s(%d) sub=%d etypeid=%d',
-                    $trace, $owner ? $owner->user : '?',
-                    $s->userid, $s->id || 0,
-                    $s->etypeid
-                )
-            );
             DW::Stats::increment( 'dw.esn.filter', 1,
                 [ "result:rejected", "etypeid:" . $s->etypeid ] );
             next;
