@@ -58,28 +58,36 @@ sub work {
         return DW::Task::COMPLETED;
         };
 
+    $log->info( "Search copier started for "
+            . $u->user . "("
+            . $u->id
+            . "), source "
+            . ( $args->{source} // 'unknown' )
+            . "." );
+
     return DW::Task::COMPLETED unless $u->is_person || $u->is_community;
     return DW::Task::COMPLETED if $u->is_expunged;
-
-    $log->debug( sprintf 'SearchCopier: starting %s(%d), source=%s',
-        $u->user, $u->id, $args->{source} // 'unknown' );
 
     my $copy_comments = $u->is_paid ? 1 : 0;
 
     if ( exists $args->{jitemid} ) {
+        $log->info("Requested copy of only entry $args->{jitemid}.");
         $self->_import_one_entry( $u, $args->{jitemid} );
     }
     elsif ( exists $args->{jtalkid} ) {
+        $log->info("Requested copy of only comment $args->{jtalkid}.");
         $self->_import_one_comment( $u, $args->{jtalkid} ) if $copy_comments;
     }
     else {
+        $log->info("Requested complete recopy of user.");
+
         # Full recopy. 24h throttle (independent from SphinxCopier's) unless
         # the caller explicitly bypasses.
         unless ( $args->{force} ) {
             my $k    = [ $u->id, 'search-copy-full:' . $u->id ];
             my $last = LJ::MemCache::get($k);
             if ( $last && $last > time() - 86400 ) {
-                $log->info('SearchCopier: throttled, full recopy < 24h ago');
+                $log->info("Copied less than a day ago. Skipping.");
                 return DW::Task::COMPLETED;
             }
             LJ::MemCache::set( $k, time() );
@@ -226,19 +234,23 @@ sub _import_full {
         ? $s->{deletes_ok}++
         : $s->{deletes_err}++;
 
-    # --- entries ---
-    my $entries = $dbfrom->selectall_arrayref(
+    # --- entries: stream row-by-row so memory stays bounded regardless of
+    # journal size. mysql_use_result=1 makes DBD::mysql actually stream
+    # (default is to buffer the full result set client-side). We only write
+    # to $dbh (Manticore) during the loop, never back to $dbfrom, so the
+    # streaming cursor's exclusive hold on $dbfrom doesn't matter.
+    my %entry_bits;    # jitemid -> bits arrayref, for comment inheritance below
+    my $e_sth = $dbfrom->prepare(
         q{SELECT l.jitemid, l.posterid, l.security, l.allowmask,
                  UNIX_TIMESTAMP(l.logtime) AS date_posted,
                  lt.subject, lt.event
             FROM log2 l
             JOIN logtext2 lt USING (journalid, jitemid)
             WHERE l.journalid = ?},
-        { Slice => {} }, $u->id,
+        { mysql_use_result => 1 },
     );
-
-    my %entry_bits;    # for comment security inheritance
-    for my $e (@$entries) {
+    $e_sth->execute( $u->id );
+    while ( my $e = $e_sth->fetchrow_hashref ) {
         my $subject = _decode_text( \$e->{subject} );
         my $body    = _decode_text( \$e->{event} );
         my $bits    = _security_bits( $e->{security}, $e->{allowmask} );
@@ -259,35 +271,28 @@ sub _import_full {
         );
         $ok ? $s->{entries_ok}++ : $s->{entries_err}++;
     }
+    $e_sth->finish;
 
     return unless $copy_comments;
 
-    # --- comments: 'D' -> skip; non-A/F -> force private; else inherit parent ---
-    my $comments = $dbfrom->selectall_arrayref(
-        q{SELECT jtalkid, nodeid, posterid, state,
-                 UNIX_TIMESTAMP(datepost) AS date_posted
-            FROM talk2
-            WHERE journalid = ?},
-        { Slice => {} }, $u->id,
+    # --- comments: same streaming approach, with talk2 joined to talktext2
+    # so we only make one round-trip. 'D' state skipped; non-A/F states
+    # forced private; A/F inherit parent entry's security from %entry_bits.
+    my $c_sth = $dbfrom->prepare(
+        q{SELECT t.jtalkid, t.nodeid, t.posterid, t.state,
+                 UNIX_TIMESTAMP(t.datepost) AS date_posted,
+                 tt.subject, tt.body
+            FROM talk2 t
+            JOIN talktext2 tt USING (journalid, jtalkid)
+            WHERE t.journalid = ?},
+        { mysql_use_result => 1 },
     );
-    my @live = grep { $_->{state} ne 'D' } @$comments;
+    $c_sth->execute( $u->id );
+    while ( my $c = $c_sth->fetchrow_hashref ) {
+        next if $c->{state} eq 'D';
 
-    # Pull text in batches of 1000.
-    my %texts;
-    my @queue = map { $_->{jtalkid} } @live;
-    while ( my @batch = splice( @queue, 0, 1000 ) ) {
-        my $in   = join ',', @batch;
-        my $rows = $dbfrom->selectall_hashref(
-            "SELECT jtalkid, subject, body FROM talktext2 WHERE journalid = ? AND jtalkid IN ($in)",
-            'jtalkid', undef, $u->id,
-        );
-        $texts{$_} = $rows->{$_} for keys %$rows;
-    }
-
-    for my $c (@live) {
-        my $txt     = $texts{ $c->{jtalkid} } or next;
-        my $subject = _decode_text( \$txt->{subject} );
-        my $body    = _decode_text( \$txt->{body} );
+        my $subject = _decode_text( \$c->{subject} );
+        my $body    = _decode_text( \$c->{body} );
 
         my $force_private = $c->{state} ne 'A' && $c->{state} ne 'F';
         my $bits =
@@ -311,6 +316,7 @@ sub _import_full {
         );
         $ok ? $s->{comments_ok}++ : $s->{comments_err}++;
     }
+    $c_sth->finish;
 }
 
 # -----------------------------------------------------------------------------
