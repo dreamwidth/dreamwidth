@@ -6,3 +6,5 @@ paths:
       responses:
         200:
           description: This API specification!
+        500:
+          $ref: components/errors/500.yaml
