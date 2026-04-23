@@ -2,17 +2,32 @@
 #
 # DW::Task::SearchCopier
 #
-# Copies content into Manticore Search (RT mode). Parallel to
-# DW::Task::SphinxCopier, which writes to the legacy dw_sphinx
-# MySQL staging DB; both run side-by-side during the migration.
-# Routes to its own SQS queue automatically via class-name derivation.
+# Copies content into Manticore Search (RT mode). Structural port of
+# DW::Task::SphinxCopier, with Manticore-specific swaps:
+#   - Writes to the dw1 table via SphinxQL on @LJ::MANTICORE instead of
+#     items_raw in the dw_sphinx MySQL staging DB.
+#   - No stable doc IDs — Manticore auto-assigns. Upsert is DELETE+INSERT
+#     on the natural key (journalid, jitemid, jtalkid) instead of REPLACE
+#     with a preserved id.
+#   - Body text stored uncompressed (no COMPRESS()). Manticore tokenizes
+#     it directly.
+#   - security_bits is an rt_attr_multi written as a (1,2,3) literal
+#     rather than a CSV string stored in a MySQL column.
+#   - No touchtime column on dw1 (unused by the read path; was only there
+#     to support Sphinx's main+delta build schedule, which RT doesn't need).
+#
+# Routes to its own SQS queue automatically via class-name derivation
+# (DW::Task::SearchCopier -> dw-task-searchcopier). Coexists with
+# DW::Task::SphinxCopier during the Sphinx -> Manticore migration.
 #
 # Arg shape (hashref in args->[0]):
-#   { userid => N }                         # full recopy (24h throttled)
-#   { userid => N, jitemid => J }           # one entry; handles deletes
-#   { userid => N, jtalkid => T }           # one comment; handles deletes
-#   { userid => N, force => 1 }             # skip throttle on full recopy
-#   { userid => N, source => 'label' }      # optional provenance for logs
+#   { userid => N }                              # full recopy (24h throttled)
+#   { userid => N, force => 1 }                  # full recopy, bypass throttle
+#   { userid => N, jitemid => J }                # one entry; handles deletes
+#   { userid => N, jtalkid => T }                # one comment; handles deletes
+#   { userid => N, jitemids => [J1, J2, ...] }   # mass-copy entries (not usually dispatched yet)
+#   { userid => N, jtalkids => [T1, T2, ...] }   # mass-copy comments chunk
+#   { userid => N, source => 'label' }           # optional provenance for logs
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -28,426 +43,480 @@ package DW::Task::SearchCopier;
 
 use strict;
 use v5.10;
-use DW::Task;    # must come before `use base` so COMPLETED/FAILED
-                 # constants are defined before this file's body
-                 # compiles under strict
+
+use DW::Task;      # must come before `use base` so COMPLETED/FAILED
+                   # constants are defined before this file's body
+                   # compiles under strict
+use DW::TaskQueue;
 use base 'DW::Task';
 
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use Carp qw/ croak /;
 use DBI;
 use Encode;
+
+use constant _CHUNK_SIZE => 1000;
+
+# Manticore SphinxQL connection. Parallels SphinxCopier's sphinx_db() —
+# no %DBINFO entry exists for Manticore (it doesn't speak the full MySQL
+# dialect LJ::get_dbh expects), so we open a raw DBI handle against
+# @LJ::MANTICORE and do the SET NAMES dance ourselves.
+sub manticore_db {
+    $log->logcroak("\@LJ::MANTICORE is not configured.")
+        unless @LJ::MANTICORE;
+
+    my ( $host, undef, $sql_port ) = @LJ::MANTICORE;
+    my $dbsx = DBI->connect(
+        "DBI:mysql:host=$host;port=$sql_port",
+        undef, undef,
+        {
+            RaiseError        => 0,
+            AutoCommit        => 1,
+            PrintError        => 0,
+            mysql_enable_utf8 => 1,
+        },
+    ) or $log->logcroak("Unable to connect to Manticore search database.");
+
+    $dbsx->do(q{SET NAMES 'utf8'});
+    $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+    return $dbsx;
+}
 
 sub work {
     my ( $self, $handle ) = @_;
     my $args = $self->args->[0];
 
-    $self->{stats} = {
-        entries_ok   => 0,
-        entries_err  => 0,
-        comments_ok  => 0,
-        comments_err => 0,
-        deletes_ok   => 0,
-        deletes_err  => 0,
-    };
-
     my $u = LJ::load_userid( $args->{userid} )
-        or do {
-        $log->warn("SearchCopier: invalid userid $args->{userid}");
-        return DW::Task::COMPLETED;
-        };
-
+        or $log->logcroak("Invalid userid: $args->{userid}.");
     $log->info( "Search copier started for "
             . $u->user . "("
             . $u->id
             . "), source "
             . ( $args->{source} // 'unknown' )
             . "." );
-
     return DW::Task::COMPLETED unless $u->is_person || $u->is_community;
     return DW::Task::COMPLETED if $u->is_expunged;
 
+    # We copy comments for paid users, allowing them to search through the
+    # comments to their journal.
     my $copy_comments = $u->is_paid ? 1 : 0;
 
     if ( exists $args->{jitemid} ) {
         $log->info("Requested copy of only entry $args->{jitemid}.");
-        $self->_import_one_entry( $u, $args->{jitemid} );
+        copy_entry( $u, $args->{jitemid}, !$copy_comments );
     }
     elsif ( exists $args->{jtalkid} ) {
         $log->info("Requested copy of only comment $args->{jtalkid}.");
-        $self->_import_one_comment( $u, $args->{jtalkid} ) if $copy_comments;
+        copy_comment( $u, $args->{jtalkid} ) if $copy_comments;
+    }
+    elsif ( exists $args->{jitemids} ) {
+        $log->info("Requested copy of entries @{$args->{jitemids}}.");
+        copy_entry( $u, $args->{jitemids}, !$copy_comments );
+    }
+    elsif ( exists $args->{jtalkids} ) {
+        $log->info("Requested copy of comments @{$args->{jtalkids}}.");
+        copy_comment( $u, $args->{jtalkids} ) if $copy_comments;
     }
     else {
         $log->info("Requested complete recopy of user.");
 
-        # Full recopy. 24h throttle (independent from SphinxCopier's) unless
-        # the caller explicitly bypasses.
+        # Throttle unless the caller passed force => 1. Routine dispatchers
+        # (schedulers, app hooks) should leave force unset so the 24h
+        # memcache key prevents stampedes. Explicit operator invocations
+        # (search-tool import-user, or import-all --force) pass force to
+        # bypass.
         unless ( $args->{force} ) {
-            my $k    = [ $u->id, 'search-copy-full:' . $u->id ];
-            my $last = LJ::MemCache::get($k);
-            if ( $last && $last > time() - 86400 ) {
+            my $time = LJ::MemCache::get( [ $u->id, "search-copy-full:" . $u->id ] );
+            if ( $time && $time > time() - 86400 ) {
                 $log->info("Copied less than a day ago. Skipping.");
                 return DW::Task::COMPLETED;
             }
-            LJ::MemCache::set( $k, time() );
         }
-        $self->_import_full( $u, $copy_comments );
+        LJ::MemCache::set( [ $u->id, "search-copy-full:" . $u->id ], time() );
+        copy_entry( $u, undef, 1 );
+        copy_comment($u) if $copy_comments;
     }
-
-    my $s       = $self->{stats};
-    my $err_sum = $s->{entries_err} + $s->{comments_err} + $s->{deletes_err};
-    my $summary = sprintf
-        'SearchCopier: %s(%d) done: entries=%d(err %d) comments=%d(err %d) deletes=%d(err %d)',
-        $u->user, $u->id,
-        $s->{entries_ok},  $s->{entries_err},
-        $s->{comments_ok}, $s->{comments_err},
-        $s->{deletes_ok},  $s->{deletes_err};
-    if   ($err_sum) { $log->warn($summary) }
-    else            { $log->debug($summary) }
 
     return DW::Task::COMPLETED;
 }
 
-sub stats { return $_[0]->{stats} }
-
-# -----------------------------------------------------------------------------
-# Manticore connection and encoding helpers.
-# -----------------------------------------------------------------------------
-
-sub _dbh {
-    die "\@LJ::MANTICORE is not configured\n" unless @LJ::MANTICORE;
-    my ( $host, undef, $sql_port ) = @LJ::MANTICORE;
-    return DBI->connect(
-        "DBI:mysql:host=$host;port=$sql_port",
-        undef, undef,
-        {
-            RaiseError        => 1,
-            AutoCommit        => 1,
-            PrintError        => 0,
-            mysql_enable_utf8 => 1,
-        },
-    );
-}
-
-# Mirrors DW::Task::SphinxCopier's bit-layout so the search worker's
-# filter contract stays intact: bit_breakdown(allowmask) + sentinels
-# (101 = private, 102 = public). usemask with no groups collapses to
-# private, matching the legacy behavior.
-sub _security_bits {
-    my ( $security, $allowmask ) = @_;
-    $security = 'private'
-        if $security eq 'usemask' && $allowmask == 0;
-
-    my @extra;
-    push @extra, 101 if $security eq 'private';
-    push @extra, 102 if $security eq 'public';
-
-    return [ LJ::bit_breakdown($allowmask), @extra ];
-}
-
-# Multi-value attribute literal for SphinxQL: (1,2,3). Assumes all ints.
-sub _mva {
-    return '(' . join( ',', @{ $_[0] } ) . ')';
-}
-
-# UTF-8 decode helper matching what the legacy copier does to text pulled
-# from log2/talk2 — LJ::text_uncompress is idempotent on non-compressed
-# input, and Encode::decode turns raw-bytes-that-are-utf8 into a Perl
-# character string.
-sub _decode_text {
-    my $ref = shift;
-    LJ::text_uncompress($ref);
-    $$ref = Encode::decode( 'utf8', $$ref );
-    return $$ref;
-}
-
-# _insert_* and _delete_* return 1 on success, 0 on failure (logged).
-# Callers use the return to increment stats.
-
-sub _insert_entry {
-    my ( $dbh, $row ) = @_;
-    my $sql = sprintf(
-        'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
-            . ' allow_global_search, is_deleted, security_bits, title, body)'
-            . ' VALUES (%d, %d, 0, %d, %d, %d, 0, %s, ?, ?)',
-        $row->{journalid},   $row->{jitemid},      $row->{poster_id},
-        $row->{date_posted}, $row->{allow_global}, _mva( $row->{bits} ),
-    );
-
-    # Manticore RT rejects NULL in VALUES; undef title/body must go in as ''.
-    my $ok = eval {
-        $dbh->do( $sql, {}, ( $row->{title} // '' ), ( $row->{body} // '' ) );
-        1;
-    };
-    unless ($ok) {
-        $log->warn( sprintf 'insert entry journalid=%d jitemid=%d failed: %s',
-            $row->{journalid}, $row->{jitemid}, $@ );
-    }
-    return $ok ? 1 : 0;
-}
-
-sub _insert_comment {
-    my ( $dbh, $row ) = @_;
-    my $sql = sprintf(
-        'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
-            . ' allow_global_search, is_deleted, security_bits, title, body)'
-            . ' VALUES (%d, %d, %d, %d, %d, %d, 0, %s, ?, ?)',
-        $row->{journalid},   $row->{jitemid},      $row->{jtalkid}, $row->{poster_id},
-        $row->{date_posted}, $row->{allow_global}, _mva( $row->{bits} ),
-    );
-    my $ok = eval {
-        $dbh->do( $sql, {}, ( $row->{title} // '' ), ( $row->{body} // '' ) );
-        1;
-    };
-    unless ($ok) {
-        $log->warn( sprintf 'insert comment journalid=%d jtalkid=%d failed: %s',
-            $row->{journalid}, $row->{jtalkid}, $@ );
-    }
-    return $ok ? 1 : 0;
-}
-
-sub _delete_where {
-    my ( $dbh, $sql ) = @_;
-    my $ok = eval { $dbh->do($sql); 1 };
-    $log->warn("delete failed: $sql: $@") unless $ok;
-    return $ok ? 1 : 0;
-}
-
-# -----------------------------------------------------------------------------
-# Full recopy: clean slate delete for the journal, then insert entries and
-# (for paid accounts) comments.
-# -----------------------------------------------------------------------------
-
-sub _import_full {
-    my ( $self, $u, $copy_comments ) = @_;
-    my $s = $self->{stats};
-
-    my $dbh    = _dbh();
+sub copy_comment {
+    my ( $u, $only_jtalkid ) = @_;
+    my $dbsx = manticore_db()
+        or $log->logcroak("Manticore database not available.");
     my $dbfrom = LJ::get_cluster_master( $u->clusterid )
-        or do { $log->warn( 'cluster master not available for ' . $u->user ); return; };
+        or $log->logcroak("User cluster master not available.");
 
-    my $allow_global = $u->include_in_global_search ? 1 : 0;
-    my $jid          = int $u->id;
+    # If the parameter is not an arrayref, then make it one if it's defined.
+    $only_jtalkid = [$only_jtalkid]
+        if defined $only_jtalkid && !ref $only_jtalkid;
 
-    _delete_where( $dbh, "DELETE FROM dw1 WHERE journalid = $jid" )
-        ? $s->{deletes_ok}++
-        : $s->{deletes_err}++;
+    # A full comment import. We slice it by 1000 comment groups to make the
+    # memory usage something that isn't insane.
+    if ( !defined $only_jtalkid ) {
+        my $maxid = $dbfrom->selectrow_array(
+            'SELECT MAX(jtalkid) FROM talk2 WHERE journalid = ?',
+            undef, $u->id );
+        $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
 
-    # --- entries: stream row-by-row so memory stays bounded regardless of
-    # journal size. mysql_use_result=1 makes DBD::mysql actually stream
-    # (default is to buffer the full result set client-side). We only write
-    # to $dbh (Manticore) during the loop, never back to $dbfrom, so the
-    # streaming cursor's exclusive hold on $dbfrom doesn't matter.
-    my %entry_bits;    # jitemid -> bits arrayref, for comment inheritance below
-    my $e_sth = $dbfrom->prepare(
-        q{SELECT l.jitemid, l.posterid, l.security, l.allowmask,
-                 UNIX_TIMESTAMP(l.logtime) AS date_posted,
-                 lt.subject, lt.event
-            FROM log2 l
-            JOIN logtext2 lt USING (journalid, jitemid)
-            WHERE l.journalid = ?},
-        { mysql_use_result => 1 },
-    );
-    $e_sth->execute( $u->id );
-    while ( my $e = $e_sth->fetchrow_hashref ) {
-        my $subject = _decode_text( \$e->{subject} );
-        my $body    = _decode_text( \$e->{event} );
-        my $bits    = _security_bits( $e->{security}, $e->{allowmask} );
-        $entry_bits{ $e->{jitemid} } = $bits;
+        return unless $maxid;
 
-        my $ok = _insert_entry(
-            $dbh,
-            {
-                journalid    => $jid,
-                jitemid      => $e->{jitemid},
-                poster_id    => $e->{posterid},
-                date_posted  => $e->{date_posted},
-                allow_global => $allow_global,
-                bits         => $bits,
-                title        => $subject,
-                body         => $body,
-            }
-        );
-        $ok ? $s->{entries_ok}++ : $s->{entries_err}++;
-    }
-    $e_sth->finish;
-
-    return unless $copy_comments;
-
-    # --- comments: same streaming approach, with talk2 joined to talktext2
-    # so we only make one round-trip. 'D' state skipped; non-A/F states
-    # forced private; A/F inherit parent entry's security from %entry_bits.
-    my $c_sth = $dbfrom->prepare(
-        q{SELECT t.jtalkid, t.nodeid, t.posterid, t.state,
-                 UNIX_TIMESTAMP(t.datepost) AS date_posted,
-                 tt.subject, tt.body
-            FROM talk2 t
-            JOIN talktext2 tt USING (journalid, jtalkid)
-            WHERE t.journalid = ?},
-        { mysql_use_result => 1 },
-    );
-    $c_sth->execute( $u->id );
-    while ( my $c = $c_sth->fetchrow_hashref ) {
-        next if $c->{state} eq 'D';
-
-        my $subject = _decode_text( \$c->{subject} );
-        my $body    = _decode_text( \$c->{body} );
-
-        my $force_private = $c->{state} ne 'A' && $c->{state} ne 'F';
-        my $bits =
-            $force_private
-            ? [101]
-            : ( $entry_bits{ $c->{nodeid} } // [101] );
-
-        my $ok = _insert_comment(
-            $dbh,
-            {
-                journalid    => $jid,
-                jitemid      => $c->{nodeid},
-                jtalkid      => $c->{jtalkid},
-                poster_id    => $c->{posterid},
-                date_posted  => $c->{date_posted},
-                allow_global => $allow_global,
-                bits         => $bits,
-                title        => $subject,
-                body         => $body,
-            }
-        );
-        $ok ? $s->{comments_ok}++ : $s->{comments_err}++;
-    }
-    $c_sth->finish;
-}
-
-# -----------------------------------------------------------------------------
-# Single-entry upsert (also handles delete: if the entry isn't in log2
-# anymore, we remove it from dw1).
-# -----------------------------------------------------------------------------
-
-sub _import_one_entry {
-    my ( $self, $u, $jitemid ) = @_;
-    my $s = $self->{stats};
-
-    my $dbh    = _dbh();
-    my $dbfrom = LJ::get_cluster_master( $u->clusterid ) or return;
-
-    my $jid = int $u->id;
-    my $jit = int $jitemid;
-
-    my $row = $dbfrom->selectrow_hashref(
-        q{SELECT l.posterid, l.security, l.allowmask,
-                 UNIX_TIMESTAMP(l.logtime) AS date_posted,
-                 lt.subject, lt.event
-            FROM log2 l
-            JOIN logtext2 lt USING (journalid, jitemid)
-            WHERE l.journalid = ? AND l.jitemid = ?},
-        undef, $u->id, $jitemid,
-    );
-
-    # Entry gone -> wipe it and any comments on it.
-    unless ($row) {
-        _delete_where( $dbh, "DELETE FROM dw1 WHERE journalid=$jid AND jitemid=$jit" )
-            ? $s->{deletes_ok}++
-            : $s->{deletes_err}++;
-        return;
-    }
-
-    my $subject = _decode_text( \$row->{subject} );
-    my $body    = _decode_text( \$row->{event} );
-    my $bits    = _security_bits( $row->{security}, $row->{allowmask} );
-
-    _delete_where( $dbh, "DELETE FROM dw1 WHERE journalid=$jid AND jitemid=$jit AND jtalkid=0" )
-        ? $s->{deletes_ok}++
-        : $s->{deletes_err}++;
-
-    my $ok = _insert_entry(
-        $dbh,
-        {
-            journalid    => $jid,
-            jitemid      => $jit,
-            poster_id    => $row->{posterid},
-            date_posted  => $row->{date_posted},
-            allow_global => ( $u->include_in_global_search ? 1 : 0 ),
-            bits         => $bits,
-            title        => $subject,
-            body         => $body,
+        # If we have <1000 comments, do the mass-copy immediately to avoid
+        # queue overhead.
+        if ( $maxid < _CHUNK_SIZE ) {
+            $log->info("Short path: doing mass-copy immediately.");
+            copy_comment( $u, [ 1 .. $maxid ] );
+            $log->info("Done with mass-copy.");
+            return;
         }
-    );
-    $ok ? $s->{entries_ok}++ : $s->{entries_err}++;
-}
 
-# -----------------------------------------------------------------------------
-# Single-comment upsert. State 'D' (or missing from talk2) -> delete.
-# -----------------------------------------------------------------------------
+        # Schedule jobs to do the copying.
+        my $n = 0;
+        while ( $n < $maxid ) {
+            my $m = $n + _CHUNK_SIZE;
+            $m = $maxid if $m > $maxid;
 
-sub _import_one_comment {
-    my ( $self, $u, $jtalkid ) = @_;
-    my $s = $self->{stats};
+            my $h = DW::TaskQueue->dispatch(
+                DW::Task::SearchCopier->new( {
+                    userid   => $u->id,
+                    jtalkids => [ $n + 1 .. $m ],
+                    source   => 'masscopy',
+                } )
+            );
+            $log->info( "Scheduled mass-copy job for jtalkids "
+                    . ( $n + 1 )
+                    . " .. $m: handle = $h." );
 
-    my $dbh    = _dbh();
-    my $dbfrom = LJ::get_cluster_master( $u->clusterid ) or return;
-
-    my $jid = int $u->id;
-    my $jtk = int $jtalkid;
-
-    my $c = $dbfrom->selectrow_hashref(
-        q{SELECT jtalkid, nodeid, posterid, state,
-                 UNIX_TIMESTAMP(datepost) AS date_posted
-            FROM talk2
-            WHERE journalid = ? AND jtalkid = ?},
-        undef, $u->id, $jtalkid,
-    );
-
-    if ( !$c || $c->{state} eq 'D' ) {
-        _delete_where( $dbh, "DELETE FROM dw1 WHERE journalid=$jid AND jtalkid=$jtk" )
-            ? $s->{deletes_ok}++
-            : $s->{deletes_err}++;
+            $n = $m;
+        }
+        $log->info("Done with mass-copy.");
         return;
     }
 
-    my $txt = $dbfrom->selectrow_hashref(
-        q{SELECT subject, body FROM talktext2 WHERE journalid = ? AND jtalkid = ?},
-        undef, $u->id, $jtalkid, );
-    return unless $txt;
+    # Chunk processor: specific jtalkids.
+    my ( $entries, $comments );
+    my @delete_jtalkids;
+    my $allowpublic = $u->include_in_global_search ? 1 : 0;
 
-    my $subject = _decode_text( \$txt->{subject} );
-    my $body    = _decode_text( \$txt->{body} );
+    my $in = join ',', map { int $_ } @$only_jtalkid;
+    $comments = $dbfrom->selectall_hashref(
+        qq{SELECT jtalkid, nodeid, state, posterid, UNIX_TIMESTAMP(datepost) AS 'datepost'
+           FROM talk2 WHERE journalid = ? AND jtalkid IN ($in)},
+        'jtalkid', undef, $u->id
+    );
+    $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
+    return unless ref $comments eq 'HASH' && %$comments;
 
-    # Inherit parent entry security; force private for screened/unknown states.
-    my $bits;
-    my $force_private = $c->{state} ne 'A' && $c->{state} ne 'F';
-    if ($force_private) {
-        $bits = [101];
+    # Now we have some comments, get the parent-entry data we need to build
+    # security for the entries they're children of.
+    {
+        my %jitemids;
+        $jitemids{ $comments->{$_}->{nodeid} } = 1 foreach keys %$comments;
+        my $inlist = join( ',', map { '?' } keys %jitemids );
+        $entries = $dbfrom->selectall_hashref(
+            qq{SELECT jitemid, security, allowmask FROM log2
+                WHERE journalid = ? AND jitemid IN ($inlist)},
+            'jitemid', undef, $u->id, keys %jitemids
+        );
+        $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
+
+        foreach my $row ( values %$entries ) {
+
+            # Auto-convert usemask-with-no-groups to private.
+            $row->{security} = 'private'
+                if $row->{security} eq 'usemask' && $row->{allowmask} == 0;
+
+            # We need extra security bits for some metadata. We have to do
+            # this this way because it makes it easier to later do searches
+            # on various combinations of things at the same time. Also, even
+            # though these are bits, we're not going to ever use them as
+            # actual bits.
+            my @extrabits;
+            push @extrabits, 101 if $row->{security} eq 'private';
+            push @extrabits, 102 if $row->{security} eq 'public';
+
+            $row->{bits} = [ LJ::bit_breakdown( $row->{allowmask} ), @extrabits ];
+        }
+    }
+
+    # Comment loop. Categorize into delete vs live (with a force_private
+    # flag for states we don't want to expose).
+    my @jtalkids;
+    foreach my $jtalkid ( keys %$comments ) {
+        my $state         = $comments->{$jtalkid}->{state};
+        my $force_private = 0;
+
+        if ( $state eq 'D' ) {
+            push @delete_jtalkids, int($jtalkid);
+            next;
+        }
+        elsif ( $state eq 'S' || ( $state ne 'A' && $state ne 'F' ) ) {
+
+            # If it's screened or in an unexpected state, make it private so
+            # only owners can see it.
+            $force_private = 1;
+        }
+
+        push @jtalkids, [ $jtalkid, $force_private ];
+    }
+
+    my ( $ins_count, $ins_min, $ins_max ) = ( 0, undef, undef );
+    while ( my @items = splice( @jtalkids, 0, _CHUNK_SIZE ) ) {
+        last unless @items;
+
+        my @l_jtalkids = map { $_->[0] } @items;
+        my %private    = map { $_->[0] => $_->[1] } @items;
+        my $in         = join ',', @l_jtalkids;
+
+        my $text = $dbfrom->selectall_hashref(
+            qq{SELECT jtalkid, subject, body
+               FROM talktext2 WHERE journalid = ? AND jtalkid IN ($in)},
+            'jtalkid', undef, $u->id
+        );
+        $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
+
+        foreach my $jtd ( keys %$text ) {
+            my ( $subj, $body ) = ( $text->{$jtd}->{subject}, $text->{$jtd}->{body} );
+            LJ::text_uncompress( \$subj );
+            $text->{$jtd}->{subject} = Encode::decode( 'utf8', $subj );
+            LJ::text_uncompress( \$body );
+            $text->{$jtd}->{body} = Encode::decode( 'utf8', $body );
+        }
+
+        foreach my $jid ( keys %$text ) {
+            my $bits = $private{$jid}
+                ? [101]
+                : ( $entries->{ $comments->{$jid}->{nodeid} }->{bits} // [101] );
+
+            # Upsert via DELETE+INSERT on the natural key. Manticore auto-
+            # assigns doc IDs and we never look them up — the (journalid,
+            # jitemid, jtalkid) tuple is the logical primary key. Integers
+            # are interpolated because Manticore's SphinxQL binds every '?'
+            # placeholder as a string and refuses string filters on uint
+            # attributes.
+            $dbsx->do( sprintf(
+                'DELETE FROM dw1 WHERE journalid=%d AND jitemid=%d AND jtalkid=%d',
+                $u->id, $comments->{$jid}->{nodeid}, $jid,
+            ) );
+            $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+
+            my $sql = sprintf(
+                'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
+                . ' allow_global_search, is_deleted, security_bits, title, body)'
+                . ' VALUES (%d, %d, %d, %d, %d, %d, 0, %s, ?, ?)',
+                $u->id, $comments->{$jid}->{nodeid}, $jid, $comments->{$jid}->{posterid},
+                $comments->{$jid}->{datepost}, $allowpublic, _mva($bits),
+            );
+            $dbsx->do( $sql, undef,
+                $text->{$jid}->{subject} // '', $text->{$jid}->{body} // '' );
+            $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+
+            $ins_count++;
+            $ins_min = $jid if !defined $ins_min || $jid < $ins_min;
+            $ins_max = $jid if !defined $ins_max || $jid > $ins_max;
+        }
+    }
+    if ($ins_count) {
+        $log->info( sprintf 'Inserted %d comments (#%d-#%d) for %s(%d).',
+            $ins_count, $ins_min, $ins_max, $u->user, $u->id );
+    }
+
+    # Deletes are easy...
+    if (@delete_jtalkids) {
+        my $ct = $dbsx->do(
+            sprintf( 'DELETE FROM dw1 WHERE journalid = %d AND jtalkid IN (%s)',
+                $u->id, join( ',', @delete_jtalkids ) )
+        ) + 0;
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+
+        $log->info("Actually deleted $ct comments.") if $ct > 0;
+    }
+}
+
+sub copy_entry {
+    my ( $u, $only_jitemid, $skip_comments ) = @_;
+    my $dbsx = manticore_db()
+        or $log->logcroak("Manticore database not available.");
+    my $dbfrom = LJ::get_cluster_master( $u->clusterid )
+        or $log->logcroak("User cluster master not available.");
+
+    # If we're being asked to look at one post (or a list of specific posts),
+    # that simplifies our processing quite a bit.
+    my ( $sx_jitemids, $db_times, %comment_jitemids );
+    my ( @copy_jitemids, @delete_jitemids );
+
+    my $jid = int $u->id;    # for interpolation into Manticore queries
+
+    if ($only_jitemid) {
+        my @wanted = ref $only_jitemid ? @$only_jitemid : ($only_jitemid);
+        my $inlist = join( ',', map { int $_ } @wanted );
+
+        $sx_jitemids = $dbsx->selectall_hashref(
+            "SELECT id, jitemid FROM dw1 WHERE journalid = $jid AND jitemid IN ($inlist) AND jtalkid = 0",
+            'jitemid',
+        );
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+
+        $db_times = $dbfrom->selectall_hashref(
+            qq{SELECT jitemid, UNIX_TIMESTAMP(logtime) AS 'createtime'
+               FROM log2 WHERE journalid = ? AND jitemid IN ($inlist)},
+            'jitemid', undef, $u->id,
+        );
+        $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
     }
     else {
-        my $parent = $dbfrom->selectrow_hashref(
-            q{SELECT security, allowmask FROM log2 WHERE journalid = ? AND jitemid = ?},
-            undef, $u->id, $c->{nodeid}, );
-        $bits =
-            $parent
-            ? _security_bits( $parent->{security}, $parent->{allowmask} )
-            : [101];
+        $sx_jitemids = $dbsx->selectall_hashref(
+            "SELECT id, jitemid FROM dw1 WHERE journalid = $jid AND jtalkid = 0",
+            'jitemid',
+        );
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+
+        $db_times = $dbfrom->selectall_hashref(
+            q{SELECT jitemid, UNIX_TIMESTAMP(logtime) AS 'createtime'
+              FROM log2 WHERE journalid = ?},
+            'jitemid', undef, $u->id,
+        );
+        $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
     }
 
-    _delete_where( $dbh, "DELETE FROM dw1 WHERE journalid=$jid AND jtalkid=$jtk" )
-        ? $s->{deletes_ok}++
-        : $s->{deletes_err}++;
+    # Everything in log2 we want to (re)copy. %comment_jitemids tracks the
+    # set we'll later use for comment discovery.
+    foreach my $jitemid ( keys %$db_times ) {
+        push @copy_jitemids, $jitemid;
+        $comment_jitemids{$jitemid} = 1;
+    }
 
-    my $ok = _insert_comment(
-        $dbh,
-        {
-            journalid    => $jid,
-            jitemid      => $c->{nodeid},
-            jtalkid      => $jtk,
-            poster_id    => $c->{posterid},
-            date_posted  => $c->{date_posted},
-            allow_global => ( $u->include_in_global_search ? 1 : 0 ),
-            bits         => $bits,
-            title        => $subject,
-            body         => $body,
+    # Now find deleted posts: anything in dw1 but not in log2.
+    foreach my $jitemid ( keys %$sx_jitemids ) {
+        next if exists $db_times->{$jitemid};
+
+        push @delete_jitemids, $jitemid;
+        $comment_jitemids{$jitemid} = 1;
+    }
+
+    # Deletes are easy...
+    if (@delete_jitemids) {
+        my $ct = $dbsx->do(
+            sprintf(
+                'DELETE FROM dw1 WHERE journalid = %d AND jtalkid = 0 AND jitemid IN (%s)',
+                $jid, join( ',', @delete_jitemids )
+            )
+        ) + 0;
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+
+        $log->info("Actually deleted $ct posts.");
+    }
+
+    # Now copy entries. This is not done en-masse since the major case will
+    # be after a user already has most of their posts copied and is just
+    # updating one or two.
+    my $allowpublic = $u->include_in_global_search ? 1 : 0;
+    my ( $ins_count, $ins_min, $ins_max ) = ( 0, undef, undef );
+    foreach my $jitemid (@copy_jitemids) {
+        my $row = $dbfrom->selectrow_hashref(
+            q{SELECT l.journalid, l.jitemid, l.posterid, l.security, l.allowmask,
+                     UNIX_TIMESTAMP(l.logtime) AS 'date_posted',
+                     lt.subject, lt.event
+              FROM log2 l INNER JOIN logtext2 lt ON (l.journalid = lt.journalid AND l.jitemid = lt.jitemid)
+              WHERE l.journalid = ? AND l.jitemid = ?},
+            undef, $u->id, $jitemid,
+        );
+        $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
+
+        # Just make sure, in case we don't have a corresponding logtext2 row.
+        next unless $row;
+
+        # Auto-convert usemask-with-no-groups to private.
+        $row->{security} = 'private'
+            if $row->{security} eq 'usemask' && $row->{allowmask} == 0;
+
+        # Security bits as described in copy_comment above.
+        my @extrabits;
+        push @extrabits, 101 if $row->{security} eq 'private';
+        push @extrabits, 102 if $row->{security} eq 'public';
+        my $bits = [ LJ::bit_breakdown( $row->{allowmask} ), @extrabits ];
+
+        # Very important, the search engine can't index compressed crap...
+        foreach (qw/ subject event /) {
+            LJ::text_uncompress( \$row->{$_} );
+
+            # Required, we store raw-bytes in our own database but Manticore
+            # expects things to be proper UTF-8.
+            $row->{$_} = Encode::decode( 'utf8', $row->{$_} );
         }
-    );
-    $ok ? $s->{comments_ok}++ : $s->{comments_err}++;
+
+        # Upsert via DELETE+INSERT on the natural key.
+        $dbsx->do( sprintf(
+            'DELETE FROM dw1 WHERE journalid=%d AND jitemid=%d AND jtalkid=0',
+            $jid, $jitemid,
+        ) );
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+
+        my $sql = sprintf(
+            'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
+            . ' allow_global_search, is_deleted, security_bits, title, body)'
+            . ' VALUES (%d, %d, 0, %d, %d, %d, 0, %s, ?, ?)',
+            $jid, $jitemid, $row->{posterid}, $row->{date_posted},
+            $allowpublic, _mva($bits),
+        );
+        $dbsx->do( $sql, undef, $row->{subject} // '', $row->{event} // '' );
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+
+        $ins_count++;
+        $ins_min = $jitemid if !defined $ins_min || $jitemid < $ins_min;
+        $ins_max = $jitemid if !defined $ins_max || $jitemid > $ins_max;
+    }
+    if ($ins_count) {
+        $log->info( sprintf 'Inserted %d posts (#%d-#%d) for %s(%d).',
+            $ins_count, $ins_min, $ins_max, $u->user, $u->id );
+    }
+
+    # After entries, if the caller wanted us to, discover and dispatch
+    # comment copies for every post we just touched (comments that exist
+    # in dw1 for that post plus any in talk2 we haven't seen yet).
+    unless ($skip_comments) {
+        my %commentids;
+        foreach my $jitemid ( keys %comment_jitemids ) {
+
+            # Comments we know about (so we can delete them if they've
+            # been removed).
+            my $jtalkids = $dbsx->selectcol_arrayref(
+                sprintf(
+                    'SELECT jtalkid FROM dw1 WHERE journalid = %d AND jitemid = %d AND jtalkid > 0',
+                    $jid, int $jitemid,
+                )
+            );
+            $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+
+            if ( $jtalkids && ref $jtalkids eq 'ARRAY' ) {
+                $commentids{$_} = 1 foreach @$jtalkids;
+            }
+
+            # And this catches comments that we don't know about yet.
+            my $jtalkids2 = $dbfrom->selectcol_arrayref(
+                q{SELECT jtalkid FROM talk2 WHERE journalid = ? AND nodetype = 'L' AND nodeid = ?},
+                undef, $u->id, $jitemid,
+            );
+            $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
+
+            if ( $jtalkids2 && ref $jtalkids2 eq 'ARRAY' ) {
+                $commentids{$_} = 1 foreach @$jtalkids2;
+            }
+        }
+        copy_comment( $u, $_ ) foreach keys %commentids;
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Helper: multi-value attribute literal for SphinxQL INSERT.
+# rt_attr_multi columns are written as a parenthesized list: (1,2,3). Assumes
+# all ints — security_bits is the only MVA we use.
+# -----------------------------------------------------------------------------
+
+sub _mva {
+    return '(' . join( ',', @{ $_[0] } ) . ')';
 }
 
 1;

@@ -11,8 +11,10 @@
 #
 # Subcommands:
 #   import-user <username>                     synchronous recopy of one account
-#   import-all                                 queue SearchCopier jobs for every
-#                                              person/community journal
+#                                              (always bypasses the 24h throttle)
+#   import-all [--force]                       queue SearchCopier jobs for every
+#                                              person/community journal;
+#                                              --force bypasses the 24h throttle
 #   import-support                             incremental supportlog -> dwsupport
 #   search <query> [--journal U] [--global] [--table T]  run a query
 #   show <journalid> <jitemid> <jtalkid>       dump one dw1 doc
@@ -65,7 +67,7 @@ usage: $0 <command> [args]
 
 commands:
   import-user <username>
-  import-all
+  import-all [--force]
   import-support
   search <query> [--journal USER] [--global] [--table T]
   show <journalid> <jitemid> <jtalkid>   (or: --table dwsupport <splid>)
@@ -115,16 +117,21 @@ sub cmd_import_user {
     my $u = LJ::load_user($username) or die "no such user: $username\n";
     printf "Importing %s (id=%d) synchronously...\n", $u->user, $u->id;
 
-    my $task = DW::Task::SearchCopier->new(
-        { userid => $u->id, source => 'search-tool', force => 1 } );
+    # CLI invocation always bypasses the 24h throttle — the operator
+    # explicitly asked for this import, so run it.
+    my $task = DW::Task::SearchCopier->new( {
+        userid => $u->id,
+        source => 'search-tool',
+        force  => 1,
+    } );
     $task->work(undef);
 
-    manticore_dbh()->do('FLUSH RAMCHUNK dw1');
+    my $dbh = manticore_dbh();
+    $dbh->do('FLUSH RAMCHUNK dw1');
 
-    my $s = $task->stats;
-    printf "  entries:  %d (%d errors)\n", $s->{entries_ok},  $s->{entries_err};
-    printf "  comments: %d (%d errors)\n", $s->{comments_ok}, $s->{comments_err};
-    printf "  deletes:  %d (%d errors)\n", $s->{deletes_ok},  $s->{deletes_err};
+    my ($total) = $dbh->selectrow_array(
+        'SELECT COUNT(*) FROM dw1 WHERE journalid = ' . int( $u->id ) );
+    printf "dw1 now has %d docs for journalid=%d\n", $total, $u->id;
     print "done\n";
 }
 
@@ -137,6 +144,9 @@ sub cmd_import_user {
 # -----------------------------------------------------------------------------
 
 sub cmd_import_all {
+    my $force;
+    GetOptions( 'force' => \$force ) or usage();
+
     my $dbr = LJ::get_db_reader()
         or die "no db reader available\n";
 
@@ -145,12 +155,15 @@ sub cmd_import_all {
     );
     $sth->execute;
 
-    my $n = 0;
+    printf "Queuing SearchCopier jobs for all P/C journals%s...\n",
+        ( $force ? ' (force: will bypass 24h throttle)' : '' );
+
+    my $n    = 0;
+    my %args = ( source => 'import-all' );
+    $args{force} = 1 if $force;
     while ( my ($userid) = $sth->fetchrow_array ) {
         DW::TaskQueue->dispatch(
-            DW::Task::SearchCopier->new(
-                { userid => $userid, source => 'import-all' }
-            )
+            DW::Task::SearchCopier->new( { userid => $userid, %args } )
         );
         $n++;
         printf "  queued %d users so far...\n", $n if $n % 1000 == 0;
