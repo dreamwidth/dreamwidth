@@ -132,6 +132,16 @@
       "target_cpu": 30,
       "sqs_queue_name": "dw-prod-dw-task-sphinxcopier"
     },
+    "dw-search-copier": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "search",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 10,
+      "target_cpu": 30,
+      "sqs_queue_name": "dw-prod-dw-task-searchcopier"
+    },
     "dw-latest-feed": {
       "cpu": 256,
       "memory": 512,

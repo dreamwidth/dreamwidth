@@ -359,8 +359,8 @@ sub get_db_writer {
 # returns: DB handle.  Or undef if all dbs are unavailable.
 # </LJFUNC>
 sub get_cluster_reader {
-    my $arg   = shift;
-    my $id    = isu($arg) ? $arg->{'clusterid'} : $arg;
+    my $arg = shift;
+    my $id  = isu($arg) ? $arg->{'clusterid'} : $arg;
 
     # When require_master is in effect, go straight to the cluster master
     # to guarantee read-your-writes consistency (e.g. ESN workers reading

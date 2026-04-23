@@ -32,6 +32,7 @@ on:
         - dw-latest-feed
         - dw-lazy-cleanup
         - dw-mass-privacy
+        - dw-search-copier
         - dw-send-email
         - dw-sphinx-copier
         - dw-support-notify
@@ -259,6 +260,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-dw-mass-privacy-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (dw-search-copier) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-search-copier'
+        id: render-worker-container-dw-search-copier
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-dw-search-copier-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -619,6 +629,14 @@ jobs:
           task-definition: ${{ steps.render-worker-container-dw-mass-privacy.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-dw-mass-privacy-service"
+
+      - name: (dw-search-copier) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-search-copier'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-dw-search-copier.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-dw-search-copier-service"
 
       - name: (dw-send-email) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-send-email'
