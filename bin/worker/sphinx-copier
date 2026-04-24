@@ -31,6 +31,9 @@ use base 'TheSchwartz::Worker';
 use Encode;
 use Carp qw/ croak /;
 
+use DW::Task::SearchCopier;
+use DW::TaskQueue;
+
 sub sphinx_db {
     my $dbsx = LJ::get_dbh( 'sphinx_search' )
         or croak "Unable to connect to Sphinx search database.";
@@ -47,6 +50,15 @@ sub work {
     my $a = $job->arg;
     $job->grabbed_until( time() + 3600*12 );
     $job->save;
+
+    # Migration fan-out: if Manticore is configured, enqueue a matching
+    # SearchCopier job so both backends stay in sync without having to
+    # redeploy the webservers. SearchCopier takes the same arg shape
+    # and runs independently with its own throttle.
+    if ( @LJ::MANTICORE ) {
+        my $h = DW::TaskQueue->dispatch( DW::Task::SearchCopier->new( { %$a } ) );
+        warn "[$$] Fanned out to SearchCopier: handle = $h.\n";
+    }
 
     my $u = LJ::load_userid( $a->{userid} )
         or croak "Invalid userid: $a->{userid}.";

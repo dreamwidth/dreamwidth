@@ -25,6 +25,7 @@ use Carp qw/ croak /;
 use Encode;
 
 use DW::Task;
+use DW::Task::SearchCopier;
 use DW::TaskQueue;
 
 use base 'DW::Task';
@@ -43,6 +44,16 @@ sub sphinx_db {
 sub work {
     my ( $self, $handle ) = @_;
     my $args = $self->args->[0];
+
+    # Migration fan-out: if Manticore is configured, enqueue a matching
+    # SearchCopier job so both backends stay in sync without having to
+    # redeploy the webservers. SearchCopier takes the same arg shape
+    # (userid / jitemid / jtalkid / jitemids / jtalkids / source), has
+    # its own throttle, and runs independently — no chained failures.
+    if (@LJ::MANTICORE) {
+        my $h = DW::TaskQueue->dispatch( DW::Task::SearchCopier->new( {%$args} ) );
+        $log->info("Fanned out to SearchCopier: handle = $h.");
+    }
 
     my $u = LJ::load_userid( $args->{userid} )
         or $log->logcroak("Invalid userid: $args->{userid}.");
