@@ -28,6 +28,19 @@ RUN apt-get install -y $(cat /tmp/dependencies-system | grep -v '^#' | grep -v '
 # Install dependencies for local development full-stack
 RUN apt-get install -y mysql-server mysql-client memcached htop
 
+# Install Manticore Search (opt-in — not auto-started by start.sh).
+# Developers working on search uncomment @LJ::MANTICORE in config-local.pl
+# and run `searchd --config /etc/manticoresearch/manticore.conf` to start it.
+# (The deb ships only a systemd unit, which doesn't work in the container;
+# the direct binary invocation is the documented path.)
+# See t/search-manticore.t.
+RUN curl -fsSL https://repo.manticoresearch.com/manticore-repo.noarch.deb \
+        -o /tmp/manticore-repo.deb && \
+    dpkg -i /tmp/manticore-repo.deb && \
+    apt-get update && \
+    apt-get install -y manticore && \
+    rm /tmp/manticore-repo.deb
+
 # Install Node.js 20 LTS (for sass and esbuild)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \

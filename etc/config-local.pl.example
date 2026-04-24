@@ -189,6 +189,10 @@
     # sphinx search daemon
     #@SPHINX_SEARCHD = ( '127.0.0.1', 3312 );
 
+    # manticore search daemon — (host, sphinx-api-port, sphinxql-port)
+    # Used by DW::Task::SearchCopier, bin/search-tool, and t/search-manticore.t.
+    #@MANTICORE = ( '127.0.0.1', 9312, 9306 );
+
 
     # example betafeature config
 #    %BETA_FEATURES = (
