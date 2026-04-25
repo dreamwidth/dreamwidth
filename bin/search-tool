@@ -12,9 +12,15 @@
 # Subcommands:
 #   import-user <username>                     synchronous recopy of one account
 #                                              (always bypasses the 24h throttle)
-#   import-all [--force]                       queue SearchCopier jobs for every
+#   import-all [--force] [--max-depth N]       queue SearchCopier jobs for every
 #                                              person/community journal;
-#                                              --force bypasses the 24h throttle
+#                                              --force bypasses the 24h recopy
+#                                              throttle in the worker;
+#                                              --max-depth caps SQS queue
+#                                              depth (default 100) so the
+#                                              dispatcher paces with workers
+#                                              instead of front-loading
+#                                              millions of pending tasks
 #   import-support                             incremental supportlog -> dwsupport
 #   search <query> [--journal U] [--global] [--table T]  run a query
 #   show <journalid> <jitemid> <jtalkid>       dump one dw1 doc
@@ -44,6 +50,7 @@ BEGIN {
 
 use DBI;
 use Getopt::Long qw/:config pass_through/;
+use POSIX qw/strftime/;
 
 use DW::TaskQueue;
 use DW::Task::SearchCopier;
@@ -67,7 +74,7 @@ usage: $0 <command> [args]
 
 commands:
   import-user <username>
-  import-all [--force]
+  import-all [--force] [--max-depth N]
   import-support
   search <query> [--journal USER] [--global] [--table T]
   show <journalid> <jitemid> <jtalkid>   (or: --table dwsupport <splid>)
@@ -145,31 +152,155 @@ sub cmd_import_user {
 
 sub cmd_import_all {
     my $force;
-    GetOptions( 'force' => \$force ) or usage();
+    my $max_depth = 100;
+    GetOptions(
+        'force'       => \$force,
+        'max-depth=i' => \$max_depth,
+    ) or usage();
 
     my $dbr = LJ::get_db_reader()
         or die "no db reader available\n";
+
+    # Get the highest userid up-front as an upper bound for progress/ETA
+    # calculations. This is a PK-index lookup (O(log n)), vs. a filtered
+    # COUNT(*) which would scan. We iterate P/C journals specifically,
+    # but use MAX(userid) from the whole user table as the denominator —
+    # slight over-estimate of remaining work is fine, and it avoids a
+    # second filtered scan.
+    my ($max_userid) = $dbr->selectrow_array(q{SELECT MAX(userid) FROM user});
+    $max_userid //= 0;
 
     my $sth = $dbr->prepare(
         q{SELECT userid FROM user WHERE journaltype IN ('P','C')}
     );
     $sth->execute;
 
-    printf "Queuing SearchCopier jobs for all P/C journals%s...\n",
-        ( $force ? ' (force: will bypass 24h throttle)' : '' );
+    _tlog( sprintf
+            'Queuing SearchCopier jobs for P/C journals (userids up to %d, max depth %d)%s',
+        $max_userid, $max_depth,
+        ( $force ? ' (force: will bypass 24h throttle)' : '' ) );
 
-    my $n    = 0;
-    my %args = ( source => 'import-all' );
+    my $start_time = time();
+    my $n          = 0;
+    my %args       = ( source => 'import-all' );
     $args{force} = 1 if $force;
+
+    # Track queue depth so we don't flood SQS with millions of pending jobs.
+    # _queue_depth() returns undef if the queue backend isn't SQS (LocalDisk
+    # in dev), in which case we just dispatch straight through. Otherwise
+    # we refill to at most $max_depth, then wait.
+    my $depth = _queue_depth();
+    if ( defined $depth ) {
+        _tlog( sprintf 'starting depth: %d', $depth );
+    } else {
+        _tlog('queue backend does not expose depth; dispatching without throttle');
+    }
+
     while ( my ($userid) = $sth->fetchrow_array ) {
+
+        # Wait while we're at or over the cap. If we don't have a real
+        # depth signal (non-SQS backend), skip this check.
+        if ( defined $depth && $depth >= $max_depth ) {
+            my $wait_start = time();
+            _tlog( sprintf 'at cap: depth=%d >= %d, waiting for workers to drain...',
+                $depth, $max_depth );
+            while ( defined $depth && $depth >= $max_depth ) {
+                sleep 2;
+                $depth = _queue_depth();
+            }
+            _tlog( sprintf 'resuming: depth=%d (waited %s)',
+                $depth // 0, _fmt_duration( time() - $wait_start ) );
+        }
+
         DW::TaskQueue->dispatch(
             DW::Task::SearchCopier->new( { userid => $userid, %args } )
         );
         $n++;
-        printf "  queued %d users so far...\n", $n if $n % 1000 == 0;
-        select undef, undef, undef, 0.02;    # 50 ms throttle
+        $depth++ if defined $depth;    # local estimate
+
+        if ( $n % 1000 == 0 ) {
+            my $elapsed = time() - $start_time;
+            my $per_min = $elapsed > 0 ? 60 * $n / $elapsed : 0;
+
+            # Progress is fraction of userid range covered. ETA assumes
+            # the rate of userid coverage holds for the rest of the scan.
+            my $frac = $max_userid > 0 ? $userid / $max_userid : 0;
+            my $eta_secs
+                = $frac > 0 ? $elapsed * ( 1 - $frac ) / $frac : 0;
+
+            _tlog(
+                sprintf
+                    'queued %d; userid %d/%d (%.1f%%); %.0f/min; eta %s; local depth~%d',
+                $n, $userid, $max_userid, 100 * $frac,
+                $per_min,
+                _fmt_duration($eta_secs),
+                $depth // -1,
+            );
+        }
+
+        # Always pace dispatches even when we're below cap — SQS's
+        # ApproximateNumberOfMessages is approximate and lags a bit
+        # behind reality, so without a sleep we can overshoot the cap
+        # between reconciliation checks.
+        select undef, undef, undef, 0.05;
+
+        # Reconcile local estimate with the actual queue depth every 50
+        # dispatches so drift doesn't let us overshoot the cap by much.
+        # Log only when drift is notable — small drift is normal and
+        # would produce too much noise to be useful.
+        if ( defined $depth && $n % 50 == 0 ) {
+            my $actual = _queue_depth();
+            if ( defined $actual && abs( $actual - $depth ) > 20 ) {
+                _tlog( sprintf 'reconciled: local=%d, actual=%d (drift=%d)',
+                    $depth, $actual, $actual - $depth );
+            }
+            $depth = $actual if defined $actual;
+        }
     }
-    printf "queued %d total\n", $n;
+    _tlog( sprintf 'queued %d total (elapsed %s)',
+        $n, _fmt_duration( time() - $start_time ) );
+}
+
+# Prepend an ISO-8601 timestamp to a log line so the operator can measure
+# wait durations, dispatch rate over time, etc.
+sub _tlog {
+    my $msg = shift;
+    printf "[%s] %s\n", strftime( '%Y-%m-%d %H:%M:%S', localtime ), $msg;
+}
+
+# Format a duration in seconds as a human-readable string: "45s", "3m12s",
+# "2h30m15s", "1d4h20m". Used for wait durations and ETA.
+sub _fmt_duration {
+    my $s = int( shift || 0 );
+    return '0s' if $s <= 0;
+    if    ( $s < 60 )    { return sprintf '%ds',         $s }
+    elsif ( $s < 3600 )  { return sprintf '%dm%02ds',    int( $s / 60 ), $s % 60 }
+    elsif ( $s < 86400 ) {
+        return sprintf '%dh%02dm%02ds',
+            int( $s / 3600 ), int( ( $s % 3600 ) / 60 ), $s % 60;
+    }
+    else {
+        my $d = int( $s / 86400 );
+        my $r = $s % 86400;
+        return sprintf '%dd%02dh%02dm',
+            $d, int( $r / 3600 ), int( ( $r % 3600 ) / 60 );
+    }
+}
+
+# Returns the ApproximateNumberOfMessages for the SearchCopier queue, or
+# undef if the backing queue implementation doesn't expose depth (e.g.
+# LocalDisk in dev). Swallows transient errors and returns undef so the
+# caller can fall back to dispatch-without-throttle.
+sub _queue_depth {
+    my $impl = DW::TaskQueue->get;
+    return undef unless $impl && $impl->can('queue_attributes');
+
+    my $attrs = eval { $impl->queue_attributes('DW::Task::SearchCopier') };
+    return undef unless $attrs && %$attrs;
+
+    my ($one) = values %$attrs;
+    return undef unless $one && defined $one->{ApproximateNumberOfMessages};
+    return $one->{ApproximateNumberOfMessages} + 0;
 }
 
 # -----------------------------------------------------------------------------

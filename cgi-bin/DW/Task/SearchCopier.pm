@@ -99,6 +99,20 @@ sub work {
     return DW::Task::COMPLETED unless $u->is_person || $u->is_community;
     return DW::Task::COMPLETED if $u->is_expunged;
 
+    # Operator-configured skip list — journalids in @LJ::SKIP_SEARCH_IMPORT
+    # are short-circuited regardless of task type (full recopy, chunk,
+    # single-item update). Used to drain queued chunks fast for journals
+    # we want to defer.
+    if ( @LJ::SKIP_SEARCH_IMPORT
+        && grep { $_ == $u->id } @LJ::SKIP_SEARCH_IMPORT )
+    {
+        $log->info( "Skipping search import for "
+                . $u->user . "("
+                . $u->id
+                . ") (configured in SKIP_SEARCH_IMPORT)." );
+        return DW::Task::COMPLETED;
+    }
+
     # We copy comments for paid users, allowing them to search through the
     # comments to their journal.
     my $copy_comments = $u->is_paid ? 1 : 0;
@@ -162,6 +176,20 @@ sub copy_comment {
         $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
 
         return unless $maxid;
+
+        # Skip comment recopy for journals over the configured size limit.
+        # MAX(jtalkid) is a proxy for "how many comments" — close enough
+        # for this purpose, since deletion gaps don't meaningfully change
+        # the order of magnitude. If $LJ::SEARCH_MAX_COMMENT_RECOPY is
+        # unset, no limit is applied.
+        if ( defined $LJ::SEARCH_MAX_COMMENT_RECOPY
+            && $maxid > $LJ::SEARCH_MAX_COMMENT_RECOPY )
+        {
+            $log->info( sprintf
+                    'Skipping comment recopy for %s(%d): MAX(jtalkid)=%d > limit %d.',
+                $u->user, $u->id, $maxid, $LJ::SEARCH_MAX_COMMENT_RECOPY );
+            return;
+        }
 
         # If we have <1000 comments, do the mass-copy immediately to avoid
         # queue overhead.
