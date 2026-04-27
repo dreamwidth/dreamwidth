@@ -14,6 +14,17 @@ set -e
 CLUSTER="dreamwidth"
 SHELL_CMD="/bin/bash"
 
+# JMESPath fragment for picking the best container from a task's container
+# list — prefers the real app container ("web" or "worker"), falls back to
+# anything that isn't a known sidecar (cloudwatch-agent, log_router don't
+# run an ECS-Exec agent so picking one would TargetNotConnected), and
+# finally to the first container if nothing else matched. This is the
+# single source of truth in this script; both list_tasks and
+# resolve_container compose their queries around it. The Go side mirrors
+# the policy in src/dwtool/internal/aws/ecs.go's pickAppContainerIndex —
+# keep them in sync if the policy changes.
+APP_CONTAINER='containers[?name==`web` || name==`worker`].name | [0] || containers[?name!=`cloudwatch-agent` && name!=`log_router`].name | [0] || containers[0].name'
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -59,9 +70,8 @@ list_tasks() {
         return 1
     fi
 
-    # Get task details including container info (prefer 'web' container name)
     aws ecs describe-tasks --cluster "$CLUSTER" --tasks $task_arns \
-        --query "tasks[*].[taskArn,lastStatus,containers[?name=='web'].name | [0] || containers[0].name]" --output text \
+        --query "tasks[*].[taskArn,lastStatus,$APP_CONTAINER]" --output text \
         | while read -r arn status container; do
             task_id=$(echo "$arn" | sed 's|.*/||')
             printf "%-40s %-10s %s\n" "$task_id" "$status" "$container"
@@ -91,26 +101,8 @@ connect_to_task() {
         info "Connecting to task: $task_id"
     fi
 
-    # Get the container name for this task - prefer 'web' container over sidecars
     local container_name
-    container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
-        --query "tasks[0].containers[?name=='web'].name | [0]" --output text)
-
-    # Fall back to first non-cloudwatch-agent container if 'web' not found
-    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
-        container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
-            --query "tasks[0].containers[?name!='cloudwatch-agent'].name | [0]" --output text)
-    fi
-
-    # Last resort: just use the first container
-    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
-        container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
-            --query 'tasks[0].containers[0].name' --output text)
-    fi
-
-    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
-        error "Could not determine container name for task '$task_id'"
-    fi
+    container_name=$(resolve_container "$task_id")
 
     info "Connecting to container '$container_name' in task '$task_id'..."
     echo
@@ -140,23 +132,15 @@ resolve_task() {
     echo "$first_arn" | sed 's|.*/||'
 }
 
-# Resolve the container name for a task (reusable by connect and exec)
+# Resolve the container name for a task (reusable by connect and exec).
+# The JMESPath in $APP_CONTAINER handles preference + fallbacks; we just
+# need to translate "None" (no match) into a hard error.
 resolve_container() {
     local task_id="$1"
 
     local container_name
     container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
-        --query "tasks[0].containers[?name=='web'].name | [0]" --output text)
-
-    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
-        container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
-            --query "tasks[0].containers[?name!='cloudwatch-agent'].name | [0]" --output text)
-    fi
-
-    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
-        container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
-            --query 'tasks[0].containers[0].name' --output text)
-    fi
+        --query "tasks[0].$APP_CONTAINER" --output text)
 
     if [[ -z "$container_name" || "$container_name" == "None" ]]; then
         error "Could not determine container name for task '$task_id'"

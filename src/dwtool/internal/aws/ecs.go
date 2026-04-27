@@ -129,23 +129,32 @@ func (c *Client) ListTasks(ctx context.Context, serviceName string) ([]model.Tas
 	return tasks, nil
 }
 
-// ResolveContainer returns the best container name for a task, following
-// the same logic as bin/ecs-shell: prefer "web", then first non-cloudwatch-agent.
-func ResolveContainer(task model.Task, containers []string) string {
-	for _, c := range containers {
-		if c == "web" {
-			return c
+// pickAppContainerIndex returns the index in names of the best container to
+// target. It prefers the real app container by name ("web" for web tasks,
+// "worker" for worker tasks). Sidecars (cloudwatch-agent, log_router)
+// don't run an ECS-Exec agent capable of accepting a shell, so they're
+// excluded from the fallback. Returns -1 if names is empty.
+//
+// This is the single source of truth for container selection within
+// dwtool — both the task-name surfaced in the dashboard and the
+// container picked for image-digest extraction route through here.
+// bin/ecs-shell carries an equivalent JMESPath version since bash and
+// Go can't share code; keep the two in sync if the policy changes.
+func pickAppContainerIndex(names []string) int {
+	for i, name := range names {
+		if name == "web" || name == "worker" {
+			return i
 		}
 	}
-	for _, c := range containers {
-		if c != "cloudwatch-agent" {
-			return c
+	for i, name := range names {
+		if name != "cloudwatch-agent" && name != "log_router" {
+			return i
 		}
 	}
-	if len(containers) > 0 {
-		return containers[0]
+	if len(names) > 0 {
+		return 0
 	}
-	return ""
+	return -1
 }
 
 func ecsServiceToModel(svc ecstypes.Service) model.Service {
@@ -213,24 +222,11 @@ func ecsTaskToModel(t ecstypes.Task, serviceName string) model.Task {
 		task.StartedAt = *t.StartedAt
 	}
 
-	// Get container info — prefer "web", then first non-cloudwatch-agent
+	// Surface the right container name on the model — see pickAppContainerIndex.
 	if len(t.Containers) > 0 {
-		task.ContainerName = aws.ToString(t.Containers[0].Name)
-		for _, c := range t.Containers {
-			name := aws.ToString(c.Name)
-			if name == "web" {
-				task.ContainerName = name
-				break
-			}
-		}
-		if task.ContainerName == "" || task.ContainerName == "cloudwatch-agent" {
-			for _, c := range t.Containers {
-				name := aws.ToString(c.Name)
-				if name != "cloudwatch-agent" {
-					task.ContainerName = name
-					break
-				}
-			}
+		names := containerNames(t.Containers)
+		if i := pickAppContainerIndex(names); i >= 0 {
+			task.ContainerName = names[i]
 		}
 	}
 
@@ -296,9 +292,10 @@ func extractDigestFromTaskDef(taskDefArn string) string {
 }
 
 // FetchServiceImages populates image digests from running task containers.
-// It finds the right container (web/worker, not cloudwatch-agent) and extracts
-// the GHCR manifest digest from the container's Image field (the @sha256:
-// reference from the task definition), which matches what GHCR reports.
+// It finds the right container via findAppContainer / pickAppContainerIndex
+// and extracts the GHCR manifest digest from that container's Image field
+// (the @sha256: reference from the task definition), which matches what
+// GHCR reports.
 func (c *Client) FetchServiceImages(ctx context.Context, services []model.Service) ([]model.Service, error) {
 	for i, svc := range services {
 		tasks, err := c.listTasksRaw(ctx, svc.Name, 1)
@@ -306,7 +303,6 @@ func (c *Client) FetchServiceImages(ctx context.Context, services []model.Servic
 			continue
 		}
 
-		// Find the right container: prefer "web", then first non-cloudwatch-agent
 		container := findAppContainer(tasks[0].Containers)
 		if container == nil {
 			continue
@@ -343,29 +339,23 @@ func (c *Client) FetchServiceImages(ctx context.Context, services []model.Servic
 	return services, nil
 }
 
-// findAppContainer returns the application container from a task's container list,
-// using the same logic as bin/ecs-shell: prefer "web", then "worker", then first
-// non-cloudwatch-agent, then first container.
+// findAppContainer returns the application container from a task's
+// container list, using pickAppContainerIndex's selection policy.
 func findAppContainer(containers []ecstypes.Container) *ecstypes.Container {
-	// Prefer "web" or "worker" container by name
-	for i := range containers {
-		name := aws.ToString(containers[i].Name)
-		if name == "web" || name == "worker" {
-			return &containers[i]
-		}
-	}
-	// First non-cloudwatch-agent
-	for i := range containers {
-		name := aws.ToString(containers[i].Name)
-		if name != "cloudwatch-agent" {
-			return &containers[i]
-		}
-	}
-	// Last resort
-	if len(containers) > 0 {
-		return &containers[0]
+	if i := pickAppContainerIndex(containerNames(containers)); i >= 0 {
+		return &containers[i]
 	}
 	return nil
+}
+
+// containerNames extracts the Name field from an SDK container slice,
+// with nil-safety for the AWS String pointers.
+func containerNames(containers []ecstypes.Container) []string {
+	names := make([]string, len(containers))
+	for i, c := range containers {
+		names[i] = aws.ToString(c.Name)
+	}
+	return names
 }
 
 // listTasksRaw returns raw ECS task descriptions (limited to maxTasks).
