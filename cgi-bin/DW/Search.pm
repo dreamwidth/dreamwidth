@@ -105,10 +105,9 @@ sub _dbh {
         "DBI:mysql:host=$host;port=$sql_port",
         undef, undef,
         {
-            RaiseError        => 0,
-            AutoCommit        => 1,
-            PrintError        => 0,
-            mysql_enable_utf8 => 1,
+            RaiseError => 0,
+            AutoCommit => 1,
+            PrintError => 0,
         },
     ) or return undef;
     $dbh->do(q{SET NAMES 'utf8'});
