@@ -38,10 +38,11 @@ sub editprivacy_handler {
 
     my ( $s_dt, $e_dt, $posts );
 
-    return "This feature is currently disabled."
+    return DW::Template->render_template( 'error.tt',
+        { message => "This feature is currently disabled." } )
         unless LJ::is_enabled('mass_privacy');
 
-    return error_ml('editprivacy.tt.unable') unless $u->can_use_mass_privacy;
+    return error_ml('/editprivacy.tt.unable') unless $u->can_use_mass_privacy;
 
     my $mode = $POST->{'mode'} || $GET->{'mode'} || "init";
     my $more_public = 0;    # flag indiciating if security is becoming more public

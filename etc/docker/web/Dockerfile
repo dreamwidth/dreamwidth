@@ -14,7 +14,7 @@ ENV LJHOME /dw
 # Install some packages we need in web only.
 RUN echo $COMMIT && \
     apt-get update && \
-    apt-get install -y mysql-client varnish
+    apt-get install -y varnish
 
 
 # Actually check out the source code now & install branch dependencies.

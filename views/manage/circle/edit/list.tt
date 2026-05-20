@@ -126,8 +126,9 @@
                 [% jointext = (status ? dw.ml(".circle.join.$status") : dw.ml('.circle.none')) %]
                 [% IF status == 'moderated' %]
                     [% jointext = jointext _ " " _
-                        dw.ml( '.circle.join.apply', { aopts => "href='$site.root/circle/$other_u{user}/edit'" } ) %]
+                        dw.ml( '.circle.join.apply', { aopts => "href='$site.root/circle/$other_u.user/edit'" } ) %]
                 [% END %]
+                [% joinvals.noescape = 1 %]
                 [% joinvals.selected = 0 %]
                 [% joinvals.disabled = u.can_leave( other_u ) ? 0 : 1 %]
             [% END %]

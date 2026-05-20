@@ -98,6 +98,59 @@ sub EntryPage {
     # canonical link to the entry or comment thread
     $p->{head_content} .= LJ::canonical_link( $permalink, $get->{thread} );
 
+    # OpenGraph meta tags for public entries (enables link previews in
+    # Discord, Slack, Facebook, etc.)
+    if ( $entry->security eq "public" ) {
+        my $og_title = LJ::ehtml( $entry->subject_text || "(no subject)" );
+        my $og_url   = LJ::ehtml($permalink);
+
+        my $og_desc = $entry->event_text // '';
+        $og_desc =~ s/\s+/ /g;
+        $og_desc = LJ::text_trim( $og_desc, 0, 300 );
+        $og_desc = LJ::ehtml($og_desc);
+
+        my $pu = $entry->poster;
+
+        my $og = '';
+        $og .= qq{<meta property="og:title" content="$og_title"/>\n};
+        $og .= qq{<meta property="og:type" content="article"/>\n};
+        $og .= qq{<meta property="og:url" content="$og_url"/>\n};
+        $og .= qq{<meta property="og:site_name" content="} . LJ::ehtml($LJ::SITENAME) . qq{"/>\n};
+        $og .= qq{<meta property="og:description" content="$og_desc"/>\n};
+
+        # Use poster's userpic as og:image if available
+        my ( $pic, $pickw ) = $entry->userpic;
+        if ($pic) {
+            my $pic_url = LJ::ehtml( $pic->url );
+            $og .= qq{<meta property="og:image" content="$pic_url"/>\n};
+            $og .= qq{<meta property="og:image:width" content="100"/>\n};
+            $og .= qq{<meta property="og:image:height" content="100"/>\n};
+        }
+
+        # article metadata
+        my $eventtime = $entry->eventtime_mysql;
+        if ($eventtime) {
+            ( my $iso_time = $eventtime ) =~ s/ /T/;
+            $og .= qq{<meta property="article:published_time" content="$iso_time"/>\n};
+        }
+
+        if ($pu) {
+            my $author_url = LJ::ehtml( $pu->profile_url );
+            $og .= qq{<meta property="article:author" content="$author_url"/>\n};
+        }
+
+        my $tag_map = $entry->tag_map;
+        if ($tag_map) {
+            for my $tagname ( values %$tag_map ) {
+                $og .= qq{<meta property="article:tag" content="} . LJ::ehtml($tagname) . qq{"/>\n};
+            }
+        }
+
+        # Prepend so entry-specific og:image appears before the site-wide
+        # fallback set in Page(); most OG parsers use the first og:image.
+        $p->{head_content} = $og . $p->{head_content};
+    }
+
     # include JS for quick reply, icon browser, and ajax cut tag
     my $handle_with_siteviews = $opts->{handle_with_siteviews_ref}
         && ${ $opts->{handle_with_siteviews_ref} };

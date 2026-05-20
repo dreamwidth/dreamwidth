@@ -107,7 +107,9 @@ sub execute {
         }
 
         my $err;
-        $self->error($err) unless $u->set_unsuspended( $remote, $reason, \$err );
+        $self->error($err)
+            unless $u->set_unsuspended( $remote, $reason, \$err );
+
         $u->{statusvis} = 'V';
 
         $self->print("User '$username' unsuspended.");

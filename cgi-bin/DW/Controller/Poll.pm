@@ -25,7 +25,8 @@ use DW::Template;
 use DW::FormErrors;
 use LJ::Poll;
 
-DW::Routing->register_string( '/poll',        \&index_handler,  app => 1 );
+DW::Routing->register_string( '/poll',  \&index_handler, app => 1, no_redirects => 1 );
+DW::Routing->register_string( '/poll/', \&index_handler, app => 1, no_redirects => 1 );
 DW::Routing->register_string( '/poll/create', \&create_handler, app => 1 );
 
 sub index_handler {
@@ -38,21 +39,21 @@ sub index_handler {
     my $form   = $r->did_post ? $r->post_args : $r->get_args;
     my $remote = $rv->{remote};
 
-    # answers to checkbox questions are null-separated sequences
-    # since our inout correctness check rules out nulls, we change them
-    # to commas here rather than inside LJ::Poll::submit() .
-    foreach ( values %$form ) {
-        s/\0/,/g;
+    # Flatten Hash::MultiValue into a regular hash, joining multiple values
+    # with commas.  This is needed for checkbox poll questions, which submit
+    # multiple values under the same "pollq-N" key.
+    my %flat;
+    foreach my $key ( keys %$form ) {
+        $flat{$key} = join( ",", $form->get_all($key) );
     }
-    unless ( LJ::text_in($form) ) {
+
+    unless ( LJ::text_in( \%flat ) ) {
 
         #    $body = "<?badinput?>";
         return;
     }
 
-    my $remote = LJ::get_remote();
-
-    my $pollid = ( $form->{'id'} || $form->{'pollid'} ) + 0;
+    my $pollid = ( $flat{'id'} || $flat{'pollid'} ) + 0;
 
     unless ($pollid) {
         return $r->redirect("$LJ::SITEROOT/poll/create");
@@ -64,21 +65,15 @@ sub index_handler {
 
     my $u = $poll->journal;
 
-    my $vars = {
-        remote => $remote,
-        poll   => $poll,
-        pollid => $pollid,
-        u      => $u
-    };
-
     my $mode = "";
-    $mode = $form->{'mode'} if ( $form->{'mode'} =~ /(enter|results|ans|clear)/ );
+    $mode = $flat{'mode'}
+        if ( defined $flat{'mode'} && $flat{'mode'} =~ /(enter|results|ans|clear)/ );
 
     # Handle opening and closing of polls
     # We do this first because a closed poll will alter how a poll is displayed
     if ( $poll->is_owner($remote) || $remote && $remote->can_manage($u) ) {
-        if ( $form->{'mode'} =~ /(close|open)/ ) {
-            $mode = $form->{'mode'};
+        if ( defined $flat{'mode'} && $flat{'mode'} =~ /(close|open)/ ) {
+            $mode = $flat{'mode'};
             $poll->close_poll if ( $mode eq 'close' );
             $poll->open_poll  if ( $mode eq 'open' );
             $mode = 'results';
@@ -91,21 +86,29 @@ sub index_handler {
 
     return error_ml('/poll/index.tt.error.cantview') unless ( $entry->visible_to($remote) );
 
-    if ( defined $form->{'poll-submit'} && $r->did_post ) {
+    # bundle variables to be passed to the template
+    my $vars = {
+        remote    => $remote,
+        u         => $u,
+        poll      => $poll,
+        pollid    => $pollid,
+        poll_form => \%flat,
+        mode      => $mode,
+        entry     => $entry,
+    };
+
+    if ( defined $flat{'poll-submit'} && $r->did_post ) {
         my $error;
-        my $error_code = LJ::Poll->process_submission( $form, \$error );
+        my $error_code = LJ::Poll->process_submission( \%flat, \$error );
         if ($error) {
             $vars->{error}      = $error;
             $vars->{error_code} = $error_code;
         }
         else {
-            return $r->redirect( $entry->url( style_opts => LJ::viewing_style_opts($form) ) );
+            return $r->redirect( $entry->url( style_opts => LJ::viewing_style_opts(%flat) ) );
         }
     }
 
-    $vars->{poll}      = $poll;
-    $vars->{mode}      = $mode;
-    $vars->{poll_form} = $form;
     return DW::Template->render_template( 'poll/index.tt', $vars );
 }
 
@@ -542,7 +545,9 @@ sub create_handler {
                 }
 
                 # catches moves
-                if ( $post->{"$act:$q:up.x"} =~ /\d+/ || $post->{"$act:$q:dn.x"} =~ /\d+/ ) {
+                if ( defined $post->{"$act:$q:up.x"} && $post->{"$act:$q:up.x"} =~ /\d+/
+                    || ( defined $post->{"$act:$q:dn.x"} && $post->{"$act:$q:dn.x"} =~ /\d+/ ) )
+                {
                     $do_action->( $act, $q, $post->{"$act:$q:up.x"} ? 'up' : 'dn' );
                     next;
                 }
@@ -604,7 +609,7 @@ sub create_handler {
                 # make <poll-item> tags
                 foreach my $o ( 0 .. $elem->{'opts'} ) {
                     $ret .= "<poll-item>$elem->{'opt'}->[$o]</poll-item>\n"
-                        if $elem->{'opt'}->[$o] ne '';
+                        if defined $elem->{'opt'}->[$o] && $elem->{'opt'}->[$o] ne '';
                 }
             }
             $ret .= "</poll-question>\n";

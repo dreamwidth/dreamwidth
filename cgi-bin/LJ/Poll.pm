@@ -606,7 +606,7 @@ sub close_poll {
     my $self = $_[0];
 
     # Nothing to do if poll is already closed
-    return if ( $self->{status} eq 'X' );
+    return if ( defined $self->{status} && $self->{status} eq 'X' );
 
     my $u = LJ::load_userid( $self->journalid )
         or die "Invalid journalid " . $self->journalid;
@@ -923,7 +923,7 @@ sub render {
 
         my @userids;
 
-        my $respondents = $self->journal->selectall_arrayref(
+        my $respondents = $self->journal->selectcol_arrayref(
             "SELECT DISTINCT(userid) FROM pollresult2 WHERE pollid=? AND journalid=? ",
             undef, $pollid, $self->journalid );
 

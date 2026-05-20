@@ -175,6 +175,16 @@ sub matches_filter {
     # Do not send on own comments
     return 0 unless $comment->visible_to($watcher);
 
+    # For unscreen events, skip users who were already notified
+    # when the comment was screened (they could already see it).
+    if ( $self->is_unscreen_event ) {
+        return 0 if $watcher->can_manage( $comment->journal );
+        return 0
+            if $comment->entry
+            && $comment->entry->poster
+            && $watcher->equals( $comment->entry->poster );
+    }
+
     # Do not send if opt_noemail applies
     return 0 if $self->apply_noemail( $watcher, $comment, $subscr->method );
 

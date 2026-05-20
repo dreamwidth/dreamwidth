@@ -12,14 +12,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 [%- sections.title = '.title' | ml -%]
-
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.head = BLOCK %]
     <style type="text/css">
         .linklist {
-          margin-left: 2em;
+          margin-left: 1em;
         }
         .linklist ul {
-          padding-left: 2em;
           margin-bottom: 0.75em;
           font-weight: bold;
         }
@@ -32,16 +31,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         ul.accountinfo li b {
           padding-right: 0.5em;
         }
-        .left {
-          float: left;
-        }
-        .right {
-          float: right;
-        }
-        .column {
-          width: 48%;
-          padding: 0.5em;
-        }
     </style>
 [% END %]
 
@@ -50,7 +39,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% iscomm = u.is_community ? '.comm' : '' %]
 
 <h1>[% '.youraccount.header' _ iscomm | ml %]</h1>
-<div style="margin-left: 2em;">
 <ul class=accountinfo>
   <li><b>[% '.youraccount.user' | ml %]</b> [% u.ljuser_display %]</li>
   <li><b>[% '.youraccount.name' | ml %]</b> [% u.name_html %]</li>
@@ -70,9 +58,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%- END -%]
   </li>
 </ul>
-</div>
 
-<div class="left column">
+<div class="row">
+<div class="columns large-6">
 
 [%- infoitems = [
   {
@@ -192,7 +180,7 @@ INCLUDE linklist header=dw.ml( '.customization.header' )
 
 </div>
 
-<div class="right column">
+<div class="columns large-6">
 
 [%- entryitems = [
   {
@@ -281,6 +269,7 @@ INCLUDE linklist header=dw.ml( '.communities.header' )
                  about=dw.ml( '.communities' )
                  items=commitems -%]
 
+</div>
 </div>
 
 [%- BLOCK linklist header='' about='' -%]

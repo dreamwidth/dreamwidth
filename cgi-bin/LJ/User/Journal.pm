@@ -100,6 +100,23 @@ sub can_post_to {
     return 0;
 }
 
+sub can_purchase_for {
+    my ( $remote, $u ) = @_;
+    croak "Invalid users passed to LJ::User->can_purchase_for."
+        unless LJ::isu($u) && LJ::isu($remote);
+
+    # if it's a community, allow if admin
+    return 1 if $u->is_community && $remote->can_manage($u);
+
+    # otherwise, you have to be acting on an individual
+    return 0 unless $u->is_individual;
+
+    # allow if both accounts are registered to the same address
+    return 1 if $remote->has_same_email_as($u);
+
+    return 0;
+}
+
 # list of communities that $u manages
 sub communities_managed_list {
     my ($u) = @_;

@@ -12,7 +12,7 @@ the same terms as Perl itself. For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 %]
-
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title = '.title' | ml -%]
 
 [% IF success %]
@@ -44,37 +44,43 @@ the same terms as Perl itself. For a copy of the license, please reference
         </div>
     [% END %]
 
-    <div class='highlight-box'>
-    <form method="get">
-        [% authas_html %]
-    </form>
-
+    <div class='highlight-box columns'>
+    <form method="get">[%- authas_html -%]</form>
     <form action='[% site.root %]/changeemail[% getextra %]' method='post'>
-        [% dw.form_auth() %]
-
-        <br/><br/><div>[% '.label.username' | ml %]<br />[% u.ljuser_display %]</div><br/>
-        <div>[% '.label.oldemail' | ml %]<br />
+        [%- dw.form_auth() -%]
+        <div class="row">
+            <div class="columns medium-4 medium-right"><span class="label">[% '.label.username' | ml %]</span></div>
+            <div class="columns medium-8 medium-left">[% u.ljuser_display %]</div>
+        </div>
+        <div class="row">
+            <div class="columns medium-4 medium-right"><span class="label">[% '.label.oldemail' | ml %]<span></div>
+            <div class="columns medium-8 medium-left">
             [% IF noemail %]
                 <em>[% '.noemail' | ml %]</em>
             [% ELSE %]
                 <b>[% old_email %]</b>
             [% END %]
-        </div><br/>
-        <div>[% '.label.newemail' | ml %]<br />
-            <input type='text' name='email' size='50' maxlength='50' tabindex='1' />
-            [% IF email_checkbox %]
-                <br />[% email_checkbox %]
-            [% END %]
-            </div><br />
-            [% UNLESS is_identity %]
-                <div>[% '.label.password2' | ml(remote = remote.ljuser_display) %]<br />
-                <input type='password' name='password' size='50' maxlength='[% site.maxlength_pass %]' tabindex='2' /></div>
-            [% END %]
+            </div>
         </div>
-        <br />
+        <div class="row">
+            <div class="columns medium-4 medium-right"><label for="email" class="inline">[% '.label.newemail' | ml %]</label></div>
+            <div class="columns medium-8 medium-left">
+            <input type='text' name='email' size='50' maxlength='50' tabindex='1'/>
+            [% IF email_checkbox %]
+                [% email_checkbox %]
+            [% END %]
+            </div>
+            </div>
+            [% UNLESS is_identity %]
+                <div class="row">
+                <div class="columns medium-4 medium-right"><label for="password" class="inline">[% '.label.password2' | ml(remote = remote.ljuser_display) %]</label></div>
+                <div class="columns medium-8 medium-left"><input type='password' name='password' size='50' maxlength='[% site.maxlength_pass %]' tabindex='2'/></div>
+                </div>
+            [% END %]
+            <div class="row"><input type='submit' tabindex='3' value="[% '.btn.change' | ml %]" /></div>
+                </form>
+        </div>
 
-        <div class='action-box'><div class='inner'>
-        <input type='submit' tabindex='3' value="[% '.btn.change' | ml %]" />
-        </div></div><div class='clear-floats'></div>
-    </form>
+
+
 [% END %]

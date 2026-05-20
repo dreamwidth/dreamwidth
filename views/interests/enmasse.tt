@@ -40,7 +40,7 @@
     [%- FOREACH int = enmasse_data -%]
         <div>
             <label>
-            <input type='checkbox' [% "checked='checked'" IF cell.is_checked %]
+            <input type='checkbox' [% "checked='checked'" IF int.is_checked %]
                 name='[% int.checkid %]' id='[% int.checkid %]' value='1' class="inline" />
 
             [%- "<strong>" IF int.is_checked %]

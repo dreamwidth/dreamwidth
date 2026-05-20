@@ -23,6 +23,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5 qw/ md5_hex /;
+use DW::Task::IncomingEmail;
 
 my $tempfail = sub {
     my $msg = shift;
@@ -70,12 +71,7 @@ if ( $len > IN_MEMORY_THRES ) {
     $msg = "ie:$md5";
 }
 
-my $h = DW::TaskQueue->dispatch(
-    TheSchwartz::Job->new(
-        funcname => "LJ::Worker::IncomingEmail",
-        arg      => $msg,
-    ),
-);
+my $h = DW::TaskQueue->dispatch( DW::Task::IncomingEmail->new($msg) );
 exit 0 if $h;
 exit 75;    # temporary error
 

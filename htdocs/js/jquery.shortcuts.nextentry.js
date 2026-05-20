@@ -31,7 +31,7 @@
         var elements = getScrollableElements();
         for (var i=0; i < elements.length; i++) {
             var el = $(elements[i]);
-            if (el.offset().top < scrollCurrent && el.is(':visible')){
+            if (el.offset().top < scrollCurrent - 50 && el.is(':visible')){
                 scrollTo = el;
             } else {
                 break;

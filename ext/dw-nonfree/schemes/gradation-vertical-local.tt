@@ -5,8 +5,9 @@ Authors:
 
 Copyright (c) 2015 by Dreamwidth Studios, LLC.
 
-This program is free software; you may redistribute it and/or modify it under
-the same terms as Perl itself.  For a copy of the license, please reference
-'perldoc perlartistic' or 'perldoc perlgpl'.
+This program is NOT free software or open-source; you can use it as an
+example of how to implement your own site-specific extensions to the
+Dreamwidth Studios open-source code, but you cannot use it on your site
+or redistribute it, with or without modifications.
 %]
 [%- PROCESS '_dreamwidth.tt' logo_path_part='gradation' -%]

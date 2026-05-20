@@ -12,17 +12,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 [%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- sections.head = BLOCK %]
     <style type="text/css">
         div.indent {
-            margin-left: 40px;
+            padding-left: 2rem;
+            margin-bottom: 1.25rem;
         }
         td.center {
             text-align: center;
-        }
-        #content select.select {
-            min-width: 100px;
         }
         .settings td {
             padding: 3px;
@@ -34,12 +33,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- INCLUDE components/errors.tt errors = errors -%]
 
-<h1>[% '.addresses.header' | ml %]</h1>
+<h2>[% '.addresses.header' | ml %]</h2>
 <p>[% '.addresses.text' | ml %]</p>
 
 <form method='post' action='emailpost'>
   [% dw.form_auth %]
-  <div class='indent'>
     <table border="0">
       <thead><tr>
         <th>[% '.addresses.table.address' | ml %]</th>
@@ -63,74 +61,69 @@ the same terms as Perl itself.  For a copy of the license, please reference
       </td></tr>
 [% END %]
     </table>
-  </div>
-  <br />
 
-  <h1>[% '.pin.header' | ml %]</h1>
+  <h2>[% '.pin.header' | ml %]</h2>
   <p>[% '.pin.text' | ml({num => 4}) %]</p>
   <div class='indent'>
     [% form.textbox( name = 'pin', size = 10, maxlength = 20,
                      value = formdata.pin || u.emailpost_pin,
-                     type = 'password', autocomplete='new-password' ) %]
+                     type = 'password', autocomplete='new-password', class = 'inline') %]
   </div>
-  <br />
 
-  <h1>[% '.settings.header' | ml %]</h1>
+  <h2>[% '.settings.header' | ml %]</h2>
   <p>[% '.settings.text' | ml({aopts => "href='${site.root}/manage/emailpost?mode=help'"}) %]</p>
-  <div class='indent'>
-    <table summary='' cellspacing='0' class='settings'>
-      <tr><td colspan='2'><h2>[% '.settings.entry.header' | ml %]</h2></td></tr>
-      <tr>
-        <td>[% '.settings.entry.userpic' | ml %]</td>
-        <td>
-[%- icons = u.icon_keyword_menu;
-    IF icons.size > 0;
-      form.select( name = 'emailpost_userpic', items = icons,
-                   selected = u.emailpost_userpic );
-    ELSE; '.settings.entry.userpic.select.none' | ml;
-    END -%]
-        </td>
-      </tr>
+  <div class="row">
+  <div class='indent columns large-6 end'>
+  <h3>[% '.settings.entry.header' | ml %]</h3>
+  <div class="row">
+    <div class="columns medium-3 medium-right">
+      <label for="emailpost_userpic">[% '.settings.entry.userpic' | ml %]</label>
+    </div>
+    <div class="columns medium-9">
+      [%- icons = u.icon_keyword_menu;
+      IF icons.size > 0;
+        form.select( id = 'emailpost_userpic', name = 'emailpost_userpic', items = icons,
+                    selected = u.emailpost_userpic );
+      ELSE; '.settings.entry.userpic.select.none' | ml;
+      END -%]
+    </div>
+  </div>
 
-      <tr>
-        <td>[% '.settings.entry.security' | ml %]</td>
-        <td>
-[%- groups = [ 'default', dw.ml('.settings.entry.security.select.default'),
-               'public',  dw.ml('.settings.entry.security.select.public'),
-               'private', dw.ml('.settings.entry.security.select.private'),
-               'friends', dw.ml('.settings.entry.security.select.access') ];
-    IF u.trust_groups.size && u.trust_groups.size > 0;
-      groups.push('--------'); groups.push('--------');
-    END;
-    FOREACH grp IN u.trust_groups;
-      groups.push(grp.groupname); groups.push(grp.groupname);
-    END;
+  <div class="row">
+    <div class="columns medium-3 medium-right">
+      <label for="emailpost_security">[% '.settings.entry.security' | ml %]</label>
+    </div>
+    <div class="columns medium-9">
+    [%- groups = [ 'default', dw.ml('.settings.entry.security.select.default'),
+                  'public',  dw.ml('.settings.entry.security.select.public'),
+                  'private', dw.ml('.settings.entry.security.select.private'),
+                  'friends', dw.ml('.settings.entry.security.select.access') ];
+        IF u.trust_groups.size && u.trust_groups.size > 0;
+          groups.push('--------'); groups.push('--------');
+        END;
+        FOREACH grp IN u.trust_groups;
+          groups.push(grp.groupname); groups.push(grp.groupname);
+        END;
 
-    form.select( name = 'emailpost_security', items = groups,
-                 selected = u.emailpost_security ) -%]
-        </td>
-      </tr>
+        form.select( id = 'emailpost_security', name = 'emailpost_security', items = groups,
+                    selected = u.emailpost_security ) -%]
+    </div>
+  </div>
 
-      <tr>
-        <td>[% '.settings.entry.comments' | ml %]</td>
-        <td>
-[%- opts = [ 'default', dw.ml('.settings.entry.comments.select.default'),
+  <div class="row">
+    <div class="columns medium-3 medium-right">
+      <label for="emailpost_comments">[% '.settings.entry.comments' | ml %]</label>
+    </div>
+    <div class="columns medium-9">
+      [%- opts = [ 'default', dw.ml('.settings.entry.comments.select.default'),
              'noemail', dw.ml('.settings.entry.comments.select.noemail'),
              'off',     dw.ml('.settings.entry.comments.select.off') ];
-    form.select( name = 'emailpost_comments', items = opts,
-                 selected = u.emailpost_comments ) -%]
-        </td>
-      </tr>
-    </table>
+        form.select( id = 'emailpost_comments', name = 'emailpost_comments', items = opts,
+                    selected = u.emailpost_comments ) -%]
+    </div>
   </div>
-  <br />
+  </div>
+  </div>
 
-  <div class='action-box'>
-    <ul class='inner nostyle'>
-      <li>
       [% form.submit( name = 'save', value = dw.ml('.button.save'), raw = 'action=save' ) %]
-      </li>
-    </ul>
-  </div>
-  <div class='clear-floats'></div>
 </form>

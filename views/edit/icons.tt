@@ -10,7 +10,7 @@
   # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
   #
 %]
-
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title = '.title' | ml -%]
 
 [%- dw.need_res( "stc/editicons.css", "js/editicons.js" ) -%]
@@ -30,11 +30,13 @@
 [%- IF num_icons >= max_icons -%]
   <div id='limit'>[% '.error.icon.quota' | ml( num = max_icons ) %]</div>
 [%- ELSE -%]
-  <div id='uploadBox' class='highlight-box box pkg'><div id='uploadBox-inner'>
+<div class="row">
+  <div id='uploadBox' class='highlight-box box pkg columns large-4'>
+  <div id='uploadBox-inner' class="small-left">
   <form enctype="multipart/form-data" action="[% selflink() %]" method='post'
         id='uploadPic'>
 
-    <h1>[% '.upload.header' | ml %]</h1>
+    <h2>[% '.upload.header' | ml %]</h2>
     <p class='detail'>
       <a href='javascript:void(0)' onclick='toggleElement("upload_desc")'
          id='upload_desc_link'>[% '.upload.about' | ml %]</a>
@@ -59,45 +61,41 @@
                        selected = formdata.urlpic_0.length ) %]
         <label for="radio_url">[% '.fromurl' | ml %]</label>
         <br />
-        [% form.textbox( name = "urlpic_0", id = "urlpic_0", class = "text",
+        [% form.textbox( name = "urlpic_0", id = "urlpic_0", class = "text inline",
                          style = 'margin: 0em 0em 0.5em 2em;' ) %]
       </p>
-      <p class='detail'>[% '.upload.formats.desc' | ml %]</p>
+      <p class='helper'>[% '.upload.formats.desc' | ml %]</p>
     </div>
 
     <hr class='hr' />
 
     <p class='pkg'>
-      <label class='left' for='keywords_0'>[% '.upload.label.keywords' | ml %]</label>
-      <span class='input-wrapper'>
+      <label for='keywords_0'>[% '.upload.label.keywords' | ml %]</label>
         [% form.textbox( name = "keywords_0", id = "keywords_0", class = "text" ) %]
         [% help_icon( 'upic_keywords' ) %]
-      </span>
+      <div class='helper'>[% '.upload.label.keywords.desc' | ml %]</div>
     </p>
-    <p class='detail'>[% '.upload.label.keywords.desc' | ml %]</p>
 
     <p class='pkg'>
-      <label class='left' for='comments_0'>[% '.upload.label.comment' | ml %]</label>
-      <span class='input-wrapper'>
+      <label for='comments_0'>[% '.upload.label.comment' | ml %]</label>
         [% form.textbox( name = "comments_0", id = "comments_0", class = "text",
                          maxlength = maxlength.comment ) %]
         [% help_icon( 'upic_comments' ) %]
-      </span>
+        <div class='helper'>[% '.upload.label.comment.desc' | ml %]</div>
     </p>
-    <p class='detail'>[% '.upload.label.comment.desc' | ml %]</p>
+
 
     <p class='pkg'>
-      <label class='left' for='descriptions_0'>[% '.upload.label.description' | ml %]</label>
-      <span class='input-wrapper'>
+      <label for='descriptions_0'>[% '.upload.label.description' | ml %]</label>
         [% form.textbox( name = "descriptions_0", id = "descriptions_0", class = "text",
                          maxlength = maxlength.description ) %]
         [% help_icon( 'upic_descriptions' ) %]
-      </span>
+        <div class='helper'>
+          [% '.upload.label.description.desc' | ml %]
+          [% alttext_faq( dw.ml( '.upload.label.description.faq' ) ) %]
+        </div>
     </p>
-    <p class='detail'>
-      [% '.upload.label.description.desc' | ml %]
-      [% alttext_faq( dw.ml( '.upload.label.description.faq' ) ) %]
-    </p>
+
 
     <p class='pkg'>
       <span id='main_make_default'>
@@ -113,10 +111,10 @@
     [%- IF num_remaining >= 2 -%]
       <div id='multi_insert'></div>
       <div id='no_default_insert'></div>
-      <p class='pkg' id='multi_insert_buttons'>
-        <input type='button' value="[% '.upload.btn.addfile' | ml %]"
+      <p class='pkg small-center' id='multi_insert_buttons'>
+        <input class="button" type='button secondary' value="[% '.upload.btn.addfile' | ml %]"
                onclick='javascript:addNewUpload("file");' />
-        <input type='button' value="[% '.upload.btn.addurl' | ml %]"
+        <input class="button" type='button secondary' value="[% '.upload.btn.addurl' | ml %]"
                onclick='javascript:addNewUpload("url");' />
         <script type='text/javascript'>
             maxcounter = [% num_remaining %];
@@ -137,7 +135,7 @@
     [%- END -%]
 
     <p class='pkg' id='submit_wrapper'>
-      [% form.submit( value = dw.ml( ".upload.btn.proceed" ),
+      [% form.submit( class="large", value = dw.ml( ".upload.btn.proceed" ),
                       disabled = uploads_disabled ) %]
     </p>
   </form>
@@ -145,13 +143,13 @@
 [%- END -%]
 
 [%- IF ! num_icons -%]
-  <h1>[% '.edit.nopics.header' | ml %]</h1>
+  <h2>[% '.edit.nopics.header' | ml %]</h2>
   <p>[% '.edit.nopics.desc' | ml %]</p>
 [%- ELSE -%]
-  <div id='current_userpics'>
+  <div id='current_userpics' class="columns large-8">
   <form method='post' action='[% selflink() %]'>
     [% dw.form_auth %]
-    <h1>[% '.edit.icons.header' | ml %]</h1>
+    <h2>[% '.edit.icons.header' | ml %]</h2>
     <p>[% '.edit.icons.desc' | ml %]</p>
 
     <div class='EditIconsStatus'>
@@ -178,21 +176,26 @@
       </p>
     </div>
 
-    <div id='list_userpics' style='width: 98%; float: left;'>
+    <div id='list_userpics'>
       [%- FOREACH pic IN icons; pid = pic.id -%]
-        <div class='pkg userpic_wrapper'>
+        <div class='userpic_wrapper'>
           <span class='EditIconsUserpic'>[% pic.imgtag %]</span>
           [%# FIXME: if no keywords then light grey text and empty out when you click in it #%]
           <div class='userpic_controls'  style='float: left; width: auto;'>
 
-            <div class='userpic_keywords pkg'>
-              <label class='left' for='kw_[% pid %]'>[% '.upload.label.keywords' | ml %]</label>
+            <div class='userpic_keywords row'>
+            <div class="columns small-3">
+              <label class='inline' for='kw_[% pid %]'>[% '.upload.label.keywords' | ml %]</label>
+              </div>
+              <div class="columns small-9">
               [% form.textbox( name = "kw_$pid", id = "kw_$pid", class = "text",
                                value = pic.scalar.keywords, disabled = pic.inactive,
                                onfocus = display_rename ? "\$(\'rename_div_$pid\').style.display = \'block\';" : "" ) %]
               [% form.hidden( name = "kw_orig_$pid", value = pic.scalar.keywords ) %]
+              </div>
               [%- IF display_rename -%]
-                <div id='rename_div_[% pid %]' class='userpic_rename pkg'>
+                <div id='rename_div_[% pid %]' class='userpic_rename row'>
+                <div class="columns small-9 small-offset-3">
                   <script type='text/javascript'>
                     document.getElementById('rename_div_[% pid %]').style.display = 'none';
                   </script>
@@ -205,27 +208,37 @@
                   [%- ELSE -%]
                     [% 'error.iconkw.rename.disabled' | ml %]
                   [%- END -%]
+                  </div>
                 </div>
               [%- END -%]
             </div>
 
-            <div class='userpic_comments pkg'>
-              <label class='left' for='com_[% pid %]'>[% '.upload.label.comment' | ml %]</label>
+            <div class='userpic_comments row'>
+            <div class="columns small-3">
+              <label class="inline" for='com_[% pid %]'>[% '.upload.label.comment' | ml %]</label>
+              </div>
+              <div class="columns small-9">
               [% form.textbox( name = "com_$pid", id = "com_$pid", class = "text",
                                value = pic.comment, disabled = pic.inactive,
                                maxlength = maxlength.comment ) %]
               [% form.hidden( name = "com_orig_$pid", value = pic.comment ) %]
+              </div>
             </div>
 
-            <div class='userpic_descriptions pkg'>
-              <label class='left' for='desc_[% pid %]'>[% '.upload.label.description' | ml %]</label>
+            <div class='userpic_descriptions row'>
+            <div class="columns small-3">
+              <label class='inline' for='desc_[% pid %]'>[% '.upload.label.description' | ml %]</label>
+              </div>
+              <div class="columns small-9">
               [% form.textbox( name = "desc_$pid", id = "desc_$pid", class = "text",
                                value = pic.description, disabled = pic.inactive,
                                maxlength = maxlength.description ) %]
               [% form.hidden( name = "desc_orig_$pid", value = pic.description ) %]
+              </div>
             </div>
 
-            <div class='userpic_defaultdelete pkg'>
+            <div class='userpic_defaultdelete row'>
+            <div class="columns small-9 small-offset-3">
               [% form.radio( label = dw.ml( ".edit.label.default" ),
                                      name = "defaultpic", value = pid,
                                      class = 'radio', id = "def_$pid",
@@ -243,6 +256,7 @@
                   # render and page submit %]
               [% form.hidden( name = "pic_inactive_$pid", value = 1 ) %]
               [%- END -%]
+              </div>
             </div>
 
           </div><!-- userpic_controls -->
@@ -257,15 +271,11 @@
                      class = 'radio', id = "nodefpic",
                      selected = u.userpic.defined ? 0 : 1 ) %]
     </p>
-    <div class='action-box'>
-      <ul class='inner nostyle'>
-        <li>[% form.submit( value = dw.ml( ".edit.btn.save" ),
-                            name = 'action:save' ) %]</li>
-      </ul>
-    </div>
-    <div class='clear-floats'></div>
+        <div class="small-center">[% form.submit( class="large", value = dw.ml( ".edit.btn.save" ),
+                            name = 'action:save' ) %]</div>
   </form>
   </div><!-- end #current_userpics -->
+  </div>
   <script type='text/javascript'>
     editiconsInit();
   </script>

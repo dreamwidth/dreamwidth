@@ -269,6 +269,7 @@ sub ReplyPage {
         '_remote'    => $remote,
         '_u'         => $u,
         '_ditemid'   => $ditemid,
+        '_entry'     => $entry,
         '_parpost'   => $parpost,
         '_values'    => \%comment_values,
         '_styleopts' => $p->{_styleopts},
@@ -304,7 +305,7 @@ sub ReplyForm__print {
                 'thread'     => $form->{_thread},
                 'form'       => $post_vars,
                 'do_captcha' => LJ::Talk::Post::require_captcha_test(
-                    $remote, $u, $post_vars->{body}, $form->{'_ditemid'}
+                    $remote, $u, $post_vars->{body}, $form->{'_entry'}
                 )
             }
         )

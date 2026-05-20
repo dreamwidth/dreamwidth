@@ -33,7 +33,8 @@ use DW::External::ProfileServices;
 use DW::FormErrors;
 use Data::Dumper;
 
-DW::Routing->register_string( "/manage/profile", \&profile_handler, app => 1 );
+DW::Routing->register_string( "/manage/profile",  \&profile_handler, app => 1, no_redirects => 1 );
+DW::Routing->register_string( "/manage/profile/", \&profile_handler, app => 1, no_redirects => 1 );
 
 sub profile_handler {
     my ( $ok, $rv ) = controller( anonymous => 0, form_auth => 1, authas => 1 );
@@ -100,14 +101,14 @@ sub profile_handler {
 
     # to store values before they undergo normalisation
     my %saved = ();
-    $saved{'name'} = $u->{'name'};
+    $saved{'name'} = LJ::clean_utf8( $u->{'name'} );
     $saved{'url'}  = $u->{'url'};
 
     # clean userprops
     foreach ( values %$u ) { LJ::text_out( \$_ ); }
 
     # load and clean bio
-    my $bio = $u->bio;
+    my $bio = LJ::clean_utf8( $u->bio );
     $saved{bio} = $bio;
 
     LJ::EmbedModule->parse_module_embed( $u, \$bio, edit => 1 );
@@ -151,8 +152,11 @@ sub profile_handler {
         if ( $bdpart{'day'} eq "00" )    { $bdpart{'day'}  = ""; }
     }
 
-    my @months = map { $_, LJ::Lang::month_long_ml($_) } ( 1 .. 12 );
-    $u->{'opt_showbday'} = "D" unless $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
+    my @months = ( 0, "" );
+    push @months, map { $_, LJ::Lang::month_long_ml($_) } ( 1 .. 12 );
+
+    $u->{'opt_showbday'} = "D"
+        unless defined $u->{'opt_showbday'} and $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
     my $opt_sharebday = ( $u->opt_sharebday =~ m/^(A|F|N|R)$/ ) ? $u->opt_sharebday : 'F';
 
     # 'Other Services' display
@@ -169,7 +173,7 @@ sub profile_handler {
     # Email display
     # This is one prop in the backend, but two form fields on the settings page
     # so we need to do some jumping around to get the correct values for both fields
-    my $checked = ( $u->{'opt_whatemailshow'} =~ /[BVL]/ ) ? 'Y' : 'N';
+    my $checked = ( ( $u->{'opt_whatemailshow'} // '' ) =~ /[BVL]/ ) ? 'Y' : 'N';
     my $cur     = $u->opt_whatemailshow;
 
     # drop BVL values that govern site alias; we input that below instead
@@ -179,9 +183,9 @@ sub profile_handler {
         u                => $u,
         authas_html      => $rv->{authas_html},
         formdata         => $POST,
+        iscomm           => $iscomm,
         curr_privacy     => $curr_privacy,
         opt_sharebday    => $opt_sharebday,
-        text_in          => \&LJ::text_in,
         help_icon        => \&LJ::help_icon,
         showtoopts       => \@showtoopts,
         interests        => $interests_str,
@@ -210,7 +214,7 @@ sub profile_handler {
     if ( $r->did_post ) {
 
         # name
-        unless ( LJ::trim( $POST->{'name'} ) || defined( $POST->{'name_absent'} ) ) {
+        unless ( LJ::trim( $POST->{'name'} ) ) {
             $errors->add( 'name', '.error.noname' );
         }
 
@@ -255,7 +259,7 @@ sub profile_handler {
         }
 
         # bio
-        if ( length( $POST->{'bio'} ) >= LJ::BMAX_BIO ) {
+        if ( defined $POST->{'bio'} and length( $POST->{'bio'} ) >= LJ::BMAX_BIO ) {
             $errors->add( 'bio', "$scope.error.bio.toolong" );
         }
 
@@ -277,12 +281,13 @@ sub profile_handler {
             $POST->{'url'} = "http://$POST->{'url'}";
         }
 
-        my $newname = defined $POST->{'name_absent'} ? $saved{'name'} : $POST->{'name'};
+        my $newname = $POST->{'name'};
         $newname =~ s/[\n\r]//g;
         $newname = LJ::text_trim( $newname, LJ::BMAX_NAME, LJ::CMAX_NAME );
 
-        my $newbio = defined( $POST->{'bio_absent'} ) ? $saved{'bio'} : $POST->{'bio'};
-        my $has_bio = ( $newbio =~ /\S/ ) ? "Y" : "N";
+        my $newbio = $POST->{'bio'};
+        $newbio = "" unless defined $newbio;
+        my $has_bio   = ( $newbio =~ /\S/ ) ? "Y" : "N";
         my $new_bdate = sprintf( "%04d-%02d-%02d",
             $POST->{'year'}  || 0,
             $POST->{'month'} || 0,
@@ -344,7 +349,11 @@ sub profile_handler {
             if ( $POST->{'opt_sharebday'} =~ /^[AR]$/ ) {
 
                 # and actually provided a birthday
-                if ( $POST->{'month'} && $POST->{'month'} > 0 && $POST->{'day'} > 0 ) {
+                if (   $POST->{'month'}
+                    && $POST->{'month'} > 0
+                    && $POST->{'day'}
+                    && $POST->{'day'} > 0 )
+                {
 
                     # and allow the entire thing to be displayed
                     if ( $POST->{'opt_showbday'} eq "F" && $POST->{'year'} ) {
@@ -382,7 +391,7 @@ sub profile_handler {
                     push @{ $new_accts{$s_id} }, [ $a_id, $val ];
                 }
                 else {
-                    push @{ $new_accts{$s_id} }, $val;
+                    push @{ $new_accts{$s_id} }, $val if $val ne '';
                 }
             }
 
@@ -397,7 +406,7 @@ sub profile_handler {
 
         # update their bio text
         LJ::EmbedModule->parse_module_embed( $u, \$POST->{'bio'} );
-        $u->set_bio( $POST->{'bio'}, $POST->{'bio_absent'} );
+        $u->set_bio( $POST->{'bio'} );
 
         # update interests
         unless ( $POST->{'interests_absent'} ) {

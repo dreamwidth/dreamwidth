@@ -345,6 +345,7 @@ sub rename_admin_edit_handler {
     my $get_args  = $r->get_args;
 
     my $token = DW::RenameToken->new( token => $get_args->{token} );
+    return error_ml('rename.error.notoken') unless defined $token;
 
     my $u         = LJ::load_userid( $token->renuserid );
     my @rel_types = qw( trusted_by watched_by trusted watched communities );

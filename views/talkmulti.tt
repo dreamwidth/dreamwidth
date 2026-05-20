@@ -1,0 +1,4 @@
+[%- sections.title = title | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%#<h1 $ML{'.screened.title'} h1?> %]
+<p>[% dw.ml(body, {'aopts' => aopts}) %]</p>

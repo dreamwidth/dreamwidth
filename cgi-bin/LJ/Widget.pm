@@ -315,7 +315,7 @@ sub handle_error {
     return 0 unless $errstr;
 
     $errstr =~ s/\s+at\s+.+line \d+.*$//ig
-        unless $LJ::IS_DEV_SERVER || $LJ::DEBUG{"full_widget_error"};
+        unless $LJ::IS_DEV_SERVER;
     push @$errref, $errstr;
     return 1;
 }

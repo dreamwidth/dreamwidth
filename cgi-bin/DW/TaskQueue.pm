@@ -21,6 +21,7 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use DW::TaskQueue::Dedup;
 use DW::TaskQueue::SQS;
 use DW::TaskQueue::LocalDisk;
 
@@ -78,18 +79,20 @@ sub dispatch {
             push @schwartz_jobs, $task;
         }
         elsif ( $task->isa('DW::Task') ) {
+
+            # Check dedup before enqueuing
+            if ( my $uniqkey = $task->uniqkey ) {
+                my $queue_name = ref $task;
+                my $ttl        = $task->dedup_ttl || 3600;
+                unless ( DW::TaskQueue::Dedup->claim_unique( $queue_name, $uniqkey, $ttl ) ) {
+                    $log->debug( 'Skipping duplicate task: ' . ref($task) . " key=$uniqkey" );
+                    next;
+                }
+            }
             push @tsq_tasks, $task;
         }
         elsif ( $task->isa('LJ::Event') ) {
-
-            # Do the TSQ check, because these tasks could go either way, and we
-            # want to be able to ramp up the traffic slowly.
-            if ( $LJ::ESN_OVER_SQS && rand() < $LJ::ESN_OVER_SQS ) {
-                push @tsq_tasks, $task->fire_task;
-            }
-            else {
-                push @schwartz_jobs, $task->fire_job;
-            }
+            push @tsq_tasks, $task->fire_task;
         }
         else {
             $log->error( 'Unknown job/task type, dropping: ' . ref($task) );
@@ -111,10 +114,16 @@ sub dispatch {
         }
     }
 
-    # Dispatch to TaskQueue
+    # Dispatch to TaskQueue, grouping by task type since send() routes
+    # the entire batch to the queue of the first task
     if (@tsq_tasks) {
-        $log->debug( 'Inserting ' . scalar(@tsq_tasks) . ' tasks into TaskQueue.' );
-        $rv &&= $self->send(@tsq_tasks);
+        my %by_type;
+        push @{ $by_type{ ref $_ } }, $_ for @tsq_tasks;
+        for my $type ( keys %by_type ) {
+            my $batch = $by_type{$type};
+            $log->debug( 'Inserting ' . scalar(@$batch) . " $type tasks into TaskQueue." );
+            $rv &&= $self->send(@$batch);
+        }
     }
 
     # Returns the "worse" of the return values. If either are falsey, we will
@@ -130,6 +139,7 @@ sub start_work {
     $self = $self->get unless ref $self;
 
     eval "use $class;";
+    $log->logcroak("Failed to load task class $class: $@") if $@;
 
     my $start_time    = time();
     my $messages_done = 0;
@@ -215,10 +225,34 @@ sub start_work {
 
             if ( $res == DW::Task::COMPLETED ) {
                 push @completed, $handle;
+
+                # Release dedup key on successful completion
+                if ( my $uniqkey = $message->uniqkey ) {
+                    DW::TaskQueue::Dedup->release_unique( ref($message), $uniqkey );
+                }
             }
             else {
-                $log->warn( sprintf( '[%s] Message "%s" failed', $class, $handle ) );
-                push @failed, $handle;
+                # If we've exceeded max retries, give up and mark complete
+                # instead of letting SQS send it to the DLQ
+                if ( $opts{max_retries} && $message->receive_count >= $opts{max_retries} ) {
+                    $log->warn(
+                        sprintf(
+                            '[%s] Message "%s" failed after %d attempts, giving up',
+                            $class, $handle, $message->receive_count
+                        )
+                    );
+                    push @completed, $handle;
+                }
+                else {
+                    $log->warn( sprintf( '[%s] Message "%s" failed', $class, $handle ) );
+                    push @failed, $handle;
+                }
+
+                # Release dedup key on failure so the task can be
+                # re-dispatched by the next scheduler run
+                if ( my $uniqkey = $message->uniqkey ) {
+                    DW::TaskQueue::Dedup->release_unique( ref($message), $uniqkey );
+                }
             }
         }
 

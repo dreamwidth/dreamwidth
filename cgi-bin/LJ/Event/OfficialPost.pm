@@ -141,6 +141,4 @@ sub subscription_as_html {
         ;    # $LJ::SITENAME makes a new announcement
 }
 
-sub schwartz_role { 'mass' }
-
 1;

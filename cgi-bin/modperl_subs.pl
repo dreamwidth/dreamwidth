@@ -25,6 +25,8 @@ BEGIN {
 }
 
 use Apache2::ServerUtil ();
+use Apache2::Connection ();
+use DW::Request::Apache2;
 
 use LJ::Config;
 
@@ -73,9 +75,6 @@ BEGIN {
 use LJ::ConvUTF8;
 
 use MIME::Words;
-
-# Try to load DBI::Profile
-BEGIN { $LJ::HAVE_DBI_PROFILE = eval "use DBI::Profile (); 1;" }
 
 use LJ::Lang;
 use LJ::Links;

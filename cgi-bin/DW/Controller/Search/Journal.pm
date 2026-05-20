@@ -23,42 +23,13 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
-use Storable;
+use DW::Search;
 
 DW::Routing->register_string( '/search', \&search_handler, app => 1 );
 
-my $gc = LJ::gearman_client();
-
-sub _do_search {
-    return unless $gc && @LJ::SPHINX_SEARCHD;
-    my ($arg) = @_;
-    $arg = Storable::nfreeze($arg);
-    my $result;
-
-    my $task = Gearman::Task->new(
-        'sphinx_search',
-        \$arg,
-        {
-            uniq        => '-',
-            on_complete => sub {
-                my $res = $_[0] or return undef;
-                $result = Storable::thaw($$res);
-            },
-        }
-    );
-
-    # setup the task set for gearman... really, isn't there a way to make this simpler?  oh well
-    my $ts = $gc->new_task_set();
-    $ts->add_task($task);
-    $ts->wait( timeout => 20 );
-
-    return $result;
-}
-
 sub search_handler {
-
-    # before doing the usual setup, first make sure we have Gearman working
-    return error_ml('/search.tt.error.notconfigured') unless $gc && @LJ::SPHINX_SEARCHD;
+    return error_ml('/search.tt.error.notconfigured')
+        unless DW::Search::configured();
 
     my ( $ok, $rv ) = controller( form_auth => 1 );
     return $rv unless $ok;
@@ -144,8 +115,8 @@ sub search_handler {
                 }
             }
 
-            # the arguments to the search (userid=0 implies global search)
-            my $args = {
+            # userid=0 implies global search
+            my $result = DW::Search::search_journal(
                 userid           => $su ? $su->id : 0,
                 remoteid         => $remote->id,
                 query            => $q,
@@ -153,10 +124,8 @@ sub search_handler {
                 sort_by          => $sby,
                 ignore_security  => $ignore_security,
                 allowmask        => $allowmask,
-                include_comments => $wc
-            };
-
-            my $result = _do_search($args);
+                include_comments => $wc,
+            );
             $errors->add( "", ".error.timedout" ) unless $result;
 
             $rv->{result}  = $result;

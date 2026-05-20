@@ -796,6 +796,7 @@ CREATE TABLE talkleft_xfp (
 )
 EOC
 
+register_tabledrop("procnotify");
 register_tabledrop("ibill_codes");
 register_tabledrop("paycredit");
 register_tabledrop("payments");
@@ -1221,15 +1222,6 @@ CREATE TABLE ml_text (
 ) ENGINE=MYISAM
 EOC
 
-register_tablecreate( "procnotify", <<'EOC');
-CREATE TABLE procnotify (
-    nid   INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (nid),
-    cmd   VARCHAR(50),
-    args  VARCHAR(255)
-)
-EOC
-
 register_tablecreate( "syndicated", <<'EOC');
 CREATE TABLE syndicated (
     userid  INT UNSIGNED NOT NULL,
@@ -1239,6 +1231,8 @@ CREATE TABLE syndicated (
     lastmod    INT UNSIGNED, # unix time
     etag       VARCHAR(80),
     fuzzy_token  VARCHAR(255),
+
+    failcount  SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 
     PRIMARY KEY (userid),
     UNIQUE (synurl),
@@ -2510,64 +2504,6 @@ CREATE TABLE logprop_history (
 )
 EOC
 
-register_tablecreate( "sch_mass_funcmap", <<'EOC');
-CREATE TABLE sch_mass_funcmap (
-    funcid         INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    funcname       VARCHAR(255) NOT NULL,
-
-    UNIQUE(funcname)
-)
-EOC
-
-register_tablecreate( "sch_mass_job", <<'EOC');
-CREATE TABLE sch_mass_job (
-    jobid           BIGINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    funcid          INT UNSIGNED NOT NULL,
-    arg             MEDIUMBLOB,
-    uniqkey         VARCHAR(255) NULL,
-    insert_time     INTEGER UNSIGNED,
-    run_after       INTEGER UNSIGNED NOT NULL,
-    grabbed_until   INTEGER UNSIGNED,
-    priority        SMALLINT UNSIGNED,
-    coalesce        VARCHAR(255),
-
-    INDEX (funcid, run_after),
-    UNIQUE(funcid, uniqkey),
-    INDEX (funcid, coalesce)
-)
-EOC
-
-register_tablecreate( "sch_mass_note", <<'EOC');
-CREATE TABLE sch_mass_note (
-    jobid           BIGINT UNSIGNED NOT NULL,
-    notekey         VARCHAR(255),
-    PRIMARY KEY (jobid, notekey),
-    value           MEDIUMBLOB
-)
-EOC
-
-register_tablecreate( "sch_mass_error", <<'EOC');
-CREATE TABLE sch_mass_error (
-    error_time      INTEGER UNSIGNED NOT NULL,
-    jobid           BIGINT UNSIGNED NOT NULL,
-    message         VARCHAR(255) NOT NULL,
-
-    INDEX (error_time),
-    INDEX (jobid)
-)
-EOC
-
-register_tablecreate( "sch_mass_exitstatus", <<'EOC');
-CREATE TABLE sch_mass_exitstatus (
-    jobid           BIGINT UNSIGNED PRIMARY KEY NOT NULL,
-    status          SMALLINT UNSIGNED,
-    completion_time INTEGER UNSIGNED,
-    delete_after    INTEGER UNSIGNED,
-
-    INDEX (delete_after)
-)
-EOC
-
 register_tablecreate( "import_items", <<'EOC');
 CREATE TABLE import_items (
     userid INT UNSIGNED NOT NULL,
@@ -3674,7 +3610,7 @@ register_alter(
                 "ALTER TABLE expunged_users MODIFY COLUMN user VARCHAR(25) NOT NULL" );
         }
 
-        unless ( column_type( "acctcode", "timegenerate" ) =~ /^\Qint(10) unsigned\E/ ) {
+        unless ( column_type( "acctcode", "timegenerate" ) =~ /^int(?:\(10\))? unsigned/ ) {
             do_alter( "acctcode", "ALTER TABLE acctcode MODIFY COLUMN timegenerate INT UNSIGNED" );
         }
 
@@ -4250,6 +4186,12 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
             do_alter( 'userusage',
                       "ALTER TABLE userusage ADD COLUMN timeupdate_public DATETIME, "
                     . "ADD INDEX (timeupdate_public)" );
+        }
+
+        if ( column_type( "syndicated", "failcount" ) eq '' ) {
+            do_alter( 'syndicated',
+                "ALTER TABLE syndicated ADD COLUMN failcount SMALLINT UNSIGNED NOT NULL DEFAULT 0"
+            );
         }
     }
 );

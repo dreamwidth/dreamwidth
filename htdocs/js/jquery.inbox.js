@@ -235,7 +235,7 @@ if ($('#msg_to').length) {
 }
 $('.folders').removeClass('no-js');
 $("#folder_btn").removeClass('no-js');
-$("#folder_btn").click(function(){
+$("#inbox_folders").on("click", "#folder_btn", function(){
     var folders = $('#folder_list');
     var img = $(this).children();
 

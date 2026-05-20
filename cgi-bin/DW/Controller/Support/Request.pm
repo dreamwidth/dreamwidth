@@ -98,6 +98,8 @@ sub see_request_handler {
 
     return error_ml("$scope.unknownumber") unless $sp;
 
+    $vars->{robot_meta_tags} = LJ::robot_meta_tags();
+
     my $sth;
     my $user;
     my $user_url;

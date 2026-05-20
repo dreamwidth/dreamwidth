@@ -451,7 +451,7 @@ sub password {
 # ensures that we can easily associate the form element to its label
 sub generate_id {
     my ( $self, $args ) = @_;
-    return "id-" . $args->{name} . "-" . $self->{_id_gen_counter}++;
+    return "id-" . ( $args->{name} // '' ) . "-" . $self->{_id_gen_counter}++;
 }
 
 # populate the element's value, modifying the $args hashref

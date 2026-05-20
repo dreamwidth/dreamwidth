@@ -773,9 +773,6 @@ sub ban_do {
     my %types = ( ip => 1, uniq => 1, spamreport => 1 );
     return unless $types{$what};
 
-    my $procopts = { $what => $value, exptime => $until };
-
-    LJ::Procnotify::add( "ban_$what", $procopts );
     LJ::MemCache::delete("sysban:$what");
 
     return 1;
@@ -786,9 +783,6 @@ sub ban_undo {
     my %types = ( ip => 1, uniq => 1, spamreport => 1 );
     return unless $types{$what};
 
-    my $procopts = { $what => $value };
-
-    LJ::Procnotify::add( "unban_$what", $procopts );
     LJ::MemCache::delete("sysban:$what");
 
     return 1;

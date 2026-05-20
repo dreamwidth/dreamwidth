@@ -20,7 +20,7 @@ use strict;
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
-use Storable;
+use DW::Search;
 
 DW::Routing->register_string( "/support/search", \&search_handler, app => 1 );
 
@@ -57,9 +57,8 @@ sub do_search {
     my $offset   = ( delete $args{offset} // 0 ) + 0;
     die "Unknown opts to do_search" if %args;
 
-    my $gc = LJ::gearman_client();
     die "Sorry, content searching is not configured on this server.\n"
-        unless $gc && @LJ::SPHINX_SEARCHD;
+        unless DW::Search::configured();
 
     my $error = sub { return { query => $q, error => $_[0] } };
     my $ok    = sub {
@@ -77,33 +76,11 @@ sub do_search {
     return $error->("Offset must be between 0 and 1000.")
         unless $offset >= 0 && $offset <= 1000;
 
-    # Gearman worker takes a blob, we send it a frozen hash.
-    my $search_args = {
+    my $result = DW::Search::search_support(
         remoteid => $remoteid,
         query    => $q,
         offset   => $offset,
-        support  => 1
-    };
-    my $arg = Storable::nfreeze($search_args);
-
-    # Build the actual task we're sending to Gearman for searching.
-    my $result;
-    my $task = Gearman::Task->new(
-        'sphinx_search',
-        \$arg,
-        {
-            uniq        => '-',
-            on_complete => sub {
-                my $res = $_[0] or return undef;
-                $result = Storable::thaw($$res);
-            },
-        }
     );
-
-    # Fire the job and wait a bit. Times out if we don't get a response.
-    my $ts = $gc->new_task_set();
-    $ts->add_task($task);
-    $ts->wait( timeout => 20 );
 
     return $error->("Sorry, the request timed out or search is down.")
         unless ref $result eq 'HASH';

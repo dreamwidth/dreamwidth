@@ -428,7 +428,7 @@ sub message {
         $link->{title_ml} = 'userlinkbar.sendmessage.title.self' if $u->equals($remote);
 
         if ( $remote && $u->can_receive_message($remote) ) {
-            $link->{url}   = "inbox/compose?user=$user";
+            $link->{url}   = $u->message_url;
             $link->{class} = "sendmessage";
             $link->{image} = 'message.png';
         }

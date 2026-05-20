@@ -262,7 +262,6 @@ sub shop_cart_handler {
 
             foreach my $val ( keys %$POST ) {
                 next unless $POST->{$val} && $val =~ /^remove_(\d+)$/;
-                print $1;
                 $cart->remove_item($1);
             }
         }

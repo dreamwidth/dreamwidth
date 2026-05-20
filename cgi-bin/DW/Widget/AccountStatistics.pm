@@ -19,6 +19,7 @@ package DW::Widget::AccountStatistics;
 use strict;
 use base qw/ LJ::Widget /;
 use DW::Template;
+use LJ::Memories;
 
 sub should_render { 1; }
 

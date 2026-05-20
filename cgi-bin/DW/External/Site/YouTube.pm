@@ -41,7 +41,7 @@ sub journal_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/user/' . $u->user;
+    return sprintf( "https://%s/@%s", $self->{hostname}, $u->user );
 }
 
 # argument: DW::External::User
@@ -51,7 +51,7 @@ sub profile_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/user/' . $u->user . "/about";
+    return sprintf( "https://%s/@%s/about", $self->{hostname}, $u->user );
 }
 
 # argument: DW::External::User
@@ -63,7 +63,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url    => "http://youtube.com/favicon.ico",
+        url    => "https://youtube.com/favicon.ico",
         width  => 16,
         height => 16,
     };

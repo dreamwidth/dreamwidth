@@ -26,6 +26,8 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 our $AUTOLOAD;
 use Carp qw/ croak confess /;
+use DW::Task::DeleteEntry;
+use DW::Task::SphinxCopier;
 
 =head1 NAME
 
@@ -2322,7 +2324,7 @@ sub delete_comments {
 # des-jitemid: Journal itemid of item to delete.
 # des-quick: Optional boolean.  If set, only [dbtable[log2]] table
 #            is deleted from and the rest of the content is deleted
-#            later via TheSchwartz.
+#            later via DW::TaskQueue.
 # des-anum: The log item's anum, which'll be needed to delete lazily
 #           some data in tables which includes the anum, but the
 #           log row will already be gone so we'll need to store it for later.
@@ -2354,8 +2356,7 @@ sub delete_entry {
         return 1 if $dc < 1;    # already deleted?
         return 1
             if DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                "LJ::Worker::DeleteEntry",
+            DW::Task::DeleteEntry->new(
                 {
                     uid     => $jid,
                     jitemid => $jitemid,
@@ -2381,8 +2382,7 @@ sub delete_entry {
     # fired to delete the post from the Sphinx search database
     if (@LJ::SPHINX_SEARCHD) {
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier',
+            DW::Task::SphinxCopier->new(
                 { userid => $u->id, jitemid => $jitemid, source => "entrydel" }
             )
         );

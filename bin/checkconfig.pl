@@ -75,10 +75,10 @@ my %modules;
 
 open MODULES, "<$ENV{LJHOME}/doc/dependencies-cpanm" or die;
 foreach my $module_line (<MODULES>) {
-    my ( $module, $ver ) = ( $1, $2 )
-        if $module_line =~ /^(.+?)(?:@(.+))?$/;
+    my ( $module, $ver, $opt ) = ( $1, $2, $3 )
+        if $module_line =~ /^(.+?)(?:@(.+))?(\?)?$/;
     if ($module) {
-        $modules{$module} = { ver => $ver };
+        $modules{$module} = { ver => $ver, opt => $opt eq '?' ? 1 : 0 };
     }
 }
 close MODULES;

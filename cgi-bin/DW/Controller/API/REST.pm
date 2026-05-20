@@ -155,7 +155,8 @@ sub _dispatcher {
         $apikey = DW::API::Key->get_key($keystr);
     }
 
-# all paths require an API key except the spec (which informs users that they need a key and where to put it)
+    # all paths require an API key except the spec (which informs users that they need
+    # a key and where to put it)
     unless ( defined($apikey) || $self->{path}{name} eq "/spec" ) {
         $r->print( to_json( { success => 0, error => "Missing or invalid API key" } ) );
         $r->status('401');

@@ -19,6 +19,7 @@ package DW::Hooks::SiteSearch;
 use strict;
 use LJ::Hooks;
 use Carp;
+use DW::Task::SphinxCopier;
 
 sub _sphinx_db {
 
@@ -33,13 +34,26 @@ LJ::Hooks::register_hook(
     'setprop',
     sub {
         my %opts = @_;
-        return unless $opts{prop} eq 'opt_blockglobalsearch';
+        my $bool;
+        if ( $opts{prop} eq 'opt_blockglobalsearch' ) {
+            $bool = $opts{value} eq 'Y' ? 0 : 1;
+        }
+        elsif ( $opts{prop} eq 'not_approved' ) {
+
+            # only act on this if it is being cleared from a visible user
+            return if $opts{value};
+            return if $opts{u}->is_suspended;
+            $bool = 1;
+        }
+        else {
+            return;
+        }
 
         my $dbh = _sphinx_db() or return 0;
         $dbh->do(
             q{UPDATE items_raw SET allow_global_search = ?, touchtime = UNIX_TIMESTAMP()
           WHERE journalid = ?},
-            undef, $opts{value} eq 'Y' ? 0 : 1, $opts{u}->id
+            undef, $bool, $opts{u}->id
         );
         die $dbh->errstr if $dbh->err;
 
@@ -84,10 +98,7 @@ LJ::Hooks::register_hook(
 
        # queue up a copier job, which will notice that the entries by this user have been deleted...
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "purghook" }
-            )
-        );
+            DW::Task::SphinxCopier->new( { userid => $u->id, source => "purghook" } ) );
 
     }
 );

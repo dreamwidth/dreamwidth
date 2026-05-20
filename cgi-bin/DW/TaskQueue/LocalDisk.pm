@@ -22,8 +22,6 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-use MIME::Base64 qw/ encode_base64 decode_base64 /;
-use Storable qw/ nfreeze thaw /;
 use Time::HiRes qw/ time /;
 use UUID::Tiny qw/ :std /;
 
@@ -68,7 +66,7 @@ sub send {
         my $uuid = create_uuid_as_string(UUID_V4);
         open FILE, ">$dir/$uuid"
             or $log->logcroak('Failed to open message file!');
-        print FILE encode_base64( nfreeze($task) );
+        print FILE $task->serialize();
         close FILE;
     }
 
@@ -76,26 +74,28 @@ sub send {
 }
 
 sub receive {
-    my ( $self, $class, $count ) = @_;
+    my ( $self, $class, $count, $wait_secs ) = @_;
     $count ||= 10;
+    $wait_secs = 10 unless defined $wait_secs;
 
     my $dir = $self->_queue_dir($class);
 
-    # To emulate SQS, we will wait for messages for 10 seconds
+    # To emulate SQS, we will wait for messages up to $wait_secs seconds.
+    # Always scan at least once so that wait_secs=0 (non-blocking) works.
     my @tasks;
-    my $abort_after = time() + 10;
-    while ( time() < $abort_after ) {
+    my $abort_after = time() + $wait_secs;
+    while (1) {
         opendir DIR, $dir or $log->logcroak('Failed to open directory!');
         @tasks = grep { /^[0-9a-f]/ && -f "$dir/$_" } readdir DIR;
         closedir DIR;
 
-        last if @tasks;
+        last if @tasks || time() >= $abort_after;
     }
 
     my $thaw_task = sub {
         local $/ = undef;
         open FILE, "<$dir/$_[0]" or $log->logcroak('Unable to open file.');
-        my $task = thaw( decode_base64(<FILE>) );
+        my $task = DW::Task->deserialize(<FILE>);
         close FILE;
         return $task;
     };

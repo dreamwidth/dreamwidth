@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 39;
+use Test::More tests => 50;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Protocol;
@@ -317,6 +317,85 @@ test_esn_flow(
         $subsc->delete;
         $subsc2->delete;
 
+    }
+);
+
+######## Unscreen notification tests (issue #3487)
+# When a screened comment is unscreened, users who couldn't see it
+# while screened should be notified. Users who could already see it
+# (journal owner, entry poster) should NOT get a duplicate.
+
+test_esn_flow(
+    sub {
+        my ( $u1, $u2 ) = @_;
+        my $u3 = temp_user();
+
+        # clear subs
+        $_->delete foreach $u1->subscriptions;
+        $_->delete foreach $u2->subscriptions;
+
+        # u1 subscribes to all comments on u2's journal
+        my $subsc = $u1->subscribe(
+            event   => "JournalNewComment",
+            method  => "Email",
+            journal => $u2,
+        );
+        ok( $subsc, "Unscreen: u1 subscribed to u2's journal comments" );
+
+        # u2 posts an entry
+        my $entry = eval { $u2->t_post_fake_entry };
+        ok( $entry, "Unscreen: u2 posted entry" );
+
+        # u3 posts a top-level comment (active)
+        my $comment = $entry->t_enter_comment( u => $u3 );
+        ok( $comment, "Unscreen: u3 posted comment" );
+
+        # u1 should be notified of the active comment
+        my $email = $got_notified->($u1);
+        ok( $email, "Unscreen: u1 notified of active comment" );
+
+        # u3 posts a SCREENED reply to the first comment
+        my $screened_reply = $comment->t_reply( u => $u3, state => 'S' );
+        ok( $screened_reply, "Unscreen: u3 posted screened reply" );
+
+        # u1 should NOT be notified (can't see screened comments)
+        $email = $got_notified->($u1);
+        ok( !$email, "Unscreen: u1 not notified of screened reply" );
+
+        # unscreen the reply
+        LJ::Talk::unscreen_comment( $u2, $entry->jitemid, $screened_reply->jtalkid );
+
+        # u1 SHOULD now be notified
+        $email = $got_notified->($u1);
+        ok( $email, "Unscreen: u1 notified after reply unscreened" );
+
+        $subsc->delete;
+
+        # Now test that journal owner doesn't get duplicate notifications
+        my $subsc_owner = $u2->subscribe(
+            event   => "JournalNewComment",
+            method  => "Email",
+            journal => $u2,
+        );
+        ok( $subsc_owner, "Unscreen: u2 subscribed to own journal comments" );
+
+        # post a screened comment on the entry
+        my $screened2 = $entry->t_enter_comment( u => $u3, state => 'S' );
+        ok( $screened2, "Unscreen: u3 posted another screened comment" );
+
+        # u2 (journal owner) SHOULD be notified of screened comment
+        $proc_events->();
+        ok( $got_email{ $u2->userid }, "Unscreen: journal owner notified of screened comment" );
+
+        # unscreen it
+        LJ::Talk::unscreen_comment( $u2, $entry->jitemid, $screened2->jtalkid );
+
+        # u2 should NOT get a duplicate notification
+        $proc_events->();
+        ok( !$got_email{ $u2->userid },
+            "Unscreen: journal owner not notified again after unscreen" );
+
+        $subsc_owner->delete;
     }
 );
 

@@ -1,0 +1,557 @@
+#!/usr/bin/perl
+#
+# bin/search-tool
+#
+# Admin / backfill / test helper for the Manticore search system.
+#
+# Part of the Sphinx -> Manticore RT migration. Connects to Manticore
+# on @LJ::MANTICORE via SphinxQL and reads from the live production
+# cluster DBs (log2, logtext2, talk2, talktext2, supportlog). Safe to
+# run against prod data — writes only go to Manticore.
+#
+# Subcommands:
+#   import-user <username>                     synchronous recopy of one account
+#                                              (always bypasses the 24h throttle)
+#   import-all [--force] [--max-depth N]       queue SearchCopier jobs for every
+#                                              person/community journal;
+#                                              --force bypasses the 24h recopy
+#                                              throttle in the worker;
+#                                              --max-depth caps SQS queue
+#                                              depth (default 100) so the
+#                                              dispatcher paces with workers
+#                                              instead of front-loading
+#                                              millions of pending tasks
+#   import-support                             incremental supportlog -> dwsupport
+#   search <query> [--journal U] [--global] [--table T]  run a query
+#   show <journalid> <jitemid> <jtalkid>       dump one dw1 doc
+#   show --table dwsupport <splid>             dump one dwsupport doc
+#   delete <journalid> <jitemid> <jtalkid>     remove one dw1 doc
+#   delete --table dwsupport <splid>           remove one dwsupport doc
+#   count [--table dw1|dwsupport]              SELECT COUNT(*), both by default
+#   flush                                      FLUSH RAMCHUNK on both tables
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use warnings;
+use v5.10;
+
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use DBI;
+use Getopt::Long qw/:config pass_through/;
+use POSIX qw/strftime/;
+
+use DW::TaskQueue;
+use DW::Task::SearchCopier;
+
+my %DISPATCH = (
+    'import-user'    => \&cmd_import_user,
+    'import-all'     => \&cmd_import_all,
+    'import-support' => \&cmd_import_support,
+    'search'         => \&cmd_search,
+    'show'           => \&cmd_show,
+    'delete'         => \&cmd_delete,
+    'count'          => \&cmd_count,
+    'flush'          => \&cmd_flush,
+);
+
+sub usage {
+    my $msg = shift;
+    print STDERR "$msg\n\n" if $msg;
+    print STDERR <<"EOF";
+usage: $0 <command> [args]
+
+commands:
+  import-user <username>
+  import-all [--force] [--max-depth N]
+  import-support
+  search <query> [--journal USER] [--global] [--table T]
+  show <journalid> <jitemid> <jtalkid>   (or: --table dwsupport <splid>)
+  delete <journalid> <jitemid> <jtalkid> (or: --table dwsupport <splid>)
+  count [--table dw1|dwsupport]
+  flush
+EOF
+    exit 1;
+}
+
+my $cmd = shift @ARGV or usage('missing command');
+my $fn  = $DISPATCH{$cmd} or usage("unknown command: $cmd");
+$fn->();
+exit 0;
+
+# -----------------------------------------------------------------------------
+# Connection
+# -----------------------------------------------------------------------------
+
+sub manticore_dbh {
+    die "\@LJ::MANTICORE is not configured\n" unless @LJ::MANTICORE;
+    my ( $host, undef, $sql_port ) = @LJ::MANTICORE;
+    return DBI->connect(
+        "DBI:mysql:host=$host;port=$sql_port",
+        undef, undef,
+        {
+            RaiseError        => 1,
+            AutoCommit        => 1,
+            PrintError        => 0,
+            mysql_enable_utf8 => 1,
+        },
+    );
+}
+
+# -----------------------------------------------------------------------------
+# Subcommand: import-user
+#
+# Runs DW::Task::SearchCopier synchronously (no queue dispatch). Same code
+# path the worker uses, just called in-process — one implementation, two
+# invocation modes. Forces through the 24h recopy throttle since the CLI
+# is how we iterate during development.
+# -----------------------------------------------------------------------------
+
+sub cmd_import_user {
+    my $username = shift @ARGV or usage('import-user: need <username>');
+
+    my $u = LJ::load_user($username) or die "no such user: $username\n";
+    printf "Importing %s (id=%d) synchronously...\n", $u->user, $u->id;
+
+    # CLI invocation always bypasses the 24h throttle — the operator
+    # explicitly asked for this import, so run it.
+    my $task = DW::Task::SearchCopier->new( {
+        userid => $u->id,
+        source => 'search-tool',
+        force  => 1,
+    } );
+    $task->work(undef);
+
+    my $dbh = manticore_dbh();
+    $dbh->do('FLUSH RAMCHUNK dw1');
+
+    my ($total) = $dbh->selectrow_array(
+        'SELECT COUNT(*) FROM dw1 WHERE journalid = ' . int( $u->id ) );
+    printf "dw1 now has %d docs for journalid=%d\n", $total, $u->id;
+    print "done\n";
+}
+
+# -----------------------------------------------------------------------------
+# Subcommand: import-all
+#
+# Queue one SearchCopier job per person/community journal. Replaces
+# bin/schedule-copier-jobs. 50ms sleep per dispatch to avoid hammering
+# SQS (matches the old scheduler's cadence).
+# -----------------------------------------------------------------------------
+
+sub cmd_import_all {
+    my $force;
+    my $max_depth = 100;
+    GetOptions(
+        'force'       => \$force,
+        'max-depth=i' => \$max_depth,
+    ) or usage();
+
+    my $dbr = LJ::get_db_reader()
+        or die "no db reader available\n";
+
+    # Get the highest userid up-front as an upper bound for progress/ETA
+    # calculations. This is a PK-index lookup (O(log n)), vs. a filtered
+    # COUNT(*) which would scan. We iterate P/C journals specifically,
+    # but use MAX(userid) from the whole user table as the denominator —
+    # slight over-estimate of remaining work is fine, and it avoids a
+    # second filtered scan.
+    my ($max_userid) = $dbr->selectrow_array(q{SELECT MAX(userid) FROM user});
+    $max_userid //= 0;
+
+    my $sth = $dbr->prepare(
+        q{SELECT userid FROM user WHERE journaltype IN ('P','C')}
+    );
+    $sth->execute;
+
+    _tlog( sprintf
+            'Queuing SearchCopier jobs for P/C journals (userids up to %d, max depth %d)%s',
+        $max_userid, $max_depth,
+        ( $force ? ' (force: will bypass 24h throttle)' : '' ) );
+
+    my $start_time = time();
+    my $n          = 0;
+    my %args       = ( source => 'import-all' );
+    $args{force} = 1 if $force;
+
+    # Track queue depth so we don't flood SQS with millions of pending jobs.
+    # _queue_depth() returns undef if the queue backend isn't SQS (LocalDisk
+    # in dev), in which case we just dispatch straight through. Otherwise
+    # we refill to at most $max_depth, then wait.
+    my $depth = _queue_depth();
+    if ( defined $depth ) {
+        _tlog( sprintf 'starting depth: %d', $depth );
+    } else {
+        _tlog('queue backend does not expose depth; dispatching without throttle');
+    }
+
+    while ( my ($userid) = $sth->fetchrow_array ) {
+
+        # Wait while we're at or over the cap. If we don't have a real
+        # depth signal (non-SQS backend), skip this check.
+        if ( defined $depth && $depth >= $max_depth ) {
+            my $wait_start = time();
+            _tlog( sprintf 'at cap: depth=%d >= %d, waiting for workers to drain...',
+                $depth, $max_depth );
+            while ( defined $depth && $depth >= $max_depth ) {
+                sleep 2;
+                $depth = _queue_depth();
+            }
+            _tlog( sprintf 'resuming: depth=%d (waited %s)',
+                $depth // 0, _fmt_duration( time() - $wait_start ) );
+        }
+
+        DW::TaskQueue->dispatch(
+            DW::Task::SearchCopier->new( { userid => $userid, %args } )
+        );
+        $n++;
+        $depth++ if defined $depth;    # local estimate
+
+        if ( $n % 1000 == 0 ) {
+            my $elapsed = time() - $start_time;
+            my $per_min = $elapsed > 0 ? 60 * $n / $elapsed : 0;
+
+            # Progress is fraction of userid range covered. ETA assumes
+            # the rate of userid coverage holds for the rest of the scan.
+            my $frac = $max_userid > 0 ? $userid / $max_userid : 0;
+            my $eta_secs
+                = $frac > 0 ? $elapsed * ( 1 - $frac ) / $frac : 0;
+
+            _tlog(
+                sprintf
+                    'queued %d; userid %d/%d (%.1f%%); %.0f/min; eta %s; local depth~%d',
+                $n, $userid, $max_userid, 100 * $frac,
+                $per_min,
+                _fmt_duration($eta_secs),
+                $depth // -1,
+            );
+        }
+
+        # Always pace dispatches even when we're below cap — SQS's
+        # ApproximateNumberOfMessages is approximate and lags a bit
+        # behind reality, so without a sleep we can overshoot the cap
+        # between reconciliation checks.
+        select undef, undef, undef, 0.05;
+
+        # Reconcile local estimate with the actual queue depth every 50
+        # dispatches so drift doesn't let us overshoot the cap by much.
+        # Log only when drift is notable — small drift is normal and
+        # would produce too much noise to be useful.
+        if ( defined $depth && $n % 50 == 0 ) {
+            my $actual = _queue_depth();
+            if ( defined $actual && abs( $actual - $depth ) > 20 ) {
+                _tlog( sprintf 'reconciled: local=%d, actual=%d (drift=%d)',
+                    $depth, $actual, $actual - $depth );
+            }
+            $depth = $actual if defined $actual;
+        }
+    }
+    _tlog( sprintf 'queued %d total (elapsed %s)',
+        $n, _fmt_duration( time() - $start_time ) );
+}
+
+# Prepend an ISO-8601 timestamp to a log line so the operator can measure
+# wait durations, dispatch rate over time, etc.
+sub _tlog {
+    my $msg = shift;
+    printf "[%s] %s\n", strftime( '%Y-%m-%d %H:%M:%S', localtime ), $msg;
+}
+
+# Format a duration in seconds as a human-readable string: "45s", "3m12s",
+# "2h30m15s", "1d4h20m". Used for wait durations and ETA.
+sub _fmt_duration {
+    my $s = int( shift || 0 );
+    return '0s' if $s <= 0;
+    if    ( $s < 60 )    { return sprintf '%ds',         $s }
+    elsif ( $s < 3600 )  { return sprintf '%dm%02ds',    int( $s / 60 ), $s % 60 }
+    elsif ( $s < 86400 ) {
+        return sprintf '%dh%02dm%02ds',
+            int( $s / 3600 ), int( ( $s % 3600 ) / 60 ), $s % 60;
+    }
+    else {
+        my $d = int( $s / 86400 );
+        my $r = $s % 86400;
+        return sprintf '%dd%02dh%02dm',
+            $d, int( $r / 3600 ), int( ( $r % 3600 ) / 60 );
+    }
+}
+
+# Returns the ApproximateNumberOfMessages for the SearchCopier queue, or
+# undef if the backing queue implementation doesn't expose depth (e.g.
+# LocalDisk in dev). Swallows transient errors and returns undef so the
+# caller can fall back to dispatch-without-throttle.
+sub _queue_depth {
+    my $impl = DW::TaskQueue->get;
+    return undef unless $impl && $impl->can('queue_attributes');
+
+    my $attrs = eval { $impl->queue_attributes('DW::Task::SearchCopier') };
+    return undef unless $attrs && %$attrs;
+
+    my ($one) = values %$attrs;
+    return undef unless $one && defined $one->{ApproximateNumberOfMessages};
+    return $one->{ApproximateNumberOfMessages} + 0;
+}
+
+# -----------------------------------------------------------------------------
+# Subcommand: search
+# -----------------------------------------------------------------------------
+
+sub cmd_search {
+    my ( $journal_name, $global, $table );
+    GetOptions(
+        'journal=s' => \$journal_name,
+        'global'    => \$global,
+        'table=s'   => \$table,
+    ) or usage();
+    $table //= 'dw1';
+    usage("search: unknown table '$table'")
+        unless $table eq 'dw1' || $table eq 'dwsupport';
+
+    my $query = shift @ARGV or usage('search: need <query>');
+
+    my $dbh = manticore_dbh();
+
+    # MATCH() takes a string — placeholder OK. Integer attrs must be
+    # interpolated; Manticore's SphinxQL binds '?' as string.
+    my @where = ('MATCH(?)');
+    my @binds = ($query);
+
+    if ( $table eq 'dw1' ) {
+        push @where, 'is_deleted = 0';
+        if ($journal_name) {
+            my $u = LJ::load_user($journal_name)
+                or die "no such user: $journal_name\n";
+            push @where, 'journalid = ' . int $u->id;
+        }
+        push @where, 'allow_global_search = 1' if $global;
+
+        my $sql = 'SELECT id, journalid, jitemid, jtalkid, poster_id, date_posted'
+                . ' FROM dw1 WHERE ' . join( ' AND ', @where )
+                . ' LIMIT 20 OPTION ranker=proximity_bm25';
+        my $rows = $dbh->selectall_arrayref( $sql, { Slice => {} }, @binds );
+
+        printf "found %d result(s)\n", scalar @$rows;
+        for my $r (@$rows) {
+            my $kind = $r->{jtalkid} ? 'comment' : 'entry';
+            printf "  [%s] journal=%d jitemid=%d jtalkid=%d poster=%d date=%s\n",
+                $kind, $r->{journalid}, $r->{jitemid}, $r->{jtalkid},
+                $r->{poster_id},
+                scalar localtime( $r->{date_posted} );
+        }
+    }
+    else {   # dwsupport
+        # dwsupport has no journalid/is_deleted/allow_global_search;
+        # id == splid is the natural key.
+        my $sql = 'SELECT id, spid, poster_id, faqid, touchtime'
+                . ' FROM dwsupport WHERE ' . join( ' AND ', @where )
+                . ' LIMIT 20 OPTION ranker=proximity_bm25';
+        my $rows = $dbh->selectall_arrayref( $sql, { Slice => {} }, @binds );
+
+        printf "found %d result(s)\n", scalar @$rows;
+        for my $r (@$rows) {
+            printf "  splid=%d spid=%d poster=%d faqid=%d touched=%s\n",
+                $r->{id}, $r->{spid}, $r->{poster_id}, $r->{faqid},
+                scalar localtime( $r->{touchtime} );
+        }
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Subcommand: import-support
+#
+# Incremental append of supportlog rows into dwsupport. Uses splid as the
+# Manticore doc ID — splid is already unique + monotonic, so MAX(id) gives
+# us the high-water mark in one query, and REPLACE makes re-runs idempotent.
+# -----------------------------------------------------------------------------
+
+sub cmd_import_support {
+    my $dbh = manticore_dbh();
+    my $dbr = LJ::get_db_reader()
+        or die "no global db reader available\n";
+
+    my ($last_imported) = $dbh->selectrow_array('SELECT MAX(id) FROM dwsupport');
+    $last_imported //= 0;
+
+    my ($max_splid) = $dbr->selectrow_array('SELECT MAX(splid) FROM supportlog');
+    die "supportlog is empty\n" unless $max_splid;
+
+    if ( $max_splid <= $last_imported ) {
+        printf "up to date (last_imported=%d, supportlog_max=%d)\n",
+            $last_imported, $max_splid;
+        return;
+    }
+
+    printf "Importing splids %d..%d (%d row%s)\n",
+        $last_imported + 1, $max_splid,
+        $max_splid - $last_imported,
+        ( $max_splid - $last_imported == 1 ? '' : 's' );
+
+    # Batch 100 at a time, matching the old copy_supportlog cadence.
+    my $i = $last_imported + 1;
+    while ( $i <= $max_splid ) {
+        my $j = $i + 99;
+        $j = $max_splid if $j > $max_splid;
+
+        my $rows = $dbr->selectall_arrayref(
+            q{SELECT splid, spid, UNIX_TIMESTAMP(timelogged) AS touchtime,
+                     faqid, userid, message
+                FROM supportlog
+                WHERE splid BETWEEN ? AND ?},
+            { Slice => {} }, $i, $j,
+        );
+
+        for my $r (@$rows) {
+            my $sql = sprintf(
+                'REPLACE INTO dwsupport (id, spid, poster_id, faqid, touchtime, body)'
+                . ' VALUES (%d, %d, %d, %d, %d, ?)',
+                $r->{splid}, ( $r->{spid} // 0 ),
+                ( $r->{userid} // 0 ),
+                ( $r->{faqid} // 0 ),
+                ( $r->{touchtime} // 0 ),
+            );
+            $dbh->do( $sql, {}, $r->{message} // '' );
+        }
+
+        printf "  splid %d..%d done\n", $i, $j;
+        $i = $j + 1;
+    }
+
+    $dbh->do('FLUSH RAMCHUNK dwsupport');
+    print "done\n";
+}
+
+# -----------------------------------------------------------------------------
+# Subcommand: show
+# -----------------------------------------------------------------------------
+
+sub cmd_show {
+    my $table;
+    GetOptions( 'table=s' => \$table ) or usage();
+    $table //= 'dw1';
+    usage("show: unknown table '$table'")
+        unless $table eq 'dw1' || $table eq 'dwsupport';
+
+    my $dbh = manticore_dbh();
+    my ( $sql, @display_keys );
+
+    if ( $table eq 'dw1' ) {
+        my ( $jid, $jitemid, $jtalkid ) = @ARGV;
+        usage('show: need <journalid> <jitemid> <jtalkid>')
+            unless defined $jid && defined $jitemid && defined $jtalkid;
+
+        $sql = sprintf(
+            'SELECT id, journalid, jitemid, jtalkid, poster_id, date_posted,'
+            . ' allow_global_search, is_deleted, security_bits, title, body'
+            . ' FROM dw1 WHERE journalid=%d AND jitemid=%d AND jtalkid=%d',
+            int $jid, int $jitemid, int $jtalkid,
+        );
+        @display_keys = qw/ id journalid jitemid jtalkid poster_id date_posted
+                            allow_global_search is_deleted security_bits title /;
+    }
+    else {   # dwsupport — splid IS the doc id
+        my ($splid) = @ARGV;
+        usage('show --table dwsupport: need <splid>') unless defined $splid;
+
+        $sql = sprintf(
+            'SELECT id, spid, poster_id, faqid, touchtime, body'
+            . ' FROM dwsupport WHERE id=%d',
+            int $splid,
+        );
+        @display_keys = qw/ id spid poster_id faqid touchtime /;
+    }
+
+    my $rows = $dbh->selectall_arrayref( $sql, { Slice => {} } );
+    unless (@$rows) {
+        print "no match\n";
+        return;
+    }
+
+    for my $r (@$rows) {
+        printf "%-20s %s\n", $_, ( $r->{$_} // '' ) for @display_keys;
+        my $body = $r->{body} // '';
+        if ( length $body > 500 ) {
+            printf "%-20s %s ... [%d chars truncated]\n",
+                'body', substr( $body, 0, 500 ), length($body) - 500;
+        }
+        else {
+            printf "%-20s %s\n", 'body', $body;
+        }
+        print "\n";
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Subcommand: delete
+# -----------------------------------------------------------------------------
+
+sub cmd_delete {
+    my $table;
+    GetOptions( 'table=s' => \$table ) or usage();
+    $table //= 'dw1';
+    usage("delete: unknown table '$table'")
+        unless $table eq 'dw1' || $table eq 'dwsupport';
+
+    my $dbh = manticore_dbh();
+    my $sql;
+
+    if ( $table eq 'dw1' ) {
+        my ( $jid, $jitemid, $jtalkid ) = @ARGV;
+        usage('delete: need <journalid> <jitemid> <jtalkid>')
+            unless defined $jid && defined $jitemid && defined $jtalkid;
+        $sql = sprintf(
+            'DELETE FROM dw1 WHERE journalid=%d AND jitemid=%d AND jtalkid=%d',
+            int $jid, int $jitemid, int $jtalkid,
+        );
+    }
+    else {   # dwsupport
+        my ($splid) = @ARGV;
+        usage('delete --table dwsupport: need <splid>') unless defined $splid;
+        $sql = sprintf( 'DELETE FROM dwsupport WHERE id=%d', int $splid );
+    }
+
+    my $n = $dbh->do($sql);
+
+    # DBI returns "0E0" for zero rows on success; coerce to a real count.
+    $n = ( $n && $n ne '0E0' ) ? $n : 0;
+    printf "deleted %d row(s)\n", $n;
+}
+
+# -----------------------------------------------------------------------------
+# Subcommand: count
+# -----------------------------------------------------------------------------
+
+sub cmd_count {
+    my $only;
+    GetOptions( 'table=s' => \$only ) or usage();
+
+    my $dbh    = manticore_dbh();
+    my @tables = $only ? ($only) : qw/ dw1 dwsupport /;
+
+    for my $t (@tables) {
+        my ($n) = $dbh->selectrow_array("SELECT COUNT(*) FROM $t");
+        printf "%-10s %d\n", $t, $n;
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Subcommand: flush
+# -----------------------------------------------------------------------------
+
+sub cmd_flush {
+    my $dbh = manticore_dbh();
+    for my $t (qw/ dw1 dwsupport /) {
+        $dbh->do("FLUSH RAMCHUNK $t");
+        print "flushed $t\n";
+    }
+}

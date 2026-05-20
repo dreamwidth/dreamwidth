@@ -1,0 +1,65 @@
+set -xe
+
+# Instantiate our configs
+mkdir -p $LJHOME/ext/local
+ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc || true
+
+# Symlink extlib from image into workspace so extlib/bin/tidyall etc. work.
+# The main repo may already have a real extlib/ dir (from local CPAN installs);
+# worktrees won't — create the symlink only when extlib/ doesn't exist.
+if [ ! -e $LJHOME/extlib ]; then
+    ln -s /opt/dreamwidth-extlib $LJHOME/extlib
+fi
+
+# Seed MySQL data from pre-baked image if the volume is empty (first run)
+if [ ! -d /var/lib/mysql/mysql ]; then
+    cp -a /opt/dreamwidth-mysql/* /var/lib/mysql/
+fi
+
+# Get database going, all we need for now
+service mysql start
+
+# Basic config (all IF NOT EXISTS — instant no-op when pre-baked)
+mysql -u root -e "\
+    CREATE DATABASE IF NOT EXISTS dw_global CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
+    CREATE DATABASE IF NOT EXISTS dw_cluster01 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
+    CREATE DATABASE IF NOT EXISTS dw_schwartz CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
+    CREATE USER IF NOT EXISTS 'dw'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'dw'; \
+    CREATE USER IF NOT EXISTS 'dw'@'localhost' IDENTIFIED WITH mysql_native_password BY 'dw'; \
+    GRANT ALL PRIVILEGES ON dw_global.* TO 'dw'@'127.0.0.1'; \
+    GRANT ALL PRIVILEGES ON dw_cluster01.* TO 'dw'@'127.0.0.1'; \
+    GRANT ALL PRIVILEGES ON dw_schwartz.* TO 'dw'@'127.0.0.1'; \
+    GRANT ALL PRIVILEGES ON dw_global.* TO 'dw'@'localhost'; \
+    GRANT ALL PRIVILEGES ON dw_cluster01.* TO 'dw'@'localhost'; \
+    GRANT ALL PRIVILEGES ON dw_schwartz.* TO 'dw'@'localhost'; \
+    FLUSH PRIVILEGES;"
+
+# Configure database and load initial data (idempotent — instant when no new migrations)
+bin/upgrading/update-db.pl -r
+bin/upgrading/update-db.pl -r --cluster=all
+bin/upgrading/update-db.pl -r -p
+bin/upgrading/texttool.pl load
+
+# Set up testing database(s)
+t/bin/initialize-db
+
+# Symlink pre-built static assets from the image.
+# If you change CSS/JS, run bin/build-static.sh — writes go through the symlink.
+mkdir -p $LJHOME/build
+ln -snf /opt/dreamwidth-static $LJHOME/build/static
+
+# Set up apache config
+rm -rf /etc/apache2
+ln -ns $LJHOME/.devcontainer/config/etc/apache2 /etc/apache2 || true
+
+# Install Go if not already present (baked into image on next rebuild)
+if ! command -v go &>/dev/null; then
+    curl -fsSL https://go.dev/dl/go1.22.2.linux-amd64.tar.gz | tar -C /usr/local -xzf -
+    export PATH="/usr/local/go/bin:$PATH"
+fi
+
+# Ensure Go is on PATH for interactive shells
+echo 'export PATH="/usr/local/go/bin:$PATH"' > /etc/profile.d/golang.sh
+
+# Build devtool TUI
+(cd $LJHOME/src/devtool && go build -buildvcs=false -o /usr/local/bin/devtool .)

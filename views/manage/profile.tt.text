@@ -27,10 +27,6 @@
 
 .error.findbyemail=Invalid option for find by email.
 
-.error.invalidbio=Your stored bio contains invalid characters. You must visit the <a [[aopts]]><b>conversion page</b></a> to convert it to Unicode.
-
-.error.invalidname2=Your name contains invalid characters. You must visit the <a [[aopts]]><b>conversion page</b></a> to convert it to Unicode.
-
 .error.locale.country_ne_state=You specified United States as your country, but you typed in a non-US state in the "other state" field.
 
 .error.locale.invalid_country=You selected an invalid country.

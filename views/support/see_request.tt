@@ -15,6 +15,10 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
 [%- sections.title = '.title' | ml( reqid = spid) -%]
+[%- sections.head = BLOCK %]
+  [% robot_meta_tags %]
+[% END %]
+
 [%- CALL dw.active_resource_group("foundation") -%]
 
 [%- dw.need_res({ group => "foundation"},

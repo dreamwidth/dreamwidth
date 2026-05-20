@@ -126,7 +126,7 @@ sub shop_account_handler {
             my @email_errors;
             LJ::check_email( $post->{email}, \@email_errors, $post, $post->{email_checkbox} );
             if (@email_errors) {
-                $errors->add( 'email', join( ', ', @email_errors ) );
+                $errors->add_string( 'email', join( ', ', @email_errors ) );
             }
             else {
                 $item_data->{target_email} = $post->{email};
@@ -135,6 +135,10 @@ sub shop_account_handler {
 
         if ( $post->{deliverydate} ) {
             DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data );
+        }
+
+        unless ( $post->{accttype} ) {
+            $errors->add( 'accttype', 'widget.shopitemoptions.error.notype' );
         }
 
         unless ( $errors->exist ) {
@@ -188,12 +192,13 @@ sub shop_account_handler {
                             { date => $exptime->ymd, premium_num => $prem_d, paid_num => $paid_d };
 
                         # but only include date if the logged-in user owns the account
-                        delete $ml_args->{date} unless $remote && $remote->has_same_email_as($u);
+                        delete $ml_args->{date} unless $remote && $remote->can_purchase_for($u);
 
-                        $errors->add( undef, '.error.premiumconvert',          $ml_args );
-                        $errors->add( undef, '.error.premiumconvert.postdate', $ml_args )
+                        $errors->add( undef, '/shop/account.tt.error.premiumconvert', $ml_args );
+                        $errors->add( undef, '/shop/account.tt.error.premiumconvert.postdate',
+                            $ml_args )
                             if $ml_args->{date};
-                        $vars->{premium_convert} = 1;
+                        $premium_convert = 1;
 
                     }
                 }
@@ -202,7 +207,7 @@ sub shop_account_handler {
             unless ( $errors->exist ) {
 
                 my ( $rv, $err ) = $rv->{cart}->add_item($item);
-                $errors->add( '', $err ) unless $rv;
+                $errors->add_string( '', $err ) unless $rv;
 
                 unless ( $errors->exist ) {
                     return $r->redirect($LJ::SHOPROOT);
@@ -230,20 +235,20 @@ sub shop_account_handler {
         return \%month_values;
     };
 
-    $vars->{for}             = $for;
-    $vars->{remote}          = $remote;
-    $vars->{user}            = $GET->{user};
-    $vars->{cart_display}    = $rv->{cart_display};
-    $vars->{seed_avail}      = DW::Pay::num_permanent_accounts_available() > 0;
-    $vars->{num_perms}       = DW::Pay::num_permanent_accounts_available_estimated();
-    $vars->{formdata}        = $post || { username => ( $GET->{user} ), anonymous => !$remote };
-    $vars->{did_post}        = $r->did_post;
-    $vars->{acct_reason}     = DW::Shop::Item::Account->can_have_reason;
-    $vars->{premium_convert} = $premium_convert;
-    $vars->{email_checkbox}  = $email_checkbox;
-    $vars->{get_opts}        = $get_opts;
-    $vars->{date}            = DateTime->today;
-    $vars->{allow_convert}   = DW::Shop::Item::Account->allow_account_conversion( $remote, 'paid' );
+    $vars->{for}            = $for;
+    $vars->{remote}         = $remote;
+    $vars->{user}           = $GET->{user};
+    $vars->{cart_display}   = $rv->{cart_display};
+    $vars->{seed_avail}     = DW::Pay::num_permanent_accounts_available() > 0;
+    $vars->{num_perms}      = DW::Pay::num_permanent_accounts_available_estimated();
+    $vars->{formdata}       = $post || { username => ( $GET->{user} ), anonymous => !$remote };
+    $vars->{did_post}       = $r->did_post;
+    $vars->{acct_reason}    = DW::Shop::Item::Account->can_have_reason;
+    $vars->{prem_convert}   = $premium_convert;
+    $vars->{email_checkbox} = $email_checkbox;
+    $vars->{get_opts}       = $get_opts;
+    $vars->{date}           = DateTime->today;
+    $vars->{allow_convert}  = DW::Shop::Item::Account->allow_account_conversion( $remote, 'paid' );
 
     return DW::Template->render_template( 'shop/account.tt', $vars );
 }

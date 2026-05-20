@@ -18,7 +18,7 @@ use Carp qw (croak);
 use LJ::Auth;
 use HTML::TokeParser;
 use LJ::JSON;
-use TheSchwartz;
+use DW::Task::EmbedWorker;
 
 # states for a finite-state machine we use in parse()
 use constant {
@@ -367,8 +367,7 @@ sub extract_src_info {
 
         # Fire off the worker to get the correct title
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                "DW::Worker::EmbedWorker",
+            DW::Task::EmbedWorker->new(
                 {
                     vid_id    => $vid_id,
                     host      => 'youtube',
@@ -376,7 +375,6 @@ sub extract_src_info {
                     contents  => $contents,
                     cmptext   => $cmptext,
                     journalid => $journal->id,
-                    preview   => $preview,
                     id        => $id,
                     linktext  => $linktext,
                     url       => $url,
@@ -400,8 +398,7 @@ sub extract_src_info {
 
         # Fire off the worker to get the correct title
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                "DW::Worker::EmbedWorker",
+            DW::Task::EmbedWorker->new(
                 {
                     vid_id    => $vid_id,
                     host      => 'vimeo',
@@ -409,7 +406,6 @@ sub extract_src_info {
                     contents  => $contents,
                     cmptext   => $cmptext,
                     journalid => $journal->id,
-                    preview   => $preview,
                     id        => $id,
                     linktext  => $linktext,
                     url       => $url,

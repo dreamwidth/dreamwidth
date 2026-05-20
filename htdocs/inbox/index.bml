@@ -17,7 +17,7 @@ body<=
 <?_code
 {
     use strict;
-    use vars qw($title $body $head %GET %POST);
+    use vars qw($title $body $head $view %GET %POST);
     use LJ::NotificationInbox;
     use LJ::Event;
 
@@ -64,7 +64,8 @@ body<=
     }
 
     # Take a supplied filter but default it to undef unless it is valid
-    my $view = $POST{view} || $GET{view} || undef;
+    $view = $POST{view} || $GET{view} || undef;
+    $view = undef if $view && $view =~ /\W/;
     $view = undef if $view eq 'archive' && ! LJ::is_enabled('esn_archive');
     $view = undef if $view && !LJ::NotificationInbox->can("${view}_items");
 
@@ -222,7 +223,7 @@ head<=
 LJ_cmtinfo = {};
 LJ_cmtinfo['disableInlineDelete'] = 1;
 var pageNum;
-var cur_folder = '<?_code return $POST{view} || $GET{view} || undef; _code?>';
+var cur_folder = '<?_code return $view; _code?>';
 var itemid = <?_code return int( $POST{itemid} || $GET{itemid} || 0 ) _code?>;
 
 document.addEventListener("DOMContentLoaded", setup, cur_folder);

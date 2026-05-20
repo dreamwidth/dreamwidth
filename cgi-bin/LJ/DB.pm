@@ -97,9 +97,9 @@ sub foreach_cluster {
     }
 }
 
-# when calling a supported function (currently: LJ::load_user() or LJ::load_userid*)
-# ignores in-process request cache, memcache, and selects directly
-# from the global master
+# Forces all database reads inside the callback to use the master,
+# bypassing replicas and in-process/memcache caches.  Affects both
+# global readers (get_db_reader) and cluster readers (get_cluster_reader).
 #
 # called as: require_master(sub { block })
 sub require_master {
@@ -323,16 +323,6 @@ sub get_dbh {
         }
     }
 
-    if ( $LJ::DEBUG{'get_dbh'} && $_[0] ne "logs" ) {
-        my $errmsg = "get_dbh(@_) at \n";
-        my $i      = 0;
-        while ( my ( $p, $f, $l ) = caller( $i++ ) ) {
-            next if $i > 3;
-            $errmsg .= "  $p, $f, $l\n";
-        }
-        warn $errmsg;
-    }
-
     my $nodb = sub {
         my $roles = shift;
         my $err   = LJ::errobj( "Database::Unavailable", roles => $roles );
@@ -369,8 +359,14 @@ sub get_db_writer {
 # returns: DB handle.  Or undef if all dbs are unavailable.
 # </LJFUNC>
 sub get_cluster_reader {
-    my $arg   = shift;
-    my $id    = isu($arg) ? $arg->{'clusterid'} : $arg;
+    my $arg = shift;
+    my $id  = isu($arg) ? $arg->{'clusterid'} : $arg;
+
+    # When require_master is in effect, go straight to the cluster master
+    # to guarantee read-your-writes consistency (e.g. ESN workers reading
+    # a just-inserted comment row).
+    return LJ::get_cluster_master($id) if $LJ::_PRAGMA_FORCE_MASTER;
+
     my @roles = ( "cluster${id}slave", "cluster${id}" );
     if ( my $ab = $LJ::CLUSTER_PAIR_ACTIVE{$id} ) {
         $ab = lc($ab);

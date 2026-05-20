@@ -78,7 +78,7 @@ my (%CodeBlockMade);
 
 use vars qw($conf_pl $conf_pl_look);     # hashref, made empty before loading a .pl conf file
 my %DenyConfig;                          # filename -> 1
-my %FileConfig;                          # filename -> hashref
+our %FileConfig;                         # filename -> hashref
 my %FileLastStat;                        # filename -> time we last looked at its modtime
 
 use vars qw($base_recent_mod);

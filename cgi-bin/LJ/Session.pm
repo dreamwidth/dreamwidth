@@ -813,12 +813,6 @@ sub set_cookie {
     my $delete    = delete $opts{delete};
     croak( "Invalid cookie options: " . join( ", ", keys %opts ) ) if %opts;
 
-    # Mac IE 5 can't handle HttpOnly, so filter it out
-    if ( $http_only && !$LJ::DEBUG{no_mac_ie_httponly} ) {
-        my $ua = $r->header_in('User-Agent');
-        $http_only = 0 if $ua =~ /MSIE.+Mac_/;
-    }
-
     # expires can be absolute or relative.  this is gross or clever, your pick.
     $expires += time() if $expires && $expires <= 1135217120;
 
@@ -835,19 +829,6 @@ sub set_cookie {
         httponly => $http_only ? 1 : 0,
     );
 
-    # Backwards compatability for older browsers
-    return unless defined $domain;
-    my @labels = split( /\./, $domain );
-    if ( scalar @labels == 2 && !$LJ::DEBUG{no_extra_dot_cookie} ) {
-        $r->add_cookie(
-            name     => $key,
-            value    => $value,
-            expires  => $expires ? LJ::time_to_cookie($expires) : undef,
-            domain   => $domain,
-            path     => $path || undef,
-            httponly => $http_only ? 1 : 0,
-        );
-    }
 }
 
 # returns undef or a session, given a $domcook and its $val, as well

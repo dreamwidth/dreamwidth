@@ -24,6 +24,7 @@ use Digest::MD5 qw/ md5_hex /;
 use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::XML::Parser;
+use DW::Task::SphinxCopier;
 use DW::Worker::ContentImporter::Local::Comments;
 
 # to save memory, we use arrays instead of hashes.
@@ -641,11 +642,8 @@ sub try_work {
 
     # Kick off an indexing job for this user
     if (@LJ::SPHINX_SEARCHD) {
-        LJ::theschwartz()->insert_jobs(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "importcm" }
-            )
-        );
+        DW::TaskQueue->dispatch(
+            DW::Task::SphinxCopier->new( { userid => $u->id, source => "importcm" } ) );
     }
 
     return $ok->();

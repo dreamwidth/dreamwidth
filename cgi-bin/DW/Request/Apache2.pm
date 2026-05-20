@@ -34,6 +34,9 @@ use fields (
     'r',    # The Apache2::Request object
 );
 
+# inform that we're available
+$DW::Request::APACHE2_AVAILABLE = 1;
+
 # creates a new DW::Request object, based on what type of server environment we
 # are running under
 sub new {

@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 27;
+use Test::More tests => 28;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
@@ -105,6 +105,15 @@ is(
     "full sitename usertag before period is converted, keeping period"
 );
 
+# bluesky/atproto usernames can contain dots and therefore must be treated specially
+my $bsky_user = DW::External::User->new( user => 'username.example.com', site => 'bsky.app' );
+my $lju_bsky  = $bsky_user->ljuser_display;
+is(
+    $clean->('hi @username.example.com.bsky'),
+    qq{<p>hi $lju_bsky</p>},
+    "atproto usernames (FQDNs) are not misinterpreted as sites"
+);
+
 # TODO: add a test to properly handle @user.hyphenated-sitename.com.
 # This SHOULD work fine, but testing it isn't practical until DW::External::Site
 # includes at least ONE site with a hyphenated hostname.
@@ -144,8 +153,16 @@ is( $clean->( '@system', logtime_mysql => '2018-10-10', editor => undef ),
 
 # imported content obeys the same rules, except isn't considered local content
 # so doesn't convert users
-check_doesnt_use_markdown( 'imported content w/o editor set', is_imported => 1, editor => undef );
-check_uses_markdown( 'imported content w/editor set', is_imported => 1, editor => 'markdown' );
+check_doesnt_use_markdown(
+    'imported content w/o editor set',
+    is_imported => 1,
+    editor      => undef
+);
+check_uses_markdown(
+    'imported content w/editor set',
+    is_imported => 1,
+    editor      => 'markdown'
+);
 is( $clean->( '@system', is_imported => 1, editor => undef ),
     '@system', 'imported content - user tag in plain text unconverted (undef editor)' );
 

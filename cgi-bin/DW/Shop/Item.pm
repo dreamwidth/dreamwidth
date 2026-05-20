@@ -262,7 +262,7 @@ Subclasses may override.
 =cut
 
 sub t_html {
-    my ( $self, %opts ) = @_;
+    my ( $self, $opts ) = @_;
 
     if ( my $uid = $self->t_userid ) {
         my $u = LJ::load_userid($uid);

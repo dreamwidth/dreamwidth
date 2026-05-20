@@ -678,6 +678,14 @@ userproplist.nonmember_posting:
   multihomed: 0
   prettyname: Non-Member posting access
 
+userproplist.not_approved:
+  cldversion: 0
+  datatype: char
+  des: 1 if unexamined, 2 if flagged as spam
+  indexed: 1
+  multihomed: 0
+  prettyname: Awaiting Approval
+
 userproplist.no_mail_alias:
   cldversion: 4
   datatype: bool

@@ -186,6 +186,16 @@ $nav-small-screen-header-height: 3em;
         }
     }
 
+    #nav-login-form {
+        #login-form, #login-other {
+            display: inline-block;
+            width: 49%;
+            vertical-align: top;
+            padding-left: .9375rem;
+        padding-right: .9375rem;
+        }
+    }
+
     }
 
     #header-search {

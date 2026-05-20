@@ -945,7 +945,7 @@ sub merge_feed {
 
     # 3) update the url of the destination syndicated account and
     #    tell it to check it now
-    $dbh->do( "UPDATE syndicated SET synurl=?, checknext=NOW() WHERE userid=?",
+    $dbh->do( "UPDATE syndicated SET synurl=?, checknext=NOW(), failcount=0 WHERE userid=?",
         undef, $url, $to_u->id );
     return ( 0, "Database Error: " . $dbh->errstr )
         if $dbh->err;

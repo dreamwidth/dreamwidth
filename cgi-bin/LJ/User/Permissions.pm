@@ -741,6 +741,9 @@ sub include_in_global_search {
     # only P/C accounts should be globally searched
     return 0 unless $u->is_person || $u->is_community;
 
+    # ignore any accounts that haven't been screened for spam yet
+    return 0 unless $u->is_approved;
+
     # default) check opt_blockglobalsearch and use that if it's defined
     my $bgs = $u->prop('opt_blockglobalsearch');
     return $bgs eq 'Y' ? 0 : 1 if defined $bgs && length $bgs;
@@ -756,6 +759,7 @@ sub include_in_global_search {
 # whether this user wants to have their content included in the latest feeds or not
 sub include_in_latest_feed {
     my $u = $_[0];
+    return 0 unless $u->is_approved;
     return $u->prop('latest_optout') ? 0 : 1;
 }
 
@@ -1411,11 +1415,21 @@ sub sticky_entries {
     return @entries;
 }
 
-# returns a list of sticky entry ids
+# returns a list of all sticky entry ids
 sub sticky_entry_ids {
     my $prop = $_[0]->prop('sticky_entry');
     return unless defined $prop;
     return split /,/, $prop;
+}
+
+# returns a list of active sticky entry ids
+sub sticky_entry_active_ids {
+    my ($u) = @_;
+    my $max = $u->count_max_stickies || 0;
+    my @ids = $u->sticky_entry_ids;
+    return unless @ids;
+    @ids = @ids[ 0 .. $max - 1 ] if scalar @ids > $max;
+    return @ids;
 }
 
 # returns a map of ditemid => 1 of the sticky entries

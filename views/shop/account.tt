@@ -27,12 +27,6 @@
     [% END %]
 [% END %]
 [% cart_display %]
-    [% IF prem_convert %]
-           <div class="error-box">
-            [% dw.ml( '.error.premiumconvert', ml_args) %]
-            [% dw.ml( '.error.premiumconvert.postdate', ml_args ) IF ml_args.date %]
-            </div>
-[% END %]
 
     [% IF for == 'self' %]
         <div class='leftybox'>[% dw.ml( '.intro.self', { user => remote.ljuser_display, aopts => "href='${site.help.paidaccountinfo}'" } ) %]</div>

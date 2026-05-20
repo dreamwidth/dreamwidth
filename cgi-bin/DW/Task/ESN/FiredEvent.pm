@@ -30,42 +30,53 @@ use LJ::Event;
 use base 'DW::Task';
 
 sub work {
-    my $self = $_[0];
-    my $a    = $self->args;
+    my $self  = $_[0];
+    my $a     = $self->args;
+    my $trace = join( ':', @$a );
 
     my $incr = sub {
         my ( $phase, $incr, $tags ) = @_;
-        push @{ $tags ||= [] }, "etypeid:$a->[0]";
-        DW::Stats::increment( 'dw.esn.firedevent.' . $phase, $incr // 1, $tags );
+        push @{ $tags ||= [] }, "etypeid:$a->[0]", "result:$phase";
+        DW::Stats::increment( 'dw.esn.firedevent', $incr // 1, $tags );
     };
 
     $incr->('started');
 
     my $evt = eval { LJ::Event->new_from_raw_params(@$a) };
     unless ($evt) {
-        $log->error( 'Failed to load event from raw params: ', join( ', ', @$a ) );
+        $log->error( "[esn $trace] Failed to load event from raw params: ", join( ', ', @$a ) );
         $incr->( 'failed', 1, ['err:LoadEvent'] );
         return DW::Task::FAILED;
     }
 
     $evt->configure_logger;
 
-    $log->debug( 'Processing event from raw params: ', join( ', ', @$a ) );
+    $log->debug( "[esn $trace] Processing event from raw params: ", join( ', ', @$a ) );
 
     # step 1:  see if we can split this into a bunch of ProcessSub directly.
     # we can only do this if A) all clusters are up, and B) subs is reasonably
     # small.  say, under 5,000.
+    #
+    # We use require_master here because the event was just created and the
+    # data it references (e.g. a new comment row) may not have replicated to
+    # cluster slaves yet.  Without this, subscription lookup can fail to load
+    # the comment, return zero subscriptions, and silently drop notifications.
     my $split_per_cluster = 0;    # bool: died or hit limit, split into per-cluster jobs
     my @subs;
     foreach my $cid (@LJ::CLUSTERS) {
         my @more_subs = eval {
-            $evt->subscriptions(
-                cluster => $cid,
-                limit   => $LJ::ESN::MAX_FILTER_SET - @subs + 1
+            LJ::DB::require_master(
+                sub {
+                    $evt->subscriptions(
+                        cluster => $cid,
+                        limit   => $LJ::ESN::MAX_FILTER_SET - @subs + 1
+                    );
+                }
             );
         };
         if ($@) {
-            $log->debug( 'Failed scanning for subscriptions from cluster: ', $cid );
+            $log->debug( "[esn $trace] Failed scanning for subscriptions from cluster: ", $cid );
+            $incr->( 'completed', 1, [ "err:ClusterScanFailed", "cluster:$cid" ] );
 
             # if there were errors (say, the cluster is down), abort!
             # that is, abort the fast path and we'll resort to
@@ -75,7 +86,11 @@ sub work {
         }
 
         $log->debug(
-            sprintf( 'Found %d subscriptions from cluster %d.', scalar(@more_subs), $cid ) );
+            sprintf(
+                "[esn $trace] Found %d subscriptions from cluster %d.",
+                scalar(@more_subs), $cid
+            )
+        );
 
         push @subs, @more_subs;
         if ( @subs > $LJ::ESN::MAX_FILTER_SET ) {
@@ -86,7 +101,7 @@ sub work {
 
     # If there are no subscriptions and we didn't hit an edge case, exit now
     unless ( @subs || $split_per_cluster ) {
-        $log->debug('No subscriptions found for event.');
+        $log->debug("[esn $trace] No subscriptions found for event.");
         $incr->( 'completed', 1, ['err:NoSubsNoSplit'] );
         return DW::Task::COMPLETED;
     }
@@ -100,7 +115,7 @@ sub work {
         }
         $log->debug(
             sprintf(
-                'Slow path: exploding job into %d cluster scan jobs because: %s',
+                "[esn $trace] Slow path: exploding job into %d cluster scan jobs because: %s",
                 scalar(@subjobs), $split_per_cluster
             )
         );
@@ -110,12 +125,14 @@ sub work {
         # then split right into processing those notification methods
         @subjobs = LJ::ESN->tasks_of_unique_matching_subs( $evt, @subs );
         $log->debug(
-            sprintf( 'Fast path: exploding job into %d processing jobs.', scalar(@subjobs) ) );
+            sprintf( "[esn $trace] Fast path: exploding job into %d processing jobs.",
+                scalar(@subjobs) )
+        );
     }
 
     # And if those subscriptions didn't turn into actual jobs, nothing to do
     unless (@subjobs) {
-        $log->debug('No notification jobs found for subscriptions.');
+        $log->debug("[esn $trace] No notification jobs found for subscriptions.");
         $incr->( 'completed', 1, [ 'err:NoSubsWithSplit', 'split:' . $split_per_cluster ] );
         return DW::Task::COMPLETED;
     }

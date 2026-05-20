@@ -20,7 +20,7 @@ use strict;
 use warnings;
 
 sub should_render {
-    return $_[1] && ( $_[1]->is_person || $_[1]->is_community );
+    return $_[1] && ( $_[1]->is_person || $_[1]->is_community ) && $_[1]->is_approved;
 }
 
 sub label {
