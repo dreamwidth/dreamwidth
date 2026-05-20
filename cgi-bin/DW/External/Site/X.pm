@@ -14,7 +14,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::External::Site::Twitter;
+package DW::External::Site::X;
 
 use strict;
 use base 'DW::External::Site';
