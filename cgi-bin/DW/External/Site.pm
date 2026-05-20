@@ -51,7 +51,8 @@ $domaintosite{"archiveofourown.org"} =
     DW::External::Site->new( "8", "www.archiveofourown.org", "archiveofourown.org",
     "ArchiveofOurOwn", "AO3" );
 $domaintosite{"twitter.com"} =
-    DW::External::Site->new( "9", "twitter.com", "twitter.com", "Twitter", "Twitter" );
+    DW::External::Site->new( "9", "x.com", "x.com", "X", "x" );
+$domaintosite{"x.com"} = $domaintosite{"twitter.com"};
 $domaintosite{"tumblr.com"} =
     DW::External::Site->new( "10", "tumblr.com", "tumblr.com", "Tumblr", "Tumblr" );
 $domaintosite{"etsy.com"} =
@@ -163,6 +164,7 @@ $domaintosite{"artstation"}      = $domaintosite{"artstation.com"};
 $domaintosite{"substack"}        = $domaintosite{"substack.com"};
 $domaintosite{"itch"}            = $domaintosite{"itch.io"};
 $domaintosite{"kofi"}            = $domaintosite{"ko-fi.com"};
+$domaintosite{"x"}               = $domaintosite{"x.com"};
 
 foreach my $value (@all_sites_without_alias) {
     $idtosite{ $value->{siteid} } = $value;
