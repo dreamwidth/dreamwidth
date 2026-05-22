@@ -76,7 +76,7 @@ paths:
                   description: Keyword of icon to use
                 datetime:
                   type: string
-                  description: The date and time of the entry in the format `FIXME`. If omitted, the server time will be used instead.
+                  description: The date and time of the entry in the format `YYYY-MM-DD hh:mm`. If omitted, the server time will be used instead.
                 security:
                   type: string
                   description: Security level to use. Can be `public`, `private`, or `access`.

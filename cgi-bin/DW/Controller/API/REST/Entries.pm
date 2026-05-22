@@ -70,8 +70,8 @@ sub new_entry {
     my $datetime;
     my $trust_datetime_value = 0;
 
-    if ( $post->{entrytime_date} && $post->{entrytime_time} ) {
-        $datetime             = "$post->{entrytime_date} $post->{entrytime_time}";
+    if ( $post->{datetime} ) {
+        $datetime             = $post->{datetime};
         $trust_datetime_value = 1;
     }
     else {
