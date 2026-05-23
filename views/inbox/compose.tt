@@ -54,11 +54,11 @@
 
 
                     <div class='inbox_formmes'><p>
-                        [% form.textbox( name = 'msg_subject', size = 50, maxlength = subject_limit, label = "Subject:") %]
+                        [% form.textbox( name = 'msg_subject', size = 50, maxlength = subject_limit, label = "Subject:", value = msg_subject) %]
 
                     </p>
                         <div class='msg_txt'>
-                            [% form.textarea( name = 'msg_body', rows = 6, cols = 55, wrap = 'soft') %]
+                            [% form.textarea( name = 'msg_body', rows = 6, cols = 55, wrap = 'soft', value = msg_body) %]
                             <span class='helper'>Up to [% commafy(msg_limit) %] characters. Plain text, no HTML.</span>
                         </div>
 
