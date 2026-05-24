@@ -374,11 +374,10 @@ sub _enrich_support {
         }
         next unless $visible;
 
-        # supportlog messages are stored as raw HTML. Strip it before
-        # excerpting: CALL SNIPPETS echoes its input back verbatim apart from
-        # the highlight tags, and the results template prints the excerpt
-        # unfiltered, so unstripped markup in a request body injects arbitrary
-        # HTML into the page. Mirrors the journal entry path in _enrich_journal.
+        # supportlog messages are stored as raw HTML. Strip it for readability
+        # before excerpting (turn breaks into spaces, drop tags). This is
+        # cosmetic only -- _snippets entity-escapes whatever survives before it
+        # reaches the page. Mirrors the journal entry path in _enrich_journal.
         $content =~ s#<(?:br|p)\s*/?># #gi;
         $content = LJ::strip_html($content);
         $content ||= '(this support entry only contains html content)';
@@ -419,12 +418,23 @@ sub _enrich_support {
 # One CALL SNIPPETS per doc. Per-call latency is ~1ms on localhost and we
 # cap at 20 matches per page, so a tuple literal buys us nothing but
 # prepared-statement quoting pain.
+#
+# SNIPPETS echoes its input back verbatim apart from wrapping query matches in
+# <b> highlight tags, and the results templates print the excerpt unfiltered.
+# So this is the single security boundary: entity-escape the text here, before
+# SNIPPETS runs, leaving only SNIPPETS' own <b> tags as live markup in the
+# output. Callers must therefore pass plain text (strip_html alone is not
+# enough -- its regex leaves orphaned '<', '>', and '<!--' comment openers,
+# any of which would otherwise inject raw HTML into the page).
 sub _snippets {
     my ( $dbh, $texts, $tbl, $query ) = @_;
     my @out;
     for my $t (@$texts) {
-        my ($exc) =
-            $dbh->selectrow_array( 'CALL SNIPPETS(?, ?, ?)', undef, ( $t // '' ), $tbl, $query, );
+        my ($exc) = $dbh->selectrow_array(
+            'CALL SNIPPETS(?, ?, ?)',
+            undef, LJ::ehtml( $t // '' ),
+            $tbl, $query,
+        );
         push @out, ( $exc // '' );
     }
     return \@out;
