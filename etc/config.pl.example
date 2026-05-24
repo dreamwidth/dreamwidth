@@ -465,6 +465,21 @@
     # real client IP will be found last in the resulting list.
     # $IS_TRUSTED_PROXY = sub { $_[0] eq '192.168.1.1'; };
 
+    # By default, requests from internal/private IPs (RFC1918 + loopback) skip
+    # request rate limiting -- this keeps load-balancer health checks, which
+    # connect without a trusted X-Forwarded-For, from being throttled.
+    #
+    # To override which IPs are exempt, set this to a Net::Subnet matcher (or any
+    # coderef that takes an IP and returns true to exempt it). When set, it fully
+    # replaces the default RFC1918 + loopback set.
+    #
+    # $RATE_LIMIT_EXCLUDE_IP = subnet_matcher qw(
+    #     10.0.0.0/8
+    #     172.16.0.0/12
+    #     192.168.0.0/16
+    #     127.0.0.0/8
+    # );
+
     # how many days to store random users for; after this many days they fall out of the table.
     # high traffic sites probably want a reasonably low number, whereas lower traffic sites might
     # want to set this higher to give a larger sample of users to select from.
