@@ -14,7 +14,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::External::Site::Twitter;
+package DW::External::Site::X;
 
 use strict;
 use base 'DW::External::Site';
@@ -62,7 +62,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url    => "http://twitter.com/favicon.ico",
+        url    => "http://x.com/favicon.ico",
         width  => 16,
         height => 16,
     };
