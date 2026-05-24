@@ -403,8 +403,13 @@ sub cmd_import_support {
         my $j = $i + 99;
         $j = $max_splid if $j > $max_splid;
 
+        # timelogged is already an int-unsigned Unix epoch (see supportlog
+        # schema); select it raw. Wrapping it in UNIX_TIMESTAMP() reparses the
+        # integer as a malformed datetime and yields 0 for every row, which
+        # collapses the read path's `ORDER BY touchtime DESC` into a tie and
+        # makes Manticore fall back to relevance order.
         my $rows = $dbr->selectall_arrayref(
-            q{SELECT splid, spid, UNIX_TIMESTAMP(timelogged) AS touchtime,
+            q{SELECT splid, spid, timelogged AS touchtime,
                      faqid, userid, message
                 FROM supportlog
                 WHERE splid BETWEEN ? AND ?},
