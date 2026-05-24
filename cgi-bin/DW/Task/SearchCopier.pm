@@ -44,9 +44,9 @@ package DW::Task::SearchCopier;
 use strict;
 use v5.10;
 
-use DW::Task;      # must come before `use base` so COMPLETED/FAILED
-                   # constants are defined before this file's body
-                   # compiles under strict
+use DW::Task;    # must come before `use base` so COMPLETED/FAILED
+                 # constants are defined before this file's body
+                 # compiles under strict
 use DW::TaskQueue;
 use base 'DW::Task';
 
@@ -170,8 +170,7 @@ sub copy_comment {
     # A full comment import. We slice it by 1000 comment groups to make the
     # memory usage something that isn't insane.
     if ( !defined $only_jtalkid ) {
-        my $maxid = $dbfrom->selectrow_array(
-            'SELECT MAX(jtalkid) FROM talk2 WHERE journalid = ?',
+        my $maxid = $dbfrom->selectrow_array( 'SELECT MAX(jtalkid) FROM talk2 WHERE journalid = ?',
             undef, $u->id );
         $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
 
@@ -185,8 +184,7 @@ sub copy_comment {
         if ( defined $LJ::SEARCH_MAX_COMMENT_RECOPY
             && $maxid > $LJ::SEARCH_MAX_COMMENT_RECOPY )
         {
-            $log->info( sprintf
-                    'Skipping comment recopy for %s(%d): MAX(jtalkid)=%d > limit %d.',
+            $log->info( sprintf 'Skipping comment recopy for %s(%d): MAX(jtalkid)=%d > limit %d.',
                 $u->user, $u->id, $maxid, $LJ::SEARCH_MAX_COMMENT_RECOPY );
             return;
         }
@@ -207,15 +205,16 @@ sub copy_comment {
             $m = $maxid if $m > $maxid;
 
             my $h = DW::TaskQueue->dispatch(
-                DW::Task::SearchCopier->new( {
-                    userid   => $u->id,
-                    jtalkids => [ $n + 1 .. $m ],
-                    source   => 'masscopy',
-                } )
+                DW::Task::SearchCopier->new(
+                    {
+                        userid   => $u->id,
+                        jtalkids => [ $n + 1 .. $m ],
+                        source   => 'masscopy',
+                    }
+                )
             );
-            $log->info( "Scheduled mass-copy job for jtalkids "
-                    . ( $n + 1 )
-                    . " .. $m: handle = $h." );
+            $log->info(
+                "Scheduled mass-copy job for jtalkids " . ( $n + 1 ) . " .. $m: handle = $h." );
 
             $n = $m;
         }
@@ -296,7 +295,7 @@ sub copy_comment {
 
         my @l_jtalkids = map { $_->[0] } @items;
         my %private    = map { $_->[0] => $_->[1] } @items;
-        my $in         = join ',', @l_jtalkids;
+        my $in = join ',', @l_jtalkids;
 
         my $text = $dbfrom->selectall_hashref(
             qq{SELECT jtalkid, subject, body
@@ -314,7 +313,8 @@ sub copy_comment {
         }
 
         foreach my $jid ( keys %$text ) {
-            my $bits = $private{$jid}
+            my $bits =
+                $private{$jid}
                 ? [101]
                 : ( $entries->{ $comments->{$jid}->{nodeid} }->{bits} // [101] );
 
@@ -324,21 +324,25 @@ sub copy_comment {
             # are interpolated because Manticore's SphinxQL binds every '?'
             # placeholder as a string and refuses string filters on uint
             # attributes.
-            $dbsx->do( sprintf(
-                'DELETE FROM dw1 WHERE journalid=%d AND jitemid=%d AND jtalkid=%d',
-                $u->id, $comments->{$jid}->{nodeid}, $jid,
-            ) );
+            $dbsx->do(
+                sprintf(
+                    'DELETE FROM dw1 WHERE journalid=%d AND jitemid=%d AND jtalkid=%d',
+                    $u->id, $comments->{$jid}->{nodeid}, $jid,
+                )
+            );
             $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
             my $sql = sprintf(
                 'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
-                . ' allow_global_search, is_deleted, security_bits, title, body)'
-                . ' VALUES (%d, %d, %d, %d, %d, %d, 0, %s, ?, ?)',
-                $u->id, $comments->{$jid}->{nodeid}, $jid, $comments->{$jid}->{posterid},
-                $comments->{$jid}->{datepost}, $allowpublic, _mva($bits),
+                    . ' allow_global_search, is_deleted, security_bits, title, body)'
+                    . ' VALUES (%d, %d, %d, %d, %d, %d, 0, %s, ?, ?)',
+                $u->id, $comments->{$jid}->{nodeid},
+                $jid,
+                $comments->{$jid}->{posterid},
+                $comments->{$jid}->{datepost},
+                $allowpublic, _mva($bits),
             );
-            $dbsx->do( $sql, undef,
-                $text->{$jid}->{subject} // '', $text->{$jid}->{body} // '' );
+            $dbsx->do( $sql, undef, $text->{$jid}->{subject} // '', $text->{$jid}->{body} // '' );
             $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
             $ins_count++;
@@ -354,8 +358,10 @@ sub copy_comment {
     # Deletes are easy...
     if (@delete_jtalkids) {
         my $ct = $dbsx->do(
-            sprintf( 'DELETE FROM dw1 WHERE journalid = %d AND jtalkid IN (%s)',
-                $u->id, join( ',', @delete_jtalkids ) )
+            sprintf(
+                'DELETE FROM dw1 WHERE journalid = %d AND jtalkid IN (%s)',
+                $u->id, join( ',', @delete_jtalkids )
+            )
         ) + 0;
         $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
@@ -382,7 +388,7 @@ sub copy_entry {
         my $inlist = join( ',', map { int $_ } @wanted );
 
         $sx_jitemids = $dbsx->selectall_hashref(
-            "SELECT id, jitemid FROM dw1 WHERE journalid = $jid AND jitemid IN ($inlist) AND jtalkid = 0",
+"SELECT id, jitemid FROM dw1 WHERE journalid = $jid AND jitemid IN ($inlist) AND jtalkid = 0",
             'jitemid',
         );
         $log->logcroak( $dbsx->errstr ) if $dbsx->err;
@@ -396,9 +402,7 @@ sub copy_entry {
     }
     else {
         $sx_jitemids = $dbsx->selectall_hashref(
-            "SELECT id, jitemid FROM dw1 WHERE journalid = $jid AND jtalkid = 0",
-            'jitemid',
-        );
+            "SELECT id, jitemid FROM dw1 WHERE journalid = $jid AND jtalkid = 0", 'jitemid', );
         $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
         $db_times = $dbfrom->selectall_hashref(
@@ -476,19 +480,19 @@ sub copy_entry {
         }
 
         # Upsert via DELETE+INSERT on the natural key.
-        $dbsx->do( sprintf(
-            'DELETE FROM dw1 WHERE journalid=%d AND jitemid=%d AND jtalkid=0',
-            $jid, $jitemid,
-        ) );
+        $dbsx->do(
+            sprintf(
+                'DELETE FROM dw1 WHERE journalid=%d AND jitemid=%d AND jtalkid=0',
+                $jid, $jitemid,
+            )
+        );
         $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
-        my $sql = sprintf(
-            'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
-            . ' allow_global_search, is_deleted, security_bits, title, body)'
-            . ' VALUES (%d, %d, 0, %d, %d, %d, 0, %s, ?, ?)',
-            $jid, $jitemid, $row->{posterid}, $row->{date_posted},
-            $allowpublic, _mva($bits),
-        );
+        my $sql =
+            sprintf( 'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
+                . ' allow_global_search, is_deleted, security_bits, title, body)'
+                . ' VALUES (%d, %d, 0, %d, %d, %d, 0, %s, ?, ?)',
+            $jid, $jitemid, $row->{posterid}, $row->{date_posted}, $allowpublic, _mva($bits), );
         $dbsx->do( $sql, undef, $row->{subject} // '', $row->{event} // '' );
         $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 

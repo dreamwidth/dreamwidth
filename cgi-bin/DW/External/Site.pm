@@ -50,8 +50,7 @@ $domaintosite{"dreamwidth.org"} =
 $domaintosite{"archiveofourown.org"} =
     DW::External::Site->new( "8", "www.archiveofourown.org", "archiveofourown.org",
     "ArchiveofOurOwn", "AO3" );
-$domaintosite{"x.com"} =
-    DW::External::Site->new( "9", "x.com", "x.com", "X", "X" );
+$domaintosite{"x.com"} = DW::External::Site->new( "9", "x.com", "x.com", "X", "X" );
 $domaintosite{"tumblr.com"} =
     DW::External::Site->new( "10", "tumblr.com", "tumblr.com", "Tumblr", "Tumblr" );
 $domaintosite{"etsy.com"} =
