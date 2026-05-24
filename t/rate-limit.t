@@ -14,7 +14,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 91;
+use Test::More tests => 105;
 use Test::MockTime qw(set_fixed_time restore_time);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -256,3 +256,29 @@ LJ::Test::with_fake_memcache {
     # Clean up test configuration
     delete $LJ::RATE_LIMITS{test_override};
 };
+
+# Test IP exclusion (internal/private IPs skip rate limiting)
+{
+    # Default matcher: RFC1918 + loopback are excluded.
+    ok( DW::RateLimit->ip_is_excluded("10.1.2.3"),       "10/8 excluded" );
+    ok( DW::RateLimit->ip_is_excluded("172.16.5.5"),     "172.16/12 low end excluded" );
+    ok( DW::RateLimit->ip_is_excluded("172.31.255.255"), "172.16/12 high end excluded" );
+    ok( DW::RateLimit->ip_is_excluded("192.168.0.42"),   "192.168/16 excluded" );
+    ok( DW::RateLimit->ip_is_excluded("127.0.0.1"),      "loopback excluded" );
+
+    # Public and just-outside-boundary IPs are NOT excluded.
+    ok( !DW::RateLimit->ip_is_excluded("8.8.8.8"),     "public 8.8.8.8 not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("1.2.3.4"),     "public 1.2.3.4 not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("172.32.0.1"),  "just above 172.16/12 not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("11.0.0.1"),    "just above 10/8 not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("169.254.1.1"), "link-local deliberately not excluded" );
+
+    # Empty / undef IP is not excluded.
+    ok( !DW::RateLimit->ip_is_excluded(undef), "undef IP not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded(""),    "empty IP not excluded" );
+
+    # Operator override replaces the default matcher entirely.
+    local $LJ::RATE_LIMIT_EXCLUDE_IP = sub { $_[0] eq "8.8.8.8" };
+    ok( DW::RateLimit->ip_is_excluded("8.8.8.8"),   "override: 8.8.8.8 excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("10.1.2.3"), "override: default range no longer applies" );
+}

@@ -31,6 +31,12 @@ sub call {
     my $remote = LJ::get_remote();
     my $ip     = LJ::get_remote_ip();
 
+    # Internal infrastructure (e.g. load-balancer health checks) connects without a
+    # trusted X-Forwarded-For, so its resolved IP is private. Skip rate limiting for
+    # those entirely, regardless of auth state.
+    return $self->app->($env)
+        if $ip && DW::RateLimit->ip_is_excluded($ip);
+
     # Get the appropriate rate limit based on whether user is logged in
     my $limit;
     if ($remote) {
