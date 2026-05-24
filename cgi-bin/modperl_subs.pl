@@ -59,7 +59,7 @@ use LJ::Location;
 use LJ::SpellCheck;
 use LJ::ModuleCheck;
 use LJ::Widget;
-use DDLockClient;
+use DW::Locker;
 use LJ::BetaFeatures;
 use DW::InviteCodes;
 use DW::InviteCodeRequests;
