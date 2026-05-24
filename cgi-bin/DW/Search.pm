@@ -374,11 +374,24 @@ sub _enrich_support {
         }
         next unless $visible;
 
-        $match->{url}      = "$LJ::SITEROOT/support/see_request?id=$spid";
-        $match->{type}     = $type;
-        $match->{spid}     = $spid;
-        $match->{category} = $sp->{_cat}->{catname};
-        $match->{subject}  = $sp->{subject};
+        # supportlog messages are stored as raw HTML. Strip it before
+        # excerpting: CALL SNIPPETS echoes its input back verbatim apart from
+        # the highlight tags, and the results template prints the excerpt
+        # unfiltered, so unstripped markup in a request body injects arbitrary
+        # HTML into the page. Mirrors the journal entry path in _enrich_journal.
+        $content =~ s#<(?:br|p)\s*/?># #gi;
+        $content = LJ::strip_html($content);
+        $content ||= '(this support entry only contains html content)';
+
+        $match->{url}  = "$LJ::SITEROOT/support/see_request?id=$spid";
+        $match->{type} = $type;
+        $match->{spid} = $spid;
+
+        # category and subject are likewise printed unfiltered by the
+        # template; entity-escape them here since neither is run through
+        # SNIPPETS (the subject is operator-uncontrolled request text).
+        $match->{category} = LJ::ehtml( $sp->{_cat}->{catname} );
+        $match->{subject}  = LJ::ehtml( $sp->{subject} );
         $match->{content}  = $content;
         push @out, $match;
     }
