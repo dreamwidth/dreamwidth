@@ -42,10 +42,10 @@ sub recv_packet {
 DW::Stats::setup( '127.0.0.1', $server->sockport );
 
 # Timing with tags.
-DW::Stats::timing( 'dw.request.duration_ms', 12.5, [ 'auth:anon', 'status:200' ] );
+DW::Stats::timing( 'dw.request.duration_seconds', 12.5, [ 'auth:anon', 'status:200' ] );
 is(
     recv_packet(),
-    'dw.request.duration_ms:12.5|ms|#auth:anon,status:200',
+    'dw.request.duration_seconds:12.5|ms|#auth:anon,status:200',
     'timing emits |ms type with tags'
 );
 
