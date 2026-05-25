@@ -27,6 +27,8 @@ use LJ::JSON;
 use POSIX qw( strftime );
 use Time::HiRes qw( gettimeofday tv_interval );
 
+use DW::Stats;
+
 sub prepare_app {
     my $self = shift;
 
@@ -63,7 +65,16 @@ sub call {
 sub _log {
     my ( $self, $env, $t0, $res ) = @_;
 
-    my $duration = tv_interval($t0) * 1000;    # milliseconds
+    my $duration    = tv_interval($t0) * 1000;            # milliseconds
+    my $duration_ms = sprintf( '%.1f', $duration ) + 0;
+
+    # Per-request metrics for Grafana (volume counter + latency timing). No-op when
+    # %LJ::STATS is unset (dev container, tests), so no behavior change locally.
+    # Note: for streaming/code-ref responses _log runs at time-to-first-byte, so
+    # duration_ms reflects that rather than full body-stream time.
+    my $tags = $self->_request_tags( $env, $res->[0] );
+    DW::Stats::increment( 'dw.request', 1, $tags );
+    DW::Stats::timing( 'dw.request.duration_ms', $duration_ms, $tags );
 
     # Content-Length from the response headers (may be undef for streaming)
     my $bytes;
@@ -83,7 +94,7 @@ sub _log {
         method      => $env->{REQUEST_METHOD},
         path        => $env->{PATH_INFO} || '/',
         status      => $res->[0],
-        duration_ms => sprintf( '%.1f', $duration ) + 0,
+        duration_ms => $duration_ms,
     );
 
     # Optional fields — omit rather than logging placeholder values
@@ -100,6 +111,20 @@ sub _log {
     else {
         $env->{'psgi.errors'}->print($line);
     }
+}
+
+# Build the DogStatsD tag arrayref for a request from the PSGI env and final HTTP
+# status. Reads the auth / rate-limit hints stashed in the env by downstream
+# middleware (DW::RateLimit), defaulting for requests that never reached them
+# (static files, redirects, early exits): auth -> anon, ratelimit -> skipped.
+sub _request_tags {
+    my ( $self, $env, $status ) = @_;
+    return [
+        'auth:' .      ( $env->{'dw.stats.auth'}      // 'anon' ),
+        'ratelimit:' . ( $env->{'dw.stats.ratelimit'} // 'skipped' ),
+        'status:' . $status,
+        'method:' . ( $env->{REQUEST_METHOD} // 'GET' ),
+    ];
 }
 
 1;
