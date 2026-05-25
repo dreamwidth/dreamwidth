@@ -23,6 +23,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::BML;
+use DW::Captcha;
 use DW::Request;
 use DW::Routing;
 use DW::Template;
@@ -284,6 +285,12 @@ sub render {
             $handler->($adapter);
             return $r->OK;
         }
+    }
+
+    # Before we actually make a journal, let's potentially bounce this user
+    # off to get captchaed
+    if ( DW::Captcha->should_captcha_view($remote) ) {
+        return $r->redirect( DW::Captcha->redirect_url );
     }
 
     # Main journal rendering via LJ::make_journal
