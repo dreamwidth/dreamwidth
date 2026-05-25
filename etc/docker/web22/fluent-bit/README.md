@@ -7,8 +7,13 @@ image — the operator copies them onto the per-class EFS roots:
 | Repo file     | EFS destination                       | Used by                       |
 |---------------|---------------------------------------|-------------------------------|
 | `canary.conf` | `/etc-canary/fluent-bit/web.conf`     | web-canary (error + access)   |
-| `parsers.conf`| `/etc-canary/fluent-bit/parsers.conf` | web-canary (access JSON parse)|
-| `stable.conf` | `/etc-stable/fluent-bit/web.conf`     | web-shop, web-unauthenticated (error only) |
+| `stable.conf` | `/etc-stable/fluent-bit/web.conf`     | web-shop, web-unauthenticated (error + access) |
+| `parsers.conf`| `/etc-canary/fluent-bit/parsers.conf` **and** `/etc-stable/fluent-bit/parsers.conf` | all of the above (access JSON parse) |
+
+Both `web.conf` variants tail `error.log` + `access.log`, so `parsers.conf` must be
+present on **both** EFS roots. After updating a conf on EFS, restart (force a new
+deployment of) the affected services — the sidecar reads its config only at startup
+(no hot reload configured).
 
 Inside the container the `dw-config` EFS volume is mounted at `/dw/etc`, so the
 sidecar runs `fluent-bit -c /dw/etc/fluent-bit/web.conf`.
