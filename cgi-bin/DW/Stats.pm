@@ -70,4 +70,21 @@ sub gauge {
     $sock->send("$metric:$gauge|g$tags");
 }
 
+# Usage: DW::Stats::timing( 'my.metric', $value_ms, $tags, $sample_rate )
+#
+# Metric must be a string. $value_ms must be a number (milliseconds). $tags must be
+# an arrayref or undef. $sample_rate must be undef or a number 0..1.
+sub timing {
+    return unless $sock;
+
+    my ( $metric, $value, $tags, $sample_rate ) = @_;
+    return unless defined $value;
+
+    if ( !defined $sample_rate || rand() < $sample_rate ) {
+        $sample_rate = defined $sample_rate ? "|\@$sample_rate" : "";
+        $tags = ref $tags eq 'ARRAY' ? '|#' . join( ',', @$tags ) : '';
+        $sock->send("$metric:$value|ms$sample_rate$tags");
+    }
+}
+
 1;
