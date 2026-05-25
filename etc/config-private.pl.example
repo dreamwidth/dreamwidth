@@ -242,6 +242,16 @@ use Net::Subnet;
     # $CAPTCHA_BYPASS_IP = subnet_matcher qw(
     #     192.168.10.10/32
     # );
+    #
+    # # Force a captcha for specific requests regardless of source IP. A coderef
+    # # passed the DW::Request; return true to require a captcha. Anonymous only
+    # # (logged-in users are never captcha'd). Hot-reloadable. Example:
+    # $SHOULD_CAPTCHA_REQUEST = sub {
+    #     my $r = shift;
+    #     return 1 if ( $r->query_string // '' ) =~ /(?:^|&)example_flag=/;
+    #     return 1 if $r->uri =~ m!^/some/example/path!;
+    #     return 0;
+    # };
 }
 
 {

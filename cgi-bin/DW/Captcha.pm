@@ -272,9 +272,17 @@ sub should_captcha_view {
         return 0 if $r->uri =~ $LJ::CAPTCHA_BYPASS_REGEX;
     }
 
-    # If the user is on an automated IP range, captcha
+    # A request-level matcher can force a captcha regardless of source IP, for
+    # requests the IP lists don't catch. The policy is a hot-reloadable coderef in
+    # $LJ::SHOULD_CAPTCHA_REQUEST. Anonymous-only: logged-in users already returned
+    # above.
+    my $captcha_request = ref $LJ::SHOULD_CAPTCHA_REQUEST eq 'CODE'
+        && $LJ::SHOULD_CAPTCHA_REQUEST->($r);
+
+    # If the user is on an automated IP range, captcha -- but a request flagged
+    # above is captcha'd regardless of IP.
     my ( $mckey, $ip ) = _captcha_mckey();
-    if ( my $matcher = $LJ::SHOULD_CAPTCHA_IP ) {
+    if ( !$captcha_request && ( my $matcher = $LJ::SHOULD_CAPTCHA_IP ) ) {
         return 0 unless $matcher->($ip);
     }
 
