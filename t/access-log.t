@@ -93,6 +93,6 @@ is(
 );
 like(
     recv_packet(),
-    qr{^dw\.request\.duration_ms:[0-9.]+\|ms\|#auth:anon,ratelimit:allowed,status:200,method:GET$},
-    'call() emits the dw.request.duration_ms timing with tags'
+qr{^dw\.request\.duration_seconds:[0-9.]+\|ms\|#auth:anon,ratelimit:allowed,status:200,method:GET$},
+    'call() emits the dw.request.duration_seconds timing with tags'
 );

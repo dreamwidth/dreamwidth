@@ -71,10 +71,14 @@ sub _log {
     # Per-request metrics for Grafana (volume counter + latency timing). No-op when
     # %LJ::STATS is unset (dev container, tests), so no behavior change locally.
     # Note: for streaming/code-ref responses _log runs at time-to-first-byte, so
-    # duration_ms reflects that rather than full body-stream time.
+    # the latency captured reflects that rather than full body-stream time.
+    #
+    # We send the value in milliseconds (statsd "ms" timer type), but the Prometheus
+    # statsd_exporter converts "ms" timers to base-unit seconds -- so the metric is
+    # named dw.request.duration_seconds to match the unit it actually stores.
     my $tags = $self->_request_tags( $env, $res->[0] );
     DW::Stats::increment( 'dw.request', 1, $tags );
-    DW::Stats::timing( 'dw.request.duration_ms', $duration_ms, $tags );
+    DW::Stats::timing( 'dw.request.duration_seconds', $duration_ms, $tags );
 
     # Content-Length from the response headers (may be undef for streaming)
     my $bytes;
