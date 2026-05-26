@@ -18,7 +18,7 @@ package DW::OAuth;
 use strict;
 use warnings;
 
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use DW::Request;
 use Net::OAuth;
 

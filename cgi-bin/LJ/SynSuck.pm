@@ -17,7 +17,7 @@ use HTTP::Status;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-use LJ::Utils qw(md5_struct);
+use LJ::Utils;
 use LJ::Protocol;
 use LJ::ParseFeed;
 use LJ::CleanHTML;

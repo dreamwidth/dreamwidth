@@ -27,7 +27,7 @@ use DW::Task::SphinxCopier;
 use DW::Captcha;
 use DW::EmailPost::Comment;
 use DW::Formats;
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::Comment;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;

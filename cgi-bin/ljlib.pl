@@ -77,7 +77,7 @@ use Carp;
 use DBI;
 use DBI::Role;
 use HTTP::Date ();
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::Hooks;
 use LJ::MemCache;
 use LJ::Error;
