@@ -120,8 +120,7 @@ sub _backend_to_form {
     }
 
     # allow editing of embedded content
-    my $event = $entry->event_raw;
-    my $ju    = $entry->journal;
+    my $ju = $entry->journal;
     LJ::EmbedModule->parse_module_embed( $ju, \$event, edit => 1 );
 
     my $form = {
@@ -278,7 +277,9 @@ sub _form_to_backend {
         }
         elsif ( $security eq "custom" ) {
             $sec = "usemask";
-            foreach my $bit ( $post->get_all("custom_bit") ) {
+            my @custom_bits =
+                $is_api ? @{ $post->{custom_bit} || [] } : $post->get_all("custom_bit");
+            foreach my $bit (@custom_bits) {
                 $amask |= ( 1 << $bit );
             }
         }

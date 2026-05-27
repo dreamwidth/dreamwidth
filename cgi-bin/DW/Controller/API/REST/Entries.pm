@@ -22,7 +22,6 @@ use DW::Routing;
 use DW::Request;
 use DW::Controller;
 use JSON;
-use Data::Dumper;
 use DW::Entry;
 
 ################################################
@@ -88,6 +87,11 @@ sub new_entry {
         $datetime = $now->strftime("%F %R"),
             $trust_datetime_value = 0;    # may want to override with client-side JS
     }
+
+    my ( $date, $time ) = split( / /, $datetime );
+    $post->{entrytime_date} = $date;
+    $post->{entrytime_time} = $time;
+    $post->{trust_dateime}  = $trust_datetime_value;
 
     return $self->rest_error('400')
         unless $post->{text} ne '';
@@ -239,7 +243,7 @@ sub rest_get {
         my @entries;
         foreach my $it (@items) {
             my $item  = LJ::Entry->new( $journal, jitemid => $it->{itemid} );
-            my $entry = json_from_entry( $journal, $item );
+            my $entry = json_from_entry( $remote, $item );
             push @entries, $entry;
         }
         return $self->rest_ok( \@entries );
@@ -248,8 +252,6 @@ sub rest_get {
 
 sub json_from_entry {
     my ( $remote, $item ) = @_;
-
-    #print Dumper($item->currents());
 
     my $entry = {};
     $entry->{subject} = $item->subject_html();
@@ -263,7 +265,7 @@ sub json_from_entry {
     $entry->{tags}         = ( \@entry_tags );
     $entry->{icon_keyword} = $item->userpic_kw || '(default)';
     $entry->{icon}         = $item->userpic;
-    $entry->{entry_id}     = delete $item->{ditemid};
+    $entry->{entry_id}     = $item->{ditemid};
 
     #$item->{metadata} = $item->currents;
 
@@ -336,7 +338,7 @@ sub _do_edit {
     my ( $ditemid, $form_req, $auth, %opts ) = @_;
 
     my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth );
-    return { { success => 0, errors => { $res->{errors} } } } if $res->{errors};
+    return { success => 0, errors => [ $res->{errors} ] } if $res->{errors};
 
     my $remote  = $auth->{remote};
     my $journal = $auth->{journal};
