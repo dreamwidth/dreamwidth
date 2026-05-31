@@ -49,6 +49,10 @@ paths:
                           description: The number of times the tag has been used on public entries
         404:
           $ref: ../components/errors/404-user.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml
     post:
       description: Add new tags for a given journal
       requestBody:
@@ -68,6 +72,10 @@ paths:
                 $ref: ../components/error.yaml
         404:
           $ref: ../components/errors/404-user.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml
     delete:
       description: Delete tags for a given journal
       parameters:
@@ -86,4 +94,8 @@ paths:
         404:
           $ref: ../components/errors/404-user.yaml
         400:
-          $ref: ../components/errors/400.yaml         
+          $ref: ../components/errors/400.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml
