@@ -156,10 +156,14 @@ sub _form_to_backend {
 
     my $errors = $opts{errors};
 
-    # handle event subject and body
+    # handle event subject and body, and normalize prop some prop names in the API
     if ($is_api) {
         $req->{subject} = $post->{subject} || $req->{subject};
         $req->{event}   = $post->{text}    || $req->{event} || "";
+
+        $post->{taglist}              = delete $post->{tags} if defined $post->{tags};
+        $post->{prop_picture_keyword} = delete $post->{icon} if defined $post->{icon};
+        $post->{current_mood_other} = delete $post->{current_mood} if defined $post->{current_mood};
     }
     else {
         $req->{subject} = $post->{subject};

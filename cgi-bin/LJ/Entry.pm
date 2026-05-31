@@ -1366,7 +1366,7 @@ sub TO_JSON {
     my $props = $self->props;
     if ( $props->{current_mood} || $props->{current_moodid} ) {
         my $mood = $props->{current_mood} || DW::Mood->mood_name( $props->{current_moodid} );
-        $entry->{current_mood} = $mood if $mood;
+        $entry->{current_mood} = $mood if defined $mood;
     }
 
     $entry->{current_music}    = $props->{current_music}    if $props->{current_music};

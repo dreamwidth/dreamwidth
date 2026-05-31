@@ -107,11 +107,6 @@ sub new_entry {
     $auth{poster}  = $remote;
     $auth{journal} = $usejournal ? $usejournal : $remote;
 
-    # rename some fields to match what the web form uses
-    $post->{taglist}              = delete $post->{tags}         if defined $post->{tags};
-    $post->{prop_picture_keyword} = delete $post->{icon_keyword} if defined $post->{icon_keyword};
-    $post->{current_mood_other}   = delete $post->{current_mood} if defined $post->{current_mood};
-
     my $form_req = {};
     my $errors   = DW::FormErrors->new;
     DW::Entry::_form_to_backend( 1, $form_req, $post, errors => $errors );
