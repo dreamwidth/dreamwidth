@@ -91,7 +91,7 @@ sub new_entry {
     my ( $date, $time ) = split( / /, $datetime );
     $post->{entrytime_date} = $date;
     $post->{entrytime_time} = $time;
-    $post->{trust_dateime}  = $trust_datetime_value;
+    $post->{trust_datetime} = $trust_datetime_value;
 
     return $self->rest_error('400')
         unless $post->{text} ne '';
