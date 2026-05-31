@@ -190,7 +190,7 @@ sub rest_get {
 
         return $self->rest_error('403') unless $item->visible_to($remote);
 
-        my $entry = json_from_entry( $remote, $item );
+        my $entry = $item->TO_JSON($remote);
         return $self->rest_ok($entry);
 
     }
@@ -243,39 +243,11 @@ sub rest_get {
         my @entries;
         foreach my $it (@items) {
             my $item  = LJ::Entry->new( $journal, jitemid => $it->{itemid} );
-            my $entry = json_from_entry( $remote, $item );
+            my $entry = $item->TO_JSON($remote);
             push @entries, $entry;
         }
         return $self->rest_ok( \@entries );
     }
-}
-
-sub json_from_entry {
-    my ( $remote, $item ) = @_;
-
-    my $entry = {};
-    $entry->{subject} = $item->subject_html();
-    $entry->{text}    = $item->event_html(0);
-    $entry->{poster} =
-        { username => $item->poster()->{user}, display_name => $item->poster()->{name} };
-    $entry->{url}      = $item->url();
-    $entry->{security} = $item->security();
-    $entry->{datetime} = $item->{eventtime};
-    my @entry_tags = $item->tags();
-    $entry->{tags}         = ( \@entry_tags );
-    $entry->{icon_keyword} = $item->userpic_kw || '(default)';
-    $entry->{icon}         = $item->userpic;
-    $entry->{entry_id}     = $item->{ditemid};
-
-    #$item->{metadata} = $item->currents;
-
-    if ( $item->editable_by($remote) ) {
-        $entry->{text_raw}    = $item->event_raw();
-        $entry->{subject_raw} = $item->subject_raw();
-        $entry->{allowmask}   = $item->allowmask;
-    }
-
-    return $entry;
 }
 
 ###################################################
@@ -330,8 +302,10 @@ sub edit_entry {
     my $edit_res = _do_edit( $ditemid, $form_req, { poster => $remote, journal => $usejournal }, );
     return $self->rest_ok($edit_res) if $edit_res->{success} == 1;
 
-    # oops errors when posting: show error, fall through to show form
-    return $self->rest_error( 500, $edit_res->{errors} ) if $edit_res->{errors};
+    # oops errors when posting: show specific error if we have one.
+    my $error = $edit_res->{errors} || "Unknown error while editing entry.";
+
+    return $self->rest_error( 500, $error );
 }
 
 sub _do_edit {
