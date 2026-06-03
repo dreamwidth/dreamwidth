@@ -144,13 +144,16 @@ $log->info("Worker exiting after $messages_count messages, "
 sub process_message {
     my ($body) = @_;
 
-    my $sns = eval { decode_json($body) };
+    # Use from_json (character-string input) rather than decode_json (which
+    # expects UTF-8 bytes) — Paws returns the SQS body as a decoded Perl string,
+    # so decode_json dies "Wide character" on any non-ASCII content.
+    my $sns = eval { from_json($body) };
     if ($@) {
         $log->error("Failed to parse SNS JSON: $@");
         return 1;    # drop malformed messages
     }
 
-    my $event = eval { decode_json( $sns->{Message} ) };
+    my $event = eval { from_json( $sns->{Message} ) };
     if ($@) {
         $log->error("Failed to parse SES event JSON: $@");
         return 1;

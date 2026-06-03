@@ -44,8 +44,11 @@ use DW::Stats;
 #   $raw_email - scalar containing the raw email bytes
 #
 sub process {
-    my ( $class, $raw_email, $path ) = @_;
+    my ( $class, $raw_email, $path, %opts ) = @_;
     $path ||= 'legacy';
+
+    # %opts may carry SES receipt verdicts (dmarc_verdict, dmarc_policy) used to
+    # gate forwarding. Absent on the legacy path; gating is fail-open without them.
 
     DW::Stats::increment( 'dw.incoming_email.received', 1, ["path:$path"] );
 
@@ -141,7 +144,7 @@ sub process {
     }
 
     # Try email alias forwarding before support routing
-    if ( $class->_try_alias_forward( $entity, $path ) ) {
+    if ( $class->_try_alias_forward( $entity, $path, %opts ) ) {
         return 1;
     }
 
@@ -174,7 +177,7 @@ sub _is_blackhole {
 # Check if the recipient matches an email alias and forward if so.
 # Returns 1 if forwarded, 0 if no alias match.
 sub _try_alias_forward {
-    my ( $class, $entity, $path ) = @_;
+    my ( $class, $entity, $path, %opts ) = @_;
     $path ||= 'legacy';
 
     return 0 unless $LJ::USER_EMAIL;
@@ -202,10 +205,31 @@ sub _try_alias_forward {
             undef, $alias );
         next unless $rcpt;
 
+        # DMARC gate: refuse to forward (and thus re-sign as dreamwidth.org) mail
+        # that the sender's OWN domain published a reject policy for and that
+        # failed DMARC. This honors the sender domain's stated policy and avoids
+        # lending our reputation to forged/spam mail. Fail-open: only drops on an
+        # explicit reject+fail; PASS, p=none/quarantine, or missing verdicts
+        # (e.g. the legacy path) all forward as normal.
+        if ( lc( $opts{dmarc_policy} // '' ) eq 'reject'
+            && uc( $opts{dmarc_verdict} // '' ) eq 'FAIL' )
+        {
+            $class->_outcome(
+                'forward_dropped', $path, 'forward', 'warn',
+                alias  => $alias,
+                reason => 'dmarc_reject'
+            );
+            return 1;
+        }
+
         # Forward to each recipient
         my @rcpts = grep { $_ } map { LJ::trim($_) } split( /,/, $rcpt );
         unless (@rcpts) {
-            $class->_outcome( 'forward_dropped', $path, 'forward', 'warn', alias => $alias );
+            $class->_outcome(
+                'forward_dropped', $path, 'forward', 'warn',
+                alias  => $alias,
+                reason => 'empty_rcpt'
+            );
             return 1;
         }
 
@@ -228,6 +252,15 @@ sub _try_alias_forward {
         $head->replace( 'From',     "\"$safe_from via Dreamwidth\" <$new_from>" );
         $head->replace( 'Reply-To', $original_from )
             unless $head->get('Reply-To');
+
+        # Strip the sender's original authentication headers. Rewriting From
+        # above invalidates the original DKIM signature anyway, and leaving it in
+        # place causes SES to reject the re-sent message with
+        # "554 Duplicate header 'DKIM-Signature'" once SES adds its own. Also
+        # drop DKIM/ARC/authentication-results so SES re-signs cleanly as us.
+        $head->delete($_) for qw/ DKIM-Signature DomainKey-Signature
+            ARC-Seal ARC-Message-Signature ARC-Authentication-Results
+            Authentication-Results Received-SPF /;
 
         # Forward via the SendEmail task queue with a dreamwidth.org
         # envelope sender so SES accepts it.
