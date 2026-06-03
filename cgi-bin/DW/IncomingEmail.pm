@@ -35,6 +35,7 @@ use File::Temp ();
 use LJ::Support;
 use LJ::Sysban;
 use MIME::Parser;
+use DW::Stats;
 
 # Process a raw email message. Returns 1 on success (or deliberate drop),
 # 0 on transient failure (caller should retry).
@@ -43,10 +44,13 @@ use MIME::Parser;
 #   $raw_email - scalar containing the raw email bytes
 #
 sub process {
-    my ( $class, $raw_email ) = @_;
+    my ( $class, $raw_email, $path ) = @_;
+    $path ||= 'legacy';
+
+    DW::Stats::increment( 'dw.incoming_email.received', 1, ["path:$path"] );
 
     unless ( defined $raw_email && length $raw_email ) {
-        $log->warn("Empty email data, dropping");
+        $class->_outcome( 'empty', $path, 'none', 'warn' );
         return 1;
     }
 
@@ -58,7 +62,7 @@ sub process {
 
     my $entity = eval { $parser->parse_data($raw_email) };
     if ($@) {
-        $log->error("Can't parse MIME: $@");
+        $class->_outcome( 'parse_fail', $path, 'none', 'error', error => $@ );
         return 1;
     }
 
@@ -96,46 +100,53 @@ sub process {
 
         if ($rv) {
             if ($retry) {
-                $log->warn("Hook requested retry: $errmsg");
+                $class->_outcome( 'hook_retry', $path, 'none', 'warn', msg => $errmsg );
                 return 0;    # transient failure
             }
             if ($errmsg) {
-                $log->error("Hook error: $errmsg");
+                $class->_outcome( 'hook_error', $path, 'none', 'error', msg => $errmsg );
                 return 1;
             }
+            $class->_outcome( 'hook_drop', $path, 'none', 'info' );
             return 1;
         }
     }
 
-    # Post-by-email
+    # Post-by-email (or comment-by-email; both flow through get_handler)
     my $email_post = DW::EmailPost->get_handler($entity);
     if ($email_post) {
+        my $kind = ref($email_post) =~ /Comment/ ? 'comment' : 'post';
+
         my ( $ok, $status_msg ) = $email_post->process;
-        return 1 if $ok;
+        if ($ok) {
+            $class->_outcome( 'post_success', $path, $kind, 'info' );
+            return 1;
+        }
 
         if ( $email_post->dequeue ) {
-            $log->error("EmailPost dequeued: $status_msg");
+            $class->_outcome( 'post_rejected', $path, $kind, 'info', msg => $status_msg );
             return 1;
         }
         else {
-            $log->warn("EmailPost retry: $status_msg");
+            $class->_outcome( 'post_retry', $path, $kind, 'warn', msg => $status_msg );
             return 0;    # transient failure
         }
     }
 
     # Try email alias forwarding before support routing
-    if ( $class->_try_alias_forward($entity) ) {
+    if ( $class->_try_alias_forward( $entity, $path ) ) {
         return 1;
     }
 
     # Support request routing
-    return $class->_route_to_support( $head, $entity, $subject );
+    return $class->_route_to_support( $head, $entity, $subject, $path );
 }
 
 # Check if the recipient matches an email alias and forward if so.
 # Returns 1 if forwarded, 0 if no alias match.
 sub _try_alias_forward {
-    my ( $class, $entity ) = @_;
+    my ( $class, $entity, $path ) = @_;
+    $path ||= 'legacy';
 
     return 0 unless $LJ::USER_EMAIL;
 
@@ -165,13 +176,14 @@ sub _try_alias_forward {
         # Forward to each recipient
         my @rcpts = grep { $_ } map { LJ::trim($_) } split( /,/, $rcpt );
         unless (@rcpts) {
-            $log->warn("Alias $alias has empty rcpt, dropping");
+            $class->_outcome( 'forward_dropped', $path, 'forward', 'warn', alias => $alias );
             return 1;
         }
 
         my $from_addr     = ( Mail::Address->parse( $head->get('From') ) )[0];
         my $original_from = $from_addr ? $from_addr->address : 'unknown';
-        $log->info("Forwarding alias from=$original_from alias=$alias rcpt=$rcpt");
+        $class->_outcome( 'forward_sent', $path, 'forward', 'info',
+            alias => $alias, from => $original_from, rcpt => $rcpt );
 
         # Rewrite the From header so DKIM/SPF/DMARC align with
         # dreamwidth.org. Use a per-sender hash so mail clients
@@ -204,13 +216,14 @@ sub _try_alias_forward {
 
 # Route email to the support system
 sub _route_to_support {
-    my ( $class, $head, $entity, $subject ) = @_;
+    my ( $class, $head, $entity, $subject, $path ) = @_;
+    $path ||= 'legacy';
 
     # Extract body text from MIME entity
     my $tent = DW::EmailPost->get_entity($entity);
     $tent ||= DW::EmailPost->get_entity( $entity, 'html' );
     unless ($tent) {
-        $log->error("Can't find text or html entity");
+        $class->_outcome( 'support_rejected', $path, 'support', 'error', reason => 'no_entity' );
         return 1;
     }
     my $body = $tent->bodyhandle->as_string;
@@ -238,13 +251,13 @@ sub _route_to_support {
     }
 
     unless ($to) {
-        $log->info("Not deliverable to support system (no match To:)");
+        $class->_outcome( 'support_rejected', $path, 'support', 'info', reason => 'no_match' );
         return 1;
     }
 
     my $adf = ( Mail::Address->parse( $head->get('From') ) )[0];
     unless ($adf) {
-        $log->error("Bogus From: header");
+        $class->_outcome( 'support_rejected', $path, 'support', 'error', reason => 'bogus_from' );
         return 1;
     }
 
@@ -259,19 +272,20 @@ sub _route_to_support {
         my $sp       = LJ::Support::load_request($spid);
 
         unless ( LJ::Support::mini_auth($sp) eq $miniauth ) {
-            $log->error("Invalid mini_auth for support request $spid, dropping");
+            $class->_outcome( 'support_rejected', $path, 'support', 'error',
+                reason => 'bad_miniauth', spid => $spid );
             return 1;
         }
 
         if ( LJ::sysban_check( 'support_email', $from ) ) {
             my $msg = "Support request blocked based on email.";
             LJ::Sysban::block( 0, $msg, { 'email' => $from } );
-            $log->info("Dequeued: $msg");
+            $class->_outcome( 'support_rejected', $path, 'support', 'info', reason => 'sysban' );
             return 1;
         }
 
         if ( LJ::Support::is_locked($sp) ) {
-            $log->info("Request is locked, can't append comment.");
+            $class->_outcome( 'support_rejected', $path, 'support', 'info', reason => 'locked' );
             return 1;
         }
 
@@ -292,13 +306,16 @@ sub _route_to_support {
             }
         );
         unless ($splid) {
-            $log->error("Error appending request?");
+            $class->_outcome( 'support_rejected', $path, 'support', 'error',
+                reason => 'append_failed' );
             return 1;
         }
 
         LJ::Support::add_email_address( $sp, $from );
         LJ::Support::touch_request($spid);
 
+        $class->_outcome( 'support_routed', $path, 'support', 'info', spid => $spid,
+            mode => 'append' );
         return 1;
     }
 
@@ -327,6 +344,7 @@ EMAIL_END
             }
         );
 
+        $class->_outcome( 'support_rejected', $path, 'support', 'info', reason => 'deny_list' );
         return 1;
     }
 
@@ -358,11 +376,35 @@ EMAIL_END
     );
 
     if (@errors) {
-        $log->error("Support errors: @errors");
+        $class->_outcome( 'support_rejected', $path, 'support', 'error', reason => 'file_errors' );
         return 1;
     }
 
+    $class->_outcome( 'support_routed', $path, 'support', 'info', spid => $spid, mode => 'new' );
     return 1;
+}
+
+# Emit one metric + one structured log line for a terminal outcome.
+#   $result - bounded enum string (see metric contract)
+#   $path   - 'legacy' | 'ses'
+#   $kind   - 'post' | 'comment' | 'forward' | 'support' | 'none'
+#   $level  - log4perl level: 'info' | 'warn' | 'error'
+#   %fields - extra key=value detail for the log ONLY (never tags)
+sub _outcome {
+    my ( $class, $result, $path, $kind, $level, %fields ) = @_;
+
+    DW::Stats::increment( 'dw.incoming_email.processed', 1,
+        [ "result:$result", "path:$path", "kind:$kind" ] );
+
+    my $detail = join ' ', map { "$_=" . ( defined $fields{$_} ? $fields{$_} : '' ) }
+        sort keys %fields;
+    my $line = "email_outcome result=$result path=$path kind=$kind"
+        . ( $detail ? " $detail" : '' );
+
+    $log->error($line) if $level eq 'error';
+    $log->warn($line)  if $level eq 'warn';
+    $log->info($line)  if $level eq 'info';
+    return;
 }
 
 1;

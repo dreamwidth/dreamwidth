@@ -35,6 +35,7 @@ use Paws;
 use Time::HiRes qw/ time /;
 
 use DW::IncomingEmail;
+use DW::Stats;
 
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
@@ -183,8 +184,20 @@ sub process_message {
     $log->info("Incoming email from=$source to=$recipients "
             . "spam=$spam_verdict virus=$virus_verdict" );
 
-    return 1 if $spam_verdict eq 'FAIL';
-    return 1 if $virus_verdict eq 'FAIL';
+    DW::Stats::increment( 'dw.incoming_email.received', 1, ["path:ses"] );
+
+    if ( $spam_verdict eq 'FAIL' ) {
+        DW::Stats::increment( 'dw.incoming_email.processed', 1,
+            [ "result:spam_drop", "path:ses", "kind:none" ] );
+        $log->info("email_outcome result=spam_drop path=ses kind=none from=$source");
+        return 1;
+    }
+    if ( $virus_verdict eq 'FAIL' ) {
+        DW::Stats::increment( 'dw.incoming_email.processed', 1,
+            [ "result:virus_drop", "path:ses", "kind:none" ] );
+        $log->info("email_outcome result=virus_drop path=ses kind=none from=$source");
+        return 1;
+    }
 
     # Extract S3 location from the SES receipt action
     my $action = $receipt->{action};
@@ -227,7 +240,7 @@ sub process_message {
     $log->info( "Processing email from s3://$bucket/$key (" . length($raw_email) . " bytes)" );
 
     # Process the email using the shared pipeline
-    my $rv = DW::IncomingEmail->process($raw_email);
+    my $rv = DW::IncomingEmail->process( $raw_email, 'ses' );
 
     # Clean up the S3 object after successful processing
     if ($rv) {
