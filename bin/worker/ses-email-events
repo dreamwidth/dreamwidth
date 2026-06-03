@@ -1,0 +1,193 @@
+#!/usr/bin/perl
+#
+# bin/worker/ses-email-events
+#
+# Worker that processes outbound SES sending events (Delivery, Bounce, Reject,
+# Complaint, RenderingFailure) for mail sent through the "dw-prod" SES
+# configuration set. Polls an SQS queue fed by SNS from the config set's event
+# destination.
+#
+# Pipeline: SES (dw-prod config set) -> SNS -> SQS -> this worker
+#
+# This gives per-message visibility into what happens AFTER the SMTP handoff to
+# SES, which the dw.email.sent=completed metric does not cover (that only means
+# SES accepted the message).
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use v5.10;
+use strict;
+
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use Getopt::Long;
+use JSON;
+use Log::Log4perl;
+use Paws;
+use Time::HiRes qw/ time /;
+
+use DW::Stats;
+
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+my $verbose = 0;
+GetOptions( 'verbose|v' => \$verbose );
+
+# Worker lifecycle limits (same pattern as other DW workers)
+my $exit_after_secs     = 300 + int( rand() * 600 );    # 5-15 minutes
+my $exit_after_messages = 100;
+my $message_timeout     = 300;                           # 5 minutes per message
+
+my $start_time     = time();
+my $messages_count = 0;
+
+# SQS queue name — configure via $LJ::SES_EMAIL_EVENTS_QUEUE or use default
+my $queue_name = $LJ::SES_EMAIL_EVENTS_QUEUE || 'dw-prod-ses-email-events';
+
+# Initialize AWS clients
+my $paws = Paws->new(
+    config => {
+        region => $LJ::SQS{region} || 'us-east-1',
+    },
+);
+my $sqs = $paws->service('SQS');
+
+# Resolve queue URL
+my $queue_url;
+{
+    my $res = eval { $sqs->GetQueueUrl( QueueName => $queue_name ) };
+    if ($@) {
+        die "Failed to get SQS queue URL for $queue_name: "
+            . ( ref $@ && $@->isa('Paws::Exception') ? $@->message : $@ );
+    }
+    $queue_url = $res->QueueUrl;
+    $log->info("Polling SQS queue: $queue_name ($queue_url)");
+}
+
+# Main work loop
+while (1) {
+
+    last if ( time() - $start_time ) >= $exit_after_secs;
+    last if $messages_count >= $exit_after_messages;
+
+    my $res = eval {
+        $sqs->ReceiveMessage(
+            QueueUrl            => $queue_url,
+            MaxNumberOfMessages => 10,
+            WaitTimeSeconds     => 10,
+        );
+    };
+    if ($@) {
+        $log->error( "SQS receive error: "
+                . ( ref $@ && $@->isa('Paws::Exception') ? $@->message : $@ ) );
+        sleep 5;
+        next;
+    }
+
+    my $messages = $res->Messages;
+    next unless $messages && ref $messages eq 'ARRAY' && @$messages;
+
+    my @completed_handles;
+
+    foreach my $msg (@$messages) {
+        $messages_count++;
+
+        local $SIG{ALRM} = sub { die "Message processing timeout\n" };
+        alarm($message_timeout);
+
+        my $ok = eval { process_message( $msg->Body ) };
+        my $err = $@;
+
+        alarm(0);
+
+        if ($err) {
+            $log->error("Error processing message: $err");
+            next;    # don't delete — let SQS visibility timeout handle retry
+        }
+
+        push @completed_handles, $msg->ReceiptHandle if $ok;
+    }
+
+    if (@completed_handles) {
+        my $idx = 0;
+        eval {
+            $sqs->DeleteMessageBatch(
+                QueueUrl => $queue_url,
+                Entries  => [ map { { Id => $idx++, ReceiptHandle => $_ } } @completed_handles ],
+            );
+        };
+        if ($@) {
+            $log->error( "Failed to delete messages: "
+                    . ( ref $@ && $@->isa('Paws::Exception') ? $@->message : $@ ) );
+        }
+    }
+}
+
+$log->info("Worker exiting after $messages_count messages, "
+        . int( time() - $start_time )
+        . "s runtime" );
+
+# Parse an SQS message body (SNS notification wrapping an SES event) and emit a
+# metric + structured log line per event.
+#
+# Returns 1 on success/drop, 0 on transient failure.
+sub process_message {
+    my ($body) = @_;
+
+    my $sns = eval { decode_json($body) };
+    if ($@) {
+        $log->error("Failed to parse SNS JSON: $@");
+        return 1;    # drop malformed messages
+    }
+
+    my $event = eval { decode_json( $sns->{Message} ) };
+    if ($@) {
+        $log->error("Failed to parse SES event JSON: $@");
+        return 1;
+    }
+
+    # SES SNS events carry the type in eventType (config-set events) or
+    # notificationType (legacy identity notifications). Normalize to lower case.
+    my $type = lc( $event->{eventType} || $event->{notificationType} || 'unknown' );
+
+    # Recipients depend on the event type; fall back to the mail destination.
+    my @rcpts;
+    if ( $type eq 'bounce' ) {
+        @rcpts = map { $_->{emailAddress} } @{ $event->{bounce}{bouncedRecipients} || [] };
+    }
+    elsif ( $type eq 'complaint' ) {
+        @rcpts = map { $_->{emailAddress} } @{ $event->{complaint}{complainedRecipients} || [] };
+    }
+    elsif ( $type eq 'delivery' ) {
+        @rcpts = @{ $event->{delivery}{recipients} || [] };
+    }
+    @rcpts = @{ $event->{mail}{destination} || [] } unless @rcpts;
+    my $rcpt = join( ',', @rcpts ) || 'unknown';
+
+    # Sub-classification for bounces (permanent vs transient) — bounded enum,
+    # safe as a metric tag. Everything identifying goes in the log line only.
+    my $subtype = 'none';
+    if ( $type eq 'bounce' ) {
+        $subtype = lc( $event->{bounce}{bounceType} || 'unknown' );
+    }
+
+    DW::Stats::increment( 'dw.email.event', 1, [ "type:$type", "subtype:$subtype" ] );
+
+    my %warn_types = ( bounce => 1, reject => 1, complaint => 1 );
+    my $level = $warn_types{$type} ? 'warn' : 'info';
+    my $line  = "email_event type=$type subtype=$subtype rcpt=$rcpt";
+    $log->warn($line) if $level eq 'warn';
+    $log->info($line) if $level eq 'info';
+
+    return 1;
+}

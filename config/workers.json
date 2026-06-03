@@ -251,6 +251,16 @@
       "target_cpu": 50,
       "sqs_queue_name": "dw-prod-ses-incoming-email"
     },
+    "ses-email-events": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "email",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-ses-email-events"
+    },
     "dw-import-eraser": {
       "cpu": 256,
       "memory": 512,

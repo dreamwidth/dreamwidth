@@ -211,8 +211,12 @@ sub _try_alias_forward {
 
         my $from_addr     = ( Mail::Address->parse( $head->get('From') ) )[0];
         my $original_from = $from_addr ? $from_addr->address : 'unknown';
-        $class->_outcome( 'forward_sent', $path, 'forward', 'info',
-            alias => $alias, from => $original_from, rcpt => $rcpt );
+        $class->_outcome(
+            'forward_sent', $path, 'forward', 'info',
+            alias => $alias,
+            from  => $original_from,
+            rcpt  => $rcpt
+        );
 
         # Rewrite the From header so DKIM/SPF/DMARC align with
         # dreamwidth.org. Use a per-sender hash so mail clients
@@ -301,8 +305,11 @@ sub _route_to_support {
         my $sp       = LJ::Support::load_request($spid);
 
         unless ( LJ::Support::mini_auth($sp) eq $miniauth ) {
-            $class->_outcome( 'support_rejected', $path, 'support', 'error',
-                reason => 'bad_miniauth', spid => $spid );
+            $class->_outcome(
+                'support_rejected', $path, 'support', 'error',
+                reason => 'bad_miniauth',
+                spid   => $spid
+            );
             return 1;
         }
 
@@ -343,8 +350,11 @@ sub _route_to_support {
         LJ::Support::add_email_address( $sp, $from );
         LJ::Support::touch_request($spid);
 
-        $class->_outcome( 'support_routed', $path, 'support', 'info', spid => $spid,
-            mode => 'append' );
+        $class->_outcome(
+            'support_routed', $path, 'support', 'info',
+            spid => $spid,
+            mode => 'append'
+        );
         return 1;
     }
 
@@ -427,8 +437,7 @@ sub _outcome {
 
     my $detail = join ' ', map { "$_=" . ( defined $fields{$_} ? $fields{$_} : '' ) }
         sort keys %fields;
-    my $line = "email_outcome result=$result path=$path kind=$kind"
-        . ( $detail ? " $detail" : '' );
+    my $line = "email_outcome result=$result path=$path kind=$kind" . ( $detail ? " $detail" : '' );
 
     $log->error($line) if $level eq 'error';
     $log->warn($line)  if $level eq 'warn';
