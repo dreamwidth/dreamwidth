@@ -77,9 +77,16 @@ sub work {
 
         # Only try auth if we have username/pw configured for mail server
         if ( $LJ::SMTP_SERVER{username} && $LJ::SMTP_SERVER{password} ) {
-            $smtp->auth( $LJ::SMTP_SERVER{username}, $LJ::SMTP_SERVER{password} )
-                or return $failed->(
-                "Couldn't authenticate to $LJ::SMTP_SERVER{hostname}, will retry.");
+
+            # Capture the server's response on failure so we can distinguish a
+            # real credential rejection (535) from temporary throttling (454).
+            unless ( $smtp->auth( $LJ::SMTP_SERVER{username}, $LJ::SMTP_SERVER{password} ) ) {
+                my $resp = eval { $smtp->code . ' ' . $smtp->message } || '(no response)';
+                chomp $resp;
+                return $failed->(
+                    "Couldn't authenticate to $LJ::SMTP_SERVER{hostname}: %s, will retry.", $resp
+                );
+            }
         }
     }
     $last_email = time();
