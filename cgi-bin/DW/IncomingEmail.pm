@@ -27,14 +27,12 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-use Digest::SHA qw(sha256_hex);
 use DW::EmailPost;
-use DW::Task::SendEmail;
-use DW::TaskQueue;
 use File::Temp ();
 use LJ::Support;
 use LJ::Sysban;
 use MIME::Parser;
+use Net::SMTP;
 use DW::Stats;
 
 # Process a raw email message. Returns 1 on success (or deliberate drop),
@@ -144,7 +142,7 @@ sub process {
     }
 
     # Try email alias forwarding before support routing
-    if ( $class->_try_alias_forward( $entity, $path, %opts ) ) {
+    if ( $class->_try_alias_forward( $entity, $raw_email, $path, %opts ) ) {
         return 1;
     }
 
@@ -177,7 +175,7 @@ sub _is_blackhole {
 # Check if the recipient matches an email alias and forward if so.
 # Returns 1 if forwarded, 0 if no alias match.
 sub _try_alias_forward {
-    my ( $class, $entity, $path, %opts ) = @_;
+    my ( $class, $entity, $raw_email, $path, %opts ) = @_;
     $path ||= 'legacy';
 
     return 0 unless $LJ::USER_EMAIL;
@@ -233,50 +231,92 @@ sub _try_alias_forward {
             return 1;
         }
 
-        my $from_addr     = ( Mail::Address->parse( $head->get('From') ) )[0];
-        my $original_from = $from_addr ? $from_addr->address : 'unknown';
+        # Envelope sender: preserve the original return-path (classic forwarding,
+        # so bounces go back to the original sender). Fall back to the From
+        # address, then to $LJ::BOGUS_EMAIL if neither is present.
+        my $env_from =
+            ${ ( Mail::Address->parse( $head->get('Return-Path') ) )[0] || [] }[1];
+        unless ($env_from) {
+            my $from_addr = ( Mail::Address->parse( $head->get('From') ) )[0];
+            $env_from = $from_addr ? $from_addr->address : $LJ::BOGUS_EMAIL;
+        }
+
+        # Relay the ORIGINAL raw bytes, unmodified, through the outbound relay.
+        # Do NOT use $entity->as_string here: re-serializing the MIME entity can
+        # alter bytes and break the sender's DKIM signature, which is the whole
+        # point of relaying (DKIM survives, DMARC passes on DKIM alignment).
+        unless ( $class->_relay_raw( $raw_email, $env_from, \@rcpts ) ) {
+            $class->_outcome(
+                'forward_retry', $path, 'forward', 'warn',
+                alias => $alias,
+                from  => $env_from
+            );
+            return 0;    # transient relay failure -> allow SQS retry
+        }
+
         $class->_outcome(
             'forward_sent', $path, 'forward', 'info',
             alias => $alias,
-            from  => $original_from,
+            from  => $env_from,
             rcpt  => $rcpt
-        );
-
-        # Rewrite the From header so DKIM/SPF/DMARC align with
-        # dreamwidth.org. Use a per-sender hash so mail clients
-        # group messages from the same original sender together.
-        my $hash     = substr( sha256_hex( lc $original_from ), 0, 12 );
-        my $new_from = "noreply-$hash\@$LJ::DOMAIN";
-
-        ( my $safe_from = $original_from ) =~ s/["\\\r\n]//g;
-        $head->replace( 'From',     "\"$safe_from via Dreamwidth\" <$new_from>" );
-        $head->replace( 'Reply-To', $original_from )
-            unless $head->get('Reply-To');
-
-        # Strip the sender's original authentication headers. Rewriting From
-        # above invalidates the original DKIM signature anyway, and leaving it in
-        # place causes SES to reject the re-sent message with
-        # "554 Duplicate header 'DKIM-Signature'" once SES adds its own. Also
-        # drop DKIM/ARC/authentication-results so SES re-signs cleanly as us.
-        $head->delete($_) for qw/ DKIM-Signature DomainKey-Signature
-            ARC-Seal ARC-Message-Signature ARC-Authentication-Results
-            Authentication-Results Received-SPF /;
-
-        # Forward via the SendEmail task queue with a dreamwidth.org
-        # envelope sender so SES accepts it.
-        DW::TaskQueue->dispatch(
-            DW::Task::SendEmail->new(
-                {
-                    env_from => $new_from,
-                    rcpts    => \@rcpts,
-                    data     => $entity->as_string,
-                }
-            )
         );
 
         return 1;
     }
 
+    return 0;
+}
+
+# Relay a raw message, unmodified, to the outbound relay host
+# ($LJ::FORWARD_RELAY_HOST, e.g. va-mail01). Sending the original bytes verbatim
+# preserves the sender's DKIM signature so the forwarded mail passes DMARC on
+# DKIM alignment (SPF will fail, which is expected and harmless for forwards).
+#
+#   $raw_bytes - the original raw email, exactly as received (NOT re-serialized)
+#   $env_from  - envelope sender (MAIL FROM)
+#   $rcpts     - arrayref of recipient addresses
+#
+# Returns 1 on success, 0 on transient failure (caller should allow retry).
+sub _relay_raw {
+    my ( $class, $raw_bytes, $env_from, $rcpts ) = @_;
+
+    my $host = $LJ::FORWARD_RELAY_HOST;
+    unless ($host) {
+        $log->error("Cannot relay forward: \$LJ::FORWARD_RELAY_HOST is not set");
+        return 0;
+    }
+
+    my $smtp = Net::SMTP->new( $host, Port => 25, Timeout => 60 );
+    unless ($smtp) {
+        $log->warn("Forward relay: failed to connect to $host, will retry");
+        return 0;
+    }
+
+    my $ok = eval {
+        $smtp->mail($env_from)      or die "MAIL FROM rejected\n";
+        $smtp->to(@$rcpts)          or die "RCPT TO rejected\n";
+        $smtp->data                 or die "DATA rejected\n";
+        $smtp->datasend($raw_bytes) or die "DATASEND failed\n";
+        $smtp->dataend              or die "DATAEND rejected\n";
+        1;
+    };
+    my $err  = $@;
+    my $code = eval { $smtp->code } // 0;
+    $smtp->quit;
+
+    return 1 if $ok;
+
+    # 5xx = permanent (e.g. message too large). Log and treat as handled so we
+    # don't retry forever. 4xx / connection issues = transient, allow retry.
+    if ( $code >= 500 && $code < 600 ) {
+        $log->error(
+            "Forward relay permanent failure ($code) to " . join( ',', @$rcpts ) . ": $err" );
+        return 1;
+    }
+
+    $log->warn( "Forward relay transient failure ($code) to "
+            . join( ',', @$rcpts )
+            . ": $err, will retry" );
     return 0;
 }
 
