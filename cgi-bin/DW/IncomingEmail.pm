@@ -133,6 +133,13 @@ sub process {
         }
     }
 
+    # Blackhole addresses (e.g. dw_null) — bounce/null sink. Drop silently
+    # before forwarding/support routing so they don't masquerade as failures.
+    if ( $class->_is_blackhole($head) ) {
+        $class->_outcome( 'dropped', $path, 'none', 'info', reason => 'blackhole' );
+        return 1;
+    }
+
     # Try email alias forwarding before support routing
     if ( $class->_try_alias_forward( $entity, $path ) ) {
         return 1;
@@ -140,6 +147,28 @@ sub process {
 
     # Support request routing
     return $class->_route_to_support( $head, $entity, $subject, $path );
+}
+
+# Return true if any To/Cc recipient is a configured blackhole/null address
+# (the SES-path equivalent of postfix's "dw_null: /dev/null" alias).
+sub _is_blackhole {
+    my ( $class, $head ) = @_;
+
+    # Local-parts (on our domain) whose mail should be silently discarded.
+    # Override via @LJ::EMAIL_BLACKHOLE_LOCALPARTS; defaults to dw_null.
+    my @localparts =
+        @LJ::EMAIL_BLACKHOLE_LOCALPARTS ? @LJ::EMAIL_BLACKHOLE_LOCALPARTS : ('dw_null');
+    my %blackhole = map { lc($_) => 1 } @localparts;
+
+    foreach
+        my $a ( Mail::Address->parse( $head->get('To') ), Mail::Address->parse( $head->get('Cc') ) )
+    {
+        my $address = lc $a->address;
+        next unless $address =~ /^(.+)\@\Q$LJ::USER_DOMAIN\E$/;
+        return 1 if $blackhole{$1};
+    }
+
+    return 0;
 }
 
 # Check if the recipient matches an email alias and forward if so.
@@ -223,7 +252,7 @@ sub _route_to_support {
     my $tent = DW::EmailPost->get_entity($entity);
     $tent ||= DW::EmailPost->get_entity( $entity, 'html' );
     unless ($tent) {
-        $class->_outcome( 'support_rejected', $path, 'support', 'error', reason => 'no_entity' );
+        $class->_outcome( 'support_rejected', $path, 'support', 'info', reason => 'no_entity' );
         return 1;
     }
     my $body = $tent->bodyhandle->as_string;
