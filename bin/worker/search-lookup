@@ -30,21 +30,22 @@ use LJ::UserSearch::MetaUpdater;
 # worker anymore. See LJ::Directory::Search::get_set_handles.
 $LJ::DIRECTORY_INLINE_CONSTRAINTS = 1;
 
+# Throttle: minimum uptime before any recycle path (file-grew or hygiene) is
+# allowed to fire. Avoids restart storms during early-life signup bursts.
+use constant RESTART_THROTTLE_SECS => 60;
+
+# Hygiene recycle: on mature installs where most activity is updates to
+# existing users, the metafile doesn't grow and the file-grew recycle never
+# fires. Cap process lifetime so latent state (memory drift, accumulated
+# $mtime, anything that wedges across an idle cycle) can't persist forever.
+use constant MAX_UPTIME_SECS => 24 * 60 * 60;
+
 my $filename = $LJ::USERSEARCH_METAFILE_PATH
     || die "Don't have a valid filename for the usersearch metafile.";
 
 # Boot the in-memory index from the EFS metafile.
 my ( $mtime, $boot_size ) = init_memory_datastructure();
 my $boot_time = time();
-
-# Open the metafile read-write so the idle handler can drain new DB rows into
-# it (the work the legacy search-updater used to do).
-sysopen( my $fh, $filename, O_RDWR | O_CREAT )
-    or die "Couldn't open file '$filename' for read/write: $!";
-unless ( -s $filename >= 8 ) {
-    # Prepopulate the 8-byte header if the file is brand new.
-    syswrite( $fh, "\0" x 8 );
-}
 
 my $loop_limit = 10_000;
 
@@ -58,30 +59,57 @@ sub idle {
     my $lock = LJ::locker()->trylock("usersearch:updater");
     return unless $lock;
 
-    my $dbr = LJ::get_db_reader() or return;
+    # Drain one batch of pending DB rows into the EFS metafile, then patch the
+    # in-memory index. Both steps are wrapped in eval so a transient EFS or DB
+    # failure doesn't escape — and so the recycle check below still runs even
+    # when the drain failed.
+    #
+    # $fh is opened fresh per idle: a long-lived handle across hours of
+    # uptime risks staleness if the EFS mount is briefly disrupted (Fargate
+    # spot reclaim, AZ event); a fresh sysopen each tick costs one NFS
+    # round-trip and guarantees we never get wedged on a dead FD.
+    #
+    # Single update_file_partial call (no do-while loop) caps idle latency so
+    # directory_search RPCs can land between batches when there's a large
+    # catch-up backlog. The next idle picks up where we left off.
+    my $dbr = LJ::get_db_reader();
+    if ( $dbr && sysopen( my $fh, $filename, O_RDWR | O_CREAT, 0644 ) ) {
+        eval {
+            LJ::UserSearch::MetaUpdater::update_file_partial( $dbr, $fh, $loop_limit );
 
-    # Drain pending DB rows into the EFS metafile. update_file_partial is
-    # header-driven and resumes gap-free if we get killed mid-write.
-    my $count;
-    do {
-        $count = LJ::UserSearch::MetaUpdater::update_file_partial( $dbr, $fh, $loop_limit );
-    } while ( $count == $loop_limit );
+            # Patch the in-memory index from the DB for users whose mtime is
+            # newer than our last applied mtime (LIMIT 1000 inside MetaUpdater).
+            $mtime = LJ::UserSearch::MetaUpdater::update_users($mtime);
+        };
+        warn "usersearch drain/patch failed: $@" if $@;
+        close($fh) or warn "usersearch close '$filename' failed: $!\n";
+    }
+    elsif ( !$dbr ) {
+        warn "usersearch idle skipped DB work: no DB reader available\n";
+    }
+    else {
+        warn "usersearch idle skipped DB work: open '$filename' failed: $!\n";
+    }
 
-    # Patch the in-memory index from the DB for users whose mtime is newer
-    # than our last applied mtime. Capped at LIMIT 1000 per call inside
-    # MetaUpdater.
-    $mtime = LJ::UserSearch::MetaUpdater::update_users($mtime);
+    # Recycle checks below are decoupled from the DB/file path above so a
+    # transient outage can't trap a worker that should have been replaced.
+    return unless time() > $boot_time + RESTART_THROTTLE_SECS;
 
     # If the metafile has grown past the size we booted with, brand-new users
-    # whose UID exceeds the in-memory capacity (users_max in UserSearch.xs)
-    # are being silently dropped by update_user. Exit cleanly so
-    # startup-prod.sh reruns us, reloading the file at the new size and
-    # resizing the index. Throttle to once per minute to avoid restart
-    # storms during signup bursts.
+    # whose UID exceeds the in-memory capacity (users_max in UserSearch.xs) are
+    # being silently dropped by update_user. Exit cleanly so startup-prod.sh
+    # reruns us, reloading the file at the new size and resizing the index.
     my $size = -s $filename;
-    if ( defined $size && $size > $boot_size && time() > $boot_time + 60 ) {
+    if ( defined $size && $size > $boot_size ) {
         warn "usersearch metafile grew ($boot_size -> $size bytes); "
             . "recycling search-lookup to resize the in-memory index\n";
+        exit 0;
+    }
+
+    if ( time() > $boot_time + MAX_UPTIME_SECS ) {
+        warn "usersearch search-lookup uptime exceeded "
+            . MAX_UPTIME_SECS
+            . "s; recycling for hygiene\n";
         exit 0;
     }
 }
