@@ -370,6 +370,23 @@
       "max_count": 1,
       "target_cpu": 50
     },
+    "search-lookup": {
+      "cpu": 512,
+      "memory": 2048,
+      "category": "search",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "extra_efs_volumes": [
+        {
+          "name": "dw-usersearch",
+          "rootDirectory": "/usersearch",
+          "containerPath": "/dw/var/usersearch",
+          "readOnly": false
+        }
+      ]
+    },
     "shop-creditcard-charge": {
       "cpu": 256,
       "memory": 512,

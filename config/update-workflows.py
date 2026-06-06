@@ -127,12 +127,50 @@ jobs:
     return workflow
 
 
-def generate_task_definition(name, cpu, memory):
+def generate_task_definition(name, worker):
     """Generate a task definition JSON file for a worker."""
+
+    cpu = worker["cpu"]
+    memory = worker["memory"]
+    extra_efs = worker.get("extra_efs_volumes", [])
 
     account_id = "194396987458"
     region = "us-east-1"
     fluent_bit_image = f"{account_id}.dkr.ecr.{region}.amazonaws.com/dreamwidth-fluent-bit:3"
+
+    worker_mount_points = [
+        {
+            "sourceVolume": "dw-config",
+            "containerPath": "/dw/etc",
+            "readOnly": True
+        }
+    ]
+    for vol in extra_efs:
+        worker_mount_points.append({
+            "sourceVolume": vol["name"],
+            "containerPath": vol["containerPath"],
+            "readOnly": vol["readOnly"]
+        })
+
+    volumes = [
+        {
+            "name": "dw-config",
+            "efsVolumeConfiguration": {
+                "fileSystemId": "fs-f9f3e04d",
+                "rootDirectory": "/etc-workers",
+                "transitEncryption": "DISABLED"
+            }
+        }
+    ]
+    for vol in extra_efs:
+        volumes.append({
+            "name": vol["name"],
+            "efsVolumeConfiguration": {
+                "fileSystemId": "fs-f9f3e04d",
+                "rootDirectory": vol["rootDirectory"],
+                "transitEncryption": "DISABLED"
+            }
+        })
 
     task = {
         "containerDefinitions": [
@@ -188,13 +226,7 @@ def generate_task_definition(name, cpu, memory):
                     "-v"
                 ],
                 "environment": [],
-                "mountPoints": [
-                    {
-                        "sourceVolume": "dw-config",
-                        "containerPath": "/dw/etc",
-                        "readOnly": True
-                    }
-                ],
+                "mountPoints": worker_mount_points,
                 "volumesFrom": [],
                 "linuxParameters": {
                     "initProcessEnabled": True
@@ -221,16 +253,7 @@ def generate_task_definition(name, cpu, memory):
         "taskRoleArn": f"arn:aws:iam::{account_id}:role/dreamwidth-ecsTaskRole",
         "executionRoleArn": f"arn:aws:iam::{account_id}:role/dreamwidth-ecsTaskExecutionRole",
         "networkMode": "awsvpc",
-        "volumes": [
-            {
-                "name": "dw-config",
-                "efsVolumeConfiguration": {
-                    "fileSystemId": "fs-f9f3e04d",
-                    "rootDirectory": "/etc-workers",
-                    "transitEncryption": "DISABLED"
-                }
-            }
-        ],
+        "volumes": volumes,
         "requiresCompatibilities": ["FARGATE"],
         "cpu": str(cpu),
         "memory": str(memory)
@@ -254,7 +277,7 @@ print(f"Generating task definitions in {tasks_dir}...")
 tasks_dir.mkdir(exist_ok=True)
 for name in worker_names:
     w = workers[name]
-    task_content = generate_task_definition(name, w["cpu"], w["memory"])
+    task_content = generate_task_definition(name, w)
     with open(tasks_dir / f"worker-{name}-service.json", "w") as f:
         f.write(task_content)
         f.write("\n")

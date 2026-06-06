@@ -49,6 +49,7 @@ on:
         - process-privacy
         - resolve-extacct
         - schedule-synsuck
+        - search-lookup
         - ses-email-events
         - ses-incoming-email
         - shop-creditcard-charge
@@ -417,6 +418,15 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
+      - name: (search-lookup) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-lookup'
+        id: render-worker-container-search-lookup
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-search-lookup-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
       - name: (ses-email-events) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'ses-email-events'
         id: render-worker-container-ses-email-events
@@ -775,6 +785,14 @@ jobs:
           task-definition: ${{ steps.render-worker-container-schedule-synsuck.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-schedule-synsuck-service"
+
+      - name: (search-lookup) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-lookup'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-search-lookup.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-search-lookup-service"
 
       - name: (ses-email-events) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'ses-email-events'

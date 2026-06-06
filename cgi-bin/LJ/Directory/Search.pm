@@ -183,7 +183,12 @@ sub get_set_handles {
     my $n = 0;
     my @todo;    # subrefs to fetch
     my $failed = '';
-    my $ts     = @LJ::GEARMAN_SERVERS ? LJ::gearman_client()->new_task_set : undef;
+
+    # The lookup worker sets $LJ::DIRECTORY_INLINE_CONSTRAINTS so it resolves
+    # constraints in-process — there is no separate search-constraints worker
+    # listening for directory_search_constraint tasks anymore.
+    my $use_gearman = @LJ::GEARMAN_SERVERS && !$LJ::DIRECTORY_INLINE_CONSTRAINTS;
+    my $ts          = $use_gearman ? LJ::gearman_client()->new_task_set : undef;
 
     foreach my $cs ( sort { $a->cardinality <=> $b->cardinality } $self->constraints ) {
         my $sh = $cs->cached_sethandle;
@@ -191,7 +196,7 @@ sub get_set_handles {
             $seth[$n] = $sh;
         }
         else {
-            if (@LJ::GEARMAN_SERVERS) {
+            if ($use_gearman) {
                 my $index          = $n;
                 my $constraint_str = $cs->serialize;
                 my $searcharg      = Storable::nfreeze( [ \$constraint_str ] );
