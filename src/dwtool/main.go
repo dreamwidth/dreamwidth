@@ -38,6 +38,12 @@ func main() {
 		case "images":
 			runImages(os.Args[2:])
 			return
+		case "deploy":
+			runDeploy(os.Args[2:])
+			return
+		case "deploy-category":
+			runDeployCategory(os.Args[2:])
+			return
 		case "help", "--help", "-h":
 			printUsage()
 			return
@@ -82,11 +88,15 @@ Commands:
   services      List ECS services and their rollout state (--json)
   status        Show one service's deployments and running tasks (--json)
   images        List deployable GHCR images for a service (--json)
+  deploy        Deploy an image digest to one service (dry run without --yes)
+  deploy-category  Deploy a digest to every worker in a category (dry run without --yes)
   log-scan      Search logs across all Dreamwidth services (via Loki)
   esn-trace     Trace an ESN event through the full notification pipeline
 
-The services/status/images commands need AWS credentials; images additionally
-needs the 'gh' CLI authenticated. Loki credentials for log-scan/esn-trace:
+The services/status/images/deploy commands need AWS credentials; images and
+deploy additionally need the 'gh' CLI authenticated. deploy/deploy-category only
+trigger a workflow when given --yes; otherwise they print a plan and exit.
+Loki credentials for log-scan/esn-trace:
 ~/.config/dwtool/config.json or DWTOOL_LOKI_* env vars.
 Run 'dwtool <command> --help' for details on a specific command.
 `)
