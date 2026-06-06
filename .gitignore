@@ -35,3 +35,17 @@ t-theschwartz.sqlite
 # Worktrees
 .worktrees/
 .claude/worktrees/
+
+# LJ::UserSearch XS build outputs + install location (built into the worker
+# image; should never be committed even if a developer builds locally).
+/cgi-bin/*-linux-*-thread-multi/
+/src/LJ-UserSearch/Makefile
+/src/LJ-UserSearch/MYMETA.*
+/src/LJ-UserSearch/blib/
+/src/LJ-UserSearch/pm_to_blib
+/src/LJ-UserSearch/*.o
+/src/LJ-UserSearch/*.bs
+/src/LJ-UserSearch/UserSearch.c
+/src/LJ-UserSearch/const-c.inc
+/src/LJ-UserSearch/const-xs.inc
+/src/LJ-UserSearch/man/

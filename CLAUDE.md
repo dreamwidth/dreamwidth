@@ -180,14 +180,18 @@ Before pushing any branch, run these checks inside the devcontainer and fix any 
 
 PRs target `dreamwidth/dreamwidth`. If the working repo is a fork, use `--head <fork-owner>:<branch-name>` (check the `origin` remote to determine the fork owner).
 
+**Keep PR bodies short.** Both sections together should fit on one screen. The technical description is a few sentences naming the mechanism and the key files — not a restatement of the diff or a bullet list of every changed file. The CODE TOUR is one short paragraph in plain language. Reviewers read these on phones; verbosity is a tax.
+
+Every PR must include a CODE TOUR. Omit `Fixes #N` when there's no linked issue.
+
 PR body format:
 
 ```
-<Technical description of the change — what code was modified and why, referencing specific
-functions/files/mechanics as appropriate. This is for developers reviewing the PR.>
+<Technical description: what mechanism changed and why, naming the key files/functions.
+For developers. A few sentences.>
 
-CODE TOUR: <Non-technical description for the Dreamwidth community. Explain what changed from a
-user's perspective, skipping implementation details. Keep it conversational.>
+CODE TOUR: <Non-technical description for the Dreamwidth community. What changed from a
+user's perspective, no implementation. One short paragraph, conversational.>
 
 Fixes #<issue-number>
 ```

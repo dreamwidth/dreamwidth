@@ -25,6 +25,12 @@ RUN git -C $LJHOME fetch && \
     git -C $LJHOME checkout $COMMIT && \
     git -C $LJHOME pull --ff-only origin $COMMIT
 
+# Build the LJ::UserSearch XS extension (in-memory directory-search index used
+# by the search-lookup worker). Harmless if other workers ignore it.
+RUN cd $LJHOME/src/LJ-UserSearch && \
+    perl Makefile.PL LIB=$LJHOME/cgi-bin PREFIX=$LJHOME/src/LJ-UserSearch/ && \
+    make all test install
+
 # Copy in support scripts/configurations that are useful.
 ADD scripts/ /opt/
 
