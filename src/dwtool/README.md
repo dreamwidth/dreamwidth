@@ -27,17 +27,45 @@ go build -o dwtool .
 
 ## Usage
 
+Run with no arguments for the interactive TUI:
+
 ```bash
 ./dwtool
 ```
 
-Flags:
+TUI flags:
 
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--region` | `us-east-1` | AWS region |
 | `--cluster` | `dreamwidth` | ECS cluster name |
 | `--repo` | `dreamwidth/dreamwidth` | GitHub repository |
+
+### Headless commands
+
+For scripting (and so Claude can drive it from the CLI), the same data is
+available as non-interactive subcommands. Each prints human-readable text by
+default, machine-readable JSON with `--json`, and sets a non-zero exit code on
+failure. All accept `--region` and `--cluster`.
+
+| Command | Description |
+|---------|-------------|
+| `dwtool services [--group web\|worker\|proxy] [--filter X] [--no-images] [--json]` | List ECS services and their rollout state |
+| `dwtool status <service> [--json]` | One service's deployments and running tasks |
+| `dwtool images <service> [--target worker22] [--limit N] [--json]` | Deployable GHCR images, newest first (`*` = currently deployed) |
+| `dwtool log-scan -keyword <term> [...]` | Search logs across services via Loki |
+| `dwtool esn-trace <trace-id-or-url> [...]` | Trace an ESN event through the pipeline |
+
+`services`/`status`/`images` need AWS credentials; `images` additionally needs
+the `gh` CLI authenticated. `log-scan`/`esn-trace` use Loki credentials from
+`~/.config/dwtool/config.json` or `DWTOOL_LOKI_*` env vars. Run
+`dwtool <command> --help` for the full flag list.
+
+```bash
+dwtool services --group web --json
+dwtool status web-stable-service
+dwtool images worker-esn-process-sub-service --target worker22
+```
 
 ## Keybindings
 

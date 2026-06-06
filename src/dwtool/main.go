@@ -29,6 +29,15 @@ func main() {
 		case "esn-trace":
 			runESNTrace(os.Args[2:])
 			return
+		case "services":
+			runServices(os.Args[2:])
+			return
+		case "status":
+			runStatus(os.Args[2:])
+			return
+		case "images":
+			runImages(os.Args[2:])
+			return
 		case "help", "--help", "-h":
 			printUsage()
 			return
@@ -70,10 +79,15 @@ func printUsage() {
 
 Commands:
   (default)     Interactive ECS service dashboard (TUI)
+  services      List ECS services and their rollout state (--json)
+  status        Show one service's deployments and running tasks (--json)
+  images        List deployable GHCR images for a service (--json)
   log-scan      Search logs across all Dreamwidth services (via Loki)
   esn-trace     Trace an ESN event through the full notification pipeline
 
-Loki credentials: ~/.config/dwtool/config.json or DWTOOL_LOKI_* env vars.
+The services/status/images commands need AWS credentials; images additionally
+needs the 'gh' CLI authenticated. Loki credentials for log-scan/esn-trace:
+~/.config/dwtool/config.json or DWTOOL_LOKI_* env vars.
 Run 'dwtool <command> --help' for details on a specific command.
 `)
 }
