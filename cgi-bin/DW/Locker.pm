@@ -72,7 +72,10 @@ sub trylock {
 sub _lockname {
     my $name = shift;
     my $key  = "dwl:$name";
-    return $key if length($key) <= 64 && $key !~ /[^\x20-\x7e]/;
+
+    # use the name as-is when it's short and all printable ASCII; otherwise
+    # hash it to stay within GET_LOCK's 64-char limit.
+    return $key if length($key) <= 64 && $key =~ /\A[\x20-\x7e]*\z/;
     return "dwl:" . md5_hex($name);    # 4 + 32 = 36 chars
 }
 
