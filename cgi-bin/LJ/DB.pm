@@ -59,9 +59,6 @@ $LJ::DBIRole = new DBI::Role {
     "media_versions",  "media_props",          "user_profile_accts",
 );
 
-# keep track of what db locks we have out
-%LJ::LOCK_OUT = ();    # {global|user} => caller_with_lock
-
 package LJ::DB;
 
 use Carp qw(croak);    # import croak into package LJ::DB
@@ -162,56 +159,6 @@ sub get_dbirole_dbh {
     my $dbh = $LJ::DBIRole->get_dbh(@_) or return undef;
 
     return $dbh;
-}
-
-# <LJFUNC>
-# name: LJ::DB::get_lock
-# des: get a MySQL lock on a given key/dbrole combination.
-# returns: undef if called improperly, true on success, die() on failure
-# args: db, dbrole, lockname, wait_time?
-# des-dbrole: the role this lock should be gotten on, either 'global' or 'user'.
-# des-lockname: the name to be used for this lock.
-# des-wait_time: an optional timeout argument, defaults to 10 seconds.
-# </LJFUNC>
-sub get_lock {
-    my ( $db, $dbrole, $lockname, $wait_time ) = @_;
-    return undef unless $db && $lockname;
-    return undef unless $dbrole eq 'global' || $dbrole eq 'user';
-
-    my $curr_sub = ( caller 1 )[3];    # caller of current sub
-
-    # die if somebody already has a lock
-    die "LOCK ERROR: $curr_sub; can't get lock from: $LJ::LOCK_OUT{$dbrole}\n"
-        if exists $LJ::LOCK_OUT{$dbrole};
-
-    # get a lock from mysql
-    $wait_time ||= 10;
-    $db->do( "SELECT GET_LOCK(?,?)", undef, $lockname, $wait_time )
-        or return undef;
-
-    # successfully got a lock
-    $LJ::LOCK_OUT{$dbrole} = $curr_sub;
-    return 1;
-}
-
-# <LJFUNC>
-# name: LJ::DB::release_lock
-# des: release a MySQL lock on a given key/dbrole combination.
-# returns: undef if called improperly, true on success, die() on failure
-# args: db, dbrole, lockname
-# des-dbrole: role on which to get this lock, either 'global' or 'user'.
-# des-lockname: the name to be used for this lock
-# </LJFUNC>
-sub release_lock {
-    my ( $db, $dbrole, $lockname ) = @_;
-    return undef unless $db && $lockname;
-    return undef unless $dbrole eq 'global' || $dbrole eq 'user';
-
-    # get a lock from mysql
-    $db->do( "SELECT RELEASE_LOCK(?)", undef, $lockname );
-    delete $LJ::LOCK_OUT{$dbrole};
-
-    return 1;
 }
 
 # <LJFUNC>

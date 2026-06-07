@@ -342,12 +342,12 @@ sub get_itemid {
     return 0 unless $dbh;
 
     # allocate a new id
-    LJ::DB::get_lock( $dbh, 'global', 'mlitem_dmid' ) || return 0;
+    my $lock = LJ::locker()->trylock( 'mlitem_dmid', wait => 10 ) or return 0;
     $itid = $dbh->selectrow_array( "SELECT MAX(itid)+1 FROM ml_items WHERE dmid=?", undef, $dmid );
     $itid ||= 1;    # if the table is empty, NULL+1 == NULL
     $dbh->do( "INSERT INTO ml_items (dmid, itid, itcode, notes) " . "VALUES (?, ?, ?, ?)",
         undef, $dmid, $itid, $itcode, $opts->{'notes'} );
-    LJ::DB::release_lock( $dbh, 'global', 'mlitem_dmid' );
+    $lock->release;
 
     if ( $dbh->err ) {
         return $dbh->selectrow_array( "SELECT itid FROM ml_items WHERE dmid=$dmid AND itcode=?",
@@ -410,13 +410,13 @@ sub set_text {
         # Strip bad characters
         $text =~ s/\r//;
         my $qtext = $dbh->quote($text);
-        LJ::DB::get_lock( $dbh, 'global', 'ml_text_txtid' ) || return 0;
+        my $lock  = LJ::locker()->trylock( 'ml_text_txtid', wait => 10 ) or return 0;
         $txtid =
             $dbh->selectrow_array( "SELECT MAX(txtid)+1 FROM ml_text WHERE dmid=?", undef, $dmid );
         $txtid ||= 1;
         $dbh->do( "INSERT INTO ml_text (dmid, txtid, lnid, itid, text, userid) "
                 . "VALUES ($dmid, $txtid, $lnid, $itid, $qtext, $userid)" );
-        LJ::DB::release_lock( $dbh, 'global', 'ml_text_txtid' );
+        $lock->release;
         return set_error( "Error inserting ml_text: " . $dbh->errstr ) if $dbh->err;
     }
     if ( $opts->{'txtid'} ) {

@@ -1,6 +1,6 @@
 # t/dw-locker.t
 #
-# Tests for DW::Locker (MySQL GET_LOCK advisory locks with file fallback).
+# Tests for DW::Locker (named advisory locks backed by MySQL GET_LOCK).
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -19,61 +19,43 @@ use Test::More;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::Locker;
-use File::Temp qw/ tempdir /;
 
-# ---- file backend ----
-my $dir = tempdir( CLEANUP => 1 );
-my $fl  = DW::Locker->new( backend => 'file', lockdir => $dir );
+my $probe = eval { LJ::get_dbh( { unshared => 1 }, "master" ) };
+plan skip_all => "no MySQL master available"
+    unless $probe && $probe->{Driver}{Name} eq 'mysql';
 
-my $lock = $fl->trylock("foo");
-ok( $lock,                "file: acquired foo" );
-ok( !$fl->trylock("foo"), "file: second acquire of foo fails while held" );
-ok( $fl->trylock("bar"),  "file: a different name acquires" );
+my $name = "t:dwlocker:$$";
 
-$lock->release;
-ok( $fl->trylock("foo"), "file: re-acquire foo after release" );
+# Each lock holds its own dedicated connection, so a single locker still
+# enforces mutual exclusion: a second acquire of the same name contends with
+# the first instead of succeeding on a shared session.
+my $locker = DW::Locker->new;
 
-# auto-release on scope exit
+my $a = $locker->trylock($name);
+ok( $a,                       "acquired $name" );
+ok( !$locker->trylock($name), "second acquire of the same name is blocked (same locker)" );
+
+$a->release;
+my $b = $locker->trylock($name);
+ok( $b,                               "re-acquired after release" );
+ok( !DW::Locker->new->trylock($name), "a different locker is also blocked while held" );
+
+# A blocking acquire returns undef once the wait elapses without the lock.
+my $t0 = time();
+ok( !$locker->trylock( $name, wait => 1 ), "blocking acquire times out while held" );
+ok( time() - $t0 >= 1, "...and actually waited ~1s" );
+
+$b->release;
+ok( $locker->trylock( $name, wait => 1 ), "blocking acquire succeeds once free" );
+
+# Auto-release when the holder goes out of scope (its connection drops).
 {
-    my $scoped = DW::Locker->new( backend => 'file', lockdir => $dir )->trylock("scoped");
-    ok( $scoped, "file: scoped lock acquired" );
+    my $scoped = $locker->trylock("$name:scoped");
+    ok( $scoped, "scoped lock acquired" );
 }
-ok( DW::Locker->new( backend => 'file', lockdir => $dir )->trylock("scoped"),
-    "file: scoped lock auto-released on scope exit" );
+ok( $locker->trylock("$name:scoped"), "scoped lock auto-released on scope exit" );
 
-# ---- mysql backend (requires the devcontainer MySQL master) ----
-SKIP: {
-    my $probe = eval { LJ::get_dbh( { unshared => 1 }, "master" ) };
-    skip "no MySQL master available", 7
-        unless $probe && $probe->{Driver}{Name} eq 'mysql';
-
-    my $l1 = DW::Locker->new( backend => 'mysql' );
-    my $l2 = DW::Locker->new( backend => 'mysql' );
-    my $name = "t:dwlocker:$$";
-
-    my $m = $l1->trylock($name);
-    ok( $m, "mysql: l1 acquired" );
-    is( ( ref $m && $m->{backend} ), 'mysql', "mysql: lock uses the mysql backend" );
-    ok( !$l2->trylock($name), "mysql: l2 blocked while l1 holds" );
-    $m->release;
-    ok( $l2->trylock($name), "mysql: l2 acquires after release" );
-
-    # a name longer than the 64-char GET_LOCK limit is normalized, not errored
-    ok(
-        $l1->trylock( "t:dwlocker:" . ( "x" x 200 ) ),
-        "mysql: over-long name normalized and acquired"
-    );
-
-    # auto-release when the holder goes out of scope (connection drops)
-    my $sname = "t:dwlocker:scope:$$";
-    {
-        my $s = DW::Locker->new( backend => 'mysql' )->trylock($sname);
-        ok( $s, "mysql: scoped lock acquired" );
-    }
-    ok(
-        DW::Locker->new( backend => 'mysql' )->trylock($sname),
-        "mysql: scoped lock auto-released on scope exit"
-    );
-}
+# A name longer than GET_LOCK's 64-char limit is normalized, not errored.
+ok( $locker->trylock( "$name:" . ( "x" x 200 ) ), "over-long name normalized and acquired" );
 
 done_testing();

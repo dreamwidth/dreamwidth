@@ -261,10 +261,8 @@ if ( $LJ::STATS{host} && $LJ::STATS{port} ) {
 }
 
 sub locker {
-    return $LJ::LOCKER_OBJ if $LJ::LOCKER_OBJ;
-    eval "use DW::Locker (); 1" or die "Couldn't load locker: $@";
-
-    return $LJ::LOCKER_OBJ = DW::Locker->new;
+    require DW::Locker;
+    return $LJ::LOCKER_OBJ ||= DW::Locker->new;
 }
 
 sub gearman_client {
