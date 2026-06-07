@@ -305,7 +305,7 @@ sub interest_update {
     my $lock;
     unless ( $opts{has_lock} ) {
         while (1) {
-            $lock = LJ::locker()->trylock( 'interests:' . $u->userid );
+            $lock = LJ::locker()->trylock( 'interests:' . $u->userid, class => 'interests' );
             last if $lock;
 
             # pause for 0.0-0.3 seconds to shuffle things up.  generally good behavior
@@ -419,7 +419,7 @@ sub set_interests {
 
     my $lock;
     while (1) {
-        $lock = LJ::locker()->trylock( 'interests:' . $u->userid );
+        $lock = LJ::locker()->trylock( 'interests:' . $u->userid, class => 'interests' );
         last if $lock;
 
         # pause for 0.0-0.3 seconds to shuffle things up.  generally good behavior

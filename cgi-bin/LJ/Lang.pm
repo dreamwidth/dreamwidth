@@ -342,7 +342,8 @@ sub get_itemid {
     return 0 unless $dbh;
 
     # allocate a new id
-    my $lock = LJ::locker()->trylock( 'mlitem_dmid', wait => 10 ) or return 0;
+    my $lock = LJ::locker()->trylock( 'mlitem_dmid', class => 'ml_item', wait => 10 )
+        or return 0;
     $itid = $dbh->selectrow_array( "SELECT MAX(itid)+1 FROM ml_items WHERE dmid=?", undef, $dmid );
     $itid ||= 1;    # if the table is empty, NULL+1 == NULL
     $dbh->do( "INSERT INTO ml_items (dmid, itid, itcode, notes) " . "VALUES (?, ?, ?, ?)",
@@ -410,7 +411,8 @@ sub set_text {
         # Strip bad characters
         $text =~ s/\r//;
         my $qtext = $dbh->quote($text);
-        my $lock  = LJ::locker()->trylock( 'ml_text_txtid', wait => 10 ) or return 0;
+        my $lock  = LJ::locker()->trylock( 'ml_text_txtid', class => 'ml_text', wait => 10 )
+            or return 0;
         $txtid =
             $dbh->selectrow_array( "SELECT MAX(txtid)+1 FROM ml_text WHERE dmid=?", undef, $dmid );
         $txtid ||= 1;

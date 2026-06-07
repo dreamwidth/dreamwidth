@@ -135,7 +135,7 @@ sub _process_item {
     # try and try to get the lock because we really really want to succeed
     my $lock;
     while (1) {
-        $lock = LJ::locker()->trylock('latest_queue');
+        $lock = LJ::locker()->trylock( 'latest_queue', class => 'latest_queue' );
         last if $lock;
 
         # pause for 0.0-0.3 seconds to shuffle things up.  generally good behavior
@@ -176,7 +176,7 @@ sub _process_queue {
     # now so we should do nothing.  this returns immediately if the lock can't be gotten.
     my $lock;
     unless ( $opts{have_lock} ) {
-        $lock = LJ::locker()->trylock('latest_queue')
+        $lock = LJ::locker()->trylock( 'latest_queue', class => 'latest_queue' )
             or return;
     }
 

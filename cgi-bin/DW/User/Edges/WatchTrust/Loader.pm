@@ -195,7 +195,7 @@ sub _wt_list_db {
     my $dbh    = LJ::get_db_writer();
 
     # get a lock
-    my $lock = LJ::locker()->trylock( "get_wt_list:$userid", wait => 10 );
+    my $lock = LJ::locker()->trylock( "get_wt_list:$userid", class => 'watchtrust', wait => 10 );
     return {} unless $lock;
 
     my $release_lock = sub {

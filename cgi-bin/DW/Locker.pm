@@ -37,19 +37,23 @@ sub new {
     return bless {}, ( ref $class || $class );
 }
 
-# trylock( $name, wait => $secs ) -> DW::Lock on success, undef (and sets
-# $Error) on failure.  Non-blocking by default; pass wait => N to block up to N
-# seconds for the lock before giving up.
+# trylock( $name, class => $label, wait => $secs ) -> DW::Lock on success, undef
+# (and sets $Error) on failure.  Non-blocking by default; pass wait => N to block
+# up to N seconds for the lock before giving up.  class is a stable, low-
+# cardinality label for metrics (e.g. 'interests', 'ljmaint') identifying which
+# lock this is -- always pass one; it defaults to 'unknown' so a missing label
+# is visible rather than silently bucketed.
 sub trylock {
     my ( $self, $name, %opts ) = @_;
     $Error = undef;
 
-    my $wait  = $opts{wait} || 0;
+    my $wait  = $opts{wait}  || 0;
+    my $class = $opts{class} || 'unknown';
     my $start = Time::HiRes::time();
 
     my $dbh = eval { LJ::get_dbh( { unshared => 1 }, "master" ) } or do {
         $Error = "no lock database available";
-        _stat( 'error', $start );
+        _stat( $class, 'error', $start );
         return undef;
     };
 
@@ -65,24 +69,25 @@ sub trylock {
     # 1 = acquired, 0 = held elsewhere (or timed out), undef = error/killed.
     unless ($got) {
         $Error = defined $got ? "lock taken" : "GET_LOCK error: " . ( $dbh->errstr || "?" );
-        _stat( defined $got ? 'taken' : 'error', $start );
+        _stat( $class, defined $got ? 'taken' : 'error', $start );
         return undef;
     }
 
-    _stat( 'acquired', $start );
+    _stat( $class, 'acquired', $start );
     return DW::Lock->new($dbh);
 }
 
-# Emit acquire metrics tagged by outcome (acquired / taken / error) so a
-# contended or failing lock shows up on its own series. The timing VALUE is
-# milliseconds (statsd "ms" type), but the Prometheus statsd_exporter converts
-# "ms" timers to base-unit seconds, so the metric is named *_seconds to match
-# what it stores (same convention as dw.task.duration_seconds). The duration
-# spans the whole attempt -- connect, session setup, and GET_LOCK -- so it also
-# surfaces the per-lock connection cost and any blocking wait.
+# Emit acquire metrics tagged by class (which lock) and outcome (acquired /
+# taken / error) so a contended or failing lock shows up on its own series. The
+# timing VALUE is milliseconds (statsd "ms" type), but the Prometheus
+# statsd_exporter converts "ms" timers to base-unit seconds, so the metric is
+# named *_seconds to match what it stores (same convention as
+# dw.task.duration_seconds). The duration spans the whole attempt -- connect,
+# session setup, and GET_LOCK -- so it also surfaces the per-lock connection
+# cost and any blocking wait.
 sub _stat {
-    my ( $outcome, $start ) = @_;
-    my $tags = ["outcome:$outcome"];
+    my ( $class, $outcome, $start ) = @_;
+    my $tags = [ "class:$class", "outcome:$outcome" ];
     DW::Stats::increment( 'dw.locker.acquire', 1, $tags );
     DW::Stats::timing( 'dw.locker.acquire_duration_seconds',
         ( Time::HiRes::time() - $start ) * 1000, $tags );
