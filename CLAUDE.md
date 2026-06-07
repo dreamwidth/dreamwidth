@@ -60,11 +60,19 @@ bin/build-static.sh
 apache2ctl restart
 ```
 
-### Worktree Workflow (multiple Claudes in parallel)
+### Worktree Workflow (ALWAYS work in a worktree)
 
-Each Claude session can work in an isolated git worktree with its own devcontainer. This allows multiple Claudes to work simultaneously without stepping on each other.
+**ABSOLUTE RULE — You MUST ALWAYS work in a git worktree. NEVER do work directly in the main checkout (`/home/mark/dreamwidth`).** This is not optional and is not only for "parallel work". Multiple Claude instances and the user share the main checkout; doing anything there — editing files, `git checkout`/`gh pr checkout` to switch its branch, running builds — stomps on whatever else is using it and corrupts their state. The main checkout must be left on `main` and untouched.
 
-**Create a worktree** using Claude Code's built-in `EnterWorktree` tool. This creates a worktree under `.claude/worktrees/<name>` and switches your session into it.
+The ONLY exceptions, each requiring EXPLICIT user instruction in that moment:
+- The user explicitly tells you to work in the main directory.
+- The user explicitly asks for a read-only action there (e.g. "what branch is main on?").
+
+If you are not in a worktree, your FIRST action for any task that touches files, branches, or builds is to create one with `EnterWorktree`. If you ever find yourself about to edit, `checkout`, or build in the main checkout without explicit permission, STOP and create a worktree instead. The main checkout is shared territory; treat it as read-only by default.
+
+Each worktree is an isolated git worktree with its own devcontainer, so many sessions can work simultaneously without stepping on each other.
+
+**Create a worktree** using Claude Code's built-in `EnterWorktree` tool. This creates a worktree under `.claude/worktrees/<name>` and switches your session into it. (Reviewing a PR? Create a worktree and `gh pr checkout` *inside it* — never in the main checkout.)
 
 **Start a devcontainer for the worktree:**
 
@@ -83,6 +91,7 @@ docker ps --filter label=devcontainer.local_folder=<worktree-path> --format "{{.
 **Port isolation:** All devcontainers use dynamic host ports (container ports 8080/8081 are mapped to random available host ports). Use `docker port <container-id>` to find the assigned ports.
 
 **Important rules:**
+- NEVER work in, edit, switch the branch of, or build in the main checkout (`/home/mark/dreamwidth`) without explicit per-task permission — always use a worktree (see the ABSOLUTE RULE above). Leave the main checkout on `main`.
 - Never touch another session's worktree or its devcontainer
 - Each worktree gets its own devcontainer — never share containers between worktrees
 - The `extlib/` symlink is created automatically by `setup.sh` (points to `/opt/dreamwidth-extlib` in the image)
