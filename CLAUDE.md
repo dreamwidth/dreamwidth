@@ -15,7 +15,7 @@ Code is edited on the host, but **all commands must be run inside the devcontain
 Build and start the devcontainer from the repo root:
 
 ```bash
-npx devcontainer up --workspace-folder .
+npx @devcontainers/cli up --workspace-folder .
 ```
 
 Find the running container ID for your workspace:
@@ -77,7 +77,7 @@ Each worktree is an isolated git worktree with its own devcontainer, so many ses
 **Start a devcontainer for the worktree:**
 
 ```bash
-npx devcontainer up --workspace-folder <worktree-path>
+npx @devcontainers/cli up --workspace-folder <worktree-path>
 ```
 
 This works because `devcontainer.json` uses `workspaceMount` to always mount at `/workspaces/dreamwidth` (matching `$LJHOME`) regardless of the host folder name, and each worktree gets its own MySQL volume (`dreamwidth-mysql-<foldername>`).
