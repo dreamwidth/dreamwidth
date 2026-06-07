@@ -261,16 +261,8 @@ if ( $LJ::STATS{host} && $LJ::STATS{port} ) {
 }
 
 sub locker {
-    return $LJ::LOCKER_OBJ if $LJ::LOCKER_OBJ;
-    eval "use DDLockClient ();";
-    die "Couldn't load locker client: $@" if $@;
-
-    $LJ::LOCKER_OBJ = new DDLockClient(
-        servers => [@LJ::LOCK_SERVERS],
-        lockdir => $LJ::LOCKDIR || "$LJ::HOME/locks",
-    );
-
-    return $LJ::LOCKER_OBJ;
+    require DW::Locker;
+    return $LJ::LOCKER_OBJ ||= DW::Locker->new;
 }
 
 sub gearman_client {
