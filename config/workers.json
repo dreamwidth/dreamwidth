@@ -28,6 +28,7 @@
       "target_cpu": 50
     },
     "content-importer": {
+      "egress_nat": true,
       "cpu": 256,
       "memory": 2048,
       "category": "importer",
@@ -37,6 +38,7 @@
       "target_cpu": 25
     },
     "content-importer-lite": {
+      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "importer",
@@ -46,6 +48,7 @@
       "target_cpu": 50
     },
     "content-importer-verify": {
+      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "importer",
@@ -172,6 +175,7 @@
       "sqs_queue_name": "dw-prod-dw-task-massprivacy"
     },
     "dw-synsuck": {
+      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "sqs",
@@ -182,6 +186,7 @@
       "sqs_queue_name": "dw-prod-dw-task-synsuck"
     },
     "dw-xpost": {
+      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "sqs",
@@ -353,6 +358,7 @@
       "target_cpu": 50
     },
     "resolve-extacct": {
+      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "misc",
