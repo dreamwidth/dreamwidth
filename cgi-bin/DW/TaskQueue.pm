@@ -219,7 +219,7 @@ sub start_work {
             if ($@) {
                 DW::Stats::increment( 'dw.task.processed', 1,
                     [ "task_class:$class", 'outcome:died' ] );
-                DW::Stats::timing( 'dw.task.work_time', $work_ms,
+                DW::Stats::timing( 'dw.task.duration_seconds', $work_ms,
                     [ "task_class:$class", 'outcome:died' ] );
                 die;
             }
@@ -230,7 +230,7 @@ sub start_work {
             if ($abort) {
                 DW::Stats::increment( 'dw.task.processed', 1,
                     [ "task_class:$class", 'outcome:timeout' ] );
-                DW::Stats::timing( 'dw.task.work_time', $work_ms,
+                DW::Stats::timing( 'dw.task.duration_seconds', $work_ms,
                     [ "task_class:$class", 'outcome:timeout' ] );
                 return;
             }
@@ -280,9 +280,15 @@ sub start_work {
 
             # Per-job stats, tagged by result state so a slow/failing class shows
             # up on its own series and failures don't skew the success timing.
+            #
+            # The timing VALUE is milliseconds (statsd "ms" type), but the
+            # Prometheus statsd_exporter converts "ms" timers to base-unit
+            # seconds -- so the metric is named *_seconds to match what it
+            # actually stores. (Same convention as dw.request.duration_seconds
+            # in Plack::Middleware::DW::AccessLog.)
             my @stat_tags = ( "task_class:$class", "outcome:$outcome" );
             DW::Stats::increment( 'dw.task.processed', 1, \@stat_tags );
-            DW::Stats::timing( 'dw.task.work_time', $work_ms, \@stat_tags );
+            DW::Stats::timing( 'dw.task.duration_seconds', $work_ms, \@stat_tags );
         }
 
         $log->debug(
