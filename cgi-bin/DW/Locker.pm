@@ -27,6 +27,8 @@ use strict;
 use warnings;
 
 use Digest::MD5 qw( md5_hex );
+use Time::HiRes ();
+use DW::Stats;
 
 our $Error;
 
@@ -42,10 +44,14 @@ sub trylock {
     my ( $self, $name, %opts ) = @_;
     $Error = undef;
 
-    my $wait = $opts{wait} || 0;
+    my $wait  = $opts{wait} || 0;
+    my $start = Time::HiRes::time();
 
-    my $dbh = eval { LJ::get_dbh( { unshared => 1 }, "master" ) }
-        or do { $Error = "no lock database available"; return undef; };
+    my $dbh = eval { LJ::get_dbh( { unshared => 1 }, "master" ) } or do {
+        $Error = "no lock database available";
+        _stat( 'error', $start );
+        return undef;
+    };
 
     # Don't silently reconnect into a fresh, lock-free session; and don't let an
     # idle hold (e.g. a multi-minute ljmaint task) get timed out and released.
@@ -59,10 +65,27 @@ sub trylock {
     # 1 = acquired, 0 = held elsewhere (or timed out), undef = error/killed.
     unless ($got) {
         $Error = defined $got ? "lock taken" : "GET_LOCK error: " . ( $dbh->errstr || "?" );
+        _stat( defined $got ? 'taken' : 'error', $start );
         return undef;
     }
 
+    _stat( 'acquired', $start );
     return DW::Lock->new($dbh);
+}
+
+# Emit acquire metrics tagged by outcome (acquired / taken / error) so a
+# contended or failing lock shows up on its own series. The timing VALUE is
+# milliseconds (statsd "ms" type), but the Prometheus statsd_exporter converts
+# "ms" timers to base-unit seconds, so the metric is named *_seconds to match
+# what it stores (same convention as dw.task.duration_seconds). The duration
+# spans the whole attempt -- connect, session setup, and GET_LOCK -- so it also
+# surfaces the per-lock connection cost and any blocking wait.
+sub _stat {
+    my ( $outcome, $start ) = @_;
+    my $tags = ["outcome:$outcome"];
+    DW::Stats::increment( 'dw.locker.acquire', 1, $tags );
+    DW::Stats::timing( 'dw.locker.acquire_duration_seconds',
+        ( Time::HiRes::time() - $start ) * 1000, $tags );
 }
 
 # Map a caller name to a valid GET_LOCK name: prefix "dwl:" to keep our locks in
