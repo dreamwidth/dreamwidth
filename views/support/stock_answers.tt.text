@@ -5,6 +5,8 @@
 
 .answer.deleted=Answer deleted.
 
+.category=Category:
+
 .category.not.exist=The requested category doesn't exist.
 
 .category.stock.answers=This category's stock answers are duplicated from:
@@ -37,9 +39,19 @@
 
 .not.have.access.to.view.answers.in.cat=You don't have access to view stock answers in that category.
 
+.save.answer=Save Answer
+
 .save_changes=Save Changes
 
+.select.none=( none )
+
+.select.please=( please select )
+
+.show=Show
+
 .subject=Subject:
+
+.title=Support Stock Answers
 
 .unable.allocate.counter=Unable to allocate counter. Please try again.
 
