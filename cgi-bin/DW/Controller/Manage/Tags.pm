@@ -69,15 +69,15 @@ sub tags_handler {
 
         # deleting tags
         if ( $post->{delete} ) {
-            foreach my $id ( split /\0/, ( $post->{tags} // '' ) ) {
-                $id =~ s/_.*//;
+            foreach my $sel ( $post->get_all('tags') ) {
+                ( my $id = $sel ) =~ s/_.*//;
                 LJ::Tags::delete_usertag( $u, 'id', $id );
             }
         }
 
         # renaming a tag
         if ( $post->{rename} ) {
-            my @tagnames = map { s/\d+_//; $_; } split /\0/, ( $post->{tags} // '' );
+            my @tagnames = map { ( my $t = $_ ) =~ s/\d+_//; $t } $post->get_all('tags');
             my $new_tag  = LJ::trim( $post->{rename_field} );
             if ( $new_tag =~ /,/ ) {
                 $errors->add( '', "$ml_scope.error.rename.multiple" );
@@ -92,7 +92,7 @@ sub tags_handler {
 
         # merging tags
         if ( $post->{merge} ) {
-            my @tagnames    = map { s/\d+_//; $_; } split /\0/, ( $post->{tags} // '' );
+            my @tagnames    = map { ( my $t = $_ ) =~ s/\d+_//; $t } $post->get_all('tags');
             my $new_tagname = LJ::trim( $post->{merge_field} );
             if ( $new_tagname =~ /,/ ) {
                 $errors->add( '', "$ml_scope.error.rename.multiple" );
@@ -107,12 +107,8 @@ sub tags_handler {
         # show journal entries for the selected tags
         if ( $post->{'show posts'} ) {
             my $tags    = LJ::Tags::get_usertags($u);
-            my $taglist = LJ::eurl(
-                join ',',
-                map     { $tags->{$_}->{name} }
-                    map { /^(\d+)_/; $1; } split /\0/,
-                ( $post->{tags} // '' )
-            );
+            my $taglist = LJ::eurl( join ',', map { $tags->{$_}->{name} }
+                    map { /^(\d+)_/; $1 } $post->get_all('tags') );
             return $r->redirect( $u->journal_base . "/tag/$taglist" );
         }
 
