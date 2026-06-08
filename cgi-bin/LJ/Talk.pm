@@ -667,19 +667,7 @@ sub get_talk_data {
         return unless @LJ::MEMCACHE_SERVERS;
         return unless $u->writer;
 
-        my $gc = LJ::gearman_client();
-        if ( $gc && LJ::conf_test( $LJ::FIXUP_USING_GEARMAN, $u ) ) {
-            $gc->dispatch_background(
-                "fixup_logitem_replycount",
-                Storable::nfreeze( [ $u->id, $nodeid ] ),
-                {
-                    uniq => "-",
-                }
-            );
-        }
-        else {
-            LJ::Talk::fixup_logitem_replycount( $u, $nodeid );
-        }
+        LJ::Talk::fixup_logitem_replycount( $u, $nodeid );
     };
 
     # Save the talkdata on the entry for later
