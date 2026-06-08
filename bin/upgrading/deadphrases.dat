@@ -4211,3 +4211,5 @@ general /mobile/login.bml.login.header
 general /mobile/login.bml.login.invalid_username
 general /mobile/login.bml.login.ip_banned
 general /mobile/login.bml.page.title
+
+general /manage/subscriptions/filters.bml.accessfilters
