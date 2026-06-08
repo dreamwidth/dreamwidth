@@ -165,9 +165,6 @@ sub check_html {
     my $text = $$journal;
     return "" unless $text;
 
-    # ->run spawns the speller via IPC::Open2, which works under Plack/Starman
-    # but not under mod_perl2 -- so spellcheck only functions on the Plack
-    # webservers.
     return $self->run( text => $text, no_ehtml => $no_ehtml );
 }
 
