@@ -4201,3 +4201,13 @@ general /manage/profile.tt.error.invalidbio
 general /manage/profile.tt.error.invalidname2
 general /manage/profile/index.bml.error.invalidbio
 general /manage/profile/index.bml.error.invalidname2
+
+general /mobile/login.bml.form.button
+general /mobile/login.bml.form.password
+general /mobile/login.bml.form.username
+general /mobile/login.bml.login.back
+general /mobile/login.bml.login.badpass
+general /mobile/login.bml.login.header
+general /mobile/login.bml.login.invalid_username
+general /mobile/login.bml.login.ip_banned
+general /mobile/login.bml.page.title
