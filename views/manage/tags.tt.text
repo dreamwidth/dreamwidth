@@ -1,6 +1,8 @@
 ;; -*- coding: utf-8 -*-
 .addnew=Add new tags
 
+.disabled=The tags system is currently disabled.
+
 .button.delete=Remove selected tag(s)
 
 .button.merge=Merge selected tags
