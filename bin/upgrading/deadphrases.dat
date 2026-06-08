@@ -4301,3 +4301,13 @@ general /support/stock_answers.bml.unable.allocate.counter
 general /support/stock_answers.bml.unable.database.handle
 general /support/stock_answers.bml.unable.get.database.handle
 general /support/stock_answers.bml.view.all
+
+general /support/actmulti.bml.cat.not.exist
+general /support/actmulti.bml.category.invalid
+general /support/actmulti.bml.error
+general /support/actmulti.bml.no.request
+general /support/actmulti.bml.not.have.access
+general /support/actmulti.bml.not.have.access.move.request
+general /support/actmulti.bml.request.moved
+general /support/actmulti.bml.request.specified
+general /support/actmulti.bml.success
