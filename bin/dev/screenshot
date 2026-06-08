@@ -1,0 +1,106 @@
+#!/bin/bash
+#
+# bin/dev/screenshot -- screenshot a page on the local dev server, to visually
+# check how a change renders. Runs INSIDE the devcontainer (as root).
+#
+# Usage:
+#   bin/dev/screenshot [options] <path>
+#
+# Options:
+#   --user U       log in as user U (via /mobile/login) before capturing
+#   --password P   password for --user (default: $DW_SCREENSHOT_PASSWORD)
+#   --out FILE     output PNG (default: /tmp/dw-screenshot.png)
+#   --size WxH     viewport, width x height (default: 1280x1400)
+#   --restart      restart Starman first -- needed after adding/changing a route
+#                  (a running Starman won't pick up a new controller)
+#
+# Examples:
+#   bin/dev/screenshot /login
+#   bin/dev/screenshot --user shotuser --password s3cret /manage/tags
+#
+# On first run it installs Google Chrome (Google's signed apt repo) and
+# puppeteer-core into /opt/dw-screenshot; later runs reuse them.
+
+set -eu
+
+DEPDIR=/opt/dw-screenshot
+PORT=8080
+BASE="http://127.0.0.1:$PORT"
+OUT=/tmp/dw-screenshot.png
+SIZE=1280x1400
+LOGIN_USER=""
+PASSWORD="${DW_SCREENSHOT_PASSWORD:-}"
+RESTART=0
+TARGET=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --user)     LOGIN_USER="$2"; shift 2 ;;
+        --password) PASSWORD="$2";   shift 2 ;;
+        --out)      OUT="$2";        shift 2 ;;
+        --size)     SIZE="$2";       shift 2 ;;
+        --restart)  RESTART=1;       shift ;;
+        -h|--help)  sed -n '3,28p' "$0"; exit 0 ;;
+        -*)         echo "unknown option: $1" >&2; exit 1 ;;
+        *)          TARGET="$1";     shift ;;
+    esac
+done
+
+if [ -z "$TARGET" ]; then
+    echo "usage: bin/dev/screenshot [options] <path>   (try --help)" >&2
+    exit 1
+fi
+
+# 1. Google Chrome -- signed apt repo, per the packaging policy. First run only.
+if ! command -v google-chrome-stable >/dev/null 2>&1; then
+    echo "[screenshot] installing google-chrome-stable (first run)..." >&2
+    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub |
+        gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+        >/etc/apt/sources.list.d/google-chrome.list
+    apt-get update -qq
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq google-chrome-stable >/dev/null
+fi
+
+# 2. puppeteer-core -- drives the system Chrome (no bundled browser). First run only.
+if [ ! -d "$DEPDIR/node_modules/puppeteer-core" ]; then
+    echo "[screenshot] installing puppeteer-core (first run)..." >&2
+    mkdir -p "$DEPDIR"
+    ( cd "$DEPDIR" && npm init -y >/dev/null 2>&1 &&
+        npm install --no-audit --no-fund puppeteer-core@23 >/dev/null 2>&1 )
+fi
+
+# 3. Starman on :8080 (restart on request, else just make sure it's up)
+if [ "$RESTART" = 1 ]; then
+    fuser -k "$PORT/tcp" 2>/dev/null || true
+    sleep 1
+fi
+if ! curl -sf -o /dev/null "$BASE/"; then
+    echo "[screenshot] starting starman..." >&2
+    ( cd "$LJHOME" && nohup perl bin/starman --port "$PORT" >/tmp/dw-starman.log 2>&1 & )
+    for _ in $(seq 1 30); do curl -sf -o /dev/null "$BASE/" && break; sleep 1; done
+fi
+
+# 4. Optional login -> session cookies for authenticated pages
+MASTER=""
+LOGGEDIN=""
+if [ -n "$LOGIN_USER" ]; then
+    JAR=$(mktemp)
+    TOK=$(curl -s -c "$JAR" "$BASE/mobile/login" |
+        grep -o 'lj_form_auth" value="[^"]*' | sed 's/.*value="//' || true)
+    curl -s -c "$JAR" -b "$JAR" -o /dev/null \
+        -d "lj_form_auth=$TOK" \
+        --data-urlencode "user=$LOGIN_USER" \
+        --data-urlencode "password=$PASSWORD" \
+        "$BASE/mobile/login"
+    MASTER=$(awk '/ljmastersession/{print $NF}' "$JAR" || true)
+    LOGGEDIN=$(awk '/ljloggedin/{print $NF}' "$JAR" || true)
+    rm -f "$JAR"
+    if [ -z "$MASTER" ]; then
+        echo "[screenshot] warning: login as '$LOGIN_USER' set no session (wrong password?)" >&2
+    fi
+fi
+
+# 5. Capture
+node "$LJHOME/bin/dev/screenshot.js" "$TARGET" "$OUT" "$SIZE" "$MASTER" "$LOGGEDIN"
+echo "$OUT"
