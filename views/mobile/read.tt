@@ -1,0 +1,51 @@
+[%# mobile/read.tt
+  #
+  # The mobile reading page: a content-filter selector, skip-based pagination,
+  # and a flat list of recent reading-page entries. Rendered by
+  # DW::Controller::Mobile::Read. Standalone (no sitescheme).
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+<html>
+<head>
+<title>[% '.page.title' | ml %]</title>
+<meta name="viewport" content="width = 320" />
+</head>
+<body>
+[%- IF not_logged_in %]
+<p>[% '.read.login' | ml( aopts => "href='login'" ) %]</p>
+[%- ELSE %]
+<p>
+[% '.read.back' | ml( aopts => "href='./'", sitename => site.nameshort ) %]
+<div style="font-size: 16pt; font-weight: bold; margin: 0.8em;">[% '.page.title' | ml %]</div>
+<div style="margin: 1em;">
+<div style="font-weight: bold;">
+[% dw.ml('web.controlstrip.select.friends.label') %]
+<form method='get' style='display: inline;' action='[% site.root %]/mobile/read'>
+[% form.select( name = 'view', selected = filter_selected, items = filter_items ) %]
+<input type='submit' value="[% dw.ml('web.controlstrip.btn.view') %]" />
+</form>
+</div>
+<div>
+[%- IF show_prev %][% '.items.previous' | ml( aopts => "href='?skip=" _ prev_skip _ "'", items => itemsperpage ) %][% END %]
+[%- IF show_next %][% '.items.next' | ml( aopts => "href='?skip=" _ next_skip _ "'", items => itemsperpage ) %][% END %]
+</div>
+<br/>
+</div>
+
+[%- FOREACH e IN entries %]
+<a href='[% e.poster_url %]'><b>[% e.poster_user %]</b></a>[% IF e.in_community %] in <a href='[% e.journal_url %]'><b>[% e.journal_user %]</b></a>[% END %]: <a href='[% e.url %]'>[% e.subject %]</a><br />
+[%- END %]
+
+[%- UNLESS numentries %]
+[% '.read.noneleft' | ml %]
+[%- END %]
+</p>
+[%- END %]
+</body>
+</html>

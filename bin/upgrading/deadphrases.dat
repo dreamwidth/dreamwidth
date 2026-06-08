@@ -4212,4 +4212,35 @@ general /mobile/login.bml.login.invalid_username
 general /mobile/login.bml.login.ip_banned
 general /mobile/login.bml.page.title
 
+general /mobile/index.bml.intro.header
+general /mobile/index.bml.intro.hello
+general /mobile/index.bml.intro.text
+general /mobile/index.bml.options.header
+general /mobile/index.bml.options.logged_in
+general /mobile/index.bml.options.login_prompt
+general /mobile/index.bml.options.post
+general /mobile/index.bml.options.readingpage
+general /mobile/index.bml.title
+
+general /mobile/post.bml.form.button
+general /mobile/post.bml.form.header
+general /mobile/post.bml.form.post
+general /mobile/post.bml.form.post_to
+general /mobile/post.bml.form.security
+general /mobile/post.bml.form.subject2
+general /mobile/post.bml.page.title
+general /mobile/post.bml.post.back
+general /mobile/post.bml.post.error
+general /mobile/post.bml.post.error_posting
+general /mobile/post.bml.post.login
+general /mobile/post.bml.post.success.header
+general /mobile/post.bml.post.success.text
+
+general /mobile/read.bml.items.next
+general /mobile/read.bml.items.previous
+general /mobile/read.bml.page.title
+general /mobile/read.bml.read.back
+general /mobile/read.bml.read.login
+general /mobile/read.bml.read.noneleft
+
 general /manage/subscriptions/filters.bml.accessfilters
