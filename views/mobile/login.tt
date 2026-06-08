@@ -1,0 +1,44 @@
+[%# mobile/login.tt
+  #
+  # Minimal standalone (no sitescheme) login form for the mobile interface.
+  # Rendered by DW::Controller::Mobile::Login.
+  #
+  # Copyright (c) 2024 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+<html>
+<head>
+<meta name="viewport" content="width = 320" />
+<style>
+h1 { font-size: 110%; text-decoration: underline; padding-bottom: 0; margin-bottom: 0.2em; }
+p { margin-top: 0.3em; }
+form { margin-left: 2em; }
+.error { color: #c00; }
+</style>
+<title>[% '.page.title' | ml %]</title>
+</head>
+<body>
+[% '.login.back' | ml( aopts => "href='./'", sitename => site.nameshort ) %]
+<h1>[% '.login.header' | ml %]</h1>
+
+[%- IF errors.exist %]
+<p class="error">
+  [%- FOREACH err IN errors.get_all %]
+  [% err.message %]<br />
+  [%- END %]
+</p>
+[%- END %]
+
+<form method='post' action='[% site.root %]/mobile/login'>
+[% dw.form_auth %]
+[% '.form.username' | ml %]: <input name='user' size='15' /><br />
+[% '.form.password' | ml %]: <input name='password' type='password' size='15' />
+<input type='submit' value="[% '.form.button' | ml %]" />
+</form>
+
+</body>
+</html>
