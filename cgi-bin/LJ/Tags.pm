@@ -22,8 +22,7 @@ use LJ::Lang;
 # class: tags
 # des: Gets a bunch of tags for the specified list of users.
 # args: opts?, uobj*
-# des-opts: Optional hashref with options. Keys can be 'no_gearman' to skip gearman
-#           task dispatching.
+# des-opts: Optional hashref with options (currently unused).
 # des-uobj: One or more user ids or objects to load the tags for.
 # returns: Hashref; { userid => *tagref*, userid => *tagref*, ... } where *tagref* is the
 #          return value of LJ::Tags::get_usertags -- undef on failure
@@ -73,40 +72,10 @@ sub get_usertagsmulti {
     }
     return $res unless %need;
 
-    # if we're not using gearman, or we're not in web context (implies that we're
-    # in gearman context?) then we need to use the loader to get the data
-    my $gc = LJ::gearman_client();
-    return LJ::Tags::_get_usertagsmulti( $res, values %need )
-        unless LJ::conf_test( $LJ::LOADTAGS_USING_GEARMAN, values %need )
-        && $gc
-        && !$opts->{no_gearman};
-
-    # spawn gearman jobs to get each of the users
-    my $ts = $gc->new_task_set();
-    foreach my $u ( values %need ) {
-        $ts->add_task(
-            Gearman::Task->new(
-                "load_usertags",
-                \"$u->{userid}",
-                {
-                    uniq        => '-',
-                    on_complete => sub {
-                        my $resp = shift;
-                        my $tags = Storable::thaw($$resp);
-                        return unless $tags;
-
-                        $LJ::REQ_CACHE_USERTAGS{ $u->{userid} } = $tags;
-                        $res->{ $u->{userid} } = $tags;
-                        delete $need{ $u->{userid} };
-                    },
-                }
-            )
-        );
-    }
-
-    # now wait for gearman to finish, then we're done
-    $ts->wait( timeout => 15 );
-    return $res;
+    # Load the remaining tag data inline. This was optionally offloaded to a
+    # gearman "load_usertags" worker (gated on $LJ::LOADTAGS_USING_GEARMAN), but
+    # that worker just ran the same loader, so we always load inline now.
+    return LJ::Tags::_get_usertagsmulti( $res, values %need );
 }
 
 # internal sub used by get_usertagsmulti

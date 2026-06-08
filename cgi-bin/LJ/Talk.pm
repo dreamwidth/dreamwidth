@@ -667,19 +667,11 @@ sub get_talk_data {
         return unless @LJ::MEMCACHE_SERVERS;
         return unless $u->writer;
 
-        my $gc = LJ::gearman_client();
-        if ( $gc && LJ::conf_test( $LJ::FIXUP_USING_GEARMAN, $u ) ) {
-            $gc->dispatch_background(
-                "fixup_logitem_replycount",
-                Storable::nfreeze( [ $u->id, $nodeid ] ),
-                {
-                    uniq => "-",
-                }
-            );
-        }
-        else {
-            LJ::Talk::fixup_logitem_replycount( $u, $nodeid );
-        }
+        # Reconcile the cached reply count inline. This was optionally offloaded
+        # to a gearman "fixup_logitem_replycount" worker (gated on
+        # $LJ::FIXUP_USING_GEARMAN), but it's an infrequent reconciliation and
+        # the worker just called this same function, so we always run inline now.
+        LJ::Talk::fixup_logitem_replycount( $u, $nodeid );
     };
 
     # Save the talkdata on the entry for later
