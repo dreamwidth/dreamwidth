@@ -4,7 +4,7 @@
 #
 # Admin / backfill / test helper for the Manticore search system.
 #
-# Part of the Sphinx -> Manticore RT migration. Connects to Manticore
+Connects to Manticore
 # on @LJ::MANTICORE via SphinxQL and reads from the live production
 # cluster DBs (log2, logtext2, talk2, talktext2, supportlog). Safe to
 # run against prod data — writes only go to Manticore.

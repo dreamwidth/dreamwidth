@@ -2379,7 +2379,7 @@ sub delete_entry {
     # delete all comments
     LJ::delete_all_comments( $u, 'L', $jitemid );
 
-    # fired to delete the post from the Sphinx search database
+    # enqueue a search-index update for the deleted entry
     if (@LJ::MANTICORE) {
         DW::TaskQueue->dispatch(
             DW::Task::SearchCopier->new(

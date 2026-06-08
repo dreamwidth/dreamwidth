@@ -1806,7 +1806,7 @@ sub postevent {
         DW::LatestFeed->new_item($entry);
     }
 
-    # update the sphinx search engine
+    # enqueue a search-index update
     if ( @LJ::MANTICORE && !$importer_bypass ) {
         push @jobs,
             DW::Task::SearchCopier->new(
@@ -2290,7 +2290,7 @@ sub editevent {
     DW::Stats::increment( 'dw.action.entry.edit', 1,
         [ 'journal_type:' . $uowner->journaltype_readable ] );
 
-    # fired to copy the post over to the Sphinx search database
+    # enqueue a search-index update for the post
     my @jobs;
     if (@LJ::MANTICORE) {
         push @jobs,

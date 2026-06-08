@@ -58,7 +58,7 @@ sub do_search {
     die "Unknown opts to do_search" if %args;
 
     die "Sorry, content searching is not configured on this server.\n"
-        unless DW::Search::configured();
+        unless DW::Search::enabled();
 
     my $error = sub { return { query => $q, error => $_[0] } };
     my $ok    = sub {

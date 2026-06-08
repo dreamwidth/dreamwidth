@@ -39,7 +39,7 @@ use DBI;
 # Public API
 # ---------------------------------------------------------------------------
 
-sub configured {
+sub enabled {
     return @LJ::MANTICORE ? 1 : 0;
 }
 
@@ -183,8 +183,7 @@ sub _journal_where {
         my @bits = ( 102, LJ::bit_breakdown( $args->{allowmask} ) );
         push @c, 'security_bits IN (' . join( ',', map { int $_ } @bits ) . ')';
 
-        # Defensive exclude: Sphinx copy path has historically admitted
-        # rows with a stray 0 bit; drop those before handing results back.
+        # Defensive exclude: drop any rows with a stray 0 security bit.
         push @c, 'security_bits NOT IN (0)';
     }
 
