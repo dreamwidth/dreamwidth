@@ -19,16 +19,8 @@ package DW::Hooks::SiteSearch;
 use strict;
 use LJ::Hooks;
 use Carp;
+use DW::Search;
 use DW::Task::SearchCopier;
-
-sub _sphinx_db {
-
-    # ensure we can talk to our system
-    return unless @LJ::MANTICORE;
-    my $dbh = LJ::get_dbh('sphinx_search')
-        or carp "Unable to get sphinx_search database handle.";
-    return $dbh;
-}
 
 LJ::Hooks::register_hook(
     'setprop',
@@ -49,34 +41,16 @@ LJ::Hooks::register_hook(
             return;
         }
 
-        my $dbh = _sphinx_db() or return 0;
-        $dbh->do(
-            q{UPDATE items_raw SET allow_global_search = ?, touchtime = UNIX_TIMESTAMP()
-          WHERE journalid = ?},
-            undef, $bool, $opts{u}->id
-        );
-        die $dbh->errstr if $dbh->err;
-
-        # looks good
-        return 1;
+        return DW::Search::set_journal_flag( $opts{u}->id, allow_global_search => $bool );
     }
 );
 
-# set when the user's status(vis) changes
-# the user may still undelete or be unsuspended
-# so we don't want to remove from indexing just yet
+# Set when the user's status(vis) changes. The user may still undelete or be
+# unsuspended, so flip the is_deleted flag rather than removing their content
+# from the index.
 sub _mark_deleted {
     my ( $u, $is_deleted ) = @_;
-
-    my $dbh = _sphinx_db() or return 0;
-    $dbh->do(
-        q{UPDATE items_raw SET is_deleted = ?, touchtime = UNIX_TIMESTAMP()
-          WHERE journalid = ?},
-        undef, $is_deleted, $u->id
-    );
-    die $dbh->errstr if $dbh->err;
-
-    return 1;
+    return DW::Search::set_journal_flag( $u->id, is_deleted => $is_deleted );
 }
 
 LJ::Hooks::register_hook( 'account_delete', sub { _mark_deleted( $_[0], 1 ) } );

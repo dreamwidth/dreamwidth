@@ -56,6 +56,36 @@ sub search_support {
     return _manticore_support( \%args );
 }
 
+# Update the journal-level filter attributes (allow_global_search, is_deleted)
+# on every one of a journal's docs, in place. Both attributes are identical
+# across all of a journal's entries/comments, so account-level changes — the
+# global-search opt-out, account suspend/delete/undelete — only need to flip
+# the attribute. Manticore's RT index supports UPDATE-by-attribute, so this is
+# a single cheap columnar write, not a recopy.
+#
+# Integers are interpolated, not bound: Manticore's SphinxQL types every '?'
+# placeholder as a string and rejects string values against uint attributes.
+# Column names come from a fixed whitelist and values are forced through %d, so
+# there is no injection surface.
+sub set_journal_flag {
+    my ( $journalid, %flags ) = @_;
+    return 0 unless @LJ::MANTICORE;
+
+    $journalid = int $journalid;
+    return 0 unless $journalid;
+
+    my @sets;
+    for my $col (qw/ allow_global_search is_deleted /) {
+        next unless exists $flags{$col};
+        push @sets, sprintf '%s = %d', $col, ( $flags{$col} ? 1 : 0 );
+    }
+    return 0 unless @sets;
+
+    my $dbh = _dbh() or return 0;
+    $dbh->do( sprintf 'UPDATE dw1 SET %s WHERE journalid = %d', join( ', ', @sets ), $journalid );
+    return $dbh->err ? 0 : 1;
+}
+
 # ---------------------------------------------------------------------------
 # Manticore backend — synchronous SphinxQL
 # ---------------------------------------------------------------------------

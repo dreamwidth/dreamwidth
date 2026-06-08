@@ -20,6 +20,11 @@
 #   { userid => N, jitemids => [J1, J2, ...] }   # mass-copy entries (not usually dispatched yet)
 #   { userid => N, jtalkids => [T1, T2, ...] }   # mass-copy comments chunk
 #   { userid => N, source => 'label' }           # optional provenance for logs
+#   { splid => S }                               # one supportlog row -> dwsupport
+#   { splid => [S1, S2, ...] }                   # mass-copy supportlog rows -> dwsupport
+#
+# Support log rows are keyed by splid and live in the dwsupport index rather
+# than dw1; that mode is user-independent and skips all the userid logic below.
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -78,6 +83,13 @@ sub manticore_db {
 sub work {
     my ( $self, $handle ) = @_;
     my $args = $self->args->[0];
+
+    # Support log entries are keyed by splid and indexed into dwsupport, not by
+    # user into dw1 — handle that mode before any of the user-centric logic.
+    if ( exists $args->{splid} ) {
+        copy_supportlog( $args->{splid} );
+        return DW::Task::COMPLETED;
+    }
 
     my $u = LJ::load_userid( $args->{userid} )
         or $log->logcroak("Invalid userid: $args->{userid}.");
@@ -530,6 +542,52 @@ sub copy_entry {
         }
         copy_comment( $u, $_ ) foreach keys %commentids;
     }
+}
+
+# Copy one or more supportlog rows into the dwsupport index. splid is the
+# Manticore doc id (already unique + monotonic), so a REPLACE keyed on it is
+# idempotent — re-running on the same splid just overwrites. The read path
+# (DW::Search) reloads message/type from MySQL and rechecks visibility per
+# match, so dwsupport only needs the body (for matching) plus the filter
+# attributes; we don't store the type here.
+sub copy_supportlog {
+    my ($splid) = @_;
+    my @splids = ref $splid ? @$splid : ($splid);
+    @splids = grep { $_ } map { int $_ } @splids;
+    return unless @splids;
+
+    my $dbsx = manticore_db()
+        or $log->logcroak("Manticore database not available.");
+    my $dbr = LJ::get_db_reader()
+        or $log->logcroak("Global database reader not available.");
+
+    # timelogged is already an int-unsigned Unix epoch; select it raw. Wrapping
+    # it in UNIX_TIMESTAMP() reparses the integer as a datetime and yields 0,
+    # which collapses the read path's `ORDER BY touchtime DESC`.
+    my $in   = join ',', @splids;
+    my $rows = $dbr->selectall_arrayref(
+        qq{SELECT splid, spid, timelogged AS touchtime, faqid, userid, message
+           FROM supportlog WHERE splid IN ($in)},
+        { Slice => {} },
+    );
+    $log->logcroak( $dbr->errstr ) if $dbr->err;
+    return unless $rows && @$rows;
+
+    foreach my $r (@$rows) {
+        my $sql = sprintf(
+            'REPLACE INTO dwsupport (id, spid, poster_id, faqid, touchtime, body)'
+                . ' VALUES (%d, %d, %d, %d, %d, ?)',
+            $r->{splid},
+            ( $r->{spid}      // 0 ),
+            ( $r->{userid}    // 0 ),
+            ( $r->{faqid}     // 0 ),
+            ( $r->{touchtime} // 0 ),
+        );
+        $dbsx->do( $sql, undef, $r->{message} // '' );
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+    }
+
+    $log->info( sprintf 'Indexed %d supportlog row(s) into dwsupport.', scalar @$rows );
 }
 
 # -----------------------------------------------------------------------------

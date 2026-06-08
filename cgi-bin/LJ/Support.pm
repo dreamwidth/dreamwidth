@@ -19,6 +19,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::Task::SupportNotify;
+use DW::Task::SearchCopier;
 
 use Digest::MD5 qw(md5_hex);
 
@@ -693,6 +694,7 @@ sub file_request {
 
     $dbh->do( "INSERT INTO supportlog (splid, spid, timelogged, type, faqid, userid, message) "
             . "VALUES (NULL, $spid, UNIX_TIMESTAMP(), 'req', 0, $qrequserid, $qbody)" );
+    _index_supportlog( $dbh->{mysql_insertid} );
 
     my $body;
     my $miniauth = mini_auth( { 'authcode' => $authcode } );
@@ -733,6 +735,16 @@ sub file_request {
 
     # and we're done
     return $spid;
+}
+
+# Queue a search-index copy of a freshly written supportlog row so it becomes
+# searchable. Gated on @LJ::MANTICORE so nothing piles up when search isn't
+# configured; the copier does a cheap idempotent REPLACE into dwsupport.
+sub _index_supportlog {
+    my $splid = shift or return;
+    return unless @LJ::MANTICORE;
+    DW::TaskQueue->dispatch(
+        DW::Task::SearchCopier->new( { splid => $splid, source => 'supportlog' } ) );
 }
 
 sub append_request {
@@ -824,6 +836,8 @@ sub append_request {
     }
 
     support_notify( { spid => $spid, splid => $splid, type => 'update' } );
+
+    _index_supportlog($splid);
 
     return $splid;
 }
