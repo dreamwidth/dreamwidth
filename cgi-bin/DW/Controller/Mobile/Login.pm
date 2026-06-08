@@ -18,7 +18,7 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 #
-# Copyright (c) 2024 by Dreamwidth Studios, LLC.
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
 #
 
 package DW::Controller::Mobile::Login;

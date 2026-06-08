@@ -3,7 +3,7 @@
   # Minimal standalone (no sitescheme) login form for the mobile interface.
   # Rendered by DW::Controller::Mobile::Login.
   #
-  # Copyright (c) 2024 by Dreamwidth Studios, LLC.
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
   #
   # This program is free software; you may redistribute it and/or modify it under
   # the same terms as Perl itself.  For a copy of the license, please reference
