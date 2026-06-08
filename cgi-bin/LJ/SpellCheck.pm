@@ -165,58 +165,12 @@ sub check_html {
     my $text = $$journal;
     return "" unless $text;
 
-    my $gc = LJ::gearman_client();
-
-    my $args = {
-        text     => $text,
-        no_ehtml => $no_ehtml,
-
-        class        => $self->{class},
-        color        => $self->{color},
-        command      => $self->{command},
-        command_args => $self->{command_args},
-    };
-    my $arg = Storable::nfreeze($args);
-
-    my $result;
-    my $task = Gearman::Task->new(
-        'spellcheck',
-        \$arg,
-        {
-            uniq        => '-',
-            on_complete => sub {
-                my $res = $_[0] or return undef;
-                $result = Storable::thaw($$res)->{results};
-            },
-        }
-    );
-
-    # setup the task set for gearman
-    my $ts = $gc->new_task_set();
-    $ts->add_task($task);
-    $ts->wait( timeout => 10 );
-
-    return $result;
-}
-
-# FIXME: this will cause a segfault if called from a controller
-# but IPC::Open2 won't work under mod_perl2, so we can't use the other version if gearman isn't set up
-sub _spawn_spellcheck {
-    my ( $self, $text, $no_ehtml ) = @_;
-
-    my $r = DW::Request->get;
-    my ( $iwrite, $iread ) = $r->spawn( $self->{command}, $self->{command_args} );
-
-    my %ret = $self->_call_system_spellchecker( $text, $iwrite, $iread, no_ehtml => $no_ehtml );
-
-    return "<?errorbar $ret{error} errorbar?>" if $ret{error};
-
-    return (
-        $ret{has_results}
-        ? "$ret{output}<table cellpadding=3 border=0><thead><tr><th>Text</th><th>Suggestions</th></tr></thead>$ret{footnotes}</table>"
-        : ""
-    );
-
+    # Run the spell checker inline. This used to dispatch a synchronous gearman
+    # "spellcheck" task whose worker did nothing but rebuild this object and call
+    # ->run, so we just call ->run directly. ->run spawns the speller via
+    # IPC::Open2, which works under Plack/Starman but NOT under mod_perl2 -- so
+    # this path only functions once the mod_perl web servers are retired.
+    return $self->run( text => $text, no_ehtml => $no_ehtml );
 }
 
 sub run {
