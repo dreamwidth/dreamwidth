@@ -29,7 +29,7 @@ DW::Routing->register_string( '/search', \&search_handler, app => 1 );
 
 sub search_handler {
     return error_ml('/search.tt.error.notconfigured')
-        unless DW::Search::configured();
+        unless DW::Search::enabled();
 
     my ( $ok, $rv ) = controller( form_auth => 1 );
     return $rv unless $ok;

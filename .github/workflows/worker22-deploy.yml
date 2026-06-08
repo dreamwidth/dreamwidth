@@ -34,7 +34,6 @@ on:
         - dw-mass-privacy
         - dw-search-copier
         - dw-send-email
-        - dw-sphinx-copier
         - dw-support-notify
         - dw-synsuck
         - dw-xpost
@@ -54,8 +53,6 @@ on:
         - ses-incoming-email
         - shop-creditcard-charge
         - spellcheck-gm
-        - sphinx-copier
-        - sphinx-search-gm
         - support-notify
       tag:
         type: string
@@ -283,15 +280,6 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
-      - name: (dw-sphinx-copier) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-sphinx-copier'
-        id: render-worker-container-dw-sphinx-copier
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-dw-sphinx-copier-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
       - name: (dw-support-notify) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-support-notify'
         id: render-worker-container-dw-support-notify
@@ -460,24 +448,6 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-spellcheck-gm-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (sphinx-copier) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-copier'
-        id: render-worker-container-sphinx-copier
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-sphinx-copier-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (sphinx-search-gm) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-search-gm'
-        id: render-worker-container-sphinx-search-gm
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-sphinx-search-gm-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -666,14 +636,6 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-dw-send-email-service"
 
-      - name: (dw-sphinx-copier) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-sphinx-copier'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-dw-sphinx-copier.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-dw-sphinx-copier-service"
-
       - name: (dw-support-notify) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-support-notify'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -825,22 +787,6 @@ jobs:
           task-definition: ${{ steps.render-worker-container-spellcheck-gm.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-spellcheck-gm-service"
-
-      - name: (sphinx-copier) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-copier'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-sphinx-copier.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-sphinx-copier-service"
-
-      - name: (sphinx-search-gm) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-search-gm'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-sphinx-search-gm.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-sphinx-search-gm-service"
 
       - name: (support-notify) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'support-notify'

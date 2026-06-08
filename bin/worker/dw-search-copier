@@ -2,10 +2,8 @@
 #
 # bin/worker/dw-search-copier
 #
-# Worker for DW::Task::SearchCopier — pulls from its SQS queue and
-# writes entries/comments/supportlog to Manticore. Parallel to
-# bin/worker/dw-sphinx-copier, coexisting during the Sphinx -> Manticore
-# migration.
+# Worker for DW::Task::SearchCopier — pulls from its SQS queue and writes
+# entries/comments/supportlog to Manticore.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>

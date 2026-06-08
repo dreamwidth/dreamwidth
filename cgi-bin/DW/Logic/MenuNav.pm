@@ -16,6 +16,7 @@ package DW::Logic::MenuNav;
 
 use strict;
 use LJ::Lang;
+use DW::Search;
 
 # name: get_menu_navigation
 #
@@ -230,7 +231,7 @@ sub get_menu_navigation {
                 {
                     url     => "$LJ::SITEROOT/search",
                     text    => "menunav.explore.sitesearch",
-                    display => @LJ::SPHINX_SEARCHD ? 1 : 0,
+                    display => DW::Search::enabled(),
                 },
                 {
                     url     => "$LJ::SITEROOT/latest",

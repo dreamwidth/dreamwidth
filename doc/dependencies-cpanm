@@ -58,7 +58,6 @@ Proc::ProcessTable
 RPC::XML
 Regexp::IPv6
 SOAP::Lite@1.27
-Sphinx::Search@0.28
 Starman
 String::CRC32
 Sys::Syscall

@@ -3,16 +3,10 @@
 # DW::Search
 #
 # Single abstraction point for site-wide content search. Callers ask for
-# a journal/comment search or a support search; this module dispatches
-# to whichever backend the site is configured for:
-#
-#   @LJ::MANTICORE      -> SphinxQL synchronously (new path, in-process)
-#   @LJ::SPHINX_SEARCHD -> Gearman -> bin/worker/sphinx-search-gm (legacy)
-#   neither             -> undef (caller renders "not configured" error)
-#
-# Canary sets @LJ::MANTICORE to pick up the new path; stable keeps using
-# the Gearman/Sphinx path until cutover. Both backends return the same
-# result shape so templates don't care which one ran:
+# a journal/comment search or a support search; this module runs the query
+# synchronously against Manticore (SphinxQL) on @LJ::MANTICORE, or returns
+# undef when search isn't configured (the caller renders a "not configured"
+# error). Results use this shape:
 #
 #   {
 #     total   => N,
@@ -40,59 +34,56 @@ use strict;
 use v5.10;
 
 use DBI;
-use Storable;
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
-sub configured {
-    return 1 if @LJ::MANTICORE;
-    return 1 if @LJ::SPHINX_SEARCHD && LJ::gearman_client();
-    return 0;
+sub enabled {
+    return @LJ::MANTICORE ? 1 : 0;
 }
 
 sub search_journal {
     my %args = @_;
-    return _manticore_journal( \%args ) if @LJ::MANTICORE;
-    return _gearman( \%args );
+    return undef unless @LJ::MANTICORE;
+    return _manticore_journal( \%args );
 }
 
 sub search_support {
     my %args = @_;
+    return undef unless @LJ::MANTICORE;
     $args{support} = 1;
-    return _manticore_support( \%args ) if @LJ::MANTICORE;
-    return _gearman( \%args );
+    return _manticore_support( \%args );
 }
 
-# ---------------------------------------------------------------------------
-# Gearman backend — legacy Sphinx path
-# ---------------------------------------------------------------------------
+# Update the journal-level filter attributes (allow_global_search, is_deleted)
+# on every one of a journal's docs, in place. Both attributes are identical
+# across all of a journal's entries/comments, so account-level changes — the
+# global-search opt-out, account suspend/delete/undelete — only need to flip
+# the attribute. Manticore's RT index supports UPDATE-by-attribute, so this is
+# a single cheap columnar write, not a recopy.
+#
+# Integers are interpolated, not bound: Manticore's SphinxQL types every '?'
+# placeholder as a string and rejects string values against uint attributes.
+# Column names come from a fixed whitelist and values are forced through %d, so
+# there is no injection surface.
+sub set_journal_flag {
+    my ( $journalid, %flags ) = @_;
+    return 0 unless @LJ::MANTICORE;
 
-sub _gearman {
-    my $args = shift;
+    $journalid = int $journalid;
+    return 0 unless $journalid;
 
-    my $gc = LJ::gearman_client();
-    return undef unless $gc && @LJ::SPHINX_SEARCHD;
+    my @sets;
+    for my $col (qw/ allow_global_search is_deleted /) {
+        next unless exists $flags{$col};
+        push @sets, sprintf '%s = %d', $col, ( $flags{$col} ? 1 : 0 );
+    }
+    return 0 unless @sets;
 
-    my $frozen = Storable::nfreeze($args);
-    my $result;
-    my $task = Gearman::Task->new(
-        'sphinx_search',
-        \$frozen,
-        {
-            uniq        => '-',
-            on_complete => sub {
-                my $res = $_[0] or return undef;
-                $result = Storable::thaw($$res);
-            },
-        },
-    );
-
-    my $ts = $gc->new_task_set;
-    $ts->add_task($task);
-    $ts->wait( timeout => 20 );
-    return $result;
+    my $dbh = _dbh() or return 0;
+    $dbh->do( sprintf 'UPDATE dw1 SET %s WHERE journalid = %d', join( ', ', @sets ), $journalid );
+    return $dbh->err ? 0 : 1;
 }
 
 # ---------------------------------------------------------------------------
@@ -222,8 +213,7 @@ sub _journal_where {
         my @bits = ( 102, LJ::bit_breakdown( $args->{allowmask} ) );
         push @c, 'security_bits IN (' . join( ',', map { int $_ } @bits ) . ')';
 
-        # Defensive exclude: Sphinx copy path has historically admitted
-        # rows with a stray 0 bit; drop those before handing results back.
+        # Defensive exclude: drop any rows with a stray 0 security bit.
         push @c, 'security_bits NOT IN (0)';
     }
 
@@ -238,9 +228,8 @@ sub _journal_order {
     return '';    # relevance (default)
 }
 
-# Strip a single matching pair of outer quotes (the Gearman worker's
-# heuristic for "phrase intent") and re-wrap with SphinxQL phrase syntax,
-# which is equivalent to SPH_MATCH_PHRASE in the old binary API.
+# Strip a single matching pair of outer quotes (the user's "phrase intent")
+# and re-wrap with SphinxQL phrase syntax.
 sub _match_expr {
     my $q = shift // '';
     return qq{"$1"} if $q =~ /^['"](.+)['"]$/;
@@ -249,7 +238,6 @@ sub _match_expr {
 
 # ---------------------------------------------------------------------------
 # Enrichment — MySQL reload + visibility recheck + excerpts
-# (1:1 port of _build_output / _build_output_support from the Gearman worker)
 # ---------------------------------------------------------------------------
 
 sub _enrich_journal {

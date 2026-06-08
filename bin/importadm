@@ -22,7 +22,7 @@ use Carp qw/ croak /;
 use Getopt::Long;
 
 use DW::Logic::Importer;
-use DW::Task::SphinxCopier;
+use DW::Task::SearchCopier;
 use DW::Worker::ContentImporter::LiveJournal::Comments;
 use DW::Worker::ContentImporter::LiveJournal::Entries;
 use DW::Worker::ContentImporter::LiveJournal::Userpics;
@@ -72,7 +72,7 @@ if ( $list ) {
 
 if ( $schedule_copy ) {
     DW::TaskQueue->dispatch(
-        DW::Task::SphinxCopier->new( { userid => $u->id, source => "importen" } )
+        DW::Task::SearchCopier->new( { userid => $u->id, source => "importen" } )
     );
     print "Scheduled copier job.\n";
     exit 0;

@@ -2,23 +2,15 @@
 #
 # DW::Task::SearchCopier
 #
-# Copies content into Manticore Search (RT mode). Structural port of
-# DW::Task::SphinxCopier, with Manticore-specific swaps:
-#   - Writes to the dw1 table via SphinxQL on @LJ::MANTICORE instead of
-#     items_raw in the dw_sphinx MySQL staging DB.
-#   - No stable doc IDs — Manticore auto-assigns. Upsert is DELETE+INSERT
-#     on the natural key (journalid, jitemid, jtalkid) instead of REPLACE
-#     with a preserved id.
-#   - Body text stored uncompressed (no COMPRESS()). Manticore tokenizes
-#     it directly.
-#   - security_bits is an rt_attr_multi written as a (1,2,3) literal
-#     rather than a CSV string stored in a MySQL column.
-#   - No touchtime column on dw1 (unused by the read path; was only there
-#     to support Sphinx's main+delta build schedule, which RT doesn't need).
+# Copies content (entries and comments) into Manticore Search (RT mode) via
+# SphinxQL on @LJ::MANTICORE. Schema details worth knowing:
+#   - Writes to the dw1 RT index; Manticore auto-assigns doc IDs, so upsert
+#     is DELETE+INSERT on the natural key (journalid, jitemid, jtalkid).
+#   - Body text is stored uncompressed; Manticore tokenizes it directly.
+#   - security_bits is an rt_attr_multi written as a (1,2,3) literal.
 #
 # Routes to its own SQS queue automatically via class-name derivation
-# (DW::Task::SearchCopier -> dw-task-searchcopier). Coexists with
-# DW::Task::SphinxCopier during the Sphinx -> Manticore migration.
+# (DW::Task::SearchCopier -> dw-task-searchcopier).
 #
 # Arg shape (hashref in args->[0]):
 #   { userid => N }                              # full recopy (24h throttled)
@@ -28,6 +20,11 @@
 #   { userid => N, jitemids => [J1, J2, ...] }   # mass-copy entries (not usually dispatched yet)
 #   { userid => N, jtalkids => [T1, T2, ...] }   # mass-copy comments chunk
 #   { userid => N, source => 'label' }           # optional provenance for logs
+#   { splid => S }                               # one supportlog row -> dwsupport
+#   { splid => [S1, S2, ...] }                   # mass-copy supportlog rows -> dwsupport
+#
+# Support log rows are keyed by splid and live in the dwsupport index rather
+# than dw1; that mode is user-independent and skips all the userid logic below.
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -59,10 +56,9 @@ use Encode;
 
 use constant _CHUNK_SIZE => 1000;
 
-# Manticore SphinxQL connection. Parallels SphinxCopier's sphinx_db() —
-# no %DBINFO entry exists for Manticore (it doesn't speak the full MySQL
-# dialect LJ::get_dbh expects), so we open a raw DBI handle against
-# @LJ::MANTICORE and do the SET NAMES dance ourselves.
+# Manticore SphinxQL connection. No %DBINFO entry exists for Manticore (it
+# doesn't speak the full MySQL dialect LJ::get_dbh expects), so we open a raw
+# DBI handle against @LJ::MANTICORE and do the SET NAMES dance ourselves.
 sub manticore_db {
     $log->logcroak("\@LJ::MANTICORE is not configured.")
         unless @LJ::MANTICORE;
@@ -87,6 +83,13 @@ sub manticore_db {
 sub work {
     my ( $self, $handle ) = @_;
     my $args = $self->args->[0];
+
+    # Support log entries are keyed by splid and indexed into dwsupport, not by
+    # user into dw1 — handle that mode before any of the user-centric logic.
+    if ( exists $args->{splid} ) {
+        copy_supportlog( $args->{splid} );
+        return DW::Task::COMPLETED;
+    }
 
     my $u = LJ::load_userid( $args->{userid} )
         or $log->logcroak("Invalid userid: $args->{userid}.");
@@ -539,6 +542,52 @@ sub copy_entry {
         }
         copy_comment( $u, $_ ) foreach keys %commentids;
     }
+}
+
+# Copy one or more supportlog rows into the dwsupport index. splid is the
+# Manticore doc id (already unique + monotonic), so a REPLACE keyed on it is
+# idempotent — re-running on the same splid just overwrites. The read path
+# (DW::Search) reloads message/type from MySQL and rechecks visibility per
+# match, so dwsupport only needs the body (for matching) plus the filter
+# attributes; we don't store the type here.
+sub copy_supportlog {
+    my ($splid) = @_;
+    my @splids = ref $splid ? @$splid : ($splid);
+    @splids = grep { $_ } map { int $_ } @splids;
+    return unless @splids;
+
+    my $dbsx = manticore_db()
+        or $log->logcroak("Manticore database not available.");
+    my $dbr = LJ::get_db_reader()
+        or $log->logcroak("Global database reader not available.");
+
+    # timelogged is already an int-unsigned Unix epoch; select it raw. Wrapping
+    # it in UNIX_TIMESTAMP() reparses the integer as a datetime and yields 0,
+    # which collapses the read path's `ORDER BY touchtime DESC`.
+    my $in   = join ',', @splids;
+    my $rows = $dbr->selectall_arrayref(
+        qq{SELECT splid, spid, timelogged AS touchtime, faqid, userid, message
+           FROM supportlog WHERE splid IN ($in)},
+        { Slice => {} },
+    );
+    $log->logcroak( $dbr->errstr ) if $dbr->err;
+    return unless $rows && @$rows;
+
+    foreach my $r (@$rows) {
+        my $sql = sprintf(
+            'REPLACE INTO dwsupport (id, spid, poster_id, faqid, touchtime, body)'
+                . ' VALUES (%d, %d, %d, %d, %d, ?)',
+            $r->{splid},
+            ( $r->{spid}      // 0 ),
+            ( $r->{userid}    // 0 ),
+            ( $r->{faqid}     // 0 ),
+            ( $r->{touchtime} // 0 ),
+        );
+        $dbsx->do( $sql, undef, $r->{message} // '' );
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+    }
+
+    $log->info( sprintf 'Indexed %d supportlog row(s) into dwsupport.', scalar @$rows );
 }
 
 # -----------------------------------------------------------------------------

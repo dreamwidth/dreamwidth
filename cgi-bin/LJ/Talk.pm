@@ -22,7 +22,8 @@ use Digest::MD5;
 use MIME::Words;
 use MIME::Lite;
 use Carp qw/ croak /;
-use DW::Task::SphinxCopier;
+use DW::Task::SearchCopier;
+use DW::Search;
 
 use DW::Captcha;
 use DW::EmailPost::Comment;
@@ -2454,9 +2455,9 @@ sub enter_comment {
     push @jobs,
         LJ::Event::JournalNewComment->new( LJ::Comment->new( $journalu, jtalkid => $jtalkid ) );
 
-    if (@LJ::SPHINX_SEARCHD) {
+    if ( DW::Search::enabled() ) {
         push @jobs,
-            DW::Task::SphinxCopier->new(
+            DW::Task::SearchCopier->new(
             { userid => $journalu->id, jtalkid => $jtalkid, source => "commtnew" } );
     }
 
@@ -3177,9 +3178,9 @@ sub edit_comment {
 
     push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj);
 
-    if (@LJ::SPHINX_SEARCHD) {
+    if ( DW::Search::enabled() ) {
         push @jobs,
-            DW::Task::SphinxCopier->new(
+            DW::Task::SearchCopier->new(
             { userid => $journalu->id, jtalkid => $comment_obj->jtalkid, source => "commtedt" } );
     }
 

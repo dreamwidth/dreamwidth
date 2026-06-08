@@ -21,7 +21,8 @@ use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use Carp qw/ croak confess /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
-use DW::Task::SphinxCopier;
+use DW::Task::SearchCopier;
+use DW::Search;
 use DW::Worker::ContentImporter::Local::Entries;
 
 sub work {
@@ -366,9 +367,9 @@ sub try_work {
     );
 
     # Kick off a indexing job for this user
-    if (@LJ::SPHINX_SEARCHD) {
+    if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(
-            DW::Task::SphinxCopier->new( { userid => $u->id, source => "importen" } ) );
+            DW::Task::SearchCopier->new( { userid => $u->id, source => "importen" } ) );
     }
 
     return $ok->();
