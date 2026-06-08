@@ -1,0 +1,30 @@
+;; -*- coding: utf-8 -*-
+.accessfilters=You are currently managing your subscription filters.  <a [[aopts]]>Manage your access filters?</a>
+
+.foptions=Options for
+
+.freewarning=Your account type does not permit the use of advanced subscription filters.  These options are not active.  If you would like to use these options, please consider supporting the site and upgrading your account.
+
+.intro.firsttime=If this is your first time here, you should click the New button in the top right to make a new subscription filter.
+
+.intro.hello=Hello!
+
+.intro.welcome=Welcome to the Dreamwidth Subscription Filters editing page.  If you have already created a filter, you may select it in the dropdown above.
+
+.opts.availabletags=Available tags (click to select):
+
+.opts.notagsavail=(no tags available)
+
+.opts.notagssel=(no tags selected)
+
+.opts.ofselected=of the selected tags:
+
+.opts.poster=... and the poster is
+
+.opts.rated=... is rated
+
+.opts.showonly=Show only content that ...
+
+.opts.tagged=... and the entry is tagged with
+
+.title=Manage Subscription Filters
