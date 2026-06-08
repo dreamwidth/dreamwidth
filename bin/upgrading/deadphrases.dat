@@ -4275,3 +4275,29 @@ general /mobile/read.bml.read.login
 general /mobile/read.bml.read.noneleft
 
 general /manage/subscriptions/filters.bml.accessfilters
+
+general /support/stock_answers.bml.add.new.answer
+general /support/stock_answers.bml.answer.added
+general /support/stock_answers.bml.answer.deleted
+general /support/stock_answers.bml.category.not.exist
+general /support/stock_answers.bml.category.stock.answers
+general /support/stock_answers.bml.changes.saved
+general /support/stock_answers.bml.confirm.answer
+general /support/stock_answers.bml.delete.answer
+general /support/stock_answers.bml.error
+general /support/stock_answers.bml.fill.out.all.friends
+general /support/stock_answers.bml.fill.out.following
+general /support/stock_answers.bml.filter
+general /support/stock_answers.bml.last.modified.by
+general /support/stock_answers.bml.no.answer
+general /support/stock_answers.bml.no.answer.id
+general /support/stock_answers.bml.no.database.available
+general /support/stock_answers.bml.not.have.access.to.actions
+general /support/stock_answers.bml.not.have.access.to.view.answers
+general /support/stock_answers.bml.not.have.access.to.view.answers.in.cat
+general /support/stock_answers.bml.save_changes
+general /support/stock_answers.bml.subject
+general /support/stock_answers.bml.unable.allocate.counter
+general /support/stock_answers.bml.unable.database.handle
+general /support/stock_answers.bml.unable.get.database.handle
+general /support/stock_answers.bml.view.all

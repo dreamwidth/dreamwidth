@@ -11,8 +11,7 @@ architecture, which separates the three concerns:
 | Markup  | HTML in the same `.bml` file | a Template Toolkit template in `views/<path>.tt` |
 | Strings | `htdocs/<path>.bml.text` | `views/<path>.tt.text` |
 
-This document is the how-to. The worked example throughout is the conversion of
-`/mobile/login` (see the commit that introduced this file).
+This document is the how-to; worked examples are collected in §10.
 
 > **Run everything in the devcontainer.** All commands below assume you are
 > inside the devcontainer (`$LJHOME` = `/workspaces/dreamwidth`). See
@@ -108,6 +107,17 @@ Common options (full list in `cgi-bin/DW/Controller.pm`):
 | `privcheck => [ … ]` | require one of the listed privs |
 | `skip_captcha => 1` | never captcha (use sparingly) |
 
+`privcheck` only handles **global** privs. For access that depends on the object
+— "can edit *this* category", "can view at least one of N things" — do the
+checks yourself after `controller()` returns and bail with `error_ml`:
+
+```perl
+my $canedit = $remote->has_priv( 'admin', "supporthelp/$catkey" )
+           || $remote->has_priv( 'admin', 'supporthelp' );
+return error_ml("$ml_scope.not.have.access.to.actions")
+    if $r->did_post && !$canedit;
+```
+
 ### Routing
 
 ```perl
@@ -116,7 +126,9 @@ DW::Routing->register_regex( '^/confirm/(\w+\.\w+)', \&handler, app => 1 ); # ca
 ```
 
 `app => 1` means the site-app context (the normal case). One controller may
-register several routes (e.g. `/register` plus `/confirm/…`).
+register several routes (e.g. `/register` plus `/confirm/…`). Pass
+`no_cache => 1` for pages that must not be cached — admin/support tools and
+anything with mutating actions (e.g. `/support/stock_answers`).
 
 ### Reading input
 
@@ -129,6 +141,24 @@ $r->post_args->{user} # was: $POST{user}
 $r->get_args->{foo}   # was: $GET{foo}
 $r->query_string
 ```
+
+### Handling form submissions (POST)
+
+With `form_auth => 1`, `controller()` validates the CSRF token on every POST for
+you. Beyond that, two patterns:
+
+- **Multiple actions on one page** — give each submit button a distinct name
+  (`action:new`, `action:save`, `action:delete`) and dispatch on it:
+  ```perl
+  if ( $post->{'action:delete'} ) { ... }
+  if ( $post->{'action:new'} || $post->{'action:save'} ) { ... }
+  ```
+- **POST-then-redirect (PRG)** vs **POST-then-render.** For create/update/delete
+  that changes state, do the work and `return $r->redirect(...)` — usually back to
+  the same page with a flag (`?...&saved=1`) the GET branch turns into a success
+  message. This avoids duplicate submits on refresh. Use POST-then-render
+  (re-render with `DW::FormErrors`) only when you need to show validation errors
+  with the user's input preserved (see §5).
 
 ### Rendering
 
@@ -148,6 +178,18 @@ Most pages render *inside* the Foundation site scheme (omit `no_sitescheme`); th
 template then supplies only the page body plus `sections.*`. Standalone pages
 (the mobile interface, popups, some tools) emit their own `<html>`…`</html>` and
 pass `no_sitescheme => 1`.
+
+### Loading CSS/JS (resources)
+
+From the template, `dw.need_res(...)` and `dw.active_resource_group('foundation')`
+load page resources. Do it in the **controller** instead when an option needs a
+Perl-side value the template can't see — e.g. a config global:
+
+```perl
+LJ::set_active_resource_group('jquery');
+LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/subfilters.css' );
+LJ::need_res( { group => 'jquery' }, 'js/subfilters.js' );
+```
 
 ### Redirects
 
@@ -245,6 +287,37 @@ on the controller:
 </form>
 ```
 
+Building form controls (these wrap the old `LJ::html_*`):
+
+```tt
+[%# a <select>: items is a FLAT list [ value, text, value, text, ... ] %]
+[% form.select( name = 'spcatid', selected = spcatid, items = cat_items ) %]
+[% form.textbox( name = 'subject', value = ans.subject, size = 40 ) %]
+[% form.submit( name = 'action:save', value = dw.ml('.save') ) %]
+[%# extra attributes (e.g. a confirm dialog) pass straight through %]
+[% form.submit( name = 'action:delete', value = dw.ml('.delete'),
+                onclick = "return confirm('" _ confirm_msg _ "');" ) %]
+```
+
+An explicit `value =` always wins; without it `form.*` auto-fills from the posted
+form data. Build the flat `items` list for `form.select` in the controller.
+
+### Client-side (JS-driven) pages
+
+Some pages are thin server-side shells around a jQuery/AJAX app (e.g.
+`js/subfilters.js`). Two rules:
+
+- **Copy every element `id`/`class` the JS hooks verbatim** — the JS finds
+  elements by id, so the markup must match exactly.
+- **Inject the per-request JS globals** the script needs, from controller
+  values:
+  ```tt
+  <script type="text/javascript">
+  DW.currentUser = '[% remote.user %]';
+  DW.userIsPaid = [% remote.is_paid ? 'true' : 'false' %];
+  </script>
+  ```
+
 ---
 
 ## 4. Translation strings (`.text`)
@@ -260,6 +333,12 @@ git mv htdocs/mobile/login.bml.text views/mobile/login.tt.text
 
 If you are restructuring (splitting a page, renaming many keys), it's fine to
 delete the old file and write a fresh one instead.
+
+(Heads-up: if you `git mv` but then rewrite the file heavily in the same commit,
+git may stop showing it as a rename — it might even pair the `.bml`→`.tt` markup
+files instead. That's cosmetic; the end state is what matters. Either way, after
+the migration confirm the old `htdocs/<path>.bml.text` is actually gone, not left
+behind as a duplicate.)
 
 ### Repointing cross-file references (mandatory)
 
@@ -300,6 +379,14 @@ references (above); deadphrasing is the *tidy* step.
 > template, `'.key' | ml` resolves **relative** to the current template.
 > `DW::FormErrors` keys are the exception — they resolve at *render* time, so
 > relative `.key` codes work from the controller (see below).
+
+### Untranslated (hardcoded) strings
+
+Many BML pages have user-visible text hardcoded in English instead of in `$ML{}`.
+How much to internationalize is a judgment call (like CSS, §8): extract prose
+(sentences, paragraphs, the page title) into `.tt.text`, but it's fine to leave
+short control labels and dropdown option values hardcoded as they were. Never
+*regress* — anything already an `$ML{}` string must stay an ML string.
 
 ---
 
@@ -442,7 +529,9 @@ Judgment call, not a rule:
 | `LJ::check_form_auth()` | `form_auth => 1` (+ `[% dw.form_auth %]`) |
 | `%POST` / `%GET` | `$r->post_args` / `$r->get_args` |
 | `$ML{'.key'}` / `BML::ml('.key', {…})` | `'.key' \| ml` / `'.key' \| ml( a => … )` |
-| `LJ::need_res('stc/x.css')` | inline `<style>`, or `dw.need_res(...)` |
+| `LJ::need_res(...)` / `LJ::set_active_resource_group(...)` | same in controller, or `dw.need_res` / `dw.active_resource_group` in template |
+| `LJ::img(...)` | `dw.img(...)` |
+| `LJ::html_select` / `html_text` / `html_textarea` / `html_submit` | `form.select` / `form.textbox` / `form.textarea` / `form.submit` |
 | `LJ::ljuser($u)` string-building | `u.ljuser_display` |
 | `BML::redirect(...)` | `$r->redirect(...)` |
 | `$LJ::SITEROOT` | `site.root` |
@@ -450,7 +539,9 @@ Judgment call, not a rule:
 
 ---
 
-## 10. Worked example: `/mobile/login`
+## 10. Worked examples
+
+### `/mobile/login` — a standalone form
 
 A small standalone (`no_sitescheme`) page. Highlights every core pattern:
 
@@ -469,6 +560,23 @@ A small standalone (`no_sitescheme`) page. Highlights every core pattern:
   no content change.
 
 See `cgi-bin/DW/Controller/Mobile/Login.pm` and `views/mobile/login.tt`.
+
+### `/manage/subscriptions/filters` — a JS-driven sitescheme page
+
+A login-required page that's almost entirely a static shell for a jQuery app
+(`js/subfilters.js`). Resources are loaded in the controller (one needs
+`$LJ::OLD_RES_PRIORITY`); the template preserves every `cf-*` element id and
+injects `DW.currentUser` / `DW.userIsPaid`. Prose is ML'd, short labels left
+hardcoded. See `cgi-bin/DW/Controller/Manage/Subscriptions/Filters.pm`.
+
+### `/support/stock_answers` — per-object privchecks + multi-action POST
+
+A support-admin tool. Access control is per-category (not a global `privcheck`),
+done by hand with `error_ml` denials. Three `action:*` buttons create / save /
+delete rows in `support_answers` directly, each ending in a POST-then-redirect
+with an `added` / `saved` / `deleted` flag the GET branch shows as a message. Two
+render modes (new-answer form, listing). See
+`cgi-bin/DW/Controller/Support/StockAnswers.pm`.
 
 ---
 
