@@ -3,8 +3,6 @@
 
 .category.invalid=Invalid category.
 
-.error=Error
-
 .no.request=No request IDs were provided.
 
 .not.have.access=You don't have access to close requests in that category.
@@ -14,6 +12,4 @@
 .request.moved=The requests have been moved.
 
 .request.specified=You've successfully closed the requests you specified.
-
-.success=Success.
 
