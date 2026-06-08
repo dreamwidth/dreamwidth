@@ -1,0 +1,117 @@
+[%# support/help.tt
+  #
+  # The support board: the queue of support requests with state/category
+  # filters, sortable columns, and (for users who can close requests in the
+  # selected category) a mass close/move form that posts to /support/actmulti.
+  # Rendered by DW::Controller::Support::Help.
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+[%- sections.title = 'Support Requests' -%]
+[%- sections.head = BLOCK %]
+[% robot_meta_tags %]
+<style type='text/css'>
+.green, .green td { background-color: #d0eed0; }
+.yellow, .yellow td { background-color: #eeeed0; }
+.red, .red td { background-color: #eed0d0; }
+.clicked, .clicked td { background-color: #d0d0ee; }
+table.supporttable { margin-left: 1px; }
+</style>
+<script type='text/javascript'>
+//<![CDATA[
+function doClick(spid) {
+    if (!document.getElementById) { return; }
+    var row = document.getElementById('r' + spid);
+    var check = document.getElementById('check_' + spid);
+    check.checked = !check.checked;
+    if (check.checked) {
+        row.className = 'clicked';
+    } else {
+        var hid = document.getElementById('c' + spid);
+        row.className = hid.value;
+    }
+    return true;
+}
+//]]>
+</script>
+[% END -%]
+
+[%- IF heading == 'closed' %]
+<h1>[% '.state.closed.title' | ml %]</h1>
+<p>[% dw.ml( '.state.closed.text', { clickurl => clickurl } ) %]</p>
+[%- ELSIF heading == 'youreplied' %]
+<h1>[% '.state.youreplied.title' | ml %]</h1>
+<p>[% '.state.youreplied.text' | ml %]</p>
+[%- ELSE %]
+<h1>[% '.state.else.title' | ml %]</h1>
+<p>[% dw.ml( '.state.else.text', { statelink => statelink } ) %]</p>
+[%- END %]
+
+[%- IF counts %]
+<p>[ <b>[% counts.gct %]</b> [% '.status.unanswered' | ml %], <b>[% counts.snhct %]</b> [% '.status.needhelp' | ml %], <b>[% counts.aacct %]</b> [% '.status.awaitingclose' | ml %], <b>[% counts.rct %]</b> [% '.status.totalopen' | ml %] ]</p>
+[%- END %]
+
+<form method='get' action='help'>[% '.showonlyhelp' | ml %]
+<input type='hidden' name='sort' value='[% sort %]' />
+<select name='state'>
+[%- FOREACH o IN state_options %]
+<option value="[% o.value %]"[% IF o.selected %] selected='selected'[% END %]>[% o.label %]</option>
+[%- END %]
+</select>
+ [% '.requests.type' | ml %]: <select name='cat'>
+[%- FOREACH o IN cat_options %]
+<option value="[% o.value %]"[% IF o.selected %] selected='selected'[% END %]>[% o.label %]</option>
+[%- END %]
+</select>
+<input type='submit' value="[% '.button.filter' | ml %]" /></form>
+
+[%- IF can_close && rct %]
+<form method='post' action='[% site.root %]/support/actmulti'>[% dw.form_auth %]
+[%- END %]
+
+<table class='supporttable'><thead><tr bgcolor='#d0d0d0'>
+[%- IF can_close %]
+<th>&nbsp;<a href='[% closeall_link %]'>X</a></th>
+[%- END %]
+[%- FOREACH h IN headers %]
+[%- IF h.is_current %]<th>[% h.desc %]</th>[% ELSE %]<th><a href='[% uri %]&sort=[% h.sorttype %]'>[% h.desc %]</a></th>[% END %]
+[%- END %]
+<th>[% '.th.status' | ml %]</th>
+</tr></thead>
+[%- FOREACH row IN rows %]
+<tr valign='top' class='[% row.barbg %]'[% IF can_close %] id='r[% row.spid %]' onclick='doClick([% row.spid %]);'[% END %]>
+[%- IF can_close %]
+<td><input type='checkbox' name='check_[% row.spid %]' id='check_[% row.spid %]' onclick='doClick([% row.spid %]);'[% IF row.barbg == 'clicked' %] checked='checked'[% END %] /><input type='hidden' name='c[% row.spid %]' id='c[% row.spid %]' value='[% row.original_barbg %]' /></td>
+[%- END %]
+<td><b><a href="[% site.root %]/support/see_request?id=[% row.spid %]"[% IF can_close %] onclick='return doClick([% row.spid %]);'[% END %]>[% row.spid %]</a></b></td>
+<td><b>[% row.summary %]</b>[% row.des %]</td>
+<td>[% row.probarea %]</td>
+<td nowrap='nowrap'><font size='-1'>[% row.age %]</font></td>
+<td nowrap='nowrap'><font size='-1'>[% row.untouched %]</font></td>
+<td nowrap='nowrap'><font size='-1'>[% row.status %]</font></td>
+</tr>
+[%- END %]
+</table>
+
+[%- IF can_close && rct %]
+<input type='hidden' name='ids' value='[% ids %]' />
+<input type='hidden' name='spcatid' value='[% spcatid %]' />
+<input type='hidden' name='ret' value='[% ret | html %]' />
+<br />
+[% form.submit( name = 'action:move', value = 'Move Marked Requests' ) %] to
+[% form.select( name = 'changecat', selected = '', items = movecat_options ) %]
+<br /><br />
+[% form.submit( name = 'action:close', value = 'Close Marked Requests', onclick = 'return confirm("Are you sure you want to close the marked requests?");' ) %] (this is permanent)
+<br /><br />
+[% form.submit( name = 'action:closewithpoints', value = 'Close Marked Requests, granting points to last responses', onclick = 'return confirm("Are you sure you want to close the marked requests?");' ) %]
+</form>
+[%- END %]
+
+<hr />
+<p>[% notifylink %]</p>
+<p>[% backlink %]</p>
