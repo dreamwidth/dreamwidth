@@ -1480,6 +1480,37 @@ general /tools/emailmanage.bml.notvalidated.text
 general /tools/memadd.bml.error.login
 
 general /directory.bml.error.accounttype
+general /support/act.bml.answer.you.credited
+general /support/act.bml.closed
+general /support/act.bml.error
+general /support/act.bml.go.back.to.category
+general /support/act.bml.go.back.to.open.request
+general /support/act.bml.go.back.to.request
+general /support/act.bml.go.to.previous.next.req.cat
+general /support/act.bml.go.to.previous.next.request
+general /support/act.bml.has.been.reopened
+general /support/act.bml.improper.arguments
+general /support/act.bml.invalid.authcode
+general /support/act.bml.message
+general /support/act.bml.more.info
+general /support/act.bml.no.html.allowed3
+general /support/act.bml.not.allowed.request
+general /support/act.bml.please.comment
+general /support/act.bml.postbutton
+general /support/act.bml.request.already.locked
+general /support/act.bml.request.already.unlock
+general /support/act.bml.request.cannot.close
+general /support/act.bml.request.closed
+general /support/act.bml.request.has.been.locked
+general /support/act.bml.request.has.been.unlocked
+general /support/act.bml.request.locked
+general /support/act.bml.request.not.locked
+general /support/act.bml.success
+general /support/act.bml.touch.failed
+general /support/act.bml.touched
+general /support/act.bml.will.stay.open.now
+general /support/act.bml.your.request
+
 general /support/append_request.bml.back.requests
 general /support/append_request.bml.back.support
 general /support/append_request.bml.login.required
