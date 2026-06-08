@@ -29,6 +29,7 @@ use LJ::Poll;
 use LJ::Config;
 use LJ::Comment;
 use DW::Task::SearchCopier;
+use DW::Search;
 use DW::Task::XPost;
 
 LJ::Config->load;
@@ -1807,7 +1808,7 @@ sub postevent {
     }
 
     # enqueue a search-index update
-    if ( @LJ::MANTICORE && !$importer_bypass ) {
+    if ( DW::Search::enabled() && !$importer_bypass ) {
         push @jobs,
             DW::Task::SearchCopier->new(
             { userid => $uowner->id, jitemid => $jitemid, source => "entrynew" } );
@@ -2292,7 +2293,7 @@ sub editevent {
 
     # enqueue a search-index update for the post
     my @jobs;
-    if (@LJ::MANTICORE) {
+    if ( DW::Search::enabled() ) {
         push @jobs,
             DW::Task::SearchCopier->new(
             { userid => $ownerid, jitemid => $itemid, source => "entryedt" } );

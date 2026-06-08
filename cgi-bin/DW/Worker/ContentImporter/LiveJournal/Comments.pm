@@ -25,6 +25,7 @@ use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::XML::Parser;
 use DW::Task::SearchCopier;
+use DW::Search;
 use DW::Worker::ContentImporter::Local::Comments;
 
 # to save memory, we use arrays instead of hashes.
@@ -641,7 +642,7 @@ sub try_work {
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
 
     # Kick off an indexing job for this user
-    if (@LJ::MANTICORE) {
+    if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(
             DW::Task::SearchCopier->new( { userid => $u->id, source => "importcm" } ) );
     }

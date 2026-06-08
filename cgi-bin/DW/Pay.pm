@@ -26,6 +26,7 @@ use HTTP::Request;
 use LWP::UserAgent;
 use DW::BusinessRules::Pay;
 use DW::Task::SearchCopier;
+use DW::Search;
 
 our $error_code = undef;
 our $error_text = undef;
@@ -671,7 +672,7 @@ sub update_paid_status {
 
     # and now, at this last step, we kick off a job to check if this user
     # needs to have their search index setup/messed with.
-    if (@LJ::MANTICORE) {
+    if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(
             DW::Task::SearchCopier->new( { userid => $u->id, source => "paidstat" } ) );
     }

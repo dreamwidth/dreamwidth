@@ -22,6 +22,7 @@ use base 'DW::Worker::ContentImporter::LiveJournal';
 use Carp qw/ croak confess /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::Task::SearchCopier;
+use DW::Search;
 use DW::Worker::ContentImporter::Local::Entries;
 
 sub work {
@@ -366,7 +367,7 @@ sub try_work {
     );
 
     # Kick off a indexing job for this user
-    if (@LJ::MANTICORE) {
+    if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(
             DW::Task::SearchCopier->new( { userid => $u->id, source => "importen" } ) );
     }

@@ -20,6 +20,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::Task::SupportNotify;
 use DW::Task::SearchCopier;
+use DW::Search;
 
 use Digest::MD5 qw(md5_hex);
 
@@ -738,11 +739,11 @@ sub file_request {
 }
 
 # Queue a search-index copy of a freshly written supportlog row so it becomes
-# searchable. Gated on @LJ::MANTICORE so nothing piles up when search isn't
-# configured; the copier does a cheap idempotent REPLACE into dwsupport.
+# searchable. Gated on DW::Search::enabled so nothing piles up when search
+# isn't configured; the copier does a cheap idempotent REPLACE into dwsupport.
 sub _index_supportlog {
     my $splid = shift or return;
-    return unless @LJ::MANTICORE;
+    return unless DW::Search::enabled();
     DW::TaskQueue->dispatch(
         DW::Task::SearchCopier->new( { splid => $splid, source => 'supportlog' } ) );
 }

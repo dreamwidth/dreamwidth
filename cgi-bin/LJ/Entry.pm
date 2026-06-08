@@ -28,6 +28,7 @@ our $AUTOLOAD;
 use Carp qw/ croak confess /;
 use DW::Task::DeleteEntry;
 use DW::Task::SearchCopier;
+use DW::Search;
 
 =head1 NAME
 
@@ -2380,7 +2381,7 @@ sub delete_entry {
     LJ::delete_all_comments( $u, 'L', $jitemid );
 
     # enqueue a search-index update for the deleted entry
-    if (@LJ::MANTICORE) {
+    if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(
             DW::Task::SearchCopier->new(
                 { userid => $u->id, jitemid => $jitemid, source => "entrydel" }
