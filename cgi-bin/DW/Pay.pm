@@ -25,7 +25,7 @@ use Carp qw/ confess /;
 use HTTP::Request;
 use LWP::UserAgent;
 use DW::BusinessRules::Pay;
-use DW::Task::SphinxCopier;
+use DW::Task::SearchCopier;
 
 our $error_code = undef;
 our $error_text = undef;
@@ -671,9 +671,9 @@ sub update_paid_status {
 
     # and now, at this last step, we kick off a job to check if this user
     # needs to have their search index setup/messed with.
-    if (@LJ::SPHINX_SEARCHD) {
+    if (@LJ::MANTICORE) {
         DW::TaskQueue->dispatch(
-            DW::Task::SphinxCopier->new( { userid => $u->id, source => "paidstat" } ) );
+            DW::Task::SearchCopier->new( { userid => $u->id, source => "paidstat" } ) );
     }
 
     return 1;

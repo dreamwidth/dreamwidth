@@ -2,23 +2,15 @@
 #
 # DW::Task::SearchCopier
 #
-# Copies content into Manticore Search (RT mode). Structural port of
-# DW::Task::SphinxCopier, with Manticore-specific swaps:
-#   - Writes to the dw1 table via SphinxQL on @LJ::MANTICORE instead of
-#     items_raw in the dw_sphinx MySQL staging DB.
-#   - No stable doc IDs — Manticore auto-assigns. Upsert is DELETE+INSERT
-#     on the natural key (journalid, jitemid, jtalkid) instead of REPLACE
-#     with a preserved id.
-#   - Body text stored uncompressed (no COMPRESS()). Manticore tokenizes
-#     it directly.
-#   - security_bits is an rt_attr_multi written as a (1,2,3) literal
-#     rather than a CSV string stored in a MySQL column.
-#   - No touchtime column on dw1 (unused by the read path; was only there
-#     to support Sphinx's main+delta build schedule, which RT doesn't need).
+# Copies content (entries and comments) into Manticore Search (RT mode) via
+# SphinxQL on @LJ::MANTICORE. Schema details worth knowing:
+#   - Writes to the dw1 RT index; Manticore auto-assigns doc IDs, so upsert
+#     is DELETE+INSERT on the natural key (journalid, jitemid, jtalkid).
+#   - Body text is stored uncompressed; Manticore tokenizes it directly.
+#   - security_bits is an rt_attr_multi written as a (1,2,3) literal.
 #
 # Routes to its own SQS queue automatically via class-name derivation
-# (DW::Task::SearchCopier -> dw-task-searchcopier). Coexists with
-# DW::Task::SphinxCopier during the Sphinx -> Manticore migration.
+# (DW::Task::SearchCopier -> dw-task-searchcopier).
 #
 # Arg shape (hashref in args->[0]):
 #   { userid => N }                              # full recopy (24h throttled)
@@ -59,10 +51,9 @@ use Encode;
 
 use constant _CHUNK_SIZE => 1000;
 
-# Manticore SphinxQL connection. Parallels SphinxCopier's sphinx_db() —
-# no %DBINFO entry exists for Manticore (it doesn't speak the full MySQL
-# dialect LJ::get_dbh expects), so we open a raw DBI handle against
-# @LJ::MANTICORE and do the SET NAMES dance ourselves.
+# Manticore SphinxQL connection. No %DBINFO entry exists for Manticore (it
+# doesn't speak the full MySQL dialect LJ::get_dbh expects), so we open a raw
+# DBI handle against @LJ::MANTICORE and do the SET NAMES dance ourselves.
 sub manticore_db {
     $log->logcroak("\@LJ::MANTICORE is not configured.")
         unless @LJ::MANTICORE;

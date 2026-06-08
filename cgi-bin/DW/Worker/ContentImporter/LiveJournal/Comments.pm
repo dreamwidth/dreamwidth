@@ -24,7 +24,7 @@ use Digest::MD5 qw/ md5_hex /;
 use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::XML::Parser;
-use DW::Task::SphinxCopier;
+use DW::Task::SearchCopier;
 use DW::Worker::ContentImporter::Local::Comments;
 
 # to save memory, we use arrays instead of hashes.
@@ -641,9 +641,9 @@ sub try_work {
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
 
     # Kick off an indexing job for this user
-    if (@LJ::SPHINX_SEARCHD) {
+    if (@LJ::MANTICORE) {
         DW::TaskQueue->dispatch(
-            DW::Task::SphinxCopier->new( { userid => $u->id, source => "importcm" } ) );
+            DW::Task::SearchCopier->new( { userid => $u->id, source => "importcm" } ) );
     }
 
     return $ok->();

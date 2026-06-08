@@ -518,7 +518,7 @@ sub search {
 
     # don't show if search is disabled
     return undef
-        unless @LJ::SPHINX_SEARCHD && $u->allow_search_by($remote);
+        unless @LJ::MANTICORE && $u->allow_search_by($remote);
 
     my $link = {
         url      => 'search?user=' . $u->user,

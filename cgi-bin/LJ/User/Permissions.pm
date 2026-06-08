@@ -734,7 +734,7 @@ sub in_class {
 }
 
 # 1/0; whether or not this account should be included in the global search
-# system.  this is used by the bin/worker/sphinx-copier mostly.
+# system.  Used by the search copier when deciding what to index.
 sub include_in_global_search {
     my $u = $_[0];
 

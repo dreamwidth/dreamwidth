@@ -230,7 +230,7 @@ sub get_menu_navigation {
                 {
                     url     => "$LJ::SITEROOT/search",
                     text    => "menunav.explore.sitesearch",
-                    display => @LJ::SPHINX_SEARCHD ? 1 : 0,
+                    display => @LJ::MANTICORE ? 1 : 0,
                 },
                 {
                     url     => "$LJ::SITEROOT/latest",

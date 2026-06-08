@@ -3,16 +3,10 @@
 # DW::Search
 #
 # Single abstraction point for site-wide content search. Callers ask for
-# a journal/comment search or a support search; this module dispatches
-# to whichever backend the site is configured for:
-#
-#   @LJ::MANTICORE      -> SphinxQL synchronously (new path, in-process)
-#   @LJ::SPHINX_SEARCHD -> Gearman -> bin/worker/sphinx-search-gm (legacy)
-#   neither             -> undef (caller renders "not configured" error)
-#
-# Canary sets @LJ::MANTICORE to pick up the new path; stable keeps using
-# the Gearman/Sphinx path until cutover. Both backends return the same
-# result shape so templates don't care which one ran:
+# a journal/comment search or a support search; this module runs the query
+# synchronously against Manticore (SphinxQL) on @LJ::MANTICORE, or returns
+# undef when search isn't configured (the caller renders a "not configured"
+# error). Results use this shape:
 #
 #   {
 #     total   => N,
@@ -40,59 +34,26 @@ use strict;
 use v5.10;
 
 use DBI;
-use Storable;
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
 sub configured {
-    return 1 if @LJ::MANTICORE;
-    return 1 if @LJ::SPHINX_SEARCHD && LJ::gearman_client();
-    return 0;
+    return @LJ::MANTICORE ? 1 : 0;
 }
 
 sub search_journal {
     my %args = @_;
-    return _manticore_journal( \%args ) if @LJ::MANTICORE;
-    return _gearman( \%args );
+    return undef unless @LJ::MANTICORE;
+    return _manticore_journal( \%args );
 }
 
 sub search_support {
     my %args = @_;
+    return undef unless @LJ::MANTICORE;
     $args{support} = 1;
-    return _manticore_support( \%args ) if @LJ::MANTICORE;
-    return _gearman( \%args );
-}
-
-# ---------------------------------------------------------------------------
-# Gearman backend — legacy Sphinx path
-# ---------------------------------------------------------------------------
-
-sub _gearman {
-    my $args = shift;
-
-    my $gc = LJ::gearman_client();
-    return undef unless $gc && @LJ::SPHINX_SEARCHD;
-
-    my $frozen = Storable::nfreeze($args);
-    my $result;
-    my $task = Gearman::Task->new(
-        'sphinx_search',
-        \$frozen,
-        {
-            uniq        => '-',
-            on_complete => sub {
-                my $res = $_[0] or return undef;
-                $result = Storable::thaw($$res);
-            },
-        },
-    );
-
-    my $ts = $gc->new_task_set;
-    $ts->add_task($task);
-    $ts->wait( timeout => 20 );
-    return $result;
+    return _manticore_support( \%args );
 }
 
 # ---------------------------------------------------------------------------
@@ -238,9 +199,8 @@ sub _journal_order {
     return '';    # relevance (default)
 }
 
-# Strip a single matching pair of outer quotes (the Gearman worker's
-# heuristic for "phrase intent") and re-wrap with SphinxQL phrase syntax,
-# which is equivalent to SPH_MATCH_PHRASE in the old binary API.
+# Strip a single matching pair of outer quotes (the user's "phrase intent")
+# and re-wrap with SphinxQL phrase syntax.
 sub _match_expr {
     my $q = shift // '';
     return qq{"$1"} if $q =~ /^['"](.+)['"]$/;
@@ -249,7 +209,6 @@ sub _match_expr {
 
 # ---------------------------------------------------------------------------
 # Enrichment — MySQL reload + visibility recheck + excerpts
-# (1:1 port of _build_output / _build_output_support from the Gearman worker)
 # ---------------------------------------------------------------------------
 
 sub _enrich_journal {

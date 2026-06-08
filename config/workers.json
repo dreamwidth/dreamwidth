@@ -125,16 +125,6 @@
       "target_cpu": 50,
       "sqs_queue_name": "dw-prod-dw-task-sendemail"
     },
-    "dw-sphinx-copier": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "search",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 50,
-      "target_cpu": 30,
-      "sqs_queue_name": "dw-prod-dw-task-sphinxcopier"
-    },
     "dw-search-copier": {
       "cpu": 256,
       "memory": 512,
@@ -406,24 +396,6 @@
       "cpu": 256,
       "memory": 512,
       "category": "misc",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 1,
-      "target_cpu": 50
-    },
-    "sphinx-copier": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "search",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 1,
-      "target_cpu": 50
-    },
-    "sphinx-search-gm": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "search",
       "spot": true,
       "min_count": 1,
       "max_count": 1,

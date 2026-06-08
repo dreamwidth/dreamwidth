@@ -28,7 +28,7 @@ use LJ::Entry;
 use LJ::Poll;
 use LJ::Config;
 use LJ::Comment;
-use DW::Task::SphinxCopier;
+use DW::Task::SearchCopier;
 use DW::Task::XPost;
 
 LJ::Config->load;
@@ -1807,9 +1807,9 @@ sub postevent {
     }
 
     # update the sphinx search engine
-    if ( @LJ::SPHINX_SEARCHD && !$importer_bypass ) {
+    if ( @LJ::MANTICORE && !$importer_bypass ) {
         push @jobs,
-            DW::Task::SphinxCopier->new(
+            DW::Task::SearchCopier->new(
             { userid => $uowner->id, jitemid => $jitemid, source => "entrynew" } );
     }
 
@@ -2292,9 +2292,9 @@ sub editevent {
 
     # fired to copy the post over to the Sphinx search database
     my @jobs;
-    if (@LJ::SPHINX_SEARCHD) {
+    if (@LJ::MANTICORE) {
         push @jobs,
-            DW::Task::SphinxCopier->new(
+            DW::Task::SearchCopier->new(
             { userid => $ownerid, jitemid => $itemid, source => "entryedt" } );
     }
     LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );

@@ -19,12 +19,12 @@ package DW::Hooks::SiteSearch;
 use strict;
 use LJ::Hooks;
 use Carp;
-use DW::Task::SphinxCopier;
+use DW::Task::SearchCopier;
 
 sub _sphinx_db {
 
     # ensure we can talk to our system
-    return unless @LJ::SPHINX_SEARCHD;
+    return unless @LJ::MANTICORE;
     my $dbh = LJ::get_dbh('sphinx_search')
         or carp "Unable to get sphinx_search database handle.";
     return $dbh;
@@ -98,7 +98,7 @@ LJ::Hooks::register_hook(
 
        # queue up a copier job, which will notice that the entries by this user have been deleted...
         DW::TaskQueue->dispatch(
-            DW::Task::SphinxCopier->new( { userid => $u->id, source => "purghook" } ) );
+            DW::Task::SearchCopier->new( { userid => $u->id, source => "purghook" } ) );
 
     }
 );
