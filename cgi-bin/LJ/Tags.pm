@@ -72,9 +72,6 @@ sub get_usertagsmulti {
     }
     return $res unless %need;
 
-    # Load the remaining tag data inline. This was optionally offloaded to a
-    # gearman "load_usertags" worker (gated on $LJ::LOADTAGS_USING_GEARMAN), but
-    # that worker just ran the same loader, so we always load inline now.
     return LJ::Tags::_get_usertagsmulti( $res, values %need );
 }
 

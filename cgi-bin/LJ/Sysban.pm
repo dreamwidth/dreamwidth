@@ -318,9 +318,6 @@ sub sysban_check {
 sub sysban_populate {
     my ( $where, $what ) = @_;
 
-    # Populate inline. This was optionally offloaded to a gearman
-    # "sysban_populate" worker (gated on $LJ::LOADSYSBAN_USING_GEARMAN), but that
-    # worker just called _db_sysban_populate, so we always run it inline now.
     return _db_sysban_populate( $where, $what );
 }
 

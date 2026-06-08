@@ -165,11 +165,9 @@ sub check_html {
     my $text = $$journal;
     return "" unless $text;
 
-    # Run the spell checker inline. This used to dispatch a synchronous gearman
-    # "spellcheck" task whose worker did nothing but rebuild this object and call
-    # ->run, so we just call ->run directly. ->run spawns the speller via
-    # IPC::Open2, which works under Plack/Starman but NOT under mod_perl2 -- so
-    # this path only functions once the mod_perl web servers are retired.
+    # ->run spawns the speller via IPC::Open2, which works under Plack/Starman
+    # but not under mod_perl2 -- so spellcheck only functions on the Plack
+    # webservers.
     return $self->run( text => $text, no_ehtml => $no_ehtml );
 }
 
