@@ -1354,8 +1354,25 @@ sub TO_JSON {
     $entry->{body}    = $self->event_html(0);
     $entry->{poster} =
         { username => $self->poster()->{user}, display_name => $self->poster()->{name} };
-    $entry->{url}      = $self->url();
-    $entry->{security} = $self->security();
+    $entry->{url} = $self->url();
+
+    # Internally, access-locked posts have a security of 'usemask' with an allowmask of 1,
+    # but we want to translate both that and custom group allow masks into more comprehensible
+    # terms for display.
+    if ( $self->security() eq "usemask" ) {
+        if ( $self->allowmask == 1 || !$self->poster->equals($remote) ) {
+            $entry->security = "access";
+        }
+        else {
+            $entry->security      = "custom";
+            $entry->custom_groups = grep { $self->allowmask & ( 1 << $_ ) } 1 .. 60;
+        }
+
+    }
+    else {
+        $entry->{security} = $self->security();
+    }
+
     $entry->{datetime} = $self->{eventtime};
     my @entry_tags = $self->tags();
     $entry->{tags}         = ( \@entry_tags );
@@ -1375,7 +1392,6 @@ sub TO_JSON {
     if ( $remote && $self->editable_by($remote) ) {
         $entry->{body_raw}    = $self->event_raw();
         $entry->{subject_raw} = $self->subject_raw();
-        $entry->{allowmask}   = $self->allowmask;
     }
 
     return $entry;

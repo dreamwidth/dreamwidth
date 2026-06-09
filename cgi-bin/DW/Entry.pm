@@ -261,7 +261,7 @@ sub _form_to_backend {
     # Check if this is a community.
     $props->{admin_post} =
         $is_api
-        ? ( $post->{flags_adminpost} || $props->{admin_post} || 0 )
+        ? ( $post->{admin_post} || $props->{admin_post} || 0 )
         : ( $post->{flags_adminpost} || 0 );
 
     # entry security
