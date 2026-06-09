@@ -38,6 +38,6 @@ ADD scripts/ /opt/
 # last minute configuration.
 RUN bash /opt/setup.sh
 
-# Kick off the startup script, which does some healthcheck and then starts
-# Apache if things look good.
+# Kick off the startup script, which starts the database, runs a preflight
+# test, and drops to a shell for backend work.
 CMD bash /opt/startup.sh
