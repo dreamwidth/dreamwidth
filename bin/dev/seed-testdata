@@ -57,6 +57,14 @@ sub ensure_personal {
     return ( $u, 1 );
 }
 
+# apply a comma-separated tag list to an entry. $remote is the acting user (the
+# journal owner, or a maintainer for a community entry) who has tag-add rights.
+sub tag_entry {
+    my ( $remote, $entry, $tagstring ) = @_;
+    LJ::Tags::update_logtags( $entry->journal, $entry->jitemid,
+        { set_string => $tagstring, remote => $remote } );
+}
+
 print "Seeding dev test data...\n";
 
 # --- test_user: the main account, with a mix of entries ---
@@ -68,25 +76,31 @@ my ( $user, $user_new ) = ensure_personal(
 
 my $public_entry;
 if ($user_new) {
+    # Tags reuse some names across entries so usage counts vary (test=3,
+    # personal=2, others=1) -- that's what gives the /manage/tags histogram and
+    # the per-tag security breakdown something to show.
     $public_entry = $user->t_post_fake_entry(
         subject  => "Welcome to my journal",
         body     => "This is a public entry on the main test account.",
         security => "public",
     );
-    LJ::Tags::update_logtags( $user, $public_entry->jitemid,
-        { set_string => "test, intro", remote => $user } );
+    tag_entry( $user, $public_entry, "test, intro, personal" );
 
-    $user->t_post_fake_entry(
+    my $access = $user->t_post_fake_entry(
         subject  => "Access-only post",
         body     => "Only people in my access list can read this one.",
         security => "friends",
     );
-    $user->t_post_fake_entry(
+    tag_entry( $user, $access, "test, personal, friends-only" );
+
+    my $private = $user->t_post_fake_entry(
         subject  => "Private thoughts",
         body     => "Just for me.",
         security => "private",
     );
-    print "  posted 3 entries for \@test_user\n";
+    tag_entry( $user, $private, "test, private" );
+
+    print "  posted 3 tagged entries for \@test_user\n";
 }
 
 # --- test_friend: in a mutual circle with test_user ---
@@ -96,11 +110,12 @@ my ( $friend, $friend_new ) = ensure_personal(
     bio  => "A second account, in test_user's circle.",
 );
 if ($friend_new) {
-    $friend->t_post_fake_entry(
+    my $fe = $friend->t_post_fake_entry(
         subject  => "Hello from test_friend",
         body     => "A public entry from the friend account.",
         security => "public",
     );
+    tag_entry( $friend, $fe, "hello" );
 }
 
 # mutual circle: grant access (trust) + subscribe (watch) both ways.
@@ -129,11 +144,12 @@ my ( $paid, $paid_new ) = ensure_personal(
 );
 if ($paid_new) {
     DW::Pay::add_paid_time( $paid, 'premium', 12 );
-    $paid->t_post_fake_entry(
+    my $pe = $paid->t_post_fake_entry(
         subject  => "Posting from a paid account",
         body     => "A public entry from the paid test account.",
         security => "public",
     );
+    tag_entry( $paid, $pe, "paid, test" );
     print "  granted premium time to \@test_paid\n";
 }
 
@@ -151,12 +167,13 @@ unless ( LJ::load_user("test_comm") ) {
 
     $friend->join_community( $comm, 1, 1 );    # watch + can-post member
 
-    $user->t_post_fake_comm_entry(
+    my $ce = $user->t_post_fake_comm_entry(
         $comm,
         subject  => "Welcome to the test community",
         body     => "The first post in the dev test community.",
         security => "public",
     );
+    tag_entry( $user, $ce, "community, welcome" );    # $user is a maintainer
     print "  created community \@test_comm (test_user maint, test_friend member)\n";
 }
 
