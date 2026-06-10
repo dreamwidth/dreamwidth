@@ -396,14 +396,17 @@ argument; see **Forms** below.)
 - **`form.*`** — `form.textbox`, `form.password`, `form.textarea`, `form.select`,
   `form.checkbox`, `form.radio`, `form.submit`, `form.hidden`. These replace the
   old `LJ::html_*` builders.
-- **`site.*`** — `site.name`, `site.nameshort`, `site.domain`, `site.email.*`, …
-  (replaces `$LJ::SITENAME`, `$LJ::SITENAMESHORT`, etc.; the full list is
-  `$site_constants` in `cgi-bin/DW/Template.pm`). One surprise: **`site.root`
-  and `site.imgroot` are not actually defined** — `site.*` is a compile-time
-  constants namespace and an unknown key silently renders as the empty string.
-  `href='[% site.root %]/manage/tags'` is still the standard idiom (a hundred-odd
-  templates use it) because it degrades to a root-relative URL, which is right
-  for same-site links — just don't expect an absolute URL out of it.
+- **`site.*`** — `site.root`, `site.imgroot`, `site.name`, `site.nameshort`, …
+  (replaces `$LJ::SITEROOT`, `$LJ::SITENAMESHORT`, etc.). Two sources behind
+  one namespace: static values (`name`, `domain`, `email.*`, …) are
+  compile-time constants from `$site_constants` in `cgi-bin/DW/Template.pm`,
+  while `root`, `imgroot`, `jsroot`, `shoproot`, and `statroot` are set
+  per-request by the `dw` plugin (`DW::Template::Plugin::new`), since they can
+  vary at runtime. **In the dev container `site.root` renders as the empty
+  string** — the dev config intentionally blanks `$LJ::SITEROOT` — so
+  `href='[% site.root %]/manage/tags'` degrades to a root-relative URL there.
+  Don't mistake that for a bug while testing; on production it's the absolute
+  base URL.
 - **Object methods** are called directly: `u.ljuser_display`, `u.name_html`,
   `u.is_community`, etc.
 
