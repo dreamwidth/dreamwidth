@@ -396,8 +396,14 @@ argument; see **Forms** below.)
 - **`form.*`** — `form.textbox`, `form.password`, `form.textarea`, `form.select`,
   `form.checkbox`, `form.radio`, `form.submit`, `form.hidden`. These replace the
   old `LJ::html_*` builders.
-- **`site.*`** — `site.root`, `site.imgroot`, `site.name`, `site.nameshort`, …
-  (replaces `$LJ::SITEROOT`, `$LJ::SITENAMESHORT`, etc.).
+- **`site.*`** — `site.name`, `site.nameshort`, `site.domain`, `site.email.*`, …
+  (replaces `$LJ::SITENAME`, `$LJ::SITENAMESHORT`, etc.; the full list is
+  `$site_constants` in `cgi-bin/DW/Template.pm`). One surprise: **`site.root`
+  and `site.imgroot` are not actually defined** — `site.*` is a compile-time
+  constants namespace and an unknown key silently renders as the empty string.
+  `href='[% site.root %]/manage/tags'` is still the standard idiom (a hundred-odd
+  templates use it) because it degrades to a root-relative URL, which is right
+  for same-site links — just don't expect an absolute URL out of it.
 - **Object methods** are called directly: `u.ljuser_display`, `u.name_html`,
   `u.is_community`, etc.
 
@@ -575,13 +581,19 @@ its error strings from the page's keys (`DW::Mood` returns
 Rename those references in the module to the new `.tt.*` path — and since the
 keys are still live, they must **not** go into `deadphrases.dat`.
 
+### Shipping the new strings (no load step needed)
+
+There is no `texttool.pl load` step in a migration. On production,
+`LJ::Lang::get_text` auto-loads a missing general-domain string from the
+shipped `.text` file on demand and persists it; dev servers read the files
+directly. So moving `foo.bml.text` → `foo.tt.text` and shipping the code is the
+whole job — the new `.tt.*` keys appear as they're first requested.
+
 ### Retiring old keys in `deadphrases.dat` (recommended)
 
 `bin/upgrading/texttool.pl load` is **purely additive** — it never deletes keys
-that disappear from source. The *only* thing that removes an old key from the
-production translation database is an entry in `bin/upgrading/deadphrases.dat`.
-So when you delete `foo.bml.text`, its `/foo.bml.*` keys are orphaned in
-production forever unless you list them:
+that disappear from source. Old keys are removed by listing them in
+`bin/upgrading/deadphrases.dat`:
 
 ```
 general /mobile/login.bml.form.button
@@ -589,10 +601,14 @@ general /mobile/login.bml.form.password
 ...
 ```
 
-This is best-effort cleanup (production-only; skipped on dev servers) and is
-applied inconsistently across historical commits — but listing the removed keys
-is the recommended practice. The *mandatory* step is repointing cross-file
-references (above); deadphrasing is the *tidy* step.
+and then running `bin/upgrading/texttool.pl deadphrases`, a separate, explicit
+command — *intentionally* not part of `load`, so keys a migration moved survive
+on hosts still running the old code. Run it once the new code is live
+everywhere. In a migration PR you only add the `deadphrases.dat` entries; the
+command run is an ops step.
+
+The *mandatory* step is repointing cross-file references (above); deadphrasing
+is the *tidy* step.
 
 > **The single most common conversion bug:** full-path keys in Perl, relative
 > keys in templates. In a controller, `error_ml`/`LJ::Lang::ml` resolve
@@ -762,7 +778,7 @@ Judgment call, not a rule:
 | `<?p … p?>` / `<?h1 … h1?>` / `<?de … de?>` | `<p>…</p>` / `<h1>…</h1>` / `<div class='de'>…</div>` |
 | `BML::get_query_string()` | `$r->query_string` (raw — for non-`key=value` query strings) |
 | `%FORM` (merged GET+POST) | `my %FORM = ( %{$r->get_args}, %{$r->post_args} )` |
-| `LJ::bad_input($ML{'.k'})` | `error_ml("$scope.k")`, or `render_template('error.tt', { message => $str_or_arrayref })` for dynamic text |
+| `LJ::bad_input($ML{'.k'})` | `error_ml("$scope.k")`, or `render_template('error.tt', { message => $str })` for dynamic text — a single string only; `error.tt` prints `message` raw, so an arrayref renders as `ARRAY(0x…)` (join first) |
 
 ---
 
@@ -833,7 +849,9 @@ perl t/00-compile.t          # verify all modules compile
 ```
 
 Templates (`.tt`) and `.text` files are not perltidy'd, but the controller `.pm`
-must be tidy.
+must be tidy. If your migration leans on the string system in any unusual way,
+also run `perl t/ml.t` (covers `set_text`/`get_text`, caching, language
+fallback, and the production auto-load-from-file path).
 
 ---
 
