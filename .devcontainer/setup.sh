@@ -63,3 +63,7 @@ echo 'export PATH="/usr/local/go/bin:$PATH"' > /etc/profile.d/golang.sh
 
 # Build devtool TUI
 (cd $LJHOME/src/devtool && go build -buildvcs=false -o /usr/local/bin/devtool .)
+
+# Seed a fixed set of test accounts/content (idempotent). Non-fatal: a seeding
+# failure shouldn't break container setup (set -e is active).
+perl $LJHOME/bin/dev/seed-testdata || echo "WARNING: seed-testdata failed (continuing)"
