@@ -13,12 +13,14 @@ architecture, which separates the three concerns:
 
 This document is the how-to; worked examples are collected in §10.
 
-> **Scope: faithful conversions, not redesigns.** Move the page off BML and keep
-> it looking and behaving the same — preserve the existing markup and any legacy
-> per-page CSS (e.g. `stc/foo.css`), and don't re-lay-out the body with Foundation
-> grid/components. The Foundation *sitescheme* chrome already wraps every page, so
-> a correct conversion has **no visible change**. (Restyling to Foundation is a
-> separate effort.)
+> **Scope: faithful behavior, restyled markup.** Move the page off BML and keep
+> its *behavior* the same — same URL, same form field names, same actions, same
+> strings. The markup, however, is restyled to **Foundation** as part of the
+> conversion (see §3): activate the `foundation` resource group, lay the body
+> out with the row/columns grid, and build controls with the `form.*` helpers.
+> Because the page *will* look different, every migration is validated visually
+> with screenshots — and you must capture the BML page's states **before** you
+> convert, so the PR can show a before/after comparison (see §13).
 
 > **Run everything in the devcontainer.** All commands below assume you are
 > inside the devcontainer (`$LJHOME` = `/workspaces/dreamwidth`). See
@@ -201,6 +203,10 @@ my @selected = $r->post_args->get_all('tags');   # was: split /\0/, $POST{tags}
 Missing this silently processes a single item (e.g. a "merge tags" action that
 only merges one of the selected tags). It won't show up in single-item testing.
 
+Plain hash idioms otherwise work on a `Hash::MultiValue` — `keys %$post` is fine
+for scanning field names (e.g. a form whose field names are object ids, like the
+mood theme editor's `<moodid>`, `<moodid>w`, `<moodid>inherit` family).
+
 ### Handling form submissions (POST)
 
 With `form_auth => 1`, `controller()` validates the CSRF token on every POST for
@@ -259,12 +265,26 @@ return $r->redirect( "$LJ::SITEROOT/mobile/?t=" . time() );  # was: BML::redirec
 ### Fixing things as you port
 
 The logic is mostly a verbatim move, but you're already rewriting the surrounding
-code — so fix the cheap, safe wins while you're in there. The main one:
+code — so fix the cheap, safe wins while you're in there. The main ones:
 
 - **Parameterize SQL.** Convert hand-interpolated `$dbh->do("... $val ...")` to
   bound `?` placeholders. It's a free injection fix and never worth carrying
   forward. (`/support/actmulti` did this for category names interpolated into a
   `supportlog` message.)
+
+- **Escape user input echoed back into HTML.** BML pages routinely interpolate
+  a submitted value into a result message unescaped — a self-XSS at minimum.
+  Wrap it in `LJ::ehtml(...)`. (`/manage/moodthemes` echoed the submitted
+  picture URL into its "mood is set to <url>" line raw.)
+
+- **Add missing ownership checks.** A page may verify the user owns an object
+  on one action but not another. `/manage/moodthemes` checked ownership for
+  *edit* and *delete* but let "use" set any theme id as the journal default —
+  the conversion added the same `get_themes({ themeid, ownerid })` check there.
+
+- **Guard latent JS null derefs** when extracting inline JavaScript (§3): BML-era
+  scripts often assume an element exists for every object (`getElementById(...)`
+  with no null check) and have been throwing quietly for years.
 
 (One more thing to watch for — `.text` values with embedded BML tags — is covered
 in §4.)
@@ -314,6 +334,35 @@ The template emits the entire document, including `<head>`:
 </html>
 ```
 
+### Restyling to Foundation
+
+Sitescheme pages are restyled to Foundation as part of the conversion. The
+ingredients:
+
+```tt
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+```
+
+- **Grid** — lay out label/field pairs with rows and columns instead of
+  `<table>`s or `<br>`-separated runs:
+  ```tt
+  <div class='row collapse'>
+    <div class='columns small-4 medium-2'><label class='inline' for='name'>[% '.label.name' | ml %]</label></div>
+    <div class='columns small-8 medium-6 end'>[% form.textbox( name => 'name', id => 'name' ) %]</div>
+  </div>
+  ```
+- **Buttons** — `class => 'button'` on submits; variants compose:
+  `'small secondary button'` (e.g. Edit), `'small alert button'` (destructive,
+  e.g. Delete). `disabled => cond` renders a disabled control.
+- **authas** — use the Foundation-ready `authas_form` (§6), not the legacy
+  `authas_html`.
+- **Flash messages** — `components/errors.tt` and `$r->add_msg` (§5) already
+  emit Foundation markup.
+
+Good references: `views/edittags.tt`, `views/manage/tags.tt`. Keep the page's
+*content* — headings, prose, strings, form fields — intact; the restyle is
+layout and controls, not a redesign.
+
 ### Translated strings
 
 The `| ml` filter is the equivalent of BML's `$ML{'.key'}` / `BML::ml()`:
@@ -348,7 +397,16 @@ argument; see **Forms** below.)
   `form.checkbox`, `form.radio`, `form.submit`, `form.hidden`. These replace the
   old `LJ::html_*` builders.
 - **`site.*`** — `site.root`, `site.imgroot`, `site.name`, `site.nameshort`, …
-  (replaces `$LJ::SITEROOT`, `$LJ::SITENAMESHORT`, etc.).
+  (replaces `$LJ::SITEROOT`, `$LJ::SITENAMESHORT`, etc.). Two sources behind
+  one namespace: static values (`name`, `domain`, `email.*`, …) are
+  compile-time constants from `$site_constants` in `cgi-bin/DW/Template.pm`,
+  while `root`, `imgroot`, `jsroot`, `shoproot`, and `statroot` are set
+  per-request by the `dw` plugin (`DW::Template::Plugin::new`), since they can
+  vary at runtime. **In the dev container `site.root` renders as the empty
+  string** — the dev config intentionally blanks `$LJ::SITEROOT` — so
+  `href='[% site.root %]/manage/tags'` degrades to a root-relative URL there.
+  Don't mistake that for a bug while testing; on production it's the absolute
+  base URL.
 - **Object methods** are called directly: `u.ljuser_display`, `u.name_html`,
   `u.is_community`, etc.
 
@@ -386,6 +444,13 @@ Building form controls (these wrap the old `LJ::html_*`):
 An explicit `value =` always wins; without it `form.*` auto-fills from the posted
 form data. Build the flat `items` list for `form.select` in the controller.
 
+`form.checkbox` quirks: always pass an explicit `selected =` — when both `value`
+and `selected` are undef the helper `cluck`s a warning into the error log on
+every render. A checked box with no `value` posts the literal string `on`, and an
+*unchecked* box posts **nothing**, so "was checked, now isn't" can only be
+detected server-side by pairing it with a hidden field recording the old state
+(the mood theme editor's `<moodid>inherit` / `<moodid>oldinh` pair).
+
 `confirm_msg` above is precomputed in the controller on purpose: the `|` filter
 only works at a directive's **top level**, never inside an expression. So a
 filter inside a `form.*` argument, a `_` concatenation, or a ternary —
@@ -393,6 +458,31 @@ filter inside a `form.*` argument, a `_` concatenation, or a ternary —
 — is a parse error ("unexpected token (|)"). Compute the value in the controller,
 or assign it first (`[% msg = '.k' | ml %]`) and reference the plain variable.
 These parse errors only surface at render time — `t/00-compile.t` won't catch them.
+
+### Recursive structures
+
+A TT `BLOCK` can render a tree (nested categories, the mood hierarchy) by
+`INCLUDE`-ing itself — `INCLUDE` localizes its arguments, so the inner call's
+`moods` doesn't clobber the outer one (`PROCESS` would):
+
+```tt
+[%- BLOCK mood_list %]
+<ul class='mood-list'>
+  [%- FOREACH mood IN moods %]
+  <li>
+    <strong>[% mood.name %]</strong>
+    ...
+    [% INCLUDE mood_list moods = mood.children IF mood.children.size %]
+  </li>
+  [%- END %]
+</ul>
+[%- END %]
+
+[% INCLUDE mood_list moods = mood_tree %]
+```
+
+Build the nested data structure (arrayrefs of hashrefs with a `children` key) in
+the controller; keep the template a dumb renderer.
 
 ### Client-side (JS-driven) pages
 
@@ -415,6 +505,36 @@ note `js` is `LJ::ejs_string`, which **includes the surrounding quotes**. Write
 `var x = [% val | js %];` (→ `var x = "…";`), *not* `'[% val | js %]'`, or you
 double-quote it. To escape without quotes (e.g. building a string in the
 controller), use `LJ::ejs`.
+
+### Inline `<head>` JavaScript → a static file
+
+BML pages often carry a `<script>` block in their `head<=` section, hooked up
+with `<body onload="...">`. Extract it to `htdocs/js/<page>.js`, load it from the
+template —
+
+```tt
+[% dw.need_res( { group => "foundation" }, 'js/moodtheme-editor.js' ) %]
+```
+
+— and replace the `onload` hook with a `DOMContentLoaded` listener inside the
+file (there's no body tag to hang attributes on in a sitescheme template):
+
+```js
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('editform');
+    if (form == undefined) return;   // page rendered a non-editor mode
+    ...
+});
+```
+
+> **A NEW file under `htdocs/` 404s in `??` concat URLs until you run
+> `bin/build-static.sh`.** The sitescheme bundles resources as
+> `/js/??jquery.js,foo.js,...`, and the concat handler serves those from the
+> compiled static directory (`$LJ::STATDOCS`), not `htdocs/` — so the browser
+> gets `text/plain` and refuses to execute the bundle ("Refused to execute
+> script ... MIME type"). The *single-file* URL (`/js/foo.js`) falls back to
+> `htdocs/` and works all along, which masks the problem. Run
+> `bin/build-static.sh` after adding any new static file.
 
 ---
 
@@ -458,13 +578,25 @@ grep -rn "/mobile/login.bml" --include='*.tt' --include='*.pm' .
 + text = dw.ml( '/manage/invites.tt.title' )
 ```
 
+This includes **shared Perl modules**, not just other pages: a library can build
+its error strings from the page's keys (`DW::Mood` returns
+`/manage/moodthemes.bml.error.*` from `set_picture` and `create_moodtheme`).
+Rename those references in the module to the new `.tt.*` path — and since the
+keys are still live, they must **not** go into `deadphrases.dat`.
+
+### Shipping the new strings (no load step needed)
+
+There is no `texttool.pl load` step in a migration. On production,
+`LJ::Lang::get_text` auto-loads a missing general-domain string from the
+shipped `.text` file on demand and persists it; dev servers read the files
+directly. So moving `foo.bml.text` → `foo.tt.text` and shipping the code is the
+whole job — the new `.tt.*` keys appear as they're first requested.
+
 ### Retiring old keys in `deadphrases.dat` (recommended)
 
 `bin/upgrading/texttool.pl load` is **purely additive** — it never deletes keys
-that disappear from source. The *only* thing that removes an old key from the
-production translation database is an entry in `bin/upgrading/deadphrases.dat`.
-So when you delete `foo.bml.text`, its `/foo.bml.*` keys are orphaned in
-production forever unless you list them:
+that disappear from source. Old keys are removed by listing them in
+`bin/upgrading/deadphrases.dat`:
 
 ```
 general /mobile/login.bml.form.button
@@ -472,10 +604,14 @@ general /mobile/login.bml.form.password
 ...
 ```
 
-This is best-effort cleanup (production-only; skipped on dev servers) and is
-applied inconsistently across historical commits — but listing the removed keys
-is the recommended practice. The *mandatory* step is repointing cross-file
-references (above); deadphrasing is the *tidy* step.
+and then running `bin/upgrading/texttool.pl deadphrases`, a separate, explicit
+command — *intentionally* not part of `load`, so keys a migration moved survive
+on hosts still running the old code. Run it once the new code is live
+everywhere. In a migration PR you only add the `deadphrases.dat` entries; the
+command run is an ops step.
+
+The *mandatory* step is repointing cross-file references (above); deadphrasing
+is the *tidy* step.
 
 > **The single most common conversion bug:** full-path keys in Perl, relative
 > keys in templates. In a controller, `error_ml`/`LJ::Lang::ml` resolve
@@ -645,7 +781,7 @@ Judgment call, not a rule:
 | `<?p … p?>` / `<?h1 … h1?>` / `<?de … de?>` | `<p>…</p>` / `<h1>…</h1>` / `<div class='de'>…</div>` |
 | `BML::get_query_string()` | `$r->query_string` (raw — for non-`key=value` query strings) |
 | `%FORM` (merged GET+POST) | `my %FORM = ( %{$r->get_args}, %{$r->post_args} )` |
-| `LJ::bad_input($ML{'.k'})` | `error_ml("$scope.k")`, or `render_template('error.tt', { message => $str_or_arrayref })` for dynamic text |
+| `LJ::bad_input($ML{'.k'})` | `error_ml("$scope.k")`, or `render_template('error.tt', { message => $str })` for dynamic text — a single string only; `error.tt` prints `message` raw, so an arrayref renders as `ARRAY(0x…)` (join first) |
 
 ---
 
@@ -688,6 +824,20 @@ with an `added` / `saved` / `deleted` flag the GET branch shows as a message. Tw
 render modes (new-answer form, listing). See
 `cgi-bin/DW/Controller/Support/StockAnswers.pm`.
 
+### `/manage/moodthemes` — Foundation restyle, recursive template, extracted JS
+
+The custom mood theme editor, a 511-line BML page with three render modes
+(theme list, per-mood editor, save results). Shows most of the Foundation-era
+patterns at once: before/after screenshots in the PR (§13); a recursive
+`BLOCK`/`INCLUDE` rendering the nested mood tree (data built by a `mood_tree`
+helper in the controller); inline head JS extracted to
+`htdocs/js/moodtheme-editor.js` with a `DOMContentLoaded` hook; `form.checkbox`
+inherit toggles paired with hidden `oldinh` old-state fields; field names that
+are object ids scanned via `keys %$post`; `authas` for community themes; and
+porting-time hardening (ownership check on "use", `LJ::ehtml` on the echoed
+picture URL, null guards in the JS). See
+`cgi-bin/DW/Controller/Manage/Moodthemes.pm` and `views/manage/moodthemes.tt`.
+
 ---
 
 ## 11. Before you push
@@ -702,7 +852,9 @@ perl t/00-compile.t          # verify all modules compile
 ```
 
 Templates (`.tt`) and `.text` files are not perltidy'd, but the controller `.pm`
-must be tidy.
+must be tidy. If your migration leans on the string system in any unusual way,
+also run `perl t/ml.t` (covers `set_text`/`get_text`, caching, language
+fallback, and the production auto-load-from-file path).
 
 ---
 
@@ -721,4 +873,46 @@ the redirect/session behavior.
 controller directory once at startup, so a freshly added `DW::Controller::*`
 returns 404 until you stop and start Starman (a worker respawn won't pick it up).
 Watch out: `pkill -f starman` also matches the shell running it — kill the
-listener on the port, or use a pattern that excludes your own command.
+listener on the port (`fuser -k 8080/tcp`), or use a pattern that excludes your
+own command.
+
+**Per-worker Perl caches go stale — and can silently defeat *saves*, not just
+display.** Long-lived workers cache DB rows in package hashes (e.g.
+`%LJ::CACHE_MOOD_THEME`), and each Starman worker has its own copy. The obvious
+symptom is stale data on a GET, but the dangerous one is a save handler whose
+"skip if nothing changed" check reads through such a cache: it concludes
+nothing changed and silently drops a real update — the success page renders,
+the database doesn't move. If you've modified data out-of-band (a CLI one-liner,
+direct SQL), restart Starman before testing mutations through the page.
+
+---
+
+## 13. Screenshots: before and after
+
+Conversions restyle to Foundation, so every migration PR carries a before/after
+screenshot comparison, one row per page state.
+
+1. **Screenshot the BML page FIRST, before converting anything.** Capture every
+   distinct state — main view, editor/form, post-action results, the
+   no-permission (free-account) variant. Once the `.bml` is deleted you can't
+   go back; recreating the old page from git for screenshots is far more work.
+2. After converting, capture the same states from the TT page, with the same
+   data, so the comparison is apples-to-apples.
+3. Use **`bin/dev/screenshot`** (inside the devcontainer; installs headless
+   Chrome from Google's signed apt repo on first run):
+   ```bash
+   bin/dev/screenshot --user test_user --password ... --out /tmp/before-main.png /manage/moodthemes
+   ```
+   `--restart` bounces Starman first (needed when the route is new, §12). The
+   capture is full-page; the seeded test accounts (`bin/dev/seed-testdata`)
+   give you stable users in every state (`test_user`, `test_friend`,
+   `test_paid`, `test_comm`).
+4. **POST-result pages** (e.g. a save-results screen) aren't reachable by URL.
+   Fetch the POST response with `curl` (cookie jar + `lj_form_auth` token),
+   save the body as a temporary file under `htdocs/`, screenshot that URL, then
+   delete the file.
+5. **Embedding in the PR:** the `gh` CLI cannot create GitHub user-attachment
+   uploads. Instead, commit the PNGs to an **orphan branch on your fork** and
+   reference them with SHA-pinned `raw.githubusercontent.com` URLs in a
+   markdown table (`| Before | After |`). SHA-pinning keeps the images stable;
+   the branch must outlive the PR — don't delete it after merge.
