@@ -1,0 +1,27 @@
+{
+  "name": "dw-editor",
+  "version": "1.0.0",
+  "description": "Dreamwidth rich text editor (ProseMirror-based). Builds to htdocs/js/vendor/dw-editor.js.",
+  "license": "GPL-2.0-or-later",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.js --bundle --format=iife --global-name=DWEditor --target=es2018 --outfile=../../htdocs/js/vendor/dw-editor.js"
+  },
+  "dependencies": {
+    "prosemirror-commands": "^1.5.2",
+    "prosemirror-dropcursor": "^1.8.1",
+    "prosemirror-gapcursor": "^1.3.2",
+    "prosemirror-history": "^1.3.2",
+    "prosemirror-inputrules": "^1.4.0",
+    "prosemirror-keymap": "^1.2.2",
+    "prosemirror-model": "^1.19.4",
+    "prosemirror-schema-list": "^1.3.0",
+    "prosemirror-state": "^1.4.3",
+    "prosemirror-transform": "^1.8.0",
+    "prosemirror-view": "^1.33.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}
