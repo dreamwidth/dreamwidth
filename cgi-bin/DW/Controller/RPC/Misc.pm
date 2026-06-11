@@ -279,6 +279,31 @@ sub general_handler {
             delete $val->{display};
         }
 
+        # get the remote user's own circle (watched + trusted + communities),
+        # for the rich text editor's @mention autocomplete. This is always
+        # scoped to the logged-in user's own relationships -- it must never
+        # grow into a general username search, which would make the username
+        # namespace cheaply enumerable.
+    }
+    elsif ( $mode eq 'list_circle' ) {
+        return DW::RPC->alert('Must be logged in.') unless $remote;
+
+        my %ids = map { $_ => 1 }
+            ( $remote->watched_userids, $remote->trusted_userids, $remote->member_of_userids );
+        my $uobjs = LJ::load_userids( keys %ids );
+
+        my @circle;
+        foreach my $userid ( sort { $a <=> $b } keys %$uobjs ) {
+            my $cu = $uobjs->{$userid};
+            next unless $cu && $cu->is_visible;
+            push @circle,
+                {
+                username    => $cu->user,
+                journaltype => $cu->journaltype,
+                };
+        }
+        $ret{circle} = \@circle;
+
         # get the list of members of an access filter
     }
     elsif ( $mode eq 'list_filter_members' ) {
