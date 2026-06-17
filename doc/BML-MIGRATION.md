@@ -30,8 +30,12 @@ This document is the how-to; worked examples are collected in §10.
 
 ## 0. Before you start: migrate, deprecate, or leave it
 
-Not every `.bml` should be migrated — some are dead or already superseded. Check
-before you port:
+Not every `.bml` should be migrated — some are dead or already superseded. This
+is a hard gate, not a formality: **before writing any code, produce a one-line
+disposition for the file — migrate / deprecate / leave / delete — backed by the
+greps below.** If you can't fill in the evidence, you're not ready to start. A
+working, well-tested migration of a file that shouldn't have been touched is
+still wasted work (and a future cleanup burden).
 
 - **Trace who actually uses the page.** Grep the route and its old ML keys across
   the tree, and see whether the *modern* flow already references it:
@@ -42,6 +46,21 @@ before you port:
   Watch for **beta-gated redirects** (`LJ::BetaFeatures->user_in_beta(...)`) that
   already send real users to a newer page.
 
+- **Check whether the modern flow already implements its own equivalent.** A page
+  can still be *referenced* and yet not need migrating, because the new code has
+  already reimplemented it under a different name. This is easy to miss — the old
+  file looks live, so you port it, and now there are two copies. Endpoints are the
+  classic trap: before migrating `/tools/endpoints/<x>`, grep for a sibling
+  `/__rpc_<x>` handler.
+  ```bash
+  grep -rn "register_string\|register_rpc" cgi-bin/DW/Controller   # find the replacement
+  ```
+  If a modern equivalent exists, the old file is a **leave/delete**, not a
+  migrate — it dies with whatever still calls it. (`/tools/endpoints/draft` was
+  exactly this: still called by the legacy editor's `js/entry.js`, but already
+  reimplemented as `/__rpc_draft` in `DW::Controller::Entry`. Migrating it just
+  created a third, doomed copy; the right move was a deprecation note — below.)
+
 - **Deprecate instead of migrate** when a page is superseded by a beta/newer page
   and only kept during rollout. Don't port dead code — add a note at the top
   pointing at the replacement, to be removed once the new page leaves beta:
@@ -51,7 +70,10 @@ before you port:
   # Kept only while the new page is in beta; remove once it leaves beta.
   _c?>
   ```
-  (See the deprecation notes on `/update` and `/imgupload`.)
+  The same applies to a file you've decided to *leave* because it dies with its
+  only caller: drop a note saying so (and naming the replacement) so the next
+  person doesn't re-attempt the migration you just rejected. (See the deprecation
+  notes on `/update`, `/imgupload`, and `/tools/endpoints/draft`.)
 
 - **Beware dual-role pages.** A page can have a still-live role *and* a superseded
   one. `/editjournal` is both an entry *picker* (still linked from the nav) and a
