@@ -1,4 +1,3 @@
-<?_c
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
@@ -11,59 +10,64 @@
 # modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
-_c?>
-<?_code # -*-bml-*-
-{
-    use strict;
-    use vars qw(%POST);
-    use DW::External::User;
-    use LJ::Auth;
-    use LJ::JSON;
+#
+# DW::Controller::Tools::Endpoints - AJAX endpoint(s) used by the entry editor.
+# Migrated from htdocs/tools/endpoints/ljuser.bml.
 
-    my $err = sub {
-        my $msg = shift;
-        my %extra = @_;
-        return to_json({
-            error => "Error: $msg",
-            %extra,
-        });
-    };
+package DW::Controller::Tools::Endpoints;
 
-    my $username = $POST{'username'};
-    my $site = $POST{site};
+use strict;
+
+use DW::Routing;
+use DW::Request;
+use DW::RPC;
+
+use DW::External::User;
+
+DW::Routing->register_string(
+    "/tools/endpoints/ljuser", \&ljuser_handler,
+    app    => 1,
+    format => 'json'
+);
+
+# Resolve a username (optionally on an external site) to its rendered
+# <user>/ljuser markup, for the rich-text editor's user-tag insertion.
+sub ljuser_handler {
+    my $r    = DW::Request->get;
+    my $post = $r->post_args;
+
+    my $username = $post->{username};
+    my $site     = $post->{site};
 
     my %ret;
-
-    BML::set_content_type('text/javascript; charset=utf-8');
-    BML::finish();
-
     my $u;
 
-    if ( $site ) {
+    if ($site) {
+
         # verify that this is a proper site
         $u = DW::External::User->new( user => $username, site => $site );
-        if ( $u ) {
+        if ($u) {
             $ret{userstr} = '<user site="' . $u->site->{domain} . '" name="' . $u->user . '">';
-            $ret{ljuser} = $u->ljuser_display;
+            $ret{ljuser}  = $u->ljuser_display;
         }
     }
 
-    unless ( $u ) {
-        $u = LJ::load_user( $username );
+    unless ($u) {
+        $u            = LJ::load_user($username);
         $ret{userstr} = "<user name=\"$username\">";
-        $ret{ljuser} = LJ::ljuser( $u );
+        $ret{ljuser}  = LJ::ljuser($u);
     }
 
     # more general error message if we may have been trying to show an external site
-    return $err->("Invalid user or site") if $site && ! $u;
+    return DW::RPC->err("Error: Invalid user or site") if $site && !$u;
 
     # more specific error message if we are loading a user on the site
-    return $err->("No such user") unless $u;
-    
+    return DW::RPC->err("Error: No such user") unless $u;
+
     sleep(1.5) if $LJ::IS_DEV_SERVER;
 
     $ret{success} = 1;
-
-    return to_json( \%ret );
+    return DW::RPC->out(%ret);
 }
-_code?>
+
+1;
