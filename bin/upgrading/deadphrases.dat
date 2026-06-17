@@ -474,6 +474,41 @@ general /logout.bml.title.loggedout
 
 general /manage/comments/index.bml.disablecomment2
 
+general /manage/externalaccount.bml.btn.create
+general /manage/externalaccount.bml.btn.update
+general /manage/externalaccount.bml.error.maxacct.plural
+general /manage/externalaccount.bml.error.maxacct.singular
+general /manage/externalaccount.bml.protocol.ljxmlrpc.minsecurity.desc
+general /manage/externalaccount.bml.protocol.ljxmlrpc.minsecurity.friends
+general /manage/externalaccount.bml.protocol.ljxmlrpc.minsecurity.private
+general /manage/externalaccount.bml.protocol.ljxmlrpc.minsecurity.public
+general /manage/externalaccount.bml.protocol.options
+general /manage/externalaccount.bml.setting.xpost.option.password
+general /manage/externalaccount.bml.setting.xpost.option.password.info
+general /manage/externalaccount.bml.setting.xpost.option.recordlink
+general /manage/externalaccount.bml.setting.xpost.option.savepassword
+general /manage/externalaccount.bml.setting.xpost.option.service.ljxmlrpc.url
+general /manage/externalaccount.bml.setting.xpost.option.servicename
+general /manage/externalaccount.bml.setting.xpost.option.servicetype
+general /manage/externalaccount.bml.setting.xpost.option.serviceurl
+general /manage/externalaccount.bml.setting.xpost.option.site
+general /manage/externalaccount.bml.setting.xpost.option.site.custom
+general /manage/externalaccount.bml.setting.xpost.option.username
+general /manage/externalaccount.bml.setting.xpost.option.username.info
+general /manage/externalaccount.bml.setting.xpost.option.xpostbydefault
+general /manage/externalaccount.bml.settings.xpost.error.ipban
+general /manage/externalaccount.bml.settings.xpost.error.password.invalid
+general /manage/externalaccount.bml.settings.xpost.error.password.required
+general /manage/externalaccount.bml.settings.xpost.error.servicename.required
+general /manage/externalaccount.bml.settings.xpost.error.servicetype
+general /manage/externalaccount.bml.settings.xpost.error.servicetype.required
+general /manage/externalaccount.bml.settings.xpost.error.serviceurl.required
+general /manage/externalaccount.bml.settings.xpost.error.url
+general /manage/externalaccount.bml.settings.xpost.error.username.invalid
+general /manage/externalaccount.bml.settings.xpost.error.username.required
+general /manage/externalaccount.bml.title.edit
+general /manage/externalaccount.bml.title.new
+
 general /manage/index.bml.about
 general /manage/index.bml.customization.modify.about
 general /manage/index.bml.customization.moodtheme.header

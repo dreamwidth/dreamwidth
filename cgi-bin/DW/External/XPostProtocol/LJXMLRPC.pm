@@ -557,9 +557,12 @@ sub supports_challenge {
 # returns the options for this protocol
 sub protocol_options {
     my ( $self, $extacct, $POST ) = @_;
-    my $option = {
+
+    # these strings live with the page that renders them
+    my $ml_scope = '/manage/externalaccount.tt';
+    my $option   = {
         type        => 'select',
-        description => BML::ml('.protocol.ljxmlrpc.minsecurity.desc'),
+        description => LJ::Lang::ml("$ml_scope.protocol.ljxmlrpc.minsecurity.desc"),
         opts        => {
             id       => 'minsecurity',
             name     => 'minsecurity',
@@ -569,9 +572,9 @@ sub protocol_options {
             : 'public',
         },
         options => [
-            'public',  BML::ml('.protocol.ljxmlrpc.minsecurity.public'),
-            'friends', BML::ml('.protocol.ljxmlrpc.minsecurity.friends'),
-            'private', BML::ml('.protocol.ljxmlrpc.minsecurity.private'),
+            'public',  LJ::Lang::ml("$ml_scope.protocol.ljxmlrpc.minsecurity.public"),
+            'friends', LJ::Lang::ml("$ml_scope.protocol.ljxmlrpc.minsecurity.friends"),
+            'private', LJ::Lang::ml("$ml_scope.protocol.ljxmlrpc.minsecurity.private"),
         ],
     };
     my @return_value = ($option);
