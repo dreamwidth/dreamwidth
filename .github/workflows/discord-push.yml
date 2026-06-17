@@ -1,0 +1,73 @@
+name: Discord commit notifications (main)
+
+# Posts pushed commits to Discord, but only for the default branch.
+#
+# GitHub's native repository -> Discord webhook integration fires its "push"
+# event on every ref, so commits on PR/feature branches were announced in
+# Discord too. Native webhooks have no branch filter, so the "push" event is
+# removed from that webhook (it still handles pull_request/issues/release/etc),
+# and this workflow takes over push notifications gated to main.
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    if: github.repository == 'dreamwidth/dreamwidth'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Post pushed commits to Discord
+        env:
+          # Full Discord webhook URL (base form, no trailing /github). SENSITIVE.
+          WEBHOOK: ${{ secrets.DISCORD_COMMITS_WEBHOOK }}
+          COMMITS: ${{ toJSON(github.event.commits) }}
+          COMPARE: ${{ github.event.compare }}
+          REF: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          COMMITS=$(jq -c '. // []' <<<"$COMMITS")
+          count=$(jq 'length' <<<"$COMMITS")
+          if [ "$count" -eq 0 ]; then
+            echo "No commits in this push; nothing to announce."
+            exit 0
+          fi
+
+          noun="commit"; [ "$count" -ne 1 ] && noun="commits"
+
+          # One line per commit, mirroring GitHub's native push embed:
+          #   `abc1234` summary - author
+          # Cap at 20 lines so the embed stays under Discord's 4096-char limit;
+          # note any overflow the way the native integration does.
+          lines=$(jq -r '.[:20][] |
+            "[`" + (.id[0:7]) + "`](" + .url + ") "
+            + ((.message | split("\n")[0])[:72]) + " - " + .author.name' <<<"$COMMITS")
+          if [ "$count" -gt 20 ]; then
+            lines="$lines"$'\n'"...and $((count - 20)) more"
+          fi
+
+          payload=$(jq -n \
+            --arg title "[$REPO:$REF] $count new $noun" \
+            --arg url "$COMPARE" \
+            --arg desc "$lines" \
+            '{ embeds: [ { title: $title, url: $url, description: $desc, color: 3447003 } ] }')
+
+          curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" >/dev/null
+          echo "Announced $count $noun to Discord."
+
+# ---------------------------------------------------------------------------
+# SETUP NOTES (one-time):
+#
+# 1. Add the repo secret DISCORD_COMMITS_WEBHOOK with the Discord webhook URL
+#    in BASE form (strip any trailing "/github" used by the native integration),
+#    pointing at the same channel commits are announced in today.
+#
+# 2. Remove the "push" event from the native repo -> Discord webhook so commits
+#    aren't announced twice (and branch pushes stop). Leave its other events
+#    (pull_request, issues, release, ...) in place.
+# ---------------------------------------------------------------------------
