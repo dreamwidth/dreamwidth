@@ -1,4 +1,12 @@
 <?_c
+# DEPRECATED: do NOT migrate this to Template Toolkit. This endpoint is used
+# only by the deprecated legacy entry editor (js/entry.js on update.bml /
+# editjournal.bml), and the new TT editor already has its own equivalent at
+# /__rpc_draft (DW::Controller::Entry::draft_rpc_handler). Kept only while the
+# legacy editor is in beta (gated by the "updatepage" beta); remove this file
+# once that editor leaves beta.
+_c?>
+<?_c
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
