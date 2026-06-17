@@ -1,15 +1,9 @@
 ;; -*- coding: utf-8 -*-
 .back=Back
 
-.body.keyword<<
-<?h1 [[keyword]] h1?>
-<?p The following is a list of "[[keyword]]" journal entries that <strong>[[user]]</strong> found memorable. p?>
-.
+.body.keyword=The following is a list of "[[keyword]]" journal entries that <strong>[[user]]</strong> found memorable.
 
-.body.list_categories<<
-<?h1 Memorable Entries h1?>
-<?p The following is a list of categories that <strong>[[user]]</strong> has used for memorable journal entries. p?>
-.
+.body.list_categories=The following is a list of categories that <strong>[[user]]</strong> has used for memorable journal entries.
 
 .body.memorable=The following is a list of uncategorized journal entries that <strong>[[user]]</strong> found memorable.
 
@@ -22,8 +16,6 @@
 .delete.deleted.text=You've deleted the selected memories.  Return to your <a [[aopts]]>memorable entries</a>.
 
 .delete.deleted.title=Memories Deleted
-
-.delete.error.dberror=There was a database error while deleting your memories.  The error is [[error]].  Please try again.
 
 .delete.error.noneselected=You didn't select any memories to delete.
 
@@ -49,8 +41,6 @@ This could be because: <ol>
 .form.sort=Sort entries by:
 
 .form.switch=Switch
-
-.login=To view your memories, please <a [[aopts]]>log in</a>.
 
 .plur_entry=[[num]] [[?num|entry|entries]]
 
