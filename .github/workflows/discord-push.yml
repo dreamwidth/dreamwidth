@@ -28,6 +28,9 @@ jobs:
           COMPARE: ${{ github.event.compare }}
           REF: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
+          # The pusher, for the embed author line (handle + avatar).
+          PUSHER: ${{ github.event.sender.login }}
+          PUSHER_AVATAR: ${{ github.event.sender.avatar_url }}
         run: |
           set -euo pipefail
 
@@ -40,22 +43,37 @@ jobs:
 
           noun="commit"; [ "$count" -ne 1 ] && noun="commits"
 
-          # One line per commit, mirroring GitHub's native push embed:
-          #   `abc1234` summary - author
+          # One line per commit:
+          #   `abc1234` summary - @handle
+          # Author shows the GitHub handle linked to the profile, falling back
+          # to the git name when the commit can't be mapped to a GitHub account.
           # Cap at 20 lines so the embed stays under Discord's 4096-char limit;
           # note any overflow the way the native integration does.
           lines=$(jq -r '.[:20][] |
+            ( .author.username // "" ) as $u |
             "[`" + (.id[0:7]) + "`](" + .url + ") "
-            + ((.message | split("\n")[0])[:72]) + " - " + .author.name' <<<"$COMMITS")
+            + ((.message | split("\n")[0])[:72]) + " - "
+            + ( if $u != "" then "[@" + $u + "](https://github.com/" + $u + ")"
+                else .author.name end )' <<<"$COMMITS")
           if [ "$count" -gt 20 ]; then
             lines="$lines"$'\n'"...and $((count - 20)) more"
+          fi
+
+          # Embed author line: the pusher's handle + avatar, for quick visual
+          # differentiation. Omitted if the payload has no sender login.
+          author_json='null'
+          if [ -n "$PUSHER" ]; then
+            author_json=$(jq -n --arg name "$PUSHER" --arg avatar "$PUSHER_AVATAR" \
+              '{ name: $name, url: ("https://github.com/" + $name), icon_url: $avatar }')
           fi
 
           payload=$(jq -n \
             --arg title "[$REPO:$REF] $count new $noun" \
             --arg url "$COMPARE" \
             --arg desc "$lines" \
-            '{ embeds: [ { title: $title, url: $url, description: $desc, color: 3447003 } ] }')
+            --argjson author "$author_json" \
+            '{ embeds: [ ( { title: $title, url: $url, description: $desc, color: 3447003 }
+                            + ( if $author then { author: $author } else {} end ) ) ] }')
 
           curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" >/dev/null
           echo "Announced $count $noun to Discord."
