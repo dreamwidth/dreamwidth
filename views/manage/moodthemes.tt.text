@@ -19,8 +19,6 @@
 
 .editingtheme.label.name=Mood theme name:
 
-.error.cantcreatetheme=There was an error creating this mood theme.
-
 .error.cantcreatethemes=Your account type doesn't allow creation of custom mood themes.
 
 .error.cantdeletetheme=There was an error deleting this mood theme.
@@ -45,15 +43,15 @@
 
 .mood.label.width=Width:
 
-.mood.reset=[[mood]] has been reset and will inherit if it has a parent.
-
 .mood.notcreated=[[mood]] was not created due to missing width and/or height.
+
+.mood.reset=[[mood]] has been reset and will inherit if it has a parent.
 
 .mood.setpic=[[mood]] is set to [[url]].
 
-.saved=You've successfully saved your changes.
-
 .partiallysaved=Your changes were saved, except for the following errors.
+
+.saved=You've successfully saved your changes.
 
 .title=Custom mood theme editor
 
@@ -72,4 +70,3 @@
 .yourthemes.header=Your mood themes
 
 .yourthemes.nothemes=You haven't yet made any custom mood themes.
-
