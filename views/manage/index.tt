@@ -186,7 +186,7 @@ INCLUDE linklist header=dw.ml( '.customization.header' )
   {
     href = dw.create_url( '/tools/memories', keep_args => [ 'authas' ] )
     title = dw.ml( '.entries.memories.about' )
-    text = dw.ml( '/tools/memories.bml.title.memorable' )
+    text = dw.ml( '/tools/memories.tt.title.memorable' )
   } ];
 
 UNLESS u.is_identity; entryitems.unshift(
