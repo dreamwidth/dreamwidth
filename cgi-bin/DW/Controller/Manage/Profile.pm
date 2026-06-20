@@ -64,7 +64,6 @@ sub profile_handler {
         }->{ $u->opt_showcontact };
 
     my $errors = DW::FormErrors->new;
-    my @errors;
 
     return DW::Template->render_template( 'error.tt', { message => $LJ::MSG_READONLY_USER } )
         if $u->is_readonly;
@@ -245,15 +244,15 @@ sub profile_handler {
             $errors->add( 'day', "$scope.error.day.outofrange" );
         }
 
-        if (   @errors == 0
+        if (  !$errors->exist
             && $POST->{'day'}
             && $POST->{'day'} > LJ::days_in_month( $POST->{'month'}, $POST->{'year'} ) )
         {
             $errors->add( 'day', "$scope.error.day.notinmonth" );
         }
 
-        if ( $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'}
-            && !$POST->{'LJ__Setting__FindByEmail_opt_findbyemail'} =~ /^[HNY]$/ )
+        if (   $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'}
+            && $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'} !~ /^[HNY]$/ )
         {
             $errors->add( undef, "$scope.error.findbyemail" );
         }
@@ -268,7 +267,11 @@ sub profile_handler {
         my $save_search_index = $POST->{'opt_showlocation'} =~ /^[YR]$/;
         LJ::Widget->handle_post( $POST, 'Location' => { save_search_index => $save_search_index } );
 
-        return LJ::error_list(@errors) if @errors;
+        # validation failed: re-render the form with the errors shown, no save
+        if ( $errors->exist ) {
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
+        }
 
         ### no errors
 
@@ -313,12 +316,12 @@ sub profile_handler {
 
         my $save_rv = LJ::Setting->save_all( $u, $POST, \@settings );
         if ( LJ::Setting->save_had_errors($save_rv) ) {
-            my @save_errors;
             for ( keys %$save_rv ) {
-                my $e = $save_rv->{$_}->{save_errors};
-                push @save_errors, $e->{ ( keys %$e )[0] };
+                my $e = $save_rv->{$_}->{save_errors} or next;
+                $errors->add_string( $_, $e->{ ( keys %$e )[0] } );
             }
-            return LJ::error_list(@save_errors);
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
         }
 
         $u->update_self( \%update );
@@ -473,6 +476,14 @@ sub profile_handler {
                 . LJ::Lang::ml("$scope.success.editicons")
                 . "</a></li></ul>";
         }
+
+        # interest validation (above) can add errors after the main save; if so,
+        # re-render with them instead of reporting success
+        if ( $errors->exist ) {
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
+        }
+
         return $r->msg_redirect( $success_msg, $r->SUCCESS, $profile_url );
     }
 
