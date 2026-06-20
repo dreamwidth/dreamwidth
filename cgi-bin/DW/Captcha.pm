@@ -229,7 +229,9 @@ sub validate {
     }
 
     DW::Stats::increment( "dw.captcha.failure", 1, $stat_tags );
-    $$err_ref = LJ::Lang::ml('captcha.invalid');
+
+    # err_ref is optional (e.g. the /captcha gate doesn't surface the message)
+    $$err_ref = LJ::Lang::ml('captcha.invalid') if $err_ref;
 
     return 0;
 }
