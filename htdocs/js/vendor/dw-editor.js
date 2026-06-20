@@ -13075,6 +13075,7 @@ var DWEditor = (() => {
       this.match = null;
       this.dom = document.createElement("div");
       this.dom.className = "dw-editor-mentions";
+      this.dom.setAttribute("role", "listbox");
       this.dom.style.display = "none";
       document.body.appendChild(this.dom);
       this.dom.addEventListener("mousedown", (e) => {
@@ -13118,6 +13119,8 @@ var DWEditor = (() => {
       this.items.forEach((item, i) => {
         const row = document.createElement("div");
         row.className = "dw-editor-mention-item" + (i == this.index ? " dw-editor-mention-active" : "");
+        row.setAttribute("role", "option");
+        row.setAttribute("aria-selected", i == this.index ? "true" : "false");
         row.setAttribute("data-index", String(i));
         const name = document.createElement("span");
         name.textContent = item.username;

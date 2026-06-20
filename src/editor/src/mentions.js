@@ -81,6 +81,7 @@ class MentionDropdown {
 
         this.dom = document.createElement("div");
         this.dom.className = "dw-editor-mentions";
+        this.dom.setAttribute("role", "listbox");
         this.dom.style.display = "none";
         document.body.appendChild(this.dom);
 
@@ -129,6 +130,8 @@ class MentionDropdown {
             const row = document.createElement("div");
             row.className =
                 "dw-editor-mention-item" + (i == this.index ? " dw-editor-mention-active" : "");
+            row.setAttribute("role", "option");
+            row.setAttribute("aria-selected", i == this.index ? "true" : "false");
             row.setAttribute("data-index", String(i));
 
             const name = document.createElement("span");

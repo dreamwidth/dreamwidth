@@ -278,13 +278,13 @@ sub general_handler {
             delete $val->{security};
             delete $val->{display};
         }
-
-        # get the remote user's own circle (watched + trusted + communities),
-        # for the rich text editor's @mention autocomplete. This is always
-        # scoped to the logged-in user's own relationships -- it must never
-        # grow into a general username search, which would make the username
-        # namespace cheaply enumerable.
     }
+
+    # get the remote user's own circle (watched + trusted + communities),
+    # for the rich text editor's @mention autocomplete. This is always
+    # scoped to the logged-in user's own relationships -- it must never
+    # grow into a general username search, which would make the username
+    # namespace cheaply enumerable.
     elsif ( $mode eq 'list_circle' ) {
         return DW::RPC->alert('Must be logged in.') unless $remote;
 
