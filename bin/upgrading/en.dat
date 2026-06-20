@@ -3258,7 +3258,7 @@ settings.error.year.notenoughdigits=Invalid birthday year. Enter a 4-digit year.
 
 settings.error.year.outofrange=Invalid birthday year.
 
-settings.findbyemail.error.invalid=Invalid Option
+settings.findbyemail.error.invalid=Invalid option for find by email
 
 settings.findbyemail.helper=This setting will allow you to have your email address searchable without having to display it anywhere on [[sitename]]. You can also choose whether or not you want your [[siteabbrev]] identity to be shared in the search results.
 
