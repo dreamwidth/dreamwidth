@@ -1537,10 +1537,7 @@ sub talkform {
         },
 
         captcha => $opts->{do_captcha}
-        ? {
-            type => $journalu->captcha_type,
-            html => DW::Captcha->new( undef, want => $journalu->captcha_type )->print,
-            }
+        ? { html => DW::Captcha->new->print }
         : 0,
 
         remote      => $remote ? $remote : 0,
@@ -2832,7 +2829,6 @@ sub prepare_and_validate_comment {
     }
 
     # If the form already had a captcha, prep it:
-    $content->{want} = $content->{captcha_type};    # Captcha->new consumes "want"
     my $captcha = DW::Captcha->new( undef, %{ $content || {} } );
 
     # are they sending us a response? Check it.

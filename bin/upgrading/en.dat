@@ -2529,14 +2529,6 @@ setting.birthdaydisplay.error.invalid=Invalid option
 
 setting.birthdaydisplay.question=Birthday display options:
 
-setting.captcha.label=Anti-Spam Type
-
-setting.captcha.option=Commenters will see
-
-setting.captcha.option.select.image=graphical/image anti-spam tests
-
-setting.captcha.option.select.text=text-based anti-spam tests
-
 setting.commentcaptcha.label=Anti-Spam
 
 setting.commentcaptcha.option=Show CAPTCHA to

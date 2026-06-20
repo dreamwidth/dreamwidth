@@ -38,14 +38,6 @@ userproplist.bonus_icons:
   multihomed: 0
   prettyname: How many bonus icon slots the user has purchased
 
-userproplist.captcha:
-  cldversion: 4
-  datatype: char
-  des: CAPTCHA type to show in the user's journal
-  indexed: 0
-  multihomed: 0
-  prettyname: CAPTCHA type
-
 userproplist.cc_msg:
   cldversion: 4
   datatype: bool

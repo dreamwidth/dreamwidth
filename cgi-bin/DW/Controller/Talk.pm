@@ -109,11 +109,10 @@ DW::Routing->register_rpc(
 #     stuff. See LJ::check_form_auth in Web.pm for more.
 # - chrp1
 #     A time-expiring server-provided token used to make spam posts inconvenient.
-# - captcha_type (and other captcha fields)
-#     Which captcha implementation to use, if a captcha is deemed necessary;
-#     absent if not. Captchas can bring in additional form fields. These get
-#     consumed by the captcha implementations, which get invoked down near the
-#     bottom of LJ::Talk::Post::prepare_and_validate_comment.
+# - captcha fields (e.g. h-captcha-response)
+#     The captcha response, if a captcha is deemed necessary; absent if not.
+#     These get consumed by the captcha implementation, which gets invoked down
+#     near the bottom of LJ::Talk::Post::prepare_and_validate_comment.
 # - qr
 #     Hardcoded to 1 in the quick-reply form; absent in talkform. As far as I can
 #     tell, nothing ever consumes this. Maybe was for some ancient server log
@@ -323,10 +322,9 @@ sub talkpost_do_handler {
     }
 
     # Now that we've given them a chance to log in, set a resource group.
-    # FIXME: You're supposed to set this in the template, so if someone ever
-    # rewrites DW::Captcha::TextCAPTCHA to stop snooping around in
-    # $LJ::ACTIVE_RES_GROUP, definitely do that. In the meantime, this needs to
-    # happen before LJ::Talk::talkform gets called or things might break. -NF
+    # FIXME: You're supposed to set this in the template. In the meantime, this
+    # needs to happen before LJ::Talk::talkform gets called or things might
+    # break. -NF
     my $real_remote = LJ::get_remote();
     if ( !LJ::BetaFeatures->user_in_beta( $real_remote => "nos2foundation" ) ) {
         LJ::set_active_resource_group("foundation");

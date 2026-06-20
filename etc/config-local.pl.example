@@ -50,12 +50,6 @@
     #@MEMCACHE_SERVERS = ('hostname:port');
     #$MEMCACHE_COMPRESS_THRESHOLD = 1_000; # bytes
 
-    # setup recaptcha
-    %RECAPTCHA = (
-            public_key  => $DW::PRIVATE::RECAPTCHA{public_key},
-            private_key => $DW::PRIVATE::RECAPTCHA{private_key},
-        );
-
     # PayPal configuration.  If you want to use PayPal, uncomment this
     # section and make sure to fill in the fields at the bottom of config-private.pl.
     #%PAYPAL_CONFIG = (

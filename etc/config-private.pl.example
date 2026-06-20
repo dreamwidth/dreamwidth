@@ -283,11 +283,6 @@ use Net::Subnet;
     #%THESCHWARTZ_DBS = (
     #    pass => ,
     #);
-
-    #%RECAPTCHA = (
-    #    public_key  => ,
-    #    private_key => ,
-    #);
 }
 
 1;

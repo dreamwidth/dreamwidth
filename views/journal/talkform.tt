@@ -429,10 +429,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
   [%- IF captcha -%]
     <br />
     [%- captcha.html -%]
-    [%- form.hidden(
-      name = 'captcha_type'
-      value = captcha.type
-    ) -%]
   [%- END -%]
 
   [%- IF comment.editid -%]
@@ -916,10 +912,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
       [%- IF captcha -%]
         <br />
         [%- captcha.html -%]
-        [%- form.hidden(
-          name = 'captcha_type'
-          value = captcha.type
-        ) -%]
       [%- END -%]
     </td>
   </tr>
