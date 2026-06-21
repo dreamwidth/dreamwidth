@@ -27,10 +27,10 @@
   [%- END -%]
 [%- END -%]
 
-[%- IF num_icons >= max_icons -%]
-  <div id='limit'>[% '.error.icon.quota' | ml( num = max_icons ) %]</div>
-[%- ELSE -%]
 <div class="row">
+[%- IF num_icons >= max_icons -%]
+  <div id='limit' class="columns large-4">[% '.error.icon.quota' | ml( num = max_icons ) %]</div>
+[%- ELSE -%]
   <div id='uploadBox' class='highlight-box box pkg columns large-4'>
   <div id='uploadBox-inner' class="small-left">
   <form enctype="multipart/form-data" action="[% selflink() %]" method='post'
@@ -146,8 +146,10 @@
 [%- END -%]
 
 [%- IF ! num_icons -%]
+  <div class="columns large-8">
   <h2>[% '.edit.nopics.header' | ml %]</h2>
   <p>[% '.edit.nopics.desc' | ml %]</p>
+  </div>
 [%- ELSE -%]
   <div id='current_userpics' class="columns large-8">
   <form method='post' action='[% selflink() %]'>
@@ -278,5 +280,5 @@
                             name = 'action:save' ) %]</div>
   </form>
   </div><!-- end #current_userpics -->
-  </div>
 [%- END -%]
+</div><!-- end .row -->
