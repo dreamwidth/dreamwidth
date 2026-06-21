@@ -122,15 +122,15 @@
                 allowComments: true,
                 allowDescriptions: true,
                 labels: {
-                    comment: "[% '.upload.label.comment' | ml %]",
-                    description: "[% '.upload.label.description' | ml %]",
-                    fromfile: "[% '.fromfile' | ml %]",
-                    fromurl: "[% '.fromurl' | ml %]",
-                    keepdefault: "[% '.keepdefault' | ml %]",
-                    keywords: "[% '.upload.label.keywords' | ml %]",
-                    makedefault: "[% '.makedefault' | ml %]",
-                    makedefaultkey: "[% '.makedefault.key' | ml %]",
-                    remove: "[% '.upload.btn.remove' | ml %]"
+                    comment: [% '.upload.label.comment' | ml | js %],
+                    description: [% '.upload.label.description' | ml | js %],
+                    fromfile: [% '.fromfile' | ml | js %],
+                    fromurl: [% '.fromurl' | ml | js %],
+                    keepdefault: [% '.keepdefault' | ml | js %],
+                    keywords: [% '.upload.label.keywords' | ml | js %],
+                    makedefault: [% '.makedefault' | ml | js %],
+                    makedefaultkey: [% '.makedefault.key' | ml | js %],
+                    remove: [% '.upload.btn.remove' | ml | js %]
                 }
             };
         </script>

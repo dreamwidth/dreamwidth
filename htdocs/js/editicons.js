@@ -52,18 +52,18 @@ function addNewUpload(uploadType) {
   var labels = ep_config().labels || {};
   updateMakeDefaultType(true);
 
-  insertIntoTag = document.getElementById("multi_insert");
-  insertElement = document.createElement("p");
+  var insertIntoTag = document.getElementById("multi_insert");
+  var insertElement = document.createElement("p");
   insertElement.setAttribute("id", "additional_upload_" + counter);
   insertElement.setAttribute("class", "pkg");
 
-  newPicHTML = "<input type='button' value='" + labels.remove + "' onclick='javascript:removeAdditionalUpload(" + counter + ");' /><br/>\n";
+  var newPicHTML = "<input type='button' value='" + labels.remove + "' onclick='javascript:removeAdditionalUpload(" + counter + ");' /><br/>\n";
 
   if (uploadType == 'file') {
     newPicHTML += "<label class='left' for='userpic_" + counter + "'>From <u>F</u>ile:</label>";
     newPicHTML += "<input type='file' class='file' name='userpic_" + counter + "' id='userpic_" + counter + "' size='22' />";
   } else if (uploadType == 'url') {
-    newPicHTML += "<label class='left' for='urlpic_'" + counter + ">";
+    newPicHTML += "<label class='left' for='urlpic_" + counter + "'>";
     newPicHTML += labels.fromurl + '</label>';
     newPicHTML += '<input type="text" name="urlpic_' + counter + '" id="urlpic_' + counter + '" class="text" />';
   }
@@ -95,8 +95,8 @@ function removeAdditionalUpload(removeIndex) {
     updateMakeDefaultType(false);
   }
 
-  removeFromTag = document.getElementById("multi_insert");
-  removeElement = document.getElementById("additional_upload_" + removeIndex);
+  var removeFromTag = document.getElementById("multi_insert");
+  var removeElement = document.getElementById("additional_upload_" + removeIndex);
   removeFromTag.removeChild(removeElement);
   maxcounter++;
   if (counter < maxcounter) {
@@ -106,30 +106,27 @@ function removeAdditionalUpload(removeIndex) {
 }
 
 function hideUploadButtons() {
-  buttonsElement = document.getElementById("multi_insert_buttons");
-  buttonsElement.style.display = 'none';
+  document.getElementById("multi_insert_buttons").style.display = 'none';
 }
 
 function unhideUploadButtons() {
-  buttonsElement = document.getElementById("multi_insert_buttons");
-  buttonsElement.style.display = 'block';
+  document.getElementById("multi_insert_buttons").style.display = 'block';
 }
 
 function addNoDefaultButton() {
   var labels = ep_config().labels || {};
-  buttonsElement = document.getElementById("no_default_insert");
-  insertElement = document.createElement("p");
+  var buttonsElement = document.getElementById("no_default_insert");
+  var insertElement = document.createElement("p");
   insertElement.setAttribute("id", "make_default_none");
   insertElement.setAttribute("class", "pkg");
 
-  newPicHTML = "<input type='radio' accesskey='" + labels.makedefaultkey +"' value='-1' name='make_default' id='make_default_button_none' /><label for='make_default_button_none'>" + labels.keepdefault + "</label>\n";
-  insertElement.innerHTML = newPicHTML;
+  insertElement.innerHTML = "<input type='radio' accesskey='" + labels.makedefaultkey +"' value='-1' name='make_default' id='make_default_button_none' /><label for='make_default_button_none'>" + labels.keepdefault + "</label>\n";
   buttonsElement.appendChild(insertElement);
 }
 
 function removeNoDefaultButton() {
-  removeFromTag = document.getElementById("no_default_insert");
-  removeElement = document.getElementById("make_default_none");
+  var removeFromTag = document.getElementById("no_default_insert");
+  var removeElement = document.getElementById("make_default_none");
   removeFromTag.removeChild(removeElement);
 }
 
@@ -161,7 +158,7 @@ function updateMakeDefaultType(multi) {
     if ((multi && makeDefaultInput.type != "radio") || (! multi && makeDefaultInput.type != "checkbox")) {
       var containerElement = document.getElementById('main_make_default');
 
-      value = makeDefaultInput.checked;
+      var value = makeDefaultInput.checked;
       if (multi) {
         containerElement.innerHTML = containerElement.innerHTML.replace(/checkbox/, "radio");
       } else {
