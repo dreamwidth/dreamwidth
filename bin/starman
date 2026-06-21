@@ -14,6 +14,7 @@
 #   --workers COUNT  Number of workers to run in parallel
 #   --log DIR        Directory for access and error logs (default: none)
 #   --daemonize      Fork into background (writes PID to log dir)
+#   --preload-app    Load the app in the master before forking (CoW memory)
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -42,14 +43,17 @@ my $host    = '0.0.0.0';
 my $workers = 3;
 my $log_dir;
 my $daemonize;
+my $preload_app;
 
 GetOptions(
-    'port=i'    => \$port,
-    'host=s'    => \$host,
-    'workers=i' => \$workers,
-    'log=s'     => \$log_dir,
-    'daemonize' => \$daemonize,
-) or die "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR] [--daemonize]\n";
+    'port=i'      => \$port,
+    'host=s'      => \$host,
+    'workers=i'   => \$workers,
+    'log=s'       => \$log_dir,
+    'daemonize'   => \$daemonize,
+    'preload-app' => \$preload_app,
+) or die
+    "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR] [--daemonize] [--preload-app]\n";
 
 my $app_psgi = "$ENV{LJHOME}/app.psgi";
 die "Cannot find $app_psgi\n" unless -f $app_psgi;
@@ -68,6 +72,12 @@ my @opts = (
     '--app',     $app_psgi,
     '--no-default-middleware',
 );
+
+# Preload the app in the master so forked workers share compiled code via
+# copy-on-write (far lower memory per worker). Safe because nothing opens
+# DB/memcache sockets at load time — connections are made lazily per worker on
+# first request; see the per-worker srand() reseed in app.psgi.
+push @opts, '--preload-app' if $preload_app;
 
 if ($log_dir) {
     mkdir $log_dir unless -d $log_dir;
