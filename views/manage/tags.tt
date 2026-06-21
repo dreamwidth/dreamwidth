@@ -15,6 +15,7 @@
   #
 %]
 [%- sections.title = '.title2' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.bodyopts = 'onLoad="initTagPage()"' -%]
 [%- sections.head = BLOCK %]
 <script type="text/javascript">
