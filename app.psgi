@@ -42,8 +42,21 @@ BEGIN {
     srand( LJ::urandom_int() );
 }
 
+# Track the worker PID we last seeded the RNG for. With --preload-app the
+# srand() in the BEGIN block above runs once in the master, so every forked
+# worker would otherwise inherit an identical random sequence. Reseed once per
+# worker on its first request. (DW's security-sensitive randomness uses
+# /dev/urandom, not rand(); this just keeps rand() well-distributed.)
+my $srand_pid = 0;
+
 my $app = sub {
     my $env = $_[0];
+
+    if ( $srand_pid != $$ ) {
+        srand( LJ::urandom_int() );
+        $srand_pid = $$;
+    }
+
     my $r   = DW::Request->get;
 
     # Main request dispatch; this will determine what kind of request we're getting

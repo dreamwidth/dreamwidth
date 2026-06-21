@@ -8,7 +8,13 @@ perl -I$LJHOME/extlib/ $LJHOME/bin/checkconfig.pl || sleep infinity
 
 # Starman on port 8080 (Varnish sits in front on 6081)
 mkdir -p /var/log/starman
-perl $LJHOME/bin/starman --port 8080 --workers 10 --log /var/log/starman --daemonize
+
+# Scale workers to the task's vCPU allocation (on Fargate, nproc reflects the
+# task's vCPUs). ~8 workers/vCPU balances CPU-bound rendering against DB/memcache
+# I/O wait. --preload-app shares compiled code across workers via copy-on-write,
+# so the higher worker count doesn't inflate memory.
+WORKERS=$(( $(nproc) * 8 ))
+perl $LJHOME/bin/starman --port 8080 --workers "$WORKERS" --preload-app --log /var/log/starman --daemonize
 
 # Kick off Varnish
 service varnish start
