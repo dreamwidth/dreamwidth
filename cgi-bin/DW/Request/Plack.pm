@@ -30,7 +30,8 @@ use Plack::Request;
 use Plack::Response;
 use URI;
 
-use fields ( 'env', 'req', 'req_addr', 'res', 'res_body', 'res_length', 'notes', 'pnotes' );
+use fields ( 'env', 'req', 'req_addr', 'res', 'res_body', 'res_length', 'notes', 'pnotes',
+    'read_offset' );
 
 $DW::Request::PLACK_AVAILABLE = 1;
 
@@ -246,6 +247,33 @@ sub content_type {
 sub content {
     my DW::Request::Plack $self = $_[0];
     return $self->{req}->content;
+}
+
+# read: copy up to $_[2] bytes of the request body into the buffer $_[1] (at the
+# optional offset $_[3]), returning the number of bytes read or 0 at EOF. This
+# mirrors Apache2's $r->read so streaming body parsers -- notably the large
+# icon-upload path in DW::Controller::EditIcons -- work under Plack/Starman.
+# IMPORTANT: Do not pull out $_[1] to a variable in this sub.
+sub read {
+    my DW::Request::Plack $self = $_[0];
+    die "missing required arguments" if scalar(@_) < 3;
+
+    my $prefix = '';
+    if ( exists $_[3] ) {
+        die "Negative offsets not allowed" if $_[3] < 0;
+        $prefix = substr( $_[1], 0, $_[3] );
+    }
+
+    die "Length cannot be negative" if $_[2] < 0;
+    $self->{read_offset} ||= 0;
+    my $ov = substr( $self->content, $self->{read_offset}, $_[2] );
+
+    # Given $_[1] and whatever was passed in as the first argument are the
+    # same exact scalar this will set *that* variable too.
+    $_[1] = $prefix . $ov;
+
+    $self->{read_offset} += length($ov);
+    return length($ov);
 }
 
 # pnote: per-request notes hash (used by routing)
