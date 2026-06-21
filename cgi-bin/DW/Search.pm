@@ -255,10 +255,13 @@ sub _enrich_journal {
         if ( $match->{jtalkid} == 0 ) {
             my $entry = LJ::Entry->new( $match->{journalid}, jitemid => $match->{jitemid}, );
 
-            # The Manticore query filters on is_deleted, but the index can lag
-            # behind reality (an entry deleted or locked down since it was last
-            # indexed). Re-check against MySQL and drop anything we can't show
-            # rather than rendering a "deleted or unavailable" placeholder row.
+            # The index can't represent everything visible_to() decides: its
+            # security_bits are viewer-agnostic and frozen at index time, and
+            # things like a suspended poster/journal or adult-content gating
+            # live only in MySQL. The copier is also async and best-effort, so
+            # a since-deleted row can briefly survive. Re-check against MySQL
+            # and drop anything we can't show rather than rendering a "deleted
+            # or unavailable" placeholder row.
             next unless $entry && $entry->valid && $entry->visible_to($remote);
 
             $match->{entry} = $entry->event_text;
@@ -280,9 +283,11 @@ sub _enrich_journal {
             my $cmt   = LJ::Comment->new( $match->{journalid}, jtalkid => $match->{jtalkid}, );
             my $entry = $cmt->entry;
 
-            # Same as above: skip comments (or comments whose entry has gone
-            # away) that we can no longer show, instead of emitting a
-            # placeholder row.
+            # Same as above, and more so for comments: deleting a single
+            # comment doesn't notify the copier at all, so a deleted comment
+            # lingers in the index until its entry is next recopied. Skip
+            # comments (or comments whose entry has gone away) that we can no
+            # longer show, instead of emitting a placeholder row.
             next
                 unless $entry
                 && $entry->valid
