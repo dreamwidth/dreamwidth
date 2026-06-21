@@ -30,8 +30,7 @@ use Plack::Request;
 use Plack::Response;
 use URI;
 
-use fields ( 'env', 'req', 'req_addr', 'res', 'res_body', 'res_length', 'notes', 'pnotes',
-    'read_offset' );
+use fields ( 'env', 'req', 'req_addr', 'res', 'res_body', 'res_length', 'notes', 'pnotes' );
 
 $DW::Request::PLACK_AVAILABLE = 1;
 
@@ -250,30 +249,24 @@ sub content {
 }
 
 # read: copy up to $_[2] bytes of the request body into the buffer $_[1] (at the
-# optional offset $_[3]), returning the number of bytes read or 0 at EOF. This
-# mirrors Apache2's $r->read so streaming body parsers -- notably the large
-# icon-upload path in DW::Controller::EditIcons -- work under Plack/Starman.
+# optional offset $_[3]), returning the number of bytes read or 0 at EOF. Reads
+# straight from the PSGI input stream rather than slicing $self->content, so a
+# large body isn't pre-materialized into a scalar -- this mirrors Apache2's
+# $r->read and preserves the streaming intent of callers like the large
+# icon-upload parser in DW::Controller::EditIcons.
 # IMPORTANT: Do not pull out $_[1] to a variable in this sub.
 sub read {
     my DW::Request::Plack $self = $_[0];
-    die "missing required arguments" if scalar(@_) < 3;
+    die "missing required arguments"   if scalar(@_) < 3;
+    die "Length cannot be negative"    if $_[2] < 0;
+    die "Negative offsets not allowed" if defined $_[3] && $_[3] < 0;
 
-    my $prefix = '';
-    if ( exists $_[3] ) {
-        die "Negative offsets not allowed" if $_[3] < 0;
-        $prefix = substr( $_[1], 0, $_[3] );
-    }
+    my $input = $self->{env}->{'psgi.input'};
+    return 0 unless $input;
 
-    die "Length cannot be negative" if $_[2] < 0;
-    $self->{read_offset} ||= 0;
-    my $ov = substr( $self->content, $self->{read_offset}, $_[2] );
-
-    # Given $_[1] and whatever was passed in as the first argument are the
-    # same exact scalar this will set *that* variable too.
-    $_[1] = $prefix . $ov;
-
-    $self->{read_offset} += length($ov);
-    return length($ov);
+    # CORE::read writes into the caller's buffer (via the $_[1] alias) at the
+    # given offset, growing it as needed, and returns the bytes read (0 at EOF).
+    return CORE::read( $input, $_[1], $_[2], $_[3] // 0 ) // 0;
 }
 
 # pnote: per-request notes hash (used by routing)

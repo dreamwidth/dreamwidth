@@ -60,7 +60,7 @@ function addNewUpload(uploadType) {
   var newPicHTML = "<input type='button' value='" + labels.remove + "' onclick='javascript:removeAdditionalUpload(" + counter + ");' /><br/>\n";
 
   if (uploadType == 'file') {
-    newPicHTML += "<label class='left' for='userpic_" + counter + "'>From <u>F</u>ile:</label>";
+    newPicHTML += "<label class='left' for='userpic_" + counter + "'>" + labels.fromfile + "</label>";
     newPicHTML += "<input type='file' class='file' name='userpic_" + counter + "' id='userpic_" + counter + "' size='22' />";
   } else if (uploadType == 'url') {
     newPicHTML += "<label class='left' for='urlpic_" + counter + "'>";
