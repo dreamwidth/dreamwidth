@@ -24,7 +24,12 @@ use DW::Template;
 use DW::Controller;
 use DW::FormErrors;
 
-DW::Routing->register_string( '/login', \&login_handler, app => 1 );
+# no_cache: the login form embeds a form_auth (CSRF) token that, for logged-out
+# users, is bound to their per-browser ljuniq cookie. If a shared proxy caches
+# this page, everyone is served one user's token and their login POST fails with
+# "Invalid form submission". (The pre-TT login.bml set nocache=>1 for the same
+# reason; /register and /openid carry no_cache => 1 likewise.)
+DW::Routing->register_string( '/login', \&login_handler, app => 1, no_cache => 1 );
 
 sub login_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
