@@ -49,93 +49,95 @@ tags[[% t.id %]] = [ [% t.name | js %], '[% t.level %]', [% t.pub %], [% t.pri %
 [% END -%]
 </script>
 
+[%# js-escaped placeholder text, for the add-tag field's client-side validation %]
+[%- add_text_js = BLOCK %][% add_text | js %][% END -%]
+
 <form method="POST" name="tagform" id="tagform">
 [% dw.form_auth %]
-<table summary='' id="table_managetags" cellpadding="0" cellspacing="0" align="center">
-<tr><td valign="top">
-    <fieldset>
-        <legend>[% '.label.yours' | ml( tagnum => tagcount, tagmax => tagmax ) %]</legend>
-        <div style="padding-top: 6px;">
+
+<div class='row'>
+
+  [%# left column: the tag list, sort link, and add-new-tags field %]
+  <div class='columns medium-6'>
+    <h2>[% '.label.yours' | ml( tagnum => tagcount, tagmax => tagmax ) %]</h2>
 [% IF tagcount %]
-            <select name='tags' id='tags' multiple='multiple' class='multiple-select tagbox' onChange='tagselect(this)'>
+    <select name='tags' id='tags' multiple='multiple' class='multiple-select tagbox' onChange='tagselect(this)'>
   [%- FOREACH t IN tag_options %]
-                <option class='level[% t.level %]' value='[% t.id %]_[% t.name | html %]'>[% t.name | html %]</option>
+      <option class='level[% t.level %]' value='[% t.id %]_[% t.name | html %]'>[% t.name | html %]</option>
   [%- END %]
-            </select>
-            <div class='tagsort'>
+    </select>
+    <p class='tagsort'>
   [%- IF sort == 'use' %]
-                [% '.sort.a' | ml( aopts => "href='" _ site.root _ "/manage/tags?authas=" _ u.user _ "&amp;sort=alpha'" ) %]
+      [% '.sort.a' | ml( aopts => "href='" _ site.root _ "/manage/tags?authas=" _ u.user _ "&amp;sort=alpha'" ) %]
   [%- ELSE %]
-                [% '.sort.b' | ml( aopts => "href='" _ site.root _ "/manage/tags?authas=" _ u.user _ "&amp;sort=use'" ) %]
+      [% '.sort.b' | ml( aopts => "href='" _ site.root _ "/manage/tags?authas=" _ u.user _ "&amp;sort=use'" ) %]
   [%- END %]
-            </div>
+    </p>
 [% ELSE %]
-            <div class='taginfo'>[% '.none' | ml %]</div>
+    <div class='callout'>[% '.none' | ml %]</div>
 [% END %]
-            <div style="margin-top: 10px">
-                [% form.textbox( name = 'add_field', size = 20, style = 'width: 260px',
-                                 class = 'tagfield', value = ( did_post ? '' : add_text ),
-                                 onclick = "reset_field(this, '" _ add_text _ "')" ) %]
-                &nbsp;
-                <input type='image' name='add' src='/img/rte/post_button_text_larger.gif'
-                       border='0' align='middle' title='[% '.hint.create' | ml %]'
-                       onClick='return validate_input(this, "add_field", [% add_text | js %])'>
-            </div>
-        </div>
-    </fieldset>
-</td>
-<td valign="top">
+    <div class='row collapse'>
+      <div class='columns small-8'>
+        [% form.textbox( name = 'add_field', class = 'tagfield', value = ( did_post ? '' : add_text ),
+                         onclick = "reset_field(this, '" _ add_text _ "')" ) %]
+      </div>
+      <div class='columns small-4 end'>
+        [% form.submit( name = 'add', value = dw.ml('.button.add'), class = 'button postfix',
+                        title = dw.ml('.hint.create'),
+                        onclick = 'return validate_input(this, "add_field", ' _ add_text_js _ ')' ) %]
+      </div>
+    </div>
+  </div>
+
+  [%# right column: actions on the selected tag(s) and their property table %]
+  <div class='columns medium-6'>
 [% IF tagcount %]
-    <fieldset><legend>[% '.label.tags' | ml %]</legend>
-    <div style="padding-top: 6px;">
-        <div id='selected_tags'>&nbsp;</div>
-        <div style='white-space: nowrap'>
-            [% form.textbox( name = 'rename_field', size = 30, class = 'tagfield',
-                             onclick = 'reset_field(this)' ) %]
-            &nbsp;&nbsp;
-            [% form.submit( name = 'rename', value = dw.ml('.button.rename'), class = 'btn',
-                            title = dw.ml('.hint.rename'),
-                            onclick = 'return validate_input(this, "rename_field")' ) %]
-            <br /><br />
-            [% form.textbox( name = 'merge_field', size = 30, class = 'tagfield',
-                             onclick = 'reset_field(this)' ) %]
-            &nbsp;&nbsp;
-            [% form.submit( name = 'merge', value = dw.ml('.button.merge'), class = 'btn',
-                            title = dw.ml('.hint.merge'),
-                            onclick = "return confirm('" _ merge_confirm _ "')" ) %]
-            <br /><br />
-            [% form.submit( name = 'delete', value = dw.ml('.button.delete'), class = 'btn',
-                            title = dw.ml('.hint.delete'),
-                            onclick = "return confirm('" _ delete_confirm _ "')" ) %]
-            &nbsp;&nbsp;
-            [% form.submit( name = 'show posts', value = dw.ml('.button.show'), class = 'btn',
-                            title = dw.ml('.hint.entries') ) %]
-        </div>
-        <br />
-        <div id="tag_props">&nbsp;</div>
+    <h2>[% '.label.tags' | ml %]</h2>
+    <div id='selected_tags'>&nbsp;</div>
+    <div class='row collapse'>
+      <div class='columns small-8'>
+        [% form.textbox( name = 'rename_field', class = 'tagfield', onclick = 'reset_field(this)' ) %]
+      </div>
+      <div class='columns small-4 end'>
+        [% form.submit( name = 'rename', value = dw.ml('.button.rename'), class = 'button postfix',
+                        title = dw.ml('.hint.rename'),
+                        onclick = 'return validate_input(this, "rename_field")' ) %]
+      </div>
     </div>
-    </fieldset>
-[% ELSE %]
-    &nbsp;
+    <div class='row collapse'>
+      <div class='columns small-8'>
+        [% form.textbox( name = 'merge_field', class = 'tagfield', onclick = 'reset_field(this)' ) %]
+      </div>
+      <div class='columns small-4 end'>
+        [% form.submit( name = 'merge', value = dw.ml('.button.merge'), class = 'button postfix',
+                        title = dw.ml('.hint.merge'),
+                        onclick = "return confirm('" _ merge_confirm _ "')" ) %]
+      </div>
+    </div>
+    [% form.submit( name = 'delete', value = dw.ml('.button.delete'), class = 'alert button',
+                    title = dw.ml('.hint.delete'),
+                    onclick = "return confirm('" _ delete_confirm _ "')" ) %]
+    [% form.submit( name = 'show posts', value = dw.ml('.button.show'), class = 'secondary button',
+                    title = dw.ml('.hint.entries') ) %]
+    <div id="tag_props">&nbsp;</div>
 [% END %]
-</td></tr>
-<tr><td colspan="2">
-    <br />
-    <fieldset><legend>[% '.label.settings' | ml %]</legend>
-    <div style="padding-top: 6px;">
-        <div class='tagsec'>
-            [% form.select( name = 'control_level', selected = control_level, items = control_groups ) %]
-            [% '.setting.desc.control2' | ml %]
-        </div>
-        <div class='tagsec'>
-            [% form.select( name = 'add_level', selected = add_level, items = add_groups ) %]
-            [% '.setting.desc.add' | ml %]
-        </div>
-        <div align='center'>
-            [% form.submit( name = 'save_levels', value = dw.ml('.button.save'), class = 'btn', title = 'Save' ) %]
-        </div>
-    </div>
-    </fieldset>
-</td></tr>
-</table>
+  </div>
+
+</div>
+
+[%# full-width: who may create/add tags %]
+<h2>[% '.label.settings' | ml %]</h2>
+<div class='row collapse'>
+  <div class='columns medium-4'>
+    [% form.select( name = 'control_level', selected = control_level, items = control_groups ) %]
+  </div>
+  <div class='columns medium-8 end'><label class='inline'>[% '.setting.desc.control2' | ml %]</label></div>
+</div>
+<div class='row collapse'>
+  <div class='columns medium-4'>
+    [% form.select( name = 'add_level', selected = add_level, items = add_groups ) %]
+  </div>
+  <div class='columns medium-8 end'><label class='inline'>[% '.setting.desc.add' | ml %]</label></div>
+</div>
+[% form.submit( name = 'save_levels', value = dw.ml('.button.save'), class = 'button' ) %]
 </form>

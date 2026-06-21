@@ -50,7 +50,10 @@ sub tags_handler {
     my $get    = $r->get_args;
     my $post   = $r->post_args;
 
-    LJ::need_res("js/tags.js");
+    # the page renders with the foundation resource group, so its page-specific
+    # JS must join that group too (default-group JS isn't emitted there); CSS
+    # always lands in the "all" group, so stc/tags.css needs no group
+    LJ::need_res( { group    => "foundation" },          "js/tags.js" );
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, "stc/tags.css" );
 
     my $add_text = LJ::Lang::ml("$ml_scope.addnew");
@@ -58,7 +61,7 @@ sub tags_handler {
 
     if ( $r->did_post ) {
 
-        # adding new tags ('add' image submit sends add.x / add.y)
+        # adding new tags (the 'add' submit button; older image submits sent add.x / add.y)
         my $do_add = $post->{add} || $post->{'add.x'} || $post->{'add.y'};
         if ( $do_add || ( $post->{add_field} && $post->{add_field} ne $add_text ) ) {
             my $tagerr  = "";

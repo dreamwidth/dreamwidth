@@ -38,9 +38,11 @@ legend
 
 .tagbox
 {
-    width: 300px;
+    width: 100%;
     padding: 4px;
     height: 250px;
+    /* it's a multi-select listbox, so drop Foundation's single-select caret */
+    background-image: none !important;
 }
 
 .tagbox option
@@ -97,7 +99,6 @@ legend
 {
     padding: 5px;
     margin-bottom: 10px;
-    width: 300px;
     white-space: wrap;
 }
 
