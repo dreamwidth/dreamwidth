@@ -310,4 +310,27 @@ subtest 'CALL SNIPPETS builds highlighted excerpts' => sub {
     like( $excs->[0], qr/kangaroo/i, 'excerpt contains the matched keyword' );
 };
 
+# The production path batches a whole page of docs into one CALL SNIPPETS, so
+# exercise the multi-document list: the result must be one excerpt per input,
+# in the same order, even when some docs don't contain the query term.
+subtest 'CALL SNIPPETS preserves count and order across multiple docs' => sub {
+    my @texts = (
+        'alpha document mentions kangaroo here',
+        'beta document is only about a penguin',
+        'gamma document mentions kangaroo again',
+    );
+    my $excs = DW::Search::_snippets( $dbh, \@texts, $TABLE, 'kangaroo' );
+
+    is( scalar @$excs, scalar @texts, 'one excerpt per input doc' );
+
+    # Each excerpt lines up with its own input (SNIPPETS echoes non-matching
+    # text back verbatim), so the unique per-doc marker proves ordering.
+    like( $excs->[0], qr/alpha/i, 'first excerpt corresponds to first input' );
+    like( $excs->[1], qr/beta/i,  'second excerpt corresponds to second input' );
+    like( $excs->[2], qr/gamma/i, 'third excerpt corresponds to third input' );
+
+    like( $excs->[0], qr/kangaroo/i, 'matching doc keeps the keyword' );
+    like( $excs->[2], qr/kangaroo/i, 'matching doc keeps the keyword' );
+};
+
 done_testing();

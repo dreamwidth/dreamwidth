@@ -107,13 +107,18 @@ sub _dbh {
 
 sub _manticore_journal {
     my $args = shift;
-    my $raw  = _run_journal_query($args) or return undef;
+
+    # Open one Manticore connection and reuse it for the query, the excerpt
+    # SNIPPETS calls, and SHOW META, instead of reconnecting in each helper.
+    $args->{_dbh} //= _dbh() or return undef;
+    my $raw = _run_journal_query($args) or return undef;
     return _enrich_journal( $args, $raw );
 }
 
 sub _manticore_support {
     my $args = shift;
-    my $raw  = _run_support_query($args) or return undef;
+    $args->{_dbh} //= _dbh() or return undef;
+    my $raw = _run_support_query($args) or return undef;
     return _enrich_support( $args, $raw );
 }
 
@@ -123,7 +128,7 @@ sub _manticore_support {
 # at a throwaway self-test table instead of the production dw1.
 sub _run_journal_query {
     my $args = shift;
-    my $dbh  = _dbh() or return undef;
+    my $dbh  = $args->{_dbh} // _dbh() or return undef;
 
     my $tbl    = $args->{_table} // 'dw1';
     my $offset = $args->{offset} || 0;
@@ -151,7 +156,7 @@ sub _run_journal_query {
 
 sub _run_support_query {
     my $args = shift;
-    my $dbh  = _dbh() or return undef;
+    my $dbh  = $args->{_dbh} // _dbh() or return undef;
 
     my $tbl    = $args->{_table} // 'dwsupport';
     my $offset = $args->{offset} || 0;
@@ -240,74 +245,135 @@ sub _match_expr {
 # Enrichment — MySQL reload + visibility recheck + excerpts
 # ---------------------------------------------------------------------------
 
+# Prime the caches that _enrich_journal's per-match loop reads, so a page of
+# matches costs a handful of bulk queries instead of one MySQL round trip per
+# match. This only warms caches against the same singletons the loop builds; a
+# miss here just falls back to an individual load, so it can never change which
+# results are shown -- only how many queries it takes to show them.
+sub _preload_journal_matches {
+    my $matches = shift;
+    return unless $matches && @$matches;
+
+    # Journal + poster user objects, multi-loaded once. The loop and the
+    # results template both call load_userid on these ids; warming them here
+    # turns 2N point lookups into a single multi-get.
+    LJ::load_userids( grep { $_ } map { $_->{journalid}, $_->{poster_id} } @$matches );
+
+    my ( @entries, @comments );
+    for my $m (@$matches) {
+        if ( $m->{jtalkid} == 0 ) {
+            push @entries, LJ::Entry->new( $m->{journalid}, jitemid => $m->{jitemid} );
+        }
+        else {
+            push @comments, LJ::Comment->new( $m->{journalid}, jtalkid => $m->{jtalkid} );
+        }
+    }
+
+    # Comments: rows load across journals in a single call; their text and the
+    # parent entries they pull in for visibility checks are warmed per journal.
+    if (@comments) {
+        LJ::Comment->preload_rows;
+
+        my %txt_by_jid;
+        push @{ $txt_by_jid{ $_->journalid } }, $_->jtalkid for @comments;
+        for my $jid ( keys %txt_by_jid ) {
+            my $ju = LJ::load_userid($jid) or next;
+            LJ::get_talktext2( $ju, @{ $txt_by_jid{$jid} } );
+        }
+
+        push @entries, grep { $_ } map { $_->entry } @comments;
+    }
+
+    # Entries (top-level matches plus comment parents): the entry bulk loaders
+    # are single-journal, so group by journalid first.
+    my %ent_by_jid;
+    push @{ $ent_by_jid{ $_->journalid } }, $_ for @entries;
+    for my $jid ( keys %ent_by_jid ) {
+        LJ::Entry->preload_rows( $ent_by_jid{$jid} );
+        my $ju = LJ::load_userid($jid) or next;
+        LJ::get_logtext2( $ju, map { $_->jitemid } @{ $ent_by_jid{$jid} } );
+    }
+}
+
 sub _enrich_journal {
     my ( $args, $res ) = @_;
     return $res if $res->{total} <= 0;
 
-    my $query    = $args->{query};
-    my $remoteid = $args->{remoteid};
-    my $tbl      = $args->{_table} // 'dw1';
+    my $query  = $args->{query};
+    my $tbl    = $args->{_table} // 'dw1';
+    my $remote = LJ::load_userid( $args->{remoteid} );
+    my $dbh    = $args->{_dbh} // _dbh() or return $res;
+
+    # Warm row/text/user caches for the whole page up front so the loop below
+    # reads them without a per-match MySQL round trip.
+    _preload_journal_matches( $res->{matches} );
 
     my @out;
     for my $match ( @{ $res->{matches} } ) {
-        my $remote = LJ::load_userid($remoteid);
 
         if ( $match->{jtalkid} == 0 ) {
             my $entry = LJ::Entry->new( $match->{journalid}, jitemid => $match->{jitemid}, );
-            if ( $entry && $entry->valid && $entry->visible_to($remote) ) {
-                $match->{entry} = $entry->event_text;
-                $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
-                $match->{entry} = LJ::strip_html( $match->{entry} );
-                $match->{entry} ||= '(this entry only contains html content)';
 
-                $match->{subject}  = $entry->subject_text || '(no subject)';
-                $match->{url}      = $entry->url;
-                $match->{tags}     = $entry->tag_map;
-                $match->{security} = $entry->security;
-                $match->{security} = 'access'
-                    if $match->{security} eq 'usemask'
-                    && $entry->allowmask == 1;
-                $match->{eventtime} = $entry->eventtime_mysql;
-            }
-            else {
-                $match->{entry} =
-                    '(sorry, this entry has been deleted or is otherwise unavailable)';
-                $match->{subject} = 'Entry deleted or unavailable.';
-            }
+            # The index can't represent everything visible_to() decides: its
+            # security_bits are viewer-agnostic and frozen at index time, and
+            # things like a suspended poster/journal or adult-content gating
+            # live only in MySQL. The copier is also async and best-effort, so
+            # a since-deleted row can briefly survive. Re-check against MySQL
+            # and drop anything we can't show rather than rendering a "deleted
+            # or unavailable" placeholder row.
+            next unless $entry && $entry->valid && $entry->visible_to($remote);
+
+            $match->{entry} = $entry->event_text;
+            $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
+            $match->{entry} = LJ::strip_html( $match->{entry} );
+            $match->{entry} ||= '(this entry only contains html content)';
+
+            $match->{subject}  = $entry->subject_text || '(no subject)';
+            $match->{url}      = $entry->url;
+            $match->{tags}     = $entry->tag_map;
+            $match->{security} = $entry->security;
+            $match->{security} = 'access'
+                if $match->{security} eq 'usemask'
+                && $entry->allowmask == 1;
+            $match->{eventtime} = $entry->eventtime_mysql;
             push @out, $match;
         }
         else {
             my $cmt   = LJ::Comment->new( $match->{journalid}, jtalkid => $match->{jtalkid}, );
             my $entry = $cmt->entry;
-            if (   $entry
+
+            # Same as above, and more so for comments: deleting a single
+            # comment doesn't notify the copier at all, so a deleted comment
+            # lingers in the index until its entry is next recopied. Skip
+            # comments (or comments whose entry has gone away) that we can no
+            # longer show, instead of emitting a placeholder row.
+            next
+                unless $entry
                 && $entry->valid
                 && $entry->visible_to($remote)
                 && $cmt
                 && $cmt->valid
-                && $cmt->visible_to($remote) )
-            {
-                $match->{entry} = $cmt->body_text;
-                $match->{entry} ||= '(this comment only contains html content)';
+                && $cmt->visible_to($remote);
 
-                $match->{subject}  = $cmt->subject_text || '(no subject)';
-                $match->{url}      = $cmt->url;
-                $match->{security} = $entry->security;
-                $match->{security} = 'access'
-                    if $match->{security} eq 'usemask'
-                    && $entry->allowmask == 1;
-                $match->{eventtime} = $cmt->{datepost};
-            }
-            else {
-                $match->{entry} =
-                    '(sorry, this comment has been deleted or is otherwise unavailable)';
-                $match->{subject} = 'Comment deleted or unavailable.';
-            }
+            $match->{entry} = $cmt->body_text;
+            $match->{entry} ||= '(this comment only contains html content)';
+
+            $match->{subject}  = $cmt->subject_text || '(no subject)';
+            $match->{url}      = $cmt->url;
+            $match->{security} = $entry->security;
+            $match->{security} = 'access'
+                if $match->{security} eq 'usemask'
+                && $entry->allowmask == 1;
+            $match->{eventtime} = $cmt->{datepost};
             push @out, $match;
         }
     }
 
-    my $dbh      = _dbh() or return $res;
-    my $body_exc = _snippets( $dbh, [ map { $_->{entry} } @out ], $tbl, $query );
+    # Drop the filtered-out matches from the result set; @out now holds only
+    # the entries/comments we were able to load and are allowed to show.
+    $res->{matches} = \@out;
+
+    my $body_exc = _snippets( $dbh, [ map { $_->{entry} } @out ],   $tbl, $query );
     my $subj_exc = _snippets( $dbh, [ map { $_->{subject} } @out ], $tbl, $query );
 
     if ( @$body_exc == @out ) {
@@ -383,7 +449,7 @@ sub _enrich_support {
         push @out, $match;
     }
 
-    my $dbh  = _dbh() or return $res;
+    my $dbh  = $args->{_dbh} // _dbh() or return $res;
     my $excs = _snippets( $dbh, [ map { $_->{content} } @out ], $tbl, $query );
 
     if ( @$excs == @out ) {
@@ -403,29 +469,35 @@ sub _enrich_support {
     return $res;
 }
 
-# One CALL SNIPPETS per doc. Per-call latency is ~1ms on localhost and we
-# cap at 20 matches per page, so a tuple literal buys us nothing but
-# prepared-statement quoting pain.
+# One CALL SNIPPETS for the whole page. Manticore accepts a list literal for
+# the data argument and returns a row per document, so we collapse what used to
+# be a round trip per doc (40+ for a full page, serialized against a remote
+# Manticore) into a single call. The placeholder list expands to
+# ('doc1','doc2',...) client-side before it reaches the server.
 #
 # SNIPPETS echoes its input back verbatim apart from wrapping query matches in
 # <b> highlight tags, and the results templates print the excerpt unfiltered.
-# So this is the single security boundary: entity-escape the text here, before
+# So this is the single security boundary: entity-escape each text here, before
 # SNIPPETS runs, leaving only SNIPPETS' own <b> tags as live markup in the
 # output. Callers must therefore pass plain text (strip_html alone is not
 # enough -- its regex leaves orphaned '<', '>', and '<!--' comment openers,
 # any of which would otherwise inject raw HTML into the page).
+#
+# On any error we return [], which the callers treat as an excerpt-count
+# mismatch and degrade to a placeholder rather than dropping matches.
 sub _snippets {
     my ( $dbh, $texts, $tbl, $query ) = @_;
-    my @out;
-    for my $t (@$texts) {
-        my ($exc) = $dbh->selectrow_array(
-            'CALL SNIPPETS(?, ?, ?)',
-            undef, LJ::ehtml( $t // '' ),
-            $tbl, $query,
-        );
-        push @out, ( $exc // '' );
-    }
-    return \@out;
+    return [] unless @$texts;
+
+    my $list = join ',', ('?') x @$texts;
+    my $rows = $dbh->selectall_arrayref(
+        "CALL SNIPPETS(($list), ?, ?)",
+        undef, ( map { LJ::ehtml( $_ // '' ) } @$texts ),
+        $tbl, $query,
+    );
+    return [] if $dbh->err || !$rows;
+
+    return [ map { $_->[0] // '' } @$rows ];
 }
 
 1;
