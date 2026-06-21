@@ -254,57 +254,60 @@ sub _enrich_journal {
 
         if ( $match->{jtalkid} == 0 ) {
             my $entry = LJ::Entry->new( $match->{journalid}, jitemid => $match->{jitemid}, );
-            if ( $entry && $entry->valid && $entry->visible_to($remote) ) {
-                $match->{entry} = $entry->event_text;
-                $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
-                $match->{entry} = LJ::strip_html( $match->{entry} );
-                $match->{entry} ||= '(this entry only contains html content)';
 
-                $match->{subject}  = $entry->subject_text || '(no subject)';
-                $match->{url}      = $entry->url;
-                $match->{tags}     = $entry->tag_map;
-                $match->{security} = $entry->security;
-                $match->{security} = 'access'
-                    if $match->{security} eq 'usemask'
-                    && $entry->allowmask == 1;
-                $match->{eventtime} = $entry->eventtime_mysql;
-            }
-            else {
-                $match->{entry} =
-                    '(sorry, this entry has been deleted or is otherwise unavailable)';
-                $match->{subject} = 'Entry deleted or unavailable.';
-            }
+            # The Manticore query filters on is_deleted, but the index can lag
+            # behind reality (an entry deleted or locked down since it was last
+            # indexed). Re-check against MySQL and drop anything we can't show
+            # rather than rendering a "deleted or unavailable" placeholder row.
+            next unless $entry && $entry->valid && $entry->visible_to($remote);
+
+            $match->{entry} = $entry->event_text;
+            $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
+            $match->{entry} = LJ::strip_html( $match->{entry} );
+            $match->{entry} ||= '(this entry only contains html content)';
+
+            $match->{subject}  = $entry->subject_text || '(no subject)';
+            $match->{url}      = $entry->url;
+            $match->{tags}     = $entry->tag_map;
+            $match->{security} = $entry->security;
+            $match->{security} = 'access'
+                if $match->{security} eq 'usemask'
+                && $entry->allowmask == 1;
+            $match->{eventtime} = $entry->eventtime_mysql;
             push @out, $match;
         }
         else {
             my $cmt   = LJ::Comment->new( $match->{journalid}, jtalkid => $match->{jtalkid}, );
             my $entry = $cmt->entry;
-            if (   $entry
+
+            # Same as above: skip comments (or comments whose entry has gone
+            # away) that we can no longer show, instead of emitting a
+            # placeholder row.
+            next
+                unless $entry
                 && $entry->valid
                 && $entry->visible_to($remote)
                 && $cmt
                 && $cmt->valid
-                && $cmt->visible_to($remote) )
-            {
-                $match->{entry} = $cmt->body_text;
-                $match->{entry} ||= '(this comment only contains html content)';
+                && $cmt->visible_to($remote);
 
-                $match->{subject}  = $cmt->subject_text || '(no subject)';
-                $match->{url}      = $cmt->url;
-                $match->{security} = $entry->security;
-                $match->{security} = 'access'
-                    if $match->{security} eq 'usemask'
-                    && $entry->allowmask == 1;
-                $match->{eventtime} = $cmt->{datepost};
-            }
-            else {
-                $match->{entry} =
-                    '(sorry, this comment has been deleted or is otherwise unavailable)';
-                $match->{subject} = 'Comment deleted or unavailable.';
-            }
+            $match->{entry} = $cmt->body_text;
+            $match->{entry} ||= '(this comment only contains html content)';
+
+            $match->{subject}  = $cmt->subject_text || '(no subject)';
+            $match->{url}      = $cmt->url;
+            $match->{security} = $entry->security;
+            $match->{security} = 'access'
+                if $match->{security} eq 'usemask'
+                && $entry->allowmask == 1;
+            $match->{eventtime} = $cmt->{datepost};
             push @out, $match;
         }
     }
+
+    # Drop the filtered-out matches from the result set; @out now holds only
+    # the entries/comments we were able to load and are allowed to show.
+    $res->{matches} = \@out;
 
     my $dbh      = _dbh() or return $res;
     my $body_exc = _snippets( $dbh, [ map { $_->{entry} } @out ], $tbl, $query );
