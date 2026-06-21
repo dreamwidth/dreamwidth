@@ -9,6 +9,11 @@
                     "containerPort": 6081,
                     "hostPort": 6081,
                     "protocol": "tcp"
+                },
+                {
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "tcp"
                 }
             ],
             "essential": true,
@@ -16,27 +21,80 @@
                 "bash",
                 "/opt/startup-prod.sh"
             ],
-            "environment": [],
+            "environment": [
+                {
+                    "name": "DW_LOKI_SERVICE",
+                    "value": "web-stable"
+                }
+            ],
             "mountPoints": [
                 {
                     "sourceVolume": "dw-config",
                     "containerPath": "/dw/etc",
                     "readOnly": true
+                },
+                {
+                    "sourceVolume": "log-share",
+                    "containerPath": "/var/log/starman",
+                    "readOnly": false
                 }
             ],
             "volumesFrom": [],
             "linuxParameters": {
                 "initProcessEnabled": true
-            },
+            }
+        },
+        {
+            "name": "log_router",
+            "image": "194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth-fluent-bit:3",
+            "essential": false,
+            "entryPoint": [
+                "/fluent-bit/bin/fluent-bit"
+            ],
+            "command": [
+                "-c",
+                "/dw/etc/fluent-bit/web.conf"
+            ],
+            "environment": [
+                {
+                    "name": "DW_LOKI_SERVICE",
+                    "value": "web-stable"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "LOKI_USER",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-username"
+                },
+                {
+                    "name": "LOKI_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-password"
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "dw-config",
+                    "containerPath": "/dw/etc",
+                    "readOnly": true
+                },
+                {
+                    "sourceVolume": "log-share",
+                    "containerPath": "/var/log/starman",
+                    "readOnly": true
+                }
+            ],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-create-group": "true",
-                    "awslogs-group": "/dreamwidth/web/stable",
+                    "awslogs-group": "/dreamwidth/fluent-bit",
                     "awslogs-region": "us-east-1",
-                    "awslogs-stream-prefix": "stable"
+                    "awslogs-stream-prefix": "web-stable"
                 }
-            }
+            },
+            "portMappings": [],
+            "volumesFrom": [],
+            "systemControls": []
         }
     ],
     "family": "web-stable",
@@ -51,6 +109,9 @@
                 "rootDirectory": "/etc-stable",
                 "transitEncryption": "DISABLED"
             }
+        },
+        {
+            "name": "log-share"
         }
     ],
     "requiresCompatibilities": [

@@ -10,6 +10,7 @@ on:
         - web-canary
         - web-shop
         - web-unauthenticated
+        - web-stable
       tag:
         type: string
         description: SHA256 to deploy (include "sha256:" prefix)
