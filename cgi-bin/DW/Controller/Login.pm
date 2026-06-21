@@ -41,7 +41,6 @@ sub login_handler {
 
     my $vars = {
         continue_to => $get->{continue_to},
-        return_to   => $get->{return_to},
 
         # forwarded into the login form (components/login.tt) as a hidden field
         # so that, after a successful login, we send the user back to the page
