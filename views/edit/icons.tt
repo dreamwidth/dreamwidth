@@ -13,7 +13,7 @@
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title = '.title' | ml -%]
 
-[%- dw.need_res( "stc/editicons.css", "js/editicons.js" ) -%]
+[%- dw.need_res( { group => "foundation" }, "stc/editicons.css", "js/editicons.js" ) -%]
 
 [%- USE Scalar; # needed to force scalar return context for keywords -%]
 
@@ -27,10 +27,10 @@
   [%- END -%]
 [%- END -%]
 
-[%- IF num_icons >= max_icons -%]
-  <div id='limit'>[% '.error.icon.quota' | ml( num = max_icons ) %]</div>
-[%- ELSE -%]
 <div class="row">
+[%- IF num_icons >= max_icons -%]
+  <div id='limit' class="columns large-4">[% '.error.icon.quota' | ml( num = max_icons ) %]</div>
+[%- ELSE -%]
   <div id='uploadBox' class='highlight-box box pkg columns large-4'>
   <div id='uploadBox-inner' class="small-left">
   <form enctype="multipart/form-data" action="[% selflink() %]" method='post'
@@ -117,19 +117,22 @@
         <input class="button" type='button secondary' value="[% '.upload.btn.addurl' | ml %]"
                onclick='javascript:addNewUpload("url");' />
         <script type='text/javascript'>
-            maxcounter = [% num_remaining %];
-            allowComments = true;
-            allowDescriptions = true;
-
-            ep_labels.comment = "[% '.upload.label.comment' | ml %]";
-            ep_labels.description = "[% '.upload.label.description' | ml %]";
-            ep_labels.fromfile = "[% '.fromfile' | ml %]";
-            ep_labels.fromurl = "[% '.fromurl' | ml %]";
-            ep_labels.keepdefault = "[% '.keepdefault' | ml %]";
-            ep_labels.keywords = "[% '.upload.label.keywords' | ml %]";
-            ep_labels.makedefault = "[% '.makedefault' | ml %]";
-            ep_labels.makedefaultkey = "[% '.makedefault.key' | ml %]";
-            ep_labels.remove = "[% '.upload.btn.remove' | ml %]";
+            window.editiconsConfig = {
+                maxcounter: [% num_remaining %],
+                allowComments: true,
+                allowDescriptions: true,
+                labels: {
+                    comment: [% '.upload.label.comment' | ml | js %],
+                    description: [% '.upload.label.description' | ml | js %],
+                    fromfile: [% '.fromfile' | ml | js %],
+                    fromurl: [% '.fromurl' | ml | js %],
+                    keepdefault: [% '.keepdefault' | ml | js %],
+                    keywords: [% '.upload.label.keywords' | ml | js %],
+                    makedefault: [% '.makedefault' | ml | js %],
+                    makedefaultkey: [% '.makedefault.key' | ml | js %],
+                    remove: [% '.upload.btn.remove' | ml | js %]
+                }
+            };
         </script>
       </p>
     [%- END -%]
@@ -143,8 +146,10 @@
 [%- END -%]
 
 [%- IF ! num_icons -%]
+  <div class="columns large-8">
   <h2>[% '.edit.nopics.header' | ml %]</h2>
   <p>[% '.edit.nopics.desc' | ml %]</p>
+  </div>
 [%- ELSE -%]
   <div id='current_userpics' class="columns large-8">
   <form method='post' action='[% selflink() %]'>
@@ -190,7 +195,7 @@
               <div class="columns small-9">
               [% form.textbox( name = "kw_$pid", id = "kw_$pid", class = "text",
                                value = pic.scalar.keywords, disabled = pic.inactive,
-                               onfocus = display_rename ? "\$(\'rename_div_$pid\').style.display = \'block\';" : "" ) %]
+                               onfocus = display_rename ? "document.getElementById(\'rename_div_$pid\').style.display = \'block\';" : "" ) %]
               [% form.hidden( name = "kw_orig_$pid", value = pic.scalar.keywords ) %]
               </div>
               [%- IF display_rename -%]
@@ -275,8 +280,5 @@
                             name = 'action:save' ) %]</div>
   </form>
   </div><!-- end #current_userpics -->
-  </div>
-  <script type='text/javascript'>
-    editiconsInit();
-  </script>
 [%- END -%]
+</div><!-- end .row -->

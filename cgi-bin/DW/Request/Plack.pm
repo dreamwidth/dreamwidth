@@ -248,6 +248,27 @@ sub content {
     return $self->{req}->content;
 }
 
+# read: copy up to $_[2] bytes of the request body into the buffer $_[1] (at the
+# optional offset $_[3]), returning the number of bytes read or 0 at EOF. Reads
+# straight from the PSGI input stream rather than slicing $self->content, so a
+# large body isn't pre-materialized into a scalar -- this mirrors Apache2's
+# $r->read and preserves the streaming intent of callers like the large
+# icon-upload parser in DW::Controller::EditIcons.
+# IMPORTANT: Do not pull out $_[1] to a variable in this sub.
+sub read {
+    my DW::Request::Plack $self = $_[0];
+    die "missing required arguments"   if scalar(@_) < 3;
+    die "Length cannot be negative"    if $_[2] < 0;
+    die "Negative offsets not allowed" if defined $_[3] && $_[3] < 0;
+
+    my $input = $self->{env}->{'psgi.input'};
+    return 0 unless $input;
+
+    # CORE::read writes into the caller's buffer (via the $_[1] alias) at the
+    # given offset, growing it as needed, and returns the bytes read (0 at EOF).
+    return CORE::read( $input, $_[1], $_[2], $_[3] // 0 ) // 0;
+}
+
 # pnote: per-request notes hash (used by routing)
 sub pnote {
     my DW::Request::Plack $self = $_[0];
