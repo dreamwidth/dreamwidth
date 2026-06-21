@@ -6,10 +6,10 @@ on:
       service:
         type: choice
         description: Which service to deploy
+        # Only web-stable still runs the old `web` image. web-canary, web-shop and
+        # web-unauthenticated are web22 — deploy those via web22-deploy.yml.
         options:
-        - web-canary
         - web-stable
-        - web-unauthenticated
       tag:
         type: string
         description: SHA256 to deploy (include "sha256:" prefix)
