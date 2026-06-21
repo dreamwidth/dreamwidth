@@ -41,7 +41,13 @@ sub login_handler {
 
     my $vars = {
         continue_to => $get->{continue_to},
-        return_to   => $get->{return_to}
+        return_to   => $get->{return_to},
+
+        # forwarded into the login form (components/login.tt) as a hidden field
+        # so that, after a successful login, we send the user back to the page
+        # they were trying to reach when they got bounced here by needlogin().
+        # Sourced from POST too so a failed login attempt keeps the destination.
+        returnto => $post->{returnto} || $get->{returnto},
     };
 
     my @errors = ();
