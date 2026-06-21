@@ -3,8 +3,6 @@
 
 .disabled=The tags system is currently disabled.
 
-.button.add=Add
-
 .button.delete=Remove selected tag(s)
 
 .button.merge=Merge selected tags
