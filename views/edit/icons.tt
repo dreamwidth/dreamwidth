@@ -13,7 +13,7 @@
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title = '.title' | ml -%]
 
-[%- dw.need_res( "stc/editicons.css", "js/editicons.js" ) -%]
+[%- dw.need_res( { group => "foundation" }, "stc/editicons.css", "js/editicons.js" ) -%]
 
 [%- USE Scalar; # needed to force scalar return context for keywords -%]
 
@@ -117,19 +117,22 @@
         <input class="button" type='button secondary' value="[% '.upload.btn.addurl' | ml %]"
                onclick='javascript:addNewUpload("url");' />
         <script type='text/javascript'>
-            maxcounter = [% num_remaining %];
-            allowComments = true;
-            allowDescriptions = true;
-
-            ep_labels.comment = "[% '.upload.label.comment' | ml %]";
-            ep_labels.description = "[% '.upload.label.description' | ml %]";
-            ep_labels.fromfile = "[% '.fromfile' | ml %]";
-            ep_labels.fromurl = "[% '.fromurl' | ml %]";
-            ep_labels.keepdefault = "[% '.keepdefault' | ml %]";
-            ep_labels.keywords = "[% '.upload.label.keywords' | ml %]";
-            ep_labels.makedefault = "[% '.makedefault' | ml %]";
-            ep_labels.makedefaultkey = "[% '.makedefault.key' | ml %]";
-            ep_labels.remove = "[% '.upload.btn.remove' | ml %]";
+            window.editiconsConfig = {
+                maxcounter: [% num_remaining %],
+                allowComments: true,
+                allowDescriptions: true,
+                labels: {
+                    comment: "[% '.upload.label.comment' | ml %]",
+                    description: "[% '.upload.label.description' | ml %]",
+                    fromfile: "[% '.fromfile' | ml %]",
+                    fromurl: "[% '.fromurl' | ml %]",
+                    keepdefault: "[% '.keepdefault' | ml %]",
+                    keywords: "[% '.upload.label.keywords' | ml %]",
+                    makedefault: "[% '.makedefault' | ml %]",
+                    makedefaultkey: "[% '.makedefault.key' | ml %]",
+                    remove: "[% '.upload.btn.remove' | ml %]"
+                }
+            };
         </script>
       </p>
     [%- END -%]
@@ -276,7 +279,4 @@
   </form>
   </div><!-- end #current_userpics -->
   </div>
-  <script type='text/javascript'>
-    editiconsInit();
-  </script>
 [%- END -%]

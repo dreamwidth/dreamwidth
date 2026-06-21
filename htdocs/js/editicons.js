@@ -1,34 +1,55 @@
-function setup () {
-  DOM.addEventListener($("radio_url"), "click", selectUrlUpload);
-  DOM.addEventListener($("radio_file"), "click", selectFileUpload);
-  DOM.addEventListener($("urlpic_0"), "keypress", keyPressUrlUpload);
-  DOM.addEventListener($("userpic_0"), "change", keyPressFileUpload);
+// Icon management page (/manage/icons): upload-form behaviors.
+//
+// Uses plain DOM APIs only. This is a Foundation page, where the global $ is
+// jQuery and the legacy 6alib helpers (DOM, the getElementById-style $, etc.)
+// are not loaded -- the previous helper-based version of this file silently
+// failed to initialize there, breaking the file/URL toggles and the
+// "add another upload" buttons.
+//
+// The page supplies its labels and upload limit via an inline <script> that
+// sets window.editiconsConfig before this file runs at the end of the body.
+
+// counter: how many extra upload slots we've created so far.
+// maxcounter: the maximum number of upload slots allowed (from config).
+var counter = 1;
+var maxcounter;
+
+function ep_config() {
+    return window.editiconsConfig || { labels: {} };
+}
+
+function ep_bind(id, eventName, fn) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener(eventName, fn);
+}
+
+function setup() {
+    maxcounter = ep_config().maxcounter;
+
+    ep_bind("radio_url", "click", selectUrlUpload);
+    ep_bind("radio_file", "click", selectFileUpload);
+    ep_bind("urlpic_0", "keypress", keyPressUrlUpload);
+    ep_bind("userpic_0", "change", keyPressFileUpload);
+
+    editiconsInit();
 }
 
 function editiconsInit() {
-    if ($("upload_desc_link")) {
-        $("upload_desc_link").style.display = 'block';
-        $("upload_desc").style.display = 'none';
+    var link = document.getElementById("upload_desc_link");
+    if (link) {
+        link.style.display = 'block';
+        document.getElementById("upload_desc").style.display = 'none';
     }
 }
 
 function toggleElement(elementId) {
-    var el = $(elementId);
-    if (el && el.style.display == 'block') {
-        el.style.display = 'none';
-    } else {
-        el.style.display = 'block';
-    }
+    var el = document.getElementById(elementId);
+    if (!el) return;
+    el.style.display = (el.style.display == 'block') ? 'none' : 'block';
 }
 
-// keeps track of maximum number of uploads alowed
-var counter = 1;
-var maxcounter;
-var ep_labels = {};
-var allowComments = false;
-var allowDescriptions = false;
-
 function addNewUpload(uploadType) {
+  var labels = ep_config().labels || {};
   updateMakeDefaultType(true);
 
   insertIntoTag = document.getElementById("multi_insert");
@@ -36,24 +57,24 @@ function addNewUpload(uploadType) {
   insertElement.setAttribute("id", "additional_upload_" + counter);
   insertElement.setAttribute("class", "pkg");
 
-  newPicHTML = "<input type='button' value='" + ep_labels.remove + "' onclick='javascript:removeAdditionalUpload(" + counter + ");' /><br/>\n";
+  newPicHTML = "<input type='button' value='" + labels.remove + "' onclick='javascript:removeAdditionalUpload(" + counter + ");' /><br/>\n";
 
   if (uploadType == 'file') {
     newPicHTML += "<label class='left' for='userpic_" + counter + "'>From <u>F</u>ile:</label>";
     newPicHTML += "<input type='file' class='file' name='userpic_" + counter + "' id='userpic_" + counter + "' size='22' />";
   } else if (uploadType == 'url') {
     newPicHTML += "<label class='left' for='urlpic_'" + counter + ">";
-    newPicHTML += ep_labels.fromurl + '</label>';
+    newPicHTML += labels.fromurl + '</label>';
     newPicHTML += '<input type="text" name="urlpic_' + counter + '" id="urlpic_' + counter + '" class="text" />';
   }
-  newPicHTML += "<label class='left' for='keywords_" + counter + "'>" + ep_labels.keywords + "</label><input type='text' name='keywords_" + counter + "' id='keywords_" + counter + "' class='text' />";
-  if (allowComments) {
-    newPicHTML += "<label class='left' for='comments_" + counter + "'>" + ep_labels.comment + "</label><input type='text' maxlength='120' name='comments_" + counter + "' id='comments_" + counter + "' class='text' />";
+  newPicHTML += "<label class='left' for='keywords_" + counter + "'>" + labels.keywords + "</label><input type='text' name='keywords_" + counter + "' id='keywords_" + counter + "' class='text' />";
+  if (ep_config().allowComments) {
+    newPicHTML += "<label class='left' for='comments_" + counter + "'>" + labels.comment + "</label><input type='text' maxlength='120' name='comments_" + counter + "' id='comments_" + counter + "' class='text' />";
   }
-  if (allowDescriptions) {
-    newPicHTML += "<label class='left' for='descriptions_" + counter + "'>" + ep_labels.description +"</label><input type='text' maxlength='120' name='descriptions_" + counter + "' id='descriptions_" + counter + "' class='text' />";
+  if (ep_config().allowDescriptions) {
+    newPicHTML += "<label class='left' for='descriptions_" + counter + "'>" + labels.description +"</label><input type='text' maxlength='120' name='descriptions_" + counter + "' id='descriptions_" + counter + "' class='text' />";
   }
-  newPicHTML += "<br/><input type='radio' accesskey='" + ep_labels.makedefaultkey + "' value='" + counter + "' name='make_default' id='make_default_" + counter + "' /><label for='make_default_" + counter + "'>" + ep_labels.makedefault + "</label>\n";
+  newPicHTML += "<br/><input type='radio' accesskey='" + labels.makedefaultkey + "' value='" + counter + "' name='make_default' id='make_default_" + counter + "' /><label for='make_default_" + counter + "'>" + labels.makedefault + "</label>\n";
 
   insertElement.innerHTML = newPicHTML;
   insertIntoTag.appendChild(insertElement);
@@ -95,12 +116,13 @@ function unhideUploadButtons() {
 }
 
 function addNoDefaultButton() {
+  var labels = ep_config().labels || {};
   buttonsElement = document.getElementById("no_default_insert");
   insertElement = document.createElement("p");
   insertElement.setAttribute("id", "make_default_none");
   insertElement.setAttribute("class", "pkg");
 
-  newPicHTML = "<input type='radio' accesskey='" + ep_labels.makedefaultkey +"' value='-1' name='make_default' id='make_default_button_none' /><label for='make_default_button_none'>" + ep_labels.keepdefault + "</label>\n";
+  newPicHTML = "<input type='radio' accesskey='" + labels.makedefaultkey +"' value='-1' name='make_default' id='make_default_button_none' /><label for='make_default_button_none'>" + labels.keepdefault + "</label>\n";
   insertElement.innerHTML = newPicHTML;
   buttonsElement.appendChild(insertElement);
 }
@@ -112,32 +134,32 @@ function removeNoDefaultButton() {
 }
 
 function selectUrlUpload() {
-  $("userpic_0").disabled = true;
-  $("urlpic_0").disabled = false;
+  document.getElementById("userpic_0").disabled = true;
+  document.getElementById("urlpic_0").disabled = false;
 }
 
 function selectFileUpload() {
-  $("urlpic_0").disabled = true;
-  $("userpic_0").disabled = false;
+  document.getElementById("urlpic_0").disabled = true;
+  document.getElementById("userpic_0").disabled = false;
 }
 
 function keyPressUrlUpload() {
-  $("radio_url").checked =true;
+  document.getElementById("radio_url").checked = true;
   selectUrlUpload();
 }
 
 function keyPressFileUpload() {
-  $("radio_file").checked =true;
+  document.getElementById("radio_file").checked = true;
   selectFileUpload();
 }
 
 function updateMakeDefaultType(multi) {
-  var makeDefaultInput = $('make_default_0');
+  var makeDefaultInput = document.getElementById('make_default_0');
 
   if (makeDefaultInput != null) {
     // see if we're already correct
     if ((multi && makeDefaultInput.type != "radio") || (! multi && makeDefaultInput.type != "checkbox")) {
-      var containerElement = $('main_make_default');
+      var containerElement = document.getElementById('main_make_default');
 
       value = makeDefaultInput.checked;
       if (multi) {
@@ -145,9 +167,16 @@ function updateMakeDefaultType(multi) {
       } else {
         containerElement.innerHTML = containerElement.innerHTML.replace(/radio/, "checkbox");
       }
-      $('make_default_0').checked = value;
+      document.getElementById('make_default_0').checked = value;
     }
   }
 }
 
-document.addEventListener("DOMContentLoaded", setup);
+// This file loads at the end of the body, so the DOM is normally still parsing
+// when it runs; register for DOMContentLoaded. Guard against the already-loaded
+// case so initialization is robust regardless of where the file ends up.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", setup);
+} else {
+  setup();
+}
