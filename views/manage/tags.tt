@@ -35,8 +35,9 @@
 
 [% INCLUDE components/errors.tt errors = errors %]
 
-[%# user switcher (own journal or a community you maintain) %]
-[%- authas_form -%]
+[%# user switcher (own journal or a community you maintain); the compact
+  # non-foundation switcher keeps this page on its classic layout %]
+<form method="get">[% authas_html %]</form>
 
 <p>[% '.intro' | ml %]</p>
 
