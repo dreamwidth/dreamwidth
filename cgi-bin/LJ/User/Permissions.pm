@@ -1330,23 +1330,25 @@ sub support_points_count {
 }
 
 # should show the thread expander for this user/journal
-#
-# Comment thread expansion is a basic reading affordance, so it is always
-# available. It used to be gated behind the 'thread_expander' cap on either the
-# viewer or the journal owner, which meant a logged-out reader (no $remote to
-# carry the cap) saw no expand links on any journal whose owner lacked the cap --
-# i.e. expanding comments while logged out was simply broken.
 sub show_thread_expander {
-    return 1;
+    my ( $u, $remote ) = @_;
+
+    return 1
+        if $remote && $remote->get_cap('thread_expander')
+        || $u->get_cap('thread_expander');
+
+    return 0;
 }
 
 # should allow expand-all for this user/journal
-#
-# As with show_thread_expander above, expand-all is always available rather than
-# gated behind the 'thread_expand_all' cap, which previously left it dead for
-# logged-out readers on most journals.
 sub thread_expand_all {
-    return 1;
+    my ( $u, $remote ) = @_;
+
+    return 1
+        if $remote && $remote->get_cap('thread_expand_all')
+        || $u->get_cap('thread_expand_all');
+
+    return 0;
 }
 
 # get/set Sticky Entry parent ID for settings menu

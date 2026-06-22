@@ -267,6 +267,17 @@ sub should_captcha_view {
     # If the user is logged in, no captcha
     return 0 if $remote;
 
+    # Never captcha-bounce an AJAX request. These (e.g. comment thread expansion
+    # from jquery.threadexpander.js, ajax cut-tag expansion) are sub-requests of
+    # a page the visitor already loaded -- and that initial page load is what the
+    # captcha gate is meant to stop. An interstitial redirect can't be followed
+    # by an XHR the way a browser navigation can: jQuery silently follows the
+    # 30x, hands the JS the captcha page instead of the expected HTML fragment,
+    # and the feature just breaks. Worse, the stream of redirected XHRs looks
+    # like a bot to the fraud counter below and can get the reader's IP tempbanned.
+    return 0
+        if lc( $r->header_in('X-Requested-With') // '' ) eq 'xmlhttprequest';
+
     # If the path matches the bypass regex, no captcha
     if ($LJ::CAPTCHA_BYPASS_REGEX) {
         return 0 if $r->uri =~ $LJ::CAPTCHA_BYPASS_REGEX;
