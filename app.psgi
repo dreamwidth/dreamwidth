@@ -204,13 +204,25 @@ sub _render_error_document {
             # overrides the base one). It's padded so browsers don't swap in
             # their own "friendly" error page.
             my $file = LJ::resolve_file('htdocs/500-error.html');
+            my $body;
             if ( $file && open my $fh, '<', $file ) {
                 local $/;
-                my $body = <$fh>;
+                $body = <$fh>;
                 close $fh;
-                $r->content_type('text/html; charset=utf-8');
-                $r->print($body);
             }
+            else {
+
+                # Never leave a blank 500 (the very symptom this code avoids).
+                # Log the resolution failure and fall back to a small inline page.
+                warn "Could not serve htdocs/500-error.html"
+                    . ( defined $file ? " ($file): $!" : " (not found)" );
+                $body =
+                      "<h1>Oops!</h1>\n<p>If you've gotten this error, it means "
+                    . "that something is currently (and, with luck, temporarily) "
+                    . "broken. Please wait five minutes and try again.</p>\n";
+            }
+            $r->content_type('text/html; charset=utf-8');
+            $r->print($body);
         }
         1;
     } or warn "Failed to render error document for status $status: $@";
@@ -263,6 +275,12 @@ builder {
     # Also writes to $ENV{DW_ACCESS_LOG} on disk when set (e.g. via bin/starman --log).
     enable 'DW::AccessLog',
         ( $ENV{DW_ACCESS_LOG} ? ( log_file => $ENV{DW_ACCESS_LOG} ) : () );
+
+    # Strip the response body from HEAD requests while leaving headers intact.
+    # Apache does this automatically; under Plack we must opt in or handlers
+    # (including the error documents below) would send a body on HEAD. Enabled
+    # outside ContentLength so Content-Length still reflects the GET body.
+    enable 'Head';
 
     # Set Content-Length on responses so Starman doesn't fall back to chunked
     # transfer encoding when the app doesn't set it itself
