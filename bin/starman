@@ -15,6 +15,7 @@
 #   --log DIR        Directory for access and error logs (default: none)
 #   --daemonize      Fork into background (writes PID to log dir)
 #   --preload-app    Load the app in the master before forking (CoW memory)
+#   --max-requests N Recycle each worker after N requests (caps memory growth)
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -44,16 +45,18 @@ my $workers = 3;
 my $log_dir;
 my $daemonize;
 my $preload_app;
+my $max_requests;
 
 GetOptions(
-    'port=i'      => \$port,
-    'host=s'      => \$host,
-    'workers=i'   => \$workers,
-    'log=s'       => \$log_dir,
-    'daemonize'   => \$daemonize,
-    'preload-app' => \$preload_app,
+    'port=i'         => \$port,
+    'host=s'         => \$host,
+    'workers=i'      => \$workers,
+    'log=s'          => \$log_dir,
+    'daemonize'      => \$daemonize,
+    'preload-app'    => \$preload_app,
+    'max-requests=i' => \$max_requests,
 ) or die
-    "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR] [--daemonize] [--preload-app]\n";
+    "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR] [--daemonize] [--preload-app] [--max-requests N]\n";
 
 my $app_psgi = "$ENV{LJHOME}/app.psgi";
 die "Cannot find $app_psgi\n" unless -f $app_psgi;
@@ -78,6 +81,11 @@ my @opts = (
 # DB/memcache sockets at load time — connections are made lazily per worker on
 # first request; see the per-worker srand() reseed in app.psgi.
 push @opts, '--preload-app' if $preload_app;
+
+# Recycle each worker after N requests so long-lived Perl workers don't grow
+# their footprint until they hit the task memory limit. Cheap with --preload-app
+# (respawn is a fork from the preloaded master, no recompile).
+push @opts, '--max-requests', $max_requests if defined $max_requests;
 
 if ($log_dir) {
     mkdir $log_dir unless -d $log_dir;

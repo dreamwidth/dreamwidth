@@ -14,7 +14,13 @@ mkdir -p /var/log/starman
 # under load. Use an explicit, memory-safe default (10 fits 6GB; --preload-app
 # adds headroom) that can be overridden per service via DW_STARMAN_WORKERS.
 WORKERS=${DW_STARMAN_WORKERS:-10}
-perl $LJHOME/bin/starman --port 8080 --workers "$WORKERS" --preload-app --log /var/log/starman --daemonize
+
+# Recycle each worker after this many requests to cap memory growth. Starman's
+# built-in default is 1000, which is too high for the 6GB budget under logged-in
+# load (workers climb to ~600MB before cycling). Low QPS here, so frequent
+# recycling is cheap — especially with --preload-app (respawn = fork, no recompile).
+MAX_REQUESTS=${DW_STARMAN_MAX_REQUESTS:-100}
+perl $LJHOME/bin/starman --port 8080 --workers "$WORKERS" --max-requests "$MAX_REQUESTS" --preload-app --log /var/log/starman --daemonize
 
 # Kick off Varnish
 service varnish start
