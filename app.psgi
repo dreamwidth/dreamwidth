@@ -141,8 +141,25 @@ my $app = sub {
         }
     }
 
+    # If we settled on a 404 but no handler produced a body, render the stock
+    # error page so the client gets a real "we can't find that page" document
+    # instead of an empty response (which browsers replace with their own
+    # generic error page). Mirrors Apache::LiveJournal's ErrorDocument handling.
+    _render_error_document($r) if $r->status == 404 && !$r->response_bytes_written;
+
     return $r->res;
 };
+
+# Render the internal 404 error page into the current response, preserving the
+# 404 status (the error templates return OK on success, so we restore it after).
+sub _render_error_document {
+    my $r = $_[0];
+
+    my $status = $r->status;
+    my $ret = DW::Routing->call( uri => "/internal/local/404" );
+    $ret //= DW::Routing->call( uri => "/internal/404" );
+    $r->status($status) if defined $ret;
+}
 
 # Apply the middleware. Ordering is important!
 builder {

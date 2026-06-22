@@ -179,6 +179,14 @@ sub print {
     $self->{res_length} += length($data);
 }
 
+# number of body bytes appended via print() so far; lets callers tell whether a
+# handler has actually produced any output (e.g. to decide whether to render a
+# stock error page over an otherwise-empty 404 response)
+sub response_bytes_written {
+    my DW::Request::Plack $self = $_[0];
+    return $self->{res_length};
+}
+
 # flatten out the body and return the response
 sub res {
     my DW::Request::Plack $self = $_[0];
