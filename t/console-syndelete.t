@@ -1,24 +1,21 @@
 # t/console-syndelete.t
 #
-# Test LJ::Console syn_delete command (delete and undelete of feed accounts).
+# Test LJ::Console syn_delete and syn_undelete commands.
 #
-# This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by
-# Dreamwidth Studios, LLC. These files were originally licensed under
-# the terms of the license supplied by Live Journal, Inc, which can
-# currently be found at:
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
 #
-# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
 #
-# In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License.
-# A copy of that license can be found in the LICENSE file included as
-# part of this distribution.
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
@@ -34,11 +31,16 @@ my $run = sub {
     return LJ::Console->run_commands_text($cmd);
 };
 
-# requires the syn_edit priv
+# both commands require the syn_edit priv
 is(
     $run->( "syn_delete " . $feed->user ),
     "error: You are not authorized to run this command.",
-    "Command requires syn_edit priv."
+    "syn_delete requires syn_edit priv."
+);
+is(
+    $run->( "syn_undelete " . $feed->user ),
+    "error: You are not authorized to run this command.",
+    "syn_undelete requires syn_edit priv."
 );
 $u->grant_priv("syn_edit");
 $u = LJ::load_user( $u->user );
@@ -48,18 +50,12 @@ my $reguser = temp_user();
 is(
     $run->( "syn_delete " . $reguser->user ),
     "error: Not a syndicated account",
-    "Refuses non-syndicated accounts."
-);
-
-is(
-    $run->( "syn_delete " . $feed->user . " bogus" ),
-    "error: Invalid action: must be 'delete' or 'undelete'.",
-    "Rejects an unknown action."
+    "syn_delete refuses non-syndicated accounts."
 );
 
 # undelete on a non-deleted feed should fail
 is(
-    $run->( "syn_delete " . $feed->user . " undelete" ),
+    $run->( "syn_undelete " . $feed->user ),
     "error: Account is not deleted.",
     "Cannot undelete a feed that is not deleted."
 );
@@ -84,7 +80,7 @@ is(
 
 # undelete it
 is(
-    $run->( "syn_delete " . $feed->user . " undelete" ),
+    $run->( "syn_undelete " . $feed->user ),
     "success: Feed account "
         . $feed->user
         . " restored; the syndication system will resume refreshing it.",
@@ -101,13 +97,20 @@ my ( $checknext, $failcount ) =
 is( $failcount, 0, "failcount reset on undelete." );
 ok( defined $checknext, "checknext is set on undelete." );
 
-# explicit 'delete' action works too
+# undeleting a live feed fails
 is(
-    $run->( "syn_delete " . $feed->user . " delete" ),
+    $run->( "syn_undelete " . $feed->user ),
+    "error: Account is not deleted.",
+    "Cannot undelete a feed that is already visible."
+);
+
+# delete then undelete a second time, to confirm it round-trips
+is(
+    $run->( "syn_delete " . $feed->user ),
     "success: Feed account "
         . $feed->user
         . " marked as deleted; the syndication system will stop refreshing it.",
-    "Explicit 'delete' action works."
+    "Deletes the feed a second time."
 );
 $feed = LJ::load_user( $feed->user );
-ok( $feed->is_deleted, "Feed account deleted via explicit action." );
+ok( $feed->is_deleted, "Feed account deleted again." );
