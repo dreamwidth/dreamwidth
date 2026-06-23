@@ -25,6 +25,14 @@
                 {
                     "name": "DW_LOKI_SERVICE",
                     "value": "web-stable"
+                },
+                {
+                    "name": "DW_STARMAN_WORKERS",
+                    "value": "8"
+                },
+                {
+                    "name": "DW_STARMAN_MAX_REQUESTS",
+                    "value": "50"
                 }
             ],
             "mountPoints": [
