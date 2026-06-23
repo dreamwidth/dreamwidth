@@ -766,7 +766,7 @@ sub _form_to_backend {
 
     # Sort out the markup format ("editor"), which is used for both detecting
     # markup errors and constructing the protocol request.
-    my $validated_editor = DW::Formats::validate( $post->{editor} )
+    my $validated_editor = DW::Formats::validate( $post->{editor} );
 
     # warn the user of any bad markup errors
     my $clean_event = $post->{event};
