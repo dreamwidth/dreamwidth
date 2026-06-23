@@ -20,6 +20,7 @@ package LJ::Comment;
 
 use strict;
 use Carp qw/ croak /;
+use DW::CacheStats;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
@@ -66,6 +67,9 @@ LJ::Comment
 #    _loaded_childids:  loaded childids
 
 my %singletons = ();    # journalid->jtalkid->singleton
+
+# instrument this per-request cache's byte size for memory metrics
+DW::CacheStats::register( 'comment_singletons', sub { \%singletons } );
 
 # singletons still to be loaded
 my %unloaded_singletons      = ();

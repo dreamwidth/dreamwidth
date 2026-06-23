@@ -14,6 +14,7 @@
 package LJ::Lang;
 use strict;
 use LJ::LangDatFile;
+use DW::CacheStats;
 
 use constant MAXIMUM_ITCODE_LENGTH => 120;
 
@@ -137,6 +138,9 @@ my %LN_ID     = ();    # id -> { ..., ..., 'children' => [ $ids, .. ] }
 my %LN_CODE   = ();    # $code -> ^^^^
 my $LAST_ERROR;
 my %TXT_CACHE;
+
+# instrument this persistent translation cache's byte size for memory metrics
+DW::CacheStats::register( 'lang_txt_cache', sub { \%TXT_CACHE } );
 
 sub last_error {
     return $LAST_ERROR;
