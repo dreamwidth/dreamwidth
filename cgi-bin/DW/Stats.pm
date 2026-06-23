@@ -39,6 +39,14 @@ sub setup {
     );
 }
 
+# Usage: DW::Stats::enabled()
+#
+# Returns true if a stats sink has been configured via setup(). Useful for
+# guarding expensive measurement work that would otherwise be discarded.
+sub enabled {
+    return defined $sock ? 1 : 0;
+}
+
 # Usage: DW::Stats::increment( 'my.metric', $incrby, $tags, $sample_rate )
 #
 # Metric must be a string. $incrby must be a number or undef. $tags must be an
