@@ -764,15 +764,18 @@ sub _form_to_backend {
     $errors->add( undef, ".error.noentry" )
         if $errors && $req->{event} eq "" && !$opts{allow_empty};
 
+    # Sort out the markup format ("editor"), which is used for both detecting
+    # markup errors and constructing the protocol request.
+    my $validated_editor = DW::Formats::validate( $post->{editor} )
+
     # warn the user of any bad markup errors
     my $clean_event = $post->{event};
     my $errref;
 
-    my $editor = undef;
     my $verbose_err;
 
     LJ::CleanHTML::clean_event( \$clean_event,
-        { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
+        { errref => \$errref, editor => $validated_editor, verbose_err => \$verbose_err } );
 
     if ( $errors && $verbose_err ) {
         if ( ref($verbose_err) eq 'HASH' ) {
@@ -797,7 +800,7 @@ sub _form_to_backend {
 
     # This form always uses the editor prop instead of opt_preformatted.
     $props->{opt_preformatted} = 0;
-    $props->{editor}           = DW::Formats::validate( $post->{editor} );
+    $props->{editor}           = $validated_editor;
 
     # old implementation of comments
     # FIXME: remove this before taking the page out of beta
