@@ -62,7 +62,7 @@ sub _rss_bytes {
     return undef unless $line;
 
     my ( undef, $rss_pages ) = split /\s+/, $line;
-    return undef unless $rss_pages;
+    return undef unless defined $rss_pages;
     return $rss_pages * _page_size();
 }
 
@@ -77,9 +77,8 @@ sub report {
     return unless $rate && DW::Stats::enabled();
     return unless rand() < $rate;
 
-    if ( my $rss = _rss_bytes() ) {
-        DW::Stats::timing( 'dw.process.rss_bytes', $rss );
-    }
+    my $rss = _rss_bytes();
+    DW::Stats::timing( 'dw.process.rss_bytes', $rss ) if defined $rss;
 
     foreach my $name ( keys %CACHES ) {
         my $ref = eval { $CACHES{$name}->() };
