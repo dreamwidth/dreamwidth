@@ -558,7 +558,6 @@ sub get_foaf_from {
     my @schools;
     my %wanted_text_items = (
         'foaf:name'          => 'name',
-        'foaf:icqChatID'     => 'icq',
         'foaf:jabberID'      => 'jabber',
         'ya:bio'             => 'bio',
         'lj:journaltitle'    => 'journaltitle',
