@@ -283,10 +283,11 @@ sub edit_entry {
     return $self->rest_error('400')
         unless $post->{text} ne '';
 
-# so at this point, we know that we are authorized to edit this entry
-# but we need to handle things differently if we're an admin
-# FIXME: handle communities
-# return $self->rest_error('POST', 401, "IS AN ADMIN") unless $entry_obj->poster->equals( $remote );
+    # so at this point, we know that we are authorized to edit this entry
+    # but we need to handle things differently if we're an admin
+    # FIXME: handle communities
+    return $self->rest_error( 'POST', 401, "Admin override not implemented yet" )
+        unless $entry_obj->poster->equals($remote);
 
     my $form_req = DW::Entry::_backend_to_form( 1, $entry_obj );
     DW::Entry::_form_to_backend( 1, $form_req, $post );

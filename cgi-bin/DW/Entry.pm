@@ -177,11 +177,12 @@ sub _form_to_backend {
     my $clean_event = $post->{event};
     my $errref;
 
-    my $editor = undef;
+    my $editor           = undef;
+    my $validated_editor = DW::Formats::validate( $post->{editor} );
     my $verbose_err;
 
     LJ::CleanHTML::clean_event( \$clean_event,
-        { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
+        { errref => \$errref, editor => $validated_editor, verbose_err => \$verbose_err } );
 
     if ( $errors && $verbose_err ) {
         if ( ref($verbose_err) eq 'HASH' ) {
@@ -215,7 +216,7 @@ sub _form_to_backend {
 
         # This form always uses the editor prop instead of opt_preformatted.
         $props->{opt_preformatted} = 0;
-        $props->{editor}           = DW::Formats::validate( $post->{editor} );
+        $props->{editor}           = $validated_editor;
     }
 
     # old implementation of comments
