@@ -35,15 +35,10 @@ ADD config/ /dw/ext/local
 # last minute configuration.
 RUN bash /opt/setup.sh
 
-# We run on 80, TLS is handled by a proxy of some kind.
-EXPOSE 80/tcp
-
-# Varnish is here and is layered in front of Apache typically.
+# Varnish on 6081 sits in front of Starman on 8080.
 EXPOSE 6081/tcp
-
-# Starman runs here, direct (no Varnish).
 EXPOSE 8080/tcp
 
 # Kick off the startup script, which does some healthcheck and then starts
-# Apache if things look good.
+# Starman if things look good.
 CMD bash /opt/startup-prod.sh

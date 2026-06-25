@@ -22,8 +22,6 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-use MIME::Base64 qw/ encode_base64 decode_base64 /;
-use Storable qw/ nfreeze thaw /;
 use Time::HiRes qw/ time /;
 use UUID::Tiny qw/ :std /;
 
@@ -68,7 +66,7 @@ sub send {
         my $uuid = create_uuid_as_string(UUID_V4);
         open FILE, ">$dir/$uuid"
             or $log->logcroak('Failed to open message file!');
-        print FILE encode_base64( nfreeze($task) );
+        print FILE $task->serialize();
         close FILE;
     }
 
@@ -97,7 +95,7 @@ sub receive {
     my $thaw_task = sub {
         local $/ = undef;
         open FILE, "<$dir/$_[0]" or $log->logcroak('Unable to open file.');
-        my $task = thaw( decode_base64(<FILE>) );
+        my $task = DW::Task->deserialize(<FILE>);
         close FILE;
         return $task;
     };

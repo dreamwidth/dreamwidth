@@ -14,7 +14,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 91;
+use Test::More tests => 111;
 use Test::MockTime qw(set_fixed_time restore_time);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -255,4 +255,92 @@ LJ::Test::with_fake_memcache {
 
     # Clean up test configuration
     delete $LJ::RATE_LIMITS{test_override};
+};
+
+# Test IP exclusion (internal/private IPs skip rate limiting)
+{
+    # Default matcher: RFC1918 + loopback are excluded.
+    ok( DW::RateLimit->ip_is_excluded("10.1.2.3"),       "10/8 excluded" );
+    ok( DW::RateLimit->ip_is_excluded("172.16.5.5"),     "172.16/12 low end excluded" );
+    ok( DW::RateLimit->ip_is_excluded("172.31.255.255"), "172.16/12 high end excluded" );
+    ok( DW::RateLimit->ip_is_excluded("192.168.0.42"),   "192.168/16 excluded" );
+    ok( DW::RateLimit->ip_is_excluded("127.0.0.1"),      "loopback excluded" );
+
+    # Public and just-outside-boundary IPs are NOT excluded.
+    ok( !DW::RateLimit->ip_is_excluded("8.8.8.8"),     "public 8.8.8.8 not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("1.2.3.4"),     "public 1.2.3.4 not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("172.32.0.1"),  "just above 172.16/12 not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("11.0.0.1"),    "just above 10/8 not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("169.254.1.1"), "link-local deliberately not excluded" );
+
+    # Empty / undef IP is not excluded.
+    ok( !DW::RateLimit->ip_is_excluded(undef), "undef IP not excluded" );
+    ok( !DW::RateLimit->ip_is_excluded(""),    "empty IP not excluded" );
+
+    # Operator override replaces the default matcher entirely.
+    local $LJ::RATE_LIMIT_EXCLUDE_IP = sub { $_[0] eq "8.8.8.8" };
+    ok( DW::RateLimit->ip_is_excluded("8.8.8.8"),   "override: 8.8.8.8 excluded" );
+    ok( !DW::RateLimit->ip_is_excluded("10.1.2.3"), "override: default range no longer applies" );
+}
+
+# Test that the rate-limit middleware stashes auth + outcome hints in the PSGI env
+# for the request-metrics tags.
+LJ::Test::with_fake_memcache {
+    require Plack::Middleware::DW::RateLimit;
+
+    my $build_mw = sub {
+        my $mw = Plack::Middleware::DW::RateLimit->new;
+        $mw->app( sub { [ 200, [], ['ok'] ] } );
+        return $mw;
+    };
+
+    no warnings 'redefine', 'once';
+
+    # Anonymous request from an internal IP -> excluded; auth anon; limiter skipped.
+    {
+        local *LJ::get_remote    = sub { undef };
+        local *LJ::get_remote_ip = sub { '10.0.0.5' };
+        my %env;
+        $build_mw->()->call( \%env );
+        is( $env{'dw.stats.auth'},      'anon',     'excluded: auth tagged anon' );
+        is( $env{'dw.stats.ratelimit'}, 'excluded', 'internal IP tagged excluded' );
+    }
+
+    # Anonymous request from a public IP, under the limit -> allowed.
+    # reset() before checking so any earlier call in this block doesn't consume
+    # a token and make the "allowed" assertion flaky.
+    {
+        local *LJ::get_remote    = sub { undef };
+        local *LJ::get_remote_ip = sub { '203.0.113.7' };
+        local $LJ::RATE_LIMITS{anonymous_requests} = { rate => '5/60s' };
+        DW::RateLimit->get( 'anonymous_requests', rate => '5/60s' )->reset( ip => '203.0.113.7' );
+        my %env;
+        $build_mw->()->call( \%env );
+        is( $env{'dw.stats.ratelimit'}, 'allowed', 'public IP under limit tagged allowed' );
+    }
+
+    # Anonymous request from a public IP, over the limit -> blocked + 429.
+    {
+        local *LJ::get_remote    = sub { undef };
+        local *LJ::get_remote_ip = sub { '203.0.113.8' };
+        local $LJ::RATE_LIMITS{anonymous_requests} = { rate => '1/60s' };
+        DW::RateLimit->get( 'anonymous_requests', rate => '1/60s' )->reset( ip => '203.0.113.8' );
+        my $mw = $build_mw->();
+        $mw->call( {} );    # first request consumes the single token
+        my %env2;
+        my $res = $mw->call( \%env2 );    # second request is blocked
+        is( $env2{'dw.stats.ratelimit'}, 'blocked', 'over limit tagged blocked' );
+        is( $res->[0],                   429,       'blocked request returns 429' );
+    }
+
+    # Authenticated request -> auth tagged user.
+    {
+        my $fake_user = bless { userid => 42 }, 'LJ::User';
+        local *LJ::get_remote    = sub { $fake_user };
+        local *LJ::get_remote_ip = sub { '203.0.113.9' };
+        local $LJ::RATE_LIMITS{authenticated_requests} = { rate => '5/60s' };
+        my %env;
+        $build_mw->()->call( \%env );
+        is( $env{'dw.stats.auth'}, 'user', 'authenticated request tagged user' );
+    }
 };

@@ -172,6 +172,11 @@ no strict "vars";
     # block size is used in stats generation code that gets n rows from the db at a time
     $STATS_BLOCK_SIZE ||= 10_000;
 
+    # fraction (0..1) of requests on which DW::CacheStats measures the byte size
+    # of in-process caches. Measurement is expensive, so this defaults off; set
+    # it in config-private (e.g. 0.01) once a stats sink (%STATS) is configured.
+    $CACHE_STATS_SAMPLE_RATE //= 0;
+
     # Maximum number of comments to display on Recent Comments page
     $TOOLS_RECENT_COMMENTS_MAX ||= 150;
 

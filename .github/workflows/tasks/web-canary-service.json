@@ -21,7 +21,12 @@
                 "bash",
                 "/opt/startup-prod.sh"
             ],
-            "environment": [],
+            "environment": [
+                {
+                    "name": "DW_LOKI_SERVICE",
+                    "value": "web-canary"
+                }
+            ],
             "mountPoints": [
                 {
                     "sourceVolume": "dw-config",
@@ -30,54 +35,66 @@
                 },
                 {
                     "sourceVolume": "log-share",
-                    "containerPath": "/var/log/apache2",
+                    "containerPath": "/var/log/starman",
                     "readOnly": false
                 }
             ],
             "volumesFrom": [],
             "linuxParameters": {
                 "initProcessEnabled": true
-            },
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-create-group": "true",
-                    "awslogs-group": "/dreamwidth/web/canary",
-                    "awslogs-region": "us-east-1",
-                    "awslogs-stream-prefix": "canary"
-                }
             }
         },
         {
-            "name": "cloudwatch-agent",
-            "image": "public.ecr.aws/cloudwatch-agent/cloudwatch-agent:latest",
-            "cpu": 0,
-            "portMappings": [],
-            "essential": true,
-            "environment": [],
-            "mountPoints": [
+            "name": "log_router",
+            "image": "194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth-fluent-bit:3",
+            "essential": false,
+            "entryPoint": [
+                "/fluent-bit/bin/fluent-bit"
+            ],
+            "command": [
+                "-c",
+                "/dw/etc/fluent-bit/web.conf"
+            ],
+            "environment": [
                 {
-                    "sourceVolume": "log-share",
-                    "containerPath": "/var/log/apache2",
-                    "readOnly": true
+                    "name": "DW_LOKI_SERVICE",
+                    "value": "web-canary"
                 }
             ],
-            "volumesFrom": [],
             "secrets": [
                 {
-                    "name": "CW_CONFIG_CONTENT",
-                    "valueFrom": "ecs-cwagent"
+                    "name": "LOKI_USER",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-username"
+                },
+                {
+                    "name": "LOKI_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-password"
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "dw-config",
+                    "containerPath": "/dw/etc",
+                    "readOnly": true
+                },
+                {
+                    "sourceVolume": "log-share",
+                    "containerPath": "/var/log/starman",
+                    "readOnly": true
                 }
             ],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-create-group": "true",
-                    "awslogs-group": "/ecs/ecs-cwagent",
+                    "awslogs-group": "/dreamwidth/fluent-bit",
                     "awslogs-region": "us-east-1",
-                    "awslogs-stream-prefix": "ecs"
+                    "awslogs-stream-prefix": "web-canary"
                 }
-            }
+            },
+            "portMappings": [],
+            "volumesFrom": [],
+            "systemControls": []
         }
     ],
     "family": "web-canary",
@@ -86,16 +103,15 @@
     "networkMode": "awsvpc",
     "volumes": [
         {
-            "name": "log-share",
-            "host": {}
-        },
-        {
             "name": "dw-config",
             "efsVolumeConfiguration": {
                 "fileSystemId": "fs-f9f3e04d",
                 "rootDirectory": "/etc-canary",
                 "transitEncryption": "DISABLED"
             }
+        },
+        {
+            "name": "log-share"
         }
     ],
     "requiresCompatibilities": [

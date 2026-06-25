@@ -77,9 +77,16 @@ sub work {
 
         # Only try auth if we have username/pw configured for mail server
         if ( $LJ::SMTP_SERVER{username} && $LJ::SMTP_SERVER{password} ) {
-            $smtp->auth( $LJ::SMTP_SERVER{username}, $LJ::SMTP_SERVER{password} )
-                or return $failed->(
-                "Couldn't authenticate to $LJ::SMTP_SERVER{hostname}, will retry.");
+
+            # Capture the server's response on failure so we can distinguish a
+            # real credential rejection (535) from temporary throttling (454).
+            unless ( $smtp->auth( $LJ::SMTP_SERVER{username}, $LJ::SMTP_SERVER{password} ) ) {
+                my $resp = eval { $smtp->code . ' ' . $smtp->message } || '(no response)';
+                chomp $resp;
+                return $failed->(
+                    "Couldn't authenticate to $LJ::SMTP_SERVER{hostname}: %s, will retry.", $resp
+                );
+            }
         }
     }
     $last_email = time();
@@ -150,6 +157,13 @@ sub work {
         my ($this_domain) = $env_from =~ /\@(.+)/;
         my $hstr = substr( md5_hex($handle), 0, 12 );
         $headers = "Message-ID: <dw-$hstr\@$this_domain>\r\n" . $headers;
+    }
+
+    # Tag the message with the SES configuration set (if configured) so SES
+    # emits per-message sending events (delivery/bounce/reject/complaint) to the
+    # config set's event destination. No-op when unset.
+    if ( $LJ::SES_CONFIGURATION_SET && $headers !~ m!^x-ses-configuration-set:!mi ) {
+        $headers = "X-SES-CONFIGURATION-SET: $LJ::SES_CONFIGURATION_SET\r\n" . $headers;
     }
 
     my $details = sub {

@@ -127,11 +127,92 @@ jobs:
     return workflow
 
 
-def generate_task_definition(name, cpu, memory):
+def generate_task_definition(name, worker):
     """Generate a task definition JSON file for a worker."""
+
+    cpu = worker["cpu"]
+    memory = worker["memory"]
+    extra_efs = worker.get("extra_efs_volumes", [])
+
+    account_id = "194396987458"
+    region = "us-east-1"
+    fluent_bit_image = f"{account_id}.dkr.ecr.{region}.amazonaws.com/dreamwidth-fluent-bit:3"
+
+    worker_mount_points = [
+        {
+            "sourceVolume": "dw-config",
+            "containerPath": "/dw/etc",
+            "readOnly": True
+        }
+    ]
+    for vol in extra_efs:
+        worker_mount_points.append({
+            "sourceVolume": vol["name"],
+            "containerPath": vol["containerPath"],
+            "readOnly": vol["readOnly"]
+        })
+
+    volumes = [
+        {
+            "name": "dw-config",
+            "efsVolumeConfiguration": {
+                "fileSystemId": "fs-f9f3e04d",
+                "rootDirectory": "/etc-workers",
+                "transitEncryption": "DISABLED"
+            }
+        }
+    ]
+    for vol in extra_efs:
+        volumes.append({
+            "name": vol["name"],
+            "efsVolumeConfiguration": {
+                "fileSystemId": "fs-f9f3e04d",
+                "rootDirectory": vol["rootDirectory"],
+                "transitEncryption": "DISABLED"
+            }
+        })
 
     task = {
         "containerDefinitions": [
+            # Fluent Bit log router — ships worker logs directly to Grafana
+            # Cloud Loki, bypassing CloudWatch. ~15MB RSS.
+            {
+                "name": "log_router",
+                "image": fluent_bit_image,
+                "essential": True,
+                "firelensConfiguration": {
+                    "type": "fluentbit",
+                    "options": {
+                        "config-file-type": "file",
+                        "config-file-value": "/fluent-bit/configs/minimize-log-loss.conf"
+                    }
+                },
+                "logConfiguration": {
+                    "logDriver": "awslogs",
+                    "options": {
+                        "awslogs-create-group": "true",
+                        "awslogs-group": "/dreamwidth/fluent-bit",
+                        "awslogs-region": region,
+                        "awslogs-stream-prefix": name
+                    }
+                },
+                "secrets": [
+                    {
+                        "name": "LOKI_USER",
+                        "valueFrom": f"arn:aws:ssm:{region}:{account_id}:parameter/dreamwidth/grafana-cloud/loki-username"
+                    },
+                    {
+                        "name": "LOKI_PASSWORD",
+                        "valueFrom": f"arn:aws:ssm:{region}:{account_id}:parameter/dreamwidth/grafana-cloud/loki-password"
+                    }
+                ],
+                "environment": [],
+                "portMappings": [],
+                "mountPoints": [],
+                "volumesFrom": [],
+                "systemControls": []
+            },
+            # The actual worker container
             {
                 "name": "worker",
                 "image": "ghcr.io/dreamwidth/worker:latest",
@@ -145,42 +226,34 @@ def generate_task_definition(name, cpu, memory):
                     "-v"
                 ],
                 "environment": [],
-                "mountPoints": [
-                    {
-                        "sourceVolume": "dw-config",
-                        "containerPath": "/dw/etc",
-                        "readOnly": True
-                    }
-                ],
+                "mountPoints": worker_mount_points,
                 "volumesFrom": [],
                 "linuxParameters": {
                     "initProcessEnabled": True
                 },
                 "logConfiguration": {
-                    "logDriver": "awslogs",
+                    "logDriver": "awsfirelens",
                     "options": {
-                        "awslogs-create-group": "true",
-                        "awslogs-group": f"/dreamwidth/worker/{name}",
-                        "awslogs-region": "us-east-1",
-                        "awslogs-stream-prefix": "worker"
+                        "Name": "loki",
+                        "host": "logs-prod-042.grafana.net",
+                        "port": "443",
+                        "tls": "on",
+                        "tls.verify": "on",
+                        "http_user": "${LOKI_USER}",
+                        "http_passwd": "${LOKI_PASSWORD}",
+                        "labels": "source=dreamwidth,service=" + name,
+                        "label_keys": "$container_name,$ecs_task_arn",
+                        "remove_keys": "container_id,ecs_task_definition,ecs_cluster",
+                        "line_format": "key_value"
                     }
                 }
             }
         ],
         "family": f"worker-{name}",
-        "taskRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskRole",
-        "executionRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskExecutionRole",
+        "taskRoleArn": f"arn:aws:iam::{account_id}:role/dreamwidth-ecsTaskRole",
+        "executionRoleArn": f"arn:aws:iam::{account_id}:role/dreamwidth-ecsTaskExecutionRole",
         "networkMode": "awsvpc",
-        "volumes": [
-            {
-                "name": "dw-config",
-                "efsVolumeConfiguration": {
-                    "fileSystemId": "fs-f9f3e04d",
-                    "rootDirectory": "/etc-workers",
-                    "transitEncryption": "DISABLED"
-                }
-            }
-        ],
+        "volumes": volumes,
         "requiresCompatibilities": ["FARGATE"],
         "cpu": str(cpu),
         "memory": str(memory)
@@ -204,7 +277,7 @@ print(f"Generating task definitions in {tasks_dir}...")
 tasks_dir.mkdir(exist_ok=True)
 for name in worker_names:
     w = workers[name]
-    task_content = generate_task_definition(name, w["cpu"], w["memory"])
+    task_content = generate_task_definition(name, w)
     with open(tasks_dir / f"worker-{name}-service.json", "w") as f:
         f.write(task_content)
         f.write("\n")

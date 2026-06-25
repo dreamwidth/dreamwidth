@@ -26,8 +26,10 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 our $AUTOLOAD;
 use Carp qw/ croak confess /;
+use DW::CacheStats;
 use DW::Task::DeleteEntry;
-use DW::Task::SphinxCopier;
+use DW::Task::SearchCopier;
+use DW::Search;
 
 =head1 NAME
 
@@ -66,6 +68,9 @@ LJ::Entry
 #    _loaded_talkdata: loaded talkdata
 
 my %singletons = ();    # journalid->jitemid->singleton
+
+# instrument this per-request cache's byte size for memory metrics
+DW::CacheStats::register( 'entry_singletons', sub { \%singletons } );
 
 sub reset_singletons {
     %singletons = ();
@@ -2432,10 +2437,10 @@ sub delete_entry {
     # delete all comments
     LJ::delete_all_comments( $u, 'L', $jitemid );
 
-    # fired to delete the post from the Sphinx search database
-    if (@LJ::SPHINX_SEARCHD) {
+    # enqueue a search-index update for the deleted entry
+    if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(
-            DW::Task::SphinxCopier->new(
+            DW::Task::SearchCopier->new(
                 { userid => $u->id, jitemid => $jitemid, source => "entrydel" }
             )
         );

@@ -77,7 +77,7 @@ use Carp;
 use DBI;
 use DBI::Role;
 use HTTP::Date ();
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::Hooks;
 use LJ::MemCache;
 use LJ::Error;
@@ -118,6 +118,7 @@ use LJ::Global::Img;        # defines LJ::Img
 use LJ::Global::Secrets;    # defines LJ::Secrets
 use DW::Media;
 use DW::Stats;
+use DW::CacheStats;
 use DW::Proxy;
 use DW::TaskQueue;
 use DW::BlobStore;
@@ -261,16 +262,8 @@ if ( $LJ::STATS{host} && $LJ::STATS{port} ) {
 }
 
 sub locker {
-    return $LJ::LOCKER_OBJ if $LJ::LOCKER_OBJ;
-    eval "use DDLockClient ();";
-    die "Couldn't load locker client: $@" if $@;
-
-    $LJ::LOCKER_OBJ = new DDLockClient(
-        servers => [@LJ::LOCK_SERVERS],
-        lockdir => $LJ::LOCKDIR || "$LJ::HOME/locks",
-    );
-
-    return $LJ::LOCKER_OBJ;
+    require DW::Locker;
+    return $LJ::LOCKER_OBJ ||= DW::Locker->new;
 }
 
 sub gearman_client {
@@ -484,7 +477,9 @@ sub handle_caches {
 sub start_request {
     handle_caches();
 
-    # TODO: check process growth size
+    # Sample the size of our in-process caches (and process RSS) before we clear
+    # the per-request ones below, so each measurement reflects a request's peak.
+    DW::CacheStats::report();
 
     # clear per-request caches
     LJ::unset_remote();    # clear cached remote
@@ -882,6 +877,13 @@ sub get_useragent {
 
             # also needed for LWP::Protocol::https < 6.06
             SSL_verify_mode => 0,
+
+            # LWP does not support HTTP/2, but IO::Socket::SSL on
+            # Ubuntu 22.04+ advertises h2 via ALPN by default.
+            # Servers that honor ALPN then speak HTTP/2, which LWP
+            # can't parse, causing "500 Server closed connection"
+            # errors.  Force HTTP/1.1 only.
+            SSL_alpn_protocols => ['http/1.1'],
 
             #ca_file => Mozilla::CA::SSL_ca_file()
         }

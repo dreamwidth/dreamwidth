@@ -4,23 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Dreamwidth is a Perl-based journaling/blogging platform forked from LiveJournal. It runs on Apache mod_perl with MySQL, Memcached, and TheSchwartz job queue. All code must be GPL-licensed.
+Dreamwidth is a Perl-based journaling/blogging platform forked from LiveJournal. It runs on Plack/Starman with MySQL, Memcached, and TheSchwartz job queue. All code must be GPL-licensed.
 
 ## Development Environment
 
-Code is edited on the host, but **all commands must be run inside the devcontainer** (`.devcontainer/`). The devcontainer runs Ubuntu 22.04 with MySQL, Memcached, and Apache mod_perl. The workspace is mounted at `/workspaces/dreamwidth` (`$LJHOME`). Perl modules are pre-installed at `/opt/dreamwidth-extlib/lib/perl5` (`$PERL5LIB`).
+Code is edited on the host, but **all commands must be run inside the devcontainer** (`.devcontainer/`). The devcontainer runs Ubuntu 22.04 with MySQL, Memcached, and a Plack/Starman web server. The workspace is mounted at `/workspaces/dreamwidth` (`$LJHOME`). Perl modules are pre-installed at `/opt/dreamwidth-extlib/lib/perl5` (`$PERL5LIB`).
 
 ### Container Management
 
 Build and start the devcontainer from the repo root:
 
 ```bash
-npx devcontainer up --workspace-folder .
+npx @devcontainers/cli up --workspace-folder .
 ```
 
-Find the running container ID:
+Find the running container ID for your workspace:
 
 ```bash
+# Filter by your workspace path to avoid grabbing another session's container
+docker ps --filter label=devcontainer.local_folder=$(pwd) --format "{{.ID}}"
+
+# Or list all devcontainers
 docker ps --format "{{.ID}} {{.Names}}"
 ```
 
@@ -52,9 +56,47 @@ perl t/00-compile.t
 # Compile static assets (CSS/JS)
 bin/build-static.sh
 
-# Restart Apache after code changes
-apache2ctl restart
+# Restart the dev web server after code changes (the dev Starman hot-reloads
+# changed modules via DW::Dev; restart for config/startup changes)
+pkill starman; bash .devcontainer/start.sh
 ```
+
+### Worktree Workflow (ALWAYS work in a worktree)
+
+**ABSOLUTE RULE — You MUST ALWAYS work in a git worktree. NEVER do work directly in the main checkout (`/home/mark/dreamwidth`).** This is not optional and is not only for "parallel work". Multiple Claude instances and the user share the main checkout; doing anything there — editing files, `git checkout`/`gh pr checkout` to switch its branch, running builds — stomps on whatever else is using it and corrupts their state. The main checkout must be left on `main` and untouched.
+
+The ONLY exceptions, each requiring EXPLICIT user instruction in that moment:
+- The user explicitly tells you to work in the main directory.
+- The user explicitly asks for a read-only action there (e.g. "what branch is main on?").
+
+If you are not in a worktree, your FIRST action for any task that touches files, branches, or builds is to create one with `EnterWorktree`. If you ever find yourself about to edit, `checkout`, or build in the main checkout without explicit permission, STOP and create a worktree instead. The main checkout is shared territory; treat it as read-only by default.
+
+Each worktree is an isolated git worktree with its own devcontainer, so many sessions can work simultaneously without stepping on each other.
+
+**Create a worktree** using Claude Code's built-in `EnterWorktree` tool. This creates a worktree under `.claude/worktrees/<name>` and switches your session into it. (Reviewing a PR? Create a worktree and `gh pr checkout` *inside it* — never in the main checkout.)
+
+**Start a devcontainer for the worktree:**
+
+```bash
+npx @devcontainers/cli up --workspace-folder <worktree-path>
+```
+
+This works because `devcontainer.json` uses `workspaceMount` to always mount at `/workspaces/dreamwidth` (matching `$LJHOME`) regardless of the host folder name, and each worktree gets its own MySQL volume (`dreamwidth-mysql-<foldername>`).
+
+**Find your container** (filter by the worktree label to avoid grabbing someone else's):
+
+```bash
+docker ps --filter label=devcontainer.local_folder=<worktree-path> --format "{{.ID}}"
+```
+
+**Port isolation:** All devcontainers use dynamic host ports (container ports 8080/8081 are mapped to random available host ports). Use `docker port <container-id>` to find the assigned ports.
+
+**Important rules:**
+- NEVER work in, edit, switch the branch of, or build in the main checkout (`/home/mark/dreamwidth`) without explicit per-task permission — always use a worktree (see the ABSOLUTE RULE above). Leave the main checkout on `main`.
+- Never touch another session's worktree or its devcontainer
+- Each worktree gets its own devcontainer — never share containers between worktrees
+- The `extlib/` symlink is created automatically by `setup.sh` (points to `/opt/dreamwidth-extlib` in the image)
+- All the same commands work: `perl extlib/bin/tidyall -a`, `perl t/02-tidy.t`, `perl t/00-compile.t`
 
 ## Code Formatting
 
@@ -66,7 +108,8 @@ Enforced via Perl::Tidy (`.tidyallrc`): Unix line endings, 4-space continuation 
 
 - **`DW::*`** — Modern Dreamwidth code (controllers, auth, blob storage, templates)
 - **`LJ::*`** — Legacy LiveJournal modules (still heavily used for core entities: users, entries, comments)
-- **`Apache::*`** — mod_perl request handlers
+- **`Apache::*`** — legacy namespace; now just `Apache::BML`, the shared BML rendering engine (used by `DW::BML` under Starman)
+- **`Plack::Middleware::DW::*`** — the Starman/Plack request pipeline (`cgi-bin/Plack/Middleware/DW/`)
 - **`S2::*`** — S2 style/theming language compiler
 
 ### Key Directories
@@ -85,7 +128,7 @@ Enforced via Perl::Tidy (`.tidyallrc`): Unix line endings, 4-space continuation 
 
 ### Request Flow
 
-1. Apache mod_perl receives request → `Apache::*` handlers
+1. Starman/Plack receives request → `app.psgi` middleware stack (`Plack::Middleware::DW::*`)
 2. `DW::Routing` dispatches to `DW::Controller::*` modules
 3. Controllers use `DW::Controller` helpers (`controller()`, `needlogin()`, `error_ml()`, `success_ml()`)
 4. Views rendered via `DW::Template` using Template Toolkit (`.tt` files in `views/`)
@@ -110,21 +153,21 @@ Media/blob storage via `DW::BlobStore` with pluggable backends: S3, MogileFS, or
 
 Background processing via `DW::TaskQueue` with pluggable backends: SQS (`DW::TaskQueue::SQS`) or local disk (`DW::TaskQueue::LocalDisk`). Tasks are defined in `DW::Task::*`. Legacy jobs use TheSchwartz. Worker scripts in `bin/worker/`.
 
-### Plack Server (development)
+### Plack Server
 
-The codebase runs under both Apache/mod_perl and Plack/Starman. See **`doc/PLACK.md`** for full architecture details (middleware stack, routing, security notes, testing).
+The site runs on Plack/Starman (Apache/mod_perl was retired). See **`doc/PLACK.md`** for full architecture details (middleware stack, routing, security notes, testing).
 
 ```bash
 # Inside the devcontainer
 perl bin/starman --port 8080
 ```
 
-This runs a single-worker Starman instance. The Plack entry point is `app.psgi`. Plack-specific middleware lives in `cgi-bin/Plack/Middleware/DW/`. The `DW::Request` abstraction layer (`DW::Request::Plack`, `DW::Request::Apache2`) allows most code to work under both servers.
+This runs a single-worker Starman instance. The Plack entry point is `app.psgi`. Request-pipeline middleware lives in `cgi-bin/Plack/Middleware/DW/`. The `DW::Request` abstraction layer (`DW::Request::Plack` for requests, `DW::Request::Standard` for tests/CLI) mediates request access.
 
-Key differences from Apache:
-- `$r->uri` must return the path only (not full URL) — `DW::Request::Plack` handles this
+Notable details:
+- `$r->uri` returns the path only (not full URL) — `DW::Request::Plack` handles this
 - In the dev container, `$LJ::DOMAIN`, `$LJ::SITEROOT`, etc. are empty — URLs are built from the request Host header via `LJ::create_url()`
-- BML pages render via `DW::BML` (Plack) instead of `Apache::BML` (mod_perl); both share the same BML engine internals
+- BML pages render via `DW::BML`, which reuses the core BML engine in `Apache::BML` (loaded under Starman via an Apache2-const shim)
 
 ### Dev Container Config
 
@@ -148,14 +191,18 @@ Before pushing any branch, run these checks inside the devcontainer and fix any 
 
 PRs target `dreamwidth/dreamwidth`. If the working repo is a fork, use `--head <fork-owner>:<branch-name>` (check the `origin` remote to determine the fork owner).
 
+**Keep PR bodies short.** Both sections together should fit on one screen. The technical description is a few sentences naming the mechanism and the key files — not a restatement of the diff or a bullet list of every changed file. The CODE TOUR is one short paragraph in plain language. Reviewers read these on phones; verbosity is a tax.
+
+Every PR must include a CODE TOUR. Omit `Fixes #N` when there's no linked issue.
+
 PR body format:
 
 ```
-<Technical description of the change — what code was modified and why, referencing specific
-functions/files/mechanics as appropriate. This is for developers reviewing the PR.>
+<Technical description: what mechanism changed and why, naming the key files/functions.
+For developers. A few sentences.>
 
-CODE TOUR: <Non-technical description for the Dreamwidth community. Explain what changed from a
-user's perspective, skipping implementation details. Keep it conversational.>
+CODE TOUR: <Non-technical description for the Dreamwidth community. What changed from a
+user's perspective, no implementation. One short paragraph, conversational.>
 
 Fixes #<issue-number>
 ```

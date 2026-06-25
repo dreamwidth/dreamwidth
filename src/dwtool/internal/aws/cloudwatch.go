@@ -102,6 +102,61 @@ func (c *Client) FetchLogsSince(ctx context.Context, logGroup string, afterMs in
 	return events, latestMs, nil
 }
 
+// ListLogGroups returns all CloudWatch log groups matching a prefix.
+func (c *Client) ListLogGroups(ctx context.Context, prefix string) ([]string, error) {
+	var groups []string
+	input := &cloudwatchlogs.DescribeLogGroupsInput{
+		LogGroupNamePrefix: aws.String(prefix),
+	}
+	paginator := cloudwatchlogs.NewDescribeLogGroupsPaginator(c.cwl, input)
+	for paginator.HasMorePages() {
+		page, err := paginator.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("listing log groups: %w", err)
+		}
+		for _, lg := range page.LogGroups {
+			groups = append(groups, aws.ToString(lg.LogGroupName))
+		}
+	}
+	sort.Strings(groups)
+	return groups, nil
+}
+
+// SearchLogs searches a single log group for events matching a filter pattern
+// within the given time range. The pattern uses CloudWatch Logs filter syntax.
+// To match a literal substring, wrap it in double quotes.
+func (c *Client) SearchLogs(ctx context.Context, logGroup string, pattern string, startTime, endTime time.Time, limit int) ([]model.LogEvent, error) {
+	input := &cloudwatchlogs.FilterLogEventsInput{
+		LogGroupName:  aws.String(logGroup),
+		FilterPattern: aws.String(pattern),
+		StartTime:     aws.Int64(startTime.UnixMilli()),
+		EndTime:       aws.Int64(endTime.UnixMilli()),
+		Interleaved:   aws.Bool(true),
+	}
+
+	var events []model.LogEvent
+	paginator := cloudwatchlogs.NewFilterLogEventsPaginator(c.cwl, input)
+	for paginator.HasMorePages() {
+		page, err := paginator.NextPage(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("searching log events in %s: %w", logGroup, err)
+		}
+		for _, event := range page.Events {
+			events = append(events, cwlEventToModel(event))
+		}
+		if limit > 0 && len(events) >= limit {
+			events = events[:limit]
+			break
+		}
+	}
+
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].Timestamp.Before(events[j].Timestamp)
+	})
+
+	return events, nil
+}
+
 func cwlEventToModel(event cwltypes.FilteredLogEvent) model.LogEvent {
 	ev := model.LogEvent{
 		Message: strings.TrimRight(aws.ToString(event.Message), "\n"),

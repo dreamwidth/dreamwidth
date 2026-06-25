@@ -1,0 +1,168 @@
+#
+# Issue & PR triage bot — replaces the legacy "ghi-assist" webhook server
+# (formerly a Bottle app under `angel` on va-admin01). Same behavior, now
+# driven by repo events via actions/github-script. No server, no webhook
+# secret, no bot account: uses the built-in GITHUB_TOKEN.
+#
+# Behaviors (all ported from ghi-assist):
+#   - new issue:   if unlabeled, apply `##label` lines from the body, else
+#                  `status: untriaged`
+#   - new PR:      apply `##label` lines from the body, else `status: untriaged`
+#   - new PR:      `#N` in title/body and issue N unassigned -> assign N to the
+#                  PR author + `status: claimed`
+#   - comment:     apply `##label` lines from the comment (additive)
+#   - comment:     "claim/claimed/claiming" on an unassigned issue -> assign to
+#                  the commenter + `status: claimed`
+#   - assigned/unassigned: toggle `status: claimed`
+#   - support URL (dreamwidth.org/support/see_request?id=N) in an issue body or
+#                  comment -> add `from: support`
+#
+# `##label` tokens are only applied if they match a real repo label (autoloaded
+# at runtime) or one of the aliases below.
+#
+
+name: Issue & PR triage bot
+
+on:
+  issues:
+    types: [opened, assigned, unassigned]
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  triage:
+    # Don't run on forks of the repo.
+    if: github.repository == 'dreamwidth/dreamwidth'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const SUPPORT_URL = /https?:\/\/www\.dreamwidth\.org\/support\/see_request\?id=\d+/;
+            const CLAIM       = /\bclaim(?:ed|ing)?\b/i;
+            const ISSUE_REF   = /#(\d+)/;
+            // ##label, ##prefix: label  (word chars, hyphens, or "colon space")
+            const LABEL_TOKEN = /##((?:\w|-|: )+)/g;
+
+            // Friendly aliases -> real label names (ported from ghi-assist config).
+            const ALIASES = {
+              "effort: lower":     "effort: (1) lower",
+              "effort: average":   "effort: (2) average",
+              "effort: higher":    "effort: (3) higher",
+              "severity: minor":   "severity: (1) minor",
+              "severity: major":   "severity: (2) major",
+              "severity: critical":"severity: (3) critical",
+            };
+            const UNTRIAGED    = "status: untriaged";
+            const CLAIMED      = "status: claimed";
+            const FROM_SUPPORT = "from: support";
+
+            const { owner, repo } = context.repo;
+            const event   = context.eventName;
+            const payload = context.payload;
+            const action  = payload.action;
+
+            // Whitelist = the repo's actual labels (ghi-assist "autoload"), plus aliases.
+            const repoLabels = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              owner, repo, per_page: 100,
+            });
+            const valid = {};
+            for (const [k, v] of Object.entries(ALIASES)) valid[k] = v;
+            for (const l of repoLabels) valid[l.name] = l.name;
+
+            function extractLabels(text) {
+              const out = [];
+              if (!text) return out;
+              for (const m of text.matchAll(LABEL_TOKEN)) {
+                const mapped = valid[m[1]];
+                if (mapped && !out.includes(mapped)) out.push(mapped);
+              }
+              return out;
+            }
+
+            async function addLabels(issue_number, labels) {
+              labels = [...new Set(labels)];
+              if (labels.length === 0) return;
+              await github.rest.issues.addLabels({ owner, repo, issue_number, labels });
+            }
+
+            async function removeLabel(issue_number, name) {
+              try {
+                await github.rest.issues.removeLabel({ owner, repo, issue_number, name });
+              } catch (e) {
+                if (e.status !== 404) throw e; // label already absent
+              }
+            }
+
+            async function assign(issue_number, assignee) {
+              await github.rest.issues.addAssignees({ owner, repo, issue_number, assignees: [assignee] });
+            }
+
+            function isUnassigned(obj) {
+              return !obj.assignee && (!obj.assignees || obj.assignees.length === 0);
+            }
+
+            if (event === "issues" && action === "opened") {
+              const issue = payload.issue;
+              // Label a brand-new issue only if it has none yet.
+              if (!issue.labels || issue.labels.length === 0) {
+                let labels = extractLabels(issue.body);
+                if (labels.length === 0) labels = [UNTRIAGED];
+                await addLabels(issue.number, labels);
+              }
+              if (SUPPORT_URL.test(issue.body || "")) {
+                await addLabels(issue.number, [FROM_SUPPORT]);
+              }
+
+            } else if (event === "issues" && action === "assigned") {
+              await addLabels(payload.issue.number, [CLAIMED]);
+
+            } else if (event === "issues" && action === "unassigned") {
+              if (isUnassigned(payload.issue)) {
+                await removeLabel(payload.issue.number, CLAIMED);
+              }
+
+            } else if (event === "issue_comment" && action === "created") {
+              const issue = payload.issue;
+              const comment = payload.comment;
+              // Apply any ##labels in the comment (additive).
+              const labels = extractLabels(comment.body);
+              if (labels.length) await addLabels(issue.number, labels);
+              // Claim an unassigned issue.
+              if (isUnassigned(issue) && CLAIM.test(comment.body || "")) {
+                await assign(issue.number, comment.user.login);
+                await addLabels(issue.number, [CLAIMED]);
+              }
+              // Support-request linkage.
+              if (SUPPORT_URL.test(comment.body || "")) {
+                await addLabels(issue.number, [FROM_SUPPORT]);
+              }
+
+            } else if (event === "pull_request_target" && action === "opened") {
+              const pr = payload.pull_request;
+              // Label the new PR (PRs are issues for the labels API).
+              let labels = extractLabels(pr.body);
+              if (labels.length === 0) labels = [UNTRIAGED];
+              await addLabels(pr.number, labels);
+              // Assign a related issue referenced as #N in the title/body.
+              const m = (pr.title || "").match(ISSUE_REF) || (pr.body || "").match(ISSUE_REF);
+              if (m) {
+                const n = parseInt(m[1], 10);
+                try {
+                  const { data: related } = await github.rest.issues.get({ owner, repo, issue_number: n });
+                  if (!related.pull_request && isUnassigned(related)) {
+                    await assign(n, pr.user.login);
+                    await addLabels(n, [CLAIMED]);
+                  }
+                } catch (e) {
+                  if (e.status !== 404) throw e; // referenced number may not exist
+                }
+              }
+            }

@@ -22,12 +22,13 @@ use Digest::MD5;
 use MIME::Words;
 use MIME::Lite;
 use Carp qw/ croak /;
-use DW::Task::SphinxCopier;
+use DW::Task::SearchCopier;
+use DW::Search;
 
 use DW::Captcha;
 use DW::EmailPost::Comment;
 use DW::Formats;
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::Comment;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;
@@ -667,19 +668,7 @@ sub get_talk_data {
         return unless @LJ::MEMCACHE_SERVERS;
         return unless $u->writer;
 
-        my $gc = LJ::gearman_client();
-        if ( $gc && LJ::conf_test( $LJ::FIXUP_USING_GEARMAN, $u ) ) {
-            $gc->dispatch_background(
-                "fixup_logitem_replycount",
-                Storable::nfreeze( [ $u->id, $nodeid ] ),
-                {
-                    uniq => "-",
-                }
-            );
-        }
-        else {
-            LJ::Talk::fixup_logitem_replycount( $u, $nodeid );
-        }
+        LJ::Talk::fixup_logitem_replycount( $u, $nodeid );
     };
 
     # Save the talkdata on the entry for later
@@ -2466,9 +2455,9 @@ sub enter_comment {
     push @jobs,
         LJ::Event::JournalNewComment->new( LJ::Comment->new( $journalu, jtalkid => $jtalkid ) );
 
-    if (@LJ::SPHINX_SEARCHD) {
+    if ( DW::Search::enabled() ) {
         push @jobs,
-            DW::Task::SphinxCopier->new(
+            DW::Task::SearchCopier->new(
             { userid => $journalu->id, jtalkid => $jtalkid, source => "commtnew" } );
     }
 
@@ -3189,9 +3178,9 @@ sub edit_comment {
 
     push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj);
 
-    if (@LJ::SPHINX_SEARCHD) {
+    if ( DW::Search::enabled() ) {
         push @jobs,
-            DW::Task::SphinxCopier->new(
+            DW::Task::SearchCopier->new(
             { userid => $journalu->id, jtalkid => $comment_obj->jtalkid, source => "commtedt" } );
     }
 

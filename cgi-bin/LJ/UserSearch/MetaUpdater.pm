@@ -144,7 +144,7 @@ sub update_some_rows {
         "SELECT userid FROM usersearch_packdata WHERE good_until <= UNIX_TIMESTAMP() LIMIT 1000");
     my $updated = 0;
     foreach my $uid ( List::Util::shuffle(@$ids) ) {
-        my $lock = LJ::locker()->trylock("dirpackupdate:$uid")
+        my $lock = LJ::locker()->trylock( "dirpackupdate:$uid", class => 'dirpack' )
             or next;
 
         if (

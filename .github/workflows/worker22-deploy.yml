@@ -32,8 +32,8 @@ on:
         - dw-latest-feed
         - dw-lazy-cleanup
         - dw-mass-privacy
+        - dw-search-copier
         - dw-send-email
-        - dw-sphinx-copier
         - dw-support-notify
         - dw-synsuck
         - dw-xpost
@@ -48,11 +48,11 @@ on:
         - process-privacy
         - resolve-extacct
         - schedule-synsuck
+        - search-lookup
+        - ses-email-events
         - ses-incoming-email
         - shop-creditcard-charge
         - spellcheck-gm
-        - sphinx-copier
-        - sphinx-search-gm
         - support-notify
       tag:
         type: string
@@ -262,21 +262,21 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
+      - name: (dw-search-copier) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-search-copier'
+        id: render-worker-container-dw-search-copier
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-dw-search-copier-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
       - name: (dw-send-email) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-send-email'
         id: render-worker-container-dw-send-email
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-dw-send-email-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (dw-sphinx-copier) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-sphinx-copier'
-        id: render-worker-container-dw-sphinx-copier
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-dw-sphinx-copier-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -406,6 +406,24 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
+      - name: (search-lookup) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-lookup'
+        id: render-worker-container-search-lookup
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-search-lookup-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (ses-email-events) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'ses-email-events'
+        id: render-worker-container-ses-email-events
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-ses-email-events-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
       - name: (ses-incoming-email) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'ses-incoming-email'
         id: render-worker-container-ses-incoming-email
@@ -430,24 +448,6 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-spellcheck-gm-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (sphinx-copier) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-copier'
-        id: render-worker-container-sphinx-copier
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-sphinx-copier-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (sphinx-search-gm) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-search-gm'
-        id: render-worker-container-sphinx-search-gm
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-sphinx-search-gm-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -620,6 +620,14 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-dw-mass-privacy-service"
 
+      - name: (dw-search-copier) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-search-copier'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-dw-search-copier.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-dw-search-copier-service"
+
       - name: (dw-send-email) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-send-email'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -627,14 +635,6 @@ jobs:
           task-definition: ${{ steps.render-worker-container-dw-send-email.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-dw-send-email-service"
-
-      - name: (dw-sphinx-copier) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-sphinx-copier'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-dw-sphinx-copier.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-dw-sphinx-copier-service"
 
       - name: (dw-support-notify) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-support-notify'
@@ -748,6 +748,22 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-schedule-synsuck-service"
 
+      - name: (search-lookup) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'search-lookup'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-search-lookup.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-search-lookup-service"
+
+      - name: (ses-email-events) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'ses-email-events'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-ses-email-events.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-ses-email-events-service"
+
       - name: (ses-incoming-email) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'ses-incoming-email'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -771,22 +787,6 @@ jobs:
           task-definition: ${{ steps.render-worker-container-spellcheck-gm.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-spellcheck-gm-service"
-
-      - name: (sphinx-copier) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-copier'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-sphinx-copier.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-sphinx-copier-service"
-
-      - name: (sphinx-search-gm) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'sphinx-search-gm'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-sphinx-search-gm.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-sphinx-search-gm-service"
 
       - name: (support-notify) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'support-notify'

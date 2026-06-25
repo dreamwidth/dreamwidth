@@ -41,7 +41,7 @@ sub needlogin {
     }
     $uri = LJ::eurl($uri);
 
-    $r->header_out( Location => "$LJ::SITEROOT/?returnto=$uri" );
+    $r->header_out( Location => "$LJ::SITEROOT/login?returnto=$uri" );
     return $r->REDIRECT;
 }
 

@@ -35,6 +35,7 @@ use Paws;
 use Time::HiRes qw/ time /;
 
 use DW::IncomingEmail;
+use DW::Stats;
 
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
@@ -153,15 +154,17 @@ $log->info("Worker exiting after $messages_count messages, "
 sub process_message {
     my ($body) = @_;
 
-    # Parse the SNS envelope
-    my $sns = eval { decode_json($body) };
+    # Parse the SNS envelope. Use from_json (character-string input) rather than
+    # decode_json (which expects UTF-8 bytes) — Paws returns the SQS body as a
+    # decoded Perl string, so decode_json dies "Wide character" on non-ASCII.
+    my $sns = eval { from_json($body) };
     if ($@) {
         $log->error("Failed to parse SNS JSON: $@");
         return 1;    # drop malformed messages
     }
 
     # The SES notification is JSON-encoded inside the SNS Message field
-    my $ses = eval { decode_json( $sns->{Message} ) };
+    my $ses = eval { from_json( $sns->{Message} ) };
     if ($@) {
         $log->error("Failed to parse SES notification: $@");
         return 1;
@@ -174,17 +177,31 @@ sub process_message {
 
     # Check SES spam/virus verdicts before we even fetch the email.
     # SES populates these when scan_enabled is true on the receipt rule.
-    my $receipt      = $ses->{receipt} || {};
-    my $spam_verdict = $receipt->{spamVerdict}{status}    || 'MISSING';
-    my $virus_verdict = $receipt->{virusVerdict}{status}   || 'MISSING';
-    my $source       = $ses->{mail}{source}               || 'unknown';
-    my $recipients   = join( ', ', @{ $ses->{mail}{destination} || [] } );
+    my $receipt       = $ses->{receipt} || {};
+    my $spam_verdict  = $receipt->{spamVerdict}{status}  || 'MISSING';
+    my $virus_verdict = $receipt->{virusVerdict}{status} || 'MISSING';
+    my $dmarc_verdict = $receipt->{dmarcVerdict}{status} || 'MISSING';
+    my $dmarc_policy  = $receipt->{dmarcPolicy}          || 'none';
+    my $source        = $ses->{mail}{source} || 'unknown';
+    my $recipients    = join( ', ', @{ $ses->{mail}{destination} || [] } );
 
     $log->info("Incoming email from=$source to=$recipients "
             . "spam=$spam_verdict virus=$virus_verdict" );
 
-    return 1 if $spam_verdict eq 'FAIL';
-    return 1 if $virus_verdict eq 'FAIL';
+    DW::Stats::increment( 'dw.incoming_email.received', 1, ["path:ses"] );
+
+    if ( $spam_verdict eq 'FAIL' ) {
+        DW::Stats::increment( 'dw.incoming_email.processed', 1,
+            [ "result:spam_drop", "path:ses", "kind:none" ] );
+        $log->info("email_outcome result=spam_drop path=ses kind=none from=$source");
+        return 1;
+    }
+    if ( $virus_verdict eq 'FAIL' ) {
+        DW::Stats::increment( 'dw.incoming_email.processed', 1,
+            [ "result:virus_drop", "path:ses", "kind:none" ] );
+        $log->info("email_outcome result=virus_drop path=ses kind=none from=$source");
+        return 1;
+    }
 
     # Extract S3 location from the SES receipt action
     my $action = $receipt->{action};
@@ -226,8 +243,14 @@ sub process_message {
 
     $log->info( "Processing email from s3://$bucket/$key (" . length($raw_email) . " bytes)" );
 
-    # Process the email using the shared pipeline
-    my $rv = DW::IncomingEmail->process($raw_email);
+    # Process the email using the shared pipeline. Pass the SES DMARC verdict +
+    # the sender domain's published policy so forwarding can refuse to re-sign
+    # mail that failed a sender-declared p=reject policy.
+    my $rv = DW::IncomingEmail->process(
+        $raw_email, 'ses',
+        dmarc_verdict => $dmarc_verdict,
+        dmarc_policy  => $dmarc_policy,
+    );
 
     # Clean up the S3 object after successful processing
     if ($rv) {

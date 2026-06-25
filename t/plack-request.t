@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use v5.10;
 
-use Test::More tests => 23;
+use Test::More tests => 26;
 
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
@@ -287,6 +287,45 @@ subtest 'content returns raw request body' => sub {
 };
 
 ###########################################################################
+# 8b. read — chunked body reads for streaming parsers.
+#     The large icon-upload path (DW::Controller::EditIcons) drives the
+#     request body through $r->read($buf, $count, $offset), appending each
+#     chunk at the current length of $buf.  Plack used to lack this method
+#     entirely, so that path silently produced "No data from client".
+###########################################################################
+
+subtest 'read returns body in chunks and appends at offset' => sub {
+    plan tests => 6;
+
+    my $body = 'abcdefghij';    # 10 bytes
+    my $r    = make_request(
+        'REQUEST_METHOD' => 'POST',
+        'CONTENT_TYPE'   => 'application/octet-stream',
+        _body            => $body,
+    );
+
+    # Read the whole body the way parse_multipart_interactive does: in fixed
+    # windows, passing the current buffer length as the offset so each chunk
+    # is appended rather than overwriting what came before.
+    my $window = '';
+    my $got    = $r->read( $window, 4, length($window) );
+    is( $got,    4,      'first read returns 4 bytes' );
+    is( $window, 'abcd', 'first chunk copied into buffer' );
+
+    $got = $r->read( $window, 4, length($window) );
+    is( $window, 'abcdefgh', 'second chunk appended at offset' );
+
+    # Ask for more than remains: only the tail comes back.
+    $got = $r->read( $window, 4, length($window) );
+    is( $got,    2,            'short final read returns remaining byte count' );
+    is( $window, 'abcdefghij', 'buffer holds the full body' );
+
+    # At EOF, read returns 0 (the loop-termination signal the parser relies on).
+    $got = $r->read( $window, 4, length($window) );
+    is( $got, 0, 'read returns 0 at EOF' );
+};
+
+###########################################################################
 # 9. address — with proxy override
 ###########################################################################
 
@@ -381,6 +420,74 @@ subtest 'res with no body omits content-length' => sub {
         $cl = $v if lc($k) eq 'content-length';
     }
     is( $cl, undef, 'no content-length when body was never written' );
+};
+
+###########################################################################
+# 12b. print with multiple arguments — regression test
+#      Before the fix, print() only captured $_[1] (the first argument
+#      after $self), silently dropping all subsequent arguments.  This
+#      broke any caller that passed multiple args, e.g.:
+#        $r->print( $key, "\n", $val, "\n" )
+###########################################################################
+
+subtest 'print accepts multiple arguments' => sub {
+    plan tests => 2;
+
+    my $r = make_request();
+    $r->status(200);
+
+    $r->print( "aaa", "bbb", "ccc" );
+
+    my $res  = $r->res;
+    my $body = join '', @{ $res->[2] };
+
+    is( $body, 'aaabbbccc', 'all arguments are present in the body' );
+
+    # content-length must account for all arguments
+    my @hdrs = @{ $res->[1] };
+    my $cl;
+    while ( my ( $k, $v ) = splice( @hdrs, 0, 2 ) ) {
+        $cl = $v if lc($k) eq 'content-length';
+    }
+    is( $cl, 9, 'content-length reflects total length of all arguments' );
+};
+
+###########################################################################
+# 12c. flat protocol pattern — the exact call pattern used by
+#      DW::Controller::Interface::Flat to emit key\nvalue\n pairs.
+#      This was broken under Plack: only the key was emitted, with
+#      the newline, value, and trailing newline all silently dropped.
+###########################################################################
+
+subtest 'print reproduces flat protocol key/value output' => sub {
+    plan tests => 3;
+
+    my $r = make_request();
+    $r->status(200);
+
+    # Exactly how the flat interface controller emits each pair
+    $r->print( "success",  "\n", "OK",   "\n" );
+    $r->print( "username", "\n", "test", "\n" );
+
+    my $res  = $r->res;
+    my $body = join '', @{ $res->[2] };
+
+    my $expected = "success\nOK\nusername\ntest\n";
+    is( $body, $expected, 'flat protocol output contains keys, values, and newlines' );
+
+    # Verify we can parse it back into key/value pairs
+    my @lines = split /\n/, $body;
+    is( scalar @lines, 4, 'four lines: two key/value pairs' );
+
+    my %parsed;
+    while ( my ( $k, $v ) = splice( @lines, 0, 2 ) ) {
+        $parsed{$k} = $v;
+    }
+    is_deeply(
+        \%parsed,
+        { success => 'OK', username => 'test' },
+        'parsed key/value pairs match expected output'
+    );
 };
 
 ###########################################################################

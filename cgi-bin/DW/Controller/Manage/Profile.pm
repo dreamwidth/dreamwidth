@@ -64,7 +64,6 @@ sub profile_handler {
         }->{ $u->opt_showcontact };
 
     my $errors = DW::FormErrors->new;
-    my @errors;
 
     return DW::Template->render_template( 'error.tt', { message => $LJ::MSG_READONLY_USER } )
         if $u->is_readonly;
@@ -101,14 +100,14 @@ sub profile_handler {
 
     # to store values before they undergo normalisation
     my %saved = ();
-    $saved{'name'} = $u->{'name'};
+    $saved{'name'} = LJ::clean_utf8( $u->{'name'} );
     $saved{'url'}  = $u->{'url'};
 
     # clean userprops
     foreach ( values %$u ) { LJ::text_out( \$_ ); }
 
     # load and clean bio
-    my $bio = $u->bio;
+    my $bio = LJ::clean_utf8( $u->bio );
     $saved{bio} = $bio;
 
     LJ::EmbedModule->parse_module_embed( $u, \$bio, edit => 1 );
@@ -186,7 +185,6 @@ sub profile_handler {
         iscomm           => $iscomm,
         curr_privacy     => $curr_privacy,
         opt_sharebday    => $opt_sharebday,
-        text_in          => \&LJ::text_in,
         help_icon        => \&LJ::help_icon,
         showtoopts       => \@showtoopts,
         interests        => $interests_str,
@@ -215,7 +213,7 @@ sub profile_handler {
     if ( $r->did_post ) {
 
         # name
-        unless ( LJ::trim( $POST->{'name'} ) || defined( $POST->{'name_absent'} ) ) {
+        unless ( LJ::trim( $POST->{'name'} ) ) {
             $errors->add( 'name', '.error.noname' );
         }
 
@@ -246,15 +244,15 @@ sub profile_handler {
             $errors->add( 'day', "$scope.error.day.outofrange" );
         }
 
-        if (   @errors == 0
+        if (  !$errors->exist
             && $POST->{'day'}
             && $POST->{'day'} > LJ::days_in_month( $POST->{'month'}, $POST->{'year'} ) )
         {
             $errors->add( 'day', "$scope.error.day.notinmonth" );
         }
 
-        if ( $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'}
-            && !$POST->{'LJ__Setting__FindByEmail_opt_findbyemail'} =~ /^[HNY]$/ )
+        if (   $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'}
+            && $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'} !~ /^[HNY]$/ )
         {
             $errors->add( undef, "$scope.error.findbyemail" );
         }
@@ -264,12 +262,29 @@ sub profile_handler {
             $errors->add( 'bio', "$scope.error.bio.toolong" );
         }
 
-        # FIXME: validation AND POSTING are handled by widgets' handle_post() methods
-        # (introduce validate_post() ?)
+        # Field validation is done; bail before any saving if it failed. The
+        # Location widget below both validates AND persists immediately, so
+        # running it after a validation error would partially save.
+        if ( $errors->exist ) {
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
+        }
+
+        # FIXME: validation AND POSTING are handled by widgets' handle_post()
+        # methods (introduce validate_post()?). The Location widget's own errors
+        # accumulate in @BMLCodeBlock::errors rather than being returned, so
+        # capture them and surface them through $errors.
+        @BMLCodeBlock::errors = ();
         my $save_search_index = $POST->{'opt_showlocation'} =~ /^[YR]$/;
         LJ::Widget->handle_post( $POST, 'Location' => { save_search_index => $save_search_index } );
-
-        return LJ::error_list(@errors) if @errors;
+        if (@BMLCodeBlock::errors) {
+            foreach my $e (@BMLCodeBlock::errors) {
+                my $eo = LJ::errobj($e);
+                $errors->add_string( '', $eo ? $eo->as_string : "$e" );
+            }
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
+        }
 
         ### no errors
 
@@ -282,11 +297,11 @@ sub profile_handler {
             $POST->{'url'} = "http://$POST->{'url'}";
         }
 
-        my $newname = defined $POST->{'name_absent'} ? $saved{'name'} : $POST->{'name'};
+        my $newname = $POST->{'name'};
         $newname =~ s/[\n\r]//g;
         $newname = LJ::text_trim( $newname, LJ::BMAX_NAME, LJ::CMAX_NAME );
 
-        my $newbio = defined( $POST->{'bio_absent'} ) ? $saved{'bio'} : $POST->{'bio'};
+        my $newbio = $POST->{'bio'};
         $newbio = "" unless defined $newbio;
         my $has_bio   = ( $newbio =~ /\S/ ) ? "Y" : "N";
         my $new_bdate = sprintf( "%04d-%02d-%02d",
@@ -314,12 +329,12 @@ sub profile_handler {
 
         my $save_rv = LJ::Setting->save_all( $u, $POST, \@settings );
         if ( LJ::Setting->save_had_errors($save_rv) ) {
-            my @save_errors;
-            for ( keys %$save_rv ) {
-                my $e = $save_rv->{$_}->{save_errors};
-                push @save_errors, $e->{ ( keys %$e )[0] };
+            for my $setting ( keys %$save_rv ) {
+                my $e = $save_rv->{$setting}->{save_errors} or next;
+                $errors->add_string( $_, $e->{$_} ) foreach keys %$e;
             }
-            return LJ::error_list(@save_errors);
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
         }
 
         $u->update_self( \%update );
@@ -407,7 +422,7 @@ sub profile_handler {
 
         # update their bio text
         LJ::EmbedModule->parse_module_embed( $u, \$POST->{'bio'} );
-        $u->set_bio( $POST->{'bio'}, $POST->{'bio_absent'} );
+        $u->set_bio( $POST->{'bio'} );
 
         # update interests
         unless ( $POST->{'interests_absent'} ) {
@@ -474,6 +489,14 @@ sub profile_handler {
                 . LJ::Lang::ml("$scope.success.editicons")
                 . "</a></li></ul>";
         }
+
+        # interest validation (above) can add errors after the main save; if so,
+        # re-render with them instead of reporting success
+        if ( $errors->exist ) {
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
+        }
+
         return $r->msg_redirect( $success_msg, $r->SUCCESS, $profile_url );
     }
 

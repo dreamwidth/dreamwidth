@@ -14,6 +14,7 @@
 package LJ::Lang;
 use strict;
 use LJ::LangDatFile;
+use DW::CacheStats;
 
 use constant MAXIMUM_ITCODE_LENGTH => 120;
 
@@ -137,6 +138,9 @@ my %LN_ID     = ();    # id -> { ..., ..., 'children' => [ $ids, .. ] }
 my %LN_CODE   = ();    # $code -> ^^^^
 my $LAST_ERROR;
 my %TXT_CACHE;
+
+# instrument this persistent translation cache's byte size for memory metrics
+DW::CacheStats::register( 'lang_txt_cache', sub { \%TXT_CACHE } );
 
 sub last_error {
     return $LAST_ERROR;
@@ -342,12 +346,13 @@ sub get_itemid {
     return 0 unless $dbh;
 
     # allocate a new id
-    LJ::DB::get_lock( $dbh, 'global', 'mlitem_dmid' ) || return 0;
+    my $lock = LJ::locker()->trylock( 'mlitem_dmid', class => 'ml_item', wait => 10 )
+        or return 0;
     $itid = $dbh->selectrow_array( "SELECT MAX(itid)+1 FROM ml_items WHERE dmid=?", undef, $dmid );
     $itid ||= 1;    # if the table is empty, NULL+1 == NULL
     $dbh->do( "INSERT INTO ml_items (dmid, itid, itcode, notes) " . "VALUES (?, ?, ?, ?)",
         undef, $dmid, $itid, $itcode, $opts->{'notes'} );
-    LJ::DB::release_lock( $dbh, 'global', 'mlitem_dmid' );
+    $lock->release;
 
     if ( $dbh->err ) {
         return $dbh->selectrow_array( "SELECT itid FROM ml_items WHERE dmid=$dmid AND itcode=?",
@@ -410,13 +415,14 @@ sub set_text {
         # Strip bad characters
         $text =~ s/\r//;
         my $qtext = $dbh->quote($text);
-        LJ::DB::get_lock( $dbh, 'global', 'ml_text_txtid' ) || return 0;
+        my $lock  = LJ::locker()->trylock( 'ml_text_txtid', class => 'ml_text', wait => 10 )
+            or return 0;
         $txtid =
             $dbh->selectrow_array( "SELECT MAX(txtid)+1 FROM ml_text WHERE dmid=?", undef, $dmid );
         $txtid ||= 1;
         $dbh->do( "INSERT INTO ml_text (dmid, txtid, lnid, itid, text, userid) "
                 . "VALUES ($dmid, $txtid, $lnid, $itid, $qtext, $userid)" );
-        LJ::DB::release_lock( $dbh, 'global', 'ml_text_txtid' );
+        $lock->release;
         return set_error( "Error inserting ml_text: " . $dbh->errstr ) if $dbh->err;
     }
     if ( $opts->{'txtid'} ) {
@@ -427,7 +433,13 @@ sub set_text {
     $dbh->do( "REPLACE INTO ml_latest (lnid, dmid, itid, txtid, chgtime, staleness) "
             . "VALUES ($lnid, $dmid, $itid, $txtid, NOW(), $staleness)" );
     return set_error( "Error inserting ml_latest: " . $dbh->errstr ) if $dbh->err;
-    LJ::MemCache::set( "ml.${lncode}.${dmid}.${itcode}", $text ) if defined $text;
+    if ( defined $text ) {
+        LJ::MemCache::set( "ml.${lncode}.${dmid}.${itcode}", $text );
+
+        # keep the in-process cache in step with memcache, else a worker that
+        # already cached this code as missing would keep serving the stale miss
+        $TXT_CACHE{"ml.${lncode}.${dmid}.${itcode}"} = $text;
+    }
 
     my $langids;
     {
@@ -445,6 +457,7 @@ sub set_text {
                 $langids .= "," if $langids;
                 $langids .= $cid + 0;
                 LJ::MemCache::delete("ml.$clid->{'lncode'}.${dmid}.${itcode}");
+                delete $TXT_CACHE{"ml.$clid->{'lncode'}.${dmid}.${itcode}"};
                 $rec->( $clid, $rec );
             }
         };
@@ -604,13 +617,40 @@ sub get_text {
 
     my $gen_mld     = LJ::Lang::get_dom('general');
     my $is_gen_dmid = defined $dmid ? $dmid == $gen_mld->{dmid} : 1;
-    my $text =
-        (
-        $LJ::IS_DEV_SERVER && $is_gen_dmid && ( $lang eq "en"
-            || $lang eq $LJ::DEFAULT_LANG )
-        )
-        ? $from_files->()
-        : $from_db->();
+    my $is_src_lang = ( $lang eq "en" || $lang eq $LJ::DEFAULT_LANG );
+
+    my $text;
+    if ( $LJ::IS_DEV_SERVER && $is_gen_dmid && $is_src_lang ) {
+
+        # dev server: read the source files directly (no DB writes) so edits to
+        # .text/.dat files show up immediately without a `texttool.pl load`.
+        $text = $from_files->();
+    }
+    else {
+        $text = $from_db->();
+
+        # production auto-load: general-domain strings live in .text/.dat files
+        # that ship with the code. If a string isn't in the DB yet, pull it from
+        # the file and persist it as the source language -- propagating to every
+        # language as an untranslated fallback (childrenlatest) -- so deploying
+        # the files is enough and no separate `texttool.pl load` step is needed.
+        # Best-effort: a failure here must never break rendering.
+        if ( $is_gen_dmid && !$LJ::IS_DEV_SERVER && LJ::Lang::is_missing_string($text) ) {
+            my $srcval = $from_files->();
+            unless ( LJ::Lang::is_missing_string($srcval) ) {
+
+                # the shipped .text/.dat files are the "en" root source (this is
+                # how `texttool.pl poptext` loads them); persisting under "en"
+                # with childrenlatest gives every other language a fallback row.
+                eval {
+                    LJ::Lang::set_text( $gen_mld->{dmid}, 'en', $code, $srcval,
+                        { childrenlatest => 1 } );
+                    1;
+                } or warn "ML auto-load failed for [$code]: $@";
+                $text = $srcval;
+            }
+        }
+    }
 
     if ( defined $vars && ref $vars eq 'HASH' ) {
         $text =~ s/\[\[\?([\w\-]+)\|(.+?)\]\]/resolve_plural($lang, $vars, $1, $2)/eg;

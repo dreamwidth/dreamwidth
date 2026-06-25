@@ -18,6 +18,7 @@ package DW::TaskQueue;
 
 use strict;
 use v5.10;
+use Time::HiRes ();
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
@@ -184,6 +185,8 @@ sub start_work {
             )
         );
 
+        DW::Stats::increment( 'dw.task.received', scalar(@$messages), ["task_class:$class"] );
+
         my ( @completed,       @failed );
         my ( $work_start_time, $work_end_time );
         foreach my $message_pair (@$messages) {
@@ -195,6 +198,7 @@ sub start_work {
                 if $local_start_time < $work_start_time || !defined $work_start_time;
 
             my ( $res, $abort );
+            my $job_start = Time::HiRes::time();
             eval {
                 local $SIG{ALRM} = sub {
                     $log->error(
@@ -209,12 +213,27 @@ sub start_work {
                 $res = $message->work($handle);
             };
             alarm 0;
-            die if $@;    # Reraise if the work call died.
+            my $work_ms = ( Time::HiRes::time() - $job_start ) * 1000;
+
+            # The work call died: record it as its own result state, then reraise.
+            if ($@) {
+                DW::Stats::increment( 'dw.task.processed', 1,
+                    [ "task_class:$class", 'outcome:died' ] );
+                DW::Stats::timing( 'dw.task.duration_seconds', $work_ms,
+                    [ "task_class:$class", 'outcome:died' ] );
+                die;
+            }
 
             # Clear out MDC so we don't continue to log with whatever the worker might
             # have put into context
             Log::Log4perl::MDC->remove;
-            return if $abort;
+            if ($abort) {
+                DW::Stats::increment( 'dw.task.processed', 1,
+                    [ "task_class:$class", 'outcome:timeout' ] );
+                DW::Stats::timing( 'dw.task.duration_seconds', $work_ms,
+                    [ "task_class:$class", 'outcome:timeout' ] );
+                return;
+            }
 
             $messages_done++;
 
@@ -223,8 +242,10 @@ sub start_work {
             $work_end_time = $local_end_time
                 if $local_end_time > $work_end_time || !defined $work_end_time;
 
+            my $outcome;
             if ( $res == DW::Task::COMPLETED ) {
                 push @completed, $handle;
+                $outcome = 'completed';
 
                 # Release dedup key on successful completion
                 if ( my $uniqkey = $message->uniqkey ) {
@@ -242,10 +263,12 @@ sub start_work {
                         )
                     );
                     push @completed, $handle;
+                    $outcome = 'failed_abandoned';
                 }
                 else {
                     $log->warn( sprintf( '[%s] Message "%s" failed', $class, $handle ) );
                     push @failed, $handle;
+                    $outcome = 'failed_retry';
                 }
 
                 # Release dedup key on failure so the task can be
@@ -254,6 +277,18 @@ sub start_work {
                     DW::TaskQueue::Dedup->release_unique( ref($message), $uniqkey );
                 }
             }
+
+            # Per-job stats, tagged by result state so a slow/failing class shows
+            # up on its own series and failures don't skew the success timing.
+            #
+            # The timing VALUE is milliseconds (statsd "ms" type), but the
+            # Prometheus statsd_exporter converts "ms" timers to base-unit
+            # seconds -- so the metric is named *_seconds to match what it
+            # actually stores. (Same convention as dw.request.duration_seconds
+            # in Plack::Middleware::DW::AccessLog.)
+            my @stat_tags = ( "task_class:$class", "outcome:$outcome" );
+            DW::Stats::increment( 'dw.task.processed', 1, \@stat_tags );
+            DW::Stats::timing( 'dw.task.duration_seconds', $work_ms, \@stat_tags );
         }
 
         $log->debug(

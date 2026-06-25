@@ -279,4 +279,11 @@
 
 # Enable shop point transfers
 %LJ::SHOP = ( points => [] );
+
+# Manticore search (optional). The package is installed in the devcontainer
+# but not auto-started. To enable: uncomment the line below, then run
+# `searchd --config /etc/manticoresearch/manticore.conf`. Default config
+# binds 9312 (sphinx), 9306 (sphinxql), 9308 (http) on 127.0.0.1.
+# See t/search-manticore.t.
+#@LJ::MANTICORE = ( '127.0.0.1', 9312, 9306 );
 1;

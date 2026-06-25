@@ -153,6 +153,12 @@ use Net::Subnet;
     #     port => 8125,
     # );
 
+    # Fraction (0..1) of requests on which DW::CacheStats measures the byte size
+    # of the web process's in-memory caches (and reports process RSS), emitting
+    # them as timing/histogram metrics via %STATS above. Measurement deep-walks
+    # each cache, so keep this low; it defaults to 0 (disabled).
+    # $CACHE_STATS_SAMPLE_RATE = 0.01;
+
     # If you are going to be using the external content proxy system, you should
     # define a file here that contains your private salt.
     # $PROXY_URL = "https://proxy.myhost.net";
@@ -242,6 +248,16 @@ use Net::Subnet;
     # $CAPTCHA_BYPASS_IP = subnet_matcher qw(
     #     192.168.10.10/32
     # );
+    #
+    # # Force a captcha for specific requests regardless of source IP. A coderef
+    # # passed the DW::Request; return true to require a captcha. Anonymous only
+    # # (logged-in users are never captcha'd). Hot-reloadable. Example:
+    # $SHOULD_CAPTCHA_REQUEST = sub {
+    #     my $r = shift;
+    #     return 1 if ( $r->query_string // '' ) =~ /(?:^|&)example_flag=/;
+    #     return 1 if $r->uri =~ m!^/some/example/path!;
+    #     return 0;
+    # };
 }
 
 {

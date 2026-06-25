@@ -122,15 +122,15 @@
       "target_cpu": 50,
       "sqs_queue_name": "dw-prod-dw-task-sendemail"
     },
-    "dw-sphinx-copier": {
+    "dw-search-copier": {
       "cpu": 256,
       "memory": 512,
       "category": "search",
       "spot": true,
       "min_count": 1,
-      "max_count": 50,
+      "max_count": 10,
       "target_cpu": 30,
-      "sqs_queue_name": "dw-prod-dw-task-sphinxcopier"
+      "sqs_queue_name": "dw-prod-dw-task-searchcopier"
     },
     "dw-latest-feed": {
       "cpu": 256,
@@ -162,6 +162,7 @@
       "sqs_queue_name": "dw-prod-dw-task-massprivacy"
     },
     "dw-synsuck": {
+      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "sqs",
@@ -172,6 +173,7 @@
       "sqs_queue_name": "dw-prod-dw-task-synsuck"
     },
     "dw-xpost": {
+      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "sqs",
@@ -240,6 +242,16 @@
       "max_count": 1,
       "target_cpu": 50,
       "sqs_queue_name": "dw-prod-ses-incoming-email"
+    },
+    "ses-email-events": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "email",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "sqs_queue_name": "dw-prod-ses-email-events"
     },
     "dw-import-eraser": {
       "cpu": 256,
@@ -333,6 +345,7 @@
       "target_cpu": 50
     },
     "resolve-extacct": {
+      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "misc",
@@ -350,6 +363,23 @@
       "max_count": 1,
       "target_cpu": 50
     },
+    "search-lookup": {
+      "cpu": 512,
+      "memory": 2048,
+      "category": "search",
+      "spot": true,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "extra_efs_volumes": [
+        {
+          "name": "dw-usersearch",
+          "rootDirectory": "/usersearch",
+          "containerPath": "/dw/var/usersearch",
+          "readOnly": false
+        }
+      ]
+    },
     "shop-creditcard-charge": {
       "cpu": 256,
       "memory": 512,
@@ -363,24 +393,6 @@
       "cpu": 256,
       "memory": 512,
       "category": "misc",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 1,
-      "target_cpu": 50
-    },
-    "sphinx-copier": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "search",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 1,
-      "target_cpu": 50
-    },
-    "sphinx-search-gm": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "search",
       "spot": true,
       "min_count": 1,
       "max_count": 1,

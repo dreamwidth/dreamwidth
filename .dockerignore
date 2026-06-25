@@ -1,1 +1,39 @@
 .git
+
+# Mirrors .gitignore — keeps local dev state out of the build context so
+# `docker build .` produces the same image CI does.
+_build
+/docs
+/logs
+/temp
+/extlib
+/ext/dw-private
+/ext/local
+/ext/ruby
+/ext/yuicompressor
+/etc/config*.pl
+/build
+/locks
+/var
+*.sw?
+src/proxy/proxy
+src/dwtool/dwtool
+.vscode
+.vstags
+.perl-cpm
+
+# node_modules anywhere in the tree
+**/node_modules
+
+# SCSS/CSS build artifacts
+**/.sass-cache
+htdocs/stc/css
+ext/dw-nonfree/htdocs/stc/css
+
+# Test / tidy local state
+t-theschwartz.sqlite
+.tidyall.d
+
+# Worktrees and tool state
+.worktrees
+.claude

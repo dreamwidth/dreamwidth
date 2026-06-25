@@ -24,7 +24,12 @@ use DW::Template;
 use DW::Controller;
 use DW::FormErrors;
 
-DW::Routing->register_string( '/login', \&login_handler, app => 1 );
+# no_cache: the login form embeds a form_auth (CSRF) token that, for logged-out
+# users, is bound to their per-browser ljuniq cookie. If a shared proxy caches
+# this page, everyone is served one user's token and their login POST fails with
+# "Invalid form submission". (The pre-TT login.bml set nocache=>1 for the same
+# reason; /register and /openid carry no_cache => 1 likewise.)
+DW::Routing->register_string( '/login', \&login_handler, app => 1, no_cache => 1 );
 
 sub login_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
@@ -39,9 +44,21 @@ sub login_handler {
     # '.error.notuser') resolve correctly before render_template runs.
     $r->note( ml_scope => '/login.tt' );
 
+    # The page to send the user back to after a successful login. Prefer the
+    # POSTed value (form resubmission) over the GET value so a failed login
+    # attempt keeps the destination. Strip CR/LF up front so the value can't be
+    # used for header injection when it later builds a Location header on
+    # redirect.
+    my $returnto = $post->{returnto} // $get->{returnto};
+    $returnto =~ tr/\r\n//d if defined $returnto;
+
     my $vars = {
         continue_to => $get->{continue_to},
-        return_to   => $get->{return_to}
+
+        # forwarded into the login form (components/login.tt) as a hidden field
+        # so that, after a successful login, we send the user back to the page
+        # they were trying to reach when they got bounced here by needlogin().
+        returnto => $returnto,
     };
 
     my @errors = ();
@@ -219,11 +236,11 @@ sub login_handler {
 # In both cases, we need to validate the URL before we redirect to it, to prevent XSS and similar attacks
 
                 my $redirect_url;
-                if ( $post->{returnto} ) {
+                if ($returnto) {
 
                     # this passes in the URI of the page to redirect to on success, eg:
                     # /manage/profile/index?authas=test or whatever
-                    $redirect_url = $post->{returnto};
+                    $redirect_url = $returnto;
                     if ( $redirect_url =~ /^\// ) {
                         $redirect_url = $LJ::SITEROOT . $redirect_url;
                     }

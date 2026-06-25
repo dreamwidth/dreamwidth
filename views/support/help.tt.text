@@ -1,0 +1,55 @@
+;; -*- coding: utf-8 -*-
+.backlink=Return to the <a [[backurl]]>Support Area</a>.
+
+.button.filter=Filter
+
+.cat.all=All
+
+.notifylink=Receive <a [[url]]>notifications</a> of support activity.
+
+.requests.type=requests of type
+
+.showonlyhelp=Show only
+
+.state.closed=Closed
+
+.state.closed.text=All support requests that have been recently closed are below.   <a [[clickurl]]>Return to open requests</a>
+
+.state.closed.title=Recently Closed Support Requests
+
+.state.else.text=All support requests that are open (they just came in and haven't been touched yet) or answered (they're waiting to be closed by the person needing help or the person still needs help) are below.  The <a [[statelink]]>closed reports</a> are also available.  If you help someone who confirms your help, you receive the number of points indicated in the status column.  These points will show up on your profile page
+
+.state.else.title=Open Support Requests
+
+.state.green=Green
+
+.state.open=Open
+
+.state.youreplied.rem.text=You must be logged in to filter on requests that you've replied to.
+
+.state.youreplied.rem.title=Error
+
+.state.youreplied.text=This shows all open requests you've replied to.
+
+.state.youreplied.title=Requests you replied to
+
+.statr.youreplied=You Replied
+
+.status.awaitingclose=Answered awaiting close
+
+.status.needhelp=Still need help
+
+.status.totalopen=Total open
+
+.status.unanswered=Unanswered
+
+.th.posted=Posted
+
+.th.problemarea=Problem Area
+
+.th.recent=Updated
+
+.th.status=Status
+
+.th.summary=Summary
+
