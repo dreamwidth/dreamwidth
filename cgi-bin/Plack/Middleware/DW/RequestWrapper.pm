@@ -25,9 +25,12 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use parent qw/ Plack::Middleware /;
 
 use DW::Request;
+use DW::WorkerOccupancy;
 
 sub call {
     my ( $self, $env ) = @_;
+
+    DW::WorkerOccupancy::request_start();
 
     # Request setup -- clears caches, reloads config, resets DW::Request
     LJ::start_request();
@@ -49,8 +52,12 @@ sub call {
     # Pass on down
     my $res = $self->app->($env);
 
-    # Close out and return
+    # Close out and return. NOTE: DW returns arrayref PSGI responses, so busy
+    # time ends here. If streaming (coderef) responses are ever introduced,
+    # request_end would fire before streaming completes and under-report busy
+    # time -- handle explicitly at that point.
     LJ::end_request();
+    DW::WorkerOccupancy::request_end();
     return $res;
 }
 
