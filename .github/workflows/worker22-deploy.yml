@@ -54,6 +54,7 @@ on:
         - shop-creditcard-charge
         - spellcheck-gm
         - support-notify
+        - web-autoscaler
       tag:
         type: string
         description: SHA256 to deploy (include "sha256:" prefix)
@@ -460,6 +461,15 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
+      - name: (web-autoscaler) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'web-autoscaler'
+        id: render-worker-container-web-autoscaler
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-web-autoscaler-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
       - name: (birthday-notify) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'birthday-notify'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -795,6 +805,14 @@ jobs:
           task-definition: ${{ steps.render-worker-container-support-notify.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-support-notify-service"
+
+      - name: (web-autoscaler) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'web-autoscaler'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-web-autoscaler.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-web-autoscaler-service"
 
       - name: Notify Discord
         uses: sarisia/actions-status-discord@v1

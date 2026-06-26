@@ -9,6 +9,21 @@
       "max_count": 1,
       "target_cpu": 50
     },
+    "web-autoscaler": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "misc",
+      "spot": false,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "task_role": "dreamwidth-autoscaler-taskRole",
+      "environment": [
+        { "name": "DW_AUTOSCALER_CONFIG", "value": "/dw/etc/autoscaler.json" },
+        { "name": "DW_ECS_CLUSTER", "value": "dreamwidth" },
+        { "name": "AWS_REGION", "value": "us-east-1" }
+      ]
+    },
     "change-poster-id": {
       "cpu": 256,
       "memory": 512,
