@@ -200,7 +200,8 @@ sub print {
     # configured to require one via %LJ::CAPTCHA_FOR); the interesting splits are
     # the page, captcha type, web tier, and whether the viewer was logged in.
     DW::Stats::increment(
-        'dw.captcha.shown', 1,
+        'dw.captcha.shown',
+        1,
         _stat_tags(
             LJ::get_remote(), 'kind:form',
             'reason:form_required', 'page:' . ( $self->page // '' ),
@@ -434,11 +435,7 @@ sub _captcha_mckey {
 # object (or undef/false for anonymous), plus any metric-specific tags.
 sub _stat_tags {
     my ( $remote, @extra ) = @_;
-    return [
-        'tier:' . ( $LJ::WEB_TIER // 'unknown' ),
-        'logged_in:' . ( $remote ? 1 : 0 ),
-        @extra,
-    ];
+    return [ 'tier:' . $LJ::WEB_TIER, 'logged_in:' . ( $remote ? 1 : 0 ), @extra ];
 }
 
 # internal method. Used to initialize the challenge and response fields
