@@ -196,6 +196,19 @@ sub print {
     my $self = $_[0];
     return "" unless $self->enabled;
 
+    # Record that a form captcha was issued. The reason is static (the page is
+    # configured to require one via %LJ::CAPTCHA_FOR); the interesting splits are
+    # the page, captcha type, web tier, and whether the viewer was logged in.
+    DW::Stats::increment(
+        'dw.captcha.shown',
+        1,
+        _stat_tags(
+            LJ::get_remote(), 'kind:form',
+            'reason:form_required', 'page:' . ( $self->page // '' ),
+            'type:' . $self->name
+        )
+    );
+
     my $ret = "<div class='captcha'>";
     $ret .= $self->_print;
     $ret .= "<p style='clear:both'>"
@@ -221,8 +234,9 @@ sub validate {
     # error catching for undefined page
     my $pageref = $self->page // '';
 
-    # captcha type, page captcha appeared on
-    my $stat_tags = [ ( ref $self )->name, "page:$pageref" ];
+    # captcha type, page captcha appeared on, web tier, logged-in state
+    my $stat_tags =
+        _stat_tags( LJ::get_remote(), 'type:' . ( ref $self )->name, "page:$pageref" );
     if ( $self->challenge && $self->_validate ) {
         DW::Stats::increment( "dw.captcha.success", 1, $stat_tags );
         return 1;
@@ -325,8 +339,11 @@ sub should_captcha_view {
         if ( $count >= $LJ::CAPTCHA_FRAUD_LIMIT ) {
             $log->info( 'Banning ', $ip, ' for exceeding captcha fraud threshold.' );
             LJ::Sysban::tempban_create( ip => $ip, $LJ::CAPTCHA_FRAUD_SYSBAN_SECS );
+            DW::Stats::increment( 'dw.captcha.fraud_ban', 1, _stat_tags($remote) );
         }
 
+        DW::Stats::increment( 'dw.captcha.shown', 1,
+            _stat_tags( $remote, 'kind:interstitial', 'reason:no_record' ) );
         return 1;
     }
 
@@ -337,6 +354,8 @@ sub should_captcha_view {
     # If the first request is too long ago, then re-captcha
     if ( ( time() - $first_req_ts ) > $LJ::CAPTCHA_RETEST_INTERVAL_SECS ) {
         $log->info( $mckey, ' has exceeded the retest interval, issuing captcha.' );
+        DW::Stats::increment( 'dw.captcha.shown', 1,
+            _stat_tags( $remote, 'kind:interstitial', 'reason:retest_interval' ) );
         return 1;
     }
 
@@ -354,6 +373,8 @@ sub should_captcha_view {
     # If we are out of requests, retest
     if ( $remaining <= 0 ) {
         $log->info( $mckey, ' is out of requests by usage, retesting.' );
+        DW::Stats::increment( 'dw.captcha.shown', 1,
+            _stat_tags( $remote, 'kind:interstitial', 'reason:out_of_requests' ) );
         return 1;
     }
 
@@ -364,6 +385,7 @@ sub should_captcha_view {
 
 # Called when the captcha page has a successful captcha.
 sub record_success {
+    my ( $class, $remote ) = @_;
 
     # Return unless we're enabled
     return 0 unless $LJ::CAPTCHA_HCAPTCHA_SITEKEY;
@@ -371,6 +393,7 @@ sub record_success {
     my $mckey = _captcha_mckey();
     $log->debug( 'Captcha success for: ', $mckey );
     LJ::MemCache::set( $mckey, join( ':', time(), time(), $LJ::CAPTCHA_INITIAL_REMAINING ) );
+    DW::Stats::increment( 'dw.captcha.solved', 1, _stat_tags($remote) );
 }
 
 # Reset the captcha counter, so the user starts getting them
@@ -404,6 +427,15 @@ sub _captcha_mckey {
     my $uniq       = LJ::UniqCookie->current_uniq;
     my $mckey      = "$uniq:$ip_trimmed";
     return wantarray ? ( $mckey, $ip ) : $mckey;
+}
+
+# Common DW::Stats tags applied to every captcha metric so they can be sliced
+# consistently: which web tier emitted the metric (e.g. "stable"/"canary" from
+# $LJ::WEB_TIER) and whether the viewer was logged in. Pass the remote user
+# object (or undef/false for anonymous), plus any metric-specific tags.
+sub _stat_tags {
+    my ( $remote, @extra ) = @_;
+    return [ 'tier:' . $LJ::WEB_TIER, 'logged_in:' . ( $remote ? 1 : 0 ), @extra ];
 }
 
 # internal method. Used to initialize the challenge and response fields
