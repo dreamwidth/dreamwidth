@@ -109,12 +109,16 @@ sub new {
         unless $subclass && $subclass->site_enabled;
 
     # The default type can be stale -- e.g. config still pins a %CAPTCHA_TYPES
-    # letter we no longer ship -- which leaves $subclass undef. Fall back to any
-    # registered implementation rather than blessing into undef (which would die
-    # on the first method call), and make the misconfiguration visible.
+    # letter we no longer ship -- which leaves $subclass undef. Prefer the first
+    # *enabled* implementation so we don't silently bless into a disabled captcha
+    # (whose validate() is a no-op, bypassing the captcha entirely). Fall back to
+    # any registered implementation, then the base class, rather than blessing
+    # into undef (which would die on the first method call), and make the
+    # misconfiguration visible.
     unless ($subclass) {
-        ($subclass) = map { $impl2class{$_} } sort keys %impl2class;
-        $subclass ||= $class;
+        my @registered = map { $impl2class{$_} } sort keys %impl2class;
+        ($subclass) = grep { $_->site_enabled } @registered;
+        $subclass ||= $registered[0] || $class;
         $log->error(
             "\$LJ::DEFAULT_CAPTCHA_TYPE '",
             $LJ::DEFAULT_CAPTCHA_TYPE // '',
