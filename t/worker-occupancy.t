@@ -26,7 +26,7 @@ use DW::WorkerOccupancy;
 # Controllable clock
 my $t = 1000.0;
 local $DW::WorkerOccupancy::CLOCK = sub { $t };
-local $ENV{DW_LOKI_SERVICE} = 'web-test';
+local $LJ::WEB_TIER               = 'web-test';
 
 my $shard    = $$ % 64;
 my $busy_key = "dw:sched:busy_ms:web-test:$shard";
@@ -61,11 +61,10 @@ with_fake_memcache {
     is( LJ::MemCache::get($busy_key), 850, 'busy accumulates to 850ms' );
 };
 
-# No service env => total no-op (dev / non-ECS)
+# Empty tier => total no-op (dev / unconfigured)
 with_fake_memcache {
     DW::WorkerOccupancy::__reset();
-    local $ENV{DW_LOKI_SERVICE};
-    delete $ENV{DW_LOKI_SERVICE};
+    local $LJ::WEB_TIER = '';
     DW::WorkerOccupancy::request_start();
     $t = 1003.6;
     DW::WorkerOccupancy::request_end();

@@ -295,11 +295,18 @@ use Net::Subnet;
     #    private_key => ,
     #);
 
+    # Which web pool/tier this install serves. Defaults to 'default'; production
+    # sets it per pool from the deploy environment. This is the ONLY place a
+    # production environment variable should appear -- app code reads
+    # $LJ::WEB_TIER, never the environment directly. It becomes the "tier" label
+    # on request metrics and the memcached namespace the autoscaler reads.
+    #$WEB_TIER = $ENV{DW_LOKI_SERVICE};
+
     # Occupancy-based web-tier autoscaler (bin/worker/web-autoscaler). Region and
-    # ecs_cluster are required. Each key under 'services' MUST equal the workers'
-    # DW_LOKI_SERVICE for that pool -- it's the memcached namespace the autoscaler
-    # reads -- while ecs_service is the ECS service it scales. Set dry_run to log
-    # decisions without touching ECS.
+    # ecs_cluster are required. Each key under 'services' MUST equal that pool's
+    # $WEB_TIER -- it's the memcached namespace the autoscaler reads -- while
+    # ecs_service is the ECS service it scales. Set dry_run to log decisions
+    # without touching ECS.
     #%AUTOSCALER = (
     #    region      => 'us-east-1',
     #    ecs_cluster => 'dreamwidth',
