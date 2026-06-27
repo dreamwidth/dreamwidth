@@ -141,7 +141,7 @@ my $ADAPT_DELAY       = 0;   # current carried-over delay (state)
 my $ADAPT_OK          = 0;   # consecutive clean windows (state)
 
 # now figure out what we're doing
-if ($opts{help} || !($opts{sync} || $opts{dumptype} || $opts{alter_security})) {
+if ($opts{help} || !($opts{sync} || $opts{dumptype} || $opts{alter_security} || $opts{backfill})) {
     print <<HELP;
 jbackup.pl -- journal database generator and formatter
 
