@@ -79,7 +79,7 @@
         }
     ],
     "family": "worker-web-autoscaler",
-    "taskRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-autoscaler-taskRole",
+    "taskRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecs-autoscaler-taskRole",
     "executionRoleArn": "arn:aws:iam::194396987458:role/dreamwidth-ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "volumes": [
