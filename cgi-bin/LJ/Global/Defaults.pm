@@ -48,6 +48,13 @@ no strict "vars";
 
     $SERVER_NAME ||= Sys::Hostname::hostname();
 
+    # Which web pool/tier this process serves (e.g. web-stable,
+    # web-unauthenticated). Used as the "tier" dimension on request metrics and
+    # as the memcached namespace the occupancy autoscaler reads. Production sets
+    # this from its environment in config-private-prod.pl; every other install
+    # shares a single 'default' tier.
+    $WEB_TIER ||= 'default';
+
     @LANGS = ("en") unless @LANGS;
     $DEFAULT_LANG ||= $LANGS[0];
 
@@ -171,6 +178,11 @@ no strict "vars";
 
     # block size is used in stats generation code that gets n rows from the db at a time
     $STATS_BLOCK_SIZE ||= 10_000;
+
+    # fraction (0..1) of requests on which DW::CacheStats measures the byte size
+    # of in-process caches. Measurement is expensive, so this defaults off; set
+    # it in config-private (e.g. 0.01) once a stats sink (%STATS) is configured.
+    $CACHE_STATS_SAMPLE_RATE //= 0;
 
     # Maximum number of comments to display on Recent Comments page
     $TOOLS_RECENT_COMMENTS_MAX ||= 150;

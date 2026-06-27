@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Dreamwidth is a Perl-based journaling/blogging platform forked from LiveJournal. It runs on Apache mod_perl with MySQL, Memcached, and TheSchwartz job queue. All code must be GPL-licensed.
+Dreamwidth is a Perl-based journaling/blogging platform forked from LiveJournal. It runs on Plack/Starman with MySQL, Memcached, and TheSchwartz job queue. All code must be GPL-licensed.
 
 ## Development Environment
 
-Code is edited on the host, but **all commands must be run inside the devcontainer** (`.devcontainer/`). The devcontainer runs Ubuntu 22.04 with MySQL, Memcached, and Apache mod_perl. The workspace is mounted at `/workspaces/dreamwidth` (`$LJHOME`). Perl modules are pre-installed at `/opt/dreamwidth-extlib/lib/perl5` (`$PERL5LIB`).
+Code is edited on the host, but **all commands must be run inside the devcontainer** (`.devcontainer/`). The devcontainer runs Ubuntu 22.04 with MySQL, Memcached, and a Plack/Starman web server. The workspace is mounted at `/workspaces/dreamwidth` (`$LJHOME`). Perl modules are pre-installed at `/opt/dreamwidth-extlib/lib/perl5` (`$PERL5LIB`).
 
 ### Container Management
 
@@ -56,8 +56,9 @@ perl t/00-compile.t
 # Compile static assets (CSS/JS)
 bin/build-static.sh
 
-# Restart Apache after code changes
-apache2ctl restart
+# Restart the dev web server after code changes (the dev Starman hot-reloads
+# changed modules via DW::Dev; restart for config/startup changes)
+pkill starman; bash .devcontainer/start.sh
 ```
 
 ### Worktree Workflow (ALWAYS work in a worktree)
@@ -107,7 +108,8 @@ Enforced via Perl::Tidy (`.tidyallrc`): Unix line endings, 4-space continuation 
 
 - **`DW::*`** — Modern Dreamwidth code (controllers, auth, blob storage, templates)
 - **`LJ::*`** — Legacy LiveJournal modules (still heavily used for core entities: users, entries, comments)
-- **`Apache::*`** — mod_perl request handlers
+- **`Apache::*`** — legacy namespace; now just `Apache::BML`, the shared BML rendering engine (used by `DW::BML` under Starman)
+- **`Plack::Middleware::DW::*`** — the Starman/Plack request pipeline (`cgi-bin/Plack/Middleware/DW/`)
 - **`S2::*`** — S2 style/theming language compiler
 
 ### Key Directories
@@ -126,7 +128,7 @@ Enforced via Perl::Tidy (`.tidyallrc`): Unix line endings, 4-space continuation 
 
 ### Request Flow
 
-1. Apache mod_perl receives request → `Apache::*` handlers
+1. Starman/Plack receives request → `app.psgi` middleware stack (`Plack::Middleware::DW::*`)
 2. `DW::Routing` dispatches to `DW::Controller::*` modules
 3. Controllers use `DW::Controller` helpers (`controller()`, `needlogin()`, `error_ml()`, `success_ml()`)
 4. Views rendered via `DW::Template` using Template Toolkit (`.tt` files in `views/`)
@@ -151,21 +153,21 @@ Media/blob storage via `DW::BlobStore` with pluggable backends: S3, MogileFS, or
 
 Background processing via `DW::TaskQueue` with pluggable backends: SQS (`DW::TaskQueue::SQS`) or local disk (`DW::TaskQueue::LocalDisk`). Tasks are defined in `DW::Task::*`. Legacy jobs use TheSchwartz. Worker scripts in `bin/worker/`.
 
-### Plack Server (development)
+### Plack Server
 
-The codebase runs under both Apache/mod_perl and Plack/Starman. See **`doc/PLACK.md`** for full architecture details (middleware stack, routing, security notes, testing).
+The site runs on Plack/Starman (Apache/mod_perl was retired). See **`doc/PLACK.md`** for full architecture details (middleware stack, routing, security notes, testing).
 
 ```bash
 # Inside the devcontainer
 perl bin/starman --port 8080
 ```
 
-This runs a single-worker Starman instance. The Plack entry point is `app.psgi`. Plack-specific middleware lives in `cgi-bin/Plack/Middleware/DW/`. The `DW::Request` abstraction layer (`DW::Request::Plack`, `DW::Request::Apache2`) allows most code to work under both servers.
+This runs a single-worker Starman instance. The Plack entry point is `app.psgi`. Request-pipeline middleware lives in `cgi-bin/Plack/Middleware/DW/`. The `DW::Request` abstraction layer (`DW::Request::Plack` for requests, `DW::Request::Standard` for tests/CLI) mediates request access.
 
-Key differences from Apache:
-- `$r->uri` must return the path only (not full URL) — `DW::Request::Plack` handles this
+Notable details:
+- `$r->uri` returns the path only (not full URL) — `DW::Request::Plack` handles this
 - In the dev container, `$LJ::DOMAIN`, `$LJ::SITEROOT`, etc. are empty — URLs are built from the request Host header via `LJ::create_url()`
-- BML pages render via `DW::BML` (Plack) instead of `Apache::BML` (mod_perl); both share the same BML engine internals
+- BML pages render via `DW::BML`, which reuses the core BML engine in `Apache::BML` (loaded under Starman via an Apache2-const shim)
 
 ### Dev Container Config
 

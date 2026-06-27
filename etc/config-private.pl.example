@@ -153,6 +153,12 @@ use Net::Subnet;
     #     port => 8125,
     # );
 
+    # Fraction (0..1) of requests on which DW::CacheStats measures the byte size
+    # of the web process's in-memory caches (and reports process RSS), emitting
+    # them as timing/histogram metrics via %STATS above. Measurement deep-walks
+    # each cache, so keep this low; it defaults to 0 (disabled).
+    # $CACHE_STATS_SAMPLE_RATE = 0.01;
+
     # If you are going to be using the external content proxy system, you should
     # define a file here that contains your private salt.
     # $PROXY_URL = "https://proxy.myhost.net";
@@ -282,6 +288,35 @@ use Net::Subnet;
 
     #%THESCHWARTZ_DBS = (
     #    pass => ,
+    #);
+
+    # Which web pool/tier this install serves. Defaults to 'default'; production
+    # sets it per pool from the deploy environment. This is the ONLY place a
+    # production environment variable should appear -- app code reads
+    # $LJ::WEB_TIER, never the environment directly. It becomes the "tier" label
+    # on request metrics and the memcached namespace the autoscaler reads.
+    #$WEB_TIER = $ENV{DW_LOKI_SERVICE};
+
+    # Occupancy-based web-tier autoscaler (bin/worker/web-autoscaler). Region and
+    # ecs_cluster are required. Each key under 'services' MUST equal that pool's
+    # $WEB_TIER -- it's the memcached namespace the autoscaler reads -- while
+    # ecs_service is the ECS service it scales. Set dry_run to log decisions
+    # without touching ECS.
+    #%AUTOSCALER = (
+    #    region      => 'us-east-1',
+    #    ecs_cluster => 'dreamwidth',
+    #    tick        => 15,
+    #    services    => {
+    #        'web-stable' => {
+    #            enabled      => 1,
+    #            ecs_service  => 'web-stable',
+    #            target       => 0.70,    # desired steady-state occupancy
+    #            in_threshold => 0.50,    # only scale in below this
+    #            floor        => 2,
+    #            cap          => 50,
+    #            dry_run      => 0,
+    #        },
+    #    },
     #);
 }
 

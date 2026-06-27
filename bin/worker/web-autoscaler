@@ -1,0 +1,177 @@
+#!/usr/bin/perl
+#
+# web-autoscaler
+#
+# Occupancy-based autoscaler for the web tier. Each tick: read sharded
+# busy/idle counters from memcached, compute smoothed pool occupancy per
+# service, decide a desiredCount within configured limits, and (unless dry_run)
+# apply it via the ECS API. Emits everything it sees via DW::Stats.
+#
+# Run as a singleton ECS service (desiredCount = 1). Configuration lives in
+# config-private-prod.pl as %LJ::AUTOSCALER and is re-read every tick, so the
+# pool can be retuned by pushing config without code changes.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use v5.10;
+use strict;
+use warnings;
+
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use Time::HiRes ();
+use Paws;
+use DW::Stats;
+use DW::Autoscaler;
+
+# Number of memcached shards busy/idle time is spread across. Structural, and
+# MUST match $SHARDS in DW::WorkerOccupancy (the writer of these counters).
+my $SHARDS = 64;
+
+# Region is fixed at client construction, so it's required up front; everything
+# else (cluster, services, tick) is read from %LJ::AUTOSCALER each tick below.
+my $REGION = $LJ::AUTOSCALER{region}
+    or $log->logdie('autoscaler: %LJ::AUTOSCALER{region} is not configured');
+
+my $ecs = eval { Paws->service( 'ECS', region => $REGION ) };
+
+# Can't drive ECS without this; fail loudly so the log is clear and let the ECS
+# scheduler restart the (essential) container rather than spin uselessly.
+$log->logdie("autoscaler: cannot initialize Paws ECS client: $@") unless $ecs;
+
+# Per-service in-memory state: baselines, occupancy samples, last action times.
+my %state;
+
+sub shard_keys {
+    my ( $kind, $svc ) = @_;
+    return map { "dw:sched:${kind}:${svc}:$_" } 0 .. $SHARDS - 1;
+}
+
+sub current_desired {
+    my ( $cluster, $svc ) = @_;
+    my $r = eval { $ecs->DescribeServices( Cluster => $cluster, Services => [$svc] ) };
+    if ( !$r ) {
+        $log->error("autoscaler: DescribeServices $svc failed: $@");
+        return undef;
+    }
+    return undef unless @{ $r->Services };
+    return $r->Services->[0]->DesiredCount;
+}
+
+sub set_desired {
+    my ( $cluster, $svc, $n ) = @_;
+    my $ok = eval {
+        $ecs->UpdateService( Cluster => $cluster, Service => $svc, DesiredCount => $n );
+        1;
+    };
+    $log->error("autoscaler: UpdateService $svc=$n failed: $@") unless $ok;
+    return $ok;
+}
+
+sub emit {
+    my ( $svc, $dbusy, $didle, $o, $o_out, $o_in, $n, $d ) = @_;
+    my $tags = ["service:$svc"];
+    DW::Stats::gauge( 'dw.autoscaler.delta_busy_ms', $dbusy,        $tags );
+    DW::Stats::gauge( 'dw.autoscaler.delta_idle_ms', $didle,        $tags );
+    DW::Stats::gauge( 'dw.autoscaler.occupancy',     $o // -1,      $tags );
+    DW::Stats::gauge( 'dw.autoscaler.occupancy_out', $o_out // -1,  $tags );
+    DW::Stats::gauge( 'dw.autoscaler.occupancy_in',  $o_in // -1,   $tags );
+    DW::Stats::gauge( 'dw.autoscaler.current',       $n,            $tags );
+    DW::Stats::gauge( 'dw.autoscaler.desired',       $d->{desired}, $tags );
+    DW::Stats::increment( 'dw.autoscaler.decision', 1,
+        [ @$tags, "action:$d->{action}", "reason:$d->{reason}" ] );
+}
+
+sub tick_service {
+    my ( $svc, $sc, $now, $cluster ) = @_;
+    my $st = $state{$svc} ||= { baselines => {}, samples => [], last_out => 0, last_in => 0 };
+
+    my $busy = LJ::MemCache::get_multi( shard_keys( 'busy_ms', $svc ) ) || {};
+    my $idle = LJ::MemCache::get_multi( shard_keys( 'idle_ms', $svc ) ) || {};
+
+    my ( $dbusy, $nb_busy ) = DW::Autoscaler::delta( $st->{baselines}{busy} || {}, $busy );
+    my ( $didle, $nb_idle ) = DW::Autoscaler::delta( $st->{baselines}{idle} || {}, $idle );
+    $st->{baselines} = { busy => $nb_busy, idle => $nb_idle };
+
+    my $o = DW::Autoscaler::occupancy( $dbusy, $didle );
+    push @{ $st->{samples} }, [ $now, $o ];
+    my $maxwin = $sc->{in_window} || 300;
+    @{ $st->{samples} } = grep { $_->[0] >= $now - $maxwin } @{ $st->{samples} };
+
+    my $o_out = DW::Autoscaler::average( $st->{samples}, $sc->{out_window} || 45,  $now );
+    my $o_in  = DW::Autoscaler::average( $st->{samples}, $sc->{in_window}  || 300, $now );
+
+    my $svc_name = $sc->{ecs_service};
+    unless ($svc_name) {
+        $log->warn("autoscaler: service $svc has no ecs_service in config; skipping");
+        return;
+    }
+    my $n = current_desired( $cluster, $svc_name );
+    return unless defined $n;
+
+    my $d = DW::Autoscaler::decide(
+        {
+            n            => $n,
+            o_out        => $o_out,
+            o_in         => $o_in,
+            target       => $sc->{target}       // 0.70,
+            in_threshold => $sc->{in_threshold} // 0.50,
+            out_step_pct => $sc->{out_step_pct} // 0.5,
+            out_step_min => $sc->{out_step_min} // 1,
+            in_step_pct  => $sc->{in_step_pct}  // 0.10,
+            in_step_min  => $sc->{in_step_min}  // 1,
+            floor        => $sc->{floor},
+            cap          => $sc->{cap},
+            now          => $now,
+            last_out     => $st->{last_out},
+            last_in      => $st->{last_in},
+            out_cooldown => $sc->{out_cooldown} // 60,
+            in_cooldown  => $sc->{in_cooldown}  // 300,
+        }
+    );
+
+    emit( $svc, $dbusy, $didle, $o, $o_out, $o_in, $n, $d );
+
+    if ( !$sc->{dry_run} && $d->{action} ne 'hold' ) {
+
+        # Only start the cooldown clock if the change actually applied; otherwise
+        # a transient ECS failure would suppress retries for a whole cooldown.
+        if ( set_desired( $cluster, $svc_name, $d->{desired} ) ) {
+            $st->{last_out} = $now if $d->{action} eq 'out';
+            $st->{last_in}  = $now if $d->{action} eq 'in';
+        }
+    }
+    return;
+}
+
+while (1) {
+
+    # Reload config (mtime-gated) so %LJ::AUTOSCALER can be retuned live.
+    LJ::Config->start_request_reload;
+
+    my %cfg     = %LJ::AUTOSCALER;
+    my $cluster = $cfg{ecs_cluster};
+    unless ( $cluster && ref $cfg{services} eq 'HASH' ) {
+        $log->warn('autoscaler: %LJ::AUTOSCALER needs ecs_cluster and services; holding');
+        sleep 15;
+        next;
+    }
+    my $now = Time::HiRes::time();
+    foreach my $svc ( sort keys %{ $cfg{services} } ) {
+        my $sc = $cfg{services}{$svc};
+        next unless $sc->{enabled};
+        eval { tick_service( $svc, $sc, $now, $cluster ); 1 }
+            or $log->error("autoscaler: tick $svc failed: $@");
+    }
+    sleep( $cfg{tick} || 15 );
+}

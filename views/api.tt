@@ -31,8 +31,8 @@ and the ability to make posts as you, so protect it as you would your password.<
 <p>
 If you've accidentally shared it, you can delete a key from the management page. The API
 key that will be used for calls on this page is <b><span id="api_key">[% key.keyhash %]</span></b>.
-If you'd like to see all your API keys and manage them, go to <a href="[% site.root %]/manage/emailpost">
-the mobile post settings page</a>.</p>
+If you'd like to see all your API keys and manage them, go to <a href="[% site.root %]/manage/settings/?cat=mobile">
+the mobile settings page</a>.</p>
 
 
 	  <rapi-doc

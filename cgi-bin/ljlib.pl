@@ -118,6 +118,7 @@ use LJ::Global::Img;        # defines LJ::Img
 use LJ::Global::Secrets;    # defines LJ::Secrets
 use DW::Media;
 use DW::Stats;
+use DW::CacheStats;
 use DW::Proxy;
 use DW::TaskQueue;
 use DW::BlobStore;
@@ -476,7 +477,9 @@ sub handle_caches {
 sub start_request {
     handle_caches();
 
-    # TODO: check process growth size
+    # Sample the size of our in-process caches (and process RSS) before we clear
+    # the per-request ones below, so each measurement reflects a request's peak.
+    DW::CacheStats::report();
 
     # clear per-request caches
     LJ::unset_remote();    # clear cached remote
