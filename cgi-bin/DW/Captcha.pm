@@ -105,8 +105,22 @@ sub new {
     # by asking for an invalid captcha type
     my $impl     = $LJ::CAPTCHA_TYPES{ delete $opts{want} || "" } || "";
     my $subclass = $impl2class{$impl};
-    $subclass = $impl2class{ $LJ::CAPTCHA_TYPES{$LJ::DEFAULT_CAPTCHA_TYPE} }
+    $subclass = $impl2class{ $LJ::CAPTCHA_TYPES{ $LJ::DEFAULT_CAPTCHA_TYPE // "" } // "" }
         unless $subclass && $subclass->site_enabled;
+
+    # The default type can be stale -- e.g. config still pins a %CAPTCHA_TYPES
+    # letter we no longer ship -- which leaves $subclass undef. Fall back to any
+    # registered implementation rather than blessing into undef (which would die
+    # on the first method call), and make the misconfiguration visible.
+    unless ($subclass) {
+        ($subclass) = map { $impl2class{$_} } sort keys %impl2class;
+        $subclass ||= $class;
+        $log->error(
+            "\$LJ::DEFAULT_CAPTCHA_TYPE '",
+            $LJ::DEFAULT_CAPTCHA_TYPE // '',
+            "' maps to no known captcha; using $subclass"
+        );
+    }
 
     my $self = bless { page => $page, }, $subclass;
 
@@ -189,8 +203,10 @@ sub form_fields { qw() }
 
 sub site_enabled { return LJ::is_enabled('captcha') && $_[0]->_implementation_enabled ? 1 : 0 }
 
-# must be implemented by subclasses
-sub _implementation_enabled { return 1; }
+# Subclasses override this; the abstract base is never a usable captcha, so it
+# reports disabled -- a base instance (only reachable as a last-resort fallback)
+# then cleanly no-ops instead of rendering nothing while failing validation.
+sub _implementation_enabled { return 0; }
 
 sub print {
     my $self = $_[0];
