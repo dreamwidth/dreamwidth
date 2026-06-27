@@ -155,6 +155,10 @@ sub tick_service {
 }
 
 while (1) {
+
+    # Reload config (mtime-gated) so %LJ::AUTOSCALER can be retuned live.
+    LJ::Config->start_request_reload;
+
     my %cfg     = %LJ::AUTOSCALER;
     my $cluster = $cfg{ecs_cluster};
     unless ( $cluster && ref $cfg{services} eq 'HASH' ) {
