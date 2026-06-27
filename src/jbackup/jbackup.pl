@@ -90,7 +90,8 @@ exit 1 unless
                "md5pass=s" => \$opts{md5password},
                "alter-security=s" => \$opts{alter_security},
                "confirm-alter" => \$opts{confirm_alter},
-               "no-comments" => \$opts{no_comments},);
+               "no-comments" => \$opts{no_comments},
+               "backfill" => \$opts{backfill},);
 
 # hit up .jbackup for other options
 if (-e "$ENV{HOME}/.jbackup") {
@@ -128,6 +129,8 @@ my $XMLRPC_DELAY      = defined $opts{xmlrpc_delay} ? $opts{xmlrpc_delay}+0 : 2;
 my $FETCH_DELAY       = defined $opts{fetch_delay}  ? $opts{fetch_delay}+0  : 1;   # sec before each comment HTTP fetch
 my $HTTP_TIMEOUT      = defined $opts{http_timeout} ? $opts{http_timeout}+0 : 120; # sec per request before it's an error (not a hang)
 my $MAX_BACKOFF_TRIES = defined $opts{max_tries}    ? $opts{max_tries}+0    : 6;   # retries w/ exponential backoff before giving up/skipping
+my $META_MAX_TRIES    = defined $opts{meta_max_tries} ? $opts{meta_max_tries}+0 : 9; # meta windows get more patience (a meta skip is high-stakes)
+my $MAX_BACKOFF_WAIT  = defined $opts{max_backoff}   ? $opts{max_backoff}+0   : 300; # cap on a single backoff sleep (sec)
 
 # adaptive pacing: extra delay carried across comment windows, ramps up on errors, decays
 # only after a clean streak -- so a struggling server gets sustained relief, not fresh poking.
@@ -222,7 +225,7 @@ my $tied = do_tie();
 
 # do something
 do_alter_security($opts{alter_security}, $opts{confirm_alter}) if $opts{alter_security};
-do_sync() if $opts{sync};
+do_sync() if $opts{sync} || $opts{backfill};
 do_dump($opts{dumptype}) if $opts{dumptype};
 
 # clean up before we exit
@@ -236,8 +239,50 @@ sub d {
     print STDERR shift(@_) . "\n";
 }
 
+# --- skipped-window accounting -------------------------------------------------
+# Skips are recorded durably in the database under a single key, "skipped:windows",
+# as a comma list of "mode:startid:numitems" so a gap survives the run ending, is
+# reported at the end, and can be recovered with --backfill. numitems gives the exact
+# id range and an upper bound on how many comments the window could hold.
+sub parse_skips {
+    my %w;
+    foreach my $e (split /,/, ($bak{"skipped:windows"} || '')) {
+        my ($mode, $startid, $numitems) = split /:/, $e;
+        next unless defined $numitems;
+        $w{"$mode:$startid"} = $numitems;
+    }
+    return %w;
+}
+
+sub record_skip {
+    my ($mode, $startid, $numitems) = @_;
+    my %w = parse_skips();
+    $w{"$mode:$startid"} = $numitems;
+    $bak{"skipped:windows"} = join(',', map { "$_:$w{$_}" } sort keys %w);
+}
+
+sub remove_skip {
+    my ($mode, $startid) = @_;
+    my %w = parse_skips();
+    delete $w{"$mode:$startid"};
+    $bak{"skipped:windows"} = join(',', map { "$_:$w{$_}" } sort keys %w);
+}
+
+sub report_skipped {
+    my %w = parse_skips();
+    return unless %w;
+    my $total = 0; $total += $_ for values %w;
+    print STDERR "\n*** WARNING: " . (scalar keys %w) . " window(s) skipped; up to $total comment(s) missing:\n";
+    foreach my $k (sort keys %w) {
+        my ($mode, $startid) = split /:/, $k;
+        print STDERR "      $mode startid=$startid numitems=$w{$k}\n";
+    }
+    print STDERR "    Re-run with --backfill (set a lower comment_body_fetch first) to recover them.\n\n";
+}
+
 sub do_sync {
 ### ENTRY DOWNLOADING ###
+  unless ($opts{backfill}) {   # --backfill skips the entry sweep; it only re-pulls comment gaps
     # see if we have any sync data saved
     my %sync;
     my $lastsync = $bak{"event:lastsync"};
@@ -315,6 +360,8 @@ sub do_sync {
         last unless $count && $lastgrab;
     }
 
+  }  # end entry sweep (skipped in --backfill mode)
+
 ### COMMENT DOWNLOADING ###
     # see if we shouldn't be doing this
     return if $opts{no_comments};
@@ -363,17 +410,38 @@ sub do_sync {
         $server_next_id = $_[1] + 0 if ($lasttag eq 'nextid');
     };
 
-    # hit up the server for metadata
+    # hit up the server for metadata. A skipped meta window is NOT safe to continue past: it
+    # would leave %meta incomplete and a wrong $server_max_id, corrupting/truncating the body
+    # sweep. So we stop the comment phase cleanly and let a re-run rebuild the (in-memory,
+    # uncheckpointed, cheap) meta pass from scratch.
     while (defined $server_next_id  && $server_next_id =~ /^\d+$/) {
         my $content = do_authed_fetch('comment_meta', $server_next_id, $COMMENTS_FETCH_META, $ljsession);
         die "Some sort of error fetching metadata from server" unless $content;
 
+        if ($content eq '__SKIP__') {
+            print STDERR "\n*** A comment-metadata window failed after $META_MAX_TRIES retries.\n";
+            print STDERR "    Stopping the comment phase WITHOUT running the body sweep, because an\n";
+            print STDERR "    incomplete metadata pass would corrupt and truncate saved comments.\n";
+            print STDERR "    Your entries and any previously-saved comments are intact. Wait for the\n";
+            print STDERR "    server to recover, then re-run --sync -- the metadata pass rebuilds from\n";
+            print STDERR "    scratch (it is not checkpointed), so nothing here needs --backfill.\n\n";
+            report_skipped();
+            return;
+        }
+
         $server_next_id = undef;
 
         # now we want to XML parse this
-        unless ($content eq '__SKIP__') {
-            my $parser = new XML::Parser(Handlers => { Start => $meta_handler, Char => $meta_content, End => $meta_closer });
-            $parser->parse($content);
+        my $parser = new XML::Parser(Handlers => { Start => $meta_handler, Char => $meta_content, End => $meta_closer });
+        $parser->parse($content);
+    }
+    # the metadata pass completed in full, so any comment_meta skip marker from a prior aborted
+    # run is now stale -- clear it.
+    {
+        my %w = parse_skips();
+        foreach my $k (grep { /^comment_meta:/ } keys %w) {
+            my (undef, $sid) = split /:/, $k;
+            remove_skip('comment_meta', $sid);
         }
     }
     $bak{"comment:ids"} = join ',', keys %meta;
@@ -415,7 +483,47 @@ sub do_sync {
         # gotten some data
     };
 
-    # at this point we have a fully regenerated metadata cache and we want to grab a block of comments
+    # at this point we have a fully regenerated metadata cache and we want to grab comment bodies
+    if ($opts{backfill}) {
+        # --backfill: re-pull only the windows recorded as skipped (reusing the meta rebuilt
+        # above), splitting each into sub-windows of the current comment_body_fetch size -- so a
+        # window that 504'd at 1000 can come through at e.g. 250. Recovered comments are saved;
+        # any sub-window that still fails re-records a finer skip marker for a later attempt.
+        my %w = parse_skips();
+        my @windows = sort grep { /^comment_body:/ } keys %w;
+        unless (@windows) {
+            print "No skipped comment_body windows to backfill.\n";
+            report_skipped();
+            return;
+        }
+        print scalar(@windows) . " skipped window(s) to backfill (sub-batch = $COMMENTS_FETCH_BODY).\n";
+        my $recovered = 0;
+        foreach my $k (@windows) {
+            my (undef, $startid) = split /:/, $k;
+            my $numitems = $w{$k};
+            remove_skip('comment_body', $startid);   # drop the wide marker; sub-failures re-mark finer
+            $tied->sync();
+            for (my $s = $startid; $s < $startid + $numitems; $s += $COMMENTS_FETCH_BODY) {
+                my $n = ($s + $COMMENTS_FETCH_BODY > $startid + $numitems) ? ($startid + $numitems - $s) : $COMMENTS_FETCH_BODY;
+                @window_ids = ();
+                my $content = do_authed_fetch('comment_body', $s, $n, $ljsession);
+                next if !$content || $content eq '__SKIP__';   # finer marker auto-recorded on re-skip
+                my $parser = new XML::Parser(Handlers => { Start => $body_handler, Char => $body_content, End => $body_closer });
+                $parser->parse($content);
+                foreach my $id (@window_ids) {
+                    next unless $meta{$id}{jitemid};
+                    $recovered++;
+                    save_comment($meta{$id});
+                }
+                $tied->sync();
+            }
+            print "backfill: processed window startid=$startid numitems=$numitems.\n";
+        }
+        print "Backfill done: recovered $recovered comment bodies.\n";
+        report_skipped();   # report any finer gaps that still remain
+        return;
+    }
+
     my $count = 0;
     while (1) {
         @window_ids = ();
@@ -444,6 +552,7 @@ sub do_sync {
         last unless $lastid < $server_max_id;
     }
     print "$count new comments downloaded.\n";
+    report_skipped();   # surface any windows skipped during this sweep
 }
 
 # save an event that we get
@@ -553,13 +662,20 @@ sub do_authed_fetch {
         $ADAPT_DELAY = $ADAPT_DELAY < $ADAPT_MAX ? ($ADAPT_DELAY ? $ADAPT_DELAY * 2 : $ADAPT_STEP) : $ADAPT_MAX;
         $ADAPT_DELAY = $ADAPT_MAX if $ADAPT_DELAY > $ADAPT_MAX;
         $ADAPT_OK = 0;
-        if ($tries < $MAX_BACKOFF_TRIES) {
-            my $wait = 15 * (2 ** $tries);   # 15,30,60,120,240,480s
-            d("do_authed_fetch: HTTP $code; backing off ${wait}s (try " . ($tries+1) . "/$MAX_BACKOFF_TRIES); pace now ${ADAPT_DELAY}s");
+        # metadata windows get more retry patience than body windows: a skipped meta window is
+        # high-stakes (it truncates the meta pass), whereas a skipped body window is a clean,
+        # backfillable gap.
+        my $cap = ($mode eq 'comment_meta') ? $META_MAX_TRIES : $MAX_BACKOFF_TRIES;
+        if ($tries < $cap) {
+            my $wait = 15 * (2 ** $tries);
+            $wait = $MAX_BACKOFF_WAIT if $wait > $MAX_BACKOFF_WAIT;   # don't let a single backoff run away
+            d("do_authed_fetch: HTTP $code; backing off ${wait}s (try " . ($tries+1) . "/$cap); pace now ${ADAPT_DELAY}s");
             sleep $wait;
             return do_authed_fetch($mode, $startid, $numitems, $sess, $tries + 1);
         }
         warn "do_authed_fetch: giving up on $mode startid=$startid after repeated HTTP $code; skipping this window\n";
+        record_skip($mode, $startid, $numitems);   # persist the gap for end-of-run report + --backfill
+        $tied->sync();
         return '__SKIP__';
     }
 
