@@ -1537,7 +1537,16 @@ sub talkform {
         },
 
         captcha => $opts->{do_captcha}
-        ? { html => DW::Captcha->new->print }
+        ? {
+            html => DW::Captcha->new->print(
+                page => 'comment',
+
+                # do_captcha is require_captcha_test's reason string on form
+                # render; a bare truthy value (a re-show after a failed post)
+                # has no specific reason, so label it generically.
+                reason => ( $opts->{do_captcha} =~ /^[a-z_]+$/ ? $opts->{do_captcha} : 'comment' ),
+            )
+            }
         : 0,
 
         remote      => $remote ? $remote : 0,
@@ -2913,12 +2922,16 @@ sub prepare_and_validate_comment {
 # des-body: Text of the comment (may be checked for spam, may be empty)
 # des-entry: LJ::Entry object for the entry being commented on
 # </LJFUNC>
+# Decides whether a comment needs a captcha. Returns a short reason string when
+# one is required -- used both as a truthy "show it" flag and as the metric
+# "reason" tag (rate_limited / ip_sysban / maxcomments / journal_setting /
+# comment_html) -- or '' when no captcha is needed.
 sub require_captcha_test {
     my ( $commenter, $journal, $body, $entry ) = @_;
     my $ditemid = $entry->ditemid;
 
     # only require captcha if the site is properly configured for it
-    return 0 unless DW::Captcha->site_enabled;
+    return '' unless DW::Captcha->site_enabled;
 
     ## anonymous commenter user =
     ## not logged-in user, or OpenID without validated e-mail
@@ -2930,10 +2943,10 @@ sub require_captcha_test {
     ##
     my $captcha = DW::Captcha->new;
     if ( $captcha->enabled('anonpost') || $captcha->enabled('authpost') ) {
-        return 1 unless LJ::Talk::Post::check_rate( $commenter, $journal );
+        return 'rate_limited' unless LJ::Talk::Post::check_rate( $commenter, $journal );
     }
     if ( $captcha->enabled('anonpost') && $anon_commenter ) {
-        return 1 if LJ::sysban_check( 'talk_ip_test', LJ::get_remote_ip() );
+        return 'ip_sysban' if LJ::sysban_check( 'talk_ip_test', LJ::get_remote_ip() );
     }
 
     ##
@@ -2947,14 +2960,14 @@ sub require_captcha_test {
         # 30 days). High-comment spam mostly targets old/abandoned entries,
         # and active anon memes shouldn't be penalized for popularity.
         my $age_days = ( time() - $entry->logtime_unix ) / 86400;
-        return 1 if $age_days > 30;
+        return 'maxcomments' if $age_days > 30;
     }
 
     ##
     ## 2. Don't show captcha to the owner of the journal, no more checks
     ##
     if ( !$anon_commenter && $commenter->equals($journal) ) {
-        return 0;
+        return '';
     }
 
     ##
@@ -2966,15 +2979,15 @@ sub require_captcha_test {
     }
     elsif ( $show_captcha_to eq 'R' ) {
         ## anonymous
-        return 1 if $anon_commenter;
+        return 'journal_setting' if $anon_commenter;
     }
     elsif ( $show_captcha_to eq 'F' ) {
         ## not friends
-        return 1 if !$journal->trusts_or_has_member($commenter);
+        return 'journal_setting' if !$journal->trusts_or_has_member($commenter);
     }
     elsif ( $show_captcha_to eq 'A' ) {
         ## all
-        return 1;
+        return 'journal_setting';
     }
 
     ##
@@ -2984,7 +2997,7 @@ sub require_captcha_test {
     if ( $captcha->enabled('comment_html_auth')
         || ( $captcha->enabled('comment_html_anon') && $anon_commenter ) )
     {
-        return 0 unless $body;    # Before we bother matching against it.
+        return '' unless $body;    # Before we bother matching against it.
 
         if ( $body =~ /<[a-z]/i ) {
 
@@ -2994,18 +3007,20 @@ sub require_captcha_test {
             # attributes and other elements)
             my $body_copy = $body;
             $body_copy =~ s/<(?:q|blockquote|b|strong|i|em|cite|sub|sup|var|del|tt|code|pre|p)>//ig;
-            return 1 if $body_copy =~ /<[a-z]/i;
+            return 'comment_html' if $body_copy =~ /<[a-z]/i;
         }
 
         # multiple URLs is questionable too
-        return 1 if $body =~ /\b(?:http|ftp|www)\b.+\b(?:http|ftp|www)\b/s;
+        return 'comment_html' if $body =~ /\b(?:http|ftp|www)\b.+\b(?:http|ftp|www)\b/s;
 
         # or if they're not even using HTML
-        return 1 if $body =~ /\[url/is;
+        return 'comment_html' if $body =~ /\[url/is;
 
         # or if it's obviously spam
-        return 1 if $body =~ /\s*message\s*/is;
+        return 'comment_html' if $body =~ /\s*message\s*/is;
     }
+
+    return '';
 }
 
 # Does what it says on the tin.
