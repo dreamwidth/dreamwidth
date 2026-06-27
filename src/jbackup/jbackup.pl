@@ -116,7 +116,12 @@ $opts{verbose} = $opts{quiet} ? 0 : 1;
 
 # set some constants that should never need to change.
 my $COMMENTS_FETCH_META = 10000;   # up to 10000 comments, the maximum for comment_meta
-my $COMMENTS_FETCH_BODY = 1000;    # up to 1000 comments, the maximum for comment_body
+# comment_body batch size: the server max is 1000, but heavy windows (big threads) can blow
+# past DW's gateway timeout and 504. Lower this (e.g. comment_body_fetch=250 in ~/.jbackup)
+# to make each request lighter and far less likely to time out, at the cost of more requests.
+my $COMMENTS_FETCH_BODY = defined $opts{comment_body_fetch} ? $opts{comment_body_fetch}+0 : 1000;
+$COMMENTS_FETCH_BODY = 1000 if $COMMENTS_FETCH_BODY > 1000;   # server ceiling
+$COMMENTS_FETCH_BODY = 1    if $COMMENTS_FETCH_BODY < 1;
 
 # --- resilience knobs (override in ~/.jbackup, e.g. a line "xmlrpc_delay=3") ---
 my $XMLRPC_DELAY      = defined $opts{xmlrpc_delay} ? $opts{xmlrpc_delay}+0 : 2;   # sec before each XML-RPC call
