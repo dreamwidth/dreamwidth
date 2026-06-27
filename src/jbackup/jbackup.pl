@@ -124,6 +124,14 @@ my $FETCH_DELAY       = defined $opts{fetch_delay}  ? $opts{fetch_delay}+0  : 1;
 my $HTTP_TIMEOUT      = defined $opts{http_timeout} ? $opts{http_timeout}+0 : 120; # sec per request before it's an error (not a hang)
 my $MAX_BACKOFF_TRIES = defined $opts{max_tries}    ? $opts{max_tries}+0    : 6;   # retries w/ exponential backoff before giving up/skipping
 
+# adaptive pacing: extra delay carried across comment windows, ramps up on errors, decays
+# only after a clean streak -- so a struggling server gets sustained relief, not fresh poking.
+my $ADAPT_STEP        = defined $opts{adapt_step}  ? $opts{adapt_step}+0  : 5;   # first bump (sec) on the first error
+my $ADAPT_MAX         = defined $opts{adapt_max}   ? $opts{adapt_max}+0   : 60;  # ceiling for the carried-over delay
+my $ADAPT_DECAY_AFTER = defined $opts{adapt_decay} ? $opts{adapt_decay}+0 : 10;  # clean windows needed before easing off
+my $ADAPT_DELAY       = 0;   # current carried-over delay (state)
+my $ADAPT_OK          = 0;   # consecutive clean windows (state)
+
 # now figure out what we're doing
 if ($opts{help} || !($opts{sync} || $opts{dumptype} || $opts{alter_security})) {
     print <<HELP;
@@ -515,7 +523,10 @@ sub load_comment {
 sub do_authed_fetch {
     my ($mode, $startid, $numitems, $sess, $tries) = @_;
     $tries ||= 0;
-    sleep $FETCH_DELAY if $FETCH_DELAY;
+    # adaptive pacing: $ADAPT_DELAY is extra delay carried ACROSS windows. It ramps up when
+    # the server is unhappy (504s/etc) and decays only after a run of clean successes, so we
+    # stay slowed for a while instead of slamming a struggling server fresh on every window.
+    sleep($FETCH_DELAY + $ADAPT_DELAY) if ($FETCH_DELAY + $ADAPT_DELAY) > 0;
     d("do_authed_fetch: mode = $mode, startid = $startid, numitems = $numitems, sess = $sess");
 
     # hit up the server with the specified information and return the raw content.
@@ -532,14 +543,28 @@ sub do_authed_fetch {
 
     if ($response->is_error()) {
         my $code = $response->code;
+        # an error means the server is struggling: bump the carried-over delay (capped) and
+        # reset the clean-streak counter so it doesn't decay back immediately.
+        $ADAPT_DELAY = $ADAPT_DELAY < $ADAPT_MAX ? ($ADAPT_DELAY ? $ADAPT_DELAY * 2 : $ADAPT_STEP) : $ADAPT_MAX;
+        $ADAPT_DELAY = $ADAPT_MAX if $ADAPT_DELAY > $ADAPT_MAX;
+        $ADAPT_OK = 0;
         if ($tries < $MAX_BACKOFF_TRIES) {
             my $wait = 15 * (2 ** $tries);   # 15,30,60,120,240,480s
-            d("do_authed_fetch: HTTP $code; backing off ${wait}s (try " . ($tries+1) . "/$MAX_BACKOFF_TRIES)");
+            d("do_authed_fetch: HTTP $code; backing off ${wait}s (try " . ($tries+1) . "/$MAX_BACKOFF_TRIES); pace now ${ADAPT_DELAY}s");
             sleep $wait;
             return do_authed_fetch($mode, $startid, $numitems, $sess, $tries + 1);
         }
         warn "do_authed_fetch: giving up on $mode startid=$startid after repeated HTTP $code; skipping this window\n";
         return '__SKIP__';
+    }
+
+    # success: only decay the carried-over delay after several clean windows in a row.
+    if ($ADAPT_DELAY > 0) {
+        if (++$ADAPT_OK >= $ADAPT_DECAY_AFTER) {
+            $ADAPT_OK = 0;
+            $ADAPT_DELAY = int($ADAPT_DELAY / 2);
+            d("do_authed_fetch: clean streak; easing pace to ${ADAPT_DELAY}s");
+        }
     }
 
     my $xml = $response->content();
