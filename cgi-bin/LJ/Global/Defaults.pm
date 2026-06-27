@@ -325,10 +325,9 @@ no strict "vars";
     $LJ::OLD_RES_PRIORITY = 5;
 
     # mapping of captcha type to specific desired implementation
-    %CAPTCHA_TYPES = (
-        "I" => "recaptcha",    # "I" is for image
-    ) unless %CAPTCHA_TYPES;
-    $DEFAULT_CAPTCHA_TYPE ||= "I";
+    %CAPTCHA_TYPES = ( "H" => "hcaptcha", )
+        unless %CAPTCHA_TYPES;
+    $DEFAULT_CAPTCHA_TYPE ||= "H";
 
     # default location of community posting guidelines
     $DEFAULT_POSTING_GUIDELINES_LOC ||= "N";

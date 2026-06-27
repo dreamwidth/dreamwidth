@@ -105,8 +105,26 @@ sub new {
     # by asking for an invalid captcha type
     my $impl     = $LJ::CAPTCHA_TYPES{ delete $opts{want} || "" } || "";
     my $subclass = $impl2class{$impl};
-    $subclass = $impl2class{ $LJ::CAPTCHA_TYPES{$LJ::DEFAULT_CAPTCHA_TYPE} }
+    $subclass = $impl2class{ $LJ::CAPTCHA_TYPES{ $LJ::DEFAULT_CAPTCHA_TYPE // "" } // "" }
         unless $subclass && $subclass->site_enabled;
+
+    # The default type can be stale -- e.g. config still pins a %CAPTCHA_TYPES
+    # letter we no longer ship -- which leaves $subclass undef. Prefer the first
+    # *enabled* implementation so we don't silently bless into a disabled captcha
+    # (whose validate() is a no-op, bypassing the captcha entirely). Fall back to
+    # any registered implementation, then the base class, rather than blessing
+    # into undef (which would die on the first method call), and make the
+    # misconfiguration visible.
+    unless ($subclass) {
+        my @registered = map { $impl2class{$_} } sort keys %impl2class;
+        ($subclass) = grep { $_->site_enabled } @registered;
+        $subclass ||= $registered[0] || $class;
+        $log->error(
+            "\$LJ::DEFAULT_CAPTCHA_TYPE '",
+            $LJ::DEFAULT_CAPTCHA_TYPE // '',
+            "' maps to no known captcha; using $subclass"
+        );
+    }
 
     my $self = bless { page => $page, }, $subclass;
 
@@ -189,22 +207,27 @@ sub form_fields { qw() }
 
 sub site_enabled { return LJ::is_enabled('captcha') && $_[0]->_implementation_enabled ? 1 : 0 }
 
-# must be implemented by subclasses
-sub _implementation_enabled { return 1; }
+# Subclasses override this; the abstract base is never a usable captcha, so it
+# reports disabled -- a base instance (only reachable as a last-resort fallback)
+# then cleanly no-ops instead of rendering nothing while failing validation.
+sub _implementation_enabled { return 0; }
 
 sub print {
-    my $self = $_[0];
+    my ( $self, %opts ) = @_;
     return "" unless $self->enabled;
 
-    # Record that a form captcha was issued. The reason is static (the page is
-    # configured to require one via %LJ::CAPTCHA_FOR); the interesting splits are
-    # the page, captcha type, web tier, and whether the viewer was logged in.
+    # Record that a form captcha was issued. Most forms are a single
+    # %LJ::CAPTCHA_FOR page (reason defaults to "this page requires one"), but
+    # callers whose captcha isn't tied to one page -- comments, which decide via
+    # require_captcha_test -- can pass page/reason to label the metric.
     DW::Stats::increment(
         'dw.captcha.shown',
         1,
         _stat_tags(
-            LJ::get_remote(), 'kind:form',
-            'reason:form_required', 'page:' . ( $self->page // '' ),
+            LJ::get_remote(),
+            'kind:form',
+            'reason:' . ( $opts{reason} || 'form_required' ),
+            'page:' .   ( $opts{page} // $self->page // '' ),
             'type:' . $self->name
         )
     );
@@ -243,7 +266,9 @@ sub validate {
     }
 
     DW::Stats::increment( "dw.captcha.failure", 1, $stat_tags );
-    $$err_ref = LJ::Lang::ml('captcha.invalid');
+
+    # err_ref is optional (e.g. the /captcha gate doesn't surface the message)
+    $$err_ref = LJ::Lang::ml('captcha.invalid') if $err_ref;
 
     return 0;
 }
@@ -305,6 +330,14 @@ sub should_captcha_view {
         return 0 if $matcher->($ip);
     }
 
+    # Why is this visitor eligible for the gate at all? -- tagged on the metrics
+    # below so we can tell IP-range gating apart from request-rule gating apart
+    # from "everyone" (no IP matcher configured).
+    my $source =
+          $captcha_request       ? 'request'
+        : $LJ::SHOULD_CAPTCHA_IP ? 'ip'
+        :                          'all';
+
     # Get our captcha information -- no information means that the user has not
     # passed a captcha. If we have information, then they *have* at some point.
     my $info_raw = LJ::MemCache::get($mckey);
@@ -339,11 +372,12 @@ sub should_captcha_view {
         if ( $count >= $LJ::CAPTCHA_FRAUD_LIMIT ) {
             $log->info( 'Banning ', $ip, ' for exceeding captcha fraud threshold.' );
             LJ::Sysban::tempban_create( ip => $ip, $LJ::CAPTCHA_FRAUD_SYSBAN_SECS );
-            DW::Stats::increment( 'dw.captcha.fraud_ban', 1, _stat_tags($remote) );
+            DW::Stats::increment( 'dw.captcha.fraud_ban', 1,
+                _stat_tags( $remote, "source:$source" ) );
         }
 
         DW::Stats::increment( 'dw.captcha.shown', 1,
-            _stat_tags( $remote, 'kind:interstitial', 'reason:no_record' ) );
+            _stat_tags( $remote, 'kind:interstitial', 'reason:no_record', "source:$source" ) );
         return 1;
     }
 
@@ -355,7 +389,8 @@ sub should_captcha_view {
     if ( ( time() - $first_req_ts ) > $LJ::CAPTCHA_RETEST_INTERVAL_SECS ) {
         $log->info( $mckey, ' has exceeded the retest interval, issuing captcha.' );
         DW::Stats::increment( 'dw.captcha.shown', 1,
-            _stat_tags( $remote, 'kind:interstitial', 'reason:retest_interval' ) );
+            _stat_tags( $remote, 'kind:interstitial', 'reason:retest_interval', "source:$source" )
+        );
         return 1;
     }
 
@@ -374,7 +409,8 @@ sub should_captcha_view {
     if ( $remaining <= 0 ) {
         $log->info( $mckey, ' is out of requests by usage, retesting.' );
         DW::Stats::increment( 'dw.captcha.shown', 1,
-            _stat_tags( $remote, 'kind:interstitial', 'reason:out_of_requests' ) );
+            _stat_tags( $remote, 'kind:interstitial', 'reason:out_of_requests', "source:$source" )
+        );
         return 1;
     }
 

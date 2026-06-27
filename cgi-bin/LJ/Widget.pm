@@ -403,7 +403,7 @@ sub wrapped_js {
 }
 
 # allows given form fields to be passed into the widget's handle_post, even if they don't have the widget prefix on them
-# this is needed for recaptcha modules in widgets
+# this is needed for captcha modules in widgets
 sub use_specific_form_fields {
     my $class = shift;
     my %opts  = @_;
@@ -795,7 +795,7 @@ it's called on.
 Given the POST values and a list of specific fields, this will allow those
 fields to be passed into the widget's C<handle_post> even if they don't have
 the necessary widget prefix on them.  This is currently used for widgets that
-have a reCAPTCHA module, since you can't modify the name of the fields for it.
+have a CAPTCHA module, since you can't modify the name of the fields for it.
 
 =item C<get_args>
 

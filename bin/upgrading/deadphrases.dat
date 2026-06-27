@@ -4634,3 +4634,7 @@ general /manage/moodthemes.bml.yourthemes.example.none
 general /manage/moodthemes.bml.yourthemes.example.sad
 general /manage/moodthemes.bml.yourthemes.header
 general /manage/moodthemes.bml.yourthemes.nothemes
+general setting.captcha.label
+general setting.captcha.option
+general setting.captcha.option.select.image
+general setting.captcha.option.select.text

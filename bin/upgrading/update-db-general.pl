@@ -883,6 +883,7 @@ register_tabledrop("userblobcache");
 register_tabledrop("commenturls");
 register_tabledrop("captchas");
 register_tabledrop("captcha_session");
+register_tabledrop("captcha_cache");
 register_tabledrop("qotd");
 register_tabledrop("zip");
 register_tabledrop("openid_external");
@@ -2997,18 +2998,6 @@ CREATE TABLE dbnotes (
     dbnote VARCHAR(40) NOT NULL,
     PRIMARY KEY (dbnote),
     value VARCHAR(255)
-)
-EOC
-
-register_tablecreate( "captcha_cache", <<'EOC');
-CREATE TABLE captcha_cache (
-    `captcha_id` INT UNSIGNED NOT NULL auto_increment,
-    `question`   VARCHAR(255) NOT NULL,
-    `answer`     VARCHAR(255) NOT NULL,
-    `issuetime`  INT UNSIGNED NOT NULL DEFAULT 0,
-
-    PRIMARY KEY (`captcha_id`),
-    INDEX(`issuetime`)
 )
 EOC
 
