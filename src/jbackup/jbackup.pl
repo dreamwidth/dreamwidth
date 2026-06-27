@@ -118,6 +118,12 @@ $opts{verbose} = $opts{quiet} ? 0 : 1;
 my $COMMENTS_FETCH_META = 10000;   # up to 10000 comments, the maximum for comment_meta
 my $COMMENTS_FETCH_BODY = 1000;    # up to 1000 comments, the maximum for comment_body
 
+# --- resilience knobs (override in ~/.jbackup, e.g. a line "xmlrpc_delay=3") ---
+my $XMLRPC_DELAY      = defined $opts{xmlrpc_delay} ? $opts{xmlrpc_delay}+0 : 2;   # sec before each XML-RPC call
+my $FETCH_DELAY       = defined $opts{fetch_delay}  ? $opts{fetch_delay}+0  : 1;   # sec before each comment HTTP fetch
+my $HTTP_TIMEOUT      = defined $opts{http_timeout} ? $opts{http_timeout}+0 : 120; # sec per request before it's an error (not a hang)
+my $MAX_BACKOFF_TRIES = defined $opts{max_tries}    ? $opts{max_tries}+0    : 6;   # retries w/ exponential backoff before giving up/skipping
+
 # now figure out what we're doing
 if ($opts{help} || !($opts{sync} || $opts{dumptype} || $opts{alter_security})) {
     print <<HELP;
@@ -352,8 +358,10 @@ sub do_sync {
         $server_next_id = undef;
 
         # now we want to XML parse this
-        my $parser = new XML::Parser(Handlers => { Start => $meta_handler, Char => $meta_content, End => $meta_closer });
-        $parser->parse($content);
+        unless ($content eq '__SKIP__') {
+            my $parser = new XML::Parser(Handlers => { Start => $meta_handler, Char => $meta_content, End => $meta_closer });
+            $parser->parse($content);
+        }
     }
     $bak{"comment:ids"} = join ',', keys %meta;
     $bak{"usermap:userids"} = join ',', @userids;
@@ -362,6 +370,7 @@ sub do_sync {
     my $lastid = $bak{"comment:lastid"}+0;
     my $curid = 0;
     my @tags;
+    my @window_ids;   # ids whose bodies arrived in the current window (for incremental save)
     my $body_handler = sub {
         # this sub actually processes incoming body information
         $lasttag = $_[1];
@@ -373,6 +382,7 @@ sub do_sync {
             $curid = $temp{id};
             $meta{$curid}{parentid} = $temp{parentid}+0;
             $meta{$curid}{jitemid} = $temp{jitemid}+0;
+            push @window_ids, $curid;   # for incremental per-window save
             # line below commented out because we shouldn't be trying to be clever like this ;p
             # $lastid = $curid if $curid > $lastid;
         }
@@ -393,31 +403,34 @@ sub do_sync {
     };
 
     # at this point we have a fully regenerated metadata cache and we want to grab a block of comments
+    my $count = 0;
     while (1) {
+        @window_ids = ();
         my $content = do_authed_fetch('comment_body', $lastid+1, $COMMENTS_FETCH_BODY, $ljsession);
         die "Some sort of error fetching body data from server" unless $content;
 
         # now we want to XML parse this
-        my $parser = new XML::Parser(Handlers => { Start => $body_handler, Char => $body_content, End => $body_closer });
-        $parser->parse($content);
+        unless ($content eq '__SKIP__') {
+            my $parser = new XML::Parser(Handlers => { Start => $body_handler, Char => $body_content, End => $body_closer });
+            $parser->parse($content);
+        }
 
-        # now at this point what we have to decide whether we should loop again for more metadata
+        # INCREMENTAL SAVE: persist this window's comments, advance the checkpoint, and flush
+        # to disk immediately. This turns the comment phase from all-or-nothing into resumable:
+        # if the server blocks us mid-run, everything pulled so far is already saved, and the
+        # next --sync picks up from comment:lastid instead of restarting bodies from scratch.
+        foreach my $id (@window_ids) {
+            next unless $meta{$id}{jitemid}; # jitemid == 0 means we didn't get body info
+            $count++;
+            save_comment($meta{$id});
+        }
         $lastid += $COMMENTS_FETCH_BODY;
+        $bak{"comment:lastid"} = $lastid;   # checkpoint advances EVERY window (even empty ones)
+        $tied->sync();                       # flush so progress survives an interruption
+
         last unless $lastid < $server_max_id;
     }
-
-    # at this point we should have a set of fully formed comments, so let's save everything
-    my $count = 0;
-    foreach my $id (keys %meta) {
-        next unless $meta{$id}{jitemid}; # jitemid == 0 means we didn't get body info on this comment
-        $count++;
-        save_comment($meta{$id});
-    }
     print "$count new comments downloaded.\n";
-
-    # update our lastid.  we want this to always point to the last comment we downloaded, because
-    # comment ids will never go backwards, and we can always count on the next one being > lastid
-    $bak{"comment:lastid"} = $lastid if $count;
 }
 
 # save an event that we get
@@ -500,7 +513,9 @@ sub load_comment {
 }
 
 sub do_authed_fetch {
-    my ($mode, $startid, $numitems, $sess) = @_;
+    my ($mode, $startid, $numitems, $sess, $tries) = @_;
+    $tries ||= 0;
+    sleep $FETCH_DELAY if $FETCH_DELAY;
     d("do_authed_fetch: mode = $mode, startid = $startid, numitems = $numitems, sess = $sess");
 
     # hit up the server with the specified information and return the raw content.
@@ -508,18 +523,31 @@ sub do_authed_fetch {
     # (e.g. dreamwidth.org -> www.dreamwidth.org)
     my $ua = LWP::UserAgent->new;
     $ua->agent('JBackup/1.0');
+    $ua->timeout($HTTP_TIMEOUT);   # a stalled connection becomes an error instead of a forever-hang
     $ua->cookie_jar({});
     $ua->cookie_jar->set_cookie(0, 'ljsession', $sess, '/', $opts{server}, undef, 0, 0, 86400, 0);
     my $authas = $opts{usejournal} ? "&authas=$opts{usejournal}" : '';
     my $request = HTTP::Request->new(GET => "$opts{baseurl}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas");
     my $response = $ua->request($request);
-    return if $response->is_error();
+
+    if ($response->is_error()) {
+        my $code = $response->code;
+        if ($tries < $MAX_BACKOFF_TRIES) {
+            my $wait = 15 * (2 ** $tries);   # 15,30,60,120,240,480s
+            d("do_authed_fetch: HTTP $code; backing off ${wait}s (try " . ($tries+1) . "/$MAX_BACKOFF_TRIES)");
+            sleep $wait;
+            return do_authed_fetch($mode, $startid, $numitems, $sess, $tries + 1);
+        }
+        warn "do_authed_fetch: giving up on $mode startid=$startid after repeated HTTP $code; skipping this window\n";
+        return '__SKIP__';
+    }
+
     my $xml = $response->content();
     return $xml if $xml;
 
-    # blah
-    d("do_authed_fetch: failure! retrying");
-    return do_authed_fetch($mode, $startid, $numitems, $sess);
+    # 200 but empty body: transient, retry (no try increment, matches original intent)
+    d("do_authed_fetch: empty response; retrying");
+    return do_authed_fetch($mode, $startid, $numitems, $sess, $tries);
 }
 
 sub do_dump {
@@ -914,21 +942,39 @@ sub dump_xml {
 sub xmlrpc_call_helper {
     # helper function that makes life easier on folks that call xmlrpc stuff.  this handles
     # running the actual request and checking for errors, as well as handling the cases where
-    # we hit a problem and need to do something about it.  (abort or retry.)
-    my ($xmlrpc, $method, $req, $mode, $hash) = @_;
+    # we hit a problem and need to do something about it.  (back off, retry, skip or abort.)
+    my ($xmlrpc, $method, $req, $mode, $hash, $tries) = @_;
+    $tries ||= 0;
+    sleep $XMLRPC_DELAY if $XMLRPC_DELAY;
     d("\t\txmlrpc_call_helper: $method");
     my $res;
     eval { $res = $xmlrpc->call($method, $req); };
     if ($res && $res->fault) {
+        # a server-side fault (e.g. throttle/abuse "Denied access to method"). Back off and
+        # retry a few times in case it's transient; only abort if it persists.
+        if ($tries < $MAX_BACKOFF_TRIES) {
+            my $wait = 30 * (2 ** $tries);   # 30,60,120,240,480,960s
+            print STDERR "xmlrpc_call_helper: fault '" . $res->faultstring . "'; backing off ${wait}s (try " . ($tries+1) . "/$MAX_BACKOFF_TRIES)\n";
+            sleep $wait;
+            return call_xmlrpc($mode, $hash, $tries + 1);
+        }
         # fatal error, so don't use d() as we want to print even in case of non-verbosity
         print STDERR "xmlrpc_call_helper error:\n\tString: " . $res->faultstring . "\n\tCode: " . $res->faultcode . "\n";
+        print STDERR "\t(persisted after $MAX_BACKOFF_TRIES backoffs -- you are likely rate/abuse blocked; wait and re-run --sync)\n";
         do_abort();
         exit 1;
     }
     unless ($res) {
-        # when server times out
-        d("\t\txmlrpc_call_helper: timeout... retrying.");
-        return call_xmlrpc($mode, $hash);
+        # no response: server timeout / transport error. back off and retry (bounded).
+        if ($tries < $MAX_BACKOFF_TRIES) {
+            my $wait = 15 * (2 ** $tries);
+            d("\t\txmlrpc_call_helper: no response; backing off ${wait}s (try " . ($tries+1) . "/$MAX_BACKOFF_TRIES)");
+            sleep $wait;
+            return call_xmlrpc($mode, $hash, $tries + 1);
+        }
+        print STDERR "xmlrpc_call_helper: giving up after repeated timeouts on $method\n";
+        do_abort();
+        exit 1;
     }
     return $res->result;
 }
@@ -937,14 +983,16 @@ sub call_xmlrpc {
     # also a way to help people do xmlrpc stuff easily.  this method actually does the
     # challenge response stuff so we never send the user's password or md5 digest over
     # the intarweb.  of course, we say nothing about the user's password security anyway...
-    my ($mode, $hash) = @_;
+    my ($mode, $hash, $tries) = @_;
     $hash ||= {};
+    $tries ||= 0;
 
     my $xmlrpc = new XMLRPC::Lite;
     $xmlrpc->proxy("$opts{baseurl}/interface/xmlrpc");
+    eval { $xmlrpc->transport->timeout($HTTP_TIMEOUT); };   # don't hang forever on a dead socket
     my $chal;
     while (!$chal) {
-        my $get_chal = xmlrpc_call_helper($xmlrpc, 'LJ.XMLRPC.getchallenge');
+        my $get_chal = xmlrpc_call_helper($xmlrpc, 'LJ.XMLRPC.getchallenge', undef, $mode, $hash, $tries);
         $chal = $get_chal->{'challenge'};
     }
     #d("\tcall_xmlrpc: challenge obtained: $chal");
@@ -957,7 +1005,7 @@ sub call_xmlrpc {
         'auth_challenge' => $chal,
         'auth_response' => $response,
         %$hash, # interpolate $hash into our hash here...isn't Perl great?
-    }, $mode, $hash);
+    }, $mode, $hash, $tries);
     return $res;
 }
 
