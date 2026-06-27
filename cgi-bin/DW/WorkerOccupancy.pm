@@ -25,9 +25,6 @@ package DW::WorkerOccupancy;
 use strict;
 use warnings;
 use Time::HiRes ();
-
-# We write busy/idle into memcached counters directly; load it explicitly
-# rather than relying on ljlib.pl having pulled it in first.
 use LJ::MemCache;
 
 # Injectable clock (overridden in tests).
@@ -38,7 +35,6 @@ my $SHARDS = 64;
 my $last_end;     # epoch float when this worker last finished a request
 my $req_start;    # epoch float when the current request started
 
-# Test-only state reset.
 sub __reset {
     $last_end  = undef;
     $req_start = undef;
@@ -84,7 +80,6 @@ sub _enabled {
     return defined $svc && length $svc;
 }
 
-# Call at the very start of request handling.
 sub request_start {
     return unless _enabled();
     my $now = $CLOCK->();
@@ -95,7 +90,6 @@ sub request_start {
     return;
 }
 
-# Call at the very end of request handling.
 sub request_end {
     return unless _enabled();
     my $now = $CLOCK->();
