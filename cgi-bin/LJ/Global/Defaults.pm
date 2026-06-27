@@ -48,6 +48,13 @@ no strict "vars";
 
     $SERVER_NAME ||= Sys::Hostname::hostname();
 
+    # Which web pool/tier this process serves (e.g. web-stable,
+    # web-unauthenticated). Used as the "tier" dimension on request metrics and
+    # as the memcached namespace the occupancy autoscaler reads. Production sets
+    # this from its environment in config-private-prod.pl; every other install
+    # shares a single 'default' tier.
+    $WEB_TIER ||= 'default';
+
     @LANGS = ("en") unless @LANGS;
     $DEFAULT_LANG ||= $LANGS[0];
 

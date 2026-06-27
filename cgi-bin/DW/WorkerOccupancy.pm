@@ -41,7 +41,7 @@ sub __reset {
     return;
 }
 
-sub _svc { return $ENV{DW_LOKI_SERVICE} }
+sub _svc { return $LJ::WEB_TIER }
 
 sub _key {
     my ($kind) = @_;
