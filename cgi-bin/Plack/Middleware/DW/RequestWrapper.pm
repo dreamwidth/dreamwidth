@@ -25,32 +25,49 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use parent qw/ Plack::Middleware /;
 
 use DW::Request;
+use DW::WorkerOccupancy;
 
 sub call {
     my ( $self, $env ) = @_;
 
-    # Request setup -- clears caches, reloads config, resets DW::Request
-    LJ::start_request();
+    DW::WorkerOccupancy::request_start();
 
-    # Standardize into a DW::Request module. Must happen after start_request
-    # (which calls DW::Request->reset) but before we need the request object.
-    my $r = DW::Request->get( plack_env => $env );
+    # Everything between request_start and the teardown below is wrapped so that
+    # teardown ALWAYS runs, even if setup or the app throws. Otherwise we'd leak
+    # request-scoped state and skew occupancy accounting on every error.
+    my $res = eval {
 
-    # Register standard CSS/JS resources. Under Apache, start_request handles
-    # this because DW::Request is auto-discoverable via Apache2::RequestUtil.
-    # Under Plack, the request doesn't exist until we explicitly create it
-    # above, so start_request's resource registration was skipped.
-    LJ::register_standard_resources();
+        # Request setup -- clears caches, reloads config, resets DW::Request
+        LJ::start_request();
 
-    # Initialize BML language getter so LJ::Lang::ml / BML::ml work for all pages
-    my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
-    BML::set_language( $lang, \&LJ::Lang::get_text );
+        # Standardize into a DW::Request module. Must happen after start_request
+        # (which calls DW::Request->reset) but before we need the request object.
+        DW::Request->get( plack_env => $env );
 
-    # Pass on down
-    my $res = $self->app->($env);
+        # Register standard CSS/JS resources. Under Apache, start_request handles
+        # this because DW::Request is auto-discoverable via Apache2::RequestUtil.
+        # Under Plack, the request doesn't exist until we explicitly create it
+        # above, so start_request's resource registration was skipped.
+        LJ::register_standard_resources();
 
-    # Close out and return
+        # Initialize BML language getter so LJ::Lang::ml / BML::ml work everywhere
+        my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
+        BML::set_language( $lang, \&LJ::Lang::get_text );
+
+        # Pass on down.
+        $self->app->($env);
+    };
+    my $err = $@;
+
+    # Close out. NOTE: DW returns arrayref PSGI responses, so busy time ends
+    # here. If streaming (coderef) responses are ever introduced, request_end
+    # would fire before streaming completes and under-report busy time -- handle
+    # explicitly at that point.
     LJ::end_request();
+    DW::WorkerOccupancy::request_end();
+
+    # Re-raise so upstream error handling (and the 500 it renders) is unchanged.
+    die $err if $err;
     return $res;
 }
 
