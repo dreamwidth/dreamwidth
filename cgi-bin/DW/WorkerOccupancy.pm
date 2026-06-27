@@ -11,16 +11,24 @@
 # writes to its own shard (PID % 64), so there is no cross-worker key contention.
 #
 # Authors:
-#      Dreamwidth Studios, LLC.
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
-# the same terms as Perl itself.
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 package DW::WorkerOccupancy;
 
 use strict;
 use warnings;
 use Time::HiRes ();
+
+# We write busy/idle into memcached counters directly; load it explicitly
+# rather than relying on ljlib.pl having pulled it in first.
+use LJ::MemCache;
 
 # Injectable clock (overridden in tests).
 our $CLOCK = \&Time::HiRes::time;
@@ -68,8 +76,17 @@ sub _incr {
     return;
 }
 
+# When no service is configured (dev / non-ECS) this module is a total no-op:
+# we don't even touch the per-worker timing state, so that turning the service
+# on later within the same process can't observe a stale half-started request.
+sub _enabled {
+    my $svc = _svc();
+    return defined $svc && length $svc;
+}
+
 # Call at the very start of request handling.
 sub request_start {
+    return unless _enabled();
     my $now = $CLOCK->();
     if ( defined $last_end ) {
         _incr( 'idle_ms', int( ( $now - $last_end ) * 1000 + 0.5 ) );
@@ -80,6 +97,7 @@ sub request_start {
 
 # Call at the very end of request handling.
 sub request_end {
+    return unless _enabled();
     my $now = $CLOCK->();
     if ( defined $req_start ) {
         _incr( 'busy_ms', int( ( $now - $req_start ) * 1000 + 0.5 ) );

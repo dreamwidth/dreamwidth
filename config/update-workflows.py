@@ -225,7 +225,7 @@ def generate_task_definition(name, worker):
                     f"bin/worker/{name}",
                     "-v"
                 ],
-                "environment": worker.get("environment", []),
+                "environment": [],
                 "mountPoints": worker_mount_points,
                 "volumesFrom": [],
                 "linuxParameters": {

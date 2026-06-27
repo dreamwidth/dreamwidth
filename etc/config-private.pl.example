@@ -288,6 +288,28 @@ use Net::Subnet;
     #    public_key  => ,
     #    private_key => ,
     #);
+
+    # Occupancy-based web-tier autoscaler (bin/worker/web-autoscaler). Region and
+    # ecs_cluster are required. Each key under 'services' MUST equal the workers'
+    # DW_LOKI_SERVICE for that pool -- it's the memcached namespace the autoscaler
+    # reads -- while ecs_service is the ECS service it scales. Set dry_run to log
+    # decisions without touching ECS.
+    #%AUTOSCALER = (
+    #    region      => 'us-east-1',
+    #    ecs_cluster => 'dreamwidth',
+    #    tick        => 15,
+    #    services    => {
+    #        'web-stable' => {
+    #            enabled      => 1,
+    #            ecs_service  => 'web-stable',
+    #            target       => 0.70,    # desired steady-state occupancy
+    #            in_threshold => 0.50,    # only scale in below this
+    #            floor        => 2,
+    #            cap          => 50,
+    #            dry_run      => 0,
+    #        },
+    #    },
+    #);
 }
 
 1;
