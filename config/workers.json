@@ -17,7 +17,7 @@
       "min_count": 1,
       "max_count": 1,
       "target_cpu": 50,
-      "task_role": "dreamwidth-autoscaler-taskRole"
+      "task_role": "dreamwidth-ecs-autoscaler-taskRole"
     },
     "change-poster-id": {
       "cpu": 256,
