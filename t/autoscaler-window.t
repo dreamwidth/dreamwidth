@@ -6,7 +6,7 @@ use Test::More tests => 4;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Autoscaler::Window;
 
-my $now = 1000;
+my $now     = 1000;
 my @samples = ( [ 940, 0.2 ], [ 970, 0.4 ], [ 990, 0.9 ], [ 1000, 1.0 ] );
 
 # 45s window: only ts >= 955 -> (0.4, 0.9, 1.0) avg = 0.766...

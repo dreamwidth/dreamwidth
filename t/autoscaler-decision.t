@@ -78,22 +78,22 @@ sub base {
 # Scale in clamped to floor: o_in=0 wants 0 tasks, floor=5 caps the drain.
 {
     my $d = DW::Autoscaler::Decision::decide( base( n => 6, o_in => 0, o_out => 0 ) );
-    is( $d->{desired}, 5,           'scale in clamped to floor' );
+    is( $d->{desired}, 5,            'scale in clamped to floor' );
     is( $d->{reason},  'in_floored', 'floor clamp reported' );
 }
 
 # Out step limit actually binds when out_step_pct is tight: step=+1 -> 11, raw=15.
 {
     my $d = DW::Autoscaler::Decision::decide( base( o_out => 1.0, out_step_pct => 0.1 ) );
-    is( $d->{desired}, 11,                'tight step cap limits scale out' );
-    is( $d->{reason},  'out_step_limited', 'step-limited reason reported' );
+    is( $d->{desired}, 11, 'tight step cap limits scale out' );
+    is( $d->{reason}, 'out_step_limited', 'step-limited reason reported' );
 }
 
 # In-step percentage engages at larger N: n=20, 10% -> step 2 (not the min of 1).
 {
     my $d = DW::Autoscaler::Decision::decide( base( n => 20, o_in => 0.2, o_out => 0.2 ) );
-    is( $d->{desired}, 18,                'in step is floor(20*0.10)=2, so 20->18' );
-    is( $d->{reason},  'in_step_limited', 'in step-limited reason reported' );
+    is( $d->{desired}, 18, 'in step is floor(20*0.10)=2, so 20->18' );
+    is( $d->{reason}, 'in_step_limited', 'in step-limited reason reported' );
 }
 
 # Malformed config (target 0) holds instead of dividing by zero.
@@ -106,6 +106,6 @@ sub base {
 # Malformed config (missing cap) holds rather than clamping desired to undef.
 {
     my $d = DW::Autoscaler::Decision::decide( base( cap => undef, o_out => 1.0 ) );
-    is( $d->{action},  'hold',         'missing cap does not act' );
-    is( $d->{desired}, 10,             'missing cap leaves desired at N' );
+    is( $d->{action},  'hold', 'missing cap does not act' );
+    is( $d->{desired}, 10,     'missing cap leaves desired at N' );
 }

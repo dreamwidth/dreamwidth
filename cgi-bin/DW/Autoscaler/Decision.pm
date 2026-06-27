@@ -20,9 +20,9 @@ use POSIX qw( ceil floor );
 # decide(\%in) -> { desired, action ('out'|'in'|'hold'), reason }
 sub decide {
     my ($in) = @_;
-    my $n   = $in->{n};
-    my $cap = $in->{cap};
-    my $flr = $in->{floor};
+    my $n    = $in->{n};
+    my $cap  = $in->{cap};
+    my $flr  = $in->{floor};
 
     # Refuse to act on a malformed config rather than misbehaving: target is a
     # divisor (zero/undef => div-by-zero), and a missing floor/cap would let the
@@ -53,8 +53,8 @@ sub decide {
 
             my $stepped = $n + $step;
             my $desired = $clamp->( $stepped < $raw ? $stepped : $raw );
-            my $reason
-                = $desired >= $cap    ? 'out_capped'
+            my $reason =
+                  $desired >= $cap    ? 'out_capped'
                 : ( $stepped < $raw ) ? 'out_step_limited'
                 :                       'out';
             return {
@@ -78,8 +78,8 @@ sub decide {
 
             my $stepped = $n - $step;
             my $desired = $clamp->( $stepped > $raw ? $stepped : $raw );
-            my $reason
-                = $desired <= $flr    ? 'in_floored'
+            my $reason =
+                  $desired <= $flr    ? 'in_floored'
                 : ( $stepped > $raw ) ? 'in_step_limited'
                 :                       'in';
             return {
