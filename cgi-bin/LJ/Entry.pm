@@ -1349,6 +1349,59 @@ sub put_logprop_in_history {
     return 1;
 }
 
+# Cleaned representation of entry object for JSON APIs
+# remote is required for access to private fields.
+sub TO_JSON {
+    my ( $self, $remote ) = @_;
+
+    my $entry = {};
+    $entry->{subject} = $self->subject_html();
+    $entry->{body}    = $self->event_html(0);
+    $entry->{poster} =
+        { username => $self->poster()->{user}, display_name => $self->poster()->{name} };
+    $entry->{url} = $self->url();
+
+    # Internally, access-locked posts have a security of 'usemask' with an allowmask of 1,
+    # but we want to translate both that and custom group allow masks into more comprehensible
+    # terms for display.
+    if ( $self->security() eq "usemask" ) {
+        if ( $self->allowmask == 1 || !$self->poster->equals($remote) ) {
+            $entry->security = "access";
+        }
+        else {
+            $entry->security      = "custom";
+            $entry->custom_groups = grep { $self->allowmask & ( 1 << $_ ) } 1 .. 60;
+        }
+
+    }
+    else {
+        $entry->{security} = $self->security();
+    }
+
+    $entry->{datetime} = $self->{eventtime};
+    my @entry_tags = $self->tags();
+    $entry->{tags}         = ( \@entry_tags );
+    $entry->{icon_keyword} = $self->userpic_kw || '(default)';
+    $entry->{icon}         = $self->userpic;
+    $entry->{entry_id}     = $self->{ditemid};
+
+    my $props = $self->props;
+    if ( $props->{current_mood} || $props->{current_moodid} ) {
+        my $mood = $props->{current_mood} || DW::Mood->mood_name( $props->{current_moodid} );
+        $entry->{current_mood} = $mood if defined $mood;
+    }
+
+    $entry->{current_music}    = $props->{current_music}    if $props->{current_music};
+    $entry->{current_location} = $props->{current_location} if $props->{current_location};
+
+    if ( $remote && $self->editable_by($remote) ) {
+        $entry->{body_raw}    = $self->event_raw();
+        $entry->{subject_raw} = $self->subject_raw();
+    }
+
+    return $entry;
+}
+
 package LJ;
 
 use Carp qw(confess);
