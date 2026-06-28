@@ -20,7 +20,9 @@ WORKERS=${DW_STARMAN_WORKERS:-10}
 # load (workers climb to ~600MB before cycling). Low QPS here, so frequent
 # recycling is cheap — especially with --preload-app (respawn = fork, no recompile).
 MAX_REQUESTS=${DW_STARMAN_MAX_REQUESTS:-100}
-perl $LJHOME/bin/starman --port 8080 --workers "$WORKERS" --max-requests "$MAX_REQUESTS" --preload-app --log /var/log/starman --daemonize
+
+# --disable-keepalive: prefork workers pin to idle keep-alive conns behind the pooling ALB.
+perl $LJHOME/bin/starman --port 8080 --workers "$WORKERS" --max-requests "$MAX_REQUESTS" --disable-keepalive --preload-app --log /var/log/starman --daemonize
 
 # Kick off Varnish
 service varnish start
