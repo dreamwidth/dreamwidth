@@ -6,11 +6,6 @@
             "cpu": 0,
             "portMappings": [
                 {
-                    "containerPort": 6081,
-                    "hostPort": 6081,
-                    "protocol": "tcp"
-                },
-                {
                     "containerPort": 8080,
                     "hostPort": 8080,
                     "protocol": "tcp"
