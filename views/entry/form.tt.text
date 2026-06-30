@@ -45,6 +45,84 @@
 
 .event.placeholder=Your entry text...
 
+.rte.block=Paragraph style
+
+.rte.block.code=Code block
+
+.rte.block.heading=Heading
+
+.rte.block.html=HTML block
+
+.rte.block.paragraph=Paragraph
+
+.rte.blockquote=Quote
+
+.rte.bold=Bold
+
+.rte.cancel=Cancel
+
+.rte.code=Code
+
+.rte.cut=Cut tag
+
+.rte.cut.caption=Cut text
+
+.rte.cut.default=Read more
+
+.rte.cut.edit=Edit
+
+.rte.hr=Horizontal line
+
+.rte.htmlblock=HTML (kept as-is)
+
+.rte.image=Image
+
+.rte.image.alt=Alt text
+
+.rte.image.title=Add image
+
+.rte.image.url=Image URL
+
+.rte.italic=Italic
+
+.rte.link=Link
+
+.rte.link.title=Add link
+
+.rte.link.url=URL
+
+.rte.list.bullet=Bulleted list
+
+.rte.list.ordered=Numbered list
+
+.rte.mention.community=community
+
+.rte.mention.literal=use as typed
+
+.rte.ok=OK
+
+.rte.outdent=Unindent
+
+.rte.redo=Redo
+
+.rte.strike=Strikethrough
+
+.rte.toolbar=Formatting
+
+.rte.underline=Underline
+
+.rte.undo=Undo
+
+.rte.user=User or community
+
+.rte.user.name=Username
+
+.rte.user.site=Site
+
+.rte.user.site.hint=leave blank for this site
+
+.rte.user.title=Link a user or community
+
 .select.security=Security:
 
 .select.security.access.format=an access locked entry

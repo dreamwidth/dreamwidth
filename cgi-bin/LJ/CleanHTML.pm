@@ -1953,6 +1953,16 @@ my %markup_formats = (
         at_mentions => 1,
         noautolinks => 1,
     },
+
+    # The rich text editor serializes to explicit HTML: paragraphs, line
+    # breaks, links, and user tags are all literal markup, so it cleans
+    # exactly like raw HTML.
+    rte1 => {
+        formatting  => 'html',
+        addbreaks   => 0,
+        at_mentions => 0,
+        noautolinks => 1,
+    },
 );
 
 # Return a group of arguments to pass to clean() based on the requested format
