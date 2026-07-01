@@ -1,7 +1,7 @@
 # t/incoming-email.t
 #
 # Test DW::IncomingEmail processing pipeline — MIME parsing, routing
-# to hooks/emailpost/alias/support handlers, and From-rewriting for
+# to hooks/emailpost/alias/support handlers, and raw relay for
 # alias forwards.
 #
 # Authors:
@@ -21,7 +21,6 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-use Digest::SHA qw(sha256_hex);
 use File::Temp ();
 use MIME::Parser;
 
@@ -106,22 +105,24 @@ is( DW::IncomingEmail->process(undef), 1, 'Undef email is dropped' );
 }
 
 # ============================================================================
-# From-rewriting for alias forwards
+# Raw relay for alias forwards
 # ============================================================================
 
-# Test the rewriting logic by calling _try_alias_forward with mocks
-# that simulate finding an alias match
+# The forwarder relays the original raw bytes, unmodified, through the outbound
+# relay (preserving the sender's DKIM signature) rather than rewriting the From
+# and queueing a SendEmail task. Mock the relay to capture what it forwards.
 {
     no warnings 'redefine', 'once';
 
     # Restore the real _try_alias_forward
     *DW::IncomingEmail::_try_alias_forward = $real_try_alias_forward;
 
-    # Capture what gets dispatched to the task queue
-    my $captured_task;
-    local *DW::TaskQueue::dispatch = sub {
-        my ( $class, $task ) = @_;
-        $captured_task = $task;
+    # Capture what the relay is asked to send, instead of actually talking SMTP.
+    my %relayed;
+    local *DW::IncomingEmail::_relay_raw = sub {
+        my ( $class, $raw_bytes, $env_from, $rcpts ) = @_;
+        %relayed = ( raw => $raw_bytes, env_from => $env_from, rcpts => $rcpts );
+        return 1;
     };
 
     # Mock DB to return an alias match
@@ -151,44 +152,23 @@ is( DW::IncomingEmail->process(undef), 1, 'Undef email is dropped' );
     my $entity = $parser->parse_data($raw);
     $entity->head->unfold;
 
-    my $rv = DW::IncomingEmail->_try_alias_forward($entity);
+    my $rv = DW::IncomingEmail->_try_alias_forward( $entity, $raw, 'test' );
     is( $rv, 1, 'Alias forward returned success' );
 
-    ok( defined $captured_task, 'Task was dispatched' );
-    my $args = $captured_task->args->[0];
+    ok( %relayed, 'Message was relayed' );
 
-    # Check the From was rewritten with hash
-    my $expected_hash = substr( sha256_hex('testuser@gmail.com'), 0, 12 );
-    like(
-        $args->{data},
-        qr/^From:.*noreply-$expected_hash\@dreamwidth\.org/m,
-        'From header rewritten with sender hash'
-    );
-    like(
-        $args->{data},
-        qr/^From:.*testuser\@gmail\.com via Dreamwidth/m,
-        'From display name includes original sender'
-    );
-    like(
-        $args->{data},
-        qr/^Reply-To: testuser\@gmail\.com$/m,
-        'Reply-To header added with original sender'
-    );
+    # Recipients come from the alias's rcpt list.
+    is_deeply( $relayed{rcpts}, ['real-user@gmail.com'], 'Relayed to the alias target' );
 
-    # env_from should also use the hashed address
-    is(
-        $args->{env_from},
-        "noreply-$expected_hash\@dreamwidth.org",
-        'Envelope from uses hashed address'
-    );
+    # No Return-Path in this message, so the envelope sender falls back to the
+    # original From address (bounces go back to the real sender).
+    is( $relayed{env_from}, 'testuser@gmail.com', 'Envelope sender is the original From' );
 
-    # Same sender should always produce the same hash
-    my $hash2 = substr( sha256_hex('testuser@gmail.com'), 0, 12 );
-    is( $expected_hash, $hash2, 'Hash is deterministic for same sender' );
-
-    # Different sender produces different hash
-    my $hash3 = substr( sha256_hex('other@yahoo.com'), 0, 12 );
-    isnt( $expected_hash, $hash3, 'Different sender produces different hash' );
+    # The raw bytes are forwarded verbatim (DKIM-preserving): the original From
+    # is intact and NOT rewritten to a hashed noreply address.
+    is( $relayed{raw}, $raw, 'Original raw bytes relayed unmodified' );
+    like( $relayed{raw}, qr/^From:.*testuser\@gmail\.com/m, 'Original From preserved' );
+    unlike( $relayed{raw}, qr/noreply-/, 'From is not rewritten to a hashed address' );
 }
 
 # ============================================================================
