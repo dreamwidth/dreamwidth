@@ -502,14 +502,6 @@ userproplist.iconbrowser_smallicons:
   multihomed: 0
   prettyname: Icon browser small icons
 
-userproplist.icq:
-  cldversion: 0
-  datatype: char
-  des: ICQ Number
-  indexed: 1
-  multihomed: 1
-  prettyname: ICQ (legacy value)
-
 userproplist.import_job:
   cldversion: 4
   datatype: char
