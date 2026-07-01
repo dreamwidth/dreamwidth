@@ -2,9 +2,11 @@
 #
 # Adversarial XSS corpus for LJ::CleanHTML. Pushes a library of known
 # cross-site-scripting vectors (classic, HTML5, scheme-obfuscation, CSS, and
-# mutation-XSS) through the real clean_event / clean_comment / clean_userbio
-# display paths and asserts that no JavaScript-execution vector survives in the
-# cleaned output.
+# mutation-XSS) through every surface user content flows through -- entries and
+# comments in each formatting mode (default html, preformatted, markdown,
+# syndicated feed HTML), plus subjects and user bios -- and asserts that no
+# JavaScript-execution vector survives in the cleaned output. A markdown-only
+# vector set covers what Text::Markdown can generate before the clean runs.
 #
 # The check is a heuristic "does an exec vector remain" oracle (see is_unsafe),
 # not exact-output matching, so it stays meaningful as cleaner internals change.
@@ -31,6 +33,7 @@ BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
 use LJ::Hooks;
+use LJ::Web;    # LJ::img, used by the anon-comment / extract-images path
 
 # The malformed-markup error path inside clean() calls LJ::Lang::ml; stub it so
 # these tests don't need a populated translation DB.
@@ -97,13 +100,55 @@ sub is_unsafe {
     return sort keys %bad;
 }
 
-sub clean_with {
-    my ( $surface, $payload ) = @_;
-    my $data = $payload;
-    no strict 'refs';
-    "LJ::CleanHTML::$surface"->( \$data );
-    return $data;
-}
+# The surfaces user content flows through. Each closure cleans a payload the way
+# a given (entry point x formatting mode) does in production and returns the
+# result. Entries and comments both branch on formatting mode (default html,
+# preformatted, markdown, syndicated feed HTML); subjects and bios are their own
+# entry points with their own allowlists. The security-critical allow/eat/remove
+# lists are the same across an entry point's modes -- markdown differs because it
+# runs Text::Markdown first -- but each is exercised so a mode can't drift unsafe.
+my @surfaces = (
+    [ 'event/default' => sub { my $d = $_[0]; LJ::CleanHTML::clean_event( \$d ); $d } ],
+    [
+        'event/preformatted' =>
+            sub { my $d = $_[0]; LJ::CleanHTML::clean_event( \$d, { preformatted => 1 } ); $d }
+    ],
+    [
+        'event/markdown' =>
+            sub { my $d = $_[0]; LJ::CleanHTML::clean_event( \$d, { editor => 'markdown0' } ); $d }
+    ],
+    [
+        'event/syndicated' => sub {
+            my $d = $_[0];
+            LJ::CleanHTML::clean_event( \$d, { is_syndicated => 1, preformatted => 1 } );
+            $d;
+        }
+    ],
+    [ 'comment/default' => sub { my $d = $_[0]; LJ::CleanHTML::clean_comment( \$d ); $d } ],
+    [
+        'comment/anon' =>
+            sub { my $d = $_[0]; LJ::CleanHTML::clean_comment( \$d, { anon_comment => 1 } ); $d }
+    ],
+    [
+        'comment/markdown' => sub {
+            my $d = $_[0];
+            LJ::CleanHTML::clean_comment( \$d, { editor => 'markdown0' } );
+            $d;
+        }
+    ],
+    [
+        'comment/preformatted' =>
+            sub { my $d = $_[0]; LJ::CleanHTML::clean_comment( \$d, { preformatted => 1 } ); $d }
+    ],
+    [ 'subject'     => sub { my $d = $_[0]; LJ::CleanHTML::clean_subject( \$d );     $d } ],
+    [ 'subject_all' => sub { my $d = $_[0]; LJ::CleanHTML::clean_subject_all( \$d ); $d } ],
+    [
+        'subject_trim' =>
+            sub { my $d = $_[0]; LJ::CleanHTML::clean_and_trim_subject( \$d, 200 ); $d }
+    ],
+    [ 'userbio' => sub { my $d = $_[0]; LJ::CleanHTML::clean_userbio( \$d ); $d } ],
+);
+my %surf = map { $_->[0] => $_->[1] } @surfaces;
 
 # ---------------------------------------------------------------------------
 # Corpus the current cleaner already neutralizes -> hard regression assertions.
@@ -173,12 +218,41 @@ my @corpus = (
     [ 'comment-conditional-ie' => q{<!--[if gte IE 4]><script>alert(1)</script><![endif]-->} ],
 );
 
-for my $surface (qw( clean_event clean_comment clean_userbio )) {
+# Markdown is the one mode with an extra generation step (Text::Markdown runs
+# first, then the output is cleaned), so it has vectors only reachable through
+# markdown syntax -- link/image destinations, reference links, autolinks, raw
+# HTML passthrough, and code spans (which must be escaped, not executed).
+my @markdown_corpus = (
+    [ 'md-image-js'         => q{![x](javascript:alert(1))} ],
+    [ 'md-link-js'          => q{[x](javascript:alert(1))} ],
+    [ 'md-link-bracket-js'  => q{[x](<javascript:alert(1)>)} ],
+    [ 'md-ref-link-js'      => qq{[x][1]\n\n[1]: javascript:alert(1)} ],
+    [ 'md-autolink-js'      => q{<javascript:alert(1)>} ],
+    [ 'md-raw-img-onerror'  => q{<img src=x onerror=alert(1)>} ],
+    [ 'md-raw-script'       => q{<script>alert(1)</script>} ],
+    [ 'md-raw-svg-onload'   => q{<svg onload=alert(1)></svg>} ],
+    [ 'md-html-block'       => qq{<div>\n<img src=x onerror=alert(1)>\n</div>} ],
+    [ 'md-code-span-html'   => q{`<img src=x onerror=alert(1)>`} ],
+    [ 'md-link-title-quote' => q{[x](http://ok.test "a) onmouseover=alert(1) b")} ],
+);
+
+for my $s (@surfaces) {
+    my ( $label, $clean ) = @$s;
     for my $case (@corpus) {
         my ( $name, $payload ) = @$case;
-        my $out = clean_with( $surface, $payload );
+        my $out = $clean->($payload);
         my @bad = is_unsafe($out);
-        ok( !@bad, "$surface neutralizes $name" )
+        ok( !@bad, "$label neutralizes $name" )
+            or diag("surviving vectors: @bad\n  in : $payload\n  out: $out");
+    }
+}
+
+for my $label ( 'event/markdown', 'comment/markdown' ) {
+    for my $case (@markdown_corpus) {
+        my ( $name, $payload ) = @$case;
+        my $out = $surf{$label}->($payload);
+        my @bad = is_unsafe($out);
+        ok( !@bad, "$label neutralizes $name" )
             or diag("surviving vectors: @bad\n  in : $payload\n  out: $out");
     }
 }
@@ -214,7 +288,7 @@ TODO: {
 
     for my $case (@gaps) {
         my ( $name, $payload, $must_not_match ) = @$case;
-        my $out = clean_with( 'clean_event', $payload );
+        my $out = $surf{'event/default'}->($payload);
         unlike( $out, $must_not_match, "clean_event strips $name" );
     }
 }
@@ -223,7 +297,7 @@ TODO: {
 # (these are not TODO -- they pass today, guarding against regression).
 for my $case (@gaps) {
     my ( $name, $payload, $must_not_match ) = @$case;
-    my $out = clean_with( 'clean_comment', $payload );
+    my $out = $surf{'comment/default'}->($payload);
     unlike( $out, $must_not_match, "clean_comment strips $name" );
 }
 
