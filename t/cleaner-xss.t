@@ -44,6 +44,26 @@ use warnings 'redefine';
 # event handlers so escaped junk inside e.g. title="...onerror=..." (which is
 # inert) does not register as a live handler.
 # ---------------------------------------------------------------------------
+# Named entities an attacker can hide a URL scheme behind: the colon, plus the
+# whitespace ones a browser strips out of a scheme name.
+my %NAMED_ENT = ( colon => ':', tab => "\t", newline => "\n" );
+
+# Decode entities ONCE, left to right, the way a browser does at parse time --
+# so a raw "&Tab;" becomes a tab (dangerous if inside a scheme) but an already
+# escaped "&amp;Tab;" stays literal text (inert) and is not re-decoded.
+sub decode_entities_once {
+    my ($s) = @_;
+    $s =~ s{
+        & (?: \#x([0-9a-f]+) | \#(\d+) | ([a-z][a-z0-9]*) ) ;?
+    }{
+          defined $1                   ? chr( hex $1 )
+        : defined $2                   ? chr($2)
+        : exists $NAMED_ENT{ lc $3 }   ? $NAMED_ENT{ lc $3 }
+        :                                "&$3;"
+    }giex;
+    return $s;
+}
+
 sub is_unsafe {
     my ($html) = @_;
     my %bad;
@@ -66,11 +86,8 @@ sub is_unsafe {
         $bad{'event-handler'} = 1 if $bare =~ /[\s"'\/]on[a-z]+\s*=/i;
         $bad{'srcdoc'}        = 1 if $bare =~ /[\s"'\/]srcdoc\s*=/i;
 
-        my $t = $tag;
-        $t =~ s/&#x([0-9a-f]+);?/chr( hex $1 )/gie;
-        $t =~ s/&#(\d+);?/chr $1/ge;
-        $t =~ s/&colon;/:/gi;
-        $t =~ s/\s+//g;
+        my $t = decode_entities_once($tag);
+        $t =~ s/[\x00-\x20]+//g;    # browsers ignore whitespace/control chars in URLs and schemes
         $bad{'js-uri'} = 1
             if $t =~
 /(?:href|src|action|formaction|xlink:href|poster|background|data|to|values|from)=["']?(?:javascript|vbscript|livescript|mocha):/i;
@@ -159,10 +176,10 @@ my @corpus = (
 for my $surface (qw( clean_event clean_comment clean_userbio )) {
     for my $case (@corpus) {
         my ( $name, $payload ) = @$case;
-        my @bad = is_unsafe( clean_with( $surface, $payload ) );
+        my $out = clean_with( $surface, $payload );
+        my @bad = is_unsafe($out);
         ok( !@bad, "$surface neutralizes $name" )
-            or diag( "surviving vectors: @bad\n  in : $payload\n  out: "
-                . clean_with( $surface, $payload ) );
+            or diag("surviving vectors: @bad\n  in : $payload\n  out: $out");
     }
 }
 
@@ -208,6 +225,24 @@ for my $case (@gaps) {
     my ( $name, $payload, $must_not_match ) = @$case;
     my $out = clean_with( 'clean_comment', $payload );
     unlike( $out, $must_not_match, "clean_comment strips $name" );
+}
+
+# Oracle self-check: the is_unsafe detector must actually SEE a browser-decodable
+# obfuscated scheme (else a real cleaner regression could pass silently), and must
+# NOT false-positive on an already-escaped, inert vector or on plain body text.
+{
+    my @seen;
+    @seen = is_unsafe(q{<a href="javasc&Tab;ript:alert(1)">x</a>});
+    ok( @seen, "oracle sees &Tab;-obfuscated scheme" );
+    @seen = is_unsafe(q{<a href="javascript&#X3A;alert(1)">x</a>});
+    ok( @seen, "oracle sees hex-entity (uppercase X, A-F) scheme" );
+    @seen = is_unsafe(q{<img src=x onerror=alert(1)>});
+    ok( @seen, "oracle sees a raw event handler" );
+
+    @seen = is_unsafe(q{<a href="javasc&amp;Tab;ript:alert(1)">x</a>});
+    ok( !@seen, "oracle ignores inert already-escaped &amp;Tab;" );
+    @seen = is_unsafe(q{<p title="javascript:not-a-link onerror=text">hi</p>});
+    ok( !@seen, "oracle ignores scheme/handler text inside a quoted attribute value" );
 }
 
 done_testing();
