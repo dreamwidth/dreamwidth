@@ -215,11 +215,21 @@ sub _journal_where {
         # Manticore rejects MVA filters passed as bind params (they get typed
         # as 'stringlist' and the MVA side errors out), so interpolate the
         # integers directly. Safe because bit_breakdown only returns ints.
+        #
+        # security_bits encoding (see DW::Task::SearchCopier): public entries
+        # carry 102, private carry 101, and usemask entries carry
+        # bit_breakdown(allowmask) with no discriminator bit. bit_breakdown(1)
+        # is (0), so a plain access-list-locked entry is stored as [0] -- 0 is
+        # a legitimate security bit (the default access group), not garbage.
+        # We therefore include it whenever the viewer's own mask covers it, and
+        # do NOT exclude it: this is only a coarse pre-filter. Every hit is
+        # re-checked authoritatively with $entry->visible_to in _enrich_journal,
+        # which redacts anything the viewer may not see, so an over-broad match
+        # here can never leak content -- but an over-narrow filter (the old
+        # "NOT IN (0)" exclude) silently hid every access-locked entry from the
+        # trusted readers entitled to it.
         my @bits = ( 102, LJ::bit_breakdown( $args->{allowmask} ) );
         push @c, 'security_bits IN (' . join( ',', map { int $_ } @bits ) . ')';
-
-        # Defensive exclude: drop any rows with a stray 0 security bit.
-        push @c, 'security_bits NOT IN (0)';
     }
 
     return ( 'AND ' . join( ' AND ', @c ), @b );
