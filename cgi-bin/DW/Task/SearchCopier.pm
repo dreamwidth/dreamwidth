@@ -253,21 +253,7 @@ sub copy_comment {
         $log->logcroak( $dbfrom->errstr ) if $dbfrom->err;
 
         foreach my $row ( values %$entries ) {
-
-            # Auto-convert usemask-with-no-groups to private.
-            $row->{security} = 'private'
-                if $row->{security} eq 'usemask' && $row->{allowmask} == 0;
-
-            # We need extra security bits for some metadata. We have to do
-            # this this way because it makes it easier to later do searches
-            # on various combinations of things at the same time. Also, even
-            # though these are bits, we're not going to ever use them as
-            # actual bits.
-            my @extrabits;
-            push @extrabits, 101 if $row->{security} eq 'private';
-            push @extrabits, 102 if $row->{security} eq 'public';
-
-            $row->{bits} = [ LJ::bit_breakdown( $row->{allowmask} ), @extrabits ];
+            $row->{bits} = _security_bits( $row->{security}, $row->{allowmask} );
         }
     }
 
@@ -463,15 +449,7 @@ sub copy_entry {
         # Just make sure, in case we don't have a corresponding logtext2 row.
         next unless $row;
 
-        # Auto-convert usemask-with-no-groups to private.
-        $row->{security} = 'private'
-            if $row->{security} eq 'usemask' && $row->{allowmask} == 0;
-
-        # Security bits as described in copy_comment above.
-        my @extrabits;
-        push @extrabits, 101 if $row->{security} eq 'private';
-        push @extrabits, 102 if $row->{security} eq 'public';
-        my $bits = [ LJ::bit_breakdown( $row->{allowmask} ), @extrabits ];
+        my $bits = _security_bits( $row->{security}, $row->{allowmask} );
 
         # Very important, the search engine can't index compressed crap...
         foreach (qw/ subject event /) {
@@ -598,6 +576,42 @@ sub copy_supportlog {
 
 sub _mva {
     return '(' . join( ',', @{ $_[0] } ) . ')';
+}
+
+# -----------------------------------------------------------------------------
+# Compute the security_bits MVA for an entry/comment from its log2 (security,
+# allowmask). This is the sole encoder; the DW::Search query side must match it.
+#
+#   public                     -> [102]
+#   private                    -> [101]
+#   usemask, allowmask == 0    -> [101]   (auto-converted to private: no groups)
+#   usemask, allowmask == 1    -> [0]     (bit_breakdown(1); the access list)
+#   usemask, custom filter     -> [<bits>=1] (bit_breakdown; groups live at bit>=1)
+#
+# usemask entries carry NO 101/102 discriminator -- their bits are purely
+# bit_breakdown(allowmask). 0 is therefore a legitimate bit (the default access
+# group), which is why DW::Search must not treat a stored 0 as garbage.
+#
+# Takes ($security, $allowmask), returns an arrayref of int bits. Pure: no DB,
+# no side effects on its arguments.
+# -----------------------------------------------------------------------------
+
+sub _security_bits {
+    my ( $security, $allowmask ) = @_;
+    $allowmask += 0;
+
+    # Auto-convert usemask-with-no-groups to private.
+    $security = 'private' if $security eq 'usemask' && $allowmask == 0;
+
+    # We need extra security bits for some metadata. We have to do this this
+    # way because it makes it easier to later do searches on various
+    # combinations of things at the same time. Also, even though these are
+    # bits, we're not going to ever use them as actual bits.
+    my @extrabits;
+    push @extrabits, 101 if $security eq 'private';
+    push @extrabits, 102 if $security eq 'public';
+
+    return [ LJ::bit_breakdown($allowmask), @extrabits ];
 }
 
 1;

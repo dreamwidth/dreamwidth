@@ -178,12 +178,14 @@ ins(
     body          => 'chronology test newest'
 );
 
-# Defensive exclusion: has public bit *and* a stray 0.
+# Access-list-locked entry. usemask/allowmask=1 encodes to security_bits=[0]
+# (bit 0 is the default access group, see DW::Task::SearchCopier). 0 is a
+# legitimate bit, not garbage: a reader on the access list must see this.
 ins(
     journalid     => 401,
     jitemid       => 1,
-    security_bits => [ 102, 0 ],
-    body          => 'penguin defensively filtered'
+    security_bits => [0],
+    body          => 'penguin locked to the access list'
 );
 
 $dbh->do("FLUSH RAMCHUNK $TABLE");
@@ -294,13 +296,20 @@ subtest 'sort_by date_posted' => sub {
     is_deeply( $desc, [ '301/3/0', '301/2/0', '301/1/0' ], 'sort_by=new yields newest-first' );
 };
 
-subtest 'defensive security_bits=0 exclusion' => sub {
+subtest 'access-list-locked entry visible to trusted reader, hidden from stranger' => sub {
 
-    # Doc 401/1 has security_bits=[102, 0]. _journal_where emits both
-    # `IN (102, ...)` and `NOT IN (0)`, so the 0 bit should shoot the doc
-    # down even though its public bit would otherwise match.
-    my $k = keys_for( query => 'penguin', userid => 401 );
-    is( scalar @$k, 0, 'doc with stray 0 bit is excluded' );
+    # Doc 401/1 has security_bits=[0] (usemask/allowmask=1). A reader on the
+    # journal's access list arrives with a mask whose bit 0 is set, so
+    # bit_breakdown yields (0) and the `IN (102, 0)` pre-filter admits the doc.
+    # A stranger has allowmask=0 -> `IN (102)` only, so the [0] doc is filtered
+    # out. (This is the pre-filter only; production also re-checks each hit
+    # with $entry->visible_to in _enrich_journal, not exercised here.)
+    my $trusted = keys_for( query => 'penguin', userid => 401, allowmask => 1 );
+    is_deeply( $trusted, ['401/1/0'],
+        'reader whose mask covers bit 0 sees the access-locked entry' );
+
+    my $stranger = keys_for( query => 'penguin', userid => 401, allowmask => 0 );
+    is( scalar @$stranger, 0, 'stranger (no matching bits) does not see it' );
 };
 
 subtest 'CALL SNIPPETS builds highlighted excerpts' => sub {
