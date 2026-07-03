@@ -2,11 +2,13 @@
 #
 # Adversarial XSS corpus for LJ::CleanHTML. Pushes a library of known
 # cross-site-scripting vectors (classic, HTML5, scheme-obfuscation, CSS, and
-# mutation-XSS) through every surface user content flows through -- entries and
-# comments in each formatting mode (default html, preformatted, markdown,
-# syndicated feed HTML), plus subjects and user bios -- and asserts that no
-# JavaScript-execution vector survives in the cleaned output. A markdown-only
-# vector set covers what Text::Markdown can generate before the clean runs.
+# mutation-XSS) through every surface user content flows through -- entries
+# (default html, preformatted, markdown, and syndicated feed HTML), comments
+# (default, anonymous, markdown, preformatted), subjects, user bios, and the
+# media-embed path -- and asserts that no JavaScript-execution vector survives
+# in the cleaned output. (Syndicated is an entries-only mode; clean_comment has
+# no syndicated content.) A markdown-only vector set covers what Text::Markdown
+# can generate before the clean runs.
 #
 # The check is a heuristic "does an exec vector remain" oracle (see is_unsafe),
 # not exact-output matching, so it stays meaningful as cleaner internals change.

@@ -86,12 +86,12 @@ like(
 );
 like(
     clean_event(q{<div style="background:url(https://example.com/bg.png)">x</div>}),
-    qr{url\(https://example\.com/bg\.png\)},
+    qr{url\(\s*["']?https://example\.com/bg\.png}i,
     "external inline CSS url() passes through (accepted; same privacy tradeoff as an image)"
 );
 like(
     clean_comment(q{<div style="background:url(https://example.com/bg.png)">x</div>}),
-    qr{url\(https://example\.com/bg\.png\)},
+    qr{url\(\s*["']?https://example\.com/bg\.png}i,
     "external inline CSS url() in a comment passes through"
 );
 
