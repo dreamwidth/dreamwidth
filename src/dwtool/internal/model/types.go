@@ -13,7 +13,7 @@ type DeployTarget struct {
 	Label       string // display name: "web", "web22", "worker", "worker22"
 	Workflow    string // GitHub Actions workflow filename
 	WorkflowSvc string // the "service" input value for the workflow
-	ImageBase   string // GHCR image base (e.g., ghcr.io/dreamwidth/web)
+	ImageBase   string // GHCR image base (e.g., ghcr.io/dreamwidth/web22)
 }
 
 // Service represents an ECS service with its current state.
@@ -29,7 +29,7 @@ type Service struct {
 	Group        string // "web", worker category, or "proxy"
 	Workflow     string // GitHub Actions workflow filename (primary)
 	WorkflowSvc  string // the "service" input value for the workflow
-	ImageBase    string // GHCR image base (e.g., ghcr.io/dreamwidth/web)
+	ImageBase    string // GHCR image base (e.g., ghcr.io/dreamwidth/web22)
 	DeployTargets []DeployTarget // all available deploy sources (len > 1 means choice)
 	Deployments   []Deployment  // active deployments (PRIMARY + any in-progress)
 }

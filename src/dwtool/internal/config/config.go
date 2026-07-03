@@ -6,12 +6,11 @@ const (
 	DefaultRepo      = "dreamwidth/dreamwidth"
 	DefaultSQSPrefix = "dw-prod-"
 
-	ImageBaseWeb      = "ghcr.io/dreamwidth/web"
+	// All web services run on web22; the old "web" build/deploy was retired.
 	ImageBaseWeb22    = "ghcr.io/dreamwidth/web22"
 	ImageBaseWorker   = "ghcr.io/dreamwidth/worker"
 	ImageBaseWorker22 = "ghcr.io/dreamwidth/worker22"
 
-	WorkflowWeb      = "web-deploy.yml"
 	WorkflowWeb22    = "web22-deploy.yml"
 	WorkflowWorker   = "worker-deploy.yml"
 	WorkflowWorker22 = "worker22-deploy.yml"
@@ -41,10 +40,10 @@ func WebServices() []struct {
 		WorkflowSvc string
 		ImageBase   string
 	}{
-		{"web-canary", WorkflowWeb, "web-canary", ImageBaseWeb},
+		{"web-canary", WorkflowWeb22, "web-canary", ImageBaseWeb22},
 		{"web-shop", WorkflowWeb22, "web-shop", ImageBaseWeb22},
-		{"web-unauthenticated", WorkflowWeb, "web-unauthenticated", ImageBaseWeb},
-		{"web-stable", WorkflowWeb, "web-stable", ImageBaseWeb},
+		{"web-unauthenticated", WorkflowWeb22, "web-unauthenticated", ImageBaseWeb22},
+		{"web-stable", WorkflowWeb22, "web-stable", ImageBaseWeb22},
 	}
 }
 

@@ -256,8 +256,8 @@ func classifyService(name string) (group, workflow, workflowSvc, imageBase strin
 			{Label: "web22", Workflow: config.WorkflowWeb22, WorkflowSvc: "web-canary", ImageBase: config.ImageBaseWeb22},
 		}
 	case "web-stable":
-		return "web", config.WorkflowWeb, "web-stable", config.ImageBaseWeb, []model.DeployTarget{
-			{Label: "web", Workflow: config.WorkflowWeb, WorkflowSvc: "web-stable", ImageBase: config.ImageBaseWeb},
+		return "web", config.WorkflowWeb22, "web-stable", config.ImageBaseWeb22, []model.DeployTarget{
+			{Label: "web22", Workflow: config.WorkflowWeb22, WorkflowSvc: "web-stable", ImageBase: config.ImageBaseWeb22},
 		}
 	case "web-unauthenticated":
 		return "web", config.WorkflowWeb22, "web-unauthenticated", config.ImageBaseWeb22, []model.DeployTarget{
@@ -309,7 +309,7 @@ func (c *Client) FetchServiceImages(ctx context.Context, services []model.Servic
 		}
 
 		// Prefer Container.Image which has the task definition's image reference
-		// (e.g. "ghcr.io/dreamwidth/web@sha256:DIGEST") — this is the GHCR
+		// (e.g. "ghcr.io/dreamwidth/web22@sha256:DIGEST") — this is the GHCR
 		// manifest digest and will match GHCR package versions.
 		// Container.ImageDigest is the platform-specific runtime digest and
 		// won't match GHCR for multi-arch images.
