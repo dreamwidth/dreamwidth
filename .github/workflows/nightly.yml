@@ -1,0 +1,58 @@
+name: Nightly (full test suite)
+
+# Runs the entire t/ suite once a day. The per-PR "CI (fast)" workflow only runs
+# a curated critical subset to keep PRs quick; this catches rot in everything
+# else (the slow tail, console/admin tests, migrations) without taxing PRs.
+# Scheduled workflows only run on the default branch. workflow_dispatch allows
+# manual runs.
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  full-suite:
+    if: github.repository == 'dreamwidth/dreamwidth'
+
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/dreamwidth/devcontainer:latest
+
+    env:
+      LJHOME: ${{ github.workspace }}
+      PERL5LIB: /opt/dreamwidth-extlib/lib/perl5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install CPAN dependencies
+        run: cpm install -v --show-build-log-on-failure --no-color --resolver metadb -L /opt/dreamwidth-extlib/ - < doc/dependencies-cpanm
+
+      - name: Setup environment
+        run: |
+          # Config symlink (needed for Perl modules to load site config)
+          mkdir -p $LJHOME/ext/local
+          ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc
+
+          # Symlink pre-built static assets from the image
+          mkdir -p $LJHOME/build
+          ln -snf /opt/dreamwidth-static $LJHOME/build/static
+
+          # Start MySQL and initialize test databases
+          service mysql start
+          t/bin/initialize-db
+
+      - name: Run the full test suite
+        run: prove t/*.t
+
+      - name: Notify Discord on failure
+        if: failure()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "Nightly test suite failed"
+          description: "The full `t/` suite failed on `main`. Check the workflow run for the failing tests."
+          color: 0xff0000
+          nocontext: true

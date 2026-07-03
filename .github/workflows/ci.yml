@@ -39,20 +39,47 @@ jobs:
           service mysql start
           t/bin/initialize-db
 
+      # Test steps run even if an earlier one failed (but not if setup failed to
+      # the point of cancelling), so a single push surfaces every failing group
+      # instead of hiding later groups behind the first red one.
       - name: Code formatting (t/02-tidy.t)
+        if: ${{ !cancelled() }}
         run: prove -v t/02-tidy.t
 
       - name: Module compilation (t/00-compile.t)
+        if: ${{ !cancelled() }}
         run: prove -v t/00-compile.t
 
       - name: Plack integration tests
+        if: ${{ !cancelled() }}
         run: prove t/plack-*.t
 
       - name: Text cleaner tests
+        if: ${{ !cancelled() }}
         run: prove t/cleaner-*.t
 
       - name: Routing tests
+        if: ${{ !cancelled() }}
         run: prove t/routing-*.t
 
       - name: Rate limiting tests
+        if: ${{ !cancelled() }}
         run: prove -v t/rate-limit.t
+
+      # Core user-facing flows and access control — the surface a random PR is
+      # most likely to break. Grouped so failures are attributable at a glance.
+      - name: Core — auth
+        if: ${{ !cancelled() }}
+        run: prove t/auth-*.t
+
+      - name: Core — posting
+        if: ${{ !cancelled() }}
+        run: prove t/post.t t/proto-post-edit-roundtrip.t t/entry-lookup.t t/draftset.t
+
+      - name: Core — commenting
+        if: ${{ !cancelled() }}
+        run: prove t/comment-create.t t/entrycomment-create.t t/talkpost-*.t
+
+      - name: Core — access control & captcha
+        if: ${{ !cancelled() }}
+        run: prove t/privs.t t/caps.t t/media-security.t t/captcha-request.t t/settings.t
