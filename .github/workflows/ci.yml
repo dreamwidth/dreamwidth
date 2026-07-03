@@ -90,11 +90,11 @@ jobs:
         run: |
           if [ "$PERL_FILES" = "ALL" ]; then
             echo "Checking all files."
-            perl extlib/bin/tidyall --check-only --all --jobs 10
+            perl /opt/dreamwidth-extlib/bin/tidyall --check-only --all --jobs 10
           elif [ -n "$(printf '%s' "$PERL_FILES" | tr -d '[:space:]')" ]; then
             echo "Checking changed files:"
             printf '%s\n' "$PERL_FILES"
-            perl extlib/bin/tidyall --check-only --jobs 10 $PERL_FILES
+            perl /opt/dreamwidth-extlib/bin/tidyall --check-only --jobs 10 $PERL_FILES
           else
             echo "No Perl files changed; nothing to tidy-check."
           fi
