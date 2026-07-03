@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Dreamwidth is a Perl-based journaling/blogging platform forked from LiveJournal. It runs on Plack/Starman with MySQL, Memcached, and TheSchwartz job queue. All code must be GPL-licensed.
+Dreamwidth is a Perl-based journaling/blogging platform forked from LiveJournal. It runs on Plack/Starman with MySQL, Memcached, and background job queues. All code must be GPL-licensed.
 
 ## Development Environment
 
-Code is edited on the host, but **all commands must be run inside the devcontainer** (`.devcontainer/`). The devcontainer runs Ubuntu 22.04 with MySQL, Memcached, and a Plack/Starman web server. The workspace is mounted at `/workspaces/dreamwidth` (`$LJHOME`). Perl modules are pre-installed at `/opt/dreamwidth-extlib/lib/perl5` (`$PERL5LIB`).
+Code is edited on the host. **Run git on the host** — a worktree's `.git` doesn't resolve inside the container, so `git` commands there fail. **Run everything else inside the devcontainer** (`.devcontainer/`): tests, tidy, builds. The devcontainer runs Ubuntu 22.04 with MySQL, Memcached, and a Plack/Starman web server; the workspace is mounted at `/workspaces/dreamwidth` (`$LJHOME`), and Perl modules are pre-installed at `/opt/dreamwidth-extlib/lib/perl5` (`$PERL5LIB`).
 
 ### Container Management
 
@@ -50,7 +50,7 @@ perl t/02-tidy.t
 # Apply code formatting
 perl extlib/bin/tidyall
 
-# Check all modules compile (1472 subtests)
+# Check all modules compile
 perl t/00-compile.t
 
 # Compile static assets (CSS/JS)
@@ -102,76 +102,13 @@ docker ps --filter label=devcontainer.local_folder=<worktree-path> --format "{{.
 
 Enforced via Perl::Tidy (`.tidyallrc`): Unix line endings, 4-space continuation indent, 100-char line limit. Applies to `bin/`, `cgi-bin/`, `t/`, and worker scripts. Run `bin/tidyall` to auto-format; `t/02-tidy.t` validates in CI.
 
+**Comments:** comment the non-obvious constraint the code can't show on its own — an invariant, a why-this-order, a footgun. Never narrate the change ("was X, now Y") — that belongs in the commit message, not the code. One line unless it's a genuine gotcha.
+
 ## Architecture
 
-### Module Namespaces
-
-- **`DW::*`** — Modern Dreamwidth code (controllers, auth, blob storage, templates)
-- **`LJ::*`** — Legacy LiveJournal modules (still heavily used for core entities: users, entries, comments)
-- **`Apache::*`** — legacy namespace; now just `Apache::BML`, the shared BML rendering engine (used by `DW::BML` under Starman)
-- **`Plack::Middleware::DW::*`** — the Starman/Plack request pipeline (`cgi-bin/Plack/Middleware/DW/`)
-- **`S2::*`** — S2 style/theming language compiler
-
-### Key Directories
-
-| Directory | Purpose |
-|-----------|---------|
-| `cgi-bin/` | Core Perl modules and CGI scripts (DW::*, LJ::*, handlers) |
-| `views/` | Template Toolkit (.tt) templates for page rendering |
-| `htdocs/` | Static assets (CSS, JS, images) and legacy BML pages |
-| `styles/` | S2 style layer definitions (theming system) |
-| `bin/` | CLI utilities, maintenance scripts, worker processes |
-| `t/` | Test suite (139 test files) |
-| `etc/` | Config templates and Docker configs |
-| `api/` | REST API OpenAPI spec (YAML fragments built via Node.js) |
-| `ext/` | Optional modules (dw-nonfree) |
-
-### Request Flow
-
-1. Starman/Plack receives request → `app.psgi` middleware stack (`Plack::Middleware::DW::*`)
-2. `DW::Routing` dispatches to `DW::Controller::*` modules
-3. Controllers use `DW::Controller` helpers (`controller()`, `needlogin()`, `error_ml()`, `success_ml()`)
-4. Views rendered via `DW::Template` using Template Toolkit (`.tt` files in `views/`)
-5. Legacy pages use BML (Block Markup Language) templates in `htdocs/`
-
-### Core Entities
-
-- **Users**: `LJ::User` (main class), `DW::User` (extensions)
-- **Entries**: `LJ::Entry`, with `DW::Entry::*` extensions
-- **Comments**: `LJ::Comment`
-- **Communities**: `LJ::Community`
-
-### Database
-
-Multi-database MySQL architecture with cluster sharding (`dw_global`, `dw_cluster01+`). Uses `DBI` directly and `Data::ObjectDriver` as a lightweight ORM. Tests can use SQLite via `t/bin/initialize-db`.
-
-### Storage Backends
-
-Media/blob storage via `DW::BlobStore` with pluggable backends: S3, MogileFS, or local disk.
-
-### Job Queue
-
-Background processing via `DW::TaskQueue` with pluggable backends: SQS (`DW::TaskQueue::SQS`) or local disk (`DW::TaskQueue::LocalDisk`). Tasks are defined in `DW::Task::*`. Legacy jobs use TheSchwartz. Worker scripts in `bin/worker/`.
-
-### Plack Server
-
-The site runs on Plack/Starman (Apache/mod_perl was retired). See **`doc/PLACK.md`** for full architecture details (middleware stack, routing, security notes, testing).
-
-```bash
-# Inside the devcontainer
-perl bin/starman --port 8080
-```
-
-This runs a single-worker Starman instance. The Plack entry point is `app.psgi`. Request-pipeline middleware lives in `cgi-bin/Plack/Middleware/DW/`. The `DW::Request` abstraction layer (`DW::Request::Plack` for requests, `DW::Request::Standard` for tests/CLI) mediates request access.
-
-Notable details:
-- `$r->uri` returns the path only (not full URL) — `DW::Request::Plack` handles this
-- In the dev container, `$LJ::DOMAIN`, `$LJ::SITEROOT`, etc. are empty — URLs are built from the request Host header via `LJ::create_url()`
-- BML pages render via `DW::BML`, which reuses the core BML engine in `Apache::BML` (loaded under Starman via an Apache2-const shim)
-
-### Dev Container Config
-
-The dev container (`$IS_DEV_SERVER && $IS_DEV_CONTAINER`) intentionally sets `$LJ::DOMAIN = ""`, `$LJ::SITEROOT = ""`, etc. in `LJ::Global::Defaults`. This means domain/redirect logic is skipped and URLs are constructed dynamically from request headers. Do not use `local` to override these globals in middleware — it leaks into downstream code.
+- **`DW::*`** — modern Dreamwidth code (controllers, auth, storage, templates). **`LJ::*`** — legacy LiveJournal modules, still core to users/entries/comments. **`S2::*`** — the S2 style/theming compiler.
+- Request pipeline: Plack middleware (`cgi-bin/Plack/Middleware/DW/`) → `DW::Routing` → `DW::Controller::*` → `DW::Template` (`.tt` views in `views/`). Legacy pages use BML in `htdocs/`. See **`doc/PLACK.md`** for the full architecture.
+- **Dev-container globals (gotcha):** the dev container (`$IS_DEV_SERVER && $IS_DEV_CONTAINER`) intentionally sets `$LJ::DOMAIN`, `$LJ::SITEROOT`, etc. to `""` in `LJ::Global::Defaults`, so URLs are built from the request Host header. Do **not** use `local` to override these in middleware — it leaks into downstream code.
 
 ## Git Workflow
 
@@ -181,11 +118,13 @@ Always use `--no-gpg-sign` when committing, as GPG signing requires interactive 
 
 ### Before Pushing
 
-Before pushing any branch, run these checks inside the devcontainer and fix any failures — CI runs them and the build fails if they don't pass, even for files you didn't touch:
+Before pushing any branch, run these inside the devcontainer and fix any failures — CI runs them and fails the build even for files you didn't touch:
 
 1. `perl extlib/bin/tidyall -a` — auto-format all files
 2. `perl t/02-tidy.t` — verify formatting passes
 3. `perl t/00-compile.t` — verify all modules compile
+
+CI runs only a **subset** of the suite (`02-tidy`, `00-compile`, `plack-*`, `cleaner-*`, `routing-*`, `rate-limit`), so a green CI does **not** mean your change is tested. Also run the test files your change touches (e.g. `t/search.t`, `t/rename.t`) locally — most of `t/` never runs in CI.
 
 ## Pull Requests
 
