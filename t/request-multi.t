@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 6;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Request::Standard;
@@ -54,6 +54,65 @@ check_post(
         is( 'baz', $args->{bar} );
         is( 'baz', $args->get('bar') );
         is_deeply( ['baz'], [ $args->get_all('bar') ] );
+    }
+);
+
+# A submitted-but-empty field (foo=) must round-trip as '', not be dropped.
+# Pre-Plack, BML pages parsed args without _string_to_multivalue and kept the
+# empty; DW::Request must preserve the same behavior.
+check_get(
+    "empty=&filled=x",
+    sub {
+        plan tests => 4;
+
+        my $args = DW::Request->get->get_args;
+
+        ok( exists $args->{empty}, "empty GET field is present, not dropped" );
+        is( $args->{empty}, '', "empty GET field round-trips as ''" );
+        is_deeply( [ $args->get_all('empty') ], [''], "empty GET field is a single ''" );
+        is( $args->{filled}, 'x', "filled GET field unaffected" );
+    }
+);
+
+check_post(
+    "empty=&filled=x",
+    sub {
+        plan tests => 4;
+
+        my $args = DW::Request->get->post_args;
+
+        ok( exists $args->{empty}, "empty POST field is present, not dropped" );
+        is( $args->{empty}, '', "empty POST field round-trips as ''" );
+        is_deeply( [ $args->get_all('empty') ], [''], "empty POST field is a single ''" );
+        is( $args->{filled}, 'x', "filled POST field unaffected" );
+    }
+);
+
+# A repeated param whose last value is empty (multi=x&multi=) must keep the
+# trailing '' -- split(/\0/) drops trailing empties without a negative limit.
+check_get(
+    "multi=x&multi=",
+    sub {
+        plan tests => 1;
+        my $args = DW::Request->get->get_args;
+        is_deeply(
+            [ $args->get_all('multi') ],
+            [ 'x', '' ],
+            "trailing empty value in a repeated GET param is preserved"
+        );
+    }
+);
+
+check_post(
+    "multi=x&multi=",
+    sub {
+        plan tests => 1;
+        my $args = DW::Request->get->post_args;
+        is_deeply(
+            [ $args->get_all('multi') ],
+            [ 'x', '' ],
+            "trailing empty value in a repeated POST param is preserved"
+        );
     }
 );
 
