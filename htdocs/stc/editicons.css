@@ -1,49 +1,170 @@
 hr {
     clear: left;
 }
-	
+
 #uploadBox-inner {
     padding: 0.5em 0.75em;
 }
 
-#submit_wrapper {
-    text-align: center;
+/* --- upload row: tighten spacing between the fields --- */
+#uploadBox .pkg {
+    margin-bottom: 0.4rem;
 }
+#uploadBox p.detail {
+    margin-bottom: 0.3rem;
+}
+.helper {
+    margin: 0.15rem 0 0 0;
+    font-size: smaller;
+}
+
+/* upload rows: single aligned grid -- right-aligned label | input | help.
+   Labels sit on a shared left edge and hug the inputs; help is aligned to the
+   top of the input. On small screens everything stacks and labels go left. */
+.upload_row {
+    margin-bottom: 0.5rem;
+}
+.upload_row > label {
+    text-align: right;
+    padding-top: 0.4rem;
+    font-weight: normal;
+}
+.upload_row .helper {
+    padding-top: 0.4rem;
+    margin-top: 0;
+}
+#submit_wrapper {
+    margin-top: 0.5rem;
+}
+#uploadBox input.upload_url {
+    display: inline-block;
+    width: 22rem;
+    max-width: 100%;
+    vertical-align: middle;
+    margin-bottom: 0;
+}
+
+/* "?" help toggle next to the "Upload a new icon" heading */
+.upload_heading {
+    margin-bottom: 0.5rem;
+}
+.upload_help_toggle {
+    display: inline-block;
+    width: 1.25em;
+    height: 1.25em;
+    line-height: 1.2em;
+    margin-left: 0.4rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.6em;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    text-decoration: none;
+}
+
+/* source row: file-picker button + "or enter URL" + field, all on one line.
+   The URL box has margin-bottom:0, so add row spacing here to match the default
+   bottom margin the keyword/comment/description inputs carry. */
+#upload_wrapper .upload_source {
+    margin-bottom: 1rem;
+}
+.upload_source .upload_file_btn {
+    margin: 0 0.5rem 0 0;
+    vertical-align: middle;
+}
+.upload_file_input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+.upload_filename {
+    font-size: smaller;
+    margin-right: 0.5rem;
+}
+.upload_or {
+    display: inline-block;
+    margin: 0 0.4rem;
+    vertical-align: middle;
+}
+
+/* extra upload slots added via "Add another" */
+.additional_upload .upload_source {
+    margin-bottom: 0.4rem;
+}
+.additional_upload .additional_field label.inline,
+.additional_upload .additional_default label.inline {
+    display: inline-block;
+    min-width: 6rem;
+}
+.additional_remove {
+    margin-left: 0.5rem;
+}
+
+@media screen and (max-width: 39.9375em) {
+    .upload_row > label {
+        text-align: left;
+        padding-top: 0;
+    }
+    .upload_row .helper {
+        padding-top: 0.15rem;
+    }
+}
+
+/* --- current icons: responsive grid, two-up on wider screens --- */
+#list_userpics {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+@media screen and (min-width: 40em) {
+    #list_userpics {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 .userpic_wrapper {
-    margin: 0.5rem 0 0.25rem 0;
+    margin: 0;
+    padding: 0.5rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    overflow: hidden; /* contain the floated icon + controls */
 }
 .EditIconsUserpic {
-    margin-right: 10px;
+    margin: 0 10px 10px 0;
     display: block;
     text-align: center;
     width: 100px;
     height: 100px;
     float: left;
-    clear: left;
-    margin-bottom: 10px;
 }
 
-@media all and (min-width: 0px){ .userpic_controls { 
-    width: 400px;
-}}
+/* fields fill the space beside the icon instead of a fixed width */
+.userpic_controls {
+    overflow: hidden;
+    width: auto;
+}
 .userpic_controls input.text {
-    width: 220px;
+    width: 100%;
 }
-* html .userpic_controls input.text {
-    width: 180px;
+.userpic_controls .row {
+    margin-bottom: 0.3rem;
 }
-*:first-child+html .userpic_controls input.text {
-    width: 180px;
-}
-
+.userpic_keywords,
+.userpic_comments,
+.userpic_descriptions,
 .userpic_defaultdelete {
-    width: 200px;
+    margin-bottom: 0;
 }
 .userpic_rename {
-    width: 200px;
-    margin-bottom: 4px;
-    margin-top: 4px;
+    margin: 0.25rem 0;
 }
+
 #no_default_userpic {
     text-align: center;
 }
@@ -52,9 +173,4 @@ hr {
 #no_default_userpic label {
     float: none;
     display: inline;
-}
-
-.helper {
-    margin-top: 0.5rem;
-    font-size: smaller;
 }

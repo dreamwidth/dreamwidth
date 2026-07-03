@@ -192,6 +192,13 @@ general /create.bml.tos.p1.2
 general /create.bml.username.charsallowed
 general /create.bml.username.text
 
+general /edit/icons.tt.fromfile
+general /edit/icons.tt.fromfile.key
+general /edit/icons.tt.fromurl
+general /edit/icons.tt.fromurl.key
+general /edit/icons.tt.upload.btn.addfile
+general /edit/icons.tt.upload.btn.addurl
+general /edit/icons.tt.upload.formats.desc
 general /editinfo.bml.allowshocontact.email.if_domainaddy
 general /editinfo.bml.allowshowcontact.email.reason
 general /editinfo.bml.allowshowcontact.email.withdomainaddr
