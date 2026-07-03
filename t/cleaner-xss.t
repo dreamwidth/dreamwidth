@@ -33,7 +33,8 @@ BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
 use HTMLCleaner;
 use LJ::Hooks;
-use LJ::Web;    # LJ::img, used by the anon-comment / extract-images path
+use LJ::Web;            # LJ::img, used by the anon-comment / extract-images path
+use LJ::EmbedModule;    # clean_embed path
 
 # The malformed-markup error path inside clean() calls LJ::Lang::ml; stub it so
 # these tests don't need a populated translation DB.
@@ -67,19 +68,21 @@ sub decode_entities_once {
     return $s;
 }
 
+# opts: allow_media => 1 permits <object>/<embed>/<iframe> as tags (the embed
+# path intentionally keeps them for trusted media); their attributes are still
+# checked below, so a media tag carrying a handler or javascript: still fails.
 sub is_unsafe {
-    my ($html) = @_;
+    my ( $html, %opt ) = @_;
     my %bad;
 
-    $bad{'script-tag'}      = 1 if $html =~ /<\s*script/i;
-    $bad{'iframe'}          = 1 if $html =~ /<\s*iframe/i;
-    $bad{'object'}          = 1 if $html =~ /<\s*object\b/i;
-    $bad{'embed'}           = 1 if $html =~ /<\s*embed\b/i;
+    $bad{'script-tag'} = 1 if $html =~ /<\s*script/i;
+    unless ( $opt{allow_media} ) {
+        $bad{'iframe'} = 1 if $html =~ /<\s*iframe/i;
+        $bad{'object'} = 1 if $html =~ /<\s*object\b/i;
+        $bad{'embed'}  = 1 if $html =~ /<\s*embed\b/i;
+    }
     $bad{'base'}            = 1 if $html =~ /<\s*base\b/i;
     $bad{'meta-http-equiv'} = 1 if $html =~ /<\s*meta[^>]*http-equiv/i;
-    $bad{'css-expression'}  = 1 if $html =~ /expression\s*\(/i;
-    $bad{'css-binding'}     = 1 if $html =~ /-moz-binding/i || $html =~ /\bbehaviou?r\s*:/i;
-    $bad{'css-import'}      = 1 if $html =~ /\@import/i;
 
     while ( $html =~ /(<[a-z!\/][^>]*>)/gi ) {
         my $tag  = $1;
@@ -94,8 +97,23 @@ sub is_unsafe {
         $bad{'js-uri'} = 1
             if $t =~
 /(?:href|src|action|formaction|xlink:href|poster|background|data|to|values|from)=["']?(?:javascript|vbscript|livescript|mocha):/i;
-        $bad{'data-html'}  = 1 if $t =~ m{=["']?data:text/html}i;
-        $bad{'css-url-js'} = 1 if $t =~ /url\(["']?(?:javascript|vbscript):/i;
+        $bad{'data-html'} = 1 if $t =~ m{=["']?data:text/html}i;
+    }
+
+    # CSS execution vectors (script-y CSS, external @import, binding) only matter
+    # inside a style="" value or a <style> block. Scope the checks there so benign
+    # body text containing "@import" or "behavior:" can't false-positive.
+    my @css;
+    push @css, $1 while $html =~ /<style[^>]*>(.*?)<\/style>/gis;
+    push @css, $1 while $html =~ /\bstyle\s*=\s*"([^"]*)"/gi;
+    push @css, $1 while $html =~ /\bstyle\s*=\s*'([^']*)'/gi;
+    for my $raw (@css) {
+        my $c = decode_entities_once($raw);
+        ( my $nows = $c ) =~ s/[\x00-\x20]+//g;
+        $bad{'css-expression'} = 1 if $c =~ /expression\s*\(/i;
+        $bad{'css-binding'}    = 1 if $c =~ /-moz-binding/i || $c =~ /\bbehaviou?r\s*:/i;
+        $bad{'css-import'}     = 1 if $c =~ /\@import/i;
+        $bad{'css-url-js'}     = 1 if $nows =~ /url\(["']?(?:javascript|vbscript):/i;
     }
     return sort keys %bad;
 }
@@ -257,6 +275,41 @@ for my $label ( 'event/markdown', 'comment/markdown' ) {
     }
 }
 
+# clean_embed is the RTE media-embed path. Unlike the other surfaces it
+# INTENTIONALLY keeps <object>/<embed>/<iframe> for trusted media, so the oracle
+# runs with allow_media => 1: those tags are allowed, but script, event
+# handlers, and javascript:/data: in their attributes must still not survive.
+# (The production transform_embed hook that rewrites trusted embeds into iframes
+# is not registered in the test config, so this exercises the sanitization, not
+# the trusted-host transform, which is cleaner-embed.t's territory.)
+my @embed_corpus = (
+    [ 'embed-script'        => q{<script>alert(1)</script>} ],
+    [ 'embed-object-script' => q{<object><script>alert(1)</script></object>} ],
+    [ 'embed-iframe-js'     => q{<iframe src="javascript:alert(1)"></iframe>} ],
+    [
+        'embed-iframe-onload' =>
+            q{<iframe src="https://www.youtube.com/embed/x" onload="alert(1)"></iframe>}
+    ],
+    [ 'embed-iframe-srcdoc'  => q{<iframe srcdoc="<script>alert(1)</script>"></iframe>} ],
+    [ 'embed-object-data-js' => q{<object data="javascript:alert(1)"></object>} ],
+    [ 'embed-embed-src-js'   => q{<embed src="javascript:alert(1)">} ],
+    [ 'embed-embed-onmouse'  => q{<embed src="https://ok.test/v" onmouseover="alert(1)">} ],
+    [
+        'embed-object-onclick' =>
+            q{<object onclick="alert(1)"><param name="movie" value="javascript:alert(1)"></object>}
+    ],
+    [ 'embed-embed-data-html' => q{<embed src="data:text/html,<script>alert(1)</script>">} ],
+);
+
+for my $case (@embed_corpus) {
+    my ( $name, $payload ) = @$case;
+    my $out = $payload;
+    LJ::CleanHTML::clean_embed( \$out );
+    my @bad = is_unsafe( $out, allow_media => 1 );
+    ok( !@bad, "clean_embed neutralizes $name" )
+        or diag("surviving vectors: @bad\n  in : $payload\n  out: $out");
+}
+
 # ---------------------------------------------------------------------------
 # Known gap (documented, not yet fixed): clean_event's permissive allow-most
 # mode lets SVG/MathML foreign content and SMIL/XML-Events children through.
@@ -264,9 +317,12 @@ for my $label ( 'event/markdown', 'comment/markdown' ) {
 # vectors are the class a namespace-aware HTML5 sanitizer would close. Wrapped
 # in TODO so the suite stays green while recording exactly what is missed.
 # ---------------------------------------------------------------------------
+# The dangerous constructs that actually survive clean_event: SMIL animation
+# that drives an event handler or a javascript: navigation, XML Events handlers,
+# and MathML foreign-HTML embedding. (A bare <svg onload=> is NOT here -- the
+# onload is already stripped; only these live children slip through.) Each
+# asserts the element is gone, which a namespace-aware sanitizer would ensure.
 my @gaps = (
-    [ 'svg-stripped'  => q{<svg onload=alert(1)>x</svg>},              qr/<\s*svg/i ],
-    [ 'math-stripped' => q{<math href="javascript:alert(1)">x</math>}, qr/<\s*math/i ],
     [
         'svg-set-onload' => q{<svg><set attributeName=onload to=alert(1)></set></svg>},
         qr/<\s*set\b/i
@@ -279,6 +335,11 @@ my @gaps = (
         'svg-animate-href' =>
             q{<svg><a><animate attributeName=href to=javascript:alert(1)></animate></a></svg>},
         qr/<\s*animate\b/i
+    ],
+    [
+        'math-annotation-html' =>
+q{<math><annotation-xml encoding="text/html"><img src=x onerror=alert(1)></annotation-xml></math>},
+        qr/annotation-xml/i
     ],
 );
 
@@ -318,5 +379,16 @@ for my $case (@gaps) {
     @seen = is_unsafe(q{<p title="javascript:not-a-link onerror=text">hi</p>});
     ok( !@seen, "oracle ignores scheme/handler text inside a quoted attribute value" );
 }
+
+# Positive controls: the cleaner must PRESERVE benign content. Without these, a
+# regression that simply strips everything (or returns "") would pass every
+# "nothing dangerous survived" assertion above as vacuously safe.
+like( $surf{'event/default'}->(q{<b>hi</b> <em>there</em>}),
+    qr{<b>hi</b>.*<em>there</em>}, "event keeps benign inline formatting" );
+like( $surf{'comment/default'}->(q{<b>hi</b> <em>there</em>}),
+    qr{<b>hi</b>.*<em>there</em>}, "comment keeps benign inline formatting" );
+like( $surf{'event/default'}->(q{<a href="http://example.com/">link</a>}),
+    qr{<a[^>]*>link</a>}, "event keeps a safe link and its text" );
+like( $surf{'event/default'}->(q{hello world}), qr{hello world}, "event keeps plain text" );
 
 done_testing();
