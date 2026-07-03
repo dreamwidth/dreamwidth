@@ -2,7 +2,7 @@
     "containerDefinitions": [
         {
             "name": "web",
-            "image": "ghcr.io/dreamwidth/web:latest",
+            "image": "ghcr.io/dreamwidth/web22:latest",
             "cpu": 0,
             "portMappings": [
                 {
