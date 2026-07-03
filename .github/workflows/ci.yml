@@ -22,7 +22,45 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Detect changed files
+        id: changes
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+
+          # Fail-safe defaults: if we can't establish a base to diff against,
+          # reinstall deps and tidy-check everything (correctness over speed).
+          deps=changed
+          perl_files=ALL
+          if [ -n "$base" ] && git fetch --depth=1 origin "$base" 2>/dev/null \
+              && git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            changed=$(git diff --name-only "$base" HEAD || true)
+            if echo "$changed" | grep -qE '^doc/dependencies-(cpanm|system)$'; then
+              deps=changed
+            else
+              deps=unchanged
+            fi
+            perl_files=$(echo "$changed" | grep -E '\.(pl|pm|t)$' \
+              | while IFS= read -r f; do [ -f "$f" ] && printf '%s\n' "$f"; done)
+          fi
+
+          echo "deps=$deps" >> "$GITHUB_OUTPUT"
+          {
+            echo "perl_files<<TIDYEOF"
+            echo "$perl_files"
+            echo "TIDYEOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # Deps are baked into the devcontainer image (rebuilt nightly and whenever
+      # doc/dependencies-* changes), so only reinstall when this branch actually
+      # changes them; otherwise the image already has everything.
       - name: Install CPAN dependencies
+        if: ${{ steps.changes.outputs.deps == 'changed' }}
         run: cpm install -v --show-build-log-on-failure --no-color --resolver metadb -L /opt/dreamwidth-extlib/ - < doc/dependencies-cpanm
 
       - name: Setup environment
@@ -39,20 +77,62 @@ jobs:
           service mysql start
           t/bin/initialize-db
 
-      - name: Code formatting (t/02-tidy.t)
-        run: prove -v t/02-tidy.t
+      # Every test step below uses `if: ${{ !cancelled() }}` so one failing group
+      # doesn't hide the others -- a single push surfaces every failure.
 
-      - name: Module compilation (t/00-compile.t)
+      # Tidy-check only the files this branch changed -- main is always tidy (this
+      # gates it), so re-checking the whole tree every run is wasted time. The
+      # nightly job runs the full t/02-tidy.t.
+      - name: Formatting (changed files only)
+        if: ${{ !cancelled() }}
+        env:
+          PERL_FILES: ${{ steps.changes.outputs.perl_files }}
+        run: |
+          if [ "$PERL_FILES" = "ALL" ]; then
+            echo "Checking all files."
+            perl /opt/dreamwidth-extlib/bin/tidyall --check-only --all --jobs 10
+          elif [ -n "$(printf '%s' "$PERL_FILES" | tr -d '[:space:]')" ]; then
+            echo "Checking changed files:"
+            printf '%s\n' "$PERL_FILES"
+            perl /opt/dreamwidth-extlib/bin/tidyall --check-only --jobs 10 $PERL_FILES
+          else
+            echo "No Perl files changed; nothing to tidy-check."
+          fi
+
+      - name: Compilation (all modules)
+        if: ${{ !cancelled() }}
         run: prove -v t/00-compile.t
 
-      - name: Plack integration tests
+      - name: Test - Plack integration
+        if: ${{ !cancelled() }}
         run: prove t/plack-*.t
 
-      - name: Text cleaner tests
+      - name: Test - HTML cleaner
+        if: ${{ !cancelled() }}
         run: prove t/cleaner-*.t
 
-      - name: Routing tests
+      - name: Test - routing
+        if: ${{ !cancelled() }}
         run: prove t/routing-*.t
 
-      - name: Rate limiting tests
+      - name: Test - rate limiting
+        if: ${{ !cancelled() }}
         run: prove -v t/rate-limit.t
+
+      # The user-facing flows and access control a random PR is most likely to
+      # break, grouped so failures are attributable at a glance.
+      - name: Test - authentication
+        if: ${{ !cancelled() }}
+        run: prove t/auth-*.t
+
+      - name: Test - posting
+        if: ${{ !cancelled() }}
+        run: prove t/post.t t/proto-post-edit-roundtrip.t t/entry-lookup.t t/draftset.t
+
+      - name: Test - commenting
+        if: ${{ !cancelled() }}
+        run: prove t/comment-create.t t/entrycomment-create.t t/talkpost-*.t
+
+      - name: Test - access control & captcha
+        if: ${{ !cancelled() }}
+        run: prove t/privs.t t/caps.t t/media-security.t t/captcha-request.t t/settings.t
