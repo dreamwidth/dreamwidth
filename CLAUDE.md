@@ -48,7 +48,7 @@ perl t/sometest.t
 perl t/02-tidy.t
 
 # Apply code formatting
-perl extlib/bin/tidyall
+perl extlib/bin/tidyall -a
 
 # Check all modules compile
 perl t/00-compile.t
