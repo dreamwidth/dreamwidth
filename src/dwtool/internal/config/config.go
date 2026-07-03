@@ -6,7 +6,6 @@ const (
 	DefaultRepo      = "dreamwidth/dreamwidth"
 	DefaultSQSPrefix = "dw-prod-"
 
-	// All web services run on web22; the old "web" build/deploy was retired.
 	ImageBaseWeb22    = "ghcr.io/dreamwidth/web22"
 	ImageBaseWorker   = "ghcr.io/dreamwidth/worker"
 	ImageBaseWorker22 = "ghcr.io/dreamwidth/worker22"
