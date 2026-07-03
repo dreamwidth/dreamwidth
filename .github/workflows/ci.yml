@@ -103,6 +103,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: prove -v t/00-compile.t
 
+      - name: Test - request handling
+        if: ${{ !cancelled() }}
+        run: prove t/request-*.t
+
       - name: Test - Plack integration
         if: ${{ !cancelled() }}
         run: prove t/plack-*.t
