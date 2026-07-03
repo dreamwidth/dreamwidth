@@ -41,7 +41,8 @@
     <div id='upload_desc'><p>[% '.upload.desc' | ml %]</p></div>
 
     <div id='upload_wrapper' class='row upload_row'>
-      <label class='columns small-12 medium-2'>[% '.upload.label.source' | ml %]</label>
+      [%# not a <label>: this heads a file-or-URL group, not one control -%]
+      <span class='columns small-12 medium-2 upload_row_label'>[% '.upload.label.source' | ml %]</span>
       <div class='columns small-12 medium-10 upload_source'>
         <button type='button' class='button secondary upload_file_btn'
                 onclick='chooseFile(0)'>[% '.upload.btn.file' | ml %]</button>
@@ -49,7 +50,8 @@
         <span class='upload_filename' id='filename_0'></span>
         <label class='upload_or' for='urlpic_0'>[% '.upload.or.url' | ml %]</label>
         [% form.textbox( name = "urlpic_0", id = "urlpic_0", class = "text upload_url" ) %]
-        <input type='hidden' name='src_0' id='src_0' value='file' />
+        [%# default the source to whichever input the last (failed) submit used -%]
+        <input type='hidden' name='src_0' id='src_0' value='[% formdata.urlpic_0 ? "url" : "file" %]' />
       </div>
     </div>
 

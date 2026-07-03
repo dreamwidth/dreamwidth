@@ -24,7 +24,8 @@ hr {
 .upload_row {
     margin-bottom: 0.5rem;
 }
-.upload_row > label {
+.upload_row > label,
+.upload_row > .upload_row_label {
     text-align: right;
     padding-top: 0.4rem;
     font-weight: normal;
@@ -106,7 +107,8 @@ hr {
 }
 
 @media screen and (max-width: 39.9375em) {
-    .upload_row > label {
+    .upload_row > label,
+    .upload_row > .upload_row_label {
         text-align: left;
         padding-top: 0;
     }

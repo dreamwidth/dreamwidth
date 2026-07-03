@@ -45,6 +45,10 @@ function bindUploadRow(n) {
         url.addEventListener("focus", function () { selectUrl(n); });
         url.addEventListener("input", function () { selectUrl(n); });
     }
+    // Sync src_N to any value already present (form re-render after a
+    // validation error, or browser autofill) so it isn't stuck on "file".
+    if (url && url.value) selectUrl(n);
+    else if (file && file.files && file.files.length) selectFile(n);
 }
 
 // Open the (hidden) file picker for a row.
