@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 4;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Request::Standard;
@@ -54,6 +54,37 @@ check_post(
         is( 'baz', $args->{bar} );
         is( 'baz', $args->get('bar') );
         is_deeply( ['baz'], [ $args->get_all('bar') ] );
+    }
+);
+
+# A submitted-but-empty field (foo=) must round-trip as '', not be dropped.
+# Pre-Plack, BML pages parsed args without _string_to_multivalue and kept the
+# empty; DW::Request must preserve the same behavior.
+check_get(
+    "empty=&filled=x",
+    sub {
+        plan tests => 4;
+
+        my $args = DW::Request->get->get_args;
+
+        ok( exists $args->{empty}, "empty GET field is present, not dropped" );
+        is( $args->{empty}, '', "empty GET field round-trips as ''" );
+        is_deeply( [ $args->get_all('empty') ], [''], "empty GET field is a single ''" );
+        is( $args->{filled}, 'x', "filled GET field unaffected" );
+    }
+);
+
+check_post(
+    "empty=&filled=x",
+    sub {
+        plan tests => 4;
+
+        my $args = DW::Request->get->post_args;
+
+        ok( exists $args->{empty}, "empty POST field is present, not dropped" );
+        is( $args->{empty}, '', "empty POST field round-trips as ''" );
+        is_deeply( [ $args->get_all('empty') ], [''], "empty POST field is a single ''" );
+        is( $args->{filled}, 'x', "filled POST field unaffected" );
     }
 );
 

@@ -237,6 +237,10 @@ sub _string_to_multivalue {
     foreach my $key ( keys %gets ) {
 
         my @parts = defined $gets{$key} ? split( /\0/, $gets{$key} ) : '';
+
+        # split() on '' returns (), dropping the key; keep an empty field as ''
+        @parts = ('') unless @parts;
+
         push @out, map { $opts{lowercase} ? lc $key : $key => $_ } @parts;
     }
 
