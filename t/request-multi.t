@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Request::Standard;
@@ -85,6 +85,34 @@ check_post(
         is( $args->{empty}, '', "empty POST field round-trips as ''" );
         is_deeply( [ $args->get_all('empty') ], [''], "empty POST field is a single ''" );
         is( $args->{filled}, 'x', "filled POST field unaffected" );
+    }
+);
+
+# A repeated param whose last value is empty (multi=x&multi=) must keep the
+# trailing '' -- split(/\0/) drops trailing empties without a negative limit.
+check_get(
+    "multi=x&multi=",
+    sub {
+        plan tests => 1;
+        my $args = DW::Request->get->get_args;
+        is_deeply(
+            [ $args->get_all('multi') ],
+            [ 'x', '' ],
+            "trailing empty value in a repeated GET param is preserved"
+        );
+    }
+);
+
+check_post(
+    "multi=x&multi=",
+    sub {
+        plan tests => 1;
+        my $args = DW::Request->get->post_args;
+        is_deeply(
+            [ $args->get_all('multi') ],
+            [ 'x', '' ],
+            "trailing empty value in a repeated POST param is preserved"
+        );
     }
 );
 
