@@ -19,17 +19,17 @@ use Carp qw(croak);
 
 sub cmd { "unsuspend" }
 
-sub desc { "Unsuspend an account or entry. Requires priv: suspend." }
+sub desc { "Unsuspend an account, entry, or userpic. Requires priv: suspend." }
 
 sub args_desc {
     [
-        'username or email address or entry url' =>
-"The username of the account to unsuspend, or an email address to unsuspend all accounts at that address, or an entry URL to unsuspend a single entry within an account",
-        'reason' => "Why you're unsuspending the account or entry",
+        'username, email address, entry url, or userpic url' =>
+"The username of the account to unsuspend, or an email address to unsuspend all accounts at that address, or an entry URL to unsuspend a single entry, or a userpic URL to unsuspend a single icon",
+        'reason' => "Why you're unsuspending the account, entry, or userpic",
     ]
 }
 
-sub usage { '<username or email address or entry url> <reason>' }
+sub usage { '<username, email address, entry url, or userpic url> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
@@ -65,6 +65,27 @@ sub execute {
             unless $journal->equals($poster);
 
         return $self->print( "Entry " . $entry->url . " unsuspended." );
+    }
+
+    my $userpic = LJ::Userpic->new_from_url($user);
+    if ($userpic) {
+        my $pic_u = $userpic->owner;
+
+        return $self->error("Userpic is not currently suspended.")
+            unless $userpic->suspended;
+
+        my ( $rv, @hookval ) = $pic_u->unsuspend_userpic( $userpic->id );
+        return $self->error("Error unsuspending userpic.") unless $rv;
+
+        foreach my $hv (@hookval) {
+            my ( $type, $msg ) = @$hv;
+            $self->$type($msg);
+        }
+
+        $reason = "userpic: " . $userpic->url . "; reason: $reason";
+        LJ::statushistory_add( $pic_u, $remote, "unsuspend", $reason );
+
+        return $self->print( "Userpic " . $userpic->url . " unsuspended." );
     }
 
     my @users;

@@ -39,17 +39,19 @@ sub purge_userpic {
 
     my $url = "$LJ::USERPIC_ROOT/$picid/$userid";
 
-    my $ua = LJ::get_useragent( role => 'cdn_purge', timeout => 20 )
+    # Short timeout so a slow or unreachable CDN can't hang the request; the
+    # state change has already happened regardless of the purge.
+    my $ua = LJ::get_useragent( role => 'cdn_purge', timeout => 5 )
         or return [ 'error', "CDN purge failed for $url: could not create user agent" ];
 
-    # async=false makes Bunny hold the response until the purge has propagated,
-    # so the operator running the console command gets real confirmation.
+    # async=true so Bunny queues the purge and returns immediately instead of
+    # blocking until edge propagation completes.
     my $req = HTTP::Request->new(
-        POST => "https://api.bunny.net/purge?async=false&url=" . URI::Escape::uri_escape($url) );
+        POST => "https://api.bunny.net/purge?async=true&url=" . URI::Escape::uri_escape($url) );
     $req->header( AccessKey => $key );
 
     my $res = $ua->request($req);
-    return [ 'info',  "Purged CDN: $url" ] if $res->is_success;
+    return [ 'info',  "Requested CDN purge: $url" ] if $res->is_success;
     return [ 'error', "CDN purge failed for $url: " . $res->status_line ];
 }
 

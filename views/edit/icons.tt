@@ -187,7 +187,7 @@
               </div>
               <div class="columns small-9">
               [% form.textbox( name = "kw_$pid", id = "kw_$pid", class = "text",
-                               value = pic.scalar.keywords, disabled = pic.inactive,
+                               value = pic.scalar.keywords, disabled = pic.inactive || pic.suspended,
                                onfocus = display_rename ? "document.getElementById(\'rename_div_$pid\').style.display = \'block\';" : "" ) %]
               [% form.hidden( name = "kw_orig_$pid", value = pic.scalar.keywords ) %]
               </div>
@@ -217,7 +217,7 @@
               </div>
               <div class="columns small-9">
               [% form.textbox( name = "com_$pid", id = "com_$pid", class = "text",
-                               value = pic.comment, disabled = pic.inactive,
+                               value = pic.comment, disabled = pic.inactive || pic.suspended,
                                maxlength = maxlength.comment ) %]
               [% form.hidden( name = "com_orig_$pid", value = pic.comment ) %]
               </div>
@@ -229,7 +229,7 @@
               </div>
               <div class="columns small-9">
               [% form.textbox( name = "desc_$pid", id = "desc_$pid", class = "text",
-                               value = pic.description, disabled = pic.inactive,
+                               value = pic.description, disabled = pic.inactive || pic.suspended,
                                maxlength = maxlength.description ) %]
               [% form.hidden( name = "desc_orig_$pid", value = pic.description ) %]
               </div>
@@ -241,7 +241,7 @@
                                      name = "defaultpic", value = pid,
                                      class = 'radio', id = "def_$pid",
                                      selected = pic.is_default,
-                                     disabled = pic.inactive ) %]
+                                     disabled = pic.inactive || pic.suspended ) %]
               [% form.checkbox( label = dw.ml( ".edit.label.delete" ),
                                       name = "delete_$pid", value = 1,
                                       class = 'checkbox', id = "del_$pid",
@@ -253,6 +253,12 @@
                   # being inactive, in case it becomes active again between page
                   # render and page submit %]
               [% form.hidden( name = "pic_inactive_$pid", value = 1 ) %]
+              [%- END -%]
+              [%- IF pic.suspended -%]
+                [%- ' &nbsp;<i>[' _ dw.ml('userpic.suspended') _ ']</i> ' -%]
+                [%# flag it as read-only at render time, in case it's unsuspended
+                  # before the form is submitted %]
+              [% form.hidden( name = "pic_suspended_$pid", value = 1 ) %]
               [%- END -%]
               </div>
             </div>

@@ -34,9 +34,9 @@ sub userpic_handler {
 
     my ( $picid, $userid ) = @{ $opts->subpatterns };
 
-    # Load the user object and pic up front. This has to happen before the
-    # If-Modified-Since short-circuit below so a suspended pic can never be
-    # answered with a 304 that reaffirms the client's cached (suspended) image.
+    # Load the pic before the If-Modified-Since check below: a suspended pic must
+    # not get a 304 that reaffirms the client's cached image. Suspended pics stay
+    # in the userpic list, so no_expunged still finds them without a DB hit.
     my $u   = LJ::load_userid($userid);
     my $pic = LJ::Userpic->get( $u, $picid, { no_expunged => 1 } );
 
@@ -44,9 +44,9 @@ sub userpic_handler {
     # real bytes and never a 304.
     return _serve_default_userpic($r) if $pic && $pic->suspended;
 
-    # Absent or expunged: 404. The image is gone, so it has changed -- a
-    # conditional request must not get a 304 telling the client its cached copy
-    # is still valid.
+    # Absent or expunged: 404. The image is gone (or never was), so it has
+    # changed -- a conditional request must not get a 304 telling the client its
+    # cached copy is still valid.
     return $r->NOT_FOUND unless $pic;
 
     # A pic that still exists can't change (picids are never re-used and the
@@ -59,10 +59,12 @@ sub userpic_handler {
     my $data = $pic->imagedata
         or return $r->NOT_FOUND;
 
-    # Everything looks good, send it
+    # Userpic bytes don't change, so cache a year at the CDN (s-maxage); the
+    # shorter browser max-age bounds how long a suspended pic lingers in a
+    # browser after the CDN is purged.
     $r->content_type( $pic->mimetype );
     $r->header_out( 'Content-Length' => length $data );
-    $r->header_out( 'Cache-Control'  => 'no-transform' );
+    $r->header_out( 'Cache-Control'  => 'public, max-age=86400, s-maxage=31536000, no-transform' );
     $r->header_out( 'Last-Modified'  => LJ::time_to_http( $pic->pictime ) );
     $r->print($data);
 
