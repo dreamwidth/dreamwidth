@@ -668,11 +668,13 @@ sub load_user_userpics {
     my $cache = $class->get_cache($u);
     return @$cache if $cache;
 
-    # select all of their userpics
+    # select all of their userpics; expunged ('X') and suspended ('S') pics are
+    # excluded so they don't appear in listings, counts, or selection. The
+    # userpic-serving handler finds suspended pics via the get() DB fallback.
     my $data = $u->selectall_hashref(
         "SELECT userid, picid, width, height, state, fmt, comment,"
             . " description, location, url, UNIX_TIMESTAMP(picdate) AS 'pictime',"
-            . " flags, md5base64 FROM userpic2 WHERE userid=? AND state <> 'X'",
+            . " flags, md5base64 FROM userpic2 WHERE userid=? AND state NOT IN ('X','S')",
         'picid', undef, $u->userid
     );
     die "Error loading userpics: clusterid=$u->{clusterid}, errstr=" . $u->errstr

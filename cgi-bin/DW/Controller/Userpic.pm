@@ -34,20 +34,22 @@ sub userpic_handler {
 
     my ( $picid, $userid ) = @{ $opts->subpatterns };
 
-    # Load the user object and pic up front. This has to happen before the
-    # If-Modified-Since short-circuit below so a suspended pic can never be
-    # answered with a 304 that reaffirms the client's cached (suspended) image.
+    # Load the user object and pic up front, before the If-Modified-Since
+    # short-circuit below, so a suspended or removed pic can't be answered with a
+    # 304 that reaffirms the client's cached image. No no_expunged here: the get()
+    # DB fallback then still finds suspended and expunged pics (both excluded from
+    # load_user_userpics) so we can tell them apart from a genuinely missing one.
     my $u   = LJ::load_userid($userid);
-    my $pic = LJ::Userpic->get( $u, $picid, { no_expunged => 1 } );
+    my $pic = LJ::Userpic->get( $u, $picid );
 
     # Suspended (e.g. DMCA): serve the default icon in its place, never the
     # real bytes and never a 304.
     return _serve_default_userpic($r) if $pic && $pic->suspended;
 
-    # Absent or expunged: 404. The image is gone, so it has changed -- a
-    # conditional request must not get a 304 telling the client its cached copy
-    # is still valid.
-    return $r->NOT_FOUND unless $pic;
+    # Absent or expunged: 404. The image is gone (or never was), so it has
+    # changed -- a conditional request must not get a 304 telling the client its
+    # cached copy is still valid.
+    return $r->NOT_FOUND if !$pic || $pic->expunged;
 
     # A pic that still exists can't change (picids are never re-used and the
     # contents are immutable), so it's safe to 304 without loading the blob.

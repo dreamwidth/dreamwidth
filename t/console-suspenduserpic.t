@@ -54,8 +54,12 @@ if ($@) {
     exit 0;
 }
 else {
-    plan tests => 5;
+    plan tests => 7;
 }
+
+my $in_listing = sub {
+    return scalar grep { $_->id == $up->id } LJ::Userpic->load_user_userpics($u);
+};
 
 is(
     $run->( "suspend_userpic " . $up->url . " DMCA complaint" ),
@@ -70,6 +74,7 @@ is(
     "suspend_userpic succeeds."
 );
 is( $pic_state->( $up->id ), "S", "Userpic actually suspended." );
+ok( !$in_listing->(), "suspended pic drops out of load_user_userpics (icons page/counts)." );
 
 is(
     $run->( "unsuspend_userpic " . $up->url ),
@@ -77,3 +82,4 @@ is(
     "unsuspend_userpic succeeds."
 );
 is( $pic_state->( $up->id ), "N", "Userpic restored to normal." );
+ok( $in_listing->(), "unsuspended pic returns to load_user_userpics." );
