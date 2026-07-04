@@ -34,19 +34,25 @@ sub userpic_handler {
 
     my ( $picid, $userid ) = @{ $opts->subpatterns };
 
-    # We can safely return 304 without checking since we never re-use
-    # picture IDs and don't let the contents get modified
+    # Load the user object and pic up front. This has to happen before the
+    # If-Modified-Since short-circuit below so a suspended pic can never be
+    # answered with a 304 that reaffirms the client's cached (suspended) image.
+    my $u   = LJ::load_userid($userid);
+    my $pic = LJ::Userpic->get( $u, $picid, { no_expunged => 1 } );
+
+    # Suspended (e.g. DMCA): serve the default icon in its place, never the
+    # real bytes and never a 304.
+    return _serve_default_userpic($r) if $pic && $pic->suspended;
+
+    # Otherwise it's safe to 304 without loading the blob, since we never
+    # re-use picture IDs and don't let the contents get modified.
     if ( $r->header_in('If-Modified-Since') ) {
         $r->status(304);
         return $r->OK;
     }
 
-    # Load the user object and pic and make sure the picture is viewable
-    my $u   = LJ::load_userid($userid);
-    my $pic = LJ::Userpic->get( $u, $picid, { no_expunged => 1 } )
-        or return $r->NOT_FOUND;
-
-    # Must have contents by now, or return 404
+    # Must have a pic with contents by now, or return 404
+    return $r->NOT_FOUND unless $pic;
     my $data = $pic->imagedata
         or return $r->NOT_FOUND;
 
@@ -56,6 +62,32 @@ sub userpic_handler {
     $r->header_out( 'Cache-Control'  => 'no-transform' );
     $r->header_out( 'Last-Modified'  => LJ::time_to_http( $pic->pictime ) );
     $r->print($data);
+
+    return $r->OK;
+}
+
+# Bytes of the site default icon, read from disk once per worker.
+my $DEFAULT_USERPIC;
+
+sub _serve_default_userpic {
+    my $r = $_[0];
+
+    unless ( defined $DEFAULT_USERPIC ) {
+        if ( open my $fh, '<:raw', "$LJ::HOME/htdocs/img/nouserpic.png" ) {
+            local $/;
+            $DEFAULT_USERPIC = <$fh>;
+            close $fh;
+        }
+    }
+    return $r->NOT_FOUND unless defined $DEFAULT_USERPIC;
+
+    $r->content_type('image/png');
+    $r->header_out( 'Content-Length' => length $DEFAULT_USERPIC );
+
+    # Short TTL, and no real Last-Modified: the substituted default must not
+    # linger in caches once the suspension is lifted.
+    $r->header_out( 'Cache-Control' => 'max-age=300, no-transform' );
+    $r->print($DEFAULT_USERPIC);
 
     return $r->OK;
 }

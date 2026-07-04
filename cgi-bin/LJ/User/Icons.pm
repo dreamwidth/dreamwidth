@@ -57,6 +57,7 @@ sub activate_userpics {
     $sth->execute($userid);
     while ( my ( $picid, $state ) = $sth->fetchrow_array ) {
         next if $state eq 'X';    # expunged, means userpic has been removed from site by admins
+        next if $state eq 'S';    # suspended pics don't count against or toward quota
         if ( $state eq 'I' ) {
             push @inactive, $picid;
         }
@@ -224,6 +225,71 @@ sub expunge_userpic {
 
     # call the hook and get out of here
     my @rval = LJ::Hooks::run_hooks( 'expunge_userpic', $picid, $u->userid );
+    return ( $u->userid, map { $_->[0] } grep { $_ && @$_ && $_->[0] } @rval );
+}
+
+=head3 C<< $u->suspend_userpic( $picid ) >>
+
+Suspends a userpic (e.g. in response to a DMCA complaint) so the system serves
+the default icon in its place instead of the real image. Reversible via
+C<unsuspend_userpic>. Fires the "suspend_userpic" hook so off-site caches can be
+purged; see L<DW::Hooks::CDN>.
+
+=cut
+
+sub suspend_userpic {
+    my ( $u, $picid ) = @_;
+    $picid += 0;
+    return undef unless $picid && LJ::isu($u);
+
+    my $dbcm = LJ::get_cluster_master($u);
+    return undef unless $dbcm && $u->writer;
+
+    my $state = $dbcm->selectrow_array( 'SELECT state FROM userpic2 WHERE userid = ? AND picid = ?',
+        undef, $u->userid, $picid );
+    return undef unless $state;    # invalid pic
+    return $u->userid if $state eq 'X';    # expunged; nothing to do
+    return $u->userid if $state eq 'S';    # already suspended
+
+    $u->do( "UPDATE userpic2 SET state='S' WHERE userid = ? AND picid = ?",
+        undef, $u->userid, $picid );
+    return LJ::error($dbcm) if $dbcm->err;
+
+    LJ::Userpic->delete_cache($u);
+
+    my @rval = LJ::Hooks::run_hooks( 'suspend_userpic', $picid, $u->userid );
+    return ( $u->userid, map { $_->[0] } grep { $_ && @$_ && $_->[0] } @rval );
+}
+
+=head3 C<< $u->unsuspend_userpic( $picid ) >>
+
+Reverses C<suspend_userpic>, restoring the icon to normal service. Fires the
+"unsuspend_userpic" hook so the CDN can drop the substituted default.
+
+=cut
+
+sub unsuspend_userpic {
+    my ( $u, $picid ) = @_;
+    $picid += 0;
+    return undef unless $picid && LJ::isu($u);
+
+    my $dbcm = LJ::get_cluster_master($u);
+    return undef unless $dbcm && $u->writer;
+
+    my $state = $dbcm->selectrow_array( 'SELECT state FROM userpic2 WHERE userid = ? AND picid = ?',
+        undef, $u->userid, $picid );
+    return undef unless $state;                # invalid pic
+    return $u->userid if $state eq 'X';        # expunged; can't unsuspend
+    return $u->userid unless $state eq 'S';    # not suspended; nothing to do
+
+    # Back to normal; a later activate_userpics run re-applies quota if needed.
+    $u->do( "UPDATE userpic2 SET state='N' WHERE userid = ? AND picid = ?",
+        undef, $u->userid, $picid );
+    return LJ::error($dbcm) if $dbcm->err;
+
+    LJ::Userpic->delete_cache($u);
+
+    my @rval = LJ::Hooks::run_hooks( 'unsuspend_userpic', $picid, $u->userid );
     return ( $u->userid, map { $_->[0] } grep { $_ && @$_ && $_->[0] } @rval );
 }
 
@@ -668,6 +734,7 @@ sub get_userpic_info {
         my @pics;
         while ( my $pic = $sth->fetchrow_hashref ) {
             next if $pic->{state} eq 'X';    # no expunged pics in list
+            next if $pic->{state} eq 'S';    # no suspended pics in list (unusable)
             push @pics, $pic;
             $info->{pic}->{ $pic->{picid} } = $pic;
             $minfocom{ int( $pic->{picid} ) } = $pic->{comment}
