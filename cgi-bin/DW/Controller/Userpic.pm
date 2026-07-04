@@ -44,17 +44,16 @@ sub userpic_handler {
     # real bytes and never a 304.
     return _serve_default_userpic($r) if $pic && $pic->suspended;
 
-    # Missing or expunged: 404 rather than letting the 304 below reaffirm a
-    # client's cached copy of a pic that no longer exists.
-    return $r->NOT_FOUND unless $pic;
-
-    # It's now safe to 304 without loading the blob, since we never re-use
-    # picture IDs and don't let the contents get modified.
+    # Otherwise it's safe to 304 without loading the blob: we never re-use
+    # picture IDs and don't let the contents get modified, so a client's cached
+    # copy is always still valid.
     if ( $r->header_in('If-Modified-Since') ) {
         $r->status(304);
         return $r->OK;
     }
 
+    # Must have a pic with contents by now, or return 404
+    return $r->NOT_FOUND unless $pic;
     my $data = $pic->imagedata
         or return $r->NOT_FOUND;
 
