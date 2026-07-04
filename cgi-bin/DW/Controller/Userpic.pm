@@ -34,11 +34,9 @@ sub userpic_handler {
 
     my ( $picid, $userid ) = @{ $opts->subpatterns };
 
-    # Load the user object and pic up front, before the If-Modified-Since
-    # short-circuit below, so a suspended or removed pic can't be answered with a
-    # 304 that reaffirms the client's cached image. Suspended pics stay in the
-    # (memcached) userpic list, so no_expunged keeps this DB-free: a suspended
-    # pic is found there, and expunged/missing pics simply return undef.
+    # Load the pic before the If-Modified-Since check below: a suspended pic must
+    # not get a 304 that reaffirms the client's cached image. Suspended pics stay
+    # in the userpic list, so no_expunged still finds them without a DB hit.
     my $u   = LJ::load_userid($userid);
     my $pic = LJ::Userpic->get( $u, $picid, { no_expunged => 1 } );
 
@@ -61,16 +59,12 @@ sub userpic_handler {
     my $data = $pic->imagedata
         or return $r->NOT_FOUND;
 
-    # Everything looks good, send it. Userpic bytes don't change and picids are
-    # never re-used, so cache hard (a year) -- this is what lets the CDN actually
-    # cache them. Deliberately not "immutable": we want browsers to still
-    # revalidate (cheap, served from the CDN) so a suspend/expunge can reach an
-    # already-cached client. A suspend/expunge also evicts the edge via the CDN
-    # purge hook; the short-TTL default for suspended pics is in
-    # _serve_default_userpic.
+    # Userpic bytes don't change, so cache a year at the CDN (s-maxage); the
+    # shorter browser max-age bounds how long a suspended pic lingers in a
+    # browser after the CDN is purged.
     $r->content_type( $pic->mimetype );
     $r->header_out( 'Content-Length' => length $data );
-    $r->header_out( 'Cache-Control'  => 'public, max-age=31536000, no-transform' );
+    $r->header_out( 'Cache-Control'  => 'public, max-age=86400, s-maxage=31536000, no-transform' );
     $r->header_out( 'Last-Modified'  => LJ::time_to_http( $pic->pictime ) );
     $r->print($data);
 

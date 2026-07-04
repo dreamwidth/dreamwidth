@@ -986,7 +986,9 @@ sub icon_keyword_menu {
 
     return [] unless ($user);
 
-    my @icons = grep { !( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics($user);
+    my @icons =
+        grep { !( $_->inactive || $_->expunged || $_->suspended ) }
+        LJ::Userpic->load_user_userpics($user);
 
     return [] unless (@icons);
 

@@ -130,9 +130,7 @@ sub get {
 }
 
 # Parse a userpic URL ($LJ::USERPIC_ROOT/picid/userid, or any /userpic/picid/userid
-# path) and return the LJ::Userpic, or undef if it isn't one. Parallels
-# LJ::Entry->new_from_url so the suspend/unsuspend console commands can dispatch
-# on it the same way they do for entry URLs.
+# path) and return the LJ::Userpic, or undef if it isn't one.
 sub new_from_url {
     my ( $class, $url ) = @_;
     return undef unless $url;
@@ -682,10 +680,8 @@ sub load_user_userpics {
     my $cache = $class->get_cache($u);
     return @$cache if $cache;
 
-    # select all of their userpics; only expunged ('X') pics are dropped.
-    # Suspended ('S') pics stay in the list so serving stays DB-free (they render
-    # as the default image) and the manage-icons page can show them with a note.
-    # Excluding them from selection/posting happens in get_userpic_info.
+    # Only expunged ('X') pics are dropped; suspended ('S') pics stay so the
+    # serving handler finds them (via no_expunged) without a DB hit.
     my $data = $u->selectall_hashref(
         "SELECT userid, picid, width, height, state, fmt, comment,"
             . " description, location, url, UNIX_TIMESTAMP(picdate) AS 'pictime',"
