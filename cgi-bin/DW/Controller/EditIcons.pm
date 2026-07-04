@@ -459,7 +459,11 @@ sub update_userpics {
 
         # we're only going to modify keywords/comments on active pictures
         # (suspended pics are read-only for the owner, like inactive ones)
-        if ( $up->inactive || $up->suspended || $POST->{"pic_inactive_$picid"} ) {
+        if (   $up->inactive
+            || $up->suspended
+            || $POST->{"pic_inactive_$picid"}
+            || $POST->{"pic_suspended_$picid"} )
+        {
 
             # use 'orig' because we don't POST disabled fields
             $count_keywords->( $POST->{"kw_orig_$picid"} );

@@ -91,7 +91,13 @@ sub execute {
         return $self->error("Userpic is already suspended.")
             if $userpic->suspended;
 
-        $pic_u->suspend_userpic( $userpic->id );
+        my ( $rv, @hookval ) = $pic_u->suspend_userpic( $userpic->id );
+        return $self->error("Error suspending userpic.") unless $rv;
+
+        foreach my $hv (@hookval) {
+            my ( $type, $msg ) = @$hv;
+            $self->$type($msg);
+        }
 
         $reason = "userpic: " . $userpic->url . "; reason: $reason";
         LJ::statushistory_add( $pic_u, $remote, "suspend", $reason );

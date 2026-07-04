@@ -256,6 +256,9 @@
               [%- END -%]
               [%- IF pic.suspended -%]
                 [%- ' &nbsp;<i>[' _ dw.ml('userpic.suspended') _ ']</i> ' -%]
+                [%# flag it as read-only at render time, in case it's unsuspended
+                  # before the form is submitted %]
+              [% form.hidden( name = "pic_suspended_$pid", value = 1 ) %]
               [%- END -%]
               </div>
             </div>
