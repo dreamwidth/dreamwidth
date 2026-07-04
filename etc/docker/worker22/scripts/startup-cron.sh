@@ -19,6 +19,11 @@ fail () {
 
 perl -I$LJHOME/extlib/ $LJHOME/bin/checkconfig.pl || fail
 
+if [[ $# -lt 1 ]]; then
+    echo "Usage: $0 <command-relative-to-LJHOME> [args...]" >&2
+    exit 2
+fi
+
 COMMAND="$1"
 shift
 exec "$LJHOME/$COMMAND" "$@"
