@@ -54,11 +54,16 @@ if ($@) {
     exit 0;
 }
 else {
-    plan tests => 7;
+    plan tests => 8;
 }
 
+# Suspended pics stay in the owner's listing (shown with a note, served as the
+# default image) but are not selectable for posting.
 my $in_listing = sub {
     return scalar grep { $_->id == $up->id } LJ::Userpic->load_user_userpics($u);
+};
+my $selectable = sub {
+    return $u->get_userpic_info->{pic}->{ $up->id } ? 1 : 0;
 };
 
 is(
@@ -74,7 +79,8 @@ is(
     "suspend_userpic succeeds."
 );
 is( $pic_state->( $up->id ), "S", "Userpic actually suspended." );
-ok( !$in_listing->(), "suspended pic drops out of load_user_userpics (icons page/counts)." );
+ok( $in_listing->(),  "suspended pic stays in the owner's listing (shown with a note)." );
+ok( !$selectable->(), "suspended pic is not selectable for posting." );
 
 is(
     $run->( "unsuspend_userpic " . $up->url ),
@@ -82,4 +88,4 @@ is(
     "unsuspend_userpic succeeds."
 );
 is( $pic_state->( $up->id ), "N", "Userpic restored to normal." );
-ok( $in_listing->(), "unsuspended pic returns to load_user_userpics." );
+ok( $selectable->(), "unsuspended pic is selectable again." );

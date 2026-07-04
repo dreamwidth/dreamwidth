@@ -36,11 +36,11 @@ sub userpic_handler {
 
     # Load the user object and pic up front, before the If-Modified-Since
     # short-circuit below, so a suspended or removed pic can't be answered with a
-    # 304 that reaffirms the client's cached image. No no_expunged here: the get()
-    # DB fallback then still finds suspended and expunged pics (both excluded from
-    # load_user_userpics) so we can tell them apart from a genuinely missing one.
+    # 304 that reaffirms the client's cached image. Suspended pics stay in the
+    # (memcached) userpic list, so no_expunged keeps this DB-free: a suspended
+    # pic is found there, and expunged/missing pics simply return undef.
     my $u   = LJ::load_userid($userid);
-    my $pic = LJ::Userpic->get( $u, $picid );
+    my $pic = LJ::Userpic->get( $u, $picid, { no_expunged => 1 } );
 
     # Suspended (e.g. DMCA): serve the default icon in its place, never the
     # real bytes and never a 304.
@@ -49,7 +49,7 @@ sub userpic_handler {
     # Absent or expunged: 404. The image is gone (or never was), so it has
     # changed -- a conditional request must not get a 304 telling the client its
     # cached copy is still valid.
-    return $r->NOT_FOUND if !$pic || $pic->expunged;
+    return $r->NOT_FOUND unless $pic;
 
     # A pic that still exists can't change (picids are never re-used and the
     # contents are immutable), so it's safe to 304 without loading the blob.
@@ -61,10 +61,16 @@ sub userpic_handler {
     my $data = $pic->imagedata
         or return $r->NOT_FOUND;
 
-    # Everything looks good, send it
+    # Everything looks good, send it. Userpic bytes don't change and picids are
+    # never re-used, so cache hard (a year) -- this is what lets the CDN actually
+    # cache them. Deliberately not "immutable": we want browsers to still
+    # revalidate (cheap, served from the CDN) so a suspend/expunge can reach an
+    # already-cached client. A suspend/expunge also evicts the edge via the CDN
+    # purge hook; the short-TTL default for suspended pics is in
+    # _serve_default_userpic.
     $r->content_type( $pic->mimetype );
     $r->header_out( 'Content-Length' => length $data );
-    $r->header_out( 'Cache-Control'  => 'no-transform' );
+    $r->header_out( 'Cache-Control'  => 'public, max-age=31536000, no-transform' );
     $r->header_out( 'Last-Modified'  => LJ::time_to_http( $pic->pictime ) );
     $r->print($data);
 

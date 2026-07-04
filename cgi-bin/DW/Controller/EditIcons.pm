@@ -458,7 +458,8 @@ sub update_userpics {
         }
 
         # we're only going to modify keywords/comments on active pictures
-        if ( $up->inactive || $POST->{"pic_inactive_$picid"} ) {
+        # (suspended pics are read-only for the owner, like inactive ones)
+        if ( $up->inactive || $up->suspended || $POST->{"pic_inactive_$picid"} ) {
 
             # use 'orig' because we don't POST disabled fields
             $count_keywords->( $POST->{"kw_orig_$picid"} );
@@ -525,8 +526,8 @@ sub update_userpics {
     if ( $new_default && $new_default != $u->{'defaultpicid'} ) {
         my ($up) = grep { $_->id == $new_default } @userpics;
 
-        # see if they are trying to make an inactive userpic their default
-        if ( $up && !$up->inactive ) {
+        # see if they are trying to make an inactive or suspended userpic their default
+        if ( $up && !$up->inactive && !$up->suspended ) {
             $up->make_default;
         }
     }
