@@ -19,7 +19,6 @@ package LJ::Console::Command::SuspendUserpic;
 
 use strict;
 use base qw(LJ::Console::Command);
-use Carp qw(croak);
 
 sub cmd { "suspend_userpic" }
 
