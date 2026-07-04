@@ -129,6 +129,20 @@ sub get {
     return undef;
 }
 
+# Parse a userpic URL ($LJ::USERPIC_ROOT/picid/userid, or any /userpic/picid/userid
+# path) and return the LJ::Userpic, or undef if it isn't one. Parallels
+# LJ::Entry->new_from_url so the suspend/unsuspend console commands can dispatch
+# on it the same way they do for entry URLs.
+sub new_from_url {
+    my ( $class, $url ) = @_;
+    return undef unless $url;
+    return undef
+        unless $url =~ m!^\Q$LJ::USERPIC_ROOT\E/(\d+)/(\d+)/?$!
+        || $url =~ m!/userpic/(\d+)/(\d+)/?$!;
+    my $u = LJ::load_userid($2) or return undef;
+    return $class->get( $u, $1 );
+}
+
 sub _skeleton {
     my ( $class, $u, $picid ) = @_;
     $picid = 0 unless defined $picid;

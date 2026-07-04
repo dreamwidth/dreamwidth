@@ -1,6 +1,8 @@
 # t/console-suspenduserpic.t
 #
-# Test LJ::Console suspend_userpic / unsuspend_userpic commands.
+# Test suspending / unsuspending a single userpic via the LJ::Console suspend
+# and unsuspend commands (which dispatch on a userpic URL, like they do for
+# entry URLs).
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -67,25 +69,25 @@ my $selectable = sub {
 };
 
 is(
-    $run->( "suspend_userpic " . $up->url . " DMCA complaint" ),
+    $run->( "suspend " . $up->url . " dmca-test" ),
     "error: You are not authorized to run this command.",
-    "suspend_userpic requires siteadmin:userpics."
+    "suspend requires the suspend priv."
 );
-$u->grant_priv( "siteadmin", "userpics" );
+$u->grant_priv("suspend");
 
 is(
-    $run->( "suspend_userpic " . $up->url . " DMCA complaint" ),
-    "success: Userpic '" . $up->id . "' for '" . $u->user . "' suspended.",
-    "suspend_userpic succeeds."
+    $run->( "suspend " . $up->url . " dmca-test" ),
+    "success: Userpic " . $up->url . " suspended.",
+    "suspend accepts a userpic URL."
 );
 is( $pic_state->( $up->id ), "S", "Userpic actually suspended." );
 ok( $in_listing->(),  "suspended pic stays in the owner's listing (shown with a note)." );
 ok( !$selectable->(), "suspended pic is not selectable for posting." );
 
 is(
-    $run->( "unsuspend_userpic " . $up->url ),
-    "success: Userpic '" . $up->id . "' for '" . $u->user . "' unsuspended.",
-    "unsuspend_userpic succeeds."
+    $run->( "unsuspend " . $up->url . " dmca-test" ),
+    "success: Userpic " . $up->url . " unsuspended.",
+    "unsuspend accepts a userpic URL."
 );
 is( $pic_state->( $up->id ), "N", "Userpic restored to normal." );
 ok( $selectable->(), "unsuspended pic is selectable again." );
