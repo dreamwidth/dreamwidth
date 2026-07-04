@@ -260,6 +260,12 @@ sub expunged {
     return $state eq 'X';
 }
 
+sub suspended {
+    my $self  = $_[0];
+    my $state = defined $self->state ? $self->state : '';
+    return $state eq 'S';
+}
+
 sub state {
     my $self = $_[0];
     return $self->{state} if defined $self->{state};
@@ -589,7 +595,7 @@ sub keywords {
 sub imagedata {
     my $self = $_[0];
     $self->load_row or return undef;
-    return undef if $self->expunged;
+    return undef if $self->expunged || $self->suspended;
 
     my $data = DW::BlobStore->retrieve( userpics => $self->storage_key );
     return $data ? $$data : undef;
