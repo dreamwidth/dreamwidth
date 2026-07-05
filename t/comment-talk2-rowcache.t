@@ -60,6 +60,7 @@ LJ::Talk::invalidate_talk2row_memcache( $jid, $c1id, $c2id );
 # cold: one DB read, blob cached, per-comment rows NOT eagerly cached
 %db = ( data => 0, row => 0 );
 my $data = LJ::Talk::get_talk_data( $u, 'L', $jitemid );
+ok( $data, "get_talk_data returned data" );
 is( $db{data}, 1, "cold get_talk_data does one DB read" );
 ok( LJ::MemCache::get($blobkey), "get_talk_data caches the talk2 blob" );
 ok( !LJ::MemCache::get( $rowkey->($c2id) ),
@@ -72,15 +73,16 @@ is( $data->{$c2id}->{parenttalkid}, $c1id, "threading is correct" );
 my $warm = LJ::Talk::get_talk_data( $u, 'L', $jitemid );
 is( $db{data}, 0, "warm get_talk_data serves from memcache (no DB)" );
 is_deeply(
-    [ sort { $a <=> $b } keys %$warm ],
-    [ sort { $a <=> $b } keys %$data ],
+    [ sort { $a <=> $b } keys %{ $warm || {} } ],
+    [ sort { $a <=> $b } keys %{ $data || {} } ],
     "warm read returns the same comment set"
 );
 
 # per-comment rows: DB on the cold miss (batched), memcache on the warm hit
 %db = ( data => 0, row => 0 );
 my @rows = LJ::Talk::get_talk2_row_multi( [ $u, $c1id ], [ $u, $c2id ] );
-is( $db{row}, 1, "cold get_talk2_row_multi does one batched DB read" );
+is( scalar @rows, 2, "get_talk2_row_multi returned both rows" );
+is( $db{row},     1, "cold get_talk2_row_multi does one batched DB read" );
 ok( LJ::MemCache::get( $rowkey->($c2id) ), "rows are cached after the lazy load" );
 is( $rows[1]->{parenttalkid}, $c1id, "loaded row threading is correct" );
 
