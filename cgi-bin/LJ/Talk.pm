@@ -730,7 +730,7 @@ sub get_talk_data {
     my $lock    = DW::Locker->new->trylock( $lockkey, class => 'get_talk_data', wait => 10 );
     unless ($lock) {
         my $waited = Time::HiRes::time() - $lock_t0;
-        my $reason = ( $DW::Locker::Error // '' ) =~ /taken/ ? "lock_taken" : "lock_error";
+        my $reason = ( $DW::Locker::Error // '' ) eq "lock taken" ? "lock_taken" : "lock_error";
         DW::Stats::increment( 'dw.talk.get_talk_data.undef', 1, ["reason:$reason"] );
         $log->warn(
             sprintf(

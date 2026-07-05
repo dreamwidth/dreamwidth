@@ -118,9 +118,11 @@ sub log2_do {
     my $lock = DW::Locker->new->trylock( $lockkey, class => 'log2_do', wait => 10 );
     my $ret  = $u->do( $sql, undef, @args );
     $$errref = $u->errstr if ref $errref && $u->err;
+
+    # invalidate before releasing, to keep the stale-read window small
+    LJ::MemCache::delete( $memkey, 0 ) if int($ret);
     $lock->release if $lock;
 
-    LJ::MemCache::delete( $memkey, 0 ) if int($ret);
     return $ret;
 }
 
@@ -367,9 +369,11 @@ sub talk2_do {
     my $lock = DW::Locker->new->trylock( $lockkey, class => 'talk2_do', wait => 10 );
     my $ret  = $u->do( $sql, undef, @args );
     $$errref = $u->errstr if ref $errref && $u->err;
+
+    # invalidate before releasing, to keep the stale-read window small
+    LJ::MemCache::delete( $memkey, 0 ) if int($ret);
     $lock->release if $lock;
 
-    LJ::MemCache::delete( $memkey, 0 ) if int($ret);
     return $ret;
 }
 
