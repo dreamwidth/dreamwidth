@@ -16,6 +16,7 @@ use strict;
 no warnings 'uninitialized';
 
 use Carp;
+use DW::Locker;
 
 ########################################################################
 ### 5. Database and Memcache Functions
@@ -111,17 +112,17 @@ sub log2_do {
     my ( $u, $errref, $sql, @args ) = @_;
     return undef unless $u->writer;
 
-    my $dbcm = $u->{_dbcm};
-
     my $memkey  = [ $u->userid, "log2lt:" . $u->userid ];
     my $lockkey = $memkey->[1];
 
-    $dbcm->selectrow_array( "SELECT GET_LOCK(?,10)", undef, $lockkey );
-    my $ret = $u->do( $sql, undef, @args );
+    my $lock = DW::Locker->new->trylock( $lockkey, class => 'log2_do', wait => 10 );
+    my $ret  = $u->do( $sql, undef, @args );
     $$errref = $u->errstr if ref $errref && $u->err;
-    $dbcm->selectrow_array( "SELECT RELEASE_LOCK(?)", undef, $lockkey );
 
+    # invalidate before releasing, to keep the stale-read window small
     LJ::MemCache::delete( $memkey, 0 ) if int($ret);
+    $lock->release if $lock;
+
     return $ret;
 }
 
@@ -358,18 +359,21 @@ sub talk2_do {
     return undef unless $nodeid =~ /^\d+$/;
     return undef unless $u->writer;
 
-    my $dbcm   = $u->{_dbcm};
     my $userid = $u->userid;
 
     my $memkey  = [ $userid, "talk2:$userid:$nodetype:$nodeid" ];
     my $lockkey = $memkey->[1];
 
-    $dbcm->selectrow_array( "SELECT GET_LOCK(?,10)", undef, $lockkey );
-    my $ret = $u->do( $sql, undef, @args );
+    # Same lock name as get_talk_data's read path, so a write and a
+    # read-repopulate don't run at once.
+    my $lock = DW::Locker->new->trylock( $lockkey, class => 'talk2_do', wait => 10 );
+    my $ret  = $u->do( $sql, undef, @args );
     $$errref = $u->errstr if ref $errref && $u->err;
-    $dbcm->selectrow_array( "SELECT RELEASE_LOCK(?)", undef, $lockkey );
 
+    # invalidate before releasing, to keep the stale-read window small
     LJ::MemCache::delete( $memkey, 0 ) if int($ret);
+    $lock->release if $lock;
+
     return $ret;
 }
 

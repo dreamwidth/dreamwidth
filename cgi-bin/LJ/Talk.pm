@@ -28,6 +28,8 @@ use DW::Search;
 use DW::Captcha;
 use DW::EmailPost::Comment;
 use DW::Formats;
+use DW::Locker;
+use Time::HiRes ();
 use LJ::Utils;
 use LJ::Comment;
 use LJ::Event::JournalNewComment;
@@ -715,16 +717,36 @@ sub get_talk_data {
     return $memcache_decode->() if $memcache_good->();
 
     my $dbcr = LJ::get_cluster_def_reader($u);
-    return undef unless $dbcr;
+    unless ($dbcr) {
+        DW::Stats::increment( 'dw.talk.get_talk_data.undef', 1, ["reason:no_reader"] );
+        $log->warn( "get_talk_data undef (no_reader): "
+                . "journalid=$u->{userid} nodetype=$nodetype nodeid=$nodeid" );
+        return undef;
+    }
 
-    my $lock = $dbcr->selectrow_array( "SELECT GET_LOCK(?,10)", undef, $lockkey );
-    return undef unless $lock;
+    # Serialize the DB read + repopulate so a cache miss on a popular post
+    # doesn't stampede the database.
+    my $lock_t0 = Time::HiRes::time();
+    my $lock    = DW::Locker->new->trylock( $lockkey, class => 'get_talk_data', wait => 10 );
+    unless ($lock) {
+        my $waited = Time::HiRes::time() - $lock_t0;
+        my $reason = ( $DW::Locker::Error // '' ) eq "lock taken" ? "lock_taken" : "lock_error";
+        DW::Stats::increment( 'dw.talk.get_talk_data.undef', 1, ["reason:$reason"] );
+        $log->warn(
+            sprintf(
+                "get_talk_data undef (%s, waited %.3fs) on %s: "
+                    . "journalid=%d nodetype=%s nodeid=%s",
+                $reason, $waited, $lockkey, $u->{userid}, $nodetype, $nodeid
+            )
+        );
+        return undef;
+    }
 
     # it's quite likely (for a popular post) that the memcache was
     # already populated while we were waiting for the lock
     $packed = LJ::MemCache::get($memkey);
     if ( $memcache_good->() ) {
-        $dbcr->selectrow_array( "SELECT RELEASE_LOCK(?)", undef, $lockkey );
+        $lock->release;    # release before the separately-locked replycount fixup
         $memcache_decode->();
         return $ret;
     }
@@ -759,7 +781,7 @@ sub get_talk_data {
         $rp_ourcount++ if $r->{'state'} eq "A";
     }
     LJ::MemCache::set( $memkey, $memval );
-    $dbcr->selectrow_array( "SELECT RELEASE_LOCK(?)", undef, $lockkey );
+    $lock->release;    # release before the separately-locked replycount fixup
 
     $fixup_rp->();
 
@@ -780,15 +802,11 @@ sub fixup_logitem_replycount {
     my $rp_count  = LJ::MemCache::get($rp_memkey) || 0;
     my $fix_key   = "rp_fixed:$u->{userid}:$nodetype:$jitemid:$rp_count";
 
-    my $db_key   = "rp:fix:$u->{userid}:$nodetype:$jitemid";
-    my $got_lock = $u->selectrow_array( "SELECT GET_LOCK(?, 1)", undef, $db_key );
-    return unless $got_lock;
+    my $db_key = "rp:fix:$u->{userid}:$nodetype:$jitemid";
+    my $lock   = DW::Locker->new->trylock( $db_key, class => 'replycount_fixup', wait => 1 );
+    return unless $lock;
 
-    # setup an unlock handler
-    my $unlock = sub {
-        $u->do( "SELECT RELEASE_LOCK(?)", undef, $db_key );
-        return undef;
-    };
+    my $unlock = sub { $lock->release; return undef; };
 
     # check memcache to see if someone has previously fixed this entry in this journal
     # with this reply count
