@@ -432,7 +432,14 @@ sub ensure_cookie_value {
 
     if ( $setting_new && !$hook_saved_mapping && !$class->is_disabled ) {
         my $remote = LJ::get_remote();
-        $class->save_mapping( $uniq => $remote ) if $remote;
+        if ($remote) {
+            $class->save_mapping( $uniq => $remote );
+
+            # the trust cookie is signed over the uniq ident, so a fresh
+            # ident invalidates it; re-sign while we still have a session
+            my $sess = $remote->session;
+            $sess->update_trust_cookie if $sess;
+        }
     }
 
     # set uniq cookies for all cookie_domains
