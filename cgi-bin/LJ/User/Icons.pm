@@ -17,6 +17,8 @@ no warnings 'uninitialized';
 
 use List::Util qw/ min /;
 
+use DW::SQL;
+
 ########################################################################
 ###  28. Userpic-Related Functions
 
@@ -130,10 +132,11 @@ sub activate_userpics {
         );
 
         @ban = splice( @ban, 0, $to_ban ) if @ban > $to_ban;
-        my $ban_in = join( ",", map { $dbh->quote($_) } @ban );
-        $u->do( "UPDATE userpic2 SET state='I' WHERE userid=? AND picid IN ($ban_in)",
-            undef, $userid )
-            if $ban_in;
+        DW::SQL::update(
+            $u, 'userpic2',
+            { state  => 'I' },
+            { userid => $userid, picid => { -in => \@ban } }
+        ) if @ban;
     }
 
     # activate previously inactivated userpics
@@ -146,11 +149,11 @@ sub activate_userpics {
         @inactive = sort @inactive;
         my @activate_picids = splice( @inactive, -$to_activate );
 
-        my $activate_in = join( ",", map { $dbh->quote($_) } @activate_picids );
-        if ($activate_in) {
-            $u->do( "UPDATE userpic2 SET state='N' WHERE userid=? AND picid IN ($activate_in)",
-                undef, $userid );
-        }
+        DW::SQL::update(
+            $u, 'userpic2',
+            { state  => 'N' },
+            { userid => $userid, picid => { -in => \@activate_picids } }
+        ) if @activate_picids;
     }
 
     # delete userpic info object from memcache
