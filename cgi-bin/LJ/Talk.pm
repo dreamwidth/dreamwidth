@@ -758,22 +758,17 @@ sub get_talk_data {
             . "t.parenttalkid, t.state "
             . "FROM talk2 t "
             . "WHERE t.journalid=? AND t.nodetype=? AND t.nodeid=?" );
+
+    # hook for tests to count DB reads (the regen path, on a memcache miss)
+    $LJ::_T_GET_TALK_DATA_DB->() if $LJ::_T_GET_TALK_DATA_DB;
     $sth->execute( $u->{'userid'}, $nodetype, $nodeid );
     die $dbcr->errstr if $dbcr->err;
     while ( my $r = $sth->fetchrow_hashref ) {
         $ret->{ $r->{'talkid'} } = $r;
 
-        {
-            # make a new $r-type hash which also contains nodetype and nodeid
-            # -- they're not in $r because they were known and specified in the query
-            my %row_arg = %$r;
-            $row_arg{nodeid}   = $nodeid;
-            $row_arg{nodetype} = $nodetype;
-
-            # set talk2row memcache key for this bit of data
-            LJ::Talk::add_talk2row_memcache( $u->id, $r->{talkid}, \%row_arg );
-        }
-
+        # per-comment talk2row entries are populated lazily by get_talk2_row_multi,
+        # not here: eagerly writing one per comment held this lock for thousands of
+        # sequential memcache round-trips on large threads.
         $memval .= pack( $PACK_FORMAT,
             $r->{'talkid'},        $r->{'parenttalkid'}, $r->{'posterid'},
             $r->{'datepost_unix'}, ord( $r->{'state'} ) );
@@ -2155,6 +2150,9 @@ CLUSTER:
 
         # is there anything to actually query for this cluster?
         next CLUSTER unless @vals;
+
+        # hook for tests to count DB reads (per-cluster fallback for cache misses)
+        $LJ::_T_GET_TALK2_ROW_DB->() if $LJ::_T_GET_TALK2_ROW_DB;
 
         my $dbcr = LJ::get_cluster_reader($cid)
             or die "unable to get cluster reader: $cid";
