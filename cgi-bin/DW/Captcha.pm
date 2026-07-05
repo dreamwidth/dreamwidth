@@ -452,11 +452,13 @@ sub record_success {
 
 # Called when a captcha that would have been shown was skipped because the
 # browser holds a valid trust cookie (LJ::Session->trusted_anon_user). Tags
-# mirror dw.captcha.shown so the two can be compared directly; only anonymous
+# mirror dw.captcha.shown so the two can be compared directly -- including
+# type:<impl>, the implementation that would have been used; only anonymous
 # viewers can bypass, so logged_in is always 0.
 sub record_bypass {
     my ( $class, @tags ) = @_;
-    DW::Stats::increment( 'dw.captcha.bypassed', 1, _stat_tags( undef, @tags ) );
+    DW::Stats::increment( 'dw.captcha.bypassed', 1,
+        _stat_tags( undef, 'type:' . $class->new->name, @tags ) );
 }
 
 # Reset the captcha counter, so the user starts getting them

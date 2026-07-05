@@ -19,10 +19,11 @@ use LJ::Utils;
 
 use constant VERSION => 1;
 
-# how long a trust cookie vouches for a browser after it was last signed
-# (matches the "long" session length, so the bypass never outlives the
-# session that could have produced it)
-use constant TRUST_COOKIE_MAX_AGE => 60 * 86400;
+# how long a trust cookie vouches for a browser after it was last signed:
+# the "long" session length, so the bypass never outlives the session that
+# could have produced it (a sub, not a constant, since session_length isn't
+# compiled yet at this point)
+sub TRUST_COOKIE_MAX_AGE { return LJ::Session->session_length('long') }
 
 # NOTES
 #

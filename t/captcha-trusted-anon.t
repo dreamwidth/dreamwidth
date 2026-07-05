@@ -195,6 +195,8 @@ note("journal setting R (anonymous only)");
     is( $check->( trusted => 1 ), '', "trusted anon -> no captcha" );
     is( metric_count( 'dw.captcha.bypassed', 'reason:journal_setting' ),
         1, "bypass metric emitted with reason:journal_setting" );
+    is( metric_count( 'dw.captcha.bypassed', 'type:hcaptcha' ),
+        1, "bypass metric carries the implementation type tag" );
 
     is( $check->( trusted => 0, commenter => $poster ), '', "logged-in user -> no captcha" );
 }
