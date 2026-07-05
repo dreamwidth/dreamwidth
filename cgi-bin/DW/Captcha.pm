@@ -207,10 +207,14 @@ sub form_fields { qw() }
 
 sub site_enabled { return LJ::is_enabled('captcha') && $_[0]->_implementation_enabled ? 1 : 0 }
 
-# Subclasses override this; the abstract base is never a usable captcha, so it
-# reports disabled -- a base instance (only reachable as a last-resort fallback)
-# then cleanly no-ops instead of rendering nothing while failing validation.
-sub _implementation_enabled { return 0; }
+# Subclasses override this. On the abstract base -- the class-method call
+# callers use to ask "is captcha configured at all?" (e.g. the comment captcha
+# logic in LJ::Talk), or a base instance (only reachable as a last-resort
+# fallback) -- it reports whether ANY implementation is enabled, so a fallback
+# base instance still cleanly no-ops when nothing is configured.
+sub _implementation_enabled {
+    return ( grep { $_->_implementation_enabled } values %impl2class ) ? 1 : 0;
+}
 
 sub print {
     my ( $self, %opts ) = @_;
