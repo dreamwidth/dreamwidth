@@ -845,19 +845,12 @@ sub trust_cookie_signature {
 # otherwise undef. Standing is re-checked live on every use, so suspending or
 # deleting the account revokes the trust immediately. This identifies a
 # browser, not a person: never treat it as authentication.
+#
+# Deliberately uncached: %LJ::REQ_CACHE is NOT cleared between requests, so a
+# memoized verdict would leak across requests (and thus across visitors) on a
+# persistent worker. Validation is one HMAC plus a load_userid, and callers
+# only hit it where a captcha would otherwise be shown.
 sub trusted_anon_user {
-    my ($class) = @_;
-
-    # cache per-request; wrapped in an arrayref so a negative result caches too
-    my $cached = $LJ::REQ_CACHE{trusted_anon_user};
-    return $cached->[0] if $cached;
-
-    my $u = $class->_trusted_anon_user_uncached;
-    $LJ::REQ_CACHE{trusted_anon_user} = [$u];
-    return $u;
-}
-
-sub _trusted_anon_user_uncached {
     my ($class) = @_;
 
     my $r = DW::Request->get
