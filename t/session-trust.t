@@ -59,11 +59,7 @@ local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = $uniq;
 my $u = temp_user();
 $u->update_self( { status => 'A' } );    # validated email
 
-# checks the current jar with a fresh per-request cache
-sub trusted {
-    delete $LJ::REQ_CACHE{trusted_anon_user};
-    return LJ::Session->trusted_anon_user;
-}
+sub trusted { return LJ::Session->trusted_anon_user }
 
 note("issuance via update_trust_cookie");
 my $cookie_value;
@@ -91,6 +87,23 @@ note("no cookie, no trust");
 {
     $req = FakeRequest->new;
     ok( !trusted(), "no ljtrust cookie -> undef" );
+}
+
+note("verdict is not memoized across requests");
+{
+    # %LJ::REQ_CACHE persists across requests on a worker, so a cached verdict
+    # would leak between visitors; simulate back-to-back requests from
+    # different browsers on one worker and check each gets its own answer
+    $req = FakeRequest->new;
+    $req->{jar}{ljtrust} = $cookie_value;
+    ok( trusted(), "request with a valid cookie -> trusted" );
+
+    $req = FakeRequest->new;
+    ok( !trusted(), "next request without the cookie -> not trusted" );
+
+    $req = FakeRequest->new;
+    $req->{jar}{ljtrust} = $cookie_value;
+    ok( trusted(), "and trust returns with the cookie" );
 }
 
 note("bound to the uniq ident");
