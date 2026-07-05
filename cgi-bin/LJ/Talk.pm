@@ -715,10 +715,26 @@ sub get_talk_data {
     return $memcache_decode->() if $memcache_good->();
 
     my $dbcr = LJ::get_cluster_def_reader($u);
-    return undef unless $dbcr;
+    unless ($dbcr) {
 
+        # DIAGNOSTIC: returning undef here drops the whole comment set for the
+        # request. Track how often, and why, so we can confirm the failure mode
+        # behind intermittently-vanishing comments on large/busy threads.
+        DW::Stats::increment( 'dw.talk.get_talk_data.undef', 1, ["reason:no_reader"] );
+        $log->warn( "get_talk_data undef (no_reader): "
+                . "journalid=$u->{userid} nodetype=$nodetype nodeid=$nodeid" );
+        return undef;
+    }
+
+    # GET_LOCK returns 1 on success, 0 on the 10s timeout, NULL on error.
     my $lock = $dbcr->selectrow_array( "SELECT GET_LOCK(?,10)", undef, $lockkey );
-    return undef unless $lock;
+    unless ($lock) {
+        my $reason = defined $lock ? "lock_timeout" : "lock_error";
+        DW::Stats::increment( 'dw.talk.get_talk_data.undef', 1, ["reason:$reason"] );
+        $log->warn( "get_talk_data undef ($reason) on $lockkey: "
+                . "journalid=$u->{userid} nodetype=$nodetype nodeid=$nodeid" );
+        return undef;
+    }
 
     # it's quite likely (for a popular post) that the memcache was
     # already populated while we were waiting for the lock
