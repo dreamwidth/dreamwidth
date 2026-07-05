@@ -758,6 +758,9 @@ sub get_talk_data {
             . "t.parenttalkid, t.state "
             . "FROM talk2 t "
             . "WHERE t.journalid=? AND t.nodetype=? AND t.nodeid=?" );
+
+    # hook for tests to count DB reads (the regen path, on a memcache miss)
+    $LJ::_T_GET_TALK_DATA_DB->() if $LJ::_T_GET_TALK_DATA_DB;
     $sth->execute( $u->{'userid'}, $nodetype, $nodeid );
     die $dbcr->errstr if $dbcr->err;
     while ( my $r = $sth->fetchrow_hashref ) {
@@ -2147,6 +2150,9 @@ CLUSTER:
 
         # is there anything to actually query for this cluster?
         next CLUSTER unless @vals;
+
+        # hook for tests to count DB reads (per-cluster fallback for cache misses)
+        $LJ::_T_GET_TALK2_ROW_DB->() if $LJ::_T_GET_TALK2_ROW_DB;
 
         my $dbcr = LJ::get_cluster_reader($cid)
             or die "unable to get cluster reader: $cid";
