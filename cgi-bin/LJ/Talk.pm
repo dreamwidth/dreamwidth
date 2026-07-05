@@ -802,15 +802,11 @@ sub fixup_logitem_replycount {
     my $rp_count  = LJ::MemCache::get($rp_memkey) || 0;
     my $fix_key   = "rp_fixed:$u->{userid}:$nodetype:$jitemid:$rp_count";
 
-    my $db_key   = "rp:fix:$u->{userid}:$nodetype:$jitemid";
-    my $got_lock = $u->selectrow_array( "SELECT GET_LOCK(?, 1)", undef, $db_key );
-    return unless $got_lock;
+    my $db_key = "rp:fix:$u->{userid}:$nodetype:$jitemid";
+    my $lock   = DW::Locker->new->trylock( $db_key, class => 'replycount_fixup', wait => 1 );
+    return unless $lock;
 
-    # setup an unlock handler
-    my $unlock = sub {
-        $u->do( "SELECT RELEASE_LOCK(?)", undef, $db_key );
-        return undef;
-    };
+    my $unlock = sub { $lock->release; return undef; };
 
     # check memcache to see if someone has previously fixed this entry in this journal
     # with this reply count
