@@ -763,17 +763,9 @@ sub get_talk_data {
     while ( my $r = $sth->fetchrow_hashref ) {
         $ret->{ $r->{'talkid'} } = $r;
 
-        {
-            # make a new $r-type hash which also contains nodetype and nodeid
-            # -- they're not in $r because they were known and specified in the query
-            my %row_arg = %$r;
-            $row_arg{nodeid}   = $nodeid;
-            $row_arg{nodetype} = $nodetype;
-
-            # set talk2row memcache key for this bit of data
-            LJ::Talk::add_talk2row_memcache( $u->id, $r->{talkid}, \%row_arg );
-        }
-
+        # per-comment talk2row entries are populated lazily by get_talk2_row_multi,
+        # not here: eagerly writing one per comment held this lock for thousands of
+        # sequential memcache round-trips on large threads.
         $memval .= pack( $PACK_FORMAT,
             $r->{'talkid'},        $r->{'parenttalkid'}, $r->{'posterid'},
             $r->{'datepost_unix'}, ord( $r->{'state'} ) );
