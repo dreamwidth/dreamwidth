@@ -2954,6 +2954,15 @@ sub require_captcha_test {
     my $anon_commenter = !LJ::isu($commenter)
         || ( $commenter->identity && !$commenter->is_validated );
 
+    # A logged-out browser holding a valid trust cookie (recently logged in to
+    # an account in good standing) gets the same treatment as a generic
+    # logged-in commenter: skip the anonymous-only checks below, keep every
+    # check a logged-in user would still face. $bypassed records the first
+    # check trust exempted, for the metric at the bottom -- emitted only if no
+    # later check requires a captcha anyway.
+    my $trusted_anon = $anon_commenter && LJ::Session->trusted_anon_user ? 1 : 0;
+    my $bypassed;
+
     ##
     ## 1. Check rate by remote user and by IP (for anonymous user)
     ##
@@ -2995,7 +3004,10 @@ sub require_captcha_test {
     }
     elsif ( $show_captcha_to eq 'R' ) {
         ## anonymous
-        return 'journal_setting' if $anon_commenter;
+        if ($anon_commenter) {
+            return 'journal_setting' unless $trusted_anon;
+            $bypassed //= 'journal_setting';
+        }
     }
     elsif ( $show_captcha_to eq 'F' ) {
         ## not friends
@@ -3010,33 +3022,56 @@ sub require_captcha_test {
     ## 4. Global (site) settings
     ## See if they have any tags or URLs in the comment's body
     ##
-    if ( $captcha->enabled('comment_html_auth')
-        || ( $captcha->enabled('comment_html_anon') && $anon_commenter ) )
+    if (
+        $body
+        && ( $captcha->enabled('comment_html_auth')
+            || ( $captcha->enabled('comment_html_anon') && $anon_commenter ) )
+        && _comment_html_is_suspicious($body)
+        )
     {
-        return '' unless $body;    # Before we bother matching against it.
-
-        if ( $body =~ /<[a-z]/i ) {
-
-            # strip white-listed bare tags w/o attributes,
-            # then see if they still have HTML.  if so, it's
-            # questionable.  (can do evil spammy-like stuff w/
-            # attributes and other elements)
-            my $body_copy = $body;
-            $body_copy =~ s/<(?:q|blockquote|b|strong|i|em|cite|sub|sup|var|del|tt|code|pre|p)>//ig;
-            return 'comment_html' if $body_copy =~ /<[a-z]/i;
+        # trusted anon is exempt only when the anonymous-commenter HTML check
+        # alone applies; comment_html_auth covers logged-in users too, so it
+        # still fires
+        if ( $trusted_anon && !$captcha->enabled('comment_html_auth') ) {
+            $bypassed //= 'comment_html';
         }
-
-        # multiple URLs is questionable too
-        return 'comment_html' if $body =~ /\b(?:http|ftp|www)\b.+\b(?:http|ftp|www)\b/s;
-
-        # or if they're not even using HTML
-        return 'comment_html' if $body =~ /\[url/is;
-
-        # or if it's obviously spam
-        return 'comment_html' if $body =~ /\s*message\s*/is;
+        else {
+            return 'comment_html';
+        }
     }
 
+    DW::Captcha->record_bypass( 'kind:form', 'page:comment', "reason:$bypassed" )
+        if $bypassed;
+
     return '';
+}
+
+# The suspicious-content heuristics behind the comment_html captcha pages:
+# non-whitelisted HTML, multiple URLs, BBCode-style [url, or classic spam text.
+sub _comment_html_is_suspicious {
+    my ($body) = @_;
+
+    if ( $body =~ /<[a-z]/i ) {
+
+        # strip white-listed bare tags w/o attributes,
+        # then see if they still have HTML.  if so, it's
+        # questionable.  (can do evil spammy-like stuff w/
+        # attributes and other elements)
+        my $body_copy = $body;
+        $body_copy =~ s/<(?:q|blockquote|b|strong|i|em|cite|sub|sup|var|del|tt|code|pre|p)>//ig;
+        return 1 if $body_copy =~ /<[a-z]/i;
+    }
+
+    # multiple URLs is questionable too
+    return 1 if $body =~ /\b(?:http|ftp|www)\b.+\b(?:http|ftp|www)\b/s;
+
+    # or if they're not even using HTML
+    return 1 if $body =~ /\[url/is;
+
+    # or if it's obviously spam
+    return 1 if $body =~ /\s*message\s*/is;
+
+    return 0;
 }
 
 # Does what it says on the tin.

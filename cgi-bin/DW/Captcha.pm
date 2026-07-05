@@ -342,10 +342,22 @@ sub should_captcha_view {
         : $LJ::SHOULD_CAPTCHA_IP ? 'ip'
         :                          'all';
 
+    # A browser recently logged in to an account in good standing gets the
+    # logged-in treatment. Checked lazily, only where we'd otherwise show a
+    # captcha, so the common allow path pays nothing and trusted browsers
+    # never feed the fraud counter below (which tempbans IPs).
+    my $trusted_bypass = sub {
+        my ($reason) = @_;
+        return 0 unless LJ::Session->trusted_anon_user;
+        $class->record_bypass( 'kind:interstitial', "reason:$reason", "source:$source" );
+        return 1;
+    };
+
     # Get our captcha information -- no information means that the user has not
     # passed a captcha. If we have information, then they *have* at some point.
     my $info_raw = LJ::MemCache::get($mckey);
     unless ($info_raw) {
+        return 0 if $trusted_bypass->('no_record');
 
         # Let's see if this is a repeat offender who is spamming requests at us
         # and hitting a bunch of 302s -- in which case, temp ban
@@ -391,6 +403,7 @@ sub should_captcha_view {
 
     # If the first request is too long ago, then re-captcha
     if ( ( time() - $first_req_ts ) > $LJ::CAPTCHA_RETEST_INTERVAL_SECS ) {
+        return 0 if $trusted_bypass->('retest_interval');
         $log->info( $mckey, ' has exceeded the retest interval, issuing captcha.' );
         DW::Stats::increment( 'dw.captcha.shown', 1,
             _stat_tags( $remote, 'kind:interstitial', 'reason:retest_interval', "source:$source" )
@@ -411,6 +424,7 @@ sub should_captcha_view {
 
     # If we are out of requests, retest
     if ( $remaining <= 0 ) {
+        return 0 if $trusted_bypass->('out_of_requests');
         $log->info( $mckey, ' is out of requests by usage, retesting.' );
         DW::Stats::increment( 'dw.captcha.shown', 1,
             _stat_tags( $remote, 'kind:interstitial', 'reason:out_of_requests', "source:$source" )
@@ -434,6 +448,15 @@ sub record_success {
     $log->debug( 'Captcha success for: ', $mckey );
     LJ::MemCache::set( $mckey, join( ':', time(), time(), $LJ::CAPTCHA_INITIAL_REMAINING ) );
     DW::Stats::increment( 'dw.captcha.solved', 1, _stat_tags($remote) );
+}
+
+# Called when a captcha that would have been shown was skipped because the
+# browser holds a valid trust cookie (LJ::Session->trusted_anon_user). Tags
+# mirror dw.captcha.shown so the two can be compared directly; only anonymous
+# viewers can bypass, so logged_in is always 0.
+sub record_bypass {
+    my ( $class, @tags ) = @_;
+    DW::Stats::increment( 'dw.captcha.bypassed', 1, _stat_tags( undef, @tags ) );
 }
 
 # Reset the captcha counter, so the user starts getting them

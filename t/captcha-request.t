@@ -31,6 +31,7 @@ sub new { my ( $class, %a ) = @_; bless {%a}, $class }
 sub uri           { $_[0]->{uri} }
 sub query_string  { $_[0]->{query_string} }
 sub get_remote_ip { $_[0]->{ip} }
+sub cookie        { undef }                   # no ljtrust cookie -> no trusted-anon bypass
 
 package main;
 
