@@ -27,9 +27,8 @@ use Carp qw/ confess /;
 sub _trustmask {
     my ( $from_userid, $to_userid ) = @_;
 
-    # Memoize per request. %LJ::REQ_CACHE_TRUSTMASK is cleared in
-    # LJ::start_request and invalidated on edge changes; do NOT use the bare
-    # %LJ::REQ_CACHE, which is never cleared and would serve stale masks.
+    # Memoize per request; %LJ::REQ_CACHE_TRUSTMASK is cleared in
+    # LJ::start_request and invalidated on edge changes.
     my $reqkey = "$from_userid:$to_userid";
     return $LJ::REQ_CACHE_TRUSTMASK{$reqkey}
         if defined $LJ::REQ_CACHE_TRUSTMASK{$reqkey};
