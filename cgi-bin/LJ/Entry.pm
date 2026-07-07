@@ -1407,6 +1407,7 @@ package LJ;
 use Carp qw(confess);
 use LJ::Poll;
 use LJ::EmbedModule;
+use LJ::Location;
 use DW::External::Account;
 
 # <LJFUNC>
