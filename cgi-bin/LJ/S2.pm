@@ -1962,8 +1962,26 @@ sub Tag {
     return $t;
 }
 
+# The viewer's tag-count relationship to $u is identical for every tag, so
+# callers rendering a whole list compute it once and pass it into TagDetail
+# rather than paying a per-tag trustmask lookup (see #3646).
+sub tag_viewer_context {
+    my ($u) = @_;
+    my $remote = LJ::get_remote();
+
+    my %ctx = ( remote => $remote );
+    if ( defined $remote && $remote->can_manage($u) ) {    # own journal
+        $ctx{can_manage} = 1;
+    }
+    elsif ( defined $remote ) {                            # logged in, not own journal
+        $ctx{trusted} = $u->trusts_or_has_member($remote);
+        $ctx{grpmask} = $u->trustmask($remote);
+    }
+    return \%ctx;
+}
+
 sub TagDetail {
-    my ( $u, $kwid, $tag ) = @_;
+    my ( $u, $kwid, $tag, $viewer ) = @_;
     return undef unless $u && $kwid && ref $tag eq 'HASH';
 
     my $t = {
@@ -1980,10 +1998,12 @@ sub TagDetail {
     # be visible to >1 of them. Instead of working it out accurately
     # every time, we give an approximation that will either be accurate
     # or an underestimate.
-    my $count  = 0;
-    my $remote = LJ::get_remote();
+    my $count = 0;
 
-    if ( defined $remote && $remote->can_manage($u) ) {    #own journal
+    # list callers pass this in; a lone tag computes it here.
+    $viewer ||= tag_viewer_context($u);
+
+    if ( $viewer->{can_manage} ) {    # own journal
         $count = $tag->{uses};
         my $groupcount = $tag->{uses};
         foreach (qw(public private protected)) {
@@ -1993,9 +2013,9 @@ sub TagDetail {
         $t->{security_counts}->{group} = $groupcount;
 
     }
-    elsif ( defined $remote ) {                            #logged in, not own journal
-        my $trusted = $u->trusts_or_has_member($remote);
-        my $grpmask = $u->trustmask($remote);
+    elsif ( $viewer->{remote} ) {     # logged in, not own journal
+        my $trusted = $viewer->{trusted};
+        my $grpmask = $viewer->{grpmask};
 
         $count = $tag->{security}->{public};
         $t->{security_counts}->{public} = $tag->{security}->{public};
@@ -4610,13 +4630,16 @@ sub Page__visible_tag_list {
         my $tags = LJ::Tags::get_usertags( $u, { remote => $remote } );
         return [] unless $tags;
 
+        # compute the viewer relationship once for the whole list
+        my $viewer = LJ::S2::tag_viewer_context($u);
+
         foreach my $kwid ( keys %{$tags} ) {
 
             # only show tags for display
             next unless $tags->{$kwid}->{display};
 
             # create tag object
-            push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid} );
+            push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid}, $viewer );
         }
     }
 

@@ -27,6 +27,12 @@ use Carp qw/ confess /;
 sub _trustmask {
     my ( $from_userid, $to_userid ) = @_;
 
+    # Memoize per request; %LJ::REQ_CACHE_TRUSTMASK is cleared in
+    # LJ::start_request and invalidated on edge changes.
+    my $reqkey = "$from_userid:$to_userid";
+    return $LJ::REQ_CACHE_TRUSTMASK{$reqkey}
+        if defined $LJ::REQ_CACHE_TRUSTMASK{$reqkey};
+
     my $memkey = [ $from_userid, "trustmask:$from_userid:$to_userid" ];
     my $mask   = LJ::MemCache::get($memkey);
     unless ( defined $mask ) {
@@ -36,13 +42,13 @@ sub _trustmask {
         $mask = $dbr->selectrow_array(
             'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
             undef, $from_userid, $to_userid );
-        return 0 if $dbr->err;
+        return 0 if $dbr->err;    # transient error: don't cache
         $mask = $mask ? $mask + 0 : 0;    # force numeric
 
         LJ::MemCache::set( $memkey, $mask, 3600 );
     }
 
-    return $mask;
+    return $LJ::REQ_CACHE_TRUSTMASK{$reqkey} = $mask;
 }
 
 # actually get friend/friendof uids, should not be called directly
