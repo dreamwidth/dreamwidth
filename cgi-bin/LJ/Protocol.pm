@@ -25,6 +25,7 @@ use LJ::Console;
 use LJ::Event::JournalNewEntry;
 use LJ::Event::AddedToCircle;
 use LJ::Entry;
+use LJ::Location;
 use LJ::Poll;
 use LJ::Config;
 use LJ::Comment;
