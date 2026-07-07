@@ -490,6 +490,7 @@ sub start_request {
     %LJ::REQ_CACHE_USER_NAME    = ();       # users by name
     %LJ::REQ_CACHE_USER_ID      = ();       # users by id
     %LJ::REQ_CACHE_REL          = ();       # relations from LJ::check_rel()
+    %LJ::REQ_CACHE_TRUSTMASK    = ();       # ("$from:$to") -> trustmask from _trustmask()
     %LJ::REQ_LANGDATFILE        = ();       # caches language files
     %LJ::S2::REQ_CACHE_STYLE_ID = ();       # styleid -> hashref of s2 layers for style
     %LJ::S2::REQ_CACHE_LAYER_ID =

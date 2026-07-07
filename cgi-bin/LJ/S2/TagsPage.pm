@@ -40,11 +40,15 @@ sub TagsPage {
     # get tags for the page to display
     my @taglist;
     my $tags = LJ::Tags::get_usertags( $u, { remote => $remote } );
+
+    # compute the viewer relationship once for the whole list (see #3646)
+    my $viewer = LJ::S2::tag_viewer_context($u);
+
     foreach my $kwid ( keys %{$tags} ) {
 
         # only show tags for display
         next unless $tags->{$kwid}->{display};
-        push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid} );
+        push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid}, $viewer );
     }
     @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
     $p->{'_visible_tag_list'} = $p->{'tags'} = \@taglist;
