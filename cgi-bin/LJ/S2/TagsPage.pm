@@ -41,7 +41,7 @@ sub TagsPage {
     my @taglist;
     my $tags = LJ::Tags::get_usertags( $u, { remote => $remote } );
 
-    # compute the viewer relationship once for the whole list (see #3646)
+    # compute the viewer relationship once for the whole list
     my $viewer = LJ::S2::tag_viewer_context($u);
 
     foreach my $kwid ( keys %{$tags} ) {

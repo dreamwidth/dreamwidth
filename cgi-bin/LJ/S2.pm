@@ -1962,11 +1962,9 @@ sub Tag {
     return $t;
 }
 
-# Compute the viewer's relationship to journal $u for tag-count purposes.
-# This depends only on ($u, remote) and so is identical for every tag on a
-# page; callers rendering a whole tag list should compute it once and pass it
-# into TagDetail, rather than paying a per-tag trustmask/memcache lookup for a
-# journal with many tags (see #3646).
+# The viewer's tag-count relationship to $u is identical for every tag, so
+# callers rendering a whole list compute it once and pass it into TagDetail
+# rather than paying a per-tag trustmask lookup (see #3646).
 sub tag_viewer_context {
     my ($u) = @_;
     my $remote = LJ::get_remote();
@@ -2002,8 +2000,7 @@ sub TagDetail {
     # or an underestimate.
     my $count = 0;
 
-    # viewer relationship is identical across every tag; list callers pass it
-    # in, otherwise compute it for this single tag.
+    # list callers pass this in; a lone tag computes it here.
     $viewer ||= tag_viewer_context($u);
 
     if ( $viewer->{can_manage} ) {    # own journal
@@ -4633,7 +4630,7 @@ sub Page__visible_tag_list {
         my $tags = LJ::Tags::get_usertags( $u, { remote => $remote } );
         return [] unless $tags;
 
-        # compute the viewer relationship once for the whole list (see #3646)
+        # compute the viewer relationship once for the whole list
         my $viewer = LJ::S2::tag_viewer_context($u);
 
         foreach my $kwid ( keys %{$tags} ) {

@@ -27,12 +27,9 @@ use Carp qw/ confess /;
 sub _trustmask {
     my ( $from_userid, $to_userid ) = @_;
 
-    # Per-request memoization: the mask depends only on ($from, $to), so a page
-    # that asks for the same pair many times (e.g. a tag list) needn't repeat
-    # the memcache round-trip. %LJ::REQ_CACHE_TRUSTMASK is cleared in
-    # LJ::start_request and invalidated on edge changes, so it never outlives a
-    # request. (Do NOT use the bare %LJ::REQ_CACHE here: that hash is never
-    # cleared between requests and would serve stale masks.)
+    # Memoize per request. %LJ::REQ_CACHE_TRUSTMASK is cleared in
+    # LJ::start_request and invalidated on edge changes; do NOT use the bare
+    # %LJ::REQ_CACHE, which is never cleared and would serve stale masks.
     my $reqkey = "$from_userid:$to_userid";
     return $LJ::REQ_CACHE_TRUSTMASK{$reqkey}
         if defined $LJ::REQ_CACHE_TRUSTMASK{$reqkey};
