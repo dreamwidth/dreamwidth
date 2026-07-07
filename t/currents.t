@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+#
 # t/currents.t
 #
 # Test LJ::currents, which assembles the mood/music/location metadata shown on
@@ -7,18 +9,14 @@
 # This test deliberately does NOT `use LJ::Location` itself -- it must exercise
 # the same dependency the render path relies on.
 #
-# This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by
-# Dreamwidth Studios, LLC. These files were originally licensed under
-# the terms of the license supplied by Live Journal, Inc, which can
-# currently be found at:
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
 #
-# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
 #
-# In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License.
-# A copy of that license can be found in the LICENSE file included as
-# part of this distribution.
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 use strict;
 use warnings;
