@@ -23,23 +23,71 @@ $maint{'clean_caches'} = sub {
 
     my $verbose = $LJ::LJMAINT_VERBOSE;
 
+    # Batch size and inter-batch sleep for all bounded DELETE loops below.
+    # Keeping each statement small prevents long lock-hold times on the master.
+    my $BATCH_SIZE  = 1000;
+    my $BATCH_SLEEP = 1;      # seconds to yield between batches
+
     print "-I- Cleaning authactions.\n";
-    $dbh->do("DELETE FROM authactions WHERE datecreate < DATE_SUB(NOW(), INTERVAL 30 DAY)");
+    my $count = 0;
+    while (
+        my $deleted = $dbh->do(
+"DELETE FROM authactions WHERE datecreate < DATE_SUB(NOW(), INTERVAL 30 DAY) LIMIT $BATCH_SIZE"
+        )
+        )
+    {
+        $count += $deleted;
+        last if $deleted < $BATCH_SIZE;
+        sleep $BATCH_SLEEP;
+    }
+    print "    deleted $count\n";
 
     print "-I- Cleaning faquses.\n";
-    $dbh->do("DELETE FROM faquses WHERE dateview < DATE_SUB(NOW(), INTERVAL 7 DAY)");
+    $count = 0;
+    while (
+        my $deleted = $dbh->do(
+            "DELETE FROM faquses WHERE dateview < DATE_SUB(NOW(), INTERVAL 7 DAY) LIMIT $BATCH_SIZE"
+        )
+        )
+    {
+        $count += $deleted;
+        last if $deleted < $BATCH_SIZE;
+        sleep $BATCH_SLEEP;
+    }
+    print "    deleted $count\n";
 
     print "-I- Cleaning duplock.\n";
-    $dbh->do("DELETE FROM duplock WHERE instime < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+    $count = 0;
+    while (
+        my $deleted = $dbh->do(
+            "DELETE FROM duplock WHERE instime < DATE_SUB(NOW(), INTERVAL 1 HOUR) LIMIT $BATCH_SIZE"
+        )
+        )
+    {
+        $count += $deleted;
+        last if $deleted < $BATCH_SIZE;
+        sleep $BATCH_SLEEP;
+    }
+    print "    deleted $count\n";
 
     print "-I- Cleaning underage uniqs.\n";
     $dbh->do("DELETE FROM underage WHERE timeof < (UNIX_TIMESTAMP() - 86400*90) LIMIT 2000");
 
     print "-I- Cleaning blobcache.\n";
-    $dbh->do("DELETE FROM blobcache WHERE dateupdate < NOW() - INTERVAL 30 DAY");
+    $count = 0;
+    while (
+        my $deleted = $dbh->do(
+            "DELETE FROM blobcache WHERE dateupdate < NOW() - INTERVAL 30 DAY LIMIT $BATCH_SIZE")
+        )
+    {
+        $count += $deleted;
+        last if $deleted < $BATCH_SIZE;
+        sleep $BATCH_SLEEP;
+    }
+    print "    deleted $count\n";
 
     print "-I- Cleaning old anonymous comment IP logs.\n";
-    my $count;
+    $count = 0;
     foreach my $c (@LJ::CLUSTERS) {
         my $dbcm = LJ::get_cluster_master($c);
         next unless $dbcm;
@@ -51,7 +99,7 @@ $maint{'clean_caches'} = sub {
     print "    deleted $count\n";
 
     print "-I- Cleaning old random users.\n";
-    my $count;
+    $count = 0;
     foreach my $c (@LJ::CLUSTERS) {
         my $dbcm = LJ::get_cluster_master($c);
         next unless $dbcm;
@@ -84,7 +132,7 @@ $maint{'clean_caches'} = sub {
     }
     print "    deleted $count\n";
 
-    # move rows from talkleft_xfp to talkleft
+    # move rows from talkleft_xfp to talkleft in bounded batches
     print "-I- Moving talkleft_xfp.\n";
 
     my $xfp_count = $dbh->selectrow_array("SELECT COUNT(*) FROM talkleft_xfp");
@@ -96,61 +144,74 @@ $maint{'clean_caches'} = sub {
         my $xfp_cols      = join( ",", @xfp_cols );
         my $xfp_cols_join = join( ",", map { "t.$_" } @xfp_cols );
 
-        my %insert_vals;
-        my %delete_vals;
+        my $xfp_moved = 0;
 
-        # select out 1000 rows from random clusters
-        $sth =
-            $dbh->prepare( "SELECT u.clusterid,u.user,$xfp_cols_join "
-                . "FROM talkleft_xfp t, user u "
-                . "WHERE t.userid=u.userid LIMIT 1000" );
-        $sth->execute();
-        my $row_ct = 0;
-        while ( my $row = $sth->fetchrow_hashref ) {
+        # Process in batches of $BATCH_SIZE, sleeping between each pass to
+        # avoid holding locks long enough to stall the web tier.
+        while (1) {
+            my %insert_vals;
+            my %delete_vals;
 
-            my %qrow = map { $_, $dbh->quote( $row->{$_} ) } @xfp_cols;
+            $sth =
+                $dbh->prepare( "SELECT u.clusterid,u.user,$xfp_cols_join "
+                    . "FROM talkleft_xfp t, user u "
+                    . "WHERE t.userid=u.userid LIMIT $BATCH_SIZE" );
+            $sth->execute();
+            my $row_ct = 0;
+            while ( my $row = $sth->fetchrow_hashref ) {
 
-            push @{ $insert_vals{ $row->{'clusterid'} } },
-                ( "(" . join( ",", map { $qrow{$_} } @xfp_cols ) . ")" );
-            push @{ $delete_vals{ $row->{'clusterid'} } },
-                (     "(userid=$qrow{'userid'} AND "
-                    . "journalid=$qrow{'journalid'} AND "
-                    . "nodetype=$qrow{'nodetype'} AND "
-                    . "nodeid=$qrow{'nodeid'} AND "
-                    . "posttime=$qrow{'posttime'} AND "
-                    . "jtalkid=$qrow{'jtalkid'})" );
+                my %qrow = map { $_, $dbh->quote( $row->{$_} ) } @xfp_cols;
 
-            $row_ct++;
+                push @{ $insert_vals{ $row->{'clusterid'} } },
+                    ( "(" . join( ",", map { $qrow{$_} } @xfp_cols ) . ")" );
+                push @{ $delete_vals{ $row->{'clusterid'} } },
+                    (     "(userid=$qrow{'userid'} AND "
+                        . "journalid=$qrow{'journalid'} AND "
+                        . "nodetype=$qrow{'nodetype'} AND "
+                        . "nodeid=$qrow{'nodeid'} AND "
+                        . "posttime=$qrow{'posttime'} AND "
+                        . "jtalkid=$qrow{'jtalkid'})" );
+
+                $row_ct++;
+            }
+
+            last unless $row_ct;
+
+            foreach my $clusterid ( sort keys %insert_vals ) {
+                my $dbcm = LJ::get_cluster_master($clusterid);
+                unless ($dbcm) {
+                    print "    cluster down: $clusterid\n";
+                    next;
+                }
+
+                print "    cluster $clusterid: "
+                    . scalar( @{ $insert_vals{$clusterid} } )
+                    . " rows\n"
+                    if $verbose;
+                $dbcm->do( "INSERT INTO talkleft ($xfp_cols) VALUES "
+                        . join( ",", @{ $insert_vals{$clusterid} } ) )
+                    . "\n";
+                if ( $dbcm->err ) {
+                    print "    db error (insert): " . $dbcm->errstr . "\n";
+                    next;
+                }
+
+                # no error, delete from _xfp
+                $dbh->do( "DELETE FROM talkleft_xfp WHERE "
+                        . join( " OR ", @{ $delete_vals{$clusterid} } ) )
+                    . "\n";
+                if ( $dbh->err ) {
+                    print "    db error (delete): " . $dbh->errstr . "\n";
+                    next;
+                }
+            }
+
+            $xfp_moved += $row_ct;
+            last if $row_ct < $BATCH_SIZE;
+            sleep $BATCH_SLEEP;
         }
 
-        foreach my $clusterid ( sort keys %insert_vals ) {
-            my $dbcm = LJ::get_cluster_master($clusterid);
-            unless ($dbcm) {
-                print "    cluster down: $clusterid\n";
-                next;
-            }
-
-            print "    cluster $clusterid: " . scalar( @{ $insert_vals{$clusterid} } ) . " rows\n"
-                if $verbose;
-            $dbcm->do( "INSERT INTO talkleft ($xfp_cols) VALUES "
-                    . join( ",", @{ $insert_vals{$clusterid} } ) )
-                . "\n";
-            if ( $dbcm->err ) {
-                print "    db error (insert): " . $dbcm->errstr . "\n";
-                next;
-            }
-
-            # no error, delete from _xfp
-            $dbh->do(
-                "DELETE FROM talkleft_xfp WHERE " . join( " OR ", @{ $delete_vals{$clusterid} } ) )
-                . "\n";
-            if ( $dbh->err ) {
-                print "    db error (delete): " . $dbh->errstr . "\n";
-                next;
-            }
-        }
-
-        print "    rows remaining: " . ( $xfp_count - $row_ct ) . "\n";
+        print "    rows moved: $xfp_moved\n";
     }
 
     # move clustered active_user stats from each cluster to the global active_user_summary table
