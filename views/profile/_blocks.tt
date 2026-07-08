@@ -82,7 +82,7 @@
       END;
   # if user is logged in and not looking at own profile, use
   # appropriate highlighting for users they have in common. the lookup hashes
-  # are built once in the controller, so this is O(1) per user (see #3648).
+  # are built once in the controller, so this is O(1) per user.
       IF remote && ! remote.equals( u );
         IF remote_watches.${user.userid};
           linked_u = "<em>$linked_u</em>";
