@@ -22,16 +22,17 @@ package DW::User::Edges::WatchTrust::Loader;
 use strict;
 
 use Carp qw/ confess /;
+use DW::RequestCache;
 
 # returns trustmask between two users
 sub _trustmask {
     my ( $from_userid, $to_userid ) = @_;
 
-    # Memoize per request; %LJ::REQ_CACHE_TRUSTMASK is cleared in
-    # LJ::start_request and invalidated on edge changes.
+    # Memoize per request; the trustmask cache is cleared in LJ::start_request
+    # (via DW::RequestCache) and invalidated on edge changes.
     my $reqkey = "$from_userid:$to_userid";
-    return $LJ::REQ_CACHE_TRUSTMASK{$reqkey}
-        if defined $LJ::REQ_CACHE_TRUSTMASK{$reqkey};
+    my $cached = DW::RequestCache->get( 'trustmask', $reqkey );
+    return $cached if defined $cached;
 
     my $memkey = [ $from_userid, "trustmask:$from_userid:$to_userid" ];
     my $mask   = LJ::MemCache::get($memkey);
@@ -48,7 +49,7 @@ sub _trustmask {
         LJ::MemCache::set( $memkey, $mask, 3600 );
     }
 
-    return $LJ::REQ_CACHE_TRUSTMASK{$reqkey} = $mask;
+    return DW::RequestCache->set( 'trustmask', $reqkey, $mask );
 }
 
 # actually get friend/friendof uids, should not be called directly

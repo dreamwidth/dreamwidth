@@ -18,11 +18,13 @@ use strict;
 use warnings;
 
 use DW::OAuth;
+use DW::RequestCache;
 
 sub from_token {
     my ( $class, $token ) = @_;
     return undef unless $token;
-    return $LJ::REQUEST_CACHE{oauth_consumer}{$token} if $LJ::REQUEST_CACHE{oauth_consumer}{$token};
+    my $cached = DW::RequestCache->get( 'oauth_consumer', $token );
+    return $cached if $cached;
     return undef unless DW::OAuth->validate_token($token);
 
     {
@@ -36,7 +38,8 @@ sub from_token {
 sub from_id {
     my ( $class, $id ) = @_;
     return undef unless $id;
-    return $LJ::REQUEST_CACHE{oauth_consumer}{$id} if $LJ::REQUEST_CACHE{oauth_consumer}{$id};
+    my $cached = DW::RequestCache->get( 'oauth_consumer', $id );
+    return $cached if $cached;
 
     {
         my $ar  = LJ::MemCache::get( [ $id, "oauth_consumer:" . $id ] );
@@ -109,7 +112,7 @@ sub _delete_cache {
     DW::OAuth::Consumer->_clear_user_tokens( $c->{userid} );
     LJ::MemCache::delete( [ $c->id,    "oauth_consumer:" . $c->id ] );
     LJ::MemCache::delete( [ $c->token, "oauth_consumer_token:" . $c->token ] );
-    delete $LJ::REQUEST_CACHE{oauth_consumer}{ $c->token };
+    DW::RequestCache->remove( 'oauth_consumer', $c->token );
 }
 
 sub _load_raw {
@@ -178,8 +181,8 @@ sub new_from_row {
     LJ::MemCache::set( [ $c->id, "oauth_consumer:" . $c->id ], $ar, $expire );
     LJ::MemCache::set( [ $c->token, "oauth_consumer_token:" . $c->token ], $c->id );
 
-    $LJ::REQUEST_CACHE{oauth_consumer}{ $c->token } = $c;
-    $LJ::REQUEST_CACHE{oauth_consumer}{ $c->id }    = $c;
+    DW::RequestCache->set( 'oauth_consumer', $c->token, $c );
+    DW::RequestCache->set( 'oauth_consumer', $c->id,    $c );
 
     return $c;
 }
@@ -352,8 +355,8 @@ sub save {
         LJ::MemCache::delete(
             [ $c->{_orig}{token}, "oauth_consumer_token:" . $c->{_orig}{token} ] );
         LJ::MemCache::delete( [ $c->token, "oauth_consumer_token:" . $c->token ] );   # just in case
-        delete $LJ::REQUEST_CACHE{oauth_consumer}{ $c->{_orig}{token} };
-        $LJ::REQUEST_CACHE{oauth_consumer}{ $c->token } = $c;
+        DW::RequestCache->remove( 'oauth_consumer', $c->{_orig}{token} );
+        DW::RequestCache->set( 'oauth_consumer', $c->token, $c );
     }
 
     $c->{_orig}{token} = $c->{token};

@@ -26,6 +26,16 @@ use DW::TaskQueue::Dedup;
 use DW::TaskQueue::SQS;
 use DW::TaskQueue::LocalDisk;
 
+# Minimal scope guard: runs $code when the object goes out of scope, on every
+# exit path (normal, die, or return). Used to guarantee LJ::end_request pairs
+# with LJ::start_request for each job even when the job dies or times out.
+{
+
+    package DW::TaskQueue::ScopeGuard;
+    sub new { bless { code => $_[1] }, $_[0] }
+    sub DESTROY { $_[0]->{code}->() }
+}
+
 my $_queue;
 
 sub get {
@@ -191,6 +201,14 @@ sub start_work {
         my ( $work_start_time, $work_end_time );
         foreach my $message_pair (@$messages) {
             my ( $handle, $message ) = @$message_pair;
+
+            # Give every job a clean request scope, like the web front door and
+            # the legacy TheSchwartz/Gearman workers: start_request wipes all
+            # per-request caches so nothing leaks from the previous job. The
+            # guard guarantees the matching end_request runs on every exit path
+            # (normal completion, the die below, or the timeout return).
+            LJ::start_request();
+            my $req_scope = DW::TaskQueue::ScopeGuard->new( sub { LJ::end_request() } );
 
             # Record earliest start time of any coroutine
             my $local_start_time = time();

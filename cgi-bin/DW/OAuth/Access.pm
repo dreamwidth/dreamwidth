@@ -18,11 +18,13 @@ use strict;
 use warnings;
 
 use DW::OAuth;
+use DW::RequestCache;
 
 sub from_token {
     my ( $class, $token ) = @_;
     return undef unless $token;
-    return $LJ::REQUEST_CACHE{oauth_access}{$token} if $LJ::REQUEST_CACHE{oauth_access}{$token};
+    my $cached = DW::RequestCache->get( 'oauth_access', $token );
+    return $cached if $cached;
     return undef unless DW::OAuth->validate_token($token);
 
     {
@@ -39,8 +41,8 @@ sub from_consumer {
     $cid = DW::OAuth::Consumer->want_id($cid);
 
     return undef unless $uid && $cid;
-    return $LJ::REQUEST_CACHE{oauth_access}{"$uid:$cid"}
-        if $LJ::REQUEST_CACHE{oauth_access}{"$uid:$cid"};
+    my $cached = DW::RequestCache->get( 'oauth_access', "$uid:$cid" );
+    return $cached if $cached;
 
     {
         my $ar  = LJ::MemCache::get( [ $uid, join( ":", "oauth_access", $uid, $cid ) ] );
@@ -132,8 +134,8 @@ sub _delete_cache {
     LJ::MemCache::delete(
         [ $c->userid, join( ":", "oauth_access", $c->userid, $c->consumer_id ) ] );
 
-    delete $LJ::REQUEST_CACHE{oauth_access}{ $c->token };
-    delete $LJ::REQUEST_CACHE{oauth_access}{ $c->userid . ":" . $c->consumer_id };
+    DW::RequestCache->remove( 'oauth_access', $c->token );
+    DW::RequestCache->remove( 'oauth_access', $c->userid . ":" . $c->consumer_id );
 }
 
 sub _load_raw {
@@ -199,13 +201,13 @@ sub new_from_row {
     if ( $c->token ) {
         LJ::MemCache::set( [ $c->token, "oauth_access_token:" . $c->token ],
             [ $c->userid, $c->consumer_id ], $expire );
-        $LJ::REQUEST_CACHE{oauth_access}{ $c->token } = $c;
+        DW::RequestCache->set( 'oauth_access', $c->token, $c );
     }
 
     my $ar = LJ::MemCache::hash_to_array( "oauth_access", $c );
     LJ::MemCache::set( [ $c->userid, join( ":", "oauth_access", $c->userid, $c->consumer_id ) ],
         $ar, $expire );
-    $LJ::REQUEST_CACHE{oauth_access}{ $c->userid . ":" . $c->consumer_id } = $c;
+    DW::RequestCache->set( 'oauth_access', $c->userid . ":" . $c->consumer_id, $c );
 
     return $c;
 }
@@ -308,7 +310,7 @@ sub invalidate_token {
     LJ::MemCache::set( [ $c->userid, join( ":", "oauth_access", $c->userid, $c->consumer_id ) ],
         $ar, $expire );
 
-    delete $LJ::REQUEST_CACHE{oauth_access}{$old_token};
+    DW::RequestCache->remove( 'oauth_access', $old_token );
 }
 
 sub reissue_token {
@@ -324,7 +326,7 @@ sub reissue_token {
 
     if ( $c->token ) {
         LJ::MemCache::delete( [ $c->token, "oauth_access_token:" . $c->token ] );
-        delete $LJ::REQUEST_CACHE{oauth_access}{ $c->token };
+        DW::RequestCache->remove( 'oauth_access', $c->token );
     }
 
     $c->{token}  = $token;
@@ -339,7 +341,7 @@ sub reissue_token {
     if ( $c->token ) {
         LJ::MemCache::set( [ $c->token, "oauth_access_token:" . $c->token ],
             [ $c->userid, $c->consumer_id ], $expire );
-        $LJ::REQUEST_CACHE{oauth_access}{ $c->token } = $c;
+        DW::RequestCache->set( 'oauth_access', $c->token, $c );
     }
 }
 

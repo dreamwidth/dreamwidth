@@ -36,10 +36,8 @@ my $observed2 = temp_user();
 
 ok( !$observed1->has_banned($observed2), "Ships passing in the night." );
 
-# Without this key deletion, the next test will fail:
-foreach ( keys %LJ::REQ_CACHE_REL ) {
-    delete $LJ::REQ_CACHE_REL{$_};
-}
+# Without this cache clear, the next test will fail:
+DW::RequestCache->clear_ns('rel');
 
 $observed1->ban_user($observed2);
 ok( $observed1->has_banned($observed2), "Looked. Successful ban." );

@@ -119,6 +119,7 @@ use LJ::Global::Secrets;    # defines LJ::Secrets
 use DW::Media;
 use DW::Stats;
 use DW::CacheStats;
+use DW::RequestCache;
 use DW::Proxy;
 use DW::TaskQueue;
 use DW::BlobStore;
@@ -481,44 +482,11 @@ sub start_request {
     # the per-request ones below, so each measurement reflects a request's peak.
     DW::CacheStats::report();
 
-    # clear per-request caches
-    LJ::unset_remote();    # clear cached remote
-    $LJ::ACTIVE_JOURNAL         = undef;    # for LJ::{get,set}_active_journal
-    %LJ::CACHE_USERPIC          = ();       # picid -> hashref
-    %LJ::CACHE_USERPIC_INFO     = ();       # uid -> { ... }
-    %LJ::CACHE_S2THEME          = ();
-    %LJ::REQ_CACHE_USER_NAME    = ();       # users by name
-    %LJ::REQ_CACHE_USER_ID      = ();       # users by id
-    %LJ::REQ_CACHE_REL          = ();       # relations from LJ::check_rel()
-    %LJ::REQ_CACHE_TRUSTMASK    = ();       # ("$from:$to") -> trustmask from _trustmask()
-    %LJ::REQ_LANGDATFILE        = ();       # caches language files
-    %LJ::S2::REQ_CACHE_STYLE_ID = ();       # styleid -> hashref of s2 layers for style
-    %LJ::S2::REQ_CACHE_LAYER_ID =
-        ();    # layerid -> hashref of s2 layer info (from LJ::S2::load_layer)
-    %LJ::S2::REQ_CACHE_LAYER_INFO =
-        ();    # layerid -> hashref of s2 layer info (from LJ::S2::load_layer_info)
-    %LJ::REQ_HEAD_HAS = ();   # avoid code duplication for js
-    %LJ::NEEDED_RES   = ();   # needed resources (css/js/etc):
-    @LJ::NEEDED_RES   = ();   # needed resources, in order requested (implicit dependencies)
-                              #  keys are relative from htdocs, values 1 or 2 (1=external, 2=inline)
-
-    %LJ::REQ_GLOBAL       = ();    # per-request globals
-    %LJ::_ML_USED_STRINGS = ();    # strings looked up in this web request
-    %LJ::REQ_CACHE_USERTAGS =
-        ();    # uid -> { ... }; populated by get_usertags, so we don't load it twice
-    $LJ::ACTIVE_RES_GROUP = undef;    # use whatever is current site default
-
-    %LJ::PAID_STATUS = ();            # per-request paid status
-
-    %LJ::REQUEST_CACHE = ();    # request cached items ( longterm goal, store everything in here )
-
-    $LJ::CACHE_REMOTE_BOUNCE_URL = undef;
-    LJ::Userpic->reset_singletons;
-    LJ::Comment->reset_singletons;
-    LJ::Entry->reset_singletons;
-    LJ::Message->reset_singletons;
-
-    LJ::UniqCookie->clear_request_cache;
+    # Clear every request-scoped cache in one call. Anything routed through
+    # DW::RequestCache -- its KV store plus the vars/resets registered in that
+    # module and in owning modules (e.g. LJ::UniqCookie) -- is wiped here, so a
+    # new request cache can never leak across requests or background jobs.
+    DW::RequestCache->clear;
 
     # clear the handle request cache (like normal cache, but verified already for
     # this request to be ->ping'able).

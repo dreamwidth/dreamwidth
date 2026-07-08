@@ -18,6 +18,7 @@ package LJ::S2;
 use strict;
 use DW;
 use DW::Request;
+use DW::RequestCache;
 use lib DW->home . "/src/s2";
 use S2;
 use S2::Color;
@@ -1222,13 +1223,13 @@ sub get_style_layers {
     return undef unless $styleid;
 
     # check memcache unless $force
-    my $stylay = $force ? undef : $LJ::S2::REQ_CACHE_STYLE_ID{$styleid};
+    my $stylay = $force ? undef : DW::RequestCache->get( 's2_style_id', $styleid );
     return $stylay if $stylay;
 
     my $memkey = [ $styleid, "s2sl:$styleid" ];
     $stylay = LJ::MemCache::get($memkey) unless $force;
     if ($stylay) {
-        $LJ::S2::REQ_CACHE_STYLE_ID{$styleid} = $stylay;
+        DW::RequestCache->set( 's2_style_id', $styleid, $stylay );
         return $stylay;
     }
 
@@ -1263,7 +1264,7 @@ sub get_style_layers {
 
     # set in memcache
     LJ::MemCache::set( $memkey, \%stylay );
-    $LJ::S2::REQ_CACHE_STYLE_ID{$styleid} = \%stylay;
+    DW::RequestCache->set( 's2_style_id', $styleid, \%stylay );
     return \%stylay;
 }
 
@@ -1293,14 +1294,14 @@ sub load_layer {
     my $db  = ref $_[0] ? shift : LJ::S2::get_s2_reader();
     my $lid = shift;
 
-    my $layerid = $LJ::S2::REQ_CACHE_LAYER_ID{$lid};
+    my $layerid = DW::RequestCache->get( 's2_layer_id', $lid );
     return $layerid if $layerid;
 
     my $ret = $db->selectrow_hashref(
         "SELECT s2lid, b2lid, userid, type " . "FROM s2layers WHERE s2lid=?",
         undef, $lid );
     die $db->errstr if $db->err;
-    $LJ::S2::REQ_CACHE_LAYER_ID{$lid} = $ret;
+    DW::RequestCache->set( 's2_layer_id', $lid, $ret );
 
     return $ret;
 }
@@ -1564,7 +1565,7 @@ sub load_layer_info {
     # check request cache
     my %layers_from_cache = ();
     foreach my $lid (@$listref) {
-        my $layerinfo = $LJ::S2::REQ_CACHE_LAYER_INFO{$lid};
+        my $layerinfo = DW::RequestCache->get( 's2_layer_info', $lid );
         if ( keys %$layerinfo ) {
             $layers_from_cache{$lid} = 1;
             foreach my $k ( keys %$layerinfo ) {
@@ -1585,7 +1586,9 @@ sub load_layer_info {
     $sth->execute;
 
     while ( my ( $id, $k, $v ) = $sth->fetchrow_array ) {
-        $LJ::S2::REQ_CACHE_LAYER_INFO{$id}->{$k} = $v;
+        my $info = DW::RequestCache->get( 's2_layer_info', $id )
+            || DW::RequestCache->set( 's2_layer_info', $id, {} );
+        $info->{$k} = $v;
         $outhash->{$id}->{$k} = $v;
     }
 

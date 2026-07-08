@@ -17,6 +17,7 @@ use Carp qw (croak);
 use LJ::Entry;
 use LJ::Poll::Question;
 use LJ::Event::PollVote;
+use DW::RequestCache;
 
 ##
 ## Memcache routines
@@ -546,7 +547,7 @@ sub _load {
         unless $self->pollid;
 
     # Requests context
-    if ( my $obj = $LJ::REQ_CACHE_POLL{ $self->id } ) {
+    if ( my $obj = DW::RequestCache->get( 'poll', $self->id ) ) {
         %{$self} = %{$obj};    # change object in memory
         return $self;
     }
@@ -584,7 +585,7 @@ sub _load {
 
     # store constructed object in caches
     $self->_store_to_memcache;
-    $LJ::REQ_CACHE_POLL{ $self->id } = $self;
+    DW::RequestCache->set( 'poll', $self->id, $self );
 
     return $self;
 }
@@ -619,7 +620,7 @@ sub close_poll {
 
     # poll status has changed
     $self->_remove_from_memcache;
-    delete $LJ::REQ_CACHE_POLL{ $self->id };
+    DW::RequestCache->remove( 'poll', $self->id );
 
     $self->{status} = 'X';
 }
@@ -667,7 +668,7 @@ sub open_poll {
 
     # poll status has changed
     $self->_remove_from_memcache;
-    delete $LJ::REQ_CACHE_POLL{ $self->id };
+    DW::RequestCache->remove( 'poll', $self->id );
 
     $self->{status} = '';
 }
@@ -1433,7 +1434,7 @@ sub questions {
 
     # store poll data with loaded questions
     $self->_store_to_memcache;
-    $LJ::REQ_CACHE_POLL{ $self->id } = $self;
+    DW::RequestCache->set( 'poll', $self->id, $self );
 
     return @qs;
 }
@@ -1661,7 +1662,7 @@ sub process_submission {
 
     # if vote results are not cached, there is no need to modify cache
     #$poll->_remove_from_memcache;
-    #delete $LJ::REQ_CACHE_POLL{ $poll->id };
+    #DW::RequestCache->remove( 'poll', $poll->id );
 
     # don't notify if they blank-polled
     LJ::Event::PollVote->new( $poll->poster, $remote, $poll )->fire

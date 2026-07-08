@@ -15,6 +15,7 @@ package LJ::Lang;
 use strict;
 use LJ::LangDatFile;
 use DW::CacheStats;
+use DW::RequestCache;
 
 use constant MAXIMUM_ITCODE_LENGTH => 120;
 
@@ -608,7 +609,8 @@ sub get_text {
             my $dbmodtime = LJ::Lang::get_chgtime_unix( $lang, $dmid, $code );
             return $from_db->() if !$fmodtime || $dbmodtime > $fmodtime;
 
-            my $ldf = $LJ::REQ_LANGDATFILE{$tf} ||= LJ::LangDatFile->new($tf);
+            my $ldf = DW::RequestCache->get( 'langdatfile', $tf )
+                || DW::RequestCache->set( 'langdatfile', $tf, LJ::LangDatFile->new($tf) );
             my $val = $ldf->value($localcode);
             return $val if $val;
         }

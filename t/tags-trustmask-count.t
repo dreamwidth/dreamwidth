@@ -70,7 +70,7 @@ for my $i ( 1 .. $N ) {
 
 # render the tag list the way the S2 page code does: compute the viewer
 # relationship once, then build every TagDetail with it.
-%LJ::REQ_CACHE_TRUSTMASK = ();    # start from a clean per-request slate
+DW::RequestCache->clear_ns('trustmask');    # start from a clean per-request slate
 my $viewer_ctx = LJ::S2::tag_viewer_context($owner);
 my @list       = map { LJ::S2::TagDetail( $owner, $_, $tags{$_}, $viewer_ctx ) } sort keys %tags;
 
