@@ -78,7 +78,8 @@ if ( $item && $cart ) {
     ok( !$ok, "can't buy if banned user" );
     undef $cart if $ok;
 
-    # make sure we unban, working around REQ_CACHE_REL persistence
+    # make sure we unban; the ban verdict is memoized in the rel request cache
+    # and nothing calls start_request within this test, so drop it by hand
     $u1->unban_user_multi($u2);
     DW::Cache->request->remove( 'rel', $u1->userid . "-" . $u2->userid . "-B" );    # argh
     ok( !$u1->has_banned($u2), 'unbanned' );

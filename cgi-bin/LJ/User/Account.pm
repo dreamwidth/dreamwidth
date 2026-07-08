@@ -1467,7 +1467,7 @@ sub load_user {
 
     my $u;
 
-    # return process cache if we have one
+    # return request cache if we have one
     if ( $u = DW::Cache->request->get( 'user_name', $user ) ) {
         $u->selfassert;
         return $u;
@@ -1550,7 +1550,7 @@ sub load_userid {
 
     my $u;
 
-    # check process cache
+    # check request cache
     $u = DW::Cache->request->get( 'user_id', $userid );
     if ($u) {
         $u->selfassert;

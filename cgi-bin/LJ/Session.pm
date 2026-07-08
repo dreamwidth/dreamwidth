@@ -846,10 +846,10 @@ sub trust_cookie_signature {
 # deleting the account revokes the trust immediately. This identifies a
 # browser, not a person: never treat it as authentication.
 #
-# Deliberately uncached: %LJ::REQ_CACHE is NOT cleared between requests, so a
-# memoized verdict would leak across requests (and thus across visitors) on a
-# persistent worker. Validation is one HMAC plus a load_userid, and callers
-# only hit it where a captcha would otherwise be shown.
+# Deliberately uncached: validation is one HMAC plus a load_userid, and callers
+# only hit it where a captcha would otherwise be shown, so memoizing isn't
+# worth it. If that ever changes, use DW::Cache->request -- never state that
+# outlives the request, or the verdict leaks across visitors (bit us in #3643).
 sub trusted_anon_user {
     my ($class) = @_;
 
