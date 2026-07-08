@@ -25,6 +25,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ confess /;
 
+use DW::Cache;
 use DW::User::Edges;
 use DW::User::Edges::WatchTrust::Loader;
 use DW::User::Edges::WatchTrust::UserHelper;
@@ -141,7 +142,7 @@ sub _add_wt_edge {
     # delete friend-of memcache keys for anyone who was added
     my ( $from_userid, $to_userid ) = ( $from_u->id, $to_u->id );
     LJ::MemCache::delete( [ $from_userid, "trustmask:$from_userid:$to_userid" ] );
-    delete $LJ::REQ_CACHE_TRUSTMASK{"$from_userid:$to_userid"};
+    DW::Cache->request->remove( 'trustmask', "$from_userid:$to_userid" );
     LJ::memcache_kill( $to_userid,   'wt_edges_rev' );
     LJ::memcache_kill( $from_userid, 'wt_edges' );
     LJ::memcache_kill( $from_userid, 'wt_list' );
@@ -231,7 +232,7 @@ sub _del_wt_edge {
     LJ::memcache_kill( $to_u,   'watched_by' );
     LJ::memcache_kill( $to_u,   'trusted_by' );
     LJ::MemCache::delete( [ $from_u->id, "trustmask:" . $from_u->id . ":" . $to_u->id ] );
-    delete $LJ::REQ_CACHE_TRUSTMASK{ $from_u->id . ":" . $to_u->id };
+    DW::Cache->request->remove( 'trustmask', $from_u->id . ":" . $to_u->id );
 
     # fire notifications if we have theschwartz
     my $notify =
@@ -889,7 +890,7 @@ q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ? AN
 
         # don't forget memcache
         LJ::MemCache::delete( [ $userid, "trustmask:$userid:$tid" ] );
-        delete $LJ::REQ_CACHE_TRUSTMASK{"$userid:$tid"};
+        DW::Cache->request->remove( 'trustmask', "$userid:$tid" );
     }
 
     # finally remove the trust group, huzzah

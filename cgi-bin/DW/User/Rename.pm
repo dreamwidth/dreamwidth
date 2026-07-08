@@ -49,6 +49,7 @@ use warnings;
 
 use DW::RenameToken;
 use DW::FormErrors;
+use DW::Cache;
 
 =head1 API
 
@@ -310,8 +311,8 @@ sub _clear_from_cache {
     LJ::memcache_kill( $self->userid, "userid" );
 
     delete $LJ::CACHE_USERNAME{ $self->userid };
-    delete $LJ::REQ_CACHE_USER_NAME{$fromusername};
-    delete $LJ::REQ_CACHE_USER_ID{ $self->userid };
+    DW::Cache->request->remove( 'user_name', $fromusername );
+    DW::Cache->request->remove( 'user_id',   $self->userid );
 }
 
 =head2 C<< $self->_are_same_person >>

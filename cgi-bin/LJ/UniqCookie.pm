@@ -17,6 +17,7 @@ package LJ::UniqCookie;
 use strict;
 use Carp qw(croak);
 use LJ::Utils;
+use DW::Cache;
 
 my %req_cache_uid2uniqs = ();    # uid  => [ uniq1, uniq2, ... ]
 my %req_cache_uniq2uids = ();    # uniq => [  uid1,  uid2, ... ]
@@ -30,6 +31,10 @@ sub clear_request_cache {
     %req_cache_uid2uniqs = ();
     %req_cache_uniq2uids = ();
 }
+
+# These are file-scoped lexicals, so DW::Cache can't reach them by
+# symbol; self-register the reset here so clear() covers them like everything else.
+DW::Cache->request->register_reset( 'uniqcookie', sub { LJ::UniqCookie->clear_request_cache } );
 
 sub set_request_cache_by_user {
     my $class = shift;
@@ -498,7 +503,7 @@ sub parts_from_value {
 sub set_current_uniq {
     my ( $class, $uniq ) = @_;
 
-    $LJ::REQ_CACHE{current_uniq} = $uniq;
+    DW::Cache->request->set( 'uniqcookie', 'current_uniq', $uniq );
 
     return unless LJ::is_web_context();
 
@@ -515,9 +520,8 @@ sub current_uniq {
         return $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ;
     }
 
-    # should be in $LJ::REQ_CACHE, so return from
-    # there if it is
-    my $val = $LJ::REQ_CACHE{current_uniq};
+    # should be in the request cache, so return from there if it is
+    my $val = DW::Cache->request->get( 'uniqcookie', 'current_uniq' );
     return $val if $val;
 
     # otherwise, legacy place is in $r->notes

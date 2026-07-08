@@ -91,9 +91,10 @@ note("no cookie, no trust");
 
 note("verdict is not memoized across requests");
 {
-    # %LJ::REQ_CACHE persists across requests on a worker, so a cached verdict
-    # would leak between visitors; simulate back-to-back requests from
-    # different browsers on one worker and check each gets its own answer
+    # a verdict memoized in state that outlives the request would leak between
+    # visitors on a persistent worker (the #3643 bug); simulate back-to-back
+    # requests from different browsers on one worker and check each gets its
+    # own answer
     $req = FakeRequest->new;
     $req->{jar}{ljtrust} = $cookie_value;
     ok( trusted(), "request with a valid cookie -> trusted" );

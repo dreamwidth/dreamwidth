@@ -14,7 +14,7 @@
 package LJ::Lang;
 use strict;
 use LJ::LangDatFile;
-use DW::CacheStats;
+use DW::Cache;
 
 use constant MAXIMUM_ITCODE_LENGTH => 120;
 
@@ -139,8 +139,9 @@ my %LN_CODE   = ();    # $code -> ^^^^
 my $LAST_ERROR;
 my %TXT_CACHE;
 
-# instrument this persistent translation cache's byte size for memory metrics
-DW::CacheStats::register( 'lang_txt_cache', sub { \%TXT_CACHE } );
+# persistent translation cache: process-scoped (wiped on config reload), with
+# its byte size measured for memory metrics
+DW::Cache->process->register_var( 'lang_txt_cache', \%TXT_CACHE );
 
 sub last_error {
     return $LAST_ERROR;
@@ -608,7 +609,8 @@ sub get_text {
             my $dbmodtime = LJ::Lang::get_chgtime_unix( $lang, $dmid, $code );
             return $from_db->() if !$fmodtime || $dbmodtime > $fmodtime;
 
-            my $ldf = $LJ::REQ_LANGDATFILE{$tf} ||= LJ::LangDatFile->new($tf);
+            my $ldf = DW::Cache->request->get( 'langdatfile', $tf )
+                || DW::Cache->request->set( 'langdatfile', $tf, LJ::LangDatFile->new($tf) );
             my $val = $ldf->value($localcode);
             return $val if $val;
         }
