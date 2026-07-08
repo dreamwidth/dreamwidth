@@ -80,7 +80,7 @@ if ( $item && $cart ) {
 
     # make sure we unban, working around REQ_CACHE_REL persistence
     $u1->unban_user_multi($u2);
-    DW::RequestCache->remove( 'rel', $u1->userid . "-" . $u2->userid . "-B" );    # argh
+    DW::Cache->request->remove( 'rel', $u1->userid . "-" . $u2->userid . "-B" );    # argh
     ok( !$u1->has_banned($u2), 'unbanned' );
 }
 

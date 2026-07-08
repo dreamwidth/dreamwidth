@@ -17,7 +17,7 @@ no warnings 'uninitialized';
 
 use Carp;
 use DW::Locker;
-use DW::RequestCache;
+use DW::Cache;
 
 ########################################################################
 ### 5. Database and Memcache Functions
@@ -500,7 +500,7 @@ sub update_user {
     }
     else {
         while ( my ( $k, $v ) = each %$ref ) {
-            my $cache = DW::RequestCache->get( 'user_id', $uid ) or next;
+            my $cache = DW::Cache->request->get( 'user_id', $uid ) or next;
             $cache->{$k} = $v;
         }
     }
@@ -591,7 +591,7 @@ sub _set_u_req_cache {
 
     # if we have an existing user singleton, upgrade it with
     # the latested data, but keep using its address
-    if ( my $eu = DW::RequestCache->get( 'user_id', $u->userid ) ) {
+    if ( my $eu = DW::Cache->request->get( 'user_id', $u->userid ) ) {
         LJ::assert_is( $eu->userid, $u->userid );
         $eu->selfassert;
         $u->selfassert;
@@ -599,8 +599,8 @@ sub _set_u_req_cache {
         $eu->{$_} = $u->{$_} foreach keys %$u;
         $u = $eu;
     }
-    DW::RequestCache->set( 'user_name', $u->user,   $u );
-    DW::RequestCache->set( 'user_id',   $u->userid, $u );
+    DW::Cache->request->set( 'user_name', $u->user,   $u );
+    DW::Cache->request->set( 'user_id',   $u->userid, $u );
     return $u;
 }
 
@@ -855,7 +855,7 @@ sub check_rel {
     my $eff_type = $typeid || $type;
 
     my $key    = "$userid-$targetid-$eff_type";
-    my $cached = DW::RequestCache->get( 'rel', $key );
+    my $cached = DW::Cache->request->get( 'rel', $key );
     return $cached if defined $cached;
 
     # did we get something from memcache?
@@ -885,7 +885,7 @@ sub check_rel {
     LJ::_set_rel_memcache( $userid, $targetid, $eff_type, $dbval );
 
     # return and set request cache
-    return DW::RequestCache->set( 'rel', $key, $dbval );
+    return DW::Cache->request->set( 'rel', $key, $dbval );
 }
 
 # <LJFUNC>

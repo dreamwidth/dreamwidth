@@ -23,7 +23,7 @@ use LJ::DB;
 use LJ::Identity;
 
 use DW::Pay;
-use DW::RequestCache;
+use DW::Cache;
 use DW::User::OpenID;
 use DW::InviteCodes::Promo;
 
@@ -1468,7 +1468,7 @@ sub load_user {
     my $u;
 
     # return process cache if we have one
-    if ( $u = DW::RequestCache->get( 'user_name', $user ) ) {
+    if ( $u = DW::Cache->request->get( 'user_name', $user ) ) {
         $u->selfassert;
         return $u;
     }
@@ -1551,7 +1551,7 @@ sub load_userid {
     my $u;
 
     # check process cache
-    $u = DW::RequestCache->get( 'user_id', $userid );
+    $u = DW::Cache->request->get( 'user_id', $userid );
     if ($u) {
         $u->selfassert;
         return $u;
@@ -1617,7 +1617,7 @@ sub load_userids_multiple {
         next unless int($id);
         push @{ $need{$id} }, $ref;
 
-        if ( my $cached = DW::RequestCache->get( 'user_id', $id ) ) {
+        if ( my $cached = DW::Cache->request->get( 'user_id', $id ) ) {
             push @have, $cached;
         }
     }

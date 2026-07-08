@@ -19,7 +19,7 @@ use Carp;
 use Digest::SHA1;
 use Text::Fuzzy;
 use LJ::Subscription;
-use DW::RequestCache;
+use DW::Cache;
 
 ########################################################################
 ###  16. Email-Related Functions
@@ -969,7 +969,7 @@ sub set_email {
     # update caches
     LJ::memcache_kill( $userid, "userid" );
     LJ::MemCache::delete( [ $userid, "email:$userid" ] );
-    my $cache = DW::RequestCache->get( 'user_id', $userid ) or return;
+    my $cache = DW::Cache->request->get( 'user_id', $userid ) or return;
     $cache->{'_email'} = $email;
 }
 

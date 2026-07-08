@@ -19,7 +19,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5;
-use DW::CacheStats;
+use DW::Cache;
 use Storable;
 
 use DW::BlobStore;
@@ -64,8 +64,9 @@ my %MimeTypeMap = (
 # userid -> picid -> LJ::Userpic
 my %singletons;
 
-# instrument this per-request cache's byte size for memory metrics
-DW::CacheStats::register( 'userpic_singletons', sub { \%singletons } );
+# file-scoped lexical, so it self-registers: cleared between requests/jobs, and
+# its byte size is measured for memory metrics
+DW::Cache->request->register_var( 'userpic_singletons', \%singletons );
 
 sub reset_singletons {
     %singletons = ();

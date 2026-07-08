@@ -17,7 +17,7 @@ package LJ::UniqCookie;
 use strict;
 use Carp qw(croak);
 use LJ::Utils;
-use DW::RequestCache;
+use DW::Cache;
 
 my %req_cache_uid2uniqs = ();    # uid  => [ uniq1, uniq2, ... ]
 my %req_cache_uniq2uids = ();    # uniq => [  uid1,  uid2, ... ]
@@ -32,9 +32,9 @@ sub clear_request_cache {
     %req_cache_uniq2uids = ();
 }
 
-# These are file-scoped lexicals, so DW::RequestCache can't reach them by
+# These are file-scoped lexicals, so DW::Cache can't reach them by
 # symbol; self-register the reset here so clear() covers them like everything else.
-DW::RequestCache->register_reset( 'uniqcookie', sub { LJ::UniqCookie->clear_request_cache } );
+DW::Cache->request->register_reset( 'uniqcookie', sub { LJ::UniqCookie->clear_request_cache } );
 
 sub set_request_cache_by_user {
     my $class = shift;
@@ -503,7 +503,7 @@ sub parts_from_value {
 sub set_current_uniq {
     my ( $class, $uniq ) = @_;
 
-    DW::RequestCache->set( 'uniqcookie', 'current_uniq', $uniq );
+    DW::Cache->request->set( 'uniqcookie', 'current_uniq', $uniq );
 
     return unless LJ::is_web_context();
 
@@ -521,7 +521,7 @@ sub current_uniq {
     }
 
     # should be in the request cache, so return from there if it is
-    my $val = DW::RequestCache->get( 'uniqcookie', 'current_uniq' );
+    my $val = DW::Cache->request->get( 'uniqcookie', 'current_uniq' );
     return $val if $val;
 
     # otherwise, legacy place is in $r->notes

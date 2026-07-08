@@ -60,7 +60,7 @@ my $comment;
 # relationship. And prepare_and_validate_comment asks about basically every
 # possible relationship. So SCORCH THE EARTH.
 my $reset = sub {
-    DW::RequestCache->clear_ns('rel');
+    DW::Cache->request->clear_ns('rel');
     $comment      = undef;
     @errors       = ();
     $need_captcha = 0;

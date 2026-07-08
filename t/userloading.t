@@ -89,9 +89,9 @@ memcache_stress(
 );
 
 sub is_empty {
-    is( scalar keys %{ $DW::RequestCache::STORE{user_name} // {} },
+    is( scalar keys %{ DW::Cache->request->{store}{user_name} // {} },
         0, "reqcache for users is empty" );
-    is( scalar keys %{ $DW::RequestCache::STORE{user_id} // {} },
+    is( scalar keys %{ DW::Cache->request->{store}{user_id} // {} },
         0, "reqcache for userids is empty" );
 }
 

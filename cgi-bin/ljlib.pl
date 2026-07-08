@@ -118,8 +118,7 @@ use LJ::Global::Img;        # defines LJ::Img
 use LJ::Global::Secrets;    # defines LJ::Secrets
 use DW::Media;
 use DW::Stats;
-use DW::CacheStats;
-use DW::RequestCache;
+use DW::Cache;
 use DW::Proxy;
 use DW::TaskQueue;
 use DW::BlobStore;
@@ -453,17 +452,9 @@ sub handle_caches {
 
     $LJ::DBIRole->flush_cache();
 
-    %LJ::CACHE_PROP       = ();
-    %LJ::CACHE_STYLE      = ();
-    $LJ::CACHED_MOODS     = 0;
-    $LJ::CACHED_MOOD_MAX  = 0;
-    %LJ::CACHE_MOODS      = ();
-    %LJ::CACHE_MOOD_THEME = ();
-    %LJ::CACHE_USERID     = ();
-    %LJ::CACHE_USERNAME   = ();
-    %LJ::CACHE_CODES      = ();
-    %LJ::CACHE_USERPROP   = ();    # {$prop}->{ 'upropid' => ... , 'indexed' => 0|1 };
-    %LJ::CACHE_ENCODINGS  = ();
+    # wipe the process-lifetime caches (props, moods, codes, users, ...) --
+    # everything registered with the process scope, in one call
+    DW::Cache->process->clear;
 
     return 1;
 }
@@ -478,15 +469,18 @@ sub handle_caches {
 sub start_request {
     handle_caches();
 
-    # Sample the size of our in-process caches (and process RSS) before we clear
-    # the per-request ones below, so each measurement reflects a request's peak.
-    DW::CacheStats::report();
+    # Sample process RSS and the size of our in-process caches before we clear
+    # the request scope below, so each measurement reflects a request's peak.
+    # Both are sampled no-ops unless enabled in config.
+    DW::Stats::report_rss();
+    DW::Cache->report_sizes;
 
     # Clear every request-scoped cache in one call. Anything routed through
-    # DW::RequestCache -- its KV store plus the vars/resets registered in that
-    # module and in owning modules (e.g. LJ::UniqCookie) -- is wiped here, so a
-    # new request cache can never leak across requests or background jobs.
-    DW::RequestCache->clear;
+    # DW::Cache->request -- its KV store plus the vars/resets registered in
+    # DW::Cache and in owning modules (e.g. LJ::UniqCookie, the per-class
+    # singletons) -- is wiped here, so a request cache can never leak across
+    # requests or background jobs.
+    DW::Cache->request->clear;
 
     # clear the handle request cache (like normal cache, but verified already for
     # this request to be ->ping'able).

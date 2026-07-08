@@ -26,7 +26,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 our $AUTOLOAD;
 use Carp qw/ croak confess /;
-use DW::CacheStats;
+use DW::Cache;
 use DW::Task::DeleteEntry;
 use DW::Task::SearchCopier;
 use DW::Search;
@@ -69,8 +69,9 @@ LJ::Entry
 
 my %singletons = ();    # journalid->jitemid->singleton
 
-# instrument this per-request cache's byte size for memory metrics
-DW::CacheStats::register( 'entry_singletons', sub { \%singletons } );
+# file-scoped lexical, so it self-registers: cleared between requests/jobs, and
+# its byte size is measured for memory metrics
+DW::Cache->request->register_var( 'entry_singletons', \%singletons );
 
 sub reset_singletons {
     %singletons = ();

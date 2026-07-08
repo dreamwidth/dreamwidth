@@ -16,7 +16,7 @@ use strict;
 
 use LJ::Global::Constants;
 use LJ::Lang;
-use DW::RequestCache;
+use DW::Cache;
 
 # <LJFUNC>
 # name: LJ::Tags::get_usertagsmulti
@@ -48,7 +48,7 @@ sub get_usertagsmulti {
     foreach my $u (@uobjs) {
 
         # don't load if we've previously gotten this one
-        if ( my $cached = DW::RequestCache->get( 'usertags', $u->{userid} ) ) {
+        if ( my $cached = DW::Cache->request->get( 'usertags', $u->{userid} ) ) {
             $res->{ $u->{userid} } = $cached;
             next;
         }
@@ -66,7 +66,7 @@ sub get_usertagsmulti {
             my $jid = $1;
 
             # set this up in our return hash and mark unneeded
-            DW::RequestCache->set( 'usertags', $jid, $memc->{$key} );
+            DW::Cache->request->set( 'usertags', $jid, $memc->{$key} );
             $res->{$jid} = $memc->{$key};
             delete $need{$jid};
         }
@@ -240,7 +240,7 @@ sub _get_usertagsmulti {
             $res->{$jid} ||= {};
             $res->{$jid}->{$_}->{security_level} ||= 'private' foreach keys %{ $res->{$jid} };
 
-            DW::RequestCache->set( 'usertags', $jid, $res->{$jid} );
+            DW::Cache->request->set( 'usertags', $jid, $res->{$jid} );
             LJ::MemCache::add( [ $jid, "tags:$jid" ], $res->{$jid} );
         }
     }
@@ -1098,7 +1098,7 @@ sub reset_cache {
 
         # standard user tags cleanup
         unless ($jitemid) {
-            DW::RequestCache->remove( 'usertags', $u->{userid} );
+            DW::Cache->request->remove( 'usertags', $u->{userid} );
             LJ::MemCache::delete( [ $u->{userid}, "tags:$u->{userid}" ] );
         }
 

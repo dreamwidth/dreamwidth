@@ -153,11 +153,15 @@ use Net::Subnet;
     #     port => 8125,
     # );
 
-    # Fraction (0..1) of requests on which DW::CacheStats measures the byte size
-    # of the web process's in-memory caches (and reports process RSS), emitting
-    # them as timing/histogram metrics via %STATS above. Measurement deep-walks
-    # each cache, so keep this low; it defaults to 0 (disabled).
+    # Fraction (0..1) of requests on which DW::Cache->report_sizes measures the
+    # byte size of the process's in-memory caches, emitting them as
+    # timing/histogram metrics via %STATS above. Measurement deep-walks each
+    # cache, so keep this low; it defaults to 0 (disabled).
     # $CACHE_STATS_SAMPLE_RATE = 0.01;
+
+    # Fraction (0..1) of requests on which DW::Stats::report_rss emits process
+    # RSS (dw.process.rss_bytes). Cheap but chatty; defaults to 0 (disabled).
+    # $PROCESS_STATS_SAMPLE_RATE = 0.01;
 
     # If you are going to be using the external content proxy system, you should
     # define a file here that contains your private salt.
