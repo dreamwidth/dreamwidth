@@ -81,13 +81,15 @@
         linked_u = "<strike>$linked_u</strike>";
       END;
   # if user is logged in and not looking at own profile, use
-  # appropriate highlighting for users they have in common
+  # appropriate highlighting for users they have in common. the lookup hashes
+  # are built once in the controller, so this is O(1) per user (see #3648).
       IF remote && ! remote.equals( u );
-        IF remote.watches( user );
+        IF remote_watches.${user.userid};
           linked_u = "<em>$linked_u</em>";
         END;
-        trust_method = user.is_community ? 'member_of' : 'trusts';
-        IF remote.$trust_method( user );
+        in_circle = user.is_community ? remote_member_of.${user.userid}
+                                      : remote_trusts.${user.userid};
+        IF in_circle;
           linked_u = "<strong>$linked_u</strong>";
         END;
       END;
