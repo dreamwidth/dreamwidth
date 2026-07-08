@@ -33,7 +33,13 @@ use DW::TaskQueue::LocalDisk;
 
     package DW::TaskQueue::ScopeGuard;
     sub new { bless { code => $_[1] }, $_[0] }
-    sub DESTROY { $_[0]->{code}->() }
+
+    # Never throw during stack unwinding: a die here would mask the job's own
+    # exception. local $@ keeps a propagating error intact across the eval.
+    sub DESTROY {
+        local $@;
+        eval { $_[0]->{code}->() };
+    }
 }
 
 my $_queue;

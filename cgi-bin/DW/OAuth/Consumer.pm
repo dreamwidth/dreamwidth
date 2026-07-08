@@ -112,7 +112,11 @@ sub _delete_cache {
     DW::OAuth::Consumer->_clear_user_tokens( $c->{userid} );
     LJ::MemCache::delete( [ $c->id,    "oauth_consumer:" . $c->id ] );
     LJ::MemCache::delete( [ $c->token, "oauth_consumer_token:" . $c->token ] );
+
+    # consumer is request-cached under both its token and its id (see _set_cache);
+    # drop both, matching the memcache invalidation above.
     DW::RequestCache->remove( 'oauth_consumer', $c->token );
+    DW::RequestCache->remove( 'oauth_consumer', $c->id );
 }
 
 sub _load_raw {
