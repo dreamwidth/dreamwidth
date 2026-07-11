@@ -17,7 +17,13 @@
 [%- sections.title = "Log Out" -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
-[% IF success == 'one' %]
+[% IF success == 'switched' %]
+
+    <p>
+    You have been logged out, and are now signed in as [% switched_to %].
+    </p>
+
+[% ELSIF success == 'one' %]
 
     <p>
     You have successfully logged out of [% site.nameshort %] in this browser.

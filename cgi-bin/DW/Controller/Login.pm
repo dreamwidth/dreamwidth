@@ -23,6 +23,7 @@ use DW::Routing;
 use DW::Template;
 use DW::Controller;
 use DW::FormErrors;
+use DW::AccountSwitcher;
 
 # no_cache: the login form embeds a form_auth (CSRF) token that, for logged-out
 # users, is bound to their per-browser ljuniq cookie. If a shared proxy caches
@@ -52,6 +53,10 @@ sub login_handler {
     my $returnto = $post->{returnto} // $get->{returnto};
     $returnto =~ tr/\r\n//d if defined $returnto;
 
+    # "add another account" intent: a login submitted while already logged in
+    # should add a session rather than change the current one's options.
+    my $adding = ( $post->{switch} || $get->{switch} ) ? 1 : 0;
+
     my $vars = {
         continue_to => $get->{continue_to},
 
@@ -59,6 +64,13 @@ sub login_handler {
         # so that, after a successful login, we send the user back to the page
         # they were trying to reach when they got bounced here by needlogin().
         returnto => $returnto,
+
+        # render the login form (not the change-options form) even when logged
+        # in, so the user can sign in to an additional account.
+        add_account => $adding,
+
+        # canonicalized so a reflected ?user= can't inject markup into the form
+        prefill_user => LJ::canonical_username( $get->{user} // '' ),
     };
 
     my @errors = ();
@@ -110,8 +122,9 @@ sub login_handler {
             $do_login = 1;
         }
 
-        # if they're already logged in, change opts
-        if ( $do_login && $remote ) {
+        # if they're already logged in, change opts -- unless they're adding
+        # another account, in which case treat it as a fresh login
+        if ( $do_login && $remote && !$adding ) {
             $do_login  = 0;
             $do_change = 1;
         }
@@ -214,7 +227,14 @@ sub login_handler {
                     : "short";
                 my $bindip = ( ( $post->{'bindip'} // '' ) eq "yes" ) ? $r->get_remote_ip : "";
 
-                $u->make_login_session( $exptype, $bindip );
+                # when adding a second account, keep the current one signed in
+                # and demote it into the switcher's stored list
+                if ( $adding && $old_remote && !$old_remote->equals($u) ) {
+                    DW::AccountSwitcher->add_account( $u, $exptype, $bindip );
+                }
+                else {
+                    $u->make_login_session( $exptype, $bindip );
+                }
                 LJ::Hooks::run_hook( 'user_login', $u );
                 $cursess = $u->session;
 
