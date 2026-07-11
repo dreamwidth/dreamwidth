@@ -139,6 +139,10 @@ sub switch_handler {
     my $post     = $r->post_args;
     my $returnto = $post->{returnto};
 
+    # strip CR/LF so a crafted returnto can't inject headers when it later
+    # becomes a Location header on redirect
+    $returnto =~ tr/\r\n//d if defined $returnto;
+
     my $back = sub {
         if ($returnto) {
 
