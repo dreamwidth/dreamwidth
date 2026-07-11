@@ -21,6 +21,7 @@ use POSIX;
 use Digest::MD5;
 use Digest::SHA1;
 
+use DW::AccountSwitcher;
 use DW::Auth::Challenge;
 use DW::External::Site;
 use DW::Request;
@@ -2891,6 +2892,18 @@ sub control_strip {
             'is_validated' => $remote->is_validated,
             'is_identity'  => $remote->is_identity,
         };
+
+        # other accounts signed in to this browser, for the switcher
+        $template_args->{'switch_accounts'} = [
+            map {
+                {
+                    userid  => $_->{userid},
+                    user    => $_->{user},
+                    display => $_->{u}->ljuser_display,
+                    valid   => $_->{valid},
+                }
+            } DW::AccountSwitcher->accounts
+        ];
         if ($userpic) {
             my $wh = $userpic->img_fixedsize( width => 43, height => 43 );
             $template_args->{'userpic_html'} =

@@ -23,9 +23,11 @@
     <div id="login-form">
     [%- dw.form_auth() -%]
     [%- form.hidden( name = "returnto", value = returnto ) IF returnto -%]
+    [%- form.hidden( name = "switch", value = 1 ) IF switch -%]
     [%- form.textbox(
         label => dw.ml('sitescheme.accountlinks.login.username')
         name => "user",
+        value => default_user,
         labelclass => (short ? "invisible" : ""),
         placeholder => (short ? dw.ml('/components/login.tt.login.username' ): ""),
         id => "login_user",

@@ -85,6 +85,89 @@ html body
     border: 0;
 }
 
+/* Account switcher in the control strip: a bare caret (native <details>) sitting
+   next to the username, whose open panel overlays the page rather than pushing
+   the strip's layout. The panel has its own light background, so its links must
+   be forced to a dark color -- the strip's own link color may be light. */
+#lj_controlstrip_switch {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Keep the username, switcher caret, and Log out button on one line. */
+#lj_controlstrip_user #Greeting,
+#lj_controlstrip_user #Greeting > div {
+    display: inline;
+}
+
+#lj_controlstrip_switch > summary {
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    list-style: none;
+}
+
+#lj_controlstrip_switch > summary::-webkit-details-marker {
+    display: none;
+}
+
+#lj_controlstrip_switch > summary::after {
+    content: "\25BE";
+}
+
+#lj_controlstrip_switch[open] > summary::after {
+    content: "\25B4";
+}
+
+#lj_controlstrip_switch ul {
+    position: absolute;
+    left: 0;
+    z-index: 1000;
+    margin: 2px 0 0;
+    padding: 4px 8px;
+    min-width: 12em;
+    list-style: none;
+    white-space: nowrap;
+    background: #f7f7f7;
+    color: #333333;
+    border: 1px solid #cccccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+}
+
+#lj_controlstrip_switch li {
+    display: block;
+    margin: 2px 0;
+    white-space: nowrap;
+}
+
+#lj_controlstrip_switch form.switch-account {
+    display: inline-block;
+    margin-left: .5em;
+}
+
+#lj_controlstrip_switch .switch-account-signedout {
+    margin-left: .5em;
+    font-style: italic;
+}
+
+#lj_controlstrip_switch ul a,
+#lj_controlstrip_switch .switch-account-btn {
+    font-family: Arial, sans-serif;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    text-decoration: none;
+    color: #2172a8;
+    width: auto;
+}
+
+#lj_controlstrip_switch ul a:hover,
+#lj_controlstrip_switch .switch-account-btn:hover {
+    text-decoration: underline;
+}
+
 /* Make sure all form elements use default colors and control strip fonts */
 #lj_controlstrip input
 {

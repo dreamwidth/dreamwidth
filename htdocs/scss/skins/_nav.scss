@@ -16,6 +16,71 @@ $nav-small-screen-header-height: 3em;
 
     }
 
+    /* Keep the username, the switcher caret, and the Log out button on one line. */
+    #account-links .account-links-active { display: inline; }
+
+    #account-links .account-links-logout {
+        display: inline-block;
+        margin: 0 0 0 .5em;
+
+        .button { margin: 0; }
+    }
+
+    /* Account switcher: a native <details> fold-out. The open list is absolutely
+       positioned so it overlays rather than pushing the masthead nav links. */
+    #account-links .account-switcher {
+        position: relative;
+        display: inline-block;
+
+        > summary {
+            cursor: pointer;
+            list-style: none;               /* hide the default disclosure marker */
+            &::-webkit-details-marker { display: none; }
+            &::after { content: " \25BE"; } /* down triangle */
+        }
+        &[open] > summary::after { content: " \25B4"; } /* up triangle */
+
+        > ul {
+            position: absolute;
+            z-index: 100;
+            margin: .2em 0 0;
+            padding: .4em .6em;
+            min-width: 12em;
+            list-style: none;
+            white-space: nowrap;
+            text-align: left;
+            background: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+        }
+
+        li {
+            float: none;
+            display: block;
+            margin: .2em 0;
+            white-space: nowrap;
+
+            &:after { content: ""; margin: 0; }
+        }
+
+        /* account name on the left, the Switch action on the right */
+        .switch-account-form { display: inline-block; margin-left: .75em; }
+
+        .switch-account-btn {
+            background: none;
+            border: 0;
+            padding: 0;
+            margin: 0;
+            font: inherit;
+            color: $link-color;
+            cursor: pointer;
+
+            &:hover { text-decoration: underline; }
+        }
+
+        .switch-account-signedout { margin-left: .75em; font-style: italic; }
+    }
+
     .top-bar {
         &.expanded {
             z-index: 99;

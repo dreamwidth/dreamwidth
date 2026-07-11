@@ -2097,6 +2097,8 @@ menunav.organize.customizejournalstyle=Customize Journal Style
 
 menunav.organize.importcontent=Import Content
 
+menunav.organize.manageaccounts=Account Switcher
+
 menunav.organize.managecommunities=Manage Communities
 
 menunav.organize.managefilters=Manage Filters
@@ -4000,6 +4002,12 @@ sitescheme.accountlinks.post=Post
 
 sitescheme.accountlinks.readinglist=Reading Page
 
+sitescheme.accountlinks.switch.go=Switch
+
+sitescheme.accountlinks.switch.label=Switch account
+
+sitescheme.accountlinks.switch.signedout=Signed out — log in
+
 sitescheme.accountlinks.userpic.alt=Upload Icons
 
 sitescheme.footer.info=Copyright &copy; 2009-2011 Dreamwidth Studios, LLC. All rights reserved.
@@ -4672,6 +4680,12 @@ web.controlstrip.status.yourjournal=You're viewing your journal
 web.controlstrip.status.yournetworkpage=You're viewing your Network Page.
 
 web.controlstrip.status.yourreadingpage=You're viewing your Reading Page.
+
+web.controlstrip.switch.go=Switch
+
+web.controlstrip.switch.label=Switch account
+
+web.controlstrip.switch.signedout=Signed out — log in
 
 web.controlstrip.userpic.alt=Icon
 

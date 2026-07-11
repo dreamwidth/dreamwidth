@@ -120,6 +120,11 @@ sub get_menu_navigation {
                     display => $loggedin,
                 },
                 {
+                    url     => "$LJ::SITEROOT/manage/accounts",
+                    text    => "menunav.organize.manageaccounts",
+                    display => $loggedin,
+                },
+                {
                     url     => "$LJ::SITEROOT/manage/circle/edit",
                     text    => "menunav.organize.managerelationships",
                     display => $loggedin,
