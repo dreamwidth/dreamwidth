@@ -1,0 +1,171 @@
+#!/usr/bin/perl
+#
+# prune-inactive-feeds
+#
+# Marks syndicated (RSS/Atom) feed accounts as deleted when every account that
+# still watches the feed has been inactive ("AFK") longer than a threshold.
+# Dreamwidth re-checks every visible feed forever (hourly if it has readers,
+# daily if not -- see LJ::SynSuck::delay), so feeds whose entire readership has
+# wandered off keep generating synsuck work indefinitely. This prunes them.
+#
+# Deletion uses $u->set_deleted (statusvis 'D'), which is the normal,
+# reversible account-delete path and immediately removes the feed from the
+# synsuck scheduler (it only enqueues statusvis='V' feeds). It does NOT hard
+# purge -- the regular account-purge machinery handles that later.
+#
+# DRY-RUN BY DEFAULT: pass --commit to actually delete. Without it the script
+# only reports what it would do.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use warnings;
+use v5.10;
+
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use Getopt::Long;
+
+my $inactive_days      = 365;     # a reader counts as "gone" if idle this long
+my $limit              = 0;       # stop after deleting this many feeds (0 = all)
+my $batch              = 1000;    # syndicated rows scanned per DB page
+my $commit             = 0;       # actually delete (default: dry run)
+my $include_no_readers = 0;       # also prune feeds with zero watchers
+my $verbose            = 0;
+my $help               = 0;
+
+GetOptions(
+    'inactive-days=i'    => \$inactive_days,
+    'limit=i'            => \$limit,
+    'batch=i'            => \$batch,
+    'commit'             => \$commit,
+    'include-no-readers' => \$include_no_readers,
+    'verbose'            => \$verbose,
+    'help'               => \$help,
+) or usage();
+usage() if $help;
+die "--inactive-days must be positive\n" unless $inactive_days > 0;
+
+my $cutoff = time() - $inactive_days * 86400;
+my $dbh    = LJ::get_db_writer()
+    or die "Unable to get global database writer.\n";
+
+printf "%s: pruning feeds whose every reader has been idle since before %s\n",
+    ( $commit ? "COMMIT" : "DRY-RUN" ),
+    LJ::mysql_time($cutoff);
+print "  (feeds with zero readers are "
+    . ( $include_no_readers ? "INCLUDED" : "skipped; use --include-no-readers" ) . ")\n\n";
+
+my %n           = ( scanned => 0, deleted => 0, kept_active => 0, no_readers => 0 );
+my $last_userid = 0;
+
+SCAN: while (1) {
+
+    # page through visible feed accounts by ascending userid
+    my $rows = $dbh->selectall_arrayref(
+        q{SELECT s.userid, s.numreaders, s.synurl, u.user
+          FROM syndicated s JOIN user u ON u.userid = s.userid
+          WHERE u.statusvis = 'V' AND u.journaltype = 'Y' AND s.userid > ?
+          ORDER BY s.userid LIMIT ?},
+        { Slice => {} }, $last_userid, $batch
+    );
+    die $dbh->errstr if $dbh->err;
+    last SCAN unless $rows && @$rows;
+
+    foreach my $row (@$rows) {
+        $last_userid = $row->{userid};
+        $n{scanned}++;
+
+        my $feed = LJ::load_userid( $row->{userid} ) or next;
+
+        my @reader_ids = $feed->watched_by_userids;
+
+        if ( !@reader_ids ) {
+            unless ($include_no_readers) {
+                $n{no_readers}++;
+                next;
+            }
+        }
+        else {
+            # keep the feed the moment we find ANY still-active reader
+            my $has_active = 0;
+            foreach my $rid (@reader_ids) {
+                my $ru = LJ::load_userid($rid) or next;    # vanished => gone
+                next if $ru->is_inactive;                  # deleted/suspended/expunged => gone
+                if ( ( $ru->get_timeactive || 0 ) >= $cutoff ) {
+                    $has_active = 1;
+                    last;
+                }
+            }
+            if ($has_active) {
+                $n{kept_active}++;
+                next;
+            }
+        }
+
+        my $desc = sprintf( "%s (userid=%d, readers=%d, %s)",
+            $row->{user}, $row->{userid}, scalar(@reader_ids), $row->{synurl} // '?' );
+        print "    readers: @reader_ids\n" if $verbose && @reader_ids;
+
+        if ($commit) {
+            if ( $feed->set_deleted ) {
+                $n{deleted}++;
+                print "DELETED       $desc\n";
+            }
+            else {
+                print "FAILED        $desc\n";
+            }
+        }
+        else {
+            $n{deleted}++;    # counts as "would delete" in dry run
+            print "WOULD DELETE  $desc\n";
+        }
+
+        if ( $limit && $n{deleted} >= $limit ) {
+            print "\nReached --limit $limit; stopping.\n";
+            last SCAN;
+        }
+    }
+}
+
+printf "\n%s complete. scanned=%d  %s=%d  kept(active readers)=%d  skipped(no readers)=%d\n",
+    ( $commit ? "PRUNE"   : "DRY-RUN" ),      $n{scanned},
+    ( $commit ? "deleted" : "would-delete" ), $n{deleted},
+    $n{kept_active}, $n{no_readers};
+
+sub usage {
+    die <<"EOF";
+$0 - prune syndicated feeds whose readers have all gone inactive
+
+  A feed is pruned when every account that still watches it has been idle
+  (no recorded activity) for longer than --inactive-days. Pruning marks the
+  feed account deleted (statusvis 'D'), which is reversible and stops the
+  synsuck scheduler from polling it.
+
+Options:
+  --commit              Actually delete. Without this the script is a DRY RUN
+                        and only prints what it would do.
+  --inactive-days=N     Idle threshold for a reader to count as gone. Default 365.
+  --include-no-readers  Also prune feeds that have zero watchers at all.
+                        Default: skip them.
+  --limit=N             Stop after N feeds deleted/flagged. Default: no limit.
+  --batch=N             Feed rows scanned per DB page. Default 1000.
+  --verbose             Print the reader userids for each pruned feed.
+  --help                This message.
+
+Examples:
+  $0                          # dry run over all feeds
+  $0 --limit=50 --verbose     # inspect the first 50 prunable feeds in detail
+  $0 --commit --limit=500     # actually delete up to 500 feeds
+EOF
+}
