@@ -1,11 +1,17 @@
-#lj_controlstrip
+#lj_controlstrip, #lj_controlstrip_switch ul
 {
     background-color: #c7c6c6;
     background-image: url(/img/controlstrip/bg-light.gif);
     color: #7c7c7c;
 }
 
-#lj_controlstrip a
+#lj_controlstrip_switch ul {
+    background-color: #c7c6c6;
+    border-color:#fbfbfb;
+}
+
+#lj_controlstrip a, #lj_controlstrip_switch ul a,
+#lj_controlstrip_switch .switch-account-btn
 {
     color: #505050;
 }

@@ -18,31 +18,32 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF remote -%]
   <div id='lj_controlstrip_user'>
-    [% remote.display %]
-    [%- IF switch_accounts.size -%]
-    <details id='lj_controlstrip_switch' class='account-switcher'>
-      <summary aria-label="[% 'web.controlstrip.switch.label' | ml %]"></summary>
-      <ul>
-        [%- FOREACH acct IN switch_accounts -%]
-          <li>
-            <span class='switch-account-name'>[% acct.display %]</span>
-          [%- IF acct.valid -%]
-            <form class='switch-account' action='[% site.root %]/switchaccount' method='post'>
-              [%- dw.form_auth -%]
-              [%- form.hidden( name = "userid", value = acct.userid ) -%]
-              [%- form.hidden( name = "returnto", value = returnto ) -%]
-              <button type="submit" class="switch-account-btn">[% 'web.controlstrip.switch.go' | ml %]</button>
-            </form>
-          [%- ELSE -%]
-            <a class='switch-account-signedout' href='[% site.root %]/login?switch=1&amp;user=[% acct.user | uri %]&amp;returnto=[% returnto | uri %]'>[% 'web.controlstrip.switch.signedout' | ml %]</a>
-          [%- END -%]
-          </li>
+    
+      <div id='Greeting' class='nopic' >
+        [%- IF switch_accounts.size -%]
+        <details id='lj_controlstrip_switch' class='account-switcher'>
+          <summary aria-label="[% 'web.controlstrip.switch.label' | ml %]"></summary>
+          <ul>
+            [%- FOREACH acct IN switch_accounts -%]
+              <li>
+                <span class='switch-account-name'>[% acct.display %]</span>
+              [%- IF acct.valid -%]
+                <form class='switch-account' action='[% site.root %]/switchaccount' method='post'>
+                  [%- dw.form_auth -%]
+                  [%- form.hidden( name = "userid", value = acct.userid ) -%]
+                  [%- form.hidden( name = "returnto", value = returnto ) -%]
+                  <button type="submit" class="switch-account-btn">[% 'web.controlstrip.switch.go' | ml %]</button>
+                </form>
+              [%- ELSE -%]
+                <a class='switch-account-signedout' href='[% site.root %]/login?switch=1&amp;user=[% acct.user | uri %]&amp;returnto=[% returnto | uri %]'>[% 'web.controlstrip.switch.signedout' | ml %]</a>
+              [%- END -%]
+              </li>
+            [%- END -%]
+          </ul>
+        </details>
         [%- END -%]
-      </ul>
-    </details>
-    [%- END -%]
-    <form id='Greeting' class='nopic' action='[%- site.root -%]/logout' method='post'>
-      <div>
+        [% remote.display %]
+        <form action='[%- site.root -%]/logout' method='post'>
         [%- dw.form_auth -%]
         [%- form.hidden( name = "user", value = remote.user ) -%]
         [%- form.hidden( name = "returnto", value = returnto ) -%]
@@ -59,8 +60,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- UNLESS remote.is_validated -%]
           &nbsp;&nbsp; [% links.confirm %]
         [%- END -%]
-      </div>
+
     </form>
+          </div>
     [%- UNLESS remote.is_identity -%]
       [%- links.home -%]&nbsp;&nbsp; [%- links.post_journal -%]&nbsp;&nbsp;
     [%- END -%]
