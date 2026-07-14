@@ -85,6 +85,10 @@ html body
     border: 0;
 }
 
+#Greeting form {
+    display:inline-block;
+}
+
 /* Account switcher in the control strip: a bare caret (native <details>) sitting
    next to the username, whose open panel overlays the page rather than pushing
    the strip's layout. The panel has its own light background, so its links must
@@ -95,14 +99,7 @@ html body
     vertical-align: middle;
 }
 
-/* Keep the username, switcher caret, and Log out button on one line. */
-#lj_controlstrip_user #Greeting,
-#lj_controlstrip_user #Greeting > div {
-    display: inline;
-}
-
 #lj_controlstrip_switch > summary {
-    font-family: Arial, sans-serif;
     cursor: pointer;
     list-style: none;
 }
@@ -127,10 +124,7 @@ html body
     padding: 4px 8px;
     min-width: 12em;
     list-style: none;
-    white-space: nowrap;
-    background: #f7f7f7;
-    color: #333333;
-    border: 1px solid #cccccc;
+    border: 1px solid;
     box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
 }
 
@@ -159,7 +153,6 @@ html body
     margin: 0;
     cursor: pointer;
     text-decoration: none;
-    color: #2172a8;
     width: auto;
 }
 
