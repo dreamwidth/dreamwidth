@@ -136,6 +136,7 @@ my %host_path_match = (
     ,    # best guess; language parameter before /player may vary
     "scratch.mit.edu"    => [ qr!^/projects/embed/!,           1 ],
     "www.scribd.com"     => [ qr!^/embeds/!,                   1 ],
+    "sendvid.com"        => [ qr!^/embed/!,                    1 ],
     "www.slideshare.net" => [ qr!^/slideshow/embed_code/!,     1 ],
     "api.smugmug.com"    => [ qr!^/services/embed/\w+$!,       1 ],
     "w.soundcloud.com"   => [ qr!^/player/!,                   1 ],
