@@ -105,12 +105,12 @@ my %host_path_match = (
     "lichess.org"             => [ qr!/study/embed/!,     1 ],
     "www.loc.gov"             => [ qr!/item/[a-z0-9]+/$!, 1 ],
 
-    "makertube.net"    => [ qr!^/videos/embed/[0-9a-fA-F\-]{36}!, 1 ],
-    "mega.nz"          => [ qr!^/embed/!,                         1 ],
-    "www.mixcloud.com" => [ qr!^/widget/iframe/$!,                1 ],
-    "mixstep.co"       => [ qr!^/embed/!,                         1 ],
-    "www.msnbc.com"    => [ qr!^/msnbc/embedded-video/\w+!,       1 ],
-    "my.mail.ru"       => [ qr!^/video/embed/\d+!,                1 ],
+    "makertube.net"    => [ qr!^/videos/embed/[0-9a-fA-F]+!, 1 ],
+    "mega.nz"          => [ qr!^/embed/!,                    1 ],
+    "www.mixcloud.com" => [ qr!^/widget/iframe/$!,           1 ],
+    "mixstep.co"       => [ qr!^/embed/!,                    1 ],
+    "www.msnbc.com"    => [ qr!^/msnbc/embedded-video/\w+!,  1 ],
+    "my.mail.ru"       => [ qr!^/video/embed/\d+!,           1 ],
 
     "nekocap.com"      => [ qr!^/view/[a-zA-Z0-9]+$!,                 1 ],
     "ext.nicovideo.jp" => [ qr!^/thumb/!,                             0 ],
