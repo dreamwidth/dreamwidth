@@ -1,0 +1,3 @@
+<div class='shop-item-highlight shop-account-status border'>
+[% dw.ml('widget.paidaccountstatus.accounttype') %] <strong>[% account_type %]</strong>[% expires_on %]
+</div>

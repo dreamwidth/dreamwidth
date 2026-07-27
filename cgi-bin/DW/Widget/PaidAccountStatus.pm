@@ -41,12 +41,8 @@ sub render_body {
         . LJ::mysql_time($expires_at)
         : '';
 
-    my $ret = "<div class='shop-item-highlight shop-account-status border'>";
-    $ret .= $class->ml('widget.paidaccountstatus.accounttype') . " ";
-    $ret .= "<strong>$account_type</strong>$expires_on";
-    $ret .= "</div>";
-
-    return $ret;
+    return DW::Template->template_string( 'widget/paidaccountstatus.tt',
+        { account_type => $account_type, expires_on => $expires_on } );
 }
 
 1;

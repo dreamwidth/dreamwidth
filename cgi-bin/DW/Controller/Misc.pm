@@ -139,7 +139,8 @@ sub feedping_handler {
     my $dbh     = LJ::get_db_writer();
     foreach my $url (@feeds) {
         $updated = 1
-            if $dbh->do( "UPDATE syndicated SET checknext=NOW() WHERE synurl=?", undef, $url ) > 0;
+            if $dbh->do( "UPDATE syndicated SET checknext=NOW(), failcount=0 WHERE synurl=?",
+            undef, $url ) > 0;
     }
 
     return $out->("Thanks! We'll get to it soon.")

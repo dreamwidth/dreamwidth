@@ -2097,6 +2097,8 @@ menunav.organize.customizejournalstyle=Customize Journal Style
 
 menunav.organize.importcontent=Import Content
 
+menunav.organize.manageaccounts=Account Switcher
+
 menunav.organize.managecommunities=Manage Communities
 
 menunav.organize.managefilters=Manage Filters
@@ -2313,8 +2315,6 @@ profile.service.github=GitHub
 
 profile.service.hangouts=Google Chat
 
-profile.service.icq=ICQ
-
 profile.service.insanejournal=InsaneJournal
 
 profile.service.instagram=Instagram
@@ -2342,6 +2342,12 @@ profile.service.ravelry=Ravelry
 profile.service.reddit=Reddit
 
 profile.service.skype=Skype
+
+profile.service.spotify=Spotify
+
+profile.service.squidgeworld=Squidgeworld
+
+profile.service.steam=Steam
 
 profile.service.tumblr=Tumblr
 
@@ -2402,6 +2408,8 @@ rename.error.invalidto=Username was in an invalid format.
 rename.error.isself=Cannot rename back to your own username.
 
 rename.error.noto=No username provided to rename to.
+
+rename.error.notoken=Rename token not provided or unavailable.
 
 rename.error.reserved="[[to]]" is a reserved username.
 
@@ -2520,14 +2528,6 @@ setting.birthday.question=What's your birthday?
 setting.birthdaydisplay.error.invalid=Invalid option
 
 setting.birthdaydisplay.question=Birthday display options:
-
-setting.captcha.label=Anti-Spam Type
-
-setting.captcha.option=Commenters will see
-
-setting.captcha.option.select.image=graphical/image anti-spam tests
-
-setting.captcha.option.select.text=text-based anti-spam tests
 
 setting.commentcaptcha.label=Anti-Spam
 
@@ -3250,7 +3250,7 @@ settings.error.year.notenoughdigits=Invalid birthday year. Enter a 4-digit year.
 
 settings.error.year.outofrange=Invalid birthday year.
 
-settings.findbyemail.error.invalid=Invalid Option
+settings.findbyemail.error.invalid=Invalid option for find by email
 
 settings.findbyemail.helper=This setting will allow you to have your email address searchable without having to display it anywhere on [[sitename]]. You can also choose whether or not you want your [[siteabbrev]] identity to be shared in the search results.
 
@@ -4002,6 +4002,12 @@ sitescheme.accountlinks.post=Post
 
 sitescheme.accountlinks.readinglist=Reading Page
 
+sitescheme.accountlinks.switch.go=Switch
+
+sitescheme.accountlinks.switch.label=Switch account
+
+sitescheme.accountlinks.switch.signedout=Signed out — log in
+
 sitescheme.accountlinks.userpic.alt=Upload Icons
 
 sitescheme.footer.info=Copyright &copy; 2009-2011 Dreamwidth Studios, LLC. All rights reserved.
@@ -4054,50 +4060,6 @@ statusvis_message.locked=This journal is locked. New entries and comments can't 
 statusvis_message.memorial=This is a memorial journal. New entries can't be posted to it.
 
 statusvis_message.readonly=This journal is read-only. New entries and comments can't be posted to it.
-
-subscribe_interface.by=By
-
-subscribe_interface.by2=Also notify me by
-
-subscribe_interface.cancel=Cancel
-
-subscribe_interface.category.friends-and-communities=People and Communities
-
-subscribe_interface.category.my-account=My Account
-
-subscribe_interface.category.notices=Notices
-
-subscribe_interface.category.subscription-tracking=Notification Tracking
-
-subscribe_interface.category.track-comments=Track These Comments
-
-subscribe_interface.category.track-entry=Track This Entry
-
-subscribe_interface.category.track-journal=Track Entries to this Journal
-
-subscribe_interface.category.track-user=Track This User
-
-subscribe_interface.inbox=Inbox
-
-subscribe_interface.manage=Manage settings
-
-subscribe_interface.manage_settings=Manage Settings
-
-subscribe_interface.nosubs.text=Track entries, comments, and account updates by clicking the [[img]] icon or the "Track This" link that appears on entries, comments, and the Profile page.
-
-subscribe_interface.nosubs.title2=You aren't tracking any items
-
-subscribe_interface.notify_me=Notify me when...
-
-subscribe_interface.notify_me2=Notify me in my [[sitenameabbrev]] Inbox when:
-
-subscribe_interface.save=Save
-
-subscribe_interface.special_subs.note=These notification options are only available by email and won't show in your [[sitenameabbrev]] Inbox.
-
-subscribe_interface.subs.total2=You are using [[active]] out of [[max_active]] active notifications.
-
-subscribe_interface.unavailable_subs.note=These notification options are only available to certain account types.
 
 success=Success
 
@@ -4228,7 +4190,7 @@ taglib.error.mergenoname=You did not provide a tag name you want to merge to.
 
 taglib.error.mergetoexisting=The tag name '[[tagname]]' is already in use, but you did not select it. Please select the tag or merge to a different tag name.
 
-taglib.error.notcanonical=The tag name '[[beforetag]]' is too long or not canonical. You may want to try '[[aftertag]]' instead.
+taglib.error.toolong=The tag name '[[beforetag]]' is too long. You may want to try '[[aftertag]]' instead.
 
 taglib.error.toomany3=Adding this tag would exceed your maximum of [[max]] tags.  You will not be able to add new tags until you delete [[excess]] existing [[?excess|tag|tags]].
 
@@ -4274,6 +4236,8 @@ talk.curname_Tags=<b>Entry tags:</b>
 talk.curname_xpost=<b>Crossposts:</b>
 
 talk.error.bogusargs=Bogus arguments
+
+talk.error.bad_owner=URL doesn't match journal owner
 
 talk.error.cantedit=You can't edit comments.
 
@@ -4478,6 +4442,8 @@ Username=Account name
 userpic.inactive=Inactive
 
 userpic.link=userpic
+
+userpic.suspended=Suspended
 
 userpic.text=[[user]], this is what you currently look like to your friends: [[empty]]<br />Boooring. Be classy and upload a [[link]].
 
@@ -4715,6 +4681,12 @@ web.controlstrip.status.yournetworkpage=You're viewing your Network Page.
 
 web.controlstrip.status.yourreadingpage=You're viewing your Reading Page.
 
+web.controlstrip.switch.go=Switch
+
+web.controlstrip.switch.label=Switch account
+
+web.controlstrip.switch.signedout=Signed out — log in
+
 web.controlstrip.userpic.alt=Icon
 
 web.controlstrip.userpic.title=Edit Icons
@@ -4760,6 +4732,8 @@ widget.communitymanagement.title=Community Management
 widget.createaccount.error.birthdate.invalid2=You must enter a valid birthdate, including the year.
 
 widget.createaccount.error.birthdate.underage=You must be over 13 to create an account.
+
+widget.createaccount.error.tn_underage=We're very sorry, but you can't currently make an account. South Carolina and Tennessee laws require us to verify parental permission for any new user under 18. We don't have the resources to do that, so we can't let people from SC or TN under 18 join Dreamwidth. Please check back later as we fight this law in court.
 
 widget.createaccount.error.cannotcreate=There was an error creating your account.
 
@@ -5408,6 +5382,8 @@ widget.shopitemoptions.error.nocart=Unable to get a shopping cart for you.  Plea
 widget.shopitemoptions.error.notforsale=This purchase type is currently not for sale.
 
 widget.shopitemoptions.error.notloggedin=You must be logged in as a personal account in order to purchase paid time for yourself.
+
+widget.shopitemoptions.error.notype=Please select which type of account time you wish to purchase.
 
 widget.shopitemoptions.error.nousers=There are currently no active free users.
 

@@ -242,3 +242,80 @@ div.columns-2-r300 .columns-2-right {
 
 /* clearing element at the foot of Support index */
 .clear-floats { clear: both; }
+
+/* Account switcher caret + fold-out for the non-Foundation sitescheme variant.
+   (The Foundation masthead/control strip style this via their own stylesheets;
+   these baseline rules are more general and are overridden there.) */
+.account-links-active { display: inline; }
+
+.account-links-logout {
+    display: inline-block;
+    margin-left: .5em;
+}
+
+.account-switcher {
+    position: relative;
+    display: inline-block;
+}
+
+.account-switcher > summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.account-switcher > summary::-webkit-details-marker {
+    display: none;
+}
+
+.account-switcher > summary::after {
+    content: "\25BE";
+}
+
+.account-switcher[open] > summary::after {
+    content: "\25B4";
+}
+
+.account-switcher > ul {
+    position: absolute;
+    z-index: 100;
+    left: 0;
+    margin: .2em 0 0;
+    padding: .4em .6em;
+    min-width: 12em;
+    list-style: none;
+    white-space: nowrap;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+}
+
+.account-switcher li {
+    display: block;
+    margin: .2em 0;
+    white-space: nowrap;
+}
+
+.account-switcher .switch-account-form {
+    display: inline-block;
+    margin-left: .75em;
+}
+
+.account-switcher .switch-account-btn {
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: #00539b;
+    cursor: pointer;
+}
+
+.account-switcher .switch-account-btn:hover {
+    text-decoration: underline;
+}
+
+.account-switcher .switch-account-signedout {
+    margin-left: .75em;
+    font-style: italic;
+}

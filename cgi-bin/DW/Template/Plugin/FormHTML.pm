@@ -451,7 +451,7 @@ sub password {
 # ensures that we can easily associate the form element to its label
 sub generate_id {
     my ( $self, $args ) = @_;
-    return "id-" . $args->{name} . "-" . $self->{_id_gen_counter}++;
+    return "id-" . ( $args->{name} // '' ) . "-" . $self->{_id_gen_counter}++;
 }
 
 # populate the element's value, modifying the $args hashref
@@ -510,6 +510,8 @@ sub _process_errors {
 
     my @errors;
     @errors = $self->{errors}->get( $args->{name} ) if $self->{errors};
+    push @errors, ( { "message" => $args->{error} } )
+        if exists $args->{error} && length $args->{error};
 
     $args->{class} .= " error" if @errors;
 

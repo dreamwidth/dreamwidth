@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.9",
-    "yaml": "^2.2.2"
+    "yaml": "^2.8.3"
   },
   "name": "dreamwidth",
   "version": "1.0.0",

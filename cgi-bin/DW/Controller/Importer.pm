@@ -20,6 +20,7 @@ use strict;
 use warnings;
 
 use DW::Routing;
+use DW::Task::ImportEraser;
 use DW::Template;
 use LJ::Hooks;
 
@@ -276,36 +277,7 @@ sub render_choose_source {
     return error_ml('widget.importchoosesource.disabled1')
         unless LJ::is_enabled('importing');
 
-    my @services;
-
-    for my $service (
-        (
-            {
-                name         => 'livejournal',
-                url          => 'livejournal.com',
-                display_name => 'LiveJournal',
-            },
-            {
-                name         => 'insanejournal',
-                url          => 'insanejournal.com',
-                display_name => 'InsaneJournal',
-            },
-            {
-                name         => 'dreamwidth',
-                url          => 'dreamwidth.org',
-                display_name => 'Dreamwidth',
-            },
-        )
-        )
-    {
-        # only dev servers can import from Dreamwidth for testing
-        next if ( $service->{name} eq 'dreamwidth' ) && !$LJ::IS_DEV_SERVER;
-        push @services,
-            $service
-            if LJ::is_enabled( "external_sites",
-            { sitename => $service->{display_name}, domain => $service->{url} } );
-    }
-    $vars->{services} = \@services;
+    $vars->{services} = [ DW::Logic::Importer->allowed_sources ];
 
     return DW::Template->template_string( 'tools/importer/choose_source.tt', $vars );
 
@@ -475,8 +447,7 @@ sub erase_handler {
 
     # Confirmed, let's schedule.
     DW::TaskQueue->dispatch(
-        TheSchwartz::Job->new_from_array(
-            'DW::Worker::ImportEraser',
+        DW::Task::ImportEraser->new(
             {
                 userid => $rv->{u}->userid
             }

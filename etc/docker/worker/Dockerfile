@@ -14,7 +14,6 @@ ENV LJHOME /dw
 # Install some packages we need in workers only.
 RUN echo $COMMIT && \
     apt-get update && \
-    apt-get install -y mysql-client && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
     xargs apt-get -y install && \
     curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-cpanm | \
@@ -26,6 +25,12 @@ RUN git -C $LJHOME fetch && \
     git -C $LJHOME checkout $COMMIT && \
     git -C $LJHOME pull --ff-only origin $COMMIT
 
+# Build the LJ::UserSearch XS extension (in-memory directory-search index used
+# by the search-lookup worker). Harmless if other workers ignore it.
+RUN cd $LJHOME/src/LJ-UserSearch && \
+    perl Makefile.PL LIB=$LJHOME/cgi-bin PREFIX=$LJHOME/src/LJ-UserSearch/ && \
+    make all test install
+
 # Copy in support scripts/configurations that are useful.
 ADD scripts/ /opt/
 
@@ -33,6 +38,6 @@ ADD scripts/ /opt/
 # last minute configuration.
 RUN bash /opt/setup.sh
 
-# Kick off the startup script, which does some healthcheck and then starts
-# Apache if things look good.
+# Kick off the startup script, which runs a healthcheck and then runs the
+# worker command if things look good.
 CMD bash /opt/startup-prod.sh

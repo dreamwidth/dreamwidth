@@ -197,6 +197,21 @@ sub get_queued_imports {
     return DW::Logic::Importer->get_import_items( $u, $runningjob .. $latestimport->[0]->[0] );
 }
 
+sub allowed_sources {
+    my $class = shift;
+
+    my @sources = (
+        { name => 'livejournal',   url => 'livejournal.com',   display_name => 'LiveJournal' },
+        { name => 'insanejournal', url => 'insanejournal.com', display_name => 'InsaneJournal' },
+        { name => 'dreamwidth',    url => 'dreamwidth.org',    display_name => 'Dreamwidth' },
+    );
+
+    return grep { $_->{name} ne 'dreamwidth' || $LJ::IS_DEV_SERVER }
+        grep {
+        LJ::is_enabled( 'external_sites', { sitename => $_->{display_name}, domain => $_->{url} } )
+        } @sources;
+}
+
 sub set_import_data_for_user {
     my ( $class, $u, %opts ) = @_;
 
@@ -207,6 +222,10 @@ sub set_import_data_for_user {
 
     return "Did not pass hostname, username, and password."
         unless $hn && $un && $pw;
+
+    my %allowed = map { $_->{url} => 1 } $class->allowed_sources;
+    return "Hostname '$hn' is not an allowed import source."
+        unless $allowed{$hn};
 
     my $dbh = LJ::get_db_writer()
         or return "Unable to connect to database.";

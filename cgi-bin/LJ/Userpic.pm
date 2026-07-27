@@ -19,6 +19,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5;
+use DW::Cache;
 use Storable;
 
 use DW::BlobStore;
@@ -62,6 +63,10 @@ my %MimeTypeMap = (
 # all LJ::Userpics in memory
 # userid -> picid -> LJ::Userpic
 my %singletons;
+
+# file-scoped lexical, so it self-registers: cleared between requests/jobs, and
+# its byte size is measured for memory metrics
+DW::Cache->request->register_var( 'userpic_singletons', \%singletons );
 
 sub reset_singletons {
     %singletons = ();
@@ -123,6 +128,18 @@ sub get {
     return $obj->absorb_row($row) if $row;
 
     return undef;
+}
+
+# Parse a userpic URL ($LJ::USERPIC_ROOT/picid/userid, or any /userpic/picid/userid
+# path) and return the LJ::Userpic, or undef if it isn't one.
+sub new_from_url {
+    my ( $class, $url ) = @_;
+    return undef unless $url;
+    return undef
+        unless $url =~ m!^\Q$LJ::USERPIC_ROOT\E/(\d+)/(\d+)/?$!
+        || $url =~ m!/userpic/(\d+)/(\d+)/?$!;
+    my $u = LJ::load_userid($2) or return undef;
+    return $class->get( $u, $1 );
 }
 
 sub _skeleton {
@@ -254,6 +271,12 @@ sub expunged {
     my $self  = $_[0];
     my $state = defined $self->state ? $self->state : '';
     return $state eq 'X';
+}
+
+sub suspended {
+    my $self  = $_[0];
+    my $state = defined $self->state ? $self->state : '';
+    return $state eq 'S';
 }
 
 sub state {
@@ -585,7 +608,7 @@ sub keywords {
 sub imagedata {
     my $self = $_[0];
     $self->load_row or return undef;
-    return undef if $self->expunged;
+    return undef if $self->expunged || $self->suspended;
 
     my $data = DW::BlobStore->retrieve( userpics => $self->storage_key );
     return $data ? $$data : undef;
@@ -658,7 +681,8 @@ sub load_user_userpics {
     my $cache = $class->get_cache($u);
     return @$cache if $cache;
 
-    # select all of their userpics
+    # Only expunged ('X') pics are dropped; suspended ('S') pics stay so the
+    # serving handler finds them (via no_expunged) without a DB hit.
     my $data = $u->selectall_hashref(
         "SELECT userid, picid, width, height, state, fmt, comment,"
             . " description, location, url, UNIX_TIMESTAMP(picdate) AS 'pictime',"

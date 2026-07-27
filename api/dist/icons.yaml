@@ -60,6 +60,17 @@ paths:
                     example: "Bad format for username. Errors: String is too long: 77/25."
                   success:
                     type: number
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema: *a1
         "404":
           description: No such username or icon.
           schema: *a1
+        "500":
+          description: Server error, please try again later. If it persists, open a
+            support ticket.
+          content:
+            application/json:
+              schema: *a1

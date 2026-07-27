@@ -9,10 +9,10 @@
     <h3 class="smaller">[% theme.name %]</h3>
 
     [%- layout_link = "<a href='${site.root}/customize/$getextra${getsep}layoutid=${theme.layoutid}$showarg' class='theme-current-layout'><em>$layout_name</em></a>" -%]
-    [%- special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'" -%]
+    [%- special_link_opts = "href='${site.root}/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'" -%]
     <p class='theme-current-desc'>
     [%- IF designer -%]
-        [%- designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=${dw.url(designer)$showarg' class='theme-current-designer'>$designer</a>" -%]
+        [%- designer_link = "<a href='${site.root}/customize/$getextra${getsep}designer=${dw.url(designer)}$showarg' class='theme-current-designer'>$designer</a>" -%]
         [% dw.ml( 'widget.currenttheme.designer', { 'designer' => designer_link } ) %]
         [% dw.ml( 'widget.currenttheme.desc2', { 'style' => layout_link } ) %]
     [%- ELSIF layout_name -%]

@@ -50,8 +50,7 @@ $domaintosite{"dreamwidth.org"} =
 $domaintosite{"archiveofourown.org"} =
     DW::External::Site->new( "8", "www.archiveofourown.org", "archiveofourown.org",
     "ArchiveofOurOwn", "AO3" );
-$domaintosite{"twitter.com"} =
-    DW::External::Site->new( "9", "twitter.com", "twitter.com", "Twitter", "Twitter" );
+$domaintosite{"x.com"} = DW::External::Site->new( "9", "x.com", "x.com", "X", "X" );
 $domaintosite{"tumblr.com"} =
     DW::External::Site->new( "10", "tumblr.com", "tumblr.com", "Tumblr", "Tumblr" );
 $domaintosite{"etsy.com"} =
@@ -71,7 +70,7 @@ $domaintosite{"ravelry.com"} =
 $domaintosite{"wordpress.com"} =
     DW::External::Site->new( "18", "wordpress.com", "wordpress.com", "Wordpress", "WP" );
 $domaintosite{"plurk.com"} =
-    DW::External::Site->new( "19", "plurk.com", "plurk.com", "Plurk", "Plurk" );
+    DW::External::Site->new( "19", "www.plurk.com", "plurk.com", "Plurk", "Plurk" );
 $domaintosite{"pinboard.in"} =
     DW::External::Site->new( "20", "www.pinboard.in", "pinboard.in", "Pinboard", "Pinboard" );
 $domaintosite{"fanfiction.net"} =
@@ -113,6 +112,11 @@ $domaintosite{"artstation.com"} =
 $domaintosite{"ko-fi.com"} =
     DW::External::Site->new( "34", "www.ko-fi.com", "ko-fi.com", "Kofi", "kofi" );
 
+$domaintosite{"bsky.app"} =
+    DW::External::Site->new( "35", "bsky.app", "bsky.app", "Bluesky", "atproto" );
+$domaintosite{"bsky.social"} =
+    DW::External::Site->new( "36", "bsky.app", "bsky.social", "BlueskySocial", "atproto" );
+
 @all_sites_without_alias = values %domaintosite;
 
 # without tld
@@ -132,7 +136,6 @@ $domaintosite{"dw"}              = $domaintosite{"dreamwidth.org"};
 $domaintosite{"archiveofourown"} = $domaintosite{"archiveofourown.org"};
 $domaintosite{"ao3.org"}         = $domaintosite{"archiveofourown.org"};
 $domaintosite{"ao3"}             = $domaintosite{"archiveofourown.org"};
-$domaintosite{"twitter"}         = $domaintosite{"twitter.com"};
 $domaintosite{"tumblr"}          = $domaintosite{"tumblr.com"};
 $domaintosite{"etsy"}            = $domaintosite{"etsy.com"};
 $domaintosite{"diigo"}           = $domaintosite{"diigo.com"};
@@ -163,6 +166,10 @@ $domaintosite{"artstation"}      = $domaintosite{"artstation.com"};
 $domaintosite{"substack"}        = $domaintosite{"substack.com"};
 $domaintosite{"itch"}            = $domaintosite{"itch.io"};
 $domaintosite{"kofi"}            = $domaintosite{"ko-fi.com"};
+$domaintosite{"bsky"}            = $domaintosite{"bsky.app"};
+$domaintosite{"x"}               = $domaintosite{"x.com"};
+$domaintosite{"twitter.com"}     = $domaintosite{"x.com"};
+$domaintosite{"twitter"}         = $domaintosite{"x.com"};
 
 foreach my $value (@all_sites_without_alias) {
     $idtosite{ $value->{siteid} } = $value;
@@ -208,7 +215,7 @@ sub get_site {
     }
     else {
         # validate each part of the domain based on RFC 1035
-        my @parts = grep { /^[a-z][a-z0-9\-]*?[a-z0-9]$/ }
+        my @parts = grep { /^[a-z][a-z0-9\-]*?[a-z0-9]*$/ }
             map { lc $_ }
             split( /\./, $site );
 
@@ -220,6 +227,16 @@ sub get_site {
     }
 
     return $mapped || undef;
+}
+
+sub get_deadsites {
+    return (
+        "del.icio.us"    => 1,
+        "diigo.com"      => 1,
+        "imzy.com"       => 1,
+        "inksome.com"    => 1,
+        "journalfen.net" => 1
+    );
 }
 
 # returns a list of all supported sites for linking

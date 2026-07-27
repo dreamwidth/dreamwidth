@@ -28,7 +28,7 @@
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-create-group": "true",
-                    "awslogs-group": "/dreamwidth/worker",
+                    "awslogs-group": "/dreamwidth/worker/esn-fired-event",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "worker"
                 }

@@ -25,10 +25,10 @@ note("Username with capital letters");
 {
     my $u = DW::External::User->new(
         user => "ExampleUsername",
-        site => "twitter.com"
+        site => "x.com"
     );
 
-    is( $u->site->{hostname}, "twitter.com",     "Site is twitter.com" );
+    is( $u->site->{hostname}, "x.com",           "Site is x.com" );
     is( $u->user,             "ExampleUsername", "Keep capital letters" );
 }
 
@@ -47,10 +47,10 @@ note("Username with spaces");
 {
     my $u = DW::External::User->new(
         user => " exampleusername    ",
-        site => "twitter.com"
+        site => "x.com"
     );
 
-    is( $u->site->{hostname}, "twitter.com",     "Site is twitter.com" );
+    is( $u->site->{hostname}, "x.com",           "Site is x.com" );
     is( $u->user,             "exampleusername", "Ignore spaces" );
 }
 
@@ -69,7 +69,7 @@ note("Username with non-alphanumeric punctuation");
 {
     my $u = DW::External::User->new(
         user => "<exampleusername>",
-        site => "twitter.com"
+        site => "x.com"
     );
 
     is( $u, undef, "Looks weird. Reject it" );
@@ -89,12 +89,12 @@ note("Username with hyphen");
 {
     my $u = DW::External::User->new(
         user => "example-username",
-        site => "twitter.com"
+        site => "x.com"
     );
 
-    is( $u->site->{hostname}, "twitter.com",      "Site is twitter.com" );
+    is( $u->site->{hostname}, "x.com",            "Site is x.com" );
     is( $u->user,             "example-username", "Hyphens are ok" );
-    is( $u->site->journal_url($u), "http://twitter.com/example-username" );
+    is( $u->site->journal_url($u), "http://x.com/example-username" );
 }
 
 note("Username with hyphen (LJ-based site)");

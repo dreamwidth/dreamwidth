@@ -24,6 +24,8 @@ use Digest::MD5 qw/ md5_hex /;
 use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::XML::Parser;
+use DW::Task::SearchCopier;
+use DW::Search;
 use DW::Worker::ContentImporter::Local::Comments;
 
 # to save memory, we use arrays instead of hashes.
@@ -640,12 +642,9 @@ sub try_work {
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
 
     # Kick off an indexing job for this user
-    if (@LJ::SPHINX_SEARCHD) {
-        LJ::theschwartz()->insert_jobs(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "importcm" }
-            )
-        );
+    if ( DW::Search::enabled() ) {
+        DW::TaskQueue->dispatch(
+            DW::Task::SearchCopier->new( { userid => $u->id, source => "importcm" } ) );
     }
 
     return $ok->();
@@ -680,14 +679,47 @@ sub do_authed_comment_fetch {
     # if we don't have a session, then let's generate one
     $data->{_session} ||= $class->get_lj_session($data);
 
-    # hit up the server with the specified information and return the raw content
-    my $ua      = LWP::UserAgent->new;
+    # hit up the server with the specified information and return the raw content.
+    # don't auto-follow redirects: a successful export returns XML directly, so any
+    # 3xx means we were bounced (typically to login.bml when the source rejects our
+    # session) -- we want to see that explicitly rather than silently fetching the
+    # login page and failing the is-it-XML check below.
+    my $ua = LWP::UserAgent->new;
+    $ua->max_redirect(0);
     my $request = HTTP::Request->new( GET => $url );
     $request->push_header( Cookie => "ljsession=$data->{_session}" );
 
     # try to get the response
     my $response = $ua->request($request);
-    return if $response->is_error;
+
+    # a redirect almost always means the source didn't accept our session and is
+    # bouncing us to login -- log where it sent us so this is diagnosable from the logs.
+    if ( $response->is_redirect ) {
+        my $location = $response->header('Location') || '';
+        $log->(
+            'comment fetch (%s, startid=%d) from %s redirected: HTTP %s -> %s%s',
+            $mode,
+            $startid,
+            $data->{hostname},
+            $response->code,
+            $location,
+            ( $location =~ m!/login\.bml! ? ' (session not accepted)' : '' )
+        );
+        return undef;
+    }
+
+    # HTTP-level failure (4xx/5xx): log the status and any throttling hint so blocks
+    # or rate-limiting on the bulk export endpoint are visible in the import logs.
+    if ( $response->is_error ) {
+        my $retry = $response->header('Retry-After') || '';
+        $log->(
+            'comment fetch (%s, startid=%d) from %s failed: HTTP %s %s%s', $mode,
+            $startid,                                                      $data->{hostname},
+            $response->code,                                               $response->message,
+            ( length $retry ? " (Retry-After: $retry)" : '' )
+        );
+        return undef;
+    }
 
     # now get the content, ensure it's actually XML
     my $xml = $response->content;
@@ -700,7 +732,20 @@ sub do_authed_comment_fetch {
         return $xml;
     }
 
-    # total failure...
+    # 2xx but the body isn't XML (e.g. an error or login page) -- log enough to tell
+    # what came back instead of comment metadata.
+    my $snippet = substr( $xml || '', 0, 200 );
+    $snippet =~ s/\s+/ /g;
+    $log->(
+'comment fetch (%s, startid=%d) from %s returned non-XML: HTTP %s, ctype=%s, %d bytes; starts: %s',
+        $mode,
+        $startid,
+        $data->{hostname},
+        $response->code,
+        $response->content_type || '?',
+        length( $xml || '' ),
+        $snippet
+    );
     return undef;
 }
 

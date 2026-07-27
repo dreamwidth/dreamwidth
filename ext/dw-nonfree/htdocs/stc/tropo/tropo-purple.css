@@ -232,7 +232,7 @@ footer {
 .highlight-box {
     border: 1px solid;
 }
-.highlight, .highlight-box {
+.highlight, .highlight-box, .pagination .current {
     border-color: #7e27c1;
     background-color: #d3afec;
     color: #000;

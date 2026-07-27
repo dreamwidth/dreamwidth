@@ -1,0 +1,141 @@
+[%# manage/tags.tt
+  #
+  # Review and edit the tags defined in a journal. Interactive behavior is
+  # driven by js/tags.js, which reads the `ml` label object (below) and the
+  # per-tag `tags` array.
+  #
+  # Authors:
+  #     Mark Smith <mark@dreamwidth.org>
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+[%- sections.title = '.title2' | ml -%]
+[%- sections.bodyopts = 'onLoad="initTagPage()"' -%]
+[%- sections.head = BLOCK %]
+<script type="text/javascript">
+    var ml = new Object();
+
+    ml.counts_label   = [% '.label.counts' | ml | js %];
+    ml.public_label   = [% '.label.public' | ml | js %];
+    ml.private_label  = [% '.label.private' | ml | js %];
+    ml.trusted_label  = [% '.label.trusted' | ml | js %];
+    ml.filters_label  = [% '.label.filters' | ml | js %];
+    ml.total_label    = [% '.label.total' | ml | js %];
+    ml.security_label = [% '.label.security' | ml | js %];
+    ml.na_label       = [% '.label.notapplicable' | ml | js %];
+    ml.rename_btn     = [% '.button.rename' | ml | js %];
+    ml.merge_btn      = [% '.button.merge' | ml | js %];
+</script>
+[%- END -%]
+
+[% INCLUDE components/errors.tt errors = errors %]
+
+[%# user switcher (own journal or a community you maintain); the compact
+  # non-foundation switcher keeps this page on its classic layout %]
+<form method="get">[% authas_html %]</form>
+
+<p>[% '.intro' | ml %]</p>
+
+[%# tag data for js/tags.js property display (temporary; see js/tags.js) %]
+<script type="text/javascript">
+var tags = new Array();
+[% FOREACH t IN tags_js -%]
+tags[[% t.id %]] = [ [% t.name | js %], '[% t.level %]', [% t.pub %], [% t.pri %], [% t.fr %], [% t.grp %], [% t.tot %] ];
+[% END -%]
+</script>
+
+<form method="POST" name="tagform" id="tagform">
+[% dw.form_auth %]
+<table summary='' id="table_managetags" cellpadding="0" cellspacing="0" align="center">
+<tr><td valign="top">
+    <fieldset>
+        <legend>[% '.label.yours' | ml( tagnum => tagcount, tagmax => tagmax ) %]</legend>
+        <div style="padding-top: 6px;">
+[% IF tagcount %]
+            <select name='tags' id='tags' multiple='multiple' class='multiple-select tagbox' onChange='tagselect(this)'>
+  [%- FOREACH t IN tag_options %]
+                <option class='level[% t.level %]' value='[% t.id %]_[% t.name | html %]'>[% t.name | html %]</option>
+  [%- END %]
+            </select>
+            <div class='tagsort'>
+  [%- IF sort == 'use' %]
+                [% '.sort.a' | ml( aopts => "href='" _ site.root _ "/manage/tags?authas=" _ u.user _ "&amp;sort=alpha'" ) %]
+  [%- ELSE %]
+                [% '.sort.b' | ml( aopts => "href='" _ site.root _ "/manage/tags?authas=" _ u.user _ "&amp;sort=use'" ) %]
+  [%- END %]
+            </div>
+[% ELSE %]
+            <div class='taginfo'>[% '.none' | ml %]</div>
+[% END %]
+            <div style="margin-top: 10px">
+                [% form.textbox( name = 'add_field', size = 20, style = 'width: 260px',
+                                 class = 'tagfield', value = ( did_post ? '' : add_text ),
+                                 onclick = "reset_field(this, '" _ add_text _ "')" ) %]
+                &nbsp;
+                <input type='image' name='add' src='/img/rte/post_button_text_larger.gif'
+                       border='0' align='middle' title='[% '.hint.create' | ml %]'
+                       onClick='return validate_input(this, "add_field", [% add_text | js %])'>
+            </div>
+        </div>
+    </fieldset>
+</td>
+<td valign="top">
+[% IF tagcount %]
+    <fieldset><legend>[% '.label.tags' | ml %]</legend>
+    <div style="padding-top: 6px;">
+        <div id='selected_tags'>&nbsp;</div>
+        <div style='white-space: nowrap'>
+            [% form.textbox( name = 'rename_field', size = 30, class = 'tagfield',
+                             onclick = 'reset_field(this)' ) %]
+            &nbsp;&nbsp;
+            [% form.submit( name = 'rename', value = dw.ml('.button.rename'), class = 'btn',
+                            title = dw.ml('.hint.rename'),
+                            onclick = 'return validate_input(this, "rename_field")' ) %]
+            <br /><br />
+            [% form.textbox( name = 'merge_field', size = 30, class = 'tagfield',
+                             onclick = 'reset_field(this)' ) %]
+            &nbsp;&nbsp;
+            [% form.submit( name = 'merge', value = dw.ml('.button.merge'), class = 'btn',
+                            title = dw.ml('.hint.merge'),
+                            onclick = "return confirm('" _ merge_confirm _ "')" ) %]
+            <br /><br />
+            [% form.submit( name = 'delete', value = dw.ml('.button.delete'), class = 'btn',
+                            title = dw.ml('.hint.delete'),
+                            onclick = "return confirm('" _ delete_confirm _ "')" ) %]
+            &nbsp;&nbsp;
+            [% form.submit( name = 'show posts', value = dw.ml('.button.show'), class = 'btn',
+                            title = dw.ml('.hint.entries') ) %]
+        </div>
+        <br />
+        <div id="tag_props">&nbsp;</div>
+    </div>
+    </fieldset>
+[% ELSE %]
+    &nbsp;
+[% END %]
+</td></tr>
+<tr><td colspan="2">
+    <br />
+    <fieldset><legend>[% '.label.settings' | ml %]</legend>
+    <div style="padding-top: 6px;">
+        <div class='tagsec'>
+            [% form.select( name = 'control_level', selected = control_level, items = control_groups ) %]
+            [% '.setting.desc.control2' | ml %]
+        </div>
+        <div class='tagsec'>
+            [% form.select( name = 'add_level', selected = add_level, items = add_groups ) %]
+            [% '.setting.desc.add' | ml %]
+        </div>
+        <div align='center'>
+            [% form.submit( name = 'save_levels', value = dw.ml('.button.save'), class = 'btn', title = 'Save' ) %]
+        </div>
+    </div>
+    </fieldset>
+</td></tr>
+</table>
+</form>

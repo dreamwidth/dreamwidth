@@ -25,6 +25,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw(croak);
 use DateTime;
+use DW::Task::MassPrivacy;
 
 sub schwartz_capabilities {
     return qw(LJ::Worker::MassPrivacy);
@@ -58,8 +59,7 @@ sub enqueue_job {
         }
     }
 
-    return DW::TaskQueue->dispatch(
-        TheSchwartz::Job->new_from_array( "LJ::Worker::MassPrivacy", \%opts ) );
+    return DW::TaskQueue->dispatch( DW::Task::MassPrivacy->new( \%opts ) );
 }
 
 sub handle {

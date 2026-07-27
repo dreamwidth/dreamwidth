@@ -2,7 +2,7 @@
 # This creates a Dreamwidth proxy container.
 #
 
-FROM  ubuntu:18.04
+FROM  ubuntu:24.04
 LABEL org.opencontainers.image.authors="Mark Smith <mark@dreamwidth.org>"
 
 # Configuration can go here.

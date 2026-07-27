@@ -27,18 +27,12 @@
     [% END %]
 [% END %]
 [% cart_display %]
-    [% IF prem_convert %]
-           <div class="error-box">
-            [% dw.ml( '.error.premiumconvert', ml_args) %]
-            [% dw.ml( '.error.premiumconvert.postdate', ml_args ) IF ml_args.date %]
-            </div>
-[% END %]
 
     [% IF for == 'self' %]
-        <div class='leftybox'>[% dw.ml( '.intro.self', { user => remote.ljuser_display, aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) %]</div>
+        <div class='leftybox'>[% dw.ml( '.intro.self', { user => remote.ljuser_display, aopts => "href='${site.help.paidaccountinfo}'" } ) %]</div>
         [% paid_status %]
     [% ELSIF for.size > 0 %]
-        <p>[% dw.ml( ".intro.$for", { aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) %]</p>
+        <p>[% dw.ml( ".intro.$for", { aopts => "href='${site.help.paidaccountinfo}'" } ) %]</p>
     [% END %]
 
     <div style='clear: both;'></div>

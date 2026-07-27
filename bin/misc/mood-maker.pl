@@ -47,8 +47,8 @@ foreach my $path ( glob( $LJ::HOME . '/htdocs/img/mood/' . $dir . "/*" ) ) {
     my $url = $path;
     $url =~ s#\Q$LJ::HOME\E/htdocs##;
     my ($mood) = fileparse( $path, qr/\.[^.]*/ );
-    die "Mood $mood does not exist!" unless exists $moods{$mood};
+    die "Mood $mood does not exist!" unless exists $moods{ lc($mood) };
     my ( $w, $h ) = Image::Size::imgsize($path);
     die "Could not get image dimensions of $path" unless $w && $h;
-    print $moods{$mood}, " ", $url, " ", $w, " ", $h, "\n";
+    print $moods{ lc($mood) }, " ", $url, " ", $w, " ", $h, "\n";
 }

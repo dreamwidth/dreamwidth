@@ -1,0 +1,66 @@
+;; -*- coding: utf-8 -*-
+.btn.create=Create
+
+.btn.update=Update
+
+.error.createfailed=Unable to create the account. Please try again later.
+
+.error.ipban=Too many log-in attempts. Please try creating the account again later.
+
+.error.maxacct.plural=You are already at your limit of [[max_accts]] accounts.
+
+.error.maxacct.singular=You're already at your limit of [[max_accts]] account.
+
+.error.password.invalid=Invalid password.
+
+.error.servicename.required=Service Name is required.
+
+.error.servicetype=No Service type [[servicetype]].
+
+.error.servicetype.required=Service Type is required.
+
+.error.serviceurl.required=Service URL is required.
+
+.error.url=Error connecting to service:  [[url]]
+
+.error.username.invalid=Invalid username.
+
+.error.username.required=Username is required.
+
+.label.password=Password
+
+.label.password.info=(Please make sure you have caps-lock disabled and enter the correct password.)
+
+.label.recordlink=Display Cross Post Links
+
+.label.savepassword=Save Password
+
+.label.servicename=Custom Service Name
+
+.label.servicetype=Custom Service Type
+
+.label.serviceurl=Custom Service URL
+
+.label.site=Site
+
+.label.site.custom=Other Site
+
+.label.username=Account Name
+
+.label.username.info=(Please enter a valid username on the selected service. Crossposting to community accounts is not possible.)
+
+.label.xpostbydefault=Crosspost by Default
+
+.protocol.ljxmlrpc.minsecurity.desc=Minimum Security
+
+.protocol.ljxmlrpc.minsecurity.friends=Friends
+
+.protocol.ljxmlrpc.minsecurity.private=Private
+
+.protocol.ljxmlrpc.minsecurity.public=Public
+
+.protocol.options=[[protocol]] options
+
+.title.edit=Edit External Account
+
+.title.new=New External Account

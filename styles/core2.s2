@@ -280,6 +280,13 @@ class UserLink
     var readonly UserLink[] children "Not Implemented: An array of child UserLink objects.";
 }
 
+class SessionMsg
+"A site session message to show the user."
+{
+    var readonly string level "The message importance level";
+    var readonly string item "The text content of the message";
+}
+
 class UserLite
 "A 'lite' version of a [class[User]] which the system often has more readily-available than a full version."
 {
@@ -624,6 +631,8 @@ class Page
 
     var Link{} data_link "Links to various machine-readable data sources relating to this page";
     var string[] data_links_order "An array of data views which can be used to order the data_link hash";
+
+    var SessionMsg[] session_msgs "An array of session messages to display at the top of the page";
 
     var readonly string customtext_title "Header of customtext module";
     var readonly string customtext_url "URL for header of customtext module";
@@ -4936,6 +4945,18 @@ function Page::print()
     """
                     <div id="primary"><div class="inner">
                         """;
+                        foreach var SessionMsg msg ($.session_msgs) {
+                            """
+                            <div class="radius session-msg-box $msg.level">
+                                <span class="invisible"><b>$msg.level:</b> </span>
+                            """;
+                            print safe """
+                                $msg.item
+                            """;
+                            """
+                            </div>
+                            """;
+                        }
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->

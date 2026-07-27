@@ -1,0 +1,163 @@
+@import "foundation/base";
+table .field_block {
+    margin: 0.25em 0;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+
+    input, select {
+        margin-bottom: 0;
+    }
+
+    td {
+        vertical-align: top;
+        padding: 0.5em;
+    }
+}
+
+.selectvis .view_options, .view_options > .view_options, .selectvis label {display: none; }
+table td.services {
+    padding: 0 !important;
+}
+
+.other_services {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.service_block {
+    flex-basis: 50%;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+
+    .field_name {
+        flex-basis: 38%;
+        flex-shrink: 0;
+        height: 100%;
+        padding: 0.75em;
+
+        &.service_new {
+            padding: 0.5em;
+
+            select {
+                width: 100%;
+            }
+        }
+    }
+
+    input {
+        flex-shrink: 1;
+        flex-grow: 1;
+        margin: 0.25em 0.25em;
+    }
+}
+
+.field_name {
+    padding-right: 0.25em;
+    padding-left: 2px;
+    white-space: nowrap;
+    font-weight: bold;
+    text-align: right;
+    width: 8em;
+}
+.field_block .field_name {
+    padding-top: .6em;
+}
+
+.helper {
+    font-size: 0.8em;
+    padding-right: 3em;
+
+    li, td {
+        font-size: 1em;
+    }
+}
+
+.example p {
+    font-size: 0.8em;
+}
+
+.section_head {
+    font-size: 1.3em;
+    font-weight: bold;
+    padding: 0.2em 0.8em;
+
+    &+ p {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+    }
+}
+
+.section_subhead {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-top: 0.25em;
+    border-bottom: 3px ridge #fff;
+}
+
+.bday_field input {
+    display:  inline-block;
+}
+
+.view_options {
+    font-size: smaller;
+}
+
+.check-cell {
+    width: 1em;
+}
+
+.label-cell {
+    vertical-align: middle;
+}
+
+@media #{$medium-only} {
+    .service_block {
+        flex-basis: 100%;
+    }
+}
+
+@media #{$small-only} {
+    .service_block {
+        flex-basis: 100%;
+
+        .field_name {
+            height: auto;
+            flex-basis: 100%;
+        }
+    }
+
+    table {
+        tr td, .field_name {
+            display: inline-block; 
+            width: 100%;
+
+            &.check-cell {
+                width: 1em;
+            }
+
+            &.label-cell {
+                width: 90%;
+            }
+        }
+    }
+    
+    .field_name {
+        text-align: left;
+    }
+
+    .selectvis, td.view_options {
+        text-align: right;
+    }
+
+    .section_head .view_options {display: none; }
+    .selectvis .view_options, .view_options > .view_options, .selectvis label {display: inline; font-size: 1em; }
+
+}
+
+.check-cell {
+    width: 1em;
+}

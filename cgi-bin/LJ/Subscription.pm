@@ -20,6 +20,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ croak confess /;
 
+use DW::Stats;
 use LJ::Event;
 use LJ::NotificationMethod;
 use LJ::Subscription::Pending;
@@ -566,36 +567,64 @@ sub notification {
     my $subscr = shift;
     my $class  = LJ::NotificationMethod->class( $subscr->{ntypeid} );
 
-    my $note;
-    if ( $LJ::DEBUG{'official_post_esn'} && $subscr->etypeid == LJ::Event::OfficialPost->etypeid ) {
-
-        # we had (are having) some problems with subscriptions to millions of people, so
-        # this exists for now for debugging that, without actually emailing/inboxing
-        # those people while we debug
-        $note = LJ::NotificationMethod::DebugLog->new_from_subscription( $subscr, $class );
-    }
-    else {
-        $note = $class->new_from_subscription($subscr);
-    }
+    my $note = $class->new_from_subscription($subscr);
 
     return $note;
 }
 
 sub process {
     my ( $self, @events ) = @_;
-    my $note = $self->notification or return;
 
-    # pass along debugging information from the schwartz job
-    $note->{_debug_headers} = $self->{_debug_headers} if $LJ::DEBUG{esn_email_headers};
+    my $trace = @events ? join( ':', $events[0]->raw_params ) : '';
 
-    return 1
-        if $self->etypeid == LJ::Event::OfficialPost->etypeid
-        && !LJ::is_enabled('officialpost_esn');
+    my $note = $self->notification;
+    unless ($note) {
+        $log->debug(
+            sprintf(
+'[esn %s] ESN skip process user=%s(%d) sub=%d reason=notification_construction_failed',
+                $trace, $self->owner->user, $self->owner->id, $self->id
+            )
+        );
+        DW::Stats::increment(
+            'dw.esn.process',
+            1,
+            [
+                'result:failed', 'reason:notification_construction_failed',
+                "etypeid:" . $self->etypeid
+            ]
+        );
+        return;
+    }
+
+    if ( $self->etypeid == LJ::Event::OfficialPost->etypeid
+        && !LJ::is_enabled('officialpost_esn') )
+    {
+        DW::Stats::increment( 'dw.esn.process', 1,
+            [ 'result:skipped', 'reason:officialpost_disabled', "etypeid:" . $self->etypeid ] );
+        return 1;
+    }
 
   # significant events (such as SecurityAttributeChanged) must be processed even for inactive users.
-    return 1
-        unless $self->notify_class->configured_for_user( $self->owner )
-        || LJ::Event->class( $self->etypeid )->is_significant;
+    unless ( $self->notify_class->configured_for_user( $self->owner )
+        || LJ::Event->class( $self->etypeid )->is_significant )
+    {
+        my $owner = $self->owner;
+        $log->debug(
+            sprintf(
+'[esn %s] ESN skip process user=%s(%d) sub=%d method=%s reason=not_configured_for_user',
+                $trace, $owner->user, $owner->id, $self->id, $self->notify_class
+            )
+        );
+        DW::Stats::increment(
+            'dw.esn.process',
+            1,
+            [
+                'result:skipped',                'reason:not_configured_for_user',
+                "method:" . $self->notify_class, "etypeid:" . $self->etypeid,
+            ]
+        );
+        return 1;
+    }
 
     return $note->notify(@events);
 }

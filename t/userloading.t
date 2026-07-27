@@ -89,8 +89,10 @@ memcache_stress(
 );
 
 sub is_empty {
-    is( scalar keys %LJ::REQ_CACHE_USER_NAME, 0, "reqcache for users is empty" );
-    is( scalar keys %LJ::REQ_CACHE_USER_ID,   0, "reqcache for userids is empty" );
+    is( scalar keys %{ DW::Cache->request->{store}{user_name} // {} },
+        0, "reqcache for users is empty" );
+    is( scalar keys %{ DW::Cache->request->{store}{user_id} // {} },
+        0, "reqcache for userids is empty" );
 }
 
 sub run_tests {

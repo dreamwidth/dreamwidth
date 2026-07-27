@@ -16,14 +16,14 @@ use strict;
 
 use LJ::Global::Constants;
 use LJ::Lang;
+use DW::Cache;
 
 # <LJFUNC>
 # name: LJ::Tags::get_usertagsmulti
 # class: tags
 # des: Gets a bunch of tags for the specified list of users.
 # args: opts?, uobj*
-# des-opts: Optional hashref with options. Keys can be 'no_gearman' to skip gearman
-#           task dispatching.
+# des-opts: Optional hashref with options (currently unused).
 # des-uobj: One or more user ids or objects to load the tags for.
 # returns: Hashref; { userid => *tagref*, userid => *tagref*, ... } where *tagref* is the
 #          return value of LJ::Tags::get_usertags -- undef on failure
@@ -48,7 +48,7 @@ sub get_usertagsmulti {
     foreach my $u (@uobjs) {
 
         # don't load if we've previously gotten this one
-        if ( my $cached = $LJ::REQ_CACHE_USERTAGS{ $u->{userid} } ) {
+        if ( my $cached = DW::Cache->request->get( 'usertags', $u->{userid} ) ) {
             $res->{ $u->{userid} } = $cached;
             next;
         }
@@ -66,47 +66,14 @@ sub get_usertagsmulti {
             my $jid = $1;
 
             # set this up in our return hash and mark unneeded
-            $LJ::REQ_CACHE_USERTAGS{$jid} = $memc->{$key};
+            DW::Cache->request->set( 'usertags', $jid, $memc->{$key} );
             $res->{$jid} = $memc->{$key};
             delete $need{$jid};
         }
     }
     return $res unless %need;
 
-    # if we're not using gearman, or we're not in web context (implies that we're
-    # in gearman context?) then we need to use the loader to get the data
-    my $gc = LJ::gearman_client();
-    return LJ::Tags::_get_usertagsmulti( $res, values %need )
-        unless LJ::conf_test( $LJ::LOADTAGS_USING_GEARMAN, values %need )
-        && $gc
-        && !$opts->{no_gearman};
-
-    # spawn gearman jobs to get each of the users
-    my $ts = $gc->new_task_set();
-    foreach my $u ( values %need ) {
-        $ts->add_task(
-            Gearman::Task->new(
-                "load_usertags",
-                \"$u->{userid}",
-                {
-                    uniq        => '-',
-                    on_complete => sub {
-                        my $resp = shift;
-                        my $tags = Storable::thaw($$resp);
-                        return unless $tags;
-
-                        $LJ::REQ_CACHE_USERTAGS{ $u->{userid} } = $tags;
-                        $res->{ $u->{userid} } = $tags;
-                        delete $need{ $u->{userid} };
-                    },
-                }
-            )
-        );
-    }
-
-    # now wait for gearman to finish, then we're done
-    $ts->wait( timeout => 15 );
-    return $res;
+    return LJ::Tags::_get_usertagsmulti( $res, values %need );
 }
 
 # internal sub used by get_usertagsmulti
@@ -273,7 +240,7 @@ sub _get_usertagsmulti {
             $res->{$jid} ||= {};
             $res->{$jid}->{$_}->{security_level} ||= 'private' foreach keys %{ $res->{$jid} };
 
-            $LJ::REQ_CACHE_USERTAGS{$jid} = $res->{$jid};
+            DW::Cache->request->set( 'usertags', $jid, $res->{$jid} );
             LJ::MemCache::add( [ $jid, "tags:$jid" ], $res->{$jid} );
         }
     }
@@ -645,6 +612,22 @@ sub get_permission_levels {
 }
 
 # <LJFUNC>
+# name: LJ::Tags::canonical_tag
+# class: tags
+# des: Convert a string to a canonical tag.
+# args: tag
+# des-tag: Opaque tag string provided by the user.
+# returns: Canonical tag (lowercase, spaces squashed, trimmed to CMAX_KEYWORD chars)
+# </LJFUNC>
+sub canonical_tag {
+    my $tag = shift;
+    $tag =~ s/\s+/ /g;    # condense multiple spaces to a single space
+    $tag = LJ::text_trim( $tag, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
+    $tag = LJ::utf8_lc($tag);
+    return $tag;
+}
+
+# <LJFUNC>
 # name: LJ::Tags::is_valid_tagstring
 # class: tags
 # des: Determines if a string contains a valid list of tags.
@@ -673,13 +656,6 @@ sub is_valid_tagstring {
         return 0 unless $tag =~ /^(?:.+\s?)+$/;    # one or more "words"
         return 1;
     };
-    my $canonical_tag = sub {
-        my $tag = shift;
-        $tag =~ s/\s+/ /g;                         # condense multiple spaces to a single space
-        $tag = LJ::text_trim( $tag, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
-        $tag = LJ::utf8_lc($tag);
-        return $tag;
-    };
 
     # now iterate
     my @list = grep { length $_ }                  # only keep things that are something
@@ -691,7 +667,7 @@ sub is_valid_tagstring {
     foreach my $tag (@list) {
 
         # canonicalize and determine validity
-        $tag = $canonical_tag->($tag);
+        $tag = LJ::Tags::canonical_tag($tag);
         return 0 unless $valid_tag->($tag);
 
         # now push on our list
@@ -1122,7 +1098,7 @@ sub reset_cache {
 
         # standard user tags cleanup
         unless ($jitemid) {
-            delete $LJ::REQ_CACHE_USERTAGS{ $u->{userid} };
+            DW::Cache->request->remove( 'usertags', $u->{userid} );
             LJ::MemCache::delete( [ $u->{userid}, "tags:$u->{userid}" ] );
         }
 
@@ -1343,6 +1319,17 @@ sub rename_usertag {
             }
         )
     ) unless $newkw eq $newname;    # Far from ideal UX-wise.
+
+    # validate tag length (in bytes)
+    return $err->(
+        LJ::Lang::ml(
+            'taglib.error.toolong',
+            {
+                beforetag => LJ::ehtml($newkw),
+                aftertag  => LJ::ehtml($newname)
+            }
+        )
+    ) unless length LJ::Tags::canonical_tag($newkw) <= LJ::BMAX_KEYWORD;
 
     # get a list of keyword ids to operate on
     my $kwid;

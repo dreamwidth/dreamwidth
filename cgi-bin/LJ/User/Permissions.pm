@@ -300,16 +300,6 @@ sub can_view_mailqueue {
     return $_[0]->get_cap('viewmailqueue') ? 1 : 0;
 }
 
-sub captcha_type {
-    my $u = $_[0];
-
-    if ( defined $_[1] ) {
-        $u->set_prop( captcha => $_[1] );
-    }
-
-    return $_[1] || $u->prop('captcha') || $LJ::DEFAULT_CAPTCHA_TYPE;
-}
-
 sub cc_msg {
     my ( $u, $value ) = @_;
     if ( defined $value && $value =~ /[01]/ ) {
@@ -734,12 +724,15 @@ sub in_class {
 }
 
 # 1/0; whether or not this account should be included in the global search
-# system.  this is used by the bin/worker/sphinx-copier mostly.
+# system.  Used by the search copier when deciding what to index.
 sub include_in_global_search {
     my $u = $_[0];
 
     # only P/C accounts should be globally searched
     return 0 unless $u->is_person || $u->is_community;
+
+    # ignore any accounts that haven't been screened for spam yet
+    return 0 unless $u->is_approved;
 
     # default) check opt_blockglobalsearch and use that if it's defined
     my $bgs = $u->prop('opt_blockglobalsearch');
@@ -756,6 +749,7 @@ sub include_in_global_search {
 # whether this user wants to have their content included in the latest feeds or not
 sub include_in_latest_feed {
     my $u = $_[0];
+    return 0 unless $u->is_approved;
     return $u->prop('latest_optout') ? 0 : 1;
 }
 
@@ -1411,11 +1405,21 @@ sub sticky_entries {
     return @entries;
 }
 
-# returns a list of sticky entry ids
+# returns a list of all sticky entry ids
 sub sticky_entry_ids {
     my $prop = $_[0]->prop('sticky_entry');
     return unless defined $prop;
     return split /,/, $prop;
+}
+
+# returns a list of active sticky entry ids
+sub sticky_entry_active_ids {
+    my ($u) = @_;
+    my $max = $u->count_max_stickies || 0;
+    my @ids = $u->sticky_entry_ids;
+    return unless @ids;
+    @ids = @ids[ 0 .. $max - 1 ] if scalar @ids > $max;
+    return @ids;
 }
 
 # returns a map of ditemid => 1 of the sticky entries

@@ -1,0 +1,79 @@
+[%# support/stock_answers.tt
+  #
+  # Manage the canned ("stock") support answers for each category.
+  # Rendered by DW::Controller::Support::StockAnswers.
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+[%- sections.title = '.title' | ml -%]
+[%- self_url = site.root _ '/support/stock_answers' -%]
+
+[%- IF mode == 'new' -%]
+<p>[% '.fill.out.following' | ml %]</p>
+<form method='post' action='[% self_url %]'>
+  [% dw.form_auth %]
+  <p>
+    [% '.category' | ml %]
+    [% form.select( name = 'spcatid', selected = spcatid, items = cat_items ) %]<br />
+    [% '.subject' | ml %] [% form.textbox( name = 'subject', maxlength = 255, size = 40 ) %]<br />
+    [% form.textarea( name = 'body', rows = 15, cols = 80 ) %]<br />
+    [% form.submit( name = 'action:new', value = dw.ml('.save.answer') ) %]
+  </p>
+</form>
+
+[%- ELSE -%]
+<form method='get' action='[% self_url %]'>
+  <p>
+    [% '.filter' | ml %]
+    [% form.select( name = 'spcatid', selected = spcatid, items = filter_items ) %]
+    [% form.submit( value = dw.ml('.show') ) %]
+  </p>
+</form>
+
+<p>[ <a href='[% self_url %]'>[% '.view.all' | ml %]</a> ]
+[%- IF canedit %] [ <a href='[% self_url %]?new=1&amp;spcatid=[% spcatid %]'>[% '.add.new.answer' | ml %]</a> ][% END %]
+</p>
+
+[%- IF message == 'added' %]
+<p><strong>[% '.answer.added' | ml %]</strong></p>
+[%- ELSIF message == 'saved' %]
+<p><strong>[% '.changes.saved' | ml %]</strong></p>
+[%- ELSIF message == 'deleted' %]
+<p><strong>[% '.answer.deleted' | ml %]</strong></p>
+[%- END %]
+
+[%- confirm_msg = dw.ml('.confirm.answer') -%]
+
+[%- FOREACH cat IN categories %]
+<h2><a href='[% self_url %]?spcatid=[% cat.spcatid %]'>[% cat.catname %]</a></h2>
+  [%- IF cat.override_catname %]
+<p>[% '.category.stock.answers' | ml %] [% cat.override_catname %].</p>
+  [%- END %]
+<ul>
+  [%- FOREACH ans IN cat.answers %]
+    [%- IF ans.has_body %]
+  <li>
+    <form method='post' action='[% self_url %]?ansid=[% ans.ansid %]&amp;spcatid=[% cat.spcatid %]'>
+      [% dw.form_auth %]
+      [% form.textbox( name = 'subject', value = ans.subject, size = 40, maxlength = 255 ) %]<br />
+      [% form.textarea( name = 'body', value = ans.body, rows = 15, cols = 80 ) %]<br />
+      [% '.last.modified.by' | ml %] [% ans.lastmoduser.ljuser_display %] on [% ans.lastmodtime %].<br />
+      [%- IF canedit %]
+      [% form.submit( name = 'action:save', value = dw.ml('.save_changes') ) %]
+      [% form.submit( name = 'action:delete', value = dw.ml('.delete.answer'),
+                      onclick = "return confirm('" _ confirm_msg _ "');" ) %]
+      [%- END %]
+    </form>
+  </li>
+    [%- ELSE %]
+  <li><a href='[% self_url %]?spcatid=[% cat.spcatid %]&amp;ansid=[% ans.ansid %]'>[% ans.subject | html %]</a></li>
+    [%- END %]
+  [%- END %]
+</ul>
+[%- END %]
+[%- END -%]

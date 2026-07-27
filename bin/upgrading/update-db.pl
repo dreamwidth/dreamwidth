@@ -39,13 +39,14 @@ my $opt_nostyles;
 my $opt_forcebuild    = 0;
 my $opt_compiletodisk = 0;
 my $opt_innodb;
-my $opt_poptest = 0;
+my $opt_poptest  = 0;
+my $opt_parallel = 0;
 
 exit 1
     unless GetOptions(
     "runsql"        => \$opt_sql,
     "drop"          => \$opt_drop,
-    "populate"      => \$opt_pop,
+    "populate|p"    => \$opt_pop,
     "confirm=s"     => \$opt_confirm,
     "cluster=s"     => \$cluster,
     "skip=s"        => \$opt_skip,
@@ -55,6 +56,7 @@ exit 1
     "forcebuild|fb" => \$opt_forcebuild,
     "ctd"           => \$opt_compiletodisk,
     "innodb"        => \$opt_innodb,
+    "parallel=i"    => \$opt_parallel,
     );
 
 $opt_nostyles = 1 unless LJ::is_enabled("update_styles");
@@ -74,6 +76,10 @@ if ($opt_help) {
       --nostyles     When used in combination with --populate, disables population
                      of style information.
       --innodb       Use InnoDB when creating tables.
+      --parallel=<n> Number of parallel processes for S2 compilation (default: 8)
+                     Set to 1 to disable parallelization and use original serial behavior.
+      --forcebuild   Force recompilation of ALL S2 layers, ignoring MD5 source checks.
+                     This will rebuild all system layers from scratch.
 ";
 }
 
@@ -190,6 +196,15 @@ CLUSTER: foreach my $cluster (@clusters) {
         drop_table($t);
     }
 
+    # If dbnotes didn't exist before but was just created, we can now run alters
+    if ( !$run_alter && $opt_sql ) {
+        my ($exists) = $dbh->selectrow_array("SHOW TABLES LIKE 'dbnotes'");
+        if ($exists) {
+            print "## dbnotes table was just created, running alters.\n";
+            $run_alter = 1;
+        }
+    }
+
     if ($run_alter) {
         ## do all the alters
         foreach my $s (@alters) {
@@ -197,7 +212,8 @@ CLUSTER: foreach my $cluster (@clusters) {
         }
     }
     else {
-        print "## Skipping alters this pass, please re-run once the 'dbnotes' table exists.";
+        print
+            "## Skipping alters this pass, re-run with -r to create tables and then run alters.\n";
     }
 
     $status{$cluster} = "OKAY";
@@ -265,6 +281,9 @@ sub populate_s2 {
 
     # S2
     print "Populating public system styles (S2):\n";
+    if ($opt_forcebuild) {
+        print "*** FORCE REBUILD MODE: All layers will be rebuilt regardless of changes ***\n";
+    }
     {
         my $sysid = $su->{'userid'};
 
@@ -277,7 +296,11 @@ sub populate_s2 {
         my %layer;    # maps redist_uniq -> { 'type', 'parent' (uniq), 'id' (s2lid) }
 
         my $has_new_layer = 0;
-        my $compile       = sub {
+        my @layers_to_compile;    # Array to store layer compilation jobs
+
+        # If force building, we definitely have "new" layers for cache clearing purposes
+        $has_new_layer = 1 if $opt_forcebuild;
+        my $compile = sub {
             my ( $base, $type, $parent, $s2source, $LD ) = @_;
             return unless $s2source =~ /\S/;
 
@@ -319,75 +342,92 @@ sub populate_s2 {
             my $md5_exist    = Digest::MD5::md5_hex($source_exist);
 
             $has_new_layer = 1 unless $source_exist;
+            $has_new_layer = 1 if $opt_forcebuild;     # Force cache clearing when force building
 
-            # skip compilation if source is unchanged and parent wasn't rebuilt.
+         # skip compilation if source is unchanged and parent wasn't rebuilt and not forcing rebuild
             return if $md5_source eq $md5_exist && !$layer{$parent}->{'built'} && !$opt_forcebuild;
 
             print "$base($id) is $type";
-            if ($parid) { print ", parent = $parent($parid)"; }
+            if ($parid)          { print ", parent = $parent($parid)"; }
+            if ($opt_forcebuild) { print " [FORCE REBUILD]"; }
             print "\n";
 
             # we're going to go ahead and build it.
             $layer{$base}->{'built'} = 1;
+
+            # Store compilation job for parallel processing
+            push @layers_to_compile,
+                {
+                base     => $base,
+                id       => $id,
+                sysid    => $sysid,
+                parid    => $parid,
+                type     => $type,
+                s2source => $s2source,
+                LD       => $LD,
+                };
+        };
+
+        # Function to compile a single layer (runs in child process)
+        my $compile_layer = sub {
+            my $job = shift;
 
             # Since we might fork, we disconnect here and then people can get a new one.
             LJ::DB::disconnect_dbs();
 
             # Fork out a child so it can compile. This saves us the memory usage.
             if ( my $pid = fork ) {
-                $dbh = LJ::get_db_writer();
-                waitpid $pid, 0;
-                die if $? >> 8 != 0;
-                return;
+                return $pid;    # Return the PID to parent
             }
             else {
+                # Child process
                 $dbh = LJ::get_db_writer();
+
+                # compile!
+                my $lay = {
+                    's2lid'  => $job->{id},
+                    'userid' => $job->{sysid},
+                    'b2lid'  => $job->{parid},
+                    'type'   => $job->{type},
+                };
+                my $error = "";
+                my $compiled;
+                my $info;
+
+                # do this in an eval, so that if the layer_compile call returns an error,
+                # we die and pass it up in $@.  but if layer_compile dies, it should pass up
+                # an error itself, which we can get.
+                eval {
+                    die $error
+                        unless LJ::S2::layer_compile(
+                        $lay,
+                        \$error,
+                        {
+                            's2ref'       => \$job->{s2source},
+                            'redist_uniq' => $job->{base},
+                            'compiledref' => \$compiled,
+                            'layerinfo'   => \$info,
+                        }
+                        );
+                };
+
+                if ($@) {
+                    print "S2 compilation failed: $@\n";
+                    exit 1;
+                }
+
+                if ($opt_compiletodisk) {
+                    open( CO, ">$job->{LD}/$job->{base}.pl" ) or die;
+                    print CO $compiled;
+                    close CO;
+                }
+
+                # put raw S2 in database.
+                LJ::S2::set_layer_source( $job->{id}, \$job->{s2source} );
+
+                # We are the child, so we can exit here.
+                exit;
             }
-
-            # compile!
-            my $lay = {
-                's2lid'  => $id,
-                'userid' => $sysid,
-                'b2lid'  => $parid,
-                'type'   => $type,
-            };
-            my $error = "";
-            my $compiled;
-            my $info;
-
-            # do this in an eval, so that if the layer_compile call returns an error,
-            # we die and pass it up in $@.  but if layer_compile dies, it should pass up
-            # an error itself, which we can get.
-            eval {
-                die $error
-                    unless LJ::S2::layer_compile(
-                    $lay,
-                    \$error,
-                    {
-                        's2ref'       => \$s2source,
-                        'redist_uniq' => $base,
-                        'compiledref' => \$compiled,
-                        'layerinfo'   => \$info,
-                    }
-                    );
-            };
-
-            if ($@) {
-                print "S2 compilation failed: $@\n";
-                exit 1;
-            }
-
-            if ($opt_compiletodisk) {
-                open( CO, ">$LD/$base.pl" ) or die;
-                print CO $compiled;
-                close CO;
-            }
-
-            # put raw S2 in database.
-            LJ::S2::set_layer_source( $id, \$s2source );
-
-            # We are the child, so we can exit here.
-            exit;
         };
 
         my @layerfiles = LJ::get_all_files( "styles/s2layers.dat", home_first => 1 );
@@ -443,7 +483,7 @@ sub populate_s2 {
                     while (<L>) {
                         if (/^\#NEWLAYER:\s*(\S+)/) {
                             my $newname = $1;
-                            $compile->( $curname, $type, $parent, $s2source );
+                            $compile->( $curname, $type, $parent, $s2source, $LD );
                             $curname  = $newname;
                             $s2source = "";
                         }
@@ -462,6 +502,193 @@ sub populate_s2 {
                 close L;
             }
             close SL;
+        }
+
+        # Now process all compilation jobs in dependency order with parallelization
+        if (@layers_to_compile) {
+            print "\nCompiling " . scalar(@layers_to_compile) . " layers in parallel...\n";
+
+            # Build dependency graph and compile in topological order
+            my %dependencies;     # base -> [list of dependencies]
+            my %rdependencies;    # base -> [list of things that depend on this]
+            my %pending_jobs;     # base -> job
+            my %completed;        # base -> 1 when done
+
+            # Build dependency mapping
+            for my $job (@layers_to_compile) {
+                my $base = $job->{base};
+                $pending_jobs{$base}  = $job;
+                $dependencies{$base}  = [];
+                $rdependencies{$base} = [];
+            }
+
+            # Now build dependencies after all jobs are in the pending_jobs hash
+            for my $job (@layers_to_compile) {
+                my $base   = $job->{base};
+                my $parent = $layer{$base}{parent};
+
+                # Add dependency if parent exists and is not a core layer
+                if ( $parent && $parent ne '-' ) {
+
+                    # Check if parent needs compilation (is in pending jobs)
+                    if ( exists $pending_jobs{$parent} ) {
+                        push @{ $dependencies{$base} },    $parent;
+                        push @{ $rdependencies{$parent} }, $base;
+                    }
+
+                    # If parent doesn't need compilation, mark it as completed
+                    # This handles the case where parent layers are up-to-date
+                    else {
+                        $completed{$parent} = 1;
+                    }
+                }
+            }
+
+            # Debug output if verbose
+            if ( $ENV{DW_DEBUG_S2} ) {
+                print "Dependency graph:\n";
+                for my $base ( sort keys %dependencies ) {
+                    my $deps =
+                        @{ $dependencies{$base} }
+                        ? join( ", ", @{ $dependencies{$base} } )
+                        : "none";
+                    print "  $base depends on: $deps\n";
+                }
+                print "Pre-completed layers: " . join( ", ", sort keys %completed ) . "\n"
+                    if %completed;
+            }
+
+            my @running_pids;    # Array of [pid, base] pairs
+            my $max_parallel = $opt_parallel || 8;    # Use command line option or default
+
+            # Special case: if parallel=1, use original serial behavior
+            if ( $max_parallel == 1 ) {
+                print "Using serial compilation (parallel=1)\n";
+                for my $job (@layers_to_compile) {
+                    my $pid = $compile_layer->($job);
+                    waitpid( $pid, 0 );
+                    die "S2 compilation failed" if $? >> 8 != 0;
+                }
+                $dbh = LJ::get_db_writer();
+                print "All layer compilations completed successfully!\n";
+            }
+            else {
+
+                print "Using maximum $max_parallel parallel compilation processes\n";
+
+                while ( %pending_jobs || @running_pids ) {
+
+                    # Wait for any completed jobs first if we have running processes
+                    if (@running_pids) {
+                        my $finished_pid = waitpid( -1, 0 );    # Wait for any child
+                        my $exit_status  = $? >> 8;
+
+                        if ( $exit_status != 0 ) {
+
+                            # Kill remaining children and die
+                            kill 'TERM', map { $_->[0] } @running_pids;
+                            die "S2 compilation failed with exit status $exit_status";
+                        }
+
+                        # Find which job completed and mark it done
+                        for my $i ( 0 .. $#running_pids ) {
+                            if ( $running_pids[$i][0] == $finished_pid ) {
+                                my $completed_base = $running_pids[$i][1];
+                                splice @running_pids, $i, 1;
+                                $completed{$completed_base} = 1;
+                                print "Completed compilation of $completed_base\n";
+                                if ( $ENV{DW_DEBUG_S2} ) {
+                                    print "Completed layers now: "
+                                        . join( ", ", sort keys %completed ) . "\n";
+                                    print "Remaining pending jobs: "
+                                        . scalar( keys %pending_jobs ) . "\n";
+                                }
+                                last;
+                            }
+                        }
+                    }
+
+                    # Start new jobs if we have capacity and ready jobs
+                    while ( @running_pids < $max_parallel && %pending_jobs ) {
+
+                        # Find a job with all dependencies completed
+                        my $ready_job;
+                        my @ready_candidates;
+                        for my $base ( keys %pending_jobs ) {
+                            my $all_deps_done = 1;
+                            my @unsatisfied_deps;
+                            for my $dep ( @{ $dependencies{$base} } ) {
+                                if ( !$completed{$dep} ) {
+                                    $all_deps_done = 0;
+                                    push @unsatisfied_deps, $dep;
+                                    if (   $ENV{DW_DEBUG_S2}
+                                        && $dep eq 'core2'
+                                        && $base eq 'core2base/layout' )
+                                    {
+                                        print "DEBUG: $base depends on $dep, completed{$dep} = "
+                                            . ( $completed{$dep} // 'undef' ) . "\n";
+                                        print "DEBUG: Available completed keys: "
+                                            . join( ", ", sort keys %completed ) . "\n";
+                                    }
+                                }
+                            }
+                            if ($all_deps_done) {
+                                push @ready_candidates, $base;
+                            }
+                            elsif ( $ENV{DW_DEBUG_S2} && @unsatisfied_deps <= 2 ) {
+
+                                # Debug: show a few jobs that are almost ready
+                                print "Almost ready - $base waiting for: "
+                                    . join( ", ", @unsatisfied_deps ) . "\n";
+                            }
+                        }
+
+                        if (@ready_candidates) {
+                            $ready_job = $ready_candidates[0];    # Take the first ready job
+                            if ( $ENV{DW_DEBUG_S2} ) {
+                                print "Ready jobs this round: "
+                                    . join( ", ", @ready_candidates ) . "\n";
+                            }
+                        }
+
+                        last unless $ready_job;                   # No jobs ready to start
+
+                        my $job = delete $pending_jobs{$ready_job};
+                        my $pid = $compile_layer->($job);
+                        push @running_pids, [ $pid, $ready_job ];
+                        if ( $ENV{DW_DEBUG_S2} ) {
+                            print "Started compilation of $ready_job (PID $pid)\n";
+                        }
+                    }
+
+                    # Safety check to prevent infinite loops
+                    if ( !@running_pids && %pending_jobs ) {
+                        my @remaining = keys %pending_jobs;
+                        print "Compilation deadlock detected. Remaining jobs: "
+                            . join( ", ", @remaining ) . "\n";
+                        print "Dependency analysis:\n";
+                        for my $job (@remaining) {
+                            my $deps =
+                                @{ $dependencies{$job} }
+                                ? join( ", ", @{ $dependencies{$job} } )
+                                : "none";
+                            my $unsatisfied = [];
+                            for my $dep ( @{ $dependencies{$job} } ) {
+                                push @$unsatisfied, $dep unless $completed{$dep};
+                            }
+                            my $unsatisfied_str =
+                                @$unsatisfied ? join( ", ", @$unsatisfied ) : "none";
+                            print "  $job: depends on [$deps], unsatisfied: [$unsatisfied_str]\n";
+                        }
+                        die "Cannot proceed with compilation.";
+                    }
+                }
+
+                # Reconnect to database after all forks
+                $dbh = LJ::get_db_writer();
+
+                print "All layer compilations completed successfully!\n";
+            }
         }
 
         if ($LJ::IS_DEV_SERVER) {

@@ -66,14 +66,6 @@ use Net::Subnet;
             },
         );
 
-    # 32 vs 64 bit arch. By default everything goes to a 64 bit arch.
-    # Automatically detected. Uncomment to force 32 bit arch support.
-    #
-    # WARNING: This must be set prior to setting up your site.  If you change it
-    # later on a running site, things may go badly for you.
-    #
-    #$ARCH32 = "1";
-
     # allow changelog posting.  this allows unauthenticated posts to the changelog
     # community from the IP and users specified.  this does not work on its own,
     # you have to configure your version control server to do the posting.  see
@@ -161,18 +153,30 @@ use Net::Subnet;
     #     port => 8125,
     # );
 
+    # Fraction (0..1) of requests on which DW::Cache->report_sizes measures the
+    # byte size of the process's in-memory caches, emitting them as
+    # timing/histogram metrics via %STATS above. Measurement deep-walks each
+    # cache, so keep this low; it defaults to 0 (disabled).
+    # $CACHE_STATS_SAMPLE_RATE = 0.01;
+
+    # Fraction (0..1) of requests on which DW::Stats::report_rss emits process
+    # RSS (dw.process.rss_bytes). Cheap but chatty; defaults to 0 (disabled).
+    # $PROCESS_STATS_SAMPLE_RATE = 0.01;
+
     # If you are going to be using the external content proxy system, you should
     # define a file here that contains your private salt.
     # $PROXY_URL = "https://proxy.myhost.net";
     # $PROXY_SALT_FILE = "$HOME/etc/proxy-salt";
 
-    # If you want to use Amazon SES (e.g. bin/worker/send-email-ses) then you
-    # need to do a lot of setup on the Amazon side and then fill this out. The
-    # settings are from the SMTP Settings page in SES.
-    # %EMAIL_VIA_SES = (
-    #     hostname => '...',
-    #     username => '...',
-    #     password => '...',
+    # If you want to use SMTP for email delivery (e.g. Amazon SES, Gmail, etc.) then you
+    # need to configure your SMTP server settings here. The settings are from your SMTP
+    # provider's configuration page.
+    # %SMTP_SERVER = (
+    #     hostname  => 'email-smtp.us-east-1.amazonaws.com',  # SES example
+    #     username  => 'YOUR_SMTP_USERNAME',
+    #     password  => 'YOUR_SMTP_PASSWORD',
+    #     port      => 587,  # optional, defaults to 587
+    #     plaintext => 0,    # optional, set to 1 to disable TLS
     # );
 
     # Configuration of BlobStore. This is the new storage abstraction used to
@@ -214,6 +218,12 @@ use Net::Subnet;
     #     },
     # );
 
+    # Bunny CDN account API key, used to purge suspended or expunged userpics
+    # from the CDN edge cache (e.g. for DMCA takedowns). Leave unset to disable
+    # CDN purging, which is correct for dev/test where userpics aren't fronted
+    # by a CDN.
+    # $BUNNY_CDN_API_KEY = undef;
+
     # Configuration of hCaptcha as a captcha provider.
     #
     # # Set this to the site key provided by hCaptcha, or leave as undef
@@ -248,6 +258,16 @@ use Net::Subnet;
     # $CAPTCHA_BYPASS_IP = subnet_matcher qw(
     #     192.168.10.10/32
     # );
+    #
+    # # Force a captcha for specific requests regardless of source IP. A coderef
+    # # passed the DW::Request; return true to require a captcha. Anonymous only
+    # # (logged-in users are never captcha'd). Hot-reloadable. Example:
+    # $SHOULD_CAPTCHA_REQUEST = sub {
+    #     my $r = shift;
+    #     return 1 if ( $r->query_string // '' ) =~ /(?:^|&)example_flag=/;
+    #     return 1 if $r->uri =~ m!^/some/example/path!;
+    #     return 0;
+    # };
 }
 
 {
@@ -280,16 +300,33 @@ use Net::Subnet;
     #    pass => ,
     #);
 
-    #%RECAPTCHA = (
-    #    public_key  => ,
-    #    private_key => ,
-    #);
+    # Which web pool/tier this install serves. Defaults to 'default'; production
+    # sets it per pool from the deploy environment. This is the ONLY place a
+    # production environment variable should appear -- app code reads
+    # $LJ::WEB_TIER, never the environment directly. It becomes the "tier" label
+    # on request metrics and the memcached namespace the autoscaler reads.
+    #$WEB_TIER = $ENV{DW_LOKI_SERVICE};
 
-    #%TEXTCAPTCHA = (
-    #   # this works for testing purposes.
-    #   # sign up at the textcaptcha website for a key for production use
-    #    api_key => "demo",
-    #    timeout => 10,
+    # Occupancy-based web-tier autoscaler (bin/worker/web-autoscaler). Region and
+    # ecs_cluster are required. Each key under 'services' MUST equal that pool's
+    # $WEB_TIER -- it's the memcached namespace the autoscaler reads -- while
+    # ecs_service is the ECS service it scales. Set dry_run to log decisions
+    # without touching ECS.
+    #%AUTOSCALER = (
+    #    region      => 'us-east-1',
+    #    ecs_cluster => 'dreamwidth',
+    #    tick        => 15,
+    #    services    => {
+    #        'web-stable' => {
+    #            enabled      => 1,
+    #            ecs_service  => 'web-stable',
+    #            target       => 0.70,    # desired steady-state occupancy
+    #            in_threshold => 0.50,    # only scale in below this
+    #            floor        => 2,
+    #            cap          => 50,
+    #            dry_run      => 0,
+    #        },
+    #    },
     #);
 }
 

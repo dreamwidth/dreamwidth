@@ -22,6 +22,7 @@ use strict;
 use DW::Controller;
 use DW::Controller::Admin;
 use DW::Routing;
+use DW::Task::DistributeInvites;
 use DW::Template;
 use DW::FormErrors;
 
@@ -162,8 +163,7 @@ sub distribute_controller {
             if ( exists $classes->{$selected_user_class} ) {
 
                 $vars->{dispatch} = DW::TaskQueue->dispatch(
-                    TheSchwartz::Job->new_from_array(
-                        'DW::Worker::DistributeInvites',
+                    DW::Task::DistributeInvites->new(
                         {
                             requester   => $rv->{remote}->userid,
                             searchclass => $selected_user_class,

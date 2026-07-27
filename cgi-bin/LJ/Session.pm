@@ -15,9 +15,15 @@ package LJ::Session;
 use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 
 use constant VERSION => 1;
+
+# how long a trust cookie vouches for a browser after it was last signed:
+# the "long" session length, so the bypass never outlives the session that
+# could have produced it (a sub, not a constant, since session_length isn't
+# compiled yet at this point)
+sub TRUST_COOKIE_MAX_AGE { return LJ::Session->session_length('long') }
 
 # NOTES
 #
@@ -301,6 +307,44 @@ sub update_master_cookie {
             domain        => $LJ::DOMAIN,
             path          => '/',
             delete        => 1
+        );
+    }
+
+    $sess->update_trust_cookie;
+
+    return;
+}
+
+# Sets/refreshes the "ljtrust" cookie: a long-lived, HMAC-signed marker that
+# this browser held a valid session for this user. It's bound to the browser's
+# ljuniq ident so it can't be presented under a different uniq, and it is
+# deliberately NOT cleared on logout -- its whole purpose is to vouch for a
+# logged-out browser (see trusted_anon_user), e.g. to skip anti-bot captchas.
+# It makes no authentication claims.
+sub update_trust_cookie {
+    my ($sess) = @_;
+
+    my $uniq = LJ::UniqCookie->current_uniq
+        or return;
+
+    my ( $time, $secret ) = LJ::get_secret();
+    return unless $secret;
+
+    my $sig = trust_cookie_signature( $time, $sess->{userid}, $uniq )
+        or return;
+
+    my $ver   = VERSION;
+    my $value = "v$ver:u$sess->{userid}:t$time:g$sig//" . LJ::eurl( $LJ::COOKIE_GEN || "" );
+
+    # all cookie domains, like ljuniq itself, so journal subdomains see it
+    my @domains = ref $LJ::COOKIE_DOMAIN ? @$LJ::COOKIE_DOMAIN : ($LJ::COOKIE_DOMAIN);
+    foreach my $dom (@domains) {
+        set_cookie(
+            ljtrust   => $value,
+            domain    => $dom,
+            path      => '/',
+            http_only => 1,
+            expires   => TRUST_COOKIE_MAX_AGE,
         );
     }
 
@@ -785,6 +829,75 @@ sub domsess_signature {
     return $sig;
 }
 
+sub trust_cookie_signature {
+    my ( $time, $userid, $uniq ) = @_;
+
+    my $secret = LJ::get_secret($time)
+        or return undef;
+
+    # leading literal domain-separates this from other get_secret signatures
+    return hmac_sha1_hex( join( "-", "trust", $userid, $uniq, $time ), $secret );
+}
+
+# CLASS method. Returns the LJ::User this browser was previously logged in as,
+# iff the ljtrust cookie is present, correctly signed, bound to the *current*
+# ljuniq ident, fresh enough, and the account is still in good standing --
+# otherwise undef. Standing is re-checked live on every use, so suspending or
+# deleting the account revokes the trust immediately. This identifies a
+# browser, not a person: never treat it as authentication.
+#
+# Deliberately uncached: validation is one HMAC plus a load_userid, and callers
+# only hit it where a captcha would otherwise be shown, so memoizing isn't
+# worth it. If that ever changes, use DW::Cache->request -- never state that
+# outlives the request, or the verdict leaks across visitors (bit us in #3643).
+sub trusted_anon_user {
+    my ($class) = @_;
+
+    my $r = DW::Request->get
+        or return undef;
+    my $val = $r->cookie('ljtrust')
+        or return undef;
+    my $uniq = LJ::UniqCookie->current_uniq
+        or return undef;
+
+    my ( $cookie, $gen ) = split m!//!, $val;
+    return undef unless defined $cookie;
+
+    my ( $version, $uid, $time, $sig );
+    my $dest = {
+        v => \$version,
+        u => \$uid,
+        t => \$time,
+        g => \$sig,
+    };
+
+    foreach my $var ( split /:/, $cookie ) {
+        return undef unless $var =~ /^(\w)(.+)$/ && $dest->{$1};
+        ${ $dest->{$1} } = $2;
+    }
+
+    return undef unless valid_cookie_generation($gen);
+    return undef unless defined $version && $version == VERSION;
+    return undef unless $uid && $uid =~ /^\d+$/;
+    return undef unless $time && $time =~ /^\d+$/;
+
+    # too old (or from the future, which no honest clock produces)
+    my $now = time();
+    return undef if $time > $now || $now - $time > TRUST_COOKIE_MAX_AGE;
+
+    my $correct_sig = trust_cookie_signature( $time, $uid, $uniq )
+        or return undef;
+    return undef unless $sig && $correct_sig eq $sig;
+
+    my $u = LJ::load_userid($uid)
+        or return undef;
+
+    # in good standing: live account, validated email, an actual individual
+    return undef unless $u->is_visible && $u->is_validated && $u->is_individual;
+
+    return $u;
+}
+
 # function or instance method.
 # FIXME: update the documentation for memkeys
 sub _memkey {
@@ -813,12 +926,6 @@ sub set_cookie {
     my $delete    = delete $opts{delete};
     croak( "Invalid cookie options: " . join( ", ", keys %opts ) ) if %opts;
 
-    # Mac IE 5 can't handle HttpOnly, so filter it out
-    if ( $http_only && !$LJ::DEBUG{no_mac_ie_httponly} ) {
-        my $ua = $r->header_in('User-Agent');
-        $http_only = 0 if $ua =~ /MSIE.+Mac_/;
-    }
-
     # expires can be absolute or relative.  this is gross or clever, your pick.
     $expires += time() if $expires && $expires <= 1135217120;
 
@@ -835,19 +942,6 @@ sub set_cookie {
         httponly => $http_only ? 1 : 0,
     );
 
-    # Backwards compatability for older browsers
-    return unless defined $domain;
-    my @labels = split( /\./, $domain );
-    if ( scalar @labels == 2 && !$LJ::DEBUG{no_extra_dot_cookie} ) {
-        $r->add_cookie(
-            name     => $key,
-            value    => $value,
-            expires  => $expires ? LJ::time_to_cookie($expires) : undef,
-            domain   => $domain,
-            path     => $path || undef,
-            httponly => $http_only ? 1 : 0,
-        );
-    }
 }
 
 # returns undef or a session, given a $domcook and its $val, as well

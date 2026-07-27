@@ -53,7 +53,7 @@ sub execute {
     my $dbh = LJ::get_db_writer();
     my $oldurl =
         $dbh->selectrow_array( "SELECT synurl FROM syndicated WHERE userid=?", undef, $u->id );
-    $dbh->do( "UPDATE syndicated SET synurl=?, checknext=NOW() WHERE userid=?",
+    $dbh->do( "UPDATE syndicated SET synurl=?, checknext=NOW(), failcount=0 WHERE userid=?",
         undef, $newurl, $u->id );
 
     if ( $dbh->err ) {

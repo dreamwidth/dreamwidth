@@ -33,6 +33,10 @@ paths:
           $ref: ../components/errors/404-user.yaml
         400:
           $ref: ../components/errors/400.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml
     post:
       description: Add users to a given accesslist
       requestBody:
@@ -54,3 +58,7 @@ paths:
           $ref: ../components/errors/404-user.yaml
         400:
           $ref: ../components/errors/400.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml

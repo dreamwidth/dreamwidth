@@ -30,16 +30,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <p>[%- 'widget.createaccountprofile.info' | ml -%]</p>
 
 <div class="row"><div class="columns">
-    [%- IF is_utf8.name -%]
         [%- form.textbox(
             label = dw.ml( 'widget.createaccountprofile.field.name' )
 
             name = 'name'
         ) -%]
-    [%- ELSE -%]
-        [%- form.hidden( name = "name_absent", value = "yes" ) -%]
-        <p class='alert-box'>[%- '/manage/profile/index.bml.error.invalidname2' | ml( aopts => "href='$site.root/utf8convert'" ) -%]</p>
-    [%- END -%]
 </div></div>
 
 <div class="row"><div class="columns">
@@ -74,7 +69,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <fieldset>
 <legend>[%- 'widget.createaccountprofile.field.bio2' | ml -%]</legend>
 <div class="row"><div class="columns">
-    [%- IF is_utf8.bio -%]
         [%- form.textarea(
             label = dw.ml( 'widget.createaccountprofile.field.bio.note' )
             labelclass = "hidden"
@@ -83,10 +77,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
             wrap = 'soft'
             rows = 7
         ) -%]
-    [%- ELSE -%]
-        [%- form.hidden( name = "bio_absent", value = "yes" ) -%]
-        <p class='alert-box'>[%- '/manage/profile/index.bml.error.invalidbio' | ml( aopts => "href='$site.root/utf8convert'" ) -%]</p>
-    [%- END -%]
 </div></div>
 </fieldset>
 

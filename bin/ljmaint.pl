@@ -115,9 +115,9 @@ sub run_task {
         $lockname .= "-$LJ::SERVER_NAME";
     }
     unless ( $opts->{no_locking}
-        || ( $lock = LJ::locker()->trylock($lockname) ) )
+        || ( $lock = LJ::locker()->trylock( $lockname, class => 'ljmaint' ) ) )
     {
-        print "Task '$task' already running ($DDLockClient::Error).  Quitting.\n" if $VERBOSE >= 1;
+        print "Task '$task' already running ($DW::Locker::Error).  Quitting.\n" if $VERBOSE >= 1;
         exit 0;
     }
 

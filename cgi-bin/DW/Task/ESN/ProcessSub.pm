@@ -21,6 +21,7 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use DW::Stats;
 use LJ::Event;
 
 use base 'DW::Task';
@@ -29,29 +30,30 @@ sub work {
     my $self = $_[0];
     my $a    = $self->args;
 
+    my ( $userid, $subid, $eparams ) = @$a;
+    my $trace = join( ':', @$eparams );
+
     my $failed = sub {
-        $log->error( sprintf( $_[0], @_[ 1 .. $#_ ] ) );
+        $log->error( sprintf( "[esn $trace] " . $_[0], @_[ 1 .. $#_ ] ) );
+        DW::Stats::increment( 'dw.esn.processsub', 1,
+            [ "result:failed", "etypeid:$eparams->[0]" ] );
         return DW::Task::FAILED;
     };
 
-    my ( $userid, $subid, $eparams ) = @$a;
     Log::Log4perl::MDC->put( 'userid', $userid );
 
     my $u = LJ::load_userid($userid)
         or return $failed->( 'Failed to load user: %d', $userid );
     Log::Log4perl::MDC->put( 'user', $u->user );
 
-    $log->debug( 'Processing event for user: ', $u->user, '(', $u->id, ') subscription ', $subid );
+    $log->debug( "[esn $trace] Processing event for user: ",
+        $u->user, '(', $u->id, ') subscription ', $subid );
 
     my $evt = LJ::Event->new_from_raw_params(@$eparams)
         or return $failed->( 'Failed to get event from params: %s', join( ', ', @$eparams ) );
     $evt->configure_logger;
 
-    my $subsc = $evt->get_subscriptions( $u, $subid )
-        or return $failed->(
-        'Failed to get subscriptions for: %s(%d) subid %d event (%s)',
-        $u->user, $u->id, $subid, join( ', ', @$eparams )
-        );
+    my $subsc = $evt->get_subscriptions( $u, $subid );
 
     # if the subscription doesn't exist anymore, we're done here
     # (race: if they delete the subscription between when we start processing
@@ -59,21 +61,43 @@ sub work {
     # We won't reach here if we get DB errors because new_by_id will die, so we're
     # safe to mark the job completed and return.
     unless ($subsc) {
-        $log->debug('Subscription not found on load, skipping notification.');
+        $log->debug(
+            sprintf(
+                "[esn $trace] ESN skip processsub user=%s(%d) sub=%d reason=subscription_not_found",
+                $u->user, $userid, $subid
+            )
+        );
+        DW::Stats::increment( 'dw.esn.processsub', 1,
+            [ "result:skipped", 'reason:subscription_not_found', "etypeid:$eparams->[0]" ] );
         return DW::Task::COMPLETED;
     }
 
-    # If the user hasn't logged in in a year, complete the sub and let's
-    # move on
+    # If the user hasn't logged in in over a year, deactivate the sub so it
+    # stops generating wasted ProcessSub jobs on future events, then move on.
     my $user_idle_days = int( ( time() - $u->get_timeactive ) / 86400 );
-    if ( $user_idle_days > 365 && !$LJ::_T_CONFIG ) {
-        $log->debug('User inactive, skipping notification.');
+    if ( $user_idle_days > ( $LJ::ESN_INACTIVE_DAYS // 365 ) && !$LJ::_T_CONFIG ) {
+        $log->debug(
+            sprintf(
+                "[esn $trace] ESN skip processsub user=%s(%d) sub=%d reason=user_idle idle_days=%d",
+                $u->user, $userid, $subid, $user_idle_days
+            )
+        );
+        DW::Stats::increment( 'dw.esn.processsub', 1,
+            [ "result:skipped", 'reason:user_idle', "etypeid:$eparams->[0]" ] );
+        $subsc->_deactivate if $subsc;
         return DW::Task::COMPLETED;
     }
 
     # if the user deleted their account (or otherwise isn't visible), bail
     unless ( $u->is_visible || $evt->is_significant ) {
-        $log->debug('User not visible, and event is not significant, skipping notification.');
+        $log->debug(
+            sprintf(
+                "[esn $trace] ESN skip processsub user=%s(%d) sub=%d reason=user_not_visible",
+                $u->user, $userid, $subid
+            )
+        );
+        DW::Stats::increment( 'dw.esn.processsub', 1,
+            [ "result:skipped", 'reason:user_not_visible', "etypeid:$eparams->[0]" ] );
         return DW::Task::COMPLETED;
     }
 
@@ -81,6 +105,8 @@ sub work {
     $subsc->process($evt)
         or return $failed->(
         "Failed to process notification method for userid=$userid/subid=$subid, evt=[@$eparams]");
+    DW::Stats::increment( 'dw.esn.processsub', 1,
+        [ "result:processed", "etypeid:$eparams->[0]", "method:" . $subsc->notify_class ] );
     return DW::Task::COMPLETED;
 }
 

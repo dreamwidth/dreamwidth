@@ -1,0 +1,65 @@
+[%# manage/accounts.tt
+
+Manage the accounts signed in to the on-site account switcher on this browser:
+switch to one, drop one from the list, or add another.
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = ".title" | ml -%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+    "stc/css/components/account-switcher.css"
+) -%]
+
+<p>[% '.intro' | ml %]</p>
+
+<table class="account-switcher-manage">
+    <tbody>
+        [%- FOREACH acct IN accounts -%]
+        <tr>
+            <td class="acct">[% acct.u.ljuser_display %]</td>
+            <td class="status">
+            [%- IF acct.current -%][% '.status.current' | ml %]
+            [%- ELSIF acct.valid -%][% '.status.active' | ml %]
+            [%- ELSE -%][% '.status.signedout' | ml %][%- END -%]
+            </td>
+            <td class="actions">
+                [%- IF acct.current -%]
+                [%# no actions for the account you're currently using %]
+                [%- ELSE -%]
+                    [%- IF acct.valid -%]
+                    <form action="[% site.root %]/switchaccount" method="post" class="inline-form">
+                        [%- dw.form_auth -%]
+                        [%- form.hidden( name = "userid", value = acct.userid ) -%]
+                        [%- form.hidden( name = "returnto", value = returnto ) -%]
+                        [% form.submit( name = "switch", value = dw.ml('.btn.switch'), class = "button tiny secondary" ) %]
+                    </form>
+                    [%- ELSE -%]
+                    <a class="button tiny secondary" href="[% site.root %]/login?switch=1&amp;user=[% acct.user | uri %]&amp;returnto=[% returnto | uri %]">[% '.btn.login' | ml %]</a>
+                    [%- END -%]
+                    <form action="[% site.root %]/switchaccount" method="post" class="inline-form">
+                        [%- dw.form_auth -%]
+                        [%- form.hidden( name = "remove_userid", value = acct.userid ) -%]
+                        [%- form.hidden( name = "returnto", value = returnto ) -%]
+                        [% form.submit( name = "remove", value = dw.ml('.btn.remove'), class = "button tiny alert" ) %]
+                    </form>
+                [%- END -%]
+            </td>
+        </tr>
+        [%- END -%]
+    </tbody>
+</table>
+
+<p>
+    <a class="button tiny" href="[% site.root %]/login?switch=1&amp;returnto=[% returnto | uri %]">[% '.btn.add' | ml %]</a>
+</p>

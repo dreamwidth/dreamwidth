@@ -1,4 +1,10 @@
 <?_c
+# DEPRECATED: This entry-posting page has been superseded by the new Template
+# Toolkit entry editor (DW::Controller::Entry), served at /entry/new. It is kept
+# only while the new editor is in beta (gated by the "updatepage" beta) and will
+# be removed once the new editor leaves beta.
+_c?>
+<?_c
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under

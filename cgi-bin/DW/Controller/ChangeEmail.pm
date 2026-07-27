@@ -193,7 +193,7 @@ sub changeemail_handler {
                                 username => $u->display_username,
                                 email    => $u->email_raw,
                                 sitename => $LJ::SITENAME,
-                                sitelink => $LJ::SITEROOT,
+                                siteroot => $LJ::SITEROOT,
                                 conflink => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}"
                             }
                         ),

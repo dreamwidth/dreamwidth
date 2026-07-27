@@ -23,7 +23,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ croak /;
 use Digest::MD5 qw/ md5_hex /;
-use Net::SMTPS;
+use Net::SMTP;
 
 use LJ::MemCache;
 
@@ -55,24 +55,39 @@ sub work {
     # Refresh the SMTP client if we don't have one or we haven't sent an email in
     # more than 10 seconds
     if ( ( $email_counter++ % 30 == 0 ) || ( time() - $last_email > 10 ) || !defined $smtp ) {
-        $smtp = Net::SMTPS->new(
-            Host         => $LJ::EMAIL_VIA_SES{hostname},
-            SSL_hostname => $LJ::EMAIL_VIA_SES{hostname},
-            Port         => 587,
-            doSSL        => 'starttls',
-            Timeout      => 60,
-        );
-        return $failed->(
-            "Temporary failure connecting to $LJ::EMAIL_VIA_SES{hostname}, will retry.")
-            unless $smtp;
 
-        # Only try auth if we have username/pw configured for mail server
-        if ( $LJ::EMAIL_VIA_SES{username} && $LJ::EMAIL_VIA_SES{password} ) {
-            $smtp->auth( $LJ::EMAIL_VIA_SES{username}, $LJ::EMAIL_VIA_SES{password} )
-                or return $failed->(
-                "Couldn't authenticate to $LJ::EMAIL_VIA_SES{hostname}, will retry.");
+        # Check if SMTP server is configured
+        unless ( $LJ::SMTP_SERVER{hostname} ) {
+            return $failed->(
+                "SMTP server not configured. Please set up %SMTP_SERVER in your config.");
         }
 
+        $smtp = Net::SMTP->new(
+            Host    => $LJ::SMTP_SERVER{hostname},
+            Port    => $LJ::SMTP_SERVER{port} || 587,
+            Timeout => 60,
+        );
+        return $failed->("Temporary failure connecting to $LJ::SMTP_SERVER{hostname}, will retry.")
+            unless $smtp;
+
+        # Start TLS unless disabled.
+        unless ( $LJ::SMTP_SERVER{plaintext} ) {
+            $smtp->starttls();
+        }
+
+        # Only try auth if we have username/pw configured for mail server
+        if ( $LJ::SMTP_SERVER{username} && $LJ::SMTP_SERVER{password} ) {
+
+            # Capture the server's response on failure so we can distinguish a
+            # real credential rejection (535) from temporary throttling (454).
+            unless ( $smtp->auth( $LJ::SMTP_SERVER{username}, $LJ::SMTP_SERVER{password} ) ) {
+                my $resp = eval { $smtp->code . ' ' . $smtp->message } || '(no response)';
+                chomp $resp;
+                return $failed->(
+                    "Couldn't authenticate to $LJ::SMTP_SERVER{hostname}: %s, will retry.", $resp
+                );
+            }
+        }
     }
     $last_email = time();
 
@@ -97,13 +112,13 @@ sub work {
             if $rcpt =~ /@(.+?)$/;
         unless ($domain) {
             $log->error( 'Invalid email address: ', $rcpt );
-            DW::Stats::increment( 'dw.email.sent', 1, [ 'status:invalid', 'via:ses' ] );
+            DW::Stats::increment( 'dw.email.sent', 1, [ 'status:invalid', 'via:smtp' ] );
             continue;
         }
 
         if ( exists $LJ::DISALLOW_EMAIL_DOMAIN{$domain} ) {
             $log->info( 'Disallowing email to: ', $rcpt );
-            DW::Stats::increment( 'dw.email.sent', 1, [ 'status:disallowed', 'via:ses' ] );
+            DW::Stats::increment( 'dw.email.sent', 1, [ 'status:disallowed', 'via:smtp' ] );
             continue;
         }
 
@@ -115,7 +130,7 @@ sub work {
         my $sent = LJ::MemCache::get($key);
         if ($sent) {
             $log->debug( 'Duplicate email, skipping to: ', $rcpt );
-            DW::Stats::increment( 'dw.email.sent', 1, [ 'status:duplicate', 'via:ses' ] );
+            DW::Stats::increment( 'dw.email.sent', 1, [ 'status:duplicate', 'via:smtp' ] );
         }
         else {
             # Store the address we're sending to as well as the key to set in MemCache
@@ -142,6 +157,13 @@ sub work {
         my ($this_domain) = $env_from =~ /\@(.+)/;
         my $hstr = substr( md5_hex($handle), 0, 12 );
         $headers = "Message-ID: <dw-$hstr\@$this_domain>\r\n" . $headers;
+    }
+
+    # Tag the message with the SES configuration set (if configured) so SES
+    # emits per-message sending events (delivery/bounce/reject/complaint) to the
+    # config set's event destination. No-op when unset.
+    if ( $LJ::SES_CONFIGURATION_SET && $headers !~ m!^x-ses-configuration-set:!mi ) {
+        $headers = "X-SES-CONFIGURATION-SET: $LJ::SES_CONFIGURATION_SET\r\n" . $headers;
     }
 
     my $details = sub {
@@ -203,7 +225,7 @@ sub work {
     return $not_ok->('DATAEND')  unless $smtp->dataend;
 
     $log->debug('Email sent successfully.');
-    DW::Stats::increment( 'dw.email.sent', 1, [ 'status:completed', 'via:ses' ] );
+    DW::Stats::increment( 'dw.email.sent', 1, [ 'status:completed', 'via:smtp' ] );
 
     # Now perform memcache duplicant recording
     foreach my $key ( values %recipients ) {

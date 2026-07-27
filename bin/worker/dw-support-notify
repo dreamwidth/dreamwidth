@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+#
+# bin/worker/dw-support-notify
+#
+# DW::TaskQueue worker for support request notification emails.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009-2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use v5.10;
+use strict;
+
+BEGIN {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+}
+
+use DW::TaskQueue;
+
+DW::TaskQueue->start_work(
+    'DW::Task::SupportNotify',
+    message_timeout_secs => 60,
+    exit_after_secs      => 300 + int( rand() * 600 ),
+    exit_after_messages  => 100,
+);

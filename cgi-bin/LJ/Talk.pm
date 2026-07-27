@@ -22,11 +22,15 @@ use Digest::MD5;
 use MIME::Words;
 use MIME::Lite;
 use Carp qw/ croak /;
+use DW::Task::SearchCopier;
+use DW::Search;
 
 use DW::Captcha;
 use DW::EmailPost::Comment;
 use DW::Formats;
-use LJ::Utils qw(rand_chars);
+use DW::Locker;
+use Time::HiRes ();
+use LJ::Utils;
 use LJ::Comment;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;
@@ -596,6 +600,12 @@ sub unscreen_comment {
     LJ::Talk::invalidate_talk2row_memcache( $u->id, @jtalkids );
     LJ::MemCache::delete( [ $userid, "activeentries:$userid" ] );
 
+    # update in-memory singletons so they reflect the new state
+    foreach my $jtalkid (@jtalkids) {
+        my $c = LJ::Comment->new( $u, jtalkid => $jtalkid );
+        $c->{state} = 'A' if $c->{_loaded_row};
+    }
+
     if ( $updated > 0 ) {
         LJ::replycount_do( $u, $itemid, "incr", $updated );
         my $dbcm        = LJ::get_cluster_master($u);
@@ -607,6 +617,17 @@ sub unscreen_comment {
     LJ::MemCache::delete( [ $userid, "screenedcount:$userid:$itemid" ] );
 
     LJ::Talk::update_commentalter( $u, $itemid );
+
+    # fire events so that users who missed the original notification
+    # (because the comment was screened) get notified now
+    my @jobs;
+    foreach my $jtalkid (@jtalkids) {
+        push @jobs,
+            LJ::Event::JournalNewComment->new_for_unscreen(
+            LJ::Comment->new( $u, jtalkid => $jtalkid ) );
+    }
+    DW::TaskQueue->dispatch(@jobs) if @jobs;
+
     return;
 }
 
@@ -649,19 +670,7 @@ sub get_talk_data {
         return unless @LJ::MEMCACHE_SERVERS;
         return unless $u->writer;
 
-        my $gc = LJ::gearman_client();
-        if ( $gc && LJ::conf_test( $LJ::FIXUP_USING_GEARMAN, $u ) ) {
-            $gc->dispatch_background(
-                "fixup_logitem_replycount",
-                Storable::nfreeze( [ $u->id, $nodeid ] ),
-                {
-                    uniq => "-",
-                }
-            );
-        }
-        else {
-            LJ::Talk::fixup_logitem_replycount( $u, $nodeid );
-        }
+        LJ::Talk::fixup_logitem_replycount( $u, $nodeid );
     };
 
     # Save the talkdata on the entry for later
@@ -708,16 +717,36 @@ sub get_talk_data {
     return $memcache_decode->() if $memcache_good->();
 
     my $dbcr = LJ::get_cluster_def_reader($u);
-    return undef unless $dbcr;
+    unless ($dbcr) {
+        DW::Stats::increment( 'dw.talk.get_talk_data.undef', 1, ["reason:no_reader"] );
+        $log->warn( "get_talk_data undef (no_reader): "
+                . "journalid=$u->{userid} nodetype=$nodetype nodeid=$nodeid" );
+        return undef;
+    }
 
-    my $lock = $dbcr->selectrow_array( "SELECT GET_LOCK(?,10)", undef, $lockkey );
-    return undef unless $lock;
+    # Serialize the DB read + repopulate so a cache miss on a popular post
+    # doesn't stampede the database.
+    my $lock_t0 = Time::HiRes::time();
+    my $lock    = DW::Locker->new->trylock( $lockkey, class => 'get_talk_data', wait => 10 );
+    unless ($lock) {
+        my $waited = Time::HiRes::time() - $lock_t0;
+        my $reason = ( $DW::Locker::Error // '' ) eq "lock taken" ? "lock_taken" : "lock_error";
+        DW::Stats::increment( 'dw.talk.get_talk_data.undef', 1, ["reason:$reason"] );
+        $log->warn(
+            sprintf(
+                "get_talk_data undef (%s, waited %.3fs) on %s: "
+                    . "journalid=%d nodetype=%s nodeid=%s",
+                $reason, $waited, $lockkey, $u->{userid}, $nodetype, $nodeid
+            )
+        );
+        return undef;
+    }
 
     # it's quite likely (for a popular post) that the memcache was
     # already populated while we were waiting for the lock
     $packed = LJ::MemCache::get($memkey);
     if ( $memcache_good->() ) {
-        $dbcr->selectrow_array( "SELECT RELEASE_LOCK(?)", undef, $lockkey );
+        $lock->release;    # release before the separately-locked replycount fixup
         $memcache_decode->();
         return $ret;
     }
@@ -729,22 +758,17 @@ sub get_talk_data {
             . "t.parenttalkid, t.state "
             . "FROM talk2 t "
             . "WHERE t.journalid=? AND t.nodetype=? AND t.nodeid=?" );
+
+    # hook for tests to count DB reads (the regen path, on a memcache miss)
+    $LJ::_T_GET_TALK_DATA_DB->() if $LJ::_T_GET_TALK_DATA_DB;
     $sth->execute( $u->{'userid'}, $nodetype, $nodeid );
     die $dbcr->errstr if $dbcr->err;
     while ( my $r = $sth->fetchrow_hashref ) {
         $ret->{ $r->{'talkid'} } = $r;
 
-        {
-            # make a new $r-type hash which also contains nodetype and nodeid
-            # -- they're not in $r because they were known and specified in the query
-            my %row_arg = %$r;
-            $row_arg{nodeid}   = $nodeid;
-            $row_arg{nodetype} = $nodetype;
-
-            # set talk2row memcache key for this bit of data
-            LJ::Talk::add_talk2row_memcache( $u->id, $r->{talkid}, \%row_arg );
-        }
-
+        # per-comment talk2row entries are populated lazily by get_talk2_row_multi,
+        # not here: eagerly writing one per comment held this lock for thousands of
+        # sequential memcache round-trips on large threads.
         $memval .= pack( $PACK_FORMAT,
             $r->{'talkid'},        $r->{'parenttalkid'}, $r->{'posterid'},
             $r->{'datepost_unix'}, ord( $r->{'state'} ) );
@@ -752,7 +776,7 @@ sub get_talk_data {
         $rp_ourcount++ if $r->{'state'} eq "A";
     }
     LJ::MemCache::set( $memkey, $memval );
-    $dbcr->selectrow_array( "SELECT RELEASE_LOCK(?)", undef, $lockkey );
+    $lock->release;    # release before the separately-locked replycount fixup
 
     $fixup_rp->();
 
@@ -773,15 +797,11 @@ sub fixup_logitem_replycount {
     my $rp_count  = LJ::MemCache::get($rp_memkey) || 0;
     my $fix_key   = "rp_fixed:$u->{userid}:$nodetype:$jitemid:$rp_count";
 
-    my $db_key   = "rp:fix:$u->{userid}:$nodetype:$jitemid";
-    my $got_lock = $u->selectrow_array( "SELECT GET_LOCK(?, 1)", undef, $db_key );
-    return unless $got_lock;
+    my $db_key = "rp:fix:$u->{userid}:$nodetype:$jitemid";
+    my $lock   = DW::Locker->new->trylock( $db_key, class => 'replycount_fixup', wait => 1 );
+    return unless $lock;
 
-    # setup an unlock handler
-    my $unlock = sub {
-        $u->do( "SELECT RELEASE_LOCK(?)", undef, $db_key );
-        return undef;
-    };
+    my $unlock = sub { $lock->release; return undef; };
 
     # check memcache to see if someone has previously fixed this entry in this journal
     # with this reply count
@@ -808,8 +828,6 @@ sub fixup_logitem_replycount {
     );
     $u->do( "UPDATE log2 SET replycount=? WHERE journalid=? AND jitemid=?",
         undef, int($ct), $u->{'userid'}, $jitemid );
-    print STDERR "Fixing replycount for $u->{'userid'}/$jitemid from $rp_count to $ct\n"
-        if $LJ::DEBUG{'replycount_fix'};
 
     # now, commit or unlock as appropriate
     if ( $u->is_innodb ) {
@@ -1533,8 +1551,14 @@ sub talkform {
 
         captcha => $opts->{do_captcha}
         ? {
-            type => $journalu->captcha_type,
-            html => DW::Captcha->new( undef, want => $journalu->captcha_type )->print,
+            html => DW::Captcha->new->print(
+                page => 'comment',
+
+                # do_captcha is require_captcha_test's reason string on form
+                # render; a bare truthy value (a re-show after a failed post)
+                # has no specific reason, so label it generically.
+                reason => ( $opts->{do_captcha} =~ /^[a-z_]+$/ ? $opts->{do_captcha} : 'comment' ),
+            )
             }
         : 0,
 
@@ -2127,6 +2151,9 @@ CLUSTER:
         # is there anything to actually query for this cluster?
         next CLUSTER unless @vals;
 
+        # hook for tests to count DB reads (per-cluster fallback for cache misses)
+        $LJ::_T_GET_TALK2_ROW_DB->() if $LJ::_T_GET_TALK2_ROW_DB;
+
         my $dbcr = LJ::get_cluster_reader($cid)
             or die "unable to get cluster reader: $cid";
 
@@ -2450,9 +2477,9 @@ sub enter_comment {
     push @jobs,
         LJ::Event::JournalNewComment->new( LJ::Comment->new( $journalu, jtalkid => $jtalkid ) );
 
-    if (@LJ::SPHINX_SEARCHD) {
+    if ( DW::Search::enabled() ) {
         push @jobs,
-            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            DW::Task::SearchCopier->new(
             { userid => $journalu->id, jtalkid => $jtalkid, source => "commtnew" } );
     }
 
@@ -2827,7 +2854,6 @@ sub prepare_and_validate_comment {
     }
 
     # If the form already had a captcha, prep it:
-    $content->{want} = $content->{captcha_type};    # Captcha->new consumes "want"
     my $captcha = DW::Captcha->new( undef, %{ $content || {} } );
 
     # are they sending us a response? Check it.
@@ -2843,7 +2869,7 @@ sub prepare_and_validate_comment {
     }
     else {
         $$need_captcha =
-            LJ::Talk::Post::require_captcha_test( $commenter, $journalu, $body, $entry->ditemid );
+            LJ::Talk::Post::require_captcha_test( $commenter, $journalu, $body, $entry );
 
         $err->( LJ::Lang::ml('captcha.title') ) if $$need_captcha;
     }
@@ -2906,32 +2932,46 @@ sub prepare_and_validate_comment {
 # <LJFUNC>
 # name: LJ::Talk::Post::require_captcha_test
 # des: returns true if user must answer CAPTCHA (human test) before posting a comment
-# args: commenter, journal, body, ditemid
+# args: commenter, journal, body, entry
 # des-commenter: User object of author of comment, undef for anonymous commenter
 # des-journal: User object of journal where to post comment
 # des-body: Text of the comment (may be checked for spam, may be empty)
-# des-ditemid: identifier of post, need for checking reply-count
+# des-entry: LJ::Entry object for the entry being commented on
 # </LJFUNC>
+# Decides whether a comment needs a captcha. Returns a short reason string when
+# one is required -- used both as a truthy "show it" flag and as the metric
+# "reason" tag (rate_limited / ip_sysban / maxcomments / journal_setting /
+# comment_html) -- or '' when no captcha is needed.
 sub require_captcha_test {
-    my ( $commenter, $journal, $body, $ditemid ) = @_;
+    my ( $commenter, $journal, $body, $entry ) = @_;
+    my $ditemid = $entry->ditemid;
 
     # only require captcha if the site is properly configured for it
-    return 0 unless DW::Captcha->site_enabled;
+    return '' unless DW::Captcha->site_enabled;
 
     ## anonymous commenter user =
     ## not logged-in user, or OpenID without validated e-mail
     my $anon_commenter = !LJ::isu($commenter)
         || ( $commenter->identity && !$commenter->is_validated );
 
+    # A logged-out browser holding a valid trust cookie (recently logged in to
+    # an account in good standing) gets the same treatment as a generic
+    # logged-in commenter: skip the anonymous-only checks below, keep every
+    # check a logged-in user would still face. $bypassed records the first
+    # check trust exempted, for the metric at the bottom -- emitted only if no
+    # later check requires a captcha anyway.
+    my $trusted_anon = $anon_commenter && LJ::Session->trusted_anon_user ? 1 : 0;
+    my $bypassed;
+
     ##
     ## 1. Check rate by remote user and by IP (for anonymous user)
     ##
     my $captcha = DW::Captcha->new;
     if ( $captcha->enabled('anonpost') || $captcha->enabled('authpost') ) {
-        return 1 unless LJ::Talk::Post::check_rate( $commenter, $journal );
+        return 'rate_limited' unless LJ::Talk::Post::check_rate( $commenter, $journal );
     }
     if ( $captcha->enabled('anonpost') && $anon_commenter ) {
-        return 1 if LJ::sysban_check( 'talk_ip_test', LJ::get_remote_ip() );
+        return 'ip_sysban' if LJ::sysban_check( 'talk_ip_test', LJ::get_remote_ip() );
     }
 
     ##
@@ -2941,14 +2981,18 @@ sub require_captcha_test {
     if ( LJ::Talk::get_replycount( $journal, $ditemid >> 8 ) >=
         $journal->count_maxcomments_before_captcha )
     {
-        return 1;
+        # Skip the forced captcha for recent entries (posted within the last
+        # 30 days). High-comment spam mostly targets old/abandoned entries,
+        # and active anon memes shouldn't be penalized for popularity.
+        my $age_days = ( time() - $entry->logtime_unix ) / 86400;
+        return 'maxcomments' if $age_days > 30;
     }
 
     ##
     ## 2. Don't show captcha to the owner of the journal, no more checks
     ##
     if ( !$anon_commenter && $commenter->equals($journal) ) {
-        return 0;
+        return '';
     }
 
     ##
@@ -2960,46 +3004,74 @@ sub require_captcha_test {
     }
     elsif ( $show_captcha_to eq 'R' ) {
         ## anonymous
-        return 1 if $anon_commenter;
+        if ($anon_commenter) {
+            return 'journal_setting' unless $trusted_anon;
+            $bypassed //= 'journal_setting';
+        }
     }
     elsif ( $show_captcha_to eq 'F' ) {
         ## not friends
-        return 1 if !$journal->trusts_or_has_member($commenter);
+        return 'journal_setting' if !$journal->trusts_or_has_member($commenter);
     }
     elsif ( $show_captcha_to eq 'A' ) {
         ## all
-        return 1;
+        return 'journal_setting';
     }
 
     ##
     ## 4. Global (site) settings
     ## See if they have any tags or URLs in the comment's body
     ##
-    if ( $captcha->enabled('comment_html_auth')
-        || ( $captcha->enabled('comment_html_anon') && $anon_commenter ) )
+    if (
+        $body
+        && ( $captcha->enabled('comment_html_auth')
+            || ( $captcha->enabled('comment_html_anon') && $anon_commenter ) )
+        && _comment_html_is_suspicious($body)
+        )
     {
-        return 0 unless $body;    # Before we bother matching against it.
-
-        if ( $body =~ /<[a-z]/i ) {
-
-            # strip white-listed bare tags w/o attributes,
-            # then see if they still have HTML.  if so, it's
-            # questionable.  (can do evil spammy-like stuff w/
-            # attributes and other elements)
-            my $body_copy = $body;
-            $body_copy =~ s/<(?:q|blockquote|b|strong|i|em|cite|sub|sup|var|del|tt|code|pre|p)>//ig;
-            return 1 if $body_copy =~ /<[a-z]/i;
+        # trusted anon is exempt only when the anonymous-commenter HTML check
+        # alone applies; comment_html_auth covers logged-in users too, so it
+        # still fires
+        if ( $trusted_anon && !$captcha->enabled('comment_html_auth') ) {
+            $bypassed //= 'comment_html';
         }
-
-        # multiple URLs is questionable too
-        return 1 if $body =~ /\b(?:http|ftp|www)\b.+\b(?:http|ftp|www)\b/s;
-
-        # or if they're not even using HTML
-        return 1 if $body =~ /\[url/is;
-
-        # or if it's obviously spam
-        return 1 if $body =~ /\s*message\s*/is;
+        else {
+            return 'comment_html';
+        }
     }
+
+    DW::Captcha->record_bypass( 'kind:form', 'page:comment', "reason:$bypassed" )
+        if $bypassed;
+
+    return '';
+}
+
+# The suspicious-content heuristics behind the comment_html captcha pages:
+# non-whitelisted HTML, multiple URLs, BBCode-style [url, or classic spam text.
+sub _comment_html_is_suspicious {
+    my ($body) = @_;
+
+    if ( $body =~ /<[a-z]/i ) {
+
+        # strip white-listed bare tags w/o attributes,
+        # then see if they still have HTML.  if so, it's
+        # questionable.  (can do evil spammy-like stuff w/
+        # attributes and other elements)
+        my $body_copy = $body;
+        $body_copy =~ s/<(?:q|blockquote|b|strong|i|em|cite|sub|sup|var|del|tt|code|pre|p)>//ig;
+        return 1 if $body_copy =~ /<[a-z]/i;
+    }
+
+    # multiple URLs is questionable too
+    return 1 if $body =~ /\b(?:http|ftp|www)\b.+\b(?:http|ftp|www)\b/s;
+
+    # or if they're not even using HTML
+    return 1 if $body =~ /\[url/is;
+
+    # or if it's obviously spam
+    return 1 if $body =~ /\s*message\s*/is;
+
+    return 0;
 }
 
 # Does what it says on the tin.
@@ -3168,9 +3240,9 @@ sub edit_comment {
 
     push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj);
 
-    if (@LJ::SPHINX_SEARCHD) {
+    if ( DW::Search::enabled() ) {
         push @jobs,
-            TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier',
+            DW::Task::SearchCopier->new(
             { userid => $journalu->id, jtalkid => $comment_obj->jtalkid, source => "commtedt" } );
     }
 
@@ -3274,33 +3346,6 @@ WATCH:
             my ( $allowed, $period ) = ( $rate->[0], $rate->[1] );
             my $events = scalar grep { $_ > $now - $period } @times;
             if ( $events > $allowed ) {
-
-                if ( $LJ::DEBUG{'talkrate'}
-                    && LJ::MemCache::add( "warn:$key", 1, 600 ) )
-                {
-
-                    my $ruser = ( exists $remote->{'user'} ) ? $remote->{'user'} : 'Not logged in';
-                    my $nowtime = localtime($now);
-                    my $body    = <<EOM;
-Talk spam from $key:
-$events comments > $allowed allowed / $period secs
-     Remote user: $ruser
-     Remote IP:   $ip
-     Time caught: $nowtime
-     Posting to:  $journalu->{'user'}
-EOM
-
-                    LJ::send_mail(
-                        {
-                            'to'       => $LJ::DEBUG{'talkrate'},
-                            'from'     => $LJ::ADMIN_EMAIL,
-                            'fromname' => $LJ::SITENAME,
-                            'charset'  => 'utf-8',
-                            'subject'  => "talk spam: $key",
-                            'body'     => $body,
-                        }
-                    );
-                }    # end sending email
 
                 last WATCH;
             }

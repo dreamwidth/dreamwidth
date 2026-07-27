@@ -1,0 +1,131 @@
+[%# manage/externalaccount.tt
+
+Add or edit an external account for crossposting.
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- IF editacct; sections.title = dw.ml( '.title.edit' );
+    ELSE; sections.title = dw.ml( '.title.new' ); END -%]
+
+<form action="/manage/externalaccount" method="post" id="createacct"
+    [%~ IF editacct %] data-protocol="[% edit_protocol %]"[% END %]>
+[% dw.form_auth() %]
+[% IF editacct %][% form.hidden( name => 'acctid', value => editacct.acctid ) %][% END %]
+
+<div class="row">
+    <div class="columns medium-3"><label for="site">[% '.label.site' | ml %]</label></div>
+    <div class="columns medium-9">
+    [% IF editacct %]
+        [% editacct.servername | html %]
+    [% ELSE %]
+        <select id="site" name="site" class="select">
+        [% FOREACH s IN sites %]
+            <option value="[% s.siteid %]" data-protocol="[% s.protocolid %]"
+                [%~ ' selected="selected"' IF site_selected == s.siteid %]>[% s.sitename | html %]</option>
+        [% END %]
+            <option value="-1"[% ' selected="selected"' IF site_selected == -1 %]>[% '.label.site.custom' | ml %]</option>
+        </select>
+
+        <div id="customsite">
+            <div class="row">
+                <div class="columns medium-4"><label for="servicetype">[% '.label.servicetype' | ml %]</label></div>
+                <div class="columns medium-8">
+                    [% form.select( name => 'servicetype', id => 'servicetype',
+                        items => servicetype_items ) %]
+                </div>
+            </div>
+            <div class="row">
+                <div class="columns medium-4"><label for="servicename">[% '.label.servicename' | ml %]</label></div>
+                <div class="columns medium-8">
+                    [% form.textbox( name => 'servicename', id => 'servicename',
+                        size => 40, maxlength => 80 ) %]
+                </div>
+            </div>
+            <div class="row">
+                <div class="columns medium-4"><label for="serviceurl">[% '.label.serviceurl' | ml %]</label></div>
+                <div class="columns medium-8">
+                    [% form.textbox( name => 'serviceurl', id => 'serviceurl',
+                        size => 40, maxlength => 80 ) %]
+                </div>
+            </div>
+        </div>
+    [% END %]
+    </div>
+</div>
+
+<div class="row">
+    <div class="columns medium-3"><label for="username">[% '.label.username' | ml %]</label></div>
+    <div class="columns medium-9">
+    [% IF editacct %]
+        [% editacct.username | html %]
+    [% ELSE %]
+        [% form.textbox( name => 'username', id => 'username', size => 40, maxlength => 80,
+            hint => dw.ml( '.label.username.info' ) ) %]
+    [% END %]
+    </div>
+</div>
+
+<div class="row">
+    <div class="columns medium-3"><label for="password">[% '.label.password' | ml %]</label></div>
+    <div class="columns medium-9">
+        [% form.password( name => 'password', id => 'password', size => 40, maxlength => 80,
+            hint => dw.ml( '.label.password.info' ) ) %]
+    </div>
+</div>
+
+<div class="row">
+    <div class="columns medium-9 medium-offset-3">
+        [% form.checkbox( name => 'xpostbydefault', id => 'xpostbydefault', value => 1,
+            selected => xpostbydefault_sel, label => dw.ml( '.label.xpostbydefault' ) ) %]
+    </div>
+</div>
+
+<div class="row">
+    <div class="columns medium-9 medium-offset-3">
+        [% form.checkbox( name => 'recordlink', id => 'recordlink', value => 1,
+            selected => recordlink_sel, label => dw.ml( '.label.recordlink' ) ) %]
+    </div>
+</div>
+
+<div class="row">
+    <div class="columns medium-9 medium-offset-3">
+        [% form.checkbox( name => 'savepassword', id => 'savepassword', value => 1,
+            selected => savepassword_sel, label => dw.ml( '.label.savepassword' ) ) %]
+    </div>
+</div>
+
+[% FOREACH section IN protocol_sections %]
+<div class="protocol_options" id="[% section.id %]_options">
+    [% FOREACH opt IN section.options %]
+    <div class="row">
+        <div class="columns medium-3">[% dw.ml( '.protocol.options', { protocol => section.protocolid } ) %]</div>
+        <div class="columns medium-9">
+            [% form.select( name => opt.opts.name, id => opt.opts.id,
+                selected => opt.opts.selected, items => opt.options,
+                label => opt.description ) %]
+        </div>
+    </div>
+    [% END %]
+</div>
+[% END %]
+
+<div class="row">
+    <div class="columns medium-9 medium-offset-3">
+        [% IF editacct %]
+            [% form.submit( value => dw.ml( '.btn.update' ), class => 'button' ) %]
+        [% ELSE %]
+            [% form.submit( value => dw.ml( '.btn.create' ), class => 'button' ) %]
+        [% END %]
+    </div>
+</div>
+
+</form>

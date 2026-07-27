@@ -18,7 +18,7 @@ use Carp qw (croak);
 use LJ::Auth;
 use HTML::TokeParser;
 use LJ::JSON;
-use TheSchwartz;
+use DW::Task::EmbedWorker;
 
 # states for a finite-state machine we use in parse()
 use constant {
@@ -175,7 +175,7 @@ sub parse_module_embed {
     return unless LJ::is_enabled('embed_module');
 
     # fast track out if we don't have to expand anything
-    return unless $$postref =~ /(lj|site)\-embed|embed|object|iframe/i;
+    return unless $$postref =~ /<((lj|site)\-embed|embed|object|iframe)/i;
 
     # do we want to replace with the lj-embed tags or iframes?
     my $expand = $opts{expand};
@@ -367,8 +367,7 @@ sub extract_src_info {
 
         # Fire off the worker to get the correct title
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                "DW::Worker::EmbedWorker",
+            DW::Task::EmbedWorker->new(
                 {
                     vid_id    => $vid_id,
                     host      => 'youtube',
@@ -376,7 +375,6 @@ sub extract_src_info {
                     contents  => $contents,
                     cmptext   => $cmptext,
                     journalid => $journal->id,
-                    preview   => $preview,
                     id        => $id,
                     linktext  => $linktext,
                     url       => $url,
@@ -400,8 +398,7 @@ sub extract_src_info {
 
         # Fire off the worker to get the correct title
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                "DW::Worker::EmbedWorker",
+            DW::Task::EmbedWorker->new(
                 {
                     vid_id    => $vid_id,
                     host      => 'vimeo',
@@ -409,7 +406,6 @@ sub extract_src_info {
                     contents  => $contents,
                     cmptext   => $cmptext,
                     journalid => $journal->id,
-                    preview   => $preview,
                     id        => $id,
                     linktext  => $linktext,
                     url       => $url,

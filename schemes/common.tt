@@ -102,9 +102,34 @@ the table based way can be removed when the entire site is Foundation-based.
 
 <div id='account-links-text' role="navigation" aria-label="[% 'sitescheme.navigation.accountlinks' | ml %]" data-reveal>
 <div class='row'><div class='columns'>
-    <form action='[% site.root %]/logout' method='post'>
-        [%- dw.form_auth -%]
+    [%- switch_accounts = dw_scheme.switch_accounts -%]
+    <span class='account-links-active'>
         [%- remote.ljuser_display -%]
+        [%- IF switch_accounts.size -%]
+        <details class='account-switcher'>
+        <summary aria-label="[% 'sitescheme.accountlinks.switch.label' | ml %]"></summary>
+        <ul>
+        [%- FOREACH acct IN switch_accounts -%]
+            <li class='switch-account'>
+                <span class='switch-account-name'>[% acct.u.ljuser_display %]</span>
+            [%- IF acct.valid -%]
+                <form action='[% site.root %]/switchaccount' method='post' class='switch-account-form'>
+                    [%- dw.form_auth -%]
+                    [%- form.hidden( name = "userid", value = acct.userid ) -%]
+                    [%- form.hidden( name = "returnto", value = returnto ) -%]
+                    <button type="submit" class="switch-account-btn">[% 'sitescheme.accountlinks.switch.go' | ml %]</button>
+                </form>
+            [%- ELSE -%]
+                <a class='switch-account-signedout' href='[% site.root %]/login?switch=1&amp;user=[% acct.user | uri %]&amp;returnto=[% returnto | uri %]'>[% 'sitescheme.accountlinks.switch.signedout' | ml %]</a>
+            [%- END -%]
+            </li>
+        [%- END -%]
+        </ul>
+        </details>
+        [%- END -%]
+    </span>
+    <form class='account-links-logout' action='[% site.root %]/logout' method='post'>
+        [%- dw.form_auth -%]
         <input type="hidden" name="returnto" value="[% returnto | html %]" />
         <input type="hidden" name="ret" value="1" />
         <input class="logout button secondary" type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
@@ -138,28 +163,8 @@ the table based way can be removed when the entire site is Foundation-based.
     <a href="[% site.root %]/login" class="button radius" data-reveal-id="nav-login-form">[% 'sitescheme.accountlinks.btn.login' | ml %]</a>
     <div id='nav-login-form' class="reveal-modal" data-reveal>
       <div class="row"><div class="columns">
-      <form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
-        <input type="hidden" name="returnto" value="[% returnto | html %]" />
-        <input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
-        <input type='hidden' name='response' class='lj_login_response' value='' />
-        <div class="row">
-          <div class="columns medium-6">
-            <label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label>
-            <input name="user" id="login_user" size="20" maxlength="27" aria-required="true" type="text" />
-            <label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label>
-            <input type="password" name="password" id="login_password" size="20" aria-required="true" class="lj_login_password">
-            <label for='login_remember_me'><input type="checkbox" name="remember_me" id="login_remember_me" value="1" /> [% 'sitescheme.accountlinks.login.rememberme' | ml %]</label>
-            <input class="button expand" type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" />
-          </div>
-          <div class="columns medium-6">
-            <p>[% 'sitescheme.accountlinks.login.otheroptions' | ml %]</p>
-            <ul>
-              <li><a href='[% site.root %]/lostinfo' >[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></li>
-              <li><a href='[% site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' >[% 'sitescheme.accountlinks.login.openid' | ml %]</a></li>
-            </ul>
-          </div>
-        </div>
-      </form>
+      [% PROCESS 'login.tt' %]
+
       </div></div>
     <button type="button" class="fi-icon--with-fallback close-reveal-modal">
         <span class="fi-icon fi-x" aria-hidden="true"></span>
@@ -179,10 +184,35 @@ the table based way can be removed when the entire site is Foundation-based.
     [%- inbox = remote.notification_inbox -%]
     [%- unread = inbox.unread_count -%]
     [%- identity = remote.is_identity -%]
+    [%- switch_accounts = dw_scheme.switch_accounts -%]
     [%- -%]<div id='account-links-text'>
-    <form action='[% site.root %]/logout' method='post'>
-        [%- dw.form_auth -%]
+    <span class='account-links-active'>
         [%- remote.ljuser_display -%]
+        [%- IF switch_accounts.size -%]
+        <details class='account-switcher'>
+        <summary aria-label="[% 'sitescheme.accountlinks.switch.label' | ml %]"></summary>
+        <ul>
+        [%- FOREACH acct IN switch_accounts -%]
+            <li class='switch-account'>
+                <span class='switch-account-name'>[% acct.u.ljuser_display %]</span>
+            [%- IF acct.valid -%]
+                <form action='[% site.root %]/switchaccount' method='post' class='switch-account-form'>
+                    [%- dw.form_auth -%]
+                    [%- form.hidden( name = "userid", value = acct.userid ) -%]
+                    [%- form.hidden( name = "returnto", value = returnto ) -%]
+                    <button type="submit" class="switch-account-btn">[% 'sitescheme.accountlinks.switch.go' | ml %]</button>
+                </form>
+            [%- ELSE -%]
+                <a class='switch-account-signedout' href='[% site.root %]/login?switch=1&amp;user=[% acct.user | uri %]&amp;returnto=[% returnto | uri %]'>[% 'sitescheme.accountlinks.switch.signedout' | ml %]</a>
+            [%- END -%]
+            </li>
+        [%- END -%]
+        </ul>
+        </details>
+        [%- END -%]
+    </span>
+    <form action='[% site.root %]/logout' method='post' class='account-links-logout'>
+        [%- dw.form_auth -%]
         <input type="hidden" name="returnto" value="[% returnto | html %]" />
         <input type="hidden" name="ret" value="1" />
         <input type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />

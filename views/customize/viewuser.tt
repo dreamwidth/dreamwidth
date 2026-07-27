@@ -1,0 +1,23 @@
+[%- sections.title = '.user.layer2' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[% authas_form %]
+
+&lt;&lt; <a href='[% dw.create_url('/customize', keep_args => ['authas']) %]'>[% dw.ml('.customize') %]</a><p>
+
+<a href='[% dw.create_url('/customize/viewuser', keep_args => ['authas']) %]'>[% dw.ml('.raw') %]</a> |
+<a href='[% dw.create_url('/customize/viewuser', keep_args => ['authas'], args => {as => 'theme'}) %]'>[% dw.ml('.as.theme') %]</a>
+
+<textarea rows='40' cols='60' wrap='off'>
+# for layout: [% layer.s2lid %] ([% layer.uniq %])
+[% IF as == 'theme' -%]
+layerinfo type = user;
+[%- ELSE -%]
+layerinfo type = theme;
+layerinfo name = "";
+[%- END -%]
+
+[% FOREACH prop IN props %]
+set [% prop.name %] = [% prop.val %];
+[%- END -%]
+</textarea>

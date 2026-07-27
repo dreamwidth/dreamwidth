@@ -21,8 +21,8 @@
     <form method='post'>
     [% form.hidden( name = 'username', value = randomu.user ) %]
     [% form.submit( value = dw.ml( '.form.submit', { username => randomu.user } ) ) %] 
-    <a href='[% site.shoproot %]/randomgift?type=[% type %]'>[% dw.ml( ".form.getanother.$type") %]</a>
-    &nbsp;&nbsp;<a href='[% site.shoproot %]/randomgift?type=[% othertype %]'>[% dw.ml( ".form.switchtype.$type") %]</a>
+    <p><a href='[% site.shoproot %]/randomgift?type=[% type %]'>[% dw.ml( ".form.getanother.$type") %]</a>
+    &nbsp;&nbsp;<a href='[% site.shoproot %]/randomgift?type=[% othertype %]'>[% dw.ml( ".form.switchtype.$type") %]</a></p>
     </form><br />
 [% ELSE %]
     <p>[% dw.ml( ".nousers.$type") %]</p>

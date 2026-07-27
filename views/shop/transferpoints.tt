@@ -59,7 +59,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <form method='post'>
             [% dw.form_auth %]
             <div class="row">
-                <div class="columns large-5 end">
+                <div class="columns large-6 end">
                     <div class="row">
                         <div class="columns medium-5">
                             <label for="foruser">[% dw.ml('.buying.for') %]</label>
@@ -86,6 +86,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
                         <div class="columns medium-4 small-6">
                             [% dw.ml('.buying.points.range') %]
                             [% IF errs.points %]<br /><strong>[% errs.points %]</strong>[% END %]
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="columns medium-5">
+                        </div>
+                        <div class="columns medium-7">
+                            <label for='anon'><input type='checkbox' name='anon' id='anon' /> [% dw.ml('.anon') %]</label>
                         </div>
                     </div>
                     <div class="row">

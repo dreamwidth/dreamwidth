@@ -21,7 +21,7 @@ use DW::Request::Standard;
 use HTTP::Request;
 
 use DBI;
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::ModuleCheck;
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed routing_request);
@@ -246,7 +246,7 @@ sub incr {
     my $key = _key($fkey);
     return 0 unless exists $self->{data}{$key};
     $self->{data}{$key} += $optval;
-    return 1;
+    return $self->{data}{$key};
 }
 
 sub decr {

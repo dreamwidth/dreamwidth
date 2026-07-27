@@ -1,4 +1,11 @@
 <?_c
+# DEPRECATED: This is the "Insert Image" popup for the legacy entry editor
+# (htdocs/update.bml and htdocs/editjournal.bml, via entry.js / InOb). The new
+# Template Toolkit entry editor (DW::Controller::Entry, /entry/new) does not use
+# it. It will be removed together with the legacy editor once the new entry
+# editor leaves beta.
+_c?>
+<?_c
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under

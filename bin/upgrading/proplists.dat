@@ -38,14 +38,6 @@ userproplist.bonus_icons:
   multihomed: 0
   prettyname: How many bonus icon slots the user has purchased
 
-userproplist.captcha:
-  cldversion: 4
-  datatype: char
-  des: CAPTCHA type to show in the user's journal
-  indexed: 0
-  multihomed: 0
-  prettyname: CAPTCHA type
-
 userproplist.cc_msg:
   cldversion: 4
   datatype: bool
@@ -510,14 +502,6 @@ userproplist.iconbrowser_smallicons:
   multihomed: 0
   prettyname: Icon browser small icons
 
-userproplist.icq:
-  cldversion: 0
-  datatype: char
-  des: ICQ Number
-  indexed: 1
-  multihomed: 1
-  prettyname: ICQ (legacy value)
-
 userproplist.import_job:
   cldversion: 4
   datatype: char
@@ -677,6 +661,14 @@ userproplist.nonmember_posting:
   indexed: 0
   multihomed: 0
   prettyname: Non-Member posting access
+
+userproplist.not_approved:
+  cldversion: 0
+  datatype: char
+  des: 1 if unexamined, 2 if flagged as spam
+  indexed: 1
+  multihomed: 0
+  prettyname: Awaiting Approval
 
 userproplist.no_mail_alias:
   cldversion: 4

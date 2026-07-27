@@ -1,0 +1,53 @@
+[%# mobile/post.tt
+  #
+  # The mobile post-an-entry form. Rendered by DW::Controller::Mobile::Post.
+  # Standalone (no sitescheme). Shows one of four states: a "log in first"
+  # message, a success message with a link to the new entry, a posting error,
+  # or the entry form itself.
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+<html>
+<head>
+<meta name="viewport" content="width = 320" />
+<title>[% '.page.title' | ml %]</title>
+</head>
+<body>
+[%- IF not_logged_in %]
+[% '.post.login' | ml( aopts => "href='login'" ) %]
+
+[%- ELSIF posted_url %]
+[% '.post.back' | ml( aopts => "href='./'", sitename => site.nameshort ) %]
+<h1>[% '.post.success.header' | ml %]</h1>
+[% '.post.success.text' | ml( aopts => "href='" _ posted_url _ "'" ) %]
+
+[%- ELSIF post_error %]
+[% '.post.error_posting' | ml %]: [% post_error %]
+
+[%- ELSE %]
+[% '.post.back' | ml( aopts => "href='./'", sitename => site.nameshort ) %]
+<h1>[% '.form.header' | ml %]</h1>
+
+<form method='post' action='[% site.root %]/mobile/post'>
+[% dw.form_auth %]
+[% '.form.subject2' | ml %]:<br />
+<input name='subject' size='50' style='width: 90%' /><br />
+[% '.form.post' | ml %]:<br />
+<textarea rows='10' cols='40' name='event' wrap='virtual' style='width: 90%'></textarea><br />
+
+[% '.form.security' | ml %]: [% form.select( name = 'security', selected = 'public', items = security_items ) %]<br />
+
+<hr />
+<center>
+<input type='submit' value="[% '.form.button' | ml %]" /> [% '.form.post_to' | ml %] [% form.select( name = 'usejournal', items = usejournal_items ) %]
+</center>
+</form>
+[%- END %]
+
+</body>
+</html>

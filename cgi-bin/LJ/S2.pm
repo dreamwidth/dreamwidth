@@ -17,6 +17,8 @@ package LJ::S2;
 
 use strict;
 use DW;
+use DW::Request;
+use DW::Cache;
 use lib DW->home . "/src/s2";
 use S2;
 use S2::Color;
@@ -34,7 +36,6 @@ use LJ::S2::ReplyPage;
 use LJ::S2::TagsPage;
 use LJ::S2::IconsPage;
 use Storable;
-use Apache2::Const qw/ :common /;
 use POSIX ();
 
 use DW::SiteScheme;
@@ -65,7 +66,7 @@ sub make_journal {
             $use_modtime = 1;
         }
         else {
-            $opts->{'handler_return'} = 404;
+            $opts->{'handler_return'} = $apache_r->NOT_FOUND;
             return;
         }
     }
@@ -76,7 +77,7 @@ sub make_journal {
     my $ctx =
         s2_context( $styleid, use_modtime => $use_modtime, u => $u, style_u => $opts->{style_u} );
     unless ($ctx) {
-        $opts->{'handler_return'} = OK;
+        $opts->{'handler_return'} = $apache_r->OK;
         return;
     }
 
@@ -550,13 +551,10 @@ sub load_layers {
         next if S2::layer_loaded($lid);
 
         unless ( $us->{$lid} ) {
-            print STDERR "Style $lid has no available owner.\n" if $LJ::DEBUG{"s2style_load"};
             next;
         }
 
         if ( $us->{$lid}->{userid} == $sysid ) {
-            print STDERR "Style $lid is owned by system but failed load from global.\n"
-                if $LJ::DEBUG{"s2style_load"};
             next;
         }
 
@@ -1225,13 +1223,13 @@ sub get_style_layers {
     return undef unless $styleid;
 
     # check memcache unless $force
-    my $stylay = $force ? undef : $LJ::S2::REQ_CACHE_STYLE_ID{$styleid};
+    my $stylay = $force ? undef : DW::Cache->request->get( 's2_style_id', $styleid );
     return $stylay if $stylay;
 
     my $memkey = [ $styleid, "s2sl:$styleid" ];
     $stylay = LJ::MemCache::get($memkey) unless $force;
     if ($stylay) {
-        $LJ::S2::REQ_CACHE_STYLE_ID{$styleid} = $stylay;
+        DW::Cache->request->set( 's2_style_id', $styleid, $stylay );
         return $stylay;
     }
 
@@ -1266,7 +1264,7 @@ sub get_style_layers {
 
     # set in memcache
     LJ::MemCache::set( $memkey, \%stylay );
-    $LJ::S2::REQ_CACHE_STYLE_ID{$styleid} = \%stylay;
+    DW::Cache->request->set( 's2_style_id', $styleid, \%stylay );
     return \%stylay;
 }
 
@@ -1296,14 +1294,14 @@ sub load_layer {
     my $db  = ref $_[0] ? shift : LJ::S2::get_s2_reader();
     my $lid = shift;
 
-    my $layerid = $LJ::S2::REQ_CACHE_LAYER_ID{$lid};
+    my $layerid = DW::Cache->request->get( 's2_layer_id', $lid );
     return $layerid if $layerid;
 
     my $ret = $db->selectrow_hashref(
         "SELECT s2lid, b2lid, userid, type " . "FROM s2layers WHERE s2lid=?",
         undef, $lid );
     die $db->errstr if $db->err;
-    $LJ::S2::REQ_CACHE_LAYER_ID{$lid} = $ret;
+    DW::Cache->request->set( 's2_layer_id', $lid, $ret );
 
     return $ret;
 }
@@ -1567,7 +1565,7 @@ sub load_layer_info {
     # check request cache
     my %layers_from_cache = ();
     foreach my $lid (@$listref) {
-        my $layerinfo = $LJ::S2::REQ_CACHE_LAYER_INFO{$lid};
+        my $layerinfo = DW::Cache->request->get( 's2_layer_info', $lid );
         if ( keys %$layerinfo ) {
             $layers_from_cache{$lid} = 1;
             foreach my $k ( keys %$layerinfo ) {
@@ -1588,7 +1586,9 @@ sub load_layer_info {
     $sth->execute;
 
     while ( my ( $id, $k, $v ) = $sth->fetchrow_array ) {
-        $LJ::S2::REQ_CACHE_LAYER_INFO{$id}->{$k} = $v;
+        my $info = DW::Cache->request->get( 's2_layer_info', $id )
+            || DW::Cache->request->set( 's2_layer_info', $id, {} );
+        $info->{$k} = $v;
         $outhash->{$id}->{$k} = $v;
     }
 
@@ -1965,8 +1965,26 @@ sub Tag {
     return $t;
 }
 
+# The viewer's tag-count relationship to $u is identical for every tag, so
+# callers rendering a whole list compute it once and pass it into TagDetail
+# rather than paying a per-tag trustmask lookup (see #3646).
+sub tag_viewer_context {
+    my ($u) = @_;
+    my $remote = LJ::get_remote();
+
+    my %ctx = ( remote => $remote );
+    if ( defined $remote && $remote->can_manage($u) ) {    # own journal
+        $ctx{can_manage} = 1;
+    }
+    elsif ( defined $remote ) {                            # logged in, not own journal
+        $ctx{trusted} = $u->trusts_or_has_member($remote);
+        $ctx{grpmask} = $u->trustmask($remote);
+    }
+    return \%ctx;
+}
+
 sub TagDetail {
-    my ( $u, $kwid, $tag ) = @_;
+    my ( $u, $kwid, $tag, $viewer ) = @_;
     return undef unless $u && $kwid && ref $tag eq 'HASH';
 
     my $t = {
@@ -1983,10 +2001,12 @@ sub TagDetail {
     # be visible to >1 of them. Instead of working it out accurately
     # every time, we give an approximation that will either be accurate
     # or an underestimate.
-    my $count  = 0;
-    my $remote = LJ::get_remote();
+    my $count = 0;
 
-    if ( defined $remote && $remote->can_manage($u) ) {    #own journal
+    # list callers pass this in; a lone tag computes it here.
+    $viewer ||= tag_viewer_context($u);
+
+    if ( $viewer->{can_manage} ) {    # own journal
         $count = $tag->{uses};
         my $groupcount = $tag->{uses};
         foreach (qw(public private protected)) {
@@ -1996,9 +2016,9 @@ sub TagDetail {
         $t->{security_counts}->{group} = $groupcount;
 
     }
-    elsif ( defined $remote ) {                            #logged in, not own journal
-        my $trusted = $u->trusts_or_has_member($remote);
-        my $grpmask = $u->trustmask($remote);
+    elsif ( $viewer->{remote} ) {     # logged in, not own journal
+        my $trusted = $viewer->{trusted};
+        my $grpmask = $viewer->{grpmask};
 
         $count = $tag->{security}->{public};
         $t->{security_counts}->{public} = $tag->{security}->{public};
@@ -2432,7 +2452,9 @@ sub Page {
         _styleopts            => LJ::viewing_style_opts(%$get),
         timeformat24          => $remote && $remote->use_24hour_time,
         include_meta_viewport => $r->cookie('no_mobile') ? 0 : 1,
+        session_msgs          => $r->msgs
     };
+    $r->clear_msgs;
 
     if ( $opts && $opts->{'saycharset'} ) {
         $p->{'head_content'} .=
@@ -4611,13 +4633,16 @@ sub Page__visible_tag_list {
         my $tags = LJ::Tags::get_usertags( $u, { remote => $remote } );
         return [] unless $tags;
 
+        # compute the viewer relationship once for the whole list
+        my $viewer = LJ::S2::tag_viewer_context($u);
+
         foreach my $kwid ( keys %{$tags} ) {
 
             # only show tags for display
             next unless $tags->{$kwid}->{display};
 
             # create tag object
-            push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid} );
+            push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid}, $viewer );
         }
     }
 

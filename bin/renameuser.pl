@@ -155,17 +155,12 @@ sub rename_user {
     LJ::MemCache::delete("uidof:$from");
     LJ::MemCache::delete("uidof:$to");
 
-    LJ::Procnotify::add(
-        "rename_user",
-        {
-            user   => $u->user,
-            userid => $u->userid
-        }
-    );
+    # ...existing code...
 
+    # ownerid 0 = system rename (no purchased token)
     $dbh->do(
-        "INSERT INTO renames (renid, auth, cartid, renuserid, fromuser, touser, rendate) "
-            . "VALUES ( NULL, '[manual]', 0, ?, $qfrom, $qto, ? )",
+        "INSERT INTO renames (renid, auth, cartid, ownerid, renuserid, fromuser, touser, rendate) "
+            . "VALUES ( NULL, '[manual]', 0, 0, ?, $qfrom, $qto, ? )",
         undef, $u->userid, time
     );
 

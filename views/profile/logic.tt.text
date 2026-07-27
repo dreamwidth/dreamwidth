@@ -55,6 +55,8 @@
 
 .label.website=Website:
 
+.label.website.toonew=Other people will not see this link on your profile until your account is at least 10 days old.
+
 .section.edit=Edit
 
 .syn.last.never=Never

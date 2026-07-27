@@ -155,7 +155,8 @@ sub _dispatcher {
         $apikey = DW::API::Key->get_key($keystr);
     }
 
-# all paths require an API key except the spec (which informs users that they need a key and where to put it)
+    # all paths require an API key except the spec (which informs users that they need
+    # a key and where to put it)
     unless ( defined($apikey) || $self->{path}{name} eq "/spec" ) {
         $r->print( to_json( { success => 0, error => "Missing or invalid API key" } ) );
         $r->status('401');
@@ -203,8 +204,8 @@ sub _dispatcher {
     }
     else {
         # Generic response for unimplemented API methods.
-        $r->print( to_json( { success => 0, error => "Not Implemented" } ) );
-        $r->status('501');
+        $r->print( to_json( { success => 0, error => "Method Not Allowed" } ) );
+        $r->status('405');
         return $r->OK;
     }
 }
@@ -331,7 +332,6 @@ sub _validate_body {
         return 0;
     }
     $arg_obj->{body} = $p;
-
     return 1;
 }
 

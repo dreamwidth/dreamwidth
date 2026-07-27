@@ -1,0 +1,34 @@
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }, "js/jquery.poll.js" ) -%]
+
+[%- FOREACH m IN [[ "enter", dw.ml('.filloutpoll') ], [ "results" , dw.ml('.viewresults') ]] -%]
+    [%- NEXT IF m.0 == "enter" && poll.is_closed -%]
+    [%- IF mode == m.0 -%]
+        <b>[ [% m.1 %] ]</b>
+    [%- ELSE -%]
+        <a href="[% dw.create_url('/poll', args => {id => pollid, mode => m.0}) %]">[ [% m.1 %] ]</a>
+    [%- END -%]
+[% END %]
+
+<a href='[% entry.url %]'>[ [% dw.ml('.discuss') %] ]</a>
+
+[%# Links for closing/reopening polls %]
+[%- IF poll.is_owner(remote) || (remote && remote.can_manage(u)) -%]
+    [%- IF poll.is_closed -%]
+    <a href='[% dw.create_url('/poll', args => {id => pollid, mode => 'open'}) %]'>[ [% dw.ml('.reopen') %] ]</a>
+    [%- ELSE -%]
+    <a href='[% dw.create_url('/poll', args => {id => pollid, mode => 'close'}) %]'>[ [% dw.ml('.close') %] ]</a>
+    [%- END -%]
+[%- END -%]
+
+    <hr>
+
+[% IF error %]
+    [% poll.render(mode => "enter") IF error_code == 2 %]
+    [% error %]
+[% ELSE %]
+    [% poll.render('mode', mode, 'qid',poll_form.qid,
+                'page', poll_form.page, 'pagesize', poll_form.pagesize) %]
+[% END %]

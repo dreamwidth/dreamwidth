@@ -91,7 +91,7 @@ sub reload_conf {
     return $memc if eval { $memc->doesnt_want_configuration; };
 
     $memc->set_servers( \@LJ::MEMCACHE_SERVERS );
-    $memc->set_debug( $LJ::DEBUG{'memcached'} );
+    $memc->set_debug(0);
     $memc->set_pref_ip( \%LJ::MEMCACHE_PREF_IP );
     $memc->set_compress_threshold($LJ::MEMCACHE_COMPRESS_THRESHOLD);
 

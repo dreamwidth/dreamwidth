@@ -1,4 +1,9 @@
 <?_c
+# DEPRECATED: This page has been migrated to the new Template Toolkit inbox
+# (DW::Controller::Inbox), served at /inbox/new/compose. It is kept only while
+# the new inbox is in beta and will be removed once the new inbox leaves beta.
+_c?>
+<?_c
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under

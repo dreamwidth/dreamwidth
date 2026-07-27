@@ -295,8 +295,9 @@ sub get_dbh_conn {
         }
         else {
             $connection_opts = {
-                PrintError => 0,
-                AutoCommit => 1,
+                PrintError        => 0,
+                AutoCommit        => 1,
+                mysql_enable_utf8 => 0,    # Preserve binary data (gzip in TEXT columns)
             };
         }
 
@@ -374,7 +375,12 @@ sub connection_bad {
 
     return 1 unless $dbh;
 
-    my $ss = eval { $dbh->selectrow_hashref("SHOW SLAVE STATUS"); };
+    # MySQL 8.0+ uses SHOW REPLICA STATUS, earlier versions don't
+    my $ss = eval {
+        my ($version) = $dbh->selectrow_array("SELECT VERSION()");
+        my $is_mysql8plus = $version =~ /^8\./ || $version =~ /^(\d+)/ && $1 >= 8;
+        $dbh->selectrow_hashref( $is_mysql8plus ? "SHOW REPLICA STATUS" : "SHOW SLAVE STATUS" );
+    };
 
     # if there was an error, and it wasn't a permission problem (1227)
     # then treat this connection as bogus

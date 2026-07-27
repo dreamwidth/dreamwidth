@@ -61,7 +61,7 @@
         [% IF usertags.size > 0 %]
             <select name='tags' multiple='multiple' class='multiple-select tagbox_nohist' onChange='edit_tagselect(this)'>
             [% FOREACH tag IN usertags %]
-                <option value='[% tag.name | html %]'>[% tag.name | html %]</option>
+                <option value="[% tag.name | html %]">[% tag.name | html %]</option>
             [% END %]
             </select>
         [% END %]

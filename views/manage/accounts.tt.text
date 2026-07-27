@@ -1,0 +1,18 @@
+;; -*- coding: utf-8 -*-
+.btn.add=Add another account
+
+.btn.login=Log in
+
+.btn.remove=Remove
+
+.btn.switch=Switch
+
+.intro=These accounts are signed in on this browser. You can switch between them without re-entering your password, remove ones you no longer want listed here, or add another. Removing an account here only affects this browser.
+
+.status.active=Available
+
+.status.current=Current
+
+.status.signedout=Signed out
+
+.title=Account switcher

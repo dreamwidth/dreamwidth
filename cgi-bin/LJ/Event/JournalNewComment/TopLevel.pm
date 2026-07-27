@@ -40,6 +40,15 @@ sub matches_filter {
     my $watcher = $subscr->owner;
     return 0 unless $comment->visible_to($watcher);
 
+    # For unscreen events, skip users who were already notified
+    # when the comment was screened (they could already see it).
+    if ( $self->is_unscreen_event ) {
+        return 0 if $watcher->can_manage( $comment->journal );
+        return 0
+            if $entry->poster
+            && $watcher->equals( $entry->poster );
+    }
+
     # check that event's entry is the entry we're interested in (subscribed to)
     my $wanted_ditemid = $subscr->arg1;
     return 0 if $wanted_ditemid && $entry->ditemid != $wanted_ditemid;

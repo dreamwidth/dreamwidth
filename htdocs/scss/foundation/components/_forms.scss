@@ -398,6 +398,12 @@ $select-hover-bg-color: scale-color($select-bg-color, $lightness: -3%) !default;
       }
     }
 
+    /* Create a label-like style, for visual matching in forms */
+    .label {
+      @include form-label;
+      cursor: auto;
+    }
+
     /* Attach elements to the beginning or end of an input */
     .prefix,
     .postfix { @include prefix-postfix-base; }

@@ -105,8 +105,26 @@ sub new {
     # by asking for an invalid captcha type
     my $impl     = $LJ::CAPTCHA_TYPES{ delete $opts{want} || "" } || "";
     my $subclass = $impl2class{$impl};
-    $subclass = $impl2class{ $LJ::CAPTCHA_TYPES{$LJ::DEFAULT_CAPTCHA_TYPE} }
+    $subclass = $impl2class{ $LJ::CAPTCHA_TYPES{ $LJ::DEFAULT_CAPTCHA_TYPE // "" } // "" }
         unless $subclass && $subclass->site_enabled;
+
+    # The default type can be stale -- e.g. config still pins a %CAPTCHA_TYPES
+    # letter we no longer ship -- which leaves $subclass undef. Prefer the first
+    # *enabled* implementation so we don't silently bless into a disabled captcha
+    # (whose validate() is a no-op, bypassing the captcha entirely). Fall back to
+    # any registered implementation, then the base class, rather than blessing
+    # into undef (which would die on the first method call), and make the
+    # misconfiguration visible.
+    unless ($subclass) {
+        my @registered = map { $impl2class{$_} } sort keys %impl2class;
+        ($subclass) = grep { $_->site_enabled } @registered;
+        $subclass ||= $registered[0] || $class;
+        $log->error(
+            "\$LJ::DEFAULT_CAPTCHA_TYPE '",
+            $LJ::DEFAULT_CAPTCHA_TYPE // '',
+            "' maps to no known captcha; using $subclass"
+        );
+    }
 
     my $self = bless { page => $page, }, $subclass;
 
@@ -189,12 +207,34 @@ sub form_fields { qw() }
 
 sub site_enabled { return LJ::is_enabled('captcha') && $_[0]->_implementation_enabled ? 1 : 0 }
 
-# must be implemented by subclasses
-sub _implementation_enabled { return 1; }
+# Subclasses override this. On the abstract base -- the class-method call
+# callers use to ask "is captcha configured at all?" (e.g. the comment captcha
+# logic in LJ::Talk), or a base instance (only reachable as a last-resort
+# fallback) -- it reports whether ANY implementation is enabled, so a fallback
+# base instance still cleanly no-ops when nothing is configured.
+sub _implementation_enabled {
+    return ( grep { $_->_implementation_enabled } values %impl2class ) ? 1 : 0;
+}
 
 sub print {
-    my $self = $_[0];
+    my ( $self, %opts ) = @_;
     return "" unless $self->enabled;
+
+    # Record that a form captcha was issued. Most forms are a single
+    # %LJ::CAPTCHA_FOR page (reason defaults to "this page requires one"), but
+    # callers whose captcha isn't tied to one page -- comments, which decide via
+    # require_captcha_test -- can pass page/reason to label the metric.
+    DW::Stats::increment(
+        'dw.captcha.shown',
+        1,
+        _stat_tags(
+            LJ::get_remote(),
+            'kind:form',
+            'reason:' . ( $opts{reason} || 'form_required' ),
+            'page:' .   ( $opts{page} // $self->page // '' ),
+            'type:' . $self->name
+        )
+    );
 
     my $ret = "<div class='captcha'>";
     $ret .= $self->_print;
@@ -221,15 +261,18 @@ sub validate {
     # error catching for undefined page
     my $pageref = $self->page // '';
 
-    # captcha type, page captcha appeared on
-    my $stat_tags = [ ( ref $self )->name, "page:$pageref" ];
+    # captcha type, page captcha appeared on, web tier, logged-in state
+    my $stat_tags =
+        _stat_tags( LJ::get_remote(), 'type:' . ( ref $self )->name, "page:$pageref" );
     if ( $self->challenge && $self->_validate ) {
         DW::Stats::increment( "dw.captcha.success", 1, $stat_tags );
         return 1;
     }
 
     DW::Stats::increment( "dw.captcha.failure", 1, $stat_tags );
-    $$err_ref = LJ::Lang::ml('captcha.invalid');
+
+    # err_ref is optional (e.g. the /captcha gate doesn't surface the message)
+    $$err_ref = LJ::Lang::ml('captcha.invalid') if $err_ref;
 
     return 0;
 }
@@ -272,9 +315,17 @@ sub should_captcha_view {
         return 0 if $r->uri =~ $LJ::CAPTCHA_BYPASS_REGEX;
     }
 
-    # If the user is on an automated IP range, captcha
+    # A request-level matcher can force a captcha regardless of source IP, for
+    # requests the IP lists don't catch. The policy is a hot-reloadable coderef in
+    # $LJ::SHOULD_CAPTCHA_REQUEST. Anonymous-only: logged-in users already returned
+    # above.
+    my $captcha_request = ref $LJ::SHOULD_CAPTCHA_REQUEST eq 'CODE'
+        && $LJ::SHOULD_CAPTCHA_REQUEST->($r);
+
+    # If the user is on an automated IP range, captcha -- but a request flagged
+    # above is captcha'd regardless of IP.
     my ( $mckey, $ip ) = _captcha_mckey();
-    if ( my $matcher = $LJ::SHOULD_CAPTCHA_IP ) {
+    if ( !$captcha_request && ( my $matcher = $LJ::SHOULD_CAPTCHA_IP ) ) {
         return 0 unless $matcher->($ip);
     }
 
@@ -283,10 +334,30 @@ sub should_captcha_view {
         return 0 if $matcher->($ip);
     }
 
+    # Why is this visitor eligible for the gate at all? -- tagged on the metrics
+    # below so we can tell IP-range gating apart from request-rule gating apart
+    # from "everyone" (no IP matcher configured).
+    my $source =
+          $captcha_request       ? 'request'
+        : $LJ::SHOULD_CAPTCHA_IP ? 'ip'
+        :                          'all';
+
+    # A browser recently logged in to an account in good standing gets the
+    # logged-in treatment. Checked lazily, only where we'd otherwise show a
+    # captcha, so the common allow path pays nothing and trusted browsers
+    # never feed the fraud counter below (which tempbans IPs).
+    my $trusted_bypass = sub {
+        my ($reason) = @_;
+        return 0 unless LJ::Session->trusted_anon_user;
+        $class->record_bypass( 'kind:interstitial', "reason:$reason", "source:$source" );
+        return 1;
+    };
+
     # Get our captcha information -- no information means that the user has not
     # passed a captcha. If we have information, then they *have* at some point.
     my $info_raw = LJ::MemCache::get($mckey);
     unless ($info_raw) {
+        return 0 if $trusted_bypass->('no_record');
 
         # Let's see if this is a repeat offender who is spamming requests at us
         # and hitting a bunch of 302s -- in which case, temp ban
@@ -317,8 +388,12 @@ sub should_captcha_view {
         if ( $count >= $LJ::CAPTCHA_FRAUD_LIMIT ) {
             $log->info( 'Banning ', $ip, ' for exceeding captcha fraud threshold.' );
             LJ::Sysban::tempban_create( ip => $ip, $LJ::CAPTCHA_FRAUD_SYSBAN_SECS );
+            DW::Stats::increment( 'dw.captcha.fraud_ban', 1,
+                _stat_tags( $remote, "source:$source" ) );
         }
 
+        DW::Stats::increment( 'dw.captcha.shown', 1,
+            _stat_tags( $remote, 'kind:interstitial', 'reason:no_record', "source:$source" ) );
         return 1;
     }
 
@@ -328,7 +403,11 @@ sub should_captcha_view {
 
     # If the first request is too long ago, then re-captcha
     if ( ( time() - $first_req_ts ) > $LJ::CAPTCHA_RETEST_INTERVAL_SECS ) {
+        return 0 if $trusted_bypass->('retest_interval');
         $log->info( $mckey, ' has exceeded the retest interval, issuing captcha.' );
+        DW::Stats::increment( 'dw.captcha.shown', 1,
+            _stat_tags( $remote, 'kind:interstitial', 'reason:retest_interval', "source:$source" )
+        );
         return 1;
     }
 
@@ -345,7 +424,11 @@ sub should_captcha_view {
 
     # If we are out of requests, retest
     if ( $remaining <= 0 ) {
+        return 0 if $trusted_bypass->('out_of_requests');
         $log->info( $mckey, ' is out of requests by usage, retesting.' );
+        DW::Stats::increment( 'dw.captcha.shown', 1,
+            _stat_tags( $remote, 'kind:interstitial', 'reason:out_of_requests', "source:$source" )
+        );
         return 1;
     }
 
@@ -356,6 +439,7 @@ sub should_captcha_view {
 
 # Called when the captcha page has a successful captcha.
 sub record_success {
+    my ( $class, $remote ) = @_;
 
     # Return unless we're enabled
     return 0 unless $LJ::CAPTCHA_HCAPTCHA_SITEKEY;
@@ -363,6 +447,18 @@ sub record_success {
     my $mckey = _captcha_mckey();
     $log->debug( 'Captcha success for: ', $mckey );
     LJ::MemCache::set( $mckey, join( ':', time(), time(), $LJ::CAPTCHA_INITIAL_REMAINING ) );
+    DW::Stats::increment( 'dw.captcha.solved', 1, _stat_tags($remote) );
+}
+
+# Called when a captcha that would have been shown was skipped because the
+# browser holds a valid trust cookie (LJ::Session->trusted_anon_user). Tags
+# mirror dw.captcha.shown so the two can be compared directly -- including
+# type:<impl>, the implementation that would have been used; only anonymous
+# viewers can bypass, so logged_in is always 0.
+sub record_bypass {
+    my ( $class, @tags ) = @_;
+    DW::Stats::increment( 'dw.captcha.bypassed', 1,
+        _stat_tags( undef, 'type:' . $class->new->name, @tags ) );
 }
 
 # Reset the captcha counter, so the user starts getting them
@@ -396,6 +492,15 @@ sub _captcha_mckey {
     my $uniq       = LJ::UniqCookie->current_uniq;
     my $mckey      = "$uniq:$ip_trimmed";
     return wantarray ? ( $mckey, $ip ) : $mckey;
+}
+
+# Common DW::Stats tags applied to every captcha metric so they can be sliced
+# consistently: which web tier emitted the metric (e.g. "stable"/"canary" from
+# $LJ::WEB_TIER) and whether the viewer was logged in. Pass the remote user
+# object (or undef/false for anonymous), plus any metric-specific tags.
+sub _stat_tags {
+    my ( $remote, @extra ) = @_;
+    return [ 'tier:' . $LJ::WEB_TIER, 'logged_in:' . ( $remote ? 1 : 0 ), @extra ];
 }
 
 # internal method. Used to initialize the challenge and response fields

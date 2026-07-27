@@ -54,13 +54,9 @@ sub help {
 Where <command> is one of:
   load         Runs the following five commands in order:
     popstruct  Populate lang data from text[-local].dat into db
-    poptext    Populate text from en.dat, etc into database. This will also
-               delete any text items listed in deadphrases[-local].dat. If
-               texttool.pl is run on a production server ($LJ::IS_DEV_SERVER is
-               false), the text items will be dumped first (as if by dumptext)
-               for all languages except en and the local root language
-               ($LJ::DEFAULT_LANG or $LJ::LANGS[0]), but existing text files
-               will be appended, not overwritten.
+    poptext    Populate text from en.dat, etc into database. This only adds and
+               updates text items; it does NOT delete. To retire dead keys, run
+               the separate "deadphrases" command (below).
     copyfaq    If site is translating FAQ, copy FAQ data into trans area
     makeusable Setup internal indexes necessary after loading text
   dumptext     Dump lang text based on text[-local].dat information
@@ -70,6 +66,13 @@ Where <command> is one of:
   wipedb       Remove all language/text data from database.
   remove       takes two extra arguments: domain name and code, and removes
                that code and its text in all languages
+  deadphrases  Delete the text items listed in deadphrases[-local].dat from the
+               database. Intentionally NOT run by "load", so keys a migration
+               moved (e.g. foo.bml.text -> foo.tt.text) survive on hosts still
+               running the old code; run it explicitly once the new keys are live
+               everywhere. On a production server ($LJ::IS_DEV_SERVER false) all
+               languages except en and the local root language ($LJ::DEFAULT_LANG
+               or $LJ::LANGS[0]) are dumped first (as if by dumptext, appending).
 
 ';
 }
@@ -193,15 +196,16 @@ my $out   = sub {
 };
 
 my @good = qw(load popstruct poptext dumptext dumptextcvs wipedb
-    makeusable copyfaq remove);
+    makeusable copyfaq remove deadphrases);
 
 popstruct()    if $mode eq "popstruct"  or $mode eq "load";
 poptext(@ARGV) if $mode eq "poptext"    or $mode eq "load";
 copyfaq()      if $mode eq "copyfaq"    or $mode eq "load";
 makeusable()   if $mode eq "makeusable" or $mode eq "load";
 dumptext( 0, @ARGV ) if $mode =~ /^dumptext?$/;
-wipedb() if $mode eq "wipedb";
-remove(@ARGV) if $mode eq "remove" and scalar(@ARGV) == 2;
+wipedb()           if $mode eq "wipedb";
+remove(@ARGV)      if $mode eq "remove" and scalar(@ARGV) == 2;
+deadphrases(@ARGV) if $mode eq "deadphrases";
 help() unless grep { $mode eq $_ } @good;
 exit 0;
 
@@ -462,8 +466,19 @@ sub poptext {
         $out->( "added: $addcount", '-' );
     }
     $out->( "-", "done." );
+}
 
-    # dead phrase removal
+# Remove the text items listed in deadphrases[-local].dat from the database.
+# This is intentionally NOT part of 'load'/'poptext' (which now only add/update
+# text): when a migration moves keys (e.g. foo.bml.text -> foo.tt.text), the old
+# keys must survive on hosts still running the old code (stable/BML) until the new
+# code is everywhere. Run this explicitly once that's true to retire them.
+sub deadphrases {
+    my @langs = @_;
+    push @langs, ( keys %lang_code ) unless @langs;
+
+    # before removing on production, dump translated text (with append) so a
+    # mistaken/early deadphrase doesn't lose existing translations
     unless ($LJ::IS_DEV_SERVER) {
         my @trans = grep { $_ ne "en" && $_ ne $LJ::DEFAULT_LANG } @LJ::LANGS;
         if (@trans) {

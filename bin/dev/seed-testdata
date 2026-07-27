@@ -1,0 +1,180 @@
+#!/usr/bin/perl
+#
+# bin/dev/seed-testdata
+#
+# Seed the dev database with a small, FIXED set of test accounts, content, and a
+# community, so the dev environment (and screenshots) have deterministic data to
+# depend on. Idempotent: safe to re-run; anything that already exists (keyed on
+# username) is left alone. Run inside the devcontainer:
+#
+#   perl bin/dev/seed-testdata
+#
+# It is also run automatically by .devcontainer/setup.sh on container create.
+#
+# Fixture set (every account shares the password "dreamwidth"):
+#   test_user    personal; bio; public + access-only + private entries (tagged);
+#                a comment from test_friend
+#   test_friend  personal; in a mutual circle with test_user; one public entry
+#   test_paid    personal; paid (premium); one public entry
+#   test_comm    community; test_user is maintainer, test_friend a member; one
+#                community entry
+#
+# NOTE: usernames and text are constant, but internal numeric ids (userid,
+# jitemid) are not guaranteed identical across rebuilds -- depend on names and
+# content, not ids. Entry timestamps are "now" (when seeded), so relative dates
+# will reflect the build time.
+
+use strict;
+use warnings;
+
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::Test;    # provides $u->t_post_fake_entry / t_post_fake_comm_entry
+use DW::Pay;
+
+my $PASSWORD = "dreamwidth";
+
+# load-or-create a validated, visible personal account.
+# returns ( $u, $was_just_created )
+sub ensure_personal {
+    my ( $user, %opts ) = @_;
+
+    if ( my $existing = LJ::load_user($user) ) {
+        return ( $existing, 0 );
+    }
+
+    my $u = LJ::User->create_personal(
+        user     => $user,
+        email    => "$user\@example.com",
+        password => $PASSWORD,
+        name     => $opts{name} || $user,
+    ) or die "failed to create \@$user\n";
+
+    $u->update_self( { status => 'A', statusvis => 'V' } );
+    LJ::update_user( $u, { password => $PASSWORD } );
+    $u->set_bio( $opts{bio} ) if $opts{bio};
+
+    print "  created personal \@$user\n";
+    return ( $u, 1 );
+}
+
+# apply a comma-separated tag list to an entry. $remote is the acting user (the
+# journal owner, or a maintainer for a community entry) who has tag-add rights.
+sub tag_entry {
+    my ( $remote, $entry, $tagstring ) = @_;
+    LJ::Tags::update_logtags( $entry->journal, $entry->jitemid,
+        { set_string => $tagstring, remote => $remote } );
+}
+
+print "Seeding dev test data...\n";
+
+# --- test_user: the main account, with a mix of entries ---
+my ( $user, $user_new ) = ensure_personal(
+    "test_user",
+    name => "Test User",
+    bio  => "The main test account for the dev environment.",
+);
+
+my $public_entry;
+if ($user_new) {
+    # Tags reuse some names across entries so usage counts vary (test=3,
+    # personal=2, others=1) -- that's what gives the /manage/tags histogram and
+    # the per-tag security breakdown something to show.
+    $public_entry = $user->t_post_fake_entry(
+        subject  => "Welcome to my journal",
+        body     => "This is a public entry on the main test account.",
+        security => "public",
+    );
+    tag_entry( $user, $public_entry, "test, intro, personal" );
+
+    my $access = $user->t_post_fake_entry(
+        subject  => "Access-only post",
+        body     => "Only people in my access list can read this one.",
+        security => "friends",
+    );
+    tag_entry( $user, $access, "test, personal, friends-only" );
+
+    my $private = $user->t_post_fake_entry(
+        subject  => "Private thoughts",
+        body     => "Just for me.",
+        security => "private",
+    );
+    tag_entry( $user, $private, "test, private" );
+
+    print "  posted 3 tagged entries for \@test_user\n";
+}
+
+# --- test_friend: in a mutual circle with test_user ---
+my ( $friend, $friend_new ) = ensure_personal(
+    "test_friend",
+    name => "Test Friend",
+    bio  => "A second account, in test_user's circle.",
+);
+if ($friend_new) {
+    my $fe = $friend->t_post_fake_entry(
+        subject  => "Hello from test_friend",
+        body     => "A public entry from the friend account.",
+        security => "public",
+    );
+    tag_entry( $friend, $fe, "hello" );
+}
+
+# mutual circle: grant access (trust) + subscribe (watch) both ways.
+# add_edge is harmless to repeat, so this also self-heals on re-run.
+$user->add_edge( $friend, trust => {}, watch => {} );
+$friend->add_edge( $user, trust => {}, watch => {} );
+print "  circle: test_user <-> test_friend (mutual access)\n";
+
+# a comment from test_friend on test_user's public entry
+if ( $user_new && $public_entry ) {
+    LJ::Comment->create(
+        journal  => $user,
+        poster   => $friend,
+        ditemid  => $public_entry->ditemid,
+        nodetype => 'L',
+        body     => "Nice to see the dev environment has some content now!",
+    );
+    print "  comment from test_friend on test_user's welcome entry\n";
+}
+
+# --- test_paid: a paid account ---
+my ( $paid, $paid_new ) = ensure_personal(
+    "test_paid",
+    name => "Test Paid",
+    bio  => "A paid account, for paid-only UI.",
+);
+if ($paid_new) {
+    DW::Pay::add_paid_time( $paid, 'premium', 12 );
+    my $pe = $paid->t_post_fake_entry(
+        subject  => "Posting from a paid account",
+        body     => "A public entry from the paid test account.",
+        security => "public",
+    );
+    tag_entry( $paid, $pe, "paid, test" );
+    print "  granted premium time to \@test_paid\n";
+}
+
+# --- test_comm: a community maintained by test_user ---
+unless ( LJ::load_user("test_comm") ) {
+    my $comm = LJ::User->create_community(
+        user         => "test_comm",
+        email        => "test_comm\@example.com",
+        password     => $PASSWORD,
+        name         => "Test Community",
+        admin_userid => $user->id,
+        membership   => "open",
+        postlevel    => "members",
+    ) or die "failed to create community \@test_comm\n";
+
+    $friend->join_community( $comm, 1, 1 );    # watch + can-post member
+
+    my $ce = $user->t_post_fake_comm_entry(
+        $comm,
+        subject  => "Welcome to the test community",
+        body     => "The first post in the dev test community.",
+        security => "public",
+    );
+    tag_entry( $user, $ce, "community, welcome" );    # $user is a maintainer
+    print "  created community \@test_comm (test_user maint, test_friend member)\n";
+}
+
+print "Done. Accounts: test_user / test_friend / test_paid / test_comm  (password: $PASSWORD)\n";

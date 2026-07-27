@@ -30,6 +30,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Imager::QRCode;
 
+use DW::AccountSwitcher;
 use DW::Auth::TOTP;
 use DW::Controller;
 use DW::Routing;
@@ -433,8 +434,27 @@ sub changepassword_handler {
             # if we used an authcode, we'll need to expire it now
             LJ::mark_authaction_used($aa) if $authu;
 
-            # Kill all sessions, forcing user to relogin
-            $u->kill_all_sessions;
+            # End this account's sessions. Normally that logs the user out
+            # everywhere and they re-login. But if they have other accounts
+            # signed in to this browser through the switcher and are changing
+            # their own password from here, keep THIS browser's session alive so
+            # they stay signed in and don't lose those other accounts. Every
+            # other session (including on other devices) is still ended, and the
+            # switcher list itself is never touched.
+            my $stayed = 0;
+            if (   $remote
+                && $remote->equals($u)
+                && ( my $cur = $remote->session )
+                && scalar( DW::AccountSwitcher->accounts ) )
+            {
+                my @others = grep { $_->id != $cur->id } $u->sessions;
+                LJ::Session->destroy_sessions( $u, map { $_->id } @others )
+                    if @others;
+                $stayed = 1;
+            }
+            else {
+                $u->kill_all_sessions;
+            }
 
             LJ::send_mail(
                 {
@@ -453,6 +473,10 @@ sub changepassword_handler {
                     ),
                 }
             );
+
+            if ($stayed) {
+                return DW::Controller->render_success("settings/changepassword.tt.stayed");
+            }
 
             my $success_ml =
                 $remote

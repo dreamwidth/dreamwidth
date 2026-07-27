@@ -1,0 +1,128 @@
+[%# tools/memadd.tt
+  #
+  # Add, edit, or delete a single memory: the add/edit form plus the
+  # success and error states.
+  #
+  # Authors:
+  #     Mark Smith <mark@dreamwidth.org>
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- BLOCK delete_form %]
+<form action='[% form_url %]' method='POST'>
+[% dw.form_auth %]
+[% form.hidden( name => 'mode', value => 'save' ) %]
+[% form.submit( name => 'delete', value => dw.ml( '.form.delete' ), class => 'button' ) %]
+</form>
+[% END -%]
+
+[%- IF state == 'deleted' -%]
+[%- sections.title = '.title.deleted' | ml -%]
+
+<h2>[% '.error.deleted.title' | ml %]</h2>
+<p>[% '.error.deleted.body2' | ml( desc => des ) %]</p>
+<ul><li><a href='[% view_url %]'>[% '.error.deleted.next' | ml %]</a></li></ul>
+
+[%- ELSIF state == 'cantview' -%]
+[%- sections.title = 'error' | ml -%]
+
+<p>[% '.error.cantview' | ml %]</p>
+[% IF offer_delete %][% PROCESS delete_form %][% END %]
+
+[%- ELSIF state == 'entrygone' -%]
+[%- sections.title = 'error' | ml -%]
+
+<p>[% '.error.entrygone' | ml %]</p>
+[% IF offer_delete %][% PROCESS delete_form %][% END %]
+
+[%- ELSIF state == 'added' -%]
+[%- sections.title = '.title.added' | ml -%]
+
+<h2>[% '.body.added.header' | ml %]</h2>
+<p>[% '.body.added.text' | ml %]</p>
+<ul>
+<li><a href='[% entry_url %]'>[% '.body.added.next.entry' | ml %]</a></li>
+<li><a href='[% view_url %]'>[% '.body.added.next.view' | ml %]</a></li>
+[%- FOREACH link IN keyword_links %]
+<li><a href="[% link.url %]">[% '.body.added.next.keywords' | ml( keyword => link.display ) %]</a></li>
+[%- END %]
+<li><a href='[% read_url %]'>[% '.body.added.next.friends' | ml %]</a></li>
+<li>[% '.body.added.next.journal' | ml( user => ju_ljuser ) %]</li>
+</ul>
+
+[%- ELSE -%]
+[%- sections.title = dw.ml( title_ml ) -%]
+
+[%# the user switcher is shown even when editing: if you already have this
+  # entry as a memory of your own, you still need to be able to switch to a
+  # community to add it there too %]
+<form method='get' action='[% site.root %]/tools/memadd'>
+[% authas_html %]
+[% IF journal %][% form.hidden( name => 'journal', value => journal ) %][% END %]
+[% form.hidden( name => 'itemid', value => itemid ) %]
+</form>
+
+[%- IF is_edit %]
+<p>[% '.edit.text' | ml %]</p>
+[%- ELSE %]
+<p>[% '.add.text' | ml %]</p>
+[%- END %]
+
+<form method='post' action='[% form_url %]'>
+[% dw.form_auth %]
+[% form.hidden( name => 'mode', value => 'save' ) %]
+
+<div class='row'>
+  <div class='l columns medium-3'><label for='des'>[% '.description' | ml %]</label></div>
+  <div class='columns medium-9'>
+    [% form.textbox( name => 'des', id => 'des', value => des, maxlength => des_max, size => 40 ) %]
+    <small>[% '.description.text2' | ml %]</small>
+  </div>
+</div>
+
+<div class='row'>
+  <div class='l columns medium-3'><label for='keywords'>[% '.keywords' | ml %]</label></div>
+  <div class='columns medium-9'>
+    [% form.textbox( name => 'keywords', id => 'keywords', value => keywords, size => 40 ) %]
+    <small>[% '.keywords.text' | ml %]</small>
+[%- IF all_keywords.size %]
+    <p><small>[% '.keywords.select' | ml %]</small></p>
+    <select name='oldkeywords' size='[% kw_size %]' multiple='multiple' class='multiple-select'>
+      [%- FOREACH kw IN all_keywords %]
+      <option value="[% kw | html %]"[% IF selected_keyword.item( kw ) %] selected='selected'[% END %]>[% kw | html %]</option>
+      [%- END %]
+    </select>
+    <small>[% '.multiple_selections' | ml %]</small>
+[%- ELSE %]
+    <p><small>[% '.keywords.example' | ml %]</small></p>
+[%- END %]
+  </div>
+</div>
+
+<div class='row'>
+  <div class='l columns medium-3'><label for='security'>[% '.security' | ml %]</label></div>
+  <div class='columns medium-9'>
+    [%- sec_items = [];
+        FOREACH sec IN security_opts;
+          sec_items.push( sec.value, sec.label );
+        END -%]
+    [% form.select( name => 'security', id => 'security', selected => security, items => sec_items ) %]
+    <small>[% dw.ml( is_comm ? '.whocansee.comm' : '.whocansee' ) %]</small>
+  </div>
+</div>
+
+<div class='row'>
+  <div class='columns medium-9 medium-offset-3'>
+    [% form.submit( value => dw.ml( '.form.submit' ) ) %]
+[%- IF is_edit %] <input type='reset' class='secondary button' value="[% '.form.reset' | ml %]" />[% END %]
+  </div>
+</div>
+</form>
+
+[%- END -%]

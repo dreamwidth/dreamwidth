@@ -83,7 +83,7 @@
                 [% IF ct >= showlinks && caplinks > link_min %]
                     [% form.submit(
                         name => 'Widget[LinksList]_action:morelinks', 
-                        value => dw.ml('widget.linkslist.table.more') _ " &rarr;",
+                        value => dw.ml('widget.linkslist.table.more') _ " →",
                     'disabled' => (ct >= caplinks),
                     raw => 1
                     ) %]

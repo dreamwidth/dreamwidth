@@ -77,7 +77,7 @@ sub title {
     my $mode = delete $opts{mode};
     croak "Too many args passed to NotificationItem->as_html" if %opts;
 
-    $mode = "html" unless $mode && $LJ::DEBUG{"esn_inbox_titles"};
+    $mode = "html" unless $mode;
 
     if ( $mode eq "html" ) {
         return eval { $self->event->as_html( $self->u ) } || $@;

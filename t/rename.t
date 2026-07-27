@@ -448,7 +448,7 @@ note("-- community-to-unregistered");
     LJ::set_rel( $fromu, $admin, "A" );
 
     # FIXME: we shouldn't need to do this!
-    delete $LJ::REQ_CACHE_REL{ $fromu->userid . "-" . $admin->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $fromu->userid . "-" . $admin->userid . "-A" );
     ok( $admin->can_manage($fromu), "User can manage fromu." );
 
     ok( !LJ::load_user($tousername), "Username '$tousername' is unregistered" );
@@ -487,7 +487,7 @@ note("-- community-to-personal");
 
     # make admin of fromu
     LJ::set_rel( $fromu, $admin, "A" );
-    delete $LJ::REQ_CACHE_REL{ $fromu->userid . "-" . $admin->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $fromu->userid . "-" . $admin->userid . "-A" );
 
     ok(
         !$fromu->can_rename_to( $tousername, user => $admin ),
@@ -499,7 +499,7 @@ note("-- community-to-personal");
 
     # make admin of fromu
     LJ::set_rel( $fromu, $admin, "A" );
-    delete $LJ::REQ_CACHE_REL{ $fromu->userid . "-" . $admin->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $fromu->userid . "-" . $admin->userid . "-A" );
     ok(
         $fromu->can_rename_to( $tousername, user => $admin ),
         $admin->user
@@ -521,7 +521,7 @@ note("-- personal-to-community");
 
     # make admin of tou
     LJ::set_rel( $tou, $fromu, "A" );
-    delete $LJ::REQ_CACHE_REL{ $tou->userid . "-" . $fromu->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $tou->userid . "-" . $fromu->userid . "-A" );
 
     my $member = temp_user();
     $member->join_community($tou);
@@ -651,7 +651,7 @@ note("-- two username swap personal <=> community ");
 
     # make admin of u
     LJ::set_rel( $comm, $u, "A" );
-    delete $LJ::REQ_CACHE_REL{ $comm->userid . "-" . $u->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $comm->userid . "-" . $u->userid . "-A" );
 
     ok(
         $u->swap_usernames(
@@ -674,10 +674,10 @@ note("-- two username swap personal <=> community (with malice)");
 
     # make admin of u
     LJ::set_rel( $comm, $u, "A" );
-    delete $LJ::REQ_CACHE_REL{ $comm->userid . "-" . $u->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $comm->userid . "-" . $u->userid . "-A" );
 
     LJ::set_rel( $comm, $u2, "A" );
-    delete $LJ::REQ_CACHE_REL{ $comm->userid . "-" . $u2->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $comm->userid . "-" . $u2->userid . "-A" );
 
     ok(
         !$u->swap_usernames(
@@ -714,7 +714,7 @@ note("-- two username swap community <=> personal");
 
     # make admin of u
     LJ::set_rel( $comm, $u, "A" );
-    delete $LJ::REQ_CACHE_REL{ $comm->userid . "-" . $u->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $comm->userid . "-" . $u->userid . "-A" );
 
     ok(
         !$comm->swap_usernames(
@@ -733,9 +733,9 @@ note("-- two username swap (community and community)");
     my $c2 = temp_comm();
 
     LJ::set_rel( $c1, $admin, "A" );
-    delete $LJ::REQ_CACHE_REL{ $c1->userid . "-" . $admin->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $c1->userid . "-" . $admin->userid . "-A" );
     LJ::set_rel( $c2, $admin, "A" );
-    delete $LJ::REQ_CACHE_REL{ $c2->userid . "-" . $admin->userid . "-A" };
+    DW::Cache->request->remove( 'rel', $c2->userid . "-" . $admin->userid . "-A" );
 
     my $c1sername = $c1->user;
     my $c2sername = $c2->user;

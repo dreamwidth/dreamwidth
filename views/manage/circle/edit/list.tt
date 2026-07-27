@@ -26,7 +26,7 @@
         <tr role="row">
         [%# name %]
         <td scope='col' abbr='[% other_u.display_username %]' role="cell" class="name-cell">
-            [% form.hidden( name => "editfriend_edit_${uid}_user", selected => 1 ) %]
+            [% form.hidden( name => "editfriend_edit_${uid}_user", value => 1 ) %]
             [% other_u.ljuser_display %]
             <br /><span style='font-size: smaller;'>[% other_u.last_updated %]</span>
         </td>
@@ -110,13 +110,14 @@
         [% ELSIF type == "comms" %]
             [% jointext = dw.ml('.circle.member') %]
             [% joinvals = {
-                    name => "editfriend_edit_$uid_join",
-                    id => "editfriend_edit_$uid_join",
-                    value => 1,} 
+                    name => "editfriend_edit_${uid}_join",
+                    id => "editfriend_edit_${uid}_join",
+                    value => 1,
+                    autocomplete => "off"} 
             %]
 
             [%# check membership %]
-            [% IF is_member_of_userid(uid) %]
+            [% IF is_member_of_userid.$uid %]
                 [% SET jointext = dw.ml('.circle.admin') IF u.can_manage(other_u) %]
                 [% joinvals.selected = 1 %]
                 [% joinvals.disabled = u.can_leave( other_u ) ? 0 : 1 %]
@@ -125,8 +126,9 @@
                 [% jointext = (status ? dw.ml(".circle.join.$status") : dw.ml('.circle.none')) %]
                 [% IF status == 'moderated' %]
                     [% jointext = jointext _ " " _
-                        dw.ml( '.circle.join.apply', { aopts => "href='$site.root/circle/$other_u{user}/edit'" } ) %]
+                        dw.ml( '.circle.join.apply', { aopts => "href='$site.root/circle/$other_u.user/edit'" } ) %]
                 [% END %]
+                [% joinvals.noescape = 1 %]
                 [% joinvals.selected = 0 %]
                 [% joinvals.disabled = u.can_leave( other_u ) ? 0 : 1 %]
             [% END %]

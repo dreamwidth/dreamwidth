@@ -496,7 +496,14 @@ sub call_xmlrpc {
     my $xmlrpc = XMLRPC::Lite->new;
     $xmlrpc->proxy(
         "https://" . ( $opts->{server} || $opts->{hostname} ) . "/interface/xmlrpc",
-        agent => "$LJ::SITENAME Content Importer ($LJ::ADMIN_EMAIL)"
+        agent    => "$LJ::SITENAME Content Importer ($LJ::ADMIN_EMAIL)",
+        ssl_opts => {
+
+            # TLS 1.3 handshakes hang under IO::Socket::SSL 2.098 + OpenSSL 3.0
+            # due to session ticket handling (see openssl/openssl#7967). Force
+            # TLS 1.2 as a workaround.
+            SSL_version => 'TLSv1_2',
+        },
     );
 
     my $chal;
@@ -551,7 +558,6 @@ sub get_foaf_from {
     my @schools;
     my %wanted_text_items = (
         'foaf:name'          => 'name',
-        'foaf:icqChatID'     => 'icq',
         'foaf:jabberID'      => 'jabber',
         'ya:bio'             => 'bio',
         'lj:journaltitle'    => 'journaltitle',

@@ -20,8 +20,8 @@ use LJ::Hooks;
 use LJ::Time;
 
 # use mysql date format:            year-month-date hour::min:seconds
-my $start_time = LJ::mysqldate_to_time( "2023-12-01 00:00:00", 1 );
-my $end_time   = LJ::mysqldate_to_time( "2023-12-31 23:59:59", 1 );
+my $start_time = LJ::mysqldate_to_time( "2025-12-01 00:00:00", 1 );
+my $end_time   = LJ::mysqldate_to_time( "2025-12-31 23:59:59", 1 );
 
 # warn sprintf( "Running shop promo from %s to %s\n", scalar gmtime( $start_time ), scalar gmtime( $end_time ) );
 

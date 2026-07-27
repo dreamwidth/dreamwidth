@@ -8,18 +8,15 @@
          [% person.last_updated %]
 
         [%- UNLESS nopaid -%]
-             [<a href='[% person.gift_url  %]'>
-            [% dw.ml( '.buy.gift' ) %]</a>]
+             [<a href='[% person.gift_url %]'>[% dw.ml( '.buy.gift' ) %]</a>]
         [%- END -%]
 
         [%- IF person.is_personal -%]
-             [<a href='[% person.gift_points_url  %]'>
-            [% dw.ml( '.buy.points' ) %]</a>]
+             [<a href='[% person.gift_points_url %]'>[% dw.ml( '.buy.points' ) %]</a>]
         [%- END -%]
 
         [% IF person.is_personal && ! person.equals( remote ) -%]
-             [<a href='[% person.transfer_points_url  %]'>
-            [% dw.ml( '.buy.points.transfer' ) %]</a>]
+             [<a href='[% person.transfer_points_url %]'>[% dw.ml( '.buy.points.transfer' ) %]</a>]
         [%- END -%]
         </li>
     [% END %]
@@ -38,7 +35,7 @@
     <h2>[% dw.ml( '.free.header' ) %]</h2>
     <p>
     [% dw.ml( '.free.about',
-            { aopts => "href='${site.root}/support/faqbrowse?faqid=153'" } ) %]
+            { aopts => "href='${site.help.paidaccountinfo}'" } ) %]
     </p>
 
     [%#build different lists for personal and community accounts %]

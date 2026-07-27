@@ -73,9 +73,10 @@ sub create_token {
     my $dbh = LJ::get_db_writer()
         or die "Unable to connect to database.\n";
 
+    # renuserid 0 = not yet applied; apply() sets it to the renamed journal.
     my $sth = $dbh->prepare(
-        q{INSERT INTO renames (renid, auth, cartid, ownerid, status)
-          VALUES (NULL, ?, ?, ?, 'U')}
+        q{INSERT INTO renames (renid, auth, cartid, ownerid, renuserid, status)
+          VALUES (NULL, ?, ?, ?, 0, 'U')}
     ) or die "Unable to allocate statement handle.\n";
 
     my $uid      = $opts{systemtoken} ? 0 : $opts{ownerid};

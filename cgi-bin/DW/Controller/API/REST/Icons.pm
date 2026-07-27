@@ -41,7 +41,9 @@ sub rest_get {
     }
     else {
         # otherwise, load all userpics.
-        my @icons = grep { !( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics($u);
+        my @icons =
+            grep { !( $_->inactive || $_->expunged || $_->suspended ) }
+            LJ::Userpic->load_user_userpics($u);
         return $self->rest_ok( \@icons );
     }
 

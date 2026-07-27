@@ -1,0 +1,9 @@
+;; -*- coding: utf-8 -*-
+.button.no=No, this looks bogus.
+
+.button.yes=Looks good to me!
+
+.intro=Reviewing [[user]], created [[ago]]. <br /> Does this look like a legitimate account?
+
+.title=Review New Accounts
+

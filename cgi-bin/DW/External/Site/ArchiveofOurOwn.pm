@@ -45,7 +45,7 @@ sub badge_image {
         unless $u && ref $u eq 'DW::External::User';
 
     return {
-        url    => 'http://archiveofourown.org/favicon.ico',
+        url    => 'https://archiveofourown.org/favicon.ico',
         width  => 16,
         height => 16,
     };

@@ -1,0 +1,218 @@
+#!/bin/bash
+#
+# ecs-shell - Connect to ECS tasks in the Dreamwidth cluster
+#
+# Usage:
+#   bin/ecs-shell                              - List all services
+#   bin/ecs-shell <service>                    - Connect to a random task in the service
+#   bin/ecs-shell <service> list               - List tasks in the service
+#   bin/ecs-shell <service> <taskid>           - Connect to a specific task
+#   bin/ecs-shell <service> exec <file> [args] - Copy and run a script on a task
+
+set -e
+
+CLUSTER="dreamwidth"
+SHELL_CMD="/bin/bash"
+
+# JMESPath fragment for picking the best container from a task's container
+# list — prefers the real app container ("web" or "worker"), falls back to
+# anything that isn't a known sidecar (cloudwatch-agent, log_router don't
+# run an ECS-Exec agent so picking one would TargetNotConnected), and
+# finally to the first container if nothing else matched. This is the
+# single source of truth in this script; both list_tasks and
+# resolve_container compose their queries around it. The Go side mirrors
+# the policy in src/dwtool/internal/aws/ecs.go's pickAppContainerIndex —
+# keep them in sync if the policy changes.
+APP_CONTAINER='containers[?name==`web` || name==`worker`].name | [0] || containers[?name!=`cloudwatch-agent` && name!=`log_router`].name | [0] || containers[0].name'
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+error() {
+    echo -e "${RED}Error:${NC} $1" >&2
+    exit 1
+}
+
+info() {
+    echo -e "${GREEN}$1${NC}"
+}
+
+warn() {
+    echo -e "${YELLOW}$1${NC}"
+}
+
+# List all services in the cluster
+list_services() {
+    info "Services in cluster '$CLUSTER':"
+    echo
+    aws ecs list-services --cluster "$CLUSTER" --output text --query 'serviceArns[*]' \
+        | tr '\t' '\n' \
+        | sed 's|.*/||' \
+        | sort
+}
+
+# List tasks for a service
+list_tasks() {
+    local service="$1"
+
+    info "Tasks for service '$service' in cluster '$CLUSTER':"
+    echo
+
+    local task_arns
+    task_arns=$(aws ecs list-tasks --cluster "$CLUSTER" --service-name "$service" \
+        --query 'taskArns[*]' --output text)
+
+    if [[ -z "$task_arns" ]]; then
+        warn "No running tasks found for service '$service'"
+        return 1
+    fi
+
+    aws ecs describe-tasks --cluster "$CLUSTER" --tasks $task_arns \
+        --query "tasks[*].[taskArn,lastStatus,$APP_CONTAINER]" --output text \
+        | while read -r arn status container; do
+            task_id=$(echo "$arn" | sed 's|.*/||')
+            printf "%-40s %-10s %s\n" "$task_id" "$status" "$container"
+        done
+}
+
+# Connect to a task
+connect_to_task() {
+    local service="$1"
+    local task_id="$2"
+
+    # If no task_id provided, pick a random running task
+    if [[ -z "$task_id" ]]; then
+        local task_arns
+        task_arns=$(aws ecs list-tasks --cluster "$CLUSTER" --service-name "$service" \
+            --desired-status RUNNING --query 'taskArns[*]' --output text)
+
+        if [[ -z "$task_arns" ]]; then
+            error "No running tasks found for service '$service'"
+        fi
+
+        # Pick the first task (could randomize but first is fine)
+        local first_arn
+        first_arn=$(echo "$task_arns" | awk '{print $1}')
+        task_id=$(echo "$first_arn" | sed 's|.*/||')
+
+        info "Connecting to task: $task_id"
+    fi
+
+    local container_name
+    container_name=$(resolve_container "$task_id")
+
+    info "Connecting to container '$container_name' in task '$task_id'..."
+    echo
+
+    aws ecs execute-command \
+        --cluster "$CLUSTER" \
+        --task "$task_id" \
+        --container "$container_name" \
+        --interactive \
+        --command "$SHELL_CMD"
+}
+
+# Resolve a task for a service (reusable by connect and exec)
+resolve_task() {
+    local service="$1"
+
+    local task_arns
+    task_arns=$(aws ecs list-tasks --cluster "$CLUSTER" --service-name "$service" \
+        --desired-status RUNNING --query 'taskArns[*]' --output text)
+
+    if [[ -z "$task_arns" ]]; then
+        error "No running tasks found for service '$service'"
+    fi
+
+    local first_arn
+    first_arn=$(echo "$task_arns" | awk '{print $1}')
+    echo "$first_arn" | sed 's|.*/||'
+}
+
+# Resolve the container name for a task (reusable by connect and exec).
+# The JMESPath in $APP_CONTAINER handles preference + fallbacks; we just
+# need to translate "None" (no match) into a hard error.
+resolve_container() {
+    local task_id="$1"
+
+    local container_name
+    container_name=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$task_id" \
+        --query "tasks[0].$APP_CONTAINER" --output text)
+
+    if [[ -z "$container_name" || "$container_name" == "None" ]]; then
+        error "Could not determine container name for task '$task_id'"
+    fi
+
+    echo "$container_name"
+}
+
+# Copy a local file to a task and execute it
+exec_on_task() {
+    local service="$1"
+    local local_file="$2"
+    shift 2
+    local script_args="$*"
+
+    if [[ ! -f "$local_file" ]]; then
+        error "File not found: $local_file"
+    fi
+
+    local task_id
+    task_id=$(resolve_task "$service")
+    info "Using task: $task_id"
+
+    local container_name
+    container_name=$(resolve_container "$task_id")
+    info "Using container: $container_name"
+
+    local remote_path="/tmp/$(basename "$local_file")"
+
+    # Base64-encode the file, pipe it into the container, decode it there.
+    # ECS execute-command doesn't support file copy natively, so we push
+    # the file contents through a shell command.
+    local encoded
+    if [[ "$(uname)" == "Darwin" ]]; then
+        encoded=$(base64 -i "$local_file")
+    else
+        encoded=$(base64 -w0 "$local_file")
+    fi
+
+    info "Copying $(basename "$local_file") to $remote_path..."
+    aws ecs execute-command \
+        --cluster "$CLUSTER" \
+        --task "$task_id" \
+        --container "$container_name" \
+        --interactive \
+        --command "/bin/bash -c 'echo $encoded | base64 -d > $remote_path && chmod +x $remote_path'"
+
+    info "Running: perl $remote_path $script_args"
+    echo
+
+    aws ecs execute-command \
+        --cluster "$CLUSTER" \
+        --task "$task_id" \
+        --container "$container_name" \
+        --interactive \
+        --command "/bin/bash -c 'cd \$LJHOME && perl $remote_path $script_args'"
+}
+
+# Main
+if [[ $# -eq 0 ]]; then
+    list_services
+elif [[ $# -eq 1 ]]; then
+    connect_to_task "$1"
+elif [[ "$2" == "list" ]]; then
+    list_tasks "$1"
+elif [[ "$2" == "exec" ]]; then
+    if [[ $# -lt 3 ]]; then
+        error "Usage: $0 <service> exec <file> [args...]"
+    fi
+    service="$1"
+    shift 2
+    exec_on_task "$service" "$@"
+else
+    connect_to_task "$1" "$2"
+fi

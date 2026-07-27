@@ -25,6 +25,8 @@ use Carp qw/ confess /;
 use HTTP::Request;
 use LWP::UserAgent;
 use DW::BusinessRules::Pay;
+use DW::Task::SearchCopier;
+use DW::Search;
 
 our $error_code = undef;
 our $error_text = undef;
@@ -670,12 +672,9 @@ sub update_paid_status {
 
     # and now, at this last step, we kick off a job to check if this user
     # needs to have their search index setup/messed with.
-    if (@LJ::SPHINX_SEARCHD) {
+    if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "paidstat" }
-            )
-        );
+            DW::Task::SearchCopier->new( { userid => $u->id, source => "paidstat" } ) );
     }
 
     return 1;
@@ -964,7 +963,7 @@ sub validate_deliverydate {
     if ( $time_check < 0 ) {
 
         # we were given a date in the past
-        $errors->add( 'deliverydate', 'time cannot be in the past' );    #FIXME
+        $errors->add_string( 'deliverydate', 'time cannot be in the past' );    #FIXME
     }
     elsif ( $time_check > 0 ) {
 

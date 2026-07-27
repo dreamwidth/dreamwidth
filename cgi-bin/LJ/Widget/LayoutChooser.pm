@@ -76,7 +76,6 @@ sub handle_post {
     my $post  = shift;
     my %opts  = @_;
 
-    print "handle post";
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 

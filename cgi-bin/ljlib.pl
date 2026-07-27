@@ -26,6 +26,12 @@ BEGIN {
     die "No \$LJ::HOME set, or not a directory!\n"
         unless $LJ::HOME && -d $LJ::HOME;
 
+    # Allow setting dev server mode from environment. This is needed because
+    # Plack startup doesn't go through Apache config where $IS_DEV_SERVER is
+    # normally set. WARNING: Must NEVER be set in production — it enables
+    # ?as= user impersonation, auto-verified accounts, and skips domain logic.
+    $LJ::IS_DEV_SERVER = 1 if $ENV{LJ_IS_DEV_SERVER};
+
     use lib ( $LJ::HOME || $ENV{LJHOME} ) . "/extlib/lib/perl5";
 
     # Please do not change this to "LJ::Directories"
@@ -40,18 +46,8 @@ BEGIN {
     # mod_perl does this early too, make sure we do as well
     LJ::Config->load;
 
-    # arch support has to be done pretty early
-    if ($LJ::ARCH32) {
-        $LJ::ARCH       = 32;
-        $LJ::LOGMEMCFMT = 'NNNLN';
-        $LJ::PUBLICBIT  = 2**31;
-    }
-    else {
-        $LJ::ARCH32     = 0;
-        $LJ::ARCH       = 64;
-        $LJ::LOGMEMCFMT = 'NNNQN';
-        $LJ::PUBLICBIT  = 2**63;
-    }
+    $LJ::LOGMEMCFMT = 'NNNQN';
+    $LJ::PUBLICBIT  = 2**63;
 }
 
 # Now set up logging support for everybody else to access; this is done
@@ -77,12 +73,11 @@ log4perl.appender.DevNull.layout=Log::Log4perl::Layout::SimpleLayout
     }
 }
 
-use Apache2::Connection ();
 use Carp;
 use DBI;
 use DBI::Role;
 use HTTP::Date ();
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::Hooks;
 use LJ::MemCache;
 use LJ::Error;
@@ -104,7 +99,6 @@ use LJ::ModuleCheck;
 use IO::Socket::INET;
 use IO::Socket::SSL;
 use Mozilla::CA;
-use GTop;
 
 use LJ::UniqCookie;
 use LJ::WorkerResultStorage;
@@ -114,7 +108,6 @@ use DW::Logic::LogItems;
 use LJ::CleanHTML;
 use DW::LatestFeed;
 use LJ::Keywords;
-use LJ::Procnotify;
 use LJ::DB;
 use LJ::Tags;
 use LJ::TextUtil;
@@ -125,9 +118,32 @@ use LJ::Global::Img;        # defines LJ::Img
 use LJ::Global::Secrets;    # defines LJ::Secrets
 use DW::Media;
 use DW::Stats;
+use DW::Cache;
 use DW::Proxy;
 use DW::TaskQueue;
 use DW::BlobStore;
+
+# Load more modules so that we get as much advantage out of prefork
+# memory allocation as possible (as well as moving as much loading cost
+# to startup time)
+BEGIN {
+    # Do not run if we're in a test
+    unless ($LJ::_T_CONFIG) {
+        LJ::ModuleCheck->have_xmlatom;
+        LJ::Hooks::_load_hooks_dir();
+        Storable::thaw( Storable::freeze( {} ) );
+        foreach my $minifile ( "GIF89a", "\x89PNG\x0d\x0a\x1a\x0a", "\xFF\xD8" ) {
+            Image::Size::imgsize( \$minifile );
+        }
+        LJ::CleanHTML::helper_preload();
+
+        # load drivers depending on what we have available
+        eval "use DBD::mysql;";
+        unless ($@) {
+            DBI->install_driver("mysql");
+        }
+    }
+}
 
 $Net::HTTPS::SSL_SOCKET_CLASS = "IO::Socket::SSL";
 
@@ -246,16 +262,8 @@ if ( $LJ::STATS{host} && $LJ::STATS{port} ) {
 }
 
 sub locker {
-    return $LJ::LOCKER_OBJ if $LJ::LOCKER_OBJ;
-    eval "use DDLockClient ();";
-    die "Couldn't load locker client: $@" if $@;
-
-    $LJ::LOCKER_OBJ = new DDLockClient(
-        servers => [@LJ::LOCK_SERVERS],
-        lockdir => $LJ::LOCKDIR || "$LJ::HOME/locks",
-    );
-
-    return $LJ::LOCKER_OBJ;
+    require DW::Locker;
+    return $LJ::LOCKER_OBJ ||= DW::Locker->new;
 }
 
 sub gearman_client {
@@ -293,6 +301,11 @@ sub theschwartz {
 }
 
 sub gtop {
+    unless ($LJ::GTOP_LOADED) {
+        eval "use GTop;";
+        die "Couldn't load GTop: $@" if $@;
+        $LJ::GTOP_LOADED = 1;
+    }
     return $GTop ||= GTop->new;
 }
 
@@ -439,17 +452,9 @@ sub handle_caches {
 
     $LJ::DBIRole->flush_cache();
 
-    %LJ::CACHE_PROP       = ();
-    %LJ::CACHE_STYLE      = ();
-    $LJ::CACHED_MOODS     = 0;
-    $LJ::CACHED_MOOD_MAX  = 0;
-    %LJ::CACHE_MOODS      = ();
-    %LJ::CACHE_MOOD_THEME = ();
-    %LJ::CACHE_USERID     = ();
-    %LJ::CACHE_USERNAME   = ();
-    %LJ::CACHE_CODES      = ();
-    %LJ::CACHE_USERPROP   = ();    # {$prop}->{ 'upropid' => ... , 'indexed' => 0|1 };
-    %LJ::CACHE_ENCODINGS  = ();
+    # wipe the process-lifetime caches (props, moods, codes, users, ...) --
+    # everything registered with the process scope, in one call
+    DW::Cache->process->clear;
 
     return 1;
 }
@@ -464,45 +469,18 @@ sub handle_caches {
 sub start_request {
     handle_caches();
 
-    # TODO: check process growth size
+    # Sample process RSS and the size of our in-process caches before we clear
+    # the request scope below, so each measurement reflects a request's peak.
+    # Both are sampled no-ops unless enabled in config.
+    DW::Stats::report_rss();
+    DW::Cache->report_sizes;
 
-    # clear per-request caches
-    LJ::unset_remote();    # clear cached remote
-    $LJ::ACTIVE_JOURNAL         = undef;    # for LJ::{get,set}_active_journal
-    %LJ::CACHE_USERPIC          = ();       # picid -> hashref
-    %LJ::CACHE_USERPIC_INFO     = ();       # uid -> { ... }
-    %LJ::CACHE_S2THEME          = ();
-    %LJ::REQ_CACHE_USER_NAME    = ();       # users by name
-    %LJ::REQ_CACHE_USER_ID      = ();       # users by id
-    %LJ::REQ_CACHE_REL          = ();       # relations from LJ::check_rel()
-    %LJ::REQ_LANGDATFILE        = ();       # caches language files
-    %LJ::S2::REQ_CACHE_STYLE_ID = ();       # styleid -> hashref of s2 layers for style
-    %LJ::S2::REQ_CACHE_LAYER_ID =
-        ();    # layerid -> hashref of s2 layer info (from LJ::S2::load_layer)
-    %LJ::S2::REQ_CACHE_LAYER_INFO =
-        ();    # layerid -> hashref of s2 layer info (from LJ::S2::load_layer_info)
-    %LJ::REQ_HEAD_HAS = ();   # avoid code duplication for js
-    %LJ::NEEDED_RES   = ();   # needed resources (css/js/etc):
-    @LJ::NEEDED_RES   = ();   # needed resources, in order requested (implicit dependencies)
-                              #  keys are relative from htdocs, values 1 or 2 (1=external, 2=inline)
-
-    %LJ::REQ_GLOBAL       = ();    # per-request globals
-    %LJ::_ML_USED_STRINGS = ();    # strings looked up in this web request
-    %LJ::REQ_CACHE_USERTAGS =
-        ();    # uid -> { ... }; populated by get_usertags, so we don't load it twice
-    $LJ::ACTIVE_RES_GROUP = undef;    # use whatever is current site default
-
-    %LJ::PAID_STATUS = ();            # per-request paid status
-
-    %LJ::REQUEST_CACHE = ();    # request cached items ( longterm goal, store everything in here )
-
-    $LJ::CACHE_REMOTE_BOUNCE_URL = undef;
-    LJ::Userpic->reset_singletons;
-    LJ::Comment->reset_singletons;
-    LJ::Entry->reset_singletons;
-    LJ::Message->reset_singletons;
-
-    LJ::UniqCookie->clear_request_cache;
+    # Clear every request-scoped cache in one call. Anything routed through
+    # DW::Cache->request -- its KV store plus the vars/resets registered in
+    # DW::Cache and in owning modules (e.g. LJ::UniqCookie, the per-class
+    # singletons) -- is wiped here, so a request cache can never leak across
+    # requests or background jobs.
+    DW::Cache->request->clear;
 
     # clear the handle request cache (like normal cache, but verified already for
     # this request to be ->ping'able).
@@ -524,117 +502,122 @@ sub start_request {
     DW::Request->reset;
 
     # include standard files if this is web-context
-    if ( my $r = DW::Request->get ) {
-
-        # sorry everybody, this is a gross hack ... we need to not use jquery on the shop since
-        # jquery is pretty old and crufty and PCI compliance etc, so we're just not going to include
-        # it here if we're on that domain
-        my $NO_JQUERY = 0;
-        if (   $LJ::DOMAIN_SHOP
-            && $LJ::DOMAIN_SHOP ne $LJ::DOMAIN_WEB
-            && $r->host eq $LJ::DOMAIN_SHOP )
-        {
-            $NO_JQUERY = 1;
-        }
-
-        # start with jquery core unless we've disabled it
-        LJ::need_res( { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
-            'js/jquery/jquery-1.8.3.js' )
-            unless $NO_JQUERY;
-
-        # note that we're calling need_res and advising that these items
-        # are the new style global items
-        LJ::need_res(
-            { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
-            'js/foundation/vendor/custom.modernizr.js',
-            'js/foundation/foundation/foundation.js',
-            'js/foundation/foundation/foundation.topbar.js',
-            'js/dw/dw-core.js'
-        );
-
-        LJ::need_res(
-            { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
-
-            # jquery library is the big one, load first
-            'js/jquery/jquery-1.8.3.js',
-
-            # the rest of the libraries
-            qw(
-                js/dw/dw-core.js
-                ),
-        );
-
-        # old/standard libraries are below here.
-
-        # standard site-wide JS and CSS
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                js/6alib/core.js
-                js/6alib/dom.js
-                js/6alib/httpreq.js
-                js/livejournal.js
-                )
-        );
-
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY, group => "all" }, qw (
-                stc/lj_base.css
-                )
-        );
-
-        # esn ajax
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                js/esn.js
-                stc/esn.css
-                )
-        ) if LJ::is_enabled('esn_ajax');
-
-        # contextual popup JS
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw(
-                js/6alib/ippu.js
-                js/lj_ippu.js
-                js/6alib/hourglass.js
-                js/contextualhover.js
-                stc/contextualhover.css
-                )
-        );
-
-        my @ctx_popup_libraries = qw(
-            js/jquery/jquery.ui.core.js
-            js/jquery/jquery.ui.widget.js
-
-            js/jquery/jquery.ui.tooltip.js
-            js/jquery.ajaxtip.js
-            js/jquery/jquery.ui.position.js
-            stc/jquery/jquery.ui.core.css
-            stc/jquery/jquery.ui.tooltip.css
-
-            js/jquery.hoverIntent.js
-            js/jquery.contextualhover.js
-            stc/jquery.contextualhover.css
-        );
-
-        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'jquery' },
-            @ctx_popup_libraries );
-
-        # foundation only gets this sometimes
-        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'foundation' },
-            @ctx_popup_libraries )
-            unless $NO_JQUERY;
-
-        # development JS
-        LJ::need_res(
-            { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                js/6alib/devel.js
-                )
-        ) if $LJ::IS_DEV_SERVER;
-    }
+    LJ::register_standard_resources();
 
     LJ::Hooks::run_hooks("start_request");
 
     return 1;
+}
+
+# Register standard site-wide CSS/JS resources. Called from start_request
+# (for Apache, where DW::Request is already available) and from the Plack
+# middleware (where the request must be created before this can run).
+sub register_standard_resources {
+    my $r = DW::Request->get or return;
+
+    # sorry everybody, this is a gross hack ... we need to not use jquery on the shop since
+    # jquery is pretty old and crufty and PCI compliance etc, so we're just not going to include
+    # it here if we're on that domain
+    my $NO_JQUERY = 0;
+    if (   $LJ::DOMAIN_SHOP
+        && $LJ::DOMAIN_SHOP ne $LJ::DOMAIN_WEB
+        && $r->host eq $LJ::DOMAIN_SHOP )
+    {
+        $NO_JQUERY = 1;
+    }
+
+    # start with jquery core unless we've disabled it
+    LJ::need_res( { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
+        'js/jquery/jquery-1.8.3.js' )
+        unless $NO_JQUERY;
+
+    # note that we're calling need_res and advising that these items
+    # are the new style global items
+    LJ::need_res(
+        { group => 'foundation', priority => $LJ::LIB_RES_PRIORITY },
+        'js/foundation/vendor/custom.modernizr.js',
+        'js/foundation/foundation/foundation.js',
+        'js/foundation/foundation/foundation.topbar.js',
+        'js/dw/dw-core.js'
+    );
+
+    LJ::need_res(
+        { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
+
+        # jquery library is the big one, load first
+        'js/jquery/jquery-1.8.3.js',
+
+        # the rest of the libraries
+        qw(
+            js/dw/dw-core.js
+            ),
+    );
+
+    # old/standard libraries are below here.
+
+    # standard site-wide JS and CSS
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY }, qw(
+            js/6alib/core.js
+            js/6alib/dom.js
+            js/6alib/httpreq.js
+            js/livejournal.js
+            )
+    );
+
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY, group => "all" }, qw (
+            stc/lj_base.css
+            )
+    );
+
+    # esn ajax
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY }, qw(
+            js/esn.js
+            stc/esn.css
+            )
+    ) if LJ::is_enabled('esn_ajax');
+
+    # contextual popup JS
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY, group => "default" }, qw(
+            js/6alib/ippu.js
+            js/lj_ippu.js
+            js/6alib/hourglass.js
+            js/contextualhover.js
+            stc/contextualhover.css
+            )
+    );
+
+    my @ctx_popup_libraries = qw(
+        js/jquery/jquery.ui.core.js
+        js/jquery/jquery.ui.widget.js
+
+        js/jquery/jquery.ui.tooltip.js
+        js/jquery.ajaxtip.js
+        js/jquery/jquery.ui.position.js
+        stc/jquery/jquery.ui.core.css
+        stc/jquery/jquery.ui.tooltip.css
+
+        js/jquery.hoverIntent.js
+        js/jquery.contextualhover.js
+        stc/jquery.contextualhover.css
+    );
+
+    LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'jquery' }, @ctx_popup_libraries );
+
+    # foundation only gets this sometimes
+    LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group => 'foundation' },
+        @ctx_popup_libraries )
+        unless $NO_JQUERY;
+
+    # development JS
+    LJ::need_res(
+        { priority => $LJ::LIB_RES_PRIORITY }, qw(
+            js/6alib/devel.js
+            )
+    ) if $LJ::IS_DEV_SERVER;
 }
 
 # <LJFUNC>
@@ -740,7 +723,9 @@ sub get_secret {
 }
 
 sub is_web_context {
-    return $ENV{MOD_PERL} ? 1 : 0;
+    return 1 if $ENV{MOD_PERL};
+    return 1 if $DW::Request::cur_req;
+    return 0;
 }
 
 # loads an include file, given the bare name of the file.
@@ -855,6 +840,13 @@ sub get_useragent {
 
             # also needed for LWP::Protocol::https < 6.06
             SSL_verify_mode => 0,
+
+            # LWP does not support HTTP/2, but IO::Socket::SSL on
+            # Ubuntu 22.04+ advertises h2 via ALPN by default.
+            # Servers that honor ALPN then speak HTTP/2, which LWP
+            # can't parse, causing "500 Server closed connection"
+            # errors.  Force HTTP/1.1 only.
+            SSL_alpn_protocols => ['http/1.1'],
 
             #ca_file => Mozilla::CA::SSL_ca_file()
         }

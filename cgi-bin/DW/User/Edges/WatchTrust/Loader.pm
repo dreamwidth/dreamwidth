@@ -22,10 +22,17 @@ package DW::User::Edges::WatchTrust::Loader;
 use strict;
 
 use Carp qw/ confess /;
+use DW::Cache;
 
 # returns trustmask between two users
 sub _trustmask {
     my ( $from_userid, $to_userid ) = @_;
+
+    # Memoize per request; the trustmask cache is cleared in LJ::start_request
+    # (via DW::Cache) and invalidated on edge changes.
+    my $reqkey = "$from_userid:$to_userid";
+    my $cached = DW::Cache->request->get( 'trustmask', $reqkey );
+    return $cached if defined $cached;
 
     my $memkey = [ $from_userid, "trustmask:$from_userid:$to_userid" ];
     my $mask   = LJ::MemCache::get($memkey);
@@ -36,13 +43,13 @@ sub _trustmask {
         $mask = $dbr->selectrow_array(
             'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
             undef, $from_userid, $to_userid );
-        return 0 if $dbr->err;
+        return 0 if $dbr->err;    # transient error: don't cache
         $mask = $mask ? $mask + 0 : 0;    # force numeric
 
         LJ::MemCache::set( $memkey, $mask, 3600 );
     }
 
-    return $mask;
+    return DW::Cache->request->set( 'trustmask', $reqkey, $mask );
 }
 
 # actually get friend/friendof uids, should not be called directly
@@ -194,15 +201,14 @@ sub _wt_list_db {
     my $userid = $u->id;
     my $dbh    = LJ::get_db_writer();
 
-    my $lockname     = "get_wt_list:$userid";
+    # get a lock
+    my $lock = LJ::locker()->trylock( "get_wt_list:$userid", class => 'watchtrust', wait => 10 );
+    return {} unless $lock;
+
     my $release_lock = sub {
-        LJ::DB::release_lock( $dbh, "global", $lockname );
+        $lock->release;
         return $_[0];
     };
-
-    # get a lock
-    my $lock = LJ::DB::get_lock( $dbh, "global", $lockname );
-    return {} unless $lock;
 
     # in lock, try memcache first (unless told not to)
     my $memc =

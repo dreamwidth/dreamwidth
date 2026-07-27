@@ -19,6 +19,10 @@ paths:
                 $ref: ../components/error.yaml
         404:
           $ref: ../components/errors/404-user.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml
     post:
       description: Create a new entry accesslist for the journal
       requestBody:
@@ -37,6 +41,10 @@ paths:
           $ref: ../components/errors/400.yaml
         404:
           $ref: ../components/errors/404-user.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml
     delete:
       description: Permanently delete an access group, removing it from all entries.
       parameters:
@@ -57,3 +65,7 @@ paths:
           $ref: ../components/errors/404-user.yaml
         400:
           $ref: ../components/errors/400.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml

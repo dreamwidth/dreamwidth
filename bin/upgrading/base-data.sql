@@ -357,8 +357,6 @@ INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_form
 UPDATE profile_services SET userprop='github', imgfile='github.png', title_ml='profile.service.github', url_format='//github.com/%s', maxlen=39 WHERE name='github';
 INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('google_chat', 'google_talk', 'google_hangouts.png', 'profile.service.hangouts', NULL, 60);
 UPDATE profile_services SET userprop='google_talk', imgfile='google_hangouts.png', title_ml='profile.service.hangouts', url_format=NULL, maxlen=60 WHERE name='google_chat';
-INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('icq', 'icq', 'icq.gif', 'profile.service.icq', '//wwp.icq.com/%s', 12);
-UPDATE profile_services SET userprop='icq', imgfile='icq.gif', title_ml='profile.service.icq', url_format='//wwp.icq.com/%s', maxlen=12 WHERE name='icq';
 INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('insanejournal', 'insanejournal', 'insanejournal.png', 'profile.service.insanejournal', '//%s.insanejournal.com', 15);
 UPDATE profile_services SET userprop='insanejournal', imgfile='insanejournal.png', title_ml='profile.service.insanejournal', url_format='//%s.insanejournal.com', maxlen=15 WHERE name='insanejournal';
 INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('instagram', 'instagram', 'instagram.png', 'profile.service.instagram', '//www.instagram.com/%s', 30);
@@ -393,3 +391,9 @@ INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_form
 UPDATE profile_services SET userprop='twitter', imgfile='twitter_bird.png', title_ml='profile.service.twitter', url_format='//www.twitter.com/%s', maxlen=40 WHERE name='twitter';
 INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('wattpad', 'wattpad', 'wattpad.png', 'profile.service.wattpad', '//www.wattpad.com/user/%s', 20);
 UPDATE profile_services SET userprop='wattpad', imgfile='wattpad.png', title_ml='profile.service.wattpad', url_format='//www.wattpad.com/user/%s', maxlen=20 WHERE name='wattpad';
+INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('steam', NULL, 'steam.png', 'profile.service.steam', '//steamcommunity.com/id/%s/', 32);
+UPDATE profile_services SET userprop=NULL, imgfile='steam.png', title_ml='profile.service.steam', url_format='//steamcommunity.com/id/%s/', maxlen=32 WHERE name='steam';
+INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('spotify', NULL, 'spotify.png', 'profile.service.spotify', '//open.spotify.com/user/%s', 32);
+UPDATE profile_services SET userprop=NULL, imgfile='spotify.png', title_ml='profile.service.spotify', url_format='//open.spotify.com/user/%s', maxlen=32 WHERE name='spotify';
+INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('squidgeworld', NULL, 'squidgeworld.png', 'profile.service.squidgeworld', '//squidgeworld.org/users/%s', 40);
+UPDATE profile_services SET userprop=NULL, imgfile='squidgeworld.png', title_ml='profile.service.squidgeworld', url_format='//squidgeworld.org/users/%s', maxlen=40 WHERE name='squidgeworld';

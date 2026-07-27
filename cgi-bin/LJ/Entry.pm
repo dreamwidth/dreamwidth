@@ -26,6 +26,10 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 our $AUTOLOAD;
 use Carp qw/ croak confess /;
+use DW::Cache;
+use DW::Task::DeleteEntry;
+use DW::Task::SearchCopier;
+use DW::Search;
 
 =head1 NAME
 
@@ -64,6 +68,10 @@ LJ::Entry
 #    _loaded_talkdata: loaded talkdata
 
 my %singletons = ();    # journalid->jitemid->singleton
+
+# file-scoped lexical, so it self-registers: cleared between requests/jobs, and
+# its byte size is measured for memory metrics
+DW::Cache->request->register_var( 'entry_singletons', \%singletons );
 
 sub reset_singletons {
     %singletons = ();
@@ -1342,11 +1350,65 @@ sub put_logprop_in_history {
     return 1;
 }
 
+# Cleaned representation of entry object for JSON APIs
+# remote is required for access to private fields.
+sub TO_JSON {
+    my ( $self, $remote ) = @_;
+
+    my $entry = {};
+    $entry->{subject} = $self->subject_html();
+    $entry->{body}    = $self->event_html(0);
+    $entry->{poster} =
+        { username => $self->poster()->{user}, display_name => $self->poster()->{name} };
+    $entry->{url} = $self->url();
+
+    # Internally, access-locked posts have a security of 'usemask' with an allowmask of 1,
+    # but we want to translate both that and custom group allow masks into more comprehensible
+    # terms for display.
+    if ( $self->security() eq "usemask" ) {
+        if ( $self->allowmask == 1 || !$self->poster->equals($remote) ) {
+            $entry->security = "access";
+        }
+        else {
+            $entry->security      = "custom";
+            $entry->custom_groups = grep { $self->allowmask & ( 1 << $_ ) } 1 .. 60;
+        }
+
+    }
+    else {
+        $entry->{security} = $self->security();
+    }
+
+    $entry->{datetime} = $self->{eventtime};
+    my @entry_tags = $self->tags();
+    $entry->{tags}         = ( \@entry_tags );
+    $entry->{icon_keyword} = $self->userpic_kw || '(default)';
+    $entry->{icon}         = $self->userpic;
+    $entry->{entry_id}     = $self->{ditemid};
+
+    my $props = $self->props;
+    if ( $props->{current_mood} || $props->{current_moodid} ) {
+        my $mood = $props->{current_mood} || DW::Mood->mood_name( $props->{current_moodid} );
+        $entry->{current_mood} = $mood if defined $mood;
+    }
+
+    $entry->{current_music}    = $props->{current_music}    if $props->{current_music};
+    $entry->{current_location} = $props->{current_location} if $props->{current_location};
+
+    if ( $remote && $self->editable_by($remote) ) {
+        $entry->{body_raw}    = $self->event_raw();
+        $entry->{subject_raw} = $self->subject_raw();
+    }
+
+    return $entry;
+}
+
 package LJ;
 
 use Carp qw(confess);
 use LJ::Poll;
 use LJ::EmbedModule;
+use LJ::Location;
 use DW::External::Account;
 
 # <LJFUNC>
@@ -2322,7 +2384,7 @@ sub delete_comments {
 # des-jitemid: Journal itemid of item to delete.
 # des-quick: Optional boolean.  If set, only [dbtable[log2]] table
 #            is deleted from and the rest of the content is deleted
-#            later via TheSchwartz.
+#            later via DW::TaskQueue.
 # des-anum: The log item's anum, which'll be needed to delete lazily
 #           some data in tables which includes the anum, but the
 #           log row will already be gone so we'll need to store it for later.
@@ -2354,8 +2416,7 @@ sub delete_entry {
         return 1 if $dc < 1;    # already deleted?
         return 1
             if DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                "LJ::Worker::DeleteEntry",
+            DW::Task::DeleteEntry->new(
                 {
                     uid     => $jid,
                     jitemid => $jitemid,
@@ -2378,11 +2439,10 @@ sub delete_entry {
     # delete all comments
     LJ::delete_all_comments( $u, 'L', $jitemid );
 
-    # fired to delete the post from the Sphinx search database
-    if (@LJ::SPHINX_SEARCHD) {
+    # enqueue a search-index update for the deleted entry
+    if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier',
+            DW::Task::SearchCopier->new(
                 { userid => $u->id, jitemid => $jitemid, source => "entrydel" }
             )
         );

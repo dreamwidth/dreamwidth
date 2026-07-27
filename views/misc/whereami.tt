@@ -9,11 +9,12 @@ This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title = '.title' | ml -%]
 <p>[% '.intro' | ml %]</p>
 
 <form action='[% site.root %]/misc/whereami'>
     [% authas_html %]
-</form><br />
+</form>
 
 <p>[% '.cluster' | ml(user = u.ljuser_display, cluster = cluster_name) %]</p>

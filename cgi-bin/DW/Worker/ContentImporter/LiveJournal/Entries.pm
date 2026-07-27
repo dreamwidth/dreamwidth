@@ -21,6 +21,8 @@ use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use Carp qw/ croak confess /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
+use DW::Task::SearchCopier;
+use DW::Search;
 use DW::Worker::ContentImporter::Local::Entries;
 
 sub work {
@@ -365,12 +367,9 @@ sub try_work {
     );
 
     # Kick off a indexing job for this user
-    if (@LJ::SPHINX_SEARCHD) {
-        LJ::theschwartz()->insert_jobs(
-            TheSchwartz::Job->new_from_array(
-                'DW::Worker::Sphinx::Copier', { userid => $u->id, source => "importen" }
-            )
-        );
+    if ( DW::Search::enabled() ) {
+        DW::TaskQueue->dispatch(
+            DW::Task::SearchCopier->new( { userid => $u->id, source => "importen" } ) );
     }
 
     return $ok->();
