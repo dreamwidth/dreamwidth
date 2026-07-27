@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 120;
+use Test::More tests => 121;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
