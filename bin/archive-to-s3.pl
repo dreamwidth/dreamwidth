@@ -16,6 +16,10 @@
 use strict;
 use warnings;
 
+# Run directly from cron rather than through ljlib.pl, so @INC has to be pointed
+# at extlib here or Paws is not found.
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
+
 use File::Find ();
 use File::Spec ();
 use POSIX qw( strftime );
