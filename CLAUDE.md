@@ -108,6 +108,7 @@ Enforced via Perl::Tidy (`.tidyallrc`): Unix line endings, 4-space continuation 
 
 - **`DW::*`** — modern Dreamwidth code (controllers, auth, storage, templates). **`LJ::*`** — legacy LiveJournal modules, still core to users/entries/comments. **`S2::*`** — the S2 style/theming compiler.
 - Request pipeline: Plack middleware (`cgi-bin/Plack/Middleware/DW/`) → `DW::Routing` → `DW::Controller::*` → `DW::Template` (`.tt` views in `views/`). Legacy pages use BML in `htdocs/`. See **`doc/PLACK.md`** for the full architecture.
+- Config: `etc/config-private.pl` → `config-local.pl` → `config.pl` → `LJ::Global::Defaults` (earlier wins), loaded by `LJ::Config`. Running web and workers live-reload on mtime change (~10s, `LJ::Config::start_request_reload`) with no restart — but the reload path doesn't validate, so a syntax error silently no-ops on running procs while `checkconfig.pl` crash-loops any new/recycled one. See **`doc/CONFIG.md`** for the load/reload model and the safe-edit procedure.
 - **Dev-container globals (gotcha):** the dev container (`$IS_DEV_SERVER && $IS_DEV_CONTAINER`) intentionally sets `$LJ::DOMAIN`, `$LJ::SITEROOT`, etc. to `""` in `LJ::Global::Defaults`, so URLs are built from the request Host header. Do **not** use `local` to override these in middleware — it leaks into downstream code.
 
 ## Git Workflow
