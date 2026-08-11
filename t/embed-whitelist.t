@@ -241,6 +241,7 @@ note("misc");
     test_good_url("//scratch.mit.edu/projects/embed/144290094/?autostart=false");
     test_good_url(
         "http://www.scribd.com/embeds/123123/content?start_page=1&view_mode=list&access_key=");
+    test_good_url("https://sendvid.com/embed/gctqv3f8");
     test_good_url("http://www.slideshare.net/slideshow/embed_code/12312312");
     test_good_url(
 "https://api.smugmug.com/services/embed/10385063342_c6j9ncH?width=360&height=640&albumId=250921912&albumKey=BqhhKn"
