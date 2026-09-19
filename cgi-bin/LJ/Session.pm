@@ -16,6 +16,7 @@ use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
 use LJ::Utils;
+use DW::Locker;
 
 use constant VERSION => 1;
 
@@ -56,7 +57,9 @@ sub instance {
     # try memory
     my $memkey = _memkey( $u, $sessid );
     my $sess   = LJ::MemCache::get($memkey);
-    return $sess if $sess;
+    return $sess->{revoked} ? undef : $sess if $sess;
+
+    my $lock = $class->account_lock($u);
 
     # try master
     $sess = $u->selectrow_hashref(
@@ -68,6 +71,16 @@ sub instance {
     bless $sess;
     LJ::MemCache::set( $memkey, $sess );
     return $sess;
+}
+
+# Serialize session cache fills, destruction, and cookie-based replacement.
+# Factor-changing callers acquire password2 first; release this lock before
+# optional central proof cleanup to avoid reversing that lock order.
+sub account_lock {
+    my ( $class, $u ) = @_;
+    my $lock = DW::Locker->new->trylock( 'sessions:' . $u->id, class => 'sessions', wait => 10 )
+        or die 'Unable to lock account sessions';
+    return $lock;
 }
 
 sub active_sessions {
@@ -730,30 +743,46 @@ sub destroy_all_sessions {
     my $udbh = LJ::get_cluster_master($u)
         or return 0;
 
+    my $lock     = $class->account_lock($u);
     my $sessions = $udbh->selectcol_arrayref( "SELECT sessid FROM sessions WHERE " . "userid=?",
         undef, $u->{'userid'} );
 
-    return LJ::Session->destroy_sessions( $u, @$sessions ) if @$sessions;
-    return 1;
+    die $udbh->errstr unless $sessions;
+    my $result = $class->_destroy_sessions_locked( $u, @$sessions );
+    $lock->release;
+    DW::Auth::TOTP->revoke_session_proofs( $u, @$sessions ) if $result && @$sessions;
+    return $result;
 }
 
 # class method
 sub destroy_sessions {
     my ( $class, $u, @sessids ) = @_;
 
+    return 1 unless @sessids;
+    my $lock   = $class->account_lock($u);
+    my $result = $class->_destroy_sessions_locked( $u, @sessids );
+    $lock->release;
+    DW::Auth::TOTP->revoke_session_proofs( $u, @sessids ) if $result;
+    return $result;
+}
+
+sub _destroy_sessions_locked {
+    my ( $class, $u, @sessids ) = @_;
     my $in = join( ',', map { $_ + 0 } @sessids );
     return 1 unless $in;
+    require DW::Auth::TOTP;
+    DW::Auth::TOTP->deny_session_proofs( $u, @sessids );
+    if (@LJ::MEMCACHE_SERVERS) {
+        for my $id (@sessids) {
+            LJ::MemCache::set( _memkey( $u, $id ), { revoked => 1 }, 300 )
+                or die 'Unable to publish session revocation';
+        }
+    }
     my $userid = $u->{'userid'};
     $u->do( "DELETE FROM sessions WHERE userid=? AND sessid IN ($in)", undef, $userid )
-        or return 0;
-    foreach my $id (@sessids) {
-        $id += 0;
-        LJ::MemCache::delete( _memkey( $u, $id ) );
-    }
+        or die 'Unable to delete account sessions';
     $u->do( "DELETE FROM sessions_data WHERE userid=? AND sessid IN ($in)", undef, $userid )
-        or return 0;
-    require DW::Auth::TOTP;
-    DW::Auth::TOTP->revoke_session_proofs( $u, @sessids );
+        or die 'Unable to delete account session data';
     return 1;
 
 }
@@ -917,11 +946,11 @@ sub _memkey {
     if ( @_ == 2 ) {
         my ( $u, $sessid ) = @_;
         $sessid += 0;
-        return [ $u->{'userid'}, "ljms:$u->{'userid'}:$sessid" ];
+        return [ $u->{'userid'}, "ljms-v2:$u->{'userid'}:$sessid" ];
     }
     else {
         my $sess = shift;
-        return [ $sess->{'userid'}, "ljms:$sess->{'userid'}:$sess->{sessid}" ];
+        return [ $sess->{'userid'}, "ljms-v2:$sess->{'userid'}:$sess->{sessid}" ];
     }
 }
 

@@ -388,7 +388,7 @@ note('Login proof failures never publish a session');
 
 note('Publication failures restore active and stored browser state');
 for my $mode ( 'normal', 'adding', 'store_only' ) {
-    for my $failure ( 'publication', 'hook', 'audit', 'activity' ) {
+    for my $failure ( 'publication', 'audit', 'audit_false' ) {
         new_request();
         my $active = login_active($ua);
         DW::AccountSwitcher->store_account( $uc, 'long', '' );
@@ -412,10 +412,14 @@ for my $mode ( 'normal', 'adding', 'store_only' ) {
             die 'Store publication failed' if $failure eq 'publication';
             return 1;
         };
-        local *LJ::Hooks::run_hook    = sub { die 'Login hook failed' if $failure eq 'hook' };
-        local *LJ::User::record_login = sub { die 'Audit failed'      if $failure eq 'audit'; 1 };
-        local *LJ::mark_user_active = sub { die 'Activity failed' if $failure eq 'activity'; 1 };
+        my $notifications = 0;
+        local *LJ::Hooks::run_hook = sub { ++$notifications };
+        local *LJ::User::record_login =
+            sub { die 'Audit failed' if $failure eq 'audit'; return $failure ne 'audit_false' };
+        local *LJ::mark_user_active    = sub { ++$notifications };
+        local *LJ::User::note_activity = sub { ++$notifications };
         ok( !DW::Auth::Login->complete( $target, $mode => 1 ), "$mode handles $failure failure" );
+        is( $notifications, 0, "$mode/$failure sends no successful-login notifications" );
         is_deeply( $req->{jar}, \%before, "$mode/$failure restores all cookies" );
         ok( LJ::get_remote()->equals($ua) && $ua->session->id == $active->id,
             "$mode/$failure restores browsing identity" );
@@ -454,17 +458,32 @@ for my $mode ( 'normal', 'adding', 'store_only' ) {
     my $created;
     my $create = \&LJ::Session::create;
     local *LJ::Session::create = sub { $created = $create->(@_) };
-    local *LJ::Hooks::run_hook = sub {
-        if ( $_[0] eq 'user_login' ) {
-            my @headers = $req->err_header_out('Set-Cookie');
-            ok( grep( /ljmastersession=/, @headers ), 'Real publication queued a session cookie' );
-            die 'Late login hook failed';
-        }
+    my $notifications = 0;
+    local *LJ::Hooks::run_hooks = sub { ++$notifications if $_[0] eq 'post_login' };
+    local *LJ::Hooks::run_hook  = sub { ++$notifications if $_[0] eq 'user_login' };
+    local *LJ::mark_user_active = sub { ++$notifications };
+    local *LJ::User::note_activity = sub { ++$notifications };
+    local *LJ::User::record_login  = sub {
+        my @headers = $req->err_header_out('Set-Cookie');
+        ok( grep( /ljmastersession=/, @headers ), 'Real publication queued a session cookie' );
+        return 0;
     };
     ok( !DW::Auth::Login->complete($target), 'Real Plack publication failure returns failure' );
     is_deeply( [ $req->err_header_out('Set-Cookie') ],
         \@before, 'Real response headers retain only cookies from before publication' );
     ok( !LJ::get_remote(), 'Anonymous identity restored after failed publication' );
     ok( !LJ::Session->instance( $target, $created->id ), 'Real unpublished session revoked' );
+    is( $notifications, 0, 'No successful-login activity before required audit write' );
+}
+for my $failure ( 'hook', 'activity' ) {
+    new_request();
+    my $target = temp_user();
+    my @warnings;
+    local $SIG{__WARN__} = sub { push @warnings, @_ };
+    local *LJ::Hooks::run_hook  = sub { die 'Notification unavailable' if $failure eq 'hook' };
+    local *LJ::mark_user_active = sub { die 'Activity unavailable'     if $failure eq 'activity' };
+    ok( DW::Auth::Login->complete($target), "$failure failure does not undo committed login" );
+    ok( $target->session->valid,            "$failure leaves a usable session" );
+    like( join( '', @warnings ), qr/Login notification failed/, "$failure failure is reported" );
 }
 done_testing();

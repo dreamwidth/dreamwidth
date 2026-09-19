@@ -589,4 +589,107 @@ with_fake_memcache {
         'Deleting key invalidates direct lookup cache'
     );
 };
+for my $failure ( 'proof', 'publication', 'audit' ) {
+    my $account = temp_user();
+    DW::Auth::TOTP->enable( $account, DW::Auth::TOTP->generate_secret );
+    my @codes = DW::Auth::TOTP->get_recovery_codes($account);
+    my $token = DW::Auth::Login->begin( $account, exptype => 'long', returnto => '/entry/new' );
+    my ( $owner, $grant ) = DW::Auth::Login->verify( $token, $codes[0] );
+    ok( $owner,                            "$failure fixture verifies one recovery code" );
+    ok( !DW::Auth::Login->pending($token), 'Verified challenge cannot verify another factor' );
+    local *LJ::get_remote                  = sub { undef };
+    local *LJ::User::publish_login_session = sub { 1 };
+    local *LJ::User::finish_login_activity = sub { 1 };
+    {
+        local *DW::Auth::TOTP::mark_session = sub { die 'Proof store unavailable' }
+            if $failure eq 'proof';
+        local *LJ::User::publish_login_session = sub { die 'Cookie publication unavailable' }
+            if $failure eq 'publication';
+        local *LJ::User::record_login = sub { 0 }
+            if $failure eq 'audit';
+        ok( !DW::Auth::Login->complete( $account, grant => $token ),
+            "$failure failure returns no session" );
+    }
+    my ( $pending, $resume ) = DW::Auth::Login->pending( $token, 1 );
+    ok( $pending && $resume->{verified}, "$failure retains verified server-side grant" );
+    ok(
+        !DW::Auth::TOTP->verify( $account, $codes[0] ),
+        'Consumed recovery code cannot authenticate elsewhere'
+    );
+    is( scalar DW::Auth::TOTP->get_recovery_codes($account),
+        9, 'Exactly one recovery code was consumed' );
+    {
+        local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'different-browser';
+        ok(
+            !DW::Auth::Login->complete( $account, grant => $token ),
+            'Another browser cannot resume verified grant'
+        );
+    }
+    {
+        local *DW::Controller::Login::controller = sub { ( 1, { r => $request } ) };
+        local *DW::Template::render_template     = sub { $_[2] };
+        local $request->{cookies}  = { ljmfapending => $token };
+        local $request->{did_post} = 0;
+        ok(
+            DW::Controller::Login::login_2fa_handler()->{verified},
+            'Retry page knows code is already verified'
+        );
+    }
+    ok(
+        DW::Auth::Login->complete( $account, grant => $token ),
+        "$failure retry completes without another factor"
+    );
+    ok( !DW::Auth::Login->pending( $token, 1 ), 'Successful completion consumes grant' );
+    ok(
+        !DW::Auth::Login->complete( $account, grant => $token ),
+        'Consumed grant cannot create a second session'
+    );
+}
+
+# A real competing process requests logout while replacement holds the shared
+# session lock. Logout must wait, then remove the newly created session as well.
+{
+    require IPC::Open3;
+    require Symbol;
+    my $account = temp_user();
+    my $source  = LJ::Session->create( $account, exptype => 'long' );
+    local *LJ::get_remote             = sub { $account };
+    local *LJ::Protocol::authenticate = sub { $_[2]->{u} = $account; 1 };
+    my ( $pid, $out, $errout );
+    my $create = \&LJ::Session::create;
+    local *LJ::Session::create = sub {
+        $errout = Symbol::gensym();
+        $pid    = IPC::Open3::open3(
+            undef, $out, $errout, $^X, '-e', q{
+            BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+            $| = 1;
+            my $u = LJ::load_userid($ARGV[0]);
+            print "ready\n";
+            LJ::Session->destroy_all_sessions($u) or die 'Logout failed';
+            print "done\n";
+        }, $account->id
+        );
+        is( scalar <$out>, "ready\n", 'Competing logout reaches the session lock' );
+        my $readable = '';
+        vec( $readable, fileno($out), 1 ) = 1;
+        is( select( $readable, undef, undef, 0.2 ),
+            0, 'Logout cannot pass source validation and replacement' );
+        return $create->(@_);
+    };
+    my $error;
+    my $result = LJ::Protocol::sessiongenerate( { auth_method => 'cookie', expiration => 'long' },
+        \$error, {} );
+    ok( $result, 'Replacement completes before waiting logout' );
+    {
+        local $SIG{ALRM} = sub { kill 'KILL', $pid; die 'Concurrent logout timeout' };
+        alarm 15;
+        is( scalar <$out>, "done\n", 'Logout completes after replacement releases its lock' );
+        waitpid( $pid, 0 );
+        alarm 0;
+    }
+    is( $?, 0, 'Competing logout process succeeds' );
+    is( scalar LJ::Session->active_sessions($account),
+        0, 'Logout-all includes replacement created while it waited' );
+}
+
 done_testing();

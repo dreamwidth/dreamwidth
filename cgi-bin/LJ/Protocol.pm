@@ -2933,6 +2933,8 @@ sub sessiongenerate {
             undef, $u->id );
         die $dbh->errstr if $dbh->err;
 
+        my $session_lock = LJ::Session->account_lock($u);
+
         # Authentication preceded this lock. Re-read the authoritative cluster
         # row so a factor change that revoked the source cannot mint a session.
         my $row = $u->selectrow_hashref(

@@ -17,11 +17,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class="row">
   <div class="columns medium-6">
-    <p>[% dw.ml('.instructions', { user => user }) %]</p>
+    <p>[% dw.ml(verified ? '.instructions.verified' : '.instructions', { user => user }) %]</p>
 
     <form action="[% site.root %]/login/2fa" method="post">
       [%- dw.form_auth() -%]
 
+      [% UNLESS verified %]
       [%- form.textbox(
           label => dw.ml('.code.label'),
           name  => "code",
@@ -34,9 +35,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
       ) -%]
 
       <p class="hint">[% dw.ml('.code.hint') %]</p>
+      [% END %]
 
       [%- form.submit(
-          value => dw.ml('.btn.verify'),
+          value => dw.ml(verified ? '.btn.complete' : '.btn.verify'),
           class => "button"
       ) -%]
     </form>

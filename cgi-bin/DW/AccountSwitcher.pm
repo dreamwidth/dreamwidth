@@ -231,7 +231,7 @@ sub _current_handle {
 # active into the stored list. $u must already be password-verified by the
 # caller, including any required second factor. Returns 1.
 sub add_account {
-    my ( $class, $u, $exptype, $ipfixed, $session ) = @_;
+    my ( $class, $u, $exptype, $ipfixed, $session, $defer_activity ) = @_;
     die 'Session owner mismatch' if $session && !$session->owner->equals($u);
 
     my @list = grep { $_->{userid} != $u->userid } @{ $class->_entries };
@@ -244,7 +244,7 @@ sub add_account {
 
     # Browser authentication can supply an already-proven, unpublished session.
     return $session
-        ? $u->publish_login_session($session)
+        ? $u->publish_login_session( $session, 0, $defer_activity )
         : $u->make_login_session( $exptype, $ipfixed );
 }
 

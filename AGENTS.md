@@ -121,8 +121,14 @@ Omit the `Fixes` line when there is no linked issue.
   prove browser sessions before publishing active or stored-account cookies or
   recording successful login activity. Publication failures must restore response
   cookies, the request identity, and the account-switcher cache, and revoke the
-  new session. Cookie replacement must hold the account
-  lock and re-read the source cluster session, including when 2FA is now disabled.
+  new session. A failed audit write must fail login; post-login notifications and
+  activity run only after publication commits, and notification failures are logged
+  without undoing a successful login. Verified MFA grants remain browser-bound and
+  short-lived until completion, so retrying a transient failure needs no second code.
+  Cookie replacement and destruction share the session advisory lock, including
+  cache fills and logout-all session enumeration. Acquire password2 before this lock
+  and release it before optional central proof cleanup. Revocation must publish
+  both session and MFA denial markers before deleting cluster rows.
   Ordinary sessions must not perform MFA proof synchronization; cluster deletion
   remains authoritative when optional central proof cleanup is unavailable.
 - Comments may use a validated stored account session without changing the

@@ -109,7 +109,7 @@ with_fake_memcache {
         local *LJ::get_db_writer = sub { die 'Central writer unavailable' };
         ok( $session->destroy, 'Cluster revocation succeeds despite central cleanup failure' );
     }
-    ok( !LJ::MemCache::get($session_key), 'Deleted session cannot remain in cache' );
+    ok( LJ::MemCache::get($session_key)->{revoked}, 'Deleted session is denied in cache' );
     ok( !LJ::Session->instance( $u, $session->id ), 'Next request cannot load deleted session' );
     ok( !DW::Auth::TOTP->session_verified($session), 'Proof revocation fails closed in cache' );
 };
@@ -217,5 +217,92 @@ with_fake_memcache {
         undef, $other->id );
     is( $own,       0, 'Proof creation cleans only this account expired rows' );
     is( $unrelated, 1, 'Proof creation leaves unrelated accounts alone' );
+}
+with_fake_memcache {
+    my $u = temp_user();
+    DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
+    my $session = LJ::Session->create( $u, exptype => 'long', nolog => 1 );
+    DW::Auth::TOTP->mark_session( $u, $session, DW::Auth::TOTP->_factor_state($u)->{factor} );
+    ok( LJ::Session->instance( $u, $session->id )->valid, 'Warm live session and proof caches' );
+    my $proofkey = DW::Auth::TOTP->_proof_key( $u->id, $session->id );
+    my $set      = \&LJ::MemCache::set;
+    {
+        local *LJ::MemCache::set = sub {
+            return 0 if ref $_[0] && $_[0][1] eq $proofkey->[1] && !$_[1]{factor};
+            $set->(@_);
+        };
+        eval { $session->destroy };
+        like(
+            $@,
+            qr/Unable to publish MFA session revocation/,
+            'Failed proof denial aborts logout'
+        );
+    }
+    ok( LJ::Session->instance( $u, $session->id )->valid, 'Failed logout retains usable session' );
+    is(
+        $u->selectrow_array(
+            'SELECT COUNT(*) FROM sessions WHERE userid=? AND sessid=?', undef,
+            $u->id,                                                      $session->id
+        ),
+        1,
+        'Failed proof marker leaves authoritative cluster row intact'
+    );
+    {
+        local *LJ::MemCache::delete = sub { 0 };
+        ok( $session->destroy, 'Logout succeeds despite cache-delete failure' );
+    }
+    ok( !LJ::Session->instance( $u, $session->id ), 'Session denial defeats stale positive cache' );
+    ok( !$session->valid, 'Proof denial also rejects an already-loaded session' );
+};
+with_fake_memcache {
+    my $u       = temp_user();
+    my $session = LJ::Session->create( $u, exptype => 'long', nolog => 1 );
+    LJ::Session->instance( $u, $session->id );
+    my $set = \&LJ::MemCache::set;
+    {
+        local *LJ::MemCache::set = sub {
+            return 0 if ref $_[0] && $_[0][1] eq $session->_memkey->[1] && $_[1]{revoked};
+            $set->(@_);
+        };
+        eval { $session->destroy };
+        like(
+            $@,
+            qr/Unable to publish session revocation/,
+            'Ordinary session marker failure is not silent'
+        );
+    }
+    is(
+        $u->selectrow_array(
+            'SELECT COUNT(*) FROM sessions WHERE userid=? AND sessid=?', undef,
+            $u->id,                                                      $session->id
+        ),
+        1,
+        'Session marker failure retains authoritative row'
+    );
+    {
+        my $do = \&LJ::User::do;
+        local *LJ::User::do = sub { return 0 if $_[1] =~ /^DELETE FROM sessions WHERE/; $do->(@_) };
+        eval { $session->destroy };
+        like(
+            $@,
+            qr/Unable to delete account sessions/,
+            'Database deletion failure is not reported as successful logout'
+        );
+    }
+    ok( $session->destroy, 'Failed revocation can be retried' );
+};
+{
+    my $u       = temp_user();
+    my $session = LJ::Session->create( $u, exptype => 'long', nolog => 1 );
+    {
+        local *DW::Locker::trylock = sub { undef };
+        eval { $session->destroy };
+        like(
+            $@,
+            qr/Unable to lock account sessions/,
+            'Lock acquisition failure aborts session deletion'
+        );
+    }
+    ok( LJ::Session->instance( $u, $session->id ), 'Lock failure retains authoritative session' );
 }
 done_testing();

@@ -266,12 +266,20 @@ sub copy_session_proof {
     return $class->mark_session( $u, $destination, $proof->{factor} );
 }
 
+sub deny_session_proofs {
+    my ( $class, $u, @ids ) = @_;
+    return 1 unless @LJ::MEMCACHE_SERVERS;
+    for my $id (@ids) {
+        LJ::MemCache::set( $class->_proof_key( $u->id, $id ), { factor => '' }, 300 )
+            or die 'Unable to publish MFA session revocation';
+    }
+    return 1;
+}
+
 sub revoke_session_proofs {
     my ( $class, $u, @ids ) = @_;
     return unless @ids;
 
-    # Publish revocation before fallible database work or an in-flight cache fill.
-    LJ::MemCache::set( $class->_proof_key( $u->id, $_ ), { factor => '' }, 300 ) for @ids;
     my $state = LJ::MemCache::get( [ $u->id, 'mfa-factor:' . $u->id ] );
     return 1 unless $state && ( $state->{changing} || $state->{factor} );
 

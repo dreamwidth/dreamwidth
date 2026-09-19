@@ -295,7 +295,7 @@ sub login_2fa_handler {
     my $r           = $rv->{r};
     my $token       = $r->cookie('ljmfapending');
     my $restart_url = DW::Auth::Login->restart_url( $r->cookie('ljmfarestart') );
-    my ( $u, $opts ) = DW::Auth::Login->pending($token);
+    my ( $u, $opts ) = DW::Auth::Login->pending( $token, 1 );
     unless ($u) {
         $r->delete_cookie( name => 'ljmfapending', path => '/login' );
         return $r->redirect($restart_url);
@@ -303,31 +303,44 @@ sub login_2fa_handler {
     my $errors = DW::FormErrors->new;
     $r->note( ml_scope => '/login/2fa.tt' );
     if ( $r->did_post ) {
-        my ( $verified, $completion ) = DW::Auth::Login->verify( $token, $r->post_args->{code} );
+        my ( $verified, $completion ) =
+            $opts->{verified}
+            ? ( $u, $opts )
+            : DW::Auth::Login->verify( $token, $r->post_args->{code} );
         if ($verified) {
-            DW::Auth::Login->complete( $verified, %$completion, mfa_verified => 1 )
-                or return error_ml('error.invalidform');
-            DW::Stats::increment(
-                'dw.action.session.login_ok',
-                1,
-                [
-                    'bindip:' . ( $completion->{bindip} ? 'yes' : 'no' ),
-                    'exptype:' . $completion->{exptype}
-                ]
-            );
-            $r->delete_cookie( name => 'ljmfapending', path => '/login' );
-            $r->delete_cookie( name => 'ljmfarestart', path => '/login' );
-            my $url = $completion->{returnto};
-            $url = DW::Auth::Login->return_url($url) || "$LJ::SITEROOT/";
-            if ( $completion->{store_only} ) {
-                $url =~ s/#.*$//;
-                $url .= '#post-as-' . $verified->id;
+            $opts = $completion;
+            if ( DW::Auth::Login->complete( $verified, %$completion, mfa_verified => 1 ) ) {
+                DW::Stats::increment(
+                    'dw.action.session.login_ok',
+                    1,
+                    [
+                        'bindip:' . ( $completion->{bindip} ? 'yes' : 'no' ),
+                        'exptype:' . $completion->{exptype}
+                    ]
+                );
+                $r->delete_cookie( name => 'ljmfapending', path => '/login' );
+                $r->delete_cookie( name => 'ljmfarestart', path => '/login' );
+                my $url = $completion->{returnto};
+                $url = DW::Auth::Login->return_url($url) || "$LJ::SITEROOT/";
+                if ( $completion->{store_only} ) {
+                    $url =~ s/#.*$//;
+                    $url .= '#post-as-' . $verified->id;
+                }
+                return $r->redirect($url);
             }
-            return $r->redirect($url);
         }
-        $errors->add( 'code', '.error.badcredentials' );
+        else {
+            $errors->add( 'code', '.error.badcredentials' );
+        }
     }
-    return DW::Template->render_template( 'login/2fa.tt',
-        { errors => $errors, user => $u->display_name, restart_url => $restart_url } );
+    return DW::Template->render_template(
+        'login/2fa.tt',
+        {
+            errors      => $errors,
+            user        => $u->display_name,
+            restart_url => $restart_url,
+            verified    => $opts->{verified}
+        }
+    );
 }
 1;

@@ -26,6 +26,7 @@ use DW::Auth::TOTP;
 use DW::Auth::Challenge;
 use DW::AccountSwitcher;
 use DW::Cache;
+use DW::Locker;
 
 sub return_url {
     my ( $class, $url ) = @_;
@@ -105,15 +106,17 @@ sub begin {
 }
 
 sub pending {
-    my ( $class, $token ) = @_;
+    my ( $class, $token, $include_verified ) = @_;
     return unless defined $token && $token =~ /^[a-f0-9]{64}$/;
     my $dbh = LJ::get_db_writer() or die 'Database unavailable';
-    my $row = $dbh->selectrow_hashref(
-        'SELECT * FROM login_challenges WHERE token = ? AND expires > ? AND attempts < 5',
+    my $row =
+        $dbh->selectrow_hashref( 'SELECT * FROM login_challenges WHERE token = ? AND expires > ?',
         undef, sha256_hex($token), time() )
         or return;
     my $opts = from_json( $row->{payload} );
-    my $u    = LJ::load_userid( $row->{userid} );
+    return if $opts->{verified} ? !$include_verified : $row->{attempts} >= 5;
+    $opts->{grant} = $token if $opts->{verified};
+    my $u = LJ::load_userid( $row->{userid} );
     return unless $class->allowed($u) && $u->is_person && DW::Auth::TOTP->is_enabled($u);
     return unless $opts->{fingerprint} eq $class->_fingerprint($u);
     return unless $opts->{browser} eq ( LJ::UniqCookie->current_uniq // '' );
@@ -146,9 +149,14 @@ sub verify {
                 undef, sha256_hex($token) )
                 or die $dbh->errstr;
             if ( DW::Auth::TOTP->verify( $u, $code ) ) {
-                my $rows = $dbh->do( 'DELETE FROM login_challenges WHERE token = ?',
-                    undef, sha256_hex($token) );
-                die 'Unable to consume login challenge' unless $rows && $rows == 1;
+
+                # Consume the factor once, retaining only a short-lived,
+                # browser-bound grant until browser session publication succeeds.
+                $opts->{verified} = 1;
+                my $rows = $dbh->do( 'UPDATE login_challenges SET payload = ? WHERE token = ?',
+                    undef, to_json($opts), sha256_hex($token) );
+                die 'Unable to verify login challenge' unless $rows && $rows == 1;
+                $opts->{grant} = $token;
                 $success = 1;
             }
             else {
@@ -210,9 +218,20 @@ sub complete {
     my $previous_session = $u->{_session};
     my $r                = DW::Request->get;
     my @cookies          = $r->err_header_out('Set-Cookie');
-    my $session;
+    my ( $session, $grant_lock );
     my $dbh      = LJ::get_db_writer() or die 'Database unavailable';
     my $prepared = eval {
+        if ( $opts{grant} ) {
+            $grant_lock = DW::Locker->new->trylock(
+                'login-grant:' . sha256_hex( $opts{grant} ),
+                class => 'login_grant',
+                wait  => 10
+            ) or die 'Login completion in progress';
+            my ( $owner, $grant ) = $class->pending( $opts{grant}, 1 );
+            die 'Invalid verified login grant'
+                unless $owner && $owner->equals($u) && $grant->{verified};
+            %opts = ( %$grant, mfa_verified => 1 );
+        }
         $dbh->begin_work or die $dbh->errstr;
         $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
             undef, $u->id );
@@ -250,17 +269,18 @@ sub complete {
                 or die 'Unable to store account';
         }
         elsif ( $opts{adding} && $remote && !$remote->equals($u) ) {
-            DW::AccountSwitcher->add_account( $u, $opts{exptype}, $opts{bindip}, $session )
+            DW::AccountSwitcher->add_account( $u, $opts{exptype}, $opts{bindip}, $session, 1 )
                 or die 'Unable to add account';
         }
         else {
-            $u->publish_login_session($session) or die 'Unable to publish session';
+            $u->publish_login_session( $session, 0, 1 ) or die 'Unable to publish session';
         }
-        LJ::Hooks::run_hook( 'user_login', $u );
-        my $uniq = DW::Request->get->note('uniq');
-        LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
-        $u->record_login( $session->id );
-        LJ::mark_user_active( $u, 'login' );
+        $u->record_login( $session->id ) or die 'Unable to record login';
+        if ( $opts{grant} ) {
+            my $rows = $dbh->do( 'DELETE FROM login_challenges WHERE token = ?',
+                undef, sha256_hex( $opts{grant} ) );
+            die 'Unable to consume verified login grant' unless $rows && $rows == 1;
+        }
         1;
     };
     unless ($published) {
@@ -274,6 +294,27 @@ sub complete {
         DW::Cache->request->clear_ns('account_switcher');
         $r->err_header_out( 'Set-Cookie', \@cookies );
         return;
+    }
+
+    # The login is committed. Notification/activity failures must not revoke an
+    # already successful login or strand its consumed one-use factor.
+    my @notifications = (
+        sub { LJ::Hooks::run_hook( 'user_login', $u ) },
+        sub {
+            my $uniq = $r->note('uniq');
+            LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
+        },
+        sub {
+            if ( $opts{store_only} && $remote && !$remote->equals($u) ) {
+                LJ::mark_user_active( $u, 'login' );
+            }
+            else {
+                $u->finish_login_activity($session);
+            }
+        }
+    );
+    for my $notify (@notifications) {
+        eval { $notify->(); 1 } or warn 'Login notification failed: ' . $@;
     }
     return 1;
 }

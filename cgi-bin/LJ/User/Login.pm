@@ -158,20 +158,13 @@ sub make_login_session {
 
 # Publish only a session whose required authentication has already completed.
 sub publish_login_session {
-    my ( $u, $sess, $fake_login ) = @_;
+    my ( $u, $sess, $fake_login, $defer_activity ) = @_;
     die 'Session owner mismatch' unless $sess && $sess->owner->equals($u);
     $u->{_session} = $sess;
     eval { BML::get_request()->notes->{ljuser} = $u->user; };
     $sess->update_master_cookie;
 
     LJ::User->set_remote($u);
-
-    unless ($fake_login) {
-
-        # add a uniqmap row if we don't have one already
-        my $uniq = LJ::UniqCookie->current_uniq;
-        LJ::UniqCookie->save_mapping( $uniq => $u );
-    }
 
     # run some hooks
     my @sopts;
@@ -185,6 +178,19 @@ sub publish_login_session {
     );
     my $sopts = @sopts ? ":" . join( '', map { ".$_" } @sopts ) : "";
     $sess->flags($sopts);
+
+    return 1 if $defer_activity;
+    return $u->finish_login_activity( $sess, $fake_login );
+}
+
+sub finish_login_activity {
+    my ( $u, $sess, $fake_login ) = @_;
+    unless ($fake_login) {
+
+        # add a uniqmap row if we don't have one already
+        my $uniq = LJ::UniqCookie->current_uniq;
+        LJ::UniqCookie->save_mapping( $uniq => $u );
+    }
 
     my $etime = $sess->expiration_time;
     LJ::Hooks::run_hooks(

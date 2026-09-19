@@ -23,3 +23,7 @@
 .error.badcredentials=Invalid or already-used authentication code. Try a fresh code, or restart login after five attempts.
 
 .link.back=Back to login
+
+.instructions.verified=Your code was accepted, but sign-in has not finished. Try again to finish logging in as <strong>[[user]]</strong>. You do not need another code.
+
+.btn.complete=Finish signing in
