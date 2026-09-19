@@ -1175,7 +1175,11 @@ sub can_tellafriend {
 sub adult_content {
     my $self = $_[0];
 
-    return $self->prop('adult_content');
+    my $level = $self->prop('adult_content');
+
+    # Legacy invalid values must not suppress journal defaults or maintainer ratings.
+    return $level if defined $level && $level =~ /\A(?:none|concepts|explicit)\z/;
+    return undef;
 }
 
 # defined by a community maintainer
@@ -1185,7 +1189,7 @@ sub adult_content_maintainer {
     my $userLevel  = $self->adult_content;
     my $maintLevel = $self->prop('adult_content_maintainer');
 
-    return undef unless $maintLevel;
+    return undef unless $maintLevel && $maintLevel =~ /\A(?:none|concepts|explicit)\z/;
     return $maintLevel if $userLevel eq $maintLevel;
     return $maintLevel if !$userLevel || $userLevel eq "none";
     return $maintLevel if $userLevel eq "concepts" && $maintLevel eq "explicit";

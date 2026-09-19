@@ -24,6 +24,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::BML;
 use DW::Captcha;
+use DW::Logic::AdultContent;
 use DW::Request;
 use DW::Routing;
 use DW::Template;
@@ -291,6 +292,23 @@ sub render {
     # off to get captchaed
     if ( DW::Captcha->should_captcha_view($remote) ) {
         return $r->redirect( DW::Captcha->redirect_url );
+    }
+
+    my %adult_views = map { $_ => 1 } qw(read archive month day tag entry reply lastn);
+    if ( !$mode || $adult_views{$mode} ) {
+        my $type = DW::Logic::AdultContent->interstitial_type(
+            user    => $remote,
+            journal => $u,
+            entry   => $ljentry
+        );
+        if ($type) {
+            LJ::set_active_journal($u);
+            $r->pnote( user  => $u );
+            $r->pnote( entry => $ljentry ) if $ljentry;
+            $r->note( returl => LJ::create_url( undef, keep_args => 1 ) );
+            return DW::Routing->call(
+                uri => DW::Logic::AdultContent->adult_interstitial_path( type => $type ) );
+        }
     }
 
     # Main journal rendering via LJ::make_journal

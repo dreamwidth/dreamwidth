@@ -25,9 +25,13 @@
 
 .message.explicit.18plus.byposter=You're about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you want to view this content.
 
+.message.explicit.18plus.bycommunity=You're about to view content that community administrators on [[journal]] have marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you want to view this content.
+
 .message.explicit.blocked.byjournal=You're about to view content that [[journal]] marked as <strong>inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
 
 .message.explicit.blocked.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
+
+.message.explicit.blocked.bycommunity=You're about to view content that community administrators on [[journal]] have marked as <strong>inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
 
 .message.explicit.byjournal=You're about to view content that [[journal]] marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
 

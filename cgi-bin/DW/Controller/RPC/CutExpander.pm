@@ -18,6 +18,7 @@ package DW::Controller::RPC::CutExpander;
 
 use strict;
 use DW::Routing;
+use DW::Logic::AdultContent;
 use LJ::JSON;
 
 DW::Routing->register_rpc( "cuttag", \&cutexpander_handler, format => 'json' );
@@ -52,6 +53,12 @@ sub cutexpander_handler {
 
         # make sure the user can read the entry
         if ( $entry->visible_to($remote) ) {
+            return $error_out->( 403, BML::ml("error.nopermission") )
+                if DW::Logic::AdultContent->interstitial_type(
+                user    => $remote,
+                journal => $entry->journal,
+                entry   => $entry
+                );
             my $text = load_cuttext( $entry, $remote, $args->{cutid} );
 
             # FIXME: temporary fix.

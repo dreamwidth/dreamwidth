@@ -1142,6 +1142,12 @@ sub common_event_validation {
             return fail( $err, 205, $pname );
         }
 
+        if ( $pname eq 'adult_content'
+            && ( $req->{props}->{$pname} // '' ) !~ /\A(?:none|concepts|explicit)?\z/ )
+        {
+            return fail( $err, 204, 'Property "adult_content" has invalid value' );
+        }
+
         # don't validate its type if it's 0 or undef (deleting)
         next unless ( $req->{'props'}->{$pname} );
 
