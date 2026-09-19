@@ -158,7 +158,13 @@
     # The task queue backend is selected automatically:
     # - If %SQS is configured, DW::TaskQueue::SQS is used (production).
     # - Otherwise on dev servers ($IS_DEV_SERVER), DW::TaskQueue::LocalDisk
-    #   is used, storing tasks as files under $HOME/var/taskqueue/ (hardcoded).
+    #   is used, storing tasks as files under $HOME/var/taskqueue/.
+    # Explicit selection for a small, single-host self-hosted site:
+    #$TASK_QUEUE_BACKEND = 'localdisk';  # auto (default), sqs, or localdisk
+    #$TASK_QUEUE_LOCAL_PATH = "$HOME/var/taskqueue";
+    # LocalDisk requires ONE consumer per task type and shared persistent storage
+    # on that host. It has no claim leases, retry backoff, or dead-letter queue.
+    # Keep $IS_DEV_SERVER = 0 on public sites. See doc/SELF-HOSTING.md.
 
     # SQS configuration (production). Requires IAM credentials via environment
     # or instance role. All three fields are required.
