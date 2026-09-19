@@ -4965,9 +4965,10 @@ widget.importchoosesource.error.nohostname=Please select a service to import dat
 
 widget.importchoosesource.header=Where would you like to import from?
 
-widget.importchoosesource.intro=Please choose a service and type in the <strong>username and password for the acccount on that service</strong> that you wish to import content from.  Do not type in your [[sitename]] username and password.  At the moment, we only support some LiveJournal-based hosts.
+widget.importchoosesource.intro=Please choose a service and type in the <strong>username and password or API key for the account on that service</strong> that you wish to import content from.  Do not type in your [[sitename]] username and password.  At the moment, we only support some LiveJournal-based hosts.
 
-widget.importchoosesource.password=Password on other service
+widget.importchoosesource.password=Password or API key on source service
+widget.importchoosesource.apikey=For Dreamwidth, enter an API key from the source account’s <a href="https://www.dreamwidth.org/api">API page</a>, not its password. Other services still use their account password.
 
 widget.importchoosesource.service=Choose a service to import from:
 

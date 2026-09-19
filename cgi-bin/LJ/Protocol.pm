@@ -3562,7 +3562,7 @@ sub authenticate {
             return DW::API::Key->authenticate(
                 $u,
                 $req->{password} // $req->{hpassword},
-                allow_hpassword => 1
+                allow_hpassword => !defined $req->{password} && defined $req->{hpassword}
             );
         }
         if ( $auth_meth eq 'challenge' ) {

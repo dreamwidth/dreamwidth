@@ -119,7 +119,9 @@ Omit the `Fixes` line when there is no linked issue.
   abort factor changes if the pre-commit change marker cannot be published. A committed factor
   change stays successful if its recoverable cache refresh fails. Prepare and
   prove browser sessions before publishing active or stored-account cookies or
-  recording successful login activity. Cookie replacement must hold the account
+  recording successful login activity. Publication failures must restore response
+  cookies, the request identity, and the account-switcher cache, and revoke the
+  new session. Cookie replacement must hold the account
   lock and re-read the source cluster session, including when 2FA is now disabled.
   Ordinary sessions must not perform MFA proof synchronization; cluster deletion
   remains authoritative when optional central proof cleanup is unavailable.
@@ -136,7 +138,9 @@ Omit the `Fixes` line when there is no linked issue.
   administrator session until publication succeeds. It must never grant
   second-factor session proof.
 - Protocol clients use API keys; keys must not mint browser sessions. Scoping
-  API key permissions is separate future work.
+  API key permissions is separate future work. Dreamwidth comment imports use
+  API-key challenge authentication directly on the export endpoint; never mint
+  a browser cookie for an importer. Other source sites retain their own protocol.
 - Login challenge/session creation, enrollment password checks, and recovery-code
   disclosure must hold the same account-row lock as password and factor changes.
   Recheck submitted credentials under that lock; never persist login passwords

@@ -266,8 +266,34 @@ sub _dump_entry {
     return $entry;
 }
 
+# API export authenticates this one request and never creates browser state.
+sub _comment_auth {
+    my $r    = DW::Request->get;
+    my $post = $r->post_args;
+    return controller( form_auth => 1, authas => 1 )
+        unless $r->did_post && defined $post->{auth_method};
+    $r->header_out( 'Cache-Control' => 'private, no-store' );
+    require LJ::Protocol;
+    my ( $error, %flags );
+    unless ( $post->{auth_method} eq 'challenge'
+        && LJ::Protocol::authenticate( $post, \$error, \%flags ) )
+    {
+        $r->status(401);
+        $r->print('Invalid API credentials.');
+        return ( 0, $r->OK );
+    }
+    my $remote = $flags{u};
+    my $u      = $r->get_args->{authas} ? LJ::load_user( $r->get_args->{authas} ) : $remote;
+    unless ( $u && $remote->can_manage($u) ) {
+        $r->status(403);
+        $r->print('You cannot export this journal.');
+        return ( 0, $r->OK );
+    }
+    return ( 1, { r => $r, u => $u, remote => $remote } );
+}
+
 sub comment_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1, authas => 1 );
+    my ( $ok, $rv ) = _comment_auth();
     return $rv unless $ok;
 
     my $r      = $rv->{r};

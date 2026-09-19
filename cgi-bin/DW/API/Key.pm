@@ -63,9 +63,12 @@ sub authenticate {
         && !$u->is_memorial
         && !$u->is_expunged;
     return 0 if LJ::login_ip_banned($u);
-    for my $key ( @{ $class->get_keys_for_user($u) || [] } ) {
-        return 1 if $credential eq $key->hash;
-        return 1 if $opts{allow_hpassword} && $credential eq Digest::MD5::md5_hex( $key->hash );
+    my $key = $class->get_key($credential);
+    return 1 if $key && $key->valid_for_user($u);
+    if ( $opts{allow_hpassword} ) {
+        for my $candidate ( @{ $class->get_keys_for_user($u) || [] } ) {
+            return 1 if $credential eq Digest::MD5::md5_hex( $candidate->hash );
+        }
     }
     LJ::handle_bad_login($u);
     return 0;

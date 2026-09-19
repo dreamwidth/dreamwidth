@@ -40,11 +40,20 @@ sub cookie {
 }
 sub get_remote_ip { "127.0.0.1" }
 sub header_in     { "" }
+sub note          { undef }
 
 sub add_cookie {
     my ( $self, %args ) = @_;
     $self->{jar}{ $args{name} } = $args{delete} ? undef : $args{value};
     push @{ $self->{set} }, \%args;
+}
+
+sub err_header_out {
+    my ( $self, $name, $values ) = @_;
+    return @{ $self->{set} } unless @_ > 2;
+    $self->{set}               = [@$values];
+    $self->{jar}               = { %{ $self->{incoming} || {} } };
+    $self->{jar}{ $_->{name} } = $_->{value} for @$values;
 }
 
 sub set_cookies {
@@ -73,6 +82,7 @@ sub new_request {
     $req = FakeRequest->new;
     DW::Cache->request->clear_ns('account_switcher');
     $req->{jar}{ljsessions} = $ljsessions if defined $ljsessions;
+    $req->{incoming} = { %{ $req->{jar} } };
     return $req;
 }
 
@@ -374,5 +384,87 @@ note('Login proof failures never publish a session');
             );
         }
     }
+}
+
+note('Publication failures restore active and stored browser state');
+for my $mode ( 'normal', 'adding', 'store_only' ) {
+    for my $failure ( 'publication', 'hook', 'audit', 'activity' ) {
+        new_request();
+        my $active = login_active($ua);
+        DW::AccountSwitcher->store_account( $uc, 'long', '' );
+        my %before   = %{ $req->{jar} };
+        my $target   = temp_user();
+        my $previous = $target->{_session};
+        my $created;
+        my $create = \&LJ::Session::create;
+        local *LJ::Session::create             = sub { $created = $create->(@_) };
+        local *LJ::User::publish_login_session = sub {
+            my ( $u, $session ) = @_;
+            $u->{_session} = $session;
+            LJ::set_remote($u);
+            $session->update_master_cookie;
+            die 'Publication failed' if $failure eq 'publication';
+            return 1;
+        };
+        my $store = \&DW::AccountSwitcher::store_account;
+        local *DW::AccountSwitcher::store_account = sub {
+            $store->(@_);
+            die 'Store publication failed' if $failure eq 'publication';
+            return 1;
+        };
+        local *LJ::Hooks::run_hook    = sub { die 'Login hook failed' if $failure eq 'hook' };
+        local *LJ::User::record_login = sub { die 'Audit failed'      if $failure eq 'audit'; 1 };
+        local *LJ::mark_user_active = sub { die 'Activity failed' if $failure eq 'activity'; 1 };
+        ok( !DW::Auth::Login->complete( $target, $mode => 1 ), "$mode handles $failure failure" );
+        is_deeply( $req->{jar}, \%before, "$mode/$failure restores all cookies" );
+        ok( LJ::get_remote()->equals($ua) && $ua->session->id == $active->id,
+            "$mode/$failure restores browsing identity" );
+        is( $target->{_session}, $previous, "$mode/$failure restores target pointer" );
+        ok( !LJ::Session->instance( $target, $created->id ), "$mode/$failure revokes new session" );
+        my @accounts = DW::AccountSwitcher->accounts;
+        is_deeply(
+            [ map { $_->{userid} } @accounts ],
+            [ $uc->id ],
+            "$mode/$failure restores cached stored-account list"
+        );
+    }
+}
+
+{
+    require DW::Request::Plack;
+    my $body = '';
+    open my $input, '<', \$body;
+    $req = DW::Request::Plack->new(
+        {
+            REQUEST_METHOD    => 'POST',
+            PATH_INFO         => '/login',
+            QUERY_STRING      => '',
+            SERVER_NAME       => 'localhost',
+            SERVER_PORT       => 80,
+            HTTP_HOST         => 'localhost',
+            REMOTE_ADDR       => '127.0.0.1',
+            'psgi.url_scheme' => 'http',
+            'psgi.input'      => $input,
+        }
+    );
+    LJ::set_remote(undef);
+    $req->add_cookie( name => 'existing', value => 'keep' );
+    my @before = $req->err_header_out('Set-Cookie');
+    my $target = temp_user();
+    my $created;
+    my $create = \&LJ::Session::create;
+    local *LJ::Session::create = sub { $created = $create->(@_) };
+    local *LJ::Hooks::run_hook = sub {
+        if ( $_[0] eq 'user_login' ) {
+            my @headers = $req->err_header_out('Set-Cookie');
+            ok( grep( /ljmastersession=/, @headers ), 'Real publication queued a session cookie' );
+            die 'Late login hook failed';
+        }
+    };
+    ok( !DW::Auth::Login->complete($target), 'Real Plack publication failure returns failure' );
+    is_deeply( [ $req->err_header_out('Set-Cookie') ],
+        \@before, 'Real response headers retain only cookies from before publication' );
+    ok( !LJ::get_remote(), 'Anonymous identity restored after failed publication' );
+    ok( !LJ::Session->instance( $target, $created->id ), 'Real unpublished session revoked' );
 }
 done_testing();

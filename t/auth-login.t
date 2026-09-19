@@ -32,7 +32,8 @@ use DW::Controller::Login;
 {
 
     package LoginTestRequest;
-    sub host { 'localhost' }
+    sub host           { 'localhost' }
+    sub err_header_out { return }
 
     sub header_in {
               $_[1] eq 'X-LJ-Auth'     ? ( $_[0]->{cookie_auth} ? 'cookie' : '' )
@@ -566,4 +567,26 @@ for my $throws ( 0, 1 ) {
     ok( !LJ::Session->instance( $account, $created->id ), 'Proof failure deletes replacement' );
     ok( LJ::Session->instance( $account, $source->id )->valid, 'Source session remains usable' );
 }
+
+with_fake_memcache {
+    my $owner = temp_user();
+    my $other = temp_user();
+    my $key   = DW::API::Key->new_for_user($owner);
+    local *DW::API::Key::get_keys_for_user = sub { die 'Unexpected full key scan' };
+    ok( DW::API::Key->authenticate( $owner, $key->hash ), 'Clear API key uses direct lookup' );
+    {
+        local *LJ::get_db_writer = sub { die 'Unexpected writer lookup for cached key' };
+        ok( DW::API::Key->authenticate( $owner, $key->hash ), 'Cached key avoids writer lookup' );
+        local *LJ::handle_bad_login = sub { };
+        ok(
+            !DW::API::Key->authenticate( $other, $key->hash ),
+            'Cached key must belong to supplied account'
+        );
+    }
+    $key->delete($owner);
+    ok(
+        !DW::API::Key->authenticate( $owner, $key->hash ),
+        'Deleting key invalidates direct lookup cache'
+    );
+};
 done_testing();

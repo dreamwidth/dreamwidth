@@ -243,9 +243,9 @@ sub add_account {
     $class->_write( \@list );
 
     # Browser authentication can supply an already-proven, unpublished session.
-    $session ? $u->publish_login_session($session) : $u->make_login_session( $exptype, $ipfixed );
-
-    return 1;
+    return $session
+        ? $u->publish_login_session($session)
+        : $u->make_login_session( $exptype, $ipfixed );
 }
 
 # Only personal accounts can be offered as alternate comment authors.

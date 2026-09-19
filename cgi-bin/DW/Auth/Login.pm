@@ -25,6 +25,7 @@ use URI;
 use DW::Auth::TOTP;
 use DW::Auth::Challenge;
 use DW::AccountSwitcher;
+use DW::Cache;
 
 sub return_url {
     my ( $class, $url ) = @_;
@@ -207,6 +208,8 @@ sub complete {
     return unless $class->allowed($u);
     my $remote           = LJ::get_remote();
     my $previous_session = $u->{_session};
+    my $r                = DW::Request->get;
+    my @cookies          = $r->err_header_out('Set-Cookie');
     my $session;
     my $dbh      = LJ::get_db_writer() or die 'Database unavailable';
     my $prepared = eval {
@@ -241,20 +244,37 @@ sub complete {
         $u->{_session} = $previous_session;
         return;
     }
-    if ( $opts{store_only} && $remote && !$remote->equals($u) ) {
-        DW::AccountSwitcher->store_account( $u, $opts{exptype}, $opts{bindip}, $session );
+    my $published = eval {
+        if ( $opts{store_only} && $remote && !$remote->equals($u) ) {
+            DW::AccountSwitcher->store_account( $u, $opts{exptype}, $opts{bindip}, $session )
+                or die 'Unable to store account';
+        }
+        elsif ( $opts{adding} && $remote && !$remote->equals($u) ) {
+            DW::AccountSwitcher->add_account( $u, $opts{exptype}, $opts{bindip}, $session )
+                or die 'Unable to add account';
+        }
+        else {
+            $u->publish_login_session($session) or die 'Unable to publish session';
+        }
+        LJ::Hooks::run_hook( 'user_login', $u );
+        my $uniq = DW::Request->get->note('uniq');
+        LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
+        $u->record_login( $session->id );
+        LJ::mark_user_active( $u, 'login' );
+        1;
+    };
+    unless ($published) {
+        eval { $session->destroy };
+        eval {
+            $u->do( 'DELETE FROM loginlog WHERE userid = ? AND sessid = ?',
+                undef, $u->id, $session->id );
+        };
+        $u->{_session} = $previous_session;
+        LJ::User->set_remote($remote);
+        DW::Cache->request->clear_ns('account_switcher');
+        $r->err_header_out( 'Set-Cookie', \@cookies );
+        return;
     }
-    elsif ( $opts{adding} && $remote && !$remote->equals($u) ) {
-        DW::AccountSwitcher->add_account( $u, $opts{exptype}, $opts{bindip}, $session );
-    }
-    else {
-        $u->publish_login_session($session);
-    }
-    $u->record_login( $session->id );
-    LJ::mark_user_active( $u, 'login' );
-    LJ::Hooks::run_hook( 'user_login', $u );
-    my $uniq = DW::Request->get->note('uniq');
-    LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
     return 1;
 }
 1;
