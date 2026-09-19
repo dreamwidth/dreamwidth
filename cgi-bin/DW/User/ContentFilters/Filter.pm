@@ -247,7 +247,7 @@ sub show_entry {
 
     # step 2) adult content flag
     if ( $opts->{adultcontent} && $opts->{adultcontent} ne 'any' ) {
-        my $aclevel = $entry->adult_content_calculated;
+        my $aclevel = $entry->adult_content_calculated || $journalu->adult_content_calculated;
 
         if ($aclevel) {
             return $fail->('explicit_content')
