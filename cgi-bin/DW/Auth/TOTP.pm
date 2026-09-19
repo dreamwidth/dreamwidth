@@ -101,28 +101,98 @@ sub check_recovery_code {
     return 0;
 }
 
-# Store proof on the server, not in caller-controlled cookie flags. Sessions
-# created before MFA enforcement or before enrollment must not grant access.
+# Cache the encrypted factor's digest, not the secret. A new encryption of the
+# same secret has a different digest, so reenrollment cannot reuse old proofs.
+sub _factor_state {
+    my ( $class, $u, $refresh ) = @_;
+    my $key    = [ $u->id, 'mfa-factor:' . $u->id ];
+    my $cached = LJ::MemCache::get($key) unless $refresh;
+    return $cached if $cached;
+    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+
+    # Serialize cache publication with factor changes. Publishing under the
+    # account lock prevents a slow refresh from replacing a newer factor state.
+    $dbh->begin_work or die $dbh->errstr;
+    my $state = eval {
+        my ($encrypted) =
+            $dbh->selectrow_array( 'SELECT totp_secret FROM password2 WHERE userid = ? FOR UPDATE',
+            undef, $u->id );
+        die $dbh->errstr if $dbh->err;
+        my $current = { factor => defined $encrypted ? sha256_hex($encrypted) : '' };
+        if ($refresh) {
+            LJ::MemCache::set( $key, $current, 300 );
+        }
+        else {
+            LJ::MemCache::add( $key, $current, 300 );
+            $current = LJ::MemCache::get($key) || $current;
+        }
+        $dbh->commit or die $dbh->errstr;
+        $current;
+    };
+    unless ($state) {
+        my $error = $@;
+        $dbh->rollback unless $dbh->{AutoCommit};
+        die $error;
+    }
+    return $state;
+}
+
+sub _factor_changing {
+    my ( $class, $u ) = @_;
+    LJ::MemCache::set( [ $u->id, 'mfa-factor:' . $u->id ], { changing => 1 }, 300 );
+}
+
+sub _proof_key {
+    my ( $class, $userid, $sessid ) = @_;
+    return [ $userid, "mfa-proof:$userid:$sessid" ];
+}
+
+# Store proof on the server, not in caller-controlled cookie flags.
 sub mark_session {
     my ( $class, $u, $session ) = @_;
-    my $secret = $class->_get_secret($u) or return;
-    my $dbh    = LJ::get_db_writer()     or die 'Database unavailable';
+    my $state = $class->_factor_state($u);
+    die 'Factor is changing' if $state->{changing};
+    return unless $state->{factor};
+    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
     $dbh->do( 'DELETE FROM mfa_sessions WHERE expires < ?', undef, time() ) or die $dbh->errstr;
     $dbh->do( 'REPLACE INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
-        undef, $u->id, $session->id, sha256_hex($secret), $session->expiration_time )
+        undef, $u->id, $session->id, $state->{factor}, $session->expiration_time )
         or die $dbh->errstr;
+    LJ::MemCache::set( $class->_proof_key( $u->id, $session->id ),
+        { factor => $state->{factor} }, 300 );
 }
 
 sub session_verified {
     my ( $class, $session ) = @_;
-    my $u      = $session->owner;
-    my $secret = $class->_get_secret($u);
-    return 1 unless defined $secret;
+    my $u     = $session->owner;
+    my $state = $class->_factor_state($u);
+    return 0 if $state->{changing};
+    return 1 unless $state->{factor};
+    my $key   = $class->_proof_key( $u->id, $session->id );
+    my $proof = LJ::MemCache::get($key);
+    unless ($proof) {
+        my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+        my ($factor) = $dbh->selectrow_array(
+            'SELECT factor FROM mfa_sessions WHERE userid = ? AND sessid = ?',
+            undef, $u->id, $session->id );
+        die $dbh->errstr if $dbh->err;
+        $proof = { factor => $factor // '' };
+        LJ::MemCache::add( $key, $proof, 300 );
+        $proof = LJ::MemCache::get($key) || $proof;
+    }
+    return $proof->{factor} eq $state->{factor};
+}
+
+sub revoke_session_proofs {
+    my ( $class, $u, @ids ) = @_;
+    return unless @ids;
     my $dbh = LJ::get_db_writer() or die 'Database unavailable';
-    my ($factor) =
-        $dbh->selectrow_array( 'SELECT factor FROM mfa_sessions WHERE userid = ? AND sessid = ?',
-        undef, $u->id, $session->id );
-    return defined $factor && $factor eq sha256_hex($secret);
+    my $in  = join ',', map { '?' } @ids;
+    $dbh->do( "DELETE FROM mfa_sessions WHERE userid = ? AND sessid IN ($in)", undef, $u->id, @ids )
+        or die $dbh->errstr;
+
+    # Keep a negative entry so an earlier cache miss cannot resurrect a proof.
+    LJ::MemCache::set( $class->_proof_key( $u->id, $_ ), { factor => '' }, 300 ) for @ids;
 }
 
 sub get_recovery_codes {
@@ -155,6 +225,10 @@ sub enable {
         or $log->logcroak( 'Failed to start transaction: ', $dbh->errstr );
 
     my $saved = eval {
+        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+            undef, $userid );
+        die $dbh->errstr if $dbh->err;
+        $class->_factor_changing($u);
         my $updated = $dbh->do(
             q{UPDATE password2 SET totp_secret = ? WHERE userid = ? AND totp_secret IS NULL},
             undef, DW::Auth::Helpers->encrypt_token($secret), $userid );
@@ -181,9 +255,11 @@ sub enable {
     unless ($saved) {
         my $error = $@;
         $dbh->rollback;
+        $class->_factor_state( $u, 1 );
         die $error;
     }
 
+    $class->_factor_state( $u, 1 );
     $u->kill_all_sessions;
     $u->infohistory_add( '2fa_totp', 'enabled' );
 
@@ -207,6 +283,8 @@ sub disable {
             return undef;
         }
 
+        $class->_factor_changing($u);
+
         # Wipe out their secret and also the recovery codes so they can't be used
         # in the future, this is done in a transaction to try to ensure we don't
         # end up in some mixed state with recovery codes still valid
@@ -223,10 +301,12 @@ sub disable {
     unless ($disabled) {
         my $error = $@;
         $dbh->rollback unless $dbh->{AutoCommit};
+        $class->_factor_state( $u, 1 );
         die $error if $error;
         return undef;
     }
 
+    $class->_factor_state( $u, 1 );
     $u->kill_all_sessions;
     $u->infohistory_add( '2fa_totp', 'disabled' );
 

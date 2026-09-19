@@ -81,7 +81,7 @@ sub set {
         my $encrypted_password_token =
             DW::Auth::Helpers->encrypt_token( $class->_bcrypt_password($password) );
 
-        # Replace into database.
+        # Update the password without replacing the account's second factor.
         $dbh->do(
             q{INSERT INTO password2 (userid, version, password) VALUES (?, ?, ?)
                 ON DUPLICATE KEY UPDATE version = VALUES(version), password = VALUES(password)},

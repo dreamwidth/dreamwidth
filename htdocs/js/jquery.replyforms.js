@@ -39,7 +39,7 @@ jQuery(function($) {
                     $('<option>').val(account.userid).text(account.user).appendTo(select);
                 }
             });
-            if (select.find('option[value="' + selected + '"]').length) {
+            if (selected && select.find('option[value="' + selected + '"]').length) {
                 select.val(selected).change();
                 if (returned) $('#talkpostfromstored').prop('checked', true).change();
             }

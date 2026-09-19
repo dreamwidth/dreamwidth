@@ -109,7 +109,9 @@ Omit the `Fixes` line when there is no linked issue.
   Never add password-based login to a posting form or an API endpoint.
 - MFA challenges are short-lived, browser-bound database records. Completing
   MFA records proof for the resulting session in `mfa_sessions`; session
-  validation rejects legacy/password-only sessions for TOTP accounts.
+  validation rejects legacy/password-only sessions for TOTP accounts. Factor
+  state and session proof are cached: use the TOTP and session lifecycle
+  methods so factor changes and session revocation also invalidate caches.
 - Comments may use a validated stored account session without changing the
   active browsing account. Journal entries use the active account and must
   reject a changed `poster_remote`, preserving the draft.

@@ -52,9 +52,6 @@ sub new_for_user {
     return $self->_create( $user, $id, $key );
 }
 
-# Usage: lookup ( user, key )
-# Looks for a given key for a user. Returns the key object
-# if it's valid, or undef otherwise.
 # Protocol clients authenticate with a key, never the account password.
 sub authenticate {
     my ( $class, $u, $credential, %opts ) = @_;
@@ -69,6 +66,9 @@ sub authenticate {
     return 0;
 }
 
+# Usage: lookup ( user, key )
+# Looks for a given key for a user. Returns the key object
+# if it's valid, or undef otherwise.
 sub get_key {
     my ( $class, $hash ) = @_;
     return undef unless $hash;

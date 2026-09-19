@@ -4302,6 +4302,7 @@ sub sessiongenerate {
     unless ($rs) {
         $res->{success} = 'FAIL';
         $res->{errmsg}  = LJ::Protocol::error_message($err);
+        return 0;
     }
 
     $res->{success}   = 'OK';

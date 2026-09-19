@@ -41,6 +41,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
       ) -%]
     </form>
 
-    <p><a href="[% site.root %]/login">[% dw.ml('.link.back') %]</a></p>
+    <p><a href="[% restart_url | html %]">[% dw.ml('.link.back') %]</a></p>
   </div>
 </div>

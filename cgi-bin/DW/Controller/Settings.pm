@@ -268,10 +268,9 @@ sub manage2fa_handler {
         my $vars;
 
         if ( $post_args->{'action:show-codes'} ) {
-            if (   !LJ::auth_okay( $remote, $post_args->{password} )
-                || !DW::Auth::TOTP->verify( $remote, $post_args->{code} ) )
-            {
-                LJ::handle_bad_login($remote);
+            my $password_ok = LJ::auth_okay( $remote, $post_args->{password} );
+            if ( !$password_ok || !DW::Auth::TOTP->verify( $remote, $post_args->{code} ) ) {
+                LJ::handle_bad_login($remote) if $password_ok;
                 $errors->add_string( password => 'Invalid password or authentication code.' );
                 $vars->{errors} = $errors;
             }
@@ -312,10 +311,11 @@ sub manage2fa_handler {
         my $secret      = $post_args->{totp_secret};
         my $verify_code = $post_args->{verification_code};
 
-        if (   !LJ::auth_okay( $remote, $post_args->{password} )
+        my $password_ok = LJ::auth_okay( $remote, $post_args->{password} );
+        if (   !$password_ok
             || !DW::Auth::TOTP->check_code( $remote, $verify_code, secret => $secret ) )
         {
-            LJ::handle_bad_login($remote);
+            LJ::handle_bad_login($remote) if $password_ok;
             $errors->add_string(
                 verification_code => 'Invalid password or verification code. Please try again.' );
             return DW::Template->render_template( 'settings/manage2fa/setup.tt',
@@ -419,13 +419,6 @@ sub changepassword_handler {
                 $errors->add( "password", ".error.badoldpassword" );
                 LJ::handle_bad_login($u);
             }
-            elsif (!$authu
-                && DW::Auth::TOTP->is_enabled($u)
-                && !DW::Auth::TOTP->verify( $u, $post->{code} ) )
-            {
-                $errors->add_string( 'code', 'Enter a valid authentication or recovery code.' );
-                LJ::handle_bad_login($u);
-            }
         }
 
         if ( !$newpass1 ) {
@@ -448,11 +441,46 @@ sub changepassword_handler {
         $errors->add( "newpass1", ".error.notvalidated" )
             if $u->{status} ne 'A' && !$authu;
 
-        # now let's change the password
+        # Consume a one-use factor only after the proposed password and account
+        # have passed all validation. A failed update rolls consumption back.
+        unless ( $errors->exist ) {
+            my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+            $dbh->begin_work or die $dbh->errstr;
+            my $changed = eval {
+                $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+                    undef, $u->id );
+                die $dbh->errstr if $dbh->err;
+                if ( !$authu && !$u->check_password($password) ) {
+                    $errors->add( 'password', '.error.badoldpassword' );
+                    LJ::handle_bad_login($u);
+                }
+                elsif (!$authu
+                    && DW::Auth::TOTP->is_enabled($u)
+                    && !DW::Auth::TOTP->verify( $u, $post->{code} ) )
+                {
+                    $errors->add_string( 'code', 'Enter a valid authentication or recovery code.' );
+                    LJ::handle_bad_login($u);
+                }
+                if ( $errors->exist ) {
+                    $dbh->rollback or die $dbh->errstr;
+                }
+                else {
+                    $u->set_password( $post->{newpass1} );
+                    $dbh->commit or die $dbh->errstr;
+                }
+                1;
+            };
+            unless ($changed) {
+                my $error = $@;
+                $dbh->rollback unless $dbh->{AutoCommit};
+                die $error;
+            }
+        }
+
+        # Finish session cleanup and notifications after the password commits.
         unless ( $errors->exist ) {
             $u->infohistory_add( 'password', 'changed' );
             $u->log_event( 'password_change', { remote => $remote } );
-            $u->set_password( $post->{newpass1} );
 
             # if we used an authcode, we'll need to expire it now
             LJ::mark_authaction_used($aa) if $authu;

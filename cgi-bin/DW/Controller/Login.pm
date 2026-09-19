@@ -82,8 +82,7 @@ sub login_handler {
 
     my @errors = ();
 
-    my $cursess    = $remote ? $remote->session : undef;
-    my $old_remote = $remote;
+    my $cursess = $remote ? $remote->session : undef;
 
     return error_ml("/login.tt.dbreadonly") if $remote && $remote->readonly;
 
@@ -251,6 +250,13 @@ sub login_handler {
                         SameSite => 'Lax',
                         path     => '/login'
                     );
+                    $r->add_cookie(
+                        name     => 'ljmfarestart',
+                        value    => DW::Auth::Login->restart_token(%completion),
+                        httponly => 1,
+                        SameSite => 'Lax',
+                        path     => '/login'
+                    );
                     return $r->redirect("$LJ::SITEROOT/login/2fa");
                 }
                 DW::Auth::Login->complete( $u, %completion )
@@ -285,12 +291,13 @@ sub login_handler {
 sub login_2fa_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
     return $rv unless $ok;
-    my $r     = $rv->{r};
-    my $token = $r->cookie('ljmfapending');
+    my $r           = $rv->{r};
+    my $token       = $r->cookie('ljmfapending');
+    my $restart_url = DW::Auth::Login->restart_url( $r->cookie('ljmfarestart') );
     my ( $u, $opts ) = DW::Auth::Login->pending($token);
     unless ($u) {
         $r->delete_cookie( name => 'ljmfapending', path => '/login' );
-        return $r->redirect("$LJ::SITEROOT/login");
+        return $r->redirect($restart_url);
     }
     my $errors = DW::FormErrors->new;
     $r->note( ml_scope => '/login/2fa.tt' );
@@ -300,6 +307,7 @@ sub login_2fa_handler {
             DW::Auth::Login->complete( $verified, %$completion, mfa_verified => 1 )
                 or return error_ml('error.invalidform');
             $r->delete_cookie( name => 'ljmfapending', path => '/login' );
+            $r->delete_cookie( name => 'ljmfarestart', path => '/login' );
             my $url = $completion->{returnto};
             $url = DW::Auth::Login->return_url($url) || "$LJ::SITEROOT/";
             if ( $completion->{store_only} ) {
@@ -311,6 +319,6 @@ sub login_2fa_handler {
         $errors->add( 'code', '.error.badcredentials' );
     }
     return DW::Template->render_template( 'login/2fa.tt',
-        { errors => $errors, user => $u->display_name } );
+        { errors => $errors, user => $u->display_name, restart_url => $restart_url } );
 }
 1;

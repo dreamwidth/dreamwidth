@@ -746,6 +746,8 @@ sub destroy_sessions {
         $u->do( "DELETE FROM $_ WHERE userid=? AND " . "sessid IN ($in)", undef, $userid )
             or return 0;    # FIXME: use Error::Strict
     }
+    require DW::Auth::TOTP;
+    DW::Auth::TOTP->revoke_session_proofs( $u, @sessids );
     foreach my $id (@sessids) {
         $id += 0;
         LJ::MemCache::delete( _memkey( $u, $id ) );

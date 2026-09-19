@@ -2,8 +2,7 @@
 #
 # DW::Controller::Mobile::Login
 #
-# Handles the mobile login page (/mobile/login), a minimal standalone
-# (no sitescheme) login form for the lightweight mobile interface.
+# Sends mobile sign-in through the shared browser login flow.
 #
 # This code is based on code originally created by the LiveJournal project
 # owned and operated by Live Journal, Inc. The code has been modified and
@@ -25,10 +24,8 @@ package DW::Controller::Mobile::Login;
 
 use strict;
 
-use DW::Controller;
+use DW::Request;
 use DW::Routing;
-use DW::Template;
-use DW::FormErrors;
 
 DW::Routing->register_string( "/mobile/login", \&login_handler, app => 1 );
 

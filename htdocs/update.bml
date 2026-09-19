@@ -119,25 +119,9 @@ _c?>
 
     ### define some bools with common logic ###
     my $did_post = LJ::did_post() && !$POST{transform};                           # transforms aren't posts
-    my $user_is_remote = $remote && $remote->{'user'} eq $POST{'user'};           # user is remote
-    my $auth_as_remote = $remote;      # auth as remote
-    my $auth_missing = $POST{'user'} &&
-                       ! $POST{'password'} &&
-                       ! $user_is_remote &&
-                       ! $POST{'response'};                                       # user w/o password
-
-    # which authentication option do we display by default?
-    my $altlogin_display = 'none';
-    my $remotelogin_display = 'none';
-    if ($auth_as_remote) {
-        $remotelogin_display = 'block';
-    } else {
-        $altlogin_display = 'block';
-    }
-
     # Check for errors, store in hash to render later
     my $errors;
-    my $showform = $POST{'showform'} || $auth_missing;                            # show entry form
+    my $showform = $POST{'showform'};                            # show entry form
     my $preview = $POST{'action:preview'};
 
         # are we spellchecking before we post?
@@ -162,20 +146,12 @@ _c?>
         # authentication box
         my $auth = '';
 
-        if ($altlogin_display eq 'none') {
-            $auth.= "<p id='remotelogin' class='pkg'>\n";
-            $auth .= "<label for='current_username' class='left'>" . BML::ml('entryform.postas') . "</label>\n";
-            $auth .= "<strong id='current_username'>" . $remote->{user} . "</strong> \n";
-            $auth .= "</p>\n\n";
-        }
+        $auth.= "<p id='remotelogin' class='pkg'>\n";
+        $auth .= "<label for='current_username' class='left'>" . BML::ml('entryform.postas') . "</label>\n";
+        $auth .= "<strong id='current_username'>" . $remote->{user} . "</strong> \n";
+        $auth .= "</p>\n\n";
         $auth .= LJ::html_hidden( 'poster_remote', $POST{poster_remote} || $remote->user );
 
-
-        # if they submit the form and are spellchecking, remember
-        # their settings from the GET requests
-        my $getextra = '?';
-        $getextra .= "altlogin=1&" if $GET{'altlogin'};
-        chop $getextra;
 
         # if crossposter values were checked, remember them
         my %xpost_vals;
@@ -185,7 +161,7 @@ _c?>
 
         my $entry = {
             'mode' => "update",
-            'auth_as_remote' => $auth_as_remote,
+            'auth_as_remote' => 1,
             'subject' => $subject,
             'event' => $event,
             'prop_taglist' => $tags,
@@ -199,7 +175,6 @@ _c?>
             'richtext_default' => $remote ? $remote->new_entry_editor eq 'rich' ? 1 : 0  # User setting
                                           : $LJ::DEFAULT_EDITOR       eq 'rich' ? 1 : 0, # Site default
             'include_insert_object' => $GET{'insobj'},
-            'altlogin' => $GET{altlogin} ? 1 : 0,
             'prop_opt_preformatted' => $opt_preformatted ? 1 : 0,
 
             %xpost_vals,
@@ -246,7 +221,7 @@ _c?>
             $$body .= " warningbar?><br /></div>";
         }
 
-        $$body .= "\n\n<form method='post' action='update$getextra' id='updateForm' name='updateForm'>\n\n";
+        $$body .= "\n\n<form method='post' action='update' id='updateForm' name='updateForm'>\n\n";
         $$body .= LJ::form_auth();
 
         $$body .= LJ::entry_form($entry, \$$head, $onload, $errors);

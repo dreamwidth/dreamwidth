@@ -695,8 +695,7 @@ sub _edit {
 }
 
 # returns:
-# poster: user object that contains the poster of the entry. may be the current remote user,
-#           or may be someone logging in via the login form on the entry
+# poster: the authenticated browsing account, matching the form's original poster
 # journal: user object for the journal the entry is being posted to. may be the same as the
 #           poster, or may be a community
 # unverified_username: username that current remote is trying to post as; remote may not
@@ -712,11 +711,6 @@ sub _auth {
 
     # referer only should be passed in if outside web context, such as when running tests
 
-    my %auth;
-    foreach (qw( username chal response password )) {
-        $auth{$_} = $post->{$_} || "";
-    }
-
     my %ret;
 
     if (   $remote
@@ -730,7 +724,7 @@ sub _auth {
         $ret{journal} = $post->{usejournal} ? LJ::load_user( $post->{usejournal} ) : $remote;
     }
 
-    $ret{unverified_username} = $ret{poster} ? $ret{poster}->username : $auth{username};
+    $ret{unverified_username} = $ret{poster} ? $ret{poster}->username : undef;
     return %ret;
 }
 
