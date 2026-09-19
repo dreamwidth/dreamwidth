@@ -106,6 +106,7 @@ sub impersonate_controller {
             my $session;
             my $admin_session = $remote->session;
             my $publishing;
+            my @cookies      = $r->err_header_out('Set-Cookie');
             my $impersonated = eval {
                 for my $userid ( sort { $a <=> $b } ( $u->id, $remote->id ) ) {
                     $dbh->selectrow_array(
@@ -144,9 +145,9 @@ sub impersonate_controller {
                 $u->{_session} = $previous_session;
                 if ($publishing) {
 
-                    # Publication hooks may throw after setting cookies. Keep the
-                    # administrator's existing session until publication succeeds.
-                    $admin_session->update_master_cookie if $admin_session;
+                    # Discard every target cookie, including trust and scheme
+                    # cookies, while preserving headers set before publication.
+                    $r->err_header_out( 'Set-Cookie', \@cookies );
                     LJ::User->set_remote($remote);
                 }
                 die $error;

@@ -140,7 +140,12 @@ Omit the `Fixes` line when there is no linked issue.
 - Protocol clients use API keys; keys must not mint browser sessions. Scoping
   API key permissions is separate future work. Dreamwidth comment imports use
   API-key challenge authentication directly on the export endpoint; never mint
-  a browser cookie for an importer. Other source sites retain their own protocol.
+  a browser cookie for an importer. Crossposting to Dreamwidth and jbackup also
+  use fresh API-key challenges per operation. Unsaved crosspost keys must survive
+  form submission so the worker can authenticate multiple operations; do not
+  reduce them to one single-use challenge response. Other sites retain their own protocol.
+  API-key revocation must publish a denial before the database change and
+  serialize cache fills with that change; a failed cache write must abort revocation.
 - Login challenge/session creation, enrollment password checks, and recovery-code
   disclosure must hold the same account-row lock as password and factor changes.
   Recheck submitted credentials under that lock; never persist login passwords

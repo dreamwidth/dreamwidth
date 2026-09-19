@@ -425,6 +425,12 @@ sub supports_challenge {
     return $_[0]->protocol->supports_challenge;
 }
 
+sub uses_api_key {
+    my ($self) = @_;
+    my $url = $self->serviceurl || 'https://' . $self->serverhost . '/interface/xmlrpc';
+    return $self->protocol->uses_api_key($url);
+}
+
 #accessors
 
 sub siteid {

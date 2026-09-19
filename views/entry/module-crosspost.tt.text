@@ -5,7 +5,7 @@
 
 .label.crosspost_entry=Crosspost this
 
-.label.password=Password:
+.label.password=Password or API key:
 
 .settings.link=Settings
 

@@ -27,13 +27,13 @@
 
 .error.username.required=Username is required.
 
-.label.password=Password
+.label.password=Password or API key
 
-.label.password.info=(Please make sure you have caps-lock disabled and enter the correct password.)
+.label.password.info=For a Dreamwidth destination, use an API key from that account’s API page. Other services use their account password.
 
 .label.recordlink=Display Cross Post Links
 
-.label.savepassword=Save Password
+.label.savepassword=Save Password or API Key
 
 .label.servicename=Custom Service Name
 

@@ -37,7 +37,7 @@ XPostAccount = new Class(Object, {
     },
 
     clearPassword: function () {
-      if (this.passField != null) {
+      if (this.passField != null && !this.apiKey) {
         this.passField.value = "";
       }
     },
@@ -45,7 +45,8 @@ XPostAccount = new Class(Object, {
     /**
      * does an ajax call for challenge/response, so if we have an xpost account
      * where we're not saving the password, we can avoid sending the password
-     * in plaintext.  also checks to see if a required password is not filled
+     * in plaintext. Dreamwidth API keys must reach the worker so it can obtain
+     * a fresh challenge for each operation. Also checks if a required password is not filled
      * in.
      *
      * returns true if this account requires a password and some work has
@@ -106,10 +107,10 @@ XPostAccount = new Class(Object, {
         this.statusField.innerHTML = "";
         if (!data.success) return;
 
+        this.apiKey = !!data.api_key;
         var pass = this.passField.value;
-        var res = MD5(data.challenge + MD5(pass));
-        this.respField.value = res;
-        this.chalField.value = data.challenge;
+        this.respField.value = this.apiKey ? "" : MD5(data.challenge + MD5(pass));
+        this.chalField.value = this.apiKey ? "" : data.challenge;
 
         this.failed = false;
         this.locked = false;

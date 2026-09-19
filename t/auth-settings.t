@@ -32,7 +32,13 @@ use DW::Auth::TOTP;
     sub note          { undef }
     sub get_remote_ip { '127.0.0.1' }
     sub header_in     { '' }
-    sub redirect      { $_[1] }
+
+    sub err_header_out {
+        my ( $self, $name, $values ) = @_;
+        return @{ $self->{cookies} || [] } unless @_ > 2;
+        $self->{cookies} = [@$values];
+    }
+    sub redirect { $_[1] }
 }
 my $r = bless { post => {} }, 'SettingsAuthRequest';
 my $u = temp_user();
@@ -381,13 +387,15 @@ for my $failure ( 'commit', 'publication' ) {
         sub { ( 1, { r => $r, remote => $admin } ) };
     local *LJ::check_referer = sub { 1 };
     my ( $published, $restored ) = ( 0, 0 );
+    $r->{cookies} = ['existing=keep'];
     local *LJ::User::publish_login_session = sub {
         ++$published;
+        push @{ $r->{cookies} }, 'ljmastersession=target', 'ljtrust=target', 'BMLschemepref=target';
         die 'Simulated publication failure';
     };
     local *LJ::Session::update_master_cookie = sub {
         ++$restored;
-        is( $_[0]->id, $admin_session->id, 'Failed publication restores administrator cookie' );
+        fail('Recovery must restore exact cookie headers, not append more cookies');
     };
     local *LJ::User::set_remote = sub {
         ok( $_[1]->equals($admin), 'Failed publication restores administrator identity' );
@@ -402,11 +410,9 @@ for my $failure ( 'commit', 'publication' ) {
     *LJ::get_db_writer = sub { $writer };
     like( $error, qr/Simulated $failure failure/, 'Impersonation failure is reported' );
     is( $published, $failure eq 'publication' ? 1 : 0, 'Commit failure never publishes cookies' );
-    is(
-        $restored,
-        $failure eq 'publication' ? 1 : 0,
-        'Only attempted publication needs cookie restoration'
-    );
+    is( $restored, 0, 'Recovery does not append administrator cookies' );
+    is_deeply( $r->{cookies}, ['existing=keep'],
+        'Failure restores complete pre-publication cookie snapshot' );
     ok(
         LJ::Session->instance( $admin, $admin_session->id )->valid,
         'Failed impersonation leaves administrator session usable'

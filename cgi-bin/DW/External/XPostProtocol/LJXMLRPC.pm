@@ -20,6 +20,7 @@ use warnings;
 
 use Digest::MD5 qw(md5_hex);
 use XMLRPC::Lite;
+use URI;
 
 # create a new instance of LJXMLRPC
 sub instance {
@@ -76,8 +77,27 @@ sub _call_xmlrpc {
 # FIXME we should probably combine this with the similar method in
 # DW::Worker::ContentImporter::LiveJournal, and move it to a general
 # LJ-XMLRPC library class.
+sub uses_api_key {
+    my ( $self, $url ) = @_;
+    my $host = lc( URI->new($url)->host // '' );
+    return $host =~ /^(?:www\.)?dreamwidth\.org$/;
+}
+
 sub do_auth {
-    my ( $self, $xmlrpc, $auth ) = @_;
+    my ( $self, $xmlrpc, $auth, $api_key ) = @_;
+    if ($api_key) {
+        return { success => 0, error => LJ::Lang::ml('xpost.error.api_key_required') }
+            unless $auth->{encrypted_password};
+        my $challengecall = $self->_call_xmlrpc( $xmlrpc, 'getchallenge', {} );
+        return $challengecall unless $challengecall->{success};
+        my $challenge = $challengecall->{result}->{challenge};
+        return {
+            success        => 1,
+            username       => $auth->{username},
+            auth_challenge => $challenge,
+            auth_response  => md5_hex( $challenge . $auth->{encrypted_password} ),
+        };
+    }
 
     # if we've already set up an ljsession, just use it.
     if ( $auth->{ljsession} ) {
@@ -154,7 +174,7 @@ sub call_xmlrpc {
         unless $xmlrpc;
 
     # get the auth information
-    my $authresp = $self->do_auth( $xmlrpc, $auth );
+    my $authresp = $self->do_auth( $xmlrpc, $auth, $self->uses_api_key($proxyurl) );
 
     # fail if no auth available
     return $authresp unless $authresp->{success};

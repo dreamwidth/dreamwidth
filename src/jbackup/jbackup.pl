@@ -69,7 +69,6 @@ use Data::Dumper;
 use XMLRPC::Lite;
 use XML::Parser;
 use Digest::MD5 qw(md5_hex);
-use Term::ReadKey;
 
 # get options
 my %opts;
@@ -87,6 +86,7 @@ exit 1 unless
                "clean" => \$opts{clean},
                "file=s" => \$opts{file},
                "password=s" => \$opts{password},
+               "api-key=s" => \$opts{api_key},
                "md5pass=s" => \$opts{md5password},
                "alter-security=s" => \$opts{alter_security},
                "confirm-alter" => \$opts{confirm_alter},
@@ -105,6 +105,7 @@ if (-e "$ENV{HOME}/.jbackup") {
 
 # setup some nice, sane defaults
 $opts{protocol} ||= 'https';
+$opts{password} = $opts{api_key} if defined $opts{api_key};
 $opts{server} ||= 'www.dreamwidth.org';
 $opts{baseurl} = $opts{protocol} . '://' . $opts{server};
 $opts{port} += 0;
@@ -131,7 +132,8 @@ jbackup.pl -- journal database generator and formatter
     --user=X        Specify the user to use for authentication.
     --password=X    Specify the password to use for the user.
                     NOTE: For Dreamwidth, this must be an API key.
-    --md5pass=X     Alternately, provide the MD5 digest of the password.
+    --api-key=X     Use an API key, including for other Dreamwidth installations.
+    --md5pass=X     Alternately, provide the MD5 digest of the password or API key.
     --journal=X     Specify an alternate journal to use.
                     NOTE: You must be maintainer of the journal.
     --protocol=X    Use a different protocol. (Default: https)
@@ -183,10 +185,11 @@ unless ($opts{user}) {
     die "Need a username" unless $opts{user};
 }
 if (!$opts{password} && !$opts{md5password} && $opts{sync}) {
-    print "Password: ";
-    ReadMode('noecho');
-    my $pass = ReadLine(0);
-    ReadMode('normal');
+    print uses_api_key() ? "API key: " : "Password: ";
+    require Term::ReadKey;
+    Term::ReadKey::ReadMode('noecho');
+    my $pass = Term::ReadKey::ReadLine(0);
+    Term::ReadKey::ReadMode('normal');
     chomp $pass;
     $opts{password} = $pass;
     print "\n";
@@ -300,9 +303,12 @@ sub do_sync {
     # see if we shouldn't be doing this
     return if $opts{no_comments};
 
-    # first we hit up the server to get a session
-    my $hash = call_xmlrpc('sessiongenerate', { expiration => 'short' });
-    my $ljsession = $hash->{ljsession};
+    # Dreamwidth exports authenticate each request with an API-key challenge.
+    my $ljsession;
+    unless (uses_api_key()) {
+        my $hash = call_xmlrpc('sessiongenerate', { expiration => 'short' });
+        $ljsession = $hash->{ljsession};
+    }
 
     # downloaded meta data information
     my %meta;
@@ -501,19 +507,24 @@ sub load_comment {
 
 sub do_authed_fetch {
     my ($mode, $startid, $numitems, $sess) = @_;
-    d("do_authed_fetch: mode = $mode, startid = $startid, numitems = $numitems, sess = $sess");
+    d("do_authed_fetch: mode = $mode, startid = $startid, numitems = $numitems");
 
-    # hit up the server with the specified information and return the raw content.
-    # use a cookie jar so the ljsession cookie survives any redirects
-    # (e.g. dreamwidth.org -> www.dreamwidth.org)
     my $ua = LWP::UserAgent->new;
     $ua->agent('JBackup/1.0');
-    $ua->cookie_jar({});
-    $ua->cookie_jar->set_cookie(0, 'ljsession', $sess, '/', $opts{server}, undef, 0, 0, 86400, 0);
     my $authas = $opts{usejournal} ? "&authas=$opts{usejournal}" : '';
-    my $request = HTTP::Request->new(GET => "$opts{baseurl}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas");
+    my $url = "$opts{baseurl}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas";
+    my $request;
+    if (uses_api_key()) {
+        require HTTP::Request::Common;
+        $ua->max_redirect(0);
+        $request = HTTP::Request::Common::POST($url, Content => challenge_auth());
+    } else {
+        $ua->cookie_jar({});
+        $ua->cookie_jar->set_cookie(0, 'ljsession', $sess, '/', $opts{server}, undef, 0, 0, 86400, 0);
+        $request = HTTP::Request->new(GET => $url);
+    }
     my $response = $ua->request($request);
-    return if $response->is_error();
+    return unless $response->is_success();
     my $xml = $response->content();
     return $xml if $xml;
 
@@ -942,23 +953,31 @@ sub call_xmlrpc {
 
     my $xmlrpc = new XMLRPC::Lite;
     $xmlrpc->proxy("$opts{baseurl}/interface/xmlrpc");
+    my $auth = challenge_auth($xmlrpc);
+    return xmlrpc_call_helper($xmlrpc, "LJ.XMLRPC.$mode", { %$auth, %$hash }, $mode, $hash);
+}
+
+sub uses_api_key {
+    return defined $opts{api_key} || $opts{server} =~ /^(?:www\.)?dreamwidth\.org$/i;
+}
+
+sub challenge_auth {
+    my ($xmlrpc) = @_;
+    unless ($xmlrpc) {
+        $xmlrpc = XMLRPC::Lite->new;
+        $xmlrpc->proxy("$opts{baseurl}/interface/xmlrpc");
+    }
     my $chal;
     while (!$chal) {
         my $get_chal = xmlrpc_call_helper($xmlrpc, 'LJ.XMLRPC.getchallenge');
-        $chal = $get_chal->{'challenge'};
+        $chal = $get_chal->{challenge};
     }
-    #d("\tcall_xmlrpc: challenge obtained: $chal");
-
-    my $response = md5_hex($chal . ($opts{md5password} ? $opts{md5password} : md5_hex($opts{password})));
-    #d("\tcall_xmlrpc: calling LJ.XMLRPC.$mode");
-    my $res = xmlrpc_call_helper($xmlrpc, "LJ.XMLRPC.$mode", {
-        'username' => $opts{user},
-        'auth_method' => 'challenge',
-        'auth_challenge' => $chal,
-        'auth_response' => $response,
-        %$hash, # interpolate $hash into our hash here...isn't Perl great?
-    }, $mode, $hash);
-    return $res;
+    return {
+        username => $opts{user},
+        auth_method => 'challenge',
+        auth_challenge => $chal,
+        auth_response => md5_hex($chal . ($opts{md5password} || md5_hex($opts{password}))),
+    };
 }
 
 sub do_flush {

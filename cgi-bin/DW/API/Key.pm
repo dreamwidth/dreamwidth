@@ -74,31 +74,43 @@ sub authenticate {
     return 0;
 }
 
-# Usage: lookup ( user, key )
-# Looks for a given key for a user. Returns the key object
-# if it's valid, or undef otherwise.
+sub _cache_key { return 'api-key-v2:' . $_[1] }
+
+# Look up an active key by its secret, or return undef.
 sub get_key {
     my ( $class, $hash ) = @_;
     return undef unless $hash;
-    my $memkey = "api_key:$hash";
+    my $memkey = $class->_cache_key($hash);
+    my $cached = LJ::MemCache::get($memkey);
+    unless ( defined $cached ) {
+        my $dbh             = LJ::get_db_writer() or croak 'Failed to get database';
+        my $own_transaction = $dbh->{AutoCommit};
+        my $loaded          = eval {
+            $dbh->begin_work or die $dbh->errstr if $own_transaction;
+            my $row = $dbh->selectrow_hashref(
+                "SELECT keyid, userid, hash, state FROM api_key WHERE hash = ? FOR UPDATE",
+                undef, $hash );
+            die $dbh->errstr if $dbh->err;
+            $cached = $row && $row->{state} eq 'A' ? { key => $row } : { revoked => 1 };
+            if ($own_transaction) {
 
-    my $keydata = LJ::MemCache::get($memkey);
-    unless ( defined $keydata ) {
-        my $dbh = LJ::get_db_writer() or croak "Failed to get database";
-        $keydata = $dbh->selectrow_hashref(
-            "SELECT keyid, userid, hash FROM api_key WHERE hash = ? AND state = 'A'",
-            undef, $hash );
-        carp $dbh->errstr if $dbh->err;
-        LJ::MemCache::set( $memkey, $keydata, 60 * 60 * 24 );    # cache for one day
+                # Serialize cache fills with revocation; never replace a tombstone.
+                LJ::MemCache::add( $memkey, $cached, 86400 );
+                $cached = LJ::MemCache::get($memkey) || $cached;
+                $dbh->commit or die $dbh->errstr;
+            }
+            1;
+        };
+        unless ($loaded) {
+            my $error = $@;
+            $dbh->rollback if $own_transaction && !$dbh->{AutoCommit};
+            die $error;
+        }
     }
-
-    if ($keydata) {
-        my $user = LJ::want_user( $keydata->{userid} );
-        return $class->_create( $user, $keydata->{keyid}, $keydata->{hash} );
-    }
-    else {
-        return undef;
-    }
+    return undef if $cached->{revoked} || !$cached->{key};
+    my $row  = $cached->{key};
+    my $user = LJ::want_user( $row->{userid} ) or return undef;
+    return $class->_create( $user, $row->{keyid}, $row->{hash} );
 }
 
 # Usage: get_keys_for_user ( user )
@@ -174,17 +186,33 @@ sub delete {
         or croak "need a user!\n";
 
     $self->valid_for_user($user) or croak "key doesn't belong to user";
-    my $memkey = "api_key:" . $self->{keyhash};
+    my $memkey          = $self->_cache_key( $self->{keyhash} );
+    my $dbw             = LJ::get_db_writer() or croak 'Failed to get database';
+    my $own_transaction = $dbw->{AutoCommit};
+    my $deleted         = eval {
+        $dbw->begin_work or die $dbw->errstr if $own_transaction;
+        $dbw->selectrow_array( 'SELECT keyid FROM api_key WHERE hash = ? FOR UPDATE',
+            undef, $self->{keyhash} );
+        die $dbw->errstr if $dbw->err;
 
-    my $dbw = LJ::get_db_writer() or croak "Failed to get database";
-    $dbw->do( q{UPDATE api_key SET state = 'D' WHERE state = 'A' AND hash = ?},
-        undef, $self->{keyhash} );
-
-    LJ::MemCache::delete($memkey);
-    return 1 unless $dbw->err;
-
-    carp $dbw->errstr if $dbw->err;
-    return undef;
+        # Publish denial before changing the database. A failed cache write must
+        # not report successful revocation while an old positive entry survives.
+        if (@LJ::MEMCACHE_SERVERS) {
+            LJ::MemCache::set( $memkey, { revoked => 1 }, 86400 )
+                or die 'Unable to publish API-key revocation';
+        }
+        $dbw->do( "UPDATE api_key SET state = 'D' WHERE state = 'A' AND hash = ?",
+            undef, $self->{keyhash} )
+            or die $dbw->errstr;
+        $dbw->commit or die $dbw->errstr if $own_transaction;
+        1;
+    };
+    unless ($deleted) {
+        my $error = $@;
+        $dbw->rollback if $own_transaction && !$dbw->{AutoCommit};
+        die $error;
+    }
+    return 1;
 }
 
 sub valid_for_user {

@@ -5464,6 +5464,8 @@ xpost.edit.success=Update of crosspost at [[username]]@[[server]] successful.  Y
 
 xpost.error=Failed to crosspost entry to [[username]]@[[server]]:  [[error]]
 
+xpost.error.api_key_required=Enter an API key for the Dreamwidth destination account.
+
 xpost.error.connection=Failed to connect to [[url]].
 
 xpost.error.invalidprotocol=Missing or invalid posting protocol.
@@ -5472,11 +5474,11 @@ xpost.nopw.cancel=Cancel
 
 xpost.nopw.checking=Getting authentication...
 
-xpost.nopw.required=Password required.
+xpost.nopw.required=Password or API key required.
 
 xpost.notrespected=This will not respect your default <a [[aopts]]>crosspost settings</a>. Your crossposted entries will not be updated.
 
-xpost.password=Password:
+xpost.password=Password or API key:
 
 xpost.poll.view=View poll: [[name]]
 
