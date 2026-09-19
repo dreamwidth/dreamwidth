@@ -2920,12 +2920,18 @@ sub sessiongenerate {
     # do not let locked people do this
     return fail( $err, 308 ) if $u->is_locked;
 
-    my $sess = LJ::Session->create( $u, %$sess_opts );
+    my $remote = LJ::get_remote();
+    my $source = $remote && $remote->equals($u) ? $remote->session : undef;
+    my $sess   = LJ::Session->create( $u, %$sess_opts );
 
     # A cookie-authenticated caller already has a fully verified browser
     # session. Preserve that proof when it requests a replacement session.
     require DW::Auth::TOTP;
-    DW::Auth::TOTP->mark_session( $u, $sess ) if DW::Auth::TOTP->is_enabled($u);
+    DW::Auth::TOTP->copy_session_proof( $u, $source, $sess );
+    unless ( $sess->valid ) {
+        $sess->destroy;
+        return fail( $err, 300 );
+    }
 
     # return our hash
     return { ljsession => $sess->master_cookie_string, };

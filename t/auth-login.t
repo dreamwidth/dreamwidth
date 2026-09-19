@@ -32,8 +32,13 @@ use DW::Controller::Login;
 {
 
     package LoginTestRequest;
-    sub host          { 'localhost' }
-    sub header_in     { $_[1] eq 'Authorization' ? ( $_[0]->{authorization} // '' ) : '' }
+    sub host { 'localhost' }
+
+    sub header_in {
+              $_[1] eq 'X-LJ-Auth'     ? ( $_[0]->{cookie_auth} ? 'cookie' : '' )
+            : $_[1] eq 'Authorization' ? ( $_[0]->{authorization} // '' )
+            :                            '';
+    }
     sub get_remote_ip { '127.0.0.1' }
     sub note          { undef }
     sub cookie        { $_[0]->{cookies}{ $_[1] } }
@@ -183,7 +188,11 @@ ok( !DW::Auth::Login->pending($token), 'Password reset invalidates pending chall
 local *DW::Request::get = sub { $request };
 my $session = LJ::Session->create( $u, exptype => 'long' );
 ok( !$session->valid, 'Password-only/legacy session rejected for MFA account' );
-DW::Auth::TOTP->mark_session( $u, $session );
+ok(
+    !DW::Auth::TOTP->mark_session( $u, $session ),
+    'Issuing proof requires the factor actually verified'
+);
+DW::Auth::TOTP->mark_session( $u, $session, DW::Auth::TOTP->_factor_state($u)->{factor} );
 ok( $session->valid,                'Session with server-side MFA proof accepted' );
 ok( !DW::Auth::Login->complete($u), 'Completion refuses MFA without verification' );
 $session->set_exptype('long');
@@ -303,7 +312,8 @@ with_fake_memcache {
     DW::Auth::TOTP->enable( $cached_user, $cache_secret );
     ok( !$plain->valid, 'Enabling factor immediately invalidates cached password-only session' );
     my $proven = LJ::Session->create( $cached_user, exptype => 'long' );
-    DW::Auth::TOTP->mark_session( $cached_user, $proven );
+    DW::Auth::TOTP->mark_session( $cached_user, $proven,
+        DW::Auth::TOTP->_factor_state($cached_user)->{factor} );
     ok( $proven->valid, 'Warm MFA session cache' );
     {
         local *LJ::get_db_writer = sub { die 'Unexpected writer access' };
@@ -339,6 +349,70 @@ with_fake_memcache {
     DW::Auth::TOTP->enable( $cached_user, $cache_secret );
     ok( !$new_plain->valid, 'Reenabling same secret invalidates ordinary session' );
     ok( !DW::Auth::TOTP->session_verified($proven), 'Reenrollment cannot reuse old factor proof' );
+};
+
+with_fake_memcache {
+    my $racing_user = temp_user();
+    $racing_user->set_password('race-password');
+    DW::Auth::TOTP->enable( $racing_user, DW::Auth::TOTP->generate_secret );
+    my @race_codes = DW::Auth::TOTP->get_recovery_codes($racing_user);
+    my $challenge  = DW::Auth::Login->begin($racing_user);
+    my ( $verified, $completion ) = DW::Auth::Login->verify( $challenge, $race_codes[0] );
+    ok( $verified, 'Race fixture verifies the original factor' );
+    local *LJ::get_remote = sub { undef };
+    {
+        local *LJ::User::make_login_session = sub {
+            DW::Auth::TOTP->disable( $racing_user, 'race-password', $race_codes[1] );
+            DW::Auth::TOTP->enable( $racing_user, DW::Auth::TOTP->generate_secret );
+            LJ::Session->create( $racing_user, exptype => 'long' );
+        };
+        ok(
+            !DW::Auth::Login->complete( $racing_user, %$completion, mfa_verified => 1 ),
+            'Factor replacement during completion cannot upgrade old verification'
+        );
+        ok( !$racing_user->session->valid,
+            'Racing login gets no proof for the replacement factor' );
+    }
+    my $source = LJ::Session->create( $racing_user, exptype => 'long' );
+    DW::Auth::TOTP->mark_session( $racing_user, $source,
+        DW::Auth::TOTP->_factor_state($racing_user)->{factor} );
+    my $destination = LJ::Session->create( $racing_user, exptype => 'long' );
+    ok( DW::Auth::TOTP->copy_session_proof( $racing_user, $source, $destination ),
+        'Replacement session inherits a valid source proof' );
+    ok( $destination->valid, 'Inherited current-factor proof validates' );
+    {
+        local *LJ::get_remote = sub { $racing_user };
+        local $request->{cookie_auth} = 1;
+        my $error;
+        my $result = LJ::Protocol::sessiongenerate(
+            { username => $racing_user->user, auth_method => 'cookie', expiration => 'long' },
+            \$error, {} );
+        ok( $result && $result->{ljsession}, 'Verified cookie can request a replacement session' );
+        ok( $racing_user->session->valid,    'Cookie replacement carries the original MFA proof' );
+    }
+};
+
+with_fake_memcache {
+    my $racing_user = temp_user();
+    $racing_user->set_password('race-password');
+    my $source = LJ::Session->create( $racing_user, exptype => 'long' );
+    ok( $source->valid, 'Cookie session initially needs no second factor' );
+    local *LJ::get_remote             = sub { $racing_user };
+    local *LJ::Protocol::authenticate = sub { $_[2]->{u} = $racing_user; 1 };
+    my $create = \&LJ::Session::create;
+    local *LJ::Session::create = sub {
+        DW::Auth::TOTP->enable( $racing_user, DW::Auth::TOTP->generate_secret );
+        $create->(@_);
+    };
+    my $error;
+    ok(
+        !LJ::Protocol::sessiongenerate(
+            { auth_method => 'cookie', expiration => 'long' },
+            \$error, {}
+        ),
+        'Concurrent enrollment prevents cookie exchange from minting MFA proof'
+    );
+    ok( !$racing_user->session->valid, 'Password-only source cannot become an MFA session' );
 };
 
 done_testing();

@@ -151,12 +151,14 @@ sub _proof_key {
     return [ $userid, "mfa-proof:$userid:$sessid" ];
 }
 
-# Store proof on the server, not in caller-controlled cookie flags.
+# Store proof on the server, not in caller-controlled cookie flags. The caller
+# must supply the digest of the factor actually verified.
 sub mark_session {
-    my ( $class, $u, $session ) = @_;
+    my ( $class, $u, $session, $verified_factor ) = @_;
     my $state = $class->_factor_state($u);
     die 'Factor is changing' if $state->{changing};
     return unless $state->{factor};
+    return unless defined $verified_factor && $verified_factor eq $state->{factor};
     my $dbh = LJ::get_db_writer() or die 'Database unavailable';
     $dbh->do( 'DELETE FROM mfa_sessions WHERE expires < ?', undef, time() ) or die $dbh->errstr;
     $dbh->do( 'REPLACE INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
@@ -164,6 +166,7 @@ sub mark_session {
         or die $dbh->errstr;
     LJ::MemCache::set( $class->_proof_key( $u->id, $session->id ),
         { factor => $state->{factor} }, 300 );
+    return 1;
 }
 
 sub session_verified {
@@ -172,6 +175,13 @@ sub session_verified {
     my $state = $class->_factor_state($u);
     return 0 if $state->{changing};
     return 1 unless $state->{factor};
+    my $proof = $class->_session_proof($session);
+    return $proof->{factor} eq $state->{factor};
+}
+
+sub _session_proof {
+    my ( $class, $session ) = @_;
+    my $u     = $session->owner;
     my $key   = $class->_proof_key( $u->id, $session->id );
     my $proof = LJ::MemCache::get($key);
     unless ($proof) {
@@ -184,7 +194,18 @@ sub session_verified {
         LJ::MemCache::add( $key, $proof, 300 );
         $proof = LJ::MemCache::get($key) || $proof;
     }
-    return $proof->{factor} eq $state->{factor};
+    return $proof;
+}
+
+# A replacement session may inherit only the proof its source actually held.
+# Reading the current factor would upgrade a password-only or stale session
+# if enrollment races with cookie-authenticated session generation.
+sub copy_session_proof {
+    my ( $class, $u, $source, $destination ) = @_;
+    return unless $source && $source->owner->equals($u);
+    my $proof = $class->_session_proof($source);
+    return unless $proof->{factor};
+    return $class->mark_session( $u, $destination, $proof->{factor} );
 }
 
 sub revoke_session_proofs {

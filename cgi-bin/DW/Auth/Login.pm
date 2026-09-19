@@ -60,7 +60,9 @@ sub _fingerprint {
         $dbh->selectrow_hashref( 'SELECT password, totp_secret FROM password2 WHERE userid = ?',
         undef, $u->id );
     die 'Missing credentials' unless $row;
-    return sha256_hex( join "\0", $row->{password}, $row->{totp_secret} // '' );
+    my $fingerprint = sha256_hex( join "\0", $row->{password}, $row->{totp_secret} // '' );
+    my $factor = defined $row->{totp_secret} ? sha256_hex( $row->{totp_secret} ) : '';
+    return wantarray ? ( $fingerprint, $factor ) : $fingerprint;
 }
 
 sub begin {
@@ -68,8 +70,8 @@ sub begin {
     return unless $class->allowed($u) && $u->is_person;
     my $token = join '', map { sprintf '%02x', irand(256) } 1 .. 32;
     my $dbh   = LJ::get_db_writer() or die 'Database unavailable';
-    $opts{fingerprint} = $class->_fingerprint($u);
-    $opts{browser}     = LJ::UniqCookie->current_uniq;
+    @opts{qw(fingerprint factor)} = $class->_fingerprint($u);
+    $opts{browser} = LJ::UniqCookie->current_uniq;
     $dbh->do( 'DELETE FROM login_challenges WHERE expires < ?', undef, time() )
         or die $dbh->errstr;
     $dbh->do(
@@ -184,7 +186,7 @@ sub complete {
     my ( $class, $u, %opts ) = @_;
     return unless $class->allowed($u);
     my $mfa = DW::Auth::TOTP->is_enabled($u);
-    return if $mfa && !$opts{mfa_verified};
+    return if $mfa && ( !$opts{mfa_verified} || !$opts{factor} );
     return if $opts{fingerprint} && $opts{fingerprint} ne $class->_fingerprint($u);
     my $remote = LJ::get_remote();
     if ( $opts{store_only} && $remote && !$remote->equals($u) ) {
@@ -196,7 +198,7 @@ sub complete {
     else {
         $u->make_login_session( $opts{exptype}, $opts{bindip} );
     }
-    DW::Auth::TOTP->mark_session( $u, $u->session ) if $mfa;
+    return unless !$mfa || DW::Auth::TOTP->mark_session( $u, $u->session, $opts{factor} );
     LJ::Hooks::run_hook( 'user_login', $u );
     my $uniq = DW::Request->get->note('uniq');
     LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
