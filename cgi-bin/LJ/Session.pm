@@ -206,13 +206,13 @@ sub _dbupdate {
         $sess->{$k} = $changes{$k};
     }
 
-    if ( exists $changes{timeexpire} ) {
-        my $dbh = LJ::get_db_writer() or die 'Database unavailable';
-        $dbh->do( 'UPDATE mfa_sessions SET expires = ? WHERE userid = ? AND sessid = ?',
-            undef, $changes{timeexpire}, $sess->{userid}, $sess->{sessid} )
-            or die $dbh->errstr;
-    }
+    # The cluster mutation succeeded. Never leave its old cache entry live if
+    # synchronizing the central MFA proof subsequently fails.
     LJ::MemCache::delete( $sess->_memkey );
+    if ( exists $changes{timeexpire} ) {
+        require DW::Auth::TOTP;
+        DW::Auth::TOTP->update_session_expiration($sess);
+    }
     return 1;
 
 }
@@ -742,16 +742,16 @@ sub destroy_sessions {
     my $in = join( ',', map { $_ + 0 } @sessids );
     return 1 unless $in;
     my $userid = $u->{'userid'};
-    foreach (qw(sessions sessions_data)) {
-        $u->do( "DELETE FROM $_ WHERE userid=? AND " . "sessid IN ($in)", undef, $userid )
-            or return 0;    # FIXME: use Error::Strict
-    }
-    require DW::Auth::TOTP;
-    DW::Auth::TOTP->revoke_session_proofs( $u, @sessids );
+    $u->do( "DELETE FROM sessions WHERE userid=? AND sessid IN ($in)", undef, $userid )
+        or return 0;
     foreach my $id (@sessids) {
         $id += 0;
         LJ::MemCache::delete( _memkey( $u, $id ) );
     }
+    $u->do( "DELETE FROM sessions_data WHERE userid=? AND sessid IN ($in)", undef, $userid )
+        or return 0;
+    require DW::Auth::TOTP;
+    DW::Auth::TOTP->revoke_session_proofs( $u, @sessids );
     return 1;
 
 }

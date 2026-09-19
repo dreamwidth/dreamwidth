@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use Test::More;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use LJ::Test qw(temp_user);
+use LJ::Test qw(temp_user with_fake_memcache);
 use DW::Controller::Settings;
 use DW::Controller::Admin::UserViews;
 use DW::Auth::TOTP;
@@ -137,4 +137,42 @@ $r->{post} = {
     is( $logouts,        0, 'Denied impersonation retains administrator session' );
     is( $impersonations, 0, 'Denied impersonation creates no target session' );
 }
+with_fake_memcache {
+    my $account = temp_user();
+    $account->set_password('cache-repair-password');
+    $account->update_self( { status => 'A' } );
+    local *DW::Controller::Settings::controller = sub { ( 1, { r => $r, remote => $account } ) };
+    local *LJ::get_remote                       = sub { $account };
+    my $setup_secret = DW::Auth::TOTP->generate_secret;
+    my @setup_codes  = DW::Auth::TOTP->_get_codes( $account, secret => $setup_secret );
+    my $result;
+    {
+        local *DW::Auth::TOTP::_factor_state = sub { die 'Cache refresh unavailable' };
+        $r->{post} = {
+            'action:enable'   => 1,
+            password          => 'cache-repair-password',
+            totp_secret       => $setup_secret,
+            verification_code => $setup_codes[1]
+        };
+        $result = DW::Controller::Settings::manage2fa_handler();
+    }
+    ok( $result->{just_enabled}, 'Post-commit cache failure still reports successful enrollment' );
+    is( scalar @{ $result->{codes} }, 10, 'Enrollment still displays recovery codes' );
+    ok( DW::Auth::TOTP->is_enabled($account), 'Enrollment remains committed' );
+    my $plain = LJ::Session->create( $account, exptype => 'long', nolog => 1 );
+    ok( !$plain->valid, 'Next reader repairs factor cache and still requires MFA' );
+    {
+        local *DW::Auth::TOTP::_factor_state = sub { die 'Cache refresh unavailable' };
+        $r->{post} = {
+            'action:disable-confirm' => 1,
+            password                 => 'cache-repair-password',
+            code                     => $result->{codes}[0]
+        };
+        $result = DW::Controller::Settings::manage2fa_handler();
+    }
+    ok( $result->{just_disabled}, 'Post-commit cache failure still reports successful disable' );
+    ok( !DW::Auth::TOTP->is_enabled($account), 'Disable remains committed' );
+    $plain = LJ::Session->create( $account, exptype => 'long', nolog => 1 );
+    ok( $plain->valid, 'Next reader repairs disabled factor cache' );
+};
 done_testing();

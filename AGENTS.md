@@ -114,6 +114,9 @@ Omit the `Fixes` line when there is no linked issue.
   methods so factor changes and session revocation also invalidate caches.
   Bind session proof to the factor actually verified; replacement sessions
   may inherit existing proof but must never infer proof from the current factor.
+  Validate proof expiration even on cache hits, and clear clustered-session
+  caches before fallible central proof synchronization. A committed factor
+  change stays successful if its recoverable cache refresh fails.
 - Comments may use a validated stored account session without changing the
   active browsing account. Journal entries use the active account and must
   reject a changed `poster_remote`, preserving the draft. Authorize comment

@@ -141,6 +141,14 @@ sub _factor_state {
     return $state;
 }
 
+# A committed factor change remains successful if this cache repair fails.
+# The change marker makes the next reader recover under the account lock.
+sub _refresh_factor_state {
+    my ( $class, $u ) = @_;
+    eval { $class->_factor_state( $u, 1 ); 1 }
+        or $log->warn( 'Unable to refresh factor cache for user ' . $u->id . ': ' . $@ );
+}
+
 sub _factor_changing {
     my ( $class, $u ) = @_;
     LJ::MemCache::set( [ $u->id, 'mfa-factor:' . $u->id ], { changing => 1 }, 300 );
@@ -148,7 +156,9 @@ sub _factor_changing {
 
 sub _proof_key {
     my ( $class, $userid, $sessid ) = @_;
-    return [ $userid, "mfa-proof:$userid:$sessid" ];
+
+    # Separate entries that contain deadlines from the older factor-only cache.
+    return [ $userid, "mfa-proof-v2:$userid:$sessid" ];
 }
 
 # Store proof on the server, not in caller-controlled cookie flags. The caller
@@ -159,13 +169,18 @@ sub mark_session {
     die 'Factor is changing' if $state->{changing};
     return unless $state->{factor};
     return unless defined $verified_factor && $verified_factor eq $state->{factor};
+    my $expires = $session->expiration_time;
+    return unless $expires > time();
     my $dbh = LJ::get_db_writer() or die 'Database unavailable';
     $dbh->do( 'DELETE FROM mfa_sessions WHERE expires < ?', undef, time() ) or die $dbh->errstr;
     $dbh->do( 'REPLACE INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
-        undef, $u->id, $session->id, $state->{factor}, $session->expiration_time )
+        undef, $u->id, $session->id, $state->{factor}, $expires )
         or die $dbh->errstr;
-    LJ::MemCache::set( $class->_proof_key( $u->id, $session->id ),
-        { factor => $state->{factor} }, 300 );
+    LJ::MemCache::set(
+        $class->_proof_key( $u->id, $session->id ),
+        { factor => $state->{factor}, expires => $expires },
+        _proof_ttl($expires)
+    );
     return 1;
 }
 
@@ -186,15 +201,38 @@ sub _session_proof {
     my $proof = LJ::MemCache::get($key);
     unless ($proof) {
         my $dbh = LJ::get_db_writer() or die 'Database unavailable';
-        my ($factor) = $dbh->selectrow_array(
-            'SELECT factor FROM mfa_sessions WHERE userid = ? AND sessid = ?',
+        my ( $factor, $expires ) = $dbh->selectrow_array(
+            'SELECT factor, expires FROM mfa_sessions WHERE userid = ? AND sessid = ?',
             undef, $u->id, $session->id );
         die $dbh->errstr if $dbh->err;
-        $proof = { factor => $factor // '' };
-        LJ::MemCache::add( $key, $proof, 300 );
+        $proof = $factor
+            && $expires > time() ? { factor => $factor, expires => $expires } : { factor => '' };
+        LJ::MemCache::add( $key, $proof, _proof_ttl( $proof->{expires} ) );
         $proof = LJ::MemCache::get($key) || $proof;
     }
+    return { factor => '' } unless ( $proof->{expires} // 0 ) > time();
     return $proof;
+}
+
+sub _proof_ttl {
+    my ($expires) = @_;
+    return 300 unless $expires;
+    my $remaining = $expires - time();
+    return $remaining > 300 ? 300 : $remaining > 0 ? $remaining : 1;
+}
+
+sub update_session_expiration {
+    my ( $class, $session ) = @_;
+    my $key = $class->_proof_key( $session->{userid}, $session->id );
+    LJ::MemCache::delete($key);
+    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+
+    # Renewal may extend a live proof, but cannot revive one that already expired.
+    $dbh->do( 'UPDATE mfa_sessions SET expires = ? WHERE userid = ? AND sessid = ? AND expires > ?',
+        undef, $session->expiration_time, $session->{userid}, $session->id, time() )
+        or die $dbh->errstr;
+    LJ::MemCache::delete($key);
+    return 1;
 }
 
 # A replacement session may inherit only the proof its source actually held.
@@ -211,6 +249,9 @@ sub copy_session_proof {
 sub revoke_session_proofs {
     my ( $class, $u, @ids ) = @_;
     return unless @ids;
+
+    # Publish revocation before fallible database work or an in-flight cache fill.
+    LJ::MemCache::set( $class->_proof_key( $u->id, $_ ), { factor => '' }, 300 ) for @ids;
     my $dbh = LJ::get_db_writer() or die 'Database unavailable';
     my $in  = join ',', map { '?' } @ids;
     $dbh->do( "DELETE FROM mfa_sessions WHERE userid = ? AND sessid IN ($in)", undef, $u->id, @ids )
@@ -283,11 +324,11 @@ sub enable {
     unless ($saved) {
         my $error = $@;
         $dbh->rollback;
-        $class->_factor_state( $u, 1 );
+        $class->_refresh_factor_state($u);
         die $error;
     }
 
-    $class->_factor_state( $u, 1 );
+    $class->_refresh_factor_state($u);
     $u->infohistory_add( '2fa_totp', 'enabled' );
 
     return 1;
@@ -331,12 +372,12 @@ sub disable {
     unless ($disabled) {
         my $error = $@;
         $dbh->rollback unless $dbh->{AutoCommit};
-        $class->_factor_state( $u, 1 );
+        $class->_refresh_factor_state($u);
         die $error if $error;
         return undef;
     }
 
-    $class->_factor_state( $u, 1 );
+    $class->_refresh_factor_state($u);
     $u->infohistory_add( '2fa_totp', 'disabled' );
 
     return 1;
