@@ -123,7 +123,4 @@ Omit the `Fixes` line when there is no linked issue.
 - Stored-account cookies are scoped to the main site. Journal subdomains load
   comment account names through the CSRF-protected `/rpc/comment-accounts`
   endpoint. Never broaden session-cookie domains to populate a dropdown.
-- Browser flow validation: after `bin/dev/screenshot` installs Chrome, run
-  `node bin/dev/test-auth-flows.js` inside the container. It resets only the
-  `mfa_reader`, `mfa_bob`, and `mfa_mary` development fixtures and writes screenshots
-  to `/tmp/dw-mfa-review`. Development journal URLs use `/~username/`.
+- Development journal URLs use `/~username/`.
