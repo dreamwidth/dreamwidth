@@ -666,7 +666,7 @@ sub authenticate_user_and_mutate_form {
         my $u = DW::AccountSwitcher->posting_user( $form->{posting_userid} );
         return $err->(
             'That account is no longer signed in. Sign in again; your comment has not been posted.')
-            unless $u && !$u->is_identity && !$u->is_locked && !$u->is_memorial && !$u->is_expunged;
+            unless $u && $u->is_person && !$u->is_locked && !$u->is_memorial && !$u->is_expunged;
         return $got_user->($u);
     }
     elsif ( $form->{usertype} eq 'user' ) {

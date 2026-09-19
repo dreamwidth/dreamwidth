@@ -22,8 +22,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test;
-
-plan skip_all => "AtomAPI authentication is currently broken -- remove?";
+use DW::API::Key;
 
 if (LJ::Test::check_memcache) {
     plan tests => 103;
@@ -46,6 +45,7 @@ $u->update_self( { status => 'A' } );
 my $api = XML::Atom::Client->new( Version => 1 );
 
 my $r;
+my %api_keys;
 
 sub do_request {
     my ( $method, $uri, %opts ) = @_;
@@ -53,7 +53,8 @@ sub do_request {
     my $authenticate = delete $opts{authenticate};
     my $data         = delete $opts{data} || {};
     my $remote       = delete $opts{remote} || $u;
-    my $password     = delete $opts{password} || $remote->password;
+    my $password     = delete $opts{password}
+        // ( $api_keys{ $remote->id } ||= DW::API::Key->new_for_user($remote)->hash );
 
     $uri =~ m!https?://([^.]+)!;
     my $user_subdomain = $1 eq "www" ? "" : $1;
@@ -135,7 +136,7 @@ is( $r->status,       $r->HTTP_UNAUTHORIZED, "Did not pass any authorization inf
 is( $r->content_type, "text/plain",          "Error content type" );
 
 # intentionally break authorization
-do_request( GET => $u->atom_service_document, authenticate => 1, password => $u->password x 3 );
+do_request( GET => $u->atom_service_document, authenticate => 1, password => 'not-an-api-key' );
 is( $r->status, $r->HTTP_UNAUTHORIZED, "Passed wrong authorization information." );
 
 do_request( GET => $u->atom_service_document, authenticate => 1 );

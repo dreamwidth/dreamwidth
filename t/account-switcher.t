@@ -23,7 +23,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-use LJ::Test qw(temp_user);
+use LJ::Test qw(temp_user temp_comm temp_feed);
 use LJ::Session;
 use DW::AccountSwitcher;
 use DW::Cache;
@@ -285,5 +285,29 @@ note('One-off posting does not switch the browser identity');
         { usertype => 'stored', posting_userid => $ub->id },
         $ua, $uc );
     ok( !$ok, 'Expired comment identity fails instead of falling back to active user' );
+}
+note('Stored comment identities must be personal accounts');
+{
+    new_request();
+    login_active($ua);
+    require DW::Controller::Talk;
+    DW::AccountSwitcher->store_account( $ub, 'long', '' );
+    for my $other ( temp_comm(), temp_feed() ) {
+        DW::AccountSwitcher->store_account( $other, 'long', '' );
+        my ($ok) = DW::Controller::Talk::authenticate_user_and_mutate_form(
+            { usertype => 'stored', posting_userid => $other->id },
+            $ua, $uc );
+        ok( !$ok, 'Stored non-personal account cannot author a comment' );
+        ok(
+            !DW::AccountSwitcher->posting_user( $other->id ),
+            'Posting resolver excludes non-personal account'
+        );
+    }
+    my @posting = DW::AccountSwitcher->posting_accounts;
+    is_deeply(
+        [ map { $_->{userid} } @posting ],
+        [ $ub->id ],
+        'Shared full-form, Quick Reply and RPC list excludes non-personal accounts'
+    );
 }
 done_testing();

@@ -51,6 +51,7 @@ jQuery(function($){
             iconSelect.prop('disabled', false);
         } else {
             iconSelect.val('').change().prop('disabled', true);
+            $('#unscreen_parent, #prop_admin_post').prop('checked', false);
         }
     });
 

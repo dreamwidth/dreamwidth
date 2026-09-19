@@ -1531,8 +1531,7 @@ sub talkform {
 
         public_entry     => $entry->security eq 'public',
         default_usertype => 'user',
-        posting_accounts =>
-            [ grep { $_->{valid} && !$_->{u}->is_identity } DW::AccountSwitcher->accounts ],
+        posting_accounts => [ DW::AccountSwitcher->posting_accounts ],
 
         comment => {
             posting_userid => $form->{posting_userid},
@@ -2920,9 +2919,12 @@ sub prepare_and_validate_comment {
         subjecticon => $subjecticon,
 
         # TODO need a more organized way to carry approved props forward.
-        editor          => DW::Formats::validate( $content->{'prop_editor'} ),
-        preformat       => $content->{'prop_opt_preformatted'},
-        admin_post      => $content->{'prop_admin_post'},
+        editor     => DW::Formats::validate( $content->{'prop_editor'} ),
+        preformat  => $content->{'prop_opt_preformatted'},
+        admin_post => $content->{'prop_admin_post'}
+            && $commenter
+            && $journalu->is_community
+            && $commenter->can_manage($journalu),
         picture_keyword => $content->{'prop_picture_keyword'},
 
         state      => $state,
@@ -3095,10 +3097,13 @@ sub post_comment {
     my $parent_state = $parent->{state} || "";
 
     # unscreen the parent comment if needed
-    if ( $parent_state eq 'S' && $unscreen_parent ) {
+    if (   $parent_state eq 'S'
+        && $unscreen_parent
+        && LJ::Talk::can_unscreen( $comment->{u}, $journalu, $item->poster ) )
+    {
 
-     # if parent comment is screened and we got this far, the user has the permission to unscreen it
-     # in this case the parent comment needs to be unscreened and the comment posted as normal
+        # Authorization belongs to the selected commenter, which can differ
+        # from the browsing account that rendered the checkbox.
         LJ::Talk::unscreen_comment( $journalu, $itemid, $parent->{talkid} );
         $parent->{state} = 'A';
     }
@@ -3189,9 +3194,8 @@ sub edit_comment {
 
     my $comment_obj = LJ::Comment->new( $journalu, dtalkid => $comment->{editid} );
 
-    my $remote = LJ::get_remote();
     my $edit_error;
-    return ( 0, $edit_error ) unless $comment_obj->remote_can_edit( \$edit_error );
+    return ( 0, $edit_error ) unless $comment_obj->user_can_edit( $comment->{u}, \$edit_error );
 
     my %props = (
         subjecticon      => $comment->{subjecticon},

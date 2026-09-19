@@ -67,7 +67,7 @@ sub comment_accounts_handler {
         return $r->OK;
     }
     my @accounts = map { { userid => $_->{userid}, user => $_->{user} } }
-        grep { $_->{valid} && !$_->{u}->is_identity } DW::AccountSwitcher->accounts;
+        DW::AccountSwitcher->posting_accounts;
     $r->header_out( 'Cache-Control' => 'private, no-store' );
     $r->content_type('application/json');
     $r->print( to_json( { accounts => \@accounts } ) );

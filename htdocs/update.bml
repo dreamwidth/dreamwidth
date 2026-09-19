@@ -50,7 +50,10 @@ _c?>
 
     # get remote and see if they can post right now
     my $remote = LJ::get_remote();
-    return BML::redirect("$LJ::SITEROOT/login?returnto=%2Fupdate") unless $remote;
+    unless ($remote) {
+        my $returnto = LJ::create_url( '/update', cur_args => \%GET, keep_args => 1 );
+        return BML::redirect("$LJ::SITEROOT/login?returnto=" . LJ::eurl($returnto));
+    }
 
 
     # Errors that are unlikely to change between starting
@@ -230,6 +233,14 @@ _c?>
         return;
     };
 
+    # The old account's CSRF token also expires when accounts change. Explain
+    # the identity mismatch before checking it; never submit this draft.
+    if ( $did_post && ( $POST{poster_remote} || '' ) ne $remote->user ) {
+        $errors->{auth} = 'Your active account changed. Switch back before posting this draft.';
+        $print_entry_form->();
+        return;
+    }
+
     my $okay_formauth = !$remote || LJ::check_form_auth();
 
     if ($did_post && !$did_spellcheck && !$showform && !$preview &&
@@ -239,11 +250,6 @@ _c?>
         my $flags = {};
         my ($u, $user);
 
-        if ( ( $POST{poster_remote} || '' ) ne $remote->user ) {
-            $errors->{auth} = 'Your active account changed. Switch back before posting this draft.';
-            $print_entry_form->();
-            return;
-        }
         if (LJ::check_referer()) {
             $flags = { 'noauth' => 1, 'u' => $remote };
             $user = $remote->user;

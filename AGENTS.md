@@ -114,7 +114,9 @@ Omit the `Fixes` line when there is no linked issue.
   methods so factor changes and session revocation also invalidate caches.
 - Comments may use a validated stored account session without changing the
   active browsing account. Journal entries use the active account and must
-  reject a changed `poster_remote`, preserving the draft.
+  reject a changed `poster_remote`, preserving the draft. Authorize comment
+  actions (including unscreening and editing) against the selected commenter,
+  not the browsing account that originally rendered the form.
 - Protocol clients use API keys; keys must not mint browser sessions. Scoping
   API key permissions is separate future work.
 - Password updates must preserve `password2.totp_secret`. Avoid `REPLACE` for

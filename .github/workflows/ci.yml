@@ -127,7 +127,7 @@ jobs:
       # break, grouped so failures are attributable at a glance.
       - name: Test - authentication
         if: ${{ !cancelled() }}
-        run: prove t/auth-*.t
+        run: prove t/auth-*.t t/atom-post.t
 
       - name: Test - posting
         if: ${{ !cancelled() }}

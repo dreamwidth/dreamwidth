@@ -39,7 +39,8 @@ use DW::Controller::Login;
     sub cookie        { $_[0]->{cookies}{ $_[1] } }
     sub delete_cookie { }
     sub redirect      { $_[1] }
-    sub did_post      { 0 }
+    sub did_post      { $_[0]->{did_post} || 0 }
+    sub post_args     { $_[0]->{post} || {} }
 }
 my $request = bless {}, 'LoginTestRequest';
 no warnings 'redefine';
@@ -148,6 +149,27 @@ ok( DW::Auth::TOTP->verify( $u, $recovery[1] ), 'Unused recovery code remains va
         undef, sha256_hex( $request->{cookies}{ljmfapending} ) );
     is( DW::Controller::Login::login_2fa_handler(),
         $restart_url, 'Expired challenge preserves comment navigation' );
+}
+
+{
+    local *DW::Controller::Login::controller = sub { ( 1, { r => $request } ) };
+    local *DW::Auth::Login::complete         = sub { 1 };
+    my @metrics;
+    local *DW::Stats::increment = sub { push @metrics, [@_] };
+    $request->{cookies}{ljmfapending} = DW::Auth::Login->begin($u);
+    local $request->{did_post} = 1;
+    for my $bindip ( '', '127.0.0.1' ) {
+        local *DW::Auth::Login::verify = sub { ( $u, { bindip => $bindip, exptype => 'long' } ) };
+        DW::Controller::Login::login_2fa_handler();
+        is_deeply(
+            pop @metrics,
+            [
+                'dw.action.session.login_ok', 1,
+                [ 'bindip:' . ( $bindip ? 'yes' : 'no' ), 'exptype:long' ]
+            ],
+            'MFA success records login metric with original session options'
+        );
+    }
 }
 
 $token = DW::Auth::Login->begin($u);
@@ -271,6 +293,13 @@ with_fake_memcache {
         ok( $plain->valid, 'Warm ordinary session needs no writer query' );
     }
     my $cache_secret = DW::Auth::TOTP->generate_secret;
+    {
+        local *LJ::User::kill_all_sessions = sub { 0 };
+        eval { DW::Auth::TOTP->enable( $cached_user, $cache_secret ) };
+        like( $@, qr/Unable to revoke/, 'Revocation failure prevents successful enrollment' );
+    }
+    ok( !DW::Auth::TOTP->is_enabled($cached_user), 'Failed enrollment rolls factor back' );
+    ok( $plain->valid, 'Failed enrollment restores ordinary session validation' );
     DW::Auth::TOTP->enable( $cached_user, $cache_secret );
     ok( !$plain->valid, 'Enabling factor immediately invalidates cached password-only session' );
     my $proven = LJ::Session->create( $cached_user, exptype => 'long' );
@@ -280,6 +309,26 @@ with_fake_memcache {
         local *LJ::get_db_writer = sub { die 'Unexpected writer access' };
         ok( $proven->valid, 'Warm MFA session needs no writer query' );
     }
+
+    # Simulate a worker exiting after publishing the marker and rolling back.
+    $dbh->begin_work;
+    $dbh->do( 'UPDATE password2 SET totp_secret = NULL WHERE userid = ?', undef, $cached_user->id );
+    DW::Auth::TOTP->_factor_changing($cached_user);
+    $dbh->rollback;
+    ok( $proven->valid, 'Abandoned factor-change marker recovers immediately from database' );
+    ok( !$plain->valid, 'Marker recovery retains MFA enforcement' );
+    my @failure_codes = DW::Auth::TOTP->get_recovery_codes($cached_user);
+    {
+        local *LJ::User::kill_all_sessions = sub { 0 };
+        eval { DW::Auth::TOTP->disable( $cached_user, 'cache-test-password', $failure_codes[0] ) };
+        like( $@, qr/Unable to revoke/, 'Revocation failure prevents successful disable' );
+    }
+    ok( DW::Auth::TOTP->is_enabled($cached_user), 'Revocation failure retains factor' );
+    ok( !$plain->valid, 'Revocation failure cannot authorize old password-only session' );
+    ok( $proven->valid, 'Existing verified session remains usable after failed disable' );
+    my @remaining_codes = DW::Auth::TOTP->get_recovery_codes($cached_user);
+    ok( scalar( grep { $_ eq $failure_codes[0] } @remaining_codes ),
+        'Failed disable does not burn recovery code' );
     $proven->destroy;
     ok( !DW::Auth::TOTP->session_verified($proven), 'Destroyed session loses cached MFA proof' );
     my @cache_codes = DW::Auth::TOTP->get_recovery_codes($cached_user);

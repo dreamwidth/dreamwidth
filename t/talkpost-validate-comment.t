@@ -25,8 +25,6 @@ use LJ::Test qw( temp_user temp_comm );
 use LJ::Entry;
 use LJ::Talk;
 
-plan tests => 6;
-
 # Refresher on form structure:
 #   - body
 #   - subject
@@ -92,3 +90,52 @@ ok( !defined $comment, "Returned undef, not allowed." );
 note( scalar @errors . " Validation errors: " . join( "\n", @errors ) );
 $reset->();
 
+# A stale checkbox from a manager's form must not lend that manager's powers
+# to a different posting identity. Exercise the final write, not just the UI.
+{
+    no warnings 'redefine';
+    my $owner = temp_user();
+    my $other = temp_user();
+    $_->update_self( { status => 'A' } ) for ( $owner, $other );
+    my $post = $owner->t_post_fake_entry;
+    local *LJ::get_remote = sub { $owner };
+    for my $author ( $other, $owner ) {
+        my $parent = $post->t_enter_comment( u => $other, state => 'S' );
+        my $reply  = {
+            u            => $author,
+            entry        => $post,
+            parent       => { talkid => $parent->jtalkid, state => 'S' },
+            parenttalkid => $parent->jtalkid,
+            state        => 'A',
+            body         => 'Reply as ' . $author->user,
+        };
+        my ( $ok, $id ) = LJ::Talk::Post::post_comment( $reply, 1 );
+        ok( $ok, 'Reply posts with stale unscreen request' );
+        my ($state) =
+            $owner->selectrow_array( 'SELECT state FROM talk2 WHERE journalid = ? AND jtalkid = ?',
+            undef, $owner->id, $parent->jtalkid );
+        is(
+            $state,
+            $author->equals($owner) ? 'A' : 'S',
+            'Unscreen uses selected commenter permissions'
+        );
+    }
+    my $original = $post->t_enter_comment( u => $owner );
+    local $LJ::DISABLED{edit_comments} = 0;
+    local *LJ::User::can_edit_comments = sub { 1 };
+    my $edit_error;
+    ok(
+        $original->user_can_edit( $owner, \$edit_error ),
+        'Browsing owner can edit original comment'
+    );
+    my ($edited) = LJ::Talk::Post::edit_comment(
+        {
+            u      => $other,
+            entry  => $post,
+            editid => $original->dtalkid,
+            body   => 'Attempted edit'
+        }
+    );
+    ok( !$edited, 'Selected account cannot edit browsing account comment' );
+}
+done_testing();

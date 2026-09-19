@@ -264,7 +264,7 @@ sub login_handler {
                 $cursess = $u->session;
 
                 DW::Stats::increment( 'dw.action.session.login_ok', 1,
-                    [ 'bindip:' . $bindip ? 'yes' : 'no', "exptype:$exptype" ] );
+                    [ 'bindip:' . ( $bindip ? 'yes' : 'no' ), "exptype:$exptype" ] );
 
                 $remote = LJ::get_remote();
 
@@ -306,6 +306,14 @@ sub login_2fa_handler {
         if ($verified) {
             DW::Auth::Login->complete( $verified, %$completion, mfa_verified => 1 )
                 or return error_ml('error.invalidform');
+            DW::Stats::increment(
+                'dw.action.session.login_ok',
+                1,
+                [
+                    'bindip:' . ( $completion->{bindip} ? 'yes' : 'no' ),
+                    'exptype:' . $completion->{exptype}
+                ]
+            );
             $r->delete_cookie( name => 'ljmfapending', path => '/login' );
             $r->delete_cookie( name => 'ljmfarestart', path => '/login' );
             my $url = $completion->{returnto};

@@ -107,7 +107,11 @@ sub _factor_state {
     my ( $class, $u, $refresh ) = @_;
     my $key    = [ $u->id, 'mfa-factor:' . $u->id ];
     my $cached = LJ::MemCache::get($key) unless $refresh;
-    return $cached if $cached;
+    return $cached if $cached && !$cached->{changing};
+
+    # A worker can die after publishing a change marker. Taking the account
+    # lock below waits for any live transaction, then recovers from the DB.
+    $refresh = 1 if $cached && $cached->{changing};
     my $dbh = LJ::get_db_writer() or die 'Database unavailable';
 
     # Serialize cache publication with factor changes. Publishing under the
@@ -249,6 +253,9 @@ sub enable {
                 or $log->logcroak( 'Failed to insert recovery code: ', $dbh->errstr );
         }
 
+        # Revoke cluster sessions before committing the factor change. If
+        # revocation fails, retain the old factor and unconsumed recovery code.
+        $u->kill_all_sessions or die 'Unable to revoke account sessions';
         $dbh->commit or $log->logcroak( 'Failed to commit: ', $dbh->errstr );
         1;
     };
@@ -260,7 +267,6 @@ sub enable {
     }
 
     $class->_factor_state( $u, 1 );
-    $u->kill_all_sessions;
     $u->infohistory_add( '2fa_totp', 'enabled' );
 
     return 1;
@@ -295,6 +301,9 @@ sub disable {
             undef, $userid )
             or $log->logcroak( 'Failed to unset recovery codes:', $dbh->errstr );
 
+        # Revoke cluster sessions before committing the factor change. If
+        # revocation fails, retain the old factor and unconsumed recovery code.
+        $u->kill_all_sessions or die 'Unable to revoke account sessions';
         $dbh->commit or $log->logcroak( 'Failed to commit: ', $dbh->errstr );
         1;
     };
@@ -307,7 +316,6 @@ sub disable {
     }
 
     $class->_factor_state( $u, 1 );
-    $u->kill_all_sessions;
     $u->infohistory_add( '2fa_totp', 'disabled' );
 
     return 1;

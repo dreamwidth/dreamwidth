@@ -13,6 +13,7 @@ jQuery(function($) {
     $('#qr-posting-account').on('change', function() {
         var active = this.value === String($(this).data('active'));
         $('#usertype').val(active ? 'cookieuser' : 'stored');
+        if (!active) $('#unscreen_parent, #prop_admin_post').prop('checked', false);
         $('#prop_picture_keyword').val('').change().prop('disabled', !active);
         // Permissions are checked as the selected account on the server.
         $('#submitpost').prop('disabled', false);
