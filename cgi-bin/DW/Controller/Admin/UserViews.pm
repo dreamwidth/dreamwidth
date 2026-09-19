@@ -99,9 +99,45 @@ sub impersonate_controller {
 
         unless ( $errors->exist ) {
 
-            $remote->logout;
-
-            if ( $u->make_fake_login_session ) {
+            my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+            $dbh->begin_work or die $dbh->errstr;
+            my ( $protected, $invalid_password );
+            my $previous_session = $u->{_session};
+            my $session;
+            my $impersonated = eval {
+                for my $userid ( sort { $a <=> $b } ( $u->id, $remote->id ) ) {
+                    $dbh->selectrow_array(
+                        'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+                        undef, $userid );
+                    die $dbh->errstr if $dbh->err;
+                }
+                if ( DW::Auth::TOTP->is_enabled($u) ) {
+                    $protected = 1;
+                    $dbh->rollback;
+                    0;
+                }
+                elsif ( !DW::Auth::Password->check( $remote, $password ) ) {
+                    $invalid_password = 1;
+                    $dbh->rollback;
+                    0;
+                }
+                else {
+                    $session = LJ::Session->create( $u, exptype => 'once', nolog => 1 )
+                        or die 'Unable to create impersonation session';
+                    $u->{_session} = $previous_session;
+                    $remote->logout;
+                    $u->publish_login_session( $session, 1 );
+                    $dbh->commit or die $dbh->errstr;
+                    1;
+                }
+            };
+            if ($@) {
+                my $error = $@;
+                $dbh->rollback unless $dbh->{AutoCommit};
+                eval { $session->destroy } if $session;
+                die $error;
+            }
+            if ($impersonated) {
 
                 # log for auditing
                 $remote->log_event( 'impersonator',
@@ -113,7 +149,11 @@ sub impersonate_controller {
                 return $r->redirect($LJ::SITEROOT);
             }
             else {
-                $errors->add( '', '.error.failedlogin' );
+                $protected
+                    ? $errors->add_string( 'username',
+                    'Accounts protected by two-factor authentication cannot be impersonated.' )
+                    : $invalid_password ? $errors->add( 'password', '.error.invalidpassword' )
+                    :                     $errors->add( '', '.error.failedlogin' );
             }
         }
     }

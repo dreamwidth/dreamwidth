@@ -116,7 +116,10 @@ Omit the `Fixes` line when there is no linked issue.
   may inherit existing proof but must never infer proof from the current factor.
   Validate proof expiration even on cache hits, and clear clustered-session
   caches before fallible central proof synchronization. A committed factor
-  change stays successful if its recoverable cache refresh fails.
+  change stays successful if its recoverable cache refresh fails. Prepare and
+  prove browser sessions before publishing active or stored-account cookies.
+  Ordinary sessions must not perform MFA proof synchronization; cluster deletion
+  remains authoritative when optional central proof cleanup is unavailable.
 - Comments may use a validated stored account session without changing the
   active browsing account. Journal entries use the active account and must
   reject a changed `poster_remote`, preserving the draft. Authorize comment
@@ -125,9 +128,14 @@ Omit the `Fixes` line when there is no linked issue.
 - An existing-entry edit submitted after an account switch must preserve only
   submitted draft data; do not read saved private entry content for the new account.
 - Admin impersonation must reject TOTP-protected targets before logging the
-  administrator out. It must never grant second-factor session proof.
+  administrator out, keeping the factor check and session creation under the
+  account lock. It must never grant second-factor session proof.
 - Protocol clients use API keys; keys must not mint browser sessions. Scoping
   API key permissions is separate future work.
+- Login challenge/session creation, enrollment password checks, and recovery-code
+  disclosure must hold the same account-row lock as password and factor changes.
+  Recheck submitted credentials under that lock; never persist login passwords
+  in pending challenge payloads.
 - Password updates must preserve `password2.totp_secret`. Avoid `REPLACE` for
   that row: it silently removes the second factor.
 - Authentication schema changes require updating both the development and test

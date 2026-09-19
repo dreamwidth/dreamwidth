@@ -145,8 +145,6 @@ sub make_login_session {
     $exptype ||= 'short';
     return 0 unless $u;
 
-    eval { BML::get_request()->notes->{ljuser} = $u->user; };
-
     # create session and log user in
     my $sess_opts = {
         'exptype' => $exptype,
@@ -154,7 +152,16 @@ sub make_login_session {
     };
     $sess_opts->{nolog} = 1 if $fake_login;
 
-    my $sess = LJ::Session->create( $u, %$sess_opts );
+    my $sess = LJ::Session->create( $u, %$sess_opts ) or return 0;
+    return $u->publish_login_session( $sess, $fake_login );
+}
+
+# Publish only a session whose required authentication has already completed.
+sub publish_login_session {
+    my ( $u, $sess, $fake_login ) = @_;
+    die 'Session owner mismatch' unless $sess && $sess->owner->equals($u);
+    $u->{_session} = $sess;
+    eval { BML::get_request()->notes->{ljuser} = $u->user; };
     $sess->update_master_cookie;
 
     LJ::User->set_remote($u);

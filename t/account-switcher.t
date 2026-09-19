@@ -310,4 +310,47 @@ note('Stored comment identities must be personal accounts');
         'Shared full-form, Quick Reply and RPC list excludes non-personal accounts'
     );
 }
+note('Login proof failures never publish a session');
+{
+    require DW::Auth::Login;
+    require DW::Auth::TOTP;
+    my $target = temp_user();
+    $target->set_password('proof-failure-password');
+    DW::Auth::TOTP->enable( $target, DW::Auth::TOTP->generate_secret );
+    my $factor = DW::Auth::TOTP->_factor_state($target)->{factor};
+    for my $mode ( 'normal', 'adding', 'store_only' ) {
+        for my $throws ( 0, 1 ) {
+            new_request();
+            my $active = login_active($ua);
+            DW::AccountSwitcher->store_account( $uc, 'long', '' );
+            my %before        = %{ $req->{jar} };
+            my $target_before = $target->{_session};
+            my $created;
+            my $create = \&LJ::Session::create;
+            local *LJ::Session::create          = sub { $created = $create->(@_); };
+            local *DW::Auth::TOTP::mark_session = sub {
+                die 'Proof storage unavailable' if $throws;
+                return undef;
+            };
+            ok(
+                !DW::Auth::Login->complete(
+                    $target,
+                    mfa_verified => 1,
+                    factor       => $factor,
+                    $mode        => 1
+                ),
+                "$mode rejects unsuccessful proof publication"
+            );
+            is_deeply( $req->{jar}, \%before, "$mode leaves all browser cookies unchanged" );
+            ok( LJ::get_remote()->equals($ua) && $ua->session->id == $active->id,
+                "$mode preserves browsing session" );
+            is( $target->{_session}, $target_before,
+                "$mode restores target's previous session pointer" );
+            ok(
+                !LJ::Session->instance( $target, $created->id ),
+                "$mode deletes failed unpublished session"
+            );
+        }
+    }
+}
 done_testing();

@@ -3457,7 +3457,7 @@ sub check_altusage {
 # Return 1 on valid, 0 on invalid.
 sub check_login {
     my ( $u, $chal, $res, $banned, $opts ) = @_;
-    return 0 unless $u;
+    return 0 unless $u && $u->is_person && !$u->is_locked && !$u->is_memorial && !$u->is_expunged;
 
     my @keys = @{ DW::API::Key->get_keys_for_user($u) || [] };
     return 0 unless @keys;

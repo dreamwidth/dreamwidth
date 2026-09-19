@@ -107,11 +107,22 @@ with_fake_memcache {
     $session_key = $session->_memkey;
     {
         local *LJ::get_db_writer = sub { die 'Central writer unavailable' };
-        eval { $session->destroy };
-        like( $@, qr/Central writer unavailable/, 'Proof revocation failure is surfaced' );
+        ok( $session->destroy, 'Cluster revocation succeeds despite central cleanup failure' );
     }
     ok( !LJ::MemCache::get($session_key), 'Deleted session cannot remain in cache' );
     ok( !LJ::Session->instance( $u, $session->id ), 'Next request cannot load deleted session' );
     ok( !DW::Auth::TOTP->session_verified($session), 'Proof revocation fails closed in cache' );
+};
+with_fake_memcache {
+    my $ordinary    = temp_user();
+    my $source      = LJ::Session->create( $ordinary, exptype => 'long', nolog => 1 );
+    my $destination = LJ::Session->create( $ordinary, exptype => 'long', nolog => 1 );
+    ok( $source->valid, 'Ordinary session warms factor state' );
+    local *LJ::get_db_writer = sub { die 'Unexpected central writer access' };
+    ok( $source->_dbupdate( timeexpire => time() + 600 ), 'Ordinary renewal skips central writer' );
+    ok( DW::Auth::TOTP->copy_session_proof( $ordinary, $source, $destination ),
+        'Ordinary replacement skips proof lookup' );
+    ok( $source->destroy, 'Ordinary deletion skips central writer' );
+    ok( !LJ::Session->instance( $ordinary, $source->id ), 'Ordinary deleted session is absent' );
 };
 done_testing();

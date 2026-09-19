@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use Test::More;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use LJ::Test qw(temp_user temp_comm with_fake_memcache);
+use LJ::Test qw(temp_user temp_comm temp_feed with_fake_memcache);
 use DW::Auth::Login;
 use DW::Auth::TOTP;
 use DW::API::Key;
@@ -285,8 +285,8 @@ is( scalar DW::Auth::TOTP->get_recovery_codes($u), 0, 'Recovery codes revoked on
     local $LJ::DISABLED{'community-logins'} = 0;
     ok( DW::Auth::Login->allowed($community), 'Enabled community logins can complete' );
     ok( !DW::Auth::Login->begin($community),  'Communities cannot start personal MFA challenges' );
-    local *LJ::User::make_login_session = sub { 1 };
-    local *LJ::get_remote               = sub { undef };
+    local *LJ::User::publish_login_session = sub { 1 };
+    local *LJ::get_remote                  = sub { undef };
     ok( DW::Auth::Login->complete($community), 'Normal community completion succeeds' );
     $LJ::DISABLED{'community-logins'} = 1;
     ok( !DW::Auth::Login->complete($community), 'Disabled community logins remain rejected' );
@@ -361,17 +361,22 @@ with_fake_memcache {
     ok( $verified, 'Race fixture verifies the original factor' );
     local *LJ::get_remote = sub { undef };
     {
-        local *LJ::User::make_login_session = sub {
-            DW::Auth::TOTP->disable( $racing_user, 'race-password', $race_codes[1] );
-            DW::Auth::TOTP->enable( $racing_user, DW::Auth::TOTP->generate_secret );
-            LJ::Session->create( $racing_user, exptype => 'long' );
+        my $get_writer = \&LJ::get_db_writer;
+        my $raced;
+        local *LJ::get_db_writer = sub {
+            my $writer = $get_writer->(@_);
+            unless ( $raced++ ) {
+                DW::Auth::TOTP->disable( $racing_user, 'race-password', $race_codes[1] );
+                DW::Auth::TOTP->enable( $racing_user, DW::Auth::TOTP->generate_secret );
+            }
+            return $writer;
         };
         ok(
             !DW::Auth::Login->complete( $racing_user, %$completion, mfa_verified => 1 ),
-            'Factor replacement during completion cannot upgrade old verification'
+            'Factor replacement before completion lock cannot upgrade old verification'
         );
-        ok( !$racing_user->session->valid,
-            'Racing login gets no proof for the replacement factor' );
+        is( scalar LJ::Session->active_sessions($racing_user),
+            0, 'Racing login creates no replacement-factor session' );
     }
     my $source = LJ::Session->create( $racing_user, exptype => 'long' );
     DW::Auth::TOTP->mark_session( $racing_user, $source,
@@ -415,4 +420,77 @@ with_fake_memcache {
     ok( !$racing_user->session->valid, 'Password-only source cannot become an MFA session' );
 };
 
+for my $account ( $u, temp_comm(), temp_feed() ) {
+    my $key     = DW::API::Key->new_for_user($account);
+    my $allowed = $account->is_person ? 1 : 0;
+    is( DW::API::Key->authenticate( $account, $key->hash ) ? 1 : 0,
+        $allowed, 'API key authentication requires a personal account' );
+    my $error;
+    is(
+        LJ::Protocol::authenticate( { username => $account->user, password => $key->hash },
+            \$error, {} ) ? 1 : 0,
+        $allowed,
+        'Clear protocol key authentication requires a personal account'
+    );
+    my $challenge = DW::Auth::Challenge->generate(300);
+    my $response  = Digest::MD5::md5_hex( $challenge . Digest::MD5::md5_hex( $key->hash ) );
+    is( LJ::Protocol::check_login( $account, $challenge, $response, undef, {} ) ? 1 : 0,
+        $allowed, 'Challenge API-key authentication requires a personal account' );
+    require POSIX;
+    my $created = POSIX::strftime( '%Y-%m-%dT%H:%M:%SZ', gmtime );
+    my $nonce   = 'personal-key-policy-' . $account->id;
+    my $digest  = Digest::SHA1::sha1_base64( $nonce . $created . $key->hash );
+    my ($wsse) =
+        DW::Auth::_auth_wsse( 'UsernameToken Username="'
+            . $account->user
+            . '", PasswordDigest="'
+            . $digest
+            . '", Nonce="'
+            . $nonce
+            . '", Created="'
+            . $created
+            . '"' );
+    is( $wsse ? 1 : 0, $allowed, 'WSSE API-key authentication requires a personal account' );
+}
+with_fake_memcache {
+    my $ordinary = temp_user();
+    my $source   = LJ::Session->create( $ordinary, exptype => 'long' );
+    ok( $source->valid, 'Ordinary replacement source warms factor state' );
+    local *LJ::get_remote = sub { $ordinary };
+    local $request->{cookie_auth} = 1;
+    my $destination = LJ::Session->create( $ordinary, exptype => 'long' );
+    $ordinary->{_session} = $source;
+
+    # Counter allocation already uses the global database; isolate the added MFA work.
+    local *LJ::Session::create = sub { $ordinary->{_session} = $destination };
+    local *LJ::get_db_writer   = sub { die 'Unexpected central writer access' };
+    my $error;
+    my $result = LJ::Protocol::sessiongenerate(
+        { username => $ordinary->user, auth_method => 'cookie', expiration => 'long' },
+        \$error, {} );
+    ok( $result && $result->{ljsession},
+        'Ordinary cookie replacement adds no MFA writer dependency' );
+    ok( $ordinary->session->valid, 'Ordinary replacement remains valid' );
+};
+{
+    my $account = temp_user();
+    $account->set_password('old-login-password');
+    ok( $account->check_password('old-login-password'), 'Initial password verification succeeds' );
+    $account->set_password('new-login-password');
+    my $published = 0;
+    local *LJ::User::publish_login_session = sub { ++$published; 1 };
+    ok(
+        !DW::Auth::Login->complete( $account, password => 'old-login-password' ),
+        'Password change before completion lock invalidates stale login'
+    );
+    is( $published, 0, 'Stale login never publishes browser state' );
+    ok( DW::Auth::Login->complete( $account, password => 'new-login-password' ),
+        'Current password completes ordinary login' );
+    DW::Auth::TOTP->enable( $account, DW::Auth::TOTP->generate_secret );
+    ok( !DW::Auth::Login->begin( $account, password => 'old-login-password' ),
+        'Stale password cannot create an MFA challenge' );
+    my $challenge = DW::Auth::Login->begin( $account, password => 'new-login-password' );
+    my ( $pending, $options ) = DW::Auth::Login->pending($challenge);
+    ok( $pending && !exists $options->{password}, 'MFA challenge stores no plaintext password' );
+}
 done_testing();

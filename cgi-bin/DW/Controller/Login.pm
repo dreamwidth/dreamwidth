@@ -241,7 +241,8 @@ sub login_handler {
                     returnto   => $returnto
                 );
                 if ( DW::Auth::TOTP->is_enabled($u) ) {
-                    my $token = DW::Auth::Login->begin( $u, %completion );
+                    my $token =
+                        DW::Auth::Login->begin( $u, %completion, password => $post->{password} );
                     return error_ml('error.invalidform') unless $token;
                     $r->add_cookie(
                         name     => 'ljmfapending',
@@ -259,7 +260,7 @@ sub login_handler {
                     );
                     return $r->redirect("$LJ::SITEROOT/login/2fa");
                 }
-                DW::Auth::Login->complete( $u, %completion )
+                DW::Auth::Login->complete( $u, %completion, password => $post->{password} )
                     or return error_ml('error.invalidform');
                 $cursess = $u->session;
 

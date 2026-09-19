@@ -152,6 +152,8 @@ sub _auth_wsse {
     my $u = LJ::load_user( LJ::canonical_username( $creds{username} ) )
         or return $fail->("invalid username [$creds{username}]");
 
+    return $fail->('account unavailable') unless $u->is_person;
+
     if ( @LJ::MEMCACHE_SERVERS && ref $nonce_dup ) {
         $$nonce_dup = 1
             unless LJ::MemCache::add( "wsse_auth:$creds{username}:$creds{nonce}", 1, 180 );

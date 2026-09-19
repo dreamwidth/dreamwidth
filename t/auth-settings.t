@@ -125,8 +125,8 @@ $r->{post} = {
         sub { ( 1, { r => $r, remote => $admin } ) };
     local *LJ::check_referer = sub { 1 };
     my ( $logouts, $impersonations ) = ( 0, 0 );
-    local *LJ::User::logout                  = sub { ++$logouts };
-    local *LJ::User::make_fake_login_session = sub { ++$impersonations };
+    local *LJ::User::logout                = sub { ++$logouts };
+    local *LJ::User::publish_login_session = sub { ++$impersonations };
     $r->{post} = {
         username => $u->user,
         password => 'admin-password',
@@ -175,4 +175,169 @@ with_fake_memcache {
     $plain = LJ::Session->create( $account, exptype => 'long', nolog => 1 );
     ok( $plain->valid, 'Next reader repairs disabled factor cache' );
 };
+{
+    my $account = temp_user();
+    $account->set_password('enrollment-old-password');
+    $account->update_self( { status => 'A' } );
+    my $secret = DW::Auth::TOTP->generate_secret;
+    my @totp   = DW::Auth::TOTP->_get_codes( $account, secret => $secret );
+    local *DW::Controller::Settings::controller = sub { ( 1, { r => $r, remote => $account } ) };
+    local *LJ::get_remote                       = sub { $account };
+    my $enable = \&DW::Auth::TOTP::enable;
+    local *DW::Auth::TOTP::enable = sub {
+
+        # Another password change commits after the controller's initial check.
+        $account->set_password('enrollment-new-password');
+        return $enable->(@_);
+    };
+    $r->{post} = {
+        'action:enable'   => 1,
+        password          => 'enrollment-old-password',
+        totp_secret       => $secret,
+        verification_code => $totp[1]
+    };
+    my $result = DW::Controller::Settings::manage2fa_handler();
+    ok( $result->{errors}->exist, 'Stale enrollment password is rejected under the factor lock' );
+    ok( !DW::Auth::TOTP->is_enabled($account), 'Stale request cannot install its factor' );
+}
+{
+    my $account = temp_user();
+    $account->set_password('recovery-old-password');
+    DW::Auth::TOTP->enable( $account, DW::Auth::TOTP->generate_secret );
+    my @codes = DW::Auth::TOTP->get_recovery_codes($account);
+    local *DW::Controller::Settings::controller = sub { ( 1, { r => $r, remote => $account } ) };
+    my $read = \&DW::Auth::TOTP::recovery_codes_for_credentials;
+    {
+        local *DW::Auth::TOTP::recovery_codes_for_credentials = sub {
+            $account->set_password('recovery-new-password');
+            return $read->(@_);
+        };
+        $r->{post} =
+            { 'action:show-codes' => 1, password => 'recovery-old-password', code => $codes[0] };
+        my $result = DW::Controller::Settings::manage2fa_handler();
+        ok(
+            $result->{errors}->exist && !$result->{codes},
+            'Stale password cannot disclose recovery codes'
+        );
+    }
+    my $dbh    = LJ::get_db_writer();
+    my $check  = \&DW::Auth::Password::check;
+    my $verify = \&DW::Auth::TOTP::verify;
+    my $get    = \&DW::Auth::TOTP::get_recovery_codes;
+    {
+        local *DW::Auth::Password::check = sub {
+            ok( !$dbh->{AutoCommit}, 'Recovery password check is transactional' );
+            return $check->(@_);
+        };
+        local *DW::Auth::TOTP::verify = sub {
+            ok( !$dbh->{AutoCommit}, 'Recovery factor check is in the same transaction' );
+            return $verify->(@_);
+        };
+        local *DW::Auth::TOTP::get_recovery_codes = sub {
+            ok( !$dbh->{AutoCommit}, 'Recovery-code read is in the same transaction' );
+            return $get->(@_);
+        };
+        my $remaining =
+            DW::Auth::TOTP->recovery_codes_for_credentials( $account, 'recovery-new-password',
+            $codes[0] );
+        is( scalar @$remaining, 9, 'Authorized read consumes only its recovery code' );
+    }
+    {
+        local *DW::Auth::TOTP::get_recovery_codes = sub { die 'Recovery-code read unavailable' };
+        eval {
+            DW::Auth::TOTP->recovery_codes_for_credentials( $account, 'recovery-new-password',
+                $codes[1] );
+        };
+        like( $@, qr/Recovery-code read unavailable/, 'Read failure is surfaced' );
+    }
+    ok(
+        DW::Auth::TOTP->verify( $account, $codes[1] ),
+        'Failed disclosure rolls back code consumption'
+    );
+}
+{
+    my $admin = temp_user();
+    $admin->set_password('admin-password');
+    my $target = temp_user();
+    $target->set_password('target-password');
+    local *DW::Controller::Admin::UserViews::controller =
+        sub { ( 1, { r => $r, remote => $admin } ) };
+    local *LJ::check_referer = sub { 1 };
+    my ( $logouts, $published ) = ( 0, 0 );
+    local *LJ::User::logout                = sub { ++$logouts };
+    local *LJ::User::publish_login_session = sub { ++$published };
+    my $enabled = \&DW::Auth::TOTP::is_enabled;
+    my $raced;
+    local *DW::Auth::TOTP::is_enabled = sub {
+        my $result = $enabled->(@_);
+        if ( !$raced ) {
+            $raced = 1;
+            DW::Auth::TOTP->enable( $target, DW::Auth::TOTP->generate_secret );
+        }
+        elsif ($result) {
+            ok( !LJ::get_db_writer()->{AutoCommit},
+                'Impersonation rechecks factor inside account lock' );
+        }
+        return $result;
+    };
+    $r->{post} =
+        { username => $target->user, password => 'admin-password', reason => 'Race regression' };
+    my $result = DW::Controller::Admin::UserViews::impersonate_controller();
+    ok( $result->{errors}->exist, 'Concurrent enrollment prevents impersonation' );
+    is( $logouts,   0, 'Concurrent enrollment does not log administrator out' );
+    is( $published, 0, 'Concurrent enrollment does not publish target session' );
+}
+{
+    my $admin = temp_user();
+    $admin->set_password('admin-password');
+    my $target = temp_user();
+    local *DW::Controller::Admin::UserViews::controller =
+        sub { ( 1, { r => $r, remote => $admin } ) };
+    local *LJ::check_referer = sub { 1 };
+    my ( $logouts, $session, $fake );
+    local *LJ::User::logout                = sub { ++$logouts };
+    local *LJ::User::publish_login_session = sub {
+        ( $session, $fake ) = @_[ 1, 2 ];
+        ok( !LJ::get_db_writer()->{AutoCommit},
+            'Impersonation retains account lock through publication' );
+        return 1;
+    };
+    $r->{post} = {
+        username => $target->user,
+        password => 'admin-password',
+        reason   => 'Ordinary target regression'
+    };
+    DW::Controller::Admin::UserViews::impersonate_controller();
+    is( $logouts, 1, 'Permitted impersonation logs administrator out' );
+    ok(
+        $session && $session->owner->equals($target) && $session->valid && $fake,
+        'Permitted impersonation publishes a valid target session without login activity'
+    );
+}
+{
+    my $admin = temp_user();
+    $admin->set_password('admin-old-password');
+    my $target = temp_user();
+    local *DW::Controller::Admin::UserViews::controller =
+        sub { ( 1, { r => $r, remote => $admin } ) };
+    local *LJ::check_referer = sub { 1 };
+    my ( $logouts, $published, $raced ) = ( 0, 0, 0 );
+    local *LJ::User::logout                = sub { ++$logouts };
+    local *LJ::User::publish_login_session = sub { ++$published };
+    my $check = \&DW::Auth::Password::check;
+    local *DW::Auth::Password::check = sub {
+        my $valid = $check->(@_);
+        $admin->set_password('admin-new-password') unless $raced++;
+        return $valid;
+    };
+    $r->{post} = {
+        username => $target->user,
+        password => 'admin-old-password',
+        reason   => 'Credential race regression'
+    };
+    my $result = DW::Controller::Admin::UserViews::impersonate_controller();
+    ok( $result->{errors}->exist, 'Impersonation rechecks administrator credentials under lock' );
+    is( $logouts,   0, 'Stale administrator password does not replace existing session' );
+    is( $published, 0, 'Stale administrator password does not publish target session' );
+}
 done_testing();

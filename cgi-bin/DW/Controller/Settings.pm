@@ -268,14 +268,16 @@ sub manage2fa_handler {
         my $vars;
 
         if ( $post_args->{'action:show-codes'} ) {
-            my $password_ok = LJ::auth_okay( $remote, $post_args->{password} );
-            if ( !$password_ok || !DW::Auth::TOTP->verify( $remote, $post_args->{code} ) ) {
-                LJ::handle_bad_login($remote) if $password_ok;
+            my $codes = !LJ::login_ip_banned($remote)
+                && DW::Auth::TOTP->recovery_codes_for_credentials( $remote, $post_args->{password},
+                $post_args->{code} );
+            if ( !$codes ) {
+                LJ::handle_bad_login($remote);
                 $errors->add_string( password => 'Invalid password or authentication code.' );
                 $vars->{errors} = $errors;
             }
             else {
-                $vars->{codes}      = [ DW::Auth::TOTP->get_recovery_codes($remote) ];
+                $vars->{codes}      = $codes;
                 $vars->{show_codes} = 1;
             }
         }
@@ -322,7 +324,12 @@ sub manage2fa_handler {
                 _totp_setup_vars( $secret, $errors ) );
         }
 
-        DW::Auth::TOTP->enable( $remote, $secret );
+        unless ( DW::Auth::TOTP->enable( $remote, $secret, $post_args->{password} ) ) {
+            LJ::handle_bad_login($remote);
+            $errors->add_string( password => 'Invalid password. Please try again.' );
+            return DW::Template->render_template( 'settings/manage2fa/setup.tt',
+                _totp_setup_vars( $secret, $errors ) );
+        }
 
         return DW::Template->render_template(
             'settings/manage2fa/index-enabled.tt',

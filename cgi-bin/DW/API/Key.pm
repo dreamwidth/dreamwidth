@@ -56,7 +56,12 @@ sub new_for_user {
 sub authenticate {
     my ( $class, $u, $credential, %opts ) = @_;
     return 0
-        unless $u && defined $credential && !$u->is_locked && !$u->is_memorial && !$u->is_expunged;
+        unless $u
+        && $u->is_person
+        && defined $credential
+        && !$u->is_locked
+        && !$u->is_memorial
+        && !$u->is_expunged;
     return 0 if LJ::login_ip_banned($u);
     for my $key ( @{ $class->get_keys_for_user($u) || [] } ) {
         return 1 if $credential eq $key->hash;

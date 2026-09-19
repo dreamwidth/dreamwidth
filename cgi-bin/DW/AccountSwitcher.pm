@@ -231,7 +231,8 @@ sub _current_handle {
 # active into the stored list. $u must already be password-verified by the
 # caller, including any required second factor. Returns 1.
 sub add_account {
-    my ( $class, $u, $exptype, $ipfixed ) = @_;
+    my ( $class, $u, $exptype, $ipfixed, $session ) = @_;
+    die 'Session owner mismatch' if $session && !$session->owner->equals($u);
 
     my @list = grep { $_->{userid} != $u->userid } @{ $class->_entries };
 
@@ -241,9 +242,8 @@ sub add_account {
     }
     $class->_write( \@list );
 
-    # make_login_session creates a new session for $u, writes the master cookie,
-    # and sets the remote -- exactly like a normal login.
-    $u->make_login_session( $exptype, $ipfixed );
+    # Browser authentication can supply an already-proven, unpublished session.
+    $session ? $u->publish_login_session($session) : $u->make_login_session( $exptype, $ipfixed );
 
     return 1;
 }
@@ -268,9 +268,11 @@ sub posting_user {
 
 # Store a fully authenticated session without writing the active-account cookies.
 sub store_account {
-    my ( $class, $u, $exptype, $ipfixed ) = @_;
-    my $sess = LJ::Session->create( $u, exptype => $exptype || 'short', ipfixed => $ipfixed )
+    my ( $class, $u, $exptype, $ipfixed, $session ) = @_;
+    my $sess =
+        $session || LJ::Session->create( $u, exptype => $exptype || 'short', ipfixed => $ipfixed )
         or die 'Unable to create session';
+    die 'Session owner mismatch' unless $sess->owner->equals($u);
     my @list = grep { $_->{userid} != $u->id } @{ $class->_entries };
     push @list, { userid => $u->id, sessid => $sess->id, auth => $sess->auth };
     $class->_write( \@list );

@@ -68,18 +68,38 @@ sub _fingerprint {
 sub begin {
     my ( $class, $u, %opts ) = @_;
     return unless $class->allowed($u) && $u->is_person;
-    my $token = join '', map { sprintf '%02x', irand(256) } 1 .. 32;
-    my $dbh   = LJ::get_db_writer() or die 'Database unavailable';
-    @opts{qw(fingerprint factor)} = $class->_fingerprint($u);
-    $opts{browser} = LJ::UniqCookie->current_uniq;
-    $dbh->do( 'DELETE FROM login_challenges WHERE expires < ?', undef, time() )
-        or die $dbh->errstr;
-    $dbh->do(
-        'INSERT INTO login_challenges (token, userid, payload, expires) VALUES (?, ?, ?, ?)',
-        undef, sha256_hex($token), $u->id,
-        to_json( \%opts ),
-        time() + 300
-    ) or die $dbh->errstr;
+    my $token          = join '', map { sprintf '%02x', irand(256) } 1 .. 32;
+    my $dbh            = LJ::get_db_writer() or die 'Database unavailable';
+    my $check_password = exists $opts{password};
+    my $password       = delete $opts{password};
+    $dbh->begin_work or die $dbh->errstr;
+    my $created = eval {
+        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+            undef, $u->id );
+        die $dbh->errstr if $dbh->err;
+        if ( $check_password && !DW::Auth::Password->check( $u, $password ) ) {
+            $dbh->rollback;
+            return undef;
+        }
+        @opts{qw(fingerprint factor)} = $class->_fingerprint($u);
+        $opts{browser} = LJ::UniqCookie->current_uniq;
+        $dbh->do( 'DELETE FROM login_challenges WHERE expires < ?', undef, time() )
+            or die $dbh->errstr;
+        $dbh->do(
+            'INSERT INTO login_challenges (token, userid, payload, expires) VALUES (?, ?, ?, ?)',
+            undef, sha256_hex($token), $u->id,
+            to_json( \%opts ),
+            time() + 300
+        ) or die $dbh->errstr;
+        $dbh->commit or die $dbh->errstr;
+        1;
+    };
+    unless ($created) {
+        my $error = $@;
+        $dbh->rollback unless $dbh->{AutoCommit};
+        die $error if $error;
+        return;
+    }
     return $token;
 }
 
@@ -185,20 +205,50 @@ sub restart_url {
 sub complete {
     my ( $class, $u, %opts ) = @_;
     return unless $class->allowed($u);
-    my $mfa = DW::Auth::TOTP->is_enabled($u);
-    return if $mfa && ( !$opts{mfa_verified} || !$opts{factor} );
-    return if $opts{fingerprint} && $opts{fingerprint} ne $class->_fingerprint($u);
-    my $remote = LJ::get_remote();
+    my $remote           = LJ::get_remote();
+    my $previous_session = $u->{_session};
+    my $session;
+    my $dbh      = LJ::get_db_writer() or die 'Database unavailable';
+    my $prepared = eval {
+        $dbh->begin_work or die $dbh->errstr;
+        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+            undef, $u->id );
+        die $dbh->errstr if $dbh->err;
+        my $mfa = DW::Auth::TOTP->is_enabled($u);
+        die 'Second factor required' if $mfa && ( !$opts{mfa_verified} || !$opts{factor} );
+        die 'Credentials changed'
+            if exists $opts{password}
+            && !DW::Auth::Password->check( $u, $opts{password} );
+        die 'Credentials changed'
+            if $opts{fingerprint}
+            && $opts{fingerprint} ne $class->_fingerprint($u);
+        $session = LJ::Session->create(
+            $u,
+            exptype => $opts{exptype} || 'short',
+            ipfixed => $opts{bindip}
+        ) or die 'Unable to create session';
+        die 'Unable to verify session'
+            if $mfa
+            && !DW::Auth::TOTP->mark_session( $u, $session, $opts{factor} );
+        $dbh->commit or die $dbh->errstr;
+        die 'Session no longer valid' unless $session->valid;
+        1;
+    };
+    unless ($prepared) {
+        $dbh->rollback unless $dbh->{AutoCommit};
+        eval { $session->destroy } if $session;
+        $u->{_session} = $previous_session;
+        return;
+    }
     if ( $opts{store_only} && $remote && !$remote->equals($u) ) {
-        DW::AccountSwitcher->store_account( $u, $opts{exptype}, $opts{bindip} );
+        DW::AccountSwitcher->store_account( $u, $opts{exptype}, $opts{bindip}, $session );
     }
     elsif ( $opts{adding} && $remote && !$remote->equals($u) ) {
-        DW::AccountSwitcher->add_account( $u, $opts{exptype}, $opts{bindip} );
+        DW::AccountSwitcher->add_account( $u, $opts{exptype}, $opts{bindip}, $session );
     }
     else {
-        $u->make_login_session( $opts{exptype}, $opts{bindip} );
+        $u->publish_login_session($session);
     }
-    return unless !$mfa || DW::Auth::TOTP->mark_session( $u, $u->session, $opts{factor} );
     LJ::Hooks::run_hook( 'user_login', $u );
     my $uniq = DW::Request->get->note('uniq');
     LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;

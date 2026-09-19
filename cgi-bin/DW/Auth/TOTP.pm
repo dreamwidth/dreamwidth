@@ -165,20 +165,22 @@ sub _proof_key {
 # must supply the digest of the factor actually verified.
 sub mark_session {
     my ( $class, $u, $session, $verified_factor ) = @_;
-    my $state = $class->_factor_state($u);
-    die 'Factor is changing' if $state->{changing};
-    return unless $state->{factor};
-    return unless defined $verified_factor && $verified_factor eq $state->{factor};
+    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+    my ($encrypted) = $dbh->selectrow_array( 'SELECT totp_secret FROM password2 WHERE userid = ?',
+        undef, $u->id );
+    die $dbh->errstr if $dbh->err;
+    return unless defined $encrypted;
+    my $factor = sha256_hex($encrypted);
+    return unless defined $verified_factor && $verified_factor eq $factor;
     my $expires = $session->expiration_time;
     return unless $expires > time();
-    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
     $dbh->do( 'DELETE FROM mfa_sessions WHERE expires < ?', undef, time() ) or die $dbh->errstr;
     $dbh->do( 'REPLACE INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
-        undef, $u->id, $session->id, $state->{factor}, $expires )
+        undef, $u->id, $session->id, $factor, $expires )
         or die $dbh->errstr;
     LJ::MemCache::set(
         $class->_proof_key( $u->id, $session->id ),
-        { factor => $state->{factor}, expires => $expires },
+        { factor => $factor, expires => $expires },
         _proof_ttl($expires)
     );
     return 1;
@@ -223,6 +225,7 @@ sub _proof_ttl {
 
 sub update_session_expiration {
     my ( $class, $session ) = @_;
+    return 1 unless $class->_factor_state( $session->owner )->{factor};
     my $key = $class->_proof_key( $session->{userid}, $session->id );
     LJ::MemCache::delete($key);
     my $dbh = LJ::get_db_writer() or die 'Database unavailable';
@@ -240,7 +243,8 @@ sub update_session_expiration {
 # if enrollment races with cookie-authenticated session generation.
 sub copy_session_proof {
     my ( $class, $u, $source, $destination ) = @_;
-    return unless $source && $source->owner->equals($u);
+    return   unless $source && $source->owner->equals($u);
+    return 1 unless $class->_factor_state($u)->{factor};
     my $proof = $class->_session_proof($source);
     return unless $proof->{factor};
     return $class->mark_session( $u, $destination, $proof->{factor} );
@@ -252,31 +256,65 @@ sub revoke_session_proofs {
 
     # Publish revocation before fallible database work or an in-flight cache fill.
     LJ::MemCache::set( $class->_proof_key( $u->id, $_ ), { factor => '' }, 300 ) for @ids;
-    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
-    my $in  = join ',', map { '?' } @ids;
-    $dbh->do( "DELETE FROM mfa_sessions WHERE userid = ? AND sessid IN ($in)", undef, $u->id, @ids )
-        or die $dbh->errstr;
+    my $state = LJ::MemCache::get( [ $u->id, 'mfa-factor:' . $u->id ] );
+    return 1 if $state && !$state->{changing} && !$state->{factor};
 
-    # Keep a negative entry so an earlier cache miss cannot resurrect a proof.
-    LJ::MemCache::set( $class->_proof_key( $u->id, $_ ), { factor => '' }, 300 ) for @ids;
+    # Cluster sessions are already gone and the proof cache denies access.
+    # Orphaned proof rows are harmless and can be removed by later cleanup.
+    eval {
+        my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+        my $in  = join ',', map { '?' } @ids;
+        $dbh->do( "DELETE FROM mfa_sessions WHERE userid = ? AND sessid IN ($in)",
+            undef, $u->id, @ids )
+            or die $dbh->errstr;
+        1;
+    } or $log->warn( 'Unable to clean up revoked MFA proofs for user ' . $u->id . ': ' . $@ );
+    return 1;
+
 }
 
 sub get_recovery_codes {
     my ( $class, $u ) = @_;
 
-    my $dbh = LJ::get_db_writer() or $log->logcroak('Failed to get db writer.');
-    return map { DW::Auth::Helpers->decrypt_token($_) } @{
-        $dbh->selectcol_arrayref(
-            q{SELECT code FROM totp_recovery_codes WHERE userid = ? AND status = 'A'}, undef,
-            $u->userid
-            )
-            || []
+    my $dbh   = LJ::get_db_writer() or $log->logcroak('Failed to get db writer.');
+    my $codes = $dbh->selectcol_arrayref(
+        q{SELECT code FROM totp_recovery_codes WHERE userid = ? AND status = 'A'},
+        undef, $u->userid )
+        or $log->logcroak( 'Failed to read recovery codes: ', $dbh->errstr );
+    return map { DW::Auth::Helpers->decrypt_token($_) } @$codes;
+
+}
+
+# Check both credentials and read the remaining codes under the same account
+# lock as password changes and factor replacement.
+sub recovery_codes_for_credentials {
+    my ( $class, $u, $password, $code ) = @_;
+    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+    $dbh->begin_work or die $dbh->errstr;
+    my $codes = eval {
+        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+            undef, $u->id );
+        die $dbh->errstr if $dbh->err;
+        unless ( DW::Auth::Password->check( $u, $password ) && $class->verify( $u, $code ) ) {
+            $dbh->rollback;
+            return undef;
+        }
+        my $remaining = [ $class->get_recovery_codes($u) ];
+        $dbh->commit or die $dbh->errstr;
+        $remaining;
     };
+    if ($@) {
+        my $error = $@;
+        $dbh->rollback unless $dbh->{AutoCommit};
+        die $error;
+    }
+    return $codes;
 }
 
 sub enable {
-    my ( $class, $u, $secret ) = @_;
-    my $userid = $u->userid;
+    my ( $class, $u, $secret, $password ) = @_;
+    my $check_password = @_ > 3;
+    my $userid         = $u->userid;
 
     $log->logcroak('2fa already enabled on user.')
         if $class->is_enabled($u);
@@ -294,6 +332,10 @@ sub enable {
         $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
             undef, $userid );
         die $dbh->errstr if $dbh->err;
+        if ( $check_password && !DW::Auth::Password->check( $u, $password ) ) {
+            $dbh->rollback;
+            return undef;
+        }
         $class->_factor_changing($u);
         my $updated = $dbh->do(
             q{UPDATE password2 SET totp_secret = ? WHERE userid = ? AND totp_secret IS NULL},
@@ -323,9 +365,10 @@ sub enable {
     };
     unless ($saved) {
         my $error = $@;
-        $dbh->rollback;
+        $dbh->rollback unless $dbh->{AutoCommit};
         $class->_refresh_factor_state($u);
-        die $error;
+        die $error if $error;
+        return undef;
     }
 
     $class->_refresh_factor_state($u);
