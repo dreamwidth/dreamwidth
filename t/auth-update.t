@@ -72,5 +72,47 @@ test_psgi $app, sub {
             'Original author preserved'
         );
     }
+    {
+        my $saved = $original->t_post_fake_entry(
+            subject  => 'Private saved subject must not leak',
+            body     => 'Private saved body must not leak',
+            security => 'private'
+        );
+        local *LJ::get_remote = sub { $current };
+        my $path = '/entry/' . $original->user . '/' . $saved->ditemid . '/edit';
+        my $res  = $cb->(
+            POST $path,
+            [
+                lj_form_auth  => 'expired-original-session',
+                poster_remote => $original->user,
+                event         => 'Keep my submitted edit draft.',
+                subject       => 'Submitted edit draft',
+                'action:post' => 1
+            ]
+        );
+        is( $res->code, 200, 'Existing-entry account mismatch preserves edit form' );
+        like(
+            $res->content,
+            qr/Your active account changed/,
+            'Edit form explains account mismatch'
+        );
+        like( $res->content, qr/Keep my submitted edit draft\./, 'Submitted edit body retained' );
+        like(
+            $res->content,
+            qr/name=['"]poster_remote['"][^>]*value=['"]\Q@{[$original->user]}\E['"]/,
+            'Edit retains original author'
+        );
+        unlike(
+            $res->content,
+            qr/Private saved (?:body|subject) must not leak/,
+            'Mismatch response does not expose saved private entry'
+        );
+        my $fresh = LJ::Entry->new( $original, ditemid => $saved->ditemid );
+        is(
+            $fresh->event_raw,
+            'Private saved body must not leak',
+            'Mismatched edit never modifies saved entry'
+        );
+    }
 };
 done_testing();

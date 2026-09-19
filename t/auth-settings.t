@@ -20,6 +20,7 @@ use Test::More;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user);
 use DW::Controller::Settings;
+use DW::Controller::Admin::UserViews;
 use DW::Auth::TOTP;
 
 {
@@ -30,6 +31,7 @@ use DW::Auth::TOTP;
     sub did_post      { 1 }
     sub note          { undef }
     sub get_remote_ip { '127.0.0.1' }
+    sub redirect      { $_[1] }
 }
 my $r = bless { post => {} }, 'SettingsAuthRequest';
 my $u = temp_user();
@@ -115,5 +117,24 @@ $r->{post} = {
     ok( $u->check_password('Another-pass-42'), 'New password works' );
     ok( !DW::Auth::TOTP->verify( $u, $codes[0] ), 'Successful password update consumes code' );
     ok( DW::Auth::TOTP->is_enabled($u), 'Password change preserves second factor' );
+}
+{
+    my $admin = temp_user();
+    $admin->set_password('admin-password');
+    local *DW::Controller::Admin::UserViews::controller =
+        sub { ( 1, { r => $r, remote => $admin } ) };
+    local *LJ::check_referer = sub { 1 };
+    my ( $logouts, $impersonations ) = ( 0, 0 );
+    local *LJ::User::logout                  = sub { ++$logouts };
+    local *LJ::User::make_fake_login_session = sub { ++$impersonations };
+    $r->{post} = {
+        username => $u->user,
+        password => 'admin-password',
+        reason   => 'Test impersonation policy'
+    };
+    my $result = DW::Controller::Admin::UserViews::impersonate_controller();
+    ok( $result->{errors}->exist, 'Impersonation refuses a TOTP-protected target' );
+    is( $logouts,        0, 'Denied impersonation retains administrator session' );
+    is( $impersonations, 0, 'Denied impersonation creates no target session' );
 }
 done_testing();

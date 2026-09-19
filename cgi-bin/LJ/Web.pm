@@ -722,6 +722,7 @@ sub create_qr_div {
             form_url             => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
             hidden_form_elements => $hidden_form_elements,
             posting_accounts     => [ DW::AccountSwitcher->posting_accounts ],
+            active_usertype      => $usertype,
             post_disabled        => $post_disabled,
             post_button_class    => $post_disabled ? 'ui-state-disabled' : '',
 

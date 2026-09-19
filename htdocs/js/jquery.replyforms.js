@@ -12,7 +12,7 @@ jQuery(function($) {
         }
     $('#qr-posting-account').on('change', function() {
         var active = this.value === String($(this).data('active'));
-        $('#usertype').val(active ? 'cookieuser' : 'stored');
+        $('#usertype').val(active ? $(this).data('active-usertype') : 'stored');
         if (!active) $('#unscreen_parent, #prop_admin_post').prop('checked', false);
         $('#prop_picture_keyword').val('').change().prop('disabled', !active);
         // Permissions are checked as the selected account on the server.
@@ -32,7 +32,7 @@ jQuery(function($) {
             xhrFields: { withCredentials: true },
             data: { lj_form_auth: commentForm.find('[name=lj_form_auth]').val() }
         }).done(function(data) {
-            var selected = select.val();
+            var selected = String(select.data('selected') || select.val() || '');
             var returned = location.hash.match(/^#post-as-(\d+)$/);
             if (returned) selected = returned[1];
             data.accounts.forEach(function(account) {
@@ -40,7 +40,7 @@ jQuery(function($) {
                     $('<option>').val(account.userid).text(account.user).appendTo(select);
                 }
             });
-            if (selected && select.find('option[value="' + selected + '"]').length) {
+            if (/^[0-9]+$/.test(selected) && select.find('option[value="' + selected + '"]').length) {
                 select.val(selected).change();
                 if (returned) $('#talkpostfromstored').prop('checked', true).change();
             }

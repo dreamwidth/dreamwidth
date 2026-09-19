@@ -83,6 +83,13 @@ sub impersonate_controller {
             { user => LJ::ehtml( $form_args->{username} ) } )
             unless $u;
 
+        # Impersonation is not a second-factor bypass. Reject protected targets
+        # before replacing the administrator's current session.
+        require DW::Auth::TOTP;
+        $errors->add_string( 'username',
+            'Accounts protected by two-factor authentication cannot be impersonated.' )
+            if $u && DW::Auth::TOTP->is_enabled($u);
+
         my $password = $form_args->{password};
         $errors->add( 'password', '.error.invalidpassword' )
             unless $password && DW::Auth::Password->check( $remote, $password );

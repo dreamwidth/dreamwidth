@@ -119,6 +119,10 @@ Omit the `Fixes` line when there is no linked issue.
   reject a changed `poster_remote`, preserving the draft. Authorize comment
   actions (including unscreening and editing) against the selected commenter,
   not the browsing account that originally rendered the form.
+- An existing-entry edit submitted after an account switch must preserve only
+  submitted draft data; do not read saved private entry content for the new account.
+- Admin impersonation must reject TOTP-protected targets before logging the
+  administrator out. It must never grant second-factor session proof.
 - Protocol clients use API keys; keys must not mint browser sessions. Scoping
   API key permissions is separate future work.
 - Password updates must preserve `password2.totp_secret`. Avoid `REPLACE` for

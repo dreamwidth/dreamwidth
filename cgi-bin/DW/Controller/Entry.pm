@@ -541,13 +541,17 @@ sub _edit {
     my $errors   = DW::FormErrors->new;
     my $warnings = DW::FormErrors->new;
     my $post;
+    my $account_changed = 0;
+    my $expected_poster = $remote->user;
 
     if ( $r->did_post ) {
         $post = $r->post_args;
 
-        # no difference because we rely on the entry info, but let's get rid of this
-        # just to make sure it doesn't trip us up in the future...
-        $post->remove('poster_remote');
+        $expected_poster = $post->{poster_remote};
+        $account_changed = ( $expected_poster // '' ) ne $remote->user;
+        $errors->add_string( undef,
+'Your active account changed. Your entry has not been changed. Switch back to the account you started with before editing.'
+        ) if $account_changed;
         $post->remove('usejournal');
 
         my $mode_preview = $post->{"action:preview"} ? 1 : 0;
@@ -556,7 +560,7 @@ sub _edit {
         $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in($post);
 
-        my $okay_formauth = LJ::check_form_auth( $post->{lj_form_auth} );
+        my $okay_formauth = !$account_changed && LJ::check_form_auth( $post->{lj_form_auth} );
         $errors->add( undef, "error.invalidform" )
             unless $okay_formauth;
 
@@ -614,27 +618,39 @@ sub _edit {
     # or it's from the user's POST
     my $trust_datetime_value = 1;
 
-    my $entry_obj = LJ::Entry->new( $journal, ditemid => $ditemid );
-
-    # are you authorized to view this entry
-    # and does the entry we got match the provided ditemid exactly?
-    my $anum   = $ditemid % 256;
-    my $itemid = $ditemid >> 8;
-    return error_ml("/entry/form.tt.error.nofind")
-        unless $entry_obj->editable_by($remote)
-        && $anum == $entry_obj->anum
-        && $itemid == $entry_obj->jitemid;
-
-    # so at this point, we know that we are authorized to edit this entry
-    # but we need to handle things differently if we're an admin
-    # FIXME: handle communities
-    return error_ml('IS AN ADMIN') unless $entry_obj->poster->equals($remote);
-
+    my ( $entry_obj, $datetime, $sticky_entry );
     my %crosspost;
-    if ( !$r->did_post && ( my $xpost = $entry_obj->prop("xpostdetail") ) ) {
-        my $xposthash = DW::External::Account->xpost_string_to_hash($xpost);
+    if ($account_changed) {
 
-        %crosspost = map { $_ => 1 } keys %{ $xposthash || {} };
+        # Preserve only submitted data. The newly active account may have no
+        # permission to read the saved entry or any of its private metadata.
+        $datetime = join ' ', map { $post->{$_} // '' } qw(entrytime_date entrytime_time);
+    }
+    else {
+        $entry_obj = LJ::Entry->new( $journal, ditemid => $ditemid );
+
+        # are you authorized to view this entry
+        # and does the entry we got match the provided ditemid exactly?
+        my $anum   = $ditemid % 256;
+        my $itemid = $ditemid >> 8;
+        return error_ml("/entry/form.tt.error.nofind")
+            unless $entry_obj->editable_by($remote)
+            && $anum == $entry_obj->anum
+            && $itemid == $entry_obj->jitemid;
+
+        # so at this point, we know that we are authorized to edit this entry
+        # but we need to handle things differently if we're an admin
+        # FIXME: handle communities
+        return error_ml('IS AN ADMIN') unless $entry_obj->poster->equals($remote);
+
+        if ( !$r->did_post && ( my $xpost = $entry_obj->prop("xpostdetail") ) ) {
+            my $xposthash = DW::External::Account->xpost_string_to_hash($xpost);
+
+            %crosspost = map { $_ => 1 } keys %{ $xposthash || {} };
+        }
+
+        $datetime     = $entry_obj->eventtime_mysql;
+        $sticky_entry = $journal->sticky_entries_lookup->{$ditemid};
     }
 
     my $vars = _init(
@@ -642,11 +658,11 @@ sub _edit {
             usejournal => $journal->username,
             remote     => $remote,
 
-            datetime             => $entry_obj->eventtime_mysql,
+            datetime             => $datetime,
             trust_datetime_value => $trust_datetime_value,
 
             crosspost    => \%crosspost,
-            sticky_entry => $journal->sticky_entries_lookup->{$ditemid},
+            sticky_entry => $sticky_entry,
         },
         @_
     );
@@ -657,8 +673,9 @@ sub _edit {
         if defined $get->{usejournal} && !$vars->{usejournal};
 
 # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
-    $vars->{errors}   = $errors;
-    $vars->{warnings} = $warnings;
+    $vars->{expected_poster} = $expected_poster;
+    $vars->{errors}          = $errors;
+    $vars->{warnings}        = $warnings;
 
     $vars->{formdata} = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
 

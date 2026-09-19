@@ -19,7 +19,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 <div class="from-login" id="from-stored-more">
   <label for="posting_userid">Post as</label>
-  <select class="comment-account-select" data-accounts-url="[% site.root %]/rpc/comment-accounts" name="posting_userid" id="posting_userid" data-active="[% remote.id %]">
+  <select class="comment-account-select" data-accounts-url="[% site.root %]/rpc/comment-accounts" name="posting_userid" id="posting_userid" data-active="[% remote.id %]" data-selected="[% comment.posting_userid | html %]">
     <option value="">Choose an account</option>
     [% FOREACH account IN posting_accounts %]
     <option value="[% account.userid %]" [% IF comment.posting_userid == account.userid %]selected="selected"[% END %]>[% account.user | html %]</option>
