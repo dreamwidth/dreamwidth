@@ -486,4 +486,43 @@ for my $failure ( 'hook', 'activity' ) {
     ok( $target->session->valid,            "$failure leaves a usable session" );
     like( join( '', @warnings ), qr/Login notification failed/, "$failure failure is reported" );
 }
+for my $mode ( 'normal', 'adding', 'store_only' ) {
+    for my $revoked_first ( 0, 1 ) {
+        new_request();
+        login_active($ua);
+        my %before = %{ $req->{jar} };
+        my $target = temp_user();
+        my $lock   = \&LJ::Session::account_lock;
+        my ( $raced, $published );
+        local *LJ::Session::account_lock = sub {
+            if ( $_[1]->equals($target) && $revoked_first && !$raced++ ) {
+                LJ::Session->destroy_all_sessions($target);
+            }
+            return $lock->(@_);
+        };
+        my $check_lock = sub {
+            ++$published;
+            ok( !DW::Locker->new->trylock( 'sessions:' . $target->id, class => 'test' ),
+                "$mode publication excludes concurrent logout" );
+            ok( !LJ::get_db_writer()->{AutoCommit},
+                "$mode validation keeps credential-before-session lock order" );
+        };
+        my $publish = \&LJ::User::publish_login_session;
+        local *LJ::User::publish_login_session = sub { $check_lock->(); $publish->(@_) };
+        my $store = \&DW::AccountSwitcher::store_account;
+        local *DW::AccountSwitcher::store_account = sub { $check_lock->(); $store->(@_) };
+        my $result = DW::Auth::Login->complete( $target, $mode => 1 );
+        if ($revoked_first) {
+            ok( !$result,    "$mode rejects session revoked before publication lock" );
+            ok( !$published, "$mode never publishes revoked session" );
+            is_deeply( $req->{jar}, \%before,
+                "$mode failed validation keeps prior browser cookies" );
+        }
+        else {
+            ok( $result && $published, "$mode commits publication while session is authoritative" );
+        }
+        my $released = DW::Locker->new->trylock( 'sessions:' . $target->id, class => 'test' );
+        ok( $released, "$mode releases publication lock on success and failure" );
+    }
+}
 done_testing();

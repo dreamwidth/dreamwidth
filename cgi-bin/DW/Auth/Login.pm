@@ -254,7 +254,6 @@ sub complete {
             if $mfa
             && !DW::Auth::TOTP->mark_session( $u, $session, $opts{factor} );
         $dbh->commit or die $dbh->errstr;
-        die 'Session no longer valid' unless $session->valid;
         1;
     };
     unless ($prepared) {
@@ -264,6 +263,24 @@ sub complete {
         return;
     }
     my $published = eval {
+
+        # Preparation is committed. Lock credentials before sessions again so
+        # final validation/publication cannot reverse the factor-change order.
+        $dbh->begin_work or die $dbh->errstr;
+        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
+            undef, $u->id );
+        die $dbh->errstr if $dbh->err;
+        die 'Credentials changed'
+            if exists $opts{password}
+            && !DW::Auth::Password->check( $u, $opts{password} );
+        die 'Credentials changed'
+            if $opts{fingerprint}
+            && $opts{fingerprint} ne $class->_fingerprint($u);
+        my $session_lock = LJ::Session->account_lock($u);
+        my $current      = LJ::Session->_load_locked( $u, $session->id );
+        die 'Session no longer valid'
+            unless $current && $current->auth eq $session->auth && $current->valid;
+
         if ( $opts{store_only} && $remote && !$remote->equals($u) ) {
             DW::AccountSwitcher->store_account( $u, $opts{exptype}, $opts{bindip}, $session )
                 or die 'Unable to store account';
@@ -281,9 +298,13 @@ sub complete {
                 undef, sha256_hex( $opts{grant} ) );
             die 'Unable to consume verified login grant' unless $rows && $rows == 1;
         }
+        $dbh->commit or die $dbh->errstr;
         1;
     };
     unless ($published) {
+
+        # The publication lock has left scope; cleanup can reacquire it safely.
+        $dbh->rollback unless $dbh->{AutoCommit};
         eval { $session->destroy };
         eval {
             $u->do( 'DELETE FROM loginlog WHERE userid = ? AND sessid = ?',

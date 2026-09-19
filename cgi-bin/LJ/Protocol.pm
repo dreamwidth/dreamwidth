@@ -2937,15 +2937,10 @@ sub sessiongenerate {
 
         # Authentication preceded this lock. Re-read the authoritative cluster
         # row so a factor change that revoked the source cannot mint a session.
-        my $row = $u->selectrow_hashref(
-            'SELECT userid, sessid, exptype, auth, timecreate, timeexpire, ipfixed '
-                . 'FROM sessions WHERE userid = ? AND sessid = ?',
-            undef, $u->id, $source->id
-        );
-        die $u->errstr if $u->err;
+        my $row = LJ::Session->_load_locked( $u, $source->id );
         unless ( $row
             && $row->{auth} eq $source->auth
-            && bless( $row, 'LJ::Session' )->valid )
+            && $row->valid )
         {
             $failure = 300;
             die 'Source session revoked';
@@ -2958,16 +2953,23 @@ sub sessiongenerate {
             die 'Unable to inherit session proof';
         }
         $dbh->commit or die $dbh->errstr;
+        $u->record_login( $sess->id ) or die 'Unable to record replacement login';
         1;
     };
     unless ($prepared) {
         $dbh->rollback unless $dbh->{AutoCommit};
-        eval { $sess->destroy } if $sess;
+        if ($sess) {
+            eval { $sess->destroy };
+            eval {
+                $u->do( 'DELETE FROM loginlog WHERE userid=? AND sessid=?',
+                    undef, $u->id, $sess->id );
+            };
+        }
         $u->{_session} = $previous_session;
         return fail( $err, $failure );
     }
-    $u->record_login( $sess->id );
-    LJ::mark_user_active( $u, 'login' );
+    eval { LJ::mark_user_active( $u, 'login' ); 1 }
+        or warn 'Replacement login activity failed: ' . $@;
 
     # return our hash
     return { ljsession => $sess->master_cookie_string, };

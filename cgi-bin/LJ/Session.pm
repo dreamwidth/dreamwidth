@@ -61,16 +61,21 @@ sub instance {
 
     my $lock = $class->account_lock($u);
 
-    # try master
-    $sess = $u->selectrow_hashref(
-        "SELECT userid, sessid, exptype, auth, timecreate, timeexpire, ipfixed "
-            . "FROM sessions WHERE userid=? AND sessid=?",
-        undef, $u->{'userid'}, $sessid
-    ) or return undef;
-
-    bless $sess;
+    $sess = $class->_load_locked( $u, $sessid ) or return undef;
     LJ::MemCache::set( $memkey, $sess );
     return $sess;
+}
+
+# The caller holds account_lock. Read authoritative state, never a cached row.
+sub _load_locked {
+    my ( $class, $u, $sessid ) = @_;
+    my $row = $u->selectrow_hashref(
+        'SELECT userid, sessid, exptype, auth, timecreate, timeexpire, ipfixed '
+            . 'FROM sessions WHERE userid=? AND sessid=?',
+        undef, $u->id, $sessid
+    );
+    die $u->errstr if $u->err;
+    return $row ? bless( $row, $class ) : undef;
 }
 
 # Serialize session cache fills, destruction, and cookie-based replacement.

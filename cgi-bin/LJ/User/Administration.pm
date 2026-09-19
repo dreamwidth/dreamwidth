@@ -395,8 +395,8 @@ sub statushistory_add {
     my $qshtype = $dbh->quote($shtype);
     my $qnotes  = $dbh->quote($notes);
 
-    $dbh->do( "INSERT INTO statushistory (userid, adminid, shtype, notes) "
-            . "VALUES ($userid, $actid, $qshtype, $qnotes)" );
+    $dbh->do( "INSERT INTO statushistory (userid, adminid, shtype, shdate, notes) "
+            . "VALUES ($userid, $actid, $qshtype, NOW(), $qnotes)" );
     return $dbh->err ? 0 : 1;
 }
 

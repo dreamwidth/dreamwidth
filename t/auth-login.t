@@ -692,4 +692,33 @@ for my $failure ( 'proof', 'publication', 'audit' ) {
         0, 'Logout-all includes replacement created while it waited' );
 }
 
+for my $throws ( 0, 1 ) {
+    my $account = temp_user();
+    my $source  = LJ::Session->create( $account, exptype => 'long' );
+    local *LJ::get_remote             = sub { $account };
+    local *LJ::Protocol::authenticate = sub { $_[2]->{u} = $account; 1 };
+    my $create = \&LJ::Session::create;
+    my ( $created, $activity );
+    local *LJ::Session::create    = sub { $created = $create->(@_) };
+    local *LJ::User::record_login = sub {
+        ok( !DW::Locker->new->trylock( 'sessions:' . $account->id, class => 'test' ),
+            'Replacement audit remains inside session lock' );
+        die 'Audit unavailable' if $throws;
+        return 0;
+    };
+    local *LJ::mark_user_active = sub { ++$activity };
+    my $error;
+    ok(
+        !LJ::Protocol::sessiongenerate(
+            { auth_method => 'cookie', expiration => 'long' },
+            \$error, {}
+        ),
+        'Failed replacement audit exposes no session cookie'
+    );
+    is( $error,            502,     'Audit failure returns protocol storage error' );
+    is( $account->session, $source, 'Failed replacement restores original session pointer' );
+    ok( !LJ::Session->instance( $account, $created->id ), 'Unaudited replacement is revoked' );
+    ok( LJ::Session->instance( $account, $source->id )->valid, 'Original session remains valid' );
+    ok( !$activity, 'Failed audit records no replacement activity' );
+}
 done_testing();

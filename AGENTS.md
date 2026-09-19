@@ -128,7 +128,9 @@ Omit the `Fixes` line when there is no linked issue.
   Cookie replacement and destruction share the session advisory lock, including
   cache fills and logout-all session enumeration. Acquire password2 before this lock
   and release it before optional central proof cleanup. Revocation must publish
-  both session and MFA denial markers before deleting cluster rows.
+  both session and MFA denial markers before deleting cluster rows. Final login
+  publication (including stored accounts) reacquires credentials before the session
+  lock, re-reads the authoritative row, and commits required audits before success.
   Ordinary sessions must not perform MFA proof synchronization; cluster deletion
   remains authoritative when optional central proof cleanup is unavailable.
 - Comments may use a validated stored account session without changing the
@@ -141,8 +143,8 @@ Omit the `Fixes` line when there is no linked issue.
 - Admin impersonation must reject TOTP-protected targets before logging the
   administrator out, keeping the factor check and session creation under the
   account lock. Commit preparation before publishing cookies, and retain the
-  administrator session until publication succeeds. It must never grant
-  second-factor session proof.
+  administrator session until publication and all three audit writes succeed.
+  It must never grant second-factor session proof.
 - Protocol clients use API keys; keys must not mint browser sessions. Scoping
   API key permissions is separate future work. Dreamwidth comment imports use
   API-key challenge authentication directly on the export endpoint; never mint

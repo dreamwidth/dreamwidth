@@ -315,7 +315,8 @@ for my $cleanup_failure ( 0, 1 ) {
     };
     local *LJ::User::publish_login_session = sub {
         ( $session, $fake ) = @_[ 1, 2 ];
-        ok( LJ::get_db_writer()->{AutoCommit}, 'Impersonation commits before publication' );
+        ok( !LJ::get_db_writer()->{AutoCommit},
+            'Final impersonation publication holds credential lock' );
         ok(
             LJ::Session->instance( $admin, $admin_session->id ),
             'Administrator remains signed in until publication succeeds'
@@ -328,6 +329,32 @@ for my $cleanup_failure ( 0, 1 ) {
         reason   => 'Ordinary target regression'
     };
     DW::Controller::Admin::UserViews::impersonate_controller();
+    is(
+        $admin->selectrow_array(
+            "SELECT COUNT(*) FROM userlog WHERE userid=? AND action='impersonator'", undef,
+            $admin->id
+        ),
+        1,
+        'Successful impersonation writes administrator audit'
+    );
+    is(
+        $target->selectrow_array(
+            "SELECT COUNT(*) FROM userlog WHERE userid=? AND action='impersonated'", undef,
+            $target->id
+        ),
+        1,
+        'Successful impersonation writes target audit'
+    );
+    is(
+        LJ::get_db_writer()->selectrow_array(
+"SELECT COUNT(*) FROM statushistory WHERE userid=? AND adminid=? AND shtype='impersonate' AND shdate > '2000-01-01'",
+            undef,
+            $target->id,
+            $admin->id
+        ),
+        1,
+        'Successful impersonation writes timestamped status history under strict MySQL'
+    );
     ok( !LJ::Session->instance( $admin, $admin_session->id ),
         'Permitted impersonation revokes old administrator session after publication' );
     ok(
@@ -442,5 +469,94 @@ for my $failure ( 'commit', 'publication' ) {
     );
     like( $html, qr{/login\?returnto=%2Fmanage2fa}, 'Post-disable confirmation offers sign-in' );
     unlike( $html, qr/<form|action:setup/, 'Post-disable confirmation has no unusable setup form' );
+}
+for my $failure ( 'impersonator', 'impersonated', 'history' ) {
+    for my $throws ( 0, 1 ) {
+        my $admin = temp_user();
+        $admin->set_password('admin-password');
+        my $admin_session = LJ::Session->create( $admin, exptype => 'long' );
+        my $target        = temp_user();
+        my $previous      = $target->{_session};
+        local *DW::Controller::Admin::UserViews::controller =
+            sub { ( 1, { r => $r, remote => $admin } ) };
+        local *LJ::check_referer = sub { 1 };
+        $r->{cookies} = ['existing=keep'];
+        my $published;
+        local *LJ::User::publish_login_session = sub {
+            ++$published;
+            ok( !DW::Locker->new->trylock( 'sessions:' . $target->id, class => 'test' ),
+                'Impersonation publication holds target session lock' );
+            push @{ $r->{cookies} }, 'ljmastersession=target', 'ljtrust=target';
+            return 1;
+        };
+        local *LJ::User::log_event = sub {
+            my ( $self, $type ) = @_;
+            ok(
+                LJ::Session->instance( $admin, $admin_session->id )->valid,
+                'Administrator stays authenticated during required audit'
+            );
+            return 1 unless $type eq $failure;
+            die 'Injected audit failure' if $throws;
+            return 0;
+        };
+        local *LJ::statushistory_add = sub {
+            return 1 unless $failure eq 'history';
+            die 'Injected audit failure' if $throws;
+            return 0;
+        };
+        local *LJ::User::set_remote =
+            sub { ok( $_[1]->equals($admin), 'Audit failure restores administrator identity' ) };
+        $r->{post} = {
+            username => $target->user,
+            password => 'admin-password',
+            reason   => 'Audit failure test'
+        };
+        eval { DW::Controller::Admin::UserViews::impersonate_controller() };
+        like( $@, qr/audit/, "$failure audit failure is reported" );
+        ok( $published, 'Audit failure occurs after attempted target publication' );
+        is_deeply( $r->{cookies}, ['existing=keep'],
+            'Failed audit restores complete cookie snapshot' );
+        ok( LJ::Session->instance( $admin, $admin_session->id )->valid,
+            'Failed audit retains administrator session' );
+        is( $target->{_session}, $previous, 'Failed audit restores target pointer' );
+        is( scalar LJ::Session->active_sessions($target),
+            0, 'Failed audit revokes target session without recursive locking' );
+    }
+}
+{
+    my $admin = temp_user();
+    $admin->set_password('admin-password');
+    my $admin_session = LJ::Session->create( $admin, exptype => 'long' );
+    my $target        = temp_user();
+    local *DW::Controller::Admin::UserViews::controller =
+        sub { ( 1, { r => $r, remote => $admin } ) };
+    local *LJ::check_referer = sub { 1 };
+    my ( $raced, $published );
+    my $lock = \&LJ::Session::account_lock;
+    local *LJ::Session::account_lock = sub {
+        if ( $_[1]->equals($target) && !$raced++ ) {
+            LJ::Session->destroy_all_sessions($target);
+        }
+        return $lock->(@_);
+    };
+    local *LJ::User::publish_login_session = sub { ++$published; 1 };
+    $r->{cookies} = ['existing=keep'];
+    $r->{post}    = {
+        username => $target->user,
+        password => 'admin-password',
+        reason   => 'Concurrent logout test'
+    };
+    eval { DW::Controller::Admin::UserViews::impersonate_controller() };
+    like(
+        $@,
+        qr/Impersonation session revoked/,
+        'Target logout before publication is detected authoritatively'
+    );
+    ok( !$published, 'Revoked impersonation session is not published' );
+    is_deeply( $r->{cookies}, ['existing=keep'], 'Revoked target leaves original cookies intact' );
+    ok(
+        LJ::Session->instance( $admin, $admin_session->id )->valid,
+        'Revoked target leaves administrator signed in'
+    );
 }
 done_testing();
