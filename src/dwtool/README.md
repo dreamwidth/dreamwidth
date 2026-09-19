@@ -43,7 +43,7 @@ TUI flags:
 
 ### Headless commands
 
-For scripting (and so Claude can drive it from the CLI), the same data is
+For scripting and automation, the same data is
 available as non-interactive subcommands. Each prints human-readable text by
 default, machine-readable JSON with `--json`, and sets a non-zero exit code on
 failure. All accept `--region` and `--cluster`.

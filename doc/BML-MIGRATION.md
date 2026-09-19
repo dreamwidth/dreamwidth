@@ -24,7 +24,7 @@ This document is the how-to; worked examples are collected in §10.
 
 > **Run everything in the devcontainer.** All commands below assume you are
 > inside the devcontainer (`$LJHOME` = `/workspaces/dreamwidth`). See
-> `CLAUDE.md` for container setup, and always work in a git worktree.
+> `AGENTS.md` for container setup and guidance on isolating concurrent work.
 
 ---
 
