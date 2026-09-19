@@ -115,7 +115,8 @@ Omit the `Fixes` line when there is no linked issue.
   Bind session proof to the factor actually verified; replacement sessions
   may inherit existing proof but must never infer proof from the current factor.
   Validate proof expiration even on cache hits, and clear clustered-session
-  caches before fallible central proof synchronization. A committed factor
+  caches before fallible central proof synchronization. When caching is configured,
+  abort factor changes if the pre-commit change marker cannot be published. A committed factor
   change stays successful if its recoverable cache refresh fails. Prepare and
   prove browser sessions before publishing active or stored-account cookies.
   Ordinary sessions must not perform MFA proof synchronization; cluster deletion

@@ -493,4 +493,17 @@ with_fake_memcache {
     my ( $pending, $options ) = DW::Auth::Login->pending($challenge);
     ok( $pending && !exists $options->{password}, 'MFA challenge stores no plaintext password' );
 }
+{
+    local *LJ::get_remote         = sub { $u };
+    local $request->{cookie_auth} = 1;
+    local *LJ::Session::create    = sub { undef };
+    local *DW::Auth::TOTP::copy_session_proof =
+        sub { die 'Unexpected proof copy after failed creation' };
+    my $error;
+    my $result = LJ::Protocol::sessiongenerate(
+        { username => $u->user, auth_method => 'cookie', expiration => 'long' },
+        \$error, {} );
+    ok( !$result, 'Failed session creation returns a protocol failure' );
+    is( $error, 502, 'Failed session creation returns database-unavailable error' );
+}
 done_testing();

@@ -251,7 +251,7 @@ sub add_account {
 # Only personal accounts can be offered as alternate comment authors.
 sub posting_accounts {
     my ($class) = @_;
-    return grep { $_->{valid} && $_->{u}->is_person } $class->accounts;
+    return grep { $_->{valid} && $_->{u}->is_person && !$_->{u}->is_memorial } $class->accounts;
 }
 
 # Resolve a posting identity without changing the active browser account.
@@ -259,11 +259,16 @@ sub posting_user {
     my ( $class, $userid ) = @_;
     return unless defined $userid && $userid =~ /^\d+$/;
     my $remote = LJ::get_remote();
-    return $remote if $remote && $remote->is_person && $remote->id == $userid;
+    return $remote
+        if $remote && $remote->is_person && !$remote->is_memorial && $remote->id == $userid;
     my ($entry) = grep { $_->{userid} == $userid } @{ $class->_entries };
     return unless $entry;
     my $rec = $class->_resolve($entry);
-    return $rec && $rec->{valid} && $rec->{u}->is_person ? $rec->{u} : undef;
+    return
+           $rec
+        && $rec->{valid}
+        && $rec->{u}->is_person
+        && !$rec->{u}->is_memorial ? $rec->{u} : undef;
 }
 
 # Store a fully authenticated session without writing the active-account cookies.

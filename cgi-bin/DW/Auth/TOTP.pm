@@ -151,7 +151,12 @@ sub _refresh_factor_state {
 
 sub _factor_changing {
     my ( $class, $u ) = @_;
-    LJ::MemCache::set( [ $u->id, 'mfa-factor:' . $u->id ], { changing => 1 }, 300 );
+
+    # With no cache configured there can be no stale cached factor state.
+    return 1 unless @LJ::MEMCACHE_SERVERS;
+    LJ::MemCache::set( [ $u->id, 'mfa-factor:' . $u->id ], { changing => 1 }, 300 )
+        or die 'Unable to publish factor change marker';
+    return 1;
 }
 
 sub _proof_key {
@@ -257,7 +262,7 @@ sub revoke_session_proofs {
     # Publish revocation before fallible database work or an in-flight cache fill.
     LJ::MemCache::set( $class->_proof_key( $u->id, $_ ), { factor => '' }, 300 ) for @ids;
     my $state = LJ::MemCache::get( [ $u->id, 'mfa-factor:' . $u->id ] );
-    return 1 if $state && !$state->{changing} && !$state->{factor};
+    return 1 unless $state && ( $state->{changing} || $state->{factor} );
 
     # Cluster sessions are already gone and the proof cache denies access.
     # Orphaned proof rows are harmless and can be removed by later cleanup.

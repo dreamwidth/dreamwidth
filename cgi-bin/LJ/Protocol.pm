@@ -2922,7 +2922,7 @@ sub sessiongenerate {
 
     my $remote = LJ::get_remote();
     my $source = $remote && $remote->equals($u) ? $remote->session : undef;
-    my $sess   = LJ::Session->create( $u, %$sess_opts );
+    my $sess   = LJ::Session->create( $u, %$sess_opts ) or return fail( $err, 502 );
 
     # A cookie-authenticated caller already has a fully verified browser
     # session. Preserve that proof when it requests a replacement session.

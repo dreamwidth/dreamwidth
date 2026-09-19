@@ -125,4 +125,75 @@ with_fake_memcache {
     ok( $source->destroy, 'Ordinary deletion skips central writer' );
     ok( !LJ::Session->instance( $ordinary, $source->id ), 'Ordinary deleted session is absent' );
 };
+with_fake_memcache {
+    my $ordinary = temp_user();
+    my $session  = LJ::Session->create( $ordinary, exptype => 'long', nolog => 1 );
+    LJ::MemCache::delete( [ $ordinary->id, 'mfa-factor:' . $ordinary->id ] );
+    my $writes = 0;
+    local *LJ::get_db_writer = sub { ++$writes; die 'Unexpected MFA cleanup' };
+    ok( $session->destroy, 'Cold-cache ordinary deletion succeeds' );
+    is( $writes, 0, 'Cold-cache deletion performs no central MFA cleanup' );
+    ok(
+        !LJ::Session->instance( $ordinary, $session->id ),
+        'Cold-cache deleted session cannot be loaded'
+    );
+};
+with_fake_memcache {
+    my $account = temp_user();
+    $account->set_password('marker-test-password');
+    my $plain = LJ::Session->create( $account, exptype => 'long', nolog => 1 );
+    ok( $plain->valid, 'Warm no-factor cache before attempted enrollment' );
+    my $set                 = \&LJ::MemCache::set;
+    my $reject_factor_write = sub {
+        return 0 if ref $_[0] && $_[0][1] eq 'mfa-factor:' . $account->id;
+        return $set->(@_);
+    };
+    my $secret = DW::Auth::TOTP->generate_secret;
+    {
+        local *LJ::MemCache::set = $reject_factor_write;
+        eval { DW::Auth::TOTP->enable( $account, $secret ) };
+        like(
+            $@,
+            qr/Unable to publish factor change marker/,
+            'Failed cache marker aborts enrollment'
+        );
+    }
+    ok( !DW::Auth::TOTP->is_enabled($account), 'Failed marker leaves factor disabled' );
+    is( scalar DW::Auth::TOTP->get_recovery_codes($account),
+        0, 'Failed marker installs no recovery codes' );
+    ok( $plain->valid, 'Failed enrollment leaves existing ordinary session usable' );
+    DW::Auth::TOTP->enable( $account, $secret );
+    my @codes  = DW::Auth::TOTP->get_recovery_codes($account);
+    my $proven = LJ::Session->create( $account, exptype => 'long', nolog => 1 );
+    DW::Auth::TOTP->mark_session( $account, $proven,
+        DW::Auth::TOTP->_factor_state($account)->{factor} );
+    {
+        local *LJ::MemCache::set = $reject_factor_write;
+        eval { DW::Auth::TOTP->disable( $account, 'marker-test-password', $codes[0] ) };
+        like( $@, qr/Unable to publish factor change marker/,
+            'Failed cache marker aborts disable' );
+    }
+    ok( DW::Auth::TOTP->is_enabled($account), 'Failed marker retains enrolled factor' );
+    ok( $proven->valid,                       'Failed disable retains verified session' );
+    my @remaining = DW::Auth::TOTP->get_recovery_codes($account);
+    ok( grep( { $_ eq $codes[0] } @remaining ),
+        'Failed disable rolls back recovery-code consumption' );
+};
+with_fake_memcache {
+    my $account = temp_user();
+    $account->set_password('uncached-test-password');
+    local @LJ::MEMCACHE_SERVERS = ();
+    my $set = \&LJ::MemCache::set;
+    local *LJ::MemCache::set = sub {
+        return 0 if ref $_[0] && $_[0][1] eq 'mfa-factor:' . $account->id;
+        return $set->(@_);
+    };
+    ok(
+        DW::Auth::TOTP->enable( $account, DW::Auth::TOTP->generate_secret ),
+        'Enrollment works when caching is explicitly unconfigured'
+    );
+    my @codes = DW::Auth::TOTP->get_recovery_codes($account);
+    ok( DW::Auth::TOTP->disable( $account, 'uncached-test-password', $codes[0] ),
+        'Disable works when caching is explicitly unconfigured' );
+};
 done_testing();

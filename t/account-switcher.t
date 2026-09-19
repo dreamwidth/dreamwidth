@@ -310,6 +310,23 @@ note('Stored comment identities must be personal accounts');
         'Shared full-form, Quick Reply and RPC list excludes non-personal accounts'
     );
 }
+note('Memorial accounts cannot be offered as comment authors');
+{
+    new_request();
+    login_active($ua);
+    my $memorial = temp_user();
+    DW::AccountSwitcher->store_account( $memorial, 'long', '' );
+    $memorial->update_self( { statusvis => 'M' } );
+    my @posting = DW::AccountSwitcher->posting_accounts;
+    ok(
+        !grep( { $_->{userid} == $memorial->id } @posting ),
+        'Shared comment-account list excludes memorial accounts'
+    );
+    ok(
+        !DW::AccountSwitcher->posting_user( $memorial->id ),
+        'Posting resolver rejects memorial accounts'
+    );
+}
 note('Login proof failures never publish a session');
 {
     require DW::Auth::Login;
