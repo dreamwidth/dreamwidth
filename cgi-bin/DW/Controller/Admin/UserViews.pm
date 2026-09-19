@@ -104,6 +104,8 @@ sub impersonate_controller {
             my ( $protected, $invalid_password );
             my $previous_session = $u->{_session};
             my $session;
+            my $admin_session = $remote->session;
+            my $publishing;
             my $impersonated = eval {
                 for my $userid ( sort { $a <=> $b } ( $u->id, $remote->id ) ) {
                     $dbh->selectrow_array(
@@ -122,12 +124,16 @@ sub impersonate_controller {
                     0;
                 }
                 else {
-                    $session = LJ::Session->create( $u, exptype => 'once', nolog => 1 )
+                    $session =
+                        LJ::Session->create( $u, exptype => 'once', nolog => 1, defer_login => 1 )
                         or die 'Unable to create impersonation session';
                     $u->{_session} = $previous_session;
-                    $remote->logout;
-                    $u->publish_login_session( $session, 1 );
                     $dbh->commit or die $dbh->errstr;
+                    my $current = LJ::Session->instance( $u, $session->id );
+                    die 'Impersonation session revoked' unless $current && $current->valid;
+                    $publishing = 1;
+                    $u->publish_login_session( $session, 1 )
+                        or die 'Unable to publish impersonation session';
                     1;
                 }
             };
@@ -135,9 +141,25 @@ sub impersonate_controller {
                 my $error = $@;
                 $dbh->rollback unless $dbh->{AutoCommit};
                 eval { $session->destroy } if $session;
+                $u->{_session} = $previous_session;
+                if ($publishing) {
+
+                    # Publication hooks may throw after setting cookies. Keep the
+                    # administrator's existing session until publication succeeds.
+                    $admin_session->update_master_cookie if $admin_session;
+                    LJ::User->set_remote($remote);
+                }
                 die $error;
             }
             if ($impersonated) {
+
+                # Publication succeeded. A cleanup failure must not discard the
+                # usable target session and try to restore an already deleted one.
+                if ($admin_session) {
+                    eval { $admin_session->destroy
+                            or die 'Unable to revoke administrator session' };
+                    warn "Impersonator session cleanup failed: $@" if $@;
+                }
 
                 # log for auditing
                 $remote->log_event( 'impersonator',

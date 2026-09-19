@@ -404,10 +404,12 @@ with_fake_memcache {
     ok( $source->valid, 'Cookie session initially needs no second factor' );
     local *LJ::get_remote             = sub { $racing_user };
     local *LJ::Protocol::authenticate = sub { $_[2]->{u} = $racing_user; 1 };
-    my $create = \&LJ::Session::create;
-    local *LJ::Session::create = sub {
-        DW::Auth::TOTP->enable( $racing_user, DW::Auth::TOTP->generate_secret );
-        $create->(@_);
+    my $writer = \&LJ::get_db_writer;
+    my $raced;
+    local *LJ::get_db_writer = sub {
+        my $dbh = $writer->(@_);
+        DW::Auth::TOTP->enable( $racing_user, DW::Auth::TOTP->generate_secret ) unless $raced++;
+        return $dbh;
     };
     my $error;
     ok(
@@ -462,15 +464,14 @@ with_fake_memcache {
     $ordinary->{_session} = $source;
 
     # Counter allocation already uses the global database; isolate the added MFA work.
-    local *LJ::Session::create = sub { $ordinary->{_session} = $destination };
-    local *LJ::get_db_writer   = sub { die 'Unexpected central writer access' };
+    local *LJ::Session::create            = sub { $ordinary->{_session} = $destination };
+    local *DW::Auth::TOTP::_session_proof = sub { die 'Unexpected MFA proof lookup' };
     my $error;
     my $result = LJ::Protocol::sessiongenerate(
         { username => $ordinary->user, auth_method => 'cookie', expiration => 'long' },
         \$error, {} );
-    ok( $result && $result->{ljsession},
-        'Ordinary cookie replacement adds no MFA writer dependency' );
-    ok( $ordinary->session->valid, 'Ordinary replacement remains valid' );
+    ok( $result && $result->{ljsession}, 'Ordinary cookie replacement needs no MFA proof lookup' );
+    ok( $ordinary->session->valid,       'Ordinary replacement remains valid' );
 };
 {
     my $account = temp_user();
@@ -494,16 +495,75 @@ with_fake_memcache {
     ok( $pending && !exists $options->{password}, 'MFA challenge stores no plaintext password' );
 }
 {
-    local *LJ::get_remote         = sub { $u };
+    my $account = temp_user();
+    LJ::Session->create( $account, exptype => 'long' );
+    local *LJ::get_remote         = sub { $account };
     local $request->{cookie_auth} = 1;
     local *LJ::Session::create    = sub { undef };
     local *DW::Auth::TOTP::copy_session_proof =
         sub { die 'Unexpected proof copy after failed creation' };
     my $error;
     my $result = LJ::Protocol::sessiongenerate(
-        { username => $u->user, auth_method => 'cookie', expiration => 'long' },
+        { username => $account->user, auth_method => 'cookie', expiration => 'long' },
         \$error, {} );
     ok( !$result, 'Failed session creation returns a protocol failure' );
     is( $error, 502, 'Failed session creation returns database-unavailable error' );
+}
+
+with_fake_memcache {
+    my $account = temp_user();
+    $account->set_password('disable-race-password');
+    DW::Auth::TOTP->enable( $account, DW::Auth::TOTP->generate_secret );
+    my @codes  = DW::Auth::TOTP->get_recovery_codes($account);
+    my $source = LJ::Session->create( $account, exptype => 'long' );
+    DW::Auth::TOTP->mark_session( $account, $source,
+        DW::Auth::TOTP->_factor_state($account)->{factor} );
+    local *LJ::get_remote             = sub { $account };
+    local *LJ::Protocol::authenticate = sub { $_[2]->{u} = $account; 1 };
+    my $get_writer = \&LJ::get_db_writer;
+    my $raced;
+    local *LJ::get_db_writer = sub {
+        my $dbh = $get_writer->(@_);
+        DW::Auth::TOTP->disable( $account, 'disable-race-password', $codes[0] ) unless $raced++;
+        return $dbh;
+    };
+    my $error;
+    ok(
+        !LJ::Protocol::sessiongenerate(
+            { auth_method => 'cookie', expiration => 'long' },
+            \$error, {}
+        ),
+        'Disable between authentication and replacement cannot revive revoked cookie'
+    );
+    is( $error, 300, 'Revoked source returns authentication failure' );
+    is( scalar LJ::Session->active_sessions($account), 0, 'Disable race creates no sessions' );
+};
+for my $throws ( 0, 1 ) {
+    my $account = temp_user();
+    my $source  = LJ::Session->create( $account, exptype => 'long' );
+    local *LJ::get_remote = sub { $account };
+    local $request->{cookie_auth} = 1;
+    my $created;
+    my $create = \&LJ::Session::create;
+    local *LJ::Session::create = sub {
+        ok( !LJ::get_db_writer()->{AutoCommit}, 'Replacement is created under account lock' );
+        $created = $create->(@_);
+    };
+    local *DW::Auth::TOTP::copy_session_proof = sub {
+        die 'Proof unavailable' if $throws;
+        return;
+    };
+    my $error;
+    ok(
+        !LJ::Protocol::sessiongenerate(
+            { username => $account->user, auth_method => 'cookie', expiration => 'long' },
+            \$error, {}
+        ),
+        'Proof-copy failure returns protocol error'
+    );
+    is( $error,            $throws ? 502 : 300, 'Proof failure reports appropriate error' );
+    is( $account->session, $source,             'Proof failure restores source session pointer' );
+    ok( !LJ::Session->instance( $account, $created->id ), 'Proof failure deletes replacement' );
+    ok( LJ::Session->instance( $account, $source->id )->valid, 'Source session remains usable' );
 }
 done_testing();

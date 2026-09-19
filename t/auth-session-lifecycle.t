@@ -196,4 +196,26 @@ with_fake_memcache {
     ok( DW::Auth::TOTP->disable( $account, 'uncached-test-password', $codes[0] ),
         'Disable works when caching is explicitly unconfigured' );
 };
+
+{
+    my $account = temp_user();
+    my $other   = temp_user();
+    DW::Auth::TOTP->enable( $account, DW::Auth::TOTP->generate_secret );
+    my $dbh = LJ::get_db_writer();
+    for my $owner ( $account, $other ) {
+        $dbh->do( 'REPLACE INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
+            undef, $owner->id, 99999, 'expired-proof', time() - 1 );
+    }
+    my $session = LJ::Session->create( $account, exptype => 'long', nolog => 1 );
+    DW::Auth::TOTP->mark_session( $account, $session,
+        DW::Auth::TOTP->_factor_state($account)->{factor} );
+    my ($own) = $dbh->selectrow_array(
+        'SELECT COUNT(*) FROM mfa_sessions WHERE userid = ? AND sessid = 99999',
+        undef, $account->id );
+    my ($unrelated) = $dbh->selectrow_array(
+        'SELECT COUNT(*) FROM mfa_sessions WHERE userid = ? AND sessid = 99999',
+        undef, $other->id );
+    is( $own,       0, 'Proof creation cleans only this account expired rows' );
+    is( $unrelated, 1, 'Proof creation leaves unrelated accounts alone' );
+}
 done_testing();

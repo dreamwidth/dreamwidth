@@ -114,6 +114,16 @@ sub _factor_state {
     $refresh = 1 if $cached && $cached->{changing};
     my $dbh = LJ::get_db_writer() or die 'Database unavailable';
 
+    # A caller may already hold the account lock while preparing a session.
+    # Read within that transaction without publishing uncommitted factor state.
+    unless ( $dbh->{AutoCommit} ) {
+        my ($encrypted) =
+            $dbh->selectrow_array( 'SELECT totp_secret FROM password2 WHERE userid = ? FOR UPDATE',
+            undef, $u->id );
+        die $dbh->errstr if $dbh->err;
+        return { factor => defined $encrypted ? sha256_hex($encrypted) : '' };
+    }
+
     # Serialize cache publication with factor changes. Publishing under the
     # account lock prevents a slow refresh from replacing a newer factor state.
     $dbh->begin_work or die $dbh->errstr;
@@ -179,7 +189,8 @@ sub mark_session {
     return unless defined $verified_factor && $verified_factor eq $factor;
     my $expires = $session->expiration_time;
     return unless $expires > time();
-    $dbh->do( 'DELETE FROM mfa_sessions WHERE expires < ?', undef, time() ) or die $dbh->errstr;
+    $dbh->do( 'DELETE FROM mfa_sessions WHERE userid = ? AND expires < ?', undef, $u->id, time() )
+        or die $dbh->errstr;
     $dbh->do( 'REPLACE INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
         undef, $u->id, $session->id, $factor, $expires )
         or die $dbh->errstr;

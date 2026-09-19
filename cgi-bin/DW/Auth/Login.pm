@@ -224,8 +224,9 @@ sub complete {
             && $opts{fingerprint} ne $class->_fingerprint($u);
         $session = LJ::Session->create(
             $u,
-            exptype => $opts{exptype} || 'short',
-            ipfixed => $opts{bindip}
+            exptype     => $opts{exptype} || 'short',
+            ipfixed     => $opts{bindip},
+            defer_login => 1
         ) or die 'Unable to create session';
         die 'Unable to verify session'
             if $mfa
@@ -249,6 +250,8 @@ sub complete {
     else {
         $u->publish_login_session($session);
     }
+    $u->record_login( $session->id );
+    LJ::mark_user_active( $u, 'login' );
     LJ::Hooks::run_hook( 'user_login', $u );
     my $uniq = DW::Request->get->note('uniq');
     LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;

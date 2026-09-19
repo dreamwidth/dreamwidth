@@ -343,6 +343,9 @@ note('Login proof failures never publish a session');
             my %before        = %{ $req->{jar} };
             my $target_before = $target->{_session};
             my $created;
+            my ( $audits, $activity ) = ( 0, 0 );
+            local *LJ::User::record_login = sub { ++$audits };
+            local *LJ::mark_user_active   = sub { ++$activity };
             my $create = \&LJ::Session::create;
             local *LJ::Session::create          = sub { $created = $create->(@_); };
             local *DW::Auth::TOTP::mark_session = sub {
@@ -358,6 +361,8 @@ note('Login proof failures never publish a session');
                 ),
                 "$mode rejects unsuccessful proof publication"
             );
+            is( $audits,   0, "$mode failed completion records no successful login" );
+            is( $activity, 0, "$mode failed completion records no login activity" );
             is_deeply( $req->{jar}, \%before, "$mode leaves all browser cookies unchanged" );
             ok( LJ::get_remote()->equals($ua) && $ua->session->id == $active->id,
                 "$mode preserves browsing session" );

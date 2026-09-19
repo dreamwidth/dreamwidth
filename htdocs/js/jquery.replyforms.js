@@ -10,13 +10,14 @@ jQuery(function($) {
         if (commentText.length === 0) {
             commentText = $('textarea#commenttext'); // talkform
         }
+    var activePostDisabled = $('#submitpost').prop('disabled');
     $('#qr-posting-account').on('change', function() {
         var active = this.value === String($(this).data('active'));
         $('#usertype').val(active ? $(this).data('active-usertype') : 'stored');
         if (!active) $('#unscreen_parent, #prop_admin_post').prop('checked', false);
         $('#prop_picture_keyword').val('').change().prop('disabled', !active);
         // Permissions are checked as the selected account on the server.
-        $('#submitpost').prop('disabled', false);
+        $('#submitpost').prop('disabled', active && activePostDisabled);
     });
     // Session credentials remain scoped to the main site. Journal forms fetch
     // display names using their existing CSRF token; submission validates the
@@ -56,6 +57,7 @@ jQuery(function($) {
     $(window).on('pageshow', function(e){
         if ( e.originalEvent.persisted ) {
             commentForm.find('input[type="submit"]').prop("disabled", false);
+            if ($('#qr-posting-account').length) $('#qr-posting-account').trigger('change');
         }
     });
 
@@ -106,6 +108,7 @@ jQuery(function($) {
             e.stopImmediatePropagation(); // stop other listeners on same event
             e.preventDefault();
             commentForm.find('input[type="submit"]').prop("disabled", false);
+            if ($('#qr-posting-account').length) $('#qr-posting-account').trigger('change');
         }
     });
 

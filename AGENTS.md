@@ -118,7 +118,9 @@ Omit the `Fixes` line when there is no linked issue.
   caches before fallible central proof synchronization. When caching is configured,
   abort factor changes if the pre-commit change marker cannot be published. A committed factor
   change stays successful if its recoverable cache refresh fails. Prepare and
-  prove browser sessions before publishing active or stored-account cookies.
+  prove browser sessions before publishing active or stored-account cookies or
+  recording successful login activity. Cookie replacement must hold the account
+  lock and re-read the source cluster session, including when 2FA is now disabled.
   Ordinary sessions must not perform MFA proof synchronization; cluster deletion
   remains authoritative when optional central proof cleanup is unavailable.
 - Comments may use a validated stored account session without changing the
@@ -130,7 +132,9 @@ Omit the `Fixes` line when there is no linked issue.
   submitted draft data; do not read saved private entry content for the new account.
 - Admin impersonation must reject TOTP-protected targets before logging the
   administrator out, keeping the factor check and session creation under the
-  account lock. It must never grant second-factor session proof.
+  account lock. Commit preparation before publishing cookies, and retain the
+  administrator session until publication succeeds. It must never grant
+  second-factor session proof.
 - Protocol clients use API keys; keys must not mint browser sessions. Scoping
   API key permissions is separate future work.
 - Login challenge/session creation, enrollment password checks, and recovery-code

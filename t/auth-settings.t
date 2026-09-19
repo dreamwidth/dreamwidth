@@ -31,6 +31,7 @@ use DW::Auth::TOTP;
     sub did_post      { 1 }
     sub note          { undef }
     sub get_remote_ip { '127.0.0.1' }
+    sub header_in     { '' }
     sub redirect      { $_[1] }
 }
 my $r = bless { post => {} }, 'SettingsAuthRequest';
@@ -287,7 +288,7 @@ with_fake_memcache {
     is( $logouts,   0, 'Concurrent enrollment does not log administrator out' );
     is( $published, 0, 'Concurrent enrollment does not publish target session' );
 }
-{
+for my $cleanup_failure ( 0, 1 ) {
     my $admin = temp_user();
     $admin->set_password('admin-password');
     my $target = temp_user();
@@ -295,11 +296,24 @@ with_fake_memcache {
         sub { ( 1, { r => $r, remote => $admin } ) };
     local *LJ::check_referer = sub { 1 };
     my ( $logouts, $session, $fake );
-    local *LJ::User::logout                = sub { ++$logouts };
+    my $admin_session = LJ::Session->create( $admin, exptype => 'long' );
+    my $destroy       = \&LJ::Session::destroy;
+    local *LJ::Session::destroy = sub {
+        my $result = $destroy->(@_);
+        die 'Cleanup failed after cluster deletion'
+            if $cleanup_failure && $_[0]->owner->equals($admin);
+        return $result;
+    };
+    local *LJ::Session::update_master_cookie = sub {
+        fail('Successful publication must not restore a deleted administrator session');
+    };
     local *LJ::User::publish_login_session = sub {
         ( $session, $fake ) = @_[ 1, 2 ];
-        ok( !LJ::get_db_writer()->{AutoCommit},
-            'Impersonation retains account lock through publication' );
+        ok( LJ::get_db_writer()->{AutoCommit}, 'Impersonation commits before publication' );
+        ok(
+            LJ::Session->instance( $admin, $admin_session->id ),
+            'Administrator remains signed in until publication succeeds'
+        );
         return 1;
     };
     $r->{post} = {
@@ -308,7 +322,8 @@ with_fake_memcache {
         reason   => 'Ordinary target regression'
     };
     DW::Controller::Admin::UserViews::impersonate_controller();
-    is( $logouts, 1, 'Permitted impersonation logs administrator out' );
+    ok( !LJ::Session->instance( $admin, $admin_session->id ),
+        'Permitted impersonation revokes old administrator session after publication' );
     ok(
         $session && $session->owner->equals($target) && $session->valid && $fake,
         'Permitted impersonation publishes a valid target session without login activity'
@@ -339,5 +354,87 @@ with_fake_memcache {
     ok( $result->{errors}->exist, 'Impersonation rechecks administrator credentials under lock' );
     is( $logouts,   0, 'Stale administrator password does not replace existing session' );
     is( $published, 0, 'Stale administrator password does not publish target session' );
+}
+
+{
+
+    package SettingsCommitFailure;
+    our $AUTOLOAD;
+    sub begin_work { $_[0]->{AutoCommit} = 0; $_[0]->{dbh}->begin_work }
+    sub rollback   { $_[0]->{AutoCommit} = 1; $_[0]->{dbh}->rollback }
+    sub commit     { die 'Simulated commit failure' }
+
+    sub AUTOLOAD {
+        my $self = shift;
+        ( my $method = $AUTOLOAD ) =~ s/.*:://;
+        return if $method eq 'DESTROY';
+        return $self->{dbh}->$method(@_);
+    }
+}
+for my $failure ( 'commit', 'publication' ) {
+    my $admin = temp_user();
+    $admin->set_password('admin-password');
+    my $admin_session = LJ::Session->create( $admin, exptype => 'long' );
+    my $target        = temp_user();
+    my $previous      = $target->{_session};
+    local *DW::Controller::Admin::UserViews::controller =
+        sub { ( 1, { r => $r, remote => $admin } ) };
+    local *LJ::check_referer = sub { 1 };
+    my ( $published, $restored ) = ( 0, 0 );
+    local *LJ::User::publish_login_session = sub {
+        ++$published;
+        die 'Simulated publication failure';
+    };
+    local *LJ::Session::update_master_cookie = sub {
+        ++$restored;
+        is( $_[0]->id, $admin_session->id, 'Failed publication restores administrator cookie' );
+    };
+    local *LJ::User::set_remote = sub {
+        ok( $_[1]->equals($admin), 'Failed publication restores administrator identity' );
+    };
+    my $writer = LJ::get_db_writer();
+    my $proxy  = bless { dbh => $writer, AutoCommit => 1 }, 'SettingsCommitFailure';
+    local *LJ::get_db_writer = sub { $failure eq 'commit' ? $proxy : $writer };
+    $r->{post} =
+        { username => $target->user, password => 'admin-password', reason => 'Failure regression' };
+    eval { DW::Controller::Admin::UserViews::impersonate_controller() };
+    my $error = $@;
+    *LJ::get_db_writer = sub { $writer };
+    like( $error, qr/Simulated $failure failure/, 'Impersonation failure is reported' );
+    is( $published, $failure eq 'publication' ? 1 : 0, 'Commit failure never publishes cookies' );
+    is(
+        $restored,
+        $failure eq 'publication' ? 1 : 0,
+        'Only attempted publication needs cookie restoration'
+    );
+    ok(
+        LJ::Session->instance( $admin, $admin_session->id )->valid,
+        'Failed impersonation leaves administrator session usable'
+    );
+    is( $target->{_session}, $previous, 'Failure restores target session pointer' );
+    is( scalar LJ::Session->active_sessions($target),
+        0, 'Failure deletes unpublished target session' );
+}
+{
+    require Template;
+    my $template = Template->new( { INCLUDE_PATH => "$ENV{LJHOME}/views" } );
+    my $html;
+    ok(
+        $template->process(
+            'settings/manage2fa/index-disabled.tt',
+            {
+                just_disabled => 1,
+                sections      => {},
+                site          => { root => '' },
+                dw            => {
+                    active_resource_group => sub { '' }
+                }
+            },
+            \$html
+        ),
+        'Render post-disable confirmation'
+    );
+    like( $html, qr{/login\?returnto=%2Fmanage2fa}, 'Post-disable confirmation offers sign-in' );
+    unlike( $html, qr/<form|action:setup/, 'Post-disable confirmation has no unusable setup form' );
 }
 done_testing();

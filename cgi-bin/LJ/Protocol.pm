@@ -2922,16 +2922,50 @@ sub sessiongenerate {
 
     my $remote = LJ::get_remote();
     my $source = $remote && $remote->equals($u) ? $remote->session : undef;
-    my $sess   = LJ::Session->create( $u, %$sess_opts ) or return fail( $err, 502 );
+    return fail( $err, 300 ) unless $source;
+    my $previous_session = $u->{_session};
+    my $sess;
+    my $failure  = 502;
+    my $dbh      = LJ::get_db_writer() or return fail( $err, 502 );
+    my $prepared = eval {
+        $dbh->begin_work or die $dbh->errstr;
+        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+            undef, $u->id );
+        die $dbh->errstr if $dbh->err;
 
-    # A cookie-authenticated caller already has a fully verified browser
-    # session. Preserve that proof when it requests a replacement session.
-    require DW::Auth::TOTP;
-    DW::Auth::TOTP->copy_session_proof( $u, $source, $sess );
-    unless ( $sess->valid ) {
-        $sess->destroy;
-        return fail( $err, 300 );
+        # Authentication preceded this lock. Re-read the authoritative cluster
+        # row so a factor change that revoked the source cannot mint a session.
+        my $row = $u->selectrow_hashref(
+            'SELECT userid, sessid, exptype, auth, timecreate, timeexpire, ipfixed '
+                . 'FROM sessions WHERE userid = ? AND sessid = ?',
+            undef, $u->id, $source->id
+        );
+        die $u->errstr if $u->err;
+        unless ( $row
+            && $row->{auth} eq $source->auth
+            && bless( $row, 'LJ::Session' )->valid )
+        {
+            $failure = 300;
+            die 'Source session revoked';
+        }
+        $sess = LJ::Session->create( $u, %$sess_opts, defer_login => 1 )
+            or die 'Unable to create session';
+        require DW::Auth::TOTP;
+        unless ( DW::Auth::TOTP->copy_session_proof( $u, $row, $sess ) && $sess->valid ) {
+            $failure = 300;
+            die 'Unable to inherit session proof';
+        }
+        $dbh->commit or die $dbh->errstr;
+        1;
+    };
+    unless ($prepared) {
+        $dbh->rollback unless $dbh->{AutoCommit};
+        eval { $sess->destroy } if $sess;
+        $u->{_session} = $previous_session;
+        return fail( $err, $failure );
     }
+    $u->record_login( $sess->id );
+    LJ::mark_user_active( $u, 'login' );
 
     # return our hash
     return { ljsession => $sess->master_cookie_string, };

@@ -91,7 +91,9 @@ sub create {
     # validate options
     my $exptype = delete $opts{'exptype'} || "short";
     my $ipfixed = delete $opts{'ipfixed'};              # undef or scalar ipaddress  FIXME: validate
-    my $nolog   = delete $opts{'nolog'} || 0;           # 1 to not log to loginlogs
+         # Authentication preparation defers audit/activity until session publication.
+    my $defer_login = delete $opts{defer_login};
+    my $nolog       = delete $opts{'nolog'} || 0;    # 1 to not log to loginlogs
     croak("Invalid exptype") unless $exptype =~ /^short|long|once$/;
 
     croak( "Invalid options: " . join( ", ", keys %opts ) ) if %opts;
@@ -119,7 +121,7 @@ sub create {
     return undef unless $id;
 
     $u->record_login($id)
-        unless $nolog;
+        unless $nolog || $defer_login;
 
     $u->do(
         "REPLACE INTO sessions (userid, sessid, auth, exptype, "
@@ -139,7 +141,7 @@ sub create {
     $u->kill_sessions(@$old) if $old;
 
     # mark account as being used
-    LJ::mark_user_active( $u, 'login' );
+    LJ::mark_user_active( $u, 'login' ) unless $defer_login;
 
     bless $sess;
     return $u->{'_session'} = $sess;
