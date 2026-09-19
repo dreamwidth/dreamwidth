@@ -12,6 +12,7 @@
 # part of this distribution.
 
 package LJ::Talk;
+use DW::AccountSwitcher;
 
 use strict;
 use v5.10;
@@ -1530,18 +1531,21 @@ sub talkform {
 
         public_entry     => $entry->security eq 'public',
         default_usertype => 'user',
+        posting_accounts =>
+            [ grep { $_->{valid} && !$_->{u}->is_identity } DW::AccountSwitcher->accounts ],
 
         comment => {
-            editid      => $editid,
-            editreason  => $form->{editreason} // ( $comment ? $comment->edit_reason : '' ),
-            oidurl      => $form->{oidurl},
-            oiddo_login => $form->{oiddo_login},
-            user        => $form->{userpost},
-            password    => $form->{password},
-            do_login    => $form->{do_login},
-            body        => $form->{body},
-            subject     => $basesubject,
-            subjecticon => $form->{subjecticon}
+            posting_userid => $form->{posting_userid},
+            editid         => $editid,
+            editreason     => $form->{editreason} // ( $comment ? $comment->edit_reason : '' ),
+            oidurl         => $form->{oidurl},
+            oiddo_login    => $form->{oiddo_login},
+            user           => $form->{userpost},
+            password       => $form->{password},
+            do_login       => $form->{do_login},
+            body           => $form->{body},
+            subject        => $basesubject,
+            subjecticon    => $form->{subjecticon}
                 || 'none',    # a subjecticon ID
             preformatted    => $form->{prop_opt_preformatted},
             admin_post      => $form->{prop_admin_post},

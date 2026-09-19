@@ -259,4 +259,31 @@ note("cookie-generation rotation drops the stored accounts");
     is( scalar DW::AccountSwitcher->accounts, 0, "rotated cookie gen -> empty list" );
 }
 
+note('One-off posting does not switch the browser identity');
+{
+    new_request();
+    login_active($ua);
+    DW::AccountSwitcher->store_account( $ub, 'long', '' );
+    ok( LJ::get_remote()->equals($ua), 'Storing account preserves active remote' );
+    ok( !master_userid(),              'Storing account does not write master cookie' );
+    my $posting = DW::AccountSwitcher->posting_user( $ub->id );
+    ok( $posting && $posting->equals($ub), 'Stored session authorizes posting identity' );
+    ok( !DW::AccountSwitcher->posting_user( $uc->id ), 'Arbitrary account ID rejected' );
+    ok( LJ::get_remote()->equals($ua), 'Choosing posting identity preserves remote' );
+    require DW::Controller::Talk;
+    my ( $ok, $auth ) = DW::Controller::Talk::authenticate_user_and_mutate_form(
+        { usertype => 'stored', posting_userid => $ub->id },
+        $ua, $uc );
+    ok( $ok && $auth->{user}->equals($ub), 'Comment authenticates as selected account' );
+    ok( !$auth->{didlogin},                'One-off comment does not log in' );
+    $ub->kill_all_sessions;
+    ok(
+        !DW::AccountSwitcher->posting_user( $ub->id ),
+        'Revoked stored session cannot authorize posting'
+    );
+    ($ok) = DW::Controller::Talk::authenticate_user_and_mutate_form(
+        { usertype => 'stored', posting_userid => $ub->id },
+        $ua, $uc );
+    ok( !$ok, 'Expired comment identity fails instead of falling back to active user' );
+}
 done_testing();

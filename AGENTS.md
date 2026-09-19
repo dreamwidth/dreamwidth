@@ -63,6 +63,10 @@ pkill starman; bash .devcontainer/start.sh
 
 - Formatting is defined in `.tidyallrc`: Unix line endings, 4-space continuation
   indentation, and a 100-character line limit for the selected Perl files.
+- New files must use the full Dreamwidth header: filename/module description,
+  `Authors:` block, copyright year and `Dreamwidth Studios, LLC.`, followed by
+  the standard Perl license paragraph. Copy an appropriate neighboring header;
+  do not abbreviate the license notice.
 - Comments should explain non-obvious constraints or ordering requirements.
   Change history belongs in commit messages.
 - `DW::*` contains modern Dreamwidth code; `LJ::*` contains legacy code that
@@ -82,6 +86,10 @@ Target `dreamwidth/dreamwidth`. When opening a PR from a fork, use
 `--head <fork-owner>:<branch-name>`; inspect the remote to identify the fork owner.
 Follow the repository's existing commit message style.
 
+Keep review screenshots out of Git; attach them to the PR instead. Put feature
+flow explanations and rollout notes in the PR description rather than adding
+standalone feature documents to `doc/`.
+
 Keep PR bodies short, with a technical description of the mechanism and key
 files, followed by a required plain-language CODE TOUR for the community:
 
@@ -94,3 +102,28 @@ Fixes #<issue-number>
 ```
 
 Omit the `Fixes` line when there is no linked issue.
+
+## Authentication
+
+- Browser password authentication belongs in `/login` and `DW::Auth::Login`.
+  Never add password-based login to a posting form or an API endpoint.
+- MFA challenges are short-lived, browser-bound database records. Completing
+  MFA records proof for the resulting session in `mfa_sessions`; session
+  validation rejects legacy/password-only sessions for TOTP accounts.
+- Comments may use a validated stored account session without changing the
+  active browsing account. Journal entries use the active account and must
+  reject a changed `poster_remote`, preserving the draft.
+- Protocol clients use API keys; keys must not mint browser sessions. Scoping
+  API key permissions is separate future work.
+- Password updates must preserve `password2.totp_secret`. Avoid `REPLACE` for
+  that row: it silently removes the second factor.
+- Authentication schema changes require updating both the development and test
+  databases in this worktree's container (`bin/upgrading/update-db.pl -r
+  --innodb`, then the same command with `DW_TEST=1`).
+- Stored-account cookies are scoped to the main site. Journal subdomains load
+  comment account names through the CSRF-protected `/rpc/comment-accounts`
+  endpoint. Never broaden session-cookie domains to populate a dropdown.
+- Browser flow validation: after `bin/dev/screenshot` installs Chrome, run
+  `node bin/dev/test-auth-flows.js` inside the container. It resets only the
+  `mfa_reader`, `mfa_bob`, and `mfa_mary` development fixtures and writes screenshots
+  to `/tmp/dw-mfa-review`. Development journal URLs use `/~username/`.

@@ -27,11 +27,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </p>
 
 <ol>
-    <li>An authentication application, such as <strong>Google Authenticator</strong>, which supports
-        scanning QR codes.<br />
-        <a href='https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="160"/></a>
-        <a href="https://apps.apple.com/us/app/google-authenticator/id388497605?mt=8"><img alt='Download on the App Store' src='https://linkmaker.itunes.apple.com/en-us/badge-lrg.svg?releaseDate=2010-09-20&kind=iossoftware&bubble=ios_apps'/></a>
-    </li>
+    <li>An authenticator application that supports time-based one-time passwords (TOTP).</li>
     <li>A secure notepad or way to save your <strong>recovery codes</strong>. These are important,
         if you lose your 2FA device these codes are how you will get back in to your account!</li>
 </ol>
@@ -46,7 +42,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </div>
 <div class='large-4 columns'>
     [%- form.hidden( name='totp_secret', value=totp_secret ) -%]
-    <img src='[% site.root %]/manage2fa/qrcode?secret=[% totp_secret %]' alt='QR code for setting up 2FA'/>
+    <p>Setup key: <code>[% totp_secret | html %]</code></p>
+    <img src='[% qrcode | html %]' alt='QR code for setting up 2FA'/>
 </div>
 </div>
 
@@ -62,6 +59,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [% form.textbox(name='verification_code', maxlength='6') %]
 </div></div>
 
+<p>Confirm your account password: [% form.password(name='password') %]</p>
+<p>Enabling two-factor authentication signs this account out on every device. Save your recovery codes, then sign in again.</p>
 [% form.submit(name='action:enable', value='Enable Two-Factor Authentication') %]
 
+</fieldset>
 </form>

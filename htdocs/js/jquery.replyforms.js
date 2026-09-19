@@ -10,6 +10,41 @@ jQuery(function($) {
         if (commentText.length === 0) {
             commentText = $('textarea#commenttext'); // talkform
         }
+    $('#qr-posting-account').on('change', function() {
+        var active = this.value === String($(this).data('active'));
+        $('#usertype').val(active ? 'cookieuser' : 'stored');
+        $('#prop_picture_keyword').val('').change().prop('disabled', !active);
+        // Permissions are checked as the selected account on the server.
+        $('#submitpost').prop('disabled', false);
+    });
+    // Session credentials remain scoped to the main site. Journal forms fetch
+    // display names using their existing CSRF token; submission validates the
+    // chosen session again on the main site.
+    $('.comment-account-select').each(function() {
+        var select = $(this);
+        var endpoint = new URL(select.data('accounts-url'), location.href);
+        if (endpoint.origin === location.origin) return;
+        $.ajax({
+            url: endpoint.href,
+            type: 'POST',
+            dataType: 'json',
+            xhrFields: { withCredentials: true },
+            data: { lj_form_auth: commentForm.find('[name=lj_form_auth]').val() }
+        }).done(function(data) {
+            var selected = select.val();
+            var returned = location.hash.match(/^#post-as-(\d+)$/);
+            if (returned) selected = returned[1];
+            data.accounts.forEach(function(account) {
+                if (!select.find('option[value="' + account.userid + '"]').length) {
+                    $('<option>').val(account.userid).text(account.user).appendTo(select);
+                }
+            });
+            if (select.find('option[value="' + selected + '"]').length) {
+                select.val(selected).change();
+                if (returned) $('#talkpostfromstored').prop('checked', true).change();
+            }
+        });
+    });
     var quoteButton = $('#comment-text-quote');
     var maxLength = Site.cmax_comment;
 

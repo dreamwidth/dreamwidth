@@ -19,8 +19,6 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-plan tests => 17;
-
 use DW::Auth::Password;
 use DW::Auth::TOTP;
 use LJ::Test qw/ temp_user /;
@@ -42,7 +40,7 @@ ok( scalar( DW::Auth::TOTP->get_recovery_codes($u) ) == 10, 'User has 10 codes.'
 my @codes = DW::Auth::TOTP->_get_codes($u);
 ok( scalar @codes == 2, 'Got 2 codes.' );
 ok( DW::Auth::TOTP->check_code( $u, $codes[0] ), 'Older code works.' );
-ok( DW::Auth::TOTP->check_code( $u, $codes[0] ), 'Newer code works.' );
+ok( DW::Auth::TOTP->check_code( $u, $codes[1] ), 'Newer code works.' );
 ok( !DW::Auth::TOTP->check_code( $u, '000000' ), 'Bad code fails.' );
 
 # TODO: maybe we care, but there is _technicaly_ a race condition since we're
@@ -53,7 +51,10 @@ ok( !DW::Auth::TOTP->check_code( $u, '000000' ), 'Bad code fails.' );
 # Disable
 ok( DW::Auth::Password->set( $u, 'test' ), 'Changed user password.' );
 ok( !DW::Auth::TOTP->disable( $u, 'fail' ), 'Fail to disable without password.' );
-ok( DW::Auth::TOTP->disable( $u, 'test' ), 'Disable works.' );
+my @recovery = DW::Auth::TOTP->get_recovery_codes($u);
+ok( DW::Auth::TOTP->is_enabled($u), 'Password changes preserve TOTP.' );
+ok( !DW::Auth::TOTP->disable( $u, 'test' ), 'Password alone cannot disable TOTP.' );
+ok( DW::Auth::TOTP->disable( $u, 'test', $recovery[0] ), 'Disable works.' );
 ok( !DW::Auth::TOTP->is_enabled($u), 'Disabled user does not have TOTP.' );
 ok(
     scalar( DW::Auth::TOTP->get_recovery_codes($u) ) == 0,
@@ -62,7 +63,7 @@ ok(
 
 # Codes fail now
 ok( !DW::Auth::TOTP->check_code( $u, $codes[0] ), 'Older code fails.' );
-ok( !DW::Auth::TOTP->check_code( $u, $codes[0] ), 'Newer code fails.' );
+ok( !DW::Auth::TOTP->check_code( $u, $codes[1] ), 'Newer code fails.' );
 ok( !DW::Auth::TOTP->check_code( $u, '000000' ),  'Bad code still fails.' );
 
-1;
+done_testing();

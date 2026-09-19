@@ -99,7 +99,7 @@ Handles posting a new entry
 sub new_handler {
     my ( $call_opts, $usejournal ) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
     my $r      = DW::Request->get;
@@ -164,6 +164,8 @@ sub new_handler {
         @_
     );
 
+    $vars->{expected_poster} = $post ? $post->{poster_remote} : $remote->user;
+
     # now look for errors that we still want to recover from
     $errors->add( undef, ".error.invalidusejournal" )
         if defined $usejournal && !$vars->{usejournal};
@@ -174,7 +176,13 @@ sub new_handler {
         $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in($post);
 
-        my $okay_formauth = !$remote || LJ::check_form_auth( $post->{lj_form_auth} );
+        my $okay_formauth = $remote && LJ::check_form_auth( $post->{lj_form_auth} );
+        if ( !$remote || ( $post->{poster_remote} // '' ) ne $remote->user ) {
+            $errors->add_string( undef,
+'Your active account changed. Your entry has not been posted. Switch back to the account you started with before posting.'
+            );
+            $okay_formauth = 0;
+        }
 
         $errors->add( undef, "error.invalidform" )
             unless $okay_formauth;
@@ -711,26 +719,10 @@ sub _auth {
 
     my %ret;
 
-    if (
-        $auth{username}    # user argument given
-        && !$remote
-        )
-    {                      # user not logged in
-
-        my $u = LJ::load_user( $auth{username} );
-
-        # verify entered password, if it is present
-        my $ok = LJ::auth_okay( $u, $auth{password} );
-
-        if ($ok) {
-            $flags->{noauth} = 1;
-            $flags->{u}      = $u;
-
-            $ret{poster}  = $u;
-            $ret{journal} = $post->{usejournal} ? LJ::load_user( $post->{usejournal} ) : $u;
-        }
-    }
-    elsif ( $remote && LJ::check_referer( undef, $referer ) ) {
+    if (   $remote
+        && LJ::check_referer( undef, $referer )
+        && ( $post->{poster_remote} // '' ) eq $remote->user )
+    {
         $flags->{noauth} = 1;
         $flags->{u}      = $remote;
 

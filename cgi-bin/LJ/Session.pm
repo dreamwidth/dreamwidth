@@ -206,6 +206,12 @@ sub _dbupdate {
         $sess->{$k} = $changes{$k};
     }
 
+    if ( exists $changes{timeexpire} ) {
+        my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+        $dbh->do( 'UPDATE mfa_sessions SET expires = ? WHERE userid = ? AND sessid = ?',
+            undef, $changes{timeexpire}, $sess->{userid}, $sess->{sessid} )
+            or die $dbh->errstr;
+    }
     LJ::MemCache::delete( $sess->_memkey );
     return 1;
 
@@ -377,6 +383,9 @@ sub valid {
         return $err->("Session wrong IP ($remote_ip != $sess->{ipfixed})")
             if $sess->{'ipfixed'} ne $remote_ip;
     }
+
+    require DW::Auth::TOTP;
+    return 0 unless DW::Auth::TOTP->session_verified($sess);
 
     return 1;
 }

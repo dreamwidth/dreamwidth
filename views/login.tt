@@ -99,7 +99,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         <div class="alert-box alert radius">[% err.1 %]</div>
     [% END %]
 [% END %]
-<p>[% dw.ml('.addaccount.text', { 'username' => remote.ljuser_display }) %]</p>
+[% IF store_only %]<p>Sign in to an account to use it for comments. You will keep browsing as [% remote.ljuser_display %].</p>[% ELSE %]<p>[% dw.ml('.addaccount.text', { 'username' => remote.ljuser_display }) %]</p>[% END %]
 <div class="row" id="protected_login">
   <div class="columns medium-6">
     [% PROCESS "components/login.tt" switch = 1 default_user = prefill_user %]

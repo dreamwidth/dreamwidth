@@ -306,7 +306,7 @@ postFormInitData.strings = {
                         </li>
                     [%- END -%]
                 [%- END -%]
-                [%- form.hidden( id = "js-remote", name = "poster_remote", value = remote.user ) -%]
+                [%- form.hidden( id = "js-remote", name = "poster_remote", value = expected_poster || remote.user ) -%]
 
                 </ul>
                 <ul class="no-bullet secondary-actions">

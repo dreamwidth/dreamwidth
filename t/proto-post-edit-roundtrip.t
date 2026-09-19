@@ -29,6 +29,7 @@ my $newpass = "pass" . rand();
 $u->set_password($newpass);
 ok( $u->check_password($newpass), "password matches" );
 
+my $api_key = DW::API::Key->new_for_user($u)->hash;
 my $res;
 
 $res = do_req(
@@ -117,7 +118,7 @@ sub do_req {
     $args{mode}     = $mode;
     $args{ver}      = 1;          # supports unicode
     $args{user}     = $u->user;
-    $args{password} = $newpass;
+    $args{password} = $api_key;
 
     my %res;
     my $flags = {};
@@ -130,7 +131,7 @@ sub do_req_deep {
     my ( $mode, %args ) = @_;
     $args{ver}      = 1;          # supports unicode
     $args{username} = $u->user;
-    $args{password} = $newpass;
+    $args{password} = $api_key;
 
     my $flags = {};
     my $err;

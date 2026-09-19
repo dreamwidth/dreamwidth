@@ -7,7 +7,7 @@
 #   bin/dev/screenshot [options] <path>
 #
 # Options:
-#   --user U       log in as user U (via /mobile/login) before capturing
+#   --user U       log in as user U (via /login) before capturing
 #   --password P   password for --user (default: $DW_SCREENSHOT_PASSWORD)
 #   --out FILE     output PNG (default: /tmp/dw-screenshot.png)
 #   --size WxH     viewport, width x height (default: 1280x1400)
@@ -86,13 +86,13 @@ MASTER=""
 LOGGEDIN=""
 if [ -n "$LOGIN_USER" ]; then
     JAR=$(mktemp)
-    TOK=$(curl -s -c "$JAR" "$BASE/mobile/login" |
-        grep -o 'lj_form_auth" value="[^"]*' | sed 's/.*value="//' || true)
+    TOK=$(curl -s -c "$JAR" "$BASE/login" |
+        grep -o 'lj_form_auth" value="[^"]*' | sed 's/.*value="//' | head -1 || true)
     curl -s -c "$JAR" -b "$JAR" -o /dev/null \
         -d "lj_form_auth=$TOK" \
         --data-urlencode "user=$LOGIN_USER" \
         --data-urlencode "password=$PASSWORD" \
-        "$BASE/mobile/login"
+        "$BASE/login"
     MASTER=$(awk '/ljmastersession/{print $NF}' "$JAR" || true)
     LOGGEDIN=$(awk '/ljloggedin/{print $NF}' "$JAR" || true)
     rm -f "$JAR"

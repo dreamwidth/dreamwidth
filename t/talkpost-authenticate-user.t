@@ -82,7 +82,7 @@ note("While logged in as site user:");
         userpost => $alt->user,
         password => 'aoeuhtns',
     };
-    $authcheck->( $form, 1, $alt, 0 );       # 9
+    $authcheck->( $form, 0, undef, 0 );      # 9
     ok( $form->{usertype} eq 'user', "Form usertype unchanged" );    # 10
 
     note("Alt, wrong password");

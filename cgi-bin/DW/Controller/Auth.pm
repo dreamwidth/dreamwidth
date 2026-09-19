@@ -23,6 +23,8 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::AccountSwitcher;
+use DW::Auth::Login;
+use LJ::JSON;
 use DW::Captcha;
 use DW::Controller;
 use DW::FormErrors;
@@ -33,6 +35,44 @@ DW::Routing->register_string( "/captcha",         \&captcha_handler,         app
 DW::Routing->register_string( "/logout",          \&logout_handler,          app => 1 );
 DW::Routing->register_string( "/switchaccount",   \&switch_handler,          app => 1 );
 DW::Routing->register_string( "/manage/accounts", \&manage_accounts_handler, app => 1 );
+
+DW::Routing->register_string(
+    '/rpc/comment-accounts', \&comment_accounts_handler,
+    app      => 1,
+    no_cache => 1
+);
+
+# Journal subdomains cannot read the main site's session cookies. Return only
+# display identities, after checking the journal form's active-session CSRF token.
+sub comment_accounts_handler {
+    my $r      = DW::Request->get;
+    my $origin = $r->header_in('Origin');
+    if ($origin) {
+        unless ( DW::Auth::Login->return_url($origin)
+            && ( $LJ::PROTOCOL ne 'https' || $origin =~ m{^https://} ) )
+        {
+            $r->status(403);
+            return $r->OK;
+        }
+        $r->header_out( 'Access-Control-Allow-Origin'      => $origin );
+        $r->header_out( 'Access-Control-Allow-Credentials' => 'true' );
+        $r->header_out( 'Vary'                             => 'Origin' );
+    }
+    unless ( $r->did_post ) {
+        $r->status(405);
+        return $r->OK;
+    }
+    unless ( LJ::check_form_auth( $r->post_args->{lj_form_auth} ) ) {
+        $r->status(403);
+        return $r->OK;
+    }
+    my @accounts = map { { userid => $_->{userid}, user => $_->{user} } }
+        grep { $_->{valid} && !$_->{u}->is_identity } DW::AccountSwitcher->accounts;
+    $r->header_out( 'Cache-Control' => 'private, no-store' );
+    $r->content_type('application/json');
+    $r->print( to_json( { accounts => \@accounts } ) );
+    return $r->OK;
+}
 
 sub captcha_handler {
     my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1, skip_captcha => 1 );
@@ -139,22 +179,8 @@ sub switch_handler {
     my $post     = $r->post_args;
     my $returnto = $post->{returnto};
 
-    # strip CR/LF so a crafted returnto can't inject headers when it later
-    # becomes a Location header on redirect
-    $returnto =~ tr/\r\n//d if defined $returnto;
-
     my $back = sub {
-        if ($returnto) {
-
-            # a local absolute path (our own manage page, etc.) is safe to honor
-            # directly; the leading "/" without a second one rules out
-            # protocol-relative "//evil.com" redirects
-            return $r->redirect($returnto) if $returnto =~ m{^/(?!/)};
-
-            # otherwise only honor a full same-site URL
-            return $r->redirect($returnto) if LJ::check_referer( '', $returnto );
-        }
-        return $r->redirect("$LJ::SITEROOT/");
+        return $r->redirect( DW::Auth::Login->return_url($returnto) || "$LJ::SITEROOT/" );
     };
 
     # remove a stored account from this browser, leaving the active one alone

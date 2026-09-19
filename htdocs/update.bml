@@ -50,6 +50,8 @@ _c?>
 
     # get remote and see if they can post right now
     my $remote = LJ::get_remote();
+    return BML::redirect("$LJ::SITEROOT/login?returnto=%2Fupdate") unless $remote;
+
 
     # Errors that are unlikely to change between starting
     # to compose an entry and submitting it.
@@ -118,7 +120,7 @@ _c?>
     ### define some bools with common logic ###
     my $did_post = LJ::did_post() && !$POST{transform};                           # transforms aren't posts
     my $user_is_remote = $remote && $remote->{'user'} eq $POST{'user'};           # user is remote
-    my $auth_as_remote = $remote && (! $GET{'altlogin'} || $user_is_remote);      # auth as remote
+    my $auth_as_remote = $remote;      # auth as remote
     my $auth_missing = $POST{'user'} &&
                        ! $POST{'password'} &&
                        ! $user_is_remote &&
@@ -163,26 +165,11 @@ _c?>
         if ($altlogin_display eq 'none') {
             $auth.= "<p id='remotelogin' class='pkg'>\n";
             $auth .= "<label for='current_username' class='left'>" . BML::ml('entryform.postas') . "</label>\n";
-            $auth .= "<strong id='current_username'>" . $remote->{user} . "</strong> <a href='$LJ::SITEROOT/update?altlogin=1' id='remotelogin_content' class='small'>$ML{'entryform.switchuser'}</a>\n";
+            $auth .= "<strong id='current_username'>" . $remote->{user} . "</strong> \n";
             $auth .= "</p>\n\n";
         }
-        # table with username/password fields
-        $auth .= "<div id='altlogin_wrapper' style='display: $altlogin_display;'>";
-        $auth .= "<p class='pkg'>\n";
-        $auth .= "<label for='altlogin_username' class='left'>$ML{'.username'}</label>\n";
-        $auth .=  LJ::html_text({ 'name' => 'user', 'id' => 'altlogin_username', 'class' => 'text', 'size' => '15',
-                'maxlength' => '25', 'tabindex' => '5', 'value' => $POST{'user'} || $GET{'user'} }) . "\n";
-        $auth .= "</p>\n";
-        $auth .= "<p class='pkg'>\n";
-        $auth .= "<label for='altlogin_password' class='left'>$ML{'.password'}</label>\n";
-        $auth .= LJ::html_text({ 'type' => 'password', 'id' => 'altlogin_password', 'class' => 'text',
-                'name' => 'password', 'tabindex' => '6', 'size' => '15', 'maxlength' => $LJ::PASSWORD_MAXLENGTH }) . "\n";
-        # posted with a user, but no password
-        if ($did_post && $auth_missing) {
-            $auth .= "<br /><?inerr $ML{'.error.nopass'} inerr?>";
-        }
-        $auth .= "</p>\n\n";
-        $auth .= "</div>";
+        $auth .= LJ::html_hidden( 'poster_remote', $POST{poster_remote} || $remote->user );
+
 
         # if they submit the form and are spellchecking, remember
         # their settings from the GET requests
@@ -277,21 +264,14 @@ _c?>
         my $flags = {};
         my ($u, $user);
 
-        if ($POST{'user'} &&                            # user argument given
-            ! $user_is_remote &&                        # user != remote
-            (!$remote || $GET{'altlogin'})) {           # user has clicked alt auth
-
-            $user = $POST{'user'};
-            $u = LJ::load_user($user);
-
-            # Verify entered password, if it is present.
-            my $ok = LJ::auth_okay($u, $POST{password});
-            $flags = { 'noauth' => 1, 'u' => $u } if $ok;
-
-        } elsif ($remote && LJ::check_referer()) {
-            # assume remote if we have it
+        if ( ( $POST{poster_remote} || '' ) ne $remote->user ) {
+            $errors->{auth} = 'Your active account changed. Switch back before posting this draft.';
+            $print_entry_form->();
+            return;
+        }
+        if (LJ::check_referer()) {
             $flags = { 'noauth' => 1, 'u' => $remote };
-            $user = $remote->{'user'};
+            $user = $remote->user;
             $u = $remote;
         }
 

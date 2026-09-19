@@ -721,8 +721,10 @@ sub create_qr_div {
         {
             form_url             => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
             hidden_form_elements => $hidden_form_elements,
-            post_disabled        => $post_disabled,
-            post_button_class    => $post_disabled ? 'ui-state-disabled' : '',
+            posting_accounts =>
+                [ grep { $_->{valid} && !$_->{u}->is_identity } DW::AccountSwitcher->accounts ],
+            post_disabled     => $post_disabled,
+            post_button_class => $post_disabled ? 'ui-state-disabled' : '',
 
             # Currently unused, but might come back.
             minimal => $opts{minimal} ? 1 : 0,

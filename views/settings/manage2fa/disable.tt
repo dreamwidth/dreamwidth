@@ -21,7 +21,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <p>
     If you need to turn off two-factor authentication for some reason, such as
-    moving to a new device, please enter your password here.
+    moving to a new device, please enter your password and an authentication or recovery code here. This signs the account out on every device.
 </p>
 
 <p>
@@ -36,6 +36,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </div>
 </div>
 
+<p>Authentication or recovery code: [% form.textbox(name='code', autocomplete='one-time-code') %]</p>
 [% form.submit(name='action:disable-confirm', value='Disable Two-Factor Authentication') %]
 
 </form>

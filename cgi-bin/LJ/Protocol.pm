@@ -2903,6 +2903,9 @@ sub sessiongenerate {
     my ( $req, $err, $flags ) = @_;
     return undef unless authenticate( $req, $err, $flags );
 
+    # API keys must not be exchanged for unrestricted browser sessions.
+    return fail( $err, 300 ) unless ( $req->{auth_method} // '' ) eq 'cookie';
+
     # sanitize input
     $req->{expiration} = 'short' unless $req->{expiration} eq 'long';
     my $boundip;
@@ -2918,6 +2921,11 @@ sub sessiongenerate {
     return fail( $err, 308 ) if $u->is_locked;
 
     my $sess = LJ::Session->create( $u, %$sess_opts );
+
+    # A cookie-authenticated caller already has a fully verified browser
+    # session. Preserve that proof when it requests a replacement session.
+    require DW::Auth::TOTP;
+    DW::Auth::TOTP->mark_session( $u, $sess ) if DW::Auth::TOTP->is_enabled($u);
 
     # return our hash
     return { ljsession => $sess->master_cookie_string, };
@@ -3510,11 +3518,11 @@ sub authenticate {
 
         my $auth_meth = $req->{auth_method} || 'clear';
         if ( $auth_meth eq 'clear' ) {
-            return LJ::auth_okay(
-                $u, $req->{password} // $req->{hpassword},
-                is_ip_banned    => \$ip_banned,
-                allow_hpassword => 1,
-                allow_api_keys  => 1
+            $ip_banned = LJ::login_ip_banned($u);
+            return DW::API::Key->authenticate(
+                $u,
+                $req->{password} // $req->{hpassword},
+                allow_hpassword => 1
             );
         }
         if ( $auth_meth eq 'challenge' ) {

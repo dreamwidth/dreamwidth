@@ -24,7 +24,7 @@ like to go back to the normal site experience.</p>
 .betafeature.manage2fa.cantadd=Sorry, your account is not eligible to test this feature.
 
 .betafeature.manage2fa.off<<
-<p>Activate our new Two-Factor Authentication system. This will enable you to configure 2FA on your account. <strong>Note:</strong> While this feature is in beta, not all login flows are protected by 2FA... it's not done yet!</p>
+<p>Two-Factor Authentication is now available to all personal accounts from Account Settings. This beta preference no longer controls access.</p>
 .
 
 .betafeature.manage2fa.on<<

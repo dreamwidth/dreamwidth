@@ -21,6 +21,7 @@ package DW::API::Key;
 use strict;
 use warnings;
 use Carp;
+use Digest::MD5 ();
 
 use LJ::Utils;
 
@@ -54,6 +55,20 @@ sub new_for_user {
 # Usage: lookup ( user, key )
 # Looks for a given key for a user. Returns the key object
 # if it's valid, or undef otherwise.
+# Protocol clients authenticate with a key, never the account password.
+sub authenticate {
+    my ( $class, $u, $credential, %opts ) = @_;
+    return 0
+        unless $u && defined $credential && !$u->is_locked && !$u->is_memorial && !$u->is_expunged;
+    return 0 if LJ::login_ip_banned($u);
+    for my $key ( @{ $class->get_keys_for_user($u) || [] } ) {
+        return 1 if $credential eq $key->hash;
+        return 1 if $opts{allow_hpassword} && $credential eq Digest::MD5::md5_hex( $key->hash );
+    }
+    LJ::handle_bad_login($u);
+    return 0;
+}
+
 sub get_key {
     my ( $class, $hash ) = @_;
     return undef unless $hash;

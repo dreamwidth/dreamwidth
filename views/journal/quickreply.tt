@@ -18,7 +18,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- hidden_form_elements -%]
 
 <div class='qr-meta'>
-  [%- remote.ljuser %]
+  <label for="qr-posting-account">Post as</label>
+  <select class="comment-account-select" data-accounts-url="[% site.root %]/rpc/comment-accounts" id="qr-posting-account" name="posting_userid" data-active="[% remote.id %]">
+    <option value="[% remote.id %]">[% remote.user | html %]</option>
+    [% FOREACH account IN posting_accounts %]
+    <option value="[% account.userid %]">[% account.user | html %]</option>
+    [% END %]
+  </select>
+  <span>Use More Options to sign in to another account.</span>
 
   <input type="button" id="submitmoreopts" name="submitmoreopts" value="[% '.button.more' | ml %]" />
 

@@ -229,7 +229,7 @@ sub _current_handle {
 
 # Add a freshly-authenticated account and make it active, demoting the current
 # active into the stored list. $u must already be password-verified by the
-# caller. Returns 1.
+# caller, including any required second factor. Returns 1.
 sub add_account {
     my ( $class, $u, $exptype, $ipfixed ) = @_;
 
@@ -245,6 +245,29 @@ sub add_account {
     # and sets the remote -- exactly like a normal login.
     $u->make_login_session( $exptype, $ipfixed );
 
+    return 1;
+}
+
+# Resolve a posting identity without changing the active browser account.
+sub posting_user {
+    my ( $class, $userid ) = @_;
+    return unless defined $userid && $userid =~ /^\d+$/;
+    my $remote = LJ::get_remote();
+    return $remote if $remote && $remote->id == $userid;
+    my ($entry) = grep { $_->{userid} == $userid } @{ $class->_entries };
+    return unless $entry;
+    my $rec = $class->_resolve($entry);
+    return $rec && $rec->{valid} ? $rec->{u} : undef;
+}
+
+# Store a fully authenticated session without writing the active-account cookies.
+sub store_account {
+    my ( $class, $u, $exptype, $ipfixed ) = @_;
+    my $sess = LJ::Session->create( $u, exptype => $exptype || 'short', ipfixed => $ipfixed )
+        or die 'Unable to create session';
+    my @list = grep { $_->{userid} != $u->id } @{ $class->_entries };
+    push @list, { userid => $u->id, sessid => $sess->id, auth => $sess->auth };
+    $class->_write( \@list );
     return 1;
 }
 

@@ -19,6 +19,7 @@ use strict;
 
 use Digest::SHA1;
 use MIME::Base64;
+use DW::API::Key;
 
 =head1 NAME
 
@@ -156,22 +157,20 @@ sub _auth_wsse {
             unless LJ::MemCache::add( "wsse_auth:$creds{username}:$creds{nonce}", 1, 180 );
     }
 
-    # validate hash
-    my $hash = Digest::SHA1::sha1_base64( $creds{nonce} . $creds{created} . $u->password );
-
-    # Nokia's WSSE implementation is incorrect as of 1.5, and they
-    # base64 encode their nonce *value*.  If the initial comparison
-    # fails, we need to try this as well before saying it's invalid.
-    if ( $hash ne $creds{passworddigest} ) {
-        $hash =
-            Digest::SHA1::sha1_base64(
-            MIME::Base64::decode_base64( $creds{nonce} ) . $creds{created} . $u->password );
-
-        if ( $hash ne $creds{passworddigest} ) {
-            LJ::handle_bad_login($u);
-            return $fail->("hash wrong");
+    # Legacy WSSE clients use API keys as their shared secret.
+    my $valid = 0;
+    for my $key ( @{ DW::API::Key->get_keys_for_user($u) || [] } ) {
+        for my $nonce ( $creds{nonce}, MIME::Base64::decode_base64( $creds{nonce} ) ) {
+            $valid = 1
+                if Digest::SHA1::sha1_base64( $nonce . $creds{created} . $key->hash ) eq
+                $creds{passworddigest};
         }
     }
+    unless ($valid) {
+        LJ::handle_bad_login($u);
+        return $fail->('hash wrong');
+    }
+    return $fail->('account unavailable') if $u->is_locked || $u->is_memorial || $u->is_expunged;
 
     return $fail->("ip_ratelimiting")
         if LJ::login_ip_banned($u);
@@ -218,7 +217,7 @@ sub _auth_basic {
     # must be a person and have a password
     return $decline->() unless $u && $u->is_person;
     return $decline->()
-        unless $password && $u->check_password($password);
+        unless DW::API::Key->authenticate( $u, $password );
 
     return ( $u, undef );
 }

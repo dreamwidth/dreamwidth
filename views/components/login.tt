@@ -22,6 +22,7 @@
 <form action="[% site.root %]/login" method="post" class="lj_login_form pkg">
     <div id="login-form">
     [%- dw.form_auth() -%]
+    [%- form.hidden( name = "store_only", value = 1 ) IF store_only -%]
     [%- form.hidden( name = "returnto", value = returnto ) IF returnto -%]
     [%- form.hidden( name = "switch", value = 1 ) IF switch -%]
     [%- form.textbox(
