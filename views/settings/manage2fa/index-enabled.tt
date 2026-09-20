@@ -45,8 +45,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         them again.
     </p>
 
-    <p>Password: [% form.password(name='password') %]</p>
-    <p>Authentication or recovery code: [% form.textbox(name='code', autocomplete='one-time-code') %]</p>
+    <p>[% form.password(name='password', label='Password:') %]</p>
+    <p>[% form.textbox(name='code', label='Authentication or recovery code:', autocomplete='one-time-code') %]</p>
     [% form.submit(name='action:show-codes', value='Show Recovery Codes') %]
 [% END %]
 

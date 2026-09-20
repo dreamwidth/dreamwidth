@@ -69,7 +69,7 @@ with this account. Accounts where you leave 2FA disabled are unchanged.</p>
     [% form.textbox(name='verification_code', maxlength='6') %]
 </div></div>
 
-<p>Confirm your account password: [% form.password(name='password') %]</p>
+<p>[% form.password(name='password', label='Confirm your account password:') %]</p>
 <p>Enabling two-factor authentication signs this account out in other browsers. This browser stays signed in. Save your recovery codes.</p>
 [% form.submit(name='action:enable', value='Enable Two-Factor Authentication') %]
 

@@ -35,6 +35,7 @@ use MIME::Base64 qw(encode_base64);
     package CompatibilityRequest;
     sub post_args { $_[0]->{post} || {} }
     sub did_post  { 1 }
+    sub get_args  { {} }
     sub redirect  { $_[1] }
 
     sub host           { 'localhost' }
@@ -213,6 +214,77 @@ for my $protected ( 0, 1 ) {
     my $pending = DW::Auth::Login->begin( $u, password => 'login-password' );
     $u->set_password('replacement-password');
     ok( !DW::Auth::Login->pending($pending), 'Password change invalidates pending challenge' );
+}
+
+# Password changes serialize the factor decision with enrollment, without adding
+# a code requirement for ordinary accounts. Exercise the real settings handler.
+{
+    require DW::Controller::Settings;
+    local *DW::Template::render_template  = sub { $_[2] };
+    local *DW::Controller::render_success = sub { 'success' };
+    local *LJ::send_mail                  = sub { 1 };
+    local *LJ::create_url                 = sub { '/login' };
+    local *LJ::login_ip_banned            = sub { 0 };
+    local *LJ::handle_bad_login           = sub { 1 };
+    $remote = undef;
+    local *DW::Controller::Settings::controller = sub {
+        ( 1, { r => $request, remote => undef } );
+    };
+    for my $enroll ( 0, 1 ) {
+        my $u = temp_user();
+        $u->set_password('Original-pass-42');
+        $u->update_self( { status => 'A' } );
+        local $request->{post} = {
+            mode     => 'submit',
+            user     => $u->user,
+            password => 'Original-pass-42',
+            newpass1 => 'Replacement-pass-73',
+            newpass2 => 'Replacement-pass-73'
+        };
+        my $check_password = \&LJ::User::check_password;
+        my $is_enabled     = \&DW::Auth::TOTP::is_enabled;
+        my $checked        = 0;
+        local *LJ::User::check_password = sub {
+            my $ok = $check_password->(@_);
+
+            # Finish enrollment after the request's first password check.
+            DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret )
+                if $enroll && !$checked++;
+            return $ok;
+        };
+        local *DW::Auth::TOTP::is_enabled = sub {
+            ok( !LJ::get_db_writer()->{AutoCommit},
+                'Password-change factor decision is inside the account transaction' )
+                if caller eq 'DW::Controller::Settings';
+            return $is_enabled->(@_);
+        };
+        my $result = DW::Controller::Settings::changepassword_handler();
+        if ( !$enroll ) {
+            is( $result, 'success', 'Ordinary password change still needs no code' );
+            ok( $u->check_password('Replacement-pass-73'), 'Ordinary new password works' );
+            next;
+        }
+        ok( $result->{errors}->exist, 'Enrollment during request prevents password-only change' );
+        ok( $result->{needs_2fa},     'Protected target redisplays the code field' );
+        ok( $u->check_password('Original-pass-42'), 'Rejected request leaves password unchanged' );
+        my @codes = DW::Auth::TOTP->get_recovery_codes($u);
+        $request->{post}{code} = $codes[0];
+        {
+            local *LJ::User::set_password = sub { die "Injected password write failure\n" };
+            eval { DW::Controller::Settings::changepassword_handler() };
+            like( $@, qr/Injected password write failure/, 'Password write error is reported' );
+            my @remaining = DW::Auth::TOTP->get_recovery_codes($u);
+            ok(
+                scalar( grep { $_ eq $codes[0] } @remaining ),
+                'Failed password update rolls code consumption back'
+            );
+        }
+        is( DW::Controller::Settings::changepassword_handler(),
+            'success', 'Protected password change succeeds with recovery code' );
+        ok( $u->check_password('Replacement-pass-73'), 'Protected new password works' );
+        ok( !DW::Auth::TOTP->verify( $u, $codes[0] ), 'Successful change consumes code' );
+        ok( $is_enabled->( 'DW::Auth::TOTP', $u ), 'Password change preserves factor' );
+    }
 }
 
 # WSSE clients keep their existing password behavior for legacy ordinary accounts;

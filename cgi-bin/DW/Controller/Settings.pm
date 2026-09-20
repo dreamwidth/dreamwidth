@@ -451,26 +451,24 @@ sub changepassword_handler {
         $errors->add( "newpass1", ".error.notvalidated" )
             if $u->{status} ne 'A' && !$authu;
 
-        my $factor_change = $u && !$authu && DW::Auth::TOTP->is_enabled($u);
-        $needs_2fa = $factor_change if !$errors->exist;
+        # Enrollment and password authentication must observe the same locked row,
+        # including when this account did not have a factor at request start.
 
         # Consume a one-use factor only after the proposed password and account
         # have passed all validation. A failed update rolls consumption back.
-        if ( !$errors->exist && $factor_change ) {
+        if ( !$errors->exist && !$authu ) {
             my $dbh = LJ::get_db_writer() or die 'Database unavailable';
             $dbh->begin_work or die $dbh->errstr;
             my $changed = eval {
                 $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
                     undef, $u->id );
                 die $dbh->errstr if $dbh->err;
-                if ( !$authu && !$u->check_password($password) ) {
+                $needs_2fa = DW::Auth::TOTP->is_enabled($u);
+                if ( !$u->check_password($password) ) {
                     $errors->add( 'password', '.error.badoldpassword' );
                     LJ::handle_bad_login($u);
                 }
-                elsif (!$authu
-                    && DW::Auth::TOTP->is_enabled($u)
-                    && !DW::Auth::TOTP->verify( $u, $post->{code} ) )
-                {
+                elsif ( $needs_2fa && !DW::Auth::TOTP->verify( $u, $post->{code} ) ) {
                     $errors->add_string( 'code', 'Enter a valid authentication or recovery code.' );
                     LJ::handle_bad_login($u);
                 }
@@ -494,7 +492,7 @@ sub changepassword_handler {
         unless ( $errors->exist ) {
             $u->infohistory_add( 'password', 'changed' );
             $u->log_event( 'password_change', { remote => $remote } );
-            $u->set_password( $post->{newpass1} ) unless $factor_change;
+            $u->set_password( $post->{newpass1} ) if $authu;
 
             # if we used an authcode, we'll need to expire it now
             LJ::mark_authaction_used($aa) if $authu;
