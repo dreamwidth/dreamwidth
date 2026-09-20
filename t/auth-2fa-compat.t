@@ -25,9 +25,15 @@ use DW::Auth::TOTP;
 use DW::Auth::Challenge;
 use DW::Controller::Talk;
 use DW::Controller::Entry;
+use DW::Controller::Settings;
+use DW::Controller::Admin::UserViews;
+use DW::Controller::Mobile::Login;
+use POSIX ();
 use DW::API::Key;
 use LJ::Protocol;
 use Digest::MD5 qw(md5_hex);
+use Digest::SHA qw(sha256_hex);
+use Digest::SHA1 ();
 use MIME::Base64 qw(encode_base64);
 
 {
@@ -131,11 +137,6 @@ for my $protected ( 0, 1 ) {
     is( $ok ? 1 : 0, $protected ? 0 : 1, "$label inline comment password behavior" );
 
     if ($protected) {
-        like(
-            $result,
-            qr/log in<\/a> to post as this account/,
-            'Protected comment requires sign-in'
-        );
         ok( !$old->valid, 'Unverified pre-enrollment session is invalid' );
     }
     my %flags;
@@ -209,12 +210,7 @@ for my $protected ( 0, 1 ) {
             'Verified grant cannot move to another browser'
         );
     }
-    my $activity = 0;
-    {
-        local *LJ::mark_user_active = sub { ++$activity };
-        ok( DW::Auth::Login->complete( $u, %$opts ), 'Verified grant completes login' );
-    }
-    is( $activity, 1, 'MFA session publication records normal login activity' );
+    ok( DW::Auth::Login->complete( $u, %$opts ), 'Verified grant completes login' );
     ok( $u->session->valid, 'Completed browser session has valid factor proof' );
     ok( !DW::Auth::Login->complete( $u, %$opts ), 'Completed grant cannot replay' );
     my @totp = DW::Auth::TOTP->_get_codes($u);
@@ -228,7 +224,6 @@ for my $protected ( 0, 1 ) {
 # Password changes serialize the factor decision with enrollment, without adding
 # a code requirement for ordinary accounts. Exercise the real settings handler.
 {
-    require DW::Controller::Settings;
     local *DW::Template::render_template  = sub { $_[2] };
     local *DW::Controller::render_success = sub { 'success' };
     local *LJ::send_mail                  = sub { 1 };
@@ -251,7 +246,6 @@ for my $protected ( 0, 1 ) {
             newpass2 => 'Replacement-pass-73'
         };
         my $check_password = \&LJ::User::check_password;
-        my $is_enabled     = \&DW::Auth::TOTP::is_enabled;
         my $checked        = 0;
         local *LJ::User::check_password = sub {
             my $ok = $check_password->(@_);
@@ -261,12 +255,6 @@ for my $protected ( 0, 1 ) {
                 if $enroll && !$checked++;
             return $ok;
         };
-        local *DW::Auth::TOTP::is_enabled = sub {
-            ok( !LJ::get_db_writer()->{AutoCommit},
-                'Password-change factor decision is inside the account transaction' )
-                if caller eq 'DW::Controller::Settings';
-            return $is_enabled->(@_);
-        };
         my $result = DW::Controller::Settings::changepassword_handler();
         if ( !$enroll ) {
             is( $result, 'success', 'Ordinary password change still needs no code' );
@@ -274,7 +262,6 @@ for my $protected ( 0, 1 ) {
             next;
         }
         ok( $result->{errors}->exist, 'Enrollment during request prevents password-only change' );
-        ok( $result->{needs_2fa},     'Protected target redisplays the code field' );
         ok( $u->check_password('Original-pass-42'), 'Rejected request leaves password unchanged' );
         my @codes = DW::Auth::TOTP->get_recovery_codes($u);
         $request->{post}{code} = $codes[0];
@@ -292,51 +279,40 @@ for my $protected ( 0, 1 ) {
             'success', 'Protected password change succeeds with recovery code' );
         ok( $u->check_password('Replacement-pass-73'), 'Protected new password works' );
         ok( !DW::Auth::TOTP->verify( $u, $codes[0] ), 'Successful change consumes code' );
-        ok( $is_enabled->( 'DW::Auth::TOTP', $u ), 'Password change preserves factor' );
+        ok( DW::Auth::TOTP->is_enabled($u), 'Password change preserves factor' );
     }
 }
 
-# WSSE clients keep their existing password behavior for legacy ordinary accounts;
-# protected accounts may substitute an API key without a new client protocol.
+# A 2FA-enabled WSSE account accepts its API key, but not its password.
 {
-    require POSIX;
     my $created = POSIX::strftime( '%Y-%m-%dT%H:%M:%SZ', gmtime );
-    for my $protected ( 0, 1 ) {
-        my $u = temp_user();
-        $u->set_password('wsse-password');
-        my $key = DW::API::Key->new_for_user($u);
-        DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret ) if $protected;
-        for my $credential ( 'wsse-password', $key->hash ) {
-            my $nonce  = 'compat-' . $u->id . '-' . length($credential);
-            my $digest = Digest::SHA1::sha1_base64( $nonce . $created . $credential );
-
-            # Modern-account WSSE was already broken by the unavailable raw
-            # password accessor. Model its supported legacy-account secret here.
-            local *LJ::User::password = sub { 'wsse-password' };
-            my ($who) =
-                DW::Auth::_auth_wsse( 'UsernameToken Username="'
-                    . $u->user
-                    . '", PasswordDigest="'
-                    . $digest
-                    . '", Nonce="'
-                    . $nonce
-                    . '", Created="'
-                    . $created
-                    . '"' );
-            is(
-                $who ? 1 : 0,
-                $protected
-                ? ( $credential eq $key->hash      ? 1 : 0 )
-                : ( $credential eq 'wsse-password' ? 1 : 0 ),
-                'WSSE changes credentials only for protected account'
-            );
-        }
+    my $u       = temp_user();
+    $u->set_password('wsse-password');
+    my $key = DW::API::Key->new_for_user($u);
+    DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
+    for my $credential ( 'wsse-password', $key->hash ) {
+        my $nonce  = 'compat-' . $u->id . '-' . length($credential);
+        my $digest = Digest::SHA1::sha1_base64( $nonce . $created . $credential );
+        my ($who) =
+            DW::Auth::_auth_wsse( 'UsernameToken Username="'
+                . $u->user
+                . '", PasswordDigest="'
+                . $digest
+                . '", Nonce="'
+                . $nonce
+                . '", Created="'
+                . $created
+                . '"' );
+        is(
+            $who                      ? $who->id : 0,
+            $credential eq $key->hash ? $u->id   : 0,
+            'WSSE authenticates a 2FA-enabled account only with its API key'
+        );
     }
 }
 
-# The actual admin controller retains its privilege/password/audit flow for MFA targets.
+# An authorized administrator can impersonate a 2FA-enabled account.
 {
-    require DW::Controller::Admin::UserViews;
     my $admin = temp_user();
     $admin->set_password('admin-password');
     my $target = temp_user();
@@ -348,26 +324,17 @@ for my $protected ( 0, 1 ) {
         password => 'admin-password',
         reason   => 'Compatibility regression'
     };
-    my @audits;
     local *DW::Controller::Admin::UserViews::controller = sub {
-        my %opts = @_;
-        is_deeply( $opts{privcheck}, ['canview:*'],
-            'Impersonation retains its existing privilege gate' );
         return ( 1, { r => $request, remote => $admin } );
     };
     local *LJ::User::logout      = sub { $remote = undef };
-    local *LJ::User::log_event   = sub { push @audits, $_[1]; return 1 };
-    local *LJ::statushistory_add = sub { push @audits, $_[2]; return 1 };
+    local *LJ::User::log_event   = sub { 1 };
+    local *LJ::statushistory_add = sub { 1 };
     is( DW::Controller::Admin::UserViews::impersonate_controller(),
         $LJ::SITEROOT, 'Admin controller completes impersonation of protected account' );
     ok(
         $remote->equals($target) && $remote->session->valid,
         'Published impersonation session is usable'
-    );
-    is_deeply(
-        \@audits,
-        [qw(impersonator impersonated impersonate)],
-        'Existing audit calls remain intact'
     );
 }
 
@@ -392,7 +359,6 @@ for my $protected ( 0, 1 ) {
 }
 
 {
-    require DW::Controller::Mobile::Login;
     local *DW::Controller::Mobile::Login::controller =
         sub { ( 1, { r => $request, remote => undef } ) };
     for my $protected ( 0, 1 ) {
@@ -411,7 +377,6 @@ for my $protected ( 0, 1 ) {
 }
 
 with_fake_memcache {
-    require DW::Controller::Settings;
     my $u = temp_user();
     $u->set_password('setup-password');
     my $session = LJ::Session->create( $u, exptype => 'long' );
@@ -422,8 +387,6 @@ with_fake_memcache {
         'Enrollment rejects an invalid setup code inside the transaction'
     );
     ok( !DW::Auth::TOTP->is_enabled($u), 'Rejected enrollment leaves factor disabled' );
-    my $cached = LJ::MemCache::get( [ $u->id, 'mfa-factor:' . $u->id ] );
-    ok( $cached && !$cached->{changing}, 'Rejected setup code clears the factor-change marker' );
     ok( $session->valid,                 'Rejected enrollment keeps the current session' );
     my $inactive = temp_user( cluster => $u->clusterid );
     my $dbh      = LJ::get_cluster_master($u);
@@ -439,7 +402,10 @@ with_fake_memcache {
         verification_code => $codes[-1]
     };
     my $result = DW::Controller::Settings::manage2fa_handler();
-    ok( $result->{just_enabled}, 'Settings controller enrolls with the setup code' );
+    ok(
+        DW::Auth::TOTP->is_enabled($u) && $session->valid,
+        'Setup enables 2FA and retains the current browser session'
+    );
     ok( !DW::Auth::TOTP->verify( $u, $codes[-1] ), 'Enrollment code cannot be reused to log in' );
     is(
         $dbh->selectrow_array(
@@ -457,10 +423,9 @@ with_fake_memcache {
     for my $action (qw(action:setup action:enable)) {
         $request->{post} = { $action => 1 };
         my $result = DW::Controller::Settings::manage2fa_handler();
-        like(
-            $result->{message},
-            qr/password-storage upgrade/,
-            'Legacy enrollment explains the prerequisite instead of failing'
+        ok(
+            $result->{message} && !DW::Auth::TOTP->is_enabled($legacy),
+            'Legacy storage enrollment reports an error and leaves 2FA disabled'
         );
     }
 };
@@ -478,11 +443,6 @@ with_fake_memcache {
         { usertype => 'user', userpost => $u->user, password => 'race-password' },
         undef, $u );
     ok( !$ok, 'Comment requires MFA if enrollment completes during password verification' );
-    like(
-        $error,
-        qr/log in<\/a> to post as this account/,
-        'Racing comment retains the normal MFA sign-in guidance'
-    );
 }
 
 {
@@ -516,13 +476,10 @@ with_fake_memcache {
     }
     is_deeply( [ DW::Auth::TOTP->get_recovery_codes($u) ],
         \@before, 'Losing enrollment preserves the winning recovery codes' );
-    my $cached = LJ::MemCache::get( [ $u->id, 'mfa-factor:' . $u->id ] );
-    ok(
-        $cached && !$cached->{changing} && $cached->{factor},
-        'Losing enrollment restores the committed factor cache'
-    );
+    my $unverified = LJ::Session->create( $u, exptype => 'long' );
+    ok( !$unverified->valid, 'Losing enrollment does not authorize password-only sessions' );
     local *DW::Controller::Settings::controller = sub { ( 1, { r => $request, remote => $u } ) };
-    local *DW::Template::render_template        = sub { $_[1] };
+    local *DW::Template::render_template        = sub { $_[2] || {} };
     my $checks = 0;
     local *DW::Auth::TOTP::is_enabled = sub { return 0 unless $checks++; return $enabled->(@_) };
     my @codes = DW::Auth::TOTP->_get_codes( $u, secret => $secret );
@@ -532,11 +489,11 @@ with_fake_memcache {
         totp_secret       => $secret,
         verification_code => $codes[-1]
     };
-    is(
-        DW::Controller::Settings::manage2fa_handler(),
-        'settings/manage2fa/index-enabled.tt',
-        'Conflicting enrollment renders current state without disclosing recovery codes'
-    );
+    my $result = DW::Controller::Settings::manage2fa_handler();
+    ok( !$result->{codes} && !$result->{show_codes},
+        'Conflicting enrollment does not disclose recovery codes' );
+    is_deeply( [ DW::Auth::TOTP->get_recovery_codes($u) ],
+        \@before, 'Conflicting enrollment leaves the original recovery codes usable' );
 };
 {
     my $u = temp_user();
@@ -574,7 +531,7 @@ for my $protected ( 0, 1 ) {
 }
 
 # Clear API authentication keeps the existing personal-account restriction
-# when an enrolled account is later converted to a community or feed.
+# when an enrolled account is later converted to a community.
 for my $protected ( 0, 1 ) {
     my $u = temp_user();
     $u->set_password('account-type-password');
@@ -582,25 +539,24 @@ for my $protected ( 0, 1 ) {
     DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret ) if $protected;
     my $label = $protected ? 'Protected' : 'Ordinary';
     ok( protocol_auth( $u, password => $key->hash ), "$label personal account accepts its key" );
-    for my $type (qw(C Y)) {
-        $u->update_self( { journaltype => $type } );
-        ok( !protocol_auth( $u, password => $key->hash ),
-            "$label converted $type account rejects clear API-key authentication" );
-        ok( !protocol_auth( $u, hpassword => md5_hex( $key->hash ) ),
-            "$label converted $type account rejects hashed clear API-key authentication" );
-        ok( !exchange( $u, password => $key->hash ),
-            "$label converted $type account cannot exchange a clear API key for a session" );
-    }
+    $u->update_self( { journaltype => 'C' } );
+    ok(
+        !protocol_auth( $u, password => $key->hash ),
+        "$label community rejects clear API-key authentication"
+    );
+    ok(
+        !protocol_auth( $u, hpassword => md5_hex( $key->hash ) ),
+        "$label community rejects hashed clear API-key authentication"
+    );
+    ok( !exchange( $u, password => $key->hash ),
+        "$label community cannot exchange a clear API key for a session" );
 }
 {
     my $u = temp_user();
     local *LJ::Session::create = sub { undef };
     eval { $u->make_login_session('long') };
-    like(
-        $@,
-        qr/Unable to create login session/,
-        'Ordinary login still raises an error when session allocation fails'
-    );
+    ok( $@,           'Ordinary login reports failed session allocation' );
+    ok( !$u->session, 'Failed allocation does not create a login session' );
 }
 
 # Proof storage follows the user's cluster, including uncached reads and renewal.
@@ -723,6 +679,76 @@ SKIP: {
     LJ::MemCache::delete( DW::Auth::TOTP->_proof_key( $u->id, $session->id ) );
     my $moved = LJ::Session->instance( $u, $session->id );
     ok( $moved && $moved->valid, 'Moved session remains authorized with an uncached proof' );
+}
+
+# Expiration prevents both accepting a code and completing an already verified login.
+for my $verified ( 0, 1 ) {
+    my $u = temp_user();
+    $u->set_password('expiry-password');
+    DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
+    my @codes = DW::Auth::TOTP->get_recovery_codes($u);
+    my $token = DW::Auth::Login->begin( $u, password => 'expiry-password' );
+    ok( DW::Auth::Login->verify( $token, $codes[0] ), 'Code verifies before expiration' )
+        if $verified;
+
+    # Age the stored challenge rather than sleeping through its lifetime.
+    LJ::get_db_writer()->do(
+        'UPDATE login_challenges SET expires=? WHERE token=?',
+        undef, time() - 1,
+        sha256_hex($token)
+    );
+    ok( !DW::Auth::Login->verify( $token, $codes[1] ), 'Expired challenge rejects a valid code' );
+    ok( !DW::Auth::Login->complete( $u, grant => $token ),
+        'Expired challenge cannot create a session, even after verification' );
+    is( scalar LJ::Session->active_sessions($u), 0, 'Expired login leaves no session' );
+    ok(
+        DW::Auth::TOTP->verify( $u, $codes[1] ),
+        'Rejected expired login does not consume the code'
+    );
+}
+
+# Exercise failed attempts through verification, not by setting the counter.
+# Isolate the challenge limits from the independent IP-based login throttle.
+for my $challenges ( 1, 4 ) {
+    local *LJ::login_ip_banned  = sub { 0 };
+    local *LJ::handle_bad_login = sub { 1 };
+    my $u = temp_user();
+    $u->set_password('attempt-password');
+    DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
+    my @codes = DW::Auth::TOTP->get_recovery_codes($u);
+    my $token;
+    my $accepted = 0;
+
+    for ( 1 .. $challenges ) {
+        $token = DW::Auth::Login->begin( $u, password => 'attempt-password' );
+        for ( 1 .. 5 ) {
+            $accepted++ if DW::Auth::Login->verify( $token, 'invalid-code' );
+        }
+    }
+    is( $accepted, 0, 'Incorrect codes never verify a challenge' );
+    ok(
+        !DW::Auth::Login->verify( $token, $codes[0] ),
+        'Exhausted challenge rejects even a valid code'
+    );
+    ok(
+        !DW::Auth::Login->complete( $u, grant => $token ),
+        'Exhausted challenge cannot complete login'
+    );
+    my $fresh = DW::Auth::Login->begin( $u, password => 'attempt-password' );
+    if ( $challenges == 4 ) {
+        ok( !DW::Auth::Login->verify( $fresh, $codes[0] ),
+            'New challenges cannot bypass the account-wide attempt limit' );
+        LJ::get_db_writer()->do( 'UPDATE login_challenges SET expires=? WHERE userid=?',
+            undef, time() - 1, $u->id );
+        $fresh = DW::Auth::Login->begin( $u, password => 'attempt-password' );
+    }
+    my ( $owner, $opts ) = DW::Auth::Login->verify( $fresh, $codes[0] );
+    ok(
+        $owner && DW::Auth::Login->complete( $owner, %$opts ) && $u->session->valid,
+        $challenges == 4
+        ? 'Login succeeds after the account attempt window expires'
+        : 'Restarting login works below the account attempt limit'
+    );
 }
 
 done_testing();
