@@ -86,10 +86,6 @@ Target `dreamwidth/dreamwidth`. When opening a PR from a fork, use
 `--head <fork-owner>:<branch-name>`; inspect the remote to identify the fork owner.
 Follow the repository's existing commit message style.
 
-Keep review screenshots out of Git; attach them to the PR instead. Put feature
-flow explanations and rollout notes in the PR description rather than adding
-standalone feature documents to `doc/`.
-
 Keep PR bodies short, with a technical description of the mechanism and key
 files, followed by a required plain-language CODE TOUR for the community:
 
