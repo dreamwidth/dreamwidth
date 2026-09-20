@@ -102,21 +102,3 @@ Fixes #<issue-number>
 ```
 
 Omit the `Fixes` line when there is no linked issue.
-
-## Authentication
-
-- Preserve existing forms and password/API authentication for accounts without 2FA.
-  Only the account being authenticated determines whether a second factor is required.
-- Admin impersonation must remain available for every account, including accounts
-  with 2FA. Its existing server-side privilege checks authorize that access.
-- API keys retain their existing capabilities. Do not migrate unrelated clients,
-  invalidate saved credentials, or impose new account restrictions as part of TOTP.
-- Protected sessions require server-side authorization bound to the current factor:
-  verified MFA, authorized admin impersonation, or existing API-key session exchange.
-  Do not trust cookie flags as proof. Password updates must preserve `password2.totp_secret`.
-- Test both ordinary-account compatibility and protected-account enforcement.
-  Authentication schema updates must also be applied to the test database with `DW_TEST=1`.
-
-- `mfa_sessions` belongs on user clusters alongside `sessions`; register it in
-  `@LJ::USER_TABLES` so schema updates and account moves include it. Login
-  challenges and code-reuse tracking remain central with the credential tables.
