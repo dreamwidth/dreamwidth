@@ -303,6 +303,19 @@ sub manage2fa_handler {
         return DW::Template->render_template( 'settings/manage2fa/index-enabled.tt', $vars );
     }
 
+    # Legacy credentials need the existing password migration before enrollment.
+    if ( $remote->dversion <= 9
+        && ( $post_args->{'action:setup'} || $post_args->{'action:enable'} ) )
+    {
+        return DW::Template->render_template(
+            'error.tt',
+            {
+                message =>
+'This account needs a password-storage upgrade before two-factor authentication can be enabled. Please contact Support.'
+            }
+        );
+    }
+
     # User does not have 2fa
     if ( $post_args->{'action:setup'} ) {
         return DW::Template->render_template( 'settings/manage2fa/setup.tt',
@@ -325,10 +338,15 @@ sub manage2fa_handler {
         }
 
         unless (
-            DW::Auth::TOTP->enable( $remote, $secret, $post_args->{password}, $remote->session ) )
+            DW::Auth::TOTP->enable(
+                $remote, $secret, $post_args->{password},
+                $remote->session, $verify_code
+            )
+            )
         {
             LJ::handle_bad_login($remote);
-            $errors->add_string( password => 'Invalid password. Please try again.' );
+            $errors->add_string(
+                password => 'Invalid password or verification code. Please try again.' );
             return DW::Template->render_template( 'settings/manage2fa/setup.tt',
                 _totp_setup_vars( $secret, $errors ) );
         }

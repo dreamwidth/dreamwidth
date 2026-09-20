@@ -53,7 +53,7 @@ sub check_code {
     return 0;
 }
 
-# Login verification consumes a time step. Setup verification uses check_code instead.
+# Verification consumes a time step; setup consumes its code in the enrollment transaction.
 sub verify {
     my ( $class, $u, $code ) = @_;
     return 0 unless defined $code && $class->is_enabled($u);
@@ -189,7 +189,9 @@ sub mark_session {
     return unless defined $verified_factor && $verified_factor eq $factor;
     my $expires = $session->expiration_time;
     return unless $expires > time();
-    $dbh->do( 'DELETE FROM mfa_sessions WHERE userid = ? AND expires < ?', undef, $u->id, time() )
+
+    # Bound cleanup work while collecting expired proofs for inactive accounts too.
+    $dbh->do( 'DELETE FROM mfa_sessions WHERE expires < ? LIMIT 1000', undef, time() )
         or die $dbh->errstr;
     $dbh->do( 'REPLACE INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
         undef, $u->id, $session->id, $factor, $expires )
@@ -338,7 +340,7 @@ sub _revoke_other_sessions {
 }
 
 sub enable {
-    my ( $class, $u, $secret, $password, $preserve ) = @_;
+    my ( $class, $u, $secret, $password, $preserve, $setup_code ) = @_;
     my $check_password = @_ > 3;
     my $userid         = $u->userid;
 
@@ -371,6 +373,10 @@ sub enable {
 
         $dbh->do( 'DELETE FROM mfa_sessions WHERE userid = ?', undef, $userid ) or die $dbh->errstr;
         $dbh->do( 'DELETE FROM totp_used WHERE userid = ?',    undef, $userid ) or die $dbh->errstr;
+        if ( defined $setup_code && !$class->verify( $u, $setup_code ) ) {
+            $dbh->rollback;
+            return undef;
+        }
         $dbh->do( "UPDATE totp_recovery_codes SET status = 'X' WHERE userid = ? AND status = 'A'",
             undef, $userid )
             or die $dbh->errstr;

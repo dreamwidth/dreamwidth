@@ -68,6 +68,13 @@ sub login_handler {
             }
             else {
                 if ( DW::Auth::TOTP->is_enabled($u) ) {
+                    unless ( DW::Auth::Login->allowed($u) ) {
+                        $errors->add_string( 'user',
+                            'This account cannot sign in in its current state.' );
+                        $rv->{errors} = $errors;
+                        return DW::Template->render_template( 'mobile/login.tt', $rv,
+                            { no_sitescheme => 1 } );
+                    }
                     return DW::Auth::Login->start_challenge(
                         $u,
                         password => $post->{password},

@@ -205,7 +205,12 @@ for my $protected ( 0, 1 ) {
             'Verified grant cannot move to another browser'
         );
     }
-    ok( DW::Auth::Login->complete( $u, %$opts ), 'Verified grant completes login' );
+    my $activity = 0;
+    {
+        local *LJ::mark_user_active = sub { ++$activity };
+        ok( DW::Auth::Login->complete( $u, %$opts ), 'Verified grant completes login' );
+    }
+    is( $activity, 1, 'MFA session publication records normal login activity' );
     ok( $u->session->valid, 'Completed browser session has valid factor proof' );
     ok( !DW::Auth::Login->complete( $u, %$opts ), 'Completed grant cannot replay' );
     my @totp = DW::Auth::TOTP->_get_codes($u);
@@ -398,6 +403,91 @@ for my $protected ( 0, 1 ) {
             $protected ? qr{/login/2fa$} : qr{/mobile/},
             'Mobile login challenges only protected accounts'
         );
+    }
+}
+
+{
+    require DW::Controller::Settings;
+    my $u = temp_user();
+    $u->set_password('setup-password');
+    my $session = LJ::Session->create( $u, exptype => 'long' );
+    $u->{_session} = $session;
+    my $secret = DW::Auth::TOTP->generate_secret;
+    ok(
+        !DW::Auth::TOTP->enable( $u, $secret, 'setup-password', $session, 'invalid' ),
+        'Enrollment rejects an invalid setup code inside the transaction'
+    );
+    ok( !DW::Auth::TOTP->is_enabled($u), 'Rejected enrollment leaves factor disabled' );
+    ok( $session->valid,                 'Rejected enrollment keeps the current session' );
+    my $inactive = temp_user();
+    my $dbh      = LJ::get_db_writer();
+    $dbh->do( 'INSERT INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
+        undef, $inactive->id, 999, 'x' x 64, time() - 10 );
+    local *DW::Controller::Settings::controller = sub { ( 1, { r => $request, remote => $u } ) };
+    local *DW::Template::render_template        = sub { $_[2] };
+    my @codes = DW::Auth::TOTP->_get_codes( $u, secret => $secret );
+    local $request->{post} = {
+        'action:enable'   => 1,
+        password          => 'setup-password',
+        totp_secret       => $secret,
+        verification_code => $codes[-1]
+    };
+    my $result = DW::Controller::Settings::manage2fa_handler();
+    ok( $result->{just_enabled}, 'Settings controller enrolls with the setup code' );
+    ok( !DW::Auth::TOTP->verify( $u, $codes[-1] ), 'Enrollment code cannot be reused to log in' );
+    is(
+        $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM mfa_sessions WHERE userid=?',
+            undef, $inactive->id
+        ),
+        0,
+        'Proof cleanup includes expired rows of inactive accounts'
+    );
+    my $legacy = temp_user();
+    $legacy->update_self( { dversion => 9 } );
+    local *DW::Controller::Settings::controller =
+        sub { ( 1, { r => $request, remote => $legacy } ) };
+
+    for my $action (qw(action:setup action:enable)) {
+        $request->{post} = { $action => 1 };
+        my $result = DW::Controller::Settings::manage2fa_handler();
+        like(
+            $result->{message},
+            qr/password-storage upgrade/,
+            'Legacy enrollment explains the prerequisite instead of failing'
+        );
+    }
+}
+
+{
+    my $u = temp_user();
+    $u->set_password('race-password');
+    my $auth = \&LJ::auth_okay;
+    local *LJ::auth_okay = sub {
+        my $ok = $auth->(@_);
+        DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
+        return $ok;
+    };
+    my ( $ok, $error ) = DW::Controller::Talk::authenticate_user_and_mutate_form(
+        { usertype => 'user', userpost => $u->user, password => 'race-password' },
+        undef, $u );
+    ok( !$ok, 'Comment requires MFA if enrollment completes during password verification' );
+    like( $error, qr/another tab/, 'Racing comment retains the normal MFA sign-in guidance' );
+}
+
+{
+    my $u = temp_user();
+    $u->set_password('locked-password');
+    DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
+    local *DW::Controller::Mobile::Login::controller = sub {
+        ( 1, { r => $request, remote => undef } );
+    };
+    local *DW::Template::render_template = sub { $_[2] };
+    local $request->{post} = { user => $u->user, password => 'locked-password' };
+    for my $status (qw(L O)) {
+        $u->update_self( { statusvis => $status } );
+        my $result = DW::Controller::Mobile::Login::login_handler();
+        ok( $result->{errors}->exist, 'Protected unavailable account gets a mobile form error' );
     }
 }
 done_testing();

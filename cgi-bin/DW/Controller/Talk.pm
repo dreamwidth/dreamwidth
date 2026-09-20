@@ -723,7 +723,8 @@ sub authenticate_user_and_mutate_form {
             );
         }
 
-        if ($requires_2fa) {
+        # Enrollment may have completed while the password was being checked.
+        if ( DW::Auth::TOTP->is_enabled($up) ) {
             require DW::Auth::Login;
             $form->{password} = '';
             return $err->( DW::Auth::Login->required_message );
