@@ -23,7 +23,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-use LJ::Test qw(temp_user temp_comm temp_feed);
+use LJ::Test qw(temp_user);
 use LJ::Session;
 use DW::AccountSwitcher;
 use DW::Cache;
@@ -40,20 +40,11 @@ sub cookie {
 }
 sub get_remote_ip { "127.0.0.1" }
 sub header_in     { "" }
-sub note          { undef }
 
 sub add_cookie {
     my ( $self, %args ) = @_;
     $self->{jar}{ $args{name} } = $args{delete} ? undef : $args{value};
     push @{ $self->{set} }, \%args;
-}
-
-sub err_header_out {
-    my ( $self, $name, $values ) = @_;
-    return @{ $self->{set} } unless @_ > 2;
-    $self->{set}               = [@$values];
-    $self->{jar}               = { %{ $self->{incoming} || {} } };
-    $self->{jar}{ $_->{name} } = $_->{value} for @$values;
 }
 
 sub set_cookies {
@@ -82,7 +73,6 @@ sub new_request {
     $req = FakeRequest->new;
     DW::Cache->request->clear_ns('account_switcher');
     $req->{jar}{ljsessions} = $ljsessions if defined $ljsessions;
-    $req->{incoming} = { %{ $req->{jar} } };
     return $req;
 }
 
@@ -269,262 +259,4 @@ note("cookie-generation rotation drops the stored accounts");
     is( scalar DW::AccountSwitcher->accounts, 0, "rotated cookie gen -> empty list" );
 }
 
-note('One-off posting does not switch the browser identity');
-{
-    new_request();
-    login_active($ua);
-    DW::AccountSwitcher->store_account( $ub, 'long', '' );
-    ok( LJ::get_remote()->equals($ua), 'Storing account preserves active remote' );
-    ok( !master_userid(),              'Storing account does not write master cookie' );
-    my $posting = DW::AccountSwitcher->posting_user( $ub->id );
-    ok( $posting && $posting->equals($ub), 'Stored session authorizes posting identity' );
-    ok( !DW::AccountSwitcher->posting_user( $uc->id ), 'Arbitrary account ID rejected' );
-    ok( LJ::get_remote()->equals($ua), 'Choosing posting identity preserves remote' );
-    require DW::Controller::Talk;
-    my ( $ok, $auth ) = DW::Controller::Talk::authenticate_user_and_mutate_form(
-        { usertype => 'stored', posting_userid => $ub->id },
-        $ua, $uc );
-    ok( $ok && $auth->{user}->equals($ub), 'Comment authenticates as selected account' );
-    ok( !$auth->{didlogin},                'One-off comment does not log in' );
-    $ub->kill_all_sessions;
-    ok(
-        !DW::AccountSwitcher->posting_user( $ub->id ),
-        'Revoked stored session cannot authorize posting'
-    );
-    ($ok) = DW::Controller::Talk::authenticate_user_and_mutate_form(
-        { usertype => 'stored', posting_userid => $ub->id },
-        $ua, $uc );
-    ok( !$ok, 'Expired comment identity fails instead of falling back to active user' );
-}
-note('Stored comment identities must be personal accounts');
-{
-    new_request();
-    login_active($ua);
-    require DW::Controller::Talk;
-    DW::AccountSwitcher->store_account( $ub, 'long', '' );
-    for my $other ( temp_comm(), temp_feed() ) {
-        DW::AccountSwitcher->store_account( $other, 'long', '' );
-        my ($ok) = DW::Controller::Talk::authenticate_user_and_mutate_form(
-            { usertype => 'stored', posting_userid => $other->id },
-            $ua, $uc );
-        ok( !$ok, 'Stored non-personal account cannot author a comment' );
-        ok(
-            !DW::AccountSwitcher->posting_user( $other->id ),
-            'Posting resolver excludes non-personal account'
-        );
-    }
-    my @posting = DW::AccountSwitcher->posting_accounts;
-    is_deeply(
-        [ map { $_->{userid} } @posting ],
-        [ $ub->id ],
-        'Shared full-form, Quick Reply and RPC list excludes non-personal accounts'
-    );
-}
-note('Memorial accounts cannot be offered as comment authors');
-{
-    new_request();
-    login_active($ua);
-    my $memorial = temp_user();
-    DW::AccountSwitcher->store_account( $memorial, 'long', '' );
-    $memorial->update_self( { statusvis => 'M' } );
-    my @posting = DW::AccountSwitcher->posting_accounts;
-    ok(
-        !grep( { $_->{userid} == $memorial->id } @posting ),
-        'Shared comment-account list excludes memorial accounts'
-    );
-    ok(
-        !DW::AccountSwitcher->posting_user( $memorial->id ),
-        'Posting resolver rejects memorial accounts'
-    );
-}
-note('Login proof failures never publish a session');
-{
-    require DW::Auth::Login;
-    require DW::Auth::TOTP;
-    my $target = temp_user();
-    $target->set_password('proof-failure-password');
-    DW::Auth::TOTP->enable( $target, DW::Auth::TOTP->generate_secret );
-    my $factor = DW::Auth::TOTP->_factor_state($target)->{factor};
-    for my $mode ( 'normal', 'adding', 'store_only' ) {
-        for my $throws ( 0, 1 ) {
-            new_request();
-            my $active = login_active($ua);
-            DW::AccountSwitcher->store_account( $uc, 'long', '' );
-            my %before        = %{ $req->{jar} };
-            my $target_before = $target->{_session};
-            my $created;
-            my ( $audits, $activity ) = ( 0, 0 );
-            local *LJ::User::record_login = sub { ++$audits };
-            local *LJ::mark_user_active   = sub { ++$activity };
-            my $create = \&LJ::Session::create;
-            local *LJ::Session::create          = sub { $created = $create->(@_); };
-            local *DW::Auth::TOTP::mark_session = sub {
-                die 'Proof storage unavailable' if $throws;
-                return undef;
-            };
-            ok(
-                !DW::Auth::Login->complete(
-                    $target,
-                    mfa_verified => 1,
-                    factor       => $factor,
-                    $mode        => 1
-                ),
-                "$mode rejects unsuccessful proof publication"
-            );
-            is( $audits,   0, "$mode failed completion records no successful login" );
-            is( $activity, 0, "$mode failed completion records no login activity" );
-            is_deeply( $req->{jar}, \%before, "$mode leaves all browser cookies unchanged" );
-            ok( LJ::get_remote()->equals($ua) && $ua->session->id == $active->id,
-                "$mode preserves browsing session" );
-            is( $target->{_session}, $target_before,
-                "$mode restores target's previous session pointer" );
-            ok(
-                !LJ::Session->instance( $target, $created->id ),
-                "$mode deletes failed unpublished session"
-            );
-        }
-    }
-}
-
-note('Publication failures restore active and stored browser state');
-for my $mode ( 'normal', 'adding', 'store_only' ) {
-    for my $failure ( 'publication', 'audit', 'audit_false' ) {
-        new_request();
-        my $active = login_active($ua);
-        DW::AccountSwitcher->store_account( $uc, 'long', '' );
-        my %before   = %{ $req->{jar} };
-        my $target   = temp_user();
-        my $previous = $target->{_session};
-        my $created;
-        my $create = \&LJ::Session::create;
-        local *LJ::Session::create             = sub { $created = $create->(@_) };
-        local *LJ::User::publish_login_session = sub {
-            my ( $u, $session ) = @_;
-            $u->{_session} = $session;
-            LJ::set_remote($u);
-            $session->update_master_cookie;
-            die 'Publication failed' if $failure eq 'publication';
-            return 1;
-        };
-        my $store = \&DW::AccountSwitcher::store_account;
-        local *DW::AccountSwitcher::store_account = sub {
-            $store->(@_);
-            die 'Store publication failed' if $failure eq 'publication';
-            return 1;
-        };
-        my $notifications = 0;
-        local *LJ::Hooks::run_hook = sub { ++$notifications };
-        local *LJ::User::record_login =
-            sub { die 'Audit failed' if $failure eq 'audit'; return $failure ne 'audit_false' };
-        local *LJ::mark_user_active    = sub { ++$notifications };
-        local *LJ::User::note_activity = sub { ++$notifications };
-        ok( !DW::Auth::Login->complete( $target, $mode => 1 ), "$mode handles $failure failure" );
-        is( $notifications, 0, "$mode/$failure sends no successful-login notifications" );
-        is_deeply( $req->{jar}, \%before, "$mode/$failure restores all cookies" );
-        ok( LJ::get_remote()->equals($ua) && $ua->session->id == $active->id,
-            "$mode/$failure restores browsing identity" );
-        is( $target->{_session}, $previous, "$mode/$failure restores target pointer" );
-        ok( !LJ::Session->instance( $target, $created->id ), "$mode/$failure revokes new session" );
-        my @accounts = DW::AccountSwitcher->accounts;
-        is_deeply(
-            [ map { $_->{userid} } @accounts ],
-            [ $uc->id ],
-            "$mode/$failure restores cached stored-account list"
-        );
-    }
-}
-
-{
-    require DW::Request::Plack;
-    my $body = '';
-    open my $input, '<', \$body;
-    $req = DW::Request::Plack->new(
-        {
-            REQUEST_METHOD    => 'POST',
-            PATH_INFO         => '/login',
-            QUERY_STRING      => '',
-            SERVER_NAME       => 'localhost',
-            SERVER_PORT       => 80,
-            HTTP_HOST         => 'localhost',
-            REMOTE_ADDR       => '127.0.0.1',
-            'psgi.url_scheme' => 'http',
-            'psgi.input'      => $input,
-        }
-    );
-    LJ::set_remote(undef);
-    $req->add_cookie( name => 'existing', value => 'keep' );
-    my @before = $req->err_header_out('Set-Cookie');
-    my $target = temp_user();
-    my $created;
-    my $create = \&LJ::Session::create;
-    local *LJ::Session::create = sub { $created = $create->(@_) };
-    my $notifications = 0;
-    local *LJ::Hooks::run_hooks = sub { ++$notifications if $_[0] eq 'post_login' };
-    local *LJ::Hooks::run_hook  = sub { ++$notifications if $_[0] eq 'user_login' };
-    local *LJ::mark_user_active = sub { ++$notifications };
-    local *LJ::User::note_activity = sub { ++$notifications };
-    local *LJ::User::record_login  = sub {
-        my @headers = $req->err_header_out('Set-Cookie');
-        ok( grep( /ljmastersession=/, @headers ), 'Real publication queued a session cookie' );
-        return 0;
-    };
-    ok( !DW::Auth::Login->complete($target), 'Real Plack publication failure returns failure' );
-    is_deeply( [ $req->err_header_out('Set-Cookie') ],
-        \@before, 'Real response headers retain only cookies from before publication' );
-    ok( !LJ::get_remote(), 'Anonymous identity restored after failed publication' );
-    ok( !LJ::Session->instance( $target, $created->id ), 'Real unpublished session revoked' );
-    is( $notifications, 0, 'No successful-login activity before required audit write' );
-}
-for my $failure ( 'hook', 'activity' ) {
-    new_request();
-    my $target = temp_user();
-    my @warnings;
-    local $SIG{__WARN__} = sub { push @warnings, @_ };
-    local *LJ::Hooks::run_hook  = sub { die 'Notification unavailable' if $failure eq 'hook' };
-    local *LJ::mark_user_active = sub { die 'Activity unavailable'     if $failure eq 'activity' };
-    ok( DW::Auth::Login->complete($target), "$failure failure does not undo committed login" );
-    ok( $target->session->valid,            "$failure leaves a usable session" );
-    like( join( '', @warnings ), qr/Login notification failed/, "$failure failure is reported" );
-}
-for my $mode ( 'normal', 'adding', 'store_only' ) {
-    for my $revoked_first ( 0, 1 ) {
-        new_request();
-        login_active($ua);
-        my %before = %{ $req->{jar} };
-        my $target = temp_user();
-        my $lock   = \&LJ::Session::account_lock;
-        my ( $raced, $published );
-        local *LJ::Session::account_lock = sub {
-
-            # The first acquisition prepares the row; the second publishes cookies.
-            if ( $_[1]->equals($target) && $revoked_first && $raced++ == 1 ) {
-                LJ::Session->destroy_all_sessions($target);
-            }
-            return $lock->(@_);
-        };
-        my $check_lock = sub {
-            ++$published;
-            ok( !DW::Locker->new->trylock( 'sessions:' . $target->id, class => 'test' ),
-                "$mode publication excludes concurrent logout" );
-            ok( !LJ::get_db_writer()->{AutoCommit},
-                "$mode validation keeps credential-before-session lock order" );
-        };
-        my $publish = \&LJ::User::publish_login_session;
-        local *LJ::User::publish_login_session = sub { $check_lock->(); $publish->(@_) };
-        my $store = \&DW::AccountSwitcher::store_account;
-        local *DW::AccountSwitcher::store_account = sub { $check_lock->(); $store->(@_) };
-        my $result = DW::Auth::Login->complete( $target, $mode => 1 );
-        if ($revoked_first) {
-            ok( !$result,    "$mode rejects session revoked before publication lock" );
-            ok( !$published, "$mode never publishes revoked session" );
-            is_deeply( $req->{jar}, \%before,
-                "$mode failed validation keeps prior browser cookies" );
-        }
-        else {
-            ok( $result && $published, "$mode commits publication while session is authoritative" );
-        }
-        my $released = DW::Locker->new->trylock( 'sessions:' . $target->id, class => 'test' );
-        ok( $released, "$mode releases publication lock on success and failure" );
-    }
-}
 done_testing();

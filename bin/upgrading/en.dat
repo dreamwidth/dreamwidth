@@ -4965,10 +4965,9 @@ widget.importchoosesource.error.nohostname=Please select a service to import dat
 
 widget.importchoosesource.header=Where would you like to import from?
 
-widget.importchoosesource.intro=Please choose a service and type in the <strong>username and password or API key for the account on that service</strong> that you wish to import content from.  Do not type in your [[sitename]] username and password.  At the moment, we only support some LiveJournal-based hosts.
+widget.importchoosesource.intro=Please choose a service and type in the <strong>username and password for the acccount on that service</strong> that you wish to import content from.  Do not type in your [[sitename]] username and password.  At the moment, we only support some LiveJournal-based hosts.
 
-widget.importchoosesource.password=Password or API key on source service
-widget.importchoosesource.apikey=For Dreamwidth, enter an API key from the source account’s <a href="https://www.dreamwidth.org/api">API page</a>, not its password. Other services still use their account password.
+widget.importchoosesource.password=Password on other service
 
 widget.importchoosesource.service=Choose a service to import from:
 
@@ -5452,8 +5451,6 @@ widget.themenav.title2=Select a New Theme
 
 widget.usertagcloud.title=Tag Cloud
 
-xpost.api_key_upgrade=Your saved Dreamwidth password can no longer be used for crossposting. Enter an API key from the destination account’s API page. Save it in your Other Sites settings to use it for future posts.
-
 xpost.delete.error=Error deleting crossposted entry at [[username]]@[[server]]:  [[error]]
 
 xpost.delete.success=Crossposted entry at [[username]]@[[server]] deleted.
@@ -5466,8 +5463,6 @@ xpost.edit.success=Update of crosspost at [[username]]@[[server]] successful.  Y
 
 xpost.error=Failed to crosspost entry to [[username]]@[[server]]:  [[error]]
 
-xpost.error.api_key_required=Enter an API key for the Dreamwidth destination account.
-
 xpost.error.connection=Failed to connect to [[url]].
 
 xpost.error.invalidprotocol=Missing or invalid posting protocol.
@@ -5476,11 +5471,11 @@ xpost.nopw.cancel=Cancel
 
 xpost.nopw.checking=Getting authentication...
 
-xpost.nopw.required=Password or API key required.
+xpost.nopw.required=Password required.
 
 xpost.notrespected=This will not respect your default <a [[aopts]]>crosspost settings</a>. Your crossposted entries will not be updated.
 
-xpost.password=Password or API key:
+xpost.password=Password:
 
 xpost.poll.view=View poll: [[name]]
 

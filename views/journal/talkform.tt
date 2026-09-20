@@ -252,7 +252,56 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     [%- END -%]
 
-    [% PROCESS "journal/comment-accounts.tt" %]
+    [%# not-logged-in site user -%]
+    <div class="from-option" id="from-user-loggedout">
+      <input type='radio' name='usertype' value='user' data-more="from-user-more" id='talkpostfromlj'[% IF default_usertype == 'user' %] checked='checked'[% END %] />
+
+      <label for='talkpostfromlj'>
+        [% dw.img( 'id_user', '' ) %]
+        [% IF remote && ! remote.openid_identity %] Other [%- END %]
+        [% '.opt.siteuser' | ml( sitename => site.nameshort ) %]
+      </label>
+      [%- IF journal.screens_all -%]
+        [%- '.opt.willscreen' | ml -%]
+      [%- ELSIF journal.screens_non_access -%]
+        [%- '.opt.willscreenfriend' | ml -%]
+      [%- END -%]
+    </div>
+
+    [%# site user login form, always present but sometimes hidden -%]
+    <div class="from-login" id="from-user-more">
+      <div>
+        [%- form.textbox(
+          name = 'userpost'
+          id = 'username'
+          label = dw.ml('Username')
+          size = 13
+          maxlength = site.maxlength_user
+          value = comment.user
+          style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 50%; padding-left: 18px; color: #00C; font-weight: bold;"
+        ) -%]
+      </div>
+
+      <div>
+        [%- form.password(
+          name = 'password'
+          id= 'password'
+          label = dw.ml('Password')
+          maxlength = site.maxlength_pass
+          value = comment.password
+          size = 18
+        ) -%]
+      </div>
+
+      <div>
+        [%- form.checkbox(
+          name = 'do_login'
+          id = 'logincheck'
+          label = dw.ml('.loginq')
+          selected = comment.do_login
+        ) -%]
+      </div>
+    </div>
 
     [%- IF ! create_link && ! remote -%]
       <span style='font-size: 8pt; font-style: italic;'>
@@ -664,9 +713,61 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
         [%- END -%]
 
-        [% PROCESS "journal/comment-accounts.tt" %]
+        [%# not-logged-in site user -%]
+        <div class="from-option" id="from-user-loggedout">
 
-    [%- IF ! create_link && ! remote -%]
+            <input type='radio' name='usertype' value='user' data-more="from-user-more" id='talkpostfromlj'[% IF default_usertype == 'user' %] checked='checked'[% END %] />
+
+            <label for='talkpostfromlj'>
+              [% dw.img( 'id_user', '' ) %]
+              [% IF remote && ! remote.openid_identity %] Other [%- END %]
+              [% '.opt.siteuser' | ml( sitename => site.nameshort ) %]
+            </label>
+            [%- IF journal.screens_all -%]
+              [%- '.opt.willscreen' | ml -%]
+            [%- ELSIF journal.screens_non_access -%]
+              [%- '.opt.willscreenfriend' | ml -%]
+            [%- END -%]
+        </div>
+
+        [%# site user login form, always present but sometimes hidden -%]
+        <div class="from-login" id="from-user-more">
+
+          <div>
+            [%- form.textbox(
+              name = 'userpost'
+              id = 'username'
+              label = dw.ml('Username')
+              size = 13
+              maxlength = site.maxlength_user
+              value = comment.user
+              style = "background: url('${site.imgroot}/silk/identity/user.png') no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;"
+            ) -%]
+          </div>
+
+          <div>
+            [%- form.password(
+              name = 'password'
+              id= 'password'
+              label = dw.ml('Password')
+              maxlength = site.maxlength_pass
+              value = comment.password
+              size = 18
+            ) -%]
+          </div>
+
+          <div>
+            [%- form.checkbox(
+              name = 'do_login'
+              id = 'logincheck'
+              label = dw.ml('.loginq')
+              selected = comment.do_login
+            ) -%]
+          </div>
+
+        </div>
+
+        [%- IF ! create_link && ! remote -%]
 
               <span style='font-size: 8pt; font-style: italic;'>
                 [%- '.noaccount' | ml( aopts => "href='${site.root}/create'") -%]

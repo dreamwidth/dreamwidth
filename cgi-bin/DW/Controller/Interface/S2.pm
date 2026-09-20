@@ -49,7 +49,7 @@ sub interface_handler {
 
     my ($remote) = DW::Auth->authenticate( remote => 1, digest => 1 );
     return error( $r, $r->HTTP_UNAUTHORIZED, 'Unauthorized',
-        "You must send your $LJ::SITENAME username and API key or a valid session cookie\n" )
+        "You must send your $LJ::SITENAME username and password or a valid session cookie\n" )
         unless $remote;
 
     my $layeru = LJ::load_userid( $lay->{userid} );

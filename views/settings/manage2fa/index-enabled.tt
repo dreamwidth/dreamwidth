@@ -51,9 +51,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% END %]
 
 [% IF just_enabled %]
-<p>This account has been signed out on every device. Save your recovery codes above, then
-<a href="[% site.root %]/login?returnto=%2Fmanage2fa">sign in again</a> with your password and an authentication or recovery code.</p>
-[% ELSE %]
+<p>This browser remains signed in. Other browsers must sign in again with an authentication or recovery code. Save your recovery codes above.</p>
+[% END %]
 <h1>Disable 2FA</h1>
 
 <p>
@@ -62,7 +61,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </p>
 
 [% form.submit(name='action:disable', value='Disable Two-Factor Authentication') %]
-[% END %]
 
 
 </form>

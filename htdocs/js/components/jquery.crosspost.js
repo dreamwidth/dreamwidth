@@ -9,7 +9,7 @@ options: {
     locked: false,          // account is currently processing authentication
     failed: false,          // account has failed authentication
     strings: {
-        passwordRequired: "Password or API key required",
+        passwordRequired: "Password required",
         authenticating: "Authenticating...",
         cancel: "Cancel"
     }
@@ -104,10 +104,10 @@ doChallengeResponse: function() {
                 self._clearMessage();
                 if ( !data.success ) { self._trigger("chalrespcomplete"); return; }
 
-                self.apiKey = !!data.api_key;
                 var pass = self.$password.val();
-                self.$resp.val(self.apiKey ? "" : MD5(data.challenge + MD5(pass)));
-                self.$chal.val(self.apiKey ? "" : data.challenge);
+                var res = MD5(data.challenge + MD5(pass));
+                self.$resp.val(res);
+                self.$chal.val(data.challenge);
 
                 self.options.failed = false;
                 self.options.locked = false;
@@ -125,7 +125,7 @@ cancel: function() {
 },
 
 submit: function() {
-    if (this.needsPassword && !this.apiKey)
+    if (this.needsPassword)
         this.$password.val("");
 }
 

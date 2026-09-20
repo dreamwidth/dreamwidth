@@ -145,6 +145,8 @@ sub make_login_session {
     $exptype ||= 'short';
     return 0 unless $u;
 
+    eval { BML::get_request()->notes->{ljuser} = $u->user; };
+
     # create session and log user in
     my $sess_opts = {
         'exptype' => $exptype,
@@ -152,19 +154,29 @@ sub make_login_session {
     };
     $sess_opts->{nolog} = 1 if $fake_login;
 
-    my $sess = LJ::Session->create( $u, %$sess_opts ) or return 0;
+    my $sess = LJ::Session->create( $u, %$sess_opts );
     return $u->publish_login_session( $sess, $fake_login );
 }
 
-# Publish only a session whose required authentication has already completed.
+# A protected login supplies its already-verified session here.
 sub publish_login_session {
-    my ( $u, $sess, $fake_login, $defer_activity ) = @_;
-    die 'Session owner mismatch' unless $sess && $sess->owner->equals($u);
+    my ( $u, $sess, $fake_login ) = @_;
+    return 0 unless $sess && $sess->owner->equals($u);
     $u->{_session} = $sess;
-    eval { BML::get_request()->notes->{ljuser} = $u->user; };
+    if ($fake_login) {
+        require DW::Auth::TOTP;
+        DW::Auth::TOTP->authorize_impersonation( $u, $sess );
+    }
     $sess->update_master_cookie;
 
     LJ::User->set_remote($u);
+
+    unless ($fake_login) {
+
+        # add a uniqmap row if we don't have one already
+        my $uniq = LJ::UniqCookie->current_uniq;
+        LJ::UniqCookie->save_mapping( $uniq => $u );
+    }
 
     # run some hooks
     my @sopts;
@@ -178,19 +190,6 @@ sub publish_login_session {
     );
     my $sopts = @sopts ? ":" . join( '', map { ".$_" } @sopts ) : "";
     $sess->flags($sopts);
-
-    return 1 if $defer_activity;
-    return $u->finish_login_activity( $sess, $fake_login );
-}
-
-sub finish_login_activity {
-    my ( $u, $sess, $fake_login ) = @_;
-    unless ($fake_login) {
-
-        # add a uniqmap row if we don't have one already
-        my $uniq = LJ::UniqCookie->current_uniq;
-        LJ::UniqCookie->save_mapping( $uniq => $u );
-    }
 
     my $etime = $sess->expiration_time;
     LJ::Hooks::run_hooks(

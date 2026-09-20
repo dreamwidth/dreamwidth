@@ -721,8 +721,6 @@ sub create_qr_div {
         {
             form_url             => LJ::create_url( '/talkpost_do', host => $LJ::DOMAIN_WEB ),
             hidden_form_elements => $hidden_form_elements,
-            posting_accounts     => [ DW::AccountSwitcher->posting_accounts ],
-            active_usertype      => $usertype,
             post_disabled        => $post_disabled,
             post_button_class    => $post_disabled ? 'ui-state-disabled' : '',
 
@@ -1715,11 +1713,6 @@ MOODS
 
                         # password field if no password
                         $accthtml .= "<span id='prop_xpost_pwspan_$acctid'>";
-                        $accthtml .=
-                              '<span class="hint">'
-                            . BML::ml('xpost.api_key_upgrade')
-                            . '</span><br />'
-                            if $acct->needs_api_key_upgrade;
                         $accthtml .=
                               "<label for='prop_xpost_password_$acctid'>"
                             . BML::ml('xpost.password')

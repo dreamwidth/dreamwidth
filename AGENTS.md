@@ -105,69 +105,14 @@ Omit the `Fixes` line when there is no linked issue.
 
 ## Authentication
 
-- Browser password authentication belongs in `/login` and `DW::Auth::Login`.
-  Never add password-based login to a posting form or an API endpoint.
-- MFA challenges are short-lived, browser-bound database records. Completing
-  MFA records proof for the resulting session in `mfa_sessions`; session
-  validation rejects legacy/password-only sessions for TOTP accounts. Factor
-  state and session proof are cached: use the TOTP and session lifecycle
-  methods so factor changes and session revocation also invalidate caches.
-  Bind session proof to the factor actually verified; replacement sessions
-  may inherit existing proof but must never infer proof from the current factor.
-  Validate proof expiration even on cache hits, and clear clustered-session
-  caches before fallible central proof synchronization. When caching is configured,
-  abort factor changes if the pre-commit change marker cannot be published. A committed factor
-  change stays successful if its recoverable cache refresh fails. Prepare and
-  prove browser sessions before publishing active or stored-account cookies or
-  recording successful login activity. Publication failures must restore response
-  cookies, the request identity, and the account-switcher cache, and revoke the
-  new session. A failed audit write must fail login; post-login notifications and
-  activity run only after publication commits, and notification failures are logged
-  without undoing a successful login. Verified MFA grants remain browser-bound and
-  short-lived until completion, so retrying a transient failure needs no second code.
-  Cookie replacement and destruction share the session advisory lock, including
-  cache fills and logout-all session enumeration. Acquire password2 before this lock
-  and release it before optional central proof cleanup. Revocation must publish
-  both session and MFA denial markers before deleting cluster rows. Final login
-  publication (including stored accounts) reacquires credentials before the session
-  lock, re-reads the authoritative row, and commits required audits before success.
-  Session creation callers already holding the non-reentrant session lock must pass
-  its guard as `session_lock`; lazy expiry cleanup runs under it before insertion.
-  Ordinary sessions must not perform MFA proof synchronization; cluster deletion
-  remains authoritative when optional central proof cleanup is unavailable.
-- Comments may use a validated stored account session without changing the
-  active browsing account. Journal entries use the active account and must
-  reject a changed `poster_remote`, preserving the draft. Authorize comment
-  actions (including unscreening and editing) against the selected commenter,
-  not the browsing account that originally rendered the form.
-- An existing-entry edit submitted after an account switch must preserve only
-  submitted draft data; do not read saved private entry content for the new account.
-- Admin impersonation must reject TOTP-protected targets before logging the
-  administrator out, keeping the factor check and session creation under the
-  account lock. Commit preparation before publishing cookies, and retain the
-  administrator session until publication and all three audit writes succeed.
-  It must never grant second-factor session proof.
-- Protocol clients use API keys; keys must not mint browser sessions. Scoping
-  API key permissions is separate future work. Dreamwidth comment imports use
-  API-key challenge authentication directly on the export endpoint; never mint
-  a browser cookie for an importer. Crossposting to Dreamwidth and jbackup also
-  use fresh API-key challenges per operation. Unsaved crosspost keys must survive
-  form submission so the worker can authenticate multiple operations; do not
-  reduce them to one single-use challenge response. Saved Dreamwidth crosspost
-  credentials need explicit API-key type metadata; untyped legacy password digests
-  must leave both editors able to accept a replacement key. Other sites retain their own protocol.
-  API-key revocation must publish a denial before the database change and
-  serialize cache fills with that change; a failed cache write must abort revocation.
-- Login challenge/session creation, enrollment password checks, and recovery-code
-  disclosure must hold the same account-row lock as password and factor changes.
-  Recheck submitted credentials under that lock; never persist login passwords
-  in pending challenge payloads.
-- Password updates must preserve `password2.totp_secret`. Avoid `REPLACE` for
-  that row: it silently removes the second factor.
-- Authentication schema changes require updating both the development and test
-  databases in this worktree's container (`bin/upgrading/update-db.pl -r
-  --innodb`, then the same command with `DW_TEST=1`).
-- Stored-account cookies are scoped to the main site. Journal subdomains load
-  comment account names through the CSRF-protected `/rpc/comment-accounts`
-  endpoint. Never broaden session-cookie domains to populate a dropdown.
-- Development journal URLs use `/~username/`.
+- Preserve existing forms and password/API authentication for accounts without 2FA.
+  Only the account being authenticated determines whether a second factor is required.
+- Admin impersonation must remain available for every account, including accounts
+  with 2FA. Its existing server-side privilege checks authorize that access.
+- API keys retain their existing capabilities. Do not migrate unrelated clients,
+  invalidate saved credentials, or impose new account restrictions as part of TOTP.
+- Protected sessions require server-side authorization bound to the current factor:
+  verified MFA, authorized admin impersonation, or existing API-key session exchange.
+  Do not trust cookie flags as proof. Password updates must preserve `password2.totp_secret`.
+- Test both ordinary-account compatibility and protected-account enforcement.
+  Authentication schema updates must also be applied to the test database with `DW_TEST=1`.

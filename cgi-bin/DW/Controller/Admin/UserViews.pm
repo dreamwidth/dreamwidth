@@ -83,13 +83,6 @@ sub impersonate_controller {
             { user => LJ::ehtml( $form_args->{username} ) } )
             unless $u;
 
-        # Impersonation is not a second-factor bypass. Reject protected targets
-        # before replacing the administrator's current session.
-        require DW::Auth::TOTP;
-        $errors->add_string( 'username',
-            'Accounts protected by two-factor authentication cannot be impersonated.' )
-            if $u && DW::Auth::TOTP->is_enabled($u);
-
         my $password = $form_args->{password};
         $errors->add( 'password', '.error.invalidpassword' )
             unless $password && DW::Auth::Password->check( $remote, $password );
@@ -99,106 +92,21 @@ sub impersonate_controller {
 
         unless ( $errors->exist ) {
 
-            my $dbh = LJ::get_db_writer() or die 'Database unavailable';
-            $dbh->begin_work or die $dbh->errstr;
-            my ( $protected, $invalid_password );
-            my $previous_session = $u->{_session};
-            my $session;
-            my $admin_session = $remote->session;
-            my $publishing;
-            my @cookies      = $r->err_header_out('Set-Cookie');
-            my $impersonated = eval {
-                for my $userid ( sort { $a <=> $b } ( $u->id, $remote->id ) ) {
-                    $dbh->selectrow_array(
-                        'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
-                        undef, $userid );
-                    die $dbh->errstr if $dbh->err;
-                }
-                if ( DW::Auth::TOTP->is_enabled($u) ) {
-                    $protected = 1;
-                    $dbh->rollback;
-                    0;
-                }
-                elsif ( !DW::Auth::Password->check( $remote, $password ) ) {
-                    $invalid_password = 1;
-                    $dbh->rollback;
-                    0;
-                }
-                else {
-                    $session =
-                        LJ::Session->create( $u, exptype => 'once', nolog => 1, defer_login => 1 )
-                        or die 'Unable to create impersonation session';
-                    $u->{_session} = $previous_session;
-                    $dbh->commit or die $dbh->errstr;
+            $remote->logout;
 
-                    # Session preparation is committed; final publication uses
-                    # the same credential-before-session lock order.
-                    $dbh->begin_work or die $dbh->errstr;
-                    for my $userid ( sort { $a <=> $b } ( $u->id, $remote->id ) ) {
-                        $dbh->selectrow_array(
-                            'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
-                            undef, $userid );
-                        die $dbh->errstr if $dbh->err;
-                    }
-                    die 'Impersonation credentials changed'
-                        if DW::Auth::TOTP->is_enabled($u)
-                        || !DW::Auth::Password->check( $remote, $password );
-                    my $session_lock = LJ::Session->account_lock($u);
-                    my $current      = LJ::Session->_load_locked( $u, $session->id );
-                    die 'Impersonation session revoked' unless $current && $current->valid;
-                    $publishing = 1;
-                    $u->publish_login_session( $session, 1, 1 )
-                        or die 'Unable to publish impersonation session';
-                    $remote->log_event( 'impersonator',
-                        { actiontarget => $u->id, remote => $remote, reason => $reason } )
-                        or die 'Unable to audit impersonator';
-                    $u->log_event( 'impersonated',
-                        { actiontarget => $u->id, remote => $remote, reason => $reason } )
-                        or die 'Unable to audit impersonated account';
-                    LJ::statushistory_add( $u->id, $remote->id, 'impersonate', $reason )
-                        or die 'Unable to audit impersonation history';
-                    $dbh->commit or die $dbh->errstr;
+            if ( $u->make_fake_login_session ) {
 
-                    1;
-                }
-            };
-            if ($@) {
-                my $error = $@;
-                $dbh->rollback unless $dbh->{AutoCommit};
-
-                # Publication's lock has left scope before revocation reacquires it.
-                eval { $session->destroy } if $session;
-                $u->{_session} = $previous_session;
-                if ($publishing) {
-
-                    # Discard every target cookie, including trust and scheme
-                    # cookies, while preserving headers set before publication.
-                    $r->err_header_out( 'Set-Cookie', \@cookies );
-                    LJ::User->set_remote($remote);
-                }
-                die $error;
-            }
-            if ($impersonated) {
-                eval { $u->finish_login_activity( $session, 1 ); 1 }
-                    or warn 'Impersonation notification failed: ' . $@;
-
-                # Publication and required audits succeeded. A cleanup failure
-                # must not discard the usable target session and try to restore
-                # an already deleted administrator session.
-                if ($admin_session) {
-                    eval { $admin_session->destroy
-                            or die 'Unable to revoke administrator session' };
-                    warn "Impersonator session cleanup failed: $@" if $@;
-                }
+                # log for auditing
+                $remote->log_event( 'impersonator',
+                    { actiontarget => $u->id, remote => $remote, reason => $reason } );
+                $u->log_event( 'impersonated',
+                    { actiontarget => $u->id, remote => $remote, reason => $reason } );
+                LJ::statushistory_add( $u->id, $remote->id, 'impersonate', $reason );
 
                 return $r->redirect($LJ::SITEROOT);
             }
             else {
-                $protected
-                    ? $errors->add_string( 'username',
-                    'Accounts protected by two-factor authentication cannot be impersonated.' )
-                    : $invalid_password ? $errors->add( 'password', '.error.invalidpassword' )
-                    :                     $errors->add( '', '.error.failedlogin' );
+                $errors->add( '', '.error.failedlogin' );
             }
         }
     }

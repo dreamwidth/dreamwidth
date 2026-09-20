@@ -68,9 +68,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 ) -%]
                 [% IF account.need_password %]
                     <div class='crosspost-password-container'>
-                        [% IF account.needs_api_key_upgrade %]
-                        <p class="hint">[% 'xpost.api_key_upgrade' | ml %]</p>
-                        [% END %]
                         [%- form.password( label = crosspost_password_label
                                 name = "crosspost_password_$account.id"
 

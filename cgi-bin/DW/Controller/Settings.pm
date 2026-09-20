@@ -324,7 +324,9 @@ sub manage2fa_handler {
                 _totp_setup_vars( $secret, $errors ) );
         }
 
-        unless ( DW::Auth::TOTP->enable( $remote, $secret, $post_args->{password} ) ) {
+        unless (
+            DW::Auth::TOTP->enable( $remote, $secret, $post_args->{password}, $remote->session ) )
+        {
             LJ::handle_bad_login($remote);
             $errors->add_string( password => 'Invalid password. Please try again.' );
             return DW::Template->render_template( 'settings/manage2fa/setup.tt',
@@ -371,7 +373,8 @@ sub changepassword_handler {
     my $get = $r->get_args;
     my $post;
 
-    my $remote = $rv->{remote};
+    my $remote    = $rv->{remote};
+    my $needs_2fa = $remote && DW::Auth::TOTP->is_enabled($remote);
 
     my ( $aa, $authu );
     my $ml_scope = "/settings/changepassword.tt";
@@ -448,9 +451,12 @@ sub changepassword_handler {
         $errors->add( "newpass1", ".error.notvalidated" )
             if $u->{status} ne 'A' && !$authu;
 
+        my $factor_change = $u && !$authu && DW::Auth::TOTP->is_enabled($u);
+        $needs_2fa = $factor_change if !$errors->exist;
+
         # Consume a one-use factor only after the proposed password and account
         # have passed all validation. A failed update rolls consumption back.
-        unless ( $errors->exist ) {
+        if ( !$errors->exist && $factor_change ) {
             my $dbh = LJ::get_db_writer() or die 'Database unavailable';
             $dbh->begin_work or die $dbh->errstr;
             my $changed = eval {
@@ -488,6 +494,7 @@ sub changepassword_handler {
         unless ( $errors->exist ) {
             $u->infohistory_add( 'password', 'changed' );
             $u->log_event( 'password_change', { remote => $remote } );
+            $u->set_password( $post->{newpass1} ) unless $factor_change;
 
             # if we used an authcode, we'll need to expire it now
             LJ::mark_authaction_used($aa) if $authu;
@@ -558,8 +565,9 @@ sub changepassword_handler {
             && !$r->did_post
             && $remote->{status} ne 'A',
 
-        authu  => $authu,
-        remote => $remote,
+        needs_2fa => $needs_2fa,
+        authu     => $authu,
+        remote    => $remote,
 
         formdata => $post || { user => $remote ? $remote->user : "" },
         errors   => $errors,

@@ -229,10 +229,9 @@ sub _current_handle {
 
 # Add a freshly-authenticated account and make it active, demoting the current
 # active into the stored list. $u must already be password-verified by the
-# caller, including any required second factor. Returns 1.
+# caller. Returns 1.
 sub add_account {
-    my ( $class, $u, $exptype, $ipfixed, $session, $defer_activity ) = @_;
-    die 'Session owner mismatch' if $session && !$session->owner->equals($u);
+    my ( $class, $u, $exptype, $ipfixed, $session ) = @_;
 
     my @list = grep { $_->{userid} != $u->userid } @{ $class->_entries };
 
@@ -242,45 +241,11 @@ sub add_account {
     }
     $class->_write( \@list );
 
-    # Browser authentication can supply an already-proven, unpublished session.
-    return $session
-        ? $u->publish_login_session( $session, 0, $defer_activity )
-        : $u->make_login_session( $exptype, $ipfixed );
-}
+    # make_login_session creates a new session for $u, writes the master cookie,
+    # and sets the remote -- exactly like a normal login.
+    return $u->publish_login_session($session) if $session;
+    $u->make_login_session( $exptype, $ipfixed );
 
-# Only personal accounts can be offered as alternate comment authors.
-sub posting_accounts {
-    my ($class) = @_;
-    return grep { $_->{valid} && $_->{u}->is_person && !$_->{u}->is_memorial } $class->accounts;
-}
-
-# Resolve a posting identity without changing the active browser account.
-sub posting_user {
-    my ( $class, $userid ) = @_;
-    return unless defined $userid && $userid =~ /^\d+$/;
-    my $remote = LJ::get_remote();
-    return $remote
-        if $remote && $remote->is_person && !$remote->is_memorial && $remote->id == $userid;
-    my ($entry) = grep { $_->{userid} == $userid } @{ $class->_entries };
-    return unless $entry;
-    my $rec = $class->_resolve($entry);
-    return
-           $rec
-        && $rec->{valid}
-        && $rec->{u}->is_person
-        && !$rec->{u}->is_memorial ? $rec->{u} : undef;
-}
-
-# Store a fully authenticated session without writing the active-account cookies.
-sub store_account {
-    my ( $class, $u, $exptype, $ipfixed, $session ) = @_;
-    my $sess =
-        $session || LJ::Session->create( $u, exptype => $exptype || 'short', ipfixed => $ipfixed )
-        or die 'Unable to create session';
-    die 'Session owner mismatch' unless $sess->owner->equals($u);
-    my @list = grep { $_->{userid} != $u->id } @{ $class->_entries };
-    push @list, { userid => $u->id, sessid => $sess->id, auth => $sess->auth };
-    $class->_write( \@list );
     return 1;
 }
 

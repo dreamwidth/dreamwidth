@@ -19,7 +19,9 @@ use strict;
 
 use Digest::SHA1;
 use MIME::Base64;
+use DW::Auth::TOTP;
 use DW::API::Key;
+use Digest::MD5 ();
 
 =head1 NAME
 
@@ -152,27 +154,40 @@ sub _auth_wsse {
     my $u = LJ::load_user( LJ::canonical_username( $creds{username} ) )
         or return $fail->("invalid username [$creds{username}]");
 
-    return $fail->('account unavailable') unless $u->is_person;
-
     if ( @LJ::MEMCACHE_SERVERS && ref $nonce_dup ) {
         $$nonce_dup = 1
             unless LJ::MemCache::add( "wsse_auth:$creds{username}:$creds{nonce}", 1, 180 );
     }
 
-    # Legacy WSSE clients use API keys as their shared secret.
-    my $valid = 0;
-    for my $key ( @{ DW::API::Key->get_keys_for_user($u) || [] } ) {
-        for my $nonce ( $creds{nonce}, MIME::Base64::decode_base64( $creds{nonce} ) ) {
-            $valid = 1
-                if Digest::SHA1::sha1_base64( $nonce . $creds{created} . $key->hash ) eq
-                $creds{passworddigest};
+    if ( DW::Auth::TOTP->is_enabled($u) ) {
+        return $fail->('ip_ratelimiting') if LJ::login_ip_banned($u);
+        for my $key ( @{ DW::API::Key->get_keys_for_user($u) || [] } ) {
+            for my $nonce ( $creds{nonce}, MIME::Base64::decode_base64( $creds{nonce} ) ) {
+                return ( $u, undef )
+                    if Digest::SHA1::sha1_base64( $nonce . $creds{created} . $key->hash ) eq
+                    $creds{passworddigest};
+            }
+        }
+        LJ::handle_bad_login($u);
+        return $fail->('Use an API key for this two-factor account');
+    }
+
+    # validate hash
+    my $hash = Digest::SHA1::sha1_base64( $creds{nonce} . $creds{created} . $u->password );
+
+    # Nokia's WSSE implementation is incorrect as of 1.5, and they
+    # base64 encode their nonce *value*.  If the initial comparison
+    # fails, we need to try this as well before saying it's invalid.
+    if ( $hash ne $creds{passworddigest} ) {
+        $hash =
+            Digest::SHA1::sha1_base64(
+            MIME::Base64::decode_base64( $creds{nonce} ) . $creds{created} . $u->password );
+
+        if ( $hash ne $creds{passworddigest} ) {
+            LJ::handle_bad_login($u);
+            return $fail->("hash wrong");
         }
     }
-    unless ($valid) {
-        LJ::handle_bad_login($u);
-        return $fail->('hash wrong');
-    }
-    return $fail->('account unavailable') if $u->is_locked || $u->is_memorial || $u->is_expunged;
 
     return $fail->("ip_ratelimiting")
         if LJ::login_ip_banned($u);
@@ -219,9 +234,27 @@ sub _auth_basic {
     # must be a person and have a password
     return $decline->() unless $u && $u->is_person;
     return $decline->()
-        unless DW::API::Key->authenticate( $u, $password );
+        unless $password
+        && (
+          DW::Auth::TOTP->is_enabled($u)
+        ? __PACKAGE__->api_key_authenticate( $u, $password )
+        : $u->check_password($password)
+        );
 
     return ( $u, undef );
+}
+
+# Protected accounts use existing API keys in password-based protocol fields.
+# Other accounts retain the caller's original password authentication path.
+sub api_key_authenticate {
+    my ( $class, $u, $credential, $hashed ) = @_;
+    return 0 unless $u && defined $credential;
+    return 0 if LJ::login_ip_banned($u);
+    for my $key ( @{ DW::API::Key->get_keys_for_user($u) || [] } ) {
+        return 1 if $credential eq ( $hashed ? Digest::MD5::md5_hex( $key->hash ) : $key->hash );
+    }
+    LJ::handle_bad_login($u);
+    return 0;
 }
 
 =head1 AUTHOR

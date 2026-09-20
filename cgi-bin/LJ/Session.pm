@@ -16,7 +16,6 @@ use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
 use LJ::Utils;
-use DW::Locker;
 
 use constant VERSION => 1;
 
@@ -57,35 +56,18 @@ sub instance {
     # try memory
     my $memkey = _memkey( $u, $sessid );
     my $sess   = LJ::MemCache::get($memkey);
-    return $sess->{revoked} ? undef : $sess if $sess;
+    return $sess if $sess;
 
-    my $lock = $class->account_lock($u);
+    # try master
+    $sess = $u->selectrow_hashref(
+        "SELECT userid, sessid, exptype, auth, timecreate, timeexpire, ipfixed "
+            . "FROM sessions WHERE userid=? AND sessid=?",
+        undef, $u->{'userid'}, $sessid
+    ) or return undef;
 
-    $sess = $class->_load_locked( $u, $sessid ) or return undef;
+    bless $sess;
     LJ::MemCache::set( $memkey, $sess );
     return $sess;
-}
-
-# The caller holds account_lock. Read authoritative state, never a cached row.
-sub _load_locked {
-    my ( $class, $u, $sessid ) = @_;
-    my $row = $u->selectrow_hashref(
-        'SELECT userid, sessid, exptype, auth, timecreate, timeexpire, ipfixed '
-            . 'FROM sessions WHERE userid=? AND sessid=?',
-        undef, $u->id, $sessid
-    );
-    die $u->errstr if $u->err;
-    return $row ? bless( $row, $class ) : undef;
-}
-
-# Serialize session cache fills, destruction, and cookie-based replacement.
-# Factor-changing callers acquire password2 first; release this lock before
-# optional central proof cleanup to avoid reversing that lock order.
-sub account_lock {
-    my ( $class, $u ) = @_;
-    my $lock = DW::Locker->new->trylock( 'sessions:' . $u->id, class => 'sessions', wait => 10 )
-        or die 'Unable to lock account sessions';
-    return $lock;
 }
 
 sub active_sessions {
@@ -109,10 +91,8 @@ sub create {
     # validate options
     my $exptype = delete $opts{'exptype'} || "short";
     my $ipfixed = delete $opts{'ipfixed'};              # undef or scalar ipaddress  FIXME: validate
-         # Authentication preparation defers audit/activity until session publication.
-    my $session_lock = delete $opts{session_lock};
-    my $defer_login  = delete $opts{defer_login};
-    my $nolog        = delete $opts{'nolog'} || 0;    # 1 to not log to loginlogs
+    my $defer_login = delete $opts{defer_login};
+    my $nolog       = delete $opts{'nolog'} || 0;       # 1 to not log to loginlogs
     croak("Invalid exptype") unless $exptype =~ /^short|long|once$/;
 
     croak( "Invalid options: " . join( ", ", keys %opts ) ) if %opts;
@@ -120,14 +100,11 @@ sub create {
     my $udbh = LJ::get_cluster_master($u);
     return undef unless $udbh;
 
-    # Callers replacing a session already hold this non-reentrant lock. Clean
-    # expired rows before inserting anything, using that same held lock.
-    $session_lock ||= $class->account_lock($u);
-    my $expired = $udbh->selectcol_arrayref(
-        'SELECT sessid FROM sessions WHERE userid=? AND timeexpire < UNIX_TIMESTAMP()',
-        undef, $u->id )
-        or die $udbh->errstr;
-    $class->_destroy_sessions_locked( $u, @$expired ) if @$expired;
+    # clean up any old, expired sessions they might have (lazy clean)
+    $u->do( "DELETE FROM sessions WHERE userid=? AND timeexpire < UNIX_TIMESTAMP()",
+        undef, $u->{userid} );
+
+    # FIXME: but this doesn't remove their memcached keys
 
     my $expsec     = LJ::Session->session_length($exptype);
     my $timeexpire = time() + $expsec;
@@ -154,6 +131,13 @@ sub create {
     return undef if $u->err;
     $sess->{'sessid'} = $id;
     $sess->{'userid'} = $u->{'userid'};
+
+    # clean up old sessions
+    my $old =
+        $udbh->selectcol_arrayref( "SELECT sessid FROM sessions WHERE "
+            . "userid=$u->{'userid'} AND "
+            . "timeexpire < UNIX_TIMESTAMP()" );
+    $u->kill_sessions(@$old) if $old;
 
     # mark account as being used
     LJ::mark_user_active( $u, 'login' ) unless $defer_login;
@@ -223,8 +207,6 @@ sub _dbupdate {
         $sess->{$k} = $changes{$k};
     }
 
-    # The cluster mutation succeeded. Never leave its old cache entry live if
-    # synchronizing the central MFA proof subsequently fails.
     LJ::MemCache::delete( $sess->_memkey );
     if ( exists $changes{timeexpire} ) {
         require DW::Auth::TOTP;
@@ -745,46 +727,28 @@ sub destroy_all_sessions {
     my $udbh = LJ::get_cluster_master($u)
         or return 0;
 
-    my $lock     = $class->account_lock($u);
     my $sessions = $udbh->selectcol_arrayref( "SELECT sessid FROM sessions WHERE " . "userid=?",
         undef, $u->{'userid'} );
 
-    die $udbh->errstr unless $sessions;
-    my $result = $class->_destroy_sessions_locked( $u, @$sessions );
-    $lock->release;
-    DW::Auth::TOTP->revoke_session_proofs( $u, @$sessions ) if $result && @$sessions;
-    return $result;
+    return LJ::Session->destroy_sessions( $u, @$sessions ) if @$sessions;
+    return 1;
 }
 
 # class method
 sub destroy_sessions {
     my ( $class, $u, @sessids ) = @_;
 
-    return 1 unless @sessids;
-    my $lock   = $class->account_lock($u);
-    my $result = $class->_destroy_sessions_locked( $u, @sessids );
-    $lock->release;
-    DW::Auth::TOTP->revoke_session_proofs( $u, @sessids ) if $result;
-    return $result;
-}
-
-sub _destroy_sessions_locked {
-    my ( $class, $u, @sessids ) = @_;
     my $in = join( ',', map { $_ + 0 } @sessids );
     return 1 unless $in;
-    require DW::Auth::TOTP;
-    DW::Auth::TOTP->deny_session_proofs( $u, @sessids );
-    if (@LJ::MEMCACHE_SERVERS) {
-        for my $id (@sessids) {
-            LJ::MemCache::set( _memkey( $u, $id ), { revoked => 1 }, 300 )
-                or die 'Unable to publish session revocation';
-        }
-    }
     my $userid = $u->{'userid'};
-    $u->do( "DELETE FROM sessions WHERE userid=? AND sessid IN ($in)", undef, $userid )
-        or die 'Unable to delete account sessions';
-    $u->do( "DELETE FROM sessions_data WHERE userid=? AND sessid IN ($in)", undef, $userid )
-        or die 'Unable to delete account session data';
+    foreach (qw(sessions sessions_data)) {
+        $u->do( "DELETE FROM $_ WHERE userid=? AND " . "sessid IN ($in)", undef, $userid )
+            or return 0;    # FIXME: use Error::Strict
+    }
+    foreach my $id (@sessids) {
+        $id += 0;
+        LJ::MemCache::delete( _memkey( $u, $id ) );
+    }
     return 1;
 
 }
@@ -948,11 +912,11 @@ sub _memkey {
     if ( @_ == 2 ) {
         my ( $u, $sessid ) = @_;
         $sessid += 0;
-        return [ $u->{'userid'}, "ljms-v2:$u->{'userid'}:$sessid" ];
+        return [ $u->{'userid'}, "ljms:$u->{'userid'}:$sessid" ];
     }
     else {
         my $sess = shift;
-        return [ $sess->{'userid'}, "ljms-v2:$sess->{'userid'}:$sess->{sessid}" ];
+        return [ $sess->{'userid'}, "ljms:$sess->{'userid'}:$sess->{sessid}" ];
     }
 }
 

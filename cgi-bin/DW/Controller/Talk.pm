@@ -3,7 +3,6 @@ package DW::Controller::Talk;
 use strict;
 use LJ::JSON;
 use DW::Controller;
-use DW::AccountSwitcher;
 use DW::Routing;
 use DW::Template;
 use DW::Formats;
@@ -599,15 +598,6 @@ sub authenticate_user_and_mutate_form {
         return ( 1, { user => $user, didlogin => $didlogin } );
     };
 
-    # In a non-JavaScript form, choosing an alternate account without its
-    # radio option must never silently post as the active account or anonymous.
-    if ( $form->{posting_userid} && $form->{usertype} ne 'stored' ) {
-        return $incoherent->()
-            unless $remote
-            && ( $form->{usertype} eq 'cookieuser' || $form->{usertype} eq 'openid_cookie' )
-            && $form->{posting_userid} eq $remote->id;
-    }
-
     # The "usertype" field must be one of the following. (Each value might have
     # some associated fields it expects, which are shown as nested lists.)
     # - anonymous
@@ -620,9 +610,10 @@ sub authenticate_user_and_mutate_form {
     #   - cookieuser (= ext_1234) (in quickreply)
     # - cookieuser (currently logged in user)
     #   - cookieuser (= username) (yes, "cookieuser" is the field's name)
-    # - stored (validated session from the browser account switcher)
-    #   - posting_userid
-    # - user (obsolete password form; redirects users to shared login)
+    # - user (non-logged-in user, w/ name/password provided)
+    #   - userpost (the username provided in the form)
+    #   - password
+    #   - do_login
 
     # CHECKLIST:
     # 1. Check for incoherent combinations of fields. (Most can only happen with
@@ -661,18 +652,97 @@ sub authenticate_user_and_mutate_form {
             return $mlerr->("/talkpost_do.tt.error.lostcookie");
         }
     }
-    elsif ( $form->{usertype} eq 'stored' ) {
-        return $incoherent->() if $form->{oidurl} || $form->{userpost};
-        my $u = DW::AccountSwitcher->posting_user( $form->{posting_userid} );
-        return $err->(
-            'That account is no longer signed in. Sign in again; your comment has not been posted.')
-            unless $u && $u->is_person && !$u->is_locked && !$u->is_memorial && !$u->is_expunged;
-        return $got_user->($u);
-    }
     elsif ( $form->{usertype} eq 'user' ) {
-        return $err->(
-"Please <a href='$LJ::SITEROOT/login'>sign in</a> before commenting as a Dreamwidth account."
-        );
+        if ( $form->{oidurl} ) {
+            return $incoherent->();
+        }
+
+        # No username?
+        if ( !$form->{userpost} ) {
+            my $iscomm = $journalu->is_community ? '.comm' : '';
+            my $noanon = $journalu->prop('opt_whocanreply') eq 'all' ? '' : '.noanon';
+            return $mlerr->(
+                "/talkpost_do.tt.error.nousername$noanon$iscomm",
+                { sitename => $LJ::SITENAMESHORT }
+            );
+        }
+
+        my $exptype;    # set to long if ! after username
+        my $ipfixed;    # set to remote ip if < after username
+
+        # Parse inline login options.
+        # MUTATE FORM: remove trailing garbage from username.
+        if ( $form->{userpost} =~ s/([!<]{1,2})$// ) {
+            $exptype = 'long' if index( $1, "!" ) >= 0;
+            $ipfixed = LJ::get_remote_ip() if index( $1, "<" ) >= 0;
+        }
+
+        my $up = LJ::load_user( $form->{userpost} );
+
+        # Now for all the things that can go wrong:
+        if ( !$up ) {
+            return $mlerr->(
+                "/talkpost_do.tt.error.badusername2",
+                {
+                    sitename => $LJ::SITENAMESHORT,
+                    aopts    => "href='$LJ::SITEROOT/lostinfo'"
+                }
+            );
+        }
+
+        if ( $up->is_identity ) {
+            return $err->( "To comment as an OpenID user, you must choose the "
+                    . "OpenID option and authenticate with your identity provider; "
+                    . "it's not possible to log in using an OpenID account's "
+                    . "internal 'ext_12345' username." );
+        }
+
+        if ( $up->is_community || $up->is_syndicated ) {
+            return $mlerr->("/talkpost_do.tt.error.postshared");
+        }
+
+        require DW::Auth::TOTP;
+        my $requires_2fa = DW::Auth::TOTP->is_enabled($up);
+        return $got_user->($remote)
+            if $requires_2fa
+            && $remote
+            && $remote->equals($up)
+            && $remote->session
+            && $remote->session->valid;
+
+        # authenticate on username/password
+        my $ok = LJ::auth_okay( $up, $form->{password} );
+
+        unless ($ok) {
+
+            # Don't pre-populate the fix-up form with a password we already know is wrong.
+            $form->{password} = '';
+            return $mlerr->(
+                "/talkpost_do.tt.error.badpassword2",
+                { aopts => "href='$LJ::SITEROOT/lostinfo'" }
+            );
+        }
+
+        if ($requires_2fa) {
+            require DW::Auth::Login;
+            $form->{password} = '';
+            return $err->( DW::Auth::Login->required_message );
+        }
+
+        # GREAT, they're in!
+
+        # if the user chooses to log in, do so
+        if ( $form->{do_login} ) {
+            $didlogin = $up->make_login_session( $exptype, $ipfixed );
+
+            # MUTATE FORM: change the usertype, so if they need to fix an
+            # unrelated error and are already logged in, the form uses the
+            # "currently logged-in user" option.
+            $form->{usertype}   = 'cookieuser';
+            $form->{cookieuser} = $up->user;
+        }
+
+        return $got_user->($up);
     }
     elsif ( $form->{usertype} eq 'openid' || $form->{usertype} eq 'openid_cookie' ) {
         if ( $form->{userpost} ) {

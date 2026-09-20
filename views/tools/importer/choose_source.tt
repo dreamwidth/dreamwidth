@@ -30,7 +30,6 @@
     <div class='i-password row'>
         <label for='password'>[% "widget.importchoosesource.password" | ml %]</label>
         [% form.password(name = 'password') %]
-        <p>[% 'widget.importchoosesource.apikey' | ml %]</p>
     </div>
 
     [%- IF u.is_community -%]

@@ -51,17 +51,15 @@ sub login_handler {
 
     # The page to send the user back to after a successful login. Prefer the
     # POSTed value (form resubmission) over the GET value so a failed login
-    # attempt keeps the destination. Validate it before storing or redirecting
-    # so external destinations and header injection cannot enter the flow.
+    # attempt keeps the destination. Strip CR/LF up front so the value can't be
+    # used for header injection when it later builds a Location header on
+    # redirect.
     my $returnto = $post->{returnto} // $get->{returnto};
-    $returnto //= $post->{ret}             if $post->{ret} && $post->{ret} ne '1';
-    $returnto //= $r->header_in('Referer') if ( $post->{ret} // $get->{ret} // '' ) eq '1';
-    $returnto = DW::Auth::Login->return_url($returnto);
+    $returnto =~ tr/\r\n//d if defined $returnto;
 
     # "add another account" intent: a login submitted while already logged in
     # should add a session rather than change the current one's options.
-    my $store_only = ( $post->{store_only} || $get->{store_only} ) ? 1 : 0;
-    my $adding = ( $post->{switch} || $get->{switch} || $store_only ) ? 1 : 0;
+    my $adding = ( $post->{switch} || $get->{switch} ) ? 1 : 0;
 
     my $vars = {
         continue_to => $get->{continue_to},
@@ -74,7 +72,6 @@ sub login_handler {
         # render the login form (not the change-options form) even when logged
         # in, so the user can sign in to an additional account.
         add_account => $adding,
-        store_only  => $store_only,
 
         # canonicalized so a reflected ?user= can't inject markup into the form
         prefill_user => LJ::canonical_username( $get->{user} // '' ),
@@ -82,7 +79,8 @@ sub login_handler {
 
     my @errors = ();
 
-    my $cursess = $remote ? $remote->session : undef;
+    my $cursess    = $remote ? $remote->session : undef;
+    my $old_remote = $remote;
 
     return error_ml("/login.tt.dbreadonly") if $remote && $remote->readonly;
 
@@ -233,48 +231,68 @@ sub login_handler {
                     : "short";
                 my $bindip = ( ( $post->{'bindip'} // '' ) eq "yes" ) ? $r->get_remote_ip : "";
 
-                my %completion = (
-                    exptype    => $exptype,
-                    bindip     => $bindip,
-                    adding     => $adding,
-                    store_only => $store_only,
-                    returnto   => $returnto
-                );
                 if ( DW::Auth::TOTP->is_enabled($u) ) {
-                    my $token =
-                        DW::Auth::Login->begin( $u, %completion, password => $post->{password} );
-                    return error_ml('error.invalidform') unless $token;
-                    $r->add_cookie(
-                        name     => 'ljmfapending',
-                        value    => $token,
-                        httponly => 1,
-                        SameSite => 'Lax',
-                        path     => '/login'
+                    my $destination = $returnto;
+                    $destination ||= $r->header_in('Referer')
+                        if ( $post->{ret} // $get->{ret} // '' ) eq '1';
+                    return DW::Auth::Login->start_challenge(
+                        $u,
+                        password => $post->{password},
+                        exptype  => $exptype,
+                        bindip   => $bindip,
+                        adding   => $adding,
+                        returnto => DW::Auth::Login->return_url($destination)
                     );
-                    $r->add_cookie(
-                        name     => 'ljmfarestart',
-                        value    => DW::Auth::Login->restart_token(%completion),
-                        httponly => 1,
-                        SameSite => 'Lax',
-                        path     => '/login'
-                    );
-                    return $r->redirect("$LJ::SITEROOT/login/2fa");
                 }
-                DW::Auth::Login->complete( $u, %completion, password => $post->{password} )
-                    or return error_ml('error.invalidform');
+
+                # when adding a second account, keep the current one signed in
+                # and demote it into the switcher's stored list
+                if ( $adding && $old_remote && !$old_remote->equals($u) ) {
+                    DW::AccountSwitcher->add_account( $u, $exptype, $bindip );
+                }
+                else {
+                    $u->make_login_session( $exptype, $bindip );
+                }
+                LJ::Hooks::run_hook( 'user_login', $u );
                 $cursess = $u->session;
 
                 DW::Stats::increment( 'dw.action.session.login_ok', 1,
-                    [ 'bindip:' . ( $bindip ? 'yes' : 'no' ), "exptype:$exptype" ] );
+                    [ 'bindip:' . $bindip ? 'yes' : 'no', "exptype:$exptype" ] );
 
-                $remote = LJ::get_remote();
+                LJ::set_remote($u);
+                $remote = $u;
 
                 $set_cache->();
 
+# handle redirects
+# these take two different forms
+# 1) the form has a `returnto` value OR has a `ret` value and it is equal to something other than one
+# this is the url to return to after doing login
+# 2) the form has a `ret` value and it is equal to 1
+# the url to return to should be pulled from the Referer header
+#
+# In both cases, we need to validate the URL before we redirect to it, to prevent XSS and similar attacks
+
+                my $redirect_url;
                 if ($returnto) {
-                    my $redirect_url = $returnto;
-                    $redirect_url =~ s/#.*$// if $store_only;
-                    $redirect_url .= '#post-as-' . $u->id if $store_only;
+
+                    # this passes in the URI of the page to redirect to on success, eg:
+                    # /manage/profile/index?authas=test or whatever
+                    $redirect_url = $returnto;
+                    if ( $redirect_url =~ /^\// ) {
+                        $redirect_url = $LJ::SITEROOT . $redirect_url;
+                    }
+                }
+                elsif ( $post->{ret} && $post->{ret} != 1 ) {
+                    $redirect_url = $post->{ret};
+                }
+                elsif ($get->{'ret'} && $get->{'ret'} == 1
+                    || $post->{'ret'} && $post->{'ret'} == 1 )
+                {
+                    $redirect_url = $r->header_out('Referer');
+                }
+
+                if ( $redirect_url && DW::Controller::validate_redirect_url($redirect_url) ) {
                     return $r->redirect($redirect_url);
                 }
 
@@ -322,10 +340,6 @@ sub login_2fa_handler {
                 $r->delete_cookie( name => 'ljmfarestart', path => '/login' );
                 my $url = $completion->{returnto};
                 $url = DW::Auth::Login->return_url($url) || "$LJ::SITEROOT/";
-                if ( $completion->{store_only} ) {
-                    $url =~ s/#.*$//;
-                    $url .= '#post-as-' . $verified->id;
-                }
                 return $r->redirect($url);
             }
         }

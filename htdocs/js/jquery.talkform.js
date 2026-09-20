@@ -9,7 +9,7 @@ jQuery(function($){
     // Helpers for modifying every input in a sub-section of the form:
     jQuery.fn.extend({
         clearFormFields: function() {
-            this.find('input, select').each(function(i, elm){
+            this.find('input').each(function(i, elm){
                 var type = elm.getAttribute('type');
                 if (type === 'checkbox' || type === 'radio') {
                     elm.checked = false;
@@ -20,13 +20,13 @@ jQuery(function($){
             return this;
         },
         disableFormFields: function() {
-            this.find('input, select').each(function(i, elm) {
+            this.find('input').each(function(i, elm) {
                 elm.disabled = true;
             });
             return this;
         },
         enableFormFields: function() {
-            this.find('input, select').each(function(i, elm) {
+            this.find('input').each(function(i, elm) {
                 elm.disabled = false;
             });
             return this;
@@ -51,12 +51,7 @@ jQuery(function($){
             iconSelect.prop('disabled', false);
         } else {
             iconSelect.val('').change().prop('disabled', true);
-            $('#unscreen_parent, #prop_admin_post').prop('checked', false);
         }
-    });
-
-    $('#posting_userid').on('change', function() {
-        $('#talkpostfromstored').prop('checked', true).change();
     });
 
     // setup:
@@ -64,52 +59,6 @@ jQuery(function($){
     fromOptions.filter(':checked').change();
     // confirm the selected icon, to update preview and browse button label.
     iconSelect.change();
-
-    // Keep the draft in this tab while login runs. Never restore CSRF tokens
-    // or submit automatically after authentication.
-    var draftKey = 'dw-comment-login:' + location.pathname + location.search;
-    $('.comment-add-account').on('click', function(e) {
-        // A POST preview/error page cannot be restored by navigating back with
-        // GET. Keep that form open and let login use the link's separate tab.
-        if (/\/talkpost_do$/.test(location.pathname)) return;
-        try {
-            var fields = commentForm.serializeArray().filter(function(field) {
-                return !/password|lj_form_auth|submit|cookieuser/.test(field.name);
-            });
-            commentForm.find('input[type=checkbox]').each(function() {
-                if (!this.checked) fields.push({name:this.name, value:this.value, checked:false});
-            });
-            sessionStorage.setItem(draftKey, JSON.stringify(fields));
-        } catch (error) {
-            return; // Open another tab if storage is unavailable.
-        }
-        e.preventDefault();
-        location.href = this.href + '&returnto=' + encodeURIComponent(location.href.split('#')[0]);
-    });
-    try {
-        var saved = sessionStorage.getItem(draftKey);
-        if (saved) {
-            JSON.parse(saved).forEach(function(field) {
-                commentForm.find('[name]').filter(function() { return this.name === field.name; }).each(function() {
-                    if (this.type === 'radio' || this.type === 'checkbox') {
-                        this.checked = field.checked === false ? false : this.value === field.value;
-                    } else {
-                        $(this).val(field.value);
-                    }
-                });
-            });
-            sessionStorage.removeItem(draftKey);
-        }
-        var selected = location.hash.match(/^#post-as-(\d+)$/);
-        if (selected && $('#posting_userid option[value="' + selected[1] + '"]').length) {
-            $('#posting_userid').val(selected[1]);
-            $('#talkpostfromstored').prop('checked', true);
-        }
-        if (selected && selected[1] === String($('#posting_userid').data('active'))) {
-            $('#talkpostfromremote').prop('checked', true);
-        }
-        fromOptions.filter(':checked').change();
-    } catch (error) { /* Keep the form usable if storage is disabled. */ }
 
     // subjecticons :|
     $('#subjectIconImage').click(function(){

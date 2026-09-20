@@ -287,9 +287,8 @@ sub post_with {
     my $remote = temp_user();
     LJ::set_remote($remote);
 
-    $opts{poster_remote} = $remote->user      unless exists $opts{poster_remote};
-    $opts{event}         = $postdata->{event} unless exists $opts{event};
-    $opts{chal}          = DW::Auth::Challenge->generate;
+    $opts{event} = $postdata->{event} unless exists $opts{event};
+    $opts{chal}  = DW::Auth::Challenge->generate;
 
     # if we'd been in a handler, this would have been put into $vars->{formdata}
     # and automatically converted to Hash::MultiValue. We're not, though, so fake it

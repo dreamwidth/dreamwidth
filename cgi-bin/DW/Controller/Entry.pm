@@ -99,7 +99,7 @@ Handles posting a new entry
 sub new_handler {
     my ( $call_opts, $usejournal ) = @_;
 
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
     my $r      = DW::Request->get;
@@ -164,8 +164,6 @@ sub new_handler {
         @_
     );
 
-    $vars->{expected_poster} = $post ? $post->{poster_remote} : $remote->user;
-
     # now look for errors that we still want to recover from
     $errors->add( undef, ".error.invalidusejournal" )
         if defined $usejournal && !$vars->{usejournal};
@@ -176,13 +174,7 @@ sub new_handler {
         $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in($post);
 
-        my $okay_formauth = $remote && LJ::check_form_auth( $post->{lj_form_auth} );
-        if ( !$remote || ( $post->{poster_remote} // '' ) ne $remote->user ) {
-            $errors->add_string( undef,
-'Your active account changed. Your entry has not been posted. Switch back to the account you started with before posting.'
-            );
-            $okay_formauth = 0;
-        }
+        my $okay_formauth = !$remote || LJ::check_form_auth( $post->{lj_form_auth} );
 
         $errors->add( undef, "error.invalidform" )
             unless $okay_formauth;
@@ -200,13 +192,18 @@ sub new_handler {
 
             my %auth = _auth( $flags, $post, $remote );
 
+            if ( $auth{requires_2fa} ) {
+                require DW::Auth::Login;
+                $errors->add_string( undef, DW::Auth::Login->required_message );
+            }
             my $uj = $auth{journal};
             $errors->add_string( undef, $LJ::MSG_READONLY_USER )
                 if $uj && $uj->readonly;
 
             # do a login action to check if we can authenticate as unverified_username
             # and to display any important messages connected to your account
-            {
+            unless ( $auth{requires_2fa} ) {
+
                 # build a clientversion string
                 my $clientversion = "Web/3.0.0";
 
@@ -382,11 +379,10 @@ sub _init {
 
                 push @crosspost_list,
                     {
-                    id                    => $id,
-                    name                  => $acct->displayname,
-                    selected              => $selected,
-                    need_password         => $acct->password ? 0 : 1,
-                    needs_api_key_upgrade => $acct->needs_api_key_upgrade,
+                    id            => $id,
+                    name          => $acct->displayname,
+                    selected      => $selected,
+                    need_password => $acct->password ? 0 : 1,
                     };
 
                 $crosspost_main = 1 if $selected;
@@ -542,17 +538,13 @@ sub _edit {
     my $errors   = DW::FormErrors->new;
     my $warnings = DW::FormErrors->new;
     my $post;
-    my $account_changed = 0;
-    my $expected_poster = $remote->user;
 
     if ( $r->did_post ) {
         $post = $r->post_args;
 
-        $expected_poster = $post->{poster_remote};
-        $account_changed = ( $expected_poster // '' ) ne $remote->user;
-        $errors->add_string( undef,
-'Your active account changed. Your entry has not been changed. Switch back to the account you started with before editing.'
-        ) if $account_changed;
+        # no difference because we rely on the entry info, but let's get rid of this
+        # just to make sure it doesn't trip us up in the future...
+        $post->remove('poster_remote');
         $post->remove('usejournal');
 
         my $mode_preview = $post->{"action:preview"} ? 1 : 0;
@@ -561,7 +553,7 @@ sub _edit {
         $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in($post);
 
-        my $okay_formauth = !$account_changed && LJ::check_form_auth( $post->{lj_form_auth} );
+        my $okay_formauth = LJ::check_form_auth( $post->{lj_form_auth} );
         $errors->add( undef, "error.invalidform" )
             unless $okay_formauth;
 
@@ -619,39 +611,27 @@ sub _edit {
     # or it's from the user's POST
     my $trust_datetime_value = 1;
 
-    my ( $entry_obj, $datetime, $sticky_entry );
+    my $entry_obj = LJ::Entry->new( $journal, ditemid => $ditemid );
+
+    # are you authorized to view this entry
+    # and does the entry we got match the provided ditemid exactly?
+    my $anum   = $ditemid % 256;
+    my $itemid = $ditemid >> 8;
+    return error_ml("/entry/form.tt.error.nofind")
+        unless $entry_obj->editable_by($remote)
+        && $anum == $entry_obj->anum
+        && $itemid == $entry_obj->jitemid;
+
+    # so at this point, we know that we are authorized to edit this entry
+    # but we need to handle things differently if we're an admin
+    # FIXME: handle communities
+    return error_ml('IS AN ADMIN') unless $entry_obj->poster->equals($remote);
+
     my %crosspost;
-    if ($account_changed) {
+    if ( !$r->did_post && ( my $xpost = $entry_obj->prop("xpostdetail") ) ) {
+        my $xposthash = DW::External::Account->xpost_string_to_hash($xpost);
 
-        # Preserve only submitted data. The newly active account may have no
-        # permission to read the saved entry or any of its private metadata.
-        $datetime = join ' ', map { $post->{$_} // '' } qw(entrytime_date entrytime_time);
-    }
-    else {
-        $entry_obj = LJ::Entry->new( $journal, ditemid => $ditemid );
-
-        # are you authorized to view this entry
-        # and does the entry we got match the provided ditemid exactly?
-        my $anum   = $ditemid % 256;
-        my $itemid = $ditemid >> 8;
-        return error_ml("/entry/form.tt.error.nofind")
-            unless $entry_obj->editable_by($remote)
-            && $anum == $entry_obj->anum
-            && $itemid == $entry_obj->jitemid;
-
-        # so at this point, we know that we are authorized to edit this entry
-        # but we need to handle things differently if we're an admin
-        # FIXME: handle communities
-        return error_ml('IS AN ADMIN') unless $entry_obj->poster->equals($remote);
-
-        if ( !$r->did_post && ( my $xpost = $entry_obj->prop("xpostdetail") ) ) {
-            my $xposthash = DW::External::Account->xpost_string_to_hash($xpost);
-
-            %crosspost = map { $_ => 1 } keys %{ $xposthash || {} };
-        }
-
-        $datetime     = $entry_obj->eventtime_mysql;
-        $sticky_entry = $journal->sticky_entries_lookup->{$ditemid};
+        %crosspost = map { $_ => 1 } keys %{ $xposthash || {} };
     }
 
     my $vars = _init(
@@ -659,11 +639,11 @@ sub _edit {
             usejournal => $journal->username,
             remote     => $remote,
 
-            datetime             => $datetime,
+            datetime             => $entry_obj->eventtime_mysql,
             trust_datetime_value => $trust_datetime_value,
 
             crosspost    => \%crosspost,
-            sticky_entry => $sticky_entry,
+            sticky_entry => $journal->sticky_entries_lookup->{$ditemid},
         },
         @_
     );
@@ -674,9 +654,8 @@ sub _edit {
         if defined $get->{usejournal} && !$vars->{usejournal};
 
 # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
-    $vars->{expected_poster} = $expected_poster;
-    $vars->{errors}          = $errors;
-    $vars->{warnings}        = $warnings;
+    $vars->{errors}   = $errors;
+    $vars->{warnings} = $warnings;
 
     $vars->{formdata} = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
 
@@ -713,7 +692,8 @@ sub _edit {
 }
 
 # returns:
-# poster: the authenticated browsing account, matching the form's original poster
+# poster: user object that contains the poster of the entry. may be the current remote user,
+#           or may be someone logging in via the login form on the entry
 # journal: user object for the journal the entry is being posted to. may be the same as the
 #           poster, or may be a community
 # unverified_username: username that current remote is trying to post as; remote may not
@@ -729,12 +709,38 @@ sub _auth {
 
     # referer only should be passed in if outside web context, such as when running tests
 
+    my %auth;
+    foreach (qw( username chal response password )) {
+        $auth{$_} = $post->{$_} || "";
+    }
+
     my %ret;
 
-    if (   $remote
-        && LJ::check_referer( undef, $referer )
-        && ( $post->{poster_remote} // '' ) eq $remote->user )
-    {
+    if (
+        $auth{username}    # user argument given
+        && !$remote
+        )
+    {                      # user not logged in
+
+        my $u = LJ::load_user( $auth{username} );
+
+        # verify entered password, if it is present
+        my $ok = LJ::auth_okay( $u, $auth{password} );
+
+        require DW::Auth::TOTP;
+        if ( $ok && DW::Auth::TOTP->is_enabled($u) ) {
+            $ret{requires_2fa} = 1;
+            $ok = 0;
+        }
+        if ($ok) {
+            $flags->{noauth} = 1;
+            $flags->{u}      = $u;
+
+            $ret{poster}  = $u;
+            $ret{journal} = $post->{usejournal} ? LJ::load_user( $post->{usejournal} ) : $u;
+        }
+    }
+    elsif ( $remote && LJ::check_referer( undef, $referer ) ) {
         $flags->{noauth} = 1;
         $flags->{u}      = $remote;
 
@@ -742,7 +748,7 @@ sub _auth {
         $ret{journal} = $post->{usejournal} ? LJ::load_user( $post->{usejournal} ) : $remote;
     }
 
-    $ret{unverified_username} = $ret{poster} ? $ret{poster}->username : undef;
+    $ret{unverified_username} = $ret{poster} ? $ret{poster}->username : $auth{username};
     return %ret;
 }
 

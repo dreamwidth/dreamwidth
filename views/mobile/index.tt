@@ -29,7 +29,7 @@
 [%- IF ! remote %]
   <li>[% '.options.login_prompt' | ml( aopts => "href='login'" ) %]</li>
 [%- ELSE %]
-  <li>[% '.options.logged_in' | ml( aopts => "href='${site.root}/logout'" ) %] [% remote.display_name %]</li>
+  <li>[% '.options.logged_in' | ml( aopts => "href='login'" ) %] [% remote.display_name %]</li>
 [%- IF ! remote.is_identity %]
   <li>[% '.options.post' | ml( aopts => "href='post'", sitename => site.nameshort ) %]</li>
 [%- END %]

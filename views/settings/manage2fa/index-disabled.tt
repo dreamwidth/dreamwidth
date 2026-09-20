@@ -15,20 +15,20 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- sections.title = "Manage Two-Factor Authentication" -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
-[% IF just_disabled %]
-<div class="panel callout radius">
-    <h5>Two-factor authentication has been disabled.</h5>
-    <p>This account has been signed out everywhere.
-       <a href="[% site.root %]/login?returnto=%2Fmanage2fa">Sign in again</a>
-       to manage your settings or set up two-factor authentication again.</p>
-</div>
-[% ELSE %]
 <form method="POST">
     [%- dw.form_auth -%]
     [%- form.hidden( name = "mode", value = "submit" ) -%]
 
+[% IF just_disabled %]
+<div class="panel callout radius">
+    <h5>Two-factor authentication has been disabled.</h5>
+    <p>We hope you know what you're doing! If you want to turn it back on, please
+       follow the instructions below.</p>
+</div>
+[% END %]
+
 <p>
-    Your account currently <strong>does not</strong> have two-factor authentication enabled.
+    Your account currently <strong>does not</strong> two-factor authentication enabled.
 </p>
 
 <p>
@@ -45,5 +45,3 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% form.submit(name='action:setup', value='Begin Two-Factor Authentication Setup') %]
 
 </form>
-
-[% END %]

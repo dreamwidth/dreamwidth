@@ -26,7 +26,6 @@ use DW::Auth::TOTP;
 use DW::Auth::Challenge;
 use DW::AccountSwitcher;
 use DW::Cache;
-use DW::Locker;
 
 sub return_url {
     my ( $class, $url ) = @_;
@@ -181,10 +180,9 @@ sub verify {
 sub restart_token {
     my ( $class, %opts ) = @_;
     my %restart = (
-        browser    => LJ::UniqCookie->current_uniq,
-        returnto   => $class->return_url( $opts{returnto} ),
-        adding     => $opts{adding} ? 1 : 0,
-        store_only => $opts{store_only} ? 1 : 0,
+        browser  => LJ::UniqCookie->current_uniq,
+        returnto => $class->return_url( $opts{returnto} ),
+        adding   => $opts{adding} ? 1 : 0,
     );
     return DW::Auth::Challenge->generate( 3600, encode_base64( to_json( \%restart ), '' ) );
 }
@@ -203,140 +201,93 @@ sub restart_url {
         unless ref $opts eq 'HASH'
         && ( $opts->{browser} // '' ) eq ( LJ::UniqCookie->current_uniq // '' );
     my @query;
-    push @query, 'switch=1'     if $opts->{adding};
-    push @query, 'store_only=1' if $opts->{store_only};
+    push @query, 'switch=1' if $opts->{adding};
     my $returnto = $class->return_url( $opts->{returnto} );
     push @query, 'returnto=' . LJ::eurl($returnto) if $returnto;
     return $fallback . ( @query ? '?' . join( '&', @query ) : '' );
 }
 
-# Only callers that have finished every required factor may call this method.
+# Complete only a server-side verified, browser-bound second-factor grant.
 sub complete {
     my ( $class, $u, %opts ) = @_;
-    return unless $class->allowed($u);
-    my $remote           = LJ::get_remote();
-    my $previous_session = $u->{_session};
-    my $r                = DW::Request->get;
-    my @cookies          = $r->err_header_out('Set-Cookie');
-    my ( $session, $grant_lock );
+    return unless $opts{grant};
+    my $r        = DW::Request->get;
+    my $remote   = LJ::get_remote();
+    my $previous = $u->{_session};
+    my @cookies  = $r->err_header_out('Set-Cookie');
     my $dbh      = LJ::get_db_writer() or die 'Database unavailable';
-    my $prepared = eval {
-        if ( $opts{grant} ) {
-            $grant_lock = DW::Locker->new->trylock(
-                'login-grant:' . sha256_hex( $opts{grant} ),
-                class => 'login_grant',
-                wait  => 10
-            ) or die 'Login completion in progress';
-            my ( $owner, $grant ) = $class->pending( $opts{grant}, 1 );
-            die 'Invalid verified login grant'
-                unless $owner && $owner->equals($u) && $grant->{verified};
-            %opts = ( %$grant, mfa_verified => 1 );
-        }
+    my $session;
+    my $completed = eval {
         $dbh->begin_work or die $dbh->errstr;
-        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
             undef, $u->id );
         die $dbh->errstr if $dbh->err;
-        my $mfa = DW::Auth::TOTP->is_enabled($u);
-        die 'Second factor required' if $mfa && ( !$opts{mfa_verified} || !$opts{factor} );
-        die 'Credentials changed'
-            if exists $opts{password}
-            && !DW::Auth::Password->check( $u, $opts{password} );
-        die 'Credentials changed'
-            if $opts{fingerprint}
-            && $opts{fingerprint} ne $class->_fingerprint($u);
+        my ( $owner, $grant ) = $class->pending( $opts{grant}, 1 );
+        die 'Invalid login grant' unless $owner && $owner->equals($u) && $grant->{verified};
+        %opts    = %$grant;
         $session = LJ::Session->create(
             $u,
             exptype     => $opts{exptype} || 'short',
             ipfixed     => $opts{bindip},
             defer_login => 1
         ) or die 'Unable to create session';
-        die 'Unable to verify session'
-            if $mfa
-            && !DW::Auth::TOTP->mark_session( $u, $session, $opts{factor} );
-        $dbh->commit or die $dbh->errstr;
-        1;
-    };
-    unless ($prepared) {
-        $dbh->rollback unless $dbh->{AutoCommit};
-        eval { $session->destroy } if $session;
-        $u->{_session} = $previous_session;
-        return;
-    }
-    my $published = eval {
-
-        # Preparation is committed. Lock credentials before sessions again so
-        # final validation/publication cannot reverse the factor-change order.
-        $dbh->begin_work or die $dbh->errstr;
-        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
-            undef, $u->id );
-        die $dbh->errstr if $dbh->err;
-        die 'Credentials changed'
-            if exists $opts{password}
-            && !DW::Auth::Password->check( $u, $opts{password} );
-        die 'Credentials changed'
-            if $opts{fingerprint}
-            && $opts{fingerprint} ne $class->_fingerprint($u);
-        my $session_lock = LJ::Session->account_lock($u);
-        my $current      = LJ::Session->_load_locked( $u, $session->id );
-        die 'Session no longer valid'
-            unless $current && $current->auth eq $session->auth && $current->valid;
-
-        if ( $opts{store_only} && $remote && !$remote->equals($u) ) {
-            DW::AccountSwitcher->store_account( $u, $opts{exptype}, $opts{bindip}, $session )
-                or die 'Unable to store account';
-        }
-        elsif ( $opts{adding} && $remote && !$remote->equals($u) ) {
-            DW::AccountSwitcher->add_account( $u, $opts{exptype}, $opts{bindip}, $session, 1 )
+        DW::Auth::TOTP->mark_session( $u, $session, $opts{factor} )
+            or die 'Credentials changed';
+        if ( $opts{adding} && $remote && !$remote->equals($u) ) {
+            DW::AccountSwitcher->add_account( $u, $opts{exptype}, $opts{bindip}, $session )
                 or die 'Unable to add account';
         }
         else {
-            $u->publish_login_session( $session, 0, 1 ) or die 'Unable to publish session';
+            $u->publish_login_session($session) or die 'Unable to publish session';
         }
-        $u->record_login( $session->id ) or die 'Unable to record login';
-        if ( $opts{grant} ) {
-            my $rows = $dbh->do( 'DELETE FROM login_challenges WHERE token = ?',
-                undef, sha256_hex( $opts{grant} ) );
-            die 'Unable to consume verified login grant' unless $rows && $rows == 1;
-        }
+        $u->record_login( $session->id );
+        my $rows = $dbh->do( 'DELETE FROM login_challenges WHERE token=?',
+            undef, sha256_hex( $opts{grant} ) );
+        die 'Unable to consume login grant' unless $rows && $rows == 1;
         $dbh->commit or die $dbh->errstr;
         1;
     };
-    unless ($published) {
-
-        # The publication lock has left scope; cleanup can reacquire it safely.
+    unless ($completed) {
         $dbh->rollback unless $dbh->{AutoCommit};
-        eval { $session->destroy };
-        eval {
-            $u->do( 'DELETE FROM loginlog WHERE userid = ? AND sessid = ?',
-                undef, $u->id, $session->id );
-        };
-        $u->{_session} = $previous_session;
+        eval { $session->destroy } if $session;
+        $u->{_session} = $previous;
         LJ::User->set_remote($remote);
         DW::Cache->request->clear_ns('account_switcher');
         $r->err_header_out( 'Set-Cookie', \@cookies );
         return;
     }
-
-    # The login is committed. Notification/activity failures must not revoke an
-    # already successful login or strand its consumed one-use factor.
-    my @notifications = (
-        sub { LJ::Hooks::run_hook( 'user_login', $u ) },
-        sub {
-            my $uniq = $r->note('uniq');
-            LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
-        },
-        sub {
-            if ( $opts{store_only} && $remote && !$remote->equals($u) ) {
-                LJ::mark_user_active( $u, 'login' );
-            }
-            else {
-                $u->finish_login_activity($session);
-            }
-        }
-    );
-    for my $notify (@notifications) {
-        eval { $notify->(); 1 } or warn 'Login notification failed: ' . $@;
-    }
+    LJ::Hooks::run_hook( 'user_login', $u );
+    my $uniq = $r->note('uniq');
+    LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
     return 1;
+}
+
+# Only protected-account login paths call this; ordinary forms stay unchanged.
+sub required_message {
+    return
+          'This account uses two-factor authentication. '
+        . "<a href='$LJ::SITEROOT/login?switch=1' target='_blank' rel='noopener'>Sign in in another tab</a>, "
+        . 'then preview your draft to refresh the form before posting. Your draft has not been posted.';
+}
+
+sub start_challenge {
+    my ( $class, $u, %opts ) = @_;
+    my $token = $class->begin( $u, %opts ) or die 'Unable to start second-factor login';
+    my $r     = DW::Request->get;
+    $r->add_cookie(
+        name     => 'ljmfapending',
+        value    => $token,
+        httponly => 1,
+        SameSite => 'Lax',
+        path     => '/login'
+    );
+    $r->add_cookie(
+        name     => 'ljmfarestart',
+        value    => $class->restart_token(%opts),
+        httponly => 1,
+        SameSite => 'Lax',
+        path     => '/login'
+    );
+    return $r->redirect("$LJ::SITEROOT/login/2fa");
 }
 1;

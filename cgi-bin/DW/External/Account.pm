@@ -33,7 +33,7 @@ sub _memcache_stored_props {
 
     # first element of props is a VERSION
     # next - allowed object properties
-    return qw/ 5
+    return qw/ 4
         userid acctid
         siteid username password servicename servicetype serviceurl xpostbydefault recordlink options active
         /;
@@ -198,17 +198,8 @@ sub create {
     my $protocol          = DW::External::XPostProtocol->get_protocol($protocol_id);
     my $encryptedpassword = $protocol->encrypt_password( $opts->{password} );
 
-    # Mark newly supplied Dreamwidth credentials; old saved password digests
-    # must not be interpreted as API-key digests after upgrading.
-    my %options = %{ $opts->{options} || {} };
-    delete $options{_credential_type};
-    my $url =
-        $opts->{serviceurl}
-        || 'https://'
-        . ( $extsite ? $extsite->{hostname} : $opts->{servicename} )
-        . '/interface/xmlrpc';
-    $options{_credential_type} = 'api_key' if $encryptedpassword && $protocol->uses_api_key($url);
-    my $options_blob = $class->xpost_hash_to_string( \%options );
+    # convert the options hashref to a single field
+    my $options_blob = $class->xpost_hash_to_string( $opts->{options} );
 
     $u->do(
 "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options, active ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1 )",
@@ -434,12 +425,6 @@ sub supports_challenge {
     return $_[0]->protocol->supports_challenge;
 }
 
-sub uses_api_key {
-    my ($self) = @_;
-    my $url = $self->serviceurl || 'https://' . $self->serverhost . '/interface/xmlrpc';
-    return $self->protocol->uses_api_key($url);
-}
-
 #accessors
 
 sub siteid {
@@ -462,16 +447,7 @@ sub username {
     return $_[0]->{username};
 }
 
-sub needs_api_key_upgrade {
-    my ($self) = @_;
-    return
-           $self->{password}
-        && $self->uses_api_key
-        && ( $self->options->{_credential_type} // '' ) ne 'api_key';
-}
-
 sub password {
-    return '' if $_[0]->needs_api_key_upgrade;
     return $_[0]->{password};
 }
 
@@ -592,19 +568,13 @@ sub set_password {
     my $u = $self->owner;
 
     my $newvalue = $self->protocol->encrypt_password($password);
-    my %options  = %{ $self->options };
-    delete $options{_credential_type};
-    $options{_credential_type} = 'api_key' if $newvalue && $self->uses_api_key;
-    if (   ( $newvalue // '' ) ne ( $self->{password} // '' )
-        || ( $options{_credential_type} // '' ) ne ( $self->options->{_credential_type} // '' ) )
-    {
-        my $blob = $self->xpost_hash_to_string( \%options );
-        $u->do( 'UPDATE externalaccount SET password=?, options=? WHERE userid=? AND acctid=?',
-            undef, $newvalue, $blob, $u->id, $self->acctid );
+    unless ( $newvalue eq $self->password ) {
+        $u->do( "UPDATE externalaccount SET password=? WHERE userid=? AND acctid=?",
+            undef, $newvalue, $u->{userid}, $self->acctid );
         LJ::throw( $u->errstr ) if $u->err;
-        $self->{password}    = $newvalue;
-        $self->{options}     = $blob;
-        $self->{options_map} = undef;
+
+        $self->{password} = $password;
+
         $self->_remove_from_memcache( $self->_memcache_id );
     }
     return 1;
@@ -616,12 +586,6 @@ sub set_options {
     my ( $self, $options ) = @_;
 
     my $u = $self->owner;
-
-    # Credential type is private metadata, independent of protocol settings.
-    $options = {%$options};
-    delete $options->{_credential_type};
-    $options->{_credential_type} = $self->options->{_credential_type}
-        if $self->options->{_credential_type};
 
     # convert the hash to a string.
     my $newvalue = DW::External::Account->xpost_hash_to_string($options);

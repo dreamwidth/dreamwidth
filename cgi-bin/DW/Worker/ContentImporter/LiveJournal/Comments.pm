@@ -676,6 +676,9 @@ sub do_authed_comment_fetch {
         return $ret;
     }
 
+    # if we don't have a session, then let's generate one
+    $data->{_session} ||= $class->get_lj_session($data);
+
     # hit up the server with the specified information and return the raw content.
     # don't auto-follow redirects: a successful export returns XML directly, so any
     # 3xx means we were bounced (typically to login.bml when the source rejects our
@@ -683,19 +686,8 @@ sub do_authed_comment_fetch {
     # login page and failing the is-it-XML check below.
     my $ua = LWP::UserAgent->new;
     $ua->max_redirect(0);
-    my $request;
-    if ( $data->{hostname} eq 'dreamwidth.org' ) {
-        my $auth = $class->challenge_auth($data);
-        return undef unless $auth && !$auth->{fault};
-        require HTTP::Request::Common;
-        $request = HTTP::Request::Common::POST( $url, Content => $auth );
-    }
-    else {
-        $data->{_session} ||= $class->get_lj_session($data);
-        return undef unless $data->{_session};
-        $request = HTTP::Request->new( GET => $url );
-        $request->push_header( Cookie => "ljsession=$data->{_session}" );
-    }
+    my $request = HTTP::Request->new( GET => $url );
+    $request->push_header( Cookie => "ljsession=$data->{_session}" );
 
     # try to get the response
     my $response = $ua->request($request);

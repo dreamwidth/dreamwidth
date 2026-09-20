@@ -230,10 +230,6 @@ sub extacct_auth_handler {
         )
     ) unless $account->supports_challenge;
 
-    # One-off Dreamwidth keys are submitted for this queued crosspost so the
-    # worker can authenticate each operation with a fresh challenge.
-    return DW::RPC->out( api_key => 1, success => 1 ) if $account->uses_api_key;
-
     # get the auth challenge
     my $challenge = $account->challenge;
     return DW::RPC->err(

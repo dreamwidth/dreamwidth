@@ -177,8 +177,6 @@ sub challenge {
     return 0;
 }
 
-sub uses_api_key { return 0 }
-
 # checks to see if this account supports challenge/response authentication
 sub supports_challenge {
 

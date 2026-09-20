@@ -23,7 +23,6 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::BML;
-use DW::Auth;
 use DW::Captcha;
 use DW::Logic::AdultContent;
 use DW::Request;
@@ -276,17 +275,6 @@ sub render {
         return $r->OK;
     }
 
-    if ( $mode eq 'data' && ( $r->get_args->{auth} // '' ) eq 'digest' ) {
-        ($remote) = DW::Auth->authenticate( digest => 1, _keep_remote => 1 );
-        unless ($remote) {
-            $r->status(401);
-            $r->print('Use your username and an API key to read this feed.');
-            return $r->OK;
-        }
-        LJ::set_remote($remote);
-        $r->header_out( 'Cache-Control' => 'private, no-store' );
-    }
-
     # Data handlers (RSS, Atom, FOAF, etc.)
     if ( $mode eq "data" && $pe =~ m!^/(\w+)(/.*)?! ) {
         my ( $data_mode, $data_path ) = ( $1, $2 );
@@ -435,10 +423,7 @@ sub render {
     }
 
     $r->content_type( $opts->{'contenttype'} );
-    $r->header_out( "Cache-Control",
-        $mode eq 'data' && ( $GET{auth} // '' ) eq 'digest'
-        ? 'private, no-store'
-        : 'private, proxy-revalidate' );
+    $r->header_out( "Cache-Control", "private, proxy-revalidate" );
 
     $html .= ( "<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->\n" x 100 ) if $generate_iejunk;
 

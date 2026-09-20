@@ -176,8 +176,8 @@ sub _proof_key {
     return [ $userid, "mfa-proof-v2:$userid:$sessid" ];
 }
 
-# Store proof on the server, not in caller-controlled cookie flags. The caller
-# must supply the digest of the factor actually verified.
+# Store factor-bound authorization on the server, never in cookie flags.
+# Callers verify MFA or use the existing trusted admin/API authentication paths.
 sub mark_session {
     my ( $class, $u, $session, $verified_factor ) = @_;
     my $dbh = LJ::get_db_writer() or die 'Database unavailable';
@@ -199,6 +199,32 @@ sub mark_session {
         { factor => $factor, expires => $expires },
         _proof_ttl($expires)
     );
+    return 1;
+}
+
+# Called only by the existing privileged fake-login path, never from a cookie flag.
+sub authorize_impersonation {
+    my ( $class, $u, $session ) = @_;
+    return 1 unless $class->is_enabled($u);
+    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+    $dbh->begin_work or die $dbh->errstr;
+    my $ok = eval {
+        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
+            undef, $u->id );
+        die $dbh->errstr if $dbh->err;
+        my $factor = $class->_factor_state($u)->{factor};
+        $class->mark_session( $u, $session, $factor )
+            or die 'Unable to authorize impersonation'
+            if $factor;
+        $dbh->commit or die $dbh->errstr;
+        1;
+    };
+    unless ($ok) {
+        my $error = $@;
+        $dbh->rollback unless $dbh->{AutoCommit};
+        eval { $session->destroy };
+        die $error;
+    }
     return 1;
 }
 
@@ -257,46 +283,6 @@ sub update_session_expiration {
 # A replacement session may inherit only the proof its source actually held.
 # Reading the current factor would upgrade a password-only or stale session
 # if enrollment races with cookie-authenticated session generation.
-sub copy_session_proof {
-    my ( $class, $u, $source, $destination ) = @_;
-    return   unless $source && $source->owner->equals($u);
-    return 1 unless $class->_factor_state($u)->{factor};
-    my $proof = $class->_session_proof($source);
-    return unless $proof->{factor};
-    return $class->mark_session( $u, $destination, $proof->{factor} );
-}
-
-sub deny_session_proofs {
-    my ( $class, $u, @ids ) = @_;
-    return 1 unless @LJ::MEMCACHE_SERVERS;
-    for my $id (@ids) {
-        LJ::MemCache::set( $class->_proof_key( $u->id, $id ), { factor => '' }, 300 )
-            or die 'Unable to publish MFA session revocation';
-    }
-    return 1;
-}
-
-sub revoke_session_proofs {
-    my ( $class, $u, @ids ) = @_;
-    return unless @ids;
-
-    my $state = LJ::MemCache::get( [ $u->id, 'mfa-factor:' . $u->id ] );
-    return 1 unless $state && ( $state->{changing} || $state->{factor} );
-
-    # Cluster sessions are already gone and the proof cache denies access.
-    # Orphaned proof rows are harmless and can be removed by later cleanup.
-    eval {
-        my $dbh = LJ::get_db_writer() or die 'Database unavailable';
-        my $in  = join ',', map { '?' } @ids;
-        $dbh->do( "DELETE FROM mfa_sessions WHERE userid = ? AND sessid IN ($in)",
-            undef, $u->id, @ids )
-            or die $dbh->errstr;
-        1;
-    } or $log->warn( 'Unable to clean up revoked MFA proofs for user ' . $u->id . ': ' . $@ );
-    return 1;
-
-}
-
 sub get_recovery_codes {
     my ( $class, $u ) = @_;
 
@@ -335,8 +321,24 @@ sub recovery_codes_for_credentials {
     return $codes;
 }
 
+# Enrollment verifies the current browser. Keep it signed in while invalidating
+# other sessions; callers without a browser retain the existing all-session cleanup.
+sub _revoke_other_sessions {
+    my ( $class, $u, $preserve ) = @_;
+    unless ($preserve) {
+        $u->kill_all_sessions or die 'Unable to revoke account sessions';
+        return 1;
+    }
+    die 'Session owner mismatch' unless $preserve->owner->equals($u);
+    my $ids = $u->selectcol_arrayref( 'SELECT sessid FROM sessions WHERE userid=? AND sessid<>?',
+        undef, $u->id, $preserve->id )
+        or die $u->errstr;
+    LJ::Session->destroy_sessions( $u, @$ids ) or die 'Unable to revoke account sessions';
+    return 1;
+}
+
 sub enable {
-    my ( $class, $u, $secret, $password ) = @_;
+    my ( $class, $u, $secret, $password, $preserve ) = @_;
     my $check_password = @_ > 3;
     my $userid         = $u->userid;
 
@@ -383,7 +385,11 @@ sub enable {
 
         # Revoke cluster sessions before committing the factor change. If
         # revocation fails, retain the old factor and unconsumed recovery code.
-        $u->kill_all_sessions or die 'Unable to revoke account sessions';
+        $class->_revoke_other_sessions( $u, $preserve );
+        if ($preserve) {
+            $class->mark_session( $u, $preserve, $class->_factor_state($u)->{factor} )
+                or die 'Unable to preserve verified enrollment session';
+        }
         $dbh->commit or $log->logcroak( 'Failed to commit: ', $dbh->errstr );
         1;
     };
@@ -430,9 +436,6 @@ sub disable {
             undef, $userid )
             or $log->logcroak( 'Failed to unset recovery codes:', $dbh->errstr );
 
-        # Revoke cluster sessions before committing the factor change. If
-        # revocation fails, retain the old factor and unconsumed recovery code.
-        $u->kill_all_sessions or die 'Unable to revoke account sessions';
         $dbh->commit or $log->logcroak( 'Failed to commit: ', $dbh->errstr );
         1;
     };

@@ -8,7 +8,7 @@
 .intro<<
 From here, you can import your content from LiveJournal or another LiveJournal-based site into your [[sitename]] account [[user]]. The process will take time. You'll be entered into a queue once you set up your import below. Imports will process in the order that they are scheduled. The higher the number of jobs in the queue are, the longer your import will take. It's possible that your import might take hours to complete, even up to a day. You will receive a notification in your Inbox when your import is complete.<br /><br />
 
-Enter the source account’s username and password or API key below, then choose which items to import. The credential field explains what to use for each service. If you use a password, you may want to change it on the source site before and after the import.
+Clicking the button below will allow you to set up your import task by entering your username and password and choosing what items you want to import. For security, you may want to change your password on the remote site both before and after you import your content.
 .
 
 .title=Import Journal

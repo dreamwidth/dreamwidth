@@ -2,7 +2,8 @@
 #
 # DW::Controller::Mobile::Login
 #
-# Sends mobile sign-in through the shared browser login flow.
+# Handles the mobile login page (/mobile/login), a minimal standalone
+# (no sitescheme) login form for the lightweight mobile interface.
 #
 # This code is based on code originally created by the LiveJournal project
 # owned and operated by Live Journal, Inc. The code has been modified and
@@ -24,14 +25,65 @@ package DW::Controller::Mobile::Login;
 
 use strict;
 
-use DW::Request;
+use DW::Controller;
 use DW::Routing;
+use DW::Template;
+use DW::FormErrors;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 
 DW::Routing->register_string( "/mobile/login", \&login_handler, app => 1 );
 
 sub login_handler {
-    my $r = DW::Request->get;
-    return $r->redirect("$LJ::SITEROOT/login?returnto=%2Fmobile%2F");
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r      = $rv->{r};
+    my $remote = $rv->{remote};
+
+    # a plain GET while logged in means the "log out" link on /mobile/ was
+    # followed -- log the user out and fall through to render the form
+    if ( $remote && !$r->did_post ) {
+        $remote->logout;
+        $rv->{remote} = $remote = undef;
+    }
+
+    my $errors = DW::FormErrors->new;
+
+    if ( $r->did_post ) {
+        my $post = $r->post_args;
+
+        my $u = LJ::load_user( $post->{user} );
+        $errors->add( 'user', '.login.invalid_username' ) unless $u;
+
+        if ($u) {
+            my $banned;
+            my $auth_ok = LJ::auth_okay( $u, $post->{password}, is_ip_banned => \$banned );
+
+            if ($banned) {
+                $errors->add( '', '.login.ip_banned' );
+            }
+            elsif ( !$auth_ok ) {
+                $errors->add( 'password', '.login.badpass' );
+            }
+            else {
+                if ( DW::Auth::TOTP->is_enabled($u) ) {
+                    return DW::Auth::Login->start_challenge(
+                        $u,
+                        password => $post->{password},
+                        exptype  => 'long',
+                        returnto => '/mobile/'
+                    );
+                }
+                $u->make_login_session('long');
+                return $r->redirect( "$LJ::SITEROOT/mobile/?t=" . time() );
+            }
+        }
+    }
+
+    $rv->{errors} = $errors;
+
+    return DW::Template->render_template( 'mobile/login.tt', $rv, { no_sitescheme => 1 } );
 }
 
 1;

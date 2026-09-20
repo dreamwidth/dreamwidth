@@ -2903,9 +2903,6 @@ sub sessiongenerate {
     my ( $req, $err, $flags ) = @_;
     return undef unless authenticate( $req, $err, $flags );
 
-    # API keys must not be exchanged for unrestricted browser sessions.
-    return fail( $err, 300 ) unless ( $req->{auth_method} // '' ) eq 'cookie';
-
     # sanitize input
     $req->{expiration} = 'short' unless $req->{expiration} eq 'long';
     my $boundip;
@@ -2920,65 +2917,44 @@ sub sessiongenerate {
     # do not let locked people do this
     return fail( $err, 308 ) if $u->is_locked;
 
-    my $remote = LJ::get_remote();
-    my $source = $remote && $remote->equals($u) ? $remote->session : undef;
-    return fail( $err, 300 ) unless $source;
-    my $previous_session = $u->{_session};
+    require DW::Auth::TOTP;
     my $sess;
-    my $failure  = 502;
-    my $dbh      = LJ::get_db_writer() or return fail( $err, 502 );
-    my $prepared = eval {
-        $dbh->begin_work or die $dbh->errstr;
-        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
-            undef, $u->id );
-        die $dbh->errstr if $dbh->err;
+    if ( DW::Auth::TOTP->is_enabled($u) ) {
 
-        my $session_lock = LJ::Session->account_lock($u);
-
-        # Authentication preceded this lock. Re-read the authoritative cluster
-        # row so a factor change that revoked the source cannot mint a session.
-        my $row = LJ::Session->_load_locked( $u, $source->id );
-        unless ( $row
-            && $row->{auth} eq $source->auth
-            && $row->valid )
-        {
-            $failure = 300;
-            die 'Source session revoked';
+        # Existing API keys retain sessiongenerate capability. A cookie exchange
+        # inherits only proof already held by its authenticated source session.
+        my $source = $u->session;
+        my $dbh    = LJ::get_db_writer() or return fail( $err, 502 );
+        my $ok     = eval {
+            $dbh->begin_work or die $dbh->errstr;
+            $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
+                undef, $u->id );
+            die $dbh->errstr if $dbh->err;
+            my $factor = DW::Auth::TOTP->_factor_state($u)->{factor};
+            die 'Authentication changed' unless $factor;
+            unless ( $flags->{api_key_authenticated} ) {
+                die 'Second factor required'
+                    unless ( $req->{auth_method} // '' ) eq 'cookie'
+                    && $source
+                    && $source->valid;
+                my $proof = DW::Auth::TOTP->_session_proof($source);
+                die 'Second factor required' unless $proof->{factor} eq $factor;
+            }
+            $sess = LJ::Session->create( $u, %$sess_opts ) or die 'Unable to create session';
+            DW::Auth::TOTP->mark_session( $u, $sess, $factor ) or die 'Unable to authorize session';
+            $dbh->commit or die $dbh->errstr;
+            1;
+        };
+        unless ($ok) {
+            $dbh->rollback unless $dbh->{AutoCommit};
+            eval { $sess->destroy } if $sess;
+            $u->{_session} = $source;
+            return fail( $err, 300 );
         }
-        $sess =
-            LJ::Session->create( $u, %$sess_opts, defer_login => 1, session_lock => $session_lock )
-            or die 'Unable to create session';
-        require DW::Auth::TOTP;
-        unless ( DW::Auth::TOTP->copy_session_proof( $u, $row, $sess ) && $sess->valid ) {
-            $failure = 300;
-            die 'Unable to inherit session proof';
-        }
-
-        # Lazy creation cleanup may have removed a source that just expired.
-        my $still_current = LJ::Session->_load_locked( $u, $source->id );
-        unless ( $still_current && $still_current->auth eq $source->auth && $still_current->valid )
-        {
-            $failure = 300;
-            die 'Source session expired during replacement';
-        }
-        $dbh->commit or die $dbh->errstr;
-        $u->record_login( $sess->id ) or die 'Unable to record replacement login';
-        1;
-    };
-    unless ($prepared) {
-        $dbh->rollback unless $dbh->{AutoCommit};
-        if ($sess) {
-            eval { $sess->destroy };
-            eval {
-                $u->do( 'DELETE FROM loginlog WHERE userid=? AND sessid=?',
-                    undef, $u->id, $sess->id );
-            };
-        }
-        $u->{_session} = $previous_session;
-        return fail( $err, $failure );
     }
-    eval { LJ::mark_user_active( $u, 'login' ); 1 }
-        or warn 'Replacement login activity failed: ' . $@;
+    else {
+        $sess = LJ::Session->create( $u, %$sess_opts );
+    }
 
     # return our hash
     return { ljsession => $sess->master_cookie_string, };
@@ -3504,7 +3480,7 @@ sub check_altusage {
 # Return 1 on valid, 0 on invalid.
 sub check_login {
     my ( $u, $chal, $res, $banned, $opts ) = @_;
-    return 0 unless $u && $u->is_person && !$u->is_locked && !$u->is_memorial && !$u->is_expunged;
+    return 0 unless $u;
 
     my @keys = @{ DW::API::Key->get_keys_for_user($u) || [] };
     return 0 unless @keys;
@@ -3571,11 +3547,22 @@ sub authenticate {
 
         my $auth_meth = $req->{auth_method} || 'clear';
         if ( $auth_meth eq 'clear' ) {
-            $ip_banned = LJ::login_ip_banned($u);
-            return DW::API::Key->authenticate(
-                $u,
-                $req->{password} // $req->{hpassword},
-                allow_hpassword => !defined $req->{password} && defined $req->{hpassword}
+            require DW::Auth::TOTP;
+            if ( DW::Auth::TOTP->is_enabled($u) ) {
+                require DW::Auth;
+                my $ok = DW::Auth->api_key_authenticate(
+                    $u,
+                    $req->{password} // $req->{hpassword},
+                    !defined $req->{password}
+                );
+                $flags->{api_key_authenticated} = $ok;
+                return $ok;
+            }
+            return LJ::auth_okay(
+                $u, $req->{password} // $req->{hpassword},
+                is_ip_banned    => \$ip_banned,
+                allow_hpassword => 1,
+                allow_api_keys  => 1
             );
         }
         if ( $auth_meth eq 'challenge' ) {
@@ -3583,6 +3570,7 @@ sub authenticate {
             my $chal_ok   = check_login( $u, $req->{auth_challenge},
                 $req->{auth_response}, \$ip_banned, $chal_opts );
             $chal_expired = 1 if $chal_opts->{expired};
+            $flags->{api_key_authenticated} = $chal_ok;
             return $chal_ok;
         }
         if ( $auth_meth eq 'cookie' ) {
@@ -4355,7 +4343,6 @@ sub sessiongenerate {
     unless ($rs) {
         $res->{success} = 'FAIL';
         $res->{errmsg}  = LJ::Protocol::error_message($err);
-        return 0;
     }
 
     $res->{success}   = 'OK';
