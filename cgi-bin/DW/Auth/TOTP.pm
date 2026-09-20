@@ -282,9 +282,6 @@ sub update_session_expiration {
     return 1;
 }
 
-# A replacement session may inherit only the proof its source actually held.
-# Reading the current factor would upgrade a password-only or stale session
-# if enrollment races with cookie-authenticated session generation.
 sub get_recovery_codes {
     my ( $class, $u ) = @_;
 

@@ -248,7 +248,7 @@ sub _auth_basic {
 # Other accounts retain the caller's original password authentication path.
 sub api_key_authenticate {
     my ( $class, $u, $credential, $hashed ) = @_;
-    return 0 unless $u && defined $credential;
+    return 0 unless $u && $u->is_person && defined $credential;
     return 0 if LJ::login_ip_banned($u);
     for my $key ( @{ DW::API::Key->get_keys_for_user($u) || [] } ) {
         return 1 if $credential eq ( $hashed ? Digest::MD5::md5_hex( $key->hash ) : $key->hash );

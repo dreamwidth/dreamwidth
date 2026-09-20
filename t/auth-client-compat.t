@@ -21,10 +21,6 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user);
 use DW::API::Key;
 use DW::Auth::TOTP;
-use DW::Auth::Challenge;
-use DW::External::XPostProtocol::LJXMLRPC;
-use LJ::Protocol;
-use Digest::MD5 qw(md5_hex);
 use File::Temp qw(tempfile);
 use Plack::Test::Server;
 use IPC::Open3;
@@ -38,8 +34,7 @@ my $u = temp_user();
 $u->update_self( { status => 'A' } );
 $u->set_password('client-password');
 DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
-my $key      = DW::API::Key->new_for_user($u);
-my $protocol = DW::External::XPostProtocol::LJXMLRPC->new;
+my $key = DW::API::Key->new_for_user($u);
 
 # Run the shipped backup CLI against a real local HTTP server and MFA account.
 my $entry = $u->t_post_fake_entry(

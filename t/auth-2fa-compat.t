@@ -564,4 +564,34 @@ for my $protected ( 0, 1 ) {
     );
     is( $error, 402, 'Ordinary and protected clients receive the same temporary-ban error' );
 }
+
+# Clear API authentication keeps the existing personal-account restriction
+# when an enrolled account is later converted to a community or feed.
+for my $protected ( 0, 1 ) {
+    my $u = temp_user();
+    $u->set_password('account-type-password');
+    my $key = DW::API::Key->new_for_user($u);
+    DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret ) if $protected;
+    my $label = $protected ? 'Protected' : 'Ordinary';
+    ok( protocol_auth( $u, password => $key->hash ), "$label personal account accepts its key" );
+    for my $type (qw(C Y)) {
+        $u->update_self( { journaltype => $type } );
+        ok( !protocol_auth( $u, password => $key->hash ),
+            "$label converted $type account rejects clear API-key authentication" );
+        ok( !protocol_auth( $u, hpassword => md5_hex( $key->hash ) ),
+            "$label converted $type account rejects hashed clear API-key authentication" );
+        ok( !exchange( $u, password => $key->hash ),
+            "$label converted $type account cannot exchange a clear API key for a session" );
+    }
+}
+{
+    my $u = temp_user();
+    local *LJ::Session::create = sub { undef };
+    eval { $u->make_login_session('long') };
+    like(
+        $@,
+        qr/Unable to create login session/,
+        'Ordinary login still raises an error when session allocation fails'
+    );
+}
 done_testing();

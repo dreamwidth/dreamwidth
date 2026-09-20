@@ -327,7 +327,7 @@ sub login_2fa_handler {
             : DW::Auth::Login->verify( $token, $r->post_args->{code} );
         if ($verified) {
             $opts = $completion;
-            if ( DW::Auth::Login->complete( $verified, %$completion, mfa_verified => 1 ) ) {
+            if ( DW::Auth::Login->complete( $verified, %$completion ) ) {
                 DW::Stats::increment(
                     'dw.action.session.login_ok',
                     1,

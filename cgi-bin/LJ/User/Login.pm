@@ -154,7 +154,7 @@ sub make_login_session {
     };
     $sess_opts->{nolog} = 1 if $fake_login;
 
-    my $sess = LJ::Session->create( $u, %$sess_opts );
+    my $sess = LJ::Session->create( $u, %$sess_opts ) or die 'Unable to create login session';
     return $u->publish_login_session( $sess, $fake_login );
 }
 
