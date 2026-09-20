@@ -61,6 +61,10 @@ pkill starman; bash .devcontainer/start.sh
 
 ## Code conventions and architecture
 
+- Declare module dependencies in the import block at the top of the file.
+  Use `use` for ordinary dependencies; reserve runtime `require` for cases
+  that need deferred loading, such as a demonstrated circular dependency or
+  an optional module, and explain why in a nearby comment.
 - Formatting is defined in `.tidyallrc`: Unix line endings, 4-space continuation
   indentation, and a 100-character line limit for the selected Perl files.
 - New files must use the full Dreamwidth header: filename/module description,
