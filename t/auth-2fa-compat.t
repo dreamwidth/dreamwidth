@@ -425,8 +425,8 @@ with_fake_memcache {
     my $cached = LJ::MemCache::get( [ $u->id, 'mfa-factor:' . $u->id ] );
     ok( $cached && !$cached->{changing}, 'Rejected setup code clears the factor-change marker' );
     ok( $session->valid,                 'Rejected enrollment keeps the current session' );
-    my $inactive = temp_user();
-    my $dbh      = LJ::get_db_writer();
+    my $inactive = temp_user( cluster => $u->clusterid );
+    my $dbh      = LJ::get_cluster_master($u);
     $dbh->do( 'INSERT INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
         undef, $inactive->id, 999, 'x' x 64, time() - 10 );
     local *DW::Controller::Settings::controller = sub { ( 1, { r => $request, remote => $u } ) };
@@ -602,4 +602,127 @@ for my $protected ( 0, 1 ) {
         'Ordinary login still raises an error when session allocation fails'
     );
 }
+
+# Proof storage follows the user's cluster, including uncached reads and renewal.
+for my $cluster (@LJ::CLUSTERS) {
+    with_fake_memcache {
+        my $u = temp_user( cluster => $cluster );
+        $u->set_password('cluster-password');
+        DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
+        my $session = LJ::Session->create( $u, exptype => 'short' );
+        my $factor  = DW::Auth::TOTP->_factor_state($u)->{factor};
+        ok(
+            DW::Auth::TOTP->mark_session( $u, $session, $factor ),
+            "Cluster $cluster stores session authorization"
+        );
+        my $dbh = LJ::get_cluster_master($u);
+        is(
+            $dbh->selectrow_array(
+                'SELECT factor FROM mfa_sessions WHERE userid=? AND sessid=?', undef,
+                $u->id,                                                        $session->id
+            ),
+            $factor,
+            'Proof is stored beside the user session'
+        );
+        my $key = DW::Auth::TOTP->_proof_key( $u->id, $session->id );
+        LJ::MemCache::delete($key);
+        {
+            local *LJ::get_db_writer = sub { die 'Unexpected central database access' };
+            is( DW::Auth::TOTP->_session_proof($session)->{factor},
+                $factor, 'Uncached proof reads use only the user cluster' );
+            ok( $session->set_exptype('long'), 'Session renewal uses the user cluster' );
+        }
+        is(
+            $dbh->selectrow_array(
+                'SELECT expires FROM mfa_sessions WHERE userid=? AND sessid=?', undef,
+                $u->id,                                                         $session->id
+            ),
+            $session->expiration_time,
+            'Proof expiration follows session renewal'
+        );
+        $dbh->do(
+            'UPDATE mfa_sessions SET expires=? WHERE userid=? AND sessid=?',
+            undef, time() - 1,
+            $u->id, $session->id
+        );
+        LJ::MemCache::delete($key);
+        ok( !$session->valid, 'Expired cluster proof cannot authorize a live session' );
+        $session->set_exptype('long');
+        ok( !$session->valid, 'Renewal cannot revive an expired cluster proof' );
+    };
+}
+
+# A cluster proof can survive a central rollback, but its factor must not authorize
+# a later enrollment. The enrolling browser retains its original ordinary session.
+with_fake_memcache {
+    my $u = temp_user();
+    $u->set_password('rollback-password');
+    my $session = LJ::Session->create( $u, exptype => 'long' );
+    my $mark    = \&DW::Auth::TOTP::mark_session;
+    {
+        local *DW::Auth::TOTP::mark_session = sub {
+            $mark->(@_);
+            die "Failure after cluster proof write\n";
+        };
+        eval {
+            DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret,
+                'rollback-password', $session );
+        };
+        like(
+            $@,
+            qr/Failure after cluster proof write/,
+            'Enrollment fails after writing cluster proof'
+        );
+    }
+    ok( !DW::Auth::TOTP->is_enabled($u), 'Central factor rolls back' );
+    ok( $session->valid,                 'Original ordinary session remains valid after rollback' );
+    my $stale = DW::Auth::TOTP->_session_proof($session);
+    ok( $stale->{factor}, 'Cluster proof survives the central rollback' );
+    DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
+    ok(
+        !DW::Auth::TOTP->session_verified($session),
+        'Stale proof cannot authorize a different enrollment'
+    );
+};
+
+SKIP: {
+    skip 'Account movement requires two test clusters', 5 unless @LJ::CLUSTERS >= 2;
+    my ( $source, $destination ) = @LJ::CLUSTERS;
+    my $u = temp_user( cluster => $source );
+    $u->set_password('moving-password');
+    DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret );
+    my $session = LJ::Session->create( $u, exptype => 'long' );
+    DW::Auth::TOTP->mark_session( $u, $session, DW::Auth::TOTP->_factor_state($u)->{factor} );
+    local $ENV{DW_TEST} = 1;
+    is(
+        system(
+            "$ENV{LJHOME}/bin/moveucluster.pl",
+            '--ignorebit', '--destdel', '--delete', '--verbose=0', $u->user, $destination
+        ),
+        0,
+        'Existing cluster mover handles session proofs'
+    );
+
+    # Model the next web request, without the source cluster's cached DB handle.
+    DW::Cache->request->clear_ns('user_id');
+    DW::Cache->request->clear_ns('user_name');
+    $u = LJ::load_user( $u->user, 'force' );
+    is( $u->clusterid, $destination, 'Protected account moves to the destination cluster' );
+    is(
+        LJ::get_cluster_master($source)
+            ->selectrow_array( 'SELECT COUNT(*) FROM mfa_sessions WHERE userid=?', undef, $u->id ),
+        0,
+        'Source cluster proof is removed after movement'
+    );
+    is(
+        LJ::get_cluster_master($destination)
+            ->selectrow_array( 'SELECT COUNT(*) FROM mfa_sessions WHERE userid=?', undef, $u->id ),
+        1,
+        'Destination cluster contains the session proof'
+    );
+    LJ::MemCache::delete( DW::Auth::TOTP->_proof_key( $u->id, $session->id ) );
+    my $moved = LJ::Session->instance( $u, $session->id );
+    ok( $moved && $moved->valid, 'Moved session remains authorized with an uncached proof' );
+}
+
 done_testing();

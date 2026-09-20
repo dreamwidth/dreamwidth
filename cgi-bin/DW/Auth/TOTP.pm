@@ -190,12 +190,16 @@ sub mark_session {
     my $expires = $session->expiration_time;
     return unless $expires > time();
 
-    # Bound cleanup work while collecting expired proofs for inactive accounts too.
-    $dbh->do( 'DELETE FROM mfa_sessions WHERE expires < ? LIMIT 1000', undef, time() )
-        or die $dbh->errstr;
-    $dbh->do( 'REPLACE INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
+    # Session proofs live with the sessions on the user cluster. They cannot
+    # roll back with central credentials; the factor binding rejects stale proofs.
+    my $cluster = LJ::get_cluster_master($u) or die 'User database unavailable';
+
+    # Bound cleanup work while collecting expired proofs on this cluster too.
+    $cluster->do( 'DELETE FROM mfa_sessions WHERE expires < ? LIMIT 1000', undef, time() )
+        or die $cluster->errstr;
+    $cluster->do( 'REPLACE INTO mfa_sessions (userid, sessid, factor, expires) VALUES (?, ?, ?, ?)',
         undef, $u->id, $session->id, $factor, $expires )
-        or die $dbh->errstr;
+        or die $cluster->errstr;
     LJ::MemCache::set(
         $class->_proof_key( $u->id, $session->id ),
         { factor => $factor, expires => $expires },
@@ -246,7 +250,7 @@ sub _session_proof {
     my $key   = $class->_proof_key( $u->id, $session->id );
     my $proof = LJ::MemCache::get($key);
     unless ($proof) {
-        my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+        my $dbh = LJ::get_cluster_master($u) or die 'User database unavailable';
         my ( $factor, $expires ) = $dbh->selectrow_array(
             'SELECT factor, expires FROM mfa_sessions WHERE userid = ? AND sessid = ?',
             undef, $u->id, $session->id );
@@ -272,7 +276,7 @@ sub update_session_expiration {
     return 1 unless $class->_factor_state( $session->owner )->{factor};
     my $key = $class->_proof_key( $session->{userid}, $session->id );
     LJ::MemCache::delete($key);
-    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+    my $dbh = LJ::get_cluster_master( $session->owner ) or die 'User database unavailable';
 
     # Renewal may extend a live proof, but cannot revive one that already expired.
     $dbh->do( 'UPDATE mfa_sessions SET expires = ? WHERE userid = ? AND sessid = ? AND expires > ?',
@@ -366,8 +370,9 @@ sub enable {
             die $dbh->errstr unless defined $updated;
             last ENROLL unless $updated == 1;
 
-            $dbh->do( 'DELETE FROM mfa_sessions WHERE userid = ?', undef, $userid )
-                or die $dbh->errstr;
+            my $cluster = LJ::get_cluster_master($u) or die 'User database unavailable';
+            $cluster->do( 'DELETE FROM mfa_sessions WHERE userid = ?', undef, $userid )
+                or die $cluster->errstr;
             $dbh->do( 'DELETE FROM totp_used WHERE userid = ?', undef, $userid )
                 or die $dbh->errstr;
             last ENROLL if defined $setup_code && !$class->verify( $u, $setup_code );
