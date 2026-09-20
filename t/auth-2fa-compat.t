@@ -530,4 +530,22 @@ with_fake_memcache {
         'Conflicting enrollment renders current state without disclosing recovery codes'
     );
 };
+{
+    my $u = temp_user();
+    $u->set_password('partial-password');
+    my $current = LJ::Session->create( $u, exptype => 'long' );
+    my $other   = LJ::Session->create( $u, exptype => 'long' );
+    {
+        local *DW::Auth::TOTP::mark_session = sub { die "Injected proof write failure\n" };
+        eval {
+            DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret,
+                'partial-password', $current );
+        };
+        like( $@, qr/Injected proof write failure/, 'Enrollment reports a failed proof write' );
+    }
+    ok( !DW::Auth::TOTP->is_enabled($u), 'Failed enrollment rolls back the factor' );
+    ok( $current->valid,                 'Failed enrollment preserves the enrolling browser' );
+    ok( !LJ::Session->instance( $u, $other->id ),
+        'Already deleted cluster sessions stay signed out after enrollment rollback' );
+}
 done_testing();

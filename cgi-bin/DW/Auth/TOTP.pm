@@ -388,8 +388,9 @@ sub enable {
                     or $log->logcroak( 'Failed to insert recovery code: ', $dbh->errstr );
             }
 
-            # Revoke cluster sessions before committing the factor change. If
-            # revocation fails, retain the old factor and unconsumed recovery code.
+            # Revoke cluster sessions before committing the factor change. These
+            # deletions cannot roll back with the central credential transaction:
+            # a later failure can leave other browsers signed out without enabling 2FA.
             $class->_revoke_other_sessions( $u, $preserve );
             if ($preserve) {
                 $class->mark_session( $u, $preserve, $class->_factor_state($u)->{factor} )

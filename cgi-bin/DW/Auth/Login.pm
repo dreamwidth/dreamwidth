@@ -84,7 +84,7 @@ sub begin {
         }
         @opts{qw(fingerprint factor)} = $class->_fingerprint($u);
         $opts{browser} = LJ::UniqCookie->current_uniq;
-        $dbh->do( 'DELETE FROM login_challenges WHERE expires < ?', undef, time() )
+        $dbh->do( 'DELETE FROM login_challenges WHERE expires < ? LIMIT 1000', undef, time() )
             or die $dbh->errstr;
         $dbh->do(
             'INSERT INTO login_challenges (token, userid, payload, expires) VALUES (?, ?, ?, ?)',
