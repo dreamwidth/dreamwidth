@@ -264,10 +264,8 @@ sub complete {
 
 # Only protected-account login paths call this; ordinary forms stay unchanged.
 sub required_message {
-    return
-          'This account uses two-factor authentication. '
-        . "<a href='$LJ::SITEROOT/login?switch=1' target='_blank' rel='noopener'>Sign in in another tab</a>, "
-        . 'then preview your draft to refresh the form before posting. Your draft has not been posted.';
+    return 'This account uses two-factor authentication. '
+        . "Please <a href='$LJ::SITEROOT/login?switch=1'>log in</a> to post as this account.";
 }
 
 sub start_challenge {

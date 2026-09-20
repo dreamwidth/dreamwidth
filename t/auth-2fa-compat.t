@@ -131,7 +131,11 @@ for my $protected ( 0, 1 ) {
     is( $ok ? 1 : 0, $protected ? 0 : 1, "$label inline comment password behavior" );
 
     if ($protected) {
-        like( $result, qr/another tab/, 'Protected comment keeps draft and explains sign-in' );
+        like(
+            $result,
+            qr/log in<\/a> to post as this account/,
+            'Protected comment requires sign-in'
+        );
         ok( !$old->valid, 'Unverified pre-enrollment session is invalid' );
     }
     my %flags;
@@ -474,7 +478,11 @@ with_fake_memcache {
         { usertype => 'user', userpost => $u->user, password => 'race-password' },
         undef, $u );
     ok( !$ok, 'Comment requires MFA if enrollment completes during password verification' );
-    like( $error, qr/another tab/, 'Racing comment retains the normal MFA sign-in guidance' );
+    like(
+        $error,
+        qr/log in<\/a> to post as this account/,
+        'Racing comment retains the normal MFA sign-in guidance'
+    );
 }
 
 {
