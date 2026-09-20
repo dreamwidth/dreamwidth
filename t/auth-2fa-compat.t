@@ -548,4 +548,20 @@ with_fake_memcache {
     ok( !LJ::Session->instance( $u, $other->id ),
         'Already deleted cluster sessions stay signed out after enrollment rollback' );
 }
+
+for my $protected ( 0, 1 ) {
+    my $u = temp_user();
+    $u->set_password('ban-password');
+    my $key = DW::API::Key->new_for_user($u);
+    DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret ) if $protected;
+    local *LJ::login_ip_banned = sub { 1 };
+    my $error;
+    ok(
+        !LJ::Protocol::authenticate(
+            { username => $u->user, password => $key->hash }, \$error, {}
+        ),
+        'Banned clear-auth request is rejected'
+    );
+    is( $error, 402, 'Ordinary and protected clients receive the same temporary-ban error' );
+}
 done_testing();

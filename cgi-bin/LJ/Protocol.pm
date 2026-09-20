@@ -3549,6 +3549,7 @@ sub authenticate {
         if ( $auth_meth eq 'clear' ) {
             require DW::Auth::TOTP;
             if ( DW::Auth::TOTP->is_enabled($u) ) {
+                return 0 if $ip_banned = LJ::login_ip_banned($u);
                 require DW::Auth;
                 my $ok = DW::Auth->api_key_authenticate(
                     $u,
