@@ -101,6 +101,93 @@ ok(
     is_deeply( \@methods, ['sessiongenerate'], 'Legacy authentication flow remains available' );
 }
 
+{
+    require DW::Controller::Interface::S2;
+    no warnings 'once';
+    local *DW::Request::HTTP_UNAUTHORIZED = sub { 401 };
+    local *DW::Request::OK                = sub { 0 };
+    my $response = '';
+    my $status;
+    local *DW::Request::get         = sub { bless {}, 'DW::Request' };
+    local *DW::Request::method      = sub { 'GET' };
+    local *DW::Request::status_line = sub { $status = $_[1] };
+    local *DW::Request::print       = sub { $response .= $_[1] };
+    local *LJ::S2::load_layer       = sub { { userid => $u->id } };
+    local *DW::Auth::authenticate   = sub { undef };
+    DW::Controller::Interface::S2::interface_handler( {}, 123 );
+    like( $status, qr/^401/, 'Unauthenticated S2 request is rejected' );
+    like( $response, qr/username and API key/, 'S2 failure explains API-key authentication' );
+    unlike( $response, qr/username and password/, 'S2 does not suggest obsolete password login' );
+}
+
+# Persisted pre-upgrade password digests must never masquerade as API keys.
+{
+    require DW::External::Account;
+    for my $host ( 'www.dreamwidth.org', 'www.livejournal.com' ) {
+        my $account = DW::External::Account->create(
+            $u,
+            {
+                siteid      => 0,
+                username    => 'crosspost',
+                password    => 'saved-credential',
+                servicename => $host,
+                servicetype => 'lj',
+                serviceurl  => "https://$host/interface/xmlrpc",
+                options     => {},
+            }
+        );
+        $account = DW::External::Account->get_external_account( $u, $account->acctid );
+        is( $account->password, md5_hex('saved-credential'), 'New saved credential is usable' );
+        $u->do(
+            'UPDATE externalaccount SET options=? WHERE userid=? AND acctid=?',
+            undef, DW::External::Account->xpost_hash_to_string( {} ),
+            $u->id, $account->acctid
+        );
+        $account->_remove_from_memcache( $account->_memcache_id );
+        $account = DW::External::Account->get_external_account( $u, $account->acctid );
+        if ( $host eq 'www.livejournal.com' ) {
+            ok( !$account->needs_api_key_upgrade, 'Other hosts need no credential migration' );
+            is( $account->password, md5_hex('saved-credential'),
+                'Other hosts keep saved password' );
+            next;
+        }
+        ok( $account->needs_api_key_upgrade, 'Old Dreamwidth credential requires replacement' );
+        is( $account->password, '', 'Old password digest is unavailable to editors and workers' );
+        $account->set_options( { _credential_type => 'api_key', comments => 'disable' } );
+        ok( $account->needs_api_key_upgrade, 'Protocol options cannot reclassify old credentials' );
+        my $entry = $u->t_post_fake_entry;
+        local *DW::External::XPostProtocol::LJXMLRPC::crosspost = sub {
+            is(
+                $_[2]->{encrypted_password},
+                md5_hex( $key->hash ),
+                'One-off API key overrides obsolete saved password'
+            );
+            return { success => 0, error => 'test transport', code => 'test' };
+        };
+        $account->crosspost( { password => $key->hash }, $entry );
+        $account->set_password('saved-credential');
+        ok( !$account->needs_api_key_upgrade,
+            'Explicit replacement marks even an unchanged digest' );
+        is(
+            $account->password,
+            md5_hex('saved-credential'),
+            'In-memory saved credential is hashed'
+        );
+        $account->set_password( $key->hash );
+        $account->set_options( { comments => 'enable' } );
+        $account = DW::External::Account->get_external_account( $u, $account->acctid );
+        is(
+            $account->password,
+            md5_hex( $key->hash ),
+            'Saved API key survives options update and reload'
+        );
+        ok( !$account->needs_api_key_upgrade, 'Reload retains credential type' );
+        $account->set_password('');
+        is( $account->password, '', 'Clearing credential removes saved key' );
+        ok( !$account->options->{_credential_type}, 'Clearing key removes its type marker' );
+    }
+}
+
 # Run the shipped backup CLI against a real local HTTP server and MFA account.
 my $entry = $u->t_post_fake_entry(
     subject  => 'API backup regression',

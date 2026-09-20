@@ -110,8 +110,9 @@ sub create {
     my $exptype = delete $opts{'exptype'} || "short";
     my $ipfixed = delete $opts{'ipfixed'};              # undef or scalar ipaddress  FIXME: validate
          # Authentication preparation defers audit/activity until session publication.
-    my $defer_login = delete $opts{defer_login};
-    my $nolog       = delete $opts{'nolog'} || 0;    # 1 to not log to loginlogs
+    my $session_lock = delete $opts{session_lock};
+    my $defer_login  = delete $opts{defer_login};
+    my $nolog        = delete $opts{'nolog'} || 0;    # 1 to not log to loginlogs
     croak("Invalid exptype") unless $exptype =~ /^short|long|once$/;
 
     croak( "Invalid options: " . join( ", ", keys %opts ) ) if %opts;
@@ -119,11 +120,14 @@ sub create {
     my $udbh = LJ::get_cluster_master($u);
     return undef unless $udbh;
 
-    # clean up any old, expired sessions they might have (lazy clean)
-    $u->do( "DELETE FROM sessions WHERE userid=? AND timeexpire < UNIX_TIMESTAMP()",
-        undef, $u->{userid} );
-
-    # FIXME: but this doesn't remove their memcached keys
+    # Callers replacing a session already hold this non-reentrant lock. Clean
+    # expired rows before inserting anything, using that same held lock.
+    $session_lock ||= $class->account_lock($u);
+    my $expired = $udbh->selectcol_arrayref(
+        'SELECT sessid FROM sessions WHERE userid=? AND timeexpire < UNIX_TIMESTAMP()',
+        undef, $u->id )
+        or die $udbh->errstr;
+    $class->_destroy_sessions_locked( $u, @$expired ) if @$expired;
 
     my $expsec     = LJ::Session->session_length($exptype);
     my $timeexpire = time() + $expsec;
@@ -150,13 +154,6 @@ sub create {
     return undef if $u->err;
     $sess->{'sessid'} = $id;
     $sess->{'userid'} = $u->{'userid'};
-
-    # clean up old sessions
-    my $old =
-        $udbh->selectcol_arrayref( "SELECT sessid FROM sessions WHERE "
-            . "userid=$u->{'userid'} AND "
-            . "timeexpire < UNIX_TIMESTAMP()" );
-    $u->kill_sessions(@$old) if $old;
 
     # mark account as being used
     LJ::mark_user_active( $u, 'login' ) unless $defer_login;

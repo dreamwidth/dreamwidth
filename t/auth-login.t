@@ -721,4 +721,50 @@ for my $throws ( 0, 1 ) {
     ok( LJ::Session->instance( $account, $source->id )->valid, 'Original session remains valid' );
     ok( !$activity, 'Failed audit records no replacement activity' );
 }
+
+# Lazy expiry cleanup shares replacement's lock and runs before insertion.
+for my $failure ( '', 'cleanup', 'source-expiry' ) {
+    my $account = temp_user();
+    my $expired = LJ::Session->create( $account, exptype => 'long' );
+    my $source  = LJ::Session->create( $account, exptype => 'long' );
+    $account->do(
+        'UPDATE sessions SET timeexpire=? WHERE userid=? AND sessid=?',
+        undef, time() - 60,
+        $account->id, $expired->id
+    );
+    local *LJ::get_remote             = sub { $account };
+    local *LJ::Protocol::authenticate = sub { $_[2]->{u} = $account; 1 };
+    my $destroy = \&LJ::Session::_destroy_sessions_locked;
+    my $create  = \&LJ::Session::create;
+    local *LJ::Session::_destroy_sessions_locked = sub {
+        die 'Cleanup unavailable' if $failure eq 'cleanup';
+        return $destroy->(@_);
+    };
+    local *LJ::Session::create = sub {
+        $account->do(
+            'UPDATE sessions SET timeexpire=? WHERE userid=? AND sessid=?',
+            undef, time() - 60,
+            $account->id, $source->id
+        ) if $failure eq 'source-expiry';
+        return $create->(@_);
+    };
+    my $error;
+    my $result = LJ::Protocol::sessiongenerate( { auth_method => 'cookie', expiration => 'long' },
+        \$error, {} );
+    if ( !$failure ) {
+        ok( $result, 'Replacement cleans expired sessions without reacquiring its lock' );
+        ok(
+            !LJ::Session->instance( $account, $expired->id ),
+            'Cleanup invalidates expired session cache'
+        );
+        ok( $account->session->valid, 'Replacement remains valid after cleanup' );
+    }
+    else {
+        ok( !$result, "$failure fails replacement" );
+        is( $error, $failure eq 'cleanup' ? 502 : 300, 'Failure returns correct protocol error' );
+        my ($count) = $account->selectrow_array( 'SELECT COUNT(*) FROM sessions WHERE userid=?',
+            undef, $account->id );
+        is( $count, $failure eq 'cleanup' ? 2 : 0, 'Failure leaves no orphaned replacement' );
+    }
+}
 done_testing();

@@ -5452,6 +5452,8 @@ widget.themenav.title2=Select a New Theme
 
 widget.usertagcloud.title=Tag Cloud
 
+xpost.api_key_upgrade=Your saved Dreamwidth password can no longer be used for crossposting. Enter an API key from the destination account’s API page. Save it in your Other Sites settings to use it for future posts.
+
 xpost.delete.error=Error deleting crossposted entry at [[username]]@[[server]]:  [[error]]
 
 xpost.delete.success=Crossposted entry at [[username]]@[[server]] deleted.

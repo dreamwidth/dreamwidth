@@ -495,7 +495,9 @@ for my $mode ( 'normal', 'adding', 'store_only' ) {
         my $lock   = \&LJ::Session::account_lock;
         my ( $raced, $published );
         local *LJ::Session::account_lock = sub {
-            if ( $_[1]->equals($target) && $revoked_first && !$raced++ ) {
+
+            # The first acquisition prepares the row; the second publishes cookies.
+            if ( $_[1]->equals($target) && $revoked_first && $raced++ == 1 ) {
                 LJ::Session->destroy_all_sessions($target);
             }
             return $lock->(@_);

@@ -77,6 +77,9 @@ the same terms as Perl itself. For a copy of the license, please reference
 <div class="row">
     <div class="columns medium-3"><label for="password">[% '.label.password' | ml %]</label></div>
     <div class="columns medium-9">
+        [% IF editacct.needs_api_key_upgrade %]
+        <p class="hint">[% 'xpost.api_key_upgrade' | ml %]</p>
+        [% END %]
         [% form.password( name => 'password', id => 'password', size => 40, maxlength => 80,
             hint => dw.ml( '.label.password.info' ) ) %]
     </div>

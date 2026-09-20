@@ -2945,12 +2945,21 @@ sub sessiongenerate {
             $failure = 300;
             die 'Source session revoked';
         }
-        $sess = LJ::Session->create( $u, %$sess_opts, defer_login => 1 )
+        $sess =
+            LJ::Session->create( $u, %$sess_opts, defer_login => 1, session_lock => $session_lock )
             or die 'Unable to create session';
         require DW::Auth::TOTP;
         unless ( DW::Auth::TOTP->copy_session_proof( $u, $row, $sess ) && $sess->valid ) {
             $failure = 300;
             die 'Unable to inherit session proof';
+        }
+
+        # Lazy creation cleanup may have removed a source that just expired.
+        my $still_current = LJ::Session->_load_locked( $u, $source->id );
+        unless ( $still_current && $still_current->auth eq $source->auth && $still_current->valid )
+        {
+            $failure = 300;
+            die 'Source session expired during replacement';
         }
         $dbh->commit or die $dbh->errstr;
         $u->record_login( $sess->id ) or die 'Unable to record replacement login';

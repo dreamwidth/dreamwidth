@@ -131,6 +131,8 @@ Omit the `Fixes` line when there is no linked issue.
   both session and MFA denial markers before deleting cluster rows. Final login
   publication (including stored accounts) reacquires credentials before the session
   lock, re-reads the authoritative row, and commits required audits before success.
+  Session creation callers already holding the non-reentrant session lock must pass
+  its guard as `session_lock`; lazy expiry cleanup runs under it before insertion.
   Ordinary sessions must not perform MFA proof synchronization; cluster deletion
   remains authoritative when optional central proof cleanup is unavailable.
 - Comments may use a validated stored account session without changing the
@@ -151,7 +153,9 @@ Omit the `Fixes` line when there is no linked issue.
   a browser cookie for an importer. Crossposting to Dreamwidth and jbackup also
   use fresh API-key challenges per operation. Unsaved crosspost keys must survive
   form submission so the worker can authenticate multiple operations; do not
-  reduce them to one single-use challenge response. Other sites retain their own protocol.
+  reduce them to one single-use challenge response. Saved Dreamwidth crosspost
+  credentials need explicit API-key type metadata; untyped legacy password digests
+  must leave both editors able to accept a replacement key. Other sites retain their own protocol.
   API-key revocation must publish a denial before the database change and
   serialize cache fills with that change; a failed cache write must abort revocation.
 - Login challenge/session creation, enrollment password checks, and recovery-code

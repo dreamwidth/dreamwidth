@@ -382,10 +382,11 @@ sub _init {
 
                 push @crosspost_list,
                     {
-                    id            => $id,
-                    name          => $acct->displayname,
-                    selected      => $selected,
-                    need_password => $acct->password ? 0 : 1,
+                    id                    => $id,
+                    name                  => $acct->displayname,
+                    selected              => $selected,
+                    need_password         => $acct->password ? 0 : 1,
+                    needs_api_key_upgrade => $acct->needs_api_key_upgrade,
                     };
 
                 $crosspost_main = 1 if $selected;
