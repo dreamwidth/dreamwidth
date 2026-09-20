@@ -22,6 +22,8 @@ use Storable;
 use LJ::Global::Constants;
 
 use DW::Controller;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
@@ -193,7 +195,6 @@ sub new_handler {
             my %auth = _auth( $flags, $post, $remote );
 
             if ( $auth{requires_2fa} ) {
-                require DW::Auth::Login;
                 $errors->add_string( undef, DW::Auth::Login->required_message );
             }
             my $uj = $auth{journal};
@@ -727,7 +728,6 @@ sub _auth {
         # verify entered password, if it is present
         my $ok = LJ::auth_okay( $u, $auth{password} );
 
-        require DW::Auth::TOTP;
         if ( $ok && DW::Auth::TOTP->is_enabled($u) ) {
             $ret{requires_2fa} = 1;
             $ok = 0;

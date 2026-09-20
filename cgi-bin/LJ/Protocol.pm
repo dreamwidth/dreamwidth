@@ -36,6 +36,8 @@ use DW::Task::XPost;
 LJ::Config->load;
 
 use DW::API::Key;
+use DW::Auth;
+use DW::Auth::TOTP;
 use DW::Auth::Challenge;
 use LJ::Tags;
 use LJ::Feed;
@@ -2917,7 +2919,6 @@ sub sessiongenerate {
     # do not let locked people do this
     return fail( $err, 308 ) if $u->is_locked;
 
-    require DW::Auth::TOTP;
     my $sess;
     if ( DW::Auth::TOTP->is_enabled($u) ) {
 
@@ -3547,10 +3548,8 @@ sub authenticate {
 
         my $auth_meth = $req->{auth_method} || 'clear';
         if ( $auth_meth eq 'clear' ) {
-            require DW::Auth::TOTP;
             if ( DW::Auth::TOTP->is_enabled($u) ) {
                 return 0 if $ip_banned = LJ::login_ip_banned($u);
-                require DW::Auth;
                 my $ok = DW::Auth->api_key_authenticate(
                     $u,
                     $req->{password} // $req->{hpassword},

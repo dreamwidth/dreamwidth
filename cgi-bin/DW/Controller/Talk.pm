@@ -3,6 +3,8 @@ package DW::Controller::Talk;
 use strict;
 use LJ::JSON;
 use DW::Controller;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 use DW::Routing;
 use DW::Template;
 use DW::Formats;
@@ -701,7 +703,6 @@ sub authenticate_user_and_mutate_form {
             return $mlerr->("/talkpost_do.tt.error.postshared");
         }
 
-        require DW::Auth::TOTP;
         my $requires_2fa = DW::Auth::TOTP->is_enabled($up);
         return $got_user->($remote)
             if $requires_2fa
@@ -725,7 +726,6 @@ sub authenticate_user_and_mutate_form {
 
         # Enrollment may have completed while the password was being checked.
         if ( DW::Auth::TOTP->is_enabled($up) ) {
-            require DW::Auth::Login;
             $form->{password} = '';
             return $err->( DW::Auth::Login->required_message );
         }

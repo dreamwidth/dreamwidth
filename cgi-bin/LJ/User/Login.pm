@@ -19,6 +19,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::Auth::Password;
+use DW::Auth::TOTP;
 use LJ::Session;
 
 ########################################################################
@@ -164,7 +165,6 @@ sub publish_login_session {
     return 0 unless $sess && $sess->owner->equals($u);
     $u->{_session} = $sess;
     if ($fake_login) {
-        require DW::Auth::TOTP;
         DW::Auth::TOTP->authorize_impersonation( $u, $sess );
     }
     $sess->update_master_cookie;

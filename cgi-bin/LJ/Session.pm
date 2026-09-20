@@ -16,6 +16,7 @@ use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
 use LJ::Utils;
+use DW::Auth::TOTP;
 
 use constant VERSION => 1;
 
@@ -209,7 +210,6 @@ sub _dbupdate {
 
     LJ::MemCache::delete( $sess->_memkey );
     if ( exists $changes{timeexpire} ) {
-        require DW::Auth::TOTP;
         DW::Auth::TOTP->update_session_expiration($sess);
     }
     return 1;
@@ -383,7 +383,6 @@ sub valid {
             if $sess->{'ipfixed'} ne $remote_ip;
     }
 
-    require DW::Auth::TOTP;
     return 0 unless DW::Auth::TOTP->session_verified($sess);
 
     return 1;
