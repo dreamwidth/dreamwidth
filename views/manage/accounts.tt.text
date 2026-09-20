@@ -1,6 +1,8 @@
 ;; -*- coding: utf-8 -*-
 .btn.add=Add another account
 
+.btn.cancel=Cancel
+
 .btn.login=Log in
 
 .btn.remove=Remove
@@ -8,6 +10,10 @@
 .btn.switch=Switch
 
 .intro=These accounts are signed in on this browser. You can switch between them without re-entering your password, remove ones you no longer want listed here, or add another. Removing an account here only affects this browser.
+
+.remove.confirm=Remove [[user]] from your account switcher on this browser?
+
+.remove.title=Remove account?
 
 .status.active=Available
 
