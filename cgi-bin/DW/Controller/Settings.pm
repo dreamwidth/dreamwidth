@@ -344,6 +344,9 @@ sub manage2fa_handler {
             )
             )
         {
+            # Another enrollment may have won while this request was waiting.
+            return DW::Template->render_template('settings/manage2fa/index-enabled.tt')
+                if DW::Auth::TOTP->is_enabled($remote);
             LJ::handle_bad_login($remote);
             $errors->add_string(
                 password => 'Invalid password or verification code. Please try again.' );

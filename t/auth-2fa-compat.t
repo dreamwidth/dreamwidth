@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use Test::More;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use LJ::Test qw(temp_user);
+use LJ::Test qw(temp_user with_fake_memcache);
 use DW::Auth;
 use DW::Auth::Login;
 use DW::Auth::TOTP;
@@ -406,7 +406,7 @@ for my $protected ( 0, 1 ) {
     }
 }
 
-{
+with_fake_memcache {
     require DW::Controller::Settings;
     my $u = temp_user();
     $u->set_password('setup-password');
@@ -418,6 +418,8 @@ for my $protected ( 0, 1 ) {
         'Enrollment rejects an invalid setup code inside the transaction'
     );
     ok( !DW::Auth::TOTP->is_enabled($u), 'Rejected enrollment leaves factor disabled' );
+    my $cached = LJ::MemCache::get( [ $u->id, 'mfa-factor:' . $u->id ] );
+    ok( $cached && !$cached->{changing}, 'Rejected setup code clears the factor-change marker' );
     ok( $session->valid,                 'Rejected enrollment keeps the current session' );
     my $inactive = temp_user();
     my $dbh      = LJ::get_db_writer();
@@ -457,7 +459,7 @@ for my $protected ( 0, 1 ) {
             'Legacy enrollment explains the prerequisite instead of failing'
         );
     }
-}
+};
 
 {
     my $u = temp_user();
@@ -490,4 +492,42 @@ for my $protected ( 0, 1 ) {
         ok( $result->{errors}->exist, 'Protected unavailable account gets a mobile form error' );
     }
 }
+with_fake_memcache {
+    my $u = temp_user();
+    $u->set_password('conflict-password');
+    my $secret = DW::Auth::TOTP->generate_secret;
+    DW::Auth::TOTP->enable( $u, $secret );
+    my @before  = DW::Auth::TOTP->get_recovery_codes($u);
+    my $enabled = \&DW::Auth::TOTP::is_enabled;
+
+    # Model the stale pre-lock read of a second enrollment request.
+    {
+        local *DW::Auth::TOTP::is_enabled = sub { 0 };
+        ok( !DW::Auth::TOTP->enable( $u, DW::Auth::TOTP->generate_secret, 'conflict-password' ),
+            'Losing enrollment returns failure instead of throwing' );
+    }
+    is_deeply( [ DW::Auth::TOTP->get_recovery_codes($u) ],
+        \@before, 'Losing enrollment preserves the winning recovery codes' );
+    my $cached = LJ::MemCache::get( [ $u->id, 'mfa-factor:' . $u->id ] );
+    ok(
+        $cached && !$cached->{changing} && $cached->{factor},
+        'Losing enrollment restores the committed factor cache'
+    );
+    local *DW::Controller::Settings::controller = sub { ( 1, { r => $request, remote => $u } ) };
+    local *DW::Template::render_template        = sub { $_[1] };
+    my $checks = 0;
+    local *DW::Auth::TOTP::is_enabled = sub { return 0 unless $checks++; return $enabled->(@_) };
+    my @codes = DW::Auth::TOTP->_get_codes( $u, secret => $secret );
+    local $request->{post} = {
+        'action:enable'   => 1,
+        password          => 'conflict-password',
+        totp_secret       => $secret,
+        verification_code => $codes[-1]
+    };
+    is(
+        DW::Controller::Settings::manage2fa_handler(),
+        'settings/manage2fa/index-enabled.tt',
+        'Conflicting enrollment renders current state without disclosing recovery codes'
+    );
+};
 done_testing();

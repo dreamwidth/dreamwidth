@@ -344,8 +344,7 @@ sub enable {
     my $check_password = @_ > 3;
     my $userid         = $u->userid;
 
-    $log->logcroak('2fa already enabled on user.')
-        if $class->is_enabled($u);
+    return undef if $class->is_enabled($u);
 
     $log->logcroak('Invalid TOTP secret')
         unless defined $secret && $secret =~ /^[a-zA-Z2-7]{26}(?:={6})?$/;
@@ -356,48 +355,49 @@ sub enable {
     $dbh->begin_work
         or $log->logcroak( 'Failed to start transaction: ', $dbh->errstr );
 
-    my $saved = eval {
-        $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
-            undef, $userid );
-        die $dbh->errstr if $dbh->err;
-        if ( $check_password && !DW::Auth::Password->check( $u, $password ) ) {
-            $dbh->rollback;
-            return undef;
-        }
-        $class->_factor_changing($u);
-        my $updated = $dbh->do(
-            q{UPDATE password2 SET totp_secret = ? WHERE userid = ? AND totp_secret IS NULL},
-            undef, DW::Auth::Helpers->encrypt_token($secret), $userid );
-        die 'TOTP enrollment requires an existing password and no configured factor'
-            unless $updated && $updated == 1;
+    my $saved = 0;
+    eval {
+        ENROLL: {
+            $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+                undef, $userid );
+            die $dbh->errstr if $dbh->err;
+            last ENROLL if $check_password && !DW::Auth::Password->check( $u, $password );
+            $class->_factor_changing($u);
+            my $updated = $dbh->do(
+                q{UPDATE password2 SET totp_secret = ? WHERE userid = ? AND totp_secret IS NULL},
+                undef, DW::Auth::Helpers->encrypt_token($secret), $userid );
+            die $dbh->errstr unless defined $updated;
+            last ENROLL unless $updated == 1;
 
-        $dbh->do( 'DELETE FROM mfa_sessions WHERE userid = ?', undef, $userid ) or die $dbh->errstr;
-        $dbh->do( 'DELETE FROM totp_used WHERE userid = ?',    undef, $userid ) or die $dbh->errstr;
-        if ( defined $setup_code && !$class->verify( $u, $setup_code ) ) {
-            $dbh->rollback;
-            return undef;
-        }
-        $dbh->do( "UPDATE totp_recovery_codes SET status = 'X' WHERE userid = ? AND status = 'A'",
-            undef, $userid )
-            or die $dbh->errstr;
+            $dbh->do( 'DELETE FROM mfa_sessions WHERE userid = ?', undef, $userid )
+                or die $dbh->errstr;
+            $dbh->do( 'DELETE FROM totp_used WHERE userid = ?', undef, $userid )
+                or die $dbh->errstr;
+            last ENROLL if defined $setup_code && !$class->verify( $u, $setup_code );
+            $dbh->do(
+                "UPDATE totp_recovery_codes SET status = 'X' WHERE userid = ? AND status = 'A'",
+                undef, $userid )
+                or die $dbh->errstr;
 
-        # Now generate some recovery codes and insert into the database
-        foreach ( 1 .. 10 ) {
-            my $code = $class->_generate_recovery_code;
-            $dbh->do( q{INSERT INTO totp_recovery_codes (userid, code, status) VALUES (?, ?, ?)},
-                undef, $userid, DW::Auth::Helpers->encrypt_token($code), 'A' )
-                or $log->logcroak( 'Failed to insert recovery code: ', $dbh->errstr );
-        }
+            # Now generate some recovery codes and insert into the database
+            foreach ( 1 .. 10 ) {
+                my $code = $class->_generate_recovery_code;
+                $dbh->do(
+                    q{INSERT INTO totp_recovery_codes (userid, code, status) VALUES (?, ?, ?)},
+                    undef, $userid, DW::Auth::Helpers->encrypt_token($code), 'A' )
+                    or $log->logcroak( 'Failed to insert recovery code: ', $dbh->errstr );
+            }
 
-        # Revoke cluster sessions before committing the factor change. If
-        # revocation fails, retain the old factor and unconsumed recovery code.
-        $class->_revoke_other_sessions( $u, $preserve );
-        if ($preserve) {
-            $class->mark_session( $u, $preserve, $class->_factor_state($u)->{factor} )
-                or die 'Unable to preserve verified enrollment session';
+            # Revoke cluster sessions before committing the factor change. If
+            # revocation fails, retain the old factor and unconsumed recovery code.
+            $class->_revoke_other_sessions( $u, $preserve );
+            if ($preserve) {
+                $class->mark_session( $u, $preserve, $class->_factor_state($u)->{factor} )
+                    or die 'Unable to preserve verified enrollment session';
+            }
+            $dbh->commit or $log->logcroak( 'Failed to commit: ', $dbh->errstr );
+            $saved = 1;
         }
-        $dbh->commit or $log->logcroak( 'Failed to commit: ', $dbh->errstr );
-        1;
     };
     unless ($saved) {
         my $error = $@;
