@@ -19,6 +19,7 @@ no warnings 'uninitialized';
 use Digest::MD5;
 use Encode     ();
 use SOAP::Lite ();
+use Log::Log4perl;
 
 use LJ::Global::Constants;
 use LJ::Console;
@@ -36,6 +37,8 @@ use DW::Task::XPost;
 LJ::Config->load;
 
 use DW::API::Key;
+use DW::Auth;
+use DW::Auth::TOTP;
 use DW::Auth::Challenge;
 use LJ::Tags;
 use LJ::Feed;
@@ -43,6 +46,8 @@ use LJ::EmbedModule;
 
 #### New interface (meta handler) ... other handlers should call into this.
 package LJ::Protocol;
+
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 # global declaration of this text since we use it in two places
 our $CannotBeShown = '(cannot be shown)';
@@ -2917,7 +2922,75 @@ sub sessiongenerate {
     # do not let locked people do this
     return fail( $err, 308 ) if $u->is_locked;
 
-    my $sess = LJ::Session->create( $u, %$sess_opts );
+    my $sess;
+    if ( DW::Auth::TOTP->is_enabled($u) ) {
+
+        # Existing API keys retain sessiongenerate capability. A cookie exchange
+        # inherits only proof already held by its authenticated source session.
+        my $source = $u->session;
+        my $dbh    = LJ::get_db_writer() or return fail( $err, 502 );
+        my $stage  = 'begin_transaction';
+        my $ok     = eval {
+            $dbh->begin_work or die $dbh->errstr;
+            $stage = 'lock_credentials';
+            $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
+                undef, $u->id );
+            die $dbh->errstr if $dbh->err;
+            $stage = 'validate_credentials';
+            my $factor = DW::Auth::TOTP->_factor_state($u)->{factor};
+            die 'Authentication changed' unless $factor;
+            unless ( $flags->{api_key_authenticated} ) {
+                die 'Second factor required'
+                    unless ( $req->{auth_method} // '' ) eq 'cookie'
+                    && $source
+                    && $source->valid;
+                my $proof = DW::Auth::TOTP->_session_proof($source);
+                die 'Second factor required' unless $proof->{factor} eq $factor;
+            }
+            $stage = 'create_session';
+            $sess  = LJ::Session->create( $u, %$sess_opts ) or die 'Unable to create session';
+            $stage = 'authorize_session';
+            DW::Auth::TOTP->mark_session( $u, $sess, $factor ) or die 'Unable to authorize session';
+            $stage = 'commit';
+            $dbh->commit or die $dbh->errstr;
+            1;
+        };
+        unless ($ok) {
+            my $error = $@;
+            my $context =
+                  ' userid='
+                . $u->id
+                . ' cluster='
+                . $u->clusterid . ' ip='
+                . ( LJ::get_remote_ip() // 'unknown' );
+
+            # Keep request credentials and SQL parameter values out of logs.
+            if ( $error =~ /\A(?:Authentication changed|Second factor required)\b/ ) {
+                $log->debug( 'event=mfa_api_session_rejected', $context, ' stage=', $stage );
+            }
+            else {
+                $log->error(
+                    'event=mfa_api_session_failed',
+                    $context, ' stage=', $stage, ' db_errno=',
+                    $dbh->err // 0,
+                    ' cluster_errno=',
+                    $u->{_dbcm} ? ( $u->{_dbcm}->err // 0 ) : 0
+                );
+            }
+            $dbh->rollback unless $dbh->{AutoCommit};
+            if ($sess) {
+                my $destroyed = eval { $sess->destroy };
+                $log->error( 'event=mfa_session_cleanup_failed',
+                    $context, ' operation=api_session' )
+                    unless $destroyed;
+            }
+            $u->{_session} = $source;
+            return fail( $err, 300 );
+        }
+    }
+    else {
+        $sess = LJ::Session->create( $u, %$sess_opts );
+    }
 
     # return our hash
     return { ljsession => $sess->master_cookie_string, };
@@ -3510,6 +3583,16 @@ sub authenticate {
 
         my $auth_meth = $req->{auth_method} || 'clear';
         if ( $auth_meth eq 'clear' ) {
+            if ( DW::Auth::TOTP->is_enabled($u) ) {
+                return 0 if $ip_banned = LJ::login_ip_banned($u);
+                my $ok = DW::Auth->api_key_authenticate(
+                    $u,
+                    $req->{password} // $req->{hpassword},
+                    !defined $req->{password}
+                );
+                $flags->{api_key_authenticated} = $ok;
+                return $ok;
+            }
             return LJ::auth_okay(
                 $u, $req->{password} // $req->{hpassword},
                 is_ip_banned    => \$ip_banned,
@@ -3522,6 +3605,7 @@ sub authenticate {
             my $chal_ok   = check_login( $u, $req->{auth_challenge},
                 $req->{auth_response}, \$ip_banned, $chal_opts );
             $chal_expired = 1 if $chal_opts->{expired};
+            $flags->{api_key_authenticated} = $chal_ok;
             return $chal_ok;
         }
         if ( $auth_meth eq 'cookie' ) {

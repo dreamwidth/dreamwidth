@@ -61,8 +61,16 @@ pkill starman; bash .devcontainer/start.sh
 
 ## Code conventions and architecture
 
+- Declare module dependencies in the import block at the top of the file.
+  Use `use` for ordinary dependencies; reserve runtime `require` for cases
+  that need deferred loading, such as a demonstrated circular dependency or
+  an optional module, and explain why in a nearby comment.
 - Formatting is defined in `.tidyallrc`: Unix line endings, 4-space continuation
   indentation, and a 100-character line limit for the selected Perl files.
+- New files must use the full Dreamwidth header: filename/module description,
+  `Authors:` block, copyright year and `Dreamwidth Studios, LLC.`, followed by
+  the standard Perl license paragraph. Copy an appropriate neighboring header;
+  do not abbreviate the license notice.
 - Comments should explain non-obvious constraints or ordering requirements.
   Change history belongs in commit messages.
 - `DW::*` contains modern Dreamwidth code; `LJ::*` contains legacy code that

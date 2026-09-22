@@ -16,6 +16,7 @@ use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
 use LJ::Utils;
+use DW::Auth::TOTP;
 
 use constant VERSION => 1;
 
@@ -91,7 +92,8 @@ sub create {
     # validate options
     my $exptype = delete $opts{'exptype'} || "short";
     my $ipfixed = delete $opts{'ipfixed'};              # undef or scalar ipaddress  FIXME: validate
-    my $nolog   = delete $opts{'nolog'} || 0;           # 1 to not log to loginlogs
+    my $defer_login = delete $opts{defer_login};
+    my $nolog       = delete $opts{'nolog'} || 0;       # 1 to not log to loginlogs
     croak("Invalid exptype") unless $exptype =~ /^short|long|once$/;
 
     croak( "Invalid options: " . join( ", ", keys %opts ) ) if %opts;
@@ -119,7 +121,7 @@ sub create {
     return undef unless $id;
 
     $u->record_login($id)
-        unless $nolog;
+        unless $nolog || $defer_login;
 
     $u->do(
         "REPLACE INTO sessions (userid, sessid, auth, exptype, "
@@ -139,7 +141,7 @@ sub create {
     $u->kill_sessions(@$old) if $old;
 
     # mark account as being used
-    LJ::mark_user_active( $u, 'login' );
+    LJ::mark_user_active( $u, 'login' ) unless $defer_login;
 
     bless $sess;
     return $u->{'_session'} = $sess;
@@ -207,6 +209,9 @@ sub _dbupdate {
     }
 
     LJ::MemCache::delete( $sess->_memkey );
+    if ( exists $changes{timeexpire} ) {
+        DW::Auth::TOTP->update_session_expiration($sess);
+    }
     return 1;
 
 }
@@ -377,6 +382,8 @@ sub valid {
         return $err->("Session wrong IP ($remote_ip != $sess->{ipfixed})")
             if $sess->{'ipfixed'} ne $remote_ip;
     }
+
+    return 0 unless DW::Auth::TOTP->session_verified($sess);
 
     return 1;
 }

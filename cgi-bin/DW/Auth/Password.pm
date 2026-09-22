@@ -81,10 +81,12 @@ sub set {
         my $encrypted_password_token =
             DW::Auth::Helpers->encrypt_token( $class->_bcrypt_password($password) );
 
-        # Replace into database.
-        $dbh->do( q{REPLACE INTO password2 (userid, version, password) VALUES (?, ?, ?)},
-            undef, $u->userid, 1, $encrypted_password_token )
-            or $log->logcroak( 'Failed to set password hash: ', $dbh->errstr );
+        # Update the password without replacing the account's second factor.
+        $dbh->do(
+            q{INSERT INTO password2 (userid, version, password) VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE version = VALUES(version), password = VALUES(password)},
+            undef, $u->userid, 1, $encrypted_password_token
+        ) or $log->logcroak( 'Failed to set password hash: ', $dbh->errstr );
     }
 
     return 1;

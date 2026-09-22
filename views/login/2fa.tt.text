@@ -1,0 +1,29 @@
+;; Login second-factor challenge text.
+;;
+;; Authors:
+;;      Mark Smith <mark@dreamwidth.org>
+;;
+;; Copyright (c) 2026 by Dreamwidth Studios, LLC.
+;;
+;; This program is free software; you may redistribute it and/or modify it under
+;; the same terms as Perl itself. For a copy of the license, please reference
+;; 'perldoc perlartistic' or 'perldoc perlgpl'.
+;;
+;; -*- coding: utf-8 -*-
+.title=Two-Factor Authentication
+
+.instructions=Enter the six-digit code from your authenticator app to finish logging in as <strong>[[user]]</strong>.
+
+.code.label=Authentication code
+
+.code.hint=Enter a 6-digit code from your authenticator app, or a recovery code (xxxx-xxxx).
+
+.btn.verify=Verify
+
+.error.badcredentials=Invalid or already-used authentication code. Try a fresh code, or restart login after five attempts.
+
+.link.back=Back to login
+
+.instructions.verified=Your code was accepted, but sign-in has not finished. Try again to finish logging in as <strong>[[user]]</strong>. You do not need another code.
+
+.btn.complete=Finish signing in

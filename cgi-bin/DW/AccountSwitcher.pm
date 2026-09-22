@@ -231,7 +231,7 @@ sub _current_handle {
 # active into the stored list. $u must already be password-verified by the
 # caller. Returns 1.
 sub add_account {
-    my ( $class, $u, $exptype, $ipfixed ) = @_;
+    my ( $class, $u, $exptype, $ipfixed, $session ) = @_;
 
     my @list = grep { $_->{userid} != $u->userid } @{ $class->_entries };
 
@@ -243,6 +243,7 @@ sub add_account {
 
     # make_login_session creates a new session for $u, writes the master cookie,
     # and sets the remote -- exactly like a normal login.
+    return $u->publish_login_session($session) if $session;
     $u->make_login_session( $exptype, $ipfixed );
 
     return 1;

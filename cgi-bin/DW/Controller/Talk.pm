@@ -3,6 +3,8 @@ package DW::Controller::Talk;
 use strict;
 use LJ::JSON;
 use DW::Controller;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 use DW::Routing;
 use DW::Template;
 use DW::Formats;
@@ -701,6 +703,14 @@ sub authenticate_user_and_mutate_form {
             return $mlerr->("/talkpost_do.tt.error.postshared");
         }
 
+        my $requires_2fa = DW::Auth::TOTP->is_enabled($up);
+        return $got_user->($remote)
+            if $requires_2fa
+            && $remote
+            && $remote->equals($up)
+            && $remote->session
+            && $remote->session->valid;
+
         # authenticate on username/password
         my $ok = LJ::auth_okay( $up, $form->{password} );
 
@@ -712,6 +722,12 @@ sub authenticate_user_and_mutate_form {
                 "/talkpost_do.tt.error.badpassword2",
                 { aopts => "href='$LJ::SITEROOT/lostinfo'" }
             );
+        }
+
+        # Enrollment may have completed while the password was being checked.
+        if ( DW::Auth::TOTP->is_enabled($up) ) {
+            $form->{password} = '';
+            return $err->( DW::Auth::Login->required_message );
         }
 
         # GREAT, they're in!

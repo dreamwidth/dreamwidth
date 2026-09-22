@@ -22,6 +22,8 @@ use Storable;
 use LJ::Global::Constants;
 
 use DW::Controller;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
@@ -192,13 +194,17 @@ sub new_handler {
 
             my %auth = _auth( $flags, $post, $remote );
 
+            if ( $auth{requires_2fa} ) {
+                $errors->add_string( undef, DW::Auth::Login->required_message );
+            }
             my $uj = $auth{journal};
             $errors->add_string( undef, $LJ::MSG_READONLY_USER )
                 if $uj && $uj->readonly;
 
             # do a login action to check if we can authenticate as unverified_username
             # and to display any important messages connected to your account
-            {
+            unless ( $auth{requires_2fa} ) {
+
                 # build a clientversion string
                 my $clientversion = "Web/3.0.0";
 
@@ -722,6 +728,10 @@ sub _auth {
         # verify entered password, if it is present
         my $ok = LJ::auth_okay( $u, $auth{password} );
 
+        if ( $ok && DW::Auth::TOTP->is_enabled($u) ) {
+            $ret{requires_2fa} = 1;
+            $ok = 0;
+        }
         if ($ok) {
             $flags->{noauth} = 1;
             $flags->{u}      = $u;
