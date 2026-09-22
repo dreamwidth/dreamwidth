@@ -23,26 +23,28 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5 qw/ md5_hex /;
 use Paws;
+use Paws::Credential::Explicit;
+use URI;
 
 sub type { 's3' }
 
 sub init {
     my ( $class, %args ) = @_;
 
-    foreach my $required (qw/ access_key secret_key region prefix bucket /) {
-        $log->logcroak( 'S3 configuration must include config: ', $required )
-            unless exists $args{$required};
+    %args = $class->validate_config(%args);
+    my %config = ( region => $args{region} );
+    if ( defined $args{access_key} ) {
+        my %credentials = map { $_ => $args{$_} } qw/ access_key secret_key /;
+        $credentials{session_token} = $args{session_token} if defined $args{session_token};
+        $config{credentials}        = Paws::Credential::Explicit->new(%credentials);
     }
 
-    $log->logcroak('Prefix does not match required regex: [a-zA-Z0-9_-]+$.')
-        if defined $args{prefix} && $args{prefix} !~ /^[a-zA-Z0-9_-]+$/;
-
-    my $paws = Paws->new(
-        config => {
-            region => $args{region},
-        },
-    ) or $log->logcroak('Failed to initialize Paws object.');
-    my $s3 = $paws->service('S3')
+    # Omitting credentials preserves Paws' environment/container/instance role chain.
+    my $paws = Paws->new( config => \%config )
+        or $log->logcroak('Failed to initialize Paws object.');
+    my %service;
+    $service{endpoint} = $args{endpoint} if defined $args{endpoint};
+    my $s3 = $paws->service( 'S3', %service )
         or $log->logcroak('Failed to initialize Paws::S3 object.');
 
     $log->debug("Initializing blobstore for S3");
@@ -52,6 +54,43 @@ sub init {
         prefix => $args{prefix}
     };
     return bless $self, $class;
+}
+
+# Validate without contacting the storage service (also used by checkconfig).
+sub validate_config {
+    my ( $class, %args ) = @_;
+    $log->logcroak('S3 bucket and bucket_name disagree.')
+        if defined $args{bucket}
+        && defined $args{bucket_name}
+        && $args{bucket} ne $args{bucket_name};
+    $args{bucket} //= $args{bucket_name};
+    foreach my $required (qw/ region bucket /) {
+        $log->logcroak("S3 configuration requires $required.")
+            unless defined $args{$required} && length $args{$required};
+    }
+    $log->logcroak('S3 access_key and secret_key must both be provided or both omitted.')
+        if defined $args{access_key} != defined $args{secret_key};
+    foreach my $key (qw/ access_key secret_key /) {
+        $log->logcroak("S3 $key must not be empty.")
+            if defined $args{$key} && !length $args{$key};
+    }
+    $log->logcroak('S3 session_token requires explicit access_key and secret_key.')
+        if defined $args{session_token} && !defined $args{access_key};
+    $log->logcroak('Prefix does not match required regex: [a-zA-Z0-9_-]+$.')
+        if defined $args{prefix} && $args{prefix} !~ /^[a-zA-Z0-9_-]+$/;
+    if ( defined $args{endpoint} ) {
+        my $uri = URI->new( $args{endpoint} );
+        $log->logcroak(
+            'S3 endpoint must be an http(s) URL without credentials, query, or fragment.')
+            unless $uri->scheme
+            && $uri->scheme =~ /^https?$/
+            && $uri->host
+            && !defined $uri->userinfo
+            && !defined $uri->query
+            && !defined $uri->fragment;
+        $args{endpoint} =~ s{/$}{};
+    }
+    return %args;
 }
 
 sub get_location_for_key {

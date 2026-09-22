@@ -49,19 +49,23 @@ sub get {
 
     return $_queue if defined $_queue;
 
-    # Determine what kind of queue object to build, depending on if we're
-    # running locally or not
-    if ( exists $LJ::SQS{region} ) {
-        return $_queue = DW::TaskQueue::SQS->init(%LJ::SQS);
-    }
+    my $backend = $class->backend_name;
+    return $_queue = DW::TaskQueue::SQS->init(%LJ::SQS) if $backend eq 'sqs';
+    return $_queue = DW::TaskQueue::LocalDisk->init();
+}
 
-    # If we're a dev server, allow the local mode (not allowed in production,
-    # it's really crappy)
-    if ($LJ::IS_DEV_SERVER) {
-        return $_queue = DW::TaskQueue::LocalDisk->init();
+# Keep the historical defaults unless an operator explicitly selects a backend.
+sub backend_name {
+    my $backend = $LJ::TASK_QUEUE_BACKEND || 'auto';
+    if ( $backend eq 'auto' ) {
+        return 'sqs' if exists $LJ::SQS{region};
+        return 'localdisk' if $LJ::IS_DEV_SERVER;
+        $log->logcroak( 'Configure %SQS or select $TASK_QUEUE_BACKEND = "localdisk" '
+                . 'for a small single-host site. See doc/SELF-HOSTING.md.' );
     }
-
-    $log->logcroak('Unable to instantiate any DW::TaskQueue modules.');
+    $log->logcroak('TASK_QUEUE_BACKEND must be auto, sqs, or localdisk.')
+        unless $backend eq 'sqs' || $backend eq 'localdisk';
+    return $backend;
 }
 
 sub send {

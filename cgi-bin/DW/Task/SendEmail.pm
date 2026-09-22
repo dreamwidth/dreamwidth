@@ -33,6 +33,17 @@ my $smtp;
 my $last_email    = 0;
 my $email_counter = 0;
 
+sub validate_config {
+    my ( $class, %config ) = @_;
+    croak 'SMTP_SERVER requires hostname.' unless $config{hostname};
+    croak 'SMTP_SERVER port must be between 1 and 65535.'
+        if defined $config{port}
+        && ( $config{port} !~ /^\d+$/ || $config{port} < 1 || $config{port} > 65535 );
+    croak 'SMTP_SERVER username and password must both be provided or both omitted.'
+        if !!$config{username} != !!$config{password};
+    return 1;
+}
+
 sub work {
     my ( $self, $handle ) = @_;
 
@@ -62,6 +73,9 @@ sub work {
                 "SMTP server not configured. Please set up %SMTP_SERVER in your config.");
         }
 
+        eval { __PACKAGE__->validate_config(%LJ::SMTP_SERVER) };
+        return $failed->( "Invalid SMTP configuration: %s", $@ ) if $@;
+
         $smtp = Net::SMTP->new(
             Host    => $LJ::SMTP_SERVER{hostname},
             Port    => $LJ::SMTP_SERVER{port} || 587,
@@ -72,7 +86,8 @@ sub work {
 
         # Start TLS unless disabled.
         unless ( $LJ::SMTP_SERVER{plaintext} ) {
-            $smtp->starttls();
+            return $failed->("SMTP STARTTLS failed; refusing to send credentials or mail.")
+                unless $smtp->starttls();
         }
 
         # Only try auth if we have username/pw configured for mail server
