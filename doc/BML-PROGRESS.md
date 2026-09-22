@@ -42,7 +42,7 @@ Baseline observations to test:
 - Delete clears member bits on the client; verify the server's resulting masks
   and actual entry visibility, including crafted and stale submissions.
 
-## Pending work
+## Initial queue (completed below)
 
 1. Finish environment setup; run baseline tests and capture old UI states.
 2. Migrate access-filter controller/template/JS/strings with regression coverage.
@@ -175,3 +175,55 @@ legacy hosting/upload capability branches and is not proven equivalent to root.
 - Customization is unblocked at the Perl widget request layer but still needs
   Foundation resource ordering and legacy DOM-helper compatibility, followed by
   theme/layout/options acceptance. No claim of complete customization parity.
+
+## Customization characterization completed
+
+- Added t/plack-customize.t: 58 passing HTTP assertions for anonymous/unauthorized
+  access, personal/community styles and ownership, next-page redirects, valid
+  and invalid CSRF, persisted title widget changes through both pages, and eight
+  options groups. These are a baseline for migration, not full theme/options
+  acceptance: theme application, every property mutation, and reset flows remain.
+- This integration test requires a development server with compiled ciel/indil.
+  The minimal test database has no compiled public themes, so it uses the isolated
+  dev database with temporary users cleaned up by LJ::Test. Reading fresh loaded
+  users was necessary to avoid asserting against stale property caches.
+- Added t/browser/customize-baseline.js. Ten desktop states captured: all themes,
+  community theme browser, presentation, colors, fonts, images, text, modules,
+  custom CSS, display. All loaded with no JS exceptions.
+- Evidence and machine-readable results: existing evidence directory's
+  customize-baseline/ subdirectory. Visual inspection of colors revealed an
+  existing missing /customize/options.advanced translation at the bottom.
+  HTTP rendering also emits existing uninitialized-value warnings from
+  LJ::HTMLControls; assertions pass but these are not claimed warning-free.
+
+## Concrete next package
+
+1. Make widget resources work with Foundation: active resource group, dependency
+   order, initialization timing, and legacy DOM.getElement versus jQuery $ calls.
+   Include nested widget initialization and real RPC refresh behavior.
+2. Move ThemeNav query/redirect handling to DW::Request, explicitly propagating
+   redirect responses from widget dispatch. Preserve search/page/show/authas.
+3. Migrate customize/index and options markup/strings into Foundation templates
+   with dedicated handlers; preserve style initialization and allowed widgets.
+4. Extend the new baseline tests to theme application/preview, layout changes,
+   every options-widget family, reset/save/reload, community targeting, and
+   responsive screenshots. Delete the two BML pages only after those pass.
+
+This pass leaves the remaining runtime and product gates explicit; it does not
+claim that zero BML pages, complete replacement parity, or engine removal has
+been achieved. No push, deployment, or production change was performed.
+
+## Final verification for this checkpoint
+
+- Combined behavior suite: 10 files, 261 tests, all passed. Command:
+  `prove t/plack-access-filters.t t/widget-request.t t/plack-image-preview.t
+  t/plack-image-dialog.t t/plack-customize.t t/plack-bml.t t/wtf.t
+  t/content-filters.t t/tags-trustmask-count.t t/ml.t`
+- Final formatting check: 1,031 assertions passed. Latest full module compile:
+  1,597 assertions passed including existing skips; subsequent additions were
+  characterization tests/docs only. Static build passed for access-filter JS;
+  subsequent migrated iframe/dialog assets did not change bundled JS/CSS.
+- Headless acceptance passed for access filters, personal/community widget RPCs,
+  and image preview/insertion/editing. Customization baseline captured separately.
+- Test logs remain in container /tmp/bml-final-regression.log and
+  /tmp/bml-final-tidy.log; compile log /tmp/bml-dialog-compile.log.
