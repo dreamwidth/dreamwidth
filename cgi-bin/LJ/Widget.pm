@@ -17,6 +17,9 @@ use strict;
 use Carp;
 use LJ::ModuleLoader;
 use LJ::Auth;
+use DW::Cache;
+use DW::Request;
+use Scalar::Util qw(blessed);
 
 # FIXME: don't really need all widgets now
 LJ::ModuleLoader->require_subclasses("LJ::Widget");
@@ -62,7 +65,8 @@ sub start_form {
     $ret .= LJ::form_auth();
 
     if ( $class->authas ) {
-        my $u = $opts{authas} || $BMLCodeBlock::GET{authas} || $BMLCodeBlock::POST{authas};
+        my $r = DW::Request->get;
+        my $u = $opts{authas} || $r->get_args->{authas} || $r->post_args->{authas};
         $u = LJ::load_user($u) unless LJ::isu($u);
         my $authas = LJ::isu($u) ? $u->user : undef;
 
@@ -200,7 +204,9 @@ sub post_fields_by_widget {
         # whitelisted widget class?
         next unless $allowed->($subclass);
 
-        $per_widget{$subclass}->{$field} = $post->{$key};
+        # Existing widgets expect repeated fields in the legacy NUL-separated form.
+        $per_widget{$subclass}->{$field} = blessed($post)
+            && $post->can('get_all') ? join( "\0", $post->get_all($key) ) : $post->{$key};
     }
 
     # now let's remove empty hashref placeholders from %per_widget
@@ -214,7 +220,7 @@ sub post_fields_by_widget {
 sub post_fields_of_widget {
     my $class  = shift;
     my $widget = shift;
-    my $post   = shift() || \%BMLCodeBlock::POST;
+    my $post   = shift() || DW::Request->get->post_args;
 
     my $errors = [];
     my $per_widget =
@@ -224,7 +230,7 @@ sub post_fields_of_widget {
 
 sub post_fields {
     my $class = shift;
-    my $post  = shift() || \%BMLCodeBlock::POST;
+    my $post  = shift() || DW::Request->get->post_args;
 
     my @widgets = ( $class->subclass );
     my $errors  = [];
@@ -235,7 +241,7 @@ sub post_fields {
 
 sub get_args {
     my $class = shift;
-    return \%BMLCodeBlock::GET;
+    return DW::Request->get->get_args;
 }
 
 sub get_effective_remote {
@@ -251,7 +257,7 @@ sub get_effective_remote {
 # call to have a widget process a form submission. this checks for formauth unless
 # an ajax auth token was already verified
 # returns hash returned from the last processed widget
-# pushes any errors onto @BMLCodeBlock::errors
+# accumulates errors in the request-scoped errors array
 sub handle_post {
     my $class = shift;
     my $post  = shift;
@@ -268,16 +274,17 @@ sub handle_post {
     }
 
     # no errors, return empty list
-    return () unless LJ::did_post() && @widgets;
+    return () unless DW::Request->get->did_post && @widgets;
 
     # is this widget disabled?
     return () if $class->is_disabled;
 
     # require form auth for widget submissions
-    my $errorsref = \@BMLCodeBlock::errors;
+    my $errorsref = $class->errors;
 
     unless ( LJ::check_form_auth( $post->{lj_form_auth} ) || $LJ::WIDGET_NO_AUTH_CHECK ) {
         push @$errorsref, LJ::Lang::ml('error.invalidform');
+        return ();
     }
 
     my $per_widget =
@@ -311,7 +318,7 @@ sub handle_post_and_render {
 sub handle_error {
     my ( $class, $errstr, $errref ) = @_;
     $errstr ||= $@;
-    $errref ||= \@BMLCodeBlock::errors;
+    $errref ||= $class->errors;
     return 0 unless $errstr;
 
     $errstr =~ s/\s+at\s+.+line \d+.*$//ig
@@ -326,7 +333,7 @@ sub error_list {
     if (@errors) {
         $class->error($_) foreach @errors;
     }
-    return @BMLCodeBlock::errors;
+    return @{ $class->errors };
 }
 
 sub is_disabled {
@@ -345,10 +352,10 @@ sub subclass {
     return ( $class =~ /(?:LJ|DW)::Widget::([\w:]+)$/ )[0];
 }
 
-# wrapper around BML... for now
-sub decl_params {
-    my $class = shift;
-    return BML::decl_params(@_);
+# Shared by all widgets in one request; also works in non-web tests/jobs.
+sub errors {
+    return DW::Cache->request->get( 'widget', 'errors' )
+        || DW::Cache->request->set( 'widget', 'errors', [] );
 }
 
 sub form_auth {
@@ -627,7 +634,7 @@ sub ml_is_missing_string {
 }
 
 # this function should be used when getting any widget ML string
-# -- it's really just a wrapper around LJ::Lang::ml or BML::ml,
+# -- it's really just a wrapper around LJ::Lang::ml,
 #    but it does nice things like falling back to global definition
 # -- also allows getting of strings from the 'widget' ML domain
 #    for text which was dynamically defined by an admin
@@ -808,13 +815,13 @@ user (remote or a journal remote manages).  Otherwise, it returns remote.
 
 =item C<handle_error>
 
-Pushes an error onto a given arrayref of errors (or @BMLCodeBlock::errors) for
+Pushes an error onto a given arrayref of errors (or the request-scoped widget errors) for
 display.
 
 =item C<error_list>
 
 Returns a list of errors for a widget, using C<handle_error> to build up the
-list in @BMLCodeBlock::errors.
+request-scoped widget error list.
 
 =item C<is_disabled>
 
@@ -828,10 +835,6 @@ Example: giving "LJ::Widget::WidgetName" would return "WidgetName".
 =item C<widget_ele_id>
 
 Returns the HTML id attribute for this widget.
-
-=item C<decl_params>
-
-Wrapper around BML::decl_params().
 
 =item C<form_auth>
 

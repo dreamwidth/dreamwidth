@@ -84,3 +84,29 @@ remove beta-gated entry/inbox functionality without resolving their cutover gate
 
 Next: remove shared widget BML input/error dependencies needed by customization;
 keep compatibility for surviving BML callers and add request-isolation tests.
+
+## Shared widget request seam completed
+
+- Widget GET/POST inputs, repeated form values, and errors now use the current
+  request. Profile and widget RPC callers no longer depend on BML error globals.
+  The BML renderer temporarily bridges its error array for surviving pages.
+- Invalid CSRF now stops widget dispatch before a handler can mutate data.
+  Verified AJAX authorization remains supported and scoped to that request.
+- Removed the effective-remote helper's stale BML authas fallback. Tests cover
+  current GET/POST identity and isolation from preceding BML requests.
+- Real headless testing exposed accumulated customization initialization scripts
+  in persistent BML workers: a click could send several RPCs with old tokens.
+  Both customization pages now reset headextra before rendering. The browser
+  regression asserts one RPC per click, persistent title saves and restoration
+  for a personal journal and a maintained community, with no JS errors.
+- t/widget-request.t passes 22 assertions. The earlier broader widget/Plack/profile
+  run passed 322 tests across 17 files; final affected widget/auth/BML/profile
+  run passed 48 tests across four files. Final full tidy check (1,026 assertions)
+  and compile check (1,593 assertions including existing skips) passed.
+- Reproduction: `node t/browser/widget-titles.js` inside the seeded container.
+  Final run passed after restarting Starman. Baseline customization screenshot:
+  /private/tmp/dreamwidth-bml-evidence-20260921/customize-before.png.
+
+Next independent package: preserve and migrate the still-used FCK image-preview
+iframe. Customization still needs Foundation resource/legacy-JS compatibility
+work before its BML pages can be removed.

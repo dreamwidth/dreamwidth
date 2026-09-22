@@ -728,6 +728,10 @@ sub render {
         BML::reset_cookies();
         *BMLCodeBlock::ML = *BML::ML;
 
+        # Keep legacy page error aliases working while widgets use request state.
+        @BMLCodeBlock::errors = ();
+        DW::Cache->request->set( 'widget', 'errors', \@BMLCodeBlock::errors );
+
         # Parse form inputs from DW::Request
         _parse_inputs( $r, $req );
 

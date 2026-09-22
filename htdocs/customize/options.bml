@@ -18,6 +18,7 @@ body<=
 {
     use strict;
     use vars qw(%GET %POST $title $headextra @errors @warnings);
+    $headextra = "";
     LJ::need_res(qw( stc/customize.css js/customize.js stc/select-list.css));
 
     my $remote = LJ::get_remote();

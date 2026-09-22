@@ -750,18 +750,17 @@ sub widget_handler {
 
         # just a normal post request, handle it and then return status
 
-        local $LJ::WIDGET_NO_AUTH_CHECK = 1
-            if LJ::Auth->check_ajax_auth_token( $remote, "/_widget",
+        local $LJ::WIDGET_NO_AUTH_CHECK = LJ::Auth->check_ajax_auth_token( $remote, "/_widget",
             auth_token => delete $post->{auth_token} );
 
         my %res;
 
-        # set because LJ::Widget->handle_post uses this global variable
-        @BMLCodeBlock::errors = ();
+        my $widget_errors = LJ::Widget->errors;
+        @$widget_errors = ();
         eval { %res = LJ::Widget->handle_post( $post, $widget_class ); };
 
         $ret{res}          = \%res;
-        $ret{errors}       = $@ ? [$@] : \@BMLCodeBlock::errors;
+        $ret{errors}       = $@ ? [$@] : $widget_errors;
         $ret{_widget_post} = 1;
 
         # generate new auth token for future requests if succesfully checked auth token
