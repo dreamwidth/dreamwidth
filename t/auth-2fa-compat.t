@@ -17,6 +17,8 @@
 use strict;
 use warnings;
 use Test::More;
+use Log::Log4perl;
+use Log::Log4perl::Appender::TestBuffer;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user with_fake_memcache);
 use DW::Auth;
@@ -68,6 +70,23 @@ local *LJ::User::set_remote         = sub { $remote = $_[1] };
 local *LJ::UniqCookie::current_uniq = sub { 'compat-browser' };
 local *LJ::check_referer            = sub { 1 };
 local $LJ::ADMIN_EMAIL              = 'test@example.invalid';
+
+my $log_config = q{
+log4perl.rootLogger=OFF, Capture
+log4perl.logger.DW.Auth.Login=DEBUG
+log4perl.logger.DW.Auth.TOTP=DEBUG
+log4perl.logger.LJ.Protocol=DEBUG
+log4perl.appender.Capture=Log::Log4perl::Appender::TestBuffer
+log4perl.appender.Capture.layout=Log::Log4perl::Layout::PatternLayout
+log4perl.appender.Capture.layout.ConversionPattern=%p %m%n
+};
+Log::Log4perl::init( \$log_config );
+my $logs = Log::Log4perl::Appender::TestBuffer->by_name('Capture');
+
+sub logged_events {
+    my ( $level, $event ) = @_;
+    return grep { /^\Q$level\E event=\Q$event\E(?:\s|$)/ } split /\n/, $logs->buffer;
+}
 
 sub protocol_auth {
     my ( $u, %args ) = @_;
@@ -710,6 +729,7 @@ for my $verified ( 0, 1 ) {
 # Exercise failed attempts through verification, not by setting the counter.
 # Isolate the challenge limits from the independent IP-based login throttle.
 for my $challenges ( 1, 4 ) {
+    $logs->clear;
     local *LJ::login_ip_banned  = sub { 0 };
     local *LJ::handle_bad_login = sub { 1 };
     my $u = temp_user();
@@ -726,6 +746,11 @@ for my $challenges ( 1, 4 ) {
         }
     }
     is( $accepted, 0, 'Incorrect codes never verify a challenge' );
+    is(
+        scalar logged_events( 'WARN', 'mfa_attempt_limit' ),
+        $challenges == 4 ? 1 : 0,
+        'Only reaching the account-wide limit emits a warning'
+    );
     ok(
         !DW::Auth::Login->verify( $token, $codes[0] ),
         'Exhausted challenge rejects even a valid code'
@@ -738,6 +763,8 @@ for my $challenges ( 1, 4 ) {
     if ( $challenges == 4 ) {
         ok( !DW::Auth::Login->verify( $fresh, $codes[0] ),
             'New challenges cannot bypass the account-wide attempt limit' );
+        is( scalar logged_events( 'WARN', 'mfa_attempt_limit' ),
+            1, 'Further blocked requests do not repeat the warning' );
         LJ::get_db_writer()->do( 'UPDATE login_challenges SET expires=? WHERE userid=?',
             undef, time() - 1, $u->id );
         $fresh = DW::Auth::Login->begin( $u, password => 'attempt-password' );
@@ -749,6 +776,107 @@ for my $challenges ( 1, 4 ) {
         ? 'Login succeeds after the account attempt window expires'
         : 'Restarting login works below the account attempt limit'
     );
+}
+
+# Security logs describe completed changes, survive handled errors, and omit secrets.
+{
+    $logs->clear;
+    my $u        = temp_user();
+    my $password = 'logging-private-password';
+    my $secret   = DW::Auth::TOTP->generate_secret;
+    $u->set_password($password);
+    ok( !DW::Auth::TOTP->enable( $u, $secret, 'wrong-password' ), 'Rejected enrollment fails' );
+    is( scalar logged_events( 'INFO', 'mfa_enabled' ),
+        0, 'Rejected enrollment is not logged as enabled' );
+    my $current = LJ::Session->create( $u, exptype => 'long' );
+    {
+        my $mark = \&DW::Auth::TOTP::mark_session;
+        local *DW::Auth::TOTP::mark_session = sub { $mark->(@_); die 'Post-write failure' };
+        eval { DW::Auth::TOTP->enable( $u, $secret, $password, $current ) };
+    }
+    is( scalar logged_events( 'INFO', 'mfa_enabled' ),
+        0, 'Rolled-back enrollment is not logged as enabled' );
+    ok( DW::Auth::TOTP->enable( $u, $secret, $password, $current ), 'Enrollment commits' );
+    my @events = logged_events( 'INFO', 'mfa_enabled' );
+    is( scalar @events, 1, 'Committed enrollment emits one security event' );
+    like(
+        $events[0],
+        qr/userid=@{[$u->id]}\b.*ip=127\.0\.0\.1\b/,
+        'Security event identifies the account and normalized request IP'
+    );
+    my @codes = DW::Auth::TOTP->get_recovery_codes($u);
+    my $token = DW::Auth::Login->begin( $u, password => $password );
+    my ( $owner, $opts ) = DW::Auth::Login->verify( $token, $codes[0] );
+    is( scalar logged_events( 'INFO', 'mfa_recovery_login' ),
+        0, 'Verifying a recovery code alone is not logged as a completed login' );
+    {
+        local *LJ::User::publish_login_session =
+            sub { die "Private failure: $password $token $codes[0]" };
+        ok( !DW::Auth::Login->complete( $owner, %$opts ), 'Failed publication rejects login' );
+    }
+    is( scalar logged_events( 'ERROR', 'mfa_login_failed' ), 1, 'Handled login failure is logged' );
+    is( scalar logged_events( 'INFO', 'mfa_recovery_login' ),
+        0, 'Failed publication is not reported as a successful recovery login' );
+
+    # Completion reloads the verified method from the stored grant, including on retry.
+    ok(
+        DW::Auth::Login->complete( $u, grant => $token ),
+        'Verified recovery login retries successfully'
+    );
+    is( scalar logged_events( 'INFO', 'mfa_recovery_login' ),
+        1, 'Completed recovery login is logged once' );
+    ok( !DW::Auth::Login->complete( $u, grant => $token ), 'Completed grant cannot be replayed' );
+    is( scalar logged_events( 'ERROR', 'mfa_login_failed' ),
+        1, 'Expected grant rejection is not an operational error' );
+    is( scalar logged_events( 'INFO', 'mfa_recovery_login' ),
+        1, 'Grant replay does not duplicate success logging' );
+    my $totp_token = DW::Auth::Login->begin( $u, password => $password );
+    my @totp       = DW::Auth::TOTP->_get_codes($u);
+    my ( $totp_owner, $totp_opts ) = DW::Auth::Login->verify( $totp_token, $totp[-1] );
+    ok( $totp_owner && DW::Auth::Login->complete( $totp_owner, %$totp_opts ),
+        'Authenticator login succeeds' );
+    is( scalar logged_events( 'INFO', 'mfa_recovery_login' ),
+        1, 'Authenticator login is not classified as recovery-code use' );
+    my $key     = DW::API::Key->new_for_user($u);
+    my $destroy = \&LJ::Session::destroy;
+    my $partial;
+    {
+        local *DW::Auth::TOTP::mark_session = sub { die 'Private API failure: ' . $key->hash };
+        local *LJ::Session::destroy         = sub { $partial = $_[0]; return 0 };
+        ok( !exchange( $u, password => $key->hash ), 'Failed API session exchange is rejected' );
+    }
+    is( scalar logged_events( 'ERROR', 'mfa_api_session_failed' ),
+        1, 'Handled API failure is logged' );
+    is( scalar logged_events( 'ERROR', 'mfa_session_cleanup_failed' ),
+        1, 'Failed session cleanup is logged separately' );
+    $destroy->($partial) if $partial;
+    my $retry_token = DW::Auth::Login->begin( $u, password => $password );
+    my ( $retry_owner, $retry_opts ) = DW::Auth::Login->verify( $retry_token, $codes[1] );
+    {
+        local *LJ::User::publish_login_session = sub { die 'Publication failure' };
+        local *LJ::Session::destroy            = sub { $partial = $_[0]; die 'Cleanup failure' };
+        ok(
+            !DW::Auth::Login->complete( $retry_owner, %$retry_opts ),
+            'Browser cleanup failure still rejects login'
+        );
+    }
+    is( scalar logged_events( 'ERROR', 'mfa_session_cleanup_failed' ),
+        2, 'Browser cleanup exceptions also produce an error event' );
+    $destroy->($partial) if $partial;
+    ok( !DW::Auth::TOTP->disable( $u, $password, 'invalid-code' ),
+        'Invalid disable request is rejected' );
+    is( scalar logged_events( 'INFO', 'mfa_disabled' ),
+        0, 'Rejected disable is not logged as success' );
+    ok( DW::Auth::TOTP->disable( $u, $password, $codes[2] ), 'Disable commits' );
+    is( scalar logged_events( 'INFO', 'mfa_disabled' ),
+        1, 'Committed disable emits one security event' );
+    my $output    = $logs->buffer;
+    my @sensitive = (
+        $password, $secret, @codes, $token, $totp_token, $retry_token, $key->hash,
+        DW::Auth::Login->restart_token( returnto => '/' )
+    );
+    ok( !scalar( grep { index( $output, $_ ) >= 0 } @sensitive ),
+        'Emitted events exclude passwords, factor secrets, codes, API keys, and login tokens' );
 }
 
 done_testing();

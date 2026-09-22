@@ -410,6 +410,7 @@ sub enable {
         return undef;
     }
 
+    $log->info( 'event=mfa_enabled userid=', $u->id, ' ip=', LJ::get_remote_ip() // 'unknown' );
     $class->_refresh_factor_state($u);
     $u->infohistory_add( '2fa_totp', 'enabled' );
 
@@ -456,6 +457,7 @@ sub disable {
         return undef;
     }
 
+    $log->info( 'event=mfa_disabled userid=', $u->id, ' ip=', LJ::get_remote_ip() // 'unknown' );
     $class->_refresh_factor_state($u);
     $u->infohistory_add( '2fa_totp', 'disabled' );
 

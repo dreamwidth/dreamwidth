@@ -26,6 +26,8 @@ use DW::Auth::TOTP;
 use DW::Auth::Challenge;
 use DW::AccountSwitcher;
 use DW::Cache;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 sub return_url {
     my ( $class, $url ) = @_;
@@ -131,7 +133,7 @@ sub verify {
     # Hold the account lock through challenge consumption and factor use. A
     # second request must recheck the challenge after acquiring that lock.
     $dbh->begin_work or die $dbh->errstr;
-    my $bad_code;
+    my ( $bad_code, $limit_reached );
     my $verified = eval {
         $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
             undef, $u->id );
@@ -152,6 +154,9 @@ sub verify {
                 # Consume the factor once, retaining only a short-lived,
                 # browser-bound grant until browser session publication succeeds.
                 $opts->{verified} = 1;
+
+                # Retain only the method, so completion can log recovery use after commit.
+                $opts->{factor_method} = $code =~ /-/ ? 'recovery' : 'totp';
                 my $rows = $dbh->do( 'UPDATE login_challenges SET payload = ? WHERE token = ?',
                     undef, to_json($opts), sha256_hex($token) );
                 die 'Unable to verify login challenge' unless $rows && $rows == 1;
@@ -159,7 +164,8 @@ sub verify {
                 $success = 1;
             }
             else {
-                $bad_code = 1;
+                $bad_code      = 1;
+                $limit_reached = $attempts + 1 == 20;
             }
         }
         $dbh->commit or die $dbh->errstr;
@@ -170,6 +176,9 @@ sub verify {
         $dbh->rollback;
         die $error;
     }
+    $log->warn( 'event=mfa_attempt_limit userid=',
+        $u->id, ' ip=', LJ::get_remote_ip() // 'unknown' )
+        if $limit_reached;
     LJ::handle_bad_login($u) if $bad_code;
     return unless $verified;
     return ( $u, $opts );
@@ -217,22 +226,29 @@ sub complete {
     my @cookies  = $r->err_header_out('Set-Cookie');
     my $dbh      = LJ::get_db_writer() or die 'Database unavailable';
     my $session;
+    my $stage     = 'begin_transaction';
     my $completed = eval {
         $dbh->begin_work or die $dbh->errstr;
+        $stage = 'lock_credentials';
         $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
             undef, $u->id );
         die $dbh->errstr if $dbh->err;
+        $stage = 'validate_grant';
         my ( $owner, $grant ) = $class->pending( $opts{grant}, 1 );
         die 'Invalid login grant' unless $owner && $owner->equals($u) && $grant->{verified};
         %opts    = %$grant;
+        $stage   = 'create_session';
         $session = LJ::Session->create(
             $u,
             exptype     => $opts{exptype} || 'short',
             ipfixed     => $opts{bindip},
             defer_login => 1
         ) or die 'Unable to create session';
+        $stage = 'authorize_session';
         DW::Auth::TOTP->mark_session( $u, $session, $opts{factor} )
             or die 'Credentials changed';
+        $stage = 'publish_session';
+
         if ( $opts{adding} && $remote && !$remote->equals($u) ) {
             DW::AccountSwitcher->add_account( $u, $opts{exptype}, $opts{bindip}, $session )
                 or die 'Unable to add account';
@@ -240,22 +256,53 @@ sub complete {
         else {
             $u->publish_login_session($session) or die 'Unable to publish session';
         }
+        $stage = 'record_login';
         $u->record_login( $session->id );
+        $stage = 'consume_grant';
         my $rows = $dbh->do( 'DELETE FROM login_challenges WHERE token=?',
             undef, sha256_hex( $opts{grant} ) );
         die 'Unable to consume login grant' unless $rows && $rows == 1;
+        $stage = 'commit';
         $dbh->commit or die $dbh->errstr;
         1;
     };
     unless ($completed) {
+        my $error = $@;
+
+        # Exceptions can contain SQL parameters or credentials. Log the operation
+        # and numeric DB error, not the exception text or challenge payload.
+        my $context =
+              ' userid='
+            . $u->id
+            . ' cluster='
+            . $u->clusterid . ' ip='
+            . ( LJ::get_remote_ip() // 'unknown' );
+        if ( $error =~ /\A(?:Invalid login grant|Credentials changed)\b/ ) {
+            $log->debug( 'event=mfa_login_rejected', $context, ' stage=', $stage );
+        }
+        else {
+            $log->error(
+                'event=mfa_login_failed', $context, ' stage=', $stage, ' db_errno=',
+                $dbh->err // 0,
+                ' cluster_errno=',
+                $u->{_dbcm} ? ( $u->{_dbcm}->err // 0 ) : 0
+            );
+        }
         $dbh->rollback unless $dbh->{AutoCommit};
-        eval { $session->destroy } if $session;
+        if ($session) {
+            my $destroyed = eval { $session->destroy };
+            $log->error( 'event=mfa_session_cleanup_failed', $context, ' operation=browser_login' )
+                unless $destroyed;
+        }
         $u->{_session} = $previous;
         LJ::User->set_remote($remote);
         DW::Cache->request->clear_ns('account_switcher');
         $r->err_header_out( 'Set-Cookie', \@cookies );
         return;
     }
+    $log->info( 'event=mfa_recovery_login userid=',
+        $u->id, ' ip=', LJ::get_remote_ip() // 'unknown' )
+        if ( $opts{factor_method} // '' ) eq 'recovery';
     LJ::Hooks::run_hook( 'user_login', $u );
     my $uniq = $r->note('uniq');
     LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;

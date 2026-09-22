@@ -19,6 +19,7 @@ no warnings 'uninitialized';
 use Digest::MD5;
 use Encode     ();
 use SOAP::Lite ();
+use Log::Log4perl;
 
 use LJ::Global::Constants;
 use LJ::Console;
@@ -45,6 +46,8 @@ use LJ::EmbedModule;
 
 #### New interface (meta handler) ... other handlers should call into this.
 package LJ::Protocol;
+
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 # global declaration of this text since we use it in two places
 our $CannotBeShown = '(cannot be shown)';
@@ -2926,11 +2929,14 @@ sub sessiongenerate {
         # inherits only proof already held by its authenticated source session.
         my $source = $u->session;
         my $dbh    = LJ::get_db_writer() or return fail( $err, 502 );
+        my $stage  = 'begin_transaction';
         my $ok     = eval {
             $dbh->begin_work or die $dbh->errstr;
+            $stage = 'lock_credentials';
             $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
                 undef, $u->id );
             die $dbh->errstr if $dbh->err;
+            $stage = 'validate_credentials';
             my $factor = DW::Auth::TOTP->_factor_state($u)->{factor};
             die 'Authentication changed' unless $factor;
             unless ( $flags->{api_key_authenticated} ) {
@@ -2941,14 +2947,43 @@ sub sessiongenerate {
                 my $proof = DW::Auth::TOTP->_session_proof($source);
                 die 'Second factor required' unless $proof->{factor} eq $factor;
             }
-            $sess = LJ::Session->create( $u, %$sess_opts ) or die 'Unable to create session';
+            $stage = 'create_session';
+            $sess  = LJ::Session->create( $u, %$sess_opts ) or die 'Unable to create session';
+            $stage = 'authorize_session';
             DW::Auth::TOTP->mark_session( $u, $sess, $factor ) or die 'Unable to authorize session';
+            $stage = 'commit';
             $dbh->commit or die $dbh->errstr;
             1;
         };
         unless ($ok) {
+            my $error = $@;
+            my $context =
+                  ' userid='
+                . $u->id
+                . ' cluster='
+                . $u->clusterid . ' ip='
+                . ( LJ::get_remote_ip() // 'unknown' );
+
+            # Keep request credentials and SQL parameter values out of logs.
+            if ( $error =~ /\A(?:Authentication changed|Second factor required)\b/ ) {
+                $log->debug( 'event=mfa_api_session_rejected', $context, ' stage=', $stage );
+            }
+            else {
+                $log->error(
+                    'event=mfa_api_session_failed',
+                    $context, ' stage=', $stage, ' db_errno=',
+                    $dbh->err // 0,
+                    ' cluster_errno=',
+                    $u->{_dbcm} ? ( $u->{_dbcm}->err // 0 ) : 0
+                );
+            }
             $dbh->rollback unless $dbh->{AutoCommit};
-            eval { $sess->destroy } if $sess;
+            if ($sess) {
+                my $destroyed = eval { $sess->destroy };
+                $log->error( 'event=mfa_session_cleanup_failed',
+                    $context, ' operation=api_session' )
+                    unless $destroyed;
+            }
             $u->{_session} = $source;
             return fail( $err, 300 );
         }
