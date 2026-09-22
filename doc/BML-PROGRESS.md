@@ -110,3 +110,28 @@ keep compatibility for surviving BML callers and add request-isolation tests.
 Next independent package: preserve and migrate the still-used FCK image-preview
 iframe. Customization still needs Foundation resource/legacy-JS compatibility
 work before its BML pages can be removed.
+
+## Image-preview iframe migration completed
+
+- Moved imgpreview.bml verbatim (including its LGPL notice) into the standalone
+  entry/image-preview.tt template. ImagePreview controller preserves /imgpreview
+  and /imgpreview.bml, HTML content type, and anonymous iframe access.
+- t/plack-image-preview.t passed the same 14 assertions before and after migration.
+  BML engine tests now create a temporary executable fixture and verify its output,
+  rather than depending on a production page that is being removed. Combined
+  HTTP/engine run passed 25 tests.
+- t/browser/image-preview.js passed before and after: real modern editor, real FCK
+  image dialog, callback element identity, image load, original dimensions, locked
+  aspect-ratio resize, alternate text, and insertion into the editor. No entry was
+  published. Both final runs had no browser exceptions. An earlier exploratory
+  run observed a parent-dialog setupIframeHandlers error; that legacy upload
+  helper remains to be assessed with imguploadrte migration.
+- Full formatting check passed (1,028 assertions); compilation passed (1,595
+  assertions including existing skips). No static asset contents changed.
+- Evidence: /private/tmp/dreamwidth-bml-evidence-20260921/image-preview-before and
+  image-preview-after. Visually inspected the final dialog screenshot.
+- Reproduction: `node t/browser/image-preview.js /tmp/image-preview-after`.
+
+The inventory is now 14 executable/page .bml files plus the original three BML
+configuration files; nine .bml.text files and both .look files remain. Engine
+removal is still gated on the remaining pages and runtime dependencies.

@@ -1,7 +1,9 @@
 # BML removal inventory and project plan
 
-Review baseline: `d9ea4bea6`, 2026-09-21. Planning only; no implementation,
-configuration changes, browser sessions, or tests were run for this review.
+Review baseline: `d9ea4bea6`, 2026-09-21. The inventory below records that baseline.
+Authorized implementation progress and validation are tracked in
+[BML-PROGRESS.md](BML-PROGRESS.md). Access filters and the image-preview iframe
+have since migrated; the shared widget request-state prerequisite is complete.
 
 ## Findings and scope
 
@@ -249,6 +251,5 @@ test and retain that behavior where useful without retaining the engine.
   dependency. Any remaining “BML” text is documented history or an intentional
   compatibility identifier, not executable infrastructure.
 
-The next implementation package would be characterization and the shared widget
-seam, followed by access filters as the first complete page migration. This plan
-does not authorize or perform those changes.
+Continue with remaining independently testable packages after their listed
+prerequisites pass. The progress log records completed packages and known gates.

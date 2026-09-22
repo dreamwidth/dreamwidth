@@ -20,6 +20,7 @@ use v5.10;
 use Test::More;
 use HTTP::Request::Common;
 use Plack::Test;
+use File::Temp qw(tempdir);
 
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
@@ -29,7 +30,15 @@ BEGIN {
     };
 }
 
-plan tests => 10;
+plan tests => 11;
+
+# Keep engine coverage independent of pages as they migrate to controllers.
+my $fixture_dir = tempdir( 'bml-test-XXXXXX', DIR => "$ENV{LJHOME}/htdocs", CLEANUP => 1 );
+my ($fixture_name) = $fixture_dir =~ m{([^/]+)$};
+my $fixture_url = "/$fixture_name/";
+open my $fixture, '>', "$fixture_dir/index.bml" or die $!;
+print {$fixture} '<?_code return "BML test fixture"; _code?>';
+close $fixture or die $!;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -40,10 +49,10 @@ die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE'
 # Test 1: DW::BML module loads
 use_ok('DW::BML');
 
-# Test 2: resolve_path finds a known BML file (imgpreview.bml exists in htdocs)
+# Test 2: resolve_path finds the temporary engine fixture.
 {
-    my ( $redirect, $uri, $file ) = DW::BML->resolve_path('/imgpreview');
-    ok( defined $file && $file =~ /imgpreview\.bml$/, "resolve_path finds imgpreview.bml" );
+    my ( $redirect, $uri, $file ) = DW::BML->resolve_path($fixture_url);
+    is( $file, "$fixture_dir/index.bml", "resolve_path finds fixture" );
 }
 
 # Test 3: resolve_path returns undef for nonexistent path
@@ -59,16 +68,10 @@ use_ok('DW::BML');
     ok( !defined $file, "resolve_path rejects path traversal" );
 }
 
-# Test 5: resolve_path with trailing slash resolves index.bml
+# Test 5: directory URLs resolve index.bml without requiring a migrated page.
 {
-    my ( $redirect, $uri, $file ) = DW::BML->resolve_path('/tools/');
-    if ( defined $file && $file =~ /index\.bml$/ ) {
-        ok( 1, "resolve_path resolves /tools/ to index.bml" );
-    }
-    else {
-        # If /tools/ doesn't exist, skip gracefully
-        ok( 1, "resolve_path handles /tools/ (no directory found)" );
-    }
+    my ( $redirect, $uri, $file ) = DW::BML->resolve_path($fixture_url);
+    like( $file, qr{/index\.bml$}, "directory resolves index.bml" );
 }
 
 # Test 6: _config.bml path is forbidden
@@ -78,20 +81,12 @@ test_psgi $app, sub {
     is( $res->code, 403, "Direct access to _config.bml returns 403" );
 };
 
-# Test 7: GET /imgpreview returns 200 with HTML content
+# The fixture must actually execute through BML rather than a controller.
 test_psgi $app, sub {
     my $cb  = shift;
-    my $res = $cb->( GET "/imgpreview" );
-
-    # imgpreview.bml is served by DW::BML (not shadowed by a controller route)
-    is( $res->code, 200, "GET /imgpreview returns 200" );
-};
-
-# Test 8: BML response has text/html content type
-test_psgi $app, sub {
-    my $cb  = shift;
-    my $res = $cb->( GET "/imgpreview" );
-
+    my $res = $cb->( GET $fixture_url );
+    is( $res->code, 200, "BML fixture returns 200" );
+    is( $res->content, 'BML test fixture', 'BML code executed' );
     like( $res->content_type, qr{text/html}, "BML response has text/html content type" );
 };
 
