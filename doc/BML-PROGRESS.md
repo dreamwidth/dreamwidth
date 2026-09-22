@@ -227,3 +227,14 @@ been achieved. No push, deployment, or production change was performed.
   and image preview/insertion/editing. Customization baseline captured separately.
 - Test logs remain in container /tmp/bml-final-regression.log and
   /tmp/bml-final-tidy.log; compile log /tmp/bml-dialog-compile.log.
+
+## 2026-09-22 portable handoff
+
+User explicitly authorized pushing the checkpoint to zorkian/dreamwidth and
+opening a PR for review. This supersedes the original no-push instruction for
+this handoff; no deployment or production action is authorized.
+[BML-HANDOFF.md](BML-HANDOFF.md) records current instructions, the planned
+Astra/Terra/Sol roles, environment/reproduction details, and continuation criteria.
+No agents have started and no independent Sol review has occurred. Verified
+screenshots are now committed under doc/bml-evidence/2026-09-21, so the handoff
+does not depend on the original /tmp evidence directory.
