@@ -135,3 +135,43 @@ work before its BML pages can be removed.
 The inventory is now 14 executable/page .bml files plus the original three BML
 configuration files; nine .bml.text files and both .look files remain. Engine
 removal is still gated on the remaining pages and runtime dependencies.
+
+## Parent image dialog migration completed
+
+- Replaced root imguploadrte.bml with ImageDialog controller and standalone
+  entry/image-dialog.tt. Preserved login, GET/POST rendering, .bml alias, FCK DOM
+  IDs, legacy resources, FAQ hook, shared translation keys, and preview route.
+  Kept inherited GPL notices in the controller and template.
+- Preserved the last-upload-return callback and integer dimensions. The template
+  passes escaped JS strings to a function callback instead of nested eval text.
+  Tests include quoted/backslashed URLs containing closing script tags.
+- Baseline dialog HTTP contract passed 27 tests; migrated dialog/preview suite
+  passed 41. Headless checks passed both before and after: insert, select/edit
+  existing image, link wrapper, original dimensions, locked resize, alternate
+  text, and HTML switch. Final browser run requires zero JS exceptions.
+- The initial exploratory helper error followed opening the dialog without a
+  valid editor selection; focusing/selecting through the editor corrected the
+  test setup. InObFCK exists in fck_image.js. However, legacy upload-return code
+  references insobjform, absent from the root dialog. Preserving its callback
+  contract does not certify an end-to-end upload service. No uploads performed.
+- Full format check passed (1,030 assertions) and compile check passed (1,597
+  assertions including existing skips). No bundled JS/CSS asset changes.
+- Screenshots: /private/tmp/dreamwidth-bml-evidence-20260921/image-dialog-before
+  and image-dialog-after; final dialog visually inspected.
+
+13 BML page files remain, plus three configs, nine translation files, and two
+looks. The alternate static-path ImageButton dialog remains: it has additional
+legacy hosting/upload capability branches and is not proven equivalent to root.
+
+## Decisions and external gates still open
+
+- Entry/inbox beta cutover: confirm release readiness and eligibility policy,
+  including unvalidated senders and old POST forms, before deleting legacy flows.
+- Legacy upload service / alternate ImageButton: determine supported deployed
+  configuration before retiring that separate dialog or host-specific forms.
+- Local deployment overlays, BMLInit hooks and non-default AJAX mappings require
+  a deployment inventory before deleting the engine. This pass only inspects
+  the repository and isolated seeded development environment.
+- Customization is unblocked at the Perl widget request layer but still needs
+  Foundation resource ordering and legacy DOM-helper compatibility, followed by
+  theme/layout/options acceptance. No claim of complete customization parity.

@@ -2,7 +2,7 @@
 
 Review baseline: `d9ea4bea6`, 2026-09-21. The inventory below records that baseline.
 Authorized implementation progress and validation are tracked in
-[BML-PROGRESS.md](BML-PROGRESS.md). Access filters and the image-preview iframe
+[BML-PROGRESS.md](BML-PROGRESS.md). Access filters, the root image dialog, and its preview iframe
 have since migrated; the shared widget request-state prerequisite is complete.
 
 ## Findings and scope
