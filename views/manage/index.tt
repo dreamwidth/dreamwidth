@@ -218,7 +218,7 @@ INCLUDE linklist header=dw.ml( '.entries.header' )
   {
     href = dw.create_url( '/manage/circle/editfilters', keep_args => [ 'authas' ] )
     title = dw.ml( '.friends.groups.about' )
-    text = dw.ml( '/manage/circle/editfilters.bml.title2' )
+    text = dw.ml( '/manage/circle/editfilters.tt.title2' )
   } ];
 
 UNLESS u.is_community; circleitems.unshift(

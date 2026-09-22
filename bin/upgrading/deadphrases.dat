@@ -4645,3 +4645,36 @@ general setting.captcha.label
 general setting.captcha.option
 general setting.captcha.option.select.image
 general setting.captcha.option.select.text
+
+# Access-filter editor migrated to Template Toolkit
+general /manage/circle/editfilters.bml.btn.add
+general /manage/circle/editfilters.bml.btn.ge.del
+general /manage/circle/editfilters.bml.btn.ge.new
+general /manage/circle/editfilters.bml.btn.ge.ren
+general /manage/circle/editfilters.bml.btn.gs.private
+general /manage/circle/editfilters.bml.btn.gs.public
+general /manage/circle/editfilters.bml.btn.mv.down
+general /manage/circle/editfilters.bml.btn.mv.up
+general /manage/circle/editfilters.bml.btn.remove
+general /manage/circle/editfilters.bml.confirm.delete
+general /manage/circle/editfilters.bml.done.btn
+general /manage/circle/editfilters.bml.done.header
+general /manage/circle/editfilters.bml.done.text
+general /manage/circle/editfilters.bml.error.max60
+general /manage/circle/editfilters.bml.error.text
+general /manage/circle/editfilters.bml.group.public
+general /manage/circle/editfilters.bml.ingroup
+general /manage/circle/editfilters.bml.ingroup.not
+general /manage/circle/editfilters.bml.prompt.newname
+general /manage/circle/editfilters.bml.prompt.rename
+general /manage/circle/editfilters.bml.error.comma
+general /manage/circle/editfilters.bml.saved.action.post
+general /manage/circle/editfilters.bml.saved.action.subscription
+general /manage/circle/editfilters.bml.saved.header
+general /manage/circle/editfilters.bml.saved.text
+general /manage/circle/editfilters.bml.subfilters
+general /manage/circle/editfilters.bml.text
+general /manage/circle/editfilters.bml.text.sec
+general /manage/circle/editfilters.bml.title2
+general /manage/circle/editfilters.bml.yourgroups
+general /manage/circle/editfilters.bml.comm.nofilters

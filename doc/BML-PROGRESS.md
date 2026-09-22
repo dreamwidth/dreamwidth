@@ -51,3 +51,36 @@ Baseline observations to test:
 
 Production beta settings/local extensions are outside this isolated pass; do not
 remove beta-gated entry/inbox functionality without resolving their cutover gates.
+
+## Access-filter migration completed
+
+- Dedicated container: 4e7a47333842. Old BML page removed; controller, Foundation
+  template, extracted JS and relocated translations added. Old .bml URL still
+  resolves through modern routing. Updated cross-template translation callers.
+- Preserved group IDs, 31-bit mask halves, whole-mask submissions, order/public
+  metadata, and save-result links. Community saves are now rejected before any
+  mutation; stale submitted masks cannot reintroduce a deleted group bit.
+- Added t/plack-access-filters.t: 25 assertions passed against old BML, then 27
+  passed against TT with the additional community/stale-save regressions.
+  Tests include persistent groups/masks and actual protected-entry visibility.
+- Baseline existing content-filter/trustmask/routing tests passed. The fake-cache
+  wrapper initially broke the test because the loader shifts cached arrays;
+  using the isolated real cache corrected the test fixture.
+- t/browser/access-filters.js passed against both implementations: login,
+  create/add/save/reload, rename/reorder, remove/delete, community and unauthorized
+  authas. Captured empty, populated, mobile, saved, community, unauthorized states.
+  Visually inspected the TT desktop and 390px screenshots; no layout overflow.
+- Browser testing caught missing JS due to the resource group; fixed by registering
+  the extracted script in Foundation. This was not caught by HTTP tests.
+- Full tidy apply/check passed (1,025 check assertions), compile passed (1,593
+  assertions including existing skips), full static build passed. Targeted suite
+  passed: access-filter, wtf, content-filters, tags-trustmask-count, ml (129 tests).
+- Evidence: /private/tmp/dreamwidth-bml-evidence-20260921/access-before and
+  /private/tmp/dreamwidth-bml-evidence-20260921/access-after/access-after.
+- Browser reproduction (inside devcontainer, seeded accounts required):
+  `bin/dev/screenshot /login` installs Chrome/Puppeteer if needed; then run
+  `node t/browser/access-filters.js`. Script expects test_user to start without
+  access groups and cleans up groups it creates on success.
+
+Next: remove shared widget BML input/error dependencies needed by customization;
+keep compatibility for surviving BML callers and add request-isolation tests.
