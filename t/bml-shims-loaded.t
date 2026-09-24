@@ -42,6 +42,6 @@ ok( !$got{'LJ/Global/BMLInit.pm'}, 'ljlib.pl alone does not load LJ::Global::BML
 ok( !$got{GET_REQUEST},            'BML::get_request is not defined without the engine' );
 ok( !$got{SET_LANGUAGE},           'BML::set_language is not defined without the engine' );
 ok( !$got{ML},                     'BML::ml is not defined without the engine' );
-ok( $got{ADAPTER}, 'the hook/callback adapter module still loads without the engine' );
+ok( !$got{ADAPTER},                'ljlib.pl does not load a BML request adapter' );
 
 done_testing;
