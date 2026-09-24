@@ -1,5 +1,14 @@
 <div class='theme-selector-content pkg'>
-<script>Customize.ThemeChooser.confirmation = "[% dw.ml('widget.themechooser.confirmation') %]";</script>
+<script>
+(function (init) {
+    if (window.LJWidget && LJWidget.runInit) {
+        LJWidget.runInit(init);
+    } else {
+        window.LJWidgetInitQueue = window.LJWidgetInitQueue || [];
+        window.LJWidgetInitQueue.push(init);
+    }
+})(function () { Customize.ThemeChooser.confirmation = "[% dw.ml('widget.themechooser.confirmation') %]"; });
+</script>
 <h3>[% cat_title %]</h3>
 
 [% BLOCK paging %]
