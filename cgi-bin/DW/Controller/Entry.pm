@@ -29,9 +29,7 @@ use DW::Template;
 use DW::FormErrors;
 use DW::Formats;
 use DW::Entry;
-use DW::Entry::Legacy;
 
-use Hash::MultiValue;
 use HTTP::Status qw( :constants );
 use LJ::JSON;
 use LJ::SpellCheck;
@@ -114,24 +112,11 @@ DW::Routing->register_string(
         }
 
         # A POST here is old-schema content from a stale tab: it must never be
-        # saved and never be silently discarded. Decode once and hand the
-        # submitted content to the native form for the poster to review and
-        # resubmit; this applies uniformly regardless of which old submit
-        # button (post, preview, spellcheck, a transform) was clicked.
-        my $post     = $r->post_args;
-        my $prepared = DW::Entry::Legacy::prepare_entry_form($post);
-        my $warnings = DW::FormErrors->new;
-        $warnings->add( undef, '.notice.legacy_carryover' );
-        my $remote = LJ::get_remote();
-
-        return legacy_new_rerender(
-            $prepared,
-            remote     => $remote,
-            get        => $get,
-            warnings   => $warnings,
-            action_url => '/entry/new',
-            ( LJ::isu($remote) ? () : ( anonymous_username => $post->{user} // '' ) ),
-        );
+        # saved and never be silently discarded. Show the submitted subject
+        # and body back for manual copying; this applies uniformly regardless
+        # of which old submit button (post, preview, spellcheck, a transform)
+        # was clicked, and regardless of login state.
+        return legacy_text_recovery( $r->post_args );
     },
     app => 1,
 );
@@ -403,104 +388,28 @@ sub _render_new_form {
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
 
-# A carried-over custom access-list selection has no equivalent among a
-# community's security options (public/access/private only); an unmatched
-# <select> value submits as whichever option renders first (public) if the
-# user does not notice and simply clicks post. Never let that resolve to
-# public. allowmask==1 is the old single default "friends" group, which is
-# exactly the community's "members" option (submitted value "access"); any
-# other allowmask is a true custom group with no equivalent, so fall back to
-# the most restrictive option and say so explicitly.
-sub _legacy_carryover_safe_security {
-    my ( $canonical, $journal, $opts ) = @_;
-    return $canonical
-        unless $canonical->{security}
-        && $canonical->{security} eq 'usemask'
-        && LJ::isu($journal)
-        && $journal->is_community;
+# Show the exact submitted subject/body from a stale old-editor POST for
+# manual copying, and nothing else: no metadata is decoded, no entry is
+# looked up or loaded, and nothing is ever saved. subject/event are read
+# directly off the POST hash (a repeated field resolves to its last value,
+# same as any other Hash::MultiValue hashref access in this codebase) with
+# no decoding, joining, or RTE/newline normalization applied. link_url
+# defaults to the native posting form; callers that can name an existing
+# entry (the /editjournal picker) pass the native edit URL instead. Never
+# cached, since it can echo back submitted content.
+sub legacy_text_recovery {
+    my ( $post, %opts ) = @_;
 
-    $canonical = {%$canonical};
+    DW::Request->get->header_out( 'Cache-Control' => 'no-store' );
 
-    if ( ( $canonical->{allowmask} || 0 ) == 1 ) {
-        $canonical->{security} = 'access';
-        delete $canonical->{allowmask};
-        return $canonical;
-    }
-
-    $canonical->{security} = 'private';
-    delete $canonical->{allowmask};
-
-    $opts->{warnings} ||= DW::FormErrors->new;
-    $opts->{warnings}->add( undef, '.notice.legacy_security_downgraded' );
-
-    return $canonical;
-}
-
-# Render a retained legacy new-entry error or transform response through the
-# shared native form. This is deliberately not a route or save adapter: callers
-# retain authorization and action decisions, and provide the already-prepared
-# legacy decoder result.
-sub legacy_new_rerender {
-    my ( $prepared, %opts ) = @_;
-
-    my $r           = DW::Request->get;
-    my $remote      = $opts{remote};
-    my $get         = $opts{get} || ( $r ? $r->get_args : Hash::MultiValue->new );
-    my $canonical   = $prepared->{canonical};
-    my $legacy_post = $prepared->{post};
-
-    # A submitted empty usejournal deliberately selects the owner. Only fall
-    # back to the request query when the legacy submission did not name it.
-    my $usejournal =
-        exists $legacy_post->{usejournal}
-        ? $legacy_post->{usejournal}
-        : $get->{usejournal};
-
-    $canonical =
-        _legacy_carryover_safe_security( $canonical,
-        $usejournal ? LJ::load_user($usejournal) : undef, \%opts );
-
-    my $formdata = DW::Entry::Legacy::formdata_from_legacy( $canonical, $legacy_post );
-    if ( defined $opts{anonymous_username} ) {
-        $formdata->{username} = $opts{anonymous_username};
-        $formdata->{password} = '';
-    }
-
-    my %crosspost = map { $_ => 1 }
-        grep { $canonical->{crosspost}{$_}{id} }
-        keys %{ $canonical->{crosspost} || {} };
-
-    my $datetime = '';
-    if (   defined $canonical->{year}
-        && defined $canonical->{mon}
-        && defined $canonical->{day}
-        && defined $canonical->{hour}
-        && defined $canonical->{min} )
-    {
-        $datetime = join( ' ',
-            join( '-', @{$canonical}{qw(year mon day)} ),
-            join( ':', @{$canonical}{qw(hour min)} ) );
-    }
-
-    my $vars = _init(
+    return DW::Template->render_template(
+        'entry/recover.tt',
         {
-            usejournal           => $usejournal,
-            remote               => $remote,
-            datetime             => $datetime,
-            trust_datetime_value => !exists $canonical->{tz},
-            crosspost            => \%crosspost,
+            subject_text => $post->{subject} // '',
+            body_text    => $post->{event}   // '',
+            body_missing => !exists $post->{event},
+            link_url => $opts{link_url} || LJ::create_url('/entry/new'),
         }
-    );
-
-    my $action_url = $opts{action_url};
-    $action_url //= LJ::create_url( '/entry/new', keep_query_string => 1 ) if $r;
-    $action_url //= '/entry/new';
-
-    return _render_new_form(
-        $vars, $formdata, $get, $remote,
-        $opts{errors}   || DW::FormErrors->new,
-        $opts{warnings} || DW::FormErrors->new,
-        undef, { action_url => $action_url },
     );
 }
 
@@ -1048,70 +957,6 @@ sub _render_edit_form {
     $vars->{sitevalues} = to_json( \@sitevalues );
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
-}
-
-# A retained editjournal adapter supplies the already-resolved, owned entry and
-# prepared legacy data. It intentionally does not dispatch, authenticate, or
-# resolve the entry: maintainer-only editing remains on its separate path.
-# A stale-tab old-schema edit POST that cannot be attributed to an entry the
-# actor can edit (deleted, moved, or never theirs) has no editable form to
-# safely resubmit through. Never discard what was typed: show it back
-# read-only so it can at least be copied out.
-sub legacy_carryover_unrecoverable {
-    my ($prepared) = @_;
-    my $canonical  = $prepared->{canonical} || {};
-    my $subject    = LJ::ehtml( $canonical->{subject} // '' );
-    my $event      = LJ::html_newlines( LJ::ehtml( $canonical->{event} // '' ) );
-
-    my $message =
-        LJ::Lang::ml('/entry/form.tt.notice.legacy_unrecoverable')
-        . "<blockquote><p><b>$subject</b></p><p>$event</p></blockquote>";
-
-    return DW::Template->render_template( 'error.tt', { message => $message } );
-}
-
-sub legacy_owned_edit_rerender {
-    my (%opts) = @_;
-
-    my $r         = DW::Request->get;
-    my $entry     = $opts{entry};
-    my $remote    = $opts{remote};
-    my $journal   = $opts{journal};
-    my $prepared  = $opts{prepared};
-    my $canonical = _legacy_carryover_safe_security( $prepared->{canonical}, $journal, \%opts );
-    my $formdata  = DW::Entry::Legacy::formdata_from_legacy( $canonical, $prepared->{post} );
-    my $ditemid   = $entry->ditemid;
-
-    my %crosspost = map { $_ => 1 }
-        grep { $canonical->{crosspost}{$_}{id} } keys %{ $canonical->{crosspost} || {} };
-    my $datetime = $entry->eventtime_mysql;
-    my $date     = $formdata->get('entrytime_date');
-    my $time     = $formdata->get('entrytime_time');
-    $datetime = "$date $time" if defined $date && defined $time;
-    my $vars = _init(
-        {
-            usejournal           => $journal->username,
-            remote               => $remote,
-            datetime             => $datetime,
-            trust_datetime_value => 1,
-            crosspost            => \%crosspost,
-            sticky_entry         => $journal->sticky_entries_lookup->{$ditemid},
-        },
-        undef
-    );
-    my $action_path = '/entry/' . $journal->user . '/' . $ditemid . '/edit';
-
-    return _render_edit_form(
-        $r, $vars,
-        $opts{errors}   || DW::FormErrors->new,
-        $opts{warnings} || DW::FormErrors->new,
-        $formdata,
-        $entry, $remote, $journal, 0,
-        action => {
-            edit => 1,
-            url  => LJ::create_url( $action_path, keep_query_string => 1 ),
-        },
-    );
 }
 
 # returns:
