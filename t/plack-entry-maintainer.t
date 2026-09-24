@@ -238,7 +238,7 @@ test_psgi $app, sub {
     is( $unrelated, 1, 'fixture seeds a nondefault unrelated property' );
 
     # A stale-tab-style old-schema POST to the legacy itemid URL must never
-    # silently save: it renders the native carry-over form instead.
+    # silently save: it renders the subject/body recovery page instead.
     my $legacy_post_res = $cb->(
         POST '/editjournal.bml?usejournal=' . $comm->user . '&itemid=' . $other_entry->ditemid,
         Content => [
@@ -248,11 +248,11 @@ test_psgi $app, sub {
         ]
     );
     is( $legacy_post_res->code, 200,
-        'legacy itemid POST returns the carry-over form, not a redirect' );
+        'legacy itemid POST returns the recovery page, not a redirect' );
     like(
         $legacy_post_res->content,
-        qr/previous posting page has been retired/i,
-        'legacy itemid POST renders the explicit carry-over notice'
+        qr/Nothing here was posted or saved/i,
+        'legacy itemid POST renders the explicit recovery notice'
     );
     LJ::Entry::reset_singletons();
     my $unsaved_entry = LJ::Entry->new( $comm, ditemid => $other_entry->ditemid );
@@ -466,9 +466,9 @@ test_psgi $app, sub {
     );
 
     # itemid must override picker mode even when the action comes from the
-    # editor's JavaScript submit_value field. A carry-over POST never saves
+    # editor's JavaScript submit_value field. This POST never saves
     # regardless of form-auth token, so this no longer reaches an "Invalid
-    # form" CSRF rejection: it renders the same carry-over form every other
+    # form" CSRF rejection: it renders the same recovery page every other
     # old-schema itemid POST does.
     LJ::Entry::reset_singletons();
     my $before_maintainer =
@@ -486,20 +486,20 @@ test_psgi $app, sub {
             for my $path ( '/editjournal', '/editjournal.bml' ) {
                 $res = $cb->( POST $path . '?usejournal=' . $comm->user, Content => \@payload );
                 is( $res->code, 200,
-"$path itemid $action POST returns the carry-over form regardless of the form-auth token"
+"$path itemid $action POST returns the recovery page regardless of the form-auth token"
                 );
                 like(
                     $res->content,
-                    qr/previous posting page has been retired/i,
-                    "$path itemid $action POST renders the explicit carry-over notice"
+                    qr/Nothing here was posted or saved/i,
+                    "$path itemid $action POST renders the explicit recovery notice"
                 );
                 ok( !$res->header('Location'),
-                    'carry-over response does not redirect away its body' );
+                    'recovery response does not redirect away its body' );
                 LJ::Entry::reset_singletons();
                 my $fresh_entry = LJ::Entry->new( $comm, ditemid => $other_entry->ditemid );
-                ok( $fresh_entry->valid, 'carry-over POST cannot delete another poster entry' );
+                ok( $fresh_entry->valid, 'recovery POST cannot delete another poster entry' );
                 is( $fresh_entry->prop('opt_nocomments_maintainer') || 0,
-                    $before_maintainer, 'carry-over POST cannot change maintainer properties' );
+                    $before_maintainer, 'recovery POST cannot change maintainer properties' );
             }
         }
     }

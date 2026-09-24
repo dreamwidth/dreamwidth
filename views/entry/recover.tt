@@ -3,6 +3,9 @@
 Shows the exact subject/body text from a stale old-editor POST for manual
 copying. Nothing else about the submission is decoded or restored.
 
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
 Copyright (c) 2026 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
