@@ -684,10 +684,7 @@ sub create_handler {
 
             return error_ml( "$ml_scope.error.parsing2", { 'err' => $err } ) if $err;
 
-            my $update_url =
-                LJ::BetaFeatures->user_in_beta( $remote => "updatepage" )
-                ? "$LJ::SITEROOT/entry/new"
-                : "$LJ::SITEROOT/update";
+            my $update_url = "$LJ::SITEROOT/entry/new";
             my $usejournal = $getextra ? "?usejournal=$authas" : '';
             $vars->{update_url} = $update_url . $usejournal;
             $vars->{pollobj}    = $pollobj;

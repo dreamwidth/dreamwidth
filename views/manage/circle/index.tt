@@ -17,11 +17,11 @@
   <div class="columns large-10 medium-9">[% dw.ml('.invite.about2', { sitename => site.nameshort }) %]</div>
 </div>
 <div class="row">
-  <div class="name columns large-2 medium-3"><a href="[% site.root %]/manage/circle/edit">[% dw.ml('/manage/circle/edit.bml.title3') %]</a></div>
+  <div class="name columns large-2 medium-3"><a href="[% site.root %]/manage/circle/edit">[% dw.ml('.edit.title') %]</a></div>
   <div class="columns large-10 medium-9">[% dw.ml('.edit.about') %]</div>
 </div>
 <div class="row">
-  <div class="name columns large-2 medium-3"><a href="[% site.root %]/manage/circle/editfilters">[% dw.ml('/manage/circle/editfilters.bml.title2') %]</a></div>
+  <div class="name columns large-2 medium-3"><a href="[% site.root %]/manage/circle/editfilters">[% dw.ml('/manage/circle/editfilters.tt.title2') %]</a></div>
   <div class="columns large-10 medium-9">[% dw.ml('.editgroups.about') %] [% dw.ml('.filter') %]</div>
 </div>
 <div class="row">
