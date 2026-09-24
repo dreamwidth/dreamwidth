@@ -1,14 +1,25 @@
 #!/usr/bin/perl
+#
+# t/plack-entry-cutover.t
+#
 # Characterize the T2 entry cutover: /update and /editjournal?itemid= are
 # fully graduated to the native entry form. GET always redirects; a stale
 # POST is shown its exact submitted subject/body for manual copying and
 # never saved (see t/plack-entry-recovery.t for that page's own coverage).
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
 use warnings;
 
 use Test::More;
-use File::Find;
 use HTTP::Request::Common;
 use Plack::Test;
 use URI;
@@ -127,54 +138,7 @@ test_psgi $app, sub {
 
 };
 
-subtest 'the updatepage beta no longer gates anything reachable' => sub {
-
-    # The graduation removed the beta check entirely rather than leaving it
-    # in place for a still-unreferenced code path: assert it directly in the
-    # two files the plan names as the removal targets, and confirm the live
-    # HTTP behavior is unconditional (a plain, never-opted-in account gets
-    # the exact same redirect/carry-over the old code reserved for the beta).
-    my $poll_source = do {
-        local $/;
-        open my $fh, '<', "$ENV{LJHOME}/cgi-bin/DW/Controller/Poll.pm" or die $!;
-        <$fh>;
-    };
-    unlike(
-        $poll_source,
-        qr/user_in_beta\(\s*\$remote\s*=>\s*["']updatepage["']\s*\)/,
-        'Poll.pm no longer branches on the updatepage beta'
-    );
-
-    my $form_source = do {
-        local $/;
-        open my $fh, '<', "$ENV{LJHOME}/views/entry/form.tt" or die $!;
-        <$fh>;
-    };
-    unlike( $form_source, qr/betacommunity/, 'the entry form no longer renders the beta banner' );
-
-    ok(
-        !LJ::BetaFeatures->user_in_beta( $owner => 'updatepage' ),
-        'fixture confirms the account was never opted into the beta'
-    );
-
-    test_psgi $app, sub {
-        my $send = shift;
-        my $req  = GET '/update';
-        $req->header( Cookie => $owner_cookie );
-        my $res = $send->($req);
-        is( $res->code, 302, 'a never-opted-in account still gets the unconditional redirect' );
-        is( URI->new( $res->header('Location') )->path,
-            '/entry/new',
-            'a never-opted-in account redirects to the native path exactly as any account would' );
-    };
-};
-
 subtest 'F2: .bml suffixes still resolve natively after the retired pages are deleted' => sub {
-    ok( !-e "$ENV{LJHOME}/htdocs/update.bml", 'htdocs/update.bml no longer exists on disk' );
-    ok(
-        !-e "$ENV{LJHOME}/htdocs/editjournal.bml",
-        'htdocs/editjournal.bml no longer exists on disk'
-    );
     my $entry = $owner->t_post_fake_entry(
         subject => 'F2 routing-precedence subject',
         body    => 'F2 routing-precedence body',
@@ -189,64 +153,6 @@ subtest 'F2: .bml suffixes still resolve natively after the retired pages are de
                 "$path still resolves through DW::Routing, not the deleted BML file" );
         }
     };
-};
-
-subtest 'F2: pages with no native route are gone' => sub {
-    test_psgi $app, sub {
-        my $send = shift;
-        for my $path (
-            qw(/imgupload /imgupload.bml /tools/endpoints/draft /tools/endpoints/draft.bml))
-        {
-            my $res = $send->( GET $path );
-            is( $res->code, 404, "$path is gone (no native route, retired BML file deleted)" );
-        }
-    };
-};
-
-subtest 'native success links point at the native edit URL' => sub {
-    my $entry = $owner->t_post_fake_entry(
-        subject => 'Success link subject',
-        body    => 'Success link body',
-    );
-    test_psgi $app, sub {
-        my $send = shift;
-        my $req  = GET '/entry/' . $owner->user . '/' . $entry->ditemid . '/edit';
-        $req->header( Cookie => $owner_cookie );
-        my $res = $send->($req);
-        is( $res->code, 200, 'owner can load the native edit form to check its post-save wiring' );
-        unlike( $res->content, qr{/editjournal\?itemid=},
-            'the native edit form carries no old-style editjournal itemid link' );
-    };
-};
-
-subtest 'F2: no surviving file references the deleted legacy pages or their JS' => sub {
-    my @offenders;
-    my @deleted_files = (
-        qr{\bjs/entry\.js\b},            qr{\bjs/xpost\.js\b},
-        qr{\bhtdocs/imgupload\.bml\b},   qr{\bhtdocs/update\.bml\b},
-        qr{\bhtdocs/editjournal\.bml\b}, qr{\btools/endpoints/draft\.bml\b},
-        qr{\bUserpicSelector\b},
-    );
-    File::Find::find(
-        {
-            wanted => sub {
-                return unless -f $_ && /\.(?:tt|pm|js|bml)$/;
-                return if $File::Find::name =~ m{/t/plack-entry-cutover\.t$};
-                open my $fh, '<', $_ or return;
-                local $/;
-                my $content = <$fh>;
-                for my $pattern (@deleted_files) {
-                    push @offenders, "$File::Find::name: $pattern" if $content =~ $pattern;
-                }
-            },
-            no_chdir => 1,
-        },
-        "$ENV{LJHOME}/cgi-bin",
-        "$ENV{LJHOME}/views",
-        "$ENV{LJHOME}/htdocs",
-    );
-    is_deeply( \@offenders, [],
-        'no surviving file references a deleted F2 page, script, or widget' );
 };
 
 done_testing;

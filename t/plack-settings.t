@@ -1,5 +1,18 @@
-# Characterize settings hub form contracts before controller migration.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#!/usr/bin/perl
+#
+# t/plack-settings.t
+#
+# Characterize settings hub form contracts.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
 use warnings;
 use Test::More;
@@ -243,6 +256,33 @@ test_psgi $app, sub {
     is( $inspect->code, 200, 'privileged notification inspection renders' );
     unlike( $inspect->content, qr/id=['"]settings_form/,
         'privileged inspection exposes no mutation form' );
+
+    # A valid CSRF token isn't tied to the page that issued it, only the
+    # session, so a token from an unrelated page still isolates this
+    # privilege-escalation guard from the generic CSRF guard proven above.
+    my $protected = LJ::load_userid( $owner->id, 1 )
+        ->subscribe( event => 'JournalNewEntry', journalid => 0, method => 'Inbox' );
+    $protected->_deactivate;
+    my $viewer_display = $send->( GET '/manage/settings/?cat=display', Cookie => $viewer_cookie );
+    my ($viewer_form) = settings_form( $viewer_display->content, '/manage/settings/?cat=display' );
+    my $forged_res = $send->(
+        POST '/manage/settings/?cat=notifications&user=' . $owner->user,
+        Cookie  => $viewer_cookie,
+        Content => [ lj_form_auth => $viewer_form->value('lj_form_auth'), deleteinactive => 1 ]
+    );
+
+    # A valid token proves check_form_auth passed, so this content is
+    # specifically the inspection guard rejecting the POST, not an
+    # incidental CSRF failure.
+    like(
+        $forged_res->content,
+        qr/couldn.t be authenticated as the specified account/,
+        'the forged POST is rejected by the inspection guard, not a CSRF failure'
+    );
+    ok(
+        grep( { $_->id == $protected->id } LJ::load_userid( $owner->id, 1 )->subscriptions ),
+        'a forged deleteinactive POST from a privileged inspector cannot mutate the owner'
+    );
 };
 
 test_psgi $app, sub {

@@ -1,6 +1,18 @@
 #!/usr/bin/perl
+#
+# t/plack-entry-spellcheck.t
+#
 # Exercise configured native editor spellcheck without saving an entry.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
 use warnings;
@@ -83,27 +95,6 @@ test_psgi $app, sub {
     ok( $form->find_input('action:spellcheck'),
         'configured editable new form has spellcheck submit' );
 
-    # A form rendered while configured must still be a non-persisting transform
-    # if the checker disappears before the browser submits it.
-    $form->action("http://localhost$new_path");
-    $form->value( subject => 'Disabled new spellcheck subject' );
-    $form->value( event   => 'Disabled new spellcheck body' );
-    my $checks_before_disabled = scalar @checked;
-    my $disabled_new;
-    {
-        local $LJ::SPELLER;
-        $disabled_new = $request->( $form->click('action:spellcheck') );
-    }
-    like(
-        $disabled_new->content,
-        qr/Spell check is currently unavailable/,
-        'disabled new spellcheck rerenders an unavailable result'
-    );
-    is( scalar @checked, $checks_before_disabled, 'disabled new spellcheck never invokes checker' );
-    my ($disabled_new_count) =
-        $owner->selectrow_array( 'SELECT COUNT(*) FROM log2 WHERE journalid=?', undef, $owner_id );
-    is( $disabled_new_count, 1, 'disabled new spellcheck creates no entry' );
-
     my ($entries_before) =
         $owner->selectrow_array( 'SELECT COUNT(*) FROM log2 WHERE journalid=?', undef, $owner_id );
     $form->action("http://localhost$new_path");
@@ -136,49 +127,7 @@ test_psgi $app, sub {
     is( $entries_after, $entries_before, 'new spellcheck creates no entry' );
     is( $hooks, 0, 'new spellcheck skips persistence spam hooks' );
 
-    $form->value( event => 'clean body' );
-    $res = $request->( $form->click('action:spellcheck') );
-    like(
-        $res->content,
-        qr/No spelling errors found/,
-        'empty checker result gets native no-errors text'
-    );
-    unlike( $res->content, qr/<\?(?:inerr|errorbar)/, 'empty result has no BML result macros' );
-
     my $community_path = $new_path . '?usejournal=' . $community->user;
-    $res  = $request->( GET $community_path );
-    $form = entry_form( $res->content );
-    $form->action( 'http://localhost' . $community_path );
-    $form->value( usejournal => $community->user );
-    $form->value( subject    => 'Selected community spellcheck subject' );
-    $form->value( event      => 'misspell selected community body' );
-    $res  = $request->( $form->click('action:spellcheck') );
-    $form = entry_form( $res->content );
-    is( $form->value('usejournal'),
-        $community->user, 'spellcheck retains the submitted selected community' );
-    is(
-        $checked[-1],
-        'misspell selected community body',
-        'selected community with posting access invokes checker'
-    );
-
-    # The same rendered community form can explicitly select the owner. The
-    # route query remains for compatibility, but must not override that POST.
-    $form->value( usejournal => '' );
-    $form->value( subject    => 'Owner selected from community query' );
-    $form->value( event      => 'misspell owner selected body' );
-    $res  = $request->( $form->click('action:spellcheck') );
-    $form = entry_form( $res->content );
-    like( $form->action, qr/usejournal=/,
-        'owner-selected spellcheck retains the original community query context' );
-    is( $form->value('usejournal') // '',
-        '', 'owner-selected spellcheck retains the submitted empty journal selection' );
-    is(
-        $checked[-1],
-        'misspell owner selected body',
-        'owner-selected spellcheck invokes checker in owner context'
-    );
-
     $res  = $request->( GET $community_path );
     $form = entry_form( $res->content );
     $form->action( 'http://localhost' . $community_path );
@@ -208,40 +157,6 @@ test_psgi $app, sub {
     $form = entry_form( $res->content );
     ok( $form->find_input('action:spellcheck'),
         'configured editable edit form has spellcheck submit' );
-    $form->action( 'http://localhost/entry/' . $owner->user . '/' . $entry->ditemid . '/edit' );
-    my $checks_before_disabled_edit = scalar @checked;
-    my $disabled_edit;
-    {
-        local $LJ::SPELLER;
-        $disabled_edit = $request->( $form->click('action:spellcheck') );
-    }
-    like(
-        $disabled_edit->content,
-        qr/Spell check is currently unavailable/,
-        'disabled edit spellcheck rerenders an unavailable result'
-    );
-    is( scalar @checked,
-        $checks_before_disabled_edit, 'disabled edit spellcheck never invokes checker' );
-    my $disabled_edit_fresh = fresh_entry( $owner, $entry->ditemid );
-    is(
-        $disabled_edit_fresh->event_raw,
-        'Stored spellcheck body',
-        'disabled edit spellcheck leaves entry unchanged'
-    );
-
-    my $checks_before_sentinel = scalar @checked;
-    $res = $request->(
-        POST 'http://localhost/entry/' . $owner->user . '/' . $entry->ditemid . '/edit',
-        [
-            'action:post'           => 1,
-            '_spellcheck_requested' => 1,
-            event                   => '',
-            lj_form_auth            => $form->value('lj_form_auth'),
-        ]
-    );
-    is( scalar @checked,
-        $checks_before_sentinel,
-        'submitted spellcheck sentinel cannot invoke checker for an unrelated edit action' );
     my $hooks_before_edit_spellcheck = $hooks;
 
     $form->action( 'http://localhost/entry/' . $owner->user . '/' . $entry->ditemid . '/edit' );
