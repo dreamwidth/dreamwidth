@@ -54,7 +54,7 @@ my $post              = {
     prop_opt_backdated    => 1,
     prop_opt_preformatted => 1,
 };
-my $prepared = DW::Entry::Legacy::prepare_entry_form( {}, $post );
+my $prepared = DW::Entry::Legacy::prepare_entry_form($post);
 my $errors   = DW::FormErrors->new;
 $errors->add_string( undef, 'Legacy retry visible error' );
 
@@ -111,7 +111,7 @@ my $invalid_post = {
     hour          => 'not-hour',
     min           => 'not-minute',
 };
-my $invalid_prepared = DW::Entry::Legacy::prepare_entry_form( {}, $invalid_post );
+my $invalid_prepared = DW::Entry::Legacy::prepare_entry_form($invalid_post);
 DW::Request->reset;
 my $invalid_request = DW::Request::Standard->new( GET 'http://localhost/editjournal' );
 $invalid_request->header_in( Host => 'localhost' );
