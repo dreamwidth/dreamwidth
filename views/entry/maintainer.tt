@@ -1,0 +1,11 @@
+[%- CALL dw.active_resource_group("foundation") -%]
+[%- sections.title = dw.ml('entryform.maintainer') -%]
+[%- delete_confirm = "entryform.delete.confirm" | ml | js -%]
+[%- deletespam_confirm = "entryform.deletespam.confirm" | ml | js -%]
+<div class="row"><div class="large-12 columns">
+<form method="post" action="[% action | html %]" class="entry-maintainer-form">[% dw.form_auth() %]
+[% IF adult_content_enabled %]<label>[% dw.ml('entryform.adultcontent.maintainer') %]<select name="prop_adult_content_maintainer"><option value="">[% dw.ml('entryform.adultcontent.poster', setting=dw.ml('entryform.adultcontent.' _ (props.adult_content || 'default'))) %]</option><option value="none"[% ' selected' IF props.adult_content_maintainer == 'none' %]>[% dw.ml('entryform.adultcontent.none') %]</option><option value="concepts"[% ' selected' IF props.adult_content_maintainer == 'concepts' %]>[% dw.ml('entryform.adultcontent.concepts') %]</option><option value="explicit"[% ' selected' IF props.adult_content_maintainer == 'explicit' %]>[% dw.ml('entryform.adultcontent.explicit') %]</option></select></label><label>[% dw.ml('entryform.adultcontentreason.maintainer') %]<input maxlength="255" name="prop_adult_content_maintainer_reason" value="[% props.adult_content_maintainer_reason | html %]"></label>[% END %]
+[% UNLESS props.opt_nocomments %][% form.checkbox(name='prop_opt_nocomments_maintainer', value='1', checked=props.opt_nocomments_maintainer, label=dw.ml('entryform.comment.disable')) %][% END %]
+[% form.submit(name='action:savemaintainer', value=dw.ml('entryform.save.maintainer'), class='button') %]
+[% form.submit(name='action:delete', id='js-manager-delete-button', value=dw.ml('entryform.delete'), class='button secondary', onclick="return confirm(" _ delete_confirm _ ")") %]
+[% form.submit(name='action:deletespam', id='js-manager-deletespam-button', value=dw.ml('entryform.deletespam'), class='button secondary', onclick="return confirm(" _ deletespam_confirm _ ")") %]</form></div></div>

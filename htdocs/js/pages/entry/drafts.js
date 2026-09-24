@@ -32,12 +32,34 @@ LJDraft.handleInput = function (evt) {
 
 }
 
+LJDraft.currentProperties = function () {
+    return {
+        editor: $("#editor").val(),
+        subject: $("#id-subject-0").val(),
+        taglist: $("#js-taglist").val(),
+        moodid: $("#js-current-mood").val(),
+        mood: $("#js-current-mood-other").val(),
+        location: $("#current-location").val(),
+        music: $("#current-music").val(),
+        adultreason: $("#age_restriction_reason").val(),
+        commentset: $("#comment_settings").val(),
+        commentscr: $("#opt_screening").val(),
+        adultcnt: $("#age_restriction").val(),
+        userpic: $("#prop_picture_keyword").val(),
+    };
+};
+
 LJDraft.handleChange = function (evt) {
     if (evt.target.id == "entry-body") {
         LJDraft.saveBody();
-    } else {
-        LJDraft.saveProperties();
+        return;
     }
+
+    // Widget initialization can dispatch delayed changes after restoration.
+    // Ignore only the current saved-property snapshot; user reversions differ
+    // after a real save updates that snapshot.
+    if (JSON.stringify(LJDraft.currentProperties()) == JSON.stringify(LJDraft.savedProperties)) return;
+    LJDraft.saveProperties();
 }
 
 LJDraft.saveProperties = function () {
@@ -59,6 +81,7 @@ LJDraft.saveProperties = function () {
         newProps.saveUserpic = $("#prop_picture_keyword").val();
     };
 
+    LJDraft.savedProperties = LJDraft.currentProperties();
     $.post("/__rpc_draft", newProps);
 
 };
@@ -97,7 +120,11 @@ function initDraft(askToRestore) {
           // If the user wants to restore the draft, we place the
           // values of their saved draft into the form.
           $("#entry-body").val(restoredDraft);
-          $("#editor").val(restoredEditor);
+          // A legacy saved-properties hash can lack editor. Preserve the
+          // form's preferred current mode instead of clearing its selection.
+          if (restoredEditor) {
+              $("#editor").val(restoredEditor);
+          }
           $("#draftstatus").text(restoredMsg);
           $("#id-subject-0").val(restoredSubject);
           $("#js-taglist").val(restoredTaglist);
@@ -114,15 +141,46 @@ function initDraft(askToRestore) {
               $("#prop_picture_keyword").trigger("change");
           }
         } else {
-            // Clear out their current draft
-            $.post("/__rpc_draft", {clearProperties: 1, clearDraft: 1});
+            // Keep real edits made while the clear is in flight. Binding the
+            // normal autosave handlers first would let their requests race the
+            // clear, so only remember changes until the clear has succeeded.
+            const changed = { body: false, properties: false };
+            const initialBody = $("#entry-body").val();
+            const initialProperties = LJDraft.currentProperties();
+            $("#content").on("input.draft-clear", "#entry-body", function () {
+                changed.body ||= $("#entry-body").val() !== initialBody;
+            });
+            const captureProperties = function () {
+                changed.properties ||= JSON.stringify(LJDraft.currentProperties())
+                    !== JSON.stringify(initialProperties);
+            };
+            $("#content").on("input.draft-clear change.draft-clear", ".draft-autosave", captureProperties);
+            $.post("/__rpc_draft", {clearProperties: 1, clearDraft: 1}).done(function () {
+                $("#content").off(".draft-clear");
+                bindDraftHandlersAfterInitialization();
+                if (changed.properties) LJDraft.saveProperties();
+                if (changed.body) LJDraft.saveBody();
+            }).fail(function () {
+                $("#content").off(".draft-clear");
+                bindDraftHandlersAfterInitialization();
+            });
+            return;
         }
    }
 
-    // set up event handlers
+    bindDraftHandlersAfterInitialization();
+}
+
+function bindDraftHandlersAfterInitialization() {
+    // Capture the restored/cleared state before widget initialization can emit
+    // delayed changes. Do not wait for window.load: real input must work now.
+    LJDraft.savedProperties = LJDraft.currentProperties();
+    bindDraftHandlers();
+}
+
+function bindDraftHandlers() {
     $("#content").on('change', '.draft-autosave', null, LJDraft.handleChange);
     $("#content").on('input', '#entry-body', null, LJDraft.handleInput);
-
 }
 
 

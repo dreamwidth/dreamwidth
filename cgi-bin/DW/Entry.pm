@@ -170,7 +170,7 @@ sub _form_to_backend {
         $req->{event}   = $post->{event} || "";
     }
 
-    $errors->add( undef, ".error.noentry" )
+    $errors->add( undef, "/entry/form.tt.error.noentry" )
         if $errors && $req->{event} eq "" && !$opts{allow_empty};
 
     # warn the user of any bad markup errors

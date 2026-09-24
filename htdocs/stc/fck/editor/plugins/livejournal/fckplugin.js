@@ -371,7 +371,7 @@ if (top.canmakepoll == false) {
 } else {
     FCKCommands.RegisterCommand('LJPollLink',
             new FCKDialogCommand( 'LJPollCommand', 'Poll Wizard',
-            '/tools/fck_poll.bml', 420, 370 ));
+            '/tools/fck_poll', 420, 370 ));
 }
 
 // Create the toolbar button.
