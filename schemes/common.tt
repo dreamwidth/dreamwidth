@@ -137,7 +137,7 @@ the table based way can be removed when the entire site is Foundation-based.
 </div></div>
 <div class='row'><div class='small-12 large-12 columns'>
 <ul>
-[%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
+[%- IF ! identity -%]<li><a href='[% site.root %]/entry/new'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
 <li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a></li>
 <li class="before-break"><a href='[% site.root %]/inbox/'>[% 'sitescheme.accountlinks.inbox' | ml %]
 [%- IF unread -%] <span id='Inbox_Unread_Count'>([% unread %])</span>[%- END -%]
@@ -218,7 +218,7 @@ the table based way can be removed when the entire site is Foundation-based.
         <input type="submit" name="logout_one" value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     </form>
     [%- -%]<ul>
-    [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
+    [%- IF ! identity -%]<li><a href='[% site.root %]/entry/new'>[% 'sitescheme.accountlinks.post' | ml %]</a></li>[%- END -%]
     [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a></li>
     [%- -%]<li><a href='[% site.root %]/inbox/'>[% 'sitescheme.accountlinks.inbox' | ml %]
     [%- IF unread -%] <span id='Inbox_Unread_Count'>([% unread %])</span>[%- END -%]

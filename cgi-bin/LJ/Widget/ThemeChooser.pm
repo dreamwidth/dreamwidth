@@ -36,8 +36,6 @@ sub render_body {
     my $getsep   = $getextra ? "&" : "?";
     my %cats     = LJ::Customize->get_cats($u);
 
-    warn %opts;
-
     # filter criteria
     $opts{cat}      //= "";
     $opts{layoutid} //= 0;
@@ -223,6 +221,7 @@ sub js {
     q [
         initWidget: function () {
             var self = this;
+            var widget = this.getWidget();
 
             var filter_links = DOM.getElementsByClassName(document, "theme-cat");
             filter_links = filter_links.concat(DOM.getElementsByClassName(document, "theme-layout"));

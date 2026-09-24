@@ -1,0 +1,196 @@
+;; -*- coding: utf-8 -*-
+.adultcontentflag=The content of this journal is suitable for users:
+
+.adultcontentflag.select.concepts=Age 14 or over.
+
+.adultcontentflag.select.explicit=Age 18 or over.
+
+.adultcontentflag.select.none=Of all ages.
+
+.adultcontentflag.text=This is a global setting for the journal.
+
+.adultcontentreason.text=Optionally displayed reason why your journal is set with this age restriction
+
+.bdayreminder=Receive email reminders for the birthdays of people in your Circle.
+
+.btn.save=Save
+
+.cat.account=Account
+
+.cat.account.desc=Basic account settings
+
+.cat.community=Community
+
+.cat.community.desc=Community posting settings
+
+.cat.display=Display
+
+.cat.display.desc=Viewing options, site navigation, and language
+
+.cat.history=History
+
+.cat.history.desc=Account history
+
+.cat.mobile=Mobile
+
+.cat.mobile.desc2=Email posting and other mobile options
+
+.cat.notifications=Notifications
+
+.cat.notifications.desc=Notification tracking options. You can also <a [[aopts]]>edit your reading page subscriptions to specific users, communities, and feeds</a>.
+
+.cat.othersites=Other Sites
+
+.cat.othersites.desc=Configure interactions with external sites
+
+.cat.privacy=Privacy
+
+.cat.privacy.desc=Journal privacy options
+
+.cat.shortcuts=Shortcuts
+
+.cat.shortcuts.desc2=Keyboard and mobile (touch) shortcuts
+
+.commentpage=View comment pages in your own journal style
+
+.commentpage.text=When you follow a comment link from your Reading page, you can view that comment page in your own journal style.
+
+.contextualhover=Show contextual hover menu
+
+.contextualhover.text=Contextual hover menus appear when you hover over userhead images or icons.
+
+.errors=There were errors with your submission.  Please fix the errors below.
+
+.finished.save_button=Save Changes
+
+.fn.adultcontentflag=Adult Content
+
+.fn.adultcontentreason=Age Limit Reason
+
+.fn.bdayreminder=Birthday reminders
+
+.fn.commentpage=Comment pages
+
+.fn.contextualhover=Contextual Hover Menu
+
+.fn.imageplace=Image placeholders
+
+.fn.minsecurity=Minimum Entry Security
+
+.fn.public=Publicity
+
+.fn.safesearch=Safe Search Filtering
+
+.fn.scheme=Scheme
+
+.fn.searchincl=Search inclusion
+
+.fn.viewingadult=Viewing Age Limited Content
+
+.form.confirm=Save your changes?
+.form.confirm1=Save your changes? Click OK to save changes or Cancel to discard them.
+
+.imagelinks.size.custom=Custom: use placeholders for images larger than [[width]]x[[height]]
+
+.imageplace=Use image placeholders for
+
+.imageplace.all=all images
+
+.imageplace.large=large images (over 640x480 pixels)
+
+.imageplace.medium=medium images (over 320x240 pixels)
+
+.imageplace.none=nothing (display all images)
+
+.imageplace.text=Placeholders replace inline images with links and are useful if you are browsing at work or over a slow connection.
+
+.intro=Customize your viewing, notification, and additional privacy options.
+
+.intro2=Customize your viewing, notification, and additional privacy options. You may also edit your <a [[aopts1]]>profile settings</a> or your <a [[aopts2]]>comment settings</a>.
+
+.intro3=You can edit your account settings here. You can also edit your <a [[aopts1]]>profile</a> or your <a [[aopts2]]>journal style</a>.
+
+.language=Select your language:
+
+.minsecurity=Default privacy of new entries:
+
+.minsecurity.friends=Access List
+
+.minsecurity.members=Members Only
+
+.minsecurity.private=Just Me  (Private)
+
+.minsecurity.public=Everyone (Public)
+
+.minsecurity.text=This setting will override the security for all future entries, except those with a more restrictive privacy setting. In that case, the more restrictive privacy setting will be used.
+
+.public=I hereby give my authorization to reproduce and/or distribute any part or all of my Content by third parties, with the identification of the name and source, but without any modification.  This authorization is remuneration free. Except as stated herein, none of the Content may be transferred, copied, republished, or distributed in any form or by any means for commercial use.
+
+.safesearch.select.none=Do not filter my results
+
+.safesearch2=You can choose to filter 14+ or 18+ content out of search results.
+
+.safesearch2.select.concepts=Use strict filtering (excludes content the poster has marked 14+)
+
+.safesearch2.select.explicit=Use moderate filtering (excludes content the poster has marked 18+)
+
+.searchincl=Minimize your journal's inclusion in search engine results
+
+.searchincl.text=We can instruct search engines not to include your journal entries in their search results. Not all search engines recognize this request; if you do not want a journal entry to show up in search results, then make sure it is posted private or Trusted only.
+
+.searchincl2=Minimize your journal's inclusion in search engine results. Selecting this option also means that your entries will not be publicized at external sites that have content partnership with [[sitename]].
+
+.section.adult_content=Age limit options
+
+.section.adult_content.note=Not all content on [[sitename]] is appropriate for everyone.  These settings let you rate your journal as well as determine the level of content you are comfortable viewing.
+
+.section.privacy=Additional privacy options
+
+.section.viewing=Viewing Options
+
+.security.visibility.everybody=Everybody
+
+.security.visibility.friends=Access List only
+
+.security.visibility.nobody=Nobody
+
+.confirm.delete=Are you sure you want to delete this tracked item?
+
+.btn.delete=Delete tracked item
+
+.success=You've successfully saved your account settings.
+
+.success.deleteinactive2=You have successfully deleted all inactive tracked items.
+
+.success.header=Success!
+
+.success.next=What would you like to do next?
+
+.success.next.customize=Customize your journal
+
+.success.next.friends=Go to your Reading page
+
+.success.next.home=Return to the home page
+
+.success.next.viewing=Change your viewing options
+
+.success.text=Your viewing options have been updated.
+
+.title=Viewing Options
+
+.title.anon=Account Settings
+
+.title.page=Account Settings for [[user]]
+
+.viewingadult=Collapse content marked as inappropriate for:
+
+.viewingadult.select.concepts=Anyone under the age of 14
+
+.viewingadult.select.explicit=Anyone under the age of 18
+
+.viewingadult.select.none=Do not collapse
+
+.you.can.change=You can change other viewing options by <a [[login]]>logging in</a>. If you don't have an account, you can <a [[create.bml]]>create one now</a>.
+
+.you.could.not.auth=You could not be authenticated as the specified user.
+

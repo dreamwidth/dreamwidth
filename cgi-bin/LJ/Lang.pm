@@ -259,16 +259,6 @@ sub relative_langdat_file_of_lang_itcode {
     my $is_local = $lang eq $root_lang_local && $lang ne $root_lang;
 
     # is this a filename-based itcode?
-    if ( $itcode =~ m!^(/.+\.bml)! ) {
-        my $file = $1;
-
-        # given the filename of this itcode and the current
-        # source, what langdat file should we use?
-        my $langdat_file = "htdocs$file\.text";
-        $langdat_file .= $is_local ? ".local" : "";
-        return $langdat_file;
-    }
-
     if ( $itcode =~ m!^(/.+\.tt)! ) {
         my $file = $1;
 
@@ -277,20 +267,20 @@ sub relative_langdat_file_of_lang_itcode {
         return $langdat_file;
     }
 
-    # not a bml file, goes into base .dat file
+    # not a file-scoped itcode, goes into the base .dat file
     return $base_file;
 }
 
 sub itcode_for_langdat_file {
     my ( $langdat_file, $itcode ) = @_;
 
-    # non-bml itcode, return full itcode path
-    unless ( $langdat_file =~ m!^.+\.(?:bml|tt)\.text(?:\.local)?$! ) {
+    # not a file-scoped langdat file, return the full itcode path
+    unless ( $langdat_file =~ m!^.+\.tt\.text(?:\.local)?$! ) {
         return $itcode;
     }
 
-    # bml itcode, strip filename and return
-    if ( $itcode =~ m!^/.+\.(?:bml|tt)(\..+)! ) {
+    # file-scoped itcode, strip the filename and return
+    if ( $itcode =~ m!^/.+\.tt(\..+)! ) {
         return $1;
     }
 
@@ -403,8 +393,11 @@ sub set_text {
     my $itid = get_itemid( $dmid, $itcode, { 'notes' => $opts->{'notes'} } );
     return set_error("Couldn't allocate itid.") unless $itid;
 
-    my $dbh   = LJ::get_db_writer();
-    my $txtid = 0;
+    # get_text_multi normalizes every process and memcache key, even if the
+    # source-file path retained mixed case.
+    my $cache_code = lc $itcode;
+    my $dbh        = LJ::get_db_writer();
+    my $txtid      = 0;
 
     my $oldtextid =
         $dbh->selectrow_array( "SELECT txtid FROM ml_text WHERE lnid=? AND dmid=? AND itid=?",
@@ -435,11 +428,11 @@ sub set_text {
             . "VALUES ($lnid, $dmid, $itid, $txtid, NOW(), $staleness)" );
     return set_error( "Error inserting ml_latest: " . $dbh->errstr ) if $dbh->err;
     if ( defined $text ) {
-        LJ::MemCache::set( "ml.${lncode}.${dmid}.${itcode}", $text );
+        LJ::MemCache::set( "ml.${lncode}.${dmid}.${cache_code}", $text );
 
         # keep the in-process cache in step with memcache, else a worker that
         # already cached this code as missing would keep serving the stale miss
-        $TXT_CACHE{"ml.${lncode}.${dmid}.${itcode}"} = $text;
+        $TXT_CACHE{"ml.${lncode}.${dmid}.${cache_code}"} = $text;
     }
 
     my $langids;
@@ -457,8 +450,8 @@ sub set_text {
                 }
                 $langids .= "," if $langids;
                 $langids .= $cid + 0;
-                LJ::MemCache::delete("ml.$clid->{'lncode'}.${dmid}.${itcode}");
-                delete $TXT_CACHE{"ml.$clid->{'lncode'}.${dmid}.${itcode}"};
+                LJ::MemCache::delete("ml.$clid->{'lncode'}.${dmid}.${cache_code}");
+                delete $TXT_CACHE{"ml.$clid->{'lncode'}.${dmid}.${cache_code}"};
                 $rec->( $clid, $rec );
             }
         };
@@ -504,11 +497,16 @@ sub remove_text {
 
     $dbh->do( "DELETE FROM ml_items WHERE dmid=? AND itid=?", undef, $dmid, $itid );
 
-    my @txtids = ();
-    my $sth    = $dbh->prepare("SELECT txtid FROM ml_latest WHERE dmid=? AND itid=?");
+    # Only invalidate languages whose latest rows are being removed.  This
+    # includes child fallback rows even when the caller names just the root.
+    my ( @txtids, @lncodes );
+    my $sth = $dbh->prepare(
+              "SELECT l.txtid, lang.lncode FROM ml_latest l JOIN ml_langs lang ON l.lnid=lang.lnid "
+            . "WHERE l.dmid=? AND l.itid=?" );
     $sth->execute( $dmid, $itid );
-    while ( my $txtid = $sth->fetchrow_array ) {
-        push @txtids, $txtid;
+    while ( my ( $txtid, $lang ) = $sth->fetchrow_array ) {
+        push @txtids,  $txtid;
+        push @lncodes, $lang;
     }
 
     $dbh->do( "DELETE FROM ml_latest WHERE dmid=? AND itid=?", undef, $dmid, $itid );
@@ -517,35 +515,59 @@ sub remove_text {
     $dbh->do( "DELETE FROM ml_text WHERE dmid=? AND txtid IN ($txtid_bind)",
         undef, $dmid, @txtids );
 
-    # delete from memcache if lncode is defined
-    LJ::MemCache::delete("ml.${lncode}.${dmid}.${itcode}") if $lncode;
+    # get_text_multi uses lowercase process and memcache keys.
+    my $cache_code = lc $itcode;
+    for my $lang (@lncodes) {
+        LJ::MemCache::delete("ml.${lang}.${dmid}.${cache_code}");
+        delete $TXT_CACHE{"ml.${lang}.${dmid}.${cache_code}"};
+    }
 
     return 1;
 }
 
+sub request_context {
+    return unless LJ::is_web_context();
+    my $r = DW::Request->get or return;
+    return $r->pnote('language_context');
+}
+
+sub set_request_context {
+    my (%context) = @_;
+    my $r         = DW::Request->get or return;
+    my $existing  = $r->pnote('language_context') || {};
+    @{$existing}{ keys %context } = values %context;
+    return $r->pnote( language_context => $existing );
+}
+
+sub set_request_scope {
+    my ($scope) = @_;
+    my $context = request_context() || set_request_context();
+    $context->{scope} = $scope;
+    return $scope;
+}
+
 sub get_effective_lang {
+    my $context = request_context();
+    my $lang    = $context ? $context->{lang} : undef;
 
-    my $lang;
-    if ( LJ::is_web_context() ) {
-        $lang = BML::get_language();
-    }
-
-    # did we get a valid language code?
-    if ( $lang && $LN_CODE{$lang} ) {
-        return $lang;
-    }
-
-    # had no language code, or invalid.  return default
+    # Keep the old data-lookup contract: debug is meaningful to ml(), but it
+    # is not a language that direct get_text callers may send to the database.
+    return $lang if $lang && LJ::Lang::get_lang($lang);
     return $LJ::DEFAULT_LANG;
 }
 
 sub ml {
     my ( $code, $vars ) = @_;
 
-    if ( LJ::is_web_context() ) {
-
-        # this means we should use BML::ml and not do our own handling
-        my $text = BML::ml( $code, $vars );
+    if ( my $context = request_context() ) {
+        return $code if ( $context->{lang} || '' ) eq 'debug';
+        if ( rindex( $code, '.', 0 ) == 0 ) {
+            my $scope = $context->{scope};
+            $scope = DW::Request->get->note('ml_scope') unless defined $scope;
+            $code  = $scope . $code if $scope;
+        }
+        my $getter = $context->{getter} || \&LJ::Lang::get_text;
+        my $text   = $getter->( $context->{lang} || $LJ::DEFAULT_LANG, $code, undef, $vars );
         $LJ::_ML_USED_STRINGS{$code} = $text if $LJ::IS_DEV_SERVER;
         return $text;
     }
@@ -584,12 +606,7 @@ sub get_text {
 
     my $from_files = sub {
         my ( $localcode, @files );
-        if ( $code =~ m!^(/.+\.bml)(\..+)! ) {
-            my $file;
-            ( $file, $localcode ) = ( "htdocs$1", $2 );
-            @files = ( "$file.text.local", "$file.text" );
-        }
-        elsif ( $code =~ m!^(/.+\.tt)(\..+)! ) {
+        if ( $code =~ m!^(/.+\.tt)(\..+)! ) {
             my $file;
             ( $file, $localcode ) = ( "views$1", $2 );
             @files = ( "$file.text.local", "$file.text" );
@@ -698,7 +715,7 @@ sub get_text_multi {
     ## Caller will get %strings with keys in original case.
     ##
     ## Final note about case:
-    ##  Codes in disk .text files, mysql and bml files may be mixed-cased
+    ##  Codes in disk .text files and mysql may be mixed-cased
     ##  Codes in memcache and %TXT_CACHE are lower-case
     ##  Codes are not case-sensitive
 
@@ -794,9 +811,8 @@ sub get_lang_names {
         my $l = LJ::Lang::get_lang($code);
         next unless $l;
 
-        my $item         = "langname.$code";
-        my $namethislang = BML::ml($item);
-        my $namenative   = LJ::Lang::get_text( $l->{'lncode'}, $item );
+        my $item       = "langname.$code";
+        my $namenative = LJ::Lang::get_text( $l->{'lncode'}, $item );
 
         push @list, $code, $namenative;
     }
@@ -804,23 +820,9 @@ sub get_lang_names {
     return \@list;
 }
 
-# FIXME: this isn't used anywhere; just falls through to BML::set_language,
-# which only affects the BML code package in the active process. Keeping this
-# as a stub to assist with the gradual transition to non-BML functions.
-sub set_lang {
-    my $lang = shift;
-
-    my $l = LJ::Lang::get_lang($lang);
-
-    # set language through BML so it will apply immediately
-    BML::set_language( $l->{lncode} );
-
-    return;
-}
-
 # The translation system now supports the ability to add multiple plural forms of the word
 # given different rules in a languge.  This functionality is much like the plural support
-# in the S2 styles code.  To use this code you must use the BML::ml function and pass
+# in the S2 styles code.  To use this code you must use the LJ::Lang::ml function and pass
 # the number of items as one of the variables.  To make sure that you are allowing the
 # utmost compatibility for each language you should not hardcode the placement of the
 # number of items in relation to the noun.  Let the translation string do this for you.

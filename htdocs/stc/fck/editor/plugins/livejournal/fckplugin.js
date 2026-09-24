@@ -343,7 +343,7 @@ LJPollCommand.ippu=function(evt) {
     evt = evt || window.event;
     var node = FCKSelection.GetAncestorNode( 'DIV' );
     if (evt && node && node.id.match(/poll\d+/)) {
-        var ele = top.document.getElementById("draft___Frame");
+        var ele = top.document.getElementById(FCK.Name + "___Frame");
         var href = "href='javascript:Poll.callRichTextEditor()'";
         var notice = parent.LJ_IPPU.showNote("Polls must be edited inside the Poll Wizard<br /><a "+href+">Go to poll wizard</a>", ele);
         notice.centerOnWidget(ele);
@@ -360,7 +360,7 @@ LJNoPoll.GetState=function() {
         return FCK_TRISTATE_OFF; //we dont want the button to be toggled
 }
 LJNoPoll.Execute=function() {
-    var ele = top.document.getElementById("draft___Frame");
+    var ele = top.document.getElementById(FCK.Name + "___Frame");
     var notice = top.LJ_IPPU.showNote("You may only create and post polls if you have a Plus or Paid Account or if you are posting the poll to a Plus or Paid community that you maintain.", ele);
     notice.centerOnWidget(ele);
     return;
@@ -371,7 +371,7 @@ if (top.canmakepoll == false) {
 } else {
     FCKCommands.RegisterCommand('LJPollLink',
             new FCKDialogCommand( 'LJPollCommand', 'Poll Wizard',
-            '/tools/fck_poll.bml', 420, 370 ));
+            '/tools/fck_poll', 420, 370 ));
 }
 
 // Create the toolbar button.

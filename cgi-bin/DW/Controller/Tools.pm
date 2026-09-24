@@ -137,7 +137,7 @@ sub opml_handler {
     # if we don't have a current user but somebody is logged in, redirect
     # them to their own OPML page
     if ( $remote && !$user ) {
-        return BML::redirect("$LJ::SITEROOT/tools/opml?user=$remote->{user}");
+        return $r->redirect("$LJ::SITEROOT/tools/opml?user=$remote->{user}");
     }
 
     return "No 'user' argument" unless $user;

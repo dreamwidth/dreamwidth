@@ -90,7 +90,7 @@ sub edittags_handler {
     LJ::CleanHTML::clean_event( \$evt, \%opts );
     LJ::expand_embedded( $u, $ditemid, $remote, \$evt );
 
-    # prevent BML tags interpretation inside post body
+    # escape literal <? ?> sequences so they render as text, not as tags
     $subj =~ s/<\?/&lt;?/g;
     $subj =~ s/\?>/?&gt;/g;
     $evt  =~ s/<\?/&lt;?/g;

@@ -1,0 +1,41 @@
+;; -*- coding: utf-8 -*-
+
+.auth.poster=Poster:
+
+.btn.proceed=Proceed
+
+.certainday=Certain Day:
+
+.desc=Use the form below to search for the entry you'd like to edit.
+
+.edit.this.entry=Edit this Entry
+
+.error.getting=There was an error while loading this entry.
+
+.error.nocomm=The selected journal is not a community.
+
+.htmlonly=(this entry only contains HTML content)
+
+.in=In community:
+
+.massprivacy=You also may want to use the <a [[aopts]]>mass privacy tool</a> to change the security of a group of entries at once.
+
+.no.entries.exist=The selected journal has no entries.
+
+.no.entries.found=No Entries Found
+
+.no.entries.match=No entries match the criteria you specified. Please go back and adjust your search.
+
+.recententries=Most recent entries
+
+.recententry=Most recent entry
+
+.security.groups=Custom access entry
+
+.security.private=Private entry
+
+.security.protected=Friends-only entry
+
+.title=Edit Entries
+
+.viewwhat=View Which Entries:

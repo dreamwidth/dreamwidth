@@ -526,12 +526,6 @@ InObFCK.fail = function (msg) {
 var oUploadAllowedExtRegex      = new RegExp( FCKConfig.ImageUploadAllowedExtensions, 'i' ) ;
 var oUploadDeniedExtRegex       = new RegExp( FCKConfig.ImageUploadDeniedExtensions, 'i' ) ;
 
-InObFCK.onUpload = function (surl, furl, swidth, sheight) {
-    sActualBrowser = '';
-    SetUrl ( surl, furl, swidth, sheight );
-    GetE('insobjform').reset() ;
-};
-
 InObFCK.setupIframeHandlers = function () {
     var el;
 

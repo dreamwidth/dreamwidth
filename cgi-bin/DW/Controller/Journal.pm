@@ -22,7 +22,6 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-use DW::BML;
 use DW::Captcha;
 use DW::Logic::AdultContent;
 use DW::Request;
@@ -258,7 +257,7 @@ sub render {
 
     if ( $mode eq "update" ) {
         $u or return 404;
-        return $r->redirect( "$LJ::SITEROOT/update.bml?usejournal=" . $u->{'user'} );
+        return $r->redirect( "$LJ::SITEROOT/entry/" . $u->{'user'} . "/new" );
     }
 
     # Robots.txt
@@ -273,19 +272,6 @@ sub render {
             $r->print("Disallow: /\n");
         }
         return $r->OK;
-    }
-
-    # Data handlers (RSS, Atom, FOAF, etc.)
-    if ( $mode eq "data" && $pe =~ m!^/(\w+)(/.*)?! ) {
-        my ( $data_mode, $data_path ) = ( $1, $2 );
-        if ( my $handler = LJ::Hooks::run_hook( "data_handler:$data_mode", $user, $data_path ) ) {
-
-            # Data handlers are coderefs that expect an Apache request object.
-            # Create an adapter and call it directly.
-            my $adapter = DW::BML::RequestAdapter->new($r);
-            $handler->($adapter);
-            return $r->OK;
-        }
     }
 
     # Before we actually make a journal, let's potentially bounce this user
@@ -311,13 +297,12 @@ sub render {
         }
     }
 
-    # Main journal rendering via LJ::make_journal
+    # Journal rendering shares the native request with the controller.
     my $handle_with_siteviews = 0;
     my %headers;
-    my $adapter = DW::BML::RequestAdapter->new($r);
 
     my $opts = {
-        'r'         => $adapter,
+        'r'         => $r,
         'headers'   => \%headers,
         'args'      => $args,
         'vhost'     => 'users',

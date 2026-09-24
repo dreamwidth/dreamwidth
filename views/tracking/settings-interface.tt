@@ -10,8 +10,6 @@
   # 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
-[%- CALL dw.active_resource_group( "jquery" ) -%]
-
 [%- dw.need_res( { group => "jquery" }, "js/notifications.js",
                  "js/components/jquery.select-all-special.js",
                  "stc/css/components/select-all.css" ) -%]
@@ -24,9 +22,9 @@
       <form action='[% site.root %]/manage/settings/' method='get'>
     [% IF get_args.authas; form.hidden( name = 'authas', value = get_args.authas ); END %]
     [% form.hidden( name = 'cat', value = "notifications" ) %]
-    [% form.textbox( label = dw.ml( '.user' ), name = 'user', id = 'user', size = 15,
+    [% form.textbox( label = dw.ml( '/tracking/settings-interface.tt.user' ), name = 'user', id = 'user', size = 15,
                      maxlength = site.maxlength_user, value = get_args.user ) %]
-    [% form.submit( value = dw.ml( ".user.submit" ) ) %]
+    [% form.submit( value = dw.ml( '/tracking/settings-interface.tt.user.submit' ) ) %]
       </form>
     </div>
 [% END %]
@@ -36,8 +34,8 @@
   [% dw.form_auth %]
 [% END %]
 
-[%- btn_txt = '.btn.deleteinactive' | ml;
-    del_conf = '.confirm.deleteinactive' | ml;
+[%- btn_txt = '/tracking/settings-interface.tt.btn.deleteinactive' | ml;
+    del_conf = '/tracking/settings-interface.tt.confirm.deleteinactive' | ml;
     del_btn = form.submit( name = 'deleteinactive', value = btn_txt, title = btn_txt,
                            class => 'btn', onclick = "return confirm( '$del_conf' )" )
 -%]
@@ -46,7 +44,7 @@
 [%- UNLESS has_admin_form; # reprint the save buttons here
 -%]
     <div id='settings_save' class='action-bar'>
-  [% IF has_user_form; form.submit( value = dw.ml( ".btn.save" ) ); END %]&nbsp;
+  [% IF has_user_form; form.submit( value = dw.ml( '/tracking/settings-interface.tt.btn.save' ) ); END %]&nbsp;
   [% del_btn %]
     </div>
 [%- END -%]
@@ -61,7 +59,7 @@
 </div>
 
 <div id='settings_save' class='action-bar'>
-  [% IF has_user_form; form.submit( value = dw.ml( ".btn.save" ) ); END %]&nbsp;
+  [% IF has_user_form; form.submit( value = dw.ml( '/tracking/settings-interface.tt.btn.save' ) ); END %]&nbsp;
   [% IF viewing_self; del_btn; END %]
 </div>
 

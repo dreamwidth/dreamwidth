@@ -13,6 +13,7 @@
 
 package LJ::Event::CommunityJoinRequest;
 use strict;
+use LJ::Lang;
 use LJ::Entry;
 use Carp qw(croak);
 use base 'LJ::Event';
@@ -162,7 +163,7 @@ sub as_email_html {
 
 sub subscription_as_html {
     my ( $class, $subscr ) = @_;
-    return BML::ml('event.community_join_requst')
+    return LJ::Lang::ml('event.community_join_requst')
         ;    # Someone requests membership in a community I maintain';
 }
 

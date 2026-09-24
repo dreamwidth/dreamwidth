@@ -81,14 +81,13 @@ sub make_journal {
         return;
     }
 
-    # see also Apache/LiveJournal.pm
-    my $lang = $LJ::DEFAULT_LANG;
-
-    # note that's it's very important to pass LJ::Lang::get_text here explicitly
-    # rather than relying on BML::set_language's fallback mechanism, which won't
-    # work in this context since BML::cur_req won't be loaded if no BML requests
-    # have been served from this Apache process yet
-    BML::set_language( $lang, \&LJ::Lang::get_text );
+    # S2 labels use LJ::Lang::ml directly.  Set the default language and an
+    # explicit getter on the native request context; it merges this with any
+    # caller-established translation scope.
+    LJ::Lang::set_request_context(
+        lang   => $LJ::DEFAULT_LANG,
+        getter => \&LJ::Lang::get_text,
+    );
 
     # let layouts disable EntryPage / ReplyPage, using the siteviews version
     # instead.  We may also have explicitly asked to use siteviews by the caller
@@ -116,7 +115,7 @@ sub make_journal {
     }
 
     if ( $styleid && $styleid eq "siteviews" ) {
-        $apache_r->notes->{'no_control_strip'} = 1;
+        $apache_r->note( 'no_control_strip', 1 );
 
         ${ $opts->{'handle_with_siteviews_ref'} } = 1;
         $opts->{siteviews_extra_content} ||= {};
@@ -248,6 +247,16 @@ sub make_journal {
     return $ret;
 }
 
+# Journal rendering uses request-local notes when it has a modern request.  A
+# missing request or journal note deliberately retains the historical no-journal fallback.
+sub _request_journal {
+    my $r = DW::Request->get;
+    return unless $r && $r->can('note');
+    my $journalid = $r->note('journalid');
+    return unless defined $journalid;
+    return LJ::load_userid($journalid);
+}
+
 sub s2_run {
     my ( $apache_r, $ctx, $opts, $entry, $page ) = @_;
     $opts ||= {};
@@ -262,15 +271,9 @@ sub s2_run {
         # expand lj-embed tags
         if ( $text =~ /lj\-embed/i ) {
 
-            # find out what journal we're looking at
-            my $apache_r = eval { BML::get_request() };
-            if ( $apache_r && $apache_r->notes->{journalid} ) {
-                my $journal = LJ::load_userid( $apache_r->notes->{journalid} );
-
-                # expand tags
-                LJ::EmbedModule->expand_entry( $journal, \$text )
-                    if $journal;
-            }
+            # Expand only when the current native request identifies a journal.
+            my $journal = _request_journal();
+            LJ::EmbedModule->expand_entry( $journal, \$text ) if $journal;
         }
 
         $$LJ::S2::ret_ref .= $text;
@@ -2166,8 +2169,6 @@ sub Entry {
     $e->{metadata}->{ lc $_ } = $current{$_} foreach keys %current;
     $e->{mood_icon} = Image(@$img_arg) if defined $img_arg;
 
-    my $apache_r = BML::get_request();
-
     # custom friend groups
     my $group_names = $arg->{group_names};
     unless ($group_names) {
@@ -2461,10 +2462,6 @@ sub Page {
               '<meta http-equiv="Content-Type" content="text/html; charset='
             . $opts->{'saycharset'}
             . "\" />\n";
-    }
-
-    if ( LJ::Hooks::are_hooks('s2_head_content_extra') ) {
-        $p->{head_content} .= LJ::Hooks::run_hook( 's2_head_content_extra', $remote, $opts->{r} );
     }
 
     my %meta_opts =
@@ -3059,7 +3056,6 @@ sub viewer_can_manage_tags {
 }
 
 sub viewer_sees_control_strip {
-    my $apache_r = BML::get_request();
     return LJ::Hooks::run_hook('show_control_strip');
 }
 
@@ -3115,16 +3111,14 @@ sub _get_Entry_ebox_args    { 0 }
 sub Entry__viewer_sees_ebox { 0 }
 
 sub control_strip_logged_out_userpic_css {
-    my $apache_r = BML::get_request();
-    my $u        = LJ::load_userid( $apache_r->notes->{journalid} );
+    my $u = LJ::S2::_request_journal();
     return '' unless $u;
 
     return LJ::Hooks::run_hook( 'control_strip_userpic', $u );
 }
 
 sub control_strip_logged_out_full_userpic_css {
-    my $apache_r = BML::get_request();
-    my $u        = LJ::load_userid( $apache_r->notes->{journalid} );
+    my $u = LJ::S2::_request_journal();
     return '' unless $u;
 
     return LJ::Hooks::run_hook( 'control_strip_loggedout_userpic', $u );
@@ -3142,8 +3136,7 @@ sub journal_current_datetime {
 
     my $ret = { '_type' => 'DateTime' };
 
-    my $apache_r = BML::get_request();
-    my $u        = LJ::load_userid( $apache_r->notes->{journalid} );
+    my $u = LJ::S2::_request_journal();
     return $ret unless $u;
 
     # turn the timezone offset number into a four character string (plus '-' if negative)
@@ -4328,7 +4321,7 @@ sub _Entry__get_link {
             || $remote->user eq $poster
             || $remote->can_manage($journalu) );
         return LJ::S2::Link(
-            "$LJ::SITEROOT/editjournal?journal=$journal&amp;itemid=$this->{'itemid'}",
+            "$LJ::SITEROOT/entry/$journal/$this->{'itemid'}/edit",
             $ctx->[S2::PROPS]->{"text_edit_entry"},
             LJ::S2::Image_std('editentry')
         );
