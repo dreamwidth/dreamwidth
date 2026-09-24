@@ -358,12 +358,6 @@ sub _render_new_form {
 
     $vars->{action} =
         { url => $render_opts->{action_url} // LJ::create_url( undef, keep_args => 1 ), };
-    $vars->{title_override} = $render_opts->{title_override}
-        if exists $render_opts->{title_override};
-    $vars->{submit_action_name} =
-        ( $render_opts->{submit_action_name} || '' ) eq 'action:update'
-        ? 'action:update'
-        : 'action:post';
 
     $vars->{js_for_rte} = LJ::rte_js_vars($remote);
     $vars->{sitevalues} = to_json( \@sitevalues );
@@ -503,16 +497,10 @@ sub legacy_new_rerender {
     $action_url //= '/entry/new';
 
     return _render_new_form(
-        $vars,
-        $formdata,
-        $get, $remote,
+        $vars, $formdata, $get, $remote,
         $opts{errors}   || DW::FormErrors->new,
         $opts{warnings} || DW::FormErrors->new,
-        $opts{spellcheck_requested},
-        {
-            action_url         => $action_url,
-            submit_action_name => $opts{submit_action_name},
-        },
+        undef, { action_url => $action_url },
     );
 }
 
@@ -1189,19 +1177,18 @@ sub _auth {
 sub _queue_crosspost {
     my ( $form_req, %opts ) = @_;
 
-    my $u                  = delete $opts{remote};
-    my $ju                 = delete $opts{journal};
-    my $deleted            = delete $opts{deleted};
-    my $editurl            = delete $opts{editurl};
-    my $ditemid            = delete $opts{ditemid};
-    my $crosspost_callback = delete $opts{crosspost_callback};
+    my $u       = delete $opts{remote};
+    my $ju      = delete $opts{journal};
+    my $deleted = delete $opts{deleted};
+    my $editurl = delete $opts{editurl};
+    my $ditemid = delete $opts{ditemid};
 
     my @crossposts;
     if ( $u && $ju && $u->equals($ju) && $form_req->{crosspost_entry} ) {
         my $user_crosspost = $form_req->{crosspost};
         my ( $xpost_successes, $xpost_errors ) = LJ::Protocol::schedule_xposts(
             $u, $ditemid, $deleted,
-            $crosspost_callback || sub {
+            sub {
                 my $submitted = $user_crosspost->{ $_[0]->acctid } || {};
 
                 # first argument is true if user checked the box
@@ -1385,12 +1372,11 @@ sub _do_post {
         # crosspost!
         my @crossposts = _queue_crosspost(
             $form_req,
-            remote             => $u,
-            journal            => $journal,
-            deleted            => 0,
-            editurl            => $edititemlink,
-            ditemid            => $ditemid,
-            crosspost_callback => undef,
+            remote  => $u,
+            journal => $journal,
+            deleted => 0,
+            editurl => $edititemlink,
+            ditemid => $ditemid,
         );
 
         # set sticky
@@ -1531,12 +1517,11 @@ sub _do_edit {
 
     my @crossposts = _queue_crosspost(
         $form_req,
-        remote             => $remote,
-        journal            => $journal,
-        deleted            => $deleted,
-        ditemid            => $ditemid,
-        editurl            => $edit_url,
-        crosspost_callback => undef,
+        remote  => $remote,
+        journal => $journal,
+        deleted => $deleted,
+        ditemid => $ditemid,
+        editurl => $edit_url,
     );
 
     my $poststatus = {
