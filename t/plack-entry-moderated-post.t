@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Characterize moderated community posting through retained and native entry forms.
+# Characterize moderated community posting through the native entry form.
 # Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 
 use strict;
@@ -115,23 +115,7 @@ my $cookie =
     . $session->loggedin_cookie_string;
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'moderatedPostCharacterization';
 
-my @cases = (
-    {
-        label  => 'native new-entry form',
-        path   => '/entry/new?usejournal=' . $community->user,
-        form   => sub { form_with_fields( $_[0], $_[1], qw(subject event action:post) ) },
-        click  => 'action:post',
-        native => 1,
-        set    => sub {
-            my ( $form, $expected ) = @_;
-            $form->value( subject          => $expected->{subject} );
-            $form->value( event            => $expected->{event} );
-            $form->value( security         => 'public' );
-            $form->value( current_location => $expected->{location} );
-            $form->value( current_music    => $expected->{music} );
-        },
-    },
-);
+my $path = '/entry/new?usejournal=' . $community->user;
 
 test_psgi $app, sub {
     my $send    = shift;
@@ -145,90 +129,88 @@ test_psgi $app, sub {
     local *LJ::BetaFeatures::user_in_beta              = sub { 0 };
     local *LJ::Event::CommunityModeratedEntryNew::fire = sub { 1 };
 
-    for my $index ( 0 .. $#cases ) {
-        my $case     = $cases[$index];
-        my $expected = {
-            subject  => "Moderated $index subject",
-            event    => "Moderated $index body",
-            taglist  => '',
-            location => "Moderated $index location",
-            music    => "Moderated $index music",
-        };
-        my $draft_properties = {
-            subject => "Moderated $index saved draft subject",
-            taglist => "moderated-$index-saved-draft-tag",
-        };
-        ok( $poster->set_draft_text("Moderated $index saved draft body"),
-            "$case->{label} seeds a disposable draft body" );
-        $poster->set_prop( draft_properties => nfreeze($draft_properties) );
+    my $expected = {
+        subject  => 'Moderated subject',
+        event    => 'Moderated body',
+        taglist  => '',
+        location => 'Moderated location',
+        music    => 'Moderated music',
+    };
+    ok(
+        $poster->set_draft_text('Moderated saved draft body'),
+        'native new-entry form seeds a disposable draft body'
+    );
+    $poster->set_prop(
+        draft_properties => nfreeze(
+            {
+                subject => 'Moderated saved draft subject',
+                taglist => 'moderated-saved-draft-tag',
+            }
+        )
+    );
 
-        my $res = $request->( GET $case->{path} );
-        is( $res->code, 200, "$case->{label} renders for the authorized ordinary poster" );
-        my $form = $case->{form}->( $res->content, 'http://localhost' . $case->{path} );
-        ok( $form, "$case->{label} exposes its actual posting form" ) or next;
-        ok( $form->find_input('lj_form_auth'), "$case->{label} form has a CSRF token" );
-        $case->{set}->( $form, $expected );
-        my $before = moderation_count( fresh_comm( $community->id ) );
-        my $post   = $form->click( $case->{click} );
-        $post->uri( 'http://localhost' . $case->{path} );
-        $post->header( Referer => 'http://localhost' . $case->{path} );
-        my @success_hooks;
-        my $run_hooks = \&LJ::Hooks::run_hooks;
-        my $run_hook  = \&LJ::Hooks::run_hook;
-        {
-            no warnings 'redefine';
-            local *LJ::Hooks::run_hooks = sub {
-                my ( $name, @args ) = @_;
-                if ( $name eq 'after_entry_post_extra_options' ) {
-                    push @success_hooks, [ $name, {@args} ];
-                    return ['<li>Moderated extra option marker</li>'];
-                }
-                return $run_hooks->(@_);
-            };
-            local *LJ::Hooks::run_hook = sub {
-                my ( $name, @args ) = @_;
-                if ( $name eq 'after_entry_post_extra_html' ) {
-                    push @success_hooks, [ $name, {@args} ];
-                    return '<p>Moderated extra HTML marker</p>';
-                }
-                return $run_hook->(@_);
-            };
-            $res = $request->($post);
-        }
-        if ( $case->{native} ) {
-            is_deeply( \@success_hooks, [],
-                'ordinary native moderation invokes no legacy success hooks' );
-            unlike(
-                $res->content,
-                qr/Moderated extra HTML marker/,
-                'native response has no legacy hook output'
-            );
-        }
-        is( $res->code, 200, "$case->{label} valid post returns a moderation response" );
-        like(
-            $res->content,
-            qr/(?:moderation|moderated|approval|queue)/i,
-            "$case->{label} response contains a meaningful moderation message"
-        );
-        unlike(
-            $res->content,
-            qr/<\?(?:badinput|horizon)\?>/i,
-            "$case->{label} response has no broken BML token"
-        );
-        assert_moderated_submission( $community, $poster, $before, $expected, $case->{label} );
-        my $fresh_poster = LJ::load_userid( $poster->id, 1 );
-        is( $fresh_poster->draft_text, undef,
-            "$case->{label} clears the saved draft body after moderation submission" );
-
-        if ( $case->{native} ) {
-            is_deeply( fresh_draft_properties($fresh_poster),
-                {}, "$case->{label} clears saved draft properties" );
-        }
-        else {
-            is_deeply( fresh_draft_properties($fresh_poster),
-                $draft_properties, "$case->{label} retains saved draft properties" );
-        }
+    my $res = $request->( GET $path );
+    is( $res->code, 200, 'native new-entry form renders for the authorized ordinary poster' );
+    my $form =
+        form_with_fields( $res->content, "http://localhost$path", qw(subject event action:post) );
+    ok( $form, 'native new-entry form exposes its actual posting form' )
+        or BAIL_OUT('native new-entry posting form missing');
+    ok( $form->find_input('lj_form_auth'), 'native new-entry form has a CSRF token' );
+    $form->value( subject          => $expected->{subject} );
+    $form->value( event            => $expected->{event} );
+    $form->value( security         => 'public' );
+    $form->value( current_location => $expected->{location} );
+    $form->value( current_music    => $expected->{music} );
+    my $before = moderation_count( fresh_comm( $community->id ) );
+    my $post   = $form->click('action:post');
+    $post->uri("http://localhost$path");
+    $post->header( Referer => "http://localhost$path" );
+    my @success_hooks;
+    my $run_hooks = \&LJ::Hooks::run_hooks;
+    my $run_hook  = \&LJ::Hooks::run_hook;
+    {
+        no warnings 'redefine';
+        local *LJ::Hooks::run_hooks = sub {
+            my ( $name, @args ) = @_;
+            if ( $name eq 'after_entry_post_extra_options' ) {
+                push @success_hooks, [ $name, {@args} ];
+                return ['<li>Moderated extra option marker</li>'];
+            }
+            return $run_hooks->(@_);
+        };
+        local *LJ::Hooks::run_hook = sub {
+            my ( $name, @args ) = @_;
+            if ( $name eq 'after_entry_post_extra_html' ) {
+                push @success_hooks, [ $name, {@args} ];
+                return '<p>Moderated extra HTML marker</p>';
+            }
+            return $run_hook->(@_);
+        };
+        $res = $request->($post);
     }
+    is_deeply( \@success_hooks, [], 'ordinary native moderation invokes no legacy success hooks' );
+    unlike(
+        $res->content,
+        qr/Moderated extra HTML marker/,
+        'native response has no legacy hook output'
+    );
+    is( $res->code, 200, 'native new-entry form valid post returns a moderation response' );
+    like(
+        $res->content,
+        qr/(?:moderation|moderated|approval|queue)/i,
+        'native new-entry form response contains a meaningful moderation message'
+    );
+    unlike(
+        $res->content,
+        qr/<\?(?:badinput|horizon)\?>/i,
+        'native new-entry form response has no broken BML token'
+    );
+    assert_moderated_submission( $community, $poster, $before, $expected, 'native new-entry form' );
+    my $fresh_poster = LJ::load_userid( $poster->id, 1 );
+    is( $fresh_poster->draft_text, undef,
+        'native new-entry form clears the saved draft body after moderation submission' );
+    is_deeply( fresh_draft_properties($fresh_poster),
+        {}, 'native new-entry form clears saved draft properties' );
 };
 
 done_testing;
