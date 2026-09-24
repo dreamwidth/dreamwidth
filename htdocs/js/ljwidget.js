@@ -15,7 +15,7 @@ LJWidget = new Class(Object, {
 
     // returns the widget element
     getWidget: function () {
-        return $(this.widgetId);
+        return DOM.getElement(this.widgetId);
     },
 
     // do a simple post to the widget
@@ -132,8 +132,9 @@ LJWidget = new Class(Object, {
 
         params["auth_token"]  = this.authToken;
 
-        if ($('_widget_authas')) {
-            params["authas"] = $('_widget_authas').value;
+        var authas = DOM.getElement('_widget_authas');
+        if (authas) {
+            params["authas"] = authas.value;
         }
 
         var reqOpts = {
@@ -205,3 +206,13 @@ LJWidget = new Class(Object, {
 });
 
 LJWidget.widgets = [];
+
+// Widget setup can be emitted before or after this body-loaded runtime. Drain
+// queued setup now, and expose the same entry point for legacy inline setup
+// which arrives after this file.
+LJWidget.runInit = function (init) {
+    init();
+};
+(window.LJWidgetInitQueue || []).splice(0).forEach(function (init) {
+    LJWidget.runInit(init);
+});
