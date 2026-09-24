@@ -17,17 +17,14 @@ package DW::Entry::Legacy;
 use strict;
 use warnings;
 
-use DW::Entry;
 use DW::Mood;
 use Hash::MultiValue;
 use LJ::HTMLControls;
-use LJ::Hooks;
 use LJ::Lang;
 use Scalar::Util qw(blessed);
-use Storable qw(dclone nfreeze);
 
 sub decode_entry_form {
-    my ( $req, $POST, %opts ) = @_;
+    my ( $req, $POST ) = @_;
 
     # find security
     my $sec   = "public";
@@ -160,9 +157,6 @@ sub decode_entry_form {
         }
     }
 
-    # process site-specific options
-    LJ::Hooks::run_hooks( 'decode_entry_form', $POST, $req ) unless $opts{skip_decode_hook};
-
     return $req;
 }
 
@@ -184,17 +178,11 @@ sub legacy_post_hash {
     return \%legacy;
 }
 
-# Convert the decoder's legacy-shaped request to the canonical native entry
-# shape.  Retained callers still require the in-place behavior, while a later
-# success renderer needs the original flat request for extension hooks.
+# Convert decoded fields to the native entry form schema.
 sub decoded_to_canonical {
-    my ( $decoded, $legacy_post, %opts ) = @_;
+    my ( $decoded, $legacy_post ) = @_;
 
-    my $canonical = $opts{in_place} ? $decoded : {%$decoded};
-    $canonical->{props} =
-        $opts{in_place}
-        ? ( $canonical->{props} ||= {} )
-        : { %{ $canonical->{props} || {} } };
+    my $canonical = { %$decoded, props => { %{ $decoded->{props} || {} } } };
 
     foreach my $name ( keys %$canonical ) {
         next unless $name =~ /^prop_(.+)$/;
@@ -222,8 +210,7 @@ sub decoded_to_canonical {
     return $canonical;
 }
 
-# Decode once while retaining the original flat request for legacy success
-# hooks.  The canonical copy can independently feed the native retry mapper.
+# Keep the original form fields alongside their normalized native values.
 sub prepare_entry_form {
     my ( $req, $post ) = @_;
 
@@ -232,7 +219,6 @@ sub prepare_entry_form {
     my $canonical   = decoded_to_canonical( $decoded, $legacy_post );
 
     return {
-        request   => $decoded,
         canonical => $canonical,
         post      => $legacy_post,
     };

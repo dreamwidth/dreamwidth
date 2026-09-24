@@ -298,7 +298,6 @@ sub settings_handler {
 
     my (%categories) = _categories($u);
     my @cats_order = @CATS_ORDER;
-    LJ::Hooks::run_hook( 'settings_extra_cats', \@cats_order, \%categories, user => $u );
 
     my $given_cat = $get->{cat};
     if ($u) {
@@ -444,21 +443,18 @@ sub settings_handler {
         windowtitle => $u
         ? LJ::Lang::ml( '/settings/index.tt.title.page', { user => $u->display_username } )
         : LJ::Lang::ml('/settings/index.tt.title.anon'),
-        category      => $given_cat,
-        category_data => $category,
-        tabs          => \@tabs,
-        rows          => \@rows,
-        form_action   => $post_action,
-        form_enabled  => $category->{form} && !$inspection,
-        messages      => \@messages,
-        errors        => \@errors,
-        notification  => $notification,
-        delete_sub    => $delete_sub,
-        delete_id     => $delete_id,
-        confirm_msg   => _settings_confirm_message(),
-        account_stats => $given_cat eq 'account'
-        ? LJ::Hooks::run_hook( 'settings_account_stats', $u )
-        : undef,
+        category          => $given_cat,
+        category_data     => $category,
+        tabs              => \@tabs,
+        rows              => \@rows,
+        form_action       => $post_action,
+        form_enabled      => $category->{form} && !$inspection,
+        messages          => \@messages,
+        errors            => \@errors,
+        notification      => $notification,
+        delete_sub        => $delete_sub,
+        delete_id         => $delete_id,
+        confirm_msg       => _settings_confirm_message(),
         community_linkbar => $u
             && $u->is_community ? $u->maintainer_linkbar('settingsaccount') : undef,
         intro => $u ? LJ::Lang::ml(
