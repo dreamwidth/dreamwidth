@@ -162,7 +162,9 @@ subtest 'LJ::Sysban::block logs the ban and leaves the response to its caller' =
     DW::Request->reset;
 };
 
-subtest 'LJ::did_post uses DW::Request, with no BML::get_method fallback' => sub {
+subtest
+'LJ::did_post, LJ::check_referer, and LJ::check_form_auth read from DW::Request, not a BML:: fallback'
+    => sub {
     DW::Request->reset;
     my $get_r = DW::Request::Standard->new( GET 'http://localhost/foo' );
     $get_r->header_in( Host => 'localhost' );
@@ -175,35 +177,29 @@ subtest 'LJ::did_post uses DW::Request, with no BML::get_method fallback' => sub
 
     DW::Request->reset;
     ok( !LJ::did_post(), 'no active request is never a post' );
-};
 
-subtest 'LJ::check_referer uses DW::Request, with no BML::get_client_header fallback' => sub {
     DW::Request->reset;
-    my $r =
+    my $referer_r =
         DW::Request::Standard->new( GET 'http://localhost/foo', Referer => 'http://localhost/bar' );
-    $r->header_in( Host => 'localhost' );
+    $referer_r->header_in( Host => 'localhost' );
     ok( LJ::check_referer('/bar'), 'referer picked up from the active native request matches' );
     ok( !LJ::check_referer('/other'),
         'referer picked up from the active request does not match /other' );
-    DW::Request->reset;
 
     DW::Request->reset;
     ok( LJ::check_referer('/bar'), 'no active request and no explicit referer is treated as OK' );
-    DW::Request->reset;
-};
 
-subtest 'LJ::check_form_auth reads post_args from DW::Request, not $BMLCodeBlock::POST' => sub {
     local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'bmlRuntimeCallersFormAuth';
     my $chal = LJ::form_auth(1);
-
     DW::Request->reset;
-    my $r = DW::Request::Standard->new( POST 'http://localhost/foo', [ lj_form_auth => $chal ] );
-    $r->header_in( Host           => 'localhost' );
-    $r->header_in( 'Content-Type' => 'application/x-www-form-urlencoded' );
+    my $auth_r =
+        DW::Request::Standard->new( POST 'http://localhost/foo', [ lj_form_auth => $chal ] );
+    $auth_r->header_in( Host           => 'localhost' );
+    $auth_r->header_in( 'Content-Type' => 'application/x-www-form-urlencoded' );
     ok( LJ::check_form_auth(),
         'valid form auth token in native post_args validates with no explicit arg' );
     DW::Request->reset;
-};
+    };
 
 subtest 'LJ::error_list and LJ::warning_list emit real divs, not the broken <?...?> tags' => sub {
     my $errors = LJ::error_list();

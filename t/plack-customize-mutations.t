@@ -1,4 +1,4 @@
-# Legacy BML customization mutation contracts for the controller migration.
+# Per-widget mutation contracts for the customize page's option groups.
 # Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 use strict;
 use warnings;
@@ -35,7 +35,7 @@ sub query_for {
 sub token_for {
     my ($content) = @_;
     my ($token)   = $content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
-    ok( $token, 'legacy BML form supplies a CSRF token' );
+    ok( $token, 'rendered form supplies a CSRF token' );
     return $token;
 }
 
@@ -86,7 +86,7 @@ test_psgi $app, sub {
         my $root  = '/customize/' . $query;
         my $opts  = '/customize/options' . $query;
         my $res   = $cb->( GET $root . '&cat=all&show=all' );
-        is( $res->code, 200, 'legacy BML theme page renders for ' . $target->user );
+        is( $res->code, 200, 'theme page renders for ' . $target->user );
         my $before_theme = current_theme_key($target);
 
         my @theme_items = $res->content =~ m{(<li class='theme-item[^>]*>.*?</li>)}gs;

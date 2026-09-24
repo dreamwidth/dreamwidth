@@ -88,8 +88,9 @@ subtest '/manage/profile (controller): help_icon renders a real link' => sub {
 # code but not exercised by anything in this tree today -- force it locally,
 # on the one non-Inbox method that exists (LJ::NotificationMethod::Email; the
 # Inbox method is always filtered out of subscribe_interface's own loop), to
-# prove both the /manage/tracking and /manage/settings pages that embed
-# subscribe_interface's output would show the same dead tag.
+# prove the fix through /manage/tracking/user, one of the two controllers that
+# embed subscribe_interface's shared output (/manage/settings's notifications
+# category embeds the same call and is covered generically elsewhere).
 local $LJ::HELPURL{notify_email_help} = 'http://example.com/help/notify_email';
 no warnings 'redefine';
 local *LJ::NotificationMethod::Email::help_url = sub { return 'notify_email_help'; };
@@ -124,34 +125,6 @@ subtest
         is( $res->code, 200, '/manage/tracking/user renders' );
         unlike( $res->content, qr/<\?help/,
             'no literal "<?help ...?>" BML tag reaches the rendered tracking page' );
-        like( $res->content, qr/class="helplink"/,
-            'a real help_icon_html-style link renders instead' );
-        like(
-            $res->content,
-            qr{http://example\.com/help/notify_email},
-            'the configured help URL for the notification method is used'
-        );
-    };
-    };
-
-subtest
-'/manage/settings/?cat=notifications (controller, via subscribe_interface): help_icon renders a real link'
-    => sub {
-    my $session = LJ::Session->create( $u, nolog => 1 );
-    my $cookie =
-          'ljmastersession='
-        . $session->master_cookie_string
-        . '; ljloggedin='
-        . $session->loggedin_cookie_string;
-
-    test_psgi $app, sub {
-        my $cb  = shift;
-        my $req = GET 'http://localhost/manage/settings/?cat=notifications';
-        $req->header( Cookie => $cookie );
-        my $res = $cb->($req);
-        is( $res->code, 200, '/manage/settings/?cat=notifications renders' );
-        unlike( $res->content, qr/<\?help/,
-            'no literal "<?help ...?>" BML tag reaches the rendered settings page' );
         like( $res->content, qr/class="helplink"/,
             'a real help_icon_html-style link renders instead' );
         like(

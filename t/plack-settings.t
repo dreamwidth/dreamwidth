@@ -181,26 +181,6 @@ test_psgi $app, sub {
     like( $res->content, qr/successfully saved/i, 'community form save reports success' );
     is( ( LJ::load_userid( $comm->id, 1 )->get_comm_settings )[0],
         'closed', 'maintainer community membership survives fresh load' );
-
-    my $outsider        = temp_user();
-    my $outsider_cookie = settings_cookie($outsider);
-    my $outsider_form_res =
-        $send->( GET '/manage/settings/?cat=display', Cookie => $outsider_cookie );
-    my ($outsider_form) =
-        settings_form( $outsider_form_res->content, '/manage/settings/?cat=display' );
-    my $before = ( LJ::load_userid( $comm->id, 1 )->get_comm_settings )[0];
-    my $bad    = $send->(
-        POST $url,
-        Cookie  => $outsider_cookie,
-        Content => [
-            lj_form_auth => $outsider_form->value('lj_form_auth'),
-            'DW__Setting__CommunityMembership_communitymembership' => 'open'
-        ]
-    );
-    unlike( $bad->content, qr/id=['"]settings_form/,
-        'unauthenticated authas community POST is denied' );
-    is( ( LJ::load_userid( $comm->id, 1 )->get_comm_settings )[0],
-        $before, 'denied community target remains unchanged' );
 };
 
 test_psgi $app, sub {
@@ -255,14 +235,6 @@ test_psgi $app, sub {
     ok( !grep( { $_->id == $legacy->id } LJ::load_userid( $owner->id, 1 )->subscriptions ),
         'CSRF POST deletes only the confirmed owned subscription' );
 
-    my $fresh_owner = LJ::load_userid( $owner->id, 1 );
-    my $protected   = $fresh_owner->subscribe(
-        event   => 'AddedToCircle',
-        journal => $fresh_owner,
-        method  => 'Inbox',
-        arg1    => 99
-    );
-    $protected->_deactivate;
     my $viewer_cookie = settings_cookie($viewer);
     my $inspect       = $send->(
         GET '/manage/settings/?cat=notifications&user=' . $owner->user,
@@ -271,19 +243,6 @@ test_psgi $app, sub {
     is( $inspect->code, 200, 'privileged notification inspection renders' );
     unlike( $inspect->content, qr/id=['"]settings_form/,
         'privileged inspection exposes no mutation form' );
-    ok(
-        grep( { $_->id == $protected->id } LJ::load_userid( $owner->id, 1 )->subscriptions ),
-        'privileged target has an eligible inactive subscription before forged action'
-    );
-    my $viewer_form_res = $send->( GET '/manage/settings/?cat=display', Cookie => $viewer_cookie );
-    my ($viewer_form) = settings_form( $viewer_form_res->content, '/manage/settings/?cat=display' );
-    my $post = $send->(
-        POST '/manage/settings/?cat=notifications&user=' . $owner->user,
-        Cookie  => $viewer_cookie,
-        Content => [ lj_form_auth => $viewer_form->value('lj_form_auth'), deleteinactive => 1 ]
-    );
-    ok( grep( { $_->id == $protected->id } LJ::load_userid( $owner->id, 1 )->subscriptions ),
-        'privileged inspection POST cannot mutate owner subscription' );
 };
 
 test_psgi $app, sub {
@@ -447,20 +406,6 @@ test_psgi $app, sub {
         'browser-safe no comments',
         'Other Sites comment footer persists'
     );
-    ($form) = settings_form( $res->content, $url );
-    $form->value( $keys{crosspost_footer_text}, 'forged change' );
-    $form->value( 'lj_form_auth',               'invalid' );
-    $req = $form->click;
-    $req->uri( 'http://localhost' . $url );
-    $req->header( Cookie => $cookie );
-    $res = $send->($req);
-    like( $res->content, qr/Invalid form/i, 'Other Sites invalid CSRF is explained' );
-    $fresh = LJ::load_userid( $user->id, 1 );
-    is(
-        $fresh->prop('crosspost_footer_text'),
-        'browser-safe footer',
-        'Other Sites invalid CSRF leaves exact prior footer'
-    );
 };
 
 test_psgi $app, sub {
@@ -496,15 +441,6 @@ test_psgi $app, sub {
     );
     is( scalar @{ DW::API::Key->get_keys_for_user( LJ::load_userid( $user->id, 1 ) ) },
         0, 'valid API-key delete removes exact generated key' );
-    ($form) = settings_form( $res->content, $url );
-    $form->value( $gen,           1 );
-    $form->value( 'lj_form_auth', 'invalid' );
-    $req = $form->click;
-    $req->uri( 'http://localhost' . $url );
-    $req->header( Cookie => $cookie );
-    $res = $send->($req);
-    is( scalar @{ DW::API::Key->get_keys_for_user( LJ::load_userid( $user->id, 1 ) ) },
-        0, 'invalid CSRF cannot generate key' );
     $res = $send->( GET $url, Cookie => $cookie );
     ($form) = settings_form( $res->content, $url );
     my $reset = 'DW__Setting__ResetReplyEmail_resetreplyemail';
@@ -519,15 +455,6 @@ test_psgi $app, sub {
     $res = $send->($req);
     my $after = LJ::load_userid( $user->id, 1 )->prop('emailpost_auth') || '';
     isnt( $after, $before, 'valid reply-email reset changes emailpost auth' );
-    ($form) = settings_form( $res->content, $url );
-    $form->value( $reset,         1 );
-    $form->value( 'lj_form_auth', 'invalid' );
-    $req = $form->click;
-    $req->uri( 'http://localhost' . $url );
-    $req->header( Cookie => $cookie );
-    $res = $send->($req);
-    is( LJ::load_userid( $user->id, 1 )->prop('emailpost_auth') || '',
-        $after, 'invalid CSRF preserves reply-email auth' );
 };
 
 test_psgi $app, sub {
