@@ -1,4 +1,5 @@
-// Capture customization states before migrating the page/widget resource layer.
+// Exercise the customize page's theme/layout choosers, custom CSS, every S2
+// option-group control type, and linkslist through a real browser.
 // Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
