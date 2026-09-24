@@ -75,7 +75,6 @@
                     </tr>
                 [% END %]
                 </table>
-                [% IF account_stats %]<div class='account_stats'>[% account_stats %]</div>[% END %]
             [% IF form_enabled %]
                 <div id='settings_save' class='action-bar'>[% form.submit( value = dw.ml('.btn.save') ) %]</div>
                 </form>
