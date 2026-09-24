@@ -307,9 +307,7 @@ sub new_handler {
 }
 
 sub _render_new_form {
-    my ( $vars, $post, $get, $remote, $errors, $warnings, $spellcheck_requested, $render_opts ) =
-        @_;
-    $render_opts ||= {};
+    my ( $vars, $post, $get, $remote, $errors, $warnings, $spellcheck_requested ) = @_;
 
 # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
     $vars->{errors}   = $errors;
@@ -341,8 +339,7 @@ sub _render_new_form {
 
     $vars->{editable} = { map { $_ => 1 } @modules };
 
-    $vars->{action} =
-        { url => $render_opts->{action_url} // LJ::create_url( undef, keep_args => 1 ), };
+    $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
 
     $vars->{js_for_rte} = LJ::rte_js_vars($remote);
     $vars->{sitevalues} = to_json( \@sitevalues );
@@ -388,15 +385,8 @@ sub _render_new_form {
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }
 
-# Show the exact submitted subject/body from a stale old-editor POST for
-# manual copying, and nothing else: no metadata is decoded, no entry is
-# looked up or loaded, and nothing is ever saved. subject/event are read
-# directly off the POST hash (a repeated field resolves to its last value,
-# same as any other Hash::MultiValue hashref access in this codebase) with
-# no decoding, joining, or RTE/newline normalization applied. link_url
-# defaults to the native posting form; callers that can name an existing
-# entry (the /editjournal picker) pass the native edit URL instead. Never
-# cached, since it can echo back submitted content.
+# Echo a stale old-editor POST's exact subject/body for manual copying;
+# reads no other field, loads no entry, saves nothing.
 sub legacy_text_recovery {
     my ( $post, %opts ) = @_;
 

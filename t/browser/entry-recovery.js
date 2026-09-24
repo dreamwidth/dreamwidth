@@ -1,7 +1,17 @@
+// t/browser/entry-recovery.js
+//
 // The subject/body recovery page, exercised as a real browser DOM: a stale
 // old-editor POST to /update must land the exact submitted text in the
 // textareas' .value, with any markup neutralized rather than executed.
-// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+//
+// Authors:
+//      Mark Smith <mark@dreamwidth.org>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const {spawn} = require('node:child_process');
