@@ -57,7 +57,7 @@ sub entry_picker_handler {
         # submitted content to the native form for review.
         require DW::Controller::Entry;
         require DW::Entry::Legacy;
-        my $prepared = DW::Entry::Legacy::prepare_entry_form( { tz => 'guess' }, $post );
+        my $prepared = DW::Entry::Legacy::prepare_entry_form($post);
 
         unless ( LJ::isu($remote) ) {
 

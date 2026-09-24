@@ -71,9 +71,8 @@ my ($entries_before) =
 
 my $app = Plack::Middleware::DW::RequestWrapper->wrap(
     sub {
-        my $prepared =
-            DW::Entry::Legacy::prepare_entry_form( { tz => 'UTC' }, DW::Request->get->post_args );
-        my $errors = DW::FormErrors->new;
+        my $prepared = DW::Entry::Legacy::prepare_entry_form( DW::Request->get->post_args );
+        my $errors   = DW::FormErrors->new;
         $errors->add_string( undef, 'Legacy rerender visible error marker' );
         DW::Controller::Entry::legacy_new_rerender(
             $prepared,

@@ -56,9 +56,7 @@ subtest 'legacy decoder uses native request language for the global subject plac
             return "unexpected:$key";
         },
     );
-    my %decoded;
-    DW::Entry::Legacy::decode_entry_form(
-        \%decoded,
+    my $placeholder_prepared = DW::Entry::Legacy::prepare_entry_form(
         {
             subject       => 'LEGACY-PLACEHOLDER-MARKER',
             event         => 'body',
@@ -71,10 +69,9 @@ subtest 'legacy decoder uses native request language for the global subject plac
             date_diff     => 1,
         }
     );
-    is( $decoded{subject}, '', 'custom request getter placeholder is cleared without BML' );
-    $decoded{subject} = undef;
-    DW::Entry::Legacy::decode_entry_form(
-        \%decoded,
+    is( $placeholder_prepared->{canonical}{subject},
+        '', 'custom request getter placeholder is cleared without BML' );
+    my $ordinary_prepared = DW::Entry::Legacy::prepare_entry_form(
         {
             subject       => 'Ordinary legacy subject',
             event         => 'body',
@@ -87,7 +84,11 @@ subtest 'legacy decoder uses native request language for the global subject plac
             date_diff     => 1,
         }
     );
-    is( $decoded{subject}, 'Ordinary legacy subject', 'ordinary subject is retained' );
+    is(
+        $ordinary_prepared->{canonical}{subject},
+        'Ordinary legacy subject',
+        'ordinary subject is retained'
+    );
     DW::Request->reset;
 };
 
