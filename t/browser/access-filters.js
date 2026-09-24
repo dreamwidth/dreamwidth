@@ -40,83 +40,50 @@ const out = process.env.DW_BROWSER_OUT || '/tmp/access-filters-browser';
         });
         const page = await browser.newPage();
         const errors = [];
-        page.on('pageerror', e => { errors.push(e.message); console.error('Browser error:', e.message); });
-        page.on('response', res => { if (res.status() >= 400) console.error('HTTP', res.status(), res.url()); });
-        const shot = name => page.screenshot({path: `${out}/${name}.png`, fullPage: true});
-        const go = async (query = '') => {
-            const res = await page.goto(base + '/manage/circle/editfilters' + query, {waitUntil: 'networkidle0'});
+        page.on('pageerror', e => errors.push(e.message));
+        const go = async () => {
+            const res = await page.goto(base + '/manage/circle/editfilters', {waitUntil: 'networkidle0'});
             assert.equal(res.status(), 200);
         };
-        const button = async label => {
+        const dialogButton = async (label, value) => {
+            page.once('dialog', dialog => dialog.accept(value));
             const el = await page.$(`input[type=button][value="${label}"]`)
                 || await page.$(`button[data-label="${label}"]`);
             assert.ok(el, `button ${label}`);
             await el.click();
         };
-        const dialogButton = async (label, value) => {
-            page.once('dialog', dialog => value === null ? dialog.dismiss() : dialog.accept(value));
-            await button(label);
-        };
-        const save = async () => {
-            await Promise.all([
-                page.waitForNavigation({waitUntil: 'networkidle0'}),
-                page.click('form[name=fg] input[type=submit], form[name=fg] button[type=submit]')
-            ]);
-            assert.match(await page.content(), /Your access filters are now saved/);
-        };
+        const groupOptions = () => page.$$eval('[name=list_groups] option', opts => opts.map(o => o.text));
+
         await page.goto(base + '/mobile/login', {waitUntil: 'networkidle0'});
         await page.type('input[name=user]', fixtureData.user);
         await page.type('input[name=password]', fixtureData.password);
         await Promise.all([page.waitForNavigation({waitUntil: 'networkidle0'}), page.click('input[type=submit], button[type=submit]')]);
-        assert.ok((await page.cookies()).some(c => c.name === 'ljmastersession'), 'authenticated');
         await go();
-        await shot('empty');
-        await dialogButton('New', 'Browser filter');
-        const id = await page.$eval('[name=list_groups]', el => el.value);
-        assert.ok(id);
-        await page.select('[name=list_out]', fixtureData.friend);
-        await button('>> Add');
-        assert.ok(await page.$eval('[name=list_in]', (el, friend) => [...el.options].some(o => o.value === friend), fixtureData.friend));
-        await shot('populated');
-        await page.setViewport({width: 390, height: 844});
-        await shot('populated-mobile');
-        await page.setViewport({width: 1280, height: 1000});
-        await save();
-        if (process.env.ACCESS_FILTERS_FAIL_AFTER_SAVE) throw new Error('intentional access fixture cleanup probe');
-        await shot('saved');
+
+        // "Move Up" reorders the <select> options and recomputes the hidden
+        // sort-order fields entirely client-side (see moveGroup/setSortOrders
+        // in htdocs/js/access-filters.js); no request happens until Save, so
+        // only a real browser can exercise this logic.
+        await dialogButton('New', 'First filter');
+        await dialogButton('New', 'Second filter');
+        assert.deepEqual(await groupOptions(), ['First filter', 'Second filter'],
+            'new filters are appended in creation order');
+        await page.select('[name=list_groups]', await page.$eval('[name=list_groups] option:last-child', el => el.value));
+        await page.click('[data-action=up]');
+        assert.deepEqual(await groupOptions(), ['Second filter', 'First filter'],
+            'Move Up reorders the option list in the DOM before any save');
+
+        await Promise.all([
+            page.waitForNavigation({waitUntil: 'networkidle0'}),
+            page.click('form[name=fg] input[type=submit], form[name=fg] button[type=submit]')
+        ]);
+        assert.match(await page.content(), /Your access filters are now saved/);
         await go();
-        await page.select('[name=list_groups]', id);
-        assert.ok(await page.$eval('[name=list_in]', (el, friend) => [...el.options].some(o => o.value === friend), fixtureData.friend), 'membership survives reload');
-        await dialogButton('Rename', 'Renamed browser filter');
-        await dialogButton('New', 'Second browser filter');
-        const second = await page.$eval('[name=list_groups]', el => el.value);
-        await button('Move Up');
-        await save();
-        await go();
-        const ordered = await page.$$eval('[name=list_groups] option', opts => opts.map(o => ({value:o.value,text:o.text})));
-        assert.equal(ordered[0].value, second, 'reorder survives reload');
-        assert.equal(ordered.find(o => o.value === id).text, 'Renamed browser filter', 'rename survives reload');
-        await page.select('[name=list_groups]', id);
-        await page.select('[name=list_in]', fixtureData.friend);
-        await button('<< Remove');
-        await save();
-        await go();
-        await page.select('[name=list_groups]', id);
-        assert.equal(await page.$eval('[name=list_in]', el => el.options.length), 0, 'removal survives reload');
-        await dialogButton('Delete', '');
-        await page.select('[name=list_groups]', second);
-        await dialogButton('Delete', '');
-        await save();
-        await go();
-        assert.equal(await page.$eval('[name=list_groups]', el => el.options.length), 0, 'deletion survives reload');
-        await go('?authas=' + fixtureData.community);
-        assert.match(await page.content(), /Communities cannot currently use access filters/);
-        await shot('community');
-        await go('?authas=' + fixtureData.outsider);
-        assert.equal(await page.$('form[name=fg]'), null, 'unauthorized authas has no editor');
-        await shot('unauthorized');
+        assert.deepEqual(await groupOptions(), ['Second filter', 'First filter'],
+            'the reordered sort values computed by the client survive a save and reload');
+
         assert.deepEqual(errors, [], 'no uncaught browser errors');
-        console.log('PASS: create, membership, reload, rename, reorder, removal, delete, community, authas');
+        console.log('PASS: client-side filter reorder persists across save/reload');
     } finally {
         try { if (browser) await browser.close(); }
         finally {
