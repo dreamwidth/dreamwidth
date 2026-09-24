@@ -28,15 +28,6 @@
         </style>
         <script src="[% site.statroot %]/fck/editor/dialog/common/fck_dialog_common.js" type="text/javascript"></script>
         <script src="[% site.statroot %]/fck/editor/dialog/fck_image/fck_image.js" type="text/javascript"></script>
-        [% IF upload %]
-        <script>
-        window.onload = function () {
-            window.setTimeout(function () {
-                InObFCK.onUpload([% upload.url | js %], [% upload.full_url | js %], [% upload.width %], [% upload.height %]);
-            }, 500);
-        };
-        </script>
-        [% END %]
         <link href="[% site.statroot %]/fck/editor/dialog/common/fck_dialog_common.css" rel="stylesheet" type="text/css" />
 
 [% resources %]

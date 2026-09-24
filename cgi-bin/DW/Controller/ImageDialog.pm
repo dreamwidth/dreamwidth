@@ -36,23 +36,10 @@ sub dialog_handler {
     # POST only redisplays this dialog; no entry or upload is changed here.
     my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
-    my $r   = $rv->{r};
-    my $get = $r->get_args;
+    my $r = $rv->{r};
 
     my $label = LJ::Lang::ml('/entry/image-dialog.tt.insertimage.alt.faqlink');
     $rv->{faq} = LJ::Hooks::run_hook( 'faqlink', 'alttext', $label ) || $label;
-
-    # The old dialog assigns window.onload repeatedly, retaining the final upload.
-    # Preserve that callback contract without building a script for every upload.
-    my $count = int( $get->{upload_count} || 0 );
-    if ( $count > 0 ) {
-        $rv->{upload} = {
-            url      => $get->{"su_$count"} || '',
-            full_url => $get->{"pp_$count"} || '',
-            width  => int( $get->{"sw_$count"} || 0 ),
-            height => int( $get->{"sh_$count"} || 0 ),
-        };
-    }
 
     # FCK owns this standalone document and requires the legacy DOM helpers.
     LJ::set_active_resource_group('default');
