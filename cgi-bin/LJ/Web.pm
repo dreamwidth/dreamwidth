@@ -24,7 +24,6 @@ use Digest::SHA1;
 use DW::AccountSwitcher;
 use DW::Auth::Challenge;
 use DW::External::Site;
-use DW::Entry::Legacy;
 use DW::Request;
 use DW::Formats;
 use LJ::Utils;
@@ -952,19 +951,6 @@ sub create_url {
     $url .= "#" . $opts{fragment} if $opts{fragment};
 
     return $url;
-}
-
-# <LJFUNC>
-# name: LJ::entry_form_decode
-# class: web
-# des: Decodes old-schema entry-form POST fields into a protocol-compatible hash.
-# args: req, post
-# des-req: protocol request hash to build.
-# des-post: old-schema entry-form POST contents.
-# returns: req
-# </LJFUNC>
-sub entry_form_decode {
-    return DW::Entry::Legacy::decode_entry_form(@_);
 }
 
 {
