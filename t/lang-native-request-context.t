@@ -1,15 +1,10 @@
 #!/usr/bin/perl
-# Locks what Plack::Middleware::DW::RequestWrapper establishes for every
-# native request's language context (today via BML::set_language(...)'s
-# forwarding into LJ::Lang::set_request_context; E2 replaces the call site
-# but must produce the same context), so E3's engine deletion (which removes
-# BML::set_language entirely) has something to be checked against.
 #
-# RequestWrapper.pm:53-56 sets only a *starting* language/getter -- it reads
-# no cookie or Accept-Language header itself (that per-page negotiation,
-# BML::decide_language, lives in DW::BML.pm and only runs mid a real .bml
-# page render, which no longer exists outside the three unreachable
-# _config*.bml files -- see doc/BML-ENGINE-PRECHECK.md). A visitor's actual
+# t/lang-native-request-context.t
+#
+# Locks what Plack::Middleware::DW::RequestWrapper establishes for every
+# native request's language context: a *starting* language/getter only --
+# it reads no cookie or Accept-Language header itself. A visitor's actual
 # negotiated language is established later, by a controller or the ml TT
 # filter's uselang handling, calling LJ::Lang::set_request_context(lang=>...)
 # again. This test locks both stages: RequestWrapper's starting context, and
@@ -20,7 +15,16 @@
 # "en_DW" are in ml_langs), so "en_DW" stands in for "a non-en language code"
 # below: it is genuinely DB-backed (not a stub getter), even though its text
 # happens to fall back to the same English content via childrenlatest.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
 use warnings;
 use Test::More;
