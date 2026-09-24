@@ -2,9 +2,27 @@
 // Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const {spawn} = require('node:child_process');
 const puppeteer = require('/opt/dw-screenshot/node_modules/puppeteer-core');
 
 (async () => {
+    const fixture = spawn('perl', [process.env.LJHOME + '/t/browser/fck-poll-fixture.pl'], {stdio: ['pipe', 'pipe', 'inherit']});
+    const fixtureDone = new Promise((resolve, reject) => {
+        fixture.once('exit', (code, signal) => code === 0 ? resolve() : reject(new Error(`fixture exit: ${code}/${signal}`)));
+        fixture.once('error', reject);
+    });
+    fixtureDone.catch(() => {});
+    const data = await new Promise((resolve, reject) => {
+        let text = '';
+        fixture.stdout.on('data', chunk => {
+            text += chunk;
+            if (!text.includes('\n')) return;
+            try { resolve(JSON.parse(text.split('\n')[0])); } catch (error) { reject(error); }
+        });
+        fixture.once('error', reject);
+        fixture.once('exit', () => reject(new Error('fixture exited before ready')));
+    });
+
     const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome-stable', args: ['--no-sandbox'] });
     const base = 'http://127.0.0.1:8080';
     let originalDraft;
@@ -19,30 +37,30 @@ const puppeteer = require('/opt/dw-screenshot/node_modules/puppeteer-core');
             await dialog.dismiss();
         });
         await page.goto(base + '/mobile/login', { waitUntil: 'networkidle0' });
-        await page.type('[name=user]', 'test_user');
-        await page.type('[name=password]', 'dreamwidth');
+        await page.type('[name=user]', data.user);
+        await page.type('[name=password]', data.password);
         await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('[type=submit]')]);
         originalDraft = await page.evaluate(async () => {
             const draft = await (await fetch('/__rpc_draft')).json();
             const properties = await (await fetch('/__rpc_draft?getProperties=1')).json();
             return { draft: draft.draft, properties };
         });
-        const fixture = process.env.FCK_POLL_DRAFT_FIXTURE;
-        const activeDraft = await page.evaluate(async fixture => {
-            if (!fixture) return null;
+        const fixtureDraft = process.env.FCK_POLL_DRAFT_FIXTURE;
+        const activeDraft = await page.evaluate(async fixtureDraft => {
+            if (!fixtureDraft) return null;
             const post = async values => fetch('/__rpc_draft', {
                 method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams(values),
             });
             await post({ clearProperties: 1, clearDraft: 1 });
-            if (fixture === 'subject') {
+            if (fixtureDraft === 'subject') {
                 await post({ saveSubject: 'Sol draft subject', saveEditor: 'html_casual1', saveTaglist: 'soltag' });
                 await post({ saveDraft: 'Sol preserved draft body with <b>markup</b>' });
             }
             const draft = await (await fetch('/__rpc_draft')).json();
             const properties = await (await fetch('/__rpc_draft?getProperties=1')).json();
             return { draft: draft.draft, properties };
-        }, fixture) || originalDraft;
+        }, fixtureDraft) || originalDraft;
         const expectedRestoreDialog = activeDraft.properties.subject
             ? `confirm: Restore from saved draft entitled ${activeDraft.properties.subject}?`
             : 'confirm: Restore from saved draft?';
@@ -114,7 +132,7 @@ const puppeteer = require('/opt/dw-screenshot/node_modules/puppeteer-core');
             const editor = FCKeditorAPI.GetInstance('entry-body');
             editor.Focus();
             const range = editor.EditorDocument.createRange();
-            range.selectNode(editor.EditorDocument.querySelector('#poll1'));
+            range.selectNode(editor.EditorDocument.querySelector('div[id^="poll"]'));
             const selection = editor.EditorWindow.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
@@ -137,7 +155,36 @@ const puppeteer = require('/opt/dw-screenshot/node_modules/puppeteer-core');
         assert.ok(dialogs.every(message => message === expectedRestoreDialog),
             'only the expected saved-draft restoration confirmation was dismissed');
         await page.close();
-        console.log('PASS: inserted, edited, and HTML-round-tripped FCK polls without publishing');
+
+        // An account without poll capability gets the notice instead of the
+        // wizard, with no page error.
+        phase = 'no-poll-capability notice';
+        const noPollContext = await browser.createBrowserContext();
+        const noPollPage = await noPollContext.newPage();
+        const noPollErrors = [];
+        noPollPage.on('pageerror', e => noPollErrors.push(`${e.message}\n${e.stack || ''}`));
+        await noPollPage.goto(base + '/mobile/login', { waitUntil: 'networkidle0' });
+        await noPollPage.type('[name=user]', data.no_poll_user);
+        await noPollPage.type('[name=password]', data.password);
+        await Promise.all([noPollPage.waitForNavigation({ waitUntil: 'networkidle0' }), noPollPage.click('[type=submit]')]);
+        await noPollPage.goto(base + '/entry/new', { waitUntil: 'networkidle0', timeout: 30000 });
+        await noPollPage.select('#editor', 'rte0');
+        await noPollPage.waitForFunction(() => window.FCKeditorAPI && FCKeditorAPI.GetInstance('entry-body')?.Status === 2);
+        assert.equal(await noPollPage.evaluate(() => top.canmakepoll), false,
+            'fixture confirms the second account genuinely lacks poll capability');
+        await noPollPage.evaluate(() => {
+            const editor = FCKeditorAPI.GetInstance('entry-body');
+            editor.Focus();
+            editor.Commands.GetCommand('LJPollLink').Execute();
+        });
+        await noPollPage.waitForFunction(
+            () => document.body.textContent.includes('You may only create and post polls'),
+            { timeout: 10000 }
+        );
+        assert.deepEqual(noPollErrors, [], 'the no-capability notice renders with no page error');
+        await noPollContext.close();
+
+        console.log('PASS: inserted, edited, and HTML-round-tripped FCK polls without publishing; no-capability notice renders cleanly');
     } finally {
         if (originalDraft) {
             const cleanup = await browser.newPage();
@@ -157,14 +204,24 @@ const puppeteer = require('/opt/dw-screenshot/node_modules/puppeteer-core');
                 const values = {};
                 for (const [name, value] of Object.entries(original.properties)) values[propertyNames[name]] = value;
                 if (Object.keys(values).length) await post(values);
-                await post({ saveDraft: original.draft || '' });
+                if (original.draft == null) await post({ clearDraft: 1 });
+                else await post({ saveDraft: original.draft });
                 const draft = await (await fetch('/__rpc_draft')).json();
                 const properties = await (await fetch('/__rpc_draft?getProperties=1')).json();
                 return { draft: draft.draft, properties };
             }, originalDraft);
-            assert.deepEqual(restoredDraft, originalDraft, 'finally restores complete original saved draft state');
+            // /__rpc_draft's clearDraft always writes '', never restoring a
+            // draft userprop that was literally never set (read back as
+            // null); treat the two as equivalent "no draft content" here.
+            assert.deepEqual(
+                { ...restoredDraft, draft: restoredDraft.draft || '' },
+                { ...originalDraft, draft: originalDraft.draft || '' },
+                'finally restores complete original saved draft state'
+            );
             await cleanup.close();
         }
         await browser.close();
+        fixture.stdin.end();
+        await fixtureDone;
     }
 })().catch(e => { console.error(e); process.exit(1); });
