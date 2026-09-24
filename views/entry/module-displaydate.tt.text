@@ -3,9 +3,13 @@
 
 .label.autoupdate=Use the current time
 
+.label.date=Date
+
 .label.dateoutoforder2=Don't show on Reading pages
 
 .label.picker.time=Time Picker
+
+.label.time=Time
 
 .label.picker.date=Date Picker
 

@@ -1,0 +1,72 @@
+[%#
+This code was forked from the LiveJournal project owned and operated by Live
+Journal, Inc. The code has been modified and expanded by Dreamwidth Studios,
+LLC. These files were originally licensed under the terms of the license
+supplied by Live Journal, Inc, which can currently be found at:
+
+http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+
+In accordance with the original license, this code and all its modifications
+are provided under the GNU General Public License. A copy of that license can
+be found in the LICENSE file included as part of this distribution.
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+%]
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group('foundation') -%]
+[%- CALL dw.need_res({ group = 'foundation' }, 'stc/entry.css') -%]
+
+[% authas_form %]
+
+<p>[% '.desc' | ml %]</p>
+[% IF remote.can_use_mass_privacy %]
+    <p>[% '.massprivacy' | ml(aopts = "href='" _ site.root _ "/editprivacy'") %]</p>
+[% END %]
+
+<form action="[% self_uri | html %]" method="post" class="entry-picker">
+    [% form.hidden(name = 'mode', value = 'edit') %]
+    <fieldset class="highlight-box">
+        <legend>[% '.viewwhat' | ml %]</legend>
+        <label>[% form.radio(name = 'selecttype', id = 'selecttype-last', value = 'last') %]
+            [% '.recententry' | ml %]</label><br>
+        <label>[% form.radio(name = 'selecttype', id = 'selecttype-lastn', value = 'lastn') %]
+            [% form.textbox(name = 'howmany', size = 3, maxlength = 2, onchange = "document.getElementById('selecttype-lastn').checked = true") %]
+            [% '.recententries' | ml %]</label><br>
+        <label>[% form.radio(name = 'selecttype', id = 'selecttype-day', value = 'day') %]
+            [% '.certainday' | ml %]</label>
+        [% form.textbox(name = 'year', onchange = "document.getElementById('selecttype-day').checked = true", size = 5, maxlength = 4) %]-
+        [% form.textbox(name = 'month', onchange = "document.getElementById('selecttype-day').checked = true", size = 3, maxlength = 2) %]-
+        [% form.textbox(name = 'day', onchange = "document.getElementById('selecttype-day').checked = true", size = 3, maxlength = 2) %]
+        <label>[% '.in' | ml %]
+            [% form.textbox(name = 'usejournal', size = 20, maxlength = 25) %]
+            [% 'optional' | ml %]</label>
+        [% form.submit(value = dw.ml('.btn.proceed'), class = 'button') %]
+    </fieldset>
+</form>
+
+[% IF message %]
+    <h1>[% '.no.entries.found' | ml %]</h1>
+    <p>[% message | ml %]</p>
+[% END %]
+
+[% FOREACH entry IN entries %]
+    <article class="entry-picker-result">
+        <form method="post" action="[% self_uri | html %]">
+            [% form.hidden(name = 'mode', value = 'edit') %]
+            [% form.hidden(name = 'itemid', value = entry.ditemid) %]
+            [% form.submit(name = 'itemid-' _ entry.ditemid, value = dw.ml('.edit.this.entry'), class = 'button small') %]
+        </form>
+        <div class="entry-picker-result-body">
+            <strong>[% entry.eventtime | html %]</strong>
+            [% IF usejournal %] <span class="entry-picker-poster">[% '.auth.poster' | ml %] [% entry.poster.ljuser_display %]</span>[% END %]
+            [% IF entry.security %]
+                <span class="entry-picker-security entry-picker-security-[% entry.security | html %]">[% dw.img('security-' _ entry.security, '', { alt = dw.ml('.security.' _ entry.security) }) %]</span>
+            [% END %]
+            [% IF entry.subject %]<i>[% entry.subject | html %]</i>[% END %]
+            [% IF entry.summary %]
+                <div class="entry-picker-summary">[% entry.summary %]</div>
+            [% ELSE %]
+                <div class="entry-picker-summary">[% '.htmlonly' | ml %]</div>
+            [% END %]
+        </div>
+    </article>
+[% END %]

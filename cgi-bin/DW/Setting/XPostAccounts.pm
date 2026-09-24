@@ -248,13 +248,13 @@ sub option {
       <script type="text/javascript">
         function updatePreview() {
           updatePreviewField('${key}crosspost_footer_text', 'footer_preview', '$default_comment');
-          if (! \$('${key}crosspost_footer_nocomments').value ) {
+          if (! document.getElementById('${key}crosspost_footer_nocomments').value ) {
             updatePreviewNocomments();
           }
         }
 
         function updatePreviewNocomments() {
-          var defaultValue = \$('${key}crosspost_footer_text').value;
+          var defaultValue = document.getElementById('${key}crosspost_footer_text').value;
           if (! defaultValue) {
             defaultValue = '$default_nocomments';
           }
@@ -262,7 +262,10 @@ sub option {
         }
 
         function updatePreviewField(sourceFieldId, previewFieldId, defaultValue) {
-          var previewString = \$(sourceFieldId).value;
+          var sourceField = document.getElementById(sourceFieldId);
+          var previewField = document.getElementById(previewFieldId);
+          if (!sourceField || !previewField) return;
+          var previewString = sourceField.value;
           if (! previewString) {
             previewString = defaultValue;
           }
@@ -273,7 +276,7 @@ sub option {
           previewString = previewString.replace(/%%reply_url%%/gi, '$baseurl/12345.html?mode=reply');
           previewString = previewString.replace(/%%comment_url%%/gi, '$baseurl/12345.html#comments');
           previewString = previewString.replace(/%%comment_image%%/gi, '<img src="$baseurl/tools/commentcount?samplecount=23" width="30" height="12" alt="$alttext" style="vertical-align: middle;"/>');
-          \$(previewFieldId).innerHTML = previewString;
+          previewField.innerHTML = previewString;
         }
 
         function substrUtf(previewString, count) {
@@ -308,8 +311,10 @@ sub option {
           }
         }
 
-        \$('preview_section').style.display = 'block';
-        \$('preview_nocomments').style.display = 'block';
+        var previewSection = document.getElementById('preview_section');
+        var previewNocomments = document.getElementById('preview_nocomments');
+        if (previewSection) previewSection.style.display = 'block';
+        if (previewNocomments) previewNocomments.style.display = 'block';
         updatePreview();
         updatePreviewNocomments();
       </script>

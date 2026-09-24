@@ -44,6 +44,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     # page-specific
     "js/pages/entry/new.js"
+    "js/pages/entry/image-insert.js"
 
     # code required for old RTE
     "js/6alib/httpreq.js"
@@ -61,7 +62,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 ) -%]
 
-[% sections.title = action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) %]
+[% sections.title = title_override ? title_override : ( action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) ) %]
 [% sections.contentopts = '' %]
 
 [% sections.head = BLOCK %]
@@ -122,13 +123,12 @@ postFormInitData.strings = {
 </script>
 [% END  # sections.head %]
 
-<div class="alert-box secondary">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
-
 [%- IF warnings.exist -%]
     [%- FOREACH warning IN warnings.get_all -%]
         <div class="alert-box">[%- warning.message -%]</div>
     [%- END -%]
 [%- END -%]
+
 
 <form method="POST" id="js-post-entry" action="[% action.url %]" class="
         [%- formwidth == "narrow" ? "entry-partial-width" : "entry-full-width" -%]">
@@ -227,7 +227,20 @@ postFormInitData.strings = {
 
                     placeholder = dw.ml(".event.placeholder")
                 ) -%]
+                <div class="entry-image-insert" data-image-insert hidden>
+                    <label for="entry-image-url">[% dw.ml('.insertimage.url') %]</label>
+                    <input id="entry-image-url" type="text" inputmode="url">
+                    <label for="entry-image-alt">[% dw.ml('.insertimage.alt.label') %]</label>
+                    <input id="entry-image-alt" type="text">
+                    <small>[% dw.ml('.insertimage.alt.body') %] [% image_alt_faq %].</small>
+                    <button type="button" data-image-insert-confirm>[% dw.ml('.image.insert') %]</button>
+                    <button type="button" data-image-insert-cancel>[% dw.ml('.image.cancel') %]</button>
+                </div>
+                <button type="button" data-image-insert-open>[% dw.ml('.image.open') %]</button>
                 <small id="draftstatus" type="text" disabled="disabled" name="draftstatus" role="status" aria-live="polite"></small>
+                [%- IF spellcheck.did -%]
+                <div id="spellcheck-results"><strong>[% 'entryform.spellchecked' | ml %]</strong><br />[% spellcheck.html %]</div>
+                [%- END -%]
             </div>
         </div></div>
 
@@ -238,7 +251,7 @@ postFormInitData.strings = {
                 <li>
                 [%- form.submit(
                         value = dw.ml(action.edit ? '.button.edit.quick' : '.button.post.quick')
-                        name = "action:post"
+                        name = submit_action_name || "action:post"
                         )
                 %]</li>[%- FOREACH level = security;
                         level.label = dw.ml( level.label );
@@ -384,10 +397,18 @@ postFormInitData.strings = {
         <div class="columns">
             <div class="button-bar">
                 [%- form.submit( value = dw.ml(action.edit ? '.button.edit' : '.button.post')
-                                 name = "action:post"
+                                 name = submit_action_name || "action:post"
                                  class = "button left"
                                  )
                 -%]
+
+                [%- IF spellcheck_enabled -%]
+                    [%- form.submit( value = dw.ml('entryform.spellcheck')
+                                     name = "action:spellcheck"
+                                     class = "button secondary left"
+                                     )
+                    -%]
+                [%- END -%]
 
                 [% IF action.edit %]
                     [%- form.submit( value = dw.ml( '.button.delete' )
