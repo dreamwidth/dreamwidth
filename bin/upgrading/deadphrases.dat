@@ -3944,6 +3944,10 @@ general talk.spellcheck
 general /talkform.tt.opt.noautoformat
 
 general /views/entry/form.tt.error.disabled
+general /views/entry/form.tt.notice.legacy_carryover
+general /views/entry/form.tt.notice.legacy_edit_carryover
+general /views/entry/form.tt.notice.legacy_security_downgraded
+general /views/entry/form.tt.notice.legacy_unrecoverable
 
 general /views/entry/success.tt.edit.edited
 general /views/entry/success.tt.edit.edited.comm
