@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# Legacy-schema decoding and the native preview route; the retired
-# /preview/entry legacy route itself is gone.
+# The native preview route; the retired /preview/entry legacy route itself
+# is gone.
 # Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 use strict;
 use warnings;
@@ -10,7 +10,6 @@ use Plack::Test;
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user);
 use LJ::Session;
-use DW::Entry::Legacy;
 use DW::Request;
 use DW::Request::Plack;
 use LJ::Lang;
@@ -27,70 +26,6 @@ sub file_contents {
     close $fh or die "$path: $!";
     return \$contents;
 }
-
-sub decoder_request {
-    DW::Request->reset;
-    open my $input, '<', \( my $body = '' ) or die $!;
-    return DW::Request->get(
-        plack_env => {
-            REQUEST_METHOD    => 'POST',
-            PATH_INFO         => '/entry/preview',
-            SERVER_NAME       => 'localhost',
-            SERVER_PORT       => 80,
-            HTTP_HOST         => 'localhost',
-            'psgi.version'    => [ 1, 1 ],
-            'psgi.url_scheme' => 'http',
-            'psgi.input'      => $input,
-            'psgi.errors'     => do { open my $fh, '>', \( my $err = '' ); $fh },
-        },
-    );
-}
-
-subtest 'legacy decoder uses native request language for the global subject placeholder' => sub {
-    decoder_request();
-    LJ::Lang::set_request_context(
-        lang   => 'marker',
-        getter => sub {
-            my ( $lang, $key ) = @_;
-            return 'LEGACY-PLACEHOLDER-MARKER' if $key eq 'entryform.subject.hint2';
-            return "unexpected:$key";
-        },
-    );
-    my $placeholder_prepared = DW::Entry::Legacy::prepare_entry_form(
-        {
-            subject       => 'LEGACY-PLACEHOLDER-MARKER',
-            event         => 'body',
-            security      => 'public',
-            date_ymd_mm   => '01',
-            date_ymd_dd   => '02',
-            date_ymd_yyyy => '2020',
-            hour          => 3,
-            min           => 4,
-            date_diff     => 1,
-        }
-    );
-    is( $placeholder_prepared->{canonical}{subject},
-        '', 'custom request getter placeholder is cleared without BML' );
-    my $ordinary_prepared = DW::Entry::Legacy::prepare_entry_form(
-        {
-            subject       => 'Ordinary legacy subject',
-            event         => 'body',
-            security      => 'public',
-            date_ymd_mm   => '01',
-            date_ymd_dd   => '02',
-            date_ymd_yyyy => '2020',
-            hour          => 3,
-            min           => 4,
-            date_diff     => 1,
-        }
-    );
-    is(
-        $ordinary_prepared->{canonical}{subject},
-        'Ordinary legacy subject',
-        'ordinary subject is retained'
-    );
-    DW::Request->reset;
-};
 
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';

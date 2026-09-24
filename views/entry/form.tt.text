@@ -45,14 +45,6 @@
 
 .event.placeholder=Your entry text...
 
-.notice.legacy_carryover=The previous posting page has been retired. Your content has been carried over below; please review it and post.
-
-.notice.legacy_edit_carryover=This content came from an edit of an existing entry. Posting here will create a new entry, not update the original. To edit the original, please log in and reopen it.
-
-.notice.legacy_security_downgraded=Your entry's custom access-list setting has no equivalent in this community, so its security has been changed to Private. Please review the security setting before posting.
-
-.notice.legacy_unrecoverable=This entry could no longer be found or edited from the previous editing page. Nothing has been saved or lost: your submitted content is shown below so you can copy it.
-
 .select.security=Security:
 
 .select.security.access.format=an access locked entry
