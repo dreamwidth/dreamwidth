@@ -1,4 +1,5 @@
-# Characterize the read-only entry picker before separating the legacy editor.
+# Characterize the read-only entry picker and the community-manager
+# "maintainer" admin-override editing of another poster's entry.
 # Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 use strict;
 use warnings;
@@ -374,6 +375,22 @@ test_psgi $app, sub {
         'read-only comparison preserves persisted body'
     );
 
+    for my $suffix ( '', '.bml' ) {
+        my $raw =
+              'usejournal='
+            . $comm->user
+            . '&itemid='
+            . $own_entry->ditemid
+            . '&encoded=a%2Fb%26c&repeated=one&repeated=two';
+        my $same = $cb->( GET '/editjournal' . $suffix . '?' . $raw );
+        is( $same->code, 302, "same-poster $suffix GET now redirects to the native edit URL" );
+        is(
+            URI->new( $same->header('Location') )->path,
+            '/entry/' . $comm->user . '/' . $own_entry->ditemid . '/edit',
+            "same-poster $suffix GET redirects to the canonical native edit path"
+        );
+    }
+
     for my $key ( 'usejournal', 'journal' ) {
         my $res = $cb->( GET '/editjournal?' . $key . '=' . $comm->user );
         is_deeply( [ entry_ids( $res->content ) ],
@@ -465,11 +482,9 @@ test_psgi $app, sub {
         'manager other-poster editor redirect targets the native maintainer edit URL'
     );
 
-    # itemid must override picker mode even when the action comes from the
-    # editor's JavaScript submit_value field. This POST never saves
-    # regardless of form-auth token, so this no longer reaches an "Invalid
-    # form" CSRF rejection: it renders the same recovery page every other
-    # old-schema itemid POST does.
+    # itemid overrides picker mode even when the action comes from the
+    # editor's submit_value field; such a POST always gets the recovery
+    # page, whatever its form-auth token.
     LJ::Entry::reset_singletons();
     my $before_maintainer =
         LJ::Entry->new( $comm, ditemid => $other_entry->ditemid )->prop('opt_nocomments_maintainer')

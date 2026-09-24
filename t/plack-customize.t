@@ -1,4 +1,4 @@
-# Baseline contracts for the pending customization-page migration.
+# Baseline authorization/rendering contracts for the customize page.
 # Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 use strict;
 use warnings;
@@ -79,7 +79,7 @@ test_psgi $app, sub {
         is(
             $res->header('Location'),
             "$LJ::SITEROOT/customize/?search=encoded+search&authas=" . $target->user . '&show=24',
-            'ThemeNav redirect carries authas and show through the BML page'
+            'ThemeNav redirect carries authas and show through to the native page'
         );
         $res = $cb->(
             POST $theme_nav_url,
