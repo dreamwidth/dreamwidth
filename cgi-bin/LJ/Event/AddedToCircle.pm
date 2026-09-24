@@ -17,6 +17,7 @@
 package LJ::Event::AddedToCircle;
 
 use strict;
+use LJ::Lang;
 use Scalar::Util qw( blessed );
 use Carp qw( croak );
 use base 'LJ::Event';
@@ -258,12 +259,12 @@ sub subscription_as_html {
     my $journal_is_owner = $journal->equals( $subscr->owner );
 
     if ($journal_is_owner) {
-        return BML::ml('event.addedtocircle.me');    # "Someone adds me to their circle";
+        return LJ::Lang::ml('event.addedtocircle.me');    # "Someone adds me to their circle";
     }
     else {
         my $user = $journal->ljuser_display;
-        return BML::ml( 'event.addedtocircle.user', { user => $user } )
-            ;                                        # "Someone adds $user to their circle";
+        return LJ::Lang::ml( 'event.addedtocircle.user', { user => $user } )
+            ;                                             # "Someone adds $user to their circle";
     }
 }
 

@@ -40,7 +40,7 @@ through our APIs. Just ask.</p>
         there are any problems.</li>
     <li>Be kind to the system! Rate-limit your requests, and try to cache
         data whenever possible.</li>
-    <li>Don't screen-scrape the HTML/BML output of the site. If you can't
+    <li>Don't screen-scrape the HTML output of the site. If you can't
         do something you want to do through an API, let us know, and we'll
         try to add an API for it.</li>
     <li>Try to avoid asking for users' passwords. If there's something you can't

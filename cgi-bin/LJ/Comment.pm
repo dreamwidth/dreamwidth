@@ -1877,10 +1877,13 @@ sub set_poster_ip {
 
     return "" unless LJ::is_web_context();
 
+    my $r = DW::Request->get;
+    return "" unless $r;
+
     my $current_ip = $self->poster_ip;
 
-    my $new_ip    = BML::get_remote_ip();
-    my $forwarded = BML::get_client_header('X-Forwarded-For');
+    my $new_ip    = $r->get_remote_ip;
+    my $forwarded = $r->header_in('X-Forwarded-For');
     $new_ip = "$forwarded, via $new_ip" if $forwarded && $forwarded ne $new_ip;
 
     if ( !$current_ip || $new_ip eq $current_ip ) {

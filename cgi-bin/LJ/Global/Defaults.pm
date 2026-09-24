@@ -262,14 +262,6 @@ no strict "vars";
     # how far in advance to send out birthday notifications
     $LJ::BIRTHDAY_NOTIFS_ADVANCE ||= 2 * 24 * 60 * 60;
 
-    # "RPC" URI mappings
-    # add default URI handler mappings
-    my %ajaxmapping = ();
-
-    foreach my $src ( keys %ajaxmapping ) {
-        $LJ::AJAX_URI_MAP{$src} ||= $ajaxmapping{$src};
-    }
-
     # List all countries that have states listed in 'codes' table in DB
     # These countries will be displayed with drop-down menu on Profile edit page
     # 'type' is used as 'type' attribute value in 'codes' table

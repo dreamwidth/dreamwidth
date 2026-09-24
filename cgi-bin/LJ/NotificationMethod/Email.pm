@@ -22,6 +22,7 @@ use Carp qw/ croak /;
 
 use DW::Stats;
 use LJ::Web;
+use LJ::Lang;
 
 use base 'LJ::NotificationMethod';
 
@@ -43,7 +44,7 @@ sub new {
     return bless $self, $class;
 }
 
-sub title { BML::ml('notification_method.email.title') }
+sub title { LJ::Lang::ml('notification_method.email.title') }
 
 sub new_from_subscription {
     my $class = shift;

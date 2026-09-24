@@ -15,6 +15,7 @@
 
 package LJ::Event::VgiftApproved;
 use strict;
+use LJ::Lang;
 use base 'LJ::Event';
 use Carp qw(croak);
 use DW::VirtualGift;
@@ -57,13 +58,13 @@ sub vgift {
 # message content
 sub _summary {
     my ( $self, $admin ) = @_;
-    return BML::ml('event.vgift.notfound')
+    return LJ::Lang::ml('event.vgift.notfound')
         unless $self->vgift && $self->vgift->name;
     my $yn = $self->vgift->approved;
 
     # event.vgift.approved.content.Y = thumbs up
     # event.vgift.approved.content.N = thumbs down
-    return BML::ml(
+    return LJ::Lang::ml(
         "event.vgift.approved.content.$yn",
         {
             vgift => $self->vgift->name_ehtml,
@@ -80,7 +81,7 @@ sub as_html_actions {
     my ($self) = @_;
     my $url    = "$LJ::SITEROOT/admin/vgifts/?mode=view&id=" . $self->vgiftid;
     my $ret    = "<div class='actions'>";
-    $ret .= BML::ml( 'event.vgift.approved.actions', { aopts => "href='$url'" } );
+    $ret .= LJ::Lang::ml( 'event.vgift.approved.actions', { aopts => "href='$url'" } );
     $ret .= "</div>\n";
 
     return $ret;
@@ -90,16 +91,18 @@ sub content_summary { return $_[0]->as_html }
 
 sub content {
     my ($self) = @_;
-    return BML::ml('event.vgift.notfound')
+    return LJ::Lang::ml('event.vgift.notfound')
         unless $self->vgift && $self->vgift->name;
     my $yn  = $self->vgift->approved;
     my $ret = '<p>';
     $ret .=
-        BML::ml( "event.vgift.approved.msg.$yn", { vgift => $self->vgift->name_ehtml } ) . '</p>';
+        LJ::Lang::ml( "event.vgift.approved.msg.$yn", { vgift => $self->vgift->name_ehtml } )
+        . '</p>';
     if ( $self->vgift && $self->vgift->approved_why ) {
         my $reason = LJ::ehtml( $self->vgift->approved_why );
         my $mltext =
-            BML::ml( 'event.vgift.approved.reason', { admin => $self->fromu->ljuser_display } );
+            LJ::Lang::ml( 'event.vgift.approved.reason',
+            { admin => $self->fromu->ljuser_display } );
         $ret .= "<p>$mltext</p><p><q>$reason</q></p>\n";
     }
     $ret .= $self->as_html_actions;

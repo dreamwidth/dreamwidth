@@ -44,7 +44,7 @@ sub ml {
         my ($code) = @_;
 
         # Keep the native request-local context authoritative.  Preserve the
-        # old uselang override, but otherwise honor a BML/custom getter context.
+        # uselang override, but otherwise honor an already-set custom getter context.
         my $r       = DW::Request->get;
         my $uselang = $r->get_args->{uselang} || '';
         if ( $uselang eq 'debug' || LJ::Lang::get_lang($uselang) ) {

@@ -416,7 +416,7 @@ sub _rename {
         $self,
         {
             action       => 'account_renamed',
-            ip           => eval { BML::get_remote_ip() } || "[unknown]",
+            ip           => LJ::get_remote_ip() || "[unknown]",
             old_username => $fromusername,
         }
     )->fire;

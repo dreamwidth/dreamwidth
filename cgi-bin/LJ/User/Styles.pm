@@ -37,11 +37,7 @@ sub display_journal_deleted {
     $r->status(404);
 
     my $extra = {};
-    if ( $opts{bml} ) {
-        $extra->{scope}      = 'bml';
-        $extra->{scope_data} = $opts{bml};
-    }
-    elsif ( $opts{journal_opts} ) {
+    if ( $opts{journal_opts} ) {
         $extra->{scope}      = 'journal';
         $extra->{scope_data} = $opts{journal_opts};
     }
@@ -665,8 +661,7 @@ sub make_journal {
         DW::SiteScheme->set_for_request('lynx')
             if $stylearg eq 'light';
 
-        # Render a system-owned S2 style that renders
-        # this content, then passes it to get treated as BML
+        # Render this content through the system-owned "siteviews" S2 style.
         $stylesys = 2;
         $styleid  = "siteviews";
     }

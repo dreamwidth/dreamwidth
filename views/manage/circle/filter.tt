@@ -9,7 +9,7 @@
         <li><a href="[% remote.journal_base %]/read/[% g.name | url %]">[% g.name | html %]</a></li>
     [% END %]
     </ul>
-    <p>[% dw.ml('.editgroups2', { 'link' => "<a href='editfilters'>" _ dw.ml('/manage/circle/editfilters.bml.title2') _ "</a>" }) %]</p>
+    <p>[% dw.ml('.editgroups2', { 'link' => "<a href='editfilters'>" _ dw.ml('/manage/circle/editfilters.tt.title2') _ "</a>" }) %]</p>
 [% ELSE %]
     <h2>[% dw.ml('.error.nogroups.header2') %]</h2>
     <p>[% dw.ml('.error.nogroups3', { 'aopts' => "href='${site.root}/manage/subscriptions/filters'" }) %]</p>

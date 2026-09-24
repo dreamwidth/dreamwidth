@@ -115,7 +115,8 @@ sub template_string {
     $opts->{sections}->{errors} = $opts->{errors};
 
     # Keep the request note and native language context in lockstep while a
-    # template is active.  A BML page can render a TT fragment before resuming.
+    # template is active. A template can nest another template_string call
+    # (e.g. dw.scoped_include) before resuming, so save/restore around it.
     my $oldscope           = $r->note('ml_scope');
     my $language_context   = LJ::Lang::request_context();
     my $old_language_scope = $language_context ? $language_context->{scope} : undef;
@@ -237,11 +238,9 @@ sub render_template {
 =head2 C<< $class->render_template_misc( $filename, $opts, $extra ) >>
 
 Render a template inside the sitescheme or alone.
-This can also be safely called ( with some work on the other side )
-from a BML context and still spit the content where required.
-( Note, the "alone" bit will be ignored from BML contexts )
 
-Can safely directly return this from either trans/Controller, internal journal page generation or (most) BML contexts.
+Can safely directly return this from either trans/Controller or internal
+journal page generation.
 
 $extra can contain:
 
@@ -249,21 +248,13 @@ $extra can contain:
 
 =item B< no_sitescheme > == render alone
 
-=over
-
-This will be ignored for 'bml' scopes.
-
-=back
-
 =item B< title / windowtitle / head / bodyopts / ... > == text to get thrown in the section if inside sitescheme
 
-=item B< scope > = Scope, accepts nothing, 'bml', or 'journal'
+=item B< scope > = Scope, accepts nothing or 'journal'
 
 =item B< scope_data > = Depends on B< scope >
 
 =over
-
-=item B< bml > Hashref of scalar-refs of where to throw the sections
 
 =item B< journal > $opts hashref passed into LJ::make_journal and beyond.
 
@@ -273,28 +264,14 @@ This will be ignored for 'bml' scopes.
 
 =cut
 
-# FIXME(dre): Remove this method when BML is completely dead
-#   and refactor the journal scope bits up into render_template or render_string.
 sub render_template_misc {
     my ( $class, $filename, $opts, $extra ) = @_;
 
     $extra ||= {};
     my $out = $class->template_string( $filename, $opts, $extra );
 
-    my $scope = $extra->{scope} // '';
-
-    if ( $scope eq 'bml' ) {
-        my $r   = DW::Request->get;
-        my $bml = $extra->{scope_data};
-
-        for my $item (qw(title windowtitle head bodyopts)) {
-            ${ $bml->{$item} } = $extra->{$item} || "";
-        }
-        return $out;
-    }
-
     my $rv = $class->render_string( $out, $extra );
-    if ( $scope eq 'journal' ) {
+    if ( ( $extra->{scope} // '' ) eq 'journal' ) {
         $extra->{scope_data}->{handler_return} = $rv;
         return;
     }

@@ -259,16 +259,6 @@ sub relative_langdat_file_of_lang_itcode {
     my $is_local = $lang eq $root_lang_local && $lang ne $root_lang;
 
     # is this a filename-based itcode?
-    if ( $itcode =~ m!^(/.+\.bml)! ) {
-        my $file = $1;
-
-        # given the filename of this itcode and the current
-        # source, what langdat file should we use?
-        my $langdat_file = "htdocs$file\.text";
-        $langdat_file .= $is_local ? ".local" : "";
-        return $langdat_file;
-    }
-
     if ( $itcode =~ m!^(/.+\.tt)! ) {
         my $file = $1;
 
@@ -277,20 +267,20 @@ sub relative_langdat_file_of_lang_itcode {
         return $langdat_file;
     }
 
-    # not a bml file, goes into base .dat file
+    # not a file-scoped itcode, goes into the base .dat file
     return $base_file;
 }
 
 sub itcode_for_langdat_file {
     my ( $langdat_file, $itcode ) = @_;
 
-    # non-bml itcode, return full itcode path
-    unless ( $langdat_file =~ m!^.+\.(?:bml|tt)\.text(?:\.local)?$! ) {
+    # not a file-scoped langdat file, return the full itcode path
+    unless ( $langdat_file =~ m!^.+\.tt\.text(?:\.local)?$! ) {
         return $itcode;
     }
 
-    # bml itcode, strip filename and return
-    if ( $itcode =~ m!^/.+\.(?:bml|tt)(\..+)! ) {
+    # file-scoped itcode, strip the filename and return
+    if ( $itcode =~ m!^/.+\.tt(\..+)! ) {
         return $1;
     }
 
@@ -616,12 +606,7 @@ sub get_text {
 
     my $from_files = sub {
         my ( $localcode, @files );
-        if ( $code =~ m!^(/.+\.bml)(\..+)! ) {
-            my $file;
-            ( $file, $localcode ) = ( "htdocs$1", $2 );
-            @files = ( "$file.text.local", "$file.text" );
-        }
-        elsif ( $code =~ m!^(/.+\.tt)(\..+)! ) {
+        if ( $code =~ m!^(/.+\.tt)(\..+)! ) {
             my $file;
             ( $file, $localcode ) = ( "views$1", $2 );
             @files = ( "$file.text.local", "$file.text" );
@@ -730,7 +715,7 @@ sub get_text_multi {
     ## Caller will get %strings with keys in original case.
     ##
     ## Final note about case:
-    ##  Codes in disk .text files, mysql and bml files may be mixed-cased
+    ##  Codes in disk .text files and mysql may be mixed-cased
     ##  Codes in memcache and %TXT_CACHE are lower-case
     ##  Codes are not case-sensitive
 
@@ -837,7 +822,7 @@ sub get_lang_names {
 
 # The translation system now supports the ability to add multiple plural forms of the word
 # given different rules in a languge.  This functionality is much like the plural support
-# in the S2 styles code.  To use this code you must use the BML::ml function and pass
+# in the S2 styles code.  To use this code you must use the LJ::Lang::ml function and pass
 # the number of items as one of the variables.  To make sure that you are allowing the
 # utmost compatibility for each language you should not hardcode the placement of the
 # number of items in relation to the noun.  Let the translation string do this for you.

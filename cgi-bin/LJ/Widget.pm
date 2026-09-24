@@ -130,8 +130,8 @@ sub render {
 
         # Widget JS predates resource groups, so it normally lands in the
         # legacy/default group. A Foundation page does not include that group.
-        # Put only widget JS in Foundation without changing BML and other
-        # legacy callers, or removing widget CSS from the all group.
+        # Put only widget JS in Foundation without changing other legacy
+        # callers, or removing widget CSS from the all group.
         my $is_foundation = ( $LJ::ACTIVE_RES_GROUP || '' ) eq 'foundation';
 
         # include any resources that this widget declares
@@ -311,8 +311,8 @@ sub handle_post {
         }
             or "LJ::Widget::$widget"->handle_error( $@ => $errorsref );
 
-        # A redirect result is a URL, not a response. The page/controller that
-        # called dispatch must return its own BML or DW::Request redirect.
+        # A redirect result is a URL, not a response. The controller that
+        # called dispatch must return its own DW::Request redirect.
         last if $res{redirect};
     }
 
@@ -718,7 +718,7 @@ __END__
 =head1 NAME
 
 LJ::Widget - parent class for areas of contained information and code (widgets)
-to be used on one or more BML pages
+to be used on one or more pages
 
 =head1 SYNOPSIS
 
@@ -733,12 +733,12 @@ to be used on one or more BML pages
 
 =head1 DESCRIPTION
 
-This is the parent class for widgets.  A widget is a part of a BML page that can
+This is the parent class for widgets.  A widget is a part of a page that can
 be relatively self-contained and is sometimes used on multiple pages.  Using a
-widget instead of putting the code directly in a BML page allows more
-flexibility in terms of re-using code and readability.  It is much easier to
-read and understand a BML page with calls to a couple of widgets than a BML page
-with large blocks of unrelated code.
+widget instead of putting the code directly in a page's controller/template
+allows more flexibility in terms of re-using code and readability.  It is much
+easier to read and understand a page with calls to a couple of widgets than a
+page with large blocks of unrelated code.
 
 Widgets can do POST actions to themselves or to other widgets, but the goal is
 to keep the function of each widget relatively simple.
@@ -747,13 +747,14 @@ POST form elements in a widget are given widget-specific prefixes in their
 names.  These are then removed when the different POST values are being checked
 in C<handle_post>.
 
-AJAX POSTs go to the endpoint "widget.bml", and they perform form auths
+AJAX POSTs go to the "/__rpc_widget" endpoint, and they perform form auths
 differently than non-AJAX POSTs do.
 
 Strings within widgets can and should be English-stripped.  Usually, these
 strings are defined within en.dat or en_LJ.dat with the string name of
-"widget.$widgetname.$stringname".  However, these strings can also be defined in
-BML pages, which will override what's defined in en(_LJ).dat.
+"widget.$widgetname.$stringname".  However, these strings can also be defined
+in a page's own translation scope, which will override what's defined in
+en(_LJ).dat.
 
 Strings in the "widget" ML domain get there when a user inputs text that should
 be translatable in a widget web form on the site.  
@@ -792,7 +793,7 @@ C<render_body>.
 
 =item C<render_body>
 
-This is called when C<render> is called.  It returns the HTML/BML that should be
+This is called when C<render> is called.  It returns the HTML that should be
 printed when a widget is rendered.  Can be subclassed.
 
 =item C<should_render>
@@ -809,7 +810,7 @@ on the parent class instead of on the specific widget, and the widget(s) you
 want to be handled should be passed as parameters.  The parent class method
 calls the subclass methods appropriately.  Returns the hash returned from the
 last processed widget. A C<redirect> result contains a URL; dispatch stops and
-the calling BML page or controller must turn it into its own redirect response.
+the calling controller must turn it into its own redirect response.
 Can be subclassed.
 
 =item C<handle_post_and_render>
