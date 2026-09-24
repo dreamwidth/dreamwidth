@@ -1,8 +1,20 @@
 #!/usr/bin/perl
+#
+# t/plack-inbox-actions.t
+#
 # Security and CSRF regressions for the native inbox action RPCs:
 # /__rpc_inbox_actions (DW::Controller::Inbox::action_handler) and
 # /__rpc_esn_inbox (DW::Controller::RPC::MiscLegacy::esn_inbox_handler).
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
 use warnings;
 

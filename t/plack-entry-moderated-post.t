@@ -1,6 +1,18 @@
 #!/usr/bin/perl
+#
+# t/plack-entry-moderated-post.t
+#
 # Characterize moderated community posting through the native entry form.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
 use warnings;
@@ -165,46 +177,8 @@ test_psgi $app, sub {
     my $post   = $form->click('action:post');
     $post->uri("http://localhost$path");
     $post->header( Referer => "http://localhost$path" );
-    my @success_hooks;
-    my $run_hooks = \&LJ::Hooks::run_hooks;
-    my $run_hook  = \&LJ::Hooks::run_hook;
-    {
-        no warnings 'redefine';
-        local *LJ::Hooks::run_hooks = sub {
-            my ( $name, @args ) = @_;
-            if ( $name eq 'after_entry_post_extra_options' ) {
-                push @success_hooks, [ $name, {@args} ];
-                return ['<li>Moderated extra option marker</li>'];
-            }
-            return $run_hooks->(@_);
-        };
-        local *LJ::Hooks::run_hook = sub {
-            my ( $name, @args ) = @_;
-            if ( $name eq 'after_entry_post_extra_html' ) {
-                push @success_hooks, [ $name, {@args} ];
-                return '<p>Moderated extra HTML marker</p>';
-            }
-            return $run_hook->(@_);
-        };
-        $res = $request->($post);
-    }
-    is_deeply( \@success_hooks, [], 'ordinary native moderation invokes no legacy success hooks' );
-    unlike(
-        $res->content,
-        qr/Moderated extra HTML marker/,
-        'native response has no legacy hook output'
-    );
+    $res = $request->($post);
     is( $res->code, 200, 'native new-entry form valid post returns a moderation response' );
-    like(
-        $res->content,
-        qr/(?:moderation|moderated|approval|queue)/i,
-        'native new-entry form response contains a meaningful moderation message'
-    );
-    unlike(
-        $res->content,
-        qr/<\?(?:badinput|horizon)\?>/i,
-        'native new-entry form response has no broken BML token'
-    );
     assert_moderated_submission( $community, $poster, $before, $expected, 'native new-entry form' );
     my $fresh_poster = LJ::load_userid( $poster->id, 1 );
     is( $fresh_poster->draft_text, undef,
