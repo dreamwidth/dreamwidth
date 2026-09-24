@@ -15,7 +15,6 @@
 
 use strict;
 
-use DW::BML::RequestAdapter;
 use DW::Request;
 no warnings 'uninitialized';
 
@@ -2341,20 +2340,6 @@ sub getevents {
 
     # can't pull events from deleted/suspended journal
     return fail( $err, 307 ) unless $uowner->is_visible || $uowner->is_readonly;
-
-    my $reject_code = $LJ::DISABLE_PROTOCOL{getevents};
-    if ( ref $reject_code eq "CODE" ) {
-
-        # Held external callback ABI (doc/BML-PROTOCOL-PAGESTATS.md): the
-        # callback's third argument is a DW::BML::RequestAdapter over the
-        # current DW::Request, or undef outside a request.
-        my $apache_r = do {
-            my $r = eval { DW::Request->get };
-            $r ? DW::BML::RequestAdapter->new($r) : undef;
-        };
-        my $errmsg = $reject_code->( $req, $flags, $apache_r );
-        if ($errmsg) { return fail( $err, "311", $errmsg ); }
-    }
 
     # if this is on, we sort things different (logtime vs. posttime)
     # to avoid timezone issues

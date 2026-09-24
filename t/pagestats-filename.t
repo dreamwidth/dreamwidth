@@ -1,8 +1,5 @@
 #!/usr/bin/perl
-# Regression coverage for LJ::PageStats::filename(): DW::BML::RequestAdapter
-# never populates _filename, so this already returns undef inside every
-# reachable request under Plack, and used to die outside one. See
-# doc/BML-PROTOCOL-PAGESTATS.md for the characterization this fixes.
+# PageStats has no filesystem filename in native requests or outside a request.
 # Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 use strict;
 use warnings;
@@ -35,8 +32,7 @@ subtest 'filename() is undef inside a real request' => sub {
         client => sub {
             my $cb  = shift;
             my $res = $cb->( GET '/' );
-            is( $res->content, 'UNDEF',
-                'filename() is undef for a real DW::BML::RequestAdapter-backed request' );
+            is( $res->content, 'UNDEF', 'filename() is undef for a native request' );
         },
     );
     DW::Request->reset;
