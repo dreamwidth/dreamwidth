@@ -228,7 +228,7 @@ sub new_handler {
     );
 
     # now look for errors that we still want to recover from
-    $errors->add( undef, ".error.invalidusejournal" )
+    $errors->add( undef, "/entry/form.tt.error.invalidusejournal" )
         if defined $usejournal && !$vars->{usejournal};
 
     my $spellcheck_requested;
@@ -1012,7 +1012,7 @@ sub _render_edit_form {
 
     # now look for errors that we still want to recover from
     my $get = $r->get_args;
-    $errors->add( undef, ".error.invalidusejournal" )
+    $errors->add( undef, "/entry/form.tt.error.invalidusejournal" )
         if defined $get->{usejournal} && !$vars->{usejournal};
 
 # this is an error in the user-submitted data, so regenerate the form with the error message and previous values

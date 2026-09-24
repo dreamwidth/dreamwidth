@@ -216,4 +216,29 @@ test_psgi $app, sub {
     );
 };
 
+test_psgi $app, sub {
+    my $send    = shift;
+    my $request = sub {
+        my ($req) = @_;
+        $req->header( Cookie => $cookie );
+        return $send->($req);
+    };
+
+    # An unresolvable usejournal must render translated error text, not a
+    # missing-string placeholder.
+    my $res = $request->( GET '/entry/new?usejournal=entry-new-parity-nonexistent-user' );
+    is( $res->code, 200, 'GET with an unresolvable usejournal still renders the new-entry form' );
+    ( my $text = $res->content ) =~ s/<[^>]+>//g;
+    like(
+        $text,
+        qr/Invalid usejournal argument/,
+        'invalid usejournal error renders its real translated text'
+    );
+    unlike(
+        $res->content,
+        qr/\[missing string/,
+        'invalid usejournal error is not an unresolved missing-string placeholder'
+    );
+};
+
 done_testing;

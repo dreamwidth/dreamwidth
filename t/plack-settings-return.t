@@ -5,7 +5,6 @@ use warnings;
 use Test::More;
 use HTTP::Request::Common;
 use HTML::Form;
-use HTML::TreeBuilder;
 use URI;
 use Plack::Test;
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -138,13 +137,12 @@ test_psgi $app, sub {
     );
     unlike( $res->content, qr/<[?]errorbar/,
         'quota response contains no legacy BML errorbar token' );
-    my $quota_tree = HTML::TreeBuilder->new_from_content( $res->content );
+    ( my $quota_text = $res->content ) =~ s/<[^>]+>//g;
     like(
-        $quota_tree->as_text,
+        $quota_text,
         qr/reached your limit of .* active notifications/s,
         'quota error is visible rendered text, not inert legacy BML markup'
     );
-    $quota_tree->delete;
     is( scalar @{ persisted() }, 0, 'failed notification save leaves subscription absent' );
     $res = $cb->( $form->click );
     is( $res->code, 302, 'successful tracking save retains legacy redirect status' );
