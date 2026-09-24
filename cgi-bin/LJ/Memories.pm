@@ -396,8 +396,8 @@ sub get_keywordids {
 # }
 
 # this messy function gets memories based on an options hashref.  this is an
-# API API and isn't recommended for use by BML etc... add to the API and have
-# API functions call this if needed.
+# internal API and isn't recommended for direct use elsewhere... add to the
+# API and have API functions call this if needed.
 #
 # options in $opts hashref:
 #   security => [ 'public', 'private', ... ], or some subset thereof

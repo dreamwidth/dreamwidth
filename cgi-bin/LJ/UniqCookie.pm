@@ -18,6 +18,7 @@ use strict;
 use Carp qw(croak);
 use LJ::Utils;
 use DW::Cache;
+use DW::Request;
 
 my %req_cache_uid2uniqs = ();    # uid  => [ uniq1, uniq2, ... ]
 my %req_cache_uniq2uids = ();    # uniq => [  uid1,  uid2, ... ]
@@ -389,7 +390,7 @@ sub generate_uniq_ident {
 }
 
 ###############################################################################
-# These methods require web context, they deal with BML::get_request() and cookies
+# These methods require web context, they deal with the active request and cookies
 #
 
 sub ensure_cookie_value {
@@ -466,8 +467,9 @@ sub sysban_should_block {
     my $class = shift;
     return 0 unless LJ::is_web_context();
 
-    my $apache_r = BML::get_request();
-    my $uri      = $apache_r->uri;
+    my $r = DW::Request->get;
+    return 0 unless $r;
+    my $uri = $r->uri;
     return 0 if $LJ::BLOCKED_BOT_URI && index( $uri, $LJ::BLOCKED_BOT_URI ) == 0;
 
     # if cookie exists, check for sysban
@@ -527,13 +529,11 @@ sub current_uniq {
     # otherwise, legacy place is in $r->notes
     return unless LJ::is_web_context();
 
-    my $apache_r = BML::get_request();
+    my $r = DW::Request->get;
+    return unless $r;
 
-    # see if a uniq is set for this request
-    # -- this accounts for cases when the cookie was initially
-    #    set in this request, so it wasn't received in an
-    #    incoming headerno cookie was sent in
-    return $apache_r->notes->{uniq};
+    # See if a uniq was set in this request before any cookie could arrive.
+    return $r->note('uniq');
 }
 
 1;

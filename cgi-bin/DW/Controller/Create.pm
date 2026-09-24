@@ -252,7 +252,7 @@ sub create_handler {
                     searchinterestsurl => "$LJ::SITEROOT/interests",
                     editiconsurl       => "$LJ::SITEROOT/manage/icons",
                     customizeurl       => "$LJ::SITEROOT/customize/",
-                    postentryurl       => "$LJ::SITEROOT/update",
+                    postentryurl       => "$LJ::SITEROOT/entry/new",
                     setsecreturl       => "$LJ::SITEROOT/set_secret",
                     supporturl         => "$LJ::SITEROOT/support/submit",
                 }

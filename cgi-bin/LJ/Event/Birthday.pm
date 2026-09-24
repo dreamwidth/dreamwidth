@@ -144,7 +144,7 @@ sub _as_email {
         . $self->format_options(
         $is_html, undef, undef,
         {
-            'esn.post_happy_bday'       => [ 1, "$LJ::SITEROOT/update" ],
+            'esn.post_happy_bday'       => [ 1, "$LJ::SITEROOT/entry/new" ],
             'esn.go_journal_happy_bday' => [ 2, $self->bdayuser->journal_base ],
             'esn.pm_happy_bday'         => [ 3, $self->bdayuser->message_url ],
             'esn.shop_for_paid_time' =>

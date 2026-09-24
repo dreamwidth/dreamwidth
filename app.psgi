@@ -23,7 +23,6 @@ BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use Plack::Builder;
 
-use DW::BML;
 use DW::Controller::Journal;
 use DW::Request::Plack;
 use DW::Routing;
@@ -107,15 +106,6 @@ sub _handle_request {
         ? '/journal/embedcontent'
         : $r->path;
 
-    # Handle legacy RPC URIs (/__rpc_delcomment, /__rpc_talkscreen) that
-    # Apache routes via LJ::URI->handle() to BML files
-    if ( my ($rpc) = $uri =~ m!^.*/__rpc_(\w+)$! ) {
-        if ( my $bml_file = $LJ::AJAX_URI_MAP{$rpc} ) {
-            DW::BML->render( "$LJ::HTDOCS/$bml_file", $uri );
-            return;
-        }
-    }
-
     my $ret = DW::Routing->call(
         uri      => $uri,
         username => $env->{'dw.journal_user'},
@@ -125,7 +115,7 @@ sub _handle_request {
     # a controller redirect, return it directly — it already has cookies/headers set.
     return $ret if ref $ret;
 
-    # If routing returned OK (0), default status to 200; otherwise try journals, then BML
+    # If routing returned OK (0), default status to 200; otherwise try journal routing
     if ( defined $ret && $ret == 0 ) {
         $r->status(200) unless $r->status;
     }
@@ -163,17 +153,8 @@ sub _handle_request {
             $r->status($ret);
         }
         else {
-            # Routing didn't handle it — try BML file resolution as fallback
-            my ( $redirect_url, $bml_uri, $bml_file ) = DW::BML->resolve_path($uri);
-            if ($redirect_url) {
-                return $r->redirect($redirect_url);
-            }
-            elsif ($bml_file) {
-                DW::BML->render( $bml_file, $bml_uri );
-            }
-            else {
-                $r->status(404) unless $r->status;
-            }
+            # Routing didn't handle it, and no journal user is in scope.
+            $r->status(404) unless $r->status;
         }
     }
 
@@ -295,6 +276,31 @@ builder {
     for my $dir ( LJ::get_all_directories('htdocs') ) {
         enable 'Static',
             path         => qr{^/(img|stc|js)/},
+            root         => $dir,
+            pass_through => 1;
+    }
+
+    # A fixed set of individual root-level files (plus the FCK rich-text-editor
+    # assets under rte/) that the deleted BML engine fallback used to serve from
+    # any htdocs overlay, as a side effect of serving every plain file under
+    # htdocs. Listed explicitly, not restored as a blanket rule: the old
+    # fallback also exposed htdocs/inc/account-codes, htdocs/doc/.placeholder,
+    # htdocs/preview/index.html, and raw .scss sources, none of which should be
+    # reachable. Path-only matching (not Host-based), so this also covers
+    # /favicon.ico on journal subdomains, which relied on the same fallback.
+    #
+    # /robots.txt is the one exception: on a journal host (dw.journal_user set
+    # by SubdomainFunction, which runs before this) it must fall through to
+    # DW::Controller::Journal's own per-journal robots_txt mode (opt_blockrobots,
+    # the robots_txt_extra hook) instead of the site's static file.
+    for my $dir ( LJ::get_all_directories('htdocs') ) {
+        enable 'Static',
+            path => sub {
+                my ( $path, $env ) = @_;
+                return 0 if $path eq '/robots.txt' && $env->{'dw.journal_user'};
+                return $path =~
+                    m{^/(?:500-error\.html|apple-touch-icon\.png|favicon\.ico|protocol\.dat|robots\.txt|rte/.+)$};
+            },
             root         => $dir,
             pass_through => 1;
     }

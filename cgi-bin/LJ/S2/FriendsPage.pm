@@ -14,6 +14,8 @@
 # part of this distribution.
 
 use strict;
+use DW::Request;
+use LJ::Lang;
 
 package LJ::S2;
 use DW::Logic::AdultContent;
@@ -39,10 +41,10 @@ sub FriendsPage {
         lastn       => 1
     );
 
-    my $collapsed   = BML::ml('widget.cuttag.collapsed');
-    my $expanded    = BML::ml('widget.cuttag.expanded');
-    my $collapseAll = BML::ml('widget.cuttag.collapseAll');
-    my $expandAll   = BML::ml('widget.cuttag.expandAll');
+    my $collapsed   = LJ::Lang::ml('widget.cuttag.collapsed');
+    my $expanded    = LJ::Lang::ml('widget.cuttag.expanded');
+    my $collapseAll = LJ::Lang::ml('widget.cuttag.collapseAll');
+    my $expandAll   = LJ::Lang::ml('widget.cuttag.expandAll');
     $p->{'head_content'} .= qq[
   <script type='text/javascript'>
   expanded = '$expanded';
@@ -78,7 +80,8 @@ sub FriendsPage {
 
         # send back a 304 Not Modified if they say they've reloaded this
         # document in the last $newinterval seconds:
-        my $uniq = BML::get_request()->notes->{uniq};
+        my $r    = DW::Request->get;
+        my $uniq = $r && $r->can('note') ? $r->note('uniq') : undef;
         if ( $theirtime > $lastmod && !( $uniq && LJ::MemCache::get("loginout:$uniq") ) ) {
             $opts->{'handler_return'} = 304;
             return 1;
