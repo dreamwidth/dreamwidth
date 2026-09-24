@@ -1,6 +1,18 @@
 #!/usr/bin/perl
-# Characterize ordinary owned-entry edit form persistence before editor rendering migration.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# t/plack-entry-edit-parity.t
+#
+# Characterize ordinary owned-entry edit form persistence.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
 use warnings;
@@ -174,6 +186,18 @@ test_psgi $app, sub {
     is( $form->value('current_location'),     '', 'fresh form renders cleared location' );
     is( $form->value('current_music'),        '', 'fresh form renders cleared music' );
     is( $form->value('prop_picture_keyword'), '', 'fresh form renders cleared userpic selection' );
+
+    my $timestamp_before = $fresh->eventtime_mysql;
+    $form->action( 'http://localhost' . $path );
+    $form->value( 'entrytime_date', 'not-a-date' );
+    $form->value( 'entrytime_time', 'not-a-time' );
+    $res = $request->( $form->click('action:post') );
+    is( $res->code, 200, 'invalid timestamp re-renders the form' );
+    like( $res->content, qr/not-a-date/, 'invalid date is retained' );
+    like( $res->content, qr/not-a-time/, 'invalid time is retained' );
+    $fresh = fresh_entry( $owner, $ditemid );
+    is( $fresh->eventtime_mysql, $timestamp_before,
+        'invalid timestamp leaves the entry unchanged' );
 };
 
 done_testing;
