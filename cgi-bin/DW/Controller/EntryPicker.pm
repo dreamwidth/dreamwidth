@@ -18,7 +18,6 @@ use strict;
 use warnings;
 
 use DW::Controller;
-use DW::FormErrors;
 use DW::Request;
 use DW::Routing;
 use DW::Template;
@@ -53,51 +52,17 @@ sub entry_picker_handler {
         }
 
         # A POST here is old-schema content from a stale tab: it must never
-        # be saved and never be silently discarded. Decode once and hand the
-        # submitted content to the native form for review.
+        # be saved and never be silently discarded. Show the submitted
+        # subject/body back for manual copying, linking to the native edit
+        # form named by the same validated itemid/username the GET redirect
+        # above uses -- no entry lookup, no authorization check, no
+        # decoding: the native edit route enforces auth itself when clicked.
         require DW::Controller::Entry;
-        require DW::Entry::Legacy;
-        my $prepared = DW::Entry::Legacy::prepare_entry_form($post);
-
-        unless ( LJ::isu($remote) ) {
-
-            # A logged-out stale tab (session expired) has no editable entry
-            # to attach to yet: carry the content into the native posting
-            # form with the login modal, exactly like an anonymous /update
-            # POST does. Posting from here creates a new entry rather than
-            # updating the original, so this uses an edit-specific notice
-            # rather than /update's generic carry-over one.
-            my $warnings = DW::FormErrors->new;
-            $warnings->add( undef, '.notice.legacy_edit_carryover' );
-            return DW::Controller::Entry::legacy_new_rerender(
-                $prepared,
-                remote             => undef,
-                get                => $get,
-                warnings           => $warnings,
-                action_url         => '/entry/new',
-                anonymous_username => $post->{user} // '',
-            );
-        }
-
-        my $journal = length $username ? LJ::load_user($username) : undef;
-        my $entry = LJ::isu($journal) ? LJ::Entry->new( $journal, ditemid => $ditemid ) : undef;
-
-        if ( $entry && $entry->valid && $entry->editable_by($remote) ) {
-            my $warnings = DW::FormErrors->new;
-            $warnings->add( undef, '.notice.legacy_carryover' );
-            return DW::Controller::Entry::legacy_owned_edit_rerender(
-                entry    => $entry,
-                remote   => $remote,
-                journal  => $journal,
-                prepared => $prepared,
-                warnings => $warnings,
-            );
-        }
-
-        # Not an entry this actor can edit (deleted, moved, or never theirs):
-        # never discard what they typed even though there is no editable
-        # form to safely resubmit it through.
-        return DW::Controller::Entry::legacy_carryover_unrecoverable($prepared);
+        my $link_url =
+            length $username
+            ? LJ::create_url("/entry/$username/$ditemid/edit")
+            : LJ::create_url('/entry/new');
+        return DW::Controller::Entry::legacy_text_recovery( $post, link_url => $link_url );
     }
 
     my ( $ok, $rv ) = controller( authas => { type => 'P' } );
