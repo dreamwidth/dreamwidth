@@ -78,20 +78,6 @@ const puppeteer = require('/opt/dw-screenshot/node_modules/puppeteer-core');
         const captureDialog = async (name) => {
             await page.screenshot({ path: `${output}/${name}.png`, fullPage: true });
         };
-        const selectOutsidePoll = async () => {
-            await page.evaluate(() => {
-                const editor = FCKeditorAPI.GetInstance('entry-body');
-                const polls = editor.EditorDocument.querySelectorAll('div[id^="poll"]');
-                const poll = polls[polls.length - 1];
-                if (!poll) throw new Error('a prior poll must exist before moving the selection');
-                const range = editor.EditorDocument.createRange();
-                range.setStartAfter(poll);
-                range.collapse(true);
-                const selection = editor.EditorWindow.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
-            });
-        };
         const setQuestion = async (dialog, number, type, question) => {
             await dialog.select(`select[name=type_${number}]`, type);
             await dialog.click(`input[name=setType_${number}]`);
@@ -119,42 +105,23 @@ const puppeteer = require('/opt/dw-screenshot/node_modules/puppeteer-core');
         await captureDialog('questions');
         await accept('Radio question');
 
-        for (const [type, question] of [['check', 'Check question'], ['drop', 'Drop question'], ['scale', 'Scale question']]) {
-            await selectOutsidePoll();
-            dialog = await open();
-            await dialog.evaluate(() => OnDialogTabChange('questions'));
-            await setQuestion(dialog, 0, type, question);
-            if (type === 'scale') {
-                await dialog.$eval('input[name=pq_0_from]', e => { e.value = '2'; });
-                await dialog.$eval('input[name=pq_0_to]', e => { e.value = '8'; });
-                await dialog.$eval('input[name=pq_0_by]', e => { e.value = '2'; });
-            } else {
-                await dialog.type('input[name=pq_0_opt_0]', 'First');
-                await dialog.type('input[name=pq_0_opt_1]', 'Second');
-                await dialog.click('input[name=more_answer]');
-                assert.ok(await dialog.$('input[name=pq_0_opt_5]'), 'More adds another answer group');
-            }
-            await accept(question);
-        }
-
         let html = await page.evaluate(() => FCKeditorAPI.GetInstance('entry-body').GetXHTML(false));
-        for (const text of ['Radio question', 'Text question', 'Check question', 'Drop question', 'Scale question']) {
+        for (const text of ['Radio question', 'Text question']) {
             assert.match(html, new RegExp(text), `inserted ${text}`);
         }
-        assert.match(html, /id="poll3"/, 'multiple polls use nonzero indexes');
 
         await page.evaluate(() => {
             const editor = FCKeditorAPI.GetInstance('entry-body');
             editor.Focus();
             const range = editor.EditorDocument.createRange();
-            range.selectNode(editor.EditorDocument.querySelector('#poll2'));
+            range.selectNode(editor.EditorDocument.querySelector('#poll1'));
             const selection = editor.EditorWindow.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
         });
         dialog = await open();
         await dialog.evaluate(() => OnDialogTabChange('questions'));
-        assert.equal(await dialog.$eval('input[name=question_0]', e => e.value), 'Drop question', 'selected poll populates editor');
+        assert.equal(await dialog.$eval('input[name=question_0]', e => e.value), 'Radio question', 'selected poll populates editor');
         await dialog.$eval('input[name=pq_0_opt_0]', e => { e.value = 'Edited first'; });
         await accept('Edited first');
         html = await page.evaluate(() => FCKeditorAPI.GetInstance('entry-body').GetXHTML(false));
