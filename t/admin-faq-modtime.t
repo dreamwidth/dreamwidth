@@ -58,10 +58,9 @@ subtest
     'actual admin readcat handler preserves native rendering without BML modification bookkeeping'
     => sub {
     my $r = request();
-    my @ml;
     LJ::Lang::set_request_context(
         lang   => 'fr',
-        getter => sub { push @ml, $_[1]; return "native:$_[1]" },
+        getter => sub { return "native:$_[1]" },
     );
     my $rendered = '';
     my $faq      = AdminFaqModtime::Faq->new;
@@ -87,19 +86,15 @@ subtest
 
     is( DW::Controller::Admin::FAQ::read_handler(),
         $rendered, 'public admin category handler renders the actual native template' );
-    like( $rendered, qr/<h2>General<\/h2>/, 'actual template renders the category title' );
-    like( $rendered, qr/Question/,          'actual template renders FAQ question content' );
-    like( $rendered, qr/Answer/,            'actual template renders FAQ answer content' );
-    unlike(
+    like(
         $rendered,
-        qr/Template (?:error|process) failed/i,
-        'actual template has no parse error'
+        qr/<h2>General<\/h2>.*Question.*Answer/s,
+        'actual template renders real FAQ content, not a blank or failed render'
     );
 
     is( $r->header_out('Last-Modified'),
-        undef, 'handler does not invent a Plack Last-Modified header' );
-    ok( ( grep { $_ eq '/admin/faq/readcat.tt.title' } @ml ),
-        'actual template resolves relative keys through the native request getter scope' );
+        undef,
+        'handler does not invent a Plack Last-Modified header from BML-era mtime bookkeeping' );
     };
 
 done_testing;

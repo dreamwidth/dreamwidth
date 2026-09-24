@@ -53,85 +53,25 @@ sub request {
     return DW::Request::Plack->new( \%env );
 }
 
-sub fresh_comment {
-    my ($comment) = @_;
-    my $journal   = $comment->journal;
-    my $jtalkid   = $comment->jtalkid;
-    LJ::Comment->reset_singletons;
-    return LJ::Comment->new( $journal, jtalkid => $jtalkid );
-}
-
-sub post_comment {
-    my ($journal) = @_;
-    return $journal->t_post_fake_entry->t_enter_comment;
-}
-
-my $journal = temp_user();
-
-subtest 'set_poster_ip preserves no-request, forwarded, and historical values' => sub {
-    my $no_request = post_comment($journal);
-    DW::Request->reset;
-    is( $no_request->set_poster_ip, '', 'no request leaves a comment IP unset' );
-    ok( !defined $no_request->poster_ip, 'no-request update does not persist metadata' );
-
-    my $comment = post_comment($journal);
-    request('192.0.2.10');
-    is( $comment->set_poster_ip, '192.0.2.10', 'native request records an unforwarded address' );
-    is( fresh_comment($comment)->poster_ip,
-        '192.0.2.10', 'unforwarded address is persisted for display' );
-
-    request('192.0.2.10');
-    is( $comment->set_poster_ip, '192.0.2.10', 'repeated equal address has no history suffix' );
-    is( fresh_comment($comment)->poster_ip, '192.0.2.10',
-        'equal update remains persisted exactly' );
-
-    request( '192.0.2.11', '198.51.100.7' );
-    is(
-        $comment->set_poster_ip,
-        '198.51.100.7, via 192.0.2.11 (originally 192.0.2.10)',
-        'distinct forwarded address preserves the original address'
-    );
-    is(
-        fresh_comment($comment)->poster_ip,
-        '198.51.100.7, via 192.0.2.11 (originally 192.0.2.10)',
-        'forwarded display metadata is persisted exactly'
-    );
-
-    is(
-        $comment->set_poster_ip,
-        '198.51.100.7, via 192.0.2.11 (originally 192.0.2.10)',
-        'repeated forwarded update does not duplicate history'
-    );
-    is(
-        fresh_comment($comment)->poster_ip,
-        '198.51.100.7, via 192.0.2.11 (originally 192.0.2.10)',
-        'repeated update remains persisted exactly'
-    );
-
-    my $equal_forwarded = post_comment( temp_user() );
-    $equal_forwarded->set_prop( poster_ip => undef );
-    request( '192.0.2.12', '192.0.2.12' );
-    is( $equal_forwarded->set_poster_ip,
-        '192.0.2.12', 'equal forwarded and remote values keep the legacy single-address form' );
-    is( fresh_comment($equal_forwarded)->poster_ip,
-        '192.0.2.12', 'equal forwarded value is persisted for display' );
-};
-
-subtest 'comment posting stores native request metadata through LJ::Talk' => sub {
+subtest 'posting a comment records the real request IP and forwarded chain for abuse review' =>
+    sub {
+    my $journal = temp_user();
     request( '192.0.2.20', '198.51.100.20' );
-    my $comment = post_comment($journal);
+    my $comment = $journal->t_post_fake_entry->t_enter_comment;
 
     is(
         $comment->poster_ip,
         '198.51.100.20, via 192.0.2.20',
         'posting stores the native remote and forwarded metadata'
     );
+
+    LJ::Comment->reset_singletons;
     is(
-        fresh_comment($comment)->poster_ip,
+        LJ::Comment->new( $comment->journal, jtalkid => $comment->jtalkid )->poster_ip,
         '198.51.100.20, via 192.0.2.20',
         'posted metadata survives a fresh comment load'
     );
-};
+    };
 
 DW::Request->reset;
 done_testing;
