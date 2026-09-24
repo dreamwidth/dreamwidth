@@ -1,9 +1,19 @@
 #!/usr/bin/perl
+# t/plack-entry-recovery.t
+#
 # The subject/body recovery page shown for a stale old-editor POST to
 # /update or /editjournal?itemid: it must echo back only the exact
 # submitted subject and body, verbatim and HTML-safe, and never write
 # anything.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
 use strict;
 use warnings;
 use Test::More;
