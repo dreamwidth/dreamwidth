@@ -1,4 +1,0 @@
-[%- CALL dw.active_resource_group('foundation') -%]
-[%- sections.title = 'Widget Foundation fixture' -%]
-[%- sections.head = headextra -%]
-[% body %]
