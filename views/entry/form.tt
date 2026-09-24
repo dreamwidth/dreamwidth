@@ -62,7 +62,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 ) -%]
 
-[% sections.title = title_override ? title_override : ( action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) ) %]
+[% sections.title = action.edit ? dw.ml( '.title.edit' ) : dw.ml( '.title' ) %]
 [% sections.contentopts = '' %]
 
 [% sections.head = BLOCK %]
@@ -251,7 +251,7 @@ postFormInitData.strings = {
                 <li>
                 [%- form.submit(
                         value = dw.ml(action.edit ? '.button.edit.quick' : '.button.post.quick')
-                        name = submit_action_name || "action:post"
+                        name = "action:post"
                         )
                 %]</li>[%- FOREACH level = security;
                         level.label = dw.ml( level.label );
@@ -397,7 +397,7 @@ postFormInitData.strings = {
         <div class="columns">
             <div class="button-bar">
                 [%- form.submit( value = dw.ml(action.edit ? '.button.edit' : '.button.post')
-                                 name = submit_action_name || "action:post"
+                                 name = "action:post"
                                  class = "button left"
                                  )
                 -%]
