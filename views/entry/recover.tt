@@ -1,0 +1,37 @@
+[%# views/entry/recover.tt
+
+Shows the exact subject/body text from a stale old-editor POST for manual
+copying. Nothing else about the submission is decoded or restored.
+
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+<p>[% '.notice' | ml %]</p>
+
+<p><a href="[% link_url | html %]">[% '.link' | ml %]</a></p>
+
+<div class="row">
+<div class="columns">
+<label for="recover-subject">[% '.subject.label' | ml %]</label>
+<textarea id="recover-subject" readonly="readonly" rows="2">
+[% subject_text | html %]</textarea>
+</div>
+</div>
+
+<div class="row">
+<div class="columns">
+<label for="recover-body">[% '.body.label' | ml %]</label>
+[%- IF body_missing %]
+<p>[% '.body.missing' | ml %]</p>
+[%- END %]
+<textarea id="recover-body" readonly="readonly" rows="20">
+[% body_text | html %]</textarea>
+</div>
+</div>
